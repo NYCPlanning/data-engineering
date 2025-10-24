@@ -8,7 +8,7 @@ from dcpy.configuration import RECIPES_BUCKET, PUBLISHING_BUCKET
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import Source
 from dcpy.utils import s3
-from dcpy.lifecycle.ingest import configure
+from dcpy.lifecycle.ingest import plan
 
 from dcpy.test.conftest import mock_request_get
 from .shared import (
@@ -20,9 +20,9 @@ from .shared import (
 
 
 def test_jinja_vars():
-    no_vars = configure.get_jinja_vars("fake_yml: value")
+    no_vars = plan.get_jinja_vars("fake_yml: value")
     assert len(no_vars) == 0, "No variables should have been found"
-    vars = configure.get_jinja_vars(r"fake_yml: {{ version }}")
+    vars = plan.get_jinja_vars(r"fake_yml: {{ version }}")
     assert vars == {"version"}, "One var, 'version', should have been found"
 
 
@@ -33,14 +33,14 @@ class TestReadTemplate:
     """
 
     def test_simple(self):
-        template = configure.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
+        template = plan.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
         assert isinstance(
             template.ingestion.file_format,
             file.Json,
         )
 
     def test_jinja(self):
-        template = configure.read_template(
+        template = plan.read_template(
             "dcp_atomicpolygons", version="test", template_dir=TEMPLATE_DIR
         )
         assert isinstance(
@@ -53,7 +53,7 @@ class TestReadTemplate:
             Exception,
             match="'version' is only suppored jinja var. Vars in template: ",
         ):
-            configure.read_template(
+            plan.read_template(
                 "invalid_jinja", version="dummy", template_dir=RESOURCES
             )
 
@@ -66,12 +66,12 @@ class TestGetVersion:
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_socrata(self, get):
         ### based on mocked response in dcpy/test/conftest.py
-        assert configure.get_version(Sources.socrata, None) == "20240412"
+        assert plan.get_version(Sources.socrata, None) == "20240412"
 
     @mock.patch("requests.get", side_effect=mock_request_get)
     def test_esri(self, get):
         ### based on mocked response in dcpy/test/conftest.py
-        assert configure.get_version(Sources.esri, None) == "20240806"
+        assert plan.get_version(Sources.esri, None) == "20240806"
 
     def test_s3(self, create_buckets):
         timestamp = datetime.today()
@@ -80,7 +80,7 @@ class TestGetVersion:
             Bucket=RECIPES_BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{version}/{TEST_DATASET_NAME}.zip",
         )
-        assert configure.get_version(Sources.s3, timestamp) == version
+        assert plan.get_version(Sources.s3, timestamp) == version
 
     def test_gis_dataset(self, create_buckets):
         datestring = "20240412"
@@ -88,7 +88,7 @@ class TestGetVersion:
             Bucket=PUBLISHING_BUCKET,
             Key=f"datasets/{TEST_DATASET_NAME}/{datestring}/{TEST_DATASET_NAME}.zip",
         )
-        assert configure.get_version(Sources.gis, None) == datestring
+        assert plan.get_version(Sources.gis, None) == datestring
 
     @mock.patch("dcpy.connectors.edm.publishing.BuildMetadata", SparseBuildMetadata)
     def test_de_publishing(self, create_buckets):
@@ -98,26 +98,26 @@ class TestGetVersion:
             Key=f"{TEST_DATASET_NAME}/publish/{datestring}/build_metadata.json",
             Body=f"{{'version': '{datestring}'}}".encode(),
         )
-        assert configure.get_version(Sources.de_publish, None) == datestring
+        assert plan.get_version(Sources.de_publish, None) == datestring
 
     def test_rely_on_timestamp(self):
         timestamp = datetime.today()
         source = Source(type="local_file", key=".")
-        assert configure.get_version(source, timestamp) == timestamp.strftime("%Y%m%d")
+        assert plan.get_version(source, timestamp) == timestamp.strftime("%Y%m%d")
 
 
 class TestGetConfig:
     """Tests both get_config and determine_processing_steps"""
 
     def test_reproject(self):
-        config = configure.get_config(
+        config = plan.get_config(
             "dcp_addresspoints", version="24c", template_dir=TEMPLATE_DIR
         )
         assert len(config.ingestion.processing_steps) == 1
         assert config.ingestion.processing_steps[0].name == "reproject"
 
     def test_no_mode(self):
-        standard = configure.get_config(
+        standard = plan.get_config(
             "dcp_pop_acs2010_demographic", version="test", template_dir=TEMPLATE_DIR
         )
         assert standard.ingestion.processing_steps
@@ -126,7 +126,7 @@ class TestGetConfig:
         ]
 
     def test_mode(self):
-        append = configure.get_config(
+        append = plan.get_config(
             "dcp_pop_acs2010_demographic",
             version="test",
             mode="append",
@@ -136,7 +136,7 @@ class TestGetConfig:
 
     def test_invalid_mode(self):
         with pytest.raises(ValueError):
-            configure.get_config(
+            plan.get_config(
                 "dcp_pop_acs2010_demographic",
                 version="test",
                 mode="fake_mode",
@@ -145,7 +145,7 @@ class TestGetConfig:
 
     def test_file_path_override(self):
         file_path = Path("dir/fake_file_path")
-        config = configure.get_config(
+        config = plan.get_config(
             "dcp_addresspoints",
             version="24c",
             template_dir=TEMPLATE_DIR,

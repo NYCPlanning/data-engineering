@@ -11,7 +11,7 @@ from dcpy.lifecycle.ingest.connectors import (
     get_processed_datastore_connector,
 )
 
-from . import configure, extract, transform, validate
+from . import extract, plan, transform, validate
 
 LIFECYCLE_STAGE = "ingest"
 INGEST_DIR = config.local_data_path_for_stage(LIFECYCLE_STAGE)
@@ -37,7 +37,7 @@ def ingest(
 ) -> Config:
     if template_dir is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
-    config = configure.get_config(
+    config = plan.get_config(
         dataset_id,
         version=version,
         mode=mode,
