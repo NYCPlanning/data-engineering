@@ -7,7 +7,7 @@ from dcpy.lifecycle.ingest.connectors import get_source_connectors
 
 def download_file_from_source(source: Source, version: str, dir: Path) -> Path:
     """
-    From parsed config template and version, download raw data from source to provided path
+    From parsed config definition and version, download raw data from source to provided path
     """
     logger.info(f"Extracting {source} from source to staging folder")
 

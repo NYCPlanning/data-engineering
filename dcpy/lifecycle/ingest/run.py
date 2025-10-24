@@ -4,7 +4,7 @@ import shutil
 
 from dcpy.utils.logging import logger
 from dcpy.models.lifecycle.ingest import Config
-from dcpy.configuration import TEMPLATE_DIR
+from dcpy.configuration import INGEST_DEF_DIR
 from dcpy.lifecycle import config
 from dcpy.lifecycle.ingest.connectors import (
     get_raw_datastore_connector,
@@ -31,17 +31,17 @@ def ingest(
     latest: bool = False,
     push: bool = False,
     output_csv: bool = False,
-    template_dir: Path | None = TEMPLATE_DIR,
+    definition_dir: Path | None = INGEST_DEF_DIR,
     local_file_path: Path | None = None,
     overwrite_okay: bool = False,
 ) -> Config:
-    if template_dir is None:
-        raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
+    if definition_dir is None:
+        raise KeyError("Missing required env variable: 'INGEST_DEF_DIR'")
     config = plan.get_config(
         dataset_id,
         version=version,
         mode=mode,
-        template_dir=template_dir,
+        definition_dir=definition_dir,
         local_file_path=local_file_path,
     )
 

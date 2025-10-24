@@ -73,7 +73,7 @@ class Column(BaseColumn):
     data_type: COLUMN_TYPES  # override BaseColumn `data_type` to be required field
 
 
-class Template(BaseModel, extra="forbid"):
+class Definition(BaseModel, extra="forbid"):
     """Definition of a dataset for ingestion/processing/archiving in edm-recipes"""
 
     id: str

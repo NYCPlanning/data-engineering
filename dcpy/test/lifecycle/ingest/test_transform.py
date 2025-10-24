@@ -539,6 +539,6 @@ class TestValidateColumns:
     def test_validate_columns_fails(self):
         with pytest.raises(
             ValueError,
-            match="defined in template but not found in processed dataset",
+            match="defined in definition but not found in processed dataset",
         ):
             transform.validate_columns(self.df, [Column(id="c", data_type="integer")])

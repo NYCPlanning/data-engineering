@@ -15,7 +15,7 @@ from .shared import (
     RESOURCES,
     TEST_DATASET_NAME,
     Sources,
-    TEMPLATE_DIR,
+    INGEST_DEF_DIR,
 )
 
 
@@ -28,33 +28,35 @@ def test_jinja_vars():
 
 class TestReadTemplate:
     """
-    Tests configure.read_template
-    In addition to ensuring templates are parsed correctly, catches specific errors around jinja templating
+    Tests configure.read_definition
+    In addition to ensuring definitions are parsed correctly, catches specific errors around jinja templating
     """
 
     def test_simple(self):
-        template = plan.read_template("bpl_libraries", template_dir=TEMPLATE_DIR)
+        definition = plan.read_definition(
+            "bpl_libraries", definition_dir=INGEST_DEF_DIR
+        )
         assert isinstance(
-            template.ingestion.file_format,
+            definition.ingestion.file_format,
             file.Json,
         )
 
     def test_jinja(self):
-        template = plan.read_template(
-            "dcp_atomicpolygons", version="test", template_dir=TEMPLATE_DIR
+        definition = plan.read_definition(
+            "dcp_atomicpolygons", version="test", definition_dir=INGEST_DEF_DIR
         )
         assert isinstance(
-            template.ingestion.file_format,
+            definition.ingestion.file_format,
             file.Shapefile,
         )
 
     def test_invalid_jinja(self):
         with pytest.raises(
             Exception,
-            match="'version' is only suppored jinja var. Vars in template: ",
+            match="'version' is only suppored jinja var. Vars in definition: ",
         ):
-            plan.read_template(
-                "invalid_jinja", version="dummy", template_dir=RESOURCES
+            plan.read_definition(
+                "invalid_jinja", version="dummy", definition_dir=RESOURCES
             )
 
 
@@ -111,14 +113,14 @@ class TestGetConfig:
 
     def test_reproject(self):
         config = plan.get_config(
-            "dcp_addresspoints", version="24c", template_dir=TEMPLATE_DIR
+            "dcp_addresspoints", version="24c", definition_dir=INGEST_DEF_DIR
         )
         assert len(config.ingestion.processing_steps) == 1
         assert config.ingestion.processing_steps[0].name == "reproject"
 
     def test_no_mode(self):
         standard = plan.get_config(
-            "dcp_pop_acs2010_demographic", version="test", template_dir=TEMPLATE_DIR
+            "dcp_pop_acs2010_demographic", version="test", definition_dir=INGEST_DEF_DIR
         )
         assert standard.ingestion.processing_steps
         assert "append_prev" not in [
@@ -130,7 +132,7 @@ class TestGetConfig:
             "dcp_pop_acs2010_demographic",
             version="test",
             mode="append",
-            template_dir=TEMPLATE_DIR,
+            definition_dir=INGEST_DEF_DIR,
         )
         assert "append_prev" in [s.name for s in append.ingestion.processing_steps]
 
@@ -140,7 +142,7 @@ class TestGetConfig:
                 "dcp_pop_acs2010_demographic",
                 version="test",
                 mode="fake_mode",
-                template_dir=TEMPLATE_DIR,
+                definition_dir=INGEST_DEF_DIR,
             )
 
     def test_file_path_override(self):
@@ -148,7 +150,7 @@ class TestGetConfig:
         config = plan.get_config(
             "dcp_addresspoints",
             version="24c",
-            template_dir=TEMPLATE_DIR,
+            definition_dir=INGEST_DEF_DIR,
             local_file_path=file_path,
         )
         assert config.ingestion.source == Source(type="local_file", key=str(file_path))

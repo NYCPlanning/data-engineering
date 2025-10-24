@@ -70,33 +70,33 @@ class TestValidateAgainstExistingVersion:
             )
 
 
-INGEST_TEMPLATES = Path(__file__).parent / "resources" / "templates"
+INGEST_TEMPLATES = Path(__file__).parent / "resources" / "definitions"
 
 
-def test_validate_template_file_valid():
-    """Test validation of a valid template file."""
+def test_validate_definition_file_valid():
+    """Test validation of a valid definition file."""
     valid_file = INGEST_TEMPLATES / "dcp_addresspoints.yml"
-    validate.validate_template_file(valid_file)  # Should not raise
+    validate.validate_definition_file(valid_file)  # Should not raise
 
 
-def test_validate_template_file_invalid():
-    """Test validation of an invalid template file."""
-    invalid_file = INGEST_TEMPLATES / "invalid_template.yml"
+def test_validate_definition_file_invalid():
+    """Test validation of an invalid definition file."""
+    invalid_file = INGEST_TEMPLATES / "invalid_definition.yml"
     with pytest.raises(Exception):
-        validate.validate_template_file(invalid_file)
+        validate.validate_definition_file(invalid_file)
 
 
-def test_validate_template_folder():
-    """Test validation of the ingest_templates folder."""
-    errors = validate.validate_template_folder(INGEST_TEMPLATES)
-    # hypothetically an invalid "invalid_template.yml" in the folder
+def test_validate_definition_folder():
+    """Test validation of the ingest_definitions folder."""
+    errors = validate.validate_definition_folder(INGEST_TEMPLATES)
+    # hypothetically an invalid "invalid_definition.yml" in the folder
     assert len(errors) == 1
-    assert any("invalid_template.yml" in error for error in errors)
+    assert any("invalid_definition.yml" in error for error in errors)
 
 
-def test_validate_template_folder_nonexistent():
+def test_validate_definition_folder_nonexistent():
     """Test validation of a non-existent folder."""
-    errors = validate.validate_template_folder(Path("nonexistent"))
+    errors = validate.validate_definition_folder(Path("nonexistent"))
     assert len(errors) == 1
     assert "doesn't exist" in errors[0]
 

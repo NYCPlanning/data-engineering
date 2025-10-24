@@ -7,7 +7,7 @@ import yaml
 from dcpy.utils.logging import logger
 from dcpy.utils import introspect
 from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
-from dcpy.models.lifecycle.ingest import Template, Source, ProcessingStep
+from dcpy.models.lifecycle.ingest import Definition, Source, ProcessingStep
 from .transform import ProcessingFunctions
 from .connectors import source_connectors
 
@@ -113,16 +113,16 @@ def find_processing_step_validation_errors(
     return violations
 
 
-def find_template_validation_errors(template: Template) -> dict:
-    """Validate a single template object."""
+def find_definition_validation_errors(definition: Definition) -> dict:
+    """Validate a single definition object."""
     violations = {}
 
-    source_violations = find_source_validation_errors(template.ingestion.source)
+    source_violations = find_source_validation_errors(definition.ingestion.source)
     if source_violations:
         violations["source"] = source_violations
 
     invalid_processing_steps = find_processing_step_validation_errors(
-        template.id, template.ingestion.processing_steps
+        definition.id, definition.ingestion.processing_steps
     )
     if invalid_processing_steps:
         violations["processing_steps"] = invalid_processing_steps
@@ -130,18 +130,18 @@ def find_template_validation_errors(template: Template) -> dict:
     return violations
 
 
-def validate_template_file(filepath: Path) -> None:
-    """Validate a single template file."""
+def validate_definition_file(filepath: Path) -> None:
+    """Validate a single definition file."""
     with open(filepath, "r") as f:
         s = yaml.safe_load(f)
-    template = Template(**s)
-    violations = find_template_validation_errors(template)
+    definition = Definition(**s)
+    violations = find_definition_validation_errors(definition)
     if violations:
         raise ValueError(f"Template violations found: {violations}")
 
 
-def validate_template_folder(folder_path: Path) -> list[str]:
-    """Validate all template files in a folder and return a list of error messages."""
+def validate_definition_folder(folder_path: Path) -> list[str]:
+    """Validate all definition files in a folder and return a list of error messages."""
     if not folder_path.exists():
         return [f"Template directory '{folder_path}' doesn't exist."]
 
@@ -149,7 +149,7 @@ def validate_template_folder(folder_path: Path) -> list[str]:
     for file_path in folder_path.glob("*"):
         if file_path.is_file():
             try:
-                validate_template_file(file_path)
+                validate_definition_file(file_path)
             except (TypeError, ValueError) as e:
                 errors.append(f"{file_path.name}: {str(e)}")
 

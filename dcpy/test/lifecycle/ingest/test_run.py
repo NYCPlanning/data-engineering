@@ -9,7 +9,7 @@ from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.ingest.run import ingest as run_ingest, INGEST_STAGING_DIR
 
 from dcpy.test.conftest import mock_request_get
-from .shared import FAKE_VERSION, TEMPLATE_DIR
+from .shared import FAKE_VERSION, INGEST_DEF_DIR
 
 pytest.skip(
     "Skipping this entire file until Ingest 1-many refactoring is complete. This will likely just be deleted.",
@@ -30,7 +30,7 @@ def run_basic(mock_request_get, create_buckets, tmp_path):
         version=FAKE_VERSION,
         push=True,
         dataset_staging_dir=tmp_path,
-        template_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
     )
 
 
@@ -45,7 +45,7 @@ def test_run_default_folder(mock_request_get, create_buckets):
         dataset_id=DATASET,
         version=FAKE_VERSION,
         push=True,
-        template_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
     )
     assert s3.object_exists(RECIPES_BUCKET, S3_PATH)
     assert (INGEST_STAGING_DIR / DATASET).exists()
@@ -59,7 +59,7 @@ def test_skip_archival(mock_request_get, create_buckets, tmp_path):
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
         push=False,
-        template_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
     )
     assert not s3.object_exists(RECIPES_BUCKET, S3_PATH)
 
@@ -72,7 +72,7 @@ def test_run_repeat_version(mock_request_get, create_buckets, tmp_path):
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
         push=True,
-        template_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
         latest=True,
     )
     config = recipes.get_config(DATASET, FAKE_VERSION)
@@ -82,7 +82,7 @@ def test_run_repeat_version(mock_request_get, create_buckets, tmp_path):
         dataset_staging_dir=tmp_path,
         push=True,
         latest=True,
-        template_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
     )
     config2 = recipes.get_config(DATASET, FAKE_VERSION)
     assert (
@@ -100,7 +100,7 @@ def test_run_repeat_version_fails_if_data_diff(
         version=FAKE_VERSION,
         dataset_staging_dir=tmp_path,
         push=True,
-        template_dir=TEMPLATE_DIR,
+        definition_dir=INGEST_DEF_DIR,
     )
 
     # this time, replace the dataframe with a different one in the middle of the ingest process
@@ -115,14 +115,16 @@ def test_run_repeat_version_fails_if_data_diff(
                 version=FAKE_VERSION,
                 dataset_staging_dir=tmp_path,
                 push=True,
-                template_dir=TEMPLATE_DIR,
+                definition_dir=INGEST_DEF_DIR,
             )
 
 
-def test_run_missing_template_dir():
-    with pytest.raises(KeyError, match="Missing required env variable: 'TEMPLATE_DIR'"):
+def test_run_missing_definition_dir():
+    with pytest.raises(
+        KeyError, match="Missing required env variable: 'INGEST_DEF_DIR'"
+    ):
         run_ingest(
             dataset_id=DATASET,
             version=FAKE_VERSION,
-            template_dir=None,
+            definition_dir=None,
         )
