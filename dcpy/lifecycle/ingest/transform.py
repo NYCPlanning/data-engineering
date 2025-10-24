@@ -18,6 +18,29 @@ from dcpy.connectors.edm import recipes
 OUTPUT_GEOM_COLUMN = "geom"
 
 
+def determine_processing_steps(
+    steps: list[ProcessingStep],
+    *,
+    target_crs: str | None = None,
+    mode: str | None = None,
+) -> list[ProcessingStep]:
+    # TODO default steps like this should probably be configuration
+    step_names = {p.name for p in steps}
+
+    if target_crs and "reproject" not in step_names:
+        reprojection = ProcessingStep(name="reproject", args={"target_crs": target_crs})
+        steps = [reprojection] + steps
+
+    if mode:
+        modes = {s.mode for s in steps}
+        if mode not in modes:
+            raise ValueError(f"mode '{mode}' is not present in template")
+
+    steps = [s for s in steps if s.mode is None or s.mode == mode]
+
+    return steps
+
+
 def make_generic_change_stats(
     before: pd.DataFrame, after: pd.DataFrame, *, name: str, description: str
 ) -> ProcessingSummary:
@@ -64,7 +87,7 @@ def to_parquet(
 
     Raises:
         AssertionError: `local_data_path` does not point to a valid file or directory.
-        AssertionError: If `geom_column` is present in yaml template but not in the dataset.
+        AssertionError: If `geom_column` is present in yaml definition but not in the dataset.
     """
 
     # create new dir for output parquet file if doesn't exist
@@ -90,7 +113,7 @@ def to_parquet(
 class ProcessingFunctions:
     """
     This class is very much a first pass at something that would support the validate/run_processing_steps functions
-    This should/will be iterated on when implementing actual processing steps for chosen templates
+    This should/will be iterated on when implementing actual processing steps for chosen definitions
     """
 
     def __init__(self, dataset_id: str):
@@ -557,7 +580,7 @@ def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
     missing_columns = [c.id for c in columns if c.id not in df.columns]
     if missing_columns:
         raise ValueError(
-            f"Columns {missing_columns} defined in template but not found in processed dataset.\n Existing columns: {list(df.columns)}"
+            f"Columns {missing_columns} defined in definition but not found in processed dataset.\n Existing columns: {list(df.columns)}"
         )
 
 

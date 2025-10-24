@@ -1,6 +1,5 @@
 import pandas as pd
 from pathlib import Path
-import yaml
 
 from dcpy import configuration
 from dcpy.models.connectors.edm.recipes import (
@@ -8,8 +7,6 @@ from dcpy.models.connectors.edm.recipes import (
     DatasetType,
     DatasetKey,
 )
-from dcpy.models import library
-from dcpy.models.lifecycle import ingest
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
@@ -33,24 +30,6 @@ def s3_folder_path(ds: Dataset | DatasetKey) -> str:
 
 def s3_file_path(ds: Dataset) -> str:
     return f"{s3_folder_path(ds)}/{ds.file_name}"
-
-
-def get_config_obj(name: str, version="latest") -> dict:
-    """Retrieve a recipe config from s3."""
-    bucket = _bucket()
-    ds_conf_path = f"{DATASET_FOLDER}/{name}/{version}/config.json"
-    logger.info(f"Retrieving config at {bucket}.{ds_conf_path}")
-    obj = s3.get_file_as_stream(bucket, ds_conf_path)
-    return yaml.safe_load(obj)
-
-
-def get_config(name: str, version="latest") -> library.Config | ingest.Config:
-    """Retrieve a recipe config from s3."""
-    config = get_config_obj(name, version)
-    if "dataset" in config:
-        return library.Config(**config)
-    else:
-        return ingest.Config(**config)
 
 
 def get_all_versions(name: str) -> list[str]:

@@ -1,0 +1,51 @@
+{
+    "id": "one_to_many",
+    "acl": "private",
+    "attributes": {
+        "name": "Sample One-To-Many Definition"
+    },
+    "source": {
+        "type": "local_file",
+        "key": "dcpy/test/lifecycle/ingest/resources/test_data/test.gdb.zip"
+    },
+    "datasets": [
+        {
+            "id": "test_dataset",
+            "attributes": {
+                "name": "Downstream Dataset 1"
+            },
+            "file_format": {
+                "crs": "EPSG:4326",
+                "layer": "downstream_1",
+                "type": "geodatabase"
+            },
+            "processing_steps": [
+                {
+                    "name": "clean_column_names",
+                    "args": {
+                        "lower": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": "downstream_dataset_2",
+            "attributes": {
+                "name": "Downstream Dataset 2"
+            },
+            "file_format": {
+                "crs": "EPSG:4326",
+                "layer": "downstream_2",
+                "type": "geodatabase"
+            },
+            "processing_steps": [
+                {
+                    "name": "clean_column_names",
+                    "args": {
+                        "lower": true
+                    }
+                }
+            ]
+        }
+    ]
+}

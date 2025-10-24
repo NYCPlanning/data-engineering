@@ -183,6 +183,9 @@ class HybridPathedStorage:
             case _:
                 raise ValueError(f"Unsupported storage backend: {storage_backend}")
 
+    def __str__(self):
+        return f"{self.storage_type.value}://{self.root_path}"
+
 
 class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
     """Connector where all the keys are expected to be stringified relative paths.
@@ -200,9 +203,12 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
     def from_storage_kwargs(
         conn_type: str,
         _validate_root_path: bool = True,
+        _mkdir: bool = False,
         **storage_kwargs: Unpack[StorageKwargs],
     ) -> "PathedStorageConnector":
         storage = HybridPathedStorage.from_args(**storage_kwargs)
+        if _mkdir and not storage.root_path.exists():
+            storage.root_path.mkdir(parents=True)
         if _validate_root_path:
             logger.info(f"validating {storage.root_path}")
             assert storage.root_path.exists(), (

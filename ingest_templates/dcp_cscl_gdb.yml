@@ -1,0 +1,130 @@
+id: dcp_cscl_gdb
+acl: private
+
+attributes:
+  name: CSCL - gdb
+
+source:
+  type: s3
+  bucket: edm-private
+  key: cscl_etl/{{ version }}/ETL Working GDB.gdb.zip
+
+dataset_defaults:
+  file_format:
+    type: geodatabase
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
+
+datasets:
+- id: dcp_cscl_addresspoints
+  attributes:
+    name: CSCL Address Points
+  file_format:
+    layer: AtomicPolygon
+
+- id: dcp_cscl_altsegmentdata
+  attributes:
+    name: CSCL Alt Segment Data
+  file_format:
+    layer: ALTSEGMENTDATA
+
+- id: dcp_cscl_atomicpolygons
+  attributes:
+    name: CSCL Atomic Polygons
+  file_format:
+    layer: AtomicPolygon
+
+- id: dcp_cscl_centerline
+  attributes:
+    name: CSCL Centerline
+  file_format:
+    layer: Centerline
+
+- id: dcp_cscl_commonplace_gdb
+  attributes:
+    name: CSCL Common Place
+    description: >-
+      TODO We archive commonplace from AGOL as well, this dataset is currently just to
+      be used in LION ETL POC. At some point this duplication should be resolved
+  file_format:
+    layer: CommonPlace
+
+- id: dcp_cscl_featurename
+  attributes:
+    name: CSCL Feature Name
+  file_format:
+    layer: FEATURENAME
+
+- id: dcp_cscl_nodes
+  attributes:
+    name: CSCL Nodes
+  file_format:
+    layer: Node
+
+- id: dcp_cscl_nonstreetfeatures
+  attributes:
+    name: CSCL Non-Street Features
+  file_format:
+    layer: NonStreetFeature
+
+- id: dcp_cscl_nypdbeat
+  attributes:
+    name: CSCL NYPD Beat Areas
+  file_format:
+    layer: NYPDBeat
+
+- id: dcp_cscl_rail
+  attributes:
+    name: CSCL Rail Lines
+  file_format:
+    layer: Rail
+
+- id: dcp_cscl_sectionalmap
+  attributes:
+    name: CSCL Sectional Map
+  file_format:
+    layer: SectionalMap
+
+- id: dcp_cscl_sedat
+  attributes:
+    name: CSCL SEDAT (Split Election District Address Table)
+  file_format:
+    layer: SEDAT
+
+- id: dcp_cscl_segment_lgc
+  attributes:
+    name: CSCL Segment LGC (Local Group Code)
+  file_format:
+    layer: SEGMENT_LGC
+
+- id: dcp_cscl_shoreline
+  attributes:
+    name: CSCL Shoreline
+  file_format:
+    layer: Shoreline
+
+- id: dcp_cscl_specialsedat
+  attributes:
+    name: CSCL Special SEDAT (Split Election District Address Table)
+  file_format:
+    layer: SPECIALSEDAT
+
+- id: dcp_cscl_streetname
+  attributes:
+    name: CSCL Street Name
+  file_format:
+    layer: STREETNAME
+
+- id: dcp_cscl_subway
+  attributes:
+    name: CSCL Subway Lines
+  file_format:
+    layer: Subway
+
+- id: dcp_cscl_zipcode
+  attributes:
+    name: CSCL Zip Code Boundaries
+  file_format:
+    layer: ZipCode

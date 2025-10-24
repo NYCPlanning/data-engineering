@@ -1,57 +1,28 @@
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
+from pydantic import ValidationError
 from tempfile import TemporaryDirectory
-import yaml
 
-from dcpy.utils.logging import logger
+from dcpy.models.lifecycle.ingest import (
+    Source,
+    ProcessingStep,
+    ResolvedDataSource,
+)
 from dcpy.utils import introspect
-from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
-from dcpy.models.lifecycle.ingest import Template, Source, ProcessingStep
-from .transform import ProcessingFunctions
-from .connectors import source_connectors
-
-
-def validate_against_existing_version(ds: str, version: str, filepath: Path) -> None:
-    """
-    This function is called after a dataset has been processed, just before archival
-    It's called in the case that the version of the dataset in the config (either provided or calculated)
-    already exists
-
-    The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
-    If they differ, an error is raised
-    """
-    processed_datastore = get_processed_datastore_connector()
-    if not processed_datastore._is_library(ds, version):
-        with TemporaryDirectory() as tmp:
-            existing_file = processed_datastore.pull_versioned(ds, version, Path(tmp))[
-                "path"
-            ]
-            new = pd.read_parquet(filepath)
-            existing = pd.read_parquet(existing_file)
-            if new.equals(existing):
-                logger.info(
-                    f"Dataset id='{ds}' version='{version}' already exists and matches newly processed data"
-                )
-            else:
-                raise FileExistsError(
-                    f"Archived dataset id='{ds}' version='{version}' already exists and has different data."
-                )
-
-    # if previous was archived with library, we both expect some potential slight changes and will not compare
-    else:
-        logger.warning(
-            f"Config of existing dataset id='{ds}' version='{version}' cannot be parsed."
-        )
+from dcpy.utils.logging import logger
+from dcpy.utils.geospatial import parquet
+from dcpy.lifecycle.ingest import connectors, plan, transform
 
 
 def find_source_validation_errors(source: Source) -> dict:
     violations: dict = {}
-    if source.type not in source_connectors.list_registered():
+    if source.type not in connectors.source_connectors.list_registered():
         violations["invalid source type"] = (
             f"Connector with id '{source.type}' not registered"
         )
-    connector = source_connectors[source.type]
+        return violations
+    connector = connectors.source_connectors[source.type]
     func = connector._pull if "_pull" in dir(connector) else connector.pull  # type: ignore
     kwarg_violations = introspect.validate_kwargs(
         func,
@@ -90,7 +61,7 @@ def find_processing_step_validation_errors(
     exist and that appropriate arguments are supplied. Returns a dictionary of violations
     """
     violations: dict[str, str | dict[str, str]] = {}
-    processor = ProcessingFunctions(dataset_id)
+    processor = transform.ProcessingFunctions(dataset_id)
     for step in processing_steps:
         if step.name not in processor.__dir__():
             violations[step.name] = "Function not found"
@@ -113,44 +84,97 @@ def find_processing_step_validation_errors(
     return violations
 
 
-def find_template_validation_errors(template: Template) -> dict:
+def find_definition_validation_errors(definition: ResolvedDataSource) -> dict:
     """Validate a single template object."""
     violations = {}
 
-    source_violations = find_source_validation_errors(template.ingestion.source)
+    source_violations = find_source_validation_errors(definition.source)
     if source_violations:
         violations["source"] = source_violations
 
-    invalid_processing_steps = find_processing_step_validation_errors(
-        template.id, template.ingestion.processing_steps
-    )
+    invalid_processing_steps = {}
+    for d in definition.datasets:
+        errors = find_processing_step_validation_errors(
+            d.id,
+            d.processing_steps,
+        )
+        if errors:
+            invalid_processing_steps[d.id] = errors
+
     if invalid_processing_steps:
-        violations["processing_steps"] = invalid_processing_steps
+        violations["processing steps"] = invalid_processing_steps
 
     return violations
 
 
-def validate_template_file(filepath: Path) -> None:
-    """Validate a single template file."""
-    with open(filepath, "r") as f:
-        s = yaml.safe_load(f)
-    template = Template(**s)
-    violations = find_template_validation_errors(template)
-    if violations:
-        raise ValueError(f"Template violations found: {violations}")
+def find_definition_file_validation_errors(
+    ds_id: str, definition_dir: Path
+) -> dict[str, str]:
+    """Validate a single definition file."""
+    logger.debug(f"Validating definition of '{ds_id}'")
+    try:
+        definition = plan.resolve_definition(
+            ds_id, version="version", definition_dir=definition_dir
+        )
+        return find_definition_validation_errors(definition)
+    except (ValidationError, ValueError) as e:
+        return {"malformatted yml": str(e)}
 
 
-def validate_template_folder(folder_path: Path) -> list[str]:
-    """Validate all template files in a folder and return a list of error messages."""
+def validate_definition(ds_id: str, definition_dir: Path) -> None:
+    errors = find_definition_file_validation_errors(ds_id, definition_dir)
+    if errors:
+        raise ValidationError(errors)
+
+
+def find_definition_folder_validation_errors(
+    folder_path: Path,
+) -> dict[str, dict[str, str]]:
+    """Validate all definition files in a folder and return a list of error messages."""
     if not folder_path.exists():
-        return [f"Template directory '{folder_path}' doesn't exist."]
+        raise FileNotFoundError(f"Definition directory '{folder_path}' doesn't exist.")
 
-    errors = []
+    errors = {}
     for file_path in folder_path.glob("*"):
-        if file_path.is_file():
-            try:
-                validate_template_file(file_path)
-            except (TypeError, ValueError) as e:
-                errors.append(f"{file_path.name}: {str(e)}")
+        file_errors = find_definition_file_validation_errors(
+            file_path.stem, folder_path
+        )
+        if file_errors:
+            errors[file_path.name] = file_errors
 
     return errors
+
+
+def validate_data_against_existing_version(
+    ds: str, version: str, filepath: Path
+) -> None:
+    """
+    This function is called after a dataset has been processed, just before archival
+    It's called in the case that the version of the dataset in the config (either provided or calculated)
+    already exists
+
+    The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
+    If they differ, an error is raised
+    """
+    processed_datastore = connectors.get_processed_datastore_connector()
+    if not processed_datastore._is_library(ds, version):
+        with TemporaryDirectory() as tmp:
+            existing_file = processed_datastore.pull_versioned(ds, version, Path(tmp))[
+                "path"
+            ]
+            new = parquet.read_df(filepath)
+            existing = parquet.read_df(existing_file / f"{ds}.parquet")
+            if new.equals(existing):
+                logger.info(
+                    f"Dataset id='{ds}' version='{version}' already exists and matches newly processed data"
+                )
+            else:
+                raise FileExistsError(
+                    f"Archived dataset id='{ds}' version='{version}' already exists and has different data."
+                )
+
+    # if previous was archived with library, we both expect some potential slight changes and will not compare
+    else:
+        logger.warning(
+            f"Config of existing dataset id='{ds}' version='{version}' cannot be parsed."
+        )

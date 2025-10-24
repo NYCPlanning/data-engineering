@@ -1,0 +1,12 @@
+id: simple
+acl: public-read
+
+attributes:
+  name: Simple Definition
+
+ingestion:
+  source:
+    type: non-existent connector
+    key: key
+  file_format:
+    type: csv

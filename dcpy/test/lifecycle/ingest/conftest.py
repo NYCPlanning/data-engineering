@@ -7,6 +7,10 @@ from faker import Faker
 import random
 from pathlib import Path
 
+from dcpy.connectors import ingest_datastore, filesystem
+from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
+from dcpy.lifecycle import connector_registry
+
 random.seed(0)
 
 RESOURCES = Path(__file__).parent / "resources"
@@ -14,27 +18,26 @@ TEST_DATA_DIR = RESOURCES / "test_data"
 TEST_DATA_NAME = "test"
 
 
-@pytest.fixture()
-def generate_fake_data(gdf: gpd.GeoDataFrame = None):
+@pytest.fixture(scope="session")
+def generate_fake_data():
     """Generates test data in various data formats"""
-    if not gdf:
-        gdf = generate_gdf()
-        gdf2 = generate_gdf(
-            columns=[
-                "boro_code",
-                "block",
-                "lot",
-                "bbl",
-                "text",
-                "longitude",
-                "latitude",
-            ]
-        )
+    gdf: gpd.GeoDataFrame = generate_gdf()
+    gdf2 = generate_gdf(
+        columns=[
+            "boro_code",
+            "block",
+            "lot",
+            "bbl",
+            "text",
+            "longitude",
+            "latitude",
+        ]
+    )
 
     csv_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.csv"
     csv_path_2 = TEST_DATA_DIR / f"{TEST_DATA_NAME}2.csv"
     excel_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.xlsx"
-    shp_path = TEST_DATA_DIR / TEST_DATA_NAME
+    shp_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.shp"
     gdb_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.gdb"
     json_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.json"
     geojson_path = TEST_DATA_DIR / f"{TEST_DATA_NAME}.geojson"
@@ -125,3 +128,30 @@ class DCPFakes:
         block = DCPFakes.block()
         lot = DCPFakes.lot()
         return f"{boro_code}{block.zfill(5)}{lot.zfill(4)}"
+
+
+@pytest.fixture(autouse=True)
+def setup_connectors(tmp_path):
+    raw = ingest_datastore.Connector(
+        storage=PathedStorageConnector.from_storage_kwargs(
+            conn_type="ingest_storage",
+            storage_backend=StorageType.LOCAL,
+            local_dir=tmp_path / "raw_datasets",
+            _mkdir=True,
+        )
+    )
+    processed = ingest_datastore.Connector(
+        storage=PathedStorageConnector.from_storage_kwargs(
+            conn_type="ingest_storage",
+            storage_backend=StorageType.LOCAL,
+            local_dir=tmp_path / "datasets",
+            _mkdir=True,
+        )
+    )
+    connector_registry.connectors.register(raw, conn_type="edm.recipes.raw_datasets")
+    connector_registry.connectors.register(processed, conn_type="edm.recipes.datasets")
+    connector_registry.connectors.register(
+        filesystem.Connector(), conn_type="local_file"
+    )
+    yield
+    connector_registry._set_default_connectors()
