@@ -1,21 +1,19 @@
-from datetime import datetime
 import jinja2
 from jinja2 import meta
 from pathlib import Path
 import yaml
 
 from dcpy.models.lifecycle.ingest import (
-    ArchivalMetadata,
-    Ingestion,
     Source,
-    ProcessingStep,
-    Definition,
-    Config,
+    IngestDefinition,
+    DatasetDefinition,
+    DataSourceDefinition,
+    ResolvedDownstreamDataset,
+    ResolvedDataSource,
 )
-from dcpy.utils import metadata
 from dcpy.utils.logging import logger
+from dcpy.utils.collections import deep_merge_dict
 from dcpy.lifecycle.ingest.connectors import source_connectors
-from dcpy.lifecycle.ingest.validate import find_definition_validation_errors
 
 
 def get_jinja_vars(s: str) -> set[str]:
@@ -25,112 +23,87 @@ def get_jinja_vars(s: str) -> set[str]:
     return meta.find_undeclared_variables(parsed_content)
 
 
-def read_definition(
-    dataset_id: str, definition_dir: Path, version: str | None = None
-) -> Definition:
+def read_definition_file(
+    filepath: Path, version: str | None = None
+) -> DatasetDefinition | DataSourceDefinition:
     """
     Given _id id, read yml definition in definition_dir of given dataset
     and insert version as jinja var if provided.
     """
-    file = definition_dir / f"{dataset_id}.yml"
-    with open(file, "r") as f:
+    with open(filepath, "r") as f:
         definition_string = f.read()
     vars = get_jinja_vars(definition_string)
     if vars == {"version"}:
         definition_string = jinja2.Template(definition_string).render(version=version)
     elif vars:
-        raise Exception(
+        raise ValueError(
             f"'version' is only suppored jinja var. Vars in definition: {vars}"
         )
     definition_yml = yaml.safe_load(definition_string)
-    return Definition(**definition_yml)
+    return IngestDefinition.validate_python(definition_yml)
 
 
-def get_version(source: Source, timestamp: datetime):
+def get_version(source: Source) -> str | None:
     connector = source_connectors[source.type]
-    version = connector.get_latest_version(**source.model_dump())
-    return version or timestamp.strftime("%Y%m%d")
+    return (
+        connector.get_latest_version(**source.model_dump())
+        if "get_latest_version" in connector.__dir__()
+        else None
+    )
 
 
-def determine_processing_steps(
-    steps: list[ProcessingStep],
-    *,
-    target_crs: str | None,
-    mode: str | None,
-) -> list[ProcessingStep]:
-    # TODO default steps like this should probably be configuration
-    step_names = {p.name for p in steps}
-
-    if target_crs and "reproject" not in step_names:
-        reprojection = ProcessingStep(name="reproject", args={"target_crs": target_crs})
-        steps = [reprojection] + steps
-
-    if mode:
-        modes = {s.mode for s in steps}
-        if mode not in modes:
-            raise ValueError(f"mode '{mode}' is not present in definition")
-
-    steps = [s for s in steps if s.mode is None or s.mode == mode]
-
-    return steps
-
-
-def get_config(
+def resolve_definition(
     dataset_id: str,
     version: str | None = None,
     *,
-    mode: str | None = None,
     definition_dir: Path,
     local_file_path: Path | None = None,
-) -> Config:
-    """Generate config object for dataset and optional version"""
-    run_details = metadata.get_run_details()
+) -> ResolvedDataSource:
+    """Generate ResolvedDataSource object based on definition file"""
+    definition_filepath = definition_dir / f"{dataset_id}.yml"
 
-    logger.info(f"Reading definition from {definition_dir / dataset_id}.yml")
-    definition = read_definition(
-        dataset_id, version=version, definition_dir=definition_dir
-    )
-    version = version or get_version(definition.ingestion.source, run_details.timestamp)
-    definition = read_definition(
-        dataset_id, version=version, definition_dir=definition_dir
-    )
+    logger.info(f"Reading definition from {definition_filepath}")
+    definition = read_definition_file(definition_filepath, version=version)
+    version = version or get_version(definition.source)
+    definition = read_definition_file(definition_filepath, version=version)
 
-    violations = find_definition_validation_errors(definition)
-    if violations:
-        raise ValueError(f"Template violations found: {violations}")
-
-    if local_file_path:
-        definition.ingestion.source = Source(
-            type="local_file", key=str(local_file_path)
-        )
-
-    processing_steps = determine_processing_steps(
-        definition.ingestion.processing_steps,
-        target_crs=definition.ingestion.target_crs,
-        mode=mode,
+    source = (
+        Source(type="local_file", key=str(local_file_path))
+        if local_file_path
+        else definition.source
     )
 
-    ingestion = Ingestion(
-        target_crs=definition.ingestion.target_crs,
-        source=definition.ingestion.source,
-        file_format=definition.ingestion.file_format,
-        processing_mode=mode,
-        processing_steps=processing_steps,
-    )
+    match definition:
+        case DatasetDefinition():
+            args = definition.ingestion.model_dump()
+            args.pop("source")
+            downstream_datasets = [
+                ResolvedDownstreamDataset(
+                    id=definition.id,
+                    acl=definition.acl,
+                    attributes=definition.attributes,
+                    **args,
+                )
+            ]
+        case DataSourceDefinition():
+            downstream_datasets = [
+                ResolvedDownstreamDataset(
+                    **deep_merge_dict(
+                        definition.dataset_defaults.model_dump(),
+                        d.model_dump(exclude_defaults=True, exclude_none=True),
+                    )
+                )
+                for d in definition.datasets
+            ]
 
-    archival = ArchivalMetadata(
-        archival_timestamp=run_details.timestamp,
-        raw_filename="",  # TODO - this is now set after pulling file
-        acl=definition.acl,
-    )
+        case _:
+            raise Exception("Unknown definition format")
 
-    return Config(
+    return ResolvedDataSource(
         id=definition.id,
+        acl=definition.acl,
         version=version,
-        crs=ingestion.target_crs,
         attributes=definition.attributes,
-        archival=archival,
-        ingestion=ingestion,
-        columns=definition.columns,
-        run_details=run_details,
+        source=source,
+        datasets=downstream_datasets,
     )

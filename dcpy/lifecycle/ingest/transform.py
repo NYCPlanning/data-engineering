@@ -18,6 +18,29 @@ from dcpy.connectors.edm import recipes
 OUTPUT_GEOM_COLUMN = "geom"
 
 
+def determine_processing_steps(
+    steps: list[ProcessingStep],
+    *,
+    target_crs: str | None = None,
+    mode: str | None = None,
+) -> list[ProcessingStep]:
+    # TODO default steps like this should probably be configuration
+    step_names = {p.name for p in steps}
+
+    if target_crs and "reproject" not in step_names:
+        reprojection = ProcessingStep(name="reproject", args={"target_crs": target_crs})
+        steps = [reprojection] + steps
+
+    if mode:
+        modes = {s.mode for s in steps}
+        if mode not in modes:
+            raise ValueError(f"mode '{mode}' is not present in template")
+
+    steps = [s for s in steps if s.mode is None or s.mode == mode]
+
+    return steps
+
+
 def make_generic_change_stats(
     before: pd.DataFrame, after: pd.DataFrame, *, name: str, description: str
 ) -> ProcessingSummary:

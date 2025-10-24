@@ -1,4 +1,5 @@
 import jinja2
+import json
 import pandas as pd
 from pathlib import Path
 from pydantic import BaseModel, model_serializer
@@ -90,6 +91,27 @@ class SortedSerializedBase(BaseModel):
                 ordered_items_tail, key=lambda x: self._tail_sort_order.index(x[0])
             )
         )
+
+    def dump_json(
+        self,
+        filepath: Path,
+        *,
+        exclude_none: bool = True,
+        exclude_defaults: bool = True,
+        indent: int = 4,
+        **kwargs,
+    ):
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(
+                self.model_dump(
+                    mode="json",
+                    exclude_none=exclude_none,
+                    exclude_defaults=exclude_defaults,
+                    **kwargs,
+                ),
+                f,
+                indent=indent,
+            )
 
 
 class YamlWriter(BaseModel):

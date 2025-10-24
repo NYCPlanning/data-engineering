@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from pydantic import BaseModel
 from tempfile import TemporaryDirectory
 import yaml
 
@@ -20,8 +21,9 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
         key: str,
         *,
         version: str,
+        acl: str | None = None,
         filepath: Path,
-        config: ingest.Config,
+        config: BaseModel,
         overwrite: bool = False,
         latest: bool = False,
         **kwargs,
@@ -45,12 +47,12 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
             self.storage.push(
                 f"{dest_folder_path}/{filepath.name}",
                 filepath=filepath,
-                acl=config.archival.acl,
+                acl=acl,
             )
             self.storage.push(
                 f"{dest_folder_path}/config.json",
                 filepath=config_path,
-                acl=config.archival.acl,
+                acl=acl,
             )
 
             if latest:
@@ -58,12 +60,12 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
                 self.storage.push(
                     f"{latest_folder_path}/{filepath.name}",
                     filepath=filepath,
-                    acl=config.archival.acl,
+                    acl=acl,
                 )
                 self.storage.push(
                     f"{latest_folder_path}/config.json",
                     filepath=config_path,
-                    acl=config.archival.acl,
+                    acl=acl,
                 )
         return {}
 

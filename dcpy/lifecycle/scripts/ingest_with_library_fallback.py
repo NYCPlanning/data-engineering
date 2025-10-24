@@ -1,6 +1,6 @@
 import typer
 
-from dcpy.lifecycle.ingest import ingest
+from dcpy.lifecycle.ingest.run import ingest
 from dcpy.configuration import INGEST_DEF_DIR
 
 

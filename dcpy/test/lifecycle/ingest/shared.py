@@ -1,110 +1,44 @@
-from datetime import datetime
+import json
 from pathlib import Path
 
 from dcpy.models.connectors.edm.recipes import Dataset
-from dcpy.models import file, library
 from dcpy.models.lifecycle.ingest import (
     Source,
-    DatasetAttributes,
-    ArchivalMetadata,
-    Ingestion,
-    Config,
+    ResolvedDataSource,
+    ArchivedDataSource,
+    IngestedDataset,
 )
-from dcpy.utils.metadata import get_run_details
-from dcpy.test.conftest import RECIPES_BUCKET
+from dcpy.utils.metadata import RunDetails
 
 RESOURCES = Path(__file__).parent / "resources"
-INGEST_DEF_DIR = RESOURCES / "templates"
-TEST_DATA_DIR = "test_data"
+INGEST_DEF_DIR = RESOURCES / "definitions"
+TEST_DATA_DIR = RESOURCES / "test_data"
 TEST_DATASET_NAME = "test_dataset"
-TEST_OUTPUT = RESOURCES / TEST_DATA_DIR / f"{TEST_DATASET_NAME}.parquet"
+TEST_OUTPUT = TEST_DATA_DIR / f"{TEST_DATASET_NAME}.parquet"
 FAKE_VERSION = "20240101"
 TEST_DATASET = Dataset(id=TEST_DATASET_NAME, version=FAKE_VERSION)
-
-
-class Sources:
-    local_file = Source(**{"type": "local_file", "path": "subfolder/dummy.txt"})
-    gis = Source(**{"type": "edm.publishing.gis", "name": TEST_DATASET_NAME})
-    file_download = Source(
-        **{
-            "type": "file_download",
-            "url": "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad_24a.zip",
-        }
-    )
-    api = Source(
-        **{
-            "type": "api",
-            "endpoint": "https://www.bklynlibrary.org/locations/json",
-            "format": "json",
-        },
-        _ds_id=TEST_DATASET_NAME,
-    )
-    socrata = Source(
-        **{
-            "type": "socrata",
-            "org": "nyc",
-            "uid": "w7w3-xahh",
-            "format": "csv",
-        }
-    )
-    s3 = Source(
-        **{
-            "type": "s3",
-            "bucket": RECIPES_BUCKET,
-            "key": "inbox/test/test.txt",
-        }
-    )
-    de_publish = Source(
-        **{
-            "type": "edm.publishing.published",
-            "product": TEST_DATASET_NAME,
-            "filepath": "file.csv",
-        }
-    )
-    esri = Source(
-        **{
-            "type": "arcgis_feature_server",
-            "server": "nys_parks",
-            "dataset": "National_Register_Building_Listings",
-            "layer_id": "13",
-            "layer_name": "National Register Building Listings",
-        }
-    )
-
-
-BASIC_CONFIG = Config(
-    id=TEST_DATASET_NAME,
-    version=FAKE_VERSION,
-    attributes=DatasetAttributes(name=TEST_DATASET_NAME),
-    archival=ArchivalMetadata(
-        archival_timestamp=datetime(2024, 1, 1),
-        raw_filename="dummy.txt",
-        acl="private",
-    ),
-    ingestion=Ingestion(source=Sources.local_file, file_format=file.Csv(type="csv")),
-    run_details=get_run_details(),
-)
-
-BASIC_LIBRARY_CONFIG = library.Config(
-    dataset=library.DatasetDefinition(
-        name=TEST_DATASET_NAME,
-        version=FAKE_VERSION,
-        acl="public-read",
-        source=library.DatasetDefinition.SourceSection(),
-        destination=library.DatasetDefinition.DestinationSection(
-            geometry=library.GeometryType(SRS="NONE", type="NONE")
-        ),
-    ),
-    execution_details=get_run_details(),
+RUN_DETAILS = RunDetails(
+    **{
+        "type": "manual",
+        "runner": {"username": "user"},
+        "timestamp": "2025-09-26T12:38:22.544455-04:00",
+    }
 )
 
 
-SOURCE_FILENAMES = [
-    (Sources.local_file, "dummy.txt"),
-    (Sources.gis, f"{TEST_DATASET_NAME}.zip"),
-    (Sources.file_download, "pad_24a.zip"),
-    (Sources.api, f"{TEST_DATASET_NAME}.json"),
-    (Sources.socrata, f"{Sources.socrata.key}.csv"),
-    (Sources.s3, "test.txt"),
-    (Sources.esri, f"{Sources.esri.model_dump()['layer_name']}.geojson"),
-]
+def get_yaml(path: Path) -> dict:
+    with open(path, "r") as f:
+        return json.load(f)
+
+
+SOURCE = Source(type="local_file", key=str(TEST_DATA_DIR / "test.csv"))
+
+RESOLVED = ResolvedDataSource(
+    **get_yaml(RESOURCES / "configs" / "definition.lock.json")
+)
+ARCHIVED = ARCHIVED = ArchivedDataSource(
+    **get_yaml(RESOURCES / "configs" / "datasource.json")
+)
+DOWNSTREAM_DATASET_1 = IngestedDataset(
+    **get_yaml(RESOURCES / "configs" / f"{TEST_DATASET_NAME}.json")
+)
