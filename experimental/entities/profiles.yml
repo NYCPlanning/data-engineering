@@ -1,0 +1,11 @@
+dcp-de-postgres:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('BUILD_ENGINE_HOST') }}"
+      user: "{{ env_var('BUILD_ENGINE_USER') }}"
+      password: "{{ env_var('BUILD_ENGINE_PASSWORD') }}"
+      port: "{{ env_var('BUILD_ENGINE_PORT') | as_number }}"
+      dbname: "{{ sandbox }}"
+      schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
