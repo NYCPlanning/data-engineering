@@ -145,3 +145,22 @@ class Config(SortedSerializedBase, extra="forbid"):
             timestamp=self.archival.archival_timestamp,
             filename=self.archival.raw_filename,
         )
+
+
+class SparseConfig(BaseModel, extra="allow"):
+    id: str = Field(validation_alias=AliasChoices("id", "name"))
+    version: str
+    run_timestamp: datetime | None = None
+
+    @model_validator(mode="before")
+    def _validate(cls, values: dict[str, Any]) -> dict[str, Any]:
+        metadata_field = "run_details"
+        # library datasets - main model is subfield, different metadata field
+        if "dataset" in values:
+            values = values["dataset"]
+            metadata_field = "execution_details"
+        # raw datasets - different version
+        if "timestamp" in values:
+            values["version"] = values["timestamp"]
+        values["run_timestamp"] = values.get(metadata_field, {}).get("timestamp")
+        return values

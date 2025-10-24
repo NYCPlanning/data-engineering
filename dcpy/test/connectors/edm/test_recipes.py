@@ -6,8 +6,8 @@ import pytest
 import yaml
 
 from dcpy.models import library
-from dcpy.models.connectors.edm.recipes import DatasetType
-from dcpy.models.lifecycle import ingest
+from dcpy.models.connectors.edm.recipes import Dataset, DatasetType
+from dcpy.models.lifecycle.ingest import SparseConfig
 from dcpy.utils import s3
 from dcpy.connectors.edm import recipes
 
@@ -19,7 +19,6 @@ INGEST_VERSION = "ingest"
 TEST_METADATA = library.ArchivalMetadata(
     name=TEST_DATASET, version="parquet", timestamp=datetime.now()
 )
-INGEST_TEMPLATE = "ingest.yml"
 PARQUET_FILEPATH = (
     f"{recipes.DATASET_FOLDER}/{TEST_DATASET}/{INGEST_VERSION}/{TEST_DATASET}.parquet"
 )
@@ -53,7 +52,7 @@ def load_library(create_buckets):
 @pytest.fixture(scope="function")
 def load_ingest(create_buckets):
     config_json = _load_folder("ingest")
-    yield ingest.Config(**config_json)
+    yield SparseConfig(**config_json)
 
 
 def test_dataset_type_from_extension():
@@ -85,16 +84,6 @@ def test_parse_library_config():
     assert config.execution_details
 
 
-def test_get_library_config(load_library: library.Config):
-    config = recipes.get_config(TEST_DATASET, LIBRARY_VERSION)
-    assert config == load_library
-
-
-def test_get_ingest_config(load_ingest: ingest.Config):
-    config = recipes.get_config(TEST_DATASET, load_ingest.version)
-    assert config == load_ingest
-
-
 def test_get_all_versions(load_library, load_ingest):
     assert set(recipes.get_all_versions(TEST_DATASET)) == {
         LIBRARY_VERSION,
@@ -107,9 +96,9 @@ def test_invalid_pd_reader():
         recipes._pd_reader(DatasetType.pg_dump)
 
 
-def test_read_df(load_ingest: ingest.Config):
+def test_read_df(load_ingest: SparseConfig):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
-    dataset = load_ingest.dataset
+    dataset = Dataset(id=load_ingest.id, version=load_ingest.version)
     dataset.file_type = None
     file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
     assert file_type == recipes.DatasetType.parquet
@@ -136,9 +125,9 @@ def test_read_df_missing_filetype(load_library: library.Config):
         )
 
 
-def test_read_df_cache(load_ingest: ingest.Config, create_temp_filesystem: Path):
+def test_read_df_cache(load_ingest: SparseConfig, create_temp_filesystem: Path):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
-    dataset = load_ingest.dataset
+    dataset = Dataset(id=load_ingest.id, version=load_ingest.version)
     dataset.file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
     _df = recipes.read_df(
         dataset,

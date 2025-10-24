@@ -1,4 +1,3 @@
-from datetime import datetime
 import time
 import streamlit as st
 import requests
@@ -6,7 +5,7 @@ import re
 
 from dcpy.utils import s3
 from dcpy.utils.git import github
-from dcpy.connectors.edm import recipes
+from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
 from .constants import qa_checks
 
 
@@ -21,16 +20,16 @@ def get_source_version(dataset: str) -> dict:
         timestamp = s3.get_metadata(
             bucket, f"{prefix}{version}/dcp_saf.zip"
         ).last_modified
+        return {"name": dataset, "version": version, "timestamp": timestamp}
     else:
-        config_obj = recipes.get_config_obj(dataset)
-        if "dataset" in config_obj:
-            version = config_obj["dataset"]["version"]
-            timestamp_str = config_obj["execution_details"]["timestamp"]
-        else:
-            version = config_obj["version"]
-            timestamp_str = config_obj["run_details"]["timestamp"]
-        timestamp = datetime.fromisoformat(timestamp_str)
-    return {"name": dataset, "version": version, "timestamp": timestamp}
+        config = get_processed_datastore_connector().get_sparse_config(
+            key=dataset, version="latest"
+        )
+        return {
+            "name": dataset,
+            "version": config.version,
+            "timestamp": config.run_timestamp,
+        }
 
 
 @st.cache_data(ttl=120)
