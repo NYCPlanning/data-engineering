@@ -90,7 +90,7 @@ jobs:
       run: ./bash/docker_container_setup.sh
 
     - name: Download cofos
-      run: python3 -m dcpy utils s3 download_file edm-private dob_cofos/20250829.2/dob_cofos.csv .library/upload/dob_cofos.csv
+      run: python3 -m dcpy utils s3 download_file edm-private dob_cofos/20251025/dob_cofos.csv .library/upload/dob_cofos.csv
 
     - name: Archive dataset
       env:
