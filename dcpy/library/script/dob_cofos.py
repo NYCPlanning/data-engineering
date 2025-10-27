@@ -45,6 +45,7 @@ class Scriptor(ScriptorInterface):
 
     def runner(self) -> str:
         previous = self.previous()
+        print(previous.columns)
         previous.drop(columns=["geom"], inplace=True)
         new = self.ingest()
         new.columns = previous.columns
