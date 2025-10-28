@@ -4,12 +4,14 @@ import os
 import pandas as pd
 from pathlib import Path
 import typer
+from typing import Literal
 
 from dcpy.lifecycle import config
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.models.connectors.edm.recipes import DatasetType
 from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.utils import postgres
+from dcpy.utils import duckdb
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
 
@@ -65,6 +67,7 @@ def load_dataset_into_pg(
     *,
     include_version_col: bool = True,
     include_ogc_fid_col: bool = True,
+    engine: Literal["pandas", "duckdb"] = "duckdb",
 ):
     has_preprocessor = ds.preprocessor is not None
     preprocessor = _get_preprocessor(ds)
@@ -81,16 +84,9 @@ def load_dataset_into_pg(
             target_table_name=ds_table_name,
         )
     else:
-        if ds.file_type == DatasetType.csv:
-            raw_df = pd.read_csv(local_dataset_path, dtype=str)
-            df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
-        elif ds.file_type == DatasetType.parquet:
-            raw_df = geoparquet.read_df(local_dataset_path)
-            df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
-        elif ds.file_type == DatasetType.json:
+        if ds.file_type == DatasetType.json:
             with open(local_dataset_path, "r") as json_file:
                 records = json.load(json_file)
-
             if not has_preprocessor:
                 logger.warning(
                     "Coverting JSON to a dataframe without a preprocessor. This could have unintended results."
@@ -99,15 +95,31 @@ def load_dataset_into_pg(
             else:
                 df = preprocessor(ds.id, records)
         else:
-            raise Exception(f"Invalid file_type for {ds.id}: {ds.file_type}")
+            if engine == "duckdb":
+                duckdb.copy_file_to_table(
+                    local_dataset_path, ds_table_name, pg_client=pg_client
+                )
+                df = None
+            else:
+                if ds.file_type == DatasetType.csv:
+                    raw_df = pd.read_csv(local_dataset_path, dtype=str)
+                elif ds.file_type == DatasetType.parquet:
+                    raw_df = geoparquet.read_df(local_dataset_path)
+                else:
+                    raise Exception(f"Invalid file_type for {ds.id}: {ds.file_type}")
+                df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
 
-        # make column names more sql-friendly
-        columns = {
-            column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
-            for column in df.columns
-        }
-        df.rename(columns=columns, inplace=True)
-        pg_client.insert_dataframe(df, ds_table_name)
+        if df is not None:
+            # make column names more sql-friendly
+            columns = {
+                column: column.strip()
+                .replace("-", "_")
+                .replace("'", "_")
+                .replace(" ", "_")
+                for column in df.columns
+            }
+            df.rename(columns=columns, inplace=True)
+            pg_client.insert_dataframe(df, ds_table_name)
 
         if include_ogc_fid_col:
             # This maybe should be applicable to pg_dumps, but they tend to have this column already
