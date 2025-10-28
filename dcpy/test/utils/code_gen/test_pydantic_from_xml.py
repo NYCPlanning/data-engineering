@@ -9,20 +9,52 @@ import uuid
 
 from dcpy.utils.code_gen import pydantic_from_xml
 
+# Original, most minimal XML example
+# XML_TEMPLATE = """<?xml version="1.0"?>
+# <metadata xml:lang="en">
+#     <Esri>
+#         <CreaDate>{crea_date}</CreaDate>
+#         <CreaTime>{crea_time}</CreaTime>
+#         <ArcGISFormat>{arcgis_format}</ArcGISFormat>
+#         <SyncOnce>{sync_once}</SyncOnce>
+#         <scaleRange>
+#             <minScale>{min_scale}</minScale>
+#             <maxScale>{max_scale}</maxScale>
+#         </scaleRange>
+#         <ArcGISProfile>{arcgis_profile}</ArcGISProfile>
+#     </Esri>
+#     <mdHrLv>
+#         <ScopeCd value="{scope_value}" />
+#     </mdHrLv>
+#     <mdDateSt Sync="{md_date_st_sync}">{md_date_st}</mdDateSt>
+# </metadata>
+# """
 
+# Slightly more complex XML example
 XML_TEMPLATE = """<?xml version="1.0"?>
 <metadata xml:lang="en">
     <Esri>
         <CreaDate>{crea_date}</CreaDate>
         <CreaTime>{crea_time}</CreaTime>
         <ArcGISFormat>{arcgis_format}</ArcGISFormat>
-        <SyncOnce>TRUE</SyncOnce>
+        <SyncOnce>{sync_once}</SyncOnce>
+        <DataProperties>
+            <itemProps>
+                <itemName Sync="{item_name_sync}">{item_name}</itemName>
+                <imsContentType Sync="{ims_content_type_sync}">{ims_content_type}</imsContentType>
+            </itemProps>
+        </DataProperties>
         <scaleRange>
             <minScale>{min_scale}</minScale>
             <maxScale>{max_scale}</maxScale>
         </scaleRange>
         <ArcGISProfile>{arcgis_profile}</ArcGISProfile>
     </Esri>
+    <dataIdInfo>
+        <idCitation>
+            <resTitle>{res_title}</resTitle>
+        </idCitation>
+    </dataIdInfo>
     <mdHrLv>
         <ScopeCd value="{scope_value}" />
     </mdHrLv>
@@ -35,9 +67,15 @@ DEFAULT_VALUES = {
     "crea_date": "19700101",
     "crea_time": "00000000",
     "arcgis_format": "1.0",
+    "sync_once": "TRUE",
+    "item_name": "Dataset Title",
+    "item_name_sync": "TRUE",
+    "ims_content_type": "002",
+    "ims_content_type_sync": "TRUE",
     "min_scale": "150000000",
     "max_scale": "5000",
     "arcgis_profile": "ISO19139",
+    "res_title": "Dataset Title",
     "scope_value": "005",
     "md_date_st": "19261122",
     "md_date_st_sync": "TRUE",
@@ -114,6 +152,10 @@ def test_generate_and_parse_sample_xml(generated_module):
     # ArcGISFormat should be float
     assert isinstance(esri.arc_gis_format, float)
     assert esri.arc_gis_format == float(values["arcgis_format"])
+
+    # SyncOnce should be string
+    assert isinstance(esri.sync_once, str)
+    assert esri.sync_once == values["sync_once"]
 
     # scaleRange min/max should be ints
     assert esri.scale_range.min_scale == int(values["min_scale"])
