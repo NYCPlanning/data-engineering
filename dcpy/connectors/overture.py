@@ -5,7 +5,7 @@ from typing import Literal
 
 from dcpy.connectors.registry import Connector
 
-BASE_URL = "s3://overturemaps-us-west-2"
+BASE_URL = "az://overturemapswestus2.blob.core.windows.net"
 
 RELEASE = "2025-10-22.0"
 
@@ -30,6 +30,7 @@ OvertureType = Literal[
 nyc_bbox = (-74.2591, 40.4766, -73.7002, 40.9174)
 
 
+# took 40 s to pull NYC data on my home wifi
 def download(
     *,
     bbox: tuple[float, float, float, float] = nyc_bbox,
@@ -56,6 +57,7 @@ def download(
         overturemaps_cli.copy(reader, writer)
 
 
+# took 40 s to pull NYC data on my home wifi
 def download_duckdb(
     type_: OvertureType,
     output: Path,
@@ -74,7 +76,7 @@ def download_duckdb(
         SELECT
             *
         FROM
-            read_parquet('{BASE_URL}/release/{RELEASE}/theme={type_theme_map[type_]}/type={type_}/*.parquet', filename=true, hive_partitioning=1)
+            read_parquet('{BASE_URL}/release/{RELEASE}/theme={type_theme_map[type_]}/type={type_}/*', filename=true, hive_partitioning=1)
         WHERE
             bbox.xmin <= {xmax} AND
             bbox.xmax >= {xmin} AND
