@@ -33,4 +33,4 @@ SELECT
     seg.direction,
     nodes.nodeid
 FROM segment_endpoints AS seg
-INNER JOIN nodes ON st_dwithin(seg.geom, nodes.geom, 0.01)
+INNER JOIN nodes ON st_dwithin(seg.geom, nodes.geom, 0.0025)
