@@ -30,7 +30,7 @@ OvertureType = Literal[
 nyc_bbox = (-74.2591, 40.4766, -73.7002, 40.9174)
 
 
-# took 40 s to pull NYC data on my home wifi
+# took 27 s to pull NYC data on my home wifi
 def download(
     *,
     bbox: tuple[float, float, float, float] = nyc_bbox,
@@ -57,7 +57,7 @@ def download(
         overturemaps_cli.copy(reader, writer)
 
 
-# took 40 s to pull NYC data on my home wifi
+# took 36 s to pull NYC data on my home wifi
 def download_duckdb(
     type_: OvertureType,
     output: Path,
@@ -99,10 +99,12 @@ class OvertureConnector(Connector):
         bbox: tuple[float, float, float, float] = nyc_bbox,
         **kwargs,
     ) -> dict:
-        filename = filename or f"{key}.{format}"
+        extension = "parquet" if format == "geoparquet" else format
+        filename = filename or f"{key}.{extension}"
         destination_path.mkdir(parents=True, exist_ok=True)
         output = destination_path / filename
         download(type_=key, bbox=bbox, output_format=format, output=output)
+        # download_duckdb(type_=key, bbox=bbox, output=output)
         return {"path": output}
 
     def pull(self, key: str, destination_path: Path, **kwargs):
