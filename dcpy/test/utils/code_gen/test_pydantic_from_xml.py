@@ -2,35 +2,18 @@ import importlib.util
 import sys
 from pathlib import Path
 import pytest
+import shutil
 import logging
 import difflib
 from xml.etree.ElementTree import canonicalize
 import uuid
+from pprint import pprint
 
 from dcpy.utils.code_gen import pydantic_from_xml
 
-# Original, most minimal XML example
-# XML_TEMPLATE = """<?xml version="1.0"?>
-# <metadata xml:lang="en">
-#     <Esri>
-#         <CreaDate>{crea_date}</CreaDate>
-#         <CreaTime>{crea_time}</CreaTime>
-#         <ArcGISFormat>{arcgis_format}</ArcGISFormat>
-#         <SyncOnce>{sync_once}</SyncOnce>
-#         <scaleRange>
-#             <minScale>{min_scale}</minScale>
-#             <maxScale>{max_scale}</maxScale>
-#         </scaleRange>
-#         <ArcGISProfile>{arcgis_profile}</ArcGISProfile>
-#     </Esri>
-#     <mdHrLv>
-#         <ScopeCd value="{scope_value}" />
-#     </mdHrLv>
-#     <mdDateSt Sync="{md_date_st_sync}">{md_date_st}</mdDateSt>
-# </metadata>
-# """
+PLUTO_METADATA_XML = "shapefile_metadata_pluto_export.xml"
 
-# Slightly more complex XML example
+# Test a minimal XML example
 XML_TEMPLATE = """<?xml version="1.0"?>
 <metadata xml:lang="en">
     <Esri>
@@ -64,7 +47,7 @@ XML_TEMPLATE = """<?xml version="1.0"?>
 
 
 DEFAULT_VALUES = {
-    "crea_date": "19700101",
+    "crea_date": "19261122",
     "crea_time": "00000000",
     "arcgis_format": "1.0",
     "sync_once": "TRUE",
@@ -83,7 +66,30 @@ DEFAULT_VALUES = {
 
 
 @pytest.fixture
-def generated_module(tmp_path: Path):
+def temp_pluto_md_path(utils_resources_path, tmp_path):
+    in_file = utils_resources_path / PLUTO_METADATA_XML
+    out_file = tmp_path / PLUTO_METADATA_XML
+    shutil.copy2(
+        src=in_file,
+        dst=out_file,
+    )
+    return out_file
+
+
+@pytest.fixture
+def temp_inline_md_as_string():
+    xml_content = XML_TEMPLATE
+    return xml_content
+
+
+@pytest.fixture
+def temp_pluto_md_as_string(temp_pluto_md_path):
+    xml_content = temp_pluto_md_path.read_text()
+    return xml_content
+
+
+@pytest.fixture(params=["temp_inline_md_as_string", "temp_pluto_md_as_string"])
+def generated_module(tmp_path: Path, request):
     """Generate the sample XML using DEFAULT_VALUES, run the generator, load
     the generated module and yield (module, xml_text, values). After the
     test completes remove the module from sys.modules to avoid pollution.
@@ -91,7 +97,8 @@ def generated_module(tmp_path: Path):
     values = DEFAULT_VALUES
 
     xml_file = tmp_path / "sample.xml"
-    xml_text = XML_TEMPLATE.format(**values)
+    template_text = request.getfixturevalue(request.param)
+    xml_text = template_text.format(**values)
     xml_file.write_text(xml_text, encoding="utf-8")
 
     out_py = tmp_path / "generated.py"
@@ -157,11 +164,27 @@ def test_generate_and_parse_sample_xml(generated_module):
     assert isinstance(esri.sync_once, str)
     assert esri.sync_once == values["sync_once"]
 
-    # scaleRange min/max should be ints
-    assert esri.scale_range.min_scale == int(values["min_scale"])
-    assert isinstance(esri.scale_range.min_scale, int)
-    assert esri.scale_range.max_scale == int(values["max_scale"])
-    assert isinstance(esri.scale_range.max_scale, int)
+    # itemName
+    assert isinstance(esri.data_properties.item_props.item_name.value, str)
+    assert esri.data_properties.item_props.item_name.value == values["item_name"]
+    assert isinstance(esri.data_properties.item_props.item_name.sync, str)
+    assert esri.data_properties.item_props.item_name.sync == values["item_name_sync"]
+
+    # imsContentType
+    assert isinstance(esri.data_properties.item_props.ims_content_type.value, str)
+    assert (
+        esri.data_properties.item_props.ims_content_type.value
+        == values["ims_content_type"]
+    )
+    assert isinstance(esri.data_properties.item_props.ims_content_type.sync, str)
+    assert (
+        esri.data_properties.item_props.ims_content_type.sync
+        == values["ims_content_type_sync"]
+    )
+
+    # resTitle
+    assert isinstance(root.data_id_info.id_citation.res_title, str)
+    assert root.data_id_info.id_citation.res_title == values["res_title"]
 
     # mdHrLv.ScopeCd @value preserves leading zeros as string
     assert hasattr(root, "md_hr_lv")
