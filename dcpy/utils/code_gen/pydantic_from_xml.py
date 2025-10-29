@@ -102,8 +102,8 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
 
         Heuristics:
         - If every sample is an integer, return 'int'.
-        - If any sample is a float (and none are non-numeric), return 'float'.
-        - Otherwise return 'str'.
+        - If any sample is a float AND can be round-tripped exactly, return 'float'.
+        - Otherwise return 'str' (to preserve precision).
 
         Edge case: preserve leading-zero numeric-looking strings as strings.
         Examples preserved as strings: "00", "01", "0000", "-01".
@@ -126,6 +126,14 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
             int_part = s_no_exp.split(".", 1)[0]
             return len(int_part) > 1 and int_part.startswith("0")
 
+        def _can_round_trip_as_float(s: str) -> bool:
+            """Check if a string can be converted to float and back without precision loss."""
+            try:
+                f = float(s)
+                return str(f) == s
+            except Exception:
+                return False
+
         for s in samples:
             s = s.strip()
             if s == "":
@@ -147,6 +155,9 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
             # try float (accepts scientific notation)
             try:
                 float(s)
+                # Check if it can round-trip without precision loss
+                if not _can_round_trip_as_float(s):
+                    return "str"
                 any_float = True
             except Exception:
                 return "str"

@@ -7,7 +7,6 @@ import logging
 import difflib
 from xml.etree.ElementTree import canonicalize
 import uuid
-from pprint import pprint
 
 from dcpy.utils.code_gen import pydantic_from_xml
 
