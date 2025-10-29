@@ -1,7 +1,8 @@
 from __future__ import annotations
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from typing import DefaultDict, Dict, List, TypedDict
+from typing import DefaultDict, Dict, List
+from typing_extensions import TypedDict
 from pathlib import Path
 import re
 import typer
@@ -156,9 +157,47 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
             return "float"
         return "str"
 
-    # Order classes: children first. Emit leaf nodes before parents by sorting
-    # on number of children, and ensure the document root is written last.
-    sorted_tags = sorted(tags.keys(), key=lambda t: len(set(tags[t]["children"])))
+    # Order classes: emit child classes before parent classes using a
+    # topological sort (Kahn's algorithm). We build a graph where an edge
+    # child -> parent ensures children are emitted first. We only include
+    # tags that will be emitted as classes (i.e., non-leaf text-only tags).
+    emit_tags = [t for t in tags.keys() if t not in leaf_text_tags]
+
+    # build adjacency list for child -> parent edges
+    adj: DefaultDict[str, List[str]] = defaultdict(list)
+    indegree: DefaultDict[str, int] = defaultdict(int)
+
+    for parent in emit_tags:
+        for ch in set(tags[parent]["children"]):
+            if ch in leaf_text_tags:
+                continue
+            # child -> parent
+            adj[ch].append(parent)
+            indegree[parent] += 1
+
+    # nodes with zero indegree (no children pointing to them) come first
+    zero = sorted([n for n in emit_tags if indegree.get(n, 0) == 0])
+    topo: List[str] = []
+    while zero:
+        n = zero.pop(0)
+        topo.append(n)
+        for m in adj.get(n, []):
+            indegree[m] -= 1
+            if indegree[m] == 0:
+                zero.append(m)
+        zero.sort()
+
+    if len(topo) != len(emit_tags):
+        # cycle detected — this generator assumes no reused/cyclic class
+        # references. Raise a clear error for now.
+        raise RuntimeError(
+            "Cycle detected in tag dependencies — cannot emit classes without "
+            "forward references. Consider simplifying the XML or enabling "
+            "quoted forward-references."
+        )
+
+    # ensure non-emitted (leaf text-only) tags are not included
+    sorted_tags = topo
     root_tag = root.tag
     if root_tag in sorted_tags:
         sorted_tags = [t for t in sorted_tags if t != root_tag] + [root_tag]
@@ -170,7 +209,7 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
         f"Source XML: {xml_path.name}\n"
         f'Do not edit directly.\n"""'
     )
-    lines.append("from __future__ import annotations")
+    # lines.append("from __future__ import annotations")
     lines.append("from pydantic_xml import BaseXmlModel, element, attr")
     lines.append("")
 
@@ -215,13 +254,19 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
                         )
                 else:
                     ch_class = _to_class_name(ch)
+                    # Use quoted forward-references for generated classes to
+                    # avoid import-time ordering issues (pydantic-xml registers
+                    # serializers at class creation). Quoting the annotation
+                    # defers evaluation and prevents "partially initialized" errors.
                     if count > 1:
+                        type_str = f"list[{ch_class}] | None"
                         class_lines.append(
-                            f'    {fname}: list[{ch_class}] | None = element(tag="{ch}", default_factory=list)'
+                            f'    {fname}: "{type_str}" = element(tag="{ch}", default_factory=list)'
                         )
                     else:
+                        type_str = f"{ch_class} | None"
                         class_lines.append(
-                            f'    {fname}: {ch_class} | None = element(tag="{ch}", default=None)'
+                            f'    {fname}: "{type_str}" = element(tag="{ch}", default=None)'
                         )
 
         # If the element has text (even when it has attributes) but no child elements,
@@ -231,6 +276,7 @@ def generate_from_xml(xml_path: str | Path, out_path: str | Path):
             val_type = _infer_text_type(info["samples"])
             # Bind the element's own text to a primitive-typed field per pydantic-xml
             # docs: a primitive-typed field on the model maps to the element's text.
+            # Primitive types don't need quoting.
             class_lines.append(f"    value: {val_type} | None = None")
 
         # if class body empty, add pass
