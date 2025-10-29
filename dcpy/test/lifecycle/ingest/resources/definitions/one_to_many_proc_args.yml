@@ -1,0 +1,30 @@
+id: one_to_many
+acl: private
+
+attributes:
+  name: Sample One-To-Many Definition
+
+source:
+  type: local_file
+  key: dcpy/test/lifecycle/ingest/resources/test_data/test.gdb.zip
+
+dataset_defaults:
+  file_format:
+    type: geodatabase
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { fake_arg: True }
+
+datasets:
+- id: test_dataset
+  attributes:
+    name: Downstream Dataset 1
+  file_format:
+    layer: downstream_1
+
+- id: downstream_dataset_2
+  attributes:
+    name: Downstream Dataset 2
+  file_format:
+    layer: downstream_2

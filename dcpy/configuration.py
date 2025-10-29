@@ -35,9 +35,7 @@ IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
 PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
 
-TEMPLATE_DIR: Path | None = (
-    Path(env["TEMPLATE_DIR"]) if env.get("TEMPLATE_DIR") else None
-)
+INGEST_DEF_DIR = Path(env.get("TEMPLATE_DIR", "./ingest_templates"))
 
 SFTP_HOST = env.get("SFTP_HOST")
 SFTP_USER = env.get("SFTP_USER")

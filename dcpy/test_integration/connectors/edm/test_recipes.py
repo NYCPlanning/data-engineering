@@ -84,7 +84,7 @@ def local_recipes_conn(tmp_path):
 # @pytest.fixture
 def recipes_config():
     with open(RESOURCE_DIR / "config.json") as f:
-        return ingest.Config(**json.load(f))
+        return ingest.IngestedDataset(**json.load(f))
 
 
 def _test_connector_interface(conn: Connector, tmp_path):
@@ -139,8 +139,10 @@ def _test_connector_interface_pushing_private_files(conn: Connector, tmp_path):
     assert conn.version_exists(key=config.id, version="latest"), (
         "The latest version should exist"
     )
-    pulled_config = conn.get_config(key=config.id, version=config.version)
-    assert config.model_dump() == pulled_config.model_dump(), (
+    pulled_config = conn.get_sparse_config(key=config.id, version=config.version)
+    assert config.model_dump(
+        mode="json", exclude_none=True
+    ) == pulled_config.model_dump(mode="json", exclude_none=True), (
         "The pushed config should match the pulled config"
     )
 
@@ -168,7 +170,7 @@ def _test_connector_interface_pushing_private_files(conn: Connector, tmp_path):
 def _test_connector_interface_pushing_public_files_success(conn: Connector, tmp_path):
     public_config = recipes_config()
     public_config.id = "test_public_push_success"
-    public_config.archival.acl = "public-read"
+    public_config.acl = "public-read"
     public_config.version = "testing_acls"
     file_path = tmp_path / f"{public_config.id}.csv"
     file_path.touch()
@@ -176,6 +178,7 @@ def _test_connector_interface_pushing_public_files_success(conn: Connector, tmp_
     conn.push(
         key=public_config.id,
         version=public_config.version,
+        acl="public-read",
         filepath=file_path,
         config=public_config,
         overwrite=False,
@@ -212,7 +215,7 @@ def _test_connector_interface_pushing_public_files_success(conn: Connector, tmp_
 def _test_connector_interface_pushing_public_files_failure(conn: Connector, tmp_path):
     public_config = recipes_config()
     public_config.id = "test_public_push_failure"
-    public_config.archival.acl = "public-read"
+    public_config.acl = "public-read"
     public_config.version = "testing_acls"
     file_path = tmp_path / f"{public_config.id}.csv"
     file_path.touch()

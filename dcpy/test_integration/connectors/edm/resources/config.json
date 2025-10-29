@@ -1,29 +1,42 @@
 {
     "name": "test",
     "version": "ingest",
+    "acl": "private",
     "attributes": {
         "name": "Test"
     },
-    "archival": {
-        "archival_timestamp": "2024-09-05T12:04:03.450135-04:00",
+    "source": {
+        "id": "test",
+        "attributes": {
+            "name": "Test"
+        },
+        "timestamp": "2024-09-05T12:04:03.450135-04:00",
         "raw_filename": "dummy.csv",
-        "acl": "private"
-    },
-    "ingestion": {
+        "acl": "private",
         "source": {
             "type": "local_file",
             "path": "dummy.csv"
         },
-        "file_format": {
-            "type": "csv"
+        "run_details": {
+            "type": "manual",
+            "runner": {
+                "username": "Finn van Krieken"
+            },
+            "timestamp": "2024-09-05T12:04:03.450135-04:00",
+            "logged": false
         }
     },
-    "run_details": {
-        "type": "manual",
-        "runner": {
-            "username": "Finn van Krieken"
+    "transformation": {
+        "file_format": {
+            "type": "csv"
         },
-        "timestamp": "2024-09-05T12:04:03.450135-04:00",
-        "logged": false
+        "run_details": {
+            "type": "manual",
+            "runner": {
+                "username": "Finn van Krieken"
+            },
+            "timestamp": "2024-09-05T12:04:03.450135-04:00",
+            "logged": false
+        }
     }
 }

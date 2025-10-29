@@ -96,10 +96,18 @@ def read_data_to_df(
         case file.Geodatabase():
             gdf = gpd.read_file(
                 local_data_path,
-                crs=data_format.crs,
                 encoding=data_format.encoding,
                 layer=data_format.layer,
             )
+            if (
+                data_format.crs
+                and isinstance(gdf, gpd.GeoDataFrame)
+                and (not gdf.crs or data_format.crs != gdf.crs.to_string())
+            ):
+                gdf_crs = gdf.crs.to_string() if gdf.crs else None
+                raise ValueError(
+                    f"Specified crs '{data_format.crs}' differs from crs in gdb: '{gdf_crs}'"
+                )
         case file.GeoJson():
             crs = data_format.crs or _read_geojson_crs(local_data_path) or "EPSG:4326"
             gdf = gpd.read_file(local_data_path, encoding=data_format.encoding)

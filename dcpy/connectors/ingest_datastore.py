@@ -1,12 +1,13 @@
 import json
 from pathlib import Path
+from pydantic import BaseModel
 from tempfile import TemporaryDirectory
 import yaml
 
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector
 from dcpy.models.connectors.edm.recipes import DatasetType
-from dcpy.models.lifecycle import ingest
+from dcpy.models.lifecycle.ingest import SparseConfig
 
 config_filename = "config.json"
 
@@ -20,8 +21,9 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
         key: str,
         *,
         version: str,
+        acl: str | None = None,
         filepath: Path,
-        config: ingest.Config,
+        config: BaseModel,
         overwrite: bool = False,
         latest: bool = False,
         **kwargs,
@@ -45,12 +47,12 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
             self.storage.push(
                 f"{dest_folder_path}/{filepath.name}",
                 filepath=filepath,
-                acl=config.archival.acl,
+                acl=acl,
             )
             self.storage.push(
                 f"{dest_folder_path}/config.json",
                 filepath=config_path,
-                acl=config.archival.acl,
+                acl=acl,
             )
 
             if latest:
@@ -58,12 +60,12 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
                 self.storage.push(
                     f"{latest_folder_path}/{filepath.name}",
                     filepath=filepath,
-                    acl=config.archival.acl,
+                    acl=acl,
                 )
                 self.storage.push(
                     f"{latest_folder_path}/config.json",
                     filepath=config_path,
-                    acl=config.archival.acl,
+                    acl=acl,
                 )
         return {}
 
@@ -73,9 +75,12 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
     def pull_versioned(
         self, key: str, version: str, destination_path: Path, **kwargs
     ) -> dict:
-        file_ext = DatasetType(kwargs.get("file_type", "parquet")).to_extension()
+        filename = kwargs.get(
+            "filename",
+            f"{key}.{DatasetType(kwargs.get('file_type', 'parquet')).to_extension()}",
+        )
         return self.storage.pull(
-            f"{key}/{version}/{key}.{file_ext}",
+            f"{key}/{version}/{filename}",
             destination_path,
         )
 
@@ -91,8 +96,8 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
             with open(Path(tmp_dir) / config_filename, "r", encoding="utf-8") as raw:
                 return yaml.safe_load(raw.read())
 
-    def get_config(self, key: str, version: str) -> ingest.Config:
-        return ingest.Config(**self._get_config_obj(key, version))
+    def get_sparse_config(self, key: str, version: str) -> SparseConfig:
+        return SparseConfig(**self._get_config_obj(key, version))
 
     def _is_library(self, key: str, version: str) -> bool:
         """
@@ -105,12 +110,10 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
         return "dataset" in config_dict
 
     def get_latest_version(self, key: str, **kwargs) -> str:
-        conf = self._get_config_obj(key, "latest")
-        if "version" in conf:
-            # library
-            return conf["version"]
-        else:
-            return conf["dataset"]["version"]
+        return self.get_sparse_config(key, "latest").version
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return self.storage.exists(f"{key}/{version}")
+
+    def __str__(self) -> str:
+        return f"ingest datastore connector at {self.storage.storage}"

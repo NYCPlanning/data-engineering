@@ -1,0 +1,12 @@
+id: jinja
+acl: public-read
+
+attributes:
+  name: Jinja with valid variables
+
+ingestion:
+  source:
+    type: file_download
+    url: https://www.google.com/secret_file_{{ version }}.csv
+  file_format:
+    type: csv
