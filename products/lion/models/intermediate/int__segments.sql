@@ -16,7 +16,12 @@
     ] 
 -%}
     SELECT
-        boro.boroughcode,
+        {% if source_layer == 'dcp_cscl_centerline' -%}
+            -- there's only one row where this actually makes a difference. Will report to GR
+            source.boroughcode,
+        {% else -%}
+            boro.boroughcode,
+        {% endif -%}
         source.segmentid,
         {% if source_layer == 'dcp_cscl_shoreline' -%} 
             NULL AS legacy_segmentid,
