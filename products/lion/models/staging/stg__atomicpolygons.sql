@@ -23,8 +23,8 @@ SELECT
     censusblock_2010_suffix::INT,
     censusblock_2020::INT AS censusblock_2020_basic,
     censusblock_2020_suffix::INT,
-    assemdist,
-    electdist,
+    nullif(assemdist, ' ') AS assemdist,
+    nullif(electdist, ' ') AS electdist,
     nullif(schooldist, '0') AS schooldist,
     geom
 FROM {{ source("recipe_sources", "dcp_cscl_atomicpolygons") }}
