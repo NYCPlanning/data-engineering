@@ -40,6 +40,7 @@ types-psycopg2
 pyarrow
 pyarrow-stubs
 pydantic
+pydantic-xml
 pytest
 pytest-cov
 pytest-xdist
