@@ -109,7 +109,7 @@ def load_dataset_into_pg(
                 "-f",
                 "PostgreSQL",
                 'PG:"host=$BUILD_ENGINE_HOST user=$BUILD_ENGINE_USER password=$BUILD_ENGINE_PW dbname=$BUILD_ENGINE_DB"',
-                local_dataset_path,
+                local_dataset_path / ds.custom["filename"],
                 ds.custom["layer_name"],
                 "-nln",
                 f"{pg_client.schema}.{ds_table_name}",
