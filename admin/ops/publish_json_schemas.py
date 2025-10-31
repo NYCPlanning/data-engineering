@@ -1,4 +1,3 @@
-# type: ignore
 from dcpy.utils import s3
 from dcpy.models.product import metadata as product_metadata
 from dcpy.models.product.dataset import metadata as dataset_metadata
@@ -27,24 +26,24 @@ schemas = [
         "schema": dataset_metadata.Metadata.model_json_schema(),
     },
     {
-        "name": "template.json",
+        "name": "ingest_dataset_definition.schema.json",
         "folder": "ingest/",
-        "schema": ingest_models.Template.model_json_schema(),
+        "schema": ingest_models.DatasetDefinition.model_json_schema(),
     },
     {
-        "name": "config.json",
+        "name": "ingest_datasource_defintion.schema.json",
         "folder": "ingest/",
-        "schema": ingest_models.Config.model_json_schema(),
+        "schema": ingest_models.DataSourceDefinition.model_json_schema(),
     },
 ]
 
 for schema in schemas:
     with TemporaryDirectory() as _dir:
-        p = Path(_dir) / schema["name"]
+        p = Path(_dir) / schema["name"]  # type: ignore
         open(p, "w").write(json.dumps(schema["schema"]))
         s3.upload_file(
             bucket="edm-publishing",
             path=p,
-            key=DO_SCHEMA_FOLDER + schema["folder"] + schema["name"],
+            key=DO_SCHEMA_FOLDER + schema["folder"] + schema["name"],  # type: ignore
             acl="public-read",
         )
