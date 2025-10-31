@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import zipfile
+from dcpy.models.data.shapefile_metadata import Metadata
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
@@ -37,7 +38,7 @@ class _FileManagerZipped:
             metadata: str = zf.read(path_to_file_in_zip).decode(encoding="utf-8")
             return metadata
 
-    def write_file(self, filename: str, contents):
+    def write_file(self, filename: str, contents: str):
         with zipfile.ZipFile(
             self.zip_path, "a", compression=zipfile.ZIP_DEFLATED
         ) as zf:
@@ -97,11 +98,14 @@ class Shapefile:
         Returns:
         str: Metadata content as string.
         """
-        return self.file_manager.read_file(f"{self.name}.xml")
+        xml: str = self.file_manager.read_file(f"{self.name}.xml")
+        metadata = Metadata.from_xml(xml)
+
+        return metadata
 
     def write_metadata(
         self,
-        metadata: str,
+        metadata: Metadata,
         overwrite: bool = False,
     ) -> None:
         """Write shapefile metadata.
@@ -121,7 +125,9 @@ class Shapefile:
         if overwrite:
             self.remove_metadata()
 
-        self.file_manager.write_file(f"{self.name}.xml", metadata)
+        md = str(metadata.to_xml())
+
+        self.file_manager.write_file(filename=f"{self.name}.xml", contents=md)
 
     def metadata_exists(self):
         """Detect whether shapefile has existing metadata.
