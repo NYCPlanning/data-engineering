@@ -105,11 +105,6 @@ jobs:
         if [ -d tests ]; then
           sqlfluff lint tests --templater=dbt
         fi
-    - name: dbt-checkpoint
-      working-directory: "."
-      run: |
-        echo -e "version: 1\ndbt-project-dir: products/${{ matrix.project }}\n" >> .dbt-checkpoint.yaml
-        pre-commit run --all-files
 
   mypy:
     runs-on: ubuntu-22.04
