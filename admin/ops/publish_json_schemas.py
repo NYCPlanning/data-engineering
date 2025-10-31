@@ -27,14 +27,14 @@ schemas = [
         "schema": dataset_metadata.Metadata.model_json_schema(),
     },
     {
-        "name": "template.json",
+        "name": "ingest_dataset_definition.schema.json",
         "folder": "ingest/",
-        "schema": ingest_models.Template.model_json_schema(),
+        "schema": ingest_models.DatasetDefinition.model_json_schema(),
     },
     {
-        "name": "config.json",
+        "name": "ingest_datasource_defintion.schema.json",
         "folder": "ingest/",
-        "schema": ingest_models.Config.model_json_schema(),
+        "schema": ingest_models.DataSourceDefinition.model_json_schema(),
     },
 ]
 
