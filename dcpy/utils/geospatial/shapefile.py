@@ -1,6 +1,15 @@
 import os
 from pathlib import Path
 import zipfile
+from datetime import datetime
+from dcpy.models.data.shapefile_metadata import (
+    Metadata,
+    Esri,
+    Mddatest,
+    Mdhrlv,
+    Scopecd,
+    Scalerange,
+)
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
@@ -37,7 +46,7 @@ class _FileManagerZipped:
             metadata: str = zf.read(path_to_file_in_zip).decode(encoding="utf-8")
             return metadata
 
-    def write_file(self, filename: str, contents):
+    def write_file(self, filename: str, contents: str):
         with zipfile.ZipFile(
             self.zip_path, "a", compression=zipfile.ZIP_DEFLATED
         ) as zf:
@@ -97,11 +106,14 @@ class Shapefile:
         Returns:
         str: Metadata content as string.
         """
-        return self.file_manager.read_file(f"{self.name}.xml")
+        xml: str = self.file_manager.read_file(f"{self.name}.xml")
+        metadata = Metadata.from_xml(xml)
+
+        return metadata
 
     def write_metadata(
         self,
-        metadata: str,
+        metadata: Metadata,
         overwrite: bool = False,
     ) -> None:
         """Write shapefile metadata.
@@ -121,7 +133,9 @@ class Shapefile:
         if overwrite:
             self.remove_metadata()
 
-        self.file_manager.write_file(f"{self.name}.xml", metadata)
+        md = str(metadata.to_xml())
+
+        self.file_manager.write_file(filename=f"{self.name}.xml", contents=md)
 
     def metadata_exists(self):
         """Detect whether shapefile has existing metadata.
@@ -134,6 +148,10 @@ class Shapefile:
     def remove_metadata(self):
         """Removes existing metadata file from shapefile."""
         self.file_manager.remove_file(f"{self.name}.xml")
+
+    def generate_metadata(self) -> Metadata:
+        """Generates a default Esri metadata object"""
+        return generate_metadata()
 
 
 def from_path(
@@ -152,6 +170,59 @@ def from_path(
         Shapefile: See Shapefile class definition.
     """
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
+
+
+def generate_metadata() -> Metadata:
+    """Generates a default Esri metadata object"""
+
+    def _get_esri_timestamp(dt_obj=None):
+        """
+        Generate Esri-style CreaDate and CreaTime values.
+
+        Args:
+            dt_obj: datetime object (uses current time if None)
+
+        Returns:
+            tuple: (CreaDate, CreaTime) as strings
+        """
+        if dt_obj is None:
+            dt_obj = datetime.now()
+
+        # CreaDate: YYYYMMDD
+        crea_date = dt_obj.strftime("%Y%m%d")
+
+        # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
+        hundredths = 0  # Esri appears to ignore the hundredths in practice
+        crea_time = (
+            f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
+        )
+
+        return crea_date, crea_time
+
+    datestamp, timestamp = _get_esri_timestamp()
+    md_date_st = Mddatest(
+        sync="TRUE",
+        value=datestamp,
+    )
+    scale_range = Scalerange(
+        min_scale="150000000",
+        max_scale="5000",
+    )
+    esri = Esri(
+        crea_date=datestamp,
+        crea_time=timestamp,
+        arc_gis_format="1.0",
+        sync_once="TRUE",
+        scale_range=scale_range,
+        arc_gis_profile="ISO19139",
+    )
+    metadata = Metadata(
+        lang="en",
+        esri=esri,
+        md_hr_lv=Mdhrlv(scope_cd=Scopecd(value="005")),
+        md_date_st=md_date_st,
+    )
+    return metadata
 
 
 # def _validate_shp_input(shp_string: str | Path) -> None:
