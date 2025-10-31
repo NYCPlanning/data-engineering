@@ -8,6 +8,11 @@
 
 WITH segments AS (
     SELECT * FROM {{ ref("int__segments") }}
+    WHERE is_based_on_primary_segment
+),
+
+segment_locational_status AS (
+    SELECT * FROM {{ ref("int__segment_locational_status") }}
 ),
 
 centerline AS (
@@ -38,10 +43,6 @@ centerline_curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
 ),
 
-street_and_facecode AS (
-    SELECT * FROM {{ ref("int__streetcode_and_facecode") }}
-),
-
 sedat AS (
     SELECT * FROM {{ ref("int__split_election_district") }}
 ),
@@ -54,11 +55,7 @@ zips AS (
     SELECT * FROM {{ ref("int__segment_zipcodes") }}
 ),
 
-segment_locational_status AS (
-    SELECT * FROM {{ ref("int__segment_locational_status") }}
-),
-
-centerline_diff_coincident_segment AS (
+centerline_coincident_subway_or_rail AS (
     SELECT * FROM {{ ref("int__centerline_coincident_subway_or_rail") }}
 ),
 
@@ -67,16 +64,17 @@ noncl_coincident_segment AS (
 )
 
 SELECT
+    segments.lionkey_dev,
     segments.boroughcode,
-    street_and_facecode.face_code,
+    segments.face_code,
     segments.segment_seqnum,
     segments.segmentid,
-    street_and_facecode.five_digit_street_code,
-    street_and_facecode.lgc1,
-    street_and_facecode.lgc2,
-    street_and_facecode.lgc3,
-    street_and_facecode.lgc4,
-    street_and_facecode.boe_lgc_pointer::CHAR(1),
+    segments.five_digit_street_code,
+    segments.lgc1,
+    segments.lgc2,
+    segments.lgc3,
+    segments.lgc4,
+    segments.boe_lgc_pointer,
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     nodes.from_x,
@@ -140,10 +138,10 @@ SELECT
                     WHEN
                         centerline.trafdir = 'NV'
                         AND (
-                            centerline.l_low_hn <> '0'
-                            OR centerline.l_high_hn <> '0'
-                            OR centerline.r_low_hn <> '0'
-                            OR centerline.r_high_hn <> '0'
+                            centerline.l_low_hn != '0'
+                            OR centerline.l_high_hn != '0'
+                            OR centerline.r_low_hn != '0'
+                            OR centerline.r_high_hn != '0'
                         )
                         THEN 'W'
                     -- Ferry
@@ -189,7 +187,7 @@ SELECT
     CASE
         WHEN segments.feature_type = 'centerline'
             THEN
-                centerline.coincident_seg_count - coalesce(centerline_diff_coincident_segment.subway_or_rail_count, 0)
+                centerline.coincident_seg_count - coalesce(centerline_coincident_subway_or_rail.subway_or_rail_count, 0)
         ELSE
             coalesce(noncl_coincident_segment.coincident_seg_count, 1)
     END AS coincident_seg_count,
@@ -213,11 +211,11 @@ SELECT
     ap_left.left_2010_census_tract_suffix,
     ap_right.right_2010_census_tract_basic,
     ap_right.right_2010_census_tract_suffix,
-    street_and_facecode.lgc5,
-    street_and_facecode.lgc6,
-    street_and_facecode.lgc7,
-    street_and_facecode.lgc8,
-    street_and_facecode.lgc9,
+    segments.lgc5,
+    segments.lgc6,
+    segments.lgc7,
+    segments.lgc8,
+    segments.lgc9,
     segments.legacy_segmentid,
     ap_left.left_2000_census_block_basic,
     ap_left.left_2000_census_block_suffix,
@@ -254,26 +252,25 @@ SELECT
     segments.include_in_geosupport_lion,
     segments.include_in_bytes_lion
 FROM segments
-LEFT JOIN street_and_facecode ON segments.segmentid = street_and_facecode.segmentid
-LEFT JOIN nodes ON segments.segmentid = nodes.segmentid
-LEFT JOIN segment_locational_status ON segments.segmentid = segment_locational_status.segmentid
+LEFT JOIN nodes ON segments.lionkey_dev = nodes.lionkey_dev
+LEFT JOIN segment_locational_status ON segments.lionkey_dev = segment_locational_status.lionkey_dev
 LEFT JOIN
     atomic_polygons AS ap_left
     ON
-        segments.segmentid = ap_left.segmentid
+        segments.lionkey_dev = ap_left.lionkey_dev
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L'
 LEFT JOIN
     atomic_polygons AS ap_right
     ON
-        segments.segmentid = ap_right.segmentid
+        segments.lionkey_dev = ap_right.lionkey_dev
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R'
 LEFT JOIN saf ON segments.segmentid = saf.segmentid AND segments.boroughcode = saf.boroughcode
-LEFT JOIN nypd_service_areas ON segments.segmentid = nypd_service_areas.segmentid
+LEFT JOIN nypd_service_areas ON segments.lionkey_dev = nypd_service_areas.lionkey_dev
 LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode = sedat.boroughcode
 -- centerline only
-LEFT JOIN centerline ON segments.segmentid = centerline.segmentid
-LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid
-LEFT JOIN centerline_diff_coincident_segment ON centerline.segmentid = centerline_diff_coincident_segment.segmentid
+LEFT JOIN centerline ON segments.segmentid = centerline.segmentid AND segments.feature_type = 'centerline'
+LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid AND segments.feature_type = 'centerline'
+LEFT JOIN centerline_coincident_subway_or_rail ON centerline.segmentid = centerline_coincident_subway_or_rail.segmentid
 -- shoreline only
 -- rail only
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
@@ -281,4 +278,4 @@ LEFT JOIN rail ON segments.segmentid = rail.segmentid
 LEFT JOIN nsf ON segments.segmentid = nsf.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
-LEFT JOIN zips ON segments.segmentid = zips.segmentid AND segments.feature_type <> 'centerline'
+LEFT JOIN zips ON segments.lionkey_dev = zips.lionkey_dev AND segments.feature_type != 'centerline'

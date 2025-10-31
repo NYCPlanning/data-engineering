@@ -1,5 +1,6 @@
 -- Potential Spatial Matches between centerlines and underground trains (subways + rail)
 -- Leaving this separate from the counts, for diagnostic/exporatory purposes.
+-- NOTE the current approach may cause issues with proto-segment coincident counts
 
 {{ config(
     materialized = 'table',
@@ -16,8 +17,8 @@ WITH exact_matches AS (
         r.feature_type AS joined_segment_feature_type,
         'exact' AS match_type,
         0 AS distance
-    FROM {{ ref('int__segments') }} AS s
-    INNER JOIN {{ ref('int__segments') }} AS r ON ST_EQUALS(r.geom, s.geom)
+    FROM {{ ref('int__primary_segments') }} AS s
+    INNER JOIN {{ ref('int__primary_segments') }} AS r ON ST_EQUALS(r.geom, s.geom)
     WHERE s.feature_type NOT IN ('centerline', 'nonstreetfeatures')
 ),
 fuzzy_matches AS (
@@ -27,8 +28,8 @@ fuzzy_matches AS (
         r.feature_type AS joined_segment_feature_type,
         'fuzzy' AS match_type,
         ST_DISTANCE(r.midpoint, s.midpoint) AS distance
-    FROM {{ ref('int__segments') }} AS s
-    INNER JOIN {{ ref('int__segments') }} AS r
+    FROM {{ ref('int__primary_segments') }} AS s
+    INNER JOIN {{ ref('int__primary_segments') }} AS r
         -- 2.5 is probably too wide, but convenient for diagnostic/exporatory purposes
         ON ST_DWITHIN(r.midpoint, s.midpoint, 2.5)
     -- `WHERE NOT...` below shaves off a few seconds from the more conventional:

@@ -13,5 +13,5 @@ SELECT
     geoms.midpoint,
     geoms.feature_type
 FROM {{ ref("stg__rail_and_subway") }} AS rail
-INNER JOIN {{ ref("int__segments") }} AS geoms ON rail.segmentid = geoms.segmentid
+INNER JOIN {{ ref("int__primary_segments") }} AS geoms ON rail.segmentid = geoms.segmentid
 WHERE rail.row_type = '1'
