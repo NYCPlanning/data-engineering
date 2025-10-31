@@ -2,265 +2,335 @@
 Source XML: shapefile_metadata_pluto_export.xml
 Do not edit directly.
 """
+
 from pydantic_xml import BaseXmlModel, element, attr
+
 
 class Charsetcd(BaseXmlModel, tag="CharSetCd"):
     value: str | None = attr(name="value", default=None)
 
+
 class Consts(BaseXmlModel, tag="Consts"):
     use_limit: str | None = element(tag="useLimit", text=True, default=None)
+
 
 class Data(BaseXmlModel, tag="Data"):
     esri_property_type: str | None = attr(name="EsriPropertyType", default=None)
     value: str | None = None
 
+
 class Geoobjtypcd(BaseXmlModel, tag="GeoObjTypCd"):
     value: str | None = attr(name="value", default=None)
     sync: str | None = attr(name="Sync", default=None)
+
 
 class Presformcd(BaseXmlModel, tag="PresFormCd"):
     value: str | None = attr(name="value", default=None)
     sync: str | None = attr(name="Sync", default=None)
 
+
 class Scopecd(BaseXmlModel, tag="ScopeCd"):
     value: str | None = attr(name="value", default=None)
+
 
 class Spatreptypcd(BaseXmlModel, tag="SpatRepTypCd"):
     value: str | None = attr(name="value", default=None)
     sync: str | None = attr(name="Sync", default=None)
 
+
 class Thumbnail(BaseXmlModel, tag="Thumbnail"):
     data: "Data | None" = element(tag="Data", default=None)
 
+
 class Binary(BaseXmlModel, tag="Binary"):
     thumbnail: "Thumbnail | None" = element(tag="Thumbnail", default=None)
+
 
 class Topolevcd(BaseXmlModel, tag="TopoLevCd"):
     value: str | None = attr(name="value", default=None)
     sync: str | None = attr(name="Sync", default=None)
 
+
 class Atprecis(BaseXmlModel, tag="atprecis"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
+
 
 class Attalias(BaseXmlModel, tag="attalias"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Attrdef(BaseXmlModel, tag="attrdef"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Attrdefs(BaseXmlModel, tag="attrdefs"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Attrlabl(BaseXmlModel, tag="attrlabl"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Attrtype(BaseXmlModel, tag="attrtype"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Attscale(BaseXmlModel, tag="attscale"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
+
 
 class Attwidth(BaseXmlModel, tag="attwidth"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
 
+
 class Countrycode(BaseXmlModel, tag="countryCode"):
     value: str | None = attr(name="value", default=None)
     sync: str | None = attr(name="Sync", default=None)
+
 
 class Csunits(BaseXmlModel, tag="csUnits"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Datachar(BaseXmlModel, tag="dataChar"):
     char_set_cd: "Charsetcd | None" = element(tag="CharSetCd", default=None)
+
 
 class Eastbl(BaseXmlModel, tag="eastBL"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Efeacnt(BaseXmlModel, tag="efeacnt"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
+
 
 class Efeageom(BaseXmlModel, tag="efeageom"):
     code: int | None = attr(name="code", default=None)
     sync: str | None = attr(name="Sync", default=None)
 
+
 class Efeatyp(BaseXmlModel, tag="efeatyp"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Enttypc(BaseXmlModel, tag="enttypc"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
 
+
 class Enttypl(BaseXmlModel, tag="enttypl"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Enttypt(BaseXmlModel, tag="enttypt"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Enttyp(BaseXmlModel, tag="enttyp"):
     enttypl: "Enttypl | None" = element(tag="enttypl", default=None)
     enttypt: "Enttypt | None" = element(tag="enttypt", default=None)
     enttypc: "Enttypc | None" = element(tag="enttypc", default=None)
 
+
 class Envirdesc(BaseXmlModel, tag="envirDesc"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Esritopo(BaseXmlModel, tag="esritopo"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Extypecode(BaseXmlModel, tag="exTypeCode"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
+
 
 class Formatname(BaseXmlModel, tag="formatName"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Distformat(BaseXmlModel, tag="distFormat"):
     format_name: "Formatname | None" = element(tag="formatName", default=None)
+
 
 class Geoobjcnt(BaseXmlModel, tag="geoObjCnt"):
     sync: str | None = attr(name="Sync", default=None)
     value: int | None = None
 
+
 class Geoobjtyp(BaseXmlModel, tag="geoObjTyp"):
     geo_obj_typ_cd: "Geoobjtypcd | None" = element(tag="GeoObjTypCd", default=None)
+
 
 class Geogcsn(BaseXmlModel, tag="geogcsn"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Geometobjs(BaseXmlModel, tag="geometObjs"):
     name: str | None = attr(name="Name", default=None)
     geo_obj_typ: "Geoobjtyp | None" = element(tag="geoObjTyp", default=None)
     geo_obj_cnt: "Geoobjcnt | None" = element(tag="geoObjCnt", default=None)
 
+
 class Idcodespace(BaseXmlModel, tag="idCodeSpace"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Idversion(BaseXmlModel, tag="idVersion"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Identcode(BaseXmlModel, tag="identCode"):
     code: int | None = attr(name="code", default=None)
     sync: str | None = attr(name="Sync", default=None)
+
 
 class Imscontenttype(BaseXmlModel, tag="imsContentType"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Itemname(BaseXmlModel, tag="itemName"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Itemsize(BaseXmlModel, tag="itemSize"):
     sync: str | None = attr(name="Sync", default=None)
     value: float | None = None
 
+
 class Languagecode(BaseXmlModel, tag="languageCode"):
     value: str | None = attr(name="value", default=None)
     sync: str | None = attr(name="Sync", default=None)
+
 
 class Datalang(BaseXmlModel, tag="dataLang"):
     language_code: "Languagecode | None" = element(tag="languageCode", default=None)
     country_code: "Countrycode | None" = element(tag="countryCode", default=None)
 
+
 class Linkage(BaseXmlModel, tag="linkage"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Linrefer(BaseXmlModel, tag="linrefer"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Mdchar(BaseXmlModel, tag="mdChar"):
     char_set_cd: "Charsetcd | None" = element(tag="CharSetCd", default=None)
+
 
 class Mddatest(BaseXmlModel, tag="mdDateSt"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Mdhrlv(BaseXmlModel, tag="mdHrLv"):
     scope_cd: "Scopecd | None" = element(tag="ScopeCd", default=None)
+
 
 class Mdlang(BaseXmlModel, tag="mdLang"):
     language_code: "Languagecode | None" = element(tag="languageCode", default=None)
     country_code: "Countrycode | None" = element(tag="countryCode", default=None)
 
+
 class Northbl(BaseXmlModel, tag="northBL"):
     sync: str | None = attr(name="Sync", default=None)
     value: float | None = None
 
+
 class Otherkeys(BaseXmlModel, tag="otherKeys"):
     keyword: list[str] | None = element(tag="keyword", text=True, default_factory=list)
+
 
 class Pexml(BaseXmlModel, tag="peXml"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Presform(BaseXmlModel, tag="presForm"):
     pres_form_cd: "Presformcd | None" = element(tag="PresFormCd", default=None)
+
 
 class Idcitation(BaseXmlModel, tag="idCitation"):
     res_title: str | None = element(tag="resTitle", text=True, default=None)
     pres_form: "Presform | None" = element(tag="presForm", default=None)
 
+
 class Projcsn(BaseXmlModel, tag="projcsn"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Protocol(BaseXmlModel, tag="protocol"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Itemlocation(BaseXmlModel, tag="itemLocation"):
     linkage: "Linkage | None" = element(tag="linkage", default=None)
     protocol: "Protocol | None" = element(tag="protocol", default=None)
+
 
 class Refsysid(BaseXmlModel, tag="refSysID"):
     ident_code: "Identcode | None" = element(tag="identCode", default=None)
     id_code_space: "Idcodespace | None" = element(tag="idCodeSpace", default=None)
     id_version: "Idversion | None" = element(tag="idVersion", default=None)
 
+
 class Refsystem(BaseXmlModel, tag="RefSystem"):
     ref_sys_id: "Refsysid | None" = element(tag="refSysID", default=None)
+
 
 class Refsysinfo(BaseXmlModel, tag="refSysInfo"):
     ref_system: "Refsystem | None" = element(tag="RefSystem", default=None)
 
+
 class Resconst(BaseXmlModel, tag="resConst"):
     consts: "Consts | None" = element(tag="Consts", default=None)
 
+
 class Searchkeys(BaseXmlModel, tag="searchKeys"):
     keyword: list[str] | None = element(tag="keyword", text=True, default_factory=list)
+
 
 class Southbl(BaseXmlModel, tag="southBL"):
     sync: str | None = attr(name="Sync", default=None)
     value: float | None = None
 
+
 class Spatrptype(BaseXmlModel, tag="spatRpType"):
     spat_rep_typ_cd: "Spatreptypcd | None" = element(tag="SpatRepTypCd", default=None)
+
 
 class Spindex(BaseXmlModel, tag="spindex"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Esriterm(BaseXmlModel, tag="esriterm"):
     name: str | None = attr(name="Name", default=None)
@@ -271,36 +341,46 @@ class Esriterm(BaseXmlModel, tag="esriterm"):
     spindex: "Spindex | None" = element(tag="spindex", default=None)
     linrefer: "Linrefer | None" = element(tag="linrefer", default=None)
 
+
 class Ptvctinf(BaseXmlModel, tag="ptvctinf"):
     esriterm: "Esriterm | None" = element(tag="esriterm", default=None)
+
 
 class Spdoinfo(BaseXmlModel, tag="spdoinfo"):
     ptvctinf: "Ptvctinf | None" = element(tag="ptvctinf", default=None)
 
+
 class Toplvl(BaseXmlModel, tag="topLvl"):
     topo_lev_cd: "Topolevcd | None" = element(tag="TopoLevCd", default=None)
+
 
 class Vectspatrep(BaseXmlModel, tag="VectSpatRep"):
     geomet_objs: "Geometobjs | None" = element(tag="geometObjs", default=None)
     top_lvl: "Toplvl | None" = element(tag="topLvl", default=None)
 
+
 class Spatrepinfo(BaseXmlModel, tag="spatRepInfo"):
     vect_spat_rep: "Vectspatrep | None" = element(tag="VectSpatRep", default=None)
+
 
 class Transsize(BaseXmlModel, tag="transSize"):
     sync: str | None = attr(name="Sync", default=None)
     value: float | None = None
 
+
 class Disttranops(BaseXmlModel, tag="distTranOps"):
     trans_size: "Transsize | None" = element(tag="transSize", default=None)
+
 
 class Distinfo(BaseXmlModel, tag="distInfo"):
     dist_format: "Distformat | None" = element(tag="distFormat", default=None)
     dist_tran_ops: "Disttranops | None" = element(tag="distTranOps", default=None)
 
+
 class Type(BaseXmlModel, tag="type"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
+
 
 class Coordref(BaseXmlModel, tag="coordRef"):
     type: "Type | None" = element(tag="type", default=None)
@@ -309,12 +389,15 @@ class Coordref(BaseXmlModel, tag="coordRef"):
     projcsn: "Projcsn | None" = element(tag="projcsn", default=None)
     pe_xml: "Pexml | None" = element(tag="peXml", default=None)
 
+
 class Udom(BaseXmlModel, tag="udom"):
     sync: str | None = attr(name="Sync", default=None)
     value: str | None = None
 
+
 class Attrdomv(BaseXmlModel, tag="attrdomv"):
     udom: "list[Udom] | None" = element(tag="udom", default_factory=list)
+
 
 class Attr(BaseXmlModel, tag="attr"):
     attrlabl: "list[Attrlabl] | None" = element(tag="attrlabl", default_factory=list)
@@ -327,17 +410,21 @@ class Attr(BaseXmlModel, tag="attr"):
     attrdefs: "list[Attrdefs] | None" = element(tag="attrdefs", default_factory=list)
     attrdomv: "list[Attrdomv] | None" = element(tag="attrdomv", default_factory=list)
 
+
 class Detailed(BaseXmlModel, tag="detailed"):
     name: str | None = attr(name="Name", default=None)
     enttyp: "Enttyp | None" = element(tag="enttyp", default=None)
     attr: "list[Attr] | None" = element(tag="attr", default_factory=list)
 
+
 class Eainfo(BaseXmlModel, tag="eainfo"):
     detailed: "Detailed | None" = element(tag="detailed", default=None)
+
 
 class Westbl(BaseXmlModel, tag="westBL"):
     sync: str | None = attr(name="Sync", default=None)
     value: float | None = None
+
 
 class Geobndbox(BaseXmlModel, tag="GeoBndBox"):
     esri_extent_type: str | None = attr(name="esriExtentType", default=None)
@@ -347,11 +434,14 @@ class Geobndbox(BaseXmlModel, tag="GeoBndBox"):
     north_bl: "Northbl | None" = element(tag="northBL", default=None)
     south_bl: "Southbl | None" = element(tag="southBL", default=None)
 
+
 class Geoele(BaseXmlModel, tag="geoEle"):
     geo_bnd_box: "Geobndbox | None" = element(tag="GeoBndBox", default=None)
 
+
 class Dataext(BaseXmlModel, tag="dataExt"):
     geo_ele: "Geoele | None" = element(tag="geoEle", default=None)
+
 
 class Dataidinfo(BaseXmlModel, tag="dataIdInfo"):
     id_citation: "Idcitation | None" = element(tag="idCitation", default=None)
@@ -367,6 +457,7 @@ class Dataidinfo(BaseXmlModel, tag="dataIdInfo"):
     spat_rp_type: "Spatrptype | None" = element(tag="spatRpType", default=None)
     data_ext: "Dataext | None" = element(tag="dataExt", default=None)
 
+
 class Nativeextbox(BaseXmlModel, tag="nativeExtBox"):
     west_bl: "Westbl | None" = element(tag="westBL", default=None)
     east_bl: "Eastbl | None" = element(tag="eastBL", default=None)
@@ -374,30 +465,40 @@ class Nativeextbox(BaseXmlModel, tag="nativeExtBox"):
     north_bl: "Northbl | None" = element(tag="northBL", default=None)
     ex_type_code: "Extypecode | None" = element(tag="exTypeCode", default=None)
 
+
 class Itemprops(BaseXmlModel, tag="itemProps"):
     item_name: "Itemname | None" = element(tag="itemName", default=None)
-    ims_content_type: "Imscontenttype | None" = element(tag="imsContentType", default=None)
+    ims_content_type: "Imscontenttype | None" = element(
+        tag="imsContentType", default=None
+    )
     native_ext_box: "Nativeextbox | None" = element(tag="nativeExtBox", default=None)
     item_size: "Itemsize | None" = element(tag="itemSize", default=None)
     item_location: "Itemlocation | None" = element(tag="itemLocation", default=None)
 
+
 class Dataproperties(BaseXmlModel, tag="DataProperties"):
     item_props: "Itemprops | None" = element(tag="itemProps", default=None)
     coord_ref: "Coordref | None" = element(tag="coordRef", default=None)
+
 
 class Esri(BaseXmlModel, tag="Esri"):
     crea_date: str | None = element(tag="CreaDate", text=True, default=None)
     crea_time: str | None = element(tag="CreaTime", text=True, default=None)
     arc_gis_format: str | None = element(tag="ArcGISFormat", text=True, default=None)
     sync_once: str | None = element(tag="SyncOnce", text=True, default=None)
-    data_properties: "Dataproperties | None" = element(tag="DataProperties", default=None)
+    data_properties: "Dataproperties | None" = element(
+        tag="DataProperties", default=None
+    )
     sync_date: int | None = element(tag="SyncDate", text=True, default=None)
     sync_time: str | None = element(tag="SyncTime", text=True, default=None)
     mod_date: int | None = element(tag="ModDate", text=True, default=None)
     mod_time: str | None = element(tag="ModTime", text=True, default=None)
 
+
 class Metadata(BaseXmlModel, tag="metadata"):
-    lang: str | None = attr(name="{http://www.w3.org/XML/1998/namespace}lang", default=None)
+    lang: str | None = attr(
+        name="{http://www.w3.org/XML/1998/namespace}lang", default=None
+    )
     esri: "Esri | None" = element(tag="Esri", default=None)
     md_char: "Mdchar | None" = element(tag="mdChar", default=None)
     md_hr_lv: "Mdhrlv | None" = element(tag="mdHrLv", default=None)
