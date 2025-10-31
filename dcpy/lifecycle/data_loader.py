@@ -86,7 +86,7 @@ def load_dataset_into_pg(
     *,
     include_version_col: bool = True,
     include_ogc_fid_col: bool = True,
-    engine: Literal["pandas", "gdal"] = "pandas",
+    engine: Literal["pandas", "gdal"] = "gdal",
 ):
     has_preprocessor = ds.preprocessor is not None
     preprocessor = _get_preprocessor(ds)
