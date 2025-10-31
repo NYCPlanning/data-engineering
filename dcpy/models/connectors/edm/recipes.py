@@ -37,7 +37,7 @@ class DatasetType(StrEnum):
             "xlsx": "xlsx",
             "json": "json",
             "shapefile": "shp",
-            "geodatabase": "gdb.zip",
+            "gdb": "gdb.zip",
             "other": "dat",
         }
         return mapping[self.value]
