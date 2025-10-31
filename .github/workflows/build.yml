@@ -253,7 +253,7 @@ jobs:
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
   lion:
     needs: health_check
-    if: inputs.dataset_name == 'lion' # for now, only build directly until it's out of poc
+    if: inputs.dataset_name == 'lion' || inputs.dataset_name  == 'all'
     uses: ./.github/workflows/lion_build.yml
     secrets: inherit
     with:
