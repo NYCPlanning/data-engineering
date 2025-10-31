@@ -11,6 +11,7 @@ inputs:
   # segment source layers - backbone
   - name: dcp_cscl_gdb
     custom:
+      filename: ETL Working GDB.gdb.zip
       layer_name: Centerline
 
   missing_versions_strategy: find_latest # TODO - they should all match
