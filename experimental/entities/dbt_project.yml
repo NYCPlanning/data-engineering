@@ -1,0 +1,21 @@
+name: "entities"
+
+profile: "dcp-de-postgres"
+
+model-paths: [ "models" ]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
+
+models:
+  entities:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    product:
+      +materialized: table
+
+flags:
+  fail-fast: true

@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+- name: recipe_sources
+  schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+  tables:
+  # tax lots
+  - name: dof_dtm
+  - name: pluto_pts
+
+  # condos
+  - name: dof_condo
+  - name: pluto_input_cama_dof
+
+  # buildings
+  - name: dcp_pad
+  - name: doitt_buildingfootprints
+  - name: doitt_buildingfootprints_historical
