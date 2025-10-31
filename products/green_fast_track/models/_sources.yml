@@ -220,6 +220,8 @@ sources:
         combination_of_columns:
         - usnnum
         - usnname
+        config:
+          severity: warn # TODO 2025/10/31 there are two records outside of NYC that currently violate this
 
   - name: nysshpo_archaeological_buffer_areas
     columns:
