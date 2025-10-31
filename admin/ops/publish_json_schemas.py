@@ -1,4 +1,3 @@
-# type: ignore
 from dcpy.utils import s3
 from dcpy.models.product import metadata as product_metadata
 from dcpy.models.product.dataset import metadata as dataset_metadata
@@ -40,11 +39,11 @@ schemas = [
 
 for schema in schemas:
     with TemporaryDirectory() as _dir:
-        p = Path(_dir) / schema["name"]
+        p = Path(_dir) / schema["name"]  # type: ignore
         open(p, "w").write(json.dumps(schema["schema"]))
         s3.upload_file(
             bucket="edm-publishing",
             path=p,
-            key=DO_SCHEMA_FOLDER + schema["folder"] + schema["name"],
+            key=DO_SCHEMA_FOLDER + schema["folder"] + schema["name"],  # type: ignore
             acl="public-read",
         )
