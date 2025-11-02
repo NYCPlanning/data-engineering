@@ -157,9 +157,10 @@ class TestArchiveTransformedDatasets:
 
     def test_repeat_version_fails_if_data_diff(self, tmp_path, run_process_datasets):
         def _patch_pull(self, key, version, path):
+            output_path = path / f"{key}.parquet"
             gdf = gpd.GeoDataFrame({"a": [None]}).set_geometry("a")
-            gdf.to_parquet(path / f"{key}.parquet")
-            return {"path": path}
+            gdf.to_parquet(output_path)
+            return {"path": output_path}
 
         run.archive_transformed_datasets(staging_dir=tmp_path / ".staging", latest=True)
 

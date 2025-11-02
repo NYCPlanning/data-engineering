@@ -81,7 +81,7 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
         )
         return self.storage.pull(
             f"{key}/{version}/{filename}",
-            destination_path,
+            destination_path / filename,
         )
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:

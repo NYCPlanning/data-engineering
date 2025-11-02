@@ -163,7 +163,7 @@ def validate_data_against_existing_version(
                 "path"
             ]
             new = parquet.read_df(filepath)
-            existing = parquet.read_df(existing_file / f"{ds}.parquet")
+            existing = parquet.read_df(existing_file)
             if new.equals(existing):
                 logger.info(
                     f"Dataset id='{ds}' version='{version}' already exists and matches newly processed data"
