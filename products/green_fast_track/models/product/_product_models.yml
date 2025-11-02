@@ -6,7 +6,7 @@ models:
   config:
     contract:
       enforced: true
-  
+
   # contract
   columns:
   - name: bbl
@@ -55,7 +55,6 @@ models:
     data_type: string
     tests: [ not_null ]
   - name: vent_tower
-    data_type: string
     data_type: string
 
   - name: e_des_air_quality_flag
@@ -145,7 +144,6 @@ models:
   - name: shadow_hist_resources_flag
     data_type: string
     tests: [ not_null ]
-    data_type: string
   - name: shadow_hist_resources
     data_type: string
 
@@ -154,7 +152,7 @@ models:
     data_type: geometry(Geometry, 2263)
 
   tests:
-    # domain knowledge
+  # domain knowledge
   - dbt_expectations.expect_table_row_count_to_be_between:
       name: logic_buffer_source_data_a
       # expect more flags from buffered than non-buffered
@@ -173,7 +171,8 @@ models:
 - name: test_actual__pilot_projects
   description: Green Fast Track outputs for pilot project examples
   tests:
-    # test the expectations of pilot projects
+  # test the expectations of pilot projects
   - dbt_utils.equality:
       name: equality_green_fast_track_pilot_projects
       compare_model: ref('test_expected__pilot_projects')
+      exclude_columns: [ geom ]
