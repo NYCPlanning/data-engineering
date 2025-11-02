@@ -10,6 +10,7 @@ inputs:
   datasets:
   # segment source layers - backbone
   - name: dcp_cscl_gdb
+    import_as: '"Centerline"'
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Centerline
