@@ -104,19 +104,27 @@ def load_dataset_into_pg(
                 target_table_name=ds_table_name,
             )
         case "gdal", _:
-            command = [
-                "ogr2ogr",
-                "-f",
-                "PostgreSQL",
-                'PG:"host=$BUILD_ENGINE_HOST user=$BUILD_ENGINE_USER password=$BUILD_ENGINE_PW dbname=$BUILD_ENGINE_DB"',
-                local_dataset_path / ds.custom["filename"],
-                ds.custom["layer_name"],
-                "-nln",
-                f"{pg_client.schema}.{ds_table_name}",
-                "-lco",
-                "geometry",
-            ]
-            subprocess.check_call(command)
+            command = " ".join(
+                [
+                    "ogr2ogr",
+                    "-f",
+                    "PostgreSQL",
+                    'PG:"host=$BUILD_ENGINE_HOST port=$BUILD_ENGINE_PORT user=$BUILD_ENGINE_USER password=$BUILD_ENGINE_PASSWORD dbname=$BUILD_ENGINE_DB"',
+                    f'"{local_dataset_path}"',
+                    ds.custom["layer_name"],
+                    "-nln",
+                    f'"{pg_client.schema}"."{ds_table_name.lower()}"',
+                    "-nlt",
+                    "geometry",
+                    "-forceNullable",
+                    "-lco",
+                    "OVERWRITE=YES",
+                ]
+            )
+
+            # process = subprocess.list2cmdline(command)
+            # print(f"Command to be executed (list): {process}")
+            subprocess.check_call(command, shell=True)
         case "pandas", DatasetType.csv:
             raw_df = pd.read_csv(local_dataset_path, dtype=str)
             df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
