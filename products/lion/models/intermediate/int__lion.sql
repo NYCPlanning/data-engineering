@@ -89,8 +89,8 @@ SELECT
     centerline.l_low_hn,
     centerline.l_high_hn,
     CASE
-        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L') THEN 
-            nullif(centerline.lsubsect, '0') 
+        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L') THEN
+            nullif(centerline.lsubsect, '0')
     END AS lsubsect,
     CASE
         WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L') THEN
@@ -104,8 +104,9 @@ SELECT
     ap_right.right_atomicid,
     centerline.r_low_hn,
     centerline.r_high_hn,
-    CASE WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R') THEN 
-        nullif(centerline.rsubsect, '0') 
+    CASE
+        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R') THEN
+            nullif(centerline.rsubsect, '0')
     END AS rsubsect,
     CASE
         WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R') THEN
