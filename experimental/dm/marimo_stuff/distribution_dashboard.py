@@ -5,10 +5,24 @@ app = marimo.App(width="medium")
 
 with app.setup(hide_code=True):
     import marimo as mo
+    import pandas as pd
 
     from dcpy.connectors.edm.bytes import BytesConnector
     from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
     from dcpy.lifecycle import product_metadata
+    from dcpy.lifecycle.scripts import version_compare
+
+
+@app.cell
+def _():
+    versions = version_compare.run()
+    return (versions,)
+
+
+@app.cell
+def _(versions):
+    versions
+    return
 
 
 @app.cell(hide_code=True)
@@ -81,7 +95,7 @@ def open_data_url(key: str):
 
 @app.cell
 def _(data_engineering_datasets):
-    def check_versions(datasets: list[dict]):
+    def check_versions(datasets: list[dict]) -> pd.DataFrame:
         for dataset in data_engineering_datasets:
             open_data_key = ".".join(
                 [dataset["base_key"], dataset["open_data_destination_id"]]
@@ -92,7 +106,6 @@ def _(data_engineering_datasets):
             print(OpenDataConnector().list_versions(open_data_key))
             print(url)
             print("-----")
-
     return (check_versions,)
 
 
@@ -104,7 +117,9 @@ def _(check_versions, data_engineering_datasets):
 
 @app.cell
 def _():
-    colp_open_data_version = OpenDataConnector().list_versions(key="colp.colp.socrata")
+    colp_open_data_version = OpenDataConnector().list_versions(
+        key="colp.colp.socrata"
+    )
     colp_open_data_version
     return
 
