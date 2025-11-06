@@ -10,7 +10,7 @@ models:
   - name: saftype
     tests: [ not_null ]
   - name: alt_segdata_type
-    tests: 
+    tests:
     - not_null
     - accepted_values:
         arguments:
@@ -36,6 +36,11 @@ models:
     tests:
     - accepted_values:
         values: [ "Y", "N" ]
+- name: stg__principal_facecodes
+  columns:
+  - name: b7sc
+    tests: [ unique, not_null ]
+  - name: face_code
 - name: stg__sedat
   columns:
   - name: segmentid
