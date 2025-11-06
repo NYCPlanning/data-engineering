@@ -32,16 +32,37 @@ attrs==25.4.0
     #   aiohttp
     #   jsonschema
     #   referencing
+azure-core==1.36.0
+    # via
+    #   azure-storage-blob
+    #   azure-storage-file-datalake
+azure-storage-blob==12.27.1
+    # via
+    #   azure-storage-file-datalake
+    #   cloudpathlib
+azure-storage-file-datalake==12.22.0
+    # via cloudpathlib
 backoff==2.2.1
     # via posthog
+bcrypt==5.0.0
+    # via paramiko
 beautifulsoup4==4.14.2
     # via
+    #   dcpy
     #   gdown
     #   nbconvert
 bleach==6.3.0
     # via nbconvert
 blinker==1.9.0
     # via flask
+boto3==1.40.67
+    # via
+    #   cloudpathlib
+    #   dcpy
+botocore==1.40.67
+    # via
+    #   boto3
+    #   s3transfer
 bqplot==0.12.45
     # via leafmap
 branca==0.8.2
@@ -59,21 +80,33 @@ certifi==2025.10.5
     #   pyproj
     #   requests
 cffi==2.0.0
-    # via argon2-cffi-bindings
+    # via
+    #   argon2-cffi-bindings
+    #   cryptography
+    #   pynacl
 charset-normalizer==3.4.4
     # via requests
 click==8.3.0
     # via
     #   flask
     #   marimo
+    #   typer
     #   uvicorn
     #   whitebox
+cloudpathlib==0.23.0
+    # via dcpy
 comm==0.2.3
     # via ipywidgets
 contourpy==1.3.3
     # via matplotlib
+cryptography==46.0.3
+    # via
+    #   azure-storage-blob
+    #   paramiko
 cycler==0.12.1
     # via matplotlib
+dcpy @ git+https://github.com/NYCPlanning/data-engineering@e0766e70a5c4563d6ee17c5ba2ba7024a0cdefa8
+    # via -r requirements.in
 decorator==5.2.1
     # via ipython
 defusedxml==0.7.1
@@ -86,15 +119,22 @@ docutils==0.22.3
     # via marimo
 duckdb==1.4.1
     # via
+    #   dcpy
     #   duckdb-engine
     #   leafmap
     #   marimo
 duckdb-engine==0.17.0
     # via leafmap
+et-xmlfile==2.0.0
+    # via openpyxl
 eval-type-backport==0.2.2
     # via maplibre
+execnet==2.1.1
+    # via pytest-xdist
 executing==2.2.1
     # via stack-data
+faker==37.12.0
+    # via dcpy
 fastjsonschema==2.21.2
     # via nbformat
 filelock==3.20.0
@@ -117,14 +157,38 @@ frozenlist==1.8.0
     #   aiosignal
 gdown==5.2.0
     # via leafmap
+geoalchemy2==0.18.0
+    # via dcpy
 geojson==3.2.0
     # via leafmap
 geopandas==1.1.1
-    # via leafmap
+    # via
+    #   dcpy
+    #   leafmap
+google-api-core==2.28.1
+    # via
+    #   google-cloud-core
+    #   google-cloud-storage
 google-auth==2.43.0
-    # via google-genai
+    # via
+    #   google-api-core
+    #   google-cloud-core
+    #   google-cloud-storage
+    #   google-genai
+google-cloud-core==2.5.0
+    # via google-cloud-storage
+google-cloud-storage==3.5.0
+    # via cloudpathlib
+google-crc32c==1.7.1
+    # via
+    #   google-cloud-storage
+    #   google-resumable-media
 google-genai==1.49.0
     # via marimo
+google-resumable-media==2.7.2
+    # via google-cloud-storage
+googleapis-common-protos==1.71.0
+    # via google-api-core
 greenlet==3.2.4
     # via sqlalchemy
 h11==0.16.0
@@ -144,6 +208,12 @@ idna==3.11
     #   jsonschema
     #   requests
     #   yarl
+ijson==3.4.0.post0
+    # via dcpy
+iniconfig==2.3.0
+    # via pytest
+invoke==2.2.1
+    # via paramiko
 ipyevents==2.0.4
     # via leafmap
 ipyfilechooser==0.6.0
@@ -175,6 +245,10 @@ ipywidgets==8.1.8
     #   ipyvue
     #   leafmap
     #   whiteboxgui
+isodate==0.7.2
+    # via
+    #   azure-storage-blob
+    #   azure-storage-file-datalake
 isoduration==20.11.0
     # via jsonschema
 itsdangerous==2.2.0
@@ -189,6 +263,7 @@ jinja2==3.1.6
     # via
     #   altair
     #   branca
+    #   dcpy
     #   flask
     #   folium
     #   jupysql
@@ -197,6 +272,10 @@ jinja2==3.1.6
     #   nbconvert
 jiter==0.11.1
     # via openai
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 jsonpointer==3.0.0
     # via jsonschema
 jsonschema==4.25.1
@@ -241,9 +320,13 @@ kiwisolver==1.4.9
 lark==1.3.1
     # via rfc3987-syntax
 leafmap==0.57.1
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   dcpy
 loro==1.8.2
     # via marimo
+lxml==6.0.2
+    # via dcpy
 maplibre==0.3.5
     # via leafmap
 marimo==0.17.7
@@ -252,6 +335,8 @@ markdown==3.10
     # via
     #   marimo
     #   pymdown-extensions
+markdown-it-py==4.0.0
+    # via rich
 markupsafe==3.0.3
     # via
     #   flask
@@ -262,6 +347,8 @@ matplotlib==3.10.7
     # via leafmap
 matplotlib-inline==0.2.1
     # via ipython
+mdurl==0.1.2
+    # via markdown-it-py
 mistune==3.1.4
     # via nbconvert
 msgspec-m==0.19.2
@@ -298,10 +385,13 @@ numpy==2.3.4
     #   shapely
 openai==2.7.1
     # via marimo
+openpyxl==3.1.5
+    # via dcpy
 packaging==25.0
     # via
     #   altair
     #   duckdb-engine
+    #   geoalchemy2
     #   geopandas
     #   jupyter-events
     #   jupyter-server
@@ -310,13 +400,17 @@ packaging==25.0
     #   nbconvert
     #   plotly
     #   pyogrio
+    #   pytest
 pandas==2.3.3
     # via
     #   bqplot
+    #   dcpy
     #   geopandas
     #   leafmap
 pandocfilters==1.5.1
     # via nbconvert
+paramiko==4.0.0
+    # via dcpy
 parso==0.8.5
     # via jedi
 pexpect==4.9.0
@@ -331,6 +425,8 @@ ploomber-core==0.2.27
     #   jupysql-plugin
 plotly==6.4.0
     # via leafmap
+pluggy==1.6.0
+    # via pytest
 polars==1.35.1
     # via marimo
 polars-runtime-32==1.35.1
@@ -339,6 +435,8 @@ posthog==6.9.0
     # via ploomber-core
 prettytable==3.16.0
     # via jupysql
+probableparsing==0.0.1
+    # via usaddress
 prometheus-client==0.23.1
     # via jupyter-server
 prompt-toolkit==3.0.52
@@ -347,8 +445,17 @@ propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
+proto-plus==1.26.1
+    # via google-api-core
+protobuf==6.33.0
+    # via
+    #   google-api-core
+    #   googleapis-common-protos
+    #   proto-plus
 psutil==7.1.3
     # via marimo
+psycopg2-binary==2.9.11
+    # via dcpy
 psygnal==0.15.0
     # via anywidget
 ptyprocess==0.7.0
@@ -358,7 +465,9 @@ ptyprocess==0.7.0
 pure-eval==0.2.3
     # via stack-data
 pyarrow==22.0.0
-    # via polars
+    # via
+    #   dcpy
+    #   polars
 pyasn1==0.6.1
     # via
     #   pyasn1-modules
@@ -369,21 +478,33 @@ pycparser==2.23
     # via cffi
 pydantic==2.12.4
     # via
+    #   dcpy
     #   google-genai
     #   maplibre
     #   openai
+    #   pydantic-xml
 pydantic-core==2.41.5
-    # via pydantic
+    # via
+    #   pydantic
+    #   pydantic-xml
+pydantic-xml==2.18.0
+    # via dcpy
 pygments==2.19.2
     # via
     #   ipython
     #   ipython-pygments-lexers
     #   marimo
     #   nbconvert
+    #   pytest
+    #   rich
 pymdown-extensions==10.16.1
     # via marimo
+pynacl==1.6.0
+    # via paramiko
 pyogrio==0.11.1
-    # via geopandas
+    # via
+    #   dcpy
+    #   geopandas
 pyparsing==3.2.5
     # via matplotlib
 pyproj==3.7.2
@@ -394,23 +515,36 @@ pystac==1.14.1
     # via pystac-client
 pystac-client==0.9.0
     # via leafmap
+pytest==8.4.2
+    # via pytest-xdist
+pytest-xdist==3.8.0
+    # via dcpy
 python-box==7.3.2
     # via leafmap
+python-crfsuite==0.9.11
+    # via usaddress
 python-dateutil==2.9.0.post0
     # via
     #   arrow
+    #   botocore
+    #   dcpy
     #   jupyter-client
     #   matplotlib
     #   pandas
     #   posthog
     #   pystac
     #   pystac-client
+python-dotenv==1.2.1
+    # via dcpy
 python-json-logger==4.0.0
     # via jupyter-events
 pytz==2025.2
-    # via pandas
+    # via
+    #   dcpy
+    #   pandas
 pyyaml==6.0.3
     # via
+    #   dcpy
     #   jupyter-events
     #   marimo
     #   ploomber-core
@@ -426,11 +560,16 @@ referencing==0.37.0
     #   jupyter-events
 requests==2.32.5
     # via
+    #   azure-core
+    #   dcpy
     #   folium
     #   gdown
+    #   google-api-core
+    #   google-cloud-storage
     #   google-genai
     #   posthog
     #   pystac-client
+    #   socrata-py
 rfc3339-validator==0.1.4
     # via
     #   jsonschema
@@ -441,6 +580,10 @@ rfc3986-validator==0.1.1
     #   jupyter-events
 rfc3987-syntax==1.1.0
     # via jsonschema
+rich==14.2.0
+    # via
+    #   dcpy
+    #   typer
 rpds-py==0.28.0
     # via
     #   jsonschema
@@ -449,12 +592,18 @@ rsa==4.9.1
     # via google-auth
 ruff==0.14.3
     # via marimo
+s3transfer==0.14.0
+    # via boto3
 scooby==0.11.0
     # via leafmap
 send2trash==1.8.3
     # via jupyter-server
 shapely==2.1.2
-    # via geopandas
+    # via
+    #   dcpy
+    #   geopandas
+shellingham==1.5.4
+    # via typer
 simpervisor==1.0.0
     # via jupyter-server-proxy
 six==1.17.0
@@ -466,11 +615,15 @@ sniffio==1.3.1
     # via
     #   anyio
     #   openai
+socrata-py==1.1.13
+    # via dcpy
 soupsieve==2.8
     # via beautifulsoup4
 sqlalchemy==2.0.44
     # via
+    #   dcpy
     #   duckdb-engine
+    #   geoalchemy2
     #   jupysql
 sqlglot==27.29.0
     # via
@@ -484,6 +637,8 @@ stack-data==0.6.3
     # via ipython
 starlette==0.50.0
     # via marimo
+tabulate==0.9.0
+    # via dcpy
 tenacity==9.1.2
     # via google-genai
 terminado==0.18.1
@@ -523,10 +678,15 @@ traittypes==0.2.3
     # via
     #   bqplot
     #   ipyleaflet
+typer==0.20.0
+    # via dcpy
 typing-extensions==4.15.0
     # via
     #   altair
     #   anywidget
+    #   azure-core
+    #   azure-storage-blob
+    #   azure-storage-file-datalake
     #   beautifulsoup4
     #   google-genai
     #   openai
@@ -534,17 +694,24 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
+    #   typer
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
 tzdata==2025.2
     # via
     #   arrow
+    #   faker
     #   pandas
 uri-template==1.3.0
     # via jsonschema
 urllib3==2.5.0
-    # via requests
+    # via
+    #   botocore
+    #   dcpy
+    #   requests
+usaddress==0.5.16
+    # via dcpy
 uvicorn==0.38.0
     # via marimo
 wcwidth==0.2.14
@@ -573,6 +740,8 @@ whiteboxgui==2.3.0
     # via leafmap
 widgetsnbextension==4.0.15
     # via ipywidgets
+xlrd==2.0.2
+    # via dcpy
 xyzservices==2025.10.0
     # via
     #   folium
