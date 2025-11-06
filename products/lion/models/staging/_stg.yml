@@ -10,7 +10,7 @@ models:
   - name: saftype
     tests: [ not_null ]
   - name: alt_segdata_type
-    tests: 
+    tests:
     - not_null
     - accepted_values:
         arguments:

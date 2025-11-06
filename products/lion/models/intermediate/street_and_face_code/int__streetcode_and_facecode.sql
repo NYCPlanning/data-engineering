@@ -22,21 +22,9 @@ WITH lgcs_by_segment AS (
     FROM {{ ref("int__lgc") }}
     GROUP BY segmentid
 ),
-principal_streetnames AS (
-    SELECT
-        b7sc,
-        facecode
-    FROM {{ source("recipe_sources", "dcp_cscl_streetname") }}
-    WHERE principal_flag = 'Y'
-),
-principal_features AS (
-    SELECT
-        b7sc,
-        facecode
-    FROM {{ source("recipe_sources", "dcp_cscl_featurename") }}
-    WHERE principal_flag = 'Y'
+codes_by_b7sc AS (
+    SELECT * FROM {{ ref("int__b7sc_codes") }}
 )
-
 SELECT
     LEFT(lgcs_by_segment.b5sc, 1) AS boroughcode,
     lgcs_by_segment.segmentid,
@@ -51,7 +39,6 @@ SELECT
     lgcs_by_segment.lgc9,
     lgcs_by_segment.boe_lgc_pointer,
     RIGHT(lgcs_by_segment.b5sc, 5) AS five_digit_street_code,
-    COALESCE(principal_streetnames.facecode, principal_features.facecode) AS face_code
+    COALESCE(codes_by_b7sc.street_facecode, codes_by_b7sc.feature_facecode) AS face_code -- TODO, not quite right for non-centerline
 FROM lgcs_by_segment
-LEFT JOIN principal_streetnames ON lgcs_by_segment.preferred_b7sc = principal_streetnames.b7sc
-LEFT JOIN principal_features ON lgcs_by_segment.preferred_b7sc = principal_features.b7sc
+LEFT JOIN codes_by_b7sc ON lgcs_by_segment.preferred_b7sc = codes_by_b7sc.b7sc

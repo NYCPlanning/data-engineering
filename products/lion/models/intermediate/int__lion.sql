@@ -8,7 +8,6 @@
 
 WITH segments AS (
     SELECT * FROM {{ ref("int__segments") }}
-    WHERE is_based_on_primary_segment
 ),
 
 segment_locational_status AS (

@@ -80,18 +80,18 @@ primary_segments AS (
 
 segment_attributes AS (
     SELECT
-        primary_segments.segmentid,
         COALESCE(primary_segments.boroughcode, street_and_facecode.boroughcode) AS boroughcode,
-        primary_segments.legacy_segmentid,
+        street_and_facecode.face_code,
+        primary_segments.segment_seqnum,
+        primary_segments.segmentid,
         primary_segments.from_level_code,
         primary_segments.to_level_code,
-        primary_segments.segment_seqnum,
+        primary_segments.legacy_segmentid,
         primary_segments.geom,
         primary_segments.midpoint,
         primary_segments.start_point,
         primary_segments.end_point,
         primary_segments.shape_length,
-        street_and_facecode.face_code,
         street_and_facecode.five_digit_street_code,
         street_and_facecode.lgc1,
         street_and_facecode.lgc2,
