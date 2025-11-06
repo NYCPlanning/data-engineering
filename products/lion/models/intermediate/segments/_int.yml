@@ -1,0 +1,25 @@
+version: 2
+
+models:
+- name: int__primary_segments
+  columns:
+  - name: segmentid
+    tests: [ not_null, unique ]
+
+- name: int__segments
+  columns:
+  - name: lionkey_dev
+    tests: [ unique ]
+  - name: segmentid
+    tests: [ not_null ]
+  - name: feature_type
+    tests: [ not_null ]
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int__segments__key_ideal
+      combination_of_columns:
+      - boroughcode
+      - face_code
+      - segment_seqnum
+      config:
+        severity: warn
