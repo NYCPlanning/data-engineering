@@ -1,5 +1,5 @@
 models:
-- name: int__lgc
+- name: int__lgc_rank
   description: All local group codes ranked for segments
   columns:
   - name: segmentid
@@ -16,10 +16,9 @@ models:
         inclusive: true
   - name: boe_lgc_pointer
 
-- name: int__streetcode_and_facecode
-  description: Street codes and face code-related data for all segments
+- name: int__lgc
+  description: All lgc fields pivoted per segment
   columns:
-  - name: boroughcode
   - name: segmentid
     tests:
     - not_null
@@ -39,7 +38,3 @@ models:
     # TODO disable test for now, failing for one record
     # tests:
     # - not_null
-  - name: five_digit_street_code
-    tests:
-    - not_null
-  - name: face_code
