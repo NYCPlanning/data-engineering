@@ -1,4 +1,27 @@
 ﻿job_number,field,old_value,new_value,reason,edited_date,editor
+X01236818,classa_init,3,0,,11/3/2025,ML
+X01236818,hotel_init,3,0,,11/3/2025,ML
+X01236818,otherb_init,3,0,,11/3/2025,ML
+X01191941,classa_init,3,0,,11/3/2025,ML
+X01191941,hotel_init,3,0,,11/3/2025,ML
+X01191941,otherb_init,3,0,,11/3/2025,ML
+Q01165152,hotel_init,6,0,,11/3/2025,ML
+Q01165152,otherb_init,6,0,,11/3/2025,ML
+B01134261,classa_init,3,0,,11/3/2025,ML
+B01134261,hotel_init,3,0,,11/3/2025,ML
+B01134261,otherb_init,3,0,,11/3/2025,ML
+B01052640,classa_init,4,0,,11/3/2025,ML
+B01052640,hotel_init,4,0,,11/3/2025,ML
+B01052640,otherb_init,4,0,,11/3/2025,ML
+B01023143,classa_init,3,0,,11/3/2025,ML
+B01023143,hotel_init,3,0,,11/3/2025,ML
+B01023143,otherb_init,3,0,,11/3/2025,ML
+B00994180,classa_prop,4,0,,11/3/2025,ML
+B00994180,hotel_prop,4,0,,11/3/2025,ML
+B00994180,otherb_prop,4,0,,11/3/2025,ML
+520453795,classa_init,3,0,,11/3/2025,ML
+520453795,hotel_init,3,0,,11/3/2025,ML
+520453795,otherb_init,3,0,,11/3/2025,ML
 B00847849,latitude,,40.6572239,,8/12/2025,ML
 B00847849,longitude,,-73.93698803,,8/12/2025,ML
 B00848002,latitude,,40.6564344,,8/12/2025,ML
@@ -1520,7 +1543,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 102713057,hotel_prop,30,0,,8/29/2020,TD
 102713057,otherb_init,,0,,8/29/2020,TD
 102713057,otherb_prop,30,0,,8/29/2020,TD
-102714476,date_permittd,,12/4/00,,1/19/2021,KS
+102714476,date_permittd,,12/4/2000,,1/19/2021,KS
 102714984,classa_init,,4,,12/1/2019,
 102716296,classa_init,,14,,8/8/2022,VB
 102716296,classa_prop,14,15,,8/8/2022,VB
@@ -1644,8 +1667,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 102965105,otherb_init,,0,,8/24/2020,KS
 102965105,otherb_prop,5,0,,8/24/2020,KS
 102971090,classa_init,,116,change u_init,8/13/2019,
-102989198,date_permittd,,11/9/01,,1/19/2021,KS
-102989205,date_permittd,,9/5/01,,1/19/2021,KS
+102989198,date_permittd,,11/9/2001,,1/19/2021,KS
+102989205,date_permittd,,9/5/2001,,1/19/2021,KS
 102989759,hotel_init,9,0,,8/2/2023,VB
 102989759,hotel_prop,9,0,,8/2/2023,VB
 102989759,otherb_init,9,0,,8/2/2023,VB
@@ -1704,7 +1727,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 103067413,classa_prop,170,0,job related to units_.sql,2/21/2020,
 103067413,hotel_init,,288,job related to units_.sql,2/21/2020,
 103067413,hotel_prop,170,213,job related to units_.sql,2/21/2020,
-103076234,date_permittd,,11/19/03,,1/19/2021,KS
+103076234,date_permittd,,11/19/2003,,1/19/2021,KS
 103078571,classa_init,,0,,12/1/2019,
 103085965,classa_init,,6,change u_init,8/13/2019,
 103086330,classa_init,,23,,4/21/2022,VB
@@ -2091,7 +2114,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 103619657,otherb_init,,14,,8/3/2020,TD
 103619657,otherb_prop,1,0,,8/3/2020,TD
 103623571,classa_init,,21,change u_init,8/13/2019,
-103629799,date_permittd,,1/24/05,,1/19/2021,KS
+103629799,date_permittd,,1/24/2005,,1/19/2021,KS
 103632124,classa_init,,0,,7/16/2020,TD
 103632124,classa_prop,8,6,,7/16/2020,TD
 103636059,classa_init,,2,change u_init,8/13/2019,
@@ -2251,8 +2274,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 103906560,classa_init,,40,,4/21/2022,VB
 103907284,classa_init,428,438,,10/7/2024,ML
 103907284,classa_prop,464,445,,10/28/2025,ML
-103907284,hotel_init,464,180,,10/28/2025,ML
-103907284,hotel_prop,428,180,,10/7/2024,ML
+103907284,hotel_init,428,180,,10/30/2025,ML
+103907284,hotel_prop,464,180,,10/30/2025,ML
 103907284,otherb_init,428,0,,10/7/2024,ML
 103907284,otherb_prop,464,0,,10/28/2025,ML
 103911402,classa_init,,1,,12/1/2019,
@@ -2436,7 +2459,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 104065119,classa_init,,27,,7/15/2020,TD
 104065119,classa_prop,17,30,,7/15/2020,TD
 104070586,classa_init,,51,,4/21/2022,VB
-104085785,date_permittd,,2/2/06,,1/19/2021,KS
+104085785,date_permittd,,2/2/2006,,1/19/2021,KS
 104089200,classa_init,,14,change u_init,8/13/2019,
 104090001,classa_init,,0,change u_init,8/13/2019,
 104092731,classa_init,,4,,4/25/2022,VB
@@ -2931,7 +2954,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 104457035,hotel_prop,56,0,,8/29/2020,TD
 104457035,otherb_init,56,0,,8/29/2020,TD
 104457035,otherb_prop,56,0,,8/29/2020,TD
-104460753,date_permittd,,8/29/07,,1/19/2021,KS
+104460753,date_permittd,,8/29/2007,,1/19/2021,KS
 104471028,classa_init,,14,,4/21/2022,VB
 104471028,classa_prop,11,12,,4/21/2022,VB
 104472928,classa_prop,36,38,change u_init / change u_prop,8/13/2019,
@@ -3957,7 +3980,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 110298428,hotel_prop,89,88,,7/29/2020,AP
 110298428,otherb_prop,89,0,,8/29/2020,AP
 110304019,classa_init,13,1,job related to units_.sql,2/21/2020,
-110304153,date_permittd,,8/20/08,,1/19/2021,KS
+110304153,date_permittd,,8/20/2008,,1/19/2021,KS
 110305615,classa_init,10,2,,8/28/2020,AP
 110305615,hotel_init,10,0,,8/28/2020,AP
 110305615,hotel_prop,4,0,,8/28/2020,AP
@@ -4675,7 +4698,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 120362801,hotel_prop,28,0,,1/26/2021,KS
 120362801,otherb_init,27,0,,1/26/2021,KS
 120362801,otherb_prop,28,0,,1/26/2021,KS
-120362856,date_permittd,,7/14/10,,1/19/2021,KS
+120362856,date_permittd,,7/14/2010,,1/19/2021,KS
 120366852,classa_prop,197,0,,1/28/2020,
 120366852,hotel_prop,197,197,,1/28/2020,
 120367067,classa_init,12,1,,1/31/2020,
@@ -4744,7 +4767,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 120409290,otherb_prop,366,0,,4/19/2022,SL
 120412160,classa_init,8,9,,4/7/2023,SL
 120412160,classa_prop,9,0,,4/7/2023,SL
-120412160,date_permittd,,5/4/11,,1/19/2021,KS
+120412160,date_permittd,,5/4/2011,,1/19/2021,KS
 120412160,hotel_init,8,0,,4/7/2023,SL
 120412160,hotel_prop,9,0,,4/7/2023,SL
 120412160,otherb_init,8,0,,4/7/2023,SL
@@ -5221,7 +5244,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 120715887,hotel_prop,229,229,,4/19/2022,SL
 120715887,otherb_init,0,0,,4/19/2022,SL
 120715887,otherb_prop,229,0,,4/19/2022,SL
-120724706,date_permittd,,12/19/11,,1/19/2021,KS
+120724706,date_permittd,,12/19/2011,,1/19/2021,KS
 120724760,classa_prop,,0,change u_prop,8/13/2019,
 120724760,hotel_init,1,0,,8/29/2020,KS
 120724760,hotel_prop,,0,,8/29/2020,KS
@@ -11033,7 +11056,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 200904227,classa_init,,2,change u_init,8/13/2019,
 200905743,classa_init,,2,,12/1/2019,
 200906243,classa_init,,1,,12/1/2019,
-200906500,date_permittd,,4/10/06,,1/19/2021,KS
+200906500,date_permittd,,4/10/2006,,1/19/2021,KS
 200906840,classa_init,,1,change u_init,8/13/2019,
 200911317,classa_init,,3,,7/23/2020,TD
 200912799,classa_init,,1,change u_init,8/13/2019,
@@ -11043,8 +11066,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 200917561,classa_init,,1,,12/1/2019,
 200919747,classa_init,,2,,12/1/2019,
 200919854,classa_init,,1,,8/14/2020,SL
-200921431,date_permittd,,1/25/05,,1/19/2021,KS
-200921440,date_permittd,,1/25/05,,1/19/2021,KS
+200921431,date_permittd,,1/25/2005,,1/19/2021,KS
+200921440,date_permittd,,1/25/2005,,1/19/2021,KS
 200922136,classa_init,,1,,8/8/2022,VB
 200922136,hotel_init,,0,,8/8/2022,VB
 200922136,hotel_prop,1,0,,8/8/2022,VB
@@ -11073,10 +11096,10 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 200926515,hotel_prop,1,0,,8/2/2023,VB
 200926515,otherb_init,,0,,8/2/2023,VB
 200926515,otherb_prop,1,0,,8/2/2023,VB
-200929219,date_permittd,,8/10/05,,1/19/2021,KS
+200929219,date_permittd,,8/10/2005,,1/19/2021,KS
 200930252,classa_init,,1,,12/1/2019,
 200931028,classa_init,,1,change u_init,8/13/2019,
-200932526,date_permittd,,1/25/06,,1/19/2021,KS
+200932526,date_permittd,,1/25/2006,,1/19/2021,KS
 200933400,classa_init,,2,,7/23/2020,TD
 200935480,classa_init,,2,,8/31/2021,TD
 200935480,classa_prop,3,3,,8/31/2021,TD
@@ -11105,7 +11128,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 200973170,hotel_prop,3,0,,8/24/2020,KS
 200973170,otherb_init,,0,,8/24/2020,KS
 200973170,otherb_prop,3,0,,8/24/2020,KS
-200975962,date_permittd,,10/6/05,,1/19/2021,KS
+200975962,date_permittd,,10/6/2005,,1/19/2021,KS
 200981045,classa_init,,1,,2/1/2021,SL
 200982687,classa_init,,0,,12/1/2019,
 200982687,classa_prop,,0,,12/1/2019,
@@ -11141,7 +11164,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 201034512,classa_init,,1,change u_init,8/13/2019,
 201038714,classa_init,,1,,2/1/2021,SL
 201039866,classa_init,,1,,12/1/2019,
-201042950,date_permittd,,11/21/06,,1/19/2021,KS
+201042950,date_permittd,,11/21/2006,,1/19/2021,KS
 201043851,classa_prop,70,0,,1/28/2020,
 201043851,hotel_prop,70,70,,7/30/2020,AP
 201043851,otherb_prop,70,0,,8/29/2020,AP
@@ -11282,7 +11305,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 201126619,otherb_prop,2,0,,8/2/2023,VB
 201128733,classa_init,,2,,12/1/2019,
 201129741,classa_init,,1,change u_init,8/13/2019,
-201131391,date_permittd,,7/19/07,,1/19/2021,KS
+201131391,date_permittd,,7/19/2007,,1/19/2021,KS
 201141175,classa_init,2,0,,7/21/2020,KS
 201141816,classa_init,1,0,,7/20/2020,KS
 201142085,classa_init,2,0,,7/21/2020,KS
@@ -11547,7 +11570,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 210180800,latitude,40.8529685,40.85294365,,2/5/2024,WS
 210180800,longitude,-73.9021,-73.90208801,,8/15/2023,AP
 210180800,longitude,-73.90208833,-73.90211274,,2/5/2024,WS
-210180828,job_inactive,Inactive: Stalled,Inactive: Duplicate,duplicate of 210180819,7/18/2025,ML
+210180828,job_inactive,,Inactive: Duplicate,duplicate of 210180819,10/30/2025,ML
 210180999,classa_prop,68,0,,8/3/2022,VB
 210180999,hotel_prop,68,68,,8/3/2022,VB
 210180999,otherb_prop,68,0,,8/3/2022,VB
@@ -13884,7 +13907,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301096891,otherb_prop,,0,,8/27/2020,KS
 301097818,classa_init,,1,change u_init,8/13/2019,
 301099479,classa_init,,0,,2/1/2021,SL
-301102018,date_permittd,,8/8/01,,1/19/2021,KS
+301102018,date_permittd,,8/8/2001,,1/19/2021,KS
 301104392,classa_init,,2,,12/1/2019,
 301105756,hotel_init,0,0,,5/6/2022,SL
 301105756,hotel_prop,1,0,,5/6/2022,SL
@@ -14041,7 +14064,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301226395,classa_init,,0,,4/21/2022,VB
 301228124,classa_init,,2,,12/1/2019,
 301229926,classa_init,,12,,4/27/2022,VB
-301230978,date_permittd,,8/31/01,,1/19/2021,KS
+301230978,date_permittd,,8/31/2001,,1/19/2021,KS
 301231584,classa_init,,3,change u_init,8/13/2019,
 301233065,classa_init,,3,,12/1/2019,
 301238079,hotel_init,1,0,,4/25/2023,WS
@@ -14109,7 +14132,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301288318,hotel_prop,6,0,,8/24/2020,KS
 301288318,otherb_init,,0,,8/24/2020,KS
 301288318,otherb_prop,6,0,,8/24/2020,KS
-301293222,date_permittd,,1/28/03,,1/19/2021,KS
+301293222,date_permittd,,1/28/2003,,1/19/2021,KS
 301293507,classa_init,,3,,12/1/2019,
 301293598,classa_init,,1,,12/1/2019,
 301294677,classa_init,,2,,4/7/2023,BL
@@ -14200,7 +14223,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301347353,hotel_prop,2,0,,10/8/2024,ML
 301347353,otherb_init,1,0,,10/8/2024,ML
 301347353,otherb_prop,2,0,,10/8/2024,ML
-301348931,date_permittd,,8/28/02,,1/19/2021,KS
+301348931,date_permittd,,8/28/2002,,1/19/2021,KS
 301350071,classa_init,,12,,4/21/2022,VB
 301350071,classa_prop,16,12,,4/21/2022,VB
 301359027,classa_init,,2,,12/1/2019,
@@ -14265,7 +14288,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301408821,otherb_init,,5,,8/25/2020,SL
 301408821,otherb_prop,3,0,,8/25/2020,SL
 301409535,classa_init,,4,change u_init,8/13/2019,
-301410676,date_permittd,,3/20/03,,1/19/2021,KS
+301410676,date_permittd,,3/20/2003,,1/19/2021,KS
 301411782,classa_init,2,1,,10/8/2024,ML
 301411782,hotel_init,2,0,,10/8/2024,ML
 301411782,otherb_init,2,0,,10/8/2024,ML
@@ -14306,7 +14329,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301441535,otherb_init,1,0,,7/15/2022,SL
 301441535,otherb_prop,3,0,,7/15/2022,SL
 301442589,classa_init,,1,,12/1/2019,
-301467721,date_permittd,,3/11/03,,1/19/2021,KS
+301467721,date_permittd,,3/11/2003,,1/19/2021,KS
 301469621,classa_init,,2,,12/1/2019,
 301471896,classa_init,,2,,2/3/2021,KS
 301472261,classa_init,,2,,8/18/2023,SL
@@ -14381,9 +14404,9 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301522476,otherb_prop,1,0,,8/26/2020,KS
 301525516,classa_init,,4,,8/14/2020,SL
 301527989,classa_init,,1,,12/1/2019,
-301529576,date_permittd,,4/18/03,,1/19/2021,KS
+301529576,date_permittd,,4/18/2003,,1/19/2021,KS
 301530831,classa_init,,2,,12/1/2019,
-301532884,date_permittd,,5/28/04,,1/19/2021,KS
+301532884,date_permittd,,5/28/2004,,1/19/2021,KS
 301534114,classa_init,,3,,12/1/2019,
 301536498,classa_init,,1,,1/21/2021,TD
 301536498,hotel_init,,0,,1/21/2021,TD
@@ -14489,7 +14512,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301603398,hotel_prop,2,0,,1/21/2021,TD
 301603398,otherb_init,,0,,1/21/2021,TD
 301603398,otherb_prop,2,0,,1/21/2021,TD
-301604832,date_permittd,,8/25/04,,1/19/2021,KS
+301604832,date_permittd,,8/25/2004,,1/19/2021,KS
 301605001,classa_init,,2,,12/1/2019,
 301606126,classa_init,,11,,8/24/2020,KS
 301606126,classa_prop,10,9,,8/24/2020,KS
@@ -14708,7 +14731,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301758024,classa_init,,4,,7/23/2020,TD
 301758471,classa_init,,0,,1/27/2020,
 301759194,classa_init,,1,,12/1/2019,
-301760672,date_permittd,,7/6/04,,1/19/2021,KS
+301760672,date_permittd,,7/6/2004,,1/19/2021,KS
 301761797,classa_init,,81,change u_init,8/13/2019,
 301762046,classa_init,,2,,8/8/2022,VB
 301762046,hotel_init,,0,,8/8/2022,VB
@@ -14986,7 +15009,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301883996,classa_init,,6,change u_init,8/13/2019,
 301884398,classa_init,,6,change u_init,8/13/2019,
 301884414,classa_init,,6,,12/1/2019,
-301884655,date_permittd,,1/26/06,,1/19/2021,KS
+301884655,date_permittd,,1/26/2006,,1/19/2021,KS
 301885002,classa_init,,2,,12/1/2019,
 301885253,classa_init,,2,,8/30/2021,AP
 301885253,classa_prop,2,2,,8/30/2021,AP
@@ -15017,7 +15040,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301889650,classa_init,,4,,12/1/2019,
 301889678,classa_init,,3,,12/1/2019,
 301891594,classa_init,,2,,12/1/2019,
-301892352,date_permittd,,1/26/06,,1/19/2021,KS
+301892352,date_permittd,,1/26/2006,,1/19/2021,KS
 301892584,classa_init,,2,,12/1/2019,
 301892584,classa_prop,2,1,,12/1/2019,
 301892584,hotel_init,,0,,8/27/2020,AP
@@ -15150,7 +15173,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301940997,otherb_prop,2,0,,8/24/2020,KS
 301941424,classa_init,,7,change u_init,8/13/2019,
 301941834,classa_init,,1,,12/1/2019,
-301943878,date_permittd,,10/19/06,,1/19/2021,KS
+301943878,date_permittd,,10/19/2006,,1/19/2021,KS
 301945000,classa_init,,2,change u_init,8/13/2019,
 301946394,classa_init,,2,change u_init,8/13/2019,
 301946438,classa_init,,1,,1/21/2021,TD
@@ -15180,7 +15203,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301952652,classa_prop,18,19,,8/26/2020,KS
 301952652,hotel_prop,18,0,,8/26/2020,KS
 301952652,otherb_prop,18,0,,8/26/2020,KS
-301953740,date_permittd,,9/15/05,,1/19/2021,KS
+301953740,date_permittd,,9/15/2005,,1/19/2021,KS
 301953973,classa_init,,6,change u_init,8/13/2019,
 301953973,classa_prop,8,12,,8/27/2020,AP
 301953973,hotel_init,,0,,8/27/2020,AP
@@ -15280,7 +15303,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301987893,classa_init,,5,change u_init,8/13/2019,
 301987964,classa_init,,1,,12/1/2019,
 301988428,classa_init,,1,,12/1/2019,
-301989542,date_permittd,,8/11/05,,1/19/2021,KS
+301989542,date_permittd,,8/11/2005,,1/19/2021,KS
 301991094,classa_init,,1,,12/1/2019,
 301992976,classa_init,,6,change u_init,8/13/2019,
 301992985,classa_init,,3,,12/1/2019,
@@ -15290,7 +15313,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 301993074,classa_init,,3,,12/1/2019,
 301993074,classa_prop,2,3,,12/1/2019,
 301993083,classa_init,,6,change u_init,8/13/2019,
-301993993,date_permittd,,11/21/05,,1/19/2021,KS
+301993993,date_permittd,,11/21/2005,,1/19/2021,KS
 301995303,classa_init,,3,,12/1/2019,
 301995553,hotel_init,440,0,,7/15/2022,SL
 301995553,hotel_prop,440,0,,7/15/2022,SL
@@ -15308,7 +15331,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302001553,hotel_prop,4,0,,8/30/2021,TD
 302001553,otherb_init,,9,,8/30/2021,TD
 302001553,otherb_prop,4,0,,8/30/2021,TD
-302002605,date_permittd,,12/22/05,,1/19/2021,KS
+302002605,date_permittd,,12/22/2005,,1/19/2021,KS
 302003445,classa_init,,0,change u_init,8/13/2019,
 302003819,hotel_init,1,0,,4/25/2023,WS
 302003819,hotel_prop,1,0,,4/25/2023,WS
@@ -15398,7 +15421,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302036972,otherb_prop,12,0,,8/26/2020,KS
 302037249,classa_init,,2,,12/1/2019,
 302039265,classa_init,,4,change u_init,8/13/2019,
-302042297,date_permittd,,1/26/06,,1/19/2021,KS
+302042297,date_permittd,,1/26/2006,,1/19/2021,KS
 302042395,classa_init,,1,,1/21/2021,TD
 302042395,hotel_init,,0,,1/21/2021,TD
 302042395,hotel_prop,1,0,,1/21/2021,TD
@@ -15694,7 +15717,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302168115,hotel_prop,2,0,,8/24/2020,KS
 302168115,otherb_init,,0,,8/24/2020,KS
 302168115,otherb_prop,2,0,,8/24/2020,KS
-302168721,date_permittd,,7/25/06,,1/19/2021,KS
+302168721,date_permittd,,7/25/2006,,1/19/2021,KS
 302170898,classa_init,,3,,2/1/2021,SL
 302170898,hotel_init,,0,,8/2/2023,VB
 302170898,hotel_prop,1,0,,8/2/2023,VB
@@ -15780,7 +15803,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302198119,hotel_prop,3,0,,8/29/2020,TD
 302198119,otherb_init,3,10,,2/3/2020,
 302198119,otherb_prop,3,0,,8/29/2020,TD
-302198869,date_permittd,,8/22/06,,1/19/2021,KS
+302198869,date_permittd,,8/22/2006,,1/19/2021,KS
 302199350,hotel_prop,10,0,,8/29/2020,AP
 302199350,otherb_prop,10,0,,8/29/2020,AP
 302199449,classa_init,,1,change u_init,8/13/2019,
@@ -16260,9 +16283,9 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302338469,otherb_init,,0,,8/24/2020,KS
 302338469,otherb_prop,1,0,,8/24/2020,KS
 302338593,classa_init,,3,,12/1/2019,
-302339084,date_permittd,,10/24/07,,1/19/2021,KS
-302339093,date_permittd,,10/24/07,,1/19/2021,KS
-302339119,date_permittd,,10/24/07,,1/19/2021,KS
+302339084,date_permittd,,10/24/2007,,1/19/2021,KS
+302339093,date_permittd,,10/24/2007,,1/19/2021,KS
+302339119,date_permittd,,10/24/2007,,1/19/2021,KS
 302340143,classa_init,,2,,12/1/2019,
 302340278,classa_init,,1,change u_init,8/13/2019,
 302341240,classa_init,,1,,1/27/2020,
@@ -16277,8 +16300,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302347173,hotel_prop,10,0,,8/26/2020,KS
 302347173,otherb_prop,10,0,,8/26/2020,KS
 302347191,classa_init,,1,,12/1/2019,
-302347431,date_permittd,,10/24/07,,1/19/2021,KS
-302347440,date_permittd,,10/24/07,,1/19/2021,KS
+302347431,date_permittd,,10/24/2007,,1/19/2021,KS
+302347440,date_permittd,,10/24/2007,,1/19/2021,KS
 302348519,classa_init,,1,,12/1/2019,
 302348813,classa_init,,3,,4/28/2022,SL
 302348813,hotel_init,,0,,4/28/2022,SL
@@ -16302,7 +16325,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302351345,classa_init,,8,change u_init,8/13/2019,
 302351443,classa_init,,1,"change u_init, change u_prop",8/13/2019,
 302351443,classa_prop,4,3,"change u_init, change u_prop",8/13/2019,
-302351773,date_permittd,,6/25/08,,1/19/2021,KS
+302351773,date_permittd,,6/25/2008,,1/19/2021,KS
 302352978,classa_init,,1,change u_init,8/13/2019,
 302353236,classa_init,,1,,12/1/2019,
 302353931,classa_init,4,3,,1/28/2020,
@@ -16420,7 +16443,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 302376765,otherb_prop,2,0,,4/17/2023,VB
 302377050,classa_init,,1,,1/27/2020,
 302377817,classa_init,,2,,12/1/2019,
-302378709,date_permittd,,9/14/07,,1/19/2021,KS
+302378709,date_permittd,,9/14/2007,,1/19/2021,KS
 302382785,classa_init,,1,,2/1/2021,SL
 302382785,hotel_init,,0,,4/17/2023,VB
 302382785,hotel_prop,1,0,,4/17/2023,VB
@@ -17087,7 +17110,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 310179151,classa_init,1,0,,7/27/2020,SL
 310179311,latitude,40.710815,40.71129756,,8/30/2023,AP
 310179311,longitude,-73.968392,-73.96787068,,8/30/2023,AP
-310179491,date_permittd,,10/2/08,,1/19/2021,KS
+310179491,date_permittd,,10/2/2008,,1/19/2021,KS
 310182619,classa_init,1,0,,7/21/2020,KS
 310186125,classa_init,9,3,,1/31/2020,
 310186125,otherb_init,9,6,,1/31/2020,
@@ -17340,7 +17363,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 310312756,otherb_init,2,0,,4/17/2023,VB
 310312756,otherb_prop,2,0,,4/17/2023,VB
 320001715,classa_prop,2,0,,7/21/2020,SL
-320001715,date_permittd,,9/10/09,,1/19/2021,KS
+320001715,date_permittd,,9/10/2009,,1/19/2021,KS
 320002108,classa_prop,130,0,,1/28/2020,
 320002108,hotel_prop,130,128,,7/30/2020,AP
 320002108,otherb_prop,130,0,,8/29/2020,AP
@@ -17879,7 +17902,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320241699,hotel_prop,3,0,,8/29/2020,TD
 320241699,otherb_init,7,6,,2/3/2020,
 320241699,otherb_prop,3,0,,8/29/2020,TD
-320242368,date_permittd,,10/12/11,,1/19/2021,KS
+320242368,date_permittd,,10/12/2011,,1/19/2021,KS
 320243296,hotel_init,3,0,,8/29/2020,TD
 320243296,hotel_prop,2,0,,8/29/2020,TD
 320243296,otherb_init,3,0,,8/29/2020,TD
@@ -18117,7 +18140,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320305503,classa_init,1,0,,7/27/2020,SL
 320305530,classa_init,1,0,,7/21/2020,KS
 320305709,classa_init,1,0,,7/27/2020,SL
-320306502,date_permittd,,8/18/11,,1/19/2021,KS
+320306502,date_permittd,,8/18/2011,,1/19/2021,KS
 320307333,classa_prop,40,0,,1/28/2020,
 320307333,hotel_prop,40,40,,1/28/2020,
 320307404,classa_init,1,0,,7/27/2020,SL
@@ -18130,7 +18153,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320313807,classa_init,1,0,,7/27/2020,SL
 320314405,classa_init,3,0,Garage,8/27/2020,SL
 320314405,classa_prop,0,0,Garage,8/27/2020,SL
-320314405,date_permittd,,12/21/11,,1/19/2021,KS
+320314405,date_permittd,,12/21/2011,,1/19/2021,KS
 320314487,classa_init,,0,change u_init,8/13/2019,
 320314496,classa_init,,0,change u_init,8/13/2019,
 320315814,classa_init,1,0,,7/27/2020,SL
@@ -18220,7 +18243,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320361292,hotel_prop,,0,,8/24/2020,KS
 320361292,otherb_init,1,0,,8/24/2020,KS
 320361292,otherb_prop,,0,,8/24/2020,KS
-320362308,date_permittd,,5/9/12,,1/19/2021,KS
+320362308,date_permittd,,5/9/2012,,1/19/2021,KS
 320362763,classa_init,1,0,,7/27/2020,SL
 320364066,hotel_init,8,0,,8/24/2020,TD
 320364066,hotel_prop,1,0,,8/24/2020,TD
@@ -19283,7 +19306,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320764026,classa_init,,0,change u_init,8/13/2019,
 320764062,classa_init,1,0,,7/27/2020,SL
 320765016,classa_init,2,0,Shed demolition - zero out units init,1/30/2020,
-320765089,date_permittd,,4/17/15,,1/19/2021,KS
+320765089,date_permittd,,4/17/2015,,1/19/2021,KS
 320765230,classa_init,,0,change u_init,8/13/2019,
 320766783,classa_init,1,0,,1/29/2021,ks
 320768004,classa_init,1,0,,7/27/2020,SL
@@ -19317,7 +19340,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320808355,classa_init,5,2,,2/3/2020,
 320808355,otherb_init,5,3,,2/3/2020,
 320809942,classa_init,1,0,,7/27/2020,SL
-320810789,date_permittd,,11/22/13,,1/19/2021,KS
+320810789,date_permittd,,11/22/2013,,1/19/2021,KS
 320811412,classa_init,5,1,,2/3/2020,
 320811412,otherb_init,5,4,,2/3/2020,
 320811751,classa_init,1,0,,1/29/2021,ks
@@ -19988,7 +20011,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320990362,classa_prop,90,0,,1/28/2020,
 320990362,hotel_prop,90,90,,1/28/2020,
 320990790,classa_init,2,0,,2/5/2024,VB
-320990790,date_permittd,,7/23/14,,1/19/2021,KS
+320990790,date_permittd,,7/23/2014,,1/19/2021,KS
 320990790,hotel_init,2,0,,2/5/2024,VB
 320990790,otherb_init,2,0,,2/5/2024,VB
 320991049,classa_init,1,0,,7/27/2020,SL
@@ -20017,7 +20040,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 320996213,classa_init,1,0,,7/27/2020,SL
 320996561,classa_init,1,0,,7/20/2020,SL
 320996570,classa_init,1,0,,7/20/2020,SL
-320997800,date_permittd,,11/7/14,,1/19/2021,KS
+320997800,date_permittd,,11/7/2014,,1/19/2021,KS
 320998024,classa_prop,1,0,,7/28/2020,AP
 320998024,hotel_prop,1,147,,7/28/2020,AP
 320998024,otherb_prop,1,0,,8/29/2020,AP
@@ -23912,7 +23935,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401244818,otherb_prop,4,0,,8/8/2022,VB
 401244890,classa_init,,1,,12/1/2019,
 401246549,classa_init,,1,,1/27/2020,
-401247717,date_permittd,,9/5/02,,1/19/2021,KS
+401247717,date_permittd,,9/5/2002,,1/19/2021,KS
 401248823,classa_init,,1,,12/1/2019,
 401250560,classa_init,,4,,4/25/2022,VB
 401251499,classa_init,,2,,12/1/2019,
@@ -23969,7 +23992,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401289743,otherb_prop,4,0,,8/24/2020,KS
 401289869,classa_init,,1,change u_init,8/13/2019,
 401291570,classa_init,,1,,12/1/2019,
-401295647,date_permittd,,8/28/01,,1/19/2021,KS
+401295647,date_permittd,,8/28/2001,,1/19/2021,KS
 401296183,classa_init,,1,,1/27/2020,
 401297734,classa_init,,1,,12/1/2019,
 401299082,classa_init,,1,,12/1/2019,
@@ -24027,7 +24050,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401385808,classa_init,,1,change u_init,8/13/2019,
 401388663,classa_init,,1,change u_init,8/13/2019,
 401389617,classa_init,,1,,1/27/2020,
-401389724,date_permittd,,11/5/07,,1/19/2021,KS
+401389724,date_permittd,,11/5/2007,,1/19/2021,KS
 401389975,classa_init,,1,,12/1/2019,
 401390491,classa_init,,1,,12/1/2019,
 401391043,classa_init,,1,,1/27/2020,
@@ -24375,7 +24398,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401615132,hotel_prop,1,0,,8/2/2023,VB
 401615132,otherb_init,,0,,8/2/2023,VB
 401615132,otherb_prop,1,0,,8/2/2023,VB
-401615481,date_permittd,,10/2/03,,1/19/2021,KS
+401615481,date_permittd,,10/2/2003,,1/19/2021,KS
 401617434,classa_init,,0,change u_init,8/13/2019,
 401617559,classa_init,,2,,1/21/2021,TD
 401617559,hotel_init,,0,,1/21/2021,TD
@@ -24487,7 +24510,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401686323,classa_init,,2,change u_init,8/13/2019,
 401687331,classa_init,,1,,1/27/2020,
 401687395,classa_init,,1,,1/27/2020,
-401687572,date_permittd,,8/1/03,,1/19/2021,KS
+401687572,date_permittd,,8/1/2003,,1/19/2021,KS
 401688116,classa_init,,1,,12/1/2019,
 401693057,classa_init,,1,,12/1/2019,
 401693789,classa_init,,2,,12/1/2019,
@@ -24541,8 +24564,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401727949,otherb_prop,1,0,,8/24/2020,KS
 401728010,classa_init,,1,,12/1/2019,
 401729091,classa_init,,2,,12/1/2019,
-401729260,date_permittd,,3/7/05,,1/19/2021,KS
-401729279,date_permittd,,3/7/05,,1/19/2021,KS
+401729260,date_permittd,,3/7/2005,,1/19/2021,KS
+401729279,date_permittd,,3/7/2005,,1/19/2021,KS
 401729849,classa_init,,2,,2/1/2021,SL
 401729849,hotel_init,,0,,4/17/2023,VB
 401729849,hotel_prop,2,0,,4/17/2023,VB
@@ -24589,7 +24612,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 401745233,hotel_prop,2,0,,3/1/2024,SL
 401745233,otherb_init,2,0,,3/1/2024,SL
 401745233,otherb_prop,2,0,,3/1/2024,SL
-401745340,date_permittd,,4/16/04,,1/19/2021,KS
+401745340,date_permittd,,4/16/2004,,1/19/2021,KS
 401746134,classa_init,,2,,12/1/2019,
 401747909,classa_init,,1,,1/27/2020,
 401748766,classa_init,,1,,12/1/2019,
@@ -24953,13 +24976,13 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 402010792,classa_init,,1,,12/1/2019,
 402011023,classa_init,,1,,8/14/2020,SL
 402012004,classa_init,,1,,1/27/2020,
-402013067,date_permittd,,5/15/07,,1/19/2021,KS
+402013067,date_permittd,,5/15/2007,,1/19/2021,KS
 402013478,classa_init,,1,,1/27/2020,
 402013600,classa_init,,36,,7/15/2020,TD
 402014823,classa_init,,1,change u_init,8/13/2019,
 402015742,classa_init,,1,,12/1/2019,
 402016929,classa_init,,2,,12/1/2019,
-402017063,date_permittd,,2/23/05,,1/19/2021,KS
+402017063,date_permittd,,2/23/2005,,1/19/2021,KS
 402017367,classa_init,,1,,1/27/2020,
 402017606,classa_init,,1,,12/1/2019,
 402018044,classa_init,,1,change u_init,8/13/2019,
@@ -25122,7 +25145,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 402090928,classa_init,,4,,4/25/2022,VB
 402092999,classa_init,,1,change u_init,8/13/2019,
 402093168,classa_init,,1,change u_init,8/13/2019,
-402093417,date_permittd,,3/11/05,,1/19/2021,KS
+402093417,date_permittd,,3/11/2005,,1/19/2021,KS
 402094381,classa_init,,1,,2/1/2021,SL
 402094960,classa_init,,1,,1/27/2020,
 402095629,classa_init,,2,,8/30/2021,AP
@@ -25157,8 +25180,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 402106029,classa_init,,2,,4/25/2022,VB
 402106252,classa_init,,1,change u_init,8/13/2019,
 402106993,classa_init,,2,,12/1/2019,
-402107144,date_permittd,,3/30/05,,1/19/2021,KS
-402107153,date_permittd,,4/5/05,,1/19/2021,KS
+402107144,date_permittd,,3/30/2005,,1/19/2021,KS
+402107153,date_permittd,,4/5/2005,,1/19/2021,KS
 402107590,classa_init,,1,,12/1/2019,
 402109053,classa_init,,1,,2/1/2021,SL
 402109981,classa_init,8,1,,1/31/2020,
@@ -25251,7 +25274,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 402150998,otherb_prop,2,0,,8/30/2021,AP
 402151149,classa_init,,1,change u_init,8/13/2019,
 402151336,classa_init,,1,,12/1/2019,
-402151666,date_permittd,,1/19/06,,1/19/2021,KS
+402151666,date_permittd,,1/19/2006,,1/19/2021,KS
 402154627,classa_init,,1,,12/1/2019,
 402155323,classa_init,,2,,12/1/2019,
 402155467,classa_init,,1,change u_init,8/13/2019,
@@ -25388,7 +25411,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 402194969,hotel_prop,3,0,,8/31/2021,TD
 402194969,otherb_init,,0,,8/31/2021,TD
 402194969,otherb_prop,3,0,,8/31/2021,TD
-402195717,date_permittd,,5/8/06,,1/19/2021,KS
+402195717,date_permittd,,5/8/2006,,1/19/2021,KS
 402197403,classa_init,,1,,1/21/2021,TD
 402197403,hotel_init,,0,,1/21/2021,TD
 402197403,hotel_prop,1,0,,1/21/2021,TD
@@ -25689,7 +25712,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 402293932,classa_init,,1,,12/1/2019,
 402294058,classa_init,,2,,12/1/2019,
 402294423,classa_init,,1,change u_init,8/13/2019,
-402296485,date_permittd,,4/7/06,,1/19/2021,KS
+402296485,date_permittd,,4/7/2006,,1/19/2021,KS
 402297126,classa_init,,2,,12/1/2019,
 402297288,classa_init,,1,,2/1/2021,SL
 402297288,hotel_init,,0,,8/2/2023,VB
@@ -28051,7 +28074,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 420126465,classa_prop,,0,change u_prop,8/13/2019,
 420128365,classa_init,1,0,,7/27/2020,SL
 420128819,classa_init,1,0,,7/27/2020,SL
-420129131,date_permittd,,12/17/10,,1/19/2021,KS
+420129131,date_permittd,,12/17/2010,,1/19/2021,KS
 420130584,classa_init,1,0,,7/21/2020,KS
 420130600,classa_init,1,0,,7/27/2020,SL
 420131164,classa_init,1,0,,7/21/2020,KS
@@ -28476,7 +28499,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 420289690,classa_init,1,0,,7/21/2020,KS
 420291026,classa_init,1,0,,1/29/2021,ks
 420291071,classa_init,1,0,,7/27/2020,SL
-420292221,date_permittd,,10/27/11,,1/19/2021,KS
+420292221,date_permittd,,10/27/2011,,1/19/2021,KS
 420292329,classa_init,1,0,,7/27/2020,SL
 420292383,classa_init,1,0,,7/27/2020,SL
 420292640,classa_init,1,0,,7/27/2020,SL
@@ -29174,7 +29197,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 420571189,classa_prop,103,0,,1/28/2020,
 420571189,hotel_prop,103,103,,1/28/2020,
 420571189,otherb_prop,103,0,,8/29/2020,AP
-420571321,date_permittd,,6/28/12,,1/19/2021,KS
+420571321,date_permittd,,6/28/2012,,1/19/2021,KS
 420571330,classa_init,1,0,,7/27/2020,SL
 420572124,hotel_init,1,0,,8/29/2020,KS
 420572124,hotel_prop,1,0,,8/29/2020,KS
@@ -29696,7 +29719,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 420799951,latitude,,40.747545,,1/30/2020,
 420799951,longitude,,-73.942609,,1/30/2020,
 420799988,classa_init,1,0,,7/27/2020,SL
-420800592,date_permittd,,7/23/13,,1/19/2021,KS
+420800592,date_permittd,,7/23/2013,,1/19/2021,KS
 420801877,latitude,40.767809,40.76731708,,8/30/2023,AP
 420801877,longitude,-73.912927,-73.91357611,,8/30/2023,AP
 420802288,classa_init,1,0,,2/1/2021,SL
@@ -33833,7 +33856,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 445120002,remove,,,DOB Test Record,4/11/2023,SL
 445120011,remove,,,DOB Test Record,4/11/2023,SL
 500310558,classa_init,,1,,12/1/2019,
-500311851,date_permittd,,11/5/01,,1/19/2021,KS
+500311851,date_permittd,,11/5/2001,,1/19/2021,KS
 500317757,classa_init,,1,,10/10/2024,ML
 500317757,hotel_init,,0,,10/10/2024,ML
 500317757,hotel_prop,1,0,,10/10/2024,ML
@@ -34014,7 +34037,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 500502770,otherb_init,,0,,4/18/2023,VB
 500502770,otherb_prop,1,0,,4/18/2023,VB
 500503225,classa_init,,1,,12/1/2019,
-500503797,date_permittd,,1/7/02,,1/19/2021,KS
+500503797,date_permittd,,1/7/2002,,1/19/2021,KS
 500504457,classa_init,,1,,1/21/2021,TD
 500504457,hotel_init,,0,,1/21/2021,TD
 500504457,hotel_prop,1,0,,1/21/2021,TD
@@ -34076,8 +34099,8 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 500550003,classa_init,,1,,12/1/2019,
 500550192,classa_init,,1,,12/1/2019,
 500550227,classa_init,,1,,12/1/2019,
-500550931,date_permittd,,10/11/02,,1/19/2021,KS
-500550940,date_permittd,,10/11/02,,1/19/2021,KS
+500550931,date_permittd,,10/11/2002,,1/19/2021,KS
+500550940,date_permittd,,10/11/2002,,1/19/2021,KS
 500553885,classa_init,,1,"change occ_init, change u_init, change u_prop",8/13/2019,
 500553885,classa_prop,,0,"change occ_init, change u_init, change u_prop",8/13/2019,
 500553938,classa_init,,1,,12/1/2019,
@@ -34146,7 +34169,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 500606800,hotel_prop,2,0,,10/10/2024,ML
 500606800,otherb_init,,0,,10/10/2024,ML
 500606800,otherb_prop,2,0,,10/10/2024,ML
-500609424,date_permittd,,7/8/04,,1/19/2021,KS
+500609424,date_permittd,,7/8/2004,,1/19/2021,KS
 500609736,classa_init,,1,,12/1/2019,
 500621339,classa_init,,1,,4/7/2023,BL
 500621339,classa_prop,1,0,,4/7/2023,BL
@@ -34434,7 +34457,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 500706792,otherb_init,,0,,8/2/2023,VB
 500706792,otherb_prop,1,0,,8/2/2023,VB
 500706818,classa_init,,1,,12/1/2019,
-500709076,date_permittd,,10/20/05,,1/19/2021,KS
+500709076,date_permittd,,10/20/2005,,1/19/2021,KS
 500709263,classa_init,,1,,2/1/2021,SL
 500709263,hotel_init,,0,,8/2/2023,VB
 500709263,hotel_prop,1,0,,8/2/2023,VB
@@ -34468,7 +34491,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 500738455,otherb_init,,0,,8/2/2023,VB
 500738455,otherb_prop,1,0,,8/2/2023,VB
 500738669,classa_init,,1,,12/1/2019,
-500739409,date_permittd,,1/6/05,,1/19/2021,KS
+500739409,date_permittd,,1/6/2005,,1/19/2021,KS
 500739695,classa_init,,1,,12/1/2019,
 500740291,classa_init,,1,,12/1/2019,
 500740344,classa_init,,1,,12/1/2019,
@@ -34496,7 +34519,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 500747123,classa_init,,1,,12/1/2019,
 500747132,classa_init,,1,,12/1/2019,
 500747490,classa_init,,1,,1/28/2020,
-500747490,date_permittd,,3/30/05,,1/19/2021,KS
+500747490,date_permittd,,3/30/2005,,1/19/2021,KS
 500747640,classa_init,,1,,12/1/2019,
 500749407,classa_init,,2,change u_init,8/13/2019,
 500750172,classa_init,,1,,12/1/2019,
@@ -35177,7 +35200,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 510015341,otherb_prop,1,0,,8/1/2023,VB
 510015582,hotel_prop,2,0,,7/21/2022,SL
 510015582,otherb_prop,2,0,,7/21/2022,SL
-510015733,date_permittd,,1/10/08,,1/19/2021,KS
+510015733,date_permittd,,1/10/2008,,1/19/2021,KS
 510016304,hotel_prop,1,0,,7/21/2022,SL
 510016304,otherb_prop,1,0,,7/21/2022,SL
 510016509,classa_init,,1,,12/1/2019,
@@ -35227,7 +35250,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 510026482,classa_init,,2,change u_init,8/13/2019,
 510026552,classa_init,,1,change u_init,8/13/2019,
 510026794,classa_init,,1,,12/1/2019,
-510026883,date_permittd,,4/15/09,,1/19/2021,KS
+510026883,date_permittd,,4/15/2009,,1/19/2021,KS
 510027221,classa_init,,1,,2/1/2021,SL
 510027221,hotel_init,,0,,4/17/2023,VB
 510027221,hotel_prop,1,0,,4/17/2023,VB
@@ -35587,9 +35610,9 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 520038673,otherb_init,1,0,,4/25/2023,WS
 520038673,otherb_prop,1,0,,4/25/2023,WS
 520039299,classa_prop,2,0,,7/21/2020,KS
-520039306,date_permittd,,10/12/10,,1/19/2021,KS
+520039306,date_permittd,,10/12/2010,,1/19/2021,KS
 520039315,classa_prop,2,0,,7/21/2020,KS
-520039315,date_permittd,,10/13/10,,1/19/2021,KS
+520039315,date_permittd,,10/13/2010,,1/19/2021,KS
 520039459,latitude,40.553384,40.55278,,7/22/2020,AP
 520039459,longitude,-74.232765,-74.2324,,7/22/2020,AP
 520039592,classa_init,1,0,duplicate demo complete - zero out units init,1/30/2020,
@@ -36160,7 +36183,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 520111851,classa_prop,,0,change u_prop,8/13/2019,
 520112173,latitude,,40.535064,,1/30/2020,
 520112173,longitude,,-74.183997,,1/30/2020,
-520112397,date_permittd,,10/28/14,,1/19/2021,KS
+520112397,date_permittd,,10/28/2014,,1/19/2021,KS
 520112841,classa_init,1,0,,7/21/2020,KS
 520112850,classa_init,1,0,,7/21/2020,KS
 520114313,classa_init,1,0,,7/27/2020,SL
@@ -36261,7 +36284,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 520128610,longitude,,-74.08506967,,1/25/2021,KS
 520128629,latitude,,40.6264306,,1/25/2021,KS
 520128629,longitude,,-74.08506967,,1/25/2021,KS
-520128709,date_permittd,,11/7/13,,1/19/2021,KS
+520128709,date_permittd,,11/7/2013,,1/19/2021,KS
 520129147,classa_prop,1,0,,7/21/2020,SL
 520129539,hotel_init,2,0,,4/24/2023,WS
 520129539,hotel_prop,2,0,,4/24/2023,WS
@@ -36309,7 +36332,7 @@ B00975043,otherb_prop,1,0,,10/29/2024,ML
 520143924,hotel_prop,1,0,,7/21/2022,SL
 520143924,otherb_prop,1,0,,7/21/2022,SL
 520144219,classa_init,1,0,,7/21/2020,KS
-520144415,date_permittd,,12/5/13,,1/19/2021,KS
+520144415,date_permittd,,12/5/2013,,1/19/2021,KS
 520145067,hotel_prop,1,0,,7/21/2022,SL
 520145067,otherb_prop,1,0,,7/21/2022,SL
 520145076,hotel_prop,1,0,,7/21/2022,SL
@@ -43794,7 +43817,7 @@ M01133117,otherb_prop,2,0,,8/13/2025,SL
 B01196091,otherb_prop,2,0,,8/13/2025,SL
 301861402,otherb_prop,1,0,,8/13/2025,SL
 X01171565,hotel_prop,27,0,,8/21/2025,SL
-120706021,classa_init,0,0,,10/28/2025,ML
+120706021,classa_init,27,0,,10/30/2025,ML
 120706021,hotel_init,27,0,,8/21/2025,SL
 120706021,hotel_prop,3,0,,8/21/2025,SL
 120706021,otherb_init,27,27,,8/21/2025,SL
@@ -44629,3 +44652,8 @@ S00982407,otherb_prop,1,0,,10/29/2025,SL
 S00982614,otherb_prop,1,0,,10/29/2025,SL
 S01254152,otherb_prop,1,0,,10/29/2025,SL
 S01299464,otherb_prop,2,0,,10/29/2025,SL
+M01212236,remove,,,DOB Test Record,11/5/2025,SL
+M01275166,remove,,,DOB Test Record,11/5/2025,SL
+M01275810,remove,,,DOB Test Record,11/5/2025,SL
+M01275812,remove,,,DOB Test Record,11/5/2025,SL
+M01288851,remove,,,DOB Test Record,11/5/2025,SL
