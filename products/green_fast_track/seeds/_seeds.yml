@@ -27,8 +27,9 @@ seeds:
     tests:
     - not_null
     - relationships:
-        to: ref('question_flags')
-        field: flag_id_field_name
+        arguments:
+          to: ref('question_flags')
+          field: flag_id_field_name
   - name: variable_label
     tests:
     - not_null
@@ -41,9 +42,10 @@ seeds:
   - name: join_to_lots
   - name: buffer_ft
   - name: type_ii_criteria_description
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      name: variables_compound_key
+  data_tests:
+  - name: variables_compound_key
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns:
       - flag_id_field_name
       - variable_type
@@ -65,8 +67,9 @@ seeds:
     tests:
     - not_null
     - relationships:
-        to: ref('zoning_district_categories')
-        field: category_type
+        arguments:
+          to: ref('zoning_district_categories')
+          field: category_type
 
 - name: nyc_parks_properties_categories
   description: All possible values in typecategory column of recipe dpr_parksproperties

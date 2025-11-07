@@ -5,27 +5,30 @@ models:
   - name: segmentid
     tests: [ not_null ]
   - name: segment_borocode
-    # TODO disable test for now, got 2 results
-    # tests:
-    # - not_null
+  # TODO disable test for now, got 2 results
+  # tests:
+  # - not_null
   - name: left_atomicid
   - name: left_borocode
   - name: left_2000_census_tract
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        arguments:
+          value: 6
   - name: left_2000_census_tract_basic
   - name: left_2000_census_tract_suffix
   - name: left_2010_census_tract
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        arguments:
+          value: 6
   - name: left_2010_census_tract_basic
   - name: left_2010_census_tract_suffix
   - name: left_2020_census_tract
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        arguments:
+          value: 6
   - name: left_2020_census_tract_basic
   - name: left_2020_census_tract_suffix
   - name: left_assembly_district
@@ -36,27 +39,30 @@ models:
   - name: right_2000_census_tract
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        arguments:
+          value: 6
   - name: right_2000_census_tract_basic
   - name: right_2000_census_tract_suffix
   - name: right_2010_census_tract
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        arguments:
+          value: 6
   - name: right_2010_census_tract_basic
   - name: right_2010_census_tract_suffix
   - name: right_2020_census_tract
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
-        value: 6
+        arguments:
+          value: 6
   - name: right_2020_census_tract_basic
   - name: right_2020_census_tract_suffix
   - name: right_assembly_district
   - name: right_election_district
   - name: right_school_district
-  tests: [] #
-  #- dbt_expectations.expect_table_row_count_to_equal_other_table: TODO: commented out while weird rows in source data are unresolved
-  #    compare_model: ref("int__segments")
+  data_tests: [] #
+#- dbt_expectations.expect_table_row_count_to_equal_other_table: TODO: commented out while weird rows in source data are unresolved
+#    compare_model: ref("int__segments")
 
 - name: int__segment_offsets
   columns:

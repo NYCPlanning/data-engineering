@@ -21,9 +21,10 @@ models:
   - name: lgc_rank
     tests:
     - dbt_utils.accepted_range:
-        min_value: 1
-        max_value: 9 # a segment shouldn't have more than 9 lgcs
-        inclusive: true
+        arguments:
+          min_value: 1
+          max_value: 9 # a segment shouldn't have more than 9 lgcs
+          inclusive: true
   - name: boe_lgc_pointer
 
 - name: int__streetcode_and_facecode

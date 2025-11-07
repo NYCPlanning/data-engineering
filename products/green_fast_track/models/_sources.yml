@@ -27,8 +27,9 @@ sources:
       - unique
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: dcm_arterial_highways_compound_key
+    - name: dcm_arterial_highways_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - name
         - wkb_geometry
@@ -57,17 +58,20 @@ sources:
       tests:
       - not_null
       - accepted_values:
-          values: [ 'true', 'false' ]
+          arguments:
+            values: [ 'true', 'false' ]
     - name: air_code
       tests:
       - not_null
       - accepted_values:
-          values: [ 'true', 'false' ]
+          arguments:
+            values: [ 'true', 'false' ]
     - name: noise_code
       tests:
       - not_null
       - accepted_values:
-          values: [ 'true', 'false' ]
+          arguments:
+            values: [ 'true', 'false' ]
     - name: ceqr_num
 
   - name: dcp_lion
@@ -178,20 +182,22 @@ sources:
     - name: eligibilitydesc
       tests:
       - accepted_values:
-          values:
-            [
-              "Eligible",
-              "Listed",
-              "Not Eligible",
-              "Not Eligible - Demolished",
-              "Undetermined"
-            ]
+          arguments:
+            values:
+              [
+                "Eligible",
+                "Listed",
+                "Not Eligible",
+                "Not Eligible - Demolished",
+                "Undetermined"
+              ]
     - name: geom
       tests:
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: nysshpo_historic_buildings_polygons_compound_key
+    - name: nysshpo_historic_buildings_polygons_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - usnnum
         - usnname
@@ -205,23 +211,25 @@ sources:
     - name: eligibilitydesc
       tests:
       - accepted_values:
-          values:
-            [
-              "Eligible",
-              "Listed",
-              "Not Eligible",
-              "Not Eligible - Demolished",
-              "Undetermined"
-            ]
+          arguments:
+            values:
+              [
+                "Eligible",
+                "Listed",
+                "Not Eligible",
+                "Not Eligible - Demolished",
+                "Undetermined"
+              ]
     - name: geom
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: nysshpo_historic_buildings_points_compound_key
+    - name: nysshpo_historic_buildings_points_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - usnnum
         - usnname
-        config:
-          severity: warn # TODO 2025/10/31 there are two records outside of NYC that currently violate this
+      config:
+        severity: warn # TODO 2025/10/31 there are two records outside of NYC that currently violate this
 
   - name: nysshpo_archaeological_buffer_areas
     columns:
@@ -270,13 +278,14 @@ sources:
       tests:
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: dpr_schoolyard_to_playgrounds_compound_key
+    - name: dpr_schoolyard_to_playgrounds_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - gispropnum
         - location
-        config:
-          severity: warn
+      config:
+        severity: warn
 
   - name: dpr_parksproperties
     columns:
@@ -294,17 +303,19 @@ sources:
         typecategory in nyc_parks_properties_categories
       tests:
       - relationships:
-          to: ref('nyc_parks_properties_categories')
-          field: typecategory
+          arguments:
+            to: ref('nyc_parks_properties_categories')
+            field: typecategory
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: dpr_parksproperties_compound_key
+    - name: dpr_parksproperties_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - gispropnum
         - name311
         - wkb_geometry
-        config:
-          severity: warn
+      config:
+        severity: warn
 
   - name: dcp_pops
     columns:
@@ -345,14 +356,15 @@ sources:
       tests:
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: dcp_waterfront_access_map_pow_compound_key
+    - name: dcp_waterfront_access_map_pow_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - name
         - agency
         - wkb_geometry
-        config:
-          severity: warn
+      config:
+        severity: warn
 
   - name: nysparks_parks
     columns:
@@ -367,14 +379,15 @@ sources:
       tests:
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: nysparks_parks_compound_key
+    - name: nysparks_parks_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - uid
         - name
         - geometry
-        config:
-          severity: warn
+      config:
+        severity: warn
 
   - name: usnps_parks
     columns:
@@ -386,14 +399,15 @@ sources:
       tests:
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: usnps_parks_compound_key
+    - name: usnps_parks_compound_key
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - gnis_id
         - parkname
         - wkt
-        config:
-          severity: warn
+      config:
+        severity: warn
 
   - name: dcp_beaches
     columns:
@@ -439,8 +453,9 @@ sources:
       tests:
       - not_null
     tests:
-    - dbt_utils.unique_combination_of_columns:
-        name: dpr_forever_wild_uid
+    - name: dpr_forever_wild_uid
+      test_name: dbt_utils.unique_combination_of_columns
+      arguments:
         combination_of_columns:
         - gispropnum
         - propertyna
@@ -486,7 +501,8 @@ sources:
       - not_null
     tests:
     - dbt_utils.unique_combination_of_columns:
-        combination_of_columns: [ seg_id, waterbody ]
+        arguments:
+          combination_of_columns: [ seg_id, waterbody ]
 
   - name: nysdec_priority_estuaries
     columns:

@@ -13,34 +13,34 @@ models:
       - name: dataset_id
         tests:
           - not_null:
-              where: "availability_type = 'download'"
+              config: { where: "availability_type = 'download'" }
           - unique
 
       - name: availability_type
         tests:
           - not_null
           - accepted_values:
-              values: ["download", "webpage"]
+              arguments: { values: ["download", "webpage"] }
 
       - name: file_type
         tests:
           - not_null:
-              where: "availability_type = 'download'"
+              config: { where: "availability_type = 'download'" }
           - accepted_values:
-              values: ["shapefile", "csv", "excel"]
-              where: "availability_type = 'download'"
+              arguments: { values: ["shapefile", "csv", "excel"] }
+              config: { where: "availability_type = 'download'" }
 
       - name: geometry_type
         tests:
           - not_null:
-              where: "file_type = 'shapefile'"
+              config: { where: "file_type = 'shapefile'" }
           - accepted_values:
-              values: ["MULTIPOLYGON", "MULTIPOINT", "MULTILINESTRING"]
-              where: "availability_type = 'download'"
+              arguments: { values: ["MULTIPOLYGON", "MULTIPOINT", "MULTILINESTRING"] }
+              config: { where: "availability_type = 'download'" }
 
       - name: version
         tests:
           - not_null:
-              where: "availability_type = 'download'"
+              config: { where: "availability_type = 'download'" }
 
       - name: source_url
