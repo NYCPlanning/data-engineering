@@ -38,7 +38,8 @@ SELECT
     ST_ENDPOINT(geom) AS end_point,
     shape_length,
     feature_type,
-    source_table
+    source_table,
+    source_attrs
 FROM sources
 /*
 TODO this should go to int__lion
