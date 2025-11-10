@@ -32,7 +32,9 @@ class Scriptor(ScriptorInterface):
         self.__dict__.update(kwargs)
 
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_csv(self.source["path"], delimiter="|", header=None)
+        df = pd.read_csv(
+            self.source["path"], encoding="iso-8859-1", delimiter="|", header=None
+        )
         df.drop(20, axis=1, inplace=True)
         df.columns = pd.Index(HEADERS)
         df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
