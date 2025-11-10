@@ -21,7 +21,7 @@ SELECT
     created_date,
     modified_by,
     modified_date,
-    alt_segment_seqnum::INT,
+    LPAD(alt_segment_seqnum::INT::TEXT, 5, '0') AS alt_segment_seqnum,
     boe_preferred_lgc_flag AS boe_lgc_pointer,
     b5sc,
     sosindicator,

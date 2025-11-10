@@ -6,6 +6,9 @@ primary_segments AS (
 ),
 facecode AS (
     SELECT * FROM {{ ref("int__b7sc_codes") }}
+),
+seqnum AS (
+    SELECT * FROM {{ ref("int__nonstreetfeature_seqnum") }}
 )
 SELECT
     proto.borough AS boroughcode,
@@ -44,4 +47,4 @@ SELECT
 FROM proto
 INNER JOIN primary_segments ON proto.segmentid = primary_segments.segmentid -- TODO error report for non-matches
 LEFT JOIN facecode ON proto.b7sc = facecode.b7sc
-LEFT JOIN seqnum ON proto.segmentid = seqnum.segmentid
+LEFT JOIN seqnum ON proto.source_table = seqnum.source_table AND proto.ogc_fid = seqnum.unique_id

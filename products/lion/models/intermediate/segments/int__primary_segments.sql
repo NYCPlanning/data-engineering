@@ -70,7 +70,10 @@ primary_segments AS (
             {% endif -%}
         FROM {{ source("recipe_sources", source_layer) }} AS source
         {% if source_layer == 'dcp_cscl_nonstreetfeatures' -%} 
-            LEFT JOIN seqnum ON source.segmentid = seqnum.segmentid
+            LEFT JOIN seqnum
+                ON
+                    seqnum.source_table = 'dcp_cscl_nonstreetfeatures'
+                    AND source.segmentid = seqnum.unique_id
         {%- endif -%}
         {% if not loop.last -%}
             UNION ALL
