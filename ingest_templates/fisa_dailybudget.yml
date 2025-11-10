@@ -1,0 +1,60 @@
+id: fisa_dailybudget
+acl: private
+
+attributes:
+  name: FISA Daily Budget
+  description: >-
+    Received from OMB via sftp
+
+    Currently, script assumes ALL historical files are in folder. At some point it'd make sense to
+    - try to get ftp working programatically
+    - only grab new data
+    But right now it's simple enough to grab it all manually and run it through the script
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/fisa_dailybudget/AIBL_DLY_BUD_96L1_20251108212622.asc
+  file_format:
+    type: csv 
+    delimiter: "|"
+    dtype: str
+    header: NULL
+    names:
+    - rcat_cd
+    - rcls_cd
+    - atyp_cd
+    - mng_dpt_cd
+    - cptl_proj_id
+    - bud_obj_cd
+    - au_cd
+    - fndg_dpt_cd
+    - cmtmnt_am
+    - oblgtns_am
+    - adpt_am
+    - penc_am
+    - enc_am
+    - acrd_exp_am
+    - cash_exp_am
+    - ucomit_am
+    - actu_exp_am
+    - tbl_last_dt
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: update_column
+    args:
+      column_name: fisa_version
+      val: "20251108212622"
+  - name: append_prev
+  - name: deduplicate
+    args:
+      sort_columns:
+      - fisa_version
+      - tbl_last_dt
+      sort_ascending: False
+      by:
+      - rcat_cd
+      - rcls_cd
+      - atyp_cd

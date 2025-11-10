@@ -7,24 +7,24 @@ from . import df_to_tempfile
 from .scriptor import ScriptorInterface
 
 HEADERS = [
-    "RCAT_CD",
-    "RCLS_CD",
-    "ATYP_CD",
-    "MNG_DPT_CD",
-    "CPTL_PROJ_ID",
-    "BUD_OBJ_CD",
-    "AU_CD",
-    "FNDG_DPT_CD",
-    "CMTMNT_AM",
-    "OBLGTNS_AM",
-    "ADPT_AM",
-    "PENC_AM",
-    "ENC_AM",
-    "ACRD_EXP_AM",
-    "CASH_EXP_AM",
-    "UCOMIT_AM",
-    "ACTU_EXP_AM",
-    "TBL_LAST_DT",
+    "rcat_cd",
+    "rcls_cd",
+    "atyp_cd",
+    "mng_dpt_cd",
+    "cptl_proj_id",
+    "bud_obj_cd",
+    "au_cd",
+    "fndg_dpt_cd",
+    "cmtmnt_am",
+    "oblgtns_am",
+    "adpt_am",
+    "penc_am",
+    "enc_am",
+    "acrd_exp_am",
+    "cash_exp_am",
+    "ucomit_am",
+    "actu_exp_am",
+    "tbl_last_dt",
 ]
 
 
@@ -58,19 +58,20 @@ class Scriptor(ScriptorInterface):
             return None
 
     def _dedupe(self, df: pd.DataFrame) -> pd.DataFrame:
-        sorted = df.sort_values(by=["fisa_version", "TBL_LAST_DT"], ascending=False)
-        return sorted.drop_duplicates(["RCAT_CD", "RCLS_CD", "ATYP_CD"])
+        sorted = df.sort_values(by=["fisa_version", "tbl_last_dt"], ascending=False)
+        return sorted.drop_duplicates(["rcat_cd", "rcls_cd", "atyp_cd"])
 
     def ingest(self) -> pd.DataFrame:
+        print(f"{self.previous_version=}")
         previous_dataset = recipes.Dataset(
             id=self.name,
             version=self.previous_version,
         )
-        previous = recipes.read_df(previous_dataset, dtype=str)
+        previous = recipes.read_df(previous_dataset)
         new = self._read_df(Path(self.source["path"]))
         df = pd.concat((previous, new), ignore_index=True)
         df = self._dedupe(df)
-        return df.sort_values(by="TBL_LAST_DT")
+        return df.sort_values(by="tbl_last_dt")
 
     def runner(self) -> str:
         df = self.ingest()
