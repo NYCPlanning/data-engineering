@@ -26,26 +26,6 @@ models:
         inclusive: true
   - name: boe_lgc_pointer
 
-- name: int__nonstreetfeature_seqnum
-  description: Non-streetfeature segments (and protosegments) with segment seqnum assigned
-  columns:
-  - name: source_table
-  - name: unique_id
-  - name: segmentid
-  - name: ogc_fid
-  - name: boroughcode
-  - name: face_code
-  - name: segment_seqnum
-  data_tests:
-  - name: nsf_seqnum_unique_identifier
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns: [ source_table, unique_id ]
-  - name: nsf_seqnum_unique_lionkey
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns: [ boroughcode, face_code, segment_seqnum ]
-
 - name: int__streetcode_and_facecode
   description: Street codes and face code-related data for all segments
   columns:
