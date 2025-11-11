@@ -103,3 +103,4 @@ segment_attributes AS (
 )
 
 SELECT * FROM segment_attributes
+WHERE face_code IS NOT NULL -- TODO error report for this and maybe refactor to get this in a more logical place
