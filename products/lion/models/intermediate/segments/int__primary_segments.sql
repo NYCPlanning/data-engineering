@@ -57,17 +57,7 @@ primary_segments AS (
             ST_ENDPOINT(ST_LINEMERGE(source.geom)) AS end_point,
             source.shape_length,
             SUBSTRING('{{ source_layer }}', 10) AS feature_type,
-            '{{ source_layer }}' AS source_table,
-            {% if source_layer == 'dcp_cscl_centerline' -%} 
-                (rwjurisdiction IS DISTINCT FROM '3' OR status = '2') AND rw_type <> 8 AS include_in_geosupport_lion,
-                (rwjurisdiction IS DISTINCT FROM '3' OR status = '2') AS include_in_bytes_lion
-            {% elif source_layer == 'dcp_cscl_rail' or source_layer == 'dcp_cscl_subway' -%}
-                row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
-                TRUE AS include_in_bytes_lion
-            {% else -%}
-                TRUE AS include_in_geosupport_lion,
-                TRUE AS include_in_bytes_lion
-            {% endif -%}
+            '{{ source_layer }}' AS source_table
         FROM {{ source("recipe_sources", source_layer) }} AS source
         {% if source_layer == 'dcp_cscl_nonstreetfeatures' -%} 
             LEFT JOIN seqnum
@@ -107,9 +97,7 @@ segment_attributes AS (
         street_and_facecode.lgc9,
         street_and_facecode.boe_lgc_pointer::CHAR(1),
         primary_segments.feature_type,
-        primary_segments.source_table,
-        primary_segments.include_in_geosupport_lion,
-        primary_segments.include_in_bytes_lion
+        primary_segments.source_table
     FROM primary_segments
     LEFT JOIN street_and_facecode ON primary_segments.segmentid = street_and_facecode.segmentid
 )

@@ -254,8 +254,15 @@ SELECT
     segments.feature_type,
     segments.source_table,
     segments.geom,
-    segments.include_in_geosupport_lion,
-    segments.include_in_bytes_lion
+    CASE
+        WHEN segments.feature_type = 'centerline' THEN centerline.include_in_geosupport_lion
+        WHEN segments.feature_type IN ('rail', 'subway') THEN rail.include_in_geosupport_lion
+        ELSE TRUE
+    END AS include_in_geosupport_lion,
+    CASE
+        WHEN segments.feature_type = 'centerline' THEN centerline.include_in_bytes_lion
+        ELSE TRUE
+    END AS include_in_bytes_lion
 FROM segments
 LEFT JOIN nodes ON segments.lionkey_dev = nodes.lionkey_dev
 LEFT JOIN segment_locational_status ON segments.lionkey_dev = segment_locational_status.lionkey_dev

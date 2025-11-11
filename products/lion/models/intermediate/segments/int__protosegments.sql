@@ -41,9 +41,7 @@ SELECT
     primary_segments.end_point,
     primary_segments.shape_length,
     proto.feature_type,
-    proto.source_table,
-    primary_segments.include_in_geosupport_lion, -- TODO this probably needs to be calculated later based on ft
-    primary_segments.include_in_bytes_lion -- TODO this probably needs to be calculated later based on ft
+    proto.source_table
 FROM proto
 INNER JOIN primary_segments ON proto.segmentid = primary_segments.segmentid -- TODO error report for non-matches
 LEFT JOIN facecode ON proto.b7sc = facecode.b7sc
