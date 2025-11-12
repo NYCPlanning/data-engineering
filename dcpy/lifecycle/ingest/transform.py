@@ -601,6 +601,7 @@ def process(
     summaries = []
     for step in processing_steps:
         step_callable = getattr(processor, step.name)
+        logger.info(f"Running processing step '{step.name}'")
         result = step_callable(df, **step.args)
         df = result.df
         summaries.append(result.summary)
