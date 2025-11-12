@@ -1,6 +1,6 @@
 -- Create empty table -> facdb_duplicates, same schema as facdbs
 DROP TABLE IF EXISTS facdb_duplicates;
-SELECT * INTO facdb_duplicates FROM facdb LIMIT 0;
+SELECT * INTO facdb_duplicates FROM facdb LIMIT 0; --noqa: AM09
 
 -- Within source deduplication -> same bin or geom, facname, factype, and datasource
 -- TODO - these row_number without ORDER BY is not deterministic
