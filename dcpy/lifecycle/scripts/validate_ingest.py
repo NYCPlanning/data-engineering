@@ -32,6 +32,23 @@ def _dataset_label(dataset: str) -> str:
     return dataset[:39]
 
 
+def _input_dataset(
+    dataset_id: str,
+    version: str,
+    file_type: recipes.DatasetType,
+    table_name: str | None,
+) -> InputDataset:
+    table_name = table_name or f"{dataset_id}_{version}"
+    return InputDataset(
+        id=dataset_id,
+        version=version,
+        source="edm.recipes.datasets",
+        file_type=file_type,
+        custom={"file_type": file_type},
+        import_as=table_name,
+    )
+
+
 class Converter(SortedSerializedBase, YamlWriter):
     _exclude_falsey_values: bool = False
     _exclude_none: bool = False
@@ -132,32 +149,15 @@ def ingest(
         staging_dir=dataset_staging_dir,
         push=False,
     )
-    assert len(config) == 1, "Validate ingest not set up to compare one-to-many definitions"
+    assert len(config) == 1, (
+        "Validate ingest not set up to compare one-to-many definitions"
+    )
 
     ## copy so that it's in the "library" file system for easy import
     output_path = dataset_staging_dir / dataset / f"{dataset}.parquet"
     ingest_path = LIBRARY_PATH / dataset / "ingest" / f"{dataset}.parquet"
     ingest_path.parent.mkdir(exist_ok=True, parents=True)
     shutil.copy(output_path, ingest_path)
-
-
-def _import_dataset(
-    dataset_id, version, file_type, dest_table_name, dest_dir: Path | None = None
-):
-    pg_client = postgres.PostgresClient(schema=SCHEMA, database=DATABASE)
-    data_loader.import_dataset(
-        InputDataset(
-            id=dataset_id,
-            version=version,
-            source="edm.recipes.datasets",
-            file_type=file_type,
-            custom={"file_type": file_type},
-            import_as=dest_table_name,
-        ),
-        stage="builds.qa",
-        pg_client=pg_client,
-        dest_dir_override=dest_dir,
-    )
 
 
 def load_recipe(
@@ -177,7 +177,11 @@ def load_recipe(
     client.drop_table(dataset)
     client.drop_table(target_table)
 
-    _import_dataset(dataset, version, file_type=file_type, dest_table_name=target_table)
+    data_loader.load_dataset_into_pg(
+        _input_dataset(dataset, version, file_type, target_table),
+        client,
+        LIBRARY_PATH / dataset / version / f"{dataset}.{file_type.to_extension()}",
+    )
 
 
 def load_recipe_from_s3(
@@ -204,12 +208,11 @@ def load_recipe_from_s3(
     # often use case would be archiving to dev bucket multiple times
     # just ensure that local copy is not re-used
     with TemporaryDirectory() as _dir:
-        _import_dataset(
-            ds_id,
-            s3_version,
-            file_type=file_type,
-            dest_table_name=target_table,
-            dest_dir=Path(_dir),
+        data_loader.import_dataset(
+            _input_dataset(ds_id, s3_version, file_type, target_table),
+            pg_client=client,
+            stage="builds.qa",
+            dest_dir_override=Path(_dir),
         )
 
 
