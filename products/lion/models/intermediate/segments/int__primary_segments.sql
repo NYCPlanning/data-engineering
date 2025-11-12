@@ -57,20 +57,13 @@ primary_segments AS (
             ST_ENDPOINT(ST_LINEMERGE(source.geom)) AS end_point,
             source.shape_length,
             SUBSTRING('{{ source_layer }}', 10) AS feature_type,
-            '{{ source_layer }}' AS source_table,
-            {% if source_layer == 'dcp_cscl_centerline' -%} 
-                (rwjurisdiction IS DISTINCT FROM '3' OR status = '2') AND rw_type <> 8 AS include_in_geosupport_lion,
-                (rwjurisdiction IS DISTINCT FROM '3' OR status = '2') AS include_in_bytes_lion
-            {% elif source_layer == 'dcp_cscl_rail' or source_layer == 'dcp_cscl_subway' -%}
-                row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
-                TRUE AS include_in_bytes_lion
-            {% else -%}
-                TRUE AS include_in_geosupport_lion,
-                TRUE AS include_in_bytes_lion
-            {% endif -%}
+            '{{ source_layer }}' AS source_table
         FROM {{ source("recipe_sources", source_layer) }} AS source
         {% if source_layer == 'dcp_cscl_nonstreetfeatures' -%} 
-            LEFT JOIN seqnum ON source.segmentid = seqnum.segmentid
+            LEFT JOIN seqnum
+                ON
+                    seqnum.source_table = 'dcp_cscl_nonstreetfeatures'
+                    AND source.segmentid = seqnum.unique_id
         {%- endif -%}
         {% if not loop.last -%}
             UNION ALL
@@ -80,18 +73,18 @@ primary_segments AS (
 
 segment_attributes AS (
     SELECT
-        primary_segments.segmentid,
         COALESCE(primary_segments.boroughcode, street_and_facecode.boroughcode) AS boroughcode,
-        primary_segments.legacy_segmentid,
+        street_and_facecode.face_code,
+        primary_segments.segment_seqnum,
+        primary_segments.segmentid,
         primary_segments.from_level_code,
         primary_segments.to_level_code,
-        primary_segments.segment_seqnum,
+        primary_segments.legacy_segmentid,
         primary_segments.geom,
         primary_segments.midpoint,
         primary_segments.start_point,
         primary_segments.end_point,
         primary_segments.shape_length,
-        street_and_facecode.face_code,
         street_and_facecode.five_digit_street_code,
         street_and_facecode.lgc1,
         street_and_facecode.lgc2,
@@ -104,11 +97,10 @@ segment_attributes AS (
         street_and_facecode.lgc9,
         street_and_facecode.boe_lgc_pointer::CHAR(1),
         primary_segments.feature_type,
-        primary_segments.source_table,
-        primary_segments.include_in_geosupport_lion,
-        primary_segments.include_in_bytes_lion
+        primary_segments.source_table
     FROM primary_segments
     LEFT JOIN street_and_facecode ON primary_segments.segmentid = street_and_facecode.segmentid
 )
 
 SELECT * FROM segment_attributes
+WHERE face_code IS NOT NULL -- TODO error report for this and maybe refactor to get this in a more logical place

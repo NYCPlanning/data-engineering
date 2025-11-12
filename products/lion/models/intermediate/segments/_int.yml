@@ -1,0 +1,58 @@
+version: 2
+
+models:
+- name: int__primary_segments
+  columns:
+  - name: segmentid
+    tests: [ not_null, unique ]
+
+- name: int__protosegments
+  columns:
+  - name: segmentid
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int__protosegments__key_ideal
+      combination_of_columns:
+      - boroughcode
+      - face_code
+      - segment_seqnum
+      config:
+        severity: warn
+
+- name: int__segments
+  columns:
+  - name: lionkey_dev
+    tests: [ unique ]
+  - name: segmentid
+    tests: [ not_null ]
+  - name: feature_type
+    tests: [ not_null ]
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      name: int__segments__key_ideal
+      combination_of_columns:
+      - boroughcode
+      - face_code
+      - segment_seqnum
+      config:
+        severity: warn
+
+- name: int__nonstreetfeature_seqnum
+  description: Non-streetfeature segments (and protosegments) with segment seqnum assigned
+  columns:
+  - name: source_table
+  - name: unique_id
+  - name: segmentid
+  - name: ogc_fid
+  - name: boroughcode
+  - name: face_code
+  - name: segment_seqnum
+  data_tests:
+  - name: nsf_seqnum_unique_identifier
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ source_table, unique_id ]
+  - name: nsf_seqnum_unique_lionkey
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ boroughcode, face_code, segment_seqnum ]

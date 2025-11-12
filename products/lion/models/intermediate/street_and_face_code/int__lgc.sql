@@ -5,6 +5,7 @@
     ]
 ) }}
 SELECT
+    LEFT(b5sc, 1) AS borough_code,
     segmentid,
     lgc,
     ROW_NUMBER() OVER (
