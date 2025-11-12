@@ -131,10 +131,11 @@ def ingest(
         version=version,
         staging_dir=dataset_staging_dir,
         push=False,
-    )[0]  # TODO - hack
+    )
+    assert len(config) == 1, "Validate ingest not set up to compare one-to-many definitions"
 
     ## copy so that it's in the "library" file system for easy import
-    output_path = dataset_staging_dir / dataset / config.version / f"{dataset}.parquet"
+    output_path = dataset_staging_dir / dataset / f"{dataset}.parquet"
     ingest_path = LIBRARY_PATH / dataset / "ingest" / f"{dataset}.parquet"
     ingest_path.parent.mkdir(exist_ok=True, parents=True)
     shutil.copy(output_path, ingest_path)
