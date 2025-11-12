@@ -21,7 +21,7 @@ on:
         - factfinder
         - green_fast_track
         - knownprojects
-        - lion
+        - cscl
         - pluto
         - ztl
         - all
@@ -251,10 +251,10 @@ jobs:
       recipe_file: ${{ inputs.recipe_file }}
       plan_command: ${{ needs.health_check.outputs.plan_command }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
-  lion:
+  cscl:
     needs: health_check
-    if: inputs.dataset_name == 'lion' || inputs.dataset_name  == 'all'
-    uses: ./.github/workflows/lion_build.yml
+    if: inputs.dataset_name == 'cscl' || inputs.dataset_name  == 'all'
+    uses: ./.github/workflows/cscl_build.yml
     secrets: inherit
     with:
       image_tag: ${{ needs.health_check.outputs.tag }}
