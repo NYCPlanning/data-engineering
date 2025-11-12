@@ -20,7 +20,9 @@ IMAGE_DIR=$DOCKER_DIR/$1
 source bash/utils.sh
 set_error_traps
 
-pip3 install requests beautifulsoup4 pip-tools
+# this currently is meant to be only run in CI, not run in one of our containers
+# TODO drop pip pin at some point - 25.3 has issue with pip-tools
+pip install --upgrade pip==25.2 requests beautifulsoup4 pip-tools
 
 function generate_dcpy_requirements {
     pip-compile ./pyproject.toml -o $IMAGE_DIR/dcpy_requirements.txt -c $IMAGE_DIR/constraints.txt
