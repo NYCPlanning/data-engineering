@@ -42,7 +42,7 @@ WITH boundary_geosupport AS (
         (
             SELECT bin::bigint::text FROM doitt_buildingfootprints AS b
             WHERE st_intersects(b.wkb_geometry, a.geom)
-            ORDER BY zipcode
+            ORDER BY bin
             LIMIT 1
         ) AS bin,
         (
