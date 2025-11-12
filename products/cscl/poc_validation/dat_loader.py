@@ -38,12 +38,12 @@ def parse_dat(dat_file: Path, max_records: int | None = None) -> pd.DataFrame:
 def load_dat(dat_file: Path, table_name: str | None, schema: str | None = None) -> None:
     dat_df = parse_dat(dat_file)
     table_name = table_name or dat_file.stem
-    client = postgres.PostgresClient(database="db-lion", schema=schema)
+    client = postgres.PostgresClient(database="db-cscl", schema=schema)
     client.insert_dataframe(dat_df, table_name)
 
 
 def create_full_lion(schema: str = "production_outputs"):
-    client = postgres.PostgresClient(database="db-lion", schema=schema)
+    client = postgres.PostgresClient(database="db-cscl", schema=schema)
     client.execute_query(
         """
             DROP TABLE IF EXISTS citywide_lion;

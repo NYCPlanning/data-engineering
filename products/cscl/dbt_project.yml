@@ -1,4 +1,4 @@
-name: "lion"
+name: "cscl"
 
 profile: "dcp-de-postgres"
 
@@ -9,7 +9,7 @@ tests:
   schema: "_tests"
 
 models:
-  lion:
+  cscl:
     staging:
       +materialized: view
     intermediate:

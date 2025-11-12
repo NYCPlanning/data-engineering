@@ -1,8 +1,8 @@
 # CSCL ETL
 
-(currently, this product is "lion". It could be renamed. It's the "CSCL ETL" but CSCL is the source, the outputs are various LION/GeoSupport-related files. Not sure on the most appropriate name.)
-
 Source of truth documentation can be found [here](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/PROJECTS/DATA%20ENGINEERING/PROJECT%20PLANNING/LION%20ETL/ETL_V8_02012024%20-%20Copy.docx?d=wd3194825302642958a316fb030749aa1&csf=1&web=1&e=3zxoek).
+
+This has been converted to a README in this private repo: github.com/NYCPlanning/cscl_etl_archive
 
 ## Source Data
 

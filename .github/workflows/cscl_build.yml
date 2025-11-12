@@ -1,4 +1,4 @@
-name: LION - 🏗️ Build
+name: CSCL - 🏗️ Build
 on:
   workflow_call:
     inputs:
@@ -20,16 +20,16 @@ on:
 
 jobs:
   build:
-    name: Build LION
+    name: Build CSCL
     runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
-        working-directory: products/lion
+        working-directory: products/cscl
     container:
       image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
     env:
-      BUILD_ENGINE_DB: db-lion
+      BUILD_ENGINE_DB: db-cscl
       BUILD_NAME: ${{ inputs.build_name }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
@@ -79,4 +79,4 @@ jobs:
       run: ./bash/validate.sh
 
     - name: Upload
-      run: python3 -m dcpy.connectors.edm.publishing upload --product db-lion --acl public-read
+      run: python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read
