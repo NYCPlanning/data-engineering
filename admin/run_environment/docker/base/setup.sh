@@ -50,6 +50,3 @@ function install_gdal {
 install_yq
 install_mc
 install_gdal
-
-# install uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
