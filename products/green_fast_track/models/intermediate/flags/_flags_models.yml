@@ -14,23 +14,26 @@ models:
     - not_null
     - dbt_expectations.expect_column_distinct_values_to_equal_set:
         name: int_flags__all__flag_id_field_name__set
-        value_set: '{{ dbt_utils.get_column_values( table=ref("variables"), column="flag_id_field_name") }}'
+        arguments:
+          value_set: '{{ dbt_utils.get_column_values( table=ref("variables"), column="flag_id_field_name") }}'
   - name: variable_type
     data_type: string
     tests:
     - not_null
     - dbt_expectations.expect_column_distinct_values_to_equal_set:
         name: int_flags__all__variable_type__set
-        value_set: '{{ dbt_utils.get_column_values( table=ref("variables"), column="variable_type") }}'
+        arguments:
+          value_set: '{{ dbt_utils.get_column_values( table=ref("variables"), column="variable_type") }}'
   - name: variable_id
     data_type: string
     tests:
     - not_null
   - name: distance
     data_type: float
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      name: int_flags__all__compound_key
+  data_tests:
+  - name: int_flags__all__compound_key
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns:
       - bbl
       - flag_id_field_name
@@ -47,11 +50,13 @@ models:
     tests:
     - not_null
     - relationships:
-        to: ref('zoning_district_mappings')
-        field: zoning_district_type
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      name: int__zoning_districts_compound_key
+        arguments:
+          to: ref('zoning_district_mappings')
+          field: zoning_district_type
+  data_tests:
+  - name: int__zoning_districts_compound_key
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns:
       - bbl
       - zoning_district_type
@@ -70,9 +75,10 @@ models:
     data_type: string
     tests:
     - not_null
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      name: int_flags__zoning_compound_key
+  data_tests:
+  - name: int_flags__zoning_compound_key
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns:
       - bbl
       - variable_type
@@ -125,9 +131,10 @@ models:
     data_type: float
     tests:
     - not_null
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      name: int_flags__spatial_compound_key
+  data_tests:
+  - name: int_flags__spatial_compound_key
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns:
       - bbl
       - flag_id_field_name
@@ -148,8 +155,9 @@ models:
   - name: zonedist3
   - name: zonedist4
   - name: Zoning Districts
-  tests:
+  data_tests:
   # test zoning flag logic
-  - dbt_utils.equality:
-      name: equality_flags_zoning
+  - name: equality_flags_zoning
+    test_name: dbt_utils.equality
+    arguments:
       compare_model: ref('test_expected__flags_zoning')

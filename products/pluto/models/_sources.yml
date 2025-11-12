@@ -16,13 +16,15 @@ sources:
     - name: classa_prop
     - name: job_type
       data_tests:
-      - accepted_values:
-          name: source_dcp_developments_job_type_values
+      - name: source_dcp_developments_job_type_values
+        test_name: accepted_values
+        arguments:
           values: [ "Alteration", "Alteration (A2)", "Demolition", "New Building" ]
     - name: job_status
       data_tests:
-      - accepted_values:
-          name: source_dcp_developments_job_status_values
+      - name: source_dcp_developments_job_status_values
+        test_name: accepted_values
+        arguments:
           values:
             [
               "1. Filed Application",

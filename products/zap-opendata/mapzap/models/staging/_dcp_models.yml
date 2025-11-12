@@ -30,8 +30,9 @@ models:
       - name: wrp_review_required
       - name: current_zoning_district
       - name: proposed_zoning_district
-    tests:
-      - dbt_utils.unique_combination_of_columns:
+    data_tests:
+      - test_name: dbt_utils.unique_combination_of_columns
+        arguments:
           combination_of_columns:
             - project_id
             - project_certified_referred_date
@@ -47,8 +48,9 @@ models:
         description: '{{ doc("project_bbl") }}'
         tests:
           - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
+    data_tests:
+      - test_name: dbt_utils.unique_combination_of_columns
+        arguments:
           combination_of_columns:
             - project_id
             - project_bbl
@@ -88,8 +90,9 @@ models:
       - name: pluto_version
       - name: bbl
       - name: wkt
-    tests:
-      - dbt_utils.unique_combination_of_columns:
+    data_tests:
+      - test_name: dbt_utils.unique_combination_of_columns
+        arguments:
           combination_of_columns:
             - pluto_version
             - bbl

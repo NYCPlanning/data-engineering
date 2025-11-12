@@ -13,8 +13,7 @@ models:
     tests:
     - not_null
     - accepted_values:
-        arguments:
-          values: [ "S" ]
+        arguments: { values: [ "S" ] }
   - name: borough
     tests: [ not_null ]
 - name: stg__altsegmentdata_proto
@@ -31,11 +30,11 @@ models:
   - name: trafdir
     tests:
     - accepted_values:
-        values: [ "TF", "FT", "NV", "TW" ]
+        arguments: { values: [ "TF", "FT", "NV", "TW" ] }
   - name: twisted_parity_flag
     tests:
     - accepted_values:
-        values: [ "Y", "N" ]
+        arguments: { values: [ "Y", "N" ] }
 - name: stg__sedat
   columns:
   - name: segmentid
@@ -43,4 +42,4 @@ models:
   - name: side
     tests:
     - accepted_values:
-        values: [ "1", "2" ]
+        arguments: { values: [ "1", "2" ] }

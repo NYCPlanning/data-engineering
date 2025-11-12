@@ -26,9 +26,10 @@ sources:
   - name: dcp_cscl_segment_lgc
     tests:
     - dbt_utils.unique_combination_of_columns:
-        combination_of_columns:
-        - segmentid
-        - lgc
+        arguments:
+          combination_of_columns:
+          - segmentid
+          - lgc
         config:
           severity: warn
   - name: dcp_cscl_specialsedat

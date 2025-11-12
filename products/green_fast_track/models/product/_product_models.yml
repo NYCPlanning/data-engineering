@@ -151,28 +151,31 @@ models:
   - name: geom
     data_type: geometry(Geometry, 2263)
 
-  tests:
+  data_tests:
   # domain knowledge
-  - dbt_expectations.expect_table_row_count_to_be_between:
-      name: logic_buffer_source_data_a
+  - name: logic_buffer_source_data_a
+    test_name: dbt_expectations.expect_table_row_count_to_be_between
+    arguments:
       # expect more flags from buffered than non-buffered
       min_value: 1
       row_condition: "historic_resources is null and historic_resources_adj is not null"
-      config:
-        # TODO fix this
-        severity: warn
+    config:
+      # TODO fix this
+      severity: warn
 
-  - dbt_expectations.expect_table_row_count_to_be_between:
-      name: logic_buffer_source_data_b
+  - name: logic_buffer_source_data_b
+    test_name: dbt_expectations.expect_table_row_count_to_be_between
+    arguments:
       # expect more flags from larger buffer
       min_value: 1
       row_condition: "historic_resources_adj is null and shadow_hist_resources is not null"
 
 - name: test_actual__pilot_projects
   description: Green Fast Track outputs for pilot project examples
-  tests:
+  data_tests:
   # test the expectations of pilot projects
-  - dbt_utils.equality:
-      name: equality_green_fast_track_pilot_projects
+  - name: equality_green_fast_track_pilot_projects
+    test_name: dbt_utils.equality
+    arguments:
       compare_model: ref('test_expected__pilot_projects')
       exclude_columns: [ geom ]

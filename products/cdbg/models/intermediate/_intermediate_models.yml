@@ -12,8 +12,9 @@ models:
     tests:
     # This test may fail because three tracts in stg__census_tracts have the same bct2020
     - dbt_expectations.expect_column_distinct_count_to_equal_other_table:
-        compare_model: ref('stg__census_tracts')
-        column_name: bct2020
+        arguments:
+          compare_model: ref('stg__census_tracts')
+          column_name: bct2020
   - name: block_group
   - name: total_floor_area
   - name: residential_floor_area
@@ -53,8 +54,9 @@ models:
     tests:
     - not_null
     - relationships:
-        to: ref('int__block_groups_raw')
-        field: geoid
+        arguments:
+          to: ref('int__block_groups_raw')
+          field: geoid
   - name: overlap_ratio
   - name: bldgarea
   - name: bldgarea_in_block_group
@@ -62,7 +64,9 @@ models:
   - name: resarea_in_block_group
 
 - name: int__lot_block_groups_raw
-  description: unique intersections of pluto lots and census block groups with proportion of lot in block group
+  description: >-
+    unique intersections of pluto lots and census block groups with proportion of lot in
+    block group
   columns:
   - name: bbl
   - name: block_group_geoid
@@ -70,21 +74,24 @@ models:
 
 - name: int__lot_block_groups
   description: >-
-    unique intersections of pluto lots and census block groups with proportion of lot in block group, corrected to assign lots
-    fully to block groups that contain 90%+ of a lot
+    unique intersections of pluto lots and census block groups with proportion of lot in
+    block group, corrected to assign lots fully to block groups that contain 90%+ of a
+    lot
   columns:
   - name: bbl
   - name: block_group_geoid
   - name: overlap_ratio
-  tests:
-  - dbt_utils.unique_combination_of_columns:
+  data_tests:
+  - test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns: [ bbl, block_group_geoid ]
-  - sum_by:
+  - test_name: sum_by
+    arguments:
       group_by: bbl
       target_column: overlap_ratio
       val: 1
-      config:
-        severity: warn
+    config:
+      severity: warn
 
 - name: int__tracts
   description: residential area and low-to-moderate income data aggregated by census tract
@@ -130,6 +137,7 @@ models:
     - not_null:
         config:
           severity: warn
-  tests:
-  - dbt_utils.unique_combination_of_columns:
+  data_tests:
+  - test_name: dbt_utils.unique_combination_of_columns
+    arguments:
       combination_of_columns: [ project_id, bbl ]

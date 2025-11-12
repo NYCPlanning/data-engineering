@@ -10,24 +10,28 @@ models:
     Centerline segments with Locational Status & Borough Boundary Indicator columns.
   columns:
   - name: segmentid
-    tests: 
-      - not_null
-      # TODO disable test for now, failing for one record
-      # - unique
+    tests:
+    - not_null
+  # TODO disable test for now, failing for one record
+  # - unique
   - name: borough_boundary_indicator
     tests:
-    - accepted_values:
+    - test_name: accepted_values
+      arguments:
         values: [ 'R', 'L' ]
   - name: is_ap_boro_boundary_error
     tests:
-    - accepted_values:
-        values: [ False ]
-        config:
-          severity: warn
+    - test_name: accepted_values
+      arguments:
+        values: [ false ]
+      config:
+        severity: warn
   - name: segment_locational_status
     tests:
-    - accepted_values:
+    - test_name: accepted_values
+      arguments:
         values: [ '9', 'H', 'I', '1', '2', '3', '4', '5', 'X' ]
-  tests:
-  - dbt_expectations.expect_table_row_count_to_equal_other_table:
+  data_tests:
+  - test_name: dbt_expectations.expect_table_row_count_to_equal_other_table
+    arguments:
       compare_model: ref("int__segment_atomicpolygons")

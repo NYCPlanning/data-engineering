@@ -2,8 +2,7 @@ version: 2
 
 seeds:
   - name: chapters
-    description: |
-      Represents the analytical chapters in the CEQR Data Hub
+    description: Represents the analytical chapters in the CEQR Data Hub
     columns:
       - name: chapter_id
         tests:
@@ -15,50 +14,54 @@ seeds:
           - unique
 
   - name: datasets
-    description: |
-      Catalogs the datasets available in the CEQR Data Hub, including their metadata such as availability type, file type, and geometry type. These datasets are used for various analyses in the CEQR process.
+    description: >-
+      Catalogs the datasets available in the CEQR Data Hub, including their metadata such
+      as availability type, file type, and geometry type. These datasets are used for
+      various analyses in the CEQR process.
     columns:
       - name: dataset_name
         tests:
           - not_null
           - unique
           - relationships:
-              to: ref('chapter_datasets')
-              field: dataset_name
+              arguments:
+                to: ref('chapter_datasets')
+                field: dataset_name
 
       - name: dataset_id
         tests:
           - not_null:
-              where: "availability_type = 'download'"
+              config: { where: "availability_type = 'download'" }
           - unique
 
       - name: availability_type
         tests:
           - not_null
           - accepted_values:
-              values: ["download", "webpage"]
+              arguments: { values: ["download", "webpage"] }
 
       - name: file_type
         tests:
           - not_null:
-              where: "availability_type = 'download'"
+              config: { where: "availability_type = 'download'" }
           - accepted_values:
-              values: ["shapefile", "csv", "excel"]
-              where: "availability_type = 'download'"
+              arguments: { values: ["shapefile", "csv", "excel"] }
+              config: { where: "availability_type = 'download'" }
 
       - name: geometry_type
         tests:
           - not_null:
-              where: "file_type = 'shapefile'"
+              config: { where: "file_type = 'shapefile'" }
           - accepted_values:
-              values: ["MULTIPOLYGON", "MULTIPOINT", "MULTILINESTRING"]
-              where: "availability_type = 'download'"
+              arguments: { values: ["MULTIPOLYGON", "MULTIPOINT", "MULTILINESTRING"] }
+              config: { where: "availability_type = 'download'" }
 
       - name: source_url
 
   - name: chapter_datasets
-    description: |
-      Maps datasets to their respective analytical chapters and how datasets are used within each chapter
+    description: >-
+      Maps datasets to their respective analytical chapters and how datasets are used
+      within each chapter
     columns:
       - name: chapter_id
         tests:
@@ -72,8 +75,9 @@ seeds:
         tests:
           - not_null
           - relationships:
-              to: ref('datasets')
-              field: dataset_name
+              arguments:
+                to: ref('datasets')
+                field: dataset_name
 
       - name: use_details
     tests:
