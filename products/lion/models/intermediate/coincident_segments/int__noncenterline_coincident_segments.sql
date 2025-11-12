@@ -1,6 +1,7 @@
--- Potential Spatial Matches between centerlines and underground trains (subways + rail)
--- Leaving this separate from the counts, for diagnostic/exporatory purposes.
--- NOTE the current approach may cause issues with proto-segment coincident counts
+-- Spatial matches for non-centerline segments.
+-- The current ETL logic (which differs from the legacy ETL docs...) is:
+-- 1. match non-centerline segments to their own type (e.g. shorelines with shorelines)
+-- 2. then match them to centerlines (except when they're subeterranean rail)
 
 {{ config(
     materialized = 'table',
@@ -9,36 +10,24 @@
     ]
 ) }}
 
--- Exact matches catch all but ~50 or so
-WITH exact_matches AS (
-    SELECT
-        s.segmentid,
-        r.segmentid AS joined_segment_id,
-        r.feature_type AS joined_segment_feature_type,
-        'exact' AS match_type,
-        0 AS distance
-    FROM {{ ref('int__primary_segments') }} AS s
-    INNER JOIN {{ ref('int__primary_segments') }} AS r ON ST_EQUALS(r.geom, s.geom)
-    WHERE s.feature_type NOT IN ('centerline', 'nonstreetfeatures')
-),
-fuzzy_matches AS (
-    SELECT
-        s.segmentid,
-        r.segmentid AS joined_segment_id,
-        r.feature_type AS joined_segment_feature_type,
-        'fuzzy' AS match_type,
-        ST_DISTANCE(r.midpoint, s.midpoint) AS distance
-    FROM {{ ref('int__primary_segments') }} AS s
-    INNER JOIN {{ ref('int__primary_segments') }} AS r
-        -- 2.5 is probably too wide, but convenient for diagnostic/exporatory purposes
-        ON ST_DWITHIN(r.midpoint, s.midpoint, 2.5)
-    -- `WHERE NOT...` below shaves off a few seconds from the more conventional:
-    -- WHERE r.segmentid NOT IN (SELECT trains_segment_id FROM exact_matches)
-    WHERE s.feature_type NOT IN ('centerline', 'nonstreetfeatures') AND NOT EXISTS (
-        SELECT 1 FROM exact_matches AS em
-        WHERE em.joined_segment_id = r.segmentid
-    )
-)
-SELECT * FROM exact_matches
-UNION ALL
-SELECT * FROM fuzzy_matches
+--
+SELECT
+    s.segmentid,
+    coinc.segmentid AS coinc_segment_id,
+    coinc.feature_type AS coinc_segment_feature_type,
+    'fuzzy' AS match_type,
+    ST_DISTANCE(s.midpoint, coinc.midpoint) AS distance
+FROM {{ ref('int__primary_segments') }} AS s
+INNER JOIN {{ ref('int__primary_segments') }} AS coinc
+    ON
+        ST_DWITHIN(s.midpoint, coinc.midpoint, 2.5)
+        AND
+        (
+            s.feature_type = coinc.feature_type  -- match to segments of same type
+            OR
+            (
+                coinc.feature_type = 'centerline'
+                AND s.segmentid NOT IN (SELECT segmentid FROM {{ ref('int__underground_rail') }})  -- to centerlines without underground rail
+            )
+        )
+WHERE s.feature_type <> 'centerline'
