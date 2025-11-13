@@ -7,4 +7,4 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 install_geosupport
 
-python3 -m pip install -r requirements.txt
+uv pip install --system -r requirements.txt

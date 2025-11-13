@@ -35,11 +35,15 @@ WITH boundary_geosupport AS (
         ) AS borocode,
         (
             SELECT zipcode FROM doitt_zipcodeboundaries AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom) LIMIT 1
+            WHERE st_intersects(b.wkb_geometry, a.geom)
+            ORDER BY zipcode
+            LIMIT 1
         ) AS zipcode,
         (
             SELECT bin::bigint::text FROM doitt_buildingfootprints AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom) LIMIT 1
+            WHERE st_intersects(b.wkb_geometry, a.geom)
+            ORDER BY bin
+            LIMIT 1
         ) AS bin,
         (
             SELECT bbl::bigint::text FROM dcp_mappluto_wi AS b
@@ -47,7 +51,9 @@ WITH boundary_geosupport AS (
         ) AS bbl,
         (
             SELECT upper(po_name) FROM doitt_zipcodeboundaries AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom) LIMIT 1
+            WHERE st_intersects(b.wkb_geometry, a.geom)
+            ORDER BY zipcode
+            LIMIT 1
         ) AS city,
         (
             SELECT borocd::text FROM dcp_cdboundaries AS b
