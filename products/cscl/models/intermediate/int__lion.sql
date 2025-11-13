@@ -127,50 +127,7 @@ SELECT
         WHEN trafdir = 'TW' THEN 'T'
     END AS traffic_direction,
     segment_locational_status.segment_locational_status,
-    CASE
-        WHEN segments.feature_type = 'centerline'
-            THEN (
-                CASE
-                    -- Paper street that is not also a boundary 
-                    WHEN centerline.status = '3' THEN '5'
-                    -- Private street that exists physically 
-                    WHEN centerline.status = '2' AND centerline.rwjurisdiction = '3' THEN '6'
-                    -- Paper street that coincides with a non-physical boundary 
-                    WHEN centerline.status = '9' THEN '9'
-                    -- Alley
-                    WHEN centerline.rw_type = 10 THEN 'A'
-                    -- Path, non-vehicular, addressable
-                    WHEN
-                        centerline.trafdir = 'NV'
-                        AND (
-                            centerline.l_low_hn != '0'
-                            OR centerline.l_high_hn != '0'
-                            OR centerline.r_low_hn != '0'
-                            OR centerline.r_high_hn != '0'
-                        )
-                        THEN 'W'
-                    -- Ferry
-                    WHEN centerline.rw_type = 14 THEN 'F'
-                    -- Constructed
-                    WHEN centerline.status = '2' AND centerline.rwjurisdiction = '5' THEN 'C'
-                    -- Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W  -- redundant but to be explicit about above case
-                END
-            )
-        WHEN segments.feature_type = 'shoreline' THEN '2'
-        WHEN segments.feature_type IN ('rail', 'subway') THEN '1'
-        WHEN segments.feature_type = 'nonstreetfeatures' THEN (
-            CASE
-                -- Non-physical census block boundary
-                WHEN nsf.linetype = 3 THEN '3'
-                -- Non-physical boundary other than census
-                WHEN nsf.linetype IN (1, 2, 6) THEN '7'
-                -- Physical boundary such as cemetery wall
-                WHEN nsf.linetype IN (4, 5) THEN '8'
-                -- Other non-street feature
-                WHEN nsf.linetype = 7 THEN '4'
-            END
-        )
-    END AS feature_type_code,
+    segments.feature_type_code,
     centerline.nonped,
     centerline.continuous_parity_flag,
     segment_locational_status.borough_boundary_indicator,
@@ -211,7 +168,7 @@ SELECT
         ELSE centerline.bike_lane
     END AS bike_lane,
     centerline.fcc,
-    rail.row_type AS right_of_way_type,
+    rail.right_of_way_type,
     ap_left.left_2010_census_tract_basic,
     ap_left.left_2010_census_tract_suffix,
     ap_right.right_2010_census_tract_basic,
@@ -252,11 +209,12 @@ SELECT
     ap_right.right_2020_census_block_basic,
     ap_right.right_2020_census_block_suffix,
     segments.feature_type,
+    segments.feature_type_description,
     segments.source_table,
     segments.geom,
     CASE
         WHEN segments.feature_type = 'centerline' THEN centerline.include_in_geosupport_lion
-        WHEN segments.feature_type IN ('rail', 'subway') THEN rail.include_in_geosupport_lion
+        WHEN segments.feature_type = 'rail_and_subway' THEN rail.include_in_geosupport_lion
         ELSE TRUE
     END AS include_in_geosupport_lion,
     CASE
@@ -286,8 +244,6 @@ LEFT JOIN centerline_coincident_subway_or_rail ON centerline.segmentid = centerl
 -- shoreline only
 -- rail only
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
--- nsf only
-LEFT JOIN nsf ON segments.segmentid = nsf.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
 LEFT JOIN zips ON segments.lionkey_dev = zips.lionkey_dev AND segments.feature_type != 'centerline'

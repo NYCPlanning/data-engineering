@@ -14,33 +14,35 @@ WITH seqnum AS (
 street_and_facecode AS (
     SELECT * FROM {{ ref("int__streetcode_and_facecode") }}
 ),
--- TODO join centerline here to get stuff like twisted_parity_flag
+
+feature_type_codes AS (
+    SELECT * FROM {{ ref("feature_type_codes") }}
+),
 
 primary_segments AS (
     {%- 
         for source_layer in [
-            "dcp_cscl_centerline",
-            "dcp_cscl_shoreline",
-            "dcp_cscl_rail",
-            "dcp_cscl_subway",
-            "dcp_cscl_nonstreetfeatures",
+            "stg__centerline",
+            "stg__shoreline",
+            "stg__rail_and_subway",
+            "stg__nonstreetfeatures",
         ] 
     -%}
         SELECT
             source.segmentid,
             -- TODO all these if elses are a little inelegant, this should be reworked
-            {% if source_layer == 'dcp_cscl_centerline' -%}
+            {% if source_layer == 'stg__centerline' -%}
                 -- there's only one row where this actually makes a difference. Will report to GR
                 source.boroughcode,
             {% else -%}
                 NULL AS boroughcode,
             {% endif -%}
-            {% if source_layer == 'dcp_cscl_shoreline' -%} 
+            {% if source_layer == 'stg__shoreline' -%} 
                 NULL AS legacy_segmentid,
                 NULL AS from_level_code,
                 NULL AS to_level_code,
                 source.segment_seqnum,
-            {% elif source_layer == 'dcp_cscl_nonstreetfeatures' -%}
+            {% elif source_layer == 'stg__nonstreetfeatures' -%}
                 source.legacy_segmentid,
                 NULL AS from_level_code,
                 NULL AS to_level_code,
@@ -51,18 +53,19 @@ primary_segments AS (
                 source.to_level_code,
                 source.segment_seqnum,
             {% endif -%}
+            source.feature_type_code,
             ST_LINEMERGE(source.geom) AS geom,
             ST_LINEINTERPOLATEPOINT(ST_LINEMERGE(source.geom), 0.5) AS midpoint,
             ST_STARTPOINT(ST_LINEMERGE(source.geom)) AS start_point,
             ST_ENDPOINT(ST_LINEMERGE(source.geom)) AS end_point,
             source.shape_length,
-            SUBSTRING('{{ source_layer }}', 10) AS feature_type,
-            '{{ source_layer }}' AS source_table
-        FROM {{ source("recipe_sources", source_layer) }} AS source
-        {% if source_layer == 'dcp_cscl_nonstreetfeatures' -%} 
+            source.feature_type,
+            source.source_table
+        FROM {{ ref(source_layer) }} AS source
+        {% if source_layer == 'stg__nonstreetfeatures' -%} 
             LEFT JOIN seqnum
                 ON
-                    seqnum.source_table = 'dcp_cscl_nonstreetfeatures'
+                    seqnum.source_table = 'nonstreetfeatures'
                     AND source.segmentid = seqnum.unique_id
         {%- endif -%}
         {% if not loop.last -%}
@@ -80,6 +83,7 @@ segment_attributes AS (
         primary_segments.from_level_code,
         primary_segments.to_level_code,
         primary_segments.legacy_segmentid,
+        primary_segments.feature_type_code,
         primary_segments.geom,
         primary_segments.midpoint,
         primary_segments.start_point,
@@ -97,9 +101,11 @@ segment_attributes AS (
         street_and_facecode.lgc9,
         street_and_facecode.boe_lgc_pointer::CHAR(1),
         primary_segments.feature_type,
+        feature_type_codes.description AS feature_type_description,
         primary_segments.source_table
     FROM primary_segments
     LEFT JOIN street_and_facecode ON primary_segments.segmentid = street_and_facecode.segmentid
+    LEFT JOIN feature_type_codes ON primary_segments.feature_type_code = feature_type_codes.code
 )
 
 SELECT * FROM segment_attributes
