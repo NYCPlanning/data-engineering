@@ -22,14 +22,13 @@ facecode AS (
 ),
 proto AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_proto') }}
-    WHERE feature_type = 'nonstreetfeatures'
 ),
 proto_facecode AS (
     SELECT * FROM {{ ref('int__b7sc_codes') }}
 ),
 all_nsf_segments AS (
     SELECT
-        'dcp_cscl_nonstreetfeatures' AS source_table,
+        source_table,
         nsf.segmentid AS unique_id,
         nsf.segmentid,
         nsf.ogc_fid,
