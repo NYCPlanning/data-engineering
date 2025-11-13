@@ -35,10 +35,19 @@ SELECT
     primary_segments.legacy_segmentid,
     primary_segments.from_level_code, -- TODO this definitely isn't quite right
     primary_segments.to_level_code, -- TODO this definitely isn't quite right
-    primary_segments.geom,
+    CASE
+        WHEN proto.from_to_indicator = 'R' THEN ST_REVERSE(primary_segments.geom)
+        ELSE primary_segments.geom
+    END AS geom,
     primary_segments.midpoint,
-    primary_segments.start_point,
-    primary_segments.end_point,
+    CASE
+        WHEN proto.from_to_indicator = 'R' THEN primary_segments.end_point
+        ELSE primary_segments.start_point
+    END AS start_point,
+    CASE
+        WHEN proto.from_to_indicator = 'R' THEN primary_segments.start_point
+        ELSE primary_segments.end_point
+    END AS end_point,
     primary_segments.shape_length,
     proto.feature_type,
     proto.source_table
