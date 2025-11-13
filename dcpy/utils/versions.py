@@ -511,3 +511,95 @@ def parse_draft_version(v: str) -> DraftVersionRevision:
         raise ValueError(f"Unsupported draft version revision format {v}")
 
     return DraftVersionRevision(revision_num, revision_summary)
+
+
+class FuzzyVersion:
+    """A version string that supports fuzzy comparison including with various date formats."""
+
+    def __init__(self, version_string):
+        self.original = version_string
+        self.normalized = self._normalize() if version_string else version_string
+
+    def probably_equals(self, other):
+        if not isinstance(other, FuzzyVersion):
+            raise TypeError("Can only compare with another FuzzyVersion")
+
+        if not self.original or not other.original:
+            return False
+
+        # Direct string comparison (handles case differences)
+        if self.original.lower().strip() == other.original.lower().strip():
+            return True
+
+        # Compare normalized versions
+        return self.normalized == other.normalized
+
+    def _normalize(self):
+        """
+        Convert various date formats to a standardized form (YYYYMM).
+
+        Returns:
+            str: Normalized version string in YYYYMM format, or original if no pattern matches
+        """
+        version = self.original.lower().strip()
+
+        months = {
+            "january": "01",
+            "february": "02",
+            "march": "03",
+            "april": "04",
+            "may": "05",
+            "june": "06",
+            "july": "07",
+            "august": "08",
+            "september": "09",
+            "october": "10",
+            "november": "11",
+            "december": "12",
+        }
+
+        # Handle month name + year (e.g., "september 2025")
+        for month_name, month_num in months.items():
+            if month_name in version:
+                year_match = re.search(r"20(\d{2})", version)
+                if year_match:
+                    year = year_match.group(1)
+                    return f"20{year}{month_num}"
+
+        # Handle quarter notation (e.g., "25q2")
+        quarter_match = re.search(r"(\d{2})q(\d)", version)
+        if quarter_match:
+            year, quarter = quarter_match.groups()
+            # Map quarters to months (calendar quarters)
+            quarter_to_month = {"1": "03", "2": "06", "3": "09", "4": "12"}
+            month = quarter_to_month.get(quarter, quarter)
+            return f"20{year}{month}"
+
+        # Handle YYYYMMDD format (extract YYYYMM)
+        date_match = re.search(r"(20\d{2})(\d{2})\d{2}", version)
+        if date_match:
+            year, month = date_match.groups()
+            return f"{year}{month}"
+
+        # Handle YYYYMM format
+        yyyymm_match = re.search(r"(20\d{4})", version)
+        if yyyymm_match:
+            return yyyymm_match.group(1)
+
+        # Return original if no pattern matches
+        return version
+
+    def __str__(self):
+        return self.original or ""
+
+    def __repr__(self):
+        return f"FuzzyVersion({self.original!r})"
+
+    def __eq__(self, other):
+        """Strict equality - delegates to probably_equals for fuzzy comparison."""
+        if isinstance(other, FuzzyVersion):
+            return self.original == other.original
+        return False
+
+    def __hash__(self):
+        return hash(self.original)
