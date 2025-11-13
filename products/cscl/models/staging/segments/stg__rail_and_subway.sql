@@ -15,7 +15,8 @@ SELECT
     'rail' AS source_table,
     row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
     geom,
-    shape_length
+    shape_length,
+    ogc_fid
 FROM {{ source("recipe_sources", "dcp_cscl_rail") }}
 UNION ALL
 SELECT
@@ -30,5 +31,6 @@ SELECT
     'subway' AS source_table,
     row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
     geom,
-    shape_length
+    shape_length,
+    ogc_fid
 FROM {{ source("recipe_sources", "dcp_cscl_subway") }}

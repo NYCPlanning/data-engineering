@@ -60,6 +60,10 @@ centerline_coincident_subway_or_rail AS (
 
 noncl_coincident_segment AS (
     SELECT * FROM {{ ref("int__noncenterline_coincident_segment_count") }}
+),
+
+proto AS (
+    SELECT * FROM {{ ref("stg__altsegmentdata_proto") }}
 )
 
 SELECT
@@ -85,15 +89,26 @@ SELECT
     ap_left.left_2000_census_tract_basic,
     ap_left.left_2000_census_tract_suffix,
     ap_left.left_atomicid,
-    centerline.l_low_hn,
-    centerline.l_high_hn,
     CASE
-        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L') THEN
-            nullif(centerline.lsubsect, '0')
+        WHEN segments.source_table = 'centerline' THEN centerline.l_low_hn
+        WHEN segments.source_table = 'altsegmentdata' THEN proto.l_low_hn
+    END AS l_low_hn,
+    CASE
+        WHEN segments.source_table = 'centerline' THEN centerline.l_high_hn
+        WHEN segments.source_table = 'altsegmentdata' THEN proto.l_high_hn
+    END AS l_high_hn,
+    CASE
+        WHEN segment_locational_status.borough_boundary_indicator = 'L' THEN NULL
+        WHEN segments.source_table = 'centerline' THEN nullif(centerline.lsubsect, '0')
+        WHEN segments.source_table = 'altsegmentdata'
+            THEN coalesce(nullif(proto.lsubsect, '0'), nullif(centerline.lsubsect, '0'))
     END AS lsubsect,
     CASE
-        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L') THEN
-            coalesce(centerline.l_zip, zips.l_zip)
+        WHEN segment_locational_status.borough_boundary_indicator = 'L' THEN NULL
+        WHEN segments.source_table = 'altsegmentdata' AND segment_locational_status.borough_boundary_indicator = 'R'
+            THEN proto.zipcode
+        WHEN segments.feature_type = 'centerline' THEN centerline.l_zip
+        ELSE zips.l_zip
     END AS l_zip,
     ap_left.left_assembly_district,
     ap_left.left_election_district,
@@ -101,15 +116,26 @@ SELECT
     ap_right.right_2000_census_tract_basic,
     ap_right.right_2000_census_tract_suffix,
     ap_right.right_atomicid,
-    centerline.r_low_hn,
-    centerline.r_high_hn,
     CASE
-        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R') THEN
-            nullif(centerline.rsubsect, '0')
+        WHEN segments.source_table = 'centerline' THEN centerline.r_low_hn
+        WHEN segments.source_table = 'altsegmentdata' THEN proto.r_low_hn
+    END AS r_low_hn,
+    CASE
+        WHEN segments.source_table = 'centerline' THEN centerline.r_high_hn
+        WHEN segments.source_table = 'altsegmentdata' THEN proto.r_high_hn
+    END AS r_high_hn,
+    CASE
+        WHEN segment_locational_status.borough_boundary_indicator = 'R' THEN NULL
+        WHEN segments.source_table = 'centerline' THEN nullif(centerline.rsubsect, '0')
+        WHEN segments.source_table = 'altsegmentdata'
+            THEN coalesce(nullif(proto.rsubsect, '0'), nullif(centerline.rsubsect, '0'))
     END AS rsubsect,
     CASE
-        WHEN (segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R') THEN
-            coalesce(centerline.r_zip, zips.r_zip)
+        WHEN (segment_locational_status.borough_boundary_indicator = 'R') THEN NULL
+        WHEN segments.source_table = 'altsegmentdata' AND segment_locational_status.borough_boundary_indicator = 'L'
+            THEN proto.zipcode
+        WHEN segments.feature_type = 'centerline' THEN centerline.r_zip
+        ELSE zips.r_zip
     END AS r_zip,
     ap_right.right_assembly_district,
     ap_right.right_election_district,
@@ -142,8 +168,14 @@ SELECT
     round(centerline_curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
     round(centerline_curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
     round(segments.shape_length)::INT AS segment_length_ft,
-    convert_level_code(segments.from_level_code, segments.feature_type) AS from_level_code,
-    convert_level_code(segments.to_level_code, segments.feature_type) AS to_level_code,
+    convert_level_code(
+        segments.from_level_code,
+        CASE WHEN segments.primary_feature_type = 'shoreline' THEN 'shoreline' ELSE segments.feature_type END
+    ) AS from_level_code, -- TODO this is an obvious bug in prod
+    convert_level_code(
+        segments.to_level_code,
+        CASE WHEN segments.primary_feature_type = 'shoreline' THEN 'shoreline' ELSE segments.feature_type END
+    ) AS to_level_code, -- TODO this is an obvious bug in prod
     centerline.trafdir_ver_flag,
     coalesce(centerline.segment_type, 'U') AS segment_type,
     CASE
@@ -247,3 +279,4 @@ LEFT JOIN rail ON segments.segmentid = rail.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
 LEFT JOIN zips ON segments.lionkey_dev = zips.lionkey_dev AND segments.feature_type != 'centerline'
+LEFT JOIN proto ON segments.source_table = 'altsegmentdata' AND segments.ogc_fid = proto.ogc_fid
