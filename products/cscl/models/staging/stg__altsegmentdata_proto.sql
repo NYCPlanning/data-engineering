@@ -27,6 +27,7 @@ SELECT
     sosindicator,
     feature_type AS feature_type_code,
     from_to_indicator,
+    from_to_indicator = 'R' AS reversed,
     alt_segdata_type,
     seglocstatus,
     lgc5,

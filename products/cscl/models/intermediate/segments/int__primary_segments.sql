@@ -60,7 +60,8 @@ primary_segments AS (
             ST_ENDPOINT(ST_LINEMERGE(source.geom)) AS end_point,
             source.shape_length,
             source.feature_type,
-            source.source_table
+            source.source_table,
+            source.ogc_fid
         FROM {{ ref(source_layer) }} AS source
         {% if source_layer == 'stg__nonstreetfeatures' -%} 
             LEFT JOIN seqnum
@@ -101,8 +102,10 @@ segment_attributes AS (
         street_and_facecode.lgc9,
         street_and_facecode.boe_lgc_pointer::CHAR(1),
         primary_segments.feature_type,
+        primary_segments.feature_type AS primary_feature_type,
         feature_type_codes.description AS feature_type_description,
-        primary_segments.source_table
+        primary_segments.source_table,
+        primary_segments.ogc_fid
     FROM primary_segments
     LEFT JOIN street_and_facecode ON primary_segments.segmentid = street_and_facecode.segmentid
     LEFT JOIN feature_type_codes ON primary_segments.feature_type_code = feature_type_codes.code
