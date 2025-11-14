@@ -169,7 +169,13 @@ SELECT
             OR (segments.source_table = 'altsegmentdata' AND proto.twisted_parity_flag = 'Y')
             THEN 'T'
     END AS twisted_parity_flag,
-    saf.special_address_flag,
+    CASE
+        WHEN NOT (
+            segments.source_table = 'altsegmentdata'
+            AND proto.alt_segdata_type <> 'B'
+            AND saf.special_address_flag IN ('A', 'B', 'C', 'D', 'E', 'F', 'O', 'P', 'S', 'V', 'G', 'N', 'X')
+        ) THEN saf.special_address_flag
+    END AS special_address_flag,
     CASE
         WHEN segments.feature_type = 'centerline' THEN centerline_curve.curve_flag
         WHEN st_numpoints(segments.geom) > 2 THEN 'I'
