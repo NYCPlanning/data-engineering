@@ -101,14 +101,14 @@ SELECT
         WHEN segment_locational_status.borough_boundary_indicator = 'L' THEN NULL
         WHEN segments.source_table = 'centerline' THEN nullif(centerline.lsubsect, '0')
         WHEN segments.source_table = 'altsegmentdata'
-            THEN coalesce(nullif(proto.lsubsect, '0'), nullif(centerline.lsubsect, '0'))
+            THEN coalesce(nullif(proto.lsubsect, '0'), nullif(primary_centerline.lsubsect, '0'))
     END AS lsubsect,
     CASE
         WHEN segment_locational_status.borough_boundary_indicator = 'L' THEN NULL
         WHEN segments.source_table = 'altsegmentdata' AND segment_locational_status.borough_boundary_indicator = 'R'
             THEN proto.zipcode
         WHEN segments.feature_type = 'centerline' THEN centerline.l_zip
-        ELSE zips.l_zip
+        ELSE coalesce(primary_centerline.l_zip, zips.l_zip)
     END AS l_zip,
     ap_left.left_assembly_district,
     ap_left.left_election_district,
@@ -128,14 +128,14 @@ SELECT
         WHEN segment_locational_status.borough_boundary_indicator = 'R' THEN NULL
         WHEN segments.source_table = 'centerline' THEN nullif(centerline.rsubsect, '0')
         WHEN segments.source_table = 'altsegmentdata'
-            THEN coalesce(nullif(proto.rsubsect, '0'), nullif(centerline.rsubsect, '0'))
+            THEN coalesce(nullif(proto.rsubsect, '0'), nullif(primary_centerline.rsubsect, '0'))
     END AS rsubsect,
     CASE
         WHEN (segment_locational_status.borough_boundary_indicator = 'R') THEN NULL
         WHEN segments.source_table = 'altsegmentdata' AND segment_locational_status.borough_boundary_indicator = 'L'
             THEN proto.zipcode
         WHEN segments.feature_type = 'centerline' THEN centerline.r_zip
-        ELSE zips.r_zip
+        ELSE coalesce(primary_centerline.r_zip, zips.r_zip)
     END AS r_zip,
     ap_right.right_assembly_district,
     ap_right.right_election_district,
@@ -143,14 +143,20 @@ SELECT
     sedat.split_election_district_flag,
     (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
     CASE
-        -- With
-        WHEN trafdir = 'FT' THEN 'W'
-        -- Against
-        WHEN trafdir = 'TF' THEN 'A'
-        -- Non-vehicular
-        WHEN trafdir = 'NV' THEN 'P'
-        -- Two-way
-        WHEN trafdir = 'TW' THEN 'T'
+        WHEN (
+            segments.source_table = 'altsegmentdata'
+            AND (
+                segments.feature_type_code IS NULL
+                OR segments.feature_type_code IN ('6', 'A', 'W')
+            )
+        )
+            THEN
+                CASE
+                    WHEN proto.reversed AND primary_centerline.traffic_direction = 'A' THEN 'W'
+                    WHEN proto.reversed AND primary_centerline.traffic_direction = 'W' THEN 'A'
+                    ELSE centerline.traffic_direction
+                END
+        WHEN segments.source_table = 'centerline' THEN centerline.traffic_direction
     END AS traffic_direction,
     segment_locational_status.segment_locational_status,
     segments.feature_type_code,
@@ -158,7 +164,10 @@ SELECT
     centerline.continuous_parity_flag,
     segment_locational_status.borough_boundary_indicator,
     CASE
-        WHEN centerline.twisted_parity_flag = 'Y' THEN 'T'
+        WHEN
+            (segments.source_table = 'centerline' AND centerline.twisted_parity_flag = 'Y')
+            OR (segments.source_table = 'altsegmentdata' AND proto.twisted_parity_flag = 'Y')
+            THEN 'T'
     END AS twisted_parity_flag,
     saf.special_address_flag,
     CASE
@@ -219,16 +228,16 @@ SELECT
     ap_left.left_2010_census_block_suffix,
     ap_right.right_2010_census_block_basic,
     ap_right.right_2010_census_block_suffix,
-    centerline.snow_priority,
+    primary_centerline.snow_priority,
     centerline.bike_lane AS bike_lane_2,
     centerline.streetwidth_max,
     centerline.l_blockfaceid,
     centerline.r_blockfaceid,
-    centerline.number_travel_lanes,
-    centerline.number_park_lanes,
-    centerline.number_total_lanes,
-    centerline.bike_trafdir AS bike_traffic_direction,
-    centerline.posted_speed,
+    primary_centerline.number_travel_lanes,
+    primary_centerline.number_park_lanes,
+    primary_centerline.number_total_lanes,
+    primary_centerline.bike_trafdir AS bike_traffic_direction,
+    primary_centerline.posted_speed,
     nypd_service_areas.left_nypd_service_area,
     nypd_service_areas.right_nypd_service_area,
     centerline.truck_route_type,
@@ -273,10 +282,11 @@ LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode
 LEFT JOIN centerline ON segments.segmentid = centerline.segmentid AND segments.feature_type = 'centerline'
 LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid AND segments.feature_type = 'centerline'
 LEFT JOIN centerline_coincident_subway_or_rail ON centerline.segmentid = centerline_coincident_subway_or_rail.segmentid
+LEFT JOIN centerline AS primary_centerline ON segments.segmentid = primary_centerline.segmentid
 -- shoreline only
 -- rail only
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
-LEFT JOIN zips ON segments.lionkey_dev = zips.lionkey_dev AND segments.feature_type != 'centerline'
+LEFT JOIN zips ON segments.lionkey_dev = zips.lionkey_dev AND segments.feature_type <> 'centerline'
 LEFT JOIN proto ON segments.source_table = 'altsegmentdata' AND segments.ogc_fid = proto.ogc_fid

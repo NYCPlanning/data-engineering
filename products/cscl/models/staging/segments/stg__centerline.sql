@@ -6,6 +6,16 @@
 SELECT
     *,
     CASE
+        -- With
+        WHEN trafdir = 'FT' THEN 'W'
+        -- Against
+        WHEN trafdir = 'TF' THEN 'A'
+        -- Non-vehicular
+        WHEN trafdir = 'NV' THEN 'P'
+        -- Two-way
+        WHEN trafdir = 'TW' THEN 'T'
+    END AS traffic_direction,
+    CASE
         -- Paper street that is not also a boundary 
         WHEN status = '3' THEN '5'
         -- Private street that exists physically 
