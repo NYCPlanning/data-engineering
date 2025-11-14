@@ -1,5 +1,5 @@
 SELECT
-    'dcp_cscl_altsegmentdata' AS source_table,
+    'altsegmentdata' AS source_table,
     segmentid,
     lionkey,
     RIGHT(b5sc, 5) AS five_digit_street_code,
@@ -26,13 +26,8 @@ SELECT
     b5sc,
     sosindicator,
     feature_type AS feature_type_code,
-    CASE
-        WHEN feature_type IS NULL OR feature_type IN ('5', '6', '9', 'A', 'W') THEN 'centerline'
-        WHEN feature_type IN ('3', '4', '7', '8') THEN 'nonstreetfeatures'
-        WHEN feature_type = '1' THEN 'rail'
-        ELSE feature_type
-    END AS feature_type,
     from_to_indicator,
+    from_to_indicator = 'R' AS reversed,
     alt_segdata_type,
     seglocstatus,
     lgc5,
