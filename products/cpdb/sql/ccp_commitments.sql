@@ -10,9 +10,9 @@ DROP TABLE IF EXISTS ccp_commitments CASCADE;
 CREATE TABLE ccp_commitments AS
 SELECT
     'fisa_' || p.cycle_fy AS ccpversion,
-    LPAD(p.managing_agcy_cd, 3, '0') AS magency,
+    managing_agcy_cd AS magency,
     REPLACE(p.project_id, ' ', '') AS projectid,
-    LPAD(p.managing_agcy_cd, 3, '0') || REPLACE(p.project_id, ' ', '') AS maprojid,
+    managing_agcy_cd || REPLACE(p.project_id, ' ', '') AS maprojid,
     REPLACE(p.budget_proj_type, ' ', '') || '-' || p.budget_line_id AS budgetline,
     b.projecttype,
     b.agencyacronym AS sagencyacro,
