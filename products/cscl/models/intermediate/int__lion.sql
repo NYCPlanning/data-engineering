@@ -77,7 +77,10 @@ SELECT
     segments.lgc2,
     segments.lgc3,
     segments.lgc4,
-    segments.boe_lgc_pointer,
+    CASE
+        WHEN segments.feature_type = 'centerline' THEN coalesce(segments.boe_lgc_pointer, '1')
+        ELSE '1'
+    END AS boe_lgc_pointer,
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     nodes.from_x,
