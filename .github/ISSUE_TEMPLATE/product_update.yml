@@ -8,16 +8,11 @@ body:
       value: |
         Thanks for updating a DCP Data Engineering data product!
 
-        See our [Data Update Workflow](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow) and [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) wiki pages for details on the process and each data product.
+        Please edit the title to be the data product name and version, for example "PLUTO 25v1".
 
         Once the issue is created, use the checkboxes below to track the state of the update.
-  - type: input
-    attributes:
-      label: Version
-      description: The version of this data update
-      placeholder: "23v1"
-    validations:
-      required: true
+
+        See our [Data Update Workflow](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow) and [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) wiki pages for details on the process and data products.
   - type: textarea
     attributes:
       label: Template issue body
@@ -32,4 +27,5 @@ body:
         - [ ] source data extracted
         - [ ] draft shared for QA
         - [ ] draft passed QA
-        - [ ] draft promoted, packaged, and distributed
+        - [ ] draft published and packaged
+        - [ ] packages distributed to destination
