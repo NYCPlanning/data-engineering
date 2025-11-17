@@ -1,0 +1,15 @@
+source_feature_class,code,description
+centerline,,"Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W"
+centerline,5,Paper street that is not also a boundary
+centerline,6,Private street that exists physically
+centerline,9,Paper street that coincides with a non-physical boundary
+centerline,A,Alley
+centerline,W,"Path, non-vehicular, addressable"
+centerline,F,Ferry
+centerline,C,Constructed
+shoreline,2,Shoreline
+rail_and_subway,1,Rail or subway
+nonstreetfeatures,3,Non-physical census block boundary
+nonstreetfeatures,7,Non-physical boundary other than census
+nonstreetfeatures,8,Physical boundary such as cemetery wall
+nonstreetfeatures,4,Other non-street feature

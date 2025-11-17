@@ -9,15 +9,18 @@ facecode AS (
 ),
 seqnum AS (
     SELECT * FROM {{ ref("int__nonstreetfeature_seqnum") }}
+),
+feature_type_codes AS (
+    SELECT * FROM {{ ref("feature_type_codes") }}
 )
 SELECT
     proto.borough AS boroughcode,
     CASE
-        WHEN proto.feature_type = 'centerline' THEN facecode.street_facecode
+        WHEN feature_type_codes.source_feature_class = 'centerline' THEN facecode.street_facecode
         ELSE facecode.feature_facecode
     END AS face_code, -- TODO error report when null
     CASE
-        WHEN proto.feature_type <> 'nonstreetfeatures' THEN proto.alt_segment_seqnum
+        WHEN feature_type_codes.source_feature_class <> 'nonstreetfeatures' THEN proto.alt_segment_seqnum
         ELSE seqnum.segment_seqnum
     END AS segment_seqnum,
     proto.segmentid,
@@ -32,17 +35,39 @@ SELECT
     proto.lgc8,
     proto.lgc9,
     proto.boe_lgc_pointer,
+    proto.feature_type_code,
     primary_segments.legacy_segmentid,
-    primary_segments.from_level_code, -- TODO this definitely isn't quite right
-    primary_segments.to_level_code, -- TODO this definitely isn't quite right
-    primary_segments.geom,
+    CASE
+        WHEN proto.feature_type_code IN ('5', '9') THEN 99
+        WHEN proto.reversed THEN primary_segments.to_level_code
+        ELSE primary_segments.from_level_code
+    END AS from_level_code,
+    CASE
+        WHEN proto.feature_type_code IN ('5', '9') THEN 99
+        WHEN proto.reversed THEN primary_segments.from_level_code
+        ELSE primary_segments.to_level_code
+    END AS to_level_code,
+    CASE
+        WHEN proto.reversed THEN ST_REVERSE(primary_segments.geom)
+        ELSE primary_segments.geom
+    END AS geom,
     primary_segments.midpoint,
-    primary_segments.start_point,
-    primary_segments.end_point,
+    CASE
+        WHEN proto.reversed THEN primary_segments.end_point
+        ELSE primary_segments.start_point
+    END AS start_point,
+    CASE
+        WHEN proto.reversed THEN primary_segments.start_point
+        ELSE primary_segments.end_point
+    END AS end_point,
     primary_segments.shape_length,
-    proto.feature_type,
-    proto.source_table
+    feature_type_codes.source_feature_class AS feature_type,
+    primary_segments.feature_type AS primary_feature_type,
+    feature_type_codes.description AS feature_type_description,
+    proto.source_table,
+    proto.ogc_fid
 FROM proto
 INNER JOIN primary_segments ON proto.segmentid = primary_segments.segmentid -- TODO error report for non-matches
 LEFT JOIN facecode ON proto.b7sc = facecode.b7sc
 LEFT JOIN seqnum ON proto.source_table = seqnum.source_table AND proto.ogc_fid = seqnum.unique_id
+LEFT JOIN feature_type_codes ON proto.feature_type_code IS NOT DISTINCT FROM feature_type_codes.code -- NULL -> centerline
