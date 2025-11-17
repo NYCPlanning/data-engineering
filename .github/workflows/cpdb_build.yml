@@ -73,3 +73,7 @@ jobs:
           dbt debug
           dbt build --select config.materialized:seed --indirect-selection=cautious --full-refresh
           ./cpdb.sh build
+
+      - name: Upload
+        run: |
+          python3 -m dcpy.connectors.edm.publishing upload --product db-cpdb --acl private --max_files 200

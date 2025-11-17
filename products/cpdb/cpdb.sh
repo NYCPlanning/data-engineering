@@ -9,5 +9,4 @@ case $1 in
         ./bash/03_adminbounds.sh
         ./bash/04_analysis.sh
         ./bash/05_export.sh
-        python3 -m dcpy.connectors.edm.publishing upload -p db-cpdb -a private --max_files 200
 esac
