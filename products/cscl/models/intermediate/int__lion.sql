@@ -288,10 +288,11 @@ LEFT JOIN saf ON segments.segmentid = saf.segmentid AND segments.boroughcode = s
 LEFT JOIN nypd_service_areas ON segments.lionkey_dev = nypd_service_areas.lionkey_dev
 LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode = sedat.boroughcode
 -- centerline only
+LEFT JOIN centerline AS primary_centerline ON segments.segmentid = primary_centerline.segmentid
 LEFT JOIN centerline ON segments.segmentid = centerline.segmentid AND segments.feature_type = 'centerline'
 LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid AND segments.feature_type = 'centerline'
-LEFT JOIN centerline_coincident_subway_or_rail ON centerline.segmentid = centerline_coincident_subway_or_rail.segmentid
-LEFT JOIN centerline AS primary_centerline ON segments.segmentid = primary_centerline.segmentid
+LEFT JOIN centerline_coincident_subway_or_rail
+    ON centerline.segmentid = centerline_coincident_subway_or_rail.segmentid AND segments.feature_type = 'centerline'
 -- shoreline only
 -- rail only
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
