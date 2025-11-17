@@ -8,40 +8,28 @@ body:
       value: |
         Thanks for updating a DCP Data Engineering data product!
 
-        See our Data Catalog wiki page [here](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) for details on each data product.
+        See our [Data Update Workflow](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow) and [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) wiki pages for details on the process and each data product.
 
         Once the issue is created, use the checkboxes below to track the state of the update.
-  - type: dropdown
-    attributes:
-      label: Product Name
-      description: Which product is being updated?
-      options:
-        - cbbr
-        - checkbook
-        - colp
-        - cpdb
-        - devdb
-        - facilities
-        - knownprojects
-        - pluto
-        - ztl
-        - template
-        - OTHER
-    validations:
-      required: true
   - type: input
     attributes:
-      label: Build Version
-      description: The release version of this data update
+      label: Version
+      description: The version of this data update
       placeholder: "23v1"
     validations:
       required: true
   - type: textarea
     attributes:
-      label: Status of Update
-      description: The rest of the issue body (intended to be modified after this form is submitted)
+      label: Template issue body
+      description: The issue body (intended to be modified after this issue is created)
       value: |
+        ## Resources
+
+        [Data Update Workflow](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow) and [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) wiki pages
+        
+        ## Stages
+
         - [ ] source data extracted
-        - [ ] draft build succeeded
-        - [ ] draft build passed QA
-        - [ ] data packaged and distributed
+        - [ ] draft shared for QA
+        - [ ] draft passed QA
+        - [ ] draft promoted, packaged, and distributed
