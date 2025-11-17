@@ -4,7 +4,7 @@ dataset:
   source:
     url:
       path: s3://edm-recipes/inbox/edc_capitalprojects/CCP_EDC_{{ version }}.zip
-      # subpath: EDCCapital.shp
+      subpath: CCP_EDC_{{ version}}.shp
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
