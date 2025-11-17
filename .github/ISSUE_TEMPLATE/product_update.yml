@@ -42,6 +42,6 @@ body:
       description: The rest of the issue body (intended to be modified after this form is submitted)
       value: |
         - [ ] source data extracted
-        - [ ] draft build succeeded
-        - [ ] draft build passed QA
-        - [ ] data packaged and distributed
+        - [ ] draft shared for QA
+        - [ ] draft passed QA
+        - [ ] draft promoted, packaged, and distributed
