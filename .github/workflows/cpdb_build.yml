@@ -53,13 +53,11 @@ jobs:
           BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
           BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
-      - name: Finish container setup
+      - name: Setup build environment
         working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
-      - name: Set build environment variables
-        working-directory: ./
-        run: ./bash/build_env_setup.sh
+        run: |
+          ./bash/docker_container_setup.sh
+          ./bash/build_env_setup.sh
 
       - name: Plan build
         run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
