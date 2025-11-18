@@ -1,7 +1,6 @@
 name: Project
 description: Scope and track a multi-issue project
 title: "PROJECT TITLE"
-type: Project
 body:
   - type: textarea
     attributes:
