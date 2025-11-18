@@ -7,8 +7,11 @@ from dcpy.connectors.registry import Pull
 
 def download_file(url: str, path: Path) -> None:
     """Simple wrapper to download a file using requests.get."""
+    # browser-like headers since some servers block non-browser requests
     default_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Referer": "https://www.nycgovparks.org/",
     }
     logger.info(f"downloading {url} to {path}")
     response = requests.get(url, headers=default_headers)
