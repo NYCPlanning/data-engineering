@@ -26,6 +26,11 @@ models:
     tests: [ not_null ]
   - name: feature_type
     tests: [ not_null ]
+  data_tests:
+  - name: int__segments_source_table_unique_id
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ source_table, ogc_fid ]
 
 - name: int__nonstreetfeature_seqnum
   description: Non-streetfeature segments (and protosegments) with segment seqnum assigned
