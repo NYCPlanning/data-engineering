@@ -98,7 +98,6 @@ allowed_values AS (
         ) AS rank,
         gs.seqnum
     FROM collision_bfcs AS bfc
-    INNER JOIN nsf_bfcs ON bfc.boroughcode = nsf_bfcs.boroughcode AND bfc.face_code = nsf_bfcs.face_code
     CROSS JOIN
         GENERATE_SERIES(
             -- upper bound of how many seqnums we need to generate is max rows per bfc in nsf and max rows per bfc in non-nsf
@@ -111,8 +110,7 @@ allowed_values AS (
             s.boroughcode = bfc.boroughcode
             AND s.face_code = bfc.face_code
             AND s.segment_seqnum = gs.seqnum
-    -- for a given bfc, only keep seqnum up until total number of segments with that bfc
-    ) AND gs.seqnum <= (bfc.count + nsf_bfcs.count)
+    )
 ),
 ranked_nsfs AS (
     SELECT
