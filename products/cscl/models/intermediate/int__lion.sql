@@ -6,64 +6,55 @@
     ]
 ) }}
 
+-- backbone
 WITH segments AS (
     SELECT * FROM {{ ref("int__segments") }}
 ),
 
-segment_locational_status AS (
-    SELECT * FROM {{ ref("int__segment_locational_status") }}
-),
-
+-- source data lookup tables
 centerline AS (
     SELECT * FROM {{ ref("stg__centerline") }}
 ),
-
 rail AS (
     SELECT * FROM {{ ref("stg__rail_and_subway" ) }}
 ),
-
 nsf AS (
     SELECT * FROM {{ ref("stg__nonstreetfeatures") }}
 ),
+proto AS (
+    SELECT * FROM {{ ref("stg__altsegmentdata_proto") }}
+),
 
+-- transformation lookup tables
+segment_locational_status AS (
+    SELECT * FROM {{ ref("int__segment_locational_status") }}
+),
 atomic_polygons AS (
     SELECT * FROM {{ ref("int__segment_atomicpolygons") }}
 ),
-
 nodes AS (
     SELECT * FROM {{ ref("int__segments_with_nodes") }}
 ),
-
 saf AS (
     SELECT * FROM {{ ref("int__segment_specialaddress") }}
 ),
-
 centerline_curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
 ),
-
 sedat AS (
     SELECT * FROM {{ ref("int__split_election_district") }}
 ),
-
 nypd_service_areas AS (
     SELECT * FROM {{ ref("int__segment_nypdbeat") }}
 ),
-
 zips AS (
     SELECT * FROM {{ ref("int__segment_zipcodes") }}
 ),
-
 centerline_coincident_subway_or_rail AS (
     SELECT * FROM {{ ref("int__centerline_coincident_subway_or_rail") }}
 ),
-
 noncl_coincident_segment AS (
     SELECT * FROM {{ ref("int__noncenterline_coincident_segment_count") }}
-),
-
-proto AS (
-    SELECT * FROM {{ ref("stg__altsegmentdata_proto") }}
 )
 
 SELECT
