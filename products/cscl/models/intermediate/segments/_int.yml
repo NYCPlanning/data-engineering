@@ -17,27 +17,15 @@ models:
       - boroughcode
       - face_code
       - segment_seqnum
-    config:
-      severity: warn
 
 - name: int__segments
   columns:
-  - name: lionkey_dev
+  - name: lionkey
     tests: [ unique ]
   - name: segmentid
     tests: [ not_null ]
   - name: feature_type
     tests: [ not_null ]
-  tests:
-  - name: int__segments__key_ideal
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns:
-      - boroughcode
-      - face_code
-      - segment_seqnum
-    config:
-      severity: warn
 
 - name: int__nonstreetfeature_seqnum
   description: Non-streetfeature segments (and protosegments) with segment seqnum assigned

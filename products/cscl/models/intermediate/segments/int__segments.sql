@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['lionkey_dev']}
+      {'columns': ['lionkey']}
     ]
 ) }}
 
@@ -15,7 +15,7 @@ WITH segments AS (
     FROM {{ ref("int__protosegments") }}
 )
 SELECT
-    CONCAT(boroughcode, face_code, segment_seqnum, segmentid) AS lionkey_dev, -- TODO remove segmentid, rename field
+    CONCAT(boroughcode, face_code, segment_seqnum) AS lionkey,
     *
 FROM segments
-ORDER BY lionkey_dev
+ORDER BY lionkey

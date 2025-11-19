@@ -9,7 +9,7 @@ WITH segment_offsets AS (
 )
 
 SELECT
-    co.lionkey_dev,
+    co.lionkey,
     co.segmentid,
     left(left_beat.post, 1) AS left_nypd_service_area,
     left(right_beat.post, 1) AS right_nypd_service_area
