@@ -24,7 +24,7 @@ ingestion:
   - name: coerce_column_types
     args:
       column_types:
-        bbl: str
+        bbl: string
         date_filed: date
         date_statusd: date
         date_statusp: date
