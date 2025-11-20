@@ -2,7 +2,11 @@
     materialized = 'table'
 ) }}
 
-WITH completed_construction_records AS (
+WITH devdb AS (
+    SELECT * FROM {{ source("recipe_sources", "dcp_developments") }}
+),
+
+completed_construction_records AS (
     SELECT
         bbl,
         bin,
@@ -18,7 +22,7 @@ WITH completed_construction_records AS (
             PARTITION BY bbl, bin
             ORDER BY date_complete DESC
         ) AS order_num
-    FROM {{ ref("stg__dcp_developments") }}
+    FROM devdb
     WHERE job_status IN ('5. Completed Construction', '4. Partially Completed Construction')
 ),
 
