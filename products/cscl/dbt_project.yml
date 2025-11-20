@@ -18,6 +18,8 @@ models:
       +materialized: table
     etl_dev_qa:
       +materialized: table
+    log_files:
+      +materialized: table
 
 on-run-start:
 - '{{ create_pg_functions() }}'

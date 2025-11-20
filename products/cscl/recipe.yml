@@ -257,3 +257,8 @@ exports:
     filename: RPL.txt
     format: dat
     custom: { formatting: rpl }
+
+  # Log file
+  - name: log
+    filename: log.csv
+    format: csv
