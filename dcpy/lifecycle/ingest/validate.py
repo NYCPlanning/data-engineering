@@ -124,7 +124,7 @@ def find_definition_file_validation_errors(
 def validate_definition(ds_id: str, definition_dir: Path) -> None:
     errors = find_definition_file_validation_errors(ds_id, definition_dir)
     if errors:
-        raise ValidationError(errors)
+        raise ValueError(errors)
 
 
 def find_definition_folder_validation_errors(
