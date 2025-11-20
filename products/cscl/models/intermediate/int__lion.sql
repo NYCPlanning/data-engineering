@@ -253,6 +253,7 @@ SELECT
     segments.feature_type_description,
     segments.source_table,
     segments.geom,
+    segments.globalid,
     CASE
         WHEN segments.feature_type = 'centerline' THEN centerline.include_in_geosupport_lion
         WHEN segments.feature_type = 'rail_and_subway' THEN rail.include_in_geosupport_lion
@@ -290,4 +291,4 @@ LEFT JOIN rail ON segments.segmentid = rail.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
 LEFT JOIN zips ON segments.lionkey = zips.lionkey AND segments.feature_type <> 'centerline'
-LEFT JOIN proto ON segments.source_table = 'altsegmentdata' AND segments.ogc_fid = proto.ogc_fid
+LEFT JOIN proto ON segments.globalid = proto.globalid

@@ -26,27 +26,21 @@ models:
     tests: [ not_null ]
   - name: feature_type
     tests: [ not_null ]
-  data_tests:
-  - name: int__segments_source_table_unique_id
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns: [ source_table, ogc_fid ]
+  - name: globalid
+    tests: [ unique ]
 
 - name: int__nonstreetfeature_seqnum
   description: Non-streetfeature segments (and protosegments) with segment seqnum assigned
   columns:
   - name: source_table
-  - name: unique_id
+  - name: globalid
+    tests: [ unique ]
   - name: segmentid
   - name: ogc_fid
   - name: boroughcode
   - name: face_code
   - name: segment_seqnum
   data_tests:
-  - name: nsf_seqnum_unique_identifier
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns: [ source_table, unique_id ]
   - name: nsf_seqnum_unique_lionkey
     test_name: dbt_utils.unique_combination_of_columns
     arguments:

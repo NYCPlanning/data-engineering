@@ -61,13 +61,13 @@ primary_segments AS (
             source.shape_length,
             source.feature_type,
             source.source_table,
-            source.ogc_fid
+            source.globalid
         FROM {{ ref(source_layer) }} AS source
         {% if source_layer == 'stg__nonstreetfeatures' -%} 
             LEFT JOIN seqnum
                 ON
                     seqnum.source_table = 'nonstreetfeatures'
-                    AND source.segmentid = seqnum.unique_id
+                    AND source.globalid = seqnum.globalid
         {%- endif -%}
         {% if not loop.last -%}
             UNION ALL
@@ -105,7 +105,7 @@ segment_attributes AS (
         primary_segments.feature_type AS primary_feature_type,
         feature_type_codes.description AS feature_type_description,
         primary_segments.source_table,
-        primary_segments.ogc_fid
+        primary_segments.globalid
     FROM primary_segments
     LEFT JOIN street_and_facecode ON primary_segments.segmentid = street_and_facecode.segmentid
     LEFT JOIN feature_type_codes ON primary_segments.feature_type_code = feature_type_codes.code

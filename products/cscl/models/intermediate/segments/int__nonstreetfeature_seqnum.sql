@@ -11,7 +11,7 @@ TODO - this logic is a little duplicated at the moment
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['source_table', 'unique_id']},
+      {'columns': ['globalid']},
     ]
 ) }}
 WITH nsf AS (
@@ -45,7 +45,7 @@ other_segments AS (
 all_nsf_segments AS (
     SELECT
         source_table,
-        nsf.segmentid AS unique_id,
+        nsf.globalid,
         nsf.segmentid,
         nsf.ogc_fid,
         facecode.boroughcode,
@@ -55,7 +55,7 @@ all_nsf_segments AS (
     UNION ALL
     SELECT
         proto.source_table,
-        proto.ogc_fid AS unique_id,
+        proto.globalid,
         proto.segmentid,
         proto.ogc_fid,
         proto.borough AS boroughcode,
@@ -115,9 +115,8 @@ allowed_values AS (
 ranked_nsfs AS (
     SELECT
         source_table,
-        unique_id,
+        globalid,
         segmentid,
-        ogc_fid,
         boroughcode,
         face_code,
         ROW_NUMBER() OVER (
@@ -128,9 +127,8 @@ ranked_nsfs AS (
 )
 SELECT
     ranked_nsfs.source_table,
-    ranked_nsfs.unique_id,
+    ranked_nsfs.globalid,
     ranked_nsfs.segmentid,
-    ranked_nsfs.ogc_fid,
     ranked_nsfs.boroughcode,
     ranked_nsfs.face_code,
     LPAD(COALESCE(allowed_values.seqnum, ranked_nsfs.rank)::TEXT, 5, '0') AS segment_seqnum
