@@ -17,8 +17,20 @@ ingestion:
         x: longitude
         y: latitude
       crs: EPSG:4326
-
   processing_steps:
   - name: rename_columns
     args:
       map: { "geom": "wkb_geometry" }
+  - name: coerce_column_types
+    args:
+      column_types:
+        bbl: str
+        date_filed: date
+        date_statusd: date
+        date_statusp: date
+        date_permittd: date
+        date_statusr: date
+        date_statusx: date
+        date_lastupdt: date
+        date_complete: date
+      errors: coerce
