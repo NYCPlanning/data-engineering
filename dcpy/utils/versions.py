@@ -1,8 +1,9 @@
 from __future__ import annotations
 from abc import abstractmethod
 from dataclasses import dataclass, field, fields, is_dataclass
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse as dateutil_parse
 from enum import StrEnum, IntEnum
 from functools import total_ordering
 from pydantic import BaseModel
@@ -250,13 +251,34 @@ class VersionSubType(StrEnum):
     patch = "patch"
 
 
+def parse_year_month_date(v: str) -> Date | None:
+    """Parse month name + year formats (e.g., 'September 2025', 'Jan 24') into Date objects using dateutil fuzzy parsing"""
+    try:
+        # Use dateutil's fuzzy parser to handle various date formats
+        parsed_date = dateutil_parse(v, fuzzy=True, default=datetime(2000, 1, 1))
+
+        # Only return if the parsed date seems reasonable (not the default year)
+        if parsed_date.year >= 2000:
+            return Date(
+                date(parsed_date.year, parsed_date.month, parsed_date.day),
+                format=DateVersionFormat.month
+                if parsed_date.day == 1
+                else DateVersionFormat.date,
+            )
+    except (ValueError, TypeError):
+        # If dateutil can't parse it, return None
+        pass
+
+    return None
+
+
 def parse(v: str) -> Version:
     """Takes a version string and attempts to parse it into one of our defined version types"""
     match RegexSpmMatch(v):
         case r"^(\d{2})v(\d+)$" as m:
             return MajorMinor(year=int(m[1]), major=int(m[2]))
-        case r"^(\d{2})v(\d+)\.(\d+)$" as m:
-            return MajorMinor(year=int(m[1]), major=int(m[2]), minor=int(m[3]))
+        case r"^(\d{2})v(\d+)\.(\d+)$" as x:
+            return MajorMinor(year=int(x[1]), major=int(x[2]), minor=int(x[3]))
         case r"^(\d{2})v(\d+)\.(\d+)\.(\d+)$" as m:
             return MajorMinor(
                 year=int(m[1]), major=int(m[2]), minor=int(m[3]), patch=int(m[4])
@@ -310,7 +332,33 @@ def parse(v: str) -> Version:
                 release=CapitalBudgetRelease[m[2]],
                 patch=int(m[3]),
             )
+        case r"^(20\d{2})(\d{2})(\d{2})$" as m:
+            return Date(
+                date(int(m[1]), int(m[2]), int(m[3])),
+                format=DateVersionFormat.date,
+            )
+        case r"^(20\d{2})(\d{2})$" as m:
+            return Date(
+                date(int(m[1]), int(m[2]), 1),
+                format=DateVersionFormat.month,
+            )
+        case r"^(\d{2})q(\d)$" as m:
+            return Date(
+                date(2000 + int(m[1]), int(m[2]) * 3 - 2, 1),
+                format=DateVersionFormat.quarter,
+            )
+        case r"^(\d{2})q(\d)\.(\d+)$" as m:
+            return Date(
+                date(2000 + int(m[1]), int(m[2]) * 3 - 2, 1),
+                format=DateVersionFormat.quarter,
+                patch=int(m[3]),
+            )
         case _:
+            # Try parsing month name + year formats
+            month_date = parse_year_month_date(v)
+            if month_date is not None:
+                return month_date
+
             raise ValueError(
                 f"Tried to parse version {v} but it did not match the expected format"
             )
@@ -511,3 +559,62 @@ def parse_draft_version(v: str) -> DraftVersionRevision:
         raise ValueError(f"Unsupported draft version revision format {v}")
 
     return DraftVersionRevision(revision_num, revision_summary)
+
+
+class FuzzyVersion:
+    """A version string that supports fuzzy comparison including with various date formats."""
+
+    def __init__(self, version_string):
+        self.original = version_string
+        self.normalized = self._normalize() if version_string else version_string
+
+    def probably_equals(self, other):
+        if not isinstance(other, FuzzyVersion):
+            raise TypeError("Can only compare with another FuzzyVersion")
+
+        if not self.original or not other.original:
+            return False
+
+        # Direct string comparison (handles case differences)
+        if self.original.lower().strip() == other.original.lower().strip():
+            return True
+
+        # Compare normalized versions
+        return self.normalized == other.normalized
+
+    def _normalize(self):
+        """
+        Convert various date formats to a standardized form (YYYYMM).
+
+        Returns:
+            str: Normalized version string in YYYYMM format, or original if no pattern matches
+        """
+        version = self.original.lower().strip()
+
+        # First try to parse using the existing version parsing infrastructure
+        try:
+            parsed_version = parse(version)
+            if isinstance(parsed_version, Date):
+                # Convert Date objects to YYYYMM format
+                return parsed_version.date.strftime("%Y%m")
+        except ValueError:
+            # If parsing fails, return original
+            pass
+
+        # Return original if no pattern matches
+        return version
+
+    def __str__(self):
+        return self.original or ""
+
+    def __repr__(self):
+        return f"FuzzyVersion({self.original!r})"
+
+    def __eq__(self, other):
+        """Strict equality - delegates to probably_equals for fuzzy comparison."""
+        if isinstance(other, FuzzyVersion):
+            return self.original == other.original
+        return False
+
+    def __hash__(self):
+        return hash(self.original)
