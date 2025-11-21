@@ -96,7 +96,6 @@ Stormwater Flood Map - Extreme 2080s Sea Levels,dep_stormwater_extreme_2080,down
 Stormwater Flood Map - Moderate 2050 Sea Levels,dep_stormwater_moderate_2050,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
 Stormwater Flood Map - Moderate Current Sea Levels,dep_stormwater_moderate_current,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
 Stormwater Flood Map - Limited Current Sea Levels,dep_stormwater_limited_current,download,shapefile,MULTIPOLYGON,https://data.cityofnewyork.us/d/9i7c-xyvv/
-Open Sewer Atlas,,webpage,,,https://opendata.cityofnewyork.us/projects/open-sewer-atlas-nyc/
 Water and sewer calculations,,webpage,,,http://www.nyc.gov/html/oec/downloads/pdf/2021_ceqr_tm/2021_ceqr_tm_ch13_water_sewer_infrastructure_flow_calculations_matrix.xls
 Housing Database,dcp_housing,download,shapefile,MULTIPOINT,https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level
 "Blue Book - Enrollment, Capacity and Utilization Report",sca_bluebook,download,csv,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Enrollment-Capacity-Utilization-69
