@@ -9,7 +9,7 @@ WITH segment_offsets AS (
     SELECT * FROM {{ ref("int__segment_offsets") }}
 )
 SELECT
-    so.lionkey_dev,
+    so.lionkey,
     so.segmentid,
     leftzip.zip_code AS l_zip,
     rightzip.zip_code AS r_zip

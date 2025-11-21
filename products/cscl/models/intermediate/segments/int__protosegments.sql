@@ -65,9 +65,9 @@ SELECT
     primary_segments.feature_type AS primary_feature_type,
     feature_type_codes.description AS feature_type_description,
     proto.source_table,
-    proto.ogc_fid
+    proto.globalid
 FROM proto
 INNER JOIN primary_segments ON proto.segmentid = primary_segments.segmentid -- TODO error report for non-matches
 LEFT JOIN facecode ON proto.b7sc = facecode.b7sc
-LEFT JOIN seqnum ON proto.source_table = seqnum.source_table AND proto.ogc_fid = seqnum.unique_id
+LEFT JOIN seqnum ON proto.globalid = seqnum.globalid
 LEFT JOIN feature_type_codes ON proto.feature_type_code IS NOT DISTINCT FROM feature_type_codes.code -- NULL -> centerline

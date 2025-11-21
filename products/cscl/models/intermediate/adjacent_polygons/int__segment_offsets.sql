@@ -7,7 +7,7 @@ WITH segments AS (
 )
 
 SELECT
-    lionkey_dev,
+    lionkey,
     segmentid,
     boroughcode,
     feature_type,

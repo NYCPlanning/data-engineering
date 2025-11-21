@@ -16,14 +16,14 @@ nodes AS (
 
 segment_endpoints AS (
     SELECT
-        lionkey_dev,
+        lionkey,
         segmentid,
         'from' AS direction,
         start_point AS geom
     FROM segments
     UNION ALL
     SELECT
-        lionkey_dev,
+        lionkey,
         segmentid,
         'to' AS direction,
         end_point AS geom
@@ -31,7 +31,7 @@ segment_endpoints AS (
 )
 
 SELECT
-    seg.lionkey_dev,
+    seg.lionkey,
     seg.segmentid,
     seg.direction,
     nodes.nodeid

@@ -16,6 +16,7 @@ SELECT
     row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
     geom,
     shape_length,
+    globalid,
     ogc_fid
 FROM {{ source("recipe_sources", "dcp_cscl_rail") }}
 UNION ALL
@@ -32,5 +33,6 @@ SELECT
     row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
     geom,
     shape_length,
+    globalid,
     ogc_fid
 FROM {{ source("recipe_sources", "dcp_cscl_subway") }}

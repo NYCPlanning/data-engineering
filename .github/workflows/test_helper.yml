@@ -87,8 +87,8 @@ jobs:
         - cdbg
         - ceqr
         - cpdb
-        - green_fast_track
         - cscl
+        - green_fast_track
         - pluto
         - zoningtaxlots
     steps:
