@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['segmentid']},
+      {'columns': ['lionkey']},
     ]
 ) }}
 WITH segment_offsets AS (
