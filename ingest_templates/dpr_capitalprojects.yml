@@ -9,8 +9,12 @@ attributes:
 
 ingestion:
   source:
-    type: file_download
-    url: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
+    # temporarily use edm-recipes/inbox while getting "403 Client Error: Forbidden for url"
+    # type: file_download
+    # url: https://www.nycgovparks.org/bigapps/DPR_CapitalProjectTracker_001.json
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dpr/dpr_capitalprojects/{{ version }}/DPR_CapitalProjectTracker_001.json
 
   file_format:
     type: json
