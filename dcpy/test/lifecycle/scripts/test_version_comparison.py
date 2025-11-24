@@ -256,6 +256,7 @@ class TestIntegrationScenarios:
             ("march 2025", "20250315", True),
             ("Q1 2025", "january 2025", False),  # Different months in Q1
             ("25v3", "25V3", True),
+            ("25q3", "25Q3", True),
         ],
     )
     def test_real_world_version_comparisons(self, version1, version2, expected):

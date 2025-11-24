@@ -34,7 +34,7 @@ class FuzzyVersion:
 
         version = self.original.lower().strip()
 
-        # Handle quarter notation (e.g., "25q1", "24q2")
+        # Handle quarter notation (e.g., "25q1", "24Q2")
         quarter_match = re.match(r"^(\d{2})q([1-4])$", version)
         if quarter_match:
             year_suffix = quarter_match.group(1)
