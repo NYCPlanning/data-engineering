@@ -14,19 +14,13 @@ class FuzzyVersion:
         self.original = version_string
         self.normalized = self._normalize() if version_string else version_string
 
-    def probably_equals(self, other):
-        if not isinstance(other, FuzzyVersion):
-            raise TypeError("Can only compare with another FuzzyVersion")
+    def probably_equals(self, other: "str | FuzzyVersion"):
+        fuzzy_other = FuzzyVersion(other) if isinstance(other, str) else other
 
-        if not self.original or not other.original:
+        if not (self.normalized and fuzzy_other.normalized):
             return False
 
-        # Direct string comparison (handles case differences)
-        if self.original.lower().strip() == other.original.lower().strip():
-            return True
-
-        # Compare normalized versions
-        return self.normalized == other.normalized
+        return (self.normalized == fuzzy_other.normalized)
 
     def _normalize(self):
         """
