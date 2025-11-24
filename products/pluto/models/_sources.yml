@@ -6,9 +6,10 @@ sources:
   tables:
   - name: pluto_input_research
   - name: dcp_developments
-    description: |
-      Contains changes in units resulting from new buildings, major alterations, and demolitions.
-      This table is used for cross-checking condo unit count with PLUTO input data.
+    description: >-
+      Contains changes in units resulting from new buildings, major alterations, and
+      demolitions. This table is used for cross-checking condo unit count with PLUTO
+      input data.
     columns:
     - name: bbl
     - name: bin
@@ -19,7 +20,14 @@ sources:
       - name: source_dcp_developments_job_type_values
         test_name: accepted_values
         arguments:
-          values: [ "Alteration", "Alteration (A2)", "Demolition", "New Building" ]
+          values:
+            [
+              "Alteration",
+              "Alteration (A2)",
+              "Alteration (Non-CO)",
+              "Demolition",
+              "New Building"
+            ]
     - name: job_status
       data_tests:
       - name: source_dcp_developments_job_status_values
@@ -42,10 +50,9 @@ sources:
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
   - name: dof_pts_propmaster
-    description: |
-      Raw PTS data + prime bbl column that was added during PLUTO build.
+    description: Raw PTS data + prime bbl column that was added during PLUTO build.
   - name: pluto_rpad_geo
-    description: |
+    description: >-
       Processed PTS data where each record is a UNIT BBL: i.e. there are multiple
       records per a condominium.
 
