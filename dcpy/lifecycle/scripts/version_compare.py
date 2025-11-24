@@ -20,7 +20,7 @@ class FuzzyVersion:
         if not (self.normalized and fuzzy_other.normalized):
             return False
 
-        return (self.normalized == fuzzy_other.normalized)
+        return self.normalized == fuzzy_other.normalized
 
     def _normalize(self):
         """
