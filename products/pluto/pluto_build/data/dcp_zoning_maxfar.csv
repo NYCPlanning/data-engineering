@@ -1,4 +1,4 @@
-zonedist,Contextual,zoningdistricttype,ResDistEq,residfar,AffResFAR,facilfar,commfar,mnffar,verified
+﻿zonedist,Contextual,zoningdistricttype,ResDistEq,residfar,AffResFAR,facilfar,commfar,mnffar,verified
 BALL FIELD,-,-,,-,-,-,-,-,
 BPC,-,-,,-,-,-,-,-,y
 C1-6,Non-contextual,Local Retail and Service,R7-2,3.44,5.01,6.5,2,-,y
@@ -76,6 +76,7 @@ C6-9,Non-contextual,General Central Commercial,R10,10,12,15,15,-,y
 C6-11,Non-contextual,General Central Commercial,R11,12,15,12,12,,y
 C6-12,Non-contextual,General Central Commercial,R12,15,18,15,15,,y
 C7,Non-contextual,Commercial Amusement,-,-,-,-,2,-,y
+C7-1,Non-contextual,Commercial Amusement,-,-,-,2,2,-,
 C8-1,Non-contextual,General Service,-,-,-,2.4,1,-,y
 C8-2,Non-contextual,General Service,-,-,-,4.8,2,-,y
 C8-3,Non-contextual,General Service,-,-,-,6.5,2,-,y
@@ -99,15 +100,19 @@ M1-2/R7-2,Non-contextual,Mixed Use,,3.44,5.01,6.5,2,2,y
 M1-2/R7A,Contextual,Mixed Use,,4,5.01,4,2,2,y
 M1-2/R8,Non-contextual,Mixed Use,,6.02,7.2,6.5,2,2,y
 M1-2/R8A,Contextual,Mixed Use,,6.02,7.2,6.5,2,2,y
-M1-2A,Contextual,Light Manufacturing,,-,-,2.4,3,3,
+M1-2A,Contextual,Light Manufacturing,,-,-,3,3,3,
 M1-2A/R6A,Contextual,Mixed Use,,3,3.9,3,3,3,
+M1-2A/R7-2,Contextual,Mixed Use,,3.44,5.01,6.5,3,3,
+M1-2A/R7A,Contextual,Mixed Use,,4,5.01,4,3,3,
 M1-2D,Non-contextual,Light Manufacturing,,1.5,2,4.8,2,2,y
 M1-3,Non-contextual,Light Manufacturing,,-,-,6.5,5,5,y
 M1-3/R7D,Contextual,Mixed Use,,4.66,5.6,4.66,5,5,
 M1-3/R7X,Contextual,Mixed Use,,5,6,5,5,5,y
 M1-3/R8,Non-contextual,Mixed Use,,6.02,7.2,6.5,5,5,y
 M1-3A,Contextual,Light Manufacturing,,-,-,6.5,4,4,
+M1-3A/R7A,Contextual,Mixed Use,,4,5.01,4,4,4,
 M1-3A/R7D,Contextual,Mixed Use,,4.66,5.6,4.66,4,4,
+M1-3A/R7X,Contextual,Mixed Use,,5,6,5,4,4,
 M1-4,Non-contextual,Light Manufacturing,,-,-,6.5,2,2,y
 M1-4/R6A,Contextual,Mixed Use,,3,3.9,3,2,2,y
 M1-4/R6B,Contextual,Mixed Use,,2,2.4,2,2,2,y
@@ -121,6 +126,9 @@ M1-4/R8A,Contextual,Mixed Use,,6.02,7.2,6.5,2,2,y
 M1-4/R9,Non-contextual,Mixed Use,,7.52,9.02,10,2,2,
 M1-4/R9A,Contextual,Mixed Use,,7.52,9.02,7.5,2,2,
 M1-4A/R9A,Contextual,Mixed Use,,7.52,9.02,7.5,5,5,
+M1-4A,Contextual,Light Manufacturing,,-,-,5,5,5,
+M1-4A/R7-2,Contextual,Mixed Use,,3.44,5.01,6.5,5,5,
+M1-4A/R8A,Contextual,Mixed Use,,6.02,7.2,6.5,5,5,
 M1-4D,Non-contextual,Light Manufacturing,,1.5,2,6.5,2,2,y
 M1-5,Non-contextual,Light Manufacturing,,-,-,6.5,5,5,y
 M1-5/R10,Non-contextual,Mixed Use,,10,12,10,5,5,y
@@ -134,7 +142,8 @@ M1-5/R9,Non-contextual,Mixed Use,,7.52,9.02,10,5,5,y
 M1-5/R9-1,Non-contextual,Mixed Use,,9,10.8,10,5,5,y
 M1-5/R9A,Contextual,Mixed Use,,7.52,9.02,7.5,5,5,
 M1-5/R9X,Contextual,Mixed Use,,9,10.8,9,5,5,
-M1-5A,Non-contextual,Light Manufacturing,,-,-,6.5,5,5,y
+M1-5A,Contextual,Light Manufacturing,,-,-,5,5,5,y
+M1-5A/R8,Contextual,Light Manufacturing,,6.02,7.2,6.5,5,5,
 M1-5B,Non-contextual,Light Manufacturing,,-,-,6.5,5,5,y
 M1-5M,Non-contextual,Light Manufacturing,,-,-,6.5,5,5,y
 M1-6,Non-contextual,Light Manufacturing,,-,-,10,10,10,y
@@ -142,7 +151,12 @@ M1-6/R10,Non-contextual,Mixed Use,,10,12,10,10,10,y
 M1-6/R8X,Contextual,Mixed Use,,6.02,7.2,6,10,10,
 M1-6/R9,Non-contextual,Mixed Use,,7.52,9.02,10,10,10,y
 M1-6/R9X,Contextual,Mixed Use,,9,10.8,9,10,10,
+M1-6A,Contextual,Light Manufacturing,,-,-,8,8,8,
 M1-6A/R8,Contextual,Mixed Use,,6.02,7.2,6.5,8,8,
+M1-6A/R9,,,,7.52,9.02,10,8,8,
+M1-6A/R9A,,,,7.52,9.02,7.5,8,8,
+M1-8A/R9X,,,,9,10.8,9,8,8,
+M1-6A/R10,,,,10,12,10,8,8,
 M1-6D,Contextual,Mixed Use,,10,12,10,10,10,y
 M1-8A/R11,Contextual,Mixed Use,,12,15,12,12,12,
 M1-8A/R12,Contextual,Mixed Use,,15,18,15,12,12,
@@ -151,8 +165,10 @@ M1-9A/R12,Contextual,Mixed Use,,15,18,15,15,15,
 M2-1,Non-contextual,Medium Manufacturing,,-,-,-,2,2,y
 M2-2,Non-contextual,Medium Manufacturing,,-,-,-,5,5,y
 M2-3,Non-contextual,Medium Manufacturing,,-,-,-,2,2,y
+M2-3A,Contextual,Medium Manufacturing,,-,-,-,4,4,
 M2-4,Non-contextual,Medium Manufacturing,,-,-,-,5,5,y
 M3-1,Non-contextual,Heavy Manufacturing,,-,-,-,2,2,y
+M3-2A,Contextual,Heavy Manufacturing,,-,-,-,3,3,
 M3-2,Non-contextual,Heavy Manufacturing,,-,-,-,2,2,y
 PARK,-,-,,-,-,-,-,-,
 PLAYGROUND,-,-,,-,-,-,-,-,
