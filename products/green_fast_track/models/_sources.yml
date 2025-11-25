@@ -534,7 +534,7 @@ sources:
     - name: id
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
 
   - name: usfws_nyc_wetlands
     columns:
