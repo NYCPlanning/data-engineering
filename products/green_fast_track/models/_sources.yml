@@ -484,7 +484,7 @@ sources:
     - name: common_name
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
