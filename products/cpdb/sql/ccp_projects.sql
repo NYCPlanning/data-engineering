@@ -17,6 +17,7 @@ WITH projects AS (
     FROM ccp_commitments
     GROUP BY maprojid, magency, projectid, ccpversion
 ),
+
 descriptions AS (
     SELECT
         maprojid,
@@ -32,8 +33,8 @@ SELECT
     ccpversion,
     magency,
     projectid,
-    a.maprojid,
-    b.description,
+    projects.maprojid,
+    descriptions.description,
     plannedcommit_ccnonexempt,
     plannedcommit_ccexempt,
     plannedcommit_citycost,
@@ -43,15 +44,17 @@ SELECT
     plannedcommit_noncitycost,
     plannedcommit_total,
     CASE
-        WHEN UPPER(b.description) LIKE '%BNY%' AND a.magency = '801' THEN 'BNY'
-        WHEN LOWER(b.description) LIKE '%governor%s island%' AND a.magency = '801' THEN 'TGI'
-        ELSE c.cape_agencyacronym
+        WHEN UPPER(descriptions.description) LIKE '%BNY%' AND projects.magency = '801' THEN 'BNY'
+        WHEN LOWER(descriptions.description) LIKE '%governor%s island%' AND projects.magency = '801' THEN 'TGI'
+        ELSE dcp_managing_agencies_lookup.managing_agency_acronym
     END AS magencyacro,
     CASE
-        WHEN UPPER(b.description) LIKE '%BNY%' AND a.magency = '801' THEN 'Brooklyn Navy Yard'
-        WHEN LOWER(b.description) LIKE '%governor%s island%' AND a.magency = '801' THEN 'Trust for Governors Island'
-        ELSE c.cape_agency
+        WHEN UPPER(descriptions.description) LIKE '%BNY%' AND projects.magency = '801' THEN 'Brooklyn Navy Yard'
+        WHEN
+            LOWER(descriptions.description) LIKE '%governor%s island%' AND projects.magency = '801'
+            THEN 'Trust for Governors Island'
+        ELSE dcp_managing_agencies_lookup.managing_agency
     END AS magencyname
-FROM projects AS a
-INNER JOIN descriptions AS b ON a.maprojid = b.maprojid AND b.rk = 1
-INNER JOIN dcp_agencylookup AS c ON a.magency = LPAD(c.cape_agencycode, 3, '0');
+FROM projects
+INNER JOIN descriptions ON projects.maprojid = descriptions.maprojid AND descriptions.rk = 1
+INNER JOIN dcp_managing_agencies_lookup ON projects.magency = dcp_managing_agencies_lookup.agency_code;

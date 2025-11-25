@@ -23,6 +23,7 @@ inputs:
     - name: doitt_buildingfootprints
 
     # Projects
+    - name: dcp_managing_agencies_lookup
     - name: nycoc_checkbook
     - name: fisa_capitalcommitments
     - name: fisa_dailybudget

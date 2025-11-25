@@ -10,19 +10,6 @@ seeds:
       - name: agency
         tests: [ not_null ]
 
-  - name: dcp_agencylookup
-    description: |
-      Agency lookup table for mapping various agency identifiers and names.
-    columns:
-      - name: cape_agencycode
-      - name: cape_agencyacronym
-        tests: [ not_null ]
-      - name: cape_agency
-        tests: [ not_null ]
-    config:
-      column_types:
-        cape_agencycode: text
-
   - name: dcp_json
     description: |
       Project geometry by maprojid.
