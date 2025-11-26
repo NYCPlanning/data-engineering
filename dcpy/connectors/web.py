@@ -8,7 +8,7 @@ from dcpy.connectors.registry import Pull
 def download_file(url: str, path: Path) -> None:
     """Simple wrapper to download a file using requests.get."""
     default_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36",
     }
     logger.info(f"downloading {url} to {path}")
     response = requests.get(url, headers=default_headers)
