@@ -139,10 +139,8 @@ def _test_connector_interface_pushing_private_files(conn: Connector, tmp_path):
     assert conn.version_exists(key=config.id, version="latest"), (
         "The latest version should exist"
     )
-    pulled_config = conn.get_sparse_config(key=config.id, version=config.version)
-    assert config.model_dump(
-        mode="json", exclude_none=True
-    ) == pulled_config.model_dump(mode="json", exclude_none=True), (
+    pulled_config = conn._get_config_obj(key=config.id, version=config.version)
+    assert config.model_dump(mode="json", exclude_none=True) == pulled_config, (
         "The pushed config should match the pulled config"
     )
 

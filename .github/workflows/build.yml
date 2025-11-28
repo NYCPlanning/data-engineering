@@ -42,6 +42,7 @@ on:
         type: choice
         required: true
         options: [ error, warn ]
+        default: error
       dev_image:
         description: "Use dev image specific to this branch (if exists)"
         type: boolean

@@ -1,12 +1,12 @@
 WITH final AS (
     SELECT
-        bbl::decimal::bigint::text,
+        bbl,
         bin,
-        units_co::numeric,
-        classa_prop::numeric,
+        units_co,
+        classa_prop,
         job_type,
         job_status,
-        date_complete::date
+        date_complete
     FROM {{ source("recipe_sources", "dcp_developments") }}
 )
 SELECT * FROM final
