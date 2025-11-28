@@ -12,6 +12,7 @@ SELECT DISTINCT
     globalid,
     source_table,
     'segmentid' AS record_id_type,
-    segmentid AS record_id
+    segmentid AS record_id,
+    '' AS message
 FROM segments
 WHERE face_code IS NULL

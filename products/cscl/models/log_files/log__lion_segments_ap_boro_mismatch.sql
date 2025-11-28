@@ -9,7 +9,16 @@ SELECT
     segments.globalid,
     segments.source_table,
     'segmentid' AS record_id_type,
-    segments.segmentid AS record_id
+    segments.segmentid AS record_id,
+    FORMAT(
+        'Segment from feature layer % with globalid % has boro %, '
+        || 'left atomic polygon boro % and right atomic polygon boro %',
+        source_table,
+        globalid,
+        segment_borocode,
+        left_borocode,
+        right_borocode
+    ) AS message
 FROM aps
 INNER JOIN segments ON aps.lionkey = segments.lionkey
 WHERE
