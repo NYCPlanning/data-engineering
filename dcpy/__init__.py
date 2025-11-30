@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 import pyogrio
+from pydantic import BaseModel
 
 BaseModel.model_config["coerce_numbers_to_str"] = True
 # disable the limit on the size of features in GeoJSON files

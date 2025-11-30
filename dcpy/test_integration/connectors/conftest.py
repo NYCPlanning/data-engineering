@@ -1,12 +1,13 @@
-from pathlib import Path
-import pytest
 import time
 import uuid
+from pathlib import Path
+
+import pytest
 
 from dcpy import configuration
 from dcpy.connectors.hybrid_pathed_storage import (
-    StorageType,
     PathedStorageConnector,
+    StorageType,
 )
 
 EXISTING_TEST_ROOT = "integration_tests"

@@ -1,7 +1,7 @@
 import pytest
 
-from dcpy.lifecycle import package
 import dcpy.models.product.dataset.metadata as md
+from dcpy.lifecycle import package
 
 
 @pytest.fixture

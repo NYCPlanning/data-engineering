@@ -1,6 +1,7 @@
-import pytest
-from pathlib import Path
 import zipfile
+from pathlib import Path
+
+import pytest
 
 import dcpy.models.product.dataset.metadata as md
 from dcpy.lifecycle.package import assemble

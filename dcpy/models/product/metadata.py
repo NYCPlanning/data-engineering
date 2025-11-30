@@ -1,21 +1,24 @@
 from __future__ import annotations
-import pandas as pd
-from pathlib import Path
-from pydantic import BaseModel, Field, TypeAdapter
-from typing import ClassVar
-import yaml
 
-from dcpy.models.base import SortedSerializedBase, YamlWriter, TemplatedYamlReader
-from dcpy.models.product.artifacts import Artifacts, Artifact
+from pathlib import Path
+from typing import ClassVar
+
+import pandas as pd
+import yaml
+from pydantic import BaseModel, Field, TypeAdapter
+
+from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
+from dcpy.models.product.artifacts import Artifact, Artifacts
 from dcpy.models.product.data_dictionary import DataDictionary
 from dcpy.models.product.dataset.metadata import (
-    Metadata as DatasetMetadata,
+    COLUMN_TYPES,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
-    COLUMN_TYPES,
+)
+from dcpy.models.product.dataset.metadata import (
+    Metadata as DatasetMetadata,
 )
 from dcpy.utils.collections import deep_merge_dict as merge
-
 
 ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
     "Error instantiating dataset metadata for"

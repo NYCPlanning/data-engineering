@@ -1,10 +1,11 @@
-import geopandas as gpd
-from io import BytesIO
-import pandas as pd
-from pathlib import Path
-import requests
-from tempfile import TemporaryDirectory
 import zipfile
+from io import BytesIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import geopandas as gpd
+import pandas as pd
+import requests
 
 from .scriptor import ScriptorInterface
 

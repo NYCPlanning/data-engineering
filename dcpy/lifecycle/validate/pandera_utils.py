@@ -1,11 +1,12 @@
-import pandera as pa
-import pandas as pd
-import geopandas as gpd
 from inspect import (
     signature,
 )  # used for checking expected attributes in a class signuture
 
-from dcpy.models.dataset import Column, CheckAttributes, Checks
+import geopandas as gpd
+import pandas as pd
+import pandera as pa
+
+from dcpy.models.dataset import CheckAttributes, Checks, Column
 
 
 def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:

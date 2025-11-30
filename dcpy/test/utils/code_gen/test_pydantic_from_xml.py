@@ -1,12 +1,13 @@
-import importlib.util
-import sys
-from pathlib import Path
-import pytest
-import shutil
-import logging
 import difflib
-from xml.etree.ElementTree import canonicalize
+import importlib.util
+import logging
+import shutil
+import sys
 import uuid
+from pathlib import Path
+from xml.etree.ElementTree import canonicalize
+
+import pytest
 
 from dcpy.utils.code_gen import pydantic_from_xml
 

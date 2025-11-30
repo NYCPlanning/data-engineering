@@ -1,8 +1,9 @@
-from dotenv import load_dotenv
 import os
-from osgeo import gdal
-from pathlib import Path
 import pprint
+from pathlib import Path
+
+from dotenv import load_dotenv
+from osgeo import gdal
 from rich.traceback import install
 
 from dcpy import configuration

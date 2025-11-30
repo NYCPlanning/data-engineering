@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from dcpy.connectors.hybrid_pathed_storage import (
-    StorageType,
     PathedStorageConnector,
+    StorageType,
 )
 
 

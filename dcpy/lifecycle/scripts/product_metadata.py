@@ -1,6 +1,7 @@
 from pathlib import Path
-from tabulate import tabulate  # type: ignore
+
 import typer
+from tabulate import tabulate  # type: ignore
 
 from dcpy.lifecycle import product_metadata
 

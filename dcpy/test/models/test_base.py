@@ -1,8 +1,10 @@
 from __future__ import annotations
-import pandas as pd
+
 from typing import Literal
 
-from dcpy.models.base import SortedSerializedBase, ModelWithDataFrame
+import pandas as pd
+
+from dcpy.models.base import ModelWithDataFrame, SortedSerializedBase
 
 
 class TestSerialization:

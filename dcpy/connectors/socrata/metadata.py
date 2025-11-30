@@ -1,11 +1,11 @@
 from pathlib import Path
-import typer
 from typing import Any
 
-from dcpy.connectors.socrata import publish as pub
-from dcpy.connectors.socrata import metadata
+import typer
 
 import dcpy.models.product.dataset.metadata as md
+from dcpy.connectors.socrata import metadata
+from dcpy.connectors.socrata import publish as pub
 from dcpy.utils.logging import logger
 
 soc_types_to_dcp_types = {

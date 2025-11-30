@@ -1,14 +1,14 @@
 import csv
-from datetime import datetime
 import importlib
 import json
-from moto import mock_aws
 import os
-from pathlib import Path
-import pytest
 import shutil
-import yaml
+from datetime import datetime
+from pathlib import Path
 
+import pytest
+import yaml
+from moto import mock_aws
 
 TEST_RESOURCES_PATH = Path(__file__).parent / "resources"
 
@@ -27,11 +27,11 @@ os.environ["PRODUCT_METADATA_REPO_PATH"] = str(
 )
 
 from dcpy import configuration
-from dcpy.utils import s3, versions
-from dcpy.models.lifecycle.builds import BuildMetadata
-from dcpy.connectors.edm import publishing, packaging
+from dcpy.connectors.edm import packaging, publishing
 from dcpy.lifecycle.builds import plan
+from dcpy.models.lifecycle.builds import BuildMetadata
 from dcpy.test.resources import package_and_distribute
+from dcpy.utils import s3, versions
 
 RESOURCES = Path(__file__).parent / "resources"
 UTILS_RESOURCES = Path(__file__).parent / "utils" / "resources"

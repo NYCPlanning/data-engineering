@@ -1,16 +1,18 @@
 import os
+
 from sqlalchemy import text
 
 from dcpy.library.archive import Archive
+
 from . import (
-    pg,
-    recipe_engine,
-    TEST_DATASET_NAME,
-    TEST_DATASET_VERSION,
     TEST_DATASET_CONFIG_FILE,
+    TEST_DATASET_NAME,
     TEST_DATASET_OUTPUT_DIRECTORY,
     TEST_DATASET_OUTPUT_PATH,
     TEST_DATASET_OUTPUT_PATH_S3,
+    TEST_DATASET_VERSION,
+    pg,
+    recipe_engine,
 )
 
 archive = Archive()

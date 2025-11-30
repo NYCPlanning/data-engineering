@@ -1,13 +1,13 @@
-from pathlib import Path
+import re
 import textwrap
 import time
+from pathlib import Path
 
+import dcpy.models.product.dataset.metadata as md
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.connectors.socrata import publish as soc_pub
 from dcpy.lifecycle import product_metadata
-import dcpy.models.product.dataset.metadata as md
 from dcpy.utils.logging import logger
-import re
 
 
 class OpenDataConnector(VersionedConnector):

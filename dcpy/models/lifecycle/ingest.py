@@ -1,12 +1,14 @@
 from datetime import datetime
-import pandas as pd
-from pydantic import BaseModel, Field, AliasChoices, TypeAdapter, model_validator
 from typing import Any
 
-from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
+import pandas as pd
+from pydantic import AliasChoices, BaseModel, Field, TypeAdapter, model_validator
+
 from dcpy.models import file
-from dcpy.models.connectors.edm import recipes
 from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader
+from dcpy.models.connectors.edm import recipes
+from dcpy.models.dataset import COLUMN_TYPES
+from dcpy.models.dataset import Column as BaseColumn
 from dcpy.utils.metadata import RunDetails
 
 

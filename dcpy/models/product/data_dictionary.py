@@ -1,5 +1,6 @@
-from .dataset.metadata import CustomizableBase
 from dcpy.models.base import TemplatedYamlReader
+
+from .dataset.metadata import CustomizableBase
 
 
 class FieldDefinition(CustomizableBase):

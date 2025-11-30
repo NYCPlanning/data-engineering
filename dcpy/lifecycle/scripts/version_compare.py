@@ -1,10 +1,11 @@
-from dcpy.lifecycle.connector_registry import connectors
-from dcpy.lifecycle import product_metadata
-import pandas as pd
-
-from datetime import datetime
-from dateutil.parser import parse as dateutil_parse
 import re
+from datetime import datetime
+
+import pandas as pd
+from dateutil.parser import parse as dateutil_parse
+
+from dcpy.lifecycle import product_metadata
+from dcpy.lifecycle.connector_registry import connectors
 
 
 class FuzzyVersion:

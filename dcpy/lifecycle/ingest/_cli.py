@@ -1,10 +1,11 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 import typer
 
-from dcpy.utils.logging import logger
 from dcpy.configuration import INGEST_DEF_DIR
-from dcpy.lifecycle.ingest import plan, validate, run
+from dcpy.lifecycle.ingest import plan, run, validate
+from dcpy.utils.logging import logger
 
 app = typer.Typer(add_completion=False)
 

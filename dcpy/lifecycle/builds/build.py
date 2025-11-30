@@ -1,9 +1,9 @@
 from pathlib import Path
+
 import typer
 
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.connector_registry import connectors
-
 
 app = typer.Typer(add_completion=False)
 

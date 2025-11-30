@@ -1,19 +1,20 @@
-import jinja2
-from jinja2 import meta
 from pathlib import Path
-import yaml
 
+import jinja2
+import yaml
+from jinja2 import meta
+
+from dcpy.lifecycle.ingest.connectors import source_connectors
 from dcpy.models.lifecycle.ingest import (
-    Source,
-    IngestDefinition,
     DatasetDefinition,
     DataSourceDefinition,
-    ResolvedDownstreamDataset,
+    IngestDefinition,
     ResolvedDataSource,
+    ResolvedDownstreamDataset,
+    Source,
 )
-from dcpy.utils.logging import logger
 from dcpy.utils.collections import deep_merge_dict
-from dcpy.lifecycle.ingest.connectors import source_connectors
+from dcpy.utils.logging import logger
 
 
 def get_jinja_vars(s: str) -> set[str]:

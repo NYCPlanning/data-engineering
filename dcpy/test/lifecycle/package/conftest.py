@@ -1,6 +1,7 @@
-from pathlib import Path
-import pytest
 import shutil
+from pathlib import Path
+
+import pytest
 
 from dcpy.test.resources import package_and_distribute
 

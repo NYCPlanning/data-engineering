@@ -1,21 +1,24 @@
 from copy import copy
-import openpyxl  # type: ignore
-from openpyxl.styles import Border, Side, Alignment  # type: ignore
-from openpyxl.cell.text import InlineFont  # type: ignore
-from openpyxl.cell.rich_text import TextBlock, CellRichText  # type: ignore
-from openpyxl.drawing.image import Image  # type: ignore
-from openpyxl.worksheet.dimensions import ColumnDimension, DimensionHolder  # type: ignore
-from openpyxl.utils import get_column_letter
 from pathlib import Path
+
+import openpyxl  # type: ignore
 import typer
+from openpyxl.cell.rich_text import CellRichText, TextBlock  # type: ignore
+from openpyxl.cell.text import InlineFont  # type: ignore
+from openpyxl.drawing.image import Image  # type: ignore
+from openpyxl.styles import Alignment, Border, Side  # type: ignore
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.dimensions import (  # type: ignore
+    ColumnDimension,
+    DimensionHolder,
+)
 
 from dcpy.lifecycle import product_metadata
-from dcpy.models.product.metadata import OrgMetadata
 from dcpy.models.design import elements as de
+from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.logging import logger
 
-from . import RESOURCES_PATH
-from . import abstract_doc
+from . import RESOURCES_PATH, abstract_doc
 
 # TODO: Move template to Product Metadata Repo. Rename to be non-OTI specific
 DEFAULT_TEMPLATE_PATH = RESOURCES_PATH / "oti_data_dictionary_template.xlsx"

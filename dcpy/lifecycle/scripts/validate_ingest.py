@@ -1,23 +1,25 @@
 import importlib
 import os
-from pathlib import Path
 import shutil
+from pathlib import Path
 from tempfile import TemporaryDirectory
-import typer
 from typing import Literal
+
+import typer
 import yaml
 
 from dcpy import configuration
-from dcpy.utils import postgres
-from dcpy.utils.collections import indented_report
+from dcpy.connectors.edm import recipes
+from dcpy.data import compare
 from dcpy.lifecycle import data_loader
-from dcpy.models.data import comparison
+from dcpy.lifecycle.ingest.run import INGEST_DIR
+from dcpy.lifecycle.ingest.run import ingest as run_ingest
 from dcpy.models.base import SortedSerializedBase, YamlWriter
+from dcpy.models.data import comparison
 from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.models.lifecycle.ingest import DatasetAttributes
-from dcpy.data import compare
-from dcpy.connectors.edm import recipes
-from dcpy.lifecycle.ingest.run import INGEST_DIR, ingest as run_ingest
+from dcpy.utils import postgres
+from dcpy.utils.collections import indented_report
 
 DATABASE = "sandbox"
 LIBRARY_DEFAULT_PATH = (

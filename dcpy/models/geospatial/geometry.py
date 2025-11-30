@@ -1,6 +1,7 @@
-from enum import Enum
 import re
+from enum import Enum
 from typing import TypeAlias
+
 from pydantic import BaseModel, field_validator
 
 

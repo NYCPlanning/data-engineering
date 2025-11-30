@@ -1,18 +1,18 @@
-from collections import defaultdict
-import ijson
 import json
-import pandas as pd
-import geopandas as gpd
 import os
-from pathlib import Path
 import shutil
+import zipfile
+from collections import defaultdict
+from pathlib import Path
 from typing import Literal
 
-from dcpy.models import file
-from dcpy.utils.logging import logger
-from dcpy.utils.geospatial.transform import df_to_gdf
+import geopandas as gpd
+import ijson
+import pandas as pd
 
-import zipfile
+from dcpy.models import file
+from dcpy.utils.geospatial.transform import df_to_gdf
+from dcpy.utils.logging import logger
 
 
 def _get_dtype(dtype: str | dict | None) -> str | dict | defaultdict | None:

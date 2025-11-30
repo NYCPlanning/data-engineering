@@ -1,10 +1,12 @@
 from __future__ import annotations
-from datetime import datetime
+
 import os
-from pydantic import BaseModel, field_serializer
-import pytz
 import subprocess
+from datetime import datetime
 from typing import Literal
+
+import pytz
+from pydantic import BaseModel, field_serializer
 
 
 class CIRun(BaseModel):

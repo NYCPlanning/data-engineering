@@ -1,13 +1,18 @@
-import boto3
-from botocore.response import StreamingBody
-from botocore.client import Config
-from botocore.exceptions import ClientError
+import os
 from datetime import datetime
 from io import BytesIO
-import os
 from pathlib import Path
-from pyarrow import fs
+from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING, Any, Literal, cast, get_args
+
+import boto3
 import pytz
+import typer
+from botocore.client import Config
+from botocore.exceptions import ClientError
+from botocore.response import StreamingBody
+from pyarrow import fs
+from pydantic import BaseModel
 from rich.progress import (
     BarColumn,
     Progress,
@@ -15,10 +20,6 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
-from tempfile import TemporaryDirectory
-import typer
-from typing import Any, Literal, TYPE_CHECKING, cast, get_args
-from pydantic import BaseModel
 
 from dcpy.utils import git
 from dcpy.utils.logging import logger

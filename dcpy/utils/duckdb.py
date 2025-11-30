@@ -1,5 +1,6 @@
-import duckdb  # type: ignore
 import os
+
+import duckdb  # type: ignore
 
 
 def setup_s3_secret(conn: duckdb.DuckDBPyConnection | None = None) -> None:

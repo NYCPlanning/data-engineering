@@ -1,10 +1,12 @@
+import subprocess
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader
+
 import css_inline
 from bs4 import BeautifulSoup
-import subprocess
-from dcpy.models.product.metadata import OrgMetadata
+from jinja2 import Environment, FileSystemLoader
+
 from dcpy.models.product.dataset.metadata import Metadata
+from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.logging import logger
 
 from . import RESOURCES_PATH

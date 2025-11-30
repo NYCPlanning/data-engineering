@@ -1,6 +1,7 @@
+from typing import Literal
+
 from pyarrow.parquet import FileMetaData
 from pydantic import BaseModel, Field
-from typing import Literal
 
 GEOPARQUET_METADATA_KEY = b"geo"
 

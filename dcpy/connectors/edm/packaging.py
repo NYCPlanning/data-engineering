@@ -1,12 +1,12 @@
-from pathlib import Path
-from dataclasses import dataclass
 import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+
 import typer
 
+from dcpy.connectors.edm import product_metadata, publishing
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
-from dcpy.connectors.edm import publishing
-from dcpy.connectors.edm import product_metadata
 
 BUCKET = "edm-publishing"
 DATASETS_FOLDER = "product_datasets"

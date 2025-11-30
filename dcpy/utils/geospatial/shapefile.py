@@ -1,14 +1,15 @@
 import os
-from pathlib import Path
 import zipfile
 from datetime import datetime
+from pathlib import Path
+
 from dcpy.models.data.shapefile_metadata import (
-    Metadata,
     Esri,
     Mddatest,
     Mdhrlv,
-    Scopecd,
+    Metadata,
     Scalerange,
+    Scopecd,
 )
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py

@@ -1,6 +1,6 @@
-from dcpy.lifecycle.connector_registry import connectors
 from dcpy.connectors.ingest_datastore import Connector
 from dcpy.connectors.registry import Pull
+from dcpy.lifecycle.connector_registry import connectors
 
 # todo: make all references to this this dynamic
 source_connectors = connectors.get_subregistry(Pull)

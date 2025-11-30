@@ -1,8 +1,8 @@
 import typer
 
 from .edm.packaging import package_app as package_app
-from .socrata import metadata
 from .esri import arcgis_feature_service
+from .socrata import metadata
 
 edm_app = typer.Typer()
 edm_app.add_typer(package_app, name="packaging")

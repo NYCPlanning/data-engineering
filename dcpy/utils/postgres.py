@@ -1,13 +1,14 @@
-from io import StringIO
-from pathlib import Path
 import csv
 import os
+from io import StringIO
+from pathlib import Path
+from typing import Literal
+
 import geopandas as gpd
 import pandas as pd
-from psycopg2.extensions import AsIs
-from sqlalchemy import create_engine, text, dialects
 import typer
-from typing import Literal
+from psycopg2.extensions import AsIs
+from sqlalchemy import create_engine, dialects, text
 
 from dcpy.utils.logging import logger
 

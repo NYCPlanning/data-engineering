@@ -1,16 +1,17 @@
 # TODO: Move this to a utils shapefile module.
 
 
-from pathlib import Path
-import typer
 import xml.etree.ElementTree as ET
+from pathlib import Path
+
+import typer
 
 from dcpy.models.product.dataset.metadata import (
-    Metadata,
+    COLUMN_TYPES,
+    ColumnValue,
     DatasetAttributes,
     DatasetColumn,
-    ColumnValue,
-    COLUMN_TYPES,
+    Metadata,
 )
 from dcpy.utils.logging import logger
 

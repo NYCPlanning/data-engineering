@@ -1,22 +1,22 @@
-import pytest
 from pathlib import Path
-import pandas as pd
-import geopandas as gpd
-import shapely
-from shapely import (
-    Point,
-    MultiPoint,
-    LineString,
-    MultiLineString,
-    Polygon,
-    MultiPolygon,
-)
 from tempfile import TemporaryDirectory
 
-from dcpy.models.geospatial import geometry
-from dcpy.models.file import Geometry as FileGeometry
-from dcpy.utils.geospatial import transform, parquet
+import geopandas as gpd
+import pandas as pd
+import pytest
+import shapely
+from shapely import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
 
+from dcpy.models.file import Geometry as FileGeometry
+from dcpy.models.geospatial import geometry
+from dcpy.utils.geospatial import parquet, transform
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 

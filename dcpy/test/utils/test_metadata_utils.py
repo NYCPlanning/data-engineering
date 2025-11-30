@@ -1,8 +1,8 @@
 from pathlib import Path
+
 import yaml
 
-from dcpy.utils.metadata import RunDetails, CIRun, User, get_run_details
-
+from dcpy.utils.metadata import CIRun, RunDetails, User, get_run_details
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 

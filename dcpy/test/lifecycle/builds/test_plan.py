@@ -1,17 +1,17 @@
 import os
+from unittest import TestCase
+from unittest.mock import MagicMock, Mock, patch
+
 import pandas as pd
 import pytest
-from unittest import TestCase
-from unittest.mock import patch, MagicMock, Mock
 
+from dcpy.connectors.edm import publishing, recipes
 from dcpy.connectors.registry import ConnectorRegistry, VersionedConnector
-from dcpy.models.lifecycle.builds import InputDataset, StageConfigValue
-from dcpy.utils import versions
-from dcpy.connectors.edm import recipes, publishing
-from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle import connector_registry
-
+from dcpy.lifecycle.builds import plan
+from dcpy.models.lifecycle.builds import InputDataset, StageConfigValue
 from dcpy.test.lifecycle.builds.conftest import REQUIRED_VERSION_ENV_VAR, RESOURCES_DIR
+from dcpy.utils import versions
 
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
 RECIPE_NO_DEFAULTS_PATH = RESOURCES_DIR / "recipe_no_defaults.yml"

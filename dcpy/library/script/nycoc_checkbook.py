@@ -1,22 +1,23 @@
 import calendar
 import datetime as dt
-from io import StringIO
 import os
-from dcpy.utils.logging import logger
-import pandas as pd
-from pathlib import Path
-import pytz
 import random
-import requests
 import shutil
 import sys
 import time
-from typing import Literal, TypedDict, Any
 import xml.etree.ElementTree as ET
+from io import StringIO
+from pathlib import Path
+from typing import Any, Literal, TypedDict
+
+import pandas as pd
+import pytz
+import requests
+
+from dcpy.utils.logging import logger
 
 from . import df_to_tempfile
 from .scriptor import ScriptorInterface
-
 
 api_endpoint = "https://www.checkbooknyc.com/api"
 

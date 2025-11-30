@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any, Callable, Generic, TypeVar, overload
+
 from pydantic import BaseModel
-from typing import Any, TypeVar, Generic, overload, Callable
 
 from dcpy.utils.logging import logger
 

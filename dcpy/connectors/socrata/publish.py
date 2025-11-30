@@ -12,25 +12,25 @@ This is more of a starting point for other connectors
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
+
 import json
 import os
-from pathlib import Path
-from pydantic import BaseModel
-import requests
-from socrata.authorization import Authorization
-from socrata import Socrata as SocrataPy
-from socrata.output_schema import OutputSchema
-from socrata.sources import Source
-from socrata.revisions import Revision as SocrataPyRevision
 import textwrap
-from typing import TypedDict, Literal, NotRequired, Any
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Literal, NotRequired, TypedDict
 
-from dcpy.utils.logging import logger
+import requests
+from pydantic import BaseModel
+from socrata import Socrata as SocrataPy
+from socrata.authorization import Authorization
+from socrata.output_schema import OutputSchema
+from socrata.revisions import Revision as SocrataPyRevision
+from socrata.sources import Source
 
-import dcpy.models.product.dataset.metadata as md
 import dcpy.models.dataset as dataset
-
+import dcpy.models.product.dataset.metadata as md
+from dcpy.utils.logging import logger
 
 # There are required publishing frequency fields in two different sections of
 # the required metadata, and they're different. Below are the shared fields

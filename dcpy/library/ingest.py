@@ -1,16 +1,17 @@
 from __future__ import annotations
+
+import datetime
+import json
 import os
 import pathlib
 import shutil
 import zipfile
-import datetime
 from functools import wraps
 from math import floor
-import json
-import yaml
-
-from osgeo import gdal
 from pathlib import Path
+
+import yaml
+from osgeo import gdal
 from rich.progress import (
     BarColumn,
     Progress,
@@ -19,8 +20,8 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from dcpy.utils.metadata import get_run_details
 from dcpy.models import library
+from dcpy.utils.metadata import get_run_details
 
 from . import base_path
 from .config import Config

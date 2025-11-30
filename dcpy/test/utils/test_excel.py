@@ -1,6 +1,7 @@
 from pathlib import Path
-import pytest
+
 import openpyxl  # type: ignore
+import pytest
 
 from dcpy.utils import excel
 

@@ -1,15 +1,16 @@
 from pathlib import Path
+
 import pytest
 
+from dcpy.lifecycle.ingest import plan
 from dcpy.models import file
 from dcpy.models.lifecycle.ingest import (
-    Source,
     DatasetDefinition,
     DataSourceDefinition,
+    Source,
 )
-from dcpy.lifecycle.ingest import plan
 
-from .shared import INGEST_DEF_DIR, TEST_DATASET_NAME, RESOLVED
+from .shared import INGEST_DEF_DIR, RESOLVED, TEST_DATASET_NAME
 
 
 def _d_path(ds_id: str) -> Path:

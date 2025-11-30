@@ -1,7 +1,8 @@
-import typer
-import openpyxl  # type: ignore
 import csv
 from pathlib import Path
+
+import openpyxl  # type: ignore
+import typer
 
 from dcpy.utils.logging import logger
 

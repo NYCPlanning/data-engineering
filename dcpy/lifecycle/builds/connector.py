@@ -1,5 +1,5 @@
-from dcpy.lifecycle.connector_registry import connectors
 from dcpy.lifecycle import config
+from dcpy.lifecycle.connector_registry import connectors
 
 LIFECYCLE_STAGE = "builds"
 

@@ -1,11 +1,12 @@
-import pytest
-from pathlib import Path
 from datetime import datetime
-import pytz
+from pathlib import Path
 from typing import TypedDict
 
-from dcpy.utils.sftp import SFTPServer
+import pytest
+import pytz
+
 from dcpy.connectors.sftp import SFTPConnector
+from dcpy.utils.sftp import SFTPServer
 
 
 class SFTPDefaults(TypedDict):

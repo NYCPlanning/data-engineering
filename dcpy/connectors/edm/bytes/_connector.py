@@ -1,13 +1,14 @@
-from bs4 import BeautifulSoup
-from itertools import groupby
 import json
+from itertools import groupby
 from pathlib import Path
-import pandas as pd
-from pydantic import BaseModel, TypeAdapter
-import requests
 
-from dcpy.connectors.registry import VersionedConnector
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from pydantic import BaseModel, TypeAdapter
+
 from dcpy.connectors import web
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.utils.logging import logger
 
 from . import _sitemap

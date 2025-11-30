@@ -1,7 +1,6 @@
 import geopandas as gpd
 import leafmap.foliumap as lmf
 
-
 DEFAULT_MAP_SIZE = {"width": 900, "height": 700}
 DEFAULT_BASEMAP = "Stadia.AlidadeSmoothDark"
 NYC_CENTER_COORDS = [40.726446, -73.983307]

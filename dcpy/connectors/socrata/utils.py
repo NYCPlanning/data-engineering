@@ -1,6 +1,7 @@
 import os
-import requests
 from typing import Literal
+
+import requests
 
 SOCRATA_USER = os.getenv("SOCRATA_USER")
 SOCRATA_PASSWORD = os.getenv("SOCRATA_PASSWORD")

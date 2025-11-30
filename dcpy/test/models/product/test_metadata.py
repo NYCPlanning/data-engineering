@@ -1,9 +1,10 @@
 from pathlib import Path
+
 import pytest
 
+from dcpy.models import dataset
 from dcpy.models.product import metadata as md
 from dcpy.models.product.dataset import metadata as ds_md
-from dcpy.models import dataset
 
 
 @pytest.fixture

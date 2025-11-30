@@ -1,12 +1,12 @@
 from pathlib import Path
 
+from dcpy.lifecycle.ingest.connectors import get_source_connectors
 from dcpy.models.lifecycle.ingest import (
-    ResolvedDataSource,
     ArchivedDataSource,
+    ResolvedDataSource,
 )
 from dcpy.utils.logging import logger
 from dcpy.utils.metadata import RunDetails
-from dcpy.lifecycle.ingest.connectors import get_source_connectors
 
 
 def extract_source(

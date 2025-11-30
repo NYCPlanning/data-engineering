@@ -1,8 +1,9 @@
 from pathlib import Path
+
 import requests
 
-from dcpy.utils.logging import logger
 from dcpy.connectors.registry import Pull
+from dcpy.utils.logging import logger
 
 
 def download_file(url: str, path: Path) -> None:

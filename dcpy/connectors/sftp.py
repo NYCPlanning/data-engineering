@@ -1,9 +1,9 @@
-from pathlib import Path
 from functools import cached_property
+from pathlib import Path
 from typing import cast
 
 from dcpy.connectors.registry import StorageConnector
-from dcpy.utils.sftp import SFTPServer, KNOWN_HOSTS_DEFAULT_PATH
+from dcpy.utils.sftp import KNOWN_HOSTS_DEFAULT_PATH, SFTPServer
 
 
 class SFTPConnector(StorageConnector):
