@@ -1,0 +1,34 @@
+id: dcp_greater_transit_zone
+acl: public-read
+
+attributes:
+  name: Greater Transit Zone
+  description: >
+    The Greater Transit Zone boundaries are used for several zoning rules. 
+    They determine where special rules for Qualifying Residential Sites are 
+    applicable and how non-residential parking is calculated in some zoning 
+    districts. Being located within the Greater Transit Zone may allow for 
+    more or different development opportunities.
+  url: https://www.nyc.gov/content/planning/pages/resources/datasets/greater-transit-zone
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/greater-transit-zone/nyc_greater_transit_zone.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nyc_greater_transit_zone/greater_transit_zone_{{ version }}.shp
+    crs: EPSG:2263
+  processing_steps:
+    - name: clean_column_names
+      args: { "lower": True }
+    - name: rename_columns
+      args:
+        map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: gtz_qs
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
