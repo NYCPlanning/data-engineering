@@ -1,6 +1,6 @@
 name: CPDB
 product: db-cpdb
-version: 23prelim
+version: 25adopt
 inputs:
   missing_versions_strategy: find_latest
   datasets:
