@@ -1,6 +1,6 @@
 from datetime import datetime
 import pandas as pd
-from pydantic import BaseModel, Field, AliasChoices, TypeAdapter, model_validator
+from pydantic import BaseModel, Field, AliasChoices, AliasPath, TypeAdapter
 from typing import Any
 
 from dcpy.models.dataset import Column as BaseColumn, COLUMN_TYPES
@@ -264,19 +264,20 @@ class ProcessingResult(SortedSerializedBase, arbitrary_types_allowed=True):
 
 
 class SparseConfig(BaseModel, extra="allow"):
-    id: str = Field(validation_alias=AliasChoices("id", "name"))
-    version: str
-    run_timestamp: datetime | None = None
-
-    @model_validator(mode="before")
-    def _validate(cls, values: dict[str, Any]) -> dict[str, Any]:
-        metadata_field = "run_details"
-        # library datasets - main model is subfield, different metadata field
-        if "dataset" in values:
-            values = values["dataset"]
-            metadata_field = "execution_details"
-        # raw datasets - different version
-        if "timestamp" in values:
-            values["version"] = values["timestamp"]
-        values["run_timestamp"] = values.get(metadata_field, {}).get("timestamp")
-        return values
+    id: str = Field(validation_alias=AliasChoices("id", AliasPath("dataset", "name")))
+    version: str = Field(
+        validation_alias=AliasChoices(
+            "version",  # ingest
+            "timestamp",  # ingest - raw
+            AliasPath("dataset", "version"),  # library
+        )
+    )
+    run_timestamp: datetime | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            AliasPath("transformation", "run_details", "timestamp"),  # ingest
+            "timestamp",  # ingest - raw
+            AliasPath("run_details", "timestamp"),  # ingest - outdated
+            AliasPath("execution_details", "timestamp"),
+        ),
+    )
