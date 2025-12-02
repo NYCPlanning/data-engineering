@@ -11,15 +11,15 @@ WITH segment_offsets AS (
 SELECT
     co.lionkey,
     co.segmentid,
-    left(left_beat.post, 1) AS left_nypd_service_area,
-    left(right_beat.post, 1) AS right_nypd_service_area
+    left_beat.sector AS left_nypd_sector,
+    left_beat.geo_type AS left_beat_geo_type,
+    CASE WHEN left_beat.geo_type = 'HP' THEN left(left_beat.post, 1) END AS left_nypd_service_area,
+    right_beat.sector AS right_nypd_sector,
+    right_beat.geo_type AS right_beat_geo_type,
+    CASE WHEN right_beat.geo_type = 'HP' THEN left(left_beat.post, 1) END AS right_nypd_service_area
 FROM segment_offsets AS co
 -- using a cte around reference can confus the postgres compiler to not use index
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nypdbeat") }} AS left_beat
-    ON
-        st_within(co.left_offset_point, left_beat.geom)
-        AND left_beat.geo_type = 'HP'
+    ON st_within(co.left_offset_point, left_beat.geom)
 LEFT JOIN {{ source("recipe_sources", "dcp_cscl_nypdbeat") }} AS right_beat
-    ON
-        st_within(co.right_offset_point, right_beat.geom)
-        AND right_beat.geo_type = 'HP'
+    ON st_within(co.right_offset_point, right_beat.geom)
