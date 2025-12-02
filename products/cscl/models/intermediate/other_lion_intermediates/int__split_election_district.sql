@@ -5,7 +5,7 @@
     ]
 ) }}
 WITH sedat AS (
-    SELECT * FROM {{ ref("stg__sedat") }}
+    SELECT * FROM {{ ref("stg__segment_sedat") }}
 ),
 agg AS (
     SELECT
