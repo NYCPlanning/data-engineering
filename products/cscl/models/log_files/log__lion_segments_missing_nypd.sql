@@ -1,9 +1,16 @@
+WITH segments AS (
+    SELECT * FROM {{ ref('int__segments') }}
+),
+nypd AS (
+    SELECT * FROM {{ ref('int__segment_nypdbeat') }}
+)
 SELECT
     'segment joined to no nypd beat' AS error,
-    globalid,
-    source_table,
+    segments.globalid,
+    segments.source_table,
     'segmentid' AS record_id_type,
-    segmentid AS record_id,
+    segments.segmentid AS record_id,
     '' AS message
-FROM {{ ref('int__lion') }}
-WHERE left_nypd_service_area IS NULL AND right_nypd_service_area IS NULL
+FROM segments
+INNER JOIN nypd ON segments.lionkey = nypd.lionkey
+WHERE nypd.left_nypd_sector IS NULL AND nypd.right_nypd_sector IS NULL
