@@ -16,14 +16,27 @@ models:
         arguments: { values: [ "S" ] }
   - name: borough
     tests: [ not_null ]
+
 - name: stg__altsegmentdata_proto
   columns:
   - name: segmentid
     tests: [ not_null ]
+
 - name: stg__atomicpolygons
   columns:
   - name: atomicid
     tests: [ unique, not_null ]
+
+- name: stg__facecode_and_featurename
+  columns:
+  - name: b7sc
+    tests:
+    - unique:
+        config: { where: "b7sc IS NOT NULL" }
+        error_if: "> 1"
+  - name: lookup_key
+  - name: face_code
+
 - name: stg__centerline
   # only columns with tests currently listed
   columns:
@@ -35,7 +48,8 @@ models:
     tests:
     - accepted_values:
         arguments: { values: [ "Y", "N" ] }
-- name: stg__sedat
+
+- name: stg__segment_sedat
   columns:
   - name: segmentid
   - name: lionkey

@@ -5,7 +5,7 @@ primary_segments AS (
     SELECT * FROM {{ ref("int__primary_segments") }}
 ),
 facecode AS (
-    SELECT * FROM {{ ref("int__b7sc_codes") }}
+    SELECT * FROM {{ ref("stg__facecode_and_featurename") }}
 ),
 seqnum AS (
     SELECT * FROM {{ ref("int__nonstreetfeature_seqnum") }}
@@ -15,10 +15,7 @@ feature_type_codes AS (
 )
 SELECT
     proto.borough AS boroughcode,
-    CASE
-        WHEN feature_type_codes.source_feature_class = 'centerline' THEN facecode.street_facecode
-        ELSE facecode.feature_facecode
-    END AS face_code, -- TODO error report when null
+    facecode.face_code, -- TODO error report when null
     CASE
         WHEN feature_type_codes.source_feature_class <> 'nonstreetfeatures' THEN proto.alt_segment_seqnum
         ELSE seqnum.segment_seqnum
