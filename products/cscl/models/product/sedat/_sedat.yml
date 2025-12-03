@@ -5,7 +5,7 @@ models:
   config:
     contract:
       enforced: true
-  columns:
+  columns: &sedat_columns
   - name: lionkey
     data_type: string
     tests:
@@ -67,63 +67,8 @@ models:
   config:
     contract:
       enforced: true
-  columns:
-  - name: lionkey
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 10 }
-  - name: parity
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 1 }
-  - name: street_name
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 32 }
-  - name: side_of_street
-    data_type: string
-    tests:
-    - accepted_values:
-        arguments: { values: [ " ", "R", "L" ] }
-  - name: lowaddress
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 7 }
-  - name: low_addr_suffix
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 8 }
-  - name: highaddress
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 7 }
-  - name: high_addr_suffix
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 8 }
-  - name: election_district
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 3 }
-  - name: assembly_district
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 2 }
-  - name: b7sc
-    data_type: string
-    tests:
-    - dbt_expectations.expect_column_value_lengths_to_equal:
-        arguments: { value: 8 }
-
+  columns: *sedat_columns
+  
 - name: export_sedat
   columns:
   - name: dat_column
