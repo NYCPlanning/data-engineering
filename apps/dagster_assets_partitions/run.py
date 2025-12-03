@@ -66,6 +66,17 @@ def setup_sample_partitions():
                     instance.add_dynamic_partitions(
                         distribute_name, distribute_partitions
                     )
+        
+        # 4. Special case: Pluto multi-dimensional partitions (year + quarter)
+        # Add sample years to the year partition
+        pluto_years = ["2023", "2024", "2025"]
+        try:
+            instance.add_dynamic_partitions("pluto_year", pluto_years)
+            print(f"✅ Added {len(pluto_years)} Pluto year partitions")
+        except Exception as e:
+            print(f"ℹ️  Pluto year partitions: {e}")
+        
+        # Quarter partitions are static (1,2,3,4) so no need to add them
 
         print(f"✅ Sample partitions created for {len(sample_products)} products!")
 
