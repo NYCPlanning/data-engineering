@@ -37,18 +37,6 @@ models:
   - name: lookup_key
   - name: face_code
 
-- name: stg__centerline
-  # only columns with tests currently listed
-  columns:
-  - name: trafdir
-    tests:
-    - accepted_values:
-        arguments: { values: [ "TF", "FT", "NV", "TW" ] }
-  - name: twisted_parity_flag
-    tests:
-    - accepted_values:
-        arguments: { values: [ "Y", "N" ] }
-
 - name: stg__segment_sedat
   columns:
   - name: segmentid
