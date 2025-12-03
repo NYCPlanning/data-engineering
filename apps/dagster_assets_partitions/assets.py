@@ -7,6 +7,8 @@ import yaml
 from dagster import (
     asset,
     DynamicPartitionsDefinition,
+    MultiPartitionsDefinition,
+    StaticPartitionsDefinition,
     MaterializeResult,
     AssetExecutionContext,
 )
@@ -190,9 +192,7 @@ def make_build_asset_group(product: Dict[str, Any]):
         deps=[f"{asset_name_base}_plan"],
         tags={**base_tags, "build_stage": "load"},
     )
-    def load_asset(
-        context: AssetExecutionContext, local_storage: LocalStorageResource
-    ):
+    def load_asset(context: AssetExecutionContext, local_storage: LocalStorageResource):
         partition_key = context.partition_key
         output_dir = local_storage.get_path("builds", product_id, partition_key)
         load_file = output_dir / "load.json"
@@ -375,10 +375,19 @@ def make_distribute_asset_group(product: Dict[str, Any]):
     product_id = product["id"]
     asset_name_base = product_id.replace(" ", "_").replace("-", "_")
 
-    # Distribution uses major.minor partitions like review
-    distribute_partition_def = DynamicPartitionsDefinition(
-        name=f"distribute_{asset_name_base}"
-    )
+    # Special case: Pluto gets dual-key partitions (year + quarter)
+    if product_id.lower() == "pluto":
+        year_partition = DynamicPartitionsDefinition(name="pluto_year")
+        quarter_partition = StaticPartitionsDefinition(["1", "2", "3", "4"])
+        distribute_partition_def = MultiPartitionsDefinition({
+            "year": year_partition,
+            "quarter": quarter_partition
+        })
+    else:
+        # Distribution uses major.minor partitions like review
+        distribute_partition_def = DynamicPartitionsDefinition(
+            name=f"distribute_{asset_name_base}"
+        )
 
     # Create base tags with product metadata (clean values for Dagster tag restrictions)
     base_distribute_tags = {
@@ -422,18 +431,30 @@ def make_distribute_asset_group(product: Dict[str, Any]):
             def distribute_asset(
                 context: AssetExecutionContext, local_storage: LocalStorageResource
             ):
-                partition_key = context.partition_key  # e.g., "2025.1"
-                output_path = local_storage.get_path(
-                    "distribute", product_id, partition_key, dest
-                )
+                # Handle multi-dimensional partitions for Pluto
+                if "|" in str(context.partition_key):
+                    # Multi-dimensional partition (Pluto): "2025|1" format
+                    parts = str(context.partition_key).split("|")
+                    year = parts[0]
+                    quarter = parts[1]
+                    partition_str = f"{year}.Q{quarter}"
+                    output_path = local_storage.get_path(
+                        "distribute", product_id, f"{year}", f"Q{quarter}", dest
+                    )
+                else:
+                    # Single-dimensional partition: "2025.1"
+                    partition_str = context.partition_key
+                    output_path = local_storage.get_path(
+                        "distribute", product_id, partition_str, dest
+                    )
 
                 return MaterializeResult(
                     metadata={
                         "output_path": str(output_path),
                         "stage": "distribute",
-                        "version": partition_key,
+                        "version": partition_str,
                         "destination": dest,
-                        "note": f"Distributes {product_id} v{partition_key} to {dest}",
+                        "note": f"Distributes {product_id} v{partition_str} to {dest}",
                     }
                 )
 
