@@ -2,4 +2,4 @@
 
 ## Run Instructions
 1. Install requirements
-2. Run in this directory with python run.py
+2. Run in this directory with `python run.py dev`
