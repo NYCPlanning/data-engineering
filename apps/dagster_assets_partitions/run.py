@@ -5,6 +5,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from partitions import build_partition_defs, distribute_partition_defs
+from dagster import DagsterInstance
+from assets import ingest_partition_def
+
 dagster_dir = Path(__file__).parent
 
 # Set DAGSTER_HOME to a directory in the user's home
@@ -16,12 +20,6 @@ os.environ["DAGSTER_HOME"] = str(dagster_home)
 def setup_sample_partitions():
     """Automatically create sample partitions if they don't exist"""
     try:
-        from dagster import DagsterInstance
-        from assets import (
-            ingest_partition_def,
-            build_partition_defs,
-            distribute_partition_defs,
-        )
 
         instance = DagsterInstance.get()
 
