@@ -1,14 +1,4 @@
 models:
-- name: int__b7sc_codes
-  description: Mapping of 7-digit street codes to street and feature face codes
-  columns:
-  - name: b7sc
-    tests:
-    - unique
-    - not_null
-  - name: street_facecode
-  - name: feature_facecode
-
 - name: int__lgc
   description: All local group codes ranked for segments
   columns:
