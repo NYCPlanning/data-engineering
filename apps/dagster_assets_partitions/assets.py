@@ -6,7 +6,6 @@ import yaml
 
 from dagster import (
     asset,
-    AssetIn,
     DynamicPartitionsDefinition,
     MaterializeResult,
     AssetExecutionContext,
@@ -165,55 +164,109 @@ def make_build_asset_group(product: Dict[str, Any]):
     )
     def plan_asset(context: AssetExecutionContext, local_storage: LocalStorageResource):
         partition_key = context.partition_key
-        output_path = local_storage.get_path(
-            "builds", product_id, partition_key, "plan"
-        )
+        output_dir = local_storage.get_path("builds", product_id, partition_key)
+        plan_file = output_dir / "plan.json"
+
+        # Create a plan file with basic metadata
+        plan_data = {
+            "product_id": product_id,
+            "partition_key": partition_key,
+            "stage": "plan",
+            "output_dir": str(output_dir),
+        }
+
+        import json
+
+        plan_file.write_text(json.dumps(plan_data, indent=2))
 
         return MaterializeResult(
-            metadata={"output_path": str(output_path), "stage": "plan"}
+            metadata={"output_path": str(plan_file), "stage": "plan"}
         )
 
     @asset(
         name=f"{asset_name_base}_load",
         partitions_def=build_partition_def,
         group_name=f"build_{asset_name_base}",
-        ins={"plan": AssetIn(f"{asset_name_base}_plan")},
+        deps=[f"{asset_name_base}_plan"],
         tags={**base_tags, "build_stage": "load"},
     )
     def load_asset(
-        context: AssetExecutionContext, local_storage: LocalStorageResource, plan
+        context: AssetExecutionContext, local_storage: LocalStorageResource
     ):
         partition_key = context.partition_key
-        output_path = local_storage.get_path(
-            "builds", product_id, partition_key, "load"
-        )
+        output_dir = local_storage.get_path("builds", product_id, partition_key)
+        load_file = output_dir / "load.json"
+
+        # Read the plan file to get context
+        import json
+
+        plan_file = output_dir / "plan.json"
+        if plan_file.exists():
+            plan_data = json.loads(plan_file.read_text())
+            context.log.info(f"Plan data: {plan_data}")
+        else:
+            context.log.warning(f"Plan file not found at: {plan_file}")
+            plan_data = None
+
+        # Create a load file with metadata
+        load_data = {
+            "product_id": product_id,
+            "partition_key": partition_key,
+            "stage": "load",
+            "output_dir": str(output_dir),
+        }
+
+        load_file.write_text(json.dumps(load_data, indent=2))
 
         return MaterializeResult(
-            metadata={"output_path": str(output_path), "stage": "load"}
+            metadata={"output_path": str(load_file), "stage": "load"}
         )
 
     @asset(
         name=f"{asset_name_base}_build",
         partitions_def=build_partition_def,
         group_name=f"build_{asset_name_base}",
-        ins={"load": AssetIn(f"{asset_name_base}_load")},
-        tags={**base_tags, "build_stage": "build", "executes_command": "true"},
+        deps=[f"{asset_name_base}_load"],
+        tags={**base_tags, "build_stage": "build"},
     )
     def build_asset(
-        context: AssetExecutionContext, local_storage: LocalStorageResource, load
+        context: AssetExecutionContext, local_storage: LocalStorageResource
     ):
         partition_key = context.partition_key
-        output_path = local_storage.get_path(
-            "builds", product_id, partition_key, "build"
-        )
+        output_dir = local_storage.get_path("builds", product_id, partition_key)
+        build_file = output_dir / "build.json"
+
+        # Read the load file to get context
+        import json
+
+        load_file = output_dir / "load.json"
+        if load_file.exists():
+            load_data = json.loads(load_file.read_text())
+            context.log.info(f"Load data: {load_data}")
+        else:
+            context.log.warning(f"Load file not found at: {load_file}")
+            load_data = None
 
         result = subprocess.run(
-            build_command, shell=True, capture_output=True, text=True, cwd=output_path
+            build_command, shell=True, capture_output=True, text=True, cwd=output_dir
         )
+
+        # Create a build file with metadata
+        build_data = {
+            "product_id": product_id,
+            "partition_key": partition_key,
+            "stage": "build",
+            "output_dir": str(output_dir),
+            "return_code": result.returncode,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+        }
+
+        build_file.write_text(json.dumps(build_data, indent=2))
 
         return MaterializeResult(
             metadata={
-                "output_path": str(output_path),
+                "output_path": str(build_file),
                 "stage": "build",
                 "return_code": result.returncode,
                 "stdout": result.stdout,
@@ -225,19 +278,39 @@ def make_build_asset_group(product: Dict[str, Any]):
         name=f"{asset_name_base}_package",
         partitions_def=build_partition_def,
         group_name=f"build_{asset_name_base}",
-        ins={"build": AssetIn(f"{asset_name_base}_build")},
+        deps=[f"{asset_name_base}_build"],
         tags={**base_tags, "build_stage": "package"},
     )
     def package_asset(
-        context: AssetExecutionContext, local_storage: LocalStorageResource, build
+        context: AssetExecutionContext, local_storage: LocalStorageResource
     ):
         partition_key = context.partition_key
-        output_path = local_storage.get_path(
-            "builds", product_id, partition_key, "package"
-        )
+        output_dir = local_storage.get_path("builds", product_id, partition_key)
+        package_file = output_dir / "package.json"
+
+        # Read the build file to get context
+        import json
+
+        build_file = output_dir / "build.json"
+        if build_file.exists():
+            build_data = json.loads(build_file.read_text())
+            context.log.info(f"Build data: {build_data}")
+        else:
+            context.log.warning(f"Build file not found at: {build_file}")
+            build_data = None
+
+        # Create a package file with metadata
+        package_data = {
+            "product_id": product_id,
+            "partition_key": partition_key,
+            "stage": "package",
+            "output_dir": str(output_dir),
+        }
+
+        package_file.write_text(json.dumps(package_data, indent=2))
 
         return MaterializeResult(
-            metadata={"output_path": str(output_path), "stage": "package"}
+            metadata={"output_path": str(package_file), "stage": "package"}
         )
 
     # Add review asset to the build group - depends on package and shares same partitions
@@ -245,20 +318,43 @@ def make_build_asset_group(product: Dict[str, Any]):
         name=f"{asset_name_base}_review",
         partitions_def=build_partition_def,
         group_name=f"build_{asset_name_base}",
-        ins={"package": AssetIn(f"{asset_name_base}_package")},
+        deps=[f"{asset_name_base}_package"],
         tags={**base_tags, "build_stage": "review"},
     )
     def review_asset(
-        context: AssetExecutionContext, local_storage: LocalStorageResource, package
+        context: AssetExecutionContext, local_storage: LocalStorageResource
     ):
         partition_key = context.partition_key  # e.g., "2025.1.1-1_initial_build"
-        output_path = local_storage.get_path("review", product_id, partition_key)
+        output_dir = local_storage.get_path("review", product_id, partition_key)
+        review_file = output_dir / "review.json"
 
-        # Now review operates on the same partition as the build pipeline
+        # Read the package file to get context
+        import json
+
+        build_dir = local_storage.get_path("builds", product_id, partition_key)
+        package_file = build_dir / "package.json"
+        if package_file.exists():
+            package_data = json.loads(package_file.read_text())
+            context.log.info(f"Package data: {package_data}")
+        else:
+            context.log.warning(f"Package file not found at: {package_file}")
+            package_data = None
+
+        # Create a review file with metadata
+        review_data = {
+            "product_id": product_id,
+            "partition_key": partition_key,
+            "stage": "review",
+            "output_dir": str(output_dir),
+            "build_version": partition_key,
+            "note": f"Review of build {partition_key}",
+        }
+
+        review_file.write_text(json.dumps(review_data, indent=2))
 
         return MaterializeResult(
             metadata={
-                "output_path": str(output_path),
+                "output_path": str(review_file),
                 "stage": "review",
                 "build_version": partition_key,
                 "note": f"Review of build {partition_key}",
