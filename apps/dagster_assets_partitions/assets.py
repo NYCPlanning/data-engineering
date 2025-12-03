@@ -119,7 +119,8 @@ def make_ingest_asset(template_id: str, using_products: Optional[List[str]] = No
             dataset_id=template_id,
             version=partition_key,
             push=False,
-            local_file_path=output_path,
+            definition_dir=PROJECT_ROOT / "ingest_templates",
+            # local_file_path=PROJECT_ROOT / output_path
         )
         return MaterializeResult(
             metadata={"output_path": str(output_path), "version": partition_key}
