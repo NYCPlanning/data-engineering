@@ -15,13 +15,24 @@ inputs:
   - name: dcp_dcpprojectteams
     version_env_var: ZAP_VERSION
   - name: dcp_mappluto_wi
+    version: 25v1.1
   - name: dcp_boroboundaries
+    version: 25a
   - name: dcp_housing
+    version: 24Q4
   - name: dcp_zoningmapamendments
+    version: 20250331
   - name: doe_eszones
+    version: 20240313
   - name: doe_school_subdistricts
+    version: 2017
   - name: dcp_school_districts
+    version: 25a
   - name: dcp_ct2020_wi
+    version: 25a
   - name: dcp_nta2020
+    version: 25a
   - name: dcp_cdta2020
+    version: 25a
   - name: dcp_cdboundaries_wi
+    version: 25a
