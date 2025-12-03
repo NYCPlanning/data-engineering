@@ -13,7 +13,7 @@ class LocalStorageResource(ConfigurableResource):
             base = Path(dagster_home) / "storage"
         else:
             base = Path(self.base_path)
-        
+
         path = base / Path(*parts)
         path.mkdir(parents=True, exist_ok=True)
         return path
