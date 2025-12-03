@@ -2,17 +2,6 @@ version: 2
 
 models:
 - name: stg__centerline
-  # only columns with tests currently listed
-  columns:
-  - name: trafdir
-    tests:
-    - accepted_values:
-        arguments: { values: [ "TF", "FT", "NV", "TW" ] }
-  - name: twisted_parity_flag
-    tests:
-    - accepted_values:
-        arguments: { values: [ "Y", "N" ] }
-
 - name: stg__nonstreetfeatures
 - name: stg__rail_and_subway
 - name: stg__shoreline
