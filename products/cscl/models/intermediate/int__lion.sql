@@ -74,22 +74,25 @@ SELECT
     END AS boe_lgc_pointer,
     nodes.from_sectionalmap,
     nodes.from_nodeid,
-    nodes.from_x,
-    nodes.from_y,
+    round(nodes.from_x)::INT AS from_x,
+    round(nodes.from_y)::INT AS from_y,
     nodes.to_sectionalmap,
     nodes.to_nodeid,
-    nodes.to_x,
-    nodes.to_y,
+    round(nodes.to_x)::INT AS to_x,
+    round(nodes.to_y)::INT AS to_y,
     ap_left.left_2000_census_tract_basic,
     ap_left.left_2000_census_tract_suffix,
     ap_left.left_atomicid,
+    right(ap_left.left_atomicid, 3) AS left_dynamic_block,
     CASE
         WHEN segments.source_table = 'centerline' THEN centerline.l_low_hn
         WHEN segments.source_table = 'altsegmentdata' THEN proto.l_low_hn
+        ELSE '0'
     END AS l_low_hn,
     CASE
         WHEN segments.source_table = 'centerline' THEN centerline.l_high_hn
         WHEN segments.source_table = 'altsegmentdata' THEN proto.l_high_hn
+        ELSE '0'
     END AS l_high_hn,
     CASE
         WHEN segment_locational_status.borough_boundary_indicator = 'L' THEN NULL
@@ -110,13 +113,16 @@ SELECT
     ap_right.right_2000_census_tract_basic,
     ap_right.right_2000_census_tract_suffix,
     ap_right.right_atomicid,
+    right(ap_right.right_atomicid, 3) AS right_dynamic_block,
     CASE
         WHEN segments.source_table = 'centerline' THEN centerline.r_low_hn
         WHEN segments.source_table = 'altsegmentdata' THEN proto.r_low_hn
+        ELSE '0'
     END AS r_low_hn,
     CASE
         WHEN segments.source_table = 'centerline' THEN centerline.r_high_hn
         WHEN segments.source_table = 'altsegmentdata' THEN proto.r_high_hn
+        ELSE '0'
     END AS r_high_hn,
     CASE
         WHEN segment_locational_status.borough_boundary_indicator = 'R' THEN NULL
@@ -135,7 +141,7 @@ SELECT
     ap_right.right_election_district,
     ap_right.right_school_district,
     sedat.split_election_district_flag,
-    (ARRAY['L', 'R'])[centerline.sandist_ind::INT] AS sandist_ind,
+    centerline.sandist_ind,
     CASE
         WHEN (
             segments.source_table = 'altsegmentdata'
@@ -203,11 +209,7 @@ SELECT
     centerline.status,
     centerline.streetwidth_min,
     centerline.streetwidth_irr,
-    CASE
-        WHEN centerline.bike_lane = '10' THEN 'A'
-        WHEN centerline.bike_lane = '11' THEN 'B'
-        ELSE centerline.bike_lane
-    END AS bike_lane,
+    centerline.bike_lane_1,
     centerline.fcc,
     rail.right_of_way_type,
     ap_left.left_2010_census_tract_basic,
@@ -229,14 +231,14 @@ SELECT
     ap_right.right_2010_census_block_basic,
     ap_right.right_2010_census_block_suffix,
     primary_centerline.snow_priority,
-    centerline.bike_lane AS bike_lane_2,
+    centerline.bike_lane_2,
     centerline.streetwidth_max,
     centerline.l_blockfaceid,
     centerline.r_blockfaceid,
     primary_centerline.number_travel_lanes,
     primary_centerline.number_park_lanes,
     primary_centerline.number_total_lanes,
-    primary_centerline.bike_trafdir AS bike_traffic_direction,
+    primary_centerline.bike_traffic_direction,
     primary_centerline.posted_speed,
     nypd_service_areas.left_nypd_service_area,
     nypd_service_areas.right_nypd_service_area,

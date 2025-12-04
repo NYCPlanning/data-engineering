@@ -7,7 +7,7 @@ models:
     contract:
       enforced: true
   columns:
-  - name: '"Borough"'
+  - name: boroughcode
     data_type: string
     tests:
     - not_null
@@ -15,209 +15,209 @@ models:
     # - accepted_values:
     #     # this enforces length as well
     #     values: [ "1", "2", "3", "4", "5" ]
-  - name: '"Face Code"'
+  - name: face_code
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"Sequence Number"'
+  - name: segment_seqnum
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
-  - name: '"Segment ID"'
+  - name: segmentid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"5-Digit Street Code (5SC)"'
+  - name: five_digit_street_code
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
-  - name: '"LGC1"'
+  - name: lgc1
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC2"'
+  - name: lgc2
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC3"'
+  - name: lgc3
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC4"'
+  - name: lgc4
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Board of Elections LGC Pointer"'
+  - name: boe_lgc_pointer
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"From-Sectional Map"'
+  - name: from_sectionalmap
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"From-Node ID"'
+  - name: from_nodeid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"From-X Coordinate"'
+  - name: from_x
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"From-Y Coordinate"'
+  - name: from_y
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"To-Sectional Map"'
+  - name: to_sectionalmap
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"To-Node ID"'
+  - name: to_nodeid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"To-X Coordinate"'
+  - name: to_x
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"To-Y Coordinate"'
+  - name: to_y
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Left 2000 Census Tract Basic"'
+  - name: left_2000_census_tract_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"Left 2000 Census Tract Suffix"'
+  - name: left_2000_census_tract_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Left Dynamic Block"'
+  - name: left_dynamic_block
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"Left Low House Number"'
+  - name: l_low_hn
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Left High House Number"'
+  - name: l_high_hn
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Left Dept of Sanitation Subsection"'
+  - name: lsubsect
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Left Zip Code"'
+  - name: l_zip
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
-  - name: '"Left Assembly District"'
+  - name: left_assembly_district
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Left Election District"'
+  - name: left_election_district
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"Left School District"'
+  - name: left_school_district
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Right 2000 Census Tract Basic"'
+  - name: right_2000_census_tract_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"Right 2000 Census Tract Suffix"'
+  - name: right_2000_census_tract_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Right Dynamic Block"'
+  - name: right_dynamic_block
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"Right Low House Number"'
+  - name: r_low_hn
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Right High House Number"'
+  - name: r_high_hn
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Right Dept of Sanitation Subsection"'
+  - name: rsubsect
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Right Zip Code"'
+  - name: r_zip
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
-  - name: '"Right Assembly District"'
+  - name: right_assembly_district
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Right Election District"'
+  - name: right_election_district
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"Right School District"'
+  - name: right_school_district
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Split Election District Flag"'
+  - name: split_election_district_flag
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Filler (formerly Split Community School District Flag)"'
+  - name: filler_l38
     data_type: string
     tests:
     - not_null
     - accepted_values:
         arguments:
           values: [ " " ]
-  - name: '"Sanitation District Boundary Indicator"'
+  - name: sandist_ind
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Traffic Direction"'
+  - name: traffic_direction
     data_type: string
     tests:
     - not_null
@@ -225,7 +225,7 @@ models:
         arguments:
           # this enforces length as well
           values: [ " ", "W", "A", "P", "T" ]
-  - name: '"Segment Locational Status"'
+  - name: segment_locational_status
     data_type: string
     tests:
     - not_null
@@ -233,7 +233,7 @@ models:
         arguments:
           # this enforces length as well
           values: [ " ", "9", "H", "I", "1", "2", "3", "4", "5", "X" ]
-  - name: '"Feature Type Code"'
+  - name: feature_type_code
     data_type: string
     tests:
     - not_null
@@ -241,63 +241,63 @@ models:
         arguments:
           # this enforces length as well
           values: [ " ", "1", "2", "3", "5", "6", "7", "8", "9", "A", "W", "F", "C" ]
-  - name: '"Non-Pedestrian Flag"'
+  - name: nonped
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Continuous Parity Indicator"'
+  - name: continuous_parity_flag
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Filler (formerly the Near BQ-Boundary Flag)"'
+  - name: filler_l45
     data_type: string
     tests:
     - not_null
     - accepted_values:
         arguments:
           values: [ " " ]
-  - name: '"Borough Boundary Indicator"'
+  - name: borough_boundary_indicator
     data_type: string
     tests:
     - not_null
     - accepted_values:
         arguments:
           values: [ " ", "R", "L" ]
-  - name: '"Twisted Parity Flag"'
+  - name: twisted_parity_flag
     data_type: string
     tests:
     - not_null
     - accepted_values:
         arguments:
           values: [ " ", "T" ]
-  - name: '"Special Address Flag"'
+  - name: special_address_flag
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Curve Flag"'
+  - name: curve_flag
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Center of Curvature X-Coordinate"'
+  - name: center_of_curvature_x
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Center of Curvature Y-Coordinate"'
+  - name: center_of_curvature_y
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Segment Length in Feet"'
+  - name: segment_length_ft
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
-  - name: '"From Level Code"'
+  - name: from_level_code
     data_type: string
     tests:
     - not_null
@@ -334,7 +334,7 @@ models:
               "*",
               $
             ]
-  - name: '"To Level Code"'
+  - name: to_level_code
     data_type: string
     tests:
     - not_null
@@ -371,292 +371,292 @@ models:
               "*",
               $
             ]
-  - name: '"Traffic Direction Verification Flag"'
+  - name: trafdir_ver_flag
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Segment Type Code"'
+  - name: segment_type
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Coincident Segment Counter"'
+  - name: coincident_seg_count
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Include/Exclude Flag"'
+  - name: incex_flag
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Roadway Type"'
+  - name: rw_type
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"PHYSICALID"'
+  - name: physicalid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"GENERICID"'
+  - name: genericid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"NYPDID"'
+  - name: nypdid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"FDNYID"'
+  - name: fdnyid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Filler (formerly Left BLOCKFACEID)"'
+  - name: filler_l64
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"Filler (formerly Right BLOCKFACEID)"'
+  - name: filler_l65
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"STATUS"'
+  - name: status
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"STREETWIDTH_MIN"'
+  - name: streetwidth_min
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"STREETWIDTH_IRR"'
+  - name: streetwidth_irr
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"BIKELANE_1"'
+  - name: bike_lane_1
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"FCC"'
+  - name: fcc
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Right of Way Type"'
+  - name: right_of_way_type
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Left 2010 Census Tract Basic"'
+  - name: left_2010_census_tract_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"Left 2010 Census Tract Suffix"'
+  - name: left_2010_census_tract_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Right 2010 Census Tract Basic"'
+  - name: right_2010_census_tract_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"Right 2010 Census Tract Suffix"'
+  - name: right_2010_census_tract_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC5"'
+  - name: lgc5
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC6"'
+  - name: lgc6
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC7"'
+  - name: lgc7
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC8"'
+  - name: lgc8
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LGC9"'
+  - name: lgc9
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Legacy SEGMENTID"'
+  - name: legacy_segmentid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
-  - name: '"LEFT CENSUS BLOCK 2000 BASIC"'
+  - name: left_2000_census_block_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"LEFT CENSUS BLOCK 2000 SUFFIX"'
+  - name: left_2000_census_block_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"RIGHT CENSUS BLOCK 2000 BASIC"'
+  - name: right_2000_census_block_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"RIGHT CENSUS BLOCK 2000 SUFFIX"'
+  - name: right_2000_census_block_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"LEFT CENSUS BLOCK 2010 BASIC"'
+  - name: left_2010_census_block_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"LEFT CENSUS BLOCK 2010 SUFFIX"'
+  - name: left_2010_census_block_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"RIGHT CENSUS BLOCK 2010 BASIC"'
+  - name: right_2010_census_block_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"RIGHT CENSUS BLOCK 2010 SUFFIX"'
+  - name: right_2010_census_block_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"SNOW PRIORITY"'
+  - name: snow_priority
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"BIKELANE_2"'
+  - name: bike_lane_2
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"STREET WIDTH MAX"'
+  - name: streetwidth_max
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"Filler L89"'
+  - name: filler_l89
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
-  - name: '"Left BLOCKFACEID"'
+  - name: l_blockfaceid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 10 }
-  - name: '"Right BLOCKFACEID"'
+  - name: r_blockfaceid
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 10 }
-  - name: '"NUMBER TRAVEL LANES"'
+  - name: number_travel_lanes
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"NUMBER PARK LANES"'
+  - name: number_park_lanes
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"NUMBER TOTAL LANES"'
+  - name: number_total_lanes
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"BIKE TRAFFIC DIR"'
+  - name: bike_traffic_direction
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"POSTED SPEED"'
+  - name: posted_speed
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"Left NYPD Service Area"'
+  - name: left_nypd_service_area
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Right NYPD Service Area"'
+  - name: right_nypd_service_area
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Truck Route Type"'
+  - name: truck_route_type
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"LEFT 2020 CENSUS TRACT Basic"'
+  - name: left_2020_census_tract_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"LEFT 2020 CENSUS TRACT Suffix"'
+  - name: left_2020_census_tract_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"RIGHT 2020 CENSUS TRACT Basic"'
+  - name: right_2020_census_tract_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"RIGHT 2020 CENSUS TRACT Suffix"'
+  - name: right_2020_census_tract_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
-  - name: '"LEFT CENSUS BLOCK 2020 BASIC"'
+  - name: left_2020_census_block_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"LEFT CENSUS BLOCK 2020 SUFFIX"'
+  - name: left_2020_census_block_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"RIGHT CENSUS BLOCK 2020 BASIC"'
+  - name: right_2020_census_block_basic
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
-  - name: '"RIGHT CENSUS BLOCK 2020 SUFFIX"'
+  - name: right_2020_census_block_suffix
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
-  - name: '"Filler L199"'
+  - name: filler_l199
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

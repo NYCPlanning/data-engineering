@@ -38,12 +38,12 @@ primary_segments AS (
                 NULL AS boroughcode,
             {% endif -%}
             {% if source_layer == 'stg__shoreline' -%} 
-                NULL AS legacy_segmentid,
+                NULL::INT AS legacy_segmentid,
                 NULL AS from_level_code,
                 NULL AS to_level_code,
                 source.segment_seqnum,
             {% elif source_layer == 'stg__nonstreetfeatures' -%}
-                source.legacy_segmentid,
+                source.legacy_segmentid::INT,
                 NULL AS from_level_code,
                 NULL AS to_level_code,
                 seqnum.segment_seqnum,

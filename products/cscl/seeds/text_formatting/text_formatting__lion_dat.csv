@@ -1,0 +1,115 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+L1,boroughcode,Borough,1,1,1,RFSF,FALSE
+L2,face_code,Face Code,4,2,5,RJZF,FALSE
+L3,segment_seqnum,Sequence Number,5,6,10,RJZF,FALSE
+L4,segmentid,Segment ID,7,11,17,RJZF,FALSE
+L5,five_digit_street_code,5-Digit Street Code (5SC),5,18,22,RJZF,FALSE
+L6,lgc1,LGC1,2,23,24,RJZF,FALSE
+L7,lgc2,LGC2,2,25,26,RJZF,TRUE
+L8,lgc3,LGC3,2,27,28,RJZF,TRUE
+L9,lgc4,LGC4,2,29,30,RJZF,TRUE
+L10,boe_lgc_pointer,Board of Elections LGC Pointer,1,31,31,RJSF,TRUE
+L11,from_sectionalmap,From-Sectional Map,2,32,33,RJZF,FALSE
+L12,from_nodeid,From-Node ID,7,34,40,RJZF,FALSE
+L13,from_x,From-X Coordinate,7,41,47,RJZF,FALSE
+L14,from_y,From-Y Coordinate,7,48,54,RJZF,FALSE
+L15,to_sectionalmap,To-Sectional Map,2,55,56,RJZF,FALSE
+L16,to_nodeid,To-Node ID,7,57,63,RJZF,FALSE
+L17,to_x,To-X Coordinate,7,64,70,RJZF,FALSE
+L18,to_y,To-Y Coordinate,7,71,77,RJZF,FALSE
+L19,left_2000_census_tract_basic,Left 2000 Census Tract Basic,4,78,81,RJSF,FALSE
+L19_1,left_2000_census_tract_suffix,Left 2000 Census Tract Suffix,2,82,83,RJZF,TRUE
+L20,left_dynamic_block,Left Dynamic Block,3,84,86,RJSF,FALSE
+L21,l_low_hn,Left Low House Number,7,87,93,RJSF,FALSE
+L22,l_high_hn,Left High House Number,7,94,100,RJSF,FALSE
+L23,lsubsect,Left Dept of Sanitation Subsection,2,101,102,RJZF,TRUE
+L24,l_zip,Left Zip Code,5,103,107,RJZF,TRUE
+L25,left_assembly_district,Left Assembly District,2,108,109,RJZF,TRUE
+L26,left_election_district,Left Election District,3,110,112,RJZF,TRUE
+L27,left_school_district,Left School District,2,113,114,RJZF,TRUE
+L28,right_2000_census_tract_basic,Right 2000 Census Tract Basic,4,115,118,RJSF,FALSE
+L28_1,right_2000_census_tract_suffix,Right 2000 Census Tract Suffix,2,119,120,RJZF,TRUE
+L29,right_dynamic_block,Right Dynamic Block,3,121,123,RJSF,FALSE
+L30,r_low_hn,Right Low House Number,7,124,130,RJSF,FALSE
+L31,r_high_hn,Right High House Number,7,131,137,RJSF,FALSE
+L32,rsubsect,Right Dept of Sanitation Subsection,2,138,139,RJZF,TRUE
+L33,r_zip,Right Zip Code,5,140,144,RJZF,TRUE
+L34,right_assembly_district,Right Assembly District,2,145,146,RJZF,TRUE
+L35,right_election_district,Right Election District,3,147,149,RJZF,TRUE
+L36,right_school_district,Right School District,2,150,151,RJZF,TRUE
+L37,split_election_district_flag,Split Election District Flag,1,152,152,RJSF,FALSE
+L38,filler_l38,Filler (formerly Split Community School District Flag),1,153,153,RJSF,FALSE
+L39,sandist_ind,Sanitation District Boundary Indicator,1,154,154,RJSF,FALSE
+L40,traffic_direction,Traffic Direction,1,155,155,RJSF,FALSE
+L41,segment_locational_status,Segment Locational Status,1,156,156,RJSF,FALSE
+L42,feature_type_code,Feature Type Code,1,157,157,RJSF,FALSE
+L43,nonped,Non-Pedestrian Flag,1,158,158,RJSF,FALSE
+L44,continuous_parity_flag,Continuous Parity Indicator,1,159,159,RJSF,FALSE
+L45,filler_l45,Filler (formerly the Near BQ-Boundary Flag),1,160,160,RJSF,FALSE
+L46,borough_boundary_indicator,Borough Boundary Indicator,1,161,161,RJSF,FALSE
+L47,twisted_parity_flag,Twisted Parity Flag,1,162,162,RJSF,FALSE
+L48,special_address_flag,Special Address Flag,1,163,163,RJSF,FALSE
+L49,curve_flag,Curve Flag,1,164,164,RJSF,FALSE
+L50,center_of_curvature_x,Center of Curvature X-Coordinate,7,165,171,RJZF,FALSE
+L51,center_of_curvature_y,Center of Curvature Y-Coordinate,7,172,178,RJZF,FALSE
+L52,segment_length_ft,Segment Length in Feet,5,179,183,RJZF,FALSE
+L53,from_level_code,From Level Code,1,184,184,RJSF,FALSE
+L54,to_level_code,To Level Code,1,185,185,RJSF,FALSE
+L55,trafdir_ver_flag,Traffic Direction Verification Flag,1,186,186,RJSF,FALSE
+L56,segment_type,Segment Type Code,1,187,187,RJSF,FALSE
+L57,coincident_seg_count,Coincident Segment Counter,1,188,188,RJSF,FALSE
+L58,incex_flag,Include/Exclude Flag,1,189,189,RJSF,FALSE
+L59,rw_type,Roadway Type,2,190,191,RJSF,FALSE
+L60,physicalid,PHYSICALID,7,192,198,RJZF,TRUE
+L61,genericid,GENERICID,7,199,205,RJZF,TRUE
+L62,nypdid,NYPDID,7,206,212,RJZF,TRUE
+L63,fdnyid,FDNYID,7,213,219,RJZF,TRUE
+L64,filler_l64,Filler (formerly Left BLOCKFACEID),7,220,226,RJSF,FALSE
+L65,filler_l65,Filler (formerly Right BLOCKFACEID),7,227,233,RJSF,FALSE
+L66,status,STATUS,1,234,234,RJSF,FALSE
+L67,streetwidth_min,STREETWIDTH_MIN,3,235,237,RJSF,FALSE
+L68,streetwidth_irr,STREETWIDTH_IRR,1,238,238,RJSF,FALSE
+L69_1,bike_lane_1,BIKELANE_1,1,239,239,RJSF,FALSE
+L70,fcc,FCC,2,240,241,RJSF,FALSE
+L71,right_of_way_type,Right of Way Type,1,242,242,RJSF,FALSE
+L72,left_2010_census_tract_basic,Left 2010 Census Tract Basic,4,243,246,RJSF,FALSE
+L72,left_2010_census_tract_suffix,Left 2010 Census Tract Suffix,2,247,248,RJZF,TRUE
+L73,right_2010_census_tract_basic,Right 2010 Census Tract Basic,4,249,252,RJSF,FALSE
+L73,right_2010_census_tract_suffix,Right 2010 Census Tract Suffix,2,253,254,RJZF,TRUE
+L74,lgc5,LGC5,2,255,256,RJZF,TRUE
+L75,lgc6,LGC6,2,257,258,RJZF,TRUE
+L76,lgc7,LGC7,2,259,260,RJZF,TRUE
+L77,lgc8,LGC8,2,261,262,RJZF,TRUE
+L78,lgc9,LGC9,2,263,264,RJZF,TRUE
+L79,legacy_segmentid,Legacy SEGMENTID,7,265,271,RJZF,TRUE
+L80,left_2000_census_block_basic,LEFT CENSUS BLOCK 2000 BASIC,4,272,275,RJSF,FALSE
+L81,left_2000_census_block_suffix,LEFT CENSUS BLOCK 2000 SUFFIX,1,276,276,RJSF,FALSE
+L82,right_2000_census_block_basic,RIGHT CENSUS BLOCK 2000 BASIC,4,277,280,RJSF,FALSE
+L83,right_2000_census_block_suffix,RIGHT CENSUS BLOCK 2000 SUFFIX,1,281,281,RJSF,FALSE
+L84,left_2010_census_block_basic,LEFT CENSUS BLOCK 2010 BASIC,4,282,285,RJSF,FALSE
+L85,left_2010_census_block_suffix,LEFT CENSUS BLOCK 2010 SUFFIX,1,286,286,RJSF,FALSE
+L86,right_2010_census_block_basic,RIGHT CENSUS BLOCK 2010 BASIC,4,287,290,RJSF,FALSE
+L87,right_2010_census_block_suffix,RIGHT CENSUS BLOCK 2010 SUFFIX,1,291,291,RJSF,FALSE
+L88,snow_priority,SNOW PRIORITY,1,292,292,RJSF,FALSE
+L69_2,bike_lane_2,BIKELANE_2,2,293,294,RJSF,FALSE
+L67_2,streetwidth_max,STREET WIDTH MAX,3,295,297,RJSF,FALSE
+L89,filler_l89,Filler L89,3,298,300,RJSF,FALSE
+L90,l_blockfaceid,Left BLOCKFACEID,10,301,310,RJZF,TRUE
+L91,r_blockfaceid,Right BLOCKFACEID,10,311,320,RJZF,TRUE
+L92,number_travel_lanes,NUMBER TRAVEL LANES,2,321,322,RJSF,FALSE
+L93,number_park_lanes,NUMBER PARK LANES,2,323,324,RJSF,FALSE
+L94,number_total_lanes,NUMBER TOTAL LANES,2,325,326,RJSF,FALSE
+L95,bike_traffic_direction,BIKE TRAFFIC DIR,2,327,328,RJSF,FALSE
+L96,posted_speed,POSTED SPEED,2,329,330,RJSF,FALSE
+L97,left_nypd_service_area,Left NYPD Service Area,1,331,331,RJSF,FALSE
+L98,right_nypd_service_area,Right NYPD Service Area,1,332,332,RJSF,FALSE
+L99,truck_route_type,Truck Route Type,1,333,333,RJSF,FALSE
+L100,left_2020_census_tract_basic,LEFT 2020 CENSUS TRACT Basic,4,334,337,RJSF,FALSE
+L100,left_2020_census_tract_suffix,LEFT 2020 CENSUS TRACT Suffix,2,338,339,RJZF,TRUE
+L101,right_2020_census_tract_basic,RIGHT 2020 CENSUS TRACT Basic,4,340,343,RJSF,FALSE
+L101,right_2020_census_tract_suffix,RIGHT 2020 CENSUS TRACT Suffix,2,344,345,RJZF,TRUE
+L102,left_2020_census_block_basic,LEFT CENSUS BLOCK 2020 BASIC,4,346,349,RJSF,FALSE
+L103,left_2020_census_block_suffix,LEFT CENSUS BLOCK 2020 SUFFIX,1,350,350,RJSF,FALSE
+L104,right_2020_census_block_basic,RIGHT CENSUS BLOCK 2020 BASIC,4,351,354,RJSF,FALSE
+L105,right_2020_census_block_suffix,RIGHT CENSUS BLOCK 2020 SUFFIX,1,355,355,RJSF,FALSE
+L199,filler_l199,Filler L199,45,356,400,RJSF,FALSE
