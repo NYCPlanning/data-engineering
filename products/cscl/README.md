@@ -42,7 +42,7 @@ With the concept of a "key" in the data, we can make actual comparisons between 
 
 1. Downloading production outputs from sharepoint into a folder named `prod`
 2. Loading this data into the database. This is done through `poc_validation/dat_loader.py`. This file
-   - reads in `seeds/lion_dat_formatting.csv`, which has the formatting rules for all the lion .dat columns
+   - reads in `seeds/text_formatting/text_formatting__lion_dat.csv`, which has the formatting rules for all the lion .dat columns
    - uses that to "slice" up the formatted text in the `prod` output files to convert the text into columns in a pandas dataframe
    - loads this dataframe into the database
 3. Running the pipeline at least through a full dbt build.

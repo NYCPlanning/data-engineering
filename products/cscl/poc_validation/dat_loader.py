@@ -11,7 +11,7 @@ import typer
 
 from dcpy.utils import postgres
 
-DAT_FORMATTING_FILE = Path("seeds/lion_dat_formatting.csv")
+DAT_FORMATTING_FILE = Path("seeds/text_formatting/text_formatting__lion_dat.csv")
 
 
 def parse_dat(dat_file: Path, max_records: int | None = None) -> pd.DataFrame:
