@@ -24,10 +24,10 @@ SELECT -- noqa: LT09
 FROM lion_dat_fields AS dev
 FULL JOIN production_lion AS prod --noqa: ST11
     ON
-        dev."Borough" = prod."Borough"
-        AND dev."Face Code" = prod."Face Code"
-        --AND dev."Sequence Number" = prod."Sequence Number" -- commented out while nonstreetfeatures do not have these generated
-        AND dev."Segment ID" = prod."Segment ID"
+        dev.boroughcode = prod.boroughcode
+        AND dev.face_code = prod.face_code
+        --AND dev.segment_seqnum = prod.segment_seqnum -- commented out while nonstreetfeatures do not have these generated
+        AND dev.segmentid = prod.segmentid
 WHERE
     FALSE
 {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
@@ -35,4 +35,4 @@ WHERE
     (dev."{{ col.column }}" IS DISTINCT FROM prod."{{ col.column }}") OR
     {%- if loop.last %} FALSE{% endif %}
 {%- endfor %}
-ORDER BY dev."Borough", dev."Face Code", dev."Sequence Number"
+ORDER BY dev.boroughcode, dev.face_code, dev.segment_seqnum

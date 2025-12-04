@@ -25,7 +25,7 @@ def parse_dat(dat_file: Path, max_records: int | None = None) -> pd.DataFrame:
                 break
             record = {}
             for j, field in formatting.iterrows():
-                label = field["field_label"]
+                label = field["field_name"]
                 start_index = field["start_index"] - 1
                 end_index = field["end_index"]
                 record[label] = row[start_index:end_index]
