@@ -53,6 +53,7 @@ exports:
   output_folder: output
   zip_name: output
   datasets:
+  # GeoSupport LION
   - name: manhattan_lion_dat
     filename: ManhattanLION.dat
     format: dat
@@ -74,6 +75,7 @@ exports:
     format: dat
     custom: { formatting: lion_dat }
 
+  # SAF
   - name: saf_abcegnpx_generic
     filename: GenericABCEGNPX.txt
     format: dat
@@ -82,7 +84,16 @@ exports:
     filename: RoadbedABCEGNPX.txt
     format: dat
     custom: { formatting: saf_a }
+  - name: saf_d_generic
+    filename: GenericD.txt
+    format: dat
+    custom: { formatting: saf_d }
+  - name: saf_d_roadbed
+    filename: RoadbedD.txt
+    format: dat
+    custom: { formatting: saf_d }
 
+  # SEDAT
   - name: sedat
     filename: SEDAT.txt
     format: dat
