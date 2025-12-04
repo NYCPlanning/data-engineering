@@ -1,0 +1,19 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+SAFD1,place_name,Special Address Street Name,32,1,32,LJSF,FALSE
+SAFD2,boroughcode,Borough,1,33,33,RJZF,FALSE
+SAFD3,face_code,Face Code,4,34,37,RJZF,FALSE
+SAFD4,segment_seqnum,Sequence Number,5,38,42,RJZF,FALSE
+SAFD5,sos_indicator,SOS Indicator,1,43,43,RJSF,FALSE
+SAFD6,daps_b5sc,DAPS B5SC,6,44,49,RJSF,FALSE
+SAFD7,low_hn,Low HN,7,50,56,RJSF,FALSE
+,filler_safd7,Filler,2,57,58,RJSF,FALSE
+SAFD8,high_hn,High HN,7,59,65,RJSF,FALSE
+,filler_safd8,Filler,2,66,67,RJSF,FALSE
+SAFD9,regular_b5sc,Regular B5SC,6,68,73,RJSF,FALSE
+,filler_safd9,Filler,12,74,85,RJSF,FALSE
+SAFD10,saftype,SAF Record Type Code,1,86,86,RJSF,FALSE
+SAFD11,zipcode,Zip Code,5,87,91,RJZF,FALSE
+SAFD12,daps_type,DAPS Type,1,92,92,RJSF,FALSE
+,filler_safa12,Filler,5,93,97,RJSF,FALSE
+SAFD13,segment_type,Segment Type Code,1,98,98,RJSF,FALSE
+SAFD14,segmentid,Segment ID,7,99,105,RJZF,FALSE
