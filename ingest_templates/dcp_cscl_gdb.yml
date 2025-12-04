@@ -81,6 +81,12 @@ datasets:
   file_format:
     layer: Rail
 
+- id: dcp_cscl_roadbed_pointer_list
+  attributes:
+    name: CSCL Roadbed Pointer List
+  file_format:
+    layer: ROADBEDPOINTERLIST
+
 - id: dcp_cscl_sectionalmap
   attributes:
     name: CSCL Sectional Map
