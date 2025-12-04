@@ -1,3 +1,31 @@
-SELECT *
+SELECT
+    lionkey,
+    borough,
+    SUBSTRING(lionkey, 2, 4) AS face_code,
+    SUBSTRING(lionkey, 6, 5) AS segment_seqnum,
+    segmentid,
+    saftype,
+    l_low_hn,
+    l_high_hn,
+    r_low_hn,
+    r_high_hn,
+    low_hn_suffix,
+    high_hn_suffix,
+    lgc1,
+    lgc2,
+    lgc3,
+    lgc4,
+    zipcode,
+    boe_preferred_lgc_flag,
+    b5sc,
+    sosindicator,
+    alt_segdata_type,
+    lgc5,
+    lgc6,
+    lgc7,
+    lgc8,
+    lgc9,
+    globalid,
+    ogc_fid
 FROM {{ source("recipe_sources", "dcp_cscl_altsegmentdata") }}
-WHERE alt_segdata_type = 'S' -- S denotes an SAF record
+WHERE alt_segdata_type = 'S'
