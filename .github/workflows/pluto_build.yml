@@ -83,17 +83,8 @@ jobs:
       run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file
         }}.lock.yml
 
-    - name: Load Local Data
-      run: ./01_load_local_csvs.sh
-
-    - name: building ...
+    - name: Build
       run: ./02_build.sh
-
-    - name: apply corrections
-      run: ./03_corrections.sh
-
-    - name: Archive
-      run: ./04_archive.sh
 
     - name: QAQC
       run: ./05_qaqc.sh
