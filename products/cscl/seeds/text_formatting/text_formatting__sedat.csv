@@ -1,0 +1,12 @@
+field_number,field_name,field_length,start_index,end_index,justify_and_fill,blank_if_none
+L1,lionkey,10,1,10,RJSF,FALSE
+L2,parity,1,11,11,RJSF,FALSE
+L3,street_name,32,12,43,LJSF,FALSE
+L4,side_of_street,1,44,44,RJSF,FALSE
+L5,lowaddress,7,45,51,RJSF,FALSE
+L6,low_addr_suffix,8,52,59,LJSF,FALSE
+L7,highaddress,7,60,66,RJSF,FALSE
+L8,high_addr_suffix,8,67,74,LJSF,FALSE
+L9,election_district,3,75,77,RJZF,FALSE
+L10,assembly_district,2,78,79,RJZF,FALSE
+L11,b7sc,8,80,87,RJSF,FALSE

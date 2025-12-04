@@ -1,14 +1,4 @@
 SELECT
-    FORMAT_LION_TEXT(lionkey, 10, ' ') AS lionkey,
-    COALESCE(parity, ' ') AS parity,
-    FORMAT_LION_TEXT(street_name, 32, ' ', FALSE, TRUE) AS street_name,
-    COALESCE(side_of_street, ' ') AS side_of_street,
-    FORMAT_LION_TEXT(lowaddress, 7, ' ') AS lowaddress,
-    FORMAT_LION_TEXT(low_addr_suffix, 8, ' ', FALSE, TRUE) AS low_addr_suffix,
-    FORMAT_LION_TEXT(highaddress, 7, ' ') AS highaddress,
-    FORMAT_LION_TEXT(high_addr_suffix, 8, ' ', FALSE, TRUE) AS high_addr_suffix,
-    FORMAT_LION_TEXT(election_district, 3, '0') AS election_district,
-    FORMAT_LION_TEXT(assembly_district, 2, '0') AS assembly_district,
-    FORMAT_LION_TEXT(b7sc, 8, ' ') AS b7sc
+    {{ apply_text_formatting_from_seed('text_formatting__sedat') }}
 FROM {{ ref("int__special_sedat") }}
 WHERE street_name IS NOT NULL
