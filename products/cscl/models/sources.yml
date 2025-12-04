@@ -21,6 +21,7 @@ sources:
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
   - name: dcp_cscl_featurename
   - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_roadbed_pointer_list
   - name: dcp_cscl_sectionalmap
   - name: dcp_cscl_sedat
   - name: dcp_cscl_segment_lgc
