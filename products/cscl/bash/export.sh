@@ -28,8 +28,8 @@ mkdir -p output
     wait
 
     echo "Export SEDAT and SpecialSEDAT"
-    dat_export sedat SEDAT_RECORD &
-    dat_export sedat_special SPECIAL_SEDAT_RECORD &
+    dat_export export_sedat SEDAT &
+    dat_export export_sedat_special SpecialSEDAT &
     
     echo "Export source data versions and build metadata"
     cp ../source_data_versions.csv ./

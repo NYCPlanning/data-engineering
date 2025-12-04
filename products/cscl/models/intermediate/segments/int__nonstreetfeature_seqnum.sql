@@ -24,7 +24,7 @@ proto AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_proto') }}
 ),
 proto_facecode AS (
-    SELECT * FROM {{ ref('int__b7sc_codes') }}
+    SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
 ),
 other_segments AS (
     SELECT
@@ -59,7 +59,7 @@ all_nsf_segments AS (
         proto.segmentid,
         proto.ogc_fid,
         proto.borough AS boroughcode,
-        proto_facecode.feature_facecode AS face_code
+        proto_facecode.face_code
     FROM proto
     INNER JOIN proto_facecode ON proto.b7sc = proto_facecode.b7sc
 ),
