@@ -33,6 +33,8 @@ inputs:
     version_env_var: VERSION
   - name: dcp_cscl_nypdbeat
     version_env_var: VERSION
+  - name: dcp_cscl_roadbed_pointer_list
+    version_env_var: VERSION
   - name: dcp_cscl_sectionalmap
     version_env_var: VERSION
   - name: dcp_cscl_sedat
