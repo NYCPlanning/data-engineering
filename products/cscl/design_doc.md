@@ -313,6 +313,28 @@ All output categories (collection of SAF types) have their own fields and format
 |SAFA22_2|side_ct2020_suffix|Side CT2020 Suffix (GNX only) (XXXXYY)|2|125|126|RJZF|true|
 |SAFA23|side_ap|Side AP (GNX only)|3|127|129|RJZF|true|
 
+`SAFD` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFD1|place_name|Special Address Street Name|32|1|32|LJSF|false|
+|SAFD2|boroughcode|Borough|1|33|33|RJZF|false|
+|SAFD3|face_code|Face Code|4|34|37|RJZF|false|
+|SAFD4|segment_seqnum|Sequence Number|5|38|42|RJZF|false|
+|SAFD5|sos_indicator|SOS Indicator|1|43|43|RJSF|false|
+|SAFD6|daps_b5sc|DAPS B5SC|6|44|49|RJSF|false|
+|SAFD7|low_hn|Low HN|7|50|56|RJSF|false|
+||filler_safd7|Filler|2|57|58|RJSF|false|
+|SAFD8|high_hn|High HN|7|59|65|RJSF|false|
+||filler_safd8|Filler|2|66|67|RJSF|false|
+|SAFD9|regular_b5sc|Regular B5SC|6|68|73|RJSF|false|
+||filler_safd9|Filler|12|74|85|RJSF|false|
+|SAFD10|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+|SAFD11|zipcode|Zip Code|5|87|91|RJZF|false|
+|SAFD12|daps_type|DAPS Type|1|92|92|RJSF|false|
+||filler_safa12|Filler|5|93|97|RJSF|false|
+|SAFD13|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFD14|segmentid|Segment ID|7|99|105|RJZF|false|
+
 ### Transformation
 
 #### Segment Lookup
@@ -340,7 +362,7 @@ Segment-associated saf records have logic applied to determine which output file
 
 | Output file | `segment_type` of associated segment |
 | - | - |
-| Generic |  B, E, G (except when INCEX_FLAG = ‘E’), U |
+| Generic |  B, E, G (except when INCEX_FLAG = 'E'), U |
 | Roadbed | E, R, S, U |
 
 #### "Sort Format"
@@ -391,7 +413,7 @@ Most fields are taken directly from the SAF (altsegmentdata) record itself or th
 
 | FIC | Field | Source of Data |
 | - | - | - |
-| SAFA1 | Special Address Street Name or Neighborhood Name or Addressable Place Name | Except for type C records, obtained from featurename table, in sort format.  For type C records, populate with the value ’75 STREET’. 
+| SAFA1 | Special Address Street Name or Neighborhood Name or Addressable Place Name | Except for type C records, obtained from featurename table, in sort format.  For type C records, populate with the value '75 STREET'. 
 | SAFA2 | Borough | AltSegmentData field `boroughcode` |
 | SAFA3 | Face Code | Obtained from bytes 2 through 5 of AltSegmentData `lionkey` field  |
 | SAFA4 | Sequence Number | Obtained from bytes 6 through 10 of AltSegmentData `lionkey` field |
@@ -452,7 +474,7 @@ Fields are determined as follows
 | SAFA13 | LGC2 of NAP | Null |
 | SAFA14 | LGC3 of NAP | Null |
 | SAFA15 | LGC4 of NAP | Null |
-| SAFA16 | Pointer to BOE Preferred LGC | ‘1’ |
+| SAFA16 | Pointer to BOE Preferred LGC | '1' |
 | SAFA17 | Segment Type Code | `segment_type` of associated segment |
 | SAFA18 | Segment ID | AltSegmentData field `segmentid` |
 | SAFA19 | X Coordinate of Place | X coordinate of CommonPlace point |
@@ -463,6 +485,34 @@ Fields are determined as follows
 
 Notes
 - if no street/feature name is found, an error should be issued
+
+#### D Records
+D records correspond to segments with [duplicate or overlapping address ranges on the same street](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterV/section06/).
+
+They are generated from all saf altsegmentdata records with saftype 'D' or 'F'.
+
+Starting from `int__saf_segments`, D records are joined to
+- altsegmentdata to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc
+- a seed lookup table, `saf_d_hardcoded_regular_b5sc` to lookup the regular b5sc that pertains to this segment [TODO - "daps" vs "regular" in common language]
+
+Most fields are taken directly from the SAF (altsegmentdata) record itself or the associated segment
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFD1 | Special Address Street Name | Obtained from StreetName table in sort format |
+| SAFD2 | Borough | AltSegmentData field `boroughcode` |
+| SAFD3 | Face Code | Obtained from bytes 2 through 5 of AltSegmentData `lionkey` field |
+| SAFD4 | Sequence Number | Obtained from bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFD5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R |
+| SAFD6 | DAPS B5SC | AltSegmentData field `b5sc` |
+| SAFD7 | Low HN | AltSegmentData field `l_low_hn` or `r_low_hn`, whichever is non-null/blank/zero |
+| SAFD8 | High HN | AltSegmentData field `l_high_hn` or `r_high_hn`, whichever is non-null/blank/zero |
+| SAFD9 | Regular B5SC | lookup table `regular_b5sc` |
+| SAFD10 | SAF Record Type Code | 'D' (even if the AltSegmentData field `saftype` = 'F') |
+| SAFD11 | Zip Code | AltSegmentData field `zipcode` |
+| SAFD12 | DAPS Type | 1 if AltSegmentData field `saftype` = 'F' |
+| SAFD13 | Segment Type Code | `segment_type` of associated segment |
+| SAFD14 | Segment ID | AltSegmentData field `segmentid` |
 
 # Infrastructure
 [stub]

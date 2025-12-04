@@ -44,4 +44,6 @@ sources:
   - name: citywide_lion
   - name: saf_abcegnpx_generic
   - name: saf_abcegnpx_roadbed
+  - name: saf_d_generic
+  - name: saf_d_roadbed
   - name: sedat

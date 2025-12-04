@@ -30,10 +30,13 @@ models:
 - name: saf_abcegnpx_roadbed_by_field
   columns: *safa_columns
 
+- name: saf_d_generic_by_field
+- name: saf_d_roadbed_by_field
+
 # models with one text column per row
 
 - name: saf_abcegnpx_generic
-  columns: &dat_column
+  columns: &dat_column_129
     - name: dat_column
       data_type: string
       tests:
@@ -41,4 +44,15 @@ models:
           arguments: { value: 129 }
 
 - name: saf_abcegnpx_roadbed
-  columns: *dat_column
+  columns: *dat_column_129
+
+- name: saf_d_generic
+  columns: &dat_column_105
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 105 }
+
+- name: saf_d_roadbed
+  columns: *dat_column_105
