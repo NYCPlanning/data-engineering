@@ -6,19 +6,18 @@ mkdir -p output
 
 cd output
 
+cp ../../source_data_versions.csv ./
+cp ../../build_metadata.json ./
+
 csv_export pluto_removed_records
 csv_export pluto_changes_not_applied
 csv_export pluto_changes_applied
 zip pluto_changes.zip *
 ls | grep -v pluto_changes.zip | xargs rm
 
-cp ../../source_data_versions.csv ./
-cp ../../build_metadata.json ./
-
 echo "${VERSION}" > version.txt
 
 echo "Exporting gdbs and shapefiles"
-
 # DEV section start: low disk space
 
 # mappluto.gdb
