@@ -7,7 +7,7 @@ on:
       dataset:
         description: "Name of the dataset (required)"
         required: true
-        default: dcp_mappluto
+        default: dcp_mappluto_wi
       latest:
         type: boolean
         description: "Tag this version as latest (optional)"
