@@ -4,7 +4,7 @@ from enum import StrEnum
 import pandas as pd
 from pathlib import Path
 from pydantic import AliasChoices, BaseModel, Field, model_serializer, model_validator
-from typing import Any, List, ClassVar
+from typing import Any, ClassVar, Literal
 from typing_extensions import Self
 
 from dcpy.utils import versions
@@ -61,8 +61,22 @@ class InputDatasetDefaults(BaseModel):
 
 class RecipeInputs(BaseModel):
     missing_versions_strategy: RecipeInputsVersionStrategy | None = None
-    datasets: List[InputDataset] = []
+    datasets: list[InputDataset] = []
     dataset_defaults: InputDatasetDefaults | None = None
+
+
+class ExportDataset(BaseModel, extra="forbid"):
+    name: str
+    filename: str | None = None
+    format: recipes.DatasetType | Literal["dat"]
+    source: InputDatasetDestination = InputDatasetDestination.postgres
+    custom: dict | None = None
+
+
+class BuildExports(BaseModel, extra="forbid"):
+    folder: str = "output"
+    zip: bool = False
+    datasets: list[ExportDataset] = []
 
 
 class StageConfigValue(BaseModel, extra="forbid"):
@@ -99,19 +113,20 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str | None = None
     vars: dict[str, str] | None = None
     inputs: RecipeInputs
+    exports: BuildExports | None = None
     stage_config: dict[str, StageConfig] = {}
 
-    def is_resolved(self):
+    def is_resolved(self) -> bool:
         return (
             self.version is not None
             and (
                 len(self.inputs.datasets) == 0
-                or len([x for x in self.inputs.datasets if not x.is_resolved()]) == 0
+                or len([x for x in self.inputs.datasets if not x.is_resolved]) == 0
             )
             and not self.get_unresolved_stage_config_values()
         )
 
-    def get_unresolved_stage_config_values(self):
+    def get_unresolved_stage_config_values(self) -> list[StageConfigValue]:
         unresolved = []
         for _, conf in self.stage_config.items():
             for conn_args in conf.connector_args or []:

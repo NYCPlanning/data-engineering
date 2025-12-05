@@ -46,3 +46,35 @@ inputs:
   - name: dcp_cscl_zipcode
     version_env_var: VERSION
   missing_versions_strategy: find_latest # TODO - they should all match
+
+exports:
+  zip: true
+  datasets:
+  - name: manhattan_lion_dat
+    filename: ManhattanLION.dat
+    format: dat
+    custom: { formatting: lion_dat }
+  - name: bronx_lion_dat
+    filename: BronxLION.dat
+    format: dat
+    custom: { formatting: lion_dat }
+  - name: brooklyn_lion_dat
+    filename: BrooklynLION.dat
+    format: dat
+    custom: { formatting: lion_dat }
+  - name: queens_lion_dat
+    filename: QueensLION.dat
+    format: dat
+    custom: { formatting: lion_dat }
+  - name: staten_island_lion_dat
+    filename: StatenIslandLION.dat
+    format: dat
+    custom: { formatting: lion_dat }
+
+  - name: sedat
+    filename: SEDAT.txt
+    format: dat
+  - name: special_sedat
+    filename: SpecialSEDAT.txt
+    format: dat
+    custom: { formatting: sedat }
