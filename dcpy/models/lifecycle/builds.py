@@ -4,7 +4,7 @@ from enum import StrEnum
 import pandas as pd
 from pathlib import Path
 from pydantic import AliasChoices, BaseModel, Field, model_serializer, model_validator
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 from typing_extensions import Self
 
 from dcpy.utils import versions
@@ -65,6 +65,20 @@ class RecipeInputs(BaseModel):
     dataset_defaults: InputDatasetDefaults | None = None
 
 
+class ExportDataset(BaseModel, extra="forbid"):
+    name: str
+    filename: str | None = None
+    format: recipes.DatasetType | Literal["dat"]
+    source: InputDatasetDestination = InputDatasetDestination.postgres
+    custom: dict | None = None
+
+
+class BuildExports(BaseModel, extra="forbid"):
+    folder: str = "output"
+    zip: bool = False
+    datasets: list[ExportDataset] = []
+
+
 class StageConfigValue(BaseModel, extra="forbid"):
     UNRESOLVABLE_ERROR: ClassVar[str] = (
         "Stage Conf Value requires either `value` or `value_from`"
@@ -99,6 +113,7 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str | None = None
     vars: dict[str, str] | None = None
     inputs: RecipeInputs
+    exports: BuildExports | None = None
     stage_config: dict[str, StageConfig] = {}
 
     def is_resolved(self) -> bool:
