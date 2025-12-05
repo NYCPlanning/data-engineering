@@ -1,5 +1,5 @@
 WITH clipped_to_nyc AS (
-    {{ clip_to_geom(left=source("recipe_sources", "nysdec_priority_lakes"), left_by="wkb_geometry") }}
+    {{ clip_to_geom(left=source("recipe_sources", "nysdec_priority_lakes")) }}
 )
 
 SELECT

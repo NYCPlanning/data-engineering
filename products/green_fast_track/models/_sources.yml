@@ -496,7 +496,7 @@ sources:
     - name: waterbody
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
     tests:
@@ -513,7 +513,7 @@ sources:
     - name: waterbody
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
@@ -525,7 +525,7 @@ sources:
     - name: waterbody
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
