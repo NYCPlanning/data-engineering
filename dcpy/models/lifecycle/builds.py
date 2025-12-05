@@ -65,6 +65,31 @@ class RecipeInputs(BaseModel):
     dataset_defaults: InputDatasetDefaults | None = None
 
 
+class ExportFormat(StrEnum):
+    """TODO - resolve this with recipes.DatasetType?"""
+
+    csv = "csv"
+    parquet = "parquet"
+    shapefile = "shp"
+    gdb = "gdb"
+    dat = "dat"
+
+
+class ExportDataset(BaseModel, extra="forbid"):
+    """Assumed to come from postgres for now"""
+
+    name: str
+    filename: str | None = None
+    format: ExportFormat
+    custom: dict | None = None
+
+
+class BuildExports(BaseModel, extra="forbid"):
+    output_folder: str = "output"
+    zip: bool = False
+    datasets: list[ExportDataset] = []
+
+
 class StageConfigValue(BaseModel, extra="forbid"):
     UNRESOLVABLE_ERROR: ClassVar[str] = (
         "Stage Conf Value requires either `value` or `value_from`"
@@ -99,6 +124,7 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str | None = None
     vars: dict[str, str] | None = None
     inputs: RecipeInputs
+    exports: BuildExports | None = None
     stage_config: dict[str, StageConfig] = {}
 
     def is_resolved(self) -> bool:
