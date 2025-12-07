@@ -57,7 +57,7 @@ def df_to_gdf(df: pd.DataFrame, geometry: file.Geometry) -> gpd.GeoDataFrame:
         # replace NaN values with None. Otherwise gpd throws an error
         if df[geom_column].isnull().any():
             df[geom_column] = df[geom_column].astype(object)
-            df[geom_column] = df[geom_column].where(df[geom_column].notnull(), None)
+            df[geom_column] = df[geom_column].where(df[geom_column].notnull(), None)  # type: ignore
 
         match geometry.format:
             case None | geom.StandardGeometryFormat.wkt:
