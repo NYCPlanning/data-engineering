@@ -21,7 +21,6 @@ models:
 - name: int__segments
   columns:
   - name: lionkey
-    tests: [ unique ]
   - name: segmentid
     tests: [ not_null ]
   - name: feature_type

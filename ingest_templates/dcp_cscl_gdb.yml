@@ -22,7 +22,7 @@ datasets:
   attributes:
     name: CSCL Address Points
   file_format:
-    layer: AtomicPolygon
+    layer: AddressPoint
 
 - id: dcp_cscl_altsegmentdata
   attributes:

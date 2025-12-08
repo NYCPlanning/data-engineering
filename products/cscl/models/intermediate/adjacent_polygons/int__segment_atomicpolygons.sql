@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['segmentid']},
+      {'columns': ['globalid']},
     ]
 ) }}
 WITH segment_offsets AS (
@@ -9,6 +9,7 @@ WITH segment_offsets AS (
 )
 
 SELECT
+    so.globalid,
     so.lionkey,
     so.segmentid,
     so.boroughcode AS segment_borocode,

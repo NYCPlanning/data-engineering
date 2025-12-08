@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['segmentid']},
+      {'columns': ['globalid']},
     ]
 ) }}
 
@@ -9,6 +9,7 @@ WITH segment_offsets AS (
     SELECT * FROM {{ ref("int__segment_offsets") }}
 )
 SELECT
+    so.globalid,
     so.lionkey,
     so.segmentid,
     leftzip.zip_code AS l_zip,

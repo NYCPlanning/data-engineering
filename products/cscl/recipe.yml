@@ -1,6 +1,6 @@
 name: CSCL
 product: cscl
-version: 25c_fixed
+version: 25d
 
 inputs:
   datasets:

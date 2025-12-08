@@ -266,20 +266,20 @@ SELECT
         ELSE TRUE
     END AS include_in_bytes_lion
 FROM segments
-LEFT JOIN nodes ON segments.lionkey = nodes.lionkey
-LEFT JOIN segment_locational_status ON segments.lionkey = segment_locational_status.lionkey
+LEFT JOIN nodes ON segments.globalid = nodes.globalid
+LEFT JOIN segment_locational_status ON segments.globalid = segment_locational_status.globalid
 LEFT JOIN
     atomic_polygons AS ap_left
     ON
-        segments.lionkey = ap_left.lionkey
+        segments.globalid = ap_left.globalid
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L'
 LEFT JOIN
     atomic_polygons AS ap_right
     ON
-        segments.lionkey = ap_right.lionkey
+        segments.globalid = ap_right.globalid
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R'
 LEFT JOIN saf ON segments.segmentid = saf.segmentid AND segments.boroughcode = saf.boroughcode
-LEFT JOIN nypd_service_areas ON segments.lionkey = nypd_service_areas.lionkey
+LEFT JOIN nypd_service_areas ON segments.globalid = nypd_service_areas.globalid
 LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode = sedat.boroughcode
 -- centerline only
 LEFT JOIN centerline AS primary_centerline ON segments.segmentid = primary_centerline.segmentid
@@ -292,5 +292,5 @@ LEFT JOIN centerline_coincident_subway_or_rail
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
-LEFT JOIN zips ON segments.lionkey = zips.lionkey AND segments.feature_type <> 'centerline'
+LEFT JOIN zips ON segments.globalid = zips.globalid AND segments.feature_type <> 'centerline'
 LEFT JOIN proto ON segments.globalid = proto.globalid

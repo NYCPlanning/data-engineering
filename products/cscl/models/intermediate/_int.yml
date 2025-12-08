@@ -5,23 +5,18 @@ models:
   columns:
   - name: segmentid
     tests: [ not_null ]
-  data_tests:
-  - name: int__lion__key_ideal
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns:
-      - boroughcode
-      - face_code
-      - segment_seqnum
-    config:
-      severity: warn
-  - name: int__lion__key_temp # while nonstreetfeatures don't have segment_seqnum generated
-    test_name: dbt_utils.unique_combination_of_columns
-    arguments:
-      combination_of_columns:
-      - boroughcode
-      - face_code
-      - segment_seqnum
-      - segmentid
-    config:
-      severity: warn
+  - name: globalid
+    tests:
+    - not_null
+    # this is warn while source data issues with sectionalmap and zip code are resolved
+    - unique:
+        config:
+          severity: warn
+  - name: lionkey
+    tests:
+    - not_null
+    # this is warn while source data issues with sectionalmap and zip code are resolved
+    # additionally, there are some lionkey collisions in 25d: 1004700010
+    - unique:
+        config:
+          severity: warn

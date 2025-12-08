@@ -1,12 +1,13 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['segmentid']},
+      {'columns': ['globalid']},
     ]
 ) }}
 
 WITH segments AS (
     SELECT
+        globalid,
         lionkey,
         segmentid,
         st_startpoint(geom) AS from_geom,
@@ -19,6 +20,7 @@ segments_to_nodes AS (
 )
 
 SELECT
+    segments.globalid,
     segments.lionkey,
     segments.segmentid,
     st_x(segments.from_geom) AS from_x,
@@ -31,9 +33,9 @@ SELECT
     to_sm.sectional_map AS to_sectionalmap
 FROM segments
 LEFT JOIN segments_to_nodes AS n_from
-    ON segments.lionkey = n_from.lionkey AND n_from.direction = 'from'
+    ON segments.globalid = n_from.globalid AND n_from.direction = 'from'
 LEFT JOIN segments_to_nodes AS n_to
-    ON segments.lionkey = n_to.lionkey AND n_to.direction = 'to'
+    ON segments.globalid = n_to.globalid AND n_to.direction = 'to'
 LEFT JOIN
     {{ source("recipe_sources", "dcp_cscl_sectionalmap") }} AS from_sm
     ON st_contains(from_sm.geom, segments.from_geom)
