@@ -1,12 +1,13 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['lionkey']},
+      {'columns': ['globalid']},
     ]
 ) }}
 
 WITH atomicpolygons AS (
     SELECT
+        globalid,
         lionkey,
         segmentid,
         segment_borocode,
@@ -35,11 +36,11 @@ segments_by_node AS (
 
 segments_n_neighbors AS (
     SELECT
-        lionkey,
+        globalid,
         min(n_segments) AS minimum_neighbors -- between the two nodes, minimum number of segments joined
     FROM segments_to_nodes AS s2n
     INNER JOIN segments_by_node AS sbn ON s2n.nodeid = sbn.nodeid
-    GROUP BY lionkey
+    GROUP BY globalid
 ),
 
 -- All CTEs below divide the atomicpolygons into different categories. 
@@ -74,7 +75,7 @@ same_ap AS (
             WHEN snn.minimum_neighbors > 1 THEN 'H'
         END AS segment_locational_status
     FROM atomicpolygons AS ap
-    LEFT JOIN segments_n_neighbors AS snn ON ap.lionkey = snn.lionkey
+    LEFT JOIN segments_n_neighbors AS snn ON ap.globalid = snn.globalid
     WHERE ap.left_atomicid = ap.right_atomicid
 ),
 different_aps_different_boros AS (

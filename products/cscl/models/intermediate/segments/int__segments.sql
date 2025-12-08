@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['lionkey']}
+      {'columns': ['globalid']}
     ]
 ) }}
 

@@ -7,6 +7,7 @@ WITH segments AS (
 )
 
 SELECT
+    globalid,
     lionkey,
     segmentid,
     boroughcode,

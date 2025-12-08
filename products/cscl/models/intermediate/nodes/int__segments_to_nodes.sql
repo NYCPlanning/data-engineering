@@ -16,6 +16,7 @@ nodes AS (
 
 segment_endpoints AS (
     SELECT
+        globalid,
         lionkey,
         segmentid,
         'from' AS direction,
@@ -23,6 +24,7 @@ segment_endpoints AS (
     FROM segments
     UNION ALL
     SELECT
+        globalid,
         lionkey,
         segmentid,
         'to' AS direction,
@@ -31,6 +33,7 @@ segment_endpoints AS (
 )
 
 SELECT
+    seg.globalid,
     seg.lionkey,
     seg.segmentid,
     seg.direction,
