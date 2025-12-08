@@ -9,22 +9,48 @@ import pandas as pd
 from pathlib import Path
 import typer
 
-from dcpy.utils import postgres
+from dcpy.utils import postgres, s3
+from dcpy.lifecycle.builds import plan
 
-DAT_FORMATTING_FILE = Path("seeds/text_formatting/text_formatting__lion_dat.csv")
+CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
+LOAD_FOLDER = Path("prod")
+DATASETS_BY_NAME = {}
+DATASETS_BY_FILENAME = {}
+
+try:
+    recipe = plan.recipe_from_yaml(Path("./recipe.yml"))
+    assert recipe.exports
+
+    for export in recipe.exports.datasets:
+        formatting = (export.custom or {"formatting": export.name})["formatting"]
+        f_path = Path(f"seeds/text_formatting/text_formatting__{formatting}.csv")
+        dataset = {
+            "name": export.name,
+            "file_name": export.filename,
+            "formatting_path": f_path,
+        }
+        DATASETS_BY_FILENAME[export.filename] = dataset
+        DATASETS_BY_NAME[export.name] = dataset
+except Exception:
+    raise Exception("Error reading recipe.yml")
 
 
-def parse_dat(dat_file: Path, max_records: int | None = None) -> pd.DataFrame:
-    formatting = pd.read_csv(DAT_FORMATTING_FILE)
+def parse_file(
+    file_path: Path, max_records: int | None = None, formatting_path: Path | None = None
+) -> pd.DataFrame:
+    formatting_path = (
+        formatting_path or DATASETS_BY_FILENAME[file_path.name]["formatting_path"]
+    )
+    formatting = pd.read_csv(formatting_path)
 
     records = []
-    with open(dat_file) as f:
+    with open(file_path) as f:
         i = 0
         for row in f:
             if max_records and i > max_records:
                 break
             record = {}
-            for j, field in formatting.iterrows():
+            for _, field in formatting.iterrows():
                 label = field["field_name"]
                 start_index = field["start_index"] - 1
                 end_index = field["end_index"]
@@ -35,16 +61,20 @@ def parse_dat(dat_file: Path, max_records: int | None = None) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
-def load_dat(dat_file: Path, table_name: str | None, schema: str | None = None) -> None:
-    dat_df = parse_dat(dat_file)
-    table_name = table_name or dat_file.stem
-    client = postgres.PostgresClient(database="db-cscl", schema=schema)
-    client.insert_dataframe(dat_df, table_name)
+def load_datasets(datasets: list[str], folder: Path):
+    for ds_name in datasets:
+        dataset = DATASETS_BY_NAME[ds_name]
+        dat_df = parse_file(
+            folder / dataset["file_name"], formatting_path=dataset["formatting_path"]
+        )
+        print(
+            f"loading {folder / dataset['file_name']} to {CLIENT.schema}.{dataset['name']}"
+        )
+        CLIENT.insert_dataframe(dat_df, dataset["name"])
 
 
-def create_full_lion(schema: str = "production_outputs"):
-    client = postgres.PostgresClient(database="db-cscl", schema=schema)
-    client.execute_query(
+def create_citywide_lion():
+    CLIENT.execute_query(
         """
             DROP TABLE IF EXISTS citywide_lion;
             CREATE TABLE citywide_lion AS
@@ -66,48 +96,60 @@ app = typer.Typer()
 
 @app.command()
 def head(
-    filepath: Path = typer.Argument(),
+    file_name: str = typer.Argument(),
     save_to_csv: bool = typer.Option(False, "-c"),
+    folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
 ):
-    df = parse_dat(filepath, 10)
+    """Just useful to make sure that the formatting is being parsed correctly"""
+    df = parse_file(folder / file_name, 10)
     if save_to_csv:
-        df.to_csv(filepath.stem + ".csv")
+        df.to_csv(Path(file_name).stem + ".csv")
     typer.echo(df.head())
 
 
-@app.command("load")
-def _load_dat(
-    filepath: Path = typer.Argument(),
+@app.command("load_single")
+def load_single(
+    file_name: str = typer.Argument(),
+    folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str | None = typer.Option(None, "--table", "-t"),
-    schema: str = typer.Option("production_outputs", "--schema", "-s"),
 ):
-    load_dat(filepath, table_name, schema)
+    dataset = DATASETS_BY_FILENAME[file_name]
+    dat_df = parse_file(folder / file_name, dataset["formatting_path"])
+    CLIENT.insert_dataframe(dat_df, table_name or dataset["name"])
 
 
-@app.command("load_all")
-def load_all(
-    folderpath: Path = typer.Argument(),
-    schema: str = typer.Option("production_outputs", "--schema", "-s"),
-    suffix: str = typer.Option("", "--suffix"),
+@app.command("load")
+def _load(
+    datasets: list[str] = typer.Option(DATASETS_BY_NAME.keys(), "--datasets", "-d"),
+    version: str | None = typer.Option(None, "--version", "-v"),
+    local: bool = typer.Option(False, "--local", "-l"),
+    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
 ):
     """
     Primary purpose is to load production outputs for comparison to outputs of this pipeline
-
-    But also potentially useful, the `validate_outputs.sh` script also outputs rows of the
-    outputs of this pipeline that did not match production outputs. These dat files of rows
-    with errors could also be loaded back into a db with this function (and schema and suffix)
-    can be specified to not overwrite the current "production outputs" that exist in the db.
-
-    This could be preferable to doing comparisons in sql before exporting just because the bash
-    utilities to compare entire rows are quick and simpler than row-wise comparisons of the
-    lion_dat_fields table, though that is possible as well
     """
-    boros = ["Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"]
-    for boro in boros:
-        file = boro.replace(" ", "") + "LION.dat"
-        table = boro.lower().replace(" ", "_") + "_lion" + suffix
-        load_dat(folderpath / file, table, schema=schema)
-    create_full_lion()
+    if not version or local:
+        raise Exception(
+            "Either specify loading locally with '-l' flag or specify version to pull from s3 with '-v' flag"
+        )
+
+    for dataset in datasets:
+        file_name = DATASETS_BY_NAME[dataset]["file_name"]
+        s3.download_file(
+            "edm-private", f"cscl_etl/{version}/{file_name}", local_folder / file_name
+        )
+
+    load_datasets(datasets, local_folder)
+
+    boros = {
+        "bronx_lion",
+        "brooklyn_lion",
+        "manhattan_lion",
+        "queens_lion",
+        "staten_island_island",
+    }
+    if boros.issubset(set(datasets)):
+        create_citywide_lion()
 
 
 if __name__ == "__main__":
