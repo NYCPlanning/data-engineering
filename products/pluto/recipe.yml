@@ -16,6 +16,7 @@ inputs:
     - name: dcp_developments # only used for data tests
     - name: dcp_edesignation
     - name: dcp_firecompanies
+    - name: dcp_greater_transit_zone
     - name: dcp_healthareas
     - name: dcp_healthcenters
     - name: dcp_limitedheight

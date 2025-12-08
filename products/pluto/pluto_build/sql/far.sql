@@ -10,7 +10,9 @@ UPDATE pluto a
 SET
     residfar = b.residfar,
     commfar = b.commfar,
-    facilfar = b.facilfar
+    facilfar = b.facilfar,
+    mnffar = b.mnffar,
+    affresfar = b.affresfar
 FROM dcp_zoning_maxfar AS b
 WHERE a.zonedist1 = b.zonedist;
 -- zoning district 1 with / first p art 
@@ -18,7 +20,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE split_part(a.zonedist1, '/', 1) = b.zonedist;
 
@@ -27,7 +31,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE split_part(a.zonedist1, '/', 2) = b.zonedist;
 
@@ -36,7 +42,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE a.zonedist2 = b.zonedist;
 
@@ -45,7 +53,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE split_part(a.zonedist2, '/', 1) = b.zonedist;
 
@@ -54,7 +64,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE split_part(a.zonedist2, '/', 2) = b.zonedist;
 
@@ -63,7 +75,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE a.zonedist3 = b.zonedist;
 
@@ -72,7 +86,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE split_part(a.zonedist3, '/', 1) = b.zonedist;
 
@@ -81,7 +97,9 @@ UPDATE pluto a
 SET
     residfar = (coalesce(a.residfar, b.residfar)),
     commfar = (coalesce(a.commfar, b.commfar)),
-    facilfar = (coalesce(a.facilfar, b.facilfar))
+    facilfar = (coalesce(a.facilfar, b.facilfar)),
+    mnffar = (coalesce(a.mnffar, b.mnffar)),
+    affresfar = (coalesce(a.affresfar, b.affresfar))
 FROM dcp_zoning_maxfar AS b
 WHERE split_part(a.zonedist3, '/', 2) = b.zonedist;
 
@@ -92,4 +110,9 @@ SET
     = (CASE WHEN a.residfar IS NULL OR a.residfar = '-' THEN 0::double precision ELSE a.residfar::double precision END),
     commfar
     = (CASE WHEN a.commfar IS NULL OR a.commfar = '-' THEN 0::double precision ELSE a.commfar::double precision END),
-    facilfar = (CASE WHEN a.facilfar IS NULL OR a.facilfar = '-' THEN 0 ELSE a.facilfar::double precision END);
+    facilfar
+    = (CASE WHEN a.facilfar IS NULL OR a.facilfar = '-' THEN 0 ELSE a.facilfar::double precision END),
+    mnffar
+    = (CASE WHEN a.mnffar IS NULL OR a.mnffar = '-' THEN 0 ELSE a.mnffar::double precision END),
+    affresfar
+    = (CASE WHEN a.affresfar IS NULL OR a.affresfar = '-' THEN 0 ELSE a.affresfar::double precision END);
