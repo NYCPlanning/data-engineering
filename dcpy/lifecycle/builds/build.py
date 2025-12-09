@@ -92,7 +92,7 @@ def export(
 
 
 @app.command("export")
-def _cli_wrapper_(
+def _export(
     recipe_lock_path: Path = typer.Option(
         None,
         "--recipe-path",
@@ -104,10 +104,6 @@ def _cli_wrapper_(
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
     export(recipe_lock_path)
-
-
-if __name__ == "__main__":
-    app()
 
 
 @app.command("upload")
