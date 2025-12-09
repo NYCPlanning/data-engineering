@@ -1,7 +1,7 @@
 version: 2
 
 models:
-- name: sedat
+- name: sedat_by_field
   config:
     contract:
       enforced: true
@@ -63,20 +63,20 @@ models:
         arguments: { value: 8 }
 
 
-- name: special_sedat
+- name: special_sedat_by_field
   config:
     contract:
       enforced: true
   columns: *sedat_columns
   
-- name: export_sedat
+- name: sedat
   columns:
   - name: dat_column
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 87 }
 
-- name: export_special_sedat
+- name: special_sedat
   columns:
   - name: dat_column
     tests:

@@ -385,6 +385,35 @@ class PostgresClient:
                         method=insert_copy,
                     )
 
+    def export_to_csv(
+        self,
+        table_name: str,
+        output_path: Path,
+        *,
+        query: str | None = None,
+        columns: list[str] | None = None,
+        include_header: bool = True,
+    ) -> None:
+        dbapi_conn = self.engine.raw_connection()
+        try:
+            with dbapi_conn.cursor() as cur:
+                header_clause = "WITH CSV HEADER" if include_header else "WITH CSV"
+
+                if query:
+                    copy_sql = f"COPY ({query}) TO STDOUT {header_clause}"
+                else:
+                    full_table_name = f'"{self.schema}"."{table_name}"'
+                    if columns:
+                        columns_str = ", ".join(f'"{col}"' for col in columns)
+                        copy_sql = f"COPY {full_table_name} ({columns_str}) TO STDOUT {header_clause}"
+                    else:
+                        copy_sql = f"COPY {full_table_name} TO STDOUT {header_clause}"
+
+                with open(output_path, "w") as f:
+                    cur.copy_expert(copy_sql, f)
+        finally:
+            dbapi_conn.close()
+
 
 def insert_copy(table, conn, keys, data_iter):
     """
