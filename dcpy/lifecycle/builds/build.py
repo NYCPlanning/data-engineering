@@ -24,6 +24,8 @@ def export_dataset_from_postgres(
 ) -> None:
     """Export a table from postgres in the specified format."""
     logger.info(f"Exporting table {table_name} to {file_path} in format {format}")
+    if file_path.exists():
+        file_path.unlink()
     match format:
         case ExportFormat.csv:
             pg_client.export_to_csv(table_name=table_name, output_path=file_path)
@@ -47,37 +49,39 @@ def export_dataset_from_postgres(
             )
 
 
-def export(recipe_lock_path: Path) -> None:
+def export(
+    recipe_lock_path: Path, pg_client: postgres.PostgresClient | None = None
+) -> None:
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
     if not recipe.exports:
         logger.info("No exports defined in recipe, skipping export step")
         return
 
-    build_name = metadata.build_name()
-    logger.info(f"Exporting build outputs for {recipe.name} build named {build_name}")
+    pg_client = pg_client or postgres.PostgresClient(schema=metadata.build_name())
+    logger.info(
+        f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
+    )
 
-    pg_client = postgres.PostgresClient(schema=build_name)
-    output_folder = Path(recipe.exports.output_folder)
-
-    if output_folder.exists():
-        shutil.rmtree(output_folder)
-
-    output_folder.mkdir(parents=True)
+    if recipe.exports.output_folder.exists():
+        shutil.rmtree(recipe.exports.output_folder)
+    recipe.exports.output_folder.mkdir(parents=True)
 
     for output in recipe.exports.datasets:
         # for now, assumed that postgres is source
         filename = output.filename or f"{output.name}.{output.format.value}"
         export_dataset_from_postgres(
             table_name=output.name,
-            file_path=output_folder / filename,
+            file_path=recipe.exports.output_folder / filename,
             pg_client=pg_client,
             format=output.format,
         )
 
     if recipe.exports.zip:
-        zip_path = output_folder / f"{recipe.exports.output_folder}.zip"
-        subprocess.call(["zip", "-r", str(zip_path), str(output_folder)])
+        zip_path = (
+            recipe.exports.output_folder / f"{recipe.exports.output_folder.name}.zip"
+        )
+        subprocess.call(["zip", "-r", str(zip_path), str(recipe.exports.output_folder)])
         logger.info(f"Zipped export folder to {zip_path}")
 
 
