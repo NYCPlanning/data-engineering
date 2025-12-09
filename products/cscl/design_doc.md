@@ -27,6 +27,9 @@ Not relevant for "space-filled" fields, but for zero-filled ones, a None value s
 ### Census Tract Suffixes
 [stub]
 
+# Source Data
+[stub]
+
 # Outputs
 
 ## Geosupport LION
@@ -162,3 +165,70 @@ Which all stem from the same data/table but are obviously filtered by borough. T
 |L104|right_2020_census_block_basic|RIGHT CENSUS BLOCK 2020 BASIC|4|351|354|RJSF|false|
 |L105|right_2020_census_block_suffix|RIGHT CENSUS BLOCK 2020 SUFFIX|1|355|355|RJSF|false|
 |L199|filler_l199|Filler L199|45|356|400|RJSF|false|
+
+### Transformation
+The source segments for LION come from 6 different CSCL feature layers (though rail/subway are treated identically)
+- centerline
+- shoreline
+- rail
+- subway
+- nonstreetfeature
+- altsegmentdata (proto segments)
+
+"Feature type" is a concept that occurs throughout this document and the codebase. This can mean a couple things at a few levels. Some of this logic is in `seeds/feature_type_codes.csv`, but some specific logic lives within sql files. Generally, you can think of "feature type" as EITHER the source table that the segment originates, or in the case of protosegments, what feature type code is already set in the CSCL system. So this "feature type" or "feature class" or "implicit feature class" (the latter in the case of protosegments) is inclusive of many "feature type codes" or "lion feature type codes".
+
+Another way of thinking about it is that feature type here is more what CSCL (and the ETL) cares about, while downstream in LION, the feature type code is the more important concept. All `field`s in the "how to determine" column refer to fields from the relevant source feature class.
+
+|feature type|LION feature type code|How to determine|description|
+|------------|----------------------|----------------|-----------|
+|centerline||No other centerline criteria met|Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W|
+|centerline|5|`status = '3'`|Paper street that is not also a boundary|
+|centerline|6|`status = '2' AND rwjurisdiction = '3'`|Private street that exists physically|
+|centerline|9|`status = '9'`|Paper street that coincides with a non-physical boundary|
+|centerline|A|`rw_type = 10`|Alley|
+|centerline|W|`trafdir = 'NV'` and any non-zero address field|Path, non-vehicular, addressable|
+|centerline|F|`rw_type=14`|Ferry|
+|centerline|C|`status = '2' AND rwjurisdiction = '5'`|Constructed|
+|shoreline|2||Shoreline|
+|rail_and_subway|1||Rail or subway|
+|nonstreetfeatures|3|`linetype = 3`|Non-physical census block boundary|
+|nonstreetfeatures|7|`linetype IN (1, 2, 6)`|Non-physical boundary other than census|
+|nonstreetfeatures|8|`linetype IN (4, 5)`|Physical boundary such as cemetery wall|
+|nonstreetfeatures|4|`linetype = 7`|Other non-street feature|
+
+Note that "how to determine" is not relevant in case of protosegments, as these have LION feature type code already set when we begin processing
+
+All of the source feature types have slightly differing methods of processing, but when possible, they are handled in parallel.
+
+[A simplified diagram showing how the ETL operates]
+
+[...]
+
+Additionally, each source layer has some distinct logic
+
+#### Centerline
+Centerline segments represent centerlines of streets.
+[stub]
+
+#### Shoreline
+Shoreline segments are exactly what they sound like.
+[stub]
+
+#### Rail/Subway
+Rail and subway segments are exactly what they sound like. This includes both above-ground and subterranean rail.
+[stub]
+
+#### Non-Street Features
+A somewhat confusingly named layer since shoreline, rail, and subway are not streets either. Specifically, features of this type can be
+- Non-physical census block boundary
+- Non-physical boundary other than census
+- Physical boundary such as cemetery wall
+- Other non-street feature
+
+[stub]
+
+### Error reporting
+[stub]
+
+# Infrastructure/Code
+[stub]
