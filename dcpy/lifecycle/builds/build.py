@@ -1,6 +1,7 @@
 from pathlib import Path
 import shutil
 import subprocess
+import tempfile
 import typer
 
 from dcpy.utils import postgres
@@ -21,32 +22,25 @@ def export_dataset_from_postgres(
     format: ExportFormat,
     pg_client: postgres.PostgresClient,
 ) -> None:
-    """Import a recipe to local data library folder and build engine."""
+    """Export a table from postgres in the specified format."""
     logger.info(f"Exporting table {table_name} to {file_path} in format {format}")
     match format:
+        case ExportFormat.csv:
+            pg_client.export_to_csv(table_name=table_name, output_path=file_path)
         case ExportFormat.dat:
-            with open(file_path, "wb") as f:
-                psql_process = subprocess.Popen(
-                    [
-                        "psql",
-                        pg_client.engine_uri,
-                        "--command",
-                        f"\\COPY (SELECT * FROM {table_name}) TO STDOUT;",
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".tmp") as temp_file:
+                temp_path = Path(temp_file.name)
+
+                pg_client.export_to_csv(
+                    table_name=table_name,
+                    output_path=temp_path,
+                    include_header=False,
                 )
 
-                sed_process = subprocess.Popen(
-                    ["sed", r"s/$/\r/"],
-                    stdin=psql_process.stdout,
-                    stdout=f,
-                    stderr=subprocess.PIPE,
-                )
-
-                if psql_process.stdout:
-                    psql_process.stdout.close()
-                _output, _errors = sed_process.communicate()
+                # Convert line endings from LF to CRLF
+                with open(temp_path, "r") as f_in:
+                    with open(file_path, "wb") as f_out:
+                        f_out.write(f_in.read().encode().replace(b"\n", b"\r\n"))
         case _:
             raise NotImplementedError(
                 f"Export of dataset format {format} not implemented yet"
