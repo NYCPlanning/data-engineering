@@ -57,7 +57,7 @@ def export(
 
     if not recipe.exports:
         logger.info("No exports defined in recipe, skipping export step")
-        return
+        return None
 
     pg_client = pg_client or postgres.PostgresClient(schema=metadata.build_name())
     logger.info(
