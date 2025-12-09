@@ -85,8 +85,8 @@ class ExportDataset(BaseModel, extra="forbid"):
 
 
 class BuildExports(BaseModel, extra="forbid"):
-    output_folder: Path = Path("output")
-    zip: bool = False
+    output_folder: Path | None = None
+    zip_name: str | None = None
     datasets: list[ExportDataset] = []
 
 

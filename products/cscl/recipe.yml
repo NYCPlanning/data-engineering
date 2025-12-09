@@ -48,7 +48,8 @@ inputs:
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:
-  zip: true
+  output_folder: output
+  zip_name: output
   datasets:
   - name: manhattan_lion_dat
     filename: ManhattanLION.dat

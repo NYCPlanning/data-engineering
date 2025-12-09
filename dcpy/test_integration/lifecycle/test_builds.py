@@ -106,7 +106,7 @@ exports:
     - name: {SAMPLE_TABLE}
       filename: data.dat
       format: dat
-  zip: true
+  zip_name: output
 """
 
     recipe_path = tmp_path / "recipe.lock.yml"
@@ -118,3 +118,26 @@ exports:
     assert (output_folder / "data.dat").exists(), "DAT export should exist"
 
     assert (output_folder / "output.zip").exists(), "zipped export should exist"
+
+
+def test_export_default_path(client_with_sample_data, tmp_path):
+    """Test export function with datasets in multiple formats (CSV and DAT)."""
+
+    recipe_content = f"""
+name: test_recipe
+product: test
+inputs: {{}}
+exports:
+  datasets:
+    - name: {SAMPLE_TABLE}
+      format: csv
+"""
+
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(recipe_content)
+
+    output_folder = build.export(recipe_path, client_with_sample_data)
+
+    assert output_folder, "Exports should be run and output folder Path object returned"
+
+    assert (output_folder / f"{SAMPLE_TABLE}.csv").exists(), "CSV export should exist"
