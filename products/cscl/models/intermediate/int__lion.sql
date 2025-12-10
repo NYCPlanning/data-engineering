@@ -257,12 +257,12 @@ SELECT
     segments.geom,
     segments.globalid,
     CASE
-        WHEN segments.feature_type = 'centerline' THEN centerline.include_in_geosupport_lion
-        WHEN segments.feature_type = 'rail_and_subway' THEN rail.include_in_geosupport_lion
+        WHEN segments.source_table = 'centerline' THEN centerline.include_in_geosupport_lion
+        WHEN segments.source_table IN ('rail', 'subway') THEN rail.include_in_geosupport_lion
         ELSE TRUE
     END AS include_in_geosupport_lion,
     CASE
-        WHEN segments.feature_type = 'centerline' THEN centerline.include_in_bytes_lion
+        WHEN segments.source_table = 'centerline' THEN centerline.include_in_bytes_lion
         ELSE TRUE
     END AS include_in_bytes_lion
 FROM segments
