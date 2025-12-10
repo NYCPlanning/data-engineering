@@ -68,3 +68,4 @@ INNER JOIN primary_segments ON proto.segmentid = primary_segments.segmentid -- T
 LEFT JOIN facecode ON proto.b7sc = facecode.b7sc
 LEFT JOIN seqnum ON proto.globalid = seqnum.globalid
 LEFT JOIN feature_type_codes ON proto.feature_type_code IS NOT DISTINCT FROM feature_type_codes.code -- NULL -> centerline
+WHERE facecode.face_code IS NOT NULL -- TODO - clean up in #2073
