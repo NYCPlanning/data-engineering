@@ -74,6 +74,15 @@ exports:
     format: dat
     custom: { formatting: lion_dat }
 
+  - name: saf_abcegnpx_generic
+    filename: GenericABCEGNPX.txt
+    format: dat
+    custom: { formatting: saf_a }
+  - name: saf_abcegnpx_roadbed
+    filename: RoadbedABCEGNPX.txt
+    format: dat
+    custom: { formatting: saf_a }
+
   - name: sedat
     filename: SEDAT.txt
     format: dat
