@@ -42,3 +42,6 @@ sources:
   schema: production_outputs
   tables:
   - name: citywide_lion
+  - name: saf_abcegnpx_generic
+  - name: saf_abcegnpx_roadbed
+  - name: sedat
