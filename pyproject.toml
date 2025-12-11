@@ -162,6 +162,7 @@ exclude = ["dcpy.test*"]
 
 [project.scripts]
 library = "dcpy.library.cli:run"
+dcpy = "dcpy.__main__:cli"
 
 [tool.setuptools.package-data]
 dcpy = [
