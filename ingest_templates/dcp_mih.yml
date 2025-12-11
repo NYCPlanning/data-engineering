@@ -12,46 +12,51 @@ attributes:
   url: https://www1.nyc.gov/site/planning/data-maps/open-data.page#housingdevelopment
 
 ingestion:
-  target_crs: EPSG:4326
   source:
-    type: edm.publishing.gis
-    name: dcp_inclusionary_housing
+    type: file_download
+    url: >-
+      https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/mandatory-inclusionary-housing/nycmih_{{ version  }}.zip
+  target_crs: EPSG:4326
   file_format:
     type: shapefile
     crs: EPSG:2263
   processing_steps:
-  - name: clean_column_names
-    args: { "replace": { " ": "_" }, "lower": True }
-  - name: rename_columns
-    args:
-      map: { "geom": "wkb_geometry" }
-  - name: coerce_column_types
-    args:
-      column_types: { "dateadopte": "date" }
-  - name: multi
+    - name: clean_column_names
+      args: { "replace": { " ": "_" }, "lower": True }
+    - name: rename_columns
+      args:
+        map:
+          {
+            "geom": "wkb_geometry",
+            "projectnam": "project_name",
+            "dateadopte": "date_adopted",
+            "zr_ulurpno": "zr_ulurp_no",
+          }
 
 columns:
-- id: boro
-  data_type: text
-- id: status
-  data_type: text
-- id: projectnam
-  data_type: text
-- id: dateadopte
-  data_type: date
-- id: zr_map
-  data_type: text
-- id: leadaction
-  data_type: text
-- id: cd
-  data_type: text
-- id: shape_star
-  data_type: decimal
-- id: shape_stle
-  data_type: decimal
-- id: shape_leng
-  data_type: decimal
-- id: shape_area
-  data_type: decimal
-- id: wkb_geometry
-  data_type: geometry
+  - id: boro
+    data_type: text
+  - id: status
+    data_type: text
+  - id: project_name
+    data_type: text
+  - id: date_adopted
+    data_type: date
+  - id: zr_ulurp_no
+    data_type: text
+  - id: zr_map
+    data_type: text
+  - id: cd
+    data_type: text
+  - id: mih_option
+    data_type: text
+  - id: project_id
+    data_type: text
+  - id: zoning_map
+    data_type: text
+  - id: shape_leng
+    data_type: decimal
+  - id: shape_area
+    data_type: decimal
+  - id: wkb_geometry
+    data_type: geometry
