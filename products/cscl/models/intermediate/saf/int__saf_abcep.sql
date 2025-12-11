@@ -1,8 +1,8 @@
 WITH saf AS (
-    SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
+    SELECT * FROM {{ ref('int__saf_segments') }}
 ),
-centerline AS (
-    SELECT * FROM {{ ref('stg__centerline') }}
+altsegdata AS (
+    SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
 ),
 feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
@@ -14,31 +14,38 @@ SELECT
     -- TODO error when null
     -- TODO needs handling see 7.2 note 1.f
     CASE
-        WHEN saf.saftype = 'C' THEN '75 STREET'
+        WHEN altsegdata.saftype = 'C' THEN '75 STREET'
         ELSE feature_names.lookup_key
     END AS place_name,
-    saf.borough AS boroughcode,
-    SUBSTRING(saf.lionkey, 2, 4) AS face_code,
-    SUBSTRING(saf.lionkey, 6, 5) AS segment_seqnum,
+    saf.boroughcode,
+    SUBSTRING(altsegdata.lionkey, 2, 4) AS face_code,
+    SUBSTRING(altsegdata.lionkey, 6, 5) AS segment_seqnum,
     CASE
-        WHEN saf.sosindicator = '1' THEN 'L'
-        WHEN saf.sosindicator = '2' THEN 'R'
+        WHEN altsegdata.sosindicator = '1' THEN 'L'
+        WHEN altsegdata.sosindicator = '2' THEN 'R'
     END AS sos_indicator,
-    saf.b5sc,
-    saf.l_low_hn,
-    saf.l_high_hn,
-    saf.r_low_hn,
-    saf.r_high_hn,
+    altsegdata.b5sc,
+    altsegdata.l_low_hn,
+    altsegdata.l_high_hn,
+    altsegdata.r_low_hn,
+    altsegdata.r_high_hn,
     saf.saftype,
-    saf.lgc1,
-    saf.lgc2,
-    saf.lgc3,
-    saf.lgc4,
-    saf.boe_preferred_lgc_flag AS boe_lgc_pointer,
-    centerline.segment_type,
-    saf.segmentid
+    altsegdata.lgc1,
+    altsegdata.lgc2,
+    altsegdata.lgc3,
+    altsegdata.lgc4,
+    altsegdata.boe_preferred_lgc_flag AS boe_lgc_pointer,
+    saf.segment_type,
+    altsegdata.segmentid,
+    NULL::INT AS x_coord,
+    NULL::INT AS y_coord,
+    NULL AS side_borough_code,
+    NULL AS side_ct2010,
+    NULL AS side_ap,
+    saf.generic,
+    saf.roadbed
 FROM saf
-LEFT JOIN centerline ON saf.segmentid = centerline.segmentid
+INNER JOIN altsegdata ON saf.saf_globalid = altsegdata.globalid
 LEFT JOIN feature_names
-    ON (saf.b5sc || saf.lgc1) = feature_names.b7sc
+    ON (altsegdata.b5sc || altsegdata.lgc1) = feature_names.b7sc
 WHERE saf.saftype IN ('A', 'B', 'C', 'E', 'P')
