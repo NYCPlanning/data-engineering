@@ -7,7 +7,8 @@ import dcpy.utils._cli as utils
 # as we expand functionality. There maybe be cases where we don't want to do that,
 # e.g. if we just want to export one submodule (e.g. utils)
 
-if __name__ == "__main__":
+
+def cli():
     app = typer.Typer()
 
     app.add_typer(lifecycle.app, name="lifecycle")
@@ -15,3 +16,7 @@ if __name__ == "__main__":
     app.add_typer(connectors.app, name="connectors")
     app.add_typer(utils.app, name="utils")
     app()
+
+
+if __name__ == "__main__":
+    cli()
