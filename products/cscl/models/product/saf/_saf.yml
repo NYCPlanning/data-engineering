@@ -1,7 +1,7 @@
 version: 2
 
 models:
-- name: saf_a
+- name: saf_abcegnpx_generic
   config: &saf_config
     contract:
       enforced: false # TODO
@@ -30,7 +30,7 @@ models:
         arguments: { value: 5 }
 
 
-- name: saf_b
+- name: saf_abcegnpx_roadbed
   config: *saf_config
   columns: *safa_columns
 
