@@ -33,6 +33,8 @@ inputs:
     version_env_var: VERSION
   - name: dcp_cscl_nypdbeat
     version_env_var: VERSION
+  - name: dcp_cscl_roadbed_pointer_list
+    version_env_var: VERSION
   - name: dcp_cscl_sectionalmap
     version_env_var: VERSION
   - name: dcp_cscl_sedat
@@ -71,6 +73,15 @@ exports:
     filename: StatenIslandLION.dat
     format: dat
     custom: { formatting: lion_dat }
+
+  - name: saf_abcegnpx_generic
+    filename: GenericABCEGNPX.txt
+    format: dat
+    custom: { formatting: saf_a }
+  - name: saf_abcegnpx_roadbed
+    filename: RoadbedABCEGNPX.txt
+    format: dat
+    custom: { formatting: saf_a }
 
   - name: sedat
     filename: SEDAT.txt
