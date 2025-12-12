@@ -6,7 +6,7 @@ models:
     contract:
       enforced: false # TODO
   columns: &safa_columns
-  - name: feature_name
+  - name: place_name
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -34,42 +34,18 @@ models:
   config: *saf_config
   columns: *safa_columns
 
-- name: saf_c
-  config: *saf_config
-  columns: *safa_columns
-
 - name: saf_d
   config: *saf_config
-
-- name: saf_e
-  config: *saf_config
-  columns: *safa_columns
-
-- name: saf_g
-  config: *saf_config
-  columns: *safa_columns
 
 - name: saf_i
   config: *saf_config
 
-- name: saf_n
-  config: *saf_config
-  columns: *safa_columns
-
 - name: saf_o
   config: *saf_config
-
-- name: saf_p
-  config: *saf_config
-  columns: *safa_columns
 
 - name: saf_s
   config: *saf_config
 
 - name: saf_v
   config: *saf_config
-
-- name: saf_x
-  config: *saf_config
-  columns: *safa_columns
 

@@ -12,10 +12,9 @@ feature_names AS (
 SELECT
     -- TODO "warning" issued if featurename instead of streetname
     -- TODO error when null
-    -- TODO needs handling see 7.2 note 1.f
     CASE
         WHEN altsegdata.saftype = 'C' THEN '75 STREET'
-        ELSE feature_names.lookup_key
+        ELSE feature_names.saf_place_name
     END AS place_name,
     saf.boroughcode,
     SUBSTRING(altsegdata.lionkey, 2, 4) AS face_code,
@@ -40,7 +39,8 @@ SELECT
     NULL::INT AS x_coord,
     NULL::INT AS y_coord,
     NULL AS side_borough_code,
-    NULL AS side_ct2010,
+    NULL::INT AS side_ct2020_basic,
+    NULL::INT AS side_ct2020_suffix,
     NULL AS side_ap,
     saf.generic,
     saf.roadbed

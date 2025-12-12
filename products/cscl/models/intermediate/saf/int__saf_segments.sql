@@ -33,11 +33,34 @@ WITH saf_segment_records AS (
         'commonplace' AS saf_source_table
         -- to_jsonb(c) AS source_attrs
     FROM {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }} AS c
-    WHERE saftype IN ('G', 'N', 'X') AND b7sc IS NOT NULL -- TODO staging table
+    WHERE saftype IN ('G', 'N', 'X') AND b7sc IS NOT NULL AND security_level <> '3' -- TODO staging table
 ),
 roadbed_pointer_list AS (
-    SELECT * FROM {{ source("recipe_sources", "dcp_cscl_roadbed_pointer_list") }}
-)
+    SELECT * FROM {{ source("recipe_sources", "dcp_cscl_roadbed_pointer_list")}}
+),
+with_roadbed_to_generic AS (
+    SELECT
+        globalid,
+        boroughcode,
+        saftype,
+        segmentid,
+        segmentid AS base_segmentid,
+        saf_source_table,
+        FALSE AS rpl_flag
+    FROM saf_segment_records
+    UNION ALL
+    SELECT
+        saf.globalid,
+        saf.boroughcode,
+        saf.saftype,
+        rpl.generic_segmentid AS segmentid,
+        rpl.roadbed_segmentid AS base_segmentid,
+        saf.saf_source_table,
+        TRUE AS rpl_flag
+    FROM saf_segment_records AS saf
+    INNER JOIN roadbed_pointer_list AS rpl ON saf.segmentid = rpl.roadbed_segmentid
+    WHERE saf.saftype in ('G', 'N', 'X') -- TODO expand as more downstream tables implemented
+),
 lion AS (
     SELECT * FROM {{ ref("int__lion") }}
 ),
@@ -49,10 +72,10 @@ resolved_segment AS (
         saf.segmentid,
         COALESCE(proto.lionkey, primary_segment.lionkey) AS segment_lionkey,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_type,
-        COALESCE(proto.incex_flag, primary_segment.incex_flag) AS segment_incex_flag,
+        COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_incex_flag,
         saf.saf_source_table
         --saf.source_attrs
-    FROM saf_segment_records AS saf
+    FROM with_roadbed_to_generic AS saf
     LEFT JOIN lion AS primary_segment -- TODO error report when none joined?
         ON saf.segmentid = primary_segment.segmentid
         AND (
@@ -66,6 +89,7 @@ resolved_segment AS (
             AND proto.source_table = 'altsegmentdata'
             AND saf.boroughcode = proto.boroughcode
             AND proto.boroughcode <> primary_segment.boroughcode
+            AND NOT saf.rpl_flag
 )
 SELECT
     *,

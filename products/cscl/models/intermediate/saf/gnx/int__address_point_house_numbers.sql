@@ -2,6 +2,7 @@
     materialized = 'table',
     indexes=[
       {'columns': ['addresspointid']},
+      {'columns': ['geom'], 'type': 'gist'},
     ]
 ) }}
 
@@ -26,7 +27,8 @@ SELECT
         ELSE address_points.house_number
     END AS house_number,
     address_points.house_number AS plain_house_number,
-    street_names.snd_feature_type
+    street_names.snd_feature_type,
+    address_points.geom
 FROM address_points
-INNER JOIN street_names
+LEFT JOIN street_names
     ON address_points.b7sc_actual = street_names.b7sc AND street_names.principal_flag = 'Y'

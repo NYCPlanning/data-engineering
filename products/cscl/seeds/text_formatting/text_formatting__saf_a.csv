@@ -24,6 +24,7 @@ SAFA17,segment_type,Segment Type Code,1,98,98,RJSF,FALSE
 SAFA18,segmentid,Segment ID,7,99,105,RJZF,FALSE
 SAFA19,x_coord,X Coordinate (GNX only),7,106,112,RJZF,TRUE
 SAFA20,y_coord,Y Coordinate (GNX only),7,113,119,RJZF,TRUE
-SAFA21,side_borough_code,Side borough code (GNX only),1,120,120,RJZF,FALSE
-SAFA22,side_ct2010,Side CT2010 (GNX only) (XXXXYY),6,121,126,RJZF,TRUE
+SAFA21,side_borough_code,Side borough code (GNX only),1,120,120,RJZF,TRUE
+SAFA22_1,side_ct2020_basic,Side CT2020 Basic (GNX only) (XXXXYY),4,121,124,RJSF,FALSE
+SAFA22_2,side_ct2020_suffix,Side CT2020 Suffix (GNX only) (XXXXYY),2,125,126,RJZF,TRUE
 SAFA23,side_ap,Side AP (GNX only),3,127,129,RJZF,TRUE
