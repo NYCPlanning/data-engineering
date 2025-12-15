@@ -5,19 +5,22 @@ aps AS (
     SELECT * FROM {{ ref("int__segment_atomicpolygons") }}
 )
 SELECT
-    'neither joined atomic polygon matches segment''s borocode' AS error,
+    'neither joined atomic polygon matches segment''s borocode' AS error_category,
     segments.globalid,
-    segments.source_table,
+    segments.source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segments.segmentid AS record_id,
     FORMAT(
-        'Segment from feature layer % with globalid % has boro %, '
-        || 'left atomic polygon boro % and right atomic polygon boro %',
-        source_table,
-        globalid,
-        segment_borocode,
-        left_borocode,
-        right_borocode
+        'Segment from feature layer %s with globalid %s has boro %s, '
+        || 'left atomic polygon with atomicid "%s" has boro "%s", '
+        || 'and right atomic polygon with atomicid "%s" has boro "%s".',
+        segments.source_table,
+        segments.globalid,
+        aps.segment_borocode,
+        aps.left_atomicid,
+        aps.left_borocode,
+        aps.right_atomicid,
+        aps.right_borocode
     ) AS message
 FROM aps
 INNER JOIN segments ON aps.globalid = segments.globalid

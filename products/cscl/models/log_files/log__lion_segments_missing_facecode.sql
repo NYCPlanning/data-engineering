@@ -8,9 +8,9 @@ WITH segments AS (
     FROM {{ ref("int__protosegments") }}
 )
 SELECT DISTINCT
-    'missing facecode' AS error,
+    'missing facecode' AS error_category,
     globalid,
-    source_table,
+    source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     '' AS message
