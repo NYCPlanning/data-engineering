@@ -1,7 +1,7 @@
 SELECT
-    'segment missing node' AS error,
+    'segment missing node' AS error_category,
     globalid,
-    source_table,
+    source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     '' AS message
