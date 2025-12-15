@@ -11,9 +11,11 @@ SELECT
     'segmentid' AS record_id_type,
     segments.segmentid AS record_id,
     FORMAT(
-        'Segment from feature layer %s with globalid %s has boro %s, '
-        || 'left atomic polygon with atomicid "%s" has boro "%s", '
-        || 'and right atomic polygon with atomicid "%s" has boro "%s".',
+        "Neither of the AtomicPolygon borough matches the segment borough for the {0} feature with an OID = {1}. {2} = '{3}', {4} = '{5}' and {6} = '{7}'."
+        'Neither of the AtomicPolygon borough matches the segment borough for the %s feature with an OID = %s. '
+        || 'Segment has boro ''%s'', '
+        || 'left atomic polygon with atomicid ''%s'' has boro ''%s'', '
+        || 'and right atomic polygon with atomicid ''%s'' has boro ''%s''.',
         segments.source_table,
         segments.globalid,
         aps.segment_borocode,

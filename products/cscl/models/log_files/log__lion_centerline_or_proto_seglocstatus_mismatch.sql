@@ -30,11 +30,11 @@ SELECT
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     FORMAT(
-        'Segment from feature layer "%s" with globalid "%s" has calculated seglocstatus "%s" and source field seglocstatus "%s"',
+        'The %s feature with an OID = %s has a SEGLOCSTATUS value that is different than what was found using the LION ETL rules.  Feature = ''{2}'', ETL Rules = ''{3}''.'
         source_table,
         globalid,
-        segment_locational_status,
-        source_segment_locational_status
+        source_segment_locational_status,
+        segment_locational_status
     ) AS message
 FROM joined
 WHERE segment_locational_status IS DISTINCT FROM source_segment_locational_status
