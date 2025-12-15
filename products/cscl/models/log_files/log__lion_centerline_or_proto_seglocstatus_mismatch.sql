@@ -24,13 +24,13 @@ joined AS (
     WHERE lion.source_table IN ('centerline', 'altsegmentdata')
 )
 SELECT
-    'seglocstatus mismatch' AS error,
+    'seglocstatus mismatch' AS error_category,
     globalid,
-    source_table,
+    source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     FORMAT(
-        'Segment from feature layer % with globalid % has calculated seglocstatus % and source field seglocstatus %',
+        'Segment from feature layer "%s" with globalid "%s" has calculated seglocstatus "%s" and source field seglocstatus "%s"',
         source_table,
         globalid,
         segment_locational_status,

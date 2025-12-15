@@ -5,9 +5,9 @@ nypd AS (
     SELECT * FROM {{ ref('int__segment_nypdbeat') }}
 )
 SELECT
-    'segment joined to no nypd beat' AS error,
+    'segment joined to no nypd beat' AS error_category,
     segments.globalid,
-    segments.source_table,
+    segments.source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segments.segmentid AS record_id,
     '' AS message
