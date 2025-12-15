@@ -79,3 +79,7 @@ exports:
     filename: SpecialSEDAT.txt
     format: dat
     custom: { formatting: sedat }
+
+  - name: log
+    filename: log.csv
+    format: csv
