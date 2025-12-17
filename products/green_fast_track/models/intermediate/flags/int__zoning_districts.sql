@@ -22,6 +22,7 @@ districts_distinct AS (
 generalized_districts AS (
     SELECT
         bbl,
+        zd,
         CASE
             WHEN zd IS null THEN 'NONE'
             WHEN zd LIKE 'M%' OR zd LIKE 'C%' THEN LEFT(zd, 1)
@@ -33,5 +34,4 @@ generalized_districts AS (
 )
 
 SELECT * FROM generalized_districts
-GROUP BY bbl, zoning_district_type
-ORDER BY bbl, zoning_district_type
+ORDER BY bbl, zd
