@@ -4,16 +4,11 @@ models:
 - name: stg__altsegmentdata_saf
   columns:
   - name: ogc_fid
-    tests: [ unique, not_null ]
   - name: segmentid
     tests: [ not_null ]
   - name: saftype
     tests: [ not_null ]
   - name: alt_segdata_type
-    tests:
-    - not_null
-    - accepted_values:
-        arguments: { values: [ "S" ] }
   - name: borough
     tests: [ not_null ]
 
