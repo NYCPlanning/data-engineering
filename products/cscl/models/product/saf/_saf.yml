@@ -1,0 +1,44 @@
+version: 2
+
+models:
+# Models with column per field
+- name: saf_abcegnpx_generic_by_field
+  columns: &safa_columns
+    - name: place_name
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 32 }
+    - name: boroughcode
+      data_type: string
+      tests:
+      - not_null
+      - accepted_values:
+          arguments:
+            values: [ "1", "2", "3", "4", "5" ]
+    - name: face_code
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 4 }
+    - name: segment_seqnum
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 5 }
+
+- name: saf_abcegnpx_roadbed_by_field
+  columns: *safa_columns
+
+# models with one text column per row
+
+- name: saf_abcegnpx_generic
+  columns: &dat_column
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 129 }
+
+- name: saf_abcegnpx_roadbed
+  columns: *dat_column
