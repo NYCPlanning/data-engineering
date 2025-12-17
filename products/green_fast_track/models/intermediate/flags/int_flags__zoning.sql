@@ -1,3 +1,6 @@
+{{ config(
+    materialized = 'table'
+) }}
 WITH pluto AS (
     SELECT * FROM {{ ref('stg__pluto') }}
 ),
@@ -14,13 +17,18 @@ district_categories AS (
     SELECT * FROM {{ ref('zoning_district_categories') }}
 ),
 
+zoning_district_types AS (
+    SELECT bbl, zoning_district_type FROM zoning_districts
+    GROUP BY bbl, zoning_district_type
+),
+
 districts_mapped AS (
     SELECT
-        zoning_districts.bbl,
-        zoning_districts.zoning_district_type,
+        zoning_district_types.bbl,
+        zoning_district_types.zoning_district_type,
         district_mappings.category_type
-    FROM zoning_districts
-    LEFT JOIN district_mappings ON zoning_districts.zoning_district_type = district_mappings.zoning_district_type
+    FROM zoning_district_types
+    LEFT JOIN district_mappings ON zoning_district_types.zoning_district_type = district_mappings.zoning_district_type
 ),
 
 lot_with_zoning_categories AS (
