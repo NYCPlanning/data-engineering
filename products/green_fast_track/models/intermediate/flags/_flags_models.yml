@@ -45,6 +45,8 @@ models:
     data_type: string
     tests:
     - not_null
+  - name: zd
+    data_type: string
   - name: zoning_district_type
     data_type: string
     tests:
@@ -59,6 +61,7 @@ models:
     arguments:
       combination_of_columns:
       - bbl
+      - zd
       - zoning_district_type
 
 - name: int_flags__zoning
