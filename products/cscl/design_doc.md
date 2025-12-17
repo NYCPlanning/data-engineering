@@ -334,6 +334,33 @@ All output categories (collection of SAF types) have their own fields and format
 |SAFD13|segment_type|Segment Type Code|1|98|98|RJSF|false|
 |SAFD14|segmentid|Segment ID|7|99|105|RJZF|false|
 
+`SAFV` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFV1|place_name|Street Name|32|1|32|LJSF|false|
+|SAFV2|boroughcode|Borough of Actual Segment|1|33|33|RJZF|false|
+|SAFV3|face_code|Face Code of Actual Segment|4|34|37|RJZF|false|
+|SAFV4|segment_seqnum|Sequence Number of Actual Segment|5|38|42|RJZF|false|
+|SAFV5|sos_indicator|SOS Indicator of Actual Segment|1|43|43|RJSF|false|
+|SAFV6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFV7|low_hn|Low HN Basic|7|50|56|RJSF|false|
+|SAFV8|low_hn_suffix|Low HN Suffix|9|57|65|RJSF|false|
+||filler_safv8|Filler|2|66|67|RJSF|false|
+|SAFV9|high_hn|High HN Basic|7|68|74|RJSF|false|
+|SAFV10|high_hn_suffix|High HN Suffix|9|75|83|RJSF|false|
+||filler_safv10|Filler|2|84|85|RJSF|false|
+|SAFV11|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safv11|Filler|2|87|88|RJSF|false|
+|SAFV12|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFV13|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFV14|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFV15|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFV16|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFV17|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFV18|segmentid|Segment ID of Actual Segment|7|99|105|RJZF|false|
+|SAFV19|x_coord|X Coordinate (V only)|7|106|112|RJZF|true|
+|SAFV20|y_coord|Y Coordinate (V only)|7|113|119|RJZF|true|
+
 ### Transformation
 
 #### Segment Lookup
@@ -407,8 +434,8 @@ Most fields are taken directly from the SAF (altsegmentdata) record itself or th
 | - | - | - |
 | SAFA1 | Special Address Street Name or Neighborhood Name or Addressable Place Name | Except for type C records, obtained from featurename table, in sort format.  For type C records, populate with the value '75 STREET'. 
 | SAFA2 | Borough | AltSegmentData field `boroughcode` |
-| SAFA3 | Face Code | Obtained from bytes 2 through 5 of AltSegmentData `lionkey` field  |
-| SAFA4 | Sequence Number | Obtained from bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFA3 | Face Code | Bytes 2 through 5 of AltSegmentData `lionkey` field  |
+| SAFA4 | Sequence Number | Bytes 6 through 10 of AltSegmentData `lionkey` field |
 | SAFA5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
 | SAFA6 | B5SC | AltSegmentData field `b5sc` |
 | SAFA7 | Left Low HN | AltSegmentData field `l_low_hn` |
@@ -486,9 +513,9 @@ Most fields are taken directly from the SAF (altsegmentdata) record itself or th
 | - | - | - |
 | SAFD1 | Special Address Street Name | Obtained from StreetName table in sort format |
 | SAFD2 | Borough | AltSegmentData field `boroughcode` |
-| SAFD3 | Face Code | Obtained from bytes 2 through 5 of AltSegmentData `lionkey` field |
-| SAFD4 | Sequence Number | Obtained from bytes 6 through 10 of AltSegmentData `lionkey` field |
-| SAFD5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R |
+| SAFD3 | Face Code | Bytes 2 through 5 of AltSegmentData `lionkey` field |
+| SAFD4 | Sequence Number | Bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFD5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
 | SAFD6 | DAPS B5SC | AltSegmentData field `b5sc` |
 | SAFD7 | Low HN | AltSegmentData field `l_low_hn` or `r_low_hn`, whichever is non-null/blank/zero |
 | SAFD8 | High HN | AltSegmentData field `l_high_hn` or `r_high_hn`, whichever is non-null/blank/zero |
@@ -498,6 +525,45 @@ Most fields are taken directly from the SAF (altsegmentdata) record itself or th
 | SAFD12 | DAPS Type | 1 if AltSegmentData field `saftype` = 'F' |
 | SAFD13 | Segment Type Code | `segment_type` of associated segment |
 | SAFD14 | Segment ID | AltSegmentData field `segmentid` |
+
+#### O Records
+O records are generated from all saf altsegmentdata records with saftype 'O'.
+
+Starting from `int__saf_segments`, O records are joined to
+- altsegmentdata to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc.
+
+| FIC | Field | CSCL Source of Data |
+| SAFV1 | Street Name | Obtained from StreetName table in sort format |
+| SAFV2 | Borough Code | AltSegmentData field `borough` |
+| SAFV3 | Face Code of Actual Segment | Bytes 2 through 5 of AltSegmentData `lionkey` field |
+| SAFV4 | Sequence Number of Actual Segment | Bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFV5 | SOS Indicator for Actual Segment | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFV6 | B5SC | AltSegmentData field B5SC |
+| SAFV7 | Low HN Basic | Obtained from AltSegmentData field `l_low_hn` or `r_low_hn` depending on value of `sos_indicator` |
+| SAFV8 | Low HN Suffix | AltSegmentData field `low_hn_suffix` |
+| SAFV9 | High HN Basic | Obtained from AltSegmentData field `l_high_hn` or `r_high_hn` depending on value of `sos_indicator` |
+| SAFV10 | High HN Suffix | AltSegmentData field `high_hn_suffix` |
+| SAFV11 | SAF Record Type Code | AltSegmentData field `saftype` |
+| SAFV12 | LGC1 | AltSegmentData field `lgc1` |
+| SAFV13 | LGC2 | AltSegmentData field `lgc2` |
+| SAFV14 | LGC3 | AltSegmentData field `lgc3` |
+| SAFV15 | LGC4 | AltSegmentData field `lgc4` |
+| SAFV16 | Pointer to BOE Preferred LGC | AltSegmentData field `boe_preffered_lgc_flag` |
+| SAFV17 | Segment Type Code | Segment `segment_type` |
+| SAFV18 | Segment ID of Actual Segment | AltSegmentData field `segmentid` |
+| SAFV19 | X Coordinate | Null (Field is used only for type V records.) |
+| SAFV20 | Y Coordinate | Null (Field is used only for type V records.) |
+
+#### V Records
+V records are generated from all address point records with `special_condition` = 'V'.
+
+Starting from `int__saf_segments`, V records are joined to
+- address points (`int__address_points`) to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename` (essentially StreetName and FeatureName CSCL feature layers unioned) is joined twice, on different keys from address points
+  - once to lookup street/feature name by vanity b7sc
+  - once to lookup street/feature name by actual b7sc
+- address point lgc table (`int__lgc_address_point`), a lookup table of address points to lgcs based on `addresspointid`
 
 # Infrastructure
 [stub]
