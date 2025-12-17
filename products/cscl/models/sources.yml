@@ -17,6 +17,7 @@ sources:
 
   # all other tables
   - name: dcp_cscl_addresspoints
+  - name: dcp_cscl_addresspoint_lgcs
   - name: dcp_cscl_altsegmentdata
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
   - name: dcp_cscl_featurename
@@ -48,4 +49,6 @@ sources:
   - name: saf_d_generic
   - name: saf_d_roadbed
   - name: saf_i
+  - name: saf_ov_generic
+  - name: saf_ov_roadbed
   - name: sedat

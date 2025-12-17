@@ -25,6 +25,8 @@ inputs:
   # all other tables
   - name: dcp_cscl_addresspoints
     version_env_var: VERSION
+  - name: dcp_cscl_addresspoint_lgcs
+    version_env_var: VERSION
   - name: dcp_cscl_altsegmentdata
     version_env_var: VERSION
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
@@ -97,6 +99,14 @@ exports:
   - name: saf_i
     filename: Intersection.txt
     format: dat
+  - name: saf_ov_generic
+    filename: GenericOV.txt
+    format: dat
+    custom: { formatting: saf_v }
+  - name: saf_ov_roadbed
+    filename: RoadbedOV.txt
+    format: dat
+    custom: { formatting: saf_v }
 
   # SEDAT
   - name: sedat

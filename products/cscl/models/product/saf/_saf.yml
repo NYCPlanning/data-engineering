@@ -33,6 +33,8 @@ models:
 - name: saf_d_generic_by_field
 - name: saf_d_roadbed_by_field
 - name: saf_i_by_field
+- name: saf_ov_generic_by_field
+- name: saf_ov_roadbed_by_field
 
 # models with one text column per row
 
@@ -65,3 +67,14 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 98 }
+
+- name: saf_ov_generic
+  columns: &dat_column_119
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 119 }
+
+- name: saf_ov_roadbed
+  columns: *dat_column_119

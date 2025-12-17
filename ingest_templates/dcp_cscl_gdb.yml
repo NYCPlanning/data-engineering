@@ -24,6 +24,12 @@ datasets:
   file_format:
     layer: AddressPoint
 
+- id: dcp_cscl_addresspoint_lgcs
+  attributes:
+    name: CSCL Address Points LGC (Local Group Code)
+  file_format:
+    layer: ADDRESSPOINTLGCS
+
 - id: dcp_cscl_altsegmentdata
   attributes:
     name: CSCL Alt Segment Data

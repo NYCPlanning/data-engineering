@@ -1,0 +1,24 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+SAFV1,place_name,Street Name,32,1,32,LJSF,FALSE
+SAFV2,boroughcode,Borough of Actual Segment,1,33,33,RJZF,FALSE
+SAFV3,face_code,Face Code of Actual Segment,4,34,37,RJZF,FALSE
+SAFV4,segment_seqnum,Sequence Number of Actual Segment,5,38,42,RJZF,FALSE
+SAFV5,sos_indicator,SOS Indicator of Actual Segment,1,43,43,RJSF,FALSE
+SAFV6,b5sc,B5SC,6,44,49,RJSF,FALSE
+SAFV7,low_hn,Low HN Basic,7,50,56,RJSF,FALSE
+SAFV8,low_hn_suffix,Low HN Suffix,9,57,65,RJSF,FALSE
+,filler_safv8,Filler,2,66,67,RJSF,FALSE
+SAFV9,high_hn,High HN Basic,7,68,74,RJSF,FALSE
+SAFV10,high_hn_suffix,High HN Suffix,9,75,83,RJSF,FALSE
+,filler_safv10,Filler,2,84,85,RJSF,FALSE
+SAFV11,saftype,SAF Record Type Code,1,86,86,RJSF,FALSE
+,filler_safv11,Filler,2,87,88,RJSF,FALSE
+SAFV12,lgc1,LGC1,2,89,90,RJZF,FALSE
+SAFV13,lgc2,LGC2,2,91,92,RJZF,TRUE
+SAFV14,lgc3,LGC3,2,93,94,RJZF,TRUE
+SAFV15,lgc4,LGC4,2,95,96,RJZF,TRUE
+SAFV16,boe_lgc_pointer,Pointer to BOE Preferred LGC,1,97,97,RJSF,FALSE
+SAFV17,segment_type,Segment Type Code,1,98,98,RJSF,FALSE
+SAFV18,segmentid,Segment ID of Actual Segment,7,99,105,RJZF,FALSE
+SAFV19,x_coord,X Coordinate (V only),7,106,112,RJZF,TRUE
+SAFV20,y_coord,Y Coordinate (V only),7,113,119,RJZF,TRUE
