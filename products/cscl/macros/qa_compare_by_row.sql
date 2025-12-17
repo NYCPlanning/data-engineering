@@ -1,11 +1,9 @@
-{{ config(
-    materialized = 'table',
-) }}
+{% macro qa_compare_by_row(model) -%}
 WITH dev AS (
-    SELECT * FROM {{ ref('saf_abcegnpx_generic') }}
+    SELECT * FROM {{ ref(model) }}
 ),
 prod AS (
-    SELECT * FROM {{ source('production_outputs', 'saf_abcegnpx_generic') }}
+    SELECT * FROM {{ source('production_outputs', model) }}
 ),
 combined AS (
     SELECT
@@ -30,4 +28,4 @@ counts AS (
 )
 SELECT * FROM counts
 WHERE dev_count <> prod_count
-ORDER BY counts.boroughcode, counts.face_code, counts.segment_seqnum, source
+{%- endmacro %}
