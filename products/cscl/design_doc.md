@@ -230,5 +230,118 @@ A somewhat confusingly named layer since shoreline, rail, and subway are not str
 ### Error reporting
 [stub]
 
-# Infrastructure/Code
+
+## Special Address Files (SAF)
+
+### Description/Summary
+
+Every row is a: special address flag, which can correspond to one of a few entities
+
+The Special Address File (SAF) contains address information for some street segments supplementary to the address information for the same segments contained in the LION file.
+
+| Flag | Source | Corresponds to | Meaning | Output |
+| - | - | - | - | - |
+| A | altsegmentdata | segment | Alternative address ranges | ABCEGNPX |
+| B | altsegmentdata | segment | Alternative street names | ABCEGNPX |
+| C | altsegmentdata | segment | Special record for Ruby Street on Brooklyn-Queens border | ABCEGNPX |
+| D | altsegmentdata | segment | Duplicate or overlapping address ranges on the same street | D |
+| E | altsegmentdata | segment | Neighborhood name usable in place of street name in addresses | ABCEGNPX |
+| G | commonplace | segment | Non-Addressable place name of complexes | ABCEGNPX |
+| I | namedintersection | intersection | Contain intersection names | I |
+| N | commonplace | segment | Non-Addressable placename | ABCEGNPX |
+| O | altsegmentdata | segment | Contain out-of-sequence addresses and opposite-parity addresse | OV |
+| P | altsegmentdata | segment | Addressable placename | ABCEGNPX |
+| S | addresspoint | segment | Suffixed house number(s) occurring at an intersection | S |
+| V | addresspoint | segment | Contain Vanity Addresses | OV |
+| X | commonplace | segment | Non-Addressable Place name of constituent entities of complexes | ABCEGNPX |
+
+For each of the listed outputs other than "I", there are both a "generic" and "roadbed" output, meaning 9 output files in total.
+
+#### Generic vs Roadbed
+Other than the interesction file, all output files have both a "generic" vs "roadbed" output. There are slightly more complicated rules on what exactly ends up in each (and how the "roadbed pointer list" is used), but the general difference corresponds to sections of divided roadway. See [segment lookup](#segment-lookup) for details on how this specifically determined.
+
+A divided roadway is modeled in CSCL and LION as such
+- One "generic" segment, which corresponds to the entire roadway, including all divided portions
+- One "roadbed" segment PER DIVIDED SECTION of the roadway
+
+All of these have their own distinct segmentids (and their own records in centerline feature layer as well as LION). Take this example of a stretch of the Hudson Parkway.
+
+![Hudson Parkway - Roadbed and Generic Segments](docs/roadbed_v_generic.png)
+
+For the stretch of divided freeway in the center of the picture, we have 3 segments
+- 34378 - the centerline segment for this whole stretch of road
+- 142544 and 142545 - the roadbed segments for each of the individual divided roadbeds
+
+The roadbed pointer list CSCL feature layer links roadbed segments to their respective generic segment. So in the above image, we would have two records, both with 34378 as the `generic_segmentid` and the respective roadbed segment id as the `roadbed_segmentid`, as well as various other fields (indicator of roadbed position, etc)
+
+SAF outputs that correspond to segments (every output other than `I` - intersections) have both a Generic and Roadbed output. Most SAF records correspond to segments which are not divided streets, and end up in both outputs. Situations like the above screenshot, the respective output file will contain either only the generic SAF records or roadbed SAF records.
+
+### Format
+All output categories (collection of SAF types) have their own fields and formatting conventions.
+
+`SAFA` formatting (for output files ABCEGNPX)
+
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFA1|place_name|Special Address Street Name, Neighborhood Name or Place Name|32|1|32|LJSF|false|
+|SAFA2|boroughcode|Borough|1|33|33|RJZF|false|
+|SAFA3|face_code|Face Code|4|34|37|RJZF|false|
+|SAFA4|segment_seqnum|Sequence Number|5|38|42|RJZF|false|
+|SAFA5|sos_indicator|SOS Indicator|1|43|43|RJSF|false|
+|SAFA6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFA7|l_low_hn|Left Low HN|7|50|56|RJSF|false|
+||filler_safa7|Filler|2|57|58|RJSF|false|
+|SAFA8|l_high_hn|Left High HN|7|59|65|RJSF|false|
+||filler_safa8|Filler|2|66|67|RJSF|false|
+|SAFA9|r_low_hn|Right Low HN|7|68|74|RJSF|false|
+||filler_safa9|Filler|2|75|76|RJSF|false|
+|SAFA10|r_high_hn|Right High HN|7|77|83|RJSF|false|
+||filler_safa10|Filler|2|84|85|RJSF|false|
+|SAFA11|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safa11|Filler|2|87|88|RJSF|false|
+|SAFA12|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFA13|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFA14|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFA15|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFA16|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFA17|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFA18|segmentid|Segment ID|7|99|105|RJZF|false|
+|SAFA19|x_coord|X Coordinate (GNX only)|7|106|112|RJZF|true|
+|SAFA20|y_coord|Y Coordinate (GNX only)|7|113|119|RJZF|true|
+|SAFA21|side_borough_code|Side borough code (GNX only)|1|120|120|RJZF|true|
+|SAFA22_1|side_ct2020_basic|Side CT2020 Basic (GNX only) (XXXXYY)|4|121|124|RJSF|false|
+|SAFA22_2|side_ct2020_suffix|Side CT2020 Suffix (GNX only) (XXXXYY)|2|125|126|RJZF|true|
+|SAFA23|side_ap|Side AP (GNX only)|3|127|129|RJZF|true|
+
+### Transformation
+
+#### Segment Lookup
+All flags other than `I` are associated with segments and must be joined to them. This logic occurs in `int__saf_segments`.
+
+This isn't a simple join to a segment-based table, like a source feature layer, or `int__lion`, `int__segments`, etc primarily for two reasons
+- A single SAF record can correspond to both roadbed and generic segments for certain SAF sources
+- SAF records are linked to segment by segmentid, not lionkey, meaning protosegments need differentiating
+
+In terms of handling roadbed vs generic:
+- records from altsegmentdata are defined in CSCL for both the generic segments and roadbed segments already, separately. So for 1 generic segment with 3 roadbed segments, you might see 4 records in altsegmentdata, one for each individual segment. Put more simply, 1 record in altsegmentdata always corresponds to just one output record.
+- records from addresspoint and commonplace (in the cases of split roadways) are only defined for the roadbed segments, but output records should be generated for the generic segments as well. So one source record in addresspoint or commonplace could generate multiple output records each.
+
+On protosegments: a SAF record only corresponds to a protosegment rather than the geometry-modeled segment if
+1. the geometry-modeled segment is a centerline segment
+2. the protosegment is a borough boundary segment
+3. the borough of the saf record matches the protosegment and not the geometry-modeled segment
+
+Really, the third necesitates the second. So to implement both generic segment lookup and determining relevant protosegments in `int__saf_segments`, the query
+1. finds all source records for SAF and unions them (keeping track by source feature layer and globalid)
+2. for relevant records, joins to roadbed pointer list to link SAF records defined for roadbed segments to the generic segment
+3. unions the above to the original set of records. At this point, we have the backbone for the SAF outputs downstream of this table, where 1 record here should be reflected 1-1 in an output file
+
+Segment-associated saf records have logic applied to determine which output files (roadbed, generic, or both) they are exported to. This is determined as follows:
+
+| Output file | `segment_type` of associated segment |
+| - | - |
+| Generic |  B, E, G (except when INCEX_FLAG = ‘E’), U |
+| Roadbed | E, R, S, U |
+
+# Infrastructure
 [stub]
