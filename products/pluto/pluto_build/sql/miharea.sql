@@ -6,9 +6,11 @@
 DROP TABLE IF EXISTS mihperorder;
 CREATE TABLE mihperorder AS
 WITH mih_unioned AS (
-    SELECT CONCAT(project_name, ' - ', mih_option) as mih_area_key, ST_UNION(wkb_geometry) AS wkb_geometry
+    SELECT
+        CONCAT(project_name, ' - ', mih_option) AS mih_area_key,
+        ST_UNION(wkb_geometry) AS wkb_geometry
     FROM dcp_mih
-    group by CONCAT(project_name, ' - ', mih_option)
+    GROUP BY CONCAT(project_name, ' - ', mih_option)
 ),
 mihper AS (
     SELECT
