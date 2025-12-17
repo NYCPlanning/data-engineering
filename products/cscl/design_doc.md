@@ -343,5 +343,126 @@ Segment-associated saf records have logic applied to determine which output file
 | Generic |  B, E, G (except when INCEX_FLAG = ‘E’), U |
 | Roadbed | E, R, S, U |
 
+#### "Sort Format"
+Numbers in street or place names are formatted specially such that numbering of streets sorts correctly when sorted alphabetically. Numbers are left-padded with spaces to 4 characters. Additionally, spaces should be inserted between numbers and non-whitespace characters that immediately precede or follow them. There is one exception - if a number is immediately followed or preceded by a slash or dash, it is treated as "word" and not a number, and should not be formatted in any way. [TODO - this needs some clarification. The ETL docs seem to suggest that this applies to all "sort format" processing, but it seems like there are cases where this doesn't apply in the production outputs. Not sure if requirement or bug]
+
+| Input string | Output string |
+| - | - |
+| `3 AVENUE` | `   3 AVENUE` |
+| `11 AVENUE` | `  11 AVENUE` |
+| `108 STREET` | ` 108 STREET` |
+| `EAST 7 STREET` | `EAST    7 STREET` |
+| `EAST 23 STREET` | `EAST   23 STREET` |
+| `EAST 104 STREET` | `EAST  104 STREET` |
+| `EAST 9 STREET BLDG16` | `EAST    9 STREET BLDG   16` |
+| `9/11 MEMORIAL PLAZA` | `9/11 MEMORIAL PLAZA` |
+
+Note the additional spaces between `BLDG` and `16` - the 16 is both left-padded to four characters and a space is added, meaning there are three spaces separating the word and the number
+
+This formatting occurs in a staging table not exclusive to saf - `stg__featurename_and_facecode`.
+
+#### House Numbers
+House numbers come from the AddressPoint CSCL feature layer. They have multiple fields and come with some special formatting rules. This logic is currently handled in `int__address_points`.
+
+- Edgewater Park
+  - AddressPoints are joined to the StreetName table on b7sc (and StreetName.principal_flag = 'Y'). If the street name entry has snd_feature_type (SND = Street Name Dictionary) in 'E' or 'F' and the address point has a house number suffix, this record is in Edgewater Park in the Bronx and needs special logic applied. 
+  - For the `house_number` field, the relevant records will have a `house_number_suffix` field ending with a capital letter, `A` through `E`. These should be converted to a number (1-5), multiplied by 10,000, and added to the house number of the record.
+  - For the `house_number_suffix` field, if the suffix contains a hyphen, only the part before the hyphen should be kept.
+- AddressPoint `hyphen_type` = 'R'
+  - NOTE - seems that docs might be out of date and this is no longer relevant. It's still implemented, in a way that whether or not the fields are formatted this way, the correct logic will be applied.
+  - Before, this implied that the `house_number` field was a range (`'22-28'` or `'22 - 28'`). Only the value before then hyphen (trimmed of whitespace) should be kept.
+  - Now, it seems that when `hyphen_type` is R, the `house_number` field already only contains the lowest value, and the ``house_number`_range` field contains the high end of the range.
+
+#### ABCEP Records
+A, B, C, E, and P records correspond to segments which
+- A: have alternative address ranges
+- B: have alternative street names
+- C: are on [Ruby Street](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterV/section08/) on the Brooklyn-Queens border (hard-coded flag)
+- E: have a neighborhood name usable in place of street name in addresses
+- P: have an addressable placename (like "Empire State Building")
+
+They are generated from all saf altsegmentdata records with saftype A, B, C, E, or P.
+
+Starting from `int__saf_segments`, ABCEP records are joined to
+- altsegmentdata to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc
+
+Most fields are taken directly from the SAF (altsegmentdata) record itself or the associated segment
+
+| FIC | Field | Source of Data |
+| - | - | - |
+| SAFA1 | Special Address Street Name or Neighborhood Name or Addressable Place Name | Except for type C records, obtained from featurename table, in sort format.  For type C records, populate with the value ’75 STREET’. 
+| SAFA2 | Borough | AltSegmentData field `boroughcode` |
+| SAFA3 | Face Code | Obtained from bytes 2 through 5 of AltSegmentData `lionkey` field  |
+| SAFA4 | Sequence Number | Obtained from bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFA5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFA6 | B5SC | AltSegmentData field `b5sc` |
+| SAFA7 | Left Low HN | AltSegmentData field `l_low_hn` |
+| SAFA8 | Left High HN | AltSegmentData field `l_high_hn` |
+| SAFA9 | Right Low HN | AltSegmentData field `r_low_hn` |
+| SAFA10 | Right High HN | AltSegmentData field `r_high_hn` |
+| SAFA11 | SAF Record Type Code | AltSegmentData field `saftype` |
+| SAFA12 | LGC1 | AltSegmentData field `lgc1` |
+| SAFA13 | LGC2 | AltSegmentData field `lgc2` |
+| SAFA14 | LGC3 | AltSegmentData field `lgc3` |
+| SAFA15 | LGC4 | AltSegmentData field `lgc4` |
+| SAFA16 | Pointer to BOE Preferred LGC | AltSegmentData field `boe_preferred_lgc_flac` |
+| SAFA17 | Segment Type Code | `segment_type` of associated segment |
+| SAFA18 | Segment ID | AltSegmentData field `segmentid` |
+| N/A | 14-byte filler | Nulls for fields in GNX but not ABCEP |
+
+Notes:
+- SAFA1
+  - if a feature name is found rather than a street name, a warning should be issued
+  - if no street/feature name is found, an error should be issued and no result record produced
+
+#### GNX Records
+G, N, and X records are all [non-addressable place names](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterIV/section07/)
+- G: Non-addressable place names of complexes
+- N: Non-addressable place names (not G or X)
+- X: Non-Addressable place names of constituent entities of complexes
+
+They are generated from all commonplace records with 
+- saftype G, N, or X
+- non-blank/null b7sc
+- security_level not equal to `'3'` (corresponding to a public safety agency)
+
+Starting from `int__saf_segments`, GNX records are joined to
+- commonplace to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc
+- `int__address_points`, largely the AddressPoint feature layer with some cleaning/processing done of the house number fields
+- `stg__atomic_polygons`, a spatial join from commonplace point to the atomic polygon which contains it
+
+Fields are determined as follows
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFA1 | Place Name | Obtained from FeatureName table |
+| SAFA2 | Borough | CommonPlace attribute `boroughcode` |
+| SAFA3 | Face Code | Segment `face_code` |
+| SAFA4 | Sequence Number | Segment `segment_seqnum` |
+| SAFA5 | SOS Indicator | CommonPlace attribute `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFA6 | B5SC of NAP | First 6 bytes of CommonPlace attribute `b7sc` |
+| SAFA7 | Left Low HN | `'0'` |
+| SAFA8 | Left High HN | AddressPoint formatted housenumber if `sosindicator` = 1 |
+| SAFA9 | Right Low HN | `'0'` |
+| SAFA10 | Right High HN | AddressPoint formatted housenumber if `sosindicator` = 2 |
+| SAFA11 | SAF Record Type Code | CommonPlace attribute `saftype` |
+| SAFA12 | LGC1 of NAP | Last two characters of CommonPlace attribute `b7sc` |
+| SAFA13 | LGC2 of NAP | Null |
+| SAFA14 | LGC3 of NAP | Null |
+| SAFA15 | LGC4 of NAP | Null |
+| SAFA16 | Pointer to BOE Preferred LGC | ‘1’ |
+| SAFA17 | Segment Type Code | `segment_type` of associated segment |
+| SAFA18 | Segment ID | AltSegmentData field `segmentid` |
+| SAFA19 | X Coordinate of Place | X coordinate of CommonPlace point |
+| SAFA20 | Y Coordinate of Place | Y coordinate of CommonPlace point |
+| SAFA21 | Side borough code | AtomicPolygon `boroughcode` |
+| SAFA22 | Side CT2020 (XXXXYY) | AtomicPolygon ct 2020 basic and suffix |
+| SAFA23 | Side AP | AtomicPolygon dynamic block (last three characters of `atomicid`) |
+
+Notes
+- if no street/feature name is found, an error should be issued
+
 # Infrastructure
 [stub]
