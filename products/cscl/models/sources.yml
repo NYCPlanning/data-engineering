@@ -20,6 +20,7 @@ sources:
   - name: dcp_cscl_altsegmentdata
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
   - name: dcp_cscl_featurename
+  - name: dcp_cscl_namedintersection
   - name: dcp_cscl_nypdbeat
   - name: dcp_cscl_roadbed_pointer_list
   - name: dcp_cscl_sectionalmap
@@ -46,4 +47,5 @@ sources:
   - name: saf_abcegnpx_roadbed
   - name: saf_d_generic
   - name: saf_d_roadbed
+  - name: saf_i
   - name: sedat

@@ -57,6 +57,12 @@ datasets:
   file_format:
     layer: FEATURENAME
 
+- id: dcp_cscl_namedintersection
+  attributes:
+    name: CSCL Named Intersections
+  file_format:
+    layer: NAMEDINTERSECTION
+
 - id: dcp_cscl_nodes
   attributes:
     name: CSCL Nodes
