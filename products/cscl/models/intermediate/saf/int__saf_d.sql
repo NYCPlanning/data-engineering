@@ -5,7 +5,7 @@ altsegdata AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
 ),
 feature_names AS (
-    SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
+    SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
 ),
 saf_d_regular_b5sc AS (
     SELECT *

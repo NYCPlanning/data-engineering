@@ -25,6 +25,12 @@ models:
 - name: stg__facecode_and_featurename
   columns:
   - name: b7sc
+  - name: lookup_key
+  - name: face_code
+
+- name: stg__facecode_and_featurename_principal
+  columns:
+  - name: b7sc
     tests:
     - unique:
         config: { where: "b7sc IS NOT NULL" }

@@ -1,0 +1,16 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+SNDN1,record_type,Record Type,1,1,1,RJSF,FALSE
+SNDN2,boroughcode,Borough,1,2,2,RJSF,FALSE
+SNDN3,place_name,Street Name or Feature Name,32,3,34,LJSF,FALSE
+SNDN4,primary_flag,Primary Name Flag,1,35,35,RJSF,FALSE
+SNDN5,principal_flag,Principal Name Flag,1,36,36,RJSF,FALSE
+SNDN6,b10sc,B10SC,11,37,47,RJSF,FALSE
+,filler_sndn6,Filler,2,48,49,RJSF,FALSE
+SNDN7,numeric_name_indicator,Numeric Name Indicator,1,50,50,RJSF,FALSE
+SNDN8,geographic_feature_type,Geographic Feature Type,1,51,51,RJSF,FALSE
+SNDN9,name_length,Length of Name,2,52,53,RJZF,FALSE
+SNDN10,full_name,Full Name,32,54,85,LJSF,FALSE
+,filler_sndn10,Filler ,2,86,87,RJSF,FALSE
+,filler_sndn10a,Filler,20,88,107,RJSF,FALSE
+SNDN11,horizontal_topo_type,Horizontal Topology Name Type Code,1,108,108,RJSF,FALSE
+,filler_sndn11,Filler,92,109,200,RJSF,FALSE

@@ -23,7 +23,7 @@ WITH lgcs_by_segment AS (
     GROUP BY segmentid
 ),
 facecode AS (
-    SELECT * FROM {{ ref("stg__facecode_and_featurename") }}
+    SELECT * FROM {{ ref("stg__facecode_and_featurename_principal") }}
 )
 SELECT
     LEFT(lgcs_by_segment.b5sc, 1) AS boroughcode,
