@@ -1,3 +1,6 @@
+{{ config(
+    materialized = 'table'
+) }}
 WITH pluto AS (
     SELECT * FROM {{ ref('stg__pluto') }}
 ),
@@ -14,13 +17,21 @@ district_categories AS (
     SELECT * FROM {{ ref('zoning_district_categories') }}
 ),
 
+zoning_district_types AS (
+    SELECT
+        bbl,
+        zoning_district_type
+    FROM zoning_districts
+    GROUP BY bbl, zoning_district_type
+),
+
 districts_mapped AS (
     SELECT
-        zoning_districts.bbl,
-        zoning_districts.zoning_district_type,
+        zoning_district_types.bbl,
+        zoning_district_types.zoning_district_type,
         district_mappings.category_type
-    FROM zoning_districts
-    LEFT JOIN district_mappings ON zoning_districts.zoning_district_type = district_mappings.zoning_district_type
+    FROM zoning_district_types
+    LEFT JOIN district_mappings ON zoning_district_types.zoning_district_type = district_mappings.zoning_district_type
 ),
 
 lot_with_zoning_categories AS (
@@ -37,7 +48,8 @@ lots_with_flags AS (
         category_type_array,
         'other' = ANY(category_type_array) AS has_other,
         'c_or_m' = ANY(category_type_array) AS has_c_or_m,
-        'low_res' = ANY(category_type_array) AS has_low_res
+        'low_res' = ANY(category_type_array) AS has_low_res,
+        'high_res' = ANY(category_type_array) AS has_high_res
     FROM lot_with_zoning_categories
 ),
 
@@ -53,7 +65,7 @@ districts_resolved AS (
                         ELSE 'c_or_m'
                     END
             WHEN has_low_res THEN 'low_res'
-            ELSE 'high_res'
+            WHEN has_high_res THEN 'high_res'
         END AS category_type
     FROM lots_with_flags
 ),
