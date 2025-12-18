@@ -220,3 +220,6 @@ exports:
     filename: LastWord.txt
     format: csv # TODO - CRLF?
     custom: { header: False} # TODO dcpy doesn't yet do anything with this arg on export
+  - name: enders
+    filename: Enders.txt
+    format: dat
