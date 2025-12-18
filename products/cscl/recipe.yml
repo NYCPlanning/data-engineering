@@ -76,6 +76,11 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: FEATURENAME
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_lastword
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: LASTWORD
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_namedintersection
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -115,6 +120,11 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: STREETNAME
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_universalword
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: UNIVERSALWORD
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_zipcode
     custom:
@@ -202,3 +212,11 @@ exports:
   - name: exception
     filename: Exception.txt
     format: dat
+  - name: universal_word
+    filename: Universal.txt
+    format: csv # TODO - CRLF?
+    custom: { header: False} # TODO dcpy doesn't yet do anything with this arg on export
+  - name: last_word
+    filename: LastWord.txt
+    format: csv # TODO - CRLF?
+    custom: { header: False} # TODO dcpy doesn't yet do anything with this arg on export
