@@ -335,6 +335,47 @@ All output categories (collection of SAF types) have their own fields and format
 |SAFD13|segment_type|Segment Type Code|1|98|98|RJSF|false|
 |SAFD14|segmentid|Segment ID|7|99|105|RJZF|false|
 
+`SAFI` formatting
+|field_number|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|------------|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFI1|place_name|Primary Intersection Name|32|1|32|LJSF|false|
+|SAFI2|nodeid|Node ID|7|33|39|RJZF|false|
+||filler_safi2|Filler|13|40|52|RJSF|false|
+|SAFI3|multiplefield|Multiple Field|1|53|53|RJSF|false|
+|SAFI4|b7sc_intersection|B7SC of Intersection Name|8|54|61|RJSF|false|
+|SAFI5|b5sc_cross1|B5SC of One Cross Street|6|62|67|RJSF|false|
+|SAFI6|b5sc_cross2|B5SC of Other Cross Street|6|68|73|RJSF|false|
+||filler_safi6|Filler|12|74|85|RJSF|false|
+|SAFI7|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safi7|Filler|12|87|98|RJSF|false|
+
+`SAFV` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFV1|place_name|Street Name|32|1|32|LJSF|false|
+|SAFV2|boroughcode|Borough of Actual Segment|1|33|33|RJZF|false|
+|SAFV3|face_code|Face Code of Actual Segment|4|34|37|RJZF|false|
+|SAFV4|segment_seqnum|Sequence Number of Actual Segment|5|38|42|RJZF|false|
+|SAFV5|sos_indicator|SOS Indicator of Actual Segment|1|43|43|RJSF|false|
+|SAFV6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFV7|low_hn|Low HN Basic|7|50|56|RJSF|false|
+|SAFV8|low_hn_suffix|Low HN Suffix|9|57|65|RJSF|false|
+||filler_safv8|Filler|2|66|67|RJSF|false|
+|SAFV9|high_hn|High HN Basic|7|68|74|RJSF|false|
+|SAFV10|high_hn_suffix|High HN Suffix|9|75|83|RJSF|false|
+||filler_safv10|Filler|2|84|85|RJSF|false|
+|SAFV11|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safv11|Filler|2|87|88|RJSF|false|
+|SAFV12|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFV13|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFV14|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFV15|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFV16|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFV17|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFV18|segmentid|Segment ID of Actual Segment|7|99|105|RJZF|false|
+|SAFV19|x_coord|X Coordinate (V only)|7|106|112|RJZF|true|
+|SAFV20|y_coord|Y Coordinate (V only)|7|113|119|RJZF|true|
+
 ### Transformation
 
 #### Segment Lookup
@@ -513,6 +554,21 @@ Most fields are taken directly from the SAF (altsegmentdata) record itself or th
 | SAFD12 | DAPS Type | 1 if AltSegmentData field `saftype` = 'F' |
 | SAFD13 | Segment Type Code | `segment_type` of associated segment |
 | SAFD14 | Segment ID | AltSegmentData field `segmentid` |
+
+#### I records
+I records are named intersections
+
+They are generated from from the NamedIntersection feature layer, joined to feature name table.
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFI1 | Primary Intersection Name | Obtained from FeatureName table, in sort format |
+| SAFI2 | Node ID | NamedIntersection field `nodeid` |
+| SAFI3 | Multiple Field | 'M' if NamedIntersection field `multiplefield` = 'Y' |
+| SAFI4 | B7SC of Intersection Name | NamedIntersection field `b7sc` |
+| SAFI5 | B5SC of One Cross Street | NamedIntersection field `b5sc_cross1` |
+| SAFI6 | B5SC of Other Cross Street | NamedIntersection field b5sc_cross2` |
+| SAFI7 | SAF Record Type Code | ‘I’ |
 
 # Infrastructure
 [stub]
