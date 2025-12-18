@@ -198,3 +198,7 @@ exports:
   - name: snd
     filename: SND.txt
     format: dat
+    custom: { formatting: snd }
+  - name: exception
+    filename: Exception.txt
+    format: dat
