@@ -33,6 +33,8 @@ inputs:
     version_env_var: VERSION
   - name: dcp_cscl_featurename
     version_env_var: VERSION
+  - name: dcp_cscl_lastname
+    version_env_var: VERSION
   - name: dcp_cscl_namedintersection
     version_env_var: VERSION
   - name: dcp_cscl_nypdbeat
@@ -48,6 +50,8 @@ inputs:
   - name: dcp_cscl_specialsedat
     version_env_var: VERSION
   - name: dcp_cscl_streetname
+    version_env_var: VERSION
+  - name: dcp_cscl_universalname
     version_env_var: VERSION
   - name: dcp_cscl_zipcode
     version_env_var: VERSION
@@ -132,3 +136,9 @@ exports:
   - name: exception_table
     filename: ExceptionTable.txt # TODO
     format: dat
+  - name: universal_word_table
+    filename: UniversalWords.csv # TODO
+    format: csv # todo - CRLF?
+  - name: last_word_table
+    filename: LastWords.csv # TODO
+    format: csv # todo - CRLF?
