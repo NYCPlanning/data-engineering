@@ -129,7 +129,7 @@ exports:
     format: dat
     custom: { formatting: sedat }
 
-  # SND, Geosupport Normalizing Tables, Face Code
+  # SND, Geosupport Normalizing Tables
   - name: snd
     filename: SND.txt # TODO
     format: dat
@@ -145,3 +145,25 @@ exports:
   - name: enders
     filename: Enders.txt # TODO
     format: dat
+
+  # Face Code
+  - name: manhattan_face_code
+    filename: ManhattanFC.dat
+    format: dat
+    custom: { formatting: face_code }
+  - name: bronx_face_code
+    filename: BronxFC.dat
+    format: dat
+    custom: { formatting: face_code }
+  - name: brooklyn_face_code
+    filename: BrooklynFC.dat
+    format: dat
+    custom: { formatting: face_code }
+  - name: queens_face_code
+    filename: QueensFC.dat
+    format: dat
+    custom: { formatting: face_code }
+  - name: staten_island_face_code
+    filename: StatenIslandFC.dat
+    format: dat
+    custom: { formatting: face_code }

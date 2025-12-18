@@ -1,0 +1,7 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+FC1,boroughcode,Borough,1,1,1,RJSF,FALSE
+FC2,face_code,Face Code,4,2,5,RJZF,FALSE
+,filler_fc2,Filler,1,6,6,RJSF,FALSE
+FC3,b10sc,B10SC,11,7,17,RJSF,FALSE
+,filler_fc3,Filler,1,18,18,RJSF,FALSE
+FC4,lookup_key,Name of street or non-street feature,32,19,50,LJSF,FALSE

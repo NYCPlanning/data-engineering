@@ -56,6 +56,7 @@ sort_order AS (
     GROUP BY globalid
 )
 SELECT
+    LEFT(b10sc, 1) AS boroughcode,
     b10sc,
     b7sc,
     lookup_key,
