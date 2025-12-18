@@ -129,3 +129,6 @@ exports:
   - name: snd
     filename: SND.txt # TODO
     format: dat
+  - name: exception_table
+    filename: ExceptionTable.txt # TODO
+    format: dat
