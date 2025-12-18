@@ -5,7 +5,7 @@ primary_segments AS (
     SELECT * FROM {{ ref("int__primary_segments") }}
 ),
 facecode AS (
-    SELECT * FROM {{ ref("stg__facecode_and_featurename") }}
+    SELECT * FROM {{ ref("stg__facecode_and_featurename_principal") }}
 ),
 seqnum AS (
     SELECT * FROM {{ ref("int__nonstreetfeature_seqnum") }}

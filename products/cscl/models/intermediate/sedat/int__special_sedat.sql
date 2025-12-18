@@ -2,7 +2,7 @@ WITH special_sedat AS (
     SELECT * FROM {{ source("recipe_sources", "dcp_cscl_specialsedat") }}
 ),
 feature_name AS (
-    SELECT * FROM {{ ref("stg__facecode_and_featurename") }}
+    SELECT * FROM {{ ref("stg__facecode_and_featurename_principal") }}
 )
 SELECT
     special_sedat.lionkey,

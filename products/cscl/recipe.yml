@@ -124,3 +124,8 @@ exports:
     filename: SpecialSEDAT.txt
     format: dat
     custom: { formatting: sedat }
+
+  # SND, Geosupport Normalizing Tables, Face Code
+  - name: snd
+    filename: SND.txt # TODO
+    format: dat
