@@ -31,6 +31,8 @@ inputs:
     version_env_var: VERSION
   - name: dcp_cscl_featurename
     version_env_var: VERSION
+  - name: dcp_cscl_namedintersection
+    version_env_var: VERSION
   - name: dcp_cscl_nypdbeat
     version_env_var: VERSION
   - name: dcp_cscl_roadbed_pointer_list
@@ -92,6 +94,9 @@ exports:
     filename: RoadbedD.txt
     format: dat
     custom: { formatting: saf_d }
+  - name: saf_i
+    filename: Intersection.txt
+    format: dat
 
   # SEDAT
   - name: sedat
