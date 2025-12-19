@@ -1,0 +1,22 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+SAFS1,place_name,Street Name,32,1,32,LJSF,FALSE
+SAFS2,boroughcode,Borough Code,1,33,33,RJSF,FALSE
+SAFS3,face_code,Face Code,4,34,37,RJZF,FALSE
+SAFS4,segment_seqnum,Sequence Number,5,38,42,RJZF,FALSE
+SAFS5,sos_indicator,SOS Indicator,1,43,43,RJSF,FALSE
+SAFS6,b5sc,B5SC,6,44,49,RJSF,FALSE
+SAFS7,hn,HN Basic,7,50,56,RJSF,FALSE
+,filler_safs7,Filler,1,57,57,RJSF,TRUE
+SAFS8,hn_suffix,House Number Suffix,8,58,65,LJSF,TRUE
+,filler_safs8,Filler,9,66,74,RJSF,FALSE
+SAF85,high_alpha_hn_suffix,High Alpha House number suffix,1,75,75,RJSF,FALSE
+,filler_saf85,Filler,10,76,85,RJSF,FALSE
+SAFS9,saftype,SAF Record Type Code,1,86,86,RJSF,FALSE
+,filler_safs9,Filler,2,87,88,RJSF,FALSE
+SAFS10,lgc1,LGC1,2,89,90,RJZF,FALSE
+SAFS11,lgc2,LGC2,2,91,92,RJZF,TRUE
+SAFS12,lgc3,LGC3,2,93,94,RJZF,TRUE
+SAFS13,lgc4,LGC4,2,95,96,RJZF,TRUE
+SAFS14,boe_lgc_pointer,Pointer to BOE Preferred LGC,1,97,97,RJSF,FALSE
+SAFS15,segment_type,Segment Type Code,1,98,98,RJSF,FALSE
+SAFS16,segmentid,Segment ID,7,99,105,RJZF,FALSE

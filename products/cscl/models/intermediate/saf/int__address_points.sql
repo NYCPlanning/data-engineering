@@ -14,6 +14,7 @@ street_names AS (
 )
 SELECT
     address_points.addresspointid,
+    address_points.segmentid,
     address_points.b7sc_vanity,
     address_points.b7sc_actual,
     address_points.sosindicator,
@@ -30,9 +31,8 @@ SELECT
         ELSE address_points.house_number
     END AS house_number,
     CASE
-        WHEN street_names.snd_feature_type IN ('E', 'F') THEN NULL
-        WHEN address_points.hyphen_type = 'R'
-            THEN TRIM(SPLIT_PART(address_points.house_number, '-', 2))
+        WHEN street_names.snd_feature_type IN ('E', 'F')
+            THEN TRIM(SPLIT_PART(address_points.house_number_suffix, '-', 1))
         ELSE address_points.house_number_suffix
     END AS house_number_suffix,
     address_points.house_number AS plain_house_number,
