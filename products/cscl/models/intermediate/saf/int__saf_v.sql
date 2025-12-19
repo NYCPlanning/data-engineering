@@ -26,11 +26,11 @@ SELECT
     address_points.house_number_suffix AS low_hn_suffix,
     CASE
         WHEN address_points.hyphen_type IN ('N', 'Q', 'U') THEN address_points.house_number
-        WHEN address_points.hyphen_type = 'X' THEN address_points.house_number_range
+        WHEN address_points.hyphen_type IN ('R', 'X') THEN address_points.house_number_range
     END AS high_hn,
     CASE
         WHEN address_points.hyphen_type IN ('N', 'Q', 'U') THEN address_points.house_number_suffix
-        WHEN address_points.hyphen_type = 'X' THEN address_points.house_number_range_suffix
+        WHEN address_points.hyphen_type IN ('R', 'X') THEN address_points.house_number_range_suffix
     END AS high_hn_suffix,
     saf.saftype,
     RIGHT(address_points.b7sc_vanity, 2) AS lgc1,
