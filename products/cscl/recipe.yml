@@ -107,6 +107,14 @@ exports:
     filename: RoadbedOV.txt
     format: dat
     custom: { formatting: saf_v }
+  - name: saf_s_generic
+    filename: GenericS.txt
+    format: dat
+    custom: { formatting: saf_s }
+  - name: saf_s_roadbed
+    filename: RoadbedS.txt
+    format: dat
+    custom: { formatting: saf_s }
 
   # SEDAT
   - name: sedat
