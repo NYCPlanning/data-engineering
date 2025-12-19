@@ -78,3 +78,9 @@ models:
 
 - name: saf_ov_roadbed
   columns: *dat_column_119
+
+- name: saf_s_generic
+  columns: *dat_column_105
+
+- name: saf_s_roadbed
+  columns: *dat_column_105

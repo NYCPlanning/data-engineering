@@ -349,6 +349,31 @@ All output categories (collection of SAF types) have their own fields and format
 |SAFI7|saftype|SAF Record Type Code|1|86|86|RJSF|false|
 ||filler_safi7|Filler|12|87|98|RJSF|false|
 
+`SAFS` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFS1|place_name|Street Name|32|1|32|LJSF|false|
+|SAFS2|boroughcode|Borough Code|1|33|33|RJSF|false|
+|SAFS3|face_code|Face Code|4|34|37|RJZF|false|
+|SAFS4|segment_seqnum|Sequence Number|5|38|42|RJZF|false|
+|SAFS5|sos_indicator|SOS Indicator|1|43|43|RJSF|false|
+|SAFS6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFS7|hn|HN Basic|7|50|56|RJSF|false|
+||filler_safs7|Filler|1|57|57|RJSF|true|
+|SAFS8|hn_suffix|House Number Suffix|8|58|65|LJSF|true|
+||filler_safs8|Filler|9|66|74|RJSF|false|
+|SAF85|high_alpha_hn_suffix|High Alpha House number suffix|1|75|75|RJSF|false|
+||filler_saf85|Filler|10|76|85|RJSF|false|
+|SAFS9|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safs9|Filler|2|87|88|RJSF|false|
+|SAFS10|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFS11|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFS12|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFS13|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFS14|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFS15|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFS16|segmentid|Segment ID|7|99|105|RJZF|false|
+
 `SAFV` formatting
 |fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
 |---|----------|-----------|------------|-----------|---------|----------------|-------------|
@@ -646,6 +671,36 @@ Notes on house numbers: in processing in `int__address_points`, all house number
 - High HN Suffix (`high_hn_suffix`)
   - for `hyphen_type` = 'N', 'Q', 'U', AddressPoint cleaned/formatted `house_number_suffix` field
   - for `hyphen_type` = 'R', 'X', AddressPoint field `house_number_range_suffix`
+
+#### S Records
+S records are suffixed house number(s) occurring at an intersection.
+
+They are generated from all address point records with `special_condition` = 'S'.
+
+Starting from `int__saf_segments`, S records are joined to
+- address points (`int__address_points`) to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename` is joined by actual b7sc. Unlike type V records, vanity b7sc is not used at all
+- address point lgc table (`int__lgc_address_point`), a lookup table of address points to lgcs based on `addresspointid`
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFS1 | Street Name |  Obtained from FeatureName table, in sort format |
+| SAFS2 | Borough Code | AddressPoint field `boroughcode` |
+| SAFS3 | Face Code | Obtained from FeatureName table |
+| SAFS4 | Sequence Number | Segment `segment_seqnum` |
+| SAFS5 | SOS Indicator | AddressPoint field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFS6 | B5SC | First 6 bytes of AddressPoint field `b7sc_actual` |
+| SAFS7 | HN Basic | 7 | 50 | 56 | RJSF | AddressPoint field `house_number` |
+| SAFS8 | House Number Suffix | 8 | 58 | 65 | LJSF, blanks if null | AddressPoint field `house_number_suffix` |
+| SAF85 | High Alpha House number suffix | 1 | 75 | 75 | AddressPoint field `house_number_RANGE_suffix` |
+| SAFS9 | SAF Record Type Code | 1 | 86 | 86 | AddressPoint field `special_condition` |
+| SAFS10 | LGC1 | Segment `lgc1` |
+| SAFS11 | LGC2 | Segment `lgc2` |
+| SAFS12 | LGC3 | Segment `lgc3` |
+| SAFS13 | LGC4 | Segment `lgc4` |
+| SAFS14 | Pointer to BOE Preferred LGC | Segment `boe_lgc_pointer` |
+| SAFS15 | Segment Type Code | Segment `segment_type` |
+| SAFS16 | Segment ID | Segment `segment_id` |
 
 # Infrastructure
 [stub]
