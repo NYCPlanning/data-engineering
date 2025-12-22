@@ -1,23 +1,30 @@
 from collections import defaultdict
-import pandas as pd
+from enum import StrEnum
 from pathlib import Path
+
+import pandas as pd
 import typer
 import yaml
 
+from dcpy.connectors.edm import recipes
+from dcpy.lifecycle import data_loader
+from dcpy.lifecycle.builds import metadata, plan
+from dcpy.models.lifecycle.builds import (
+    BuildMetadata,
+    ImportedDataset,
+    InputDataset,
+    InputDatasetDestination,
+    LoadResult,
+)
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-from dcpy.connectors.edm import recipes
-from dcpy.models.lifecycle.builds import (
-    ImportedDataset,
-    InputDatasetDestination,
-    InputDataset,
-    LoadResult,
-    BuildMetadata,
-)
-from dcpy.lifecycle.builds import metadata, plan
-from dcpy.lifecycle import data_loader
 
 LIFECYCLE_STAGE = "builds.load"
+
+
+class CachedEntityType(StrEnum):
+    view = "view"
+    copy = "copy"
 
 
 def setup_build_pg_schema(pg_client: postgres.PostgresClient):
@@ -65,42 +72,115 @@ def import_dataset(
 
 
 def load_source_data_from_resolved_recipe(
-    recipe_lock_path: Path, clear_pg_schema: bool = True
+    recipe_lock_path: Path,
+    clear_pg_schema: bool = True,
+    cache_schema: str | None = None,
+    cached_entity_type: CachedEntityType | None = None,
+    target_schema: str | None = None,
+    _write_metadata_file: bool = True,
 ) -> LoadResult:
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
     plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
 
-    build_name = metadata.build_name()
-    logger.info(f"Loading source data for {recipe.name} build named {build_name}")
-    if InputDatasetDestination.postgres in [
+    target_schema = target_schema or metadata.build_name()
+    logger.info(f"Loading source data for {recipe.name} build named {target_schema}")
+    has_postgres = InputDatasetDestination.postgres in [
         dataset.destination for dataset in recipe.inputs.datasets
-    ]:
-        pg_client = postgres.PostgresClient(schema=build_name)
+    ]
+    if has_postgres:
+        pg_client = postgres.PostgresClient(schema=target_schema)
         if clear_pg_schema:
             setup_build_pg_schema(pg_client)
-
-        pg_client.create_table_from_csv(
-            recipe_lock_path.parent / "source_data_versions.csv"
-        )
     else:
         pg_client = None
 
+    # Fetch source data versions if caching is enabled
+    cache_source_versions_df = None
+    if cache_schema and cached_entity_type and pg_client:
+        try:
+            cache_source_versions_df = get_source_data_versions(cache_schema)
+        except Exception:
+            logger.warning(
+                f"Could not fetch source data versions from cache schema {cache_schema}"
+            )
+
     imported_datasets: dict[str, dict[str, ImportedDataset]] = defaultdict(dict)
     for ds in recipe.inputs.datasets:
-        file_path = data_loader.pull_dataset(ds, stage=LIFECYCLE_STAGE)
-        imported_datasets[ds.id][str(ds.version)] = import_dataset(
-            ds, file_path, pg_client
+        use_cached = (
+            cache_schema
+            and cached_entity_type
+            and ds.destination == InputDatasetDestination.postgres
+            and cache_source_versions_df is not None
+            and dataset_exists_in_schema(ds, cache_source_versions_df)
+        )
+        if not use_cached:  # business as usual. Pull data and load it.
+            file_path = data_loader.pull_dataset(ds, stage=LIFECYCLE_STAGE)
+            imported_datasets[ds.id][str(ds.version)] = import_dataset(
+                ds, file_path, pg_client
+            )
+        else:
+            assert pg_client and cache_schema
+            logger.info(
+                f"Dataset {ds.dataset} version {ds.version} exists in schema {cache_schema}"
+            )
+            table_name = ds.import_as or ds.id
+            imported_datasets[ds.id][str(ds.version)] = ImportedDataset.from_input(
+                ds, table_name
+            )
+            if cached_entity_type == CachedEntityType.view:
+                pg_client.create_view(table_name, cache_schema)
+                logger.info(
+                    f"Created a view of {cache_schema}.{table_name} -> {target_schema}.{table_name}"
+                )
+            else:
+                pg_client.copy_table(table_name, cache_schema)
+                logger.info(
+                    f"Copied {cache_schema}.{table_name} -> {target_schema}.{table_name}"
+                )
+
+    if has_postgres:
+        pg_client.create_table_from_csv(  # type: ignore
+            recipe_lock_path.parent / "source_data_versions.csv"
+        )
+    load_result = LoadResult(
+        name=recipe.name, build_name=target_schema, datasets=imported_datasets
+    )
+    if _write_metadata_file:  # mostly an override for test cases, so we don't have build files lying around afterward
+        metadata.write_build_metadata(
+            recipe, recipe_lock_path.parent, load_result=load_result
         )
 
-    load_result = LoadResult(
-        name=recipe.name, build_name=build_name, datasets=imported_datasets
-    )
-    metadata.write_build_metadata(
-        recipe, recipe_lock_path.parent, load_result=load_result
-    )
-
     return load_result
+
+
+def dataset_exists_in_schema(
+    ds: InputDataset, source_versions_df: pd.DataFrame
+) -> bool:
+    """Check if a dataset with specific version exists in the source_data_versions DataFrame."""
+    try:
+        logger.info(
+            f"Checking if dataset {ds.id} version {ds.version} file-type {ds.file_type} exists in cache"
+        )
+        # Check if this dataset id and version combination exists
+        matching_datasets = source_versions_df[
+            (source_versions_df["schema_name"] == ds.id)
+            & (source_versions_df["v"] == ds.version)
+            & (source_versions_df["file_type"] == ds.file_type)
+        ]
+        return len(matching_datasets) > 0
+    except Exception:
+        return False
+
+
+def get_source_data_versions(schema_name: str) -> pd.DataFrame:
+    """Get source data versions from the specified schema.
+
+    Returns DataFrame with columns: schema_name, v, file_type
+    """
+    return postgres.PostgresClient(schema=schema_name).execute_select_query(
+        "SELECT * FROM source_data_versions"
+    )
 
 
 def get_imported_df(
@@ -178,15 +258,30 @@ def _cli_wrapper_recipe(
         help="Version of dataset being built",
     ),
     clear_pg_schema: bool = typer.Option(
-        False,
+        True,
         "--clear-schema",
         "-x",
         help="Clear the build schema?",
     ),
+    cache_schema: str = typer.Option(
+        None,
+        "--cache-schema",
+        "-c",
+        help="Schema name to use for caching existing datasets",
+    ),
+    cached_entity_type: CachedEntityType = typer.Option(
+        None,
+        "--cached-entity-type",
+        "-t",
+        help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
+    ),
 ):
     recipe_lock_path = plan.plan(recipe_path or Path("./recipe.yml"), version)
     load_source_data_from_resolved_recipe(
-        recipe_lock_path, clear_pg_schema=clear_pg_schema
+        recipe_lock_path,
+        clear_pg_schema=clear_pg_schema,
+        cache_schema=cache_schema,
+        cached_entity_type=cached_entity_type,
     )
 
 
@@ -198,11 +293,34 @@ def _cli_wrapper_load(
         "-r",
         help="Path of recipe lock file to use",
     ),
+    clear_pg_schema: bool = typer.Option(
+        True,
+        "--clear-schema",
+        "-x",
+        help="Clear the build schema?",
+    ),
+    cache_schema: str = typer.Option(
+        None,
+        "--cache-schema",
+        "-c",
+        help="Schema name to use for caching existing datasets",
+    ),
+    cached_entity_type: CachedEntityType = typer.Option(
+        None,
+        "--cached-entity-type",
+        "-t",
+        help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
+    ),
 ):
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
-    load_source_data_from_resolved_recipe(recipe_lock_path)
+    load_source_data_from_resolved_recipe(
+        recipe_lock_path,
+        clear_pg_schema=clear_pg_schema,
+        cache_schema=cache_schema,
+        cached_entity_type=cached_entity_type,
+    )
 
 
 if __name__ == "__main__":
