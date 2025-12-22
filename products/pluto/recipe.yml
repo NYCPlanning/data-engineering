@@ -16,12 +16,14 @@ inputs:
     - name: dcp_developments # only used for data tests
     - name: dcp_edesignation
     - name: dcp_firecompanies
+    - name: dcp_greater_transit_zone
     - name: dcp_healthareas
     - name: dcp_healthcenters
     - name: dcp_limitedheight
+    - name: dcp_mih
     - name: dcp_pluto
       # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
-      version_env_var: VERSION_PREV
+      version: 25v2
       import_as: previous_pluto
     - name: dcp_policeprecincts
     - name: dcp_school_districts

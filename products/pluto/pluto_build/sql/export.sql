@@ -91,7 +91,11 @@ SELECT
     dcpedited::varchar(3),
     latitude::numeric(19, 7),
     longitude::numeric(19, 7),
-    notes::varchar(20)
+    notes::varchar(20),
+    mnffar::numeric(19, 11),
+    affresfar::numeric(19, 11),
+    trnstzone::varchar(1),
+    miharea::varchar(50)
 INTO export_pluto
 FROM pluto;
 
@@ -197,7 +201,9 @@ SELECT
     a.dcpedited AS "DCPEdited",
     a.latitude AS "Latitude",
     a.longitude AS "Longitude",
-    a.notes AS "Notes"
+    a.notes AS "Notes",
+    a.trnstzone AS "TrnstZone",
+    a.miharea AS "MIHArea"
 INTO unmapped
 FROM export_pluto AS a
 WHERE bbl::bigint IN (
