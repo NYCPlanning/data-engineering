@@ -1,0 +1,35 @@
+version: 2
+
+models:
+- name: saf_abcegnpx_generic
+  config: &saf_config
+    contract:
+      enforced: false # TODO
+  columns: &safa_columns
+  - name: place_name
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        arguments: { value: 32 }
+  - name: boroughcode
+    data_type: string
+    tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values: [ "1", "2", "3", "4", "5" ]
+  - name: face_code
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        arguments: { value: 4 }
+  - name: segment_seqnum
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        arguments: { value: 5 }
+
+
+- name: saf_abcegnpx_roadbed
+  config: *saf_config
+  columns: *safa_columns

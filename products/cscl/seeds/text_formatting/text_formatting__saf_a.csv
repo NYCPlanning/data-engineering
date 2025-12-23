@@ -1,0 +1,30 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+SAFA1,place_name,"Special Address Street Name, Neighborhood Name or Place Name",32,1,32,LJSF,FALSE
+SAFA2,boroughcode,Borough,1,33,33,RJZF,FALSE
+SAFA3,face_code,Face Code,4,34,37,RJZF,FALSE
+SAFA4,segment_seqnum,Sequence Number,5,38,42,RJZF,FALSE
+SAFA5,sos_indicator,SOS Indicator,1,43,43,RJSF,FALSE
+SAFA6,b5sc,B5SC,6,44,49,RJSF,FALSE
+SAFA7,l_low_hn,Left Low HN,7,50,56,RJSF,FALSE
+,filler_safa7,Filler,2,57,58,RJSF,FALSE
+SAFA8,l_high_hn,Left High HN,7,59,65,RJSF,FALSE
+,filler_safa8,Filler,2,66,67,RJSF,FALSE
+SAFA9,r_low_hn,Right Low HN,7,68,74,RJSF,FALSE
+,filler_safa9,Filler,2,75,76,RJSF,FALSE
+SAFA10,r_high_hn,Right High HN,7,77,83,RJSF,FALSE
+,filler_safa10,Filler,2,84,85,RJSF,FALSE
+SAFA11,saftype,SAF Record Type Code,1,86,86,RJSF,FALSE
+,filler_safa11,Filler,2,87,88,RJSF,FALSE
+SAFA12,lgc1,LGC1,2,89,90,RJZF,FALSE
+SAFA13,lgc2,LGC2,2,91,92,RJZF,TRUE
+SAFA14,lgc3,LGC3,2,93,94,RJZF,TRUE
+SAFA15,lgc4,LGC4,2,95,96,RJZF,TRUE
+SAFA16,boe_lgc_pointer,Pointer to BOE Preferred LGC,1,97,97,RJSF,FALSE
+SAFA17,segment_type,Segment Type Code,1,98,98,RJSF,FALSE
+SAFA18,segmentid,Segment ID,7,99,105,RJZF,FALSE
+SAFA19,x_coord,X Coordinate (GNX only),7,106,112,RJZF,TRUE
+SAFA20,y_coord,Y Coordinate (GNX only),7,113,119,RJZF,TRUE
+SAFA21,side_borough_code,Side borough code (GNX only),1,120,120,RJZF,TRUE
+SAFA22_1,side_ct2020_basic,Side CT2020 Basic (GNX only) (XXXXYY),4,121,124,RJSF,FALSE
+SAFA22_2,side_ct2020_suffix,Side CT2020 Suffix (GNX only) (XXXXYY),2,125,126,RJZF,TRUE
+SAFA23,side_ap,Side AP (GNX only),3,127,129,RJZF,TRUE
