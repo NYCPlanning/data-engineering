@@ -128,3 +128,38 @@ def _write_metadata(
     out_path = output_path or Path("./metadata.yml")
     parse_shapefile_metadata(shp_xml_path).write_to_yaml(out_path)
     logger.info(f"Wrote metadata to {out_path}")
+
+
+
+## ------------------------------------------
+from dcpy.lifecycle import product_metadata
+from dcpy.utils.geospatial.shapefile import Shapefile
+# from dcpy.utils.geospatial.shapefile import Metadata as 
+
+@app.command("write_metadata")
+def _write_shapefile_xml_metadata(
+    product_name: str,
+    dataset_name: str,
+    shapefile_path: Path = typer.Option(
+        None,
+        "--shapefile-path",
+        "-shp",
+        help="TBD",
+    ),
+):
+    # shapefile_path = shapefile_path or Path("./metadata.yml")
+    write_shapefile_xml_metadata(product_name=product_name, dataset_name=dataset_name, shapefile_path=shapefile_path)
+    logger.info(f"Wrote metadata to {shapefile_path}")
+
+def write_shapefile_xml_metadata(product_name, dataset_name, shapefile_path):
+    product_md = product_metadata.load().product(product_name).dataset(dataset_name) # this is dcp metadata from the product-metadata repo
+
+    shapefile_xml_metadata = ShapefileXML() # this is the pydantic class that we generated 
+    
+    # set the attributes you care about, using the product-metadata when necessary
+    shapefile_xml_metadata.name = product_md.name # contrived example
+    ...
+    
+    # use the shapefile file utils you wrote to modify the zipped shapefile
+    shp = Shapefile(shapefile_path)
+    shp.write_metadata(shapefile_xml_metadata, overwrite=True)

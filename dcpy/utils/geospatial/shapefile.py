@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import zipfile
 from datetime import datetime
+from dcpy.lifecycle import product_metadata
 from dcpy.models.data.shapefile_metadata import (
     Metadata,
     Esri,
@@ -223,104 +224,3 @@ def generate_metadata() -> Metadata:
         md_date_st=md_date_st,
     )
     return metadata
-
-
-# def _validate_shp_input(shp_string: str | Path) -> None:
-#     """Ensure the input string conforms to the required format:
-#     Format if zip file: 'zip://path/to/file.zip!shapefile.shp'
-#     Format if not zip file: 'path/to/shapefile.shp'
-
-#     Args:
-#         shp_string (str | Path): Path to shapefile
-
-#     Raises:
-#         ValueError: Indicates when input does not conform to required format
-#     """
-#     shp_string = str(shp_string)
-#     if not shp_string.endswith(".shp"):
-#         raise ValueError("Filename must end with '.shp'")
-
-#     has_zip_prefix = shp_string.startswith("zip://")
-#     has_zip_suffix = ".zip!" in shp_string
-#     contains_zip = ".zip" in shp_string
-
-#     # Check for valid zip format: must have both prefix and suffix
-#     if has_zip_prefix and not has_zip_suffix:
-#         raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
-
-#     # Check for invalid zip format: has .zip but incorrect structure
-#     if contains_zip and not (has_zip_prefix and has_zip_suffix):
-#         raise ValueError(
-#             "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
-#         )
-
-
-# def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
-#     """
-#     Takes path to shapefile (shp) and returns relevant information, such as:
-#         - shp name
-#         - whether the shp is in a zip file
-#         - path to zip file (if it exists)
-#         - path to shp (starting at top level within zip, or complete path if no zip exists.)
-
-#     Args:
-#         path_to_shp (str):
-#             - Path to shapefile - must end in ".shp"
-#             - If shp is in a zip file: arg must be prefixed with "zip://"
-#             - If shp is in a zip file: zip file to contents must be delimited by "!"
-#             - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-#             - example without zip file: "path/to/shapefile.shp"
-
-#     Returns:
-#         Shapefile | ShapefileZipped: Dataclasses with relevant fields
-#         (see class definitions for details.)
-#     """
-
-#     path_to_shp = str(path_to_shp)
-
-#     _validate_shp_input(path_to_shp)
-
-#     output = {
-#         "name": str,
-#         "is_zipped": bool,
-#         "shp_dir": Path | None,
-#         "zip_path": Path | None,
-#         "zip_subdir": str | None,
-#     }
-
-#     zip_indicator = "zip://"
-#     end_of_zip_delimiter = ".zip!"
-
-#     zip_subdir = None
-
-#     if path_to_shp.startswith(zip_indicator):
-#         start_path_idx = len(zip_indicator)
-
-#         # Get zip path -------------------------
-#         # TODO - remove conditional here - redundant when we're running validator func already
-#         if end_of_zip_delimiter in path_to_shp:
-#             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
-#                 len(end_of_zip_delimiter) - 1
-#             )
-
-#             zip_path = path_to_shp[start_path_idx:end_of_zip_idx]
-
-#         # Get sub directory --------------------
-#         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
-#         if len(path_in_zip_to_shp.parts) > 1:
-#             zip_subdir = str(path_in_zip_to_shp.parent)
-
-#         output["name"] = path_in_zip_to_shp.name
-#         output["is_zipped"] = True
-#         output["shp_dir"] = None
-#         output["zip_path"] = zip_path
-#         output["zip_subdir"] = zip_subdir
-
-#     else:
-#         output["name"] = Path(path_to_shp).name
-#         output["is_zipped"] = False
-#         output["shp_dir"] = Path(path_to_shp).parent
-#         output["zip_path"] = None
-#         output["zip_subdir"] = None
-
-#     return output
