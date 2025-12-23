@@ -6,6 +6,7 @@ import zipfile
 from pathlib import Path
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial.shapefile import generate_metadata
+from datetime import datetime
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
@@ -65,6 +66,11 @@ def temp_metadata_object(utils_resources_path):
     return md_object
 
 
+@fixture
+def today_datestamp() -> str:
+    return datetime.now().strftime("%Y%m%d")
+
+
 def _get_info_from_file_fixture(
     request: pytest.FixtureRequest, fixture: str, file_type: str
 ) -> dict:
@@ -119,6 +125,9 @@ def test_add_metadata_to_shp_no_existing_metadata(
     shp.write_metadata(
         metadata=temp_metadata_object,
     )
+    # BUG - this test fails when I try to instantiate Metadata() properly. Fix that, then test an actual field value.
+    # print(Path(fixture_info["path"], str(fixture_info["shp_name"]) + ".xml").read_text(encoding='utf-8'))
+    # md = shp.read_metadata()
     assert shp.metadata_exists(), "Expected metadata, but found none"
 
 
@@ -148,6 +157,7 @@ def test_overwrite_existing_shp_metadata(
     shp = shapefile.from_path(fixture_info["path"], fixture_info["shp_name"], subdir)
     assert shp.metadata_exists(), "Expected metadata, but found none"
     shp.write_metadata(metadata=temp_metadata_object, overwrite=True)
+
     assert shp.metadata_exists(), "Expected metadata, but found none"
 
 
@@ -246,9 +256,14 @@ def test_read_metadata(request, path_fixture, file_type, subdir):
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
+    assert md.esri.scale_range.min_scale == "150000000"
+    assert md.esri.scale_range.max_scale == "5000"
 
-def test_generate_metadata():
+
+def test_generate_metadata(today_datestamp):
     md = generate_metadata()
+
+    expected_date = today_datestamp
 
     assert hasattr(md, "esri")
     esri = md.esri
@@ -256,10 +271,11 @@ def test_generate_metadata():
 
     # CreaTime has leading zeros and must be preserved as string
     assert isinstance(esri.crea_time, str)
+    assert esri.crea_date == expected_date
 
     # ArcGISFormat
-    assert isinstance(esri.arc_gis_format, str)
-    assert esri.arc_gis_format == "1.0"
+    assert isinstance(esri.arc_gis_format, float)
+    assert esri.arc_gis_format == 1.0
 
     # SyncOnce should be string
     assert isinstance(esri.sync_once, str)

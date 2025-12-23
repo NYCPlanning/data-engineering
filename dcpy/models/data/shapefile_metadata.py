@@ -30,7 +30,7 @@ class Presformcd(BaseXmlModel, tag="PresFormCd"):
 
 
 class Scopecd(BaseXmlModel, tag="ScopeCd"):
-    value: str | None = attr(name="value", default=None)
+    value: str | None = attr(name="value", default="005")
 
 
 class Spatreptypcd(BaseXmlModel, tag="SpatRepTypCd"):
@@ -39,11 +39,13 @@ class Spatreptypcd(BaseXmlModel, tag="SpatRepTypCd"):
 
 
 class Thumbnail(BaseXmlModel, tag="Thumbnail"):
-    data: "Data | None" = element(tag="Data", default=None)
+    data: "Data" = element(tag="Data", default_factory=lambda: Data())
 
 
 class Binary(BaseXmlModel, tag="Binary"):
-    thumbnail: "Thumbnail | None" = element(tag="Thumbnail", default=None)
+    thumbnail: "Thumbnail" = element(
+        tag="Thumbnail", default_factory=lambda: Thumbnail()
+    )
 
 
 class Topolevcd(BaseXmlModel, tag="TopoLevCd"):
@@ -102,7 +104,9 @@ class Csunits(BaseXmlModel, tag="csUnits"):
 
 
 class Datachar(BaseXmlModel, tag="dataChar"):
-    char_set_cd: "Charsetcd | None" = element(tag="CharSetCd", default=None)
+    char_set_cd: "Charsetcd" = element(
+        tag="CharSetCd", default_factory=lambda: Charsetcd()
+    )
 
 
 class Eastbl(BaseXmlModel, tag="eastBL"):
@@ -141,9 +145,9 @@ class Enttypt(BaseXmlModel, tag="enttypt"):
 
 
 class Enttyp(BaseXmlModel, tag="enttyp"):
-    enttypl: "Enttypl | None" = element(tag="enttypl", default=None)
-    enttypt: "Enttypt | None" = element(tag="enttypt", default=None)
-    enttypc: "Enttypc | None" = element(tag="enttypc", default=None)
+    enttypl: "Enttypl" = element(tag="enttypl", default_factory=lambda: Enttypl())
+    enttypt: "Enttypt" = element(tag="enttypt", default_factory=lambda: Enttypt())
+    enttypc: "Enttypc" = element(tag="enttypc", default_factory=lambda: Enttypc())
 
 
 class Envirdesc(BaseXmlModel, tag="envirDesc"):
@@ -167,7 +171,9 @@ class Formatname(BaseXmlModel, tag="formatName"):
 
 
 class Distformat(BaseXmlModel, tag="distFormat"):
-    format_name: "Formatname | None" = element(tag="formatName", default=None)
+    format_name: "Formatname" = element(
+        tag="formatName", default_factory=lambda: Formatname()
+    )
 
 
 class Geoobjcnt(BaseXmlModel, tag="geoObjCnt"):
@@ -176,7 +182,9 @@ class Geoobjcnt(BaseXmlModel, tag="geoObjCnt"):
 
 
 class Geoobjtyp(BaseXmlModel, tag="geoObjTyp"):
-    geo_obj_typ_cd: "Geoobjtypcd | None" = element(tag="GeoObjTypCd", default=None)
+    geo_obj_typ_cd: "Geoobjtypcd" = element(
+        tag="GeoObjTypCd", default_factory=lambda: Geoobjtypcd()
+    )
 
 
 class Geogcsn(BaseXmlModel, tag="geogcsn"):
@@ -186,8 +194,12 @@ class Geogcsn(BaseXmlModel, tag="geogcsn"):
 
 class Geometobjs(BaseXmlModel, tag="geometObjs"):
     name: str | None = attr(name="Name", default=None)
-    geo_obj_typ: "Geoobjtyp | None" = element(tag="geoObjTyp", default=None)
-    geo_obj_cnt: "Geoobjcnt | None" = element(tag="geoObjCnt", default=None)
+    geo_obj_typ: "Geoobjtyp" = element(
+        tag="geoObjTyp", default_factory=lambda: Geoobjtyp()
+    )
+    geo_obj_cnt: "Geoobjcnt" = element(
+        tag="geoObjCnt", default_factory=lambda: Geoobjcnt()
+    )
 
 
 class Idcodespace(BaseXmlModel, tag="idCodeSpace"):
@@ -226,8 +238,12 @@ class Languagecode(BaseXmlModel, tag="languageCode"):
 
 
 class Datalang(BaseXmlModel, tag="dataLang"):
-    language_code: "Languagecode | None" = element(tag="languageCode", default=None)
-    country_code: "Countrycode | None" = element(tag="countryCode", default=None)
+    language_code: "Languagecode" = element(
+        tag="languageCode", default_factory=lambda: Languagecode()
+    )
+    country_code: "Countrycode" = element(
+        tag="countryCode", default_factory=lambda: Countrycode()
+    )
 
 
 class Linkage(BaseXmlModel, tag="linkage"):
@@ -241,21 +257,27 @@ class Linrefer(BaseXmlModel, tag="linrefer"):
 
 
 class Mdchar(BaseXmlModel, tag="mdChar"):
-    char_set_cd: "Charsetcd | None" = element(tag="CharSetCd", default=None)
+    char_set_cd: "Charsetcd" = element(
+        tag="CharSetCd", default_factory=lambda: Charsetcd()
+    )
 
 
 class Mddatest(BaseXmlModel, tag="mdDateSt"):
-    sync: str | None = attr(name="Sync", default=None)
+    sync: str | None = attr(name="Sync", default="TRUE")
     value: int | None = None
 
 
 class Mdhrlv(BaseXmlModel, tag="mdHrLv"):
-    scope_cd: "Scopecd | None" = element(tag="ScopeCd", default=None)
+    scope_cd: "Scopecd" = element(tag="ScopeCd", default_factory=lambda: Scopecd())
 
 
 class Mdlang(BaseXmlModel, tag="mdLang"):
-    language_code: "Languagecode | None" = element(tag="languageCode", default=None)
-    country_code: "Countrycode | None" = element(tag="countryCode", default=None)
+    language_code: "Languagecode" = element(
+        tag="languageCode", default_factory=lambda: Languagecode()
+    )
+    country_code: "Countrycode" = element(
+        tag="countryCode", default_factory=lambda: Countrycode()
+    )
 
 
 class Northbl(BaseXmlModel, tag="northBL"):
@@ -273,12 +295,14 @@ class Pexml(BaseXmlModel, tag="peXml"):
 
 
 class Presform(BaseXmlModel, tag="presForm"):
-    pres_form_cd: "Presformcd | None" = element(tag="PresFormCd", default=None)
+    pres_form_cd: "Presformcd" = element(
+        tag="PresFormCd", default_factory=lambda: Presformcd()
+    )
 
 
 class Idcitation(BaseXmlModel, tag="idCitation"):
     res_title: str | None = element(tag="resTitle", text=True, default=None)
-    pres_form: "Presform | None" = element(tag="presForm", default=None)
+    pres_form: "Presform" = element(tag="presForm", default_factory=lambda: Presform())
 
 
 class Projcsn(BaseXmlModel, tag="projcsn"):
@@ -292,31 +316,39 @@ class Protocol(BaseXmlModel, tag="protocol"):
 
 
 class Itemlocation(BaseXmlModel, tag="itemLocation"):
-    linkage: "Linkage | None" = element(tag="linkage", default=None)
-    protocol: "Protocol | None" = element(tag="protocol", default=None)
+    linkage: "Linkage" = element(tag="linkage", default_factory=lambda: Linkage())
+    protocol: "Protocol" = element(tag="protocol", default_factory=lambda: Protocol())
 
 
 class Refsysid(BaseXmlModel, tag="refSysID"):
-    ident_code: "Identcode | None" = element(tag="identCode", default=None)
-    id_code_space: "Idcodespace | None" = element(tag="idCodeSpace", default=None)
-    id_version: "Idversion | None" = element(tag="idVersion", default=None)
+    ident_code: "Identcode" = element(
+        tag="identCode", default_factory=lambda: Identcode()
+    )
+    id_code_space: "Idcodespace" = element(
+        tag="idCodeSpace", default_factory=lambda: Idcodespace()
+    )
+    id_version: "Idversion" = element(
+        tag="idVersion", default_factory=lambda: Idversion()
+    )
 
 
 class Refsystem(BaseXmlModel, tag="RefSystem"):
-    ref_sys_id: "Refsysid | None" = element(tag="refSysID", default=None)
+    ref_sys_id: "Refsysid" = element(tag="refSysID", default_factory=lambda: Refsysid())
 
 
 class Refsysinfo(BaseXmlModel, tag="refSysInfo"):
-    ref_system: "Refsystem | None" = element(tag="RefSystem", default=None)
+    ref_system: "Refsystem" = element(
+        tag="RefSystem", default_factory=lambda: Refsystem()
+    )
 
 
 class Resconst(BaseXmlModel, tag="resConst"):
-    consts: "Consts | None" = element(tag="Consts", default=None)
+    consts: "Consts" = element(tag="Consts", default_factory=lambda: Consts())
 
 
 class Scalerange(BaseXmlModel, tag="scaleRange"):
-    min_scale: str | None = element(tag="minScale", text=True, default=None)
-    max_scale: str | None = element(tag="maxScale", text=True, default=None)
+    min_scale: str | None = element(tag="minScale", text=True, default="150000000")
+    max_scale: str | None = element(tag="maxScale", text=True, default="5000")
 
 
 class Searchkeys(BaseXmlModel, tag="searchKeys"):
@@ -329,7 +361,9 @@ class Southbl(BaseXmlModel, tag="southBL"):
 
 
 class Spatrptype(BaseXmlModel, tag="spatRpType"):
-    spat_rep_typ_cd: "Spatreptypcd | None" = element(tag="SpatRepTypCd", default=None)
+    spat_rep_typ_cd: "Spatreptypcd" = element(
+        tag="SpatRepTypCd", default_factory=lambda: Spatreptypcd()
+    )
 
 
 class Spindex(BaseXmlModel, tag="spindex"):
@@ -339,33 +373,39 @@ class Spindex(BaseXmlModel, tag="spindex"):
 
 class Esriterm(BaseXmlModel, tag="esriterm"):
     name: str | None = attr(name="Name", default=None)
-    efeatyp: "Efeatyp | None" = element(tag="efeatyp", default=None)
-    efeageom: "Efeageom | None" = element(tag="efeageom", default=None)
-    esritopo: "Esritopo | None" = element(tag="esritopo", default=None)
-    efeacnt: "Efeacnt | None" = element(tag="efeacnt", default=None)
-    spindex: "Spindex | None" = element(tag="spindex", default=None)
-    linrefer: "Linrefer | None" = element(tag="linrefer", default=None)
+    efeatyp: "Efeatyp" = element(tag="efeatyp", default_factory=lambda: Efeatyp())
+    efeageom: "Efeageom" = element(tag="efeageom", default_factory=lambda: Efeageom())
+    esritopo: "Esritopo" = element(tag="esritopo", default_factory=lambda: Esritopo())
+    efeacnt: "Efeacnt" = element(tag="efeacnt", default_factory=lambda: Efeacnt())
+    spindex: "Spindex" = element(tag="spindex", default_factory=lambda: Spindex())
+    linrefer: "Linrefer" = element(tag="linrefer", default_factory=lambda: Linrefer())
 
 
 class Ptvctinf(BaseXmlModel, tag="ptvctinf"):
-    esriterm: "Esriterm | None" = element(tag="esriterm", default=None)
+    esriterm: "Esriterm" = element(tag="esriterm", default_factory=lambda: Esriterm())
 
 
 class Spdoinfo(BaseXmlModel, tag="spdoinfo"):
-    ptvctinf: "Ptvctinf | None" = element(tag="ptvctinf", default=None)
+    ptvctinf: "Ptvctinf" = element(tag="ptvctinf", default_factory=lambda: Ptvctinf())
 
 
 class Toplvl(BaseXmlModel, tag="topLvl"):
-    topo_lev_cd: "Topolevcd | None" = element(tag="TopoLevCd", default=None)
+    topo_lev_cd: "Topolevcd" = element(
+        tag="TopoLevCd", default_factory=lambda: Topolevcd()
+    )
 
 
 class Vectspatrep(BaseXmlModel, tag="VectSpatRep"):
-    geomet_objs: "Geometobjs | None" = element(tag="geometObjs", default=None)
-    top_lvl: "Toplvl | None" = element(tag="topLvl", default=None)
+    geomet_objs: "Geometobjs" = element(
+        tag="geometObjs", default_factory=lambda: Geometobjs()
+    )
+    top_lvl: "Toplvl" = element(tag="topLvl", default_factory=lambda: Toplvl())
 
 
 class Spatrepinfo(BaseXmlModel, tag="spatRepInfo"):
-    vect_spat_rep: "Vectspatrep | None" = element(tag="VectSpatRep", default=None)
+    vect_spat_rep: "Vectspatrep" = element(
+        tag="VectSpatRep", default_factory=lambda: Vectspatrep()
+    )
 
 
 class Transsize(BaseXmlModel, tag="transSize"):
@@ -374,12 +414,18 @@ class Transsize(BaseXmlModel, tag="transSize"):
 
 
 class Disttranops(BaseXmlModel, tag="distTranOps"):
-    trans_size: "Transsize | None" = element(tag="transSize", default=None)
+    trans_size: "Transsize" = element(
+        tag="transSize", default_factory=lambda: Transsize()
+    )
 
 
 class Distinfo(BaseXmlModel, tag="distInfo"):
-    dist_format: "Distformat | None" = element(tag="distFormat", default=None)
-    dist_tran_ops: "Disttranops | None" = element(tag="distTranOps", default=None)
+    dist_format: "Distformat" = element(
+        tag="distFormat", default_factory=lambda: Distformat()
+    )
+    dist_tran_ops: "Disttranops" = element(
+        tag="distTranOps", default_factory=lambda: Disttranops()
+    )
 
 
 class Type(BaseXmlModel, tag="type"):
@@ -388,11 +434,11 @@ class Type(BaseXmlModel, tag="type"):
 
 
 class Coordref(BaseXmlModel, tag="coordRef"):
-    type: "Type | None" = element(tag="type", default=None)
-    geogcsn: "Geogcsn | None" = element(tag="geogcsn", default=None)
-    cs_units: "Csunits | None" = element(tag="csUnits", default=None)
-    projcsn: "Projcsn | None" = element(tag="projcsn", default=None)
-    pe_xml: "Pexml | None" = element(tag="peXml", default=None)
+    type: "Type" = element(tag="type", default_factory=lambda: Type())
+    geogcsn: "Geogcsn" = element(tag="geogcsn", default_factory=lambda: Geogcsn())
+    cs_units: "Csunits" = element(tag="csUnits", default_factory=lambda: Csunits())
+    projcsn: "Projcsn" = element(tag="projcsn", default_factory=lambda: Projcsn())
+    pe_xml: "Pexml" = element(tag="peXml", default_factory=lambda: Pexml())
 
 
 class Udom(BaseXmlModel, tag="udom"):
@@ -418,12 +464,12 @@ class Attr(BaseXmlModel, tag="attr"):
 
 class Detailed(BaseXmlModel, tag="detailed"):
     name: str | None = attr(name="Name", default=None)
-    enttyp: "Enttyp | None" = element(tag="enttyp", default=None)
+    enttyp: "Enttyp" = element(tag="enttyp", default_factory=lambda: Enttyp())
     attr: "list[Attr] | None" = element(tag="attr", default_factory=list)
 
 
 class Eainfo(BaseXmlModel, tag="eainfo"):
-    detailed: "Detailed | None" = element(tag="detailed", default=None)
+    detailed: "Detailed" = element(tag="detailed", default_factory=lambda: Detailed())
 
 
 class Westbl(BaseXmlModel, tag="westBL"):
@@ -433,91 +479,125 @@ class Westbl(BaseXmlModel, tag="westBL"):
 
 class Geobndbox(BaseXmlModel, tag="GeoBndBox"):
     esri_extent_type: str | None = attr(name="esriExtentType", default=None)
-    ex_type_code: "Extypecode | None" = element(tag="exTypeCode", default=None)
-    west_bl: "Westbl | None" = element(tag="westBL", default=None)
-    east_bl: "Eastbl | None" = element(tag="eastBL", default=None)
-    north_bl: "Northbl | None" = element(tag="northBL", default=None)
-    south_bl: "Southbl | None" = element(tag="southBL", default=None)
+    ex_type_code: "Extypecode" = element(
+        tag="exTypeCode", default_factory=lambda: Extypecode()
+    )
+    west_bl: "Westbl" = element(tag="westBL", default_factory=lambda: Westbl())
+    east_bl: "Eastbl" = element(tag="eastBL", default_factory=lambda: Eastbl())
+    north_bl: "Northbl" = element(tag="northBL", default_factory=lambda: Northbl())
+    south_bl: "Southbl" = element(tag="southBL", default_factory=lambda: Southbl())
 
 
 class Geoele(BaseXmlModel, tag="geoEle"):
-    geo_bnd_box: "Geobndbox | None" = element(tag="GeoBndBox", default=None)
+    geo_bnd_box: "Geobndbox" = element(
+        tag="GeoBndBox", default_factory=lambda: Geobndbox()
+    )
 
 
 class Dataext(BaseXmlModel, tag="dataExt"):
-    geo_ele: "Geoele | None" = element(tag="geoEle", default=None)
+    geo_ele: "Geoele" = element(tag="geoEle", default_factory=lambda: Geoele())
 
 
 class Dataidinfo(BaseXmlModel, tag="dataIdInfo"):
-    id_citation: "Idcitation | None" = element(tag="idCitation", default=None)
+    id_citation: "Idcitation" = element(
+        tag="idCitation", default_factory=lambda: Idcitation()
+    )
     id_abs: str | None = element(tag="idAbs", text=True, default=None)
     id_purp: str | None = element(tag="idPurp", text=True, default=None)
     id_credit: str | None = element(tag="idCredit", text=True, default=None)
-    other_keys: "Otherkeys | None" = element(tag="otherKeys", default=None)
-    search_keys: "Searchkeys | None" = element(tag="searchKeys", default=None)
-    res_const: "Resconst | None" = element(tag="resConst", default=None)
-    data_char: "Datachar | None" = element(tag="dataChar", default=None)
-    envir_desc: "Envirdesc | None" = element(tag="envirDesc", default=None)
-    data_lang: "Datalang | None" = element(tag="dataLang", default=None)
-    spat_rp_type: "Spatrptype | None" = element(tag="spatRpType", default=None)
-    data_ext: "Dataext | None" = element(tag="dataExt", default=None)
+    other_keys: "Otherkeys" = element(
+        tag="otherKeys", default_factory=lambda: Otherkeys()
+    )
+    search_keys: "Searchkeys" = element(
+        tag="searchKeys", default_factory=lambda: Searchkeys()
+    )
+    res_const: "Resconst" = element(tag="resConst", default_factory=lambda: Resconst())
+    data_char: "Datachar" = element(tag="dataChar", default_factory=lambda: Datachar())
+    envir_desc: "Envirdesc" = element(
+        tag="envirDesc", default_factory=lambda: Envirdesc()
+    )
+    data_lang: "Datalang" = element(tag="dataLang", default_factory=lambda: Datalang())
+    spat_rp_type: "Spatrptype" = element(
+        tag="spatRpType", default_factory=lambda: Spatrptype()
+    )
+    data_ext: "Dataext" = element(tag="dataExt", default_factory=lambda: Dataext())
 
 
 class Nativeextbox(BaseXmlModel, tag="nativeExtBox"):
-    west_bl: "Westbl | None" = element(tag="westBL", default=None)
-    east_bl: "Eastbl | None" = element(tag="eastBL", default=None)
-    south_bl: "Southbl | None" = element(tag="southBL", default=None)
-    north_bl: "Northbl | None" = element(tag="northBL", default=None)
-    ex_type_code: "Extypecode | None" = element(tag="exTypeCode", default=None)
+    west_bl: "Westbl" = element(tag="westBL", default_factory=lambda: Westbl())
+    east_bl: "Eastbl" = element(tag="eastBL", default_factory=lambda: Eastbl())
+    south_bl: "Southbl" = element(tag="southBL", default_factory=lambda: Southbl())
+    north_bl: "Northbl" = element(tag="northBL", default_factory=lambda: Northbl())
+    ex_type_code: "Extypecode" = element(
+        tag="exTypeCode", default_factory=lambda: Extypecode()
+    )
 
 
 class Itemprops(BaseXmlModel, tag="itemProps"):
-    item_name: "Itemname | None" = element(tag="itemName", default=None)
-    ims_content_type: "Imscontenttype | None" = element(
-        tag="imsContentType", default=None
+    item_name: "Itemname" = element(tag="itemName", default_factory=lambda: Itemname())
+    ims_content_type: "Imscontenttype" = element(
+        tag="imsContentType", default_factory=lambda: Imscontenttype()
     )
-    native_ext_box: "Nativeextbox | None" = element(tag="nativeExtBox", default=None)
-    item_size: "Itemsize | None" = element(tag="itemSize", default=None)
-    item_location: "Itemlocation | None" = element(tag="itemLocation", default=None)
+    native_ext_box: "Nativeextbox" = element(
+        tag="nativeExtBox", default_factory=lambda: Nativeextbox()
+    )
+    item_size: "Itemsize" = element(tag="itemSize", default_factory=lambda: Itemsize())
+    item_location: "Itemlocation" = element(
+        tag="itemLocation", default_factory=lambda: Itemlocation()
+    )
 
 
 class Dataproperties(BaseXmlModel, tag="DataProperties"):
-    item_props: "Itemprops | None" = element(tag="itemProps", default=None)
-    coord_ref: "Coordref | None" = element(tag="coordRef", default=None)
+    item_props: "Itemprops" = element(
+        tag="itemProps", default_factory=lambda: Itemprops()
+    )
+    coord_ref: "Coordref" = element(tag="coordRef", default_factory=lambda: Coordref())
 
 
 class Esri(BaseXmlModel, tag="Esri"):
     crea_date: str | None = element(tag="CreaDate", text=True, default=None)
     crea_time: str | None = element(tag="CreaTime", text=True, default=None)
-    arc_gis_format: str | None = element(tag="ArcGISFormat", text=True, default=None)
-    sync_once: str | None = element(tag="SyncOnce", text=True, default=None)
-    data_properties: "Dataproperties | None" = element(
-        tag="DataProperties", default=None
+    arc_gis_format: float | None = element(tag="ArcGISFormat", text=True, default=1.0)
+    sync_once: str | None = element(tag="SyncOnce", text=True, default="TRUE")
+    data_properties: "Dataproperties" = element(
+        tag="DataProperties", default_factory=lambda: Dataproperties()
     )
     sync_date: str | None = element(tag="SyncDate", text=True, default=None)
     sync_time: str | None = element(tag="SyncTime", text=True, default=None)
     mod_date: str | None = element(tag="ModDate", text=True, default=None)
     mod_time: str | None = element(tag="ModTime", text=True, default=None)
-    scale_range: "Scalerange | None" = element(tag="scaleRange", default=None)
-    arc_gis_profile: str | None = element(tag="ArcGISProfile", text=True, default=None)
+    scale_range: "Scalerange" = element(
+        tag="scaleRange", default_factory=lambda: Scalerange()
+    )
+    arc_gis_profile: str | None = element(
+        tag="ArcGISProfile", text=True, default="ISO19139"
+    )
 
 
 class Metadata(BaseXmlModel, tag="metadata", skip_empty=True):
     lang: str | None = attr(
-        name="{http://www.w3.org/XML/1998/namespace}lang", default=None
+        name="{http://www.w3.org/XML/1998/namespace}lang", default="en"
     )
-    esri: "Esri | None" = element(tag="Esri", default=None)
-    md_char: "Mdchar | None" = element(tag="mdChar", default=None)
-    md_hr_lv: "Mdhrlv | None" = element(tag="mdHrLv", default=None)
+    esri: "Esri" = element(tag="Esri", default_factory=lambda: Esri())
+    md_char: "Mdchar" = element(tag="mdChar", default_factory=lambda: Mdchar())
+    md_hr_lv: "Mdhrlv" = element(tag="mdHrLv", default_factory=lambda: Mdhrlv())
     md_hr_lv_name: str | None = element(tag="mdHrLvName", text=True, default=None)
-    md_stan_name: str | None = element(tag="mdStanName", text=True, default=None)
-    md_stan_ver: float | None = element(tag="mdStanVer", text=True, default=None)
-    data_id_info: "Dataidinfo | None" = element(tag="dataIdInfo", default=None)
-    md_lang: "Mdlang | None" = element(tag="mdLang", default=None)
-    dist_info: "Distinfo | None" = element(tag="distInfo", default=None)
-    ref_sys_info: "Refsysinfo | None" = element(tag="refSysInfo", default=None)
-    spat_rep_info: "Spatrepinfo | None" = element(tag="spatRepInfo", default=None)
-    spdoinfo: "Spdoinfo | None" = element(tag="spdoinfo", default=None)
-    eainfo: "Eainfo | None" = element(tag="eainfo", default=None)
-    md_date_st: "Mddatest | None" = element(tag="mdDateSt", default=None)
-    binary: "Binary | None" = element(tag="Binary", default=None)
+    md_stan_name: str | None = element(
+        tag="mdStanName", text=True, default="ArcGIS Metadata"
+    )
+    md_stan_ver: float | None = element(tag="mdStanVer", text=True, default=1.0)
+    data_id_info: "Dataidinfo" = element(
+        tag="dataIdInfo", default_factory=lambda: Dataidinfo()
+    )
+    md_lang: "Mdlang" = element(tag="mdLang", default_factory=lambda: Mdlang())
+    dist_info: "Distinfo" = element(tag="distInfo", default_factory=lambda: Distinfo())
+    ref_sys_info: "Refsysinfo" = element(
+        tag="refSysInfo", default_factory=lambda: Refsysinfo()
+    )
+    spat_rep_info: "Spatrepinfo" = element(
+        tag="spatRepInfo", default_factory=lambda: Spatrepinfo()
+    )
+    spdoinfo: "Spdoinfo" = element(tag="spdoinfo", default_factory=lambda: Spdoinfo())
+    eainfo: "Eainfo" = element(tag="eainfo", default_factory=lambda: Eainfo())
+    md_date_st: "Mddatest" = element(tag="mdDateSt", default_factory=lambda: Mddatest())
+    binary: "Binary" = element(tag="Binary", default_factory=lambda: Binary())
