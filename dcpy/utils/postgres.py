@@ -1,15 +1,24 @@
-from io import StringIO
-from pathlib import Path
 import csv
 import os
-import geopandas as gpd
-import pandas as pd
-from psycopg2.extensions import AsIs
-from sqlalchemy import create_engine, text, dialects
-import typer
+from enum import Enum
+from io import StringIO
+from pathlib import Path
 from typing import Literal
 
+import geopandas as gpd
+import pandas as pd
+import typer
+from psycopg2.extensions import AsIs
+from sqlalchemy import create_engine, dialects, text
+
 from dcpy.utils.logging import logger
+
+
+class TableType(Enum):
+    VIEW = "VIEW"
+    BASE_TABLE = "BASE TABLE"
+    OTHER = "OTHER"  # Encompasses FOREIGN TABLE, LOCAL TEMPORARY, etc. - we don't expect to encounter these often
+
 
 DEFAULT_POSTGRES_SCHEMA = "public"
 PROTECTED_POSTGRES_SCHEMAS = [
@@ -193,6 +202,44 @@ class PostgresClient:
         ]
         return table_names
 
+    def get_table_type(self, table_name: str, schema: str | None = None) -> TableType:
+        """Get the type of a table (VIEW, BASE TABLE, etc.)"""
+        schema_to_check = schema or self.schema
+        result = self.execute_select_query(
+            "SELECT table_type FROM information_schema.tables WHERE table_schema = :schema AND table_name = :table_name",
+            schema=schema_to_check,
+            table_name=table_name,
+        )
+        if result.empty:
+            raise ValueError(
+                f"Table '{table_name}' not found in schema '{schema_to_check}'"
+            )
+        raw_type = result.iloc[0]["table_type"]
+
+        # Map raw PostgreSQL table types to our enum
+        if raw_type == "VIEW":
+            return TableType.VIEW
+        elif raw_type == "BASE TABLE":
+            return TableType.BASE_TABLE
+        else:
+            return TableType.OTHER
+
+    def is_view(self, table_name: str, schema: str | None = None) -> bool:
+        """Check if a table is a view"""
+        return self.get_table_type(table_name, schema) == TableType.VIEW
+
+    def table_or_view_exists(self, table_name: str, schema: str | None = None) -> bool:
+        """Check if a table or view exists in the schema"""
+        result = self.execute_select_query(
+            """
+            SELECT COUNT(*) AS count FROM information_schema.tables
+            WHERE table_schema = :schema AND table_name = :table_name
+            """,
+            schema=schema or self.schema,
+            table_name=table_name,
+        )
+        return result.iloc[0]["count"] > 0
+
     def set_table_schema(self, table, *, old_schema, new_schema):
         """Set the schema for a table."""
         self.execute_query(
@@ -225,9 +272,9 @@ class PostgresClient:
     def get_column_types(self, table_name: str) -> dict[str, str]:
         columns = self.execute_select_query(
             """
-            SELECT 
-                column_name, 
-                CASE 
+            SELECT
+                column_name,
+                CASE
                     WHEN data_type = 'USER-DEFINED' THEN udt_name
                     ELSE data_type
                 END AS data_type
@@ -243,10 +290,10 @@ class PostgresClient:
     def get_geometry_columns(self, table_name: str) -> set[str]:
         columns = self.execute_select_query(
             """
-            SELECT 
+            SELECT
                 column_name
             FROM information_schema.columns
-            WHERE 
+            WHERE
                 table_schema = ':table_schema'
                 AND table_name = ':table_name'
                 AND data_type = 'USER-DEFINED'
@@ -413,6 +460,30 @@ class PostgresClient:
                     cur.copy_expert(copy_sql, f)
         finally:
             dbapi_conn.close()
+
+    def create_view(self, table_name: str, from_schema: str) -> str:
+        """Create a view in the current schema."""
+        self.execute_query(f'''
+            CREATE VIEW "{self.schema}"."{table_name}" AS
+            SELECT * FROM "{from_schema}"."{table_name}"
+            ''')
+        logger.info(
+            f"Created view {table_name} in schema {self.schema} referencing {from_schema}.{table_name}"
+        )
+
+        return table_name
+
+    def copy_table(self, from_table_name: str, from_schema: str) -> str:
+        """Copy a table."""
+        self.execute_query(f'''
+        CREATE TABLE "{self.schema}"."{from_table_name}" AS
+        SELECT * FROM "{from_schema}"."{from_table_name}"
+        ''')
+        logger.info(
+            f"Copied table {from_table_name} from schema {from_schema} to schema {self.schema}"
+        )
+
+        return from_table_name
 
 
 def insert_copy(table, conn, keys, data_iter):

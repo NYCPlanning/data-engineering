@@ -1,0 +1,10 @@
+product: test
+name: cache_test
+version: 1.0
+inputs:
+  datasets:
+    - id: test_dataset
+      source: mock_recipes_source
+      version: 2025v2
+      file_type: csv
+      destination: postgres
