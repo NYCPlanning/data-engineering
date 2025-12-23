@@ -66,9 +66,11 @@ def temp_metadata_object(utils_resources_path):
     md_object = Metadata.from_xml(xml_content)
     return md_object
 
+
 @fixture
 def today_datestamp() -> str:
-    return datetime.now().strftime('%Y%m%d')
+    return datetime.now().strftime("%Y%m%d")
+
 
 def _get_info_from_file_fixture(
     request: pytest.FixtureRequest, fixture: str, file_type: str
@@ -124,7 +126,7 @@ def test_add_metadata_to_shp_no_existing_metadata(
     shp.write_metadata(
         metadata=temp_metadata_object,
     )
-    #BUG - this test fails when I try to instantiate Metadata() properly. Fix that, then test an actual field value.
+    # BUG - this test fails when I try to instantiate Metadata() properly. Fix that, then test an actual field value.
     # print(Path(fixture_info["path"], str(fixture_info["shp_name"]) + ".xml").read_text(encoding='utf-8'))
     # md = shp.read_metadata()
     assert shp.metadata_exists(), "Expected metadata, but found none"
@@ -255,7 +257,9 @@ def test_read_metadata(request, path_fixture, file_type, subdir):
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
-    print("\n\n" + etree.tostring(md.to_xml_tree(), encoding='unicode', pretty_print=True))
+    print(
+        "\n\n" + etree.tostring(md.to_xml_tree(), encoding="unicode", pretty_print=True)
+    )
     assert md.esri.scale_range.min_scale == "150000000"
     assert md.esri.scale_range.max_scale == "5000"
 
@@ -290,16 +294,3 @@ def test_generate_metadata(today_datestamp):
     assert hasattr(md, "md_date_st")
     assert isinstance(md.md_date_st.value, int)
     assert md.md_date_st.sync == "TRUE"
-
-#TODO - test the ability to write values to metadata where that xpath/model doesn't already exist in the class instance
-# e.g. if md doesn't have xml tag "x", but data model has structure for "x". Confirm writing value adds "x" to correct data model to md
-# this might be a beter test for the test_pydantic_from_xml.py file?
-
-def test_write_shapefile_xml_metadata(today_datestamp):
-
-    expected_date = today_datestamp
-
-    # test glue code between product_metadata and these shapefile utilities
-    # md = write_shapefile_xml_metadata()
-    # assert md.title == "placeholder"
-    # assert md.esri.crea_date == today_datestamp
