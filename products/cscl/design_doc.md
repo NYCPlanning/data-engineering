@@ -565,5 +565,30 @@ Starting from `int__saf_segments`, V records are joined to
   - once to lookup street/feature name by actual b7sc
 - address point lgc table (`int__lgc_address_point`), a lookup table of address points to lgcs based on `addresspointid`
 
+| FIC | Field | Len | Frm | To | Format | CSCL Source of Data |
+| SAFV1 | Vanity Street Name | 32 | 1 | 32 | Obtained from StreetName table – see Note 1 |
+| SAFV2 | Borough Code | 1 | 33 | 33 | 1, 2, 3, 4 or 5 | AddressPoint attribute BOROUGHCODE |
+| SAFV3 | Face Code of Actual Segment | 4 | 34 | 37 | RJZF | See Note 2 |
+| SAFV4 | Sequence Number of Actual Segment | 5 | 38 | 42 | RJZF | See Note 3 |
+| SAFV5 | SOS Indicator for Actual Segment | 1 | 43 | 43 | L, R or blank | AddressPoint attribute SOSINDICATOR – see Note 4 |
+| SAFV6 | Vanity B5SC | 6 | 44 | 49 | Populate with first 6 bytes of AddressPoint attribute B7SC_VANITY |
+| SAFV7 | Low HN Basic | 7 | 50 | 56 | RJSF | See Note 5 |
+| SAFV8 | Low HN Suffix | 9 | 57 | 65 | RJSF | See Note 5 |
+|  | Filler | 2 | 66 | 67 | N/A |
+| SAFV9 | High HN Basic | 7 | 68 | 74 | RJSF | See Note 5 |
+| SAFV10 | High HN Suffix | 9 | 75 | 83 | RJSF | See Note 5 |
+|  | Filler | 2 | 84 | 85 | N/A |
+| SAFV11 | SAF Record Type Code | 1 | 86 | 86 | Populate with AddressPoint attribute SPECIAL_CONDITION |
+|  | Filler | 2 | 87 | 88 | N/A |
+| SAFV12 | Vanity LGC1 | 2 | 89 | 90 | RJZF | Populate with 7th and 8th bytes of AddressPoint attribute B7SC_VANITY |
+| SAFV13 | Vanity LGC2 | 2 | 91 | 92 | RJZF, blanks if none | See Note 6  |
+| SAFV14 | Vanity LGC3 | 2 | 93 | 94 | RJZF, blanks if none | See Note 6 |
+| SAFV15 | Vanity LGC4 | 2 | 95 | 96 | RJZF, blanks if none | See Note 6 |
+| SAFV16 | Pointer to BOE Preferred LGC | 1 | 97 | 97 | See Note 6 |
+| SAFV17 | Segment Type Code for Actual Segment | 1 | 98 | 98 | See Note 3 |
+| SAFV18 | Segment ID of Actual Segment | 7 | 99 | 105 | RJZF | See Note 3 |
+| SAFV19 | X Coordinate | 7 | 106 | 112 | Round to nearest foot RJZF | Capture from address point’s spatial coordinates |
+| SAFV20 | Y Coordinate | 7 | 113 | 119 | Round to nearest foot RJZF | Capture from address point’s spatial coordinates |
+
 # Infrastructure
 [stub]
