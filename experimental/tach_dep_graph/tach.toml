@@ -1,0 +1,322 @@
+interfaces = []
+exclude = [
+    "**/*__pycache__",
+    "**/*egg-info",
+    "**/docs",
+    "**/tests",
+    "**/venv",
+]
+source_roots = ["."]
+exact = false
+ignore_type_checking_imports = true
+
+layers = [
+    "cli",
+    "lifecycle.scripts",
+    "dcpy.other",
+    "lifecycle.stages",
+    "lifecycle.base",
+    "geosupport",
+    "connectors.dcp",
+    "dcpy.configuration", # questionable relationship to connectors!
+    "connectors",
+    "models",
+    "utils",
+    "utils.logging"
+]
+
+[[modules]]
+path = "dcpy.configuration"
+layer = "dcpy.configuration"
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.code_gen"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.geospatial"
+layer = "utils"
+utility = true
+depends_on = [ "dcpy.models.file", "dcpy.models.geospatial", "dcpy.models.data"]
+
+[[modules]]
+path = "dcpy.utils.git"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.duckdb"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.models"
+layer = "models"
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle.distribute"
+layer = "lifecycle.stages"
+depends_on = [ "dcpy.lifecycle.product_metadata"]
+
+[[modules]]
+path = "dcpy.utils.introspect"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle.data_loader"
+layer = "lifecycle.base"
+depends_on = [ "dcpy.lifecycle.config"]
+
+[[modules]]
+path = "dcpy.models.design"
+layer = "models"
+depends_on = []
+
+[[modules]]
+path = "dcpy.connectors.uscourts"
+layer = "connectors"
+depends_on = ["dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.lifecycle.package"
+layer = "lifecycle.stages"
+depends_on = [ "dcpy.lifecycle.product_metadata", "dcpy.lifecycle.data_loader", "dcpy.lifecycle.config"]
+
+[[modules]]
+path = "dcpy.models.data"
+layer = "models"
+depends_on = ["dcpy.models.base"]
+
+[[modules]]
+path = "dcpy.utils.metadata"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.versions"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle.builds"
+layer = "lifecycle.stages"
+depends_on = ["dcpy.lifecycle.config", "dcpy.lifecycle.data_loader"]
+
+[[modules]]
+path = "dcpy.models.dataset"
+layer = "models"
+depends_on = ["dcpy.models.base"]
+
+[[modules]]
+path = "dcpy.connectors.filesystem"
+layer = "connectors"
+depends_on = ["dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.lifecycle.ingest"
+layer = "lifecycle.stages"
+depends_on = [ "dcpy.lifecycle.config", "dcpy.geosupport"]
+
+[[modules]]
+path = "dcpy.lifecycle._cli"
+layer = "cli"
+depends_on = [ "dcpy.lifecycle._connectors_cli"]
+
+[[modules]]
+path = "dcpy.connectors.sftp"
+layer = "connectors"
+depends_on = [ "dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.models.base"
+layer = "models"
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle.product_metadata"
+layer = "lifecycle.base"
+depends_on = ["dcpy.lifecycle.config"]
+
+[[modules]]
+path = "dcpy.models.connectors"
+layer = "models"
+depends_on = []
+
+[[modules]]
+path = "dcpy.models.lifecycle"
+layer = "models"
+depends_on = ["dcpy.models.base", "dcpy.models.file", "dcpy.models.connectors", "dcpy.models.dataset", "dcpy.models.product"]
+
+[[modules]]
+path = "dcpy.connectors.s3"
+layer = "connectors"
+depends_on = [ "dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.models.geospatial"
+layer = "models"
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils._cli"
+layer = "cli"
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle.validate"
+layer = "lifecycle.stages"
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.collections"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.logging"
+layer = "utils.logging"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.connectors.edm"
+layer = "connectors.dcp"
+depends_on = ["dcpy.connectors.socrata", "dcpy.connectors.registry", "dcpy.connectors.web", "dcpy.lifecycle.product_metadata"]
+
+[[modules]]
+path = "dcpy.lifecycle.config"
+layer = "lifecycle.base"
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.data"
+layer = "utils"
+utility = true
+depends_on = ["dcpy.utils.geospatial", "dcpy.models.file"]
+
+[[modules]]
+path = "dcpy.connectors.esri"
+layer = "connectors"
+depends_on = ["dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.connectors.web"
+layer = "connectors"
+depends_on = [ "dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.connectors._cli"
+layer = "cli"
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.json"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle.scripts"
+layer = "lfecycle.scripts"
+depends_on = []
+
+[[modules]]
+path = "dcpy.geosupport"
+layer = "geosupport"
+depends_on = []
+
+[[modules]]
+path = "dcpy.connectors.registry"
+layer = "connectors"
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.sftp"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.library"
+layer = "dcpy.other"
+depends_on = []
+
+[[modules]]
+path = "dcpy.data"
+layer = "dcpy.other"
+depends_on = []
+
+[[modules]]
+path = "dcpy.lifecycle._connectors_cli"
+layer = "cli"
+depends_on = []
+
+[[modules]]
+path = "dcpy.models.file"
+layer = "models"
+depends_on = ["dcpy.models.geospatial", "dcpy.models.base"]
+
+[[modules]]
+path = "dcpy.models.library"
+layer = "models"
+depends_on = [ "dcpy.models.connectors"]
+
+[[modules]]
+path = "dcpy.lifecycle.connector_registry"
+layer = "lifecycle.base"
+depends_on = []
+
+[[modules]]
+path = "dcpy.models.product"
+layer = "models"
+depends_on = [ "dcpy.models.dataset", "dcpy.models.base"]
+
+[[modules]]
+path = "dcpy.connectors.hybrid_pathed_storage"
+layer = "connectors"
+depends_on = ["dcpy.connectors.registry"]
+
+[[modules]]
+path = "dcpy.utils.s3"
+layer = "utils"
+utility = true
+depends_on = ["dcpy.utils.git"]
+
+[[modules]]
+path = "dcpy.utils.string"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.excel"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.utils.postgres"
+layer = "utils"
+utility = true
+depends_on = []
+
+[[modules]]
+path = "dcpy.connectors.ingest_datastore"
+layer = "connectors"
+depends_on = ["dcpy.connectors.registry", "dcpy.connectors.hybrid_pathed_storage"]
+
+[[modules]]
+path = "dcpy.connectors.socrata"
+layer = "connectors"
+depends_on = ["dcpy.connectors.registry"]
