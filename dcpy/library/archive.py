@@ -34,7 +34,7 @@ class Archive:
         Parameters
         ----------
         path: path to the configutation file
-        output_format: currently supported formats: `'csv'`, `'geojson'`, `'shapefile'`, `'postgres'`
+        output_format: see ingest.Ingestor translator methods for currently supported formats`
         push: if `True` then push to s3
         clean: if `True`, the temporary files created under `.library` will be removed
         latest: if `True` then tag this current version we are processing to be the `latest`

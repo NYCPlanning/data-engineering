@@ -19,7 +19,7 @@ s3 = S3()
 @app.command()
 def archive(
     path: str = typer.Option(None, "--path", "-f", help="Path to config yml"),
-    output_formats: list[str] = typer.Option(["pgdump", "parquet", "csv"], "--output-format", "-o", help="csv, geojson, shapefile, pgdump and parquet"),
+    output_formats: list[str] = typer.Option(["pgdump", "parquet", "csv", "shapefile", "postgres"], "--output-format", "-o", help="csv, geojson, shapefile, pgdump and parquet"),
     push: bool = typer.Option(False, "--s3", "-s", help="Push to s3"),
     clean: bool = typer.Option(False, "--clean", "-c", help="Remove temporary files"),
     latest: bool = typer.Option(False, "--latest", "-l", help="Tag with latest"),
