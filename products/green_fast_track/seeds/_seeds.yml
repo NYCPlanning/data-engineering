@@ -82,7 +82,8 @@ seeds:
     tests:
     - not_null
     - accepted_values:
-        values: [ "TRUE", "FALSE" ]
+        arguments:
+          values: [ "TRUE", "FALSE" ]
 
 - name: test_expected__pilot_projects
   description: Mock pilot projects and their expected outputs
