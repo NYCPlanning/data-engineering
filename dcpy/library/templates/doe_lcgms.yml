@@ -1,9 +1,9 @@
 dataset:
-  name: sca_bluebook
+  name: doe_lcgms
   acl: public-read
   source:
     url:
-      path: s3://edm-recipes/inbox/sca/{{ version }}/sca_bluebook.csv
+      path: s3://edm-recipes/inbox/sca/{{ version }}/doe_lcgms.csv
     options:
       - AUTODETECT_TYPE=NO
       - EMPTY_STRING_AS_NULL=YES
@@ -23,10 +23,10 @@ dataset:
 
   info:
     description: |
-      ### NYC School Construction Authority - Capacity Projects in Progress
       Provided by DCP Capital Planning team as an excel file
-      with a name like "20XX - 20XX Blue Book" and a sheet name like "XX-XX by Org".
+      with a name like "LCGMS_SchoolData".
       
-      This is the SCA's “Enrollment, Capacity, Utilization Report,” known as the “Blue Book”.
+      This is only needed for the legacy CEQR schools dataset ceqr_school_buildings
+      and is different from the doe_lcgms ingest source data used in FacDB.
     url: ""
     dependents: []
