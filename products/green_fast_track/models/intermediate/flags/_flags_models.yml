@@ -164,3 +164,57 @@ models:
     test_name: dbt_utils.equality
     arguments:
       compare_model: ref('test_expected__flags_zoning')
+
+unit_tests:
+  - name: test_zoning_district_type
+    description: "Check zoning district parsing"
+    model: int__zoning_districts
+    given:
+      - input: ref('stg__pluto')
+        # dict format doesn't work because it tries to do cast(null as USER-DEFINED) as "geom"
+        # rows:
+        #   - {bbl: 123, zonedist1: M1, zonedist2: NULL, zonedist3: NULL, zonedist4: NULL}
+        format: sql
+        rows: |
+          SELECT
+            'simple_m' as bbl,
+            'M1' as zonedist1,
+            NULL as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+          UNION ALL
+          SELECT
+            'simple_low_res' as bbl,
+            'R2' as zonedist1,
+            NULL as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+          UNION ALL
+          SELECT
+            'null_districts' as bbl,
+            NULL as zonedist1,
+            NULL as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+          UNION ALL
+          SELECT
+            'simple_high_res' as bbl,
+            'R10' as zonedist1,
+            NULL as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+          UNION ALL
+          SELECT
+            'multiple_districts' as bbl,
+            'M1' as zonedist1,
+            'R3' as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+    expect:
+      rows:
+        - {bbl: simple_m, zd: M1, zoning_district_type: M}
+        - {bbl: simple_low_res, zd: R2, zoning_district_type: R2}
+        - {bbl: null_districts, zd: NULL, zoning_district_type: NONE}
+        - {bbl: simple_high_res, zd: R10, zoning_district_type: R10}
+        - {bbl: multiple_districts, zd: M1, zoning_district_type: M}
+        - {bbl: multiple_districts, zd: R3, zoning_district_type: R3}
