@@ -11,7 +11,7 @@ lgc AS (
     SELECT * FROM {{ ref('int__streetcode_and_facecode') }}
 )
 SELECT
-    feature_names.saf_place_name AS place_name,
+    feature_names.place_name_sort_order AS place_name,
     saf.boroughcode,
     COALESCE(feature_names.face_code, SUBSTRING(saf.segment_lionkey, 2, 4)) AS face_code,
     SUBSTRING(saf.segment_lionkey, 6, 5) AS segment_seqnum,

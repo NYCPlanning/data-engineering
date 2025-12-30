@@ -14,7 +14,7 @@ saf_d_regular_b5sc AS (
 SELECT
     -- TODO "warning" issued if featurename instead of streetname
     -- TODO error when null
-    feature_names.saf_place_name AS place_name,
+    feature_names.place_name_sort_order AS place_name,
     saf.boroughcode,
     altsegdata.face_code,
     altsegdata.segment_seqnum,

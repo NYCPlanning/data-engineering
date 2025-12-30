@@ -24,6 +24,12 @@ WITH all_features AS (
     FROM {{ source("recipe_sources", "dcp_cscl_featurename") }}
     WHERE principal_flag = 'Y'
 ),
+remove_dash_slash_spaces AS (
+    SELECT
+        regexp_replace(lookup_key, '\s*(/|-)\s*', '\1', 'g') AS lookup_key,
+        globalid
+    FROM all_features
+),
 sort_order AS (
     SELECT
         string_agg(
@@ -36,9 +42,9 @@ sort_order AS (
         globalid
     FROM (
         SELECT
-            unnest(regexp_matches(lookup_key, '\d+|[^\d\s]+', 'g')) AS match,
+            unnest(regexp_matches(lookup_key, '(?:[^\s]*[\-\/][^\s]*)|[\d]+|[^\d\s]+', 'g')) AS match,
             globalid
-        FROM all_features
+        FROM remove_dash_slash_spaces
     ) AS t
     GROUP BY globalid
 )
@@ -46,12 +52,6 @@ SELECT
     b7sc,
     lookup_key,
     sort_order.place_name_sort_order,
-    regexp_replace(
-        regexp_replace(sort_order.place_name_sort_order, '\s*(/|-)\s*', '\1', 'g'),
-        '\s\s\s9/11',
-        '9/11',
-        'g'
-    ) AS saf_place_name,
     face_code,
     feature_type
 FROM all_features
