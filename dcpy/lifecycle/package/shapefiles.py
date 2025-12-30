@@ -1,17 +1,21 @@
 # TODO: Move this to a utils shapefile module.
 
 
-from pathlib import Path
-import typer
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
+import typer
+
+from dcpy.lifecycle import product_metadata
 from dcpy.models.product.dataset.metadata import (
-    Metadata,
+    COLUMN_TYPES,
+    ColumnValue,
     DatasetAttributes,
     DatasetColumn,
-    ColumnValue,
-    COLUMN_TYPES,
+    Metadata,
 )
+from dcpy.utils.geospatial import shapefile as shp_utils
+from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
 
 _shapefile_to_dcpy_types: dict[str, COLUMN_TYPES] = {
@@ -130,11 +134,10 @@ def _write_metadata(
     logger.info(f"Wrote metadata to {out_path}")
 
 
-
 ## ------------------------------------------
-from dcpy.lifecycle import product_metadata
-from dcpy.utils.geospatial.shapefile import Shapefile
-# from dcpy.utils.geospatial.shapefile import Metadata as 
+
+# from dcpy.utils.geospatial.shapefile import Metadata as
+
 
 @app.command("write_metadata")
 def _write_shapefile_xml_metadata(
@@ -144,22 +147,32 @@ def _write_shapefile_xml_metadata(
         None,
         "--shapefile-path",
         "-shp",
-        help="TBD",
+        help="something somewhere somehow",
     ),
 ):
     # shapefile_path = shapefile_path or Path("./metadata.yml")
-    write_shapefile_xml_metadata(product_name=product_name, dataset_name=dataset_name, shapefile_path=shapefile_path)
+    write_shapefile_xml_metadata(
+        product_name=product_name,
+        dataset_name=dataset_name,
+        shapefile_path=shapefile_path,
+    )
     logger.info(f"Wrote metadata to {shapefile_path}")
 
-def write_shapefile_xml_metadata(product_name, dataset_name, shapefile_path):
-    product_md = product_metadata.load().product(product_name).dataset(dataset_name) # this is dcp metadata from the product-metadata repo
 
-    shapefile_xml_metadata = ShapefileXML() # this is the pydantic class that we generated 
-    
+def write_shapefile_xml_metadata(product_name, dataset_name, shapefile_path):
+    product_md = (
+        product_metadata.load().product(product_name).dataset(dataset_name)
+    )  # this is dcp metadata from the product-metadata repo
+
+    generated_md = (
+        shp_utils.generate_metadata()
+    )  # this is the pydantic class that we generated
+
     # set the attributes you care about, using the product-metadata when necessary
-    shapefile_xml_metadata.name = product_md.name # contrived example
-    ...
-    
+    generated_md.md_hr_lv_name = product_md.attributes.display_name  # contrived example
+    generated_md.data_id_info.id_abs = product_md.attributes.description
+    # and so on
+
     # use the shapefile file utils you wrote to modify the zipped shapefile
     shp = Shapefile(shapefile_path)
-    shp.write_metadata(shapefile_xml_metadata, overwrite=True)
+    shp.write_metadata(generated_md, overwrite=True)
