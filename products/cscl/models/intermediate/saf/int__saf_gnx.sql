@@ -22,7 +22,7 @@ feature_names AS (
 )
 SELECT
     -- TODO error when null
-    feature_names.saf_place_name AS place_name,
+    feature_names.place_name_sort_order AS place_name,
     saf.boroughcode,
     SUBSTRING(saf.segment_lionkey, 2, 4) AS face_code,
     SUBSTRING(saf.segment_lionkey, 6, 5) AS segment_seqnum,

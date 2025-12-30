@@ -5,7 +5,7 @@ feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
 )
 SELECT
-    feature_names.saf_place_name AS place_name,
+    feature_names.place_name_sort_order AS place_name,
     intersection.nodeid,
     CASE WHEN intersection.multiplefield = 'Y' THEN 'M' END AS multiplefield,
     intersection.b7sc AS b7sc_intersection,

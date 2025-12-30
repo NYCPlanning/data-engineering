@@ -12,7 +12,7 @@ SELECT
     -- TODO error when null
     CASE
         WHEN altsegdata.saftype = 'C' THEN '  75 STREET'
-        ELSE feature_names.saf_place_name
+        ELSE feature_names.place_name_sort_order
     END AS place_name,
     saf.boroughcode,
     altsegdata.face_code,

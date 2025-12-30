@@ -13,7 +13,7 @@ address_point_lgc AS (
 SELECT
     -- TODO "warning" issued if featurename instead of streetname
     -- TODO error when null
-    feature_names_vanity.saf_place_name AS place_name,
+    feature_names_vanity.place_name_sort_order AS place_name,
     saf.boroughcode,
     feature_names_actual.face_code,
     SUBSTRING(saf.segment_lionkey, 6, 5) AS segment_seqnum,

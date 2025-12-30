@@ -8,7 +8,7 @@ feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
 )
 SELECT
-    feature_names.saf_place_name AS place_name,
+    feature_names.place_name_sort_order AS place_name,
     saf.boroughcode,
     altsegdata.face_code,
     altsegdata.segment_seqnum,
