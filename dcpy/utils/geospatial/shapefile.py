@@ -174,7 +174,10 @@ def from_path(
 
 
 def generate_metadata() -> Metadata:
-    """Generates a default Esri metadata object"""
+    """
+    Generates a default Esri metadata object.
+    Can be generated as an independent object without an existing spatial dataset.
+    """
 
     def _get_esri_timestamp(dt_obj=None):
         """
