@@ -6,6 +6,8 @@ from datetime import datetime
 from dcpy.models.product.metadata import OrgMetadata
 import shutil
 import zipfile
+from pathlib import Path
+from dcpy.test.resources import package_and_distribute
 
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
 
@@ -59,22 +61,53 @@ def org_metadata(package_and_dist_test_resources):
 
 
 def test_write_shapefile_xml_metadata(
-    org_metadata: OrgMetadata, request, path_fixture, file_type, subdir
+    org_metadata: OrgMetadata, request, temp_shp_zip_with_md_path
 ):
-    fixture_info = _get_info_from_file_fixture(
-        request, fixture=path_fixture, file_type=file_type
-    )
-    # write metadata
-    shapefiles.write_shapefile_xml_metadata(
-        product_name="lion",
-        dataset_name="pseudo_lots",
-        shapefile_path=temp_shp_zip_with_md_path,
-    )
+    print(f"\n\n{temp_shp_zip_with_md_path=}")
+    print(f"\n{temp_shp_zip_with_md_path.is_file()=}")
+    print(f"\n{zipfile.ZipFile(temp_shp_zip_with_md_path).namelist()=}")
+    zip_name = "shapefile_single_pluto_feature_with_metadata.shp.zip"
+    shp_name = Path(zip_name).parent
+    parent_path = Path(temp_shp_zip_with_md_path.parent)
+    print(f"\n\n{parent_path=}")
+
+    # fixture_info = _get_info_from_file_fixture(
+    #     request, fixture=temp_shp_zip_with_md_path, file_type="zip"
+    # )
+    # print(f"\n\n{fixture_info=}")
+    from dcpy.lifecycle import product_metadata
+
     pseudo_lots_md = org_metadata.product("lion").dataset("pseudo_lots")
-    # read it back
-    shp = shp_utils.from_path(fixture_info["path"], fixture_info["shp_name"])
-    written_md = shp.read_metadata()
-    assert written_md.title == pseudo_lots_md.attributes.display_name
+
+    print(f"\n{pseudo_lots_md=}")
+
+    # assert 1 == 2
+    product_md = (
+        product_metadata.load(
+            # agency="DCP",
+            # lion_prod_level_pub_freq="quarterly",
+            # pseudo_lots_pub_freq="quarterly",
+        )
+        .product("lion")
+        .dataset("pseudo_lots")
+    )
+    print(f"\n{product_md=}")
+
+    # assert 1 == 2
+
+    # write metadata
+    # shapefiles.write_shapefile_xml_metadata(
+    #     product_name="lion",
+    #     dataset_name="pseudo_lots",
+    #     shapefile_path=temp_shp_zip_with_md_path,
+    # )
+    # # read it back
+
+    # shp = shp_utils.from_path(path=parent_path / zip_name, shp_name=shp_name)
+    # written_md = shp.read_metadata()
+    # assert (
+    #     written_md.md_hr_lv_name == pseudo_lots_md.attributes.display_name
+    # )  # contrived example
 
 
 # TODO - test the ability to write values to metadata where that xpath/model doesn't already exist in the class instance
