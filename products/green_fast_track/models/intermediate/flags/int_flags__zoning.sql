@@ -18,7 +18,10 @@ district_categories AS (
 ),
 
 zoning_district_types AS (
-    SELECT bbl, zoning_district_type FROM zoning_districts
+    SELECT
+        bbl,
+        zoning_district_type
+    FROM zoning_districts
     GROUP BY bbl, zoning_district_type
 ),
 
@@ -45,7 +48,8 @@ lots_with_flags AS (
         category_type_array,
         'other' = ANY(category_type_array) AS has_other,
         'c_or_m' = ANY(category_type_array) AS has_c_or_m,
-        'low_res' = ANY(category_type_array) AS has_low_res
+        'low_res' = ANY(category_type_array) AS has_low_res,
+        'high_res' = ANY(category_type_array) AS has_high_res
     FROM lot_with_zoning_categories
 ),
 
@@ -61,7 +65,7 @@ districts_resolved AS (
                         ELSE 'c_or_m'
                     END
             WHEN has_low_res THEN 'low_res'
-            ELSE 'high_res'
+            WHEN has_high_res THEN 'high_res'
         END AS category_type
     FROM lots_with_flags
 ),
