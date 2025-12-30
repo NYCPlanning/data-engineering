@@ -210,6 +210,27 @@ unit_tests:
             'R3' as zonedist2,
             NULL as zonedist3,
             NULL as zonedist4
+          UNION ALL
+          SELECT
+            'multiple_similar' as bbl,
+            'M1' as zonedist1,
+            'M2' as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+          UNION ALL
+          SELECT
+            'multiple_same' as bbl,
+            'M1-2/R5B' as zonedist1,
+            'M1-2/R6A' as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
+          UNION ALL
+          SELECT
+            'r12_district' as bbl,
+            'M1-8A/R12' as zonedist1,
+            'C6-4X' as zonedist2,
+            NULL as zonedist3,
+            NULL as zonedist4
     expect:
       rows:
         - {bbl: simple_m, zd: M1, zoning_district_type: M}
@@ -218,3 +239,11 @@ unit_tests:
         - {bbl: simple_high_res, zd: R10, zoning_district_type: R10}
         - {bbl: multiple_districts, zd: M1, zoning_district_type: M}
         - {bbl: multiple_districts, zd: R3, zoning_district_type: R3}
+        - {bbl: multiple_similar, zd: M1, zoning_district_type: M}
+        - {bbl: multiple_similar, zd: M2, zoning_district_type: M}
+        - {bbl: multiple_same, zd: M1-2, zoning_district_type: M}
+        - {bbl: multiple_same, zd: R5B, zoning_district_type: R5}
+        - {bbl: multiple_same, zd: R6A, zoning_district_type: R6}
+        - {bbl: r12_district, zd: M1-8A, zoning_district_type: M}
+        - {bbl: r12_district, zd: R12, zoning_district_type: R12}
+        - {bbl: r12_district, zd: C6-4X, zoning_district_type: C}

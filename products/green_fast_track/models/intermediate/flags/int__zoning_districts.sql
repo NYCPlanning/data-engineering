@@ -1,22 +1,36 @@
 WITH pluto AS (
-    SELECT * FROM {{ ref('stg__pluto') }}
+    SELECT
+        *,
+        zonedist1 IS null AS zd_all_null
+    FROM {{ ref('stg__pluto') }}
+),
+
+-- to preserve lots with no zoning since STRING_TO_ARRAY returns an empty (zero-element) array
+-- when the result of UNNEST(ARRAY[ ... ] is a string of zero length. this UNION ALL approach
+-- is simpler than using joins or complicated nesting of array functions
+lots_with_no_districts AS (
+    SELECT
+        bbl,
+        null AS zd
+    FROM pluto
+    WHERE zd_all_null
 ),
 
 districts_exploded AS (
     SELECT
         bbl,
-        UNNEST(ARRAY[zonedist1, zonedist2, zonedist3, zonedist4]) AS zd,
-        zonedist1 IS null AS zd_all_null
+        UNNEST(STRING_TO_ARRAY(UNNEST(ARRAY[zonedist1, zonedist2, zonedist3, zonedist4]), '/')) AS zd
     FROM pluto
+    WHERE NOT zd_all_null
+    GROUP BY bbl, zd
 ),
 
 districts_distinct AS (
-    SELECT
-        bbl,
-        zd
+    SELECT *
     FROM districts_exploded
-    WHERE (zd IS NOT null AND NOT zd_all_null) OR zd_all_null
-    GROUP BY bbl, zd
+    UNION ALL
+    SELECT *
+    FROM lots_with_no_districts
 ),
 
 generalized_districts AS (
