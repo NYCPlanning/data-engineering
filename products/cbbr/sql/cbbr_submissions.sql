@@ -15,7 +15,8 @@ SELECT
     dcp.need_group,
     dcp.need,
     dcp.budget_request_title AS title,
-    omb.request,
+    dcp.request,
+    -- TODO - should probably just use dcp.explanation but clean special charactesr
     REPLACE(omb.reason, E'\n', ' ') AS explanation,
     dcp.location_specific,
     dcp.address,
