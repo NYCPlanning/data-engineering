@@ -105,6 +105,9 @@ jobs:
         if [ -d tests ]; then
           sqlfluff lint tests --templater=dbt
         fi
+    - name: unit tests
+      run: |
+        dbt test --resource-type unit_test
 
   mypy:
     runs-on: ubuntu-22.04
