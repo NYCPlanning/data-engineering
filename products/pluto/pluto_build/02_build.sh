@@ -98,6 +98,8 @@ run_sql_file sql/spatialjoins.sql
 run_sql_file sql/numericfields_geomfields.sql
 run_sql_file sql/sanitboro.sql
 run_sql_file sql/latlong.sql
+run_sql_file sql/miharea.sql
+run_sql_file sql/transitzone.sql
 run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Populating PLUTO tags and version fields'
