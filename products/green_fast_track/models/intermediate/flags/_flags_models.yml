@@ -176,61 +176,19 @@ unit_tests:
         #   - {bbl: 123, zonedist1: M1, zonedist2: NULL, zonedist3: NULL, zonedist4: NULL}
         format: sql
         rows: |
-          SELECT
-            'simple_m' as bbl,
-            'M1' as zonedist1,
-            NULL as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'simple_low_res' as bbl,
-            'R2' as zonedist1,
-            NULL as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'null_districts' as bbl,
-            NULL as zonedist1,
-            NULL as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'simple_high_res' as bbl,
-            'R10' as zonedist1,
-            NULL as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'multiple_districts' as bbl,
-            'M1' as zonedist1,
-            'R3' as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'multiple_similar' as bbl,
-            'M1' as zonedist1,
-            'M2' as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'multiple_same' as bbl,
-            'M1-2/R5B' as zonedist1,
-            'M1-2/R6A' as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
-          UNION ALL
-          SELECT
-            'r12_district' as bbl,
-            'M1-8A/R12' as zonedist1,
-            'C6-4X' as zonedist2,
-            NULL as zonedist3,
-            NULL as zonedist4
+          SELECT * FROM (
+            VALUES
+              ('simple_m',            'M1',          NULL,      NULL,       NULL),
+              ('simple_low_res',      'R2',          NULL,      NULL,       NULL),
+              ('null_districts',      NULL,          NULL,      NULL,       NULL),
+              ('simple_high_res',     'R10',         NULL,      NULL,       NULL),
+              ('multiple_districts',  'M1',         'R3',       NULL,       NULL),
+              ('multiple_similar',    'M1',         'M2',       NULL,       NULL),
+              ('multiple_same',       'M1-2/R5B',   'M1-2/R6A', NULL,       NULL),
+              ('r12_district',        'M1-8A/R12',  'C6-4X',    NULL,       NULL)
+          ) AS stg__pluto (
+              bbl,                    zonedist1,    zonedist2,  zonedist3,  zonedist4
+          )
     expect:
       rows:
         - {bbl: simple_m, zd: M1, zoning_district_type: M}
