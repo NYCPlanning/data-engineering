@@ -78,6 +78,7 @@ class _FileManagerZipped:
         os.replace(temp_zip, self.zip_path)
 
 
+# TODO - ensure that .write_metadata() includes "<?xml version="1.0"?>" at top of file
 class Shapefile:
     def __init__(
         self,
@@ -134,7 +135,8 @@ class Shapefile:
         if overwrite:
             self.remove_metadata()
 
-        md = str(metadata.to_xml())
+        xml_data = metadata.to_xml()
+        md = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
 
         self.file_manager.write_file(filename=f"{self.name}.xml", contents=md)
 
@@ -148,7 +150,8 @@ class Shapefile:
 
     def remove_metadata(self):
         """Removes existing metadata file from shapefile."""
-        self.file_manager.remove_file(f"{self.name}.xml")
+        if self.metadata_exists():
+            self.file_manager.remove_file(f"{self.name}.xml")
 
     def generate_metadata(self) -> Metadata:
         """Generates a default Esri metadata object"""
