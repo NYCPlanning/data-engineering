@@ -61,6 +61,7 @@ SELECT
     feature_type_codes.source_feature_class AS feature_type,
     primary_segments.feature_type AS primary_feature_type,
     feature_type_codes.description AS feature_type_description,
+    proto.alt_segdata_type,
     proto.source_table,
     proto.globalid
 FROM proto
