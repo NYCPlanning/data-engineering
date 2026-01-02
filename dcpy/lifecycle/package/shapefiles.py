@@ -1,17 +1,23 @@
 # TODO: Move this to a utils shapefile module.
 
 
-from pathlib import Path
-import typer
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
+import typer
+
+from dcpy.lifecycle import product_metadata
 from dcpy.models.product.dataset.metadata import (
-    Metadata,
+    COLUMN_TYPES,
+    ColumnValue,
     DatasetAttributes,
     DatasetColumn,
-    ColumnValue,
-    COLUMN_TYPES,
+    Metadata,
 )
+
+from dcpy.models.product.metadata import OrgMetadata
+from dcpy.utils.geospatial import shapefile as shp_utils
+from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
 
 _shapefile_to_dcpy_types: dict[str, COLUMN_TYPES] = {
@@ -128,3 +134,52 @@ def _write_metadata(
     out_path = output_path or Path("./metadata.yml")
     parse_shapefile_metadata(shp_xml_path).write_to_yaml(out_path)
     logger.info(f"Wrote metadata to {out_path}")
+
+
+@app.command("write_metadata")
+def _write_shapefile_xml_metadata(
+    org_md: OrgMetadata,  # Should this be optional if the underlying arg is optional?
+    product_name: str,
+    dataset_name: str,
+    path: Path,
+    shp_name: str,
+    zip_subdir: str | None = typer.Option(
+        None,
+        "--zip-subdir",
+        help="Directory structure within zip file, if relevant",
+    ),
+):
+    write_shapefile_xml_metadata(
+        product_name=product_name,
+        dataset_name=dataset_name,
+        path=path,
+        shp_name=shp_name,
+        zip_subdir=zip_subdir,
+        org_md=org_md,
+    )
+    logger.info(f"Wrote metadata to {shp_name} in {path}")
+
+
+# TODO - decide whether to automatically detect zip files or not at this level
+def write_shapefile_xml_metadata(
+    product_name: str,
+    dataset_name: str,
+    path: Path,
+    shp_name: str,
+    zip_subdir: str | None,
+    org_md: OrgMetadata | None,
+):
+    org_md = org_md or product_metadata.load()
+    product_md = org_md.product(product_name).dataset(dataset_name)
+
+    metadata = shp_utils.generate_metadata()
+
+    metadata.md_hr_lv_name = product_md.attributes.display_name
+    metadata.md_stan_name = "ArcGIS Metadata"
+    metadata.md_stan_ver = 1.0
+    metadata.data_id_info.id_abs = product_md.attributes.description
+    metadata.data_id_info.other_keys.keyword = product_md.attributes.tags
+    metadata.data_id_info.search_keys.keyword = product_md.attributes.tags
+
+    shp = Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
+    shp.write_metadata(metadata, overwrite=True)
