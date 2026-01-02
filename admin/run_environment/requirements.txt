@@ -14,6 +14,8 @@ annotated-types==0.7.0
     # via pydantic
 anywidget==0.9.21
     # via leafmap
+appnope==0.1.4
+    # via ipykernel
 asttokens==3.0.1
     # via stack-data
 attrs==25.4.0
@@ -184,7 +186,7 @@ executing==2.2.1
     # via stack-data
 faker==40.1.0
     # via -r requirements.in
-filelock==3.20.1
+filelock==3.20.2
     # via
     #   gdown
     #   virtualenv
@@ -213,7 +215,7 @@ geopy==2.4.1
     # via contextily
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.45
+gitpython==3.1.46
     # via streamlit
 google-api-core==2.28.1
     # via
@@ -349,7 +351,7 @@ leafmap==0.57.10
     # via -r requirements.in
 leather==0.4.1
     # via agate
-librt==0.7.5
+librt==0.7.7
     # via mypy
 lxml==6.0.2
     # via -r requirements.in
@@ -480,7 +482,7 @@ pathspec==0.12.1
     #   sqlfluff
 pexpect==4.9.0
     # via ipython
-pillow==12.0.0
+pillow==12.1.0
     # via
     #   contextily
     #   matplotlib
@@ -573,7 +575,7 @@ pygments==2.19.2
     #   rich
 pyjwt[crypto]==2.10.1
     # via msal
-pynacl==1.6.1
+pynacl==1.6.2
     # via paramiko
 pyogrio==0.12.1
     # via geopandas
@@ -850,8 +852,6 @@ uv==0.9.21
     # via -r requirements.in
 virtualenv==20.35.4
     # via pre-commit
-watchdog==6.0.0
-    # via streamlit
 wcwidth==0.2.14
     # via prompt-toolkit
 werkzeug==3.1.4
