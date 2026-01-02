@@ -138,25 +138,17 @@ def _write_metadata(
 
 @app.command("write_metadata")
 def _write_shapefile_xml_metadata(
+    org_md: OrgMetadata,  # Should this be optional if the underlying arg is optional?
     product_name: str,
     dataset_name: str,
     path: Path,
     shp_name: str,
-    zip_subdir: str | None,
-    org_md: OrgMetadata = typer.Option(
+    zip_subdir: str | None = typer.Option(
         None,
-        "--org-metadata",
-        "-om",
-        help="something somewhere somehow",
+        "--zip-subdir",
+        help="Directory structure within zip file, if relevant",
     ),
-    # shapefile_path: Path = typer.Option(
-    #     None,
-    #     "--shapefile-path",
-    #     "-shp",
-    #     help="something somewhere somehow",
-    # ),
 ):
-    # shapefile_path = shapefile_path or Path("./metadata.yml")
     write_shapefile_xml_metadata(
         product_name=product_name,
         dataset_name=dataset_name,
