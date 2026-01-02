@@ -14,6 +14,8 @@ from dcpy.models.product.dataset.metadata import (
     DatasetColumn,
     Metadata,
 )
+
+from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import shapefile as shp_utils
 from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
@@ -134,45 +136,58 @@ def _write_metadata(
     logger.info(f"Wrote metadata to {out_path}")
 
 
-## ------------------------------------------
-
-# from dcpy.utils.geospatial.shapefile import Metadata as
-
-
 @app.command("write_metadata")
 def _write_shapefile_xml_metadata(
     product_name: str,
     dataset_name: str,
-    shapefile_path: Path = typer.Option(
+    path: Path,
+    shp_name: str,
+    zip_subdir: str | None,
+    org_md: OrgMetadata = typer.Option(
         None,
-        "--shapefile-path",
-        "-shp",
+        "--org-metadata",
+        "-om",
         help="something somewhere somehow",
     ),
+    # shapefile_path: Path = typer.Option(
+    #     None,
+    #     "--shapefile-path",
+    #     "-shp",
+    #     help="something somewhere somehow",
+    # ),
 ):
     # shapefile_path = shapefile_path or Path("./metadata.yml")
     write_shapefile_xml_metadata(
         product_name=product_name,
         dataset_name=dataset_name,
-        shapefile_path=shapefile_path,
+        path=path,
+        shp_name=shp_name,
+        zip_subdir=zip_subdir,
+        org_md=org_md,
     )
-    logger.info(f"Wrote metadata to {shapefile_path}")
+    logger.info(f"Wrote metadata to {shp_name} in {path}")
 
 
-def write_shapefile_xml_metadata(product_name, dataset_name, shapefile_path):
-    product_md = (
-        product_metadata.load().product(product_name).dataset(dataset_name)
-    )  # this is dcp metadata from the product-metadata repo
+# TODO - decide whether to automatically detect zip files or not at this level
+def write_shapefile_xml_metadata(
+    product_name: str,
+    dataset_name: str,
+    path: Path,
+    shp_name: str,
+    zip_subdir: str | None,
+    org_md: OrgMetadata | None,
+):
+    org_md = org_md or product_metadata.load()
+    product_md = org_md.product(product_name).dataset(dataset_name)
 
-    generated_md = (
-        shp_utils.generate_metadata()
-    )  # this is the pydantic class that we generated
+    metadata = shp_utils.generate_metadata()
 
-    # set the attributes you care about, using the product-metadata when necessary
-    generated_md.md_hr_lv_name = product_md.attributes.display_name  # contrived example
-    generated_md.data_id_info.id_abs = product_md.attributes.description
-    # and so on
+    metadata.md_hr_lv_name = product_md.attributes.display_name
+    metadata.md_stan_name = "ArcGIS Metadata"
+    metadata.md_stan_ver = 1.0
+    metadata.data_id_info.id_abs = product_md.attributes.description
+    metadata.data_id_info.other_keys.keyword = product_md.attributes.tags
+    metadata.data_id_info.search_keys.keyword = product_md.attributes.tags
 
-    # use the shapefile file utils you wrote to modify the zipped shapefile
-    shp = Shapefile(shapefile_path)
-    shp.write_metadata(generated_md, overwrite=True)
+    shp = Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
+    shp.write_metadata(metadata, overwrite=True)
