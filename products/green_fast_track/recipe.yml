@@ -12,6 +12,8 @@ inputs:
   - name: dep_cats_permits
   - name: nysdec_state_facility_permits
   - name: nysdec_title_v_facility_permits
+  - name: nysdec_state_facility_permits_agol
+  - name: nysdec_title_v_facility_permits_agol
   - name: dcp_air_quality_vent_towers
   - name: dcm_arterial_highways
   # Noise
