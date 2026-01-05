@@ -9,12 +9,7 @@ VERSION=$DATE
     cd $BASEDIR
     mkdir -p output
     
-    docker run --rm\
-        -e EDM_DATA=$EDM_DATA\
-        -v $(pwd)/../:/recipes\
-        -e NAME=$NAME\
-        -w /recipes/$NAME\
-        nycplanning/docker-geosupport:latest python3 build.py
+    python3 build.py
     (
         cd output
         
