@@ -1,4 +1,5 @@
 name: CEQR - DEP CATS permits
+run-name: CEQR - NYSDEC Permits One-Off build
 on:
   workflow_dispatch:
   schedule:
@@ -37,30 +38,5 @@ jobs:
       run: |
         export EDM_DATA=$BUILD_ENGINE_SERVER/$BUILD_ENGINE_DB
         python3 -m pip install mdpdf
-        ./ceqr run recipe dep_cats_permits
-
-    - name: Create issue on success
-      if: success()
-      uses: JasonEtco/create-an-issue@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        filename: .github/ISSUE_TEMPLATE/dep-monthly.md
-
-  create_issue_on_failure:
-    needs: build
-    runs-on: ubuntu-22.04
-    if: ${{ failure() && (github.event_name == 'schedule') }}
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        sparse-checkout: .github
-    - name: Create issue on failure
-      uses: JasonEtco/create-an-issue@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ACTION: ${{ github.workflow }}
-        BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
-          github.run_id }}
-      with:
-        filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+        ./ceqr run recipe nysdec_title_v_facility_permits
+        ./ceqr run recipe nysdec_state_facility_permits
