@@ -249,7 +249,7 @@ The Special Address File (SAF) contains address information for some street segm
 | G | commonplace | segment | Non-Addressable place name of complexes | ABCEGNPX |
 | I | namedintersection | intersection | Contain intersection names | I |
 | N | commonplace | segment | Non-Addressable placename | ABCEGNPX |
-| O | altsegmentdata | segment | Contain out-of-sequence addresses and opposite-parity addresse | OV |
+| O | altsegmentdata | segment | Contain out-of-sequence addresses and opposite-parity addresses | OV |
 | P | altsegmentdata | segment | Addressable placename | ABCEGNPX |
 | S | addresspoint | segment | Suffixed house number(s) occurring at an intersection | S |
 | V | addresspoint | segment | Contain Vanity Addresses | OV |
@@ -415,8 +415,8 @@ In terms of handling roadbed vs generic:
 - records from addresspoint and commonplace (in the cases of split roadways) are only defined for the roadbed segments, but output records should be generated for the generic segments as well. So one source record in addresspoint or commonplace could generate multiple output records each.
 
 On protosegments: a SAF record only corresponds to a protosegment rather than the geometry-modeled segment if
-1. the geometry-modeled segment is a centerline segment
-2. the protosegment is a borough boundary segment
+1. the geometry-modeled segment is a centerline segment,
+2. the protosegment is a borough boundary segment, and
 3. the borough of the saf record matches the protosegment and not the geometry-modeled segment
 
 Really, the third necesitates the second. So to implement both generic segment lookup and determining relevant protosegments in `int__saf_segments`, the query
@@ -459,7 +459,7 @@ House numbers come from the AddressPoint CSCL feature layer. They have multiple 
 - AddressPoint `hyphen_type` = 'R'
   - NOTE - seems that docs might be out of date and this is no longer relevant. It's still implemented, in a way that whether or not the fields are formatted this way, the correct logic will be applied.
   - Before, this implied that the `house_number` field was a range (`'22-28'` or `'22 - 28'`). Only the value before then hyphen (trimmed of whitespace) should be kept.
-  - Now, it seems that when `hyphen_type` is R, the `house_number` field already only contains the lowest value, and the ``house_number`_range` field contains the high end of the range.
+  - Now, it seems that when `hyphen_type` is R, the `house_number` field already only contains the lowest value, and the `house_number_range` field contains the high end of the range.
 
 #### ABCEP Records
 A, B, C, E, and P records correspond to segments which
