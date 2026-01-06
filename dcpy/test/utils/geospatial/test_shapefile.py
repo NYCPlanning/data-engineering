@@ -274,8 +274,8 @@ def test_generate_metadata(today_datestamp):
     assert esri.crea_date == expected_date
 
     # ArcGISFormat
-    assert isinstance(esri.arc_gis_format, str)
-    assert esri.arc_gis_format == "1.0"
+    assert isinstance(esri.arc_gis_format, float)
+    assert esri.arc_gis_format == 1.0
 
     # SyncOnce should be string
     assert isinstance(esri.sync_once, str)
