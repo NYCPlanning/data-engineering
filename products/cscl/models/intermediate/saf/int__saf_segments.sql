@@ -71,7 +71,6 @@ resolved_segment AS (
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_type,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_incex_flag,
         saf.saf_source_table
-        --saf.source_attrs
     FROM with_roadbed_to_generic AS saf
     LEFT JOIN lion AS primary_segment -- TODO error report when none joined?
         ON
