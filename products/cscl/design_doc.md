@@ -230,5 +230,477 @@ A somewhat confusingly named layer since shoreline, rail, and subway are not str
 ### Error reporting
 [stub]
 
-# Infrastructure/Code
+
+## Special Address Files (SAF)
+
+### Description/Summary
+
+Every row is a: special address flag, which can correspond to one of a few entities
+
+The Special Address File (SAF) contains address information for some street segments supplementary to the address information for the same segments contained in the LION file.
+
+| Flag | Source | Corresponds to | Meaning | Output |
+| - | - | - | - | - |
+| A | altsegmentdata | segment | Alternative address ranges | ABCEGNPX |
+| B | altsegmentdata | segment | Alternative street names | ABCEGNPX |
+| C | altsegmentdata | segment | Special record for Ruby Street on Brooklyn-Queens border | ABCEGNPX |
+| D | altsegmentdata | segment | Duplicate or overlapping address ranges on the same street | D |
+| E | altsegmentdata | segment | Neighborhood name usable in place of street name in addresses | ABCEGNPX |
+| G | commonplace | segment | Non-Addressable place name of complexes | ABCEGNPX |
+| I | namedintersection | intersection | Contain intersection names | I |
+| N | commonplace | segment | Non-Addressable placename | ABCEGNPX |
+| O | altsegmentdata | segment | Contain out-of-sequence addresses and opposite-parity addresses | OV |
+| P | altsegmentdata | segment | Addressable placename | ABCEGNPX |
+| S | addresspoint | segment | Suffixed house number(s) occurring at an intersection | S |
+| V | addresspoint | segment | Contain Vanity Addresses | OV |
+| X | commonplace | segment | Non-Addressable Place name of constituent entities of complexes | ABCEGNPX |
+
+For each of the listed outputs other than "I", there are both a "generic" and "roadbed" output, meaning 9 output files in total.
+
+#### Generic vs Roadbed
+Other than the interesction file, all output files have both a "generic" vs "roadbed" output. There are slightly more complicated rules on what exactly ends up in each (and how the "roadbed pointer list" is used), but the general difference corresponds to sections of divided roadway. See [segment lookup](#segment-lookup) for details on how this specifically determined.
+
+A divided roadway is modeled in CSCL and LION as such
+- One "generic" segment, which corresponds to the entire roadway, including all divided portions
+- One "roadbed" segment PER DIVIDED SECTION of the roadway
+
+All of these have their own distinct segmentids (and their own records in centerline feature layer as well as LION). Take this example of a stretch of the Hudson Parkway.
+
+![Hudson Parkway - Roadbed and Generic Segments](docs/roadbed_v_generic.png)
+
+For the stretch of divided freeway in the center of the picture, we have 3 segments
+- 34378 - the centerline segment for this whole stretch of road
+- 142544 and 142545 - the roadbed segments for each of the individual divided roadbeds
+
+The roadbed pointer list CSCL feature layer links roadbed segments to their respective generic segment. So in the above image, we would have two records, both with 34378 as the `generic_segmentid` and the respective roadbed segment id as the `roadbed_segmentid`, as well as various other fields (indicator of roadbed position, etc)
+
+SAF outputs that correspond to segments (every output other than `I` - intersections) have both a Generic and Roadbed output. Most SAF records correspond to segments which are not divided streets, and end up in both outputs. Situations like the above screenshot, the respective output file will contain either only the generic SAF records or roadbed SAF records.
+
+### Format
+All output categories (collection of SAF types) have their own fields and formatting conventions.
+
+`SAFA` formatting (for output files ABCEGNPX)
+
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFA1|place_name|Special Address Street Name, Neighborhood Name or Place Name|32|1|32|LJSF|false|
+|SAFA2|boroughcode|Borough|1|33|33|RJZF|false|
+|SAFA3|face_code|Face Code|4|34|37|RJZF|false|
+|SAFA4|segment_seqnum|Sequence Number|5|38|42|RJZF|false|
+|SAFA5|sos_indicator|SOS Indicator|1|43|43|RJSF|false|
+|SAFA6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFA7|l_low_hn|Left Low HN|7|50|56|RJSF|false|
+||filler_safa7|Filler|2|57|58|RJSF|false|
+|SAFA8|l_high_hn|Left High HN|7|59|65|RJSF|false|
+||filler_safa8|Filler|2|66|67|RJSF|false|
+|SAFA9|r_low_hn|Right Low HN|7|68|74|RJSF|false|
+||filler_safa9|Filler|2|75|76|RJSF|false|
+|SAFA10|r_high_hn|Right High HN|7|77|83|RJSF|false|
+||filler_safa10|Filler|2|84|85|RJSF|false|
+|SAFA11|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safa11|Filler|2|87|88|RJSF|false|
+|SAFA12|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFA13|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFA14|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFA15|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFA16|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFA17|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFA18|segmentid|Segment ID|7|99|105|RJZF|false|
+|SAFA19|x_coord|X Coordinate (GNX only)|7|106|112|RJZF|true|
+|SAFA20|y_coord|Y Coordinate (GNX only)|7|113|119|RJZF|true|
+|SAFA21|side_borough_code|Side borough code (GNX only)|1|120|120|RJZF|true|
+|SAFA22_1|side_ct2020_basic|Side CT2020 Basic (GNX only) (XXXXYY)|4|121|124|RJSF|false|
+|SAFA22_2|side_ct2020_suffix|Side CT2020 Suffix (GNX only) (XXXXYY)|2|125|126|RJZF|true|
+|SAFA23|side_ap|Side AP (GNX only)|3|127|129|RJZF|true|
+
+`SAFD` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFD1|place_name|Special Address Street Name|32|1|32|LJSF|false|
+|SAFD2|boroughcode|Borough|1|33|33|RJZF|false|
+|SAFD3|face_code|Face Code|4|34|37|RJZF|false|
+|SAFD4|segment_seqnum|Sequence Number|5|38|42|RJZF|false|
+|SAFD5|sos_indicator|SOS Indicator|1|43|43|RJSF|false|
+|SAFD6|daps_b5sc|DAPS B5SC|6|44|49|RJSF|false|
+|SAFD7|low_hn|Low HN|7|50|56|RJSF|false|
+||filler_safd7|Filler|2|57|58|RJSF|false|
+|SAFD8|high_hn|High HN|7|59|65|RJSF|false|
+||filler_safd8|Filler|2|66|67|RJSF|false|
+|SAFD9|regular_b5sc|Regular B5SC|6|68|73|RJSF|false|
+||filler_safd9|Filler|12|74|85|RJSF|false|
+|SAFD10|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+|SAFD11|zipcode|Zip Code|5|87|91|RJZF|false|
+|SAFD12|daps_type|DAPS Type|1|92|92|RJSF|false|
+||filler_safa12|Filler|5|93|97|RJSF|false|
+|SAFD13|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFD14|segmentid|Segment ID|7|99|105|RJZF|false|
+
+`SAFI` formatting
+|field_number|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|------------|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFI1|place_name|Primary Intersection Name|32|1|32|LJSF|false|
+|SAFI2|nodeid|Node ID|7|33|39|RJZF|false|
+||filler_safi2|Filler|13|40|52|RJSF|false|
+|SAFI3|multiplefield|Multiple Field|1|53|53|RJSF|false|
+|SAFI4|b7sc_intersection|B7SC of Intersection Name|8|54|61|RJSF|false|
+|SAFI5|b5sc_cross1|B5SC of One Cross Street|6|62|67|RJSF|false|
+|SAFI6|b5sc_cross2|B5SC of Other Cross Street|6|68|73|RJSF|false|
+||filler_safi6|Filler|12|74|85|RJSF|false|
+|SAFI7|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safi7|Filler|12|87|98|RJSF|false|
+
+`SAFS` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFS1|place_name|Street Name|32|1|32|LJSF|false|
+|SAFS2|boroughcode|Borough Code|1|33|33|RJSF|false|
+|SAFS3|face_code|Face Code|4|34|37|RJZF|false|
+|SAFS4|segment_seqnum|Sequence Number|5|38|42|RJZF|false|
+|SAFS5|sos_indicator|SOS Indicator|1|43|43|RJSF|false|
+|SAFS6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFS7|hn|HN Basic|7|50|56|RJSF|false|
+||filler_safs7|Filler|1|57|57|RJSF|true|
+|SAFS8|hn_suffix|House Number Suffix|8|58|65|LJSF|true|
+||filler_safs8|Filler|9|66|74|RJSF|false|
+|SAF85|high_alpha_hn_suffix|High Alpha House number suffix|1|75|75|RJSF|false|
+||filler_saf85|Filler|10|76|85|RJSF|false|
+|SAFS9|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safs9|Filler|2|87|88|RJSF|false|
+|SAFS10|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFS11|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFS12|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFS13|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFS14|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFS15|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFS16|segmentid|Segment ID|7|99|105|RJZF|false|
+
+`SAFV` formatting
+|fic|field_name|field_label|field_length|start_index|end_index|justify_and_fill|blank_if_none|
+|---|----------|-----------|------------|-----------|---------|----------------|-------------|
+|SAFV1|place_name|Street Name|32|1|32|LJSF|false|
+|SAFV2|boroughcode|Borough of Actual Segment|1|33|33|RJZF|false|
+|SAFV3|face_code|Face Code of Actual Segment|4|34|37|RJZF|false|
+|SAFV4|segment_seqnum|Sequence Number of Actual Segment|5|38|42|RJZF|false|
+|SAFV5|sos_indicator|SOS Indicator of Actual Segment|1|43|43|RJSF|false|
+|SAFV6|b5sc|B5SC|6|44|49|RJSF|false|
+|SAFV7|low_hn|Low HN Basic|7|50|56|RJSF|false|
+|SAFV8|low_hn_suffix|Low HN Suffix|9|57|65|RJSF|false|
+||filler_safv8|Filler|2|66|67|RJSF|false|
+|SAFV9|high_hn|High HN Basic|7|68|74|RJSF|false|
+|SAFV10|high_hn_suffix|High HN Suffix|9|75|83|RJSF|false|
+||filler_safv10|Filler|2|84|85|RJSF|false|
+|SAFV11|saftype|SAF Record Type Code|1|86|86|RJSF|false|
+||filler_safv11|Filler|2|87|88|RJSF|false|
+|SAFV12|lgc1|LGC1|2|89|90|RJZF|false|
+|SAFV13|lgc2|LGC2|2|91|92|RJZF|true|
+|SAFV14|lgc3|LGC3|2|93|94|RJZF|true|
+|SAFV15|lgc4|LGC4|2|95|96|RJZF|true|
+|SAFV16|boe_lgc_pointer|Pointer to BOE Preferred LGC|1|97|97|RJSF|false|
+|SAFV17|segment_type|Segment Type Code|1|98|98|RJSF|false|
+|SAFV18|segmentid|Segment ID of Actual Segment|7|99|105|RJZF|false|
+|SAFV19|x_coord|X Coordinate (V only)|7|106|112|RJZF|true|
+|SAFV20|y_coord|Y Coordinate (V only)|7|113|119|RJZF|true|
+
+### Transformation
+
+#### Segment Lookup
+All flags other than `I` are associated with segments and must be joined to them. This logic occurs in `int__saf_segments`.
+
+This isn't a simple join to a segment-based table, like a source feature layer, or `int__lion`, `int__segments`, etc primarily for two reasons
+- A single SAF record can correspond to both roadbed and generic segments for certain SAF sources
+- SAF records are linked to segment by segmentid, not lionkey, meaning protosegments need differentiating
+
+In terms of handling roadbed vs generic:
+- records from altsegmentdata are defined in CSCL for both the generic segments and roadbed segments already, separately. So for 1 generic segment with 3 roadbed segments, you might see 4 records in altsegmentdata, one for each individual segment. Put more simply, 1 record in altsegmentdata always corresponds to just one output record.
+- records from addresspoint and commonplace (in the cases of split roadways) are only defined for the roadbed segments, but output records should be generated for the generic segments as well. So one source record in addresspoint or commonplace could generate multiple output records each.
+
+On protosegments: a SAF record only corresponds to a protosegment rather than the geometry-modeled segment if
+1. the geometry-modeled segment is a centerline segment,
+2. the protosegment is a borough boundary segment, and
+3. the borough of the saf record matches the protosegment and not the geometry-modeled segment
+
+Really, the third necesitates the second. So to implement both generic segment lookup and determining relevant protosegments in `int__saf_segments`, the query
+1. finds all source records for SAF and unions them (keeping track by source feature layer and globalid)
+2. for relevant records, joins to roadbed pointer list to link SAF records defined for roadbed segments to the generic segment
+3. unions the above to the original set of records. At this point, we have the backbone for the SAF outputs downstream of this table, where 1 record here should be reflected 1-1 in an output file
+
+Segment-associated saf records have logic applied to determine which output files (roadbed, generic, or both) they are exported to. This is determined as follows:
+
+| Output file | `segment_type` of associated segment |
+| - | - |
+| Generic |  B, E, G (except when INCEX_FLAG = 'E'), U |
+| Roadbed | E, R, S, U |
+
+#### "Sort Format"
+Numbers in street or place names are formatted specially such that numbering of streets sorts correctly when sorted alphabetically. Numbers are left-padded with spaces to 4 characters. Additionally, spaces should be inserted between numbers and non-whitespace characters that immediately precede or follow them. There is one exception - if a number is immediately followed or preceded by a slash or dash, it is treated as "word" and not a number, and should not be formatted in any way. [TODO - this needs some clarification. The ETL docs seem to suggest that this applies to all "sort format" processing, but it seems like there are cases where this doesn't apply in the production outputs. Not sure if requirement or bug]
+
+| Input string | Output string |
+| - | - |
+| `3 AVENUE` | `   3 AVENUE` |
+| `11 AVENUE` | `  11 AVENUE` |
+| `108 STREET` | ` 108 STREET` |
+| `EAST 7 STREET` | `EAST    7 STREET` |
+| `EAST 23 STREET` | `EAST   23 STREET` |
+| `EAST 104 STREET` | `EAST  104 STREET` |
+| `EAST 9 STREET BLDG16` | `EAST    9 STREET BLDG   16` |
+| `9/11 MEMORIAL PLAZA` | `9/11 MEMORIAL PLAZA` |
+
+Note the additional spaces between `BLDG` and `16` - the 16 is both left-padded to four characters and a space is added, meaning there are three spaces separating the word and the number
+
+This formatting occurs in a staging table not exclusive to saf - `stg__featurename_and_facecode`.
+
+#### House Numbers
+House numbers come from the AddressPoint CSCL feature layer. They have multiple fields and come with some special formatting rules. This logic is currently handled in `int__address_points`.
+
+- Edgewater Park
+  - AddressPoints are joined to the StreetName table on b7sc (and StreetName.principal_flag = 'Y'). If the street name entry has snd_feature_type (SND = Street Name Dictionary) in 'E' or 'F' and the address point has a house number suffix, this record is in Edgewater Park in the Bronx and needs special logic applied. 
+  - For the `house_number` field, the relevant records will have a `house_number_suffix` field ending with a capital letter, `A` through `E`. These should be converted to a number (1-5), multiplied by 10,000, and added to the house number of the record.
+  - For the `house_number_suffix` field, if the suffix contains a hyphen, only the part before the hyphen should be kept.
+- AddressPoint `hyphen_type` = 'R'
+  - NOTE - seems that docs might be out of date and this is no longer relevant. It's still implemented, in a way that whether or not the fields are formatted this way, the correct logic will be applied.
+  - Before, this implied that the `house_number` field was a range (`'22-28'` or `'22 - 28'`). Only the value before then hyphen (trimmed of whitespace) should be kept.
+  - Now, it seems that when `hyphen_type` is R, the `house_number` field already only contains the lowest value, and the `house_number_range` field contains the high end of the range.
+
+#### ABCEP Records
+A, B, C, E, and P records correspond to segments which
+- A: have alternative address ranges
+- B: have alternative street names
+- C: are on [Ruby Street](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterV/section08/) on the Brooklyn-Queens border (hard-coded flag)
+- E: have a neighborhood name usable in place of street name in addresses
+- P: have an addressable placename (like "Empire State Building")
+
+They are generated from all saf altsegmentdata records with saftype A, B, C, E, or P.
+
+Starting from `int__saf_segments`, ABCEP records are joined to
+- altsegmentdata to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc
+
+Most fields are taken directly from the SAF (altsegmentdata) record itself or the associated segment
+
+| FIC | Field | Source of Data |
+| - | - | - |
+| SAFA1 | Special Address Street Name or Neighborhood Name or Addressable Place Name | Except for type C records, obtained from featurename table, in sort format.  For type C records, populate with the value '75 STREET'. 
+| SAFA2 | Borough | AltSegmentData field `boroughcode` |
+| SAFA3 | Face Code | Bytes 2 through 5 of AltSegmentData `lionkey` field  |
+| SAFA4 | Sequence Number | Bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFA5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFA6 | B5SC | AltSegmentData field `b5sc` |
+| SAFA7 | Left Low HN | AltSegmentData field `l_low_hn` |
+| SAFA8 | Left High HN | AltSegmentData field `l_high_hn` |
+| SAFA9 | Right Low HN | AltSegmentData field `r_low_hn` |
+| SAFA10 | Right High HN | AltSegmentData field `r_high_hn` |
+| SAFA11 | SAF Record Type Code | AltSegmentData field `saftype` |
+| SAFA12 | LGC1 | AltSegmentData field `lgc1` |
+| SAFA13 | LGC2 | AltSegmentData field `lgc2` |
+| SAFA14 | LGC3 | AltSegmentData field `lgc3` |
+| SAFA15 | LGC4 | AltSegmentData field `lgc4` |
+| SAFA16 | Pointer to BOE Preferred LGC | AltSegmentData field `boe_preferred_lgc_flac` |
+| SAFA17 | Segment Type Code | `segment_type` of associated segment |
+| SAFA18 | Segment ID | AltSegmentData field `segmentid` |
+| N/A | 14-byte filler | Nulls for fields in GNX but not ABCEP |
+
+Notes:
+- SAFA1
+  - if a feature name is found rather than a street name, a warning should be issued
+  - if no street/feature name is found, an error should be issued and no result record produced
+
+#### GNX Records
+G, N, and X records are all [non-addressable place names](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterIV/section07/)
+- G: Non-addressable place names of complexes
+- N: Non-addressable place names (not G or X)
+- X: Non-Addressable place names of constituent entities of complexes
+
+They are generated from all commonplace records with 
+- saftype G, N, or X
+- non-blank/null b7sc
+- security_level not equal to `'3'` (corresponding to a public safety agency)
+
+Starting from `int__saf_segments`, GNX records are joined to
+- commonplace to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc
+- `int__address_points`, largely the AddressPoint feature layer with some cleaning/processing done of the house number fields
+- `stg__atomic_polygons`, a spatial join from commonplace point to the atomic polygon which contains it
+
+Fields are determined as follows
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFA1 | Place Name | Obtained from FeatureName table |
+| SAFA2 | Borough | CommonPlace attribute `boroughcode` |
+| SAFA3 | Face Code | Segment `face_code` |
+| SAFA4 | Sequence Number | Segment `segment_seqnum` |
+| SAFA5 | SOS Indicator | CommonPlace attribute `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFA6 | B5SC of NAP | First 6 bytes of CommonPlace attribute `b7sc` |
+| SAFA7 | Left Low HN | `'0'` |
+| SAFA8 | Left High HN | AddressPoint formatted housenumber if `sosindicator` = 1 |
+| SAFA9 | Right Low HN | `'0'` |
+| SAFA10 | Right High HN | AddressPoint formatted housenumber if `sosindicator` = 2 |
+| SAFA11 | SAF Record Type Code | CommonPlace attribute `saftype` |
+| SAFA12 | LGC1 of NAP | Last two characters of CommonPlace attribute `b7sc` |
+| SAFA13 | LGC2 of NAP | Null |
+| SAFA14 | LGC3 of NAP | Null |
+| SAFA15 | LGC4 of NAP | Null |
+| SAFA16 | Pointer to BOE Preferred LGC | '1' |
+| SAFA17 | Segment Type Code | `segment_type` of associated segment |
+| SAFA18 | Segment ID | AltSegmentData field `segmentid` |
+| SAFA19 | X Coordinate of Place | X coordinate of CommonPlace point |
+| SAFA20 | Y Coordinate of Place | Y coordinate of CommonPlace point |
+| SAFA21 | Side borough code | AtomicPolygon `boroughcode` |
+| SAFA22 | Side CT2020 (XXXXYY) | AtomicPolygon ct 2020 basic and suffix |
+| SAFA23 | Side AP | AtomicPolygon dynamic block (last three characters of `atomicid`) |
+
+Notes
+- if no street/feature name is found, an error should be issued
+
+#### D Records
+D records correspond to segments with [duplicate or overlapping address ranges on the same street](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterV/section06/).
+
+They are generated from all saf altsegmentdata records with saftype 'D' or 'F'.
+
+Starting from `int__saf_segments`, D records are joined to
+- altsegmentdata to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc
+- a seed lookup table, `saf_d_hardcoded_regular_b5sc` to lookup the regular b5sc that pertains to this segment [TODO - "daps" vs "regular" in common language]
+
+Most fields are taken directly from the SAF (altsegmentdata) record itself or the associated segment
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFD1 | Special Address Street Name | Obtained from StreetName table in sort format |
+| SAFD2 | Borough | AltSegmentData field `boroughcode` |
+| SAFD3 | Face Code | Bytes 2 through 5 of AltSegmentData `lionkey` field |
+| SAFD4 | Sequence Number | Bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFD5 | SOS Indicator | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFD6 | DAPS B5SC | AltSegmentData field `b5sc` |
+| SAFD7 | Low HN | AltSegmentData field `l_low_hn` or `r_low_hn`, whichever is non-null/blank/zero |
+| SAFD8 | High HN | AltSegmentData field `l_high_hn` or `r_high_hn`, whichever is non-null/blank/zero |
+| SAFD9 | Regular B5SC | lookup table `regular_b5sc` |
+| SAFD10 | SAF Record Type Code | 'D' (even if the AltSegmentData field `saftype` = 'F') |
+| SAFD11 | Zip Code | AltSegmentData field `zipcode` |
+| SAFD12 | DAPS Type | 1 if AltSegmentData field `saftype` = 'F' |
+| SAFD13 | Segment Type Code | `segment_type` of associated segment |
+| SAFD14 | Segment ID | AltSegmentData field `segmentid` |
+
+#### I records
+I records are named intersections
+
+They are generated from from the NamedIntersection feature layer, joined to feature name table.
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFI1 | Primary Intersection Name | Obtained from FeatureName table, in sort format |
+| SAFI2 | Node ID | NamedIntersection field `nodeid` |
+| SAFI3 | Multiple Field | 'M' if NamedIntersection field `multiplefield` = 'Y' |
+| SAFI4 | B7SC of Intersection Name | NamedIntersection field `b7sc` |
+| SAFI5 | B5SC of One Cross Street | NamedIntersection field `b5sc_cross1` |
+| SAFI6 | B5SC of Other Cross Street | NamedIntersection field b5sc_cross2` |
+| SAFI7 | SAF Record Type Code | ‘I’ |
+
+#### O Records
+O records correspond to segments which contain out-of-sequence addresses and opposite-parity addresses.
+
+They are generated from all saf altsegmentdata records with saftype 'O'.
+
+Starting from `int__saf_segments`, O records are joined to
+- altsegmentdata to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename_principal` (essentially StreetName and FeatureName CSCL feature layers unioned) to lookup street/feature name by b7sc.
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFV1 | Street Name | Obtained from StreetName table in sort format |
+| SAFV2 | Borough Code | AltSegmentData field `borough` |
+| SAFV3 | Face Code of Actual Segment | Bytes 2 through 5 of AltSegmentData `lionkey` field |
+| SAFV4 | Sequence Number of Actual Segment | Bytes 6 through 10 of AltSegmentData `lionkey` field |
+| SAFV5 | SOS Indicator for Actual Segment | AltSegmentData field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFV6 | B5SC | AltSegmentData field B5SC |
+| SAFV7 | Low HN Basic | Obtained from AltSegmentData field `l_low_hn` or `r_low_hn` depending on value of `sos_indicator` |
+| SAFV8 | Low HN Suffix | AltSegmentData field `low_hn_suffix` |
+| SAFV9 | High HN Basic | Obtained from AltSegmentData field `l_high_hn` or `r_high_hn` depending on value of `sos_indicator` |
+| SAFV10 | High HN Suffix | AltSegmentData field `high_hn_suffix` |
+| SAFV11 | SAF Record Type Code | AltSegmentData field `saftype` |
+| SAFV12 | LGC1 | AltSegmentData field `lgc1` |
+| SAFV13 | LGC2 | AltSegmentData field `lgc2` |
+| SAFV14 | LGC3 | AltSegmentData field `lgc3` |
+| SAFV15 | LGC4 | AltSegmentData field `lgc4` |
+| SAFV16 | Pointer to BOE Preferred LGC | AltSegmentData field `boe_preffered_lgc_flag` |
+| SAFV17 | Segment Type Code | Segment `segment_type` |
+| SAFV18 | Segment ID of Actual Segment | AltSegmentData field `segmentid` |
+| SAFV19 | X Coordinate | Null (Field is used only for type V records.) |
+| SAFV20 | Y Coordinate | Null (Field is used only for type V records.) |
+
+#### V Records
+V records are address points which have a [vanity address](https://nycplanning.github.io/Geosupport-UPG/chapters/chapterV/section09/).
+
+They are generated from all address point records with `special_condition` = 'V'.
+
+Starting from `int__saf_segments`, V records are joined to
+- address points (`int__address_points`) to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename` (essentially StreetName and FeatureName CSCL feature layers unioned) is joined twice, on different keys from address points
+  - once to lookup street/feature name by vanity b7sc
+  - once to lookup street/feature name by actual b7sc
+- address point lgc table (`int__lgc_address_point`), a lookup table of address points to lgcs based on `addresspointid`
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFV1 | Vanity Street Name | Street name in sort format, joined by `b7sc_vanity` |
+| SAFV2 | Borough Code | AddressPoint field `boroughcode` |
+| SAFV3 | Face Code of Actual Segment | Street Name table, joined by `b7sc_actual` |
+| SAFV4 | Sequence Number of Actual Segment | Segment `segment_seqnum` |
+| SAFV5 | SOS Indicator for Actual Segment | AddressPoint field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFV6 | Vanity B5SC | First 6 bytes of AddressPoint field `b7sc_vanity` |
+| SAFV7 | Low HN Basic | See Note |
+| SAFV8 | Low HN Suffix | See Note |
+| SAFV9 | High HN Basic | See Note |
+| SAFV10 | High HN Suffix | See Note |
+| SAFV11 | SAF Record Type Code | AddressPoint field `special_condition` |
+| SAFV12 | Vanity LGC1 | Last two bytes of AddressPoint field `b7sc_vanity` |
+| SAFV13 | Vanity LGC2 | highest rank lgc for given `addresspointid` in address point lgc table |
+| SAFV14 | Vanity LGC3 | 2nd highest rank lgc for given `addresspointid` in address point lgc table |
+| SAFV15 | Vanity LGC4 | 3rd highest rank lgc for given `addresspointid` in address point lgc table |
+| SAFV16 | Pointer to BOE Preferred LGC | Rank of LGC w/ preferred LGC flag (either from address point lgc table, or '1') |
+| SAFV17 | Segment Type Code for Actual Segment | Segment `segment_type` |
+| SAFV18 | Segment ID of Actual Segment | Segment `segment_id` |
+| SAFV19 | X Coordinate | AddressPoint geom x value |
+| SAFV20 | Y Coordinate | AddressPoint geom y value |
+
+Notes on house numbers: in processing in `int__address_points`, all house numbers are cleaned as described in [House Numbers](#house_numbers). Then, based on `hyphen_type`, the SAF V house numbers are set as follows. The low fields are the same for all hyphen types:
+- Low HN Basic (`low_hn`) is taken from AddressPoint cleaned/formatted `house_number` field
+- Low HN Suffix (`low_hn_suffix`) is taken from AddressPoint cleaned/formatted `house_number_suffix` field
+- High HN Basic (`high_hn`)
+  - for `hyphen_type` = 'N', 'Q', 'U', AddressPoint cleaned/formatted `house_number` field
+  - for `hyphen_type` = 'R', 'X', AddressPoint field `house_number_range`
+- High HN Suffix (`high_hn_suffix`)
+  - for `hyphen_type` = 'N', 'Q', 'U', AddressPoint cleaned/formatted `house_number_suffix` field
+  - for `hyphen_type` = 'R', 'X', AddressPoint field `house_number_range_suffix`
+
+#### S Records
+S records are suffixed house number(s) occurring at an intersection.
+
+They are generated from all address point records with `special_condition` = 'S'.
+
+Starting from `int__saf_segments`, S records are joined to
+- address points (`int__address_points`) to lookup primary tabular data for the saf record
+- `stg__facecode_and_featurename` is joined by actual b7sc. Unlike type V records, vanity b7sc is not used at all
+- address point lgc table (`int__lgc_address_point`), a lookup table of address points to lgcs based on `addresspointid`
+
+| FIC | Field | CSCL Source of Data |
+| - | - | - |
+| SAFS1 | Street Name |  Obtained from FeatureName table, in sort format |
+| SAFS2 | Borough Code | AddressPoint field `boroughcode` |
+| SAFS3 | Face Code | Obtained from FeatureName table |
+| SAFS4 | Sequence Number | Segment `segment_seqnum` |
+| SAFS5 | SOS Indicator | AddressPoint field `sosindicator`, mapped `1` -> `L`, `2` -> `R` |
+| SAFS6 | B5SC | First 6 bytes of AddressPoint field `b7sc_actual` |
+| SAFS7 | HN Basic | 7 | 50 | 56 | RJSF | AddressPoint field `house_number` |
+| SAFS8 | House Number Suffix | 8 | 58 | 65 | LJSF, blanks if null | AddressPoint field `house_number_suffix` |
+| SAF85 | High Alpha House number suffix | 1 | 75 | 75 | AddressPoint field `house_number_RANGE_suffix` |
+| SAFS9 | SAF Record Type Code | 1 | 86 | 86 | AddressPoint field `special_condition` |
+| SAFS10 | LGC1 | Segment `lgc1` |
+| SAFS11 | LGC2 | Segment `lgc2` |
+| SAFS12 | LGC3 | Segment `lgc3` |
+| SAFS13 | LGC4 | Segment `lgc4` |
+| SAFS14 | Pointer to BOE Preferred LGC | Segment `boe_lgc_pointer` |
+| SAFS15 | Segment Type Code | Segment `segment_type` |
+| SAFS16 | Segment ID | Segment `segment_id` |
+
+# Infrastructure
 [stub]

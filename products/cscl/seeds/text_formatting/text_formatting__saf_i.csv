@@ -1,0 +1,11 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+SAFI1,place_name,Primary Intersection Name,32,1,32,LJSF,FALSE
+SAFI2,nodeid,Node ID,7,33,39,RJZF,FALSE
+,filler_safi2,Filler,13,40,52,RJSF,FALSE
+SAFI3,multiplefield,Multiple Field,1,53,53,RJSF,FALSE
+SAFI4,b7sc_intersection,B7SC of Intersection Name,8,54,61,RJSF,FALSE
+SAFI5,b5sc_cross1,B5SC of One Cross Street,6,62,67,RJSF,FALSE
+SAFI6,b5sc_cross2,B5SC of Other Cross Street,6,68,73,RJSF,FALSE
+,filler_safi6,Filler,12,74,85,RJSF,FALSE
+SAFI7,saftype,SAF Record Type Code,1,86,86,RJSF,FALSE
+,filler_safi7,Filler,12,87,98,RJSF,FALSE

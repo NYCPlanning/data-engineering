@@ -24,6 +24,12 @@ datasets:
   file_format:
     layer: AddressPoint
 
+- id: dcp_cscl_addresspoint_lgcs
+  attributes:
+    name: CSCL Address Points LGC (Local Group Code)
+  file_format:
+    layer: ADDRESSPOINTLGCS
+
 - id: dcp_cscl_altsegmentdata
   attributes:
     name: CSCL Alt Segment Data
@@ -57,6 +63,12 @@ datasets:
   file_format:
     layer: FEATURENAME
 
+- id: dcp_cscl_namedintersection
+  attributes:
+    name: CSCL Named Intersections
+  file_format:
+    layer: NAMEDINTERSECTION
+
 - id: dcp_cscl_nodes
   attributes:
     name: CSCL Nodes
@@ -80,6 +92,12 @@ datasets:
     name: CSCL Rail Lines
   file_format:
     layer: Rail
+
+- id: dcp_cscl_roadbed_pointer_list
+  attributes:
+    name: CSCL Roadbed Pointer List
+  file_format:
+    layer: ROADBEDPOINTERLIST
 
 - id: dcp_cscl_sectionalmap
   attributes:

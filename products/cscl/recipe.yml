@@ -25,13 +25,19 @@ inputs:
   # all other tables
   - name: dcp_cscl_addresspoints
     version_env_var: VERSION
+  - name: dcp_cscl_addresspoint_lgcs
+    version_env_var: VERSION
   - name: dcp_cscl_altsegmentdata
     version_env_var: VERSION
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
     version_env_var: VERSION
   - name: dcp_cscl_featurename
     version_env_var: VERSION
+  - name: dcp_cscl_namedintersection
+    version_env_var: VERSION
   - name: dcp_cscl_nypdbeat
+    version_env_var: VERSION
+  - name: dcp_cscl_roadbed_pointer_list
     version_env_var: VERSION
   - name: dcp_cscl_sectionalmap
     version_env_var: VERSION
@@ -51,6 +57,7 @@ exports:
   output_folder: output
   zip_name: output
   datasets:
+  # GeoSupport LION
   - name: manhattan_lion_dat
     filename: ManhattanLION.dat
     format: dat
@@ -72,6 +79,44 @@ exports:
     format: dat
     custom: { formatting: lion_dat }
 
+  # SAF
+  - name: saf_abcegnpx_generic
+    filename: GenericABCEGNPX.txt
+    format: dat
+    custom: { formatting: saf_a }
+  - name: saf_abcegnpx_roadbed
+    filename: RoadbedABCEGNPX.txt
+    format: dat
+    custom: { formatting: saf_a }
+  - name: saf_d_generic
+    filename: GenericD.txt
+    format: dat
+    custom: { formatting: saf_d }
+  - name: saf_d_roadbed
+    filename: RoadbedD.txt
+    format: dat
+    custom: { formatting: saf_d }
+  - name: saf_i
+    filename: Intersection.txt
+    format: dat
+  - name: saf_ov_generic
+    filename: GenericOV.txt
+    format: dat
+    custom: { formatting: saf_v }
+  - name: saf_ov_roadbed
+    filename: RoadbedOV.txt
+    format: dat
+    custom: { formatting: saf_v }
+  - name: saf_s_generic
+    filename: GenericS.txt
+    format: dat
+    custom: { formatting: saf_s }
+  - name: saf_s_roadbed
+    filename: RoadbedS.txt
+    format: dat
+    custom: { formatting: saf_s }
+
+  # SEDAT
   - name: sedat
     filename: SEDAT.txt
     format: dat

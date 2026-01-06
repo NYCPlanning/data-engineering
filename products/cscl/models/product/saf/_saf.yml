@@ -1,0 +1,86 @@
+version: 2
+
+models:
+# Models with column per field
+- name: saf_abcegnpx_generic_by_field
+  columns: &safa_columns
+    - name: place_name
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 32 }
+    - name: boroughcode
+      data_type: string
+      tests:
+      - not_null
+      - accepted_values:
+          arguments:
+            values: [ "1", "2", "3", "4", "5" ]
+    - name: face_code
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 4 }
+    - name: segment_seqnum
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 5 }
+
+- name: saf_abcegnpx_roadbed_by_field
+  columns: *safa_columns
+
+- name: saf_d_generic_by_field
+- name: saf_d_roadbed_by_field
+- name: saf_i_by_field
+- name: saf_ov_generic_by_field
+- name: saf_ov_roadbed_by_field
+
+# models with one text column per row
+
+- name: saf_abcegnpx_generic
+  columns: &dat_column_129
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 129 }
+
+- name: saf_abcegnpx_roadbed
+  columns: *dat_column_129
+
+- name: saf_d_generic
+  columns: &dat_column_105
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 105 }
+
+- name: saf_d_roadbed
+  columns: *dat_column_105
+
+- name: saf_i
+  columns:
+  - name: dat_column
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        arguments: { value: 98 }
+
+- name: saf_ov_generic
+  columns: &dat_column_119
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 119 }
+
+- name: saf_ov_roadbed
+  columns: *dat_column_119
+
+- name: saf_s_generic
+  columns: *dat_column_105
+
+- name: saf_s_roadbed
+  columns: *dat_column_105
