@@ -15,7 +15,6 @@ body:
         See our [Data Update Workflow](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow) and [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) wiki pages for details on the process and data products.
   - type: textarea
     attributes:
-      label: Template issue body
       description: The issue body (intended to be modified after this issue is created)
       value: |
         ## Resources
