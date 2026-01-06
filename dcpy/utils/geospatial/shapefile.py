@@ -6,8 +6,6 @@ from dcpy.models.data.shapefile_metadata import (
     Metadata,
     Esri,
     Mddatest,
-    Mdhrlv,
-    Scopecd,
     Scalerange,
 )
 
