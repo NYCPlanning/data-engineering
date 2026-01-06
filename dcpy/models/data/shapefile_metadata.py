@@ -30,7 +30,7 @@ class Presformcd(BaseXmlModel, tag="PresFormCd"):
 
 
 class Scopecd(BaseXmlModel, tag="ScopeCd"):
-    value: str | None = attr(name="value", default=None)
+    value: str | None = attr(name="value", default="005")
 
 
 class Spatreptypcd(BaseXmlModel, tag="SpatRepTypCd"):
@@ -263,7 +263,7 @@ class Mdchar(BaseXmlModel, tag="mdChar"):
 
 
 class Mddatest(BaseXmlModel, tag="mdDateSt"):
-    sync: str | None = attr(name="Sync", default=None)
+    sync: str | None = attr(name="Sync", default="TRUE")
     value: int | None = None
 
 
@@ -347,8 +347,8 @@ class Resconst(BaseXmlModel, tag="resConst"):
 
 
 class Scalerange(BaseXmlModel, tag="scaleRange"):
-    min_scale: str | None = element(tag="minScale", text=True, default=None)
-    max_scale: str | None = element(tag="maxScale", text=True, default=None)
+    min_scale: str | None = element(tag="minScale", text=True, default="150000000")
+    max_scale: str | None = element(tag="maxScale", text=True, default="5000")
 
 
 class Searchkeys(BaseXmlModel, tag="searchKeys"):
@@ -557,8 +557,8 @@ class Dataproperties(BaseXmlModel, tag="DataProperties"):
 class Esri(BaseXmlModel, tag="Esri"):
     crea_date: str | None = element(tag="CreaDate", text=True, default=None)
     crea_time: str | None = element(tag="CreaTime", text=True, default=None)
-    arc_gis_format: str | None = element(tag="ArcGISFormat", text=True, default=None)
-    sync_once: str | None = element(tag="SyncOnce", text=True, default=None)
+    arc_gis_format: float | None = element(tag="ArcGISFormat", text=True, default=1.0)
+    sync_once: str | None = element(tag="SyncOnce", text=True, default="TRUE")
     data_properties: "Dataproperties" = element(
         tag="DataProperties", default_factory=lambda: Dataproperties()
     )
@@ -569,19 +569,23 @@ class Esri(BaseXmlModel, tag="Esri"):
     scale_range: "Scalerange" = element(
         tag="scaleRange", default_factory=lambda: Scalerange()
     )
-    arc_gis_profile: str | None = element(tag="ArcGISProfile", text=True, default=None)
+    arc_gis_profile: str | None = element(
+        tag="ArcGISProfile", text=True, default="ISO19139"
+    )
 
 
 class Metadata(BaseXmlModel, tag="metadata", skip_empty=True):
     lang: str | None = attr(
-        name="{http://www.w3.org/XML/1998/namespace}lang", default=None
+        name="{http://www.w3.org/XML/1998/namespace}lang", default="en"
     )
     esri: "Esri" = element(tag="Esri", default_factory=lambda: Esri())
     md_char: "Mdchar" = element(tag="mdChar", default_factory=lambda: Mdchar())
     md_hr_lv: "Mdhrlv" = element(tag="mdHrLv", default_factory=lambda: Mdhrlv())
     md_hr_lv_name: str | None = element(tag="mdHrLvName", text=True, default=None)
-    md_stan_name: str | None = element(tag="mdStanName", text=True, default=None)
-    md_stan_ver: float | None = element(tag="mdStanVer", text=True, default=None)
+    md_stan_name: str | None = element(
+        tag="mdStanName", text=True, default="ArcGIS Metadata"
+    )
+    md_stan_ver: float | None = element(tag="mdStanVer", text=True, default=1.0)
     data_id_info: "Dataidinfo" = element(
         tag="dataIdInfo", default_factory=lambda: Dataidinfo()
     )

@@ -205,28 +205,18 @@ def generate_metadata() -> Metadata:
     Generates a default Esri metadata object.
     Can be generated as an independent object without an existing spatial dataset.
     """
-
     esri_datestamp, esri_timestamp = _get_esri_timestamp()
     md_date_st = Mddatest(
-        sync="TRUE",
         value=esri_datestamp,
     )
-    scale_range = Scalerange(
-        min_scale="150000000",
-        max_scale="5000",
-    )
+    scale_range = Scalerange()
     esri = Esri(
         crea_date=esri_datestamp,
         crea_time=esri_timestamp,
-        arc_gis_format="1.0",
-        sync_once="TRUE",
         scale_range=scale_range,
-        arc_gis_profile="ISO19139",
     )
     metadata = Metadata(
-        lang="en",
         esri=esri,
-        md_hr_lv=Mdhrlv(scope_cd=Scopecd(value="005")),
         md_date_st=md_date_st,
     )
     return metadata

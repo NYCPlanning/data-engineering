@@ -175,8 +175,6 @@ def write_shapefile_xml_metadata(
     metadata = shp_utils.generate_metadata()
 
     metadata.md_hr_lv_name = product_md.attributes.display_name
-    metadata.md_stan_name = "ArcGIS Metadata"
-    metadata.md_stan_ver = 1.0
     metadata.data_id_info.id_abs = product_md.attributes.description
     metadata.data_id_info.other_keys.keyword = product_md.attributes.tags
     metadata.data_id_info.search_keys.keyword = product_md.attributes.tags

@@ -4,6 +4,7 @@ from dcpy.lifecycle.package import shapefiles
 from dcpy.utils.geospatial import shapefile as shp_utils
 from datetime import datetime
 from dcpy.models.product.metadata import OrgMetadata
+from dcpy.models.data.shapefile_metadata import Metadata
 import shutil
 import zipfile
 from pathlib import Path
@@ -120,6 +121,8 @@ def test_write_shapefile_xml_metadata(
 
     pseudo_lots_md = org_metadata.product("lion").dataset("pseudo_lots")
 
+    fields = Metadata.model_fields
+
     # write metadata
     shapefiles.write_shapefile_xml_metadata(
         product_name="lion",
@@ -136,9 +139,13 @@ def test_write_shapefile_xml_metadata(
     )
     written_md = shp.read_metadata()
 
+    # Test default values
+    assert written_md.md_stan_name == fields["md_stan_name"].default
+    assert written_md.md_stan_ver == fields["md_stan_ver"].default
+    # TODO - add helper code to access nested defaults (if this is the direction we end up pursuing)
+
+    # Test product-specific values
     assert written_md.md_hr_lv_name == pseudo_lots_md.attributes.display_name
-    assert written_md.md_stan_name == "ArcGIS Metadata"
-    assert written_md.md_stan_ver == 1.0
     assert written_md.data_id_info.id_abs == pseudo_lots_md.attributes.description
     assert written_md.data_id_info.other_keys.keyword == pseudo_lots_md.attributes.tags
     assert written_md.data_id_info.search_keys.keyword == pseudo_lots_md.attributes.tags
