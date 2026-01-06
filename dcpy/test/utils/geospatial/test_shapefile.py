@@ -6,7 +6,6 @@ import zipfile
 from pathlib import Path
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial.shapefile import generate_metadata
-from lxml import etree
 from datetime import datetime
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
@@ -257,9 +256,6 @@ def test_read_metadata(request, path_fixture, file_type, subdir):
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
-    print(
-        "\n\n" + etree.tostring(md.to_xml_tree(), encoding="unicode", pretty_print=True)
-    )
     assert md.esri.scale_range.min_scale == "150000000"
     assert md.esri.scale_range.max_scale == "5000"
 
