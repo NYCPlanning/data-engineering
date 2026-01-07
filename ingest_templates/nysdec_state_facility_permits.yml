@@ -1,4 +1,4 @@
-id: nysdec_state_facility_permits_socrata
+id: nysdec_state_facility_permits
 acl: public-read
 
 attributes:
@@ -7,21 +7,15 @@ attributes:
     State Facility Permits are issued to facilities considered to be mid-sized. They
     have lower potential emissions, fewer permit requirements than Title V facilities,
     and they meet the criteria of Subpart 201-5.
-  url: https://data.ny.gov/Energy-Environment/Issued-State-Facility-Air-Permits/w/data_preview
+  url: https://www.arcgis.com/home/item.html?id=a29c5e334de14f63884ebe4855345f41
 
 ingestion:
   source:
-    type: socrata
-    org: nys
-    uid: 2wgt-bc53
-    format: csv
+    type: arcgis_feature_server
+    server: nys_clearinghouse
+    dataset: Air_State_Facility_Permits_ASF
   file_format:
-    type: csv
-    dtype:
-      Facility ZIP: str
-    geometry:
-      geom_column: Georeference
-      crs: EPSG:4326
+    type: geojson
   processing_steps:
   - name: clean_column_names
     args: { "replace": { " ": "_" }, "lower": True }

@@ -1,4 +1,4 @@
-id: nysdec_title_v_facility_permits_socrata
+id: nysdec_title_v_facility_permits
 acl: public-read
 
 attributes:
@@ -7,21 +7,15 @@ attributes:
     Title V Permits are issued to facilities that are major sources of air emissions.
     These facilities are usually considered to be the largest in the state and meet the
     criteria of Subpart 201-6.
-  url: https://data.ny.gov/Energy-Environment/Issued-Title-V-Facility-Permits/4n3a-en4b/about_data
+  url: https://www.arcgis.com/home/item.html?id=4f1f53ba97934e1cafaf68a11f7c489f
 
 ingestion:
   source:
-    type: socrata
-    org: nys
-    uid: 4n3a-en4b
-    format: csv
+    type: arcgis_feature_server
+    server: nys_clearinghouse
+    dataset: Air_Title_V_Permits_ATV
   file_format:
-    type: csv
-    dtype:
-      Facility ZIP: str
-    geometry: 
-      geom_column: georeference
-      crs: EPSG:4326
+    type: geojson
   processing_steps:
   - name: clean_column_names
     args: { "replace": { " ": "_" }, "lower": True }
