@@ -45,8 +45,6 @@ inputs:
     - name: hpd_historical_geocode_results
     - name: dob_now_applications
     - name: dob_now_permits
-    - name: dob_bis_cofos
-    - name: dob_now_cofos
     - name: dob_cofos
       file_type: parquet
     - name: doitt_buildingfootprints
