@@ -39,6 +39,9 @@ jobs:
         python3 -m pip install mdpdf
         ./ceqr run recipe dep_cats_permits
 
+    - name: library archive
+      run: dcpy lifecycle scripts ingest_or_library_archive dep_cats_permits --latest --version "$(date '+%Y-%m-%d')" --push-to-s3
+
     - name: Create issue on success
       if: success()
       uses: JasonEtco/create-an-issue@v2
