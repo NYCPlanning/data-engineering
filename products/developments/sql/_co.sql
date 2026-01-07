@@ -28,62 +28,30 @@ IN PREVIOUS VERSION:
     co_.sql
 */
 DROP TABLE IF EXISTS co_devdb;
-WITH
-order_certtype AS (
-    SELECT
-        *,
-        CASE
-            WHEN certificatetype = 'T- TCO' THEN 2
-            WHEN certificatetype = 'C- CO' THEN 1
-        END AS certorder
+CREATE TABLE co_devdb AS
+WITH latest_co AS (
+    SELECT DISTINCT ON (jobnum)
+        jobnum,
+        numofdwellingunits::numeric,
+        effectivedate::date,
+        certificatetype
     FROM dob_cofos
+    WHERE jobnum IN (SELECT job_number FROM init_devdb)
+    ORDER BY
+        jobnum ASC, effectivedate::date DESC, certificatetype ASC
 ),
-order_co AS (
+earliest_co AS (
     SELECT
-        jobnum AS job_number,
-        effectivedate::date AS effectivedate,
-        numofdwellingunits::numeric AS units,
-        certificatetype AS certtype,
-        row_number() OVER (
-            PARTITION BY jobnum
-            ORDER BY effectivedate::date DESC, certorder ASC
-        ) AS latest,
-        row_number() OVER (
-            PARTITION BY jobnum
-            ORDER BY effectivedate::date ASC
-        ) AS earliest
-    FROM order_certtype
-    WHERE jobnum IN (
-        SELECT DISTINCT job_number
-        FROM init_devdb
-    )
-),
-draft_co AS (
-    SELECT
-        a.*,
-        b._date_complete
-    FROM (
-        SELECT
-            job_number,
-            effectivedate AS co_latest_effectivedate,
-            units AS co_latest_units,
-            certtype AS co_latest_certtype
-        FROM order_co
-        WHERE latest = 1
-    ) AS a
-    LEFT JOIN (
-        SELECT
-            job_number,
-            effectivedate AS _date_complete
-        FROM order_co
-        WHERE earliest = 1
-    ) AS b ON a.job_number = b.job_number
+        jobnum,
+        min(effectivedate::date) AS _date_complete
+    FROM dob_cofos
+    GROUP BY jobnum
 )
 SELECT
-    job_number,
-    _date_complete,
-    co_latest_effectivedate,
-    co_latest_units,
-    co_latest_certtype
-INTO co_devdb
-FROM draft_co;
+    latest_co.jobnum AS job_number,
+    earliest_co._date_complete,
+    latest_co.effectivedate AS co_latest_effectivedate,
+    latest_co.numofdwellingunits AS co_latest_units,
+    latest_co.certificatetype AS co_latest_certtype
+FROM latest_co
+INNER JOIN earliest_co ON latest_co.jobnum = earliest_co.jobnum;
