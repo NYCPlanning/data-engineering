@@ -57,7 +57,10 @@ sources:
       records per a condominium.
 
   - name: previous_pluto
+  - name: pluto
   - name: export_pluto
     description: final PLUTO table
   - name: dcp_zoningdistricts
   - name: dcp_zoning_maxfar
+  - name: transit_zones_atomic_geoms
+  - name: transit_zones_bbls_to_tz_atomic_parts
