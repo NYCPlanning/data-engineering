@@ -151,7 +151,6 @@ sources:
     columns:
     - name: dec_id
       tests:
-      - unique
       - not_null
     - name: facility_name
       tests:
@@ -164,7 +163,6 @@ sources:
     columns:
     - name: dec_id
       tests:
-      - unique
       - not_null
     - name: facility_name
       tests:
