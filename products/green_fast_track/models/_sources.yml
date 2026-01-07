@@ -149,7 +149,7 @@ sources:
 
   - name: nysdec_title_v_facility_permits
     columns:
-    - name: permit_id
+    - name: dec_id
       tests:
       - unique
       - not_null
@@ -162,7 +162,7 @@ sources:
 
   - name: nysdec_state_facility_permits
     columns:
-    - name: permit_id
+    - name: dec_id
       tests:
       - unique
       - not_null
