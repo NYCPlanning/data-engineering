@@ -14,7 +14,6 @@ from dcpy.models.product.dataset.metadata import (
     DatasetColumn,
     Metadata,
 )
-
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import shapefile as shp_utils
 from dcpy.utils.geospatial.shapefile import Shapefile
@@ -138,7 +137,7 @@ def _write_metadata(
 
 @app.command("write_metadata")
 def _write_shapefile_xml_metadata(
-    org_md: OrgMetadata,  # Should this be optional if the underlying arg is optional?
+    org_md_path: Path,  # Should this be optional if the underlying arg is optional?
     product_name: str,
     dataset_name: str,
     path: Path,
@@ -149,6 +148,8 @@ def _write_shapefile_xml_metadata(
         help="Directory structure within zip file, if relevant",
     ),
 ):
+    org_md = OrgMetadata.from_path(org_md_path)
+
     write_shapefile_xml_metadata(
         product_name=product_name,
         dataset_name=dataset_name,
