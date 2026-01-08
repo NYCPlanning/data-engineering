@@ -1,0 +1,38 @@
+id: dob_now_cofos
+acl: public-read
+
+attributes:
+  name: DOB NOW Certificate Of Occupancy
+  description: >-
+    This data set includes certificates of occupancy issued through the New York City
+    Department of Buildings' DOB NOW: Certificate of Occupancy module. This module was
+    released in March of 2021, anbd from that point onward this data set should be
+    utilized instead of the "DOB Certificate of Occupancy" data set. The data is
+    collected because the Department of Buildings tracks Certificates of Occupancies
+    issued. This data include items such as job filing name, job filing label, BIN,
+    Address, and Certificate of Occupancy status, sequence, label, and issuance date.
+
+    "A Certificate of Occupancy (CO) states a legal use and/or type of permitted
+    occupancy of a building. New buildings must have a CO, and existing buildings must
+    have a current or amended CO when there is a change in use, egress or type of
+    occupancy. No one may legally occupy a building until the Department has issued a CO
+    or Temporary Certificate of Occupancy (TCO).
+
+    A CO confirms that the completed work complies with all applicable laws, all
+    paperwork has been completed, all fees owed to the Department have been paid, all
+    relevant violations have been resolved, and all necessary approvals have been
+    received from other City Agencies. The Department issues a final CO when the
+    completed work matches the submitted plans for new buildings or major alterations."
+  url: https://data.cityofnewyork.us/Housing-Development/DOB-NOW-Certificate-of-Occupancy/pkdm-hqz6/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: pkdm-hqz6
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }

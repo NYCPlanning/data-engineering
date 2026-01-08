@@ -1,0 +1,35 @@
+id: dob_bis_cofos
+acl: public-read
+
+attributes:
+  name: DOB BIS Certificate Of Occupancy
+  description: >-
+    A Certificate of Occupancy (CO) states a building's legal use and/or type of
+    permitted occupancy. New buildings must have a CO, and existing buildings must have
+    a current or amended CO when there is a change in use, egress or type of occupancy.
+    No one may legally occupy a building until the Department has issued a Certificate
+    of Occupancy or Temporary Certificate of Occupancy. The Department issues a final
+    Certificate of Occupancy when the completed work matches the submitted plans for new
+    buildings or major alterations. It issues a Letter of Completion for minor
+    alterations to properties. These documents confirm the work complies with all
+    applicable laws, all paperwork has been completed, all fees owed to the Department
+    have been paid, all relevant violations have been resolved and all necessary
+    approvals have been received from other City Agencies.
+
+    This dataset contains all Certificates of Occupancy issued from 7/12/2012 to March
+    2021. PDFs of the actual COs are viewable in www.nyc.gov/bis.
+
+    For COs issued since March 2021, see DOB NOW: Certificate of Occupancy dataset.
+  url: https://data.cityofnewyork.us/Housing-Development/DOB-Certificate-Of-Occupancy/bs8b-p36w/about_data
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: bs8b-p36w
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
