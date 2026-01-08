@@ -34,7 +34,9 @@ jobs:
         nysdec_priority_shorelines
         nysdec_priority_estuaries
         nysdec_priority_streams
+        nysdec_state_facility_permits
         nysdec_tidal_wetlands
+        nysdec_title_v_facility_permits
         nysparks_historicplaces
         nysparks_parks
         nysshpo_historic_buildings_points

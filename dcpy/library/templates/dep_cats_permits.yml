@@ -7,7 +7,7 @@ dataset:
     #   uid: f4rp-2kvy
     #   format: csv
     url:
-      path: https://nyc3.digitaloceanspaces.com/edm-publishing/ceqr-app-data/dep_cats_permits/{{ version }}/dep_cats_permits.csv
+      path: https://nyc3.digitaloceanspaces.com/edm-publishing/datasets/dep_cats_permits/{{ version }}/dep_cats_permits.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"
