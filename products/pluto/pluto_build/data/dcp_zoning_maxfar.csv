@@ -36,10 +36,10 @@ C4-5X,Contextual,General Commercial,R7X,5,6,5,4,-,y
 C4-6,Non-contextual,General Commercial,R10,10,12,10,3.4,-,y
 C4-6A,Contextual,General Commercial,R10A,10,12,10,3.4,-,y
 C4-7,Non-contextual,General Commercial,R10,10,12,10,10,-,y
-C4-7A,Contextual,General Commercial,R10A,10,12,10,10,,y
-C4-11,Non-contextual,General Commercial,R11,12,15,12,3.4,,y
-C4-11A,Contextual,General Commercial,R11A,12,15,12,3.4,,y
-C4-12,Contextual,General Commercial,R12,15,18,15,3.4,,y
+C4-7A,Contextual,General Commercial,R10A,10,12,10,10,-,y
+C4-11,Non-contextual,General Commercial,R11,12,15,12,3.4,-,y
+C4-11A,Contextual,General Commercial,R11A,12,15,12,3.4,-,y
+C4-12,Contextual,General Commercial,R12,15,18,15,3.4,-,y
 C5-1,Non-contextual,Restricted Central Commercial,R10,10,12,10,4,-,y
 C5-1A,Contextual,Restricted Central Commercial,R10A,10,12,10,4,-,y
 C5-2,Non-contextual,Restricted Central Commercial,R10,10,12,10,10,-,y
@@ -51,7 +51,7 @@ C5-5,Non-contextual,Restricted Central Commercial,R10,10,12,15,15,-,y
 C5-P,Non-contextual,Restricted Central Commercial,R10,10,12,10,8,-,y
 C6-1,Non-contextual,General Central Commercial,R7-2,3.44,5.01,6.5,6,-,y
 C6-1A,Contextual,General Central Commercial,R6,2.43,3.9,6,6,-,y
-C6-1G,Non-contextual,General Central Commercial,R7-2,3.44,5.01,,6,-,y
+C6-1G,Non-contextual,General Central Commercial,R7-2,3.44,5.01,-,6,-,y
 C6-2,Non-contextual,General Central Commercial,R8,6.02,7.2,6.5,6,-,y
 C6-2A,Contextual,General Central Commercial,R8A,6.02,7.2,6.5,6,-,y
 C6-2G,Non-contextual,General Central Commercial,R8,6.02,7.2,6.5,6,-,y
@@ -71,10 +71,10 @@ C6-6,Non-contextual,General Central Commercial,R10,10,12,15,15,-,y
 C6-6.5,Non-contextual,Restricted Central Commercial,R10,10,12,12,12,-,
 C6-7,Non-contextual,General Central Commercial,R10,10,12,15,15,-,y
 C6-7T,Non-contextual,Restricted Central Commercial,R10,10,12,14,14,-,y
-C6-8,Non-contextual,General Central Commercial,R10,10,12,10,10,,y
+C6-8,Non-contextual,General Central Commercial,R10,10,12,10,10,-,y
 C6-9,Non-contextual,General Central Commercial,R10,10,12,15,15,-,y
-C6-11,Non-contextual,General Central Commercial,R11,12,15,12,12,,y
-C6-12,Non-contextual,General Central Commercial,R12,15,18,15,15,,y
+C6-11,Non-contextual,General Central Commercial,R11,12,15,12,12,-,y
+C6-12,Non-contextual,General Central Commercial,R12,15,18,15,15,-,y
 C7,Non-contextual,Commercial Amusement,-,-,-,-,2,-,y
 C7-1,Non-contextual,Commercial Amusement,-,-,-,2,2,-,
 C8-1,Non-contextual,General Service,-,-,-,2.4,1,-,y
@@ -175,7 +175,7 @@ PLAYGROUND,-,-,,-,-,-,-,-,
 PUBLIC PLACE,-,-,,-,-,-,-,-,
 R10,Non-contextual,High-Density Residence District,,10,12,10,-,-,y
 R10A,Contextual,High-Density Residence District,,10,12,10,-,-,y
-R10H,Non-contextual,High-Density Residence District,,10,12,10,,,
+R10H,Non-contextual,High-Density Residence District,,10,12,10,-,-,
 R10X,Non-contextual,High-Density Residence District,,10,12,10,-,-,y
 R1-1,Non-contextual,Low-Density Residence District,,0.75,1,1,-,-,y
 R1-2,Non-contextual,Low-Density Residence District,,0.75,1,1,-,-,y
@@ -216,6 +216,6 @@ R9,Non-contextual,High-Density Residence District,,7.52,9.02,10,-,-,y
 R9-1,Non-contextual,High-Density Residence District,,9,10.8,10,-,-,y
 R9A,Contextual,High-Density Residence District,,7.52,9.02,7.5,-,-,y
 R9X,Contextual,High-Density Residence District,,9,10.8,9,-,-,y
-R11,Non-contextual,High-Density Residence District,,12,15,12,,,y
-R11A,Contextual,High-Density Residence District,,12,15,12,,,y
-R12,Non-contextual,High-Density Residence District,,15,18,15,,,y
+R11,Non-contextual,High-Density Residence District,,12,15,12,-,-,y
+R11A,Contextual,High-Density Residence District,,12,15,12,-,-,y
+R12,Non-contextual,High-Density Residence District,,15,18,15,-,-,y
