@@ -25,17 +25,18 @@ mihareas_coverage_analysis AS (
         p.address,
         d.wkb_geometry AS mih_geometry,
         -- Calculate how close the coverage percentage is to 50% (most ambiguous case)
-        ABS(m.perbblgeom - 50.0) AS ambiguity_score,
+        50 - ABS(m.perbblgeom - 50.0) AS ambiguity_score,
         -- Get the maximum ambiguity score for each BBL to identify most questionable cases
-        MAX(ABS(m.perbblgeom - 50.0)) OVER (PARTITION BY m.bbl) AS max_bbl_ambiguity_score
+        MAX(50 - ABS(m.perbblgeom - 50.0)) OVER (PARTITION BY m.bbl) AS max_bbl_ambiguity_score
     FROM {{ source("build_sources", "mihperorder") }} AS m
     INNER JOIN bbls_with_multiple_mihareas AS bmm
         ON m.bbl = bmm.bbl
     INNER JOIN {{ source("build_sources", "pluto") }} AS p
         ON m.bbl = p.bbl
     INNER JOIN {{ source("build_sources", "dcp_mih") }} AS d
-        ON m.project_name = d.project_name
-        AND m.affordability_option = d.mih_option
+        ON
+            m.project_name = d.project_name
+            AND m.affordability_option = d.mih_option
 ),
 
 final AS (
