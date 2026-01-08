@@ -1,4 +1,4 @@
-id: dcp_mih
+id: dcp_gis_mandatory_inclusionary_housing
 acl: public-read
 
 attributes:
@@ -13,9 +13,8 @@ attributes:
 
 ingestion:
   source:
-    type: file_download
-    url: >-
-      https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/mandatory-inclusionary-housing/nycmih_{{ version  }}.zip
+    type: edm.publishing.gis
+    name: dcp_mandatory_inclusionary_housing
   target_crs: EPSG:4326
   file_format:
     type: shapefile
