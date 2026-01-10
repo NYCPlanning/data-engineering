@@ -17,12 +17,6 @@ from dcpy.configuration import (
     PUBLISHING_BUCKET,
     CI,
     BUILD_NAME,
-    DEV_FLAG,
-    LOGGING_DB,
-    LOGGING_SCHEMA,
-    LOGGING_TABLE_NAME,
-    PRODUCTS_TO_LOG,
-    IGNORED_LOGGING_BUILDS,
 )
 from dcpy.connectors.registry import GenericConnector, VersionedConnector
 from dcpy.models.connectors.edm.publishing import (
@@ -31,8 +25,8 @@ from dcpy.models.connectors.edm.publishing import (
     DraftKey,
     BuildKey,
 )
-from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType
-from dcpy.utils import s3, git, versions, metadata, postgres
+from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.utils import s3, git, versions
 from dcpy.utils.logging import logger
 
 
@@ -285,25 +279,6 @@ def upload_build(
     build_key = BuildKey(product, build_name)
     logger.info(f'Uploading {output_path} to {build_key.path} with ACL "{acl}"')
     upload(output_path, build_key, acl=acl, max_files=max_files)
-
-    if (
-        build_key.build not in IGNORED_LOGGING_BUILDS
-        and build_key.product in PRODUCTS_TO_LOG
-    ):
-        version = get_version(build_key)
-        run_details = metadata.get_run_details()
-        event_metadata = EventLog(
-            event=EventType.BUILD,
-            product=build_key.product,
-            version=version,
-            path=build_key.path,
-            old_path=None,
-            timestamp=run_details.timestamp,
-            runner_type=run_details.type,
-            runner=run_details.runner_string,
-        )
-        log_event_in_db(event_metadata)
-
     return build_key
 
 
@@ -359,19 +334,6 @@ def promote_to_draft(
             filepath="build_metadata.json",
         )
         logger.info(f"Downloaded build_metadata.json from {draft_key.path}")
-
-    run_details = metadata.get_run_details()
-    event_metadata = EventLog(
-        event=EventType.PROMOTE_TO_DRAFT,
-        product=draft_key.product,
-        version=draft_key.version,
-        path=draft_key.path,
-        old_path=build_key.path,
-        timestamp=run_details.timestamp,
-        runner_type=run_details.type,
-        runner=run_details.runner_string,
-    )
-    log_event_in_db(event_metadata)
 
     return draft_key
 
@@ -487,19 +449,6 @@ def publish(
             filepath="build_metadata.json",
         )
         logger.info(f"Downloaded build_metadata.json from {publish_key.path}")
-
-    run_details = metadata.get_run_details()
-    event_metadata = EventLog(
-        event=EventType.PUBLISH,
-        product=publish_key.product,
-        version=draft_key.version,  # this is release version, not patched
-        path=publish_key.path,
-        old_path=draft_key.path,
-        timestamp=run_details.timestamp,
-        runner_type=run_details.type,
-        runner=run_details.runner_string,
-    )
-    log_event_in_db(event_metadata)
 
     return publish_key
 
@@ -719,44 +668,6 @@ def download_gis_dataset(dataset_name: str, version: str, target_folder: Path):
     file_path = target_folder / f"{dataset_name}.zip"  ## we assume all gis datasets are
     s3.download_file(_bucket(), _gis_dataset_path(dataset_name, version), file_path)
     return file_path
-
-
-def log_event_in_db(event_details: EventLog) -> None:
-    """
-    Logs event metadata to a PostgreSQL database if the product is in the approved list
-    of products and not in a development environment. Otherwise it skips logging.
-    """
-
-    if event_details.product not in PRODUCTS_TO_LOG:
-        logger.warn(
-            f"❗️ Product {event_details.product} not on the list of products to log in db. Skipping event metadata logging..."
-        )
-        return
-    if DEV_FLAG:
-        logger.info("DEV_FLAG env var found, skipping event metadata logging")
-        return
-    logger.info(
-        f"Logging event '{event_details.event}' metadata for product {event_details.product} in db..."
-    )
-    pg_client = postgres.PostgresClient(database=LOGGING_DB, schema=LOGGING_SCHEMA)
-    query = f"""
-        INSERT INTO {LOGGING_SCHEMA}.{LOGGING_TABLE_NAME}
-        (product, version, event, path, old_path, timestamp, runner_type, runner, custom_fields)
-        VALUES
-        (:product, :version, :event, :path, :old_path, :timestamp, :runner_type, :runner, :custom_fields)
-        """
-    pg_client.execute_query(
-        query,
-        product=event_details.product,
-        version=event_details.version,
-        event=event_details.event.value,
-        path=event_details.path,
-        old_path=event_details.old_path,
-        timestamp=event_details.timestamp,
-        runner_type=event_details.runner_type,
-        runner=event_details.runner,
-        custom_fields=json.dumps(event_details.custom_fields),
-    )
 
 
 class PublishedConnector(VersionedConnector):

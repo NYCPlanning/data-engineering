@@ -2,7 +2,6 @@ from datetime import datetime
 import pandas as pd
 from pathlib import Path
 import os
-import json
 import pytest
 from unittest.mock import patch
 
@@ -613,67 +612,3 @@ def test_validate_or_patch_version_version_already_exists(get_published_versions
             version=version_to_patch,
             is_patch=False,
         )
-
-
-@pytest.fixture(scope="function")
-def mock_event_log():
-    run_details = publishing.metadata.get_run_details()
-    return publishing.EventLog(
-        product=TEST_PRODUCT_NAME,
-        version=TEST_VERSION,
-        event=publishing.EventType.BUILD,
-        path="/new/path",
-        old_path="/old/path",
-        timestamp=run_details.timestamp,
-        runner_type=run_details.type,
-        runner=run_details.runner_string,
-        custom_fields={"key": "value"},
-    )
-
-
-@patch("dcpy.connectors.edm.publishing.postgres.PostgresClient")
-def test_log_event_skipped_conditions(mock_db_client, mock_event_log):
-    """
-    Test the `log_event_in_db` function to ensure that no database query is executed
-    when the product is not in the allowed list or when the DEV_FLAG is set to True.
-    """
-    mock_db_client_instance = mock_db_client.return_value
-    with patch("dcpy.connectors.edm.publishing.DEV_FLAG", False):
-        assert mock_event_log.product not in publishing.PRODUCTS_TO_LOG  # sanity check
-        publishing.log_event_in_db(mock_event_log)
-        mock_db_client_instance.execute_query.assert_not_called()
-
-    with patch("dcpy.connectors.edm.publishing.DEV_FLAG", True):
-        mock_event_log.product = "db-template"
-        assert mock_event_log.product in publishing.PRODUCTS_TO_LOG  # sanity check
-        publishing.log_event_in_db(mock_event_log)
-        mock_db_client_instance.execute_query.assert_not_called()
-
-
-@patch("dcpy.connectors.edm.publishing.postgres.PostgresClient")
-def test_log_event_success(mock_db_client, mock_event_log):
-    mock_db_client_instance = mock_db_client.return_value
-
-    mock_event_log.product = "db-template"
-    assert mock_event_log.product in publishing.PRODUCTS_TO_LOG  # sanity check
-
-    publishing.log_event_in_db(mock_event_log)
-
-    query = f"""
-        INSERT INTO {publishing.LOGGING_SCHEMA}.{publishing.LOGGING_TABLE_NAME}
-        (product, version, event, path, old_path, timestamp, runner_type, runner, custom_fields)
-        VALUES
-        (:product, :version, :event, :path, :old_path, :timestamp, :runner_type, :runner, :custom_fields)
-        """
-    mock_db_client_instance.execute_query.assert_called_once_with(
-        query,
-        product=mock_event_log.product,
-        version=mock_event_log.version,
-        event=mock_event_log.event.value,
-        path=mock_event_log.path,
-        old_path=mock_event_log.old_path,
-        timestamp=mock_event_log.timestamp,
-        runner_type=mock_event_log.runner_type,
-        runner=mock_event_log.runner,
-        custom_fields=json.dumps(mock_event_log.custom_fields),
-    )
