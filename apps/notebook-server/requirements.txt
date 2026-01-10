@@ -1,0 +1,2 @@
+marimo>=0.8.0
+uvicorn>=0.20.0
