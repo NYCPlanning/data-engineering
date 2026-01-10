@@ -18,7 +18,8 @@ services:
       - SOCRATA_PASSWORD
 
     volumes:
-      # Optional: Mount notebooks directory for development
+      # Mount notebooks directory for development. This won't exist in the deployed
+      # version.
       - ../../notebooks:/app/notebooks
     restart: unless-stopped
     healthcheck:
