@@ -2,9 +2,13 @@ import os
 from pathlib import Path
 
 import marimo
+import uvicorn
+
 
 MARIMO_PASSWORD = os.getenv("MARIMO_PASSWORD")
-assert MARIMO_PASSWORD, "Sorry, you're gonna need a password for this one. Set `MARIMO_PASSWORD` in your env."
+assert MARIMO_PASSWORD, (
+    "Sorry, you're gonna need a password for this one. Set `MARIMO_PASSWORD` in your env."
+)
 
 NOTEBOOKS_DIR = os.getenv("MARMIMO_NOTEBOOK_DIR")
 SERVER_PORT = int(os.getenv("MARIMO_PORT", "8080"))
@@ -33,7 +37,5 @@ def create_server():
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     app = create_server()
     uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)
