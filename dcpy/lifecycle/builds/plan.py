@@ -14,7 +14,7 @@ from dcpy.models.lifecycle.builds import (
 )
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
-from dcpy.connectors.edm import recipes, publishing
+from dcpy.connectors.edm import drafts, recipes, publishing
 
 
 DEFAULT_RECIPE = "recipe.yml"
@@ -376,7 +376,7 @@ def _cli_wrapper_repeat_recipe(
                 raise ValueError(
                     "For repeating builds of 'draft' type, need to provide draft revision number"
                 )
-            draft_revision = publishing.get_draft_revision_label(
+            draft_revision = drafts.get_draft_revision_label(
                 product=product_label,
                 version=version_or_build,
                 revision_num=draft_revision_number,
