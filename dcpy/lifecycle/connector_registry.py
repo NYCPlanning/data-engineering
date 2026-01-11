@@ -5,7 +5,7 @@ from dcpy.configuration import (
     SFTP_PORT,
     SFTP_PRIVATE_KEY_PATH,
 )
-from dcpy.connectors.edm import drafts, publishing
+from dcpy.connectors.edm import drafts, publishing, gis as edm_gis
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.hybrid_pathed_storage import (
@@ -63,7 +63,7 @@ def _set_default_connectors():
         drafts.DraftsConnector(),
         publishing.PublishedConnector(),
         BytesConnector(),
-        publishing.GisDatasetsConnector(),
+        edm_gis.GisDatasetsConnector(),
         SocrataConnector(),
         OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
