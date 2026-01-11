@@ -70,6 +70,80 @@ def get_draft_revision_label(product: str, version: str, revision_num: int) -> s
     return draft_revision_label
 
 
+def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
+    """Retrieve a product build metadata from s3."""
+    key = f"{product_key.path}/build_metadata.json"
+    bucket = _bucket()
+    if not s3.object_exists(bucket, key):
+        if not exists(product_key):
+            raise FileNotFoundError(f"Product {product_key} does not exist.")
+        else:
+            raise FileNotFoundError(
+                f"Build metadata not found for product {product_key}."
+            )
+    obj = s3.client().get_object(
+        Bucket=bucket, Key=f"{product_key.path}/build_metadata.json"
+    )
+    file_content = str(obj["Body"].read(), "utf-8")
+    return BuildMetadata(**yaml.safe_load(file_content))
+
+
+def promote_to_draft(
+    build_key: BuildKey,
+    acl: s3.ACL,
+    keep_build: bool = True,
+    max_files: int = s3.MAX_FILE_COUNT,
+    draft_revision_summary: str = "",
+    download_metadata: bool = False,
+) -> DraftKey:
+    bucket = _bucket()
+    version = get_version(build_key)
+
+    # generate version draft revision number
+    draft_revision_number = (
+        len(get_draft_version_revisions(build_key.product, version)) + 1
+    )
+    draft_revision_label = versions.DraftVersionRevision(
+        draft_revision_number, draft_revision_summary
+    ).label
+
+    # read in build metadata, update it with draft label, and save it locally
+    build_metadata = get_build_metadata(product_key=build_key)
+    build_metadata.draft_revision_name = draft_revision_label
+    build_metadata_path = Path("build_metadata.json")
+    with open(build_metadata_path, "w", encoding="utf-8") as f:
+        json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
+
+    # promote from build to draft
+    draft_key = DraftKey(build_key.product, version, draft_revision_label)
+    source = build_key.path + "/"
+    target = draft_key.path + "/"
+    s3.copy_folder(bucket, source, target, acl, max_files=max_files)
+
+    # upload updated metadata file
+    s3.upload_file(
+        bucket,
+        build_metadata_path,
+        f"{target}{build_metadata_path.name}",
+        acl,
+    )
+
+    logger.info(
+        f"Promoted {build_key.product} to drafts as {version}/{draft_revision_label}"
+    )
+    if not keep_build:
+        s3.delete(bucket, source)
+
+    if download_metadata:
+        download_file(
+            product_key=draft_key,
+            filepath="build_metadata.json",
+        )
+        logger.info(f"Downloaded build_metadata.json from {draft_key.path}")
+
+    return draft_key
+
+
 class DraftsConnector(VersionedConnector):
     conn_type: str = "edm.publishing.drafts"
 

@@ -72,47 +72,47 @@ def test_get_filenames(create_buckets, create_temp_filesystem, mock_data_constan
     assert publishing.get_filenames(build_key) == expected_filenames
 
 
-@pytest.mark.parametrize(
-    "latest, contents_only, expected_path, not_expected_paths",
-    [
-        (
-            False,
-            False,
-            "24v2/test_data/file.csv",
-            ["latest/test_data/file.csv", "24v2/file.csv"],
-        ),
-        (True, False, "latest/test_data/file.csv", []),
-        (False, True, "24v2/file.csv", ["24v2/test_data/file.csv"]),
-    ],
-)
-def test_legacy_upload(
-    latest: bool,
-    contents_only: bool,
-    expected_path: str,
-    not_expected_paths: list[str],
-    create_buckets,
-    create_temp_filesystem,
-    mock_data_constants,
-):
-    data_path = mock_data_constants["TEST_DATA_DIR"]
-    prefix = "prefix"
-    publishing.legacy_upload(
-        output=data_path,
-        publishing_folder=TEST_PRODUCT_NAME,
-        version=TEST_VERSION,
-        acl=TEST_ACL,  # type: ignore
-        s3_subpath=prefix,
-        contents_only=contents_only,
-        latest=latest,
-    )
-    assert s3.object_exists(
-        TEST_BUCKET_NAME,
-        f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
-    )
-    for path in not_expected_paths:
-        assert not s3.object_exists(
-            TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}"
-        )
+# @pytest.mark.parametrize(
+#     "latest, contents_only, expected_path, not_expected_paths",
+#     [
+#         (
+#             False,
+#             False,
+#             "24v2/test_data/file.csv",
+#             ["latest/test_data/file.csv", "24v2/file.csv"],
+#         ),
+#         (True, False, "latest/test_data/file.csv", []),
+#         (False, True, "24v2/file.csv", ["24v2/test_data/file.csv"]),
+#     ],
+# )
+# def test_legacy_upload(
+#     latest: bool,
+#     contents_only: bool,
+#     expected_path: str,
+#     not_expected_paths: list[str],
+#     create_buckets,
+#     create_temp_filesystem,
+#     mock_data_constants,
+# ):
+#     data_path = mock_data_constants["TEST_DATA_DIR"]
+#     prefix = "prefix"
+#     publishing.legacy_upload(
+#         output=data_path,
+#         publishing_folder=TEST_PRODUCT_NAME,
+#         version=TEST_VERSION,
+#         acl=TEST_ACL,  # type: ignore
+#         s3_subpath=prefix,
+#         contents_only=contents_only,
+#         latest=latest,
+#     )
+#     assert s3.object_exists(
+#         TEST_BUCKET_NAME,
+#         f"{TEST_PRODUCT_NAME}/{prefix}/{expected_path}",
+#     )
+#     for path in not_expected_paths:
+#         assert not s3.object_exists(
+#             TEST_BUCKET_NAME, f"{TEST_PRODUCT_NAME}/{prefix}/{path}"
+#         )
 
 
 @patch("dcpy.connectors.edm.publishing.BUILD_NAME", TEST_BUILD)

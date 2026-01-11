@@ -53,7 +53,7 @@ class DatasetPackageKey(publishing.ProductKey):
 
 
 def upload(local_folder_path: Path, package_key: DatasetPackageKey) -> None:
-    meta = s3.generate_metadata()
+    # meta = s3.generate_metadata()
     s3.upload_folder(
         BUCKET,
         local_folder_path,
