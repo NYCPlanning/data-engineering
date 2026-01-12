@@ -260,6 +260,7 @@ _esd_projects AS (
     GROUP BY project_name, total_units
 ),
 
+/* remove sensitive HPD data. must confirm this won't be needed in the future
 _hpd_pc AS (
     SELECT
         'HPD Projected Closings' AS source,
@@ -337,6 +338,7 @@ _hpd_pc AS (
     LEFT JOIN dcp_mappluto_wi AS b
         ON a.bbl::numeric = b.bbl::numeric
 ),
+*/
 
 _hpd_rfp AS (
     SELECT
@@ -553,6 +555,7 @@ FROM (
             record_id_input,
             st_makevalid(geom) AS geom
         FROM _esd_projects
+        /* remove sensitive HPD data. must confirm this won't be needed in the future
         UNION
         SELECT
             source,
@@ -573,6 +576,7 @@ FROM (
             record_id_input,
             st_makevalid(geom) AS geom
         FROM _hpd_pc
+        */
         UNION
         SELECT
             source,

@@ -18,7 +18,8 @@ python3 -m python.extractors dcp_n_study
 python3 -m python.extractors dcp_n_study_future
 python3 -m python.extractors dcp_n_study_projected
 python3 -m python.extractors hpd_rfp
-python3 -m python.extractors hpd_pc
+# remove sensitive HPD data. must confirm this won't be needed in the future
+# python3 -m python.extractors hpd_pc
 python3 -m python.extractors dcp_planneradded
 python3 -m python.extractors dcp_knownprojects
 
