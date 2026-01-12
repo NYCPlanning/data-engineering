@@ -16,4 +16,8 @@ SELECT
     offsets.left_offset_point,
     offsets.right_offset_point
 FROM segments,
-    LATERAL offset_points(segments.geom, 2) AS offsets (left_offset_point geometry, right_offset_point geometry)
+    LATERAL offset_points(
+        segments.geom,
+        segments.midpoint,
+        2
+    ) AS offsets (left_offset_point geometry, right_offset_point geometry)

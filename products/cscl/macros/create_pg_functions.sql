@@ -103,12 +103,14 @@ $BODY$
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION offset_points(line geometry, offset_length numeric DEFAULT 1.0)
-    RETURNS RECORD AS
+CREATE OR REPLACE FUNCTION offset_points(
+    line geometry,
+    midpoint geometry,
+    offset_length numeric DEFAULT 1.0
+) RETURNS RECORD AS
 $BODY$
 DECLARE
     srid integer;
-    midpoint geometry;
     segments geometry[];
     mid_segment geometry;
     ref_p1 geometry;
@@ -123,7 +125,6 @@ BEGIN
     END IF;
 
     srid := ST_SRID(line);
-    midpoint := ST_LineInterpolatePoint(line, 0.5);
     
 	SELECT array_agg(dump.geom)
 	INTO segments
@@ -181,6 +182,29 @@ BEGIN
     ELSE
         RETURN NULL;
     END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION linearize(
+    geom geometry, 
+    curve_to_line_tolerance numeric DEFAULT 0.00025
+) RETURNS geometry AS
+$$
+DECLARE
+    geometry_type text;
+BEGIN
+    geometry_type := ST_GeometryType(geom);
+    IF geometry_type = 'ST_LineString' THEN
+        RETURN geom;
+    ELSIF geometry_type = 'ST_MultiLineString' THEN
+        RETURN ST_LineMerge(geom);
+    ELSIF geometry_type = 'ST_MultiCurve' THEN
+        RETURN ST_LineMerge(ST_CurveToLine(geom, curve_to_line_tolerance, 1));
+    ELSIF geometry_type = 'ST_MultiSurface' THEN
+        RETURN ST_CurveToLine(geom, curve_to_line_tolerance, 1);
+    END IF;
+    RETURN geom;
 END;
 $$
 LANGUAGE plpgsql;

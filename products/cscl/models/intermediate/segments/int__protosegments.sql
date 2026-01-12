@@ -48,6 +48,10 @@ SELECT
         WHEN proto.reversed THEN ST_REVERSE(primary_segments.geom)
         ELSE primary_segments.geom
     END AS geom,
+    CASE
+        WHEN proto.reversed THEN ST_REVERSE(primary_segments.raw_geom)
+        ELSE primary_segments.raw_geom
+    END AS raw_geom,
     primary_segments.midpoint,
     CASE
         WHEN proto.reversed THEN primary_segments.end_point
