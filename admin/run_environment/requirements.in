@@ -21,6 +21,7 @@ Jinja2>=3.1.2
 leafmap
 lxml>=4.6.2
 mapclassify
+marimo[recommended]
 matplotlib
 moto[s3]
 msal>=1.23.0
