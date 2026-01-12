@@ -1,6 +1,6 @@
 beautifulsoup4>=4.9.3
-boto3>=1.28.1
 boto3-stubs[s3]>=1.28.1
+boto3>=1.28.1
 cached-property
 cloudpathlib[all]
 contextily
@@ -12,8 +12,8 @@ duckdb
 faker
 folium
 GDAL==3.11.3
-geopandas
 geoalchemy2
+geopandas
 graphviz>=0.20.1
 ijson
 ipykernel
@@ -32,11 +32,9 @@ pandas
 pandas-stubs
 pandera
 paramiko
-types-paramiko
 plotly
 pre-commit
 psycopg2-binary
-types-psycopg2
 pyarrow
 pyarrow-stubs
 pydantic
@@ -48,7 +46,6 @@ python-dotenv>=0.20.0
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main
 pytz>=2023.3
 PyYAML>=6.0.1
-types-PyYAML>=6.0.1
 rich>=13.4.2
 ruff
 setuptools
@@ -62,14 +59,17 @@ streamlit-aggrid
 streamlit-folium
 tabulate
 tqdm>=4.59.0
-types-tqdm
 typer>=0.8.0
 types-beautifulsoup4
+types-paramiko
+types-psycopg2
 types-python-dateutil
+types-PyYAML>=6.0.1
 types-requests
 types-setuptools
+types-tqdm
 urllib3>=1.26.18
 us
-uv
 usaddress>=0.5.10
+uv
 xlrd>=2.0.1
