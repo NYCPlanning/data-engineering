@@ -26,7 +26,6 @@ For detailed information on the tables created throughout the build process, see
 - [ ] `Future Neighborhood Rezonings` - `dcp_n_study_future`
 - [ ] `Past Neighborhood Rezonings` - `dcp_n_study_projected`
 - [ ] `HPD Requests for Proposals (RFPs)` - `hpd_rfp`
-- [ ] `HPD Projected Closing` - `hpd_pc`
 - [ ] `DCP Planner Added Projects` - `dcp_planneradded`
 
 **Make sure the following are up-to-date in edm-recipes:**

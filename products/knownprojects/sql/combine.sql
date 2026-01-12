@@ -260,84 +260,6 @@ _esd_projects AS (
     GROUP BY project_name, total_units
 ),
 
-_hpd_pc AS (
-    SELECT
-        'HPD Projected Closings' AS source,
-        a.uid AS record_id,
-        'HPD 3: Projected Closing' AS status,
-        NULL AS type,
-        ((
-            min_of_projected_units::integer
-            + max_of_projected_units::integer
-        ) / 2
-        )::integer AS units_gross,
-        projected_fiscal_year_range AS date,
-        'Projected Fiscal Year Range' AS date_type,
-
-        -- dates
-        (CASE
-            WHEN
-                date_part(
-                    'year',
-                    age(
-                        to_date((concat(right(projected_fiscal_year_range, 4)::numeric + 3, '-06-30')), 'YYYY-MM-DD'),
-                        current_date
-                    )
-                )
-                <= 5
-                THEN 1
-            ELSE 0
-        END)::numeric AS prop_within_5_years,
-        (CASE
-            WHEN
-                date_part(
-                    'year',
-                    age(
-                        to_date((concat(right(projected_fiscal_year_range, 4)::numeric + 3, '-06-30')), 'YYYY-MM-DD'),
-                        current_date
-                    )
-                )
-                > 5
-                AND date_part(
-                    'year',
-                    age(
-                        to_date((concat(right(projected_fiscal_year_range, 4)::numeric + 3, '-06-30')), 'YYYY-MM-DD'),
-                        current_date
-                    )
-                )
-                <= 10
-                THEN 1
-            ELSE 0
-        END)::numeric AS prop_5_to_10_years,
-
-        -- phasing
-        (CASE
-            WHEN
-                date_part(
-                    'year',
-                    age(
-                        to_date((concat(right(projected_fiscal_year_range, 4)::numeric + 3, '-06-30')), 'YYYY-MM-DD'),
-                        current_date
-                    )
-                )
-                > 10
-                THEN 1
-            ELSE 0
-        END)::numeric AS prop_after_10_years,
-
-        1 AS phasing_known,
-
-        b.wkb_geometry AS geom,
-        array_append(ARRAY[]::text [], a.uid) AS record_id_input,
-        house_number || ' ' || street_name AS record_name,
-        flag_nycha(a::text) AS nycha,
-        flag_classb(a::text) AS classb,
-        flag_senior_housing(a::text) AS senior_housing
-    FROM hpd_pc AS a
-    LEFT JOIN dcp_mappluto_wi AS b
-        ON a.bbl::numeric = b.bbl::numeric
-),
-
 _hpd_rfp AS (
     SELECT
         'HPD RFPs' AS source,
@@ -553,26 +475,6 @@ FROM (
             record_id_input,
             st_makevalid(geom) AS geom
         FROM _esd_projects
-        UNION
-        SELECT
-            source,
-            record_id,
-            record_name,
-            status,
-            type,
-            units_gross,
-            date,
-            date_type,
-            prop_within_5_years,
-            prop_5_to_10_years,
-            prop_after_10_years,
-            phasing_known,
-            nycha,
-            classb,
-            senior_housing,
-            record_id_input,
-            st_makevalid(geom) AS geom
-        FROM _hpd_pc
         UNION
         SELECT
             source,
