@@ -1,7 +1,18 @@
+import os
+import re
+
 from geosupport import Geosupport, GeosupportError
 import pandas as pd
 
 g = Geosupport()
+
+
+def geosupport_version() -> str | None:
+    geofiles = os.environ.get("GEOFILES")
+    if not geofiles:
+        return None
+    match = re.search(r"version-(\d+[a-zA-Z])", geofiles)
+    return match.group(1) if match else None
 
 
 ####### NUMBLDGS ###########################

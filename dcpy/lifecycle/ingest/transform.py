@@ -547,6 +547,7 @@ class ProcessingFunctions:
             custom={
                 "rows_geocoded": int(transformed["latitude"].notna().sum()),
                 "total_rows": len(transformed),
+                "geosupport_version": geosupport_pluto.geosupport_version(),
             },
         )
         return ProcessingResult(df=transformed, summary=summary)
