@@ -25,7 +25,6 @@ inputs:
   - name: doe_eszones
     version: 20240313
   - name: doe_school_subdistricts
-    version: 2017
   - name: dcp_school_districts
     version: 25a
   - name: dcp_ct2020_wi
