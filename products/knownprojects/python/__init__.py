@@ -30,7 +30,6 @@ DCP_HOUSING_DATA_FILENAMES = {
     "dcp_n_study_future": "future_neighborhoodstudies_20250304.zip",
     "dcp_n_study_projected": "past_neighborhoodstudies_20250304.zip",
     "hpd_rfp": "HPD_RFPs_20250110.xlsx",
-    "hpd_pc": "HPD_Pipeline_20250225.xlsx",
     "dcp_planneradded": "dcp_planneradded_2025_04_30.csv",
 }
 DCP_HOUSING_CORRECTIONS_FILENAMES = {

@@ -79,12 +79,6 @@ def hpd_rfp(filename: str) -> pd.DataFrame:
 
 
 @ETL
-def hpd_pc(filename: str) -> pd.DataFrame:
-    df = pd.read_excel(f"{RAW_DATA_PATH}/{filename}", dtype=str)
-    return df
-
-
-@ETL
 def dcp_planneradded(filename: str) -> pd.DataFrame:
     df = pd.read_csv(f"{RAW_DATA_PATH}/{filename}", dtype=str)
     df.rename(columns={"WKT": "geometry"}, inplace=True)

@@ -25,14 +25,13 @@ def resolve_all_projects(df):
     # Hierarchy for unit subtraction
     hierarchy = {
         "DOB": 1,
-        "HPD Projected Closings": 2,
-        "HPD RFPs": 3,
-        "EDC Projected Projects": 4,
-        "DCP Application": 5,
-        "Empire State Development Projected Projects": 6,
-        "Neighborhood Study Rezoning Commitments": 7,
-        "Neighborhood Study Projected Development Sites": 8,
-        "DCP Planner-Added Projects": 9,
+        "HPD RFPs": 2,
+        "EDC Projected Projects": 3,
+        "DCP Application": 4,
+        "Empire State Development Projected Projects": 5,
+        "Neighborhood Study Rezoning Commitments": 6,
+        "Neighborhood Study Projected Development Sites": 7,
+        "DCP Planner-Added Projects": 8,
     }
 
     df["source_id"] = df["source"].map(hierarchy)
