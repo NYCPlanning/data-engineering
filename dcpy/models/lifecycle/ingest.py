@@ -267,8 +267,8 @@ class SparseConfig(BaseModel, extra="allow"):
     id: str = Field(validation_alias=AliasChoices("id", AliasPath("dataset", "name")))
     version: str = Field(
         validation_alias=AliasChoices(
-            "version",  # ingest
             "timestamp",  # ingest - raw
+            "version",  # ingest
             AliasPath("dataset", "version"),  # library
         )
     )
