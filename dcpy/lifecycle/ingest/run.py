@@ -250,6 +250,7 @@ def ingest(
     *,
     staging_dir: Path = INGEST_STAGING_DIR,
     mode: str | None = None,
+    datasets_filter: list[str] | None = None,
     latest: bool = False,
     push: bool = False,
     output_csv: bool = False,
@@ -296,6 +297,7 @@ def ingest(
         mode=mode,
         output_csv=output_csv,
         run_details=run_details,
+        datasets_filter=datasets_filter,
     )
 
     if push:  ## TODO should probably just always push, but easily have default dev setting to be to "local" datastore
