@@ -9,11 +9,20 @@ agate==1.9.1
     #   dbt-core
     #   dbt-postgres
 altair==6.0.0
-    # via streamlit
+    # via
+    #   marimo
+    #   streamlit
 annotated-types==0.7.0
     # via pydantic
+anyio==4.12.1
+    # via
+    #   httpx
+    #   openai
+    #   starlette
 anywidget==0.9.21
     # via leafmap
+appnope==0.1.4
+    # via ipykernel
 asttokens==3.0.1
     # via stack-data
 attrs==25.4.0
@@ -71,6 +80,8 @@ cachetools==6.2.4
     #   streamlit
 certifi==2025.11.12
     # via
+    #   httpcore
+    #   httpx
     #   pyogrio
     #   pyproj
     #   rasterio
@@ -93,11 +104,13 @@ click==8.3.0
     #   cligj
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   marimo
     #   mercantile
     #   rasterio
     #   sqlfluff
     #   streamlit
     #   typer
+    #   uvicorn
     #   whitebox
 click-plugins==1.1.1.2
     # via rasterio
@@ -170,10 +183,15 @@ diff-cover==10.1.0
     # via sqlfluff
 distlib==0.4.0
     # via virtualenv
+distro==1.9.0
+    # via openai
+docutils==0.22.4
+    # via marimo
 duckdb==1.4.3
     # via
     #   -r requirements.in
     #   leafmap
+    #   marimo
 et-xmlfile==2.0.0
     # via openpyxl
 eval-type-backport==0.3.1
@@ -184,6 +202,8 @@ executing==2.2.1
     # via stack-data
 faker==40.1.0
     # via -r requirements.in
+fastjsonschema==2.21.2
+    # via nbformat
 filelock==3.20.1
     # via
     #   gdown
@@ -242,10 +262,21 @@ graphviz==0.20.3
     #   diagrams
 greenlet==3.3.0
     # via sqlalchemy
+h11==0.16.0
+    # via
+    #   httpcore
+    #   uvicorn
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via openai
 identify==2.6.15
     # via pre-commit
 idna==3.11
-    # via requests
+    # via
+    #   anyio
+    #   httpx
+    #   requests
 ijson==3.4.0.post0
     # via -r requirements.in
 importlib-metadata==8.7.1
@@ -293,8 +324,12 @@ isodate==0.7.2
     #   azure-storage-blob
     #   azure-storage-file-datalake
     #   dbt-common
+itsdangerous==2.2.0
+    # via marimo
 jedi==0.19.2
-    # via ipython
+    # via
+    #   ipython
+    #   marimo
 jellyfish==1.2.1
     # via us
 jinja2==3.1.6
@@ -316,6 +351,8 @@ jinja2==3.1.6
     #   streamlit-folium
 jinja2-simple-tags==0.6.1
     # via sqlfluff-templater-dbt
+jiter==0.12.0
+    # via openai
 jmespath==1.0.1
     # via
     #   boto3
@@ -330,6 +367,7 @@ jsonschema==4.25.1
     #   dbt-common
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   nbformat
     #   pystac
 jsonschema-specifications==2025.9.1
     # via jsonschema
@@ -339,6 +377,7 @@ jupyter-core==5.9.1
     # via
     #   ipykernel
     #   jupyter-client
+    #   nbformat
 jupyter-leaflet==0.20.0
     # via ipyleaflet
 jupyterlab-widgets==3.0.16
@@ -351,12 +390,20 @@ leather==0.4.1
     # via agate
 librt==0.7.5
     # via mypy
+loro==1.10.3
+    # via marimo
 lxml==6.0.2
     # via -r requirements.in
 mapclassify==2.10.0
     # via -r requirements.in
 maplibre==0.3.6
     # via leafmap
+marimo[recommended]==0.19.2
+    # via -r requirements.in
+markdown==3.10
+    # via
+    #   marimo
+    #   pymdown-extensions
 markdown-it-py==4.0.0
     # via rich
 markupsafe==3.0.3
@@ -389,6 +436,8 @@ msal==1.34.0
     # via -r requirements.in
 msgpack==1.1.2
     # via mashumaro
+msgspec==0.20.0
+    # via marimo
 mypy==1.19.1
     # via
     #   -r requirements.in
@@ -403,7 +452,10 @@ mypy-extensions==1.1.0
 narwhals==2.14.0
     # via
     #   altair
+    #   marimo
     #   plotly
+nbformat==5.10.4
+    # via marimo
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.6.1
@@ -432,6 +484,8 @@ numpy==2.3.5
     #   scipy
     #   shapely
     #   streamlit
+openai==2.15.0
+    # via marimo
 openpyxl==3.1.5
     # via
     #   -r requirements.in
@@ -447,6 +501,7 @@ packaging==25.0
     #   geoalchemy2
     #   geopandas
     #   ipykernel
+    #   marimo
     #   matplotlib
     #   pandera
     #   plotly
@@ -499,6 +554,10 @@ pluggy==1.6.0
     #   diff-cover
     #   pytest
     #   pytest-cov
+polars[pyarrow]==1.37.0
+    # via marimo
+polars-runtime-32==1.37.0
+    # via polars
 pre-commit==4.5.1
     # via
     #   -r requirements.in
@@ -520,7 +579,9 @@ protobuf==6.33.2
     #   proto-plus
     #   streamlit
 psutil==7.2.1
-    # via ipykernel
+    # via
+    #   ipykernel
+    #   marimo
 psycopg2-binary==2.9.11
     # via
     #   -r requirements.in
@@ -536,6 +597,7 @@ py-partiql-parser==0.6.3
 pyarrow==22.0.0
     # via
     #   -r requirements.in
+    #   polars
     #   pyarrow-stubs
     #   streamlit
 pyarrow-stubs==20.0.0.20251215
@@ -554,6 +616,7 @@ pydantic==2.12.5
     #   dbt-core
     #   dbt-semantic-interfaces
     #   maplibre
+    #   openai
     #   pandera
     #   pydantic-xml
 pydantic-core==2.41.5
@@ -569,10 +632,13 @@ pygments==2.19.2
     #   diff-cover
     #   ipython
     #   ipython-pygments-lexers
+    #   marimo
     #   pytest
     #   rich
 pyjwt[crypto]==2.10.1
     # via msal
+pymdown-extensions==10.20
+    # via marimo
 pynacl==1.6.1
     # via paramiko
 pyogrio==0.12.1
@@ -635,8 +701,10 @@ pyyaml==6.0.3
     #   -r requirements.in
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   marimo
     #   moto
     #   pre-commit
+    #   pymdown-extensions
     #   responses
     #   sqlfluff
 pyzmq==27.1.0
@@ -681,7 +749,9 @@ rpds-py==0.30.0
 rsa==4.9.1
     # via google-auth
 ruff==0.14.10
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   marimo
 s3transfer==0.16.0
     # via boto3
 scikit-learn==1.8.0
@@ -702,6 +772,8 @@ six==1.17.0
     # via python-dateutil
 smmap==5.0.2
     # via gitdb
+sniffio==1.3.1
+    # via openai
 snowplow-tracker==1.1.0
     # via dbt-core
 socrata-py==1.1.13
@@ -720,10 +792,16 @@ sqlfluff==3.5.0
     #   sqlfluff-templater-dbt
 sqlfluff-templater-dbt==3.5.0
     # via -r requirements.in
+sqlglot[rs]==28.5.0
+    # via marimo
+sqlglotrs==0.10.0
+    # via sqlglot
 sqlparse==0.5.4
     # via dbt-core
 stack-data==0.6.3
     # via ipython
+starlette==0.51.0
+    # via marimo
 streamlit==1.52.2
     # via
     #   -r requirements.in
@@ -745,6 +823,8 @@ threadpoolctl==3.6.0
     # via scikit-learn
 toml==0.10.2
     # via streamlit
+tomlkit==0.13.3
+    # via marimo
 tornado==6.5.4
     # via
     #   ipykernel
@@ -754,6 +834,7 @@ tqdm==4.67.1
     # via
     #   -r requirements.in
     #   gdown
+    #   openai
     #   sqlfluff
 traitlets==5.14.3
     # via
@@ -764,6 +845,7 @@ traitlets==5.14.3
     #   jupyter-client
     #   jupyter-core
     #   matplotlib-inline
+    #   nbformat
     #   traittypes
 traittypes==0.2.3
     # via
@@ -815,6 +897,7 @@ typing-extensions==4.15.0
     #   dbt-semantic-interfaces
     #   mashumaro
     #   mypy
+    #   openai
     #   openpyxl-stubs
     #   pandera
     #   pydantic
@@ -848,12 +931,14 @@ usaddress==0.5.16
     # via -r requirements.in
 uv==0.9.21
     # via -r requirements.in
+uvicorn==0.40.0
+    # via marimo
 virtualenv==20.35.4
     # via pre-commit
-watchdog==6.0.0
-    # via streamlit
 wcwidth==0.2.14
     # via prompt-toolkit
+websockets==16.0
+    # via marimo
 werkzeug==3.1.4
     # via moto
 whitebox==2.3.6
