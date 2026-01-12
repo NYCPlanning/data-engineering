@@ -105,4 +105,5 @@ SET
     END
 WHERE borough IS NULL;
 
+UPDATE _kpdb SET geom = ST_SETSRID(geom, 4326);
 ALTER TABLE _kpdb RENAME COLUMN geom TO geometry;
