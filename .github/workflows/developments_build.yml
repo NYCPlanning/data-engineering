@@ -84,4 +84,4 @@ jobs:
         run: ./bash/05_export.sh
 
       - name: Upload
-        run: python -m dcpy.connectors.edm.publishing upload -p db-developments -a public-read
+        run: dcpy lifecycle builds artifacts builds upload --product db-developments --a cl public-read

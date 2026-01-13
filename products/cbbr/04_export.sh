@@ -35,6 +35,6 @@ cd ..
 
 echo "Upload Output to DigitalOcean" 
 
-python3 -m dcpy.connectors.edm.publishing upload -p db-cbbr -a public-read
+dcpy lifecycle builds artifacts builds upload -p db-cbbr -a public-read
 
 echo "Done!"
