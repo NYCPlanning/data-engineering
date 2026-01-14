@@ -119,16 +119,6 @@ function get_version {
 }
 
 
-function create_source_data_table {
-    run_sql_command \
-        "DROP TABLE IF EXISTS source_data_versions;
-        CREATE TABLE source_data_versions (
-            schema_name character varying,
-            v character varying
-        );"
-}
-
-
 function import_recipe {
     local name=${1}
     local version=${2:-latest}
