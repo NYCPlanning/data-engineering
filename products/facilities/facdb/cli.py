@@ -85,17 +85,28 @@ def _cli_run_pipelines(
 ):
     """ """
     datasets = read_datasets_yml()
-    for name in [dataset["name"] for dataset in datasets]:
-        dataset = next(filter(lambda x: x["name"] == name, datasets), None)
-        scripts = dataset.get("scripts") if dataset is not None else []
+    dataset_names = [d["name"] for d in datasets]
 
-        if scripts:
-            for script in scripts:
-                postgres.execute_file_via_shell(
-                    BUILD_ENGINE, SQL_PATH / "pipelines" / script
-                )
+    target_names = [name] if name else dataset_names
+    if name and name not in dataset_names:
+        typer.echo(
+            typer.style(
+                f"ERROR: dataset name {name} not found in datasets yml",
+                fg=typer.colors.RED,
+            )
+        )
+        raise typer.Exit(code=1)
 
-        typer.echo(typer.style(f"SUCCESS: {name}", fg=typer.colors.GREEN))
+    for dataset_name in target_names:
+        dataset = next((d for d in datasets if d["name"] == dataset_name), None)
+        scripts = dataset.get("scripts", []) if dataset is not None else []
+
+        for script in scripts:
+            postgres.execute_file_via_shell(
+                BUILD_ENGINE, SQL_PATH / "pipelines" / script
+            )
+
+        typer.echo(typer.style(f"SUCCESS: {dataset_name}", fg=typer.colors.GREEN))
     dump_metadata()
 
 
