@@ -6,6 +6,7 @@ dependencies = [
     "dagster==1.12.9",
     "dagster-dbt>=0.28.9",
     "dbt-duckdb>=1.10.0",
+    "dbt-postgres>=1.10.0",
 ]
 
 [dependency-groups]

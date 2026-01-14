@@ -13,7 +13,9 @@ uv add dagster-dbt dbt-duckdb
 dg --version
 ```
 
-## XXX
+## Usage
+
+### Example projects
 
 ```bash
 export DAGSTER_HOME="$(pwd)"/.dagster_home
@@ -28,6 +30,20 @@ dg check defs
 dg list defs
 
 # start local Dagster instance
+dg dev
+```
+
+### Template DB
+
+```bash
+# add postgres dbt adapter
+uv add dbt-postgres
+
+# set dummy values for all envars used in products/template/profiles.yml
+export BUILD_ENGINE_HOST="local_dev_value" BUILD_ENGINE_USER="local_dev_value" BUILD_ENGINE_PASSWORD="local_dev_value" BUILD_ENGINE_PORT=12345 BUILD_ENGINE_DB="local_dev_value" BUILD_ENGINE_SCHEMA="local_dev_value"
+
+# validate and use Template DB asset definitions
+dg check defs
 dg dev
 ```
 
