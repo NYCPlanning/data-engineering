@@ -63,8 +63,8 @@ SELECT
     sequence_number,
     segmentid,
     field,
-    jsonb_values -> 'dev' AS dev,
-    jsonb_values -> 'prod' AS prod
+    jsonb_values -> 'dev' #>> '{}' AS dev,
+    jsonb_values -> 'prod' #>> '{}' AS prod
 FROM recast
 WHERE jsonb_values -> 'match' IS DISTINCT FROM 'true'
 ORDER BY borough, face_code, sequence_number
