@@ -154,6 +154,8 @@ def test_write_shapefile_xml_metadata(
     assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
+    assert product_md.columns[1].values is not None, "Column values must be defined"
+
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
         == product_md.columns[1].values[0].value
@@ -162,6 +164,3 @@ def test_write_shapefile_xml_metadata(
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
         == product_md.columns[1].values[0].description
     )
-    from rich.pretty import pprint as rprint
-
-    rprint(type(product_md.columns[1].values))
