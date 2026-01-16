@@ -3,6 +3,7 @@ import json
 import os
 import pandas as pd
 from pathlib import Path
+import subprocess
 import typer
 
 from dcpy.lifecycle import config
@@ -58,6 +59,25 @@ def _get_preprocessor(ds: InputDataset):
         return identity
 
 
+def _load_df(
+    df: pd.DataFrame,
+    ds_table_name: str,
+    pg_client: postgres.PostgresClient,
+    include_ogc_fid_col: bool = True,
+):
+    # make column names more sql-friendly
+    columns = {
+        column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
+        for column in df.columns
+    }
+    df.rename(columns=columns, inplace=True)
+    pg_client.insert_dataframe(df, ds_table_name)
+
+    if include_ogc_fid_col:
+        # This maybe should be applicable to pg_dumps, but they tend to have this column already
+        pg_client.add_pk(ds_table_name, "ogc_fid")
+
+
 def load_dataset_into_pg(
     ds: InputDataset,
     pg_client: postgres.PostgresClient,
@@ -69,25 +89,52 @@ def load_dataset_into_pg(
     has_preprocessor = ds.preprocessor is not None
     preprocessor = _get_preprocessor(ds)
     ds_table_name = ds.import_as or ds.id
-
-    if ds.file_type == DatasetType.pg_dump:
-        if has_preprocessor:
-            logger.warning(
-                "A preprocessor is defined for a pg_dump type. However, preprocessors cannot be applied to pg_dump datasets."
+    engine = ds.load_engine or "pandas"
+    match engine, ds.file_type:
+        case _, DatasetType.pg_dump:
+            logger.info(f"DatasetType pg_dump specified, ignoring engine '{engine}'")
+            if has_preprocessor:
+                logger.warning(
+                    "A preprocessor is defined for a pg_dump type. However, preprocessors cannot be applied to pg_dump datasets."
+                )
+            pg_client.import_pg_dump(
+                local_dataset_path,
+                pg_dump_table_name=ds.id,
+                target_table_name=ds_table_name,
             )
-        pg_client.import_pg_dump(
-            local_dataset_path,
-            pg_dump_table_name=ds.id,
-            target_table_name=ds_table_name,
-        )
-    else:
-        if ds.file_type == DatasetType.csv:
+        case "gdal", _:
+            command = " ".join(
+                [
+                    "ogr2ogr",
+                    "-f",
+                    "PostgreSQL",
+                    'PG:"host=$BUILD_ENGINE_HOST port=$BUILD_ENGINE_PORT user=$BUILD_ENGINE_USER password=$BUILD_ENGINE_PASSWORD dbname=$BUILD_ENGINE_DB"',
+                    f'"{local_dataset_path}"',
+                    ds.custom["layer_name"],
+                    "-nln",
+                    f'"{pg_client.schema}"."{ds_table_name.lower()}"',
+                    "-nlt",
+                    "geometry",
+                    "-lco",
+                    "GEOMETRY_NAME=geom",
+                    "-lco",
+                    "FID=ogc_fid",
+                    "-overwrite",
+                ]
+            )
+
+            # process = subprocess.list2cmdline(command)
+            # print(f"Command to be executed (list): {process}")
+            subprocess.check_call(command, shell=True)
+        case "pandas", DatasetType.csv:
             raw_df = pd.read_csv(local_dataset_path, dtype=str)
             df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
-        elif ds.file_type == DatasetType.parquet:
+            _load_df(df, ds_table_name, pg_client, include_ogc_fid_col)
+        case "pandas", DatasetType.parquet:
             raw_df = geoparquet.read_df(local_dataset_path)
             df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
-        elif ds.file_type == DatasetType.json:
+            _load_df(df, ds_table_name, pg_client, include_ogc_fid_col)
+        case "pandas", DatasetType.json:
             with open(local_dataset_path, "r") as json_file:
                 records = json.load(json_file)
 
@@ -98,20 +145,9 @@ def load_dataset_into_pg(
                 df = pd.DataFrame(records)
             else:
                 df = preprocessor(ds.id, records)
-        else:
+            _load_df(df, ds_table_name, pg_client, include_ogc_fid_col)
+        case "pandas", _:
             raise Exception(f"Invalid file_type for {ds.id}: {ds.file_type}")
-
-        # make column names more sql-friendly
-        columns = {
-            column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
-            for column in df.columns
-        }
-        df.rename(columns=columns, inplace=True)
-        pg_client.insert_dataframe(df, ds_table_name)
-
-        if include_ogc_fid_col:
-            # This maybe should be applicable to pg_dumps, but they tend to have this column already
-            pg_client.add_pk(ds_table_name, "ogc_fid")
 
     if include_version_col:
         pg_client.add_table_column(

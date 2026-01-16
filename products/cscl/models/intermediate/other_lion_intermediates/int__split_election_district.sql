@@ -21,7 +21,7 @@ SELECT
     CASE
         -- staging table has validation that only valid values are '1' and '2'
         -- cases are then both, all 1, all 2, or none
-        WHEN ARRAY['1', '2'] <@ sedat_sides THEN 'B'
+        WHEN '1' = any(sedat_sides) AND '2' = any(sedat_sides) THEN 'B'
         WHEN '1' = any(sedat_sides) THEN 'L'
         WHEN '2' = any(sedat_sides) THEN 'R'
     END AS split_election_district_flag

@@ -52,11 +52,18 @@ def _cli_process_datasets(
     output_csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
+    datasets_filter: list[str] = typer.Option(
+        None,
+        "--datasets",
+        "-D",
+        help="Specific datasets to ingest within a source-centric definition",
+    ),
 ):
     return run.process_datasets(
         staging_dir=staging_dir,
         mode=mode,
         output_csv=output_csv,
+        datasets_filter=datasets_filter,
     )
 
 
@@ -113,11 +120,18 @@ def _cli_wrapper_run(
         "--overwrite",
         help="If existing version found, overwrite. This should be phased out, but is needed to support ZTL workflow",
     ),
+    datasets_filter: list[str] = typer.Option(
+        None,
+        "--datasets",
+        "-D",
+        help="Specific datasets to ingest within a source-centric definition",
+    ),
 ):
     run.ingest(
         dataset_id,
         version,
         mode=mode,
+        datasets_filter=datasets_filter,
         latest=latest,
         push=push,
         output_csv=csv,

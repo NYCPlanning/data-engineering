@@ -110,11 +110,12 @@ def _test_connector_interface(conn: Connector, tmp_path):
     found_paths = set()
     expected_paths = set()
     for ds, v, ft in expected_dataset_files:
-        expected_path = tmp_path / "other_folder" / ds / v / f"{ds}.{ft}"
+        output_folder = tmp_path / "other_folder" / ds / v
+        expected_path = output_folder / f"{ds}.{ft.to_extension()}"
         expected_paths.add(expected_path)
 
         actual_path = conn.pull_versioned(
-            ds, version=v, file_type=ft, destination_path=expected_path
+            ds, version=v, file_type=ft, destination_path=output_folder
         ).get("path")
         found_paths.add(actual_path)
     assert expected_paths == found_paths, "The pulled paths should be correct"

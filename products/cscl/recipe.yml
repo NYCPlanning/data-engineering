@@ -3,54 +3,123 @@ product: cscl
 version: 25d
 
 inputs:
+  dataset_defaults:
+    destination: postgres
+    file_type: gdb
+    source: edm.recipes.raw_datasets
+    load_engine: gdal
+  missing_versions_strategy: find_latest # TODO - they should all match
   datasets:
   # segment source layers - backbone
-  - name: dcp_cscl_centerline
-    version_env_var: VERSION
-  - name: dcp_cscl_shoreline
-    version_env_var: VERSION
-  - name: dcp_cscl_rail
-    version_env_var: VERSION
-  - name: dcp_cscl_subway
-    version_env_var: VERSION
-  - name: dcp_cscl_nonstreetfeatures
-    version_env_var: VERSION
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_centerline
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Centerline
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_shoreline
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Shoreline
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_rail
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Rail
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_subway
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Subway
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nonstreetfeatures
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NonStreetFeature
 
   # other more "primary" layers
-  - name: dcp_cscl_atomicpolygons
-    version_env_var: VERSION
-  - name: dcp_cscl_nodes
-    version_env_var: VERSION
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_atomicpolygons
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: AtomicPolygon
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nodes
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Node
 
   # all other tables
-  - name: dcp_cscl_addresspoints
-    version_env_var: VERSION
-  - name: dcp_cscl_addresspoint_lgcs
-    version_env_var: VERSION
-  - name: dcp_cscl_altsegmentdata
-    version_env_var: VERSION
-  - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
-    version_env_var: VERSION
-  - name: dcp_cscl_featurename
-    version_env_var: VERSION
-  - name: dcp_cscl_namedintersection
-    version_env_var: VERSION
-  - name: dcp_cscl_nypdbeat
-    version_env_var: VERSION
-  - name: dcp_cscl_roadbed_pointer_list
-    version_env_var: VERSION
-  - name: dcp_cscl_sectionalmap
-    version_env_var: VERSION
-  - name: dcp_cscl_sedat
-    version_env_var: VERSION
-  - name: dcp_cscl_segment_lgc
-    version_env_var: VERSION
-  - name: dcp_cscl_specialsedat
-    version_env_var: VERSION
-  - name: dcp_cscl_streetname
-    version_env_var: VERSION
-  - name: dcp_cscl_zipcode
-    version_env_var: VERSION
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_addresspoints
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: AddressPoint
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_addresspoint_lgcs
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: ADDRESSPOINTLGCS
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_altsegmentdata
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: ALTSEGMENTDATA
+  - name: dcp_cscl_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
+    import_as: dcp_cscl_commonplace_gdb
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CommonPlace
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_featurename
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: FEATURENAME
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_namedintersection
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NAMEDINTERSECTION
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nypdbeat
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NYPDBeat
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_roadbed_pointer_list
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: RoadbedPointerList
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_sectionalmap
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: SectionalMap
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_sedat
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: SEDAT
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_segment_lgc
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: SEGMENT_LGC
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_specialsedat
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: SPECIALSEDAT
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_streetname
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: STREETNAME
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_zipcode
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: ZipCode
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:

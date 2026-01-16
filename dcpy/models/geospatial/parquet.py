@@ -13,7 +13,7 @@ class CrsId(BaseModel, extra="forbid"):
     uri: str | None = None
 
     @property
-    def str(self):
+    def authority_string(self):
         return f"{self.authority}:{self.code}"
 
 
@@ -40,7 +40,7 @@ class Columns(BaseModel, extra="ignore"):
 
     @property
     def crs_string(self):
-        return self.crs.id.str
+        return self.crs.id.authority_string
 
 
 class GeoParquet(BaseModel, extra="forbid"):

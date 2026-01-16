@@ -194,6 +194,7 @@ def _apply_recipe_defaults(recipe: Recipe):
         ds.file_type = ds.file_type or recipe.inputs.dataset_defaults.file_type
         ds.destination = ds.destination or recipe.inputs.dataset_defaults.destination
         ds.source = ds.source or recipe.inputs.dataset_defaults.source
+        ds.load_engine = ds.load_engine or recipe.inputs.dataset_defaults.load_engine
 
 
 def recipe_from_yaml(path: Path) -> Recipe:
