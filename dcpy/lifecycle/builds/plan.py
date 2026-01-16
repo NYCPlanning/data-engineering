@@ -118,11 +118,10 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         if recipe.base_recipe is not None
         else None
     )
-
-    input_dataset_names = {d.id for d in recipe.inputs.datasets}
+    input_dataset_ids = {d.id for d in recipe.inputs.datasets}
     if base_recipe is not None:
         for base_ds in base_recipe.inputs.datasets:
-            if base_ds.id not in input_dataset_names:
+            if base_ds.id not in input_dataset_ids:
                 recipe.inputs.datasets.append(base_ds)
 
     # Fill in omitted versions
@@ -136,6 +135,9 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         ).to_dict()["version"]
 
     for ds in recipe.inputs.datasets:
+        assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
+        connector = connectors[ds.source]
+
         if ds.version is None:
             if ds.version_env_var is not None:
                 version = os.getenv(ds.version_env_var)
@@ -153,19 +155,21 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 ds.version = "latest"
 
         if ds.version == "latest":
-            assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
-            connector = connectors[ds.source]
             logger.info(f"Querying versions for {connector.conn_type}")
             ds.version = connector.get_latest_version(ds.id)
 
-    # Determine the recipe file type
-    for ds in recipe.inputs.datasets:
-        if (
-            ds.source == "edm.recipes.datasets"
-        ):  # Hack for now, to accomodate existing file types
+        # Get input dataset details
+        if ds.source == "edm.recipes.datasets":
+            # Determine the file type
+            # Hack for now, to accommodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
                 ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
             )
+            # Determine the dataset name
+            assert connector.conn_type in ("ingest_datastore", "edm.recipes.datasets"), (
+                f"Cannot get dataset name from connector type '{connector.conn_type}'"
+            )
+            ds.name = connector.get_name(ds.id, ds.version)  # type: ignore
 
     # Resolve any unresolved conf values (e.g. from the environment)
     for conf in recipe.get_unresolved_stage_config_values():
@@ -178,10 +182,10 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
     return recipe
 
 
-def get_source_data_versions(recipe: Recipe):
-    """Get source data versions table in form of [schema_name, v, file_type]."""
-    return [["schema_name", "v", "file_type"]] + [
-        [d.id, d.version, d.file_type] for d in recipe.inputs.datasets
+def get_source_data_versions(recipe: Recipe) -> list[list]:
+    """Get source data versions table as lists for the header and each row."""
+    return [["dataset_id", "dataset_name", "version", "file_type"]] + [
+        [d.id, d.name, d.version, d.file_type] for d in recipe.inputs.datasets
     ]
 
 
@@ -226,8 +230,10 @@ def write_source_data_versions(recipe_file: Path):
     source_data_versions_path = recipe_file.parent / "source_data_versions.csv"
     logger.info(f"Writing source data versions to {source_data_versions_path}")
 
-    sdv = get_source_data_versions(recipe)
-    unresolved_versions = [[s, v, f] for s, v, f in sdv if v == "latest"]
+    datasets_details = get_source_data_versions(recipe)
+    unresolved_versions = [
+        [s, n, v, f] for s, n, v, f in datasets_details if v == "latest"
+    ]
     if len(unresolved_versions) > 0:
         exception = (
             "Recipe has unresolved versions! Can't write source "
@@ -238,8 +244,8 @@ def write_source_data_versions(recipe_file: Path):
 
     with open(source_data_versions_path, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        for s, v, f in sdv:
-            writer.writerow([s, v, f])
+        for dataset_details in datasets_details:
+            writer.writerow(dataset_details)
 
 
 def repeat_recipe_from_source_data_versions(

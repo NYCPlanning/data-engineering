@@ -26,7 +26,7 @@ recipe_versions AS (
         datasets_indexed.geometry_type,
         datasets_indexed.source_url
     FROM datasets_indexed
-    LEFT JOIN source_data_versions ON datasets_indexed.dataset_id = source_data_versions.schema_name
+    LEFT JOIN source_data_versions ON datasets_indexed.dataset_id = source_data_versions.dataset_id
     ORDER BY row_number ASC
 )
 
