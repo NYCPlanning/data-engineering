@@ -1,17 +1,23 @@
 # TODO: Move this to a utils shapefile module.
 
 
-from pathlib import Path
-import typer
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
+import typer
+
+from dcpy.lifecycle import product_metadata
 from dcpy.models.product.dataset.metadata import (
-    Metadata,
+    COLUMN_TYPES,
+    ColumnValue,
     DatasetAttributes,
     DatasetColumn,
-    ColumnValue,
-    COLUMN_TYPES,
+    Metadata,
 )
+from dcpy.models.data.shapefile_metadata import Attr, Edom
+from dcpy.models.product.metadata import OrgMetadata
+from dcpy.utils.geospatial import shapefile as shp_utils
+from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
 
 _shapefile_to_dcpy_types: dict[str, COLUMN_TYPES] = {
@@ -128,3 +134,94 @@ def _write_metadata(
     out_path = output_path or Path("./metadata.yml")
     parse_shapefile_metadata(shp_xml_path).write_to_yaml(out_path)
     logger.info(f"Wrote metadata to {out_path}")
+
+
+@app.command("write_metadata")
+def _write_shapefile_xml_metadata(
+    org_md_path: Path,  # Should this be optional if the underlying arg is optional?
+    product_name: str,
+    dataset_name: str,
+    path: Path,
+    shp_name: str,
+    zip_subdir: str | None = typer.Option(
+        None,
+        "--zip-subdir",
+        help="Directory structure within zip file, if relevant",
+    ),
+):
+    org_md = OrgMetadata.from_path(org_md_path)
+
+    write_shapefile_xml_metadata(
+        product_name=product_name,
+        dataset_name=dataset_name,
+        path=path,
+        shp_name=shp_name,
+        zip_subdir=zip_subdir,
+        org_md=org_md,
+    )
+    logger.info(f"Wrote metadata to {shp_name} in {path}")
+
+
+# TODO - decide whether to automatically detect zip files or not at this level
+def write_shapefile_xml_metadata(
+    product_name: str,
+    dataset_name: str,
+    path: Path,
+    shp_name: str,
+    zip_subdir: str | None,
+    org_md: OrgMetadata | None,
+):
+    org_md = org_md or product_metadata.load()
+    product_md = org_md.product(product_name).dataset(dataset_name)
+
+    metadata = shp_utils.generate_metadata()
+
+    # Set dataset-level values
+    metadata.md_hr_lv_name = product_md.attributes.display_name
+    metadata.data_id_info.id_abs = product_md.attributes.description
+    metadata.data_id_info.other_keys.keyword = product_md.attributes.tags
+    metadata.data_id_info.search_keys.keyword = product_md.attributes.tags
+
+    metadata.eainfo.detailed.name = product_md.id
+    metadata.eainfo.detailed.enttyp.enttypl.value = product_md.id
+    metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
+
+    # Build attribute metadata for each column
+    metadata.eainfo.detailed.attr = [
+        _create_attr_metadata(column) for column in product_md.columns
+    ]
+
+    shp = Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
+    shp.write_metadata(metadata, overwrite=True)
+
+
+def _create_attr_metadata(column: DatasetColumn) -> Attr:
+    """Create an Attr metadata object from a column specification."""
+    attr = Attr()
+
+    attr.attrlabl.value = "FID" if column.id == "uid" else column.id
+    attr.attalias.value = "FID" if column.name == "uid" else column.name
+    attr.attrdef.value = column.description
+
+    # Uncomment as needed:
+    # attr.attrtype.value = column.data_type
+    # attr.attwidth.value = None
+    # attr.atprecis.value = None
+    # attr.attscale.value = None
+    # attr.attrdefs.value = ""
+
+    # Handle domain values if present
+    if hasattr(column, "values") and column.values:
+        attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
+
+    # TODO: handle 'attrdomv.udom', and other esri value defaults
+    return attr
+
+
+def _create_edom_metadata(column_value: ColumnValue) -> Edom:
+    """Create an Edom metadata object from a column value specification."""
+    edom = Edom()
+    edom.edomv = column_value.value
+    edom.edomvd = column_value.description
+
+    return edom

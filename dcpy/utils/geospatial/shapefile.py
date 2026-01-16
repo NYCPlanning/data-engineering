@@ -6,8 +6,6 @@ from dcpy.models.data.shapefile_metadata import (
     Metadata,
     Esri,
     Mddatest,
-    Mdhrlv,
-    Scopecd,
     Scalerange,
 )
 
@@ -77,6 +75,7 @@ class _FileManagerZipped:
         os.replace(temp_zip, self.zip_path)
 
 
+# TODO - ensure that .write_metadata() includes "<?xml version="1.0"?>" at top of file
 class Shapefile:
     def __init__(
         self,
@@ -133,7 +132,8 @@ class Shapefile:
         if overwrite:
             self.remove_metadata()
 
-        md = str(metadata.to_xml())
+        xml_data = metadata.to_xml()
+        md = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
 
         self.file_manager.write_file(filename=f"{self.name}.xml", contents=md)
 
@@ -147,7 +147,8 @@ class Shapefile:
 
     def remove_metadata(self):
         """Removes existing metadata file from shapefile."""
-        self.file_manager.remove_file(f"{self.name}.xml")
+        if self.metadata_exists():
+            self.file_manager.remove_file(f"{self.name}.xml")
 
     def generate_metadata(self) -> Metadata:
         """Generates a default Esri metadata object"""
@@ -172,155 +173,48 @@ def from_path(
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
 
 
+def _get_esri_timestamp(dt_obj=None):
+    """
+    Generate Esri-style CreaDate and CreaTime values.
+
+    Args:
+        dt_obj: datetime object (uses current time if None)
+
+    Returns:
+        tuple: (CreaDate, CreaTime) as strings
+    """
+    if dt_obj is None:
+        dt_obj = datetime.now()
+
+    # CreaDate: YYYYMMDD
+    crea_date = dt_obj.strftime("%Y%m%d")
+
+    # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
+    hundredths = 0  # Esri appears to ignore the hundredths in practice
+    crea_time = (
+        f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
+    )
+
+    return crea_date, crea_time
+
+
 def generate_metadata() -> Metadata:
-    """Generates a default Esri metadata object"""
-
-    def _get_esri_timestamp(dt_obj=None):
-        """
-        Generate Esri-style CreaDate and CreaTime values.
-
-        Args:
-            dt_obj: datetime object (uses current time if None)
-
-        Returns:
-            tuple: (CreaDate, CreaTime) as strings
-        """
-        if dt_obj is None:
-            dt_obj = datetime.now()
-
-        # CreaDate: YYYYMMDD
-        crea_date = dt_obj.strftime("%Y%m%d")
-
-        # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
-        hundredths = 0  # Esri appears to ignore the hundredths in practice
-        crea_time = (
-            f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
-        )
-
-        return crea_date, crea_time
-
-    datestamp, timestamp = _get_esri_timestamp()
+    """
+    Generates a default Esri metadata object.
+    Can be generated as an independent object without an existing spatial dataset.
+    """
+    esri_datestamp, esri_timestamp = _get_esri_timestamp()
     md_date_st = Mddatest(
-        sync="TRUE",
-        value=datestamp,
+        value=esri_datestamp,
     )
-    scale_range = Scalerange(
-        min_scale="150000000",
-        max_scale="5000",
-    )
+    scale_range = Scalerange()
     esri = Esri(
-        crea_date=datestamp,
-        crea_time=timestamp,
-        arc_gis_format="1.0",
-        sync_once="TRUE",
+        crea_date=esri_datestamp,
+        crea_time=esri_timestamp,
         scale_range=scale_range,
-        arc_gis_profile="ISO19139",
     )
     metadata = Metadata(
-        lang="en",
         esri=esri,
-        md_hr_lv=Mdhrlv(scope_cd=Scopecd(value="005")),
         md_date_st=md_date_st,
     )
     return metadata
-
-
-# def _validate_shp_input(shp_string: str | Path) -> None:
-#     """Ensure the input string conforms to the required format:
-#     Format if zip file: 'zip://path/to/file.zip!shapefile.shp'
-#     Format if not zip file: 'path/to/shapefile.shp'
-
-#     Args:
-#         shp_string (str | Path): Path to shapefile
-
-#     Raises:
-#         ValueError: Indicates when input does not conform to required format
-#     """
-#     shp_string = str(shp_string)
-#     if not shp_string.endswith(".shp"):
-#         raise ValueError("Filename must end with '.shp'")
-
-#     has_zip_prefix = shp_string.startswith("zip://")
-#     has_zip_suffix = ".zip!" in shp_string
-#     contains_zip = ".zip" in shp_string
-
-#     # Check for valid zip format: must have both prefix and suffix
-#     if has_zip_prefix and not has_zip_suffix:
-#         raise ValueError("Zip path format incomplete: missing '.zip!' suffix")
-
-#     # Check for invalid zip format: has .zip but incorrect structure
-#     if contains_zip and not (has_zip_prefix and has_zip_suffix):
-#         raise ValueError(
-#             "Invalid zip path format. Expected format: 'zip://path/to/file.zip!shapefile.shp'"
-#         )
-
-
-# def _parse_path_to_shp(path_to_shp: str | Path) -> dict:
-#     """
-#     Takes path to shapefile (shp) and returns relevant information, such as:
-#         - shp name
-#         - whether the shp is in a zip file
-#         - path to zip file (if it exists)
-#         - path to shp (starting at top level within zip, or complete path if no zip exists.)
-
-#     Args:
-#         path_to_shp (str):
-#             - Path to shapefile - must end in ".shp"
-#             - If shp is in a zip file: arg must be prefixed with "zip://"
-#             - If shp is in a zip file: zip file to contents must be delimited by "!"
-#             - example with zip file: "zip://path/to/file.zip!shapefile.shp"
-#             - example without zip file: "path/to/shapefile.shp"
-
-#     Returns:
-#         Shapefile | ShapefileZipped: Dataclasses with relevant fields
-#         (see class definitions for details.)
-#     """
-
-#     path_to_shp = str(path_to_shp)
-
-#     _validate_shp_input(path_to_shp)
-
-#     output = {
-#         "name": str,
-#         "is_zipped": bool,
-#         "shp_dir": Path | None,
-#         "zip_path": Path | None,
-#         "zip_subdir": str | None,
-#     }
-
-#     zip_indicator = "zip://"
-#     end_of_zip_delimiter = ".zip!"
-
-#     zip_subdir = None
-
-#     if path_to_shp.startswith(zip_indicator):
-#         start_path_idx = len(zip_indicator)
-
-#         # Get zip path -------------------------
-#         # TODO - remove conditional here - redundant when we're running validator func already
-#         if end_of_zip_delimiter in path_to_shp:
-#             end_of_zip_idx = path_to_shp.find(end_of_zip_delimiter) + (
-#                 len(end_of_zip_delimiter) - 1
-#             )
-
-#             zip_path = path_to_shp[start_path_idx:end_of_zip_idx]
-
-#         # Get sub directory --------------------
-#         path_in_zip_to_shp = Path(path_to_shp[end_of_zip_idx + 1 :])
-#         if len(path_in_zip_to_shp.parts) > 1:
-#             zip_subdir = str(path_in_zip_to_shp.parent)
-
-#         output["name"] = path_in_zip_to_shp.name
-#         output["is_zipped"] = True
-#         output["shp_dir"] = None
-#         output["zip_path"] = zip_path
-#         output["zip_subdir"] = zip_subdir
-
-#     else:
-#         output["name"] = Path(path_to_shp).name
-#         output["is_zipped"] = False
-#         output["shp_dir"] = Path(path_to_shp).parent
-#         output["zip_path"] = None
-#         output["zip_subdir"] = None
-
-#     return output
