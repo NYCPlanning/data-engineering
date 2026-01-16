@@ -1,16 +1,18 @@
-from cloudpathlib.azure import AzureBlobClient
-from cloudpathlib import S3Client, CloudPath
-from dataclasses import dataclass
-from enum import Enum
 import logging as default_logging
 import os
-from pathlib import Path
 import shutil
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 from typing import Any, NotRequired, TypedDict, Unpack
 
+from cloudpathlib import CloudPath, S3Client
+from cloudpathlib.azure import AzureBlobClient
+
 from dcpy.configuration import DEFAULT_S3_URL
-from dcpy.utils.logging import logger
+from dcpy.connectors.chain import ResourceMixin
 from dcpy.connectors.registry import Connector
+from dcpy.utils.logging import logger
 
 default_logging.getLogger("azure").setLevel(
     "ERROR"
@@ -187,7 +189,7 @@ class HybridPathedStorage:
         return f"{self.storage_type.value}://{self.root_path}"
 
 
-class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
+class PathedStorageConnector(Connector, ResourceMixin, arbitrary_types_allowed=True):
     """Connector where all the keys are expected to be stringified relative paths.
 
     In theory they all work the same across all providers (s3, azure, localstorage, etc.) provided
@@ -312,3 +314,98 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
         if not folder.exists() or not folder.is_dir():
             return []
         return [f.name for f in folder.iterdir() if f.is_dir()]
+
+    def can_optimize_transfer_to(self, other_connector: "Connector") -> bool:
+        """Check if we can optimize transfer to another PathedStorageConnector on same cloud."""
+        if not isinstance(other_connector, PathedStorageConnector):
+            return False
+
+        # Check if both use the same cloud storage backend
+        self_storage = self.storage
+        other_storage = other_connector.storage
+
+        # Same local storage (both local paths)
+        if (
+            self_storage.storage_type == StorageType.LOCAL
+            and other_storage.storage_type == StorageType.LOCAL
+        ):
+            return True
+
+        # Same S3 bucket
+        if (
+            self_storage.storage_type == StorageType.S3
+            and other_storage.storage_type == StorageType.S3
+        ):
+            # Extract bucket names from root paths for comparison
+            self_bucket = (
+                str(self_storage.root_path).split("/")[0]
+                if self_storage.root_path
+                else None
+            )
+            other_bucket = (
+                str(other_storage.root_path).split("/")[0]
+                if other_storage.root_path
+                else None
+            )
+            return self_bucket == other_bucket
+
+        # Same Azure container
+        if (
+            self_storage.storage_type == StorageType.AZURE
+            and other_storage.storage_type == StorageType.AZURE
+        ):
+            # Extract container names from root paths for comparison
+            self_container = (
+                str(self_storage.root_path).split("/")[0]
+                if self_storage.root_path
+                else None
+            )
+            other_container = (
+                str(other_storage.root_path).split("/")[0]
+                if other_storage.root_path
+                else None
+            )
+            return self_container == other_container
+
+        return False
+
+    def optimized_transfer_to(
+        self, dest_connector: "Connector", source_spec: dict, dest_spec: dict
+    ) -> None:
+        """Execute optimized transfer using cloud provider's native copy operations."""
+        if not isinstance(dest_connector, PathedStorageConnector):
+            raise ValueError(
+                "Can only optimize transfers to other PathedStorageConnectors"
+            )
+
+        # Build source and destination paths
+        source_path = self._build_path(**source_spec)
+        dest_path = dest_connector._build_path(**dest_spec)
+
+        logger.info(
+            f"Optimized transfer: {self.storage.root_path / source_path} -> {dest_connector.storage.root_path / dest_path}"
+        )
+
+        # Use cloud storage's native copy method
+        full_source_path = self.storage.root_path / source_path
+        full_dest_path = dest_connector.storage.root_path / dest_path
+
+        # For directories, use copytree; for files, use copy
+        if full_source_path.is_dir():
+            full_source_path.copytree(full_dest_path)
+        else:
+            # Ensure destination parent directory exists
+            full_dest_path.parent.mkdir(parents=True, exist_ok=True)
+            full_source_path.copy(full_dest_path)
+
+        # Apply any additional metadata/ACL settings
+        if "acl" in dest_spec and hasattr(dest_connector, "_set_acl"):
+            dest_connector._set_acl(dest_path, dest_spec["acl"])
+
+    def _build_path(self, **resource_spec) -> str:
+        """Build the storage path from resource specification."""
+        # Default implementation - subclasses should override for specific logic
+        if "key" in resource_spec:
+            return resource_spec["key"]
+        else:
+            raise ValueError("Resource specification must include 'key'")
