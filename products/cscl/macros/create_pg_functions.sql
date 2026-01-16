@@ -188,7 +188,7 @@ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION linearize(
     geom geometry, 
-    curve_to_line_tolerance numeric DEFAULT 0.01
+    curve_to_line_tolerance numeric DEFAULT 0.00025
 ) RETURNS geometry AS
 $$
 DECLARE
