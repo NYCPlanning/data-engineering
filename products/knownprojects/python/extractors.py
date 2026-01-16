@@ -78,10 +78,11 @@ def hpd_rfp(filename: str) -> pd.DataFrame:
     return df
 
 
-@ETL
-def hpd_pc(filename: str) -> pd.DataFrame:
-    df = pd.read_excel(f"{RAW_DATA_PATH}/{filename}", dtype=str)
-    return df
+# remove sensitive HPD data. must confirm this won't be needed in the future
+# @ETL
+# def hpd_pc(filename: str) -> pd.DataFrame:
+#     df = pd.read_excel(f"{RAW_DATA_PATH}/{filename}", dtype=str)
+#     return df
 
 
 @ETL
