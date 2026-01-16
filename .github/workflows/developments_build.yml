@@ -66,7 +66,7 @@ jobs:
         run: source ./bash/export_recipe_env.sh products/developments/${{ inputs.recipe_file }}.lock.yml
 
       - name: Dataloading
-        run: dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
+        run: python3 -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
       - name: Clear cache
         run: rm -rf .library

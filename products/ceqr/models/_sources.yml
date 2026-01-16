@@ -9,5 +9,6 @@ sources:
           Versions of all source data listed in the recipe.yml file and loaded via the dcpy.lifecycle.builds.load CLI
         columns:
           - name: schema_name
+          - name: dataset_name
           - name: v
           - name: file_type

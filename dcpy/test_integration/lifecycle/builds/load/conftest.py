@@ -32,6 +32,9 @@ class MockVersionedConnector(VersionedConnector):
     def get_latest_version(self, key: str, **kwargs) -> str:
         return "2025v2"
 
+    def get_name(self, key: str, version: str) -> str:
+        return "DCP Test Dataset"
+
     def list_versions(self, key: str, **kwargs) -> list[str]:
         return ["2025v2"]
 

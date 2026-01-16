@@ -136,6 +136,9 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
         ).to_dict()["version"]
 
     for ds in recipe.inputs.datasets:
+        assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
+        connector = connectors[ds.source]
+
         if ds.version is None:
             if ds.version_env_var is not None:
                 version = os.getenv(ds.version_env_var)
@@ -153,19 +156,21 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
                 ds.version = "latest"
 
         if ds.version == "latest":
-            assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
-            connector = connectors[ds.source]
             logger.info(f"Querying versions for {connector.conn_type}")
             ds.version = connector.get_latest_version(ds.id)
 
-    # Determine the recipe file type
-    for ds in recipe.inputs.datasets:
-        if (
-            ds.source == "edm.recipes.datasets"
-        ):  # Hack for now, to accomodate existing file types
+        # Determine edm recipes dataset details
+        if ds.source == "edm.recipes.datasets":
+            # Determine the file type
+            # Hack for now, to accomodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
                 ds.dataset, RECIPE_FILE_TYPE_PREFERENCE
             )
+            # Determine the dataset name
+            assert hasattr(connector, "get_name"), (
+                f"Cannot get dataset name from connector type '{connector.conn_type}'"
+            )
+            ds.name = connector.get_name(ds.id, ds.version)  # type: ignore
 
     # Resolve any unresolved conf values (e.g. from the environment)
     for conf in recipe.get_unresolved_stage_config_values():
@@ -176,13 +181,6 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
             conf.value = os.environ[env_var]
 
     return recipe
-
-
-def get_source_data_versions(recipe: Recipe):
-    """Get source data versions table in form of [schema_name, v, file_type]."""
-    return [["schema_name", "v", "file_type"]] + [
-        [d.id, d.version, d.file_type] for d in recipe.inputs.datasets
-    ]
 
 
 def _apply_recipe_defaults(recipe: Recipe):
@@ -222,13 +220,13 @@ def plan(recipe_file: Path, version: str | None = None) -> Path:
 
 
 def write_source_data_versions(recipe_file: Path):
-    recipe = recipe_from_yaml(recipe_file)
     source_data_versions_path = recipe_file.parent / "source_data_versions.csv"
     logger.info(f"Writing source data versions to {source_data_versions_path}")
+    recipe = recipe_from_yaml(recipe_file)
+    datasets = recipe.inputs.datasets
 
-    sdv = get_source_data_versions(recipe)
-    unresolved_versions = [[s, v, f] for s, v, f in sdv if v == "latest"]
-    if len(unresolved_versions) > 0:
+    unresolved_versions = [x for x in datasets if x.version == "latest"]
+    if unresolved_versions:
         exception = (
             "Recipe has unresolved versions! Can't write source "
             + f"data versions {unresolved_versions}"
@@ -236,10 +234,19 @@ def write_source_data_versions(recipe_file: Path):
         logger.error(exception)
         raise Exception(exception)
 
+    header = ["schema_name", "dataset_name", "v", "file_type"]
     with open(source_data_versions_path, "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        for s, v, f in sdv:
-            writer.writerow([s, v, f])
+        writer = csv.DictWriter(csvfile, fieldnames=header)
+        writer.writeheader()
+        writer.writerows(
+            {
+                "schema_name": x.id,
+                "dataset_name": x.name,
+                "v": x.version,
+                "file_type": x.file_type,
+            }
+            for x in datasets
+        )
 
 
 def repeat_recipe_from_source_data_versions(

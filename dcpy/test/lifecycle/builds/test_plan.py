@@ -25,12 +25,16 @@ SOURCE_VERSIONS_PATH = RESOURCES_DIR / "source_data_versions.csv"
 
 PRODUCT = "Tester"
 MOCKED_LATEST_VERSION = "v1"
+MOCKED_DATASET_NAME = "Agency Dataset"
 
 
 @pytest.fixture(autouse=True)
 def set_mock_recipes_connector_defaults():
     set_mock_recipes_connector(
-        method_responses={"get_latest_version": MOCKED_LATEST_VERSION}
+        method_responses={
+            "get_latest_version": MOCKED_LATEST_VERSION,
+            "get_name": MOCKED_DATASET_NAME,
+        }
     )
     # TODO... we should probably at some point figure out a default set of
     # connectors that we can reset to after this fixture yields
@@ -168,6 +172,15 @@ class TestRecipesWithDefaults(TestCase):
             "The datatype should default to a csv, as specified in the dataset_defaults"
         )
         assert planned.is_resolved, "Dataset is not resolved"
+
+    def test_input_datasets(self):
+        add_required_version_var_to_env()
+        planned = plan.plan_recipe(RECIPE_PATH)
+        datasets = planned.inputs.datasets
+
+        assert datasets[0].id == "has_version_from_env"
+        assert datasets[0].source == "edm.recipes.datasets"
+        assert datasets[0].name == MOCKED_DATASET_NAME
 
 
 @pytest.mark.usefixtures("create_buckets")

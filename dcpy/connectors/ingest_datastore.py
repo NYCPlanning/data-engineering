@@ -115,5 +115,8 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return self.storage.exists(f"{key}/{version}")
 
+    def get_name(self, key: str, version: str) -> str | None:
+        return self.get_sparse_config(key, version).name
+
     def __str__(self) -> str:
         return f"ingest datastore connector at {self.storage.storage}"
