@@ -1,6 +1,6 @@
 import streamlit as st
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm import drafts, publishing
 
 
 def data_selection(
@@ -23,12 +23,12 @@ def data_selection(
                 return publishing.BuildKey(product, select)
         case "Draft":
             label = "Select a version"
-            options = publishing.get_draft_versions(product)
+            options = drafts.get_draft_versions(product)
             version_select = st.sidebar.selectbox(
                 label, options, key=f"{section_label}_version"
             )
             if version_select:
-                draft_revision_options = publishing.get_draft_version_revisions(
+                draft_revision_options = drafts.get_draft_version_revisions(
                     product, version_select
                 )
                 draft_revision_label = "Select a draft"
