@@ -1,24 +1,24 @@
 from dcpy import configuration
 from dcpy.configuration import (
     SFTP_HOST,
-    SFTP_USER,
     SFTP_PORT,
     SFTP_PRIVATE_KEY_PATH,
+    SFTP_USER,
 )
-from dcpy.connectors.edm import publishing
+from dcpy.connectors import filesystem, ingest_datastore, s3, sftp, web
+from dcpy.connectors.edm import builds, drafts, gis, published
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
+from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors.hybrid_pathed_storage import (
-    StorageType,
     PathedStorageConnector,
+    StorageType,
+)
+from dcpy.connectors.registry import (
+    Connector,
+    ConnectorRegistry,
 )
 from dcpy.connectors.socrata.connector import SocrataConnector
-from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
-from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
-from dcpy.connectors.registry import (
-    ConnectorRegistry,
-    Connector,
-)
 from dcpy.utils.logging import logger
 
 connectors = ConnectorRegistry[Connector]()
@@ -60,10 +60,10 @@ def _set_default_connectors():
     conns = [
         recipes_datasets,
         recipes_raw,
-        publishing.DraftsConnector(),
-        publishing.PublishedConnector(),
+        drafts.DraftsConnector.create(),
+        published.PublishedConnector.create(),
         BytesConnector(),
-        publishing.GisDatasetsConnector(),
+        gis.GisDatasetsConnector.create(),
         SocrataConnector(),
         OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
@@ -71,7 +71,7 @@ def _set_default_connectors():
         [web.WebConnector(), "api"],
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
-        [publishing.BuildsConnector(), "edm.publishing.builds"],
+        [builds.BuildsConnector.create(), "edm.publishing.builds"],
         [
             sftp.SFTPConnector(
                 hostname=SFTP_HOST,
