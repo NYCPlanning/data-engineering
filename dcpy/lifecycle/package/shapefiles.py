@@ -214,7 +214,7 @@ def _create_attr_metadata(column: DatasetColumn) -> Attr:
     if hasattr(column, "values") and column.values:
         attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
 
-    # TODO: handle 'udom'
+    # TODO: handle 'attrdomv.udom', and other esri value defaults
     return attr
 
 

@@ -158,9 +158,12 @@ def test_write_shapefile_xml_metadata(
 
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
-        == product_md.columns[1].values[0].value
+        == product_md.columns[1].values[0].value  # "1", when org_md product is colp
     )
+
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
-        == product_md.columns[1].values[0].description
+        == product_md.columns[1]
+        .values[0]
+        .description  # "Manhattan", when org_md product is colp
     )
