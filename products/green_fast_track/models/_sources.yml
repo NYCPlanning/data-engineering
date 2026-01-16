@@ -393,7 +393,7 @@ sources:
     - name: parkname
       tests:
       - not_null
-    - name: wkt
+    - name: geom
       tests:
       - not_null
     tests:
@@ -403,7 +403,7 @@ sources:
         combination_of_columns:
         - gnis_id
         - parkname
-        - wkt
+        - geom
       config:
         severity: warn
 

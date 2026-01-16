@@ -6,8 +6,9 @@ WITH source AS (
 
 reprojected AS (
     SELECT
-        *,
-        ST_TRANSFORM(wkt, 2263) AS geom
+        gnis_id,
+        parkname,
+        ST_TRANSFORM(geom, 2263) AS geom
     FROM source
 ),
 
