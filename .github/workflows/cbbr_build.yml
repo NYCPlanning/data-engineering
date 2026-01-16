@@ -74,7 +74,7 @@ jobs:
         run: source ./bash/export_recipe_env.sh products/cbbr/${{ inputs.recipe_file }}.lock.yml 
 
       - name: Dataloading
-        run: dcpy lifecycle builds load load load
+        run: python3 -m dcpy lifecycle builds load load
 
       - name: Create Build Tables and Normalize CBBR Values
         run: ./02_cbbr.sh

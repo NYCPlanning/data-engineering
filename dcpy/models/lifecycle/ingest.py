@@ -272,6 +272,12 @@ class SparseConfig(BaseModel, extra="allow"):
             AliasPath("dataset", "version"),  # library
         )
     )
+    name: str | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            AliasPath("attributes", "name"),  # ingest
+        ),
+    )
     run_timestamp: datetime | None = Field(
         None,
         validation_alias=AliasChoices(

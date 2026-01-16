@@ -39,7 +39,12 @@ def test_resolving_and_loading_recipes(tmp_path, pg_client: postgres.PostgresCli
     }
 
     source_data_versions = pd.read_csv(temp_dir / "source_data_versions.csv", dtype=str)
-    assert source_data_versions.columns.to_list() == ["schema_name", "v", "file_type"]
+    assert source_data_versions.columns.to_list() == [
+        "schema_name",
+        "dataset_name",
+        "v",
+        "file_type",
+    ]
 
     assert recipe_pg_dataset_table_names == load_result_pg_table_names
 

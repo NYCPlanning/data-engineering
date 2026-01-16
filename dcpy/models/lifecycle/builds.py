@@ -32,6 +32,7 @@ class InputDataset(BaseModel, extra="forbid"):
     version: str | None = None
     source: str | None = None
     file_type: recipes.DatasetType | None = None
+    name: str | None = None
     version_env_var: str | None = None
     import_as: str | None = None
     preprocessor: DataPreprocessor | None = None
