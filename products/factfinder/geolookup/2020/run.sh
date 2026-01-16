@@ -1,6 +1,11 @@
 source geolookup/config.sh
 
-create_source_data_table
+run_sql_command \
+    "DROP TABLE IF EXISTS source_data_versions;
+    CREATE TABLE source_data_versions (
+        schema_name character varying,
+        v character varying
+    );"
 
 # Import Data
 import_recipe dpr_park_access_zone &
