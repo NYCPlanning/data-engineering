@@ -119,14 +119,14 @@ def test_write_shapefile_xml_metadata(
         request, fixture=path_fixture, file_type=file_type
     )
 
-    pseudo_lots_md = org_metadata.product("lion").dataset("pseudo_lots")
+    product_md = org_metadata.product("colp").dataset("colp")
 
     fields = Metadata.model_fields
 
     # write metadata
     shapefiles.write_shapefile_xml_metadata(
-        product_name="lion",
-        dataset_name="pseudo_lots",
+        product_name="colp",
+        dataset_name="colp",
         path=fixture_info["path"],
         shp_name=fixture_info["shp_name"],
         zip_subdir=subdir,
@@ -137,15 +137,31 @@ def test_write_shapefile_xml_metadata(
     shp = shp_utils.from_path(
         path=fixture_info["path"], shp_name=fixture_info["shp_name"], zip_subdir=subdir
     )
-    written_md = shp.read_metadata()
+    metadata = shp.read_metadata()
 
     # Test default values
-    assert written_md.md_stan_name == fields["md_stan_name"].default
-    assert written_md.md_stan_ver == fields["md_stan_ver"].default
+    assert metadata.md_stan_name == fields["md_stan_name"].default
+    assert metadata.md_stan_ver == fields["md_stan_ver"].default
     # TODO - add helper code to access nested defaults (if this is the direction we end up pursuing)
 
     # Test product-specific values
-    assert written_md.md_hr_lv_name == pseudo_lots_md.attributes.display_name
-    assert written_md.data_id_info.id_abs == pseudo_lots_md.attributes.description
-    assert written_md.data_id_info.other_keys.keyword == pseudo_lots_md.attributes.tags
-    assert written_md.data_id_info.search_keys.keyword == pseudo_lots_md.attributes.tags
+    assert metadata.md_hr_lv_name == product_md.attributes.display_name
+    assert metadata.data_id_info.id_abs == product_md.attributes.description
+    assert metadata.data_id_info.other_keys.keyword == product_md.attributes.tags
+    assert metadata.data_id_info.search_keys.keyword == product_md.attributes.tags
+
+    assert metadata.eainfo.detailed.name == product_md.id
+    assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
+    assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
+
+    assert (
+        metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
+        == product_md.columns[1].values[0].value
+    )
+    assert (
+        metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
+        == product_md.columns[1].values[0].description
+    )
+    from rich.pretty import pprint as rprint
+
+    rprint(type(product_md.columns[1].values))
