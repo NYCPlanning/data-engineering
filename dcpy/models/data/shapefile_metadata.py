@@ -446,26 +446,32 @@ class Udom(BaseXmlModel, tag="udom"):
     value: str | None = None
 
 
+class Edom(BaseXmlModel, tag="edom"):
+    edomv: int | str | None = element(tag="edomv", default=None)
+    edomvd: str | None = element(tag="edomvd", default=None)
+
+
 class Attrdomv(BaseXmlModel, tag="attrdomv"):
-    udom: "list[Udom] | None" = element(tag="udom", default_factory=list)
+    udom: Udom | None = element(tag="udom", default_factory=lambda: Udom())
+    edom: list[Edom] = element(tag="edom", default_factory=lambda: [Edom()])
 
 
 class Attr(BaseXmlModel, tag="attr"):
-    attrlabl: "list[Attrlabl] | None" = element(tag="attrlabl", default_factory=list)
-    attalias: "list[Attalias] | None" = element(tag="attalias", default_factory=list)
-    attrtype: "list[Attrtype] | None" = element(tag="attrtype", default_factory=list)
-    attwidth: "list[Attwidth] | None" = element(tag="attwidth", default_factory=list)
-    atprecis: "list[Atprecis] | None" = element(tag="atprecis", default_factory=list)
-    attscale: "list[Attscale] | None" = element(tag="attscale", default_factory=list)
-    attrdef: "list[Attrdef] | None" = element(tag="attrdef", default_factory=list)
-    attrdefs: "list[Attrdefs] | None" = element(tag="attrdefs", default_factory=list)
-    attrdomv: "list[Attrdomv] | None" = element(tag="attrdomv", default_factory=list)
+    attrlabl: "Attrlabl" = element(tag="attrlabl", default_factory=lambda: Attrlabl())
+    attalias: "Attalias" = element(tag="attalias", default_factory=lambda: Attalias())
+    attrtype: "Attrtype" = element(tag="attrtype", default_factory=lambda: Attrtype())
+    attwidth: "Attwidth" = element(tag="attwidth", default_factory=lambda: Attwidth())
+    atprecis: "Atprecis" = element(tag="atprecis", default_factory=lambda: Atprecis())
+    attscale: "Attscale" = element(tag="attscale", default_factory=lambda: Attscale())
+    attrdef: "Attrdef" = element(tag="attrdef", default_factory=lambda: Attrdef())
+    attrdefs: "Attrdefs" = element(tag="attrdefs", default_factory=lambda: Attrdefs())
+    attrdomv: "Attrdomv" = element(tag="attrdomv", default_factory=lambda: Attrdomv())
 
 
 class Detailed(BaseXmlModel, tag="detailed"):
     name: str | None = attr(name="Name", default=None)
     enttyp: "Enttyp" = element(tag="enttyp", default_factory=lambda: Enttyp())
-    attr: "list[Attr] | None" = element(tag="attr", default_factory=list)
+    attr: "list[Attr]" = element(tag="attr", default_factory=lambda: [Attr()])
 
 
 class Eainfo(BaseXmlModel, tag="eainfo"):
