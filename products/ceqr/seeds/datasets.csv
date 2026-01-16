@@ -45,7 +45,7 @@ School District Boundaries,dcp_school_districts,download,shapefile,MULTIPOLYGON,
 School Subdistrict Boundaries,doe_school_subdistricts,download,shapefile,MULTIPOLYGON,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Sub-District-Maps-335
 LCGMS,,webpage,,,https://www.nycenet.edu/PublicApps/LCGMS.aspx
 Demographic Enrollment Projection,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
-Projected Housing,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
+Projected Housing by School District,dcp_projected_housing_by_school_district,download,excel,,
 School Capacity Projects in Process,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
 School Seats Lost,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
 School Seats Gained or To Be Created,,webpage,,,https://www.nycsca.org/Community/Capital-Plan-Reports-Data#Local-Law-167-Reports-352
