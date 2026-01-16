@@ -14,6 +14,7 @@ from dcpy.models.product.dataset.metadata import (
     DatasetColumn,
     Metadata,
 )
+from dcpy.models.data.shapefile_metadata import Attr, Attrdomv, Edom
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import shapefile as shp_utils
 from dcpy.utils.geospatial.shapefile import Shapefile
@@ -175,10 +176,52 @@ def write_shapefile_xml_metadata(
 
     metadata = shp_utils.generate_metadata()
 
+    # Set dataset-level values
     metadata.md_hr_lv_name = product_md.attributes.display_name
     metadata.data_id_info.id_abs = product_md.attributes.description
     metadata.data_id_info.other_keys.keyword = product_md.attributes.tags
     metadata.data_id_info.search_keys.keyword = product_md.attributes.tags
 
+    metadata.eainfo.detailed.name = product_md.id
+    metadata.eainfo.detailed.enttyp.enttypl.value = product_md.id
+    metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
+
+    # Build attribute metadata for each column
+    metadata.eainfo.detailed.attr = [
+        _create_attr_metadata(column) for column in product_md.columns
+    ]
+
     shp = Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
     shp.write_metadata(metadata, overwrite=True)
+
+
+def _create_attr_metadata(column: DatasetColumn) -> Attr:
+    """Create an Attr metadata object from a column specification."""
+    attr = Attr()
+
+    attr.attrlabl.value = "FID" if column.id == "uid" else column.id
+    attr.attalias.value = "FID" if column.name == "uid" else column.name
+    attr.attrdef.value = column.description
+
+    # Uncomment as needed:
+    # attr.attrtype.value = column.data_type
+    # attr.attwidth.value = None
+    # attr.atprecis.value = None
+    # attr.attscale.value = None
+    # attr.attrdefs.value = ""
+
+    # Handle domain values if present
+    if hasattr(column, "values") and column.values:
+        attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
+
+    # TODO: handle 'udom'
+    return attr
+
+
+def _create_edom_metadata(column_value: ColumnValue) -> Edom:
+    """Create an Edom metadata object from a column value specification."""
+    edom = Edom()
+    edom.edomv = column_value.value
+    edom.edomvd = column_value.description
+
+    return edom
