@@ -71,4 +71,4 @@ jobs:
         run: ./bash/export.sh
 
       - name: Upload
-        run: python3 -m dcpy.connectors.edm.publishing upload --product db-green-fast-track --acl public-read
+        run: dcpy lifecycle builds artifacts builds upload --product db-green-fast-track --acl public-read

@@ -107,7 +107,7 @@ jobs:
 
       - name: Promote Build to Draft
         run: |
-          python3 -m dcpy.connectors.edm.publishing promote_to_draft \
+          dcpy lifecycle builds artifacts builds promote_to_draft \
             --product ${{ inputs.product }} \
             --build ${{ inputs.build }} \
             ${{ (inputs.draft_summary != '' && format('--draft-summary {0}', inputs.draft_summary)) || ''}} \

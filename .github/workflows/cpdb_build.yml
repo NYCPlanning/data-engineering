@@ -74,4 +74,4 @@ jobs:
 
       - name: Upload
         run: |
-          python3 -m dcpy.connectors.edm.publishing upload --product db-cpdb --acl private --max_files 200
+          dcpy lifecycle builds artifacts builds upload --product db-cpdb --acl private --max_files 200

@@ -79,4 +79,4 @@ jobs:
       run: ./bash/validate.sh
 
     - name: Upload
-      run: python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read
+      run: dcpy lifecycle builds artifacts builds upload --product db-cscl --acl public-read
