@@ -41,7 +41,12 @@ class TestIngestSparseConfig:
                     },
                     "extraction_details": {"timestamp": timestamp_str},
                 },
-                {"id": ds, "version": version, "run_timestamp": timestamp},
+                {
+                    "id": ds,
+                    "version": version,
+                    "run_timestamp": None,
+                    "extraction_details": {"timestamp": timestamp_str},
+                },
             ),
         ],
     )
