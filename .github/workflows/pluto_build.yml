@@ -80,7 +80,7 @@ jobs:
 
     - name: Dataloading
       working-directory: products/pluto
-      run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file
+      run: dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file
         }}.lock.yml
 
     - name: Load Local Data

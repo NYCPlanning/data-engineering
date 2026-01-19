@@ -243,48 +243,6 @@ def get_build_metadata(project_path: Path) -> BuildMetadata:
 app = typer.Typer(add_completion=False)
 
 
-@app.command("recipe")
-def _cli_wrapper_recipe(
-    recipe_path: Path = typer.Option(
-        None,
-        "--recipe-path",
-        "-r",
-        help="Recipe Path",
-    ),
-    version: str = typer.Option(
-        None,
-        "--version",
-        "-v",
-        help="Version of dataset being built",
-    ),
-    clear_pg_schema: bool = typer.Option(
-        True,
-        "--clear-schema",
-        "-x",
-        help="Clear the build schema?",
-    ),
-    cache_schema: str = typer.Option(
-        None,
-        "--cache-schema",
-        "-c",
-        help="Schema name to use for caching existing datasets",
-    ),
-    cached_entity_type: CachedEntityType = typer.Option(
-        None,
-        "--cached-entity-type",
-        "-t",
-        help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
-    ),
-):
-    recipe_lock_path = plan.plan(recipe_path or Path("./recipe.yml"), version)
-    load_source_data_from_resolved_recipe(
-        recipe_lock_path,
-        clear_pg_schema=clear_pg_schema,
-        cache_schema=cache_schema,
-        cached_entity_type=cached_entity_type,
-    )
-
-
 @app.command("load")
 def _cli_wrapper_load(
     recipe_lock_path: Path = typer.Option(

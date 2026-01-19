@@ -63,7 +63,7 @@ python3 -m dcpy.lifecycle.builds.plan
 Then, load source data into the db
 
 ```bash
-python -m dcpy.lifecycle.builds.load load
+dcpy lifecycle builds load load load
 ```
 
 Load the "seed" tables (small tables checked into the repo, in `./seeds`) into the db
