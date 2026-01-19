@@ -251,9 +251,9 @@ class TestRepeat(TestCase):
     ):
         version = "21v1"
         recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
-        source_data.return_value = pd.read_csv(
-            RESOURCES_DIR / "source_data_versions.csv"
-        ).set_index("dataset")
+        source_data.return_value = pd.read_csv(SOURCE_VERSIONS_PATH).set_index(
+            "dataset"
+        )
         repeat_file = plan.repeat_build(
             publishing.PublishKey(product=recipe.name, version=version),
             recipe_file=RECIPE_NO_DEFAULTS_PATH,
@@ -270,9 +270,9 @@ class TestRepeat(TestCase):
     )
     def test_repeat_build_from_source_data_versions(self, file_exists, source_data):
         recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
-        source_data.return_value = pd.read_csv(
-            RESOURCES_DIR / "source_data_versions.csv"
-        ).set_index("dataset")
+        source_data.return_value = pd.read_csv(SOURCE_VERSIONS_PATH).set_index(
+            "dataset"
+        )
         repeat_file = plan.repeat_build(
             publishing.BuildKey(product=recipe.name, build=recipe.version),
             recipe_file=RECIPE_NO_DEFAULTS_PATH,
@@ -326,9 +326,9 @@ class TestRepeat(TestCase):
         self, file_exists, source_data
     ):
         recipe = plan.recipe_from_yaml(RECIPE_PATH)
-        source_data.return_value = pd.read_csv(
-            RESOURCES_DIR / "source_data_versions.csv"
-        ).set_index("dataset")
+        source_data.return_value = pd.read_csv(SOURCE_VERSIONS_PATH).set_index(
+            "dataset"
+        )
         with pytest.raises(
             Exception,
             match="Dataset found in template recipe not found in historical source data versions",
