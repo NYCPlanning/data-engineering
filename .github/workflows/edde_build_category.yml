@@ -59,7 +59,7 @@ jobs:
         run: python3 -m dcpy.lifecycle.builds.plan recipe
 
       - name: Dataloading
-        run: python -m dcpy.lifecycle.builds.load load --recipe-path recipe.lock.yml
+        run: dcpy lifecycle builds load load --recipe-path recipe.lock.yml
 
       - name: Build Categories
         run: |

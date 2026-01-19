@@ -63,7 +63,7 @@ jobs:
         run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
 
       - name: Dataloading
-        run: python -m dcpy.lifecycle.builds.load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
+        run: dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
       - name: Build
         run: |
