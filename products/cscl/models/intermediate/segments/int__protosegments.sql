@@ -33,6 +33,11 @@ SELECT
     proto.lgc9,
     proto.boe_lgc_pointer,
     proto.feature_type_code,
+    CASE
+        WHEN feature_type_codes.source_feature_class = 'centerline'
+            THEN primary_segments.segment_type
+        ELSE 'U'
+    END AS segment_type,
     primary_segments.legacy_segmentid,
     CASE
         WHEN proto.feature_type_code IN ('5', '9') THEN 99

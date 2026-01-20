@@ -1,60 +1,31 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['segmentid', 'boroughcode']},
+      {'columns': ['lionkey']},
     ]
 ) }}
-WITH altsegment_saf_records AS (
-    SELECT * FROM {{ ref("stg__altsegmentdata_saf") }}
+WITH saf AS (
+    SELECT * FROM {{ ref('int__saf_segments') }}
+    WHERE NOT rpl_flag
 ),
-addresspoints AS (
-    SELECT * FROM {{ source("recipe_sources", "dcp_cscl_addresspoints") }}
-),
-commonplace AS (
-    SELECT * FROM {{ source("recipe_sources", "dcp_cscl_commonplace_gdb") }}
-),
-unioned AS (
-    SELECT
-        segmentid,
-        saftype,
-        borough AS boroughcode,
-        1 AS source_priority,
-        ogc_fid
-    FROM altsegment_saf_records
-    UNION ALL
-    SELECT
-        segmentid,
-        special_condition AS saftype,
-        boroughcode,
-        2 AS source_priority,
-        ogc_fid
-    FROM addresspoints
-    UNION ALL
-    SELECT
-        segmentid,
-        saftype,
-        boroughcode,
-        3 AS source_priority,
-        ogc_fid
-    FROM commonplace
+priorities AS (
+    SELECT * FROM {{ ref('seed_saf_priority') }}
 ),
 prioritized AS (
     SELECT
-        segmentid,
-        boroughcode,
-        unioned.saftype,
+        saf.segment_lionkey AS lionkey,
+        saf.saftype,
         row_number() OVER (
-            PARTITION BY segmentid, boroughcode
+            PARTITION BY saf.segment_lionkey
             -- very specific fields have priority, as specified in seed table
             -- beyond that, order by source and row number
-            ORDER BY p.priority, source_priority, ogc_fid
+            ORDER BY p.priority, saf.saf_ogc_fid
         ) AS row_number
-    FROM unioned
-    INNER JOIN {{ ref('seed_saf_priority') }} AS p ON unioned.saftype = p.saftype
+    FROM saf
+    LEFT JOIN {{ ref('seed_saf_priority') }} AS p ON saf.saftype = p.saftype
 )
 SELECT
-    segmentid,
-    boroughcode,
+    lionkey,
     CASE
         -- The SAFTYPE "F" in CSCL is a "D" in LION/Geosupport
         -- Future exports may or may not expect this mapping

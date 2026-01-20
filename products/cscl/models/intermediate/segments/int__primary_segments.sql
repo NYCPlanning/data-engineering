@@ -32,10 +32,11 @@ primary_segments AS (
             source.segmentid,
             -- TODO all these if elses are a little inelegant, this should be reworked
             {% if source_layer == 'stg__centerline' -%}
-                -- there's only one row where this actually makes a difference. Will report to GR
                 source.boroughcode,
+                source.segment_type,
             {% else -%}
                 NULL AS boroughcode,
+                'U' AS segment_type,
             {% endif -%}
             {% if source_layer == 'stg__shoreline' -%} 
                 NULL::INT AS legacy_segmentid,
@@ -83,6 +84,7 @@ segment_attributes AS (
         primary_segments.to_level_code,
         primary_segments.legacy_segmentid,
         primary_segments.feature_type_code,
+        primary_segments.segment_type,
         primary_segments.geom,
         primary_segments.raw_geom,
         ST_LINEINTERPOLATEPOINT(primary_segments.geom, 0.5) AS midpoint,

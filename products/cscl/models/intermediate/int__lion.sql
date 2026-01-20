@@ -169,13 +169,7 @@ SELECT
             OR (segments.source_table = 'altsegmentdata' AND proto.twisted_parity_flag = 'Y')
             THEN 'T'
     END AS twisted_parity_flag,
-    CASE
-        WHEN NOT (
-            segments.source_table = 'altsegmentdata'
-            AND proto.alt_segdata_type <> 'B'
-            AND saf.special_address_flag IN ('A', 'B', 'C', 'D', 'E', 'F', 'O', 'P', 'S', 'V', 'G', 'N', 'X')
-        ) THEN saf.special_address_flag
-    END AS special_address_flag,
+    saf.special_address_flag,
     CASE
         WHEN segments.feature_type = 'centerline' THEN centerline_curve.curve_flag
         WHEN st_numpoints(segments.geom) > 2 THEN 'I'
@@ -192,7 +186,7 @@ SELECT
         CASE WHEN segments.primary_feature_type = 'shoreline' THEN 'shoreline' ELSE segments.feature_type END
     ) AS to_level_code, -- TODO this is an obvious bug in prod
     centerline.trafdir_ver_flag,
-    coalesce(centerline.segment_type, 'U') AS segment_type,
+    segments.segment_type,
     CASE
         WHEN segments.feature_type = 'centerline'
             THEN
@@ -278,7 +272,7 @@ LEFT JOIN
     ON
         segments.globalid = ap_right.globalid
         AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R'
-LEFT JOIN saf ON segments.segmentid = saf.segmentid AND segments.boroughcode = saf.boroughcode
+LEFT JOIN saf ON segments.lionkey = saf.lionkey
 LEFT JOIN nypd_service_areas ON segments.globalid = nypd_service_areas.globalid
 LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode = sedat.boroughcode
 -- centerline only

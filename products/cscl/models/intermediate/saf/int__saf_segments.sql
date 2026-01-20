@@ -8,6 +8,7 @@
 WITH saf_segment_records AS (
     SELECT
         globalid,
+        ogc_fid,
         borough AS boroughcode,
         saftype,
         segmentid,
@@ -16,6 +17,7 @@ WITH saf_segment_records AS (
     UNION ALL
     SELECT
         globalid,
+        ogc_fid,
         boroughcode,
         special_condition AS saftype,
         segmentid,
@@ -25,6 +27,7 @@ WITH saf_segment_records AS (
     UNION ALL
     SELECT
         globalid,
+        ogc_fid,
         boroughcode,
         saftype,
         segmentid,
@@ -38,6 +41,7 @@ roadbed_pointer_list AS (
 with_roadbed_to_generic AS (
     SELECT
         globalid,
+        ogc_fid,
         boroughcode,
         saftype,
         segmentid,
@@ -48,6 +52,7 @@ with_roadbed_to_generic AS (
     UNION ALL
     SELECT
         saf.globalid,
+        saf.ogc_fid,
         saf.boroughcode,
         saf.saftype,
         rpl.generic_segmentid AS segmentid,
@@ -58,28 +63,30 @@ with_roadbed_to_generic AS (
     INNER JOIN roadbed_pointer_list AS rpl ON saf.segmentid = rpl.roadbed_segmentid
     WHERE saf.saftype IN ('G', 'N', 'S', 'V', 'X')
 ),
-lion AS (
-    SELECT * FROM {{ ref("int__lion") }}
+segments AS (
+    SELECT * FROM {{ ref("int__segments") }}
 ),
 resolved_segment AS (
     SELECT
         saf.globalid AS saf_globalid,
+        saf.ogc_fid AS saf_ogc_fid,
         saf.boroughcode,
         saf.saftype,
         saf.segmentid,
         COALESCE(proto.lionkey, primary_segment.lionkey) AS segment_lionkey,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_type,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_incex_flag,
-        saf.saf_source_table
+        saf.saf_source_table,
+        saf.rpl_flag
     FROM with_roadbed_to_generic AS saf
-    LEFT JOIN lion AS primary_segment -- TODO error report when none joined?
+    LEFT JOIN segments AS primary_segment -- TODO error report when none joined?
         ON
             saf.segmentid = primary_segment.segmentid
             AND (
                 primary_segment.source_table = 'centerline'
                 OR (saf.saf_source_table = 'commonplace' AND primary_segment.source_table = 'shoreline')
             )
-    LEFT JOIN lion AS proto
+    LEFT JOIN segments AS proto
         ON
             saf.segmentid = proto.segmentid
             AND primary_segment.source_table = 'centerline'
