@@ -13,10 +13,10 @@ ingestion:
   source:
     type: s3
     bucket: edm-recipes
-    key: inbox/dcp/dcp_projectbbls_cy/20250106/Multiple BBL CY24 Community Development Block Grant.xlsx
+    key: inbox/dcp/dcp_projectbbls_cy/{{ version }}/Multiple BBL {{ version }} CDBG.xlsx
   file_format:
     type: xlsx
-    sheet_name: CY24 CDBG
+    sheet_name: {{ version }} CDBG
     dtype:
       ALL ZAP BBLs: str
       Validated City Council Districts: str

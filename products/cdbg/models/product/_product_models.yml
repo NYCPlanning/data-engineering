@@ -263,7 +263,7 @@ models:
   - name: '"Current_Milestone"'
     data_type: string
 
-  - name: '"Actual_Start_Date_(Current_Milestone)_(Project_Milestone)"'
+  - name: '"Current_Milestone_Actual_Start_Date_(Used_for_PCF)"'
     data_type: string
 
   - name: '"Project_Status"'
