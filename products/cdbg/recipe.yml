@@ -10,6 +10,7 @@ inputs:
   missing_versions_strategy: find_latest
   datasets:
   - name: dcp_mappluto_clipped
+    version: 24v4
   - name: dcp_cb2020_wi
   - name: dcp_ct2020_wi
   - name: hud_lowmodincomebyblockgroup
