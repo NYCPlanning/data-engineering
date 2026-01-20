@@ -22,7 +22,7 @@ sources:
             tests:
               - not_null
               - unique
-          - name: '"ALL_ZAP_BBLs"'
+          - name: '"All_ZAP_BBLs"'
             tests:
               - not_null:
                   config:

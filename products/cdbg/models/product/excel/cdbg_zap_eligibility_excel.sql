@@ -25,7 +25,7 @@ SELECT
     "Lead_Planner" AS "Lead Planner",
     "Major_Initiative" AS "Major Initiative",
     "Current_Milestone" AS "Current Milestone",
-    "Actual_Start_Date_(Current_Milestone)_(Project_Milestone)" AS "Actual Start Date (Current Milestone) (Project Milestone)",
+    "Current_Milestone_Actual_Start_Date_(Used_for_PCF)" AS "Actual Start Date (Current Milestone) (Project Milestone)",
     "Project_Status" AS "Project Status",
     "Project_Brief" AS "Project Brief",
     "EAS_/_EIS" AS "EAS / EIS",

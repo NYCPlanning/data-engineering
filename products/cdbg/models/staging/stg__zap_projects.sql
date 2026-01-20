@@ -1,6 +1,6 @@
 SELECT
     "Project_Id" AS project_id,
-    "ALL_ZAP_BBLs" AS bbls,
+    "All_ZAP_BBLs" AS bbls,
     "Project_Status_Start_Date"::text,
     "Project_Status_End_Date"::text,
     "Project_Name"::text,
@@ -17,7 +17,7 @@ SELECT
     "Lead_Planner"::text,
     "Major_Initiative"::text,
     "Current_Milestone"::text,
-    "Actual_Start_Date_(Current_Milestone)_(Project_Milestone)"::text,
+    "Current_Milestone_Actual_Start_Date_(Used_for_PCF)"::text,
     "Project_Status"::text,
     "Project_Brief"::text,
     "EAS_/_EIS"::text,
