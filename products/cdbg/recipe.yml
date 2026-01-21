@@ -1,7 +1,6 @@
 name: Community Development Block Grant
 product: db-cdbg
-version_strategy:
-  pin_to_source_dataset: hud_lowmodincomebyblockgroup
+version_strategy: first_of_month
 
 vars:
   CENSUS_TRACTS_YEAR: 2020
