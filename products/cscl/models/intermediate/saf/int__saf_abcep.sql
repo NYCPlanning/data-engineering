@@ -40,6 +40,8 @@ SELECT
     NULL::INT AS side_ct2020_basic,
     NULL::INT AS side_ct2020_suffix,
     NULL AS side_ap,
+    saf.saf_globalid,
+    saf.saf_source_table,
     saf.generic,
     saf.roadbed
 FROM saf
