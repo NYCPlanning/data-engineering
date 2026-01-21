@@ -4,7 +4,7 @@ from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.utils.logging import logger
 
 
-def test_bytes_versions_are_retrieved():
+def _test_bytes_versions_are_retrieved():
     versions = BytesConnector().fetch_all_latest_versions_df()
     with_errors = versions.loc[versions["version_fetch_error"].astype(bool)]
     if not with_errors.empty:

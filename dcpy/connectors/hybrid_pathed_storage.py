@@ -282,9 +282,6 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
         if not src_path.exists():
             raise FileNotFoundError(f"Source path {src_path} does not exist")
         if src_path.is_dir():
-            # Recursively copy directory
-            if destination_path.exists():
-                shutil.rmtree(destination_path)
             src_path.copytree(destination_path)
         else:
             destination_path.parent.mkdir(parents=True, exist_ok=True)
