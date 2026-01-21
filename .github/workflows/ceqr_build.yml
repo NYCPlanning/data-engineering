@@ -83,5 +83,4 @@ jobs:
           python3 -m build_scripts.export
 
       - name: Upload
-        run: |
-          python3 -m dcpy.connectors.edm.publishing upload --product db-ceqr --acl public-read
+        run: dcpy lifecycle builds artifacts builds upload --product db-ceqr --acl public-read
