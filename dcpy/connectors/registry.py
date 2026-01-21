@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any, Callable, Generic, TypeVar, overload
+
 from pydantic import BaseModel
-from typing import Any, TypeVar, Generic, overload, Callable
 
 from dcpy.utils.logging import logger
 
@@ -54,6 +56,22 @@ class Pull(GenericConnector, ABC):
 
 class Connector(Push, Pull, ABC):
     """A connector that does not version datasets but only stores the "current" or "latest" versions"""
+
+    def can_optimize_transfer_to(self, other_connector: "Connector") -> bool:
+        """
+        Check if this connector can optimize transfers to another connector.
+        Default implementation returns False - subclasses override for optimization.
+        """
+        return False
+
+    def optimized_transfer_to(
+        self, dest_connector: "Connector", source_spec: dict, dest_spec: dict
+    ) -> None:
+        """
+        Execute optimized transfer to another connector.
+        Only called if can_optimize_transfer_to returned True.
+        """
+        raise NotImplementedError("Connector does not support optimized transfers")
 
 
 class VersionedConnector(Connector, VersionSearch, ABC):
