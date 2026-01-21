@@ -49,7 +49,7 @@ SELECT
     atomic_polygons.borocode AS side_borough_code,
     atomic_polygons.censustract_2020_basic AS side_ct2020_basic,
     atomic_polygons.censustract_2020_suffix AS side_ct2020_suffix,
-    RIGHT(atomic_polygons.atomicid, 3) AS side_ap,,
+    RIGHT(atomic_polygons.atomicid, 3) AS side_ap,
     saf.saf_globalid,
     saf.saf_source_table,
     commonplace.placeid,
