@@ -11,6 +11,7 @@ SELECT
     intersection.b7sc AS b7sc_intersection,
     intersection.b5sc_cross1,
     intersection.b5sc_cross2,
+    intersection.globalid AS saf_globalid,
     'I' AS saftype
 FROM intersection
 LEFT JOIN feature_names ON intersection.b7sc = feature_names.b7sc

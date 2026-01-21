@@ -31,6 +31,8 @@ SELECT
     altsegdata.segmentid,
     NULL::INT AS x_coord,
     NULL::INT AS y_coord,
+    saf.saf_globalid,
+    saf.saf_source_table,
     saf.generic,
     saf.roadbed
 FROM saf

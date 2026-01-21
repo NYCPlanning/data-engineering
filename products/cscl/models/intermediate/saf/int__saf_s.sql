@@ -31,11 +31,13 @@ SELECT
     lgc.boe_lgc_pointer,
     saf.segment_type,
     saf.segmentid,
-    saf.generic,
-    saf.roadbed,
+    saf.saf_globalid,
+    saf.saf_source_table,
     address_points.addresspointid,
     feature_names.b7sc IS NOT NULL AS _joined_to_feature_name, -- for error report
-    address_points.snd_feature_type
+    address_points.snd_feature_type,
+    saf.generic,
+    saf.roadbed
 FROM saf
 LEFT JOIN address_points ON saf.saf_globalid = address_points.globalid
 LEFT JOIN feature_names -- TODO error when not joined

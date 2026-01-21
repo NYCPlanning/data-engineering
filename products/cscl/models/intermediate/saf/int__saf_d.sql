@@ -32,6 +32,8 @@ SELECT
     saf.segment_type,
     saf.segmentid,
     saf_d_regular_b5sc.regular_b5sc,
+    saf.saf_globalid,
+    saf.saf_source_table,
     saf.generic,
     saf.roadbed
 FROM saf
