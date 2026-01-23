@@ -22,7 +22,7 @@ try:
     assert recipe.exports
 
     for export in recipe.exports.datasets:
-        if export.name == 'log':
+        if export.name == "log":
             continue
         formatting = (export.custom or {"formatting": export.name})["formatting"]
         f_path = Path(f"seeds/text_formatting/text_formatting__{formatting}.csv")
