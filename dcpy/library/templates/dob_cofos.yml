@@ -3,7 +3,6 @@ dataset:
   acl: public-read
   source:
     script:
-      path: .library/upload/dob_cofos.csv
       ## This field must be updated manually when archiving. Should eventually be refactored out of here
       ## Do not check in a specific version, leave blank version check in - this has led to issues in the past
       previous_version: PLACEHOLDER
