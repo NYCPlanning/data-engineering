@@ -3,9 +3,9 @@ product: db-developments
 version_strategy: 
   bump_latest_release: 2
 vars:
-  GEOSUPPORT_VERSION: 25c
-  CAPTURE_DATE: 10-22-2025
-  CAPTURE_DATE_PREV: 07-01-2025
+  GEOSUPPORT_VERSION: 25d
+  CAPTURE_DATE: 01-01-2026
+  CAPTURE_DATE_PREV: 10-22-2025
 
 inputs:
   missing_versions_strategy: find_latest
@@ -35,7 +35,7 @@ inputs:
     - name: dof_shoreline
       version: 20220429
     - name: dcp_mappluto_wi
-      version: 25v2
+      version: 25v3
     - name: doe_eszones
     - name: doe_mszones
     - name: doe_school_subdistricts
