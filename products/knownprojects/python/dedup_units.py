@@ -25,7 +25,8 @@ def resolve_all_projects(df):
     # Hierarchy for unit subtraction
     hierarchy = {
         "DOB": 1,
-        "HPD Projected Closings": 2,
+        # remove sensitive HPD data. must confirm this won't be needed in the future
+        # "HPD Projected Closings": 2,
         "HPD RFPs": 3,
         "EDC Projected Projects": 4,
         "DCP Application": 5,
