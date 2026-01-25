@@ -1,0 +1,28 @@
+id: dohmh_child_care
+acl: public-read
+
+attributes:
+  name: Active NYC Health Code Regulated Child Care Programs
+  description: >-
+    This dataset lists active child care programs regulated under NYC Health Code Article 47 (Group Day Care)
+    and Article 43 (School-based Child Care).
+
+    These data can be used to map NYC Health Code regulated child care programs and filter by attributes,
+    such as location, ages served, facility type. It can also be used to answer questions such as how many
+    group child care (GCC) programs are in a specific ZIP code.
+
+    Only active group child care (GCC) and school-based child care (SBCC) programs are displayed in this
+    dataset. Child care programs with a 'preliminary', 'suspended', or 'closed' status are not included.
+  url: https://data.cityofnewyork.us/d/gy3q-4tzp
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: gy3q-4tzp
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
