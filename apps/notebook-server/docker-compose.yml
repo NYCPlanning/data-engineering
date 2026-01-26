@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  notebook-server:
+    image: nycplanning/dcpy-notebook-server:latest
+    build:
+      context: ../..
+      dockerfile: apps/notebook-server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - MARIMO_PASSWORD=pw
+      - MARIMO_PORT=8080
+      - MARIMO_HOST=0.0.0.0
+      - MARMIMO_NOTEBOOK_DIR=/app/notebooks/marimo
+      - PRODUCT_METADATA_REPO_PATH=/app/product-metadata
+      - SOCRATA_USER
+      - SOCRATA_PASSWORD
+
+    volumes:
+      # Optional: Mount notebooks directory for development
+      - ../../notebooks:/app/notebooks
+    restart: unless-stopped
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "http://localhost:8080/", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
