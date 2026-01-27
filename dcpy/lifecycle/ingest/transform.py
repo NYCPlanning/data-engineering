@@ -1,3 +1,5 @@
+import json
+import textwrap
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
@@ -605,6 +607,10 @@ def process(
         logger.info(f"Running processing step '{step.name}'")
         result = step_callable(df, **step.args)
         df = result.df
+        logger.info(f"Processing step '{step.name}' results summary:")
+        logger.info(
+            f"{textwrap.indent(json.dumps(result.summary.model_dump(mode='json'), indent=4), '    ')}"
+        )
         summaries.append(result.summary)
 
     validate_columns(df, expected_columns)
