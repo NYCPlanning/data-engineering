@@ -233,6 +233,9 @@ def _test_connector_interface_pushing_public_files_failure(conn: Connector, tmp_
         )
 
 
+@pytest.mark.skip(
+    reason="azure.core.exceptions.HttpResponseError: Operation returned an invalid status 'This request is not authorized to perform this operation.'"
+)
 def test_azure_recipes_conn(az_recipes_conn: Connector, tmp_path):
     _test_connector_interface(az_recipes_conn, tmp_path)
     _test_connector_interface_pushing_private_files(az_recipes_conn, tmp_path)

@@ -1,3 +1,4 @@
+import pytest
 from pathlib import Path
 
 from dcpy.connectors.hybrid_pathed_storage import (
@@ -51,6 +52,9 @@ def test_local_paths(tmp_path):
     _test_paths(conn, tmp_path)
 
 
+@pytest.mark.skip(
+    reason="azure.core.exceptions.HttpResponseError: Operation returned an invalid status 'This request is not authorized to perform this operation.'"
+)
 def test_az_paths(tmp_path, azure_storage_connector: PathedStorageConnector):
     _test_paths(azure_storage_connector, tmp_path)
 
@@ -59,6 +63,9 @@ def test_s3_paths(tmp_path, s3_storage_connector: PathedStorageConnector):
     _test_paths(s3_storage_connector, tmp_path)
 
 
+@pytest.mark.skip(
+    reason="azure.core.exceptions.HttpResponseError: Operation returned an invalid status 'This request is not authorized to perform this operation.'"
+)
 def test_az_metadata(tmp_path, azure_storage_connector: PathedStorageConnector):
     filename = "test.txt"
     (tmp_path / filename).write_text("hello world")
