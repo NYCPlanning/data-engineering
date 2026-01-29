@@ -16,11 +16,14 @@ attributes:
 
 ingestion:
   source:
-    type: local_file
-    path: ./tmp/upload/COLPDATA.csv
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcas/ipis/{{ version }}/dcas_ipis.csv
   file_format:
     type: csv
-    encoding: ISO-8859-1
+    # encoding: ISO-8859-1
+    # I think we needed the above in the past, but including it now results in an invalid column header: ï»¿bbl
+    # Leaving it here just in case this weird behavior is reintroduced
   processing_steps:
   - name: clean_column_names
     args: {"replace": {" ": "_", "-": "_"}, "lower": True}
