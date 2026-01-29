@@ -49,3 +49,8 @@ bbl,pluto_version,units_res,comment
 2027247502,25v4,376,unchanged from previous version
 3001497501,25v4,690,unchanged from previous version
 3038627501,25v4,469,unchanged from previous version
+3021347504,25v4,487,part of a project including BBL 3021340150 and could only find the project total of 950
+3015357503,25v4,66,DevDB incorrectly says 0 units
+1021887501,25v4,611,DevDB incorrectly says 0 units
+1010507501,25v4,9,DevDB includes shelter units in the total of 105
+1000697502,25v4,225,PLUTO seems more accurate than DevDB reporting 335 units
