@@ -36,7 +36,7 @@ SELECT
 
     CASE
         WHEN
-            complete_year = '2020' AND date_complete > '2020-03-31'::date
+            complete_year = '2020' AND date_complete > '2020-04-01'::date
             AND job_inactive IS NULL
             THEN classa_net
     END AS comp2020ap,
@@ -50,7 +50,7 @@ SELECT
 
     CASE
         WHEN
-            date_complete > '2020-03-31'::date AND date_complete < '{{ CAPTURE_DATE }}'::date
+            date_complete > '2020-04-01'::date AND date_complete < '{{ CAPTURE_DATE }}'::date
             AND job_inactive IS NULL
             THEN classa_net
     END AS since_cen20,
