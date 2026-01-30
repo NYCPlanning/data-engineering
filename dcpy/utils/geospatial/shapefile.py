@@ -94,14 +94,14 @@ class Shapefile:
     def _post_init(self):
         self.has_metadata = self.metadata_exists()
 
-    def read_metadata(self):
+    def read_metadata(self) -> Metadata:
         """Read shapefile metadata from file.
         Works for both zipped and non-zipped shapefiles.
 
         Returns:
-        str: Metadata content as string.
+        Metadata content as string.
         """
-        xml: str = self.file_manager.read_file(f"{self.name}.xml")
+        xml = self.file_manager.read_file(f"{self.name}.xml")
         metadata = Metadata.from_xml(xml)
 
         return metadata
@@ -133,7 +133,7 @@ class Shapefile:
 
         self.file_manager.write_file(filename=f"{self.name}.xml", contents=md)
 
-    def metadata_exists(self):
+    def metadata_exists(self) -> bool:
         """Detect whether shapefile has existing metadata.
 
         Returns:
@@ -141,7 +141,7 @@ class Shapefile:
         """
         return self.file_manager.metadata_exists(f"{self.name}.xml")
 
-    def remove_metadata(self):
+    def remove_metadata(self) -> None:
         """Removes existing metadata file from shapefile."""
         if self.metadata_exists():
             self.file_manager.remove_file(f"{self.name}.xml")
