@@ -37,23 +37,37 @@ inputs:
     - name: dcp_mappluto_wi
       version: 25v3
     - name: doe_eszones
+      version: 20240313
     - name: doe_mszones
+      version: 20240313
     - name: doe_school_subdistricts
+      version: 20250901
     - name: hpd_hny_units_by_building
+      version: 20251029
     - name: hny_geocode_results
+      version: 20251029
     - name: hpd_historical_units_by_building
+      version: 20230630
     - name: hpd_historical_geocode_results
+      version: 20230630
     - name: dob_now_applications
+      version: 20260121
     - name: dob_now_permits
+      version: 20260121
     - name: dob_cofos
       file_type: parquet
+      version: 20260107
     - name: doitt_buildingfootprints
+      version: 20260111
     - name: doitt_buildingfootprints_historical
+      version: 20260111
     - name: dcp_censusdata
       version: "2020"
     - name: dcp_censusdata_blocks
       version: "2020"
     - name: dob_permitissuance
+      version: 20260117
     - name: dob_jobapplications
+      version: 20260118
     - name: dob_jobapplications_parkingspaces
       version: 20240603
