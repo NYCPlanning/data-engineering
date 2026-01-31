@@ -89,7 +89,7 @@ jobs:
 
       - name: Load to Database
         run: |
-          ./devdb_datasync.sh import hpd_hny_units_by_building ${{ github.event.inputs.version }}
+          ./devdb_datasync.sh import hpd_hny_units_by_building
           ./devdb_datasync.sh import hpd_historical_units_by_building
 
       - name: Geocode
