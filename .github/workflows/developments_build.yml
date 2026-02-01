@@ -48,15 +48,16 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-          EDM_DATA: "op://Data Engineering/EDM_DATA/defaultdb_url"
+          BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+          BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+          BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+          BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
-      - name: Finish container setup ...
+      - name: Setup build environment
         working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
-      - name: Set build environment variables
-        working-directory: ./
-        run: ./bash/build_env_setup.sh
+        run: |
+          ./bash/docker_container_setup.sh
+          ./bash/build_env_setup.sh
 
       - name: Plan build
         run: python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }}
@@ -84,4 +85,4 @@ jobs:
         run: ./bash/05_export.sh
 
       - name: Upload
-        run: python -m dcpy.connectors.edm.publishing upload -p db-developments -a public-read
+        run: python -m dcpy.connectors.edm.publishing upload --product db-developments --acl public-read
