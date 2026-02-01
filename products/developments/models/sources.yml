@@ -1,0 +1,34 @@
+sources:
+  - name: recipe_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: dcp_cdboundaries
+      - name: dcp_cb2020
+      - name: dcp_ct2020
+      - name: dcp_cdta2020
+      - name: dcp_nta2020
+      - name: dcp_school_districts
+      - name: dcp_boroboundaries_wi
+      - name: dcp_councildistricts
+      - name: dcp_firecompanies
+      - name: dcp_policeprecincts
+      - name: doitt_zipcodeboundaries
+      - name: dof_shoreline
+      - name: dcp_mappluto_wi
+      - name: doe_eszones
+      - name: doe_mszones
+      - name: doe_school_subdistricts
+      - name: hpd_hny_units_by_building
+      - name: hny_geocode_results
+      - name: hpd_historical_units_by_building
+      - name: hpd_historical_geocode_results
+      - name: dob_now_applications
+      - name: dob_now_permits
+      - name: dob_cofos
+      - name: doitt_buildingfootprints
+      - name: doitt_buildingfootprints_historical
+      - name: dcp_censusdata
+      - name: dcp_censusdata_blocks
+      - name: dob_permitissuance
+      - name: dob_jobapplications
+      - name: dob_jobapplications_parkingspaces
