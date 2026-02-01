@@ -1,6 +1,9 @@
 #!/bin/bash
 source bash/config.sh
 
+dbt deps
+dbt debug
+
 run_sql_file sql/_create.sql
 
 display "Starting to build Developments DB"
