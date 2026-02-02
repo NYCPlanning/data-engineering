@@ -31,8 +31,8 @@ echo "--> Restoring: $GDB from $BACKUP_GDB"
 cp -r "$BACKUP_GDB" "$GDB"
 
 # Write metadata ------------------------------------------
-echo "--> Writing metadata to ${GDB}"
 # ogr2ogr -f "OpenFileGDB" "$GDB" "$SHP" -lco DOCUMENTATION="$METADATA"     # pre-GDAL CLI method
+echo "--> Writing metadata to ${GDB}"
 
 # ...create intermediate dataset...
 echo "--> Creating an intermediate layer"

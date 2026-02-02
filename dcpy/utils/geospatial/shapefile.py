@@ -99,7 +99,7 @@ class Shapefile:
         Works for both zipped and non-zipped shapefiles.
 
         Returns:
-        Metadata content as string.
+        Metadata content as a Metadata object.
         """
         xml = self.file_manager.read_file(f"{self.name}.xml")
         metadata = Metadata.from_xml(xml)
