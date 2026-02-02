@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 def test_read_metadata():
-    gdb = Path("my_dev_files/data/gdal_cli_test/test_db.gdb")
+    gdb = Path("path/to/test_db.gdb")
     layer = "test"
     print(f"{read_metadata(gdb, layer)=}")
     assert False
