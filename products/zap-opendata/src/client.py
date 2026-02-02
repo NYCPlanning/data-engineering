@@ -21,6 +21,8 @@ class Client:
     @cached_property
     def access_token(self) -> str:
         result = self.app.acquire_token_for_client(scopes=self.config["scope"])
+        if list(result.keys()) == ["error"]:
+            raise PermissionError(result)
         return result["access_token"]
 
     @cached_property
