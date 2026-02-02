@@ -257,19 +257,23 @@ class PostgresClient:
             new_name=AsIs(new_name),
         )
 
-    def get_table_columns(self, table_name: str) -> list[str]:
+    def get_table_columns(
+        self, table_name: str, schema: str | None = None
+    ) -> list[str]:
         column_names = self.execute_select_query(
             """
             SELECT column_name FROM information_schema.columns
             WHERE table_schema = ':table_schema'
             AND table_name   = ':table_name';
             """,
-            table_schema=AsIs(self.schema),
+            table_schema=AsIs(schema or self.schema),
             table_name=AsIs(table_name),
         )
         return sorted(column_names["column_name"])
 
-    def get_column_types(self, table_name: str) -> dict[str, str]:
+    def get_column_types(
+        self, table_name: str, schema: str | None = None
+    ) -> dict[str, str]:
         columns = self.execute_select_query(
             """
             SELECT
@@ -282,7 +286,7 @@ class PostgresClient:
             WHERE table_schema = ':table_schema'
             AND table_name = ':table_name';
             """,
-            table_schema=AsIs(self.schema),
+            table_schema=AsIs(schema or self.schema),
             table_name=AsIs(table_name),
         )
         return {r["column_name"]: r["data_type"] for _, r in columns.iterrows()}

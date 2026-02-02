@@ -75,14 +75,20 @@ def _df_to_set_of_lists(df: pd.DataFrame) -> set[list]:
     return set(list(df.itertuples(index=False, name=None)))  # type: ignore
 
 
-def compare_sql_columns(left: str, right: str, client: postgres.PostgresClient):
-    left_columns = set(client.get_table_columns(left))
-    right_columns = set(client.get_table_columns(right))
+def compare_sql_columns(
+    left: str,
+    right: str,
+    client: postgres.PostgresClient,
+    left_schema: str | None = None,
+    right_schema: str | None = None,
+):
+    left_columns = set(client.get_table_columns(left, left_schema))
+    right_columns = set(client.get_table_columns(right, right_schema))
 
     type_differences = {}
 
-    left_types = client.get_column_types(left)
-    right_types = client.get_column_types(right)
+    left_types = client.get_column_types(left, left_schema)
+    right_types = client.get_column_types(right, right_schema)
 
     for column in left_columns & right_columns:
         left_dtype = left_types[column]
@@ -308,5 +314,73 @@ def get_sql_report(
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),
+        data_comparison=data_comp,
+    )
+
+
+def get_sql_report_detailed(
+    schema_name_prod: str,
+    table_name_prod: str,
+    schema_name_dev: str,
+    table_name_dev: str,
+    client: postgres.PostgresClient,
+) -> comparison.SqlReport:
+    prod_rows = client.execute_select_query(
+        f"SELECT count(*) AS count FROM {schema_name_prod}.{table_name_prod}"
+    )
+    dev_rows = client.execute_select_query(
+        f"SELECT count(*) AS count FROM {schema_name_dev}.{table_name_dev}"
+    )
+
+    data_comp_query = f"""
+        WITH combined AS (
+            SELECT 
+                'dev' as source,
+                *,
+                md5(CAST(dev AS text)) AS row_hash
+            FROM {schema_name_dev}.{table_name_dev} as dev
+            UNION ALL
+            SELECT 
+                'prod' as source,
+                *,
+                md5(CAST(prod AS text)) AS row_hash
+            FROM {schema_name_prod}.{table_name_prod} as prod
+        ),
+        counts AS (
+            SELECT 
+                *,
+                COUNT(*) OVER (PARTITION BY row_hash) AS match_count,
+                COUNT(CASE WHEN source = 'dev' THEN 1 END) OVER (PARTITION BY row_hash) AS dev_count,
+                COUNT(CASE WHEN source = 'prod' THEN 1 END) OVER (PARTITION BY row_hash) AS prod_count
+            FROM combined
+        )
+        select counts.*
+        FROM counts
+        WHERE dev_count <> prod_count  -- Different counts = unmatched rows
+    """
+
+    prod_columns = client.get_table_columns(table_name_prod, schema_name_prod)
+    dev_columns = client.get_table_columns(table_name_dev, schema_name_dev)
+    columns = set(prod_columns) & set(dev_columns)
+
+    data_comp_results = client.execute_select_query(data_comp_query)
+    left_only = data_comp_results[data_comp_results["source"] == "prod"]
+    right_only = data_comp_results[data_comp_results["source"] == "dev"]
+    data_comp = comparison.SimpleTable(
+        compared_columns=columns,
+        ignored_columns=None,
+        columns_coerced_to_numeric=None,
+        left_only=left_only,
+        right_only=right_only,
+    )
+
+    return comparison.SqlReport(
+        tables=comparison.Simple[str](left=table_name_prod, right=table_name_dev),
+        row_count=comparison.Simple[int](
+            left=prod_rows["count"][0], right=dev_rows["count"][0]
+        ),
+        column_comparison=compare_sql_columns(
+            left=table_name_prod, right=table_name_dev, client=client
+        ),
         data_comparison=data_comp,
     )
