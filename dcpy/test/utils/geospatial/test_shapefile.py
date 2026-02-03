@@ -5,11 +5,10 @@ import shutil
 import zipfile
 from pathlib import Path
 from dcpy.models.data.shapefile_metadata import Metadata
-from datetime import datetime
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
-METADATA_XML = "shapefile_metadata.xml"
+METADATA_XML = "esri_metadata.xml"
 
 
 @fixture
