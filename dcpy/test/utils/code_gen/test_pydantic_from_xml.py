@@ -11,7 +11,7 @@ import pytest
 
 from dcpy.utils.code_gen import pydantic_from_xml
 
-PLUTO_METADATA_XML = "shapefile_metadata_pluto_export.xml"
+PLUTO_METADATA_XML = "esri_metadata_pluto_export.xml"
 
 # Test a minimal XML example
 XML_TEMPLATE = """<?xml version="1.0"?>
