@@ -15,7 +15,9 @@ def read_metadata(gdb: Path, layer: str) -> Metadata:
             sql=f"GetLayerMetadata {layer}",
             features=True,
         ).Output()
-    metadata_info = layer_info["layers"][0]["features"][0]["properties"]["FIELD_1"]
+    metadata_info = layer_info["layers"][0]["features"][0]["properties"][
+        "FIELD_1"
+    ].strip("'")
     metadata = Metadata.from_xml(metadata_info)
 
     return metadata
@@ -30,7 +32,7 @@ def write_metadata(
 ) -> None:
     if metadata_exists(gdb=gdb, layer=layer) and not overwrite:
         raise FileExistsError(
-            "Metadata XML already exists, and overwrite is False. Nothing will be written"
+            "Metadata already exists, and overwrite is False. Nothing will be written"
         )
     if overwrite:
         remove_metadata(gdb=gdb, layer=layer)
@@ -60,15 +62,29 @@ def write_metadata(
             overwrite_layer=True,
         )
         # delete intermediate layer
-        gdal.vector.sql(
+        gdal.alg.vector.sql(
             input_format="OpenFileGDB",
             input=gdb,
             sql=f"DROP TABLE {intermediate_layer}",
-            udpate=True,
+            update=True,
         )
 
 
-def metadata_exists(gdb: Path | str, layer: str) -> bool: ...
+def metadata_exists(gdb: Path | str, layer: str) -> bool:
+    with gdal.ExceptionMgr():
+        layer_info = gdal.alg.vector.info(
+            input=gdb,
+            sql=f"GetLayerMetadata {layer}",
+            features=True,
+        ).Output()
+    metadata_info = layer_info["layers"][0]["features"][0]["properties"][
+        "FIELD_1"
+    ].strip("'")
+
+    if len(metadata_info) == 0:
+        return False
+    else:
+        return True
 
 
 def remove_metadata(gdb: Path | str, layer: str) -> None: ...
