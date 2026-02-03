@@ -39,6 +39,7 @@ class TestDataFrame:
                 key_columns=keys,
                 left_only=set(),
                 right_only=set(),
+                are_equal=True,
                 columns_with_diffs={"c"},
                 differences_by_column={"c": key_difference},
             ),
@@ -47,8 +48,6 @@ class TestDataFrame:
         report = compare.get_df_keyed_report(
             self.basic, self.different_column_values, keys
         )
-        print(key_difference)
-        print(report.data_comparison.differences_by_column["c"])
         assert report == expected
 
     def test_different_column_type(self):
@@ -75,6 +74,7 @@ class TestDataFrame:
                 key_columns=keys,
                 left_only=set(),
                 right_only=set(),
+                are_equal=True,
                 columns_with_diffs={"c"},
                 differences_by_column={"c": key_difference},
             ),
@@ -99,6 +99,7 @@ class TestDataFrame:
                 key_columns=keys,
                 left_only=set(),
                 right_only=set(),
+                are_equal=True,
                 columns_with_diffs=set(),
                 differences_by_column={},
             ),
@@ -121,6 +122,7 @@ class TestDataFrame:
                 key_columns=keys,
                 left_only={(2, 1)},
                 right_only=set(),
+                are_equal=False,
                 columns_with_diffs=set(),
                 differences_by_column={},
             ),
@@ -143,6 +145,7 @@ class TestDataFrame:
                 key_columns=keys,
                 left_only={(2, 1)},
                 right_only={(2, 2)},
+                are_equal=False,
                 columns_with_diffs=set(),
                 differences_by_column={},
             ),

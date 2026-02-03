@@ -23,6 +23,7 @@ class KeyedTable(ModelWithDataFrame):
     key_columns: list[str]
     left_only: set = Field(serialization_alias="Keys found in left only")
     right_only: set = Field(serialization_alias="Keys found in right only")
+    are_equal: bool
     ignored_columns: list[str] | None = None
     columns_coerced_to_numeric: list[str] | None = None
     columns_with_diffs: set[str] = Field(
@@ -39,6 +40,7 @@ class SimpleTable(ModelWithDataFrame):
     columns_coerced_to_numeric: list[str] | None = None
     left_only: pd.DataFrame | None
     right_only: pd.DataFrame | None
+    are_equal: bool
 
 
 class Report(SortedSerializedBase):
