@@ -51,7 +51,7 @@ def test_read_metadata(temp_gdb_nonzipped_path):
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
     assert md.esri.crea_date == "20260203"
-    assert md.esri.crea_time == "00000000"
+    assert md.esri.crea_time == "10392600"
 
 
 def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
