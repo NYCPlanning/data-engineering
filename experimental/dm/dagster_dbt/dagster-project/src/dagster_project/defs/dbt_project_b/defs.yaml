@@ -1,0 +1,7 @@
+type: dagster_dbt.DbtProjectComponent
+
+attributes:
+  project: '{{ context.project_root }}/../dbt_jaffle_shoppe'
+  translation:
+    key: 'jaffle_shoppe__{{ node.name }}'
+    group_name: dbt_jaffle_shoppe
