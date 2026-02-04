@@ -1,7 +1,8 @@
 from datetime import datetime
 
 from pytest import fixture
-from dcpy.utils.geospatial.shapefile import generate_metadata
+
+from dcpy.utils.geospatial.metadata import generate_metadata
 
 
 @fixture
