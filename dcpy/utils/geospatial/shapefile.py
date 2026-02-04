@@ -94,7 +94,7 @@ class Shapefile:
     def _post_init(self):
         self.has_metadata = self.metadata_exists()
 
-    def read_metadata(self) -> Metadata:
+    def read_metadata(self) -> Metadata | None:
         """Read shapefile metadata from file.
         Works for both zipped and non-zipped shapefiles.
 
@@ -102,6 +102,10 @@ class Shapefile:
         Metadata content as a Metadata object.
         """
         xml = self.file_manager.read_file(f"{self.name}.xml")
+
+        if not xml:
+            return None
+
         metadata = Metadata.from_xml(xml)
 
         return metadata

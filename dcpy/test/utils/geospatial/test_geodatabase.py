@@ -1,11 +1,8 @@
 import shutil
 from pytest import fixture
 import zipfile
-from dcpy.utils.geospatial.metadata import generate_metadata
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial import geodatabase
-from pytest import fixture
-from pathlib import Path
 
 GDB_ZIP = "geodatabase.gdb.zip"
 FEATURE_CLASS = "pluto_one_row"
@@ -70,5 +67,29 @@ def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
     assert md.esri.crea_time == "00000000"
 
 
-def test_metadata_exists(): ...
-def test_remove_metadata(): ...
+def test_metadata_exists(temp_gdb_nonzipped_path):
+    originally_md_exists = geodatabase.metadata_exists(
+        gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS
+    )
+    # remove metadata
+    geodatabase.remove_metadata(
+        gdb=temp_gdb_nonzipped_path,
+        layer=FEATURE_CLASS,
+    )
+    md_exists_after_removal = geodatabase.metadata_exists(
+        gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS
+    )
+    assert originally_md_exists is True, "Expected layer metadata but found none"
+    assert md_exists_after_removal is False, (
+        "Expected no layer metadata, but found some"
+    )
+
+
+def test_remove_metadata(temp_gdb_nonzipped_path):
+    geodatabase.remove_metadata(
+        gdb=temp_gdb_nonzipped_path,
+        layer=FEATURE_CLASS,
+    )
+
+    md = geodatabase.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
+    assert md is None
