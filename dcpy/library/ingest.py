@@ -65,7 +65,7 @@ def format_field_names(
     else:
         geom_clause = ""
     query = f"""SELECT\n\t{select}{geom_clause}\nFROM {layer_name}"""
-    print(query)
+    print(f"Formatting field names in layer '{layer_name}' using SQL query:\n{query}")
     if not sql:
         return query
     else:
@@ -191,6 +191,7 @@ def translator(func):
             layerName = dataset.name
 
         # Initiate vector translate
+        print("Initiating vector translate ...")
         with Progress(
             SpinnerColumn(spinner_name="earth"),
             TextColumn("[progress.description]{task.description}"),
