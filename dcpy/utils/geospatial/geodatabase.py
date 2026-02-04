@@ -3,12 +3,10 @@ from pathlib import Path
 from osgeo import gdal
 
 # TODO rename below to "esri_metadata"
-from dcpy.utils.geospatial.metadata import generate_metadata
-
 from dcpy.models.data.shapefile_metadata import Metadata
 
 
-def read_metadata(gdb: Path, layer: str) -> Metadata:
+def read_metadata(gdb: Path, layer: str) -> Metadata | None:
     with gdal.ExceptionMgr():
         layer_info = gdal.alg.vector.info(
             input=gdb,
@@ -18,17 +16,16 @@ def read_metadata(gdb: Path, layer: str) -> Metadata:
     metadata_info = layer_info["layers"][0]["features"][0]["properties"][
         "FIELD_1"
     ].strip("'")
+
+    if not metadata_info:
+        return None
     metadata = Metadata.from_xml(metadata_info)
 
     return metadata
 
 
-# gdal.UseExceptions()  # call this in actual code
-# gdal.alg.raster.convert(input="in.tif", output="out.tif")
-
-
 def write_metadata(
-    gdb: Path | str, layer: str, metadata: Metadata, overwrite: bool = False
+    gdb: Path, layer: str, metadata: Metadata, overwrite: bool = False
 ) -> None:
     if metadata_exists(gdb=gdb, layer=layer) and not overwrite:
         raise FileExistsError(
@@ -41,36 +38,14 @@ def write_metadata(
     md = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
 
     with gdal.ExceptionMgr():
-        intermediate_layer = "intermediate_layer"
-        # create intermediate layer
-        gdal.alg.vector.edit(
-            input_format="OpenFileGDB",
-            input=gdb,
-            output=gdb,
-            input_layer=layer,
-            output_layer=intermediate_layer,
-            update=True,
-        )
-        # add metadata
-        gdal.alg.vector.edit(
-            input_format="OpenFileGDB",
-            input=gdb,
-            output=gdb,
-            input_layer=intermediate_layer,
-            output_layer=layer,
-            layer_creation_option=f"DOCUMENTATION='{md}'",
-            overwrite_layer=True,
-        )
-        # delete intermediate layer
-        gdal.alg.vector.sql(
-            input_format="OpenFileGDB",
-            input=gdb,
-            sql=f"DROP TABLE {intermediate_layer}",
-            update=True,
+        _edit_layer_metadata_inplace(
+            gdb=gdb,
+            layer=layer,
+            metadata=md,
         )
 
 
-def metadata_exists(gdb: Path | str, layer: str) -> bool:
+def metadata_exists(gdb: Path, layer: str) -> bool:
     with gdal.ExceptionMgr():
         layer_info = gdal.alg.vector.info(
             input=gdb,
@@ -81,13 +56,45 @@ def metadata_exists(gdb: Path | str, layer: str) -> bool:
         "FIELD_1"
     ].strip("'")
 
-    if len(metadata_info) == 0:
-        return False
-    else:
+    if metadata_info:
         return True
+    return False
 
 
-def remove_metadata(gdb: Path | str, layer: str) -> None: ...
+def remove_metadata(gdb: Path, layer: str) -> None:
+    with gdal.ExceptionMgr():
+        _edit_layer_metadata_inplace(gdb=gdb, layer=layer, metadata="")
 
 
-def _edit_metadata_inplace(gdb: Path, layer: str) -> None: ...
+def _edit_layer_metadata_inplace(
+    gdb: Path,
+    layer: str,
+    metadata: str,
+) -> None:
+    intermediate_layer = "intermediate_layer"
+    # create intermediate layer
+    gdal.alg.vector.edit(
+        input_format="OpenFileGDB",
+        input=gdb,
+        output=gdb,
+        input_layer=layer,
+        output_layer=intermediate_layer,
+        update=True,
+    )
+    # add metadata
+    gdal.alg.vector.edit(
+        input_format="OpenFileGDB",
+        input=gdb,
+        output=gdb,
+        input_layer=intermediate_layer,
+        output_layer=layer,
+        layer_creation_option=f"DOCUMENTATION='{metadata}'",
+        overwrite_layer=True,
+    )
+    # delete intermediate layer
+    gdal.alg.vector.sql(
+        input_format="OpenFileGDB",
+        input=gdb,
+        sql=f"DROP TABLE {intermediate_layer}",
+        update=True,
+    )
