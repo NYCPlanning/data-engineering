@@ -1,0 +1,14 @@
+id: uscourts_nyc_courts
+acl: public-read
+
+attributes:
+  name: US Courts NY Southern District and Eastern District Courts
+  url: https://www.uscourts.gov/federal-court-finder/find
+
+ingestion:
+  source:
+    # custom web-scraping connector
+    type: uscourts
+    key: ""
+  file_format:
+    type: csv
