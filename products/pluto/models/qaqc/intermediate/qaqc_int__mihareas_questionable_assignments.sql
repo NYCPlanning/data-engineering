@@ -2,57 +2,54 @@
     materialized = 'view'
 ) }}
 -- Analysis: MIH Areas Questionable Assignments
--- Purpose: Identify tax lots with multiple MIH area assignments and analyze coverage patterns
+-- Purpose: Identify lots with "iffy" MIH area assignments due to low spatial overlap
+-- 
+-- This view shows lots where the MIH assignment is questionable due to:
+-- 1. Low percentage of lot covered by MIH area (between 10-25%)
+-- 2. Low percentage of MIH area covered by lot (between 50-75%)
+-- 3. Edge cases that barely meet assignment thresholds
 --
--- This analysis identifies BBLs that intersect with multiple MIH areas
--- and pulls in the relevant geometries for analysis purposes.
+-- Unlike transit zones, multiple MIH areas can legitimately apply to a single lot.
+-- We focus on identifying assignments with marginal spatial overlap that may need review.
 
-WITH bbls_with_multiple_mihareas AS (
-    -- Find BBLs that have multiple MIH area assignments
-    SELECT bbl
-    FROM {{ source("build_sources", "mihperorder") }}
-    WHERE row_number = 2  -- BBLs with at least 2 MIH assignments
-),
-
-mihareas_coverage_analysis AS (
-    -- Calculate coverage metrics for BBLs with multiple MIH area assignments
+WITH questionable_assignments AS (
     SELECT
-        m.bbl,
-        m.project_name,
-        m.affordability_option,
-        m.perbblgeom AS pct_covered,
-        p.geom AS lot_geometry,
+        mlo.bbl,
+        mlo.project_id,
+        mlo.mih_id,
+        mlo.cleaned_option,
+        mlo.perbblgeom AS pct_lot_covered,
+        mlo.maxpermihgeom AS pct_mih_covered,
+        -- Calculate how "iffy" this assignment is (lower scores = more questionable)
+        LEAST(
+            CASE WHEN mlo.perbblgeom >= 10 THEN mlo.perbblgeom ELSE 0 END,
+            CASE WHEN mlo.maxpermihgeom >= 50 THEN mlo.maxpermihgeom ELSE 0 END
+        ) AS assignment_strength,
+        p.geom AS lot_geom,
         p.address,
-        d.wkb_geometry AS mih_geometry,
-        -- Calculate how close the coverage percentage is to 50% (most ambiguous case)
-        50 - ABS(m.perbblgeom - 50.0) AS ambiguity_score,
-        -- Get the maximum ambiguity score for each BBL to identify most questionable cases
-        MAX(50 - ABS(m.perbblgeom - 50.0)) OVER (PARTITION BY m.bbl) AS max_bbl_ambiguity_score
-    FROM {{ source("build_sources", "mihperorder") }} AS m
-    INNER JOIN bbls_with_multiple_mihareas AS bmm
-        ON m.bbl = bmm.bbl
-    INNER JOIN {{ source("build_sources", "pluto") }} AS p
-        ON m.bbl = p.bbl
-    INNER JOIN {{ source("build_sources", "dcp_mih") }} AS d
-        ON
-            m.project_name = d.project_name
-            AND m.affordability_option = d.mih_option
-),
-
-final AS (
-    SELECT DISTINCT ON (project_name, affordability_option, bbl, max_bbl_ambiguity_score)
-        bbl,
-        project_name,
-        affordability_option,
-        pct_covered,
-        ambiguity_score,
-        max_bbl_ambiguity_score,
-        mih_geometry,
-        lot_geometry,
-        address
-    FROM mihareas_coverage_analysis
+        p.zonedist1
+    FROM mih_lot_overlap AS mlo
+    LEFT JOIN pluto AS p ON mlo.bbl = p.bbl
+    WHERE mlo.perbblgeom BETWEEN 10 AND 30
+), assignment_context AS (
+    -- Add basic context and geometry
+    SELECT
+        qa.*,
+        mc.wkb_geometry AS mih_geom
+    FROM questionable_assignments AS qa
+    LEFT JOIN mih_cleaned AS mc ON qa.mih_id = mc.mih_id
 )
-
-SELECT *
-FROM final
-ORDER BY max_bbl_ambiguity_score DESC, bbl ASC, pct_covered DESC
+SELECT
+    bbl,
+    project_id,
+    cleaned_option,
+    pct_lot_covered,
+    pct_mih_covered,
+    assignment_strength,
+    address,
+    zonedist1,
+    lot_geom,
+    mih_geom,
+    ST_ENVELOPE(ST_BUFFER(lot_geom, 0.005)) AS area_of_interest_geom
+FROM assignment_context
+ORDER BY assignment_strength ASC, pct_lot_covered ASC;
