@@ -1,8 +1,8 @@
 from pathlib import Path
+import uuid
 
 from osgeo import gdal
 
-# TODO rename below to "esri_metadata"
 from dcpy.models.data.shapefile_metadata import Metadata
 
 
@@ -71,8 +71,7 @@ def _edit_layer_metadata_inplace(
     layer: str,
     metadata: str,
 ) -> None:
-    # TODO - give int layer a uid, maybe time stamp, to avoid duplicate conflict
-    intermediate_layer = "intermediate_layer"
+    intermediate_layer = f"fc_{uuid.uuid4().hex}"
     # create intermediate layer
     gdal.alg.vector.edit(
         input_format="OpenFileGDB",
