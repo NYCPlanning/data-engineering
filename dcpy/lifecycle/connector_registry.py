@@ -10,6 +10,7 @@ from dcpy.connectors.edm import builds, drafts, gis, published
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
+from dcpy.connectors.web_scrapers import uscourts
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
     StorageType,
@@ -68,6 +69,7 @@ def _set_default_connectors():
         OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
         web.WebConnector(),
+        uscourts.USCourtsConnector(),
         [web.WebConnector(), "api"],
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
