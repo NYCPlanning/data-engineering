@@ -102,8 +102,10 @@ CREATE TABLE pluto (
     masdate text,
     polidate text,
     edesigdate text,
-    mih_project_name text,
-    mih_affordability_option text,
+    mih_opt1 text,
+    mih_opt2 text,
+    mih_opt3 text,
+    mih_opt4 text,
     trnstzone text,
     affresfar text,
     mnffar text
