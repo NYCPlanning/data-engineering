@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pytest import fixture
 
-from dcpy.utils.geospatial.metadata import generate_metadata
+from dcpy.utils.geospatial.esri_metadata import generate_metadata
 
 
 @fixture

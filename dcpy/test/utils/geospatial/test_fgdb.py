@@ -2,7 +2,7 @@ import shutil
 from pytest import fixture
 import zipfile
 from dcpy.models.data.shapefile_metadata import Metadata
-from dcpy.utils.geospatial import geodatabase
+from dcpy.utils.geospatial import fgdb
 
 GDB_ZIP = "geodatabase.gdb.zip"
 FEATURE_CLASS = "pluto_one_row"
@@ -40,9 +40,10 @@ def temp_metadata_object(utils_resources_path):
     return md_object
 
 
-# TODO - parametrize all tests
+# TODO - parameterize all tests
+# TODO - test to confirm that other tables/fcs in gdb still exist after write/delete operations
 def test_read_metadata(temp_gdb_nonzipped_path):
-    md = geodatabase.read_metadata(gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS)
+    md = fgdb.read_metadata(gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS)
 
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
@@ -52,14 +53,14 @@ def test_read_metadata(temp_gdb_nonzipped_path):
 
 
 def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
-    geodatabase.write_metadata(
+    fgdb.write_metadata(
         gdb=temp_gdb_nonzipped_path,
         layer=FEATURE_CLASS,
         metadata=temp_metadata_object,
         overwrite=True,
     )
 
-    md = geodatabase.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
+    md = fgdb.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
@@ -68,15 +69,15 @@ def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
 
 
 def test_metadata_exists(temp_gdb_nonzipped_path):
-    originally_md_exists = geodatabase.metadata_exists(
+    originally_md_exists = fgdb.metadata_exists(
         gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS
     )
     # remove metadata
-    geodatabase.remove_metadata(
+    fgdb.remove_metadata(
         gdb=temp_gdb_nonzipped_path,
         layer=FEATURE_CLASS,
     )
-    md_exists_after_removal = geodatabase.metadata_exists(
+    md_exists_after_removal = fgdb.metadata_exists(
         gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS
     )
     assert originally_md_exists is True, "Expected layer metadata but found none"
@@ -86,10 +87,10 @@ def test_metadata_exists(temp_gdb_nonzipped_path):
 
 
 def test_remove_metadata(temp_gdb_nonzipped_path):
-    geodatabase.remove_metadata(
+    fgdb.remove_metadata(
         gdb=temp_gdb_nonzipped_path,
         layer=FEATURE_CLASS,
     )
 
-    md = geodatabase.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
+    md = fgdb.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
     assert md is None

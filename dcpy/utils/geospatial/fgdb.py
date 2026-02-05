@@ -71,6 +71,7 @@ def _edit_layer_metadata_inplace(
     layer: str,
     metadata: str,
 ) -> None:
+    # TODO - give int layer a uid, maybe time stamp, to avoid duplicate conflict
     intermediate_layer = "intermediate_layer"
     # create intermediate layer
     gdal.alg.vector.edit(
