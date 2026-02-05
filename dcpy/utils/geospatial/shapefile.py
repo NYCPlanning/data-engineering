@@ -3,7 +3,7 @@ import zipfile
 from pathlib import Path
 
 from dcpy.models.data.shapefile_metadata import Metadata
-from dcpy.utils.geospatial.metadata import generate_metadata
+from dcpy.utils.geospatial.esri_metadata import generate_metadata
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
