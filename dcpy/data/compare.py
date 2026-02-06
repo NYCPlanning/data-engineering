@@ -325,21 +325,26 @@ def get_sql_report(
 
 
 def get_sql_report_detailed(
-    schema_name_prod: str,
-    table_name_prod: str,
     schema_name_dev: str,
     table_name_dev: str,
+    schema_name_prod: str,
+    table_name_prod: str,
     client: postgres.PostgresClient,
 ) -> comparison.SqlReport:
-    prod_table = client.execute_select_query(
-        f"SELECT count(*) AS count FROM {schema_name_prod}.{table_name_prod}"
+    logger.info(
+        f"Comparing {schema_name_dev}.{table_name_dev} (left) to {schema_name_prod}.{table_name_prod} (right) ..."
     )
-    dev_table = client.execute_select_query(
+
+    dev_row_count = client.execute_select_query(
         f"SELECT count(*) AS count FROM {schema_name_dev}.{table_name_dev}"
     )
-    prod_columns = client.get_table_columns(table_name_prod, schema_name_prod)
+    prod_row_count = client.execute_select_query(
+        f"SELECT count(*) AS count FROM {schema_name_prod}.{table_name_prod}"
+    )
     dev_columns = client.get_table_columns(table_name_dev, schema_name_dev)
+    prod_columns = client.get_table_columns(table_name_prod, schema_name_prod)
     common_columns = set(prod_columns) & set(dev_columns)
+
     if (len(common_columns) != len(prod_columns)) or (
         len(common_columns) != len(dev_columns)
     ):
@@ -378,13 +383,14 @@ def get_sql_report_detailed(
     """
 
     data_comp_results = client.execute_select_query(data_comp_query)
+    # Left represents dev and right represent prod, aligns with actual == expected convention in python tests
     left_only = (
-        data_comp_results[data_comp_results["source"] == "prod"]
+        data_comp_results[data_comp_results["source"] == "dev"]
         .drop(columns="source")
         .reset_index(drop=True)
     )
     right_only = (
-        data_comp_results[data_comp_results["source"] == "dev"]
+        data_comp_results[data_comp_results["source"] == "prod"]
         .drop(columns="source")
         .reset_index(drop=True)
     )
@@ -400,12 +406,12 @@ def get_sql_report_detailed(
     )
 
     return comparison.SqlReport(
-        tables=comparison.Simple[str](left=table_name_prod, right=table_name_dev),
+        tables=comparison.Simple[str](left=table_name_dev, right=table_name_prod),
         row_count=comparison.Simple[int](
-            left=prod_table["count"][0], right=dev_table["count"][0]
+            left=dev_row_count["count"][0], right=prod_row_count["count"][0]
         ),
         column_comparison=compare_sql_columns(
-            left=table_name_prod, right=table_name_dev, client=client
+            left=table_name_dev, right=table_name_prod, client=client
         ),
         data_comparison=data_comp,
     )
