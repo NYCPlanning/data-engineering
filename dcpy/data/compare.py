@@ -66,6 +66,7 @@ def compare_df_keyed_rows(
         key_columns=key_columns,
         left_only=left_only,
         right_only=right_only,
+        are_equal=(len(left_only) == 0 and len(right_only) == 0 and len(comps) == 0),
         columns_with_diffs=set(comps.keys()),
         differences_by_column=comps,
     )
@@ -75,14 +76,20 @@ def _df_to_set_of_lists(df: pd.DataFrame) -> set[list]:
     return set(list(df.itertuples(index=False, name=None)))  # type: ignore
 
 
-def compare_sql_columns(left: str, right: str, client: postgres.PostgresClient):
-    left_columns = set(client.get_table_columns(left))
-    right_columns = set(client.get_table_columns(right))
+def compare_sql_columns(
+    left: str,
+    right: str,
+    client: postgres.PostgresClient,
+    left_schema: str | None = None,
+    right_schema: str | None = None,
+):
+    left_columns = set(client.get_table_columns(left, left_schema))
+    right_columns = set(client.get_table_columns(right, right_schema))
 
     type_differences = {}
 
-    left_types = client.get_column_types(left)
-    right_types = client.get_column_types(right)
+    left_types = client.get_column_types(left, left_schema)
+    right_types = client.get_column_types(right, right_schema)
 
     for column in left_columns & right_columns:
         left_dtype = left_types[column]
@@ -218,6 +225,7 @@ def compare_sql_keyed_rows(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
+        are_equal=(left_only.empty and right_only.empty and len(comps) == 0),
         ignored_columns=ignore_columns,
         columns_coerced_to_numeric=cast_to_numeric,
         columns_with_diffs=set(comps.keys()),
@@ -252,12 +260,16 @@ def compare_sql_rows(
             SELECT {query_columns} FROM {two}
         """)
 
+    left_only = query(left, right)
+    right_only = query(right, left)
+
     return comparison.SimpleTable(
         compared_columns=columns,
         ignored_columns=ignore_columns,
         columns_coerced_to_numeric=cast_to_numeric,
-        left_only=query(left, right),
-        right_only=query(right, left),
+        left_only=left_only,
+        right_only=right_only,
+        are_equal=(left_only.empty and right_only.empty),
     )
 
 
@@ -308,5 +320,98 @@ def get_sql_report(
             left=left_rows["count"][0], right=right_rows["count"][0]
         ),
         column_comparison=compare_sql_columns(left, right, client),
+        data_comparison=data_comp,
+    )
+
+
+def get_sql_report_detailed(
+    schema_name_dev: str,
+    table_name_dev: str,
+    schema_name_prod: str,
+    table_name_prod: str,
+    client: postgres.PostgresClient,
+) -> comparison.SqlReport:
+    logger.info(
+        f"Comparing {schema_name_dev}.{table_name_dev} (left) to {schema_name_prod}.{table_name_prod} (right) ..."
+    )
+
+    dev_row_count = client.execute_select_query(
+        f"SELECT count(*) AS count FROM {schema_name_dev}.{table_name_dev}"
+    )
+    prod_row_count = client.execute_select_query(
+        f"SELECT count(*) AS count FROM {schema_name_prod}.{table_name_prod}"
+    )
+    dev_columns = client.get_table_columns(table_name_dev, schema_name_dev)
+    prod_columns = client.get_table_columns(table_name_prod, schema_name_prod)
+    common_columns = set(prod_columns) & set(dev_columns)
+
+    if (len(common_columns) != len(prod_columns)) or (
+        len(common_columns) != len(dev_columns)
+    ):
+        logger.info(
+            f"Prod and dev tables do not have the same columns. Comparing tables for common columns only: {common_columns}"
+        )
+        logger.info(f"{prod_columns=}")
+        logger.info(f"{dev_columns=}")
+
+    data_comp_query = f"""
+        WITH combined AS (
+            SELECT 
+                'dev' as source,
+                {", ".join(common_columns)},
+                md5(CAST(dev AS text)) AS row_hash
+            FROM {schema_name_dev}.{table_name_dev} as dev
+            UNION ALL
+            SELECT 
+                'prod' as source,
+                {", ".join(common_columns)},
+                md5(CAST(prod AS text)) AS row_hash
+            FROM {schema_name_prod}.{table_name_prod} as prod
+        ),
+        counts AS (
+            SELECT 
+                *,
+                COUNT(*) OVER (PARTITION BY row_hash) AS match_count,
+                COUNT(CASE WHEN source = 'dev' THEN 1 END) OVER (PARTITION BY row_hash) AS dev_count,
+                COUNT(CASE WHEN source = 'prod' THEN 1 END) OVER (PARTITION BY row_hash) AS prod_count
+            FROM combined
+        )
+        select counts.*
+        FROM counts
+        WHERE dev_count <> prod_count  -- Different counts = unmatched rows
+        ORDER BY {", ".join(common_columns)}
+    """
+
+    data_comp_results = client.execute_select_query(data_comp_query)
+    # Left represents dev and right represent prod, aligns with actual == expected convention in python tests
+    left_only = (
+        data_comp_results[data_comp_results["source"] == "dev"]
+        .drop(columns="source")
+        .reset_index(drop=True)
+    )
+    right_only = (
+        data_comp_results[data_comp_results["source"] == "prod"]
+        .drop(columns="source")
+        .reset_index(drop=True)
+    )
+    are_equal = left_only.empty and right_only.empty
+
+    data_comp = comparison.SimpleTable(
+        compared_columns=common_columns,
+        ignored_columns=None,
+        columns_coerced_to_numeric=None,
+        left_only=left_only,
+        right_only=right_only,
+        are_equal=are_equal,
+    )
+
+    return comparison.SqlReport(
+        tables=comparison.Simple[str](left=table_name_dev, right=table_name_prod),
+        row_count=comparison.Simple[int](
+            left=dev_row_count["count"][0], right=prod_row_count["count"][0]
+        ),
+        column_comparison=compare_sql_columns(
+            left=table_name_dev, right=table_name_prod, client=client
+        ),
         data_comparison=data_comp,
     )
