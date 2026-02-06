@@ -331,24 +331,35 @@ def get_sql_report_detailed(
     table_name_dev: str,
     client: postgres.PostgresClient,
 ) -> comparison.SqlReport:
-    prod_rows = client.execute_select_query(
+    prod_table = client.execute_select_query(
         f"SELECT count(*) AS count FROM {schema_name_prod}.{table_name_prod}"
     )
-    dev_rows = client.execute_select_query(
+    dev_table = client.execute_select_query(
         f"SELECT count(*) AS count FROM {schema_name_dev}.{table_name_dev}"
     )
+    prod_columns = client.get_table_columns(table_name_prod, schema_name_prod)
+    dev_columns = client.get_table_columns(table_name_dev, schema_name_dev)
+    common_columns = set(prod_columns) & set(dev_columns)
+    if (len(common_columns) != len(prod_columns)) or (
+        len(common_columns) != len(dev_columns)
+    ):
+        logger.info(
+            f"Prod and dev tables do not have the same columns. Comparing tables for common columns only: {common_columns}"
+        )
+        logger.info(f"{prod_columns=}")
+        logger.info(f"{dev_columns=}")
 
     data_comp_query = f"""
         WITH combined AS (
             SELECT 
                 'dev' as source,
-                *,
+                {", ".join(common_columns)},
                 md5(CAST(dev AS text)) AS row_hash
             FROM {schema_name_dev}.{table_name_dev} as dev
             UNION ALL
             SELECT 
                 'prod' as source,
-                *,
+                {", ".join(common_columns)},
                 md5(CAST(prod AS text)) AS row_hash
             FROM {schema_name_prod}.{table_name_prod} as prod
         ),
@@ -363,19 +374,24 @@ def get_sql_report_detailed(
         select counts.*
         FROM counts
         WHERE dev_count <> prod_count  -- Different counts = unmatched rows
+        ORDER BY {", ".join(common_columns)}
     """
 
-    prod_columns = client.get_table_columns(table_name_prod, schema_name_prod)
-    dev_columns = client.get_table_columns(table_name_dev, schema_name_dev)
-    columns = set(prod_columns) & set(dev_columns)
-
     data_comp_results = client.execute_select_query(data_comp_query)
-    left_only = data_comp_results[data_comp_results["source"] == "prod"]
-    right_only = data_comp_results[data_comp_results["source"] == "dev"]
+    left_only = (
+        data_comp_results[data_comp_results["source"] == "prod"]
+        .drop(columns="source")
+        .reset_index(drop=True)
+    )
+    right_only = (
+        data_comp_results[data_comp_results["source"] == "dev"]
+        .drop(columns="source")
+        .reset_index(drop=True)
+    )
     are_equal = left_only.empty and right_only.empty
 
     data_comp = comparison.SimpleTable(
-        compared_columns=columns,
+        compared_columns=common_columns,
         ignored_columns=None,
         columns_coerced_to_numeric=None,
         left_only=left_only,
@@ -386,7 +402,7 @@ def get_sql_report_detailed(
     return comparison.SqlReport(
         tables=comparison.Simple[str](left=table_name_prod, right=table_name_dev),
         row_count=comparison.Simple[int](
-            left=prod_rows["count"][0], right=dev_rows["count"][0]
+            left=prod_table["count"][0], right=dev_table["count"][0]
         ),
         column_comparison=compare_sql_columns(
             left=table_name_prod, right=table_name_dev, client=client
