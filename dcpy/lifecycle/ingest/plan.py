@@ -64,14 +64,14 @@ def resolve_definition(
 
     logger.info(f"Reading definition from {definition_filepath}")
     definition = read_definition_file(definition_filepath, version=version)
-    version = version or get_version(definition.source)
-    definition = read_definition_file(definition_filepath, version=version)
 
     source = (
         Source(type="local_file", key=str(local_file_path))
         if local_file_path
         else definition.source
     )
+    version = version or get_version(source)
+    definition = read_definition_file(definition_filepath, version=version)
 
     match definition:
         case DatasetDefinition():

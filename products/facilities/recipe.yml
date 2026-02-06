@@ -130,7 +130,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: qpl_libraries
-    file_type: csv # migrated - last updated in 2018
     preprocessor:
       module: facdb.pipelines
       function: dispatch

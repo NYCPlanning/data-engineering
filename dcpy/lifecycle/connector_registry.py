@@ -15,6 +15,7 @@ from dcpy.connectors.hybrid_pathed_storage import (
 from dcpy.connectors.socrata.connector import SocrataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors import filesystem, web, s3, ingest_datastore, sftp
+from dcpy.connectors.web_scrapers import uscourts, qpl, foodbankny, myschools_nyc
 from dcpy.connectors.registry import (
     ConnectorRegistry,
     Connector,
@@ -68,6 +69,10 @@ def _set_default_connectors():
         OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
         web.WebConnector(),
+        uscourts.USCourtsConnector(),
+        qpl.QPLConnector(),
+        foodbankny.FoodBankNYConnector(),
+        myschools_nyc.MySchoolsNYCConnector(),
         [web.WebConnector(), "api"],
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],

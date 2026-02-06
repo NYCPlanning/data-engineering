@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 from pathlib import Path
+import pandas as pd
 import requests
 
-from dcpy.connectors.registry import GenericConnector
+from dcpy.connectors.web_scrapers import _address
+from dcpy.connectors.registry import Pull
 from dcpy.utils.logging import logger
 
 BASE_URL = "https://www.uscourts.gov/federal-court-finder/find"
@@ -62,7 +64,12 @@ def _fetch_location_info(link: str):
 
     # Extract the address
     address_tag = soup.find("address", class_="court-finder-court__address")
-    address = address_tag.get_text(separator=" ", strip=True) if address_tag else None
+    address_text = (
+        address_tag.get_text(separator=" ", strip=True) if address_tag else ""
+    )
+    parsed_address = (
+        _address.parse(address_text) if address_text else _address.AddressComponents()
+    )
 
     # Extract the court type
     court_type_tag = soup.find("div", class_="court-finder-court__court-type")
@@ -77,17 +84,20 @@ def _fetch_location_info(link: str):
 
     return {
         "name": court_name,
-        "address": address,
         "courttype": court_type,
         "phone_number": phone_number,
+        "place_name": parsed_address.place_name,
+        "address": parsed_address.address_line_1 or parsed_address.building_name,
+        "city": parsed_address.city,
+        "state": parsed_address.state,
+        "zip_code": parsed_address.zip_code,
+        "raw_full_address": address_text,
     }
 
 
-class USCourtsConnector(GenericConnector):
+class USCourtsConnector(Pull):
     conn_type: str = "uscourts"
-
-    def push(self, key: str, **kwargs) -> dict:
-        raise Exception("Can't push to this source")
+    filename: str = "uscourts_nyc_courts.csv"
 
     def pull(
         self,
@@ -102,4 +112,8 @@ class USCourtsConnector(GenericConnector):
         nyc_court_links = _get_nyc_links(_nyc_query_params()) + _get_nyc_links(
             _brooklyn_query_params()
         )
-        return {"locations": [_fetch_location_info(link) for link in nyc_court_links]}
+        df = pd.DataFrame([_fetch_location_info(link) for link in nyc_court_links])
+        filepath = destination_path / self.filename
+        logger.info(f"Saving US Federal Courts NYC location data to {filepath}")
+        df.to_csv(filepath, index=False)
+        return {"path": filepath}
