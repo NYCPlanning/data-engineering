@@ -94,7 +94,12 @@ SELECT
     a.notes AS "Notes",
     round(st_length(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Leng",
     round(st_area(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Area",
-    st_makevalid(b.:GEOM) AS geom
+    st_makevalid(b.:GEOM) AS geom,
+    a.mih_affordability_option AS "MIHAffOption",
+    a.mih_project_name AS "MIHProjectName",
+    a.trnstzone AS "TrnstZone",
+    a.affresfar AS "AffResFAR",
+    a.mnffar AS "ManuFAR"
 INTO :TABLE
 FROM export_pluto AS a, pluto_geom AS b
 WHERE
