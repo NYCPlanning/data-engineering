@@ -12,6 +12,7 @@
 -- So to calculate areas/pcts we must subdivide the Transit Zone atomic parts into simple geometries, then sum up
 -- those pcts in the case that a lot geom is in multiple simple/subdivided parts. This approach should take ~1 minute.
 
+-- TODO: explain block aggregation strategy
 
 -- Create decomposed transit zones table (break multipolygons into individual parts)
 DROP TABLE IF EXISTS transit_zones_atomic_geoms;
@@ -40,53 +41,125 @@ FROM transit_zones_atomic_geoms;
 CREATE INDEX idx_transit_zones_atomic_subdivided_gix ON transit_zones_atomic_subdivided USING gist (wkb_geometry);
 
 
--- Step 1: Calculate coverage percentages for all lots using subdivisions of
--- the atomic transit zone parts
-DROP TABLE IF EXISTS transit_zones_bbls_to_tz_atomic_parts;
-CREATE TABLE transit_zones_bbls_to_tz_atomic_parts AS
-WITH coverage AS (
+-- Assign BBLS to blocks
+-- TODO: explain the whole treat_each_unit_as_a_block thing
+DROP TABLE IF EXISTS transit_zones_bbls_to_sub_blocks;
+CREATE TABLE transit_zones_bbls_to_sub_blocks AS
+WITH treat_each_unit_as_a_block AS (
+    SELECT *
+    FROM (
+        VALUES
+            -- Ideally this is a seed-table at some point in the future
+            ('BX','4058'),
+            ('BX','4091')
+    ) AS t(borough, block)
+), bbls_with_sub_blocks AS (
     SELECT
         p.bbl,
-        p.geom AS lot_geom,
-        t.transit_zone,
-        t.decomposed_id,
-        ST_AREA(ST_INTERSECTION(p.geom, t.wkb_geometry)) / ST_AREA(p.geom) * 100.0 AS pct_covered
-    FROM pluto AS p
-    INNER JOIN transit_zones_atomic_subdivided AS t
-        ON ST_INTERSECTS(p.geom, t.wkb_geometry)
+        p.block,
+        CASE
+            WHEN t.borough IS NOT NULL THEN row_number() OVER ()
+            ELSE ST_ClusterDBSCAN(geom, eps := 0, minpoints := 1) OVER ()
+                --eps := 0 - Only groups geometries that touch or overlap (distance = 0)
+                -- minpoints := 1 - Every geometry gets assigned to a cluster, even if it's alone
+        END AS block_grouping,
+        p.borough
+    FROM pluto p
+    LEFT JOIN treat_each_unit_as_a_block t ON p.borough = t.borough and p.block = t.block;
 )
 SELECT
-    bbl,
+    *,
+    concat(borough, '-', block, '-', block_grouping) as bb
+FROM bbls_with_sub_blocks
+
+DROP TABLE IF EXISTS transit_zones_tax_blocks;
+CREATE TABLE transit_zones_tax_blocks AS
+SELECT
+    p.borough,
+    p.block,
+    t.bb,
+    ST_UNION(p.geom) AS geom
+FROM pluto p
+LEFT JOIN transit_zones_bbls_to_sub_blocks t
+    ON p.borough = t.borough and p.block = t.block
+GROUP BY t.bb
+CREATE INDEX idx_transit_zones_tax_blocks_geom ON transit_zones_tax_blocks USING gist (geom);
+
+
+-- DROP TABLE IF EXISTS transit_zones_tax_blocks_decomp_temp;
+-- CREATE TABLE transit_zones_tax_blocks_decomp_temp as
+-- with dumped as (
+--     SELECT
+--         borough,
+--         block,
+--         geom
+--         --(ST_DUMP(geom)).geom as geom
+--     FROM transit_zones_tax_blocks
+-- )
+-- select
+--     *
+--     ,concat(concat(borough, '-', block), '-', row_number() over (partition by borough, block)) as bb
+-- from dumped;
+-- CREATE INDEX tmp_idx_transit_zones_tax_blocks_decomp_temp on transit_zones_tax_blocks_decomp_temp USING gist (geom);
+
+
+
+-- Step 1: Calculate coverage percentages for all blocks using subdivisions of
+-- the atomic transit zone parts.
+DROP TABLE IF EXISTS transit_zones_tax_blocks_to_tz_atomic_parts;
+CREATE TABLE transit_zones_tax_blocks_to_tz_atomic_parts AS
+WITH coverage AS (
+    SELECT
+        tb.borough,
+        tb.block,
+        tb.bb,
+        tb.geom,
+        t.transit_zone,
+        t.decomposed_id,
+        ST_AREA(ST_INTERSECTION(tb.geom, t.wkb_geometry)) / ST_AREA(tb.geom) * 100.0 AS pct_covered
+    FROM transit_zones_tax_blocks AS tb
+    INNER JOIN transit_zones_atomic_subdivided AS t
+        ON ST_INTERSECTS(tb.geom, t.wkb_geometry)
+)
+SELECT
+    borough,
+    block,
+	bb,
+    geom,
     transit_zone,
-    lot_geom,
     decomposed_id,
     SUM(pct_covered) AS pct_covered
 FROM coverage
-GROUP BY bbl, transit_zone, lot_geom, decomposed_id;
+GROUP BY borough, block, bb, transit_zone, geom, decomposed_id;
+select * from transit_zones_tax_blocks_to_tz_atomic_parts;
 
 -- Step 2: Aggregate by transit zone and rank
-DROP TABLE IF EXISTS transit_zones_bbl_to_tz_ranked;
-CREATE TABLE transit_zones_bbl_to_tz_ranked AS
+DROP TABLE IF EXISTS transit_zones_block_to_tz_ranked;
+CREATE TABLE transit_zones_block_to_tz_ranked AS
 WITH zone_totals AS (
     SELECT
-        bbl,
+        borough,
+        block,
+	    bb,
         transit_zone,
         SUM(pct_covered) AS total_pct_covered
-    FROM transit_zones_bbls_to_tz_atomic_parts
-    GROUP BY bbl, transit_zone
+    FROM transit_zones_tax_blocks_to_tz_atomic_parts
+    GROUP BY borough, block, bb, transit_zone
 )
 SELECT
-    bbl,
+    borough,
+    block,
+    bb,
     transit_zone,
     total_pct_covered AS pct_covered,
     ROW_NUMBER() OVER (
-        PARTITION BY bbl
+        PARTITION BY bb
         ORDER BY total_pct_covered DESC
     ) AS row_number
 FROM zone_totals
 WHERE total_pct_covered >= 10;
-ANALYZE transit_zones_bbl_to_tz_ranked;
-
+ANALYZE transit_zones_block_to_tz_ranked;
+select * from transit_zones_block_to_tz_ranked;
 -- Assign the primary transit zone to each lot
 UPDATE pluto a
 SET trnstzone = b.transit_zone
