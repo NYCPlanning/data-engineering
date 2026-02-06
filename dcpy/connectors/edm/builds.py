@@ -149,10 +149,8 @@ class BuildsConnector(VersionedConnector, arbitrary_types_allowed=True):
     ) -> dict:
         build_key = BuildKey(key, version)
 
-        # Construct the source key for the file
         source_key = f"{build_key.path}/{filepath}"
 
-        # Check if the file exists
         if not self.storage.exists(source_key):
             raise FileNotFoundError(f"File {source_key} not found")
 
@@ -168,7 +166,6 @@ class BuildsConnector(VersionedConnector, arbitrary_types_allowed=True):
             f"Downloading {build_key}, {filepath}, {source_key} -> {output_filepath}"
         )
 
-        # Use PathedStorageConnector's pull method
         self.storage.pull(key=source_key, destination_path=output_filepath)
         return {"path": output_filepath}
 
