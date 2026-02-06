@@ -61,12 +61,12 @@ def compare_df_keyed_rows(
         comp_df.columns = pd.Index(["left", "right"])
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
-    are_equal = _check_if_data_are_equal(left_only, right_only)
+
     return comparison.KeyedTable(
         key_columns=key_columns,
         left_only=left_only,
         right_only=right_only,
-        are_equal=are_equal,
+        are_equal=(len(left_only) == 0 and len(right_only) == 0 and len(comps) == 0),
         columns_with_diffs=set(comps.keys()),
         differences_by_column=comps,
     )
@@ -74,14 +74,6 @@ def compare_df_keyed_rows(
 
 def _df_to_set_of_lists(df: pd.DataFrame) -> set[list]:
     return set(list(df.itertuples(index=False, name=None)))  # type: ignore
-
-
-def _check_if_data_are_equal(
-    left: pd.DataFrame | set, right: pd.DataFrame | set
-) -> bool:
-    return (left.empty if hasattr(left, "empty") else len(left) == 0) and (
-        right.empty if hasattr(right, "empty") else len(right) == 0
-    )
 
 
 def compare_sql_columns(
@@ -228,11 +220,12 @@ def compare_sql_keyed_rows(
 
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
+
     return comparison.KeyedTable(
         key_columns=key_columns,
         left_only=_df_to_set_of_lists(left_only),
         right_only=_df_to_set_of_lists(right_only),
-        are_equal=_check_if_data_are_equal(left_only, right_only),
+        are_equal=(left_only.empty and right_only.empty and len(comps) == 0),
         ignored_columns=ignore_columns,
         columns_coerced_to_numeric=cast_to_numeric,
         columns_with_diffs=set(comps.keys()),
@@ -269,13 +262,14 @@ def compare_sql_rows(
 
     left_only = query(left, right)
     right_only = query(right, left)
+
     return comparison.SimpleTable(
         compared_columns=columns,
         ignored_columns=ignore_columns,
         columns_coerced_to_numeric=cast_to_numeric,
         left_only=left_only,
         right_only=right_only,
-        are_equal=_check_if_data_are_equal(left_only, right_only),
+        are_equal=(left_only.empty and right_only.empty),
     )
 
 
