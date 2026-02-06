@@ -1,0 +1,14 @@
+id: doe_myschools_universalprek
+acl: public-read
+
+attributes:
+  name: MySchools NYC Universal Pre-Kindergarten Programs
+  url: https://www.myschools.nyc/en/schools/pre-k?filters_applied=1
+
+ingestion:
+  source:
+    type: myschools_nyc
+    key: prek
+  file_format:
+    type: json
+    json_read_fn: normalize
