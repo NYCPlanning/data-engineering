@@ -23,6 +23,9 @@ def _set_default_conf():
             },
             "builds": {
                 "default_recipes_connector": "edm.recipes.datasets",
+                "default_builds_connector": "edm.publishing.builds",
+                "default_drafts_connector": "edm.publishing.drafts",
+                "default_published_connector": "edm.publishing.published",
                 "local_data_path": "builds",
                 "stages": {
                     "plan": {"local_data_path": "plan"},
