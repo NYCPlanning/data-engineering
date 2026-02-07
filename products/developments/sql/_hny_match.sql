@@ -122,7 +122,15 @@ DROP TABLE IF EXISTS hny_geo;
 -- 1) Merge with geocoding results and create a unique ID
 WITH hny AS (
     SELECT
-        a.project_id || '/' || coalesce(lpad(a.building_id, 6, '0'), '') AS hny_id,
+        concat_ws(
+            '/',
+            a.project_id,
+            CASE
+                WHEN a.building_id IS NULL THEN ''
+                WHEN char_length(a.building_id) > 6 THEN a.building_id
+                ELSE lpad(a.building_id, 6, '0')
+            END
+        ) AS hny_id,
         a.project_id AS hny_project_id,
         a.*,
         b.geo_bbl,
