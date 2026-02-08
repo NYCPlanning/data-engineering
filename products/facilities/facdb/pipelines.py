@@ -425,11 +425,11 @@ def fdny_firehouses(df: pd.DataFrame):
 
 def foodbankny_foodbanks(df: pd.DataFrame):
     df = sanitize_df(df)
-    df = parse_address(df, raw_address_field="address")
+    df = parse_address(df, raw_address_field="address_1")
     df = Function1B(
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",
-        zipcode_field="zip_code",
+        zipcode_field="address_4",
     ).geocode_a_dataframe(df)
     return df
 
