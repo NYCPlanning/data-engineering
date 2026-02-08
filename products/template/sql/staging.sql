@@ -13,7 +13,7 @@ FROM bpl_libraries;
 
 CREATE TABLE stg_qpl_libraries AS SELECT
     name AS library_name,
-    wkb_geometry
+    geom AS wkb_geometry
 FROM qpl_libraries;
 
 CREATE TABLE stg_dpr_parksproperties AS SELECT
