@@ -20,3 +20,15 @@ ingestion:
   processing_steps:
   - name: clean_column_names
     args: { "replace": { " ": "_", "-": "_" }, "lower": True }
+  - name: pd_df_func
+    args:
+      function_name: replace
+      to_replace: '\xa0'
+      value: ' '
+      regex: True
+  - name: pd_df_func
+    args:
+      function_name: replace
+      to_replace: '\u2013'
+      value: '-'
+      regex: True

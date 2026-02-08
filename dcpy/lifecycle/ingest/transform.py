@@ -443,6 +443,28 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=grouped, summary=summary)
 
+    def pd_df_func(
+        self,
+        df: pd.DataFrame,
+        function_name: str,
+        **kwargs,
+    ) -> ProcessingResult:
+        """"""
+        transformed = df.copy()
+        parts = function_name.split(".")
+        func = transformed
+        for part in parts:
+            func = func.__getattribute__(part)
+
+        transformed = func(**kwargs)  # type: ignore
+        summary = make_generic_change_stats(
+            df,
+            transformed,
+            description=f"Applied {function_name}",
+            name="pd_df_func",
+        )
+        return ProcessingResult(df=transformed, summary=summary)
+
     def pd_series_func(
         self,
         df: pd.DataFrame,
