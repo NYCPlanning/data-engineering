@@ -139,7 +139,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# VS Code local settings
 .vscode
+AGENTS.md
+
+# macOS system files
 *.DS_Store
 
 # sqlite files 
