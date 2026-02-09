@@ -1,13 +1,9 @@
 import os
-from pathlib import Path
 import zipfile
-from datetime import datetime
-from dcpy.models.data.shapefile_metadata import (
-    Metadata,
-    Esri,
-    Mddatest,
-    Scalerange,
-)
+from pathlib import Path
+
+from dcpy.models.data.shapefile_metadata import Metadata
+from dcpy.utils.geospatial.metadata import generate_metadata
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 
@@ -98,14 +94,18 @@ class Shapefile:
     def _post_init(self):
         self.has_metadata = self.metadata_exists()
 
-    def read_metadata(self):
+    def read_metadata(self) -> Metadata | None:
         """Read shapefile metadata from file.
         Works for both zipped and non-zipped shapefiles.
 
         Returns:
-        str: Metadata content as string.
+        Metadata content as a Metadata object.
         """
-        xml: str = self.file_manager.read_file(f"{self.name}.xml")
+        xml = self.file_manager.read_file(f"{self.name}.xml")
+
+        if not xml:
+            return None
+
         metadata = Metadata.from_xml(xml)
 
         return metadata
@@ -137,7 +137,7 @@ class Shapefile:
 
         self.file_manager.write_file(filename=f"{self.name}.xml", contents=md)
 
-    def metadata_exists(self):
+    def metadata_exists(self) -> bool:
         """Detect whether shapefile has existing metadata.
 
         Returns:
@@ -145,7 +145,7 @@ class Shapefile:
         """
         return self.file_manager.metadata_exists(f"{self.name}.xml")
 
-    def remove_metadata(self):
+    def remove_metadata(self) -> None:
         """Removes existing metadata file from shapefile."""
         if self.metadata_exists():
             self.file_manager.remove_file(f"{self.name}.xml")
@@ -171,50 +171,3 @@ def from_path(
         Shapefile: See Shapefile class definition.
     """
     return Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
-
-
-def _get_esri_timestamp(dt_obj=None):
-    """
-    Generate Esri-style CreaDate and CreaTime values.
-
-    Args:
-        dt_obj: datetime object (uses current time if None)
-
-    Returns:
-        tuple: (CreaDate, CreaTime) as strings
-    """
-    if dt_obj is None:
-        dt_obj = datetime.now()
-
-    # CreaDate: YYYYMMDD
-    crea_date = dt_obj.strftime("%Y%m%d")
-
-    # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
-    hundredths = 0  # Esri appears to ignore the hundredths in practice
-    crea_time = (
-        f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
-    )
-
-    return crea_date, crea_time
-
-
-def generate_metadata() -> Metadata:
-    """
-    Generates a default Esri metadata object.
-    Can be generated as an independent object without an existing spatial dataset.
-    """
-    esri_datestamp, esri_timestamp = _get_esri_timestamp()
-    md_date_st = Mddatest(
-        value=esri_datestamp,
-    )
-    scale_range = Scalerange()
-    esri = Esri(
-        crea_date=esri_datestamp,
-        crea_time=esri_timestamp,
-        scale_range=scale_range,
-    )
-    metadata = Metadata(
-        esri=esri,
-        md_date_st=md_date_st,
-    )
-    return metadata

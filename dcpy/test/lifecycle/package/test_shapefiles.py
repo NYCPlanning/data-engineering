@@ -139,6 +139,9 @@ def test_write_shapefile_xml_metadata(
     )
     metadata = shp.read_metadata()
 
+    if metadata is None:
+        pytest.fail("Expected metadata to exist")
+
     # Test default values
     assert metadata.md_stan_name == fields["md_stan_name"].default
     assert metadata.md_stan_ver == fields["md_stan_ver"].default
