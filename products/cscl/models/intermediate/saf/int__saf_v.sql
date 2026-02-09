@@ -42,9 +42,11 @@ SELECT
     saf.segmentid,
     ROUND(ST_X(address_points.geom))::INT AS x_coord,
     ROUND(ST_Y(address_points.geom))::INT AS y_coord,
+    saf.saf_globalid,
+    saf.saf_source_table,
+    address_points.addresspointid,
     saf.generic,
-    saf.roadbed,
-    address_points.addresspointid
+    saf.roadbed
 FROM saf
 LEFT JOIN address_points ON saf.saf_globalid = address_points.globalid
 LEFT JOIN feature_names AS feature_names_vanity
