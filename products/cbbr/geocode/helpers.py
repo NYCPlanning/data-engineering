@@ -1,6 +1,6 @@
 import re
-import usaddress
 
+import usaddress
 
 GEOCODE_COLUMNS = [
     "geo_function",

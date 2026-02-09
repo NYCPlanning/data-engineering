@@ -2,8 +2,8 @@ from pathlib import Path
 
 import yaml
 
-from dcpy.library.validator import Validator
 from dcpy.library import TEMPLATE_DIR
+from dcpy.library.validator import Validator
 
 with open(f"{Path(__file__).parent}/data/test_none.yml", "r") as f:
     v = Validator(yaml.safe_load(f.read()))

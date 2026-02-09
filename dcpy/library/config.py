@@ -1,17 +1,19 @@
+import importlib
+import json
 from datetime import datetime
 from functools import cached_property
-from jinja2 import Template
-import json
-import importlib
 from pathlib import Path
-import yaml
 
-from dcpy.models.library import DatasetDefinition
+import yaml
+from jinja2 import Template
+
 from dcpy.connectors.esri import arcgis_feature_service
-from dcpy.connectors.socrata.configuration import Org as SocrataOrg
 from dcpy.connectors.socrata import extract as socrata
+from dcpy.connectors.socrata.configuration import Org as SocrataOrg
+from dcpy.models.library import DatasetDefinition
+
 from .utils import format_url
-from .validator import Validator, Dataset
+from .validator import Dataset, Validator
 
 
 class Config:

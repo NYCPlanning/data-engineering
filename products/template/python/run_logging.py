@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 LOGGING_LEVEL_DEFAULT = "INFO"
 LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL", LOGGING_LEVEL_DEFAULT)

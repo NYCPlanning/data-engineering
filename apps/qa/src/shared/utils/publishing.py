@@ -1,10 +1,11 @@
-import pandas as pd
 from zipfile import ZipFile
+
+import pandas as pd
 import streamlit as st
 
 from dcpy.configuration import PUBLISHING_BUCKET
-from dcpy.utils import s3
 from dcpy.connectors.edm import publishing
+from dcpy.utils import s3
 
 
 def unzip_csv(csv_filename: str, zipfile: ZipFile) -> pd.DataFrame:

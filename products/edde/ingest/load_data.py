@@ -1,11 +1,11 @@
-from dcpy.utils.logging import logger
-from typing import List
-import pandas as pd
-
 from os.path import exists
 from pathlib import Path
+from typing import List
+
+import pandas as pd
 from ingest.PUMS.PUMS_data import PUMSData
 
+from dcpy.utils.logging import logger
 
 allowed_HVS_cache_types = [".csv", ".pkl"]
 

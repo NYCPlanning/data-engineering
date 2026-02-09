@@ -1,15 +1,17 @@
-import pytest
 import os
-from dcpy.utils import s3
+from io import BytesIO
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from dcpy.test.conftest import (
+    PUBLISHING_BUCKET,
+    RECIPES_BUCKET,
     TEST_BUCKET,
     TEST_BUCKETS,
-    RECIPES_BUCKET,
-    PUBLISHING_BUCKET,
 )
-from pathlib import Path
-from io import BytesIO
-from unittest.mock import patch, MagicMock
+from dcpy.utils import s3
 
 TEST_DIR_NAME_1 = "test-dir-1"
 TEST_DIR_NAME_2 = "test-dir-2"

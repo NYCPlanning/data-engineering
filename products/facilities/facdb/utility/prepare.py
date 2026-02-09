@@ -3,12 +3,12 @@ from pathlib import Path
 
 import pandas as pd
 import yaml
-
-from facdb import CACHE_PATH, BASE_URL
-from .metadata import add_version
-from .utils import format_field_names, hash_each_row
+from facdb import BASE_URL, CACHE_PATH
 
 from dcpy.connectors.edm import recipes
+
+from .metadata import add_version
+from .utils import format_field_names, hash_each_row
 
 
 def read_datasets_yml() -> dict:

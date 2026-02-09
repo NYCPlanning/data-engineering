@@ -1,9 +1,9 @@
 from ingest.ingestion_helpers import read_from_excel
+from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import (
     borough_name_mapper,
     community_district_to_puma,
 )
-from internal_review.set_internal_review_file import set_internal_review_files
 
 SOURCE_DATA_FILE = "resources/quality_of_life/diabetes_self_report/diabetes_self_report_processed_2024.xlsx"
 CATEGORY = "quality_of_life"

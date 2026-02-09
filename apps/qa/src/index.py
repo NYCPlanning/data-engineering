@@ -1,4 +1,5 @@
 import importlib
+
 import streamlit as st
 
 from src.shared.constants import PAGES

@@ -1,12 +1,14 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
-from pydantic import BaseModel
 from typing import Literal
 
-from dcpy.utils import metadata
-from dcpy.models.connectors.edm import recipes
+from pydantic import BaseModel
+
 from dcpy.models.connectors import esri
+from dcpy.models.connectors.edm import recipes
+from dcpy.utils import metadata
 
 
 #### library objects

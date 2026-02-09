@@ -1,7 +1,8 @@
-from jinja2 import Template
-from datetime import datetime
-from sqlalchemy import create_engine, text
 import os
+from datetime import datetime
+
+from jinja2 import Template
+from sqlalchemy import create_engine, text
 
 # connect to postgres db
 engine = create_engine(os.environ["BUILD_ENGINE"])

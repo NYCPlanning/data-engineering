@@ -1,19 +1,20 @@
 import streamlit as st
 
 from dcpy.utils.git import github
+
+from .components import (
+    branch_selectbox,
+    column_comparison_table,
+    output_selectbox,
+)
 from .helpers import (
-    REPO_NAME,
     PRODUCT,
+    REPO_NAME,
     demographic_categories,
-    other_categories,
     geographies,
     get_demographics_data,
     get_other_data,
-)
-from .components import (
-    column_comparison_table,
-    branch_selectbox,
-    output_selectbox,
+    other_categories,
 )
 
 

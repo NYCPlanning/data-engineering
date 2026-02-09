@@ -1,7 +1,8 @@
 import os
-import pandas as pd
-import numpy as np
 import shutil
+
+import numpy as np
+import pandas as pd
 
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger

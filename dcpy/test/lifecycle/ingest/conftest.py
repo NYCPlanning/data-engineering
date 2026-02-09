@@ -1,13 +1,14 @@
-import pytest
-from typing import Callable
-from shapely import wkt
-import geopandas as gpd
-import pandas as pd
-from faker import Faker
 import random
 from pathlib import Path
+from typing import Callable
 
-from dcpy.connectors import ingest_datastore, filesystem
+import geopandas as gpd
+import pandas as pd
+import pytest
+from faker import Faker
+from shapely import wkt
+
+from dcpy.connectors import filesystem, ingest_datastore
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.lifecycle import connector_registry
 

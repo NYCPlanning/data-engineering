@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Literal, Any, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import boto3
 from botocore.client import Config

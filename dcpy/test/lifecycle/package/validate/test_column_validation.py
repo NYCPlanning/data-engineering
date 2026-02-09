@@ -1,15 +1,15 @@
+import random
+import uuid
 from typing import Callable
+
 from faker import Faker
 from pandas import DataFrame as df
-import random
 from shapely import wkb, wkt
-import uuid
 
-from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
-
-import dcpy.models.product.dataset.metadata as md
 import dcpy.models.dataset as dataset
+import dcpy.models.product.dataset.metadata as md
 from dcpy.lifecycle.package import validate
+from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
 
 rd = random.Random()
 rd.seed(0)

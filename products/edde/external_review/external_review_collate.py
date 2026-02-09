@@ -1,10 +1,10 @@
 """Combine indicators into .csv's to be uploaded to digital ocean"""
 
 from os import makedirs, path
-import pandas as pd
-import typer
 from typing import Optional
 
+import pandas as pd
+import typer
 from aggregate.all_accessors import Accessors
 
 accessors = Accessors()

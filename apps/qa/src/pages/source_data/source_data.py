@@ -1,6 +1,7 @@
 def source_data():
     import streamlit as st
-    from . import helpers, components
+
+    from . import components, helpers
 
     product = st.sidebar.selectbox(
         "Select a product",

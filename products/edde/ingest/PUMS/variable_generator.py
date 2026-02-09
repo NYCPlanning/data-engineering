@@ -2,9 +2,11 @@
 However there are different set variables used in the GET url versus in the final dataset.
 This module can handle each"""
 
-from dcpy.utils.logging import logger
-from dotenv import load_dotenv
 from typing import List
+
+from dotenv import load_dotenv
+
+from dcpy.utils.logging import logger
 
 load_dotenv()
 

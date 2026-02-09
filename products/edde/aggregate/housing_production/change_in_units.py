@@ -1,12 +1,11 @@
 # from unittest import result
 from typing import List
-import pandas as pd
+
 import geopandas as gpd
-from internal_review.set_internal_review_file import set_internal_review_files
-from utils.geo_helpers import get_2020_pumas, borough_num_mapper, get_nta_to_puma_mapper
-
+import pandas as pd
 from ingest.ingestion_helpers import load_data
-
+from internal_review.set_internal_review_file import set_internal_review_files
+from utils.geo_helpers import borough_num_mapper, get_2020_pumas, get_nta_to_puma_mapper
 
 job_type_mapper = {
     "All": "",

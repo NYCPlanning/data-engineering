@@ -3,12 +3,13 @@
 # - copy non-DB data
 import shutil
 import subprocess
+
 import pandas as pd
 
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 
-from .constants import BASH_UTILS_PATH, DATASETS_DIR, DATA_DIR, OUTPUT_DIR
+from .constants import BASH_UTILS_PATH, DATA_DIR, DATASETS_DIR, OUTPUT_DIR
 
 
 def _call_bash_function(function_name, *args) -> None:

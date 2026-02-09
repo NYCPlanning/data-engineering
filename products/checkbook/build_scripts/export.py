@@ -1,7 +1,7 @@
 from datetime import date
 
-from dcpy.utils import git
 from dcpy.connectors.edm import publishing
+from dcpy.utils import git
 
 from . import OUTPUT_DIR
 

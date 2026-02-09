@@ -6,10 +6,12 @@ such that they can be queried as `{dataset}.{version}`
 """
 
 from pathlib import Path
+
 import duckdb  # type: ignore
 
-from dcpy.utils import s3, duckdb as dcpy_duckdb
 from dcpy.connectors.edm import recipes
+from dcpy.utils import duckdb as dcpy_duckdb
+from dcpy.utils import s3
 
 bucket = recipes._bucket()
 local_file = Path("./catalog.duckdb")

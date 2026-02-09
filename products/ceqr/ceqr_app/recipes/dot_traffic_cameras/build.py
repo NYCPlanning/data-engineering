@@ -1,6 +1,7 @@
-import requests
-import pandas as pd
 import sys
+
+import pandas as pd
+import requests
 
 # Get locations and names of cameras from popups on NYCDOT's google map
 user_agent = {"User-agent": "Mozilla/5.0"}

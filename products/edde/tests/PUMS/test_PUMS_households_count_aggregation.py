@@ -5,7 +5,6 @@ Note that changes from fraction to pct will break these tests
 import pytest
 from tests.PUMS.local_loader import LocalLoader
 
-
 local_loader = LocalLoader()
 
 

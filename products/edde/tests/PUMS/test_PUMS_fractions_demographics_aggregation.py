@@ -5,10 +5,11 @@ Note that changes from fraction to pct will break these tests
 
 """
 
+import itertools
+
+import numpy as np
 import pytest
 from tests.PUMS.local_loader import LocalLoader
-import numpy as np
-import itertools
 
 local_loader = LocalLoader()
 

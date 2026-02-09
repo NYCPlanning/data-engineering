@@ -5,9 +5,10 @@
 # Leaving this here as something for the next data engineer to potentially pick up.
 
 
-from aggregate import load_aggregated as load_agg
 from pathlib import Path
+
 import pandas as pd
+from aggregate import load_aggregated as load_agg
 
 # For comparisons to older versions of EDDE, we'd need to map old PUMAS to
 # new. I just used Park Slope, but it might be nice to fill this out.

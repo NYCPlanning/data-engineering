@@ -1,7 +1,6 @@
 import pytest
 from tests.PUMS.local_loader import LocalLoader
 
-
 local_loader = LocalLoader()
 
 

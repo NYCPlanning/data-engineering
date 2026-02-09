@@ -1,10 +1,11 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
+from src.shared.components import build_outputs, sidebar
+from src.shared.components.sources_report import sources_report
 
 from dcpy.connectors.edm import publishing
-from src.shared.components.sources_report import sources_report
-from src.shared.components import sidebar, build_outputs
-from .components.outputs_report import output_report, PRODUCT
+
+from .components.outputs_report import PRODUCT, output_report
 
 DATASET_REPO_URL = "https://github.com/NYCPlanning/data-engineering/"
 

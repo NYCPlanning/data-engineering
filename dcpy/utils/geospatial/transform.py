@@ -1,6 +1,6 @@
-from numpy import floor
 import geopandas as gpd
 import pandas as pd
+from numpy import floor
 from rich.progress import (
     BarColumn,
     Progress,
@@ -10,12 +10,12 @@ from rich.progress import (
 )
 from shapely import (
     Geometry,
-    Point,
-    MultiPoint,
     LineString,
     MultiLineString,
-    Polygon,
+    MultiPoint,
     MultiPolygon,
+    Point,
+    Polygon,
 )
 
 from dcpy.models import file

@@ -2,7 +2,6 @@ from pathlib import Path
 
 from dcpy.lifecycle import product_metadata
 
-
 MODULE_PATH = Path(__file__).parent
 REPO_PATH = MODULE_PATH / "metadata_repo"
 

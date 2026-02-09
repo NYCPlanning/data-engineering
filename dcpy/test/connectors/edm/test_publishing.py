@@ -1,14 +1,15 @@
-from datetime import datetime
-import pandas as pd
-from pathlib import Path
-import os
 import json
-import pytest
+import os
+from datetime import datetime
+from pathlib import Path
 from unittest.mock import patch
 
-from dcpy.utils import s3, versions
+import pandas as pd
+import pytest
+
 from dcpy.connectors.edm import publishing
 from dcpy.test.conftest import PUBLISHING_BUCKET
+from dcpy.utils import s3, versions
 
 TEST_PRODUCT_NAME = "test-product"
 TEST_BUILD = "build-branch"

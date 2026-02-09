@@ -1,12 +1,13 @@
+import re
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
-from pathlib import Path
-import re
+import typer
 from shapely import wkb, wkt
 from tabulate import tabulate  # type: ignore
-import typer
 
 import dcpy.models.product.dataset.metadata as dataset_md
 from dcpy.utils.logging import logger

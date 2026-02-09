@@ -3,15 +3,15 @@ import importlib
 import typer
 
 from dcpy.utils import postgres
-from .utility.prepare import read_datasets_yml
-from .utility.metadata import dump_metadata
-
 from facdb import (
-    SQL_PATH,
-    BUILD_NAME,
     BUILD_ENGINE,
+    BUILD_NAME,
     CACHE_PATH,
+    SQL_PATH,
 )
+
+from .utility.metadata import dump_metadata
+from .utility.prepare import read_datasets_yml
 
 if not CACHE_PATH.exists():
     CACHE_PATH.mkdir()

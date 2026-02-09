@@ -1,5 +1,4 @@
 from dcpy.connectors.socrata import metadata as md
-
 from dcpy.test.connectors.socrata.resources import sample_metadata
 
 

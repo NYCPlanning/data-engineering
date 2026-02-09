@@ -1,4 +1,5 @@
 import pytest
+
 from dcpy.lifecycle.scripts.version_compare import FuzzyVersion
 
 

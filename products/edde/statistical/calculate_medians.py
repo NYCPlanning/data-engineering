@@ -9,9 +9,8 @@ import rpy2.robjects.packages as rpackages  # noqa: E402
 survey_package = rpackages.importr("survey")
 base = rpackages.importr("base")
 
-from statistical.variance_measures import variance_measures  # noqa: E402
-
 from rpy2.robjects import pandas2ri  # noqa: E402
+from statistical.variance_measures import variance_measures  # noqa: E402
 
 pandas2ri.activate()
 

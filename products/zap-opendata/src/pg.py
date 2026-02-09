@@ -1,6 +1,6 @@
 import pandas as pd
-from sqlalchemy import create_engine, text
 from psycopg2.extensions import AsIs
+from sqlalchemy import create_engine, text
 
 
 def format_sql_query_parameters(parameters: dict) -> dict:

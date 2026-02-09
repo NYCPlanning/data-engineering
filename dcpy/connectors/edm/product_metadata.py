@@ -1,9 +1,10 @@
-import requests
-import yaml
 from pathlib import Path
 
-from dcpy.utils.logging import logger
+import requests
+import yaml
+
 import dcpy.models.product.dataset.metadata as md
+from dcpy.utils.logging import logger
 
 METADATA_REPO_RAW_URL = (
     "https://raw.githubusercontent.com/NYCPlanning/product-metadata/main/products"

@@ -1,7 +1,5 @@
 import pandas as pd
-
 from src.recode_id import recode_id
-
 
 test_data_input = pd.DataFrame.from_dict(
     {

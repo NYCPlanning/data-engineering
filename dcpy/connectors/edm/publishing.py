@@ -1,38 +1,39 @@
+import json
+import re
 from dataclasses import asdict
 from datetime import datetime
-import geopandas as gpd
 from io import BytesIO
-import json
-import pandas as pd
 from pathlib import Path
-import pytz
-import re
-import typer
 from typing import Callable, TypeVar
 from urllib.parse import urlencode, urljoin
-import yaml
 from zipfile import ZipFile
 
+import geopandas as gpd
+import pandas as pd
+import pytz
+import typer
+import yaml
+
 from dcpy.configuration import (
-    PUBLISHING_BUCKET,
-    CI,
     BUILD_NAME,
+    CI,
     DEV_FLAG,
+    IGNORED_LOGGING_BUILDS,
     LOGGING_DB,
     LOGGING_SCHEMA,
     LOGGING_TABLE_NAME,
     PRODUCTS_TO_LOG,
-    IGNORED_LOGGING_BUILDS,
+    PUBLISHING_BUCKET,
 )
 from dcpy.connectors.registry import GenericConnector, VersionedConnector
 from dcpy.models.connectors.edm.publishing import (
+    BuildKey,
+    DraftKey,
     ProductKey,
     PublishKey,
-    DraftKey,
-    BuildKey,
 )
 from dcpy.models.lifecycle.builds import BuildMetadata, EventLog, EventType
-from dcpy.utils import s3, git, versions, metadata, postgres
+from dcpy.utils import git, metadata, postgres, s3, versions
 from dcpy.utils.logging import logger
 
 

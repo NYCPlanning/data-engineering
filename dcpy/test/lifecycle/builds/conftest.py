@@ -1,7 +1,8 @@
 import os
-from pathlib import Path
-import pytest
 import shutil
+from pathlib import Path
+
+import pytest
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 TEMP_DATA_PATH = RESOURCES_DIR.parent / "temp"

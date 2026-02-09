@@ -1,20 +1,19 @@
-import pandas as pd
 from pathlib import Path
-import pytest
 from unittest import TestCase
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from dcpy.models.lifecycle.builds import (
-    InputDataset,
-    InputDatasetDestination,
-    ImportedDataset,
-    LoadResult,
-)
+import pandas as pd
+import pytest
+
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.builds import load
-
-from dcpy.test.lifecycle.builds.conftest import TEMP_DATA_PATH, RESOURCES_DIR
+from dcpy.models.lifecycle.builds import (
+    ImportedDataset,
+    InputDataset,
+    InputDatasetDestination,
+    LoadResult,
+)
+from dcpy.test.lifecycle.builds.conftest import RESOURCES_DIR, TEMP_DATA_PATH
 
 RECIPE_PATH = RESOURCES_DIR / "simple.lock.yml"
 RECIPE_PATH_NO_PG = RESOURCES_DIR / "simple_no_pg.lock.yml"

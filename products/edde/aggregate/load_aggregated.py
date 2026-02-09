@@ -1,25 +1,27 @@
+import re
 from collections import defaultdict
 from dataclasses import dataclass, field
-from dcpy.utils.logging import logger
-
 from functools import cache
-import pandas as pd
-import re
 
+import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
-from utils.geo_helpers import (
-    clean_PUMAs,
-    get_all_NYC_PUMAs,
-    get_all_boroughs,
-    borough_name_mapper,
-)
-from utils.geo_helpers import year_range, acs_years, dcp_pop_races
 from utils.dcp_population_excel_helpers import (
-    measure_suffixes,
-    race_suffix_mapper_global,
     count_suffix_mapper_global,
+    measure_suffixes,
     median_suffix_mapper_global,
+    race_suffix_mapper_global,
 )
+from utils.geo_helpers import (
+    acs_years,
+    borough_name_mapper,
+    clean_PUMAs,
+    dcp_pop_races,
+    get_all_boroughs,
+    get_all_NYC_PUMAs,
+    year_range,
+)
+
+from dcpy.utils.logging import logger
 
 
 def initialize_dataframe_geo_index(geography, columns=[]):

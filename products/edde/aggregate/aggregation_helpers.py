@@ -1,13 +1,11 @@
 import pandas as pd
-
 from utils.geo_helpers import (
+    borough_name_mapper,
     census_races,
     clean_PUMAs,
-    borough_name_mapper,
     get_all_boroughs,
     get_all_NYC_PUMAs,
 )
-
 
 demographic_indicators_denom = [
     ("total_pop",),

@@ -1,10 +1,11 @@
 from pathlib import Path
-import pytest
 from unittest import mock
+
+import pytest
 
 from dcpy.lifecycle.ingest import extract
 
-from .shared import RUN_DETAILS, RESOLVED, ARCHIVED
+from .shared import ARCHIVED, RESOLVED, RUN_DETAILS
 
 
 def test_extract(tmp_path):

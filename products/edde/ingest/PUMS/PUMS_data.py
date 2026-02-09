@@ -1,12 +1,11 @@
 from typing import List
+
 import pandas as pd
-
-from utils.geo_helpers import clean_PUMAs, puma_to_borough
-
-from ingest.PUMS.PUMS_request import make_GET_request
-from ingest.PUMS.PUMS_query_manager import get_urls
-from ingest.PUMS.variable_generator import variables_for_processing
 from ingest.PUMS.PUMS_cleaner import PUMSCleaner
+from ingest.PUMS.PUMS_query_manager import get_urls
+from ingest.PUMS.PUMS_request import make_GET_request
+from ingest.PUMS.variable_generator import variables_for_processing
+from utils.geo_helpers import clean_PUMAs, puma_to_borough
 
 """To do: make this central module from which all other code is called. Write
 class method for aggregate step to access.  Class method will return cached data or

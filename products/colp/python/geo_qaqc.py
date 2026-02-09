@@ -1,6 +1,7 @@
 from multiprocessing import Pool, cpu_count
-from geosupport import Geosupport, GeosupportError
+
 import pandas as pd
+from geosupport import Geosupport, GeosupportError
 from sqlalchemy import text
 
 from .utils import engine, psql_insert_copy

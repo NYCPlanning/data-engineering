@@ -1,7 +1,6 @@
 import pytest
-from tests.PUMS.local_loader import LocalLoader
 from aggregate.PUMS.economic_indicators import industry_mapper, occupation_mapper
-
+from tests.PUMS.local_loader import LocalLoader
 
 median_loader = LocalLoader()
 count_loader = LocalLoader()

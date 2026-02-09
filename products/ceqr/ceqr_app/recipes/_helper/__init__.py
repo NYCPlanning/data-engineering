@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, text
 import os
 from datetime import date
+
+from sqlalchemy import create_engine, text
 
 EDM_DATA_SQL_ENGINE = create_engine(os.environ["EDM_DATA"])
 DATE = date.today().strftime("%Y-%m-%d")

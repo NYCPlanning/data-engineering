@@ -1,9 +1,9 @@
-from streamlit.runtime.uploaded_file_manager import UploadedFile
-
-from dcpy.utils import s3
-from dcpy.library.archive import Archive
 from io import BytesIO
 
+from streamlit.runtime.uploaded_file_manager import UploadedFile
+
+from dcpy.library.archive import Archive
+from dcpy.utils import s3
 
 BUCKET = "edm-recipes"
 

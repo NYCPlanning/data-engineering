@@ -1,9 +1,10 @@
-import streamlit as st
+from abc import ABC
+
 import numpy as np
 import plotly.express as px
-from st_aggrid import AgGrid
+import streamlit as st
 from src.shared.constants import COLOR_SCHEME
-from abc import ABC
+from st_aggrid import AgGrid
 
 
 class ChangesReport:

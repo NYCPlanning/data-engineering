@@ -2,9 +2,9 @@
 but no CD. Something to watch out for when testing"""
 
 from aggregate.load_aggregated import initialize_dataframe_geo_index
+from ingest import ingestion_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import borough_name_mapper, community_district_to_puma
-from ingest import ingestion_helpers
 
 DATASET_NAME = "dhs_shelterd_indiv_by_comm_dist"
 

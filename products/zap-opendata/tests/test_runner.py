@@ -1,7 +1,7 @@
 import os
-import pytest
 from collections import namedtuple
 
+import pytest
 from src.runner import Runner
 
 TEST_SCHEMA_SUFFIX = os.environ.get("TEST_SCHEMA_SUFFIX", None)

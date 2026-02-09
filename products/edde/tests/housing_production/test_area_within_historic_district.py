@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 from aggregate.housing_production.area_within_historic_district import (
     _load_historic_districts_gdf,
     fraction_historic,

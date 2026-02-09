@@ -1,6 +1,5 @@
 import streamlit as st
 
-
 SOURCE_NAME_MAPPINGS = {
     "dcp_edesignation": "Department of City Planning - E-Designations",
     "dcp_zoningmapindex": "Department of City Planning - Georeferenced NYC Zoning Maps",

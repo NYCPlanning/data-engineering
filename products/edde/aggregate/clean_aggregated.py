@@ -1,4 +1,5 @@
 from typing import List
+
 import pandas as pd
 from utils.dcp_population_excel_helpers import (
     map_stat_suffix,

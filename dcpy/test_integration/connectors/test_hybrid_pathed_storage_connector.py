@@ -1,9 +1,10 @@
-import pytest
 from pathlib import Path
 
+import pytest
+
 from dcpy.connectors.hybrid_pathed_storage import (
-    StorageType,
     PathedStorageConnector,
+    StorageType,
 )
 
 

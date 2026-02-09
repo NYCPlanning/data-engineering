@@ -1,5 +1,6 @@
-from pandas import DataFrame
 from typing import Any
+
+from pandas import DataFrame
 
 
 def deep_merge_dict(dict1, dict2):

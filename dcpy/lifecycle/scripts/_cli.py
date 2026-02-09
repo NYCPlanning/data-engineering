@@ -1,9 +1,10 @@
 import typer
+
+from .compare_build_tables import app as compare_build_tables_app
+from .ingest_with_library_fallback import run as ingest_or_library_archive
 from .package_and_distribute import app as package_dist_app
 from .product_metadata import app as product_metadata_app
-from .ingest_with_library_fallback import run as ingest_or_library_archive
 from .validate_ingest import app as ingest_validation_app
-from .compare_build_tables import app as compare_build_tables_app
 
 app = typer.Typer()
 

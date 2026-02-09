@@ -1,15 +1,15 @@
-import geopandas as gpd
 import json
-import pytest
 from unittest import mock
 
-from dcpy.utils import metadata
-from dcpy.models.lifecycle.ingest import ArchivedDataSource, IngestedDataset
-from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
-from dcpy.lifecycle.ingest import connectors
-from dcpy.lifecycle.ingest import run
+import geopandas as gpd
+import pytest
 
-from .shared import FAKE_VERSION, INGEST_DEF_DIR, TEST_DATASET_NAME, RESOLVED
+from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
+from dcpy.lifecycle.ingest import connectors, run
+from dcpy.models.lifecycle.ingest import ArchivedDataSource, IngestedDataset
+from dcpy.utils import metadata
+
+from .shared import FAKE_VERSION, INGEST_DEF_DIR, RESOLVED, TEST_DATASET_NAME
 
 DATASOURCE = "one_to_many"
 DATASET = TEST_DATASET_NAME

@@ -1,7 +1,9 @@
-import pandas as pd
-import boto3
 import os
 from pathlib import Path
+
+import boto3
+import pandas as pd
+
 from dcpy.utils.s3 import download_file
 
 from . import LIB_DIR, OUTPUT_DIR

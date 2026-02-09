@@ -1,9 +1,8 @@
 """Doing aggregation is runtime-intensive so all tests use same aggregator object"""
 
 import pytest
-from tests.util import race_counts, age_bucket_counts
 from tests.PUMS.local_loader import LocalLoader
-
+from tests.util import age_bucket_counts, race_counts
 
 local_loader = LocalLoader()
 

@@ -1,8 +1,9 @@
 import typer
 
 from dcpy.lifecycle.builds import load, plan
-from .pipelines import acs_manual_update, decennial_manual_update
+
 from .paths import ROOT_PATH
+from .pipelines import acs_manual_update, decennial_manual_update
 
 app = typer.Typer(add_completion=False)
 

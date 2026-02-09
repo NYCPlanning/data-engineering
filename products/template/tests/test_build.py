@@ -1,8 +1,8 @@
 # These are tests to be run after a full build
 import pytest
-from dcpy.connectors.edm import publishing
-
 from build_scripts import BUILD_KEY, PG_CLIENT
+
+from dcpy.connectors.edm import publishing
 
 
 # * test Transform stage

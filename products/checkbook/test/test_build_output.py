@@ -1,20 +1,20 @@
 import numpy as np
-
 from build_scripts.build import (
-    _group_checkbook,
-    _clean_checkbook,
-    _merge_cpdb_geoms,
-    _join_checkbook_geoms,
     _assign_checkbook_category,
-    _clean_joined_checkbook_cpdb,
     _assign_final_category,
+    _clean_checkbook,
+    _clean_joined_checkbook_cpdb,
+    _group_checkbook,
+    _join_checkbook_geoms,
+    _merge_cpdb_geoms,
 )
+
 from test.generate_test_data import (
-    generate_cpdb_test_data,
     generate_checkbook_test_data,
+    generate_cpdb_test_data,
     generate_expected_cpdb_join,
-    generate_expected_grouped_checkbook,
     generate_expected_final_data,
+    generate_expected_grouped_checkbook,
 )
 
 CPDB_GDF_LIST = generate_cpdb_test_data()

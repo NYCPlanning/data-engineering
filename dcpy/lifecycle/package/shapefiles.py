@@ -7,6 +7,7 @@ from pathlib import Path
 import typer
 
 from dcpy.lifecycle import product_metadata
+from dcpy.models.data.shapefile_metadata import Attr, Edom
 from dcpy.models.product.dataset.metadata import (
     COLUMN_TYPES,
     ColumnValue,
@@ -14,7 +15,6 @@ from dcpy.models.product.dataset.metadata import (
     DatasetColumn,
     Metadata,
 )
-from dcpy.models.data.shapefile_metadata import Attr, Edom
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import shapefile as shp_utils
 from dcpy.utils.geospatial.shapefile import Shapefile

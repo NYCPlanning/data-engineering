@@ -1,11 +1,11 @@
 import shutil
 
-from dcpy.utils.logging import logger
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle import product_metadata
-from dcpy.lifecycle.package import xlsx_writer, pdf_writer, yaml_writer
+from dcpy.lifecycle.package import pdf_writer, xlsx_writer, yaml_writer
+from dcpy.utils.logging import logger
 
-from . import PRODUCT_PATH, OUTPUT_DIR, PG_CLIENT, BUILD_KEY
+from . import BUILD_KEY, OUTPUT_DIR, PG_CLIENT, PRODUCT_PATH
 
 METADATA_FILES = [
     "source_data_versions.csv",

@@ -1,9 +1,9 @@
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.results import RunExecutionResult
 
+from build_scripts import PG_CLIENT, SQL_QUERY_DIR
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-from build_scripts import SQL_QUERY_DIR, PG_CLIENT
 
 
 def _execute_sql_script(step_query=str):

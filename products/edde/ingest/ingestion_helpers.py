@@ -1,9 +1,9 @@
+import config
+import geopandas as gp
+import pandas as pd
+
 from dcpy.lifecycle.builds import load
 from dcpy.utils.geospatial import parquet
-import pandas as pd
-import geopandas as gp
-
-import config
 
 
 def load_data(

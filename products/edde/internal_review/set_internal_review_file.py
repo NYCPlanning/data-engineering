@@ -1,6 +1,7 @@
-from typing import List, Tuple
-import pandas as pd
 from pathlib import Path
+from typing import List, Tuple
+
+import pandas as pd
 
 
 def set_internal_review_files(data: List[Tuple[pd.DataFrame, str, str]], category):

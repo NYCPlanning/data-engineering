@@ -1,12 +1,14 @@
-from dcpy.utils.geospatial import shapefile
-from pytest import fixture
-import pytest
 import shutil
 import zipfile
-from pathlib import Path
-from dcpy.models.data.shapefile_metadata import Metadata
-from dcpy.utils.geospatial.shapefile import generate_metadata
 from datetime import datetime
+from pathlib import Path
+
+import pytest
+from pytest import fixture
+
+from dcpy.models.data.shapefile_metadata import Metadata
+from dcpy.utils.geospatial import shapefile
+from dcpy.utils.geospatial.shapefile import generate_metadata
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"

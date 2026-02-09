@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 _module_top_path = Path(__file__).resolve().parent
 PRODUCT_PATH = _module_top_path.parent
 

@@ -1,11 +1,11 @@
 from pathlib import Path
+
 import pytest
 
+from dcpy import configuration
+from dcpy.lifecycle import config
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-from dcpy.lifecycle import config
-from dcpy import configuration
-
 
 BUILD_ENGINE_SCHEMA = "connectors_edm_tests"
 TEST_LIFECYCLE_DATA_PATH = ".lifecycle_test"

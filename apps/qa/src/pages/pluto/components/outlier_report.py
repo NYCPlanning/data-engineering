@@ -1,6 +1,7 @@
-import streamlit as st
-import pandas as pd
 from typing import Callable
+
+import pandas as pd
+import streamlit as st
 from st_aggrid import AgGrid
 
 

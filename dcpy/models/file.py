@@ -1,6 +1,8 @@
 from __future__ import annotations
-from pydantic import BaseModel
+
 from typing import Literal, TypeAlias
+
+from pydantic import BaseModel
 
 from dcpy.models.base import SortedSerializedBase
 from dcpy.models.geospatial import geometry

@@ -1,11 +1,12 @@
 import os
-from pathlib import Path
 import zipfile
 from datetime import datetime
+from pathlib import Path
+
 from dcpy.models.data.shapefile_metadata import (
-    Metadata,
     Esri,
     Mddatest,
+    Metadata,
     Scalerange,
 )
 

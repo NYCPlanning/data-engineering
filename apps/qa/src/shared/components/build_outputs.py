@@ -1,15 +1,15 @@
-import streamlit as st
 from dataclasses import dataclass, field
-import pandas as pd
+
 import geopandas as gpd
 import leafmap.foliumap as lmf
-
-from dcpy.models.geospatial import geometry
-from dcpy.models.file import Geometry
-from dcpy.utils.geospatial import mapping
-from dcpy.connectors.edm import publishing
-from dcpy.utils.geospatial import transform
+import pandas as pd
+import streamlit as st
 from src.shared.utils.publishing import read_csv_cached, read_file_metadata
+
+from dcpy.connectors.edm import publishing
+from dcpy.models.file import Geometry
+from dcpy.models.geospatial import geometry
+from dcpy.utils.geospatial import mapping, transform
 
 
 def data_directory_link(product_key: publishing.ProductKey):

@@ -1,14 +1,15 @@
 import argparse
 import json
-import pandas as pd
-from pathlib import Path
 import re
 import shutil
+from pathlib import Path
 from typing import Tuple
 
-from dcpy.utils import string
-from . import DATA_PATH, OUTPUT_FOLDER
+import pandas as pd
 
+from dcpy.utils import string
+
+from . import DATA_PATH, OUTPUT_FOLDER
 
 COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
 

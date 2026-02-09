@@ -2,7 +2,6 @@ import pytest
 from tests.PUMS.local_loader import LocalLoader
 from tests.util import race_counts
 
-
 local_loader = LocalLoader()
 
 

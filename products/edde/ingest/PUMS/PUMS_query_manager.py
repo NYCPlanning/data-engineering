@@ -9,12 +9,13 @@ access that query via an input.
 Refactor: call this from PUMS data init instead of from PUMS_request
 """
 
-from dcpy.utils.logging import logger
 import os
-from dotenv import load_dotenv
 from typing import List
+
+from dotenv import load_dotenv
 from ingest.PUMS.variable_generator import variables_for_url
 
+from dcpy.utils.logging import logger
 
 load_dotenv()
 

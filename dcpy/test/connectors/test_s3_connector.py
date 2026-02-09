@@ -1,10 +1,11 @@
 from io import BytesIO
 from pathlib import Path
+
 import pytest
 
-from dcpy.utils import s3 as s3_utils
 from dcpy.connectors.s3 import S3Connector
 from dcpy.test.conftest import TEST_BUCKET
+from dcpy.utils import s3 as s3_utils
 
 FILE = "test.csv"
 SUBFOLDER = "test/"

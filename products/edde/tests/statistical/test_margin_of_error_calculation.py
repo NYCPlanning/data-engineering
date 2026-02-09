@@ -1,10 +1,10 @@
 """Margin of error is standard error times z-score associated with a given probability.
 For this project our probability is 90%"""
 
-import pytest
-from tests.PUMS.local_loader import LocalLoader
 import numpy as np
+import pytest
 from scipy import stats
+from tests.PUMS.local_loader import LocalLoader
 
 z_score = stats.norm.ppf(0.9)
 

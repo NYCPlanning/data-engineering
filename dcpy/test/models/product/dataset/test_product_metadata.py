@@ -1,7 +1,8 @@
-from pathlib import Path
-from pytest import fixture
-import pytest
 import tempfile
+from pathlib import Path
+
+import pytest
+from pytest import fixture
 
 from dcpy.models.product.dataset import metadata as m
 

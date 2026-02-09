@@ -1,14 +1,16 @@
-import pytz
-import pandas as pd
-from urllib.error import HTTPError
-import streamlit as st
 import time
+from urllib.error import HTTPError
 
-from dcpy.utils.git import github
-from dcpy.utils import s3
+import pandas as pd
+import pytz
+import streamlit as st
 from src.shared.components.github import dispatch_workflow_button
-from .constants import qa_checks, bucket
-from .helpers import get_source_versions, get_geosupport_versions
+
+from dcpy.utils import s3
+from dcpy.utils.git import github
+
+from .constants import bucket, qa_checks
+from .helpers import get_geosupport_versions, get_source_versions
 
 
 def status_details(workflow_run: github.WorkflowRun) -> None:

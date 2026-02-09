@@ -2,8 +2,8 @@
 does request module handle errenous status codes correctly, does PUMS data class
 clean/collate data correctly"""
 
-from tests.PUMS.local_loader import LocalLoader
 import pytest
+from tests.PUMS.local_loader import LocalLoader
 
 years = [2012, 2019, 2021]
 local_loaders = [LocalLoader(year=year) for year in years]

@@ -1,12 +1,13 @@
-import pandas as pd
-from itertools import groupby
 import re
+from itertools import groupby
+
+import pandas as pd
 import streamlit as st
 
 from dcpy.configuration import PUBLISHING_BUCKET
+from dcpy.connectors.edm import publishing
 from dcpy.utils import s3
 from dcpy.utils.git import github
-from dcpy.connectors.edm import publishing
 
 REPO_NAME = "db-equitable-development-tool"
 PRODUCT = "db-eddt"

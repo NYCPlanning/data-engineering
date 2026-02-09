@@ -1,7 +1,8 @@
 from pathlib import Path
+
 from dcpy.utils.s3 import upload_folder
 
-from . import S3_BUCKET, S3_OUTPUT_DIR, BUILD_ENGINE_SCHEMA, OUTPUT_PATH, VERSION
+from . import BUILD_ENGINE_SCHEMA, OUTPUT_PATH, S3_BUCKET, S3_OUTPUT_DIR, VERSION
 
 UPLOAD_PATH = Path(S3_OUTPUT_DIR) / Path(BUILD_ENGINE_SCHEMA) / Path(VERSION)
 

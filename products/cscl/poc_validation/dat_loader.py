@@ -5,12 +5,13 @@ and loading the result into a postgres table
 This is done ad-hoc and not on an operational basis
 """
 
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 import typer
 
-from dcpy.utils import postgres, s3
 from dcpy.lifecycle.builds import plan
+from dcpy.utils import postgres, s3
 
 CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
 LOAD_FOLDER = Path("prod")
