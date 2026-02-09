@@ -1,0 +1,21 @@
+version: 2
+
+seeds:
+  - name: boroughs
+    description: "NYC borough reference data with codes"
+    columns:
+      - name: name
+        description: "Full borough name"
+        tests:
+          - not_null
+          - unique
+      - name: name_short
+        description: "Short borough code (e.g., MN, BK)"
+        tests:
+          - not_null
+          - unique
+      - name: bbl_code
+        description: "Borough code used in BBL"
+        tests:
+          - not_null
+          - unique

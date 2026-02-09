@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: stg_nypl_libraries
+    description: "NYPL libraries"
+    columns:
+      - name: library_name
+        tests:
+          - not_null
+      - name: borough
+      - name: wkb_geometry
+        tests:
+          - not_null
+
+  - name: stg_bpl_libraries
+    description: "Brooklyn Public Library"
+    columns:
+      - name: library_name
+        tests:
+          - not_null
+      - name: wkb_geometry
+        tests:
+          - not_null
+
+  - name: stg_qpl_libraries
+    description: "Queens Public Library"
+    columns:
+      - name: library_name
+        tests:
+          - not_null
+      - name: wkb_geometry
+
+  - name: stg_dpr_parksproperties
+    description: "DPR parks properties"
+    columns:
+      - name: space_name
+        tests:
+          - not_null
+      - name: borough
+        tests:
+          - not_null
+      - name: wkb_geometry
+        tests:
+          - not_null
+
+  - name: stg_dpr_greenthumb
+    description: "DPR Greenthumb gardens"
+    columns:
+      - name: space_name
+        tests:
+          - not_null
+      - name: borough
+      - name: wkb_geometry
+
+  - name: stg_lpc_landmarks
+    description: "LPC landmarks"
+    columns:
+      - name: landmark_name
+        tests:
+          - not_null
+      - name: borough_name_short
+      - name: bbl
+      - name: wkb_geometry
