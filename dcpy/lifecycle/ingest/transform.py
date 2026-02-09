@@ -447,9 +447,14 @@ class ProcessingFunctions:
         self,
         df: pd.DataFrame,
         function_name: str,
+        *,
+        geo: bool = False,  # only used for validation
         **kwargs,
     ) -> ProcessingResult:
-        """"""
+        if geo and not isinstance(df, gpd.GeoDataFrame):
+            raise TypeError(
+                "GeoDataFrame processing function specified for non-geo df. Ensure that gdf is read in properly"
+            )
         transformed = df.copy()
         parts = function_name.split(".")
         func = transformed

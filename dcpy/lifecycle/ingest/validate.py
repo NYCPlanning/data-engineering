@@ -35,6 +35,24 @@ def find_source_validation_errors(source: Source) -> dict:
     return violations
 
 
+def _validate_pd_df_func(
+    function_name: str, *, geo=False, **kwargs
+) -> str | dict[str, str]:
+    parts = function_name.split(".")
+    if geo:
+        func = gpd.GeoDataFrame()
+        func_str = "gpd.GeoDataFrame"
+    else:
+        func = pd.DataFrame()
+        func_str = "pd.DataFrame"
+    for part in parts:
+        if part not in func.__dir__():
+            return f"'{func_str}' has no attribute '{part}'"
+        func = func.__getattribute__(part)
+        func_str += f".{part}"
+    return introspect.validate_kwargs(func, kwargs)  # type: ignore
+
+
 def _validate_pd_series_func(
     *, function_name: str, column_name: str = "", geo=False, **kwargs
 ) -> str | dict[str, str]:
