@@ -39,7 +39,6 @@ jobs:
     - name: Check sql files in products
       run: |
         # TODO: Gradually expand this to cover more products
-        sqlfluff lint products/template/sql
         sqlfluff lint products/cbbr/sql
         sqlfluff lint products/cpdb/sql/
         sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
@@ -84,6 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         project:
+        - template
         - cdbg
         - ceqr
         - cpdb

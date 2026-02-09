@@ -1,6 +1,10 @@
-# Template Database (TDB)
+# Template DB
 
-This repo is a way for the Data Engineering team to work out and declare it's ideal file structures, code styles, and workflows to be used in other repos. This is new and evolving. Nothing here *must* be done in another repo.
+Template DB is a mock data product and is meant to be:
+
+- a model of our latest standard approaches to building data products
+- an end-to-end test of our data platform
+- a low-risk data pipeline to experiment with
 
 ## Latest output files
 

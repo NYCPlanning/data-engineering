@@ -1,17 +1,7 @@
 from dbt.cli.main import dbtRunner, dbtRunnerResult
 from dbt.contracts.results import RunExecutionResult
 
-from build_scripts import PG_CLIENT, SQL_QUERY_DIR
-from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-
-
-def _execute_sql_script(step_query=str):
-    logger.info(f"Running transform step {step_query} ...")
-    postgres.execute_file_via_shell(
-        PG_CLIENT.engine_uri,
-        SQL_QUERY_DIR / f"{step_query}.sql",
-    )
 
 
 def _invoke_dbt(run_args=list[str]):
@@ -36,28 +26,11 @@ def _invoke_dbt(run_args=list[str]):
         )
 
 
-def staging():
-    _invoke_dbt(["test", "--select", "source:*"])
-    _execute_sql_script("staging")
-
-
-def intermediate():
-    _execute_sql_script("libraries")
-    _execute_sql_script("green_spaces")
-    _execute_sql_script("historic_landmarks")
-    _invoke_dbt(["test", "--select", "libraries green_spaces historic_landmarks"])
-
-
-def product():
-    _execute_sql_script("product/templatedb")
-    _execute_sql_script("product/aggregation/templatedb_boroughs")
-    _invoke_dbt(["test", "--select", "product.templatedb"])
-    _invoke_dbt(["test", "--select", "product.aggregation"])
-
-
 if __name__ == "__main__":
     _invoke_dbt(["deps"])
     _invoke_dbt(["debug"])
-    staging()
-    intermediate()
-    product()
+    _invoke_dbt(["seed"])
+    _invoke_dbt(["test", "--select", "source:*"])
+    _invoke_dbt(["build", "--select", "staging"])
+    _invoke_dbt(["build", "--select", "intermediate"])
+    _invoke_dbt(["build", "--select", "product"])

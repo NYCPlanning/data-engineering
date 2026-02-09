@@ -2,7 +2,7 @@ name: "dbt_template"
 
 profile: "dcp-de-postgres"
 
-model-paths: ["sql"]
+model-paths: ["models"]
 
 tests:
   +store_failures: true
