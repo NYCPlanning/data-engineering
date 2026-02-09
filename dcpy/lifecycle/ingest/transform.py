@@ -443,6 +443,33 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=grouped, summary=summary)
 
+    def pd_df_func(
+        self,
+        df: pd.DataFrame,
+        function_name: str,
+        *,
+        geo: bool = False,  # only used for validation
+        **kwargs,
+    ) -> ProcessingResult:
+        if geo and not isinstance(df, gpd.GeoDataFrame):
+            raise TypeError(
+                "GeoDataFrame processing function specified for non-geo df. Ensure that gdf is read in properly"
+            )
+        transformed = df.copy()
+        parts = function_name.split(".")
+        func = transformed
+        for part in parts:
+            func = func.__getattribute__(part)
+
+        transformed = func(**kwargs)  # type: ignore
+        summary = make_generic_change_stats(
+            df,
+            transformed,
+            description=f"Applied {function_name}",
+            name="pd_df_func",
+        )
+        return ProcessingResult(df=transformed, summary=summary)
+
     def pd_series_func(
         self,
         df: pd.DataFrame,

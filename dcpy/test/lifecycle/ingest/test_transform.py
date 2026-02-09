@@ -410,6 +410,23 @@ class TestProcessors:
             "The logged column changes should be correct"
         )
 
+    def test_pd_df_func(self):
+        transformed = self.proc.pd_df_func(
+            self.basic_df,
+            function_name="replace",
+            to_replace="b_",
+            value="B-",
+            regex=True,
+        )
+        expected = pd.DataFrame({"a": [2, 3, 1], "b": ["B-1", "B-2", "c_3"]})
+        assert transformed.df.equals(expected)
+
+    def test_gdf_func_on_non_gdf(self):
+        with pytest.raises(
+            TypeError, match="GeoDataFrame processing function specified for non-geo df"
+        ):
+            self.proc.pd_df_func(self.basic_df, function_name="fake", geo=True)
+
     def test_pd_series_func(self):
         transformed = self.proc.pd_series_func(
             self.basic_df, column_name="b", function_name="map", arg={"b_1": "c_1"}

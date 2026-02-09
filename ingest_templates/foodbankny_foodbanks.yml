@@ -1,0 +1,34 @@
+id: foodbankny_foodbanks
+acl: public-read
+
+attributes:
+  name: Food Bank NYC Locations
+  url: https://www.foodbanknyc.org/find-food/#find-food-map
+
+ingestion:
+  source:
+    # custom web-scraping connector
+    type: foodbankny
+    key: ""
+  file_format:
+    type: csv
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "lower": True }
+  - name: pd_df_func
+    args:
+      function_name: replace
+      to_replace: '\xa0'
+      value: ' '
+      regex: True
+  - name: pd_df_func
+    args:
+      function_name: replace
+      to_replace: '\u2013'
+      value: '-'
+      regex: True

@@ -122,6 +122,42 @@ def test_find_processing_step_validation_errors_errors(step, expected_error):
     assert errors == expected_error
 
 
+class TestValidatePdDataFrameFunc:
+    """transorm._validate_pd_series_func returns dictionary of validation errors"""
+
+    def test_basic(self):
+        assert not validate._validate_pd_df_func(function_name="dropna")
+
+    def test_args(self):
+        assert not validate._validate_pd_df_func(
+            function_name="replace", to_replace="pat", value="repl"
+        )
+
+    def test_args_geo(self):
+        assert not validate._validate_pd_df_func(
+            function_name="replace", to_replace="pat", value="repl", geo=True
+        )
+
+    def test_missing_arg(self):
+        assert "other" in validate._validate_pd_df_func(function_name="add")
+
+    def test_extra_arg(self):
+        assert "extra_arg" in validate._validate_pd_df_func(
+            function_name="replace", to_replace="pat", value="repl", extra_arg="foo"
+        )
+
+    def test_invalid_function(self):
+        res = validate._validate_pd_df_func(function_name="fake_function")
+        assert res == "'pd.DataFrame' has no attribute 'fake_function'"
+
+    def test_gpd_without_flag(self):
+        res = validate._validate_pd_df_func(function_name="set_crs")
+        assert res == "'pd.DataFrame' has no attribute 'set_crs'"
+
+    def test_gpd(self):
+        assert not validate._validate_pd_df_func(function_name="set_crs", geo=True)
+
+
 class TestValidatePdSeriesFunc:
     """transorm._validate_pd_series_func returns dictionary of validation errors"""
 

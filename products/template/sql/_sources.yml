@@ -30,7 +30,7 @@ sources:
             tests:
               - unique
               - not_null
-          - name: wkb_geometry
+          - name: geom
             tests:
               - dbt_utils.at_least_one
 

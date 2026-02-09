@@ -7,11 +7,11 @@ SELECT
     parsed_sname AS streetname,
     address,
     city,
-    postcode AS zipcode,
-    borough AS boro,
+    zip_code AS zipcode,
+    'Queens' AS boro,
     NULL AS borocode,
-    bin,
-    bbl,
+    NULL AS bin,
+    NULL AS bbl,
     'Public Library' AS factype,
     'Public Libraries' AS facsubgrp,
     'Queens Public Library' AS opname,
@@ -19,10 +19,10 @@ SELECT
     'QPL' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    wkt::geometry AS wkb_geometry,
+    geom AS wkb_geometry,
     geo_1b,
-    geo_bl,
-    geo_bn
+    NULL AS geo_bl,
+    NULL AS geo_bn
 INTO _qpl_libraries
 FROM qpl_libraries;
 
