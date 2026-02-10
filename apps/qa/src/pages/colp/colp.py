@@ -1,18 +1,19 @@
 def colp():
     import streamlit as st
-    from src.shared.components import sidebar, build_outputs
-    from .helpers import get_data
+    from src.shared.components import build_outputs, sidebar
+
     from .components.agency_usetype_report import (
         RecordsByAgency,
-        RecordsByUsetype,
         RecordsByAgencyUsetype,
+        RecordsByUsetype,
     )
-    from .components.outlier_report import OutlierReport
-    from .components.manual_correction_report import ManualCorrection
     from .components.geospatial_check import GeospatialCheck
+    from .components.manual_correction_report import ManualCorrection
+    from .components.outlier_report import OutlierReport
     from .components.usetype_version_comparison_report import (
         UsetypeVersionComparisonReport,
     )
+    from .helpers import get_data
 
     st.title("City Owned and Leased Properties QAQC")
     product_key = sidebar.data_selection("db-colp")

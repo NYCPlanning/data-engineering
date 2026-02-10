@@ -1,10 +1,10 @@
 def pluto():
     import streamlit as st
-
     from src.shared.components import sidebar
-    from .helpers import get_data, PRODUCT
-    from .components.version_comparison_report import version_comparison_report
+
     from .components.changes_report import ChangesReport
+    from .components.version_comparison_report import version_comparison_report
+    from .helpers import PRODUCT, get_data
 
     st.title("PLUTO QAQC")
 

@@ -1,8 +1,7 @@
 import pandas as pd
-
 from aggregate.decennial_census import decennial_census_001020 as census_helpers
-from utils import geo_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
+from utils import geo_helpers
 
 
 def assault_hospitalizations(geography, write_to_internal_review=False):

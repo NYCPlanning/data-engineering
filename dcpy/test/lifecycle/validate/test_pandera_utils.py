@@ -1,14 +1,15 @@
-import pytest
-import pandera as pa
-import pandas as pd
-import yaml
-from pydantic import TypeAdapter
 from inspect import (
     signature,
 )  # used for checking expected attributes in a class signuture
 
-from dcpy.models.dataset import Column, CheckAttributes
+import pandas as pd
+import pandera as pa
+import pytest
+import yaml
+from pydantic import TypeAdapter
+
 from dcpy.lifecycle.validate import pandera_utils
+from dcpy.models.dataset import CheckAttributes, Column
 
 from . import RESOURCES
 

@@ -1,5 +1,6 @@
-import pytest
 from typing import Literal
+
+import pytest
 
 from dcpy.utils import introspect
 

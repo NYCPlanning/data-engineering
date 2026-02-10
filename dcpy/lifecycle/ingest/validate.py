@@ -1,18 +1,19 @@
-import geopandas as gpd
-import pandas as pd
 from pathlib import Path
-from pydantic import ValidationError
 from tempfile import TemporaryDirectory
 
+import geopandas as gpd
+import pandas as pd
+from pydantic import ValidationError
+
+from dcpy.lifecycle.ingest import connectors, plan, transform
 from dcpy.models.lifecycle.ingest import (
-    Source,
     ProcessingStep,
     ResolvedDataSource,
+    Source,
 )
 from dcpy.utils import introspect
-from dcpy.utils.logging import logger
 from dcpy.utils.geospatial import parquet
-from dcpy.lifecycle.ingest import connectors, plan, transform
+from dcpy.utils.logging import logger
 
 
 def find_source_validation_errors(source: Source) -> dict:

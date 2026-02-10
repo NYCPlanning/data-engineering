@@ -1,15 +1,16 @@
 import os
 from unittest.mock import patch
-from osgeo import gdal
+
 import pandas as pd
+from osgeo import gdal
 
 from dcpy.library.ingest import Ingestor, format_field_names
 from dcpy.test.conftest import mock_request_get
 
 from . import (
     get_config_file,
-    test_root_path,
     template_path,
+    test_root_path,
 )
 
 

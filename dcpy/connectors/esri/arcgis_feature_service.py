@@ -1,8 +1,11 @@
+import json
 from datetime import datetime
 from pathlib import Path
+from typing import cast
+
 import requests
 import typer
-from typing import cast
+import yaml
 from rich.progress import (
     BarColumn,
     Progress,
@@ -10,13 +13,11 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
-import yaml
-import json
 
+from dcpy.connectors.registry import Connector
 from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer, Server
 from dcpy.models.product.dataset import metadata
 from dcpy.utils.logging import logger
-from dcpy.connectors.registry import Connector
 
 
 def get_feature_server_metadata(feature_server: FeatureServer) -> dict:

@@ -9,17 +9,17 @@ from sqlalchemy import text
 
 from dcpy.utils.postgres import insert_copy
 
-from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DOMAIN, ZAP_DB_URL
+from . import CLIENT_ID, SECRET, TENANT_ID, ZAP_DB_URL, ZAP_DOMAIN
 from .client import Client
 from .pg import PG
 from .recode_id import recode_id
+from .util import timestamp_to_date
 from .visible_projects import (
     OPEN_DATA,
-    make_staging_table,
     make_open_data_table,
+    make_staging_table,
     open_data_recode,
 )
-from .util import timestamp_to_date
 
 
 class Runner:

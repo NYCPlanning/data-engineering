@@ -1,8 +1,8 @@
-import pytest
 from unittest import mock
 
-from dcpy.connectors.socrata import extract, connector, configuration
+import pytest
 
+from dcpy.connectors.socrata import configuration, connector, extract
 from dcpy.test.conftest import mock_request_get
 
 ORG = configuration.Org.nyc

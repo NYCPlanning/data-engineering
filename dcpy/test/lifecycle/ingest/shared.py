@@ -3,10 +3,10 @@ from pathlib import Path
 
 from dcpy.models.connectors.edm.recipes import Dataset
 from dcpy.models.lifecycle.ingest import (
-    Source,
-    ResolvedDataSource,
     ArchivedDataSource,
     IngestedDataset,
+    ResolvedDataSource,
+    Source,
 )
 from dcpy.utils.metadata import RunDetails
 

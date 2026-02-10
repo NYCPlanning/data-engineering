@@ -1,17 +1,17 @@
 import streamlit as st
-
 from src.shared.components import build_outputs
-from .mismatch_report import MismatchReport
-from .null_graph import NullReport
-from .source_data_versions_report import (
-    SourceDataVersionsReport,
-)
+
+from .aggregate_report import AggregateReport
+from .bbl_diffs_report import BblDiffsReport
 from .expected_value_differences_report import (
     ExpectedValueDifferencesReport,
 )
+from .mismatch_report import MismatchReport
+from .null_graph import NullReport
 from .outlier_report import OutlierReport
-from .aggregate_report import AggregateReport
-from .bbl_diffs_report import BblDiffsReport
+from .source_data_versions_report import (
+    SourceDataVersionsReport,
+)
 
 
 def version_comparison_report(product_key, data, comp_type):

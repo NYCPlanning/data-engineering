@@ -1,10 +1,10 @@
 # This file processes the raw source data into .sql (`/processed/`) files that are then used to build KPDB.
 
 import sys
+import zipfile
 
 import geopandas as gpd
 import pandas as pd
-import zipfile
 
 from . import RAW_DATA_PATH
 from .utils import ETL

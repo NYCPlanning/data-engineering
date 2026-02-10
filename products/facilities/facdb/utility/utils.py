@@ -1,9 +1,9 @@
 import hashlib
-import numpy as np
 import re
 
-import pandas as pd
 import geopandas as gpd
+import numpy as np
+import pandas as pd
 
 
 def hash_each_row(df: pd.DataFrame) -> pd.DataFrame:

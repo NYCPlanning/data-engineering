@@ -1,7 +1,8 @@
 def checkbook():
     import streamlit as st
+    from src.shared.components import build_outputs, sidebar
     from src.shared.utils import publishing
-    from src.shared.components import sidebar, build_outputs
+
     from .components import output_map
 
     st.title("Capital Spending Database")

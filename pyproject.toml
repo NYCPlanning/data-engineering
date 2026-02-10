@@ -79,6 +79,17 @@ dialect = "postgres"
 [tool.pydocstyle]
 ignore = ["D100", "D101", "D102", "D107", "D104", "D213", "D407", "D413"]
 
+[tool.ruff.lint]
+select = [
+    # Default rulesets
+    "E4",   # Subset of pycodestyle
+    "E7",
+    "E9",
+    "F",    # Pyflakes
+    # Additional rulesets
+    "I",    # Sort imports properly
+]
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "E402"]
 "conftest.py" = ["E402"]

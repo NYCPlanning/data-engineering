@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from dcpy.connectors.registry import Connector
-from dcpy.connectors.socrata.configuration import Org, ValidFormat
 from dcpy.connectors.socrata import extract
+from dcpy.connectors.socrata.configuration import Org, ValidFormat
 
 
 class SocrataConnector(Connector):

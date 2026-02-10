@@ -1,24 +1,24 @@
 def cpdb():
-    import streamlit as st
     import plotly.express as px
     import plotly.graph_objects as go
-
-    from .helpers import (
-        PRODUCT,
-        get_data,
-        get_commit_cols,
-        get_diff_dataframe,
-        get_map_percent_diff,
-        sort_base_on_option,
-        VIZKEY,
-    )
+    import streamlit as st
+    from src.shared.components import build_outputs, sidebar
     from src.shared.constants import COLOR_SCHEME
+
+    from .components.adminbounds import adminbounds
     from .components.geometry_visualization_report import (
         geometry_visualization_report,
     )
-    from .components.adminbounds import adminbounds
     from .components.withinNYC_check import withinNYC_check
-    from src.shared.components import sidebar, build_outputs
+    from .helpers import (
+        PRODUCT,
+        VIZKEY,
+        get_commit_cols,
+        get_data,
+        get_diff_dataframe,
+        get_map_percent_diff,
+        sort_base_on_option,
+    )
 
     st.title("Capital Projects Database QAQC")
 

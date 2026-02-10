@@ -1,9 +1,10 @@
 # Get the relevant release details from the Geosupport Open Data page
 # and set an environment variable
-import sys
 import json
 import logging
 import re
+import sys
+
 import requests
 from bs4 import BeautifulSoup
 

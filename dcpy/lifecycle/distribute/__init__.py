@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from dcpy.models.lifecycle.event_result import DistributeResult
 from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.connector_registry import connectors
+from dcpy.models.lifecycle.event_result import DistributeResult
 
 
 def to_dataset_destination(

@@ -1,11 +1,13 @@
-import pandas as pd
-from pathlib import Path
 import shutil
+from pathlib import Path
 
-from dcpy.utils.logging import logger
+import pandas as pd
+
 from dcpy.lifecycle.builds import load
+from dcpy.utils.logging import logger
+
 from . import OUTPUT_FOLDER
-from .utils import process_metadata, apply_ccd_prefix, export_df
+from .utils import apply_ccd_prefix, export_df, process_metadata
 
 DATASET = "decennial"
 SHEET_CONFIG = {

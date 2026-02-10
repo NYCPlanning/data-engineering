@@ -1,11 +1,12 @@
-from io import StringIO
-import re
 import csv
 import hashlib
-from sqlalchemy import create_engine, text
-import pandas as pd
-import geopandas as gpd
+import re
 from functools import wraps
+from io import StringIO
+
+import geopandas as gpd
+import pandas as pd
+from sqlalchemy import create_engine, text
 
 from . import BUILD_ENGINE, DCP_HOUSING_DATA_FILENAMES
 

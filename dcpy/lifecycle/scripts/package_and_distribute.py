@@ -1,7 +1,8 @@
 from itertools import groupby
+
 import typer
 
-from dcpy.lifecycle import package, distribute, product_metadata
+from dcpy.lifecycle import distribute, package, product_metadata
 from dcpy.models.lifecycle import event_result
 from dcpy.utils.logging import logger
 

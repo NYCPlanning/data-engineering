@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, text
-import pandas as pd
 import os
+
+import pandas as pd
+from sqlalchemy import create_engine, text
 from utils import psql_insert_copy
 
 # connect to postgres db

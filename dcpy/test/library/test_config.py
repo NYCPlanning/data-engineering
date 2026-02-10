@@ -1,13 +1,14 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 import yaml
 
-from dcpy.models.library import DatasetDefinition
-from dcpy.library.config import Config
 from dcpy.library import TEMPLATE_DIR
-
+from dcpy.library.config import Config
+from dcpy.models.library import DatasetDefinition
 from dcpy.test.conftest import mock_request_get
-from . import template_path, get_config_file
+
+from . import get_config_file, template_path
 
 FAKE_PATH = "./fake_file.csv"
 

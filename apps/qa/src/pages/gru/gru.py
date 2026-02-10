@@ -1,13 +1,15 @@
 def gru():
-    import streamlit as st
     import time
-    from .constants import readme_markdown_text, qa_checks
+
+    import streamlit as st
+
+    from .components import check_table, source_table
+    from .constants import qa_checks, readme_markdown_text
     from .helpers import (
+        get_geosupport_versions,
         get_qaqc_runs,
         run_all_workflows,
-        get_geosupport_versions,
     )
-    from .components import source_table, check_table
 
     st.markdown(
         "<style>button{text-align:left; margin:0}.stDownloadButton{max-width:195px;}</style>",

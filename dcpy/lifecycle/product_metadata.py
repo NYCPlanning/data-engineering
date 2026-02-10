@@ -1,5 +1,5 @@
-from dcpy.models.product.metadata import OrgMetadata
 from dcpy.lifecycle import config
+from dcpy.models.product.metadata import OrgMetadata
 
 
 def load(**kwargs) -> OrgMetadata:

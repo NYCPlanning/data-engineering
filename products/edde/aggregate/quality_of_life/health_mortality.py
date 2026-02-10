@@ -1,12 +1,12 @@
 """This file will have three accessors for three indicators that all rely on the same source data"""
 
-import pandas as pd
-import numpy as np
 import re
 
-from utils.geo_helpers import clean_PUMAs
-from internal_review.set_internal_review_file import set_internal_review_files
+import numpy as np
+import pandas as pd
 from aggregate.clean_aggregated import order_PUMS_QOL_multiple_years
+from internal_review.set_internal_review_file import set_internal_review_files
+from utils.geo_helpers import clean_PUMAs
 
 # Latest header in "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx"
 LATEST_YEAR = "1620"

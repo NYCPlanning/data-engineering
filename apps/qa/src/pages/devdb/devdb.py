@@ -1,18 +1,19 @@
 def devdb():
     import streamlit as st
-    from .helpers import (
-        get_latest_data,
-        PRODUCT,
-        QAQC_CHECK_DICTIONARY,
-        QAQC_CHECK_SECTIONS,
-    )
+    from src.shared.components import build_outputs, sidebar
+
+    from .components.complete_quarters_report import CompleteQuartersReport
+    from .components.field_distribution_report import FieldDistributionReport
     from .components.flagged_jobs_report import FlaggedJobsReport
     from .components.qaqc_version_history_report import (
         QAQCVersionHistoryReport,
     )
-    from .components.complete_quarters_report import CompleteQuartersReport
-    from .components.field_distribution_report import FieldDistributionReport
-    from src.shared.components import sidebar, build_outputs
+    from .helpers import (
+        PRODUCT,
+        QAQC_CHECK_DICTIONARY,
+        QAQC_CHECK_SECTIONS,
+        get_latest_data,
+    )
 
     st.title("Developments Database QAQC")
 

@@ -1,10 +1,11 @@
 import os
 import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
-from dcpy.utils import postgres
 from dcpy.lifecycle.builds import metadata
+from dcpy.utils import postgres
 
 load_dotenv()
 

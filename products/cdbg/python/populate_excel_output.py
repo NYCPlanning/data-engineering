@@ -5,7 +5,7 @@ from typing import TypedDict
 from dcpy.utils import excel
 from dcpy.utils.logging import logger
 
-from . import PRODUCT_PATH, OUTPUT_PATH, CENSUS_TRACTS_YEAR
+from . import CENSUS_TRACTS_YEAR, OUTPUT_PATH, PRODUCT_PATH
 
 TEMPLATE_EXCEL_PATH = PRODUCT_PATH / "census-tract-eligibility-template.xlsx"
 OUTPUT_EXCEL_PATH = (

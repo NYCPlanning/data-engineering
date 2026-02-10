@@ -8,10 +8,12 @@ Put age into buckets
 Start aggregation with replicated weights
 """
 
-from dcpy.utils.logging import logger
-import requests
-import pandas as pd
 import time
+
+import pandas as pd
+import requests
+
+from dcpy.utils.logging import logger
 
 
 def make_GET_request(url: str, request_name: str) -> pd.DataFrame:

@@ -1,21 +1,22 @@
 import json
-import pytest
 from pathlib import Path
 
+import pytest
+
+from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
+from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
+from dcpy.lifecycle import connector_registry
+from dcpy.lifecycle.ingest import validate
+from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
 from dcpy.models import library
 from dcpy.models.lifecycle.ingest import ProcessingStep
-from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
-from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
-from dcpy.lifecycle import connector_registry
-from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
-from dcpy.lifecycle.ingest import validate
 
 from .shared import (
-    TEST_OUTPUT,
-    RUN_DETAILS,
-    INGEST_DEF_DIR,
-    TEST_DATASET_NAME,
     DOWNSTREAM_DATASET_1,
+    INGEST_DEF_DIR,
+    RUN_DETAILS,
+    TEST_DATASET_NAME,
+    TEST_OUTPUT,
 )
 
 BASIC_LIBRARY_CONFIG = library.Config(

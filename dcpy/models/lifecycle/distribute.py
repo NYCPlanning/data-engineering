@@ -1,5 +1,5 @@
-from typing import TypedDict, NotRequired, Required
 from pathlib import Path
+from typing import NotRequired, Required, TypedDict
 
 import dcpy.models.product.dataset.metadata as ds_md
 

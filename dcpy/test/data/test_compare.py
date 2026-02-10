@@ -1,7 +1,7 @@
 import pandas as pd
 
-from dcpy.models.data import comparison
 from dcpy.data import compare
+from dcpy.models.data import comparison
 
 
 class TestDataFrame:

@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from dcpy.configuration import PUBLISHING_BUCKET, PUBLISHING_BUCKET_ROOT_FOLDER
-
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.models.connectors.edm.publishing import PublishKey

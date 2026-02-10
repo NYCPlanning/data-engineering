@@ -1,11 +1,13 @@
 from __future__ import annotations
+
+import re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from typing import DefaultDict, Dict, List
-from typing_extensions import TypedDict
 from pathlib import Path
-import re
+from typing import DefaultDict, Dict, List
+
 import typer
+from typing_extensions import TypedDict
 
 
 def _to_class_name(tag: str) -> str:

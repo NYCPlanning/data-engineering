@@ -1,6 +1,5 @@
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 from aggregate.load_aggregated import ACSAggregator
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import acs_years

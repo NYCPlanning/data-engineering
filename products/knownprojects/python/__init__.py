@@ -1,8 +1,9 @@
 import os
 import sys
-from pathlib import Path
-from dotenv import load_dotenv
 from datetime import datetime
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 _module_top_path = Path(__file__).resolve().parent
 _product_path = _module_top_path.parent

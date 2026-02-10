@@ -1,12 +1,13 @@
 """Possible refactor: abstract the by_race into a single function"""
 
-from typing import Tuple, List
-from aggregate.PUMS.aggregate_PUMS import PUMSCount
+from typing import List, Tuple
+
 import pandas as pd
+from aggregate.PUMS.aggregate_PUMS import PUMSCount
 from aggregate.PUMS.economic_indicators import (
-    occupation_assign,
-    lf_assign,
     industry_assign,
+    lf_assign,
+    occupation_assign,
 )
 
 

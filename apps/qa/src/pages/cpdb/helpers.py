@@ -1,5 +1,6 @@
 import pandas as pd
 from dotenv import load_dotenv
+
 from dcpy.connectors.edm import publishing
 
 load_dotenv()

@@ -1,17 +1,18 @@
 import sys
 
 sys.path.insert(0, "..")
+from multiprocessing import Pool, cpu_count
+
 import pandas as pd
 from _helper.geo import (
-    get_hnum,
-    get_sname,
+    GEOSUPPORT_RETURN_CODE_REJECTION,
     clean_address,
     find_intersection,
     find_stretch,
     geocode,
-    GEOSUPPORT_RETURN_CODE_REJECTION,
+    get_hnum,
+    get_sname,
 )
-from multiprocessing import Pool, cpu_count
 
 URL_NYSDEC_TITLE_V_PERMITS = "https://data.ny.gov/resource/4n3a-en4b.csv"
 

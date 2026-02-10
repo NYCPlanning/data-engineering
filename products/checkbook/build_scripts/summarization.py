@@ -1,14 +1,14 @@
-from typing import Union
-import pandas as pd
 import logging
+from typing import Union
+
+import pandas as pd
 
 from . import (
-    OUTPUT_DIR,
     BUILD_OUTPUT_FILENAME,
+    OUTPUT_DIR,
     SUMMARY_STATS_DESCRIBE_FILENAME,
     SUMMARY_STATS_LOG_FILENAME,
 )
-
 
 logging.basicConfig(
     level=logging.INFO,

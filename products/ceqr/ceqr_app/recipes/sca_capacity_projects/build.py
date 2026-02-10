@@ -1,16 +1,17 @@
 import sys
 
 sys.path.insert(0, "..")
-import pandas as pd
+from multiprocessing import Pool, cpu_count
+
 import numpy as np
+import pandas as pd
 from _helper.geo import (
-    get_hnum,
-    get_sname,
     find_intersection,
     find_stretch,
     geocode,
+    get_hnum,
+    get_sname,
 )
-from multiprocessing import Pool, cpu_count
 
 
 def _import() -> pd.DataFrame:

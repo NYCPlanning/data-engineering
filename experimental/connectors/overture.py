@@ -1,7 +1,8 @@
-from overturemaps import cli as overturemaps_cli
-from overturemaps.core import record_batch_reader, type_theme_map
 from pathlib import Path
 from typing import Literal
+
+from overturemaps import cli as overturemaps_cli
+from overturemaps.core import record_batch_reader, type_theme_map
 
 from dcpy.connectors.registry import Connector
 

@@ -1,8 +1,8 @@
 from pathlib import Path
 
+from dcpy.lifecycle.builds import metadata
 from dcpy.models.connectors.edm.publishing import BuildKey
 from dcpy.utils import postgres
-from dcpy.lifecycle.builds import metadata
 
 PRODUCT_PATH = Path(__file__).resolve().parent.parent
 

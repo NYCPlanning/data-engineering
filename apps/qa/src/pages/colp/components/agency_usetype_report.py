@@ -1,7 +1,8 @@
+from abc import ABC
+
+import plotly.express as px
 import streamlit as st
 from src.shared.constants import COLOR_SCHEME
-from abc import ABC
-import plotly.express as px
 
 
 class CountRecordsReport(ABC):

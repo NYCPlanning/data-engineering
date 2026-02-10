@@ -1,7 +1,7 @@
 import pandas as pd
-from utils.geo_helpers import puma_to_borough, clean_PUMAs
-from internal_review.set_internal_review_file import set_internal_review_files
 from ingest.ingestion_helpers import read_from_excel
+from internal_review.set_internal_review_file import set_internal_review_files
+from utils.geo_helpers import clean_PUMAs, puma_to_borough
 
 SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx"
 CATEGORY = "quality_of_life"

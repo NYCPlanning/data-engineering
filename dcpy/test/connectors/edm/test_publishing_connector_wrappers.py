@@ -1,7 +1,7 @@
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from dcpy.connectors.edm import publishing
-from dcpy.models.connectors.edm.publishing import PublishKey, DraftKey
+from dcpy.models.connectors.edm.publishing import DraftKey, PublishKey
 
 
 class TestPublishedConnector:

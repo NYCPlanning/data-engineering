@@ -1,9 +1,9 @@
-from aggregate.PUMS.count_PUMS_households import PUMSCountHouseholds
-from ingest.load_data import load_PUMS
-from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics
 from aggregate.PUMS.count_PUMS_demographics import PUMSCountDemographics
+from aggregate.PUMS.count_PUMS_economics import PUMSCountEconomics
+from aggregate.PUMS.count_PUMS_households import PUMSCountHouseholds
 from aggregate.PUMS.median_PUMS_demographics import PUMSMedianDemographics
 from aggregate.PUMS.median_PUMS_economics import PUMSMedianEconomics
+from ingest.load_data import load_PUMS
 
 
 class LocalLoader:

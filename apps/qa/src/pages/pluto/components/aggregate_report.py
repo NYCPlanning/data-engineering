@@ -1,6 +1,6 @@
+import plotly.graph_objects as go
 import streamlit as st
 from numerize.numerize import numerize
-import plotly.graph_objects as go
 from src.shared.constants import COLOR_SCHEME
 
 

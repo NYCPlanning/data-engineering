@@ -4,7 +4,6 @@ from pathlib import Path
 import marimo
 import uvicorn
 
-
 MARIMO_PASSWORD = os.getenv("MARIMO_PASSWORD")
 assert MARIMO_PASSWORD, (
     "Sorry, you're gonna need a password for this one. Set `MARIMO_PASSWORD` in your env."

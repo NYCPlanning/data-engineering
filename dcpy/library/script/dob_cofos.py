@@ -1,10 +1,10 @@
 # from asyncio.windows_events import NULL
 import pandas as pd
 
+from dcpy.connectors.edm import recipes
+
 from . import df_to_tempfile
 from .scriptor import ScriptorInterface
-
-from dcpy.connectors.edm import recipes
 
 
 class Scriptor(ScriptorInterface):

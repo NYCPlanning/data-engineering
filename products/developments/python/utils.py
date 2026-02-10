@@ -1,8 +1,8 @@
 import csv
-from io import StringIO
 import os
-from sqlalchemy import create_engine
+from io import StringIO
 
+from sqlalchemy import create_engine
 
 engine = create_engine(os.environ["BUILD_ENGINE"])
 

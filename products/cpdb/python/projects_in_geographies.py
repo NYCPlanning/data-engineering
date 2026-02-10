@@ -1,9 +1,10 @@
 import os
 import shutil
 from pathlib import Path
+
+import pandas as pd
 from jinja2 import Template
 from sqlalchemy import create_engine, text
-import pandas as pd
 
 from python.admin_geographies import generate_all_admin_geographies
 

@@ -1,7 +1,7 @@
-from enum import Enum
 import inspect
+from enum import Enum
 from types import UnionType
-from typing import Callable, get_args, get_origin, Literal, Union
+from typing import Callable, Literal, Union, get_args, get_origin
 
 
 def _isempty(obj) -> bool:

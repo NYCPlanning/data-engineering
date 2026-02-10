@@ -4,8 +4,8 @@ which is linked in
 https://github.com/NYCPlanning/db-equitable-development-tool/issues/1
 """
 
-import requests
 import pandas as pd
+import requests
 from ingest.HVS.HVS_geography_clean import HVS_borough_clean
 
 metadata_url_2017 = "https://www2.census.gov/programs-surveys/nychvs/datasets/2017/microdata/stata_import_program_17.txt"

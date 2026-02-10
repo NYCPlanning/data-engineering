@@ -2,6 +2,7 @@ import json
 import sys
 from functools import reduce
 from pathlib import Path
+
 import pandas as pd
 from pathos.pools import ProcessPool
 

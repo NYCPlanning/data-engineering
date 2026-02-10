@@ -1,8 +1,8 @@
 from pathlib import Path
 
+from dcpy.connectors.registry import StorageConnector
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
-from dcpy.connectors.registry import StorageConnector
 
 
 class S3Connector(StorageConnector):

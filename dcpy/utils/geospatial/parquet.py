@@ -1,7 +1,8 @@
-import geopandas as gpd
 import json
-import pandas as pd
 from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
 from pyarrow import parquet
 
 from dcpy.models.geospatial import parquet as geoparquet

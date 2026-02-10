@@ -1,12 +1,14 @@
 from __future__ import annotations
+
+import re
 from abc import abstractmethod
 from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import date
-from dateutil.relativedelta import relativedelta
-from enum import StrEnum, IntEnum
+from enum import IntEnum, StrEnum
 from functools import total_ordering
+
+from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
-import re
 
 
 class DateVersionFormat(StrEnum):

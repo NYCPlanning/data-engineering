@@ -1,9 +1,9 @@
+import numpy as np
 import pytest
-from ingest.HVS.HVS_ingestion import create_HVS
 from aggregate.housing_security.three_or_more_maintenance_deficiencies import (
     count_units_three_or_more_deficiencies,
 )
-import numpy as np
+from ingest.HVS.HVS_ingestion import create_HVS
 
 years = [2017]
 geography_levels = ["Borough"]

@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from dcpy.lifecycle import config
 
 PRODUCT_PATH = Path(__file__).parent.parent

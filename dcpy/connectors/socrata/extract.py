@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from dcpy.connectors.socrata.configuration import Org, ValidFormat, server_url
+
 from .utils import _socrata_request
 
 

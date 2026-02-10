@@ -1,4 +1,5 @@
 from typing import Dict
+
 import pandas as pd
 import requests
 from sqlalchemy import text

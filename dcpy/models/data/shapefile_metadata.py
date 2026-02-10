@@ -3,7 +3,7 @@ Source XML: MapPLUTO_UNCLIPPED_as_iso.shp.xml
 Do not edit directly.
 """
 
-from pydantic_xml import BaseXmlModel, element, attr
+from pydantic_xml import BaseXmlModel, attr, element
 
 
 class Charsetcd(BaseXmlModel, tag="CharSetCd"):

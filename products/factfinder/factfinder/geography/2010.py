@@ -1,9 +1,9 @@
 import itertools
+from functools import cached_property
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from functools import cached_property
 
 from . import agg_moe
 

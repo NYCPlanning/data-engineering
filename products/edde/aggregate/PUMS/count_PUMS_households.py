@@ -1,9 +1,10 @@
 """Possible refactor: abstract the by_race into a single function"""
 
-from typing import Tuple, List
-from aggregate.PUMS.aggregate_PUMS import PUMSCount
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
+from aggregate.PUMS.aggregate_PUMS import PUMSCount
 
 
 class PUMSCountHouseholds(PUMSCount):

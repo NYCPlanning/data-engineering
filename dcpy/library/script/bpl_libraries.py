@@ -1,6 +1,6 @@
 import pandas as pd
 
-from . import get_json_content, df_to_tempfile
+from . import df_to_tempfile, get_json_content
 from .scriptor import ScriptorInterface
 
 

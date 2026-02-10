@@ -1,10 +1,11 @@
 from datetime import date
-from dateutil.relativedelta import relativedelta
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.dates as dates
-import streamlit as st
 from typing import Dict
+
+import matplotlib as mpl
+import matplotlib.dates as dates
+import matplotlib.pyplot as plt
+import streamlit as st
+from dateutil.relativedelta import relativedelta
 
 from dcpy.models import library
 

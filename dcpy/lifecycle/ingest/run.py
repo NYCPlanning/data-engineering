@@ -1,21 +1,21 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
 
-from dcpy.utils.logging import logger
-from dcpy.utils import metadata
-from dcpy.models.lifecycle.ingest import (
-    ResolvedDownstreamDataset,
-    ResolvedDataSource,
-    ArchivedDataSource,
-    IngestedDataset,
-    Transformation,
-)
 from dcpy.configuration import INGEST_DEF_DIR
 from dcpy.lifecycle import config
 from dcpy.lifecycle.ingest.connectors import (
-    get_raw_datastore_connector,
     get_processed_datastore_connector,
+    get_raw_datastore_connector,
 )
+from dcpy.models.lifecycle.ingest import (
+    ArchivedDataSource,
+    IngestedDataset,
+    ResolvedDataSource,
+    ResolvedDownstreamDataset,
+    Transformation,
+)
+from dcpy.utils import metadata
+from dcpy.utils.logging import logger
 
 from . import extract, plan, transform, validate
 

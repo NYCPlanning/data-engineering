@@ -1,11 +1,13 @@
 def ingest() -> None:
     import streamlit as st
+    from streamlit.runtime.uploaded_file_manager import UploadedFile
+
+    from dcpy.library import utils
+
     from .helpers import (
         archive_raw_data,
         library_archive,
     )
-    from dcpy.library import utils
-    from streamlit.runtime.uploaded_file_manager import UploadedFile
 
     if "ingest" not in st.session_state:
         st.session_state["ingest"] = {

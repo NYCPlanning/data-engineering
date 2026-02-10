@@ -1,15 +1,15 @@
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
 
 from dcpy import configuration
 from dcpy.models.connectors.edm.recipes import (
     Dataset,
-    DatasetType,
     DatasetKey,
+    DatasetType,
 )
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
-
 
 # TODO: continuing hacking away until this module is no more.
 

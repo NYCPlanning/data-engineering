@@ -1,11 +1,12 @@
+from pathlib import Path
+
+import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-import pandas as pd
-from pathlib import Path
-import requests
 
-from dcpy.connectors.web_scrapers import _address
 from dcpy.connectors.registry import Pull
+from dcpy.connectors.web_scrapers import _address
 from dcpy.utils.logging import logger
 
 URL = "https://www.queenslibrary.org/about-us/locations/?view=all"

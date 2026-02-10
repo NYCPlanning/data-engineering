@@ -1,10 +1,11 @@
-from bs4 import BeautifulSoup
 from pathlib import Path
+
 import pandas as pd
 import requests
+from bs4 import BeautifulSoup
 
-from dcpy.connectors.web_scrapers import _address
 from dcpy.connectors.registry import Pull
+from dcpy.connectors.web_scrapers import _address
 from dcpy.utils.logging import logger
 
 BASE_URL = "https://www.uscourts.gov/federal-court-finder/find"

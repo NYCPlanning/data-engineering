@@ -1,7 +1,7 @@
-from sqlalchemy import dialects
-from dcpy.utils import postgres
 from facdb import BUILD_ENGINE
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, dialects
+
+from dcpy.utils import postgres
 
 ENGINE = create_engine(BUILD_ENGINE)
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 import json
 from pathlib import Path
+
 from pydantic import BaseModel, TypeAdapter
 
 S_MEDIA_FILES_URL_BASE = "https://s-media.nyc.gov/agencies/dcp/assets/files/"

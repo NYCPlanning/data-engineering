@@ -1,11 +1,12 @@
-import requests
 import subprocess
+
+import requests
 import typer
 
+from dcpy.lifecycle.builds import BUILD_DBS, BUILD_REPO, metadata
 from dcpy.utils import postgres
-from dcpy.utils.logging import logger
 from dcpy.utils.git import github
-from dcpy.lifecycle.builds import metadata, BUILD_REPO, BUILD_DBS
+from dcpy.utils.logging import logger
 
 PROTECTED_BUILD_NAMES = ["nightly_qa"]
 

@@ -1,15 +1,15 @@
 import pandas as pd
 from aggregate.aggregation_helpers import order_aggregated_columns
 from aggregate.load_aggregated import load_acs
-from internal_review.set_internal_review_file import set_internal_review_files
 from aggregate.PUMS.pums_2000_economics import pums_2000_economics
-from utils.geo_helpers import acs_years
+from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
-    race_suffix_mapper_global,
     count_suffix_mapper_global,
     median_suffix_mapper_global,
+    race_suffix_mapper_global,
     remove_duplicate_cols,
 )
+from utils.geo_helpers import acs_years
 
 occupations = ["mbsa", "srvc", "slsoff", "cstmnt", "prdtrn"]
 education_levels = ["lths", "hs", "smcol", "bchpl"]

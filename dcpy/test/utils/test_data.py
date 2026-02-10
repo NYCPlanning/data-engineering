@@ -1,8 +1,9 @@
-import pytest
 import tempfile
 import zipfile
 from pathlib import Path
+
 import pandas as pd
+import pytest
 
 from dcpy.utils import data
 

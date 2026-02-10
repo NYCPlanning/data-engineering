@@ -1,11 +1,11 @@
 import pandas as pd
+from aggregate.load_aggregated import initialize_dataframe_geo_index
 from utils.geo_helpers import (
-    census_races,
     borough_name_mapper,
     borough_num_mapper,
+    census_races,
     community_district_to_puma,
 )
-from aggregate.load_aggregated import initialize_dataframe_geo_index
 
 
 def _calc_borough(r):

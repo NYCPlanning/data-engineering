@@ -1,11 +1,13 @@
 """Logic to clean PUMS columns."""
 
-from dcpy.utils.logging import logger
-import pandas as pd
-import numpy as np
-from os.path import exists
-import requests
 import re
+from os.path import exists
+
+import numpy as np
+import pandas as pd
+import requests
+
+from dcpy.utils.logging import logger
 
 
 class PUMSCleaner:

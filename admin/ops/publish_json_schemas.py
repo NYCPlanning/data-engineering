@@ -1,11 +1,11 @@
-from dcpy.utils import s3
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from dcpy.models.lifecycle import ingest as ingest_models
 from dcpy.models.product import metadata as product_metadata
 from dcpy.models.product.dataset import metadata as dataset_metadata
-from dcpy.models.lifecycle import ingest as ingest_models
-
-import json
-from tempfile import TemporaryDirectory
-from pathlib import Path
+from dcpy.utils import s3
 
 DO_SCHEMA_FOLDER = "data-engineering-devops/schemas/"
 

@@ -1,20 +1,21 @@
 import sys
 
 sys.path.insert(0, "..")
-import pandas as pd
+import datetime as dt
+from multiprocessing import Pool, cpu_count
+
 import numpy as np
+import pandas as pd
+import requests
 from _helper.geo import (
-    clean_street,
-    clean_house,
     clean_boro_name,
-    find_stretch,
+    clean_house,
+    clean_street,
     find_intersection,
+    find_stretch,
     geocode,
 )
-from multiprocessing import Pool, cpu_count
-import datetime as dt
 from jinja2 import Template
-import requests
 
 
 def _import() -> pd.DataFrame:

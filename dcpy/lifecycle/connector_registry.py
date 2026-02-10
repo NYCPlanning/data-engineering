@@ -10,7 +10,6 @@ from dcpy.connectors.edm import builds, drafts, gis, published
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
-from dcpy.connectors.web_scrapers import uscourts, qpl, foodbankny
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
     StorageType,
@@ -20,6 +19,7 @@ from dcpy.connectors.registry import (
     ConnectorRegistry,
 )
 from dcpy.connectors.socrata.connector import SocrataConnector
+from dcpy.connectors.web_scrapers import foodbankny, qpl, uscourts
 from dcpy.utils.logging import logger
 
 connectors = ConnectorRegistry[Connector]()

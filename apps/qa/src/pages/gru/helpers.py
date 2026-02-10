@@ -1,11 +1,13 @@
-import time
-import streamlit as st
-import requests
 import re
+import time
 
+import requests
+import streamlit as st
+
+from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
 from dcpy.utils import s3
 from dcpy.utils.git import github
-from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
+
 from .constants import qa_checks
 
 

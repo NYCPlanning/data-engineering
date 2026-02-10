@@ -6,8 +6,8 @@ import yaml
 
 from dcpy.lifecycle.builds import connector as build_conns
 from dcpy.lifecycle.builds.artifacts.drafts import (
-    get_metadata,
     get_dataset_version_revisions,
+    get_metadata,
     resolve_full_version,
 )
 from dcpy.lifecycle.builds.connector import (

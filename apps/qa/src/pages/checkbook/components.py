@@ -1,6 +1,6 @@
 import folium
-from streamlit_folium import st_folium
 import geopandas as gpd
+from streamlit_folium import st_folium
 
 FILL = "#d96b27"
 LINE = "black"

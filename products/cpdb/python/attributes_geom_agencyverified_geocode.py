@@ -1,10 +1,11 @@
-import pandas as pd
-import numpy as np
 import os
 import re
-from sqlalchemy import create_engine, text
-from geosupport import Geosupport, GeosupportError
+
+import numpy as np
+import pandas as pd
 import usaddress
+from geosupport import Geosupport, GeosupportError
+from sqlalchemy import create_engine, text
 from utils import psql_insert_copy
 
 g = Geosupport()

@@ -4,10 +4,9 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-import pandas as pd  # noqa: E402
 import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 import rpy2.robjects.packages as rpackages  # noqa: E402
-
 from statistical.variance_measures import variance_measures  # noqa: E402
 
 # from statistical.CV import

@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import text
+
 from .utils import engine, psql_insert_copy
 
 

@@ -1,9 +1,9 @@
-import pytest
-import pandera as pa
 import geopandas as gpd
+import pandera as pa
+import pytest
 
-from dcpy.models.dataset import Column
 from dcpy.lifecycle.validate import pandera_utils
+from dcpy.models.dataset import Column
 
 
 def test_is_geom_point_valid_points():

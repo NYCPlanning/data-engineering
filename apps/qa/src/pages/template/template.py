@@ -1,9 +1,9 @@
 import streamlit as st
 from src.shared.components import sidebar
 from src.shared.components.build_outputs import (
-    load_build_outputs,
     generate_geo_data,
     generate_maps,
+    load_build_outputs,
     show_build_output,
     show_map,
 )

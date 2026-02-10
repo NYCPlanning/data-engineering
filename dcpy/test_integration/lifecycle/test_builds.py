@@ -1,10 +1,9 @@
 import pandas as pd
 import pytest
 
+from dcpy.lifecycle.builds import build
 from dcpy.models.lifecycle.builds import ExportFormat
 from dcpy.utils import postgres
-from dcpy.lifecycle.builds import build
-
 
 SAMPLE_TABLE = "test_export_data"
 

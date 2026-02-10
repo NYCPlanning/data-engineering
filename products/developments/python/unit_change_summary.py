@@ -1,6 +1,7 @@
-from jinja2 import Template
 import os
 import sys
+
+from jinja2 import Template
 from sqlalchemy import text
 from utils import engine
 
