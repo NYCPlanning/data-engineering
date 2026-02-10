@@ -4,6 +4,72 @@ Source of truth documentation can be found [here](https://nyco365.sharepoint.com
 
 This has been converted to a README in this private repo: github.com/NYCPlanning/cscl_etl_archive
 
+## Concepts/Terminology
+There are some more important concepts that will be highlighted first in a bit of a logical order. See #glossary for just terms.
+
+### Systems/High-Level
+- CSCL: Citywide Street CenterLine. We often use this term at a few different levels. It is
+  - data first and foremost - a collection of tables/layers which make up a large amount of primary geographic data of NYC
+  - CSCL database: an Oracle database hosted by OTI, which is really the single source of truth. Geographic Research (GR) maintains this directly
+  - CSCL maintenance system: chiefly an ArcMap (/soon to be ArcPro) plugin that GR uses to maintain and make edits to the CSCL database. This enforces many business rules, keeps topology consistent between layers, stuff like that.
+  - CSCL ETL: where we are! Takes data from CSCL database, performs many transformations that produce file outputs that go into GRID generation (ETL to make the files that underly GeoSupport) as well as numerous files that are published by DCP
+- LION: backronym, Linear Integrated Ordered Network, a play on the TIGER files put out by the census. Comprehensive single-line street base map. Output of this ETL. CSCL is designed more for the maintainers, LION is designed more for data consumers. Is also consumed by GRID ETL which produces the files that underly GeoSupport
+- GeoSupport:
+
+### Foundational Concepts/Entities
+- Segment: the most basic linear feature type in the city. 
+  These are defined in 6 layers in CSCL
+  - Centerline: what it sounds like, the centerline of streets
+  - Shoreline
+  - Rail
+  - Subway (treated identical to rail in this ETL)
+  - Nonstreet Features: both physical and non-physical things like walls, census block borders, etc
+  - AltSegmentData: these contain "proto
+  This also brings up an important distinction
+  - Geometry-modeled segments or "primary" segments: segments from one of the geometric feature layers (all but altsegmentdata)
+  - protosegments: segments defined in altsegmentdata which 
+- Node: at every segment endpoint, there is a node (point). They are not linked concretely in the CSCL database/maintenance systems for reasons I do not know.
+- Atomic Polygon: the most basic polygon feature type in the city. They are aggregated to make up bigger polygons, such as census blocks, physical blocks, etc. Bounded by segments and nodes. Each segment should only border 2 at most atomic polygons
+
+### Glossary
+- Address Point: a geographic (point) layer in CSCL, with various data associated with a single address per row. Almost never abbreviated as AP due to atomic polygons
+- Atomic Polygon (AP): see #foundational-concepts-entities
+- Dynamic Block: part of the unique identifier of an Atomic Polygon
+- dat (as in "dat file"): pseudo-file format. Really just means a file that contains data. In this context, generally means densely-formatted text (think CSV with no headers or delimiters, fixed length text fields)
+- Face Code:
+- "Flat File": in code/issues, generally means a dat file. Effectively, it means a non-geodatabase file.
+- Generic/Roadbed: centerline segments with divided roadbeds (think freeway - one stretch of freeway has two divided roadbeds) are modeled both with a "generic" segment, which represents the entire roadway (i.e. in between the roadbeds) and individual roadbed centerlines. See design_doc.md section on generic vs roadbed for more information
+- `globalid`: unique id of a feature/record in the CSCL database. Unique across all layers/tables
+- `lionkey`: unique identifier of record in LION. Combination of boro + face code + segment sequence number
+- SAF Special Address Flag:
+- Sectional Map: 
+- Sequence Number (or "Segment Sequence Number", "segment_seqnum"): Part of a unique key for segments (together with Borough and Face Code). For many segments, this is defined in CSCL. For some, it's calculated during this ETL.
+- Roadbed: see "generic/roadbed"
+
+### Acronyms
+- AP: Atomic Polygon
+- B5SC: Borough + 5-digit street code
+- B7SC: Borough + 7-digit street code
+- BCT: Borough + Census Tract
+- BCTCB: Borough + Census Tract + Census Block
+- BFC: Borough + Face Code (part of lionkey)
+- BOE: Board of Elections
+- CSCL: Citywide Street Centerline
+- GN: sometimes used as abbreviation for "generic" (as in generic vs. roadbed)
+- GR (outdated: GRU): Geographic Research, the team that maintains CSCL
+- GSS: GeoSupport Services, the team that maintains GeoSupport
+- HN: house number
+- LGC: local group code
+- NSF: Non-Street Feature
+- RB: sometimes used as abbreviation for "roadbed" (as in generic vs. roadbed)
+- ROW: Right-of-way
+- RPL: Roadbed Pointer List
+- RW: Roadway
+- SAF: Special Address Flag
+- SEDAT: Split Election District
+- SND: Street Name Dictionary
+- SOS: Side-of-street (used specifically in "sos_indicator" field)
+
 ## Source Data
 
 All source datasets (per version) come from the same gdb file. See any "dcp_cscl" ingest templates for an example of how to add additional layers - 25a and 25b raw files are currently archived, so you can create a new template and run it for 25b without issue.
