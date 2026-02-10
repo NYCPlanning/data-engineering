@@ -54,14 +54,10 @@ def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     bucket = _bucket()
     if not s3.object_exists(bucket, key):
         if not exists(product_key):
-            raise FileNotFoundError(f"Product {product_key} does not exist.")
+            raise FileNotFoundError(f"Product {product_key} does not exist")
         else:
-            raise FileNotFoundError(
-                f"Build metadata not found for product {product_key}."
-            )
-    obj = s3.client().get_object(
-        Bucket=bucket, Key=f"{product_key.path}/build_metadata.json"
-    )
+            raise FileNotFoundError(f"Build metadata not found at path {bucket}/{key}")
+    obj = s3.client().get_object(Bucket=bucket, Key=key)
     file_content = str(obj["Body"].read(), "utf-8")
     return BuildMetadata(**yaml.safe_load(file_content))
 
