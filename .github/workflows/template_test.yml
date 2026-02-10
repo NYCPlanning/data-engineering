@@ -7,11 +7,12 @@ on:
         required: true
       build_name:
         type: string
+        required: true
 
 env:
   TOY_SECRET_GITHUB: ${{ secrets.TOY_SECRET }}
   BUILD_ENGINE_DB: db-template
-  BUILD_NAME: ${{ inputs.build_name || github.head_ref || github.ref_name }}
+  BUILD_NAME: ${{ inputs.build_name }}
   RECIPES_BUCKET: edm-recipes
   PUBLISHING_BUCKET: edm-publishing
 
@@ -48,7 +49,7 @@ jobs:
       logging_level: DEBUG
       build_note: a test build
       image_tag: ${{ inputs.image_tag || 'latest' }}
-      build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }} # can't pass env var here. Just not supported in GHA
+      build_name: ${{ inputs.build_name }} # can't pass env var here. Just not supported in GHA
     secrets: inherit
 
   e2e_tests:

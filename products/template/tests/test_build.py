@@ -1,8 +1,13 @@
 # These are tests to be run after a full build
 import pytest
-from build_scripts import BUILD_KEY, PG_CLIENT
+from build_scripts import PG_CLIENT
 
+from dcpy.configuration import BUILD_NAME
 from dcpy.connectors.edm import publishing
+from dcpy.models.connectors.edm.publishing import BuildKey
+
+PRODUCT_S3_NAME = "db-template"
+BUILD_KEY = BuildKey(product=PRODUCT_S3_NAME, build=str(BUILD_NAME))
 
 
 # * test Transform stage

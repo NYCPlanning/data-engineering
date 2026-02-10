@@ -32,7 +32,7 @@ env:
   TOY_SECRET_GITHUB: ${{ secrets.TOY_SECRET }}
   GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
   BUILD_ENGINE_DB: db-template
-  BUILD_NAME: ${{ inputs.build_name || github.head_ref || github.ref_name }}
+  BUILD_NAME: ${{ inputs.build_name }}
   LOGGING_LEVEL: ${{ inputs.logging_level }}
   RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
   PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
