@@ -130,6 +130,7 @@ jobs:
     uses: ./.github/workflows/template_test.yml
     with:
       image_tag: ${{ inputs.image_tag }}
+      build_name: ${{ github.head_ref || github.ref_name }}
     secrets: inherit
 
   set_pytest_matrix:
