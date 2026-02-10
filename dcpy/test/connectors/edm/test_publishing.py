@@ -491,7 +491,8 @@ def test_missing_build_metadata_error(create_buckets):
         Bucket=PUBLISHING_BUCKET, Key=product_key.path + "/fake_file.txt"
     )
     with pytest.raises(
-        FileNotFoundError, match=f"Build metadata not found for product {product_key}."
+        FileNotFoundError,
+        match=f"Build metadata not found at path {PUBLISHING_BUCKET}/{product_key.path}/build_metadata.json",
     ):
         publishing.get_build_metadata(product_key)
 
