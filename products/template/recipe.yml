@@ -1,6 +1,7 @@
 name: Template DB
 product: template
 version: 24Q3
+
 inputs:
   datasets:
     - name: nypl_libraries
@@ -18,3 +19,13 @@ inputs:
       custom:
         file_id: shapefile
   missing_versions_strategy: find_latest
+
+exports:
+  # TODO add feature to export metadata files here or implicitly
+  output_folder: output
+  zip_name: output
+  datasets:
+  - name: templatedb
+    format: csv
+    # format: shapefile_points   file format not implemented
+    # format: shapefile_polygons   file format not implemented

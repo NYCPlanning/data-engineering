@@ -1,11 +1,10 @@
 import shutil
 
-from dcpy.connectors.edm import publishing
 from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.package import pdf_writer, xlsx_writer, yaml_writer
 from dcpy.utils.logging import logger
 
-from . import BUILD_KEY, OUTPUT_DIR, PG_CLIENT, PRODUCT_PATH
+from . import OUTPUT_DIR, PG_CLIENT, PRODUCT_PATH
 
 METADATA_FILES = [
     "source_data_versions.csv",
@@ -14,13 +13,10 @@ METADATA_FILES = [
     "data_dictionary.pdf",
     "data_dictionary.xlsx",
 ]
-BUILD_TABLES = {
-    "templatedb": [
-        "csv",
-        "shapefile_points",
-        "shapefile_polygons",
-    ],
-}
+# NOTE
+# export of BUILD_TABLES is now done via `dcpy lifecycle builds build export`
+# This will be removed when `dcpy lifecycle builds build export` can export other file formats
+BUILD_TABLES: dict = {}
 
 
 def generate_data_dictionaries():
@@ -44,9 +40,11 @@ def generate_data_dictionaries():
 
 
 def export():
-    if OUTPUT_DIR.exists():
-        shutil.rmtree(OUTPUT_DIR)
-    OUTPUT_DIR.mkdir(parents=True)
+    # NOTE
+    # This must be run after `dcpy lifecycle builds build export`
+    # so that OUTPUT_DIR already exists and we can keep this simple
+    # This will be removed when `dcpy lifecycle builds build export` can export metadata files and other file formats
+
     # export metadata files
     for filename in METADATA_FILES:
         shutil.copy(PRODUCT_PATH / filename, OUTPUT_DIR / filename)
@@ -93,6 +91,3 @@ def export():
 if __name__ == "__main__":
     generate_data_dictionaries()
     export()
-    publishing.upload_build(
-        OUTPUT_DIR, BUILD_KEY.product, acl="public-read", build=BUILD_KEY.build
-    )
