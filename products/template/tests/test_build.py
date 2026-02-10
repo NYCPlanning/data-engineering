@@ -36,8 +36,7 @@ def test_export_files():
         "data_dictionary.pdf",
         "data_dictionary.xlsx",
         "templatedb.csv",
-        "templatedb_polygons.zip",
-        "templatedb_points.zip",
+        "output.zip",
     }
     actual_files = publishing.get_filenames(BUILD_KEY)
     assert actual_files == expected_export_file_names

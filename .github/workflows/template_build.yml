@@ -110,4 +110,11 @@ jobs:
 
       - name: Export
         run: |
+          # build tables
+          python -m dcpy lifecycle builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
+          # metadata files
           python -m build_scripts.export
+
+      - name: Upload
+        run: |
+          python -m dcpy.connectors.edm.publishing upload --product db-template --acl public-read
