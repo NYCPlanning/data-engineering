@@ -7,6 +7,7 @@ This document is organized by output file. Each of these has the following secti
 - error reporting
 
 # Notes
+For glossary/foundational concepts, see the README
 
 ## Formatting
 There are many formatting rules for the various text outputs
