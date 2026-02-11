@@ -84,14 +84,23 @@ As other dbt projects, we have:
 - `product` tables that are more final product/output focused.
   - subfolders for specific output/category - LION dat files, LION gdb, SEDAT outputs, etc.
 
-## Validation of outputs vs prod tool
+## Workflow - Adding a new output
+For now, this is a little all focused around densely-formatted text outputs (geosupport inputs). A slightly different workflow will be needed for gdb outputs. Have fun.
 
-25b outputs live [here](https://nyco365.sharepoint.com/:f:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/25B%20GDB%20and%20ETLs?csf=1&web=1&e=1VOcd7).
+Prod outputs live [here](https://nyco365.sharepoint.com/:f:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL?csf=1&web=1&e=XfVWF2).
 
 Any new output needs to be validated against prod outputs generated from the same source version gdb (25a, 25b, etc). For text files, we can take a similar approach to the LION flat (.dat) files.
 
-### Validating text outputs
-As a straightforward summary (and as a most concrete check that the outputs actually match), it's useful to compare the formatted text outputs using bash-based text comparisons. For the LION .dat files, this is done in a few ways. For comparisons to be made, the following steps must be taken:
+
+### Setup
+When GR has a new release, they will put files in a folder in the above sharepoint location
+
+**All files should be downloaded, ETL Working GDB should be zipped, then they should be uploaded to `edm-private/cscl_etl/{version}`. Norm for version here is lowercase letter.** This is where
+- ingest template looks for a working gdb to ingest
+- logic in `./poc_validation/dat_loader` looks for prod outputs to load into the build database for comparison. See 
+
+### Data Validation Step 1: formatting
+
 
 1. Downloading production outputs from sharepoint into a folder named `prod`.
 2. Running the full pipeline (or, if doing this piecemeal, running `bash/export.sh`) to have outputs in a folder named `output`.
