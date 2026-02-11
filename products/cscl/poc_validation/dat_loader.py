@@ -5,7 +5,9 @@ and loading the result into a postgres table
 This is done ad-hoc and not on an operational basis
 """
 
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 import typer
@@ -15,33 +17,47 @@ from dcpy.utils import postgres, s3
 
 CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
 LOAD_FOLDER = Path("prod")
-DATASETS_BY_NAME = {}
-DATASETS_BY_FILENAME = {}
+
+datasets_by_name = {}
+datasets_by_filename = {}
+
+
+@dataclass
+class OutputDataset:
+    name: str
+    file_name: str
+    file_format: Literal["dat", "csv"]
+    formatting_path: Path | None = None
+
 
 try:
     recipe = plan.recipe_from_yaml(Path("./recipe.yml"))
     assert recipe.exports
 
     for export in recipe.exports.datasets:
-        formatting = (export.custom or {"formatting": export.name})["formatting"]
-        f_path = Path(f"seeds/text_formatting/text_formatting__{formatting}.csv")
-        dataset = {
-            "name": export.name,
-            "file_name": export.filename,
-            "formatting_path": f_path,
-        }
-        DATASETS_BY_FILENAME[export.filename] = dataset
-        DATASETS_BY_NAME[export.name] = dataset
+        formatting = (export.custom or {}).get("formatting")
+        assert export.filename, "filename is required for export datasets"
+        assert export.format.value in ["dat", "csv"], "unsupported file format"
+        f_path = (
+            Path(f"seeds/text_formatting/text_formatting__{formatting}.csv")
+            if formatting
+            else None
+        )
+        dataset = OutputDataset(
+            name=export.name,
+            file_name=export.filename,
+            file_format=export.format.value,  # type: ignore
+            formatting_path=f_path,
+        )
+        datasets_by_filename[export.filename] = dataset
+        datasets_by_name[export.name] = dataset
 except Exception:
     raise Exception("Error reading recipe.yml")
 
 
 def parse_file(
-    file_path: Path, max_records: int | None = None, formatting_path: Path | None = None
+    file_path: Path, formatting_path: Path, max_records: int | None = None
 ) -> pd.DataFrame:
-    formatting_path = (
-        formatting_path or DATASETS_BY_FILENAME[file_path.name]["formatting_path"]
-    )
     formatting = pd.read_csv(formatting_path)
 
     records = []
@@ -64,30 +80,39 @@ def parse_file(
 
 def load_datasets(datasets: list[str], folder: Path):
     for ds_name in datasets:
-        dataset = DATASETS_BY_NAME[ds_name]
-        dat_df = parse_file(
-            folder / dataset["file_name"], formatting_path=dataset["formatting_path"]
-        )
-        print(
-            f"loading {folder / dataset['file_name']} to {CLIENT.schema}.{dataset['name']}"
-        )
-        CLIENT.insert_dataframe(dat_df, dataset["name"])
+        dataset = datasets_by_name[ds_name]
+        match dataset.file_format, dataset.formatting_path:
+            case "csv", _:
+                dat_df = pd.read_csv(folder / dataset.file_name, dtype=str, header=None)
+            case "dat", None:
+                dat_df = pd.read_csv(
+                    folder / dataset.file_name, header=None, names=["dat_column"]
+                )
+            case "dat", formatting_path:
+                dat_df = parse_file(
+                    folder / dataset.file_name, formatting_path=formatting_path
+                )
+            case _:
+                raise Exception(f"unsupported file format {dataset.file_format}")
+
+        print(f"loading {folder / dataset.file_name} to {CLIENT.schema}.{dataset.name}")
+        CLIENT.insert_dataframe(dat_df, dataset.name)
 
 
-def create_citywide_lion():
+def create_citywide_table(file: str):
     CLIENT.execute_query(
-        """
-            DROP TABLE IF EXISTS citywide_lion;
-            CREATE TABLE citywide_lion AS
-            SELECT * FROM bronx_lion
+        f"""
+            DROP TABLE IF EXISTS citywide_{file};
+            CREATE TABLE citywide_{file} AS
+            SELECT * FROM bronx_{file}
             UNION ALL
-            SELECT * FROM brooklyn_lion
+            SELECT * FROM brooklyn_{file}
             UNION ALL
-            SELECT * FROM manhattan_lion
+            SELECT * FROM manhattan_{file}
             UNION ALL
-            SELECT * FROM queens_lion
+            SELECT * FROM queens_{file}
             UNION ALL
-            SELECT * FROM staten_island_lion;
+            SELECT * FROM staten_island_{file};
         """
     )
 
@@ -114,14 +139,14 @@ def load_single(
     folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str | None = typer.Option(None, "--table", "-t"),
 ):
-    dataset = DATASETS_BY_FILENAME[file_name]
+    dataset = datasets_by_filename[file_name]
     dat_df = parse_file(folder / file_name, dataset["formatting_path"])
     CLIENT.insert_dataframe(dat_df, table_name or dataset["name"])
 
 
 @app.command("load")
 def _load(
-    datasets: list[str] = typer.Option(DATASETS_BY_NAME.keys(), "--datasets", "-d"),
+    datasets: list[str] = typer.Option(datasets_by_name.keys(), "--datasets", "-d"),
     version: str | None = typer.Option(None, "--version", "-v"),
     local: bool = typer.Option(False, "--local", "-l"),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
@@ -135,22 +160,17 @@ def _load(
         )
 
     for dataset in datasets:
-        file_name = DATASETS_BY_NAME[dataset]["file_name"]
+        file_name = datasets_by_name[dataset].file_name
         s3.download_file(
             "edm-private", f"cscl_etl/{version}/{file_name}", local_folder / file_name
         )
 
     load_datasets(datasets, local_folder)
 
-    boros = {
-        "bronx_lion",
-        "brooklyn_lion",
-        "manhattan_lion",
-        "queens_lion",
-        "staten_island_island",
-    }
-    if boros.issubset(set(datasets)):
-        create_citywide_lion()
+    boro_level_files = {"lion", "face_code"}
+    for file in boro_level_files:
+        if any(f"_{file}" in dataset for dataset in datasets):
+            create_citywide_table(file)
 
 
 if __name__ == "__main__":

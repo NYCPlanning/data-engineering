@@ -178,6 +178,7 @@ exports:
   - name: saf_i
     filename: Intersection.txt
     format: dat
+    custom: { formatting: saf_i }
   - name: saf_ov_generic
     filename: GenericOV.txt
     format: dat
@@ -199,6 +200,7 @@ exports:
   - name: sedat
     filename: SEDAT.txt
     format: dat
+    custom: { formatting: sedat }
   - name: special_sedat
     filename: SpecialSEDAT.txt
     format: dat
