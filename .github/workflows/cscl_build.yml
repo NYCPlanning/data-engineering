@@ -59,10 +59,10 @@ jobs:
         ./bash/build_env_setup.sh
 
     - name: Plan build
-      run: python3 -m dcpy lc builds plan ${{ inputs.plan_command }}
+      run: dcpy lc builds plan ${{ inputs.plan_command }}
 
     - name: Dataloading
-      run: python -m dcpy lc builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema source_data --cached-entity-type view
+      run: dcpy lc builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema source_data --cached-entity-type view
 
     - name: Build
       run: |
@@ -73,7 +73,7 @@ jobs:
         dbt build --full-refresh
 
     - name: Export
-      run: python -m dcpy lc builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
+      run: dcpy lc builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
     - name: Validate outputs
       run: ./bash/validate.sh
