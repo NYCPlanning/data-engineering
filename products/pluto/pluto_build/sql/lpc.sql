@@ -39,7 +39,7 @@ WITH histdistricts AS (
                 PARTITION BY bbl
                 ORDER BY hist_dist
             ) AS row_number
-        FROM lpc_historic_districts
+        FROM stg__lpc_historic_districts
         WHERE
             hist_dist != '0'
             AND hist_dist NOT LIKE 'Individual Landmark%'
@@ -65,7 +65,7 @@ WITH landmarks AS (
         SELECT DISTINCT
             bbl,
             lm_type
-        FROM lpc_landmarks
+        FROM stg__lpc_landmarks
         WHERE
             (lm_type = 'Interior Landmark' OR lm_type = 'Individual Landmark')
             AND status = 'DESIGNATED'
