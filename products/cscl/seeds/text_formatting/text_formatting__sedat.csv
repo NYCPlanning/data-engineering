@@ -7,6 +7,6 @@ L5,lowaddress,7,45,51,RJSF,FALSE
 L6,low_addr_suffix,8,52,59,LJSF,FALSE
 L7,highaddress,7,60,66,RJSF,FALSE
 L8,high_addr_suffix,8,67,74,LJSF,FALSE
-L9,election_district,3,75,77,RJZF,FALSE
-L10,assembly_district,2,78,79,RJZF,FALSE
+L9,election_district,3,75,77,RJZF,TRUE
+L10,assembly_district,2,78,79,RJZF,TRUE
 L11,b7sc,8,80,87,RJSF,FALSE
