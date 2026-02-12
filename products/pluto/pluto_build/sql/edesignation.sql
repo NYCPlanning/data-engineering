@@ -13,7 +13,7 @@ WITH edesignation AS (
                 PARTITION BY bbl
                 ORDER BY ceqr_num, ulurp_num, enumber
             ) AS row_number
-        FROM dcp_edesignation
+        FROM stg__dcp_edesignation
     ) AS x
     WHERE x.row_number = 1
 )
