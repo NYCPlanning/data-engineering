@@ -216,12 +216,16 @@ exports:
     format: dat
   - name: universal_word
     filename: Universal.txt
-    format: csv # TODO - CRLF?
-    custom: { header: False} # TODO dcpy doesn't yet do anything with this arg on export
+    format: csv
+    custom:
+      header: False
+      line_endings: crlf
   - name: last_word
     filename: LastWord.txt
-    format: csv # TODO - CRLF?
-    custom: { header: False} # TODO dcpy doesn't yet do anything with this arg on export
+    format: csv
+    custom:
+      header: False
+      line_endings: crlf
   - name: enders
     filename: Enders.txt
     format: dat
