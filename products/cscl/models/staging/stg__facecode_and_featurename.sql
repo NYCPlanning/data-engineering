@@ -42,7 +42,13 @@ sort_order AS (
         globalid
     FROM (
         SELECT
-            unnest(regexp_matches(lookup_key, '(?:[^\s]*[\-\/][^\s]*)|[\d]+|[^\d\s]+', 'g')) AS match,
+            unnest(
+                regexp_matches(
+                    lookup_key,
+                    '(?:(?:[^\d\-\/\s]+|\d+)?[\-\/])+(?:[^\d\-\/\s]+|\d+)?|\d+|[^\d\s]+',
+                    'g'
+                )
+            ) AS match,
             globalid
         FROM remove_dash_slash_spaces
     ) AS t
