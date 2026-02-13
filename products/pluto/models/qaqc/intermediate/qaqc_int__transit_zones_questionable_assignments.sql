@@ -14,18 +14,18 @@
 
 WITH all_ambiguous_assignments AS (
     -- Union both block and lot rankings
-    SELECT * FROM transit_zones_block_to_tz_ranked
+    SELECT * FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }}
     WHERE
         id IN (
             SELECT DISTINCT t.id
-            FROM transit_zones_block_to_tz_ranked AS t
+            FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }} AS t
             WHERE t.tz_rank = 2 AND t.pct_covered >= 10
         )
     UNION ALL
-    SELECT * FROM transit_zones_bbl_to_tz_ranked
+    SELECT * FROM {{ source('build_sources', 'transit_zones_bbl_to_tz_ranked') }}
     WHERE id IN (
         SELECT DISTINCT t.id
-        FROM transit_zones_bbl_to_tz_ranked AS t
+        FROM {{ source('build_sources', 'transit_zones_bbl_to_tz_ranked') }} AS t
         WHERE t.tz_rank = 2 AND t.pct_covered >= 10
     )
 ),
@@ -52,7 +52,7 @@ winners_losers AS (
                 THEN
                     (
                         SELECT array_agg(DISTINCT zonedist1)
-                        FROM pluto AS p2
+                        FROM {{ source('build_sources', 'pluto') }} AS p2
                         WHERE p2.borough = rk.borough AND p2.block = rk.block
                     )
             ELSE
@@ -60,13 +60,13 @@ winners_losers AS (
         END AS block_zone_dists
     FROM all_ambiguous_assignments AS rk
     INNER JOIN all_ambiguous_assignments AS rk2 ON rk.id = rk2.id AND rk2.tz_rank = 2
-    LEFT JOIN transit_zones_tax_blocks AS tb
+    LEFT JOIN {{ source('build_sources', 'transit_zones_tax_blocks') }} AS tb
         ON
             rk.assignment_type = 'block'
             AND rk.borough = tb.borough
             AND rk.block = tb.block
             AND rk.sub_block = tb.sub_block
-    LEFT JOIN pluto AS p ON rk.assignment_type = 'lot' AND p.bbl = rk.bbls[1]
+    LEFT JOIN {{ source('build_sources', 'pluto') }} AS p ON rk.assignment_type = 'lot' AND p.bbl = rk.bbls[1]
     WHERE rk.tz_rank = 1
 )
 SELECT
@@ -85,12 +85,12 @@ SELECT
     st_envelope(st_buffer(wl.geom, .005)) AS area_of_interest_geom,
     (
         SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), wkb_geometry)
-        FROM dcp_transit_zones AS dtz
+        FROM {{ source('recipe_sources', 'dcp_transit_zones') }} AS dtz
         WHERE dtz.transit_zone = wl.winner_tz
     ) AS winner_tz_geom,
     (
         SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), wkb_geometry)
-        FROM dcp_transit_zones AS dtz
+        FROM {{ source('recipe_sources', 'dcp_transit_zones') }} AS dtz
         WHERE dtz.transit_zone = wl.loser_tz
     ) AS loser_tz_geom
 FROM winners_losers AS wl

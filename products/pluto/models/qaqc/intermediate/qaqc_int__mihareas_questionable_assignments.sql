@@ -28,8 +28,8 @@ WITH questionable_assignments AS (
         p.geom AS lot_geom,
         p.address,
         p.zonedist1
-    FROM mih_lot_overlap AS mlo
-    LEFT JOIN pluto AS p ON mlo.bbl = p.bbl
+    FROM {{ source('build_sources', 'mih_lot_overlap') }} AS mlo
+    LEFT JOIN {{ source('build_sources', 'pluto') }} AS p ON mlo.bbl = p.bbl
     WHERE mlo.perbblgeom BETWEEN 10 AND 30
 ), assignment_context AS (
     -- Add basic context and geometry
@@ -37,7 +37,7 @@ WITH questionable_assignments AS (
         qa.*,
         mc.wkb_geometry AS mih_geom
     FROM questionable_assignments AS qa
-    LEFT JOIN mih_cleaned AS mc ON qa.mih_id = mc.mih_id
+    LEFT JOIN {{ source('build_sources', 'mih_cleaned') }} AS mc ON qa.mih_id = mc.mih_id
 )
 SELECT
     bbl,
