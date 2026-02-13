@@ -2,6 +2,49 @@ version: 2
 
 seeds:
   - name: ignored_bbls_for_unit_count_test
+    description: BBLs to ignore in unit count test
+    
+  - name: pluto_input_research
+    description: Manual corrections and overrides for PLUTO data (27k rows)
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+      - name: field
+        description: Field being corrected
+      - name: old_value
+        description: Original value
+      - name: new_value
+        description: Corrected value
+      - name: type
+        description: Correction type
+      - name: reason
+        description: Reason for correction
+      - name: version
+        description: PLUTO version
+  
+  - name: dcp_zoning_maxfar
+    description: Maximum Floor Area Ratio (FAR) by zoning district
+    
+  - name: pluto_input_landuse_bldgclass
+    description: Building class to land use mapping
+    
+  - name: pluto_input_condolot_descriptiveattributes
+    description: Descriptive attributes for condo lots (8.3k rows)
+    
+  - name: pluto_input_condo_bldgclass
+    description: Condo building class codes
+    
+  - name: pluto_input_bsmtcode
+    description: Basement type codes and classifications
+    
+  - name: lookup_bldgclass
+    description: Building class lookup table with descriptions
+    
+  - name: lookup_lottype
+    description: Lot type lookup table
+    
+  - name: zoning_district_class_descriptions
+    description: Zoning district classification descriptions
     description: |
       List of manually researched bbls that have correct count of residential units in DOF PTS data,
       despite failing `assert_condo_bbl_unit_count_research_required` test. These records are ignored
