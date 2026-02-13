@@ -18,6 +18,7 @@ from dcpy.utils import postgres, s3
 CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
 LOAD_FOLDER = Path("prod")
 
+version: str | None = None
 datasets_by_name = {}
 datasets_by_filename = {}
 
@@ -32,6 +33,7 @@ class OutputDataset:
 
 try:
     recipe = plan.recipe_from_yaml(Path("./recipe.yml"))
+    version = recipe.version
     assert recipe.exports
 
     for export in recipe.exports.datasets:
@@ -147,7 +149,7 @@ def load_single(
 @app.command("load")
 def _load(
     datasets: list[str] = typer.Option(datasets_by_name.keys(), "--datasets", "-d"),
-    version: str | None = typer.Option(None, "--version", "-v"),
+    version: str | None = typer.Option(version, "--version", "-v"),
     local: bool = typer.Option(False, "--local", "-l"),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
 ):
@@ -171,6 +173,28 @@ def _load(
     for file in boro_level_files:
         if any(f"_{file}" in dataset for dataset in datasets):
             create_citywide_table(file)
+
+
+@app.command("pull")
+def _pull(
+    datasets: list[str] = typer.Option(datasets_by_name.keys(), "--datasets", "-d"),
+    version: str | None = typer.Option(version, "--version", "-v"),
+    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+):
+    """
+    Primary purpose is to load production outputs for comparison to outputs of this pipeline
+    """
+    if not version:
+        raise Exception(
+            "Specify version to pull from s3 with '-v' flag. "
+            "If running in CI, this defaults to hardcoded version in recipe"
+        )
+
+    for dataset in datasets:
+        file_name = datasets_by_name[dataset].file_name
+        s3.download_file(
+            "edm-private", f"cscl_etl/{version}/{file_name}", local_folder / file_name
+        )
 
 
 if __name__ == "__main__":

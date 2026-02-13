@@ -75,8 +75,12 @@ jobs:
     - name: Export
       run: dcpy lc builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
-    - name: Validate outputs
-      run: ./bash/validate.sh
+    - name: Validate against production outputs
+      # TODO - this currently relies on version hard-coded in recipe.yml
+      # Once this is operationalized, this step should be removed
+      run: |
+        python3 poc_validation/dat_loader.py pull
+        ./poc_validation/validate_outputs.sh
 
     - name: Upload
       run: python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read
