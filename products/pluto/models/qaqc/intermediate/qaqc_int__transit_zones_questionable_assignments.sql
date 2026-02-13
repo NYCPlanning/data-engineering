@@ -13,15 +13,18 @@
 -- be assigned to its highest-coverage transit zone rather than using the block-level assignment.
 
 WITH all_ambiguous_assignments AS (
+    -- TODO: Commenting out the blocks for now... they don't matter nearly as much as the lots,
+    -- but including them is brutal to the runtime. We can revisit later if necessary.
+    --
     -- Union both block and lot rankings
-    SELECT * FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }}
-    WHERE
-        id IN (
-            SELECT DISTINCT t.id
-            FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }} AS t
-            WHERE t.tz_rank = 2 AND t.pct_covered >= 10
-        )
-    UNION ALL
+    -- SELECT * FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }}
+    -- WHERE
+    --     id IN (
+    --         SELECT DISTINCT t.id
+    --         FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }} AS t
+    --         WHERE t.tz_rank = 2 AND t.pct_covered >= 10
+    --     )
+    -- UNION ALL
     SELECT * FROM {{ source('build_sources', 'transit_zones_bbl_to_tz_ranked') }}
     WHERE id IN (
         SELECT DISTINCT t.id
