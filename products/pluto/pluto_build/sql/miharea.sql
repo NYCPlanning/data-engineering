@@ -96,6 +96,20 @@ SELECT * FROM mih_areas
 WHERE perbblgeom >= 10 OR maxpermihgeom >= 50;
 
 
+-- QAQC: Create a view of all distinct MIH options found in the data
+-- This should only contain the four valid options: Option 1, Option 2, Deep Affordability Option, Workforce Option
+-- If additional options appear, there's a source data issue
+DROP VIEW IF EXISTS mih_distinct_options CASCADE;
+CREATE VIEW mih_distinct_options AS
+WITH split_options AS (
+    SELECT DISTINCT
+        unnest(string_to_array(cleaned_option, ',')) AS option
+    FROM mih_lot_overlap
+)
+SELECT DISTINCT trim(option) AS option
+FROM split_options
+ORDER BY option;
+
 -- NOTE: GIS will likely refactor dcp_mih into this pivoted format,
 -- so much this code will likely disappear.
 --
@@ -125,7 +139,7 @@ WITH bbls_with_all_options AS (
             WHEN (all_options LIKE '%Option 3%' OR all_options LIKE '%Deep Affordability Option%') = true THEN '1'
         END AS mih_opt3,
         CASE
-            WHEN (all_options LIKE '%Deep Affordability Option%') = true THEN '1'
+            WHEN (all_options LIKE '%Workforce Option%') = true THEN '1'
         END AS mih_opt4
     FROM bbls_with_all_options
 )
