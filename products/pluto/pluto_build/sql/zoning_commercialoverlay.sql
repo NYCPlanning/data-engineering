@@ -26,7 +26,7 @@ WITH commoverlayper AS (
         ) AS segzonegeom,
         ST_AREA(n.geom) AS allzonegeom
     FROM pluto AS p
-    INNER JOIN dcp_commercialoverlay AS n
+    INNER JOIN stg__dcp_commercialoverlay AS n
         ON ST_INTERSECTS(p.geom, n.geom)
 ),
 

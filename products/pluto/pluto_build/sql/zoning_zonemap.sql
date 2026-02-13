@@ -26,7 +26,7 @@ CREATE TABLE zoningmapperorder AS (
             ) AS segzonegeom,
             ST_AREA(n.geom) AS allzonegeom
         FROM pluto AS p
-        INNER JOIN dcp_zoningmapindex AS n
+        INNER JOIN stg__dcp_zoningmapindex AS n
             ON ST_INTERSECTS(p.geom, n.geom)
     )
 
