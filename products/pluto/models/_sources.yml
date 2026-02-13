@@ -65,6 +65,8 @@ sources:
     description: Cleaned MIH option names with unique identifiers (from miharea.sql)
   - name: mih_lot_overlap
     description: Spatial overlaps between lots and MIH areas (from miharea.sql)
+  - name: mih_distinct_options
+    description: QAQC view of all distinct MIH options found in the data (from miharea.sql)
   - name: transit_zones_block_to_tz_ranked
     description: Ranked transit zone assignments by block (from transitzone.sql)
   - name: transit_zones_bbl_to_tz_ranked
