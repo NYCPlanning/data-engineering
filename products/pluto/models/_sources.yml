@@ -43,7 +43,7 @@ sources:
               "9. Withdrawn"
             ]
     - name: date_complete
-
+  - name: dcp_transit_zones
   - name: pluto_pts
 
 - name: build_sources
@@ -61,6 +61,16 @@ sources:
   - name: pluto
   - name: export_pluto
     description: final PLUTO table
+  - name: mih_cleaned
+    description: Cleaned MIH option names with unique identifiers (from miharea.sql)
+  - name: mih_lot_overlap
+    description: Spatial overlaps between lots and MIH areas (from miharea.sql)
+  - name: transit_zones_block_to_tz_ranked
+    description: Ranked transit zone assignments by block (from transitzone.sql)
+  - name: transit_zones_bbl_to_tz_ranked
+    description: Ranked transit zone assignments by lot (from transitzone.sql)
+  - name: transit_zones_tax_blocks
+    description: Tax block geometries for transit zone assignment (from transitzone.sql)
   - name: dcp_zoningdistricts
   - name: dcp_zoning_maxfar
   - name: mihperorder
