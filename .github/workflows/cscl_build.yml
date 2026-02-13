@@ -79,7 +79,7 @@ jobs:
       # TODO - this currently relies on version hard-coded in recipe.yml
       # Once this is operationalized, this step should be removed
       run: |
-        python3 poc_validation/dat_loader.py pull
+        python3 poc_validation/prod_data_loader.py pull
         ./poc_validation/validate_outputs.sh
 
     - name: Upload
