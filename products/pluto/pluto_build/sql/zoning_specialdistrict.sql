@@ -24,7 +24,7 @@ SELECT
     ) AS segzonegeom,
     ST_AREA(n.geom) AS allzonegeom
 FROM pluto AS p
-INNER JOIN dcp_specialpurpose AS n
+INNER JOIN stg__dcp_specialpurpose AS n
     ON ST_INTERSECTS(p.geom, n.geom);
 
 DROP TABLE IF EXISTS specialpurposeperorder;

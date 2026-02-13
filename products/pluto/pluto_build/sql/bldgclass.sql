@@ -170,7 +170,7 @@ gardenlayper AS (
         ) AS segzonegeom,
         ST_AREA(n.geom) AS allzonegeom
     FROM pluto AS p
-    INNER JOIN dpr_greenthumb AS n
+    INNER JOIN stg__dpr_greenthumb AS n
         ON ST_INTERSECTS(p.geom, n.geom)
     WHERE p.bldgclass LIKE 'V%' OR p.bldgclass IS NULL
 ),
