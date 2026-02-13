@@ -52,4 +52,4 @@ SELECT
     mih_geom,
     ST_ENVELOPE(ST_BUFFER(lot_geom, 0.005)) AS area_of_interest_geom
 FROM assignment_context
-ORDER BY assignment_strength ASC, pct_lot_covered ASC;
+ORDER BY assignment_strength ASC, pct_lot_covered ASC
