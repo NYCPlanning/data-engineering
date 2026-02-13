@@ -1,18 +1,31 @@
 -- Transit zone assignment logic:
 -- Determine whether > 10% of a lot is covered by one of the transit zones
 
--- A note on strategy:
--- The Transit Zone polygons are complex (high number of points) and each of the five zones
--- is a multipolygon containing multiple atomic parts distributed all over the map.
--- e.g. The Inner Transit Zone is comprised of polygon parts in Manhattan, Brooklyn and Queens.
+-- PERFORMANCE STRATEGY:
+-- The Transit Zone polygons are complex multipolygons with parts distributed across the city.
+-- For example, the Inner Transit Zone includes discontiguous polygon parts in Manhattan, Brooklyn and Queens.
 --
--- To make the geospatial join of lot->Zone performant, we must expand these zones into atomic parts.
--- However the real performance killer is area calculations: naively calculating the area of PLUTO lots
--- in their respective zones takes a long time. (AR Note: I don't know for sure how long it takes - I killed it after 10 minutes)
--- So to calculate areas/pcts we must subdivide the Transit Zone atomic parts into simple geometries, then sum up
--- those pcts in the case that a lot geom is in multiple simple/subdivided parts. This approach should take ~1 minute.
+-- CRITICAL: We must split these transit zones into their contiguous atomic parts before performing
+-- spatial calculations. Without this decomposition, area calculations become prohibitively slow
+-- (>10 minutes). By first splitting the zones with ST_DUMP, then summing the intersections back up
+-- when calculating coverage percentages, we reduce processing time to ~1 minute.
 
--- TODO: explain block aggregation strategy
+-- ASSIGNMENT LOGIC:
+-- We assign transit zones using a two-tier strategy:
+--
+-- 1. BLOCK-LEVEL ASSIGNMENT (when unambiguous):
+--    - For tax blocks where a single transit zone clearly dominates (no competing zones >10% coverage),
+--      assign all lots in that block to the dominant zone.
+--    - This captures cases where a transit zone boundary might cut through individual lots within
+--      a block, but we want those lots assigned consistently with their parent block.
+--
+-- 2. LOT-LEVEL ASSIGNMENT (when ambiguous):
+--    - This is a fallback for when we can't determine a clear block-level assignment.
+--    - For example, when a rail line and transit zone boundary cuts straight through a "block", creating ambiguity about
+--      which transit zone the block belongs to. In such cases, we calculate coverage for each
+--      individual lot and assign based on the lot's specific overlap.
+--    - Note: We're not doing any complicated block geometry splitting here, just falling back to
+--      lot-by-lot calculation when block-level assignment would probably be wrong.
 
 -- Create decomposed transit zones table (break multipolygons into individual parts)
 DROP TABLE IF EXISTS transit_zones_atomic_geoms;
@@ -32,6 +45,11 @@ CREATE INDEX idx_transit_zones_atomic_geoms_gix ON transit_zones_atomic_geoms US
 
 
 -- Create the block geoms, splitting non-contiguous blocks into sub-blocks
+-- and assigning lots to their sub-block
+--
+-- AR Note: I tried a few approaches for this, and perhaps there's a more clever/performant
+-- way to accomplish this. Unfortunately, the recommend approach of ST_ClusterDBSCAN
+-- will `sometimes` accomplish this, but it errors out seemingly randomly.
 DROP TABLE IF EXISTS transit_zones_tax_blocks;
 CREATE TABLE transit_zones_tax_blocks AS
 WITH block_unions AS (
