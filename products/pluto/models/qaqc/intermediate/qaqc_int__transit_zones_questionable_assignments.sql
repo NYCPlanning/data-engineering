@@ -95,4 +95,4 @@ SELECT
     ) AS loser_tz_geom
 FROM winners_losers AS wl
 WHERE wl.block_zone_dists != '{"PARK"}'
-ORDER BY wl.assignment_type ASC, wl.risk DESC;
+ORDER BY wl.assignment_type ASC, wl.risk DESC
