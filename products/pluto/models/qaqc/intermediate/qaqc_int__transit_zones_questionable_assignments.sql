@@ -1,55 +1,101 @@
 {{ config(
-    materialized = 'table'
+    materialized = 'view'
 ) }}
--- Analysis: Transit Zone Questionable Assignments
--- Purpose: Identify tax lots with multiple transit zone assignments and analyze coverage patterns
+-- This intended to be a convenience to visualize ambiguous assignments for transit zones
+-- Each row will have a questionable block/lot, along with all relevant geometries so
+-- you can see them overlaid.
+-- 
+-- This view shows:
+-- 1. Blocks that have competing transit zone assignments (multiple zones with >10% coverage)
+-- 2. Individual lots within those ambiguous blocks that will receive lot-level assignments
 --
--- This analysis identifies BBLs that intersect with multiple transit zones
--- and pulls in the relevant geometries for analysis puprposes.
+-- The flagged blocks will be subdivided into their constituent lots, and each lot will then
+-- be assigned to its highest-coverage transit zone rather than using the block-level assignment.
 
-WITH bbls_with_multiple_zones AS (
-    -- Find BBLs that overlap with more than one transit zone
-    SELECT bbl
-    FROM {{ source("build_sources", "transit_zones_bbls_to_tz_atomic_parts") }}
-    GROUP BY bbl
-    HAVING count(DISTINCT transit_zone) > 1
+WITH all_ambiguous_assignments AS (
+    -- TODO: Commenting out the blocks for now... they don't matter nearly as much as the lots,
+    -- but including them is brutal to the runtime. We can revisit later if necessary.
+    --
+    -- Union both block and lot rankings
+    -- SELECT * FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }}
+    -- WHERE
+    --     id IN (
+    --         SELECT DISTINCT t.id
+    --         FROM {{ source('build_sources', 'transit_zones_block_to_tz_ranked') }} AS t
+    --         WHERE t.tz_rank = 2 AND t.pct_covered >= 10
+    --     )
+    -- UNION ALL
+    SELECT * FROM {{ source('build_sources', 'transit_zones_bbl_to_tz_ranked') }}
+    WHERE id IN (
+        SELECT DISTINCT t.id
+        FROM {{ source('build_sources', 'transit_zones_bbl_to_tz_ranked') }} AS t
+        WHERE t.tz_rank = 2 AND t.pct_covered >= 10
+    )
 ),
-
-transit_zones_coverage_analysis AS (
-    -- Calculate coverage metrics for BBLs with multiple zone assignments
+winners_losers AS (
     SELECT
-        t.bbl,
-        t.transit_zone,
-        t.pct_covered,
-        td.wkb_geometry AS zone_decomposed_geometry,
-        p.geom AS lot_geometry,
-        t.lot_geom AS lot_clipped_geometry,
-        -- Calculate how close the coverage percentage is to 50% (most ambiguous case)
-        50 - abs(t.pct_covered - 50) AS ambiguity_score,
-        -- Get the maximum ambiguity for a bbl
-        max(50 - abs(t.pct_covered - 50)) OVER (PARTITION BY t.bbl) AS max_bbl_ambiguity_score
-    FROM {{ source("build_sources", "transit_zones_bbls_to_tz_atomic_parts") }} AS t
-    INNER JOIN bbls_with_multiple_zones AS bmz
-        ON t.bbl = bmz.bbl
-    INNER JOIN {{ source("build_sources", "transit_zones_atomic_geoms") }} AS td
-        ON t.decomposed_id = td.decomposed_id
-    INNER JOIN {{ source("build_sources", "pluto") }} AS p
-        ON t.bbl = p.bbl
-),
-
-final AS (
-    SELECT
-        bbl,
-        transit_zone,
-        pct_covered,
-        ambiguity_score,
-        max_bbl_ambiguity_score,
-        zone_decomposed_geometry,
-        lot_geometry,
-        lot_clipped_geometry
-    FROM transit_zones_coverage_analysis
+        max(100 - abs(50 - rk.pct_covered)) OVER (PARTITION BY rk.id) AS risk,
+        rk.assignment_type,
+        rk.id,
+        rk.borough,
+        rk.block,
+        rk.bbls,
+        rk.transit_zone AS winner_tz,
+        rk2.transit_zone AS loser_tz,
+        rk.pct_covered AS winner_pct,
+        rk2.pct_covered AS loser_pct,
+        -- blocks get geom from tax_blocks, lots get geom from pluto
+        CASE
+            WHEN rk.assignment_type = 'block' THEN tb.geom
+            ELSE p.geom
+        END AS geom,
+        p.geom AS pluto_geom,
+        CASE
+            WHEN rk.assignment_type = 'block'
+                THEN
+                    (
+                        SELECT array_agg(DISTINCT zonedist1)
+                        FROM {{ source('build_sources', 'pluto') }} AS p2
+                        WHERE p2.borough = rk.borough AND p2.block = rk.block
+                    )
+            ELSE
+                ARRAY[p.zonedist1]
+        END AS block_zone_dists
+    FROM all_ambiguous_assignments AS rk
+    INNER JOIN all_ambiguous_assignments AS rk2 ON rk.id = rk2.id AND rk2.tz_rank = 2
+    LEFT JOIN {{ source('build_sources', 'transit_zones_tax_blocks') }} AS tb
+        ON
+            rk.assignment_type = 'block'
+            AND rk.borough = tb.borough
+            AND rk.block = tb.block
+            AND rk.sub_block = tb.sub_block
+    LEFT JOIN {{ source('build_sources', 'pluto') }} AS p ON rk.assignment_type = 'lot' AND p.bbl = rk.bbls[1]
+    WHERE rk.tz_rank = 1
 )
-
-SELECT *
-FROM final
-ORDER BY max_bbl_ambiguity_score DESC, bbl ASC, pct_covered DESC
+SELECT
+    wl.assignment_type,
+    wl.geom AS block_geom,
+    wl.risk,
+    wl.winner_pct,
+    wl.loser_pct,
+    wl.id,
+    wl.bbls,
+    wl.borough,
+    wl.block,
+    wl.block_zone_dists,
+    wl.winner_tz,
+    wl.loser_tz,
+    st_envelope(st_buffer(wl.geom, .005)) AS area_of_interest_geom,
+    (
+        SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), wkb_geometry)
+        FROM {{ source('recipe_sources', 'dcp_transit_zones') }} AS dtz
+        WHERE dtz.transit_zone = wl.winner_tz
+    ) AS winner_tz_geom,
+    (
+        SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), wkb_geometry)
+        FROM {{ source('recipe_sources', 'dcp_transit_zones') }} AS dtz
+        WHERE dtz.transit_zone = wl.loser_tz
+    ) AS loser_tz_geom
+FROM winners_losers AS wl
+WHERE wl.block_zone_dists != '{"PARK"}'
+ORDER BY wl.assignment_type ASC, wl.risk DESC
