@@ -46,3 +46,18 @@ models:
     tests:
     - accepted_values:
         arguments: { values: [ "1", "2" ] }
+
+unit_tests:
+- name: test__stg__facecode_and_featurename_sortname
+  description: "Test sort order regex logic of street/featurename lookup key"
+  model: stg__facecode_and_featurename
+  given:
+  - input: source("recipe_sources", "dcp_cscl_streetname")
+    format: csv
+    fixture: stg__facecode_and_featurename__regex_test_input
+  - input: source("recipe_sources", "dcp_cscl_featurename")
+    format: csv
+    fixture: stg__facecode_and_featurename__regex_test_input_fn
+  expect:
+    format: csv
+    fixture: stg__facecode_and_featurename__regex_test_output
