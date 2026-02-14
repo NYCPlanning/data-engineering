@@ -41,7 +41,7 @@ If the above validation works (and 100% match), this may not be needed (like pot
 With the concept of a "key" in the data, we can make actual comparisons between specific fields of records in prod vs this pipeline. Again, what's been done so far is fairly specific to the LION dat outputs, but a similar approach could be taken and some code re-used. For comparisons to be made, the following steps must be taken:
 
 1. Downloading production outputs from sharepoint into a folder named `prod`
-2. Loading this data into the database. This is done through `poc_validation/dat_loader.py`. This file
+2. Loading this data into the database. This is done through `poc_validation/prod_data_loader.py`. This file
    - reads in `seeds/text_formatting/text_formatting__lion_dat.csv`, which has the formatting rules for all the lion .dat columns
    - uses that to "slice" up the formatted text in the `prod` output files to convert the text into columns in a pandas dataframe
    - loads this dataframe into the database

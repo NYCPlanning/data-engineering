@@ -7,7 +7,11 @@ mkdir validation_output
 
 total_records=0
 total_mismatched=0
-for file in ManhattanLion.dat BrooklynLion.dat BronxLion.dat QueensLion.dat StatenIslandLion.dat; do
+for filepath in output/*; do
+    file=$(basename "$filepath")
+    if [[ "$file" =~ "zip" ]]; then
+        continue
+    fi
     echo "Validating $file"
 
     n_records="$(cat output/$file | wc -l |  awk '{print $1}')"
@@ -15,7 +19,11 @@ for file in ManhattanLion.dat BrooklynLion.dat BronxLion.dat QueensLion.dat Stat
     total_records=$(($total_records + $n_records))
     mismatched_rows=$(comm -23 <(sort output/$file) <(sort prod/$file))
     
-    n_mismatched=$(echo "$mismatched_rows" | wc -l | awk '{print $1}')
+    if [ -z "$mismatched_rows" ]; then
+        n_mismatched=0
+    else
+        n_mismatched=$(echo "$mismatched_rows" | wc -l | awk '{print $1}')
+    fi
     echo "Mismatched records: $n_mismatched"
     total_mismatched=$(($total_mismatched + $n_mismatched))
 

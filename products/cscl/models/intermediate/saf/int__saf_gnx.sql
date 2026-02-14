@@ -18,7 +18,7 @@ atomic_polygons AS (
     SELECT * FROM {{ ref('stg__atomicpolygons') }}
 ),
 feature_names AS (
-    SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
+    SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
 )
 SELECT
     -- TODO error when null

@@ -5,7 +5,7 @@ address_points AS (
     SELECT * FROM {{ ref('int__address_points') }}
 ),
 feature_names AS (
-    SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
+    SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
 ),
 lgc AS (
     SELECT * FROM {{ ref('int__streetcode_and_facecode') }}
