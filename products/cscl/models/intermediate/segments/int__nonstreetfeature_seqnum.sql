@@ -24,7 +24,7 @@ proto AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_proto') }}
 ),
 proto_facecode AS (
-    SELECT * FROM {{ ref('stg__facecode_and_featurename') }}
+    SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
 ),
 other_segments AS (
     SELECT

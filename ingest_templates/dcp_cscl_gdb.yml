@@ -63,6 +63,12 @@ datasets:
   file_format:
     layer: FEATURENAME
 
+- id: dcp_cscl_lastword
+  attributes:
+    name: CSCL Last Word Table
+  file_format:
+    layer: LASTWORD
+
 - id: dcp_cscl_namedintersection
   attributes:
     name: CSCL Named Intersections
@@ -140,6 +146,12 @@ datasets:
     name: CSCL Subway Lines
   file_format:
     layer: Subway
+
+- id: dcp_cscl_universalword
+  attributes:
+    name: CSCL Universal Word Table
+  file_format:
+    layer: UNIVERSALWORD
 
 - id: dcp_cscl_zipcode
   attributes:

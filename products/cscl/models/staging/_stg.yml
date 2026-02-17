@@ -25,6 +25,12 @@ models:
 - name: stg__facecode_and_featurename
   columns:
   - name: b7sc
+  - name: lookup_key
+  - name: face_code
+
+- name: stg__facecode_and_featurename_principal
+  columns:
+  - name: b7sc
     tests:
     - unique:
         config: { where: "b7sc IS NOT NULL" }
@@ -40,3 +46,80 @@ models:
     tests:
     - accepted_values:
         arguments: { values: [ "1", "2" ] }
+
+unit_tests:
+- name: test__stg__facecode_and_featurename_sortname
+  description: "Test sort order regex logic of street/featurename lookup key"
+  model: stg__facecode_and_featurename
+  given:
+  - input: source("recipe_sources", "dcp_cscl_streetname")
+    format: sql
+    rows: |
+      WITH input(lookup_key, globalid) AS (
+        VALUES
+          ('1 PLACE', '1'),
+          ('2 NUMBERS 2', '2'),
+          ('A O''FARRILL PLACE', '3'),
+          ('I- 95 EXIT 1 B NORTHBOUND', '4'),
+          ('IRT-1-2-3P-CHAMBERS STREET', '5'),
+          ('US NAVY RM2/C STANLEY E WDOWIAK', '6'),
+          ('9 / 11 MEMORIAL PLAZA', '7')
+      )
+      SELECT
+        NULL AS b10sc,
+        NULL AS b7sc,
+        lookup_key,
+        NULL AS facecode,
+        NULL AS primary_flag,
+        NULL AS principal_flag,
+        NULL AS enders_flag,
+        NULL AS exception_flag,
+        NULL AS snd_feature_type,
+        NULL AS horizontal_topo_type,
+        globalid
+      FROM input
+  - input: source("recipe_sources", "dcp_cscl_featurename")
+    format: sql
+    rows: |
+      SELECT
+        NULL::text AS b10sc,
+        NULL::text AS b7sc,
+        NULL::text AS lookup_key,
+        NULL::text AS facecode,
+        NULL::text AS primary_flag,
+        NULL::text AS principal_flag,
+        NULL::text AS enders_flag,
+        NULL::text AS exception_flag,
+        NULL::text AS snd_feature_type,
+        NULL::text AS globalid
+      WHERE FALSE
+  expect:
+    format: sql
+    rows: |
+      WITH input(lookup_key, lookup_key_trimmed, place_name_sort_order, globalid) AS (
+        VALUES
+          ('1 PLACE', '1 PLACE', '   1 PLACE', '1'),
+          ('2 NUMBERS 2', '2 NUMBERS 2', '   2 NUMBERS    2', '2'),
+          ('A O''FARRILL PLACE', 'A O''FARRILL PLACE', 'A O''FARRILL PLACE', '3'),
+          ('I- 95 EXIT 1 B NORTHBOUND', 'I-95 EXIT 1 B NORTHBOUND', 'I-95 EXIT    1 B NORTHBOUND', '4'),
+          ('IRT-1-2-3P-CHAMBERS STREET', 'IRT-1-2-3P-CHAMBERS STREET', 'IRT-1-2-3 P-CHAMBERS STREET', '5'),
+          ('US NAVY RM2/C STANLEY E WDOWIAK', 'US NAVY RM2/C STANLEY E WDOWIAK', 'US NAVY RM 2/C STANLEY E WDOWIAK', '6'),
+          ('9 / 11 MEMORIAL PLAZA', '9/11 MEMORIAL PLAZA', '9/11 MEMORIAL PLAZA', '7')
+      )
+      SELECT
+        NULL AS boroughcode,
+        NULL AS b10sc,
+        NULL AS b7sc,
+        lookup_key,
+        lookup_key_trimmed,
+        place_name_sort_order,
+        NULL AS face_code,
+        'street' AS feature_type,
+        NULL AS primary_flag,
+        NULL AS principal_flag,
+        NULL AS enders_flag,
+        NULL AS exception_flag,
+        NULL AS snd_feature_type,
+        NULL AS horizontal_topo_type,
+        globalid
+      FROM input

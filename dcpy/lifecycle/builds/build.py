@@ -1,7 +1,7 @@
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
+from typing import Literal
 
 import typer
 
@@ -22,6 +22,10 @@ def export_dataset_from_postgres(
     file_path: Path,
     format: ExportFormat,
     pg_client: postgres.PostgresClient,
+    *,
+    header: bool = True,
+    line_endings: Literal["lf", "crlf"] = "lf",
+    **kwargs,  # this is a little sloppy - but need to ignore other custom things like 'formatting'
 ) -> None:
     """Export a table from postgres in the specified format."""
     logger.info(f"Exporting table {table_name} to {file_path} in format {format}")
@@ -29,25 +33,29 @@ def export_dataset_from_postgres(
         file_path.unlink()
     match format:
         case ExportFormat.csv:
-            pg_client.export_to_csv(table_name=table_name, output_path=file_path)
+            pg_client.export_to_csv(
+                table_name=table_name,
+                output_path=file_path,
+                include_header=header,
+            )
         case ExportFormat.dat:
-            with tempfile.NamedTemporaryFile(mode="w", suffix=".tmp") as temp_file:
-                temp_path = Path(temp_file.name)
+            pg_client.export_to_csv(
+                table_name=table_name,
+                output_path=file_path,
+                include_header=False,
+            )
 
-                pg_client.export_to_csv(
-                    table_name=table_name,
-                    output_path=temp_path,
-                    include_header=False,
-                )
-
-                # Convert line endings from LF to CRLF
-                with open(temp_path, "r") as f_in:
-                    with open(file_path, "wb") as f_out:
-                        f_out.write(f_in.read().encode().replace(b"\n", b"\r\n"))
+            line_endings = "crlf"
         case _:
             raise NotImplementedError(
                 f"Export of dataset format {format} not implemented yet"
             )
+
+    if line_endings == "crlf":
+        with open(file_path, "rb") as f_in:
+            content = f_in.read().replace(b"\n", b"\r\n")
+        with open(file_path, "wb") as f:
+            f.write(content)
 
 
 def export(
@@ -81,6 +89,7 @@ def export(
             file_path=output_folder / filename,
             pg_client=pg_client,
             format=output.format,
+            **output.custom or {},
         )
 
     if recipe.exports.zip_name:
