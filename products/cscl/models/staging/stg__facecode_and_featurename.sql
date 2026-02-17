@@ -50,6 +50,7 @@ sort_order AS (
     FROM (
         SELECT
             unnest(
+                -- NOTE - this regex is tested in _stg.yml with unit test 'test__stg__facecode_and_featurename_sortname'
                 regexp_matches(
                     lookup_key_trimmed,
                     '(?:(?:[^\d\-\/\s]+|\d+)?[\-\/])+(?:[^\d\-\/\s]+|\d+)?|\d+|[^\d\s]+',
