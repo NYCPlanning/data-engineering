@@ -17,6 +17,13 @@ ingestion:
   file_format:
     type: xlsx
     sheet_name: Submitted for MySchools_SY26-27 # TODO ideally this is not hardcoded
+    dtype: str
   processing_steps:
   - name: clean_column_names
     args: { lower: True }
+  - name: pd_df_func
+    args:
+      function_name: replace
+      to_replace: '\xa0'
+      value: ''
+      regex: True
