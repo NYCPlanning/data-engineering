@@ -4,6 +4,9 @@ acl: public-read
 attributes:
   name: MySchools NYC Universal Pre-Kindergarten Programs
   url: https://www.myschools.nyc/en/schools/pre-k?filters_applied=1
+  description: >-
+    This currently is not in use. It ideally will prelace doe_universalprek, but the
+    data seems to be incomplete, so for now we still get this data manually from NYCPS
 
 ingestion:
   source:
