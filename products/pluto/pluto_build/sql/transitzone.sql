@@ -162,6 +162,25 @@ WITH ambiguous_bbls AS (
     INNER JOIN transit_zones_atomic_geoms AS t
         ON ST_INTERSECTS(p.geom, t.wkb_geometry)
     GROUP BY p.bbl, p.borough, p.block, t.transit_zone, p.geom
+), lot_to_tz_with_rank AS (
+    SELECT
+        lt.*,
+        tzr.tz_rank AS priority_rank
+    FROM lot_to_tz AS lt
+    LEFT JOIN dcp_transit_zone_ranks AS tzr ON lt.transit_zone = tzr.tz_name
+), filtered_zones AS (
+    -- If a lot has ANY zone with priority_rank < 4, exclude "Beyond the Greater Transit Zone" (rank 4)
+    SELECT
+        ltr.*,
+        CASE
+            WHEN EXISTS (
+                SELECT 1 FROM lot_to_tz_with_rank AS inner_ltr
+                WHERE inner_ltr.bbl = ltr.bbl AND inner_ltr.priority_rank < 4
+            ) AND ltr.priority_rank = 4
+            THEN false
+            ELSE true
+        END AS include_zone
+    FROM lot_to_tz_with_rank AS ltr
 )
 SELECT
     'lot' AS assignment_type,
@@ -177,7 +196,8 @@ SELECT
         PARTITION BY bbl
         ORDER BY pct_covered DESC
     ) AS tz_rank
-FROM lot_to_tz;
+FROM filtered_zones
+WHERE include_zone = true;
 ANALYZE transit_zones_bbl_to_tz_ranked;
 
 -- Assign the primary transit zone by
