@@ -164,3 +164,8 @@ package-lock.yml
 
 # uv
 uv.lock
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
