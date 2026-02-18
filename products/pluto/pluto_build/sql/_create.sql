@@ -68,3 +68,10 @@ CREATE TABLE dcp_zoning_maxfar (
     verified character varying
 );
 \COPY dcp_zoning_maxfar FROM 'data/dcp_zoning_maxfar.csv' DELIMITER ',' CSV HEADER;
+
+DROP TABLE IF EXISTS dcp_transit_zone_ranks;
+CREATE TABLE dcp_transit_zone_ranks (
+    tz_name text,
+    tz_rank integer
+);
+\COPY dcp_transit_zone_ranks FROM 'data/dcp_transit_zone_ranks.csv' DELIMITER ',' CSV HEADER;
