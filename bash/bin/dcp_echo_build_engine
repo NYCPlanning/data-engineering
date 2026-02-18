@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Set BUILD_ENGINE connection string with schema search path
+#
+# Usage:
+#   eval $(set_build_engine)
+#
+# This constructs BUILD_ENGINE from BUILD_ENGINE_SERVER, BUILD_ENGINE_DB, and BUILD_ENGINE_SCHEMA
+#
+echo ${BUILD_ENGINE_SERVER}/${BUILD_ENGINE_DB}?options=--search_path%3D${BUILD_ENGINE_SCHEMA},public
