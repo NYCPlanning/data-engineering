@@ -251,3 +251,9 @@ exports:
     filename: StatenIslandFace.txt
     format: dat
     custom: { formatting: face_code }
+
+  # Other
+  - name: rpl
+    filename: RPL.txt
+    format: dat
+    custom: { formatting: rpl }
