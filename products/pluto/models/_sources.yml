@@ -9,7 +9,7 @@ sources:
   - name: pluto_input_geocodes
   - name: pluto_input_numbldgs
   - name: pluto_pts
-  - name: dcp_mappluto
+  - name: previous_pluto
   - name: lpc_landmarks
   - name: lpc_historic_districts
   - name: dcp_edesignation
