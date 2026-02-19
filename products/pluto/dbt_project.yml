@@ -13,7 +13,7 @@ seeds:
 tests:
   +store_failures: true
   +severity: "{{ env_var('TEST_SEVERITY', 'error') }}"
-  schema: "_tests"
+  +schema: "_tests"
 
 vars:
   version: "{{ env_var('VERSION') }}"
