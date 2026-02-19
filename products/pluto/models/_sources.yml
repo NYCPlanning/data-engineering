@@ -81,8 +81,6 @@ sources:
             ]
     - name: date_complete
 
-  - name: pluto_pts
-
 - name: build_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
@@ -96,5 +94,4 @@ sources:
   - name: previous_pluto
   - name: export_pluto
     description: final PLUTO table
-  - name: dcp_zoningdistricts
   - name: dcp_zoning_maxfar
