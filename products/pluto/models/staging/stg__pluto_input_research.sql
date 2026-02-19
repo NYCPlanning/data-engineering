@@ -1,2 +1,2 @@
 SELECT *
-FROM {{ source('recipe_sources', 'pluto_input_research') }}
+FROM {{ ref('pluto_input_research') }}
