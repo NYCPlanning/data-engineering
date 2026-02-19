@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'table',
     indexes=[
-      {'columns': ['segmentid']},
+      {'columns': ['globalid']},
       {'columns': ['nodeid']},
     ]
 ) }}

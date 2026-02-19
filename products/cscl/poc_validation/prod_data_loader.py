@@ -37,6 +37,8 @@ try:
     assert recipe.exports
 
     for export in recipe.exports.datasets:
+        if export.name == "log":
+            continue
         formatting = (export.custom or {}).get("formatting")
         assert export.filename, "filename is required for export datasets"
         assert export.format.value in ["dat", "csv"], "unsupported file format"
