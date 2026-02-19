@@ -8,6 +8,5 @@
 }}
 
 SELECT
-    *,
-    wkb_geometry AS geom
-FROM {{ source('recipe_sources', 'dcp_mappluto') }}
+    *
+FROM {{ source('recipe_sources', 'previous_pluto') }}

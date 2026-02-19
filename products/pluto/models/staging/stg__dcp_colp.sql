@@ -8,6 +8,5 @@
 }}
 
 SELECT
-    *,
-    wkb_geometry AS geom
+    *
 FROM {{ source('recipe_sources', 'dcp_colp') }}
