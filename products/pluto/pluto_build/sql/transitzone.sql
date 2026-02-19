@@ -21,11 +21,13 @@
 --
 -- 2. LOT-LEVEL ASSIGNMENT (when ambiguous):
 --    - This is a fallback for when we can't determine a clear block-level assignment.
---    - For example, when a rail line and transit zone boundary cuts straight through a "block", creating ambiguity about
+--    - For example, when a rail line cuts straight through a "block", creating ambiguity about
 --      which transit zone the block belongs to. In such cases, we calculate coverage for each
 --      individual lot and assign based on the lot's specific overlap.
---    - Note: We're not doing any complicated block geometry splitting here, just falling back to
---      lot-by-lot calculation when block-level assignment would probably be wrong.
+--    - Special rule: If a lot has significant coverage in ANY zone AND "Beyond the Greater Transit Zone",
+--      we always default to the non-Beyond zone.
+--    - Note: We're not doing any complicated geometry splitting here, just falling back to
+--      lot-by-lot calculation when block-level assignment would be misleading.
 
 -- Create decomposed transit zones table (break multipolygons into individual parts)
 DROP TABLE IF EXISTS transit_zones_atomic_geoms;
