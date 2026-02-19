@@ -1,0 +1,29 @@
+id: doe_universalprek
+acl: public-read
+
+attributes:
+  name: NYC Universal Pre-Kindergarten Programs
+  url: https://www.myschools.nyc/en/schools/pre-k?filters_applied=1
+  description: >-
+    This should eventually be replaced by doe_myschools_universalprek. Unfortunately,
+    that data seems to be incomplete, so for now we still get this data manually from
+    NYCPS
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: doe/universalprek/ActiveSitesinMySchools_{{ version }}.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: Submitted for MySchools_SY26-27 # TODO ideally this is not hardcoded
+    dtype: str
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
+  - name: pd_df_func
+    args:
+      function_name: replace
+      to_replace: '\xa0'
+      value: ''
+      regex: True

@@ -2,32 +2,32 @@ DROP TABLE IF EXISTS _doe_universalprek;
 SELECT
     uid,
     source,
-    sitename AS facname,
+    program_name AS facname,
     parsed_hnum AS addressnum,
     parsed_sname AS streetname,
-    siteaddress AS address,
+    address,
     NULL AS city,
-    state AS zipcode,
-    boro,
+    zip_code AS zipcode,
+    borough AS boro,
     NULL AS borocode,
     NULL AS bin,
     NULL AS bbl,
     (CASE
-        WHEN type = 'DOE' OR type = 'Public School' THEN 'DOE Universal Pre-K'
-        WHEN type = 'CHARTER' OR type = 'Charter' THEN 'DOE Universal Pre-K - Charter'
-        WHEN type = 'NYCEEC' OR type = 'CBO' THEN 'Early Education Program'
-        WHEN type = 'PKC' THEN 'Pre-K Center'
+        WHEN site_type = 'DOE' OR site_type = 'Public School' THEN 'DOE Universal Pre-K'
+        WHEN site_type = 'CHARTER' OR site_type = 'Charter' THEN 'DOE Universal Pre-K - Charter'
+        WHEN site_type = 'NYCEEC' OR site_type = 'CBO' THEN 'Early Education Program'
+        WHEN site_type = 'PKC' THEN 'Pre-K Center'
     END) AS factype,
     'DOE Universal Pre-Kindergarten' AS facsubgrp,
     (CASE
-        WHEN type = 'DOE' OR type = 'Public School' THEN 'NYC Department of Education'
-        WHEN type = 'CHARTER' OR type = 'Charter' OR type = 'NYCEEC' OR type = 'CBO' THEN sitename
+        WHEN site_type = 'DOE' OR site_type = 'Public School' THEN 'NYC Department of Education'
+        WHEN site_type IN ('CHARTER', 'Charter', 'NYCEEC', 'CBO') THEN program_name
         ELSE 'Unknown'
     END) AS opname,
     (CASE
-        WHEN type = 'DOE' OR type = 'Public School' THEN 'NYCDOE'
-        WHEN type = 'Charter' THEN 'Charter'
-        WHEN type = 'NYCEEC' OR type = 'CBO' THEN 'Non-public'
+        WHEN site_type = 'DOE' OR site_type = 'Public School' THEN 'NYCDOE'
+        WHEN site_type = 'Charter' THEN 'Charter'
+        WHEN site_type = 'NYCEEC' OR site_type = 'CBO' THEN 'Non-public'
         ELSE 'Unknown'
     END) AS opabbrev,
     'NYCDOE' AS overabbrev,
