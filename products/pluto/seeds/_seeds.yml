@@ -42,8 +42,8 @@ seeds:
     description: Descriptive attributes for condo lots (8.3k rows)
     config:
       column_types:
-        condno: text
-        parid: text
+        CondNO: text
+        PARID: text
     
   - name: pluto_input_condo_bldgclass
     description: Condo building class codes
