@@ -69,7 +69,7 @@ WITH new AS (
         new.uses AS new_uses
     FROM old LEFT JOIN new
         ON old.bbl = new.bbl AND old.address = new.address AND old.agency = new.agency
-    --WHERE 'HIGHER EDUCATION' = ANY(old.uses)
+--WHERE 'HIGHER EDUCATION' = ANY(old.uses)
 )
 SELECT *
 FROM all_diffs;
@@ -104,7 +104,7 @@ WITH new AS (
         new.uses AS new_uses
     FROM new LEFT JOIN old
         ON new.bbl = old.bbl AND new.address = old.address AND new.agency = old.agency
-    --WHERE 'HIGHER EDUCATION' = ANY(new.uses)
+--WHERE 'HIGHER EDUCATION' = ANY(new.uses)
 )
 SELECT *
 FROM all_diffs;
