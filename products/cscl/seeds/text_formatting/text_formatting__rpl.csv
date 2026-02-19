@@ -1,0 +1,20 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+RPL1,generic_segmentid,Generic SEGMENTID,7,1,7,RJZF,FALSE
+RPL2,generic_segmenttype,Segment Type of Generic Segment,1,8,8,RJSF,FALSE
+RPL3,roadbed_segmentid,Roadbed SEGMENTID,7,9,15,RJZF,FALSE
+,filler_rpl3,Filler,1,16,16,RJSF,FALSE
+RPL4,roadbed_position_code,Roadbed Position Code,1,17,17,RJSF,FALSE
+,filler_rpl4,Filler,1,18,18,RJSF,FALSE
+RPL5,node_correspondence_indicator,Node Correspondence Indicator,1,19,19,RJSF,FALSE
+,filler_rpl5,Filler,3,20,22,RJSF,FALSE
+RPL6,from_node_level_code_of_coincident_roadbed_segment,From Node Level Code of Coincident Roadbed Segment (if any),1,23,23,RJSF,FALSE
+,filler_rpl6,Filler,3,24,26,RJSF,FALSE
+RPL7,to_node_level_code_of_coincident_roadbed_segment,To Node Level Code of Coincident Roadbed Segment (if any),1,27,27,RJSF,FALSE
+,filler_rpl7,Filler,1,28,28,RJSF,FALSE
+RPL8,from_nodeid_of_roadbed_segment,From NODEID of Roadbed Segment,7,29,35,RJSF,FALSE
+,filler_rpl8,Filler,1,36,36,RJSF,FALSE
+RPL9,from_nodeid_of_generic_segment,From NODEID of Generic Segment,7,37,43,RJSF,FALSE
+,filler_rpl9,Filler,1,44,44,RJSF,FALSE
+RPL10,to_nodeid_of_roadbed_segment,To NODEID of Roadbed Segment,7,45,51,RJSF,FALSE
+,filler_rpl10,Filler,1,52,52,RJSF,FALSE
+RPL11,to_nodeid_of_generic_segment,To NODEID of Generic Segment,7,53,59,RJSF,FALSE

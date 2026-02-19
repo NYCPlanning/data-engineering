@@ -3,6 +3,8 @@ This script is for parsing a lion.dat file into its individual fields
 and loading the result into a postgres table
 
 This is done ad-hoc and not on an operational basis
+
+It assumes that production outputs are specified as exports in recipe.yml
 """
 
 from dataclasses import dataclass
