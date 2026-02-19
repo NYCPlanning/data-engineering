@@ -2,6 +2,10 @@ version: 2
 
 seeds:
   - name: ignored_bbls_for_unit_count_test
+    description: |
+      List of manually researched bbls that have correct count of residential units in DOF PTS data,
+      despite failing `assert_condo_bbl_unit_count_research_required` test. These records are ignored
+      during the test.
     description: BBLs to ignore in unit count test
     
   - name: pluto_input_research
@@ -45,10 +49,6 @@ seeds:
     
   - name: zoning_district_class_descriptions
     description: Zoning district classification descriptions
-    description: |
-      List of manually researched bbls that have correct count of residential units in DOF PTS data,
-      despite failing `assert_condo_bbl_unit_count_research_required` test. These records are ignored
-      during the test.
     config:
       column_types:
         bbl: text

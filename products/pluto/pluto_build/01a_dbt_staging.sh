@@ -3,11 +3,11 @@ source ./bash/config.sh
 set_error_traps
 
 echo "Setup dbt"
-dbt deps
-dbt debug
+cd ..
+dbt deps --profiles-dir .
+dbt debug --profiles-dir .
 
 echo "Loading DBT seeds (lookup tables)..."
-cd ..
 dbt seed --profiles-dir . --target ${DBT_TARGET:-dev}
 if [ $? -ne 0 ]; then
     echo "ERROR: DBT seeds failed to load"
