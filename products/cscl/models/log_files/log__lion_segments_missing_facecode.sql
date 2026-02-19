@@ -9,7 +9,7 @@ WITH segments AS (
 )
 SELECT DISTINCT
     'error' AS log_level,
-    'missing facecode' AS error_category,
+    'segment missing facecode' AS error_category,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
