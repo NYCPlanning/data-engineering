@@ -6,10 +6,16 @@ seeds:
       List of manually researched bbls that have correct count of residential units in DOF PTS data,
       despite failing `assert_condo_bbl_unit_count_research_required` test. These records are ignored
       during the test.
-    description: BBLs to ignore in unit count test
+    config:
+      column_types:
+        bbl: text
+        pluto_version: text
     
   - name: pluto_input_research
     description: Manual corrections and overrides for PLUTO data (27k rows)
+    config:
+      column_types:
+        bbl: text
     columns:
       - name: bbl
         description: Borough-Block-Lot identifier
@@ -34,6 +40,10 @@ seeds:
     
   - name: pluto_input_condolot_descriptiveattributes
     description: Descriptive attributes for condo lots (8.3k rows)
+    config:
+      column_types:
+        condno: text
+        parid: text
     
   - name: pluto_input_condo_bldgclass
     description: Condo building class codes
@@ -49,7 +59,3 @@ seeds:
     
   - name: zoning_district_class_descriptions
     description: Zoning district classification descriptions
-    config:
-      column_types:
-        bbl: text
-        pluto_version: text
