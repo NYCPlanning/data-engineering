@@ -2,6 +2,10 @@
 source ./bash/config.sh
 set_error_traps
 
+echo "Setup dbt"
+dbt deps
+dbt debug
+
 echo "Loading DBT seeds (lookup tables)..."
 cd ..
 dbt seed --profiles-dir . --target ${DBT_TARGET:-dev}
