@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Export a PostGIS table to a shapefile (zipped)
+#
+# Usage:
+#   shp_export <table_name> <geometry_type> [-f output_filename] [ogr2ogr_options]
+#
+# Examples:
+#   shp_export my_table MULTIPOLYGON
+#   shp_export my_table POINT -f custom_output
+#   shp_export my_table MULTILINESTRING -where "status='active'"
+#
+source "${PROJECT_ROOT_PATH}/bash/utils.sh"
+shp_export "$@"

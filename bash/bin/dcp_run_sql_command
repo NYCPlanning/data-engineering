@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Run a SQL command against the BUILD_ENGINE database
+#
+# Usage:
+#   run_sql_command "<sql_query>"
+#
+# Examples:
+#   run_sql_command "SELECT count(*) FROM pluto;"
+#   run_sql_command "DROP TABLE IF EXISTS temp_table;"
+#
+source "${PROJECT_ROOT_PATH}/bash/utils.sh"
+run_sql_command "$@"

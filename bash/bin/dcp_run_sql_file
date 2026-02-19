@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# Run a SQL file against the BUILD_ENGINE database
+#
+# Usage:
+#   run_sql_file <path_to_sql_file>
+#
+# Examples:
+#   run_sql_file ./sql/create_table.sql
+#   run_sql_file products/pluto/pluto_build/sql/transitzone.sql
+#
+source "${PROJECT_ROOT_PATH}/bash/utils.sh"
+run_sql_file "$@"
