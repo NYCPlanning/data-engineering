@@ -114,6 +114,10 @@ class FuzzyVersion:
         return hash(self.original)
 
 
+def open_data_page_url(four_four: str) -> str:
+    return f"https://data.cityofnewyork.us/d/{four_four}"
+
+
 def sort_by_outdated_products(df):
     """
     Sort dataframe to show products with outdated datasets first.
@@ -161,7 +165,7 @@ def sort_by_outdated_products(df):
     return df_sorted.set_index(["product", "dataset"])
 
 
-def get_all_open_data_keys():
+def get_all_open_data_keys() -> list[str]:
     """retrieve all product.dataset.destination_ids"""
     return product_metadata.load(version="dummy").query_product_dataset_destinations(
         destination_filter={"types": {"open_data"}},
@@ -193,9 +197,18 @@ def get_bytes_versions(all_keys):
 
 
 def make_comparison_dataframe(bytes_versions, open_data_versions):
+    metadata = product_metadata.load(version="dummy")
     rows = []
     for key in open_data_versions:
         product, dataset, destination_id = key.split(".")
+        four_four = (
+            metadata.product(product)
+            .dataset(dataset)
+            .get_destination(destination_id)
+            .custom.get("four_four")
+        )
+        open_data_url = open_data_page_url(four_four) if four_four else None
+        bytes_url = connectors["bytes"].get_page_url(f"{product}.{dataset}")
         bytes_version = bytes_versions.get(f"{product}.{dataset}")
         open_data_vers = open_data_versions.get(key, [])
 
@@ -216,6 +229,8 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
                 "bytes_version": bytes_version,
                 "open_data_versions": open_data_vers,
                 "up_to_date": up_to_date,
+                "bytes_url": bytes_url,
+                "open_data_url": open_data_url,
             }
         )
     df = pd.DataFrame(rows).set_index(["product", "dataset"]).sort_index()
