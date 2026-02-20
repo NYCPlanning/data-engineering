@@ -1,0 +1,29 @@
+id: dcp_transit_zones
+acl: public-read
+
+attributes:
+  name: Transit Zones
+  description: |
+    The Transit Zones dataset is composed of areas related to the Greater Transit Zone.
+  url: https://data.cityofnewyork.us/Housing-Development/Historic-Districts/skyk-mpzq
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 6ztr-wgff
+    format: geojson
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" , "transtzone": "transit_zone"}
+
+columns:
+  - id: transit_zone
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry

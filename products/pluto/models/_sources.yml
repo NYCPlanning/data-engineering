@@ -49,6 +49,7 @@ sources:
 - name: build_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
+  - name: dcp_mih
   - name: dof_pts_propmaster
     description: Raw PTS data + prime bbl column that was added during PLUTO build.
   - name: pluto_rpad_geo
@@ -57,7 +58,11 @@ sources:
       records per a condominium.
 
   - name: previous_pluto
+  - name: pluto
   - name: export_pluto
     description: final PLUTO table
   - name: dcp_zoningdistricts
   - name: dcp_zoning_maxfar
+  - name: mihperorder
+  - name: transit_zones_atomic_geoms
+  - name: transit_zones_bbls_to_tz_atomic_parts

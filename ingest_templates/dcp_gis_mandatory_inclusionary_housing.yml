@@ -1,0 +1,61 @@
+id: dcp_gis_mandatory_inclusionary_housing
+acl: public-read
+
+attributes:
+  name: Mandatory Inclusionary Housing (MIH)
+  description: |
+    The Mandatory Inclusionary Housing program was adopted in 2016 to encourage the creation of
+    housing for families at a range of incomes in areas planned for housing growth.
+    When actions of the Commission significantly increase residential density,
+    the City Planning Commission and the City Council will apply one or more options to
+    require affordable housing as part of new residential construction.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data.page#housingdevelopment
+
+ingestion:
+  source:
+    type: edm.publishing.gis
+    name: dcp_mandatory_inclusionary_housing
+  target_crs: EPSG:4326
+  file_format:
+    type: shapefile
+    crs: EPSG:2263
+  processing_steps:
+    - name: clean_column_names
+      args: { "replace": { " ": "_" }, "lower": True }
+    - name: rename_columns
+      args:
+        map:
+          {
+            "geom": "wkb_geometry",
+            "projectnam": "project_name",
+            "dateadopte": "date_adopted",
+            "zr_ulurpno": "zr_ulurp_no",
+          }
+
+columns:
+  - id: boro
+    data_type: text
+  - id: status
+    data_type: text
+  - id: project_name
+    data_type: text
+  - id: date_adopted
+    data_type: date
+  - id: zr_ulurp_no
+    data_type: text
+  - id: zr_map
+    data_type: text
+  - id: cd
+    data_type: text
+  - id: mih_option
+    data_type: text
+  - id: project_id
+    data_type: text
+  - id: zoning_map
+    data_type: text
+  - id: shape_leng
+    data_type: decimal
+  - id: shape_area
+    data_type: decimal
+  - id: wkb_geometry
+    data_type: geometry
