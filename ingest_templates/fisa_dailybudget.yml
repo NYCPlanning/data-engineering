@@ -15,7 +15,7 @@ ingestion:
   source:
     type: s3
     bucket: edm-recipes
-    key: inbox/fisa_dailybudget/AIBL_DLY_BUD_96L1_20251108212622.asc
+    key: inbox/fisa_dailybudget/AIBL_DLY_BUD_96L1_20260220014024.asc
   file_format:
     type: csv 
     delimiter: "|"
@@ -46,7 +46,7 @@ ingestion:
   - name: update_column
     args:
       column_name: fisa_version
-      val: "20251108212622"
+      val: "20260220014024"
   - name: append_prev
   - name: deduplicate
     args:
