@@ -13,7 +13,7 @@ attributes:
     in agency code mappings. To address this, DCP Data Engineering and Application Engineering teams developed a unified 
     mapping by combining data from Checkbook NYC "Agency Codes List" (link: https://www.checkbooknyc.com/agency_codes/newwindow) 
     with additional information provided by OMB via email in summer 2025. DCP then manually refined the mappings, including 
-    updates to agency names and abbreviations where appropriate (for example, changing "DOITT" to "OTI"). 
+    updates to agency names and abbreviations where appropriate (e.g. changing "DOITT" to "OTI"). 
     The final mapping was reviewed and approved by the CAPS team and GDE leadership.
 
     Some codes in the dataset are mapped to "Unknown." This was an intentional choice by DCP, as these codes typically represent 
@@ -21,7 +21,7 @@ attributes:
     to support abbreviation-to-name mapping but are not intended for use in mapping codes to names.
 
     In addition to supporting CPDB and CBBR, this dataset may also be used as a reference for agency names and abbreviations across 
-    other DCP data products. 
+    other DCP data products (e.g. the Application Engineering team's APIs).
     
     It is not expected to change often. A full review may occur annually, using updated information from Checkbook NYC and, 
     if available, refreshed data from OMB.
@@ -36,11 +36,19 @@ ingestion:
     dtype: str
 
 columns:
-- id: agency_code
-  data_type: text
-- id: source
-  data_type: text
 - id: managing_agency_acronym
   data_type: text
 - id: managing_agency
+  data_type: text
+- id: manages_capital_projects
+  data_type: bool
+- id: operates_facilities
+  data_type: bool
+- id: source
+  data_type: text
+- id: agency_code
+  data_type: text
+- id: overlevel
+  data_type: text
+- id: optype
   data_type: text
