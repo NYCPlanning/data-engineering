@@ -20,11 +20,6 @@ WITH questionable_assignments AS (
         mlo.cleaned_option,
         mlo.perbblgeom AS pct_lot_covered,
         mlo.maxpermihgeom AS pct_mih_covered,
-        -- Calculate how "iffy" this assignment is (lower scores = more questionable)
-        LEAST(
-            CASE WHEN mlo.perbblgeom >= 10 THEN mlo.perbblgeom ELSE 0 END,
-            CASE WHEN mlo.maxpermihgeom >= 50 THEN mlo.maxpermihgeom ELSE 0 END
-        ) AS assignment_strength,
         p.geom AS lot_geom,
         p.address,
         p.zonedist1
@@ -45,11 +40,10 @@ SELECT
     cleaned_option,
     pct_lot_covered,
     pct_mih_covered,
-    assignment_strength,
     address,
     zonedist1,
     lot_geom,
     mih_geom,
     ST_ENVELOPE(ST_BUFFER(lot_geom, 0.005)) AS area_of_interest_geom
 FROM assignment_context
-ORDER BY assignment_strength ASC, pct_lot_covered ASC
+ORDER BY pct_lot_covered ASC
