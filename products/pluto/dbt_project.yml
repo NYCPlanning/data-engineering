@@ -8,7 +8,7 @@ test-paths: [ "tests" ]
 seeds:
   pluto:
     +quote_columns: true
-    +schema: public
+    +schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
 
 tests:
   +store_failures: true
