@@ -76,12 +76,12 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
             a.billingbbl,
             a.bldgcl,
             a.row_number,
-            c.type AS bldg_type
+            c."Type" AS bldg_type
         FROM bldgclass AS a, maxnum AS b, pluto_input_condo_bldgclass AS c
         WHERE
             b.maxrow_number >= 2
             AND a.billingbbl = b.billingbbl
-            AND a.bldgcl = c.code
+            AND a.bldgcl = c."Code"
         ORDER BY a.billingbbl
     )
 
