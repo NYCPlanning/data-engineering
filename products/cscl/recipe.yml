@@ -251,3 +251,25 @@ exports:
     filename: StatenIslandFace.txt
     format: dat
     custom: { formatting: face_code }
+
+  # Thin LION
+  - name: bronx_thin_lion
+    filename: BronxThinLION.txt
+    format: dat
+    custom: { formatting: thinlion }
+  - name: brooklyn_thin_lion
+    filename: BrooklynThinLION.txt
+    format: dat
+    custom: { formatting: thinlion }
+  - name: manhattan_thin_lion
+    filename: ManhattanThinLION.txt
+    format: dat
+    custom: { formatting: thinlion }
+  - name: queens_thin_lion
+    filename: QueensThinLION.txt
+    format: dat
+    custom: { formatting: thinlion }
+  - name: staten_island_thin_lion
+    filename: StatenIslandThinLION.txt
+    format: dat
+    custom: { formatting: thinlion }
