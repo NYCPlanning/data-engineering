@@ -1,0 +1,89 @@
+name: Recipe - 📥 Load to Database
+on: 
+  workflow_dispatch:
+    inputs:
+      product:
+        description: 'Target product'
+        required: true
+        type: choice
+        options:
+          - cbbr
+          - cdbg
+          - ceqr
+          - checkbook
+          - colp
+          - cpdb
+          - cscl
+          - devdb
+          - facilities
+          - factfinder
+          - green_fast_track
+          - pluto
+          - template
+          - ztl
+      recipe_file:
+        description: 'Recipe file name (without extension)'
+        type: string
+        required: true
+      schema:
+        description: 'Target schema'
+        type: string
+        required: true
+        default: 'recipe_cache'
+      image_tag:
+        description: 'Docker image tag'
+        type: string
+        required: false
+      dev_bucket:
+        description: 'Development bucket (optional)'
+        type: string
+        required: false
+
+jobs:
+  load:
+    name: Load Recipe to Database
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/${{ inputs.product }}
+    container: 
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
+    env:
+      BUILD_ENGINE_DB: db-${{ inputs.product }}
+      BUILD_NAME: ${{ inputs.recipe_file }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+      RECIPE_SCHEMA: ${{ inputs.schema }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+
+    - name: Finish container setup ...
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
+
+    - name: Set build environment variables
+      working-directory: ./
+      run: ./bash/build_env_setup.sh
+
+    - name: Plan build
+      run: python3 -m dcpy.lifecycle.builds.plan recipe
+
+    - name: Set recipe env vars
+      working-directory: ./
+      run: source ./bash/export_recipe_env.sh products/${{ inputs.product }}/${{ inputs.recipe_file }}.lock.yml 
+
+    - name: Dataloading
+      run: python3 -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
