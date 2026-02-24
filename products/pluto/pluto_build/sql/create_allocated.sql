@@ -181,12 +181,12 @@ WHERE pa.bbl = unit_appbbls.primebbl;
 -- fill in missing attributes from supplementary table (temp solution)
 UPDATE pluto_allocated a
 SET
-    lotarea = b.landsize,
-    numfloors = b.story,
-    yearbuilt = b.yearbuilt
+    lotarea = b."LandSize",
+    numfloors = b."Story",
+    yearbuilt = b."YearBuilt"
 FROM pluto_input_condolot_descriptiveattributes AS b
 WHERE
-    a.bbl = b.parid
+    a.bbl = b."PARID"
     AND a.lotarea::numeric = 0
     AND a.numfloors::numeric = 0
     AND a.yearbuilt::numeric = 0;
