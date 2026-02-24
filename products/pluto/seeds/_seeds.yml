@@ -50,6 +50,11 @@ seeds:
     
   - name: pluto_input_bsmtcode
     description: Basement type codes and classifications
+    config:
+      column_types:
+        bsmnt_type: text
+        bsmntgradient: text
+        bsmtcode: text
     
   - name: lookup_bldgclass
     description: Building class lookup table with descriptions
