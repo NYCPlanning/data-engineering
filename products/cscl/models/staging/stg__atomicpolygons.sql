@@ -10,6 +10,7 @@ SELECT
     borough AS borocode,
     censustract_2000,
     left(censustract_2000, 4)::INT AS censustract_2000_basic,
+    -- TODO: you might need this for thinlion outputs
     nullif(right(censustract_2000, 2), '00')::INT AS censustract_2000_suffix,
     censustract_2010,
     left(censustract_2010, 4)::INT AS censustract_2010_basic,
