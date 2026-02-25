@@ -62,7 +62,7 @@ jobs:
       run: dcpy lc builds plan ${{ inputs.plan_command }}
 
     - name: Dataloading
-      run: dcpy lc builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema source_data --cached-entity-type view
+      run: dcpy lc builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
 
     - name: Build
       run: |
