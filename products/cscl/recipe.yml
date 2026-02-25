@@ -253,6 +253,10 @@ exports:
     custom: { formatting: face_code }
 
   # Thin LION
+  - name: thin_lion
+    filename: nyc.thinlion
+    format: dat
+    custom: { formatting: thinlion }
   - name: bronx_thin_lion
     filename: BronxThinLION.txt
     format: dat
