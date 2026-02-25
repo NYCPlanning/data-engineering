@@ -1,4 +1,5 @@
-name: Recipe - 📥 Load to Database
+name: Recipe 🧑🏽‍🍳 - Plan and Load
+run-name: "Recipe 🧑🏽‍🍳 - Plan and Load: ${{ inputs.product }} <- ${{ inputs.recipe_file }}.yml"
 on: 
   workflow_dispatch:
     inputs:
@@ -25,6 +26,7 @@ on:
         description: 'Recipe file name (without extension)'
         type: string
         required: true
+        default: 'recipe'
       schema:
         description: 'Target schema'
         type: string
@@ -51,7 +53,7 @@ jobs:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_ENGINE_DB: db-${{ inputs.product }}
-      BUILD_NAME: ${{ inputs.recipe_file }}
+      BUILD_NAME: ${{ inputs.schema }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
@@ -69,6 +71,10 @@ jobs:
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
         BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
+        BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
+        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+        BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
     - name: Finish container setup ...
       working-directory: ./
