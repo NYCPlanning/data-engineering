@@ -37,8 +37,6 @@ As of Phase 1 of the DBT migration, **01a_dbt_staging.sh must run before 02_buil
 ## Running the Build
 
 ```bash
-# Full build sequence (after recipe loads data):
-./00_setup.sh
 ./01a_dbt_staging.sh  # 🆕 DBT seeds + staging models
 ./02_build.sh
 ./03_corrections.sh
