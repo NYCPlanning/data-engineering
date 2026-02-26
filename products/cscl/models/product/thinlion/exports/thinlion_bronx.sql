@@ -1,1 +1,1 @@
-{{ select_rows_as_text(model='thinlion_by_field', where="borough='2'") }}
+{{ select_rows_as_text(model='thinlion_bronx_by_field') }}
