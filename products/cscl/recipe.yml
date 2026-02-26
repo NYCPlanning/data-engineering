@@ -91,6 +91,31 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDBeat
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nypdprecinct
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NYPDPrecinct
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nypdpatrolborough
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NYPDPatrolBorough
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censustract2010
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusTract2010
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censustract2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusTract2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_healtharea
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: HealthArea
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_roadbed_pointer_list
     custom:
       filename: ETL Working GDB.gdb.zip
