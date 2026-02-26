@@ -1,11 +1,11 @@
 WITH atomic_polygons_with_lookups AS (
     SELECT
         ap.borocode AS borough,
-        ap.censustract_2020,
+        ap.censustract_2020 AS census_tract_2020,
         RIGHT(ap.atomicid, 3) AS dynamic_block,
-        ap.censusblock_2020_basic,
-        ap.censusblock_2020_suffix,
-        ap.censustract_1990,
+        ap.censusblock_2020_basic AS census_block_2020,
+        ap.censusblock_2020_suffix AS census_block_suffix_2020,
+        ap.censustract_1990 AS census_tract_1990,
         ct2010.cd_eligibility AS community_development_eligibility,
         ap.commdist AS community_district,
         ct2010.mcea AS minor_census_economic_area,
@@ -25,9 +25,9 @@ WITH atomic_polygons_with_lookups AS (
         ap.borocode AS sanborn_borough_3,
         ap.sb3_volume AS sanborn_volume_3,
         ap.sb3_page AS sanborn_page_3,
-        ap.censustract_2000,
-        ap.censusblock_2000_basic,
-        ap.censusblock_2000_suffix,
+        ap.censustract_2000 AS census_tract_2000,
+        ap.censusblock_2000_basic AS census_block_2000,
+        ap.censusblock_2000_suffix AS census_block_suffix_2000,
         ap.assemdist AS assembly_district,
         ap.electdist AS election_district,
         ap.hurricane_evacuation_zone,
@@ -42,10 +42,10 @@ WITH atomic_polygons_with_lookups AS (
             WHEN pb.patrol_borough = 'Queens South' THEN '8'
         END AS patrol_borough,
         beat.sector AS police_sector,
-        ap.censustract_2010_basic,
-        ap.censustract_2010_suffix,
-        ap.censusblock_2010_basic,
-        ap.censusblock_2010_suffix,
+        ap.censustract_2010_basic AS census_tract_2010_basic,
+        ap.censustract_2010_suffix AS census_tract_2010_suffix,
+        ap.censusblock_2010_basic AS census_block_2010,
+        ap.censusblock_2010_suffix AS census_block_suffix_2010,
         ct2020.neighborhood_code AS nta2020,
         ct2020.cdta_code AS cdta,
         ap.commercial_waste_zone AS cwz,
@@ -72,5 +72,5 @@ WITH atomic_polygons_with_lookups AS (
 SELECT
     {{ apply_text_formatting_from_seed('text_formatting__thinlion_dat') }}
 FROM atomic_polygons_with_lookups
-ORDER BY censustract_2020, dynamic_block
+ORDER BY census_tract_2020, dynamic_block
 
