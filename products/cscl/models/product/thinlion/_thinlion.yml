@@ -21,6 +21,13 @@ models:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 3 }
 
+# Borough-specific filtered models
+- name: thinlion_manhattan_by_field
+- name: thinlion_bronx_by_field
+- name: thinlion_brooklyn_by_field
+- name: thinlion_queens_by_field
+- name: thinlion_statenisland_by_field
+
 # Borough export models with text output
 - name: thinlion_manhattan
   columns: &dat_column_123
