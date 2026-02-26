@@ -18,12 +18,12 @@ TL16,fire_company_number,Fire Company Number,3,42,44,RJZF,TRUE
 TL17,sanborn_borough_1,Sanborn Borough-1,1,45,45,RJZF,TRUE
 TL18,sanborn_volume_1,Sanborn Volume-1,3,46,48,LJSF,TRUE
 TL19,sanborn_page_1,Sanborn Page-1,4,49,52,LJSF,TRUE
-TL20,sanborn_borough_2,Sanborn Borough-2, if any,1,53,53,RJZF,TRUE
-TL21,sanborn_volume_2,Sanborn Volume-2, if any,3,54,56,LJSF,TRUE
-TL22,sanborn_page_2,Sanborn Page-2, if any,4,57,60,LJSF,TRUE
-TL23,sanborn_borough_3,Sanborn Borough-3, if any,1,61,61,RJZF,TRUE
-TL24,sanborn_volume_3,Sanborn Volume-3, if any,3,62,64,LJSF,TRUE
-TL25,sanborn_page_3,Sanborn Page-3, if any,4,65,68,LJSF,TRUE
+TL20,sanborn_borough_2,"Sanborn Borough-2, if any",1,53,53,RJZF,TRUE
+TL21,sanborn_volume_2,"Sanborn Volume-2, if any",3,54,56,LJSF,TRUE
+TL22,sanborn_page_2,"Sanborn Page-2, if any",4,57,60,LJSF,TRUE
+TL23,sanborn_borough_3,"Sanborn Borough-3, if any",1,61,61,RJZF,TRUE
+TL24,sanborn_volume_3,"Sanborn Volume-3, if any",3,62,64,LJSF,TRUE
+TL25,sanborn_page_3,"Sanborn Page-3, if any",4,65,68,LJSF,TRUE
 TL26,census_tract_2000,2000 Census Tract,6,69,74,RJZF,FALSE
 TL27,census_block_2000,2000 Census Block Basic,4,75,78,RJZF,FALSE
 TL28,census_block_suffix_2000,2000 Census Block Suffix,1,79,79,RJZF,TRUE
