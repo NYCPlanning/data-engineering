@@ -5,6 +5,7 @@ set_error_traps
 echo "Starting to build PLUTO ..."
 run_sql_file sql/preprocessing.sql
 run_sql_file sql/create_pts.sql
+run_sql_file sql/create_pluto_input_geocodes.sql
 run_sql_file sql/create_rpad_geo.sql
 
 echo 'Making DCP edits to RPAD...'

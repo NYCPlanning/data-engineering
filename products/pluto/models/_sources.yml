@@ -6,7 +6,7 @@ sources:
   tables:
   - name: pluto_input_research
   - name: pluto_input_cama_dof
-  - name: pluto_input_geocodes
+  - name: pluto_input_geocodes_raw
   - name: pluto_input_numbldgs
   - name: pluto_pts
   - name: previous_pluto
