@@ -19,7 +19,11 @@ matches_as_jsonb AS (
             WHEN prod.boroughcode IS NULL THEN '{"missing in prod": {}}'::jsonb
             ELSE
                 JSONB_OBJECT(ARRAY[
-                    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
+                    {%- for col in 
+                        adapter.get_columns_in_relation(
+                            source('production_outputs', 'citywide_lion_dat')
+                        )
+                    -%}
                         '{{ col.column }}', JSON_BUILD_OBJECT(
                             'match', dev."{{ col.column }}" = prod."{{ col.column }}",
                             'dev', dev."{{ col.column }}",
