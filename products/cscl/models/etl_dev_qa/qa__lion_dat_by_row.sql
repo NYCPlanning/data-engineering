@@ -5,17 +5,17 @@ WITH lion_dat_fields AS (
     SELECT * FROM {{ ref('lion_dat_by_field') }}
 ),
 production_lion AS (
-    SELECT * FROM {{ source('production_outputs', 'citywide_lion') }}
+    SELECT * FROM {{ source('production_outputs', 'citywide_lion_dat') }}
 )
 SELECT -- noqa: LT09
     dev._source_table,
     ARRAY_REMOVE(ARRAY[
-        {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
+        {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
             CASE WHEN dev."{{ col.column }}" <> prod."{{ col.column }}" THEN '{{ col.column }}' END
             {%- if not loop.last -%},{% endif %}
         {%- endfor %}
     ], NULL) AS columns_with_diffs
-{%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
+{%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
     {%- if loop.first -%},{% endif %}
     dev."{{ col.column }}" AS "{{ col.column }}_dev",
     prod."{{ col.column }}" AS "{{ col.column }}_prod"
@@ -30,7 +30,7 @@ FULL JOIN production_lion AS prod --noqa: ST11
         AND dev.segmentid = prod.segmentid
 WHERE
     FALSE
-{%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
+{%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
     {%- if loop.first %} OR{% endif %}
     (dev."{{ col.column }}" IS DISTINCT FROM prod."{{ col.column }}") OR
     {%- if loop.last %} FALSE{% endif %}

@@ -5,7 +5,7 @@ WITH lion_dat_fields AS (
     SELECT * FROM {{ ref('lion_dat_by_field') }}
 ),
 production_lion AS (
-    SELECT * FROM {{ source('production_outputs', 'citywide_lion') }}
+    SELECT * FROM {{ source('production_outputs', 'citywide_lion_dat') }}
 ),
 summary AS (
     SELECT
@@ -17,7 +17,7 @@ summary AS (
         -- noqa: disable=LT01,LT05,LT06,ST08
         COUNT(*) FILTER (WHERE prod.segmentid IS NULL) AS missing_key_in_production,
         COUNT(*) FILTER (WHERE dev.segmentid IS NULL) AS missing_key_in_dev
-    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
+    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
         {%- if loop.first -%},{% endif %}
         COUNT(*) FILTER (WHERE dev."{{ col.column }}" <> prod."{{ col.column }}") AS "{{ col.column }}"
         {%- if not loop.last -%},{% endif %}
