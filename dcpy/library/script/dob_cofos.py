@@ -6,6 +6,9 @@ from dcpy.connectors.edm import recipes
 from . import df_to_tempfile
 from .scriptor import ScriptorInterface
 
+from dcpy.connectors.edm import recipes
+from dcpy.utils import s3
+
 
 class Scriptor(ScriptorInterface):
     @property
@@ -18,7 +21,12 @@ class Scriptor(ScriptorInterface):
         return str(version)
 
     def ingest(self) -> pd.DataFrame:
-        df = pd.read_csv(self.source["path"], dtype=str)
+        data = s3.get_file_as_stream(
+            "edm-private",
+            f"dob_cofos/{self.version}/dob_cofos.csv",
+        )
+        df = pd.read_csv(data)
+
         df.insert(0, "v", self.version)
         # add the extra column and assign the missing columns to None
         df.insert(df.shape[1], "docstatus", None)
