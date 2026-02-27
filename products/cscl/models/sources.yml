@@ -45,7 +45,7 @@ sources:
 - name: production_outputs
   schema: production_outputs
   tables:
-  - name: citywide_lion
+  - name: citywide_lion_dat
   - name: saf_abcegnpx_generic
   - name: saf_abcegnpx_roadbed
   - name: saf_d_generic
