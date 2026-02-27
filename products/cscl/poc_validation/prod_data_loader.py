@@ -156,16 +156,17 @@ def _load(
     """
     Primary purpose is to load production outputs for comparison to outputs of this pipeline
     """
-    if not version or local:
+    if not (version or local):
         raise Exception(
             "Either specify loading locally with '-l' flag or specify version to pull from s3 with '-v' flag"
         )
 
-    for dataset in datasets:
-        file_name = datasets_by_name[dataset].file_name
-        s3.download_file(
-            "edm-private", f"cscl_etl/{version}/{file_name}", local_folder / file_name
-        )
+    if not local:
+        for dataset in datasets:
+            file_name = datasets_by_name[dataset].file_name
+            s3.download_file(
+                "edm-private", f"cscl_etl/{version}/{file_name}", local_folder / file_name
+            )
 
     load_datasets(datasets, local_folder)
 
