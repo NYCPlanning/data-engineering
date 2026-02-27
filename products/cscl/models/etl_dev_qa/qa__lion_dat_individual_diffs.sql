@@ -5,7 +5,7 @@ WITH lion_dat_fields AS (
     SELECT * FROM {{ ref('lion_dat_by_field') }}
 ),
 production_lion AS (
-    SELECT * FROM {{ source('production_outputs', 'citywide_lion') }}
+    SELECT * FROM {{ source('production_outputs', 'citywide_lion_dat') }}
 ),
 matches_as_jsonb AS (
     SELECT
@@ -19,7 +19,7 @@ matches_as_jsonb AS (
             WHEN prod.boroughcode IS NULL THEN '{"missing in prod": {}}'::jsonb
             ELSE
                 JSONB_OBJECT(ARRAY[
-                    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
+                    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
                         '{{ col.column }}', JSON_BUILD_OBJECT(
                             'match', dev."{{ col.column }}" = prod."{{ col.column }}",
                             'dev', dev."{{ col.column }}",
@@ -38,7 +38,7 @@ matches_as_jsonb AS (
             AND dev.segmentid = prod.segmentid
     WHERE
         FALSE
-    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion')) -%}
+    {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
         {%- if loop.first %} OR{% endif %}
         (dev."{{ col.column }}" IS DISTINCT FROM prod."{{ col.column }}") OR
         {%- if loop.last %} FALSE{% endif %}
