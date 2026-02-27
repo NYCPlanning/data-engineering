@@ -186,7 +186,7 @@ SET
     yearbuilt = b.yearbuilt
 FROM pluto_input_condolot_descriptiveattributes AS b
 WHERE
-    a.bbl = b.parid
+    a.bbl = b.PARID
     AND a.lotarea::numeric = 0
     AND a.numfloors::numeric = 0
     AND a.yearbuilt::numeric = 0;

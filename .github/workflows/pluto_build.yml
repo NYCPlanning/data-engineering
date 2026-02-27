@@ -81,10 +81,10 @@ jobs:
     - name: Dataloading
       working-directory: products/pluto
       run: python3 -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file
-        }}.lock.yml
+        }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
 
-    - name: Load Local Data
-      run: ./01_load_local_csvs.sh
+    - name: Load Local Data and DBT Staging
+      run: ./01a_dbt_staging.sh
 
     - name: building ...
       run: ./02_build.sh

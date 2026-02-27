@@ -1,29 +1,20 @@
 -- change all wkb_geometry to geom
-ALTER TABLE dcp_ct2010_wi RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_cb2010_wi RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_ct2020_wi RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_cb2020_wi RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_edesignation RENAME wkb_geometry TO geom;
-ALTER TABLE lpc_historic_districts RENAME wkb_geometry TO geom;
-ALTER TABLE lpc_landmarks RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_cdboundaries_wi RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_school_districts RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_councildistricts_wi RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_firecompanies RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_policeprecincts RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_healthareas RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_healthcenters RENAME wkb_geometry TO geom;
-ALTER TABLE dsny_frequencies RENAME wkb_geometry TO geom;
-ALTER TABLE dpr_greenthumb RENAME wkb_geometry TO geom;
-ALTER TABLE dof_dtm RENAME wkb_geometry TO geom;
-ALTER TABLE dof_shoreline RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_commercialoverlay RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_limitedheight RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_zoningdistricts RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_specialpurpose RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_specialpurposesubdistricts RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_zoningmapamendments RENAME wkb_geometry TO geom;
-ALTER TABLE dcp_zoningmapindex RENAME wkb_geometry TO geom;
-ALTER TABLE fema_firms2007_100yr RENAME wkb_geometry TO geom;
-ALTER TABLE fema_pfirms2015_100yr RENAME wkb_geometry TO geom;
-ALTER TABLE doitt_zipcodeboundaries RENAME wkb_geometry TO geom;
+-- Census/boundary datasets now handled by DBT staging models:
+-- dcp_ct2010_wi, dcp_cb2010_wi, dcp_ct2020_wi, dcp_cb2020_wi,
+-- dcp_cdboundaries_wi, dcp_school_districts, dcp_councildistricts_wi, doitt_zipcodeboundaries
+-- lpc_landmarks, lpc_historic_districts, dcp_edesignation now handled by DBT staging models
+-- Zoning datasets now handled by DBT staging models:
+-- dcp_commercialoverlay, dcp_limitedheight, dcp_zoningdistricts, dcp_specialpurpose,
+-- dcp_specialpurposesubdistricts, dcp_zoningmapamendments, dcp_zoningmapindex
+-- Public services datasets now handled by DBT staging models:
+-- dcp_firecompanies, dcp_policeprecincts, dcp_healthareas, dcp_healthcenters,
+-- dsny_frequencies, dcp_colp, dpr_greenthumb
+-- DOF/tax datasets now handled by DBT staging models:
+-- dof_condo, dof_dtm, dof_shoreline
+-- PLUTO input datasets now handled by DBT staging models:
+-- pluto_input_cama_dof, pluto_input_geocodes, pluto_input_numbldgs
+-- Flood/infrastructure datasets now handled by DBT staging models:
+-- fema_firms2007_100yr, fema_pfirms2015_100yr, dcp_transit_zones,
+-- dcp_gis_mandatory_inclusionary_housing
+
+-- All geometry column transformations now handled by DBT staging models!

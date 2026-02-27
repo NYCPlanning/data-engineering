@@ -5,6 +5,43 @@ sources:
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
   - name: pluto_input_research
+  - name: pluto_input_cama_dof
+  - name: pluto_input_geocodes_raw
+  - name: pluto_input_numbldgs
+  - name: pluto_pts
+  - name: previous_pluto
+  - name: lpc_landmarks
+  - name: lpc_historic_districts
+  - name: dcp_edesignation
+  - name: dcp_councildistricts_wi
+  - name: dcp_cb2010_wi
+  - name: dcp_cb2020_wi
+  - name: dcp_ct2010_wi
+  - name: dcp_ct2020_wi
+  - name: dcp_cdboundaries_wi
+  - name: doitt_zipcodeboundaries
+  - name: dcp_school_districts
+  - name: dcp_zoningdistricts
+  - name: dcp_commercialoverlay
+  - name: dcp_limitedheight
+  - name: dcp_specialpurpose
+  - name: dcp_specialpurposesubdistricts
+  - name: dcp_zoningmapamendments
+  - name: dcp_zoningmapindex
+  - name: dcp_firecompanies
+  - name: dcp_policeprecincts
+  - name: dcp_healthareas
+  - name: dcp_healthcenters
+  - name: dsny_frequencies
+  - name: dcp_colp
+  - name: dpr_greenthumb
+  - name: dof_condo
+  - name: dof_dtm
+  - name: dof_shoreline
+  - name: fema_firms2007_100yr
+  - name: fema_pfirms2015_100yr
+  - name: dcp_transit_zones
+  - name: dcp_gis_mandatory_inclusionary_housing
   - name: dcp_developments
     description: >-
       Contains changes in units resulting from new buildings, major alterations, and
@@ -44,8 +81,6 @@ sources:
             ]
     - name: date_complete
 
-  - name: pluto_pts
-
 - name: build_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
@@ -59,5 +94,4 @@ sources:
   - name: previous_pluto
   - name: export_pluto
     description: final PLUTO table
-  - name: dcp_zoningdistricts
   - name: dcp_zoning_maxfar

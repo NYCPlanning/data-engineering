@@ -27,7 +27,7 @@ CREATE TABLE limitedheightperorder AS (
             ) AS segzonegeom,
             ST_AREA(n.geom) AS allzonegeom
         FROM pluto AS p
-        INNER JOIN dcp_limitedheight AS n
+        INNER JOIN stg__dcp_limitedheight AS n
             ON ST_INTERSECTS(p.geom, n.geom)
     )
 

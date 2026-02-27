@@ -12,7 +12,7 @@ WHERE a.ycoord !~ '[0-9]';
 
 UPDATE pluto a
 SET cd = b.borocd
-FROM dcp_cdboundaries_wi AS b
+FROM stg__dcp_cdboundaries_wi AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.cd IS NULL
@@ -22,29 +22,29 @@ UPDATE pluto a
 SET
     ct2010 = LEFT(b.ct2010, 4) || '.' || RIGHT(b.ct2010, 2),
     tract2010 = LEFT(b.ct2010, 4) || '.' || RIGHT(b.ct2010, 2)
-FROM dcp_ct2010_wi AS b
+FROM stg__dcp_ct2010_wi AS b
 WHERE
     a.geom && b.geom AND ST_WITHIN(a.centroid, b.geom)
     AND (a.ct2010 IS NULL OR a.ct2010::numeric = 0);
 
 UPDATE pluto a SET
     cb2010 = COALESCE(a.cb2010, b.cb2010)
-FROM dcp_cb2010_wi AS b
+FROM stg__dcp_cb2010_wi AS b
 WHERE a.geom && b.geom AND ST_WITHIN(a.centroid, b.geom);
 
 UPDATE pluto a SET
     bct2020 = COALESCE(a.bct2020, b.boroct2020)
-FROM dcp_ct2020_wi AS b
+FROM stg__dcp_ct2020_wi AS b
 WHERE a.geom && b.geom AND ST_WITHIN(a.centroid, b.geom);
 
 UPDATE pluto a SET
     bctcb2020 = COALESCE(a.bctcb2020, b.bctcb2020)
-FROM dcp_cb2020_wi AS b
+FROM stg__dcp_cb2020_wi AS b
 WHERE a.geom && b.geom AND ST_WITHIN(a.centroid, b.geom);
 
 UPDATE pluto a
 SET schooldist = b.schooldist
-FROM dcp_school_districts AS b
+FROM stg__dcp_school_districts AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.schooldist IS NULL
@@ -52,7 +52,7 @@ WHERE
 
 UPDATE pluto a
 SET council = LTRIM(b.coundist::text, '0')
-FROM dcp_councildistricts_wi AS b
+FROM stg__dcp_councildistricts_wi AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.council IS NULL
@@ -60,7 +60,7 @@ WHERE
 
 UPDATE pluto a
 SET firecomp = b.firecotype || LPAD(b.fireconum::text, 3, '0')
-FROM dcp_firecompanies AS b
+FROM stg__dcp_firecompanies AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.firecomp IS NULL
@@ -68,7 +68,7 @@ WHERE
 
 UPDATE pluto a
 SET policeprct = b.precinct
-FROM dcp_policeprecincts AS b
+FROM stg__dcp_policeprecincts AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.policeprct IS NULL
@@ -76,7 +76,7 @@ WHERE
 
 UPDATE pluto a
 SET healthcenterdistrict = b.hcentdist
-FROM dcp_healthcenters AS b
+FROM stg__dcp_healthcenters AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.healthcenterdistrict IS NULL
@@ -84,7 +84,7 @@ WHERE
 
 UPDATE pluto a
 SET healtharea = b.healtharea
-FROM dcp_healthareas AS b
+FROM stg__dcp_healthareas AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.healtharea IS NULL
@@ -94,7 +94,7 @@ UPDATE pluto a
 SET
     sanitdistrict = LEFT(schedulecode, 3),
     sanitsub = RIGHT(schedulecode, 2)
-FROM dsny_frequencies AS b
+FROM stg__dsny_frequencies AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND (a.sanitsub IS NULL OR a.sanitsub = ' ')
@@ -102,7 +102,7 @@ WHERE
 
 UPDATE pluto a
 SET zipcode = b.zipcode
-FROM doitt_zipcodeboundaries AS b
+FROM stg__doitt_zipcodeboundaries AS b
 WHERE
     ST_WITHIN(a.centroid, b.geom)
     AND a.zipcode IS NULL
