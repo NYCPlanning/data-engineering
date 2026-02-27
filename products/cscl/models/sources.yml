@@ -24,6 +24,11 @@ sources:
   - name: dcp_cscl_lastword
   - name: dcp_cscl_namedintersection
   - name: dcp_cscl_nypdbeat
+  - name: dcp_cscl_censustract2010
+  - name: dcp_cscl_censustract2020
+  - name: dcp_cscl_healtharea
+  - name: dcp_cscl_nypdprecinct
+  - name: dcp_cscl_nypdpatrolborough
   - name: dcp_cscl_roadbed_pointer_list
   - name: dcp_cscl_sectionalmap
   - name: dcp_cscl_sedat
