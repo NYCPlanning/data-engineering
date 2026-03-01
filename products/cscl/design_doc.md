@@ -5,7 +5,7 @@ description: |
   This document can be converted to word doc with the following command
 
   ```
-  pandoc design_doc.md -o design_doc.docx --standalone --table-of-contents --number-sections --filter mermaid-filter
+  pandoc design_doc.md -o design_doc.docx --standalone --table-of-contents --number-sections --filter mermaid-filter --reference-doc=./docs/design_doc_style_template.docx
   ```
 author:
   - "Finn van Krieken"
