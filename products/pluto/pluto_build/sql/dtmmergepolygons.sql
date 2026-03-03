@@ -1,7 +1,7 @@
 --copy condo table from source DOF
 DROP TABLE IF EXISTS pluto_dtm;
 CREATE TABLE pluto_dtm AS (
-    SELECT * FROM dof_dtm
+    SELECT * FROM stg__dof_dtm
 );
 ALTER TABLE pluto_dtm ADD COLUMN primebbl text;
 
