@@ -84,6 +84,7 @@ jobs:
         }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
 
     - name: Load Local Data and DBT Staging
+      working-directory: products/pluto
       run: ./01a_dbt_staging.sh
 
     - name: building ...
