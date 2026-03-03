@@ -1,0 +1,50 @@
+version: 2
+
+models:
+- name: thinlion_by_field
+  columns:
+    - name: borough
+      data_type: string
+      tests:
+      - not_null
+      - accepted_values:
+          arguments:
+            values: [ "1", "2", "3", "4", "5" ]
+    - name: census_tract_2020
+      data_type: string
+      tests:
+      - not_null
+    - name: dynamic_block
+      data_type: string
+      tests:
+      - not_null
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 3 }
+
+# Borough-specific filtered models
+- name: thinlion_manhattan_by_field
+- name: thinlion_bronx_by_field
+- name: thinlion_brooklyn_by_field
+- name: thinlion_queens_by_field
+- name: thinlion_statenisland_by_field
+
+# Borough export models with text output
+- name: thinlion_manhattan
+  columns: &dat_column_123
+    - name: dat_column
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 123 }
+
+- name: thinlion_bronx
+  columns: *dat_column_123
+
+- name: thinlion_brooklyn
+  columns: *dat_column_123
+
+- name: thinlion_queens
+  columns: *dat_column_123
+
+- name: thinlion_statenisland
+  columns: *dat_column_123
