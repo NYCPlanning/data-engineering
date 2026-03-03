@@ -33,8 +33,9 @@ models:
   - name: b7sc
     tests:
     - unique:
-        config: { where: "b7sc IS NOT NULL" }
-        error_if: "> 1"
+        arguments:
+          config: { where: "b7sc IS NOT NULL" }
+          error_if: "> 1"
   - name: lookup_key
   - name: face_code
 
