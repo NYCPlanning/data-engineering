@@ -85,7 +85,7 @@ jobs:
 
     - name: Load Local Data and DBT Staging
       working-directory: products/pluto
-      run: ./01a_dbt_staging.sh
+      run: ./pluto_build/01a_dbt_staging.sh
 
     - name: building ...
       run: ./02_build.sh
