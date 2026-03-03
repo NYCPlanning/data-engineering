@@ -1,0 +1,7 @@
+version: 2
+
+models:
+- name: int__rpl
+  columns:
+  - name: rpl_id
+    tests: [ unique, not_null ]

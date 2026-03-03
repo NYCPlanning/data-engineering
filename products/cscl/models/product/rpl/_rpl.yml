@@ -1,0 +1,63 @@
+version: 2
+
+models:
+- name: rpl_by_field
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: generic_segmentid
+    data_type: string
+  - name: generic_segmenttype
+    data_type: string
+  - name: roadbed_segmentid
+    data_type: string
+  - name: filler_rpl3
+    data_type: string
+  - name: roadbed_position_code
+    data_type: string
+  - name: filler_rpl4
+    data_type: string
+  - name: node_correspondence_indicator
+    data_type: string
+  - name: filler_rpl5
+    data_type: string
+  - name: from_node_level_code_of_coincident_roadbed_segment
+    data_type: string
+  - name: filler_rpl6
+    data_type: string
+  - name: to_node_level_code_of_coincident_roadbed_segment
+    data_type: string
+  - name: filler_rpl7
+    data_type: string
+  - name: from_nodeid_of_roadbed_segment
+    data_type: string
+  - name: filler_rpl8
+    data_type: string
+  - name: from_nodeid_of_generic_segment
+    data_type: string
+  - name: filler_rpl9
+    data_type: string
+  - name: to_nodeid_of_roadbed_segment
+    data_type: string
+  - name: filler_rpl10
+    data_type: string
+  - name: to_nodeid_of_generic_segment
+    data_type: string
+data_tests:
+- test_name: dbt_utils.unique_combination_of_columns
+  arguments:
+    combination_of_columns:
+    - generic_segmentid
+    - roadbed_segmentid
+
+- name: rpl
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: dat_column
+    data_type: string
+    tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 59 }
