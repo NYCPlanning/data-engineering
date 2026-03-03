@@ -154,7 +154,7 @@ def _load(
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
 ):
     """
-    Primary purpose is to load production outputs for comparison to outputs of this pipeline
+    Primary purpose is to load production outputs for comparison to outputs of this pipeline.
     """
     if not (version or local):
         raise Exception(
