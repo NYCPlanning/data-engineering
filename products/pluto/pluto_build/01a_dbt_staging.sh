@@ -1,9 +1,9 @@
 #!/bin/bash
-source ./bash/config.sh
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$SCRIPT_DIR/bash/config.sh"
 set_error_traps
 
 echo "Setup dbt"
-cd ..
 dbt deps --profiles-dir .
 dbt debug --profiles-dir .
 
@@ -22,5 +22,3 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "✓ DBT staging models materialized successfully"
-
-cd pluto_build
