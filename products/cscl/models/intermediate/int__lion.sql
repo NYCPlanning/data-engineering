@@ -255,6 +255,7 @@ SELECT
     segments.feature_type_description,
     segments.source_table,
     segments.geom,
+    segments.midpoint,
     segments.globalid,
     CASE
         WHEN segments.source_table = 'centerline' THEN centerline.include_in_geosupport_lion
