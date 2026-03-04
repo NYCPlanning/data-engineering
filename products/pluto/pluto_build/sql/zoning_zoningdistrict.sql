@@ -26,7 +26,7 @@ CREATE TABLE validzones AS (
             ELSE zonedist
         END AS zonedist,
         ST_MAKEVALID(geom) AS geom
-    FROM dcp_zoningdistricts
+    FROM stg__dcp_zoningdistricts
     WHERE ST_GEOMETRYTYPE(ST_MAKEVALID(geom)) = 'ST_MultiPolygon'
 );
 

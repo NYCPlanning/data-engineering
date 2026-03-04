@@ -1,0 +1,24 @@
+#!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$SCRIPT_DIR/bash/config.sh"
+set_error_traps
+
+echo "Setup dbt"
+dbt deps --profiles-dir .
+dbt debug --profiles-dir .
+
+echo "Loading DBT seeds (lookup tables)..."
+dbt seed --profiles-dir . --target ${DBT_TARGET:-dev}
+if [ $? -ne 0 ]; then
+    echo "ERROR: DBT seeds failed to load"
+    exit 1
+fi
+echo "✓ DBT seeds loaded successfully"
+
+echo "Materializing DBT staging models..."
+dbt run --select staging --profiles-dir . --target ${DBT_TARGET:-dev}
+if [ $? -ne 0 ]; then
+    echo "ERROR: DBT staging models failed to materialize"
+    exit 1
+fi
+echo "✓ DBT staging models materialized successfully"

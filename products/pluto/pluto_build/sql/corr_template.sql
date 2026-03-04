@@ -4,7 +4,7 @@ INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
     a.:FIELD AS found_value
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     a.bbl = b.bbl
     AND b.field = :'FIELD'
@@ -12,7 +12,7 @@ WHERE
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = :'FIELD'
@@ -22,7 +22,7 @@ UPDATE pluto a
 SET
     :FIELD = b.new_value,
     dcpedited = 't'
-FROM pluto_input_research AS b
+FROM stg__pluto_input_research AS b
 WHERE
     b.bbl = a.bbl
     AND b.field = :'FIELD'
@@ -39,7 +39,7 @@ SELECT DISTINCT
     b.type,
     b.reason,
     b.version
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl IS NULL
     AND b.field = :'FIELD'
@@ -49,7 +49,7 @@ UPDATE pluto a
 SET
     :FIELD = b.new_value,
     dcpedited = 't'
-FROM pluto_input_research AS b
+FROM stg__pluto_input_research AS b
 WHERE
     b.bbl IS NULL
     AND b.field = :'FIELD'

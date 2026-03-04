@@ -5,10 +5,14 @@ profile: "dcp-de-postgres"
 model-paths: [ "models" ]
 test-paths: [ "tests" ]
 
+seeds:
+  pluto:
+    +quote_columns: true
+
 tests:
   +store_failures: true
   +severity: "{{ env_var('TEST_SEVERITY', 'error') }}"
-  schema: "_tests"
+  +schema: "_tests"
 
 vars:
   version: "{{ env_var('VERSION') }}"

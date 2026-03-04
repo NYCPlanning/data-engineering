@@ -1,7 +1,7 @@
 -- # Update lot area with lot area value from 18v2.1
 UPDATE pluto a
 SET lotarea = b.lotarea
-FROM dcp_mappluto AS b
+FROM stg__dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND a.lotarea = '0'
@@ -27,7 +27,7 @@ UPDATE pluto a
 SET
     lotfront = b.lotfront,
     lotdepth = b.lotdepth
-FROM dcp_mappluto AS b
+FROM stg__dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND a.lotfront::numeric = 0
@@ -40,7 +40,7 @@ UPDATE pluto a
 SET
     bldgfront = b.bldgfront,
     bldgdepth = b.bldgdepth
-FROM dcp_mappluto AS b
+FROM stg__dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND a.bldgfront::numeric = 0
@@ -58,7 +58,7 @@ WHERE lotarea != '0' AND lotarea IS NOT NULL;
 -- # Update irrlotcode from 18v2.1
 UPDATE pluto a
 SET irrlotcode = b.irrlotcode
-FROM dcp_mappluto AS b
+FROM stg__dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND a.lotfront::numeric = b.lotfront::numeric
@@ -81,7 +81,7 @@ WHERE yearalter2::numeric < 1600;
 -- # Take zipcode from 18v2.1
 UPDATE pluto a
 SET zipcode = b.zipcode
-FROM dcp_mappluto AS b
+FROM stg__dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND LENGTH(b.zipcode::text) = 5
@@ -89,7 +89,7 @@ WHERE
 
 UPDATE pluto a
 SET zipcode = b.zipcode
-FROM dcp_mappluto AS b
+FROM stg__dcp_mappluto AS b
 WHERE
     a.bbl = b.bbl::bigint::text
     AND (a.zipcode::numeric != b.zipcode::numeric)

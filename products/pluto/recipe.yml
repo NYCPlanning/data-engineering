@@ -42,5 +42,6 @@ inputs:
     - name: lpc_landmarks
     - name: pluto_input_cama_dof
     - name: pluto_input_geocodes
+      import_as: pluto_input_geocodes_raw
     - name: pluto_input_numbldgs
     - name: pluto_pts
