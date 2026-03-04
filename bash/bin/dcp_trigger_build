@@ -1,0 +1,74 @@
+#!/bin/bash
+# Trigger GitHub Actions build workflow for current branch
+# Usage: dcp_trigger_build [dataset] [recipe] [build_note] [--no-tail]
+
+set -e
+
+# Parse options
+TAIL_LOGS=true
+ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--no-tail" ]; then
+        TAIL_LOGS=false
+    else
+        ARGS+=("$arg")
+    fi
+done
+
+DATASET="${ARGS[0]:-${DATASET}}"
+RECIPE="${ARGS[1]:-recipe}"
+BUILD_NOTE="${ARGS[2]}"
+BRANCH=$(git branch --show-current)
+
+if [ -z "$DATASET" ]; then
+    echo "Error: DATASET must be set as env var or passed as first argument"
+    echo "Usage: dcp_trigger_build <dataset> [recipe] [build_note] [--no-tail]"
+    echo "   or: DATASET=pluto dcp_trigger_build [recipe] [build_note] [--no-tail]"
+    exit 1
+fi
+
+echo "Triggering build workflow for:"
+echo "  Dataset: $DATASET"
+echo "  Recipe: $RECIPE"
+echo "  Branch: $BRANCH"
+if [ -n "$BUILD_NOTE" ]; then
+    echo "  Note: $BUILD_NOTE"
+fi
+echo ""
+
+WORKFLOW_ARGS=(
+    --ref "$BRANCH"
+    -f dataset_name="$DATASET"
+    -f recipe_file="$RECIPE"
+    -f test_severity=warn
+)
+
+if [ -n "$BUILD_NOTE" ]; then
+    WORKFLOW_ARGS+=(-f build_note="$BUILD_NOTE")
+fi
+
+gh workflow run build.yml "${WORKFLOW_ARGS[@]}"
+
+echo ""
+echo "✓ Workflow dispatched!"
+echo ""
+
+# Wait a moment for the run to appear in the API
+sleep 2
+
+# Get the most recent run for this workflow and branch
+RUN_INFO=$(gh run list --workflow=build.yml --branch="$BRANCH" --limit 1 --json databaseId,url --jq '.[0]')
+RUN_URL=$(echo "$RUN_INFO" | jq -r '.url')
+RUN_ID=$(echo "$RUN_INFO" | jq -r '.databaseId')
+
+if [ -n "$RUN_URL" ]; then
+    # Create clickable hyperlink using ANSI escape codes
+    echo -e "View run: \033]8;;${RUN_URL}\033\\${RUN_URL}\033]8;;\033\\"
+    if [ "$TAIL_LOGS" = true ]; then
+        echo ""
+        echo "Tailing logs..."
+        gh run watch "$RUN_ID"
+    fi
+else
+    echo "View runs: gh run list --workflow=build.yml --branch=$BRANCH"
+fi
