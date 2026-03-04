@@ -16,6 +16,8 @@ inputs:
     - name: dcp_developments # only used for data tests
     - name: dcp_edesignation
     - name: dcp_firecompanies
+    - name: dcp_gis_mandatory_inclusionary_housing
+    - name: dcp_transit_zones
     - name: dcp_healthareas
     - name: dcp_healthcenters
     - name: dcp_limitedheight
