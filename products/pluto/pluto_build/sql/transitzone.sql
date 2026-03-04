@@ -89,7 +89,7 @@ WITH block_unions AS (
         ON
             np.borough = p.borough
             AND np.block = p.block
-            AND ST_WITHIN(ST_CENTROID(p.geom), np.geom)
+            AND ST_WITHIN(ST_POINTONSURFACE(p.geom), np.geom)
     GROUP BY np.borough, np.block, np.sub_block, np.geom
 )
 SELECT
