@@ -221,9 +221,9 @@ FROM (
         AND NOT EXISTS (
             SELECT 1 FROM transit_zones_block_to_tz_ranked AS ambiguous
             WHERE
-                ambiguous.borough = block_tz.borough
-                AND ambiguous.block = block_tz.block
+                ambiguous.id = block_tz.id
                 AND ambiguous.tz_rank = 2
+                AND ambiguous.pct_covered > 10
         )
     UNION ALL
     -- Lot-level assignments for ambiguous blocks
