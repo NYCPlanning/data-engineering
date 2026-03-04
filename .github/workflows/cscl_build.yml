@@ -59,10 +59,10 @@ jobs:
         ./bash/build_env_setup.sh
 
     - name: Plan build
-      run: dcpy lc builds plan ${{ inputs.plan_command }}
+      run: dcpy lifecycle builds plan ${{ inputs.plan_command }}
 
     - name: Dataloading
-      run: dcpy lc builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
+      run: dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
 
     - name: Build
       run: |
@@ -73,7 +73,7 @@ jobs:
         dbt build --full-refresh
 
     - name: Export
-      run: dcpy lc builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
+      run: dcpy lifecycle builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
     - name: Validate against production outputs
       # TODO - this currently relies on version hard-coded in recipe.yml
