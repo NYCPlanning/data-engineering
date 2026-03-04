@@ -10,12 +10,13 @@ seeds:
       column_types:
         bbl: text
         pluto_version: text
-    
+   
   - name: pluto_input_research
-    description: Manual corrections and overrides for PLUTO data (27k rows)
+    description: Manual corrections and overrides for PLUTO data
     config:
       column_types:
         bbl: text
+        type: text
     columns:
       - name: bbl
         description: Borough-Block-Lot identifier
