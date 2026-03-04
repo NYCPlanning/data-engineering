@@ -4,7 +4,6 @@ sources:
 - name: recipe_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
   tables:
-  - name: pluto_input_research
   - name: pluto_input_cama_dof
   - name: pluto_input_geocodes_raw
   - name: pluto_input_numbldgs
