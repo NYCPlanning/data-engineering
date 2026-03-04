@@ -30,7 +30,7 @@
 --      lot-by-lot calculation when block-level assignment would be misleading.
 
 -- Create decomposed transit zones table (break multipolygons into individual parts)
-DROP TABLE IF EXISTS transit_zones_atomic_geoms;
+DROP TABLE IF EXISTS transit_zones_atomic_geoms CASCADE;
 CREATE TABLE transit_zones_atomic_geoms AS
 WITH decomposed AS (
     SELECT
@@ -52,7 +52,7 @@ CREATE INDEX idx_transit_zones_atomic_geoms_gix ON transit_zones_atomic_geoms US
 -- AR Note: I tried a few approaches for this, and perhaps there's a more clever/performant
 -- way to accomplish this. Unfortunately, the recommend approach of ST_ClusterDBSCAN
 -- will `sometimes` accomplish this, but it errors out seemingly randomly.
-DROP TABLE IF EXISTS transit_zones_tax_blocks;
+DROP TABLE IF EXISTS transit_zones_tax_blocks CASCADE;
 CREATE TABLE transit_zones_tax_blocks AS
 WITH block_unions AS (
     SELECT
@@ -104,7 +104,7 @@ CREATE INDEX idx_transit_zones_tax_blocks_geom ON transit_zones_tax_blocks USING
 
 
 -- Step 1: Calculate coverage percentages for all tax blocks
-DROP TABLE IF EXISTS transit_zones_block_to_tz_ranked;
+DROP TABLE IF EXISTS transit_zones_block_to_tz_ranked CASCADE;
 CREATE TABLE transit_zones_block_to_tz_ranked AS
 WITH block_to_tz AS (
     SELECT
@@ -140,7 +140,7 @@ ANALYZE transit_zones_block_to_tz_ranked;
 
 
 -- For ambiguous blocks (those with competing transit zones), create lot-level assignments
-DROP TABLE IF EXISTS transit_zones_bbl_to_tz_ranked;
+DROP TABLE IF EXISTS transit_zones_bbl_to_tz_ranked CASCADE;
 CREATE TABLE transit_zones_bbl_to_tz_ranked AS
 WITH ambiguous_bbls AS (
     SELECT
@@ -225,9 +225,7 @@ FROM (
                 AND ambiguous.block = block_tz.block
                 AND ambiguous.tz_rank = 2
         )
-
     UNION ALL
-
     -- Lot-level assignments for ambiguous blocks
     SELECT
         bbls[1] AS bbl,
