@@ -13,7 +13,6 @@ def cli():
     app = typer.Typer()
 
     app.add_typer(lifecycle.app, name="lifecycle")
-    app.add_typer(lifecycle.app, name="lc")  # alias
     app.add_typer(connectors.app, name="connectors")
     app.add_typer(utils.app, name="utils")
     app()

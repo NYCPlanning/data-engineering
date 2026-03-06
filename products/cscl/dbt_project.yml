@@ -6,7 +6,7 @@ model-paths: [ "models" ]
 
 tests:
   +store_failures: true
-  schema: "_tests"
+  +schema: "_tests"
 
 models:
   cscl:
