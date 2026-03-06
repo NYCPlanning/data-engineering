@@ -251,3 +251,8 @@ exports:
     filename: StatenIslandFace.txt
     format: dat
     custom: { formatting: face_code }
+
+  # Log file
+  - name: log
+    filename: log.csv
+    format: csv
