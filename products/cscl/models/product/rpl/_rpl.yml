@@ -6,6 +6,8 @@ models:
     contract:
       enforced: true
   columns:
+  - name: rpl_id
+    data_type: string
   - name: generic_segmentid
     data_type: string
   - name: generic_segmenttype
@@ -44,12 +46,12 @@ models:
     data_type: string
   - name: to_nodeid_of_generic_segment
     data_type: string
-data_tests:
-- test_name: dbt_utils.unique_combination_of_columns
-  arguments:
-    combination_of_columns:
-    - generic_segmentid
-    - roadbed_segmentid
+  data_tests:
+  - test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns:
+      - generic_segmentid
+      - roadbed_segmentid
 
 - name: rpl
   config:
