@@ -57,6 +57,7 @@ sources:
       records per a condominium.
 
   - name: previous_pluto
+  - name: pluto_geom
   - name: export_pluto
     description: final PLUTO table
   - name: dcp_zoningdistricts
