@@ -2,14 +2,14 @@
 
 # Expects two folders in current directory
 #  output - contains outputs of build
-#  prod - contains "production" 25a (or whatever version) for comparison
-mkdir validation_output
+#  .data/prod - contains "production" 25a (or whatever version) for comparison
+mkdir output/validation_output
 
 total_records=0
 total_mismatched=0
 for filepath in output/*; do
     file=$(basename "$filepath")
-    if [[ "$file" =~ "zip" ]]; then
+    if [[ "$file" =~ "zip" ]] || [[ -d "$filepath" ]]; then
         continue
     fi
     echo "Validating $file"
@@ -17,7 +17,7 @@ for filepath in output/*; do
     n_records="$(cat output/$file | wc -l |  awk '{print $1}')"
     echo "Total records:      $n_records"
     total_records=$(($total_records + $n_records))
-    mismatched_rows=$(comm -23 <(sort output/$file) <(sort prod/$file))
+    mismatched_rows=$(comm -23 <(sort output/$file) <(sort .data/prod/$file))
     
     if [ -z "$mismatched_rows" ]; then
         n_mismatched=0
@@ -27,7 +27,7 @@ for filepath in output/*; do
     echo "Mismatched records: $n_mismatched"
     total_mismatched=$(($total_mismatched + $n_mismatched))
 
-    echo -e "$mismatched_rows" > validation_output/$file
+    echo -e "$mismatched_rows" > output/validation_output/$file
     echo ""
 done
 
