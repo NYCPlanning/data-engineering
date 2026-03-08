@@ -1,0 +1,6 @@
+type: dagster_dbt.DbtProjectComponent
+
+attributes:
+  project: '{{ context.project_root }}/../../../../products/template'
+  translation:
+    group_name: template_db
