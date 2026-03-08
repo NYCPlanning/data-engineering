@@ -16,7 +16,7 @@ from dcpy.lifecycle.builds import plan
 from dcpy.utils import postgres, s3
 
 CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
-LOAD_FOLDER = Path("prod")
+LOAD_FOLDER = Path(".data/prod")
 
 version: str | None = None
 datasets_by_name = {}
