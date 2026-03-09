@@ -1,5 +1,6 @@
 #!/bin/bash
 # Trigger GitHub Actions build workflow for current branch
+# See action workflow file: .github/workflows/build.yml
 # Usage: dcp_trigger_build [dataset] [recipe] [build_note] [--no-tail]
 
 set -e
