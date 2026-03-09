@@ -1,0 +1,148 @@
+#!/bin/bash
+# Trigger GitHub Actions distribute workflow for a product
+# See action workflow file: .github/workflows/distribute_socrata_from_bytes.yml
+# Usage: dcp_distribute [product] [version] [--source <source>] [--datasets <d1,d2>]
+#          [--destination-tags <t1,t2>] [--destination-types <t1,t2>]
+#          [--publish] [--metadata-only] [--validate] [--dry-run] [--no-tail]
+
+set -e
+
+# Defaults
+TAIL_LOGS=true
+SOURCE="bytes"
+DESTINATION_TYPES="open_data"
+PUBLISH=false
+METADATA_ONLY=false
+VALIDATE=false
+DRY_RUN=false
+DATASETS=""
+DESTINATION_TAGS=""
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --no-tail)
+            TAIL_LOGS=false
+            shift
+            ;;
+        --source)
+            SOURCE="$2"
+            shift 2
+            ;;
+        --datasets)
+            DATASETS="$2"
+            shift 2
+            ;;
+        --destination-tags)
+            DESTINATION_TAGS="$2"
+            shift 2
+            ;;
+        --destination-types)
+            DESTINATION_TYPES="$2"
+            shift 2
+            ;;
+        --publish)
+            PUBLISH=true
+            shift
+            ;;
+        --metadata-only)
+            METADATA_ONLY=true
+            shift
+            ;;
+        --validate)
+            VALIDATE=true
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+
+PRODUCT="${POSITIONAL[0]:-${PRODUCT}}"
+VERSION="${POSITIONAL[1]:-${VERSION}}"
+BRANCH=$(git branch --show-current)
+
+if [ -z "$PRODUCT" ]; then
+    echo "Error: PRODUCT must be set as env var or passed as first argument"
+    echo "Usage: dcp_distribute <product> <version> [options]"
+    echo "   or: PRODUCT=pluto VERSION=25v1 dcp_distribute [options]"
+    echo ""
+    echo "Options:"
+    echo "  --source <source>             Source ID (default: bytes)"
+    echo "  --datasets <d1,d2>            Comma-separated list of datasets to push"
+    echo "  --destination-tags <t1,t2>    Comma-separated list of destination tags"
+    echo "  --destination-types <t1,t2>   Comma-separated list of destination types (default: open_data)"
+    echo "  --publish                     Publish the Socrata Revision"
+    echo "  --metadata-only               Only push metadata (including attachments)"
+    echo "  --validate                    Validate assembled dataset files"
+    echo "  --dry-run                     Perform a dry run (will just list destinations)"
+    echo "  --no-tail                     Do not tail workflow logs after dispatch"
+    exit 1
+fi
+
+if [ -z "$VERSION" ]; then
+    echo "Error: VERSION must be set as env var or passed as second argument"
+    echo "Usage: dcp_distribute <product> <version> [options]"
+    exit 1
+fi
+
+echo "Triggering distribute workflow for:"
+echo "  Product:           $PRODUCT"
+echo "  Version:           $VERSION"
+echo "  Source:            $SOURCE"
+echo "  Branch:            $BRANCH"
+[ -n "$DATASETS" ]          && echo "  Datasets:          $DATASETS"
+[ -n "$DESTINATION_TAGS" ]  && echo "  Destination tags:  $DESTINATION_TAGS"
+[ -n "$DESTINATION_TYPES" ] && echo "  Destination types: $DESTINATION_TYPES"
+[ "$PUBLISH" = true ]       && echo "  Publish:           true"
+[ "$METADATA_ONLY" = true ] && echo "  Metadata only:     true"
+[ "$VALIDATE" = true ]      && echo "  Validate files:    true"
+[ "$DRY_RUN" = true ]       && echo "  Dry run:           true"
+echo ""
+
+WORKFLOW_ARGS=(
+    --ref "$BRANCH"
+    -f product="$PRODUCT"
+    -f version="$VERSION"
+    -f source="$SOURCE"
+    -f destination_types="$DESTINATION_TYPES"
+    -f publish="$PUBLISH"
+    -f metadata_only="$METADATA_ONLY"
+    -f validate_dataset_files="$VALIDATE"
+    -f dry_run="$DRY_RUN"
+)
+
+[ -n "$DATASETS" ]         && WORKFLOW_ARGS+=(-f datasets="$DATASETS")
+[ -n "$DESTINATION_TAGS" ] && WORKFLOW_ARGS+=(-f destination_tags="$DESTINATION_TAGS")
+
+gh workflow run distribute_socrata_from_bytes.yml "${WORKFLOW_ARGS[@]}"
+
+echo ""
+echo "✓ Workflow dispatched!"
+echo ""
+
+# Wait a moment for the run to appear in the API
+sleep 2
+
+# Get the most recent run for this workflow and branch
+RUN_INFO=$(gh run list --workflow=distribute_socrata_from_bytes.yml --branch="$BRANCH" --limit 1 --json databaseId,url --jq '.[0]')
+RUN_URL=$(echo "$RUN_INFO" | jq -r '.url')
+RUN_ID=$(echo "$RUN_INFO" | jq -r '.databaseId')
+
+if [ -n "$RUN_URL" ]; then
+    # Create clickable hyperlink using ANSI escape codes
+    echo -e "View run: \033]8;;${RUN_URL}\033\\${RUN_URL}\033]8;;\033\\"
+    if [ "$TAIL_LOGS" = true ]; then
+        echo ""
+        echo "Tailing logs..."
+        gh run watch "$RUN_ID"
+    fi
+else
+    echo "View runs: gh run list --workflow=distribute_socrata_from_bytes.yml --branch=$BRANCH"
+fi
