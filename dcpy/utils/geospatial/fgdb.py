@@ -6,7 +6,7 @@ from osgeo import gdal
 from dcpy.models.data.shapefile_metadata import Metadata
 
 
-def read_metadata(gdb: Path, layer: str) -> Metadata | None:
+def read_metadata(gdb: Path, layer: str, as_string: bool = False) -> Metadata | None:
     with gdal.ExceptionMgr():
         layer_info = gdal.alg.vector.info(
             input=gdb,
@@ -19,9 +19,10 @@ def read_metadata(gdb: Path, layer: str) -> Metadata | None:
 
     if not metadata_info:
         return None
-    metadata = Metadata.from_xml(metadata_info)
-
-    return metadata
+    if as_string is True:
+        return metadata_info
+    else:
+        return Metadata.from_xml(metadata_info)
 
 
 def write_metadata(
