@@ -89,7 +89,7 @@ def _edit_layer_metadata_inplace(
         output=gdb,
         input_layer=intermediate_layer,
         output_layer=layer,
-        layer_creation_option=f"DOCUMENTATION='{metadata}'",
+        layer_creation_option=f"DOCUMENTATION={metadata}",
         overwrite_layer=True,
     )
     # delete intermediate layer
