@@ -3,6 +3,7 @@ from pytest import fixture
 import zipfile
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial import fgdb
+import pytest
 
 GDB_ZIP = "geodatabase.gdb.zip"
 FEATURE_CLASS = "mappluto_one_row"
@@ -40,15 +41,34 @@ def temp_metadata_object(utils_resources_path):
     md_object = Metadata.from_xml(xml_content)
     return md_object
 
+@fixture
+def path_fixture(request):
+    return request.getfixturevalue(request.param)
 
-# TODO - parameterize all tests
-def test_get_layers(temp_gdb_nonzipped_path):
-    layers = fgdb.get_layers(temp_gdb_nonzipped_path)
+gdb_paths = pytest.mark.parametrize(
+    "path_fixture",
+    [
+        pytest.param(
+            "temp_gdb_zip_path",
+            id="run_tests_on_zipped_gdb",
+        ),
+        pytest.param(
+            "temp_gdb_nonzipped_path",
+            id="run_tests_on_nonzipped_gdb",
+        ),
+    ],
+    indirect=True,
+)
+
+@gdb_paths
+def test_get_layers(path_fixture):
+    layers = fgdb.get_layers(path_fixture)
     assert layers == [FEATURE_CLASS, TABLE]
 
 
-def test_read_metadata(temp_gdb_nonzipped_path):
-    md = fgdb.read_metadata(gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS)
+@gdb_paths
+def test_read_metadata(path_fixture):
+    md = fgdb.read_metadata(gdb=path_fixture, layer=FEATURE_CLASS)
 
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
@@ -56,18 +76,18 @@ def test_read_metadata(temp_gdb_nonzipped_path):
     assert md.esri.crea_date == "20260203"
     assert md.esri.crea_time == "10392600"
 
-
-def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
-    layers_before_md_write = fgdb.get_layers(temp_gdb_nonzipped_path)
+@gdb_paths
+def test_write_metadata(path_fixture, temp_metadata_object):
+    layers_before_md_write = fgdb.get_layers(path_fixture)
     fgdb.write_metadata(
-        gdb=temp_gdb_nonzipped_path,
+        gdb=path_fixture,
         layer=FEATURE_CLASS,
         metadata=temp_metadata_object,
         overwrite=True,
     )
-    layers_after_md_write = fgdb.get_layers(temp_gdb_nonzipped_path)
+    layers_after_md_write = fgdb.get_layers(path_fixture)
 
-    md = fgdb.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
+    md = fgdb.read_metadata(path_fixture, FEATURE_CLASS)
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
@@ -76,34 +96,34 @@ def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
     # confirm that no gdb layers were lost during md writing operations
     assert sorted(layers_before_md_write) == sorted(layers_after_md_write)
 
-
-def test_metadata_exists(temp_gdb_nonzipped_path):
+@gdb_paths
+def test_metadata_exists(path_fixture):
     originally_md_exists = fgdb.metadata_exists(
-        gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS
+        gdb=path_fixture, layer=FEATURE_CLASS
     )
     # remove metadata
     fgdb.remove_metadata(
-        gdb=temp_gdb_nonzipped_path,
+        gdb=path_fixture,
         layer=FEATURE_CLASS,
     )
     md_exists_after_removal = fgdb.metadata_exists(
-        gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS
+        gdb=path_fixture, layer=FEATURE_CLASS
     )
     assert originally_md_exists is True, "Expected layer metadata but found none"
     assert md_exists_after_removal is False, (
         "Expected no layer metadata, but found some"
     )
 
-
-def test_remove_metadata(temp_gdb_nonzipped_path):
-    layers_before_md_removal = fgdb.get_layers(temp_gdb_nonzipped_path)
+@gdb_paths
+def test_remove_metadata(path_fixture):
+    layers_before_md_removal = fgdb.get_layers(path_fixture)
     fgdb.remove_metadata(
-        gdb=temp_gdb_nonzipped_path,
+        gdb=path_fixture,
         layer=FEATURE_CLASS,
     )
-    layers_after_md_removal = fgdb.get_layers(temp_gdb_nonzipped_path)
+    layers_after_md_removal = fgdb.get_layers(path_fixture)
 
-    md = fgdb.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
+    md = fgdb.read_metadata(path_fixture, FEATURE_CLASS)
     assert md is None
     # confirm that no gdb layers were lost during md removal
     assert sorted(layers_before_md_removal) == sorted(layers_after_md_removal)
