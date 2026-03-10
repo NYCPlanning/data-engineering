@@ -39,7 +39,9 @@ def temp_metadata_object(utils_resources_path):
     md_object = Metadata.from_xml(xml_content)
     return md_object
 
-
+def test_get_layers(temp_gdb_nonzipped_path):
+    layers = fgdb.get_layers(temp_gdb_nonzipped_path)
+    assert layers == ['pluto_one_row']
 # TODO - parameterize all tests
 # TODO - test to confirm that other tables/fcs in gdb still exist after write/delete operations
 def test_read_metadata(temp_gdb_nonzipped_path):

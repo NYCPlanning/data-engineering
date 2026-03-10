@@ -5,6 +5,13 @@ from osgeo import gdal
 
 from dcpy.models.data.shapefile_metadata import Metadata
 
+# possible TODO: replace this fn with an Info() object, from which methods like .get_layers() can be called
+def get_layers(gdb: Path) -> list[str]:
+    with gdal.ExceptionMgr():
+        info = gdal.alg.vector.info(
+            input=gdb,
+        ).Output()
+    return info['rootGroup']['layerNames']
 
 def read_metadata(gdb: Path, layer: str, as_string: bool = False) -> Metadata | None:
     with gdal.ExceptionMgr():
