@@ -5,7 +5,8 @@ from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial import fgdb
 
 GDB_ZIP = "geodatabase.gdb.zip"
-FEATURE_CLASS = "pluto_one_row"
+FEATURE_CLASS = "mappluto_one_row"
+TABLE = "pluto_one_row"
 METADATA_XML = "esri_metadata.xml"
 
 
@@ -39,11 +40,13 @@ def temp_metadata_object(utils_resources_path):
     md_object = Metadata.from_xml(xml_content)
     return md_object
 
+
+# TODO - parameterize all tests
 def test_get_layers(temp_gdb_nonzipped_path):
     layers = fgdb.get_layers(temp_gdb_nonzipped_path)
-    assert layers == ['pluto_one_row']
-# TODO - parameterize all tests
-# TODO - test to confirm that other tables/fcs in gdb still exist after write/delete operations
+    assert layers == [FEATURE_CLASS, TABLE]
+
+
 def test_read_metadata(temp_gdb_nonzipped_path):
     md = fgdb.read_metadata(gdb=temp_gdb_nonzipped_path, layer=FEATURE_CLASS)
 
@@ -55,12 +58,14 @@ def test_read_metadata(temp_gdb_nonzipped_path):
 
 
 def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
+    layers_before_md_write = fgdb.get_layers(temp_gdb_nonzipped_path)
     fgdb.write_metadata(
         gdb=temp_gdb_nonzipped_path,
         layer=FEATURE_CLASS,
         metadata=temp_metadata_object,
         overwrite=True,
     )
+    layers_after_md_write = fgdb.get_layers(temp_gdb_nonzipped_path)
 
     md = fgdb.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
     element = "esri"
@@ -68,6 +73,8 @@ def test_write_metadata(temp_gdb_nonzipped_path, temp_metadata_object):
 
     assert md.esri.crea_date == "19611215"
     assert md.esri.crea_time == "00000000"
+    # confirm that no gdb layers were lost during md writing operations
+    assert sorted(layers_before_md_write) == sorted(layers_after_md_write)
 
 
 def test_metadata_exists(temp_gdb_nonzipped_path):
@@ -89,10 +96,14 @@ def test_metadata_exists(temp_gdb_nonzipped_path):
 
 
 def test_remove_metadata(temp_gdb_nonzipped_path):
+    layers_before_md_removal = fgdb.get_layers(temp_gdb_nonzipped_path)
     fgdb.remove_metadata(
         gdb=temp_gdb_nonzipped_path,
         layer=FEATURE_CLASS,
     )
+    layers_after_md_removal = fgdb.get_layers(temp_gdb_nonzipped_path)
 
     md = fgdb.read_metadata(temp_gdb_nonzipped_path, FEATURE_CLASS)
     assert md is None
+    # confirm that no gdb layers were lost during md removal
+    assert sorted(layers_before_md_removal) == sorted(layers_after_md_removal)
