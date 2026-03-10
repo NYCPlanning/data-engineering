@@ -59,7 +59,7 @@ WITH atomic_polygons_with_lookups AS (
         ON ap.borocode || ap.censustract_2020 = ct2020.boroct
     -- Join HealthArea via health_area from CensusTract2010
     LEFT JOIN {{ ref("stg__healtharea") }} ha
-        ON ct2010.health_area = ha.healtharea
+        ON ct2010.health_area = ha.healtharea AND ct2010.borocode = ha.borough
     -- Spatial joins using centroid point-in-polygon
     LEFT JOIN {{ ref("stg__nypdprecinct") }} prec
         ON ST_Within(ST_Centroid(ap.geom), prec.geom)
