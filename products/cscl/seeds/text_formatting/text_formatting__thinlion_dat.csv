@@ -1,11 +1,11 @@
 field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
 TL1,borough,Borough,1,1,1,RJZF,FALSE
-TL2,census_tract_2020,2020 Census Tract,6,2,7,RJZF,FALSE
-TL3,dynamic_block,Dynamic Block,3,8,10,RJZF,FALSE
-TL4,census_block_2020,2020 Census Block Basic,4,11,14,RJZF,FALSE
+TL2,census_tract_2020_basic,2020 Census Tract Basic,4,2,5,RJSF,FALSE
+TL3,dynamic_block,Dynamic Block,5,6,10,RJSF,FALSE
+TL4,census_block_2020_basic,2020 Census Block Basic,4,11,14,RJSF,FALSE
 TL5,census_block_suffix_2020,2020 Census Block Suffix,1,15,15,RJZF,TRUE
-TL6,census_tract_1990,1990 Census Tract,6,16,21,RJZF,FALSE
-TL7,community_development_eligibility,Community Development Eligibility,1,22,22,RJZF,FALSE
+TL6,census_tract_1990_basic,1990 Census Tract Basic,4,16,19,RJSF,FALSE
+TL7,community_development_eligibility,Community Development Eligibility,3,20,22,RJSF,FALSE
 TL8,community_district,Community District,3,23,25,RJZF,FALSE
 TL9,minor_census_economic_area,Minor Census Economic Area,4,26,29,RJZF,FALSE
 TL10,health_area,Health Area,4,30,33,RJZF,FALSE
@@ -27,16 +27,16 @@ TL25,sanborn_page_3,"Sanborn Page-3, if any",4,65,68,LJSF,TRUE
 TL26,census_tract_2000,2000 Census Tract,6,69,74,RJZF,FALSE
 TL27,census_block_2000,2000 Census Block Basic,4,75,78,RJZF,FALSE
 TL28,census_block_suffix_2000,2000 Census Block Suffix,1,79,79,RJZF,TRUE
-TL29,assembly_district,Assembly District,2,81,82,RJZF,TRUE
-TL30,election_district,Election District,3,84,86,RJZF,FALSE
+TL29,assembly_district,Assembly District,3,80,82,RJZF,TRUE
+TL30,election_district,Election District,4,83,86,RJZF,FALSE
 TL31,hurricane_evacuation_zone,Hurricane Evacuation Zone,2,87,88,LJSF,FALSE
 TL32,patrol_borough,Patrol Borough,2,89,90,LJSF,FALSE
 TL33,police_sector,Police Sector,4,91,94,RJSF,FALSE
 TL34,census_tract_2010_basic,2010 Census Tract Basic,4,95,98,RJSF,FALSE
-TL34_1,census_tract_2010_suffix,2010 Census Tract Suffix,2,99,100,RJZF,TRUE
-TL35,census_block_2010,2010 Census Block,4,101,104,RJZF,FALSE
-TL36,census_block_suffix_2010,2010 Census Block Suffix,1,105,105,RJZF,TRUE
-TL37,nta2020,NTA2020,6,106,111,RJZF,TRUE
-TL38,cdta,CDTA,4,112,115,RJZF,TRUE
-TL39,cwz,CWZ,4,116,119,RJSF,TRUE
-TL40,puma2020,PUMA2020,4,120,123,RJZF,TRUE
+TL35,census_tract_2010_suffix,2010 Census Tract Suffix,2,99,100,RJZF,TRUE
+TL36,census_block_2010,2010 Census Block,4,101,104,RJZF,FALSE
+TL37,census_block_suffix_2010,2010 Census Block Suffix,1,105,105,RJZF,TRUE
+TL38,nta2020,NTA2020,6,106,111,RJZF,TRUE
+TL39,cdta,CDTA,4,112,115,RJZF,TRUE
+TL40,cwz,CWZ,4,116,119,RJSF,TRUE
+TL41,puma2020,PUMA2020,4,120,123,RJZF,TRUE

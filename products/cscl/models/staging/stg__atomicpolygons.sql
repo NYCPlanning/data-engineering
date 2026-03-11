@@ -40,6 +40,7 @@ SELECT
     commercial_waste_zone,
     hurricane_evacuation_zone,
     censustract_1990,
+    left(censustract_1990, 4)::INT AS censustract_1990_basic,
     st_makevalid(linearize(geom)) AS geom,
     geom AS raw_geom
 FROM {{ source("recipe_sources", "dcp_cscl_atomicpolygons") }}

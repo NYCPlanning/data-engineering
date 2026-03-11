@@ -1,11 +1,11 @@
 WITH atomic_polygons_with_lookups AS (
     SELECT
         ap.borocode AS borough,
-        ap.censustract_2020 AS census_tract_2020,
+        ap.censustract_2020_basic AS census_tract_2020_basic,
         RIGHT(ap.atomicid, 3) AS dynamic_block,
-        ap.censusblock_2020_basic AS census_block_2020,
+        ap.censusblock_2020_basic AS census_block_2020_basic,
         ap.censusblock_2020_suffix AS census_block_suffix_2020,
-        ap.censustract_1990 AS census_tract_1990,
+        ap.censustract_1990_basic AS census_tract_1990_basic,
         ct2010.cd_eligibility AS community_development_eligibility,
         ap.commdist AS community_district,
         ct2010.mcea AS minor_census_economic_area,
@@ -72,5 +72,4 @@ WITH atomic_polygons_with_lookups AS (
 SELECT
     {{ apply_text_formatting_from_seed('text_formatting__thinlion_dat') }}
 FROM atomic_polygons_with_lookups
-ORDER BY census_tract_2020, dynamic_block
-
+ORDER BY census_tract_2020_basic, dynamic_block
