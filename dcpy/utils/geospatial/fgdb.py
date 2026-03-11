@@ -43,8 +43,6 @@ def write_metadata(
         raise FileExistsError(
             "Metadata already exists, and overwrite is False. Nothing will be written"
         )
-    if overwrite:
-        remove_metadata(gdb=gdb, layer=layer)
 
     xml_data = metadata.to_xml()
     md = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
@@ -79,7 +77,7 @@ def remove_metadata(gdb: Path, layer: str) -> None:
 
 
 # TODO: refactor this for speed. Requirement to rezip is slow for large GDBs.
-# With a 76MB zipped gdb, performance: unzip: 0.92s, gdal: 0.67s, rezip: 7.36s
+# With a 76MB zipped gdb, performance: unzip: 0.92s, gdal: 0.67s, rezip: 7.36ss
 def _edit_layer_metadata_inplace(
     gdb: Path,
     layer: str,
@@ -132,6 +130,5 @@ def _edit_layer_metadata_inplace(
                     z.write(
                         filename=file, arcname=file.relative_to(uncompressed_gdb.parent)
                     )
-
     else:
         _edit_md(gdb=gdb, layer=layer, metadata=metadata)
