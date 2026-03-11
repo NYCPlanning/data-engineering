@@ -1,7 +1,7 @@
-from pathlib import Path
 import tempfile
 import uuid
 import zipfile
+from pathlib import Path
 
 from osgeo import gdal
 

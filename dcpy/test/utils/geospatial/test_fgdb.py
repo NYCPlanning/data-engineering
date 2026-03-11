@@ -1,9 +1,11 @@
 import shutil
-from pytest import fixture
 import zipfile
+
+import pytest
+from pytest import fixture
+
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial import fgdb
-import pytest
 
 GDB_ZIP = "geodatabase.gdb.zip"
 FEATURE_CLASS = "mappluto_one_row"

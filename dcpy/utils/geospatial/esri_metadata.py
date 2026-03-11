@@ -1,8 +1,9 @@
 from datetime import datetime
+
 from dcpy.models.data.shapefile_metadata import (
-    Metadata,
     Esri,
     Mddatest,
+    Metadata,
     Scalerange,
 )
 
