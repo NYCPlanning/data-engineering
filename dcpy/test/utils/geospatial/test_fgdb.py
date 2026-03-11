@@ -41,9 +41,11 @@ def temp_metadata_object(utils_resources_path):
     md_object = Metadata.from_xml(xml_content)
     return md_object
 
+
 @fixture
 def path_fixture(request):
     return request.getfixturevalue(request.param)
+
 
 gdb_paths = pytest.mark.parametrize(
     "path_fixture",
@@ -60,6 +62,7 @@ gdb_paths = pytest.mark.parametrize(
     indirect=True,
 )
 
+
 @gdb_paths
 def test_get_layers(path_fixture):
     layers = fgdb.get_layers(path_fixture)
@@ -75,6 +78,7 @@ def test_read_metadata(path_fixture):
 
     assert md.esri.crea_date == "20260203"
     assert md.esri.crea_time == "10392600"
+
 
 @gdb_paths
 def test_write_metadata(path_fixture, temp_metadata_object):
@@ -96,11 +100,10 @@ def test_write_metadata(path_fixture, temp_metadata_object):
     # confirm that no gdb layers were lost during md writing operations
     assert sorted(layers_before_md_write) == sorted(layers_after_md_write)
 
+
 @gdb_paths
 def test_metadata_exists(path_fixture):
-    originally_md_exists = fgdb.metadata_exists(
-        gdb=path_fixture, layer=FEATURE_CLASS
-    )
+    originally_md_exists = fgdb.metadata_exists(gdb=path_fixture, layer=FEATURE_CLASS)
     # remove metadata
     fgdb.remove_metadata(
         gdb=path_fixture,
@@ -113,6 +116,7 @@ def test_metadata_exists(path_fixture):
     assert md_exists_after_removal is False, (
         "Expected no layer metadata, but found some"
     )
+
 
 @gdb_paths
 def test_remove_metadata(path_fixture):
