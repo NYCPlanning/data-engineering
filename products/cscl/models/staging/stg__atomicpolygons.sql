@@ -8,22 +8,29 @@
 SELECT
     atomicid,
     borough AS borocode,
+    -- census 1990
+    censustract_1990,
+    left(censustract_1990, 4)::INT AS censustract_1990_basic,
+    -- census 2000
     censustract_2000,
     left(censustract_2000, 4)::INT AS censustract_2000_basic,
-    -- TODO: you might need this for thinlion outputs
+    censusblock_2000::INT AS censusblock_2000_basic,
+    censusblock_2000_suffix,
     nullif(right(censustract_2000, 2), '00')::INT AS censustract_2000_suffix,
+    -- census 2010
     censustract_2010,
     left(censustract_2010, 4)::INT AS censustract_2010_basic,
     nullif(right(censustract_2010, 2), '00')::INT AS censustract_2010_suffix,
+    censusblock_2010 AS censusblock_2010_raw,
+    censusblock_2010::INT AS censusblock_2010_basic,
+    censusblock_2010_suffix::INT,
+    -- census 2020
     censustract_2020,
     left(censustract_2020, 4)::INT AS censustract_2020_basic,
     nullif(right(censustract_2020, 2), '00')::INT AS censustract_2020_suffix,
-    censusblock_2000::INT AS censusblock_2000_basic,
-    censusblock_2000_suffix,
-    censusblock_2010::INT AS censusblock_2010_basic,
-    censusblock_2010_suffix::INT,
     censusblock_2020::INT AS censusblock_2020_basic,
     censusblock_2020_suffix::INT,
+    --
     nullif(assemdist, ' ') AS assemdist,
     nullif(electdist, ' ') AS electdist,
     nullif(schooldist, '0') AS schooldist,
@@ -39,8 +46,7 @@ SELECT
     water_flag,
     commercial_waste_zone,
     hurricane_evacuation_zone,
-    censustract_1990,
-    left(censustract_1990, 4)::INT AS censustract_1990_basic,
     st_makevalid(linearize(geom)) AS geom,
     geom AS raw_geom
 FROM {{ source("recipe_sources", "dcp_cscl_atomicpolygons") }}
+where atomicid = '4107202049'
