@@ -2,6 +2,7 @@ WITH atomic_polygons_with_lookups AS (
     SELECT
         ap.borocode AS borough,
         ap.censustract_2020_basic AS census_tract_2020_basic,
+        ap.censustract_2020_suffix AS census_tract_2020_suffix,
         RIGHT(ap.atomicid, 3) AS dynamic_block,
         ap.censusblock_2020_basic AS census_block_2020_basic,
         ap.censusblock_2020_suffix AS census_block_suffix_2020,
