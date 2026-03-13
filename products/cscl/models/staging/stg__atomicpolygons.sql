@@ -11,6 +11,7 @@ SELECT
     -- census 1990
     censustract_1990,
     left(censustract_1990, 4)::INT AS censustract_1990_basic,
+    nullif(right(censustract_1990, 2), '00')::INT AS censustract_1990_suffix,
     -- census 2000
     censustract_2000,
     left(censustract_2000, 4)::INT AS censustract_2000_basic,
@@ -35,6 +36,7 @@ SELECT
     censusblock_2020::INT AS censusblock_2020_basic,
     censusblock_2020_suffix::INT,
     --
+    RIGHT(atomicid, 3) AS dynamic_block,
     nullif(assemdist, ' ') AS assemdist,
     nullif(electdist, ' ') AS electdist,
     nullif(schooldist, '0') AS schooldist,
