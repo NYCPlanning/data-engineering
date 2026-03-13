@@ -1,12 +1,12 @@
 field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
 TL1,borough,Borough,1,1,1,LJSF,FALSE
-TL2,census_tract_2020_basic,2000 Census Tract,4,2,5,RJSF,FALSE
-TL3,census_tract_2020_suffix,2000 Census Tract,2,6,7,RJSF,FALSE
+TL2,censustract_2020_basic,2000 Census Tract,4,2,5,RJSF,FALSE
+TL3,censustract_2020_suffix,2000 Census Tract,2,6,7,RJZF,TRUE
 TL4,dynamic_block,Dynamic Block,3,8,10,RJZF,FALSE
-TL5,census_block_2020_basic,2020 Census Block,4,11,14,RJZF,FALSE
-TL6,census_block_suffix_2020,2000 Census Suffix,1,15,15,RJSF,TRUE
-TL7,census_tract_1990_basic,1990 Census Tract,4,16,19,RJSF,FALSE
-TL8,census_tract_1990_suffix,1990 Census Tract,2,20,21,RJSF,FALSE
+TL5,censusblock_2020_basic,2020 Census Block,4,11,14,RJZF,FALSE
+TL6,censusblock_2020_suffix,2000 Census Suffix,1,15,15,RJZF,TRUE
+TL7,censustract_1990_basic,1990 Census Tract,4,16,19,RJSF,FALSE
+TL8,censustract_1990_suffix,1990 Census Tract,2,20,21,RJZF,FALSE
 TL9,community_development_eligibility,Community Development Eligibility,1,22,22,RJSF,FALSE
 TL10,community_district,Community District,3,23,25,RJSF,FALSE
 TL11,minor_census_economic_area,Minor Census Economic Area,4,26,29,RJSF,FALSE
@@ -26,19 +26,19 @@ TL24,sanborn_page_2,"Sanborn Page-2, if any",4,57,60,LJSF,TRUE
 TL25,sanborn_borough_3,"Sanborn Borough-3, if any",1,61,61,RJSF,TRUE
 TL26,sanborn_volume_3,"Sanborn Volume-3, if any",3,62,64,LJSF,TRUE
 TL27,sanborn_page_3,"Sanborn Page-3, if any",4,65,68,LJSF,TRUE
-TL28,census_tract_2000_basic,2000 Census Tract,4,69,72,RJSF,FALSE
-TL29,census_tract_2000_suffix,2000 Census Tract,2,73,74,RJSF,FALSE
-TL30,census_block_2000,2000 Census Block,4,75,78,RJSF,FALSE
-TL31,census_block_suffix_2000,2000 Census Suffix,1,79,79,RJSF,TRUE
+TL28,censustract_2000_basic,2000 Census Tract,4,69,72,RJSF,FALSE
+TL29,censustract_2000_suffix,2000 Census Tract,2,73,74,RJZF,TRUE
+TL30,censusblock_2000_basic,2000 Census Block,4,75,78,RJSF,FALSE
+TL31,censusblock_2000_suffix,2000 Census Suffix,1,79,79,RJZF,TRUE
 TL32,assembly_district,AD,3,80,82,RJSF,TRUE
 TL33,election_district,ED,4,83,86,RJSF,TRUE
 TL34,hurricane_evacuation_zone,EVZ,2,87,88,RJSF,FALSE
 TL35,patrol_borough,Patrol_borough,2,89,90,RJSF,TRUE
 TL36,police_sector,Police Sector,4,91,94,RJSF,TRUE
-TL37,census_tract_2010_basic,2010 Census Tract,4,95,98,RJSF,FALSE
-TL38,census_tract_2010_suffix,2010 Census Tract,2,99,100,RJSF,FALSE
-TL39,census_block_2010,2010 Census Block,4,101,104,RJZF,FALSE
-TL40,census_block_suffix_2010,2010 Census Suffix,1,105,105,RJSF,TRUE
+TL37,censustract_2010_basic,2010 Census Tract,4,95,98,RJSF,FALSE
+TL38,censustract_2010_suffix,2010 Census Tract,2,99,100,RJZF,TRUE
+TL39,censusblock_2010_basic,2010 Census Block,4,101,104,RJZF,FALSE
+TL40,censusblock_2010_suffix,2010 Census Suffix,1,105,105,RJZF,TRUE
 TL41,nta2020,NTA2020,6,106,111,RJSF,TRUE
 TL42,cdta,CDTA,4,112,115,RJSF,TRUE
 TL43,cwz,CWZ,4,116,119,RJSF,TRUE

@@ -10,7 +10,7 @@ models:
       - accepted_values:
           arguments:
             values: [ "1", "2", "3", "4", "5" ]
-    - name: census_tract_2020
+    - name: censustract_2020_basic
       data_type: string
       tests:
       - not_null

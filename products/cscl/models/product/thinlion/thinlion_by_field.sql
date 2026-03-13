@@ -1,29 +1,19 @@
 WITH atomic_polygons_with_lookups AS (
     SELECT
         ap.borocode AS borough,
-        -- census 2020
-        ap.censustract_2020 AS census_tract_2020,
-        ap.censustract_2020_basic AS census_tract_2020_basic,
-        LPAD(ap.censustract_2020_suffix::TEXT, 2, '0') as census_tract_2020_suffix,
         ap.dynamic_block AS dynamic_block,
-        ap.censusblock_2020_basic AS census_block_2020_basic,
-        ap.censusblock_2020_suffix AS census_block_suffix_2020,
-        -- census 2010
-        ap.censustract_2010 AS census_tract_2010,
-        ap.censustract_2010_basic AS census_tract_2010_basic,
-        ap.censustract_2010_suffix AS census_tract_2010_suffix,
-        ap.censusblock_2010_basic AS census_block_2010,
-        ap.censusblock_2010_suffix AS census_block_suffix_2010,
-        -- census 2000
-        ap.censustract_2000 AS census_tract_2000,
-        ap.censustract_2000_basic AS census_tract_2000_basic,
-        ap.censustract_2000_suffix AS census_tract_2000_suffix,
-        ap.censusblock_2000_basic AS census_block_2000,
-        ap.censusblock_2000_suffix AS census_block_suffix_2000,
-        -- census 1990
-        ap.censustract_1990_basic AS census_tract_1990_basic,
-        ap.censustract_1990 AS census_tract_1990,
-        ap.censustract_1990_suffix AS census_tract_1990_suffix,
+        {% for year in ['2020', '2010', '2000'] %}
+        -- census {{ year }}
+        ap.censustract_{{ year }},
+        ap.censustract_{{ year }}_basic,
+        ap.censustract_{{ year }}_suffix,
+        ap.censusblock_{{ year }}_basic,
+        ap.censusblock_{{ year }}_suffix,
+        {% endfor %}
+        -- 1990 is a little weird
+        ap.censustract_1990_basic,
+        ap.censustract_1990_suffix,
+
         ct2010.cd_eligibility AS community_development_eligibility,
         ap.commdist AS community_district,
         ct2010.mcea AS minor_census_economic_area,
@@ -134,4 +124,4 @@ WITH atomic_polygons_with_lookups AS (
 SELECT
     {{ apply_text_formatting_from_seed('text_formatting__thinlion_dat') }}
 FROM atomic_polygons_with_lookups
-ORDER BY census_tract_2020_basic, dynamic_block
+ORDER BY borough, censustract_2020_basic, censustract_2020_suffix, dynamic_block
