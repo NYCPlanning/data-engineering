@@ -176,7 +176,8 @@ def _load(
 
     load_datasets(datasets, local_folder)
 
-    boro_level_files = {"lion_dat", "face_code"}
+    boro_level_files = {"lion", "face_code"}
+    # bookmark
     for file in boro_level_files:
         if any(dataset.endswith(f"_{file}") for dataset in datasets):
             create_citywide_table(file)
