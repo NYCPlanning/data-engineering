@@ -12,14 +12,17 @@ WITH atomic_polygons_with_lookups AS (
         {% endfor %}
         -- 1990 is a little weird
         ap.censustract_1990_basic,
-        ap.censustract_1990_suffix,
+        CASE
+            WHEN ap.censustract_1990_suffix IS NULL OR ap.censustract_1990_suffix = 0 THEN ''
+            ELSE LPAD(ap.censustract_1990_suffix::TEXT, 2, '0')
+        END AS censustract_1990_suffix,
 
         ct2010.cd_eligibility AS community_development_eligibility,
         ap.commdist AS community_district,
         ct2010.mcea AS minor_census_economic_area,
         ct2010.health_area,
         ha.health_ct_district AS health_center_district,
-        NULL AS police_patrol_borough_command,  -- TL12: NYPDPrecinct doesn't have this field
+        -- NULL AS police_patrol_borough_command,  -- TL12: NYPDPrecinct doesn't have this field
         prec.precinct AS police_precinct,
         ap.water_flag AS water_block_mapping_suppression_flag,
         CASE
@@ -30,7 +33,7 @@ WITH atomic_polygons_with_lookups AS (
         CASE
             WHEN TRIM(COALESCE(ap.fire_company_type, '')) IN ('', '0', 'null') THEN ''
             WHEN TRIM(COALESCE(ap.fire_company_number, '')) IN ('', '0', 'null') THEN ''
-            ELSE fire_company_number
+            ELSE TRIM(fire_company_number)
         END AS fire_company_number,
         -- sanborn 1: if any field is empty, all fields should be empty
         CASE 
@@ -86,16 +89,16 @@ WITH atomic_polygons_with_lookups AS (
             WHEN ap.hurricane_evacuation_zone = '7' THEN '0'
             ELSE ap.hurricane_evacuation_zone
         END as hurricane_evacuation_zone,
-        CASE -- doesn't seem to be used called in the C# code, and the docs do specify it...
-            WHEN pb.patrol_borough = 'Manhattan South' THEN '1'
-            WHEN pb.patrol_borough = 'Manhattan North' THEN '2'
-            WHEN pb.patrol_borough = 'Bronx' THEN '3'
-            WHEN pb.patrol_borough = 'Brooklyn South' THEN '4'
-            WHEN pb.patrol_borough = 'Brooklyn North' THEN '5'
-            WHEN pb.patrol_borough = 'Queens North' THEN '6'
-            WHEN pb.patrol_borough = 'Staten Island' THEN '7'
-            WHEN pb.patrol_borough = 'Queens South' THEN '8'
-        END AS patrol_borough_map,
+        CASE
+            WHEN pb.patrol_borough = 'MS' THEN '1'
+            WHEN pb.patrol_borough = 'MN' THEN '2'
+            WHEN pb.patrol_borough = 'BX' THEN '3'
+            WHEN pb.patrol_borough = 'BS' THEN '4'
+            WHEN pb.patrol_borough = 'BN' THEN '5'
+            WHEN pb.patrol_borough = 'QN' THEN '6'
+            WHEN pb.patrol_borough = 'SI' THEN '7'
+            WHEN pb.patrol_borough = 'QS' THEN '8'
+        END AS police_patrol_borough_command,
         pb.patrol_borough AS patrol_borough,
         beat.sector AS police_sector,
         ct2020.neighborhood_code AS nta2020,

@@ -6,7 +6,7 @@ TL4,dynamic_block,Dynamic Block,3,8,10,RJZF,FALSE
 TL5,censusblock_2020_basic,2020 Census Block,4,11,14,RJZF,FALSE
 TL6,censusblock_2020_suffix,2000 Census Suffix,1,15,15,RJZF,TRUE
 TL7,censustract_1990_basic,1990 Census Tract,4,16,19,RJSF,FALSE
-TL8,censustract_1990_suffix,1990 Census Tract,2,20,21,RJZF,FALSE
+TL8,censustract_1990_suffix,1990 Census Tract,2,20,21,RJSF,FALSE
 TL9,community_development_eligibility,Community Development Eligibility,1,22,22,RJSF,FALSE
 TL10,community_district,Community District,3,23,25,RJSF,FALSE
 TL11,minor_census_economic_area,Minor Census Economic Area,4,26,29,RJSF,FALSE
@@ -16,7 +16,7 @@ TL14,police_patrol_borough_command,Police Patrol Borough Command,1,36,36,RJZF,FA
 TL15,police_precinct,Police Precinct,3,37,39,RJZF,FALSE
 TL16,water_block_mapping_suppression_flag,Water Block Mapping Suppression Flag,1,40,40,RJSF,FALSE
 TL17,fire_company_type,Fire Company Type,1,41,41,RJSF,TRUE
-TL18,fire_company_number,Fire Company Number,3,42,44,RJSF,TRUE
+TL18,fire_company_number,Fire Company Number,3,42,44,RJZF,TRUE
 TL19,sanborn_borough_1,Sanborn Borough-1,1,45,45,RJSF,TRUE
 TL20,sanborn_volume_1,Sanborn Volume-1,3,46,48,LJSF,TRUE
 TL21,sanborn_page_1,Sanborn Page-1,4,49,52,LJSF,TRUE
