@@ -8,7 +8,7 @@
 
 {%- if execute -%}
   {%- set all_columns = audit_helper._get_intersecting_columns_from_relations(old_relation, dbt_relation) -%}
-  {%- set filtered_columns = all_columns | reject('equalto', 'community_development_eligibility') | list -%}
+  {%- set filtered_columns = all_columns | reject('in', ['atomicid', 'community_development_eligibility']) | list -%}
   
   {{ audit_helper.compare_and_classify_relation_rows(
       a_relation = old_relation,
