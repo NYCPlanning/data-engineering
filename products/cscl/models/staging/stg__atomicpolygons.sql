@@ -25,10 +25,6 @@ SELECT
     censusblock_2010 AS censusblock_2010_raw,
     censusblock_2010::INT AS censusblock_2010_basic,
     censusblock_2010_suffix::INT,
-    CASE
-        WHEN RIGHT(censustract_2010, 2) = '00' THEN ''
-        ELSE LTRIM(RIGHT(censustract_2010, 2), '0')
-    END AS census_tract_2010_suffix_test,
     -- census 2020
     censustract_2020,
     left(censustract_2020, 4)::INT AS censustract_2020_basic,
@@ -42,7 +38,11 @@ SELECT
     nullif(schooldist, '0') AS schooldist,
     commdist,
     LEFT(admin_fire_company, 1) AS fire_company_type,
-    RIGHT(admin_fire_company, 3) AS fire_company_number,
+    CASE 
+        WHEN position(' ' in admin_fire_company) > 0 
+        THEN split_part(admin_fire_company, ' ', 2)
+        ELSE NULL
+    END AS fire_company_number,
     sb1_volume,
     sb1_page,
     sb2_volume,

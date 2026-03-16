@@ -7,14 +7,13 @@
 {% set dbt_relation = ref('thinlion_brooklyn_by_field') %}
 
 {%- if execute -%}
-  WITH production_with_atomicid AS (
-    SELECT 
+  {%- set old_relation_with_atomicid -%}
+    (SELECT 
       *,
-      borough || LPAD(censustract_2020_basic, 4, '0') || LPAD(censustract_2020_suffix, 2, '0') || dynamic_block AS atomicid
-    FROM {{ old_relation }}
-  )
+      COALESCE(borough, '') || LPAD(COALESCE(TRIM(censustract_2020_basic::text), ''), 4, '0') || LPAD(COALESCE(TRIM(censustract_2020_suffix::text), ''), 2, '0') || COALESCE(dynamic_block, '') AS atomicid
+    FROM {{ old_relation }}) AS production_with_atomicid
+  {%- endset -%}
   
-  {%- set old_relation_with_atomicid = 'production_with_atomicid' -%}
   {%- set all_columns = audit_helper._get_intersecting_columns_from_relations(old_relation, dbt_relation) -%}
   {%- set filtered_columns = all_columns | reject('in', ['community_development_eligibility']) | list -%}
   {%- set filtered_columns_with_atomicid = filtered_columns + ['atomicid'] -%}

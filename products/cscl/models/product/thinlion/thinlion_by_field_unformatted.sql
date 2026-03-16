@@ -18,10 +18,13 @@ WITH atomic_polygons_with_lookups AS (
             ELSE LPAD(ap.censustract_1990_suffix::TEXT, 2, '0')
         END AS censustract_1990_suffix,
 
-        ct2010.cd_eligibility AS community_development_eligibility,
+        ct2020.cd_eligibility AS community_development_eligibility,
         ap.commdist AS community_district,
         ct2010.mcea AS minor_census_economic_area,
-        ct2010.health_area,
+        CASE 
+            WHEN TRIM(COALESCE(ct2010.health_area, '')) = '' THEN '    '
+            ELSE LPAD(ct2010.health_area, 4, '0')
+        END AS health_area,
         ha.health_ct_district AS health_center_district,
         -- NULL AS police_patrol_borough_command,  -- TL12: NYPDPrecinct doesn't have this field
         prec.precinct AS police_precinct,
@@ -33,55 +36,55 @@ WITH atomic_polygons_with_lookups AS (
         -- ap.fire_company_number,
         CASE
             WHEN TRIM(COALESCE(ap.fire_company_type, '')) IN ('', '0', 'null') THEN ''
-            WHEN TRIM(COALESCE(ap.fire_company_number, '')) IN ('', '0', 'null') THEN ''
-            ELSE TRIM(fire_company_number)
+            WHEN TRIM(COALESCE(ap.fire_company_number, '')) IN ('', '0', '00', '000', 'null') THEN ''
+            ELSE LPAD(TRIM(fire_company_number), 3, '0')
         END AS fire_company_number,
         -- sanborn 1: if any field is empty, all fields should be empty
         CASE 
-            WHEN TRIM(COALESCE(ap.sb1_volume, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb1_page, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb1_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb1_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.borocode
         END AS sanborn_borough_1,
         CASE 
-            WHEN TRIM(COALESCE(ap.borocode, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb1_page, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb1_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb1_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb1_volume
         END AS sanborn_volume_1,
         CASE 
-            WHEN TRIM(COALESCE(ap.borocode, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb1_volume, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb1_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb1_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb1_page
         END AS sanborn_page_1,
         -- sanborn 2: if any field is empty, all fields should be empty
         CASE 
-            WHEN TRIM(COALESCE(ap.sb2_volume, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb2_page, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb2_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb2_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.borocode
         END AS sanborn_borough_2,
         CASE 
-            WHEN TRIM(COALESCE(ap.borocode, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb2_page, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb2_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb2_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb2_volume
         END AS sanborn_volume_2,
         CASE 
-            WHEN TRIM(COALESCE(ap.borocode, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb2_volume, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb2_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb2_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb2_page
         END AS sanborn_page_2,
         -- sanborn 3: if any field is empty, all fields should be empty
         CASE 
-            WHEN TRIM(COALESCE(ap.sb3_volume, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb3_page, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb3_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb3_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.borocode
         END AS sanborn_borough_3,
         CASE 
-            WHEN TRIM(COALESCE(ap.borocode, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb3_page, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb3_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb3_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb3_volume
         END AS sanborn_volume_3,
         CASE 
-            WHEN TRIM(COALESCE(ap.borocode, '')) = '' THEN ''
-            WHEN TRIM(COALESCE(ap.sb3_volume, '')) = '' THEN ''
+            WHEN TRIM(COALESCE(ap.sb3_volume, '')) IN ('', '0', '00') THEN ''
+            WHEN TRIM(COALESCE(ap.sb3_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb3_page
         END AS sanborn_page_3,
         ap.assemdist AS assembly_district,
@@ -123,13 +126,35 @@ WITH atomic_polygons_with_lookups AS (
     -- Join HealthArea via health_area from CensusTract2010
     LEFT JOIN {{ ref("stg__healtharea") }} ha
         ON ct2010.health_area = ha.healtharea AND ct2010.borocode = ha.borough
-    -- Spatial joins using centroid point-in-polygon
+    -- Spatial joins using point-in-polygon with C# centroid fallback logic
+    -- First try centroid, if outside polygon use ST_PointOnSurface, else fallback to centroid
     LEFT JOIN {{ ref("stg__nypdprecinct") }} prec
-        ON ST_Within(ST_Centroid(ap.geom), prec.geom)
+        ON ST_Within(
+            CASE 
+                WHEN ST_Within(ST_Centroid(ap.geom), ap.geom) THEN ST_Centroid(ap.geom)
+                WHEN ST_PointOnSurface(ap.geom) IS NOT NULL THEN ST_PointOnSurface(ap.geom)
+                ELSE ST_Centroid(ap.geom)
+            END,
+            prec.geom
+        )
     LEFT JOIN {{ ref("stg__nypdpatrolborough") }} pb
-        ON ST_Within(ST_Centroid(ap.geom), pb.geom)
+        ON ST_Within(
+            CASE 
+                WHEN ST_Within(ST_Centroid(ap.geom), ap.geom) THEN ST_Centroid(ap.geom)
+                WHEN ST_PointOnSurface(ap.geom) IS NOT NULL THEN ST_PointOnSurface(ap.geom)
+                ELSE ST_Centroid(ap.geom)
+            END,
+            pb.geom
+        )
     LEFT JOIN {{ ref("stg__nypdbeat") }} beat
-        ON ST_Within(ST_Centroid(ap.geom), beat.geom)
+        ON ST_Within(
+            CASE 
+                WHEN ST_Within(ST_Centroid(ap.geom), ap.geom) THEN ST_Centroid(ap.geom)
+                WHEN ST_PointOnSurface(ap.geom) IS NOT NULL THEN ST_PointOnSurface(ap.geom)
+                ELSE ST_Centroid(ap.geom)
+            END,
+            beat.geom
+        )
 )
 
 SELECT * FROM atomic_polygons_with_lookups
