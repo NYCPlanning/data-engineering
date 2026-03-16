@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -20,6 +21,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
           DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
       - name: Build and Push docker image
         run: apps/qa/bash/docker_build_and_publish.sh
 
@@ -32,11 +34,12 @@ jobs:
     env: 
       QA_DROPLET_SSH_PRIVATE_KEY: ${{ secrets.QA_DROPLET_SSH_PRIVATE_KEY }}
       QA_DROPLET_SSH_HOST: ${{ secrets.QA_DROPLET_SSH_HOST }}
-      GHP_TOKEN: ${{ secrets.GHP_TOKEN }}
+      
       DOCKER_IMAGE_NAME: nycplanning/qa-streamlit:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -47,6 +50,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+          GHP_TOKEN: "op://Data Engineering/GITHUB_TOKENS/de_qa_app"
 
       - name: Deploy docker image
         run: apps/qa/bash/docker_deploy.sh
