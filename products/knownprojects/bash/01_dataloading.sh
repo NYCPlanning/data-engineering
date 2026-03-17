@@ -15,7 +15,8 @@ python3 -m python.extractors esd_projects
 python3 -m python.extractors edc_projects
 python3 -m python.extractors edc_dcp_inputs
 python3 -m python.extractors dcp_n_study
-python3 -m python.extractors dcp_n_study_future
+# There are no future neighborhood studies at the momemnt
+# python3 -m python.extractors dcp_n_study_future
 python3 -m python.extractors dcp_n_study_projected
 python3 -m python.extractors hpd_rfp
 python3 -m python.extractors dcp_planneradded
