@@ -21,6 +21,7 @@ python3 -m python.extractors dcp_n_study_projected
 python3 -m python.extractors hpd_rfp
 python3 -m python.extractors dcp_planneradded
 python3 -m python.extractors dcp_knownprojects
+python3 -m python.extractors dcp_hudsonsquare
 
 # Load corrections tables
 run_sql_file sql/create_corrections.sql

@@ -33,6 +33,7 @@ DCP_HOUSING_DATA_FILENAMES = {
     "dcp_n_study_projected": "past_neighborhoodstudies_20260305.zip",
     "hpd_rfp": "HPD_RFPs_20250110.xlsx",
     "dcp_planneradded": "dcp_planneradded_2025_04_30.csv",
+    "dcp_hudsonsquare": "HudsonSquare_P2012M0255_4326.zip",
 }
 DCP_HOUSING_CORRECTIONS_FILENAMES = {
     "corrections_dob": "corrections_dob.csv",
