@@ -232,7 +232,7 @@ def _import_dataset(
         None, "--import-as", help="Renames the imported table"
     ),
 ):
-    database_schema = database_schema or os.environ["BUILD_SCHEMA"]
+    database_schema = database_schema or os.environ["BUILD_ENGINE_SCHEMA"]
     ds = InputDataset(
         id=dataset_name,
         version=version,
