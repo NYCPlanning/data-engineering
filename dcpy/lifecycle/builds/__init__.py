@@ -12,7 +12,7 @@ BUILD_DBS = [
     "db-devdb",
     "db-facilities",
     "db-green-fast-track",
-    # "db-lion", we need to preserve schemas while this data product is in development
+    # "db-cscl", we need to preserve schemas while this data product is in development
     "db-pluto",
     "db-template",
     "db-ztl",
