@@ -10,7 +10,7 @@ SELECT
     borocode,
     neighborhood_code,
     ct,
-    borocode || ct as boroct, -- BUG! There's a boroct field, but has a few incorrect values, causing dupes
+    borocode || ct AS boroct, -- BUG! There's a boroct field, but has a few incorrect values, causing dupes
     cd_eligibility,
     puma,
     empowerment_zone,

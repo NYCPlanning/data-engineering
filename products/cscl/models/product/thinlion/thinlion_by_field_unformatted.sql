@@ -2,14 +2,14 @@ WITH atomic_polygons_with_lookups AS (
     SELECT
         ap.atomicid,
         ap.borocode AS borough,
-        ap.dynamic_block AS dynamic_block,
+        ap.dynamic_block,
         {% for year in ['2020', '2010', '2000'] %}
         -- census {{ year }}
-        ap.censustract_{{ year }},
-        ap.censustract_{{ year }}_basic,
-        ap.censustract_{{ year }}_suffix,
-        ap.censusblock_{{ year }}_basic,
-        ap.censusblock_{{ year }}_suffix,
+            ap.censustract_{{ year }},
+            ap.censustract_{{ year }}_basic,
+            ap.censustract_{{ year }}_suffix,
+            ap.censusblock_{{ year }}_basic,
+            ap.censusblock_{{ year }}_suffix,
         {% endfor %}
         -- 1990 is a little weird
         ap.censustract_1990_basic,
@@ -21,7 +21,7 @@ WITH atomic_polygons_with_lookups AS (
         ct2020.cd_eligibility AS community_development_eligibility,
         ap.commdist AS community_district,
         ct2010.mcea AS minor_census_economic_area,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ct2010.health_area, '')) = '' THEN '    '
             ELSE LPAD(ct2010.health_area, 4, '0')
         END AS health_area,
@@ -32,7 +32,7 @@ WITH atomic_polygons_with_lookups AS (
         CASE
             WHEN TRIM(ap.fire_company_type) IN ('', 'null', 'NULL', '0') THEN ''
             ELSE LEFT(ap.fire_company_type, 1)
-        END as fire_company_type,
+        END AS fire_company_type,
         -- ap.fire_company_number,
         CASE
             WHEN TRIM(COALESCE(ap.fire_company_type, '')) IN ('', '0', 'null') THEN ''
@@ -40,49 +40,49 @@ WITH atomic_polygons_with_lookups AS (
             ELSE LPAD(TRIM(fire_company_number), 3, '0')
         END AS fire_company_number,
         -- sanborn 1: if any field is empty, all fields should be empty
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb1_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb1_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.borocode
         END AS sanborn_borough_1,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb1_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb1_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb1_volume
         END AS sanborn_volume_1,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb1_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb1_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb1_page
         END AS sanborn_page_1,
         -- sanborn 2: if any field is empty, all fields should be empty
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb2_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb2_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.borocode
         END AS sanborn_borough_2,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb2_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb2_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb2_volume
         END AS sanborn_volume_2,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb2_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb2_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb2_page
         END AS sanborn_page_2,
         -- sanborn 3: if any field is empty, all fields should be empty
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb3_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb3_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.borocode
         END AS sanborn_borough_3,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb3_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb3_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb3_volume
         END AS sanborn_volume_3,
-        CASE 
+        CASE
             WHEN TRIM(COALESCE(ap.sb3_volume, '')) IN ('', '0', '00') THEN ''
             WHEN TRIM(COALESCE(ap.sb3_page, '')) IN ('', '0', '00', '000', '0000') THEN ''
             ELSE ap.sb3_page
@@ -92,7 +92,7 @@ WITH atomic_polygons_with_lookups AS (
         CASE
             WHEN ap.hurricane_evacuation_zone = '7' THEN '0'
             ELSE ap.hurricane_evacuation_zone
-        END as hurricane_evacuation_zone,
+        END AS hurricane_evacuation_zone,
         CASE
             WHEN pb.patrol_borough = 'MS' THEN '1'
             WHEN pb.patrol_borough = 'MN' THEN '2'
@@ -103,7 +103,7 @@ WITH atomic_polygons_with_lookups AS (
             WHEN pb.patrol_borough = 'SI' THEN '7'
             WHEN pb.patrol_borough = 'QS' THEN '8'
         END AS police_patrol_borough_command,
-        pb.patrol_borough AS patrol_borough,
+        pb.patrol_borough,
         beat.sector AS police_sector,
         ct2020.neighborhood_code AS nta2020,
         ct2020.cdta_code AS cdta,
@@ -116,42 +116,42 @@ WITH atomic_polygons_with_lookups AS (
         prec.globalid AS nypdprecinct_globalid,
         pb.globalid AS nypdpatrolborough_globalid,
         beat.globalid AS nypdbeat_globalid
-    FROM {{ ref("stg__atomicpolygons") }} ap
+    FROM {{ ref("stg__atomicpolygons") }} AS ap
     -- Join CensusTract2010 via concatenated key
-    LEFT JOIN {{ ref("stg__censustract2010") }} ct2010
+    LEFT JOIN {{ ref("stg__censustract2010") }} AS ct2010
         ON ap.borocode || ap.censustract_2010 = ct2010.boroct
     -- Join CensusTract2020 via concatenated key
-    LEFT JOIN {{ ref("stg__censustract2020") }} ct2020
+    LEFT JOIN {{ ref("stg__censustract2020") }} AS ct2020
         ON ap.borocode || ap.censustract_2020 = ct2020.boroct
     -- Join HealthArea via health_area from CensusTract2010
-    LEFT JOIN {{ ref("stg__healtharea") }} ha
+    LEFT JOIN {{ ref("stg__healtharea") }} AS ha
         ON ct2010.health_area = ha.healtharea AND ct2010.borocode = ha.borough
     -- Spatial joins using point-in-polygon with C# centroid fallback logic
     -- First try centroid, if outside polygon use ST_PointOnSurface, else fallback to centroid
-    LEFT JOIN {{ ref("stg__nypdprecinct") }} prec
-        ON ST_Within(
-            CASE 
-                WHEN ST_Within(ST_Centroid(ap.geom), ap.geom) THEN ST_Centroid(ap.geom)
-                WHEN ST_PointOnSurface(ap.geom) IS NOT NULL THEN ST_PointOnSurface(ap.geom)
-                ELSE ST_Centroid(ap.geom)
+    LEFT JOIN {{ ref("stg__nypdprecinct") }} AS prec
+        ON ST_WITHIN(
+            CASE
+                WHEN ST_WITHIN(ST_CENTROID(ap.geom), ap.geom) THEN ST_CENTROID(ap.geom)
+                WHEN ST_POINTONSURFACE(ap.geom) IS NOT NULL THEN ST_POINTONSURFACE(ap.geom)
+                ELSE ST_CENTROID(ap.geom)
             END,
             prec.geom
         )
-    LEFT JOIN {{ ref("stg__nypdpatrolborough") }} pb
-        ON ST_Within(
-            CASE 
-                WHEN ST_Within(ST_Centroid(ap.geom), ap.geom) THEN ST_Centroid(ap.geom)
-                WHEN ST_PointOnSurface(ap.geom) IS NOT NULL THEN ST_PointOnSurface(ap.geom)
-                ELSE ST_Centroid(ap.geom)
+    LEFT JOIN {{ ref("stg__nypdpatrolborough") }} AS pb
+        ON ST_WITHIN(
+            CASE
+                WHEN ST_WITHIN(ST_CENTROID(ap.geom), ap.geom) THEN ST_CENTROID(ap.geom)
+                WHEN ST_POINTONSURFACE(ap.geom) IS NOT NULL THEN ST_POINTONSURFACE(ap.geom)
+                ELSE ST_CENTROID(ap.geom)
             END,
             pb.geom
         )
-    LEFT JOIN {{ ref("stg__nypdbeat") }} beat
-        ON ST_Within(
-            CASE 
-                WHEN ST_Within(ST_Centroid(ap.geom), ap.geom) THEN ST_Centroid(ap.geom)
-                WHEN ST_PointOnSurface(ap.geom) IS NOT NULL THEN ST_PointOnSurface(ap.geom)
-                ELSE ST_Centroid(ap.geom)
+    LEFT JOIN {{ ref("stg__nypdbeat") }} AS beat
+        ON ST_WITHIN(
+            CASE
+                WHEN ST_WITHIN(ST_CENTROID(ap.geom), ap.geom) THEN ST_CENTROID(ap.geom)
+                WHEN ST_POINTONSURFACE(ap.geom) IS NOT NULL THEN ST_POINTONSURFACE(ap.geom)
+                ELSE ST_CENTROID(ap.geom)
             END,
             beat.geom
         )

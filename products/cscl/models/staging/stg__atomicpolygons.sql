@@ -32,16 +32,15 @@ SELECT
     censusblock_2020::INT AS censusblock_2020_basic,
     censusblock_2020_suffix::INT,
     --
-    RIGHT(atomicid, 3) AS dynamic_block,
+    right(atomicid, 3) AS dynamic_block,
     nullif(assemdist, ' ') AS assemdist,
     nullif(electdist, ' ') AS electdist,
     nullif(schooldist, '0') AS schooldist,
     commdist,
-    LEFT(admin_fire_company, 1) AS fire_company_type,
-    CASE 
-        WHEN position(' ' in admin_fire_company) > 0 
-        THEN split_part(admin_fire_company, ' ', 2)
-        ELSE NULL
+    left(admin_fire_company, 1) AS fire_company_type,
+    CASE
+        WHEN position(' ' IN admin_fire_company) > 0
+            THEN split_part(admin_fire_company, ' ', 2)
     END AS fire_company_number,
     sb1_volume,
     sb1_page,
