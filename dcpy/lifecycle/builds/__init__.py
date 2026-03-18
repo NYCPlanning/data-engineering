@@ -19,4 +19,10 @@ BUILD_DBS = [
     "kpdb",
 ]
 
+BUILD_PLAN_ARTIFACTS = [
+    "recipe.lock.yml",
+    "build_metadata.json",
+    "source_data_versions.csv",
+]
+
 __all__ = ["get_recipes_default_connector"]

@@ -6,7 +6,7 @@ from typing import Literal
 import typer
 
 from dcpy.lifecycle import config
-from dcpy.lifecycle.builds import metadata, plan
+from dcpy.lifecycle.builds import metadata, plan, BUILD_PLAN_ARTIFACTS
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.models.lifecycle.builds import ExportFormat
 from dcpy.utils import postgres
@@ -80,6 +80,13 @@ def export(
     if output_folder.exists():
         shutil.rmtree(output_folder)
     output_folder.mkdir(parents=True)
+
+    for filename in BUILD_PLAN_ARTIFACTS:
+        source_path = Path(recipe_lock_path).parent / filename
+        if not source_path.exists():
+            logger.warning(f"Expected build artifact {source_path} does not exist")
+            continue
+        shutil.copy(source_path, output_folder / filename)
 
     for output in recipe.exports.datasets:
         # for now, assumed that postgres is source
