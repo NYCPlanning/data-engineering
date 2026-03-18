@@ -7,8 +7,6 @@ from dcpy.utils.logging import logger
 from . import OUTPUT_DIR, PG_CLIENT, PRODUCT_PATH
 
 METADATA_FILES = [
-    "source_data_versions.csv",
-    "build_metadata.json",
     "data_dictionary.yml",
     "data_dictionary.pdf",
     "data_dictionary.xlsx",
