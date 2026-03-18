@@ -91,6 +91,31 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDBeat
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nypdprecinct
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NYPDPrecinct
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nypdpatrolborough
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NYPDPatrolBorough
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censustract2010
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusTract2010
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censustract2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusTract2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_healtharea
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: HealthArea
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_roadbed_pointer_list
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -262,3 +287,29 @@ exports:
   - name: log
     filename: log.csv
     format: csv
+
+  # Thin LION
+  - name: thinlion_all
+    filename: nyc.thinlion
+    format: dat
+    custom: { formatting: thinlion_dat }
+  - name: thinlion_bronx
+    filename: BronxThinLION.txt
+    format: dat
+    custom: { formatting: thinlion_dat }
+  - name: thinlion_brooklyn
+    filename: BrooklynThinLION.txt
+    format: dat
+    custom: { formatting: thinlion_dat }
+  - name: thinlion_manhattan
+    filename: ManhattanThinLION.txt
+    format: dat
+    custom: { formatting: thinlion_dat }
+  - name: thinlion_queens
+    filename: QueensThinLION.txt
+    format: dat
+    custom: { formatting: thinlion_dat }
+  - name: thinlion_statenisland
+    filename: StatenIslandThinLION.txt
+    format: dat
+    custom: { formatting: thinlion_dat }
