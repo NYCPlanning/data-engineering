@@ -39,7 +39,6 @@ sources:
   - name: dof_shoreline
   - name: fema_firms2007_100yr
   - name: fema_pfirms2015_100yr
-  - name: dcp_transit_zones
   - name: dcp_gis_mandatory_inclusionary_housing
   - name: dcp_developments
     description: >-
@@ -80,7 +79,6 @@ sources:
             ]
     - name: date_complete
   - name: dcp_transit_zones
-  - name: pluto_pts
 
 - name: build_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
