@@ -81,6 +81,7 @@ jobs:
       run: |
         python3 poc_validation/prod_data_loader.py pull
         ./poc_validation/validate_outputs.sh
+        python3 poc_validation/summarize_diffs.py
 
     - name: Upload
       run: python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read
