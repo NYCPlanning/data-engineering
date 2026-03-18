@@ -174,14 +174,12 @@ WITH ambiguous_bbls AS (
     -- If a lot has ANY zone with priority_rank < 4, exclude "Beyond the Greater Transit Zone" (rank 4)
     SELECT
         ltr.*,
-        CASE
-            WHEN EXISTS (
+        NOT COALESCE(
+            EXISTS (
                 SELECT 1 FROM lot_to_tz_with_rank AS inner_ltr
                 WHERE inner_ltr.bbl = ltr.bbl AND inner_ltr.priority_rank < 4
-            ) AND ltr.priority_rank = 4
-            THEN false
-            ELSE true
-        END AS include_zone
+            ) AND ltr.priority_rank = 4, FALSE
+        ) AS include_zone
     FROM lot_to_tz_with_rank AS ltr
 )
 SELECT
@@ -199,7 +197,7 @@ SELECT
         ORDER BY pct_covered DESC
     ) AS tz_rank
 FROM filtered_zones
-WHERE include_zone = true;
+WHERE include_zone = TRUE;
 ANALYZE transit_zones_bbl_to_tz_ranked;
 
 -- Assign the primary transit zone by

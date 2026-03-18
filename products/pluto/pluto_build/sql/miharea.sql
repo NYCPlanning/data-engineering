@@ -102,8 +102,7 @@ WHERE perbblgeom >= 10 OR maxpermihgeom >= 50;
 DROP VIEW IF EXISTS mih_distinct_options CASCADE;
 CREATE VIEW mih_distinct_options AS
 WITH split_options AS (
-    SELECT DISTINCT
-        unnest(string_to_array(cleaned_option, ',')) AS option
+    SELECT DISTINCT unnest(string_to_array(cleaned_option, ',')) AS option
     FROM mih_lot_overlap
 )
 SELECT DISTINCT trim(option) AS option
