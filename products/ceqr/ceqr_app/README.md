@@ -28,6 +28,43 @@ This then gets passed to the EDM production database using `create.sql`, where f
 
 ## Build instructions
 
+> [!IMPORTANT]
+> This codebase is currently only used to build CEQR Schools datasets which are distributed to the Capital Planning and Support (CAPS) team and used in DCP's Schools Model excel workbook. This section is focused on buildings those datasets.
+
+All source data comes from the CAPS team and must be archived using `library` with the output as postgres. For example:
+
+```bash
+library archive --name sca_capacity_projects_current --version 20251120 --latest --output-format postgres --postgres-url $RECIPE_ENGINE
+```
+
+These are the four CEQR school datasets and their source data. See each source dataset's `library` template for details.
+
+`sca_capacity_projects`
+
+- `sca_capacity_projects_current`
+
+`sca_e_projections_by_boro`
+
+- `sca_e_projections`
+
+`sca_e_projections_by_sd`
+
+- `sca_e_pct`
+- `sca_e_projections`
+
+`ceqr_school_buildings`
+
+- `doe_lcgms`
+- `sca_bluebook`
+
+Outputs must be distributed to S3 file storage at `edm-publishing/ceqr-app-data-staging/`. Each dataset has it's own folder and all versions in them. Versions are based on the day the build was run and the `latest` folder has the latest version.
+
+### Diagram of legacy CEQR app data flow
+
+![Diagram of legacy CEQR app data flow](/docs/diagrams/dataflow_ceqr.drawio.png)
+
+## DEPRECATED BUILD NOTES
+
 ### To build using github (NYCPlanning Members Only)
 
 Running a recipe using github actions is easy! Simply open an
