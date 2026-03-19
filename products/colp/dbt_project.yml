@@ -1,0 +1,5 @@
+name: "colp"
+
+profile: "dcp-de-postgres"
+
+seed-paths: ["seeds"]

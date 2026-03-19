@@ -205,6 +205,39 @@ normed_name_merge AS (
         ON a._parcelname = b.old_name
 ),
 
+usetype_mapped AS (
+    SELECT
+        a.uid,
+        a.borough,
+        a.block,
+        a.lot,
+        a.bbl,
+        a.geo_bbl,
+        a.mapbbl,
+        a.hnum,
+        a._sname,
+        a._parcelname,
+        a.parcelname,
+        a.agency,
+        a._usecode,
+        -- Apply usetype mappings, keeping original if no mapping exists
+        coalesce(b.cleaned, a._usetype) AS _usetype,
+        a.ownership,
+        a.leased,
+        a.finalcom,
+        a.agreement,
+        a.xcoord,
+        a.ycoord,
+        a.latitude,
+        a.longitude,
+        a.geom,
+        a.cd,
+        a.sname
+    FROM normed_name_merge AS a
+    LEFT JOIN usetype_mappings AS b
+        ON a._usetype = b.source
+),
+
 categorized AS (
     SELECT
         a.*,
@@ -309,7 +342,7 @@ categorized AS (
                 a._usecode = '1410'
                 OR a._usecode = '1400' THEN 'PROPERTY WITH RESIDENTIAL USE'
         END) AS excatdesc
-    FROM normed_name_merge AS a
+    FROM usetype_mapped AS a
 )
 
 -- Reorder columns for output
