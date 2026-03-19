@@ -1,0 +1,5 @@
+apache-airflow
+apache-airflow-providers-postgres
+astronomer-cosmos
+dbt-core
+dbt-postgres
