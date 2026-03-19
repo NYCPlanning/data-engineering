@@ -113,6 +113,8 @@ class FuzzyVersion:
     def __hash__(self):
         return hash(self.original)
 
+def open_data_page_url(four_four: str) -> str:
+        return f"https://data.cityofnewyork.us/d/{four_four}"
 
 def sort_by_outdated_products(df):
     """
@@ -161,7 +163,7 @@ def sort_by_outdated_products(df):
     return df_sorted.set_index(["product", "dataset"])
 
 
-def get_all_open_data_keys():
+def get_all_open_data_keys() -> list[str]:
     """retrieve all product.dataset.destination_ids"""
     return product_metadata.load(version="dummy").query_product_dataset_destinations(
         destination_filter={"types": {"open_data"}},
@@ -198,6 +200,11 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
         product, dataset, destination_id = key.split(".")
         bytes_version = bytes_versions.get(f"{product}.{dataset}")
         open_data_vers = open_data_versions.get(key, [])
+        open_data_con = connectors["open_data"]
+        # socrata_dest = soc_pub.SocrataDestination(metadata, dataset_destination_id)
+        four_four = "idk_yet"
+        open_data_url = open_data_page_url(four_four)
+
 
         # Determine if versions are up to date using fuzzy comparison
         up_to_date = False
@@ -216,6 +223,7 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
                 "bytes_version": bytes_version,
                 "open_data_versions": open_data_vers,
                 "up_to_date": up_to_date,
+                "open_data_url": open_data_url,
             }
         )
     df = pd.DataFrame(rows).set_index(["product", "dataset"]).sort_index()
