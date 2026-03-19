@@ -28,5 +28,5 @@ SELECT ST_SUBDIVIDE(ST_MAKEVALID(geom), 100) AS geom
 INTO dof_shoreline_subdivide
 FROM (
     SELECT ST_UNION(geom) AS geom
-    FROM dof_shoreline
+    FROM stg__dof_shoreline
 ) AS a;
