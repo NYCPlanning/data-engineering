@@ -342,7 +342,7 @@ categorized AS (
                 a._usecode = '1410'
                 OR a._usecode = '1400' THEN 'PROPERTY WITH RESIDENTIAL USE'
         END) AS excatdesc
-    FROM normed_name_merge AS a
+    FROM usetype_mapped AS a
 )
 
 -- Reorder columns for output
