@@ -3,7 +3,7 @@
 source config.sh
 set -e
 
-gdal_version=3.11.3
+gdal_version=3.12.3
 gdal_short_version="$(echo "$gdal_version" | tr -d ".")"
 COMMON_APT_PACKAGES="curl zip unzip git wget ca-certificates lsb-release build-essential sudo postgresql-client libpq-dev jq locales pandoc weasyprint"
 
