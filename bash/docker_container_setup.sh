@@ -10,6 +10,7 @@ else
     export workspace=/__w/data-engineering/data-engineering
 fi 
 
+mkdir -p $HOME
 git config --global --add safe.directory $workspace
 
 python3 -m pip install $option . -c ./admin/run_environment/constraints.txt --no-deps
