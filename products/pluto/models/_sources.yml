@@ -80,8 +80,6 @@ sources:
               "9. Withdrawn"
             ]
     - name: date_complete
-  - name: dcp_transit_zones
-  - name: pluto_pts
 
 - name: build_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
