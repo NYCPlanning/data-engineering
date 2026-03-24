@@ -8,7 +8,7 @@ SELECT DISTINCT
     'lotarea' AS field,
     a.lotarea AS old_value,
     round(st_area(st_transform(a.geom, 2263)))::text AS new_value,
-    '1' AS type,
+    1 AS type,
     'Zero lot area' AS reason,
     a.version
 FROM pluto AS a

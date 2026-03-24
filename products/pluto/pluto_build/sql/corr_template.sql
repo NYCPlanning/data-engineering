@@ -36,7 +36,7 @@ SELECT DISTINCT
     b.field,
     b.old_value,
     b.new_value,
-    b.type,
+    b."Type",
     b.reason,
     b.version
 FROM stg__pluto_input_research AS b, pluto AS a
