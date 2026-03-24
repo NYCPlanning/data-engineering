@@ -18,17 +18,160 @@ dataset_defaults:
     args: { lower: True }
 
 datasets:
-- id: dcp_cscl_addresspoints
-  attributes:
-    name: CSCL Address Points
-  file_format:
-    layer: AddressPoint
+# TODO delete old items after testing archival with new full list
+# - id: dcp_cscl_addresspoints
+#   attributes:
+#     name: CSCL Address Points
+#   file_format:
+#     layer: AddressPoint
+# 
+# - id: dcp_cscl_addresspoint_lgcs
+#   attributes:
+#     name: CSCL Address Points LGC (Local Group Code)
+#   file_format:
+#     layer: ADDRESSPOINTLGCS
+# 
+# - id: dcp_cscl_altsegmentdata
+#   attributes:
+#     name: CSCL Alt Segment Data
+#   file_format:
+#     layer: ALTSEGMENTDATA
+# 
+# - id: dcp_cscl_atomicpolygons
+#   attributes:
+#     name: CSCL Atomic Polygons
+#   file_format:
+#     layer: AtomicPolygon
+# 
+# - id: dcp_cscl_centerline
+#   attributes:
+#     name: CSCL Centerline
+#   file_format:
+#     layer: Centerline
+# 
+# - id: dcp_cscl_commonplace_gdb
+#   attributes:
+#     name: CSCL Common Place
+#     description: >-
+#       TODO We archive commonplace from AGOL as well, this dataset is currently just to
+#       be used in LION ETL POC. At some point this duplication should be resolved
+#   file_format:
+#     layer: CommonPlace
+# 
+# - id: dcp_cscl_featurename
+#   attributes:
+#     name: CSCL Feature Name
+#   file_format:
+#     layer: FEATURENAME
+# 
+# - id: dcp_cscl_lastword
+#   attributes:
+#     name: CSCL Last Word Table
+#   file_format:
+#     layer: LASTWORD
+# 
+# - id: dcp_cscl_namedintersection
+#   attributes:
+#     name: CSCL Named Intersections
+#   file_format:
+#     layer: NAMEDINTERSECTION
+# 
+# - id: dcp_cscl_nodes
+#   attributes:
+#     name: CSCL Nodes
+#   file_format:
+#     layer: Node
+# 
+# - id: dcp_cscl_nonstreetfeatures
+#   attributes:
+#     name: CSCL Non-Street Features
+#   file_format:
+#     layer: NonStreetFeature
+# 
+# - id: dcp_cscl_nypdbeat
+#   attributes:
+#     name: CSCL NYPD Beat Areas
+#   file_format:
+#     layer: NYPDBeat
+# 
+# - id: dcp_cscl_rail
+#   attributes:
+#     name: CSCL Rail Lines
+#   file_format:
+#     layer: Rail
+# 
+# - id: dcp_cscl_roadbed_pointer_list
+#   attributes:
+#     name: CSCL Roadbed Pointer List
+#   file_format:
+#     layer: ROADBEDPOINTERLIST
+# 
+# - id: dcp_cscl_sectionalmap
+#   attributes:
+#     name: CSCL Sectional Map
+#   file_format:
+#     layer: SectionalMap
+# 
+# - id: dcp_cscl_sedat
+#   attributes:
+#     name: CSCL SEDAT (Split Election District Address Table)
+#   file_format:
+#     layer: SEDAT
+# 
+# - id: dcp_cscl_segment_lgc
+#   attributes:
+#     name: CSCL Segment LGC (Local Group Code)
+#   file_format:
+#     layer: SEGMENT_LGC
+# 
+# - id: dcp_cscl_shoreline
+#   attributes:
+#     name: CSCL Shoreline
+#   file_format:
+#     layer: Shoreline
+# 
+# - id: dcp_cscl_specialsedat
+#   attributes:
+#     name: CSCL Special SEDAT (Split Election District Address Table)
+#   file_format:
+#     layer: SPECIALSEDAT
+# 
+# - id: dcp_cscl_streetname
+#   attributes:
+#     name: CSCL Street Name
+#   file_format:
+#     layer: STREETNAME
+# 
+# - id: dcp_cscl_subway
+#   attributes:
+#     name: CSCL Subway Lines
+#   file_format:
+#     layer: Subway
+# 
+# - id: dcp_cscl_universalword
+#   attributes:
+#     name: CSCL Universal Word Table
+#   file_format:
+#     layer: UNIVERSALWORD
+# 
+# - id: dcp_cscl_zipcode
+#   attributes:
+#     name: CSCL Zip Code Boundaries
+#   file_format:
+#     layer: ZipCode
 
+# all layers in the gdb while we determine which ones we need for the CSCL ETL
 - id: dcp_cscl_addresspoint_lgcs
   attributes:
     name: CSCL Address Points LGC (Local Group Code)
   file_format:
     layer: ADDRESSPOINTLGCS
+
+- id: dcp_cscl_adminboundaries
+  attributes:
+    name: CSCL ADMINBOUNDARIES
+  file_format:
+    layer: ADMINBOUNDARIES
 
 - id: dcp_cscl_altsegmentdata
   attributes:
@@ -36,17 +179,167 @@ datasets:
   file_format:
     layer: ALTSEGMENTDATA
 
+- id: dcp_cscl_accesspoint
+  attributes:
+    name: CSCL AccessPoint
+  file_format:
+    layer: AccessPoint
+
+- id: dcp_cscl_addresspoints
+  attributes:
+    name: CSCL Address Points
+  file_format:
+    layer: AddressPoint
+
+- id: dcp_cscl_adjacentboroughboundary
+  attributes:
+    name: CSCL AdjacentBoroughBoundary
+  file_format:
+    layer: AdjacentBoroughBoundary
+
+- id: dcp_cscl_alarmboxarea
+  attributes:
+    name: CSCL AlarmBoxArea
+  file_format:
+    layer: AlarmBoxArea
+
+- id: dcp_cscl_alarmbox
+  attributes:
+    name: CSCL AlarmBox
+  file_format:
+    layer: AlarmBox
+
+- id: dcp_cscl_assemblydistrict
+  attributes:
+    name: CSCL AssemblyDistrict
+  file_format:
+    layer: AssemblyDistrict
+
 - id: dcp_cscl_atomicpolygons
   attributes:
     name: CSCL Atomic Polygons
   file_format:
     layer: AtomicPolygon
 
+- id: dcp_cscl_blockface
+  attributes:
+    name: CSCL BLOCKFACE
+  file_format:
+    layer: BLOCKFACE
+
+- id: dcp_cscl_borough
+  attributes:
+    name: CSCL Borough
+  file_format:
+    layer: Borough
+
+- id: dcp_cscl_businessimprovementdistrict
+  attributes:
+    name: CSCL BusinessImprovementDistrict
+  file_format:
+    layer: BusinessImprovementDistrict
+
+- id: dcp_cscl_cadsourceaddress
+  attributes:
+    name: CSCL CADSOURCEADDRESS
+  file_format:
+    layer: CADSOURCEADDRESS
+
+- id: dcp_cscl_cdta2020
+  attributes:
+    name: CSCL CDTA2020
+  file_format:
+    layer: CDTA2020
+
+- id: dcp_cscl_cdtaequiv2020
+  attributes:
+    name: CSCL CDTAEquiv2020
+  file_format:
+    layer: CDTAEquiv2020
+
+- id: dcp_cscl_centerlinehistory
+  attributes:
+    name: CSCL CENTERLINEHISTORY
+  file_format:
+    layer: CENTERLINEHISTORY
+
+- id: dcp_cscl_complexintersection
+  attributes:
+    name: CSCL COMPLEXINTERSECTION
+  file_format:
+    layer: COMPLEXINTERSECTION
+
+- id: dcp_cscl_cellularcallbox
+  attributes:
+    name: CSCL CellularCallBox
+  file_format:
+    layer: CellularCallBox
+
+- id: dcp_cscl_censusblock2000
+  attributes:
+    name: CSCL CensusBlock2000
+  file_format:
+    layer: CensusBlock2000
+
+- id: dcp_cscl_censusblock2010
+  attributes:
+    name: CSCL CensusBlock2010
+  file_format:
+    layer: CensusBlock2010
+
+- id: dcp_cscl_censusblock2020
+  attributes:
+    name: CSCL CensusBlock2020
+  file_format:
+    layer: CensusBlock2020
+
+- id: dcp_cscl_censustract1990
+  attributes:
+    name: CSCL CensusTract1990
+  file_format:
+    layer: CensusTract1990
+
+- id: dcp_cscl_censustract2000
+  attributes:
+    name: CSCL CensusTract2000
+  file_format:
+    layer: CensusTract2000
+
+- id: dcp_cscl_censustract2010
+  attributes:
+    name: CSCL CensusTract2010
+  file_format:
+    layer: CensusTract2010
+
+- id: dcp_cscl_censustract2020
+  attributes:
+    name: CSCL CensusTract2020
+  file_format:
+    layer: CensusTract2020
+
 - id: dcp_cscl_centerline
   attributes:
     name: CSCL Centerline
   file_format:
     layer: Centerline
+
+- id: dcp_cscl_citycouncildistrict
+  attributes:
+    name: CSCL CityCouncilDistrict
+  file_format:
+    layer: CityCouncilDistrict
+
+- id: dcp_cscl_citylimit
+  attributes:
+    name: CSCL CityLimit
+  file_format:
+    layer: CityLimit
+
+- id: dcp_cscl_commonplacebulkloadstaging
+  attributes:
+    name: CSCL CommonPlaceBulkLoadStaging
+  file_format:
+    layer: CommonPlaceBulkLoadStaging
 
 - id: dcp_cscl_commonplace_gdb
   attributes:
@@ -57,11 +350,149 @@ datasets:
   file_format:
     layer: CommonPlace
 
+- id: dcp_cscl_communitydistrict
+  attributes:
+    name: CSCL CommunityDistrict
+  file_format:
+    layer: CommunityDistrict
+
+- id: dcp_cscl_complexaccesspoint
+  attributes:
+    name: CSCL ComplexAccessPoint
+  file_format:
+    layer: ComplexAccessPoint
+
+- id: dcp_cscl_complex
+  attributes:
+    name: CSCL Complex
+  file_format:
+    layer: Complex
+
+- id: dcp_cscl_congressionaldistrict
+  attributes:
+    name: CSCL CongressionalDistrict
+  file_format:
+    layer: CongressionalDistrict
+
+- id: dcp_cscl_deletedstreetcodes
+  attributes:
+    name: CSCL DELETEDSTREETCODES
+  file_format:
+    layer: DELETEDSTREETCODES
+
+- id: dcp_cscl_elevation
+  attributes:
+    name: CSCL ELEVATION
+  file_format:
+    layer: ELEVATION
+
+- id: dcp_cscl_emsatom
+  attributes:
+    name: CSCL EMSAtom
+  file_format:
+    layer: EMSAtom
+
+- id: dcp_cscl_emsbattalion
+  attributes:
+    name: CSCL EMSBattalion
+  file_format:
+    layer: EMSBattalion
+
+- id: dcp_cscl_emsdispatcharea
+  attributes:
+    name: CSCL EMSDispatchArea
+  file_format:
+    layer: EMSDispatchArea
+
+- id: dcp_cscl_emsdivision
+  attributes:
+    name: CSCL EMSDivision
+  file_format:
+    layer: EMSDivision
+
+- id: dcp_cscl_esinetatomicline
+  attributes:
+    name: CSCL ESINETAtomicLine
+  file_format:
+    layer: ESINETAtomicLine
+
+- id: dcp_cscl_esinetatomicpoint
+  attributes:
+    name: CSCL ESINETAtomicPoint
+  file_format:
+    layer: ESINETAtomicPoint
+
+- id: dcp_cscl_eventroute
+  attributes:
+    name: CSCL EVENTROUTE
+  file_format:
+    layer: EVENTROUTE
+
+- id: dcp_cscl_electiondistrict
+  attributes:
+    name: CSCL ElectionDistrict
+  file_format:
+    layer: ElectionDistrict
+
+- id: dcp_cscl_entrancepoint
+  attributes:
+    name: CSCL EntrancePoint
+  file_format:
+    layer: EntrancePoint
+
 - id: dcp_cscl_featurename
   attributes:
     name: CSCL Feature Name
   file_format:
     layer: FEATURENAME
+
+- id: dcp_cscl_fieldsecurity
+  attributes:
+    name: CSCL FIELDSECURITY
+  file_format:
+    layer: FIELDSECURITY
+
+- id: dcp_cscl_firebattalion
+  attributes:
+    name: CSCL FireBattalion
+  file_format:
+    layer: FireBattalion
+
+- id: dcp_cscl_firecompany
+  attributes:
+    name: CSCL FireCompany
+  file_format:
+    layer: FireCompany
+
+- id: dcp_cscl_firedivision
+  attributes:
+    name: CSCL FireDivision
+  file_format:
+    layer: FireDivision
+
+- id: dcp_cscl_healtharea
+  attributes:
+    name: CSCL HealthArea
+  file_format:
+    layer: HealthArea
+
+- id: dcp_cscl_healthcenterdistrict
+  attributes:
+    name: CSCL HealthCenterDistrict
+  file_format:
+    layer: HealthCenterDistrict
+
+- id: dcp_cscl_historicdistrict
+  attributes:
+    name: CSCL HistoricDistrict
+  file_format:
+    layer: HistoricDistrict
+
+- id: dcp_cscl_hurricaneevacuationzone
+  attributes:
+    name: CSCL HurricaneEvacuationZone
+  file_format:
+    layer: HurricaneEvacuationZone
 
 - id: dcp_cscl_lastword
   attributes:
@@ -69,11 +500,95 @@ datasets:
   file_format:
     layer: LASTWORD
 
+- id: dcp_cscl_linknyc
+  attributes:
+    name: CSCL LinkNYC
+  file_format:
+    layer: LinkNYC
+
+- id: dcp_cscl_median
+  attributes:
+    name: CSCL Median
+  file_format:
+    layer: Median
+
+- id: dcp_cscl_milepost
+  attributes:
+    name: CSCL MilePost
+  file_format:
+    layer: MilePost
+
+- id: dcp_cscl_municipalcourtdistrict
+  attributes:
+    name: CSCL MunicipalCourtDistrict
+  file_format:
+    layer: MunicipalCourtDistrict
+
 - id: dcp_cscl_namedintersection
   attributes:
     name: CSCL Named Intersections
   file_format:
     layer: NAMEDINTERSECTION
+
+- id: dcp_cscl_neighborhoodpumacodes
+  attributes:
+    name: CSCL NEIGHBORHOODPUMACODES
+  file_format:
+    layer: NEIGHBORHOODPUMACODES
+
+- id: dcp_cscl_nta2020
+  attributes:
+    name: CSCL NTA2020
+  file_format:
+    layer: NTA2020
+
+- id: dcp_cscl_ntaequiv2020
+  attributes:
+    name: CSCL NTAEquiv2020
+  file_format:
+    layer: NTAEquiv2020
+
+- id: dcp_cscl_nypdbeat
+  attributes:
+    name: CSCL NYPD Beat Areas
+  file_format:
+    layer: NYPDBeat
+
+- id: dcp_cscl_nypdpatrolborough
+  attributes:
+    name: CSCL NYPDPatrolBorough
+  file_format:
+    layer: NYPDPatrolBorough
+
+- id: dcp_cscl_nypdprecinct
+  attributes:
+    name: CSCL NYPDPrecinct
+  file_format:
+    layer: NYPDPrecinct
+
+- id: dcp_cscl_nypdreferencemarkers
+  attributes:
+    name: CSCL NYPDReferenceMarkers
+  file_format:
+    layer: NYPDReferenceMarkers
+
+- id: dcp_cscl_nypdsector
+  attributes:
+    name: CSCL NYPDSector
+  file_format:
+    layer: NYPDSector
+
+- id: dcp_cscl_nypdtow
+  attributes:
+    name: CSCL NYPDTow
+  file_format:
+    layer: NYPDTow
+
+- id: dcp_cscl_neighborhood
+  attributes:
+    name: CSCL Neighborhood
+  file_format:
+    layer: Neighborhood
 
 - id: dcp_cscl_nodes
   attributes:
@@ -87,17 +602,29 @@ datasets:
   file_format:
     layer: NonStreetFeature
 
-- id: dcp_cscl_nypdbeat
+- id: dcp_cscl_paraderoute
   attributes:
-    name: CSCL NYPD Beat Areas
+    name: CSCL PARADEROUTE
   file_format:
-    layer: NYPDBeat
+    layer: PARADEROUTE
 
-- id: dcp_cscl_rail
+- id: dcp_cscl_permit
   attributes:
-    name: CSCL Rail Lines
+    name: CSCL PERMIT
   file_format:
-    layer: Rail
+    layer: PERMIT
+
+- id: dcp_cscl_physicalrestriction
+  attributes:
+    name: CSCL PHYSICALRESTRICTION
+  file_format:
+    layer: PHYSICALRESTRICTION
+
+- id: dcp_cscl_quartersectionalmap
+  attributes:
+    name: CSCL QuarterSectionalMap
+  file_format:
+    layer: QuarterSectionalMap
 
 - id: dcp_cscl_roadbed_pointer_list
   attributes:
@@ -105,11 +632,23 @@ datasets:
   file_format:
     layer: ROADBEDPOINTERLIST
 
-- id: dcp_cscl_sectionalmap
+- id: dcp_cscl_railstation
   attributes:
-    name: CSCL Sectional Map
+    name: CSCL RailStation
   file_format:
-    layer: SectionalMap
+    layer: RailStation
+
+- id: dcp_cscl_rail
+  attributes:
+    name: CSCL Rail Lines
+  file_format:
+    layer: Rail
+
+- id: dcp_cscl_referencemarker
+  attributes:
+    name: CSCL ReferenceMarker
+  file_format:
+    layer: ReferenceMarker
 
 - id: dcp_cscl_sedat
   attributes:
@@ -123,11 +662,23 @@ datasets:
   file_format:
     layer: SEGMENT_LGC
 
-- id: dcp_cscl_shoreline
+- id: dcp_cscl_snowroute
   attributes:
-    name: CSCL Shoreline
+    name: CSCL SNOWROUTE
   file_format:
-    layer: Shoreline
+    layer: SNOWROUTE
+
+- id: dcp_cscl_specialdisaster
+  attributes:
+    name: CSCL SPECIALDISASTER
+  file_format:
+    layer: SPECIALDISASTER
+
+- id: dcp_cscl_specialintersections
+  attributes:
+    name: CSCL SPECIALINTERSECTIONS
+  file_format:
+    layer: SPECIALINTERSECTIONS
 
 - id: dcp_cscl_specialsedat
   attributes:
@@ -141,17 +692,191 @@ datasets:
   file_format:
     layer: STREETNAME
 
+- id: dcp_cscl_streetname_a4
+  attributes:
+    name: CSCL STREETNAME_A4
+  file_format:
+    layer: STREETNAME_A4
+
+- id: dcp_cscl_streetshaveintersections
+  attributes:
+    name: CSCL STREETSHAVEINTERSECTIONS
+  file_format:
+    layer: STREETSHAVEINTERSECTIONS
+
+- id: dcp_cscl_streettype
+  attributes:
+    name: CSCL STREETTYPE
+  file_format:
+    layer: STREETTYPE
+
+- id: dcp_cscl_subaddress
+  attributes:
+    name: CSCL SUBADDRESS
+  file_format:
+    layer: SUBADDRESS
+
+- id: dcp_cscl_schooldistrict
+  attributes:
+    name: CSCL SchoolDistrict
+  file_format:
+    layer: SchoolDistrict
+
+- id: dcp_cscl_sectionalmap
+  attributes:
+    name: CSCL Sectional Map
+  file_format:
+    layer: SectionalMap
+
+- id: dcp_cscl_shoreline
+  attributes:
+    name: CSCL Shoreline
+  file_format:
+    layer: Shoreline
+
+- id: dcp_cscl_statesenatedistrict
+  attributes:
+    name: CSCL StateSenateDistrict
+  file_format:
+    layer: StateSenateDistrict
+
+- id: dcp_cscl_subwaystation
+  attributes:
+    name: CSCL SubwayStation
+  file_format:
+    layer: SubwayStation
+
 - id: dcp_cscl_subway
   attributes:
     name: CSCL Subway Lines
   file_format:
     layer: Subway
 
+- id: dcp_cscl_trafficcalmingdevice
+  attributes:
+    name: CSCL TRAFFICCALMINGDEVICE
+  file_format:
+    layer: TRAFFICCALMINGDEVICE
+
+- id: dcp_cscl_travelrestriction
+  attributes:
+    name: CSCL TRAVELRESTRICTION
+  file_format:
+    layer: TRAVELRESTRICTION
+
+- id: dcp_cscl_truckroute
+  attributes:
+    name: CSCL TRUCKROUTE
+  file_format:
+    layer: TRUCKROUTE
+
+- id: dcp_cscl_turnrestrictionlimits
+  attributes:
+    name: CSCL TURNRESTRICTIONLIMITS
+  file_format:
+    layer: TURNRESTRICTIONLIMITS
+
+- id: dcp_cscl_turnrestriction
+  attributes:
+    name: CSCL TURNRESTRICTION
+  file_format:
+    layer: TURNRESTRICTION
+
+- id: dcp_cscl_t_1_dirtyareas
+  attributes:
+    name: CSCL T_1_DirtyAreas
+  file_format:
+    layer: T_1_DirtyAreas
+
+- id: dcp_cscl_t_1_lineerrors
+  attributes:
+    name: CSCL T_1_LineErrors
+  file_format:
+    layer: T_1_LineErrors
+
+- id: dcp_cscl_t_1_pointerrors
+  attributes:
+    name: CSCL T_1_PointErrors
+  file_format:
+    layer: T_1_PointErrors
+
+- id: dcp_cscl_t_1_polyerrors
+  attributes:
+    name: CSCL T_1_PolyErrors
+  file_format:
+    layer: T_1_PolyErrors
+
+- id: dcp_cscl_tollbooth
+  attributes:
+    name: CSCL TollBooth
+  file_format:
+    layer: TollBooth
+
+- id: dcp_cscl_trafficcamera
+  attributes:
+    name: CSCL TrafficCamera
+  file_format:
+    layer: TrafficCamera
+
+- id: dcp_cscl_transitbooth
+  attributes:
+    name: CSCL TransitBooth
+  file_format:
+    layer: TransitBooth
+
+- id: dcp_cscl_transitemergencyexit
+  attributes:
+    name: CSCL TransitEmergencyExit
+  file_format:
+    layer: TransitEmergencyExit
+
+- id: dcp_cscl_transitentrance
+  attributes:
+    name: CSCL TransitEntrance
+  file_format:
+    layer: TransitEntrance
+
 - id: dcp_cscl_universalword
   attributes:
     name: CSCL Universal Word Table
   file_format:
     layer: UNIVERSALWORD
+
+- id: dcp_cscl_users
+  attributes:
+    name: CSCL USERS
+  file_format:
+    layer: USERS
+
+- id: dcp_cscl_urbanrenewalarea
+  attributes:
+    name: CSCL UrbanRenewalArea
+  file_format:
+    layer: UrbanRenewalArea
+
+- id: dcp_cscl_virtualintersection
+  attributes:
+    name: CSCL VIRTUALINTERSECTION
+  file_format:
+    layer: VIRTUALINTERSECTION
+
+- id: dcp_cscl_v_jobid
+  attributes:
+    name: CSCL V_JOBID
+  file_format:
+    layer: V_JOBID
+
+- id: dcp_cscl_virtualcenterline
+  attributes:
+    name: CSCL VirtualCenterline
+  file_format:
+    layer: VirtualCenterline
+
+- id: dcp_cscl_workorder
+  attributes:
+    name: CSCL WORKORDER
+  file_format:
+    layer: WORKORDER
 
 - id: dcp_cscl_zipcode
   attributes:
