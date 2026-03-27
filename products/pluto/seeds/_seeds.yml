@@ -37,6 +37,9 @@ seeds:
     
   - name: pluto_input_landuse_bldgclass
     description: Building class to land use mapping
+    config:
+      column_types:
+        landuse: text
     
   - name: pluto_input_condolot_descriptiveattributes
     description: Descriptive attributes for condo lots (8.3k rows)
