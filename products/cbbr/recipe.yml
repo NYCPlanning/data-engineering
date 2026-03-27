@@ -1,6 +1,6 @@
 name: Community Board Budget Requests
 product: db-cbbr
-version: FY2026
+version: FY2027
 inputs:
   missing_versions_strategy: find_latest
   datasets:
