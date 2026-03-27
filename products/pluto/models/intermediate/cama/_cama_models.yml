@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: int_pluto__bsmtcode
+    description: Basement type code based on CAMA data (highest bsmnt_type and bsmntgradient)
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: bsmtcode
+        description: Basement code (5 = Unknown if no data)
+
+  - name: int_pluto__lottype
+    description: Lot type classification from CAMA data (lowest non-zero, non-5 value)
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: lottype
+        description: Lot type code (0 = Mixed or Unknown if no data)
+
+  - name: int_pluto__proxcode
+    description: Proxy code (property classification) from CAMA with DOF to DCP value recoding
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: proxcode
+        description: Proxy code (0 = Not Available if no data)
+
+  - name: int_pluto__easements
+    description: Count of distinct easements associated with each lot
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: easements
+        description: Number of easements (0 if none)

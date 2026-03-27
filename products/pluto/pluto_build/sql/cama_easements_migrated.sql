@@ -4,7 +4,7 @@ WITH distincteasements AS (
     SELECT DISTINCT
         primebbl AS bbl,
         ease
-    FROM dof_pts_propmaster
+    FROM int__dof_pts_propmaster
     WHERE ease IS NOT NULL AND ease != ' '
 ),
 

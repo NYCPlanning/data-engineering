@@ -25,7 +25,7 @@ SET
     strgearea = b.storagearea,
     factryarea = b.factoryarea,
     otherarea = b.otherarea
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE
     a.bbl = b.primebbl
     AND a.lot NOT LIKE '75%'

@@ -11,7 +11,7 @@ WITH bldgclass AS (
         SELECT DISTINCT
             billingbbl,
             bldgcl
-        FROM pluto_rpad_geo
+        FROM int__pluto_rpad_geo
         WHERE
             bldgcl != 'R0'
             AND bldgcl != 'RG'
@@ -53,7 +53,7 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
             SELECT DISTINCT
                 billingbbl,
                 bldgcl
-            FROM pluto_rpad_geo
+            FROM int__pluto_rpad_geo
             WHERE
                 bldgcl != 'R0'
                 AND bldgcl != 'RG'
@@ -214,7 +214,7 @@ bldgclass AS (
             b.bldgcl,
             b.boro || b.tb || b.tl AS bbl
         FROM z7s AS a
-        LEFT JOIN pluto_rpad_geo AS b
+        LEFT JOIN int__pluto_rpad_geo AS b
             ON a.bbl = b.boro || b.tb || b.tl
     ) AS x
 ),

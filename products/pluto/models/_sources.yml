@@ -91,6 +91,8 @@ sources:
     description: >-
       Processed PTS data where each record is a UNIT BBL: i.e. there are multiple
       records per a condominium.
+  - name: pluto_input_cama
+    description: CAMA data with primebbl added (created from pluto_input_cama_dof)
 
   - name: previous_pluto
   - name: pluto

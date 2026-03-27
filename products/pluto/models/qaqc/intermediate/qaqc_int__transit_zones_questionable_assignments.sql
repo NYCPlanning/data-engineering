@@ -87,13 +87,13 @@ SELECT
     wl.loser_tz,
     st_envelope(st_buffer(wl.geom, .005)) AS area_of_interest_geom,
     (
-        SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), wkb_geometry)
-        FROM {{ source('recipe_sources', 'dcp_transit_zones') }} AS dtz
+        SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), geom)
+        FROM {{ ref('stg__dcp_transit_zones') }} AS dtz
         WHERE dtz.transit_zone = wl.winner_tz
     ) AS winner_tz_geom,
     (
-        SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), wkb_geometry)
-        FROM {{ source('recipe_sources', 'dcp_transit_zones') }} AS dtz
+        SELECT st_intersection(st_envelope(st_buffer(wl.geom, .005)), geom)
+        FROM {{ ref('stg__dcp_transit_zones') }} AS dtz
         WHERE dtz.transit_zone = wl.loser_tz
     ) AS loser_tz_geom
 FROM winners_losers AS wl

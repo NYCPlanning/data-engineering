@@ -1,0 +1,151 @@
+version: 2
+
+models:
+  - name: int_pluto__far
+    description: Floor Area Ratio (FAR) calculations and maximum FAR by zoning district
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: builtfar
+        description: Built FAR calculated as building area divided by lot area
+      - name: residfar
+        description: Maximum residential FAR for the zoning district
+      - name: commfar
+        description: Maximum commercial FAR for the zoning district
+      - name: facilfar
+        description: Maximum facility FAR for the zoning district
+      - name: affresfar
+        description: Maximum affordable residential FAR for the zoning district
+      - name: mnffar
+        description: Maximum manufacturing FAR for the zoning district
+
+  - name: int_pluto__irrlotcode
+    description: Irregular lot code transformation from RPAD format to Y/N format
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: irrlotcode
+        description: Irregular lot indicator (Y for irregular, N for regular)
+
+  - name: int_pluto__sanitation
+    description: Sanitation borough and district extracted from sanitdistrict field
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: sanitboro
+        description: Sanitation borough (first character of sanitdistrict)
+      - name: sanitdistrict
+        description: Sanitation district (last 2 characters of original sanitdistrict)
+
+  - name: int_pluto__landuse
+    description: Land use classification based on building class, with area source calculation for vacant lots
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: landuse
+        description: Land use category derived from building class
+      - name: areasource
+        description: Source of area measurement (4 for vacant lots)
+
+  - name: int_pluto__ownertype
+    description: Owner type classification based on COLP data and exemption status
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: ownertype
+        description: Type of property owner (X for fully exempt properties)
+
+  - name: int_pluto__edesignation
+    description: E-designation number assignment (environmental designation)
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: edesignum
+        description: E-designation number (environmental restriction)
+
+  - name: int_pluto__latlong
+    description: Latitude, longitude, and centroid calculated from x/y coordinates
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: latitude
+        description: Latitude in WGS84 (SRID 4326)
+      - name: longitude
+        description: Longitude in WGS84 (SRID 4326)
+      - name: centroid
+        description: Centroid geometry point in WGS84
+
+  - name: int_pluto__condono
+    description: Formatted condo number without borough prefix and leading zeros
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: condono
+        description: Condo number (formatted)
+
+  - name: int_pluto__lpc
+    description: Historic district and landmark designations from LPC
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: histdist
+        description: Historic district name
+      - name: landmark
+        description: Landmark type (Individual, Interior, or Individual and Interior)
+
+  - name: int_pluto__numericfields
+    description: Cleaned numeric fields with invalid values removed
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: lotdepth
+        description: Lot depth (cleaned)
+      - name: numfloors
+        description: Number of floors (cleaned, must be >= 1)
+      - name: lotarea
+        description: Lot area (commas removed)
+      - name: sanborn
+        description: Sanborn map identifier (cleaned)
+
+  - name: int_pluto__flood_flag
+    description: FEMA floodplain flags for 2007 and 2015
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: firm07_flag
+        description: Flag if lot intersects 2007 floodplain (1% annual chance)
+      - name: pfirm15_flag
+        description: Flag if lot intersects 2015 preliminary floodplain (1% annual chance)

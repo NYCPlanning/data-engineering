@@ -22,13 +22,13 @@ SET
     address = concat(b.housenum_lo, ' ', b.street_name),
     ycoord = ltrim(b.ycoord, '0'),
     xcoord = ltrim(b.xcoord, '0')
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE a.bbl = b.primebbl AND a.lot NOT LIKE '75%';
 
 --updating the building code if it was not updated in alloceted
 UPDATE pluto a
 SET bldgclass = b.bldgcl
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE
     a.bbl = b.primebbl
     AND a.lot NOT LIKE '75%'
@@ -59,13 +59,13 @@ SET
     address = concat(b.housenum_lo, ' ', b.street_name),
     ycoord = ltrim(b.ycoord, '0'),
     xcoord = ltrim(b.xcoord, '0')
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE a.bbl = b.borough || b.block || b.lot AND a.lot LIKE '75%';
 
 --updating the building code if it was not updated in alloceted
 UPDATE pluto a
 SET bldgclass = b.bldgcl
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE
     a.bbl = b.borough || b.block || b.lot
     AND a.lot LIKE '75%'

@@ -1,7 +1,7 @@
 -- when the address is still null populate the address
 UPDATE pluto a
 SET address = concat(b.housenum_hi, ' ', b.street_name)
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE
     a.bbl = b.primebbl AND a.address IS NULL
     AND b.housenum_hi IS NOT NULL AND b.street_name IS NOT NULL;

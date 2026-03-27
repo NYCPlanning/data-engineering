@@ -1,0 +1,959 @@
+# PLUTO UPDATE Statement Dependency Analysis
+# Generated for dbt migration planning
+# Total files analyzed: 23
+# Total UPDATE statements: 42
+
+================================================================================
+SUMMARY BY TARGET TABLE
+================================================================================
+
+
+DOF_PTS_PROPMASTER (1 updates)
+----------------------------------------
+Fields updated: primebbl
+Files: primebbl.sql
+
+PLUTO (29 updates)
+----------------------------------------
+Fields updated: affresfar, appbbl, areasource, bldgclass, block, bsmtcode, builtfar, centroid, commfar, condono, easements, edesignum, facilfar, histdist, irrlotcode, landmark, landuse, latitude, longitude, lot, lotarea, lotdepth, lottype, mih_opt1, mih_opt2, mih_opt3, mih_opt4, mnffar, numfloors, ownertype, plutomapid, proxcode, residfar, sanborn, sanitboro, sanitdistrict, spdist1, spdist2, splitzone, trnstzone, version
+Files: apply_dbt_enrichments.sql, backfill.sql, bldgclass.sql, cama_bsmttype.sql, cama_easements.sql, cama_lottype.sql, cama_proxcode.sql, corr_lotarea.sql, dtmgeoms.sql, latlong.sql, numericfields_geomfields.sql, plutomapid.sql, versions.sql, zoning.sql, zoning_specialdistrict.sql, zoning_splitzone.sql
+
+PLUTO_ALLOCATED (3 updates)
+----------------------------------------
+Fields updated: yearalter1, yearalter2, yearbuilt
+Files: yearbuiltalt.sql
+
+PLUTO_DTM (1 updates)
+----------------------------------------
+Fields updated: primebbl
+Files: dtmmergepolygons.sql
+
+PLUTO_INPUT_CAMA (2 updates)
+----------------------------------------
+Fields updated: primebbl
+Files: create_cama_primebbl.sql
+
+PLUTO_RPAD_GEO (5 updates)
+----------------------------------------
+Fields updated: ap_datef, bbl, billingblock, billinglot, primebbl
+Files: apdate.sql, create_rpad_geo.sql, geocode_billingbbl.sql, primebbl.sql
+
+STG__PLUTO_INPUT_GEOCODES (1 updates)
+----------------------------------------
+Fields updated: ct2010, xcoord, ycoord
+Files: create_rpad_geo.sql
+
+
+================================================================================
+DETAILED DEPENDENCY GRAPH
+================================================================================
+
+
+================================================================================
+FILE: pluto_build/sql/apdate.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto_rpad_geo
+Fields Updated:
+  - ap_datef = to_char(to_date(ap_date
+
+SQL Preview:
+UPDATE pluto_rpad_geo
+SET ap_datef = to_char(to_date(ap_date, 'MM/DD/YY'), 'MM/DD/YYYY')
+WHERE ap_date IS NOT NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/apply_dbt_enrichments.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - builtfar = pe.builtfar
+  - residfar = pe.residfar
+  - commfar = pe.commfar
+  - facilfar = pe.facilfar
+  - affresfar = pe.affresfar
+  - mnffar = pe.mnffar
+  - irrlotcode = pe.irrlotcode
+  - sanitboro = pe.sanitboro
+  - sanitdistrict = pe.sanitdistrict
+  - landuse = pe.landuse
+  - areasource = pe.areasource
+  - ownertype = pe.ownertype
+  - edesignum = pe.edesignum
+  - latitude = pe.latitude
+  - longitude = pe.longitude
+  - centroid = pe.centroid
+  - condono = pe.condono
+  - histdist = pe.histdist
+  - landmark = pe.landmark
+  - lotdepth = pe.lotdepth
+  - numfloors = pe.numfloors
+  - lotarea = pe.lotarea
+  - sanborn = pe.sanborn
+  - mih_opt1 = pe.mih_opt1
+  - mih_opt2 = pe.mih_opt2
+  - mih_opt3 = pe.mih_opt3
+  - mih_opt4 = pe.mih_opt4
+  - trnstzone = pe.trnstzone
+Source Tables: pluto_enriched
+Join Conditions:
+  - pluto.bbl = pe.bbl
+
+SQL Preview:
+UPDATE pluto
+SET
+    builtfar = pe.builtfar,
+    residfar = pe.residfar,
+    commfar = pe.commfar,
+    facilfar = pe.facilfar,
+    affresfar = pe.affresfar,
+    mnffar = pe.mnffar,
+    irrlotcode = pe
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/backfill.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - builtfar = ROUND(bldgarea::numeric / lotarea::numeric
+
+SQL Preview:
+UPDATE pluto
+SET builtfar = ROUND(bldgarea::numeric / lotarea::numeric, 2)
+WHERE lotarea != '0' AND lotarea IS NOT NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/bldgclass.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - bldgclass = 'Q0'
+
+SQL Preview:
+UPDATE pluto
+SET bldgclass = 'Q0'
+WHERE
+    zonedist1 = 'PARK'
+    AND (bldgclass IS NULL OR bldgclass LIKE 'V%');
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/cama_bsmttype.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - bsmtcode = '5'
+
+SQL Preview:
+UPDATE pluto
+SET bsmtcode = '5'
+WHERE bsmtcode IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/cama_easements.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - easements = '0'
+
+SQL Preview:
+UPDATE pluto
+SET easements = '0'
+WHERE easements IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/cama_lottype.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - lottype = '0'
+
+SQL Preview:
+UPDATE pluto
+SET lottype = '0'
+WHERE lottype IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/cama_proxcode.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - proxcode = '0'
+
+SQL Preview:
+UPDATE pluto
+SET proxcode = '0'
+WHERE proxcode IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/corr_lotarea.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - builtfar = round(bldgarea::numeric / lotarea::numeric
+
+SQL Preview:
+UPDATE pluto
+SET builtfar = round(bldgarea::numeric / lotarea::numeric, 2)
+WHERE
+    lotarea != '0'
+    AND lotarea IS NOT NULL
+    AND bbl IN (
+        SELECT bbl FROM pluto_changes_applied
+        W
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/create_cama_primebbl.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto_input_cama
+Fields Updated:
+  - primebbl = billingbbl
+
+SQL Preview:
+UPDATE pluto_input_cama
+SET primebbl = billingbbl
+WHERE billingbbl IS NOT NULL AND billingbbl != '0000000000';
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto_input_cama
+Fields Updated:
+  - primebbl = LEFT(bbl
+
+SQL Preview:
+UPDATE pluto_input_cama
+SET primebbl = LEFT(bbl, 10)
+WHERE primebbl IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/create_rpad_geo.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: stg__pluto_input_geocodes
+Fields Updated:
+  - xcoord = ST_X(ST_TRANSFORM(geom
+  - ycoord = ST_Y(ST_TRANSFORM(geom
+  - ct2010 = (CASE WHEN ct2010::numeric = 0 THEN NULL ELSE ct2010 END)
+
+SQL Preview:
+UPDATE stg__pluto_input_geocodes
+SET
+    xcoord = ST_X(ST_TRANSFORM(geom, 2263))::integer,
+    ycoord = ST_Y(ST_TRANSFORM(geom, 2263))::integer,
+    ct2010 = (CASE WHEN ct2010::numeric = 0 THEN NULL E
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto_rpad_geo
+Fields Updated:
+  - bbl = borough || LPAD(block
+
+SQL Preview:
+UPDATE pluto_rpad_geo SET bbl = borough || LPAD(block, 5, '0') || LPAD(lot, 4, '0');
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/dtmgeoms.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - block = '0'
+
+SQL Preview:
+UPDATE pluto
+SET block = '0'
+WHERE block = '';
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto
+Fields Updated:
+  - lot = '0'
+
+SQL Preview:
+UPDATE pluto
+SET lot = '0'
+WHERE lot = '';
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/dtmmergepolygons.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto_dtm
+Fields Updated:
+  - primebbl = condo_billing_bbl
+Source Tables: pluto_condo
+
+SQL Preview:
+UPDATE pluto_dtm
+SET primebbl = condo_billing_bbl
+FROM pluto_condo
+WHERE
+    bbl = condo_base_bbl
+    AND condo_billing_bbl IS NOT NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/geocode_billingbbl.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto_rpad_geo
+Fields Updated:
+  - billingblock = SUBSTRING(billingbbl
+  - billinglot = RIGHT(billingbbl
+
+SQL Preview:
+UPDATE pluto_rpad_geo
+SET
+    billingblock = SUBSTRING(billingbbl, 2, 5),
+    billinglot = RIGHT(billingbbl, 4)
+WHERE
+    billingbbl IS NOT NULL
+    AND billingbbl != '0000000000'
+    AND billingbbl !
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/latlong.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - centroid = ST_SETSRID(ST_MAKEPOINT(longitude::double precision
+
+SQL Preview:
+UPDATE pluto SET centroid = ST_SETSRID(ST_MAKEPOINT(longitude::double precision, latitude::double precision), 4326);
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/numericfields_geomfields.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - appbbl = '0'
+
+SQL Preview:
+UPDATE pluto
+SET appbbl = '0'
+WHERE appbbl::numeric = 0;
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto
+Fields Updated:
+  - sanitdistrict = sanitdistrict::integer
+
+SQL Preview:
+UPDATE pluto
+SET sanitdistrict = sanitdistrict::integer;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/plutomapid.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - plutomapid = '1'
+
+SQL Preview:
+UPDATE pluto
+SET plutomapid = '1'
+WHERE
+    geom IS NOT NULL
+    AND plutomapid IS NULL;
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto
+Fields Updated:
+  - plutomapid = '2'
+
+SQL Preview:
+UPDATE pluto
+SET plutomapid = '2'
+WHERE geom IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/primebbl.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto_rpad_geo
+Fields Updated:
+  - primebbl = billingbbl
+
+SQL Preview:
+UPDATE pluto_rpad_geo
+SET primebbl = billingbbl
+WHERE billingbbl IS NOT NULL AND billingbbl != '0000000000';
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto_rpad_geo
+Fields Updated:
+  - primebbl = boro || tb || tl
+
+SQL Preview:
+UPDATE pluto_rpad_geo
+SET primebbl = boro || tb || tl
+WHERE primebbl IS NULL;
+
+----------------------------------------
+
+--- UPDATE #3 ---
+Target Table: dof_pts_propmaster
+Fields Updated:
+  - primebbl = boro || tb || tl
+
+SQL Preview:
+UPDATE dof_pts_propmaster
+SET primebbl = boro || tb || tl
+WHERE primebbl IS NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/versions.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - version = '20v1'
+
+SQL Preview:
+UPDATE pluto
+SET version = '20v1';
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/yearbuiltalt.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto_allocated
+Fields Updated:
+  - yearbuilt = '0'
+
+SQL Preview:
+UPDATE pluto_allocated
+SET yearbuilt = '0'
+WHERE
+    yearbuilt IS NULL
+    OR yearbuilt::integer = 0;
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto_allocated
+Fields Updated:
+  - yearalter1 = '0'
+
+SQL Preview:
+UPDATE pluto_allocated
+SET yearalter1 = '0'
+WHERE
+    yearalter1 IS NULL
+    OR yearalter1::integer = 0;
+
+----------------------------------------
+
+--- UPDATE #3 ---
+Target Table: pluto_allocated
+Fields Updated:
+  - yearalter2 = '0'
+
+SQL Preview:
+UPDATE pluto_allocated
+SET yearalter2 = '0'
+WHERE
+    yearalter2 IS NULL
+    OR yearalter2::integer = 0;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/zoning.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - splitzone = 'Y'
+
+SQL Preview:
+UPDATE pluto
+SET splitzone = 'Y'
+WHERE
+    zonedist1 IS NOT NULL
+    AND (
+        zonedist2 IS NOT NULL
+        OR overlay1 IS NOT NULL
+        OR spdist1 IS NOT NULL
+    );
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto
+Fields Updated:
+  - splitzone = 'Y'
+
+SQL Preview:
+UPDATE pluto
+SET splitzone = 'Y'
+WHERE
+    overlay1 IS NOT NULL
+    AND (
+        zonedist1 IS NOT NULL
+        OR overlay2 IS NOT NULL
+        OR spdist1 IS NOT NULL
+    );
+
+----------------------------------------
+
+--- UPDATE #3 ---
+Target Table: pluto
+Fields Updated:
+  - splitzone = 'Y'
+
+SQL Preview:
+UPDATE pluto
+SET splitzone = 'Y'
+WHERE
+    spdist1 IS NOT NULL
+    AND (
+        zonedist1 IS NOT NULL
+        OR overlay1 IS NOT NULL
+        OR spdist2 IS NOT NULL
+    );
+
+----------------------------------------
+
+--- UPDATE #4 ---
+Target Table: pluto
+Fields Updated:
+  - splitzone = 'N'
+
+SQL Preview:
+UPDATE pluto
+SET splitzone = 'N'
+WHERE splitzone IS NULL AND zonedist1 IS NOT NULL;
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/zoning_specialdistrict.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = 'CL'
+  - spdist2 = 'MiD'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = 'CL',
+    spdist2 = 'MiD'
+WHERE
+    spdist1 = 'MiD'
+    AND spdist2 = 'CL';
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = 'MiD'
+  - spdist2 = 'TA'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = 'MiD',
+    spdist2 = 'TA'
+WHERE
+    spdist1 = 'TA'
+    AND spdist2 = 'MiD';
+
+----------------------------------------
+
+--- UPDATE #3 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = '125th'
+  - spdist2 = 'TA'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = '125th',
+    spdist2 = 'TA'
+WHERE
+    spdist1 = 'TA'
+    AND spdist2 = '125th';
+
+----------------------------------------
+
+--- UPDATE #4 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = 'EC-5'
+  - spdist2 = 'MX-16'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = 'EC-5',
+    spdist2 = 'MX-16'
+WHERE
+    spdist1 = 'MX-16'
+    AND spdist2 = 'EC-5';
+
+----------------------------------------
+
+--- UPDATE #5 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = 'EC-6'
+  - spdist2 = 'MX-16'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = 'EC-6',
+    spdist2 = 'MX-16'
+WHERE
+    spdist1 = 'MX-16'
+    AND spdist2 = 'EC-6';
+
+----------------------------------------
+
+--- UPDATE #6 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = 'EHC'
+  - spdist2 = 'TA'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = 'EHC',
+    spdist2 = 'TA'
+WHERE
+    spdist1 = 'TA'
+    AND spdist2 = 'EHC';
+
+----------------------------------------
+
+--- UPDATE #7 ---
+Target Table: pluto
+Fields Updated:
+  - spdist1 = 'MX-1'
+  - spdist2 = 'G'
+
+SQL Preview:
+UPDATE pluto
+SET
+    spdist1 = 'MX-1',
+    spdist2 = 'G'
+WHERE
+    spdist1 = 'G'
+    AND spdist2 = 'MX-1';
+
+----------------------------------------
+
+
+================================================================================
+FILE: pluto_build/sql/zoning_splitzone.sql
+================================================================================
+
+--- UPDATE #1 ---
+Target Table: pluto
+Fields Updated:
+  - splitzone = 'Y'
+
+SQL Preview:
+UPDATE pluto
+SET splitzone = 'Y'
+WHERE
+    zonedist2 IS NOT NULL
+    OR overlay2 IS NOT NULL
+    OR spdist2 IS NOT NULL;
+
+----------------------------------------
+
+--- UPDATE #2 ---
+Target Table: pluto
+Fields Updated:
+  - splitzone = 'N'
+
+SQL Preview:
+UPDATE pluto
+SET splitzone = 'N'
+WHERE splitzone IS NULL AND zonedist1 IS NOT NULL;
+
+----------------------------------------
+
+Parsing dependencies...
+
+Total UPDATE statements analyzed: 42
+
+================================================================================
+MIGRATION GROUPS
+================================================================================
+
+CAMA
+----------------------------------------
+Files (5): cama_bsmttype.sql, cama_easements.sql, cama_lottype.sql, cama_proxcode.sql, create_cama_primebbl.sql
+Target tables: pluto, pluto_input_cama
+Fields updated (5): bsmtcode, easements, lottype, primebbl, proxcode
+
+Classification/Defaults
+----------------------------------------
+Files (1): bldgclass.sql
+Target tables: pluto
+Fields updated (1): bldgclass
+
+Corrections/Backfill
+----------------------------------------
+Files (2): backfill.sql, corr_lotarea.sql
+Target tables: pluto
+Fields updated (1): builtfar
+
+DBT Integration (Already Migrated)
+----------------------------------------
+Files (1): apply_dbt_enrichments.sql
+Target tables: pluto
+Fields updated (28): affresfar, areasource, builtfar, centroid, commfar, condono, edesignum, facilfar, histdist, irrlotcode
+  ... and 18 more
+
+Geocoding
+----------------------------------------
+Files (4): dtmgeoms.sql, dtmmergepolygons.sql, geocode_billingbbl.sql, latlong.sql
+Target tables: pluto, pluto_dtm, pluto_rpad_geo
+Fields updated (6): billingblock, billinglot, block, centroid, lot, primebbl
+
+Other
+----------------------------------------
+Files (5): apdate.sql, create_rpad_geo.sql, numericfields_geomfields.sql, plutomapid.sql, versions.sql
+Target tables: pluto, pluto_rpad_geo, stg__pluto_input_geocodes
+Fields updated (9): ap_datef, appbbl, bbl, ct2010, plutomapid, sanitdistrict, version, xcoord, ycoord
+
+Prime BBL
+----------------------------------------
+Files (1): primebbl.sql
+Target tables: dof_pts_propmaster, pluto_rpad_geo
+Fields updated (1): primebbl
+
+Year Built
+----------------------------------------
+Files (1): yearbuiltalt.sql
+Target tables: pluto_allocated
+Fields updated (3): yearalter1, yearalter2, yearbuilt
+
+Zoning
+----------------------------------------
+Files (3): zoning.sql, zoning_specialdistrict.sql, zoning_splitzone.sql
+Target tables: pluto
+Fields updated (3): spdist1, spdist2, splitzone
+
+================================================================================
+LEAF CANDIDATES (Fields written but not read as dependencies)
+================================================================================
+
+Note: These fields appear to be final outputs with no downstream SQL dependencies
+They are good candidates for early migration.
+
+dof_pts_propmaster: primebbl
+pluto: affresfar, appbbl, areasource, bldgclass, block, bsmtcode, builtfar, centroid, commfar, condono, easements, edesignum, facilfar, histdist, irrlotcode
+  ... and 26 more
+pluto_allocated: yearalter1, yearalter2, yearbuilt
+pluto_dtm: primebbl
+pluto_input_cama: primebbl
+pluto_rpad_geo: ap_datef, bbl, billingblock, billinglot, primebbl
+stg__pluto_input_geocodes: ct2010, xcoord, ycoord
+
+================================================================================
+INTERMEDIATE TABLES (Read by other updates)
+================================================================================
+
+These tables must be migrated before their dependents:
+
+
+================================================================================
+RECOMMENDED MIGRATION ORDER
+================================================================================
+
+1. PRIME BBL (foundational - sets up primary key relationships)
+2. CLASSIFICATION/DEFAULTS (simple null fills and classifications)
+3. CAMA (business logic for various property attributes)
+4. GEOCODING (lat/long, geometry operations)
+5. ZONING (complex multi-table zoning logic)
+6. YEAR BUILT (allocated table operations)
+7. CORRECTIONS/BACKFILL (depends on other fields being set)
+
+Within each group, files can likely be migrated in parallel as separate dbt models.
+    
+
+
+================================================================================
+CRITICAL: EXECUTION ORDER AND INTER-GROUP DEPENDENCIES
+================================================================================
+
+Based on analysis of products/pluto/pluto_build/02_build.sh:
+
+EXECUTION SEQUENCE (files with UPDATE statements only):
+---------------------------------------------------------
+ 1. primebbl.sql          → Sets primebbl in multiple tables
+ 2. apdate.sql            → Updates pluto_rpad_geo.ap_datef  
+ 3. yearbuiltalt.sql      → Updates pluto_allocated year fields
+ 4. create_cama_primebbl  → Updates pluto_input_cama.primebbl
+ 5. cama_bsmttype.sql     → Updates pluto.bsmtcode
+ 6. cama_lottype.sql      → Updates pluto.lottype
+ 7. cama_proxcode.sql     → Updates pluto.proxcode
+ 8. cama_easements.sql    → Updates pluto.easements
+ 9. dtmmergepolygons.sql  → Updates pluto_dtm.primebbl
+10. dtmgeoms.sql          → Updates pluto geometry fields
+11. zoning_specialdistrict → Updates pluto.spdist1/2
+12. zoning_splitzone.sql  → Updates pluto.splitzone
+13. bldgclass.sql         → Updates pluto.bldgclass
+14. latlong.sql           → Updates pluto lat/long/centroid ⚠️ BEFORE DBT
+15. numericfields_geom... → Updates pluto numeric fields   ⚠️ BEFORE DBT
+16. ** DBT RUN **         → Creates pluto_enriched table
+17. apply_dbt_enrich...   → Applies dbt results to pluto
+18. plutomapid.sql        → Updates pluto.plutomapid
+19. versions.sql          → Updates pluto.version
+
+THEN IN 03_corrections.sh (separate script, runs after):
+20. corr_lotarea.sql      → Corrects lotarea/bldgarea/builtfar
+
+KEY FINDINGS:
+-------------
+
+✅ NO CIRCULAR DEPENDENCIES
+   - backfill.sql is NOT USED (orphaned file, ignore it)
+   - corr_lotarea.sql runs in separate corrections phase (after main build)
+
+⚠️  CRITICAL ORDERING CONSTRAINT:
+   The following MUST run BEFORE the dbt models execute:
+   - latlong.sql (sets centroid, used by some dbt models)
+   - numericfields_geomfields.sql (sets sanitdistrict, used by dbt models)
+   
+   Current flow:
+   1. SQL updates populate pluto fields
+   2. DBT models read from pluto, create pluto_enriched
+   3. apply_dbt_enrichments.sql copies from pluto_enriched back to pluto
+
+MIGRATION IMPLICATIONS:
+-----------------------
+
+✅ SAFE TO MIGRATE (no dependencies on other SQL updates):
+   - CAMA group: bsmttype, lottype, proxcode, easements
+   - Zoning group: splitzone, specialdistrict  
+   - Classification: bldgclass
+   - Year Built: yearbuiltalt (separate table)
+   - Prime BBL: primebbl
+   - Other: apdate, plutomapid, versions
+
+⚠️  MIGRATE WITH CARE (used by dbt models):
+   - latlong.sql → dbt models may reference centroid
+   - numericfields_geomfields.sql → dbt models reference sanitdistrict
+   - dtmgeoms.sql → geometry operations
+   
+   Strategy: Keep these as SQL until all dbt models are verified not to need 
+   the pre-dbt state, OR migrate them and ensure dbt dependencies are explicit.
+
+🎯 RECOMMENDED APPROACH:
+   Migrate in waves, testing dbt integration after each:
+   1. Wave 1: CAMA + Classification + Zoning (clearly independent)
+   2. Wave 2: Prime BBL + Year Built (separate tables)
+   3. Wave 3: Geocoding (latlong, dtmgeoms) - test dbt dependencies carefully
+   4. Wave 4: Remaining (plutomapid, numericfields, versions)

@@ -21,10 +21,7 @@ WITH update_table AS (
 UPDATE pluto b
 SET
     xcoord = ST_X(ST_TRANSFORM(t.centroid, 2263)),
-    ycoord = ST_Y(ST_TRANSFORM(t.centroid, 2263)),
-    longitude = ST_X(t.centroid),
-    latitude = ST_Y(t.centroid),
-    centroid = ST_SETSRID(t.centroid, 4326)
+    ycoord = ST_Y(ST_TRANSFORM(t.centroid, 2263))
 FROM update_table AS t
 WHERE
     b.xcoord IS NULL AND b.bbl = t.bbl

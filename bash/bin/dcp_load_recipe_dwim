@@ -69,7 +69,6 @@ fi
 echo "📥 Loading recipe to database..."
 python3 -m dcpy lifecycle builds load load \
     --recipe-path "${RECIPE_FILE}.lock.yml" \
-    --clear-schema false \
     --cache-schema "${RECIPE_SCHEMA}" \
     --cached-entity-type view
 

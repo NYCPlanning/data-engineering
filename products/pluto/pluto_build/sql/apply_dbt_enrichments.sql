@@ -1,0 +1,37 @@
+-- Apply enriched values from dbt models back to the pluto table
+UPDATE pluto
+SET
+    builtfar = pe.builtfar,
+    residfar = pe.residfar,
+    commfar = pe.commfar,
+    facilfar = pe.facilfar,
+    affresfar = pe.affresfar,
+    mnffar = pe.mnffar,
+    irrlotcode = pe.irrlotcode,
+    sanitboro = pe.sanitboro,
+    sanitdistrict = pe.sanitdistrict,
+    landuse = pe.landuse,
+    areasource = pe.areasource,
+    ownertype = pe.ownertype,
+    edesignum = pe.edesignum,
+    -- latitude = pe.latitude,
+    -- longitude = pe.longitude,
+    -- centroid = pe.centroid,
+    condono = pe.condono,
+    histdist = pe.histdist,
+    landmark = pe.landmark,
+    lotdepth = pe.lotdepth,
+    numfloors = pe.numfloors,
+    lotarea = pe.lotarea,
+    sanborn = pe.sanborn,
+    mih_opt1 = pe.mih_opt1,
+    mih_opt2 = pe.mih_opt2,
+    mih_opt3 = pe.mih_opt3,
+    mih_opt4 = pe.mih_opt4,
+    trnstzone = pe.trnstzone,
+    bsmtcode = pe.bsmtcode,
+    lottype = pe.lottype,
+    proxcode = pe.proxcode,
+    easements = pe.easements
+FROM pluto_enriched AS pe
+WHERE pluto.bbl = pe.bbl;

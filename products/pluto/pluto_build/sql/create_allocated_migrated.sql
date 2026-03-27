@@ -1,4 +1,4 @@
--- create the allocated table from pluto_rpad_geo
+-- create the allocated table from int__pluto_rpad_geo
 DROP TABLE IF EXISTS pluto_allocated CASCADE;
 CREATE TABLE pluto_allocated (
     bbl text,
@@ -32,7 +32,7 @@ CREATE TABLE pluto_allocated (
 
 INSERT INTO pluto_allocated (bbl)
 SELECT b.primebbl
-FROM (SELECT DISTINCT primebbl FROM pluto_rpad_geo) AS b;
+FROM (SELECT DISTINCT primebbl FROM int__pluto_rpad_geo) AS b;
 
 -- fill in one-to-one attributes
 -- for noncondo records
@@ -62,7 +62,7 @@ SET
     END),
     appbbl = ap_boro || lpad(ap_block, 5, '0') || lpad(ap_lot, 4, '0'),
     appdate = ap_datef
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE
     a.bbl = b.primebbl
     AND b.tl NOT LIKE '75%'
@@ -94,7 +94,7 @@ SET
     END),
     appbbl = ap_boro || lpad(ap_block, 5, '0') || lpad(ap_lot, 4, '0'),
     appdate = ap_datef
-FROM pluto_rpad_geo AS b
+FROM int__pluto_rpad_geo AS b
 WHERE
     a.bbl = b.primebbl
     AND b.tl LIKE '75%'
@@ -107,7 +107,7 @@ WITH bldgareasums AS (
     SELECT
         primebbl,
         sum(b.gross_sqft::numeric) AS bldgareasum
-    FROM pluto_rpad_geo AS b
+    FROM int__pluto_rpad_geo AS b
     WHERE
         b.tl NOT LIKE '75%'
         AND b.condo_number IS NOT NULL
@@ -126,7 +126,7 @@ WITH primesumunits AS (
         primebbl,
         sum(coop_apts::integer) AS unitsres,
         sum(units::integer) AS unitstotal
-    FROM pluto_rpad_geo AS b
+    FROM int__pluto_rpad_geo AS b
     WHERE b.tl NOT LIKE '75%'
     GROUP BY primebbl
 )
@@ -147,7 +147,7 @@ WITH primesums AS (
         -- field no longer exists
         -- SUM(curexl_act::double precision) as exemptland,
         sum(curext_act::double precision) AS exempttot
-    FROM pluto_rpad_geo
+    FROM int__pluto_rpad_geo
     GROUP BY primebbl
 )
 
@@ -166,7 +166,7 @@ WITH unit_appbbls AS (
         prg.primebbl,
         min(prg.ap_boro || lpad(prg.ap_block, 5, '0') || lpad(prg.ap_lot, 4, '0')) AS appbbl
     FROM pluto_allocated AS pa
-    INNER JOIN pluto_rpad_geo AS prg ON pa.bbl = prg.primebbl AND prg.primebbl <> prg.bbl
+    INNER JOIN int__pluto_rpad_geo AS prg ON pa.bbl = prg.primebbl AND prg.primebbl <> prg.bbl
     WHERE
         pa.appbbl IS NULL
         AND right(pa.bbl, 4) LIKE '75%'

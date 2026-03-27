@@ -18,4 +18,4 @@ SELECT
     END AS borough,
     TRIM(LEADING '0' FROM SUBSTRING(b.primebbl, 2, 5)) AS block,
     TRIM(LEADING '0' FROM RIGHT(b.primebbl, 4)) AS lot
-FROM (SELECT DISTINCT primebbl FROM pluto_rpad_geo) AS b;
+FROM (SELECT DISTINCT primebbl FROM int__pluto_rpad_geo) AS b;

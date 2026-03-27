@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: int__dof_pts_propmaster
+    description: |
+      Transforms raw PTS (Property Tax System) data into standardized format.
+      Migrated from pluto_build/sql/create_pts.sql
+    columns:
+      - name: boro
+        description: Borough code (1-5)
+        tests:
+          - not_null
+      - name: tb
+        description: Tax block
+        tests:
+          - not_null
+      - name: tl
+        description: Tax lot
+        tests:
+          - not_null
+      - name: bbl
+        description: Borough-Block-Lot identifier (10 digits)
+
+  - name: int__pluto_rpad_geo
+    description: |
+      Critical intermediate table joining DOF property tax data with DCP geocodes.
+      This feeds into PLUTO creation and incorporates logic from multiple SQL files:
+      - create_rpad_geo.sql (base join)
+      - zerovacantlots.sql (vacant lot adjustments)
+      - lotarea.sql (lot area calculations)
+      - primebbl.sql (prime BBL assignment)
+      - apdate.sql (date formatting)
+      - geocode_billingbbl.sql (billing BBL parsing)
+    columns:
+      - name: bbl
+        description: Computed BBL (boro + padded block + padded lot)
+        tests:
+          - not_null
+          - unique
+      - name: primebbl
+        description: Prime BBL (for condos uses billingbbl, otherwise own BBL)
+        tests:
+          - not_null
+      - name: land_area
+        description: Lot area in square feet, calculated from frontage x depth if missing
+      - name: xcoord
+        description: X coordinate (State Plane), backfilled from lat/long if needed
+      - name: ycoord
+        description: Y coordinate (State Plane), backfilled from lat/long if needed
