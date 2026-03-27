@@ -9,4 +9,5 @@ WITH final AS (
         date_complete
     FROM {{ source("recipe_sources", "dcp_developments") }}
 )
+
 SELECT * FROM final

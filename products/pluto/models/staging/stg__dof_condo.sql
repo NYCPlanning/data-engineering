@@ -4,6 +4,5 @@
   )
 }}
 
-SELECT
-    *
+SELECT *
 FROM {{ source('recipe_sources', 'dof_condo') }}

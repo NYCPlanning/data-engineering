@@ -8,6 +8,5 @@
 }}
 
 -- Previous version of PLUTO for change detection
-SELECT
-    *
+SELECT *
 FROM {{ source('build_sources', 'previous_pluto') }}

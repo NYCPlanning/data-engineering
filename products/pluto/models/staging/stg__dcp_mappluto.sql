@@ -7,6 +7,5 @@
   )
 }}
 
-SELECT
-    *
+SELECT *
 FROM {{ source('recipe_sources', 'previous_pluto') }}
