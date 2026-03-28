@@ -1,9 +1,9 @@
 -- getting distinct BBLs FROM raw data
-ALTER TABLE pluto_input_geocodes RENAME bbl TO geo_bbl;
-ALTER TABLE pluto_input_geocodes ADD COLUMN xcoord text;
-ALTER TABLE pluto_input_geocodes ADD COLUMN ycoord text;
+ALTER TABLE stg__pluto_input_geocodes RENAME bbl TO geo_bbl;
+ALTER TABLE stg__pluto_input_geocodes ADD COLUMN xcoord text;
+ALTER TABLE stg__pluto_input_geocodes ADD COLUMN ycoord text;
 
-UPDATE pluto_input_geocodes
+UPDATE stg__pluto_input_geocodes
 SET
     xcoord = ST_X(ST_TRANSFORM(geom, 2263))::integer,
     ycoord = ST_Y(ST_TRANSFORM(geom, 2263))::integer,
@@ -31,7 +31,7 @@ CREATE TABLE pluto_rpad_geo AS (
         a.*,
         b.*
     FROM pluto_rpad_sub AS a
-    LEFT JOIN pluto_input_geocodes AS b
+    LEFT JOIN stg__pluto_input_geocodes AS b
         ON a.boro || a.tb || a.tl = b.borough || LPAD(b.block, 5, '0') || LPAD(b.lot, 4, '0')
 );
 

@@ -16,7 +16,7 @@ WHERE primebbl IS NULL;
 -- assign prime bbl for condo records
 UPDATE dof_pts_propmaster a
 SET primebbl = b.billingbbl
-FROM pluto_input_geocodes AS b
+FROM stg__pluto_input_geocodes AS b
 WHERE
     a.boro || a.tb || a.tl = b.borough || lpad(b.block, 5, '0') || lpad(b.lot, 4, '0')
     AND b.billingbbl IS NOT NULL AND billingbbl != '0000000000';

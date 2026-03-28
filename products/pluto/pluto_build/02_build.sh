@@ -3,6 +3,8 @@ source ./bash/config.sh
 set_error_traps
 
 echo "Starting to build PLUTO ..."
+echo 'Running dbt staging models'
+(cd .. && dbt run --select staging.stg__pluto_input_geocodes)
 run_sql_file sql/preprocessing.sql
 run_sql_file sql/create_pts.sql
 run_sql_file sql/create_rpad_geo.sql
