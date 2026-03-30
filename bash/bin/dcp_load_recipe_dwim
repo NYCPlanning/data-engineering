@@ -1,0 +1,77 @@
+#!/bin/bash
+set -e
+
+# Recipe loader script - loads a recipe to the database with planning
+# Must be run from a product directory with direnv loaded
+
+RECIPE_FILE="${1:-recipe}"
+RECIPE_SCHEMA="${2:-recipe_cache}"
+
+# Verify we're in a product directory
+if [ ! -f "${RECIPE_FILE}.yml" ]; then
+    echo "Error: ${RECIPE_FILE}.yml not found in current directory"
+    echo "Usage: dcp_load_recipe_dwim [recipe_file] [recipe_schema]"
+    echo "       recipe_file defaults to 'recipe' (without .yml extension)"
+    echo "       recipe_schema defaults to 'recipe_cache'"
+    exit 1
+fi
+
+# Check required environment variables
+REQUIRED_VARS=(
+    "BUILD_ENGINE_DB"
+    "BUILD_ENGINE_SERVER"
+    "BUILD_ENGINE"
+    "RECIPES_BUCKET"
+    "PUBLISHING_BUCKET"
+)
+
+MISSING_VARS=()
+for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+        MISSING_VARS+=("$var")
+    fi
+done
+
+if [ ${#MISSING_VARS[@]} -ne 0 ]; then
+    echo "Error: Missing required environment variables:"
+    printf '  %s\n' "${MISSING_VARS[@]}"
+    echo ""
+    echo "Make sure direnv is loaded in this directory:"
+    echo "  eval \"\$(direnv export bash)\""
+    exit 1
+fi
+
+# Set recipe schema environment variable
+export RECIPE_SCHEMA="${RECIPE_SCHEMA}"
+
+# Display configuration
+echo "🧑🏽‍🍳 Recipe Loader"
+echo "=================="
+echo "Recipe file:       ${RECIPE_FILE}.yml"
+echo "Database:          ${BUILD_ENGINE_DB}"
+echo "Schema:            ${BUILD_ENGINE_SCHEMA:-public}"
+echo "Recipe schema:     ${RECIPE_SCHEMA}"
+echo "Recipes bucket:    ${RECIPES_BUCKET}"
+echo "Publishing bucket: ${PUBLISHING_BUCKET}"
+echo ""
+
+# Plan the build
+echo "📋 Planning recipe..."
+python3 -m dcpy.lifecycle.builds.plan recipe
+
+# Export recipe environment variables
+if [ -f "${RECIPE_FILE}.lock.yml" ]; then
+    echo "🔧 Setting recipe environment variables..."
+    source "${PROJECT_ROOT_PATH}/bash/export_recipe_env.sh" "${RECIPE_FILE}.lock.yml"
+fi
+
+# Load the recipe
+echo "📥 Loading recipe to database..."
+python3 -m dcpy lifecycle builds load load \
+    --recipe-path "${RECIPE_FILE}.lock.yml" \
+    --clear-schema false \
+    --cache-schema "${RECIPE_SCHEMA}" \
+    --cached-entity-type view
+
+echo ""
+echo "✅ Recipe loaded successfully!"
