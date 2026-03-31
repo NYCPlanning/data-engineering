@@ -101,7 +101,7 @@ SELECT
     commdist,
     cb_label,
     type_br,
-    -- type,
+    type,
     priority,
     policy_area,
     need_group,
