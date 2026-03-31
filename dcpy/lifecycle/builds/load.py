@@ -253,8 +253,7 @@ def _cli_wrapper_load(
     ),
     clear_pg_schema: bool = typer.Option(
         True,
-        "--clear-schema",
-        "-x",
+        "--clear-schema/--no-clear-schema",
         help="Clear the build schema?",
     ),
     cache_schema: str = typer.Option(
