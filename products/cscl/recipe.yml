@@ -155,6 +155,16 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ZipCode
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nta2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NTA2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_ntaequiv2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NTAEquiv2020
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:
