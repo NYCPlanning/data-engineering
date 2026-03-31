@@ -4,7 +4,7 @@ CREATE TABLE pluto_input_cama AS (
         a.*,
         b.billingbbl
     FROM pluto_input_cama_dof AS a
-    LEFT JOIN pluto_input_geocodes AS b
+    LEFT JOIN stg__pluto_input_geocodes AS b
         ON LEFT(a.bbl, 10) = b.borough || LPAD(b.block, 5, '0') || LPAD(b.lot, 4, '0')
 );
 

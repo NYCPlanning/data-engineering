@@ -8,7 +8,7 @@ SELECT DISTINCT
     'lotarea' AS field,
     a.lotarea AS old_value,
     round(st_area(st_transform(a.geom, 2263)))::text AS new_value,
-    '1' AS type,
+    1 AS type,
     'Zero lot area' AS reason,
     a.version
 FROM pluto AS a
@@ -36,7 +36,7 @@ INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
     a.lotarea AS found_value
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'lotarea'
@@ -44,7 +44,7 @@ WHERE
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'lotarea'
@@ -66,7 +66,7 @@ INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
     a.bldgarea AS found_value
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'bldgarea'
@@ -74,7 +74,7 @@ WHERE
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'bldgarea'
@@ -85,7 +85,7 @@ UPDATE pluto a
 SET
     bldgarea = b.new_value,
     dcpedited = 't'
-FROM pluto_input_research AS b
+FROM stg__pluto_input_research AS b
 WHERE
     a.bbl = b.bbl
     AND b.field = 'bldgarea'
@@ -108,7 +108,7 @@ INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
     a.lotfront AS found_value
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'lotfront'
@@ -116,7 +116,7 @@ WHERE
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'lotfront'
@@ -139,7 +139,7 @@ INSERT INTO pluto_changes_not_applied
 SELECT DISTINCT
     b.*,
     a.lotdepth AS found_value
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'lotdepth'
@@ -147,7 +147,7 @@ WHERE
 
 INSERT INTO pluto_changes_applied
 SELECT DISTINCT b.*
-FROM pluto_input_research AS b, pluto AS a
+FROM stg__pluto_input_research AS b, pluto AS a
 WHERE
     b.bbl = a.bbl
     AND b.field = 'lotdepth'

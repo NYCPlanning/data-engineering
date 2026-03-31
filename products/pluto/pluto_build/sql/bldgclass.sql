@@ -76,12 +76,12 @@ CREATE TEMP TABLE bblsbldgclasslookup AS (
             a.billingbbl,
             a.bldgcl,
             a.row_number,
-            c.type AS bldg_type
+            c."Type" AS bldg_type
         FROM bldgclass AS a, maxnum AS b, pluto_input_condo_bldgclass AS c
         WHERE
             b.maxrow_number >= 2
             AND a.billingbbl = b.billingbbl
-            AND a.bldgcl = c.code
+            AND a.bldgcl = c."Code"
         ORDER BY a.billingbbl
     )
 
@@ -170,7 +170,7 @@ gardenlayper AS (
         ) AS segzonegeom,
         ST_AREA(n.geom) AS allzonegeom
     FROM pluto AS p
-    INNER JOIN dpr_greenthumb AS n
+    INNER JOIN stg__dpr_greenthumb AS n
         ON ST_INTERSECTS(p.geom, n.geom)
     WHERE p.bldgclass LIKE 'V%' OR p.bldgclass IS NULL
 ),
