@@ -293,6 +293,20 @@ exports:
     format: dat
     custom: { formatting: rpl }
   # - name: nta
+  - name: nta_csv
+    filename: NTA.csv
+    format: csv
+  - name: nta_txt
+    filename: NTA.txt
+    format: dat
+    custom: { formatting: nta }
+  - name: nta2020_csv
+    filename: NTA2020.csv
+    format: csv
+  - name: nta2020_txt
+    filename: NTA2020.txt
+    format: dat
+    custom: { formatting: nta2020 }
 
   # Log file
   - name: log
