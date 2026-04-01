@@ -252,9 +252,9 @@ def _cli_wrapper_load(
         help="Path of recipe lock file to use",
     ),
     clear_pg_schema: bool = typer.Option(
-        False,                                # Default is now False
-        "--clear-schema/--no-clear-schema",   # Enable/Disable flags
-        "-x/-X",                              # Optional short versions
+        True,
+        "--clear-schema",
+        "-x",
         help="Clear the build schema?",
     ),
     cache_schema: str = typer.Option(
