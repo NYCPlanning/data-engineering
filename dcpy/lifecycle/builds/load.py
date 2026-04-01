@@ -252,9 +252,9 @@ def _cli_wrapper_load(
         help="Path of recipe lock file to use",
     ),
     clear_pg_schema: bool = typer.Option(
-        True,
-        "--clear-schema",
-        "-x",
+        False,                                # Default is now False
+        "--clear-schema/--no-clear-schema",   # Enable/Disable flags
+        "-x/-X",                              # Optional short versions
         help="Clear the build schema?",
     ),
     cache_schema: str = typer.Option(
@@ -270,6 +270,7 @@ def _cli_wrapper_load(
         help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
     ),
 ):
+    print(f"clearing schema? {clear_pg_schema}")
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
