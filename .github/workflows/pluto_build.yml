@@ -98,6 +98,17 @@ jobs:
     - name: QAQC
       run: ./05_qaqc.sh
 
+    # pseudo code, requires rewriting, perhaps move to recipe.yml
+    - name: Packaging
+      run: python3 -m dcpy lifecycle builds package 
+        --product pluto
+        --dataset pluto
+        # file_id -> input file path -> output file path 
+        --filemapping shapefile_water_incl -> mappluto/mappluto.shp.zip -> packaged/mappluto/mappluto.shp.zip
+        --filemapping shapefile_water_incl -> mappluto/mappluto.gdb.zip -> packaged/mappluto/mappluto.gdb.zip
+        # handle csv etc, without needing to edit metadata
+        
+
     - name: Export and Upload
       run: ./06_export.sh
 

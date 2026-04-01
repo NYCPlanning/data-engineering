@@ -50,3 +50,13 @@ def assemble(
         raise Exception(error_msg)
     else:
         typer.echo(result.package_path)
+
+# - name: Packaging
+#       run: python3 -m dcpy lifecycle builds package 
+#         --product pluto
+#         --dataset pluto
+#         # file_id -> input file path -> output file path 
+#         --filemapping shapefile_water_incl -> mappluto/mappluto.shp.zip -> packaged/mappluto/mappluto.shp.zip
+#         --filemapping shapefile_water_incl -> mappluto/mappluto.gdb.zip -> packaged/mappluto/mappluto.gdb.zip
+
+#TODO - implement typer command here for `builds package`, referenced above and in pluto_build.yml

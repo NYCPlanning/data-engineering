@@ -164,11 +164,13 @@ def _write_shapefile_xml_metadata(
     logger.info(f"Wrote metadata to {shp_name} in {path}")
 
 
+# TODO - generalized to handle both fgdb and shp metadata operations
 def write_shapefile_xml_metadata(
     product_name: str,
     dataset_name: str,
     path: Path,
     shp_name: str,
+    file_id: str,  # refers to product md
     zip_subdir: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
 ):
@@ -188,24 +190,29 @@ def write_shapefile_xml_metadata(
 
     product_md = org_md.product(product_name).dataset(dataset_name)
 
+    file_type = product_md.get_file_and_overrides(file_id=file_id).file.type
+
+    file_metadata = product_md.calculate_file_dataset_metadata(file_id=file_id)
+
     metadata = shp_utils.generate_metadata()
 
     # Set dataset-level values
     # TODO: define DCP organizationally required metadata fields
-    metadata.md_hr_lv_name = product_md.attributes.display_name
-    metadata.data_id_info.id_abs = product_md.attributes.description
-    metadata.data_id_info.other_keys.keyword = product_md.attributes.tags
-    metadata.data_id_info.search_keys.keyword = product_md.attributes.tags
+    metadata.md_hr_lv_name = file_metadata.attributes.display_name
+    metadata.data_id_info.id_abs = file_metadata.attributes.description
+    metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
+    metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
 
-    metadata.eainfo.detailed.name = product_md.id
-    metadata.eainfo.detailed.enttyp.enttypl.value = product_md.id
+    metadata.eainfo.detailed.name = file_metadata.id
+    metadata.eainfo.detailed.enttyp.enttypl.value = file_metadata.id
     metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
 
     # Build attribute metadata for each column
     metadata.eainfo.detailed.attr = [
-        _create_attr_metadata(column) for column in product_md.columns
+        _create_attr_metadata(column) for column in file_metadata.columns
     ]
 
+    # TODO - call shp or fgdb logic based on file_type value
     shp = Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
     shp.write_metadata(metadata, overwrite=True)
 
