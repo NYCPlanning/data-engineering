@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_mih__cleaned
+    description: Cleaned MIH option names with standardized formatting
+    
+  - name: int_mih__lot_overlap
+    description: Spatial overlap calculations between tax lots and MIH areas
+    
+  - name: int_pluto__miharea
+    description: MIH affordability options pivoted to binary columns per BBL
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: mih_opt1
+        description: MIH Option 1 flag
+      - name: mih_opt2
+        description: MIH Option 2 flag
+      - name: mih_opt3
+        description: MIH Option 3 / Deep Affordability flag
+      - name: mih_opt4
+        description: MIH Workforce Option flag
