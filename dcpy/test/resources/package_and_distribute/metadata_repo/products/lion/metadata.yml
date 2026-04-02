@@ -7,6 +7,7 @@ attributes:
 dataset_defaults:
   publishing_frequency: "{{ lion_prod_level_pub_freq }}"
   publishing_purpose: "legal compliance."
+  current_version: "product-default-2.0"
 
 datasets:
   - pseudo_lots
