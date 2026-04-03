@@ -25,14 +25,14 @@ SET
     geom = (
         CASE
             WHEN a.geo_bbl || a.geo_bin IS NOT NULL
-                THEN st_centroid(b.geom)
+                THEN st_centroid(footprints.geom)
             ELSE a.geom
         END
     )
 FROM
-    _doitt_buildingfootprints AS b
+    stg__doitt_buildingfootprints AS footprints
 WHERE
-    a.geo_bbl || a.geo_bin = b.base_bbl || b.bin;
+    a.geo_bbl || a.geo_bin = footprints.base_bbl || footprints.bin;
 
 -- Convert from_x_coord, from_y_coord to from_geom
 -- Convert to_x_coord, to_y_coord to to_geom
