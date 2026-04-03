@@ -1,0 +1,6 @@
+sources:
+  - name: recipe_sources
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: source_data_versions
+      - name: doitt_buildingfootprints
