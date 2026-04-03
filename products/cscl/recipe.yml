@@ -116,6 +116,11 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: HealthArea
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_firecompany
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: FireCompany
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_roadbed_pointer_list
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -313,3 +318,25 @@ exports:
     filename: StatenIslandThinLION.txt
     format: dat
     custom: { formatting: thinlion_dat }
+
+  # Thin Fire
+  - name: thinfire_bronx
+    filename: BronxThinFire.txt
+    format: dat
+    custom: { formatting: thinfire_dat }
+  - name: thinfire_brooklyn
+    filename: BrooklynThinFire.txt
+    format: dat
+    custom: { formatting: thinfire_dat }
+  - name: thinfire_manhattan
+    filename: ManhattanThinFire.txt
+    format: dat
+    custom: { formatting: thinfire_dat }
+  - name: thinfire_queens
+    filename: QueensThinFire.txt
+    format: dat
+    custom: { formatting: thinfire_dat }
+  - name: thinfire_statenisland
+    filename: StatenIslandThinFire.txt
+    format: dat
+    custom: { formatting: thinfire_dat }
