@@ -6,6 +6,7 @@ echo "CBBR Version ${VERSION} : 02 CBBR"
 
 # TODO delete tables that are created by this stage
 echo "Create build tables to modify ..."
+dbt build --select staging
 run_sql_file sql/preprocessing.sql
 run_sql_file sql/cbbr_submissions.sql
 
