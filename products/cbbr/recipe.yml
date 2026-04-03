@@ -12,3 +12,5 @@ inputs:
   - name: dpr_parksproperties
   - name: dcp_facilities
   - name: doitt_buildingfootprints
+  # other data
+  - name: dcp_managing_agencies_lookup
