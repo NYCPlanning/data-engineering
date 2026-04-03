@@ -39,6 +39,13 @@ models:
   - name: lookup_key
   - name: face_code
 
+- name: stg__firecompany
+  columns:
+  - name: globalid
+    tests: [ unique, not_null ]
+  - name: unit_short
+    tests: [ not_null ]
+
 - name: stg__segment_sedat
   columns:
   - name: segmentid
