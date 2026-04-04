@@ -34,6 +34,9 @@ seeds:
   
   - name: dcp_zoning_maxfar
     description: Maximum Floor Area Ratio (FAR) by zoning district
+  
+  - name: dcp_transit_zone_ranks
+    description: Transit zone priority rankings for assignment logic
     
   - name: pluto_input_landuse_bldgclass
     description: Building class to land use mapping

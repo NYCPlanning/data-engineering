@@ -91,29 +91,13 @@ sources:
     description: >-
       Processed PTS data where each record is a UNIT BBL: i.e. there are multiple
       records per a condominium.
+  - name: pluto_input_cama
+    description: CAMA data with primebbl added (created from pluto_input_cama_dof)
 
   - name: previous_pluto
   - name: pluto
   - name: export_pluto
     description: final PLUTO table
-  - name: mih_cleaned
-    description: Cleaned MIH option names with unique identifiers (from miharea.sql)
-  - name: mih_lot_overlap
-    description: Spatial overlaps between lots and MIH areas (from miharea.sql)
-  - name: mih_distinct_options
-    description: QAQC view of all distinct MIH options found in the data (from miharea.sql)
-    columns:
-    - name: option
-      description: MIH option name
-      data_tests:
-      - accepted_values:
-          values: ['Option 1', 'Option 2', 'Option 3', 'Deep Affordability Option', 'Workforce Option']
-          config:
-            severity: error
-            tags: ['de_check', 'minor', 'major']
-            meta:
-              description: Only the five valid MIH options should appear in the source data. Any additional options indicate a source data issue that needs to be investigated.
-              next_steps: Contact GIS to investigate unexpected MIH option values in source data
   - name: transit_zones_block_to_tz_ranked
     description: Ranked transit zone assignments by block (from transitzone.sql)
   - name: transit_zones_bbl_to_tz_ranked
