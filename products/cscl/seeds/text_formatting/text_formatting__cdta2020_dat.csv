@@ -1,0 +1,4 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+CDTA1,cdta_code,CDTA Code,4,1,4,LJSF,FALSE
+CDTA2,cdta_name,CDTA Name,77,5,81,LJSF,FALSE
+CDTA3,cdta_type,CDTA Type,1,82,82,LJSF,FALSE

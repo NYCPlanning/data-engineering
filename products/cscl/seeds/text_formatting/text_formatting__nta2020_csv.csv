@@ -1,0 +1,5 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+NTA1,nta_code,NTA Code,6,1,6,LJSF,FALSE
+NTA2,nta_name,NTA Name,75,7,81,RJSF,FALSE
+NTA3,nta_abbrev,NTA Abbrev,10,82,91,RJSF,FALSE
+NTA4,nta_type,NTA Type,1,92,92,LJSF,FALSE

@@ -92,10 +92,6 @@ collection of CBs, ranging from 1.2k to 8k people. When they get too large/small
 Approximation of a neighborhood (e.g. Park Slope) built out of Census Tracts. 
 [census, ACS]
 
-#### CDTA: 
-approximation of a CD, composed of NTAs.
-[census, ACS]
-
 
 So All together, the building blocks are:
 #### CDTA > NTA > CT > CB
@@ -104,6 +100,10 @@ So All together, the building blocks are:
 ### Geo types From NYC:
 #### CCD (city council districts)
 Redrawn each decade for census. 
+[census, ACS]
+
+#### CDTA: 
+approximation of a CD, composed of NTAs.
 [census, ACS]
 
 #### CD (community district)

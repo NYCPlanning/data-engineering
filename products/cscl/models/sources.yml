@@ -26,6 +26,10 @@ sources:
   - name: dcp_cscl_nypdbeat
   - name: dcp_cscl_censustract2010
   - name: dcp_cscl_censustract2020
+  - name: dcp_cscl_cdta2020
+  - name: dcp_cscl_cdtaequiv2020
+  - name: dcp_cscl_nta2020
+  - name: dcp_cscl_ntaequiv2020
   - name: dcp_cscl_firecompany
   - name: dcp_cscl_healtharea
   - name: dcp_cscl_nypdprecinct

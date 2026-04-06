@@ -111,6 +111,26 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: CensusTract2020
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_cdta2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CDTA2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_cdtaequiv2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CDTAEquiv2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_nta2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NTA2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_ntaequiv2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: NTAEquiv2020
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_healtharea
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -340,3 +360,25 @@ exports:
     filename: StatenIslandThinFire.txt
     format: dat
     custom: { formatting: thinfire_dat }
+
+  # CDTA 2020
+  - name: cdta2020_dat
+    filename: CDTA2020.txt
+    format: dat
+    custom: { formatting: cdta2020_dat }
+  - name: cdta2020_csv
+    filename: CDTA2020.csv
+    format: csv
+    custom:
+      line_endings: crlf
+
+  # NTA 2020
+  - name: nta2020_dat
+    filename: NTA2020.txt
+    format: dat
+    custom: { formatting: nta2020_dat }
+  - name: nta2020_csv
+    filename: NTA2020.csv
+    format: csv
+    custom:
+      line_endings: crlf
