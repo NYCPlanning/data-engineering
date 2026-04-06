@@ -9,3 +9,4 @@ dcp-de-postgres:
       port: "{{ env_var('BUILD_ENGINE_PORT') | as_number }}"
       dbname: "{{ env_var('BUILD_ENGINE_DB') }}"
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+      threads: 4
