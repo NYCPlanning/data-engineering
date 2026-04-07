@@ -3,7 +3,7 @@
 import yaml
 
 from dcpy.lifecycle.package import shapefiles
-from dcpy.models.product.dataset import metadata as dsmd
+from dcpy.product_metadata.models.metadata import product as dsmd
 from dcpy.test.lifecycle.package.conftest import PACKAGE_RESOURCES_PATH
 
 

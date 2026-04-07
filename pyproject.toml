@@ -179,5 +179,6 @@ dcpy = "dcpy.__main__:cli"
 dcpy = [
     "library/templates/*.yml",
     "lifecycle/package/resources/**",
+    "product_metadata/writers/resources/**",
     "connectors/edm/bytes/site_map.json",
 ]

@@ -8,14 +8,14 @@ import yaml
 from pydantic import BaseModel, Field, TypeAdapter
 
 from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
-from dcpy.models.product.artifacts import Artifact, Artifacts
-from dcpy.models.product.data_dictionary import DataDictionary
-from dcpy.models.product.dataset.metadata import (
+from dcpy.product_metadata.models.metadata.artifacts import Artifact, Artifacts
+from dcpy.product_metadata.models.metadata.data_dictionary import DataDictionary
+from dcpy.product_metadata.models.metadata.product import (
     COLUMN_TYPES,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
 )
-from dcpy.models.product.dataset.metadata import (
+from dcpy.product_metadata.models.metadata.product import (
     Metadata as DatasetMetadata,
 )
 from dcpy.utils.collections import deep_merge_dict as merge

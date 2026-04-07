@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
 
 
 def write_yaml(

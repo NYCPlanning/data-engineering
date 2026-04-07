@@ -3,13 +3,14 @@ import shutil
 import tempfile
 from pathlib import Path
 
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle import config, data_loader
 from dcpy.lifecycle import product_metadata as org_metadata_loader
-from dcpy.lifecycle.package import validate, xlsx_writer
+from dcpy.lifecycle.package import validate
 from dcpy.models.connectors.edm import recipes
 from dcpy.models.lifecycle.builds import InputDataset, InputDatasetDestination
 from dcpy.models.lifecycle.event_result import PackageAssembleResult
+from dcpy.product_metadata.writers.oti_xlsx import xlsx_writer
 from dcpy.utils.logging import logger
 
 STAGE = "package.assemble"
@@ -322,6 +323,7 @@ def assemble_dataset_package(
         # generate all required missing files, or just running through a list of
         # packaging steps. But for now, it's just the OTI files.
         logger.info(f"Generating OTI XLSX for file {f.filename}")
+        # MOVE ME
         xlsx_writer.write_xlsx(
             org_md=org_md,
             product=product,

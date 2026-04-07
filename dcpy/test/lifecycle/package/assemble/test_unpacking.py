@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle.package import assemble
 
 

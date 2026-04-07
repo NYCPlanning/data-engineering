@@ -3,7 +3,7 @@ import textwrap
 import time
 from pathlib import Path
 
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.connectors.socrata import publish as soc_pub
 from dcpy.lifecycle import product_metadata

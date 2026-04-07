@@ -1,4 +1,4 @@
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 
 
 def test_description_cleaning():

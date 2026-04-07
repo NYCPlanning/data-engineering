@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 
 from dcpy.models import dataset
-from dcpy.models.product import metadata as md
-from dcpy.models.product.dataset import metadata as ds_md
+from dcpy.product_metadata.models.metadata import org as md
+from dcpy.product_metadata.models.metadata import product as ds_md
 
 
 @pytest.fixture

@@ -489,7 +489,7 @@ class ProcessingFunctions:
           args:
             column_name: jobnum
             function_name: str.replace
-            pat: -[a-zA-Z\d]1$
+            pat: -[a-zA-Z\\d]1$
             repl: ""
             regex: True
 

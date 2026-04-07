@@ -14,11 +14,12 @@ from openpyxl.worksheet.dimensions import (  # type: ignore
 )
 
 from dcpy.lifecycle import product_metadata
-from dcpy.models.design import elements as de
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.product_metadata.models.design import elements as de
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
 from dcpy.utils.logging import logger
 
-from . import RESOURCES_PATH, abstract_doc
+from .._paths import RESOURCES_PATH
+from . import abstract_doc
 
 # TODO: Move template to Product Metadata Repo. Rename to be non-OTI specific
 DEFAULT_TEMPLATE_PATH = RESOURCES_PATH / "oti_data_dictionary_template.xlsx"

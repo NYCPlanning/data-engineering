@@ -8,7 +8,7 @@ from pytest import fixture
 
 from dcpy.lifecycle.package import shapefiles
 from dcpy.models.data.shapefile_metadata import Metadata
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
 from dcpy.utils.geospatial import shapefile as shp_utils
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"

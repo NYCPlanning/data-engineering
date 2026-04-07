@@ -4,7 +4,7 @@ from pathlib import Path
 import typer
 import yaml
 
-import dcpy.models.product.dataset.metadata as models
+import dcpy.product_metadata.models.metadata.product as models
 from dcpy.utils.logging import logger
 
 

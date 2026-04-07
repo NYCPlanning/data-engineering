@@ -1,10 +1,13 @@
 from pathlib import Path
 from typing import Any
 
-from dcpy.models.design import elements as de
-from dcpy.models.product.artifacts import Artifact, ExcelTableComponentDefinition
-from dcpy.models.product.dataset.metadata import Dataset
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.product_metadata.models.design import elements as de
+from dcpy.product_metadata.models.metadata.artifacts import (
+    Artifact,
+    ExcelTableComponentDefinition,
+)
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
+from dcpy.product_metadata.models.metadata.product import Dataset
 from dcpy.utils.logging import logger
 
 # TODO; Extract these into a generic style that we can pass to the XLSX renderer

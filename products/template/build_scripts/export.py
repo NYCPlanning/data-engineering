@@ -1,7 +1,8 @@
 import shutil
 
 from dcpy.lifecycle import product_metadata
-from dcpy.lifecycle.package import pdf_writer, xlsx_writer, yaml_writer
+from dcpy.product_metadata.writers import pdf_writer, yaml_writer
+from dcpy.product_metadata.writers.oti_xlsx import xlsx_writer
 from dcpy.utils.logging import logger
 
 from . import OUTPUT_DIR, PG_CLIENT, PRODUCT_PATH

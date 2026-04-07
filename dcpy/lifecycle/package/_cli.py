@@ -2,11 +2,12 @@ from pathlib import Path
 
 import typer
 
+from dcpy.product_metadata.writers.oti_xlsx.xlsx_writer import app as xlsx_writer_app
+
 from .assemble import assemble_dataset_package
 from .esri import app as esri_app
 from .shapefiles import app as shapefile_app
 from .validate import _validate
-from .xlsx_writer import app as xlsx_writer_app
 
 app = typer.Typer()
 app.command(name="validate")(_validate)

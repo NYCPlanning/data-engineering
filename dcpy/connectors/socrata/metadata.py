@@ -3,7 +3,7 @@ from typing import Any
 
 import typer
 
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.connectors.socrata import metadata
 from dcpy.connectors.socrata import publish as pub
 from dcpy.utils.logging import logger

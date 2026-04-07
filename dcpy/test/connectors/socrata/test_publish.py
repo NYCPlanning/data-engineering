@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, call
 import pytest
 from socrata.output_schema import OutputSchema
 
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.socrata import publish
 
