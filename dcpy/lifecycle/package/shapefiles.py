@@ -16,7 +16,7 @@ from dcpy.models.product.dataset.metadata import (
     Metadata,
 )
 from dcpy.models.product.metadata import OrgMetadata
-from dcpy.utils.geospatial import shapefile as shp_utils
+from dcpy.utils.geospatial import esri_metadata, fgdb
 from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
 
@@ -179,9 +179,10 @@ def write_metadata(
     Args:
         product_name (str): Name of product. e.g. "lion"
         dataset_name (str): Name of dataset within a product. e.g. "pseudo-lots"
-        path (Path): Path to parent directory or zip file containing shapefile.
-        layer (str): Shapefile name, ending in ".shp". e.g. "shapefile_name.shp"
-        zip_subdir (str | None): Internal path, if shp is nested within a zip file.
+        path (Path): Path to parent directory or zip file containing shapefile, or geodatabase.
+        layer (str): Shapefile or feature class name.
+        zip_subdir (str | None): Internal path if shp is nested within a zip file.
+            Must be None for file geodatabase.
         org_md (Path | OrgMetadata | None): Metadata reference used to populate shapefile metadata.
     """
     if isinstance(org_md, Path) or not org_md:
@@ -189,7 +190,7 @@ def write_metadata(
 
     product_md = org_md.product(product_name).dataset(dataset_name)
 
-    metadata = shp_utils.generate_metadata()
+    metadata = esri_metadata.generate_metadata()
 
     # Set dataset-level values
     # TODO: define DCP organizationally required metadata fields
@@ -207,8 +208,16 @@ def write_metadata(
         _create_attr_metadata(column) for column in product_md.columns
     ]
 
-    shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
-    shp.write_metadata(metadata, overwrite=True)
+    if ".gdb" in path.suffixes:
+        if zip_subdir is not None:
+            raise ValueError(
+                "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
+            )
+        fgdb.write_metadata(gdb=path, layer=layer, metadata=metadata, overwrite=True)
+
+    elif ".shp" in path.suffixes or layer.endswith(".shp"):
+        shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
+        shp.write_metadata(metadata, overwrite=True)
 
 
 def _create_attr_metadata(column: DatasetColumn) -> Attr:
