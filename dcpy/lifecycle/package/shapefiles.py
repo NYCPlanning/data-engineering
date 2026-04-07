@@ -121,8 +121,9 @@ def parse_shapefile_metadata(file_path: Path) -> Metadata:
 app = typer.Typer()
 
 
+# TODO - delete?
 @app.command("to_metadata")
-def _write_metadata(
+def _write_shapefile_metadata(
     shp_xml_path: Path,
     output_path: Path = typer.Option(
         None,
@@ -137,11 +138,11 @@ def _write_metadata(
 
 
 @app.command("write_metadata")
-def _write_shapefile_xml_metadata(
+def _write_metadata(
     product_name: str,
     dataset_name: str,
     path: Path,
-    shp_name: str,
+    layer: str,
     org_md_path: Path | None = typer.Option(
         None,
         "--org-md-path",
@@ -153,22 +154,22 @@ def _write_shapefile_xml_metadata(
         help="Directory structure within zip file, if relevant",
     ),
 ):
-    write_shapefile_xml_metadata(
+    write_metadata(
         product_name=product_name,
         dataset_name=dataset_name,
         path=path,
-        shp_name=shp_name,
+        layer=layer,
         zip_subdir=zip_subdir,
         org_md=org_md_path,
     )
-    logger.info(f"Wrote metadata to {shp_name} in {path}")
+    logger.info(f"Wrote metadata to {layer} in {path}")
 
 
-def write_shapefile_xml_metadata(
+def write_metadata(
     product_name: str,
     dataset_name: str,
     path: Path,
-    shp_name: str,
+    layer: str,
     zip_subdir: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
 ):
@@ -179,7 +180,7 @@ def write_shapefile_xml_metadata(
         product_name (str): Name of product. e.g. "lion"
         dataset_name (str): Name of dataset within a product. e.g. "pseudo-lots"
         path (Path): Path to parent directory or zip file containing shapefile.
-        shp_name (str): Shapefile name, ending in ".shp". e.g. "shapefile_name.shp"
+        layer (str): Shapefile name, ending in ".shp". e.g. "shapefile_name.shp"
         zip_subdir (str | None): Internal path, if shp is nested within a zip file.
         org_md (Path | OrgMetadata | None): Metadata reference used to populate shapefile metadata.
     """
@@ -206,7 +207,7 @@ def write_shapefile_xml_metadata(
         _create_attr_metadata(column) for column in product_md.columns
     ]
 
-    shp = Shapefile(path=path, shp_name=shp_name, zip_subdir=zip_subdir)
+    shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
     shp.write_metadata(metadata, overwrite=True)
 
 
