@@ -75,12 +75,12 @@ def _get_info_from_file_fixture(
         raise Exception(f"Type: {file_type} is an ")
     elif file_type == "zip":
         path = request.getfixturevalue(fixture)  # Retrieve fixture by name
-        shp_name = path.stem
+        layer = path.stem
     elif file_type == "nonzip":
         path_fixture = request.getfixturevalue(fixture)
         path = path_fixture.parent  # Retrieve fixture by name
-        shp_name = path_fixture.name
-    return {"path": path, "shp_name": shp_name}
+        layer = path_fixture.name
+    return {"path": path, "layer": layer}
 
 
 @fixture
@@ -110,7 +110,7 @@ def org_metadata(package_and_dist_test_resources):
         ),
     ],
 )
-def test_write_shapefile_xml_metadata(
+def test_write_metadata(
     request,
     path_fixture,
     file_type,
@@ -126,18 +126,18 @@ def test_write_shapefile_xml_metadata(
     fields = Metadata.model_fields
 
     # write metadata
-    shapefiles.write_shapefile_xml_metadata(
+    shapefiles.write_metadata(
         product_name="colp",
         dataset_name="colp",
         path=fixture_info["path"],
-        shp_name=fixture_info["shp_name"],
+        layer=fixture_info["layer"],
         zip_subdir=subdir,
         org_md=org_metadata,
     )
 
     # read it back
     shp = shp_utils.from_path(
-        path=fixture_info["path"], shp_name=fixture_info["shp_name"], zip_subdir=subdir
+        path=fixture_info["path"], shp_name=fixture_info["layer"], zip_subdir=subdir
     )
     metadata = shp.read_metadata()
 
