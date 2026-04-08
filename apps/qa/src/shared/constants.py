@@ -23,6 +23,7 @@ PAGES = {
     "Source Data": "source_data",
     "Checkbook": "checkbook",
     "Data Ingestion": "ingest",
+    "Data Distribution": "distribution",
 }
 
 DATASET_NAMES = {

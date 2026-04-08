@@ -39,4 +39,8 @@ ssh qa "\
         -e GHP_TOKEN=$GHP_TOKEN\
         -e PUBLISHING_BUCKET=edm-publishing\
         -e RECIPES_BUCKET=edm-recipes\
+        -e RECIPES_BUCKET=edm-recipes\
+        -e PRODUCT_METADATA_REPO_PATH=$PRODUCT_METADATA_REPO_PATH\
+        -e SOCRATA_USER=$SOCRATA_USER\
+        -e SOCRATA_PASSWORD=$SOCRATA_PASSWORD\
         $DOCKER_IMAGE_NAME"

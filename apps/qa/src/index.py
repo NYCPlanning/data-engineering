@@ -19,7 +19,7 @@ def run():
         unsafe_allow_html=True,
     )
 
-    datasets_list = list(PAGES.keys())
+    page_list = list(PAGES.keys())
     query_params = st.query_params.to_dict()
 
     if query_params:
@@ -28,11 +28,11 @@ def run():
         name = "Home"
 
     name = st.sidebar.selectbox(
-        "Select a dataset for qaqc", datasets_list, index=datasets_list.index(name)
+        "Select a page to naviagte to", page_list, index=page_list.index(name)
     )
     st.sidebar.divider()
 
-    st.query_params["page"] = datasets_list[datasets_list.index(name)]
+    st.query_params["page"] = page_list[page_list.index(name)]
 
     dataset_module = importlib.import_module(f"pages.{PAGES[name]}.{PAGES[name]}")
     dataset_page = getattr(dataset_module, PAGES[name])

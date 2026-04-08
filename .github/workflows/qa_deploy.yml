@@ -37,8 +37,12 @@ jobs:
       
       DOCKER_IMAGE_NAME: nycplanning/qa-streamlit:latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        
+      - uses: actions/checkout@v4
+        with:
+          repository: NYCPlanning/product-metadata
+          path: product-metadata
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
@@ -51,6 +55,9 @@ jobs:
           AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           GHP_TOKEN: "op://Data Engineering/GITHUB_TOKENS/de_qa_app"
+          PRODUCT_METADATA_REPO_PATH: "../product-metadata"
+          SOCRATA_USER: "op://Data Engineering/DCP_OpenData/username"
+          SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
 
       - name: Deploy docker image
         run: apps/qa/bash/docker_deploy.sh
