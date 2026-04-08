@@ -8,8 +8,8 @@ from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial import fgdb
 
 GDB_ZIP = "geodatabase.gdb.zip"
-FEATURE_CLASS = "mappluto_one_row"
-TABLE = "pluto_one_row"
+SPATIAL_LAYER = "mappluto_one_row"
+TABLE_LAYER = "pluto_one_row"
 METADATA_XML = "esri_metadata.xml"
 
 
@@ -68,12 +68,12 @@ gdb_paths = pytest.mark.parametrize(
 @gdb_paths
 def test_get_layers(path_fixture):
     layers = fgdb.get_layers(path_fixture)
-    assert layers == [FEATURE_CLASS, TABLE]
+    assert layers == [SPATIAL_LAYER, TABLE_LAYER]
 
 
 @gdb_paths
 def test_read_metadata(path_fixture):
-    md = fgdb.read_metadata(gdb=path_fixture, layer=FEATURE_CLASS)
+    md = fgdb.read_metadata(gdb=path_fixture, layer=SPATIAL_LAYER)
 
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
@@ -87,13 +87,13 @@ def test_write_metadata(path_fixture, temp_metadata_object):
     layers_before_md_write = fgdb.get_layers(path_fixture)
     fgdb.write_metadata(
         gdb=path_fixture,
-        layer=FEATURE_CLASS,
+        layer=SPATIAL_LAYER,
         metadata=temp_metadata_object,
         overwrite=True,
     )
     layers_after_md_write = fgdb.get_layers(path_fixture)
 
-    md = fgdb.read_metadata(path_fixture, FEATURE_CLASS)
+    md = fgdb.read_metadata(path_fixture, SPATIAL_LAYER)
     element = "esri"
     assert hasattr(md, element), f"Expected element '{element}', but found none"
 
@@ -105,14 +105,14 @@ def test_write_metadata(path_fixture, temp_metadata_object):
 
 @gdb_paths
 def test_metadata_exists(path_fixture):
-    originally_md_exists = fgdb.metadata_exists(gdb=path_fixture, layer=FEATURE_CLASS)
+    originally_md_exists = fgdb.metadata_exists(gdb=path_fixture, layer=SPATIAL_LAYER)
     # remove metadata
     fgdb.remove_metadata(
         gdb=path_fixture,
-        layer=FEATURE_CLASS,
+        layer=SPATIAL_LAYER,
     )
     md_exists_after_removal = fgdb.metadata_exists(
-        gdb=path_fixture, layer=FEATURE_CLASS
+        gdb=path_fixture, layer=SPATIAL_LAYER
     )
     assert originally_md_exists is True, "Expected layer metadata but found none"
     assert md_exists_after_removal is False, (
@@ -125,11 +125,11 @@ def test_remove_metadata(path_fixture):
     layers_before_md_removal = fgdb.get_layers(path_fixture)
     fgdb.remove_metadata(
         gdb=path_fixture,
-        layer=FEATURE_CLASS,
+        layer=SPATIAL_LAYER,
     )
     layers_after_md_removal = fgdb.get_layers(path_fixture)
 
-    md = fgdb.read_metadata(path_fixture, FEATURE_CLASS)
+    md = fgdb.read_metadata(path_fixture, SPATIAL_LAYER)
     assert md is None
     # confirm that no gdb layers were lost during md removal
     assert sorted(layers_before_md_removal) == sorted(layers_after_md_removal)
