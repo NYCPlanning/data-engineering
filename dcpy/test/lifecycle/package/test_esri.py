@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pytest import fixture
 
-from dcpy.lifecycle.package import shapefiles
+from dcpy.lifecycle.package import esri
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import shapefile as shp_utils
@@ -126,7 +126,7 @@ def test_write_metadata(
     fields = Metadata.model_fields
 
     # write metadata
-    shapefiles.write_metadata(
+    esri.write_metadata(
         product_name="colp",
         dataset_name="colp",
         path=fixture_info["path"],
