@@ -1,0 +1,9 @@
+models:
+  - name: stg__doitt_buildingfootprints
+    columns:
+      - name: base_bbl
+        tests: [ not_null ]
+      - name: bin
+        tests: [ not_null ]
+      - name: geom
+        tests: [ not_null ]
