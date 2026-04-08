@@ -9,10 +9,15 @@ from pytest import fixture
 from dcpy.lifecycle.package import esri
 from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.models.product.metadata import OrgMetadata
+from dcpy.utils.geospatial import fgdb
 from dcpy.utils.geospatial import shapefile as shp_utils
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
+
+GDB_ZIP = "geodatabase.gdb.zip"
+SPATIAL_LAYER = "mappluto_one_row"
+TABLE_LAYER = "pluto_one_row"
 
 
 @fixture
@@ -57,11 +62,32 @@ def temp_nonzipped_shp_with_md_path(temp_shp_zip_with_md_path, tmp_path):
     return shp_path
 
 
+@fixture
+def temp_gdb_zip_path(utils_resources_path, tmp_path):
+    shutil.copy2(
+        src=utils_resources_path / GDB_ZIP,
+        dst=tmp_path / GDB_ZIP,
+    )
+    assert zipfile.is_zipfile(tmp_path / GDB_ZIP), (
+        f"'{GDB_ZIP}' should be a valid zip file"
+    )
+    return tmp_path / GDB_ZIP
+
+
+@fixture
+def temp_gdb_nonzipped_path(temp_gdb_zip_path, tmp_path):
+    shutil.unpack_archive(filename=temp_gdb_zip_path, extract_dir=tmp_path)
+    gdb_path = tmp_path / temp_gdb_zip_path.stem
+    assert gdb_path.is_dir(), "Expected a gdb directory, but found none"
+    return gdb_path
+
+
 def _get_info_from_file_fixture(
     request: pytest.FixtureRequest, fixture: str, file_type: str
 ) -> dict:
-    """Calculate path and shp name for a given shapefile fixture.
+    """Calculate path and layer name for a given fixture.
     Calculation differs between zipped and non-zipped fixtures.
+    Supports shapefiles and file geodatabases.
 
     Args:
         request (pytest.FixtureRequest):
@@ -69,17 +95,25 @@ def _get_info_from_file_fixture(
         file_type (str): type of fixture - either "zip" or "nonzip"
 
     Returns:
-        dict: path and shapefile name for given fixture
+        dict: path and layer name for given fixture
     """
+
     if file_type not in ["zip", "nonzip"]:
         raise Exception(f"Type: {file_type} is an ")
     elif file_type == "zip":
-        path = request.getfixturevalue(fixture)  # Retrieve fixture by name
-        layer = path.stem
+        path_fixture = request.getfixturevalue(fixture)  # Retrieve fixture by name
+        if ".gdb" in path_fixture.suffixes:
+            layer = SPATIAL_LAYER
+        elif ".shp" in path_fixture.suffixes:
+            layer = path_fixture.stem
+        path = path_fixture
     elif file_type == "nonzip":
         path_fixture = request.getfixturevalue(fixture)
         path = path_fixture.parent  # Retrieve fixture by name
-        layer = path_fixture.name
+        if ".gdb" in path_fixture.suffixes:
+            layer = SPATIAL_LAYER
+        elif ".shp" in path_fixture.suffixes:
+            layer = path_fixture.name
     return {"path": path, "layer": layer}
 
 
@@ -107,6 +141,24 @@ def org_metadata(package_and_dist_test_resources):
             "nonzip",
             None,
             id="add_md_to_nonzip_shp_w_no_md",
+        ),
+        pytest.param(
+            "temp_shp_zip_with_md_path",
+            "zip",
+            None,
+            id="add_md_to_zip_shp_with_md",
+        ),
+        pytest.param(
+            "temp_nonzipped_shp_with_md_path",
+            "nonzip",
+            None,
+            id="add_md_to_nonzip_shp_with_md",
+        ),
+        pytest.param(
+            "temp_gdb_zip_path",
+            "zip",
+            None,
+            id="add_md_to_zip_gdb",
         ),
     ],
 )
@@ -136,10 +188,17 @@ def test_write_metadata(
     )
 
     # read it back
-    shp = shp_utils.from_path(
-        path=fixture_info["path"], shp_name=fixture_info["layer"], zip_subdir=subdir
-    )
-    metadata = shp.read_metadata()
+    metadata = None
+
+    if ".gdb" in fixture_info["path"].suffixes:
+        metadata = fgdb.read_metadata(
+            gdb=fixture_info["path"], layer=fixture_info["layer"]
+        )
+    if ".shp" in fixture_info["layer"]:
+        shp = shp_utils.from_path(
+            path=fixture_info["path"], shp_name=fixture_info["layer"], zip_subdir=subdir
+        )
+        metadata = shp.read_metadata()
 
     if metadata is None:
         pytest.fail("Expected metadata to exist")
