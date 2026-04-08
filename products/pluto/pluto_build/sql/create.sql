@@ -108,5 +108,6 @@ CREATE TABLE pluto (
     mih_opt4 text,
     trnstzone text,
     affresfar text,
-    mnffar text
+    mnffar text,
+    centroid GEOMETRY (GEOMETRY, 4326)
 );

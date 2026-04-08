@@ -27520,3 +27520,9 @@ bbl,field,old_value,new_value,Type,reason,version
 1022037501,unitstotal,450,226,2,PTS error - units,25v4
 1003157501,unitsres,119,60,2,PTS error - units,25v4
 1003157501,unitstotal,120,61,2,PTS error - units,25v4
+3051007501,unitsres,1024,32,2,pluto_rpad_geo,26v1
+3051007501,unitstotal,1030,38,2,PTS error - units,26v1
+4033307501,unitsres,118,40,2,pluto_rpad_geo,26v1
+4033307501,unitstotal,135,40,2,PTS error - units,26v1
+2028507501,unitsres,31,103,2,pluto_rpad_geo,26v1
+2028507501,unitstotal,32,104,2,PTS error - units,26v1

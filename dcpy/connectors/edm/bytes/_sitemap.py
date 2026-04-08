@@ -20,6 +20,7 @@ BYTES_CATALOG_URL_PREFIX = (
 BYTES_API_PREFIX = (
     "https://apps.nyc.gov/content-api/v1/content/planning/resources/datasets"
 )
+BYTES_PAGE_URL_PREFIX = "https://www.nyc.gov/content/planning/pages/resources/datasets"
 
 
 class _FileUrlInfo(BaseModel, extra="forbid"):
@@ -90,6 +91,10 @@ def get_product_dataset_bytes_resource(product, dataset) -> str:
 
 def get_most_recent_version_url(product, dataset) -> str:
     return f"{BYTES_API_PREFIX}/{get_product_dataset_bytes_resource(product, dataset)}"
+
+
+def get_page_url(product, dataset) -> str:
+    return f"{BYTES_PAGE_URL_PREFIX}/{get_product_dataset_bytes_resource(product, dataset)}"
 
 
 def get_dataset_catalog_json_url(product, dataset) -> str | None:

@@ -146,7 +146,7 @@
     "digital_city_map__geodatabase": {
       "files": {
         "fgdb": {
-          "filename": "dcm_{v}fdgb.zip"
+          "filename": "dcm_{v}fgdb.zip"
         },
         "dcm_street_name_changes_areas_pdf": {
           "filename": "dcm_street_name_changes_areas.pdf"

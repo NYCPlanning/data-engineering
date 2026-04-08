@@ -148,6 +148,12 @@ class BytesConnector(VersionedConnector):
             *self._key_to_product_dataset(key)
         )
 
+    def get_page_url(self, key: str) -> str | None:
+        try:
+            return _sitemap.get_page_url(*self._key_to_product_dataset(key))
+        except KeyError:
+            return None
+
     def fetch_all_latest_versions(self) -> list[tuple[str, str, str]]:
         """Fetch latest versions for all datasets.
 

@@ -270,6 +270,7 @@ def _cli_wrapper_load(
         help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
     ),
 ):
+    print(f"clearing schema? {clear_pg_schema}")
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )

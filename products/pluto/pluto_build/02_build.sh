@@ -26,9 +26,6 @@ run_sql_file sql/allocated.sql
 
 echo 'Adding on spatial data attributes'
 run_sql_file sql/geocodes.sql
-# clean up numeric fields
-run_sql_file sql/numericfields.sql
-run_sql_file sql/condono.sql
 
 echo 'Adding on CAMA data attributes'
 run_sql_file sql/landuse.sql
@@ -44,12 +41,8 @@ run_sql_file sql/cama_bldgarea_4.sql
 run_sql_file sql/cama_easements.sql
 
 echo 'Adding on data attributes from other sources'
-run_sql_file sql/lpc.sql
 run_sql_file sql/edesignation.sql
 run_sql_file sql/ownertype.sql
-
-echo 'Transform RPAD data attributes'
-run_sql_file sql/irrlotcode.sql
 
 echo 'Adding DCP data attributes'
 run_sql_file sql/address.sql
@@ -77,8 +70,12 @@ run_sql_file sql/zoning_parks.sql
 run_sql_file sql/zoning_splitzone.sql
 run_sql_command "VACUUM ANALYZE pluto;"
 
-echo 'Filling in FAR values'
-run_sql_file sql/far.sql
+echo 'Running DBT enrichment models'
+# Run dbt to compute enrichments (requires cd out of pluto_build)
+(cd .. && dbt run --select tag:pluto_enrichment)
+
+echo 'Applying DBT enrichments to PLUTO table'
+run_sql_file sql/apply_dbt_enrichments.sql
 run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Populating building class for condos lots and land use field'
@@ -87,7 +84,6 @@ run_sql_file sql/landuse.sql
 run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Flagging tax lots within the FEMA floodplain'
-run_sql_file sql/latlong.sql
 run_sql_file sql/update_empty_coord.sql
 run_sql_file sql/flood_flag.sql
 run_sql_command "VACUUM ANALYZE pluto;"
@@ -97,9 +93,6 @@ run_sql_file sql/spatialjoins.sql
 # clean up numeric fields
 run_sql_file sql/numericfields_geomfields.sql
 run_sql_file sql/sanitboro.sql
-run_sql_file sql/latlong.sql
-run_sql_file sql/miharea.sql
-run_sql_file sql/transitzone.sql
 run_sql_command "VACUUM ANALYZE pluto;"
 
 echo 'Populating PLUTO tags and version fields'

@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_tz__atomic_geoms
+    description: Decomposed transit zone multipolygons into atomic parts for performance
+    
+  - name: int_tz__tax_blocks
+    description: Tax blocks split into sub-blocks with BBL assignments
+    
+  - name: int_tz__block_to_tz_ranked
+    description: Transit zone coverage ranked per block
+    
+  - name: int_tz__bbl_to_tz_ranked
+    description: Lot-level transit zone assignments for ambiguous blocks
+    
+  - name: int_pluto__transitzone
+    description: Final transit zone assignment per BBL
+    columns:
+      - name: bbl
+        description: Borough-Block-Lot identifier
+        tests:
+          - unique
+          - not_null
+      - name: trnstzone
+        description: Transit zone assignment
