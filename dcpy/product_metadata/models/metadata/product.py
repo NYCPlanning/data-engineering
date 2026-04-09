@@ -193,7 +193,7 @@ class Revision(CustomizableBase):
     notes: str
 
 
-class Dataset(CustomizableBase):
+class Dataset(CustomizableBase, YamlWriter):
     columns: list[DatasetColumn]
     attributes: DatasetAttributes
     revisions: list[Revision] = []
@@ -242,7 +242,7 @@ class DestinationFile(CustomizableBase):
     file_overrides: FileOverrides = FileOverrides()
 
 
-class DestinationMetadata(SortedSerializedBase):
+class DestinationMetadata(SortedSerializedBase, YamlWriter):
     dataset: Dataset
     destination: Destination
     file: File
