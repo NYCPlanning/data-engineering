@@ -19,7 +19,7 @@ Includes:
 - `connectors/` - Data source connections
 - `library/` - Shared business logic
 - `geosupport/` - Geospatial utilities
-- `product_metadata/` - Product configuration
+- [`product_metadata/`](../../dcpy/product_metadata/README.md) - Product configuration and dataset documentation
 
 Cannot import from `lifecycle`.
 
