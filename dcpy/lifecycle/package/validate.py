@@ -9,7 +9,7 @@ import typer
 from shapely import wkb, wkt
 from tabulate import tabulate  # type: ignore
 
-import dcpy.models.product.dataset.metadata as dataset_md
+import dcpy.product_metadata.models.metadata.product as dataset_md
 from dcpy.utils.logging import logger
 
 

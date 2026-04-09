@@ -5,11 +5,11 @@ import css_inline
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
-from dcpy.models.product.dataset.metadata import Metadata
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
+from dcpy.product_metadata.models.metadata.product import Metadata
 from dcpy.utils.logging import logger
 
-from . import RESOURCES_PATH
+from ._paths import RESOURCES_PATH
 
 DEFAULT_PDF_STYLESHEET_PATH = RESOURCES_PATH / "document_templates" / "paged_media.css"
 DEFAULT_DATA_DICTIONARY_TEMPLATE_PATH = (

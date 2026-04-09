@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import NotRequired, Required, TypedDict
 
-import dcpy.models.product.dataset.metadata as ds_md
+import dcpy.product_metadata.models.metadata.product as ds_md
 
 
 class DatasetDestinationPushArgs(TypedDict):

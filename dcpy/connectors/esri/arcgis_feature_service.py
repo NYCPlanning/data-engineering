@@ -16,7 +16,7 @@ from rich.progress import (
 
 from dcpy.connectors.registry import Connector
 from dcpy.models.connectors.esri import FeatureServer, FeatureServerLayer, Server
-from dcpy.models.product.dataset import metadata
+from dcpy.product_metadata.models.metadata import product as metadata
 from dcpy.utils.logging import logger
 
 

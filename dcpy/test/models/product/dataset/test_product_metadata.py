@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pytest import fixture
 
-from dcpy.models.product.dataset import metadata as m
+from dcpy.product_metadata.models.metadata import product as m
 
 OVERRIDDEN_SHP_NAME_AT_DEST = "overridden_shp_name_at_dest.zip"
 DESTINATION_OVERRIDDEN_DISPLAY_NAME = "overridden dest display name"

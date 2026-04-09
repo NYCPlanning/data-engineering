@@ -3,7 +3,7 @@ from pathlib import Path
 import requests
 import yaml
 
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.utils.logging import logger
 
 METADATA_REPO_RAW_URL = (

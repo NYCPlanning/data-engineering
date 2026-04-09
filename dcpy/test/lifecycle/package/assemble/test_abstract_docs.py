@@ -1,8 +1,8 @@
 import pytest
 
-from dcpy.lifecycle.package import abstract_doc
-from dcpy.models.design import elements as de
-from dcpy.models.product.metadata import OrgMetadata
+from dcpy.product_metadata.models.design import elements as de
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
+from dcpy.product_metadata.writers.oti_xlsx import abstract_doc
 
 
 @pytest.fixture

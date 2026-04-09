@@ -1,6 +1,7 @@
 import pytest
 
-from dcpy.lifecycle.package import pdf_writer, xlsx_writer, yaml_writer
+from dcpy.product_metadata.writers import pdf_writer, yaml_writer
+from dcpy.product_metadata.writers.oti_xlsx import xlsx_writer
 from dcpy.test.lifecycle.package.conftest import (
     PACKAGE_RESOURCES_PATH,
     TEMP_DATA_PATH,

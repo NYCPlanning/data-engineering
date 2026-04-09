@@ -4,6 +4,7 @@ attributes:
   attribution: DCP
   attribution_link: https://www.nyc.gov/site/planning/data-maps/open-data.page
   contact_email: opendata@planning.nyc.gov
+  current_version: "org-default-1.0"
 
 products:
   - colp

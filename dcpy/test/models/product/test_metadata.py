@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 
 from dcpy.models import dataset
-from dcpy.models.product import metadata as md
-from dcpy.models.product.dataset import metadata as ds_md
+from dcpy.product_metadata.models.metadata import org as md
+from dcpy.product_metadata.models.metadata import product as ds_md
 
 
 @pytest.fixture
@@ -219,3 +219,67 @@ def test_column_defaults_applied(org_md: md.OrgMetadata):
         description="sample bbl description",
         example="1016370141",
     ) == colp_ds.get_column("bbl"), "The bbl column should have had defaults applied"
+
+
+def test_current_version_overrides(org_md: md.OrgMetadata):
+    """Test that current_version can be overridden at org, product, dataset, and destination levels."""
+    lion_md = org_md.product("lion")
+
+    # Test dataset with dataset-level override
+    pseudo_lots = lion_md.dataset("pseudo_lots")
+    assert pseudo_lots.attributes.current_version == "dataset-override-3.0", (
+        "Dataset-level current_version should override product default"
+    )
+
+    # Test destination with destination-level override
+    socrata_dest = pseudo_lots.get_destination("socrata")
+    assert socrata_dest.current_version == "destination-override-4.0", (
+        "Destination should have its own current_version override"
+    )
+
+    # Test destination without override (should use dataset version via method)
+    garlic_dest = pseudo_lots.get_destination("garlic_sftp")
+    assert garlic_dest.current_version == "", (
+        "Destination without override should have empty string"
+    )
+
+    # Test dataset without dataset-level override (should use product default)
+    school_districts = lion_md.dataset("school_districts")
+    assert school_districts.attributes.current_version == "product-default-2.0", (
+        "Dataset without override should use product-level default"
+    )
+
+
+def test_get_all_destination_current_versions(org_md: md.OrgMetadata):
+    """Test that get_all_destination_current_versions returns correct sorted list."""
+    # Temporarily filter out the error product since it's designed to fail
+    original_products = org_md.metadata.products
+    org_md.metadata.products = [
+        p for p in original_products if p != "mock_product_with_errors"
+    ]
+
+    try:
+        versions = org_md.get_all_destination_current_versions()
+
+        # Should be sorted
+        assert versions == sorted(versions), "Result should be sorted"
+
+        # Check that specific entries exist with correct version resolution
+        assert "lion.pseudo_lots.socrata|destination-override-4.0" in versions, (
+            "Destination-level override should be in output"
+        )
+        assert "lion.pseudo_lots.garlic_sftp|dataset-override-3.0" in versions, (
+            "Destination without override should use dataset version"
+        )
+        assert "lion.school_districts.socrata|product-default-2.0" in versions, (
+            "Destination on dataset without override should use product default"
+        )
+        assert "lion.school_districts.socrata_2|product-default-2.0" in versions, (
+            "Another destination should also use product default"
+        )
+        assert "lion.school_districts.other|product-default-2.0" in versions, (
+            "Third destination should also use product default"
+        )
+    finally:
+        # Restore original products list
+        org_md.metadata.products = original_products

@@ -7,7 +7,7 @@ from pandas import DataFrame as df
 from shapely import wkb, wkt
 
 import dcpy.models.dataset as dataset
-import dcpy.models.product.dataset.metadata as md
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle.package import validate
 from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
 

@@ -8,14 +8,14 @@ import yaml
 from pydantic import BaseModel, Field, TypeAdapter
 
 from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
-from dcpy.models.product.artifacts import Artifact, Artifacts
-from dcpy.models.product.data_dictionary import DataDictionary
-from dcpy.models.product.dataset.metadata import (
+from dcpy.product_metadata.models.metadata.artifacts import Artifact, Artifacts
+from dcpy.product_metadata.models.metadata.data_dictionary import DataDictionary
+from dcpy.product_metadata.models.metadata.product import (
     COLUMN_TYPES,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
 )
-from dcpy.models.product.dataset.metadata import (
+from dcpy.product_metadata.models.metadata.product import (
     Metadata as DatasetMetadata,
 )
 from dcpy.utils.collections import deep_merge_dict as merge
@@ -288,3 +288,25 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     def get_product_dataset_destinations(self, destination_path: str):
         prod, ds, dest_id = destination_path.split(".")
         return self.product(prod).dataset(ds).get_destination(dest_id)
+
+    def get_all_destination_current_versions(self) -> list[str]:
+        """Get all destination paths with their current_version.
+        Returns a sorted list of strings in format: product.dataset.destination|current_version
+        """
+        result = []
+        for p_name in self.metadata.products:
+            product = self.product(p_name)
+            for ds in product.get_datasets_by_id().values():
+                # Get the resolved current_version from dataset attributes (has org/product defaults applied)
+                dataset_version = ds.attributes.current_version or ""
+
+                for dest in ds.destinations:
+                    # Destination can override the dataset version
+                    version = (
+                        dest.current_version
+                        if dest.current_version
+                        else dataset_version
+                    )
+                    result.append(f"{p_name}.{ds.id}.{dest.id}|{version}")
+
+        return sorted(result)

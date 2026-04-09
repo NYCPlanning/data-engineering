@@ -10,6 +10,7 @@ attributes:
   display_name: Pseudo Lots
   each_row_is_a: Pseudo Lot
   publishing_frequency: "{{ pseudo_lots_pub_freq }}"
+  current_version: "dataset-override-3.0"
   tags:
     - pseudo lots
     - bin
@@ -21,5 +22,6 @@ destinations:
   - id: socrata
     type: socrata
     tags: [prod_tag, pseudo_lots_tag]
+    current_version: "destination-override-4.0"
   - id: garlic_sftp
     type: sftp

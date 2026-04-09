@@ -167,6 +167,35 @@ dependencies = [
     "xlrd",
 ]
 
+[project.optional-dependencies]
+# Core utilities - database, s3, data processing (no GDAL)
+utils = [
+    "boto3",
+    "cloudpathlib[all]",
+    "duckdb",
+    "pandas",
+    "psycopg2-binary",
+    "pyarrow",
+    "python-dateutil",
+    "pytz",
+    "sqlalchemy",
+    "tabulate",
+    "urllib3",
+    "paramiko",
+]
+
+# Product metadata - standalone metadata reading/writing
+product-metadata = [
+    "dcpy[utils]",
+    "pydantic",
+    "PyYAML",
+    "openpyxl",
+    "beautifulsoup4",
+    "css-inline",
+    "lxml",
+    "Jinja2",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 exclude = ["dcpy.test*"]
@@ -179,5 +208,6 @@ dcpy = "dcpy.__main__:cli"
 dcpy = [
     "library/templates/*.yml",
     "lifecycle/package/resources/**",
+    "product_metadata/writers/resources/**",
     "connectors/edm/bytes/site_map.json",
 ]
