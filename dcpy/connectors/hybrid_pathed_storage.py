@@ -4,10 +4,11 @@ import shutil
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict, Unpack
+from typing import Any, Unpack
 
 from cloudpathlib import CloudPath, S3Client
 from cloudpathlib.azure import AzureBlobClient
+from typing_extensions import NotRequired, TypedDict
 
 from dcpy.configuration import DEFAULT_S3_URL
 from dcpy.connectors.registry import Connector
