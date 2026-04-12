@@ -347,6 +347,20 @@ geom_ulurp AS (
     ) AS a LEFT JOIN dcp_zoningmapamendments AS zma
         ON a.dcp_ulurpnumber = zma.ulurpno
     GROUP BY a.record_id, a.geom
+),
+
+-- Correcting geometry for Hudson Square project (P2012M0255) while using old ZAP data
+geom_corrections AS (
+    SELECT
+        a.record_id,
+        CASE
+            WHEN a.record_id = 'P2012M0255'
+                THEN b.geometry
+            ELSE a.geom
+        END AS geom
+    FROM geom_ulurp AS a
+    LEFT JOIN dcp_hudsonsquare AS b
+        ON a.record_id = b.projectid
 )
 
 -- Main table with the geometry lookup
@@ -355,5 +369,5 @@ SELECT
     b.geom
 INTO dcp_application
 FROM _dcp_application AS a
-LEFT JOIN geom_ulurp AS b
+LEFT JOIN geom_corrections AS b
     ON a.record_id = b.record_id;
