@@ -12,7 +12,7 @@ on:
 
 jobs:
   sync:
-    name: Sync HPD Data, DOB BIS Applications
+    name: Sync DOB BIS and HPD HNY
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
@@ -21,8 +21,8 @@ jobs:
     strategy:
       matrix:
         dataset:
-          - dob_permitissuance
-          - dob_jobapplications
+          - dob_bis_permits
+          - dob_bis_applications
           - hpd_hny_units_by_building
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Library Archive
-        run: library archive --name ${{ matrix.dataset }} --latest --s3
+        run: python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
 
   geocode:
     name: Geocode HPD Data
@@ -89,7 +89,7 @@ jobs:
 
       - name: Load to Database
         run: |
-          ./devdb_datasync.sh import hpd_hny_units_by_building ${{ github.event.inputs.version }}
+          ./devdb_datasync.sh import hpd_hny_units_by_building
           ./devdb_datasync.sh import hpd_historical_units_by_building
 
       - name: Geocode
