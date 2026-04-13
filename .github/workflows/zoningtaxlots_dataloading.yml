@@ -47,7 +47,7 @@ jobs:
     strategy:
       matrix:
         dataset:
-        - dcp_mih
+        - dcp_gis_mandatory_inclusionary_housing
         - dcp_edesignation
         - dcp_commercialoverlay
         - dcp_limitedheight
