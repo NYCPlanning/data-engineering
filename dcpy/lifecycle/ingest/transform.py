@@ -1,5 +1,6 @@
 import json
 import textwrap
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -634,8 +635,18 @@ def process(
     for step in processing_steps:
         step_callable = getattr(processor, step.name)
         logger.info(f"Running processing step '{step.name}'")
+        start_time = datetime.now()
         result = step_callable(df, **step.args)
+        end_time = datetime.now()
+        elapsed_seconds = (end_time - start_time).total_seconds()
+
         df = result.df
+
+        # Add timing information to the summary
+        result.summary.start_time = start_time.isoformat()
+        result.summary.end_time = end_time.isoformat()
+        result.summary.elapsed_seconds = elapsed_seconds
+
         logger.info(f"Processing step '{step.name}' results summary:")
         logger.info(
             f"{textwrap.indent(json.dumps(result.summary.model_dump(mode='json'), indent=4), '    ')}"

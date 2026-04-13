@@ -192,6 +192,9 @@ class ProcessingSummary(SortedSerializedBase):
     data_modifications: dict = {}
     column_modifications: dict = {}
     custom: dict = {}
+    start_time: str | None = None
+    end_time: str | None = None
+    elapsed_seconds: float | None = None
 
 
 class Transformation(SortedSerializedBase):
