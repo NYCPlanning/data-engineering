@@ -18,7 +18,6 @@ ingestion:
     args:
       column_types:
         {
-          "oid_": "string",
           "condo_base_boro": "string",
           "condo_base_block": "string",
           "condo_base_lot": "string",
@@ -35,8 +34,6 @@ ingestion:
         }
 
 columns:
-- id: oid_
-  data_type: text
 - id: condo_base_boro
   data_type: text
 - id: condo_base_block
