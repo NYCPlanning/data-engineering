@@ -96,25 +96,18 @@ def list_versions(
     ),
 ):
     """List all destination versions as JSON."""
-    import json
+    from dcpy.product_metadata.versions import DestinationVersions
 
     org_md = product_metadata.load(version=version)
-    versions = org_md.get_all_destination_current_versions()
-
-    # Build JSON: {"product.dataset.destination": "version"}
-    versions_dict = {}
-    for line in versions:
-        if "|" in line:
-            dest, ver = line.split("|", 1)
-            versions_dict[dest] = ver
-
-    output = json.dumps(versions_dict, indent=2)
+    dest_versions = DestinationVersions.from_org_metadata(org_md)
 
     if output_file:
-        output_file.write_text(output + "\n")
-        typer.echo(f"Wrote {len(versions_dict)} destination versions to {output_file}")
+        dest_versions.to_json_file(output_file)
+        typer.echo(
+            f"Wrote {len(dest_versions.versions)} destination versions to {output_file}"
+        )
     else:
-        typer.echo(output)
+        typer.echo(dest_versions.to_json_string())
 
 
 @metadata_app.command("diff-versions")
@@ -131,116 +124,34 @@ def diff_versions(
     ),
 ):
     """Compare two destination version files and show changes."""
-    import json
+    from dcpy.product_metadata.versions import DestinationVersions
 
-    # Read JSON versions
-    prev_versions = json.loads(old_file.read_text())
-    curr_versions = json.loads(new_file.read_text())
+    old_versions = DestinationVersions.from_json_file(old_file)
+    new_versions = DestinationVersions.from_json_file(new_file)
 
-    # Categorize changes
-    added = []
-    changed = []
-    removed = []
-
-    for dest, ver in sorted(curr_versions.items()):
-        if dest not in prev_versions:
-            parts = dest.split(".")
-            added.append(
-                {
-                    "destination": dest,
-                    "product": parts[0] if len(parts) >= 1 else "",
-                    "dataset": parts[1] if len(parts) >= 2 else "",
-                    "destination_id": parts[2] if len(parts) >= 3 else "",
-                    "version": ver,
-                }
-            )
-        elif prev_versions[dest] != ver:
-            parts = dest.split(".")
-            changed.append(
-                {
-                    "destination": dest,
-                    "product": parts[0] if len(parts) >= 1 else "",
-                    "dataset": parts[1] if len(parts) >= 2 else "",
-                    "destination_id": parts[2] if len(parts) >= 3 else "",
-                    "old_version": prev_versions[dest],
-                    "new_version": ver,
-                }
-            )
-
-    for dest, ver in sorted(prev_versions.items()):
-        if dest not in curr_versions:
-            parts = dest.split(".")
-            removed.append(
-                {
-                    "destination": dest,
-                    "product": parts[0] if len(parts) >= 1 else "",
-                    "dataset": parts[1] if len(parts) >= 2 else "",
-                    "destination_id": parts[2] if len(parts) >= 3 else "",
-                    "version": ver,
-                }
-            )
+    diff = old_versions.compare(new_versions)
 
     if json_format:
-        # JSON output for machine reading
-        output_data = {
-            "added": added,
-            "changed": changed,
-            "removed": removed,
-            "summary": {
-                "added_count": len(added),
-                "changed_count": len(changed),
-                "removed_count": len(removed),
-            },
-        }
-        output = json.dumps(output_data, indent=2)
-
+        output = diff.model_dump_json(indent=2)
         if output_file:
             output_file.write_text(output + "\n")
             typer.echo(f"JSON diff written to {output_file}")
-            typer.echo(
-                f"Summary: {len(added)} added, {len(changed)} changed, {len(removed)} removed"
-            )
         else:
             typer.echo(output)
     else:
-        # Human-readable text output
-        output_lines = []
-
-        if added:
-            output_lines.append("## Added")
-            output_lines.extend([f"+ {a['destination']}|{a['version']}" for a in added])
-            output_lines.append("")
-
-        if changed:
-            output_lines.append("## Changed")
-            output_lines.extend(
-                [
-                    f"  {c['destination']}|{c['old_version']} -> {c['new_version']}"
-                    for c in changed
-                ]
-            )
-            output_lines.append("")
-
-        if removed:
-            output_lines.append("## Removed")
-            output_lines.extend(
-                [f"- {r['destination']}|{r['version']}" for r in removed]
-            )
-            output_lines.append("")
-
-        if not added and not changed and not removed:
-            output_lines.append("No changes detected.")
-
-        output = "\n".join(output_lines)
-
+        output = diff.to_text()
         if output_file:
             output_file.write_text(output + "\n")
             typer.echo(f"Diff written to {output_file}")
-            typer.echo(
-                f"Summary: {len(added)} added, {len(changed)} changed, {len(removed)} removed"
-            )
         else:
             typer.echo(output)
+
+    # Always print summary
+    typer.echo(
+        f"Summary: {diff.summary['added_count']} added, "
+        f"{diff.summary['changed_count']} changed, "
+        f"{diff.summary['removed_count']} removed"
+    )
 
 
 app.add_typer(metadata_app, name="metadata")
