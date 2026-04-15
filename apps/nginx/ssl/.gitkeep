@@ -1,0 +1,17 @@
+# what goes here?
+
+SSL certificates from Let's Encrypt (certbot)
+
+When you run ./scripts/init-ssl.sh, certbot:
+
+    - Requests a certificate from Let's Encrypt
+    - Saves it to /etc/letsencrypt/live/your-domain/ inside the container
+    - That's mounted to nginx/ssl/ on your host
+
+Contents:
+
+    - fullchain.pem - SSL certificate
+    - privkey.pem - Private key
+    - Other certbot metadata
+
+These are public certificates and private keys for HTTPS, not the basic auth password.
