@@ -169,3 +169,7 @@ uv.lock
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Apps (docker-compose)
+apps/nginx/ssl/*
+!apps/nginx/ssl/.gitkeep

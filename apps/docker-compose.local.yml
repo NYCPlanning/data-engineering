@@ -1,0 +1,22 @@
+# Override for local development
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.local.yml up
+
+services:
+  qa-streamlit:
+    volumes:
+      # Mount local repos instead of using shared volume
+      - ${DATA_ENGINEERING_PATH:-.}:/app/data-engineering
+      - ${PRODUCT_METADATA_PATH:-../../product-metadata}:/app/product-metadata
+
+  dagster:
+    volumes:
+      # Mount local repos instead of using shared volume
+      - ${DATA_ENGINEERING_PATH:-.}:/app/data-engineering
+      - ${PRODUCT_METADATA_PATH:-../../product-metadata}:/app/product-metadata
+      - dagster-storage:/opt/dagster/dagster_home
+
+  nginx:
+    ports:
+      # Use standard ports for local dev
+      - "8080:80"
+      - "8443:443"
