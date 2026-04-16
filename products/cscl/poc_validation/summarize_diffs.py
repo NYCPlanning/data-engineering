@@ -26,7 +26,13 @@ FIELDNAMES = [
 ]
 
 # Files to exclude from the summary
-EXCLUDE = {"diffs_summary.csv", "log.csv"}
+EXCLUDE = {
+    "recipe.lock.yml",
+    "source_data_versions.csv",
+    "build_metadata.json",
+    "diffs_summary.csv",
+    "log.csv",
+}
 
 
 def build_export_name_to_group() -> dict[str, str]:
