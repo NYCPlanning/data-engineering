@@ -16,4 +16,9 @@ run_sql_file sql/normalize_agency.sql
 echo "Normalize commdist values ..."
 run_sql_file sql/normalize_commdist.sql
 
+echo "Normalize request values ..."
+run_sql_file sql/normalize_requests.sql
+
+dbt test --select intermediate
+
 echo "Done!"
