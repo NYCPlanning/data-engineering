@@ -65,8 +65,8 @@ def home():
     core **Data Engineering** data products, including PLUTO, Zoning Tax Lots,
     The Facilities database and more.
 
-    You can find data QAQC dashboard through the dropdown menu on the left.
-    If you have questions, let us know on [gitter](https://gitter.im/NYCPlanning/community)
+    You can find select a dataset page through the dropdown menu on the left.
+    If you have questions, email us at DataEngineering_DL@planning.nyc.gov
     or open up an [issue](https://github.com/NYCPlanning/data-engineering/issues) on Github.
     """
     )

@@ -20,6 +20,7 @@ PAGES = {
     "Zoning Tax Lots": "ztl",
     # "Geosupport Demo": "geocode",
     "GRU QAQC": "gru",
+    "CSCL": "cscl",
     "Source Data": "source_data",
     "Checkbook": "checkbook",
     "Data Ingestion": "ingest",
