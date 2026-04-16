@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS _cbbr_submissions;
 CREATE TABLE _cbbr_submissions AS
 SELECT
     omb.dcpuniqid AS unique_id,
-    omb.trkno AS tracking_code,
+    TRIM(omb.trkno) AS tracking_code,
     omb.borough,
     RIGHT(omb.cb_label, 2) AS cd,
     omb.cb_label,
