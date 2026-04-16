@@ -50,5 +50,5 @@ SET
     borough_code = '5',
     commdist = '5' || lpad(cd, 2, '0')
 WHERE
-    a.borough = 'SI'
+    a.borough = 'Staten Island'
     AND commdist IS NULL;
