@@ -21,7 +21,7 @@ docker compose build dagster
 
 # Restart services with updated images
 echo "Restarting services..."
-docker compose up -d --force-recreate qa-streamlit dagster
+docker compose up -d --force-recreate qa-streamlit dagster dagster-daemon
 
 # Ensure nginx is running
 echo "Ensuring nginx is running..."

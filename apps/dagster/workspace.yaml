@@ -1,2 +1,2 @@
 load_from:
-  - python_module: hello
+  - python_module: ingest.definitions
