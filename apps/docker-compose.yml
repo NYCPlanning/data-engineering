@@ -66,15 +66,42 @@ services:
       dockerfile: Dockerfile
     environment:
       - DAGSTER_HOME=/opt/dagster/dagster_home
+      - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
       - /root/product-metadata:/app/repos/product-metadata
+      - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
     restart: unless-stopped
     networks:
       - app-network
     expose:
       - "3000"
+
+  dagster-daemon:
+    build:
+      context: ./dagster
+      dockerfile: Dockerfile
+    command: ["sh", "-c", "uv pip install --system -e /app/repos/data-engineering && dagster-daemon run"]
+    environment:
+      - DAGSTER_HOME=/opt/dagster/dagster_home
+      - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
+    volumes:
+      - /root/data-engineering:/app/repos/data-engineering
+      - /root/product-metadata:/app/repos/product-metadata
+      - /root/data-engineering/apps/dagster:/app/dagster
+      - dagster-storage:/opt/dagster/dagster_home
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      - dagster
 
 volumes:
   dagster-storage:
