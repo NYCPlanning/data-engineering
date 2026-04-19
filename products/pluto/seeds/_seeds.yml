@@ -38,12 +38,6 @@ seeds:
   - name: dcp_transit_zone_ranks
     description: Transit zone priority rankings for assignment logic
     
-  - name: pluto_input_landuse_bldgclass
-    description: Building class to land use mapping
-    config:
-      column_types:
-        landuse: text
-    
   - name: pluto_input_condolot_descriptiveattributes
     description: Descriptive attributes for condo lots (8.3k rows)
     config:
@@ -61,10 +55,56 @@ seeds:
         bsmnt_type: text
         bsmntgradient: text
         bsmtcode: text
-    
+
+  - name: pluto_input_landuse_bldgclass
+    description: Building class to land use mapping
+    config:
+      column_types:
+        landuse: text
+
   - name: lookup_bldgclass
-    description: Building class lookup table with descriptions
-    
+    description: |
+      Building class lookup table with descriptions. Is not used in PLUTO build.
+
+  - name: dof_building_classifications_site
+    description: |
+      "Building classifications from the [DOF Building Classification Site](https://www.nyc.gov/assets/finance/jump/hlpbldgcode.html)"
+    columns:
+      - name: code,description,
+        description: Code
+        tests: [ unique, not_null ]
+      - name: description
+        description: Description
+        tests: [ not_null ]
+      - name: group_code
+        description: Code for grouping building classes into broader categories
+        tests: [ not_null ]
+      - name: group_description
+        description: Description for grouping building classes into broader categories
+        tests: [ not_null ]
+
+  - name: dof_building_classifications_modeling_site
+    description: |
+      "Building classifications from the [DOF Property Modeling Site](https://nycdepartmentoffinance.github.io/data_dictionary/building_classifications.html)
+      The table includes a list of the building classifications and their corresponding descriptions, use, tax class, and model codes.
+      Each observation is a unique combination of BC, TC, USE, and MODEL so if there are duplicate BCs it is because they correspond to multiple TCs or MODELs."
+    columns:
+      - name: bc
+        description: Code
+        tests: [ unique, not_null ]
+      - name: description
+        description: Description
+        tests: [ not_null ]
+      - name: use
+        description: Use code
+        tests: [ not_null ]
+      - name: tc
+        description: Tax class code
+        tests: [ not_null ]
+      - name: model
+        description: Model code
+        tests: [ not_null ]
+
   - name: lookup_lottype
     description: Lot type lookup table
     
