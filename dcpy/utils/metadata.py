@@ -68,18 +68,20 @@ def get_run_details() -> RunDetails:
         runner: CIRun | User = CIRun(
             dispatch_event=os.environ.get("GITHUB_EVENT_NAME", "could not parse"),
             url=try_func(
-                lambda: f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+                lambda: (
+                    f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+                )
             ),
             job=os.environ.get("GITHUB_JOB", "could not parse"),
         )
     else:
         type = "manual"
         git_user = try_func(
-            lambda: subprocess.run(
-                ["git", "config", "user.name"], stdout=subprocess.PIPE
+            lambda: (
+                subprocess.run(["git", "config", "user.name"], stdout=subprocess.PIPE)
+                .stdout.strip()
+                .decode()
             )
-            .stdout.strip()
-            .decode()
         )
         runner = User(username=git_user)
 
