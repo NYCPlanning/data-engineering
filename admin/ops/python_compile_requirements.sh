@@ -3,7 +3,14 @@
 # Dev script to compile python packages from a requirements.in file to a requirements.txt file.
 # Can be run from anywhere, but assumes that relative to this script, there is "../run_environment"
 #   folder with python requirements present
-# No arguments
+#
+# Usage:
+#   admin/ops/python_compile_requirements.sh [OPTIONS]
+#
+# Options:
+#   --set-gdal    Set the GDAL Python package version in requirements.in to match
+#                 the locally installed GDAL binary version
+#   --upgrade     Upgrade all package versions when compiling requirements.txt
 
 set -e
 
