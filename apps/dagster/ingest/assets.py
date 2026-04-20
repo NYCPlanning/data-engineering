@@ -13,12 +13,14 @@ class IngestConfig(Config):
     Defaults are set for production use (push=True, latest=True).
     For local testing, set push=False and output_csv=True.
     """
+
     mode: Optional[str] = None  # Preprocessing mode (optional)
     datasets_filter: Optional[List[str]] = None  # Filter specific datasets (optional)
     latest: bool = True  # Push to latest folder in S3
     push: bool = True  # Push results to S3
     output_csv: bool = False  # Also output CSV format (in addition to parquet)
     overwrite_okay: bool = True  # Allow overwriting existing versions
+
 
 # Mount point for ingest templates in container
 INGEST_TEMPLATES_PATH = Path("/app/repos/data-engineering/ingest_templates")
@@ -65,8 +67,10 @@ def make_ingest_asset(template_id: str):
         output_path = local_storage.get_path("ingest", template_id, partition_key)
 
         context.log.info(f"Running ingest for {template_id} version {partition_key}")
-        context.log.info(f"Config: mode={config.mode}, latest={config.latest}, push={config.push}, "
-                        f"output_csv={config.output_csv}, overwrite_okay={config.overwrite_okay}")
+        context.log.info(
+            f"Config: mode={config.mode}, latest={config.latest}, push={config.push}, "
+            f"output_csv={config.output_csv}, overwrite_okay={config.overwrite_okay}"
+        )
 
         ingest(
             dataset_id=template_id,
