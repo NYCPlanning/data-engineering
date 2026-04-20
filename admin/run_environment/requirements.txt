@@ -22,7 +22,9 @@ anyio==4.13.0
     #   openai
     #   starlette
 anywidget==0.10.0
-    # via leafmap
+    # via
+    #   leafmap
+    #   openlayers
 appnope==0.1.4
     # via ipykernel
 asttokens==3.0.1
@@ -193,7 +195,9 @@ duckdb==1.5.2
 et-xmlfile==2.0.0
     # via openpyxl
 eval-type-backport==0.3.1
-    # via maplibre
+    # via
+    #   maplibre
+    #   openlayers
 execnet==2.1.2
     # via pytest-xdist
 executing==2.2.1
@@ -357,6 +361,7 @@ jinja2==3.1.6
     #   jinja2-simple-tags
     #   maplibre
     #   moto
+    #   openlayers
     #   pydeck
     #   sqlfluff
     #   streamlit-folium
@@ -499,6 +504,8 @@ numpy==2.4.4
     #   streamlit
 openai==2.32.0
     # via pydantic-ai-slim
+openlayers==0.1.6
+    # via -r requirements.in
 openpyxl==3.1.5
     # via
     #   -r requirements.in
@@ -632,6 +639,7 @@ pydantic==2.13.2
     #   genai-prices
     #   maplibre
     #   openai
+    #   openlayers
     #   pandera
     #   pydantic-ai-slim
     #   pydantic-graph
@@ -669,7 +677,9 @@ pyparsing==3.3.2
     #   matplotlib
     #   rasterio
 pyproj==3.7.2
-    # via geopandas
+    # via
+    #   geopandas
+    #   openlayers
 pysocks==1.7.1
     # via requests
 pystac[validation]==1.14.3

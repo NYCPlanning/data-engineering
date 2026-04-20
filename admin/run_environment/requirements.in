@@ -27,6 +27,7 @@ moto[s3]
 msal>=1.23.0
 mypy
 numerize
+openlayers
 openpyxl
 openpyxl-stubs
 pandas
