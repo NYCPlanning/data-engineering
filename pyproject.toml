@@ -32,7 +32,8 @@ processes = -1
 
 large_file_skip_byte_limit = 40000
 
-ignore_paths = ["products/colp/sql/clean_parcelname.sql"] # hits max recursion depth -> needs refactor
+# Maximum parse depth (grammar + bracket nesting). Prevents DoS from deeply nested SQL. Set to 0 or empty to disable. Default 255 (Oracle WHERE subquery limit).
+max_parse_depth = 302 # this limit is driven by products/developments/sql/_now.sql
 
 [tool.sqlfluff.templater.placeholder]
 param_style = "colon_optional_quotes"
