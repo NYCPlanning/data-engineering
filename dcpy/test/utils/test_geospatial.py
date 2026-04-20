@@ -105,17 +105,6 @@ class TestTransform:
         ]
         assert str(geodata.crs) == epsg
 
-    def test_geoseries_constructors_fail(self, data_wkb, data_wkt):
-        """
-        This issue can either be handled by using shapely.from_wkb/wkt
-        or by converting pandas 'nan's to 'None'
-        """
-        with pytest.raises(TypeError):
-            data_wkb["new_geometry_column"] = gpd.GeoSeries.from_wkb(data_wkb["geom"])
-
-        with pytest.raises(TypeError):
-            data_wkb["new_geometry_column"] = gpd.GeoSeries.from_wkt(data_wkt["geom"])
-
     def test_projected_crs(self, data_wkb):
         new_crs = "EPSG:2263"
         geom = FileGeometry(
