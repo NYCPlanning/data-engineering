@@ -4,6 +4,9 @@ models:
   - name: int_tz__atomic_geoms
     description: Decomposed transit zone multipolygons into atomic parts for performance
     
+  - name: int_tz__union_coverage
+    description: Union of all transit zones (excluding Beyond the Greater Transit Zone) for identifying lots outside coverage
+    
   - name: int_tz__tax_blocks
     description: Tax blocks split into sub-blocks with BBL assignments
     
