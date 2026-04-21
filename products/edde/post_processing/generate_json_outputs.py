@@ -5,7 +5,7 @@ import numpy as np
 
 ###
 DB_EDDT_TARGET= "2025-05-30"
-assert DB_EDDT_TARGET != "", "DB_EDDT_TARGET must point valid db ebbt DO Space folder"#
+assert DB_EDDT_TARGET != "", "DB_EDDT_TARGET must point valid db ebbt DO Space folder"
 
 ###
 OUTPUT_FOLDER = 'output'
@@ -79,60 +79,30 @@ measures = {
 
 
 ###
+# FUNCTIONS
+###
+
 def load_json(path):
   file = open(path, 'r')
   return json.load(file)
 
-###
-# Some of the tables we have to display on the front end show values that don't actually map to any columns in the source data from EDM
-# This usually happens in rows that are the "denominator" of the table so logically don't have data for percent and percent moe
-# When this happens, the build_config function will build column names that don't actually exist in the csv we are looking at
-# This variable gives us a way to append columns to the csvs we load in with "hard coded" values
-# This variable is a dictionary whose keys are filenames of the csvs EDM gives us. The values are arrays of tuples. The first
-# item of each tuple is the column name you want to add to the file, the second item is the value for that column
-appended_columns = {
-  "housing_security_puma": [("units_occurental_pct", 100),("units_occurental_pct_moe", 0), ("units_occu_pct", 100), ("units_occu_pct_moe", 0), ("housing_lottery_leases_pct", 100), ("housing_lottery_applications_pct", 100)],
-  "housing_security_borough": [("units_occurental_pct", 100),("units_occurental_pct_moe", 0), ("units_occu_pct", 100), ("units_occu_pct_moe", 0), ("housing_lottery_leases_pct", 100), ("housing_lottery_applications_pct", 100)],
-  "housing_security_citywide": [("units_occurental_pct", 100),("units_occurental_pct_moe", 0), ("units_occu_pct", 100), ("units_occu_pct_moe", 0), ("housing_lottery_leases_pct", 100), ("housing_lottery_applications_pct", 100)],
-  "housing_production_puma": [("units_hi_newconstruction_count",0),("units_hi_preservation_count",0),("total_pct", 100)],
-  "housing_production_borough": [("units_hi_newconstruction_count",0),("units_hi_preservation_count",0),("total_pct", 100)],
-  "housing_production_citywide": [("units_hi_newconstruction_count",0),("units_hi_preservation_count",0),("total_pct", 100)],
-}
 
-for year in ["_2000","_0812","_1923"]:
-  for geography in ["_puma","_borough","_citywide"]:
-    columns = []
-    for subgroup in ["","_anh","_bnh","_wnh","_hsp"]:
-      columns = columns + [(f'age_median{subgroup}{var}', np.nan) for var in ["_pct","_pct_moe"]]
-    appended_columns[f'demographics{year}{geography}'] = columns
+# Recursively deep merges two dictionaries and returns the result
+# https://stackoverflow.com/a/20666342
+def merge(source, destination):
+    for key, value in source.items():
+        if isinstance(value, dict):
+            node = destination.setdefault(key, {})
+            merge(value, node)
+        else:
+            destination[key] = value
 
-###
-
-
-# In some cases we need to add a column to a data file that is a copy of an existing column, just with a different name. This should
-# be a last resort when the column names output by our code don't map exactly to existing columns
-
-# Because subgroup tokens such as "anh" and "bnh" are treated as "variables" in the "Mutually Exclusive Race/Hispanic Origin" table,
-# the column names our code generates don't match the values in the change over time data files (which do follow the normal convention)
-demo_change_copy = {}
-for subgroup in ["anh","bnh","wnh","hsp", "onh"]:
-  for measure in ["count","pct","pnt"]:
-    demo_change_copy[f'pop_change_{subgroup}_{measure}'] = f'pop_{subgroup}_change_{measure}'
-
-copy_columns = {
-  "demo_change_puma": demo_change_copy,
-  "demo_change_borough": demo_change_copy,
-  "demo_change_citywide": demo_change_copy
-}
-
-
-
-###
+    return destination
 
 
 # Downloads EDM csv file for given geography, category, and filename
 # Sets column containing geoids as index, and adds column axis multi-index with value of filename
-def download_df(geography, category, filename):
+def download_df(geography, category, filename, appended_columns, copy_columns):
   base_url = DO_CHANGE_URL if "change" in filename else DO_EDM_URL
   dest = f'{base_url}/{category_folders[category]}/{filename}.csv'
   df = pd.read_csv(dest, dtype={geography_column_names[geography]: "str"})
@@ -153,94 +123,12 @@ def download_df(geography, category, filename):
   return df
 
 
-
-###
-
-
-# Recursively deep merges two dictionaries and returns the result
-# https://stackoverflow.com/a/20666342
-def merge(source, destination):
-    for key, value in source.items():
-        if isinstance(value, dict):
-            node = destination.setdefault(key, {})
-            merge(value, node)
-        else:
-            destination[key] = value
-
-    return destination
-
-
-
-### Build Table Configs
-config = {
-  "demo": load_json("../config/demo.json"),
-  "econ": load_json("../config/econ.json"),
-  "hsaq": load_json("../config/hsaq.json"),
-  "hopd": load_json("../config/hopd.json"),
-  "qlao": load_json("../config/qlao.json")
-}
-
-resolved_tables = {
-  "district": {
-    "hsaq": {
-      "tot": [],
-      "anh": [],
-      "bnh": [],
-      "wnh": [],
-      "hsp": []
-    }
-  },
-  "borough": {
-    "hsaq": {
-      "tot": [],
-      "anh": [],
-      "bnh": [],
-      "wnh": [],
-      "hsp": []
-    }
-  },
-  "citywide": {
-    "hsaq": {
-      "tot": [],
-      "anh": [],
-      "bnh": [],
-      "wnh": [],
-      "hsp": []
-    }
-  }
-}
-
-# Loops through configuration files and saves result to /generated/resolved_table_configs.json with a fully
-# formed table config for every indicator, for every geography, for every subgroup
-for category, table_list in config.items():
-  for table_config in table_list:
-    base = table_config["base"].copy()
-    for geography, geography_config in table_config["geographies"].items():
-      geo_config = geography_config.copy()
-      if geography not in resolved_tables:
-        resolved_tables[geography] = {}
-      if category not in resolved_tables[geography]:
-        resolved_tables[geography][category] = {}
-      base = table_config["base"]
-      merged_table_config = merge(base, geo_config)
-      for subgroup, subgroup_config in table_config["subgroups"].items():
-        sub_config = subgroup_config.copy()
-        if subgroup not in resolved_tables[geography][category]:
-          resolved_tables[geography][category][subgroup] = []
-        final = merge(merged_table_config, sub_config)
-        resolved_tables[geography][category][subgroup].append(final)
-
-with open(f'../generated/resolved_table_configs.json', 'w') as fp:
-    simplejson.dump(resolved_tables, fp, ignore_nan=True, indent=2)
-
-
-### Build Page Configs
 def build_column_name(variable, subgroup, measure, variance, year="", subcategory="", suffix=""):
   measure_token = measures[measure]["token"]
   variance_token = variances[variance]["token"]
   return f'{subcategory}{variable}{suffix}{year}{subgroup_tokens[subgroup]}{measure_token}{variance_token}'
 
-###
+
 def build_row_column_names(variable, subgroup, measures, variances, year, subcategory, suffixes):
   result = []
   _suffixes = ["" for i in variances] if suffixes == None else suffixes
@@ -248,7 +136,7 @@ def build_row_column_names(variable, subgroup, measures, variances, year, subcat
     result.append(build_column_name(variable, subgroup, measure, variance, year, subcategory, suffix))
   return result
 
-###
+
 # The values in the "measures" list for change over time vintages will be different than the list
 # that describes the non-change vintages but we can figure out what it will be based on the list for
 # the non-change vintages, this saves us from having to define them manually for every indicator with a change vintage
@@ -271,7 +159,7 @@ def get_change_measures(measures):
     print(f'could not find value for measures {measures}')
     return []
 
-###
+
 # This function does the same thing as get_change_measures but for variances
 def get_change_variances(variances):
   if variances == ["NONE", "MOE", "CV", "NONE", "MOE"]:
@@ -286,7 +174,7 @@ def get_change_variances(variances):
     print(f'could not find value for variances {variances}')
     return []
 
-###
+
 # In most cases, we can derive what the value of "headers" should be based on
 # "measures". This function handles that, allowing us to remove the repetitive
 # header values from the config files
@@ -310,7 +198,6 @@ def get_headers(measures):
     return []
 
 
-###
 # This function does the same thing as get_headers but for headers of
 # change over time vintages
 def get_change_headers(measures):
@@ -331,7 +218,6 @@ def get_change_headers(measures):
     return []
 
 
-###
 def build_config(table_config, subgroup):
   result = {}
 
@@ -440,29 +326,6 @@ def build_config(table_config, subgroup):
   return result
 
 
-  # Set denom row placeholder to base placeholder if 1) base placeholder is defined and len > 0 AND base denom is defined AND base denom placeholder is not defined
-
-###
-resolved_tables = load_json('../generated/resolved_table_configs.json')
-output = {}
-for geography, geography_config in resolved_tables.items():
-  if geography not in output:
-    output[geography] = {}
-  for category, category_config in geography_config.items():
-    if category not in output[geography]:
-      output[geography][category] = {}
-    for subgroup, subgroup_config in category_config.items():
-      if subgroup not in output[geography][category]:
-        output[geography][category][subgroup] = []
-      for table_config in subgroup_config:
-        output[geography][category][subgroup].append(build_config(table_config, subgroup))
-
-with open(f'../generated/resolved_pages.json', 'w') as fp:
-    simplejson.dump(output, fp, ignore_nan=True)
-
-###
-
-
 # "headers" defines the header cells a table should have in any given vintage, except for the top
 # header row displaying the vintages (that value comes directly from table_config["vintages"])
 # headers should be a three dimensional array
@@ -483,7 +346,6 @@ def build_column_headers(headers):
   return output
 
 
-###
 def build_cell(value, measure, variance):
   new_cell = {}
   if np.isnan(value):
@@ -493,10 +355,6 @@ def build_cell(value, measure, variance):
   new_cell["measure"] = measure
   new_cell["variance"] = variance
   return new_cell
-
-
-
-###
 
 
 # For rows in change over time vintages, we have to calculate
@@ -509,9 +367,6 @@ def get_change_reliability(value, moe):
   if np.isnan(value) or np.isnan(moe) or value == 0:
     return False
   return ((moe/1.645)/(abs(value)))*100 < 20
-
-
-###
 
 
 def build_row(label, values, measures, variances, upper_limit = None, lower_limit = None, is_change = False, is_survey = False, scale = None, is_denominator = False):
@@ -551,7 +406,6 @@ def build_row(label, values, measures, variances, upper_limit = None, lower_limi
   return new_row
 
 
-###
 def build_placeholder_row(label, placeholder, is_denominator = False):
   new_row = {
     "label": label,
@@ -563,7 +417,6 @@ def build_placeholder_row(label, placeholder, is_denominator = False):
   return new_row
 
 
-###
 # Table config takes a list of table config objects and a row of a DataFrame (a pandas Series)
 # It builds the final output to be consumed by the front end for a given geography, geoid, category combination
 def build_vintages(table_list, df_row):
@@ -652,58 +505,185 @@ def build_vintages(table_list, df_row):
 
 
 ###
-# resolved_pages is an object with a key for each geography
-# each geography is an object with a key for each category
-# each category is an object with a key for each subgroup (including "tot" for total pop)
-# each subgroup is a an array of objects, with an object for each indicator in that given category
-# each of those objects contains all the information needed to look up the data and build
-# the JSON necessary to display that table for every geoid in the geography
-output = {}
-with open('../generated/resolved_pages.json', 'r') as pages_file:
-    pages = json.load(pages_file)
-    for geography, geography_config in pages.items():
-      if geography not in output:
-        output[geography] = {}
-      for category, category_config in geography_config.items():
-        if category not in output[geography]:
-          output[geography][category] = {}
-        # First, download all csv's necessary to have all data for the given
-        # geography an category, and combine them into one DataFrame
-        # with a multi-index on the column axis that conveys filename
-        df = pd.DataFrame()
-        for subgroup, table_list in category_config.items():
-          for table_config in table_list:
-            if "files" in table_config and "placeholder" not in table_config:
-              for file in table_config["files"]:
-                if df.empty:
-                  df = download_df(geography, category, file)
-                else:
-                  if file not in df.columns.levels[0].tolist():
-                    df_for_file = download_df(geography, category, file)
-                    df = df.merge(df_for_file, left_index=True, right_index=True)
-        # Iterate through each row in the combined DataFrame
-        for _geoid, df_row in df.iterrows():
-          geoid = _geoid
-          if geography == "citywide":
-            geoid = "nyc"
-          if geography == "borough":
-            geoid = borough_map[geoid]
-          if geoid not in output[geography][category]:
-            output[geography][category][geoid] = {}
-          area = output[geography][category][geoid]
-          # For each geoid, call build_vintages to build the final output for that geoid and category
+# MAIN EXECUTION
+###
+
+def main():
+  # Some of the tables we have to display on the front end show values that don't actually map to any columns in the source data from EDM
+  # This usually happens in rows that are the "denominator" of the table so logically don't have data for percent and percent moe
+  # When this happens, the build_config function will build column names that don't actually exist in the csv we are looking at
+  # This variable gives us a way to append columns to the csvs we load in with "hard coded" values
+  # This variable is a dictionary whose keys are filenames of the csvs EDM gives us. The values are arrays of tuples. The first
+  # item of each tuple is the column name you want to add to the file, the second item is the value for that column
+  appended_columns = {
+    "housing_security_puma": [("units_occurental_pct", 100),("units_occurental_pct_moe", 0), ("units_occu_pct", 100), ("units_occu_pct_moe", 0), ("housing_lottery_leases_pct", 100), ("housing_lottery_applications_pct", 100)],
+    "housing_security_borough": [("units_occurental_pct", 100),("units_occurental_pct_moe", 0), ("units_occu_pct", 100), ("units_occu_pct_moe", 0), ("housing_lottery_leases_pct", 100), ("housing_lottery_applications_pct", 100)],
+    "housing_security_citywide": [("units_occurental_pct", 100),("units_occurental_pct_moe", 0), ("units_occu_pct", 100), ("units_occu_pct_moe", 0), ("housing_lottery_leases_pct", 100), ("housing_lottery_applications_pct", 100)],
+    "housing_production_puma": [("units_hi_newconstruction_count",0),("units_hi_preservation_count",0),("total_pct", 100)],
+    "housing_production_borough": [("units_hi_newconstruction_count",0),("units_hi_preservation_count",0),("total_pct", 100)],
+    "housing_production_citywide": [("units_hi_newconstruction_count",0),("units_hi_preservation_count",0),("total_pct", 100)],
+  }
+
+  for year in ["_2000","_0812","_1923"]:
+    for geography in ["_puma","_borough","_citywide"]:
+      columns = []
+      for subgroup in ["","_anh","_bnh","_wnh","_hsp"]:
+        columns = columns + [(f'age_median{subgroup}{var}', np.nan) for var in ["_pct","_pct_moe"]]
+      appended_columns[f'demographics{year}{geography}'] = columns
+
+  # In some cases we need to add a column to a data file that is a copy of an existing column, just with a different name. This should
+  # be a last resort when the column names output by our code don't map exactly to existing columns
+
+  # Because subgroup tokens such as "anh" and "bnh" are treated as "variables" in the "Mutually Exclusive Race/Hispanic Origin" table,
+  # the column names our code generates don't match the values in the change over time data files (which do follow the normal convention)
+  demo_change_copy = {}
+  for subgroup in ["anh","bnh","wnh","hsp", "onh"]:
+    for measure in ["count","pct","pnt"]:
+      demo_change_copy[f'pop_change_{subgroup}_{measure}'] = f'pop_{subgroup}_change_{measure}'
+
+  copy_columns = {
+    "demo_change_puma": demo_change_copy,
+    "demo_change_borough": demo_change_copy,
+    "demo_change_citywide": demo_change_copy
+  }
+
+  ### Build Table Configs
+  config = {
+    "demo": load_json("../config/demo.json"),
+    "econ": load_json("../config/econ.json"),
+    "hsaq": load_json("../config/hsaq.json"),
+    "hopd": load_json("../config/hopd.json"),
+    "qlao": load_json("../config/qlao.json")
+  }
+
+  resolved_tables = {
+    "district": {
+      "hsaq": {
+        "tot": [],
+        "anh": [],
+        "bnh": [],
+        "wnh": [],
+        "hsp": []
+      }
+    },
+    "borough": {
+      "hsaq": {
+        "tot": [],
+        "anh": [],
+        "bnh": [],
+        "wnh": [],
+        "hsp": []
+      }
+    },
+    "citywide": {
+      "hsaq": {
+        "tot": [],
+        "anh": [],
+        "bnh": [],
+        "wnh": [],
+        "hsp": []
+      }
+    }
+  }
+
+  # Loops through configuration files and saves result to /generated/resolved_table_configs.json with a fully
+  # formed table config for every indicator, for every geography, for every subgroup
+  for category, table_list in config.items():
+    for table_config in table_list:
+      base = table_config["base"].copy()
+      for geography, geography_config in table_config["geographies"].items():
+        geo_config = geography_config.copy()
+        if geography not in resolved_tables:
+          resolved_tables[geography] = {}
+        if category not in resolved_tables[geography]:
+          resolved_tables[geography][category] = {}
+        base = table_config["base"]
+        merged_table_config = merge(base, geo_config)
+        for subgroup, subgroup_config in table_config["subgroups"].items():
+          sub_config = subgroup_config.copy()
+          if subgroup not in resolved_tables[geography][category]:
+            resolved_tables[geography][category][subgroup] = []
+          final = merge(merged_table_config, sub_config)
+          resolved_tables[geography][category][subgroup].append(final)
+
+  with open(f'../generated/resolved_table_configs.json', 'w') as fp:
+      simplejson.dump(resolved_tables, fp, ignore_nan=True, indent=2)
+
+  ### Build Page Configs
+  resolved_tables = load_json('../generated/resolved_table_configs.json')
+  output = {}
+  for geography, geography_config in resolved_tables.items():
+    if geography not in output:
+      output[geography] = {}
+    for category, category_config in geography_config.items():
+      if category not in output[geography]:
+        output[geography][category] = {}
+      for subgroup, subgroup_config in category_config.items():
+        if subgroup not in output[geography][category]:
+          output[geography][category][subgroup] = []
+        for table_config in subgroup_config:
+          output[geography][category][subgroup].append(build_config(table_config, subgroup))
+
+  with open(f'../generated/resolved_pages.json', 'w') as fp:
+      simplejson.dump(output, fp, ignore_nan=True)
+
+  ### Build and output final JSON files
+  # resolved_pages is an object with a key for each geography
+  # each geography is an object with a key for each category
+  # each category is an object with a key for each subgroup (including "tot" for total pop)
+  # each subgroup is a an array of objects, with an object for each indicator in that given category
+  # each of those objects contains all the information needed to look up the data and build
+  # the JSON necessary to display that table for every geoid in the geography
+  output = {}
+  with open('../generated/resolved_pages.json', 'r') as pages_file:
+      pages = json.load(pages_file)
+      for geography, geography_config in pages.items():
+        if geography not in output:
+          output[geography] = {}
+        for category, category_config in geography_config.items():
+          if category not in output[geography]:
+            output[geography][category] = {}
+          # First, download all csv's necessary to have all data for the given
+          # geography an category, and combine them into one DataFrame
+          # with a multi-index on the column axis that conveys filename
+          df = pd.DataFrame()
           for subgroup, table_list in category_config.items():
-            if subgroup not in area:
-              area[subgroup] = build_vintages(table_list, df_row)
+            for table_config in table_list:
+              if "files" in table_config and "placeholder" not in table_config:
+                for file in table_config["files"]:
+                  if df.empty:
+                    df = download_df(geography, category, file, appended_columns, copy_columns)
+                  else:
+                    if file not in df.columns.levels[0].tolist():
+                      df_for_file = download_df(geography, category, file, appended_columns, copy_columns)
+                      df = df.merge(df_for_file, left_index=True, right_index=True)
+          # Iterate through each row in the combined DataFrame
+          for _geoid, df_row in df.iterrows():
+            geoid = _geoid
+            if geography == "citywide":
+              geoid = "nyc"
+            if geography == "borough":
+              geoid = borough_map[geoid]
+            if geoid not in output[geography][category]:
+              output[geography][category][geoid] = {}
+            area = output[geography][category][geoid]
+            # For each geoid, call build_vintages to build the final output for that geoid and category
+            for subgroup, table_list in category_config.items():
+              if subgroup not in area:
+                area[subgroup] = build_vintages(table_list, df_row)
 
 
-# Finally, iterate through geoid in the output object and save that data to a file
-# containing all data for the given geoid and category. Each file will be a object
-# with a key for each subgroup (including "tot"). Each of those will be an array
-# of objects for the tables in that subgroup for the geoid
+  # Finally, iterate through geoid in the output object and save that data to a file
+  # containing all data for the given geoid and category. Each file will be a object
+  # with a key for each subgroup (including "tot"). Each of those will be an array
+  # of objects for the tables in that subgroup for the geoid
 
-for geography, categories in output.items():
-  for category, areas in categories.items():
-    for geoid, data in areas.items():
-      with open(f'../{OUTPUT_FOLDER}/{geography}_{geoid}_{category}.json', 'w') as fp:
-        simplejson.dump(data, fp, ignore_nan=True)
+  for geography, categories in output.items():
+    for category, areas in categories.items():
+      for geoid, data in areas.items():
+        with open(f'../{OUTPUT_FOLDER}/{geography}_{geoid}_{category}.json', 'w') as fp:
+          simplejson.dump(data, fp, ignore_nan=True)
+
+
+if __name__ == "__main__":
+  main()
