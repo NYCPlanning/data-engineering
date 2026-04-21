@@ -104,11 +104,9 @@ def build(version, load_result: load.LoadResult):
     process_latest_data(latest.destination, latest.version)
 
 
-if __name__ == "__main__":
+def run_metadata(excel_file: Path):
     process_metadata(
         DATASET,
-        Path("Your path here"),
-        "ACS Data Dictionary",
+        excel_file,
         output_folder=DATA_PATH,
-        skiprows=2,
     )
