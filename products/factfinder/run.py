@@ -15,12 +15,6 @@ app = typer.Typer(add_completion=False)
 def _run(
     dataset: str = typer.Argument(),
     vesion: str = typer.Argument(),
-    upload: bool = typer.Option(
-        False,
-        "-u",
-        "--upload",
-        help="Upload after processing",
-    ),
     metadata_only: bool = typer.Option(
         False,
         "--metadata-only",

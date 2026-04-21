@@ -18,7 +18,6 @@ inputs:
       version: 2024
       destination: file
       file_type: xlsx
-  missing_versions_strategy: find_latest
 
 stage_config:
   builds.build:
