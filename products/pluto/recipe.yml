@@ -43,6 +43,10 @@ inputs:
     - name: lpc_historic_districts
     - name: lpc_landmarks
     - name: pluto_input_cama_dof
+      version: 20260302
     - name: pluto_input_geocodes
+      version: 20260330
     - name: pluto_input_numbldgs
+      version: 20260329
     - name: pluto_pts
+      version: 20260330
