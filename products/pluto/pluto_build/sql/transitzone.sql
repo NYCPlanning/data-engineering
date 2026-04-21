@@ -200,13 +200,25 @@ FROM filtered_zones
 WHERE include_zone = TRUE;
 ANALYZE transit_zones_bbl_to_tz_ranked;
 
+-- Create union of all transit zones to identify land coverage
+-- Lots outside this union are in water and should have NULL transit zones
+DROP TABLE IF EXISTS transit_zones_union_coverage CASCADE;
+CREATE TABLE transit_zones_union_coverage AS
+SELECT ST_UNION(wkb_geometry) AS geom
+FROM dcp_transit_zones;
+CREATE INDEX idx_transit_zones_union_coverage_gix ON transit_zones_union_coverage USING gist (geom);
+
 -- Assign the primary transit zone by
 -- 1. tax block, when the block's tz assignment is not ambiguous
 -- 2. by lot, even when ambiguous. We'll use corrections afterwards, if necessary
 
 -- Assign transit zones using both block-level and lot-level strategies
+-- Nulls out transit zones for lots in water (outside all transit zone coverage)
 UPDATE pluto a
-SET trnstzone = assignments.transit_zone
+SET trnstzone = CASE
+    WHEN lic.bbl IS NOT NULL THEN assignments.transit_zone
+    ELSE NULL
+END
 FROM (
     -- Block-level assignments for non-ambiguous blocks
     SELECT
@@ -231,4 +243,10 @@ FROM (
     FROM transit_zones_bbl_to_tz_ranked
     WHERE tz_rank = 1
 ) AS assignments
+LEFT JOIN (
+    SELECT p.bbl
+    FROM pluto p
+    INNER JOIN transit_zones_union_coverage tz
+        ON ST_INTERSECTS(p.geom, tz.geom)
+) AS lic ON assignments.bbl = lic.bbl
 WHERE a.bbl = assignments.bbl;
