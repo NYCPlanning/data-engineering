@@ -1,0 +1,680 @@
+[
+  {
+    "base": {
+      "title": "Educational Attainment (Highest Grade Completed)",
+      "is_survey": true,
+      "has_change": true,
+      "vintages": [
+        "CENSUS PUMS, 2000",
+        "ACS PUMS, 2008-2012",
+        "ACS PUMS, 2019-2023",
+        "CHANGE, 2008-2012 to 2019-2023"
+      ],
+      "denominator": {
+        "subcategory": "age_",
+        "variable": "p25pl",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "subcategory": "edu_",
+      "variables": ["lths", "hs", "smcol", "bchpl"],
+      "labels": [
+        "Less than high school degree",
+        "High school degree or equivalent",
+        "Some college or Associate's degree",
+        "Bachelor's degree or higher"
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": [
+          "economics_2000_puma",
+          "economics_0812_puma",
+          "economics_1923_puma",
+          "economics_change_puma"
+        ]
+      },
+      "borough": {
+        "files": [
+          "economics_2000_borough",
+          "economics_0812_borough",
+          "economics_1923_borough",
+          "economics_change_borough"
+        ]
+      },
+      "citywide": {
+        "files": [
+          "economics_2000_citywide",
+          "economics_0812_citywide",
+          "economics_1923_citywide",
+          "economics_change_citywide"
+        ]
+      }
+    },
+    "subgroups": {
+      "tot": { "denominator": { "label": "Population 25 years and over" }, "id": "2.01.T" },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic population 25 years and over"
+        },
+        "id": "2.01.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic population 25 years and over"
+        },
+        "id": "2.01.B"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic population 25 years and over"
+        },
+        "id": "2.01.H"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic population 25 years and over"
+        },
+        "id": "2.01.W"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Median Household Income (2023 Dollars)",
+      "is_survey": true,
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023",  "CHANGE, 2008-2012 to 2019-2023"],
+      "has_change": true,
+      "denominator": {
+        "subcategory": "",
+        "variable": "households",
+        "measures": ["COUNT", "COUNT", "COUNT"],
+        "variances": ["NONE", "MOE", "CV"],
+        "labels": "Total households"
+      },
+      "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
+      "variances": ["NONE", "MOE", "CV"],
+      "subcategory": "household_",
+      "variables": ["income"],
+      "labels": ["Median household income (dollars)"],
+      "upper_limits": [
+        [null, 236000],
+        [null, 200000]
+      ],
+      "lower_limits": [
+        [null, 12000],
+        [null, 9999]
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+      },
+      "borough": {
+        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+      },
+      "citywide": {
+        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": { "denominator": { "label": "Total households" }, "id": "2.02.T" },
+      "anh": {
+        "denominator": {
+          "label": "Total households with an Asian non-Hispanic householder"
+        },
+        "id": "2.02.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Total households with a Black non-Hispanic householder"
+        },
+        "id": "2.02.B"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Total households with a Hispanic householder"
+        },
+        "id": "2.02.H"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "Total households with a White non-Hispanic householder"
+        },
+        "id": "2.02.W"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Households By AMI* Band",
+      "is_survey": true,
+      "vintages": ["ACS PUMS, 2019-2023"],
+      "denominator": {
+        "subcategory": "",
+        "variable": "households",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+        "labels": "Total households"
+      },
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "subcategory": "households_",
+      "variables": ["eli", "vli", "li", "mi", "midi", "hi"],
+      "labels": [
+        "Households where the income is less than 30% of the area median income",
+        "Households where the income is between 31% and 50% of the area median income",
+        "Households where the income is between 51% and 80% of the area median income",
+        "Households where the income is between 81% and 120% of the area median income",
+        "Households where the income is between 121% and 165% of the area median income",
+        "Households where the income is over 165% of the area median income"
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_1923_puma"]
+      },
+      "borough": {
+        "files": ["economics_1923_borough"]
+      },
+      "citywide": {
+        "files": ["economics_1923_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": { "denominator": { "label": "Total households" }, "id": "2.03.T" },
+      "anh": {
+        "denominator": {
+          "label": "Total households with an Asian non-Hispanic householder"
+        },
+        "id": "2.03.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Total households with a Black non-Hispanic householder"
+        },
+        "id": "2.03.B"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Total households with a Hispanic householder"
+        },
+        "id": "2.03.H"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "Total households with a White non-Hispanic householder"
+        },
+        "id": "2.03.W"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Labor Force",
+      "is_survey": true,
+      "has_change": true,
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "denominator": {
+        "subcategory": "",
+        "variable": "age_p16t64",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+        "labels": "Total population 16 to 64 years"
+      },
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "subcategory": "",
+      "variables": ["lf"],
+      "labels": ["In labor force"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+      },
+      "borough": {
+        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+      },
+      "citywide": {
+        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": { "denominator": { "label": "Total population 16 to 64 years" }, "id": "2.04.T" },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic 16 to 64 years"
+        },
+        "id": "2.04.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic 16 to 64 years"
+        },
+        "id": "2.04.B"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic 16 to 64 years"
+        },
+        "id": "2.04.H"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic 16 to 64 years"
+        },
+        "id": "2.04.W"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Occupation",
+      "is_survey": true,
+      "has_change": true,
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "denominator": {
+        "subcategory": "",
+        "variable": "cvem",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+        "labels": "Civilian employed population 16 to 64 years"
+      },
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "subcategory": "occupation_",
+      "variables": ["cstmnt", "mbsa", "prdtrn", "slsoff", "srvc"],
+      "labels": [
+        "Natural resources, construction, or maintenance jobs",
+        "Management, business, science, or arts jobs",
+        "Production, transportation, or material moving jobs",
+        "Sales or office jobs",
+        "Service jobs"
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+      },
+      "borough": {
+        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+      },
+      "citywide": {
+        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {
+          "label": "Civilian employed population 16 to 64 years"
+        },
+        "id": "2.05.T"
+      },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.05.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.05.B"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.05.H"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.05.W"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Median Wages By Occupation (2023 Dollars)",
+      "id": null,
+      "is_survey": true,
+      "has_change": true,
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
+      "variances": ["NONE", "MOE", "CV"],
+      "subcategory": "occupation_",
+      "variables": [
+        "cstmnt_wages",
+        "mbsa_wages",
+        "prdtrn_wages",
+        "slsoff_wages",
+        "srvc_wages"
+      ],
+      "upper_limits": [
+        [
+          null,
+          236000,
+          236000,
+          236000,
+          236000,
+          236000
+        ],
+        [
+          null,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000
+        ]
+      ],
+      "lower_limits": [
+        [
+          null,
+          12000,
+          12000,
+          12000,
+          12000,
+          12000
+        ],
+        [
+          null,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999
+        ]
+      ],
+      "labels": [
+        "Natural resources, construction, or maintenance jobs",
+        "Management, business, science, or arts jobs",
+        "Production, transportation, or material moving jobs",
+        "Sales or office jobs",
+        "Service jobs"
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+      },
+      "borough": {
+        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+      },
+      "citywide": {
+        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+
+          "label": "Civilian employed population 16 to 64 years"
+
+      },
+      "anh": {
+
+          "label": "Asian non-Hispanic civilian employed population 16 to 64 years"
+
+      },
+      "bnh": {
+
+          "label": "Black non-Hispanic civilian employed population 16 to 64 years"
+
+      },
+      "hsp": {
+
+          "label": "Hispanic civilian employed population 16 to 64 years"
+
+      },
+      "wnh": {
+
+          "label": "White non-Hispanic civilian employed population 16 to 64 years"
+
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Industry",
+      "is_survey": true,
+      "has_change": true,
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "denominator": {
+        "subcategory": "",
+        "variable": "cvem",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+        "labels": "Civilian employed population 16 to 64 years"
+      },
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "subcategory": "industry_",
+      "variables": [
+        "agff",
+        "cnstn",
+        "mnfct",
+        "whlsl",
+        "rtl",
+        "trwhu",
+        "info",
+        "fire",
+        "pfmg",
+        "edhlt",
+        "arten",
+        "oth",
+        "pbadm"
+      ],
+      "labels": [
+        "Agriculture, forestry, fishing and hunting, or mining industries",
+        "Construction industry",
+        "Manufacturing industry",
+        "Wholesale trade industry",
+        "Retail trade industry",
+        "Transportation and warehousing, or utilities industries",
+        "Information",
+        "Finance and insurance, real estate, or rental and leasing industries",
+        "Professional, scientific, management, administrative, or waste management services industries",
+        "Educational services, health care, or social assistance industries",
+        "Arts, entertainment, recreation, accomodation, or food services industries",
+        "Other service industry, except public administration",
+        "Public administration industry"
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+      },
+      "borough": {
+        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+      },
+      "citywide": {
+        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {
+          "label": "Civilian employed population 16 to 64 years"
+        },
+        "id": "2.06.T"
+      },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.06.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.06.B"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.06.H"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic civilian employed population 16 to 64 years"
+        },
+        "id": "2.06.W"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Median Wages By Industry (2023 Dollars)",
+      "id": null,
+      "is_survey": true,
+      "has_change": true,
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
+      "variances": ["NONE", "MOE", "CV"],
+      "subcategory": "industry_",
+      "upper_limits": [
+        [
+          null,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000,
+          223000
+        ],
+        [
+          null,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000,
+          200000
+        ]
+      ],
+      "lower_limits": [
+        [
+          null,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000,
+          11000
+        ],
+        [
+          null,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999,
+          9999
+        ]
+      ],
+      "variables": [
+        "agff_wages",
+        "cnstn_wages",
+        "mnfct_wages",
+        "whlsl_wages",
+        "rtl_wages",
+        "trwhu_wages",
+        "info_wages",
+        "fire_wages",
+        "pfmg_wages",
+        "edhlt_wages",
+        "arten_wages",
+        "oth_wages",
+        "pbadm_wages"
+      ],
+      "labels": [
+        "Agriculture, forestry, fishing and hunting, or mining industries",
+        "Construction industry",
+        "Manufacturing industry",
+        "Wholesale trade industry",
+        "Retail trade industry",
+        "Transportation and warehousing, or utilities industries",
+        "Information",
+        "Finance and insurance, real estate, or rental and leasing industries",
+        "Professional, scientific, management, administrative, or waste management services industries",
+        "Educational services, health care, or social assistance industries",
+        "Arts, entertainment, recreation, accomodation, or food services industries",
+        "Other service industry, except public administration",
+        "Public administration industry"
+      ]
+    },
+    "geographies": {
+      "district": {
+        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+      },
+      "borough": {
+        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+      },
+      "citywide": {
+        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+
+          "label": "Civilian employed population 16 to 64 years"
+
+      },
+      "anh": {
+
+          "label": "Asian non-Hispanic civilian employed population 16 to 64 years"
+
+      },
+      "bnh": {
+
+          "label": "Black non-Hispanic civilian employed population 16 to 64 years"
+
+      },
+      "hsp": {
+
+          "label": "Hispanic civilian employed population 16 to 64 years"
+
+      },
+      "wnh": {
+
+          "label": "White non-Hispanic civilian employed population 16 to 64 years"
+
+      }
+    }
+  }
+]
