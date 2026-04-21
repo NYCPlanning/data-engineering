@@ -17,11 +17,19 @@ COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
 def process_metadata(
     dataset: str,
     excel_file: Path,
-    sheet_name: str,
+    sheet_name: str | None = None,
     skiprows: int = 0,
     output_folder: Path = OUTPUT_FOLDER,
     append=False,
 ) -> dict[str, Path]:
+    if sheet_name is None:
+        all_sheets = pd.ExcelFile(excel_file).sheet_names
+        if len(all_sheets) != 1:
+            raise ValueError(
+                f"Expected exactly one sheet but found {len(all_sheets)}: {all_sheets}. "
+                "Pass sheet_name explicitly."
+            )
+        sheet_name = all_sheets[0]
     df = pd.read_excel(excel_file, sheet_name=sheet_name, skiprows=skiprows)
     df = df.dropna(subset=["Category"])
     df["year"] = df["Dataset"].astype(str).str.split(", ")
