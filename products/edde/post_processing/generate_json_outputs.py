@@ -1,15 +1,20 @@
 import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import simplejson
 
 ###
-DB_EDDT_TARGET = "2025-05-30"
-assert DB_EDDT_TARGET != "", "DB_EDDT_TARGET must point valid db ebbt DO Space folder"
+# Path setup
+SCRIPT_DIR = Path(__file__).parent.resolve()
+CONFIG_DIR = SCRIPT_DIR / "config"
+GENERATED_DIR = SCRIPT_DIR / "generated"
+OUTPUT_DIR = SCRIPT_DIR / "output"
 
 ###
-OUTPUT_FOLDER = "output"
+DB_EDDT_TARGET = "2025-05-30"
+assert DB_EDDT_TARGET != "", "DB_EDDT_TARGET must point valid db ebbt DO Space folder"
 
 category_folders = {
     "demo": "demographics",
@@ -56,8 +61,8 @@ measures = {
 
 
 def load_json(path):
-    file = open(path, "r")
-    return json.load(file)
+    with open(path, "r") as file:
+        return json.load(file)
 
 
 # Recursively deep merges two dictionaries and returns the result
@@ -699,11 +704,11 @@ def main():
 
     ### Build Table Configs
     config = {
-        "demo": load_json("../config/demo.json"),
-        "econ": load_json("../config/econ.json"),
-        "hsaq": load_json("../config/hsaq.json"),
-        "hopd": load_json("../config/hopd.json"),
-        "qlao": load_json("../config/qlao.json"),
+        "demo": load_json(CONFIG_DIR / "demo.json"),
+        "econ": load_json(CONFIG_DIR / "econ.json"),
+        "hsaq": load_json(CONFIG_DIR / "hsaq.json"),
+        "hopd": load_json(CONFIG_DIR / "hopd.json"),
+        "qlao": load_json(CONFIG_DIR / "qlao.json"),
     }
 
     resolved_tables = {
@@ -732,11 +737,11 @@ def main():
                     final = merge(merged_table_config, sub_config)
                     resolved_tables[geography][category][subgroup].append(final)
 
-    with open("../generated/resolved_table_configs.json", "w") as fp:
+    with open(GENERATED_DIR / "resolved_table_configs.json", "w") as fp:
         simplejson.dump(resolved_tables, fp, ignore_nan=True, indent=2)
 
     ### Build Page Configs
-    resolved_tables = load_json("../generated/resolved_table_configs.json")
+    resolved_tables = load_json(GENERATED_DIR / "resolved_table_configs.json")
     output = {}
     for geography, geography_config in resolved_tables.items():
         if geography not in output:
@@ -752,7 +757,7 @@ def main():
                         build_config(table_config, subgroup)
                     )
 
-    with open("../generated/resolved_pages.json", "w") as fp:
+    with open(GENERATED_DIR / "resolved_pages.json", "w") as fp:
         simplejson.dump(output, fp, ignore_nan=True)
 
     ### Build and output final JSON files
@@ -763,7 +768,7 @@ def main():
     # each of those objects contains all the information needed to look up the data and build
     # the JSON necessary to display that table for every geoid in the geography
     output = {}
-    with open("../generated/resolved_pages.json", "r") as pages_file:
+    with open(GENERATED_DIR / "resolved_pages.json", "r") as pages_file:
         pages = json.load(pages_file)
         for geography, geography_config in pages.items():
             if geography not in output:
@@ -828,7 +833,7 @@ def main():
         for category, areas in categories.items():
             for geoid, data in areas.items():
                 with open(
-                    f"../{OUTPUT_FOLDER}/{geography}_{geoid}_{category}.json", "w"
+                    OUTPUT_DIR / f"{geography}_{geoid}_{category}.json", "w"
                 ) as fp:
                     simplejson.dump(data, fp, ignore_nan=True)
 
