@@ -92,8 +92,6 @@ SELECT
     a.latitude AS "Latitude",
     a.longitude AS "Longitude",
     a.notes AS "Notes",
-    round(st_length(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Leng",
-    round(st_area(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Area",
     st_makevalid(b.:GEOM) AS geom,
     a.mih_opt1 AS "MIHOption1",
     a.mih_opt2 AS "MIHOption2",
@@ -101,7 +99,9 @@ SELECT
     a.mih_opt4 AS "MIHOption4",
     a.trnstzone AS "TrnstZone",
     a.affresfar AS "AffResFAR",
-    a.mnffar AS "ManuFAR"
+    a.mnffar AS "ManuFAR",
+    round(st_length(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Leng",
+    round(st_area(b.:GEOM)::numeric, 11)::numeric(19, 7) AS "Shape_Area"
 INTO :TABLE
 FROM export_pluto AS a, pluto_geom AS b
 WHERE
