@@ -3,12 +3,17 @@ from os import environ as env
 from pathlib import Path
 
 from dcpy import configuration
+from dcpy.utils.logging import logger
 
 
 def _set_default_conf():
     ## the default is a little sparse at the moment, and a little duplicative
     ## (ie each `local_data_path` is just the `stage` name.)
     data_path = env.get("DCPY_LIFECYCLE_DATA_DIR") or Path(os.getcwd()) / ".lifecycle"
+    if not env.get("DCPY_LIFECYCLE_DATA_DIR"):
+        logger.warning(
+            f"warning: DCPY_LIFECYCLE_DATA_DIR is not set. Lifecycle data will be stored in potentially inconsistent locations. Currently: {data_path}."
+        )
 
     return {
         "product_metadata": {
