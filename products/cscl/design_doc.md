@@ -135,7 +135,6 @@ Often refered to as "LION flat files", "LION dat", "LION dat files". In some sen
 Which all stem from the same data/table but are obviously filtered by borough. There is significant overlap with "Bytes LION", which is a geodatabase
 
 ### Format
-(copied from seeds/text_formatting/text_formatting__lion_dat.csv. Ideally, this should be an embedded table - seems like that's not supported out-of-the-box in pandoc)
 
 |fic|field name|field label|field length|start index|end index|justify and fill|blank if none|
 |------------|----------|-----------|------------|-----------|---------|----------------|-------------|
@@ -1141,6 +1140,32 @@ Starting from `int__saf_segments`, S records are joined to
 
 : SAF S field sources. {#tbl:saf-s-fields}
 
+## SEDAT
+
+### Description
+
+Every row is a: address range that straddles an election district boundary on a given segment
+
+The Split Election District Address Table (SEDAT) and the Special SEDAT are two output files with identical record layouts, extracted from the CSCL SEDAT and SpecialSEDAT tables respectively (one output record per source row). SEDAT entries are associated with Centerline segments via SEGMENTID. Special SEDAT entries are associated with SAF records stored in the AltSegmentData table or in the AddressPoint/CommonPlace feature classes.
+
+### Format
+
+| fic | field name | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|
+| L1 | lionkey | 10 | 1 | 10 | RJSF | FALSE |
+| L2 | parity | 1 | 11 | 11 | RJSF | FALSE |
+| L3 | street_name | 32 | 12 | 43 | LJSF | FALSE |
+| L4 | side_of_street | 1 | 44 | 44 | RJSF | FALSE |
+| L5 | lowaddress | 7 | 45 | 51 | RJSF | FALSE |
+| L6 | low_addr_suffix | 8 | 52 | 59 | LJSF | FALSE |
+| L7 | highaddress | 7 | 60 | 66 | RJSF | FALSE |
+| L8 | high_addr_suffix | 8 | 67 | 74 | LJSF | FALSE |
+| L9 | election_district | 3 | 75 | 77 | RJZF | TRUE |
+| L10 | assembly_district | 2 | 78 | 79 | RJZF | TRUE |
+| L11 | b7sc | 8 | 80 | 87 | RJSF | FALSE |
+
+: SEDAT field formatting. {#tbl:sedat-field-format}
+
 ## Street Name Dictionary (SND)
 
 Every row is a: unique street or feature name
@@ -1305,6 +1330,180 @@ ASSUMPTION:  Each valid combination of Borough and Face Code occurs in exactly o
 | FC4 | Name of street or non-street feature | Copy StreetName or FeatureName field LOOKUP_KEY |
 
 : Face Code field sources. {#tbl:fc-field-sources}
+
+## Roadbed Pointer List (RPL)
+
+### Description
+
+Every row is a: roadbed segment associated with a given generic segment
+
+The RPL maps each roadbed segment to its corresponding generic (or combined generic/roadbed) segment. A single citywide output file is produced. It is used by the SAF extraction and ESRI LION generation to look up the generic segment when a SAF record or address point references a roadbed SEGMENTID. Records are grouped by generic SEGMENTID and ordered spatially from the rightmost to leftmost roadbed segment.
+
+### Format
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| RPL1 | generic_segmentid | Generic SEGMENTID | 7 | 1 | 7 | RJZF | FALSE |
+| RPL2 | generic_segmenttype | Segment Type of Generic Segment | 1 | 8 | 8 | RJSF | FALSE |
+| RPL3 | roadbed_segmentid | Roadbed SEGMENTID | 7 | 9 | 15 | RJZF | FALSE |
+|  | filler_rpl3 | Filler | 1 | 16 | 16 | RJSF | FALSE |
+| RPL4 | roadbed_position_code | Roadbed Position Code | 1 | 17 | 17 | RJSF | FALSE |
+|  | filler_rpl4 | Filler | 1 | 18 | 18 | RJSF | FALSE |
+| RPL5 | node_correspondence_indicator | Node Correspondence Indicator | 1 | 19 | 19 | RJSF | FALSE |
+|  | filler_rpl5 | Filler | 3 | 20 | 22 | RJSF | FALSE |
+| RPL6 | from_node_level_code_of_coincident_roadbed_segment | From Node Level Code of Coincident Roadbed Segment (if any) | 1 | 23 | 23 | RJSF | FALSE |
+|  | filler_rpl6 | Filler | 3 | 24 | 26 | RJSF | FALSE |
+| RPL7 | to_node_level_code_of_coincident_roadbed_segment | To Node Level Code of Coincident Roadbed Segment (if any) | 1 | 27 | 27 | RJSF | FALSE |
+|  | filler_rpl7 | Filler | 1 | 28 | 28 | RJSF | FALSE |
+| RPL8 | from_nodeid_of_roadbed_segment | From NODEID of Roadbed Segment | 7 | 29 | 35 | RJZF | FALSE |
+|  | filler_rpl8 | Filler | 1 | 36 | 36 | RJSF | FALSE |
+| RPL9 | from_nodeid_of_generic_segment | From NODEID of Generic Segment | 7 | 37 | 43 | RJZF | FALSE |
+|  | filler_rpl9 | Filler | 1 | 44 | 44 | RJSF | FALSE |
+| RPL10 | to_nodeid_of_roadbed_segment | To NODEID of Roadbed Segment | 7 | 45 | 51 | RJZF | FALSE |
+|  | filler_rpl10 | Filler | 1 | 52 | 52 | RJSF | FALSE |
+| RPL11 | to_nodeid_of_generic_segment | To NODEID of Generic Segment | 7 | 53 | 59 | RJZF | FALSE |
+
+: RPL field formatting. {#tbl:rpl-field-format}
+
+## Thin LION
+
+### Description
+
+Every row is a: Atomic Polygon
+
+ThinLION is a district equivalency file — one record per Atomic Polygon per borough. Each record carries the full set of district codes associated with that AP (census tracts and blocks for 2020/2010/2000/1990, community district, police precinct, fire company, health area, sanitation, school district, NTA, CDTA, PUMA, etc.). A separate file is produced for each borough, sorted by census tract and dynamic block.
+
+### Format
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| TL1 | borough | Borough | 1 | 1 | 1 | LJSF | FALSE |
+| TL2 | censustract_2020_basic | 2020 Census Tract Basic | 4 | 2 | 5 | RJSF | FALSE |
+| TL3 | censustract_2020_suffix | 2020 Census Tract Suffix | 2 | 6 | 7 | RJZF | TRUE |
+| TL4 | dynamic_block | Dynamic Block | 3 | 8 | 10 | RJZF | FALSE |
+| TL5 | censusblock_2020_basic | 2020 Census Block Basic | 4 | 11 | 14 | RJZF | FALSE |
+| TL6 | censusblock_2020_suffix | 2020 Census Block Suffix | 1 | 15 | 15 | RJZF | TRUE |
+| TL7 | censustract_1990_basic | 1990 Census Tract Basic | 4 | 16 | 19 | RJSF | FALSE |
+| TL8 | censustract_1990_suffix | 1990 Census Tract Suffix | 2 | 20 | 21 | RJSF | FALSE |
+| TL9 | community_development_eligibility | Community Development Eligibility | 1 | 22 | 22 | RJSF | FALSE |
+| TL10 | community_district | Community District | 3 | 23 | 25 | RJSF | FALSE |
+| TL11 | minor_census_economic_area | Minor Census Economic Area | 4 | 26 | 29 | RJSF | FALSE |
+| TL12 | health_area | Health Area | 4 | 30 | 33 | RJSF | FALSE |
+| TL13 | health_center_district | Health Center District | 2 | 34 | 35 | RJSF | FALSE |
+| TL14 | police_patrol_borough_command | Police Patrol Borough Command | 1 | 36 | 36 | RJZF | FALSE |
+| TL15 | police_precinct | Police Precinct | 3 | 37 | 39 | RJZF | FALSE |
+| TL16 | water_block_mapping_suppression_flag | Water Block Mapping Suppression Flag | 1 | 40 | 40 | RJSF | FALSE |
+| TL17 | fire_company_type | Fire Company Type | 1 | 41 | 41 | RJSF | TRUE |
+| TL18 | fire_company_number | Fire Company Number | 3 | 42 | 44 | RJSF | TRUE |
+| TL19 | sanborn_borough_1 | Sanborn Borough-1 | 1 | 45 | 45 | RJSF | TRUE |
+| TL20 | sanborn_volume_1 | Sanborn Volume-1 | 3 | 46 | 48 | LJSF | TRUE |
+| TL21 | sanborn_page_1 | Sanborn Page-1 | 4 | 49 | 52 | LJSF | TRUE |
+| TL22 | sanborn_borough_2 | Sanborn Borough-2, if any | 1 | 53 | 53 | RJSF | TRUE |
+| TL23 | sanborn_volume_2 | Sanborn Volume-2, if any | 3 | 54 | 56 | LJSF | TRUE |
+| TL24 | sanborn_page_2 | Sanborn Page-2, if any | 4 | 57 | 60 | LJSF | TRUE |
+| TL25 | sanborn_borough_3 | Sanborn Borough-3, if any | 1 | 61 | 61 | RJSF | TRUE |
+| TL26 | sanborn_volume_3 | Sanborn Volume-3, if any | 3 | 62 | 64 | LJSF | TRUE |
+| TL27 | sanborn_page_3 | Sanborn Page-3, if any | 4 | 65 | 68 | LJSF | TRUE |
+| TL28 | censustract_2000_basic | 2000 Census Tract Basic | 4 | 69 | 72 | RJSF | FALSE |
+| TL29 | censustract_2000_suffix | 2000 Census Tract Suffix | 2 | 73 | 74 | RJZF | TRUE |
+| TL30 | censusblock_2000_basic | 2000 Census Block Basic | 4 | 75 | 78 | RJSF | FALSE |
+| TL31 | censusblock_2000_suffix | 2000 Census Block Suffix | 1 | 79 | 79 | RJZF | TRUE |
+| TL32 | assembly_district | AD | 3 | 80 | 82 | RJSF | TRUE |
+| TL33 | election_district | ED | 4 | 83 | 86 | RJSF | TRUE |
+| TL34 | hurricane_evacuation_zone | EVZ | 2 | 87 | 88 | RJSF | FALSE |
+| TL35 | patrol_borough | Patrol Borough | 2 | 89 | 90 | RJSF | TRUE |
+| TL36 | police_sector | Police Sector | 4 | 91 | 94 | RJSF | TRUE |
+| TL37 | censustract_2010_basic | 2010 Census Tract Basic | 4 | 95 | 98 | RJSF | FALSE |
+| TL38 | censustract_2010_suffix | 2010 Census Tract Suffix | 2 | 99 | 100 | RJZF | TRUE |
+| TL39 | censusblock_2010_basic | 2010 Census Block Basic | 4 | 101 | 104 | RJZF | FALSE |
+| TL40 | censusblock_2010_suffix | 2010 Census Block Suffix | 1 | 105 | 105 | RJZF | TRUE |
+| TL41 | nta2020 | NTA2020 | 6 | 106 | 111 | RJSF | TRUE |
+| TL42 | cdta | CDTA | 4 | 112 | 115 | RJSF | TRUE |
+| TL43 | cwz | CWZ | 4 | 116 | 119 | RJSF | TRUE |
+| TL44 | puma2020 | PUMA2020 | 4 | 120 | 123 | RJSF | TRUE |
+
+: Thin LION field formatting. {#tbl:thinlion-field-format}
+
+## Thin Fire
+
+### Description
+
+Every row is a: fire company
+
+ThinFire is a district equivalency file — one record per fire company. Each record identifies the company's type, number, division, battalion, and borough. A separate file is produced for each borough, sorted by fire company type and number.
+
+### Format
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| TF1 | fire_company_type | Admin Fire Company Type | 1 | 1 | 1 | LJSF | FALSE |
+| TF2 | fire_company_number | Admin Fire Company Number | 3 | 2 | 4 | RJZF | FALSE |
+| TF3 | fire_division | Admin Fire Division | 2 | 5 | 6 | RJZF | FALSE |
+| TF4 | fire_battalion | Admin Fire Battalion | 2 | 7 | 8 | RJZF | FALSE |
+| TF5 | borough | Borough | 1 | 9 | 9 | LJSF | FALSE |
+
+: Thin Fire field formatting. {#tbl:thinfire-field-format}
+
+## CDTA 2020
+
+### Description
+
+Every row is a: Community District Tabulation Area (CDTA)
+
+A lookup table of 2020 CDTA codes, names, and types, derived from the CSCL CDTA2020 and CDTAEquiv2020 tables. Two output files are produced with slightly different layouts (see Format below).
+
+### Format
+
+Two output files are produced: a fixed-width `.dat` and a `.csv`.
+
+**CDTA2020.txt**
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| CDTA1 | cdta_code | CDTA Code | 4 | 1 | 4 | LJSF | FALSE |
+| CDTA2 | cdta_name | CDTA Name | 77 | 5 | 81 | LJSF | FALSE |
+| CDTA3 | cdta_type | CDTA Type | 1 | 82 | 82 | LJSF | FALSE |
+
+: CDTA 2020 dat field formatting. {#tbl:cdta2020-dat-field-format}
+
+**CDTA2020.csv**
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| CDTA1 | cdta_code | CDTA Code | 4 | 1 | 4 | LJSF | FALSE |
+| CDTA2 | cdta_name | CDTA Name | 75 | 5 | 79 | LJSF | FALSE |
+| CDTA3 | cdta_type | CDTA Type | 3 | 80 | 82 | RJSF | FALSE |
+
+: CDTA 2020 csv field formatting. {#tbl:cdta2020-csv-field-format}
+
+## NTA 2020
+
+### Description
+
+Every row is a: Neighborhood Tabulation Area (NTA)
+
+A lookup table of 2020 NTA codes, names, abbreviations, and types, derived from the CSCL NTA2020 and NTAEquiv2020 tables. Two output files are produced (a fixed-width `.dat` and a `.csv`) with identical field layouts.
+
+### Format
+
+Two output files are produced: a fixed-width `.dat` and a `.csv`. Both share the same field structure.
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| NTA1 | nta_code | NTA Code | 6 | 1 | 6 | LJSF | FALSE |
+| NTA2 | nta_name | NTA Name | 75 | 7 | 81 | RJSF | FALSE |
+| NTA3 | nta_abbrev | NTA Abbrev | 10 | 82 | 91 | RJSF | FALSE |
+| NTA4 | nta_type | NTA Type | 1 | 92 | 92 | LJSF | FALSE |
+
+: NTA 2020 field formatting. {#tbl:nta2020-field-format}
+
+## Log
+
+### Description
+
+Every row is a: pipeline event (file completion or error)
+
+A CSV log of pipeline activity. As each output file is completed, a summary record is written with the file name, borough (if applicable), record count, and error counts by type. Error records identify the type of problem and the relevant data (e.g., SEGMENTID, NODEID, house number) that triggered it. The log allows users to re-run only the files that failed without regenerating successfully completed outputs.
 
 # Appendices
 
