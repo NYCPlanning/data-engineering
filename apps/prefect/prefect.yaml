@@ -1,0 +1,43 @@
+name: data-engineering
+prefect-version: 3.0.0
+
+build: null
+push: null
+pull: null
+
+deployments:
+  - name: build-lifecycle-dev
+    entrypoint: flows/build_lifecycle.py:build_lifecycle_flow
+    work_pool:
+      name: data-engineering-dev-pool
+    tags: [dev, builds, lifecycle, poc]
+
+  - name: ingest-dataset-dev
+    entrypoint: flows/ingest_flow.py:ingest_flow
+    work_pool:
+      name: data-engineering-dev-pool
+    tags: [dev, ingest, etl, poc]
+
+  - name: distribute-dataset-dev
+    entrypoint: flows/distribute_flow.py:distribute_flow
+    work_pool:
+      name: data-engineering-dev-pool
+    tags: [dev, distribute, publish, poc]
+
+  - name: build-lifecycle-prod
+    entrypoint: flows/build_lifecycle.py:build_lifecycle_flow
+    work_pool:
+      name: data-engineering-prod-pool
+    tags: [prod, builds, lifecycle]
+
+  - name: ingest-dataset-prod
+    entrypoint: flows/ingest_flow.py:ingest_flow
+    work_pool:
+      name: data-engineering-prod-pool
+    tags: [prod, ingest, etl]
+
+  - name: distribute-dataset-prod
+    entrypoint: flows/distribute_flow.py:distribute_flow
+    work_pool:
+      name: data-engineering-prod-pool
+    tags: [prod, distribute, publish]
