@@ -49,7 +49,6 @@ SELECT
     a.bbl,
     CASE
         WHEN lic.bbl IS NOT NULL THEN a.transit_zone
-        ELSE NULL
     END AS trnstzone
 FROM assignments AS a
 LEFT JOIN lots_in_coverage AS lic ON a.bbl = lic.bbl
