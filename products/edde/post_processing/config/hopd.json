@@ -1,0 +1,129 @@
+[
+  {
+    "base": {
+      "title": "Change in Housing Units 2010 - 2024",
+      "id": "4.01.T",
+      "vintages": ["NYC DEPARTMENT OF CITY PLANNING HOUSING DATABASE, 2024 Q4"],
+      "denominator": {
+        "label": "Net change",
+        "subcategory": "classa_",
+        "variable": "net",
+        "measures": ["COUNT", "PERCENT"],
+        "variances": ["NONE", "NONE"]
+      },
+      "labels": [
+        "New building",
+        "Alterations that increase units",
+        "Alterations that decrease units",
+        "Demolitions"
+      ],
+      "subcategory": "classa_net_",
+      "variables": ["new", "alt_increase", "alt_decrease", "demo"],
+      "measures": ["COUNT", "PERCENT"],
+      "variances": ["NONE", "NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_production_puma"]
+      },
+      "borough": {
+        "files": ["housing_production_borough"]
+      },
+      "citywide": {
+        "files": ["housing_production_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {}
+    }
+  },
+  {
+    "base": {
+      "title": "Homes With New Or Extended Affordability Requirements By AMI* Band",
+      "id": "4.02.T",
+      "denominator": {
+        "label": "Total",
+        "variable": "allami",
+        "subcategory": "units_",
+        "measures": ["COUNT", "COUNT"],
+        "variances": ["NONE", "NONE"]
+      },
+      "vintages": ["NYC HOUSING PRESERVATION AND DEVELOPMENT, 2014 - 2025"],
+      "headers": [
+        [
+          ["new construction", 1],
+          ["preservation", 1]
+        ],
+        [
+          ["number", 1],
+          ["number", 1]
+        ]
+      ],
+      "labels": [
+        "Extremely low-income (0-30% AMI)",
+        "Very low-income (31-50% AMI)",
+        "Low-income (51-80% AMI)",
+        "Moderate-income (81-120% AMI)",
+        "Middle-income (121-165% AMI)",
+        "High-income (166% or higher AMI)"
+      ],
+      "subcategory": "units_",
+      "variables": ["eli", "vli", "li", "mi", "midi", "oi"],
+      "measures": ["COUNT", "COUNT"],
+      "variances": ["NONE", "NONE"],
+      "suffixes": ["_newconstruction", "_preservation"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_production_puma"]
+      },
+      "borough": {
+        "files": ["housing_production_borough"]
+      },
+      "citywide": {
+        "files": ["housing_production_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {}
+    }
+  },
+  {
+    "base": {
+      "title": "Area Within A Historic District",
+      "id": "4.03.T",
+      "vintages": ["HISTORIC DISTRICTS - OPEN DATA"],
+      "denominator": {
+        "variable": "total",
+        "measures": ["COUNT", "PERCENT"],
+        "variances": ["NONE", "NONE"]
+      },
+      "labels": [
+        "Square miles of historic districts"
+      ],
+      "subcategory": "area_",
+      "variables": ["historic"],
+      "measures": ["COUNT", "PERCENT"],
+      "variances": ["NONE", "NONE"],
+      "suffixes": ["_sqmiles",""],
+      "scales": [1, 1]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_production_puma"],
+        "denominator": {"label": "Total square miles within the PUMA"}
+      },
+      "borough": {
+        "files": ["housing_production_borough"],
+        "denominator": {"label": "Total square miles within the borough"}
+      },
+      "citywide": {
+        "files": ["housing_production_citywide"],
+        "denominator": {"label": "Total square miles citywide"}
+      }
+    },
+    "subgroups": {
+      "tot": {}
+    }
+  }
+]

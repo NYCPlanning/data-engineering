@@ -1,0 +1,329 @@
+[
+  {
+    "base": {
+      "title": "Mutually Exclusive Race/Hispanic Origin",
+      "id": "1.01.T",
+      "has_change": true,
+      "denominator": {
+        "subcategory": "",
+        "variable": "pop",
+        "label": "Total population",
+        "measures": ["COUNT", "PERCENT"],
+        "variances": ["NONE", "NONE"],
+        "ignore_subgroup": true
+      },
+      "vintages": [
+        "CENSUS SF1, 2000",
+        "CENSUS SF1, 2010",
+        "CENSUS PL 94-171, 2020",
+        "CHANGE, 2010 to 2020"
+      ],
+      "measures": ["COUNT", "PERCENT"],
+      "variances": ["NONE", "NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": [
+          "demographics_2000_puma",
+          "demographics_0812_puma",
+          "demographics_1923_puma",
+          "demo_change_puma"
+        ]
+      },
+      "borough": {
+        "files": [
+          "demographics_2000_borough",
+          "demographics_0812_borough",
+          "demographics_1923_borough",
+          "demo_change_borough"
+        ]
+      },
+      "citywide": {
+        "files": [
+          "demographics_2000_citywide",
+          "demographics_0812_citywide",
+          "demographics_1923_citywide",
+          "demo_change_citywide"
+        ]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "labels": [
+          "Asian non-Hispanic",
+          "Black non-Hispanic",
+          "Hispanic",
+          "White non-Hispanic",
+          "Non-Hispanic of some other race or combination of races"
+        ],
+        "subcategory": "pop_",
+        "variables": ["anh", "bnh", "hsp", "wnh", "onh"]
+      },
+      "anh": {
+        "labels": ["Asian non-Hispanic"],
+        "subcategory": "",
+        "variables": ["pop"]
+      },
+      "bnh": {
+        "labels": ["Black non-Hispanic"],
+        "subcategory": "",
+        "variables": ["pop"]
+      },
+      "wnh": {
+        "labels": ["White non-Hispanic"],
+        "subcategory": "",
+        "variables": ["pop"]
+      },
+      "hsp": {
+        "labels": ["Hispanic"],
+        "subcategory": "",
+        "variables": ["pop"]
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Age",
+      "has_change": true,
+      "subcategory": "age_",
+      "is_survey": true,
+      "denominator": {
+        "subcategory": "pop_",
+        "variable": "denom",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "vintages": [
+        "CENSUS PUMS, 2000",
+        "ACS PUMS, 2008-2012 ",
+        "ACS PUMS, 2019-2023",
+        "CHANGE, 2008-2012 to 2019-2023"
+      ],
+      "variables": ["popu16", "p16t64", "p65pl", "median"],
+      "measures": [
+        ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        ["MEDIAN", "MEDIAN", "MEDIAN", "PERCENT", "PERCENT"]
+      ],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "labels": ["Under 16 years", "16 to 64 years", "65 years and over", "Median age (years)"],
+      "upper_limits": [[null, null, null, null, null], [null, null, null, null, 85], [null, null, null, null, 85],[null, null, null, null, null]],
+      "scales": [0, 0, 0, 0, 1]
+    },
+    "geographies": {
+      "district": {
+        "files": [
+          "demographics_2000_puma",
+          "demographics_0812_puma",
+          "demographics_1923_puma",
+          "demo_change_puma"
+        ]
+      },
+      "borough": {
+        "files": [
+          "demographics_2000_borough",
+          "demographics_0812_borough",
+          "demographics_1923_borough",
+          "demo_change_borough"
+        ]
+      },
+      "citywide": {
+        "files": [
+          "demographics_2000_citywide",
+          "demographics_0812_citywide",
+          "demographics_1923_citywide",
+          "demo_change_citywide"
+        ]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": { "label": "Total population" },
+        "id": "1.02.T"
+      },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic population"
+        },
+        "id": "1.02.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic population"
+        },
+        "id": "1.02.B"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic population"
+        },
+        "id": "1.02.W"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic population"
+        },
+        "id": "1.02.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Foreign-born Population",
+      "has_change": true,
+      "is_survey": true,
+      "denominator": {
+        "subcategory": "pop_",
+        "variable": "denom",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "vintages": [
+        "CENSUS PUMS, 2000",
+        "ACS PUMS, 2008-2012 ",
+        "ACS PUMS, 2019-2023",
+        "CHANGE, 2008-2012 to 2019-2023"
+      ],
+      "variables": ["fb"],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "labels": ["Foreign-born"]
+    },
+    "geographies": {
+      "district": {
+        "files": [
+          "demographics_2000_puma",
+          "demographics_0812_puma",
+          "demographics_1923_puma",
+          "demo_change_puma"
+        ]
+      },
+      "borough": {
+        "files": [
+          "demographics_2000_borough",
+          "demographics_0812_borough",
+          "demographics_1923_borough",
+          "demo_change_borough"
+        ]
+      },
+      "citywide": {
+        "files": [
+          "demographics_2000_citywide",
+          "demographics_0812_citywide",
+          "demographics_1923_citywide",
+          "demo_change_citywide"
+        ]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": { "label": "Total population" },
+        "id": "1.03.T"
+      },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic population"
+        },
+        "id": "1.03.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic population"
+        },
+        "id": "1.03.B"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic population"
+        },
+        "id": "1.03.W"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic population"
+        },
+        "id": "1.03.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Limited English Speaking Population",
+      "is_survey": true,
+      "has_change": true,
+      "denominator": {
+        "subcategory": "age_",
+        "variable": "p5pl",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "vintages": [
+        "CENSUS PUMS, 2000",
+        "ACS PUMS, 2008-2012",
+        "ACS PUMS, 2019-2023",
+        "CHANGE, 2008-2012 to 2019-2023"
+      ],
+      "variables": ["lep"],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "labels": ["Speak English less than “very well“"]
+    },
+    "geographies": {
+      "district": {
+        "files": [
+          "demographics_2000_puma",
+          "demographics_0812_puma",
+          "demographics_1923_puma",
+          "demo_change_puma"
+        ]
+      },
+      "borough": {
+        "files": [
+          "demographics_2000_borough",
+          "demographics_0812_borough",
+          "demographics_1923_borough",
+          "demo_change_borough"
+        ]
+      },
+      "citywide": {
+        "files": [
+          "demographics_2000_citywide",
+          "demographics_0812_citywide",
+          "demographics_1923_citywide",
+          "demo_change_citywide"
+        ]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": { "label": "Population 5 years and over " },
+        "id": "1.04.T"
+      },
+      "anh": {
+        "denominator": {
+          "label": "Asian non-Hispanic population 5 years and over "
+        },
+        "id": "1.04.A"
+      },
+      "bnh": {
+        "denominator": {
+          "label": "Black non-Hispanic population 5 years and over "
+        },
+        "id": "1.04.B"
+      },
+      "wnh": {
+        "denominator": {
+          "label": "White non-Hispanic population 5 years and over "
+        },
+        "id": "1.04.W"
+      },
+      "hsp": {
+        "denominator": {
+          "label": "Hispanic population 5 years and over "
+        },
+        "id": "1.04.H"
+      }
+    }
+  }
+]

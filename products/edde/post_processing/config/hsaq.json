@@ -1,0 +1,780 @@
+[
+  {
+    "base": {
+      "title": "Housing Tenure",
+      "has_change": true,
+      "subcategory": "units_",
+      "years": ["_2000", "_0812", "_1923"],
+      "labels": ["Owner-occupied", "Renter-occupied"],
+      "is_survey": true,
+      "denominator": {
+        "subcategory": "units_",
+        "variable": "occupied",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "vintages": [
+        "CENSUS PUMS, 2000",
+        "ACS PUMS, 2008-2012",
+        "ACS PUMS, 2019-2023",
+        "CHANGE, 2008-2012 to 2019-2023"
+      ],
+      "variables": ["occupied_owner", "occupied_renter"],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma","housing_security_puma","housing_security_puma", "housing_security_change_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough","housing_security_borough","housing_security_borough", "housing_security_change_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide","housing_security_citywide","housing_security_citywide", "housing_security_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {"label": "Occupied housing units"},
+        "id": "3.01.T"
+      },
+      "anh": {
+        "denominator": {"label": "Occupied housing units with an Asian non-Hispanic householder"},
+        "id": "3.01.A"
+      },
+      "bnh": {
+        "denominator": {"label":  "Occupied housing units with a Black non-Hispanic householder"},
+        "id": "3.01.B"
+      },
+      "wnh": {
+        "denominator": {"label":"Occupied housing units with a White non-Hispanic householder"},
+        "id": "3.01.W"
+      },
+      "hsp": {
+        "denominator": {"label": "Occupied housing units with a Hispanic householder"},
+        "id": "3.01.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Median Home Value (2023 Dollars)",
+      "has_change": true,
+      "is_survey": true,
+      "denominator": {
+        "measures": ["COUNT", "COUNT", "COUNT"],
+        "variances": ["NONE", "MOE", "CV"],
+        "variable": "units_occupied_owner"
+      },
+      "years": ["_0812", "_1923"],
+      "labels": ["Median Home Value (Dollars)"],
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "variables": ["homevalue_median"],
+      "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
+      "variances": ["NONE", "MOE", "CV"],
+      "upper_limits": [[null, 1182000],[null, 2000000]]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma","housing_security_puma", "housing_security_change_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough","housing_security_borough", "housing_security_change_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide","housing_security_citywide", "housing_security_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {"label": "Owner-occupied units"},
+        "id": "3.02.T"
+      },
+      "anh": {
+        "denominator": {"label":  "Owner-occupied units with an Asian non-Hispanic householder"},
+        "id": "3.02.A"
+      },
+      "bnh": {
+        "denominator": {"label": "Owner-occupied units with a Black non-Hispanic householder"},
+        "id": "3.02.B"
+      },
+      "wnh": {
+        "denominator": {"label": "Owner-occupied units with a White non-Hispanic householder"},
+        "id": "3.02.W"
+      },
+      "hsp": {
+        "denominator": {"label":  "Owner-occupied units with a Hispanic householder"},
+        "id": "3.02.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Median Gross Rent (2023 dollars)",
+      "has_change": true,
+      "is_survey": true,
+      "denominator": {
+        "variable": "units_payingrent",
+        "measures": ["COUNT", "COUNT", "COUNT"],
+        "variances": ["NONE", "MOE", "CV"]
+      },
+      "years": ["_0812", "_1923"],
+      "labels": ["Median gross rent (dollars)"],
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "variables": ["rent_median"],
+      "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
+      "variances": ["NONE", "MOE", "CV"],
+      "upper_limits": [[null, 2300],[null, 3500]]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma","housing_security_puma", "housing_security_change_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough","housing_security_borough", "housing_security_change_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide","housing_security_citywide", "housing_security_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {"label": "Occupied units paying rent"},
+        "id": "3.03.T"
+      },
+      "anh": {
+        "denominator": {"label":  "Occupied units paying rent with an Asian non-Hispanic householder"},
+        "id": "3.03.A"
+      },
+      "bnh": {
+        "denominator": {"label": "Occupied units paying rent with a Black non-Hispanic householder"},
+        "id": "3.03.B"
+      },
+      "wnh": {
+        "denominator": {"label": "Occupied units paying rent with a White non-Hispanic householder"},
+        "id": "3.03.W"
+      },
+      "hsp": {
+        "denominator": {"label":  "Occupied units paying rent with a Hispanic householder"},
+        "id": "3.03.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Gross Rent as a Percentage of Household Income (GRAPI)",
+      "has_change": true,
+      "is_survey": true,
+      "subcategory": "households_",
+      "denominator": {
+        "subcategory": "households_",
+        "variable": "grapi",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "years": ["_0812", "_1923"],
+      "labels": ["30.0 percent or more (rent-burdened)","50.0 percent or more (severely rent-burdened)"],
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "variables": ["rb","erb"],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma","housing_security_puma", "housing_security_change_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough","housing_security_borough", "housing_security_change_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide","housing_security_citywide", "housing_security_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {"label": "Occupied units paying rent (excluding units where GRAPI cannot be computed)"},
+        "id": "3.04.T"
+      },
+      "anh": {
+        "denominator": {"label":  "Occupied units paying rent (excluding units where GRAPI cannot be computed) with an Asian non-Hispanic householder"},
+        "id": "3.04.A"
+      },
+      "bnh": {
+        "denominator": {"label": "Occupied units paying rent (excluding units where GRAPI cannot be computed) with a Black non-Hispanic householder"},
+        "id": "3.04.B"
+      },
+      "wnh": {
+        "denominator": {"label": "Occupied units paying rent (excluding units where GRAPI cannot be computed) with a White non-Hispanic householder"},
+        "id": "3.04.W"
+      },
+      "hsp": {
+        "denominator": {"label":  "Occupied units paying rent (excluding units where GRAPI cannot be computed) with a Hispanic householder"},
+        "id": "3.04.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Rent Stabilized Housing **",
+      "id": "3.05.T",
+      "is_survey": true,
+      "denominator": {
+        "label": "Occupied rental units",
+        "subcategory": "units_",
+        "variable": "occurental",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "headers": [
+        [
+          ["number", 3],
+          ["percent", 2]
+        ],
+        [
+          ["estimate", 1],
+          ["moe", 1],
+          ["cv", 1],
+          ["estimate", 1],
+          ["moe", 1]
+        ]
+      ],
+      "labels": ["Rent stabilized units"],
+      "vintages": ["NYC HOUSING AND VACANCY SURVEY, 2023"],
+      "subcategory": "units_",
+      "variables": ["rentstable"],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {},
+      "anh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "bnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "wnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "hsp": {
+        "placeholder": "Data are not available by race and ethnicity"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Rental Units Affordable To Households By AMI* Band",
+      "id": "3.06.T",
+      "denominator": {
+        "label": "Occupied units paying rent",
+        "subcategory": "units_",
+        "variable": "payingrent_1923",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "is_survey": true,
+      "labels": [
+        "Extremely low-income (0-30% AMI)",
+        "Very low-income (31-50% AMI)",
+        "Low-income (51-80% AMI)",
+        "Moderate-income (81-120% AMI)",
+        "Middle-income (121-165% AMI)",
+        "High-income (166% or higher AMI)"
+      ],
+      "vintages": ["ACS PUMS, 2019-2023"],
+      "subcategory": "units_",
+      "variables": [
+        "affordable_eli",
+        "affordable_vli",
+        "affordable_li",
+        "affordable_mi",
+        "affordable_midi",
+        "affordable_hi"
+      ],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {},
+      "anh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "bnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "wnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "hsp": {
+        "placeholder": "Data are not available by race and ethnicity"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Housing Problems **",
+      "id": "3.07.T",
+      "is_survey": true,
+      "denominator": {
+        "label": "Occupied housing units",
+        "subcategory": "units_",
+        "variable": "occu",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "headers": [
+        [
+          ["number", 3],
+          ["percent", 2]
+        ],
+        [
+          ["estimate", 1],
+          ["moe", 1],
+          ["cv", 1],
+          ["estimate", 1],
+          ["moe", 1]
+        ]
+      ],
+      "vintages": ["NYC HOUSING AND VACANCY SURVEY, 2023"],
+      "labels": ["Housing with 3 or more housing problems"],
+      "subcategory": "units_",
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"],
+      "variables": ["threemaintenance"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {},
+      "anh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "bnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "wnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "hsp": {
+        "placeholder": "Data are not available by race and ethnicity"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Overcrowding",
+      "has_change": true,
+      "is_survey": true,
+      "denominator": {
+        "subcategory": "units_",
+        "variable": "occupied",
+        "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+        "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+      },
+      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "years": ["_0812","_1923"],
+      "labels": ["Overcrowded units (> 1 person per room)"],
+      "subcategory": "units_",
+      "variables": ["overcrowded"],
+      "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
+      "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma","housing_security_puma", "housing_security_change_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough","housing_security_borough", "housing_security_change_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide","housing_security_citywide", "housing_security_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {"label": "Occupied housing units"},
+        "id": "3.08.T"
+      },
+      "anh": {
+        "denominator": {"label":  "Occupied housing units with an Asian non-Hispanic householder"},
+        "id": "3.08.A"
+      },
+      "bnh": {
+        "denominator": {"label": "Occupied housing units with a Black non-Hispanic householder"},
+        "id": "3.08.B"
+      },
+      "wnh": {
+        "denominator": {"label": "Occupied housing units with a White non-Hispanic householder"},
+        "id": "3.08.W"
+      },
+      "hsp": {
+        "denominator": {"label":  "Occupied housing units with a Hispanic householder"},
+        "id": "3.08.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Residential Evictions",
+      "id": "3.09.T",
+      "denominator": {
+        "label": "Occupied housing units",
+        "subcategory": "units_",
+        "variable": "occu",
+        "measures": ["COUNT"],
+        "variances": ["NONE"]
+      },
+      "vintages": ["NYC DEPARTMENT OF INVESTIGATION, 2019-2025"],
+      "labels": ["Residential evictions executed by a city marshal 2019 - 2025"],
+      "variables": ["evictions"],
+      "headers": [[["number", 1]]],
+      "measures": ["COUNT"],
+      "variances": ["NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {},
+      "anh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "bnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "wnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "hsp": {
+        "placeholder": "Data are not available by race and ethnicity"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Number of Individuals in Shelter System by Last Address",
+      "id": "3.10.T",
+      "has_change": true,
+      "vintages": ["NYC DEPARTMENT OF HOMELESS SERVICES, 2020", "NYC DEPARTMENT OF HOMELESS SERVICES, 2022", "CHANGE, 2020-2022"],
+      "years": ["_2020", "_2022"],
+      "labels": ["Total number of individuals in DHS shelter system whose last address was in this area"],
+      "variables": ["dhs_shelter"],
+      "headers": [[["number", 1]]],
+      "measures": ["COUNT"],
+      "variances": ["NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma","housing_security_puma", "housing_security_change_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough","housing_security_borough", "housing_security_change_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide","housing_security_citywide", "housing_security_change_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {},
+      "anh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "bnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "wnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "hsp": {
+        "placeholder": "Data are not available by race and ethnicity"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Income-restricted Housing",
+      "id": "3.11.T",
+      "subcategory": "units_",
+      "vintages": ["NYC Housing Authority, 2024; NYC Housing Preservation and Development, 2025"],
+      "labels": ["NYCHA units", "Homes with new or extended affordability requirements"],
+      "variables": ["nycha","hpd"],
+      "headers": [[["number", 1]]],
+      "measures": ["COUNT"],
+      "variances": ["NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {},
+      "anh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "bnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "wnh": {
+        "placeholder": "Data are not available by race and ethnicity"
+      },
+      "hsp": {
+        "placeholder": "Data are not available by race and ethnicity"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Population In NYC Housing Authority Housing",
+      "vintages": ["NYC HOUSING AUTHORITY, 2024"],
+      "denominator": {
+        "variable": "pop",
+        "measures": ["COUNT","PERCENT"],
+        "variances": ["NONE","NONE"]
+      },
+      "labels": ["NYC Housing Authority tenants"],
+      "variables": ["nycha_tenants"],
+      "measures": ["COUNT","PERCENT"],
+      "variances": ["NONE","NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": {
+        "denominator": {"label": "Total population"},
+        "id": "3.12.T"
+      },
+      "anh": {
+        "denominator": {"label":  "Asian non-Hispanic population"},
+        "id": "3.12.A"
+      },
+      "bnh": {
+        "denominator": {"label": "Black non-Hispanic population"},
+        "id": "3.12.B"
+      },
+      "wnh": {
+        "denominator": {"label": "White non-Hispanic population"},
+        "id": "3.12.W"
+      },
+      "hsp": {
+        "denominator": {"label":  "Hispanic population"},
+        "id": "3.12.H"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Housing Lottery Applications",
+      "id": "3.13.T",
+      "vintages": ["NYC HOUSING CONNECT 2022-2024"],
+      "subcategory": "housing_lottery_",
+      "variables": ["applications"],
+      "measures": ["COUNT","PERCENT"],
+      "variances": ["NONE","NONE"]    },
+    "geographies": {
+      "district": {
+        "files": ["housing_security_puma"]
+      },
+      "borough": {
+        "files": ["housing_security_borough"],
+        "placeholder": ""
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"],
+        "placeholder": ""
+      }
+    },
+    "subgroups": {
+      "tot": { "labels": ["Total housing lottery applications"] },
+      "anh": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "applications",
+          "label": "Total housing lottery applications",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "placeholder": "",
+          "ignore_subgroup": true
+        },
+        "labels": [
+          "Total housing lottery applications with an Asian non-Hispanic account holder"
+        ],
+        "placeholder": "Data are not available by race and ethnicity for Community Districts"
+      },
+      "bnh": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "applications",
+          "label": "Total housing lottery applications",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "placeholder": "",
+          "ignore_subgroup": true
+        },
+        "labels": [
+          "Total housing lottery applications with a Black non-Hispanic account holder"
+        ],
+        "placeholder": "Data are not available by race and ethnicity for Community Districts"
+      },
+      "wnh": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "applications",
+          "label": "Total housing lottery applications",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "placeholder": "",
+          "ignore_subgroup": true
+        },
+        "labels": [
+          "Total housing lottery applications with a White non-Hispanic account holder"
+        ],
+        "placeholder": "Data are not available by race and ethnicity for Community Districts"
+      },
+      "hsp": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "applications",
+          "label": "Total housing lottery applications",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "placeholder": "",
+          "ignore_subgroup": true
+        },
+        "labels": ["Total housing lottery applications with a Hispanic account holder"],
+        "placeholder": "Data are not available by race and ethnicity for Community Districts"
+      }
+    }
+  },
+  {
+    "base": {
+      "title": "Housing Lottery Leases",
+      "id": "3.14.T",
+      "vintages": ["NYC HOUSING CONNECT 2022-2024"],
+      "subcategory": "housing_lottery_",
+      "variables": ["leases"],
+      "measures": ["COUNT","PERCENT"],
+      "variances": ["NONE","NONE"]
+    },
+    "geographies": {
+      "district": {
+        "files": [""],
+        "placeholder": "Data are not available by Community District"
+      },
+      "borough": {
+        "files": ["housing_security_borough"]
+      },
+      "citywide": {
+        "files": ["housing_security_citywide"]
+      }
+    },
+    "subgroups": {
+      "tot": { "labels": ["Total signed leases"] },
+      "anh": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "leases",
+          "label": "Total signed leases",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "ignore_subgroup": true
+        },
+        "labels": [
+          "Total signed leases with an Asian non-Hispanic account holder"
+        ]
+      },
+      "bnh": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "leases",
+          "label": "Total signed leases",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "ignore_subgroup": true
+        },
+        "labels": [
+          "Total signed leases with a Black non-Hispanic account holder"
+        ]
+      },
+      "wnh": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "leases",
+          "label": "Total signed leases",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "ignore_subgroup": true
+        },
+        "labels": [
+          "Total signed leases with a White non-Hispanic account holder"
+        ]
+      },
+      "hsp": {
+        "denominator": {
+          "subcategory": "housing_lottery_",
+          "variable": "leases",
+          "label": "Total signed leases",
+          "measures": ["COUNT", "PERCENT"],
+          "variances": ["NONE", "NONE"],
+          "ignore_subgroup": true
+        },
+        "labels": ["Total signed leases with a Hispanic account holder"]
+      }
+    }
+  }
+]
