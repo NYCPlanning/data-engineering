@@ -269,7 +269,13 @@ class ProcessingResult(SortedSerializedBase, arbitrary_types_allowed=True):
 
 
 class SparseConfig(BaseModel, extra="allow"):
-    id: str = Field(validation_alias=AliasChoices("id", AliasPath("dataset", "name")))
+    id: str = Field(
+        validation_alias=AliasChoices(
+            "id",  # ingest
+            "name",  # ingest - outdated
+            AliasPath("dataset", "name"),  # library
+        )
+    )
     version: str = Field(
         validation_alias=AliasChoices(
             "timestamp",  # ingest - raw

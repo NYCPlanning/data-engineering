@@ -1,5 +1,5 @@
 name: PFF - ACS
-version: 2023
+version: 2024
 product: db-factfinder
 inputs:
   dataset_defaults:
@@ -15,10 +15,9 @@ inputs:
     - name: dcp_pop_acs2010_social
       version: 20240524
     - name: dcp_pop_acs
+      version: 2024
       destination: file
       file_type: xlsx
-  missing_versions_strategy: find_latest
-
 
 stage_config:
   builds.build:
@@ -27,6 +26,3 @@ stage_config:
     connector_args:
       - name: acl
         value: public-read
-      - name: build_note
-        value_from:
-          env: "BUILD_NOTE"

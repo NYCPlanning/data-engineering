@@ -97,18 +97,17 @@ def build(version, load_result: load.LoadResult):
     output_folder = OUTPUT_FOLDER / version / "acs"
     if output_folder.is_dir():
         shutil.rmtree(output_folder)
+
     process_2010_data(load_result)
 
-    latest = load_result.datasets["dcp_pop_acs"]
+    latest = load_result.get_latest_version("dcp_pop_acs")
     assert isinstance(latest.destination, Path)
     process_latest_data(latest.destination, latest.version)
 
 
-if __name__ == "__main__":
+def run_metadata(excel_file: Path):
     process_metadata(
         DATASET,
-        Path("Your path here"),
-        "ACS Data Dictionary",
+        excel_file,
         output_folder=DATA_PATH,
-        skiprows=2,
     )
