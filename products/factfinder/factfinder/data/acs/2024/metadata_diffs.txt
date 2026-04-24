@@ -1,0 +1,44 @@
+Current year:  2024
+Previous year: 2023
+
+New variables in current (31) — probably expected, confirm intentional additions:
+  pff_variable  category                   domain     
+  ---------  -------------------------  -----------
+  asncntrl   Asian Subgroup             demographic
+  asnkazakh  Asian Subgroup             demographic
+  asnmien    Asian Subgroup             demographic
+  asnocntrl  Asian Subgroup             demographic
+  asnoeast   Asian Subgroup             demographic
+  asnoseast  Asian Subgroup             demographic
+  asnosouth  Asian Subgroup             demographic
+  asnsikh    Asian Subgroup             demographic
+  asnsingpr  Asian Subgroup             demographic
+  asnuzbek   Asian Subgroup             demographic
+  cni1964_2  Health Insurance Coverage  economic   
+  cvniu19_2  Health Insurance Coverage  economic   
+  u19nhins   Health Insurance Coverage  economic   
+  algeria    Place of Birth             social     
+  azerbjn    Place of Birth             social     
+  azores     Place of Birth             social     
+  bhutan     Place of Birth             social     
+  congo      Place of Birth             social     
+  drcongo    Place of Birth             social     
+  georgia    Place of Birth             social     
+  ivorycst   Place of Birth             social     
+  microns    Place of Birth             social     
+  mrshlisl   Place of Birth             social     
+  senegal    Place of Birth             social     
+  somalia    Place of Birth             social     
+  stlucia    Place of Birth             social     
+  tanzania   Place of Birth             social     
+  togo       Place of Birth             social     
+  uaremir    Place of Birth             social     
+  uganda     Place of Birth             social     
+  zimbabwe   Place of Birth             social     
+
+Dropped variables from previous (3) — likely a problem if unexpected:
+  pff_variable  category                   domain  
+  ---------  -------------------------  --------
+  cni1864_2  Health Insurance Coverage  economic
+  cvniu18_2  Health Insurance Coverage  economic
+  u18nhins   Health Insurance Coverage  economic
