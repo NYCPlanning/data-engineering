@@ -140,6 +140,7 @@ dependencies = [
     "geoalchemy2",
     "geopandas",
     "ijson",
+    "simplejson",
     "Jinja2",
     "leafmap",
     "lxml",

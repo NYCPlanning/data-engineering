@@ -1,6 +1,8 @@
 from os import environ as env
 from pathlib import Path
 
+from dcpy.utils.logging import logger
+
 CI = "CI" in env
 
 BUILD_NAME = env.get("BUILD_NAME")
@@ -35,8 +37,21 @@ PRODUCTS_TO_LOG = [
 IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
 PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
+if not PRODUCT_METADATA_REPO_PATH:
+    logger.warning(
+        "warning: PRODUCT_METADATA_REPO_PATH is not set. Product Metadata will not function."
+    )
+elif not Path(PRODUCT_METADATA_REPO_PATH).exists():
+    logger.warning(
+        f"PRODUCT_METADATA_REPO_PATH: {PRODUCT_METADATA_REPO_PATH} points to a nonexistent path"
+    )
+
 
 INGEST_DEF_DIR = Path(env.get("TEMPLATE_DIR", "./ingest_templates"))
+if not INGEST_DEF_DIR:
+    logger.warning("warning: INGEST_DEF_DIR is not set. Ingest will not function.")
+elif not Path(INGEST_DEF_DIR).exists():
+    logger.warning(f"INGEST_DEF_DIR: {INGEST_DEF_DIR} points to a nonexistent path")
 
 SFTP_HOST = env.get("SFTP_HOST")
 SFTP_USER = env.get("SFTP_USER")
