@@ -359,16 +359,17 @@ current AS (
     GROUP BY "USETYPE"
 )
 SELECT
-    a.usetype,
-    a.v_previous,
-    b.v_current,
-    b.num_records_current,
-    a.num_records_previous,
-    b.num_records_current - a.num_records_previous AS difference
+    p.usetype,
+    c.usetype AS usetype_curr,
+    p.v_previous,
+    c.v_current,
+    c.num_records_current,
+    p.num_records_previous,
+    c.num_records_current - p.num_records_previous AS difference
 INTO usetype_changes
-FROM prev AS a
-INNER JOIN current AS b
-    ON a.usetype = b.usetype;
+FROM prev AS p
+FULL OUTER JOIN current AS c
+    ON p.usetype = c.usetype;
 
 -- Create QAQC tables of count of records by agency and usetype
 DROP TABLE IF EXISTS records_by_agency;
