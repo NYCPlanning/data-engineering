@@ -12,10 +12,12 @@ agate==1.9.1
     #   dbt-postgres
 aiosmtplib==5.0.0
     # via apache-airflow-providers-smtp
-aiosqlite==0.22.1
+aiosqlite==0.21.0
     # via apache-airflow-core
 alembic==1.17.2
     # via apache-airflow-core
+annotated-doc==0.0.4
+    # via fastapi
 annotated-types==0.7.0
     # via pydantic
 anyio==4.12.1
@@ -23,7 +25,7 @@ anyio==4.12.1
     #   httpx
     #   starlette
     #   watchfiles
-apache-airflow==3.1.5
+apache-airflow==3.2.0
     # via
     #   -r requirements.in
     #   apache-airflow-providers-common-compat
@@ -33,7 +35,7 @@ apache-airflow==3.1.5
     #   apache-airflow-providers-smtp
     #   apache-airflow-providers-standard
     #   astronomer-cosmos
-apache-airflow-core==3.1.5
+apache-airflow-core==3.2.0
     # via
     #   apache-airflow
     #   apache-airflow-task-sdk
@@ -56,13 +58,13 @@ apache-airflow-providers-smtp==2.4.1
     # via apache-airflow-core
 apache-airflow-providers-standard==1.10.2
     # via apache-airflow-core
-apache-airflow-task-sdk==1.1.5
+apache-airflow-task-sdk==1.2.0
     # via
     #   apache-airflow
     #   apache-airflow-core
 argcomplete==3.6.3
     # via apache-airflow-core
-asgiref==3.11.0
+asgiref==3.11.1
     # via
     #   apache-airflow-core
     #   apache-airflow-providers-common-compat
@@ -88,7 +90,7 @@ babel==2.17.0
     #   apache-airflow-task-sdk
 build==1.3.0
     # via openlineage-python
-cadwyn==5.4.6
+cadwyn==6.2.2
     # via apache-airflow-core
 certifi==2026.1.4
     # via
@@ -158,11 +160,11 @@ dnspython==2.8.0
     # via email-validator
 email-validator==2.3.0
     # via fastapi
-fastapi==0.117.1
+fastapi[standard-no-fastapi-cloud-cli]==0.136.1
     # via
     #   apache-airflow-core
     #   cadwyn
-fastapi-cli==0.0.20
+fastapi-cli[standard-no-fastapi-cloud-cli]==0.0.20
     # via fastapi
 filelock==3.20.2
     # via virtualenv
@@ -226,6 +228,7 @@ jinja2==3.1.6
 jsonschema==4.26.0
     # via
     #   apache-airflow-core
+    #   apache-airflow-task-sdk
     #   dbt-common
     #   dbt-core
     #   dbt-semantic-interfaces
@@ -251,7 +254,7 @@ markupsafe==3.0.3
     # via
     #   jinja2
     #   mako
-mashumaro==3.14
+mashumaro[msgpack]==3.14
     # via
     #   dbt-adapters
     #   dbt-common
@@ -321,6 +324,7 @@ outcome==1.3.0.post0
 packaging==25.0
     # via
     #   apache-airflow-core
+    #   apache-airflow-task-sdk
     #   astronomer-cosmos
     #   build
     #   dbt-core
@@ -328,9 +332,12 @@ packaging==25.0
     #   openlineage-python
 parsedatetime==2.6
     # via agate
+pathlib-abc==0.5.2
+    # via universal-pathlib
 pathspec==0.12.1
     # via
     #   apache-airflow-core
+    #   apache-airflow-task-sdk
     #   dbt-common
     #   dbt-core
 pendulum==3.1.0
@@ -340,7 +347,9 @@ pendulum==3.1.0
 platformdirs==4.5.1
     # via virtualenv
 pluggy==1.6.0
-    # via apache-airflow-core
+    # via
+    #   apache-airflow-core
+    #   apache-airflow-task-sdk
 protobuf==6.33.2
     # via
     #   dbt-adapters
@@ -368,8 +377,14 @@ pydantic==2.12.5
     #   dbt-core
     #   dbt-semantic-interfaces
     #   fastapi
+    #   pydantic-extra-types
+    #   pydantic-settings
 pydantic-core==2.41.5
     # via pydantic
+pydantic-extra-types==2.11.1
+    # via fastapi
+pydantic-settings==2.14.0
+    # via fastapi
 pygments==2.19.2
     # via
     #   apache-airflow-core
@@ -378,7 +393,7 @@ pygtrie==2.5.0
     # via
     #   apache-airflow-core
     #   apache-airflow-task-sdk
-pyjwt==2.10.1
+pyjwt==2.12.1
     # via apache-airflow-core
 pyproject-hooks==1.2.0
     # via build
@@ -394,7 +409,9 @@ python-dateutil==2.9.0.post0
     #   openlineage-python
     #   pendulum
 python-dotenv==1.2.1
-    # via uvicorn
+    # via
+    #   pydantic-settings
+    #   uvicorn
 python-multipart==0.0.21
     # via fastapi
 python-slugify==8.0.4
@@ -410,13 +427,13 @@ pytz==2025.2
     #   dbt-core
 pyyaml==6.0.3
     # via
+    #   apache-airflow-core
     #   dbt-core
     #   dbt-semantic-interfaces
+    #   libcst
     #   openlineage-integration-common
     #   openlineage-python
     #   uvicorn
-pyyaml-ft==8.0.0
-    # via libcst
 referencing==0.37.0
     # via
     #   jsonschema
@@ -455,16 +472,10 @@ sniffio==1.3.1
     # via greenback
 snowplow-tracker==1.1.0
     # via dbt-core
-sqlalchemy==2.0.45
+sqlalchemy[asyncio]==2.0.49
     # via
     #   alembic
     #   apache-airflow-core
-    #   sqlalchemy-jsonfield
-    #   sqlalchemy-utils
-sqlalchemy-jsonfield==1.0.2
-    # via apache-airflow-core
-sqlalchemy-utils==0.42.1
-    # via apache-airflow-core
 sqlparse==0.5.4
     # via
     #   apache-airflow-providers-common-sql
@@ -494,8 +505,10 @@ typer==0.21.1
     # via fastapi-cli
 typing-extensions==4.15.0
     # via
+    #   aiosqlite
     #   alembic
     #   apache-airflow-core
+    #   apache-airflow-task-sdk
     #   cadwyn
     #   cron-descriptor
     #   dbt-adapters
@@ -512,6 +525,7 @@ typing-extensions==4.15.0
     #   opentelemetry-semantic-conventions
     #   pydantic
     #   pydantic-core
+    #   pydantic-extra-types
     #   rich-toolkit
     #   snowplow-tracker
     #   sqlalchemy
@@ -520,18 +534,20 @@ typing-extensions==4.15.0
 typing-inspection==0.4.2
     # via
     #   cadwyn
+    #   fastapi
     #   pydantic
+    #   pydantic-settings
 tzdata==2025.3
     # via pendulum
 uc-micro-py==1.0.3
     # via linkify-it-py
-universal-pathlib==0.2.6
+universal-pathlib==0.3.10
     # via apache-airflow-core
 urllib3==2.6.3
     # via requests
 uuid6==2025.0.1
     # via apache-airflow-core
-uvicorn==0.40.0
+uvicorn[standard]==0.40.0
     # via
     #   apache-airflow-core
     #   fastapi
