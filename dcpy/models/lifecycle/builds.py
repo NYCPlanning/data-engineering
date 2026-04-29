@@ -111,10 +111,26 @@ class StageConfigValue(BaseModel, extra="forbid"):
         return self
 
 
+class CommandType(StrEnum):
+    """Type of command execution."""
+
+    shell = "shell"  # Execute as shell command
+    python = "python"  # Import and execute as Python module
+
+
+class BuildCommand(BaseModel, extra="forbid"):
+    """A build command to execute during the build stage."""
+
+    name: str
+    run: str
+    command_type: CommandType = CommandType.shell
+
+
 class StageConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     destination: str | None = None
     destination_key: str | None = None
     connector_args: list[StageConfigValue] = []
+    commands: list[BuildCommand] = []
 
     def get_connector_args_dict(self) -> dict[str, Any]:
         return {a.name: a.value for a in self.connector_args or []}
