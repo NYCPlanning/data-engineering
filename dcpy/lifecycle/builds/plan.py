@@ -5,7 +5,13 @@ from pathlib import Path
 import pandas as pd
 import typer
 import yaml
-from jinja2 import Environment, StrictUndefined, TemplateSyntaxError, UndefinedError
+from jinja2 import (
+    Environment,
+    StrictUndefined,
+    TemplateSyntaxError,
+    Undefined,
+    UndefinedError,
+)
 
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
@@ -24,6 +30,19 @@ RECIPE_FILE_TYPE_PREFERENCE = [
     recipes.DatasetType.parquet,
     recipes.DatasetType.csv,
 ]
+
+
+class PreserveUndefined(Undefined):
+    """Jinja2 Undefined that preserves template syntax as YAML-safe strings.
+
+    This allows parsing recipes with Jinja2 templates without rendering them.
+    Templates like {{ VAR }} are preserved as strings in the parsed recipe.
+    """
+
+    def __str__(self):
+        # Return the template as a single-quoted string so YAML parses it as a string literal
+        # This prevents YAML from trying to interpret {{ }} as a flow mapping
+        return f"'{{{{ {self._undefined_name} }}}}'"
 
 
 def resolve_version(recipe: Recipe) -> str:
@@ -196,41 +215,64 @@ def _apply_recipe_defaults(recipe: Recipe):
         ds.load_engine = ds.load_engine or recipe.inputs.dataset_defaults.load_engine
 
 
-def recipe_from_yaml(path: Path) -> Recipe:
+def recipe_from_yaml(path: Path, render_templates: bool = True) -> Recipe:
     """Import a recipe file from yaml, and validate schema.
 
     Supports Jinja2 template variables that are rendered from environment variables.
     For security, only environment variables with the BUILD_ENV_ prefix are exposed
     to templates to prevent accidental exposure of secrets.
     Non-templated recipes are processed normally without errors.
+
+    Args:
+        path: Path to the recipe.yml file
+        render_templates: If True, render Jinja2 templates from BUILD_ENV_* vars.
+                         If False, preserve templates as strings (for DAG generation).
+
+    Returns:
+        Recipe object with schema validated
     """
     with open(path, "r", encoding="utf-8") as f:
         raw_content = f.read()
 
-    # Filter environment variables to only BUILD_ENV_* for security
-    # This prevents secrets from being accidentally exposed in recipes
-    build_env_vars = {
-        key: value for key, value in os.environ.items() if key.startswith("BUILD_ENV_")
-    }
-
-    # Attempt to render Jinja2 templates from BUILD_ENV_* environment variables
-    # Use StrictUndefined to catch missing variables
+    # Render Jinja2 templates
     rendered_content = raw_content
-    try:
-        jinja_env = Environment(undefined=StrictUndefined)
-        template = jinja_env.from_string(raw_content)
-        rendered_content = template.render(**build_env_vars)
-    except UndefinedError as e:
-        # Missing template variable - provide clear error
-        raise ValueError(
-            f"Recipe template requires BUILD_ENV_* environment variable that is not set: {e}. "
-            f"Only variables starting with BUILD_ENV_ are available to templates."
-        ) from e
-    except TemplateSyntaxError as e:
-        # Invalid Jinja2 syntax - provide clear error
-        raise ValueError(
-            f"Recipe contains invalid Jinja2 template syntax at line {e.lineno}: {e.message}"
-        ) from e
+    if render_templates:
+        # Filter environment variables to only BUILD_ENV_* for security
+        # This prevents secrets from being accidentally exposed in recipes
+        build_env_vars = {
+            key: value
+            for key, value in os.environ.items()
+            if key.startswith("BUILD_ENV_")
+        }
+
+        # Use StrictUndefined to catch missing variables
+        try:
+            jinja_env = Environment(undefined=StrictUndefined)
+            template = jinja_env.from_string(raw_content)
+            rendered_content = template.render(**build_env_vars)
+        except UndefinedError as e:
+            # Missing template variable - provide clear error
+            raise ValueError(
+                f"Recipe template requires BUILD_ENV_* environment variable that is not set: {e}. "
+                f"Only variables starting with BUILD_ENV_ are available to templates."
+            ) from e
+        except TemplateSyntaxError as e:
+            # Invalid Jinja2 syntax - provide clear error
+            raise ValueError(
+                f"Recipe contains invalid Jinja2 template syntax at line {e.lineno}: {e.message}"
+            ) from e
+    else:
+        # Preserve templates as strings for DAG generation
+        # Use PreserveUndefined to keep {{ VAR }} syntax intact
+        try:
+            jinja_env = Environment(undefined=PreserveUndefined)
+            template = jinja_env.from_string(raw_content)
+            rendered_content = template.render()  # No variables provided
+        except TemplateSyntaxError as e:
+            # Invalid Jinja2 syntax - provide clear error
+            raise ValueError(
+                f"Recipe contains invalid Jinja2 template syntax at line {e.lineno}: {e.message}"
+            ) from e
 
     # Parse the rendered YAML
     s = yaml.safe_load(rendered_content)

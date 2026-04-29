@@ -36,7 +36,13 @@ IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
 PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
 
+# Project root directory (assumes dcpy is at PROJECT_ROOT/dcpy)
+PROJECT_ROOT_PATH = Path(__file__).parent.parent
+
 INGEST_DEF_DIR = Path(env.get("TEMPLATE_DIR", "./ingest_templates"))
+
+# Products directory for build recipes
+PRODUCTS_DIR = Path(env.get("PRODUCTS_DIR", PROJECT_ROOT_PATH / "products"))
 
 SFTP_HOST = env.get("SFTP_HOST")
 SFTP_USER = env.get("SFTP_USER")

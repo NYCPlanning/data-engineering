@@ -122,6 +122,9 @@ class BuildsConnector(VersionedConnector, arbitrary_types_allowed=True):
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
         # For builds, the "version" is the build name/ID
+        logger.info(
+            f"Pushing version with connectors.edm.builds: {key}, version={version}"
+        )
         connector_args = kwargs["connector_args"]
         acl = (
             s3.string_as_acl(connector_args["acl"])
@@ -129,13 +132,13 @@ class BuildsConnector(VersionedConnector, arbitrary_types_allowed=True):
             else None
         )
 
-        logger.info(f"Pushing build for product: {key}, build: {version}")
         result = self._upload_build(
             build_dir=kwargs["build_path"],
             product=key,
             acl=acl,
             build_name=version,
         )
+        logger.info(f"Pushed build. Result: {result}")
         return asdict(result)
 
     def _pull(

@@ -1,7 +1,10 @@
 """Ingest lifecycle module."""
+
 from pathlib import Path
+from typing import List
 
 from dcpy.configuration import INGEST_DEF_DIR
+from dcpy.lifecycle.asset_models import IngestTemplate
 
 
 def get_template_directory() -> Path:
@@ -24,4 +27,27 @@ def get_template_directory() -> Path:
     return template_dir
 
 
-__all__ = ["get_template_directory"]
+def list_ingest_templates() -> List[IngestTemplate]:
+    """List all available ingest templates.
+
+    Returns:
+        List of IngestTemplate objects with name and path attributes
+
+    Raises:
+        FileNotFoundError: If the templates directory doesn't exist
+    """
+    template_dir = get_template_directory()
+
+    templates = []
+    for template_file in sorted(template_dir.glob("*.yml")):
+        templates.append(
+            IngestTemplate(
+                name=template_file.stem,
+                path=template_file,
+            )
+        )
+
+    return templates
+
+
+__all__ = ["get_template_directory", "list_ingest_templates"]
