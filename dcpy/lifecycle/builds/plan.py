@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 import typer
 import yaml
+from jinja2 import Environment, StrictUndefined, TemplateSyntaxError, UndefinedError
 
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
@@ -196,12 +197,46 @@ def _apply_recipe_defaults(recipe: Recipe):
 
 
 def recipe_from_yaml(path: Path) -> Recipe:
-    """Import a recipe file from yaml, and validate schema."""
+    """Import a recipe file from yaml, and validate schema.
+
+    Supports Jinja2 template variables that are rendered from environment variables.
+    For security, only environment variables with the BUILD_ENV_ prefix are exposed
+    to templates to prevent accidental exposure of secrets.
+    Non-templated recipes are processed normally without errors.
+    """
     with open(path, "r", encoding="utf-8") as f:
-        s = yaml.safe_load(f)
-        recipe = Recipe(**s)
-        _apply_recipe_defaults(recipe)
-        return recipe
+        raw_content = f.read()
+
+    # Filter environment variables to only BUILD_ENV_* for security
+    # This prevents secrets from being accidentally exposed in recipes
+    build_env_vars = {
+        key: value for key, value in os.environ.items() if key.startswith("BUILD_ENV_")
+    }
+
+    # Attempt to render Jinja2 templates from BUILD_ENV_* environment variables
+    # Use StrictUndefined to catch missing variables
+    rendered_content = raw_content
+    try:
+        jinja_env = Environment(undefined=StrictUndefined)
+        template = jinja_env.from_string(raw_content)
+        rendered_content = template.render(**build_env_vars)
+    except UndefinedError as e:
+        # Missing template variable - provide clear error
+        raise ValueError(
+            f"Recipe template requires BUILD_ENV_* environment variable that is not set: {e}. "
+            f"Only variables starting with BUILD_ENV_ are available to templates."
+        ) from e
+    except TemplateSyntaxError as e:
+        # Invalid Jinja2 syntax - provide clear error
+        raise ValueError(
+            f"Recipe contains invalid Jinja2 template syntax at line {e.lineno}: {e.message}"
+        ) from e
+
+    # Parse the rendered YAML
+    s = yaml.safe_load(rendered_content)
+    recipe = Recipe(**s)
+    _apply_recipe_defaults(recipe)
+    return recipe
 
 
 def generate_lock_file(recipe_file: Path, recipe: Recipe) -> Path:
