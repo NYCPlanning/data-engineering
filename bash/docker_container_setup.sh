@@ -16,6 +16,3 @@ else
 fi 
 
 python3 -m pip install $editable_install_flag . --constraint ./admin/run_environment/constraints.txt --no-deps
-
-# configure minio for use with S3 buckets in Digital Ocean
-mc alias set spaces "$AWS_S3_ENDPOINT" "$AWS_ACCESS_KEY_ID" "$AWS_SECRET_ACCESS_KEY" --api S3v4
