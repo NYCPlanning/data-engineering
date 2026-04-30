@@ -3,6 +3,7 @@ name: "cscl"
 profile: "dcp-de-postgres"
 
 model-paths: [ "models" ]
+asset-paths: [ "assets" ]
 
 tests:
   +store_failures: true
@@ -12,14 +13,25 @@ models:
   cscl:
     staging:
       +materialized: view
+      +group: staging
+      +docs:
+        node_color: "#2a9d8f"  # Verdigris - for recipe/source inputs
     intermediate:
       +materialized: view
+      +docs:
+        node_color: "#e76f51"  # Burnt Peach - logging/metadata
     product:
       +materialized: table
+      +docs:
+        node_color: "#264653"  # Charcoal Blue - production outputs
     etl_dev_qa:
       +materialized: table
+      +docs:
+        node_color: "#124559"
     log_files:
       +materialized: table
+      +docs:
+        node_color: "#3e5c76"
 
 on-run-start:
 - '{{ create_pg_functions() }}'
