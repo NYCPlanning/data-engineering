@@ -16,11 +16,6 @@ function install_yq {
         && chmod +x /usr/bin/yq
 }
 
-function install_mc {
-    curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
-        && chmod +x mc \
-        && mv ./mc /usr/bin/ 
-}
 
 function install_gdal {
     wget https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
@@ -48,5 +43,4 @@ function install_gdal {
 }
 
 install_yq
-install_mc
 install_gdal
