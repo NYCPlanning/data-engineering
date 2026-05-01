@@ -21,7 +21,8 @@ anyio==4.13.0
     #   httpx
     #   openai
     #   starlette
-anywidget==0.10.0
+    #   streamlit
+anywidget==0.11.0
     # via
     #   leafmap
     #   openlayers
@@ -52,21 +53,21 @@ beautifulsoup4==4.14.3
     #   gdown
 blinker==1.9.0
     # via streamlit
-boto3==1.42.96
+boto3==1.43.1
     # via
     #   -r requirements.in
     #   cloudpathlib
     #   moto
-boto3-stubs[s3]==1.42.96
+boto3-stubs[s3]==1.43.1
     # via -r requirements.in
-botocore==1.42.96
+botocore==1.43.1
     # via
     #   boto3
     #   moto
     #   s3transfer
 botocore-stubs==1.42.41
     # via boto3-stubs
-bqplot==0.12.45
+bqplot==0.12.46
     # via leafmap
 branca==0.8.2
     # via
@@ -113,7 +114,7 @@ click==8.3.3
     #   whitebox
 cligj==0.7.2
     # via rasterio
-cloudpathlib[all]==0.23.0
+cloudpathlib[all]==0.24.0
     # via -r requirements.in
 colorama==0.4.6
     # via
@@ -236,13 +237,13 @@ geopy==2.4.1
     # via contextily
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.47
+gitpython==3.1.49
     # via streamlit
 google-api-core==2.30.3
     # via
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.49.2
+google-auth==2.50.0
     # via
     #   google-api-core
     #   google-cloud-core
@@ -273,6 +274,8 @@ h11==0.16.0
     #   uvicorn
 httpcore==1.0.9
     # via httpx
+httptools==0.7.1
+    # via streamlit
 httpx==0.28.1
     # via
     #   genai-prices
@@ -314,7 +317,7 @@ ipython-pygments-lexers==1.1.1
     # via ipython
 ipytree==0.2.2
     # via whiteboxgui
-ipyvue==1.11.3
+ipyvue==1.12.0
     # via
     #   ipyvuetify
     #   leafmap
@@ -338,7 +341,9 @@ isodate==0.7.2
     #   azure-storage-file-datalake
     #   dbt-common
 itsdangerous==2.2.0
-    # via marimo
+    # via
+    #   marimo
+    #   streamlit
 jedi==0.19.2
     # via
     #   ipython
@@ -398,7 +403,7 @@ jupyterlab-widgets==3.0.16
     # via ipywidgets
 kiwisolver==1.5.0
     # via matplotlib
-leafmap==0.61.1
+leafmap==0.62.0
     # via -r requirements.in
 leather==0.4.1
     # via agate
@@ -414,7 +419,7 @@ mapclassify==2.10.0
     # via -r requirements.in
 maplibre==0.3.6
     # via leafmap
-marimo[recommended]==0.23.3
+marimo[recommended]==0.23.4
     # via -r requirements.in
 markdown==3.10.2
     # via
@@ -459,7 +464,7 @@ mypy==1.19.1
     #   -r requirements.in
     #   openpyxl-stubs
     #   sqlalchemy-stubs
-mypy-boto3-s3==1.42.94
+mypy-boto3-s3==1.43.0
     # via boto3-stubs
 mypy-extensions==1.1.0
     # via
@@ -500,7 +505,7 @@ numpy==2.4.4
     #   scipy
     #   shapely
     #   streamlit
-openai==2.32.0
+openai==2.33.0
     # via pydantic-ai-slim
 openlayers==0.1.6
     # via -r requirements.in
@@ -643,13 +648,13 @@ pydantic==2.13.3
     #   pydantic-ai-slim
     #   pydantic-graph
     #   pydantic-xml
-pydantic-ai-slim[openai]==1.87.0
+pydantic-ai-slim[openai]==1.88.0
     # via marimo
 pydantic-core==2.46.3
     # via
     #   pydantic
     #   pydantic-xml
-pydantic-graph==1.87.0
+pydantic-graph==1.88.0
     # via pydantic-ai-slim
 pydantic-xml==2.20.0
     # via -r requirements.in
@@ -718,6 +723,8 @@ python-dotenv==1.2.2
     # via -r requirements.in
 python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@32ae6caab2194bf05f9372d30fd22c0dc07e1b97
     # via -r requirements.in
+python-multipart==0.0.27
+    # via streamlit
 python-slugify==8.0.4
     # via agate
 pytimeparse==1.1.8
@@ -786,7 +793,7 @@ ruff==0.15.12
     # via
     #   -r requirements.in
     #   marimo
-s3transfer==0.16.1
+s3transfer==0.17.0
     # via boto3
 scikit-learn==1.8.0
     # via mapclassify
@@ -837,15 +844,17 @@ sqlparse==0.5.5
 stack-data==0.6.3
     # via ipython
 starlette==1.0.0
-    # via marimo
-streamlit==1.56.0
+    # via
+    #   marimo
+    #   streamlit
+streamlit==1.57.0
     # via
     #   -r requirements.in
     #   streamlit-aggrid
     #   streamlit-folium
 streamlit-aggrid==1.2.1.post2
     # via -r requirements.in
-streamlit-folium==0.27.1
+streamlit-folium==0.27.2
     # via -r requirements.in
 tabulate==0.10.0
     # via -r requirements.in
@@ -867,7 +876,6 @@ tornado==6.5.5
     # via
     #   ipykernel
     #   jupyter-client
-    #   streamlit
 tqdm==4.67.3
     # via
     #   -r requirements.in
@@ -891,7 +899,7 @@ traittypes==0.2.3
     #   ipyleaflet
 typeguard==4.5.1
     # via pandera
-typer==0.25.0
+typer==0.25.1
     # via -r requirements.in
 types-awscrt==0.31.3
     # via botocore-stubs
@@ -973,15 +981,19 @@ uv==0.11.8
     #   -r requirements.in
     #   marimo
 uvicorn==0.46.0
-    # via marimo
-virtualenv==21.2.4
+    # via
+    #   marimo
+    #   streamlit
+virtualenv==21.3.0
     # via pre-commit
 watchdog==6.0.0
     # via streamlit
 wcwidth==0.6.0
     # via prompt-toolkit
 websockets==16.0
-    # via marimo
+    # via
+    #   marimo
+    #   streamlit
 werkzeug==3.1.8
     # via moto
 whitebox==2.3.6
