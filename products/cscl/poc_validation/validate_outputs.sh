@@ -2,6 +2,11 @@
 
 # Compares dev build output files against production files and writes per-file diff results.
 #
+# NOTE: This script is a legacy local tool. The primary method for generating diffs is
+# poc_validation/run_validation.py, which streams files from S3 without requiring local
+# copies and is used by both the nightly build and the QA app.
+# Use this script only if you have local copies of both output/ and .data/prod/ already.
+#
 # For each file in output/, performs a line-level comparison against the matching file in
 # .data/prod/ and writes the mismatched (dev-only) rows to output/validation_output/<filename>.
 # Also writes a summary CSV (validation_summary.csv) with per-file prod row counts and
