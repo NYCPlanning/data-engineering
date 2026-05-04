@@ -3,10 +3,32 @@ import streamlit as st
 
 from dcpy.connectors.edm import publishing
 from dcpy.models.connectors.edm.publishing import BuildKey
-from dcpy.utils import s3
+from dcpy.utils import postgres, s3
 
 PRODUCT = "db-cscl"
 PROD_BUCKET = "edm-private"
+
+# dbt QA models in etl_dev_qa/ and the files they relate to (for display grouping)
+# Schema = build name (BUILD_ENGINE_SCHEMA is set to the build name in CI)
+DBT_QA_TABLES: dict[str, list[str]] = {
+    "LION DAT": [
+        "qa__lion_dat_summary",
+        "qa__lion_dat_by_row",
+        "qa__lion_dat_individual_diffs",
+    ],
+    "ThinLION": [
+        "qa__thinlion_all_comparison",
+        "qa__thinlion_bronx_comparison",
+        "qa__thinlion_brooklyn_comparison",
+        "qa__thinlion_manhattan_comparison",
+        "qa__thinlion_queens_comparison",
+        "qa__thinlion_statenisland_comparison",
+    ],
+    "RPL": [
+        "qa__rpl_order",
+        "qa__rpl_order_diffs",
+    ],
+}
 
 
 @st.cache_data(show_spinner=False)
@@ -53,3 +75,19 @@ def get_diff_rows(build: str, filename: str) -> list[str]:
     }
 
     return sorted(dev_lines - prod_lines)
+
+
+def get_pg_client(build: str) -> postgres.PostgresClient:
+    """Return a PostgresClient scoped to the dbt schema for the given build.
+
+    In CI, BUILD_ENGINE_SCHEMA is set to the build name, so the dbt tables
+    for build 'nightly_qa' live in schema 'nightly_qa'.
+    """
+    return postgres.PostgresClient(database=PRODUCT, schema=build)
+
+
+@st.cache_data(show_spinner=False)
+def get_dbt_qa_table(build: str, table_name: str) -> pd.DataFrame:
+    """Read a dbt QA model table from Postgres into a DataFrame."""
+    client = get_pg_client(build)
+    return client.read_table_df(table_name)
