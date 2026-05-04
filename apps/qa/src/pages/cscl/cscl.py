@@ -55,3 +55,27 @@ def cscl():
             ),
         },
     )
+
+    st.subheader("Diff Row Viewer")
+    files_with_diffs = diffs_summary[diffs_summary["Has diffs"]]["File name"].tolist()
+    if not files_with_diffs:
+        st.info("No files with diffs.")
+        return
+
+    selected_file = st.selectbox(
+        "Select a file to view diff rows",
+        options=files_with_diffs,
+    )
+
+    if selected_file:
+        with st.spinner(f"Loading diff rows for {selected_file}..."):
+            diff_rows = helpers.get_diff_rows(selected_build, selected_file)
+        st.caption(
+            f"{len(diff_rows)} rows present in dev but not in prod (prod version {prod_version})"
+        )
+        st.text_area(
+            label="Diff rows",
+            value="\n".join(diff_rows),
+            height=400,
+            label_visibility="collapsed",
+        )
