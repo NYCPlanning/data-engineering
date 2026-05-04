@@ -4,7 +4,7 @@
     primary_key='atomicid',
     exclude_columns=[],
     output_file_id='',
-    group='',
+    diff_group='',
     subgroup='',
     build_table_name='',
     production_table_name=''
@@ -24,7 +24,7 @@
     primary_key: column name to use as primary key (default: 'atomicid')
     exclude_columns: list of column names to exclude from comparison (default: [])
     output_file_id: identifier for the output file (e.g., 'thinlion_brooklyn')
-    group: categorization group (optional)
+    diff_group: categorization group (optional)
     subgroup: categorization subgroup (optional)
     build_table_name: name of the build table being compared (e.g., 'thinlion_brooklyn_by_field')
     production_table_name: name of the production table being compared (e.g., 'qa_int__prod_thinlion_brooklyn')
@@ -136,7 +136,7 @@
     status,
     changes,
     '{{ output_file_id }}' as output_file_id,
-    '{{ group }}' as "group",
+    '{{ diff_group }}' as diff_group,
     '{{ subgroup }}' as subgroup,
     '{{ primary_key }}' as comparison_column,
     '{{ build_table_name }}' as build_table_name,
@@ -148,7 +148,7 @@
     status,
     changes,
     '{{ output_file_id }}' as output_file_id,
-    '{{ group }}' as "group",
+    '{{ diff_group }}' as diff_group,
     '{{ subgroup }}' as subgroup,
     '{{ primary_key }}' as comparison_column,
     '{{ build_table_name }}' as build_table_name,
@@ -160,7 +160,7 @@
     status,
     changes,
     '{{ output_file_id }}' as output_file_id,
-    '{{ group }}' as "group",
+    '{{ diff_group }}' as diff_group,
     '{{ subgroup }}' as subgroup,
     '{{ primary_key }}' as comparison_column,
     '{{ build_table_name }}' as build_table_name,

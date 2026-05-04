@@ -38,8 +38,8 @@ categorized AS (
                 ) <@ ARRAY['patrol_borough', 'police_sector'
                 ]::text []
                 THEN 'police geo discrepancy'
-            ELSE "group"
-        END AS "group",
+            ELSE diff_group
+        END AS diff_group,
         '' AS subgroup,
         comparison_column,
         build_table_name,
