@@ -1,0 +1,11 @@
+version: 2
+
+seeds:
+  - name: usetype_mappings
+    description: |
+      Mapping table for cleaning IPIS use type values.
+      Maps source use type names to standardized cleaned versions.
+    config:
+      column_types:
+        source: text
+        cleaned: text
