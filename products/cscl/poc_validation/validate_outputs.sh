@@ -10,7 +10,7 @@
 # Expects two folders in the current directory:
 #  output/      - contains outputs of the current dev build
 #  .data/prod/  - contains the production files to compare against
-mkdir output/validation_output
+mkdir -p output/validation_output
 
 csv_file="output/validation_output/validation_summary.csv"
 echo "filename,prod_row_count,mismatched_rows" > "$csv_file"
