@@ -8,9 +8,9 @@
 ) -%}
 
 SELECT
-  *,
-  COALESCE(borough, '') ||
-  LPAD(COALESCE(TRIM(censustract_2020_basic::text), ''), 4, '0') ||
-  LPAD(COALESCE(TRIM(censustract_2020_suffix::text), ''), 2, '0') ||
-  COALESCE(dynamic_block, '') AS atomicid
+    *,
+    COALESCE(borough, '')
+    || LPAD(COALESCE(TRIM(censustract_2020_basic::text), ''), 4, '0')
+    || LPAD(COALESCE(TRIM(censustract_2020_suffix::text), ''), 2, '0')
+    || COALESCE(dynamic_block, '') AS atomicid
 FROM {{ prod_relation }}

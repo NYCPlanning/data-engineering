@@ -18,6 +18,6 @@
 ) -%}
 
 SELECT
-  *,
-  generic_segmentid || '_' || roadbed_segmentid AS _rpl_key
+    *,
+    generic_segmentid || '_' || roadbed_segmentid AS _rpl_key
 FROM {{ prod_relation }}

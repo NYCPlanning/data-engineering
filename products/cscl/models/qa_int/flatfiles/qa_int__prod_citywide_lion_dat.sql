@@ -18,6 +18,6 @@
 ) -%}
 
 SELECT
-  *,
-  boroughcode || face_code || segmentid AS _lion_key
+    *,
+    boroughcode || face_code || segmentid AS _lion_key
 FROM {{ prod_relation }}

@@ -19,54 +19,50 @@ WITH base_diffs AS (
   ) }}
 ),
 with_borough AS (
-  SELECT
-    d.*,
-    COALESCE(b.boroughcode, p.boroughcode) AS boroughcode
-  FROM base_diffs d
-  LEFT JOIN {{ ref('lion_dat_by_field') }} b ON d._lion_key = b._lion_key
-  LEFT JOIN {{ ref('qa_int__prod_citywide_lion_dat') }} p ON d._lion_key = p._lion_key
+    SELECT
+        d.*,
+        COALESCE(b.boroughcode, p.boroughcode) AS boroughcode
+    FROM base_diffs AS d
+    LEFT JOIN {{ ref('lion_dat_by_field') }} AS b ON d._lion_key = b._lion_key
+    LEFT JOIN {{ ref('qa_int__prod_citywide_lion_dat') }} AS p ON d._lion_key = p._lion_key
 ),
 categorized AS (
-  SELECT
+    SELECT
+        _lion_key,
+        status,
+        changes,
+        boroughcode,
+        CASE boroughcode
+            WHEN '1' THEN 'lion_dat_manhattan'
+            WHEN '2' THEN 'lion_dat_bronx'
+            WHEN '3' THEN 'lion_dat_brooklyn'
+            WHEN '4' THEN 'lion_dat_queens'
+            WHEN '5' THEN 'lion_dat_statenisland'
+            ELSE 'lion_dat_unknown'
+        END AS output_file_id,
+        -- Get the keys from the changes jsonb
+        (SELECT ARRAY_AGG(key) FROM JSONB_OBJECT_KEYS(changes) AS key) AS change_keys,
+        comparison_column,
+        build_table_name,
+        production_table_name
+    FROM with_borough
+)
+SELECT
     _lion_key,
     status,
     changes,
-    boroughcode,
-    CASE boroughcode
-      WHEN '1' THEN 'lion_dat_manhattan'
-      WHEN '2' THEN 'lion_dat_bronx'
-      WHEN '3' THEN 'lion_dat_brooklyn'
-      WHEN '4' THEN 'lion_dat_queens'
-      WHEN '5' THEN 'lion_dat_statenisland'
-      ELSE 'lion_dat_unknown'
-    END AS output_file_id,
-    -- Get the keys from the changes jsonb
-    (SELECT array_agg(key) FROM jsonb_object_keys(changes) AS key) AS change_keys,
+    output_file_id,
+    -- Categorize based on which fields changed
+    CASE
+    -- If only one field changed, use that as the group name
+        WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
+            THEN change_keys[1]
+        ELSE ''
+    END AS diff_group,
+    '' AS subgroup,
     comparison_column,
     build_table_name,
-    production_table_name
-  FROM with_borough
-)
-SELECT
-  _lion_key,
-  status,
-  changes,
-  output_file_id,
-  -- Categorize based on which fields changed
-  CASE
-    -- If only one field changed, use that as the group name
-    WHEN status = 'modified' AND array_length(change_keys, 1) = 1
-    THEN change_keys[1]
-    ELSE ''
-  END AS diff_group,
-  '' AS subgroup,
-  comparison_column,
-  build_table_name,
-  production_table_name,
-  -- Mark as accounted for if it's only segment_seqnum
-  CASE
-    WHEN status = 'modified' AND change_keys = ARRAY['segment_seqnum']::text[]
-    THEN true
-    ELSE false
-  END AS accounted_for
+    production_table_name,
+    -- Mark as accounted for if it's only segment_seqnum
+    COALESCE(status = 'modified' AND change_keys = ARRAY['segment_seqnum']::text [], FALSE) AS accounted_for
 FROM categorized

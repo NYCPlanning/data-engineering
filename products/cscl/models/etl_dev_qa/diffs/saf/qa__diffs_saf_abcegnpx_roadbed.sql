@@ -19,33 +19,33 @@ WITH base_diffs AS (
   ) }}
 ),
 categorized AS (
-  SELECT
+    SELECT
+        _saf_key,
+        status,
+        changes,
+        output_file_id,
+        -- Get the keys from the changes jsonb
+        (SELECT array_agg(key) FROM jsonb_object_keys(changes) AS key) AS change_keys,
+        comparison_column,
+        build_table_name,
+        production_table_name
+    FROM base_diffs
+)
+SELECT
     _saf_key,
     status,
     changes,
     output_file_id,
-    -- Get the keys from the changes jsonb
-    (SELECT array_agg(key) FROM jsonb_object_keys(changes) AS key) AS change_keys,
+    -- Categorize based on which fields changed
+    CASE
+    -- If only one field changed, use that as the group name
+        WHEN status = 'modified' AND array_length(change_keys, 1) = 1
+            THEN change_keys[1]
+        ELSE ''
+    END AS diff_group,
+    '' AS subgroup,
     comparison_column,
     build_table_name,
-    production_table_name
-  FROM base_diffs
-)
-SELECT
-  _saf_key,
-  status,
-  changes,
-  output_file_id,
-  -- Categorize based on which fields changed
-  CASE
-    -- If only one field changed, use that as the group name
-    WHEN status = 'modified' AND array_length(change_keys, 1) = 1
-    THEN change_keys[1]
-    ELSE ''
-  END AS diff_group,
-  '' AS subgroup,
-  comparison_column,
-  build_table_name,
-  production_table_name,
-  false AS accounted_for
+    production_table_name,
+    false AS accounted_for
 FROM categorized
