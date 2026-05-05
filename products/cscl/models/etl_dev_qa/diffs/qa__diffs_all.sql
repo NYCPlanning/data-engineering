@@ -8,6 +8,22 @@
 -- All discrepant records across the entire CSCL project
 -- Source for burndown charts and project-wide diff tracking
 
-SELECT * FROM {{ ref('qa__diffs_thinlion_summary') }}
+SELECT
+  *,
+  CURRENT_DATE as diff_run_date
+FROM {{ ref('qa__diffs_thinlion_summary') }}
 UNION ALL
-SELECT * FROM {{ ref('qa__diffs_lion_dat') }}
+SELECT
+  *,
+  CURRENT_DATE as diff_run_date
+FROM {{ ref('qa__diffs_lion_dat') }}
+UNION ALL
+SELECT
+  *,
+  CURRENT_DATE as diff_run_date
+FROM {{ ref('qa__diffs_rpl') }}
+UNION ALL
+SELECT
+  *,
+  CURRENT_DATE as diff_run_date
+FROM {{ ref('qa__diffs_saf_abcegnpx_roadbed') }}
