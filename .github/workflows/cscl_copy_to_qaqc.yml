@@ -1,0 +1,42 @@
+name: CSCL - 📤 Copy to QAQC
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to use'
+        type: string
+        required: false
+        default: 'latest'
+
+jobs:
+  copy:
+    name: Copy CSCL data to edm-qaqc
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/cscl
+    container:
+      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+
+    - name: Setup environment
+      working-directory: ./
+      run: |
+        ./bash/docker_container_setup.sh
+
+    - name: Copy data to edm-qaqc
+      run: python3 scripts/copy_to_qaqc.py
+
+    - name: Summary
+      if: success()
+      run: echo "✓ Successfully copied CSCL data to edm-qaqc database"
