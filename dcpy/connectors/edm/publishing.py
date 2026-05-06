@@ -299,7 +299,7 @@ def upload_build(
             runner_type=run_details.type,
             runner=run_details.runner_string,
         )
-        log_event_in_db(event_metadata)
+        # log_event_in_db(event_metadata)
 
     return build_key
 
@@ -368,7 +368,7 @@ def promote_to_draft(
         runner_type=run_details.type,
         runner=run_details.runner_string,
     )
-    log_event_in_db(event_metadata)
+    # log_event_in_db(event_metadata)
 
     return draft_key
 
@@ -496,7 +496,7 @@ def publish(
         runner_type=run_details.type,
         runner=run_details.runner_string,
     )
-    log_event_in_db(event_metadata)
+    # log_event_in_db(event_metadata)
 
     return publish_key
 
