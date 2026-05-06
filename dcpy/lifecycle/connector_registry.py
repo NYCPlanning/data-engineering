@@ -6,8 +6,13 @@ from dcpy.configuration import (
     SFTP_USER,
 )
 from dcpy.connectors import filesystem, ingest_datastore, s3, sftp, web
-from dcpy.connectors.edm import builds, drafts, gis, published
+from dcpy.connectors.edm import gis
 from dcpy.connectors.edm.bytes import BytesConnector
+from dcpy.connectors.edm.connectors import (
+    BuildsConnector,
+    DraftsConnector,
+    PublishedConnector,
+)
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors.hybrid_pathed_storage import (
@@ -61,8 +66,8 @@ def _set_default_connectors():
     conns = [
         recipes_datasets,
         recipes_raw,
-        drafts.DraftsConnector.create(),
-        published.PublishedConnector.create(),
+        DraftsConnector.create(),
+        PublishedConnector.create(),
         BytesConnector(),
         gis.GisDatasetsConnector.create(),
         SocrataConnector(),
@@ -76,7 +81,7 @@ def _set_default_connectors():
         [web.WebConnector(), "api"],
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
-        [builds.BuildsConnector.create(), "edm.publishing.builds"],
+        [BuildsConnector.create(), "edm.publishing.builds"],
         [
             sftp.SFTPConnector(
                 hostname=SFTP_HOST,
