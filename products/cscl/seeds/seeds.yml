@@ -1,0 +1,16 @@
+version: 2
+
+seeds:
+  - name: lion_outputs
+    description: "LION output file mappings by group, subgroup, and type"
+    columns:
+      - name: file_group
+        description: "Primary grouping category"
+      - name: subgroup
+        description: "Secondary grouping category"
+      - name: type
+        description: "Type of output (e.g., file)"
+      - name: filename
+        description: "Name of the output file"
+      - name: file_id
+        description: "Unique identifier for the file"

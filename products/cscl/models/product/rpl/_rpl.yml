@@ -46,6 +46,8 @@ models:
     data_type: string
   - name: to_nodeid_of_generic_segment
     data_type: string
+  - name: _rpl_key
+    data_type: string
   data_tests:
   - test_name: dbt_utils.unique_combination_of_columns
     arguments:
