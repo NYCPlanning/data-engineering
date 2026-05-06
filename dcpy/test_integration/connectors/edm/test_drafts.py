@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from dcpy.connectors.edm.drafts import DraftsConnector
+from dcpy.connectors.edm.connectors import DraftsConnector, EdmConnector
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
     StorageType,
@@ -34,7 +34,7 @@ def _make_fake_draft_datasets():
     return combos
 
 
-def _create_draft_files(conn: DraftsConnector, tmp_path: Path):
+def _create_draft_files(conn: EdmConnector, tmp_path: Path):
     """Create fake draft files in the storage."""
     # Create temporary files locally then push them to storage
     local_staging = tmp_path / "staging"
@@ -84,7 +84,7 @@ def local_drafts_conn(tmp_path):
     return conn
 
 
-def _test_drafts_connector_interface(conn: DraftsConnector, tmp_path):
+def _test_drafts_connector_interface(conn: EdmConnector, tmp_path):
     """Test the basic drafts connector interface methods."""
     expected_drafts = _make_fake_draft_datasets()
     # e.g. [('housing_db', '2024', '1'), ('housing_db', '2024', '2'), ...]
@@ -156,7 +156,7 @@ def _test_drafts_connector_interface(conn: DraftsConnector, tmp_path):
         )
 
 
-def _test_drafts_connector_error_cases(conn: DraftsConnector, tmp_path):
+def _test_drafts_connector_error_cases(conn: EdmConnector, tmp_path):
     """Test error cases and edge conditions."""
     # Test non-existent product
     assert conn.list_versions("nonexistent_product") == [], (
@@ -192,7 +192,7 @@ def _test_drafts_connector_error_cases(conn: DraftsConnector, tmp_path):
         conn.get_latest_version("nonexistent_product")
 
 
-def _test_drafts_connector_version_parsing(conn: DraftsConnector):
+def _test_drafts_connector_version_parsing(conn: EdmConnector):
     """Test version parsing functionality."""
     # Test valid version.revision format
     version, revision = conn._parse_version("2024.1")
@@ -210,7 +210,7 @@ def _test_drafts_connector_version_parsing(conn: DraftsConnector):
     assert revision == "final"
 
 
-def test_local_drafts_conn(local_drafts_conn: DraftsConnector, tmp_path):
+def test_local_drafts_conn(local_drafts_conn: EdmConnector, tmp_path):
     """Test the Drafts connector with local storage."""
     _test_drafts_connector_interface(local_drafts_conn, tmp_path)
     _test_drafts_connector_error_cases(local_drafts_conn, tmp_path)

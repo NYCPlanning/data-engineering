@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from dcpy.connectors.edm.builds import BuildsConnector
+from dcpy.connectors.edm.connectors import BuildsConnector, _BuildsConnector
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
     StorageType,
@@ -32,7 +32,7 @@ def _make_fake_builds():
     return combos
 
 
-def _create_build_files(conn: BuildsConnector, tmp_path: Path):
+def _create_build_files(conn: _BuildsConnector, tmp_path: Path):
     """Create fake build files in the storage."""
     # Create temporary files locally then push them to storage
     local_staging = tmp_path / "staging"
@@ -75,7 +75,7 @@ def local_builds_conn(tmp_path):
     return conn
 
 
-def _test_builds_connector_interface(conn: BuildsConnector, tmp_path):
+def _test_builds_connector_interface(conn: _BuildsConnector, tmp_path):
     """Test the basic builds connector interface methods."""
     expected_builds = _make_fake_builds()
     # e.g. [('product1', 'ar-distribution'), ('product1', 'dm-dbt'), ...]
@@ -124,7 +124,7 @@ def _test_builds_connector_interface(conn: BuildsConnector, tmp_path):
         )
 
 
-def _test_builds_connector_error_cases(conn: BuildsConnector, tmp_path):
+def _test_builds_connector_error_cases(conn: _BuildsConnector, tmp_path):
     """Test error cases and edge conditions."""
     # Test non-existent product
     assert conn.list_versions("nonexistent_product") == [], (
@@ -156,7 +156,7 @@ def _test_builds_connector_error_cases(conn: BuildsConnector, tmp_path):
         )
 
 
-def test_local_builds_conn(local_builds_conn: BuildsConnector, tmp_path):
+def test_local_builds_conn(local_builds_conn: _BuildsConnector, tmp_path):
     """Test the Builds connector with local storage."""
     _test_builds_connector_interface(local_builds_conn, tmp_path)
     _test_builds_connector_error_cases(local_builds_conn, tmp_path)

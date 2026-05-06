@@ -1,8 +1,10 @@
 import pytest
 
-from dcpy.connectors.edm.builds import BuildsConnector
-from dcpy.connectors.edm.drafts import DraftsConnector
-from dcpy.connectors.edm.published import PublishedConnector
+from dcpy.connectors.edm.connectors import (
+    BuildsConnector,
+    DraftsConnector,
+    PublishedConnector,
+)
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.connector_registry import connectors as lifecycle_connectors

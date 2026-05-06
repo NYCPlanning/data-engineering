@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from dcpy.connectors.edm.published import PublishedConnector
+from dcpy.connectors.edm.connectors import EdmConnector, PublishedConnector
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
     StorageType,
@@ -32,7 +32,7 @@ def _make_fake_published_datasets():
     return combos
 
 
-def _create_published_files(conn: PublishedConnector, tmp_path: Path):
+def _create_published_files(conn: EdmConnector, tmp_path: Path):
     """Create fake published dataset files in the storage."""
     # Create temporary files locally then push them to storage
     local_staging = tmp_path / "staging"
@@ -80,7 +80,7 @@ def local_published_conn(tmp_path):
     return conn
 
 
-def _test_published_connector_interface(conn: PublishedConnector, tmp_path):
+def _test_published_connector_interface(conn: EdmConnector, tmp_path):
     """Test the basic published connector interface methods."""
     expected_published = _make_fake_published_datasets()
     # e.g. [('nycha_developments', '2024v1'), ('pluto', '2024v1'), ...]
@@ -145,7 +145,7 @@ def _test_published_connector_interface(conn: PublishedConnector, tmp_path):
         )
 
 
-def _test_published_connector_error_cases(conn: PublishedConnector, tmp_path):
+def _test_published_connector_error_cases(conn: EdmConnector, tmp_path):
     """Test error cases and edge conditions."""
     # Test non-existent product
     assert conn.list_versions("nonexistent_product") == [], (
@@ -232,7 +232,7 @@ def _test_published_connector_error_cases(conn: PublishedConnector, tmp_path):
     assert pulled_content == "test content", "Pulled content should match original"
 
 
-def test_local_published_conn(local_published_conn: PublishedConnector, tmp_path):
+def test_local_published_conn(local_published_conn: EdmConnector, tmp_path):
     """Test the Published connector with local storage."""
     _test_published_connector_interface(local_published_conn, tmp_path)
     _test_published_connector_error_cases(local_published_conn, tmp_path)

@@ -49,3 +49,16 @@ class BuildKey(ProductKey):
     @property
     def path(self) -> str:
         return f"{self.product}/build/{self.build}"
+
+
+@dataclass
+class PlanKey(ProductKey):
+    product: str
+    version: str
+
+    def __str__(self):
+        return f"Plan: {self.product} - {self.version}"
+
+    @property
+    def path(self) -> str:
+        return f"{self.product}/plan/{self.version}"
