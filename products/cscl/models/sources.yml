@@ -1,8 +1,15 @@
 version: 2
 
+groups:
+  - name: staging
+    owner:
+      name: DE
+
 sources:
 - name: recipe_sources
   schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+  meta:
+    group: recipe_sources
   tables:
   # segment source layers - backbone
   - name: dcp_cscl_centerline
