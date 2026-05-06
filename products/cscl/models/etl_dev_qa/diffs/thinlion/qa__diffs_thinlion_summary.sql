@@ -23,7 +23,7 @@ WITH all_diffs AS (
 ),
 categorized AS (
     SELECT
-        atomicid,
+        atomicid AS comparison_id,
         status,
         changes,
         output_file_id,

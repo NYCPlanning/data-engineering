@@ -48,7 +48,7 @@ categorized AS (
     FROM with_borough
 )
 SELECT
-    _lion_key,
+    _lion_key AS comparison_id,
     status,
     changes,
     output_file_id,

@@ -32,7 +32,7 @@ categorized AS (
     FROM base_diffs
 )
 SELECT
-    _rpl_key,
+    _rpl_key AS comparison_id,
     status,
     changes,
     output_file_id,

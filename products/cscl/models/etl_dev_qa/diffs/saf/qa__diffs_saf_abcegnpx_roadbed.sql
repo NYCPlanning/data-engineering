@@ -32,7 +32,7 @@ categorized AS (
     FROM base_diffs
 )
 SELECT
-    _saf_key,
+    _saf_key AS comparison_id,
     status,
     changes,
     output_file_id,
