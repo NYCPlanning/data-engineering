@@ -17,7 +17,7 @@ SELECT
     CASE WHEN left_beat.geo_type = 'HP' THEN left(left_beat.post, 1) END AS left_nypd_service_area,
     right_beat.sector AS right_nypd_sector,
     right_beat.geo_type AS right_beat_geo_type,
-    CASE WHEN right_beat.geo_type = 'HP' THEN left(left_beat.post, 1) END AS right_nypd_service_area
+    CASE WHEN right_beat.geo_type = 'HP' THEN left(right_beat.post, 1) END AS right_nypd_service_area
 FROM segment_offsets AS co
 -- using a cte around reference can confus the postgres compiler to not use index
 LEFT JOIN {{ ref("stg__nypdbeat") }} AS left_beat
