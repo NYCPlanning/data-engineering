@@ -1,4 +1,4 @@
-﻿file_group,subgroup,type,filename,file_id
+file_group,subgroup,type,filename,file_id
 Census,Census,file,NTA.csv,nta_csv
 Census,Census,file,NTA.txt,nta_txt
 Census,Census,file,NTA2020.csv,nta2020_csv
@@ -27,11 +27,11 @@ Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code
 LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat
 LION Difference Files,LION Difference Files,file,LDF.header,ldf_header
 LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original
-LION flat files,LION flat files,file,BronxLION.dat,brooklyn_lion_dat
-LION flat files,LION flat files,file,BrooklynLION.dat,bronx_lion_dat
-LION flat files,LION flat files,file,ManhattanLION.dat,manhattan_lion_dat
-LION flat files,LION flat files,file,QueensLION.dat,queens_lion_dat
-LION flat files,LION flat files,file,StatenIslandLION.dat,staten_island_lion_dat
+LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx
+LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn
+LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan
+LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens
+LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland
 Normalizing Tables,Enders,file,Enders.txt,enders
 Normalizing Tables,Exception,file,Exception.txt,exception
 Normalizing Tables,Word Tables,file,LastWord.txt,last_word
