@@ -2,9 +2,10 @@
 """
 Copy CSCL data products to the edm-qaqc database for external consumption.
 
-This script copies:
-1. lion_outputs seed -> edm-qaqc.app.cscl__lion_outputs (full overwrite)
-2. qa__diffs_all -> edm-qaqc.app.cscl__diffs_all (incremental by diff_run_date)
+This script:
+1. Copies lion_outputs seed -> edm-qaqc.app.cscl__lion_outputs (full overwrite)
+2. Copies qa__diffs_all -> edm-qaqc.app.cscl__diffs_all (incremental by diff_run_date)
+3. Creates cscl__diffs_summary view (joins diffs with file groupings for burndown tracking)
 
 Usage:
     python copy_to_qaqc.py
@@ -72,6 +73,46 @@ def copy_diffs_all(source_client: PostgresClient, target_client: PostgresClient)
         print(f"✓ Created cscl__diffs_all with {len(source_df)} rows")
 
 
+def create_diffs_summary_view(target_client: PostgresClient):
+    """Create a summary view joining diffs with file groupings for burndown tracking."""
+    print("Creating cscl__diffs_summary view...")
+
+    view_sql = """
+        CREATE OR REPLACE VIEW app.cscl__diffs_summary AS (
+            SELECT
+                out.file_group,
+                out.subgroup,
+                out.type,
+                out.filename,
+                out.file_id,
+                diffs.output_file_id,
+                diffs.status,
+                diffs.diff_group,
+                diffs.accounted_for,
+                diffs.diff_run_date,
+                COUNT(*) as diff_count
+            FROM app.cscl__diffs_all AS diffs
+            LEFT JOIN app.cscl__lion_outputs AS out
+                ON diffs.output_file_id = out.file_id
+            GROUP BY
+                out.file_group,
+                out.subgroup,
+                out.type,
+                out.filename,
+                out.file_id,
+                diffs.output_file_id,
+                diffs.status,
+                diffs.diff_group,
+                diffs.accounted_for,
+                diffs.diff_run_date
+            ORDER BY out.file_group, out.subgroup, out.filename, diffs.diff_run_date DESC
+        )
+    """
+
+    target_client.execute_query(view_sql)
+    print("✓ Created cscl__diffs_summary view")
+
+
 def main():
     """Main execution function."""
     print("Starting CSCL data copy to edm-qaqc...")
@@ -94,6 +135,11 @@ def main():
         # Copy diffs_all
         print("2. Copying qa__diffs_all (incremental)...")
         copy_diffs_all(source_client, target_client)
+        print()
+
+        # Create summary view
+        print("3. Creating summary view...")
+        create_diffs_summary_view(target_client)
         print()
 
         print("✓ All data copied successfully!")
