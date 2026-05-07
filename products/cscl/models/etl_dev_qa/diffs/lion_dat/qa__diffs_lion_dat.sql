@@ -54,7 +54,15 @@ SELECT
     output_file_id,
     -- Categorize based on which fields changed
     CASE
-    -- If only one field changed, use that as the group name
+        -- Bug 001: BOE LGC pointer incorrect for two-digit LGC codes
+        -- Old value was always "1" due to legacy bug
+        WHEN
+            status = 'modified'
+            AND ARRAY_LENGTH(change_keys, 1) = 1
+            AND change_keys[1] = 'boe_lgc_pointer'
+            AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
+            THEN 'Bug 001: boe_lgc_pointer two-digit codes'
+        -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
         ELSE ''
@@ -63,6 +71,19 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- Mark as accounted for if it's only segment_seqnum
-    COALESCE(status = 'modified' AND change_keys = ARRAY['segment_seqnum']::text [], FALSE) AS accounted_for
+    -- Mark as accounted for if it's a known bug/expected difference
+    COALESCE(
+        status = 'modified' AND (
+            -- Bug: segment_seqnum can differ (legacy issue)
+            change_keys = ARRAY['segment_seqnum']::text []
+            -- Bug 001: BOE LGC pointer incorrect for two-digit LGC codes
+            -- See: docs/bugs/001-boe-lgc-pointer-two-digit-codes.md
+            -- Only when old value was "1" (the legacy default)
+            OR (
+                change_keys = ARRAY['boe_lgc_pointer']::text []
+                AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
+            )
+        ),
+        FALSE
+    ) AS accounted_for
 FROM categorized
