@@ -21,7 +21,8 @@ WITH base_diffs AS (
 with_borough AS (
     SELECT
         d.*,
-        COALESCE(b.boroughcode, p.boroughcode) AS boroughcode
+        COALESCE(b.boroughcode, p.boroughcode) AS boroughcode,
+        b._source_table
     FROM base_diffs AS d
     LEFT JOIN {{ ref('lion_dat_by_field') }} AS b ON d._lion_key = b._lion_key
     LEFT JOIN {{ ref('qa_int__prod_citywide_lion_dat') }} AS p ON d._lion_key = p._lion_key
@@ -32,6 +33,7 @@ categorized AS (
         status,
         changes,
         boroughcode,
+        _source_table,
         CASE boroughcode
             WHEN '1' THEN 'lion_dat_manhattan'
             WHEN '2' THEN 'lion_dat_bronx'
@@ -82,6 +84,15 @@ SELECT
             OR (
                 change_keys = ARRAY['boe_lgc_pointer']::text []
                 AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
+            )
+            -- Curve flag: CompoundCurves in non-centerline features
+            -- Legacy ETL doesn't detect irregular curves in shoreline/subway/rail
+            -- New ETL correctly identifies them as 'I'
+            OR (
+                change_keys = ARRAY['curve_flag']::text []
+                AND changes -> 'curve_flag' ->> 'old' = ' '
+                AND changes -> 'curve_flag' ->> 'new' = 'I'
+                AND _source_table IN ('shoreline', 'subway', 'rail')
             )
         ),
         FALSE
