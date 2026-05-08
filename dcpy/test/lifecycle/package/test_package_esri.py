@@ -183,6 +183,7 @@ def test_write_metadata(
         dataset_name="colp",
         path=fixture_info["path"],
         layer=fixture_info["layer"],
+        file_id="primary_shapefile",
         zip_subdir=subdir,
         org_md=org_metadata,
     )
