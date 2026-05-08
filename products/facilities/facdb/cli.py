@@ -1,4 +1,9 @@
+import concurrent.futures
 import importlib
+import shutil
+import subprocess
+import zipfile
+from pathlib import Path
 
 import typer
 
@@ -26,6 +31,84 @@ def _autocomplete_dataset_name(incomplete: str) -> list:
         if name.startswith(incomplete):
             completion.append(name)
     return completion
+
+
+_CSV_EXPORTS = [
+    ("facdb_export_csv", "facilities"),
+    ("qc_operator", "qc_operator"),
+    ("qc_oversight", "qc_oversight"),
+    ("qc_classification", "qc_classification"),
+    ("qc_captype", "qc_captype"),
+    ("qc_mapped", "qc_mapped"),
+    ("qc_diff", "qc_diff"),
+    ("qc_recordcounts", "qc_recordcounts"),
+    ("qc_subgrpbins", "qc_subgrpbins"),
+]
+
+
+def _export_csv(
+    pg: postgres.PostgresClient, table: str, filename: str, output_dir: Path
+) -> None:
+    pg.export_to_csv(table, output_dir / f"{filename}.csv")
+
+
+def _export_shp(pg: postgres.PostgresClient, output_dir: Path) -> None:
+    shp_dir = output_dir / "facilities_shp"
+    shp_dir.mkdir(exist_ok=True)
+    subprocess.check_call(
+        [
+            "ogr2ogr",
+            "-progress",
+            "-f",
+            "ESRI Shapefile",
+            str(shp_dir / "facilities.shp"),
+            f"PG:{BUILD_ENGINE}",
+            f"{pg.schema}.facdb_export",
+            "-nlt",
+            "POINT",
+            "-t_srs",
+            "EPSG:2263",
+        ]
+    )
+    with zipfile.ZipFile(
+        output_dir / "facilities.shp.zip", "w", zipfile.ZIP_DEFLATED, compresslevel=9
+    ) as zf:
+        for f in shp_dir.iterdir():
+            zf.write(f, f.name)
+    shutil.rmtree(shp_dir)
+
+
+def _export_fgdb(pg: postgres.PostgresClient, output_dir: Path) -> None:
+    gdb_outer = output_dir / "facilities_fgdb"
+    gdb_outer.mkdir(exist_ok=True)
+    gdb_path = gdb_outer / "facilities.gdb"
+    subprocess.check_call(
+        [
+            "ogr2ogr",
+            "-progress",
+            "-f",
+            "OpenFileGDB",
+            str(gdb_path),
+            f"PG:{BUILD_ENGINE}",
+            f"{pg.schema}.facdb_export",
+            "-mapFieldType",
+            "Integer64=Real",
+            "-lco",
+            "GEOMETRY_NAME=Shape",
+            "-nln",
+            "facdb",
+            "-nlt",
+            "POINT",
+            "-t_srs",
+            "EPSG:2263",
+        ]
+    )
+    with zipfile.ZipFile(
+        output_dir / "facilities.gdb.zip", "w", zipfile.ZIP_DEFLATED
+    ) as zf:
+        for f in gdb_path.rglob("*"):
+            zf.write(f, f.relative_to(gdb_outer))
+    shutil.rmtree(gdb_outer)
 
 
 @app.command("init")
@@ -118,6 +201,31 @@ def _cli_reformat_facdb():
         SQL_PATH / "_reformat_facdb.sql",
         build_schema=BUILD_NAME,
     )
+
+
+@app.command("export")
+def _cli_export():
+    """Export facdb tables and geospatial files to the output directory."""
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+
+    shutil.copy("facdb/metadata.yml", output_dir / "metadata.yml")
+    shutil.copy("build_metadata.json", output_dir / "build_metadata.json")
+    shutil.copy("source_data_versions.csv", output_dir / "source_data_versions.csv")
+
+    pg = postgres.PostgresClient()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [
+            executor.submit(_export_csv, pg, table, filename, output_dir)
+            for table, filename in _CSV_EXPORTS
+        ]
+        futures.append(executor.submit(_export_shp, pg, output_dir))
+        futures.append(executor.submit(_export_fgdb, pg, output_dir))
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+
+    typer.echo(typer.style("SUCCESS: export complete", fg=typer.colors.GREEN))
 
 
 if __name__ == "__main__":
