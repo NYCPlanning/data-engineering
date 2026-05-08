@@ -8,6 +8,5 @@ max_bg_procs 5
 
 
 case $1 in
-    upload) python3 -m dcpy.connectors.edm.publishing upload -p db-facilities -a public-read ;;
     export) ./facdb/bash/export.sh ;;
 esac
