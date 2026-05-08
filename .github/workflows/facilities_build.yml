@@ -86,4 +86,4 @@ jobs:
         run: ./facdb.sh export
 
       - name: Upload Artifacts
-        run: ./facdb.sh upload
+        run: python3 -m dcpy.connectors.edm.publishing upload --product db-facilities --acl public-read
