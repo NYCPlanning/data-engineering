@@ -149,14 +149,7 @@ def write_metadata(
         org_md = product_metadata.load(org_md_path_override=org_md)
 
     product_md = org_md.product(product_name).dataset(dataset_name)
-    print(f"\n{product_md=}")
-    assert 1 != 1
-
-    file_type = product_md.get_file_and_overrides(file_id=file_id).file.type
     file_metadata = product_md.calculate_file_dataset_metadata(file_id=file_id)
-
-    print(f"\n{file_type=}")
-    print(f"\n{file_metadata=}")
 
     metadata = esri_metadata.generate_metadata()
 
@@ -167,7 +160,7 @@ def write_metadata(
     metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
     metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
 
-    metadata.eainfo.detailed.name = file_metadata.id
+    metadata.eainfo.detailed.name = product_md.id
     metadata.eainfo.detailed.enttyp.enttypl.value = product_md.id
     metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
 

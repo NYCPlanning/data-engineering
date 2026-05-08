@@ -174,6 +174,7 @@ def test_write_metadata(
     )
 
     product_md = org_metadata.product("colp").dataset("colp")
+    file_metadata = product_md.calculate_file_dataset_metadata(file_id="primary_shapefile")
 
     fields = Metadata.model_fields
 
@@ -210,25 +211,23 @@ def test_write_metadata(
     # TODO - add helper code to access nested defaults (if this is the direction we end up pursuing)
 
     # Test product-specific values
-    assert metadata.md_hr_lv_name == product_md.attributes.display_name
-    assert metadata.data_id_info.id_abs == product_md.attributes.description
-    assert metadata.data_id_info.other_keys.keyword == product_md.attributes.tags
-    assert metadata.data_id_info.search_keys.keyword == product_md.attributes.tags
+    assert metadata.md_hr_lv_name == file_metadata.attributes.display_name
+    assert metadata.data_id_info.id_abs == file_metadata.attributes.description
+    assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
+    assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
 
     assert metadata.eainfo.detailed.name == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
-    assert product_md.columns[1].values is not None, "Column values must be defined"
+    assert file_metadata.columns[1].values is not None, "Column values must be defined"
 
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
-        == product_md.columns[1].values[0].value  # "1", when org_md product is colp
+        == file_metadata.columns[1].values[0].value  # "1", when org_md product is colp
     )
 
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
-        == product_md.columns[1]
-        .values[0]
-        .description  # "Manhattan", when org_md product is colp
+        == file_metadata.columns[1].values[0].description  # "Manhattan", when org_md product is colp
     )
