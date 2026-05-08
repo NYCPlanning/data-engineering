@@ -83,7 +83,7 @@ jobs:
         run: python -m facdb.cli reformat_facdb
 
       - name: Export facdb
-        run: ./facdb.sh export
+        run: python -m facdb.cli export
 
       - name: Upload Artifacts
         run: python3 -m dcpy.connectors.edm.publishing upload --product db-facilities --acl public-read
