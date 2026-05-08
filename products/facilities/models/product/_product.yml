@@ -1,0 +1,20 @@
+models:
+  - name: facdb_export
+    columns:
+      - name: '"UID"'
+        tests: [ not_null, unique ]
+      - name: '"DATASOURCE"'
+        tests: [ not_null ]
+      - name: '"FACNAME"'
+        tests:
+          - not_null:
+              config:
+                severity: error
+                error_if: ">10"
+      - name: '"FACTYPE"'
+        tests:
+          - not_null
+          - many_to_one:
+              parent_column: '"FACSUBGRP"'
+      - name: '"FACSUBGRP"'
+        tests: [ not_null ]
