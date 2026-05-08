@@ -1,0 +1,1 @@
+-- Placeholder SQL file for facdb_export model. This file is required for dbt to recognize the model, but the actual SQL logic is implemented in the facdb_export.py script.
