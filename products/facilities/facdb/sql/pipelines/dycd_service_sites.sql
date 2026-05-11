@@ -14,13 +14,33 @@ SELECT
     bin,
     bbl,
     (CASE
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'COMPASS Middle School'
+            THEN 'COMPASS'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'COMPASS Elementary'
+            THEN 'COMPASS ELEMENTARY'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'COMPASS Explore'
+            THEN 'COMPASS EXPLORE'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'COMPASS High School'
+            THEN 'COMPASS HIGH'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'COMPASS SONYC Pilot'
+            THEN 'COMPASS'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'Beacon'
+            THEN 'BEACON'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'Cornerstone'
+            THEN 'CORNERSTONE'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'High School'
+            THEN 'HIGH SCHOOL AFTERSCHOOL PROGRAMS'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'Learn and Earn'
+            THEN 'LEARN AND EARN'
+        WHEN service_category ILIKE '%AFTERSCHOOL%' AND program_type ~* 'Adolescent Literacy'
+            THEN 'ADOLESCENT LITERACY'
         WHEN service_category IS NOT NULL THEN service_category
         WHEN program_type ~* 'Transitional Independent Living \(TIL\)'
             THEN 'Transitional Independent Living'
         WHEN program_type ~* 'Transitional Independent Living \(HYA\)'
             THEN 'Transitional Independent Living'
         WHEN program_type ~* 'Adult Literacy Pilot Project'
-            THEN 'Adult Literacy'
+            THEN 'Adult Literacy Pilot Program'
         WHEN program_type ~* 'Services for Immigrants'
             THEN 'Immigrant Services'
         WHEN program_type ~* 'Immigrant Workers'
@@ -36,6 +56,20 @@ SELECT
         ELSE NULL
     END) AS factype,
     (CASE
+        WHEN
+            service_category ILIKE '%AFTERSCHOOL%' AND (
+                program_type ~* 'COMPASS'
+                OR program_type ~* 'Beacon'
+                OR program_type ~* 'Cornerstone'
+                OR program_type ~* 'High School'
+            )
+            THEN 'After-School Programs'
+        WHEN
+            service_category ILIKE '%AFTERSCHOOL%' AND (
+                program_type ~* 'Learn and Earn'
+                OR program_type ~* 'Adolescent Literacy'
+            )
+            THEN 'Youth Centers, Literacy Programs, and Job Training Services'
         WHEN
             program_type ~* 'Beacon'
             OR program_type ~* 'High-School Aged Youth'
