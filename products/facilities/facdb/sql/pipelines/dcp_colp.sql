@@ -36,6 +36,10 @@ WITH _dcp_colp_tmp AS (
                 WHEN
                     parcelname ~* 'PRECINCT'
                     AND usecode = '0500' THEN 'Police Station'
+                WHEN agency LIKE '%OCME%' AND usetype LIKE '%TESTING LABORATORY%' THEN 'Medical Testing Laboratory'
+                WHEN agency LIKE '%DEP%' AND usetype LIKE '%TESTING LABORATORY%' THEN 'Environmental Testing Laboratory'
+                WHEN agency LIKE '%CUNY%' AND usetype LIKE '%RESIDENTIAL%' THEN 'University Residential Structure'
+                WHEN agency LIKE '%HHC%' AND usetype LIKE '%RESIDENTIAL%' THEN 'Hospital Residential Structure'
                 ELSE initcap(replace(usetype, 'OTHER ', ''))
             END
         ) AS factype,
@@ -202,6 +206,9 @@ WITH _dcp_colp_tmp AS (
                 WHEN usetype LIKE '%EMERGENCY MEDICAL%' THEN 'Other Emergency Services'
                 WHEN usetype LIKE '%FIREHOUSE%' THEN 'Fire Services'
                 WHEN usetype LIKE '%POLICE STATION%' THEN 'Police Services'
+                WHEN
+                    usetype LIKE '%PUBLIC SAFETY%' AND usecode = '0500' AND parcelname ~* 'PRECINCT'
+                    THEN 'Police Services'
                 WHEN usetype LIKE '%PUBLIC SAFETY%' THEN 'Other Public Safety'
                 WHEN agency LIKE '%OCME%' THEN 'Forensics' -- Education, Children, Youth
                 WHEN usetype LIKE '%UNIVERSITY%' THEN 'Colleges or Universities'
