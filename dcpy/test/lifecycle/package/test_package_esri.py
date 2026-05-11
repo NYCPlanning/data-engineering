@@ -109,10 +109,11 @@ def _get_info_from_file_fixture(
         path = path_fixture
     elif file_type == "nonzip":
         path_fixture = request.getfixturevalue(fixture)
-        path = path_fixture.parent  # Retrieve fixture by name
         if ".gdb" in path_fixture.suffixes:
+            path = path_fixture  # GDB directory is the addressable path itself
             layer = SPATIAL_LAYER
         elif ".shp" in path_fixture.suffixes:
+            path = path_fixture.parent
             layer = path_fixture.name
     return {"path": path, "layer": layer}
 
@@ -159,6 +160,12 @@ def org_metadata(package_and_dist_test_resources):
             "zip",
             None,
             id="add_md_to_zip_gdb",
+        ),
+        pytest.param(
+            "temp_gdb_nonzipped_path",
+            "nonzip",
+            None,
+            id="add_md_to_nonzip_gdb",
         ),
     ],
 )
@@ -216,7 +223,9 @@ def test_write_metadata(
     assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
     assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
 
-    assert metadata.eainfo.detailed.name == product_md.id
+    is_gdb = ".gdb" in fixture_info["path"].suffixes
+    expected_entity_name = fixture_info["layer"] if is_gdb else product_md.id
+    assert metadata.eainfo.detailed.name == expected_entity_name
     assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 

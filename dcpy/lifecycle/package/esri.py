@@ -160,7 +160,6 @@ def write_metadata(
     metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
     metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
 
-    metadata.eainfo.detailed.name = product_md.id
     metadata.eainfo.detailed.enttyp.enttypl.value = product_md.id
     metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
 
@@ -174,9 +173,11 @@ def write_metadata(
             raise ValueError(
                 "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
             )
+        metadata.eainfo.detailed.name = layer
         fgdb.write_metadata(gdb=path, layer=layer, metadata=metadata, overwrite=True)
 
     elif ".shp" in path.suffixes or layer.endswith(".shp"):
+        metadata.eainfo.detailed.name = product_md.id
         shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
         shp.write_metadata(metadata, overwrite=True)
 
