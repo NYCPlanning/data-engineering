@@ -14,8 +14,9 @@ SELECT
     NULL AS bin,
     NULL AS bbl,
     (CASE
-        WHEN program_type ~* 'pantry' THEN 'Food Pantry'
-        WHEN program_type ~* 'Soup Kitchen' THEN 'Soup Kitchen'
+        WHEN program_type ~* 'pantry' OR program_type = 'MP' THEN 'Food Pantry'
+        WHEN program_type ~* 'Soup Kitchen' OR program_type IN ('SOUP KITCH', 'SKM') THEN 'Soup Kitchen'
+        ELSE NULL
     END) AS factype,
     'Soup Kitchens and Food Pantries' AS facsubgrp,
     agency AS opname,
