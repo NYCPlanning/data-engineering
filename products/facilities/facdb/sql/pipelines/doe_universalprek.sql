@@ -15,8 +15,9 @@ SELECT
     (CASE
         WHEN site_type = 'DOE' OR site_type = 'Public School' THEN 'DOE Universal Pre-K'
         WHEN site_type = 'CHARTER' OR site_type = 'Charter' THEN 'DOE Universal Pre-K - Charter'
-        WHEN site_type = 'NYCEEC' OR site_type = 'CBO' THEN 'Early Education Program'
+        WHEN site_type = 'NYCEEC' OR site_type = 'CBO' OR site_type = 'LYFE' THEN 'Early Education Program'
         WHEN site_type = 'PKC' THEN 'Pre-K Center'
+        ELSE NULL
     END) AS factype,
     'DOE Universal Pre-Kindergarten' AS facsubgrp,
     (CASE
