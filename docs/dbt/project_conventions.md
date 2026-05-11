@@ -1,3 +1,4 @@
+
 # DBT Project Conventions
 
 Standard conventions for all dbt projects in this repository.
@@ -20,6 +21,9 @@ Core business logic and transformations:
 Final tables ready for export.
 
 ## Model Configuration
+
+## Adding New Models
+When adding a new .sql file, also check whether you need to add an accompanying models yml file.
 
 ### Materialization
 - `staging/`: `view` (default) unless indexes are required

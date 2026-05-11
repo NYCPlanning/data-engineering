@@ -9,6 +9,7 @@ Terse reference for agents working in this codebase.
 
 ### dbt
 - [dbt project conventions](./dbt/project_conventions.md)
+- **If adding a dbt model, read the conventions doc above first**
 
 ### Frontend/Products
 - [apps, glossary, and environment setup](./products/README.md)
