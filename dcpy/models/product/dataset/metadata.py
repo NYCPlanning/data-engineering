@@ -159,7 +159,7 @@ class DatasetOrgProductAttributesOverride(CustomizableBase):
     publishing_frequency_details: str | None = None
     publishing_purpose: str | None = None
     rows_removed: bool | None = None
-    tags: List[str] | None = []
+    tags: List[str] | None = None
 
 
 class DatasetAttributesOverride(DatasetOrgProductAttributesOverride):
