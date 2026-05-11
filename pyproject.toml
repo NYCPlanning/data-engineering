@@ -9,6 +9,7 @@ exclude_rules = [
     "references.qualification",
     "structure.unused_cte",
     "structure.column_order",
+    "structure.else_null",
     "structure.subquery",
     "references.keywords",
     "references.consistent",
