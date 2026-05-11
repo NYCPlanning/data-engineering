@@ -13,7 +13,28 @@ SELECT
     NULL AS borocode,
     bin,
     bbl,
-    service_category AS factype,
+    (CASE
+        WHEN service_category IS NOT NULL THEN service_category
+        WHEN program_type ~* 'Transitional Independent Living \(TIL\)'
+            THEN 'Transitional Independent Living'
+        WHEN program_type ~* 'Transitional Independent Living \(HYA\)'
+            THEN 'Transitional Independent Living'
+        WHEN program_type ~* 'Adult Literacy Pilot Project'
+            THEN 'Adult Literacy'
+        WHEN program_type ~* 'Services for Immigrants'
+            THEN 'Immigrant Services'
+        WHEN program_type ~* 'Immigrant Workers'
+            THEN 'Immigrant Workers'
+        WHEN program_type ~* 'Crisis Shelters'
+            THEN 'Crisis Shelters'
+        WHEN program_type ~* 'Victims of Domestic Violence and Trafficking'
+            THEN 'VICTIM SERVICES, DOMESTIC VIOLENCE'
+        WHEN program_type ~* 'Legal Services For Immigrant Youth'
+            THEN 'Legal Services for Immigrant Youth'
+        WHEN program_type ~* 'COMPASS Horizon'
+            THEN 'COMPASS'
+        ELSE NULL
+    END) AS factype,
     (CASE
         WHEN
             program_type ~* 'Beacon'
@@ -22,9 +43,23 @@ SELECT
             OR program_type ~* 'Teen Action Program'
             OR program_type ~* 'After-School Programs'
             THEN 'After-School Programs'
-        WHEN service_category ~* 'Immigrant Support Services'
+        WHEN program_type ~* 'COMPASS Horizon'
+            THEN 'After-School Programs'
+        WHEN
+            program_type ~* 'Services for Immigrants'
+            OR program_type ~* 'Immigrant Workers'
+            OR program_type ~* 'Legal Services For Immigrant Youth'
             THEN 'Immigrant Services'
-        ELSE 'Youth Centers, Literacy Programs, and Job Training Services'
+        WHEN program_type ~* 'Victims of Domestic Violence and Trafficking'
+            THEN 'LEGAL AND INTERVENTION SERVICES'
+        WHEN service_category IS NOT NULL
+            THEN 'Youth Centers, Literacy Programs, and Job Training Services'
+        WHEN
+            program_type ~* 'Transitional Independent Living'
+            OR program_type ~* 'Adult Literacy Pilot Project'
+            OR program_type ~* 'Crisis Shelters'
+            THEN 'Youth Centers, Literacy Programs, and Job Training Services'
+        ELSE NULL
     END) AS facsubgrp,
     provider AS opname,
     NULL AS opabbrev,
