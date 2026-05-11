@@ -28,3 +28,9 @@ def get_published_default_connector():
     return connectors.versioned[
         config.stage_config(LIFECYCLE_STAGE)["default_published_connector"]
     ]
+
+
+def get_plan_default_connector():
+    return connectors.versioned[
+        config.stage_config(LIFECYCLE_STAGE)["default_plan_connector"]
+    ]

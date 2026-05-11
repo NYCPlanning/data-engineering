@@ -1,7 +1,8 @@
-from pathlib import Path
 from typing import List, Optional
 
 from dagster import AssetExecutionContext, Config, MaterializeResult, asset
+
+from dcpy.lifecycle.ingest import get_template_directory, list_ingest_templates
 
 from .partitions import ingest_partition_def
 from .resources import LocalStorageResource
@@ -20,31 +21,6 @@ class IngestConfig(Config):
     push: bool = True  # Push results to S3
     output_csv: bool = False  # Also output CSV format (in addition to parquet)
     overwrite_okay: bool = True  # Allow overwriting existing versions
-
-
-# Mount point for ingest templates in container
-INGEST_TEMPLATES_PATH = Path("/app/repos/data-engineering/ingest_templates")
-
-
-def get_ingest_template_ids() -> List[str]:
-    """Get all ingest template IDs from ingest_templates directory"""
-    if not INGEST_TEMPLATES_PATH.exists():
-        raise FileNotFoundError(
-            f"Templates directory not found at {INGEST_TEMPLATES_PATH}. "
-            "Ensure the data-engineering repo is mounted correctly at /app/repos/data-engineering"
-        )
-
-    templates = []
-    for file in INGEST_TEMPLATES_PATH.glob("*.yml"):
-        templates.append(file.stem)
-
-    if not templates:
-        raise ValueError(
-            f"No template files (*.yml) found in {INGEST_TEMPLATES_PATH}. "
-            "Check that ingest_templates/ contains .yml files."
-        )
-
-    return sorted(templates)
 
 
 def make_ingest_asset(template_id: str):
@@ -79,7 +55,7 @@ def make_ingest_asset(template_id: str):
             latest=config.latest,
             push=config.push,
             output_csv=config.output_csv,
-            definition_dir=INGEST_TEMPLATES_PATH,
+            definition_dir=get_template_directory(),
             overwrite_okay=config.overwrite_okay,
         )
 
@@ -97,5 +73,5 @@ def make_ingest_asset(template_id: str):
 
 
 # Create ingest assets for all templates
-ingest_template_ids = get_ingest_template_ids()
-ingest_assets = [make_ingest_asset(template_id) for template_id in ingest_template_ids]
+ingest_templates = list_ingest_templates()
+ingest_assets = [make_ingest_asset(template.name) for template in ingest_templates]

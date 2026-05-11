@@ -55,10 +55,11 @@ class BuildKey(ProductKey):
 class PlanKey(ProductKey):
     product: str
     version: str
+    revision: str
 
     def __str__(self):
-        return f"Plan: {self.product} - {self.version}"
+        return f"Plan: {self.product} - {self.version} ({self.revision})"
 
     @property
     def path(self) -> str:
-        return f"{self.product}/plan/{self.version}"
+        return f"{self.product}/plan/{self.version}/{self.revision}"
