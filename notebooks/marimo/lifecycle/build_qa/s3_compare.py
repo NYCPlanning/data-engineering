@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.3"
 app = marimo.App(width="full")
 
 with app.setup:
@@ -113,6 +113,31 @@ def _(df_a, df_b, path_a_input, path_b_input):
 
 
 @app.cell(hide_code=True)
+def _(comparison):
+    _only_a = comparison[~comparison["in_b"]].shape[0]
+    _only_b = comparison[~comparison["in_a"]].shape[0]
+    _shared = comparison[comparison["in_a"] & comparison["in_b"]]
+    _sizes_equal = (
+        (_shared["size_a"] == _shared["size_b"]).all() if len(_shared) else True
+    )
+    _equal = _only_a == 0 and _only_b == 0 and _sizes_equal
+    if _equal:
+        _msg = "**Directory equal:** ✅ Yes — same files and sizes."
+    elif _only_a == 0 and _only_b == 0:
+        _msg = "**Directory equal:** ❌ No — same file set but sizes differ for some files."
+    else:
+        _msg = (
+            f"**Directory equal:** ❌ No — {_only_a} file(s) only in A, {_only_b} file(s) only in B"
+            + ("." if _sizes_equal else ", and sizes differ.")
+        )
+    mo.callout(
+        mo.md(_msg),
+        kind="success" if _equal else "danger",
+    )
+    return
+
+
+@app.cell(hide_code=True)
 def _():
     mo.md("""
     ## Only in A — missing from new build
@@ -170,7 +195,7 @@ def _(comparison):
 @app.cell(hide_code=True)
 def _():
     mo.md("""
-    ## Table Comparison
+    ## File Comparison
     """)
     return
 
@@ -180,17 +205,17 @@ def _(comparison):
     _files_in_both = sorted(
         comparison[comparison["in_a"] & comparison["in_b"]]["filename"].tolist()
     )
-    table_selector = mo.ui.dropdown(
+    file_selector = mo.ui.dropdown(
         options=_files_in_both,
         label="Select a file to compare",
         searchable=True,
     )
-    mo.vstack([table_selector], align="center")
-    return (table_selector,)
+    mo.vstack([file_selector], align="center")
+    return (file_selector,)
 
 
 @app.cell(hide_code=True)
-def _(bucket_input, path_a_input, path_b_input, table_selector):
+def _(bucket_input, file_selector, path_a_input, path_b_input):
     from io import BytesIO
 
     def _load_file(prefix: str, filename: str) -> pd.DataFrame:
@@ -207,43 +232,161 @@ def _(bucket_input, path_a_input, path_b_input, table_selector):
         else:
             raise ValueError(f"Unsupported file extension: .{ext}")
 
-    if table_selector.value:
-        with mo.status.spinner(title=f"Loading {table_selector.value}…"):
-            tbl_a = _load_file(path_a_input.value, table_selector.value)
-            tbl_b = _load_file(path_b_input.value, table_selector.value)
+    if file_selector.value:
+        with mo.status.spinner(title=f"Loading {file_selector.value}…"):
+            file_df_a = _load_file(path_a_input.value, file_selector.value)
+            file_df_b = _load_file(path_b_input.value, file_selector.value)
     else:
-        tbl_a = tbl_b = None
-    return tbl_a, tbl_b
+        file_df_a = file_df_b = None
+    return file_df_a, file_df_b
 
 
 @app.cell(hide_code=True)
-def _(table_selector, tbl_a, tbl_b):
+def _(file_df_a, file_df_b):
+    mo.stop(file_df_a is None or file_df_b is None)
+    _equal = file_df_a.reset_index(drop=True).equals(file_df_b.reset_index(drop=True))
+    mo.callout(
+        mo.md(
+            "**File equal:** ✅ Yes — contents are identical."
+            if _equal
+            else "**File equal:** ❌ No — contents differ."
+        ),
+        kind="success" if _equal else "danger",
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(file_df_a, file_df_b):
     mo.stop(
-        tbl_a is None or tbl_b is None,
+        file_df_a is None or file_df_b is None,
+    )
+    row_focus = mo.ui.number(
+        label="Jump to row",
+        value=-1,
+        step=1,
+        start=-1,
+        stop=max(len(file_df_a), len(file_df_b)) - 1,
+    )
+    context_rows = mo.ui.number(
+        label="Context rows (\u00b1)",
+        value=0,
+        step=1,
+        start=0,
+        stop=50,
+    )
+    show_diff_rows = mo.ui.checkbox(label="Show diff rows only")
+    mo.hstack(
+        [
+            row_focus,
+            context_rows,
+            show_diff_rows,
+            mo.md("_Set \u2018Jump to row\u2019 to \u22121 to show all rows._"),
+        ],
+        gap=2,
+        align="center",
+    )
+    return context_rows, row_focus, show_diff_rows
+
+
+@app.cell(hide_code=True)
+def _(file_df_a, file_df_b):
+    mo.stop(file_df_a is None or file_df_b is None)
+
+    _di_shared = [c for c in file_df_a.columns if c in file_df_b.columns]
+    _di_a = file_df_a[_di_shared].reset_index(drop=True)
+    _di_b = file_df_b[_di_shared].reset_index(drop=True)
+    _di_min = min(len(_di_a), len(_di_b))
+    diff_row_indices: set[int] = set()
+    for _di_col in _di_shared:
+        _ca = _di_a.iloc[:_di_min][_di_col]
+        _cb = _di_b.iloc[:_di_min][_di_col]
+        _ch = ~((_ca == _cb) | (_ca.isna() & _cb.isna()))
+        diff_row_indices.update(int(i) for i in _ch[_ch].index)
+    return (diff_row_indices,)
+
+
+@app.cell(hide_code=True)
+def _(
+    context_rows,
+    diff_row_indices: set[int],
+    file_df_a,
+    file_df_b,
+    file_selector,
+    row_focus,
+    show_diff_rows,
+):
+    mo.stop(
+        file_df_a is None or file_df_b is None,
         mo.md("_Select a file above to load and compare._"),
     )
-    _cols_only_a = sorted(set(tbl_a.columns) - set(tbl_b.columns))
-    _cols_only_b = sorted(set(tbl_b.columns) - set(tbl_a.columns))
+    _cols_only_a = sorted(set(file_df_a.columns) - set(file_df_b.columns))
+    _cols_only_b = sorted(set(file_df_b.columns) - set(file_df_a.columns))
     _col_status = (
         "Column sets match."
         if not _cols_only_a and not _cols_only_b
-        else f"Only in A: `{'`, `'.join(_cols_only_a) or '—'}`  ·  Only in B: `{'`, `'.join(_cols_only_b) or '—'}`"
+        else (
+            ("Only in A: " + ", ".join(_cols_only_a) if _cols_only_a else "")
+            + (
+                "  \u00b7  Only in B: " + ", ".join(_cols_only_b)
+                if _cols_only_b
+                else ""
+            )
+        )
     )
+
+    def _with_row_num(df):
+        out = df.reset_index(drop=True)
+        out.insert(0, "row", range(len(out)))
+        return out
+
+    def _maybe_focus(df_with_row):
+        r = row_focus.value
+        ctx_n = context_rows.value
+        if show_diff_rows.value and diff_row_indices:
+            rows_to_show: set[int] = set()
+            max_row = len(df_with_row) - 1
+            for dr in diff_row_indices:
+                lo = max(0, dr - ctx_n)
+                hi = min(max_row, dr + ctx_n)
+                rows_to_show.update(range(lo, hi + 1))
+            return df_with_row[df_with_row["row"].isin(rows_to_show)].reset_index(
+                drop=True
+            )
+        if r < 0:
+            return df_with_row
+        lo = max(0, r - ctx_n)
+        hi = min(len(df_with_row) - 1, r + ctx_n)
+        return df_with_row.iloc[lo : hi + 1].reset_index(drop=True)
+
+    _summary = (
+        f"| | A | B |\n"
+        f"|---|---|---|\n"
+        f"| Rows | {len(file_df_a):,} | {len(file_df_b):,} |\n"
+        f"| Columns | {len(file_df_a.columns)} | {len(file_df_b.columns)} |\n"
+        f"\n**Columns:** {_col_status}"
+    )
+
     mo.vstack(
         [
-            mo.md(f"""
-    | | A | B |
-    |---|---|---|
-    | Rows | {len(tbl_a):,} | {len(tbl_b):,} |
-    | Columns | {len(tbl_a.columns)} | {len(tbl_b.columns)} |
-
-    **Columns:** {_col_status}
-    """),
-            mo.ui.tabs(
-                {
-                    f"A — {table_selector.value}": mo.ui.table(tbl_a, selection=None),
-                    f"B — {table_selector.value}": mo.ui.table(tbl_b, selection=None),
-                }
+            mo.md(_summary),
+            mo.vstack(
+                [
+                    mo.md(f"**A \u2014 {file_selector.value}**"),
+                    mo.ui.table(
+                        _maybe_focus(_with_row_num(file_df_a)),
+                        selection=None,
+                    ),
+                ]
+            ),
+            mo.vstack(
+                [
+                    mo.md(f"**B \u2014 {file_selector.value}**"),
+                    mo.ui.table(
+                        _maybe_focus(_with_row_num(file_df_b)),
+                        selection=None,
+                    ),
+                ]
             ),
         ]
     )
@@ -251,12 +394,58 @@ def _(table_selector, tbl_a, tbl_b):
 
 
 @app.cell(hide_code=True)
-def _():
-    _df = mo.sql(
-        """
-        select * from 
-        """
+def _(file_df_a, file_df_b):
+    mo.stop(
+        file_df_a is None or file_df_b is None,
+        mo.md("_Select a file above to load and compare._"),
     )
+
+    _shared_cols = [c for c in file_df_a.columns if c in file_df_b.columns]
+    _a = file_df_a[_shared_cols].reset_index(drop=True)
+    _b = file_df_b[_shared_cols].reset_index(drop=True)
+    _min_len = min(len(_a), len(_b))
+    _a_cmp = _a.iloc[:_min_len]
+    _b_cmp = _b.iloc[:_min_len]
+
+    _records = []
+    for col in _shared_cols:
+        _col_a = _a_cmp[col]
+        _col_b = _b_cmp[col]
+        _changed = ~((_col_a == _col_b) | (_col_a.isna() & _col_b.isna()))
+        for idx in _changed[_changed].index:
+            _records.append(
+                {
+                    "row": int(idx),
+                    "column": col,
+                    "value_a": _col_a.at[idx],
+                    "value_b": _col_b.at[idx],
+                }
+            )
+
+    _row_count_note = (
+        f"\n\n> \u26a0\ufe0f Row counts differ (A: {len(_a):,}, B: {len(_b):,}) \u2014 only first {_min_len:,} rows compared."
+        if len(_a) != len(_b)
+        else ""
+    )
+
+    if not _records and len(_a) == len(_b):
+        _diff_out = mo.md("_No differences found in shared columns._")
+    elif not _records:
+        _diff_out = mo.md(
+            f"_Shared columns match across first {_min_len:,} rows.{_row_count_note}_"
+        )
+    else:
+        _n_diff_rows = len({r["row"] for r in _records})
+        _n_diff_cols = len({r["column"] for r in _records})
+        _diff_out = mo.vstack(
+            [
+                mo.md(
+                    f"**{_n_diff_rows:,} row(s)** with differences across **{_n_diff_cols:,}** column(s).{_row_count_note}"
+                ),
+                mo.ui.table(pd.DataFrame(_records), selection=None),
+            ]
+        )
+    _diff_out
     return
 
 
@@ -328,6 +517,34 @@ def _(bucket_input, geo_selector, path_a_input, path_b_input):
             .reset_index(drop=True)
         )
     return geo_gdf_a, geo_gdf_b
+
+
+@app.cell(hide_code=True)
+def _(geo_gdf_a, geo_gdf_b):
+    _geom_col = geo_gdf_a.geometry.name
+    _attr_cols = [c for c in geo_gdf_a.columns if c != _geom_col]
+    _attrs_equal = (
+        geo_gdf_a[_attr_cols]
+        .reset_index(drop=True)
+        .equals(geo_gdf_b[_attr_cols].reset_index(drop=True))
+    )
+    _geom_equal = geo_gdf_a.geometry.reset_index(drop=True).equals(
+        geo_gdf_b.geometry.reset_index(drop=True)
+    )
+    _equal = _attrs_equal and _geom_equal
+    mo.callout(
+        mo.md(
+            "**GeoDataFrame equal:** ✅ Yes — features and geometries match."
+            if _equal
+            else "**GeoDataFrame equal:** ❌ No — "
+            + ("" if _attrs_equal else "attributes differ")
+            + (" and " if not _attrs_equal and not _geom_equal else "")
+            + ("" if _geom_equal else "geometries differ")
+            + "."
+        ),
+        kind="success" if _equal else "danger",
+    )
+    return
 
 
 @app.cell(hide_code=True)
