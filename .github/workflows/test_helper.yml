@@ -184,6 +184,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
         BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
         RECIPE_ENGINE: "op://Data Engineering/EDM_DATA/defaultdb_url"
 
     - name: Start images
@@ -254,6 +255,7 @@ jobs:
         CLIENT_ID: "op://Data Engineering/ZAP_CRM/CLIENT_ID"
         SECRET: "op://Data Engineering/ZAP_CRM/SECRET"
         BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
         RECIPE_ENGINE: "op://Data Engineering/EDM_DATA/defaultdb_url"
     - name: Run Container Setup
       working-directory: ./
