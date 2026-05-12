@@ -3,6 +3,7 @@
 # Script to set up permissions for specified user(s)
 #
 # This script configures database permissions with the following access model:
+# - Schemas: Can CREATE and DROP their own schemas in any configured database
 # - Tables users create: Full ownership (CREATE, DROP, ALTER, INSERT, UPDATE, DELETE, SELECT)
 # - Tables created by others: DML operations only (INSERT, UPDATE, DELETE, SELECT)
 # - Public schema: USAGE only (can use PostGIS/extensions, cannot create tables)
@@ -13,7 +14,7 @@
 # - NOCREATEDB: Cannot create new databases
 # - NOCREATEROLE: Cannot create/modify roles
 # - Cannot DROP or ALTER tables they don't own
-# - Cannot CREATE objects in public schema
+# - Cannot CREATE objects in public schema (but can create their own schemas)
 #
 # Requires superuser credentials in environment variables:
 # - PGHOST
@@ -79,9 +80,9 @@ echo ""
 for DB in "${DATABASES[@]}"; do
   echo "Configuring database: $DB"
 
-  # Grant CONNECT on database
+  # Grant CONNECT and CREATE on database (CREATE allows schema creation)
   for USER in "${USERS[@]}"; do
-    psql -d defaultdb -c "GRANT CONNECT ON DATABASE \"$DB\" TO $USER;"
+    psql -d defaultdb -c "GRANT CONNECT, CREATE ON DATABASE \"$DB\" TO $USER;"
   done
 
   # Connect to the database and grant schema and table permissions
