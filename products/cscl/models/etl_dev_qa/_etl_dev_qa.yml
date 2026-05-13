@@ -1,0 +1,121 @@
+version: 2
+
+models:
+# ── LION DAT QA ──────────────────────────────────────────────────────────────
+
+- name: qa__lion_dat_by_row
+  description: >
+    Row-level comparison between the dev LION DAT output (lion_dat_by_field)
+    and the production citywide_lion_dat table. Returns only rows that differ
+    on at least one column, with paired _dev / _prod columns for every field
+    and an array of column names that differ.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - boroughcode_dev
+        - face_code_dev
+        - segmentid_dev
+        - boroughcode_prod
+        - face_code_prod
+        - segmentid_prod
+  columns:
+  - name: _source_table
+    description: Source table identifier from the dev (lion_dat_by_field) relation.
+  - name: columns_with_diffs
+    description: >
+      Array of column names where dev and production values differ using strict
+      inequality (<>). Does not capture NULL-vs-value differences — columns
+      where one side is NULL will not appear in the array even if the values
+      diverge. Rows missing from one side entirely will have an empty array.
+  - name: boroughcode_dev
+    description: Borough code from the dev relation. NULL when the segment is missing from dev.
+  - name: face_code_dev
+    description: Face code from the dev relation. NULL when the segment is missing from dev.
+  - name: segmentid_dev
+    description: Segment ID from the dev relation. NULL when the segment is missing from dev.
+  - name: boroughcode_prod
+    description: Borough code from the production relation. NULL when the segment is missing from production.
+  - name: face_code_prod
+    description: Face code from the production relation. NULL when the segment is missing from production.
+  - name: segmentid_prod
+    description: Segment ID from the production relation. NULL when the segment is missing from production.
+
+- name: qa__lion_dat_individual_diffs
+  description: >
+    Unpivoted diff view of the dev vs. production LION DAT data. Each row
+    represents a single (segment, field) pair where the dev and production
+    values diverge, making it easy to identify which fields are responsible
+    for most discrepancies.
+
+- name: qa__lion_dat_summary
+  description: >
+    Aggregate summary of differences between the dev LION DAT output and
+    production. Reports total row counts, unique key counts, keys missing
+    from each side, and a per-column diff count across the full dataset.
+
+# ── RPL QA ───────────────────────────────────────────────────────────────────
+
+- name: qa__rpl_order
+  description: >
+    Compares the row ordering of RPL records between production and dev using
+    audit_helper.compare_and_classify_query_results. Rows are keyed by rpl_id
+    (generic_segmentid + within-group row number) to catch ordering differences
+    within each generic_segmentid grouping.
+
+- name: qa__rpl_order_diffs
+  description: >
+    Drills into segments flagged as "modified" by qa__rpl_order. Returns
+    the dev and production rpl_id values, roadbed metadata, and transformed
+    geometries for both the roadbed and generic segments so that ordering
+    discrepancies can be inspected spatially.
+
+- name: qa__rpl_values
+  description: >
+    Value-level comparison of RPL records between production and dev using
+    audit_helper.compare_and_classify_relation_rows. Keyed on
+    (generic_segmentid, roadbed_segmentid); row ordering is intentionally
+    ignored to isolate value diffs from ordering diffs.
+
+# ── THINLION QA ──────────────────────────────────────────────────────────────
+
+- name: qa__thinlion_all_comparison
+  description: >
+    Full citywide comparison of the dev thinlion output (thinlion_by_field)
+    against the production thinlion_all table using audit_helper. A synthetic
+    atomicid key is constructed from borough, census tract, and dynamic block
+    to enable row-level matching.
+
+- name: qa__thinlion_manhattan_comparison
+  description: >
+    Same audit_helper row comparison as qa__thinlion_all_comparison, scoped
+    to Manhattan (borough 1). Compares thinlion_manhattan_by_field against
+    the production thinlion_manhattan table.
+
+- name: qa__thinlion_bronx_comparison
+  description: >
+    Same audit_helper row comparison as qa__thinlion_all_comparison, scoped
+    to the Bronx (borough 2). Compares thinlion_bronx_by_field against the
+    production thinlion_bronx table.
+
+- name: qa__thinlion_brooklyn_comparison
+  description: >
+    audit_helper row comparison scoped to Brooklyn (borough 3). Compares
+    thinlion_brooklyn_by_field against the production thinlion_brooklyn table.
+    Differs from the other borough comparisons in two ways: the
+    community_development_eligibility column is excluded from the diff, and
+    the primary key is the four component columns (borough,
+    censustract_2020_basic, censustract_2020_suffix, dynamic_block) rather
+    than the synthetic atomicid.
+
+- name: qa__thinlion_queens_comparison
+  description: >
+    Same audit_helper row comparison as qa__thinlion_all_comparison, scoped
+    to Queens (borough 4). Compares thinlion_queens_by_field against the
+    production thinlion_queens table.
+
+- name: qa__thinlion_statenisland_comparison
+  description: >
+    Same audit_helper row comparison as qa__thinlion_all_comparison, scoped
+    to Staten Island (borough 5). Compares thinlion_statenisland_by_field
+    against the production thinlion_statenisland table.
