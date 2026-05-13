@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from dagster import AssetExecutionContext, Config, MaterializeResult, asset
-
 from dcpy.lifecycle.ingest import get_template_directory, list_ingest_templates
 
 from .partitions import ingest_partition_def

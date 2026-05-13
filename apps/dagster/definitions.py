@@ -2,8 +2,9 @@
 
 from builds import LocalStorageResource as BuildLocalStorageResource
 from builds import build_assets
-from dagster import Definitions
 from ingest import ingest_assets
+
+from dagster import Definitions
 
 # Combine all assets
 all_assets = [*build_assets, *ingest_assets]
