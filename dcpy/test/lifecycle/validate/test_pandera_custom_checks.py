@@ -3,7 +3,7 @@ import pandera as pa
 import pytest
 
 from dcpy.lifecycle.validate import pandera_utils
-from dcpy.models.dataset import Column
+from dcpy.utils.schema import Column
 
 
 def test_is_geom_point_valid_points():

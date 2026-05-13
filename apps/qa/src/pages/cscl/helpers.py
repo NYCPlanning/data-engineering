@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from dcpy.connectors.edm import publishing
-from dcpy.models.connectors.edm.publishing import BuildKey
+from dcpy.connectors.edm.models import BuildKey
 from dcpy.utils import postgres, s3
 
 PRODUCT = "db-cscl"

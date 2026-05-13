@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from dcpy.models import dataset
 from dcpy.product_metadata.models.metadata import org as md
 from dcpy.product_metadata.models.metadata import product as ds_md
+from dcpy.utils import schema as dataset
 
 
 @pytest.fixture

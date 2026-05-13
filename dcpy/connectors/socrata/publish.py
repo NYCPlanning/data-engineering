@@ -28,8 +28,8 @@ from socrata.output_schema import OutputSchema
 from socrata.revisions import Revision as SocrataPyRevision
 from socrata.sources import Source
 
-import dcpy.models.dataset as dataset
 import dcpy.product_metadata.models.metadata.product as md
+from dcpy.utils import schema as dataset
 from dcpy.utils.logging import logger
 
 # There are required publishing frequency fields in two different sections of

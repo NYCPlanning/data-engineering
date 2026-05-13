@@ -9,7 +9,7 @@ import pandas as pd
 from pydantic import AliasChoices, BaseModel, Field, model_serializer, model_validator
 from typing_extensions import Self
 
-from dcpy.models.connectors.edm import recipes
+from dcpy.connectors.edm import models as recipes
 from dcpy.utils import versions
 
 

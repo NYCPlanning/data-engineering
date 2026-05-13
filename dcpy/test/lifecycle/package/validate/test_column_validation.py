@@ -6,10 +6,10 @@ from faker import Faker
 from pandas import DataFrame as df
 from shapely import wkb, wkt
 
-import dcpy.models.dataset as dataset
 import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle.package import validate
 from dcpy.test.lifecycle.package.conftest import TEST_METADATA_YAML_PATH
+from dcpy.utils import schema as dataset
 
 rd = random.Random()
 rd.seed(0)

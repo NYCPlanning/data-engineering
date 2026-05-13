@@ -7,7 +7,7 @@ from dcpy.lifecycle.ingest.connectors import (
     get_processed_datastore_connector,
     get_raw_datastore_connector,
 )
-from dcpy.models.lifecycle.ingest import (
+from dcpy.lifecycle.ingest.models import (
     ArchivedDataSource,
     IngestedDataset,
     ResolvedDataSource,

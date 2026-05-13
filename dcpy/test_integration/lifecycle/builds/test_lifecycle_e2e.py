@@ -5,7 +5,7 @@ import pytest
 import pytz
 
 from dcpy.lifecycle.builds.artifacts import builds, drafts, published
-from dcpy.models.lifecycle.builds import BuildMetadata, Recipe, RecipeInputs
+from dcpy.lifecycle.builds.models import BuildMetadata, Recipe, RecipeInputs
 
 
 @pytest.mark.incremental

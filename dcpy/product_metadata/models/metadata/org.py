@@ -7,7 +7,6 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel, Field, TypeAdapter
 
-from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
 from dcpy.product_metadata.models.metadata.artifacts import Artifact, Artifacts
 from dcpy.product_metadata.models.metadata.data_dictionary import DataDictionary
 from dcpy.product_metadata.models.metadata.product import (
@@ -19,6 +18,7 @@ from dcpy.product_metadata.models.metadata.product import (
     Metadata as DatasetMetadata,
 )
 from dcpy.utils.collections import deep_merge_dict as merge
+from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader, YamlWriter
 
 ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
     "Error instantiating dataset metadata for"

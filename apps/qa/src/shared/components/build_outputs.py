@@ -7,9 +7,8 @@ import streamlit as st
 from src.shared.utils.publishing import read_csv_cached, read_file_metadata
 
 from dcpy.connectors.edm import publishing
-from dcpy.models.file import Geometry
-from dcpy.models.geospatial import geometry
-from dcpy.utils.geospatial import mapping, transform
+from dcpy.utils.formats import Geometry
+from dcpy.utils.geospatial import geometry, mapping, transform
 
 
 def data_directory_link(product_key: publishing.ProductKey):

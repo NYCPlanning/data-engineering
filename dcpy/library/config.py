@@ -10,7 +10,7 @@ from jinja2 import Template
 from dcpy.connectors.esri import arcgis_feature_service
 from dcpy.connectors.socrata import extract as socrata
 from dcpy.connectors.socrata.configuration import Org as SocrataOrg
-from dcpy.models.library import DatasetDefinition
+from dcpy.library.models import DatasetDefinition
 
 from .utils import format_url
 from .validator import Dataset, Validator

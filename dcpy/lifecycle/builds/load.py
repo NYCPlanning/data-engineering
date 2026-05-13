@@ -9,7 +9,7 @@ import yaml
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle import data_loader
 from dcpy.lifecycle.builds import metadata, plan
-from dcpy.models.lifecycle.builds import (
+from dcpy.lifecycle.builds.models import (
     BuildMetadata,
     ImportedDataset,
     InputDataset,

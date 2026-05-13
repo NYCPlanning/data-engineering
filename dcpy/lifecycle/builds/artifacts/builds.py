@@ -7,13 +7,13 @@ import pytz
 import yaml
 
 from dcpy.configuration import BUILD_NAME, CI
+from dcpy.connectors.edm.models import BuildKey, DraftKey
 from dcpy.lifecycle.builds.artifacts import drafts
 from dcpy.lifecycle.builds.connector import (
     get_builds_default_connector,
     get_drafts_default_connector,
 )
-from dcpy.models.connectors.edm.publishing import BuildKey, DraftKey
-from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.lifecycle.builds.models import BuildMetadata
 from dcpy.utils import git, versions
 from dcpy.utils.logging import logger
 

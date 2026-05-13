@@ -20,7 +20,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from dcpy.models import library
+from dcpy.library import models as library
 from dcpy.utils.metadata import get_run_details
 
 from . import base_path

@@ -4,12 +4,12 @@ from typing import Any
 import pandas as pd
 from pydantic import AliasChoices, AliasPath, BaseModel, Field, TypeAdapter
 
-from dcpy.models import file
-from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader
-from dcpy.models.connectors.edm import recipes
-from dcpy.models.dataset import COLUMN_TYPES
-from dcpy.models.dataset import Column as BaseColumn
+from dcpy.connectors.edm import models as recipes
+from dcpy.utils import formats as file
 from dcpy.utils.metadata import RunDetails
+from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader
+from dcpy.utils.schema import COLUMN_TYPES
+from dcpy.utils.schema import Column as BaseColumn
 
 
 class DatasetAttributes(SortedSerializedBase):

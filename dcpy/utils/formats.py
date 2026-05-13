@@ -4,8 +4,8 @@ from typing import Literal, TypeAlias
 
 from pydantic import BaseModel
 
-from dcpy.models.base import SortedSerializedBase
-from dcpy.models.geospatial import geometry
+from dcpy.utils.geospatial import geometry
+from dcpy.utils.models import SortedSerializedBase
 
 
 class Geometry(SortedSerializedBase, extra="forbid"):

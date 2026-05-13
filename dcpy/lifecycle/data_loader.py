@@ -7,10 +7,10 @@ from pathlib import Path
 import pandas as pd
 import typer
 
+from dcpy.connectors.edm.models import DatasetType
 from dcpy.lifecycle import config
+from dcpy.lifecycle.builds.models import InputDataset
 from dcpy.lifecycle.connector_registry import connectors
-from dcpy.models.connectors.edm.recipes import DatasetType
-from dcpy.models.lifecycle.builds import InputDataset
 from dcpy.utils import postgres
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger

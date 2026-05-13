@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from dcpy.models.base import TemplatedYamlReader
+from dcpy.utils.models import TemplatedYamlReader
 
 from .product import CustomizableBase
 

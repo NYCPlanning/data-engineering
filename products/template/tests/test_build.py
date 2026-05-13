@@ -4,7 +4,7 @@ from build_scripts import PG_CLIENT
 
 from dcpy.configuration import BUILD_NAME
 from dcpy.connectors.edm import publishing
-from dcpy.models.connectors.edm.publishing import BuildKey
+from dcpy.connectors.edm.models import BuildKey
 
 PRODUCT_S3_NAME = "db-template"
 BUILD_KEY = BuildKey(product=PRODUCT_S3_NAME, build=str(BUILD_NAME))

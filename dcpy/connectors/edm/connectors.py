@@ -20,15 +20,15 @@ from dcpy.configuration import (
     PUBLISHING_BUCKET,
     PUBLISHING_BUCKET_ROOT_FOLDER,
 )
-from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
-from dcpy.connectors.registry import VersionedConnector
-from dcpy.models.connectors.edm.publishing import (
+from dcpy.connectors.edm.models import (
     BuildKey,
     DraftKey,
     PlanKey,
     ProductKey,
     PublishKey,
 )
+from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
+from dcpy.connectors.registry import VersionedConnector
 from dcpy.utils import git, s3
 from dcpy.utils.logging import logger
 

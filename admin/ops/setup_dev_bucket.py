@@ -13,14 +13,14 @@ os.environ["PUBLISHING_BUCKET"] = PROD_PUBLISHING_BUCKET
 
 from dcpy import configuration
 from dcpy.connectors.edm import publishing, recipes
-from dcpy.lifecycle.builds import get_recipes_default_connector, plan
-from dcpy.models.connectors.edm.publishing import (
+from dcpy.connectors.edm.models import (
     BuildKey,
+    DatasetKey,
     DraftKey,
     ProductKey,
     PublishKey,
 )
-from dcpy.models.connectors.edm.recipes import DatasetKey
+from dcpy.lifecycle.builds import get_recipes_default_connector, plan
 from dcpy.utils.s3 import get_subfolders
 
 ROOT_PATH = Path(__file__).parent.parent.parent

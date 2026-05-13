@@ -4,8 +4,8 @@ import zipfile
 import pytest
 from pytest import fixture
 
-from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial import fgdb
+from dcpy.utils.geospatial.shapefile_metadata import Metadata
 
 GDB_ZIP = "geodatabase.gdb.zip"
 FEATURE_CLASS = "mappluto_one_row"

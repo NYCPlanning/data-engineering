@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from dcpy.models.connectors.edm.recipes import Dataset
-from dcpy.models.lifecycle.ingest import (
+from dcpy.connectors.edm.models import Dataset
+from dcpy.lifecycle.ingest.models import (
     ArchivedDataSource,
     IngestedDataset,
     ResolvedDataSource,

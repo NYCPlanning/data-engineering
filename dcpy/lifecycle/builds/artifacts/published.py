@@ -4,6 +4,7 @@ from tempfile import TemporaryDirectory
 
 import yaml
 
+from dcpy.connectors.edm.models import PublishKey
 from dcpy.lifecycle.builds import connector as build_conns
 from dcpy.lifecycle.builds.artifacts.drafts import (
     get_dataset_version_revisions,
@@ -13,8 +14,7 @@ from dcpy.lifecycle.builds.artifacts.drafts import (
 from dcpy.lifecycle.builds.connector import (
     get_published_default_connector,
 )
-from dcpy.models.connectors.edm.publishing import PublishKey
-from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.lifecycle.builds.models import BuildMetadata
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
 
