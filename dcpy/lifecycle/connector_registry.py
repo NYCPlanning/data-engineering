@@ -11,6 +11,7 @@ from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.connectors import (
     BuildsConnector,
     DraftsConnector,
+    PlanConnector,
     PublishedConnector,
 )
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
@@ -82,6 +83,7 @@ def _set_default_connectors():
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
         [BuildsConnector.create(), "edm.publishing.builds"],
+        [PlanConnector.create(), "edm.publishing.plan"],
         [
             sftp.SFTPConnector(
                 hostname=SFTP_HOST,

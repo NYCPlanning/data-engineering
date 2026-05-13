@@ -31,6 +31,7 @@ def _set_default_conf():
                 "default_builds_connector": "edm.publishing.builds",
                 "default_drafts_connector": "edm.publishing.drafts",
                 "default_published_connector": "edm.publishing.published",
+                "default_plan_connector": "edm.publishing.plan",
                 "local_data_path": "builds",
                 "stages": {
                     "plan": {"local_data_path": "plan"},

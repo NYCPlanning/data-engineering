@@ -1,7 +1,11 @@
 name: EDDE
-version: 2025
+version: {{ BUILD_ENV_EDDE_VERSION }}
 vars:
-  VERSION_PREV: 2023
+  BUILD_ENV_EDDE_VERSION_PREV: {{ BUILD_ENV_EDDE_VERSION_PREV }}
+  BUILD_ENV_EDDE_VERSION: {{ BUILD_ENV_EDDE_VERSION }}
+  BUILD_ENV_EDDE_CENSUS_BASE_YEAR: {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
+  BUILD_ENV_EDDE_ACS_START_YEAR: {{ BUILD_ENV_EDDE_ACS_START_YEAR }}
+  BUILD_ENV_EDDE_ACS_END_YEAR: {{ BUILD_ENV_EDDE_ACS_END_YEAR }}
 product: db-eddt
 inputs:
   dataset_defaults:
@@ -65,10 +69,19 @@ inputs:
 
 stage_config:
   builds.build:
+    commands:
+      - name: All Indicators
+        run: python3 -m external_review.external_review_collate all
+      - name: Census Base
+        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
+      - name: ACS Start
+        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_START_YEAR }}
+      - name: ACS End
+        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_END_YEAR }}
     destination: edm.publishing.builds
     destination_key: db-eddt
     connector_args:
       - name: acl
         value: public-read
       - name: build_note
-        value: ar-eddt-2025_1
+        value: ar-eddt-2026

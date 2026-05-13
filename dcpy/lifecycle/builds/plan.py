@@ -5,6 +5,13 @@ from pathlib import Path
 import pandas as pd
 import typer
 import yaml
+from jinja2 import (
+    Environment,
+    StrictUndefined,
+    TemplateSyntaxError,
+    Undefined,
+    UndefinedError,
+)
 
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
@@ -23,6 +30,19 @@ RECIPE_FILE_TYPE_PREFERENCE = [
     recipes.DatasetType.parquet,
     recipes.DatasetType.csv,
 ]
+
+
+class PreserveUndefined(Undefined):
+    """Jinja2 Undefined that preserves template syntax as YAML-safe strings.
+
+    This allows parsing recipes with Jinja2 templates without rendering them.
+    Templates like {{ VAR }} are preserved as strings in the parsed recipe.
+    """
+
+    def __str__(self):
+        # Return the template as a single-quoted string so YAML parses it as a string literal
+        # This prevents YAML from trying to interpret {{ }} as a flow mapping
+        return f"'{{{{ {self._undefined_name} }}}}'"
 
 
 def resolve_version(recipe: Recipe) -> str:
@@ -69,15 +89,24 @@ def resolve_version(recipe: Recipe) -> str:
             )
 
 
-def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
+def plan_recipe(
+    recipe_path: Path, version: str | None = None, vars: dict[str, str] | None = None
+) -> Recipe:
     """Plan recipe versions and file types for a product.
 
     Similar to pip freeze, determines recipe versions and file types to use for a build.
     A base_recipe may be specified, in which case it's important to note that
     the missing versions strategy will be applied AFTER the recipe inputs are
     merged with the base.
+
+    Args:
+        recipe_path: Path to the recipe.yml file
+        version: Optional version to use for the build
+        vars: Optional dict of template variables to use instead of BUILD_ENV_* environment
+              variables. All vars or none approach - if provided, environment variables are
+              not used for templating.
     """
-    recipe: Recipe = recipe_from_yaml(recipe_path)
+    recipe: Recipe = recipe_from_yaml(recipe_path, vars=vars)
 
     # Determine the recipe version
     if version:
@@ -114,7 +143,7 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
 
     # merge in base recipe inputs
     base_recipe = (
-        recipe_from_yaml(recipe_path.parent / recipe.base_recipe)
+        recipe_from_yaml(recipe_path.parent / recipe.base_recipe, vars=vars)
         if recipe.base_recipe is not None
         else None
     )
@@ -141,10 +170,18 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
 
         if ds.version is None:
             if ds.version_env_var is not None:
-                version = os.getenv(ds.version_env_var)
+                # Use provided vars if available, otherwise fall back to environment
+                version = (
+                    vars.get(ds.version_env_var)
+                    if vars is not None
+                    else os.getenv(ds.version_env_var)
+                )
                 if version is None:
+                    var_source = (
+                        "provided vars" if vars is not None else "environment variables"
+                    )
                     raise Exception(
-                        f"Dataset {ds.id} requires version env var: {ds.version_env_var}"
+                        f"Dataset {ds.id} requires version var '{ds.version_env_var}' in {var_source}"
                     )
                 ds.version = version
             elif (
@@ -172,13 +209,19 @@ def plan_recipe(recipe_path: Path, version: str | None = None) -> Recipe:
             )
             ds.name = connector.get_name(ds.id, ds.version)  # type: ignore
 
-    # Resolve any unresolved conf values (e.g. from the environment)
+    # Resolve any unresolved conf values (e.g. from the environment or provided vars)
     for conf in recipe.get_unresolved_stage_config_values():
         if "env" in conf.value_from:
             env_var = conf.value_from["env"]
-            if env_var not in os.environ:
-                raise Exception(f"build.plan requires missing env var: {env_var}")
-            conf.value = os.environ[env_var]
+            # Use provided vars if available, otherwise fall back to environment
+            if vars is not None:
+                if env_var not in vars:
+                    raise Exception(f"build.plan requires missing var: {env_var}")
+                conf.value = vars[env_var]
+            else:
+                if env_var not in os.environ:
+                    raise Exception(f"build.plan requires missing env var: {env_var}")
+                conf.value = os.environ[env_var]
 
     return recipe
 
@@ -195,13 +238,83 @@ def _apply_recipe_defaults(recipe: Recipe):
         ds.load_engine = ds.load_engine or recipe.inputs.dataset_defaults.load_engine
 
 
-def recipe_from_yaml(path: Path) -> Recipe:
-    """Import a recipe file from yaml, and validate schema."""
+def recipe_from_yaml(
+    path: Path, render_templates: bool = True, vars: dict[str, str] | None = None
+) -> Recipe:
+    """Import a recipe file from yaml, and validate schema.
+
+    Supports Jinja2 template variables that are rendered from environment variables
+    or directly provided vars.
+    For security, only environment variables with the BUILD_ENV_ prefix are exposed
+    to templates to prevent accidental exposure of secrets.
+    Non-templated recipes are processed normally without errors.
+
+    Args:
+        path: Path to the recipe.yml file
+        render_templates: If True, render Jinja2 templates from vars or BUILD_ENV_* vars.
+                         If False, preserve templates as strings (for DAG generation).
+        vars: Optional dict of template variables. If provided, these are used instead
+              of BUILD_ENV_* environment variables. All vars or none approach.
+
+    Returns:
+        Recipe object with schema validated
+    """
     with open(path, "r", encoding="utf-8") as f:
-        s = yaml.safe_load(f)
-        recipe = Recipe(**s)
-        _apply_recipe_defaults(recipe)
-        return recipe
+        raw_content = f.read()
+
+    # Render Jinja2 templates
+    rendered_content = raw_content
+    if render_templates:
+        # Use provided vars if available, otherwise fall back to BUILD_ENV_* from environment
+        if vars is not None:
+            build_env_vars = vars
+        else:
+            # Filter environment variables to only BUILD_ENV_* for security
+            # This prevents secrets from being accidentally exposed in recipes
+            build_env_vars = {
+                key: value
+                for key, value in os.environ.items()
+                if key.startswith("BUILD_ENV_")
+            }
+
+        # Use StrictUndefined to catch missing variables
+        try:
+            jinja_env = Environment(undefined=StrictUndefined)
+            template = jinja_env.from_string(raw_content)
+            rendered_content = template.render(**build_env_vars)
+        except UndefinedError as e:
+            # Missing template variable - provide clear error
+            error_source = (
+                "provided vars"
+                if vars is not None
+                else "BUILD_ENV_* environment variables"
+            )
+            raise ValueError(
+                f"Recipe template requires variable that is not set in {error_source}: {e}."
+            ) from e
+        except TemplateSyntaxError as e:
+            # Invalid Jinja2 syntax - provide clear error
+            raise ValueError(
+                f"Recipe contains invalid Jinja2 template syntax at line {e.lineno}: {e.message}"
+            ) from e
+    else:
+        # Preserve templates as strings for DAG generation
+        # Use PreserveUndefined to keep {{ VAR }} syntax intact
+        try:
+            jinja_env = Environment(undefined=PreserveUndefined)
+            template = jinja_env.from_string(raw_content)
+            rendered_content = template.render()  # No variables provided
+        except TemplateSyntaxError as e:
+            # Invalid Jinja2 syntax - provide clear error
+            raise ValueError(
+                f"Recipe contains invalid Jinja2 template syntax at line {e.lineno}: {e.message}"
+            ) from e
+
+    # Parse the rendered YAML
+    s = yaml.safe_load(rendered_content)
+    recipe = Recipe(**s)
+    _apply_recipe_defaults(recipe)
+    return recipe
 
 
 def generate_lock_file(recipe_file: Path, recipe: Recipe) -> Path:

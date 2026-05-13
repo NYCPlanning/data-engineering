@@ -513,3 +513,51 @@ def parse_draft_version(v: str) -> DraftVersionRevision:
         raise ValueError(f"Unsupported draft version revision format {v}")
 
     return DraftVersionRevision(revision_num, revision_summary)
+
+
+@dataclass(order=True)
+class PlanVersionRevision:
+    """Plan version revision with integer number and optional note.
+
+    Similar to DraftVersionRevision but uses underscores instead of hyphens.
+    Format: {revision_num}_{plan_note} or just {revision_num}
+    """
+
+    revision_num: int
+    plan_note: str = field(compare=False, default="")
+
+    def __post_init__(self):
+        max_string_length = 50
+
+        if not isinstance(self.revision_num, int) or self.revision_num <= 0:
+            raise ValueError(
+                f"revision_num must be a positive integer, got {self.revision_num}"
+            )
+        if len(self.plan_note) > max_string_length:
+            raise ValueError(
+                f"plan_note must be no more than {max_string_length} characters, got {len(self.plan_note)} characters"
+            )
+        # Validate plan_note only contains letters, numbers, and underscores
+        if self.plan_note and not all(c.isalnum() or c == "_" for c in self.plan_note):
+            raise ValueError(
+                f"plan_note must only contain alphanumeric characters and underscores, got '{self.plan_note}'"
+            )
+
+    @property
+    def label(self) -> str:
+        if self.plan_note == "":
+            return f"{self.revision_num}"
+        else:
+            return f"{self.revision_num}_{self.plan_note}"
+
+
+def parse_plan_version(v: str) -> PlanVersionRevision:
+    """Takes a version string and attempts to parse it into PlanVersionRevision object."""
+    revision_num_str, *rest = v.split("_", 1)
+    plan_note = rest[0] if len(rest) == 1 else ""
+    try:
+        revision_num = int(revision_num_str)
+    except ValueError:
+        raise ValueError(f"Unsupported plan version revision format {v}")
+
+    return PlanVersionRevision(revision_num, plan_note)

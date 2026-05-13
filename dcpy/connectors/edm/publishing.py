@@ -89,6 +89,13 @@ def get_draft_version_revisions(product: str, version: str) -> list[str]:
     )
 
 
+def get_plan_version_revisions(product: str, version: str) -> list[str]:
+    """Get all plan revisions for a product version."""
+    return sorted(
+        s3.get_subfolders(_bucket(), f"{product}/plan/{version}/"), reverse=True
+    )
+
+
 def get_draft_revision_label(product: str, version: str, revision_num: int) -> str:
     """Given a draft revision number, return draft revision label in s3."""
     draft_revision_label = None
@@ -104,6 +111,23 @@ def get_draft_revision_label(product: str, version: str, revision_num: int) -> s
             f"A draft revision with revision number of {revision_num} doesn't exist. Try again"
         )
     return draft_revision_label
+
+
+def get_plan_revision_label(product: str, version: str, revision_num: int) -> str:
+    """Given a plan revision number, return plan revision label in s3."""
+    plan_revision_label = None
+    plan_revision_objects = [
+        versions.parse_plan_version(revision)
+        for revision in get_plan_version_revisions(product, version)
+        if versions.parse_plan_version(revision).revision_num == revision_num
+    ]
+    if len(plan_revision_objects) != 0:
+        plan_revision_label = plan_revision_objects[0].label
+    if plan_revision_label is None:
+        raise ValueError(
+            f"A plan revision with revision number of {revision_num} doesn't exist. Try again"
+        )
+    return plan_revision_label
 
 
 def get_builds(product: str) -> list[str]:

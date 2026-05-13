@@ -220,6 +220,19 @@ def _parse_draft_version(version: str) -> dict:
     return {"version": parts[0], "revision": parts[1]}
 
 
+def _parse_plan_version(version: str) -> dict:
+    """Parse plan version in format 'version.revision' into dict.
+
+    Examples:
+        "26v1.1" -> {"version": "26v1", "revision": "1"}
+        "26v1.1_my_note" -> {"version": "26v1", "revision": "1_my_note"}
+    """
+    if "." not in version:
+        raise ValueError(f"Version '{version}' should be in format 'version.revision'")
+    parts = version.rsplit(".", 1)
+    return {"version": parts[0], "revision": parts[1]}
+
+
 # Key factories
 def _create_draft_key(product: str, version: str, parsed: dict) -> DraftKey:
     return DraftKey(product, version=parsed["version"], revision=parsed["revision"])
@@ -234,7 +247,8 @@ def _create_publish_key(product: str, version: str, parsed: dict) -> PublishKey:
 
 
 def _create_plan_key(product: str, version: str, parsed: dict) -> PlanKey:
-    return PlanKey(product, version=version)
+    """Create plan key from parsed version.revision format."""
+    return PlanKey(product, version=parsed["version"], revision=parsed["revision"])
 
 
 # List versions implementations
@@ -250,6 +264,23 @@ def _list_draft_versions(
     version_folders = connector.storage.get_subfolders(draft_folder_key)
     for version_name in version_folders:
         revision_folder_key = f"{key}/draft/{version_name}"
+        revision_folders = connector.storage.get_subfolders(revision_folder_key)
+        for revision_name in revision_folders:
+            versions.append(f"{version_name}.{revision_name}")
+
+    return versions
+
+
+def _list_plan_versions(connector: "EdmConnector", key: str, kwargs: dict) -> list[str]:
+    """List plan versions in version.revision format."""
+    plan_folder_key = f"{key}/plan"
+    if not connector.storage.exists(plan_folder_key):
+        return []
+
+    versions = []
+    version_folders = connector.storage.get_subfolders(plan_folder_key)
+    for version_name in version_folders:
+        revision_folder_key = f"{key}/plan/{version_name}"
         revision_folders = connector.storage.get_subfolders(revision_folder_key)
         for revision_name in revision_folders:
             versions.append(f"{version_name}.{revision_name}")
@@ -312,13 +343,20 @@ def create_published_connector(
 
 def create_plan_connector(
     storage: PathedStorageConnector | None = None,
-) -> EdmConnector:
+) -> "_PlanConnector":
     config = EdmConnectorConfig(
         conn_type="edm.publishing.plan",
         folder_name="plan",
         key_factory=_create_plan_key,
+        version_parser=_parse_plan_version,
+        list_versions_impl=_list_plan_versions,
+        supports_latest=True,
+        metadata_generator=_generate_build_metadata,
     )
-    return EdmConnector(config=config, storage=storage)
+    # Create instance using object.__new__ to bypass custom __new__ logic
+    connector = object.__new__(_PlanConnector)
+    EdmConnector.__init__(connector, config=config, storage=storage)
+    return connector
 
 
 # Connector wrapper classes for backwards compatibility
@@ -414,6 +452,103 @@ class _BuildsConnector(EdmConnector):
         return Path("edm") / "builds" / "datasets" / key / version
 
 
+class _PlanConnector(EdmConnector):
+    """Internal PlanConnector implementation.
+
+    Extends the unified EdmConnector with plan-specific push logic including revision numbering.
+    """
+
+    def _upload_plan(
+        self,
+        plan_dir: Path,
+        product: str,
+        version: str,
+        *,
+        plan_note: str = "",
+        acl: s3.ACL | None = None,
+    ) -> PlanKey:
+        """
+        Uploads a planned recipe to S3 with automatic revision numbering.
+
+        Args:
+            plan_dir: Directory containing recipe.lock.yml
+            product: Product name (e.g., 'db-eddt')
+            version: Version string (e.g., '25v1')
+            plan_note: Optional note for the plan revision (alphanumeric + underscores only)
+            acl: S3 ACL for uploaded files
+
+        Returns:
+            PlanKey with the generated revision
+
+        Raises:
+            FileNotFoundError: If the provided plan_dir does not exist.
+        """
+        from dcpy.utils import versions
+
+        if not plan_dir.exists():
+            raise FileNotFoundError(f"Path {plan_dir} does not exist")
+
+        # Generate revision number based on existing revisions
+        # Use the connector's storage to query existing revisions (works with local or S3)
+        plan_folder_key = f"{product}/plan/{version}"
+        if self.storage.exists(plan_folder_key):
+            existing_revisions = sorted(
+                self.storage.get_subfolders(plan_folder_key), reverse=True
+            )
+            if existing_revisions:
+                # Parse all revisions to find the highest revision number
+                revision_nums = [
+                    versions.parse_plan_version(rev).revision_num
+                    for rev in existing_revisions
+                ]
+                revision_num = max(revision_nums) + 1
+            else:
+                revision_num = 1
+        else:
+            revision_num = 1
+
+        # Create plan revision
+        plan_revision = versions.PlanVersionRevision(revision_num, plan_note)
+        plan_key = PlanKey(product, version, plan_revision.label)
+
+        logger.info(f'Uploading plan to {plan_key.path} with ACL "{acl}"')
+
+        # Generate metadata using the config's metadata_generator
+        metadata = (
+            self._config.metadata_generator() if self._config.metadata_generator else {}
+        )
+
+        self.storage.push(
+            key=plan_key.path,
+            filepath=str(plan_dir),
+            acl=str(acl) if acl else "private",
+            metadata=metadata,
+        )
+
+        return plan_key
+
+    def push_versioned(self, key: str, version: str, **kwargs) -> dict:
+        """Push a plan with automatic revision numbering."""
+        plan_note = kwargs.get("plan_note", "")
+        acl = kwargs.get("acl")
+
+        logger.info(
+            f"Pushing plan for product: {key}, version: {version}, note: {plan_note}"
+        )
+        result = self._upload_plan(
+            plan_dir=Path(kwargs["source_path"]),
+            product=key,
+            version=version,
+            plan_note=plan_note,
+            acl=acl,
+        )
+        return asdict(result)
+
+    def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:
+        # Plans use "plan" (singular) in the path
+        return Path("edm") / "plan" / "datasets" / key / version
+
+
 class BuildsConnector:
     """Connector for EDM build publishing workflows.
 
@@ -458,12 +593,12 @@ class PlanConnector:
 
     def __new__(  # type: ignore[misc]
         cls, storage: PathedStorageConnector | None = None, **kwargs
-    ) -> EdmConnector:
+    ) -> "_PlanConnector":
         """Create a PlanConnector instance."""
         return create_plan_connector(storage=storage)
 
     @staticmethod
-    def create(storage: PathedStorageConnector | None = None) -> EdmConnector:
+    def create(storage: PathedStorageConnector | None = None) -> "_PlanConnector":
         """Create a PlanConnector with lazy-loaded S3 storage."""
         return create_plan_connector(storage=storage)
 

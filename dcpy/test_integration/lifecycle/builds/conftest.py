@@ -3,6 +3,7 @@ import pytest
 from dcpy.connectors.edm.connectors import (
     BuildsConnector,
     DraftsConnector,
+    PlanConnector,
     PublishedConnector,
 )
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
@@ -32,6 +33,7 @@ def setup_local_connectors(tmp_path_factory):
         for c in [
             BuildsConnector(storage=local_storage),
             DraftsConnector(storage=local_storage),
+            PlanConnector(storage=local_storage),
             PublishedConnector(storage=local_storage),
         ]
     ]
