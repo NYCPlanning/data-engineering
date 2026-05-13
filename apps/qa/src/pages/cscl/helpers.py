@@ -11,6 +11,9 @@ PROD_BUCKET = "edm-private"
 # dbt QA models in etl_dev_qa/ and the files they relate to (for display grouping)
 # Schema = build name (BUILD_ENGINE_SCHEMA is set to the build name in CI)
 DBT_QA_TABLES: dict[str, list[str]] = {
+    "All": [
+        "qa__diffs_all",
+    ],
     "LION DAT": [
         "qa__lion_dat_summary",
         "qa__lion_dat_by_row",
@@ -23,6 +26,9 @@ DBT_QA_TABLES: dict[str, list[str]] = {
         "qa__thinlion_manhattan_comparison",
         "qa__thinlion_queens_comparison",
         "qa__thinlion_statenisland_comparison",
+    ],
+    "SAF": [
+        "qa__diffs_saf_abcegnpx_roadbed",
     ],
     "RPL": [
         "qa__rpl_order",
@@ -75,6 +81,17 @@ def get_diff_rows(build: str, filename: str) -> list[str]:
     }
 
     return sorted(dev_lines - prod_lines)
+
+
+@st.cache_data(show_spinner=False)
+def get_build_output_zip_url(build: str) -> str:
+    """Return a direct public download URL for the build's output.zip."""
+    from dcpy.utils import s3
+
+    build_key = BuildKey(PRODUCT, build)
+    bucket = publishing.PUBLISHING_BUCKET
+    key = f"{build_key.path}/output.zip"
+    return s3.get_presigned_get_url(bucket, key)
 
 
 def get_pg_client(build: str) -> postgres.PostgresClient:
