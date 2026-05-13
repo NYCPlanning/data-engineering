@@ -6,8 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from dcpy.models.connectors import esri
-from dcpy.models.connectors.edm import recipes
+from dcpy.connectors.edm import models as recipes
+from dcpy.connectors.esri import models as esri
 from dcpy.utils import metadata
 
 

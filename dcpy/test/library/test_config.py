@@ -5,7 +5,7 @@ import yaml
 
 from dcpy.library import TEMPLATE_DIR
 from dcpy.library.config import Config
-from dcpy.models.library import DatasetDefinition
+from dcpy.library.models import DatasetDefinition
 from dcpy.test.conftest import mock_request_get
 
 from . import get_config_file, template_path

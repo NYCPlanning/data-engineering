@@ -5,11 +5,11 @@ import pytest
 
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
+from dcpy.library import models as library
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.ingest import validate
 from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
-from dcpy.models import library
-from dcpy.models.lifecycle.ingest import ProcessingStep
+from dcpy.lifecycle.ingest.models import ProcessingStep
 
 from .shared import (
     DOWNSTREAM_DATASET_1,

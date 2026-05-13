@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from dcpy.lifecycle.builds import build
-from dcpy.models.lifecycle.builds import ExportFormat
+from dcpy.lifecycle.builds.models import ExportFormat
 from dcpy.utils import postgres
 
 SAMPLE_TABLE = "test_export_data"

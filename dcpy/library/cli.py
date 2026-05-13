@@ -6,7 +6,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from dcpy.models.library import Config
+from dcpy.library.models import Config
 
 from . import aws_s3_bucket
 from .archive import Archive

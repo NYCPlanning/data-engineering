@@ -4,7 +4,7 @@ from typing import Literal
 
 import pandas as pd
 
-from dcpy.models.base import ModelWithDataFrame, SortedSerializedBase
+from dcpy.utils.models import ModelWithDataFrame, SortedSerializedBase
 
 
 class TestSerialization:

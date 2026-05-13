@@ -5,7 +5,7 @@ import yaml
 from jinja2 import meta
 
 from dcpy.lifecycle.ingest.connectors import source_connectors
-from dcpy.models.lifecycle.ingest import (
+from dcpy.lifecycle.ingest.models import (
     DatasetDefinition,
     DataSourceDefinition,
     IngestDefinition,

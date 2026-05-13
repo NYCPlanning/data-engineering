@@ -9,7 +9,7 @@ import yaml
 from pydantic import TypeAdapter
 
 from dcpy.lifecycle.validate import pandera_utils
-from dcpy.models.dataset import CheckAttributes, Column
+from dcpy.utils.schema import CheckAttributes, Column
 
 from . import RESOURCES
 

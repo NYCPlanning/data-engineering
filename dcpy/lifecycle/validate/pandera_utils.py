@@ -6,7 +6,7 @@ import geopandas as gpd
 import pandas as pd
 import pandera as pa
 
-from dcpy.models.dataset import CheckAttributes, Checks, Column
+from dcpy.utils.schema import CheckAttributes, Checks, Column
 
 
 def create_check(check: str | dict[str, CheckAttributes]) -> pa.Check:

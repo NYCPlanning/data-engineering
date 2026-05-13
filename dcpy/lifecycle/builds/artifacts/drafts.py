@@ -6,7 +6,7 @@ import pandas as pd
 import yaml
 
 from dcpy.lifecycle.builds.connector import get_drafts_default_connector
-from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.lifecycle.builds.models import BuildMetadata
 
 
 def get_dataset_versions(product: str) -> list[str]:

@@ -19,14 +19,14 @@ from dcpy.configuration import (
     CI,
     PUBLISHING_BUCKET,
 )
-from dcpy.connectors.registry import GenericConnector, VersionedConnector
-from dcpy.models.connectors.edm.publishing import (
+from dcpy.connectors.edm.models import (
     BuildKey,
     DraftKey,
     ProductKey,
     PublishKey,
 )
-from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.connectors.registry import GenericConnector, VersionedConnector
+from dcpy.lifecycle.builds.models import BuildMetadata
 from dcpy.utils import git, s3, versions
 from dcpy.utils.logging import logger
 

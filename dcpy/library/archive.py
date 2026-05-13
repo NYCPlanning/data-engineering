@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from dcpy.models.library import Config
+from dcpy.library.models import Config
 
 from . import base_path
 from .ingest import Ingestor

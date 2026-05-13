@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from dcpy.models.lifecycle.ingest import SparseConfig
+from dcpy.lifecycle.ingest.models import SparseConfig
 
 
 class TestIngestSparseConfig:

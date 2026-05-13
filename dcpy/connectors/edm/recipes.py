@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 from dcpy import configuration
-from dcpy.models.connectors.edm.recipes import (
+from dcpy.connectors.edm.models import (
     Dataset,
     DatasetKey,
     DatasetType,

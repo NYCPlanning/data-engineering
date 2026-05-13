@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dcpy.lifecycle.ingest.connectors import get_source_connectors
-from dcpy.models.lifecycle.ingest import (
+from dcpy.lifecycle.ingest.models import (
     ArchivedDataSource,
     ResolvedDataSource,
 )

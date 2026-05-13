@@ -2,7 +2,7 @@ from typing import Any, Callable, Literal
 
 from pydantic import field_validator
 
-from dcpy.models.base import SortedSerializedBase
+from dcpy.utils.models import SortedSerializedBase
 
 COLUMN_TYPES = Literal[
     "bbl",

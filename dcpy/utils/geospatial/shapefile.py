@@ -2,8 +2,8 @@ import os
 import zipfile
 from pathlib import Path
 
-from dcpy.models.data.shapefile_metadata import Metadata
 from dcpy.utils.geospatial.esri_metadata import generate_metadata
+from dcpy.utils.geospatial.shapefile_metadata import Metadata
 
 # TODO - move unpack_multilayer_shapefile() from lifecycle/assemble.py
 

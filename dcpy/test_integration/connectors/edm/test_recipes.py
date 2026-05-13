@@ -6,13 +6,13 @@ from pathlib import Path
 import pytest
 import requests
 
+from dcpy.connectors.edm.models import DatasetType
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
     StorageType,
 )
 from dcpy.connectors.ingest_datastore import Connector
-from dcpy.models.connectors.edm.recipes import DatasetType
-from dcpy.models.lifecycle import ingest
+from dcpy.lifecycle.ingest import models as ingest
 
 RESOURCE_DIR = Path(__file__).parent / "resources"
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 
+from dcpy.connectors.edm.models import BuildKey
 from dcpy.lifecycle.builds import metadata
-from dcpy.models.connectors.edm.publishing import BuildKey
 
 PRODUCT_PATH = Path(__file__).resolve().parent.parent
 

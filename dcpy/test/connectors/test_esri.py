@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from dcpy.connectors.esri import arcgis_feature_service as arcfs
-from dcpy.models.connectors.esri import (
+from dcpy.connectors.esri.models import (
     FeatureServer,
     FeatureServerLayer,
     Server,

@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from dcpy.lifecycle.builds import load, plan
-from dcpy.models.lifecycle.builds import InputDatasetDestination
+from dcpy.lifecycle.builds.models import InputDatasetDestination
 from dcpy.utils import postgres
 
 RESOURCES = Path(__file__).parent / "resources"

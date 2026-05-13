@@ -6,7 +6,7 @@ import pytest
 
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
 from dcpy.lifecycle.ingest import connectors, run
-from dcpy.models.lifecycle.ingest import ArchivedDataSource, IngestedDataset
+from dcpy.lifecycle.ingest.models import ArchivedDataSource, IngestedDataset
 from dcpy.utils import metadata
 
 from .shared import FAKE_VERSION, INGEST_DEF_DIR, RESOLVED, TEST_DATASET_NAME

@@ -15,12 +15,12 @@ from jinja2 import (
 
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
-from dcpy.lifecycle.connector_registry import connectors
-from dcpy.models.lifecycle.builds import (
+from dcpy.lifecycle.builds.models import (
     InputDatasetDefaults,
     Recipe,
     RecipeInputsVersionStrategy,
 )
+from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
 

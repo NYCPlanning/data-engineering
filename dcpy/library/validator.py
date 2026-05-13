@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ValidationError
 
-from dcpy.models.connectors.edm.recipes import ValidAclValues
-from dcpy.models.library import DatasetDefinition
+from dcpy.connectors.edm.models import ValidAclValues
+from dcpy.library.models import DatasetDefinition
 
 
 class Dataset(BaseModel):

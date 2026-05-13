@@ -3,12 +3,12 @@ from pathlib import Path
 import pytest
 
 from dcpy.lifecycle.ingest import plan
-from dcpy.models import file
-from dcpy.models.lifecycle.ingest import (
+from dcpy.lifecycle.ingest.models import (
     DatasetDefinition,
     DataSourceDefinition,
     Source,
 )
+from dcpy.utils import formats as file
 
 from .shared import INGEST_DEF_DIR, RESOLVED, TEST_DATASET_NAME
 

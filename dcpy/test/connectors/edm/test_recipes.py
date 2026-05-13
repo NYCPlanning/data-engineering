@@ -7,9 +7,9 @@ import pytest
 import yaml
 
 from dcpy.connectors.edm import recipes
-from dcpy.models import library
-from dcpy.models.connectors.edm.recipes import Dataset, DatasetType
-from dcpy.models.lifecycle.ingest import SparseConfig
+from dcpy.connectors.edm.models import Dataset, DatasetType
+from dcpy.library import models as library
+from dcpy.lifecycle.ingest.models import SparseConfig
 from dcpy.test.conftest import RECIPES_BUCKET
 from dcpy.utils import s3
 

@@ -7,7 +7,7 @@ import pytest
 
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.builds import load
-from dcpy.models.lifecycle.builds import (
+from dcpy.lifecycle.builds.models import (
     ImportedDataset,
     InputDataset,
     InputDatasetDestination,

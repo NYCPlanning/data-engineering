@@ -8,14 +8,14 @@ import geopandas as gpd
 import pandas as pd
 
 from dcpy.connectors.edm import recipes
-from dcpy.models import file
-from dcpy.models.lifecycle.ingest import (
+from dcpy.lifecycle.ingest.models import (
     Column,
     ProcessingResult,
     ProcessingStep,
     ProcessingSummary,
 )
 from dcpy.utils import data
+from dcpy.utils import formats as file
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.geospatial import transform
 from dcpy.utils.logging import logger

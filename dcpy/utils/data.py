@@ -10,7 +10,7 @@ import geopandas as gpd
 import ijson
 import pandas as pd
 
-from dcpy.models import file
+from dcpy.utils import formats as file
 from dcpy.utils.geospatial.transform import df_to_gdf
 from dcpy.utils.logging import logger
 

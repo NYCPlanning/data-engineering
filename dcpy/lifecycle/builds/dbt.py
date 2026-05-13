@@ -4,7 +4,7 @@ import typer
 from ruamel.yaml import YAML
 
 from dcpy.lifecycle.builds import plan
-from dcpy.models.lifecycle.builds import InputDataset, Recipe
+from dcpy.lifecycle.builds.models import InputDataset, Recipe
 
 DEFAULT_RECIPE = "recipe.yml"
 

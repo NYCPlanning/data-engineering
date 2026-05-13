@@ -3,7 +3,7 @@ from typing import Generic, TypeVar
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from dcpy.models.base import ModelWithDataFrame, SortedSerializedBase
+from dcpy.utils.models import ModelWithDataFrame, SortedSerializedBase
 
 T = TypeVar("T")
 

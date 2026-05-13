@@ -6,7 +6,7 @@ import pandas as pd
 from pydantic import ValidationError
 
 from dcpy.lifecycle.ingest import connectors, plan, transform
-from dcpy.models.lifecycle.ingest import (
+from dcpy.lifecycle.ingest.models import (
     ProcessingStep,
     ResolvedDataSource,
     Source,

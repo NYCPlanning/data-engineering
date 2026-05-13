@@ -7,7 +7,7 @@ from src.shared.constants import construct_dataset_by_version
 
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.lifecycle import data_loader
-from dcpy.models.lifecycle.builds import InputDataset
+from dcpy.lifecycle.builds.models import InputDataset
 
 
 def dataframe_style_source_report_results(value) -> str:

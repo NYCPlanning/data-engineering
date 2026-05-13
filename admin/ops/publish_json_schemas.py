@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from dcpy.models.lifecycle import ingest as ingest_models
+from dcpy.lifecycle.ingest import models as ingest_models
 from dcpy.product_metadata.models.metadata import org as product_metadata
 from dcpy.product_metadata.models.metadata import product as dataset_metadata
 from dcpy.utils import s3

@@ -6,9 +6,9 @@ from typing import Any, List
 from pydantic import BaseModel
 from tabulate import tabulate  # type: ignore
 
-from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
-from dcpy.models.dataset import COLUMN_TYPES, Column
 from dcpy.utils.collections import deep_merge_dict as merge
+from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader, YamlWriter
+from dcpy.utils.schema import COLUMN_TYPES, Column
 
 ERROR_MISSING_COLUMN = "MISSING COLUMN"
 

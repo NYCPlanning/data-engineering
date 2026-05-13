@@ -7,8 +7,8 @@ import typer
 
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import BUILD_PLAN_ARTIFACTS, metadata, plan
+from dcpy.lifecycle.builds.models import ExportFormat
 from dcpy.lifecycle.connector_registry import connectors
-from dcpy.models.lifecycle.builds import ExportFormat
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 

@@ -29,7 +29,7 @@ os.environ["PRODUCT_METADATA_REPO_PATH"] = str(
 from dcpy import configuration
 from dcpy.connectors.edm import packaging, publishing
 from dcpy.lifecycle.builds import plan
-from dcpy.models.lifecycle.builds import BuildMetadata
+from dcpy.lifecycle.builds.models import BuildMetadata
 from dcpy.test.resources import package_and_distribute
 from dcpy.utils import s3, versions
 

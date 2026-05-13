@@ -5,7 +5,7 @@ import geopandas as gpd
 import pandas as pd
 from pyarrow import parquet
 
-from dcpy.models.geospatial import parquet as geoparquet
+from dcpy.utils.geospatial import parquet_models as geoparquet
 
 
 def _is_geoparquet(m: parquet.FileMetaData):

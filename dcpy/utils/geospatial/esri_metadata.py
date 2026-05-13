@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from dcpy.models.data.shapefile_metadata import (
+from dcpy.utils.geospatial.shapefile_metadata import (
     Esri,
     Mddatest,
     Metadata,
