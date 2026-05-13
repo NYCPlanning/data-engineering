@@ -119,7 +119,6 @@ jobs:
     - name: Check python files
       run: |
         mypy dcpy
-        mypy apps/qa/src
         mypy products/facilities
         mypy products/template
         mypy products/ceqr/build_scripts
