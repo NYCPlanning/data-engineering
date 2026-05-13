@@ -133,6 +133,27 @@ jobs:
       - name: Build and publish dev
         run: ./admin/ops/docker_build_and_publish.sh dev
 
+  qa-streamlit:
+    runs-on: ubuntu-22.04
+    needs: [base]
+    if: inputs.qa-streamlit || github.event_name == 'push'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+
+      - name: Build and publish qa-streamlit
+        run: ./apps/qa/bash/docker_build_and_publish.sh
+
   docker-geosupport:
     runs-on: ubuntu-22.04
     if: inputs.docker-geosupport || github.event_name == 'push'
@@ -152,23 +173,3 @@ jobs:
 
       - name: Build and publish docker-geosupport
         run: ./admin/ops/docker_build_and_publish.sh docker-geosupport
-
-  qa-streamlit:
-    runs-on: ubuntu-22.04
-    if: inputs.qa-streamlit || github.event_name == 'push'
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v4
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
-          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
-
-      - name: Build and publish qa-streamlit
-        run: ./apps/qa/bash/docker_build_and_publish.sh
