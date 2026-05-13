@@ -1,0 +1,63 @@
+version: 2
+
+models:
+- name: qa__diffs_all
+  description: >
+    Union of all per-product diff summaries (thinlion, lion_dat, rpl, saf),
+    giving a single project-wide view of every discrepant record between the
+    dev build and production. Intended as the source for burndown charts and
+    cross-product diff tracking. Materialized as a table on demand (tags:
+    on_demand, diffs). diff_run_date is stamped at materialization time via
+    CURRENT_DATE.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - comparison_id
+      - output_file_id
+  columns:
+  - name: comparison_id
+    description: >
+      Primary key from the upstream diff model. Corresponds to atomicid for
+      thinlion records, _lion_key for lion_dat, _rpl_key for rpl, and
+      _saf_key for saf. Unique within each output_file_id but not across the
+      full table.
+  - name: status
+    description: >
+      Row-level diff status. One of: modified (record exists in both but
+      values differ), only_in_legacy (record exists only in production),
+      only_in_build (record exists only in the dev build).
+  - name: changes
+    description: >
+      JSONB object where each key is a changed column name and each value
+      contains the old (production) and new (dev build) values. NULL for rows
+      with status other than modified.
+  - name: output_file_id
+    description: >
+      Identifies which CSCL output file the record belongs to (e.g.
+      thinlion_all, lion_dat_manhattan, rpl, saf_abcegnpx_roadbed). Used
+      together with comparison_id as the composite primary key.
+  - name: diff_group
+    description: >
+      Coarse categorization of the diff, assigned by each upstream model.
+      For lion_dat, rpl, and saf, single-field changes are categorized by the
+      changed column name; known patterns get a descriptive label (e.g. Bug 001
+      in lion_dat). For thinlion, only 'police geo discrepancy' is assigned;
+      field names are never used. Empty string when no categorization applies.
+  - name: subgroup
+    description: >
+      Reserved for finer-grained categorization within a diff_group. Currently
+      always an empty string across all upstream models.
+  - name: comparison_column
+    description: Column used as the primary key in the generate_diff_summary macro call for this record's product.
+  - name: build_table_name
+    description: Name of the dev build table that was compared.
+  - name: production_table_name
+    description: Name of the production table that was compared.
+  - name: accounted_for
+    description: >
+      Boolean flag set by each upstream model indicating whether this diff is
+      a known or expected difference (e.g. a documented legacy bug or a
+      deliberate behavior change). Records with accounted_for = true can be
+      excluded from burndown counts.
+  - name: diff_run_date
+    description: Date on which this table was last materialized, stamped via CURRENT_DATE.
