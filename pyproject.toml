@@ -199,6 +199,24 @@ product-metadata = [
     "Jinja2",
 ]
 
+# Type stubs for development
+stubs = [
+    "boto3-stubs[s3]",
+    "openpyxl-stubs",
+    "pandas-stubs",
+    "pyarrow-stubs",
+    "sqlalchemy-stubs",
+    "types-beautifulsoup4",
+    "types-paramiko",
+    "types-psycopg2",
+    "types-python-dateutil",
+    "types-pytz",
+    "types-PyYAML>=6.0.1",
+    "types-requests",
+    "types-setuptools",
+    "types-tqdm",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 exclude = ["dcpy.test*"]
