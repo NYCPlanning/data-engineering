@@ -148,9 +148,88 @@ def make_plan_recipe_asset(product: lifecycle.asset_models.Product):
     return _plan_recipe_asset
 
 
+def make_load_data_asset(product: lifecycle.asset_models.Product):
+    """Create a load data asset for a specific product.
+
+    Args:
+        product: Product object with name and path attributes
+
+    Returns:
+        A Dagster asset function
+    """
+    plan_asset_name = f"plan_recipe_{product.name}"
+
+    @asset(
+        name=f"load_data_{product.name}",
+        partitions_def=build_partition_def,
+        group_name="build",
+        tags={"product": product.name, "lifecycle_stage": "builds.load"},
+        deps=[plan_asset_name],
+    )
+    def _load_data_asset(
+        context: AssetExecutionContext,
+        local_storage: LocalStorageResource,
+    ):
+        """Load source data for product from the planned recipe."""
+        from dcpy.lifecycle.builds.connector import get_plan_default_connector
+        from dcpy.lifecycle.builds.load import load_source_data_from_resolved_recipe
+
+        partition_key = context.partition_key
+
+        context.log.info(
+            f"Loading data for {product.name} build {partition_key} from plan storage"
+        )
+
+        # Pull the planned recipe from blob storage
+        plan_connector = get_plan_default_connector()
+        build_path = local_storage.get_path("builds", product.name, partition_key)
+
+        context.log.info(f"Pulling plan from storage to {build_path}")
+        pull_result = plan_connector.pull_versioned(
+            key=product.name,
+            version=partition_key,
+            destination_path=Path(build_path),
+        )
+        context.log.info(f"Pull result: {pull_result}")
+
+        # Verify recipe.lock.yml exists
+        lock_file = Path(build_path) / "recipe.lock.yml"
+        if not lock_file.exists():
+            raise FileNotFoundError(
+                f"recipe.lock.yml not found at {lock_file} after pulling from storage"
+            )
+
+        context.log.info(f"Loading source data from {lock_file}")
+
+        # Load the source data using the resolved recipe
+        load_result = load_source_data_from_resolved_recipe(
+            recipe_lock_path=lock_file,
+            clear_pg_schema=True,
+            target_schema=None,  # Will use default from metadata.build_name()
+        )
+
+        context.log.info(
+            f"Successfully loaded {len(load_result.datasets)} datasets into build {load_result.build_name}"
+        )
+
+        return MaterializeResult(
+            metadata={
+                "recipe_lock_path": str(lock_file),
+                "build_name": load_result.build_name,
+                "num_datasets": len(load_result.datasets),
+                "dataset_ids": ", ".join(load_result.datasets.keys()),
+                "version": partition_key,
+                "product": product.name,
+            }
+        )
+
+    return _load_data_asset
+
+
 # Generate assets for all products
 products = lifecycle.list_products()
 plan_recipe_assets = [make_plan_recipe_asset(product) for product in products]
+load_data_assets = [make_load_data_asset(product) for product in products]
 
 # Export all assets
-build_assets = plan_recipe_assets
+build_assets = plan_recipe_assets + load_data_assets
