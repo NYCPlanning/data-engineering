@@ -369,6 +369,47 @@ def test_create_attr_metadata_udom_none_when_values_present():
     assert attr.attrdomv.udom is None
 
 
+def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
+    """Verifies GDB-specific metadata writing using the pluto test fixture.
+
+    Checks:
+    - eainfo.detailed.name is product_md.id ("pluto"), not the layer name
+    - date column maps to Esri type "Date"
+    - full column names are used (no shapefile truncation)
+    """
+    esri.write_metadata(
+        product_name="pluto",
+        dataset_name="pluto",
+        path=temp_gdb_zip_path,
+        layer=SPATIAL_LAYER,
+        file_id="primary_file_geodatabase",
+        zip_subdir=None,
+        org_md=org_metadata,
+    )
+    metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
+    if metadata is None:
+        pytest.fail("Expected metadata to exist after write")
+
+    pluto_md = org_metadata.product("pluto").dataset("pluto")
+    file_metadata = pluto_md.calculate_file_dataset_metadata(file_id="primary_file_geodatabase")
+
+    assert metadata.eainfo.detailed.name == pluto_md.id
+    assert metadata.eainfo.detailed.enttyp.enttypl.value == pluto_md.id
+
+    # uid → FID / OID
+    assert metadata.eainfo.detailed.attr[0].attrlabl.value == "FID"
+    assert metadata.eainfo.detailed.attr[0].attrtype.value == "OID"
+
+    # borough — full name, has domain values (edom), no truncation
+    assert metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
+    assert metadata.eainfo.detailed.attr[1].attrtype.value == "String"
+    assert len(metadata.eainfo.detailed.attr[1].attrdomv.edom) == len(file_metadata.columns[1].values)
+
+    # appdate — date type maps to Esri "Date"
+    assert metadata.eainfo.detailed.attr[2].attrlabl.value == "APPDate"
+    assert metadata.eainfo.detailed.attr[2].attrtype.value == "Date"
+
+
 def test_write_metadata_raises_on_nested_gdb_zip(tmp_path, org_metadata):
     gdb_path = tmp_path / "test.gdb"
     gdb_path.mkdir()

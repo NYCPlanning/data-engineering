@@ -1,0 +1,37 @@
+id: pluto
+
+attributes:
+  display_name: Primary Land Use Tax Lot Output (PLUTO)
+  description: PLUTO test dataset
+  each_row_is_a: Tax Lot
+
+files:
+  - file:
+      id: primary_file_geodatabase
+      filename: mappluto_wi_gdb.zip
+      type: geodatabase
+
+columns:
+  - id: uid
+    name: uid
+    data_type: text
+    description: Unique identifier
+  - id: borough
+    name: Borough
+    data_type: text
+    description: NYC borough
+    values:
+      - value: MN
+        description: Manhattan
+      - value: BX
+        description: Bronx
+      - value: BK
+        description: Brooklyn
+      - value: QN
+        description: Queens
+      - value: SI
+        description: Staten Island
+  - id: appdate
+    name: APPDate
+    data_type: date
+    description: Date of most recent alteration permit application
