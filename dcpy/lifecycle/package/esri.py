@@ -6,7 +6,7 @@ import yaml
 
 import dcpy.models.product.dataset.metadata as models
 from dcpy.lifecycle import product_metadata
-from dcpy.models.data.shapefile_metadata import Attr, Edom
+from dcpy.models.data.shapefile_metadata import Attr, Edom, Udom
 from dcpy.models.product.dataset.metadata import (
     ColumnValue,
     DatasetColumn,
@@ -156,7 +156,13 @@ def write_metadata(
     # Set dataset-level values
     # TODO: define DCP organizationally required metadata fields
     metadata.md_hr_lv_name = file_metadata.attributes.display_name
+    metadata.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
     metadata.data_id_info.id_abs = file_metadata.attributes.description
+    # TODO: map idPurp to a product-metadata field
+    metadata.data_id_info.id_credit = file_metadata.attributes.attribution
+    metadata.data_id_info.res_const.consts.use_limit = (
+        file_metadata.attributes.disclaimer
+    )
     metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
     metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
 
@@ -181,28 +187,46 @@ def write_metadata(
         shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
         shp.write_metadata(metadata, overwrite=True)
 
+    else:
+        raise ValueError(
+            f"Unsupported file type for metadata writing: path='{path}', layer='{layer}'. "
+            "Expected a .gdb or .shp path."
+        )
+
+
+_DCP_TO_ESRI_TYPE: dict[str, str] = {
+    "text": "String",
+    "integer": "Integer",
+    "decimal": "Double",
+    "number": "Double",
+    "bool": "SmallInteger",
+    "geometry": "Geometry",
+    # bbl is a numeric identifier; Double is the closest Esri type
+    "bbl": "Double",
+}
+
+
+def _dcp_type_to_esri(dcp_type: str | None) -> str | None:
+    return _DCP_TO_ESRI_TYPE.get(dcp_type or "", None)
+
 
 def _create_attr_metadata(column: DatasetColumn) -> Attr:
     """Create an Attr metadata object from a column specification."""
     attr = Attr()
 
-    attr.attrlabl.value = "FID" if column.id == "uid" else column.id
-    attr.attalias.value = "FID" if column.name == "uid" else column.name
+    is_uid = column.id == "uid"
+    attr.attrlabl.value = "FID" if is_uid else column.name
+    attr.attalias.value = "FID" if is_uid else column.name
     attr.attrdef.value = column.description
+    attr.attrdefs.value = column.data_source
+    attr.attrtype.value = "OID" if is_uid else _dcp_type_to_esri(column.data_type)
 
-    # TODO: define column-level defaults (e.g. attrdefs = 'Esri' if column.name == 'uid')
-    # TODO: map DCP types to Esri types (e.g. attrtype = 'OID' if column.name == 'uid') Note DCP types != Esri types
-    # attr.attrtype.value = column.data_type
-    # attr.attwidth.value = None
-    # attr.atprecis.value = None
-    # attr.attscale.value = None
-    # attr.attrdefs.value = ""
-
-    # Handle domain values if present
-    if hasattr(column, "values") and column.values:
+    if column.values:
+        attr.attrdomv.udom = None
         attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
-
-    # TODO: handle 'attrdomv.udom', with other esri value defaults
+    else:
+        attr.attrdomv.udom = Udom(value=column.description)
+        attr.attrdomv.edom = []
     return attr
 
 

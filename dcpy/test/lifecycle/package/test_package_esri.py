@@ -8,6 +8,7 @@ from pytest import fixture
 
 from dcpy.lifecycle.package import esri
 from dcpy.models.data.shapefile_metadata import Metadata
+from dcpy.models.product.dataset.metadata import ColumnValue, DatasetColumn
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import fgdb
 from dcpy.utils.geospatial import shapefile as shp_utils
@@ -18,6 +19,7 @@ SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
 GDB_ZIP = "geodatabase.gdb.zip"
 SPATIAL_LAYER = "mappluto_one_row"
 TABLE_LAYER = "pluto_one_row"
+SHP_SUBDIR = "subdir"
 
 
 @fixture
@@ -30,6 +32,21 @@ def temp_shp_zip_no_md_path(utils_resources_path, tmp_path):
         f"'{SHP_ZIP_NO_MD}' should be a valid zip file"
     )
     return tmp_path / SHP_ZIP_NO_MD
+
+
+@fixture
+def temp_shp_zip_with_subdir_path(utils_resources_path, tmp_path):
+    """Shapefile zip where the .shp files are nested inside a subdirectory."""
+    extract_dir = tmp_path / "extracted"
+    extract_dir.mkdir()
+    shutil.unpack_archive(
+        filename=utils_resources_path / SHP_ZIP_NO_MD, extract_dir=extract_dir
+    )
+    subdir_zip = tmp_path / SHP_ZIP_NO_MD
+    with zipfile.ZipFile(subdir_zip, "w") as zf:
+        for f in extract_dir.iterdir():
+            zf.write(f, arcname=f"{SHP_SUBDIR}/{f.name}")
+    return subdir_zip
 
 
 @fixture
@@ -156,6 +173,12 @@ def org_metadata(package_and_dist_test_resources):
             id="add_md_to_nonzip_shp_with_md",
         ),
         pytest.param(
+            "temp_shp_zip_with_subdir_path",
+            "zip",
+            SHP_SUBDIR,
+            id="add_md_to_zip_shp_with_subdir",
+        ),
+        pytest.param(
             "temp_gdb_zip_path",
             "zip",
             None,
@@ -219,7 +242,10 @@ def test_write_metadata(
 
     # Test product-specific values
     assert metadata.md_hr_lv_name == file_metadata.attributes.display_name
+    assert metadata.data_id_info.id_citation.res_title == file_metadata.attributes.display_name
     assert metadata.data_id_info.id_abs == file_metadata.attributes.description
+    assert metadata.data_id_info.id_credit == file_metadata.attributes.attribution
+    assert metadata.data_id_info.res_const.consts.use_limit == file_metadata.attributes.disclaimer
     assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
     assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
 
@@ -229,14 +255,148 @@ def test_write_metadata(
     assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
+    # column 0 has no domain values: attrlabl, attrtype, and udom should all round-trip
+    col0 = file_metadata.columns[0]
+    expected_label_0 = "FID" if col0.id == "uid" else col0.name
+    assert metadata.eainfo.detailed.attr[0].attrlabl.value == expected_label_0
+    expected_type_0 = "OID" if col0.id == "uid" else esri._dcp_type_to_esri(col0.data_type)
+    assert metadata.eainfo.detailed.attr[0].attrtype.value == expected_type_0
+    udom_0 = metadata.eainfo.detailed.attr[0].attrdomv.udom
+    assert udom_0 is not None
+    assert udom_0.value == col0.description
+
     assert file_metadata.columns[1].values is not None, "Column values must be defined"
 
+    # column 1 is borough in the colp test fixture — has domain values
+    assert metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
+    assert metadata.eainfo.detailed.attr[1].attrtype.value == esri._dcp_type_to_esri(
+        file_metadata.columns[1].data_type
+    )
+    udom_1 = metadata.eainfo.detailed.attr[1].attrdomv.udom
+    assert udom_1 is None or udom_1.value is None
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
         == file_metadata.columns[1].values[0].value  # "1", when org_md product is colp
     )
-
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
         == file_metadata.columns[1].values[0].description  # "Manhattan", when org_md product is colp
     )
+
+
+def _make_column(**kwargs) -> DatasetColumn:
+    defaults = dict(id="some_field", name="Some Field", data_type="text", description="A description")
+    return DatasetColumn(**(defaults | kwargs))
+
+
+def test_create_attr_metadata_basic():
+    col = _make_column(name="MyField", description="My desc", data_source="Agency X")
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrlabl.value == "MyField"
+    assert attr.attalias.value == "MyField"
+    assert attr.attrdef.value == "My desc"
+    assert attr.attrdefs.value == "Agency X"
+
+
+def test_create_attr_metadata_uid_becomes_fid():
+    col = _make_column(id="uid", name="uid")
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrlabl.value == "FID"
+    assert attr.attalias.value == "FID"
+
+
+def test_create_attr_metadata_no_data_source():
+    col = _make_column()
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrdefs.value is None
+
+
+def test_create_attr_metadata_with_values():
+    col = _make_column(
+        values=[
+            ColumnValue(value="A", description="Alpha"),
+            ColumnValue(value="B", description="Beta"),
+        ]
+    )
+    attr = esri._create_attr_metadata(col)
+    assert len(attr.attrdomv.edom) == 2
+    assert attr.attrdomv.edom[0].edomv == "A"
+    assert attr.attrdomv.edom[0].edomvd == "Alpha"
+    assert attr.attrdomv.edom[1].edomv == "B"
+    assert attr.attrdomv.edom[1].edomvd == "Beta"
+
+
+def test_create_attr_metadata_no_values():
+    col = _make_column()
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrdomv.edom == []
+
+
+def test_create_attr_metadata_attrtype_mapped():
+    col = _make_column(data_type="text")
+    assert esri._create_attr_metadata(col).attrtype.value == "String"
+
+    col = _make_column(data_type="integer")
+    assert esri._create_attr_metadata(col).attrtype.value == "Integer"
+
+    col = _make_column(data_type="decimal")
+    assert esri._create_attr_metadata(col).attrtype.value == "Double"
+
+    col = _make_column(data_type="bbl")
+    assert esri._create_attr_metadata(col).attrtype.value == "Double"
+
+    col = _make_column(data_type="geometry")
+    assert esri._create_attr_metadata(col).attrtype.value == "Geometry"
+
+
+def test_create_attr_metadata_uid_attrtype_is_oid():
+    col = _make_column(id="uid", name="uid", data_type="text")
+    assert esri._create_attr_metadata(col).attrtype.value == "OID"
+
+
+def test_dcp_type_to_esri_unknown_returns_none():
+    assert esri._dcp_type_to_esri("custom_type") is None
+    assert esri._dcp_type_to_esri(None) is None
+
+
+def test_create_attr_metadata_udom_set_when_no_values():
+    col = _make_column(description="Free-form text field")
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrdomv.udom is not None
+    assert attr.attrdomv.udom.value == "Free-form text field"
+
+
+def test_create_attr_metadata_udom_none_when_values_present():
+    col = _make_column(values=[ColumnValue(value="A", description="Alpha")])
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrdomv.udom is None
+
+
+def test_write_metadata_raises_on_nested_gdb_zip(tmp_path, org_metadata):
+    gdb_path = tmp_path / "test.gdb"
+    gdb_path.mkdir()
+    with pytest.raises(ValueError, match="Nested zipped GDBs are not supported"):
+        esri.write_metadata(
+            product_name="colp",
+            dataset_name="colp",
+            path=gdb_path,
+            layer="some_layer",
+            file_id="primary_shapefile",
+            zip_subdir="some_subdir",
+            org_md=org_metadata,
+        )
+
+
+def test_write_metadata_raises_on_unsupported_file_type(tmp_path, org_metadata):
+    bad_path = tmp_path / "file.csv"
+    bad_path.touch()
+    with pytest.raises(ValueError, match="Unsupported file type"):
+        esri.write_metadata(
+            product_name="colp",
+            dataset_name="colp",
+            path=bad_path,
+            layer="some_layer",
+            file_id="primary_shapefile",
+            zip_subdir=None,
+            org_md=org_metadata,
+        )
