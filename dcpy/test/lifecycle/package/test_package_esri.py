@@ -18,7 +18,6 @@ SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
 
 GDB_ZIP = "geodatabase.gdb.zip"
 SPATIAL_LAYER = "mappluto_one_row"
-TABLE_LAYER = "pluto_one_row"
 SHP_SUBDIR = "subdir"
 
 
@@ -249,9 +248,7 @@ def test_write_metadata(
     assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
     assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
 
-    is_gdb = ".gdb" in fixture_info["path"].suffixes
-    expected_entity_name = fixture_info["layer"] if is_gdb else product_md.id
-    assert metadata.eainfo.detailed.name == expected_entity_name
+    assert metadata.eainfo.detailed.name == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 

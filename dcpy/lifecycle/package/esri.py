@@ -133,8 +133,8 @@ def write_metadata(
     zip_subdir: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
 ):
-    """Write product metadata to the shapefile metadata XML. Generates a new XML with defaults,
-    and applies additional product-specific values.
+    """Write product metadata to an Esri metadata XML embedded in a shapefile or geodatabase.
+    Generates a new XML with defaults and applies product-specific values.
 
     Args:
         product_name (str): Name of product. e.g. "lion"
@@ -143,7 +143,7 @@ def write_metadata(
         layer (str): Shapefile or feature class name.
         zip_subdir (str | None): Internal path if shp is nested within a zip file.
             Must be None when path is a file geodatabase.
-        org_md (Path | OrgMetadata | None): Metadata reference used to populate shapefile metadata.
+        org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
     """
     if isinstance(org_md, Path) or not org_md:
         org_md = product_metadata.load(org_md_path_override=org_md)
@@ -179,7 +179,7 @@ def write_metadata(
             raise ValueError(
                 "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
             )
-        metadata.eainfo.detailed.name = layer
+        metadata.eainfo.detailed.name = product_md.id
         fgdb.write_metadata(gdb=path, layer=layer, metadata=metadata, overwrite=True)
 
     elif ".shp" in path.suffixes or layer.endswith(".shp"):
@@ -203,6 +203,8 @@ _DCP_TO_ESRI_TYPE: dict[str, str] = {
     "geometry": "Geometry",
     # bbl is a numeric identifier; Double is the closest Esri type
     "bbl": "Double",
+    "date": "Date",
+    "datetime": "Date",
 }
 
 
