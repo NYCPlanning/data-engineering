@@ -18,3 +18,7 @@ models:
               parent_column: '"FACSUBGRP"'
       - name: '"FACSUBGRP"'
         tests: [ not_null ]
+      - name: '"OPNAME"'
+        tests:
+          - not_null_if_other_not_null:
+              other_column_name: '"OPABBREV"'
