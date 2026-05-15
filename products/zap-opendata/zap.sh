@@ -38,10 +38,18 @@ function upload_to_digital_ocean {
 
     filename=${dataset}_${output_suffix}.csv
     output_filepath=.output/${dataset}/${filename}
-    do_directory="spaces/${do_bucket}/db-zap"
 
-    mc cp --attr x-amz-acl=${acl} ${output_filepath} ${do_directory}/${version}/${dataset}/${filename}
-    mc cp --attr x-amz-acl=${acl} ${output_filepath} ${do_directory}/latest/${dataset}/${filename}
+    # Replaces prior minio usage. Quick fix until ZAP build is refactored to align with other data products.
+    python3 - <<-EOF
+	from dcpy.utils import s3
+	from pathlib import Path
+
+	filepath = Path("${output_filepath}")
+	bucket = "${do_bucket}"
+	acl = "${acl}"
+	s3.upload_file(bucket=bucket, path=filepath, key="db-zap/${version}/${dataset}/${filename}", acl=acl)
+	s3.upload_file(bucket=bucket, path=filepath, key="db-zap/latest/${dataset}/${filename}", acl=acl)
+	EOF
 }
 
 case $1 in
