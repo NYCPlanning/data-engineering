@@ -201,7 +201,10 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
             raise NotImplementedError(
                 "Builds don't have a meaningful 'latest' version. Use list_versions() to see available builds."
             )
-        return self.list_versions(key)[0]
+        versions = self.list_versions(key, exclude_latest=True)
+        if not versions:
+            raise IndexError(f"No versions found for '{key}'")
+        return versions[0]
 
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
