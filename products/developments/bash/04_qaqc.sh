@@ -1,5 +1,6 @@
 #!/bin/bash
-source bash/config.sh
+source ../../bash/utils.sh
+set_error_traps
 
 display "Creating QAQC Table for init table"
 run_sql_file sql/qaqc/qaqc_init.sql
@@ -18,7 +19,6 @@ display "Creating QAQC Table for qaqc final"
 run_sql_file sql/qaqc/qaqc_final.sql
 
 display "appending to historic table"
-import_qaqc_historic
 run_sql_file sql/qaqc/qaqc_historic.sql -v VERSION=$VERSION
 
 display "Creating QAQC Table for QAQC Application"

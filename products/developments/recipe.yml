@@ -57,3 +57,9 @@ inputs:
     - name: dob_jobapplications
     - name: dob_jobapplications_parkingspaces
       version: 20240603
+    - id: db-developments
+      source: edm.publishing.published
+      file_type: csv
+      import_as: qaqc_historic
+      custom:
+        filepath: qaqc_historic.csv

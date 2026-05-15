@@ -1,4 +1,5 @@
-source bash/config.sh
+source ../../bash/utils.sh
+set_error_traps
 
 display "Clean census data"
 run_sql_file sql/_census.sql
