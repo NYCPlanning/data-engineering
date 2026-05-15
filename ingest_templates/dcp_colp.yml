@@ -16,7 +16,7 @@ ingestion:
     url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/city-owned-leased-properties/colp_{{ version }}_csv.zip
   file_format:
     type: csv
-    unzipped_filename: colp_{{ version }}.csv
+    unzipped_filename: colp_20260429.csv
     geometry:
       geom_column: GEOM
       crs: EPSG:2263
