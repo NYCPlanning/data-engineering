@@ -1,5 +1,5 @@
 #!/bin/bash
-source bash/config.sh
+source ../../bash/utils.sh
 source sql/constants/export_schemas.sh
 set_error_traps
 

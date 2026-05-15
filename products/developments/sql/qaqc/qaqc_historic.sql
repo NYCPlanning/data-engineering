@@ -2,6 +2,35 @@ DELETE FROM qaqc_historic
 WHERE version = :'VERSION';
 
 INSERT INTO qaqc_historic (
+    version,
+    b_likely_occ_desc,
+    b_large_alt_reduction,
+    b_nonres_with_units,
+    units_co_prop_mismatch,
+    partially_complete,
+    units_init_null,
+    units_prop_null,
+    units_res_accessory,
+    outlier_demo_20plus,
+    outlier_nb_500plus,
+    outlier_top_alt_increase,
+    dup_bbl_address_units,
+    dup_bbl_address,
+    inactive_with_update,
+    no_work_job,
+    geo_water,
+    geo_taxlot,
+    geo_null_latlong,
+    geo_null_boundary,
+    invalid_date_filed,
+    invalid_date_lastupdt,
+    invalid_date_statusd,
+    invalid_date_statusp,
+    invalid_date_statusr,
+    invalid_date_statusx,
+    incomp_tract_home,
+    dem_nb_overlap
+) (
     SELECT
         :'VERSION',
         sum(CASE WHEN b_likely_occ_desc != '0' THEN 1 ELSE 0 END) AS b_likely_occ_desc,
