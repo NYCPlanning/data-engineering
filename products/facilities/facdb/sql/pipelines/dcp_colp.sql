@@ -332,6 +332,13 @@ WITH _dcp_colp_tmp AS (
                 WHEN agency = 'TBTA' THEN 'Metropolitan Transportation Authority'
                 WHEN agency = 'TLC' THEN 'NYC Taxi and Limousine Commission'
                 WHEN agency = 'UNKN' THEN 'NYC Unknown'
+                WHEN agency = 'BOC' THEN 'NYC Board of Correction'
+                WHEN agency = 'CNTYC' THEN 'County Clerk'
+                WHEN agency = 'DVS' THEN 'NYC Department of Veterans'' Services'
+                WHEN agency = 'EEPC' THEN 'NYC Equal Employment Practices Commission'
+                WHEN agency = 'NYS' THEN 'New York State'
+                WHEN agency = 'OTHP' THEN 'Other Public'
+                WHEN agency = 'RGB' THEN 'NYC Rent Guidelines Board'
             END
         ) AS opname,
         (
