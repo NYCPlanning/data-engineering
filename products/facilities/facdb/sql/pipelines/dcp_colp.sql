@@ -40,6 +40,7 @@ WITH _dcp_colp_tmp AS (
                 WHEN agency LIKE '%DEP%' AND usetype LIKE '%TESTING LABORATORY%' THEN 'Environmental Testing Laboratory'
                 WHEN agency LIKE '%CUNY%' AND usetype LIKE '%RESIDENTIAL%' THEN 'University Residential Structure'
                 WHEN agency LIKE '%HHC%' AND usetype LIKE '%RESIDENTIAL%' THEN 'Hospital Residential Structure'
+                WHEN agency LIKE '%HHC%' AND usetype LIKE '%EMERGENCY MEDICL STN%' THEN 'Emergency Medical Station'
                 ELSE initcap(replace(usetype, 'OTHER ', ''))
             END
         ) AS factype,
@@ -119,7 +120,8 @@ WITH _dcp_colp_tmp AS (
                         usetype LIKE '%TRANSIT%'
                         AND usetype NOT LIKE '%TRANSITIONAL%'
                     ) THEN 'Rail Yards and Maintenance'
-                WHEN usetype LIKE '%BUS%' THEN 'Bus Depots and Terminals' -- Health and Human
+                WHEN usetype LIKE '%BUS%' THEN 'Bus Depots and Terminals'
+                WHEN usetype LIKE '%EMERGENCY MEDICL STN%' THEN 'Other Emergency Services'
                 WHEN agency LIKE '%HHC%' THEN 'Hospitals and Clinics'
                 WHEN usetype LIKE '%HOSPITAL%' THEN 'Hospitals and Clinics'
                 WHEN usetype LIKE '%AMBULATORY HEALTH%' THEN 'Hospitals and Clinics'
@@ -203,7 +205,6 @@ WITH _dcp_colp_tmp AS (
                     AND usetype LIKE '%COURT%' THEN 'Courthouses and Judicial'
                 WHEN agency LIKE '%CORR%' THEN 'Detention and Correctional'
                 WHEN usetype LIKE '%AMBULANCE%' THEN 'Other Emergency Services'
-                WHEN usetype LIKE '%EMERGENCY MEDICAL%' THEN 'Other Emergency Services'
                 WHEN usetype LIKE '%FIREHOUSE%' THEN 'Fire Services'
                 WHEN usetype LIKE '%POLICE STATION%' THEN 'Police Services'
                 WHEN
