@@ -147,6 +147,7 @@ class DatasetOrgProductAttributesOverride(CustomizableBase):
     contains_address: bool | None = (
         None  # `contains_address` refers specifically to addresses containing house, numbers + street names. (ie. not just streets, polys, etc.)
     )
+    current_version: str | None = None
     data_collection_method: str | None = None
     data_change_frequency: str | None = None
     date_made_public: str | None = None
