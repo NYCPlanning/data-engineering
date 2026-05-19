@@ -15,7 +15,7 @@ ingestion:
   source:
     type: s3
     bucket: edm-recipes
-    key: inbox/fisa_dailybudget/AIBL_DLY_BUD_96L1_20260220014024.asc
+    key: inbox/fisa_dailybudget/AIBL_DLY_BUD_96L1_20260519012142.asc
   file_format:
     type: csv 
     delimiter: "|"
