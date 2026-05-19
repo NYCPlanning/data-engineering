@@ -3,7 +3,6 @@ import streamlit as st
 
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.edm.models import BuildKey
-from dcpy.lifecycle.builds.metadata import build_name as sanitize_build_name
 from dcpy.utils import postgres, s3
 
 PRODUCT = "db-cscl"
@@ -96,16 +95,40 @@ def get_build_output_zip_url(build: str) -> str:
 
 
 def get_pg_client(build: str) -> postgres.PostgresClient:
-    """Return a PostgresClient scoped to the dbt schema for the given build.
+    """Return a PostgresClient scoped to the dbt schema for the given build."""
+    return postgres.PostgresClient(
+        database=PRODUCT, schema=build.lower().replace("-", "_")
+    )
 
-    In CI, BUILD_ENGINE_SCHEMA is set to the build name, so the dbt tables
-    for build 'nightly_qa' live in schema 'nightly_qa'.
-    """
-    return postgres.PostgresClient(database=PRODUCT, schema=sanitize_build_name(build))
+
+@st.cache_data(show_spinner=False)
+def get_build_tables(build: str) -> list[str]:
+    """List all tables in the build's Postgres schema."""
+    client = get_pg_client(build)
+    return client.get_schema_tables()
 
 
 @st.cache_data(show_spinner=False)
 def get_dbt_qa_table(build: str, table_name: str) -> pd.DataFrame:
     """Read a dbt QA model table from Postgres into a DataFrame."""
     client = get_pg_client(build)
-    return client.read_table_df(table_name)
+    return client.read_table_df(table_name, schema=client.schema)
+
+
+@st.cache_data(show_spinner=False)
+def get_record_by_comparison_id(
+    build: str, table_name: str, id_column: str, id_value: str
+) -> pd.DataFrame:
+    """Fetch a single record from a build table by its primary key value."""
+    client = get_pg_client(build)
+    return client.execute_select_query(
+        f'SELECT * FROM "{table_name}" WHERE "{id_column}" = :id_value',
+        id_value=id_value,
+    )
+
+
+@st.cache_data(show_spinner=False)
+def get_build_table(build: str, table_name: str) -> pd.DataFrame:
+    """Read any table from the build's Postgres schema into a DataFrame."""
+    client = get_pg_client(build)
+    return client.read_table_df(table_name, schema=client.schema)
