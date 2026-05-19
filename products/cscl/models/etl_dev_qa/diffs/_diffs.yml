@@ -48,11 +48,22 @@ models:
       Reserved for finer-grained categorization within a diff_group. Currently
       always an empty string across all upstream models.
   - name: comparison_column
-    description: Column used as the primary key in the generate_diff_summary macro call for this record's product.
+    description: >
+      Name of the primary key column in the source tables (e.g. _saf_key,
+      atomicid). Emitted as a string literal by the generate_diff_summary macro
+      and consistent across all rows for a given output_file_id. Use together
+      with comparison_id, build_table_name, and production_table_name to look
+      up the full source record for any diff row.
   - name: build_table_name
-    description: Name of the dev build table that was compared.
+    description: >
+      Name of the dev build table that was compared, as passed to the
+      generate_diff_summary macro. Use with comparison_column and comparison_id
+      to fetch the dev-side record for a given diff.
   - name: production_table_name
-    description: Name of the production table that was compared.
+    description: >
+      Name of the production table that was compared, as passed to the
+      generate_diff_summary macro. Use with comparison_column and comparison_id
+      to fetch the prod-side record for a given diff.
   - name: accounted_for
     description: >
       Boolean flag set by each upstream model indicating whether this diff is
@@ -60,4 +71,6 @@ models:
       deliberate behavior change). Records with accounted_for = true can be
       excluded from burndown counts.
   - name: diff_run_date
-    description: Date on which this table was last materialized, stamped via CURRENT_DATE.
+    description: >
+      Date this table was last materialized, stamped once via CURRENT_DATE at
+      build time. All rows in a given materialization share the same value.

@@ -101,8 +101,117 @@ def cscl():
                         ]
                     st.caption(f"{len(filtered_df):,} of {len(df):,} rows")
                     st.dataframe(filtered_df, use_container_width=True)
+
+                    _record_cols = {
+                        "comparison_id",
+                        "comparison_column",
+                        "build_table_name",
+                        "production_table_name",
+                    }
+                    if _record_cols.issubset(df.columns):
+                        with st.expander("View source records", expanded=False):
+                            _meta = df.iloc[0]
+                            _id_col = _meta["comparison_column"]
+                            _build_tbl = _meta["build_table_name"]
+                            _prod_tbl = _meta["production_table_name"]
+                            _ids = sorted(
+                                filtered_df["comparison_id"]
+                                .dropna()
+                                .astype(str)
+                                .unique()
+                                .tolist()
+                            )
+                            _selected_id = st.selectbox(
+                                "comparison_id",
+                                options=[""] + _ids,
+                                key=f"record_viewer_{group}_{selected_table}",
+                            )
+                            if _selected_id:
+                                _dev_col, _prod_col = st.columns(2)
+                                with _dev_col:
+                                    st.caption(f"Dev: `{_build_tbl}`")
+                                    try:
+                                        _dev_df = helpers.get_record_by_comparison_id(
+                                            selected_build,
+                                            _build_tbl,
+                                            _id_col,
+                                            _selected_id,
+                                        )
+                                        st.dataframe(
+                                            _dev_df.T, use_container_width=True
+                                        )
+                                    except Exception as e:
+                                        st.warning(f"Could not load: {e}")
+                                with _prod_col:
+                                    st.caption(f"Prod: `{_prod_tbl}`")
+                                    try:
+                                        _prod_df = helpers.get_record_by_comparison_id(
+                                            selected_build,
+                                            _prod_tbl,
+                                            _id_col,
+                                            _selected_id,
+                                        )
+                                        st.dataframe(
+                                            _prod_df.T, use_container_width=True
+                                        )
+                                    except Exception as e:
+                                        st.warning(f"Could not load: {e}")
+                    else:
+                        st.caption(
+                            "ℹ️ Source record lookup not available for this table — missing diff metadata columns."
+                        )
                 except Exception as e:
-                    st.warning(f"Could not load `{selected_table}`: {e}")
+                    st.warning(
+                        f"Could not load `{selected_build}.{selected_table}`: {e}"
+                    )
+
+    st.subheader("Browse Build Tables")
+    st.markdown(
+        body="Explore any table in the build's Postgres schema. Add multiple tables to compare side by side."
+    )
+
+    slot_key = f"browse_table_slots_{selected_build}"
+    if slot_key not in st.session_state:
+        st.session_state[slot_key] = [0]
+
+    available_tables = helpers.get_build_tables(selected_build)
+
+    for slot_idx in st.session_state[slot_key]:
+        col_select, col_remove = st.columns([5, 1])
+        with col_select:
+            chosen = st.selectbox(
+                "Select a table",
+                options=[""] + available_tables,
+                key=f"browse_slot_{selected_build}_{slot_idx}",
+                label_visibility="collapsed",
+                placeholder="Choose a table...",
+            )
+        with col_remove:
+            if st.button(
+                "✕",
+                key=f"browse_remove_{selected_build}_{slot_idx}",
+                help="Remove this table",
+            ):
+                st.session_state[slot_key] = [
+                    s for s in st.session_state[slot_key] if s != slot_idx
+                ]
+                st.rerun()
+
+        if chosen:
+            try:
+                with st.spinner(f"Loading {chosen}..."):
+                    df = helpers.get_build_table(selected_build, chosen)
+                st.caption(f"{len(df):,} rows · {len(df.columns)} columns")
+                st.dataframe(df, use_container_width=True)
+            except Exception as e:
+                st.warning(f"Could not load `{chosen}`: {e}")
+
+    if st.button("＋ Add table", key=f"browse_add_{selected_build}"):
+        next_idx = (
+            max(st.session_state[slot_key]) + 1 if st.session_state[slot_key] else 0
+        )
+        st.session_state[slot_key] = st.session_state[slot_key] + [next_idx]
+        st.rerun()
 
     st.subheader("Diff Row Viewer")
     files_with_diffs = diffs_summary[diffs_summary["Has diffs"]]["File name"].tolist()
