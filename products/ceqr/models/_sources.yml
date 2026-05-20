@@ -12,3 +12,4 @@ sources:
           - name: dataset_name
           - name: v
           - name: file_type
+          - name: archive_date

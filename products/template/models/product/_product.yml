@@ -1,6 +1,20 @@
 version: 2
 
 models:
+  - name: dataset_versions
+    description: "Versions and ingest dates of all source datasets used in this build"
+    columns:
+      - name: dataset_id
+        description: "Dataset identifier used to load source data (e.g. dcp_pluto)"
+      - name: dataset_name
+        description: "Human-readable dataset name"
+      - name: version
+        description: "Version string of the source data as loaded"
+      - name: file_type
+        description: "File format of the source data (e.g. csv, parquet, pg_dump)"
+      - name: archive_date
+        description: "Date the source dataset was ingested into edm-recipes (YYYY-MM-DD)"
+
   - name: templatedb
     description: "Template DB place records"
     columns:

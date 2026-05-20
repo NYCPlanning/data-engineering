@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, ClassVar
@@ -40,6 +40,7 @@ class InputDataset(BaseModel, extra="forbid"):
     preprocessor: DataPreprocessor | None = None
     destination: InputDatasetDestination | None = None
     load_engine: str | None = None
+    archive_date: date | None = None
     custom: dict = Field(default_factory=dict)
 
     @property

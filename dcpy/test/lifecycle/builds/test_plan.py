@@ -1,4 +1,7 @@
 import os
+import tempfile
+from datetime import date, datetime
+from pathlib import Path
 from unittest import TestCase
 from unittest.mock import MagicMock, Mock, patch
 
@@ -221,7 +224,17 @@ class TestRecipesNoDefaults(TestCase):
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         plan.recipe_from_yaml(lock_file)
 
+    @patch("dcpy.connectors.edm.recipes.get_archive_date")
+    def test_plan_recipe_populates_archive_date(
+        self, mock_archive_date, get_file_types
+    ):
+        get_file_types.return_value = {recipes.DatasetType.pg_dump}
+        mock_archive_date.return_value = datetime(2024, 6, 1, 12, 0, 0)
+        planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
+        assert planned.inputs.datasets[0].archive_date == date(2024, 6, 1)
 
+
+@pytest.mark.usefixtures("create_buckets")
 class TestRecipeVars(TestCase):
     def test_version_type_var_is_absent(self):
         """Ensures VERSION_TYPE is absent in recipe 'vars' attribute when version_type is None."""
@@ -433,3 +446,30 @@ class TestPlanStageConfs(TestCase):
         assert StageConfigValue.UNRESOLVABLE_ERROR in str(e.exception), (
             "The error should mention that the stage var is unresolvable."
         )
+
+
+SIMPLE_LOCK_PATH = RESOURCES_DIR / "simple.lock.yml"
+SIMPLE_NO_PG_LOCK_PATH = RESOURCES_DIR / "simple_no_pg.lock.yml"
+
+
+class TestWriteSourceDataVersions(TestCase):
+    def test_includes_archive_date_column(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            lock_path = Path(tmpdir) / "simple.lock.yml"
+            lock_path.write_text(SIMPLE_LOCK_PATH.read_text())
+            plan.write_source_data_versions(lock_path)
+            df = pd.read_csv(Path(tmpdir) / "source_data_versions.csv")
+        assert "archive_date" in df.columns
+        assert list(df["archive_date"]) == ["2024-06-01"] * len(df)
+
+    def test_archive_date_none_writes_empty_string(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            lock_path = Path(tmpdir) / "simple_no_pg.lock.yml"
+            lock_path.write_text(SIMPLE_NO_PG_LOCK_PATH.read_text())
+            plan.write_source_data_versions(lock_path)
+            df = pd.read_csv(
+                Path(tmpdir) / "source_data_versions.csv",
+                dtype=str,
+                keep_default_na=False,
+            )
+        assert list(df["archive_date"]) == [""] * len(df)
