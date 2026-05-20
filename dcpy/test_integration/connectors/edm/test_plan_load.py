@@ -45,6 +45,7 @@ def test_resolving_and_loading_recipes(tmp_path, pg_client: postgres.PostgresCli
         "dataset_name",
         "v",
         "file_type",
+        "archive_date",
     ]
 
     assert recipe_pg_dataset_table_names == load_result_pg_table_names

@@ -7,7 +7,7 @@ import pytest
 import yaml
 
 from dcpy.connectors.edm import recipes
-from dcpy.connectors.edm.models import Dataset, DatasetType
+from dcpy.connectors.edm.models import Dataset, DatasetKey, DatasetType
 from dcpy.library import models as library
 from dcpy.lifecycle.ingest.models import SparseConfig
 from dcpy.test.conftest import RECIPES_BUCKET
@@ -123,6 +123,18 @@ def test_read_df_missing_filetype(load_library: library.Config):
             load_library.sparse_dataset,
             preferred_file_types=[recipes.DatasetType.parquet],
         )
+
+
+def test_get_archive_date(load_ingest: SparseConfig):
+    ds = DatasetKey(id=load_ingest.id, version=load_ingest.version)
+    result = recipes.get_archive_date(ds)
+    assert isinstance(result, datetime)
+
+
+def test_get_archive_date_missing_dataset(create_buckets):
+    ds = DatasetKey(id="nonexistent", version="v1")
+    result = recipes.get_archive_date(ds)
+    assert result is None
 
 
 def test_read_df_cache(load_ingest: SparseConfig, create_temp_filesystem: Path):

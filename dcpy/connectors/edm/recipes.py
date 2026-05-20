@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -30,6 +31,20 @@ def s3_folder_path(ds: Dataset | DatasetKey) -> str:
 
 def s3_file_path(ds: Dataset) -> str:
     return f"{s3_folder_path(ds)}/{ds.file_name}"
+
+
+def get_archive_date(ds: Dataset | DatasetKey) -> datetime | None:
+    """Date the dataset version was ingested, from S3 custom metadata or LastModified."""
+    folder = s3_folder_path(ds)
+    files = s3.get_filenames(_bucket(), folder)
+    if not files:
+        return None
+    key = f"{folder}/{next(iter(files))}"
+    metadata = s3.get_metadata(_bucket(), key)
+    date_created = metadata.custom.get("date-created")
+    if date_created:
+        return datetime.fromisoformat(date_created)
+    return metadata.last_modified
 
 
 def get_all_versions(name: str) -> list[str]:
