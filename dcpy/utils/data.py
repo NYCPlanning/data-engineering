@@ -162,6 +162,11 @@ def read_data_to_df(
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )
+        case file.Parquet():
+            df = pd.read_parquet(local_data_path)
+            gdf = (
+                df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
+            )
 
     if data_format.unzipped_filename and clean_extracted_zip:
         assert extracted_files_dir

@@ -4,6 +4,7 @@ import pandas as pd
 
 from dcpy.lifecycle.builds import load
 from dcpy.utils.geospatial import parquet
+from dcpy.utils.logging import logger
 
 
 def load_data(
@@ -12,6 +13,7 @@ def load_data(
     # TODO: is_geospatial flag is hacky. This should be inferred elsewhere
 
     build_metadata = load.get_build_metadata(config.PRODUCT_PATH)
+    logger.info(f"loading dataset={name}, version={version}")
     assert build_metadata.load_result, "You must load data before reading data."
 
     if is_geospatial:

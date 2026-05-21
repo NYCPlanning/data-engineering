@@ -14,8 +14,8 @@ inputs:
   datasets:
 # From the spreadsheet
   # Ingested
-  - name: doi_evictions # 3.09
-    version: 20250423
+  - name: doi_evictions_geocoded # 3.09 (geocoded version)
+    version: 20260514
   - name: hpd_hny_units_by_building # 3.11, 4.02
     version: 20250303
   - name: dcp_housing # 4.01
