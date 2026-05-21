@@ -85,4 +85,12 @@ class Html(SortedSerializedBase, extra="forbid"):
     geometry: Geometry | None = None
 
 
-Format: TypeAlias = Csv | Excel | Shapefile | Geodatabase | Json | GeoJson | Html
+class Parquet(BaseModel, extra="allow"):
+    type: Literal["parquet"]
+    unzipped_filename: str | None = None
+    geometry: Geometry | None = None
+
+
+Format: TypeAlias = (
+    Csv | Excel | Shapefile | Geodatabase | Json | GeoJson | Html | Parquet
+)

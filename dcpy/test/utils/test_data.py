@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from dcpy.utils import data
+from dcpy.utils import data, formats
 
 
 @pytest.fixture
@@ -183,3 +183,23 @@ def test_upsert_df_columns():
             }
         )
     )
+
+
+def test_read_parquet():
+    """
+    Test reading parquet files with read_data_to_df.
+
+    Checks:
+        - Function successfully reads parquet file
+        - Returned DataFrame has expected shape and columns
+        - Data matches expected values
+    """
+    parquet_format = formats.Parquet(type="parquet")
+    parquet_path = Path(__file__).parent / "resources" / "simple.parquet"
+
+    df = data.read_data_to_df(data_format=parquet_format, local_data_path=parquet_path)
+
+    assert isinstance(df, pd.DataFrame)
+    assert df.shape == (5, 1)
+    assert "row_id" in df.columns
+    assert df["row_id"].tolist() == ["a", "b", "c", "d", "e"]
