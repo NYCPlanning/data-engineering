@@ -12,6 +12,7 @@ from facdb import (
     BUILD_ENGINE,
     BUILD_NAME,
     CACHE_PATH,
+    PRODUCT_PATH,
     SQL_PATH,
 )
 
@@ -111,6 +112,19 @@ def _export_fgdb(pg: postgres.PostgresClient, output_dir: Path) -> None:
     shutil.rmtree(gdb_outer)
 
 
+def _dbt(args: list[str]) -> None:
+    subprocess.check_call(
+        [
+            "dbt",
+            *args,
+            "--quiet",
+            "--warn-error-options",
+            '{"error": ["NoNodesForSelectionCriteria"]}',
+        ],
+        cwd=PRODUCT_PATH,
+    )
+
+
 @app.command("init")
 def _cli_init():
     """
@@ -121,6 +135,8 @@ def _cli_init():
         BUILD_ENGINE, SQL_PATH / "_create_reference_tables.sql"
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
+    _dbt(["deps"])
+    _dbt(["seed"])
 
 
 @app.command("build")
@@ -136,10 +152,7 @@ def _cli_build():
         BUILD_ENGINE, SQL_PATH / "_create_facdb_spatial.sql"
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_boro.sql")
-    postgres.execute_file_via_shell(
-        BUILD_ENGINE, SQL_PATH / "_create_facdb_classification.sql"
-    )
-    postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_facdb_agency.sql")
+    _dbt(["run", "--select", "facdb_classification facdb_agency"])
     postgres.execute_file_via_shell(
         BUILD_ENGINE,
         SQL_PATH / "_create_facdb.sql",

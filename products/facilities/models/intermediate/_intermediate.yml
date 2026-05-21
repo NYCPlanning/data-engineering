@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: facdb_classification
+    description: >
+      Enriches each facility record with its classification hierarchy
+      (facgroup, facdomain, servarea) by joining facdb_base.facsubgrp against
+      the lookup_classification seed. Records with an unrecognized facsubgrp
+      are dropped by the inner join — monitor row counts against facdb_base
+      to catch unmapped values.
+    config:
+      materialized: table
+    columns:
+      - name: uid
+        tests:
+          - not_null
+          - unique
+      - name: facsubgrp
+        tests:
+          - not_null
+          - relationships:
+              to: ref('lookup_classification')
+              field: facsubgrp
+      - name: factype
+        tests:
+          - not_null
+          - relationships:
+              to: ref('lookup_factype')
+              field: factype
+              config:
+                severity: warn
+      - name: facgroup
+        tests:
+          - not_null
+      - name: facdomain
+        tests:
+          - not_null
+
+  - name: facdb_agency
+    description: >
+      Enriches each facility record with operator type and oversight agency
+      details by joining facdb_base.opabbrev and overabbrev against the
+      lookup_agency seed.
+    config:
+      materialized: table
+    columns:
+      - name: uid
+        tests:
+          - not_null
+          - unique
