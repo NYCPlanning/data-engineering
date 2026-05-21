@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: facdb
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    description: >
+      Tables produced by the FacDB Python pipeline (geocoding, preprocessing,
+      and per-dataset SQL scripts). These are the handoff point into dbt.
+    tables:
+      - name: facdb_base
+        description: >
+          Staging table populated by the 50+ dataset-specific pipeline scripts.
+          Each row is a facility record with factype and facsubgrp assigned at
+          the source level. Downstream dbt models join lookup seeds against this
+          table to build the classification and agency enrichment layers.
+        columns:
+          - name: uid
+            tests:
+              - not_null
+              - unique
+          - name: source
+            tests:
+              - not_null
+          - name: factype
+            tests:
+              - not_null
+          - name: facsubgrp
+            tests:
+              - not_null
