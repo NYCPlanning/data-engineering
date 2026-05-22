@@ -1,0 +1,39 @@
+products:
+- id: pluto cbbr
+  build_command: echo running!
+- id: cdbg
+  build_command: echo running!
+- id: ceqr
+  build_command: echo running!
+- id: ceqr_survey
+  build_command: echo running!
+- id: checkbook
+  build_command: echo running!
+- id: colp
+  build_command: echo running!
+- id: cpdb
+  build_command: echo running!
+- id: cscl
+  build_command: echo running!
+- id: db-zap-opendata
+  build_command: echo running!
+- id: developments
+  build_command: echo running!
+- id: edde
+  build_command: echo running!
+- id: facilities
+  build_command: echo running!
+- id: factfinder
+  build_command: echo running!
+- id: green_fast_track
+  build_command: echo running!
+- id: knownprojects
+  build_command: echo running!
+- id: pluto
+  build_command: echo running!
+- id: template
+  build_command: echo running!
+- id: zap-opendata
+  build_command: echo running!
+- id: zoningtaxlots
+  build_command: echo running!

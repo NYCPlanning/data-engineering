@@ -1,0 +1,20 @@
+product: bpl_libraries
+version: "2024.12.8"
+inputs:
+  bpl_libraries:
+    dataset: dcp_libraries
+    version: "20241101"
+    destination: file
+stage_config:
+  builds.plan:
+    connector_args: {}
+  builds.load:
+    connector_args: {}
+  builds.build:
+    build_command: echo "Mock DBT build completed"
+    connector_args: {}
+  builds.package:
+    destination: minio
+    destination_key: bpl_libraries
+    connector_args:
+      bucket: builds
