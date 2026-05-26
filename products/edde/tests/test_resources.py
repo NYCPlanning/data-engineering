@@ -72,3 +72,43 @@ def test_resource_types_are_valid():
         assert resource_data["type"] in valid_types, (
             f"Resource '{resource_name}' has invalid type: {resource_data['type']}"
         )
+
+
+def test_resources_have_required_columns_field():
+    """Test that all resources have the required_columns field."""
+    for resource_name, resource_data in RESOURCES.items():
+        assert "required_columns" in resource_data, (
+            f"Resource '{resource_name}' is missing 'required_columns' field"
+        )
+        assert isinstance(resource_data["required_columns"], list), (
+            f"Resource '{resource_name}' required_columns must be a list"
+        )
+
+
+@pytest.mark.parametrize("resource_name", list(RESOURCES.keys()))
+def test_required_columns_exist(resource_name):
+    """
+    Test that required columns exist in each loaded resource.
+
+    This test loads each resource and verifies that all columns
+    listed in required_columns are present in the DataFrame.
+    """
+    resource_info = RESOURCES[resource_name]
+    required_cols = resource_info.get("required_columns", [])
+
+    if not required_cols:
+        pytest.skip(f"No required columns specified for {resource_name}")
+
+    # Try to load the resource
+    try:
+        df = load(resource_name)
+    except FileNotFoundError:
+        pytest.skip(f"File not found for {resource_name} (expected for missing files)")
+
+    # Check that all required columns are present
+    missing_columns = [col for col in required_cols if col not in df.columns]
+
+    assert not missing_columns, (
+        f"Resource '{resource_name}' is missing required columns: {missing_columns}. "
+        f"Available columns: {list(df.columns)}"
+    )
