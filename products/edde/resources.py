@@ -232,6 +232,7 @@ RESOURCES = {
         "filepath": "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
         "type": "csv",
         "data_table": "",
+        "required_columns": ["HUnits", "GeoType", "Geog"],
         "loader": _load_2010_census_housing_units,
     },
     # Decennial Census
@@ -239,6 +240,18 @@ RESOURCES = {
         "filepath": "resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
         "type": "excel",
         "data_table": "",
+        "required_columns": [
+            "GeogType",
+            "GeoID",
+            "Pop20",
+            "Pop10",
+            "Pop00",
+            "Hsp20",
+            "WNH20",
+            "BNH20",
+            "ANH20",
+            "OTwoNH20",
+        ],
         "loader": _load_decennial_census_001020,
     },
     # ACS PUMS - specific year windows
@@ -246,18 +259,21 @@ RESOURCES = {
         "filepath": "resources/ACS_PUMS/EDDE_ACS2008-2012.xlsx",
         "type": "excel",
         "data_table": "",
+        "required_columns": ["Geog"],
         "loader": _load_acs_0812,
     },
     "acs_1923": {
         "filepath": "resources/ACS_PUMS/EDDE_ACS2019-2023.xlsx",
         "type": "excel",
         "data_table": "",
+        "required_columns": ["Geog"],
         "loader": _load_acs_1923,
     },
     "census_2000": {
         "filepath": "resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
         "type": "excel",
         "data_table": "",
+        "required_columns": ["GeoID"],
         "loader": _load_census_2000,
     },
     # Quality of Life - Education
@@ -266,6 +282,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Data",
         "data_table": "",
+        "required_columns": ["NTA Code", "NTA Name"],
         "loader": _load_education_outcome_data,
     },
     "education_outcome_data_dictionary": {
@@ -273,6 +290,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Data Dictionary",
         "data_table": "",
+        "required_columns": ["varlabel", "varname"],
         "loader": _load_education_outcome_data_dictionary,
     },
     # Quality of Life - Safety
@@ -280,6 +298,7 @@ RESOURCES = {
         "filepath": "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
         "type": "csv",
         "data_table": "",
+        "required_columns": ["Geography", "Number", "GeoType"],
         "loader": _load_assault_hospitalizations,
     },
     # Quality of Life - Health Mortality (multi-sheet)
@@ -288,6 +307,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "PUMA",
         "data_table": "",
+        "required_columns": ["PUMA"],  # File missing - columns TBD
         "loader": _load_health_mortality_puma,
     },
     "health_mortality_borough": {
@@ -295,6 +315,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Borough",
         "data_table": "",
+        "required_columns": ["Borough"],  # File missing - columns TBD
         "loader": _load_health_mortality_borough,
     },
     "health_mortality_citywide": {
@@ -302,6 +323,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "City",
         "data_table": "",
+        "required_columns": ["City"],  # File missing - columns TBD
         "loader": _load_health_mortality_citywide,
     },
     # Quality of Life - Diabetes
@@ -310,6 +332,13 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "DCHP_Diabetes_SelfRepHealth",
         "data_table": "",
+        "required_columns": [
+            "ID",
+            "Borough",
+            "geo_type",
+            "Diabetes",
+            "Self_Rep_Health",
+        ],
         "loader": _load_diabetes_self_report,
     },
     # Quality of Life - Heat Vulnerability
@@ -317,6 +346,7 @@ RESOURCES = {
         "filepath": "resources/quality_of_life/HVI_PUMA_Subboro_forSharing.xlsx",
         "type": "excel",
         "data_table": "",
+        "required_columns": ["PUMACE10", "HVI"],  # File missing
         "loader": _load_heat_vulnerability,
     },
     # Quality of Life - COVID Death
@@ -325,12 +355,22 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Sheet 1",
         "data_table": "",
+        "required_columns": ["PUMA", "Total\nDeaths", "Race/Ethnicity"],  # File missing
         "loader": _load_covid_death,
     },
     "census_aggregations": {
         "filepath": "resources/quality_of_life/Census_Aggregations_fromErica.csv",
         "type": "csv",
         "data_table": "",
+        "required_columns": [
+            "GeogType",
+            "GeoID",
+            "ANH20",
+            "BNH20",
+            "Hsp20",
+            "OTwoNH20",
+            "WNH20",
+        ],  # File missing
         "loader": _load_census_aggregations,
     },
     # Quality of Life - Transportation Access (multi-sheet)
@@ -339,6 +379,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Park_Qtr_Mile_Access",
         "data_table": "",
+        "required_columns": ["PUMA", "Pop_Served", "Total_Pop"],
         "loader": _load_transportation_park_access,
     },
     "transportation_jobs_access": {
@@ -346,6 +387,10 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Access_to_Jobs",
         "data_table": "",
+        "required_columns": [
+            "PUMA",
+            "Weighted Average Number of Jobs Accessible within 30 mins from Tract Centroid by Transit",
+        ],
         "loader": _load_transportation_jobs_access,
     },
     "transportation_subway_sbs_access": {
@@ -353,6 +398,11 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Subway_SBS_Qr_Mile_Access",
         "data_table": "",
+        "required_columns": [
+            "PUMA",
+            "Pop within 1/4 Mile of Subway Stations and SBS Stops",
+            "Total_Pop",
+        ],
         "loader": _load_transportation_subway_sbs_access,
     },
     "transportation_ada_subway_access": {
@@ -360,6 +410,11 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "ADA_Subway_Qtr_Mile_Access",
         "data_table": "",
+        "required_columns": [
+            "PUMA",
+            "Pop within 1/4 Mile of ADA Subway Stations",
+            "Total_Pop",
+        ],
         "loader": _load_transportation_ada_subway_access,
     },
     # Housing Security - NYCHVS (multi-sheet)
@@ -368,6 +423,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Renter-occupied housing units",
         "data_table": "",
+        "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_renter_occupied,
     },
     "nychvs_rent_stabilized": {
@@ -375,6 +431,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Occupied rent stabilized",
         "data_table": "",
+        "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_rent_stabilized,
     },
     "nychvs_occupied": {
@@ -382,6 +439,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Occupied housing units",
         "data_table": "",
+        "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_occupied,
     },
     "nychvs_three_plus_probs": {
@@ -389,6 +447,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Occupied housing 3+ problems",
         "data_table": "",
+        "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_three_plus_probs,
     },
     # Housing Security - Other
@@ -396,6 +455,7 @@ RESOURCES = {
         "filepath": "resources/housing_security/eviction_filings.xlsx",
         "type": "excel",
         "data_table": "",
+        "required_columns": ["Community District", "Eviction Fillings*"],
         "loader": _load_eviction_filings,
     },
     "nycha_tenants": {
@@ -403,6 +463,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "PUMA",
         "data_table": "",
+        "required_columns": ["PUMA (2020)", "Total Unit Count"],
         "loader": _load_nycha_tenants,
     },
     # Housing Security - HPD Housing Lottery (multi-sheet)
@@ -411,6 +472,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "housing_lottery_applications",
         "data_table": "",
+        "required_columns": ["geog", "geo_type", "Total"],
         "loader": _load_housing_lottery_applications,
     },
     "housing_lottery_leases": {
@@ -418,6 +480,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "housing_lottery_leases",
         "data_table": "",
+        "required_columns": ["geog", "geo_type", "Total"],
         "loader": _load_housing_lottery_leases,
     },
 }
