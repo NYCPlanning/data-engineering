@@ -4,7 +4,7 @@ from typing import Dict
 from src import APP_PATH, ROOT_PATH
 
 from dcpy.lifecycle.builds import plan
-from dcpy.models import library
+from dcpy.models import library  # noqa
 
 
 def get_source_datasets(product: str) -> list[str]:
