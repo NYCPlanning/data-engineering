@@ -96,6 +96,7 @@ select = [
 "__init__.py" = ["F401", "E402"]
 "conftest.py" = ["E402"]
 "setup_dev_bucket.py" = ["E402"]
+"apps/qa/src/pages/source_data/*.py" = ["I001"]
 
 [[tool.mypy.overrides]]
 module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,socrata.*,faker.*,ruamel.*,pyogrio.*,ijson.*" # no stubs available
