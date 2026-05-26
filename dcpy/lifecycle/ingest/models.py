@@ -58,6 +58,7 @@ class DatasetDefinition(TemplatedYamlReader, extra="forbid"):
     """
 
     id: str
+    depends_on: list[str] = []
     acl: recipes.ValidAclValues | None = None
 
     attributes: DatasetAttributes
@@ -109,6 +110,7 @@ class DataSourceDefinition(TemplatedYamlReader, extra="forbid"):
     """
 
     id: str
+    depends_on: list[str] = []
     acl: recipes.ValidAclValues | None = None
     attributes: DatasetAttributes
     source: Source

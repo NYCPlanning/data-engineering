@@ -94,3 +94,22 @@ class TestResolveDefinition:
         )
         # final catch-all
         assert config == RESOLVED
+
+    def test_with_dependencies(self):
+        """Test that depends_on field is parsed correctly for DatasetDefinition"""
+        definition = plan.read_definition_file(_d_path("with_dependencies"))
+        assert isinstance(definition, DatasetDefinition)
+        assert definition.depends_on == ["simple", "one_to_many"]
+
+    def test_datasource_with_dependencies(self):
+        """Test that depends_on field is parsed correctly for DataSourceDefinition"""
+        definition = plan.read_definition_file(_d_path("datasource_with_dependencies"))
+        assert isinstance(definition, DataSourceDefinition)
+        assert definition.depends_on == ["simple"]
+        assert len(definition.datasets) == 2
+
+    def test_empty_depends_on(self):
+        """Test that templates without depends_on default to empty list"""
+        definition = plan.read_definition_file(_d_path("simple"))
+        assert isinstance(definition, DatasetDefinition)
+        assert definition.depends_on == []

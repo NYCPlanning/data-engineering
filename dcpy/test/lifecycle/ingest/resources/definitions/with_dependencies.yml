@@ -1,0 +1,18 @@
+id: with_dependencies
+depends_on:
+  - simple
+  - one_to_many
+acl: public-read
+
+attributes:
+  name: Dataset with Dependencies
+
+ingestion:
+  source:
+    type: local_file
+    endpoint: dummy.csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
