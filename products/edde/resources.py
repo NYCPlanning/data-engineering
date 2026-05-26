@@ -278,18 +278,18 @@ RESOURCES = {
     },
     # Quality of Life - Education
     "education_outcome_data": {
-        "filepath": "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        "filepath": "resources/quality_of_life/education_math_ela_grad.xlsx",
         "type": "excel",
         "sheet_name": "Data",
-        "data_table": "",
+        "data_table": "5.11,5.12,5.13",
         "required_columns": ["NTA Code", "NTA Name"],
         "loader": _load_education_outcome_data,
     },
     "education_outcome_data_dictionary": {
-        "filepath": "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        "filepath": "resources/quality_of_life/education_math_ela_grad.xlsx",
         "type": "excel",
         "sheet_name": "Data Dictionary",
-        "data_table": "",
+        "data_table": "5.11,5.12,5.13",
         "required_columns": ["varlabel", "varname"],
         "loader": _load_education_outcome_data_dictionary,
     },
