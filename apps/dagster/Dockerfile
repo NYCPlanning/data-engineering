@@ -1,4 +1,4 @@
-FROM nycplanning/build-base:latest
+FROM nycplanning/build-geosupport:latest
 
 WORKDIR /app/dagster
 
