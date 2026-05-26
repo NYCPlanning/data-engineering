@@ -303,26 +303,26 @@ RESOURCES = {
     },
     # Quality of Life - Health Mortality (multi-sheet)
     "health_mortality_puma": {
-        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
         "type": "excel",
         "sheet_name": "PUMA",
-        "data_table": "",
+        "data_table": "5.03,5.04,5.05",
         "required_columns": ["PUMA"],  # File missing - columns TBD
         "loader": _load_health_mortality_puma,
     },
     "health_mortality_borough": {
-        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
         "type": "excel",
         "sheet_name": "Borough",
-        "data_table": "",
+        "data_table": "5.03,5.04,5.05",
         "required_columns": ["Borough"],  # File missing - columns TBD
         "loader": _load_health_mortality_borough,
     },
     "health_mortality_citywide": {
-        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
         "type": "excel",
         "sheet_name": "City",
-        "data_table": "",
+        "data_table": "5.03,5.04,5.05",
         "required_columns": ["City"],  # File missing - columns TBD
         "loader": _load_health_mortality_citywide,
     },
