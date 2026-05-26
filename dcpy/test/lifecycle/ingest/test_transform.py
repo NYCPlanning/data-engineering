@@ -516,6 +516,120 @@ class TestProcessors:
         )
         assert transformed.df.equals(expected)
 
+    def test_python_script_simple(self):
+        """Test python_script with simple transformation"""
+        result = self.proc.python_script(
+            self.basic_df,
+            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            function="simple_transform",
+        )
+        assert "new_column" in result.df.columns
+        assert all(result.df["new_column"] == "test_value")
+        assert result.summary.name == "python_script"
+        assert result.summary.data_modifications["rows_before"] == len(self.basic_df)
+        assert result.summary.data_modifications["rows_after"] == len(result.df)
+        assert result.summary.custom["module"] == "dcpy.test.lifecycle.ingest.resources.test_scripts"
+        assert result.summary.custom["function"] == "simple_transform"
+
+    def test_python_script_with_kwargs(self):
+        """Test python_script with additional kwargs"""
+        df = pd.DataFrame({"value": [1, 2, 3]})
+        result = self.proc.python_script(
+            df,
+            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            function="transform_with_kwargs",
+            multiplier=3,
+        )
+        assert "doubled_value" in result.df.columns
+        assert list(result.df["doubled_value"]) == [3, 6, 9]
+        assert result.summary.custom["kwargs"] == {"multiplier": 3}
+
+    def test_python_script_geodataframe(self):
+        """Test python_script preserves GeoDataFrame type"""
+        result = self.proc.python_script(
+            self.gdf,
+            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            function="geo_transform",
+        )
+        assert isinstance(result.df, gpd.GeoDataFrame)
+        assert "area" in result.df.columns
+        assert result.df.crs == self.gdf.crs
+
+    def test_python_script_converts_back_to_gdf(self):
+        """Test that plain DataFrame return is converted back to GeoDataFrame if input was GeoDataFrame"""
+        result = self.proc.python_script(
+            self.gdf,
+            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            function="returns_plain_df_from_gdf",
+        )
+        assert isinstance(result.df, gpd.GeoDataFrame)
+        assert "processed" in result.df.columns
+        assert result.df.crs == self.gdf.crs
+
+    def test_python_script_module_not_found(self):
+        """Test error when module doesn't exist"""
+        with pytest.raises(ValueError, match="Module 'nonexistent.module' not found"):
+            self.proc.python_script(
+                self.basic_df,
+                module="nonexistent.module",
+                function="some_function",
+            )
+
+    def test_python_script_function_not_found(self):
+        """Test error when function doesn't exist in module"""
+        with pytest.raises(ValueError, match="Function 'nonexistent_function' not found"):
+            self.proc.python_script(
+                self.basic_df,
+                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                function="nonexistent_function",
+            )
+
+    def test_python_script_not_callable(self):
+        """Test error when attribute is not callable"""
+        with pytest.raises(ValueError, match="'NOT_CALLABLE' in module .* is not callable"):
+            self.proc.python_script(
+                self.basic_df,
+                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                function="NOT_CALLABLE",
+            )
+
+    def test_python_script_wrong_return_type(self):
+        """Test error when function has wrong return type hint"""
+        with pytest.raises(ValueError, match="return type hint is '<class 'list'>'.*expected pd.DataFrame"):
+            self.proc.python_script(
+                self.basic_df,
+                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                function="wrong_return_type",
+            )
+
+    def test_python_script_with_type_hint(self):
+        """Test python_script with proper type hint"""
+        result = self.proc.python_script(
+            self.basic_df,
+            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            function="with_type_hint",
+        )
+        assert "type_hinted" in result.df.columns
+        assert all(result.df["type_hinted"] == True)
+
+    def test_python_script_wrong_type_hint(self):
+        """Test error when function has wrong return type hint"""
+        with pytest.raises(ValueError, match="return type hint is '<class 'str'>'.*expected pd.DataFrame"):
+            self.proc.python_script(
+                self.basic_df,
+                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                function="wrong_type_hint",
+            )
+
+    def test_python_script_wrong_return_at_runtime(self):
+        """Test error when function returns wrong type at runtime (no type hint)"""
+        with pytest.raises(ValueError, match="must return a pd.DataFrame or gpd.GeoDataFrame"):
+            self.proc.python_script(
+                self.basic_df,
+                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                function="returns_wrong_type_at_runtime",
+            )
+
 
 def test_processing_no_steps(create_temp_filesystem: Path):
     input = RESOURCES / TEST_DATA_DIR / "test.parquet"

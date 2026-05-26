@@ -604,6 +604,110 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=transformed, summary=summary)
 
+    def python_script(
+        self,
+        df: pd.DataFrame,
+        module: str,
+        function: str,
+        **kwargs,
+    ) -> ProcessingResult:
+        """
+        Execute a custom Python function on the DataFrame.
+
+        Args:
+            df: Input DataFrame (pd.DataFrame or gpd.GeoDataFrame)
+            module: Fully qualified module path (e.g., "products.edde.scripts.my_script")
+            function: Function name to call (e.g., "my_geocoding_fn")
+            **kwargs: Additional keyword arguments to pass to the function
+
+        Returns:
+            ProcessingResult with transformed DataFrame
+
+        Example YAML:
+            - name: python_script
+              args:
+                module: products.edde.scripts.my_script
+                function: my_geocoding_fn
+                api_key: "xxx"  # Optional additional args
+        """
+        import importlib
+        import inspect
+
+        # Import the module
+        try:
+            mod = importlib.import_module(module)
+        except ModuleNotFoundError as e:
+            raise ValueError(f"Module '{module}' not found: {e}") from e
+
+        # Get the function
+        if not hasattr(mod, function):
+            raise ValueError(f"Function '{function}' not found in module '{module}'")
+
+        fn = getattr(mod, function)
+
+        # Check that it's callable
+        if not callable(fn):
+            raise ValueError(f"'{function}' in module '{module}' is not callable")
+
+        # Check function signature return type hint (if available)
+        sig = inspect.signature(fn)
+        if sig.return_annotation != inspect.Signature.empty:
+            # Check if return type is DataFrame or GeoDataFrame
+            return_type_str = str(sig.return_annotation)
+            if "DataFrame" not in return_type_str and "GeoDataFrame" not in return_type_str:
+                raise ValueError(
+                    f"Function '{function}' return type hint is '{sig.return_annotation}', "
+                    f"expected pd.DataFrame or gpd.GeoDataFrame"
+                )
+
+        # Store original type to preserve it
+        is_geodataframe = isinstance(df, gpd.GeoDataFrame)
+        original_crs = df.crs if is_geodataframe else None
+        original_geom_col = df.geometry.name if is_geodataframe else None
+
+        # Execute the function with DataFrame and any additional kwargs
+        result_df = fn(df, **kwargs)
+
+        # Validate return type at runtime
+        if not isinstance(result_df, pd.DataFrame):
+            raise ValueError(
+                f"Function '{function}' must return a pd.DataFrame or gpd.GeoDataFrame, "
+                f"got {type(result_df)}"
+            )
+
+        # Preserve GeoDataFrame type if input was GeoDataFrame
+        if is_geodataframe and not isinstance(result_df, gpd.GeoDataFrame):
+            # Check if result has the original geometry column
+            if original_geom_col and original_geom_col in result_df.columns:
+                result_df = gpd.GeoDataFrame(result_df, geometry=original_geom_col, crs=original_crs)
+                logger.info(
+                    f"Converted result back to GeoDataFrame (geometry column: {original_geom_col}, CRS: {original_crs})"
+                )
+            elif "geometry" in result_df.columns:
+                result_df = gpd.GeoDataFrame(result_df, geometry="geometry", crs=original_crs)
+                logger.info(
+                    f"Converted result back to GeoDataFrame (geometry column: geometry, CRS: {original_crs})"
+                )
+
+        return ProcessingResult(
+            df=result_df,
+            summary=ProcessingSummary(
+                name="python_script",
+                description=f"Executed {module}.{function}",
+                data_modifications={
+                    "rows_before": len(df),
+                    "rows_after": len(result_df),
+                    "columns_before": len(df.columns),
+                    "columns_after": len(result_df.columns),
+                },
+                custom={
+                    "module": module,
+                    "function": function,
+                    "kwargs": kwargs,
+                },
+            ),
+        )
+
 
 def validate_columns(df: pd.DataFrame, columns: list[Column]) -> None:
     """
