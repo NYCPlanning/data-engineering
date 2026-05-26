@@ -1,13 +1,10 @@
-from ingest.ingestion_helpers import read_from_excel
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import (
     borough_name_mapper,
     community_district_to_puma,
 )
 
-SOURCE_DATA_FILE = "resources/quality_of_life/diabetes_self_report/diabetes_self_report_processed_2024.xlsx"
-CATEGORY = "quality_of_life"
-SOURCE_SHEET_NAME = "DCHP_Diabetes_SelfRepHealth"
 COLUMN_MAPPINGS = {
     "cd_number": "ID",
     "percent_diabetes": "Diabetes",
@@ -65,9 +62,7 @@ def health_self_reported(geography: str, write_to_internal_review=False):
 def load_clean_source_data(geography: str):
     assert geography in ["citywide", "borough", "puma"]
 
-    df = read_from_excel(
-        file_path=SOURCE_DATA_FILE, category=CATEGORY, sheet_name=SOURCE_SHEET_NAME
-    )
+    df = load("diabetes_self_report")
     df["borough"] = df["Borough"].map(borough_name_mapper)
 
     if geography == "puma":

@@ -2,6 +2,7 @@ import pandas as pd
 from aggregate.load_aggregated import initialize_dataframe_geo_index
 from ingest.ingestion_helpers import load_data
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import (
     borough_name_mapper,
     clean_PUMAs,
@@ -12,10 +13,7 @@ from utils.geo_helpers import (
 
 
 def _load_clean_income_restricted():
-    source_data = pd.read_excel(
-        "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
-        sheet_name="PUMA",
-    )
+    source_data = load("nycha_tenants")
     source_data.rename(columns={"PUMA (2020)": "puma"}, inplace=True)
     source_data["puma"] = source_data["puma"].apply(clean_PUMAs)
     source_data = filter_for_recognized_pumas(source_data)

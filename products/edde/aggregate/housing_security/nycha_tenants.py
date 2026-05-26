@@ -2,12 +2,9 @@ import pandas as pd
 from aggregate.aggregation_helpers import order_aggregated_columns
 from aggregate.decennial_census.decennial_census_001020 import decennial_census_001020
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.dcp_population_excel_helpers import race_suffix_mapper_global
 from utils.geo_helpers import acs_years, clean_PUMAs, puma_to_borough
-
-SOURCE_DATA_FILE = (
-    "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx"
-)
 
 race_labels = ["", "_wnh", "_bnh", "_hsp", "_anh", "_onh"]
 
@@ -64,14 +61,14 @@ def nycha_tenants(
 
 
 def load_clean_nycha_data():
-    read_excel_arg = {
-        "io": SOURCE_DATA_FILE,
-        "sheet_name": "PUMA",
-        "usecols": "A, F:Q",
-        "nrows": 41,
-        "dtype": float,
-    }
-    nycha_data = pd.read_excel(**read_excel_arg)
+    nycha_data = load("nycha_tenants")[
+        ["PUMA (2020)"]
+        + [
+            col
+            for col in load("nycha_tenants").columns
+            if "Public Housing" in col or "PACT" in col
+        ]
+    ]
     nycha_data.rename(columns={"PUMA (2020)": "puma"}, inplace=True)
     nycha_data.puma = nycha_data.puma.apply(func=clean_PUMAs)
     nycha_data["borough"] = nycha_data.apply(axis=1, func=puma_to_borough)

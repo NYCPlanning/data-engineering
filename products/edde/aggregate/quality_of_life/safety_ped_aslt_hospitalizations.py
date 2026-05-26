@@ -1,6 +1,7 @@
 import pandas as pd
 from aggregate.decennial_census import decennial_census_001020 as census_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils import geo_helpers
 
 
@@ -79,10 +80,7 @@ RAW_GEO_TYPE_MAPPER = {
 
 
 def _load_assaults():
-    df = pd.read_csv(
-        "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
-        dtype={"Geography": str},
-    ).rename(columns={"Number": "count"})
+    df = load("assault_hospitalizations").rename(columns={"Number": "count"})
     df["geo_type"] = df["GeoType"].map(RAW_GEO_TYPE_MAPPER)
     df["geo_id"] = df.apply(_calc_geo_id, axis=1)
 

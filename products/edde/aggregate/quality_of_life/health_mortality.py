@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from aggregate.clean_aggregated import order_PUMS_QOL_multiple_years
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import clean_PUMAs
 
 # Latest header in "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx"
@@ -130,29 +131,13 @@ def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year
 
 
 def load_clean_source_data(geography: str):
-    read_excel_args = {
-        "puma": {
-            "io": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
-            "sheet_name": "PUMA",
-            "header": 1,
-            "nrows": 55,
-            "dtype": {"PUMA": str},
-        },
-        "borough": {
-            "io": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
-            "sheet_name": "Borough",
-            "header": 1,
-            "nrows": 5,
-        },
-        "citywide": {
-            "io": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
-            "sheet_name": "City",
-            "header": 1,
-            "nrows": 1,
-        },
+    resource_map = {
+        "puma": "health_mortality_puma",
+        "borough": "health_mortality_borough",
+        "citywide": "health_mortality_citywide",
     }
 
-    source_data = pd.read_excel(**read_excel_args[geography])
+    source_data = load(resource_map[geography])
 
     if geography == "puma":
         source_data.rename(columns={"PUMA": "puma"}, inplace=True)

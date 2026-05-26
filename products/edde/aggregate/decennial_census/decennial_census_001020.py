@@ -2,6 +2,7 @@ from functools import cache
 
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import clean_PUMAs
 
 from dcpy.utils.logging import logger
@@ -15,11 +16,7 @@ def load_decennial_census_001020() -> pd.DataFrame:
     """Load in the xlsx file, fill the missing values with the values from geogtype, rename the columns
     following conventions, drop the duplicate column"""
 
-    df = pd.read_excel(
-        "./resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
-        skiprows=2,
-        dtype={"GeogType": str, "GeoID": str},
-    )
+    df = load("decennial_census_001020")
 
     df.rename(
         columns={

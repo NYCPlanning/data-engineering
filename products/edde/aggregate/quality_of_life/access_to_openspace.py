@@ -1,24 +1,12 @@
 import pandas as pd
-from ingest.ingestion_helpers import read_from_excel
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import clean_PUMAs, puma_to_borough
-
-SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx"
-CATEGORY = "quality_of_life"
-SOURCE_SHEET_NAMES = {
-    "park_access": "Park_Qtr_Mile_Access",
-}
 
 
 def load_access_to_open_space():
     """ "Drop the percentage served column on reading in the excel file and calculate ourselves"""
-    df = read_from_excel(
-        file_path=SOURCE_DATA_FILE,
-        category=CATEGORY,
-        sheet_name=SOURCE_SHEET_NAMES["park_access"],
-        columns=["PUMA", "Pop_Served", "Total_Pop"],
-        dtype={"PUMA": str},
-    )
+    df = load("transportation_park_access")[["PUMA", "Pop_Served", "Total_Pop"]]
     df.rename(
         columns={
             "PUMA": "puma",

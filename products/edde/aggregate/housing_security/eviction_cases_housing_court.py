@@ -1,12 +1,10 @@
-import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import borough_num_mapper
 
 
 def load_filings():
-    filings = pd.read_excel(
-        "resources/housing_security/eviction_filings.xlsx", skiprows=4, nrows=59
-    )
+    filings = load("eviction_filings")
     filings.rename(
         columns={"Eviction Fillings*": "eviction_filings_count"}, inplace=True
     )
