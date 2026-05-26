@@ -1,0 +1,479 @@
+"""
+Resource manager for EDDE data sources.
+
+This module centralizes loading of all source data files from the resources/ folder,
+making it easier to update and maintain data sources.
+
+Usage:
+    from resources import load
+
+    df = load("2010_census_housing_units_by_2020_nta")
+"""
+
+import pandas as pd
+
+# Helper functions for loading resources
+
+
+def _load_2010_census_housing_units():
+    return pd.read_csv(
+        "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
+        dtype={"HUnits": int},
+    )
+
+
+def _load_decennial_census_001020():
+    return pd.read_excel(
+        "resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
+        skiprows=2,
+        dtype={"GeogType": str, "GeoID": str},
+    )
+
+
+def _load_acs_0812():
+    return pd.read_excel(
+        "resources/ACS_PUMS/EDDE_ACS2008-2012.xlsx",
+        dtype={"Geog": str},
+    )
+
+
+def _load_acs_1923():
+    return pd.read_excel(
+        "resources/ACS_PUMS/EDDE_ACS2019-2023.xlsx",
+        dtype={"Geog": str},
+    )
+
+
+def _load_census_2000():
+    return pd.read_excel(
+        "resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
+        skiprows=1,
+        dtype={"GeoID": str},
+    )
+
+
+def _load_education_outcome_data():
+    return pd.read_excel(
+        "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        sheet_name="Data",
+    )
+
+
+def _load_education_outcome_data_dictionary():
+    return pd.read_excel(
+        "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        sheet_name="Data Dictionary",
+    )
+
+
+def _load_assault_hospitalizations():
+    return pd.read_csv(
+        "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
+        dtype={"Geography": str},
+    )
+
+
+def _load_health_mortality_puma():
+    return pd.read_excel(
+        "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        sheet_name="PUMA",
+        header=1,
+        nrows=55,
+        dtype={"PUMA": str},
+    )
+
+
+def _load_health_mortality_borough():
+    return pd.read_excel(
+        "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        sheet_name="Borough",
+        header=1,
+        nrows=5,
+    )
+
+
+def _load_health_mortality_citywide():
+    return pd.read_excel(
+        "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        sheet_name="City",
+        header=1,
+        nrows=1,
+    )
+
+
+def _load_diabetes_self_report():
+    return pd.read_excel(
+        "resources/quality_of_life/diabetes_self_report/diabetes_self_report_processed_2024.xlsx",
+        sheet_name="DCHP_Diabetes_SelfRepHealth",
+    )
+
+
+def _load_heat_vulnerability():
+    return pd.read_excel(
+        "resources/quality_of_life/HVI_PUMA_Subboro_forSharing.xlsx",
+        usecols=["PUMACE10", "HVI"],
+        dtype={"PUMACE10": str, "HVI": int},
+    )
+
+
+def _load_covid_death():
+    return pd.read_excel(
+        "resources/quality_of_life/covid_death/covid_death_processed_2023.xlsx",
+        sheet_name="Sheet 1",
+    )
+
+
+def _load_census_aggregations():
+    return pd.read_csv(
+        "resources/quality_of_life/Census_Aggregations_fromErica.csv",
+        header=2,
+    )
+
+
+def _load_transportation_park_access():
+    return pd.read_excel(
+        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        sheet_name="Park_Qtr_Mile_Access",
+        dtype={"PUMA": str},
+    )
+
+
+def _load_transportation_jobs_access():
+    return pd.read_excel(
+        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        sheet_name="Access_to_Jobs",
+        dtype={"PUMA": str},
+    )
+
+
+def _load_transportation_subway_sbs_access():
+    return pd.read_excel(
+        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        sheet_name="Subway_SBS_Qr_Mile_Access",
+        dtype={"PUMA": str},
+    )
+
+
+def _load_transportation_ada_subway_access():
+    return pd.read_excel(
+        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        sheet_name="ADA_Subway_Qtr_Mile_Access",
+        dtype={"PUMA": str},
+    )
+
+
+def _load_nychvs_renter_occupied():
+    return pd.read_excel(
+        "resources/housing_security/nychvs_2023.xlsx",
+        sheet_name="Renter-occupied housing units",
+        dtype={"geo_id": str},
+    )
+
+
+def _load_nychvs_rent_stabilized():
+    return pd.read_excel(
+        "resources/housing_security/nychvs_2023.xlsx",
+        sheet_name="Occupied rent stabilized",
+        dtype={"geo_id": str},
+    )
+
+
+def _load_nychvs_occupied():
+    return pd.read_excel(
+        "resources/housing_security/nychvs_2023.xlsx",
+        sheet_name="Occupied housing units",
+        dtype={"geo_id": str},
+    )
+
+
+def _load_nychvs_three_plus_probs():
+    return pd.read_excel(
+        "resources/housing_security/nychvs_2023.xlsx",
+        sheet_name="Occupied housing 3+ problems",
+        dtype={"geo_id": str},
+    )
+
+
+def _load_eviction_filings():
+    return pd.read_excel(
+        "resources/housing_security/eviction_filings.xlsx",
+        skiprows=4,
+        nrows=59,
+    )
+
+
+def _load_nycha_tenants():
+    return pd.read_excel(
+        "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
+        sheet_name="PUMA",
+    )
+
+
+def _load_housing_lottery_applications():
+    return pd.read_excel(
+        "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        dtype={"geog": str},
+        sheet_name="housing_lottery_applications",
+    )
+
+
+def _load_housing_lottery_leases():
+    return pd.read_excel(
+        "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        dtype={"geog": str},
+        sheet_name="housing_lottery_leases",
+    )
+
+
+# Resource registry
+RESOURCES = {
+    # Housing Production
+    "2010_census_housing_units_by_2020_nta": {
+        "filepath": "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
+        "type": "csv",
+        "data_table": "",
+        "loader": _load_2010_census_housing_units,
+    },
+    # Decennial Census
+    "decennial_census_001020": {
+        "filepath": "resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
+        "type": "excel",
+        "data_table": "",
+        "loader": _load_decennial_census_001020,
+    },
+    # ACS PUMS - specific year windows
+    "acs_0812": {
+        "filepath": "resources/ACS_PUMS/EDDE_ACS2008-2012.xlsx",
+        "type": "excel",
+        "data_table": "",
+        "loader": _load_acs_0812,
+    },
+    "acs_1923": {
+        "filepath": "resources/ACS_PUMS/EDDE_ACS2019-2023.xlsx",
+        "type": "excel",
+        "data_table": "",
+        "loader": _load_acs_1923,
+    },
+    "census_2000": {
+        "filepath": "resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
+        "type": "excel",
+        "data_table": "",
+        "loader": _load_census_2000,
+    },
+    # Quality of Life - Education
+    "education_outcome_data": {
+        "filepath": "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        "type": "excel",
+        "sheet_name": "Data",
+        "data_table": "",
+        "loader": _load_education_outcome_data,
+    },
+    "education_outcome_data_dictionary": {
+        "filepath": "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        "type": "excel",
+        "sheet_name": "Data Dictionary",
+        "data_table": "",
+        "loader": _load_education_outcome_data_dictionary,
+    },
+    # Quality of Life - Safety
+    "assault_hospitalizations": {
+        "filepath": "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
+        "type": "csv",
+        "data_table": "",
+        "loader": _load_assault_hospitalizations,
+    },
+    # Quality of Life - Health Mortality (multi-sheet)
+    "health_mortality_puma": {
+        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "type": "excel",
+        "sheet_name": "PUMA",
+        "data_table": "",
+        "loader": _load_health_mortality_puma,
+    },
+    "health_mortality_borough": {
+        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "type": "excel",
+        "sheet_name": "Borough",
+        "data_table": "",
+        "loader": _load_health_mortality_borough,
+    },
+    "health_mortality_citywide": {
+        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "type": "excel",
+        "sheet_name": "City",
+        "data_table": "",
+        "loader": _load_health_mortality_citywide,
+    },
+    # Quality of Life - Diabetes
+    "diabetes_self_report": {
+        "filepath": "resources/quality_of_life/diabetes_self_report/diabetes_self_report_processed_2024.xlsx",
+        "type": "excel",
+        "sheet_name": "DCHP_Diabetes_SelfRepHealth",
+        "data_table": "",
+        "loader": _load_diabetes_self_report,
+    },
+    # Quality of Life - Heat Vulnerability
+    "heat_vulnerability": {
+        "filepath": "resources/quality_of_life/HVI_PUMA_Subboro_forSharing.xlsx",
+        "type": "excel",
+        "data_table": "",
+        "loader": _load_heat_vulnerability,
+    },
+    # Quality of Life - COVID Death
+    "covid_death": {
+        "filepath": "resources/quality_of_life/covid_death/covid_death_processed_2023.xlsx",
+        "type": "excel",
+        "sheet_name": "Sheet 1",
+        "data_table": "",
+        "loader": _load_covid_death,
+    },
+    "census_aggregations": {
+        "filepath": "resources/quality_of_life/Census_Aggregations_fromErica.csv",
+        "type": "csv",
+        "data_table": "",
+        "loader": _load_census_aggregations,
+    },
+    # Quality of Life - Transportation Access (multi-sheet)
+    "transportation_park_access": {
+        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "type": "excel",
+        "sheet_name": "Park_Qtr_Mile_Access",
+        "data_table": "",
+        "loader": _load_transportation_park_access,
+    },
+    "transportation_jobs_access": {
+        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "type": "excel",
+        "sheet_name": "Access_to_Jobs",
+        "data_table": "",
+        "loader": _load_transportation_jobs_access,
+    },
+    "transportation_subway_sbs_access": {
+        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "type": "excel",
+        "sheet_name": "Subway_SBS_Qr_Mile_Access",
+        "data_table": "",
+        "loader": _load_transportation_subway_sbs_access,
+    },
+    "transportation_ada_subway_access": {
+        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "type": "excel",
+        "sheet_name": "ADA_Subway_Qtr_Mile_Access",
+        "data_table": "",
+        "loader": _load_transportation_ada_subway_access,
+    },
+    # Housing Security - NYCHVS (multi-sheet)
+    "nychvs_renter_occupied": {
+        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "type": "excel",
+        "sheet_name": "Renter-occupied housing units",
+        "data_table": "",
+        "loader": _load_nychvs_renter_occupied,
+    },
+    "nychvs_rent_stabilized": {
+        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "type": "excel",
+        "sheet_name": "Occupied rent stabilized",
+        "data_table": "",
+        "loader": _load_nychvs_rent_stabilized,
+    },
+    "nychvs_occupied": {
+        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "type": "excel",
+        "sheet_name": "Occupied housing units",
+        "data_table": "",
+        "loader": _load_nychvs_occupied,
+    },
+    "nychvs_three_plus_probs": {
+        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "type": "excel",
+        "sheet_name": "Occupied housing 3+ problems",
+        "data_table": "",
+        "loader": _load_nychvs_three_plus_probs,
+    },
+    # Housing Security - Other
+    "eviction_filings": {
+        "filepath": "resources/housing_security/eviction_filings.xlsx",
+        "type": "excel",
+        "data_table": "",
+        "loader": _load_eviction_filings,
+    },
+    "nycha_tenants": {
+        "filepath": "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
+        "type": "excel",
+        "sheet_name": "PUMA",
+        "data_table": "",
+        "loader": _load_nycha_tenants,
+    },
+    # Housing Security - HPD Housing Lottery (multi-sheet)
+    "housing_lottery_applications": {
+        "filepath": "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        "type": "excel",
+        "sheet_name": "housing_lottery_applications",
+        "data_table": "",
+        "loader": _load_housing_lottery_applications,
+    },
+    "housing_lottery_leases": {
+        "filepath": "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        "type": "excel",
+        "sheet_name": "housing_lottery_leases",
+        "data_table": "",
+        "loader": _load_housing_lottery_leases,
+    },
+}
+
+
+def load(resource_name: str) -> pd.DataFrame:
+    """
+    Load a resource by name.
+
+    Args:
+        resource_name: The name of the resource to load (key in RESOURCES dict)
+
+    Returns:
+        DataFrame containing the loaded data
+
+    Raises:
+        KeyError: If the resource_name is not found in RESOURCES
+
+    Example:
+        >>> df = load("2010_census_housing_units_by_2020_nta")
+    """
+    if resource_name not in RESOURCES:
+        available = ", ".join(sorted(RESOURCES.keys()))
+        raise KeyError(
+            f"Resource '{resource_name}' not found. Available resources: {available}"
+        )
+
+    resource = RESOURCES[resource_name]
+    return resource["loader"]()
+
+
+def list_resources() -> list[str]:
+    """Return a sorted list of all available resource names."""
+    return sorted(RESOURCES.keys())
+
+
+def get_resource_info(resource_name: str) -> dict:
+    """
+    Get metadata about a resource without loading it.
+
+    Args:
+        resource_name: The name of the resource
+
+    Returns:
+        Dict containing filepath, type, data_table, and other metadata
+
+    Raises:
+        KeyError: If the resource_name is not found
+    """
+    if resource_name not in RESOURCES:
+        raise KeyError(f"Resource '{resource_name}' not found")
+
+    resource = RESOURCES[resource_name]
+    return {
+        "filepath": resource["filepath"],
+        "type": resource["type"],
+        "data_table": resource["data_table"],
+        "sheet_name": resource.get("sheet_name", None),
+    }

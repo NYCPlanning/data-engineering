@@ -1,5 +1,6 @@
 import pandas as pd
 from aggregate.load_aggregated import initialize_dataframe_geo_index
+from resources import load
 from utils.geo_helpers import (
     borough_name_mapper,
     borough_num_mapper,
@@ -28,11 +29,11 @@ def _geo_for_type(r):
 
 
 def _load_lottery_xlsx(sheet_name):
-    df = pd.read_excel(
-        "resources/housing_security/hpd_housing_lottery_2025.xlsx",
-        dtype={"geog": str},
-        sheet_name=sheet_name,
-    ).rename(columns={"geog": "raw_geog"})
+    resource_map = {
+        "housing_lottery_applications": "housing_lottery_applications",
+        "housing_lottery_leases": "housing_lottery_leases",
+    }
+    df = load(resource_map[sheet_name]).rename(columns={"geog": "raw_geog"})
     df["citywide"] = "citywide"
     df["borough"] = df.apply(_calc_borough, axis=1)
     df.loc[df["geo_type"] == "cd", "geo_type"] = "puma"

@@ -1,30 +1,18 @@
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils import geo_helpers
-
-SOURCE_DATA_PATH_2020 = (
-    "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx"
-)
-
-DATA_TAB = "Data"
-DATA_DICTIONARY_TAB = "Data Dictionary"
 
 
 def load_edu_data() -> pd.DataFrame:
     long_to_short_col_mapper = (
-        pd.read_excel(
-            io=SOURCE_DATA_PATH_2020,
-            sheet_name=DATA_DICTIONARY_TAB,
-        )
+        load("education_outcome_data_dictionary")
         .set_index("varlabel")["varname"]
         .to_dict()
     )
 
     data = (
-        pd.read_excel(
-            io=SOURCE_DATA_PATH_2020,
-            sheet_name=DATA_TAB,
-        )
+        load("education_outcome_data")
         .rename(columns=long_to_short_col_mapper)
         .set_index("ntacode")
         .join(geo_helpers.get_nta_to_puma_mapper(), how="left")

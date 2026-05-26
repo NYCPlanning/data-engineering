@@ -5,14 +5,9 @@
 
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import puma_to_borough
 
-SOURCE_DATA_FILE = "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx"
-CATEGORY = "quality_of_life"
-SOURCE_SHEET_NAMES = {
-    "subway_SBS": "Subway_SBS_Qr_Mile_Access",
-    "ada_subway": "ADA_Subway_Qtr_Mile_Access",
-}
 COLUMN_MAPPINGS = {
     "puma": "PUMA",
     "pop_with_access_subway_SBS": "Pop within 1/4 Mile of Subway Stations and SBS Stops",
@@ -84,20 +79,12 @@ def calculate_access_fraction(data, gb_col, count_col, fraction_col):
 
 
 def load_access_subway_SBS() -> pd.DataFrame:
-    access = pd.read_excel(
-        SOURCE_DATA_FILE,
-        sheet_name=SOURCE_SHEET_NAMES["subway_SBS"],
-        dtype={"PUMA": str},
-    ).rename(columns={"PUMA": "puma"})
+    access = load("transportation_subway_sbs_access").rename(columns={"PUMA": "puma"})
     access["puma"] = "0" + access.puma
     return access
 
 
 def load_access_ADA_subway() -> pd.DataFrame:
-    access = pd.read_excel(
-        SOURCE_DATA_FILE,
-        sheet_name=SOURCE_SHEET_NAMES["ada_subway"],
-        dtype={"PUMA": str},
-    ).rename(columns={"PUMA": "puma"})
+    access = load("transportation_ada_subway_access").rename(columns={"PUMA": "puma"})
     access["puma"] = "0" + access.puma
     return access

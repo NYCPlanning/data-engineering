@@ -5,6 +5,7 @@ from functools import cache
 
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.dcp_population_excel_helpers import (
     count_suffix_mapper_global,
     measure_suffixes,
@@ -18,7 +19,6 @@ from utils.geo_helpers import (
     dcp_pop_races,
     get_all_boroughs,
     get_all_NYC_PUMAs,
-    year_range,
 )
 
 from dcpy.utils.logging import logger
@@ -223,10 +223,7 @@ def _calc_geog_type(geog: str):
 
 def load_acs(year_window: str) -> pd.DataFrame:
     """Load a year window of the ACS (e.g. 1923, meaning the ACS from 2019-2023)"""
-    df = pd.read_excel(
-        io=f"./resources/ACS_PUMS/EDDE_ACS{year_range(year_window)}.xlsx",
-        dtype={"Geog": str},
-    ).rename(columns={"Geog": "geog"})
+    df = load(f"acs_{year_window}").rename(columns={"Geog": "geog"})
 
     df.loc[df["geog"] == "NYC", "geog"] = "citywide"
     df["geog_type"] = df["geog"].map(_calc_geog_type)
@@ -252,11 +249,7 @@ def load_acs_curr_and_prev(
 
 
 def load_2000_census() -> pd.DataFrame:
-    df = pd.read_excel(
-        "./resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
-        skiprows=1,
-        dtype={"GeoID": str},
-    ).rename(columns={"GeoID": "geog"})
+    df = load("census_2000").rename(columns={"GeoID": "geog"})
     df.loc[df["geog"] == "NYC", "geog"] = "citywide"
     df["geog_type"] = df["geog"].map(_calc_geog_type)
     df = df.set_index("geog_type")

@@ -1,32 +1,27 @@
 import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import clean_PUMAs
-
-_HVS_PATH = "resources/housing_security/nychvs_2023.xlsx"
 
 _DATASETS = {
     "renter_occupied": {
-        "tab": "Renter-occupied housing units",
+        "resource": "nychvs_renter_occupied",
         "prefix": "units_occurental",
     },
     "rent_stabilized": {
-        "tab": "Occupied rent stabilized",
+        "resource": "nychvs_rent_stabilized",
         "prefix": "units_rentstable",
     },
-    "units_occupied": {"tab": "Occupied housing units", "prefix": "units_occu"},
+    "units_occupied": {"resource": "nychvs_occupied", "prefix": "units_occu"},
     "three_plus_probs": {
-        "tab": "Occupied housing 3+ problems",
+        "resource": "nychvs_three_plus_probs",
         "prefix": "units_threemaintenance",
     },
 }
 
 
-def _load_nychvs_excel(sheet_name):
-    return pd.read_excel(io=_HVS_PATH, sheet_name=sheet_name, dtype={"geo_id": str})
-
-
 def _load_dataset(dataset_name: str):
-    dataset_tab = _DATASETS[dataset_name]["tab"]
+    dataset_resource = _DATASETS[dataset_name]["resource"]
     dataset_prefix = _DATASETS[dataset_name]["prefix"]
 
     def _clean_puma_row(df_row):
@@ -42,7 +37,7 @@ def _load_dataset(dataset_name: str):
         )
 
     df = (
-        _load_nychvs_excel(dataset_tab)
+        load(dataset_resource)
         .apply(_clean_puma_row, axis=1)
         .set_index(
             ["geo_id", "geo_type"],

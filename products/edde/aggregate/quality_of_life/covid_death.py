@@ -1,6 +1,6 @@
 import numpy as np
-import pandas as pd
 from internal_review.set_internal_review_file import set_internal_review_files
+from resources import load
 from utils.geo_helpers import puma_to_borough
 
 race_coder = {
@@ -69,10 +69,7 @@ def calculate_rate_by_100k(new_col, aggregated):
 
 
 def load_clean_source_data():
-    source_data = pd.read_excel(
-        "resources/quality_of_life/covid_death/covid_death_processed_2023.xlsx",
-        sheet_name="Sheet 1",
-    )
+    source_data = load("covid_death")
     # print(source_data)
     source_data.rename(
         columns={
@@ -104,15 +101,13 @@ def add_pop_2020(df):
         "WNH20": "_wnh",
     }
     census_race_cols = list(census_race_coder.keys())
-    census = pd.read_csv(
-        "resources/quality_of_life/Census_Aggregations_fromErica.csv",
-        header=2,
-        usecols=[
+    census = load("census_aggregations")[
+        [
             "GeogType",
             "GeoID",
         ]
-        + census_race_cols,
-    )
+        + census_race_cols
+    ]
 
     census.columns = [census_race_coder.get(c, c) for c in census.columns]
 
