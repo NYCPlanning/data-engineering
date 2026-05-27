@@ -472,7 +472,7 @@ RESOURCES = {
         "loader": _load_eviction_filings,
     },
     "nycha_tenants": {
-        "filepath": "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
+        "filepath": "resources/housing_security/nycha_tenants.xlsx",
         "type": "excel",
         "sheet_name": "PUMA",
         "data_table": "",
