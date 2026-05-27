@@ -31,28 +31,147 @@ def _():
 @app.cell
 def _():
     bucket_input = mo.ui.text(value="edm-publishing", label="Bucket")
-    path_a_input = mo.ui.text(
-        value="db-cpdb/draft/26prelim/2/",
-        label="Path A — baseline (e.g. published draft)",
-        full_width=True,
+
+    def list_dirs(bucket: str, prefix: str) -> list[str]:
+        try:
+            c = s3.client()
+            p = (prefix.rstrip("/") + "/") if prefix else ""
+            resp = c.list_objects_v2(Bucket=bucket, Prefix=p, Delimiter="/")
+            return sorted(
+                cp["Prefix"].removeprefix(p).rstrip("/")
+                for cp in resp.get("CommonPrefixes", [])
+            )
+        except Exception:
+            return []
+
+    bucket_input
+    return bucket_input, list_dirs
+
+
+@app.cell(hide_code=True)
+def _(bucket_input, list_dirs):
+    with mo.status.spinner(title="Listing bucket…"):
+        _root = [x for x in list_dirs(bucket_input.value, "") if x]
+    mo.md(
+        "**Path A — baseline** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **Path B — new build**"
     )
-    path_b_input = mo.ui.text(
-        value="db-cpdb/build/dm-cpdb-26prelim/",
-        label="Path B — new build",
-        full_width=True,
+    path_a_seg1 = mo.ui.dropdown(options=_root, label="A", searchable=True)
+    path_b_seg1 = mo.ui.dropdown(options=_root, label="B", searchable=True)
+    mo.hstack([path_a_seg1, path_b_seg1], gap=2)
+    return path_a_seg1, path_b_seg1
+
+
+@app.cell(hide_code=True)
+def _(bucket_input, list_dirs, path_a_seg1, path_b_seg1):
+    _a2 = (
+        [x for x in list_dirs(bucket_input.value, path_a_seg1.value) if x]
+        if path_a_seg1.value
+        else []
     )
-    mo.vstack(
+    _b2 = (
+        [x for x in list_dirs(bucket_input.value, path_b_seg1.value) if x]
+        if path_b_seg1.value
+        else []
+    )
+    path_a_seg2 = mo.ui.dropdown(options=_a2, label="A", searchable=True)
+    path_b_seg2 = mo.ui.dropdown(options=_b2, label="B", searchable=True)
+    mo.hstack([path_a_seg2, path_b_seg2], gap=2) if _a2 or _b2 else None
+    return path_a_seg2, path_b_seg2
+
+
+@app.cell(hide_code=True)
+def _(
+    bucket_input,
+    list_dirs,
+    path_a_seg1,
+    path_a_seg2,
+    path_b_seg1,
+    path_b_seg2,
+):
+    _pfx_a = "/".join(x for x in [path_a_seg1.value, path_a_seg2.value] if x)
+    _pfx_b = "/".join(x for x in [path_b_seg1.value, path_b_seg2.value] if x)
+    _a3 = (
+        [x for x in list_dirs(bucket_input.value, _pfx_a) if x]
+        if path_a_seg2.value
+        else []
+    )
+    _b3 = (
+        [x for x in list_dirs(bucket_input.value, _pfx_b) if x]
+        if path_b_seg2.value
+        else []
+    )
+    path_a_seg3 = mo.ui.dropdown(options=_a3, label="A", searchable=True)
+    path_b_seg3 = mo.ui.dropdown(options=_b3, label="B", searchable=True)
+    mo.hstack([path_a_seg3, path_b_seg3], gap=2) if _a3 or _b3 else None
+    return path_a_seg3, path_b_seg3
+
+
+@app.cell(hide_code=True)
+def _(
+    bucket_input,
+    list_dirs,
+    path_a_seg1,
+    path_a_seg2,
+    path_a_seg3,
+    path_b_seg1,
+    path_b_seg2,
+    path_b_seg3,
+):
+    _pfx_a = "/".join(
+        x for x in [path_a_seg1.value, path_a_seg2.value, path_a_seg3.value] if x
+    )
+    _pfx_b = "/".join(
+        x for x in [path_b_seg1.value, path_b_seg2.value, path_b_seg3.value] if x
+    )
+    _a4 = (
+        [x for x in list_dirs(bucket_input.value, _pfx_a) if x]
+        if path_a_seg3.value
+        else []
+    )
+    _b4 = (
+        [x for x in list_dirs(bucket_input.value, _pfx_b) if x]
+        if path_b_seg3.value
+        else []
+    )
+    path_a_seg4 = mo.ui.dropdown(options=_a4, label="A", searchable=True)
+    path_b_seg4 = mo.ui.dropdown(options=_b4, label="B", searchable=True)
+    mo.hstack([path_a_seg4, path_b_seg4], gap=2) if _a4 or _b4 else None
+    return path_a_seg4, path_b_seg4
+
+
+@app.cell(hide_code=True)
+def _(
+    path_a_seg1,
+    path_a_seg2,
+    path_a_seg3,
+    path_a_seg4,
+    path_b_seg1,
+    path_b_seg2,
+    path_b_seg3,
+    path_b_seg4,
+):
+    def _join(*segs):
+        parts = [s for s in segs if s]
+        return "/".join(parts) + "/" if parts else ""
+
+    path_a = _join(
+        path_a_seg1.value, path_a_seg2.value, path_a_seg3.value, path_a_seg4.value
+    )
+    path_b = _join(
+        path_b_seg1.value, path_b_seg2.value, path_b_seg3.value, path_b_seg4.value
+    )
+    mo.hstack(
         [
-            bucket_input,
-            mo.hstack([path_a_input, path_b_input], gap=2),
+            mo.callout(mo.md(f"**Path A:** `{path_a or '—'}`"), kind="neutral"),
+            mo.callout(mo.md(f"**Path B:** `{path_b or '—'}`"), kind="neutral"),
         ],
-        align="center",
+        gap=2,
     )
-    return bucket_input, path_a_input, path_b_input
+    return path_a, path_b
 
 
 @app.cell
-def _(bucket_input, path_a_input, path_b_input):
+def _(bucket_input, path_a, path_b):
     def _fetch(prefix: str) -> pd.DataFrame:
         objs = s3.list_objects(bucket_input.value, prefix)
         if not objs:
@@ -69,14 +188,29 @@ def _(bucket_input, path_a_input, path_b_input):
             ]
         )
 
-    with mo.status.spinner(title="Fetching objects from S3…"):
-        df_a = _fetch(path_a_input.value)
-        df_b = _fetch(path_b_input.value)
+    mo.stop(
+        not path_a or not path_b,
+        mo.md("_Select paths above to begin comparison._"),
+    )
+
+    _err = None
+    try:
+        with mo.status.spinner(title="Fetching objects from S3…"):
+            df_a = _fetch(path_a)
+            df_b = _fetch(path_b)
+    except Exception as e:
+        _err = str(e)
+        df_a = df_b = pd.DataFrame(columns=["filename", "size_bytes", "last_modified"])
+
+    mo.stop(
+        _err is not None,
+        mo.callout(mo.md(f"**S3 fetch failed:** `{_err}`"), kind="danger"),
+    )
     return df_a, df_b
 
 
 @app.cell
-def _(df_a, df_b, path_a_input, path_b_input):
+def _(df_a, df_b, path_a, path_b):
     _merged = pd.merge(
         df_a[["filename", "size_bytes"]].rename(columns={"size_bytes": "size_a"}),
         df_b[["filename", "size_bytes"]].rename(columns={"size_bytes": "size_b"}),
@@ -102,8 +236,8 @@ def _(df_a, df_b, path_a_input, path_b_input):
 
         | | Count |
         |---|---|
-        | Files in **A** (`{path_a_input.value}`) | {len(df_a)} |
-        | Files in **B** (`{path_b_input.value}`) | {len(df_b)} |
+        | Files in **A** (`{path_a}`) | {len(df_a)} |
+        | Files in **B** (`{path_b}`) | {len(df_b)} |
         | Only in A | {_n_only_a} |
         | Only in B | {_n_only_b} |
         | In both | {_n_both} |
@@ -215,7 +349,7 @@ def _(comparison):
 
 
 @app.cell(hide_code=True)
-def _(bucket_input, file_selector, path_a_input, path_b_input):
+def _(bucket_input, file_selector, path_a, path_b):
     from io import BytesIO
 
     def _load_file(prefix: str, filename: str) -> pd.DataFrame:
@@ -234,8 +368,8 @@ def _(bucket_input, file_selector, path_a_input, path_b_input):
 
     if file_selector.value:
         with mo.status.spinner(title=f"Loading {file_selector.value}…"):
-            file_df_a = _load_file(path_a_input.value, file_selector.value)
-            file_df_b = _load_file(path_b_input.value, file_selector.value)
+            file_df_a = _load_file(path_a, file_selector.value)
+            file_df_b = _load_file(path_b, file_selector.value)
     else:
         file_df_a = file_df_b = None
     return file_df_a, file_df_b
@@ -486,7 +620,7 @@ def _(comparison):
 
 
 @app.cell(hide_code=True)
-def _(bucket_input, geo_selector, path_a_input, path_b_input):
+def _(bucket_input, geo_selector, path_a, path_b):
     import os
     import tempfile
 
@@ -507,12 +641,12 @@ def _(bucket_input, geo_selector, path_a_input, path_b_input):
 
     with mo.status.spinner(title=f"Loading {geo_selector.value} from both paths…"):
         geo_gdf_a = (
-            _load_shapefile(path_a_input.value, geo_selector.value)
+            _load_shapefile(path_a, geo_selector.value)
             .to_crs(4326)
             .reset_index(drop=True)
         )
         geo_gdf_b = (
-            _load_shapefile(path_b_input.value, geo_selector.value)
+            _load_shapefile(path_b, geo_selector.value)
             .to_crs(4326)
             .reset_index(drop=True)
         )
@@ -548,14 +682,14 @@ def _(geo_gdf_a, geo_gdf_b):
 
 
 @app.cell(hide_code=True)
-def _(geo_gdf_a, geo_selector, path_a_input):
+def _(geo_gdf_a, geo_selector, path_a):
     _geom_col = geo_gdf_a.geometry.name
     _attr_cols = [c for c in geo_gdf_a.columns if c != _geom_col]
     geo_table_a = mo.ui.table(
         geo_gdf_a[_attr_cols],
         selection="multi",
         page_size=20,
-        label=f"A — {path_a_input.value}{geo_selector.value} ({len(geo_gdf_a):,} features) · check rows to highlight on map",
+        label=f"A — {path_a}{geo_selector.value} ({len(geo_gdf_a):,} features) · check rows to highlight on map",
     )
     geo_table_a
     return (geo_table_a,)
@@ -586,14 +720,14 @@ def _(Carto, CartoBasemapLayer, geo_gdf_a, geo_table_a, ol):
 
 
 @app.cell(hide_code=True)
-def _(geo_gdf_b, geo_selector, path_b_input):
+def _(geo_gdf_b, geo_selector, path_b):
     _geom_col = geo_gdf_b.geometry.name
     _attr_cols = [c for c in geo_gdf_b.columns if c != _geom_col]
     geo_table_b = mo.ui.table(
         geo_gdf_b[_attr_cols],
         selection="multi",
         page_size=20,
-        label=f"B — {path_b_input.value}{geo_selector.value} ({len(geo_gdf_b):,} features) · check rows to highlight on map",
+        label=f"B — {path_b}{geo_selector.value} ({len(geo_gdf_b):,} features) · check rows to highlight on map",
     )
     geo_table_b
     return (geo_table_b,)
