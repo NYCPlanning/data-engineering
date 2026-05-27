@@ -268,8 +268,8 @@ RESOURCES = {
         "required_columns": ["Geog"],
         "loader": _load_acs_0812,
     },
-    "acs_1923": {
-        "filepath": "resources/ACS_PUMS/EDDE_ACS2019-2023.xlsx",
+    "acs_2024": {
+        "filepath": "resources/ACS_PUMS/EDDE_ACS2020-2024.xlsx",
         "type": "excel",
         "data_table": "",
         "required_columns": ["Geog"],
