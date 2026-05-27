@@ -15,67 +15,67 @@ import pandas as pd
 # Helper functions for loading resources
 
 
-def _load_2010_census_housing_units():
+def _load_2010_census_housing_units(path: str):
     return pd.read_csv(
-        "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
+        path,
         dtype={"HUnits": int},
     )
 
 
-def _load_decennial_census_001020():
+def _load_decennial_census_001020(path: str):
     return pd.read_excel(
-        "resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
+        path,
         skiprows=2,
         dtype={"GeogType": str, "GeoID": str},
     )
 
 
-def _load_acs_0812():
+def _load_acs_0812(path: str):
     return pd.read_excel(
-        "resources/ACS_PUMS/EDDE_ACS2008-2012.xlsx",
+        path,
         dtype={"Geog": str},
     )
 
 
-def _load_acs_1923():
+def _load_acs_1923(path: str):
     return pd.read_excel(
-        "resources/ACS_PUMS/EDDE_ACS2019-2023.xlsx",
+        path,
         dtype={"Geog": str},
     )
 
 
-def _load_census_2000():
+def _load_census_2000(path: str):
     return pd.read_excel(
-        "resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
+        path,
         skiprows=1,
         dtype={"GeoID": str},
     )
 
 
-def _load_education_outcome_data():
+def _load_education_outcome_data(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        path,
         sheet_name="Data",
     )
 
 
-def _load_education_outcome_data_dictionary():
+def _load_education_outcome_data_dictionary(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        path,
         sheet_name="Data Dictionary",
     )
 
 
-def _load_assault_hospitalizations():
+def _load_assault_hospitalizations(path: str):
     return pd.read_csv(
-        "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
+        path,
         dtype={"Geography": str},
     )
 
 
-def _load_health_mortality_puma():
+def _load_health_mortality_puma(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        path,
         sheet_name="PUMA",
         header=1,
         nrows=55,
@@ -83,143 +83,143 @@ def _load_health_mortality_puma():
     )
 
 
-def _load_health_mortality_borough():
+def _load_health_mortality_borough(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        path,
         sheet_name="Borough",
         header=1,
         nrows=5,
     )
 
 
-def _load_health_mortality_citywide():
+def _load_health_mortality_citywide(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        path,
         sheet_name="City",
         header=1,
         nrows=1,
     )
 
 
-def _load_diabetes_self_report():
+def _load_diabetes_self_report(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/diabetes_self_report/diabetes_self_report_processed_2024.xlsx",
+        path,
         sheet_name="DCHP_Diabetes_SelfRepHealth",
     )
 
 
-def _load_heat_vulnerability():
+def _load_heat_vulnerability(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/HVI_PUMA_Subboro_forSharing.xlsx",
+        path,
         usecols=["PUMACE10", "HVI"],
         dtype={"PUMACE10": str, "HVI": int},
     )
 
 
-def _load_covid_death():
+def _load_covid_death(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/covid_death/covid_death_processed_2023.xlsx",
+        path,
         sheet_name="Sheet 1",
     )
 
 
-def _load_census_aggregations():
+def _load_census_aggregations(path: str):
     return pd.read_csv(
-        "resources/quality_of_life/Census_Aggregations_fromErica.csv",
+        path,
         header=2,
     )
 
 
-def _load_transportation_park_access():
+def _load_transportation_park_access(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        path,
         sheet_name="Park_Qtr_Mile_Access",
         dtype={"PUMA": str},
     )
 
 
-def _load_transportation_jobs_access():
+def _load_transportation_jobs_access(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        path,
         sheet_name="Access_to_Jobs",
         dtype={"PUMA": str},
     )
 
 
-def _load_transportation_subway_sbs_access():
+def _load_transportation_subway_sbs_access(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        path,
         sheet_name="Subway_SBS_Qr_Mile_Access",
         dtype={"PUMA": str},
     )
 
 
-def _load_transportation_ada_subway_access():
+def _load_transportation_ada_subway_access(path: str):
     return pd.read_excel(
-        "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        path,
         sheet_name="ADA_Subway_Qtr_Mile_Access",
         dtype={"PUMA": str},
     )
 
 
-def _load_nychvs_renter_occupied():
+def _load_nychvs_renter_occupied(path: str):
     return pd.read_excel(
-        "resources/housing_security/nychvs_2023.xlsx",
+        path,
         sheet_name="Renter-occupied housing units",
         dtype={"geo_id": str},
     )
 
 
-def _load_nychvs_rent_stabilized():
+def _load_nychvs_rent_stabilized(path: str):
     return pd.read_excel(
-        "resources/housing_security/nychvs_2023.xlsx",
+        path,
         sheet_name="Occupied rent stabilized",
         dtype={"geo_id": str},
     )
 
 
-def _load_nychvs_occupied():
+def _load_nychvs_occupied(path: str):
     return pd.read_excel(
-        "resources/housing_security/nychvs_2023.xlsx",
+        path,
         sheet_name="Occupied housing units",
         dtype={"geo_id": str},
     )
 
 
-def _load_nychvs_three_plus_probs():
+def _load_nychvs_three_plus_probs(path: str):
     return pd.read_excel(
-        "resources/housing_security/nychvs_2023.xlsx",
+        path,
         sheet_name="Occupied housing 3+ problems",
         dtype={"geo_id": str},
     )
 
 
-def _load_eviction_filings():
+def _load_eviction_filings(path: str):
     return pd.read_excel(
-        "resources/housing_security/eviction_filings.xlsx",
+        path,
         skiprows=4,
         nrows=59,
     )
 
 
-def _load_nycha_tenants():
+def _load_nycha_tenants(path: str):
     return pd.read_excel(
-        "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
+        path,
         sheet_name="PUMA",
     )
 
 
-def _load_housing_lottery_applications():
+def _load_housing_lottery_applications(path: str):
     return pd.read_excel(
-        "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        path,
         dtype={"geog": str},
         sheet_name="housing_lottery_applications",
     )
 
 
-def _load_housing_lottery_leases():
+def _load_housing_lottery_leases(path: str):
     return pd.read_excel(
-        "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        path,
         dtype={"geog": str},
         sheet_name="housing_lottery_leases",
     )
@@ -509,7 +509,7 @@ def load(resource_name: str) -> pd.DataFrame:
         )
 
     resource = RESOURCES[resource_name]
-    return resource["loader"]()
+    return resource["loader"](resource["filepath"])
 
 
 def list_resources() -> list[str]:
