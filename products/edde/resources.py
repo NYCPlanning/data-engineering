@@ -351,11 +351,11 @@ RESOURCES = {
     },
     # Quality of Life - COVID Death
     "covid_death": {
-        "filepath": "resources/quality_of_life/covid_death/covid_death_processed_2023.xlsx",
+        "filepath": "resources/quality_of_life/deaths_by_race_and_puma.xlsx",
         "type": "excel",
         "sheet_name": "Sheet 1",
-        "data_table": "",
-        "required_columns": ["PUMA", "Total\nDeaths", "Race/Ethnicity"],  # File missing
+        "data_table": "5.06",
+        "required_columns": ["PUMA", "Total\nDeaths", "Race/Ethnicity"],
         "loader": _load_covid_death,
     },
     "census_aggregations": {
@@ -375,18 +375,18 @@ RESOURCES = {
     },
     # Quality of Life - Transportation Access (multi-sheet)
     "transportation_park_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "Park_Qtr_Mile_Access",
-        "data_table": "",
+        "data_table": "5.09",
         "required_columns": ["PUMA", "Pop_Served", "Total_Pop"],
         "loader": _load_transportation_park_access,
     },
     "transportation_jobs_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "Access_to_Jobs",
-        "data_table": "",
+        "data_table": "5.08",
         "required_columns": [
             "PUMA",
             "Weighted Average Number of Jobs Accessible within 30 mins from Tract Centroid by Transit",
@@ -394,10 +394,10 @@ RESOURCES = {
         "loader": _load_transportation_jobs_access,
     },
     "transportation_subway_sbs_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "Subway_SBS_Qr_Mile_Access",
-        "data_table": "",
+        "data_table": "5.09",
         "required_columns": [
             "PUMA",
             "Pop within 1/4 Mile of Subway Stations and SBS Stops",
@@ -406,10 +406,10 @@ RESOURCES = {
         "loader": _load_transportation_subway_sbs_access,
     },
     "transportation_ada_subway_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "ADA_Subway_Qtr_Mile_Access",
-        "data_table": "",
+        "data_table": "5.09",
         "required_columns": [
             "PUMA",
             "Pop within 1/4 Mile of ADA Subway Stations",
