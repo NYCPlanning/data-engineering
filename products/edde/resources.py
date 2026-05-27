@@ -66,6 +66,12 @@ def _load_education_outcome_data_dictionary(path: str):
     )
 
 
+def _load_pedestrian_hospitalizations(path: str):
+    return pd.read_csv(
+        path,
+        dtype={"Geography": str},
+    )
+
 def _load_assault_hospitalizations(path: str):
     return pd.read_csv(
         path,
@@ -301,6 +307,13 @@ RESOURCES = {
         "required_columns": ["Geography", "Number", "GeoType"],
         "loader": _load_assault_hospitalizations,
     },
+    "pedestrian_hospitalizations": {
+        "filepath": "resources/quality_of_life/pedestrian_hospitalizations.csv",
+        "type": "csv",
+        "data_table": "",
+        "required_columns": ["Geography", "Number", "GeoType"],
+        "loader": _load_pedestrian_hospitalizations,
+    },
     # Quality of Life - Health Mortality (multi-sheet)
     "health_mortality_puma": {
         "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
@@ -468,18 +481,18 @@ RESOURCES = {
     },
     # Housing Security - HPD Housing Lottery (multi-sheet)
     "housing_lottery_applications": {
-        "filepath": "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        "filepath": "resources/housing_security/hpd_housing_lottery.xlsx",
         "type": "excel",
         "sheet_name": "housing_lottery_applications",
-        "data_table": "",
+        "data_table": "3.13",
         "required_columns": ["geog", "geo_type", "Total"],
         "loader": _load_housing_lottery_applications,
     },
     "housing_lottery_leases": {
-        "filepath": "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        "filepath": "resources/housing_security/hpd_housing_lottery.xlsx",
         "type": "excel",
         "sheet_name": "housing_lottery_leases",
-        "data_table": "",
+        "data_table": "3.14",
         "required_columns": ["geog", "geo_type", "Total"],
         "loader": _load_housing_lottery_leases,
     },
