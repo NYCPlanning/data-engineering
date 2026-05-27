@@ -372,7 +372,7 @@ RESOURCES = {
         "loader": _load_covid_death,
     },
     "census_aggregations": {
-        "filepath": "resources/quality_of_life/Census_Aggregations_fromErica.csv",
+        "filepath": "resources/quality_of_life/pop_census_aggregations.csv",
         "type": "csv",
         "data_table": "",
         "required_columns": [
