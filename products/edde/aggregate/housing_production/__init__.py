@@ -4,8 +4,11 @@ from aggregate.housing_production.hpd_housing_ny_affordable_housing import (
     affordable_housing,
 )
 
+all_accessors = [fraction_historic, change_in_units, affordable_housing]
+
 __all__ = [
     "fraction_historic",
     "change_in_units",
     "affordable_housing",
+    "all_accessors",
 ]

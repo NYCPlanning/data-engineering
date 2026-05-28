@@ -25,6 +25,25 @@ from aggregate.housing_security.units_affordable import units_affordable
 from aggregate.housing_security.units_housing_tenure import units_housing_tenure
 from aggregate.housing_security.units_overcrowd import units_overcrowd
 
+all_accessors = [
+    dhs_shelter,
+    count_residential_evictions,
+    homevalue_median,
+    households_rent_burden,
+    housing_lottery_applications,
+    housing_lottery_leases,
+    income_restricted_units,
+    income_restricted_units_hpd,
+    nycha_tenants,
+    pums_2000_hsq_housing_tenure,
+    rent_median,
+    rent_stabilized_units,
+    three_maintenance_units,
+    units_affordable,
+    units_housing_tenure,
+    units_overcrowd,
+]
+
 __all__ = [
     "dhs_shelter",
     "count_residential_evictions",
@@ -42,4 +61,5 @@ __all__ = [
     "units_affordable",
     "units_housing_tenure",
     "units_overcrowd",
+    "all_accessors",
 ]
