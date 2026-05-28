@@ -63,6 +63,14 @@ jobs:
             export OP_SERVICE_ACCOUNT_TOKEN='${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}' && \
             op run --env-file=env.1pw -- ./scripts/deploy.sh"
 
+      - name: Restart nginx
+        run: |
+          ssh droplet "\
+            cd /root/data-engineering/apps && \
+            # sleep for one minute to allow services to start before nginx tries to connect to them
+            sleep 60 && \
+            docker compose restart nginx"
+
       - name: Verify deployment
         run: |
           ssh droplet "\
