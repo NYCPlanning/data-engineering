@@ -37,24 +37,22 @@ DBT_QA_TABLES: dict[str, list[str]] = {
 }
 
 
-@st.cache_data(show_spinner=False)
 def get_builds() -> list[str]:
     return publishing.get_builds(PRODUCT)
 
 
-@st.cache_data(show_spinner=False)
 def get_build_version(build: str) -> str:
     product_key = BuildKey(PRODUCT, build)
     return publishing.get_build_metadata(product_key).version
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)
 def get_diffs_summary(build: str) -> pd.DataFrame:
     product_key = BuildKey(PRODUCT, build)
     return publishing.read_csv(product_key, "validation_output/diffs_summary.csv")
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)
 def get_diff_rows(build: str, filename: str) -> list[str]:
     """Stream dev and prod files from S3 and return lines present in dev but not prod.
 
@@ -83,7 +81,6 @@ def get_diff_rows(build: str, filename: str) -> list[str]:
     return sorted(dev_lines - prod_lines)
 
 
-@st.cache_data(show_spinner=False)
 def get_build_output_zip_url(build: str) -> str:
     """Return a direct public download URL for the build's output.zip."""
     from dcpy.utils import s3
@@ -101,21 +98,19 @@ def get_pg_client(build: str) -> postgres.PostgresClient:
     )
 
 
-@st.cache_data(show_spinner=False)
 def get_build_tables(build: str) -> list[str]:
     """List all tables in the build's Postgres schema."""
     client = get_pg_client(build)
     return client.get_schema_tables()
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)
 def get_dbt_qa_table(build: str, table_name: str) -> pd.DataFrame:
     """Read a dbt QA model table from Postgres into a DataFrame."""
     client = get_pg_client(build)
     return client.read_table_df(table_name, schema=client.schema)
 
 
-@st.cache_data(show_spinner=False)
 def get_record_by_comparison_id(
     build: str, table_name: str, id_column: str, id_value: str
 ) -> pd.DataFrame:
@@ -127,7 +122,7 @@ def get_record_by_comparison_id(
     )
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)
 def get_build_table(build: str, table_name: str) -> pd.DataFrame:
     """Read any table from the build's Postgres schema into a DataFrame."""
     client = get_pg_client(build)
