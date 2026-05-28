@@ -80,7 +80,17 @@ def cscl():
                         df = helpers.get_dbt_qa_table(selected_build, selected_table)
                     with st.expander("Filter rows", expanded=False):
                         filters = {}
+                        accounted_filter = None
+                        if "accounted_for" in df.columns:
+                            accounted_filter = st.radio(
+                                "accounted_for",
+                                options=["All", "Unaccounted only", "Accounted only"],
+                                horizontal=True,
+                                key=f"filter_{group}_{selected_table}_accounted_for",
+                            )
                         for col in df.columns:
+                            if col == "accounted_for":
+                                continue
                             distinct_values = sorted(
                                 df[col].dropna().astype(str).unique().tolist()
                             )
@@ -95,6 +105,10 @@ def cscl():
                             if selected_values:
                                 filters[col] = selected_values
                     filtered_df = df.copy()
+                    if accounted_filter == "Unaccounted only":
+                        filtered_df = filtered_df[~filtered_df["accounted_for"]]
+                    elif accounted_filter == "Accounted only":
+                        filtered_df = filtered_df[filtered_df["accounted_for"]]
                     for col, values in filters.items():
                         filtered_df = filtered_df[
                             filtered_df[col].astype(str).isin(values)
