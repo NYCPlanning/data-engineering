@@ -33,7 +33,6 @@ from aggregate.housing_security import (
 )
 
 # from aggregate.housing_security.eviction_cases_housing_court import eviction_cases
-
 # PUMS imports
 from aggregate.PUMS import (
     acs_pums_demographics,

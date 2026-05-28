@@ -9,17 +9,17 @@ import os
 import time
 
 import pandas as pd
-from aggregate.aggregated_cache_fn import PUMS_cache_fn
-from aggregate.aggregation_helpers import (
-    get_category,
-    order_aggregated_columns,
-)
 from ingest.load_data import load_PUMS
 from statistical.calculate_counts import calculate_counts
 from statistical.calculate_fractions import (
     calculate_fractions,
 )
 
+from aggregate.aggregated_cache_fn import PUMS_cache_fn
+from aggregate.aggregation_helpers import (
+    get_category,
+    order_aggregated_columns,
+)
 from dcpy.utils.logging import logger
 
 allowed_variance_measures = ["SE", "MOE"]

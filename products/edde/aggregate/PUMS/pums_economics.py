@@ -1,7 +1,4 @@
 import pandas as pd
-from aggregate.aggregation_helpers import order_aggregated_columns
-from aggregate.load_aggregated import load_acs
-from aggregate.PUMS.pums_2000_economics import pums_2000_economics
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     count_suffix_mapper_global,
@@ -10,6 +7,10 @@ from utils.dcp_population_excel_helpers import (
     remove_duplicate_cols,
 )
 from utils.geo_helpers import acs_years
+
+from aggregate.aggregation_helpers import order_aggregated_columns
+from aggregate.load_aggregated import load_acs
+from aggregate.PUMS.pums_2000_economics import pums_2000_economics
 
 occupations = ["mbsa", "srvc", "slsoff", "cstmnt", "prdtrn"]
 education_levels = ["lths", "hs", "smcol", "bchpl"]

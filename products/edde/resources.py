@@ -72,6 +72,7 @@ def _load_pedestrian_hospitalizations(path: str):
         dtype={"Geography": str},
     )
 
+
 def _load_assault_hospitalizations(path: str):
     return pd.read_csv(
         path,

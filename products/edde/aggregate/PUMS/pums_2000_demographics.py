@@ -1,10 +1,4 @@
 import pandas as pd
-from aggregate.aggregation_helpers import (
-    demographic_indicators_denom,
-    get_category,
-    order_aggregated_columns,
-)
-from aggregate.load_aggregated import load_2000_census
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     map_stat_suffix,
@@ -12,6 +6,13 @@ from utils.dcp_population_excel_helpers import (
     remove_duplicate_cols,
 )
 from utils.geo_helpers import dcp_pop_races
+
+from aggregate.aggregation_helpers import (
+    demographic_indicators_denom,
+    get_category,
+    order_aggregated_columns,
+)
+from aggregate.load_aggregated import load_2000_census
 
 name_mapper = {
     "fb": "fb",

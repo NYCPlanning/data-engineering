@@ -1,8 +1,9 @@
 import pandas as pd
-from aggregate.decennial_census import decennial_census_001020 as census_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils import geo_helpers
+
+from aggregate.decennial_census import decennial_census_001020 as census_helpers
 
 
 def assault_hospitalizations(geography, write_to_internal_review=False):
@@ -24,7 +25,6 @@ def assault_hospitalizations(geography, write_to_internal_review=False):
 # TODO: fix this up
 def pedestrian_hospitalizations(geography, write_to_internal_review=False):
     source_data = load("assault_hospitalizations").rename(columns={"Number": "count"})
-    indicator_col_label = "safety_pedhospital_rate"
 
     final = calculate_per100k_rate(source_data)
     # final.name = indicator_col_label
