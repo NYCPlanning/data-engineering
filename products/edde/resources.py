@@ -10,7 +10,12 @@ Usage:
     df = load("2010_census_housing_units_by_2020_nta")
 """
 
+from pathlib import Path
+
 import pandas as pd
+
+# Get the absolute path to this file's directory
+_MODULE_DIR = Path(__file__).parent.resolve()
 
 # Helper functions for loading resources
 
@@ -465,13 +470,14 @@ RESOURCES = {
         "loader": _load_nychvs_three_plus_probs,
     },
     # Housing Security - Other
-    "eviction_filings": {
-        "filepath": "resources/housing_security/eviction_filings.xlsx",
-        "type": "excel",
-        "data_table": "",
-        "required_columns": ["Community District", "Eviction Fillings*"],
-        "loader": _load_eviction_filings,
-    },
+    # AR NOTE: commenting out bc we get this from Open Data
+    # "eviction_filings": {
+    #     "filepath": "resources/housing_security/eviction_filings.xlsx",
+    #     "type": "excel",
+    #     "data_table": "",
+    #     "required_columns": ["Community District", "Eviction Fillings*"],
+    #     "loader": _load_eviction_filings,
+    # },
     "nycha_tenants": {
         "filepath": "resources/housing_security/nycha_tenants.xlsx",
         "type": "excel",
@@ -523,7 +529,9 @@ def load(resource_name: str) -> pd.DataFrame:
         )
 
     resource = RESOURCES[resource_name]
-    return resource["loader"](resource["filepath"])
+    # Convert relative filepath to absolute path
+    absolute_filepath = _MODULE_DIR / resource["filepath"]
+    return resource["loader"](str(absolute_filepath))
 
 
 def list_resources() -> list[str]:
