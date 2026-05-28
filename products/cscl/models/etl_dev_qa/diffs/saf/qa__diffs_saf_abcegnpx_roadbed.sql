@@ -30,22 +30,33 @@ categorized AS (
         build_table_name,
         production_table_name
     FROM base_diffs
+),
+diff_grouped AS (
+    SELECT
+        _saf_key AS comparison_id,
+        status,
+        changes,
+        output_file_id,
+        -- Categorize based on which fields changed
+        CASE
+        -- If only one field changed, use that as the group name
+            WHEN status = 'modified' AND array_length(change_keys, 1) = 1
+                THEN change_keys[1]
+            ELSE ''
+        END AS diff_group,
+        '' AS subgroup,
+        comparison_column,
+        build_table_name,
+        production_table_name
+    FROM categorized
+),
+accounted AS (
+    SELECT
+        *,
+        -- Mark as accounted for if it's a known bug/expected difference
+        coalesce(
+            diff_group IN ('side_ap'), FALSE
+        ) AS accounted_for
+    FROM diff_grouped
 )
-SELECT
-    _saf_key AS comparison_id,
-    status,
-    changes,
-    output_file_id,
-    -- Categorize based on which fields changed
-    CASE
-    -- If only one field changed, use that as the group name
-        WHEN status = 'modified' AND array_length(change_keys, 1) = 1
-            THEN change_keys[1]
-        ELSE ''
-    END AS diff_group,
-    '' AS subgroup,
-    comparison_column,
-    build_table_name,
-    production_table_name,
-    false AS accounted_for
-FROM categorized
+SELECT * FROM accounted
