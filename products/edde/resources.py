@@ -432,7 +432,7 @@ RESOURCES = {
     },
     # Housing Security - NYCHVS (multi-sheet)
     "nychvs_renter_occupied": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Renter-occupied housing units",
         "data_table": "",
@@ -440,7 +440,7 @@ RESOURCES = {
         "loader": _load_nychvs_renter_occupied,
     },
     "nychvs_rent_stabilized": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Occupied rent stabilized",
         "data_table": "",
@@ -448,7 +448,7 @@ RESOURCES = {
         "loader": _load_nychvs_rent_stabilized,
     },
     "nychvs_occupied": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Occupied housing units",
         "data_table": "",
@@ -456,7 +456,7 @@ RESOURCES = {
         "loader": _load_nychvs_occupied,
     },
     "nychvs_three_plus_probs": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Occupied housing 3+ problems",
         "data_table": "",
