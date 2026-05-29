@@ -1,391 +1,391 @@
-﻿TimePeriod,GeoType,GeoID,GeoRank,Geography,Number,"Rate per 100,000"
+TimePeriod,GeoType,GeoID,GeoRank,Geography,"Age-adjusted rate per 100,000",Number
 2023,CD,101,6,Financial District (CD1),**,**
-2023,CD,102,6,Greenwich Village and Soho (CD2),**,**
-2023,CD,103,6,Lower East Side and Chinatown (CD3),22,10.8
-2023,CD,104,6,Clinton and Chelsea (CD4),15,8.5
-2023,CD,105,6,Midtown (CD5),^^,^^
-2023,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),25,13.4
-2023,CD,107,6,Upper West Side (CD7),30,11.1
-2023,CD,108,6,Upper East Side (CD8),27,9.8
-2023,CD,109,6,Morningside Heights and Hamilton Heights (CD9),14,12.1
-2023,CD,110,6,Central Harlem (CD10),17,14.2
-2023,CD,111,6,East Harlem (CD11),27,21.2
-2023,CD,112,6,Washington Heights and Inwood (CD12),17,8.4
-2023,CD,201,6,Mott Haven and Melrose (CD1),42,46.7
-2023,CD,202,6,Hunts Point and Longwood (CD2),17,32.5
-2023,CD,203,6,Morrisania and Crotona (CD3),27,32.7
-2023,CD,204,6,Highbridge and Concourse (CD4),29,19.7
-2023,CD,205,6,Fordham and University Heights (CD5),28,23.1
-2023,CD,206,6,Belmont and East Tremont (CD6),16,20.9
-2023,CD,207,6,Kingsbridge Heights and Bedford (CD7),23,16.5
-2023,CD,208,6,Riverdale and Fieldston (CD8),13,10.6
-2023,CD,209,6,Parkchester and Soundview (CD9),19,10.8
-2023,CD,210,6,Throgs Neck and Co-op City (CD10),15,11.9
-2023,CD,211,6,Morris Park and Bronxdale (CD11),19,15.3
-2023,CD,212,6,Williamsbridge and Baychester (CD12),27,16.9
-2023,CD,301,6,Greenpoint and Williamsburg (CD1),16,8.3
-2023,CD,302,6,Fort Greene and Brooklyn Heights (CD2),**,**
-2023,CD,303,6,Bedford Stuyvesant (CD3),17,11.2
-2023,CD,304,6,Bushwick (CD4),15,14.1
-2023,CD,305,6,East New York and Starrett City (CD5),22,12.6
-2023,CD,306,6,Park Slope and Carroll Gardens (CD6),**,**
-2023,CD,307,6,Sunset Park (CD7),**,**
-2023,CD,308,6,Crown Heights and Prospect Heights (CD8),**,**
-2023,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),15,15
-2023,CD,310,6,Bay Ridge and Dyker Heights (CD10),22,12.3
-2023,CD,311,6,Bensonhurst (CD11),21,9.2
-2023,CD,312,6,Borough Park (CD12),30,16
-2023,CD,313,6,Coney Island (CD13),20,17.8
-2023,CD,314,6,Flatbush and Midwood (CD14),19,11.5
-2023,CD,315,6,Sheepshead Bay (CD15),25,11.8
-2023,CD,316,6,Brownsville (CD16),17,22.5
-2023,CD,317,6,East Flatbush (CD17),24,16.1
-2023,CD,318,6,Flatlands and Canarsie (CD18),18,8.6
-2023,CD,401,6,Long Island City and Astoria (CD1),33,15.9
-2023,CD,402,6,Woodside and Sunnyside (CD2),21,13
-2023,CD,403,6,Jackson Heights (CD3),24,12.7
-2023,CD,404,6,Elmhurst and Corona (CD4),31,15.6
-2023,CD,405,6,Ridgewood and Maspeth (CD5),22,13.5
-2023,CD,406,6,Rego Park and Forest Hills (CD6),13,9
-2023,CD,407,6,Flushing and Whitestone (CD7),41,13.6
-2023,CD,408,6,Hillcrest and Fresh Meadows (CD8),16,8.6
-2023,CD,409,6,Kew Gardens and Woodhaven (CD9),20,13.5
-2023,CD,410,6,South Ozone Park and Howard Beach (CD10),28,21
-2023,CD,411,6,Bayside and Little Neck (CD11),**,**
-2023,CD,412,6,Jamaica and Hollis (CD12),47,19.4
-2023,CD,413,6,Queens Village (CD13),18,9.4
-2023,CD,414,6,Rockaway and Broad Channel (CD14),^^,^^
-2023,CD,501,6,St. George and Stapleton (CD1),44,23.2
-2023,CD,502,6,South Beach and Willowbrook (CD2),13,7.9
-2023,CD,503,6,Tottenville and Great Kills (CD3),15,9.5
-2023,Borough,1,1,Bronx,282,20
-2023,Borough,2,1,Brooklyn,323,11.9
-2023,Borough,3,1,Manhattan,229,12.4
-2023,Borough,4,1,Queens,342,13.8
-2023,Borough,5,1,Staten Island,73,14.7
-2023,Citywide,1,0,New York City,"1,394",15.6
+2023,CD,102,6,Greenwich Village and Soho (CD2),10.7,11
+2023,CD,103,6,Lower East Side and Chinatown (CD3),33.4,61
+2023,CD,104,6,Clinton and Chelsea (CD4),23.1,34
+2023,CD,105,6,Midtown (CD5),41,19
+2023,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),20.1,28
+2023,CD,107,6,Upper West Side (CD7),15.7,34
+2023,CD,108,6,Upper East Side (CD8),10.3,23
+2023,CD,109,6,Morningside Heights and Hamilton Heights (CD9),43.4,50
+2023,CD,110,6,Central Harlem (CD10),102.5,119
+2023,CD,111,6,East Harlem (CD11),116,139
+2023,CD,112,6,Washington Heights and Inwood (CD12),28.5,54
+2023,CD,201,6,Mott Haven and Melrose (CD1),163.2,145
+2023,CD,202,6,Hunts Point and Longwood (CD2),88.9,45
+2023,CD,203,6,Morrisania and Crotona (CD3),139.1,115
+2023,CD,204,6,Highbridge and Concourse (CD4),79.1,114
+2023,CD,205,6,Fordham and University Heights (CD5),79.5,99
+2023,CD,206,6,Belmont and East Tremont (CD6),137.7,106
+2023,CD,207,6,Kingsbridge Heights and Bedford (CD7),63.5,89
+2023,CD,208,6,Riverdale and Fieldston (CD8),30,31
+2023,CD,209,6,Parkchester and Soundview (CD9),72.4,122
+2023,CD,210,6,Throgs Neck and Co-op City (CD10),42.2,45
+2023,CD,211,6,Morris Park and Bronxdale (CD11),69,73
+2023,CD,212,6,Williamsbridge and Baychester (CD12),71.8,100
+2023,CD,301,6,Greenpoint and Williamsburg (CD1),25.3,51
+2023,CD,302,6,Fort Greene and Brooklyn Heights (CD2),30.6,41
+2023,CD,303,6,Bedford Stuyvesant (CD3),67.3,99
+2023,CD,304,6,Bushwick (CD4),52.9,59
+2023,CD,305,6,East New York and Starrett City (CD5),70.3,115
+2023,CD,306,6,Park Slope and Carroll Gardens (CD6),25.1,30
+2023,CD,307,6,Sunset Park (CD7),19.9,26
+2023,CD,308,6,Crown Heights and Prospect Heights (CD8),50.5,47
+2023,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),59.8,57
+2023,CD,310,6,Bay Ridge and Dyker Heights (CD10),19.6,29
+2023,CD,311,6,Bensonhurst (CD11),11.6,24
+2023,CD,312,6,Borough Park (CD12),8.4,15
+2023,CD,313,6,Coney Island (CD13),46.1,44
+2023,CD,314,6,Flatbush and Midwood (CD14),37.1,58
+2023,CD,315,6,Sheepshead Bay (CD15),13.7,23
+2023,CD,316,6,Brownsville (CD16),104.7,78
+2023,CD,317,6,East Flatbush (CD17),61,81
+2023,CD,318,6,Flatlands and Canarsie (CD18),32.3,56
+2023,CD,401,6,Long Island City and Astoria (CD1),57.8,120
+2023,CD,402,6,Woodside and Sunnyside (CD2),13,20
+2023,CD,403,6,Jackson Heights (CD3),40.6,70
+2023,CD,404,6,Elmhurst and Corona (CD4),57.4,104
+2023,CD,405,6,Ridgewood and Maspeth (CD5),19.8,29
+2023,CD,406,6,Rego Park and Forest Hills (CD6),15,15
+2023,CD,407,6,Flushing and Whitestone (CD7),23.6,57
+2023,CD,408,6,Hillcrest and Fresh Meadows (CD8),25,36
+2023,CD,409,6,Kew Gardens and Woodhaven (CD9),26.3,37
+2023,CD,410,6,South Ozone Park and Howard Beach (CD10),18.1,21
+2023,CD,411,6,Bayside and Little Neck (CD11),12.8,13
+2023,CD,412,6,Jamaica and Hollis (CD12),48.2,102
+2023,CD,413,6,Queens Village (CD13),27.7,44
+2023,CD,414,6,Rockaway and Broad Channel (CD14),60.1,65
+2023,CD,501,6,St. George and Stapleton (CD1),47.6,89
+2023,CD,502,6,South Beach and Willowbrook (CD2),31.5,42
+2023,CD,503,6,Tottenville and Great Kills (CD3),16.6,27
+2023,Borough,1,1,Bronx,85.8,"1,142"
+2023,Borough,2,1,Brooklyn,38,980
+2023,Borough,3,1,Manhattan,38.3,645
+2023,Borough,4,1,Queens,35.7,778
+2023,Borough,5,1,Staten Island,33.6,160
+2023,Citywide,1,0,New York City,46.5,"3,866"
 2022,CD,101,6,Financial District (CD1),**,**
-2022,CD,102,6,Greenwich Village and Soho (CD2),**,**
-2022,CD,103,6,Lower East Side and Chinatown (CD3),23,13.5
-2022,CD,104,6,Clinton and Chelsea (CD4),^^,^^
-2022,CD,105,6,Midtown (CD5),**,**
-2022,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),27,17.8
-2022,CD,107,6,Upper West Side (CD7),^^,^^
-2022,CD,108,6,Upper East Side (CD8),19,6.5
-2022,CD,109,6,Morningside Heights and Hamilton Heights (CD9),16,14.6
-2022,CD,110,6,Central Harlem (CD10),15,12.9
-2022,CD,111,6,East Harlem (CD11),19,15.7
-2022,CD,112,6,Washington Heights and Inwood (CD12),25,12
-2022,CD,201,6,Mott Haven and Melrose (CD1),35,38.4
-2022,CD,202,6,Hunts Point and Longwood (CD2),20,38.2
-2022,CD,203,6,Morrisania and Crotona (CD3),34,39.7
-2022,CD,204,6,Highbridge and Concourse (CD4),41,27.6
-2022,CD,205,6,Fordham and University Heights (CD5),26,20.6
-2022,CD,206,6,Belmont and East Tremont (CD6),13,16.4
-2022,CD,207,6,Kingsbridge Heights and Bedford (CD7),23,16.2
-2022,CD,208,6,Riverdale and Fieldston (CD8),^^,^^
-2022,CD,209,6,Parkchester and Soundview (CD9),23,12.7
-2022,CD,210,6,Throgs Neck and Co-op City (CD10),18,14
-2022,CD,211,6,Morris Park and Bronxdale (CD11),20,17
-2022,CD,212,6,Williamsbridge and Baychester (CD12),22,14
-2022,CD,301,6,Greenpoint and Williamsburg (CD1),28,14.6
-2022,CD,302,6,Fort Greene and Brooklyn Heights (CD2),^^,^^
-2022,CD,303,6,Bedford Stuyvesant (CD3),29,20
-2022,CD,304,6,Bushwick (CD4),**,**
-2022,CD,305,6,East New York and Starrett City (CD5),39,22.4
-2022,CD,306,6,Park Slope and Carroll Gardens (CD6),**,**
-2022,CD,307,6,Sunset Park (CD7),15,11.9
-2022,CD,308,6,Crown Heights and Prospect Heights (CD8),**,**
-2022,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),13,13.6
-2022,CD,310,6,Bay Ridge and Dyker Heights (CD10),13,9.3
-2022,CD,311,6,Bensonhurst (CD11),26,11.2
-2022,CD,312,6,Borough Park (CD12),24,13
-2022,CD,313,6,Coney Island (CD13),22,16.6
-2022,CD,314,6,Flatbush and Midwood (CD14),21,12.6
-2022,CD,315,6,Sheepshead Bay (CD15),18,9.2
-2022,CD,316,6,Brownsville (CD16),20,25.4
-2022,CD,317,6,East Flatbush (CD17),21,12.9
-2022,CD,318,6,Flatlands and Canarsie (CD18),31,15.8
-2022,CD,401,6,Long Island City and Astoria (CD1),24,12.4
-2022,CD,402,6,Woodside and Sunnyside (CD2),17,10.5
-2022,CD,403,6,Jackson Heights (CD3),35,19.9
-2022,CD,404,6,Elmhurst and Corona (CD4),25,12.6
-2022,CD,405,6,Ridgewood and Maspeth (CD5),22,13.8
-2022,CD,406,6,Rego Park and Forest Hills (CD6),**,**
-2022,CD,407,6,Flushing and Whitestone (CD7),33,10.5
-2022,CD,408,6,Hillcrest and Fresh Meadows (CD8),16,9.2
-2022,CD,409,6,Kew Gardens and Woodhaven (CD9),21,14.3
-2022,CD,410,6,South Ozone Park and Howard Beach (CD10),20,15.2
+2022,CD,102,6,Greenwich Village and Soho (CD2),12,12
+2022,CD,103,6,Lower East Side and Chinatown (CD3),31.1,58
+2022,CD,104,6,Clinton and Chelsea (CD4),26.6,46
+2022,CD,105,6,Midtown (CD5),20.7,16
+2022,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),26.7,43
+2022,CD,107,6,Upper West Side (CD7),17.3,31
+2022,CD,108,6,Upper East Side (CD8),16,33
+2022,CD,109,6,Morningside Heights and Hamilton Heights (CD9),49.1,55
+2022,CD,110,6,Central Harlem (CD10),109.8,131
+2022,CD,111,6,East Harlem (CD11),116.2,137
+2022,CD,112,6,Washington Heights and Inwood (CD12),32.7,62
+2022,CD,201,6,Mott Haven and Melrose (CD1),197.9,178
+2022,CD,202,6,Hunts Point and Longwood (CD2),120.2,63
+2022,CD,203,6,Morrisania and Crotona (CD3),125.5,106
+2022,CD,204,6,Highbridge and Concourse (CD4),78.5,115
+2022,CD,205,6,Fordham and University Heights (CD5),91.6,117
+2022,CD,206,6,Belmont and East Tremont (CD6),115.3,92
+2022,CD,207,6,Kingsbridge Heights and Bedford (CD7),82.2,116
+2022,CD,208,6,Riverdale and Fieldston (CD8),28.2,28
+2022,CD,209,6,Parkchester and Soundview (CD9),75,130
+2022,CD,210,6,Throgs Neck and Co-op City (CD10),25.5,27
+2022,CD,211,6,Morris Park and Bronxdale (CD11),59.4,65
+2022,CD,212,6,Williamsbridge and Baychester (CD12),77.5,112
+2022,CD,301,6,Greenpoint and Williamsburg (CD1),34.4,72
+2022,CD,302,6,Fort Greene and Brooklyn Heights (CD2),27.3,38
+2022,CD,303,6,Bedford Stuyvesant (CD3),76.4,113
+2022,CD,304,6,Bushwick (CD4),54.8,62
+2022,CD,305,6,East New York and Starrett City (CD5),100.9,165
+2022,CD,306,6,Park Slope and Carroll Gardens (CD6),21.6,24
+2022,CD,307,6,Sunset Park (CD7),35.9,50
+2022,CD,308,6,Crown Heights and Prospect Heights (CD8),74.1,68
+2022,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),72.6,71
+2022,CD,310,6,Bay Ridge and Dyker Heights (CD10),12.6,18
+2022,CD,311,6,Bensonhurst (CD11),15.2,30
+2022,CD,312,6,Borough Park (CD12),17.2,32
+2022,CD,313,6,Coney Island (CD13),56.3,53
+2022,CD,314,6,Flatbush and Midwood (CD14),38.1,59
+2022,CD,315,6,Sheepshead Bay (CD15),18,29
+2022,CD,316,6,Brownsville (CD16),167.6,129
+2022,CD,317,6,East Flatbush (CD17),72.4,100
+2022,CD,318,6,Flatlands and Canarsie (CD18),42.7,72
+2022,CD,401,6,Long Island City and Astoria (CD1),54.5,116
+2022,CD,402,6,Woodside and Sunnyside (CD2),16.4,27
+2022,CD,403,6,Jackson Heights (CD3),39.5,69
+2022,CD,404,6,Elmhurst and Corona (CD4),47.3,87
+2022,CD,405,6,Ridgewood and Maspeth (CD5),31.8,48
+2022,CD,406,6,Rego Park and Forest Hills (CD6),11.9,15
+2022,CD,407,6,Flushing and Whitestone (CD7),18.8,46
+2022,CD,408,6,Hillcrest and Fresh Meadows (CD8),23.4,35
+2022,CD,409,6,Kew Gardens and Woodhaven (CD9),30.5,43
+2022,CD,410,6,South Ozone Park and Howard Beach (CD10),34,40
 2022,CD,411,6,Bayside and Little Neck (CD11),**,**
-2022,CD,412,6,Jamaica and Hollis (CD12),33,13.9
-2022,CD,413,6,Queens Village (CD13),^^,^^
-2022,CD,414,6,Rockaway and Broad Channel (CD14),12,12.2
-2022,CD,501,6,St. George and Stapleton (CD1),40,20.4
-2022,CD,502,6,South Beach and Willowbrook (CD2),21,13.1
-2022,CD,503,6,Tottenville and Great Kills (CD3),13,7.5
-2022,Borough,1,1,Bronx,295,20.8
-2022,Borough,2,1,Brooklyn,376,13.9
-2022,Borough,3,1,Manhattan,201,11.1
-2022,Borough,4,1,Queens,299,12.3
-2022,Borough,5,1,Staten Island,75,14.3
-2022,Citywide,1,0,New York City,"1,383",15.6
+2022,CD,412,6,Jamaica and Hollis (CD12),53.6,112
+2022,CD,413,6,Queens Village (CD13),38,64
+2022,CD,414,6,Rockaway and Broad Channel (CD14),50.6,53
+2022,CD,501,6,St. George and Stapleton (CD1),60.6,114
+2022,CD,502,6,South Beach and Willowbrook (CD2),31,46
+2022,CD,503,6,Tottenville and Great Kills (CD3),16.4,24
+2022,Borough,1,1,Bronx,88.8,"1,207"
+2022,Borough,2,1,Brooklyn,47.9,"1,239"
+2022,Borough,3,1,Manhattan,41.2,697
+2022,Borough,4,1,Queens,36.6,811
+2022,Borough,5,1,Staten Island,38.8,186
+2022,Citywide,1,0,New York City,51.3,"4,304"
 2021,CD,101,6,Financial District (CD1),**,**
 2021,CD,102,6,Greenwich Village and Soho (CD2),**,**
-2021,CD,103,6,Lower East Side and Chinatown (CD3),20,10.8
-2021,CD,104,6,Clinton and Chelsea (CD4),16,9.8
-2021,CD,105,6,Midtown (CD5),**,**
-2021,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),20,11.2
-2021,CD,107,6,Upper West Side (CD7),12,4.1
-2021,CD,108,6,Upper East Side (CD8),18,6.7
-2021,CD,109,6,Morningside Heights and Hamilton Heights (CD9),14,13.8
-2021,CD,110,6,Central Harlem (CD10),18,15.4
-2021,CD,111,6,East Harlem (CD11),18,14
-2021,CD,112,6,Washington Heights and Inwood (CD12),16,8
-2021,CD,201,6,Mott Haven and Melrose (CD1),25,26.6
-2021,CD,202,6,Hunts Point and Longwood (CD2),28,51.8
-2021,CD,203,6,Morrisania and Crotona (CD3),21,24.3
-2021,CD,204,6,Highbridge and Concourse (CD4),35,22.8
-2021,CD,205,6,Fordham and University Heights (CD5),26,19.3
-2021,CD,206,6,Belmont and East Tremont (CD6),17,21.2
-2021,CD,207,6,Kingsbridge Heights and Bedford (CD7),23,16
-2021,CD,208,6,Riverdale and Fieldston (CD8),**,**
-2021,CD,209,6,Parkchester and Soundview (CD9),31,16.1
-2021,CD,210,6,Throgs Neck and Co-op City (CD10),12,8.1
-2021,CD,211,6,Morris Park and Bronxdale (CD11),29,24.1
-2021,CD,212,6,Williamsbridge and Baychester (CD12),31,18.9
-2021,CD,301,6,Greenpoint and Williamsburg (CD1),19,10.4
-2021,CD,302,6,Fort Greene and Brooklyn Heights (CD2),**,**
-2021,CD,303,6,Bedford Stuyvesant (CD3),17,11.1
-2021,CD,304,6,Bushwick (CD4),17,15
-2021,CD,305,6,East New York and Starrett City (CD5),32,18.1
-2021,CD,306,6,Park Slope and Carroll Gardens (CD6),**,**
-2021,CD,307,6,Sunset Park (CD7),20,15.2
-2021,CD,308,6,Crown Heights and Prospect Heights (CD8),19,18.9
-2021,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),18,17
-2021,CD,310,6,Bay Ridge and Dyker Heights (CD10),**,**
-2021,CD,311,6,Bensonhurst (CD11),22,9.6
-2021,CD,312,6,Borough Park (CD12),26,13.8
-2021,CD,313,6,Coney Island (CD13),19,15.4
-2021,CD,314,6,Flatbush and Midwood (CD14),26,15.9
-2021,CD,315,6,Sheepshead Bay (CD15),23,12.1
-2021,CD,316,6,Brownsville (CD16),13,15.8
-2021,CD,317,6,East Flatbush (CD17),33,20
-2021,CD,318,6,Flatlands and Canarsie (CD18),19,10.1
-2021,CD,401,6,Long Island City and Astoria (CD1),^^,^^
-2021,CD,402,6,Woodside and Sunnyside (CD2),12,7.6
-2021,CD,403,6,Jackson Heights (CD3),23,12.8
-2021,CD,404,6,Elmhurst and Corona (CD4),28,14.7
-2021,CD,405,6,Ridgewood and Maspeth (CD5),16,9.6
-2021,CD,406,6,Rego Park and Forest Hills (CD6),**,**
-2021,CD,407,6,Flushing and Whitestone (CD7),24,8.1
-2021,CD,408,6,Hillcrest and Fresh Meadows (CD8),**,**
-2021,CD,409,6,Kew Gardens and Woodhaven (CD9),24,15.9
-2021,CD,410,6,South Ozone Park and Howard Beach (CD10),20,14.2
+2021,CD,103,6,Lower East Side and Chinatown (CD3),30.7,53
+2021,CD,104,6,Clinton and Chelsea (CD4),28.2,43
+2021,CD,105,6,Midtown (CD5),32,17
+2021,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),19.3,27
+2021,CD,107,6,Upper West Side (CD7),15.3,29
+2021,CD,108,6,Upper East Side (CD8),12.2,26
+2021,CD,109,6,Morningside Heights and Hamilton Heights (CD9),46,53
+2021,CD,110,6,Central Harlem (CD10),101.3,118
+2021,CD,111,6,East Harlem (CD11),109.7,135
+2021,CD,112,6,Washington Heights and Inwood (CD12),28.4,56
+2021,CD,201,6,Mott Haven and Melrose (CD1),168,160
+2021,CD,202,6,Hunts Point and Longwood (CD2),127.4,70
+2021,CD,203,6,Morrisania and Crotona (CD3),129.3,113
+2021,CD,204,6,Highbridge and Concourse (CD4),79.5,121
+2021,CD,205,6,Fordham and University Heights (CD5),73.7,98
+2021,CD,206,6,Belmont and East Tremont (CD6),114.7,95
+2021,CD,207,6,Kingsbridge Heights and Bedford (CD7),70.5,103
+2021,CD,208,6,Riverdale and Fieldston (CD8),34,33
+2021,CD,209,6,Parkchester and Soundview (CD9),62.1,112
+2021,CD,210,6,Throgs Neck and Co-op City (CD10),27.9,31
+2021,CD,211,6,Morris Park and Bronxdale (CD11),65.4,74
+2021,CD,212,6,Williamsbridge and Baychester (CD12),79.6,117
+2021,CD,301,6,Greenpoint and Williamsburg (CD1),21.1,42
+2021,CD,302,6,Fort Greene and Brooklyn Heights (CD2),28,39
+2021,CD,303,6,Bedford Stuyvesant (CD3),74.8,115
+2021,CD,304,6,Bushwick (CD4),50.2,58
+2021,CD,305,6,East New York and Starrett City (CD5),84.7,146
+2021,CD,306,6,Park Slope and Carroll Gardens (CD6),23.9,28
+2021,CD,307,6,Sunset Park (CD7),21.5,30
+2021,CD,308,6,Crown Heights and Prospect Heights (CD8),77.7,76
+2021,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),75.1,73
+2021,CD,310,6,Bay Ridge and Dyker Heights (CD10),15.7,22
+2021,CD,311,6,Bensonhurst (CD11),12.9,27
+2021,CD,312,6,Borough Park (CD12),17.5,32
+2021,CD,313,6,Coney Island (CD13),46.5,45
+2021,CD,314,6,Flatbush and Midwood (CD14),28.3,45
+2021,CD,315,6,Sheepshead Bay (CD15),21.2,34
+2021,CD,316,6,Brownsville (CD16),104.2,83
+2021,CD,317,6,East Flatbush (CD17),73.9,108
+2021,CD,318,6,Flatlands and Canarsie (CD18),43.2,74
+2021,CD,401,6,Long Island City and Astoria (CD1),60.1,130
+2021,CD,402,6,Woodside and Sunnyside (CD2),14.2,24
+2021,CD,403,6,Jackson Heights (CD3),40.1,71
+2021,CD,404,6,Elmhurst and Corona (CD4),30.7,58
+2021,CD,405,6,Ridgewood and Maspeth (CD5),17,27
+2021,CD,406,6,Rego Park and Forest Hills (CD6),8.3,11
+2021,CD,407,6,Flushing and Whitestone (CD7),20.7,56
+2021,CD,408,6,Hillcrest and Fresh Meadows (CD8),14.5,22
+2021,CD,409,6,Kew Gardens and Woodhaven (CD9),36,51
+2021,CD,410,6,South Ozone Park and Howard Beach (CD10),37.4,44
 2021,CD,411,6,Bayside and Little Neck (CD11),**,**
-2021,CD,412,6,Jamaica and Hollis (CD12),34,13.9
-2021,CD,413,6,Queens Village (CD13),13,6.5
-2021,CD,414,6,Rockaway and Broad Channel (CD14),19,16.6
-2021,CD,501,6,St. George and Stapleton (CD1),43,21.5
-2021,CD,502,6,South Beach and Willowbrook (CD2),**,**
-2021,CD,503,6,Tottenville and Great Kills (CD3),**,**
-2021,Borough,1,1,Bronx,314,21.5
-2021,Borough,2,1,Brooklyn,383,14
-2021,Borough,3,1,Manhattan,186,10.1
-2021,Borough,4,1,Queens,259,10.6
-2021,Borough,5,1,Staten Island,56,10.8
-2021,Citywide,1,0,New York City,"1,331",14.8
-2020,CD,101,6,Financial District (CD1),**,
-2020,CD,102,6,Greenwich Village and Soho (CD2),**,
-2020,CD,103,6,Lower East Side and Chinatown (CD3),**,
-2020,CD,104,6,Clinton and Chelsea (CD4),17,
-2020,CD,105,6,Midtown (CD5),**,
-2020,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),14,
-2020,CD,107,6,Upper West Side (CD7),19,
-2020,CD,108,6,Upper East Side (CD8),22,
-2020,CD,109,6,Morningside Heights and Hamilton Heights (CD9),**,
-2020,CD,110,6,Central Harlem (CD10),17,
-2020,CD,111,6,East Harlem (CD11),16,
-2020,CD,112,6,Washington Heights and Inwood (CD12),25,
-2020,CD,201,6,Mott Haven and Melrose (CD1),20,
-2020,CD,202,6,Hunts Point and Longwood (CD2),13,
-2020,CD,203,6,Morrisania and Crotona (CD3),30,
-2020,CD,204,6,Highbridge and Concourse (CD4),25,
-2020,CD,205,6,Fordham and University Heights (CD5),21,
-2020,CD,206,6,Belmont and East Tremont (CD6),17,
-2020,CD,207,6,Kingsbridge Heights and Bedford (CD7),15,
-2020,CD,208,6,Riverdale and Fieldston (CD8),12,
-2020,CD,209,6,Parkchester and Soundview (CD9),27,
-2020,CD,210,6,Throgs Neck and Co-op City (CD10),17,
-2020,CD,211,6,Morris Park and Bronxdale (CD11),13,
-2020,CD,212,6,Williamsbridge and Baychester (CD12),21,
-2020,CD,301,6,Greenpoint and Williamsburg (CD1),16,
-2020,CD,302,6,Fort Greene and Brooklyn Heights (CD2),**,
-2020,CD,303,6,Bedford Stuyvesant (CD3),20,
-2020,CD,304,6,Bushwick (CD4),14,
-2020,CD,305,6,East New York and Starrett City (CD5),28,
-2020,CD,306,6,Park Slope and Carroll Gardens (CD6),13,
-2020,CD,307,6,Sunset Park (CD7),12,
-2020,CD,308,6,Crown Heights and Prospect Heights (CD8),12,
-2020,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),**,
-2020,CD,310,6,Bay Ridge and Dyker Heights (CD10),**,
-2020,CD,311,6,Bensonhurst (CD11),15,
-2020,CD,312,6,Borough Park (CD12),27,
-2020,CD,313,6,Coney Island (CD13),17,
-2020,CD,314,6,Flatbush and Midwood (CD14),23,
-2020,CD,315,6,Sheepshead Bay (CD15),21,
-2020,CD,316,6,Brownsville (CD16),29,
-2020,CD,317,6,East Flatbush (CD17),21,
-2020,CD,318,6,Flatlands and Canarsie (CD18),23,
-2020,CD,401,6,Long Island City and Astoria (CD1),19,
-2020,CD,402,6,Woodside and Sunnyside (CD2),^^,
-2020,CD,403,6,Jackson Heights (CD3),16,
-2020,CD,404,6,Elmhurst and Corona (CD4),20,
-2020,CD,405,6,Ridgewood and Maspeth (CD5),25,
-2020,CD,406,6,Rego Park and Forest Hills (CD6),^^,
-2020,CD,407,6,Flushing and Whitestone (CD7),26,
-2020,CD,408,6,Hillcrest and Fresh Meadows (CD8),**,
-2020,CD,409,6,Kew Gardens and Woodhaven (CD9),22,
-2020,CD,410,6,South Ozone Park and Howard Beach (CD10),13,
-2020,CD,411,6,Bayside and Little Neck (CD11),**,
-2020,CD,412,6,Jamaica and Hollis (CD12),25,
-2020,CD,413,6,Queens Village (CD13),12,
-2020,CD,414,6,Rockaway and Broad Channel (CD14),^^,
-2020,CD,501,6,St. George and Stapleton (CD1),29,
-2020,CD,502,6,South Beach and Willowbrook (CD2),24,
-2020,CD,503,6,Tottenville and Great Kills (CD3),16,
-2020,Borough,1,1,Bronx,267,17.9
-2020,Borough,2,1,Brooklyn,359,12.8
-2020,Borough,3,1,Manhattan,181,9.3
-2020,Borough,4,1,Queens,248,9.6
-2020,Borough,5,1,Staten Island,71,13.7
-2020,Citywide,1,0,New York City,"1,243",13.4
-2019,CD,101,6,Financial District (CD1),**,**
+2021,CD,412,6,Jamaica and Hollis (CD12),62.6,138
+2021,CD,413,6,Queens Village (CD13),38.1,65
+2021,CD,414,6,Rockaway and Broad Channel (CD14),55.3,57
+2021,CD,501,6,St. George and Stapleton (CD1),59.8,111
+2021,CD,502,6,South Beach and Willowbrook (CD2),20.2,28
+2021,CD,503,6,Tottenville and Great Kills (CD3),13.3,19
+2021,Borough,1,1,Bronx,90.3,"1,271"
+2021,Borough,2,1,Brooklyn,44.8,"1,179"
+2021,Borough,3,1,Manhattan,40.9,682
+2021,Borough,4,1,Queens,36.4,827
+2021,Borough,5,1,Staten Island,34.1,160
+2021,Citywide,1,0,New York City,50.5,"4,299"
+2020,CD,101,6,Financial District (CD1),44.7,31
+2020,CD,102,6,Greenwich Village and Soho (CD2),**,**
+2020,CD,103,6,Lower East Side and Chinatown (CD3),36.9,70
+2020,CD,104,6,Clinton and Chelsea (CD4),24.9,43
+2020,CD,105,6,Midtown (CD5),19.4,14
+2020,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),31.9,52
+2020,CD,107,6,Upper West Side (CD7),17.2,35
+2020,CD,108,6,Upper East Side (CD8),14.1,37
+2020,CD,109,6,Morningside Heights and Hamilton Heights (CD9),48.7,59
+2020,CD,110,6,Central Harlem (CD10),94.1,117
+2020,CD,111,6,East Harlem (CD11),108.6,143
+2020,CD,112,6,Washington Heights and Inwood (CD12),23.2,48
+2020,CD,201,6,Mott Haven and Melrose (CD1),140.3,139
+2020,CD,202,6,Hunts Point and Longwood (CD2),118,67
+2020,CD,203,6,Morrisania and Crotona (CD3),112.3,101
+2020,CD,204,6,Highbridge and Concourse (CD4),81.2,126
+2020,CD,205,6,Fordham and University Heights (CD5),63.6,87
+2020,CD,206,6,Belmont and East Tremont (CD6),97.7,85
+2020,CD,207,6,Kingsbridge Heights and Bedford (CD7),57.3,86
+2020,CD,208,6,Riverdale and Fieldston (CD8),28.5,29
+2020,CD,209,6,Parkchester and Soundview (CD9),68.9,127
+2020,CD,210,6,Throgs Neck and Co-op City (CD10),31.9,37
+2020,CD,211,6,Morris Park and Bronxdale (CD11),79.5,92
+2020,CD,212,6,Williamsbridge and Baychester (CD12),85.1,130
+2020,CD,301,6,Greenpoint and Williamsburg (CD1),28.6,59
+2020,CD,302,6,Fort Greene and Brooklyn Heights (CD2),38.3,57
+2020,CD,303,6,Bedford Stuyvesant (CD3),79.2,128
+2020,CD,304,6,Bushwick (CD4),46.2,56
+2020,CD,305,6,East New York and Starrett City (CD5),110.6,195
+2020,CD,306,6,Park Slope and Carroll Gardens (CD6),35.1,33
+2020,CD,307,6,Sunset Park (CD7),23.8,37
+2020,CD,308,6,Crown Heights and Prospect Heights (CD8),71.7,73
+2020,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),83.7,86
+2020,CD,310,6,Bay Ridge and Dyker Heights (CD10),13.3,20
+2020,CD,311,6,Bensonhurst (CD11),16.4,35
+2020,CD,312,6,Borough Park (CD12),12.8,24
+2020,CD,313,6,Coney Island (CD13),46.5,43
+2020,CD,314,6,Flatbush and Midwood (CD14),31.3,52
+2020,CD,315,6,Sheepshead Bay (CD15),8.9,17
+2020,CD,316,6,Brownsville (CD16),155.6,129
+2020,CD,317,6,East Flatbush (CD17),85.6,126
+2020,CD,318,6,Flatlands and Canarsie (CD18),51.6,94
+2020,CD,401,6,Long Island City and Astoria (CD1),37,86
+2020,CD,402,6,Woodside and Sunnyside (CD2),19.7,32
+2020,CD,403,6,Jackson Heights (CD3),41.3,75
+2020,CD,404,6,Elmhurst and Corona (CD4),34.9,69
+2020,CD,405,6,Ridgewood and Maspeth (CD5),21.9,37
+2020,CD,406,6,Rego Park and Forest Hills (CD6),**,**
+2020,CD,407,6,Flushing and Whitestone (CD7),19.2,48
+2020,CD,408,6,Hillcrest and Fresh Meadows (CD8),17.1,27
+2020,CD,409,6,Kew Gardens and Woodhaven (CD9),32.4,50
+2020,CD,410,6,South Ozone Park and Howard Beach (CD10),39.2,50
+2020,CD,411,6,Bayside and Little Neck (CD11),14.1,14
+2020,CD,412,6,Jamaica and Hollis (CD12),48.2,110
+2020,CD,413,6,Queens Village (CD13),35.3,66
+2020,CD,414,6,Rockaway and Broad Channel (CD14),77.5,78
+2020,CD,501,6,St. George and Stapleton (CD1),64,121
+2020,CD,502,6,South Beach and Willowbrook (CD2),19.6,28
+2020,CD,503,6,Tottenville and Great Kills (CD3),14.8,23
+2020,Borough,1,1,Bronx,84.3,"1,227"
+2020,Borough,2,1,Brooklyn,50.7,"1,391"
+2020,Borough,3,1,Manhattan,41.7,765
+2020,Borough,4,1,Queens,34.6,809
+2020,Borough,5,1,Staten Island,37.3,179
+2020,Citywide,1,0,New York City,51.1,"4,540"
+2019,CD,101,6,Financial District (CD1),23,16
 2019,CD,102,6,Greenwich Village and Soho (CD2),**,**
-2019,CD,103,6,Lower East Side and Chinatown (CD3),22,10.4
-2019,CD,104,6,Clinton and Chelsea (CD4),16,10
-2019,CD,105,6,Midtown (CD5),**,**
-2019,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),14,7.5
-2019,CD,107,6,Upper West Side (CD7),27,9.2
-2019,CD,108,6,Upper East Side (CD8),35,13.2
-2019,CD,109,6,Morningside Heights and Hamilton Heights (CD9),24,21.4
-2019,CD,110,6,Central Harlem (CD10),22,18.6
-2019,CD,111,6,East Harlem (CD11),22,16.2
-2019,CD,112,6,Washington Heights and Inwood (CD12),25,11.4
-2019,CD,201,6,Mott Haven and Melrose (CD1),24,24.4
-2019,CD,202,6,Hunts Point and Longwood (CD2),16,28.2
-2019,CD,203,6,Morrisania and Crotona (CD3),20,21.2
-2019,CD,204,6,Highbridge and Concourse (CD4),28,17.6
-2019,CD,205,6,Fordham and University Heights (CD5),14,11.2
-2019,CD,206,6,Belmont and East Tremont (CD6),28,34
-2019,CD,207,6,Kingsbridge Heights and Bedford (CD7),30,20
-2019,CD,208,6,Riverdale and Fieldston (CD8),17,13.3
-2019,CD,209,6,Parkchester and Soundview (CD9),32,16.6
-2019,CD,210,6,Throgs Neck and Co-op City (CD10),**,**
-2019,CD,211,6,Morris Park and Bronxdale (CD11),20,16
-2019,CD,212,6,Williamsbridge and Baychester (CD12),17,9.8
-2019,CD,301,6,Greenpoint and Williamsburg (CD1),18,9.2
-2019,CD,302,6,Fort Greene and Brooklyn Heights (CD2),**,**
-2019,CD,303,6,Bedford Stuyvesant (CD3),27,17.3
-2019,CD,304,6,Bushwick (CD4),21,17.9
-2019,CD,305,6,East New York and Starrett City (CD5),32,17.4
-2019,CD,306,6,Park Slope and Carroll Gardens (CD6),**,**
-2019,CD,307,6,Sunset Park (CD7),^^,^^
-2019,CD,308,6,Crown Heights and Prospect Heights (CD8),16,16.2
-2019,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),13,12.4
+2019,CD,103,6,Lower East Side and Chinatown (CD3),24.2,49
+2019,CD,104,6,Clinton and Chelsea (CD4),23.1,34
+2019,CD,105,6,Midtown (CD5),23.1,14
+2019,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),22.8,33
+2019,CD,107,6,Upper West Side (CD7),14.2,29
+2019,CD,108,6,Upper East Side (CD8),14.3,35
+2019,CD,109,6,Morningside Heights and Hamilton Heights (CD9),37.8,48
+2019,CD,110,6,Central Harlem (CD10),72.8,89
+2019,CD,111,6,East Harlem (CD11),94.9,124
+2019,CD,112,6,Washington Heights and Inwood (CD12),32.1,68
+2019,CD,201,6,Mott Haven and Melrose (CD1),150,151
+2019,CD,202,6,Hunts Point and Longwood (CD2),109.5,63
+2019,CD,203,6,Morrisania and Crotona (CD3),89.9,84
+2019,CD,204,6,Highbridge and Concourse (CD4),72.3,116
+2019,CD,205,6,Fordham and University Heights (CD5),78.5,113
+2019,CD,206,6,Belmont and East Tremont (CD6),99.6,88
+2019,CD,207,6,Kingsbridge Heights and Bedford (CD7),60.7,96
+2019,CD,208,6,Riverdale and Fieldston (CD8),31.4,33
+2019,CD,209,6,Parkchester and Soundview (CD9),52.6,101
+2019,CD,210,6,Throgs Neck and Co-op City (CD10),20.8,26
+2019,CD,211,6,Morris Park and Bronxdale (CD11),55,65
+2019,CD,212,6,Williamsbridge and Baychester (CD12),56.6,89
+2019,CD,301,6,Greenpoint and Williamsburg (CD1),17.1,32
+2019,CD,302,6,Fort Greene and Brooklyn Heights (CD2),36.3,52
+2019,CD,303,6,Bedford Stuyvesant (CD3),66.2,106
+2019,CD,304,6,Bushwick (CD4),34,40
+2019,CD,305,6,East New York and Starrett City (CD5),96.1,171
+2019,CD,306,6,Park Slope and Carroll Gardens (CD6),25.2,27
+2019,CD,307,6,Sunset Park (CD7),25.3,37
+2019,CD,308,6,Crown Heights and Prospect Heights (CD8),48.7,52
+2019,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),51,52
 2019,CD,310,6,Bay Ridge and Dyker Heights (CD10),**,**
-2019,CD,311,6,Bensonhurst (CD11),35,15.2
-2019,CD,312,6,Borough Park (CD12),37,18.9
-2019,CD,313,6,Coney Island (CD13),20,14.4
-2019,CD,314,6,Flatbush and Midwood (CD14),23,13.5
-2019,CD,315,6,Sheepshead Bay (CD15),24,11.9
-2019,CD,316,6,Brownsville (CD16),24,28.8
-2019,CD,317,6,East Flatbush (CD17),28,16.5
-2019,CD,318,6,Flatlands and Canarsie (CD18),41,20
-2019,CD,401,6,Long Island City and Astoria (CD1),18,9.2
-2019,CD,402,6,Woodside and Sunnyside (CD2),15,9.8
-2019,CD,403,6,Jackson Heights (CD3),24,13.1
-2019,CD,404,6,Elmhurst and Corona (CD4),22,10.7
-2019,CD,405,6,Ridgewood and Maspeth (CD5),24,13.2
-2019,CD,406,6,Rego Park and Forest Hills (CD6),16,10.7
-2019,CD,407,6,Flushing and Whitestone (CD7),50,15.9
-2019,CD,408,6,Hillcrest and Fresh Meadows (CD8),21,11.2
-2019,CD,409,6,Kew Gardens and Woodhaven (CD9),18,11.7
-2019,CD,410,6,South Ozone Park and Howard Beach (CD10),16,11.9
-2019,CD,411,6,Bayside and Little Neck (CD11),14,10.2
-2019,CD,412,6,Jamaica and Hollis (CD12),31,12.2
-2019,CD,413,6,Queens Village (CD13),14,7.2
-2019,CD,414,6,Rockaway and Broad Channel (CD14),**,**
-2019,CD,501,6,St. George and Stapleton (CD1),39,19.6
-2019,CD,502,6,South Beach and Willowbrook (CD2),30,18.9
-2019,CD,503,6,Tottenville and Great Kills (CD3),20,11
-2019,Borough,1,1,Bronx,275,17.9
-2019,Borough,2,1,Brooklyn,436,15.8
-2019,Borough,3,1,Manhattan,248,12.9
-2019,Borough,4,1,Queens,313,12
-2019,Borough,5,1,Staten Island,94,17.7
-2019,Citywide,1,0,New York City,"1,499",16.1
-2018,CD,101,6,Financial District (CD1),**,**
-2018,CD,102,6,Greenwich Village and Soho (CD2),**,**
-2018,CD,103,6,Lower East Side and Chinatown (CD3),21,9.9
-2018,CD,104,6,Clinton and Chelsea (CD4),^^,^^
+2019,CD,311,6,Bensonhurst (CD11),8.6,19
+2019,CD,312,6,Borough Park (CD12),14.1,27
+2019,CD,313,6,Coney Island (CD13),45.8,45
+2019,CD,314,6,Flatbush and Midwood (CD14),25.3,42
+2019,CD,315,6,Sheepshead Bay (CD15),11.4,20
+2019,CD,316,6,Brownsville (CD16),126.4,104
+2019,CD,317,6,East Flatbush (CD17),46.4,71
+2019,CD,318,6,Flatlands and Canarsie (CD18),33.7,63
+2019,CD,401,6,Long Island City and Astoria (CD1),39.3,87
+2019,CD,402,6,Woodside and Sunnyside (CD2),16.4,28
+2019,CD,403,6,Jackson Heights (CD3),20.3,38
+2019,CD,404,6,Elmhurst and Corona (CD4),34.9,67
+2019,CD,405,6,Ridgewood and Maspeth (CD5),18.4,31
+2019,CD,406,6,Rego Park and Forest Hills (CD6),12.4,12
+2019,CD,407,6,Flushing and Whitestone (CD7),15.4,42
+2019,CD,408,6,Hillcrest and Fresh Meadows (CD8),14.3,23
+2019,CD,409,6,Kew Gardens and Woodhaven (CD9),32.3,50
+2019,CD,410,6,South Ozone Park and Howard Beach (CD10),27.8,34
+2019,CD,411,6,Bayside and Little Neck (CD11),11.9,12
+2019,CD,412,6,Jamaica and Hollis (CD12),53.3,122
+2019,CD,413,6,Queens Village (CD13),25.9,46
+2019,CD,414,6,Rockaway and Broad Channel (CD14),46.9,52
+2019,CD,501,6,St. George and Stapleton (CD1),59.9,113
+2019,CD,502,6,South Beach and Willowbrook (CD2),27.7,39
+2019,CD,503,6,Tottenville and Great Kills (CD3),16.5,25
+2019,Borough,1,1,Bronx,76.8,"1,148"
+2019,Borough,2,1,Brooklyn,38.7,"1,058"
+2019,Borough,3,1,Manhattan,34.2,634
+2019,Borough,4,1,Queens,29.4,692
+2019,Borough,5,1,Staten Island,37.6,180
+2019,Citywide,1,0,New York City,42.9,"3,851"
+2018,CD,101,6,Financial District (CD1),27.3,25
+2018,CD,102,6,Greenwich Village and Soho (CD2),11.8,13
+2018,CD,103,6,Lower East Side and Chinatown (CD3),32.9,63
+2018,CD,104,6,Clinton and Chelsea (CD4),20.4,32
 2018,CD,105,6,Midtown (CD5),**,**
-2018,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),21,11.4
-2018,CD,107,6,Upper West Side (CD7),17,6.6
-2018,CD,108,6,Upper East Side (CD8),19,5.6
-2018,CD,109,6,Morningside Heights and Hamilton Heights (CD9),14,11.8
-2018,CD,110,6,Central Harlem (CD10),20,16.5
-2018,CD,111,6,East Harlem (CD11),23,17.4
-2018,CD,112,6,Washington Heights and Inwood (CD12),24,11
-2018,CD,201,6,Mott Haven and Melrose (CD1),36,35.2
-2018,CD,202,6,Hunts Point and Longwood (CD2),20,34.8
-2018,CD,203,6,Morrisania and Crotona (CD3),18,19.2
-2018,CD,204,6,Highbridge and Concourse (CD4),42,26.4
-2018,CD,205,6,Fordham and University Heights (CD5),22,15.7
-2018,CD,206,6,Belmont and East Tremont (CD6),21,24.3
-2018,CD,207,6,Kingsbridge Heights and Bedford (CD7),21,13.6
-2018,CD,208,6,Riverdale and Fieldston (CD8),^^,^^
-2018,CD,209,6,Parkchester and Soundview (CD9),45,22.8
-2018,CD,210,6,Throgs Neck and Co-op City (CD10),**,**
-2018,CD,211,6,Morris Park and Bronxdale (CD11),28,22
-2018,CD,212,6,Williamsbridge and Baychester (CD12),29,17.1
-2018,CD,301,6,Greenpoint and Williamsburg (CD1),19,9.6
-2018,CD,302,6,Fort Greene and Brooklyn Heights (CD2),18,12.5
-2018,CD,303,6,Bedford Stuyvesant (CD3),20,13.3
-2018,CD,304,6,Bushwick (CD4),17,14.7
-2018,CD,305,6,East New York and Starrett City (CD5),45,24.5
-2018,CD,306,6,Park Slope and Carroll Gardens (CD6),**,**
-2018,CD,307,6,Sunset Park (CD7),18,13.8
-2018,CD,308,6,Crown Heights and Prospect Heights (CD8),15,14.9
-2018,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),19,18.1
-2018,CD,310,6,Bay Ridge and Dyker Heights (CD10),20,12.9
-2018,CD,311,6,Bensonhurst (CD11),36,15.3
-2018,CD,312,6,Borough Park (CD12),41,22
-2018,CD,313,6,Coney Island (CD13),23,17.9
-2018,CD,314,6,Flatbush and Midwood (CD14),33,18.8
-2018,CD,315,6,Sheepshead Bay (CD15),27,13.3
-2018,CD,316,6,Brownsville (CD16),21,24.3
-2018,CD,317,6,East Flatbush (CD17),34,22.5
-2018,CD,318,6,Flatlands and Canarsie (CD18),41,20
-2018,CD,401,6,Long Island City and Astoria (CD1),22,10.7
-2018,CD,402,6,Woodside and Sunnyside (CD2),13,7.6
-2018,CD,403,6,Jackson Heights (CD3),25,13.2
-2018,CD,404,6,Elmhurst and Corona (CD4),33,16.7
-2018,CD,405,6,Ridgewood and Maspeth (CD5),27,15.1
-2018,CD,406,6,Rego Park and Forest Hills (CD6),12,8.3
-2018,CD,407,6,Flushing and Whitestone (CD7),36,9.6
-2018,CD,408,6,Hillcrest and Fresh Meadows (CD8),27,14.9
-2018,CD,409,6,Kew Gardens and Woodhaven (CD9),29,19.1
-2018,CD,410,6,South Ozone Park and Howard Beach (CD10),20,14.4
+2018,CD,106,6,Stuyvesant Town and Turtle Bay (CD6),26.1,39
+2018,CD,107,6,Upper West Side (CD7),13,27
+2018,CD,108,6,Upper East Side (CD8),8.4,22
+2018,CD,109,6,Morningside Heights and Hamilton Heights (CD9),48.5,57
+2018,CD,110,6,Central Harlem (CD10),74.1,90
+2018,CD,111,6,East Harlem (CD11),66.3,85
+2018,CD,112,6,Washington Heights and Inwood (CD12),29.1,60
+2018,CD,201,6,Mott Haven and Melrose (CD1),180.1,182
+2018,CD,202,6,Hunts Point and Longwood (CD2),132.3,77
+2018,CD,203,6,Morrisania and Crotona (CD3),110.5,105
+2018,CD,204,6,Highbridge and Concourse (CD4),75,122
+2018,CD,205,6,Fordham and University Heights (CD5),83.6,116
+2018,CD,206,6,Belmont and East Tremont (CD6),98.5,88
+2018,CD,207,6,Kingsbridge Heights and Bedford (CD7),57.2,91
+2018,CD,208,6,Riverdale and Fieldston (CD8),18,21
+2018,CD,209,6,Parkchester and Soundview (CD9),55.2,105
+2018,CD,210,6,Throgs Neck and Co-op City (CD10),31,40
+2018,CD,211,6,Morris Park and Bronxdale (CD11),53.3,64
+2018,CD,212,6,Williamsbridge and Baychester (CD12),66.2,105
+2018,CD,301,6,Greenpoint and Williamsburg (CD1),24.5,49
+2018,CD,302,6,Fort Greene and Brooklyn Heights (CD2),25,35
+2018,CD,303,6,Bedford Stuyvesant (CD3),67.5,108
+2018,CD,304,6,Bushwick (CD4),33.5,39
+2018,CD,305,6,East New York and Starrett City (CD5),70.8,127
+2018,CD,306,6,Park Slope and Carroll Gardens (CD6),21.8,22
+2018,CD,307,6,Sunset Park (CD7),22.7,33
+2018,CD,308,6,Crown Heights and Prospect Heights (CD8),67.5,67
+2018,CD,309,6,South Crown Heights and Lefferts Gardens (CD9),59.3,61
+2018,CD,310,6,Bay Ridge and Dyker Heights (CD10),14.8,22
+2018,CD,311,6,Bensonhurst (CD11),17.8,38
+2018,CD,312,6,Borough Park (CD12),14.4,28
+2018,CD,313,6,Coney Island (CD13),35.6,36
+2018,CD,314,6,Flatbush and Midwood (CD14),30.8,52
+2018,CD,315,6,Sheepshead Bay (CD15),14.5,24
+2018,CD,316,6,Brownsville (CD16),122.9,103
+2018,CD,317,6,East Flatbush (CD17),59.1,88
+2018,CD,318,6,Flatlands and Canarsie (CD18),34,64
+2018,CD,401,6,Long Island City and Astoria (CD1),38.8,84
+2018,CD,402,6,Woodside and Sunnyside (CD2),10.2,18
+2018,CD,403,6,Jackson Heights (CD3),27.3,51
+2018,CD,404,6,Elmhurst and Corona (CD4),25.2,51
+2018,CD,405,6,Ridgewood and Maspeth (CD5),17.9,31
+2018,CD,406,6,Rego Park and Forest Hills (CD6),14.1,16
+2018,CD,407,6,Flushing and Whitestone (CD7),15.7,37
+2018,CD,408,6,Hillcrest and Fresh Meadows (CD8),15.6,24
+2018,CD,409,6,Kew Gardens and Woodhaven (CD9),21.8,34
+2018,CD,410,6,South Ozone Park and Howard Beach (CD10),30.2,37
 2018,CD,411,6,Bayside and Little Neck (CD11),**,**
-2018,CD,412,6,Jamaica and Hollis (CD12),38,14.9
-2018,CD,413,6,Queens Village (CD13),14,6.8
-2018,CD,414,6,Rockaway and Broad Channel (CD14),^^,^^
-2018,CD,501,6,St. George and Stapleton (CD1),51,26.8
-2018,CD,502,6,South Beach and Willowbrook (CD2),28,18.4
-2018,CD,503,6,Tottenville and Great Kills (CD3),13,7.6
-2018,Borough,1,1,Bronx,331,21.7
-2018,Borough,2,1,Brooklyn,494,17.8
-2018,Borough,3,1,Manhattan,204,10.6
-2018,Borough,4,1,Queens,327,12.5
-2018,Borough,5,1,Staten Island,93,18.4
-2018,Citywide,1,0,New York City,"1,597",17.3
+2018,CD,412,6,Jamaica and Hollis (CD12),50.1,116
+2018,CD,413,6,Queens Village (CD13),27.5,48
+2018,CD,414,6,Rockaway and Broad Channel (CD14),60.9,68
+2018,CD,501,6,St. George and Stapleton (CD1),57.6,110
+2018,CD,502,6,South Beach and Willowbrook (CD2),24.6,32
+2018,CD,503,6,Tottenville and Great Kills (CD3),20.5,31
+2018,Borough,1,1,Bronx,81.3,"1,223"
+2018,Borough,2,1,Brooklyn,39.4,"1,072"
+2018,Borough,3,1,Manhattan,31.5,570
+2018,Borough,4,1,Queens,29,689
+2018,Borough,5,1,Staten Island,36.7,176
+2018,Citywide,1,0,New York City,43.1,"3,867"

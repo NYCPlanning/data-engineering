@@ -39,6 +39,19 @@ def initialize_dataframe_geo_index(geography, columns=[]):
 
 
 ACS_SHORT_TO_LONG_NAMES = {
+    ## Demographics
+    "LEP": "lep",
+    "FB": "fb",
+    "PopU16": "age_popu16",
+    "P16t64": "age_p16t64",
+    "P65pl": "age_p65pl",
+    "Pop": "pop_denom",
+    "Pop5p": "age_p5pl",
+    "ANH": "anh",
+    "BNH": "bnh",
+    "HSP": "hsp",
+    "WNH": "wnh",
+    ## Housing Security
     "AfELI": "units_affordable_eli",
     "AfVLI": "units_affordable_vli",
     "AfLI": "units_affordable_li",
@@ -85,7 +98,10 @@ def parse_acs_variable(raw_variable: str):
     }
 
 
-acs_years_end_to_full = {"12": "0812", "23": "1923"}
+# Map year suffixes in column names to full year band codes
+# This maintains compatibility with previous EDDE outputs
+# 12 -> 2008-2012, 24 -> 2020-2024
+acs_years_end_to_full = {"12": "0812", "24": "2024"}
 
 
 def make_acs_parsed_variables_table(acs_df: pd.DataFrame):
@@ -221,9 +237,19 @@ def _calc_geog_type(geog: str):
         return "puma"
 
 
-def load_acs(year_window: str) -> pd.DataFrame:
-    """Load a year window of the ACS (e.g. 1923, meaning the ACS from 2019-2023)"""
-    df = load(f"acs_{year_window}").rename(columns={"Geog": "geog"})
+def load_acs(period: str) -> pd.DataFrame:
+    """
+    Load an ACS period.
+
+    Args:
+        period: Either 'prev' for the previous year band (e.g., 2008-2012)
+                or 'current' for the current year band (e.g., 2020-2024)
+    """
+    assert period in ["prev", "current"], (
+        f"period must be 'prev' or 'current', got {period}"
+    )
+
+    df = load(f"acs_{period}_year_band").rename(columns={"Geog": "geog"})
 
     df.loc[df["geog"] == "NYC", "geog"] = "citywide"
     df["geog_type"] = df["geog"].map(_calc_geog_type)
@@ -236,12 +262,10 @@ def load_acs(year_window: str) -> pd.DataFrame:
 
 
 @cache
-def load_acs_curr_and_prev(
-    start_year=acs_years[0], end_year=acs_years[-1]
-) -> pd.DataFrame:
-    """Load a merge together multiple year-windows of the ACS, e.g. 0812 and 1923."""
-    return load_acs(start_year).merge(
-        load_acs(end_year),
+def load_acs_curr_and_prev() -> pd.DataFrame:
+    """Load and merge both the previous and current ACS year bands."""
+    return load_acs("prev").merge(
+        load_acs("current"),
         left_index=True,
         right_index=True,
         how="left",
@@ -278,25 +302,22 @@ class ACSAggregator:
     ) -> pd.DataFrame:
         assert geography in {"citywide", "borough", "puma"}
 
-        # .run() is an interface that will always be called with the same years, regardless
-        # of whether we want to include the start_year. So we need to filter to what actual years
-        # to include. Also, years are passed as [start][end] e.g. 1923. We need to truncate them
-        # to just the end of the range, e.g. 23
-        years = (
-            [start_year[2:], end_year[2:]]
-            if self.include_start_year
-            else [end_year[2:]]
-        )
+        # .run() is an interface that will always be called with the same periods, regardless
+        # of whether we want to include the start_year.
+        years = [start_year, end_year] if self.include_start_year else [end_year]
         logger.info(f"Running {self.name} for {geography}, years: {', '.join(years)}")
 
-        acs_df = load_acs_curr_and_prev(
-            start_year, end_year
-        )  # load both years regardless of the conf. For ease/consistency
+        # Map semantic year names to year suffixes for column selection
+        year_suffix_map = {"prev": "12", "current": "24"}
+        year_suffixes = [year_suffix_map.get(y, y) for y in years]
+
+        # Load both ACS periods regardless of the conf. For ease/consistency
+        acs_df = load_acs_curr_and_prev()
 
         acs_subset_df = select_acs_cols(
             acs_df,
             self.dcp_base_variables,
-            years=years,
+            years=year_suffixes,
             **self.dcp_base_variables_conf,
         )
 

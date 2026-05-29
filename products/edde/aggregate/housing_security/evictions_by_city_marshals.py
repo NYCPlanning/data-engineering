@@ -14,6 +14,8 @@ def _load_residential_evictions() -> gpd.GeoDataFrame:
     - PUMA codes where available
     - Current year already filtered out
     - Borough names already cleaned
+
+    Filters to evictions from 2019 onwards.
     """
     evictions = ingestion_helpers.load_data(
         "doi_evictions_geocoded", is_geospatial=True
@@ -23,6 +25,13 @@ def _load_residential_evictions() -> gpd.GeoDataFrame:
     residential_evictions = evictions[
         evictions["residential/commercial"] == "Residential"
     ].copy()
+
+    # Filter to 2019 onwards using the year column
+    # (year column is already populated by the geocoding script)
+    if "year" in residential_evictions.columns:
+        residential_evictions = residential_evictions[
+            residential_evictions["year"].astype(int) >= 2019
+        ].copy()
 
     # Create GeoDataFrame with geometry
     # Filter out records without valid coordinates

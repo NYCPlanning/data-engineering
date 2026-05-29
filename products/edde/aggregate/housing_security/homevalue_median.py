@@ -10,4 +10,7 @@ aggregator = ACSAggregator(
     internal_review_category="housing_security",
 )
 
-homevalue_median = aggregator.run
+
+def homevalue_median(geography: str, **kwargs):
+    """Home value median aggregator."""
+    return aggregator.run(geography, **kwargs)

@@ -148,6 +148,7 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     inputs: RecipeInputs
     exports: BuildExports | None = None
     stage_config: dict[str, StageConfig] = {}
+    custom: dict[str, Any] | None = None
 
     def is_resolved(self) -> bool:
         return (

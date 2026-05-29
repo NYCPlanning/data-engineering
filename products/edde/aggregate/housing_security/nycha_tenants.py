@@ -71,8 +71,21 @@ def load_clean_nycha_data():
         ]
     ]
     nycha_data.rename(columns={"PUMA (2020)": "puma"}, inplace=True)
-    nycha_data.puma = nycha_data.puma.apply(func=clean_PUMAs)
-    nycha_data["borough"] = nycha_data.apply(axis=1, func=puma_to_borough)
+
+    # Filter out empty/metadata rows (rows with NaN puma) and footer rows
+    # Keep the "Total" row which represents citywide aggregate
+    nycha_data = nycha_data[nycha_data.puma.notna() | (nycha_data.puma == "Total")]
+
+    # Clean PUMA values - "Total" will remain as-is, PUMAs will be cleaned
+    nycha_data.puma = nycha_data.puma.apply(
+        func=lambda x: x if x == "Total" else clean_PUMAs(x)
+    )
+
+    # For the "Total" row, puma_to_borough would fail, so handle it separately
+    # The "Total" row doesn't need a borough since it's citywide
+    nycha_data["borough"] = nycha_data.apply(
+        axis=1, func=lambda row: None if row.puma == "Total" else puma_to_borough(row)
+    )
     nycha_data["citywide"] = "citywide"
     nycha_data.set_index("puma", inplace=True)
     # calculating the total for each race categories

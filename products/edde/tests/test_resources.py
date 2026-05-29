@@ -112,3 +112,66 @@ def test_required_columns_exist(resource_name):
         f"Resource '{resource_name}' is missing required columns: {missing_columns}. "
         f"Available columns: {list(df.columns)}"
     )
+
+
+@pytest.mark.parametrize(
+    "resource_name",
+    [
+        k
+        for k in RESOURCES.keys()
+        if k.startswith("acs_") or k.startswith("census_2000")
+    ],
+)
+def test_acs_datasets_have_unique_columns(resource_name):
+    """
+    Test that ACS datasets don't have duplicate column names.
+
+    Duplicate columns in ACS data can cause issues when processing
+    economics and demographics data, as column name normalization may
+    create unexpected duplicates (e.g., P16t64 vs P16t64y).
+
+    This test ensures the source data is clean and forces source data
+    fixes rather than code workarounds.
+    """
+    try:
+        df = load(resource_name)
+    except FileNotFoundError:
+        pytest.skip(f"File not found for {resource_name}")
+
+    # Check for duplicate column names
+    duplicate_cols = df.columns[df.columns.duplicated(keep=False)]
+
+    assert len(duplicate_cols) == 0, (
+        f"Resource '{resource_name}' has duplicate columns: "
+        f"{sorted(set(duplicate_cols))}. "
+        f"This indicates a source data issue that should be fixed upstream. "
+        f"Duplicate columns can cause errors when column names are normalized "
+        f"in PUMS processing."
+    )
+
+
+@pytest.mark.parametrize(
+    "resource_name", [k for k in RESOURCES.keys() if k.startswith("acs_")]
+)
+def test_acs_datasets_no_semantic_duplicates(resource_name):
+    """
+    Test that ACS datasets don't have columns that will become duplicates
+    after normalization (e.g., P16t64 and P16t64y both normalize to p16t64).
+
+    This catches issues where columns have different names in the source
+    but represent the same data and will cause conflicts during processing.
+    """
+    try:
+        df = load(resource_name)
+    except FileNotFoundError:
+        pytest.skip(f"File not found for {resource_name}")
+
+    # Check for P16t64 vs P16t64y - these normalize to the same thing
+    p16t64_cols = [col for col in df.columns if col.startswith("P16t64_")]
+    p16t64y_cols = [col for col in df.columns if col.startswith("P16t64y_")]
+
+    if p16t64_cols and p16t64y_cols:
+        pytest.fail(
+            f"Resource '{resource_name}' contains both P16t64 and P16t64y columns. "
+            "Remove one upstream to avoid downstream conflicts or silent drops during processing."
+        )

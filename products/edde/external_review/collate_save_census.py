@@ -2,7 +2,6 @@
 where housing production is collated and saved. Up against deadline it's easier to
 write a new file but this step can be DRY'd out and brought down to a simplier format"""
 
-from os import makedirs, path
 from typing import Optional
 
 import typer
@@ -12,6 +11,7 @@ from aggregate.PUMS.pums_2000_demographics import pums_2000_demographics
 from aggregate.PUMS.pums_2000_economics import pums_2000_economics
 from aggregate.PUMS.pums_demographics import acs_pums_demographics
 from aggregate.PUMS.pums_economics import acs_pums_economics
+from config import clean_build_output_dir, get_build_output_dir
 from utils.geo_helpers import acs_years
 
 from dcpy.utils.logging import logger
@@ -32,10 +32,15 @@ def collate_save_census(
         df = accessor(geography, year)
         final = final.merge(df, left_index=True, right_index=True)
 
-    folder_path = f".staging/{eddt_category}"
-    if not path.exists(folder_path):
-        makedirs(folder_path)
-    final.to_csv(f".staging/{eddt_category}/{eddt_category}_{year}_{geography}.csv")
+    build_output_dir = get_build_output_dir()
+    data_dir = build_output_dir / "data"
+    folder_path = data_dir / eddt_category
+    folder_path.mkdir(parents=True, exist_ok=True)
+    output_file = folder_path / f"{eddt_category}_{year}_{geography}.csv"
+    logger.info(
+        f"Building {eddt_category} indicators for {year} {geography}, saving to: {output_file}"
+    )
+    final.to_csv(output_file)
     return final
 
 
@@ -83,6 +88,10 @@ def main(
         geographies = [geography]
 
     logger.info(f"Running Census/ACS for: {year} years x {geographies} x {categories}")
+
+    # Clean category directories before starting build
+    clean_build_output_dir(categories)
+
     for c in categories:
         for g in geographies:
             for y in years:
