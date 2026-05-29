@@ -10,8 +10,8 @@ from dcpy.utils.logging import logger
 
 # Why is this a PUMA helper?
 # TODO: move
-acs_years = ["0812", "1923"]
-acs_years_end_to_full = {"12": "0812", "23": "1923"}
+# ACS year bands: 'prev' = previous year band, 'current' = current year band
+acs_years = ["prev", "current"]
 
 borough_num_mapper = {"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"}
 

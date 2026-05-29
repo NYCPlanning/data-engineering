@@ -33,8 +33,12 @@ def acs_pums_demographics(
         "race": dcp_pop_races,
     }
 
+    # Map semantic year names to end year suffixes for column renaming
+    year_suffix_map = {"prev": "12", "current": "24"}
+    end_year = year_suffix_map.get(year, year[2:] if len(year) == 4 else year)
+
     acs = pd.DataFrame(load_acs(year).loc[geography].rename_axis(geography))
-    renamed = rename_columns_demo(acs, year[2:])
+    renamed = rename_columns_demo(acs, end_year)
     final = order_aggregated_columns(
         df=renamed,
         indicators_denom=demographic_indicators_denom,

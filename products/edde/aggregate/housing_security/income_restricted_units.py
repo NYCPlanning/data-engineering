@@ -6,7 +6,6 @@ from utils.geo_helpers import (
     borough_name_mapper,
     clean_PUMAs,
     filter_for_recognized_pumas,
-    get_nta_to_puma_mapper,
     puma_to_borough,
 )
 
@@ -64,6 +63,9 @@ _HPD_COLUMNS = [
 
 
 def _load_clean_hpd_data():
+    import geopandas as gpd
+    from utils.geo_helpers import puma_from_point
+
     source_data = load_data(
         "hpd_hny_units_by_building",
         cols=_HPD_COLUMNS,
@@ -82,18 +84,30 @@ def _load_clean_hpd_data():
     source_data["borough"] = source_data["borough"].map(borough_name_mapper)
     source_data["citywide"] = "citywide"
 
-    source_data = (
-        source_data.set_index("nta")
-        .join(get_nta_to_puma_mapper(), how="left")
-        .reset_index()
+    # Use geocoding to assign PUMAs instead of NTA join
+    # Filter to records with valid internal coordinates
+    has_coords = (
+        source_data["latitude_(internal)"].notna()
+        & source_data["longitude_(internal)"].notna()
     )
 
-    # TODO: we can potentially infer the remaining 1600 using the CB
-    # source_data["community_board_num"] = source_data["community_board"].apply(
-    #     lambda x: x.split("-")[1]
-    # )
+    # Create geometry for geocoding
+    gdf = gpd.GeoDataFrame(
+        source_data[has_coords].copy(),
+        geometry=gpd.points_from_xy(
+            source_data[has_coords]["longitude_(internal)"],
+            source_data[has_coords]["latitude_(internal)"],
+        ),
+        crs="EPSG:4326",
+    ).to_crs("EPSG:2263")
 
-    return source_data
+    # Assign PUMAs using point-in-polygon
+    gdf["puma"] = gdf.geometry.apply(puma_from_point)
+
+    # Drop geometry column to return regular DataFrame
+    source_data_with_puma = pd.DataFrame(gdf.drop(columns=["geometry"]))
+
+    return source_data_with_puma
 
 
 def income_restricted_units_hpd(

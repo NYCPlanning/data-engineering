@@ -35,14 +35,14 @@ def _load_decennial_census_001020(path: str):
     )
 
 
-def _load_acs_0812(path: str):
+def _load_acs_prev_year_band(path: str):
     return pd.read_excel(
         path,
         dtype={"Geog": str},
     )
 
 
-def _load_acs_1923(path: str):
+def _load_acs_current_year_band(path: str):
     return pd.read_excel(
         path,
         dtype={"Geog": str},
@@ -267,19 +267,19 @@ RESOURCES = {
         "loader": _load_decennial_census_001020,
     },
     # ACS PUMS - specific year windows
-    "acs_0812": {
+    "acs_prev_year_band": {
         "filepath": "resources/ACS_PUMS/EDDE_ACS2008-2012.xlsx",
         "type": "excel",
         "data_table": "",
         "required_columns": ["Geog"],
-        "loader": _load_acs_0812,
+        "loader": _load_acs_prev_year_band,
     },
-    "acs_2024": {
+    "acs_current_year_band": {
         "filepath": "resources/ACS_PUMS/EDDE_ACS2020-2024.xlsx",
         "type": "excel",
         "data_table": "",
         "required_columns": ["Geog"],
-        "loader": _load_acs_1923,
+        "loader": _load_acs_current_year_band,
     },
     "census_2000": {
         "filepath": "resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",

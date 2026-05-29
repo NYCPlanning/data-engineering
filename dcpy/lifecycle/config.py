@@ -97,3 +97,16 @@ def local_data_path_for_stage(stages: str) -> Path:
             raise Exception(f"No such stage {s} found. Full stage path: {stages}")
         path = path / curr_stage["local_data_path"]
     return path
+
+
+def get_build_dir(product_name: str, version: str) -> Path:
+    """Get the build directory path for a product and version.
+
+    Args:
+        product_name: Name of the product (e.g., "edde", "cscl")
+        version: Build version (e.g., "2024.1.0")
+
+    Returns:
+        Path to the build directory: {DCPY_LIFECYCLE_DATA_DIR}/build/{product_name}/{version}
+    """
+    return local_data_path_for_stage("builds.build") / product_name / version

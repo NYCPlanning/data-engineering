@@ -84,7 +84,7 @@ def order_economics(source_data, year):
         ("income band",),
         ("misc",),
     ]
-    if year == "0812":
+    if year in ("0812", "prev"):
         reorder_categories["income band"] = []
     else:
         reorder_categories["income band"] = income_band_categories
@@ -174,8 +174,9 @@ def convert_col_label(col_label: str):
 
 
 def process_ind_label(indicator_label, wages=False):
-    if indicator_label == "p16t64y":
-        indicator_label = "p16t64"
+    # NOTE: Removed p16t64y -> p16t64 normalization to surface source data duplicates
+    # if indicator_label == "p16t64y":
+    #     indicator_label = "p16t64"
     if indicator_label == "p25p":
         indicator_label = "p25pl"
 

@@ -7,8 +7,17 @@ from utils.geo_helpers import clean_PUMAs
 
 from dcpy.utils.logging import logger
 
-# Map ACS year (or in general, input year for many functions) to decennial census year
-year_map = {"2000": "00", "0812": "10", "1519": "20", "1721": "20", "1923": "20"}
+# Map ACS period (or in general, input year for many functions) to decennial census year
+year_map = {
+    "2000": "00",
+    "0812": "10",
+    "1519": "20",
+    "1721": "20",
+    "1923": "20",
+    "2024": "20",
+    "prev": "10",  # Previous ACS band (2008-2012) maps to 2010 census
+    "current": "20",  # Current ACS band (2020-2024) maps to 2020 census
+}
 
 
 @cache

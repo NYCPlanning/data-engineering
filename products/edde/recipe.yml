@@ -17,16 +17,16 @@ inputs:
   - name: doi_evictions_geocoded # 3.09 (geocoded version)
     version: 20260514
   - name: hpd_hny_units_by_building # 3.11, 4.02
-    version: 20250303
+    version: '20260519'
   - name: dcp_housing # 4.01
-    version: '24Q4'
+    version: '25Q4'
   - name: lpc_historic_district_areas # 4.03
-    version: 20250423
+    version: '20260202'
   - name: dhs_shelterd_indiv_by_comm_dist # 3.1
-    version: '2025.1'
+    version: 20260504
 
   - name: dcp_pumas2020
-    version: '20241218'
+    version: '20260526'
   - name: dcp_population_cd_puma_crosswalk_2020
     version: '2025'
   - name: dcp_population_nta_puma_crosswalk_2020
@@ -66,6 +66,12 @@ inputs:
   - name: dcp_dot_trafficinjuries
     version: 2020
     file_type: csv
+
+custom:
+  ignored_indicators:
+    - health_diabetes
+    - health_self_reported
+    - health_selfreportedhealth
 
 stage_config:
   builds.build:
