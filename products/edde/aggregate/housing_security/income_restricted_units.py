@@ -1,5 +1,4 @@
 import pandas as pd
-from aggregate.load_aggregated import initialize_dataframe_geo_index
 from ingest.ingestion_helpers import load_data
 from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
@@ -10,6 +9,8 @@ from utils.geo_helpers import (
     get_nta_to_puma_mapper,
     puma_to_borough,
 )
+
+from aggregate.load_aggregated import initialize_dataframe_geo_index
 
 
 def _load_clean_income_restricted():

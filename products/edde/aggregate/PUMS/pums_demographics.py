@@ -1,4 +1,7 @@
 import pandas as pd
+from internal_review.set_internal_review_file import set_internal_review_files
+from utils.geo_helpers import acs_years, dcp_pop_races
+
 from aggregate.aggregation_helpers import (
     demographic_indicators_denom,
     get_category,
@@ -7,9 +10,6 @@ from aggregate.aggregation_helpers import (
 from aggregate.clean_aggregated import rename_columns_demo
 from aggregate.load_aggregated import load_acs
 from aggregate.PUMS.pums_2000_demographics import pums_2000_demographics
-from internal_review.set_internal_review_file import set_internal_review_files
-from utils.geo_helpers import acs_years, dcp_pop_races
-
 from dcpy.utils.logging import logger
 
 

@@ -10,7 +10,12 @@ Usage:
     df = load("2010_census_housing_units_by_2020_nta")
 """
 
+from pathlib import Path
+
 import pandas as pd
+
+# Get the absolute path to this file's directory
+_MODULE_DIR = Path(__file__).parent.resolve()
 
 # Helper functions for loading resources
 
@@ -63,6 +68,13 @@ def _load_education_outcome_data_dictionary(path: str):
     return pd.read_excel(
         path,
         sheet_name="Data Dictionary",
+    )
+
+
+def _load_pedestrian_hospitalizations(path: str):
+    return pd.read_csv(
+        path,
+        dtype={"Geography": str},
     )
 
 
@@ -262,8 +274,8 @@ RESOURCES = {
         "required_columns": ["Geog"],
         "loader": _load_acs_0812,
     },
-    "acs_1923": {
-        "filepath": "resources/ACS_PUMS/EDDE_ACS2019-2023.xlsx",
+    "acs_2024": {
+        "filepath": "resources/ACS_PUMS/EDDE_ACS2020-2024.xlsx",
         "type": "excel",
         "data_table": "",
         "required_columns": ["Geog"],
@@ -278,18 +290,18 @@ RESOURCES = {
     },
     # Quality of Life - Education
     "education_outcome_data": {
-        "filepath": "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        "filepath": "resources/quality_of_life/education_math_ela_grad.xlsx",
         "type": "excel",
         "sheet_name": "Data",
-        "data_table": "",
+        "data_table": "5.11,5.12,5.13",
         "required_columns": ["NTA Code", "NTA Name"],
         "loader": _load_education_outcome_data,
     },
     "education_outcome_data_dictionary": {
-        "filepath": "resources/quality_of_life/education_outcome/EDDE - Math and ELA & Grad - 2024.xlsx",
+        "filepath": "resources/quality_of_life/education_math_ela_grad.xlsx",
         "type": "excel",
         "sheet_name": "Data Dictionary",
-        "data_table": "",
+        "data_table": "5.11,5.12,5.13",
         "required_columns": ["varlabel", "varname"],
         "loader": _load_education_outcome_data_dictionary,
     },
@@ -301,28 +313,35 @@ RESOURCES = {
         "required_columns": ["Geography", "Number", "GeoType"],
         "loader": _load_assault_hospitalizations,
     },
+    "pedestrian_hospitalizations": {
+        "filepath": "resources/quality_of_life/pedestrian_hospitalizations.csv",
+        "type": "csv",
+        "data_table": "",
+        "required_columns": ["Geography", "Number", "GeoType"],
+        "loader": _load_pedestrian_hospitalizations,
+    },
     # Quality of Life - Health Mortality (multi-sheet)
     "health_mortality_puma": {
-        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
         "type": "excel",
         "sheet_name": "PUMA",
-        "data_table": "",
+        "data_table": "5.03,5.04,5.05",
         "required_columns": ["PUMA"],  # File missing - columns TBD
         "loader": _load_health_mortality_puma,
     },
     "health_mortality_borough": {
-        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
         "type": "excel",
         "sheet_name": "Borough",
-        "data_table": "",
+        "data_table": "5.03,5.04,5.05",
         "required_columns": ["Borough"],  # File missing - columns TBD
         "loader": _load_health_mortality_borough,
     },
     "health_mortality_citywide": {
-        "filepath": "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx",
+        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
         "type": "excel",
         "sheet_name": "City",
-        "data_table": "",
+        "data_table": "5.03,5.04,5.05",
         "required_columns": ["City"],  # File missing - columns TBD
         "loader": _load_health_mortality_citywide,
     },
@@ -351,15 +370,15 @@ RESOURCES = {
     },
     # Quality of Life - COVID Death
     "covid_death": {
-        "filepath": "resources/quality_of_life/covid_death/covid_death_processed_2023.xlsx",
+        "filepath": "resources/quality_of_life/deaths_by_race_and_puma.xlsx",
         "type": "excel",
         "sheet_name": "Sheet 1",
-        "data_table": "",
-        "required_columns": ["PUMA", "Total\nDeaths", "Race/Ethnicity"],  # File missing
+        "data_table": "5.06",
+        "required_columns": ["PUMA", "Total\nDeaths", "Race/Ethnicity"],
         "loader": _load_covid_death,
     },
     "census_aggregations": {
-        "filepath": "resources/quality_of_life/Census_Aggregations_fromErica.csv",
+        "filepath": "resources/quality_of_life/pop_census_aggregations.csv",
         "type": "csv",
         "data_table": "",
         "required_columns": [
@@ -375,18 +394,18 @@ RESOURCES = {
     },
     # Quality of Life - Transportation Access (multi-sheet)
     "transportation_park_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "Park_Qtr_Mile_Access",
-        "data_table": "",
+        "data_table": "5.09",
         "required_columns": ["PUMA", "Pop_Served", "Total_Pop"],
         "loader": _load_transportation_park_access,
     },
     "transportation_jobs_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "Access_to_Jobs",
-        "data_table": "",
+        "data_table": "5.08",
         "required_columns": [
             "PUMA",
             "Weighted Average Number of Jobs Accessible within 30 mins from Tract Centroid by Transit",
@@ -394,10 +413,10 @@ RESOURCES = {
         "loader": _load_transportation_jobs_access,
     },
     "transportation_subway_sbs_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "Subway_SBS_Qr_Mile_Access",
-        "data_table": "",
+        "data_table": "5.09",
         "required_columns": [
             "PUMA",
             "Pop within 1/4 Mile of Subway Stations and SBS Stops",
@@ -406,10 +425,10 @@ RESOURCES = {
         "loader": _load_transportation_subway_sbs_access,
     },
     "transportation_ada_subway_access": {
-        "filepath": "resources/quality_of_life/EDDE_2025_Updates_transportation.xlsx",
+        "filepath": "resources/quality_of_life/transportation.xlsx",
         "type": "excel",
         "sheet_name": "ADA_Subway_Qtr_Mile_Access",
-        "data_table": "",
+        "data_table": "5.09",
         "required_columns": [
             "PUMA",
             "Pop within 1/4 Mile of ADA Subway Stations",
@@ -419,7 +438,7 @@ RESOURCES = {
     },
     # Housing Security - NYCHVS (multi-sheet)
     "nychvs_renter_occupied": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Renter-occupied housing units",
         "data_table": "",
@@ -427,7 +446,7 @@ RESOURCES = {
         "loader": _load_nychvs_renter_occupied,
     },
     "nychvs_rent_stabilized": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Occupied rent stabilized",
         "data_table": "",
@@ -435,7 +454,7 @@ RESOURCES = {
         "loader": _load_nychvs_rent_stabilized,
     },
     "nychvs_occupied": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Occupied housing units",
         "data_table": "",
@@ -443,7 +462,7 @@ RESOURCES = {
         "loader": _load_nychvs_occupied,
     },
     "nychvs_three_plus_probs": {
-        "filepath": "resources/housing_security/nychvs_2023.xlsx",
+        "filepath": "resources/housing_security/nychvs.xlsx",
         "type": "excel",
         "sheet_name": "Occupied housing 3+ problems",
         "data_table": "",
@@ -451,15 +470,16 @@ RESOURCES = {
         "loader": _load_nychvs_three_plus_probs,
     },
     # Housing Security - Other
-    "eviction_filings": {
-        "filepath": "resources/housing_security/eviction_filings.xlsx",
-        "type": "excel",
-        "data_table": "",
-        "required_columns": ["Community District", "Eviction Fillings*"],
-        "loader": _load_eviction_filings,
-    },
+    # AR NOTE: commenting out bc we get this from Open Data
+    # "eviction_filings": {
+    #     "filepath": "resources/housing_security/eviction_filings.xlsx",
+    #     "type": "excel",
+    #     "data_table": "",
+    #     "required_columns": ["Community District", "Eviction Fillings*"],
+    #     "loader": _load_eviction_filings,
+    # },
     "nycha_tenants": {
-        "filepath": "resources/housing_security/nycha_tenants/nycha_tenants_processed_2025.xlsx",
+        "filepath": "resources/housing_security/nycha_tenants.xlsx",
         "type": "excel",
         "sheet_name": "PUMA",
         "data_table": "",
@@ -468,18 +488,18 @@ RESOURCES = {
     },
     # Housing Security - HPD Housing Lottery (multi-sheet)
     "housing_lottery_applications": {
-        "filepath": "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        "filepath": "resources/housing_security/hpd_housing_lottery.xlsx",
         "type": "excel",
         "sheet_name": "housing_lottery_applications",
-        "data_table": "",
+        "data_table": "3.13",
         "required_columns": ["geog", "geo_type", "Total"],
         "loader": _load_housing_lottery_applications,
     },
     "housing_lottery_leases": {
-        "filepath": "resources/housing_security/hpd_housing_lottery_2025.xlsx",
+        "filepath": "resources/housing_security/hpd_housing_lottery.xlsx",
         "type": "excel",
         "sheet_name": "housing_lottery_leases",
-        "data_table": "",
+        "data_table": "3.14",
         "required_columns": ["geog", "geo_type", "Total"],
         "loader": _load_housing_lottery_leases,
     },
@@ -509,7 +529,9 @@ def load(resource_name: str) -> pd.DataFrame:
         )
 
     resource = RESOURCES[resource_name]
-    return resource["loader"](resource["filepath"])
+    # Convert relative filepath to absolute path
+    absolute_filepath = _MODULE_DIR / resource["filepath"]
+    return resource["loader"](str(absolute_filepath))
 
 
 def list_resources() -> list[str]:

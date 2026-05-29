@@ -3,6 +3,7 @@
 from typing import List, Tuple
 
 import pandas as pd
+
 from aggregate.PUMS.aggregate_PUMS import PUMSCount
 from aggregate.PUMS.economic_indicators import (
     industry_assign,

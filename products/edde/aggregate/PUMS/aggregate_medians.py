@@ -1,7 +1,8 @@
 """Between PUMS aggregator and base classes"""
 
-from aggregate.PUMS.aggregate_PUMS import PUMSAggregator
 from statistical.calculate_medians_LI import calculate_median_LI
+
+from aggregate.PUMS.aggregate_PUMS import PUMSAggregator
 
 
 class PUMSMedians(PUMSAggregator):

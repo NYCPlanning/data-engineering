@@ -1,15 +1,16 @@
 """Examine median wages broken out by industry, occupation"""
 
 import pandas as pd
+from ingest.load_data import load_PUMS
+from statistical.calculate_medians import (
+    calculate_median_with_crosstab,
+)
+
 from aggregate.PUMS.aggregate_PUMS import PUMSAggregator
 from aggregate.PUMS.economic_indicators import (
     industry_assign,
     lf_assign,
     occupation_assign,
-)
-from ingest.load_data import load_PUMS
-from statistical.calculate_medians import (
-    calculate_median_with_crosstab,
 )
 
 
