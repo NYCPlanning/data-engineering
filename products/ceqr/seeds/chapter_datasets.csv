@@ -1,7 +1,7 @@
 chapter_id,use_category,dataset_name,use_details
 analysis_framework,RWCDS,RWCDS Analysis Framework Table,Form required for submission of Reasonable Worst Case Development Scenarios by DCP
 analysis_framework,RWCDS,RWCDS Analysis Spreadsheet,Form required for submission of Reasonable Worst Case Development Scenarios by DCP
-analysis_framework,Existing Condition,MapPLUTO Shoreline Clipped,Establishing built characterstics of parcels within the project area
+analysis_framework,Existing Condition,MapPLUTO Shoreline Clipped,Establishing built characteristics of parcels within the project area
 analysis_framework,Existing and No Action Condition,DCP Housing and Population Projections,"A workbook for use in establishing the existing and no action condition housing and population characteristics within various study areas. Combines our best available population data, housing permit data, and assumptions about household size and vacancy to estimate current conditions and conditions for build years 3-5 years in the future"
 analysis_framework,No Action Condition,ZAP Projects,Establishing non-residential No-Action Condition projects within various study areas
 analysis_framework,Green Fast Track,Green Fast Track Lots,For use in determining if housing projects are eligible for the Green Fast Track Type II determination
@@ -19,7 +19,7 @@ land_use,WRP,Base Flood Elevation 2015,Completing WRP Flood Evaluation worksheet
 land_use,WRP,Limit of Moderate Wave Action,Completing WRP Flood Evaluation worksheet
 land_use,WRP,Future Floodplain 2050s,Completing WRP Flood Evaluation worksheet
 land_use,WRP,Coastal Zone Boundary,"Coastal Zone Boundary Map, Special Area Designations"
-land_use,WRP,Ecologically Sensistive Maritime and Industrial Area,"Coastal Zone Boundary Map, Special Area Designations"
+land_use,WRP,Ecologically Sensitive Maritime and Industrial Area,"Coastal Zone Boundary Map, Special Area Designations"
 land_use,WRP,Priority Marine Activity Zones,"Coastal Zone Boundary Map, Special Area Designations"
 land_use,WRP,Recognized Ecological Complexes,"Coastal Zone Boundary Map, Special Area Designations"
 land_use,WRP,Significant Maritime and Industrial Area,"Coastal Zone Boundary Map, Special Area Designations"
@@ -77,7 +77,7 @@ open_space,Open Spaces,Publicly Owned Waterfront,Open Space Inventory
 open_space,Open Spaces,NYS Parks,Open Space Inventory
 open_space,Open Spaces,Federal Parks,Open Space Inventory
 open_space,Open Spaces,NYC Parks Active and Passive Recreation,Open Space Inventory- for public open spaces managed by NYC Parks
-open_space,No Action Condition,Parks Capital Projects Tracker,Establishing new park spaces in the No-Action Condion
+open_space,No Action Condition,Parks Capital Projects Tracker,Establishing new park spaces in the No-Action Condition
 open_space,Screening Assessment,Walk to a Park Service Area,Open Space screening for detailed analysis
 open_space,Detailed Assessment,Population Fact Finder,Dicennial Census to establish existing population age characteristics for a detailed indirect effects analysis
 shadows,Base Map,2014 3D Model,creating 3D basemap for detailed shadows assessments
