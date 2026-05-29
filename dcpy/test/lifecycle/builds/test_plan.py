@@ -76,6 +76,10 @@ class TestVersionStrategies(TestCase):
         with pytest.raises(Exception, match="No version or version_strategy provided"):
             plan.resolve_version(self.recipe)
 
+    def test_today(self):
+        self.recipe.version_strategy = versions.SimpleVersionStrategy.today
+        assert plan.resolve_version(self.recipe) == versions.generate_today().label
+
     def test_first_of_month(self):
         self.recipe.version_strategy = versions.SimpleVersionStrategy.first_of_month
         assert (

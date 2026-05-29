@@ -1,6 +1,6 @@
 name: CEQR
 product: db-ceqr
-version_strategy: first_of_month
+version_strategy: today
 
 inputs:
   missing_versions_strategy: find_latest
