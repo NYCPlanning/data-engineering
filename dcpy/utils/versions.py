@@ -226,6 +226,10 @@ class Date(Version):
                 return False
 
 
+def generate_today() -> Date:
+    return Date(date=date.today(), format=DateVersionFormat.date)
+
+
 def generate_first_of_month() -> Date:
     return Date(date=date.today().replace(day=1), format=DateVersionFormat.date)
 
@@ -239,6 +243,7 @@ class PinToSourceDataset(BaseModel):
 
 
 class SimpleVersionStrategy(StrEnum):
+    today = "today"
     first_of_month = "first_of_month"
     bump_latest_release = "bump_latest_release"
 

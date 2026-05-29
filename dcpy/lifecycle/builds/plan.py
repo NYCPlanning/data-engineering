@@ -49,6 +49,8 @@ def resolve_version(recipe: Recipe) -> str:
     match recipe.version_strategy:
         case None:
             raise Exception("No version or version_strategy provided")
+        case versions.SimpleVersionStrategy.today:
+            return versions.generate_today().label
         case versions.SimpleVersionStrategy.first_of_month:
             return versions.generate_first_of_month().label
         case versions.SimpleVersionStrategy.bump_latest_release:
