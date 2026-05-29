@@ -48,7 +48,7 @@ inputs:
     - name: dcp_pops
       file_type: pg_dump
     - name: dot_pedplazas
-    - name: dcp_waterfront_public_access_areas
+    - name: dcp_waterfront_public_access_areas_footprints
     - name: dcp_publicly_owned_waterfront
     - name: nysparks_parks
     - name: usnps_parks
