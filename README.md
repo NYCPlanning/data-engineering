@@ -13,7 +13,7 @@ Also maintained: [Product Metadata](https://github.com/NYCPlanning/product-metad
 | `dcpy/` | Core Python package: lifecycle orchestration, connectors, utilities |
 | `products/` | One folder per data product — code, dbt models, recipe files, README |
 | `ingest_templates/` | YAML specs for extracting and archiving source datasets |
-| `apps/` | Docker Compose services: Dagster, QA app, notebook server |
+| `apps/` | Docker Compose services: nginx reverse proxy, QA/QAQC Streamlit app (`/qaqc`), Dagster orchestration UI (`/dag`), marimo notebook server |
 | `docs/` | Technical reference (see below) |
 | `experimental/` | Sandbox for prototyping; not production code |
 
