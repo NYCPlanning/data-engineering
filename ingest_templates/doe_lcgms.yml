@@ -18,8 +18,9 @@ attributes:
 
 ingestion:
   source:
-    type: local_file
-    path: ./LCGMS_SchoolData.xls
+    type: s3
+    bucket: edm-recipes
+    key: inbox/doe/{{ version }}/LCGMS_SchoolData.xls
   file_format:
     type: html
     kwargs:
