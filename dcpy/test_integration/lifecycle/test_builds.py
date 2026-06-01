@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from dcpy.lifecycle.builds import build
+from dcpy.lifecycle.builds import export as build
 from dcpy.lifecycle.builds.models import ExportFormat
 from dcpy.utils import postgres
 

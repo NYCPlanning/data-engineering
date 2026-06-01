@@ -73,7 +73,7 @@ jobs:
         dbt build --full-refresh
 
     - name: Export
-      run: dcpy lifecycle builds build export --recipe-path ${{ inputs.recipe_file }}.lock.yml
+      run: dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
     - name: Validate against production outputs
       # TODO - this currently relies on version hard-coded in recipe.yml
