@@ -7,7 +7,7 @@ import geopandas as gpd
 import pytest
 from shapely import MultiPolygon, Point, Polygon
 
-from dcpy.lifecycle.builds.build import export, export_geodataset_from_postgres
+from dcpy.lifecycle.builds.export import export, export_geodataset_from_postgres
 from dcpy.lifecycle.builds.models import ExportFormat
 
 _point_row = {"id": 1, "geometry": Point(0, 0)}
@@ -148,7 +148,7 @@ def test_gdb_export(tmp_path):
 
 def test_gdb_export_multi_table(tmp_path):
     """Multiple layers sharing a filename go into one GDB with separate named layers."""
-    from dcpy.lifecycle.builds.build import _write_gdb_zip
+    from dcpy.lifecycle.builds.export import _write_gdb_zip
 
     points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
     polygons_gdf = _mixed_gdf[_mixed_gdf.geom_type != "Point"].copy()
@@ -200,7 +200,7 @@ exports:
     )
 
     with patch(
-        "dcpy.lifecycle.builds.build.export_dataset_from_postgres"
+        "dcpy.lifecycle.builds.export.export_dataset_from_postgres"
     ) as mock_export:
         mock_export.return_value = None
         export(recipe_path, pg_client=MagicMock())
@@ -235,8 +235,8 @@ exports:
     )
 
     # GDB entries bypass export_dataset_from_postgres; patch _write_gdb_zip directly
-    with patch("dcpy.lifecycle.builds.build._write_gdb_zip") as mock_write:
-        with patch("dcpy.lifecycle.builds.build._read_filtered_gdf") as mock_read:
+    with patch("dcpy.lifecycle.builds.export._write_gdb_zip") as mock_write:
+        with patch("dcpy.lifecycle.builds.export._read_filtered_gdf") as mock_read:
             mock_read.return_value = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
             export(recipe_path, pg_client=MagicMock())
 
