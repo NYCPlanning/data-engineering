@@ -186,7 +186,7 @@ def pull_destination_files(
 ):
     """Pull all files for a given destination."""
 
-    org_md = org_metadata_loader.load(version=version)
+    org_md = org_metadata_loader.load()
     product_metadata = org_md.product(product).dataset(dataset)
     dest = product_metadata.get_destination(source_id)
 
@@ -276,7 +276,7 @@ def assemble_dataset_package(
             **remaining_kwargs,
         )
 
-    org_md = org_metadata_loader.load(version=version)
+    org_md = org_metadata_loader.load()
     dataset_metadata = org_md.product(product).dataset(dataset)
 
     package_path = (

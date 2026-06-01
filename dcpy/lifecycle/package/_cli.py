@@ -31,12 +31,9 @@ def generate_metadata(
     output_dir: Path = typer.Option(
         ..., "--output-dir", "-o", help="Output directory for generated files"
     ),
-    version: str = typer.Option(
-        ..., "--version", "-v", help="Product metadata version"
-    ),
 ):
     """Generate metadata for datasets. If no datasets provided, generates for all."""
-    org_md = product_metadata.load(version=version)
+    org_md = product_metadata.load()
 
     # If no datasets provided, get all datasets
     if not dataset_paths:
@@ -88,9 +85,6 @@ def generate_metadata(
 
 @metadata_app.command("list-versions")
 def list_versions(
-    version: str = typer.Option(
-        ..., "--version", "-v", help="Product metadata version"
-    ),
     output_file: Path = typer.Option(
         None, "--output", "-o", help="Output file (default: stdout)"
     ),
@@ -98,7 +92,7 @@ def list_versions(
     """List all destination versions as JSON."""
     from dcpy.product_metadata.versions import DestinationVersions
 
-    org_md = product_metadata.load(version=version)
+    org_md = product_metadata.load()
     dest_versions = DestinationVersions.from_org_metadata(org_md)
 
     if output_file:

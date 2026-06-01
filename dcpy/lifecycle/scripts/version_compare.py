@@ -167,7 +167,7 @@ def sort_by_outdated_products(df):
 
 def get_all_open_data_keys() -> list[str]:
     """retrieve all product.dataset.destination_ids"""
-    return product_metadata.load(version="dummy").query_product_dataset_destinations(
+    return product_metadata.load().query_product_dataset_destinations(
         destination_filter={"types": {"open_data"}},
     )
 
@@ -197,7 +197,7 @@ def get_bytes_versions(all_keys):
 
 
 def make_comparison_dataframe(bytes_versions, open_data_versions):
-    metadata = product_metadata.load(version="dummy")
+    metadata = product_metadata.load()
     rows = []
     for key in open_data_versions:
         product, dataset, destination_id = key.split(".")
