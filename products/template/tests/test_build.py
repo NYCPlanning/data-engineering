@@ -42,6 +42,9 @@ def test_export_files():
         "data_dictionary.pdf",
         "data_dictionary.xlsx",
         "templatedb.csv",
+        "templatedb_points.zip",
+        "templatedb_polygons.zip",
+        "templatedb.zip",
         "output.zip",
     }
     actual_files = publishing.get_filenames(BUILD_KEY)
