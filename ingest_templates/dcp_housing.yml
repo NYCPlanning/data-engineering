@@ -1,0 +1,33 @@
+id: dcp_housing
+acl: public-read
+
+attributes:
+  name: DCP Housing Database
+  description: |
+    The NYC Department of City Planning's (DCP) Housing Database Project-Level Files contain
+    all NYC Department of Buildings (DOB)-approved housing construction and demolition jobs
+    filed or completed in NYC since January 1, 2010. It includes all three construction job
+    types that add or remove residential units: new buildings, major alterations, and demolitions,
+    and can be used to determine the change in legal housing units across time and space.
+    Records in the Housing Database Project-Level Files are geocoded to the greatest level of
+    precision possible, subject to numerous quality assurance and control checks, recoded
+    for usability, and joined to other housing data sources relevant to city planners and analysts.
+    Data are updated semiannually, at the end of the second and fourth quarters of each year.
+  url: https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-housing-database.page#housingdevelopmentproject
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://nyc3.digitaloceanspaces.com/edm-publishing/db-developments/publish/{{ version }}/housing.csv
+  file_format:
+    type: csv
+    dtype: str
+    geometry:
+      crs: EPSG:4326
+      geom_column:
+        x: longitude
+        y: latitude
+  processing_steps:
+    - name: clean_column_names
+      args: { "lower": True }
