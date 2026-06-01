@@ -13,6 +13,10 @@ A multi-service stack running behind a single nginx reverse proxy, deployed on a
 | **certbot** | — | Production-only; auto-renews Let's Encrypt certificates every 12 hours |
 | **notebook-server** | — | Standalone marimo notebook server (separate `notebook-server/docker-compose.yml`; not wired into the main stack) |
 
+## Architecture
+
+[View architecture diagram](https://htmlpreview.github.io/?https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/docs/de-tools/architecture.html)
+
 ## Running locally
 
 ### QA app standalone

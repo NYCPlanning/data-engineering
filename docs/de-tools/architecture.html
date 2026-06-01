@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DE Tools — Architecture</title>
+<style>
+
+/* ── Variables ───────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #080a12;
+  --panel-bg:    #0c0e18;
+  --surface:     #111420;
+  --surface2:    #181c2c;
+  --border:      #1a1e30;
+  --border-2:    #242840;
+  --text:        #d2d7ee;
+  --muted:       #646a88;
+  --muted-2:     #8890b0;
+  --hot:         #f5a623;
+  --hot-bg:      rgba(245,166,35,.14);
+  --hot-border:  rgba(245,166,35,.35);
+  --entry:       #52c49c;
+  --accent:      #6c8eff;
+  --accent2:     #e07b54;
+  --accent3:     #54c4a0;
+  --accent4:     #c47bde;
+  --warn:        #f0b429;
+  --code-bg:     #0b0d18;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.65; }
+
+/* ── Explainer ───────────────────────────────────────────────────────────── */
+.page { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: .3rem; color: #fff; }
+.subtitle { color: var(--muted); margin-bottom: 2.5rem; font-size: .95rem; }
+h2 {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .14em; color: var(--muted); margin: 2.5rem 0 1rem;
+  padding: .4rem 0 .4rem .85rem; border-bottom: 1px solid var(--border);
+  position: relative;
+}
+h2::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 11px; background: var(--accent); border-radius: 2px;
+}
+h3 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; color: #fff; }
+p { color: var(--muted); margin-bottom: .75rem; }
+strong { color: var(--text); }
+code { font-family: var(--mono); font-size: .82em; background: var(--code-bg); padding: .1em .35em; border-radius: 3px; color: var(--accent3); }
+
+.diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 2rem 1.5rem; overflow-x: auto; }
+svg text { font-family: var(--font); }
+
+.snippet-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+.snippet-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.snippet-header { display: flex; align-items: center; gap: .75rem; padding: .65rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.snippet-tag { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .15em .55em; border-radius: 3px; }
+.tag-nginx   { background: #2a3d5a; color: var(--accent); }
+.tag-dagster { background: #3d2a5a; color: var(--accent4); }
+.tag-qa      { background: #2a4d3a; color: var(--accent3); }
+.tag-deploy  { background: #4d3a2a; color: var(--accent2); }
+.snippet-filename { font-family: var(--mono); font-size: .8rem; color: var(--muted); }
+.snippet-body { display: flex; }
+.snippet-annotation { min-width: 220px; max-width: 260px; padding: 1rem 1.2rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: .75rem; }
+.annotation-line { font-family: var(--mono); font-size: .72rem; color: var(--accent); margin-bottom: .2rem; }
+.annotation-text { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+.code-block { flex: 1; background: var(--code-bg); padding: 1rem; overflow-x: auto; }
+pre { font-family: var(--mono); font-size: .78rem; line-height: 1.6; color: #c9d1e8; white-space: pre; }
+.hl       { background: rgba(108,142,255,.15); display: block; margin: 0 -.5rem; padding: 0 .5rem; }
+.hl-warn  { background: rgba(240,180,41,.12);  display: block; margin: 0 -.5rem; padding: 0 .5rem; }
+.hl-green { background: rgba(84,196,160,.12);  display: block; margin: 0 -.5rem; padding: 0 .5rem; }
+.kw  { color: #c792ea; } .fn  { color: #82aaff; } .str { color: #c3e88d; }
+.cm  { color: #546e7a; font-style: italic; } .num { color: #f78c6c; } .var { color: #ffcb6b; } .op  { color: #89ddff; }
+
+.gotchas { display: flex; flex-direction: column; gap: .85rem; }
+.gotcha { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--warn); border-radius: 6px; padding: .85rem 1rem; display: flex; gap: .75rem; align-items: flex-start; }
+.gotcha-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; border: 1.5px solid rgba(240,180,41,.55); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0; }
+.gotcha-icon::after { content: '!'; font-size: .72rem; font-weight: 800; color: var(--warn); font-family: var(--font); line-height: 1; }
+.gotcha-title { font-weight: 600; color: var(--text); margin-bottom: .2rem; font-size: .93rem; }
+.gotcha-desc  { font-size: .85rem; color: var(--muted); line-height: 1.55; }
+.gotcha-desc code { font-size: .82em; }
+
+.services-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: .88rem; }
+.services-table th { text-align: left; padding: .5rem .75rem; background: var(--surface2); color: var(--muted); font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); }
+.services-table td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.services-table tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; font-size: .7rem; font-weight: 700; padding: .1em .45em; border-radius: 3px; margin-right: .3rem; }
+.badge-pull  { background: #2a3d5a; color: var(--accent); }
+.badge-build { background: #3d2a5a; color: var(--accent4); }
+.badge-port  { background: #1a2e1a; color: var(--accent3); }
+
+@media (max-width: 680px) {
+  .snippet-body { flex-direction: column; }
+  .snippet-annotation { max-width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+/* ── Architecture section ────────────────────────────────────────────────── */
+#arch-section { height: 90vh; min-height: 580px; border-top: 1px solid var(--border); }
+#layout { display: flex; height: 100%; }
+#graph-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+#toolbar { display: flex; align-items: center; gap: 6px; padding: 0 14px; height: 42px; flex-shrink: 0; background: var(--panel-bg); border-bottom: 1px solid var(--border); }
+#toolbar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); flex: 1; white-space: nowrap; }
+#hot-toggle { display: flex; align-items: center; gap: 7px; background: transparent; border: 1px solid var(--border-2); color: var(--muted-2); font-size: 11px; font-weight: 600; padding: 4px 11px; border-radius: 6px; cursor: pointer; letter-spacing: .04em; transition: border-color .15s, color .15s, background .15s; font-family: var(--font); }
+#hot-toggle .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); transition: background .15s; flex-shrink: 0; }
+#hot-toggle:hover, #hot-toggle.active { border-color: var(--hot-border); color: var(--hot); background: var(--hot-bg); }
+#hot-toggle:hover .dot, #hot-toggle.active .dot { background: var(--hot); }
+.toolbar-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+.zoom-btn { display: flex; align-items: center; justify-content: center; height: 26px; min-width: 26px; padding: 0 7px; background: transparent; border: 1px solid var(--border-2); color: var(--muted-2); font-size: 14px; border-radius: 5px; cursor: pointer; transition: color .12s, background .12s; font-family: var(--mono); white-space: nowrap; }
+.zoom-btn:hover { color: var(--text); background: var(--surface); }
+#zoom-level { font-size: 10px; font-family: var(--font); letter-spacing: .03em; min-width: 42px; }
+
+#graph-viewport { flex: 1; overflow: hidden; position: relative; background: var(--bg); background-image: radial-gradient(circle at 1px 1px, #1c2036 1px, transparent 0); background-size: 28px 28px; }
+#graph-svg { display: block; width: 100%; height: 100%; cursor: grab; user-select: none; -webkit-user-select: none; }
+#graph-svg.panning { cursor: grabbing; }
+
+#legend-bar { display: flex; align-items: center; gap: 12px; padding: 0 14px; height: 32px; flex-shrink: 0; background: var(--panel-bg); border-top: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+#legend-bar::-webkit-scrollbar { display: none; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.legend-sep { width: 1px; height: 12px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+
+.node { cursor: pointer; }
+.node rect { transition: filter .12s; }
+.node:hover rect { filter: brightness(1.3) !important; }
+.node.selected rect { stroke-width: 2.2 !important; }
+.node.dimmed { opacity: .18; transition: opacity .18s; }
+.node text { pointer-events: none; }
+@keyframes hotPulse { 0%,100%{opacity:.85} 50%{opacity:.5} }
+.node.hot .hot-ring { animation: hotPulse 2.5s ease-in-out infinite; }
+.node.selected .hot-ring { animation: none; }
+.edge { transition: opacity .18s; }
+.edge.dimmed { opacity: .05; }
+.edge.highlighted { opacity: 1; }
+.cluster-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; pointer-events: none; }
+
+#detail { width: 370px; min-width: 370px; background: var(--panel-bg); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+#panel-header { display: flex; align-items: center; padding: 0 18px; height: 42px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+#panel-header span { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+#detail-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; color: var(--muted); }
+#detail-empty svg { opacity: .18; margin-bottom: 16px; }
+#detail-empty .empty-title { font-size: 12.5px; font-weight: 600; color: var(--muted-2); margin-bottom: 5px; }
+#detail-empty .empty-sub { font-size: 11.5px; line-height: 1.65; text-align: center; }
+#detail-header { padding: 0 18px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+#dh-accent { height: 2px; margin: 0 -18px 14px; }
+
+/* Override page-level h2 inside the detail panel */
+#detail-header h2 { font-size: 13.5px; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 7px; text-transform: none; letter-spacing: normal; padding: 0; border-bottom: none; position: static; }
+#detail-header h2::before { display: none; }
+
+#dh-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+/* Scope detail panel badges to avoid conflict with services-table .badge */
+#detail .badge { display: inline-flex; align-items: center; gap: 3px; font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: .04em; margin-right: 0; }
+#detail .badge-cluster { background: rgba(255,255,255,.05); color: var(--muted-2); border: 1px solid var(--border-2); }
+#detail .badge-hot     { background: var(--hot-bg);  color: var(--hot);   border: 1px solid var(--hot-border); }
+#detail .badge-entry   { background: rgba(82,196,156,.1); color: var(--entry); border: 1px solid rgba(82,196,156,.3); }
+
+#detail-file { font-family: var(--mono); font-size: 10px; color: var(--muted); background: var(--surface); padding: 5px 9px; border-radius: 4px; margin-top: 10px; word-break: break-all; line-height: 1.55; border: 1px solid var(--border); }
+#detail-body { flex: 1; overflow-y: auto; padding: 14px 18px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+#detail-body::-webkit-scrollbar { width: 3px; }
+#detail-body::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+.detail-section { margin-bottom: 20px; }
+.detail-label { display: flex; align-items: center; gap: 7px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; }
+.detail-label::before { content: ''; display: block; width: 2px; height: 9px; background: var(--border-2); border-radius: 1px; flex-shrink: 0; }
+#detail-desc { font-size: 12px; color: var(--muted-2); line-height: 1.68; }
+.fn-item { font-family: var(--mono); font-size: 10px; color: #7eaaff; background: var(--surface); padding: 5px 8px; border-radius: 4px; margin-bottom: 3px; line-height: 1.55; word-break: break-all; border: 1px solid var(--border); transition: border-color .1s; }
+.fn-item:hover { border-color: var(--border-2); }
+.dep-item { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--muted); padding: 5px 7px; border-radius: 5px; cursor: pointer; transition: background .1s, color .1s; margin-bottom: 1px; }
+.dep-item:hover { background: var(--surface); color: var(--text); }
+.dep-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+.dep-arrow { font-size: 10px; color: var(--muted); flex-shrink: 0; }
+.dep-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dep-cluster { font-size: 9.5px; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+.hot-badge   { display:inline-flex;align-items:center;background:var(--hot-bg);color:var(--hot);font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:.04em;flex-shrink:0; }
+.entry-badge { display:inline-flex;align-items:center;background:rgba(82,196,156,.1);color:var(--entry);font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:.04em;flex-shrink:0; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     EXPLAINER
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <h1>DE Tools — How It Works</h1>
+  <p class="subtitle">A DigitalOcean droplet running four Docker containers behind nginx. Two services are user-facing: a Streamlit QA app and a Dagster pipeline UI. Everything is wired up by <code>apps/docker-compose.yml</code>.</p>
+
+  <h2>Request Flow</h2>
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 820 420" width="100%" style="max-width:820px;display:block;margin:0 auto;">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#4a5280"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c8eff"/></marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#54c4a0"/></marker>
+        <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#e07b54"/></marker>
+        <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c47bde"/></marker>
+      </defs>
+      <rect x="20" y="175" width="110" height="70" rx="8" fill="#1a1d27" stroke="#4a5280" stroke-width="1.5"/>
+      <text x="75" y="205" text-anchor="middle" fill="#e2e4ef" font-size="13" font-weight="600">Browser</text>
+      <text x="75" y="222" text-anchor="middle" fill="#8b90a8" font-size="10">https://de-qaqc</text>
+      <text x="75" y="235" text-anchor="middle" fill="#8b90a8" font-size="10">.nycplanningdigital.com</text>
+      <line x1="130" y1="210" x2="192" y2="210" stroke="#6c8eff" stroke-width="1.5" marker-end="url(#arrow-accent)"/>
+      <text x="161" y="204" text-anchor="middle" fill="#6c8eff" font-size="9">HTTPS</text>
+      <rect x="195" y="145" width="130" height="130" rx="8" fill="#1a1d27" stroke="#6c8eff" stroke-width="2"/>
+      <text x="260" y="170" text-anchor="middle" fill="#6c8eff" font-size="11" font-weight="700">nginx</text>
+      <text x="260" y="186" text-anchor="middle" fill="#8b90a8" font-size="9">port 80/443</text>
+      <rect x="210" y="195" width="100" height="20" rx="3" fill="#12141e" stroke="#2e3347" stroke-width="1"/>
+      <text x="260" y="209" text-anchor="middle" fill="#e07b54" font-size="9">basic auth</text>
+      <rect x="210" y="222" width="100" height="20" rx="3" fill="#12141e" stroke="#2e3347" stroke-width="1"/>
+      <text x="260" y="236" text-anchor="middle" fill="#8b90a8" font-size="9">SSL termination</text>
+      <rect x="210" y="249" width="100" height="20" rx="3" fill="#12141e" stroke="#2e3347" stroke-width="1"/>
+      <text x="260" y="263" text-anchor="middle" fill="#8b90a8" font-size="9">path routing</text>
+      <line x1="325" y1="195" x2="420" y2="130" stroke="#54c4a0" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+      <text x="368" y="155" text-anchor="middle" fill="#54c4a0" font-size="9">/qaqc →</text>
+      <text x="368" y="166" text-anchor="middle" fill="#54c4a0" font-size="9">:8501/qaqc</text>
+      <line x1="325" y1="240" x2="420" y2="300" stroke="#c47bde" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+      <text x="368" y="278" text-anchor="middle" fill="#c47bde" font-size="9">/dag →</text>
+      <text x="368" y="289" text-anchor="middle" fill="#c47bde" font-size="9">:3000</text>
+      <rect x="423" y="60" width="150" height="120" rx="8" fill="#1a1d27" stroke="#54c4a0" stroke-width="2"/>
+      <text x="498" y="85" text-anchor="middle" fill="#54c4a0" font-size="11" font-weight="700">qa-streamlit</text>
+      <text x="498" y="100" text-anchor="middle" fill="#8b90a8" font-size="9">nycplanning/qa-streamlit:latest</text>
+      <text x="498" y="118" text-anchor="middle" fill="#e2e4ef" font-size="9">Streamlit QA app</text>
+      <text x="498" y="132" text-anchor="middle" fill="#8b90a8" font-size="9">PLUTO, DevDB, FacDB</text>
+      <text x="498" y="146" text-anchor="middle" fill="#8b90a8" font-size="9">COLP, EDDE, GRU…</text>
+      <text x="498" y="169" text-anchor="middle" fill="#8b90a8" font-size="9">port 8501 (internal)</text>
+      <rect x="423" y="240" width="150" height="105" rx="8" fill="#1a1d27" stroke="#c47bde" stroke-width="2"/>
+      <text x="498" y="262" text-anchor="middle" fill="#c47bde" font-size="11" font-weight="700">dagster</text>
+      <text x="498" y="277" text-anchor="middle" fill="#8b90a8" font-size="9">built from ./dagster/Dockerfile</text>
+      <text x="498" y="295" text-anchor="middle" fill="#e2e4ef" font-size="9">webserver + asset catalog</text>
+      <text x="498" y="309" text-anchor="middle" fill="#8b90a8" font-size="9">ingest assets (per template)</text>
+      <text x="498" y="323" text-anchor="middle" fill="#8b90a8" font-size="9">build assets (per product)</text>
+      <text x="498" y="337" text-anchor="middle" fill="#8b90a8" font-size="9">port 3000 (internal)</text>
+      <rect x="423" y="360" width="150" height="55" rx="8" fill="#1a1d27" stroke="#4a5280" stroke-width="1.5"/>
+      <text x="498" y="381" text-anchor="middle" fill="#8b90a8" font-size="11" font-weight="700">dagster-daemon</text>
+      <text x="498" y="397" text-anchor="middle" fill="#8b90a8" font-size="9">schedules + sensors</text>
+      <text x="498" y="410" text-anchor="middle" fill="#8b90a8" font-size="9">same image, no UI</text>
+      <line x1="498" y1="345" x2="498" y2="358" stroke="#4a5280" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <rect x="590" y="275" width="110" height="50" rx="6" fill="#12141e" stroke="#2e3347" stroke-width="1"/>
+      <text x="645" y="296" text-anchor="middle" fill="#8b90a8" font-size="9" font-weight="600">dagster-storage</text>
+      <text x="645" y="310" text-anchor="middle" fill="#8b90a8" font-size="8">Docker volume</text>
+      <text x="645" y="322" text-anchor="middle" fill="#8b90a8" font-size="8">run history + metadata</text>
+      <line x1="575" y1="300" x2="590" y2="300" stroke="#2e3347" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <rect x="620" y="60" width="115" height="65" rx="6" fill="#12141e" stroke="#e07b54" stroke-width="1.5"/>
+      <text x="677" y="83" text-anchor="middle" fill="#e07b54" font-size="11" font-weight="700">S3 / DO Spaces</text>
+      <text x="677" y="99" text-anchor="middle" fill="#8b90a8" font-size="9">edm-recipes</text>
+      <text x="677" y="113" text-anchor="middle" fill="#8b90a8" font-size="9">edm-publishing</text>
+      <line x1="573" y1="100" x2="618" y2="95" stroke="#e07b54" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow-orange)"/>
+      <text x="596" y="90" text-anchor="middle" fill="#e07b54" font-size="8">reads</text>
+      <line x1="573" y1="275" x2="677" y2="127" stroke="#e07b54" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrow-orange)"/>
+      <text x="645" y="195" text-anchor="middle" fill="#e07b54" font-size="8">writes</text>
+      <rect x="195" y="295" width="130" height="40" rx="6" fill="#12141e" stroke="#2e3347" stroke-width="1"/>
+      <text x="260" y="312" text-anchor="middle" fill="#8b90a8" font-size="9" font-weight="600">certbot</text>
+      <text x="260" y="327" text-anchor="middle" fill="#8b90a8" font-size="8">renews Let's Encrypt every 12h</text>
+      <line x1="260" y1="275" x2="260" y2="293" stroke="#2e3347" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="170" y="30" width="420" height="385" rx="12" fill="none" stroke="#2e3347" stroke-width="1" stroke-dasharray="6,4"/>
+      <text x="380" y="22" text-anchor="middle" fill="#2e3347" font-size="10" font-weight="600">app-network (Docker bridge)</text>
+    </svg>
+  </div>
+
+  <h2>Services at a Glance</h2>
+  <table class="services-table">
+    <thead><tr><th>Service</th><th>Image</th><th>URL Path</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>nginx</strong></td><td><code>nginx:alpine</code></td><td><code>/</code></td>
+        <td>Front door. Generates <code>.htpasswd</code> + nginx config at startup, then proxies traffic. Only container exposed to the internet.</td>
+      </tr>
+      <tr>
+        <td><strong>qa-streamlit</strong></td>
+        <td><span class="badge badge-pull">docker pull</span><code>nycplanning/qa-streamlit:latest</code></td>
+        <td><code>/qaqc</code></td>
+        <td>Streamlit QA dashboard. Product comparison pages (PLUTO, DevDB, FacDB, etc.) pull data from S3 and the build database.</td>
+      </tr>
+      <tr>
+        <td><strong>dagster</strong></td>
+        <td><span class="badge badge-build">local build</span><code>./dagster/Dockerfile</code></td>
+        <td><code>/dag</code></td>
+        <td>Dagster webserver. Hosts the asset catalog: one asset per ingest template + one per build product.</td>
+      </tr>
+      <tr>
+        <td><strong>dagster-daemon</strong></td><td><span class="badge badge-build">same image</span></td><td>—</td>
+        <td>Runs scheduled jobs and sensors. Shares the <code>dagster-storage</code> Docker volume with the webserver so they see the same run history.</td>
+      </tr>
+      <tr>
+        <td><strong>certbot</strong></td><td><code>certbot/certbot</code></td><td>—</td>
+        <td>Production-only (<code>profiles: [production]</code>). Auto-renews Let's Encrypt certs every 12 hours.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Key Code, Annotated</h2>
+  <div class="snippet-grid">
+
+    <div class="snippet-card">
+      <div class="snippet-header">
+        <span class="snippet-tag tag-nginx">nginx</span>
+        <span class="snippet-filename">apps/nginx/scripts/docker-entrypoint.sh + http.conf.template</span>
+      </div>
+      <div class="snippet-body">
+        <div class="snippet-annotation">
+          <div class="annotation-item">
+            <div class="annotation-line">lines 13–19</div>
+            <div class="annotation-text">Auth is set up at <em>container start</em>, not build time. Credentials come in as env vars, get hashed into <code>.htpasswd</code> via <code>htpasswd -c</code>.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">lines 25–38</div>
+            <div class="annotation-text">If <code>NGINX_DOMAIN</code> is set → HTTPS config (redirects port 80, enables SSL). Otherwise plain HTTP. Decided once at startup; changing it requires <code>docker compose restart nginx</code>.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">proxy lines</div>
+            <div class="annotation-text"><code>Upgrade</code> + <code>Connection: upgrade</code> headers are required for Streamlit's WebSocket connection. Without them the QA app loads but freezes.</div>
+          </div>
+        </div>
+        <div class="code-block"><pre><span class="cm"># docker-entrypoint.sh</span>
+<span class="cm"># ── Step 1: generate .htpasswd from env vars ──</span>
+<span class="hl"><span class="kw">if</span> [ -n <span class="str">"$NGINX_AUTH_USER"</span> ] <span class="op">&amp;&amp;</span> [ -n <span class="str">"$NGINX_AUTH_PASSWORD"</span> ]; <span class="kw">then</span></span>
+<span class="hl">    htpasswd -cb /etc/nginx/.htpasswd <span class="str">"$NGINX_AUTH_USER"</span> <span class="str">"$NGINX_AUTH_PASSWORD"</span></span>
+<span class="hl"><span class="kw">else</span></span>
+<span class="hl">    htpasswd -cb /etc/nginx/.htpasswd <span class="str">"detools"</span> <span class="str">"changeme"</span>  <span class="cm"># ← fallback default</span></span>
+<span class="hl"><span class="kw">fi</span></span>
+
+<span class="cm"># ── Step 2: pick HTTP vs HTTPS config ──</span>
+<span class="hl-warn"><span class="kw">if</span> [ -n <span class="str">"$NGINX_DOMAIN"</span> ]; <span class="kw">then</span>          <span class="cm"># production: HTTPS</span></span>
+<span class="hl-warn">    envsubst <span class="str">'${NGINX_DOMAIN}'</span> \</span>
+<span class="hl-warn">        &lt; https.conf.template &gt; /etc/nginx/conf.d/default.conf</span>
+<span class="hl-warn"><span class="kw">else</span>                                      <span class="cm"># local: plain HTTP</span></span>
+<span class="hl-warn">    envsubst <span class="str">'${NGINX_SERVER_NAME}'</span> \</span>
+<span class="hl-warn">        &lt; http.conf.template  &gt; /etc/nginx/conf.d/default.conf</span>
+<span class="hl-warn"><span class="kw">fi</span></span>
+exec nginx -g <span class="str">'daemon off;'</span>
+
+<span class="cm"># ── http.conf.template: proxy rules ──</span>
+location /qaqc {
+    auth_basic <span class="str">"DE Tools"</span>;
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
+<span class="hl-green">    proxy_pass http://qa-streamlit:<span class="num">8501</span>/qaqc;  <span class="cm"># service name resolution</span></span>
+<span class="hl-green">    proxy_http_version <span class="num">1.1</span>;</span>
+<span class="hl-green">    proxy_set_header Upgrade <span class="var">$http_upgrade</span>;  <span class="cm"># WebSocket support</span></span>
+<span class="hl-green">    proxy_set_header Connection <span class="str">"upgrade"</span>;</span>
+    proxy_read_timeout <span class="num">86400</span>;               <span class="cm"># 24h — long Streamlit sessions</span>
+}
+location /dag {
+    proxy_pass http://dagster:<span class="num">3000</span>;
+    proxy_http_version <span class="num">1.1</span>;
+    proxy_set_header Upgrade <span class="var">$http_upgrade</span>;
+    proxy_set_header Connection <span class="str">"upgrade"</span>;
+    proxy_read_timeout <span class="num">86400</span>;
+}</pre></div>
+      </div>
+    </div>
+
+    <div class="snippet-card">
+      <div class="snippet-header">
+        <span class="snippet-tag tag-dagster">dagster / ingest</span>
+        <span class="snippet-filename">apps/dagster/ingest/assets.py</span>
+      </div>
+      <div class="snippet-body">
+        <div class="snippet-annotation">
+          <div class="annotation-item">
+            <div class="annotation-line">make_ingest_asset()</div>
+            <div class="annotation-text">A factory function. At module load time it's called once per YAML file in <code>ingest_templates/</code>, producing one Dagster asset for each dataset (e.g. <code>ingest_doitt_buildingfootprints</code>).</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">DynamicPartitionsDefinition</div>
+            <div class="annotation-text">Partitions represent dataset <em>versions</em> (e.g. <code>24v3</code>). They're <strong>not</strong> auto-discovered — someone must add a partition in the Dagster UI before materializing.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">ingest() call</div>
+            <div class="annotation-text">All the real work happens inside <code>dcpy.lifecycle.ingest.run.ingest()</code>. The asset just bridges Dagster's config + partition system to that function.</div>
+          </div>
+        </div>
+        <div class="code-block"><pre><span class="cm"># One asset per YAML template — generated at module load</span>
+<span class="kw">def</span> <span class="fn">make_ingest_asset</span>(template_id, depends_on=None):
+    deps = [AssetKey(<span class="str">f"ingest_{dep}"</span>) <span class="kw">for</span> dep <span class="kw">in</span> (depends_on <span class="kw">or</span> [])]
+
+<span class="hl">    @asset(</span>
+<span class="hl">        name=<span class="str">f"ingest_{template_id}"</span>,</span>
+<span class="hl">        deps=deps,</span>
+<span class="hl">        partitions_def=<span class="fn">DynamicPartitionsDefinition</span>(name=<span class="str">"ingest_version"</span>),</span>
+<span class="hl">        group_name=<span class="str">"ingest"</span>,</span>
+<span class="hl">    )</span>
+    <span class="kw">def</span> <span class="fn">_ingest_asset</span>(context, config: IngestConfig, local_storage):
+        <span class="kw">from</span> dcpy.lifecycle.ingest.run <span class="kw">import</span> ingest
+
+<span class="hl-warn">        partition_key = context.partition_key  <span class="cm"># ← the version string</span></span>
+<span class="hl-warn">        <span class="fn">ingest</span>(</span>
+<span class="hl-warn">            dataset_id=template_id,</span>
+<span class="hl-warn">            mode=config.mode,</span>
+<span class="hl-warn">            latest=config.latest,    <span class="cm"># push to /latest/ folder in S3?</span></span>
+<span class="hl-warn">            push=config.push,        <span class="cm"># False in ingest_dev_job</span></span>
+<span class="hl-warn">        )</span>
+        <span class="kw">return</span> <span class="fn">MaterializeResult</span>(metadata={<span class="str">"version"</span>: partition_key, ...})
+
+    <span class="kw">return</span> _ingest_asset
+
+<span class="cm"># Module-level: load all templates + validate deps</span>
+ingest_templates = list_ingest_templates()   <span class="cm"># scans ingest_templates/</span>
+<span class="cm"># validate_dependencies() and detect_circular_dependencies() run here</span>
+<span class="hl-green">ingest_assets = [</span>
+<span class="hl-green">    <span class="fn">make_ingest_asset</span>(t.name, template_deps[t.name])</span>
+<span class="hl-green">    <span class="kw">for</span> t <span class="kw">in</span> ingest_templates</span>
+<span class="hl-green">]</span></pre></div>
+      </div>
+    </div>
+
+    <div class="snippet-card">
+      <div class="snippet-header">
+        <span class="snippet-tag tag-qa">qa-streamlit</span>
+        <span class="snippet-filename">apps/qa/src/index.py + shared/constants.py</span>
+      </div>
+      <div class="snippet-body">
+        <div class="snippet-annotation">
+          <div class="annotation-item">
+            <div class="annotation-line">PAGES dict</div>
+            <div class="annotation-text">Maps sidebar display names → module folder names. Adding a new product page means: add an entry here, create <code>src/pages/&lt;name&gt;/&lt;name&gt;.py</code>, expose a function with the same name.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">importlib lazy load</div>
+            <div class="annotation-text">Pages are not imported at startup — only the selected page is loaded. This keeps cold-start time short even though there are 14 pages.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">query_params</div>
+            <div class="annotation-text">The current page is persisted in the URL (<code>?page=pluto</code>), so links are shareable and browser back/forward works.</div>
+          </div>
+        </div>
+        <div class="code-block"><pre><span class="cm"># constants.py — the page registry</span>
+<span class="hl">PAGES = {</span>
+<span class="hl">    <span class="str">"Home"</span>:                        <span class="str">"home"</span>,</span>
+<span class="hl">    <span class="str">"PLUTO"</span>:                       <span class="str">"pluto"</span>,</span>
+<span class="hl">    <span class="str">"Developments DB"</span>:             <span class="str">"devdb"</span>,</span>
+<span class="hl">    <span class="str">"Facilities DB"</span>:               <span class="str">"facdb"</span>,</span>
+<span class="hl">    <span class="str">"Data Ingestion"</span>:              <span class="str">"ingest"</span>,</span>
+<span class="hl">    <span class="cm"># ... 9 more entries</span></span>
+<span class="hl">}</span>
+
+<span class="cm"># index.py — routing</span>
+<span class="kw">def</span> <span class="fn">run</span>():
+    query_params = st.query_params.to_dict()
+    name = query_params.get(<span class="str">"page"</span>, <span class="str">"Home"</span>)  <span class="cm"># URL-driven</span>
+
+    name = st.sidebar.selectbox(<span class="str">"Select a page"</span>, list(PAGES.keys()),
+                                index=page_list.index(name))
+    st.query_params[<span class="str">"page"</span>] = name              <span class="cm"># keep URL in sync</span>
+
+<span class="hl-warn">    <span class="cm"># Lazy-load the selected page module</span></span>
+<span class="hl-warn">    dataset_module = importlib.import_module(</span>
+<span class="hl-warn">        <span class="str">f"pages.{PAGES[name]}.{PAGES[name]}"</span>   <span class="cm"># e.g. pages.pluto.pluto</span></span>
+<span class="hl-warn">    )</span>
+<span class="hl-warn">    page_fn = getattr(dataset_module, PAGES[name])  <span class="cm"># fn same name as module</span></span>
+<span class="hl-warn">    page_fn()</span></pre></div>
+      </div>
+    </div>
+
+    <div class="snippet-card">
+      <div class="snippet-header">
+        <span class="snippet-tag tag-deploy">deployment</span>
+        <span class="snippet-filename">apps/dagster/Dockerfile + apps/scripts/deploy.sh</span>
+      </div>
+      <div class="snippet-body">
+        <div class="snippet-annotation">
+          <div class="annotation-item">
+            <div class="annotation-line">runtime install</div>
+            <div class="annotation-text"><code>dcpy</code> is <strong>not</strong> baked into the image. The <code>CMD</code> runs <code>uv pip install -e /app/repos/data-engineering</code> every time the container starts, pulling from the mounted repo checkout. No image rebuild needed for dcpy changes — just restart the container.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">deploy.sh asymmetry</div>
+            <div class="annotation-text"><code>qa-streamlit</code> is pulled from a registry. <code>dagster</code> is built locally on the droplet. That means Dagster image updates require a <code>docker compose build</code>, while QA app updates only need a <code>pull</code>.</div>
+          </div>
+          <div class="annotation-item">
+            <div class="annotation-line">--path-prefix /dag</div>
+            <div class="annotation-text">Tells the Dagster webserver that it's being served from a sub-path. Without this, its internal asset/link URLs break when proxied through nginx at <code>/dag</code>.</div>
+          </div>
+        </div>
+        <div class="code-block"><pre><span class="cm"># Dockerfile — dcpy installed at runtime, not build time</span>
+FROM nycplanning/build-geosupport:latest
+
+RUN mkdir -p /app/repos/data-engineering    <span class="cm"># mount point placeholder</span>
+ENV DAGSTER_HOME=/opt/dagster/dagster_home
+RUN mkdir -p ${DAGSTER_HOME}
+
+<span class="hl">CMD sh -c "uv pip install --system -e /app/repos/data-engineering \</span>
+<span class="hl">           &amp;&amp; dagster-webserver -h <span class="num">0.0.0.0</span> -p <span class="num">3000</span> -w workspace.yaml \</span>
+<span class="hl">           --path-prefix /dag"       <span class="cm"># ← critical for nginx sub-path</span></span>
+
+<span class="cm"># deploy.sh — asymmetric update paths</span>
+<span class="hl-warn">docker compose pull qa-streamlit         <span class="cm"># pre-built image from registry</span></span>
+<span class="hl-warn">docker compose build dagster             <span class="cm"># built on the droplet</span></span>
+
+docker compose up -d --force-recreate \
+    qa-streamlit dagster dagster-daemon  <span class="cm"># nginx not restarted by default</span>
+
+<span class="cm"># daemon has the same image as webserver but different CMD:</span>
+<span class="hl-green">command: ["sh", "-c",</span>
+<span class="hl-green">  <span class="str">"uv pip install --system -e /app/repos/data-engineering</span></span>
+<span class="hl-green">   <span class="str">&amp;&amp; dagster-daemon run"</span>]</span></pre></div>
+      </div>
+    </div>
+
+  </div><!-- /snippet-grid -->
+
+  <h2>Gotchas</h2>
+  <div class="gotchas">
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">nginx config is generated once at container start — not hot-reloaded</div><div class="gotcha-desc">The entrypoint script runs <code>envsubst</code> and writes <code>default.conf</code> before nginx launches. If you change <code>NGINX_DOMAIN</code>, <code>NGINX_AUTH_USER</code>, or <code>NGINX_AUTH_PASSWORD</code>, you must <code>docker compose restart nginx</code> (not just <code>reload</code>) for the new values to take effect. Changing from HTTP to HTTPS also requires a restart because a completely different template is rendered.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">Ingest partitions are manual — there is no auto-discovery of versions</div><div class="gotcha-desc">The partition definition is <code>DynamicPartitionsDefinition(name="ingest_version")</code>. Before you can materialize any ingest asset for a new dataset version, you must first <strong>add that partition</strong> in the Dagster UI (Partitions tab → Add partition) or via the CLI. Nothing will fail visibly if you forget — the asset just won't appear as runnable for that version.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">dcpy is installed from the mounted repo at every container start — not from the image</div><div class="gotcha-desc">Both <code>dagster</code> and <code>dagster-daemon</code> run <code>uv pip install --system -e /app/repos/data-engineering</code> in their startup <code>CMD</code>. This means: (a) if the repo mount is broken, the container silently starts but dcpy is missing; (b) any dcpy change takes effect on the next container restart without rebuilding the image. The QA app takes a different approach — it runs from a pre-built image pulled from the registry.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">Production volume paths are hard-coded to <code>/root/data-engineering</code></div><div class="gotcha-desc"><code>docker-compose.yml</code> mounts <code>/root/data-engineering</code> and <code>/root/product-metadata</code> directly. For local development, <code>docker-compose.local.yml</code> overrides these with <code>${DATA_ENGINEERING_PATH:-..}</code>. If you ever clone the repo to a different path on the droplet, you must update the volume paths in <code>docker-compose.yml</code> or the containers will silently mount the wrong (or missing) directory.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">Streamlit requires WebSocket — if it loads but freezes, check the nginx Upgrade headers</div><div class="gotcha-desc">Streamlit uses a persistent WebSocket connection after the initial HTTP handshake. nginx must forward <code>Upgrade: $http_upgrade</code> and <code>Connection: "upgrade"</code>. These are present in the templates, but if you ever replace or regenerate the nginx config manually and drop these headers, the app will render an empty shell and appear to hang with no error message.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">certbot only runs in the <code>production</code> Docker Compose profile</div><div class="gotcha-desc">The certbot service has <code>profiles: [production]</code>. A bare <code>docker compose up</code> won't start it. Production start/deploy scripts use <code>op run --env-file=env.1pw -- ./scripts/start.sh</code> which doesn't explicitly pass <code>--profile production</code> either — certbot only runs if you've explicitly started it once with <code>docker compose --profile production up -d certbot</code>. Check with <code>docker compose ps</code> to confirm it's actually running.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">The QA app "Data Ingestion" page is a legacy manual upload path</div><div class="gotcha-desc">The Streamlit page at <code>/qaqc?page=ingest</code> lets you upload a raw file to S3 and trigger a dcpy library call. This is the pre-Dagster ingest workflow. The Dagster-based ingest assets (which run against YAML templates) are the current path. Both still work, but they write to different S3 locations and have different configs — don't mix them for the same dataset.</div></div></div>
+    <div class="gotcha"><div class="gotcha-icon"></div><div class="gotcha-body"><div class="gotcha-title">Adding a new ingest template requires a Dagster container restart</div><div class="gotcha-desc">The list of ingest assets is built at module load time in <code>ingest/assets.py</code> — it scans <code>ingest_templates/</code> once when the Python module is imported. Adding a new <code>.yml</code> file to that directory doesn't hot-reload into a running Dagster instance. You need to restart the <code>dagster</code> and <code>dagster-daemon</code> containers for the new asset to appear in the UI.</div></div></div>
+  </div><!-- /gotchas -->
+
+  <h2>Component Architecture</h2>
+  <p style="font-size:.88rem;margin-bottom:0">Interactive module map. Click any node to explore dependencies. Scroll to zoom, drag to pan.</p>
+
+</div><!-- /page -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ARCHITECTURE DIAGRAM
+     ═══════════════════════════════════════════════════════════════════ -->
+<section id="arch-section">
+<div id="layout">
+
+<div id="graph-wrap">
+  <div id="toolbar">
+    <span id="toolbar-title">DE Tools &middot; Component Architecture</span>
+    <button id="hot-toggle" onclick="toggleHotOnly()"><span class="dot"></span>Hot Path Only</button>
+    <div class="toolbar-sep"></div>
+    <button class="zoom-btn" onclick="zoomBy(1/1.25)" title="Zoom out">−</button>
+    <button class="zoom-btn" id="zoom-level" onclick="resetZoom()" title="Reset zoom">100%</button>
+    <button class="zoom-btn" onclick="zoomBy(1.25)" title="Zoom in">+</button>
+  </div>
+  <div id="graph-viewport">
+    <svg id="graph-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div id="legend-bar"></div>
+</div>
+
+<div id="detail">
+  <div id="panel-header"><span>Node Detail</span></div>
+  <div id="detail-empty">
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="16" width="16" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="25" y="8"  width="16" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="25" y="24" width="16" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M19 20 L25 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M19 22 L25 28" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="empty-title">Select a node</div>
+    <div class="empty-sub">Click any node to explore<br>its dependencies and functions</div>
+  </div>
+  <div id="detail-header" style="display:none">
+    <div id="dh-accent"></div>
+    <h2 id="dh-label"></h2>
+    <div id="dh-badges"></div>
+    <div id="detail-file"></div>
+  </div>
+  <div id="detail-body" style="display:none">
+    <div class="detail-section">
+      <div class="detail-label">Description</div>
+      <div id="detail-desc"></div>
+    </div>
+    <div class="detail-section" id="fns-section">
+      <div class="detail-label">Key Functions / Config</div>
+      <div id="detail-fns"></div>
+    </div>
+    <div class="detail-section" id="deps-section">
+      <div class="detail-label">Depends On</div>
+      <div id="detail-deps"></div>
+    </div>
+    <div class="detail-section" id="used-section">
+      <div class="detail-label">Used By</div>
+      <div id="detail-used"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<script>
+const CLUSTERS = {
+  infra:      { label: "Infrastructure",       color: "#2a3a5c", text: "#6c8eff" },
+  dagster:    { label: "apps/dagster",          color: "#2d1f45", text: "#c47bde" },
+  qa:         { label: "apps/qa-streamlit",     color: "#1a2d2d", text: "#54c4a0" },
+  lifecycle:  { label: "dcpy / lifecycle",      color: "#1a2533", text: "#5ba6e0" },
+  connectors: { label: "dcpy / connectors",     color: "#2d2015", text: "#e07b54" },
+  utils:      { label: "dcpy / utils + config", color: "#1f2d1a", text: "#7cc45b" },
+  external:   { label: "External Systems",      color: "#1e1e1e", text: "#8888aa" },
+};
+const CLUSTER_RECTS = {
+  infra:[40,28,1040,76], dagster:[40,115,610,210], qa:[660,115,420,230],
+  lifecycle:[40,340,1040,200], connectors:[40,552,1040,130], utils:[40,695,780,68], external:[40,778,1040,56],
+};
+const NODES = {
+  nginx:{label:"nginx",cluster:"infra",entry:true,hot:false,x:390,y:66,file:"apps/nginx/",desc:"Reverse proxy and front door. Custom docker-entrypoint.sh generates .htpasswd from env vars and selects http vs https nginx config at container start. Routes /qaqc → qa-streamlit:8501 and /dag → dagster:3000. WebSocket Upgrade headers are critical for Streamlit.",fns:["docker-entrypoint.sh: htpasswd -cb + envsubst template","location /qaqc { proxy_pass qa-streamlit:8501/qaqc; }","location /dag  { proxy_pass dagster:3000; }","proxy_read_timeout 86400  (24 h — long sessions)"],deps:[]},
+  docker_compose:{label:"docker-compose.yml",cluster:"infra",entry:true,hot:false,x:730,y:66,file:"apps/docker-compose.yml",desc:"Orchestrates all five services on a single Docker bridge network (app-network). Volumes: dagster-storage shared between dagster webserver and daemon. certbot only starts with --profile production. qa-streamlit is a pre-built pull; dagster is built locally.",fns:["services: nginx, certbot, qa-streamlit, dagster, dagster-daemon","volumes: dagster-storage (shared run history)","certbot: profiles: [production]  ← not started by default"],deps:[]},
+  dagster_defs:{label:"dagster/definitions.py",cluster:"dagster",entry:true,hot:false,x:200,y:175,file:"apps/dagster/definitions.py",desc:"Dagster workspace root — what workspace.yaml points to. Merges build_assets + ingest_assets into a single Definitions object. The dagster webserver CMD installs dcpy at runtime from the mounted repo before launching (so image rebuilds are not needed for dcpy changes).",fns:["Definitions(assets=[*build_assets, *ingest_assets], resources={local_storage})","CMD: uv pip install -e /app/repos/data-engineering && dagster-webserver --path-prefix /dag"],deps:["dagster_ingest_assets","dagster_builds_assets"]},
+  dagster_ingest_assets:{label:"ingest/assets.py",cluster:"dagster",entry:false,hot:true,x:440,y:175,file:"apps/dagster/ingest/assets.py",desc:"Factory that generates one Dagster @asset per YAML template in ingest_templates/ at module load time. Validates all dependency declarations and detects circular deps before the webserver starts. Each asset calls dcpy.lifecycle.ingest.run.ingest() with the partition key as the version string.",fns:["make_ingest_asset(template_id, depends_on) → @asset","validate_dependencies(template_id, depends_on, all_template_names)","detect_circular_dependencies(template_deps, template_id)","IngestConfig: mode, latest, push, output_csv, overwrite_okay"],deps:["lifecycle_ingest_init","dagster_ingest_partitions","dagster_ingest_resources","lifecycle_ingest_run"]},
+  dagster_builds_assets:{label:"builds/assets.py",cluster:"dagster",entry:false,hot:false,x:105,y:258,file:"apps/dagster/builds/assets.py",desc:"Factory for build-plan assets. One asset per product that has a recipe.yml in products/. Dynamically creates a Pydantic Config class from the recipe's template vars. Calls lifecycle.builds.plan.plan_recipe() and pushes recipe.lock.yml to S3.",fns:["make_plan_recipe_asset(product) → @asset","create_config_class(product_name, recipe_path) — parses vars from YAML","plan_recipe(path, version, vars) → Recipe → uploads recipe.lock.yml"],deps:["lifecycle_builds_plan","dagster_builds_partitions"]},
+  dagster_ingest_partitions:{label:"ingest/partitions.py",cluster:"dagster",entry:false,hot:false,x:590,y:175,file:"apps/dagster/ingest/partitions.py",desc:"Defines the DynamicPartitionsDefinition used by all ingest assets. The partition key is the dataset version string (e.g. '24v3'). Partitions must be added manually in the Dagster UI before materializing — nothing fails visibly if you forget, the asset just has no runnable partitions.",fns:["DynamicPartitionsDefinition(name='ingest_version')"],deps:[]},
+  dagster_ingest_resources:{label:"ingest/resources.py",cluster:"dagster",entry:false,hot:false,x:590,y:235,file:"apps/dagster/ingest/resources.py",desc:"Provides LocalStorageResource, a Dagster ConfigurableResource wrapping the local filesystem path used for staging data during ingest. Falls back to $DAGSTER_HOME/storage if base_path is unset. Registered with base_path=/opt/dagster/storage in production.",fns:["class LocalStorageResource(ConfigurableResource)","get_path(*parts) → Path  (creates dirs)"],deps:[]},
+  dagster_builds_partitions:{label:"builds/partitions.py",cluster:"dagster",entry:false,hot:false,x:290,y:258,file:"apps/dagster/builds/partitions.py",desc:"DynamicPartitionsDefinition for build assets. Partition key is the build version string.",fns:["DynamicPartitionsDefinition(name='build_version')"],deps:[]},
+  qa_index:{label:"qa/src/index.py",cluster:"qa",entry:true,hot:false,x:730,y:175,file:"apps/qa/src/index.py",desc:"Streamlit app entry point (streamlit run src/index.py). Reads ?page= query param to determine the current page, renders the sidebar selectbox, then lazy-loads the matching page module via importlib. Pages are not imported at startup — only the selected one is loaded, keeping cold-start fast.",fns:["run() → st.set_page_config(layout='wide')","importlib.import_module(f'pages.{PAGES[name]}.{PAGES[name]}')","st.query_params['page'] = name  (URL stays in sync)"],deps:["qa_constants","qa_pages"]},
+  qa_constants:{label:"shared/constants.py",cluster:"qa",entry:false,hot:false,x:870,y:235,file:"apps/qa/src/shared/constants.py",desc:"The PAGES registry dict — the single source of truth for which pages exist and what their module names are. 14 pages total. Also defines BUCKET_NAME='edm-publishing' and construct_dataset_by_version() used throughout the app.",fns:["PAGES: dict[str, str]  (14 entries)","BUCKET_NAME = 'edm-publishing'","construct_dataset_by_version(dataset, version) → str"],deps:[]},
+  qa_pages:{label:"pages/* (14 pages)",cluster:"qa",entry:false,hot:false,x:1000,y:175,file:"apps/qa/src/pages/",desc:"14 product QA pages, each in its own module: pluto, devdb, facdb, colp, cpdb, edde, ztl, gru, cscl, checkbook, source_data, ingest, distribution, home. Pattern: select version → load data from S3 → render comparison charts/tables/maps. Each module exports a function matching its folder name.",fns:["pluto(), devdb(), facdb(), colp(), cpdb()…","Pattern: version picker → read_csv_cached() → charts/tables","ingest page: manual upload + legacy library_archive() path"],deps:["qa_publishing","qa_source_report","qa_build_outputs"]},
+  qa_publishing:{label:"utils/publishing.py",cluster:"qa",entry:false,hot:false,x:730,y:300,file:"apps/qa/src/shared/utils/publishing.py",desc:"@st.cache_data wrappers around dcpy.connectors.edm.publishing. Avoids re-fetching S3 data on every Streamlit rerun (Streamlit re-runs the script on every interaction). Cache key is the product_key + file_name.",fns:["read_csv_cached(product_key, file_name) → pd.DataFrame","read_file_metadata(product_key, file_name) → FileMetadata"],deps:["conn_edm_publishing"]},
+  qa_source_report:{label:"utils/source_report.py",cluster:"qa",entry:false,hot:false,x:870,y:300,file:"apps/qa/src/shared/utils/source_report.py",desc:"Helpers for the source data QA workflow: compare column schemas and row counts between reference and staging build versions. Loads parquet files from S3 into PostgreSQL for SQL-based comparison.",fns:["get_source_data_versions_to_compare(ref_key, staging_key)","load_source_data(dataset_id, version, pg_client)","compare_source_data_columns/row_count(source_report_results, pg_client)"],deps:["conn_edm_publishing","conn_edm_recipes"]},
+  qa_build_outputs:{label:"components/build_outputs.py",cluster:"qa",entry:false,hot:false,x:1010,y:300,file:"apps/qa/src/shared/components/build_outputs.py",desc:"Loads CSV build outputs from S3, converts wkb_geometry columns to GeoDataFrame, generates Folium maps. Provides show_build_output() and show_map() reusable components used by product pages.",fns:["load_build_outputs(product_key, csv_files) → list[BuildOutput]","generate_geo_data(build_outputs) → list[BuildOutput]","generate_maps(build_outputs) → list[BuildOutput]"],deps:["conn_edm_publishing"]},
+  lifecycle_ingest_init:{label:"lifecycle/ingest/__init__",cluster:"lifecycle",entry:false,hot:false,x:150,y:400,file:"dcpy/lifecycle/ingest/__init__.py",desc:"Public API for ingest template discovery. list_ingest_templates() scans INGEST_DEF_DIR (from env TEMPLATE_DIR, default ./ingest_templates/) for all *.yml files. Called at Dagster module load time to enumerate assets.",fns:["list_ingest_templates() → List[IngestTemplate]","get_template_directory() → Path  (asserts dir exists)"],deps:["dcpy_config"]},
+  lifecycle_ingest_run:{label:"lifecycle/ingest/run.py",cluster:"lifecycle",entry:false,hot:true,x:390,y:400,file:"dcpy/lifecycle/ingest/run.py",desc:"THE hot path function. ingest() orchestrates the full lifecycle: validate template → resolve definition → extract raw data → transform to parquet → archive to S3. Each phase is a separate function, making individual phases testable and re-entryable.",fns:["ingest(dataset_id, version, *, mode, push, latest, output_csv, overwrite_okay)","extract_and_archive_raw_dataset(resolved_definition, staging_dir, push)","process_datasets(staging_dir, mode, output_csv) → list[IngestedDataset]","archive_transformed_datasets(datasets, staging_dir, latest, overwrite_okay)"],deps:["lifecycle_ingest_plan","lifecycle_ingest_extract","lifecycle_ingest_transform","lifecycle_ingest_validate","lifecycle_ingest_connectors"]},
+  lifecycle_ingest_plan:{label:"lifecycle/ingest/plan.py",cluster:"lifecycle",entry:false,hot:true,x:240,y:480,file:"dcpy/lifecycle/ingest/plan.py",desc:"Reads and resolves YAML template definitions. Renders Jinja2 {{ version }} variable. Calls the source connector's get_latest_version() to auto-detect versions when none is supplied. Normalises DatasetDefinition vs DataSourceDefinition into a unified ResolvedDataSource.",fns:["resolve_definition(dataset_id, version, definition_dir) → ResolvedDataSource","read_definition_file(filepath, version) — Jinja2 render + yaml.safe_load","get_version(source) → connector.get_latest_version()"],deps:["lifecycle_ingest_connectors"]},
+  lifecycle_ingest_extract:{label:"lifecycle/ingest/extract.py",cluster:"lifecycle",entry:false,hot:true,x:420,y:480,file:"dcpy/lifecycle/ingest/extract.py",desc:"Pulls raw data from the source by delegating to the registered source connector. connector.pull(destination_path, version, **source.model_dump()) writes the raw file to the staging directory. Returns an ArchivedDataSource with timestamp and raw_filename.",fns:["extract_source(config: ResolvedDataSource, run_details, dir) → ArchivedDataSource","get_source_connectors()[source.type].pull(destination_path, version, ...)"],deps:["lifecycle_ingest_connectors"]},
+  lifecycle_ingest_transform:{label:"lifecycle/ingest/transform.py",cluster:"lifecycle",entry:false,hot:true,x:590,y:480,file:"dcpy/lifecycle/ingest/transform.py",desc:"Converts raw files to GeoParquet then runs the processing pipeline: reproject CRS → rename_columns → coerce_column_types → multi → any custom steps. Steps marked with mode= only run in that mode; untagged steps always run.",fns:["to_parquet(file_format, input_file, dir, output_filename)","determine_processing_steps(steps, target_crs, mode) → list[ProcessingStep]","process(ds_id, steps, columns, input, output) → list[ProcessingSummary]"],deps:[]},
+  lifecycle_ingest_validate:{label:"lifecycle/ingest/validate.py",cluster:"lifecycle",entry:false,hot:false,x:760,y:480,file:"dcpy/lifecycle/ingest/validate.py",desc:"Validates ingest template definitions and, on re-ingest of an existing version, compares the new dataset against the existing version to catch regressions. Uses pandera for schema validation.",fns:["validate_definition(dataset_id, definition_dir)","validate_data_against_existing_version(ds_id, version, filepath)"],deps:[]},
+  lifecycle_ingest_connectors:{label:"lifecycle/ingest/connectors.py",cluster:"lifecycle",entry:false,hot:true,x:900,y:400,file:"dcpy/lifecycle/ingest/connectors.py",desc:"Thin adapter between ingest logic and the global ConnectorRegistry. Named lookups: 'edm.recipes.datasets' for processed parquet output, 'edm.recipes.raw_datasets' for raw archived files. The Pull subregistry is the source connector lookup used by extract.",fns:["get_raw_datastore_connector() → Connector  (key: 'edm.recipes.raw_datasets')","get_processed_datastore_connector() → Connector  (key: 'edm.recipes.datasets')","get_source_connectors() → ConnectorRegistry[Pull]"],deps:["lifecycle_connector_registry"]},
+  lifecycle_builds_plan:{label:"lifecycle/builds/plan.py",cluster:"lifecycle",entry:false,hot:false,x:88,y:480,file:"dcpy/lifecycle/builds/plan.py",desc:"Reads recipe.yml, renders Jinja2 template vars, and resolves the build version. Version strategies: today, first_of_month, bump_latest_release (queries edm-publishing for the last version). Writes recipe.lock.yml for reproducibility.",fns:["plan_recipe(recipe_path, version, vars) → Recipe","resolve_version(recipe) → str  (today / first_of_month / bump)","recipe_from_yaml(path, render_templates=False) — for config introspection"],deps:["conn_edm_publishing"]},
+  lifecycle_connector_registry:{label:"lifecycle/connector_registry.py",cluster:"lifecycle",entry:false,hot:true,x:1060,y:480,file:"dcpy/lifecycle/connector_registry.py",desc:"Wires every connector into the global ConnectorRegistry at import time (_set_default_connectors() runs on module load). Registered connectors: Socrata, OpenDataNYC, ArcGIS, web, SFTP (ginger), S3, filesystem, edm.recipes.{datasets,raw_datasets}, edm.publishing.{builds,plan}, DraftsConnector, PublishedConnector, BytesConnector.",fns:["connectors = ConnectorRegistry[Connector]()","_set_default_connectors() — runs at import time","_make_ingest_datastores() → [edm.recipes.datasets, edm.recipes.raw_datasets]","connectors.get_subregistry(Pull) → source connector map"],deps:["conn_registry","conn_ingest_datastore","conn_socrata","conn_edm_publishing"]},
+  conn_registry:{label:"connectors/registry.py",cluster:"connectors",entry:false,hot:false,x:180,y:600,file:"dcpy/connectors/registry.py",desc:"Base class hierarchy and ConnectorRegistry[_C] implementation. Connector types: GenericConnector → Push, Pull, Connector (Push+Pull), VersionedConnector (adds version listing), StorageConnector. Registry supports typed lookup with runtime isinstance check.",fns:["class Pull(GenericConnector, ABC): pull(key, dest, **kwargs)","class VersionedConnector: push_versioned / pull_versioned / get_latest_version","ConnectorRegistry.__getitem__(item: str | tuple[str, type]) → typed connector"],deps:[]},
+  conn_ingest_datastore:{label:"connectors/ingest_datastore.py",cluster:"connectors",entry:false,hot:true,x:390,y:600,file:"dcpy/connectors/ingest_datastore.py",desc:"The connector used for both raw and processed ingest outputs. Wraps PathedStorageConnector backed by S3. Versioned paths: raw/{id}/{timestamp}/file and datasets/{id}/{version}/file.parquet. Handles overwrite guards and latest-pointer updates.",fns:["class Connector(VersionedConnector): storage: PathedStorageConnector","push(id, version, filepath, config, latest, overwrite)","pull(id, dest, version)","version_exists(id, version) → bool"],deps:["conn_hybrid_storage"]},
+  conn_socrata:{label:"connectors/socrata/",cluster:"connectors",entry:false,hot:true,x:570,y:600,file:"dcpy/connectors/socrata/connector.py",desc:"NYC Open Data (Socrata) connector. Covers the majority of ingest templates. get_latest_version() hits the Socrata metadata API to discover the latest data revision. Supports CSV, GeoJSON, and Shapefile extraction formats.",fns:["SocrataConnector.pull(uid, org, format, destination_path, version, **kwargs)","SocrataConnector.get_latest_version(uid, org) → str","extract.fetch_dataset(client, uid, format) → Path"],deps:[]},
+  conn_edm_publishing:{label:"connectors/edm/publishing.py",cluster:"connectors",entry:false,hot:false,x:760,y:600,file:"dcpy/connectors/edm/publishing.py",desc:"Reads from the edm-publishing S3 bucket (build outputs: PLUTO, DevDB, etc.). Used by QA pages via publishing.py wrappers and by builds/plan.py for version lookups. PUBLISHING_BUCKET env var required.",fns:["get_build_metadata(product_key) → BuildMetadata","get_latest_version(product) → str","get_version(product_key) → str","get_data_directory_url(product_key) → str"],deps:["utils_s3"]},
+  conn_edm_recipes:{label:"connectors/edm/recipes.py",cluster:"connectors",entry:false,hot:false,x:960,y:600,file:"dcpy/connectors/edm/recipes.py",desc:"Legacy read helpers for the edm-recipes S3 bucket. Provides path computation and metadata helpers for ingested datasets. Being gradually replaced by ingest_datastore.Connector for write paths. Still used by QA source_report for reading.",fns:["s3_folder_path(ds) → 'datasets/{id}/{version}'","get_archive_date(ds) → datetime","get_all_versions(name) → list[str]"],deps:["utils_s3"]},
+  conn_hybrid_storage:{label:"connectors/hybrid_pathed_storage.py",cluster:"connectors",entry:false,hot:false,x:390,y:670,file:"dcpy/connectors/hybrid_pathed_storage.py",desc:"Abstraction over filesystem or S3 backends. Provides consistent versioned push/pull interface: {root}/{key}/{version}/. StorageType.Local for testing, StorageType.S3 for production.",fns:["PathedStorageConnector.from_storage_kwargs(conn_type, storage_backend, s3_bucket, root_folder)","push_versioned(key, version, source_path, latest=False)","pull_versioned(key, version, dest_path)"],deps:["utils_s3"]},
+  dcpy_config:{label:"dcpy/configuration.py",cluster:"utils",entry:false,hot:false,x:150,y:720,file:"dcpy/configuration.py",desc:"Reads all env vars at import time. Key values: RECIPES_BUCKET (default: 'edm-recipes'), PUBLISHING_BUCKET, INGEST_DEF_DIR (TEMPLATE_DIR env, default: './ingest_templates'), PRODUCTS_DIR, SFTP_* credentials, PRODUCT_METADATA_REPO_PATH.",fns:["RECIPES_BUCKET = env.get('RECIPES_BUCKET', 'edm-recipes')","INGEST_DEF_DIR = Path(env.get('TEMPLATE_DIR', './ingest_templates'))","PRODUCTS_DIR = Path(env.get('PRODUCTS_DIR', PROJECT_ROOT / 'products'))"],deps:[]},
+  utils_s3:{label:"utils/s3.py",cluster:"utils",entry:false,hot:false,x:570,y:720,file:"dcpy/utils/s3.py",desc:"Low-level boto3 wrapper for all S3/DigitalOcean Spaces operations. client() is configured by AWS_S3_ENDPOINT + AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY. All S3 reads and writes in the codebase funnel through this module.",fns:["client() → boto3.client (uses AWS_S3_ENDPOINT)","upload_file(bucket, key, file_path, metadata, acl)","get_filenames(bucket, prefix) → list[str]","object_exists(bucket, key) → bool"],deps:["dcpy_config"]},
+  utils_geospatial:{label:"utils/geospatial/",cluster:"utils",entry:false,hot:false,x:760,y:720,file:"dcpy/utils/geospatial/",desc:"Geospatial utilities used by both the ingest pipeline (transform.py) and the QA app (build_outputs.py). Covers: GeoParquet read/write with WKB/WKT/EWKB geometry, CRS reprojection, Shapefile handling, Folium map generation.",fns:["parquet.write_geoparquet(df, path, geom_col, crs)","transform.df_to_gdf(df, geometry) → GeoDataFrame","mapping.generate_folium_map(gdf) → folium.Map","shapefile.read_shapefile(path) → GeoDataFrame"],deps:[]},
+  ext_s3_recipes:{label:"S3: edm-recipes",cluster:"external",entry:false,hot:true,x:280,y:805,file:"",desc:"DigitalOcean Spaces bucket. The ingest destination. Contains raw/ (archived raw source files per timestamp) and datasets/ (processed parquet files per version). Versioned paths: datasets/{id}/{version}/{id}.parquet. Also stores config.json metadata per version.",fns:["datasets/{id}/{version}/{id}.parquet","raw/{id}/{timestamp}/original_filename","datasets/{id}/{version}/config.json  (IngestedDataset metadata)"],deps:[]},
+  ext_socrata:{label:"Socrata / OpenData NYC",cluster:"external",entry:false,hot:true,x:530,y:805,file:"",desc:"NYC Open Data portal (Socrata) and other open data APIs. Source for the majority of ingest templates (~70%). Each template specifies uid + org to identify the dataset. SocrataConnector uses get_latest_version() to detect new data revisions automatically.",fns:["Socrata API: GET /api/views/{uid}.json  (version check)","Export: /api/views/{uid}/rows.csv|geojson|shapefile"],deps:[]},
+  ext_s3_publishing:{label:"S3: edm-publishing",cluster:"external",entry:false,hot:false,x:770,y:805,file:"",desc:"DigitalOcean Spaces bucket for finalized build outputs (PLUTO, DevDB, FacDB, etc.). QA app reads exclusively from here. Contains: CSV/parquet build outputs, build_metadata.json, source_data_versions.csv for provenance tracking.",fns:["{product}/{version}/output.csv  (build output)","{product}/{version}/build_metadata.json","{product}/{version}/source_data_versions.csv"],deps:[]},
+  ext_postgres:{label:"PostgreSQL",cluster:"external",entry:false,hot:false,x:1010,y:805,file:"",desc:"Build database (BUILD_ENGINE_SERVER env var). Used by QA source_report for loading ingested parquet files and running column/row-count comparisons via SQL. Table names are constructed as {schema_name}_{version.replace('/', '_')}.",fns:["get_table_columns(table_name)","get_table_row_count(table_name)","Schema: {schema_source_data}.{dataset}_{version}"],deps:[]},
+};
+
+const EDGES = [
+  ["docker_compose","nginx",false],["nginx","dagster_defs",false],["nginx","qa_index",false],
+  ["dagster_defs","dagster_ingest_assets",false],["dagster_defs","dagster_builds_assets",false],
+  ["dagster_ingest_assets","dagster_ingest_partitions",false],["dagster_ingest_assets","dagster_ingest_resources",false],
+  ["dagster_ingest_assets","lifecycle_ingest_init",false],["dagster_builds_assets","dagster_builds_partitions",false],
+  ["dagster_ingest_assets","lifecycle_ingest_run",true],
+  ["lifecycle_ingest_run","lifecycle_ingest_plan",true],["lifecycle_ingest_run","lifecycle_ingest_extract",true],
+  ["lifecycle_ingest_run","lifecycle_ingest_transform",true],["lifecycle_ingest_run","lifecycle_ingest_validate",false],
+  ["lifecycle_ingest_run","lifecycle_ingest_connectors",true],["lifecycle_ingest_extract","lifecycle_ingest_connectors",true],
+  ["lifecycle_ingest_plan","lifecycle_ingest_connectors",true],["lifecycle_ingest_connectors","lifecycle_connector_registry",true],
+  ["lifecycle_connector_registry","conn_registry",false],["lifecycle_connector_registry","conn_ingest_datastore",true],
+  ["lifecycle_connector_registry","conn_socrata",true],["lifecycle_connector_registry","conn_edm_publishing",false],
+  ["conn_ingest_datastore","conn_hybrid_storage",false],["conn_hybrid_storage","utils_s3",false],
+  ["conn_ingest_datastore","ext_s3_recipes",true],["conn_socrata","ext_socrata",true],
+  ["dagster_builds_assets","lifecycle_builds_plan",false],["lifecycle_builds_plan","conn_edm_publishing",false],
+  ["qa_index","qa_constants",false],["qa_index","qa_pages",false],
+  ["qa_pages","qa_publishing",false],["qa_pages","qa_source_report",false],["qa_pages","qa_build_outputs",false],
+  ["qa_publishing","conn_edm_publishing",false],["qa_source_report","conn_edm_publishing",false],
+  ["qa_source_report","conn_edm_recipes",false],["qa_build_outputs","conn_edm_publishing",false],
+  ["conn_edm_publishing","ext_s3_publishing",false],["conn_edm_recipes","ext_s3_recipes",false],
+  ["conn_edm_recipes","ext_postgres",false],["utils_s3","ext_s3_recipes",false],
+  ["dcpy_config","utils_s3",false],["lifecycle_ingest_init","dcpy_config",false],
+];
+
+const USED_BY = {};
+for (const id in NODES) USED_BY[id] = [];
+for (const [a, b] of EDGES) { if (!USED_BY[b]) USED_BY[b] = []; USED_BY[b].push(a); }
+
+const W = 130, H = 30, RX = 5;
+function edgePorts(a, b) {
+  const dx = b.x-a.x, dy = b.y-a.y; let ax,ay,bx,by;
+  if (Math.abs(dy) > Math.abs(dx)*0.6) { ax=a.x; ay=dy>0?a.y+H/2:a.y-H/2; bx=b.x; by=dy>0?b.y-H/2:b.y+H/2; }
+  else { ax=dx>0?a.x+W/2:a.x-W/2; ay=a.y; bx=dx>0?b.x-W/2:b.x+W/2; by=b.y; }
+  return [ax,ay,bx,by];
+}
+function curvePath(ax,ay,bx,by) {
+  const mx=(ax+bx)/2,my=(ay+by)/2,dx=bx-ax,dy=by-ay,len=Math.sqrt(dx*dx+dy*dy)||1,perp=Math.min(len*0.15,22);
+  return `M${ax},${ay} Q${mx-(dy/len)*perp},${my+(dx/len)*perp} ${bx},${by}`;
+}
+
+const svg = document.getElementById('graph-svg'), NS = 'http://www.w3.org/2000/svg';
+function el(tag,attrs,parent) { const e=document.createElementNS(NS,tag); for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v); if(parent)parent.appendChild(e); return e; }
+
+const defs = el('defs',{},svg);
+function makeMarker(id,color) { const m=el('marker',{id,markerWidth:'7',markerHeight:'7',refX:'6',refY:'3.5',orient:'auto'},defs); el('polygon',{points:'0,0 7,3.5 0,7',fill:color,opacity:'0.9'},m); }
+makeMarker('arrow-normal','#3a4060'); makeMarker('arrow-hot','#f5a623');
+
+const CLUSTER_NODE_GRADS = { infra:['#253660','#192748'],dagster:['#241540','#18102c'],qa:['#0f2820','#091b14'],lifecycle:['#0f2035','#091525'],connectors:['#271a0c','#1a1008'],utils:['#142910','#0d1c09'],external:['#1d1d26','#131319'] };
+for(const[id,[top,bot]]of Object.entries(CLUSTER_NODE_GRADS)){const g=el('linearGradient',{id:`ng-${id}`,x1:'0',y1:'0',x2:'0',y2:'1'},defs);el('stop',{offset:'0%','stop-color':top},g);el('stop',{offset:'100%','stop-color':bot},g);}
+
+const filt=el('filter',{id:'hot-glow',x:'-40%',y:'-40%',width:'180%',height:'180%'},defs);
+el('feGaussianBlur',{in:'SourceAlpha',stdDeviation:'3',result:'blur'},filt);
+el('feFlood',{'flood-color':'#f5a623','flood-opacity':'0.5',result:'color'},filt);
+el('feComposite',{in:'color',in2:'blur',operator:'in',result:'glow'},filt);
+const feMerge=el('feMerge',{},filt); el('feMergeNode',{in:'glow'},feMerge); el('feMergeNode',{in:'SourceGraphic'},feMerge);
+
+const cg=el('g',{class:'clusters'},svg);
+for(const[id,[x,y,w,h]]of Object.entries(CLUSTER_RECTS)){const c=CLUSTERS[id],g=el('g',{},cg);el('rect',{x,y,width:w,height:h,rx:'7',fill:c.color,opacity:'0.5',stroke:c.text,'stroke-width':'0.6','stroke-opacity':'0.4'},g);el('text',{x:x+9,y:y+13,fill:c.text,class:'cluster-label'},g).textContent=c.label;}
+
+const edgeGroup=el('g',{class:'edges'},svg),edgeEls={};
+for(const[fromId,toId,hot]of EDGES){const a=NODES[fromId],b=NODES[toId];if(!a||!b)continue;const[ax,ay,bx,by]=edgePorts(a,b);const path=el('path',{d:curvePath(ax,ay,bx,by),fill:'none',stroke:hot?'#f5a623':'#3a4060','stroke-width':hot?'1.6':'1.1',opacity:hot?'0.72':'0.38','marker-end':hot?'url(#arrow-hot)':'url(#arrow-normal)',class:'edge','data-from':fromId,'data-to':toId},edgeGroup);edgeEls[`${fromId}--${toId}`]=path;}
+
+const CLUSTER_STROKE={infra:'#6c8eff',dagster:'#c47bde',qa:'#54c4a0',lifecycle:'#5ba6e0',connectors:'#e07b54',utils:'#7cc45b',external:'#555577'};
+const nodeGroup=el('g',{class:'nodes'},svg),nodeEls={};
+for(const[id,n]of Object.entries(NODES)){
+  const sc=n.hot?'#f5a623':(n.entry?'#6de8b0':CLUSTER_STROKE[n.cluster]);
+  const g=el('g',{class:`node${n.hot?' hot':''}`, 'data-id':id, transform:`translate(${n.x},${n.y})`},nodeGroup);
+  if(n.hot)el('rect',{x:-W/2-2,y:-H/2-2,width:W+4,height:H+4,rx:RX+1,fill:'none',stroke:'#f5a623','stroke-width':'0.8',opacity:'0.5',class:'hot-ring'},g);
+  el('rect',{x:-W/2,y:-H/2,width:W,height:H,rx:RX,fill:`url(#ng-${n.cluster})`,stroke:sc,'stroke-width':n.entry?'1.8':(n.hot?'1.6':'1.1'),...(n.hot?{filter:'url(#hot-glow)'}:{})},g);
+  el('rect',{x:-W/2+2,y:-H/2+1,width:W-4,height:1,fill:'rgba(255,255,255,0.06)',rx:'0.5'},g);
+  const label=n.label.length>21?n.label.slice(0,20)+'…':n.label;
+  el('text',{x:'0',y:'5','text-anchor':'middle',fill:n.hot?'#f5c060':'#bcc2e0','font-size':'10.5','font-weight':n.entry?'700':'500','font-family':'-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif'},g).textContent=label;
+  if(n.entry)el('polygon',{points:`${W/2-9},-5 ${W/2-2},0 ${W/2-9},5`,fill:'#6de8b0',opacity:'0.85'},g);
+  g.addEventListener('click',()=>selectNode(id)); nodeEls[id]=g;
+}
+
+const legendBar=document.getElementById('legend-bar');
+const legendItems=[...Object.entries(CLUSTERS).map(([,c])=>({dot:c.color,label:c.label,border:c.text})),null,{dot:'#2a1800',label:'⚡ Hot path',border:'#f5a623'},{dot:'#0c2018',label:'▶ Entry point',border:'#6de8b0'}];
+for(const item of legendItems){if(!item){const s=document.createElement('div');s.className='legend-sep';legendBar.appendChild(s);continue;}const li=document.createElement('div');li.className='legend-item';li.innerHTML=`<div class="legend-dot" style="background:${item.dot};border:1px solid ${item.border}"></div>${item.label}`;legendBar.appendChild(li);}
+
+const SVG_W=1120,SVG_H=840;
+let vb={x:-20,y:-20,w:SVG_W+40,h:SVG_H+40},isPanning=false,panStart=null,panVb=null;
+function setViewBox(){svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);document.getElementById('zoom-level').textContent=`${Math.round((SVG_W/vb.w)*100)}%`;}
+setViewBox();
+
+const viewport=document.getElementById('graph-viewport');
+viewport.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY>0?1.12:1/1.12,nW=Math.max(300,Math.min(SVG_W*4,vb.w*f)),nH=Math.max(220,Math.min(SVG_H*4,vb.h*f)),rect=svg.getBoundingClientRect();vb.x+=(vb.w-nW)*(e.clientX-rect.left)/rect.width;vb.y+=(vb.h-nH)*(e.clientY-rect.top)/rect.height;vb.w=nW;vb.h=nH;setViewBox();},{passive:false});
+svg.addEventListener('mousedown',e=>{if(e.button!==0)return;isPanning=true;panStart={x:e.clientX,y:e.clientY};panVb={...vb};svg.classList.add('panning');});
+window.addEventListener('mousemove',e=>{if(!isPanning)return;const rect=svg.getBoundingClientRect();vb.x=panVb.x-(e.clientX-panStart.x)/rect.width*vb.w;vb.y=panVb.y-(e.clientY-panStart.y)/rect.height*vb.h;setViewBox();});
+window.addEventListener('mouseup',()=>{if(isPanning){isPanning=false;svg.classList.remove('panning');}});
+function zoomBy(f){const nW=Math.max(300,Math.min(SVG_W*4,vb.w*f)),nH=Math.max(220,Math.min(SVG_H*4,vb.h*f));vb.x+=(vb.w-nW)*0.5;vb.y+=(vb.h-nH)*0.5;vb.w=nW;vb.h=nH;setViewBox();}
+function resetZoom(){vb={x:-20,y:-20,w:SVG_W+40,h:SVG_H+40};setViewBox();}
+
+let selectedId=null,hotOnly=false;
+
+function selectNode(id){
+  selectedId=id; const n=NODES[id];
+  for(const nel of Object.values(nodeEls))nel.classList.remove('selected','dimmed');
+  for(const eel of Object.values(edgeEls))eel.classList.remove('dimmed','highlighted');
+  const conn=new Set([id]);
+  for(const[a,b]of EDGES){if(a===id)conn.add(b);if(b===id)conn.add(a);}
+  for(const[nid,nel]of Object.entries(nodeEls)){if(!conn.has(nid))nel.classList.add('dimmed');}
+  nodeEls[id].classList.add('selected');
+  for(const[key,eel]of Object.entries(edgeEls)){const[from,to]=key.split('--');if(from===id||to===id)eel.classList.add('highlighted');else eel.classList.add('dimmed');}
+  document.getElementById('detail-empty').style.display='none';
+  document.getElementById('detail-header').style.display='block';
+  document.getElementById('detail-body').style.display='block';
+  const c=CLUSTERS[n.cluster];
+  document.getElementById('dh-accent').style.background=c.text;
+  document.getElementById('dh-label').textContent=n.label;
+  const badges=document.getElementById('dh-badges');
+  badges.innerHTML=`<span class="badge badge-cluster">${c.label}</span>`;
+  if(n.hot)badges.innerHTML+=`<span class="badge badge-hot">⚡ Hot Path</span>`;
+  if(n.entry)badges.innerHTML+=`<span class="badge badge-entry">▶ Entry Point</span>`;
+  const fileEl=document.getElementById('detail-file');
+  if(n.file){fileEl.textContent=n.file;fileEl.style.display='block';}else{fileEl.style.display='none';}
+  document.getElementById('detail-desc').textContent=n.desc;
+  const fnsSection=document.getElementById('fns-section');
+  if(n.fns&&n.fns.length){fnsSection.style.display='block';document.getElementById('detail-fns').innerHTML=n.fns.map(f=>`<div class="fn-item">${escHtml(f)}</div>`).join('');}else{fnsSection.style.display='none';}
+  const deps=EDGES.filter(([a])=>a===id).map(([,b])=>b);
+  const depsSection=document.getElementById('deps-section');
+  if(deps.length){depsSection.style.display='block';document.getElementById('detail-deps').innerHTML=deps.map(d=>depItem(d,'→')).join('');}else{depsSection.style.display='none';}
+  const usedBy=EDGES.filter(([,b])=>b===id).map(([a])=>a);
+  const usedSection=document.getElementById('used-section');
+  if(usedBy.length){usedSection.style.display='block';document.getElementById('detail-used').innerHTML=usedBy.map(d=>depItem(d,'←')).join('');}else{usedSection.style.display='none';}
+}
+
+function clearSelection(){
+  if(!selectedId)return; selectedId=null;
+  document.getElementById('detail-empty').style.display='';
+  document.getElementById('detail-header').style.display='none';
+  document.getElementById('detail-body').style.display='none';
+  for(const nel of Object.values(nodeEls))nel.classList.remove('selected','dimmed');
+  for(const eel of Object.values(edgeEls))eel.classList.remove('dimmed','highlighted');
+}
+
+function depItem(nodeId,arrow){
+  const n=NODES[nodeId];if(!n)return'';
+  const stroke=CLUSTER_STROKE[n.cluster],fill=CLUSTER_NODE_GRADS[n.cluster]?.[1]??'#131319',cl=CLUSTERS[n.cluster];
+  return `<div class="dep-item" onclick="selectNode('${nodeId}')"><div class="dep-dot" style="background:${fill};border:1px solid ${stroke}"></div><span class="dep-arrow">${arrow}</span><span class="dep-label">${n.label}</span><span class="dep-cluster">${cl.label}</span>${n.hot?'<span class="hot-badge">⚡</span>':''}</div>`;
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function toggleHotOnly(){
+  hotOnly=!hotOnly;
+  const btn=document.getElementById('hot-toggle');
+  btn.classList.toggle('active',hotOnly);
+  if(hotOnly){
+    btn.innerHTML='<span class="dot"></span>Show All';
+    for(const[id,nel]of Object.entries(nodeEls)){if(!NODES[id].hot&&!NODES[id].entry)nel.classList.add('dimmed');else nel.classList.remove('dimmed');}
+    for(const[key,eel]of Object.entries(edgeEls)){const[a,b]=key.split('--');const edge=EDGES.find(([ea,eb])=>ea===a&&eb===b);if(!edge||!edge[2])eel.classList.add('dimmed');else eel.classList.remove('dimmed');}
+  } else {
+    btn.innerHTML='<span class="dot"></span>Hot Path Only';
+    for(const nel of Object.values(nodeEls))nel.classList.remove('dimmed');
+    for(const eel of Object.values(edgeEls))eel.classList.remove('dimmed');
+    if(selectedId)selectNode(selectedId);
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')clearSelection();
+  if((e.key==='+'||e.key==='=')&&!e.metaKey)zoomBy(1.25);
+  if(e.key==='-'&&!e.metaKey)zoomBy(1/1.25);
+  if(e.key==='0'&&!e.metaKey)resetZoom();
+});
+</script>
+</body>
+</html>
