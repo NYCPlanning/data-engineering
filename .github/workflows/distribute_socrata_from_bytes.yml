@@ -1,5 +1,5 @@
 name: 📬 Distribute Datasets
-run-name: "📬 Distribute Datasets: ${{ inputs.product }}-${{ inputs.version }}-${{ inputs.datasets }}-${{ inputs.destination_tags }}-${{ inputs.destination_types }}"
+run-name: "📬 Distribute Datasets: ${{ inputs.product }}-${{ inputs.destination_ids }}-${{ inputs.datasets }}-${{ inputs.destination_tags }}-${{ inputs.destination_types }}"
 
 on:
   workflow_dispatch:
@@ -8,10 +8,10 @@ on:
         description: "Name of the product"
         type: string
         required: true
-      version:
-        description: "Version to push"
+      destination_ids:
+        description: "Comma-separated list of destination IDs"
         type: string
-        required: true
+        required: false
       source:
         description: "Source ID (e.g. bytes)"
         type: string
@@ -97,8 +97,8 @@ jobs:
         run: |
           python3 -m dcpy lifecycle scripts package_and_distribute product \
             ${{ inputs.product }} \
-            ${{ inputs.version }} \
             ${{ inputs.source }} \
+            $(if [ "${{ inputs.destination_ids }}" != "" ]; then for dest_id in $(echo ${{ inputs.destination_ids }} | tr ',' ' '); do echo -i $dest_id; done; fi) \
             $(if [ "${{ inputs.datasets }}" != "" ]; then for ds in $(echo ${{ inputs.datasets }} | tr ',' ' '); do echo -d $ds; done; fi) \
             $(if [ "${{ inputs.destination_tags }}" != "" ]; then for tag in $(echo ${{ inputs.destination_tags }} | tr ',' ' '); do echo -t $tag; done; fi) \
             $(if [ "${{ inputs.destination_types }}" != "" ]; then for typ in $(echo ${{ inputs.destination_types }} | tr ',' ' '); do echo -y $typ; done; fi) \

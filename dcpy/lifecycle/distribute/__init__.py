@@ -19,7 +19,7 @@ def to_dataset_destination(
 
     Requires fully rendered template, ie there should be no template variables in the metadata
     """
-    org_md = product_metadata.load(version=version)
+    org_md = product_metadata.load()
     ds_md = org_md.product(product).dataset(dataset)
     dest = ds_md.get_destination(destination_id)
     dest_type = dest.type

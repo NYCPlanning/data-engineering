@@ -32,10 +32,10 @@ def get_destinations_by_product_dataset_and_type(
 
 
 def run(
-    version,
     *,
     prod_ds_dest_filters,
     source_id,
+    destination_ids=None,
     metadata_only=False,
     publish=False,
     validate_dataset_files=False,
@@ -47,7 +47,14 @@ def run(
     Destinations are batched by product, dataset, and destination type.
     Files for the dataset are assembled, then distributed to the destinations.
     """
-    org_md = product_metadata.load(version=version)
+    org_md = product_metadata.load()
+
+    # If destination_ids provided, add them to the destination_filter
+    if destination_ids:
+        if "destination_filter" not in prod_ds_dest_filters:
+            prod_ds_dest_filters["destination_filter"] = {}
+        prod_ds_dest_filters["destination_filter"]["ids"] = set(destination_ids)
+
     destinations = get_destinations_by_product_dataset_and_type(
         prod_ds_dest_filters, org_md
     )
@@ -63,6 +70,15 @@ def run(
     results: list[event_result.DistributeResult] = []
     for batch in destinations:
         product, dataset, _ = batch[0].split(".")
+
+        # Get version from dataset current_version attribute
+        # This is set in product metadata via dataset_defaults.current_version
+        # and can be overridden at destination level if needed
+        destination = org_md.get_product_dataset_destinations(batch[0])
+        dataset_obj = org_md.product(product).dataset(dataset)
+        version = destination.current_version or dataset_obj.attributes.current_version
+        assert version, f"No current_version found for {product}.{dataset}"
+
         if dry_run:
             results += [
                 event_result.DistributeResult(
@@ -89,7 +105,9 @@ def run(
         )
         if not package_result.success:
             result = event_result.DistributeResult(
-                destination_id=",".join(batch), **package_result.model_dump()
+                destination_id=",".join(batch),
+                version=version,
+                **package_result.model_dump(),
             )
             results.append(result)
             continue
@@ -117,8 +135,13 @@ app = typer.Typer()
 @app.command("product")
 def package_and_distribute_product(
     product: str,
-    version: str,
     source: str,
+    destination_ids: list[str] = typer.Option(
+        [],
+        "-i",
+        "--destination-ids",
+        help="List of destination IDs",
+    ),
     datasets: list[str] = typer.Option(
         [],
         "-d",
@@ -163,8 +186,8 @@ def package_and_distribute_product(
     ),
 ):
     results = run(
-        version,
         source_id=source,
+        destination_ids=destination_ids,
         prod_ds_dest_filters={
             "product_ids": {product},
             "dataset_ids": set(datasets),
@@ -181,7 +204,7 @@ def package_and_distribute_product(
 
     typer.echo(event_result.make_results_table(results))
     if any([not r.success for r in results]):
-        msg = f"Distribution for {product}.{version} finished, but issues occurred!"
+        msg = f"Distribution for {product} finished, but issues occurred!"
         logger.error(msg)
         raise Exception(msg)
     logger.info("Finished distributing batches with no errors.")
