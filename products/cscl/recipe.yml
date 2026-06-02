@@ -408,3 +408,23 @@ exports:
   - name: nta2010_txt
     filename: NTA.txt
     format: dat
+
+  # ESRI / published LION geodatabase — filename must match `version:` at top of this file
+  - name: gdb_lion
+    filename: nyclion_26b.zip
+    format: gdb
+    custom: { layer: lion, geometry_type: lines }
+  - name: gdb_node
+    filename: nyclion_26b.zip
+    format: gdb
+    custom: { layer: node, geometry_type: points }
+  # TODO: add remaining non-spatial GDB layers — blocked on geometry-less GDB
+  # write support in dcpy/lifecycle/builds/export.py (_write_gdb_zip)
+  # - name: gdb_node_stname
+  #   filename: nyclion_26b.zip
+  #   format: gdb
+  #   custom: { layer: node_stname }
+  # - name: gdb_altnames
+  #   filename: nyclion_26b.zip
+  #   format: gdb
+  #   custom: { layer: altnames }

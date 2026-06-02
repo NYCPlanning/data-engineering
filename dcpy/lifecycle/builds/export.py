@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import typer
-from shapely import MultiPoint, MultiPolygon
+from shapely import MultiLineString, MultiPoint, MultiPolygon
 
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import config as build_config
@@ -22,6 +22,7 @@ STAGE = "builds.build"
 # silently split or dropped when filtering by geometry_type.
 _POINT_TYPES = ["Point", "MultiPoint"]
 _POLYGON_TYPES = ["Polygon", "MultiPolygon"]
+_LINE_TYPES = ["LineString", "MultiLineString"]
 
 
 def export_dataset_from_postgres(
@@ -111,6 +112,8 @@ def _read_filtered_gdf(
         gdf = gdf[gdf.geom_type.isin(_POINT_TYPES)]
     elif geometry_type == "polygons":
         gdf = gdf[gdf.geom_type.isin(_POLYGON_TYPES)]
+    elif geometry_type == "lines":
+        gdf = gdf[gdf.geom_type.isin(_LINE_TYPES)]
     return gdf
 
 
@@ -136,11 +139,17 @@ def _normalize_to_single_geom_type(gdf, label: str):
             gdf.geometry = gdf.geometry.apply(
                 lambda g: MultiPolygon([g]) if g.geom_type == "Polygon" else g
             )
+    elif types_set <= set(_LINE_TYPES):
+        if types_set == {"LineString", "MultiLineString"}:
+            gdf = gdf.copy()
+            gdf["geometry"] = gdf["geometry"].apply(
+                lambda g: MultiLineString([g]) if g.geom_type == "LineString" else g
+            )
     else:
         raise ValueError(
             f"'{label}' contains geometry types from different families: "
-            f"{sorted(types_set)}. Specify geometry_type='points' or "
-            "'polygons' in custom."
+            f"{sorted(types_set)}. Specify geometry_type='points', 'polygons', "
+            "or 'lines' in custom."
         )
     return gdf
 
