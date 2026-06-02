@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: gdb_lion
+    description: "LION segment line layer for the published ESRI geodatabase (nyclion_*.zip). Columns match the prod GDB field names. Fields not yet available from int__lion are NULL."
+    columns:
+      - name: "'SegmentID'"
+        description: "7-character segment identifier"
+        data_tests:
+          - not_null
+      - name: geom
+        description: "Segment line geometry (MultiLineString, EPSG:2263)"
+        data_tests:
+          - not_null
+  - name: gdb_node
+    description: "LION node point layer for the published ESRI geodatabase (nyclion_*.zip). Near-passthrough of the source Node layer (dcp_cscl_nodes, via stg__nodes); columns match the prod GDB field names."
+    columns:
+      - name: "'NODEID'"
+        description: "Node identifier"
+        data_tests:
+          - not_null
+      - name: geom
+        description: "Node point geometry (Point, EPSG:2263)"
+        data_tests:
+          - not_null
+  - name: gdb_node_stname
+    description: "TODO: Node-to-street-name crosswalk (non-spatial) for GDB. Not yet implemented."
+  - name: gdb_altnames
+    description: "TODO: Alternate street names (non-spatial) for GDB. Not yet implemented."
