@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import geopandas as gpd
 import pytest
-from shapely import MultiPolygon, Point, Polygon
+from shapely import LineString, MultiPolygon, Point, Polygon
 
 from dcpy.lifecycle.builds.export import export, export_geodataset_from_postgres
 from dcpy.lifecycle.builds.models import ExportFormat
@@ -166,6 +166,27 @@ def test_gdb_export_multi_table(tmp_path):
     boundaries = gpd.read_file(f"zip://{out}!combined.gdb", layer="boundaries")
     assert len(places) == 1
     assert len(boundaries) == 1
+
+
+def test_gdb_export_line(tmp_path):
+    lines_gdf = gpd.GeoDataFrame(
+        [{"id": 1, "geometry": LineString([(0, 0), (1, 1)])}],
+        geometry="geometry",
+        crs="EPSG:2263",
+    )
+    out = tmp_path / "out.zip"
+    export_geodataset_from_postgres(
+        table_name="mytable",
+        file_path=out,
+        format=ExportFormat.gdb,
+        pg_client=_make_pg_client(lines_gdf),
+        geometry_type="lines",
+        layer="mytable_lines",
+    )
+    assert out.exists()
+    result = gpd.read_file(f"zip://{out}!out.gdb", layer="mytable_lines")
+    assert len(result) == 1
+    assert result.geom_type.iloc[0] in ("LineString", "MultiLineString")
 
 
 def test_gdb_export_mixed_geometry_raises(tmp_path):
