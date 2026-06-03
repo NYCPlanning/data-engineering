@@ -11,6 +11,7 @@ services:
       - NGINX_SERVER_NAME=${NGINX_SERVER_NAME:-_}
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
       - ./nginx/conf.d/http.conf.template:/etc/nginx/templates/http.conf.template:ro
       - ./nginx/conf.d/https.conf.template:/etc/nginx/templates/https.conf.template:ro
       - nginx-conf:/etc/nginx/conf.d

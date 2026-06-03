@@ -12,8 +12,8 @@ server {
         auth_basic "DE Tools";
         auth_basic_user_file /etc/nginx/.htpasswd;
         
-        return 200 "DE Apps - Use /qaqc/ or /dag/\n";
-        add_header Content-Type text/plain;
+        root /usr/share/nginx/html;
+        index index.html;
     }
 
     location /qaqc {
