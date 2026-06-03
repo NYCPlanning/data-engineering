@@ -155,7 +155,7 @@ def write_metadata(
 
     # Set dataset-level values
     # TODO: define DCP organizationally required metadata fields
-    metadata.md_hr_lv_name = file_metadata.attributes.display_name
+    metadata.md_hr_lv_name = "dataset"
     metadata.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
     metadata.data_id_info.id_abs = file_metadata.attributes.description
     # TODO: map idPurp to a product-metadata field
@@ -166,7 +166,8 @@ def write_metadata(
     metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
     metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
 
-    metadata.eainfo.detailed.enttyp.enttypl.value = product_md.id
+    entity_name = layer.removesuffix(".shp")
+    metadata.eainfo.detailed.enttyp.enttypl.value = entity_name
     metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
 
     # Build attribute metadata for each column
@@ -179,11 +180,11 @@ def write_metadata(
             raise ValueError(
                 "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
             )
-        metadata.eainfo.detailed.name = product_md.id
+        metadata.eainfo.detailed.name = entity_name
         fgdb.write_metadata(gdb=path, layer=layer, metadata=metadata, overwrite=True)
 
     elif ".shp" in path.suffixes or layer.endswith(".shp"):
-        metadata.eainfo.detailed.name = product_md.id
+        metadata.eainfo.detailed.name = entity_name
         shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
         shp.write_metadata(metadata, overwrite=True)
 

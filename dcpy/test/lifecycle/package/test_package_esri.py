@@ -240,7 +240,7 @@ def test_write_metadata(
     # TODO - add helper code to access nested defaults (if this is the direction we end up pursuing)
 
     # Test product-specific values
-    assert metadata.md_hr_lv_name == file_metadata.attributes.display_name
+    assert metadata.md_hr_lv_name == "dataset"
     assert metadata.data_id_info.id_citation.res_title == file_metadata.attributes.display_name
     assert metadata.data_id_info.id_abs == file_metadata.attributes.description
     assert metadata.data_id_info.id_credit == file_metadata.attributes.attribution
@@ -248,8 +248,8 @@ def test_write_metadata(
     assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
     assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
 
-    assert metadata.eainfo.detailed.name == product_md.id
-    assert metadata.eainfo.detailed.enttyp.enttypl.value == product_md.id
+    assert metadata.eainfo.detailed.name == fixture_info["layer"].removesuffix(".shp")
+    assert metadata.eainfo.detailed.enttyp.enttypl.value == fixture_info["layer"].removesuffix(".shp")
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
     # column 0 has no domain values: attrlabl, attrtype, and udom should all round-trip
@@ -393,8 +393,8 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     pluto_md = org_metadata.product("pluto").dataset("pluto")
     file_metadata = pluto_md.calculate_file_dataset_metadata(file_id="primary_file_geodatabase")
 
-    assert metadata.eainfo.detailed.name == pluto_md.id
-    assert metadata.eainfo.detailed.enttyp.enttypl.value == pluto_md.id
+    assert metadata.eainfo.detailed.name == SPATIAL_LAYER
+    assert metadata.eainfo.detailed.enttyp.enttypl.value == SPATIAL_LAYER
 
     # uid → FID / OID
     assert metadata.eainfo.detailed.attr[0].attrlabl.value == "FID"
