@@ -8,7 +8,7 @@ server {
         root /var/www/certbot;
     }
 
-    location = / {
+    location / {
         auth_basic "DE Tools";
         auth_basic_user_file /etc/nginx/.htpasswd;
         
