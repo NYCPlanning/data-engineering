@@ -409,6 +409,11 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     assert metadata.eainfo.detailed.attr[2].attrlabl.value == "APPDate"
     assert metadata.eainfo.detailed.attr[2].attrtype.value == "Date"
 
+    # projection — EPSG:2263 maps to refSysInfo
+    ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
+    assert ref_sys_id.id_code_space.value == "EPSG"
+    assert ref_sys_id.ident_code.code == 2263
+
 
 def test_write_metadata_raises_on_nested_gdb_zip(tmp_path, org_metadata):
     gdb_path = tmp_path / "test.gdb"

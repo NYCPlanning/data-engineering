@@ -166,6 +166,13 @@ def write_metadata(
     metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
     metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
 
+    if file_metadata.attributes.projection:
+        authority, code = file_metadata.attributes.projection.split(":")
+        ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
+        ref_sys_id.ident_code.code = int(code)
+        ref_sys_id.id_code_space.value = authority
+        # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
+
     entity_name = layer.removesuffix(".shp")
     metadata.eainfo.detailed.enttyp.enttypl.value = entity_name
     metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
