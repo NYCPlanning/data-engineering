@@ -102,3 +102,15 @@ op run --env-file=env.1pw -- ./scripts/deploy.sh
 ```
 
 Or use GitHub Actions: `.github/workflows/qa_deploy.yml`
+
+## Homepage design
+
+The nginx root page (`/`) serves a static ASCII art homepage from `nginx/html/index.html`.
+
+Design inspirations:
+- [asciiart.eu — cities](https://www.asciiart.eu/buildings-and-places/cities) — ASCII skyline style
+- [asciiart.eu — patterns](https://www.asciiart.eu/ascii-patterns/gallery) — ASCII patterns styles
+- [patorjk.com - TAAG](https://patorjk.com/software/taag/#p=display&f=Epic&t=DE+TOOLS&x=none&v=4&h=4&w=80&we=true) - Text to ASCII Art Generator, "DE TOOLS" in Epic font
+- [adelfaure.net](https://adelfaure.net/) — text-mode portfolio aesthetic, box-drawing layout, monospace-first design
+- Internet 1.0 / BBS welcome screen aesthetic
+- Old PC game title screens
