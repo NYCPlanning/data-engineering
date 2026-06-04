@@ -42,6 +42,7 @@ def test_export_files():
         "data_dictionary.pdf",
         "data_dictionary.xlsx",
         "templatedb.csv",
+        "templatedb.parquet",
         "templatedb_points.zip",
         "templatedb_polygons.zip",
         "templatedb.zip",
@@ -49,5 +50,5 @@ def test_export_files():
     }
     actual_files = publishing.get_filenames(BUILD_KEY)
     target_files = {f for f in actual_files if f.startswith("target/")}
-    assert actual_files - target_files == expected_export_file_names
     assert target_files, "Expected dbt target/ directory to be present in export"
+    assert actual_files - target_files == expected_export_file_names

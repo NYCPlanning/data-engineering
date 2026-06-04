@@ -28,6 +28,8 @@ exports:
   - name: templatedb
     format: csv
   - name: templatedb
+    format: parquet
+  - name: templatedb
     format: shp
     filename: templatedb_points.zip
     custom:

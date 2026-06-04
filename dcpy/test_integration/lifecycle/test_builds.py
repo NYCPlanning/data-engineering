@@ -76,17 +76,23 @@ def test_export_to_dat(client_with_sample_data, tmp_path):
     assert len(lines) == 5, "Should have exactly 5 rows without header"
 
 
-def test_export_unsupported_format(client_with_sample_data, tmp_path):
-    """Test that unsupported formats raise NotImplementedError."""
+def test_export_to_parquet(client_with_sample_data, tmp_path):
+    """Test parquet export."""
     output_file = tmp_path / "test_export.parquet"
 
-    with pytest.raises(NotImplementedError, match="Export of dataset format"):
-        build.export_dataset_from_postgres(
-            table_name=SAMPLE_TABLE,
-            file_path=output_file,
-            format=ExportFormat.parquet,
-            pg_client=client_with_sample_data,
-        )
+    build.export_dataset_from_postgres(
+        table_name=SAMPLE_TABLE,
+        file_path=output_file,
+        format=ExportFormat.parquet,
+        pg_client=client_with_sample_data,
+    )
+
+    assert output_file.exists()
+
+    exported_df = pd.read_parquet(output_file)
+    assert len(exported_df) == 5
+    assert list(exported_df.columns) == ["id", "name", "value", "category"]
+    assert exported_df["name"].tolist() == ["Alice", "Bob", "Charlie", "Diana", "Eve"]
 
 
 def test_export(client_with_sample_data, tmp_path):
