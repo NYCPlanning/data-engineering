@@ -244,3 +244,49 @@ exports:
     file_path: Path = mock_write.call_args[0][1]
     assert file_path.suffix == ".zip", f"Expected .zip suffix, got {file_path.suffix}"
     assert "mytable" in file_path.name
+
+
+_MINIMAL_RECIPE = """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets: []
+exports:
+  output_folder: {output_folder}
+  datasets: []
+"""
+
+
+def test_export_copies_target_dir_when_present(tmp_path):
+    """export() copies the dbt target/ sibling directory recursively into the output folder."""
+    output_folder = tmp_path / "output"
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(_MINIMAL_RECIPE.format(output_folder=str(output_folder)))
+
+    target_dir = tmp_path / "target"
+    target_dir.mkdir()
+    (target_dir / "run_results.json").write_text('{"results": []}')
+    compiled_dir = target_dir / "compiled"
+    compiled_dir.mkdir()
+    (compiled_dir / "x.sql").write_text("select 1")
+
+    export(recipe_path, pg_client=MagicMock())
+
+    assert (output_folder / "target").is_dir()
+    assert (output_folder / "target" / "run_results.json").exists()
+    assert (output_folder / "target" / "compiled" / "x.sql").exists()
+
+
+def test_export_warns_when_target_dir_missing(tmp_path):
+    """export() logs a warning and continues when target/ does not exist."""
+    output_folder = tmp_path / "output"
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(_MINIMAL_RECIPE.format(output_folder=str(output_folder)))
+
+    with patch("dcpy.lifecycle.builds.export.logger") as mock_logger:
+        export(recipe_path, pg_client=MagicMock())
+
+    assert not (output_folder / "target").exists()
+    warning_calls = [str(call) for call in mock_logger.warning.call_args_list]
+    assert any("target" in msg for msg in warning_calls)
