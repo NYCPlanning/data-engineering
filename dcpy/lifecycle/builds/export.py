@@ -57,6 +57,9 @@ def export_dataset_from_postgres(
             )
 
             line_endings = "crlf"
+        case ExportFormat.parquet:
+            df = pg_client.read_table_df(table_name)
+            df.to_parquet(file_path, index=False)
         case ExportFormat.shapefile | ExportFormat.gdb:
             export_geodataset_from_postgres(
                 table_name=table_name,
@@ -233,7 +236,9 @@ def export(
         if source_dir.is_dir():
             shutil.copytree(source_dir, output_folder / dirname)
         else:
-            logger.warning(f"Expected build artifact directory {source_dir} does not exist")
+            logger.warning(
+                f"Expected build artifact directory {source_dir} does not exist"
+            )
 
     # GDB entries are grouped by output filename so multiple tables can share one file.
     # All other formats are written one entry at a time.
