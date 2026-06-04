@@ -9,7 +9,12 @@ import typer
 from shapely import MultiPoint, MultiPolygon
 
 from dcpy.lifecycle import config
-from dcpy.lifecycle.builds import BUILD_PLAN_ARTIFACTS, metadata, plan
+from dcpy.lifecycle.builds import (
+    BUILD_ARTIFACT_DIRS,
+    BUILD_PLAN_ARTIFACTS,
+    metadata,
+    plan,
+)
 from dcpy.lifecycle.builds.models import ExportDataset, ExportFormat
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
@@ -222,6 +227,13 @@ def export(
             logger.warning(f"Expected build artifact {source_path} does not exist")
             continue
         shutil.copy(source_path, output_folder / filename)
+
+    for dirname in BUILD_ARTIFACT_DIRS:
+        source_dir = Path(recipe_lock_path).parent / dirname
+        if source_dir.is_dir():
+            shutil.copytree(source_dir, output_folder / dirname)
+        else:
+            logger.warning(f"Expected build artifact directory {source_dir} does not exist")
 
     # GDB entries are grouped by output filename so multiple tables can share one file.
     # All other formats are written one entry at a time.

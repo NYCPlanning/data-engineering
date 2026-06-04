@@ -48,4 +48,6 @@ def test_export_files():
         "output.zip",
     }
     actual_files = publishing.get_filenames(BUILD_KEY)
-    assert actual_files == expected_export_file_names
+    target_files = {f for f in actual_files if f.startswith("target/")}
+    assert actual_files - target_files == expected_export_file_names
+    assert target_files, "Expected dbt target/ directory to be present in export"

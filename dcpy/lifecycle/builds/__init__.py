@@ -25,4 +25,8 @@ BUILD_PLAN_ARTIFACTS = [
     "source_data_versions.csv",
 ]
 
+BUILD_ARTIFACT_DIRS = [
+    "target",
+]
+
 __all__ = ["get_recipes_default_connector"]
