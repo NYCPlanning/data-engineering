@@ -9,9 +9,14 @@ from resources import load
 from utils.geo_helpers import clean_PUMAs
 
 from aggregate.clean_aggregated import order_PUMS_QOL_multiple_years
+from aggregate.config import (
+    health_mortality_baseline_years,
+    health_mortality_latest_year,
+    health_mortality_puma_baseline_years,
+)
 
-# Latest header in "resources/quality_of_life/health_mortality/DOHMH_death rate and overdose.xlsx"
-LATEST_YEAR = "1620"
+# Load health mortality configuration from centralized config
+LATEST_YEAR = health_mortality_latest_year
 
 ind_name_mapper = {
     "infant_mortality_per1000": "infantmortality",
@@ -107,10 +112,11 @@ def premature_mortality(
 
 
 def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year: str):
+    # Year lists from recipe vars
     if geography == "puma":
-        years = ["0004", "1014"] + [year]
+        years = health_mortality_puma_baseline_years + [year]
     else:
-        years = ["2000", "2010"] + ["20" + year[2:]]
+        years = health_mortality_baseline_years + ["20" + year[2:]]
 
     cols = df.columns
     cols = [c.replace(ind_name, ind_name_mapper[ind_name]) for c in cols]

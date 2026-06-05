@@ -9,6 +9,7 @@ from utils.dcp_population_excel_helpers import (
 from utils.geo_helpers import acs_years
 
 from aggregate.aggregation_helpers import order_aggregated_columns
+from aggregate.config import acs_prev_year_band
 from aggregate.load_aggregated import load_acs
 from aggregate.PUMS.pums_2000_economics import pums_2000_economics
 
@@ -84,7 +85,8 @@ def order_economics(source_data, year):
         ("income band",),
         ("misc",),
     ]
-    if year in ("0812", "prev"):
+    # Income bands not available in previous ACS year band (from recipe vars)
+    if year in (acs_prev_year_band, "prev"):
         reorder_categories["income band"] = []
     else:
         reorder_categories["income band"] = income_band_categories

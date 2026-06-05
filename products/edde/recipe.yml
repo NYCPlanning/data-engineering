@@ -4,8 +4,8 @@ vars:
   BUILD_ENV_EDDE_VERSION_PREV: {{ BUILD_ENV_EDDE_VERSION_PREV }}
   BUILD_ENV_EDDE_VERSION: {{ BUILD_ENV_EDDE_VERSION }}
   BUILD_ENV_EDDE_CENSUS_BASE_YEAR: {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
-  BUILD_ENV_EDDE_ACS_START_YEAR: {{ BUILD_ENV_EDDE_ACS_START_YEAR }}
-  BUILD_ENV_EDDE_ACS_END_YEAR: {{ BUILD_ENV_EDDE_ACS_END_YEAR }}
+  BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND: {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}
+  BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND: {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}
 product: db-eddt
 inputs:
   dataset_defaults:
@@ -73,6 +73,19 @@ custom:
     - health_self_reported
     - health_selfreportedhealth
 
+  health_mortality:
+    latest_year: "1620"
+    puma_baseline_years: ["0004", "1014"]
+    baseline_years: ["2000", "2010"]
+
+  traffic_fatalities:
+    year_ranges:
+      "1014": [2010, 2015]
+      "1620": [2016, 2021]
+
+  dhs_shelter:
+    years: ["2020", "2022"]
+
 stage_config:
   builds.build:
     commands:
@@ -80,10 +93,10 @@ stage_config:
         run: python3 -m external_review.external_review_collate all
       - name: Census Base
         run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
-      - name: ACS Start
-        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_START_YEAR }}
-      - name: ACS End
-        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_END_YEAR }}
+      - name: ACS Prev
+        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}
+      - name: ACS Current
+        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}
     destination: edm.publishing.builds
     destination_key: db-eddt
     connector_args:
