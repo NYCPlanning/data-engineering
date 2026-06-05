@@ -73,8 +73,10 @@ def process_file(dataset: str, excel: Path):
 
 
 def build(version, load_result: load.LoadResult):
-    output_folder = OUTPUT_FOLDER / version / "decennial"
-    shutil.rmtree(output_folder, ignore_errors=True)
+    for year in YEARS:
+        year_folder = OUTPUT_FOLDER / "decennial" / year
+        if year_folder.is_dir():
+            shutil.rmtree(year_folder)
 
     for dataset in load_result.datasets:
         file_path = load.get_imported_filepath(load_result, dataset)
