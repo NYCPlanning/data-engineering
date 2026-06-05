@@ -9,8 +9,10 @@ from dcpy.test.lifecycle.package.conftest import (
 
 
 @pytest.fixture
-def org_metadata(package_and_dist_test_resources):
-    return package_and_dist_test_resources.org_md
+def org_metadata():
+    from dcpy.lifecycle import product_metadata
+
+    return product_metadata.load()
 
 
 @pytest.mark.usefixtures("file_setup_teardown")

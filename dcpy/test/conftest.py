@@ -22,15 +22,13 @@ TEST_BUCKETS = [
 ]
 os.environ["RECIPES_BUCKET"] = RECIPES_BUCKET
 os.environ["PUBLISHING_BUCKET"] = PUBLISHING_BUCKET
-os.environ["PRODUCT_METADATA_REPO_PATH"] = str(
-    TEST_RESOURCES_PATH / "package_and_distribute" / "metadata_repo"
-)
+# PRODUCT_METADATA_REPO_PATH should be set in the environment to point to
+# the real product-metadata repo, not the old mock in test/resources
 
 from dcpy import configuration
 from dcpy.connectors.edm import packaging, publishing
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.models import BuildMetadata
-from dcpy.test.resources import package_and_distribute
 from dcpy.utils import s3, versions
 
 RESOURCES = Path(__file__).parent / "resources"
@@ -55,11 +53,6 @@ def resources_path():
 @pytest.fixture(scope="function")
 def utils_resources_path():
     return UTILS_RESOURCES
-
-
-@pytest.fixture(scope="function")
-def package_and_dist_test_resources():
-    return package_and_distribute
 
 
 @pytest.fixture(scope="function")
