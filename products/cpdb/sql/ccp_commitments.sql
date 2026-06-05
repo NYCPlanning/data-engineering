@@ -16,6 +16,7 @@ SELECT
     REPLACE(p.budget_proj_type, ' ', '') || '-' || p.budget_line_id AS budgetline,
     b.projecttype,
     b.agencyacronym AS sagencyacro,
+    b.agencyabbrev AS sagencyabbrev,
     b.agency AS sagencyname,
     RIGHT(p.planned_commit_date, 2) || '/' || SUBSTRING(p.planned_commit_date FROM 3 FOR 2) AS plancommdate,
     p.short_descr AS projectdescription,
