@@ -94,14 +94,15 @@ def process_latest_data(file: Path, year: str):
 
 
 def build(version, load_result: load.LoadResult):
-    output_folder = OUTPUT_FOLDER / version / "acs"
-    if output_folder.is_dir():
-        shutil.rmtree(output_folder)
-
-    process_2010_data(load_result)
-
     latest = load_result.get_latest_version("dcp_pop_acs")
     assert isinstance(latest.destination, Path)
+
+    for year in ["2010", latest.version]:
+        year_folder = OUTPUT_FOLDER / "acs" / year
+        if year_folder.is_dir():
+            shutil.rmtree(year_folder)
+
+    process_2010_data(load_result)
     process_latest_data(latest.destination, latest.version)
 
 
