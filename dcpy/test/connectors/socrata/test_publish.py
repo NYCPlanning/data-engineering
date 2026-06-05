@@ -16,8 +16,10 @@ open_data_conn.PRE_PUBLISH_SLEEP_SECS = 0
 
 
 @pytest.fixture
-def package_path(package_and_dist_test_resources):
-    return package_and_dist_test_resources.PACKAGE_PATH_ASSEMBLED
+def package_path():
+    from dcpy.test.resources import package_and_distribute
+
+    return package_and_distribute.PACKAGE_PATH_ASSEMBLED
 
 
 @pytest.fixture

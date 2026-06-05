@@ -2,11 +2,12 @@ import pytest
 
 import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle import package
+from dcpy.test.resources import package_and_distribute
 
 
 @pytest.fixture
-def COLP_PACKAGE_PATH(package_and_dist_test_resources):
-    return package_and_dist_test_resources.PACKAGE_PATH_COLP_SINGLE_FEATURE
+def COLP_PACKAGE_PATH():
+    return package_and_distribute.PACKAGE_PATH_COLP_SINGLE_FEATURE
 
 
 COLP_VERSION = "24b"

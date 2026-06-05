@@ -6,8 +6,10 @@ from dcpy.product_metadata.writers.oti_xlsx import abstract_doc
 
 
 @pytest.fixture
-def org_metadata(package_and_dist_test_resources):
-    return package_and_dist_test_resources.org_md
+def org_metadata():
+    from dcpy.lifecycle import product_metadata
+
+    return product_metadata.load()
 
 
 def _assert_is_title_subtitle_row(row, comp_def):
@@ -67,7 +69,7 @@ def test_generating_asset_table(org_metadata: OrgMetadata):
         title_summary_cell, value_cell = row.cells
 
         # Check the Value
-        assert transit_zones_ds["attributes"][field_name] == value_cell.value, (
+        assert transit_zones_ds["attributes"].get(field_name) == value_cell.value, (
             "The attribute value should be correctly pulled from the dataset"
         )
 
@@ -84,11 +86,11 @@ def test_generating_asset_table(org_metadata: OrgMetadata):
             "The field's extra description should be included"
         )
 
-        if field_name == "attribution_link":
+        if field_name == "potential_uses":
             found_field_with_third_party_note = True
-            extra_note = data_dict_entry.custom["third_party_extra"]
+            extra_note = data_dict_entry.custom["oti_extra_notes"]
             assert extra_note in extra_description_cell, (
-                "The extra description from the third party should be included in the description"
+                "The extra description from oti_extra_notes should be included in the description"
             )
 
     assert found_field_with_third_party_note, (
@@ -98,16 +100,14 @@ def test_generating_asset_table(org_metadata: OrgMetadata):
 
 def test_generating_revisions(org_metadata: OrgMetadata):
     xlsx_artifact = org_metadata.get_packaging_artifacts()[0]
-    xlsx_artifact.components = xlsx_artifact.components[1:2]
+    xlsx_artifact.components = xlsx_artifact.components[2:3]
 
-    # Limit this test to just the second component: the dataset.revisions table
+    # Limit this test to just the third component: the dataset.revisions table
     revisions_comp_def = xlsx_artifact.components[0]
-    assert revisions_comp_def.id == "revisions"
+    assert revisions_comp_def.id == "revision_history"
 
     transit_zones_ds = (
-        org_metadata.product("transit_zones")
-        .dataset("transit_zones")
-        .dataset.model_dump()
+        org_metadata.product("transit_zones").dataset("transit_zones").dataset
     )
     artifacts = abstract_doc.generate_abstract_artifact(
         artifact=xlsx_artifact,
@@ -125,7 +125,7 @@ def test_generating_revisions(org_metadata: OrgMetadata):
     assert revisions_comp_def.description in summary_row.cells[0].value
     assert len(revisions_comp_def.columns) == len(column_name_row.cells)  # type: ignore
 
-    assert len(transit_zones_ds["revisions"]) == len(revision_rows), (
+    assert len(transit_zones_ds.revisions) == len(revision_rows), (
         "Sanity check on destructuring above."
     )
 
@@ -133,21 +133,19 @@ def test_generating_revisions(org_metadata: OrgMetadata):
 def test_column_docs(org_metadata: OrgMetadata):
     xlsx_artifact = org_metadata.get_packaging_artifacts()[0]
 
-    # Limit this test to just the third component: the dataset.columns table
-    xlsx_artifact.components = xlsx_artifact.components[2:3]
+    # Limit this test to just the second component: the dataset.columns table
+    xlsx_artifact.components = xlsx_artifact.components[1:2]
     column_comp_def = xlsx_artifact.components[0]
-    assert column_comp_def.id == "columns"
+    assert column_comp_def.id == "column_information"
 
-    transit_zones_ds = (
-        org_metadata.product("transit_zones")
-        .dataset("transit_zones")
-        .dataset.model_dump()
+    street_center_line_ds = (
+        org_metadata.product("dcm").dataset("street_center_line").dataset
     )
     artifacts = abstract_doc.generate_abstract_artifact(
         artifact=xlsx_artifact,
         org_metadata=org_metadata,
-        product="transit_zones",
-        dataset="transit_zones",
+        product="dcm",
+        dataset="street_center_line",
     )
     assert 1 == len(artifacts)
     component = artifacts[0]
@@ -157,7 +155,7 @@ def test_column_docs(org_metadata: OrgMetadata):
 
     _assert_is_title_subtitle_row(title_subtitle_row, column_comp_def)
 
-    assert len(transit_zones_ds["columns"]) == len(col_rows), (
+    assert len(street_center_line_ds.columns) == len(col_rows), (
         "There should be the correct number of column rows"
     )
 
@@ -165,9 +163,11 @@ def test_column_docs(org_metadata: OrgMetadata):
     assert "values" in column_comp_def.columns
     values_col_index = column_comp_def.columns.index("values")
 
-    # The last row is the borough, which has standardized values.
-    # There should be a better way to filter for this...
-    values_cell_sample = col_rows[-1].cells[values_col_index]
+    # Find the borough column, which has standardized values including Manhattan
+    borough_col_index = next(
+        i for i, col in enumerate(street_center_line_ds.columns) if col.id == "borough"
+    )
+    values_cell_sample = col_rows[borough_col_index].cells[values_col_index]
     # sanity check on that though...
     assert "Manhattan" in values_cell_sample.value
     assert abstract_doc.MONOSPACED_FONT == values_cell_sample.style.font.name, (

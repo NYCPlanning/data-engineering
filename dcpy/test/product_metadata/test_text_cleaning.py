@@ -2,10 +2,11 @@ import dcpy.product_metadata.models.metadata.product as md
 
 
 def test_description_cleaning():
+    """Test that text normalization works correctly."""
     messy_description = """
 
     Newlines Above (Should be removed)
-    Weird Characters: Apostrophe’s big–dash “lquote rquote”
+    Weird Characters: Apostrophe's big–dash "lquote rquote"
 
     Two Newlines Above (Should be Preserved)
     Newline below (Should be removed)
