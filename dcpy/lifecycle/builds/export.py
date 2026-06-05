@@ -9,12 +9,8 @@ import typer
 from shapely import MultiPoint, MultiPolygon
 
 from dcpy.lifecycle import config
-from dcpy.lifecycle.builds import (
-    BUILD_ARTIFACT_DIRS,
-    BUILD_PLAN_ARTIFACTS,
-    metadata,
-    plan,
-)
+from dcpy.lifecycle.builds import config as build_config
+from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.models import ExportDataset, ExportFormat
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
@@ -224,14 +220,14 @@ def export(
         shutil.rmtree(output_folder)
     output_folder.mkdir(parents=True)
 
-    for filename in BUILD_PLAN_ARTIFACTS:
+    for filename in plan.ARTIFACTS:
         source_path = Path(recipe_lock_path).parent / filename
         if not source_path.exists():
             logger.warning(f"Expected build artifact {source_path} does not exist")
             continue
         shutil.copy(source_path, output_folder / filename)
 
-    for dirname in BUILD_ARTIFACT_DIRS:
+    for dirname in build_config.BUILD_ARTIFACT_DIRS:
         source_dir = Path(recipe_lock_path).parent / dirname
         if source_dir.is_dir():
             shutil.copytree(source_dir, output_folder / dirname)
