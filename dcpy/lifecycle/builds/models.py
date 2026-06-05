@@ -218,24 +218,6 @@ class LoadResult(BaseModel, extra="forbid"):
         return self.datasets[ds_name][self.get_latest_version_str(ds_name)]
 
 
-class EventType(StrEnum):
-    BUILD = "build"
-    PROMOTE_TO_DRAFT = "promote_to_draft"
-    PUBLISH = "publish"
-
-
-class EventLog(BaseModel, extra="forbid"):
-    event: EventType
-    product: str
-    version: str
-    path: str
-    old_path: str | None
-    timestamp: datetime
-    runner_type: str
-    runner: str
-    custom_fields: dict = {}
-
-
 class BuildMetadata(BaseModel, extra="forbid"):
     timestamp: datetime
     commit: str | None = None
