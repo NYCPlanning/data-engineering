@@ -1,26 +1,7 @@
 from pathlib import Path
 
 # Build configuration constants
-BUILD_REPO = "data-engineering"
-
 BUILD_ARTIFACT_DIRS = ["target"]
-
-BUILD_DBS = [
-    "db-cbbr",
-    "db-cdbg",
-    "db-ceqr",
-    "db-checkbook",
-    "db-colp",
-    "db-cpdb",
-    "db-devdb",
-    "db-facilities",
-    "db-green-fast-track",
-    # "db-cscl", we need to preserve schemas while this data product is in development
-    "db-pluto",
-    "db-template",
-    "db-ztl",
-    "kpdb",
-]
 
 
 def get_recipe_path(product_path: Path, recipe_name: str | None = None) -> Path:
