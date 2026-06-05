@@ -14,6 +14,7 @@ from jinja2 import (
 )
 
 from dcpy.connectors.edm import publishing, recipes
+from dcpy.lifecycle.builds import config
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
 from dcpy.lifecycle.builds.models import (
     InputDatasetDefaults,
@@ -29,6 +30,12 @@ RECIPE_FILE_TYPE_PREFERENCE = [
     recipes.DatasetType.pg_dump,
     recipes.DatasetType.parquet,
     recipes.DatasetType.csv,
+]
+
+ARTIFACTS = [
+    "recipe.lock.yml",
+    "build_metadata.json",
+    "source_data_versions.csv",
 ]
 
 
@@ -319,6 +326,56 @@ def recipe_from_yaml(
     recipe = Recipe(**s)
     _apply_recipe_defaults(recipe)
     return recipe
+
+
+def get_recipe(
+    product_path: Path,
+    recipe_name: str | None = None,
+    render_templates: bool = True,
+    vars: dict[str, str] | None = None,
+) -> Recipe:
+    """Load a recipe file as a pydantic Recipe model.
+
+    Args:
+        product_path: Path to the product directory
+        recipe_name: Name of the recipe file (e.g., "my-recipe").
+                    If None, defaults to "recipe"
+        render_templates: If True, render Jinja2 templates from vars or BUILD_ENV_* vars.
+                         If False, preserve templates as strings (for DAG generation).
+        vars: Optional dict of template variables. If provided, these are used instead
+              of BUILD_ENV_* environment variables.
+
+    Returns:
+        Recipe pydantic model
+    """
+    recipe_path = config.get_recipe_path(product_path, recipe_name)
+    return recipe_from_yaml(recipe_path, render_templates=render_templates, vars=vars)
+
+
+def get_recipe_lock(
+    product_path: Path,
+    recipe_name: str | None = None,
+    render_templates: bool = True,
+    vars: dict[str, str] | None = None,
+) -> Recipe:
+    """Load a recipe lockfile as a pydantic Recipe model.
+
+    Args:
+        product_path: Path to the product directory
+        recipe_name: Name of the recipe file (e.g., "my-recipe").
+                    If None, defaults to "recipe"
+        render_templates: If True, render Jinja2 templates from vars or BUILD_ENV_* vars.
+                         If False, preserve templates as strings (for DAG generation).
+        vars: Optional dict of template variables. If provided, these are used instead
+              of BUILD_ENV_* environment variables.
+
+    Returns:
+        Recipe pydantic model from the lockfile
+    """
+    recipe_lock_path = config.get_recipe_lock_path(product_path, recipe_name)
+    return recipe_from_yaml(
+        recipe_lock_path, render_templates=render_templates, vars=vars
+    )
 
 
 def generate_lock_file(recipe_file: Path, recipe: Recipe) -> Path:
