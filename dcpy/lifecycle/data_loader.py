@@ -9,7 +9,7 @@ import typer
 
 from dcpy.connectors.edm.models import DatasetType
 from dcpy.lifecycle import config
-from dcpy.lifecycle.builds.models import InputDataset
+from dcpy.lifecycle.builds.plan.models import InputDataset
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils import postgres
 from dcpy.utils.geospatial import parquet as geoparquet

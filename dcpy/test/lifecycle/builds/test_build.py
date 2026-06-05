@@ -8,7 +8,7 @@ import pytest
 from shapely import MultiPolygon, Point, Polygon
 
 from dcpy.lifecycle.builds.export import export, export_geodataset_from_postgres
-from dcpy.lifecycle.builds.models import ExportFormat
+from dcpy.lifecycle.builds.plan.models import ExportFormat
 
 _point_row = {"id": 1, "geometry": Point(0, 0)}
 _polygon_row = {

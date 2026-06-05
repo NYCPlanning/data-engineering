@@ -1,172 +1,38 @@
 from __future__ import annotations
 
-from datetime import date, datetime
-from enum import StrEnum
+from datetime import datetime
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
-from pydantic import AliasChoices, BaseModel, Field, model_serializer, model_validator
-from typing_extensions import Self
+from pydantic import BaseModel, field_validator, model_serializer
 
 from dcpy.connectors.edm import models as recipes
-from dcpy.utils import versions
 
+if TYPE_CHECKING:
+    from dcpy.lifecycle.builds.plan.models import InputDataset, InputDatasetDestination, Recipe
 
-class RecipeInputsVersionStrategy(StrEnum):
-    find_latest = "find_latest"
-    copy_latest_release = "copy_latest_release"
-
-
-class DataPreprocessor(BaseModel, extra="forbid"):
-    module: str
-    function: str
-
-
-class InputDatasetDestination(StrEnum):
-    postgres = "postgres"
-    df = "df"
-    file = "file"
-
-
-class InputDataset(BaseModel, extra="forbid"):
-    id: str = Field(validation_alias=AliasChoices("id", "name"))
-    version: str | None = None
-    source: str | None = None
-    file_type: recipes.DatasetType | None = None
-    name: str | None = None
-    version_env_var: str | None = None
-    import_as: str | None = None
-    preprocessor: DataPreprocessor | None = None
-    destination: InputDatasetDestination | None = None
-    load_engine: str | None = None
-    archive_date: date | None = None
-    custom: dict = Field(default_factory=dict)
-
-    @property
-    def is_resolved(self):
-        return self.version is not None and self.version != "latest"
-
-    @property
-    def dataset(self):
-        if self.version is None:
-            raise ValueError(f"Dataset '{self.id}' requires version")
-
-        return recipes.Dataset(
-            id=self.id, version=self.version, file_type=self.file_type
-        )
-
-
-class InputDatasetDefaults(BaseModel):
-    file_type: recipes.DatasetType | None = None
-    source: str = "edm.recipes.datasets"
-    preprocessor: DataPreprocessor | None = None
-    destination: InputDatasetDestination = InputDatasetDestination.postgres
-    load_engine: str = "pandas"
-
-
-class RecipeInputs(BaseModel):
-    missing_versions_strategy: RecipeInputsVersionStrategy | None = None
-    datasets: list[InputDataset] = []
-    dataset_defaults: InputDatasetDefaults | None = None
-
-
-class ExportFormat(StrEnum):
-    """TODO - resolve this with recipes.DatasetType?"""
-
-    csv = "csv"
-    parquet = "parquet"
-    shapefile = "shp"
-    gdb = "gdb"
-    dat = "dat"
-
-
-class ExportDataset(BaseModel, extra="forbid"):
-    """Assumed to come from postgres for now"""
-
-    name: str
-    filename: str | None = None
-    format: ExportFormat
-    custom: dict | None = None
-
-
-class BuildExports(BaseModel, extra="forbid"):
-    output_folder: Path | None = None
-    zip_name: str | None = None
-    datasets: list[ExportDataset] = []
-
-
-class StageConfigValue(BaseModel, extra="forbid"):
-    UNRESOLVABLE_ERROR: ClassVar[str] = (
-        "Stage Conf Value requires either `value` or `value_from`"
-    )
-
-    name: str
-    value: str | None = None
-    value_from: dict[str, str] = {}
-
-    @model_validator(mode="after")
-    def check_resolvable(self) -> Self:
-        if not self.value and not self.value_from:
-            raise ValueError(self.UNRESOLVABLE_ERROR)
-        return self
-
-
-class CommandType(StrEnum):
-    """Type of command execution."""
-
-    shell = "shell"  # Execute as shell command
-    python = "python"  # Import and execute as Python module
-
-
-class BuildCommand(BaseModel, extra="forbid"):
-    """A build command to execute during the build stage."""
-
-    name: str
-    run: str
-    command_type: CommandType = CommandType.shell
-
-
-class StageConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
-    destination: str | None = None
-    destination_key: str | None = None
-    connector_args: list[StageConfigValue] = []
-    commands: list[BuildCommand] = []
-
-    def get_connector_args_dict(self) -> dict[str, Any]:
-        return {a.name: a.value for a in self.connector_args or []}
-
-
-class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
-    name: str
-    product: str
-    base_recipe: str | None = None
-    version_type: versions.VersionSubType | None = None
-    version_strategy: versions.VersionStrategy | None = None
-    version: str | None = None
-    vars: dict[str, str] | None = None
-    inputs: RecipeInputs
-    exports: BuildExports | None = None
-    stage_config: dict[str, StageConfig] = {}
-    custom: dict[str, Any] | None = None
-
-    def is_resolved(self) -> bool:
-        return (
-            self.version is not None
-            and (
-                len(self.inputs.datasets) == 0
-                or len([x for x in self.inputs.datasets if not x.is_resolved]) == 0
-            )
-            and not self.get_unresolved_stage_config_values()
-        )
-
-    def get_unresolved_stage_config_values(self) -> list[StageConfigValue]:
-        unresolved = []
-        for _, conf in self.stage_config.items():
-            for conn_args in conf.connector_args or []:
-                if conn_args.value_from and not conn_args.value:
-                    unresolved.append(conn_args)
-        return unresolved
+# TODO: Fix circular import caused by architectural issue
+# ========================================================
+# We use Any for Recipe type to avoid circular import at module load time.
+# The circular import chain is:
+#   dcpy/connectors/edm/publishing.py (imports BuildMetadata)
+#     → dcpy/lifecycle/builds/models.py (imports Recipe)
+#     → dcpy/lifecycle/builds/plan/models.py
+#     → dcpy/lifecycle/builds/plan/recipe.py (imports publishing)
+#     → back to publishing.py 🔄
+#
+# Root cause: publishing.py is in connectors/ but imports lifecycle models (backwards dependency).
+# Proper architecture should be: lifecycle → connectors (never connectors → lifecycle)
+#
+# Potential solutions:
+#   1. Move publishing.py to lifecycle/builds/artifacts/ (it's really lifecycle code)
+#   2. Have publishing.py return plain dicts, let lifecycle handle deserialization
+#   3. Extract BuildMetadata to a shared models module both can import
+#
+# Current workaround: Use Any + @field_validator for runtime type conversion
+# Note: InputDataset/InputDatasetDestination have been moved to plan.models
+# ========================================================
 
 
 class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
@@ -174,12 +40,10 @@ class ImportedDataset(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version: str
     file_type: recipes.DatasetType
     destination: str | pd.DataFrame | Path
-    destination_type: InputDatasetDestination | None = None
+    destination_type: Any = None  # InputDatasetDestination
 
     @staticmethod
-    def from_input(
-        ds: InputDataset, result: str | pd.DataFrame | Path
-    ) -> ImportedDataset:
+    def from_input(ds: Any, result: str | pd.DataFrame | Path) -> ImportedDataset:
         assert ds.version, f"Version of {ds.id} not resolved"
         assert ds.file_type, f"File type of {ds.id} not resolved"
         return ImportedDataset(
@@ -224,12 +88,26 @@ class BuildMetadata(BaseModel, extra="forbid"):
     run_url: str | None = None
     version: str
     draft_revision_name: str | None = None
-    recipe: Recipe
+    recipe: Any  # Recipe - using Any to avoid circular import, validated below
     load_result: LoadResult | None = None
+
+    @field_validator("recipe", mode="before")
+    @classmethod
+    def validate_recipe(cls, v):
+        """Ensure recipe is a Recipe instance, not a dict."""
+        if isinstance(v, dict):
+            from dcpy.lifecycle.builds.plan.models import Recipe
+
+            return Recipe(**v)
+        return v
 
     def __init__(self, **data):
         if "version" not in data:
             recipe = data["recipe"]
-            if recipe.version is not None:
-                data["version"] = recipe.version
+            # Handle both Recipe objects and dicts
+            version = (
+                recipe.version if hasattr(recipe, "version") else recipe.get("version")
+            )
+            if version is not None:
+                data["version"] = version
         super().__init__(**data)

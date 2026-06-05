@@ -13,7 +13,7 @@ from dcpy.connectors.edm import recipes
 from dcpy.data import compare
 from dcpy.data import models as comparison
 from dcpy.lifecycle import data_loader
-from dcpy.lifecycle.builds.models import InputDataset
+from dcpy.lifecycle.builds.plan.models import InputDataset
 from dcpy.lifecycle.ingest.models import DatasetAttributes
 from dcpy.lifecycle.ingest.run import INGEST_DIR
 from dcpy.lifecycle.ingest.run import ingest as run_ingest

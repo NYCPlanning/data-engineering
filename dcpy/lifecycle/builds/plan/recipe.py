@@ -16,7 +16,7 @@ from jinja2 import (
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.lifecycle.builds import config
 from dcpy.lifecycle.builds.connector import get_recipes_default_connector
-from dcpy.lifecycle.builds.models import (
+from dcpy.lifecycle.builds.plan.models import (
     InputDatasetDefaults,
     Recipe,
     RecipeInputsVersionStrategy,

@@ -12,7 +12,7 @@ from dcpy.connectors.edm import publishing, recipes
 from dcpy.connectors.registry import ConnectorRegistry, VersionedConnector
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.builds import plan
-from dcpy.lifecycle.builds.models import InputDataset, StageConfigValue
+from dcpy.lifecycle.builds.plan.models import InputDataset, StageConfigValue
 from dcpy.test.lifecycle.builds.conftest import REQUIRED_VERSION_ENV_VAR, RESOURCES_DIR
 from dcpy.utils import versions
 

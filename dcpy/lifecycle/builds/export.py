@@ -11,7 +11,7 @@ from shapely import MultiPoint, MultiPolygon
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
-from dcpy.lifecycle.builds.models import ExportDataset, ExportFormat
+from dcpy.lifecycle.builds.plan.models import ExportDataset, ExportFormat
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 

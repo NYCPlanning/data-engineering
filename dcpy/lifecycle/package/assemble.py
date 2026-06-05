@@ -7,7 +7,7 @@ import dcpy.product_metadata.models.metadata.product as md
 from dcpy.connectors.edm import models as recipes
 from dcpy.lifecycle import config, data_loader
 from dcpy.lifecycle import product_metadata as org_metadata_loader
-from dcpy.lifecycle.builds.models import InputDataset, InputDatasetDestination
+from dcpy.lifecycle.builds.plan.models import InputDataset, InputDatasetDestination
 from dcpy.lifecycle.models import PackageAssembleResult
 from dcpy.lifecycle.package import validate
 from dcpy.product_metadata.writers.oti_xlsx import xlsx_writer
