@@ -1,10 +1,9 @@
 from functools import cache
 
 import pandas as pd
-from ingest import ingestion_helpers
-from ingest.ingestion_helpers import load_data
 from numpy import nan
 from shapely.geometry import Point
+from utils.data_loaders import load_data
 
 from dcpy.utils.logging import logger
 
@@ -108,7 +107,7 @@ def _get_cd_puma_crosswalk() -> dict[str, str]:
     e.g. BX3 -> 04263
     """
     logger.info("loading cd->puma crosswalk")
-    cw = ingestion_helpers.load_data("dcp_population_cd_puma_crosswalk_2020")
+    cw = load_data("dcp_population_cd_puma_crosswalk_2020")
     cw["puma_code"] = cw["puma_code"].apply(lambda c: f"0{c}")
     cw["dist_key"] = cw["borough_code"] + cw["community_district_num"]
     return cw.set_index("dist_key")["puma_code"].to_dict()

@@ -1,6 +1,6 @@
 import pandas as pd
-from ingest.ingestion_helpers import load_data
 from resources import load
+from utils.data_loaders import load_data
 from utils.geo_helpers import (
     borough_name_mapper,
     clean_PUMAs,

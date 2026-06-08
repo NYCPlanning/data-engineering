@@ -1,6 +1,6 @@
 import geopandas as gpd
 import pandas as pd
-from ingest import ingestion_helpers
+from utils import data_loaders
 from utils.geo_helpers import puma_from_point
 
 
@@ -16,9 +16,7 @@ def _load_residential_evictions() -> gpd.GeoDataFrame:
 
     Filters to evictions from 2019 onwards.
     """
-    evictions = ingestion_helpers.load_data(
-        "doi_evictions_geocoded", is_geospatial=True
-    )
+    evictions = data_loaders.load_data("doi_evictions_geocoded", is_geospatial=True)
 
     # Filter to residential only
     residential_evictions = evictions[

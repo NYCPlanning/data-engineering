@@ -1,5 +1,5 @@
 import geopandas as gp
-from ingest.ingestion_helpers import load_data
+from utils.data_loaders import load_data
 from utils.geo_helpers import get_2020_pumas
 
 supported_geographies = ["puma", "borough", "citywide"]

@@ -3,8 +3,8 @@ from typing import List
 
 import geopandas as gpd
 import pandas as pd
-from ingest.ingestion_helpers import load_data
 from resources import load
+from utils.data_loaders import load_data
 from utils.geo_helpers import borough_num_mapper, get_2020_pumas, get_nta_to_puma_mapper
 
 job_type_mapper = {

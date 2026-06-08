@@ -1,7 +1,7 @@
 """Aggregation for this indicator is unusual in that some records have borough
 but no CD. Something to watch out for when testing"""
 
-from ingest import ingestion_helpers
+from utils import data_loaders
 from utils.geo_helpers import borough_name_mapper, community_district_to_puma
 
 from aggregate.config import dhs_shelter_years
@@ -11,7 +11,7 @@ DATASET_NAME = "dhs_shelterd_indiv_by_comm_dist"
 
 
 def _dhs_shelter_single_year(geography: str, year: str):
-    raw_source_data = ingestion_helpers.load_data(name=DATASET_NAME)
+    raw_source_data = data_loaders.load_data(name=DATASET_NAME)
     # return raw_source_data
 
     # Previously the edde DHS ingest script would filter down in the api calls.

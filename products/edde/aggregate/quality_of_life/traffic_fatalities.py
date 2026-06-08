@@ -1,5 +1,5 @@
 import pandas as pd
-from ingest import ingestion_helpers
+from utils import data_loaders
 from utils.geo_helpers import (
     clean_PUMAs,
     get_all_boroughs,
@@ -68,7 +68,7 @@ def get_year_range_df(year_range):
     """
     big_df = pd.DataFrame(data={"puma": get_all_NYC_PUMAs()})
     for year in year_range:
-        raw_df = ingestion_helpers.load_data(
+        raw_df = data_loaders.load_data(
             name=TRAFFIC_FATALITIES_DATASET, version=str(year)
         )
         injuries_col_name = f"injuries_total_{year}"
