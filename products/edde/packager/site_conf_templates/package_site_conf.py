@@ -134,7 +134,7 @@ def package_site_conf() -> None:
     variables = get_template_variables()
 
     # Get paths
-    templates_dir = PRODUCT_PATH / "packager" / "site_conf_templates"
+    templates_dir = PRODUCT_PATH / "packager" / "site_conf_templates" / "templates"
     build_output_dir = get_build_output_dir()
     output_dir = build_output_dir / "package" / "site_conf"
 
