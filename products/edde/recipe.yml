@@ -89,14 +89,18 @@ custom:
 stage_config:
   builds.build:
     commands:
-      - name: All Indicators
-        run: python3 -m external_review.external_review_collate all
-      - name: Census Base
-        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
-      - name: ACS Prev
-        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}
-      - name: ACS Current
-        run: python3 -m external_review.collate_save_census {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}
+      - name: Housing & Quality of Life Indicators
+        run: python3 -m build housing_security all
+      - name: Housing Production Indicators
+        run: python3 -m build housing_production all
+      - name: Quality of Life Indicators
+        run: python3 -m build quality_of_life all
+      - name: Census Base Demographics & Economics
+        run: python3 -m build all all {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
+      - name: ACS Prev Demographics & Economics
+        run: python3 -m build all all {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}
+      - name: ACS Current Demographics & Economics
+        run: python3 -m build all all {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}
     destination: edm.publishing.builds
     destination_key: db-eddt
     connector_args:
