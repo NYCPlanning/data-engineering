@@ -5,6 +5,7 @@ from ingest import ingestion_helpers
 from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import borough_name_mapper, community_district_to_puma
 
+from aggregate.config import dhs_shelter_years
 from aggregate.load_aggregated import initialize_dataframe_geo_index
 
 DATASET_NAME = "dhs_shelterd_indiv_by_comm_dist"
@@ -47,7 +48,8 @@ def _dhs_shelter_single_year(geography: str, year: str, write_to_internal_review
 def dhs_shelter(geography, write_to_internal_review=False):
     final = initialize_dataframe_geo_index(geography)
 
-    years = ["2020", "2022"]
+    # Years from recipe config
+    years = dhs_shelter_years
     for year in years:
         single_year = _dhs_shelter_single_year(geography, year)
         final = final.merge(single_year, left_index=True, right_index=True)

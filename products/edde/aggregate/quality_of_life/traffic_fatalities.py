@@ -8,14 +8,17 @@ from utils.geo_helpers import (
     puma_to_borough,
 )
 
+from aggregate.config import traffic_fatalities_year_ranges
+
 TRAFFIC_FATALITIES_DATASET = "dcp_dot_trafficinjuries"
 
 
 def traffic_fatalities_injuries(geography, save_for_internal_review=False):
     assert geography in ["puma", "borough", "citywide"]
+    # Convert recipe config to (year_code, range) tuples
     year_ranges = [
-        ("1014", range(2010, 2015)),
-        ("1620", range(2016, 2021)),
+        (year_code, range(years[0], years[1]))
+        for year_code, years in traffic_fatalities_year_ranges.items()
     ]
     if geography == "puma":
         final = pd.DataFrame(index=get_all_NYC_PUMAs())

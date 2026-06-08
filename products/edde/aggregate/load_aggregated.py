@@ -21,6 +21,7 @@ from utils.geo_helpers import (
     get_all_NYC_PUMAs,
 )
 
+from aggregate.config import acs_year_suffix_map, acs_years_end_to_full
 from dcpy.utils.logging import logger
 
 
@@ -96,12 +97,6 @@ def parse_acs_variable(raw_variable: str):
         "measure": (measure or "").lower(),
         "trailing_num": trailing_num,  # AR Note: I'm not quite sure what this is, yet.
     }
-
-
-# Map year suffixes in column names to full year band codes
-# This maintains compatibility with previous EDDE outputs
-# 12 -> 2008-2012, 24 -> 2020-2024
-acs_years_end_to_full = {"12": "0812", "24": "2024"}
 
 
 def make_acs_parsed_variables_table(acs_df: pd.DataFrame):
@@ -307,9 +302,8 @@ class ACSAggregator:
         years = [start_year, end_year] if self.include_start_year else [end_year]
         logger.info(f"Running {self.name} for {geography}, years: {', '.join(years)}")
 
-        # Map semantic year names to year suffixes for column selection
-        year_suffix_map = {"prev": "12", "current": "24"}
-        year_suffixes = [year_suffix_map.get(y, y) for y in years]
+        # Map semantic year names to year suffixes for column selection (from config)
+        year_suffixes = [acs_year_suffix_map.get(y, y) for y in years]
 
         # Load both ACS periods regardless of the conf. For ease/consistency
         acs_df = load_acs_curr_and_prev()
