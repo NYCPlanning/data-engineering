@@ -1,4 +1,3 @@
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import borough_num_mapper
 
@@ -20,13 +19,8 @@ def load_filings():
     return filings
 
 
-def eviction_cases(geography: str, write_to_internal_review=False):
+def eviction_cases(geography: str):
     """Main Accessor"""
     filings = load_filings()
     final = filings.groupby(geography).sum()[["eviction_filings_count"]]
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "eviction_cases.csv", geography)],
-            "housing_security",
-        )
     return final

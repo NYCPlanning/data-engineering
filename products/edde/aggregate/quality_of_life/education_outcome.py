@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils import geo_helpers
 
@@ -124,15 +123,8 @@ def calculate_edu_outcome(df: pd.DataFrame, geography: str):
     return agg[cols].set_index(geography).apply(lambda x: x * 100).round(2)
 
 
-def get_education_outcome(
-    geography: str, write_to_internal_review=False
-) -> pd.DataFrame:
+def get_education_outcome(geography: str) -> pd.DataFrame:
     outcomes = load_edu_data()
     result = calculate_edu_outcome(outcomes, geography)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(result, "education_outcome.csv", geography)], category="quality_of_life"
-        )
 
     return result

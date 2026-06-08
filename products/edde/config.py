@@ -58,11 +58,11 @@ def get_build_output_dir() -> Path:
 
     # Get version from recipe lockfile
     recipe_lock = get_recipe_lock(PRODUCT_PATH)
-    if not recipe_lock.vars or "VERSION" not in recipe_lock.vars:
+    if not recipe_lock.vars or "BUILD_ENV_EDDE_VERSION" not in recipe_lock.vars:
         raise ValueError(
-            f"VERSION not found in recipe lockfile vars at {get_recipe_lock_path(PRODUCT_PATH)}"
+            f"BUILD_ENV_EDDE_VERSION not found in recipe lockfile vars at {get_recipe_lock_path(PRODUCT_PATH)}"
         )
-    version = recipe_lock.vars["VERSION"]
+    version = recipe_lock.vars["BUILD_ENV_EDDE_VERSION"]
 
     build_output_dir = get_build_dir(PRODUCT_NAME, version)
     logger.info(f"Build output directory: {build_output_dir}")

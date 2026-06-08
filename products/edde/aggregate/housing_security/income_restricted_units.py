@@ -1,7 +1,6 @@
 import pandas as pd
-from ingest.ingestion_helpers import load_data
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
+from utils.data_loaders import load_data
 from utils.geo_helpers import (
     borough_name_mapper,
     clean_PUMAs,
@@ -27,9 +26,7 @@ def _load_clean_income_restricted():
     return source_data
 
 
-def income_restricted_units(
-    geography: str, write_to_internal_review=False
-) -> pd.DataFrame:
+def income_restricted_units(geography: str) -> pd.DataFrame:
     assert geography in ["puma", "borough", "citywide"]
 
     source_data = _load_clean_income_restricted()
@@ -37,12 +34,6 @@ def income_restricted_units(
     final = source_data.groupby(geography).sum()[["units_nycha_count"]]
     final = pd.concat([empty_df, final], axis=1)
     final.fillna(0, inplace=True)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "income_restricted_units.csv", geography)],
-            "housing_security",
-        )
     return final
 
 
@@ -110,17 +101,9 @@ def _load_clean_hpd_data():
     return source_data_with_puma
 
 
-def income_restricted_units_hpd(
-    geography: str, write_to_internal_review=False
-) -> pd.DataFrame:
+def income_restricted_units_hpd(geography: str) -> pd.DataFrame:
     assert geography in ["puma", "borough", "citywide"]
 
     source_data = _load_clean_hpd_data()
     final = source_data.groupby(geography).sum()[["units_hpd_count"]]
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "income_restricted_units_hpd.csv", geography)],
-            "housing_security",
-        )
     return final

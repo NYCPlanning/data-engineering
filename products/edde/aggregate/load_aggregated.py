@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from functools import cache
 
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.dcp_population_excel_helpers import (
     count_suffix_mapper_global,
@@ -293,7 +292,6 @@ class ACSAggregator:
         geography: str,
         start_year: str = acs_years[0],
         end_year: str = acs_years[-1],
-        write_to_internal_review=False,
     ) -> pd.DataFrame:
         assert geography in {"citywide", "borough", "puma"}
 
@@ -321,10 +319,4 @@ class ACSAggregator:
             .rename(columns={"geog": geography})
             .set_index(geography)
         )
-
-        if write_to_internal_review:
-            set_internal_review_files(
-                [(final, self.internal_review_filename, geography)],
-                self.internal_review_category,
-            )
         return final

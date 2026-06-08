@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import acs_years, dcp_pop_races
 
 from aggregate.aggregation_helpers import (
@@ -14,14 +13,10 @@ from aggregate.PUMS.pums_2000_demographics import pums_2000_demographics
 from dcpy.utils.logging import logger
 
 
-def acs_pums_demographics(
-    geography: str, year: str = acs_years[-1], write_to_internal_review=False
-) -> pd.DataFrame:
+def acs_pums_demographics(geography: str, year: str = acs_years[-1]) -> pd.DataFrame:
     logger.info(f"Running acs_pums_demographics: {geography}, {year}")
     if year == "2000":
-        return pums_2000_demographics(
-            geography, write_to_internal_review=write_to_internal_review
-        )
+        return pums_2000_demographics(geography)
     assert geography in ["citywide", "borough", "puma"]
     assert year in acs_years
 
@@ -47,10 +42,4 @@ def acs_pums_demographics(
         exclude_denom=True,
         demographics_category=True,
     )
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, f"ACS_PUMS_demographics_{year}.csv", geography)],
-            "demographics",
-        )
     return final

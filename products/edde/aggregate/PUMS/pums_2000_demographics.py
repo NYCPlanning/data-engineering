@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     map_stat_suffix,
     race_suffix_mapper,
@@ -80,7 +79,7 @@ def _order_pums_2000_demographics(final: pd.DataFrame):
     return final
 
 
-def pums_2000_demographics(geography: str, year="2000", write_to_internal_review=False):
+def pums_2000_demographics(geography: str, year="2000"):
     assert year == "2000"
     final = (
         load_2000_census()
@@ -91,13 +90,5 @@ def pums_2000_demographics(geography: str, year="2000", write_to_internal_review
         .pipe(_rename_cols)
         .pipe(_order_pums_2000_demographics)
     )
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [
-                (final, "demographics_00_PUMS.csv", geography),
-            ],
-            "demographics",
-        )
 
     return final

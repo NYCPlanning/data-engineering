@@ -1,6 +1,6 @@
 import geopandas as gpd
 import pandas as pd
-from ingest.ingestion_helpers import load_data
+from utils.data_loaders import load_data
 from utils.geo_helpers import borough_name_mapper, puma_from_point
 
 cols = [

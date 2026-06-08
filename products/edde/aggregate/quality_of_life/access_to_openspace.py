@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import clean_PUMAs, puma_to_borough
 
@@ -49,9 +48,3 @@ def access_to_openspace(geography: str) -> pd.DataFrame:
 
 def set_results_for_internal_review(df, geography):
     """Saves results to .csv so that reviewers can see results during code review"""
-    set_internal_review_files(
-        data=[
-            (df, "access_openspace.csv", geography),
-        ],
-        category="quality_of_life",
-    )

@@ -15,8 +15,12 @@ PARK_SLOPE_PUMA = "04306"
 
 # Build paths to compare
 # TODO: we need to integrate this into the build a little better.
-OLD_BUILD_PATH = ""
-NEW_BUILD_PATH = ""
+OLD_BUILD_PATH = Path(
+    "/Users/alexrichey/dev/.de_lifecycle_data/builds/build/edde/eddt-2025/data"
+)
+NEW_BUILD_PATH = Path(
+    "/Users/alexrichey/dev/.de_lifecycle_data/builds/build/edde/eddt-2026/data"
+)
 
 assert OLD_BUILD_PATH
 assert NEW_BUILD_PATH
@@ -363,6 +367,47 @@ def compare_builds():
         summary.to_csv(summary_file, index=False)
         logger.info(f"\nAggregated summary saved to: {summary_file}")
         logger.info(f"Total indicators with changes: {len(summary)}")
+
+        # Identify unchanged indicators (no differences in any geography)
+        logger.info("\nIdentifying unchanged indicators...")
+
+        # Add base_variable to comparison for grouping
+        comparison_with_base = comparison.reset_index()
+        comparison_with_base["base_variable"] = comparison_with_base[
+            "normalized_variable"
+        ].apply(lambda v: decompose_column_name(v)["base_variable"])
+
+        # Group by category + base_variable and check if ANY row has a difference
+        # An indicator is unchanged if all its rows have no difference
+        indicator_has_change = comparison_with_base.groupby(
+            ["category", "base_variable"]
+        ).apply(
+            lambda group: (
+                (group["diff"].notna() & (group["diff"] != 0))
+                | (group["2025"].isna() & group["2026"].notna())
+                | (group["2025"].notna() & group["2026"].isna())
+            ).any()
+        )
+
+        # Filter to indicators with NO changes
+        unchanged_indicators = indicator_has_change[~indicator_has_change].reset_index()
+        unchanged_indicators = unchanged_indicators.rename(
+            columns={"base_variable": "indicator"}
+        )
+        unchanged_indicators = unchanged_indicators[
+            ["category", "indicator"]
+        ].sort_values(["category", "indicator"])
+
+        unchanged_file = qa_output_dir / "edde_unchanged_indicators.csv"
+        unchanged_indicators.to_csv(unchanged_file, index=False)
+        logger.info(f"\nUnchanged indicators saved to: {unchanged_file}")
+        logger.info(f"Total unchanged indicators: {len(unchanged_indicators)}")
+
+        # Show breakdown by category
+        unchanged_by_category = unchanged_indicators.groupby("category").size()
+        logger.info("\nUnchanged indicators by category:")
+        for category, count in unchanged_by_category.items():
+            logger.info(f"  {category}: {count}")
 
     return indexed, comparison, differences
 

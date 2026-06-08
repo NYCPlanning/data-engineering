@@ -4,7 +4,6 @@
 """
 
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import puma_to_borough
 
@@ -16,7 +15,7 @@ COLUMN_MAPPINGS = {
 }
 
 
-def access_subway_and_access_ADA(geography, save_for_internal_review=False):
+def access_subway_and_access_ADA(geography):
     """Accessor for two similar indicators:
     - Percent of residents within 1/4 mile of ADA accessible subway stations
     - Percent within 1/4 mile of subway or Select Bus station"""
@@ -46,10 +45,6 @@ def access_subway_and_access_ADA(geography, save_for_internal_review=False):
     subway_and_ADA_access = subway_fraction.merge(
         ADA_fraction, left_index=True, right_index=True
     )
-    if save_for_internal_review:
-        set_results_for_internal_review(
-            access_df=subway_and_ADA_access, geography=geography
-        )
 
     return subway_and_ADA_access[[subway_SBS_ind_name, ADA_ind_name]]
 
@@ -58,16 +53,6 @@ def assign_geo_cols(access_dataset):
     access_dataset["borough"] = access_dataset.apply(axis=1, func=puma_to_borough)
 
     access_dataset["citywide"] = "citywide"
-
-
-def set_results_for_internal_review(access_df, geography):
-    """Saves results to .csv so that reviewers can see results during code review"""
-    set_internal_review_files(
-        data=[
-            (access_df, "Access_to_subway_or_sbs.csv", geography),
-        ],
-        category="quality_of_life",
-    )
 
 
 def calculate_access_fraction(data, gb_col, count_col, fraction_col):

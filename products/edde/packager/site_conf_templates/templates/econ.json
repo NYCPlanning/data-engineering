@@ -6,9 +6,9 @@
       "has_change": true,
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, 2008-2012",
-        "ACS PUMS, 2019-2023",
-        "CHANGE, 2008-2012 to 2019-2023"
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}",
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "denominator": {
         "subcategory": "age_",
@@ -31,24 +31,24 @@
       "district": {
         "files": [
           "economics_2000_puma",
-          "economics_0812_puma",
-          "economics_1923_puma",
+          "economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma",
+          "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma",
           "economics_change_puma"
         ]
       },
       "borough": {
         "files": [
           "economics_2000_borough",
-          "economics_0812_borough",
-          "economics_1923_borough",
+          "economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough",
+          "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough",
           "economics_change_borough"
         ]
       },
       "citywide": {
         "files": [
           "economics_2000_citywide",
-          "economics_0812_citywide",
-          "economics_1923_citywide",
+          "economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide",
+          "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide",
           "economics_change_citywide"
         ]
       }
@@ -85,7 +85,7 @@
     "base": {
       "title": "Median Household Income (2023 Dollars)",
       "is_survey": true,
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023",  "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",  "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "has_change": true,
       "denominator": {
         "subcategory": "",
@@ -110,13 +110,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma", "economics_change_puma"]
       },
       "borough": {
-        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough", "economics_change_borough"]
       },
       "citywide": {
-        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide", "economics_change_citywide"]
       }
     },
     "subgroups": {
@@ -151,7 +151,7 @@
     "base": {
       "title": "Households By AMI* Band",
       "is_survey": true,
-      "vintages": ["ACS PUMS, 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "households",
@@ -174,13 +174,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_1923_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma"]
       },
       "borough": {
-        "files": ["economics_1923_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough"]
       },
       "citywide": {
-        "files": ["economics_1923_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide"]
       }
     },
     "subgroups": {
@@ -216,7 +216,7 @@
       "title": "Labor Force",
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "age_p16t64",
@@ -232,13 +232,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma", "economics_change_puma"]
       },
       "borough": {
-        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough", "economics_change_borough"]
       },
       "citywide": {
-        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide", "economics_change_citywide"]
       }
     },
     "subgroups": {
@@ -274,7 +274,7 @@
       "title": "Occupation",
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "cvem",
@@ -296,13 +296,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma", "economics_change_puma"]
       },
       "borough": {
-        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough", "economics_change_borough"]
       },
       "citywide": {
-        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide", "economics_change_citywide"]
       }
     },
     "subgroups": {
@@ -344,7 +344,7 @@
       "id": null,
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
       "subcategory": "occupation_",
@@ -401,13 +401,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma", "economics_change_puma"]
       },
       "borough": {
-        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough", "economics_change_borough"]
       },
       "citywide": {
-        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide", "economics_change_citywide"]
       }
     },
     "subgroups": {
@@ -443,7 +443,7 @@
       "title": "Industry",
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "cvem",
@@ -487,13 +487,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma", "economics_change_puma"]
       },
       "borough": {
-        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough", "economics_change_borough"]
       },
       "citywide": {
-        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide", "economics_change_citywide"]
       }
     },
     "subgroups": {
@@ -535,7 +535,7 @@
       "id": null,
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
       "subcategory": "industry_",
@@ -640,13 +640,13 @@
     },
     "geographies": {
       "district": {
-        "files": ["economics_0812_puma", "economics_1923_puma", "economics_change_puma"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma", "economics_change_puma"]
       },
       "borough": {
-        "files": ["economics_0812_borough", "economics_1923_borough", "economics_change_borough"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough", "economics_change_borough"]
       },
       "citywide": {
-        "files": ["economics_0812_citywide", "economics_1923_citywide", "economics_change_citywide"]
+        "files": ["economics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide", "economics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide", "economics_change_citywide"]
       }
     },
     "subgroups": {

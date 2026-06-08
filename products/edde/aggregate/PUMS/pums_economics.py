@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     count_suffix_mapper_global,
     median_suffix_mapper_global,
@@ -130,26 +129,14 @@ def economics_median_cols_order():
     return rv
 
 
-def acs_pums_economics(
-    geography, year: str = acs_years[-1], write_to_internal_review=False
-):
+def acs_pums_economics(geography, year: str = acs_years[-1]):
     """Main accessor"""
     assert year in acs_years
     assert geography in ["puma", "borough", "citywide"]
     if year == "2000":
-        return pums_2000_economics(
-            geography, write_to_internal_review=write_to_internal_review
-        )
+        return pums_2000_economics(geography)
 
     final = load_clean_source_data(year).loc[geography].rename_axis(geography)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [
-                (final, f"ACS_PUMS_economics_{year}.csv", geography),
-            ],
-            "economics",
-        )
     return final
 
 

@@ -1,6 +1,5 @@
 import pandas as pd
-from ingest import ingestion_helpers
-from internal_review.set_internal_review_file import set_internal_review_files
+from utils import data_loaders
 from utils.geo_helpers import (
     clean_PUMAs,
     get_all_boroughs,
@@ -13,7 +12,7 @@ from aggregate.config import traffic_fatalities_year_ranges
 TRAFFIC_FATALITIES_DATASET = "dcp_dot_trafficinjuries"
 
 
-def traffic_fatalities_injuries(geography, save_for_internal_review=False):
+def traffic_fatalities_injuries(geography):
     assert geography in ["puma", "borough", "citywide"]
     # Convert recipe config to (year_code, range) tuples
     year_ranges = [
@@ -58,11 +57,6 @@ def traffic_fatalities_injuries(geography, save_for_internal_review=False):
     add_safety_column_label_prefix(final)
     remove_total_from_column_labels(final)
 
-    if save_for_internal_review:
-        set_internal_review_files(
-            [(final, "traffic_injuries_fatalities.csv", geography)],
-            "quality_of_life",
-        )
     return final
 
 
@@ -74,7 +68,7 @@ def get_year_range_df(year_range):
     """
     big_df = pd.DataFrame(data={"puma": get_all_NYC_PUMAs()})
     for year in year_range:
-        raw_df = ingestion_helpers.load_data(
+        raw_df = data_loaders.load_data(
             name=TRAFFIC_FATALITIES_DATASET, version=str(year)
         )
         injuries_col_name = f"injuries_total_{year}"

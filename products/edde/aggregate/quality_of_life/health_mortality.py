@@ -4,7 +4,6 @@ import re
 
 import numpy as np
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import clean_PUMAs
 
@@ -43,7 +42,7 @@ def shorten_year_range(col):
         return col
 
 
-def infant_mortality(geography: str, year=LATEST_YEAR, write_to_internal_review=False):
+def infant_mortality(geography: str, year=LATEST_YEAR):
     ind_name = "infant_mortality_per1000"
     clean_data = load_clean_source_data(geography=geography)
 
@@ -57,18 +56,10 @@ def infant_mortality(geography: str, year=LATEST_YEAR, write_to_internal_review=
     )
 
     final.replace(to_replace="*", value=np.nan, inplace=True)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "health_infant_mortality.csv", geography)],
-            category="quality_of_life",
-        )
     return final
 
 
-def overdose_mortality(
-    geography: str, year=LATEST_YEAR, write_to_internal_review=False
-):
+def overdose_mortality(geography: str, year=LATEST_YEAR):
     ind_name = "overdose_mortality_per100000"
     clean_data = load_clean_source_data(geography=geography)
 
@@ -80,18 +71,10 @@ def overdose_mortality(
 
     final.replace(to_replace="*", value=np.nan, inplace=True)
 
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "health_overdose_mortality.csv", geography)],
-            category="quality_of_life",
-        )
-
     return final
 
 
-def premature_mortality(
-    geography: str, year=LATEST_YEAR, write_to_internal_review=False
-):
+def premature_mortality(geography: str, year=LATEST_YEAR):
     ind_name = "premature_mortality_per100000"
     clean_data = load_clean_source_data(geography=geography)
 
@@ -102,12 +85,6 @@ def premature_mortality(
     )
 
     final.replace(to_replace="*", value=np.nan, inplace=True)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "health_premature_mortality.csv", geography)],
-            category="quality_of_life",
-        )
     return final
 
 

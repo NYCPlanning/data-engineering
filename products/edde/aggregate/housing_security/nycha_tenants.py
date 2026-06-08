@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.dcp_population_excel_helpers import race_suffix_mapper_global
 from utils.geo_helpers import acs_years, clean_PUMAs, puma_to_borough
@@ -12,9 +11,7 @@ race_labels = ["", "_wnh", "_bnh", "_hsp", "_anh", "_onh"]
 pop_labels = ["Total Population", "White", "Black", "Hispanic", "Asian", "Other"]
 
 
-def nycha_tenants(
-    geography: str, year: str = acs_years[-1], write_to_internal_review=False
-):
+def nycha_tenants(geography: str, year: str = acs_years[-1]):
     assert geography in ["citywide", "borough", "puma"]
 
     clean_data = load_clean_nycha_data()
@@ -51,12 +48,6 @@ def nycha_tenants(
     final_cols = [col for col in order_cols if "cv" not in col]
     final_cols = [col for col in final_cols if "moe" not in col]
     final = final.reindex(columns=final_cols)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "nycha_tenants.csv", geography)],
-            "housing_security",
-        )
 
     return final
 
