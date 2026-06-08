@@ -51,7 +51,7 @@ bbl_join AS (
     SELECT
         a.job_number,
         a.bbl,
-        a.wkb_geometry AS point_geom,
+        a.geom AS point_geom,
         b.wkb_geometry AS bbl_join_geom
     FROM dcp_housing_filtered AS a
     LEFT JOIN dcp_mappluto_wi AS b
