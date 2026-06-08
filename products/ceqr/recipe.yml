@@ -19,7 +19,6 @@ inputs:
     - name: dcp_green_fast_track_lots
     - name: dcp_projects
     - name: dcp_housing
-      file_type: pg_dump
     - name: dcp_zoningdistricts
     - name: dcp_commercialoverlay
     - name: dcp_specialpurpose

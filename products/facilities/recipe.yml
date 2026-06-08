@@ -188,7 +188,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dycd_service_sites
-    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
