@@ -4,7 +4,7 @@
       "title": "Housing Tenure",
       "has_change": true,
       "subcategory": "units_",
-      "years": ["_2000", "_0812", "_1923"],
+      "years": ["_2000", "_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}", "_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Owner-occupied", "Renter-occupied"],
       "is_survey": true,
       "denominator": {
@@ -15,9 +15,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, 2008-2012",
-        "ACS PUMS, 2019-2023",
-        "CHANGE, 2008-2012 to 2019-2023"
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}",
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["occupied_owner", "occupied_renter"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -67,9 +67,9 @@
         "variances": ["NONE", "MOE", "CV"],
         "variable": "units_occupied_owner"
       },
-      "years": ["_0812", "_1923"],
+      "years": ["_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}", "_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Median Home Value (Dollars)"],
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["homevalue_median"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
@@ -119,9 +119,9 @@
         "measures": ["COUNT", "COUNT", "COUNT"],
         "variances": ["NONE", "MOE", "CV"]
       },
-      "years": ["_0812", "_1923"],
+      "years": ["_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}", "_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Median gross rent (dollars)"],
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["rent_median"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
@@ -173,9 +173,9 @@
         "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
-      "years": ["_0812", "_1923"],
+      "years": ["_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}", "_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["30.0 percent or more (rent-burdened)","50.0 percent or more (severely rent-burdened)"],
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["rb","erb"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
       "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
@@ -280,7 +280,7 @@
       "denominator": {
         "label": "Occupied units paying rent",
         "subcategory": "units_",
-        "variable": "payingrent_1923",
+        "variable": "payingrent_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}",
         "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
@@ -293,7 +293,7 @@
         "Middle-income (121-165% AMI)",
         "High-income (166% or higher AMI)"
       ],
-      "vintages": ["ACS PUMS, 2019-2023"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "subcategory": "units_",
       "variables": [
         "affordable_eli",
@@ -403,8 +403,8 @@
         "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
-      "vintages": ["ACS PUMS, 2008-2012", "ACS PUMS, 2019-2023", "CHANGE, 2008-2012 to 2019-2023"],
-      "years": ["_0812","_1923"],
+      "vintages": ["ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "years": ["_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}","_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Overcrowded units (> 1 person per room)"],
       "subcategory": "units_",
       "variables": ["overcrowded"],
@@ -496,7 +496,7 @@
       "id": "3.10.T",
       "has_change": true,
       "vintages": ["NYC DEPARTMENT OF HOMELESS SERVICES, 2020", "NYC DEPARTMENT OF HOMELESS SERVICES, 2022", "CHANGE, 2020-2022"],
-      "years": ["_2020", "_2022"],
+      "years": ["_{{ dhs_shelter.years[0] }}", "_{{ dhs_shelter.years[1] }}"],
       "labels": ["Total number of individuals in DHS shelter system whose last address was in this area"],
       "variables": ["dhs_shelter"],
       "headers": [[["number", 1]]],

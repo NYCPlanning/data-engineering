@@ -113,7 +113,7 @@
         "vintages": [
           "NYC VITAL STATISTICS, 2016-2020"
         ],
-        "years": ["_1620"]
+        "years": ["_{{ health_mortality.latest_year }}"]
       },
       "borough": {
         "files": [
@@ -180,7 +180,7 @@
         "vintages": [
           "NYC VITAL STATISTICS, 2016-2020"
         ],
-        "years": ["_1620"]
+        "years": ["_{{ health_mortality.latest_year }}"]
       },
       "borough": {
         "files": [
@@ -242,7 +242,7 @@
       "district": {
         "files": [ "quality_of_life_puma" ],
         "vintages": [ "NYC VITAL STATISTICS, 2016-2020" ],
-        "years": [ "_1620" ]
+        "years": [ "_{{ health_mortality.latest_year }}" ]
       },
       "borough": {
         "files": [ "quality_of_life_borough"  ],
@@ -436,7 +436,7 @@
     "base": {
       "title": "Commute",
       "subcategory": "access_",
-      "years": ["_0812", "_1923"],
+      "years": ["_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}", "_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
       "has_change": true,
       "labels": ["Drove or carpooled to work"],
       "is_survey": true,
@@ -447,9 +447,9 @@
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
       "vintages": [
-        "ACS PUMS, 2008-2012",
-        "ACS PUMS, 2019-2023",
-        "CHANGE, 2008-2012 to 2019-2023"
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}",
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["carcommute"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -524,7 +524,7 @@
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
       "vintages": [
-        "ACS PUMS, 2019-2023"
+        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["computer", "broadband"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -769,7 +769,7 @@
         "NYC VISION ZERO VIEW, 2016-2020",
         "CHANGE, 2010-2014 to 2016-2020"
       ],
-      "years": ["_1620"],
+      "years": ["_{{ health_mortality.latest_year }}"],
       "variables": ["trafficfatalities"],
       "measures": ["RATE"],
       "variances": ["NONE"],

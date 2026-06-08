@@ -7,6 +7,7 @@ case $1 in
             * ) (python3 -m external_review.collate_save_census; python3 -m external_review.external_review_collate);;
         esac;;
     qa ) python3 -m qa.proto_qa;;
+    package ) python3 -m packager.package_site_conf;;
     export ) ./external_review/export_DO.sh $2;;
     * ) echo "$@ command not found";
 esac
