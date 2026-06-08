@@ -4,7 +4,6 @@ from typing import List
 import geopandas as gpd
 import pandas as pd
 from ingest.ingestion_helpers import load_data
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import borough_num_mapper, get_2020_pumas, get_nta_to_puma_mapper
 
@@ -122,7 +121,7 @@ def rename_col(cols) -> List:
     return new_cols
 
 
-def change_in_units(geography: str, write_to_internal_review=False):
+def change_in_units(geography: str):
     assert geography in ["citywide", "borough", "puma"]
     df = _load_housing_data()
 
@@ -153,11 +152,5 @@ def change_in_units(geography: str, write_to_internal_review=False):
     final = pd.concat([results, census_units.set_index(geography)], axis=1)
 
     final.columns = rename_col(final.columns)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "change_in_units.csv", geography)],
-            "housing_production",
-        )
 
     return final

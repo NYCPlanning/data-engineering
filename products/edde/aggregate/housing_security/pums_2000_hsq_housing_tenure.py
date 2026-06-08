@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     map_stat_suffix,
     race_suffix_mapper,
@@ -57,7 +56,7 @@ def _order_pums_2000_hsq(final: pd.DataFrame):
     return final
 
 
-def pums_2000_hsq_housing_tenure(geography: str, write_to_internal_review=False):
+def pums_2000_hsq_housing_tenure(geography: str):
     df = (
         pd.DataFrame(
             load_2000_census()
@@ -68,13 +67,5 @@ def pums_2000_hsq_housing_tenure(geography: str, write_to_internal_review=False)
         .rename_axis(geography)
         .pipe(_order_pums_2000_hsq)
     )
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [
-                (df, "security_2000_acs.csv", geography),
-            ],
-            "housing_security",
-        )
 
     return df

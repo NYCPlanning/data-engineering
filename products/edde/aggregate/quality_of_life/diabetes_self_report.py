@@ -1,4 +1,3 @@
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import (
     borough_name_mapper,
@@ -14,7 +13,7 @@ COLUMN_MAPPINGS = {
 HEALTH_DIABETES_PREFIX = "health_diabetes"
 
 
-def health_diabetes(geography: str, write_to_internal_review=False):
+def health_diabetes(geography: str):
     # Output Columns
     pct_col = f"{HEALTH_DIABETES_PREFIX}_pct"
     lower_95_col = f"{HEALTH_DIABETES_PREFIX}_lower_pct_moe"
@@ -25,19 +24,13 @@ def health_diabetes(geography: str, write_to_internal_review=False):
     clean_df[lower_95_col] = clean_df["Diabetes_lower_95CL"] - clean_df[pct_col]
     clean_df[upper_95_col] = clean_df["Diabetes_upper_95CL"] - clean_df[pct_col]
     final = clean_df[ordered_numeric_cols].round(2)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "health_diabetes.csv", geography)],
-            category="quality_of_life",
-        )
     return final
 
 
 HEALTH_SELF_REPORTED_PREFIX = "health_selfreportedhealth"
 
 
-def health_self_reported(geography: str, write_to_internal_review=False):
+def health_self_reported(geography: str):
     # Output Columns
     pct_col = f"{HEALTH_SELF_REPORTED_PREFIX}_pct"
     lower_pct_col = f"{HEALTH_SELF_REPORTED_PREFIX}_lower_pct_moe"
@@ -50,12 +43,6 @@ def health_self_reported(geography: str, write_to_internal_review=False):
     clean_df[lower_pct_col] = clean_df["Self_Rep_Health_lower_95CL"] - clean_df[pct_col]
     clean_df[upper_pct_col] = clean_df["Self_Rep_Health_upper_95CL"] - clean_df[pct_col]
     final = clean_df[ordered_numeric_cols].round(2)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "health_selfreportedhealth.csv", geography)],
-            category="quality_of_life",
-        )
     return final
 
 

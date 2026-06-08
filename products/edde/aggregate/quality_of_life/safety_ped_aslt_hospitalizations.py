@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils import geo_helpers
 
@@ -8,35 +7,23 @@ from aggregate.decennial_census.decennial_census_001020 import (
 )
 
 
-def assault_hospitalizations(geography, write_to_internal_review=False):
+def assault_hospitalizations(geography):
     source_data = _load_assaults()
     final = calculate_per100k_rate(source_data[source_data["geo_type"] == geography])
     indicator_col_label = "safety_assaulthospital_rate"
 
     final.index.name = geography
     final.columns = [indicator_col_label]
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "assault_hospitalizations.csv", geography)],
-            category="quality_of_life",
-        )
     return final
 
 
-def pedestrian_hospitalizations(geography, write_to_internal_review=False):
+def pedestrian_hospitalizations(geography):
     source_data = _load_pedestrians()
     final = calculate_per100k_rate(source_data[source_data["geo_type"] == geography])
     indicator_col_label = "safety_pedhospital_rate"
 
     final.index.name = geography
     final.columns = [indicator_col_label]
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "pedestrian_hospitalizations.csv", geography)],
-            category="quality_of_life",
-        )
     return final
 
 

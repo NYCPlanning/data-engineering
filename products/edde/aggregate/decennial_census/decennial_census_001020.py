@@ -1,7 +1,6 @@
 from functools import cache
 
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import clean_PUMAs
 
@@ -136,9 +135,7 @@ def create_puma_level_df_by_year(df, year):
     return final
 
 
-def decennial_census_001020(
-    geography: str, year: str = "2000", write_to_internal_review=False
-) -> pd.DataFrame:
+def decennial_census_001020(geography: str, year: str = "2000") -> pd.DataFrame:
     logger.info(f"Running decennial_census_001020 for {geography}, {year}")
     assert geography in ["citywide", "borough", "puma"]
     assert year in year_map
@@ -153,17 +150,5 @@ def decennial_census_001020(
 
     if geography == "puma":
         final = create_puma_level_df_by_year(df, year_map[year])
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            data=[
-                (
-                    final,
-                    f"demographics_{year}_decennial_census.csv",
-                    geography,
-                )
-            ],
-            category="demographics",
-        )
 
     return final

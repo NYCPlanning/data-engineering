@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import acs_years
 
 from aggregate.load_aggregated import ACSAggregator
@@ -28,19 +27,16 @@ def rent_median(
     geography: str,
     start_year=acs_years[0],
     end_year=acs_years[-1],
-    write_to_internal_review=False,
 ) -> pd.DataFrame:
     final_md = rent_median_agg.run(
         geography,
         start_year,
         end_year,
-        write_to_internal_review=False,
     )
     final_hh = units_payingrent_agg.run(
         geography,
         start_year,
         end_year,
-        write_to_internal_review=False,
     )
 
     final = pd.concat([final_md, final_hh], axis=1)
@@ -52,11 +48,5 @@ def rent_median(
     final.dropna(how="all", axis=1, inplace=True)
 
     final[f"units_payingrent_{end_year}_pct_moe"] = np.nan
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "rent_median.csv", geography)],
-            "housing_security",
-        )
 
     return final

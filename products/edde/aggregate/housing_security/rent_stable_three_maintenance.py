@@ -1,5 +1,4 @@
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import clean_PUMAs
 
@@ -52,31 +51,21 @@ def _load_dataset(dataset_name: str):
     return df
 
 
-def three_maintenance_units(geography: str, write_to_internal_review=False):
+def three_maintenance_units(geography: str):
     rent_stable = _load_dataset("three_plus_probs")
     renter_occupied = _load_dataset("units_occupied")
     final = pd.concat([rent_stable, renter_occupied], axis=1).xs(
         geography, level="geo_type"
     )
     final.index.names = [geography]
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "units_threemaintenance.csv", geography)],  # type: ignore
-            "housing_security",
-        )
     return final
 
 
-def rent_stabilized_units(geography: str, write_to_internal_review=False):
+def rent_stabilized_units(geography: str):
     rent_stable = _load_dataset("rent_stabilized")
     renter_occupied = _load_dataset("renter_occupied")
     final = pd.concat([rent_stable, renter_occupied], axis=1).xs(
         geography, level="geo_type"
     )
     final.index.names = [geography]
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "units_rentstable.csv", geography)],  # type: ignore
-            "housing_security",
-        )
     return final

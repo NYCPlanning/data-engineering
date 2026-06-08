@@ -1,5 +1,4 @@
 import numpy as np
-from internal_review.set_internal_review_file import set_internal_review_files
 from resources import load
 from utils.geo_helpers import puma_to_borough
 
@@ -12,7 +11,7 @@ race_coder = {
 }
 
 
-def covid_death(geography: str, write_to_internal_review=False):
+def covid_death(geography: str):
     """this is used to create the final dataframe and write final output to internal review files"""
 
     assert geography in ["citywide", "borough", "puma"]
@@ -53,11 +52,6 @@ def covid_death(geography: str, write_to_internal_review=False):
         columns={"health_covid19deaths": "health_covid19deaths_rate"}, inplace=True
     )
     final = final.round(2)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, "total_covid_death.csv", geography)], category="quality_of_life"
-        )
 
     return final
 

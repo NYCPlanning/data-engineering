@@ -2,7 +2,6 @@
 but no CD. Something to watch out for when testing"""
 
 from ingest import ingestion_helpers
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import borough_name_mapper, community_district_to_puma
 
 from aggregate.config import dhs_shelter_years
@@ -11,7 +10,7 @@ from aggregate.load_aggregated import initialize_dataframe_geo_index
 DATASET_NAME = "dhs_shelterd_indiv_by_comm_dist"
 
 
-def _dhs_shelter_single_year(geography: str, year: str, write_to_internal_review=False):
+def _dhs_shelter_single_year(geography: str, year: str):
     raw_source_data = ingestion_helpers.load_data(name=DATASET_NAME)
     # return raw_source_data
 
@@ -37,15 +36,10 @@ def _dhs_shelter_single_year(geography: str, year: str, write_to_internal_review
     single_year.rename(
         columns={"individuals": f"dhs_shelter_{year}_count"}, inplace=True
     )
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(single_year, f"DHS_shelter_single_year_{year}.csv", geography)],
-            "housing_security",
-        )
     return single_year
 
 
-def dhs_shelter(geography, write_to_internal_review=False):
+def dhs_shelter(geography):
     final = initialize_dataframe_geo_index(geography)
 
     # Years from recipe config
@@ -53,10 +47,4 @@ def dhs_shelter(geography, write_to_internal_review=False):
     for year in years:
         single_year = _dhs_shelter_single_year(geography, year)
         final = final.merge(single_year, left_index=True, right_index=True)
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(final, f"DHS_shelter_{years[-1]}.csv", geography)],
-            "housing_security",
-        )
     return final

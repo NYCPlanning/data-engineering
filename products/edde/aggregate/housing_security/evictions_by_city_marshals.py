@@ -1,7 +1,6 @@
 import geopandas as gpd
 import pandas as pd
 from ingest import ingestion_helpers
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.geo_helpers import puma_from_point
 
 
@@ -95,7 +94,7 @@ def _aggregate_by_geography(evictions, geography_level):
     return pd.DataFrame(final)
 
 
-def count_residential_evictions(geography_level, write_to_internal_review=False):
+def count_residential_evictions(geography_level):
     """
     Count residential evictions by geography level.
 
@@ -104,7 +103,6 @@ def count_residential_evictions(geography_level, write_to_internal_review=False)
 
     Args:
         geography_level: One of "citywide", "borough", or "puma"
-        write_to_internal_review: Whether to write output to internal review
 
     Returns:
         DataFrame with eviction counts by geography
@@ -114,9 +112,4 @@ def count_residential_evictions(geography_level, write_to_internal_review=False)
     aggregated_by_geography = _aggregate_by_geography(
         residential_evictions, geography_level
     )
-    if write_to_internal_review:
-        set_internal_review_files(
-            [(aggregated_by_geography, "evictions.csv", geography_level)],
-            "housing_security",
-        )
     return aggregated_by_geography

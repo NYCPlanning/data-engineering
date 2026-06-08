@@ -3,7 +3,6 @@ in an xlsx spreadsheet (Educational attainment data points) cleans them and outp
 that they can be collated using the established collate process"""
 
 import pandas as pd
-from internal_review.set_internal_review_file import set_internal_review_files
 from utils.dcp_population_excel_helpers import (
     map_stat_suffix,
     race_suffix_mapper,
@@ -70,7 +69,7 @@ def _order_pums_2000_economic(final: pd.DataFrame):
     return final
 
 
-def pums_2000_economics(geography: str, year="2000", write_to_internal_review=False):
+def pums_2000_economics(geography: str, year="2000"):
     assert geography in ["puma", "borough", "citywide"]
     assert year == "2000"
 
@@ -82,13 +81,5 @@ def pums_2000_economics(geography: str, year="2000", write_to_internal_review=Fa
         .pipe(_rename_cols)
         .pipe(_order_pums_2000_economic)
     )
-
-    if write_to_internal_review:
-        set_internal_review_files(
-            [
-                (final, "economic_2000.csv", geography),
-            ],
-            "household_economic_security",
-        )
 
     return final
