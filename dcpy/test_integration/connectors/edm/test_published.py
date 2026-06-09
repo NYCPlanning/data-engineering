@@ -23,7 +23,8 @@ def calculate_test_path():
 
 def _make_fake_published_datasets():
     """Create test product and version combinations."""
-    products = ["nycha_developments", "pluto"]
+    # Use test product names that don't conflict with real product names in PRODUCT_NAME_MAPPING
+    products = ["test_product_a", "test_product_b"]
     versions = ["24v1", "24v2", "25v1"]  # Changed to match expected version format
     combos = []
     for product in products:
@@ -83,7 +84,7 @@ def local_published_conn(tmp_path):
 def _test_published_connector_interface(conn: EdmConnector, tmp_path):
     """Test the basic published connector interface methods."""
     expected_published = _make_fake_published_datasets()
-    # e.g. [('nycha_developments', '2024v1'), ('pluto', '2024v1'), ...]
+    # e.g. [('test_product_a', '24v1'), ('test_product_b', '24v1'), ...]
 
     expected_products = {product for product, _ in expected_published}
     expected_versions_by_product: dict[str, list[str]] = {}
@@ -153,7 +154,7 @@ def _test_published_connector_error_cases(conn: EdmConnector, tmp_path):
     )
 
     # Test non-existent version for existing product
-    existing_product = "nycha_developments"
+    existing_product = "test_product_a"
     assert not conn.version_exists(existing_product, "nonexistent_version"), (
         "Non-existent version should return False"
     )
@@ -164,8 +165,8 @@ def _test_published_connector_error_cases(conn: EdmConnector, tmp_path):
 
     with pytest.raises(FileNotFoundError, match="File .* not found"):
         conn.pull_versioned(
-            key="nycha_developments",
-            version="2024v1",
+            key="test_product_a",
+            version="24v1",
             destination_path=destination_dir,
             filepath="nonexistent_file.txt",
         )
