@@ -149,32 +149,35 @@ def convert_economics(
 
 
 def main():
-    if len(sys.argv) < 4:
-        print(
-            "Usage: python convert_economics.py <old.csv> <new.csv> <output.csv> [geography_col]"
-        )
+    """Main entry point. Auto-discovers paths from build_metadata and recipe."""
+    from change_over_time.paths import get_old_csv, get_new_csv, get_edde_paths
+
+    if len(sys.argv) != 2:
+        print("Usage: python convert_economics.py <geography_col>")
         print()
         print("Examples:")
-        print(
-            "  python convert_economics.py economics_0812_borough.csv economics_1923_borough.csv output.csv borough"
-        )
-        print(
-            "  python convert_economics.py economics_0812_puma.csv economics_1923_puma.csv output.csv puma"
-        )
+        print("  python convert_economics.py borough")
+        print("  python convert_economics.py puma")
+        print("  python convert_economics.py citywide")
         sys.exit(1)
 
-    old_csv = Path(sys.argv[1])
-    new_csv = Path(sys.argv[2])
-    output_csv = Path(sys.argv[3])
-    geography_col = sys.argv[4] if len(sys.argv) > 4 else "borough"
+    geography_col = sys.argv[1]
 
-    if not old_csv.exists():
-        print(f"Error: Input file not found: {old_csv}")
-        sys.exit(1)
+    print(f"Auto-discovering paths for geography: {geography_col}")
+    old_edde_path, new_build_path = get_edde_paths()
+    print(f"  Old EDDE data: {old_edde_path}")
+    print(f"  New build data: {new_build_path}")
 
-    if not new_csv.exists():
-        print(f"Error: Input file not found: {new_csv}")
-        sys.exit(1)
+    old_csv = get_old_csv("economics", geography_col)
+    new_csv = get_new_csv("economics", geography_col)
+
+    # Output to current build data directory
+    output_csv = new_build_path / "economics" / f"economics_change_{geography_col}.csv"
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"  Old CSV: {old_csv}")
+    print(f"  New CSV: {new_csv}")
+    print(f"  Output: {output_csv}")
 
     convert_economics(old_csv, new_csv, output_csv, geography_col)
 
