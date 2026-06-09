@@ -1,0 +1,36 @@
+source_name,source_column,source_value,factype
+nysed_activeinstitutions,classification_key,APPROVED PRE-SCHOOL PROGRAMS|PRE-SCHOOL FOR STUDENTS WITH DISABILITIES,Pre-School For Students With Disabilities
+nysed_activeinstitutions,classification_key,APPROVED PRE-SCHOOL PROGRAMS|SATELLITE SITE FOR STUDENTS WITH DISABILITIES,Satellite Site For Students With Disabilities
+nysed_activeinstitutions,classification_key,CHILD NUTRITION|FEEDING SITE,Feeding Site
+nysed_activeinstitutions,classification_key,CHILD NUTRITION|SUMMER ONLY FEEDING SITE,Summer Only Feeding Site
+nysed_activeinstitutions,classification_key,CHILD NUTRITION|USDA COMMUNITY ELIGIBILITY OPTION,Usda Community Eligibility Option
+nysed_activeinstitutions,classification_key,CUNY|CUNY 4 YEAR COLLEGE,CUNY - 4 Year College
+nysed_activeinstitutions,classification_key,CUNY|CUNY COMMUNITY COLLEGE,CUNY - Community College
+nysed_activeinstitutions,classification_key,CUNY|CUNY GRADUATE CENTER,CUNY - Graduate Center
+nysed_activeinstitutions,classification_key,LIBRARIES|ACADEMIC LIBRARIES,Academic Libraries
+nysed_activeinstitutions,classification_key,LIBRARIES|SPECIAL LIBRARIES,Special Libraries
+nysed_activeinstitutions,classification_key,MUSEUMS AND HISTORICAL SOCIETIES|HISTORICAL SOCIETIES,Historical Societies
+nysed_activeinstitutions,classification_key,MUSEUMS AND HISTORICAL SOCIETIES|PRIVATE MUSEUMS AND SITES,Private Museums And Sites
+nysed_activeinstitutions,classification_key,MUSEUMS AND HISTORICAL SOCIETIES|PUBLIC MUSEUMS AND SITES,Public Museums And Sites
+nysed_activeinstitutions,classification_key,NON-PUBLIC SCHOOLS|ELEM,Elementary School - Non-public
+nysed_activeinstitutions,classification_key,NON-PUBLIC SCHOOLS|MIDDLE,Middle School - Non-public
+nysed_activeinstitutions,classification_key,NON-PUBLIC SCHOOLS|HIGH,High School - Non-public
+nysed_activeinstitutions,classification_key,NON-PUBLIC SCHOOLS|OTHER,Other School - Non-public
+nysed_activeinstitutions,classification_key,OTHER HE|REGENTS APPROVED FOREIGN COLLEGES,Regents Approved Foreign Colleges
+nysed_activeinstitutions,classification_key,OTHER SCHOOLS SERVING STUDENTS WITH DISABILITIES|APPROVED PRIVATE SCHOOLS FOR SWD,Approved Private Schools For Swd
+nysed_activeinstitutions,classification_key,OTHER SCHOOLS SERVING STUDENTS WITH DISABILITIES|PRE-SCHOOL EVALUATION PROVIDERS FOR  SWD,Pre-School Evaluation Providers For  Swd
+nysed_activeinstitutions,classification_key,PROPRIETARY SCHOOLS|LICENSED PRIVATE SCHOOLS,Licensed Private Schools
+nysed_activeinstitutions,classification_key,PROPRIETARY SCHOOLS|REGISTERED BUSINESS SCHOOLS,Registered Business Schools
+nysed_activeinstitutions,classification_key,PROPRIETARY SCHOOLS|REGISTERED ESL SCHOOLS,Registered Esl Schools
+nysed_activeinstitutions,classification_key,PUBLIC SCHOOLS|CHARTER SCHOOL,Charter School
+nysed_activeinstitutions,classification_key,PUBLIC SCHOOLS|GED-ALTERNATIVE HIGH SCHOOL EQUIVALENCY PREP PROGRAMS(AHSEP),Ged-Alternative High School Equivalency Prep Programs
+nysed_activeinstitutions,classification_key,PUBLIC SCHOOLS|SATELLITE SITE FOR CHARTER SCHOOLS,Charter School
+nysed_activeinstitutions,classification_key,REGENTS APPROVED INDEPENDENT COLLEGES|2 YEAR INDEPENDENT,2 Year Independent
+nysed_activeinstitutions,classification_key,REGENTS APPROVED INDEPENDENT COLLEGES|4-YEAR INDEPENDENT,4-Year Independent
+nysed_activeinstitutions,classification_key,REGENTS APPROVED INDEPENDENT COLLEGES|GRADUATE PROGRAMS ONLY,Graduate Programs Only
+nysed_activeinstitutions,classification_key,REGENTS APPROVED PROPRIETARY COLLEGES|2 YEAR PROPRIETARY,2 Year Proprietary
+nysed_activeinstitutions,classification_key,REGENTS APPROVED PROPRIETARY COLLEGES|4 YEAR PROPRIETARY,4 Year Proprietary
+nysed_activeinstitutions,classification_key,REGENTS APPROVED PROPRIETARY COLLEGES|GRADUATE PROGRAMS ONLY,Graduate Programs Only
+nysed_activeinstitutions,classification_key,SUNY|SUNY COMMUNITY COLLEGES,SUNY - Community Colleges
+nysed_activeinstitutions,classification_key,SUNY|SUNY HEALTH SCIENCE CENTERS,SUNY - Health Science Centers
+nysed_activeinstitutions,classification_key,SUNY|SUNY SPECIALIZED COLLEGES,SUNY - Specialized Colleges
