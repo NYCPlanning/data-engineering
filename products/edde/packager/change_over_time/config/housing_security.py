@@ -3,6 +3,8 @@ Configuration for housing_security change calculations.
 Labels copied exactly from 2025-convert-housing_security.js line 9.
 """
 
+from aggregate.config import dhs_shelter_years
+
 # Labels define which base variables to process
 # Format: {variable}_change_{type}
 LABELS = [
@@ -64,6 +66,6 @@ LABELS = [
     "units_notovercrowded_change_wnh_count",
 ]
 
-# Special yearband mappings (most use default 0812 -> 1923)
-# dhs_shelter uses 2020 -> 2022
-SPECIAL_YEARBANDS = {"dhs_shelter": ("2020", "2022")}
+# Special yearband mappings (most use default ACS yearbands from recipe)
+# dhs_shelter uses custom years from recipe vars
+SPECIAL_YEARBANDS = {"dhs_shelter": tuple(dhs_shelter_years)}
