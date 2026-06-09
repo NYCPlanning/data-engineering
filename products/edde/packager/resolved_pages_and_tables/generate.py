@@ -1,15 +1,12 @@
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import simplejson
 
-# Add products/edde to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from config import get_edde_paths  # noqa: E402
-from dcpy.lifecycle.builds import get_build_metadata_path  # noqa: E402
+from config import get_edde_paths
+from dcpy.lifecycle.builds import get_build_metadata_path
 
 ###
 # Path setup

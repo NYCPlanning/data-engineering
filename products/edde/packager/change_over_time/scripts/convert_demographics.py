@@ -6,17 +6,13 @@ Python port of convert-demo.js
 NOTE: Demographics uses separate OLD and NEW input files, unlike other categories.
 """
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-# Add parent directory to path to import calculator
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from change_over_time.calculator import ChangeCalculator
-from change_over_time.config import demographics
+from packager.change_over_time.calculator import ChangeCalculator
+from packager.change_over_time.config import demographics
 
 
 def convert_demographics(

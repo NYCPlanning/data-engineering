@@ -1,14 +1,10 @@
 """Helper module for resolving EDDE data paths for change-over-time calculations."""
 
 import json
-import sys
 from pathlib import Path
 
-# Add products/edde to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from config import get_edde_paths  # noqa: E402
-from dcpy.lifecycle.builds import get_build_metadata_path  # noqa: E402
+from config import get_edde_paths
+from dcpy.lifecycle.builds import get_build_metadata_path
 
 PRODUCT_PATH = Path(__file__).parent.parent.parent
 

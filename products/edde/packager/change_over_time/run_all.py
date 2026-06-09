@@ -9,14 +9,11 @@ for all geographies (borough, puma, citywide).
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import from scripts
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from change_over_time.paths import get_edde_paths, get_old_csv, get_new_csv, get_yearbands
-from change_over_time.scripts.convert_demographics import convert_demographics
-from change_over_time.scripts.convert_economics import convert_economics
-from change_over_time.scripts.convert_housing_security import convert_housing_security
-from change_over_time.scripts.convert_quality_of_life import convert_quality_of_life
+from packager.change_over_time.paths import get_edde_paths, get_old_csv, get_new_csv, get_yearbands
+from packager.change_over_time.scripts.convert_demographics import convert_demographics
+from packager.change_over_time.scripts.convert_economics import convert_economics
+from packager.change_over_time.scripts.convert_housing_security import convert_housing_security
+from packager.change_over_time.scripts.convert_quality_of_life import convert_quality_of_life
 
 
 def run_all_conversions():

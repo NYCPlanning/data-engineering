@@ -4,14 +4,10 @@ Convert quality_of_life data to change-over-time format.
 Python port of convert-qol.js
 """
 
-import sys
 from pathlib import Path
 
-# Add parent directory to path to import calculator
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from change_over_time.calculator import ChangeCalculator
-from change_over_time.config import quality_of_life
+from packager.change_over_time.calculator import ChangeCalculator
+from packager.change_over_time.config import quality_of_life
 
 
 def convert_quality_of_life(
