@@ -88,7 +88,7 @@ custom:
       "1620": [2016, 2021]
 
   dhs_shelter:
-    years: ["2020", "2022"]
+    years: ["2020", "2026"]
 
 stage_config:
   builds.build:
