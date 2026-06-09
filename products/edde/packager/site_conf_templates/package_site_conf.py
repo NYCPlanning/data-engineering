@@ -6,13 +6,17 @@ from recipe.lock.yml and outputs them to the build output package directory.
 """
 
 import json
+import sys
 from pathlib import Path
 
-from config import PRODUCT_PATH, get_build_output_dir
+# Add products/edde to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from config import PRODUCT_PATH, get_build_output_dir  # noqa: E402
 from jinja2 import Environment, FileSystemLoader
 
-from dcpy.lifecycle.builds import get_recipe_lock
-from dcpy.utils.logging import logger
+from dcpy.lifecycle.builds import get_recipe_lock  # noqa: E402
+from dcpy.utils.logging import logger  # noqa: E402
 
 
 def get_template_variables() -> dict:

@@ -95,20 +95,19 @@ def get_new_csv(category: str, geography: str) -> Path:
         )
 
     # For demographics/economics with separate old/new files:
-    #   - Look for the newest yearband file (e.g., demographics_1923_borough.csv)
+    #   - Use the current yearband from recipe vars (e.g., demographics_2024_borough.csv)
     # For housing_security/quality_of_life with single file:
     #   - Look for the file without yearband (e.g., housing_security_borough.csv)
 
     if category in ["demographics", "economics"]:
-        # Look for files with yearband pattern
-        matching_files = list(category_dir.glob(f"{category}_*_{geography}.csv"))
-        if not matching_files:
+        # Use current yearband from recipe vars
+        _, new_yearband = get_yearbands()
+        new_csv = category_dir / f"{category}_{new_yearband}_{geography}.csv"
+        if not new_csv.exists():
             raise FileNotFoundError(
-                f"No CSV files found for {category}/{geography} in {category_dir}"
+                f"File not found: {new_csv}\n"
+                f"Expected current yearband file for {category}/{geography}"
             )
-        # Sort alphabetically - '1923' will come after '0812'
-        matching_files.sort()
-        new_csv = matching_files[-1]  # Take the newest yearband
     else:
         # housing_security or quality_of_life - single file without yearband
         new_csv = category_dir / f"{category}_{geography}.csv"

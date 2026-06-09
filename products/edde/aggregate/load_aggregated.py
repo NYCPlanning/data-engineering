@@ -236,14 +236,24 @@ def load_acs(period: str) -> pd.DataFrame:
     Load an ACS period.
 
     Args:
-        period: Either 'prev' for the previous year band (e.g., 2008-2012)
-                or 'current' for the current year band (e.g., 2020-2024)
+        period: Either 'prev'/'current' (legacy) or actual yearband (e.g., '0812', '2024')
     """
-    assert period in ["prev", "current"], (
-        f"period must be 'prev' or 'current', got {period}"
+    from aggregate.config import acs_prev_year_band, acs_current_year_band
+
+    # Map actual yearbands to 'prev'/'current' for data loading
+    yearband_to_period = {
+        acs_prev_year_band: "prev",
+        acs_current_year_band: "current",
+    }
+
+    # Use mapping if period is a yearband, otherwise use as-is
+    load_period = yearband_to_period.get(period, period)
+
+    assert load_period in ["prev", "current"], (
+        f"period must be 'prev', 'current', or a valid yearband, got {period}"
     )
 
-    df = load(f"acs_{period}_year_band").rename(columns={"Geog": "geog"})
+    df = load(f"acs_{load_period}_year_band").rename(columns={"Geog": "geog"})
 
     df.loc[df["geog"] == "NYC", "geog"] = "citywide"
     df["geog_type"] = df["geog"].map(_calc_geog_type)
