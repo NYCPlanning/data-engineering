@@ -42,6 +42,35 @@ _TEMP_PUBLISHING_FILE_SUFFIXES = {
     ".text",
 }
 
+# Mapping from recipe dataset names to S3 product names
+# This handles cases where recipe names differ from S3 folder names
+PRODUCT_NAME_MAPPING = {
+    "zoningtaxlots": "db-zoningtaxlots",
+    "zap": "db-zap",
+    "template": "db-template",
+    "pluto": "db-pluto",
+    "lion": "db-lion",
+    "gru-qaqc": "db-gru-qaqc",
+    "green-fast-track": "db-green-fast-track",
+    "factfinder": "db-factfinder",
+    "facilities": "db-facilities",
+    "edde": "db-eddt",  # Special case: edde maps to db-eddt
+    "developments": "db-developments",
+    "cscl": "db-cscl",
+    "cpdb": "db-cpdb",
+    "community-profiles": "db-community-profiles",
+    "colp": "db-colp",
+    "checkbook": "db-checkbook",
+    "ceqr": "db-ceqr",
+    "cdbg": "db-cdbg",
+    "cbbr": "db-cbbr",
+}
+
+
+def _map_product_name(product: str) -> str:
+    """Map recipe product name to S3 product name if needed."""
+    return PRODUCT_NAME_MAPPING.get(product, product)
+
 
 def _bucket() -> str:
     assert PUBLISHING_BUCKET, (
@@ -113,15 +142,68 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
         self, product_key: ProductKey, filepath: str, output_dir: Path | None = None
     ) -> Path:
         output_dir = output_dir or Path(".")
-        is_file_path = output_dir.suffix in _TEMP_PUBLISHING_FILE_SUFFIXES
-        output_filepath = (
-            output_dir / Path(filepath).name if not is_file_path else output_dir
-        )
-        logger.info(f"Downloading {product_key}, {filepath} -> {output_filepath}")
 
-        source_key = f"{product_key.path}/{filepath}"
+        # Determine if we're downloading a directory or a file
+        # If filepath is empty, we're downloading the entire version directory
+        is_directory_download = not filepath or filepath.endswith("/")
+
+        if is_directory_download:
+            # For directory downloads, use the product_key.path as the source
+            # and output_dir as the destination
+            source_key = product_key.path
+            output_filepath = output_dir
+        else:
+            # For file downloads, build the full source path
+            source_key = f"{product_key.path}/{filepath}"
+            is_file_path = output_dir.suffix in _TEMP_PUBLISHING_FILE_SUFFIXES
+            output_filepath = (
+                output_dir / Path(filepath).name if not is_file_path else output_dir
+            )
+
+        logger.info(
+            f"Downloading {product_key}, {filepath or '(entire directory)'} -> {output_filepath}"
+        )
+
         if not self.storage.exists(source_key):
-            raise FileNotFoundError(f"File {source_key} not found")
+            # Provide helpful error with available files/versions
+            error_msg = f"{'Directory' if is_directory_download else 'File'} {source_key} not found"
+
+            # Check if the product version directory exists
+            if self.storage.exists(product_key.path):
+                # List available files in this version
+                try:
+                    available_files = self.storage.get_subfolders(product_key.path)
+                    if available_files:
+                        error_msg += (
+                            f"\n\nAvailable files/directories in {product_key.path}:"
+                        )
+                        for file in available_files[:10]:  # Limit to first 10
+                            error_msg += f"\n  - {file}"
+                        if len(available_files) > 10:
+                            error_msg += f"\n  ... and {len(available_files) - 10} more"
+                except Exception:
+                    pass  # If listing fails, just show the basic error
+            else:
+                # Version directory doesn't exist, list available versions
+                try:
+                    available_versions = self.list_versions(product_key.product)
+                    if available_versions:
+                        error_msg += (
+                            f"\n\nVersion {product_key.path.split('/')[-1]} not found."
+                        )
+                        error_msg += (
+                            f"\n\nAvailable versions for {product_key.product}:"
+                        )
+                        for version in available_versions[:10]:  # Limit to first 10
+                            error_msg += f"\n  - {version}"
+                        if len(available_versions) > 10:
+                            error_msg += (
+                                f"\n  ... and {len(available_versions) - 10} more"
+                            )
+                except Exception:
+                    pass  # If listing fails, just show the basic error
+
+            raise FileNotFoundError(error_msg)
 
         self.storage.pull(key=source_key, destination_path=output_filepath)
         return output_filepath
@@ -182,11 +264,12 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
         return result
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
+        mapped_key = _map_product_name(key)
         if self._config.list_versions_impl:
-            versions = self._config.list_versions_impl(self, key, kwargs)
+            versions = self._config.list_versions_impl(self, mapped_key, kwargs)
         else:
             # Default implementation
-            folder_key = f"{key}/{self._config.folder_name}"
+            folder_key = f"{mapped_key}/{self._config.folder_name}"
             if not self.storage.exists(folder_key):
                 return []
             versions = self.storage.get_subfolders(folder_key)
@@ -238,27 +321,36 @@ def _parse_plan_version(version: str) -> dict:
 
 # Key factories
 def _create_draft_key(product: str, version: str, parsed: dict) -> DraftKey:
-    return DraftKey(product, version=parsed["version"], revision=parsed["revision"])
+    mapped_product = _map_product_name(product)
+    return DraftKey(
+        mapped_product, version=parsed["version"], revision=parsed["revision"]
+    )
 
 
 def _create_build_key(product: str, version: str, parsed: dict) -> BuildKey:
-    return BuildKey(product, build=version)
+    mapped_product = _map_product_name(product)
+    return BuildKey(mapped_product, build=version)
 
 
 def _create_publish_key(product: str, version: str, parsed: dict) -> PublishKey:
-    return PublishKey(product, version=version)
+    mapped_product = _map_product_name(product)
+    return PublishKey(mapped_product, version=version)
 
 
 def _create_plan_key(product: str, version: str, parsed: dict) -> PlanKey:
     """Create plan key from parsed version.revision format."""
-    return PlanKey(product, version=parsed["version"], revision=parsed["revision"])
+    mapped_product = _map_product_name(product)
+    return PlanKey(
+        mapped_product, version=parsed["version"], revision=parsed["revision"]
+    )
 
 
 # List versions implementations
 def _list_draft_versions(
     connector: "EdmConnector", key: str, kwargs: dict
 ) -> list[str]:
-    """List draft versions in version.revision format."""
+    """List draft versions in version.revision format.
+    Note: key is already mapped by the time it reaches this function."""
     draft_folder_key = f"{key}/draft"
     if not connector.storage.exists(draft_folder_key):
         return []
@@ -275,7 +367,8 @@ def _list_draft_versions(
 
 
 def _list_plan_versions(connector: "EdmConnector", key: str, kwargs: dict) -> list[str]:
-    """List plan versions in version.revision format."""
+    """List plan versions in version.revision format.
+    Note: key is already mapped by the time it reaches this function."""
     plan_folder_key = f"{key}/plan"
     if not connector.storage.exists(plan_folder_key):
         return []
@@ -491,9 +584,12 @@ class _PlanConnector(EdmConnector):
         if not plan_dir.exists():
             raise FileNotFoundError(f"Path {plan_dir} does not exist")
 
+        # Map product name to S3 product name
+        mapped_product = _map_product_name(product)
+
         # Generate revision number based on existing revisions
         # Use the connector's storage to query existing revisions (works with local or S3)
-        plan_folder_key = f"{product}/plan/{version}"
+        plan_folder_key = f"{mapped_product}/plan/{version}"
         if self.storage.exists(plan_folder_key):
             existing_revisions = sorted(
                 self.storage.get_subfolders(plan_folder_key), reverse=True
@@ -512,7 +608,7 @@ class _PlanConnector(EdmConnector):
 
         # Create plan revision
         plan_revision = versions.PlanVersionRevision(revision_num, plan_note)
-        plan_key = PlanKey(product, version, plan_revision.label)
+        plan_key = PlanKey(mapped_product, version, plan_revision.label)
 
         logger.info(f'Uploading plan to {plan_key.path} with ACL "{acl}"')
 
@@ -609,4 +705,7 @@ class PlanConnector:
 # Helper function for external use
 def get_builds(product: str) -> list[str]:
     """Get all build versions for a product."""
-    return sorted(s3.get_subfolders(_bucket(), f"{product}/build/"), reverse=True)
+    mapped_product = _map_product_name(product)
+    return sorted(
+        s3.get_subfolders(_bucket(), f"{mapped_product}/build/"), reverse=True
+    )
