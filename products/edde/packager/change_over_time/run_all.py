@@ -6,8 +6,6 @@ This script runs all category conversions (demographics, economics, housing_secu
 for all geographies (borough, puma, citywide).
 """
 
-import sys
-
 from packager.change_over_time.paths import (
     get_edde_paths,
     get_new_csv,
@@ -53,7 +51,7 @@ def run_all_conversions():
         print()
     except Exception as e:
         print(f"Error: Failed to get EDDE paths: {e}")
-        sys.exit(1)
+        raise RuntimeError(f"Failed to get EDDE paths: {e}")
 
     # Track success/failure
     total = 0
@@ -130,27 +128,6 @@ def run_all_conversions():
         print("Failed conversions:")
         for category, geography, error in failed:
             print(f"  - {category}/{geography}: {error}")
-        sys.exit(1)
+        raise RuntimeError(f"{len(failed)} conversion(s) failed")
     else:
         print("\n✓ All conversions completed successfully!")
-        sys.exit(0)
-
-
-def main():
-    """Entry point."""
-    if len(sys.argv) > 1:
-        print("Usage: python run_all.py")
-        print()
-        print(
-            "This script runs all change-over-time conversions for all categories and geographies."
-        )
-        print(
-            "No arguments required - paths are auto-discovered from build_metadata.json"
-        )
-        sys.exit(1)
-
-    run_all_conversions()
-
-
-if __name__ == "__main__":
-    main()
