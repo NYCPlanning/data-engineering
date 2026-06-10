@@ -18,7 +18,8 @@ PACKAGE_DIR = NEW_BUILD_PATH.parent / "package"
 CHANGE_DATA_PATH = PACKAGE_DIR / "change_over_time"
 CONFIG_DIR = PACKAGE_DIR / "site_conf"
 OUTPUT_DIR = PACKAGE_DIR / "resolved_pages_and_tables"
-GENERATED_DIR = OUTPUT_DIR / "generated"
+CONFIGS_DIR = OUTPUT_DIR / "configs"
+DISTRICTS_DIR = OUTPUT_DIR / "districts"
 
 # Get yearbands from recipe vars
 PRODUCT_PATH = Path(__file__).parent.parent.parent
@@ -39,7 +40,8 @@ DEMOGRAPHIC_YEARS = [
 
 # Create output directories if they don't exist
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+CONFIGS_DIR.mkdir(parents=True, exist_ok=True)
+DISTRICTS_DIR.mkdir(parents=True, exist_ok=True)
 
 print(f"Build data path: {NEW_BUILD_PATH}")
 print(f"Change data path: {CHANGE_DATA_PATH}")
@@ -798,11 +800,11 @@ def main():
                     final = merge(merged_table_config, sub_config)
                     resolved_tables[geography][category][subgroup].append(final)
 
-    with open(GENERATED_DIR / "resolved_table_configs.json", "w") as fp:
+    with open(CONFIGS_DIR / "resolved_table_configs.json", "w") as fp:
         simplejson.dump(resolved_tables, fp, ignore_nan=True, indent=2)
 
     ### Build Page Configs
-    resolved_tables = load_json(GENERATED_DIR / "resolved_table_configs.json")
+    resolved_tables = load_json(CONFIGS_DIR / "resolved_table_configs.json")
     output = {}
     for geography, geography_config in resolved_tables.items():
         if geography not in output:
@@ -818,7 +820,7 @@ def main():
                         build_config(table_config, subgroup)
                     )
 
-    with open(GENERATED_DIR / "resolved_pages.json", "w") as fp:
+    with open(CONFIGS_DIR / "resolved_pages.json", "w") as fp:
         simplejson.dump(output, fp, ignore_nan=True)
 
     ### Build and output final JSON files
@@ -829,7 +831,7 @@ def main():
     # each of those objects contains all the information needed to look up the data and build
     # the JSON necessary to display that table for every geoid in the geography
     output = {}
-    with open(GENERATED_DIR / "resolved_pages.json", "r") as pages_file:
+    with open(CONFIGS_DIR / "resolved_pages.json", "r") as pages_file:
         pages = json.load(pages_file)
         for geography, geography_config in pages.items():
             if geography not in output:
@@ -899,7 +901,7 @@ def main():
         for category, areas in categories.items():
             for geoid, data in areas.items():
                 with open(
-                    OUTPUT_DIR / f"{geography}_{geoid}_{category}.json", "w"
+                    DISTRICTS_DIR / f"{geography}_{geoid}_{category}.json", "w"
                 ) as fp:
                     simplejson.dump(data, fp, ignore_nan=True)
 
