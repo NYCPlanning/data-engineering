@@ -53,6 +53,22 @@ SELECT
             THEN 'Legal Services for Immigrant Youth'
         WHEN program_type ~* 'COMPASS Horizon'
             THEN 'COMPASS'
+        WHEN program_type ~* '^CMS\s'
+            THEN REGEXP_REPLACE(program_type, '^CMS\s+', '', 'i')
+        WHEN program_type ~* '^CRED$'
+            THEN 'Community Resources for Employment and Development'
+        WHEN program_type ~* 'MAP Mediation'
+            THEN 'MAP Mediation'
+        WHEN program_type ~* '^Atlas$'
+            THEN 'Atlas'
+        WHEN program_type ~* 'Fatherhood in Rikers Island'
+            THEN 'Fatherhood in Rikers Island'
+        WHEN program_type ~* 'LGBTQ Community Services'
+            THEN 'LGBTQ Community Services'
+        WHEN program_type ~* 'Youth Service Coordination'
+            THEN 'Youth Service Coordination'
+        WHEN program_type ~* 'Youth.*Team Sports|Saturday Night Lights'
+            THEN program_type
         ELSE NULL
     END) AS factype,
     (CASE
@@ -93,6 +109,19 @@ SELECT
             OR program_type ~* 'Adult Literacy Pilot Project'
             OR program_type ~* 'Crisis Shelters'
             THEN 'Youth Centers, Literacy Programs, and Job Training Services'
+        WHEN
+            program_type ~* '^CMS\s'
+            OR program_type ~* 'MAP Mediation'
+            OR program_type ~* '^Atlas$'
+            OR program_type ~* 'Fatherhood in Rikers Island'
+            THEN 'LEGAL AND INTERVENTION SERVICES'
+        WHEN
+            program_type ~* '^CRED$'
+            OR program_type ~* 'LGBTQ Community Services'
+            OR program_type ~* 'Youth Service Coordination'
+            THEN 'Youth Centers, Literacy Programs, and Job Training Services'
+        WHEN program_type ~* 'Youth.*Team Sports|Saturday Night Lights'
+            THEN 'After-School Programs'
         ELSE NULL
     END) AS facsubgrp,
     provider AS opname,
