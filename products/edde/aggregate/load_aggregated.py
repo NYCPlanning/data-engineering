@@ -20,7 +20,12 @@ from utils.geo_helpers import (
     get_all_NYC_PUMAs,
 )
 
-from aggregate.config import acs_year_suffix_map, acs_years_end_to_full
+from aggregate.config import (
+    acs_current_year_band,
+    acs_prev_year_band,
+    acs_year_suffix_map,
+    acs_years_end_to_full,
+)
 from dcpy.utils.logging import logger
 
 
@@ -238,7 +243,6 @@ def load_acs(period: str) -> pd.DataFrame:
     Args:
         period: Either 'prev'/'current' (legacy) or actual yearband (e.g., '0812', '2024')
     """
-    from aggregate.config import acs_prev_year_band, acs_current_year_band
 
     # Map actual yearbands to 'prev'/'current' for data loading
     yearband_to_period = {

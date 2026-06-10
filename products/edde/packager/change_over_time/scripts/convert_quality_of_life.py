@@ -43,38 +43,3 @@ def convert_quality_of_life(
     print(f"✓ Converted {input_csv.name}")
     print(f"  → {output_csv}")
     print(f"  Rows: {len(result_df)}")
-
-
-def main():
-    """Main entry point. Auto-discovers paths from build_metadata and recipe."""
-    from change_over_time.paths import get_new_csv, get_edde_paths
-
-    if len(sys.argv) != 2:
-        print("Usage: python convert_quality_of_life.py <geography_col>")
-        print()
-        print("Examples:")
-        print("  python convert_quality_of_life.py borough")
-        print("  python convert_quality_of_life.py puma")
-        print("  python convert_quality_of_life.py citywide")
-        sys.exit(1)
-
-    geography_col = sys.argv[1]
-
-    print(f"Auto-discovering paths for geography: {geography_col}")
-    _, new_build_path = get_edde_paths()
-    print(f"  Build data: {new_build_path}")
-
-    input_csv = get_new_csv("quality_of_life", geography_col)
-
-    # Output to current build data directory
-    output_csv = new_build_path / "quality_of_life" / f"quality_of_life_change_{geography_col}.csv"
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
-
-    print(f"  Input CSV: {input_csv}")
-    print(f"  Output: {output_csv}")
-
-    convert_quality_of_life(input_csv, output_csv, geography_col)
-
-
-if __name__ == "__main__":
-    main()

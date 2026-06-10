@@ -1,10 +1,9 @@
 """EDDE Packager - Runs all packaging steps for EDDE data product."""
 
+from dcpy.utils.logging import logger
 from packager.change_over_time.run_all import run_all_conversions
 from packager.resolved_pages_and_tables.generate import main as generate_resolved_pages
 from packager.site_conf_templates.package_site_conf import package_site_conf
-
-from dcpy.utils.logging import logger
 
 
 def run_packaging():

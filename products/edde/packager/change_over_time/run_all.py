@@ -7,13 +7,21 @@ for all geographies (borough, puma, citywide).
 """
 
 import sys
-from pathlib import Path
 
-from packager.change_over_time.paths import get_edde_paths, get_old_csv, get_new_csv, get_yearbands
+from packager.change_over_time.paths import (
+    get_edde_paths,
+    get_new_csv,
+    get_old_csv,
+    get_yearbands,
+)
 from packager.change_over_time.scripts.convert_demographics import convert_demographics
 from packager.change_over_time.scripts.convert_economics import convert_economics
-from packager.change_over_time.scripts.convert_housing_security import convert_housing_security
-from packager.change_over_time.scripts.convert_quality_of_life import convert_quality_of_life
+from packager.change_over_time.scripts.convert_housing_security import (
+    convert_housing_security,
+)
+from packager.change_over_time.scripts.convert_quality_of_life import (
+    convert_quality_of_life,
+)
 
 
 def run_all_conversions():
@@ -54,7 +62,9 @@ def run_all_conversions():
 
     # Process demographics and economics (require old + new files)
     for category in categories_with_old_new:
-        converter_func = convert_demographics if category == "demographics" else convert_economics
+        converter_func = (
+            convert_demographics if category == "demographics" else convert_economics
+        )
 
         for geography in geographies:
             total += 1
@@ -80,7 +90,11 @@ def run_all_conversions():
 
     # Process housing_security and quality_of_life (single file with multiple yearbands)
     for category in categories_single_file:
-        converter_func = convert_housing_security if category == "housing_security" else convert_quality_of_life
+        converter_func = (
+            convert_housing_security
+            if category == "housing_security"
+            else convert_quality_of_life
+        )
 
         for geography in geographies:
             total += 1
@@ -95,7 +109,9 @@ def run_all_conversions():
                 output_csv = category_dir / f"{category}_change_{geography}.csv"
 
                 # Pass yearbands to converter
-                converter_func(input_csv, output_csv, geography, old_yearband, new_yearband)
+                converter_func(
+                    input_csv, output_csv, geography, old_yearband, new_yearband
+                )
                 successful += 1
                 print(f"  ✓ Success: {output_csv.name}")
                 print()
@@ -125,8 +141,12 @@ def main():
     if len(sys.argv) > 1:
         print("Usage: python run_all.py")
         print()
-        print("This script runs all change-over-time conversions for all categories and geographies.")
-        print("No arguments required - paths are auto-discovered from build_metadata.json")
+        print(
+            "This script runs all change-over-time conversions for all categories and geographies."
+        )
+        print(
+            "No arguments required - paths are auto-discovered from build_metadata.json"
+        )
         sys.exit(1)
 
     run_all_conversions()

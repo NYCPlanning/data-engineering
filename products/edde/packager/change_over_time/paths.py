@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from config import get_edde_paths
+
 from dcpy.lifecycle.builds import get_build_metadata_path
 
 PRODUCT_PATH = Path(__file__).parent.parent.parent

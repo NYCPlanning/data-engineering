@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import simplejson
-
 from config import get_edde_paths
+
 from dcpy.lifecycle.builds import get_build_metadata_path
 
 ###
@@ -31,7 +31,11 @@ ACS_PREV_YEAR_BAND = vars.get("BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND", "0812")
 ACS_CURRENT_YEAR_BAND = vars.get("BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND", "2024")
 
 # Construct year list for demographics data
-DEMOGRAPHIC_YEARS = [f"_{CENSUS_BASE_YEAR}", f"_{ACS_PREV_YEAR_BAND}", f"_{ACS_CURRENT_YEAR_BAND}"]
+DEMOGRAPHIC_YEARS = [
+    f"_{CENSUS_BASE_YEAR}",
+    f"_{ACS_PREV_YEAR_BAND}",
+    f"_{ACS_CURRENT_YEAR_BAND}",
+]
 
 # Create output directories if they don't exist
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -124,7 +128,9 @@ def download_df(geography, category, filename, appended_columns, copy_columns):
                 break
 
         # Load from package/change_over_time directory
-        csv_path = CHANGE_DATA_PATH / category_folders[category] / f"{actual_filename}.csv"
+        csv_path = (
+            CHANGE_DATA_PATH / category_folders[category] / f"{actual_filename}.csv"
+        )
     else:
         # Load from current build data directory
         csv_path = NEW_BUILD_PATH / category_folders[category] / f"{filename}.csv"
@@ -698,15 +704,20 @@ def main():
     # These are needed for denominators but don't exist in the source data
     housing_security_yearband_columns = []
     for yearband in [CENSUS_BASE_YEAR, ACS_PREV_YEAR_BAND, ACS_CURRENT_YEAR_BAND]:
-        housing_security_yearband_columns.extend([
-            (f"units_payingrent_{yearband}_pct", 100),
-            (f"units_payingrent_{yearband}_pct_moe", 0),
-        ])
+        housing_security_yearband_columns.extend(
+            [
+                (f"units_payingrent_{yearband}_pct", 100),
+                (f"units_payingrent_{yearband}_pct_moe", 0),
+            ]
+        )
 
     appended_columns = {
-        "housing_security_puma": housing_security_base_columns + housing_security_yearband_columns,
-        "housing_security_borough": housing_security_base_columns + housing_security_yearband_columns,
-        "housing_security_citywide": housing_security_base_columns + housing_security_yearband_columns,
+        "housing_security_puma": housing_security_base_columns
+        + housing_security_yearband_columns,
+        "housing_security_borough": housing_security_base_columns
+        + housing_security_yearband_columns,
+        "housing_security_citywide": housing_security_base_columns
+        + housing_security_yearband_columns,
         "housing_production_puma": [
             ("units_hi_newconstruction_count", 0),
             ("units_hi_preservation_count", 0),

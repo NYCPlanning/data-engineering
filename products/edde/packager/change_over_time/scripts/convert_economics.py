@@ -10,7 +10,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
 from packager.change_over_time.calculator import ChangeCalculator
 from packager.change_over_time.config import economics
 
@@ -142,41 +141,3 @@ def convert_economics(
     print(f"✓ Converted {old_csv.name} + {new_csv.name}")
     print(f"  → {output_csv}")
     print(f"  Rows: {len(result_df)}")
-
-
-def main():
-    """Main entry point. Auto-discovers paths from build_metadata and recipe."""
-    from change_over_time.paths import get_old_csv, get_new_csv, get_edde_paths
-
-    if len(sys.argv) != 2:
-        print("Usage: python convert_economics.py <geography_col>")
-        print()
-        print("Examples:")
-        print("  python convert_economics.py borough")
-        print("  python convert_economics.py puma")
-        print("  python convert_economics.py citywide")
-        sys.exit(1)
-
-    geography_col = sys.argv[1]
-
-    print(f"Auto-discovering paths for geography: {geography_col}")
-    old_edde_path, new_build_path = get_edde_paths()
-    print(f"  Old EDDE data: {old_edde_path}")
-    print(f"  New build data: {new_build_path}")
-
-    old_csv = get_old_csv("economics", geography_col)
-    new_csv = get_new_csv("economics", geography_col)
-
-    # Output to current build data directory
-    output_csv = new_build_path / "economics" / f"economics_change_{geography_col}.csv"
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
-
-    print(f"  Old CSV: {old_csv}")
-    print(f"  New CSV: {new_csv}")
-    print(f"  Output: {output_csv}")
-
-    convert_economics(old_csv, new_csv, output_csv, geography_col)
-
-
-if __name__ == "__main__":
-    main()
