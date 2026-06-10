@@ -118,7 +118,7 @@ def merge(source, destination):
 
 # Loads CSV file for given geography, category, and filename from local build data
 # Sets column containing geoids as index, and adds column axis multi-index with value of filename
-def download_df(geography, category, filename, appended_columns, copy_columns):
+def load_build_csv(geography, category, filename, appended_columns, copy_columns):
     # Determine if this is a change file or regular data file
     if "change" in filename:
         # For change files, replace abbreviated prefixes with full names
@@ -839,7 +839,7 @@ def main():
             for category, category_config in geography_config.items():
                 if category not in output[geography]:
                     output[geography][category] = {}
-                # First, download all csv's necessary to have all data for the given
+                # First, load all csv's necessary to have all data for the given
                 # geography an category, and combine them into one DataFrame
                 # with a multi-index on the column axis that conveys filename
                 df = pd.DataFrame()
@@ -851,7 +851,7 @@ def main():
                         ):
                             for file in table_config["files"]:
                                 if df.empty:
-                                    df = download_df(
+                                    df = load_build_csv(
                                         geography,
                                         category,
                                         file,
@@ -860,7 +860,7 @@ def main():
                                     )
                                 else:
                                     if file not in df.columns.levels[0].tolist():
-                                        df_for_file = download_df(
+                                        df_for_file = load_build_csv(
                                             geography,
                                             category,
                                             file,
@@ -889,7 +889,9 @@ def main():
                                 area[subgroup] = build_vintages(table_list, df_row)
                             except KeyError as e:
                                 # Skip indicators that are missing (likely in ignored_indicators list)
-                                print(f"WARNING: Skipping table due to missing data: {e}")
+                                print(
+                                    f"WARNING: Skipping table due to missing data: {e}"
+                                )
                                 area[subgroup] = []
 
     # Finally, iterate through geoid in the output object and save that data to a file
