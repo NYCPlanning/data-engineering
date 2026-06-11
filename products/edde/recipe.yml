@@ -1,11 +1,11 @@
 name: EDDE
-version: {{ BUILD_ENV_EDDE_VERSION }}
+version: "{{ BUILD_ENV_EDDE_VERSION }}"
 vars:
-  BUILD_ENV_EDDE_VERSION_PREV: {{ BUILD_ENV_EDDE_VERSION_PREV }}
-  BUILD_ENV_EDDE_VERSION: {{ BUILD_ENV_EDDE_VERSION }}
-  BUILD_ENV_EDDE_CENSUS_BASE_YEAR: {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
-  BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND: {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}
-  BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND: {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}
+  BUILD_ENV_EDDE_VERSION_PREV: "{{ BUILD_ENV_EDDE_VERSION_PREV }}"
+  BUILD_ENV_EDDE_VERSION: "{{ BUILD_ENV_EDDE_VERSION }}"
+  BUILD_ENV_EDDE_CENSUS_BASE_YEAR: "{{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}"
+  BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND: "{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}"
+  BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND: "{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"
 product: db-eddt
 inputs:
   dataset_defaults:
@@ -15,7 +15,7 @@ inputs:
 # From the spreadsheet
   # Ingested
   - name: edde
-    version: {{ BUILD_ENV_EDDE_VERSION_PREV }}
+    version: "{{ BUILD_ENV_EDDE_VERSION_PREV }}"
     source: edm.publishing.published
 
   - name: doi_evictions_geocoded # 3.09 (geocoded version)
@@ -88,7 +88,7 @@ custom:
       "1620": [2016, 2021]
 
   dhs_shelter:
-    years: ["2020", "2026"]
+    years: ["2020", "2025"]
 
 stage_config:
   builds.build:

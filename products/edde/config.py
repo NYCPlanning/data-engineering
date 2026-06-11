@@ -1,3 +1,4 @@
+import json
 import shutil
 from pathlib import Path
 
@@ -11,6 +12,62 @@ from dcpy.utils.logging import logger
 
 PRODUCT_PATH = Path(__file__).parent
 PRODUCT_NAME = "edde"
+
+
+def get_edde_paths() -> tuple[Path, Path]:
+    """Get paths for old (loaded EDDE) and new (current build) data.
+
+    Returns:
+        Tuple of (old_edde_path, new_build_path)
+        - old_edde_path: Path to loaded EDDE dataset from previous version
+        - new_build_path: Path to current build data directory
+    """
+    # Load build metadata
+    build_metadata_path = get_build_metadata_path(PRODUCT_PATH)
+    if not build_metadata_path.exists():
+        raise FileNotFoundError(
+            f"build_metadata.json not found at {build_metadata_path}. "
+            "Please run 'bd load' first."
+        )
+
+    with open(build_metadata_path, "r") as f:
+        build_metadata = json.load(f)
+
+    # Get current version from recipe
+    current_version = build_metadata["recipe"]["vars"]["BUILD_ENV_EDDE_VERSION"]
+
+    # Get old EDDE path from loaded dataset
+    if "load_result" not in build_metadata:
+        raise ValueError(
+            "load_result not found in build_metadata.json. "
+            "Please run 'bd load' to load the recipe datasets first."
+        )
+
+    load_result = build_metadata["load_result"]
+    if "datasets" not in load_result or "edde" not in load_result["datasets"]:
+        raise ValueError(
+            "EDDE dataset not found in load_result. "
+            "Please ensure the recipe includes the 'edde' dataset and run 'bd load' first."
+        )
+
+    # Get the first (and should be only) version of the edde dataset
+    edde_versions = load_result["datasets"]["edde"]
+    if not edde_versions:
+        raise ValueError(
+            "No EDDE dataset versions found in load_result. "
+            "Please ensure the recipe includes the 'edde' dataset and run 'bd load' first."
+        )
+
+    # Get the first version's destination path
+    edde_version_key = list(edde_versions.keys())[0]
+    edde_data = edde_versions[edde_version_key]
+    # The loaded EDDE dataset has a "data" subdirectory containing the actual CSVs
+    old_edde_path = Path(edde_data["destination"]) / "data"
+
+    # Get new build path from current build output directory
+    new_build_path = get_build_dir(PRODUCT_NAME, current_version) / "data"
+
+    return old_edde_path, new_build_path
 
 
 class BuildNotPlannedError(Exception):

@@ -495,7 +495,7 @@
       "title": "Number of Individuals in Shelter System by Last Address",
       "id": "3.10.T",
       "has_change": true,
-      "vintages": ["NYC DEPARTMENT OF HOMELESS SERVICES, 2020", "NYC DEPARTMENT OF HOMELESS SERVICES, 2022", "CHANGE, 2020-2022"],
+      "vintages": ["NYC DEPARTMENT OF HOMELESS SERVICES, {{ dhs_shelter.years[0] }}", "NYC DEPARTMENT OF HOMELESS SERVICES, {{ dhs_shelter.years[1] }}", "CHANGE, {{ dhs_shelter.years[0] }}-{{ dhs_shelter.years[1] }}"],
       "years": ["_{{ dhs_shelter.years[0] }}", "_{{ dhs_shelter.years[1] }}"],
       "labels": ["Total number of individuals in DHS shelter system whose last address was in this area"],
       "variables": ["dhs_shelter"],

@@ -6,17 +6,12 @@ Python port of convert-econ.js
 NOTE: Economics uses separate OLD and NEW input files, like demographics.
 """
 
-import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
-# Add parent directory to path to import calculator
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from change_over_time.calculator import ChangeCalculator
-from change_over_time.config import economics
+from packager.change_over_time.calculator import ChangeCalculator
+from packager.change_over_time.config import economics
 
 
 def convert_economics(
@@ -146,38 +141,3 @@ def convert_economics(
     print(f"✓ Converted {old_csv.name} + {new_csv.name}")
     print(f"  → {output_csv}")
     print(f"  Rows: {len(result_df)}")
-
-
-def main():
-    if len(sys.argv) < 4:
-        print(
-            "Usage: python convert_economics.py <old.csv> <new.csv> <output.csv> [geography_col]"
-        )
-        print()
-        print("Examples:")
-        print(
-            "  python convert_economics.py economics_0812_borough.csv economics_1923_borough.csv output.csv borough"
-        )
-        print(
-            "  python convert_economics.py economics_0812_puma.csv economics_1923_puma.csv output.csv puma"
-        )
-        sys.exit(1)
-
-    old_csv = Path(sys.argv[1])
-    new_csv = Path(sys.argv[2])
-    output_csv = Path(sys.argv[3])
-    geography_col = sys.argv[4] if len(sys.argv) > 4 else "borough"
-
-    if not old_csv.exists():
-        print(f"Error: Input file not found: {old_csv}")
-        sys.exit(1)
-
-    if not new_csv.exists():
-        print(f"Error: Input file not found: {new_csv}")
-        sys.exit(1)
-
-    convert_economics(old_csv, new_csv, output_csv, geography_col)
-
-
-if __name__ == "__main__":
-    main()

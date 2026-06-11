@@ -16,10 +16,12 @@ acs_current_year_band = _recipe_lock.vars["BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND"
 acs_prev_year_suffix = acs_prev_year_band[-2:]
 acs_current_year_suffix = acs_current_year_band[-2:]
 
-# Semantic year name to suffix mapping
+# Semantic year name to suffix mapping (includes both legacy "prev"/"current" and full yearbands)
 acs_year_suffix_map = {
     "prev": acs_prev_year_suffix,
     "current": acs_current_year_suffix,
+    acs_prev_year_band: acs_prev_year_suffix,  # e.g., "0812" -> "12"
+    acs_current_year_band: acs_current_year_suffix,  # e.g., "2024" -> "24"
 }
 
 # Year suffix to full year band mapping

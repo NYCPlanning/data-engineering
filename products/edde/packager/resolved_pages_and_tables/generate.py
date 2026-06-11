@@ -4,17 +4,49 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import simplejson
+from config import get_edde_paths
+
+from dcpy.lifecycle.builds import get_build_metadata_path
 
 ###
 # Path setup
 SCRIPT_DIR = Path(__file__).parent.resolve()
-CONFIG_DIR = SCRIPT_DIR / "config"
-GENERATED_DIR = SCRIPT_DIR / "generated"
-OUTPUT_DIR = SCRIPT_DIR / "output"
 
-###
-DB_EDDT_TARGET = "2025-05-30"
-assert DB_EDDT_TARGET != "", "DB_EDDT_TARGET must point valid db ebbt DO Space folder"
+# Get build data paths dynamically
+OLD_EDDE_PATH, NEW_BUILD_PATH = get_edde_paths()
+PACKAGE_DIR = NEW_BUILD_PATH.parent / "package"
+CHANGE_DATA_PATH = PACKAGE_DIR / "change_over_time"
+CONFIG_DIR = PACKAGE_DIR / "site_conf"
+OUTPUT_DIR = PACKAGE_DIR / "resolved_pages_and_tables"
+CONFIGS_DIR = OUTPUT_DIR / "configs"
+DISTRICTS_DIR = OUTPUT_DIR / "districts"
+
+# Get yearbands from recipe vars
+PRODUCT_PATH = Path(__file__).parent.parent.parent
+build_metadata_path = get_build_metadata_path(PRODUCT_PATH)
+with open(build_metadata_path, "r") as f:
+    build_metadata = json.load(f)
+vars = build_metadata["recipe"]["vars"]
+CENSUS_BASE_YEAR = vars.get("BUILD_ENV_EDDE_CENSUS_BASE_YEAR", "2000")
+ACS_PREV_YEAR_BAND = vars.get("BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND", "0812")
+ACS_CURRENT_YEAR_BAND = vars.get("BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND", "2024")
+
+# Construct year list for demographics data
+DEMOGRAPHIC_YEARS = [
+    f"_{CENSUS_BASE_YEAR}",
+    f"_{ACS_PREV_YEAR_BAND}",
+    f"_{ACS_CURRENT_YEAR_BAND}",
+]
+
+# Create output directories if they don't exist
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+CONFIGS_DIR.mkdir(parents=True, exist_ok=True)
+DISTRICTS_DIR.mkdir(parents=True, exist_ok=True)
+
+print(f"Build data path: {NEW_BUILD_PATH}")
+print(f"Change data path: {CHANGE_DATA_PATH}")
+print(f"Demographic years: {DEMOGRAPHIC_YEARS}")
+print(f"Output directory: {OUTPUT_DIR}")
 
 category_folders = {
     "demo": "demographics",
@@ -24,8 +56,14 @@ category_folders = {
     "qlao": "quality_of_life",
 }
 
-DO_EDM_URL = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-eddt/publish/{DB_EDDT_TARGET}"
-DO_CHANGE_URL = "https://equity-tool-data.nyc3.digitaloceanspaces.com/change/latest"
+# Mapping for change file prefixes (used in config) to actual filenames
+change_file_prefixes = {
+    "demo_change_": "demographics_change_",
+    "econ_change_": "economics_change_",
+    "hsaq_change_": "housing_security_change_",
+    "hopd_change_": "housing_production_change_",
+    "qol_change_": "quality_of_life_change_",
+}
 
 geography_column_names = {
     "district": "puma",
@@ -78,12 +116,34 @@ def merge(source, destination):
     return destination
 
 
-# Downloads EDM csv file for given geography, category, and filename
+# Loads CSV file for given geography, category, and filename from local build data
 # Sets column containing geoids as index, and adds column axis multi-index with value of filename
-def download_df(geography, category, filename, appended_columns, copy_columns):
-    base_url = DO_CHANGE_URL if "change" in filename else DO_EDM_URL
-    dest = f"{base_url}/{category_folders[category]}/{filename}.csv"
-    df = pd.read_csv(dest, dtype={geography_column_names[geography]: "str"})
+def load_build_csv(geography, category, filename, appended_columns, copy_columns):
+    # Determine if this is a change file or regular data file
+    if "change" in filename:
+        # For change files, replace abbreviated prefixes with full names
+        # E.g., demo_change_puma -> demographics_change_puma, qol_change_puma -> quality_of_life_change_puma
+        actual_filename = filename
+        for abbrev_prefix, full_prefix in change_file_prefixes.items():
+            if filename.startswith(abbrev_prefix):
+                actual_filename = filename.replace(abbrev_prefix, full_prefix, 1)
+                break
+
+        # Load from package/change_over_time directory
+        csv_path = (
+            CHANGE_DATA_PATH / category_folders[category] / f"{actual_filename}.csv"
+        )
+    else:
+        # Load from current build data directory
+        csv_path = NEW_BUILD_PATH / category_folders[category] / f"{filename}.csv"
+
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"Data file not found: {csv_path}\n"
+            f"Category: {category}, Filename: {filename}, Geography: {geography}"
+        )
+
+    df = pd.read_csv(csv_path, dtype={geography_column_names[geography]: "str"})
     if filename in appended_columns:
         for column_name, value in appended_columns[filename]:
             df[column_name] = value
@@ -632,31 +692,34 @@ def main():
     # This variable gives us a way to append columns to the csvs we load in with "hard coded" values
     # This variable is a dictionary whose keys are filenames of the csvs EDM gives us. The values are arrays of tuples. The first
     # item of each tuple is the column name you want to add to the file, the second item is the value for that column
+    # Build appended columns for housing_security with dynamic yearbands
+    housing_security_base_columns = [
+        ("units_occurental_pct", 100),
+        ("units_occurental_pct_moe", 0),
+        ("units_occu_pct", 100),
+        ("units_occu_pct_moe", 0),
+        ("housing_lottery_leases_pct", 100),
+        ("housing_lottery_applications_pct", 100),
+    ]
+
+    # Add PCT and PCT_MOE columns for units_payingrent for each yearband
+    # These are needed for denominators but don't exist in the source data
+    housing_security_yearband_columns = []
+    for yearband in [CENSUS_BASE_YEAR, ACS_PREV_YEAR_BAND, ACS_CURRENT_YEAR_BAND]:
+        housing_security_yearband_columns.extend(
+            [
+                (f"units_payingrent_{yearband}_pct", 100),
+                (f"units_payingrent_{yearband}_pct_moe", 0),
+            ]
+        )
+
     appended_columns = {
-        "housing_security_puma": [
-            ("units_occurental_pct", 100),
-            ("units_occurental_pct_moe", 0),
-            ("units_occu_pct", 100),
-            ("units_occu_pct_moe", 0),
-            ("housing_lottery_leases_pct", 100),
-            ("housing_lottery_applications_pct", 100),
-        ],
-        "housing_security_borough": [
-            ("units_occurental_pct", 100),
-            ("units_occurental_pct_moe", 0),
-            ("units_occu_pct", 100),
-            ("units_occu_pct_moe", 0),
-            ("housing_lottery_leases_pct", 100),
-            ("housing_lottery_applications_pct", 100),
-        ],
-        "housing_security_citywide": [
-            ("units_occurental_pct", 100),
-            ("units_occurental_pct_moe", 0),
-            ("units_occu_pct", 100),
-            ("units_occu_pct_moe", 0),
-            ("housing_lottery_leases_pct", 100),
-            ("housing_lottery_applications_pct", 100),
-        ],
+        "housing_security_puma": housing_security_base_columns
+        + housing_security_yearband_columns,
+        "housing_security_borough": housing_security_base_columns
+        + housing_security_yearband_columns,
+        "housing_security_citywide": housing_security_base_columns
+        + housing_security_yearband_columns,
         "housing_production_puma": [
             ("units_hi_newconstruction_count", 0),
             ("units_hi_preservation_count", 0),
@@ -674,7 +737,7 @@ def main():
         ],
     }
 
-    for year in ["_2000", "_0812", "_1923"]:
+    for year in DEMOGRAPHIC_YEARS:
         for geography in ["_puma", "_borough", "_citywide"]:
             columns = []
             for subgroup in ["", "_anh", "_bnh", "_wnh", "_hsp"]:
@@ -737,11 +800,11 @@ def main():
                     final = merge(merged_table_config, sub_config)
                     resolved_tables[geography][category][subgroup].append(final)
 
-    with open(GENERATED_DIR / "resolved_table_configs.json", "w") as fp:
+    with open(CONFIGS_DIR / "resolved_table_configs.json", "w") as fp:
         simplejson.dump(resolved_tables, fp, ignore_nan=True, indent=2)
 
     ### Build Page Configs
-    resolved_tables = load_json(GENERATED_DIR / "resolved_table_configs.json")
+    resolved_tables = load_json(CONFIGS_DIR / "resolved_table_configs.json")
     output = {}
     for geography, geography_config in resolved_tables.items():
         if geography not in output:
@@ -757,7 +820,7 @@ def main():
                         build_config(table_config, subgroup)
                     )
 
-    with open(GENERATED_DIR / "resolved_pages.json", "w") as fp:
+    with open(CONFIGS_DIR / "resolved_pages.json", "w") as fp:
         simplejson.dump(output, fp, ignore_nan=True)
 
     ### Build and output final JSON files
@@ -768,7 +831,7 @@ def main():
     # each of those objects contains all the information needed to look up the data and build
     # the JSON necessary to display that table for every geoid in the geography
     output = {}
-    with open(GENERATED_DIR / "resolved_pages.json", "r") as pages_file:
+    with open(CONFIGS_DIR / "resolved_pages.json", "r") as pages_file:
         pages = json.load(pages_file)
         for geography, geography_config in pages.items():
             if geography not in output:
@@ -776,7 +839,7 @@ def main():
             for category, category_config in geography_config.items():
                 if category not in output[geography]:
                     output[geography][category] = {}
-                # First, download all csv's necessary to have all data for the given
+                # First, load all csv's necessary to have all data for the given
                 # geography an category, and combine them into one DataFrame
                 # with a multi-index on the column axis that conveys filename
                 df = pd.DataFrame()
@@ -788,7 +851,7 @@ def main():
                         ):
                             for file in table_config["files"]:
                                 if df.empty:
-                                    df = download_df(
+                                    df = load_build_csv(
                                         geography,
                                         category,
                                         file,
@@ -797,7 +860,7 @@ def main():
                                     )
                                 else:
                                     if file not in df.columns.levels[0].tolist():
-                                        df_for_file = download_df(
+                                        df_for_file = load_build_csv(
                                             geography,
                                             category,
                                             file,
@@ -822,7 +885,14 @@ def main():
                     # For each geoid, call build_vintages to build the final output for that geoid and category
                     for subgroup, table_list in category_config.items():
                         if subgroup not in area:
-                            area[subgroup] = build_vintages(table_list, df_row)
+                            try:
+                                area[subgroup] = build_vintages(table_list, df_row)
+                            except KeyError as e:
+                                # Skip indicators that are missing (likely in ignored_indicators list)
+                                print(
+                                    f"WARNING: Skipping table due to missing data: {e}"
+                                )
+                                area[subgroup] = []
 
     # Finally, iterate through geoid in the output object and save that data to a file
     # containing all data for the given geoid and category. Each file will be a object
@@ -833,7 +903,7 @@ def main():
         for category, areas in categories.items():
             for geoid, data in areas.items():
                 with open(
-                    OUTPUT_DIR / f"{geography}_{geoid}_{category}.json", "w"
+                    DISTRICTS_DIR / f"{geography}_{geoid}_{category}.json", "w"
                 ) as fp:
                     simplejson.dump(data, fp, ignore_nan=True)
 
