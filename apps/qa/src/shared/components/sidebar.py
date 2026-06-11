@@ -1,11 +1,10 @@
 import streamlit as st
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import BuildKey, DraftKey, ProductKey, PublishKey
+from dcpy.lifecycle.builds import builds, drafts, published
 
 
-def data_selection(
-    product: str, section_label: str | None = None
-) -> publishing.ProductKey | None:
+def data_selection(product: str, section_label: str | None = None) -> ProductKey | None:
     if section_label is not None:
         st.sidebar.title(section_label)
     product_type = st.sidebar.selectbox(
@@ -17,18 +16,18 @@ def data_selection(
     match product_type:
         case "Build":
             label = "Select a build"
-            options = publishing.get_builds(product)
+            options = builds.list_builds(product)
             select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
             if select:
-                return publishing.BuildKey(product, select)
+                return BuildKey(product, select)
         case "Draft":
             label = "Select a version"
-            options = publishing.get_draft_versions(product)
+            options = drafts.get_dataset_versions(product)
             version_select = st.sidebar.selectbox(
                 label, options, key=f"{section_label}_version"
             )
             if version_select:
-                draft_revision_options = publishing.get_draft_version_revisions(
+                draft_revision_options = drafts.get_dataset_version_revisions(
                     product, version_select
                 )
                 draft_revision_label = "Select a draft"
@@ -38,16 +37,12 @@ def data_selection(
                     key=f"{section_label}_output",
                 )
                 if subversion_select:
-                    return publishing.DraftKey(
-                        product, version_select, subversion_select
-                    )
+                    return DraftKey(product, version_select, subversion_select)
         case "Published":
             label = "Select a version"
-            options = publishing.get_published_versions(
-                product=product, exclude_latest=False
-            )
+            options = published.get_versions(product=product, exclude_latest=False)
             select = st.sidebar.selectbox(label, options, key=f"{section_label}_output")
             if select:
-                return publishing.PublishKey(product, select)
+                return PublishKey(product, select)
 
     return None

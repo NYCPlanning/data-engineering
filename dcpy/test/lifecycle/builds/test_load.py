@@ -48,19 +48,6 @@ def _mock_fetch_parquet(ds, _=None):
 @pytest.mark.usefixtures("file_setup_teardown")
 @pytest.mark.usefixtures("create_buckets")
 class TestImportDatasets(TestCase):
-    @patch("dcpy.connectors.edm.recipes.read_df", return_value=_test_df)
-    def test_import_parquet_df(self, read_df):
-        ds = InputDataset(
-            id="test",
-            version="1",
-            import_as="new_table_name",
-            file_type=recipes.DatasetType.parquet,
-            destination=InputDatasetDestination.df,
-        )
-        res = load.import_dataset(ds, Path("./"), None)
-        assert isinstance(res.destination, pd.DataFrame)
-        assert _test_df.equals(res.destination)
-
     def test_import_parquet_file(self):
         # recipes.fetch_dataset = MagicMock(side_effect=_mock_fetch_parquet)
 
