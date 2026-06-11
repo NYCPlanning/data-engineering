@@ -15,11 +15,11 @@ inputs:
 # From the spreadsheet
   # Ingested
   - name: edde
-    version: "{{ BUILD_ENV_EDDE_VERSION_PREV }}"
+    version: latest
     source: edm.publishing.published
 
   - name: doi_evictions_geocoded # 3.09 (geocoded version)
-    version: 20260514
+    version: latest
   - name: hpd_hny_units_by_building # 3.11, 4.02
     version: '20260519'
   - name: dcp_housing # 4.01
