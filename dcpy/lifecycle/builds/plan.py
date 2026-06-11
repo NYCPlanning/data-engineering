@@ -13,9 +13,13 @@ from jinja2 import (
     UndefinedError,
 )
 
-from dcpy.connectors.edm import publishing, recipes
-from dcpy.lifecycle.builds import config
-from dcpy.lifecycle.builds.connector import get_recipes_default_connector
+from dcpy.connectors.edm import recipes
+from dcpy.connectors.edm.models import BuildKey, DatasetType, DraftKey, PublishKey
+from dcpy.lifecycle.builds import config, utils
+from dcpy.lifecycle.builds.connector import (
+    get_published_default_connector,
+    get_recipes_default_connector,
+)
 from dcpy.lifecycle.builds.models import (
     InputDatasetDefaults,
     Recipe,
@@ -27,9 +31,9 @@ from dcpy.utils.logging import logger
 
 DEFAULT_RECIPE = "recipe.yml"
 RECIPE_FILE_TYPE_PREFERENCE = [
-    recipes.DatasetType.pg_dump,
-    recipes.DatasetType.parquet,
-    recipes.DatasetType.csv,
+    DatasetType.pg_dump,
+    DatasetType.parquet,
+    DatasetType.csv,
 ]
 
 ARTIFACTS = [
@@ -61,14 +65,18 @@ def resolve_version(recipe: Recipe) -> str:
         case versions.SimpleVersionStrategy.first_of_month:
             return versions.generate_first_of_month().label
         case versions.SimpleVersionStrategy.bump_latest_release:
-            previous_version = publishing.get_latest_version(recipe.product)
+            previous_version = get_published_default_connector().get_latest_version(
+                recipe.product
+            )
             assert previous_version is not None
             return versions.bump(
                 previous_version=previous_version,
                 bump_type=recipe.version_type,
             ).label
         case versions.BumpLatestRelease() as bump:
-            previous_version = publishing.get_latest_version(recipe.product)
+            previous_version = get_published_default_connector().get_latest_version(
+                recipe.product
+            )
             assert previous_version is not None
             return versions.bump(
                 previous_version=previous_version,
@@ -132,7 +140,7 @@ def plan_recipe(
     # Determine previous version
     if "VERSION_PREV" not in recipe.vars:
         try:
-            previous_recipe = publishing.get_previous_version(
+            previous_recipe = utils.get_previous_version(
                 product=recipe.product, version=recipe.version
             )
             logger.info(
@@ -169,8 +177,8 @@ def plan_recipe(
         recipe.inputs.missing_versions_strategy
         == RecipeInputsVersionStrategy.copy_latest_release
     ):
-        previous_versions = publishing.get_source_data_versions(
-            publishing.PublishKey(recipe.product, "latest")
+        previous_versions = utils.get_source_data_versions(
+            PublishKey(recipe.product, "latest")
         ).to_dict()["version"]
 
     for ds in recipe.inputs.datasets:
@@ -445,15 +453,30 @@ def repeat_recipe_from_source_data_versions(
 
 
 def repeat_build(
-    product_key: publishing.ProductKey,
+    product_key: BuildKey | DraftKey | PublishKey,
     recipe_file: Path | None = None,
     manual_version: str | None = None,
 ) -> Path:
-    if publishing.file_exists(product_key, "build_metadata.json"):
-        with publishing.get_file(product_key, "build_metadata.json") as file:
-            s = yaml.safe_load(file)["recipe"]
-            recipe = Recipe(**s)
-    elif publishing.file_exists(product_key, "source_data_versions.csv"):
+    connector = get_published_default_connector()
+
+    # Get version string from product_key (handles BuildKey.build, DraftKey/PublishKey.version)
+    if isinstance(product_key, BuildKey):
+        key_version = product_key.build
+    elif hasattr(product_key, "version"):
+        key_version = product_key.version  # type: ignore[attr-defined]
+    else:
+        raise TypeError(f"Unsupported product_key type: {type(product_key)}")
+
+    if connector.resource_exists(
+        product_key.product, key_version, "build_metadata.json"
+    ):
+        # Get file contents and deserialize locally (breaks circular dependency)
+        file_contents = utils.get_file_contents(product_key, "build_metadata.json")
+        s = yaml.safe_load(file_contents)["recipe"]
+        recipe = Recipe(**s)
+    elif connector.resource_exists(
+        product_key.product, key_version, "source_data_versions.csv"
+    ):
         logger.info(
             f"Attempting to repeat recipe for {product_key} from source_data_versions.csv"
         )
@@ -463,9 +486,7 @@ def repeat_build(
                 "Recipe file for template must be supplied in if repeating an older build without build_metadata.json"
             )
 
-        if isinstance(product_key, publishing.PublishKey) or isinstance(
-            product_key, publishing.DraftKey
-        ):
+        if hasattr(product_key, "version"):
             version = product_key.version
         elif manual_version:
             version = manual_version
@@ -475,7 +496,7 @@ def repeat_build(
             )
 
         template_recipe = recipe_from_yaml(recipe_file)
-        source_data_versions = publishing.get_source_data_versions(product_key)
+        source_data_versions = utils.get_source_data_versions(product_key)
         recipe = repeat_recipe_from_source_data_versions(
             version, source_data_versions, template_recipe
         )
@@ -545,34 +566,32 @@ def _cli_wrapper_repeat_recipe(
         help="Manually specified version. Only needed if attempting to rebuild and older draft where version cannot be easily determined.",
     ),
 ):
-    product_key: publishing.BuildKey | publishing.DraftKey | publishing.PublishKey
+    from dcpy.connectors.edm.publishing import get_draft_revision_label
+
+    product_key: BuildKey | DraftKey | PublishKey
     product_label = (
         "db-green-fast-track" if product == "green_fast_track" else f"db-{product}"
     )
     match product_type:
         case "build":
-            product_key = publishing.BuildKey(
-                product=product_label, build=version_or_build
-            )
+            product_key = BuildKey(product=product_label, build=version_or_build)
         case "draft":
             if draft_revision_number is None:
                 raise ValueError(
                     "For repeating builds of 'draft' type, need to provide draft revision number"
                 )
-            draft_revision = publishing.get_draft_revision_label(
+            draft_revision = get_draft_revision_label(
                 product=product_label,
                 version=version_or_build,
                 revision_num=draft_revision_number,
             )
-            product_key = publishing.DraftKey(
+            product_key = DraftKey(
                 product=product_label,
                 version=version_or_build,
                 revision=draft_revision,
             )
         case "publish":
-            product_key = publishing.PublishKey(
-                product=product_label, version=version_or_build
-            )
+            product_key = PublishKey(product=product_label, version=version_or_build)
         case _:
             raise ValueError(
                 f"Invalid product/build type supplied: '{version_or_build}'. Only options are 'build', 'draft', or 'publish'"

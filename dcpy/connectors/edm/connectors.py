@@ -292,6 +292,35 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
     def version_exists(self, key: str, version: str, **kwargs) -> bool:
         return version in self.list_versions(key)
 
+    def resource_exists(
+        self, key: str, version: str, resource_path: str, **kwargs
+    ) -> bool:
+        """Check if a resource exists in the product version.
+
+        Args:
+            key: Product name
+            version: Version string
+            resource_path: Path to resource within version (e.g., "build_metadata.json")
+            **kwargs: Additional arguments
+
+        Returns:
+            True if resource exists, False otherwise
+        """
+        # Parse version if needed
+        version_parts = {}
+        if self._config.version_parser:
+            version_parts = self._config.version_parser(version)
+
+        # Create the product key
+        product_key = self._config.key_factory(key, version, version_parts)
+
+        # Build full storage key
+        full_key = (
+            f"{product_key.path}/{resource_path}" if resource_path else product_key.path
+        )
+
+        return self.storage.exists(full_key)
+
     def data_local_sub_path(self, key: str, *, version: str, **kwargs) -> Path:
         # This could also be configurable if needed
         return Path("edm") / self._config.folder_name / "datasets" / key / version

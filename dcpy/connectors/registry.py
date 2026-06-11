@@ -82,6 +82,29 @@ class VersionedConnector(Connector, VersionSearch, ABC):
     def get_latest_version(self, key: str, **kwargs) -> str:
         pass
 
+    def resource_exists(
+        self, key: str, version: str, resource_path: str, **kwargs
+    ) -> bool:
+        """Check if a resource exists within a versioned key.
+
+        Args:
+            key: The resource key (e.g., product name)
+            version: The version
+            resource_path: Path to resource within the version (e.g., "build_metadata.json")
+                          Can be a file, directory, or empty string for version root
+            **kwargs: Additional connector-specific arguments
+
+        Returns:
+            True if the resource exists, False otherwise
+
+        Raises:
+            NotImplementedError: If the connector does not implement this method
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement resource_exists() method. "
+            "Default implementation removed to avoid accidentally downloading large files."
+        )
+
 
 # TODO - this doesn't really belong. If we moved from key/version to more of a path, this could be done away with
 class StorageConnector(Connector, ABC):

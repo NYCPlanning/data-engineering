@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from dcpy.lifecycle.builds import load, plan
 from dcpy.lifecycle.builds.models import InputDatasetDestination
@@ -87,3 +88,98 @@ def test_loading_json(tmp_path, pg_client: postgres.PostgresClient, clean_build_
     assert {"A", "B"}.issubset(table_data.to_dict()), (
         "The column names should have been upcased by the preprocessor."
     )
+
+
+def test_get_source_data_versions_integration(pg_client: postgres.PostgresClient):
+    """Test get_source_data_versions with real published connector.
+
+    This test requires:
+    - Real published connector configured to test storage
+    - A published version with source_data_versions.csv
+    """
+    from dcpy.connectors.edm.models import PublishKey
+    from dcpy.lifecycle.builds import utils
+    from dcpy.lifecycle.builds.connector import get_published_default_connector
+
+    # Find a product with source_data_versions.csv
+    connector = get_published_default_connector()
+    product = "db-pluto"  # Use a product we know exists
+
+    versions_list = connector.list_versions(product, exclude_latest=True)
+    if not versions_list:
+        pytest.skip("Need published versions for this test")
+
+    product_key = PublishKey(product, versions_list[0])
+
+    # Check if file exists (using new interface method)
+    if not connector.resource_exists(
+        product, versions_list[0], "source_data_versions.csv"
+    ):
+        pytest.skip(f"Version {versions_list[0]} doesn't have source_data_versions.csv")
+
+    # Test: Read and transform CSV
+    result = utils.get_source_data_versions(product_key)
+
+    # Verify transformations
+    assert isinstance(result, pd.DataFrame)
+    assert "datalibrary_name" in result.columns, "Column should be renamed"
+    assert "version" in result.columns, "Column should be renamed"
+    assert "schema_name" not in result.columns, "Old column name should be gone"
+    assert result.index.name == "datalibrary_name", "Should be indexed"
+    assert len(result) > 0, "Should have some source data"
+
+
+def test_get_file_contents_integration(pg_client: postgres.PostgresClient):
+    """Test get_file_contents with real published connector."""
+    import json
+
+    from dcpy.connectors.edm.models import PublishKey
+    from dcpy.lifecycle.builds import utils
+    from dcpy.lifecycle.builds.connector import get_published_default_connector
+
+    connector = get_published_default_connector()
+    product = "db-pluto"
+
+    versions_list = connector.list_versions(product, exclude_latest=True)
+    if not versions_list:
+        pytest.skip("Need published versions for this test")
+
+    product_key = PublishKey(product, versions_list[0])
+
+    # Check if build_metadata.json exists
+    if not connector.resource_exists(product, versions_list[0], "build_metadata.json"):
+        pytest.skip(f"Version {versions_list[0]} doesn't have build_metadata.json")
+
+    # Test: Get file contents
+    contents = utils.get_file_contents(product_key, "build_metadata.json")
+
+    assert isinstance(contents, bytes)
+    assert len(contents) > 0
+
+    # Verify it's valid JSON
+    data = json.loads(contents)
+    assert "recipe" in data, "build_metadata.json should have recipe key"
+
+
+def test_resource_exists_connector_method(pg_client: postgres.PostgresClient):
+    """Test the new resource_exists() method on VersionedConnector."""
+    from dcpy.lifecycle.builds.connector import get_published_default_connector
+
+    connector = get_published_default_connector()
+    product = "db-pluto"
+
+    versions_list = connector.list_versions(product, exclude_latest=True)
+    if not versions_list:
+        pytest.skip("Need published versions for this test")
+
+    version = versions_list[0]
+
+    # Test: File that should exist
+    assert connector.resource_exists(product, version, "source_data_versions.csv"), (
+        "source_data_versions.csv should exist in most published versions"
+    )
+
+    # Test: File that shouldn't exist
+    assert not connector.resource_exists(
+        product, version, "nonexistent_file_xyz.txt"
+    ), "Random file should not exist"
