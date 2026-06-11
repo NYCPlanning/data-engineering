@@ -8,12 +8,16 @@ from unittest.mock import MagicMock, Mock, patch
 import pandas as pd
 import pytest
 
-from dcpy.connectors.edm import publishing, recipes
+from dcpy.connectors.edm.models import BuildKey, DatasetType, PublishKey
 from dcpy.connectors.registry import ConnectorRegistry, VersionedConnector
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.models import InputDataset, StageConfigValue
-from dcpy.test.lifecycle.builds.conftest import REQUIRED_VERSION_ENV_VAR, RESOURCES_DIR
+from dcpy.test.lifecycle.builds.conftest import (
+    REQUIRED_VERSION_ENV_VAR,
+    RESOURCES_DIR,
+    set_mock_published_connector,
+)
 from dcpy.utils import versions
 
 RECIPE_PATH = RESOURCES_DIR / "recipe.yml"
@@ -39,6 +43,8 @@ def set_mock_recipes_connector_defaults():
             "get_name": MOCKED_DATASET_NAME,
         }
     )
+    # Also mock the published connector to avoid S3 access during VERSION_PREV lookup
+    set_mock_published_connector({"list_versions": []})
     # TODO... we should probably at some point figure out a default set of
     # connectors that we can reset to after this fixture yields
 
@@ -87,18 +93,16 @@ class TestVersionStrategies(TestCase):
             == versions.generate_first_of_month().label
         )
 
-    @patch("dcpy.connectors.edm.publishing.get_latest_version")
-    def test_simple_bump_latest_release(self, get_latest):
+    def test_simple_bump_latest_release(self):
+        set_mock_published_connector({"get_latest_version": "24v1"})
         self.recipe.version_strategy = (
             versions.SimpleVersionStrategy.bump_latest_release
         )
-        get_latest.return_value = "24v1"
         assert plan.resolve_version(self.recipe) == "24v2"
 
-    @patch("dcpy.connectors.edm.publishing.get_latest_version")
-    def test_bump_latest_release(self, get_latest):
+    def test_bump_latest_release(self):
+        set_mock_published_connector({"get_latest_version": "24v1"})
         self.recipe.version_strategy = versions.BumpLatestRelease(bump_latest_release=2)
-        get_latest.return_value = "24v1"
         assert plan.resolve_version(self.recipe) == "24v3"
 
     def test_pin_to_source_dataset(self):
@@ -175,7 +179,7 @@ class TestRecipesWithDefaults(TestCase):
         assert had_no_version_or_type.version == MOCKED_LATEST_VERSION, (
             f"The missing version strategy should be applied to find the latest version for this dataset. Found {had_no_version_or_type.version}"
         )
-        assert had_no_version_or_type.file_type == recipes.DatasetType.csv, (
+        assert had_no_version_or_type.file_type == DatasetType.csv, (
             "The datatype should default to a csv, as specified in the dataset_defaults"
         )
         assert planned.is_resolved, "Dataset is not resolved"
@@ -212,18 +216,18 @@ class TestRecipesNoDefaults(TestCase):
         """Tests that default type is pg_dump if found when not otherwise specified."""
         add_required_version_var_to_env()
         get_file_types.return_value = {
-            recipes.DatasetType.pg_dump,
-            recipes.DatasetType.parquet,
+            DatasetType.pg_dump,
+            DatasetType.parquet,
         }
         planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
-        assert planned.inputs.datasets[0].file_type == recipes.DatasetType.pg_dump
+        assert planned.inputs.datasets[0].file_type == DatasetType.pg_dump
         assert planned.is_resolved, "Dataset is not resolved"
 
     def test_serializing_and_deserializing(self, get_file_types):
         """Deserializing python models is a minefield."""
         get_file_types.return_value = {
-            recipes.DatasetType.pg_dump,
-            recipes.DatasetType.parquet,
+            DatasetType.pg_dump,
+            DatasetType.parquet,
         }
         lock_file = plan.plan(RECIPE_NO_DEFAULTS_PATH)
         plan.recipe_from_yaml(lock_file)
@@ -232,7 +236,7 @@ class TestRecipesNoDefaults(TestCase):
     def test_plan_recipe_populates_archive_date(
         self, mock_archive_date, get_file_types
     ):
-        get_file_types.return_value = {recipes.DatasetType.pg_dump}
+        get_file_types.return_value = {DatasetType.pg_dump}
         mock_archive_date.return_value = datetime(2024, 6, 1, 12, 0, 0)
         planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
         assert planned.inputs.datasets[0].archive_date == date(2024, 6, 1)
@@ -271,124 +275,201 @@ def source_versions_csv_exists(key, file):
 
 @pytest.mark.usefixtures("create_buckets")
 class TestRepeat(TestCase):
-    @patch("dcpy.connectors.edm.publishing.get_source_data_versions")
-    @patch(
-        "dcpy.connectors.edm.publishing.file_exists",
-        side_effect=source_versions_csv_exists,
-    )
-    def test_repeat_published_version_from_source_data_versions(
-        self, file_exists, source_data
-    ):
+    def test_repeat_published_version_from_source_data_versions(self):
+        import shutil
+        import tempfile
+
         version = "21v1"
         recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
-        source_data.return_value = pd.read_csv(SOURCE_VERSIONS_PATH).set_index(
-            "dataset"
-        )
-        repeat_file = plan.repeat_build(
-            publishing.PublishKey(product=recipe.name, version=version),
-            recipe_file=RECIPE_NO_DEFAULTS_PATH,
-        )
-        repeat = plan.recipe_from_yaml(repeat_file)
-        assert repeat.is_resolved
-        assert repeat.version == version
-        assert repeat.inputs.datasets[0].version == "v1"
 
-    @patch("dcpy.connectors.edm.publishing.get_source_data_versions")
-    @patch(
-        "dcpy.connectors.edm.publishing.file_exists",
-        side_effect=source_versions_csv_exists,
-    )
-    def test_repeat_build_from_source_data_versions(self, file_exists, source_data):
-        recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
-        source_data.return_value = pd.read_csv(SOURCE_VERSIONS_PATH).set_index(
-            "dataset"
-        )
-        repeat_file = plan.repeat_build(
-            publishing.BuildKey(product=recipe.name, build=recipe.version),
-            recipe_file=RECIPE_NO_DEFAULTS_PATH,
-            manual_version="21v1",
-        )
-        repeat = plan.recipe_from_yaml(repeat_file)
-        assert repeat.is_resolved
-        assert repeat.version == "21v1"
-        assert repeat.inputs.datasets[0].version == "v1"
+        # Create test CSV
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            test_csv = tmp_path / "source_data_versions.csv"
+            shutil.copy(SOURCE_VERSIONS_PATH, test_csv)
 
-    @patch(
-        "dcpy.connectors.edm.publishing.file_exists",
-        side_effect=source_versions_csv_exists,
-    )
-    def test_repeat_build_from_source_data_versions_fails_without_version(
-        self, file_exists
-    ):
+            def mock_resource_exists(key, version, resource_path, **kw):
+                return resource_path == "source_data_versions.csv"
+
+            def mock_pull(key, version, destination_path, filepath=None, **kw):
+                if filepath == "source_data_versions.csv":
+                    shutil.copy(test_csv, destination_path)
+                    return {"path": destination_path}
+                raise FileNotFoundError()
+
+            set_mock_published_connector(
+                {
+                    "resource_exists": Mock(side_effect=mock_resource_exists),
+                    "pull_versioned": Mock(side_effect=mock_pull),
+                }
+            )
+
+            repeat_file = plan.repeat_build(
+                PublishKey(product=recipe.name, version=version),
+                recipe_file=RECIPE_NO_DEFAULTS_PATH,
+            )
+            repeat = plan.recipe_from_yaml(repeat_file)
+            assert repeat.is_resolved
+            assert repeat.version == version
+            assert repeat.inputs.datasets[0].version == "v1"
+
+    def test_repeat_build_from_source_data_versions(self):
+        import shutil
+        import tempfile
+
         recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
+
+        # Create test CSV
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            test_csv = tmp_path / "source_data_versions.csv"
+            shutil.copy(SOURCE_VERSIONS_PATH, test_csv)
+
+            def mock_resource_exists(key, version, resource_path, **kw):
+                return resource_path == "source_data_versions.csv"
+
+            def mock_pull(key, version, destination_path, filepath=None, **kw):
+                if filepath == "source_data_versions.csv":
+                    shutil.copy(test_csv, destination_path)
+                    return {"path": destination_path}
+                raise FileNotFoundError()
+
+            set_mock_published_connector(
+                {
+                    "resource_exists": Mock(side_effect=mock_resource_exists),
+                    "pull_versioned": Mock(side_effect=mock_pull),
+                }
+            )
+
+            repeat_file = plan.repeat_build(
+                BuildKey(product=recipe.name, build=recipe.version),
+                recipe_file=RECIPE_NO_DEFAULTS_PATH,
+                manual_version="21v1",
+            )
+            repeat = plan.recipe_from_yaml(repeat_file)
+            assert repeat.is_resolved
+            assert repeat.version == "21v1"
+            assert repeat.inputs.datasets[0].version == "v1"
+
+    def test_repeat_build_from_source_data_versions_fails_without_version(self):
+        recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
+
+        def mock_resource_exists(key, version, resource_path, **kw):
+            return resource_path == "source_data_versions.csv"
+
+        set_mock_published_connector(
+            {"resource_exists": Mock(side_effect=mock_resource_exists)}
+        )
+
         with pytest.raises(
             ValueError,
             match="Version must be supplied manually if repeating an older build without build_metadata.json",
         ):
             plan.repeat_build(
-                publishing.BuildKey(product=recipe.name, build=recipe.version),
+                BuildKey(product=recipe.name, build=recipe.version),
                 recipe_file=RECIPE_NO_DEFAULTS_PATH,
             )
 
-    @patch(
-        "dcpy.connectors.edm.publishing.file_exists",
-        side_effect=source_versions_csv_exists,
-    )
-    def test_repeat_build_from_source_data_versions_fails_without_recipe_path(
-        self, file_exists
-    ):
+    def test_repeat_build_from_source_data_versions_fails_without_recipe_path(self):
         recipe = plan.recipe_from_yaml(RECIPE_NO_DEFAULTS_PATH)
+
+        def mock_resource_exists(key, version, resource_path, **kw):
+            return resource_path == "source_data_versions.csv"
+
+        set_mock_published_connector(
+            {"resource_exists": Mock(side_effect=mock_resource_exists)}
+        )
+
         with pytest.raises(
             ValueError,
             match="Recipe file for template must be supplied in if repeating an older build without build_metadata.json",
         ):
             plan.repeat_build(
-                publishing.BuildKey(product=recipe.name, build=recipe.version),
+                BuildKey(product=recipe.name, build=recipe.version),
                 manual_version="22v1",
             )
 
-    @patch("dcpy.connectors.edm.publishing.get_source_data_versions")
-    @patch(
-        "dcpy.connectors.edm.publishing.file_exists",
-        side_effect=source_versions_csv_exists,
-    )
-    def test_repeat_build_from_source_data_versions_fails_with_missing_source(
-        self, file_exists, source_data
-    ):
+    def test_repeat_build_from_source_data_versions_fails_with_missing_source(self):
+        import shutil
+        import tempfile
+
         recipe = plan.recipe_from_yaml(RECIPE_PATH)
-        source_data.return_value = pd.read_csv(SOURCE_VERSIONS_PATH).set_index(
-            "dataset"
-        )
-        with pytest.raises(
-            Exception,
-            match="Dataset found in template recipe not found in historical source data versions",
-        ):
-            plan.repeat_build(
-                publishing.BuildKey(product=recipe.name, build=recipe.version),
-                recipe_file=RECIPE_PATH,
-                manual_version="22v1",
+
+        # Create test CSV
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            test_csv = tmp_path / "source_data_versions.csv"
+            shutil.copy(SOURCE_VERSIONS_PATH, test_csv)
+
+            def mock_resource_exists(key, version, resource_path, **kw):
+                return resource_path == "source_data_versions.csv"
+
+            def mock_pull(key, version, destination_path, filepath=None, **kw):
+                if filepath == "source_data_versions.csv":
+                    shutil.copy(test_csv, destination_path)
+                    return {"path": destination_path}
+                raise FileNotFoundError()
+
+            set_mock_published_connector(
+                {
+                    "resource_exists": Mock(side_effect=mock_resource_exists),
+                    "pull_versioned": Mock(side_effect=mock_pull),
+                }
             )
 
-    @patch("dcpy.connectors.edm.publishing.get_file")
-    @patch(
-        "dcpy.connectors.edm.publishing.file_exists", side_effect=build_metadata_exists
-    )
-    def test_repeat_from_build_metadata(self, build_metadata, get_file):
-        get_file.return_value = open(BUILD_METADATA_PATH)
-        repeat_file = plan.repeat_build(
-            publishing.PublishKey(product="Tester", version="dummy")
-        )
-        repeat = plan.recipe_from_yaml(repeat_file)
-        assert repeat.is_resolved
-        assert repeat.version == "22v1"
-        assert repeat.inputs.datasets[0].version == "v1"
+            with pytest.raises(
+                Exception,
+                match="Dataset found in template recipe not found in historical source data versions",
+            ):
+                plan.repeat_build(
+                    BuildKey(product=recipe.name, build=recipe.version),
+                    recipe_file=RECIPE_PATH,
+                    manual_version="22v1",
+                )
+
+    def test_repeat_from_build_metadata(self):
+        import shutil
+        import tempfile
+
+        # Create test file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            test_file = tmp_path / "build_metadata.json"
+            shutil.copy(BUILD_METADATA_PATH, test_file)
+
+            def mock_resource_exists(key, version, resource_path, **kw):
+                return resource_path == "build_metadata.json"
+
+            def mock_pull(key, version, destination_path, filepath=None, **kw):
+                if filepath == "build_metadata.json":
+                    shutil.copy(test_file, destination_path)
+                    return {"path": destination_path}
+                raise FileNotFoundError()
+
+            set_mock_published_connector(
+                {
+                    "resource_exists": Mock(side_effect=mock_resource_exists),
+                    "pull_versioned": Mock(side_effect=mock_pull),
+                }
+            )
+
+            repeat_file = plan.repeat_build(
+                PublishKey(product="Tester", version="dummy")
+            )
+            repeat = plan.recipe_from_yaml(repeat_file)
+            assert repeat.is_resolved
+            assert repeat.version == "22v1"
+            assert repeat.inputs.datasets[0].version == "v1"
 
     def test_no_record_found(self):
+        # Mock connector that has no files
+        set_mock_published_connector({"resource_exists": Mock(return_value=False)})
+
         with pytest.raises(
             Exception,
             match="Neither 'build_metadata.json' nor 'source_data_versions.csv' can be found.",
         ):
-            plan.repeat_build(publishing.PublishKey(product=PRODUCT, version="version"))
+            plan.repeat_build(PublishKey(product=PRODUCT, version="version"))
 
 
 @pytest.fixture(scope="function")
@@ -408,6 +489,9 @@ class TestConnectors:
     def test_plan_version_resolution(self, reset_connectors):
         MOCK_LATEST_VERSION = "123"
         CONNECTOR_NAME = "edm.custom"
+
+        # Mock the published connector to avoid S3 access during VERSION_PREV lookup
+        set_mock_published_connector({"list_versions": []})
 
         edm_custom_mock = MagicMock(
             get_latest_version=Mock(return_value=MOCK_LATEST_VERSION)

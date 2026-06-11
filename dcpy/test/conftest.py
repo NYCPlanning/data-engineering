@@ -26,7 +26,6 @@ os.environ["PUBLISHING_BUCKET"] = PUBLISHING_BUCKET
 # the real product-metadata repo, not the old mock in test/resources
 
 from dcpy import configuration
-from dcpy.connectors.edm import packaging, publishing
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.models import BuildMetadata
 from dcpy.utils import s3, versions
@@ -75,19 +74,20 @@ def create_buckets(aws_credentials):
 
 @pytest.fixture(scope="module")
 def mock_data_constants():
-    def _test_product(
-        publish_key: publishing.PublishKey, package_key: packaging.DatasetPackageKey
-    ) -> None:
-        output_path = packaging.OUTPUT_ROOT_PATH / package_key.path
-        shutil.copytree(
-            packaging.DOWNLOAD_ROOT_PATH / publish_key.path,
-            output_path,
-            dirs_exist_ok=True,
-        )
-        os.rename(
-            output_path / "file.csv",
-            output_path / f"file_{package_key.version}.csv",
-        )
+    # NOTE: _test_product function commented out due to removed packaging module
+    # def _test_product(
+    #     publish_key: publishing.PublishKey, package_key: packaging.DatasetPackageKey
+    # ) -> None:
+    #     output_path = packaging.OUTPUT_ROOT_PATH / package_key.path
+    #     shutil.copytree(
+    #         packaging.DOWNLOAD_ROOT_PATH / publish_key.path,
+    #         output_path,
+    #         dirs_exist_ok=True,
+    #     )
+    #     os.rename(
+    #         output_path / "file.csv",
+    #         output_path / f"file_{package_key.version}.csv",
+    #     )
 
     test_product_name = "test-product"
     test_version = versions.MajorMinor(year=24, major=2).label
