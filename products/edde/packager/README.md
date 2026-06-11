@@ -19,15 +19,13 @@ flowchart TD
         step1["[1] site_conf_templates"]
         step2["[2] change_over_time"]
         step3["[3] resolved_pages_and_tables"]
+        step4["[4] district_xlsx"]
 
         out1[["site_conf/<br/>demo.json, econ.json,<br/>hsaq.json, hopd.json,<br/>qlao.json"]]
         out2[["change_over_time/<br/>demographics/,<br/>economics/,<br/>housing_security/,<br/>quality_of_life/"]]
         out3[["resolved_pages_and_tables"]]
         out4[["{geography}_{geoid}_{category}.json files"]]
-    end
-
-    subgraph appeng[" App Eng. "]
-        xlsx[District XLSX files]
+        out5[["district_xlsx/<br/>{geography}.xlsx files"]]
     end
 
     recipe --> step1
@@ -43,12 +41,12 @@ flowchart TD
     step3 --> out3
     step3 --> out4
 
-    out4 --> xlsx
+    out4 --> step4
+    step4 --> out5
 
     style store fill:#fff3e0,stroke:#f57c00
     style build fill:#f0f0f0,stroke:#999
     style postbuild fill:#e3f2fd,stroke:#1976d2
-    style appeng fill:#f3e5f5,stroke:#7b1fa2
 ```
 
 ## Steps
@@ -56,3 +54,19 @@ flowchart TD
 1. **site_conf_templates** - Renders Jinja2 templates with recipe variables
 2. **change_over_time** - Generates change datasets (12 files: 4 categories × 3 geographies)
 3. **resolved_pages_and_tables** - Generates final JSON files for equity explorer frontend
+4. **district_xlsx** - Generates XLSX files for all geographies (boroughs, districts, citywide)
+
+## Usage
+
+Run all packaging steps:
+```bash
+python3 -m packager
+```
+
+Or run individual steps:
+```bash
+python3 -m packager.site_conf_templates
+python3 -m packager.change_over_time
+python3 -m packager.resolved_pages_and_tables
+python3 -m packager.district_xlsx
+```
