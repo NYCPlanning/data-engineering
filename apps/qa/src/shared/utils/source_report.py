@@ -5,8 +5,14 @@ import pandas as pd
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
 from src.shared.constants import construct_dataset_by_version
 
-from dcpy.connectors.edm import publishing, recipes
+from dcpy.connectors.edm.models import (
+    BuildKey,
+    DatasetType,
+    ProductKey,
+    PublishKey,
+)
 from dcpy.lifecycle import data_loader
+from dcpy.lifecycle.builds import builds, published
 from dcpy.lifecycle.builds.models import InputDataset
 
 
@@ -15,25 +21,35 @@ def dataframe_style_source_report_results(value) -> str:
     return f"background-color: {color}"
 
 
-def get_source_dataset_ids(product_key: publishing.ProductKey) -> list[str]:
+def _get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
+    """Helper to get source data versions from any lifecycle stage."""
+    if isinstance(product_key, BuildKey):
+        return builds.get_source_data_versions(product_key.product, product_key.build)
+    elif isinstance(product_key, PublishKey):
+        return published.get_source_data_versions(
+            product_key.product, product_key.version
+        )
+    else:
+        raise TypeError(
+            f"Unsupported product key type for source data versions: {type(product_key)}"
+        )
+
+
+def get_source_dataset_ids(product_key: ProductKey) -> list[str]:
     """Gets names of source products used in build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = publishing.get_source_data_versions(product_key)
+    source_data_versions = _get_source_data_versions(product_key)
     return sorted(source_data_versions.index.values.tolist())
 
 
 def get_source_data_versions_to_compare(
-    reference_product_key: publishing.ProductKey,
-    staging_product_key: publishing.ProductKey,
+    reference_product_key: ProductKey,
+    staging_product_key: ProductKey,
 ):
     # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = publishing.get_source_data_versions(
-        reference_product_key
-    )
-    latest_source_data_versions = publishing.get_source_data_versions(
-        staging_product_key
-    )
+    reference_source_data_versions = _get_source_data_versions(reference_product_key)
+    latest_source_data_versions = _get_source_data_versions(staging_product_key)
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,
         left_index=True,
@@ -104,7 +120,7 @@ def load_source_data(dataset_id: str, version: str, pg_client) -> str:
             f"Database already has `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
         )
 
-    ds_type = recipes.DatasetType.pg_dump
+    ds_type = DatasetType.pg_dump
     data_loader.import_dataset(
         InputDataset(
             id=dataset_id,

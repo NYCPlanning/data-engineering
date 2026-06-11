@@ -1,15 +1,19 @@
 import json
+import tempfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pandas as pd
 import yaml
 
 from dcpy.connectors.edm.models import PublishKey
 from dcpy.lifecycle.builds import connector as build_conns
 from dcpy.lifecycle.builds.artifacts.drafts import (
     get_dataset_version_revisions,
-    get_metadata,
     resolve_full_version,
+)
+from dcpy.lifecycle.builds.artifacts.drafts import (
+    get_metadata as get_draft_metadata,
 )
 from dcpy.lifecycle.builds.connector import (
     get_published_default_connector,
@@ -142,7 +146,7 @@ def patch_metadata(
     logger.info(
         f"Patching metadata version {draft_version_revision} with new version {publish_version}"
     )
-    md = get_metadata(product, draft_version_revision)
+    md = get_draft_metadata(product, draft_version_revision)
     md.version = patch_version
     patched_md_path = tmp_dir / "build_metadata_patched.json"
     patched_md_path.write_text(json.dumps(md.model_dump(mode="json"), indent=4))
@@ -312,3 +316,160 @@ def publish(
 
     logger.info(f"Successfully published {product} version {publish_version}")
     return PublishKey(product, publish_version)
+
+
+# File Query Functions (for QA apps)
+
+
+def get_metadata(product: str, version: str) -> BuildMetadata:
+    """Get metadata from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+
+    Returns:
+        BuildMetadata object
+    """
+    connector = get_published_default_connector()
+    with TemporaryDirectory() as temp_dir:
+        result = connector.pull_versioned(
+            key=product,
+            version=version,
+            filepath=BUILD_METADATA_FILE,
+            destination_path=Path(temp_dir),
+        )
+        metadata_path = result.get("path")
+        if not metadata_path or not Path(metadata_path).exists():
+            raise FileNotFoundError(f"Build metadata not found for {product}/{version}")
+
+        return BuildMetadata(**yaml.safe_load(open(metadata_path).read()))
+
+
+def read_csv(product: str, version: str, filepath: str, **kwargs) -> pd.DataFrame:
+    """Read CSV file from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+        filepath: Path to CSV file within the version
+        **kwargs: Additional arguments passed to pd.read_csv()
+
+    Returns:
+        DataFrame containing the CSV data
+    """
+    connector = get_published_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=version,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return pd.read_csv(result["path"], **kwargs)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def read_parquet(product: str, version: str, filepath: str, **kwargs) -> pd.DataFrame:
+    """Read Parquet file from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+        filepath: Path to Parquet file within the version
+        **kwargs: Additional arguments passed to pd.read_parquet()
+
+    Returns:
+        DataFrame containing the Parquet data
+    """
+    connector = get_published_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=version,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return pd.read_parquet(result["path"], **kwargs)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_file(product: str, version: str, filepath: str) -> bytes:
+    """Get raw file contents from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+        filepath: Path to file within the version
+
+    Returns:
+        Raw bytes of the file
+    """
+    connector = get_published_default_connector()
+    with TemporaryDirectory() as temp_dir:
+        result = connector.pull_versioned(
+            key=product,
+            version=version,
+            filepath=filepath,
+            destination_path=Path(temp_dir),
+        )
+        with open(result["path"], "rb") as f:
+            return f.read()
+
+
+def get_filenames(product: str, version: str) -> list[str]:
+    """Get list of all filenames in a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+
+    Returns:
+        List of filenames in the version
+    """
+    # This requires listing objects in the connector's storage
+    raise NotImplementedError(
+        "get_filenames() requires connector-level support for listing objects. "
+        "Use the connector directly if you need this functionality."
+    )
+
+
+def get_source_data_versions(product: str, version: str) -> pd.DataFrame:
+    """Get source data versions from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+
+    Returns:
+        DataFrame with source data versions
+    """
+    df = read_csv(product, version, "source_data_versions.csv", dtype=str)
+
+    # Transform columns (handles both old and new formats)
+    rename_map = {}
+    if "schema_name" in df.columns:
+        rename_map["schema_name"] = "datalibrary_name"
+    elif "dataset" in df.columns:
+        rename_map["dataset"] = "datalibrary_name"
+
+    if "v" in df.columns:
+        rename_map["v"] = "version"
+
+    if rename_map:
+        df.rename(columns=rename_map, inplace=True)
+
+    df.sort_values(by=["datalibrary_name"], ascending=True, inplace=True)
+    df.set_index("datalibrary_name", inplace=True)
+
+    return df

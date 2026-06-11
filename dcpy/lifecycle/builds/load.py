@@ -6,9 +6,8 @@ import pandas as pd
 import typer
 import yaml
 
-from dcpy.connectors.edm import recipes
 from dcpy.lifecycle import data_loader
-from dcpy.lifecycle.builds import metadata, plan
+from dcpy.lifecycle.builds import metadata, plan, utils
 from dcpy.lifecycle.builds.models import (
     BuildMetadata,
     ImportedDataset,
@@ -62,8 +61,7 @@ def import_dataset(
             logger.info(f"Finished inserting {ds.dataset} into postgres")
             return ImportedDataset.from_input(ds, table)
         case InputDatasetDestination.df:
-            # TODO: remove reference to recipes
-            df = recipes.read_df(ds.dataset)
+            df = utils.read_recipe_df(ds.dataset)
             return ImportedDataset.from_input(ds, df)
         case InputDatasetDestination.file:
             return ImportedDataset.from_input(ds, file_path)

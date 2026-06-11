@@ -9,8 +9,18 @@ from pathlib import Path
 
 import pandas as pd
 
-from dcpy.connectors.edm.models import BuildKey, DraftKey, ProductKey, PublishKey
-from dcpy.lifecycle.builds.connector import get_published_default_connector
+from dcpy.connectors.edm.models import (
+    BuildKey,
+    Dataset,
+    DatasetType,
+    DraftKey,
+    ProductKey,
+    PublishKey,
+)
+from dcpy.lifecycle.builds.connector import (
+    get_published_default_connector,
+    get_recipes_default_connector,
+)
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
 
@@ -173,3 +183,83 @@ def get_file_contents(
     finally:
         if tmp_path.exists():
             tmp_path.unlink()
+
+
+def read_recipe_df(
+    dataset: Dataset,
+    preferred_file_types: list[DatasetType] | None = None,
+) -> pd.DataFrame:
+    """Read a recipe dataset as a pandas DataFrame.
+
+    Uses the configured recipes connector to pull and read the dataset.
+    Supports parquet and CSV file types.
+
+    Args:
+        dataset: Dataset object with id, version, and optional file_type
+        preferred_file_types: List of file types to try, in order of preference.
+                             Defaults to [parquet, csv]
+
+    Returns:
+        DataFrame containing the dataset contents
+
+    Raises:
+        ValueError: If dataset has unsupported file_type
+        FileNotFoundError: If dataset file doesn't exist
+    """
+    connector = get_recipes_default_connector()
+
+    # Determine file type preference
+    preferred_file_types = preferred_file_types or [
+        DatasetType.parquet,
+        DatasetType.csv,
+    ]
+
+    # Use dataset's file_type if set, otherwise try preferred types
+    file_types_to_try = (
+        [dataset.file_type] if dataset.file_type else preferred_file_types
+    )
+
+    last_error = None
+    for file_type in file_types_to_try:
+        # Create temp file with appropriate extension
+        suffix = f".{file_type.to_extension()}"
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+
+        try:
+            # Pull the file
+            result = connector.pull_versioned(
+                key=dataset.id,
+                version=dataset.version,
+                destination_path=tmp_path,
+                file_type=file_type,
+            )
+
+            # Read based on file type
+            if file_type == DatasetType.parquet:
+                return pd.read_parquet(result["path"])
+            elif file_type == DatasetType.csv:
+                return pd.read_csv(result["path"])
+            else:
+                raise ValueError(
+                    f"Unsupported file type for DataFrame reading: {file_type}"
+                )
+
+        except Exception as e:
+            last_error = e
+            logger.debug(
+                f"Failed to read {dataset.id} v{dataset.version} as {file_type}: {e}"
+            )
+            continue
+        finally:
+            if tmp_path.exists():
+                tmp_path.unlink()
+
+    # If we get here, all attempts failed
+    if last_error:
+        raise last_error
+    else:
+        raise FileNotFoundError(
+            f"Could not read dataset {dataset.id} v{dataset.version} "
+            f"with any of the preferred file types: {file_types_to_try}"
+        )
