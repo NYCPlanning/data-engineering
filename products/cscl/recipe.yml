@@ -382,3 +382,22 @@ exports:
     format: csv
     custom:
       line_endings: crlf
+
+  # ESRI / published LION geodatabase — filename must match `version:` at top of this file
+  - name: gdb_lion
+    filename: nyclion_26a.zip
+    format: gdb
+    custom: { layer: lion, geometry_type: lines }
+  # TODO: add remaining GDB layers after gdb_lion is validated
+  # - name: gdb_node
+  #   filename: nyclion_26a.zip
+  #   format: gdb
+  #   custom: { layer: node, geometry_type: points }
+  # - name: gdb_node_stname
+  #   filename: nyclion_26a.zip
+  #   format: gdb
+  #   custom: { layer: node_stname }
+  # - name: gdb_altnames
+  #   filename: nyclion_26a.zip
+  #   format: gdb
+  #   custom: { layer: altnames }

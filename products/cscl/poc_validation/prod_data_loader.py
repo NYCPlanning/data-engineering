@@ -41,9 +41,10 @@ try:
     for export in recipe.exports.datasets:
         if export.name == "log":
             continue
+        if export.format.value not in ["dat", "csv"]:
+            continue
         formatting = (export.custom or {}).get("formatting")
         assert export.filename, "filename is required for export datasets"
-        assert export.format.value in ["dat", "csv"], "unsupported file format"
         f_path = (
             Path(f"seeds/text_formatting/text_formatting__{formatting}.csv")
             if formatting
