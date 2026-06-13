@@ -141,7 +141,6 @@ dmypy.json
 
 # VS Code local settings
 .vscode
-AGENTS.md
 
 # macOS system files
 *.DS_Store
