@@ -102,6 +102,29 @@ python -m pip install --editable . --constraint ./admin/run_environment/constrai
 > uv pip install --editable . --constraint ./admin/run_environment/constraints.txt
 > ```
 
+## Loading environment variables (direnv)
+
+The repo uses [direnv](https://direnv.net/) at every level. The root `.envrc` loads `.env`,
+activates `.venv`, and adds `bash/bin` to `PATH`; each product's `.envrc` calls `source_up`
+(inheriting the root setup) and sets product-specific vars like `BUILD_ENGINE_SCHEMA`. With direnv
+installed and `direnv allow` run once per checkout, this happens automatically on `cd`.
+
+In a non-interactive shell (scripts, some tooling) the hook doesn't fire — load it explicitly:
+
+```bash
+eval "$(direnv export bash)" && <command>
+# or the convenience wrapper on PATH (bash/bin):
+source load_direnv.sh && <command>
+```
+
+This matters most under `products/*` — without it, product-specific vars are missing and commands
+fail or run with the wrong configuration. Without direnv installed at all, load the root env
+manually:
+
+```bash
+source .venv/bin/activate && export $(cat .env | sed 's/#.*//g' | xargs)
+```
+
 ## Managing Python dependencies
 
 ### General uv workflow
@@ -150,3 +173,29 @@ unpin afterwards.
 No other action is needed for CI: PR tests build a new image and run tests in it. Locally, either
 update your venv with the regenerated `requirements.txt`, or once CI has run, build your dev
 container from the `nycplanning/dev:dev-{branch}` image produced by tests.
+
+## Running a build locally
+
+Examples mirror `.github/workflows/template_build.yml`:
+
+```bash
+# plan a build
+python -m dcpy.lifecycle.builds.plan recipe
+# load source data for a recipe
+python -m dcpy lifecycle builds load load --recipe-path products/template/my_recipe.lock.yml
+# run the transform step (from the product directory, e.g. products/template/)
+python -m build_scripts.transform
+```
+
+## Secrets & database access
+
+Local credentials and runtime config live in `.env` (loaded by `bash/bin/export_recipe_env.sh` and
+by direnv). **Don't commit secrets** — CI uses 1Password and GitHub Secrets.
+
+For SQL, prefer `run_sql_command` (on `PATH` via `bash/bin`). Otherwise use `BUILD_ENGINE_SERVER`, a
+Postgres connection string of the form `postgresql://{user}:{password}@{host}:{port}`.
+
+## Apps & notebooks
+
+- Run the app stack locally: `cd apps && ./scripts/local-start.sh` (needs env vars from root `.env`).
+- Marimo notebooks live in `notebooks/marimo/`, organized by `lifecycle/` and `products/`.
