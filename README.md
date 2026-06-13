@@ -41,9 +41,10 @@ See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineer
 
 - [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
+- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
 - [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
 
 ## Documentation & team resources (wiki)
 
 The [wiki](https://github.com/NYCPlanning/data-engineering/wiki) covers team and operational content:
-[About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Data Glossary](https://github.com/NYCPlanning/data-engineering/wiki/Data-Glossary) · [Developer Conventions](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Conventions) · [Environment Management](https://github.com/NYCPlanning/data-engineering/wiki/Environment-Management) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)
+[About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Data Glossary](https://github.com/NYCPlanning/data-engineering/wiki/Data-Glossary) · [Environment Management](https://github.com/NYCPlanning/data-engineering/wiki/Environment-Management) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)
