@@ -52,3 +52,27 @@ from dcpy.lifecycle.scripts import ...  # in lifecycle only
 from dcpy.lifecycle import ...  # in layer 1 or 2
 from dcpy.models import ...  # anywhere (deprecated)
 ```
+
+## Testing
+
+### Product metadata tests
+
+Tests in `dcpy/test/product_metadata/` require a local clone of the
+[product-metadata](https://github.com/NYCPlanning/product-metadata) repository:
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/NYCPlanning/product-metadata.git ~/product-metadata
+   ```
+2. Point `PRODUCT_METADATA_REPO_PATH` at it (add to your shell profile to persist):
+   ```bash
+   export PRODUCT_METADATA_REPO_PATH=~/product-metadata
+   ```
+3. Run the tests:
+   ```bash
+   pytest dcpy/test/product_metadata/
+   ```
+
+These validate metadata loading/validation, the override hierarchy
+(org → product → dataset → destination), template variable substitution from
+`snippets/strings.yml`, destination querying/filtering, and file/column overrides.

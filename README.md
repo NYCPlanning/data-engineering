@@ -31,7 +31,7 @@ Each product lives under `products/<name>/` and follows a standard pipeline from
 
 [![Workflow diagram](docs/diagrams/workflow_product_build.drawio.png)](docs/diagrams/workflow_product_build.drawio.png)
 
-For the full workflow including GIS team review and issue tracking conventions, see [docs/data-update-workflow.md](docs/data-update-workflow.md).
+For the full workflow including GIS team review and issue tracking conventions, see the [Data Update Workflow wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow).
 
 ## Getting started
 
@@ -42,7 +42,6 @@ See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineer
 - [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
 - [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
-- [Data update workflow](docs/data-update-workflow.md) — full build-to-publish lifecycle
 
 ## Documentation & team resources (wiki)
 
