@@ -41,6 +41,8 @@ See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineer
 
 - [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
+- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + `tach` enforcement
+- [Test strategy](docs/testing.md) — suites, how to run them, conventions
 - [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
 - [SQL reference](docs/sql-reference.md) — Postgres/MSSQL query and admin snippets
 - [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
