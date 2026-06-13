@@ -54,6 +54,22 @@ another. Stages:
 **Purpose:** wire other parts of the codebase together (e.g. configuring a generic connector
 for a specific job, instantiating a locally cloned metadata repo). Avoid heavy business logic here.
 
+## Data stores
+
+`lifecycle` and `connectors` read and write three Digital Ocean (S3-compatible) stores:
+
+- **`edm-recipes`** — our data lake / long-term store. All ingested source data is versioned
+  here and never deleted; completed build outputs are archived here too. Supplies (almost) all
+  source data for builds.
+- **`edm-publishing`** — where build outputs land for other teams, packaging, and distribution;
+  holds the full product "package" (multiple datasets, multiple formats) per version.
+- **`edm-data`** — a PostgreSQL cluster used as the **build/transform engine**, not for
+  persistence. A build loads source data from `edm-recipes` into it, runs transforms (mostly
+  PostGIS SQL), then exports results back to `edm-publishing`. Tables persist only through a
+  build cycle (useful for QA/debugging).
+
+Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure wiki page.
+
 ## Import Rules
 
 ```python
@@ -72,7 +88,7 @@ from dcpy.models import ...  # anywhere (deprecated)
 - **`dcpy.models`** — do not add new code. Move models out when possible.
 - **`dcpy.library`** — being migrated to `dcpy.lifecycle.ingest` on a dataset-by-dataset
   basis. Do not add new templates or logic. See the
-  [Library → Ingest migration guide](https://github.com/NYCPlanning/data-engineering/wiki/Library-to-Ingest-Migration).
+  [Library → Ingest migration guide](./library-to-ingest-migration.md).
 
 ## Testing
 
