@@ -31,20 +31,24 @@ Each product lives under `products/<name>/` and follows a standard pipeline from
 
 [![Workflow diagram](docs/diagrams/workflow_product_build.drawio.png)](docs/diagrams/workflow_product_build.drawio.png)
 
-For the full workflow including GIS team review and issue tracking conventions, see [docs/data-update-workflow.md](docs/data-update-workflow.md).
+For the full workflow including GIS team review and issue tracking conventions, see the [Data Update Workflow wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Data-Update-Workflow).
 
 ## Getting started
 
-See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup) for environment setup (Docker dev container recommended; manual uv/venv also documented).
+See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup) for onboarding and the recommended Docker dev container. For manual (uv/venv) setup and Python dependency management, see [docs/development.md](docs/development.md).
 
 ## Technical reference (`docs/`)
 
 - [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
+- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + `tach` enforcement
+- [Test strategy](docs/testing.md) — suites, how to run them, conventions
+- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
+- [SQL reference](docs/sql-reference.md) — Postgres/MSSQL query and admin snippets
+- [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
 - [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
-- [Data update workflow](docs/data-update-workflow.md) — full build-to-publish lifecycle
 
 ## Documentation & team resources (wiki)
 
 The [wiki](https://github.com/NYCPlanning/data-engineering/wiki) covers team and operational content:
-[About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Data Glossary](https://github.com/NYCPlanning/data-engineering/wiki/Data-Glossary) · [Developer Conventions](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Conventions) · [Environment Management](https://github.com/NYCPlanning/data-engineering/wiki/Environment-Management) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)
+[About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Environment Management](https://github.com/NYCPlanning/data-engineering/wiki/Environment-Management) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)

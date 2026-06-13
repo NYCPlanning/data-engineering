@@ -1,0 +1,119 @@
+# Import-boundary config for dcpy. FIRST PASS — the layer assignments encode the
+# *intended* dependency direction and are meant to be reviewed/confirmed by the team.
+# Run `uvx tach check` to list violations; `uvx tach show --web` to visualize.
+#
+# Layers are ordered highest → lowest. A module may only import from its own layer
+# or a lower one. `utility = true` modules are importable from anywhere.
+
+source_roots = ["."]
+exclude = [
+    "**/*__pycache__",
+    "**/*egg-info",
+    "**/docs",
+    "**/test",
+    "**/test_integration",
+    "**/.venv",
+]
+exact = false
+ignore_type_checking_imports = true
+
+layers = [
+    "cli",
+    "scripts",
+    "stages",
+    "lifecycle_base",
+    "connectors_dcp",
+    "connectors",
+    "geosupport",
+    "product_metadata",
+    "data",
+    "library",
+    "migrations",
+    "models",
+    "configuration",
+    "utils",
+]
+
+# --- cli: user-facing entrypoints, may import anything below ---
+[[modules]]
+path = "dcpy.__main__"
+layer = "cli"
+[[modules]]
+path = "dcpy.lifecycle._cli"
+layer = "cli"
+[[modules]]
+path = "dcpy.lifecycle._connectors_cli"
+layer = "cli"
+
+# --- scripts: cross-stage orchestration ---
+[[modules]]
+path = "dcpy.lifecycle.scripts"
+layer = "scripts"
+
+# --- stages: the lifecycle stages; should avoid importing each other ---
+[[modules]]
+path = "dcpy.lifecycle.ingest"
+layer = "stages"
+[[modules]]
+path = "dcpy.lifecycle.builds"
+layer = "stages"
+[[modules]]
+path = "dcpy.lifecycle.package"
+layer = "stages"
+[[modules]]
+path = "dcpy.lifecycle.distribute"
+layer = "stages"
+[[modules]]
+path = "dcpy.lifecycle.validate"
+layer = "stages"
+
+# --- lifecycle_base: shared lifecycle wiring used by the stages ---
+[[modules]]
+path = "dcpy.lifecycle.config"
+layer = "lifecycle_base"
+[[modules]]
+path = "dcpy.lifecycle.connector_registry"
+layer = "lifecycle_base"
+[[modules]]
+path = "dcpy.lifecycle.data_loader"
+layer = "lifecycle_base"
+[[modules]]
+path = "dcpy.lifecycle.product_metadata"
+layer = "lifecycle_base"
+
+# --- connectors: DCP-specific connectors compose the generic ones ---
+[[modules]]
+path = "dcpy.connectors.edm"
+layer = "connectors_dcp"
+[[modules]]
+path = "dcpy.connectors"
+layer = "connectors"
+
+# --- everything-else (layer 2 in the simple model) ---
+[[modules]]
+path = "dcpy.geosupport"
+layer = "geosupport"
+[[modules]]
+path = "dcpy.product_metadata"
+layer = "product_metadata"
+[[modules]]
+path = "dcpy.data"
+layer = "data"
+[[modules]]
+path = "dcpy.library"  # DEPRECATED — being replaced by dcpy.lifecycle.ingest
+layer = "library"
+[[modules]]
+path = "dcpy.migrations"
+layer = "migrations"
+
+# --- foundations ---
+[[modules]]
+path = "dcpy.models"  # DEPRECATED for new code
+layer = "models"
+[[modules]]
+path = "dcpy.configuration"
+layer = "configuration"
+[[modules]]
+path = "dcpy.utils"
+layer = "utils"
+utility = true

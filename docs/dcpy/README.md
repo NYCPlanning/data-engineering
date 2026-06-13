@@ -1,54 +1,67 @@
 # dcpy Package Structure
 
-Python package for NYC Planning data pipelines. Follow layer rules strictly.
+`dcpy` is our internal, product-agnostic Python package — utilities, connectors, and
+the `lifecycle` code that orchestrates a data product from source to distribution.
 
-## Layer Architecture
+For the desired import flow, the full layer ordering, enforcement
+via `tach`, and known deviations, see [Architecture & Import Flow](./architecture.md).
 
-### Layer 1: utils
-**Most foundational. Import-safe for all modules.**
+## Layers
 
-- Core utilities used throughout codebase
-- Alter with extreme caution
-- ALWAYS unit test changes
-- No dependencies on other dcpy modules
-- Aim for >90% test coverage
-### Layer 2: Everything Else (except lifecycle)
-**Can import: utils. Should not import each other**
+dcpy is layered — **a module imports only from its own layer or a lower one:**
 
-Includes:
-- `connectors/` - Data source connections
-- `library/` - Shared business logic
-- `geosupport/` - Geospatial utilities
-- [`product_metadata/`](../../dcpy/product_metadata/README.md) - Product configuration and dataset documentation
+1. **`utils`** — pure, foundational utilities; no dependencies on other dcpy modules.
+2. **Everything else** — `connectors`, `geosupport`, `models`, `product_metadata`, `data`,
+   `library`: may import `utils`, must not import `lifecycle`, and ideally not each other.
+3. **`lifecycle`** — the stages (`ingest`, `builds`, `package`, `distribute`, `validate`), their
+   shared base, and cross-stage `scripts`; wires everything together.
 
-Cannot import from `lifecycle`.
+`models` and `library` are deprecated (see below). Per-submodule and per-stage detail, the import
+rules, `tach` enforcement, and known deviations live in the [architecture doc](./architecture.md).
 
-### Layer 3: lifecycle
-**Can import: everything below. lifecycle stages should avoid importing other stages.**
+## Data stores
 
-Entry points for data pipeline stages:
-- `ingest/` - Pull data from sources
-- `builds/` - Transform data
-- `distribute/` - Publish outputs
-- `validate/` - Quality checks
-- `package/` - Bundle for deployment
-- `scripts/` - Cross-stage utilities (prefer this for code used across stages)
+`lifecycle` and `connectors` read and write three Digital Ocean (S3-compatible) stores:
 
-**Purpose:** Wire together other parts of the codebase. (e.g. configuring generic connectors for specific purpose, instantiating locally clone metdata, etc.) Avoid heavy business logic here.
+- **`edm-recipes`** — our data lake / long-term store. All ingested source data is versioned
+  here and never deleted; completed build outputs are archived here too. Supplies (almost) all
+  source data for builds.
+- **`edm-publishing`** — where build outputs land for other teams, packaging, and distribution;
+  holds the full product "package" (multiple datasets, multiple formats) per version.
+- **`edm-data`** — a PostgreSQL cluster used as the **build/transform engine**, not for
+  persistence. A build loads source data from `edm-recipes` into it, runs transforms (mostly
+  PostGIS SQL), then exports results back to `edm-publishing`. Tables persist only through a
+  build cycle (useful for QA/debugging).
+
+Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure wiki page.
 
 ## Deprecated
 
-**dcpy.models** - Do not add new code. Move models out when possible.
+- **`dcpy.models`** — do not add new code. Move models out when possible.
+- **`dcpy.library`** — being migrated to `dcpy.lifecycle.ingest` on a dataset-by-dataset
+  basis. Do not add new templates or logic. See the
+  [Library → Ingest migration guide](./library-to-ingest-migration.md).
 
-## Import Rules
+## Testing
 
-```python
-# ✅ Allowed
-from dcpy.utils import ...
-from dcpy.library import ...  # in layer 2+ only
-from dcpy.lifecycle.scripts import ...  # in lifecycle only
+### Product metadata tests
 
-# ❌ Not allowed
-from dcpy.lifecycle import ...  # in layer 1 or 2
-from dcpy.models import ...  # anywhere (deprecated)
-```
+Tests in `dcpy/test/product_metadata/` require a local clone of the
+[product-metadata](https://github.com/NYCPlanning/product-metadata) repository:
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/NYCPlanning/product-metadata.git ~/product-metadata
+   ```
+2. Point `PRODUCT_METADATA_REPO_PATH` at it (add to your shell profile to persist):
+   ```bash
+   export PRODUCT_METADATA_REPO_PATH=~/product-metadata
+   ```
+3. Run the tests:
+   ```bash
+   pytest dcpy/test/product_metadata/
+   ```
+
+These validate metadata loading/validation, the override hierarchy
+(org → product → dataset → destination), template variable substitution from
+`snippets/strings.yml`, destination querying/filtering, and file/column overrides.
