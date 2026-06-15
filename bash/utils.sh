@@ -37,6 +37,15 @@ function set_error_traps {
 }
 
 
+function install_minio {
+    # Use -o to force the downloaded binary filename
+    curl -fL https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2020-04-19T19-17-53Z -o mc
+    chmod +x mc
+    sudo mv ./mc /usr/bin
+    mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+}
+
+
 function run_sql_file {
     psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --quiet --file "$@"
 }
