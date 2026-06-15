@@ -41,7 +41,7 @@ jobs:
       - name: Finish container setup ...
         run: ./bash/docker_container_setup.sh
 
-      - name: Library Archive
+      - name: Ingest dataset
         run: python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
 
   geocode:
