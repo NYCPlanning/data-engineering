@@ -1,8 +1,11 @@
+from io import BytesIO
+
 import pandas as pd
 import streamlit as st
 
-from dcpy.connectors.edm import publishing
+from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.connectors.edm.models import BuildKey
+from dcpy.lifecycle.builds import builds
 from dcpy.utils import postgres, s3
 
 PRODUCT = "db-cscl"
@@ -38,18 +41,16 @@ DBT_QA_TABLES: dict[str, list[str]] = {
 
 
 def get_builds() -> list[str]:
-    return publishing.get_builds(PRODUCT)
+    return builds.list_builds(PRODUCT)
 
 
 def get_build_version(build: str) -> str:
-    product_key = BuildKey(PRODUCT, build)
-    return publishing.get_build_metadata(product_key).version
+    return builds.get_build_metadata(PRODUCT, build).version
 
 
 @st.cache_data(show_spinner=False, ttl=60)
 def get_diffs_summary(build: str) -> pd.DataFrame:
-    product_key = BuildKey(PRODUCT, build)
-    return publishing.read_csv(product_key, "validation_output/diffs_summary.csv")
+    return builds.read_csv(PRODUCT, build, "validation_output/diffs_summary.csv")
 
 
 @st.cache_data(show_spinner=False, ttl=60)
@@ -59,10 +60,10 @@ def get_diff_rows(build: str, filename: str) -> list[str]:
     Equivalent to comm -23 <(sort dev) <(sort prod).
     Cached so repeated selections don't re-fetch from S3.
     """
-    build_key = BuildKey(PRODUCT, build)
     prod_version = get_build_version(build)
 
-    dev_buffer = publishing.get_file(build_key, filename)
+    dev_file_bytes = builds.get_file(PRODUCT, build, filename)
+    dev_buffer = BytesIO(dev_file_bytes)
     dev_lines = {
         line
         for line in dev_buffer.read().decode("latin-1").splitlines()
@@ -86,7 +87,7 @@ def get_build_output_zip_url(build: str) -> str:
     from dcpy.utils import s3
 
     build_key = BuildKey(PRODUCT, build)
-    bucket = publishing.PUBLISHING_BUCKET
+    bucket = PUBLISHING_BUCKET
     key = f"{build_key.path}/output.zip"
     return s3.get_presigned_get_url(bucket, key)
 

@@ -1,8 +1,12 @@
 import json
+import tempfile
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
+import geopandas as gpd
+import pandas as pd
 import pytz
 import yaml
 
@@ -213,3 +217,187 @@ def promote_to_draft(
     #     )
 
     return draft_key
+
+
+# File Query Functions (for QA apps)
+
+
+def list_builds(product: str) -> list[str]:
+    """List all builds for a product."""
+    return get_builds_default_connector().list_versions(product, sort_desc=True)
+
+
+def read_csv(product: str, build: str, filepath: str, **kwargs) -> pd.DataFrame:
+    """Read CSV file from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to CSV file within the build
+        **kwargs: Additional arguments passed to pd.read_csv()
+
+    Returns:
+        DataFrame containing the CSV data
+    """
+    connector = get_builds_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=build,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return pd.read_csv(result["path"], **kwargs)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def read_parquet(product: str, build: str, filepath: str, **kwargs) -> pd.DataFrame:
+    """Read Parquet file from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to Parquet file within the build
+        **kwargs: Additional arguments passed to pd.read_parquet()
+
+    Returns:
+        DataFrame containing the Parquet data
+    """
+    connector = get_builds_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=build,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return pd.read_parquet(result["path"], **kwargs)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_file(product: str, build: str, filepath: str) -> bytes:
+    """Get raw file contents from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to file within the build
+
+    Returns:
+        Raw bytes of the file
+    """
+    connector = get_builds_default_connector()
+    with TemporaryDirectory() as temp_dir:
+        result = connector.pull_versioned(
+            key=product,
+            version=build,
+            filepath=filepath,
+            destination_path=Path(temp_dir),
+        )
+        with open(result["path"], "rb") as f:
+            return f.read()
+
+
+def get_filenames(product: str, build: str) -> list[str]:
+    """Get list of all filenames in a build.
+
+    Args:
+        product: Product name
+        build: Build name
+
+    Returns:
+        List of filenames in the build
+    """
+    # This requires listing objects in the connector's storage
+    # We'll need to pull the entire build directory to list files
+    # For now, raise NotImplementedError as this needs connector support
+    raise NotImplementedError(
+        "get_filenames() requires connector-level support for listing objects. "
+        "Use the connector directly if you need this functionality."
+    )
+
+
+def get_source_data_versions(product: str, build: str) -> pd.DataFrame:
+    """Get source data versions from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+
+    Returns:
+        DataFrame with source data versions
+    """
+    df = read_csv(product, build, "source_data_versions.csv", dtype=str)
+
+    # Transform columns (handles both old and new formats)
+    rename_map = {}
+    if "schema_name" in df.columns:
+        rename_map["schema_name"] = "datalibrary_name"
+    elif "dataset" in df.columns:
+        rename_map["dataset"] = "datalibrary_name"
+
+    if "v" in df.columns:
+        rename_map["v"] = "version"
+
+    if rename_map:
+        df.rename(columns=rename_map, inplace=True)
+
+    df.sort_values(by=["datalibrary_name"], ascending=True, inplace=True)
+    df.set_index("datalibrary_name", inplace=True)
+
+    return df
+
+
+def read_shapefile(product: str, build: str, filepath: str) -> gpd.GeoDataFrame:
+    """Read shapefile from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to shapefile (typically .shp.zip) within the build
+
+    Returns:
+        GeoDataFrame containing the shapefile data
+    """
+    connector = get_builds_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".shp.zip", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=build,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return gpd.read_file(result["path"])
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_zip(product: str, build: str, filepath: str) -> ZipFile:
+    """Get ZipFile object from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to zip file within the build
+
+    Returns:
+        ZipFile object
+    """
+    file_bytes = get_file(product, build, filepath)
+    from io import BytesIO
+
+    return ZipFile(BytesIO(file_bytes))

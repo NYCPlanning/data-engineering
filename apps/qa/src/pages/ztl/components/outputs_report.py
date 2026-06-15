@@ -1,8 +1,10 @@
 import plotly.graph_objects as go
 import streamlit as st
 from src.shared.constants import COLOR_SCHEME
+from src.shared.utils.publishing import read_csv_cached
+from src.shared.utils.source_report import get_source_data_versions_cached
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey, PublishKey
 
 PRODUCT = "db-zoningtaxlots"
 
@@ -37,9 +39,9 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 
-def output_report(product_key: publishing.ProductKey):
+def output_report(product_key: ProductKey):
     def read_ztl_csv(file, **kwargs):
-        return publishing.read_csv(product_key, file, **kwargs)
+        return read_csv_cached(product_key, file, **kwargs)
 
     bbldiff = read_ztl_csv(
         "qc_bbldiffs.csv",
@@ -170,8 +172,8 @@ def output_report(product_key: publishing.ProductKey):
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    source_data_versions = publishing.get_source_data_versions(
-        publishing.PublishKey(PRODUCT, "latest")
+    source_data_versions = get_source_data_versions_cached(
+        PublishKey(PRODUCT, "latest")
     )
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================

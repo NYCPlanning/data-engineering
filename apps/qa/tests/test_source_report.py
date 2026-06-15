@@ -6,10 +6,11 @@ from src.shared.constants import DATASET_NAMES
 from src.shared.utils.source_report import (
     compare_source_data_columns,
     compare_source_data_row_count,
+    get_source_data_versions,
     get_source_dataset_ids,
 )
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import PublishKey
 from dcpy.utils.postgres import PostgresClient
 
 REFERENCE_VESION = "2023-04-01"
@@ -38,8 +39,8 @@ TEST_SOURCE_REPORT_RESULTS = {
 
 
 def test_get_source_data_versions_from_build():
-    source_data_versions = publishing.get_source_data_versions(
-        publishing.PublishKey(TEST_DATASET_NAME, TEST_DATASET_REFERENCE_VERSION)
+    source_data_versions = get_source_data_versions(
+        PublishKey(TEST_DATASET_NAME, TEST_DATASET_REFERENCE_VERSION)
     )
     assert isinstance(source_data_versions, pd.DataFrame)
     assert (
@@ -50,7 +51,7 @@ def test_get_source_data_versions_from_build():
 
 def test_get_source_dataset_names():
     source_dataset_names = get_source_dataset_ids(
-        publishing.PublishKey(TEST_DATASET_NAME, REFERENCE_VESION)
+        PublishKey(TEST_DATASET_NAME, REFERENCE_VESION)
     )
     assert source_dataset_names == TEST_DATA_SOURCE_NAMES
 

@@ -12,6 +12,8 @@ os.environ["RECIPES_BUCKET"] = PROD_RECIPES_BUCKET
 os.environ["PUBLISHING_BUCKET"] = PROD_PUBLISHING_BUCKET
 
 from dcpy import configuration
+
+# TODO: publishing connector refactor - replace with: from dcpy.lifecycle.builds import published
 from dcpy.connectors.edm import publishing, recipes
 from dcpy.connectors.edm.models import (
     BuildKey,
@@ -91,6 +93,7 @@ def resolve_latest_publish(target_bucket: str, data_product: str):
     importlib.reload(configuration)
     assert configuration.PUBLISHING_BUCKET != PROD_PUBLISHING_BUCKET
     input = PublishKey(product=data_product, version="latest")
+    # TODO: publishing connector refactor - replace with: published.get_latest_version(data_product)
     latest = publishing.get_latest_version(data_product)
     assert latest
     resolved = PublishKey(product=data_product, version=latest)
@@ -197,6 +200,7 @@ def clone_data_product_by_key(
         target_path=key.path + "/",
     )
     if include_recipe_datasets:
+        # TODO: publishing connector refactor - replace with: published.get_source_data_versions(key.product, key.version)
         for index, row in publishing.get_source_data_versions(key).iterrows():
             dataset_id = str(index)
             clone_recipe(target_bucket, dataset_id, row["version"])

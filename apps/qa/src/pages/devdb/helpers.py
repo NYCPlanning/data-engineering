@@ -1,8 +1,9 @@
 import json
 
 import pandas as pd
+from src.shared.utils.publishing import read_csv_cached
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 
 PRODUCT = "db-developments"
 
@@ -168,23 +169,21 @@ QAQC_CHECK_DICTIONARY = {
 }
 
 
-def get_latest_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
+def get_latest_data(product_key: ProductKey) -> dict[str, pd.DataFrame]:
     rv = {}
 
-    rv["qaqc_app"] = publishing.read_csv(
+    rv["qaqc_app"] = read_csv_cached(
         product_key, "qaqc_app.csv", dtype={"job_number": "str"}
     )
 
-    rv["qaqc_historic"] = publishing.read_csv(product_key, "qaqc_historic.csv")
+    rv["qaqc_historic"] = read_csv_cached(product_key, "qaqc_historic.csv")
 
-    rv["qaqc_field_distribution"] = publishing.read_csv(
+    rv["qaqc_field_distribution"] = read_csv_cached(
         product_key,
         "qaqc_field_distribution.csv",
         converters={"result": json.loads},
     )
 
-    rv["qaqc_quarter_check"] = publishing.read_csv(
-        product_key, "qaqc_quarter_check.csv"
-    )
+    rv["qaqc_quarter_check"] = read_csv_cached(product_key, "qaqc_quarter_check.csv")
 
     return rv

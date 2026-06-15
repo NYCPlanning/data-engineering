@@ -3,6 +3,8 @@ import pytest
 from build_scripts import PG_CLIENT
 
 from dcpy.configuration import BUILD_NAME
+
+# TODO: publishing connector refactor - replace with: from dcpy.lifecycle.builds import builds
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.edm.models import BuildKey
 
@@ -29,6 +31,7 @@ def test_transform_staging():
 # * test Export stage
 @pytest.mark.end_to_end()
 def test_export_build():
+    # TODO: publishing connector refactor - replace with: builds.list_builds(product=BUILD_KEY.product)
     assert BUILD_KEY.build in publishing.get_builds(product=BUILD_KEY.product)
 
 
@@ -48,6 +51,7 @@ def test_export_files():
         "templatedb.zip",
         "output.zip",
     }
+    # TODO: publishing connector refactor - replace with: builds.get_filenames(BUILD_KEY.product, BUILD_KEY.build)
     actual_files = publishing.get_filenames(BUILD_KEY)
     target_files = {f for f in actual_files if f.startswith("target/")}
     assert target_files, "Expected dbt target/ directory to be present in export"

@@ -9,13 +9,13 @@ from src.shared.utils.source_report import (
     load_source_data_to_compare,
 )
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 from dcpy.utils import postgres
 
 
 def sources_report(
-    reference_product_key: publishing.ProductKey,
-    staging_product_key: publishing.ProductKey,
+    reference_product_key: ProductKey,
+    staging_product_key: ProductKey,
 ):
     print("STARTING Source Data Review")
     st.header("Source Data Review")

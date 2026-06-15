@@ -2,18 +2,18 @@ import json
 from datetime import datetime
 
 import pandas as pd
-from src.shared.utils.publishing import unzip_csv
+from src.shared.utils.publishing import get_zip_cached, read_csv_cached, unzip_csv
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 
 PRODUCT = "db-pluto"
 
 
-def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
+def get_data(product_key: ProductKey) -> dict[str, pd.DataFrame]:
     data = {}
 
     def read_pluto_csv(qaqc_type, **kwargs):
-        return publishing.read_csv(
+        return read_csv_cached(
             product_key,
             f"qaqc/qaqc_{qaqc_type}.csv",
             true_values=["t"],
@@ -37,7 +37,7 @@ def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
 
     data = data | get_changes(product_key)
 
-    data["source_data_versions"] = publishing.read_csv(
+    data["source_data_versions"] = read_csv_cached(
         product_key, "source_data_versions.csv"
     )
 
@@ -58,9 +58,9 @@ def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
     return data
 
 
-def get_changes(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
+def get_changes(product_key: ProductKey) -> dict[str, pd.DataFrame]:
     changes = {}
-    pluto_changes_zip = publishing.get_zip(product_key, "pluto_changes.zip")
+    pluto_changes_zip = get_zip_cached(product_key, "pluto_changes.zip")
     changes["pluto_changes_applied"] = unzip_csv(
         csv_filename="pluto_changes_applied.csv",
         zipfile=pluto_changes_zip,

@@ -3,7 +3,7 @@ import streamlit as st
 from src.shared.components import build_outputs, sidebar
 from src.shared.components.sources_report import sources_report
 
-from dcpy.connectors.edm import publishing
+from dcpy.lifecycle.builds import published
 
 from .components.outputs_report import PRODUCT, output_report
 
@@ -18,7 +18,7 @@ def ztl():
     col1.markdown(
         f"""[![Build]({DATASET_REPO_URL}/actions/workflows/zoningtaxlots_build.yml/badge.svg)]({DATASET_REPO_URL}/actions/workflows/zoningtaxlots_build.yml)"""
     )
-    col2.markdown(f"latest build version: `{publishing.get_latest_version(PRODUCT)}`")
+    col2.markdown(f"latest build version: `{published.get_latest_version(PRODUCT)}`")
     col3.markdown(f"[github repo]({DATASET_REPO_URL})")
 
     report_type = st.sidebar.radio(

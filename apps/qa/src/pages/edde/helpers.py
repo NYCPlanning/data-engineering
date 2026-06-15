@@ -5,6 +5,8 @@ import pandas as pd
 import streamlit as st
 
 from dcpy.configuration import PUBLISHING_BUCKET
+
+# TODO: publishing connector refactor - EDDE uses non-standard folder structure, decide if we should keep legacy wrapper
 from dcpy.connectors.edm import publishing
 from dcpy.utils import s3
 from dcpy.utils.git import github
@@ -58,6 +60,7 @@ def get_demographics_data(branch: str, version: str):
             category_data[geography] = {}
             for match in grouped_matches:
                 year = match.group(2)
+                # TODO: publishing connector refactor - EDDE non-standard path structure
                 category_data[geography][year] = publishing.read_csv_legacy(
                     PRODUCT,
                     f"{branch}/{version}",
@@ -74,6 +77,7 @@ def get_other_data(branch: str, version: str):
     for category in other_categories:
         category_data = {}
         for geography in geographies:
+            # TODO: publishing connector refactor - EDDE non-standard path structure
             category_data[geography] = publishing.read_csv_legacy(
                 PRODUCT,
                 f"{branch}/{version}",

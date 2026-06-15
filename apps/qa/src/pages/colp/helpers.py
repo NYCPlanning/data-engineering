@@ -1,17 +1,18 @@
 import pandas as pd
 import streamlit as st
+from src.shared.utils.publishing import read_csv_cached
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 
 PRODUCT = "db-colp"
 
 
-def get_data(product_key: publishing.ProductKey) -> dict[str, pd.DataFrame]:
+def get_data(product_key: ProductKey) -> dict[str, pd.DataFrame]:
     rv = {}
 
     def csv_from_DO(file):
         try:
-            return publishing.read_csv(product_key, "qaqc/" + file)
+            return read_csv_cached(product_key, "qaqc/" + file)
         except FileNotFoundError:
             st.warning(f"{file} not found")
 

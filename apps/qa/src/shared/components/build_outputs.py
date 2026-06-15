@@ -4,15 +4,19 @@ import geopandas as gpd
 import leafmap.foliumap as lmf
 import pandas as pd
 import streamlit as st
-from src.shared.utils.publishing import read_csv_cached, read_file_metadata
+from src.shared.utils.publishing import (
+    get_data_directory_url,
+    read_csv_cached,
+    read_file_metadata,
+)
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 from dcpy.utils.formats import Geometry
 from dcpy.utils.geospatial import geometry, mapping, transform
 
 
-def data_directory_link(product_key: publishing.ProductKey):
-    data_url = publishing.get_data_directory_url(product_key)
+def data_directory_link(product_key: ProductKey):
+    data_url = get_data_directory_url(product_key)
     st.markdown(
         f"""
         [Link]({data_url}) to the dataset in Digital Ocean.        

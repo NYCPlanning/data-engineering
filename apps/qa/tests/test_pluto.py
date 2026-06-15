@@ -4,7 +4,7 @@ from src.pages.pluto.components.expected_value_differences_report import (
 )
 from src.pages.pluto.helpers import PRODUCT, get_data
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import PublishKey
 
 TEST_VERSION_1 = "23v1"
 TEST_VERSION_2 = "22v3"
@@ -12,7 +12,7 @@ TEST_VERSION_2 = "22v3"
 
 @pytest.fixture
 def example_ExpectedValueDifferencesReport():
-    data = get_data(publishing.PublishKey(PRODUCT, TEST_VERSION_1))
+    data = get_data(PublishKey(PRODUCT, TEST_VERSION_1))
     return ExpectedValueDifferencesReport(
         data=data["df_expected"],
         v=TEST_VERSION_1,

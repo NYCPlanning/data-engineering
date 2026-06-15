@@ -1,7 +1,8 @@
 import pandas as pd
 from dotenv import load_dotenv
+from src.shared.utils.publishing import read_csv_cached, read_shapefile_cached
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 
 load_dotenv()
 
@@ -30,8 +31,8 @@ where would this list comes from? """
 
 
 def get_data(
-    staging_product_key: publishing.ProductKey,
-    reference_product_key: publishing.ProductKey,
+    staging_product_key: ProductKey,
+    reference_product_key: ProductKey,
 ) -> dict:
     rv = {}
     tables = {
@@ -42,16 +43,16 @@ def get_data(
     }
 
     for t in tables["analysis"]:
-        rv[t] = publishing.read_csv(staging_product_key, f"analysis/{t}.csv")
-        rv["pre_" + t] = publishing.read_csv(reference_product_key, f"analysis/{t}.csv")
+        rv[t] = read_csv_cached(staging_product_key, f"analysis/{t}.csv")
+        rv["pre_" + t] = read_csv_cached(reference_product_key, f"analysis/{t}.csv")
 
     for t in tables["others"]:
-        rv[t] = publishing.read_csv(staging_product_key, f"{t}.csv")
-        rv["pre_" + t] = publishing.read_csv(reference_product_key, f"{t}.csv")
+        rv[t] = read_csv_cached(staging_product_key, f"{t}.csv")
+        rv["pre_" + t] = read_csv_cached(reference_product_key, f"{t}.csv")
     for t in tables["no_version_compare"]:
-        rv[t] = publishing.read_csv(staging_product_key, f"{t}.csv")
+        rv[t] = read_csv_cached(staging_product_key, f"{t}.csv")
     for t in tables["geometries"]:
-        rv[t] = publishing.read_shapefile(staging_product_key, f"{t}.shp.zip")
+        rv[t] = read_shapefile_cached(staging_product_key, f"{t}.shp.zip")
     return rv
 
 

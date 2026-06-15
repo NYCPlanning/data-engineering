@@ -1,3 +1,22 @@
+"""
+⚠️  DEPRECATION WARNING ⚠️
+
+This module is DEPRECATED. Use lifecycle stage APIs instead:
+  - dcpy.lifecycle.builds.artifacts.builds
+  - dcpy.lifecycle.builds.artifacts.published
+  - dcpy.lifecycle.builds.artifacts.drafts
+
+For QA apps, use: apps/qa/src/shared/utils/publishing.py
+
+═══════════════════════════════════════════════════════════════════════════════
+TODO: Migrate remaining usages to stage APIs
+
+Search codebase for "TODO: publishing connector refactor" to find all methods
+that still need migration. Each method below is marked with specific references.
+
+═══════════════════════════════════════════════════════════════════════════════
+"""
+
 import json
 import re
 from dataclasses import asdict
@@ -42,6 +61,10 @@ def exists(key: ProductKey) -> bool:
     return s3.folder_exists(_bucket(), key.path)
 
 
+# TODO: publishing connector refactor
+# Used in: products/cscl/poc_validation/run_validation.py
+# Replace with: builds.get_build_metadata(product, build)
+# Search for: "publishing.get_build_metadata"
 def get_build_metadata(product_key: ProductKey) -> BuildMetadata:
     """Retrieve a product build metadata from s3."""
     key = f"{product_key.path}/build_metadata.json"
@@ -61,6 +84,10 @@ def get_version(product_key: ProductKey) -> str:
     return get_build_metadata(product_key).version
 
 
+# TODO: publishing connector refactor
+# Used in: admin/ops/setup_dev_bucket.py
+# Replace with: published.get_latest_version(product)
+# Search for: "publishing.get_latest_version"
 def get_latest_version(product: str) -> str | None:
     """Given product name, gets latest version
     Assumes existence of build_metadata.json in output folder
@@ -96,6 +123,10 @@ def get_plan_version_revisions(product: str, version: str) -> list[str]:
     )
 
 
+# TODO: publishing connector refactor
+# Used in: dcpy/lifecycle/builds/plan.py
+# Replace with: Move this function to drafts.get_revision_label() and import from there
+# Search for: "get_draft_revision_label"
 def get_draft_revision_label(product: str, version: str, revision_num: int) -> str:
     """Given a draft revision number, return draft revision label in s3."""
     draft_revision_label = None
@@ -130,6 +161,10 @@ def get_plan_revision_label(product: str, version: str, revision_num: int) -> st
     return plan_revision_label
 
 
+# TODO: publishing connector refactor
+# Used in: products/template/tests/test_build.py
+# Replace with: builds.list_builds(product)
+# Search for: "publishing.get_builds"
 def get_builds(product: str) -> list[str]:
     return sorted(s3.get_subfolders(_bucket(), f"{product}/build/"), reverse=True)
 
@@ -167,10 +202,18 @@ def get_previous_version(
             )
 
 
+# TODO: publishing connector refactor
+# Used in: products/cscl/poc_validation/run_validation.py, products/template/tests/test_build.py
+# Replace with: builds.get_filenames(product, build) [currently NotImplemented]
+# Search for: "publishing.get_filenames"
 def get_filenames(product_key: ProductKey) -> set[str]:
     return s3.get_filenames(_bucket(), product_key.path)
 
 
+# TODO: publishing connector refactor
+# Used in: admin/ops/setup_dev_bucket.py
+# Replace with: published.get_source_data_versions(product, version)
+# Search for: "publishing.get_source_data_versions"
 def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
     """Given product name, gets source data versions of published version"""
     source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
@@ -270,6 +313,10 @@ def legacy_upload(
             s3.copy_file(bucket, str(key), str(prefix / "latest" / output.name), acl)
 
 
+# TODO: publishing connector refactor
+# Used in: products/checkbook/build_scripts/export.py
+# Replace with: builds.upload(output_path, product, build, acl)
+# Search for: "publishing.upload_build"
 def upload_build(
     output_path: Path,
     product: str,
@@ -500,6 +547,10 @@ def file_exists(product_key: ProductKey, filepath: str) -> bool:
     return s3.object_exists(bucket=_bucket(), key=f"{product_key.path}/{filepath}")
 
 
+# TODO: publishing connector refactor
+# Used in: products/cscl/poc_validation/run_validation.py
+# Replace with: builds.get_file(product, build, filepath) returns bytes (not BytesIO)
+# Search for: "publishing.get_file"
 def get_file(product_key: ProductKey, filepath: str) -> BytesIO:
     """Returns file as BytesIO given product key and path within output folder"""
     return s3.get_file_as_stream(_bucket(), f"{product_key.path}/{filepath}")
@@ -528,6 +579,10 @@ def read_csv(product_key: ProductKey, filepath: str, **kwargs) -> pd.DataFrame:
     return _read_data_helper(f"{product_key.path}/{filepath}", pd.read_csv, **kwargs)
 
 
+# TODO: publishing connector refactor
+# Used in: apps/qa/src/pages/edde/helpers.py (non-standard folder structure)
+# Replace with: Move to EDDE-specific helper or keep minimal wrapper
+# Search for: "publishing.read_csv_legacy"
 def read_csv_legacy(
     product: str, version: str, filepath: str, **kwargs
 ) -> pd.DataFrame:

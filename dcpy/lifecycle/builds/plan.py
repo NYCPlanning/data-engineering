@@ -566,6 +566,7 @@ def _cli_wrapper_repeat_recipe(
         help="Manually specified version. Only needed if attempting to rebuild and older draft where version cannot be easily determined.",
     ),
 ):
+    # TODO: publishing connector refactor - move get_draft_revision_label to drafts.py
     from dcpy.connectors.edm.publishing import get_draft_revision_label
 
     product_key: BuildKey | DraftKey | PublishKey

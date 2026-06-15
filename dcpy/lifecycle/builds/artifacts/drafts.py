@@ -1,7 +1,10 @@
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
+import geopandas as gpd
 import pandas as pd
 import yaml
 
@@ -158,3 +161,181 @@ def get_metadata(product: str, full_version: str) -> BuildMetadata:
             .get("path")
         )
         return BuildMetadata(**yaml.safe_load(open(md_path).read()))
+
+
+# File Query Functions (for QA apps)
+
+
+def list_all_drafts(product: str) -> list[str]:
+    """List all drafts for a product (returns full version.revision strings).
+
+    Args:
+        product: Product name
+
+    Returns:
+        List of draft version.revision strings (e.g., "24v1.1-my-draft")
+    """
+    return get_drafts_default_connector().list_versions(product, sort_desc=True)
+
+
+def read_csv(
+    product: str, version: str, revision: str, filepath: str, **kwargs
+) -> pd.DataFrame:
+    """Read CSV file from a draft.
+
+    Args:
+        product: Product name
+        version: Version string (e.g., "24v1")
+        revision: Revision string (e.g., "1-my-draft")
+        filepath: Path to CSV file within the draft
+        **kwargs: Additional arguments passed to pd.read_csv()
+
+    Returns:
+        DataFrame containing the CSV data
+    """
+    connector = get_drafts_default_connector()
+    full_version = f"{version}.{revision}"
+
+    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=full_version,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return pd.read_csv(result["path"], **kwargs)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def read_parquet(
+    product: str, version: str, revision: str, filepath: str, **kwargs
+) -> pd.DataFrame:
+    """Read Parquet file from a draft.
+
+    Args:
+        product: Product name
+        version: Version string (e.g., "24v1")
+        revision: Revision string (e.g., "1-my-draft")
+        filepath: Path to Parquet file within the draft
+        **kwargs: Additional arguments passed to pd.read_parquet()
+
+    Returns:
+        DataFrame containing the Parquet data
+    """
+    connector = get_drafts_default_connector()
+    full_version = f"{version}.{revision}"
+
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=full_version,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return pd.read_parquet(result["path"], **kwargs)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_file(product: str, version: str, revision: str, filepath: str) -> bytes:
+    """Get raw file contents from a draft.
+
+    Args:
+        product: Product name
+        version: Version string (e.g., "24v1")
+        revision: Revision string (e.g., "1-my-draft")
+        filepath: Path to file within the draft
+
+    Returns:
+        Raw bytes of the file
+    """
+    connector = get_drafts_default_connector()
+    full_version = f"{version}.{revision}"
+
+    with TemporaryDirectory() as temp_dir:
+        result = connector.pull_versioned(
+            key=product,
+            version=full_version,
+            filepath=filepath,
+            destination_path=Path(temp_dir),
+        )
+        with open(result["path"], "rb") as f:
+            return f.read()
+
+
+def get_filenames(product: str, version: str, revision: str) -> list[str]:
+    """Get list of all filenames in a draft.
+
+    Args:
+        product: Product name
+        version: Version string (e.g., "24v1")
+        revision: Revision string (e.g., "1-my-draft")
+
+    Returns:
+        List of filenames in the draft
+    """
+    # This requires listing objects in the connector's storage
+    raise NotImplementedError(
+        "get_filenames() requires connector-level support for listing objects. "
+        "Use the connector directly if you need this functionality."
+    )
+
+
+def read_shapefile(
+    product: str, version: str, revision: str, filepath: str
+) -> gpd.GeoDataFrame:
+    """Read shapefile from a draft.
+
+    Args:
+        product: Product name
+        version: Version string (e.g., "24v1")
+        revision: Revision string (e.g., "1-my-draft")
+        filepath: Path to shapefile (typically .shp.zip) within the draft
+
+    Returns:
+        GeoDataFrame containing the shapefile data
+    """
+    connector = get_drafts_default_connector()
+    full_version = f"{version}.{revision}"
+
+    with tempfile.NamedTemporaryFile(suffix=".shp.zip", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=full_version,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return gpd.read_file(result["path"])
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_zip(product: str, version: str, revision: str, filepath: str) -> ZipFile:
+    """Get ZipFile object from a draft.
+
+    Args:
+        product: Product name
+        version: Version string (e.g., "24v1")
+        revision: Revision string (e.g., "1-my-draft")
+        filepath: Path to zip file within the draft
+
+    Returns:
+        ZipFile object
+    """
+    file_bytes = get_file(product, version, revision, filepath)
+    from io import BytesIO
+
+    return ZipFile(BytesIO(file_bytes))
