@@ -3,7 +3,8 @@ DESCRIPTION:
 	Initial field mapping and prelimilary data cleaning for BIS job applications data
 
 INPUTS:
-	dob_jobapplications
+	dob_bis_applications
+	dob_jobapplications_parkingspaces
 
 OUTPUTS:
 	_INIT_BIS_devdb (
@@ -66,7 +67,93 @@ OUTPUTS:
 
 DROP TABLE IF EXISTS _init_bis_devdb;
 
-WITH applications AS (SELECT * FROM dob_jobapplications),
+-- dob_bis_applications is now ingested raw (column names cleaned to snake_case),
+-- so the filtering, gid de-duplication and field naming that the data-library
+-- template used to do is reproduced here.
+WITH applications_raw AS (
+    SELECT
+        "job_#" AS jobnumber,
+        "doc_#" AS jobdocnumber,
+        job_type AS jobtype,
+        job_description AS jobdescription,
+        existing_occupancy AS existingoccupancy,
+        proposed_occupancy AS proposedoccupancy,
+        "existingno._of_stories" AS existingnumstories,
+        "proposed_no._of_stories" AS proposednumstories,
+        existing_zoning_sqft AS existingzoningsqft,
+        proposed_zoning_sqft AS proposedzoningsqft,
+        existing_dwelling_units AS existingdwellingunits,
+        proposed_dwelling_units AS proposeddwellingunits,
+        job_status_descrp AS jobstatusdesc,
+        latest_action_date AS latestactiondate,
+        sprinkler,
+        pre__filing_date AS prefilingdate,
+        fully_paid AS fullypaid,
+        approved,
+        fully_permitted AS fullypermitted,
+        signoff_date AS signoffdate,
+        zoning_dist1 AS zoningdist1,
+        zoning_dist2 AS zoningdist2,
+        zoning_dist3 AS zoningdist3,
+        special_district_1 AS specialdistrict1,
+        special_district_2 AS specialdistrict2,
+        landmarked,
+        city_owned AS cityowned,
+        owner_type AS ownertype,
+        non_profit AS nonprofit,
+        owner_s_first_name AS ownerfirstname,
+        owner_s_last_name AS ownerlastname,
+        owner_s_business_name AS ownerbusinessname,
+        owner_shouse_street_name AS ownerhousestreetname,
+        zip,
+        -- source dataset no longer provides an owner phone column
+        NULL::text AS ownerphone,
+        existing_height AS existingheight,
+        proposed_height AS proposedheight,
+        total_construction_floor_area AS totalconstructionfloorarea,
+        horizontal_enlrgmt AS horizontalenlrgmt,
+        vertical_enlrgmt AS verticalenlrgmt,
+        enlargement_sq_footage AS enlargementsqfootage,
+        initial_cost AS initialcost,
+        loft_board AS loftboard,
+        little_e AS littlee,
+        curb_cut AS curbcut,
+        cluster,
+        "house_#" AS housenumber,
+        street_name AS streetname,
+        "bin_#" AS bin,
+        borough,
+        block,
+        lot,
+        special_action_status AS specialactionstatus,
+        latitude,
+        longitude,
+        building_class AS buildingclass,
+        other_description AS otherdesc,
+        dobrundate
+    FROM dob_bis_applications
+    WHERE
+        "doc_#" = '01'
+        AND (
+            job_type LIKE '%A1%'
+            OR job_type LIKE '%A2%'
+            OR job_type LIKE '%DM%'
+            OR job_type LIKE '%NB%'
+        )
+),
+
+applications AS (
+    SELECT
+        *,
+        row_number() OVER (
+            PARTITION BY jobnumber
+            ORDER BY
+                substr(dobrundate, 7, 4)
+                || substr(dobrundate, 1, 2)
+                || substr(dobrundate, 4, 2) DESC
+        ) AS gid
+    FROM applications_raw
+),
 
 parking_spaces AS (SELECT * FROM dob_jobapplications_parkingspaces),
 
