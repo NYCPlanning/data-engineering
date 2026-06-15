@@ -42,15 +42,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Ingest dataset
-        if: matrix.dataset != 'hpd_hny_units_by_building'
         run: python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
-
-      # hpd_hny_units_by_building is still consumed downstream via the library
-      # `import_recipe` path (.sql pgdump), so keep it on `library archive` until
-      # that consumer is migrated to ingest
-      - name: Library Archive
-        if: matrix.dataset == 'hpd_hny_units_by_building'
-        run: library archive --name ${{ matrix.dataset }} --latest --s3
 
   geocode:
     name: Geocode HPD Data
@@ -96,8 +88,10 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Load to Database
+        env:
+          BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
         run: |
-          ./devdb_datasync.sh import hpd_hny_units_by_building
+          ./devdb_datasync.sh import_ingest hpd_hny_units_by_building
           ./devdb_datasync.sh import hpd_historical_units_by_building
 
       - name: Geocode
