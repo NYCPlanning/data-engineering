@@ -29,6 +29,6 @@ sources:
       - name: doitt_buildingfootprints_historical
       - name: dcp_censusdata
       - name: dcp_censusdata_blocks
-      - name: dob_permitissuance
-      - name: dob_jobapplications
+      - name: dob_bis_permits
+      - name: dob_bis_applications
       - name: dob_jobapplications_parkingspaces

@@ -53,8 +53,8 @@ inputs:
       version: "2020"
     - name: dcp_censusdata_blocks
       version: "2020"
-    - name: dob_permitissuance
-    - name: dob_jobapplications
+    - name: dob_bis_permits
+    - name: dob_bis_applications
     - name: dob_jobapplications_parkingspaces
       version: 20240603
     - id: db-developments

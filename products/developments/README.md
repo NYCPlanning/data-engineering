@@ -118,8 +118,8 @@ env:
 
 - [ ] `hpd_hny_units_by_building`
 - [ ] `hny_geocode_results`
-- [ ]  `dob_permitissuance`
-- [ ]  `dob_permitissuance`
+- [ ]  `dob_bis_permits`
+- [ ]  `dob_bis_applications`
 
 #### Other DOB data
 
