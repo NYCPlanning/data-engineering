@@ -4,12 +4,12 @@ How tests are organized across the repo, how to run them, and the conventions we
 
 ## Suites
 
-| Suite | Location | Needs | In CI? |
-|---|---|---|---|
-| **dcpy unit** | `dcpy/test/` | Mocked externals (`moto` for S3/AWS); a live Postgres in CI | Yes |
-| **dcpy library** | `dcpy/test/library/` | Run **separately** — gdal + pyarrow conflict (parquet read/write fails after importing gdal) | Yes (own step) |
-| **dcpy integration** | `dcpy/test_integration/` | Live infrastructure (Postgres, SFTP, servers) | Partial — see below |
-| **product / app** | `products/*`, `apps/qa/` | Per-product; matrix-driven | Yes |
+| Suite | Location | Needs |
+|---|---|---|
+| **dcpy unit** | `dcpy/test/` | Mocked externals (`moto` for S3/AWS); a live Postgres in CI |
+| **dcpy library** | `dcpy/test/library/` | Run **separately** — gdal + pyarrow conflict (parquet read/write fails after importing gdal) |
+| **dcpy integration** | `dcpy/test_integration/` | Live infrastructure (Postgres, SFTP) |
+| **product / app** | `products/*`, `apps/qa/` | Per-product; matrix-driven |
 
 ### dcpy unit tests (`dcpy/test/`)
 
@@ -35,10 +35,14 @@ the product-metadata repo via `PRODUCT_METADATA_REPO_PATH` — see
 
 ### dcpy integration tests (`dcpy/test_integration/`)
 
-Require real services (Postgres, SFTP). We'd like these fully in CI but haven't resolved spinning
-up every service in the action — see
-[`dcpy/test_integration/README.md`](../dcpy/test_integration/README.md) for running them inside the
-repo's dev container.
+Require real services (Postgres, SFTP). CI runs these inside the dev container stack (`de`,
+`postgis`, `sftp-server`) started via `docker compose`. To run them locally, start the dev
+container and run:
+
+```bash
+python3 -m pytest dcpy/test_integration -v -s
+```
+
 
 ### Product / app suites
 
@@ -75,6 +79,5 @@ python3 -m pytest dcpy/test_integration ...
 
 ## Known gaps
 
-- Integration tests aren't fully wired into CI yet (service startup).
 - The `end_to_end` marker is declared globally but only exercised by product suites — consider
   documenting or scoping it if more suites adopt it.
