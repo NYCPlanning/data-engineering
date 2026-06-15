@@ -2,6 +2,7 @@
 from typing import cast
 
 import pandas as pd
+import streamlit as st
 from src import QAQC_DB_SCHEMA_SOURCE_DATA
 from src.shared.constants import construct_dataset_by_version
 
@@ -21,8 +22,8 @@ def dataframe_style_source_report_results(value) -> str:
     return f"background-color: {color}"
 
 
-def _get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
-    """Helper to get source data versions from any lifecycle stage."""
+def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
+    """Get source data versions from any lifecycle stage (builds or published)."""
     if isinstance(product_key, BuildKey):
         return builds.get_source_data_versions(product_key.product, product_key.build)
     elif isinstance(product_key, PublishKey):
@@ -35,11 +36,17 @@ def _get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
         )
 
 
+@st.cache_data(ttl=600)
+def get_source_data_versions_cached(product_key: ProductKey) -> pd.DataFrame:
+    """Cached version for use in Streamlit apps."""
+    return get_source_data_versions(product_key)
+
+
 def get_source_dataset_ids(product_key: ProductKey) -> list[str]:
     """Gets names of source products used in build
     TODO this should not come from publishing, but should be defined in code for each data product
     """
-    source_data_versions = _get_source_data_versions(product_key)
+    source_data_versions = get_source_data_versions(product_key)
     return sorted(source_data_versions.index.values.tolist())
 
 
@@ -48,8 +55,8 @@ def get_source_data_versions_to_compare(
     staging_product_key: ProductKey,
 ):
     # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = _get_source_data_versions(reference_product_key)
-    latest_source_data_versions = _get_source_data_versions(staging_product_key)
+    reference_source_data_versions = get_source_data_versions(reference_product_key)
+    latest_source_data_versions = get_source_data_versions(staging_product_key)
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,
         left_index=True,

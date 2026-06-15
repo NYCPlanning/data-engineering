@@ -1,16 +1,17 @@
 import pandas as pd
+from src.shared.utils.publishing import read_csv_cached
 
-from dcpy.connectors.edm import publishing
+from dcpy.connectors.edm.models import ProductKey
 
 PRODUCT = "db-facilities"
 REPO_NAME = "data-engineering"
 
 
 def get_latest_data(
-    product_key: publishing.ProductKey,
+    product_key: ProductKey,
 ) -> tuple[dict[str, dict[str, object]], pd.DataFrame, pd.DataFrame]:
     def read_csv(csv):
-        return publishing.read_csv(product_key, f"{csv}.csv")
+        return read_csv_cached(product_key, f"{csv}.csv")
 
     qc_diff = read_csv("qc_diff")
     qc_captype = read_csv("qc_captype")

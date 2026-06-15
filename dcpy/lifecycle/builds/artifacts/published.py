@@ -2,7 +2,9 @@ import json
 import tempfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
+import geopandas as gpd
 import pandas as pd
 import yaml
 
@@ -425,6 +427,51 @@ def get_file(product: str, version: str, filepath: str) -> bytes:
         )
         with open(result["path"], "rb") as f:
             return f.read()
+
+
+def read_shapefile(product: str, version: str, filepath: str) -> gpd.GeoDataFrame:
+    """Read shapefile from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+        filepath: Path to shapefile (typically .shp.zip) within the version
+
+    Returns:
+        GeoDataFrame containing the shapefile data
+    """
+    connector = get_published_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".shp.zip", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=version,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return gpd.read_file(result["path"])
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_zip(product: str, version: str, filepath: str) -> ZipFile:
+    """Get ZipFile object from a published version.
+
+    Args:
+        product: Product name
+        version: Version string
+        filepath: Path to zip file within the version
+
+    Returns:
+        ZipFile object
+    """
+    file_bytes = get_file(product, version, filepath)
+    from io import BytesIO
+
+    return ZipFile(BytesIO(file_bytes))
 
 
 def get_filenames(product: str, version: str) -> list[str]:

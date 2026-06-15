@@ -3,7 +3,9 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
+import geopandas as gpd
 import pandas as pd
 import pytz
 import yaml
@@ -354,3 +356,48 @@ def get_source_data_versions(product: str, build: str) -> pd.DataFrame:
     df.set_index("datalibrary_name", inplace=True)
 
     return df
+
+
+def read_shapefile(product: str, build: str, filepath: str) -> gpd.GeoDataFrame:
+    """Read shapefile from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to shapefile (typically .shp.zip) within the build
+
+    Returns:
+        GeoDataFrame containing the shapefile data
+    """
+    connector = get_builds_default_connector()
+    with tempfile.NamedTemporaryFile(suffix=".shp.zip", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+
+    try:
+        result = connector.pull_versioned(
+            key=product,
+            version=build,
+            filepath=filepath,
+            destination_path=tmp_path,
+        )
+        return gpd.read_file(result["path"])
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+
+
+def get_zip(product: str, build: str, filepath: str) -> ZipFile:
+    """Get ZipFile object from a build.
+
+    Args:
+        product: Product name
+        build: Build name
+        filepath: Path to zip file within the build
+
+    Returns:
+        ZipFile object
+    """
+    file_bytes = get_file(product, build, filepath)
+    from io import BytesIO
+
+    return ZipFile(BytesIO(file_bytes))

@@ -16,6 +16,7 @@ from pathlib import Path
 
 import typer
 
+# TODO: publishing connector refactor - replace with: from dcpy.lifecycle.builds import builds
 from dcpy.connectors.edm import publishing
 from dcpy.connectors.edm.models import BuildKey
 from dcpy.utils import s3
@@ -44,6 +45,7 @@ def _compute_file_diff(
     diff_rows contains lines present in the dev build but not in prod,
     equivalent to comm -23 <(sort dev) <(sort prod).
     """
+    # TODO: publishing connector refactor - replace with: builds.get_file(build_key.product, build_key.build, filename)
     dev_buffer = publishing.get_file(build_key, filename)
     dev_lines = {
         line
@@ -78,9 +80,11 @@ def run(
 
     if prod_version is None:
         print(f"Reading prod version from build metadata for '{build}'...")
+        # TODO: publishing connector refactor - replace with: builds.get_build_metadata(build_key.product, build_key.build).version
         prod_version = publishing.get_build_metadata(build_key).version
     print(f"Prod version: {prod_version}")
 
+    # TODO: publishing connector refactor - replace with: builds.get_filenames(build_key.product, build_key.build)
     all_filenames = publishing.get_filenames(build_key)
     cscl_output_filenames = sorted(
         f for f in all_filenames if "/" not in f and f not in BUILD_METADATA_FILES
