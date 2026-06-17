@@ -67,6 +67,27 @@ PRODUCT_NAME_MAPPING = {
 }
 
 
+# All Postgres build/transform databases in the edm-data cluster (one per product).
+# Source of truth for admin tooling that operates across the whole cluster, e.g.
+# stale-schema cleanup and disk-usage reporting.
+BUILD_DBS = [
+    "db-cbbr",
+    "db-cdbg",
+    "db-ceqr",
+    "db-checkbook",
+    "db-colp",
+    "db-cpdb",
+    "db-cscl",
+    "db-devdb",
+    "db-facilities",
+    "db-green-fast-track",
+    "db-pluto",
+    "db-template",
+    "db-ztl",
+    "kpdb",
+]
+
+
 def _map_product_name(product: str) -> str:
     """Map recipe product name to S3 product name if needed."""
     return PRODUCT_NAME_MAPPING.get(product, product)
