@@ -57,6 +57,8 @@ sources:
   - name: dcp_cscl_streetname
   - name: dcp_cscl_universalword
   - name: dcp_cscl_zipcode
+  - name: dcp_cscl_electiondistrict
+  - name: dcp_cscl_neighborhoodpumacodes
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs

@@ -1,0 +1,8 @@
+SELECT
+    "BOROUGH",
+    "CENSUSTRACT",
+    "NEIGHBORHOOD_CODE",
+    "NEIGHBORHOOD_NAME",
+    "PUMA"
+FROM {{ ref('nta2010_by_field_csv') }}
+ORDER BY "BOROUGH", "CENSUSTRACT"

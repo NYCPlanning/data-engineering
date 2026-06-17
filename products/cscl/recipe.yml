@@ -371,6 +371,12 @@ exports:
     format: dat
     custom: { formatting: thinfire_dat }
 
+  # Thin Election District
+  - name: thined_dat
+    filename: thined.txt
+    format: dat
+    custom: { formatting: thined_dat }
+
   # CDTA 2020
   - name: cdta2020_dat
     filename: CDTA2020.txt
@@ -392,3 +398,13 @@ exports:
     format: csv
     custom:
       line_endings: crlf
+
+  # NTA 2010
+  - name: nta2010_csv
+    filename: NTA.csv
+    format: csv
+    custom:
+      line_endings: crlf
+  - name: nta2010_txt
+    filename: NTA.txt
+    format: dat

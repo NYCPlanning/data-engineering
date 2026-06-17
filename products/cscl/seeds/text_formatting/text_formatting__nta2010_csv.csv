@@ -1,0 +1,6 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+NTA1,borough,Borough,1,1,1,LJSF,FALSE
+NTA2,censustract,Census Tract,6,2,7,RJSF,FALSE
+NTA3,neighborhood_code,Neighborhood Code,4,8,11,LJSF,FALSE
+NTA4,neighborhood_name,Neighborhood Name,75,12,86,LJSF,FALSE
+NTA5,puma,PUMA,5,87,91,RJZF,FALSE
