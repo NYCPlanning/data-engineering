@@ -1,30 +1,34 @@
 id: doi_evictions_geocoded
 acl: public-read
+depends_on:
+  - doi_evictions
 
 attributes:
   name: Department of Investigation - Evictions (Geocoded)
   description: >-
-    IN PROGRESS: ideally this would be automated, but punting on that. For the moment,
-    there's a script under products/edde/scripts/evictions_ingest/ to geocode. For now:
-    1) run manually,
-    2) upload to inbox,
-    3) then run this ingest template
-
     This dataset contains DOI evictions data with enhanced geocoding using Geosupport.
 
     Records from doi_evictions have been geocoded where lat/lon were missing, using the
     eviction address and Geosupport. The dataset excludes the current year (incomplete data).
+
+    This is now fully automated as an ingest dependency - it pulls from doi_evictions,
+    geocodes missing addresses, and archives the results.
 
     Base data source: https://data.cityofnewyork.us/City-Government/Evictions/6z8x-wfk4
   url: https://data.cityofnewyork.us/City-Government/Evictions/6z8x-wfk4
 
 ingestion:
   source:
-    type: s3
-    bucket: edm-recipes
-    key: inbox/doi/evictions_geocoded/{{ version }}/doi_evictions_geocoded.parquet
+    type: edm.recipes.datasets
+    key: doi_evictions
+    # version will be passed at runtime from Dagster partition
   file_format:
     type: parquet
+  processing_steps:
+  - name: python_script
+    args:
+      module: dcpy.lifecycle.scripts.doi_evictions_geocode
+      function: process_evictions
 
 columns:
 - id: court_index_number
