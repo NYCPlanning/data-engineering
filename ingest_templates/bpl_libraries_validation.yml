@@ -1,0 +1,32 @@
+id: bpl_libraries_validation
+acl: public-read
+depends_on:
+  - bpl_libraries
+
+attributes:
+  name: BPL Libraries Validation
+  description: >-
+    Validation step for BPL libraries data. Checks that required columns exist
+    and returns validation results. This demonstrates ingest dependencies where
+    one dataset can depend on another.
+
+ingestion:
+  source:
+    type: edm.recipes.datasets
+    key: bpl_libraries
+    # version will be passed at runtime from Dagster partition
+  file_format:
+    type: parquet
+  processing_steps:
+  - name: python_script
+    args:
+      module: dcpy.lifecycle.scripts.bpl_libraries_helpers
+      function: validate
+
+columns:
+- id: validation_status
+  data_type: text
+- id: rows_validated
+  data_type: integer
+- id: columns_checked
+  data_type: text
