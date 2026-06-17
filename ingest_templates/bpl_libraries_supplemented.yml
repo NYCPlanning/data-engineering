@@ -1,0 +1,33 @@
+id: bpl_libraries_supplemented
+acl: public-read
+depends_on:
+  - bpl_libraries_validation
+
+attributes:
+  name: BPL Libraries Supplemented
+  description: >-
+    BPL libraries data with additional random value column. This dataset
+    depends on bpl_libraries_validation (ensuring validation passes first)
+    but sources its data from the original bpl_libraries dataset.
+    Demonstrates ingest dependency chains.
+
+ingestion:
+  source:
+    type: edm.recipes.datasets
+    key: bpl_libraries
+    # version will be passed at runtime from Dagster partition
+  file_format:
+    type: parquet
+  processing_steps:
+  - name: python_script
+    args:
+      module: dcpy.lifecycle.scripts.bpl_libraries_helpers
+      function: add_random_column
+
+columns:
+- id: title
+  data_type: text
+- id: address
+  data_type: text
+- id: random_value
+  data_type: integer
