@@ -1,0 +1,8 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+TE1,election_district,Election District,3,1,3,RJZF,FALSE
+TE2,assembly_district,Assembly District,2,4,5,RJZF,FALSE
+TE3,congress_district,Congressional District,2,6,7,RJZF,FALSE
+TE4,state_sen_district,State Senate District,2,8,9,RJZF,FALSE
+TE5,muni_court_district,Municipal Court District,2,10,11,RJZF,FALSE
+TE6,city_council_district,City Council District,2,12,13,RJZF,FALSE
+TE7,borough,Borough,1,14,14,LJSF,FALSE
