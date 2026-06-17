@@ -3,6 +3,7 @@ import subprocess
 import requests
 import typer
 
+from dcpy.connectors.edm import connectors
 from dcpy.lifecycle.builds import metadata
 from dcpy.utils import postgres
 from dcpy.utils.git import github
@@ -10,22 +11,11 @@ from dcpy.utils.logging import logger
 
 BUILD_REPO = "data-engineering"
 
-BUILD_DBS = [
-    "db-cbbr",
-    "db-cdbg",
-    "db-ceqr",
-    "db-checkbook",
-    "db-colp",
-    "db-cpdb",
-    "db-devdb",
-    "db-facilities",
-    "db-green-fast-track",
-    # "db-cscl", we need to preserve schemas while this data product is in development
-    "db-pluto",
-    "db-template",
-    "db-ztl",
-    "kpdb",
+# Databases whose build schemas we never auto-drop (e.g. active development).
+PRESERVED_DBS = [
+    "db-cscl",  # we need to preserve schemas while this data product is in development
 ]
+BUILD_DBS = [db for db in connectors.BUILD_DBS if db not in PRESERVED_DBS]
 
 PROTECTED_BUILD_NAMES = ["nightly_qa"]
 
