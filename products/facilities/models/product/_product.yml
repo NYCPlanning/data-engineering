@@ -16,9 +16,87 @@ models:
           - not_null
           - many_to_one:
               parent_column: '"FACSUBGRP"'
+          # Every factype must be covered by the rectype seed, else RECTYPE is NULL.
+          # Fails listing the factypes missing from factype_rectype_mapping.
+          - relationships:
+              to: ref('factype_rectype_mapping')
+              field: factype
+          # Each factype should resolve to a single overlevel/optype; mixed factypes
+          # warn (not error) because they can't be cleanly classified at factype
+          # grain.
+          - many_to_one:
+              parent_column: '"OVERLEVEL"'
+              config:
+                severity: warn
+          - many_to_one:
+              parent_column: '"OPTYPE"'
+              config:
+                severity: warn
       - name: '"FACSUBGRP"'
         tests: [ not_null ]
+      - name: '"OVERLEVEL"'
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: '"OPTYPE"'
+        tests:
+          - not_null:
+              config:
+                severity: warn
       - name: '"OPNAME"'
         tests:
           - not_null_if_other_not_null:
               other_column_name: '"OPABBREV"'
+      - name: '"RECTYPE"'
+        description: >
+          Whether the record is a facility (a physical location operated by a
+          government agency — city, state, or federal) or a program (a service
+          that may operate within a facility, including privately-operated sites).
+          Assigned from FACTYPE via the factype_rectype_mapping seed; FacDB owns
+          this classification (AIMS does not provide it).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['facility', 'program']
+      # ASSET_ID and all SGR_* columns below are MOCK data: deterministically
+      # generated, not from AIMS. Only city facility records with a real BIN are
+      # scored (AIMS surveys city facilities only); all are NULL otherwise.
+      - name: '"ASSET_ID"'
+        description: >
+          ID of the city asset (building) from OMB AIMS or an agency asset-tracking
+          system. Mock: deterministic and 1:1 with BIN, populated only for city
+          facility records with a real BIN, NULL otherwise. Not a real AIMS id.
+      - name: '"SGR_SCORE_TOT"'
+        description: >
+          Total State of Good Repair (SGR) score, a weighted average of the
+          architectural (60%) and systems (40%) scores. Mock; NULL when ASSET_ID
+          is NULL.
+      - name: '"SGR_GRADE_TOT"'
+        description: >
+          Letter grade for the total SGR score (A=90-100, B=75-89, C=60-74,
+          D=50-59, F=0-49). Mock.
+        tests:
+          - accepted_values:
+              values: ['A', 'B', 'C', 'D', 'F']
+      - name: '"SGR_SCORE_ARCH"'
+        description: >
+          Architectural SGR score, reflecting the condition of a facility's
+          physical structure and building envelope. Mock; NULL when ASSET_ID is
+          NULL.
+      - name: '"SGR_GRADE_ARCH"'
+        description: >
+          Letter grade for the architectural SGR score (same bands as
+          SGR_GRADE_TOT). Mock.
+      - name: '"SGR_SCORE_SYST"'
+        description: >
+          Systems SGR score, reflecting the condition of a facility's mechanical
+          and electrical systems. Mock; NULL when ASSET_ID is NULL.
+      - name: '"SGR_GRADE_SYST"'
+        description: >
+          Letter grade for the systems SGR score (same bands as SGR_GRADE_TOT).
+          Mock.
+      - name: '"SGR_ASSMNT_YEAR"'
+        description: >
+          Year the facility's SGR assessment was conducted. Mock; NULL when
+          ASSET_ID is NULL.

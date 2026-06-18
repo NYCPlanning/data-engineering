@@ -2,6 +2,7 @@
 -- mapping of data types between postgres and geodabase reference: https://pro.arcgis.com/en/pro-app/3.1/help/data/geodatabases/manage-postgresql/data-types-postgresql.htm
 
 -- create facdb table with expected column names and data types
+DROP TABLE IF EXISTS facdb_export;
 CREATE TABLE facdb_export AS
 SELECT
     facname::VARCHAR(250) AS "FACNAME",
@@ -40,12 +41,22 @@ SELECT
     schooldist::VARCHAR(3) AS "SCHOOLDIST",
     policeprct::SMALLINT AS "POLICEPRCT",
     datasource::VARCHAR(150) AS "DATASOURCE",
+    rectype::VARCHAR(12) AS "RECTYPE",
+    asset_id::INTEGER AS "ASSET_ID",
+    sgr_score_tot::SMALLINT AS "SGR_SCORE_TOT",
+    sgr_grade_tot::VARCHAR(1) AS "SGR_GRADE_TOT",
+    sgr_score_arch::SMALLINT AS "SGR_SCORE_ARCH",
+    sgr_grade_arch::VARCHAR(1) AS "SGR_GRADE_ARCH",
+    sgr_score_syst::SMALLINT AS "SGR_SCORE_SYST",
+    sgr_grade_syst::VARCHAR(1) AS "SGR_GRADE_SYST",
+    sgr_assmnt_year::SMALLINT AS "SGR_ASSMNT_YEAR",
     uid::VARCHAR AS "UID",
     geom
 FROM facdb;
 
 
 -- create facdb table without geometry column
+DROP TABLE IF EXISTS facdb_export_csv;
 CREATE TABLE facdb_export_csv AS
 SELECT
     facname::VARCHAR(250) AS "FACNAME",
@@ -84,6 +95,15 @@ SELECT
     schooldist::VARCHAR(3) AS "SCHOOLDIST",
     policeprct::SMALLINT AS "POLICEPRCT",
     datasource::VARCHAR(150) AS "DATASOURCE",
+    rectype::VARCHAR(12) AS "RECTYPE",
+    asset_id::INTEGER AS "ASSET_ID",
+    sgr_score_tot::SMALLINT AS "SGR_SCORE_TOT",
+    sgr_grade_tot::VARCHAR(1) AS "SGR_GRADE_TOT",
+    sgr_score_arch::SMALLINT AS "SGR_SCORE_ARCH",
+    sgr_grade_arch::VARCHAR(1) AS "SGR_GRADE_ARCH",
+    sgr_score_syst::SMALLINT AS "SGR_SCORE_SYST",
+    sgr_grade_syst::VARCHAR(1) AS "SGR_GRADE_SYST",
+    sgr_assmnt_year::SMALLINT AS "SGR_ASSMNT_YEAR",
     uid::VARCHAR AS "UID"
 FROM facdb;
 
