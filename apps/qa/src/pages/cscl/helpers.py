@@ -54,6 +54,16 @@ def get_diffs_summary(build: str) -> pd.DataFrame:
 
 
 @st.cache_data(show_spinner=False, ttl=60)
+def get_gdb_comparison(build: str) -> pd.DataFrame:
+    """Per-(layer, column) dev-vs-prod comparison of the published LION GDB.
+
+    Written by poc_validation/compare_gdb.py. Raises if the build predates the
+    GDB validation step (no such file) — callers should handle that.
+    """
+    return builds.read_csv(PRODUCT, build, "validation_output/gdb_comparison.csv")
+
+
+@st.cache_data(show_spinner=False, ttl=60)
 def get_diff_rows(build: str, filename: str) -> list[str]:
     """Stream dev and prod files from S3 and return lines present in dev but not prod.
 
