@@ -5,6 +5,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Literal
 
+import geopandas as gpd
+import pyogrio
 import typer
 from shapely import MultiLineString, MultiPoint, MultiPolygon
 
@@ -176,23 +178,22 @@ def _write_gdb_zip(
     """
     gdb_name = file_path.stem
     gdb_path = tmp_dir / f"{gdb_name}.gdb"
-    # OpenFileGDB driver requires mode="w" to create the file, then mode="a" to
-    # append subsequent layers — you can't write multiple layers in a single call.
-    first = True
-    for layer_name, gdf in layers:
+    # OpenFileGDB requires creating the file on the first layer, then appending the
+    # rest — you can't write multiple layers in one call. write_dataframe handles both
+    # GeoDataFrames (spatial, one geometry type per layer) and plain DataFrames
+    # (non-spatial tables like node_stname / altnames, which have no geometry column).
+    for i, (layer_name, gdf) in enumerate(layers):
         if gdf.empty:
-            raise ValueError(
-                f"No features for GDB layer '{layer_name}' "
-                "(geometry_type filter returned zero rows)"
-            )
-        gdf = _normalize_to_single_geom_type(gdf, layer_name)
-        gdf.to_file(
+            raise ValueError(f"No rows to export for GDB layer '{layer_name}'")
+        if isinstance(gdf, gpd.GeoDataFrame):
+            gdf = _normalize_to_single_geom_type(gdf, layer_name)
+        pyogrio.write_dataframe(
+            gdf,
             str(gdb_path),
             driver="OpenFileGDB",
             layer=layer_name,
-            mode="w" if first else "a",
+            append=i > 0,
         )
-        first = False
     shutil.make_archive(
         str(file_path.with_suffix("")), "zip", tmp_dir, f"{gdb_name}.gdb"
     )
@@ -270,12 +271,16 @@ def export(
             logger.info(
                 f"Reading table '{output.name}' as layer '{layer_name}' for {filename}"
             )
-            gdf = _read_filtered_gdf(
-                output.name,
-                pg_client,
-                geom_column=custom.get("geom_column", "geom"),
-                geometry_type=custom.get("geometry_type"),
-            )
+            if "geometry_type" in custom:
+                gdf = _read_filtered_gdf(
+                    output.name,
+                    pg_client,
+                    geom_column=custom.get("geom_column", "geom"),
+                    geometry_type=custom["geometry_type"],
+                )
+            else:
+                # Non-spatial GDB layer (no geometry_type) — read as a plain table.
+                gdf = pg_client.read_table_df(output.name)
             layers.append((layer_name, gdf))
         with tempfile.TemporaryDirectory() as tmp_str:
             _write_gdb_zip(layers, output_folder / filename, Path(tmp_str))
