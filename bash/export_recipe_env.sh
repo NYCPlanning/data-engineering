@@ -14,6 +14,6 @@ if [[ ! -f "$1" ]] ; then
     exit 1
 fi
 
-for s in $(cat $1 | yq -o json | jq -r ".vars|to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+for s in $(cat $1 | yq -o json | jq -r "(.env // .vars)|to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
     export_ $s
 done

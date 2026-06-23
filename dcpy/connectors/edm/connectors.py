@@ -357,14 +357,21 @@ def _parse_draft_version(version: str) -> dict:
 
 
 def _parse_plan_version(version: str) -> dict:
-    """Parse plan version in format 'version.revision' into dict.
+    """Parse plan version in format 'version.revision' or partition format into dict.
 
     Examples:
         "26v1.1" -> {"version": "26v1", "revision": "1"}
         "26v1.1_my_note" -> {"version": "26v1", "revision": "1_my_note"}
+        "2026v1:main:20260622T1325" -> {"version": "2026v1:main:20260622T1325", "revision": ""}
     """
+    # Check if this is a partition key (format: version:branch:timestamp)
+    if version.count(":") == 2:
+        return {"version": version, "revision": ""}
+    # Otherwise, parse traditional version.revision format
     if "." not in version:
-        raise ValueError(f"Version '{version}' should be in format 'version.revision'")
+        raise ValueError(
+            f"Version '{version}' should be in format 'version.revision' or 'version:branch:timestamp'"
+        )
     parts = version.rsplit(".", 1)
     return {"version": parts[0], "revision": parts[1]}
 
@@ -388,11 +395,10 @@ def _create_publish_key(product: str, version: str, parsed: dict) -> PublishKey:
 
 
 def _create_plan_key(product: str, version: str, parsed: dict) -> PlanKey:
-    """Create plan key from parsed version.revision format."""
+    """Create plan key. Plans don't use revisions - version is the complete identifier."""
     mapped_product = _map_product_name(product)
-    return PlanKey(
-        mapped_product, version=parsed["version"], revision=parsed["revision"]
-    )
+    # Plans are stored at {product}/plan/{version}/ without revision subfolders
+    return PlanKey(mapped_product, version=version, revision="")
 
 
 # List versions implementations
@@ -417,20 +423,15 @@ def _list_draft_versions(
 
 
 def _list_plan_versions(connector: "EdmConnector", key: str, kwargs: dict) -> list[str]:
-    """List plan versions in version.revision format.
+    """List plan versions.
+    Plans are stored at {product}/plan/{version}/ without revision subfolders.
     Note: key is already mapped by the time it reaches this function."""
     plan_folder_key = f"{key}/plan"
     if not connector.storage.exists(plan_folder_key):
         return []
 
-    versions = []
-    version_folders = connector.storage.get_subfolders(plan_folder_key)
-    for version_name in version_folders:
-        revision_folder_key = f"{key}/plan/{version_name}"
-        revision_folders = connector.storage.get_subfolders(revision_folder_key)
-        for revision_name in revision_folders:
-            versions.append(f"{version_name}.{revision_name}")
-
+    # Plans don't use revisions - just return version folders directly
+    versions = connector.storage.get_subfolders(plan_folder_key)
     return versions
 
 
@@ -557,7 +558,9 @@ class _BuildsConnector(EdmConnector):
             raise ValueError(
                 f"Build name supplied via CLI or the env var 'BUILD_NAME' cannot be '{build_name}'."
             )
-        build_key = BuildKey(product, build_name)
+        # Map product name (e.g., "edde" -> "db-eddt")
+        mapped_product = _map_product_name(product)
+        build_key = BuildKey(mapped_product, build_name)
 
         logger.info(f'Uploading {build_dir} to {build_key.path} with ACL "{acl}"')
 
@@ -569,7 +572,7 @@ class _BuildsConnector(EdmConnector):
         self.storage.push(
             key=build_key.path,
             filepath=str(build_dir),
-            acl=str(acl),
+            acl=str(acl) if acl else "private",
             metadata=metadata,
         )
 
@@ -612,55 +615,46 @@ class _PlanConnector(EdmConnector):
         *,
         plan_note: str = "",
         acl: s3.ACL | None = None,
+        target_filename: str | None = None,
     ) -> PlanKey:
         """
-        Uploads a planned recipe to S3 with automatic revision numbering.
+        Uploads a planned recipe to S3.
+
+        Plans are stored directly at {product}/plan/{version}/ without revision subfolders.
+        The version string itself serves as the unique identifier.
 
         Args:
-            plan_dir: Directory containing recipe.lock.yml
+            plan_dir: Directory containing recipe.lock.yml or path to recipe.lock.yml file
             product: Product name (e.g., 'db-eddt')
-            version: Version string (e.g., '25v1')
-            plan_note: Optional note for the plan revision (alphanumeric + underscores only)
+            version: Version string in any format (e.g., '2026:ar_edde:20260623T1809')
+            plan_note: Unused for plans (kept for API compatibility)
             acl: S3 ACL for uploaded files
+            target_filename: Optional target filename (used when uploading a single file)
 
         Returns:
-            PlanKey with the generated revision
+            PlanKey with empty revision
 
         Raises:
             FileNotFoundError: If the provided plan_dir does not exist.
         """
-        from dcpy.utils import versions
-
         if not plan_dir.exists():
             raise FileNotFoundError(f"Path {plan_dir} does not exist")
 
         # Map product name to S3 product name
         mapped_product = _map_product_name(product)
 
-        # Generate revision number based on existing revisions
-        # Use the connector's storage to query existing revisions (works with local or S3)
-        plan_folder_key = f"{mapped_product}/plan/{version}"
-        if self.storage.exists(plan_folder_key):
-            existing_revisions = sorted(
-                self.storage.get_subfolders(plan_folder_key), reverse=True
-            )
-            if existing_revisions:
-                # Parse all revisions to find the highest revision number
-                revision_nums = [
-                    versions.parse_plan_version(rev).revision_num
-                    for rev in existing_revisions
-                ]
-                revision_num = max(revision_nums) + 1
-            else:
-                revision_num = 1
+        # Plans don't use revisions - the version is the complete identifier
+        plan_key = PlanKey(mapped_product, version, "")
+
+        # Determine upload path
+        if target_filename:
+            # Single file upload - append filename to path
+            upload_key = f"{plan_key.path}{target_filename}"
+            logger.info(f'Uploading plan file to {upload_key} with ACL "{acl}"')
         else:
-            revision_num = 1
-
-        # Create plan revision
-        plan_revision = versions.PlanVersionRevision(revision_num, plan_note)
-        plan_key = PlanKey(mapped_product, version, plan_revision.label)
-
-        logger.info(f'Uploading plan to {plan_key.path} with ACL "{acl}"')
+            # Directory upload
+            upload_key = plan_key.path
+            logger.info(f'Uploading plan directory to {upload_key} with ACL "{acl}"')
 
         # Generate metadata using the config's metadata_generator
         metadata = (
@@ -668,7 +662,7 @@ class _PlanConnector(EdmConnector):
         )
 
         self.storage.push(
-            key=plan_key.path,
+            key=upload_key,
             filepath=str(plan_dir),
             acl=str(acl) if acl else "private",
             metadata=metadata,
@@ -680,6 +674,7 @@ class _PlanConnector(EdmConnector):
         """Push a plan with automatic revision numbering."""
         plan_note = kwargs.get("plan_note", "")
         acl = kwargs.get("acl")
+        target_path = kwargs.get("target_path")
 
         logger.info(
             f"Pushing plan for product: {key}, version: {version}, note: {plan_note}"
@@ -690,6 +685,7 @@ class _PlanConnector(EdmConnector):
             version=version,
             plan_note=plan_note,
             acl=acl,
+            target_filename=target_path,
         )
         return asdict(result)
 

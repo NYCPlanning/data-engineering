@@ -37,22 +37,40 @@ def test_export_build():
 
 @pytest.mark.end_to_end()
 def test_export_files():
+    # Files are now organized in subdirectories:
+    # - dataset_files/ contains the actual data files
+    # - attachments/ contains data dictionaries and source_data_versions.csv
+    # - diagnostics/dbt/ contains the dbt target directory
+    # - Root contains metadata files
     expected_export_file_names = {
-        "source_data_versions.csv",
+        # Root files
         "build_metadata.json",
         "recipe.lock.yml",
-        "data_dictionary.yml",
-        "data_dictionary.pdf",
-        "data_dictionary.xlsx",
-        "templatedb.csv",
-        "templatedb.parquet",
-        "templatedb_points.zip",
-        "templatedb_polygons.zip",
-        "templatedb.zip",
         "output.zip",
+        # Attachments
+        "attachments/source_data_versions.csv",
+        "attachments/data_dictionary.yml",
+        "attachments/data_dictionary.pdf",
+        "attachments/data_dictionary.xlsx",
+        # Dataset files
+        "dataset_files/templatedb.csv",
+        "dataset_files/templatedb.parquet",
+        "dataset_files/templatedb_points.shp.zip",
+        "dataset_files/templatedb_polygons.zip",
+        "dataset_files/templatedb.zip",
     }
     # TODO: publishing connector refactor - replace with: builds.get_filenames(BUILD_KEY.product, BUILD_KEY.build)
     actual_files = publishing.get_filenames(BUILD_KEY)
-    target_files = {f for f in actual_files if f.startswith("target/")}
-    assert target_files, "Expected dbt target/ directory to be present in export"
-    assert actual_files - target_files == expected_export_file_names
+
+    # Check for dbt diagnostics
+    dbt_diagnostics_files = {
+        f for f in actual_files if f.startswith("diagnostics/dbt/")
+    }
+    assert dbt_diagnostics_files, (
+        "Expected dbt diagnostics directory to be present in export"
+    )
+
+    # Check that all expected files are present
+    assert expected_export_file_names.issubset(actual_files), (
+        f"Missing files: {expected_export_file_names - actual_files}"
+    )

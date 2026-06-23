@@ -39,9 +39,10 @@ def run_all_conversions():
         old_edde_path, new_build_path = get_edde_paths()
         old_yearband, new_yearband = get_yearbands()
 
-        # Output to package/change_over_time directory (similar to site_conf)
-        # new_build_path is .../2026/data, so parent is .../2026/
-        output_dir = new_build_path.parent / "package" / "change_over_time"
+        # Output to attachments/change_over_time directory (similar to site_conf)
+        # new_build_path is .../build_name/dataset_files, so parent is .../build_name/
+        # (where build_name is the partition key like "2026:ar_edde:20260623T1809")
+        output_dir = new_build_path.parent / "attachments" / "change_over_time"
         output_dir.mkdir(parents=True, exist_ok=True)
 
         print(f"Old EDDE data: {old_edde_path}")

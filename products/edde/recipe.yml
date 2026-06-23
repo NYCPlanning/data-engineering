@@ -1,11 +1,4 @@
 name: EDDE
-version: "{{ BUILD_ENV_EDDE_VERSION }}"
-vars:
-  BUILD_ENV_EDDE_VERSION_PREV: "{{ BUILD_ENV_EDDE_VERSION_PREV }}"
-  BUILD_ENV_EDDE_VERSION: "{{ BUILD_ENV_EDDE_VERSION }}"
-  BUILD_ENV_EDDE_CENSUS_BASE_YEAR: "{{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}"
-  BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND: "{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}"
-  BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND: "{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"
 product: db-eddt
 inputs:
   dataset_defaults:
@@ -72,6 +65,12 @@ inputs:
     file_type: csv
 
 custom:
+  # Build configuration
+  EDDE_VERSION_PREV: "2025-05-30"
+  CENSUS_BASE_YEAR: "2000"
+  ACS_PREV_YEAR_BAND: "0812"
+  ACS_CURRENT_YEAR_BAND: "2024"
+
   ignored_indicators:
     - health_diabetes
     - health_self_reported
@@ -93,22 +92,17 @@ custom:
 stage_config:
   builds.build:
     commands:
-      - name: Housing & Quality of Life Indicators
-        run: python3 -m build housing_security all
-      - name: Housing Production Indicators
-        run: python3 -m build housing_production all
-      - name: Quality of Life Indicators
-        run: python3 -m build quality_of_life all
-      - name: Census Base Demographics & Economics
-        run: python3 -m build all all {{ BUILD_ENV_EDDE_CENSUS_BASE_YEAR }}
-      - name: ACS Prev Demographics & Economics
-        run: python3 -m build all all {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}
-      - name: ACS Current Demographics & Economics
-        run: python3 -m build all all {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}
+      - name: build
+        run: build
+        command_type: python
+      - name: qa
+        run: qa.proto_qa
+        command_type: python
+      - name: package
+        run: packager
+        command_type: python
     destination: edm.publishing.builds
     destination_key: db-eddt
     connector_args:
       - name: acl
         value: public-read
-      - name: build_note
-        value: ar-eddt-2026

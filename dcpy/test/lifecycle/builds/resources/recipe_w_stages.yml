@@ -1,6 +1,6 @@
 name: Tester
 version: 23v1
-vars:
+env:
   VERSION_PREV: 23v0
 
 product: db-test

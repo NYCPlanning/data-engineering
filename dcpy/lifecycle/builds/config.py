@@ -1,7 +1,8 @@
 from pathlib import Path
 
 # Build configuration constants
-BUILD_ARTIFACT_DIRS = ["target"]
+BUILD_ARTIFACT_DIRS = ["target", "attachments", "dataset_files"]
+BUILD_STAGE_KEY = "builds.build"  # Recipe stage_config key for build commands
 
 
 def get_recipe_path(product_path: Path, recipe_name: str | None = None) -> Path:
@@ -21,7 +22,11 @@ def get_recipe_path(product_path: Path, recipe_name: str | None = None) -> Path:
 
 
 def get_recipe_lock_path(product_path: Path, recipe_name: str | None = None) -> Path:
-    """Get the path to a recipe lockfile for a product.
+    """Get the path to a recipe lockfile in the product directory.
+
+    Note: During planning, lockfiles are written to the plan directory using get_plan_dir().
+    This function is for accessing lockfiles that have been copied to the product directory,
+    typically for local builds or legacy workflows.
 
     Args:
         product_path: Path to the product directory

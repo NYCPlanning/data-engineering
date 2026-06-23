@@ -29,6 +29,29 @@ from dcpy.utils.logging import logger
 BUILD_METADATA_FILE = "build_metadata.json"
 
 
+def download(product: str, version: str) -> Path:
+    """Download a published build to a temporary location.
+
+    Args:
+        product: Product name
+        version: Version string (can be "latest" or specific version)
+
+    Returns:
+        Path to the downloaded build directory
+    """
+    connector = get_published_default_connector()
+    temp_dir = Path(tempfile.mkdtemp())
+
+    connector.pull_versioned(
+        key=product,
+        version=version,
+        destination_path=temp_dir,
+    )
+
+    logger.info(f"Downloaded published build {product}/{version} to {temp_dir}")
+    return temp_dir
+
+
 def get_latest_version(product: str) -> str | None:
     return get_published_default_connector().get_latest_version(product)
 
@@ -236,6 +259,7 @@ def publish(
     latest: bool = False,
     is_patch: bool = False,
     metadata_file_dir: Path | None = None,
+    skip_version_validation: bool = False,
 ) -> PublishKey:
     """
     Publishes a draft to the published datastore using connectors.
@@ -248,6 +272,7 @@ def publish(
         latest: Whether to publish to latest folder as well
         is_patch: Whether to create a patched version if version already exists
         metadata_file_dir: dir to download metadata after publishing
+        skip_version_validation: Skip validation against existing versions (useful when published folder has old/invalid versions)
 
     Returns:
         PublishKey: The key for the published version
@@ -273,9 +298,13 @@ def publish(
         )
 
     # Validate and determine final version to publish
-    publish_version = validate_or_patch_version(
-        product, draft_key.dataset_version, is_patch
-    )
+    if skip_version_validation:
+        publish_version = draft_key.dataset_version
+        logger.info(f"Skipping version validation, using: {publish_version}")
+    else:
+        publish_version = validate_or_patch_version(
+            product, draft_key.dataset_version, is_patch
+        )
     logger.info(f'Publishing {draft_key} as version {publish_version} with ACL "{acl}"')
 
     # When "latest" is requested, determine if that's possible

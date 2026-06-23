@@ -1,28 +1,25 @@
 """Helper module for resolving EDDE data paths for change-over-time calculations."""
 
-import json
 from pathlib import Path
 
 from config import get_edde_paths
 
-from dcpy.lifecycle.builds import get_build_metadata_path
+from dcpy.lifecycle.builds import get_recipe_lock
 
 PRODUCT_PATH = Path(__file__).parent.parent.parent
 
 
 def get_yearbands() -> tuple[str, str]:
-    """Get old and new yearbands from build_metadata.json.
+    """Get old and new yearbands from recipe.lock.yml.
 
     Returns:
         Tuple of (old_yearband, new_yearband) from recipe vars
     """
-    build_metadata_path = get_build_metadata_path(PRODUCT_PATH)
-    with open(build_metadata_path, "r") as f:
-        build_metadata = json.load(f)
+    recipe = get_recipe_lock(PRODUCT_PATH)
 
-    vars = build_metadata["recipe"]["vars"]
-    old_yearband = vars.get("BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND", "0812")
-    new_yearband = vars.get("BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND", "2024")
+    custom = recipe.custom if recipe.custom else {}
+    old_yearband = custom.get("ACS_PREV_YEAR_BAND", "0812")
+    new_yearband = custom.get("ACS_CURRENT_YEAR_BAND", "2024")
 
     return old_yearband, new_yearband
 

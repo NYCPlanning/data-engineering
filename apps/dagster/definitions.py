@@ -2,14 +2,14 @@
 
 import os
 
-from builds import build_assets
+from builds import build_assets, create_build_partition_asset
 from ingest import ingest_assets
 from ingest.resources import LocalStorageResource
 
 from dagster import Definitions
 
 # Combine all assets
-all_assets = [*build_assets, *ingest_assets]
+all_assets = [*build_assets, create_build_partition_asset, *ingest_assets]
 
 # Use DCPY_LIFECYCLE_DATA_DIR if set (our standard env var for lifecycle operations),
 # otherwise fall back to /tmp. This is separate from DAGSTER_HOME which is for

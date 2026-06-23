@@ -25,24 +25,24 @@
       "district": {
         "files": [
           "demographics_2000_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_puma",
           "demo_change_puma"
         ]
       },
       "borough": {
         "files": [
           "demographics_2000_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_borough",
           "demo_change_borough"
         ]
       },
       "citywide": {
         "files": [
           "demographics_2000_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_citywide",
           "demo_change_citywide"
         ]
       }
@@ -95,9 +95,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} ",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ",
+        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["popu16", "p16t64", "p65pl", "median"],
       "measures": [
@@ -115,24 +115,24 @@
       "district": {
         "files": [
           "demographics_2000_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_puma",
           "demo_change_puma"
         ]
       },
       "borough": {
         "files": [
           "demographics_2000_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_borough",
           "demo_change_borough"
         ]
       },
       "citywide": {
         "files": [
           "demographics_2000_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_citywide",
           "demo_change_citywide"
         ]
       }
@@ -181,9 +181,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} ",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ",
+        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["fb"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -194,24 +194,24 @@
       "district": {
         "files": [
           "demographics_2000_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_puma",
           "demo_change_puma"
         ]
       },
       "borough": {
         "files": [
           "demographics_2000_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_borough",
           "demo_change_borough"
         ]
       },
       "citywide": {
         "files": [
           "demographics_2000_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_citywide",
           "demo_change_citywide"
         ]
       }
@@ -260,9 +260,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
+        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["lep"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -273,24 +273,24 @@
       "district": {
         "files": [
           "demographics_2000_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_puma",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_puma",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_puma",
           "demo_change_puma"
         ]
       },
       "borough": {
         "files": [
           "demographics_2000_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_borough",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_borough",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_borough",
           "demo_change_borough"
         ]
       },
       "citywide": {
         "files": [
           "demographics_2000_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}_citywide",
-          "demographics_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_PREV_YEAR_BAND }}_citywide",
+          "demographics_{{ ACS_CURRENT_YEAR_BAND }}_citywide",
           "demo_change_citywide"
         ]
       }

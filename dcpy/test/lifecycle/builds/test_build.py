@@ -307,7 +307,7 @@ exports:
 
 
 def test_export_copies_target_dir_when_present(tmp_path):
-    """export() copies the dbt target/ sibling directory recursively into the output folder."""
+    """export() copies the dbt target/ sibling directory recursively into diagnostics/dbt/ folder."""
     output_folder = tmp_path / "output"
     recipe_path = tmp_path / "recipe.lock.yml"
     recipe_path.write_text(_MINIMAL_RECIPE.format(output_folder=str(output_folder)))
@@ -321,13 +321,14 @@ def test_export_copies_target_dir_when_present(tmp_path):
 
     export(recipe_path, pg_client=MagicMock())
 
-    assert (output_folder / "target").is_dir()
-    assert (output_folder / "target" / "run_results.json").exists()
-    assert (output_folder / "target" / "compiled" / "x.sql").exists()
+    # target/ now goes to diagnostics/dbt/
+    assert (output_folder / "diagnostics" / "dbt").is_dir()
+    assert (output_folder / "diagnostics" / "dbt" / "run_results.json").exists()
+    assert (output_folder / "diagnostics" / "dbt" / "compiled" / "x.sql").exists()
 
 
 def test_export_warns_when_target_dir_missing(tmp_path):
-    """export() logs a warning and continues when target/ does not exist."""
+    """export() logs a debug message and continues when target/ does not exist."""
     output_folder = tmp_path / "output"
     recipe_path = tmp_path / "recipe.lock.yml"
     recipe_path.write_text(_MINIMAL_RECIPE.format(output_folder=str(output_folder)))
@@ -335,6 +336,8 @@ def test_export_warns_when_target_dir_missing(tmp_path):
     with patch("dcpy.lifecycle.builds.export.logger") as mock_logger:
         export(recipe_path, pg_client=MagicMock())
 
-    assert not (output_folder / "target").exists()
-    warning_calls = [str(call) for call in mock_logger.warning.call_args_list]
-    assert any("target" in msg for msg in warning_calls)
+    # target/ directory should not exist in diagnostics/dbt/ since it wasn't created
+    assert not (output_folder / "diagnostics" / "dbt").exists()
+    # Check debug logs for missing artifact directory message
+    debug_calls = [str(call) for call in mock_logger.debug.call_args_list]
+    assert any("target" in msg for msg in debug_calls)

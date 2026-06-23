@@ -21,13 +21,13 @@ def get_template_variables() -> dict:
 
     Returns:
         Dictionary containing all template variables including:
-        - All vars (BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND, etc.)
-        - All custom variables (dhs_shelter, health_mortality, etc.)
+        - All env variables (VERSION, VERSION_PREV, etc.)
+        - All custom variables (ACS_PREV_YEAR_BAND, ACS_CURRENT_YEAR_BAND, dhs_shelter, health_mortality, etc.)
     """
     recipe_lock = get_recipe_lock(PRODUCT_PATH)
 
-    # Start with all vars
-    template_vars = dict(recipe_lock.vars) if recipe_lock.vars else {}
+    # Start with all env variables
+    template_vars = dict(recipe_lock.env) if recipe_lock.env else {}
 
     # Add all custom variables
     if recipe_lock.custom:
@@ -136,7 +136,7 @@ def package_site_conf() -> None:
     # Get paths
     templates_dir = PRODUCT_PATH / "packager" / "site_conf_templates" / "templates"
     build_output_dir = get_build_output_dir()
-    output_dir = build_output_dir / "package" / "site_conf"
+    output_dir = build_output_dir / "attachments" / "site_conf"
 
     # Create output directory
     output_dir.mkdir(parents=True, exist_ok=True)

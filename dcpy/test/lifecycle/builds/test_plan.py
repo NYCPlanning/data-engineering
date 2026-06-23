@@ -245,22 +245,22 @@ class TestRecipesNoDefaults(TestCase):
 @pytest.mark.usefixtures("create_buckets")
 class TestRecipeVars(TestCase):
     def test_version_type_var_is_absent(self):
-        """Ensures VERSION_TYPE is absent in recipe 'vars' attribute when version_type is None."""
+        """Ensures VERSION_TYPE is absent in recipe 'env' attribute when version_type is None."""
         add_required_version_var_to_env()
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_PATH, version=version)
         assert planned.version_type is None  # sanity check
-        assert "VERSION_TYPE" not in planned.vars
+        assert "VERSION_TYPE" not in planned.env
 
     def test_version_type_is_present(self):
         """Test that the version_type is set correctly and matches env 'VERSION_TYPE' variable."""
         version = "test_version"
         planned = plan.plan_recipe(RECIPE_W_VERSION_TYPE, version)
         assert planned.version_type is not None  # sanity check
-        assert planned.version_type == planned.vars["VERSION_TYPE"], (
-            "version_type mismatch with recipe.vars"
+        assert planned.version_type == planned.env["VERSION_TYPE"], (
+            "version_type mismatch with recipe.env"
         )
-        assert planned.vars["VERSION_TYPE"] == os.environ["VERSION_TYPE"], (
+        assert planned.env["VERSION_TYPE"] == os.environ["VERSION_TYPE"], (
             "'version_type' recipe variable mismatch with 'VERSION_TYPE' env variable"
         )
 

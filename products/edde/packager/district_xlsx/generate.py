@@ -16,14 +16,29 @@ from openpyxl.utils import get_column_letter
 
 from dcpy.utils.logging import logger
 
-# Get build data paths dynamically
-OLD_EDDE_PATH, NEW_BUILD_PATH = get_edde_paths()
-PACKAGE_DIR = NEW_BUILD_PATH.parent / "package"
-RESOLVED_DIR = PACKAGE_DIR / "resolved_pages_and_tables" / "districts"
-OUTPUT_DIR = PACKAGE_DIR / "district_xlsx"
+# These paths will be set in main() at runtime, not at import time
+OLD_EDDE_PATH = None
+NEW_BUILD_PATH = None
+PACKAGE_DIR = None
+RESOLVED_DIR = None
+OUTPUT_DIR = None
 
-# Create output directory
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+def _initialize_paths():
+    """Initialize paths at runtime (called from main())."""
+    global OLD_EDDE_PATH, NEW_BUILD_PATH, PACKAGE_DIR, RESOLVED_DIR, OUTPUT_DIR
+
+    # Get build data paths dynamically
+    OLD_EDDE_PATH, NEW_BUILD_PATH = get_edde_paths()
+    PACKAGE_DIR = NEW_BUILD_PATH.parent / "attachments"
+    RESOLVED_DIR = PACKAGE_DIR / "resolved_pages_and_tables" / "districts"
+    OUTPUT_DIR = PACKAGE_DIR / "district_xlsx"
+
+    # Create output directory
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Resolved data path: {RESOLVED_DIR}")
+    logger.info(f"Output directory: {OUTPUT_DIR}")
 
 
 # Category mappings
@@ -343,8 +358,8 @@ def generate_xlsx_for_geography(
 
 def main():
     """Generate XLSX files for all geographies."""
-    logger.info(f"Resolved data directory: {RESOLVED_DIR}")
-    logger.info(f"Output directory: {OUTPUT_DIR}")
+    # Initialize paths at runtime (not at module import time)
+    _initialize_paths()
 
     # Get all geography JSON files
     if not RESOLVED_DIR.exists():

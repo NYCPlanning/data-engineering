@@ -102,6 +102,7 @@ def test_export(client_with_sample_data, tmp_path):
     recipe_content = f"""
 name: test_recipe
 product: test
+version: "1.0"
 inputs: {{}}
 exports:
   output_folder: {output_folder}
@@ -119,8 +120,13 @@ exports:
 
     build.export(recipe_path, client_with_sample_data)
 
-    assert (output_folder / f"{SAMPLE_TABLE}.csv").exists(), "CSV export should exist"
-    assert (output_folder / "data.dat").exists(), "DAT export should exist"
+    # Exports are now written to dataset_files subfolder
+    assert (output_folder / "dataset_files" / f"{SAMPLE_TABLE}.csv").exists(), (
+        "CSV export should exist"
+    )
+    assert (output_folder / "dataset_files" / "data.dat").exists(), (
+        "DAT export should exist"
+    )
 
     assert (output_folder / "output.zip").exists(), "zipped export should exist"
 
@@ -131,6 +137,7 @@ def test_export_default_path(client_with_sample_data, tmp_path):
     recipe_content = f"""
 name: test_recipe
 product: test
+version: "1.0"
 inputs: {{}}
 exports:
   datasets:
@@ -145,4 +152,7 @@ exports:
 
     assert output_folder, "Exports should be run and output folder Path object returned"
 
-    assert (output_folder / f"{SAMPLE_TABLE}.csv").exists(), "CSV export should exist"
+    # Exports are now written to dataset_files subfolder
+    assert (output_folder / "dataset_files" / f"{SAMPLE_TABLE}.csv").exists(), (
+        "CSV export should exist"
+    )

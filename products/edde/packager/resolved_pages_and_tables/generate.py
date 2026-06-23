@@ -6,47 +6,71 @@ import pandas as pd
 import simplejson
 from config import get_edde_paths
 
-from dcpy.lifecycle.builds import get_build_metadata_path
+from dcpy.lifecycle.builds import get_recipe_lock
 
 ###
 # Path setup
 SCRIPT_DIR = Path(__file__).parent.resolve()
-
-# Get build data paths dynamically
-OLD_EDDE_PATH, NEW_BUILD_PATH = get_edde_paths()
-PACKAGE_DIR = NEW_BUILD_PATH.parent / "package"
-CHANGE_DATA_PATH = PACKAGE_DIR / "change_over_time"
-CONFIG_DIR = PACKAGE_DIR / "site_conf"
-OUTPUT_DIR = PACKAGE_DIR / "resolved_pages_and_tables"
-CONFIGS_DIR = OUTPUT_DIR / "configs"
-DISTRICTS_DIR = OUTPUT_DIR / "districts"
-
-# Get yearbands from recipe vars
 PRODUCT_PATH = Path(__file__).parent.parent.parent
-build_metadata_path = get_build_metadata_path(PRODUCT_PATH)
-with open(build_metadata_path, "r") as f:
-    build_metadata = json.load(f)
-vars = build_metadata["recipe"]["vars"]
-CENSUS_BASE_YEAR = vars.get("BUILD_ENV_EDDE_CENSUS_BASE_YEAR", "2000")
-ACS_PREV_YEAR_BAND = vars.get("BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND", "0812")
-ACS_CURRENT_YEAR_BAND = vars.get("BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND", "2024")
 
-# Construct year list for demographics data
-DEMOGRAPHIC_YEARS = [
-    f"_{CENSUS_BASE_YEAR}",
-    f"_{ACS_PREV_YEAR_BAND}",
-    f"_{ACS_CURRENT_YEAR_BAND}",
-]
+# These paths will be set in main() at runtime, not at import time
+OLD_EDDE_PATH = None
+NEW_BUILD_PATH = None
+PACKAGE_DIR = None
+CHANGE_DATA_PATH = None
+CONFIG_DIR = None
+OUTPUT_DIR = None
+CONFIGS_DIR = None
+DISTRICTS_DIR = None
+CENSUS_BASE_YEAR = None
+ACS_PREV_YEAR_BAND = None
+ACS_CURRENT_YEAR_BAND = None
+DEMOGRAPHIC_YEARS = None
 
-# Create output directories if they don't exist
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-CONFIGS_DIR.mkdir(parents=True, exist_ok=True)
-DISTRICTS_DIR.mkdir(parents=True, exist_ok=True)
 
-print(f"Build data path: {NEW_BUILD_PATH}")
-print(f"Change data path: {CHANGE_DATA_PATH}")
-print(f"Demographic years: {DEMOGRAPHIC_YEARS}")
-print(f"Output directory: {OUTPUT_DIR}")
+def _initialize_paths():
+    """Initialize paths at runtime (called from main())."""
+    global OLD_EDDE_PATH, NEW_BUILD_PATH, PACKAGE_DIR, CHANGE_DATA_PATH
+    global CONFIG_DIR, OUTPUT_DIR, CONFIGS_DIR, DISTRICTS_DIR
+    global \
+        CENSUS_BASE_YEAR, \
+        ACS_PREV_YEAR_BAND, \
+        ACS_CURRENT_YEAR_BAND, \
+        DEMOGRAPHIC_YEARS
+
+    # Get build data paths dynamically
+    OLD_EDDE_PATH, NEW_BUILD_PATH = get_edde_paths()
+    PACKAGE_DIR = NEW_BUILD_PATH.parent / "attachments"
+    CHANGE_DATA_PATH = PACKAGE_DIR / "change_over_time"
+    CONFIG_DIR = PACKAGE_DIR / "site_conf"
+    OUTPUT_DIR = PACKAGE_DIR / "resolved_pages_and_tables"
+    CONFIGS_DIR = OUTPUT_DIR / "configs"
+    DISTRICTS_DIR = OUTPUT_DIR / "districts"
+
+    # Get yearbands from recipe vars
+    recipe = get_recipe_lock(PRODUCT_PATH)
+    custom = recipe.custom if recipe.custom else {}
+    CENSUS_BASE_YEAR = custom.get("CENSUS_BASE_YEAR", "2000")
+    ACS_PREV_YEAR_BAND = custom.get("ACS_PREV_YEAR_BAND", "0812")
+    ACS_CURRENT_YEAR_BAND = custom.get("ACS_CURRENT_YEAR_BAND", "2024")
+
+    # Construct year list for demographics data
+    DEMOGRAPHIC_YEARS = [
+        f"_{CENSUS_BASE_YEAR}",
+        f"_{ACS_PREV_YEAR_BAND}",
+        f"_{ACS_CURRENT_YEAR_BAND}",
+    ]
+
+    # Create output directories if they don't exist
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    CONFIGS_DIR.mkdir(parents=True, exist_ok=True)
+    DISTRICTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    print(f"Build data path: {NEW_BUILD_PATH}")
+    print(f"Change data path: {CHANGE_DATA_PATH}")
+    print(f"Demographic years: {DEMOGRAPHIC_YEARS}")
+    print(f"Output directory: {OUTPUT_DIR}")
+
 
 category_folders = {
     "demo": "demographics",
@@ -686,6 +710,9 @@ def build_vintages(table_list, df_row):
 
 
 def main():
+    # Initialize paths at runtime (not at module import time)
+    _initialize_paths()
+
     # Some of the tables we have to display on the front end show values that don't actually map to any columns in the source data from EDM
     # This usually happens in rows that are the "denominator" of the table so logically don't have data for percent and percent moe
     # When this happens, the build_config function will build column names that don't actually exist in the csv we are looking at

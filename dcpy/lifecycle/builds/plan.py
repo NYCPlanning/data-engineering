@@ -11,8 +11,10 @@ from jinja2 import (
     TemplateSyntaxError,
     Undefined,
     UndefinedError,
+    meta,
 )
 
+from dcpy.configuration import BUILD_NAME
 from dcpy.connectors.edm import recipes
 from dcpy.connectors.edm.models import BuildKey, DatasetType, DraftKey, PublishKey
 from dcpy.lifecycle.builds import config, utils
@@ -41,6 +43,32 @@ ARTIFACTS = [
     "build_metadata.json",
     "source_data_versions.csv",
 ]
+
+
+def get_recipe_template_variables(recipe_path: Path) -> list[str]:
+    """Extract Jinja2 template variables from a recipe file.
+
+    Uses Jinja2's meta.find_undeclared_variables to parse the recipe
+    and find all template variables that need to be provided.
+
+    Args:
+        recipe_path: Path to the recipe.yml file
+
+    Returns:
+        Sorted list of template variable names found in the recipe
+
+    Example:
+        >>> vars = get_recipe_template_variables(Path("recipe.yml"))
+        >>> # Returns: ["BUILD_ENGINE_SCHEMA", "BUILD_ENV_BRANCH"]
+    """
+    with open(recipe_path, "r") as f:
+        recipe_text = f.read()
+
+    env = Environment()
+    parsed_content = env.parse(recipe_text)
+    jinja_vars = meta.find_undeclared_variables(parsed_content)
+
+    return sorted(jinja_vars)
 
 
 class PreserveUndefined(Undefined):
@@ -107,7 +135,12 @@ def resolve_version(recipe: Recipe) -> str:
 
 
 def plan_recipe(
-    recipe_path: Path, version: str | None = None, vars: dict[str, str] | None = None
+    recipe_path: Path,
+    version: str | None = None,
+    vars: dict[str, str] | None = None,
+    build_name: str | None = None,
+    branch: str | None = None,
+    env_vars: dict[str, str] | None = None,
 ) -> Recipe:
     """Plan recipe versions and file types for a product.
 
@@ -122,6 +155,12 @@ def plan_recipe(
         vars: Optional dict of template variables to use instead of BUILD_ENV_* environment
               variables. All vars or none approach - if provided, environment variables are
               not used for templating.
+        build_name: Optional build name/identifier (e.g., branch name, partition key).
+                   If not provided, falls back to BUILD_NAME environment variable.
+        branch: Optional branch name (e.g., "main", "fix-bug").
+               If provided, sets recipe.branch.
+        env_vars: Optional dict of environment variables to add to recipe.env
+                 (e.g., BUILD_ENGINE_SCHEMA, BUILD_ENGINE_DB).
     """
     recipe: Recipe = recipe_from_yaml(recipe_path, vars=vars)
 
@@ -131,14 +170,31 @@ def plan_recipe(
     elif recipe.version is None:
         recipe.version = resolve_version(recipe)
 
-    recipe.vars = recipe.vars or {}
-    recipe.vars["VERSION"] = recipe.version
+    # Add computed environment variables
+    recipe.env["VERSION"] = recipe.version
 
     if recipe.version_type is not None:
-        recipe.vars["VERSION_TYPE"] = recipe.version_type.value
+        recipe.env["VERSION_TYPE"] = recipe.version_type.value
+
+    # Set branch from parameter if provided
+    if branch:
+        recipe.branch = branch
+        logger.info(f"Set branch from parameter: {branch}")
+
+    # Set build_name from parameter, or BUILD_NAME environment variable, or recipe
+    if build_name:
+        recipe.build_name = build_name
+        logger.info(f"Set build_name from parameter: {build_name}")
+    elif recipe.build_name is None:
+        recipe.build_name = BUILD_NAME
+        logger.info(
+            f"Set build_name from BUILD_NAME environment variable: {BUILD_NAME}"
+        )
+    else:
+        logger.info(f"Using build_name from recipe: {recipe.build_name}")
 
     # Determine previous version
-    if "VERSION_PREV" not in recipe.vars:
+    if "VERSION_PREV" not in recipe.env:
         try:
             previous_recipe = utils.get_previous_version(
                 product=recipe.product, version=recipe.version
@@ -146,7 +202,7 @@ def plan_recipe(
             logger.info(
                 f"Previous version of {recipe.product}: {previous_recipe.label} ({previous_recipe})"
             )
-            recipe.vars["VERSION_PREV"] = previous_recipe.label
+            recipe.env["VERSION_PREV"] = previous_recipe.label
         except (
             LookupError,
             ValueError,
@@ -154,9 +210,14 @@ def plan_recipe(
         ) as e:  # versions not found, or don't parse correctly
             logger.error(f"Error: {e}")
 
-    # Add vars to environ so both can be accessed in environ
-    logger.info(f"Export envars: {recipe.vars}")
-    os.environ.update(recipe.vars)
+    # Add additional environment variables if provided
+    if env_vars:
+        recipe.env.update(env_vars)
+        logger.info(f"Added env_vars to recipe.env: {env_vars}")
+
+    # Add env vars to environ so they can be accessed during planning
+    logger.info(f"Export envars: {recipe.env}")
+    os.environ.update(recipe.env)
 
     # merge in base recipe inputs
     base_recipe = (
@@ -264,16 +325,16 @@ def recipe_from_yaml(
 
     Supports Jinja2 template variables that are rendered from environment variables
     or directly provided vars.
-    For security, only environment variables with the BUILD_ENV_ prefix are exposed
-    to templates to prevent accidental exposure of secrets.
+    For security, only environment variables with the BUILD_ENV_* or BUILD_ENGINE_*
+    prefixes are exposed to templates to prevent accidental exposure of secrets.
     Non-templated recipes are processed normally without errors.
 
     Args:
         path: Path to the recipe.yml file
-        render_templates: If True, render Jinja2 templates from vars or BUILD_ENV_* vars.
+        render_templates: If True, render Jinja2 templates from vars or BUILD_ENV_*/BUILD_ENGINE_* vars.
                          If False, preserve templates as strings (for DAG generation).
         vars: Optional dict of template variables. If provided, these are used instead
-              of BUILD_ENV_* environment variables. All vars or none approach.
+              of BUILD_ENV_*/BUILD_ENGINE_* environment variables. All vars or none approach.
 
     Returns:
         Recipe object with schema validated
@@ -284,16 +345,16 @@ def recipe_from_yaml(
     # Render Jinja2 templates
     rendered_content = raw_content
     if render_templates:
-        # Use provided vars if available, otherwise fall back to BUILD_ENV_* from environment
+        # Use provided vars if available, otherwise fall back to BUILD_ENV_* and BUILD_ENGINE_* from environment
         if vars is not None:
             build_env_vars = vars
         else:
-            # Filter environment variables to only BUILD_ENV_* for security
+            # Filter environment variables to only BUILD_ENV_* and BUILD_ENGINE_* for security
             # This prevents secrets from being accidentally exposed in recipes
             build_env_vars = {
                 key: value
                 for key, value in os.environ.items()
-                if key.startswith("BUILD_ENV_")
+                if key.startswith("BUILD_ENV_") or key.startswith("BUILD_ENGINE_")
             }
 
         # Use StrictUndefined to catch missing variables
@@ -306,7 +367,7 @@ def recipe_from_yaml(
             error_source = (
                 "provided vars"
                 if vars is not None
-                else "BUILD_ENV_* environment variables"
+                else "BUILD_ENV_* or BUILD_ENGINE_* environment variables"
             )
             raise ValueError(
                 f"Recipe template requires variable that is not set in {error_source}: {e}."
@@ -379,25 +440,66 @@ def get_recipe_lock(
 
     Returns:
         Recipe pydantic model from the lockfile
+
+    Priority:
+        1. BUILD_ENV_OUTPUT_DIR/recipe.lock.yml (during builds)
+        2. product_path/recipe.lock.yml (backward compatibility)
     """
-    recipe_lock_path = config.get_recipe_lock_path(product_path, recipe_name)
+    import os
+
+    # Priority: BUILD_ENV_OUTPUT_DIR/recipe.lock.yml > product_path/recipe.lock.yml
+    if "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        build_dir_recipe = Path(os.environ["BUILD_ENV_OUTPUT_DIR"]) / "recipe.lock.yml"
+        if build_dir_recipe.exists():
+            recipe_lock_path = build_dir_recipe
+        else:
+            # Fall back to product directory if not found in build directory
+            recipe_lock_path = config.get_recipe_lock_path(product_path, recipe_name)
+    else:
+        recipe_lock_path = config.get_recipe_lock_path(product_path, recipe_name)
+
     return recipe_from_yaml(
         recipe_lock_path, render_templates=render_templates, vars=vars
     )
 
 
-def generate_lock_file(recipe_file: Path, recipe: Recipe) -> Path:
-    lock_file = recipe_file.parent / f"{recipe_file.stem}.lock.yml"
+def generate_lock_file(
+    recipe_file: Path, recipe: Recipe, output_path: Path | None = None
+) -> Path:
+    if output_path:
+        # Use explicit output path if provided
+        lock_file = output_path
+        lock_file.parent.mkdir(parents=True, exist_ok=True)
+    elif recipe.build_name:
+        # New approach: Use plan directory
+        from dcpy.lifecycle.config import get_plan_dir
+
+        plan_dir = get_plan_dir(recipe.product, recipe.build_name)
+        plan_dir.mkdir(parents=True, exist_ok=True)
+        lock_file = plan_dir / "recipe.lock.yml"
+    else:
+        # Backward compatibility: Write to product directory
+        lock_file = recipe_file.parent / f"{recipe_file.stem}.lock.yml"
+
     with open(lock_file, "w", encoding="utf-8") as f:
         logger.info(f"Writing recipe lockfile to {str(lock_file.absolute())}")
         yaml.dump(recipe.model_dump(mode="json"), f)
     return lock_file
 
 
-def plan(recipe_file: Path, version: str | None = None) -> Path:
+def plan(
+    recipe_file: Path,
+    version: str | None = None,
+    build_name: str | None = None,
+    branch: str | None = None,
+    env_vars: dict[str, str] | None = None,
+    output_path: Path | None = None,
+) -> Path:
     logger.info(f"Planning recipe from {recipe_file}")
-    recipe = plan_recipe(recipe_file, version)
-    lock_file = generate_lock_file(recipe_file, recipe)
+    recipe = plan_recipe(
+        recipe_file, version, build_name=build_name, branch=branch, env_vars=env_vars
+    )
+    lock_file = generate_lock_file(recipe_file, recipe, output_path=output_path)
     return lock_file
 
 
@@ -531,8 +633,14 @@ def _cli_wrapper_plan_recipe(
     repeat: bool = typer.Option(
         False, "--repeat", help="Repeat specific published build"
     ),
+    output_path: Path = typer.Option(
+        None,
+        "--output-path",
+        "-o",
+        help="Path to write recipe.lock.yml (default: auto-determined based on build_name)",
+    ),
 ):
-    plan(recipe_path, version)
+    plan(recipe_path, version, output_path=output_path)
 
 
 @app.command("repeat")

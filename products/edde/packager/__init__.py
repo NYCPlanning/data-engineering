@@ -45,5 +45,10 @@ def run_packaging():
     logger.info("=" * 80)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for packaging when called as a module."""
     run_packaging()
+
+
+if __name__ == "__main__":
+    main()

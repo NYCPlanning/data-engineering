@@ -8,9 +8,9 @@ from dcpy.lifecycle.builds import get_recipe_lock
 PRODUCT_PATH = Path(__file__).parent.parent
 _recipe_lock = get_recipe_lock(PRODUCT_PATH)
 
-# Core ACS year bands from recipe vars
-acs_prev_year_band = _recipe_lock.vars["BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND"]
-acs_current_year_band = _recipe_lock.vars["BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND"]
+# Core ACS year bands from recipe custom
+acs_prev_year_band = _recipe_lock.custom.get("ACS_PREV_YEAR_BAND", "0812")
+acs_current_year_band = _recipe_lock.custom.get("ACS_CURRENT_YEAR_BAND", "2024")
 
 # Derived year suffixes (last 2 digits of year bands)
 acs_prev_year_suffix = acs_prev_year_band[-2:]
