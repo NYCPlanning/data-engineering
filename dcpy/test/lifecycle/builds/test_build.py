@@ -168,6 +168,33 @@ def test_gdb_export_multi_table(tmp_path):
     assert len(boundaries) == 1
 
 
+def test_gdb_export_non_spatial_table(tmp_path):
+    """A plain (non-spatial) DataFrame is written as a geometry-less GDB table,
+    alongside spatial layers in the same file."""
+    import pandas as pd
+
+    from dcpy.lifecycle.builds.export import _write_gdb_zip
+
+    points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
+    table_df = pd.DataFrame({"nodeid": [1, 2, 3], "stname": ["A ST", "B AVE", "C PL"]})
+
+    out = tmp_path / "combined.zip"
+    with tempfile.TemporaryDirectory() as tmp_str:
+        _write_gdb_zip(
+            [("node", points_gdf), ("node_stname", table_df)],
+            out,
+            Path(tmp_str),
+        )
+
+    assert out.exists()
+    node = gpd.read_file(f"zip://{out}!combined.gdb", layer="node")
+    node_stname = gpd.read_file(f"zip://{out}!combined.gdb", layer="node_stname")
+    assert len(node) == 1
+    assert len(node_stname) == 3
+    # non-spatial layer round-trips its columns with no geometry
+    assert list(node_stname.columns) == ["nodeid", "stname"]
+
+
 def test_gdb_export_line(tmp_path):
     lines_gdf = gpd.GeoDataFrame(
         [{"id": 1, "geometry": LineString([(0, 0), (1, 1)])}],
