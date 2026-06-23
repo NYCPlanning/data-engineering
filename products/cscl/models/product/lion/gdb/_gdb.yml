@@ -23,6 +23,33 @@ models:
         data_tests:
           - not_null
   - name: gdb_node_stname
-    description: "TODO: Node-to-street-name crosswalk (non-spatial) for GDB. Not yet implemented."
+    description: >
+      Node-to-street-name crosswalk (non-spatial) for the published LION GDB: for each
+      node, the principal names of the segments meeting at it. Structurally matches prod
+      (row/node counts within ~0.02%). STNAME street-type abbreviation uses LASTWORD's
+      standard_abbreviation; prod's exact DCP abbreviations (e.g. PLACE→PL, TERRACE→TER)
+      need the un-ingested STREETTYPE source, so ~27% of names differ on type only.
+    columns:
+      - name: "'NODEID'"
+        description: "Node identifier"
+        data_tests:
+          - not_null
+      - name: "'STNAME'"
+        description: "Principal street/feature name at the node (leading-space padded)"
+        data_tests:
+          - not_null
   - name: gdb_altnames
-    description: "TODO: Alternate street names (non-spatial) for GDB. Not yet implemented."
+    description: >
+      Alternate street/feature names (non-spatial) for the published LION GDB, keyed by
+      Join_ID. Non-SAF Join_IDs only — SAF-replicant Join_IDs (…X/…N) use a different
+      B7SC encoding (ETL spec §2.7.3) and are not yet produced, so dev covers ~the non-SAF
+      subset (~92% of produced rows match prod exactly; prod also has SAF-replicant rows).
+    columns:
+      - name: "'Join_ID'"
+        description: "15-char link to the lion layer's Join_ID (ETL spec §2.7.3)"
+        data_tests:
+          - not_null
+      - name: "'SName'"
+        description: "Basic street name (or whole name for feature names)"
+        data_tests:
+          - not_null

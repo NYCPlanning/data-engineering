@@ -128,10 +128,9 @@ SELECT
     NULL::int AS "ToLeft",
     NULL::int AS "FromRight",
     NULL::int AS "ToRight",
-    -- TODO: prod Join_ID = five_digit_street_code || lgc1 || 6-char-suffix (e.g. '000000' or '020000X')
-    -- The suffix encodes the altname sequence and requires joining stg__facecode_and_featurename.
-    -- Using b7sc prefix only for now; suffix is always '000000' which will miss altname rows.
-    five_digit_street_code || lgc1 || '000000' AS "Join_ID",
+    -- Join_ID links each segment to its AltNames entries (ETL spec §2.7.3).
+    -- Non-SAF form; SAF replicants use a different encoding (not produced here).
+    {{ lion_join_id() }} AS "Join_ID",
     left_nypd_service_area AS "L_PD_Service_Area",
     right_nypd_service_area AS "R_PD_Service_Area",
     truck_route_type AS "TRUCK_ROUTE_TYPE",
