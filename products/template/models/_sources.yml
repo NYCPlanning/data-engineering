@@ -83,4 +83,6 @@ sources:
               - not_null
           - name: wkb_geometry
             tests:
-              - not_null
+              - not_null::
+                  config:
+                    severity: warn

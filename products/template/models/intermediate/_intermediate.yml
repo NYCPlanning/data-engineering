@@ -38,11 +38,14 @@ models:
         tests:
           - not_null
       - name: borough
-      - name: bbls
+      - name: bbl
       - name: wkb_geometry
+        tests:
+          - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: historic_landmarks_unique_compound_key
           combination_of_columns:
             - landmark_name
+            - bbl
             - wkb_geometry

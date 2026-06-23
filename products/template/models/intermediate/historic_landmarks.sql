@@ -13,6 +13,7 @@ landmarks_reprojected AS (
         ST_TRANSFORM(ST_SETSRID(wkb_geometry, 2263), 4326) AS wkb_geometry
     FROM
         landmarks
+    WHERE wkb_geometry IS NOT NULL
 ),
 
 landmarks_borough_names AS (
