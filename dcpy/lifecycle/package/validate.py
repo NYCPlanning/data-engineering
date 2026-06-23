@@ -143,6 +143,16 @@ col_validators = {
     "lot": lambda df, col_name: df.iloc[0:0],
     "text": lambda df, col_name: df.iloc[0:0],
     "uid": lambda df, col_name: df.iloc[0:0],
+    # Esri type aliases: used when a file-entry override sets data_type to the
+    # column's actual Esri type rather than a DCP semantic type.
+    "String": lambda df, col_name: df.iloc[0:0],
+    "Integer": lambda df, col_name: df[~df[col_name].apply(_is_int)],
+    "SmallInteger": lambda df, col_name: df[~df[col_name].apply(_is_int)],
+    "Double": lambda df, col_name: df[~df[col_name].apply(_is_number)],
+    "Float": lambda df, col_name: df[~df[col_name].apply(_is_number)],
+    "Date": lambda df, col_name: df.iloc[0:0],
+    "Geometry": lambda df, col_name: df.iloc[0:0],
+    "OID": lambda df, col_name: df.iloc[0:0],
 }
 
 

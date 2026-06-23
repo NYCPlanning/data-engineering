@@ -10,6 +10,14 @@ files:
       id: primary_file_geodatabase
       filename: mappluto_wi_gdb.zip
       type: geodatabase
+    dataset_overrides:
+      overridden_columns:
+        - id: uid
+          name: OBJECTID
+        - id: borough
+          data_type: String
+        - id: appdate
+          data_type: Date
 
 columns:
   - id: uid

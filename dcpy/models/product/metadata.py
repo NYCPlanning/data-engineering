@@ -11,7 +11,6 @@ from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWrit
 from dcpy.models.product.artifacts import Artifact, Artifacts
 from dcpy.models.product.data_dictionary import DataDictionary
 from dcpy.models.product.dataset.metadata import (
-    COLUMN_TYPES,
     DatasetColumn,
     DatasetOrgProductAttributesOverride,
 )
@@ -48,7 +47,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     metadata: ProductMetadataFile
     template_vars: dict = {}
-    column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn] = {}
+    column_defaults: dict[tuple[str, str], DatasetColumn] = {}
     org_attributes: DatasetOrgProductAttributesOverride
 
     @classmethod
@@ -56,7 +55,7 @@ class ProductMetadata(SortedSerializedBase, extra="forbid"):
         cls,
         root_path: Path,
         template_vars: dict = {},
-        column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn] = {},
+        column_defaults: dict[tuple[str, str], DatasetColumn] = {},
         org_attributes: DatasetOrgProductAttributesOverride = DatasetOrgProductAttributesOverride(),
     ) -> ProductMetadata:
         return ProductMetadata(
@@ -187,7 +186,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     root_path: Path
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
-    column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
+    column_defaults: dict[tuple[str, str], DatasetColumn]
     data_dictionary: DataDictionary = DataDictionary()
 
     @classmethod
@@ -205,7 +204,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     @classmethod
     def get_column_defaults(
         cls, path: Path
-    ) -> dict[tuple[str, COLUMN_TYPES], DatasetColumn]:
+    ) -> dict[tuple[str, str], DatasetColumn]:
         c_path = path / "snippets" / "column_defaults.yml"
         if not c_path.exists():
             return {}

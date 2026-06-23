@@ -254,9 +254,9 @@ def test_write_metadata(
 
     # column 0 has no domain values: attrlabl, attrtype, and udom should all round-trip
     col0 = file_metadata.columns[0]
-    expected_label_0 = "FID" if col0.id == "uid" else col0.name
+    expected_label_0 = col0.name
     assert metadata.eainfo.detailed.attr[0].attrlabl.value == expected_label_0
-    expected_type_0 = "OID" if col0.id == "uid" else esri._dcp_type_to_esri(col0.data_type)
+    expected_type_0 = "OID" if col0.id == "uid" else col0.data_type
     assert metadata.eainfo.detailed.attr[0].attrtype.value == expected_type_0
     udom_0 = metadata.eainfo.detailed.attr[0].attrdomv.udom
     assert udom_0 is not None
@@ -266,8 +266,8 @@ def test_write_metadata(
 
     # column 1 is borough in the colp test fixture — has domain values
     assert metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
-    assert metadata.eainfo.detailed.attr[1].attrtype.value == esri._dcp_type_to_esri(
-        file_metadata.columns[1].data_type
+    assert (
+        metadata.eainfo.detailed.attr[1].attrtype.value == file_metadata.columns[1].data_type
     )
     udom_1 = metadata.eainfo.detailed.attr[1].attrdomv.udom
     assert udom_1 is None or udom_1.value is None
@@ -295,11 +295,19 @@ def test_create_attr_metadata_basic():
     assert attr.attrdefs.value == "Agency X"
 
 
-def test_create_attr_metadata_uid_becomes_fid():
-    col = _make_column(id="uid", name="uid")
+def test_create_attr_metadata_uid_label_passthrough():
+    """uid's label is no longer hardcoded to "FID" — it's driven by column.name,
+    set via per-format name overrides in product-metadata (FID for SHP, OBJECTID
+    for GDB)."""
+    col = _make_column(id="uid", name="FID")
     attr = esri._create_attr_metadata(col)
     assert attr.attrlabl.value == "FID"
     assert attr.attalias.value == "FID"
+
+    col = _make_column(id="uid", name="OBJECTID")
+    attr = esri._create_attr_metadata(col)
+    assert attr.attrlabl.value == "OBJECTID"
+    assert attr.attalias.value == "OBJECTID"
 
 
 def test_create_attr_metadata_no_data_source():
@@ -329,31 +337,20 @@ def test_create_attr_metadata_no_values():
     assert attr.attrdomv.edom == []
 
 
-def test_create_attr_metadata_attrtype_mapped():
-    col = _make_column(data_type="text")
+def test_create_attr_metadata_esri_type_passthrough():
+    col = _make_column(data_type="String")
     assert esri._create_attr_metadata(col).attrtype.value == "String"
 
-    col = _make_column(data_type="integer")
-    assert esri._create_attr_metadata(col).attrtype.value == "Integer"
+    col = _make_column(data_type="SmallInteger")
+    assert esri._create_attr_metadata(col).attrtype.value == "SmallInteger"
 
-    col = _make_column(data_type="decimal")
-    assert esri._create_attr_metadata(col).attrtype.value == "Double"
-
-    col = _make_column(data_type="bbl")
-    assert esri._create_attr_metadata(col).attrtype.value == "Double"
-
-    col = _make_column(data_type="geometry")
-    assert esri._create_attr_metadata(col).attrtype.value == "Geometry"
+    col = _make_column(data_type=None)
+    assert esri._create_attr_metadata(col).attrtype.value is None
 
 
 def test_create_attr_metadata_uid_attrtype_is_oid():
-    col = _make_column(id="uid", name="uid", data_type="text")
+    col = _make_column(id="uid", name="uid", data_type="String")
     assert esri._create_attr_metadata(col).attrtype.value == "OID"
-
-
-def test_dcp_type_to_esri_unknown_returns_none():
-    assert esri._dcp_type_to_esri("custom_type") is None
-    assert esri._dcp_type_to_esri(None) is None
 
 
 def test_create_attr_metadata_udom_set_when_no_values():
@@ -374,7 +371,7 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
 
     Checks:
     - eainfo.detailed.name is product_md.id ("pluto"), not the layer name
-    - date column maps to Esri type "Date"
+    - data_type overrides (e.g. "String", "Date") pass through verbatim to attrtype
     - full column names are used (no shapefile truncation)
     """
     esri.write_metadata(
@@ -396,8 +393,8 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     assert metadata.eainfo.detailed.name == SPATIAL_LAYER
     assert metadata.eainfo.detailed.enttyp.enttypl.value == SPATIAL_LAYER
 
-    # uid → FID / OID
-    assert metadata.eainfo.detailed.attr[0].attrlabl.value == "FID"
+    # uid → GDB-specific name override (OBJECTID), attrtype always OID
+    assert metadata.eainfo.detailed.attr[0].attrlabl.value == "OBJECTID"
     assert metadata.eainfo.detailed.attr[0].attrtype.value == "OID"
 
     # borough — full name, has domain values (edom), no truncation
@@ -405,7 +402,7 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     assert metadata.eainfo.detailed.attr[1].attrtype.value == "String"
     assert len(metadata.eainfo.detailed.attr[1].attrdomv.edom) == len(file_metadata.columns[1].values)
 
-    # appdate — date type maps to Esri "Date"
+    # appdate — file-entry override declares Esri type "Date" explicitly
     assert metadata.eainfo.detailed.attr[2].attrlabl.value == "APPDate"
     assert metadata.eainfo.detailed.attr[2].attrtype.value == "Date"
 

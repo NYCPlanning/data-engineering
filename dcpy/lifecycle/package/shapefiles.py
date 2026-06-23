@@ -6,8 +6,8 @@ from pathlib import Path
 
 import typer
 
+from dcpy.models.dataset import COLUMN_TYPES
 from dcpy.models.product.dataset.metadata import (
-    COLUMN_TYPES,
     ColumnValue,
     DatasetAttributes,
     DatasetColumn,

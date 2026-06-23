@@ -202,34 +202,16 @@ def write_metadata(
         )
 
 
-_DCP_TO_ESRI_TYPE: dict[str, str] = {
-    "text": "String",
-    "integer": "Integer",
-    "decimal": "Double",
-    "number": "Double",
-    "bool": "SmallInteger",
-    "geometry": "Geometry",
-    # bbl is a numeric identifier; Double is the closest Esri type
-    "bbl": "Double",
-    "date": "Date",
-    "datetime": "Date",
-}
-
-
-def _dcp_type_to_esri(dcp_type: str | None) -> str | None:
-    return _DCP_TO_ESRI_TYPE.get(dcp_type or "", None)
-
-
 def _create_attr_metadata(column: DatasetColumn) -> Attr:
     """Create an Attr metadata object from a column specification."""
     attr = Attr()
 
     is_uid = column.id == "uid"
-    attr.attrlabl.value = "FID" if is_uid else column.name
-    attr.attalias.value = "FID" if is_uid else column.name
+    attr.attrlabl.value = column.name
+    attr.attalias.value = column.name
     attr.attrdef.value = column.description
     attr.attrdefs.value = column.data_source
-    attr.attrtype.value = "OID" if is_uid else _dcp_type_to_esri(column.data_type)
+    attr.attrtype.value = "OID" if is_uid else column.data_type
 
     if column.values:
         attr.attrdomv.udom = None

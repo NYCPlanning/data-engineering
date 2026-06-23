@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from tabulate import tabulate  # type: ignore
 
 from dcpy.models.base import SortedSerializedBase, TemplatedYamlReader, YamlWriter
-from dcpy.models.dataset import COLUMN_TYPES, Column
+from dcpy.models.dataset import Column
 from dcpy.utils.collections import deep_merge_dict as merge
 
 ERROR_MISSING_COLUMN = "MISSING COLUMN"
@@ -81,6 +81,10 @@ class DatasetColumn(CustomizableBase, Column):
     # Note: id isn't intended to be overrideable, but is always required as a
     # pointer back to the original column.
     name: str | None = None
+    # Widened from the base Column's COLUMN_TYPES Literal: file-entry overrides use
+    # this field to declare the column's actual Esri type (e.g. "String",
+    # "SmallInteger"), which isn't a DCP semantic type.
+    data_type: str | None = None  # type: ignore[assignment]
     data_source: str | None = None
     description: str | None = None
     limitations: str | None = None
@@ -409,7 +413,7 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         return errors
 
     def apply_column_defaults(
-        self, column_defaults: dict[tuple[str, COLUMN_TYPES], DatasetColumn]
+        self, column_defaults: dict[tuple[str, str], DatasetColumn]
     ) -> list[DatasetColumn]:
         return [
             c.override(column_defaults[c.id, c.data_type])
