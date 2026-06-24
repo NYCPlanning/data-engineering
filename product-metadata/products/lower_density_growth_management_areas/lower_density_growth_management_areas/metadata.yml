@@ -1,0 +1,82 @@
+id: lower_density_growth_management_areas
+
+attributes:
+  description: |-
+    A Lower Density Growth Management Area is an area designated in the Zoning Resolution where new developments must provide more off-street parking, larger yards and more open space than would otherwise be required in the applicable zoning districts In Staten Island and Bronx Community District 10.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__lower_density_growth_management_areas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lower_density_growth_management_areas }}
+  display_name: Lower Density Growth Management Areas
+  each_row_is_a: Lower Density Growth Management Area
+  tags:
+    - zoning
+    - development
+    - sustainability
+    - environment
+    - dcp
+    - lower density growth management areas
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: metadata_pdf
+        custom:
+          destination_use: attachment
+    custom:
+      four_four: ke4t-kbpi
+  - id: bytes
+    type: bytes
+    files:
+      - id: shapefile
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycldgma_{{ current_version_lower_density_growth_management_areas }}.zip
+      - id: metadata_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycldgma_metadata.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: nycldgma.zip
+      type: shapefile
+  - file:
+      id: metadata_pdf
+      filename: nycldgma_metadata.pdf
+      is_metadata: true
+
+columns:
+  - id: the_geom
+    name: geometry
+    data_type: geometry
+    custom:
+      geometry_type: multipolygon
+  - id: borough
+    name: Borough
+    data_type: text
+    example: SI
+    values:
+      - value: BK
+        description: Brooklyn
+      - value: BX
+        description: Bronx
+      - value: MN
+        description: Manhattan
+      - value: QN
+        description: Queens
+      - value: SI
+        description: Staten Island
+  - id: shape_star
+    name: Shape_STAr
+    data_type: decimal
+    example: "1176550323.33"
+  - id: shape_stle
+    name: Shape_STLe
+    data_type: decimal
+    example: "909696.137013"

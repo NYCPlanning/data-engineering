@@ -1,0 +1,94 @@
+id: limited_height_districts
+
+attributes:
+  attribution_link: {{ bytes_url__zoning_features }}
+  description: |-
+    Districts in which the height of buildings is restricted.
+
+    Limited Height Districts contain restrictions on the height of buildings and other structures. A Limited Height district may be superimposed on an area designated as an historic district by the Landmarks Preservation Commission (LPC).
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_features }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zoning }}
+  display_name: Limited Height Districts (NYLH)
+  each_row_is_a: Limited Height district
+  publishing_frequency: Monthly
+  tags:
+  - zoning
+  - limited height districts
+  - New York City
+  - NYC
+  - Department of City Planning
+  - DCP
+
+assembly:
+- id: dcm_multilayer
+  filename: nycgiszoningfeatures_shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: shapefile
+    custom:
+      layer_name: nylh
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  tags: [socrata_unpublished]
+  files:
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary
+  #   custom:
+  #     destination_use: attachment
+  custom:
+    four_four: eh65-uhvn
+- id: bytes
+  type: bytes
+  files:
+  - id: dcm_multilayer
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
+  - id: metadata_pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nylh_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nylh.shp.zip
+    type: shapefile
+- file:
+    id: metadata_pdf
+    filename: nylh_metadata.pdf
+    is_metadata: true
+- file:
+    id: oti_data_dictionary
+    filename: limited_height_districts_data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: lhname
+  name: LHNAME
+  data_type: text
+  description: Limited Height district name.
+- id: lhlbl
+  name: LHLBL
+  data_type: text
+  description: Limited Height district label, as it appears on the Zoning Map of New York City.
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Feature geometry.
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  description: Length of feature in internal units.
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.

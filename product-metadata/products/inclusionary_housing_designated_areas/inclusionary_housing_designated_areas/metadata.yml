@@ -1,0 +1,121 @@
+id: inclusionary_housing_designated_areas
+
+attributes:
+  attribution_link: {{ bytes_url__inclusionary_housing_designated_areas }}
+  description: |-
+    GIS data:  A specified area in which the Inclusionary Housing Program
+    is applicable. The program modifies the floor area ratio (FAR) and offers a
+    bonus for developments that provide affordable housing.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__inclusionary_housing_designated_areas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_inclusionary_housing_designated_areas }}
+  display_name: Inclusionary Housing Designated Areas
+  each_row_is_a: Inclusionary Housing Designated Area
+  publishing_frequency: As-Needed
+  tags:
+  - inclusionary housing designated areas
+  - dcp
+  - city planning
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: 7nec-8aw4
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycihda_{{ current_version_inclusionary_housing_designated_areas }}.zip
+  - id: metadata_pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycihda_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nycihda.zip
+    type: shapefile
+- file:
+    id: metadata_pdf
+    filename: nycihda_metadata.pdf
+    is_metadata: true
+
+columns:
+- id: boro
+  name: Boro
+  data_type: text
+  description: Borough code for the borough in which the census block is located.
+  example: '4'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: shape
+  name: the_geom
+  data_type: text
+  description: ""
+  custom:
+    api_name: the_geom
+- id: status
+  name: Status
+  data_type: text
+  description: ""
+- id: project_name
+  name: ProjectName
+  data_type: text
+  description: ""
+- id: date_adopted
+  name: DateAdopted
+  data_type: text
+  description: ""
+- id: zr_map
+  name: ZR_Map
+  data_type: text
+  description: ""
+- id: lead_action
+  name: LeadAction
+  data_type: text
+  description: ""
+- id: cd
+  name: CD
+  data_type: text
+  description: ""
+- id: shape_leng
+  name: shape_leng
+  data_type: decimal
+  description: ""
+  custom:
+    api_name: shape_leng
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: ""
+- id: shape_starea
+  name: Shape_STArea
+  data_type: decimal
+  description: ""
+- id: shape_stleng
+  name: Shape_STLength
+  data_type: decimal
+  description: ""
+  custom:
+    api_name: shape_stlength

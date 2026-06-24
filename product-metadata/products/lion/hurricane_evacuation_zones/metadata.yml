@@ -1,0 +1,116 @@
+id: hurricane_evacuation_zones
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__hurricane }}
+  description: |-
+    The New York City Hurricane Evacuation Zones represent varying threat levels of flooding resulting from storm surge. New York City's hurricane contingency plans are based on six evacuation zones.
+
+    Hurricane evacuation zones should not be confused with flood insurance risk zones, which are designated by FEMA and available in the form of Flood Insurance Rate Maps (FIRMs).
+
+    For more information visit NYC.gov or call 311 (TTY: 212-504-4155).
+
+    These zones were created by New York City Emergency Management (NYCEM) and are maintained by the Department of City Planning (DCP).
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__hurricane }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Hurricane Evacuation Zones
+  each_row_is_a: Hurricane evacuation zone
+  tags:
+  - hurricane
+  - evacuation
+  - zones
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - emergency management
+  - nycem
+  - new york city
+  - nyc
+  date_made_public: '7/14/2015'
+  
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nyhez_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: shape_length
+        name: Shape_Length
+      - id: hurricane_evacuation_zone
+        name: Hurricane Evacuation Zone
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary
+  #   custom:
+  #     destination_use: attachment
+  tags: [socrata_unpublished, 25c]
+  custom:
+    four_four: epne-qv9x
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/hurricane-evacuation-zones/nyhez_{{ current_version_lion }}.zip
+  - id: nyhez_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyhez_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nyhez.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+    - id: hurricane_evacuation_zone
+      name: hurricane_
+- file:
+    id: nyhez_metadata.pdf
+    filename: nyhez_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: hurricane_evacuation_zone
+  name: HurricaneEvacuationZone
+  data_type: text
+  description: Hurricane evacuation zone.
+  example: None
+  custom:
+    api_name: hurricane_
+- id: shape_length
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: None
+  custom:
+    api_name: shape_leng
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: None
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: ''
+  example: None

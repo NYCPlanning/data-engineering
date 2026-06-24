@@ -1,0 +1,279 @@
+id: city_map_alterations
+
+attributes:
+  description: |-
+    Outlines for all alterations to the City Map including pending changes.
+    The final approval of a City Map alteration is considered "filed" on the date
+    indicated on the Alteration map which becomes effective the following day. {{ streets_map_app_link }}
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__dcm }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_dcm }}
+  display_name: Digital City Map (DCM) - City Map Alterations
+  each_row_is_a: City Map Alteration
+  publishing_purpose:
+    "General area where alterations to the Official City Map of
+    New York City are proposed, adopted, or adopted and filed. Dataset last updated:
+    March 31, 2024."
+  tags:
+    - Digital City Map
+    - DCM
+    - city map alterations
+    - alteration maps
+    - street changes
+    - mapped streets
+    - demapped streets
+    - city map changes index
+    - Department of City Planning
+    - DCP
+    - nymi
+
+assembly:
+- id: dcm_multilayer
+  filename: dcm_{{ current_version_dcm }}shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: shapefile
+    custom:
+      layer_name: DCM_CityMapAlterations
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    tags: [socrata_unpublished]
+    files:
+      - id: shapefile
+        dataset_overrides:
+          omitted_columns:
+            - shape_leng
+            - shape_area
+          overridden_columns:
+          - id: geometry
+            custom:
+              api_name: the_geom
+        custom:
+          destination_use: dataset_file
+      - id: data_dictionary_pdf
+        custom:
+          destination_use: attachment
+      # - id: oti_data_dictionary
+      #   custom:
+      #     destination_use: attachment
+    custom:
+      four_four: 5iv5-v7sg
+  - id: bytes
+    type: bytes
+    files:
+      - id: dcm_multilayer
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/dcm_{{ current_version_dcm }}shp.zip
+      - id: data_dictionary_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_city_map_alterations.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: CityMapAlterations.shp.zip
+      type: shapefile
+  - file:
+      id: data_dictionary_pdf
+      filename: dcm_city_map_alterations.pdf
+      is_metadata: true
+  - file:
+      id: oti_data_dictionary
+      filename: data_dictionary.xlsx
+      is_metadata: true
+      type: oti_data_dictionary
+
+columns:
+  - id: boro_code
+    name: Boro_Code
+    data_type: text
+    description: Single letter code for the borough in which the map alteration is located.
+    values:
+      - value: K
+        description: Brooklyn
+      - value: M
+        description: Manhattan
+      - value: Q
+        description: Queens
+      - value: R
+        description: Staten Island
+      - value: X
+        description: Bronx
+      - value: Y
+        description: Citywide
+  - id: app_num
+    name: APP_NUM
+    data_type: text
+    description: Application number associated with map alteration.
+  - id: project_nm
+    name: Project_NM
+    data_type: text
+    description: Project name assigned to mapping application.
+  - id: status
+    name: Status
+    data_type: text
+    description: Map alteration application latest milestone.
+    values:
+      - value: "0"
+        description: Unknown
+      - value: "10"
+        description: Map not adopted
+      - value: "11"
+        description: Approved but Superseded
+      - value: "13"
+        description: Adopted not filed
+      - value: "14"
+        description: Adopted and filed
+  - id: filed_stat
+    name: Filed_Stat
+    data_type: text
+  - id: effect_dt
+    name: Effect_DT
+    data_type: text
+    description: Indicates effective date of map alteration on Alteration map.
+  - id: bp_num
+    name: BP_NUM
+    data_type: text
+    description: Borough President's map number associated with the Alteration map.
+  - id: cc_res_num
+    name: CC_RES_NUM
+    data_type: integer
+    description: City Council resolution number assigned to application after adoption.
+  - id: zr_update
+    name: ZR_Update
+    data_type: integer
+    description:
+      Active zoning resolution update number when the street change map became
+      effective.
+  - id: cert_date
+    name: Cert_Date
+    data_type: text
+    description: The date the mapping application was certified by City Planning.
+  - id: chg_type
+    name: CHG_TYPE
+    data_type: text
+    description:
+      The primary map change type associated with application, e.g., a street
+      change, park change or grade change.
+    values:
+      - value: Additional Lands
+      - value: Bridge
+      - value: Change in street system
+      - value: City 
+      - value: City BHL
+      - value: City Map change
+      - value: City Map change to...
+      - value: D&C
+      - value: D&C Widening
+      - value: D&C/Limiting Plane
+      - value: D&C/St/Grade/Volume
+      - value: Dedication
+      - value: Drainage Plan
+      - value: Drainage/Grades
+      - value: Easement
+      - value: Elim. lines and grades
+      - value: grades
+      - value: Grades
+      - value: Layout Map
+      - value: Line and 
+      - value: Line and grades
+      - value: Lines and grades
+      - value: Lines/grades
+      - value: Map change to...
+      - value: None
+      - value: Other
+      - value: Park
+      - value: PHL/BHL
+      - value: Plaza
+      - value: Public Place
+      - value: Sewer
+      - value: Sewer Easement
+      - value: St/Multiple
+      - value: St/Pk
+      - value: St/Pk/Bridge/Easements
+      - value: St/Pk/Public Place
+      - value: Street
+      - value: Street line
+      - value: Street Line
+      - value: Street Line/Grades
+      - value: Street Line/Sewer easemnt
+      - value: Street lines
+      - value: Street lines/sewer
+      - value: Street system
+      - value: Street Volume
+      - value: Street Widening
+      - value: Street/Canal
+      - value: Street/Draft Damage Map
+      - value: Street/Drainage/Grade
+      - value: Street/Easement
+      - value: Street/Grade
+      - value: Street/Grade/Park
+      - value: Street/Grades
+      - value: Street/park
+      - value: Street/Public Place
+      - value: Street/Sewer
+      - value: Streets
+      - value: Streets/sewer
+      - value: Subdivision
+      - value: Treatment
+      - value: Unknown
+      - value: Various
+      - value: Waterfront
+  - id: altmappdf
+    name: ALTMAPPDF
+    data_type: text
+    description: Name of the PDF file of the scanned Alteration Map.
+  - id: altmaplink
+    name: ALTMAPLink
+    data_type: text
+    description: Link address to scanned Alteration Map.
+  - id: scanned
+    name: Scanned
+    data_type: text
+    description: Indicates whether paper Alteration Map has been digitally scanned.
+    values:
+      - value: "Yes"
+      - value: "No"
+      - value: Incomplete
+  - id: track_num
+    name: Track_NUM
+    data_type: text
+    description: Scanning vendor's tracking number assigned to each map scanned.
+  - id: source
+    name: Source
+    data_type: text
+    description: Source of the map alteration.
+    values:
+      - value: AE
+      - value: Alteration map
+      - value: BP Topo
+      - value: Collected by TRD Intern Summer 2005
+      - value: Consultant CAD data, convex hulls
+      - value: GM
+      - value: Sketch map request
+      - value: Sketch Map Request
+      - value: Trd_edits
+  - id: map_series
+    name: Map_Series
+    data_type: text
+    description: Map series from which the paper Alteration Map belongs.
+  - id: map_copies
+    name: Map_Copies
+    data_type: integer
+    description: Number of copies of paper Alteration Map on file.
+  - id: map_cabine
+    name: Map_Cabine
+    data_type: text
+  - id: geometry
+    name: geometry
+    data_type: geometry
+    description: Feature geometry.
+  - id: shape_leng
+    name: Shape_Leng
+    data_type: decimal
+  - id: shape_area
+    name: Shape_Area
+    data_type: decimal

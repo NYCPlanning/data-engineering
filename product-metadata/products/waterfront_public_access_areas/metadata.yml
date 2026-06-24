@@ -1,0 +1,13 @@
+id: waterfront_public_access_areas
+
+dataset_defaults:
+  current_version: {{ current_version_waterfront_public_access_areas }}
+
+datasets:
+- hpb_launches
+- nyc_saltwaterfishingsites
+- publicly_owned_waterfront
+- waterfront_public_access_areas
+- wpaas
+- wpaas_accesspoints
+- wpaas_footprints

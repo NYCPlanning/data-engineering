@@ -1,0 +1,268 @@
+id: projects
+
+attributes:
+  attribution_link: {{ bytes_url__zap }}
+  description: |-
+    The Department of City Planning (DCP) processes land use applications submitted by City or other public agencies and other (private) applicants. This data set provides information on land use applications, specifically the project tracking and description data related to approximately 30,000 projects since the late 1970s.
+
+    ZAP project data appears on NYC Planning - Zoning Application Portal Search. It includes data migrated from the prior applications tracking system (LUCATS) and covers all projects that have been "Noticed" (that they will appear before the City Planning Commission in 30 or more days for Certification as complete for the ULURP process to begin) or Filed (a CEQR or Land Use application has been formally submitted to the Department for review) through completion (approval, disapproval, withdrawal, or termination). For more information on the land use and environmental review application process see: <a href="https://www1.nyc.gov/site/planning/applicants/applicant-portal/application-process.page">Application Process Overview</a>
+
+    You can explore this data in the <a href="https://zap.planning.nyc.gov/projects">Zoning Application Portal</a>
+
+    To report data errors or for questions, email <a href="mailto:zap_feedback_dl@planning.nyc.gov">zap_feedback_dl@planning.nyc.gov</a>.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__zap }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zap }}
+  display_name: Zoning Application Portal (ZAP) - Project Data
+  each_row_is_a: project in the Zoning Application Portal (ZAP)
+  tags:
+  - zap
+  - zoning application portal
+  - land use
+  - applications
+  - ulurp
+  - public review
+  - project data
+  - ceqr
+  - mih
+  - affordable housing
+  - department of city planning
+  - dcp
+
+assembly:
+- id: csv_package
+  filename: zapprojects_csv.zip
+  type: zip
+  contents:
+  - id: zapprojects_datadictionary.xlsx
+    filename: zapprojects_datadictionary.xlsx
+  - id: projects
+    filename: zap_projects.csv
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: zapprojects_datadictionary.xlsx
+    custom:
+      destination_use: attachment
+  - id: projects
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: hgx4-8ukb
+- id: bytes
+  type: bytes
+  files:
+  - id: csv_package
+    custom:
+      url: "{{ bytes_zip_prefix_url }}/zap/zapprojects_{{ current_version_zap }}csv.zip"
+
+files:
+- file:
+    id: projects
+    filename: dcp_projects_visible.csv
+    type: csv
+- file:
+    id: zapprojects_datadictionary.xlsx
+    filename: zapprojects_datadictionary.xlsx
+    is_metadata: true
+    type: None
+
+columns:
+- id: project_id
+  name: project_id
+  data_type: text
+  description: Unique internal application identifier.
+  example: P1981M0059
+- id: project_name
+  name: project_name
+  data_type: text
+  description: Name of application/project provided by the applicant.
+  example: C-O-P
+- id: project_brief
+  name: project_brief
+  data_type: text
+  description: Description of the application and the development it will facilitate.
+  example: DISPOSITION OF CITY-OWNED PROPERTY, 1 PARCEL
+- id: project_status
+  name: project_status
+  data_type: text
+  description: This indicates whether the application is actively being worked on or not.
+  example: Complete
+- id: public_status
+  name: public_status
+  data_type: text
+  description: The public status of the application.
+  example: Completed
+- id: ulurp_non
+  name: ulurp_non
+  data_type: text
+  description: Flag that indicates if a project is subject to ULURP or not. Applications
+    can either follow the Uniform Land Use Review Procedure (ULURP) or are designated as
+    Non-ULURP, and are therefore not restricted to ULURP rules and timing.
+  example: Non-ULURP
+- id: actions
+  name: actions
+  data_type: text
+  description: The type of action(s) included in the application. There may be multiple
+    land use actions attached to an application to facilitate a single development. Many
+    action types on historical applications are retired.
+  example: RC
+- id: ulurp_numbers
+  name: ulurp_numbers
+  data_type: text
+  description: The ULURP number is a unique identifier for each application's action. The
+    first 2-characters (number) are the fiscal year the application was filed, followed
+    by 4-character unique number, if an application was modified it will be followed by
+    a 1-character (letter), followed by 2-character (letter) action code, followed by a
+    1-character (letter) borough code.
+  example: C870526HAK
+- id: ceqr_type
+  name: ceqr_type
+  data_type: text
+  description: Indicates the type of environmental review
+  example: Type II
+- id: ceqr_number
+  name: ceqr_number
+  data_type: text
+  description: Unique environmental review identifier
+  example: 81-040R
+- id: eas_eis
+  name: eas_eis
+  data_type: text
+  description: Flag that indicates the environmental review document
+    issued.   Environmental Assessment Statement (EAS), Environmental Impact Statement
+    (EIS), Technical Memorandum (Tech Memo)
+  example: EAS
+- id: ceqr_leadagency
+  name: ceqr_leadagency
+  data_type: text
+  description: The agency responsible for determining if an environmental review is required.
+  example: DCP
+- id: primary_applicant
+  name: primary_applicant
+  data_type: text
+  description: Name of the project's primary applicant.
+  example: DRP
+- id: applicant_type
+  name: applicant_type
+  data_type: text
+  description: Indicates if the applicant is a private or public entity.
+  example: Private
+- id: borough
+  name: borough
+  data_type: text
+  description: Borough that is affected by the land use application.
+  example: Manhattan
+- id: community_district
+  name: community_district
+  data_type: text
+  description: Community District(s) associated to the project
+  example: R03
+- id: cc_district
+  name: cc_district
+  data_type: integer
+  description: City Council District(s) associated to the project
+  example: '33'
+- id: flood_zone_a
+  name: flood_zone_a
+  data_type: text
+  description: Flag that indicates if project is in the 1% annual chance floodplain. Areas
+    subject to the 1% annual chance flood (100 year flood) and are considered high-risk.
+  example: 'false'
+- id: flood_zone_shadedx
+  name: flood_zone_shadedx
+  data_type: text
+  description: Flag that indicates if project is in the 0.2% annual chance floodplain.
+    Areas subject to the 0.2% annual chance flood (500 year flood) and are considered
+    moderate-risk.
+  example: 'false'
+- id: current_milestone
+  name: current_milestone
+  data_type: text
+  description: The current milestone related to the review of a land use application
+  example: RC - Project Completed
+- id: current_milestone_date
+  name: current_milestone_date
+  data_type: datetime
+  description: The start date of the current milestone related to the review of a land use
+    application
+  example: '2022-10-11T00:00:00.000'
+- id: current_envmilestone
+  name: current_envmilestone
+  data_type: text
+  description: The current milestone related to the CEQR/environmental review of an application.
+  example: EAS - Review Filed EAS
+- id: current_envmilestone_date
+  name: current_envmilestone_date
+  data_type: datetime
+  description: The start date of the current milestone related to the CEQR/environmental
+    review of an application.
+  example: '2024-03-15T00:00:00.000'
+- id: app_filed_date
+  name: app_filed_date
+  data_type: datetime
+  description: The date an application(s) was filed with the Department of City Planning (DCP)
+  example: '2018-05-04T00:00:00.000'
+- id: noticed_date
+  name: noticed_date
+  data_type: datetime
+  description: The date notice was given that an application will certify no sooner than
+    30 days per the City Charter requirement. This only applies to ULURP projects.
+  example: '2020-08-14T00:00:00.000'
+- id: certified_referred
+  name: certified_referred
+  data_type: datetime
+  description: The date an application was certified or referred. This is also the
+    official start of the ULURP process.
+  example: '2011-01-31T00:00:00.000'
+- id: approval_date
+  name: approval_date
+  data_type: datetime
+  description: The date an application was approved.
+  example: '2021-12-15T00:00:00.000'
+- id: completed_date
+  name: completed_date
+  data_type: datetime
+  description: The date the application processing was completed.
+  example: '1982-05-18T00:00:00.000'
+- id: mih_flag
+  name: mih_flag
+  data_type: text
+  description: Flag that indicates if Mandatory Inclusionary Housing (MIH) is proposed to
+    be mapped through an amendment to the Zoning Resolution.
+  example: 'false'
+- id: mih_option1
+  name: mih_option1
+  data_type: text
+  description: Flag that indicates MIH Option 1 is proposed to be mapped (25% Units/60% AMI)
+  example: 'false'
+- id: mih_option2
+  name: mih_option2
+  data_type: text
+  description: Flag that indicates MIH Option 2 is proposed to be mapped (30% Units/80% AMI)
+  example: 'False'
+- id: mih_workforce
+  name: mih_workforce
+  data_type: text
+  description: Flag that indicates the MIH Workforce option is proposed to be mapped (30%
+    Units/115% AMI)
+  example: 'false'
+- id: mih_deepaffordability
+  name: mih_deepaffordability
+  data_type: text
+  description: Flag that indicates the MIH Deep Affordability option is proposed to be
+    mapped (20% Units/40% AMI)
+  example: 'false'
+- id: mih_mapped_no_res
+  name: mih_mapped_no_res
+  data_type: text
+  description: Flag that indicates Mandatory Inclusionary Housing (MIH) is proposed to be
+    mapped, but no residential units are proposed
+  example: 'false'
+- id: dcp_visibility
+  name: dcp_visibility
+  data_type: text
+  example: General Public

@@ -1,0 +1,210 @@
+id: cdbg
+
+attributes:
+  attribution_link: {{ bytes_url__cdbg }}
+  description: |-
+    The U.S. Department of Housing and Urban Development (HUD) requires local
+    municipalities that receive Community Development Block Grant (CDBG or CD) formula
+    Entitlement funds to use the 5-year 2016-2020 American Community Survey (ACS) Low
+    and Moderate Income Summary Data (LMISD) data file to determine where CDBG funds may
+    be used for activities that are available to all the residents in a particular area
+    ("CD area benefit" or "CD-eligible area"). A CD-eligible census tract refers to 2020
+    census tracts where the area is primarily residential in nature and at least 51.00%
+    of the residents are low- and moderate-income persons as per the LMISD data file.
+    For New York City, a primarily residential area is defined as one where at least
+    50.00% of the total built floor area is residential. Low- and moderate-income
+    persons are defined as persons living in households with incomes below 80 percent of
+    the area median household income (AMI).
+
+    In addition, floor area percentages have been updated with the most recent floor
+    area data (PLUTO 24v4).
+
+    Persons who are interested in determining their individual household eligibility for
+    CD-funded programs should refer to <a
+    href='https://www.huduser.gov/portal/datasets/il.html'>HUD's household low- and
+    moderate-income limits for the given year.</a>
+
+    For more information about how geographic datasets are used for compliance purposes,
+    please refer to the following <a
+    href='https://www.hud.gov/sites/dfiles/OA/documents/CPD-24-04.pdf'>HUD Office of
+    Community Planning and Development (CPD) Notice CPD-24-04</a>.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__cdbg }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_cdbg }}
+  display_name: Community Development Block Grant (CDBG) Eligibility by Census Tract
+  each_row_is_a: Census Tract
+  publishing_frequency: As-Needed
+  tags:
+  - community development
+  - block grant eligibility
+  - cdbg
+  - low income
+  - moderate income
+  - residential
+  - census tracts
+
+assembly:
+- id: csv_zip
+  filename: cdbg_census_tracts_csv_{{ current_version_cdbg }}.zip
+  contents:
+  - id: csv
+
+custom: {}
+
+destinations:
+- id: socrata_fgdb
+  type: open_data
+  files:
+  - id: fgdb
+    dataset_overrides:
+      attributes:
+        display_name: Community Development Block Grant (CDBG) Eligibility by Census Tract - FGDB
+    custom:
+      destination_use: dataset_file
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: 3u5q-ae5y
+    is_unparsed_dataset: true
+- id: socrata
+  type: open_data
+  files:
+  - id: csv
+    dataset_overrides:
+      attributes:
+        display_name: Community Development Block Grant (CDBG) Eligibility by Census Tract - CSV
+    custom:
+      destination_use: dataset_file
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: qmcw-ur37
+- id: bytes
+  type: bytes
+  files:
+  - id: csv_zip
+    custom:
+      url: "{{ bytes_zip_prefix_url
+        }}/community-development-block-grant/nyc_cdbg_eligible_2020_census_tracts_{{
+        current_version_cdbg }}_csv.zip"
+  - id: fgdb
+    custom:
+      url: "{{ bytes_zip_prefix_url
+        }}/community-development-block-grant/nyc_cdbg_eligible_2020_census_tracts_{{
+        current_version_cdbg }}_gdb.zip"
+  - id: metadata_pdf
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/cdbg_eligible_2020_census_tracts_metadata.pdf"
+
+files:
+- file:
+    id: csv
+    filename: cdbg_eligible_2020_census_tracts.csv
+    type: csv
+- file:
+    id: fgdb
+    filename: nyc_cdbg_eligible_2020_census_tracts_{{ current_version_cdbg }}_gdb.zip
+- file:
+    id: metadata_pdf
+    filename: cdbg_census_tracts_metadata.pdf
+    is_metadata: true
+
+columns:
+- id: objectid
+  name: OBJECTID
+  data_type: integer
+  example: "1070"
+- id: borocode
+  name: BoroCode
+  description: Borough in which the census tract is located.
+  data_type: integer
+  example: "3"
+  values:
+  - value: "1"
+    description: Manhattan
+  - value: "2"
+    description: Bronx
+  - value: "3"
+    description: Brooklyn
+  - value: "4"
+    description: Queens
+  - value: "5"
+    description: Staten Island
+- id: boroct
+  name: BoroCT
+  data_type: integer
+  description: Borough number and 2010 census tract number
+  example: "1010601"
+- id: bldgarea
+  name: BldgArea
+  data_type: integer
+  description: >-
+    Total gross area in square feet of all buildings in the tract. A tax lot's gross
+    building area is included if at least 90% of the lot's area is in the tract. If a
+    lot intersects more than one tract and no tract contains 90% of the lot's area, the
+    lot's building area is distributed amongst the tracts intersected by the lot,
+    weighted by the percentage of the lot's area in each tract.
+  example: "0"
+- id: resarea
+  name: ResArea
+  description: >-
+    An estimate of the exterior dimensions of the portion of buildings in the tract
+    allocated for residential use. A tax lot's residential building area is included if
+    at least 90% of the lot's area is in the tract. If a lot intersects more than one
+    tract and no tract contains 90% of the lot's area, the lot's residential building
+    area is distributed amongst the tracts intersected by the lot, weighted by the
+    percentage of the lot's area in each tract.
+  data_type: integer
+  example: "0"
+- id: res_pct
+  name: Res_pct
+  description: >-
+    An estimate of the exterior dimensions of the portion of buildings in the tract
+    allocated for residential use. A tax lot's residential building area is included if
+    at least 90% of the lot's area is in the tract. If a lot intersects more than one
+    tract and no tract contains 90% of the lot's area, the lot's residential building
+    area is distributed amongst the tracts intersected by the lot, weighted by the
+    percentage of the lot's area in each tract.
+  data_type: decimal
+  example: "0"
+- id: totalpop
+  name: TotalPop
+  description: Total population of the tract
+  data_type: integer
+  example: "0"
+- id: lowmod_population
+  name: LowMod_Population
+  description: >-
+    Population that is of low- or moderate-income. Low- and moderate-income individuals
+    are those living in households with incomes below 80 percent of the area median
+    household income (AMI). The New York Primary Metropolitan Statistical Area's AMI was
+    $70,300 for a 4-person family at the release of the 2011-2015 American Community
+    Survey.
+  data_type: integer
+  example: "0"
+- id: lomod_pct
+  name: LoMod_pct
+  description: Percentage of the population that is low- or moderate-income.
+  data_type: decimal
+  example: "0.666666667"
+- id: eligibility
+  name: Eligibility
+  description: >-
+    A CD-eligible census tract is one that is primarily residential and at least 51.0%
+    of the residents are low- and moderate-income as per the LMISD data file. For New
+    York City, a primarily residential area is defined as one where at least 50.0% of
+    the total built floor area is residential as determined by PLUTO 18v2.1. Low- and
+    moderate-income individuals are those living in households with incomes below 80
+    percent of the area median household income (AMI). The New York Primary Metropolitan
+    Statistical Area's AMI was $70,300 for a 4-person family at the release of the
+    2011-2015 American Community Survey.
+  data_type: text
+  example: CD Eligible
+  values:
+  - value: CD Eligible
+  - value: Ineligible
+- id: ct_text
+  name: CT_text
+  data_type: integer
+  example: "1000201"

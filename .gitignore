@@ -172,3 +172,10 @@ __marimo__/
 # Apps (docker-compose)
 apps/nginx/ssl/*
 !apps/nginx/ssl/.gitkeep
+
+# product-metadata build artifacts
+product-metadata/products/*/*.lock.yml
+product-metadata/products/*/build_metadata.json
+product-metadata/products/*/source_data_versions.csv
+product-metadata/output/
+product-metadata/.output/

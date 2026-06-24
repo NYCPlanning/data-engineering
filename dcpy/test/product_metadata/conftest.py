@@ -1,20 +1,11 @@
-import os
 from pathlib import Path
 
 import pytest
 
+from dcpy import configuration
 from dcpy.lifecycle import product_metadata
 
-# Assert that PRODUCT_METADATA_REPO_PATH is set and points to real repo
-_repo_path_str = os.environ.get("PRODUCT_METADATA_REPO_PATH")
-if not _repo_path_str:
-    raise EnvironmentError(
-        "PRODUCT_METADATA_REPO_PATH environment variable must be set. "
-        "Point it to your local product-metadata repo clone. "
-        "Example: export PRODUCT_METADATA_REPO_PATH=~/product-metadata"
-    )
-
-PRODUCT_METADATA_REPO_PATH: Path = Path(_repo_path_str)
+PRODUCT_METADATA_REPO_PATH: Path = Path(configuration.PRODUCT_METADATA_REPO_PATH)
 
 if not PRODUCT_METADATA_REPO_PATH.exists():
     raise FileNotFoundError(

@@ -1,0 +1,210 @@
+id: commitments
+
+attributes:
+  description: |-
+    Office of Management and Budget (OMB) publishes the Capital Commitment Plan three times a year as a series of pdf files, generally in the months of January, April, and September as part of the publication of the Preliminary, Executive, and Adopted Capital Budgets.
+
+    To explore the data, please visit  <a href="https://capitalplanning.nyc.gov/map#10/40.7128/-74.0807">Capital Planning Explorer</a>
+
+    For additional information, please visit  <a href="https://www.ibo.nyc.ny.us/iboreports/IBOCBG.pdf">A Guide to The Capital Budget</a>
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__cpdb }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_cpdb }}
+  display_name: Capital Projects Database (CPDB) - Commitments
+  each_row_is_a: Capital Commitment
+  tags:
+  - capital projects database
+  - capital planning
+  - cpdb
+  - budget
+  - omb
+
+assembly:
+- id: commitments_zip
+  filename: cpdb_planned_commitments_{{ current_version_cpdb }}.zip
+  type: zip
+  contents:
+  - id: commitments
+    filename: cpdb_planned_commitments_{{ current_version_cpdb }}.csv
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: commitments
+    dataset_overrides:
+      overridden_columns:
+        - id: plannedcommit_ccnonexempt
+          custom:
+            api_name: ccnonexempt
+        - id: plannedcommit_ccexempt
+          custom:
+            api_name: ccexempt
+        - id: plannedcommit_citycost
+          custom:
+            api_name: totalcityplannedcommit
+        - id: plannedcommit_nccfederal
+          custom:
+            api_name: nccfederal
+        - id: plannedcommit_nccother
+          custom:
+            api_name: nccother
+        - id: plannedcommit_nccstate
+          custom:
+            api_name: nccstate
+        - id: plannedcommit_noncitycost
+          custom:
+            api_name: totalnoncityplannedcommit
+        - id: plannedcommit_total
+          custom:
+            api_name: totalplannedcommit
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: djxg-kcfi
+- id: bytes
+  type: bytes
+  files:
+  - id: commitments_zip
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/capital-projects-database/cpdb_planned_commitments_{{ current_version_cpdb }}.zip
+
+files:
+- file:
+    id: commitments
+    filename: cpdb_planned_commitments.csv
+    type: csv
+
+columns:
+- id: ccpversion
+  name: ccpversion
+  data_type: text
+  description: Reports the version of the Capital Commitment Plan which the record
+    is based on.
+  example: None
+- id: maprojid
+  name: maprojid
+  data_type: text
+  description: Unique identifier that defines a discrete project. The maprojid is
+    a concatenation of magency and projectid and it is the primary key.
+  example: 801HLDNSTJHN
+- id: magency
+  name: magency
+  data_type: integer
+  description: Three digit code of the distinct City agency managing the project.
+    The managing agency is the agency overseeing the construction or implementation
+    of a project.
+  example: '846'
+- id: projectid
+  name: projectid
+  data_type: text
+  description: Alphanumeric code created by the sponsor agency that identifies a distinct
+    project. A Project ID must be unique within a managing agency.
+  example: DOIT3MIFR
+- id: projectdescription
+  name: projectdescription
+  data_type: text
+  description: Short description of the project as described by the sponsor agency.
+    If one projectid had many descriptions the longest description is reported by
+    CPDB.
+  example: JOB ORDER CONTRACTING WORK IN REGIONS NORTH, SOUTH & EAST
+- id: sagencyacro
+  name: sagencyacro
+  data_type: text
+  description: Common acronym of the city agency sponsoring the planned commitment.
+    This value is derived from the budget line.
+  example: None
+- id: sagencyname
+  name: sagencyname
+  data_type: text
+  description: Common name for the city agency sponsoring the planned commitment.
+    This value is derived from the budget line.
+  example: None
+- id: budgetline
+  name: budgetline
+  data_type: text
+  description: Unique identifier of the budget used to fund the project.
+  example: None
+- id: projecttype
+  name: projecttype
+  data_type: text
+  description: Short description of the type of project based on the budget funding
+    the project.
+  example: None
+- id: plancommdate
+  name: plancommdate
+  data_type: datetime
+  description: Month and year of when the planned commitment is projected to be committed.
+  example: None
+- id: commitmentdescription
+  name: commitmentdescription
+  data_type: text
+  description: Short description of what the planned commtiment will specifically
+    fund. Not all commitments have descriptions.
+  example: None
+- id: commitmentcode
+  name: commitmentcode
+  data_type: text
+  description: Four letter or digit code indicating what part of the planned commitment
+    the associated funding is for, such as design, construction, or contingency.
+  example: None
+- id: typc
+  name: typc
+  data_type: text
+  description: Classification given by DCP based on keywords found in the short description
+    describing if a projects is Fixed Asset, Lump Sum, or ITT, Vehicles, and Equipment.
+  example: Fixed Asset
+- id: typcname
+  name: typcname
+  data_type: text
+  description: Ten year plan category (typc) the planned commitment supports.
+  example: None
+- id: plannedcommit_ccnonexempt
+  name: plannedcommit_ccnonexempt
+  data_type: integer
+  description: Sum of City funding (Non-Exempt) associated with the planned commitment
+    in the Capital Commitment Plan.
+  example: None
+- id: plannedcommit_ccexempt
+  name: plannedcommit_ccexempt
+  data_type: integer
+  description: Sum of City funding (Exempt) associated with the planned commitment
+    in the Capital Commitment Plan.
+  example: None
+- id: plannedcommit_citycost
+  name: plannedcommit_citycost
+  data_type: integer
+  description: Sum of City funding associated with the planned commitment the Capital
+    Commitment Plan.
+  example: None
+- id: plannedcommit_nccstate
+  name: plannedcommit_nccstate
+  data_type: integer
+  description: Sum of State funding associated with the planned commitment in the
+    Capital Commitment Plan.
+  example: None
+- id: plannedcommit_nccfederal
+  name: plannedcommit_nccfederal
+  data_type: integer
+  description: Sum of Federal funding associated with the planned commitment in the
+    Capital Commitment Plan.
+  example: None
+- id: plannedcommit_nccother
+  name: plannedcommit_nccother
+  data_type: integer
+  description: Sum of Other funding associated with the planned commitment in the
+    Capital Commitment Plan.
+  example: None
+- id: plannedcommit_noncitycost
+  name: plannedcommit_noncitycost
+  data_type: integer
+  description: Sum of Non-City funding associated with the planned commitment in the
+    Capital Commitment Plan,
+  example: None
+- id: plannedcommit_total
+  name: plannedcommit_total
+  data_type: integer
+  description: Sum of of the total planned commitments in in the Capital Commitment
+    Plan.
+  example: None

@@ -1,0 +1,160 @@
+id: congressional_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__cong_dists }}
+  display_name: Congressional Districts
+  each_row_is_a: Congressional district
+  tags:
+  - congressional districts
+  - election
+  - political
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '4/18/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nycgwi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_wi
+    dataset_overrides:
+      overridden_columns:
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: 35e4-miqd
+- id: socrata
+  type: open_data
+  files:
+  - id: nycg_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary
+  #   custom:
+  #     destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: j3u5-usz2
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/congressional/nycg_{{ current_version_lion }}.zip
+  - id: shapefile_wi
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/congressional/nycgwi_{{ current_version_lion }}.zip
+  - id: nycg_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycg_metadata.pdf
+  - id: nycgwi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycgwi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_wi
+    filename: nycgwi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        US Congressional District boundaries for New York City including portions under water.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__cong_dists }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: Congressional Districts (water areas included)
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: shapefile
+    filename: nycg.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        US Congressional District boundaries for New York City.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__cong_dists }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nycg_metadata.pdf
+    filename: nycg_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nycgwi_metadata.pdf
+    filename: nycgwi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_wi
+
+columns:
+- id: congdist
+  name: CongDist
+  data_type: integer
+  description: US House of Representatives congressional district number for the State
+    of New York.
+  example: None
+  custom:
+    api_name: cong_dist
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: ''
+  example: None
+- id: shape_length
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: None
+  custom:
+    api_name: shape_leng
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: None

@@ -1,0 +1,131 @@
+id: pseudo_lots
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__pseudo_lots }}
+  description: |-
+    The Pseudo Lots dataset contains polygons of locations that have an
+    address and/or a structure with a building identification number (BIN), but for
+    which there is no tax lot. Pseudo lots may exist for locations with open space,
+    subway or train stations, skyways, tunnels, or other miscellaneous features. Note
+    that this is not a comprehensive dataset of locations with these types of features.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__pseudo_lots }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Pseudo Lots
+  each_row_is_a: Pseudo Lot
+  tags:
+  - pseudo lots
+  - bin
+  - building identification number
+  - addresses
+  - cscl
+  date_made_public: '9/13/2021'
+  attribution_link: https://www1.nyc.gov/site/planning/data-maps/open-data.page#pseudo
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: pseudolots_datadictionary.xlsx
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: dx24-9ef7
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pseudolots/pseudolots_{{ current_version_lion }}.zip
+  - id: pseudolots_datadictionary.xlsx
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/pseudolots_datadictionary.xlsx
+
+files:
+- file:
+    id: shapefile
+    filename: pseudolots.zip
+    type: shapefile
+- file:
+    id: pseudolots_datadictionary.xlsx
+    filename: pseudolots_datadictionary.xlsx
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Geometry
+  example: None
+  custom:
+    readme_data_type: geometry
+- id: boro
+  name: BORO
+  data_type: text
+  description: Borough code for the borough in which the pseudo lot is located.
+  example: '1'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: block
+  name: BLOCK
+  data_type: integer
+  description: Pseudo block number.
+  example: '27000'
+- id: lot
+  name: LOT
+  data_type: integer
+  description: Pseudo lot number.
+  example: '9999'
+- id: bbl
+  name: BBL
+  data_type: text
+  description: Pseudo BBL number.
+  example: '2200319999'
+- id: type
+  name: TYPE
+  data_type: text
+  description: Pseudo lot type or classification.
+  example: '1'
+  values:
+  - value: '1'
+    description: Infrastructure
+  - value: '2'
+    description: Open Space
+  - value: '3'
+    description: Skyway
+  - value: O
+    description: Other
+  - value: blank
+    description: Not yet classified
+- id: shape_star
+  name: Shape_STAr
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: '116222.518864'
+- id: shape_stle
+  name: Shape_STLe
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: '181.04988692'

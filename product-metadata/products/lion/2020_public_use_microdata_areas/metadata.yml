@@ -1,0 +1,98 @@
+id: 2020_public_use_microdata_areas
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__pumas }}
+  description: |
+    The 2020 NYC Public Use Microdata Areas (PUMAs) are statistical geographic areas defined for the dissemination of 2020 Public Use Microdata Sample (PUMS) data. PUMAs have a minimum population of 100,000, are aggregated from census tracts, and approximate Community Districts (CDs), or combinations of CDs (There are 59 CDs and only 55 NYC PUMAs because of such combinations). These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__pumas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: 2020 Public Use Microdata Areas (PUMAs)
+  date_made_public: '9/13/2021'
+  each_row_is_a: A 2020 Public Use Microdata Area (PUMA)
+  tags:
+  - puma
+  - public use microdata areas
+  - census
+  - boundaries
+  - department of city planning
+  - dcp
+  - nyc
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  - id: data_dictionary_xlsx
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: pikk-p9nv
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/puma/nypuma2020_{{ current_version_lion }}.zip
+  - id: metadata_pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nypuma2020_metadata.pdf
+
+
+revisions:
+- date: '10/31/23'
+  summary: "Published to NYC Open Data Portal"
+  notes: "Version 23C. Orighinal version 23B was released on 5/8/2023"
+- date: '7/1/24'
+  summary: "Updated field description for PUMA field."
+  notes: " "
+
+files:
+- file:
+    id: shapefile
+    filename: nypuma2020.zip
+    type: shapefile
+- file:
+    id: metadata_pdf
+    filename: nypuma2020_metadata.pdf
+    is_metadata: true
+- file:
+    id: data_dictionary_xlsx
+    type: oti_data_dictionary
+    filename: puma2020_data_dictionary.xlsx
+    is_metadata: true
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Geometry type
+  custom:
+    geometry_type: multipolygon
+- id: puma
+  name: PUMA
+  data_type: text
+  description: The ID number for the 2020 NYC Public Use Microdata Areas (PUMAs).
+    PUMAs are statistical geographic areas defined for the dissemination of Public
+    Use Microdata Sample (PUMS) data.
+  example: '4503'
+- id: shape_leng
+  name: Shape_Length
+  data_type: number
+  description: Length of feature in internal units.
+  example: '37550.8572191'
+- id: shape_area
+  name: Shape_Area
+  data_type: number
+  description: Area of feature in internal units squared.
+  example: '265852363.461'

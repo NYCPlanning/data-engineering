@@ -1,0 +1,59 @@
+id: roadbed_pointer_list
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__rpl }}
+  description: |-
+    A text file representing the relationships between generic and roadbed segments (or roadbed terminators segments that represent the merging of divided roadbeds back into each other as a single roadbed or undivided street) by segment ID.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__rpl }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Roadbed Pointer List (RPL)
+  each_row_is_a: Roadbed Pointer
+  tags: []
+  date_made_public: '9/13/2021'
+  attribution_link: https://www.nyc.gov/site/planning/data-maps/open-data.page#lion
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: rpl_filelayout.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: qs4p-vs2w
+    is_unparsed_dataset: true
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/rpl/rpl_{{ current_version_lion }}.zip
+  - id: rpl_filelayout.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/rpl_filelayout.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: rpl.zip
+    type: shapefile
+- file:
+    id: rpl_filelayout.pdf
+    filename: rpl_filelayout.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns: []

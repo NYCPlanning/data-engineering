@@ -1,0 +1,7 @@
+id: lower_density_growth_management_areas
+
+dataset_defaults:
+  current_version: {{ current_version_lower_density_growth_management_areas }}
+
+datasets:
+- lower_density_growth_management_areas

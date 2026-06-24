@@ -1,0 +1,112 @@
+id: 2010_census_tract_to_neighborhood_tabulation_area_equivalency_table
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__ntas }}
+  description: |
+    Excel table of census data created to project populations at the Neighborhood
+    Tabulation Area, a small area level, from 2000 to 2030 for PlaNYC, the long-term
+    sustainability plan for New York City. Current version: {{ current_version_census_equivalency_tract_table }}
+  display_name: 2010 Census Tract to Neighborhood Tabulation Area Equivalency table
+  each_row_is_a: Census Tract
+  tags:
+  - census
+  - planyc
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  # TODO: This file is janky. Change to a csv, or remove the headers
+  # id: dataset_xlsx
+  #   custom:
+  #     destination_use: dataset_file
+  - id: data_dictionary_xlsx
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: 8ius-dhrr
+- id: bytes
+  type: bytes
+  files:
+  - id: dataset_xlsx
+    custom:
+      url: https://www1.nyc.gov/assets/planning/download/office/planning-level/nyc-population/census2010/nyc2010census_tabulation_equiv.xlsx
+
+
+files:
+- file:
+    id: dataset_xlsx
+    filename: nyc2010census_tabulation_equiv.xlsx
+- file:
+    id: data_dictionary_xlsx
+    filename: data_dictionary.xlsx
+    is_metadata: true
+
+columns:
+- id: borough
+  name: Borough
+  data_type: text
+  description: Name of Borough
+  example: Brooklyn
+  values:
+  - value: Brooklyn
+  - value: Queens
+  - value: Bronx
+  - value: Manhattan
+  - value: Staten Island
+- id: _2010_census_bureau_fips_county_code
+  name: 2010 Census Bureau FIPS County Code
+  data_type: integer
+  description: Federal Information Processing Standard Code for County
+  example: '47'
+  values:
+  - value: '47'
+    description: Brooklyn
+  - value: '81'
+    description: Queens
+  - value: '5'
+    description: Bronx
+  - value: '61'
+    description: Manhattan
+  - value: '85'
+    description: Staten Island
+- id: _2010_nyc_borough_code
+  name: 2010 NYC Borough Code
+  data_type: integer
+  description: Borough Code
+  example: '3'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: _2010_census_tract
+  name: 2010 Census Tract
+  data_type: integer
+  description: Census Tract
+  example: '3900'
+- id: puma
+  name: PUMA
+  data_type: integer
+  description: Public Use Microdata Area (PUMA) number
+  example: '4009'
+- id: neighborhood_tabulation_area_nta_code
+  name: Neighborhood Tabulation Area (NTA)Code
+  data_type: text
+  description: Neighborhood Tabulation Area (NTA) Code
+  example: BK50
+- id: neighborhood_tabulation_area_nta_name
+  name: Neighborhood Tabulation Area (NTA) Name
+  data_type: text
+  description: Neighborhood Tabulation Area (NTA) Name
+  example: Canarsie

@@ -1,0 +1,76 @@
+artifacts:
+  - name: oti_xlsx
+    type: xlsx
+    components:
+      - id: dataset_information
+        name: Dataset Information
+        type: object_table
+        index: 0
+        title: Data Dictionary
+        extra_field_description_field: oti_extra_notes
+        subtitle: Dataset Information
+        image_path: Open_Data_Logo.png
+        data_source: dataset.attributes
+        rows:
+          - display_name
+          - agency
+          - each_row_is_a
+          - publishing_frequency
+          - data_change_frequency
+          - publishing_frequency_details
+          - description
+          - publishing_purpose
+          - data_collection_method
+          - potential_uses
+          - disclaimer
+          - projection
+      - id: column_information
+        name: Column Information
+        type: list_table
+        index: 1
+        title: Data Dictionary
+        subtitle: Column Information
+        data_source: dataset.columns
+        columns:
+          - name
+          - description
+          - values
+          - limitations
+          - notes
+        column_widths: [30, 50, 50, 50, 50]
+      - id: revision_history
+        name: Dataset Revision History
+        type: list_table
+        index: 2
+        title: Data Dictionary
+        subtitle: Revision History
+        data_source: dataset.revisions
+        include_column_description_row: False
+        description: >
+          Description of all major changes to the format including what specific fields were added or removed, data calculation method,
+          or method of collection of the data that have taken place since the initial version. Adding or updating new data values does
+          not necessitate a new version entry.
+        columns:
+          - date
+          - summary
+          - notes
+        column_widths: [30, 100, 100]
+      - id: internal_primer
+        name: Primer Page #& Internal Information
+        type: object_table
+        index: 3
+        title: Data Dictionary
+        subtitle: Open Data Team Internal Information
+        extra_field_description_field: oti_extra_notes
+        description: |
+          This section is used for internal purposes only by the Open Data Team and can be ignored by external data users.
+
+          Information shared in this section may be publicly displayed on the dataset’s primer page on NYC Open Data.
+        data_source: dataset.attributes
+        rows:
+          - tags
+          - rows_removed
+          - can_be_automated
+          - attribution_link
+          - publishing_frequency
+          - agency_website_data_updated_automatically

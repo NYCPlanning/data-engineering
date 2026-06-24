@@ -1,0 +1,70 @@
+id: lion_differences_file
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__lion_diff }}
+  description: |-
+    The LION Differences File (LDF) documents segment and node level changes that have occurred in the LION file between two subsequent releases. This file allows a user who "ties" organizational data to DCP's Segment ID and/or Node ID to migrate their data appropriately when these changes occur.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__lion_diff }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: LION Differences File
+  each_row_is_a: Changed Segment or Node
+  tags:
+  - node
+  - street
+  - street name
+  - intersection
+  - segment
+  - lion
+  - ldf
+  - change
+  date_made_public: '9/13/2021'
+  attribution_link: https://www.nyc.gov/site/planning/data-maps/open-data.page#lion
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: ldf_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: ige5-v6sk
+    is_unparsed_dataset: true
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion-differences-file/ldf_{{ current_version_lion }}.zip
+  - id: ldf_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/ldf_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: ldf.zip
+    type: shapefile
+- file:
+    id: ldf_metadata.pdf
+    filename: ldf_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns: []

@@ -1,0 +1,155 @@
+id: community_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__comm_dists }}
+  display_name: Community Districts
+  each_row_is_a: Community district
+  tags:
+  - community districts
+  - cd
+  - community board
+  - cb
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '2/23/2015'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nycd_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: 5crt-au7u
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nycdwi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_wi
+    dataset_overrides:
+      overridden_columns:
+      - id: borocd
+        name: BoroCD
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: 6ak9-vek3
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/community-districts/nycd_{{ current_version_lion }}.zip
+  - id: shapefile_wi
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/community-districts/nycdwi_{{ current_version_lion }}.zip
+  - id: nycd_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycd_metadata.pdf
+  - id: nycdwi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycdwi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_wi
+    filename: nycdwi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        Community District boundaries for New York City including portions under water.
+
+        Community Districts (CD) are mandated by the city charter to review and monitor quality of life issues for New York City (NYC) neighborhoods.  NYC is currently comprised of 59 community districts. There are also 12 Joint Interest Areas (JIAs).  The JIAs are major parks and airports and are not contained within any community district.  The BoroCD value is the unique ID for CDs and JIAs with the first byte representing the borough code and the second and third bytes are the CD or JIA number.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__comm_dists }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: Community Districts (Water areas included)
+    overridden_columns:
+    - id: shape_length
+      name: Shape_Leng
+- file:
+    id: shapefile
+    filename: nycd.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        Community District boundaries for New York City.
+
+        Community Districts (CD) are mandated by the city charter to review and monitor quality of life issues for New York City (NYC) neighborhoods.  NYC is currently comprised of 59 community districts. There are also 12 Joint Interest Areas (JIAs).  The JIAs are major parks and airports and are not contained within any community district.  The BoroCD value is the unique ID for CDs and JIAs with the first byte representing the borough code and the second and third bytes are the CD or JIA number.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__comm_dists }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nycdwi_metadata.pdf
+    filename: nycdwi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nycd_metadata.pdf
+    filename: nycd_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_wi
+
+columns:
+- id: borocd
+  name: BoroCd
+  data_type: text
+  description: Community district number preceded by BoroCode.
+  example: None
+  custom:
+    api_name: boro_cd
+- id: shape_length
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: the_geom
+  data_type: geometry

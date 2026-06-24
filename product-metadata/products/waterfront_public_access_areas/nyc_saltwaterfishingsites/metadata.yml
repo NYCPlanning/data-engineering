@@ -1,0 +1,84 @@
+id: nyc_saltwaterfishingsites
+
+attributes:
+  attribution_link: {{ bytes_url__waterfront_public_access_areas }}
+  description: |-
+    Access points for saltwater fishing sites in NYC, that are shown on the Waterfront Access Map (WAM) - waterfrontaccess.planning.nyc.gov. No updates since December 2019 release.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__waterfront_public_access_areas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_waterfront_public_access_areas }}
+  display_name: NYC Saltwater Fishing Sites
+  each_row_is_a: Access point for saltwater fishing site
+  publishing_frequency: As-Needed
+  tags:
+    - waterfront public access areas
+    - wpaa
+    - open space
+    - parks
+    - waterfront access map
+    - wam
+    - publicly accessible waterfront
+    - shore public access
+    - department of city planning
+    - dcp
+    - nyc
+    - recreation
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    custom:
+      four_four: x97h-gsmm
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: readme_pdf
+        custom:
+          destination_use: attachment
+  - id: bytes
+    type: bytes
+    files:
+      # - id: shapefile
+      #   custom:
+      #     url: TODO
+      - id: readme_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/WAM_nyc_saltwaterfishingsites_metadata.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: nyc_saltwaterfishingsites.shp.zip
+      type: shapefile
+  - file:
+      id: readme_pdf
+      filename: WAM_nyc_saltwaterfishingsites_metadata.pdf
+      is_metadata: true
+
+columns:
+  - id: the_geom
+    name: the_geom
+    data_type: geometry
+    description: Feature geometry.
+  - id: site
+    name: Site
+    data_type: text
+    description: Name of the site.
+  - id: ownership
+    name: Ownership
+    data_type: text
+    description: |-
+      Name of the site owner.
+
+      BBP: Brooklyn Bridge Park, BPCA: Battery Park City Authority, HRPT: Hudson River Park Trust, NPS: National Park Servie, NYC Parks: NYC Dept of Parks and Recreation, NYCHA: NYC Housing Authority, NYRP: NY Restoration Project, NYSDEC: NYS Dept. of Environmental Conservation
+  - id: link
+    name: Link
+    data_type: text
+    description:
+      Link to NYS Dept. of Environmental Conservation (DEC) website with
+      additional information on how to get to a certain access point, as well as fishing
+      tips, and current regulations.

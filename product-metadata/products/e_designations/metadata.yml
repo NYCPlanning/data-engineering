@@ -1,0 +1,7 @@
+id: e_designations
+
+dataset_defaults:
+  current_version: {{ current_version_e_designations }}
+
+datasets:
+- e_designations

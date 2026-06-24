@@ -1,0 +1,120 @@
+id: publicly_owned_waterfront
+
+attributes:
+  attribution_link: {{ bytes_url__waterfront_public_access_areas }}
+  description: |-
+    City, State, and Federally owned public parks and facilities that provide waterfront parkland and open space for public enjoyment, as shown on the NYC DCP Waterfront Access Map (WAM) - waterfrontaccess.planning.nyc.gov.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__waterfront_public_access_areas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_waterfront_public_access_areas }}
+  display_name: Publicly Owned Waterfront
+  each_row_is_a: City, State, and Federally owned public parks and facilities that provide waterfront parkland and open space
+  publishing_frequency: As-Needed
+  tags:
+    - waterfront public access areas
+    - wpaa
+    - open space
+    - parks
+    - waterfront access map
+    - wam
+    - publicly accessible waterfront
+    - shore public access
+    - department of city planning
+    - dcp
+    - nyc
+    - recreation
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    custom:
+      four_four: iebn-jxfi
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: readme_pdf
+        custom:
+          destination_use: attachment
+  - id: bytes
+    type: bytes
+    files:
+      # - id: shapefile
+      #   custom:
+      #     url: TODO
+      - id: readme_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/WAM_publiclyownedwaterfront_metadata.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: publicly_owned_waterfront.shp.zip
+      type: shapefile
+  - file:
+      id: readme_pdf
+      filename: WAM_nyc_saltwaterfishingsites_metadata.pdf
+      is_metadata: true
+
+columns:
+  - id: the_geom
+    name: the_geom
+    data_type: geometry
+    description: Feature geometry.
+  - id: name
+    name: Name
+    data_type: text
+    description: The name of the public park or facility.
+  - id: agency
+    name: Agency
+    data_type: text
+    description:
+      The City, State, and/or Federal agency with jurisdiction over the park
+      or facility space.
+    values:
+      - value: BBP
+        description: Brooklyn Bridge Park
+      - value: GNRA
+        description: Gateway National Recreation Area
+      - value: NPS
+        description: National Park Service
+      - value: HRPT
+        description: Hudson River Park Trust
+      - value: DOT
+        description: Department of Transportation
+      - value: DPR
+        description: Department of Parks and Recreation
+      - value: EDC
+        description: Economic Development Corporation
+      - value: SBS
+        description: Small Business Services
+      - value: DEP
+        description: Department of Environmental Protection
+      - value: Private
+        description: Private
+      - value: OPRHP
+        description: Office of Parks, Recreation & Historic Preservation
+      - value: RIOC
+        description: Roosevelt Island Operating Corporation
+      - value: TGI
+        description: Trust for Governors Island
+      - value: BPCA
+        description: Battery Park City Authority
+      - value: DEC
+        description: Department of Environmental Conservation
+  - id: link
+    name: Link
+    data_type: text
+    description:
+      A hyperlink to the associated agency's website with additional info,
+      if applicable.
+  - id: shape_leng
+    name: Shape_Leng
+    data_type: decimal
+  - id: shape_area
+    name: Shape_Area
+    data_type: decimal
+    description: Area of feature in internal units squared.

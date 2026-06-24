@@ -1,0 +1,325 @@
+id: atomic_polygons
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__atomic_polygons }}
+  description: |-
+    Atomic polygons serve as a set of basic building blocks for generating the polygons of many of the district types represented in the NYC Street Centerline (CSCL) database. Feature classes such as election district, school district, census block, FDNY administrative company, and community district can be dissolved by combining the appropriate fields in atomic polygons.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__atomic_polygons }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Atomic Polygons
+  each_row_is_a: Atomic Polygon
+  tags:
+  - atomic polygons
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '3/6/2015'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nyap_metadata.pdf
+    custom:
+      destination_use: attachment
+  files:
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: admin_fire_company
+        name: ADMIN_FIRE
+      - id: commercial_waste_zone
+        name: COMMERCIAL_WASTE_ZONE
+      - id: hurricane_evacuation_zone
+        name: HURRICANE_EVACUATION_ZONE
+      - id: censusblock_2000
+        name: CENSUSBLOCK_2000
+      - id: censusblock_2000_suffix
+        name: CENSUSBLOCK_2000_SUFFIX
+      - id: censustract_2000
+        name: CENSUSTRACT_2000
+      - id: censusblock_2010
+        name: CENSUSBLOCK_2010
+      - id: censusblock_2010_suffix
+        name: CENSUSBLOCK_2010_SUFFIX
+      - id: censustract_2010
+        name: CENSUSTRACT_2010
+      - id: censustract_1990
+        name: CENSUSTRACT_1990
+      - id: censustract_2020
+        name: CENSUSTRACT_2020
+      - id: censusblock_2020
+        name: CENSUSBLOCK_2020
+      - id: censusblock_2020_suffix
+        name: CENSUSBLOCK_2020_SUFFIX
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  - id: nyap_metadata.pdf
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: wgbs-damt
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/atomic-polygons/nyap_{{ current_version_lion }}.zip
+  - id: nyap_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyap_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nyap.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: admin_fire_company
+      name: admin_fire
+    - id: commercial_waste_zone
+      name: commercial
+    - id: hurricane_evacuation_zone
+      name: hurricane_
+    - id: censusblock_2000
+      name: censusbloc
+    - id: censusblock_2000_suffix
+      name: censusbl_1
+    - id: censustract_2000
+      name: censustrac
+    - id: censusblock_2010
+      name: censusbl_2
+    - id: censusblock_2010_suffix
+      name: censusbl_3
+    - id: censustract_2010
+      name: censustr_1
+    - id: censustract_1990
+      name: censustr_2
+    - id: censustract_2020
+      name: censustr_3
+    - id: censusblock_2020
+      name: censusbl_4
+    - id: censusblock_2020_suffix
+      name: censusbl_5
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nyap_metadata.pdf
+    filename: nyap_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: borough
+  name: BOROUGH
+  data_type: text
+  description: Borough code.
+  example: '4'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: censusblock_2000
+  name: CENSUSBLOCK_2000
+  data_type: text
+  description: String value of the 2020 census tract number.
+  example: None
+  # custom:
+  #   api_name: censusbloc
+- id: censusblock_2000_suffix
+  name: CENSUSBLOCK_2000_SUFFIX
+  data_type: text
+  description: An alphabetic suffix for the 2000 census block.
+  example: None
+  # custom:
+  #   api_name: censusbl_1
+- id: censustract_2000
+  name: CENSUSTRACT_2000
+  data_type: text
+  description: String value of the 2000 census tract number.
+  example: None
+  # custom:
+  #   api_name: censustrac
+- id: censusblock_2010
+  name: CENSUSBLOCK_2010
+  data_type: text
+  description: String value of the 2010 census block number.
+  example: None
+  # custom:
+  #   api_name: censusbl_2
+- id: censusblock_2010_suffix
+  name: CENSUSBLOCK_2010_SUFFIX
+  data_type: text
+  description: An alphabetic suffix for the 2010 census block.
+  example: None
+  # custom:
+  #   api_name: censusbl_3
+- id: censustract_2010
+  name: CENSUSTRACT_2010
+  data_type: text
+  description: String value of the 2000 census tract number.
+  example: None
+  # custom:
+  #   api_name: censustr_1
+- id: censustract_1990
+  name: CENSUSTRACT_1990
+  data_type: text
+  description: String value of the 1990 census tract number.
+  example: None
+  # custom:
+  #   api_name: censustr_2
+- id: admin_fire_company
+  name: ADMIN_FIRE_COMPANY
+  data_type: text
+  description: The fire company number servicing the district.
+  example: None
+  # custom:
+  #   api_name: admin_fire_company
+- id: water_flag
+  name: WATER_FLAG
+  data_type: text
+  description: Flag to indicate the relationship of the atomic polygon to water.
+  example: None
+  values:
+  - value: Water
+    description: Atomic polygon is under water that is part of the shoreline.
+  - value: Non-Water
+    description: Atomic polygon is on land.
+  - value: Internal Water
+    description: Atomic polygon is under water that is not part of the shoreline (lake,
+      pond, reservior, etc.)
+  - value: Pier
+    description: Atomic polygon is on a pier or structure over water.
+- id: assemdist
+  name: ASSEMDIST
+  data_type: text
+  description: State Assembly district number.
+  example: None
+- id: electdist
+  name: ELECTDIST
+  data_type: text
+  description: Three digit election district number.
+  example: None
+- id: schooldist
+  name: SCHOOLDIST
+  data_type: text
+  description: The two digit school district number.
+  example: None
+- id: commdist
+  name: COMMDIST
+  data_type: text
+  description: Community district number preceded by BoroCode.
+  example: None
+- id: sb1_volume
+  name: SB1_VOLUME
+  data_type: text
+  description: First Sanborn volume the atomic polygon appears in.
+  example: None
+- id: sb1_page
+  name: SB1_PAGE
+  data_type: text
+  description: First Sanborn page the atomic polygon appears in.
+  example: None
+- id: sb2_volume
+  name: SB2_VOLUME
+  data_type: text
+  description: Second Sanborn volume the atomic polygon appears in.
+  example: None
+- id: sb2_page
+  name: SB2_PAGE
+  data_type: text
+  description: Second Sanborn page the atomic polygon appears in.
+  example: None
+- id: sb3_volume
+  name: SB3_VOLUME
+  data_type: text
+  description: Third Sanborn volume the atomic polygon appears in.
+  example: None
+- id: sb3_page
+  name: SB3_PAGE
+  data_type: text
+  description: Third Sanborn page the atomic polygon appears in.
+  example: None
+- id: atomicid
+  name: ATOMICID
+  data_type: text
+  description: Unique ID for the atomic polygon.
+  example: None
+- id: atomic_num
+  name: ATOMIC_NUM
+  data_type: text
+  description: Atomic number is the 3 last digits of the Atomic ID. This field has
+    been deprecated and is no longer maintained (all NULL values).
+  example: None
+- id: hurricane_evacuation_zone
+  name: HURRICANE_EVACUATION_ZONE
+  data_type: text
+  description: 'Hurricane Evacuation Zone. New York City''s hurricane contingency
+    plans are based on six evacuation zones: 1, 2, 3, 4, 5, 6. The value of 0 represents
+    represents water polygons and the value of X indicates land that is not part of
+    an evacuation zone. (Note: field name may appear as "Hurricane_" in shapefile
+    due to ESRI character limit)'
+  example: None
+  # custom:
+  #   api_name: hurricane_
+- id: censustract_2020
+  name: CENSUSTRACT_2020
+  data_type: text
+  description: String value of the 2020 census tract number.
+  example: None
+  # custom:
+  #   api_name: censustr_3
+- id: censusblock_2020
+  name: CENSUSBLOCK_2020
+  data_type: text
+  description: String value of the 2020 census block number.
+  example: None
+  # custom:
+  #   api_name: censusbl_4
+- id: censusblock_2020_suffix
+  name: CENSUSBLOCK_2020_SUFFIX
+  data_type: text
+  description: An alphabetic suffix for the 2020 census block.
+  example: None
+  # custom:
+  #   api_name: censusbl_5
+- id: commercial_waste_zone
+  name: Commercial Waste Zone
+  data_type: text
+  description: Commercial Waste Zones established as part of the Department of Sanitation's (DSNY) comprehensive plan
+    for reforming the private carting industry.
+  example: None
+  # custom:
+  #   api_name: commercial
+- id: shape_area
+  data_type: decimal
+- id: shape_length
+  data_type: decimal
+- id: the_geom
+  data_type: geometry

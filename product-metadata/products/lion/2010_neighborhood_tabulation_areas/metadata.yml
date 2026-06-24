@@ -1,0 +1,124 @@
+id: 2010_neighborhood_tabulation_areas
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__ntas }}
+  description: |-
+    2010 Neighborhood Tabulation Areas (NTAs) are medium-sized statistical geographies for reporting Decennial Census and American Community Survey (ACS). 2010 NTAs are created by aggregating 2020 census tracts and nest within Community District Tabulation Areas (CDTA). NTAs were delineated with the need for both geographic specificity and statistical reliability in mind. Consequently, each NTA contains enough population to mitigate sampling error associated with the ACS yet offers a unit of analysis that is smaller than a Community District.
+
+    Though NTA boundaries and their associated names roughly correspond with many neighborhoods commonly recognized by New Yorkers, NTAs are not intended to definitively represent neighborhoods, nor are they intended to be exhaustive of all possible names and understandings of neighborhoods throughout New York City. Additionally, non-residential areas including large parks, airports, cemeteries, and other special areas are represented separately within this dataset and are assigned codes according to their type (See NTAType field).
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__ntas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: 2010 Neighborhood Tabulation Areas (NTAs)
+  each_row_is_a: Neighborhood Tabulation Area
+  tags:
+  - neighborhood tabulation areas
+  - dcp
+  - city planning
+  - community
+  - area
+  - nta
+  date_made_public: '1/31/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nynta2010_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: ca69-3vdk
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/neighborhood-tabulation-areas/nynta2010_{{ current_version_lion }}.zip
+  - id: nynta2010_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nynta2010_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nynta2010.zip
+    type: shapefile
+- file:
+    id: nynta2010_metadata.pdf
+    filename: nynta2010_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: borocode
+  name: BoroCode
+  data_type: integer
+  description: Borough of census tract.
+  example: None
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough name.
+  example: None
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: countyfips
+  name: CountyFIPS
+  data_type: text
+  description: The Census Bureau defined county FIPS code.
+  example: None
+- id: ntacode
+  name: NTACode
+  data_type: text
+  description: 2010 Neighborhood Tabulation Area code.
+  example: None
+- id: ntaname
+  name: NTAName
+  data_type: text
+  description: 2010 Neighborhood Tabulation Area Name
+  example: None
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: None
+- id: shape_leng
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: None
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  example: None

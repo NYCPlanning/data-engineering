@@ -1,0 +1,132 @@
+id: zoning_map_amendments
+
+attributes:
+  attribution_link: {{ bytes_url__zoning_features }}
+  description: |-
+    Areas covered by zoning changes adopted or certified.
+
+    Includes outlines for both adopted and current "Certified" rezonings. Selected city-initiated text amendments to the Zoning Resolution that have discrete geographical boundaries may be included.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_features }}">DCP Website: BYTES of the BIG APPLE</a>.
+  display_name: Zoning Map Amendments (NYZMA)
+  each_row_is_a: Zoning Map Amendment
+  publishing_frequency: Monthly
+  tags:
+  - zoning map amendment
+  - nyzma
+  - zoning change index
+  - rezoning
+  - New York City
+  - NYC
+  - Department of City Planning
+  - DCP
+
+assembly:
+- id: dcm_multilayer
+  filename: nycgiszoningfeatures_shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: shapefile
+    custom:
+      layer_name: nyzma
+
+custom: {}
+
+destinations:
+- id: socrata
+  tags: [socrata_unpublished]
+  type: open_data
+  files:
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary
+  #   custom:
+  #     destination_use: attachment
+  custom:
+    four_four: k5u6-psh6
+- id: bytes
+  type: bytes
+  files:
+  - id: dcm_multilayer
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
+  - id: metadata_pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyzma_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nyzma.shp.zip
+    type: shapefile
+- file:
+    id: metadata_pdf
+    filename: nyzma_metadata.pdf
+    is_metadata: true
+- file:
+    id: oti_data_dictionary
+    filename: zoning_map_amendments_data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Feature geometry.
+- id: status
+  name: STATUS
+  data_type: text
+  description: Current status of zoning change
+  values:
+    - value: Adopted
+    - value: Certified
+    - value: "Null"
+- id: effective
+  name: EFFECTIVE
+  data_type: datetime
+  description: Date amendment became effective
+- id: ulurpno
+  name: ULURPNO
+  data_type: text
+  description: |
+    ULURLP number for  application associated with the zoning map amendment.
+
+    A nine to ten digit string. The first six charaters are numbers, starting with a two digit year the application was filed, followed by a two letter ULURP application abbreviation, then a one letter borough code.
+
+    Ten digit ULURP numbers are for modified applications. If an application is modified it receives a new ULURP number with a letter between the first six numbers and last three letters, starting with "a" for the first modification and changing to the next letter for each time it is modified. (i.e., 991234zmm,991234azmm, 991234bzmm, etc.)
+
+    Does not contain the ULURP prefix for status.
+  notes: |
+    ULURP = Uniform Land Use Review Procedure
+
+    ULURP Borough Codes:
+    K = Brooklyn (Kings)
+    M = Manhattan
+    Q = Queens
+    R = Staten Island (Richmond)
+    X = Bronx
+    Y = Citywide or more than one Borough
+
+    ULURP application abbreviations: scroll to the bottom of this web page: https://www.nyc.gov/site/planning/applicants/applicant-portal/step3-preparation-applications.page
+- id: lucats
+  name: LUCATS
+  data_type: text
+  description: Foreign key to link to retired LUCATS database records.
+  notes: The number portion only of the ULURP number.
+- id: project_na
+  name: PROJECT_NA
+  data_type: text
+  description: The name of the project on the associated  application.
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  description: Length of feature in internal units.
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.

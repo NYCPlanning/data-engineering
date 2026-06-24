@@ -1,0 +1,7 @@
+id: mandatory_inclusionary_housing
+
+dataset_defaults:
+  current_version: {{ current_version_mandatory_inclusionary_housing }}
+
+datasets:
+- mandatory_inclusionary_housing

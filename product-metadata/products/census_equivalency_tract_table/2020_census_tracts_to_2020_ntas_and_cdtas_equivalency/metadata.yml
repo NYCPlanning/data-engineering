@@ -1,0 +1,190 @@
+id: 2020_census_tracts_to_2020_ntas_and_cdtas_equivalency
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__cdtas }}
+  description: |
+    This file shows the relationship between New York City’s 2020 census
+    tracts, 2020 Neighborhood Tabulation Areas (NTAs), and Community District Tabulation
+    Areas (CDTAs). 2020 census tracts nest within 2020 NTAs, and 2020 NTAs nest within
+    CDTAs, so each census tract is listed only once. Note that CDTAs sometimes cross
+    borough boundaries, and therefore will not add up to borough totals for the Bronx,
+    Queens, and Manhattan. As they are nested within CDTAs, NTAs will likewise not
+    add up to borough totals. Also note that census tracts in New York City’s water
+    areas are excluded from this file.  Current version: {{ current_version_census_equivalency_tract_table }}
+  display_name: 2020 Census Tracts to 2020 NTAs and CDTAs Equivalency
+  each_row_is_a: NTA CDTA Equivalency
+  tags:
+  - '2020'
+  - census
+  - tracts
+  - neighborhood tabulation areas
+  - ntas
+  - community district tabulation areas
+  - cdtas
+  - equivalency
+  - department of city planning
+  - dcp
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: dataset_xlsx
+    custom:
+      destination_use: dataset_file
+  - id: data_dictionary_xlsx
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: hm78-6dwm
+- id: bytes
+  type: bytes
+  files:
+  - id: dataset_xlsx
+    custom:
+      url: https://www1.nyc.gov/assets/planning/download/office/planning-level/nyc-population/census2020/nyc2020census_tract_nta_cdta_relationships.xlsx
+
+files:
+- file:
+    id: dataset_xlsx
+    filename: nyc2020census_tabulation_equiv.xlsx
+- file:
+    id: data_dictionary_xlsx
+    filename: data_dictionary.xlsx
+    is_metadata: true
+
+columns:
+- id: geoid
+  name: GEOID
+  data_type: text
+  description: 'Unqiue Identifier for 2020 census tracts - the first digit is the
+    County FIPS code, and the last 6 digits are the zero-filled census tract number.
+    This can be used with BYTES of the Big Apple datasets: https://www1.nyc.gov/site/planning/data-maps/open-data.page#district_political'
+  example: '36085020702'
+- id: countyfips
+  name: CountyFIPS
+  data_type: text
+  description: Federal unique ID for counties (005=Bronx, 047=Kings, 061=New York,
+    081=Queens, 085=Richmond)
+  example: '047'
+  values:
+  - value: '47'
+    description: Brooklyn
+  - value: '81'
+    description: Queens
+  - value: '5'
+    description: Bronx
+  - value: '61'
+    description: Manhattan
+  - value: '85'
+    description: Staten Island
+- id: borocode
+  name: BoroCode
+  data_type: integer
+  description: Borough in which the census tract is located. (1=Manhattan, 2=The Bronx,
+    3=Brooklyn, 4=Queens, 5=Staten Island)
+  example: '3'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough name for the borough in which the census tract is located.
+  example: Brooklyn
+  values:
+  - value: Brooklyn
+  - value: Queens
+  - value: Bronx
+  - value: Manhattan
+  - value: Staten Island
+- id: boroct2020
+  name: BoroCT2020
+  data_type: text
+  description: Unqiue Identifier for 2020 census tracts - merged string value of the
+    BoroCode and census tract number
+  example: '1012902'
+- id: ct2020
+  name: CT2020
+  data_type: text
+  description: 2020 census tract number
+  example: '024700'
+- id: ctlabel
+  name: CTLabel
+  data_type: integer
+  description: The census tract identifier. Each census tract number is unique to
+    its borough
+  example: '138'
+- id: ntacode
+  name: NTACode
+  data_type: text
+  description: 'Unique alphanumeric identifier for each Neighborhood Tabulation Area
+    (NTA). Includes  6 characters: 2 alpha for borough, 2 numeric matching CDTA number,
+    1 numberic indicating NTA Type, and 1 numeric to create unique ID'
+  example: BK1803
+- id: ntatype
+  name: NTAType
+  data_type: integer
+  description: The NTA type differentiates between residential and various non-residential
+    geographies. It is also the 5th character of the NTA code. [0 = Residential, 9
+    = Park, 8 = Airport, 7 = Cemetery, 6 = Other Special Areas (including forts, navy
+    yard, etc), 5 = Rikers Island]
+  example: '0'
+  values:
+  - value: '0'
+    description: Residential
+  - value: '9'
+    description: Park
+  - value: '7'
+    description: Cemetery
+  - value: '6'
+    description: Other Special Areas (including forts, navy yard, etc)
+  - value: '8'
+    description: Airport
+  - value: '5'
+    description: Rikers Island
+- id: ntaname
+  name: NTAName
+  data_type: text
+  description: Full NTA name [e.g., East New York (North)]
+  example: Canarsie
+- id: ntaabbrev
+  name: NTAAbbrev
+  data_type: text
+  description: Shortened version of NTA name (e.g., ENY_N)
+  example: Cnrsie
+- id: cdtacode
+  name: CDTACode
+  data_type: text
+  description: 'Unique alphanumeric identifier representing Community District Tabulation
+    Areas (CDTA). Includes 4 characters: 2 alpha characters representing the borough
+    and 2 numeric characters matching the CD number'
+  example: QN12
+- id: cdtatype
+  name: CDTAType
+  data_type: text
+  description: Differentiates between CDTAS which represent a community district (CD)
+    or a joint interest area - areas outside of community districts (JIA)
+  example: CD
+  values:
+  - value: CD
+    description: Community District
+  - value: JIA
+    description: Outside Of Community Districts
+- id: cdtaname
+  name: CDTAName
+  data_type: text
+  description: Full name of CDTA [e.g., BK05 East New York-Cypress Hills (CD 5 Approximation)]
+  example: QN12 Jamaica-St. Albans-Hollis (CD 12 Approximation)

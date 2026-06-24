@@ -1,0 +1,18 @@
+id: developments
+
+dataset_defaults:
+  current_version: {{ current_version_developments }}
+  publishing_frequency: Bi-annually
+  data_change_frequency: Bi-annually
+  category: Housing & Development
+  attribution_link: {{ bytes_url__housing_database }}
+
+datasets:
+- housing_database # metadata only
+- housing_database_project_level_files
+- housing_database_by_2020_census_block
+- housing_database_by_2020_census_tract
+- housing_database_by_2020_nta
+- housing_database_by_2020_cdta
+- housing_database_by_2024_city_council
+- housing_database_by_community_district

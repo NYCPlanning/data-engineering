@@ -1,0 +1,657 @@
+id: projects
+
+attributes:
+  description: |-
+    The Capital Projects Database reports information at the project level on discrete capital investments from the Capital Commitment Plan.Each row is uniquely identified by its Financial Management Service (FMS) ID, and contains data pertaining to the sponsoring and managing agency.
+
+    To explore the data, please visit  <a href="https://capitalplanning.nyc.gov/map#10/40.7128/-74.0807">Capital Planning Explorer</a>
+
+    For additional information, please visit  <a href="https://www.ibo.nyc.ny.us/iboreports/IBOCBG.pdf">A Guide to The Capital Budget</a>
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__cpdb }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_cpdb }}
+  display_name: Capital Projects Database (CPDB) - Projects
+  each_row_is_a: Capital Project
+  tags:
+  - capital projects database
+  - capital planning
+  - cpdb
+  - budget
+  - omb
+
+assembly:
+- id: csv_package
+  filename: cpdb.zip
+  type: zip
+  contents:
+  - id: projects_csv
+    filename: cpdb_projects_{{ current_version_cpdb }}.csv
+
+custom: {}
+
+destinations:
+- id: socrata_csv
+  type: open_data
+  files:
+  - id: projects_csv
+    dataset_overrides:
+      overridden_columns:
+      - id: plannedcommit_ccexempt
+        custom:
+          api_name: ccexempt
+      - id: plannedcommit_citycost
+        custom:
+          api_name: totalcityplannedcommit
+      - id: plannedcommit_nccfederal
+        custom:
+          api_name: nccfederal
+      - id: plannedcommit_nccother
+        custom:
+          api_name: nccother
+      - id: plannedcommit_nccstate
+        custom:
+          api_name: nccstate
+      - id: plannedcommit_noncitycost
+        custom:
+          api_name: totalnoncityplannedcommit
+      - id: plannedcommit_total
+        custom:
+          api_name: totalplannedcommit
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: fi59-268w
+- id: socrata_points
+  type: open_data
+  files:
+  - id: projects_points
+    dataset_overrides:
+      overridden_columns:
+      - id: geometry
+        custom:
+          api_name: the_geom
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: h2ic-zdws
+- id: socrata_polygons
+  type: open_data
+  files:
+  - id: projects_polygons
+    dataset_overrides:
+      omitted_columns:
+        - shape_area
+        - shape_leng
+      overridden_columns:
+      - id: geometry
+        custom:
+          api_name: the_geom
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: 9jkp-n57r
+- id: bytes
+  type: bytes
+  files:
+  - id: csv_package
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/capital-projects-database/cpdb_{{ current_version_cpdb }}.zip
+  - id: projects_points
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/capital-projects-database/cpdb_projects_pts_{{ current_version_cpdb }}.zip
+  - id: projects_polygons
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/capital-projects-database/cpdb_projects_poly_{{ current_version_cpdb }}.zip
+
+files:
+- file:
+    id: projects_csv
+    filename: cpdb_projects.csv
+    type: csv
+  dataset_overrides:
+    omitted_columns:
+    - geometry
+    - shape_area
+    - shape_leng
+- file:
+    id: projects_points
+    filename: cpdb_projects_pts.shp.zip
+    type: shapefile
+  dataset_overrides:
+    omitted_columns:
+    - shape_area
+    - shape_leng
+    attributes:
+      display_name: Capital Projects Database (CPDB) - Projects (Points)
+    overridden_columns:
+    - id: description
+      name: descript
+    - id: plannedcommit_ccnonexempt
+      name: pcccnonex
+    - id: plannedcommit_ccexempt
+      name: pcccex
+    - id: plannedcommit_citycost
+      name: pccc
+    - id: plannedcommit_nccstate
+      name: pcnccstate
+    - id: plannedcommit_nccfederal
+      name: pcnccfed
+    - id: plannedcommit_nccother
+      name: pcnccother
+    - id: plannedcommit_noncitycost
+      name: pcncc
+    - id: plannedcommit_total
+      name: pctotal
+    - id: spent_total_checkbooknyc
+      name: sptotalcb
+    - id: maxdate
+      name: maxdate
+    - id: mindate
+      name: mindate
+    - id: magencyacro
+      name: magenacro
+    - id: magencyname
+      name: magenname
+    - id: typecategory
+      name: typecat
+    - id: ccpversion
+      name: ccpversion
+    - id: adopt_ccnonexempt
+      name: adccnonex
+    - id: adopt_ccexempt
+      name: adccex
+    - id: adopt_citycost
+      name: adcc
+    - id: adopt_nccstate
+      name: adnccstate
+    - id: adopt_nccfederal
+      name: adnccfed
+    - id: adopt_nccother
+      name: adnccother
+    - id: adopt_noncitycost
+      name: adncc
+    - id: adopt_total
+      name: adtotal
+    - id: allocate_ccnonexempt
+      name: alccnonex
+    - id: allocate_ccexempt
+      name: alccex
+    - id: allocate_citycost
+      name: alcc
+    - id: allocate_nccstate
+      name: alnccstate
+    - id: allocate_nccfederal
+      name: alnccfed
+    - id: allocate_nccother
+      name: alnccother
+    - id: allocate_noncitycost
+      name: alncc
+    - id: allocate_total
+      name: altotal
+    - id: commit_ccnonexempt
+      name: coccnonex
+    - id: commit_ccexempt
+      name: coccex
+    - id: commit_citycost
+      name: cocc
+    - id: commit_nccstate
+      name: conccstate
+    - id: commit_nccfederal
+      name: conccfed
+    - id: commit_nccother
+      name: conccother
+    - id: commit_noncitycost
+      name: concc
+    - id: commit_total
+      name: cototal
+    - id: spent_ccnonexempt
+      name: spccnonex
+    - id: spent_ccexempt
+      name: spccex
+    - id: spent_citycost
+      name: spcc
+    - id: spent_nccstate
+      name: spnccstate
+    - id: spent_nccfederal
+      name: spnccfed
+    - id: spent_nccother
+      name: spnccother
+    - id: spent_noncitycost
+      name: spncc
+    - id: spent_total
+      name: sptotal
+    - id: geometry
+      name: geometry
+- file:
+    id: projects_polygons
+    filename: cpdb_projects_poly.shp.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      display_name: Capital Projects Database (CPDB) - Projects (Polygons)
+    overridden_columns:
+    - id: maprojid
+      name: maprojid
+    - id: magency
+      name: magency
+    - id: projectid
+      name: projectid
+    - id: description
+      name: descript
+    - id: plannedcommit_ccnonexempt
+      name: pcccnonex
+    - id: plannedcommit_ccexempt
+      name: pcccex
+    - id: plannedcommit_citycost
+      name: pccc
+    - id: plannedcommit_nccstate
+      name: pcnccstate
+    - id: plannedcommit_nccfederal
+      name: pcnccfed
+    - id: plannedcommit_nccother
+      name: pcnccother
+    - id: plannedcommit_noncitycost
+      name: pcncc
+    - id: plannedcommit_total
+      name: pctotal
+    - id: spent_total_checkbooknyc
+      name: sptotalcb
+    - id: maxdate
+      name: maxdate
+    - id: mindate
+      name: mindate
+    - id: magencyacro
+      name: magenacro
+    - id: magencyname
+      name: magenname
+    - id: typecategory
+      name: typecat
+    - id: ccpversion
+      name: ccpversion
+    - id: adopt_ccnonexempt
+      name: adccnonex
+    - id: adopt_ccexempt
+      name: adccex
+    - id: adopt_citycost
+      name: adcc
+    - id: adopt_nccstate
+      name: adnccstate
+    - id: adopt_nccfederal
+      name: adnccfed
+    - id: adopt_nccother
+      name: adnccother
+    - id: adopt_noncitycost
+      name: adncc
+    - id: adopt_total
+      name: adtotal
+    - id: allocate_ccnonexempt
+      name: alccnonex
+    - id: allocate_ccexempt
+      name: alccex
+    - id: allocate_citycost
+      name: alcc
+    - id: allocate_nccstate
+      name: alnccstate
+    - id: allocate_nccfederal
+      name: alnccfed
+    - id: allocate_nccother
+      name: alnccother
+    - id: allocate_noncitycost
+      name: alncc
+    - id: allocate_total
+      name: altotal
+    - id: commit_ccnonexempt
+      name: coccnonex
+    - id: commit_ccexempt
+      name: coccex
+    - id: commit_citycost
+      name: cocc
+    - id: commit_nccstate
+      name: conccstate
+    - id: commit_nccfederal
+      name: conccfed
+    - id: commit_nccother
+      name: conccother
+    - id: commit_noncitycost
+      name: concc
+    - id: commit_total
+      name: cototal
+    - id: spent_ccnonexempt
+      name: spccnonex
+    - id: spent_ccexempt
+      name: spccex
+    - id: spent_citycost
+      name: spcc
+    - id: spent_nccstate
+      name: spnccstate
+    - id: spent_nccfederal
+      name: spnccfed
+    - id: spent_nccother
+      name: spnccother
+    - id: spent_noncitycost
+      name: spncc
+    - id: spent_total
+      name: sptotal
+    - id: geometry
+      name: geometry
+
+columns:
+- id: ccpversion
+  name: ccpversion
+  data_type: text
+  description: Reports the version of the Capital Commitment Plan which the record
+    is based on.
+  example: None
+- id: maprojid
+  name: maprojid
+  data_type: text
+  description: Unique identifier that defines a discrete project. The maprojid is a
+    concatenation of magency and projectid and it is the primary key.
+  example: 801HLDNSTJHN
+- id: magencyacro
+  name: magencyacro
+  data_type: text
+  description: Common acronym of the city agency managing the project. This value
+    is derived from the three digit managing agency code.
+  example: DPR
+- id: magency
+  name: magency
+  data_type: text
+  description: Three digit code of the distinct City agency managing the project.
+    The managing agency is the agency overseeing the construction or implementation
+    of a project.
+  example: '846'
+- id: magencyname
+  name: magencyname
+  data_type: text
+  description: Common name for the city agency mananging the project. This value is
+    derived from the three digit managing agency code.
+  example: Department of Parks and Recreation
+- id: description
+  name: description
+  data_type: text
+  description: Short description of the project as described by the sponsor agency.
+    If one projectid had many descriptions the longest description is reported by
+    CPDB.
+  example: JOB ORDER CONTRACTING WORK IN REGIONS NORTH, SOUTH & EAST
+- id: projectid
+  name: projectid
+  data_type: text
+  description: Alphanumeric code created by the sponsor agency that identifies a distinct
+    project. A Project ID must be unique within a managing agency.
+  example: DOIT3MIFR
+- id: mindate
+  name: mindate
+  data_type: datetime
+  description: The earliest panned commitment date associated with the project.
+  example: '2023-06-01T00:00:00.000'
+- id: maxdate
+  name: maxdate
+  data_type: datetime
+  description: The latest panned commitment date associated with the project.
+  example: '2023-06-01T00:00:00.000'
+- id: typecategory
+  name: typecategory
+  data_type: text
+  description: Classification given by DCP based on keywords found in the short description
+    describing if a projects is Fixed Asset, Lump Sum, or ITT, Vehicles, and Equipment.
+  example: Fixed Asset
+- id: plannedcommit_ccnonexempt
+  name: plannedcommit_ccnonexempt
+  data_type: number
+  description: Sum of City Cost (Non-Exempt) funding across all commitments associated
+    with the project.
+  example: None
+- id: plannedcommit_ccexempt
+  name: plannedcommit_ccexempt
+  data_type: number
+  description: Sum of City Cost (Exempt) funding across all commitments associated
+    with the project.
+  example: None
+- id: plannedcommit_citycost
+  name: plannedcommit_citycost
+  data_type: number
+  description: Sum of City funding across all commitments associated with the project.
+  example: None
+- id: plannedcommit_nccstate
+  name: plannedcommit_nccstate
+  data_type: number
+  description: Sum of State funding across all commitments associated with the project.
+  example: None
+- id: plannedcommit_nccfederal
+  name: plannedcommit_nccfederal
+  data_type: number
+  description: Sum of Federal funding across all commitments associated with the project.
+  example: None
+- id: plannedcommit_nccother
+  name: plannedcommit_nccother
+  data_type: number
+  description: Sum of Other funding across all commitments associated with the project.
+  example: None
+- id: plannedcommit_noncitycost
+  name: plannedcommit_noncitycost
+  data_type: number
+  description: Sum of Non-City funding across all commitments associated with the
+    project.
+  example: None
+- id: plannedcommit_total
+  name: plannedcommit_total
+  data_type: number
+  description: Sum of City Cost and Non-City Cost, which reports the total planned
+    commitments for the project allocated in the Capital Commitment Plan.
+  example: None
+- id: plannedcommit_total
+  name: plannedcommit_total
+  data_type: number
+  description: Sum of City Cost and Non-City Cost, which reports the total planned
+    commitments for the project allocated in the Capital Commitment Plan.
+  example: None
+- id: adopt_ccnonexempt
+  name: adopt_ccnonexempt
+  data_type: number
+  description: Sum of City adopted funding (Non-Exempt) associated with the project
+    within in the City's budget.
+  example: None
+- id: adopt_ccexempt
+  name: adopt_ccexempt
+  data_type: number
+  description: Sum of City adopted funding (Exempt) with the project within in the
+    City's budget.
+  example: None
+- id: adopt_citycost
+  name: adopt_citycost
+  data_type: number
+  description: Sum of City adopted funding associated with the project within in the
+    City's budget.
+  example: None
+- id: adopt_nccstate
+  name: adopt_nccstate
+  data_type: number
+  description: Sum of State adopted funding associated with the project within in
+    the City's budget.
+  example: None
+- id: adopt_nccfederal
+  name: adopt_nccfederal
+  data_type: number
+  description: Sum of Federal adopted funding associated with the project within in
+    the City's budget.
+  example: None
+- id: adopt_nccother
+  name: adopt_nccother
+  data_type: number
+  description: Sum of Other adopted funding associated with the project within in
+    the City's budget.
+  example: None
+- id: adopt_noncitycost
+  name: adopt_noncitycost
+  data_type: number
+  description: Sum of Non-City adopted funding associated with the project within
+    in the City's budget.
+  example: None
+- id: adopt_total
+  name: adopt_total
+  data_type: number
+  description: Sum of of the total adopted funding associated with the project within
+    the City's budget.
+  example: None
+- id: allocate_ccnonexempt
+  name: allocate_ccnonexempt
+  data_type: number
+  description: Sum of City allocated funding (Non-Exempt) associated with the project
+    within in the City's budget.
+  example: None
+- id: allocate_ccexempt
+  name: allocate_ccexempt
+  data_type: number
+  description: Sum of City allocated funding (Exempt) with the project within in the
+    City's budget.
+  example: None
+- id: allocate_citycost
+  name: allocate_citycost
+  data_type: number
+  description: Sum of City allocated funding associated with the project within in
+    the City's budget.
+  example: None
+- id: allocate_nccstate
+  name: allocate_nccstate
+  data_type: number
+  description: Sum of State allocated funding associated with the project within in
+    the City's budget.
+  example: None
+- id: allocate_nccfederal
+  name: allocate_nccfederal
+  data_type: number
+  description: Sum of Federal allocated funding associated with the project within
+    in the City's budget.
+  example: None
+- id: allocate_nccother
+  name: allocate_nccother
+  data_type: number
+  description: Sum of Other allocated funding associated with the project within in
+    the City's budget.
+  example: None
+- id: allocate_noncitycost
+  name: allocate_noncitycost
+  data_type: number
+  description: Sum of Non-City allocated funding associated with the project within
+    in the City's budget.
+  example: None
+- id: allocate_total
+  name: allocate_total
+  data_type: number
+  description: Sum of of the total allocated funding associated with the project within
+    the City's budget.
+  example: None
+- id: commit_ccnonexempt
+  name: commit_ccnonexempt
+  data_type: number
+  description: Sum of City committed funding (Non-Exempt) associated with the project
+    within in the City's budget.
+  example: None
+- id: commit_ccexempt
+  name: commit_ccexempt
+  data_type: number
+  description: Sum of City committed funding (Exempt) with the project within in the
+    City's budget.
+  example: None
+- id: commit_citycost
+  name: commit_citycost
+  data_type: number
+  description: Sum of City committed funding associated with the project within in
+    the City's budget.
+  example: None
+- id: commit_nccstate
+  name: commit_nccstate
+  data_type: number
+  description: Sum of State committed funding associated with the project within in
+    the City's budget.
+  example: None
+- id: commit_nccfederal
+  name: commit_nccfederal
+  data_type: number
+  description: Sum of Federal committed funding associated with the project within
+    in the City's budget.
+  example: None
+- id: commit_nccother
+  name: commit_nccother
+  data_type: number
+  description: Sum of Other committed funding associated with the project within in
+    the City's budget.
+  example: None
+- id: commit_noncitycost
+  name: commit_noncitycost
+  data_type: number
+  description: Sum of Non-City committed funding associated with the project within
+    in the City's budget.
+  example: None
+- id: commit_total
+  name: commit_total
+  data_type: number
+  description: Sum of of the total committed funding associated with the project within
+    the City's budget.
+  example: None
+- id: spent_ccnonexempt
+  name: spent_ccnonexempt
+  data_type: number
+  description: Sum of City funding spent (Non-Exempt) associated with the project
+    within in the City's budget.
+  example: None
+- id: spent_ccexempt
+  name: spent_ccexempt
+  data_type: number
+  description: Sum of City funding spent (Exempt) with the project within in the City's
+    budget.
+  example: None
+- id: spent_citycost
+  name: spent_citycost
+  data_type: number
+  description: Sum of City funding spent associated with the project within in the
+    City's budget.
+  example: None
+- id: spent_nccstate
+  name: spent_nccstate
+  data_type: number
+  description: Sum of State funding spent associated with the project within in the
+    City's budget.
+  example: None
+- id: spent_nccfederal
+  name: spent_nccfederal
+  data_type: number
+  description: Sum of Federal funding spent associated with the project within in
+    the City's budget.
+  example: None
+- id: spent_nccother
+  name: spent_nccother
+  data_type: number
+  description: Sum of Other funding spent associated with the project within in the
+    City's budget.
+  example: None
+- id: spent_noncitycost
+  name: spent_noncitycost
+  data_type: number
+  description: Sum of Non-City funding spent associated with the project within in
+    the City's budget.
+  example: None
+- id: spent_total
+  name: spent_total
+  data_type: number
+  description: Sum of of the total funding spent associated with the project within
+    the City's budget.
+  example: None
+- id: spent_total_checkbooknyc
+  name: spent_total_checkbooknyc
+  data_type: number
+  description: Sum of check values from Checkbook NYC associated with the project.
+  example: None
+- id: geometry
+  name: geometry
+  data_type: text
+  description: Spatial data for the project.
+  example: None
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: ""
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  description: ""

@@ -1,0 +1,151 @@
+id: city_council_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__ccds }}
+  display_name: City Council Districts
+  each_row_is_a: Council district
+  date_made_public: "4/18/2013"
+  tags:
+  - city council districts
+  - election
+  - political
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nyccwi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_wi
+    custom:
+      destination_use: dataset_file
+    dataset_overrides:
+      overridden_columns:
+      - id: shape_length
+        name: Shape_Length
+      - id: coundist
+        custom:
+          api_name: coun_dist
+  tags: [25c]
+  custom:
+    four_four: mkqi-d8x3
+- id: socrata
+  type: open_data
+  files:
+  - id: nycc_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: 872g-cjhh
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/city-council/nycc_{{ current_version_lion }}.zip
+  - id: shapefile_wi
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/city-council/nyccwi_{{ current_version_lion }}.zip
+  - id: nycc_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycc_metadata.pdf
+  - id: nyccwi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyccwi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_wi
+    filename: nyccwi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        The City Council district boundaries for New York City including portions under water.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__ccds }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: City Council Districts (Water Areas Included)
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: shapefile
+    filename: nycc.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        The City Council district boundaries for New York City.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__ccds }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: City Council Districts
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nycc_metadata.pdf
+    filename: nycc_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nyccwi_metadata.pdf
+    filename: nyccwi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_wi
+
+columns:
+- id: coundist
+  name: CounDist
+  data_type: integer
+  description: City Council district number
+  example: None
+- id: the_geom
+  data_type: geometry
+- id: shape_length
+  name: Shape_Length
+  data_type: decimal
+  custom:
+    api_name: shape_leng
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal

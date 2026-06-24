@@ -1,0 +1,11 @@
+id: zap
+
+dataset_defaults:
+  current_version: {{ current_version_zap }}
+  publishing_frequency: Monthly
+  attribution_link: https://zap.planning.nyc.gov/projects
+  date_made_public: '9/13/2021'
+
+datasets:
+- projects
+- bbls

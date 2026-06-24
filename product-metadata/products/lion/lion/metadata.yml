@@ -1,0 +1,99 @@
+id: lion
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__lion }}
+  description: |-
+    A single line street base map representing the city's streets and other linear geographic features, along with feature names and address ranges for each addressable street segment.  This dataset includes the Nodes file.  The Nodes file contains a point feature and unique NodeID for each node that exists in the LION file. The Node_StreetName.txt file lists the street names associated with those nodes. Most nodes, representing intersections, will have at least 2 street names associated in the Node_StreetName.txt file.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__lion }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: LION
+  each_row_is_a: City Street
+  tags:
+  - lion
+  - gis
+  - dcp
+  - department of city planning (dcp)
+  - nodes
+  date_made_public: '9/13/2021'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: altnames_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: node_stname_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: node_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: lion_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: lion_zip
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: 2v4z-66xt
+    is_unparsed_dataset: true
+- id: bytes
+  type: bytes
+  files:
+  - id: lion_zip
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{{ current_version_lion }}.zip
+  - id: lion_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/lion_metadata.pdf
+  - id: altnames_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/altnames_metadata.pdf
+  - id: node_stname_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/node_stname_metadata.pdf
+  - id: node_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/node_metadata.pdf
+
+files:
+- file:
+    id: lion_zip
+    filename: nyclion.zip
+    type: zip
+- file:
+    id: altnames_metadata.pdf
+    filename: altnames_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: node_stname_metadata.pdf
+    filename: node_stname_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: node_metadata.pdf
+    filename: node_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: lion_metadata.pdf
+    filename: lion_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns: []

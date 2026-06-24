@@ -1,0 +1,135 @@
+id: quartersection_zoning_map_index
+
+attributes:
+  attribution_link: {{ bytes_url__zoning_map_index }}
+  description: |-
+    Shapefile of zoning quartersection map index. Grid to determine which
+    zoning quartersection map relates to specific areas of NYC.
+
+    A sectional index grid to determine which Zoning Map refers to specific areas of New York
+    City. Zoning maps show the boundaries of zoning districts throughout the city.
+    The maps are regularly updated after the City Planning Commission and the City
+    Council have approved proposed zoning changes. The set of 126 maps, which are
+    part of the Zoning Resolution, are displayed in 35 sections. Each section is
+    identified by a number from 1 to 35 and is further divided into one to four
+    quarters, each identified by a letter a, b, c or d (map 8d or 33c for example).
+    Each map covers an area of approximately 8,000 feet (north/south) by 12,500
+    feet (east/west).
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_map_index }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zoning_map_index }}
+  display_name: Quartersection_ZoningMapIndex
+  each_row_is_a: Quarter Section Map Index
+  tags:
+  - zoning
+  - map
+  - quartersection
+  - index
+  - grid
+  - dcp
+  - planning
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: quartersection_zmi_zip
+    custom:
+      destination_use: attachment
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: wwcv-s7e7
+
+files:
+- file:
+    id: shapefile
+    filename: quartersection.shp.zip
+    type: shapefile
+- file:
+    id: quartersection_zmi_zip
+    filename: nyczoningmapindex_shp_201907_Quater.zip
+- file:
+    id: metadata_pdf
+    filename: quartersection_metadata.pdf
+
+columns:
+- id: quartersec
+  name: quartersec
+  data_type: text
+  description: |-
+    A quartersection of the zoning map index labeled by a letter identifying a quartersection.
+    Zoning maps show the boundaries of zoning districts throughout the city. The set of
+    126 maps, which are part of the Zoning Resolution, are displayed in 35 sections. Each
+    section is identified by a number from 1 to 35. Sections are further divided into four
+    quarter (quartersections), each identified by a letter a, b, c or d.
+    The combination of section number and quartersection letter is used to determine
+    which zoning map (map 8d or 33c for example) is related to a specific geographic area
+    in New York City. Sections are approximately 8,000 feet (north/south) by 12,500 feet
+    (east/west) or 100 million SF.
+  example: D
+  values:
+  - value: D
+  - value: C
+  - value: A
+  - value: B
+- id: zoning_map
+  name: zoning_map
+  data_type: text
+  example: 4D
+- id: section
+  name: SECTION
+  data_type: text
+  example: '33'
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  custom:
+    geometry_type: multipolygon
+- id: westmap
+  name: WESTMAP
+  data_type: text
+  example: 10A
+- id: eastmap
+  name: EASTMAP
+  data_type: text
+  example: 4D
+- id: northmap
+  name: NORTHMAP
+  data_type: text
+  example: 11C
+- id: southmap
+  name: SOUTHMAP
+  data_type: text
+  example: 4D
+- id: northwestm
+  name: NORTHWESTM
+  data_type: text
+  example: 7C
+- id: northeastm
+  name: NORTHEASTM
+  data_type: text
+  example: 4D
+- id: southwestm
+  name: SOUTHWESTM
+  data_type: text
+  example: 10A
+- id: southeastm
+  name: SOUTHEASTM
+  data_type: text
+  example: 4D
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  example: '40831.6775228'
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  example: '99732242.5363'

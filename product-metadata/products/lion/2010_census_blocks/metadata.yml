@@ -1,0 +1,187 @@
+id: 2010_census_blocks
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__census_blocks }}
+  display_name: 2010 Census Blocks
+  each_row_is_a: Census Block
+  tags:
+  - census block
+  - '2010'
+  - us census bureau
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '1/31/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nycb2010_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_water_not_included
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: y9w2-ph8n
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nycb2010wi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_water_included
+    dataset_overrides:
+      overridden_columns:
+      - id: borocode
+        custom:
+          api_name: boro_code
+      - id: boroname
+        custom:
+          api_name: boro_name
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary_wi
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: jyp7-eqhh
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile_water_not_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/census-blocks/nycb2010_{{ current_version_lion }}.zip
+  - id: shapefile_water_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/census-blocks/nycb2010wi_{{ current_version_lion }}.zip
+  - id: nycb2010_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycb2010_metadata.pdf
+  - id: nycb2010wi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycb2010wi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_water_not_included
+    filename: nycb2010.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |
+        Census Blocks from the 2010 US Census for New York City clipped to the shoreline. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map. Because some census blocks are under water not all census blocks are contained in this file, only census blocks that are partially or totally located on land have been mapped in this file.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__census_blocks }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: 2010 Census Blocks
+- file:
+    id: shapefile_water_included
+    filename: nycb2010wi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |
+        Census Blocks from the 2010 US Census for New York City including portions under water. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__census_blocks }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: 2010 Census Blocks (water areas included)
+- file:
+    id: nycb2010_metadata.pdf
+    filename: nycb2010_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nycb2010wi_metadata.pdf
+    filename: nycb2010wi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_water_not_included
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_water_included
+
+columns:
+- id: cb2010
+  name: CB2010
+  data_type: text
+  description: Census block number.
+  example: '1000'
+- id: borocode
+  name: BoroCode
+  data_type: text
+  description: Borough code for the borough in which the census block is located.
+  example: None
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough name.
+  example: Queens
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: ct2010
+  name: CT2010
+  data_type: text
+  description: Census tract number.
+  example: 013800
+- id: bctcb2010
+  name: BCTCB2010
+  data_type: text
+  description: Merged string value of the borough code (BoroCode), census tract number (CT2010), and census
+    block number (CB2010).
+  example: '20060002009'
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+- id: shape_leng
+  name: Shape_Length
+  data_type: decimal
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: None
+  example: None

@@ -1,0 +1,39 @@
+id: lion
+
+dataset_defaults:
+  current_version: {{ current_version_lion }}
+  publishing_frequency: Quarterly
+
+datasets:
+  - 2010_census_blocks
+  - 2010_census_tracts
+  - 2010_neighborhood_tabulation_areas
+  - 2010_public_use_microdata_areas
+  - 2020_census_blocks
+  - 2020_census_tracts
+  - 2020_community_district_tabulation_areas
+  - 2020_neighborhood_tabulation_areas
+  - 2020_public_use_microdata_areas
+  - atomic_polygons
+  - borough_boundaries
+  - city_council_districts
+  - community_districts
+  - congressional_districts
+  - election_districts
+  - fire_battalions
+  - fire_companies
+  - fire_divisions
+  - health_areas
+  - health_center_districts
+  - hurricane_evacuation_zones
+  - lion
+  - lion_differences_file
+  - municipal_court_districts
+  - police_precincts
+  - property_address_directory
+  - pseudo_lots
+  - roadbed_pointer_list
+  - school_districts
+  - state_assembly_districts
+  - state_senate_districts
+  - street_name_dictionary

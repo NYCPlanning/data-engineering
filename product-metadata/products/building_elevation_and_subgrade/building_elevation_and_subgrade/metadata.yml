@@ -1,0 +1,261 @@
+id: building_elevation_and_subgrade
+
+attributes:
+  attribution_link: {{ bytes_url__building_elevation_and_subgrade }}
+  description: |
+    The Building Elevation and Subgrade data contains New York City building
+    centroids derived from the Department of Building's (DOB) February 26th, 2022
+    building footprint dataset. Each record contains a grade and first floor measurement
+    for each building (recorded as feet above sea-level in the NADV88 vertical datum)
+    and indicates if subgrade space exists. DCP contracted with an external data vendor
+    to generate a single point, or centroid, that represented the location of the
+    center of every building recorded in the DOB dataset. The dataset excluded the
+    footprints of small accessory buildings such as sheds. Each row within the dataset
+    represents one building centroid, and records the X and Y coordinates of that
+    centroid in the NAD 1983 coordinate system. Current version: {{ current_version_building_elevation_and_subgrade }}
+  display_name: Building Elevation and Subgrade (BES)
+  each_row_is_a: A centroid of a building in NYC
+  tags:
+  - building
+  - elevation
+  - subgrade
+  - bes
+  - flooding
+  - flood risk
+  - resiliency
+  - sustainability
+  - climate change
+  - department of city planning
+  - dcp
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  custom:
+    four_four: bsin-59hv
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: readme
+    custom:
+      destination_use: attachment
+  - id: data_dictionary
+    custom:
+      destination_use: attachment
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/bes_{{ current_version_building_elevation_and_subgrade }}.zip
+  - id: readme
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/bes_readme.pdf
+  - id: data_dictionary
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/bes_datadictionary.xlsx
+
+files:
+- file:
+    id: shapefile
+    filename: bes.shp.zip
+    type: shapefile
+- file:
+    id: readme
+    filename: Building_Elevation_and_Subgrade-Dataset_Guidance.pdf
+    is_metadata: true
+- file:
+    id: data_dictionary
+    filename: Building_Elevation_and_Subgrade-Data_Dictionary.xlsx
+    is_metadata: true
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Geometry type
+  custom:
+    geometry_type: point
+- id: bin
+  name: bin
+  data_type: integer
+  description: The building identification number - a unique identifier for every
+    building in New York City, assigned by the Department of Buildings. First digit
+    is the boro code, followed by six digit unique ID.
+  example: '3055581.0'
+- id: bbl
+  name: bbl
+  data_type: integer
+  description: The borough, block, lot identifier based on the 22v1 DOB building footprint
+    dataset. An identifier for the tax lot that the building centroid is located on.
+  example: '5030247501'
+- id: borough
+  name: borough
+  data_type: text
+  description: The borough code for the borough where the building is located.
+  example: '4'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: block
+  name: block
+  data_type: integer
+  description: The block where the building is located.
+  example: '2450'
+- id: lot
+  name: lot
+  data_type: integer
+  description: The lot where the building is located.
+  example: '1'
+- id: address
+  name: address
+  data_type: text
+  description: The street address of the building.
+  example: FINGERBOARD ROAD
+- id: z_grade
+  name: z_grade
+  data_type: decimal
+  description: The elevation of the building at it's lowest adjacent grade - the lowest
+    point where the building touches the ground (feet).
+  example: '0.0'
+- id: z_floor
+  name: z_floor
+  data_type: decimal
+  description: The elevation of what is estimated to be the lowest actively used floor
+    (feet)
+  example: '0.0'
+- id: subgrade
+  name: subgrade
+  data_type: text
+  description: Whether or not a subgrade space was observed.
+  example: Y
+  values:
+  - value: Y
+    description: "Yes"
+  - value: N
+    description: "No"
+- id: notes1
+  name: notes1
+  data_type: text
+  description: Indicates if there were any obstacles to obtaining the z_grade or z_floor
+    measurement.
+  example: Property was Successfully Measured
+- id: notes2
+  name: notes2
+  data_type: text
+  description: Indicates any present ground floor attributes of the building.
+  example: Commercial, Industrial or other Non-Residential Lowest Floor Active Use
+  values:
+  - value: Commercial, Industrial or other Non-Residential Lowest Floor Active Use
+  - value: Attached Garage to Living Space
+  - value: Fully Enclosed Ground floor for Apartment Lobby, Parking, or Access (includes
+      sites with visible flood vents)
+  - value: Commercial, Industrial or other Non-Residential Lowest Floor Active Use;
+      Fully Enclosed Ground floor for Apartment Lobby, Parking, or Access (includes
+      sites with visible flood vents)
+  - value: Partially Enclosed or Unenclosed Ground Floor for Parking or Access
+  - value: Commercial, Industrial or other Non-Residential Lowest Floor Active Use;
+      Partially Enclosed or Unenclosed Ground Floor for Parking or Access
+  - value: Attached Garage to Living Space; Fully Enclosed Ground floor for Apartment
+      Lobby, Parking, or Access (includes sites with visible flood vents)
+  - value: Commercial, Industrial or other Non-Residential Lowest Floor Active Use;
+      Attached Garage to Living Space
+  - value: Attached Garage to Living Space; Partially Enclosed or Unenclosed Ground
+      Floor for Parking or Access
+- id: notes3
+  name: notes3
+  data_type: text
+  description: Indicates how flood water may enter a subgrade space.
+  example: Visible Door or Window in subgrade space
+  values:
+  - value: Visible Door or Window in subgrade space
+  - value: Visible Door or Window in subgrade space; Negative grade driveway walkway
+      leading down to subgrade space
+- id: x
+  name: x
+  data_type: decimal
+  description: The X coordinate of the building centroid in the NAD 1983 coordinate
+    system
+  example: '1006277.0'
+- id: y
+  name: y
+  data_type: decimal
+  description: The Y coordinate of the building centroid in the NAD 1983 coordinate
+    system
+  example: '142173.0'
+- id: latitude
+  name: latitude
+  data_type: decimal
+  description: Latitude in WGS84 / SRID:4326
+  example: '40.5568804'
+- id: longitude
+  name: longitude
+  data_type: decimal
+  description: Longitude in WGS84 / SRID:4326
+  example: '-73.9207308'
+- id: pluto_bbl
+  name: pluto_bbl
+  data_type: integer
+  description: The borough, block, lot from the MapPLUTO 22v2 release.  An identifier
+    for the tax lot that the building centroid is located on
+  example: '5030247501.0'
+- id: council
+  name: Council
+  data_type: integer
+  description: NYC City Council District code. This field contains a two-digit city
+    council district number, which is preceded with a zero when the district number
+    is one digit. There are currently 51 city council districts in the City, which
+    serve as political districts for the legislative branch of city government.
+  example: '51'
+- id: borocd
+  name: BoroCD
+  data_type: integer
+  description: NYC Community District code. 3 digit code, first digit is boro code,
+    followed by two digit community district or joint interest area number. The city
+    is divided into 59 community districts and 12 joint interest areas, which are
+    large parks or airports that are not considered part of any community district.
+  example: '503'
+- id: ctlabel
+  name: CTLabel
+  data_type: text
+  description: The census tract identifier for the polygon. Each census tract number
+    is unique to its borough.
+  example: '138'
+- id: boroct2020
+  name: BoroCT2020
+  data_type: text
+  description: Merged string of borough code and 2020 census tract number.
+  example: '4089201'
+- id: nta2020
+  name: NTA2020
+  data_type: text
+  description: 2020 Neighborhood Tabulation Area Code
+  example: SI0302
+- id: ntaname
+  name: NTAName
+  data_type: text
+  description: 2020 Neighborhood Tabulation Area Name
+  example: Great Kills-Eltingville
+- id: cdta2020
+  name: CDTA2020
+  data_type: text
+  description: 2020 Community District Tabulation Area Code
+  example: SI03
+- id: cdtaname
+  name: CDTAName
+  data_type: text
+  description: 2020 Community District Tabulation Area Name
+  example: SI03 South Shore (CD 3 Approximation)

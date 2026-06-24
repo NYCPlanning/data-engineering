@@ -1,0 +1,220 @@
+id: housing_database_by_2020_census_block
+
+attributes:
+  description: >-
+    Net change in housing units arising from new buildings, demolitions, or alterations for NYC Census Blocks since 2010. The NYC
+    Department of City Planning's (DCP) <a
+    href="https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-housing-database.page#housingdevelopmentproject">Housing
+    Database</a> provide the 2010 census count of housing units, the net change in Class A housing units since the census, and the
+    count of units pending completion for commonly used political and statistical boundaries. These tables are aggregated from the
+    DCP Housing Database, which is derived from Department of Buildings (DOB)-approved housing construction and demolition jobs
+    filed or completed in NYC since January 1, 2010. Net housing unit change is calculated as the sum of all three construction
+    job types that add or remove residential units: new buildings, major alterations, and demolitions, and can be used to
+    determine the change in legal housing units across time and space.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__housing_database }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_developments }}
+  display_name: Housing Database by 2020 Census Block
+  each_row_is_a: census block
+  tags:
+  - housing
+  - house
+  - building
+  - development
+  - dwelling unit
+  - certificate of occupancy
+  - co
+  - permit
+  - job application
+  - filing
+  - net units
+  - unit change
+  - pipeline
+  - construction
+  - census block
+  - census tract
+  - nta
+  - puma
+  - city council district
+  - community district
+  date_made_public: "4/7/2021"
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: data_dictionary
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: 8zyi-kxay
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_cblock_{{ current_version_developments }}_shp.zip
+  - id: csv
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_cblock_{{ current_version_developments }}_csv.zip
+  - id: data_dictionary
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/Housing_Summary_Files_Data_Dictionary.xlsx
+
+files:
+- file:
+    id: shapefile
+    filename: HousingDB_by_2020_CensusBlock.shp.zip
+    type: shapefile
+- file:
+    id: csv
+    filename: HousingDB_by_20202_CensusBlock.csv
+    type: csv
+- file:
+    id: data_dictionary
+    filename: Housing_Summary_Files_Data_Dictionary.xlsx
+    is_metadata: true
+    type: None
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: geometry of the Census Block
+  example: None
+  custom:
+    readme_data_type: geometry
+- id: cenblock2020
+  name: cenblock2020
+  data_type: text
+  example: '360470569002003'
+- id: bctcb2020
+  name: bctcb2020
+  data_type: text
+  example: '41241001018'
+- id: comp2010ap
+  name: comp2010ap
+  data_type: integer
+  description: >-
+    Net number of class A housing units completed between April 1, 2010 and December 31, 2010, accounting for new buildings,
+    alterations, and demolitions
+  example: '253.0'
+- id: comp2010
+  name: comp2010
+  data_type: integer
+  description: Net number of class A housing units completed in 2010, accounting for new buildings, alterations, and demolitions
+  example: '188.0'
+- id: comp2011
+  name: comp2011
+  data_type: integer
+  description: Net number of class A housing units completed in 2011, accounting for new buildings, alterations, and demolitions
+  example: '122.0'
+- id: comp2012
+  name: comp2012
+  data_type: integer
+  description: Net number of class A housing units completed in 2012, accounting for new buildings, alterations, and demolitions
+  example: '34.0'
+- id: comp2013
+  name: comp2013
+  data_type: integer
+  description: Net number of class A housing units completed in 2013, accounting for new buildings, alterations, and demolitions
+  example: '70.0'
+- id: comp2014
+  name: comp2014
+  data_type: integer
+  description: Net number of class A housing units completed in 2014, accounting for new buildings, alterations, and demolitions
+  example: '46.0'
+- id: comp2015
+  name: comp2015
+  data_type: integer
+  description: Net number of class A housing units completed in 2015, accounting for new buildings, alterations, and demolitions
+  example: '63.0'
+- id: comp2016
+  name: comp2016
+  data_type: integer
+  description: Net number of class A housing units completed in 2016, accounting for new buildings, alterations, and demolitions
+  example: '41.0'
+- id: comp2017
+  name: comp2017
+  data_type: integer
+  description: Net number of class A housing units completed in 2017, accounting for new buildings, alterations, and demolitions
+  example: '2011.0'
+- id: comp2018
+  name: comp2018
+  data_type: integer
+  description: Net number of class A housing units completed in 2018, accounting for new buildings, alterations, and demolitions
+  example: '119.0'
+- id: comp2019
+  name: comp2019
+  data_type: integer
+  description: Net number of class A housing units completed in 2019, accounting for new buildings, alterations, and demolitions
+  example: '352.0'
+- id: comp2020
+  name: comp2020
+  data_type: integer
+  description: Net number of class A housing units completed in 2020, accounting for new buildings, alterations, and demolitions
+  example: '792.0'
+- id: comp2021
+  name: comp2021
+  data_type: integer
+  description: Net number of class A housing units completed in 2021, accounting for new buildings, alterations, and demolitions
+  example: '658.0'
+- id: comp2022
+  name: comp2022
+  data_type: integer
+  description: Net number of class A housing units completed in 2022, accounting for new buildings, alterations, and demolitions
+  example: '93.0'
+- id: comp2023
+  name: comp2023
+  data_type: integer
+  description: Net number of class A housing units completed in 2023 accounting for new buildings, alterations, and demolitions
+  example: '74.0'
+- id: comp2024
+  name: comp2024
+  data_type: integer
+  description: Net number of class A housing units completed year to date, accounting for new buildings, alterations, and demolitions
+  example: '74.0'
+- id: cenunits20
+  name: cenunits20
+  data_type: integer
+  description: Number of total housing units counted in Census on April 1, 2020
+  example: '55202'
+- id: filed
+  name: filed
+  data_type: integer
+  description: Net number of incomplete class A housing units where the job status is filed. Excludes inactive jobs.
+  example: '713.0'
+- id: approved
+  name: approved
+  data_type: integer
+  description: Net number of incomplete class A housing units where the job status is application approved. Excludes inactive jobs.
+  example: '509.0'
+- id: permitted
+  name: permitted
+  data_type: integer
+  description: Net number of incomplete class A housing units where the job status is permit issued. Excludes inactive jobs.
+  example: '390.0'
+- id: withdrawn
+  name: withdrawn
+  data_type: integer
+  description: Net number of incomplete class A housing units where the job status is withdrawn.
+  example: '316.0'
+- id: inactive
+  name: inactive
+  data_type: integer
+  description: Net number of incomplete class A housing units where the job is inactive but not withdrawn.
+  example: '239.0'
+- id: shape_area
+  name: Shape__Area
+  data_type: decimal
+  example: '665197816.296'
+- id: shape_length
+  name: Shape__Length
+  data_type: decimal
+  example: '58169.108768'

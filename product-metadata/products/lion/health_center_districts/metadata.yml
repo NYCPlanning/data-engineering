@@ -1,0 +1,128 @@
+id: health_center_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__health }}
+  description: |-
+    Health center service area boundaries for New York City. Health Center service areas are aggregates of health areas and are used for reporting health statistics. They were created by the NYC Department of Health and Mental Hygiene (DOHMH).
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__health }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Health Center Districts
+  each_row_is_a: Health Center district
+  tags:
+  - health center sevice area
+  - dohmh
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '2/23/2015'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nyhc_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: boro_code
+        name: Borough Code
+      - id: boro_name
+        name: Borough Name
+      - id: health_center_district
+        name: Health Center number
+        custom:
+          api_name: hcent_dist
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: 6ez8-za84
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/health-center/nyhc_{{ current_version_lion }}.zip
+  - id: nyhc_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyhc_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nyhc.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: boro_code
+      name: borocode
+    - id: boro_name
+      name: boroname
+    - id: health_center_district
+      name: hcentdist
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nyhc_metadata.pdf
+    filename: nyhc_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: boro_code
+  name: BoroCode
+  data_type: integer
+  description: Borough code for the Health Area.
+  example: None
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boro_name
+  name: BoroName
+  data_type: text
+  description: Borough Name for the Health Area.
+  example: Queens
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: health_center_district
+  name: HealthCenterDistrict
+  data_type: integer
+  description: Denotes the Health Area number.
+  example: None
+- id: shape_length
+  data_type: decimal
+- id: shape_area
+  data_type: decimal
+- id: the_geom
+  data_type: geometry

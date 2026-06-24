@@ -1,0 +1,13 @@
+id: test_dcpy
+
+attributes:
+  display_name: Test Product for DCPY
+  description: Product used for testing dcpy metadata functionality. Do not use in production.
+
+dataset_defaults:
+  publishing_frequency: "{{ test_product_freq }}"
+  publishing_purpose: legal compliance
+  current_version: product-default-2.0
+
+datasets:
+  - test_overrides

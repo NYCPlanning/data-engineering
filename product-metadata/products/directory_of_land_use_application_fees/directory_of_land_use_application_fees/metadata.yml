@@ -1,0 +1,66 @@
+id: directory_of_land_use_application_fees
+
+attributes:
+  description: "Directory of Land Use Application and CEQR Fees required when filing\
+    \ application pursuant to City Charter 197-c and Other Applications with the Department\
+    \ of City Planning.\r\n\r\nA resource for applicants and general public to asses\
+    \ fees related to Land Use and CEQR applications at the Department of City Planning. Current version: {{ current_version_directory_of_land_use_application_fees }}"
+  display_name: Directory Of Land Use Application Fees
+  each_row_is_a: Land Use Application Fee
+  tags:
+  - ulurp
+  - ceqr
+  - application
+  - fees
+  - dcp
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: data_dictionary_xlsx
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: fdx7-6jsr
+# - id: bytes
+#   type: bytes
+#   files:
+#   - id:
+#     custom:
+#       url:
+
+files:
+# - file:
+#     id: dataset_xlsx
+#     filename:
+- file:
+    id: data_dictionary_xlsx
+    filename: data_dictionary.xlsx
+    is_metadata: true
+
+columns:
+- id: application_type
+  name: Application Type
+  data_type: text
+  description: Type of application filed based on land use (ULURP) or environmental (CEQR) action
+  example: CEQR Application Fee
+- id: land_use_detail
+  name: Land Use Detail
+  data_type: text
+  description: Variable that determines fee
+  example: 20,000 to 39,999 square feet
+- id: amount
+  name: Amount
+  data_type: decimal
+  description: Total due per application/variable
+  example: '3400.00'
+- id: comments
+  name: Comments
+  data_type: text
+  description: Additional notes about how fee is applied or calculated
+  example: Projects measurable in square feet (Square Footage of Total Project)

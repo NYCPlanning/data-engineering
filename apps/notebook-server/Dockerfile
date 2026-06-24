@@ -1,16 +1,8 @@
 # syntax=docker/dockerfile:1
 
-# Stage 1: Clone product metadata repo
-FROM alpine/git:latest as metadata-repo
-RUN git clone --depth 1 https://github.com/NYCPlanning/product-metadata.git /product-metadata
-
-# Stage 2: Main application
 FROM nycplanning/base:latest
 
 WORKDIR /app
-
-# Copy product metadata from stage 1
-COPY --from=metadata-repo /product-metadata/ product-metadata/
 
 # Copy dependency files first for better caching
 COPY --link admin/run_environment/constraints.txt admin/run_environment/
@@ -24,6 +16,7 @@ RUN python3 -m pip install -r apps/notebook-server/requirements.txt -c admin/run
 # Copy package files and install the main package
 COPY --link pyproject.toml .
 COPY --link dcpy/ dcpy/
+COPY --link product-metadata/ product-metadata/
 RUN python3 -m pip install . -c admin/run_environment/constraints.txt
 
 # Copy application files

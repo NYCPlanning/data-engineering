@@ -1,0 +1,84 @@
+id: new_york_city_neighborhood_name_centroid
+
+attributes:
+  description: |-
+    The New York City Neighborhood Names point file was created as a guide
+    to New York City’s neighborhoods that appear in the “New York: A City of Neighborhoods”
+    map poster and webpage. Best estimates of label centroids were established at
+    a 1:1,000 scale, but are ideally viewed at a 1:50,000 scale.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__new_york_city_neighborhood_name_centroid }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_new_york_city_neighborhood_name_centroid }}
+  display_name: New York City Neighborhood Name Centroids
+  publishing_frequency: As-Needed
+  each_row_is_a: Neighborhood Centroid
+  publishing_purpose:
+    'These points were created by the Department of City Planning
+    as a guide to the locations of neighborhood labels found on the Department of
+    City Planning''s "New York: A City of Neighborhoods" poster and webpage.'
+  tags:
+    - Neighborhood
+    - Label
+    - Centroid
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    custom:
+      four_four: 37v4-hksf
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: readme_pdf
+        custom:
+          destination_use: attachment
+  - id: bytes
+    type: bytes
+    files:
+      - id: shapefile
+        custom:
+          url: http://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nyc_nhoodsnames{{ current_version_new_york_city_neighborhood_name_centroid }}.zip
+      - id: readme_pdf
+        custom:
+          url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/meta_nhood.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: nyc_nhoodsnames.shp.zip
+      type: shapefile
+  - file:
+      id: readme_pdf
+      filename: meta_nhood.pdf
+      is_metadata: true
+
+columns:
+  - id: the_geom
+    name: the_geom
+    data_type: geometry
+    description: Feature geometry.
+  - id: name
+    name: Name
+    data_type: text
+  - id: stacked
+    name: Stacked
+    data_type: integer
+  - id: annoline1
+    name: AnnoLine1
+    data_type: text
+  - id: annoline2
+    name: AnnoLine2
+    data_type: text
+  - id: annoline3
+    name: AnnoLine3
+    data_type: text
+  - id: annoangle
+    name: AnnoAngle
+    data_type: decimal
+  - id: borough
+    name: Borough
+    data_type: text

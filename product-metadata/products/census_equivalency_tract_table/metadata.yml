@@ -1,0 +1,8 @@
+id: census_equivalency_tract_table
+
+dataset_defaults:
+  current_version: {{ current_version_census_equivalency_tract_table }}
+
+datasets:
+  - 2010_census_tract_to_neighborhood_tabulation_area_equivalency_table
+  - 2020_census_tracts_to_2020_ntas_and_cdtas_equivalency

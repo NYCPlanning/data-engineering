@@ -1,0 +1,7 @@
+id: new_york_city_neighborhood_name_centroid
+
+dataset_defaults:
+  current_version: {{ current_version_new_york_city_neighborhood_name_centroid }}
+
+datasets:
+- new_york_city_neighborhood_name_centroid

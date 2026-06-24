@@ -1,12 +1,12 @@
-import os
 from pathlib import Path
 
+from dcpy import configuration
 from dcpy.product_metadata.models.metadata import org as md
 
 
 def test_org_get_snippets():
     """Test that string snippets are loaded correctly from product-metadata repo."""
-    repo_path = Path(os.environ["PRODUCT_METADATA_REPO_PATH"])
+    repo_path = Path(configuration.PRODUCT_METADATA_REPO_PATH)
     snippets = md.OrgMetadata.get_string_snippets(repo_path)
 
     # Check that test snippets exist
@@ -21,7 +21,7 @@ def test_org_get_snippets():
 
 def test_org_get_column_defaults():
     """Test that column defaults are loaded correctly from product-metadata repo."""
-    repo_path = Path(os.environ["PRODUCT_METADATA_REPO_PATH"])
+    repo_path = Path(configuration.PRODUCT_METADATA_REPO_PATH)
     column_defaults = md.OrgMetadata.get_column_defaults(repo_path)
 
     # Just verify it's a dict and has some content

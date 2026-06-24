@@ -1,0 +1,111 @@
+id: zoning_features
+
+attributes:
+  attribution_link: {{ bytes_url__zoning_features }}
+  description: |-
+    This data set consists of 6 classes of zoning features: zoning districts, special purpose districts, special purpose district subdistricts, limited height districts, commercial overlay districts,  and zoning map amendments.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_features }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zoning }}
+  display_name: "Zoning GIS Data: Geodatabase"
+  each_row_is_a: "NA"
+  tags:
+  - zoning
+  - geographic
+  - location
+  - map
+  - cartography
+  - zone
+  - district
+  - commercial
+  - dcp
+  date_made_public: "9/13/2021"
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  custom:
+    four_four: mm69-vrje
+    is_unparsed_dataset: true
+  files:
+  - id: fgdb
+    custom:
+      destination_use: dataset_file
+  - id: nyco_metadata
+    custom:
+      destination_use: attachment
+  - id: nylh_metadata
+    custom:
+      destination_use: attachment
+  - id: nysp_metadata
+    custom:
+      destination_use: attachment
+  - id: nysp_sd_metadata
+    custom:
+      destination_use: attachment
+  - id: nyzd_metadata
+    custom:
+      destination_use: attachment
+  - id: nyzma_metadata
+    custom:
+      destination_use: attachment
+
+- id: bytes
+  type: bytes
+  files:
+  - id: fgdb
+    custom:
+      url: "{{ bytes_zip_prefix_url }}/gis-zoning-features/nycgiszoningfeatures_{{ current_version_zoning }}fgdb.zip"
+  - id: nyco_metadata
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/nyco_metadata.pdf"
+  - id: nylh_metadata
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/nylh_metadata.pdf"
+  - id: nysp_metadata
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/nysp_metadata.pdf"
+  - id: nysp_sd_metadata
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/nysp_sd_metadata.pdf"
+  - id: nyzd_metadata
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/nyzd_metadata.pdf"
+  - id: nyzma_metadata
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/nyzma_metadata.pdf"
+
+files:
+- file:
+    id: fgdb
+    filename: nycgiszoningfeatures_fgdb.zip
+    type: fgdb
+- file:
+    id: nyco_metadata
+    filename: nyco_metadata.pdf
+    is_metadata: true
+- file:
+    id: nylh_metadata
+    filename: nylh_metadata.pdf
+    is_metadata: true
+- file:
+    id: nysp_metadata
+    filename: nysp_metadata.pdf
+    is_metadata: true
+- file:
+    id: nysp_sd_metadata
+    filename: nysp_sd_metadata.pdf
+    is_metadata: true
+- file:
+    id: nyzd_metadata
+    filename: nyzd_metadata.pdf
+    is_metadata: true
+- file:
+    id: nyzma_metadata
+    filename: nyzma_metadata.pdf
+    is_metadata: true
+
+columns: []

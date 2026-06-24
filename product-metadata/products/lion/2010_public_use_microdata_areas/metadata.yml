@@ -1,0 +1,86 @@
+id: 2010_public_use_microdata_areas
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__pumas }}
+  description: |-
+    The 2010 NYC Public Use Microdata Areas (PUMAs) are statistical geographic areas defined for the dissemination of Public Use Microdata Sample (PUMS) data. PUMAs have a minimum population of 100,000 and were aggregated from 2010 census tracts. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City basemap.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__pumas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: 2010 Public Use Microdata Areas (PUMAs)
+  each_row_is_a: Public Use Microdata Area
+  tags:
+  - public use microdata area
+  - dcp
+  - city planning
+  - community
+  - area
+  - puma
+  - census
+  date_made_public: '7/14/2015'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nypuma2010_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: k2r4-n9ax
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/puma/nypuma2010_{{ current_version_lion }}.zip
+  - id: nypuma2010_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nypuma2010_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nypuma2010.zip
+    type: shapefile
+- file:
+    id: nypuma2010_metadata.pdf
+    filename: nypuma2010_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: text
+  example: None
+- id: puma
+  name: PUMA
+  data_type: text
+  description: 2010 PUMA number.
+  example: None
+- id: shape_area
+  name: Shape__Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: None
+- id: shape_leng
+  name: Shape__Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: None

@@ -1,0 +1,230 @@
+id: ztl
+
+attributes:
+  description: |-
+    The Zoning Tax Lot Database is a comma-separated values (CSV) file that contains
+    up-to-date zoning by parcel. The Database includes the zoning designations and
+    zoning map associated with a specific tax block and lot. The Database is updated on
+    a monthly basis to reflect rezoning and corrections to the file.
+    
+    All previously released versions of this data are available on the <a href="{{ bytes_url__ztl }}">DCP Website: BYTES of the BIG APPLE</a>.
+  display_name: NYC Zoning Tax Lot Database
+  publishing_frequency: Monthly
+  each_row_is_a: Tax Lot
+  date_made_public: '9/13/2021'
+  tags:
+  - dcp
+  - city planning
+  - property
+  - zoning
+  - nyc zoning tax lot database
+
+assembly:
+- id: csv_package
+  filename: nyczoningtaxlotdb.zip
+  type: zip
+  contents:
+  - id: zoningtaxlotdatabase_datadictionary.pdf
+    filename: zoningtaxlotdatabase_datadictionary.pdf
+  - id: primary_csv
+    filename: NY_ZoningTaxLotDB{{ current_version_zoning }}.csv
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: zoningtaxlotdatabase_datadictionary.pdf
+    custom:
+      destination_use: attachment
+  - id: primary_csv
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: fdkv-4t4z
+- id: bytes
+  type: bytes
+  files:
+  - id: csv_package
+    custom:
+      url: "{{ bytes_zip_prefix_url }}/zoning-tax-lot-database/nyczoningtaxlotdb_{{ current_version_zoning
+        }}.zip"
+
+files:
+- file:
+    id: primary_csv
+    filename: NY_ZoningTaxLotDB.csv
+    type: csv
+  dataset_overrides:
+    overridden_columns:
+    - id: borough_code
+      name: Borough Code
+    - id: tax_block
+      name: Tax Block
+    - id: tax_lot
+      name: Tax Lot
+    - id: bbl
+      name: BBL
+    - id: zoning_district_1
+      name: Zoning District 1
+    - id: zoning_district_2
+      name: Zoning District 2
+    - id: zoning_district_3
+      name: Zoning District 3
+    - id: zoning_district_4
+      name: Zoning District 4
+    - id: commercial_overlay_1
+      name: Commercial Overlay 1
+    - id: commercial_overlay_2
+      name: Commercial Overlay 2
+    - id: special_district_1
+      name: Special District 1
+    - id: special_district_2
+      name: Special District 2
+    - id: special_district_3
+      name: Special District 3
+    - id: limited_height_district
+      name: Limited Height District
+    - id: zoning_map_number
+      name: Zoning Map Number
+    - id: zoning_map_code
+      name: Zoning Map Code
+- file:
+    id: zoningtaxlotdatabase_datadictionary.pdf
+    filename: zoningtaxlotdatabase_datadictionary.pdf
+    is_metadata: true
+    type: None
+
+columns:
+- id: borough_code
+  name: Borough Code
+  data_type: integer
+  description: |-
+    The borough that the tax lot is located in.
+
+    (1=Manhattan, 2=Bronx, 3=Brooklyn, 4=Queens, 5=Staten Island)
+  example: '4'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: tax_block
+  name: Tax Block
+  data_type: integer
+  description: |-
+    The tax block that the tax lot is located in.
+
+    This field contains a one to five digit tax block number which is preceded with
+    leading blanks when the tax block is less than five digits.
+
+    Each tax block is unique within a borough (see BOROUGH).
+  example: '2925'
+- id: tax_lot
+  name: Tax Lot
+  data_type: integer
+  description: |-
+    The number of the tax lot.
+
+    This field contains a one to four digit tax lot number which is preceded with
+    leading blanks when the tax lot is less than four digits.
+
+    Each tax lot is unique within a tax block (see TAX BLOCK).
+  example: '1'
+- id: bbl
+  name: BBL
+  data_type: bbl
+  description: |-
+    A concatenation of the borough code, tax block and tax lot.
+
+    This field consists of the borough code followed by the tax block followed by the tax lot.  The borough code is one numeric digit.  The tax block is one to five numeric digits, preceded with leading zeros when the block is less than five digits.  The tax lot is one to four digits and is preceded with leading zeros when the lot is less than four digits.
+
+    For condominiums, the BBL is for the billing lot. See TAX LOT for more information on how condominiums are handled.
+
+    Examples:
+    Manhattan Borough Code 1, Tax Block 16, Tax Lot 100 would be stored as 1000160100.
+    Brooklyn Borough Code 3, Tax Block 15828, Tax Lot 7501 would be stored as 3158287501.
+  example: '5015250100'
+- id: zoning_district_1
+  name: Zoning District 1
+  data_type: text
+  description: |-
+    The zoning district classification of the tax lot or in a limited number
+    of cases the Zoning Resolution section number that pertains to special requirements
+    for selected properties in Queens.
+  example: R5
+- id: zoning_district_2
+  name: Zoning District 2
+  data_type: text
+  description: |-
+    If the tax lot is divided by zoning boundary lines, ZONING DISTRICT
+    2 represents the zoning classification occupying the second greatest percentage
+    of the tax lot's area.
+  example: R6B
+- id: zoning_district_3
+  name: Zoning District 3
+  data_type: text
+  description: |-
+    If the tax lot is divided by zoning boundary lines, ZONING DISTRICT
+    3 represents the zoning classification occupying the third greatest percentage
+    of the tax lot's area.
+  example: R5
+- id: zoning_district_4
+  name: Zoning District 4
+  data_type: text
+  description: |-
+    If the tax lot is divided by zoning boundary lines, ZONING DISTRICT
+    4 represents the zoning classification occupying the fourth greatest percentage
+    of the tax lot's area.
+  example: PARK
+- id: commercial_overlay_1
+  name: Commercial Overlay 1
+  data_type: text
+  description: The commercial overlay assigned to the tax lot.
+  example: C2-4
+- id: commercial_overlay_2
+  name: Commercial Overlay 2
+  data_type: text
+  description: A commercial overlay associated with the tax lot.
+  example: C2-4
+- id: special_district_1
+  name: Special District 1
+  data_type: text
+  description: The special purpose district assigned to the tax lot.
+  example: SRD
+- id: special_district_2
+  name: Special District 2
+  data_type: text
+  description: The special purpose district assigned to the tax lot.
+  example: TA
+- id: special_district_3
+  name: Special District 3
+  data_type: text
+  description: The special purpose district assigned to the tax lot.
+  example: None
+- id: limited_height_district
+  name: Limited Height District
+  data_type: text
+  description: The limited height district assigned to the tax lot.
+  example: LH-1
+- id: zoning_map_number
+  name: Zoning Map Number
+  data_type: text
+  description: |-
+    The Department of City Planning Zoning Map Number associated with
+    the tax lot's X and Y Coordinates.
+  example: 17A
+- id: zoning_map_code
+  name: Zoning Map Code
+  data_type: text
+  description: |-
+    A code (Y) identifies a border Tax Lot, i.e., a Tax Lot on that might
+    be on the border of two or more Zoning Maps.
+  example: Y

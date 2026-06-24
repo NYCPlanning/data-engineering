@@ -1,0 +1,189 @@
+id: municipal_court_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__municipal_court }}
+  display_name: Municipal Court Districts
+  each_row_is_a: Municipal Court district
+  tags:
+  - municipal court districts
+  - judicial
+  - judges
+  - law
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '1/31/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nymcwi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_wi
+    dataset_overrides:
+      overridden_columns:
+      - id: borocode
+        name: BoroCode
+      - id: boroname
+        name: BoroName
+      - id: municourt
+        name: MuniCourt
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: qssd-iewi
+- id: socrata
+  type: open_data
+  files:
+  - id: nymc_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: borocode
+        name: BoroCode
+      - id: boroname
+        name: BoroName
+      - id: municourt
+        name: MuniCourt
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: mi5z-t7dx
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/municipal-court/nymc_{{ current_version_lion }}.zip
+  - id: shapefile_wi
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/municipal-court/nymcwi_{{ current_version_lion }}.zip
+  - id: nymc_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nymc_metadata.pdf
+  - id: nymcwi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nymcwi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_wi
+    filename: nymcwi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        Boundaries of Municipal Court districts including portions under water.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__municipal_court }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: Municipal Court Districts (water areas included)
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: shapefile
+    filename: nymc.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        Boundaries of Municipal Court districts.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__municipal_court }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nymc_metadata.pdf
+    filename: nymc_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nymcwi_metadata.pdf
+    filename: nymcwi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_wi
+
+columns:
+- id: municourt
+  name: MuniCourt
+  data_type: integer
+  description: Municipal Court district number.
+  example: None
+  custom:
+    api_name: muni_court
+- id: borocode
+  name: BoroCode
+  data_type: text
+  description: Borough code for the borough in which the Municipal Court district is located.
+  example: '4'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+  custom:
+    api_name: boro_code
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough Name.
+  example: Queens
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+  custom:
+    api_name: boro_name
+- id: the_geom
+  data_type: geometry
+- id: shape_length
+  data_type: decimal
+- id: shape_area
+  data_type: decimal

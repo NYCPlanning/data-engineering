@@ -4,7 +4,7 @@
 
 Primary repository for the Data Engineering team at NYC Department of City Planning (DCP). We build and maintain geospatial and tabular data products for internal and external use.
 
-Also maintained: [Product Metadata](https://github.com/NYCPlanning/product-metadata) — specifications for DCP datasets.
+Product metadata now lives in the [`product-metadata/`](product-metadata/) directory of this repo. The standalone `NYCPlanning/product-metadata` repository has been deprecated and archived.
 
 ## Repo structure
 
@@ -12,6 +12,7 @@ Also maintained: [Product Metadata](https://github.com/NYCPlanning/product-metad
 |---|---|
 | `dcpy/` | Core Python package: lifecycle orchestration, connectors, utilities |
 | `products/` | One folder per data product — code, dbt models, recipe files, README |
+| `product-metadata/` | Dataset specifications (metadata.yml) for DCP products — copied from the former `product-metadata` repo |
 | `ingest_templates/` | YAML specs for extracting and archiving source datasets |
 | `apps/` | Docker Compose services: nginx reverse proxy, QA/QAQC Streamlit app (`/qaqc`), Dagster orchestration UI (`/dag`), marimo notebook server |
 | `docs/` | Technical reference (see below) |

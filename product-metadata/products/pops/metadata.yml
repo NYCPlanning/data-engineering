@@ -1,0 +1,7 @@
+id: pops
+
+dataset_defaults:
+  current_version: {{ current_version_pops }}
+
+datasets:
+- pops

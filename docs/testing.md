@@ -29,8 +29,8 @@ uv run python -m pytest dcpy/test
 > haven't installed the test extras locally, collection fails; `uv run python -m pytest dcpy/test
 > --noconftest` is the workaround. In CI the test deps are installed, so this isn't needed there.
 
-The **product-metadata tests** (`dcpy/test/product_metadata/`) additionally need a local clone of
-the product-metadata repo via `PRODUCT_METADATA_REPO_PATH` — see
+The **product-metadata tests** (`dcpy/test/product_metadata/`) read from the in-repo
+`product-metadata/` directory by default — no extra setup required. See
 [dcpy/README.md → Testing](./dcpy/README.md#testing).
 
 ### dcpy integration tests (`dcpy/test_integration/`)
@@ -66,7 +66,7 @@ Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflow
 ## How CI runs the dcpy suite
 
 `test_helper.yml` (job `pytest_dcpy`) runs inside the `de` dev container with `postgis` and
-`sftp-server` services, after cloning product-metadata. Roughly:
+`sftp-server` services. Roughly:
 
 ```bash
 # main unit suite (library excluded), with coverage

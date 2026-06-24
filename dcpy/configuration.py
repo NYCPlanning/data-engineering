@@ -36,19 +36,36 @@ PRODUCTS_TO_LOG = [
 ]
 IGNORED_LOGGING_BUILDS = ["nightly_qa", "compile_python_reqs"]
 
-PRODUCT_METADATA_REPO_PATH = env.get("PRODUCT_METADATA_REPO_PATH")
-if not PRODUCT_METADATA_REPO_PATH:
-    logger.warning(
-        "warning: PRODUCT_METADATA_REPO_PATH is not set. Product Metadata will not function."
-    )
-elif not Path(PRODUCT_METADATA_REPO_PATH).exists():
+# Project root directory (assumes dcpy is at PROJECT_ROOT/dcpy)
+PROJECT_ROOT_PATH = Path(__file__).parent.parent
+
+
+# Migrated product metadata from its own repo to a top-level directory in this repo
+# (product-metadata/, next to products/). Resolve it relative to the runtime checkout
+# rather than dcpy's install location: when dcpy is installed into an image
+# (site-packages), __file__ can't see the checked-out repo. Walking up from the working
+# directory finds the checkout we're actually running in, so dev-branch metadata changes
+# are picked up without rebuilding images or setting the path in every workflow — the
+# same way the products/ directory is already referenced by path.
+def _default_product_metadata_repo_path() -> Path:
+    # An explicit override wins (containers that set it, or pointing at another checkout).
+    override = env.get("PRODUCT_METADATA_REPO_PATH")
+    if override:
+        return Path(override)
+    # Otherwise find the checkout by walking up from the working directory.
+    for directory in (Path.cwd(), *Path.cwd().parents):
+        candidate = directory / "product-metadata"
+        if (candidate / "metadata.yml").exists():
+            return candidate
+    # Fall back to the package-relative copy (editable / checkout installs).
+    return PROJECT_ROOT_PATH / "product-metadata"
+
+
+PRODUCT_METADATA_REPO_PATH = _default_product_metadata_repo_path()
+if not PRODUCT_METADATA_REPO_PATH.exists():
     logger.warning(
         f"PRODUCT_METADATA_REPO_PATH: {PRODUCT_METADATA_REPO_PATH} points to a nonexistent path"
     )
-
-
-# Project root directory (assumes dcpy is at PROJECT_ROOT/dcpy)
-PROJECT_ROOT_PATH = Path(__file__).parent.parent
 
 INGEST_DEF_DIR = Path(env.get("TEMPLATE_DIR", "./ingest_templates"))
 if not INGEST_DEF_DIR:

@@ -1,0 +1,162 @@
+id: state_assembly_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__state_assembly }}
+  display_name: State Assembly Districts
+  each_row_is_a: State Assembly district
+  tags:
+  - state assembly districts
+  - new york state
+  - nys
+  - election
+  - political
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '4/4/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nyadwi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_wi
+    dataset_overrides:
+      overridden_columns:
+      - id: assembly_district
+        name: Assembly District
+        custom:
+          api_name: assem_dist
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary_wi
+  #   custom:
+  #     destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: nymm-wb5m
+- id: socrata
+  type: open_data
+  files:
+  - id: nyad_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: assembly_district
+        name: Assembly District
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: 5yfv-9hkp
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/state-assembly/nyad_{{ current_version_lion }}.zip
+  - id: shapefile_wi
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/state-assembly/nyadwi_{{ current_version_lion }}.zip
+  - id: nyad_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyad_metadata.pdf
+  - id: nyadwi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyadwi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_wi
+    filename: nyadwi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        New York State Assembly District boundaries for New York City including portions under water.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__state_assembly }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: State Assembly Districts (water areas included)
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+    - id: assembly_district
+      name: assemdist
+- file:
+    id: shapefile
+    filename: nyad.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        New York State Assembly District boundaries for New York City clipped to the shoreline.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__state_assembly }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+    - id: assembly_district
+      name: assemdist
+- file:
+    id: nyad_metadata.pdf
+    filename: nyad_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nyadwi_metadata.pdf
+    filename: nyadwi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_wi
+
+columns:
+- id: assembly_district
+  name: AssemblyDistrict
+  data_type: integer
+  description: State Assembly district number.
+  example: None
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+- id: shape_length
+  data_type: decimal
+- id: shape_area
+  data_type: decimal

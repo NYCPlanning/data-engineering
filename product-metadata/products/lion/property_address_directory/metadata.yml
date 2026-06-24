@@ -1,0 +1,75 @@
+id: property_address_directory
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__pad }}
+  description: |-
+    The PAD (Property Address Directory) file contains additional geographic information at the tax lot level not found in the PLUTO files.  This data includes alias addresses and Building Identification Numbers (BINs).  It consists of two ASCII, comma delimited files: a tax lot file and an address file.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__pad }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Property Address Directory
+  each_row_is_a: Property Address
+  date_made_public: '9/13/2021'
+  tags:
+  - dcp
+  - pad
+  - property address directory
+  - lot
+  - tax lot
+  - building
+  - city planning
+  - planning
+  - block
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: padlayout.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: bc8t-ecyu
+    is_unparsed_dataset: true
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/pad/pad_{{ current_version_lion }}.zip
+  - id: padlayout.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/padlayout.pdf
+  - id: padgui.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/padgui.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: pad.zip
+    type: shapefile
+- file:
+    id: padlayout.pdf
+    filename: padlayout.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: padgui.pdf
+    filename: padgui.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns: []

@@ -1,0 +1,565 @@
+id: housing_database_project_level_files
+
+attributes:
+  attribution_link: {{ bytes_url__housing_database_project_level_files }}
+  description: >-
+    The NYC Department of City Planning's (DCP) <a
+    href="https://www.nyc.gov/site/planning/data-maps/open-data/dwn-housing-database.page#housingdevelopmentproject">Housing
+    Database</a> contains all NYC Department of Buildings (DOB) approved housing construction and demolition jobs filed or
+    completed in NYC since January 1, 2010. It includes the three primary construction job types that add or remove residential
+    units: new buildings, major alterations, and demolitions,  and can be used to determine the change in legal housing units
+    across time and space. Records in the Housing Database Project-Level Files  are geocoded to the greatest level of precision
+    possible, subject to numerous quality assurance and control checks, recoded for usability,  and joined to other housing data
+    sources relevant to city planners and analysts.
+
+    Data are updated semiannually, at the end of the second and fourth quarters of each year.
+
+    Please see DCP's annual Housing Production Snapshot summarizing findings from the 21Q4 data release  <a
+    href="https://storymaps.arcgis.com/stories/1c9138dc24064b2e8142ff156345a719">here. Additional Housing and Economic analyses
+    are also  <a href="https://www.nyc.gov/site/planning/planning-level/housing-economy/housing-economy.page">available</a>.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__housing_database_project_level_files }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_developments }}
+  display_name: Housing Database Project Level Files
+  each_row_is_a: unique job record at the Department of Buildings to alter or demolish an existing building or construct a new one.
+  tags:
+  - housing
+  - house
+  - building
+  - development
+  - dwelling unit
+  - certificate of occupancy
+  - co
+  - permit
+  - job application
+  - filing
+  - net units
+  - unit change
+  - pipeline
+  - construction
+  - census block
+  - census tract
+  - nta
+  - puma
+  - city council district
+  - community district
+  date_made_public: '5/21/2024'
+  geocoded: true
+  contains_address: true
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_inactive_included
+  type: open_data
+  #overrides:
+  #  display_name: Housing Database Project Level Files - Inactive Included
+  files:
+  - id: shapefile_inactive_included
+    custom:
+      destination_use: dataset_file
+  - id: data_dictionary
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: br6q-ssj3
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_{{ current_version_developments }}_shp.zip
+  - id: csv
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_{{ current_version_developments }}_csv.zip
+  - id: shapefile_inactive_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_inactiveincluded_{{ current_version_developments }}_shp.zip
+  - id: csv_inactive_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_inactiveincluded_{{ current_version_developments }}_csv.zip
+  - id: data_dictionary
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/Housing_Database_Data_Dictionary.xlsx
+
+files:
+- file:
+    id: shapefile
+    filename: nychdb_{{ current_version_developments }}_shp.zip
+    type: shapefile
+- file:
+    id: csv
+    filename: nychdb_{{ current_version_developments }}_csv.zip
+    type: csv
+- file:
+    id: shapefile_inactive_included
+    filename: nychdb_inactiveincluded_{{ current_version_developments }}_shp.zip
+    type: shapefile
+- file:
+    id: csv_inactive_included
+    filename: nychdb_inactiveincluded_{{ current_version_developments }}_csv.zip
+    type: csv
+- file:
+    id: data_dictionary
+    filename: Housing_Database_Data_Dictionary.xlsx
+    is_metadata: true
+    type: None
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Geometry field used for mapping.
+  example: '{''coordinates'': [1006276.9556583731, 142173.22203716455], ''type'': ''Point''}'
+- id: job_number
+  name: Job_Number
+  data_type: text
+  description: >
+    The DOB job application number assigned when the applicant begins the application.  This is the unique identifier for the
+    application submitted to the Department of Buildings (DOB).  It may contain several work types, and more work types may be
+    added as the application review and the work continues.  It is a 9-digit number where the first digit indicates the borough
+    where the building is located.
+  example: '320241010'
+- id: job_type
+  name: Job_Type
+  data_type: text
+  description: >-
+    DOB's type category for the job application. More information is available here. The following types are included in this
+    database: New Building (NB): an application to build a new structure. “NB” cannot be selected if any existing building
+    elements are to remain—for example a part of an old foundation, a portion of a façade that will be incorporated into the
+    construction, etc. Alteration Type I (A1): a major alteration that will change the use, egress, or occupancy of the building.
+    Demolition (DM): an application to fully or partially demolish an existing building. Note that many demolition permits are
+    only for partial demolitions and for garages (these are also captured).
+  example: Alteration
+  values:
+  - value: Alteration
+    description: a major alteration that will change the use, egress, or occupancy of the building.
+  - value: New Building
+    description: an application to build a new structure. “NB” cannot be selected if any existing building elements are to remain—for
+      example a part of an old foundation, a portion of a façade that will be incorporated into the construction, etc.
+  - value: Demolition
+    description: an application to fully or partially demolish an existing building. Note that many demolition permits are only for
+      partial demolitions and for garages (these are also captured).
+- id: residflag
+  name: ResidFlag
+  data_type: text
+  description: >
+    This field is used to identify jobs in buildings containing residential uses.  A value of "residential" indicates that the job
+    affects residential units in some way through new construction, alteration, or demolition.  Only those jobs with a value of
+    "residential" are included in the housing database.  Manual research was conducted at DCP to help ensure that all work on
+    buildings with residences receive this flag, though some records may remain misclassified.
+  example: Residential
+  values:
+  - value: Residential
+- id: nonresflag
+  name: NonresFlag
+  data_type: text
+  description: >
+    This field is used to identify jobs in buildings containing non-residential uses.  A value of "non-residential" indicates that
+    the job affects some use type beyond residential, including commercial, industrial, or community facility uses.  Mixed-use
+    buildings will have values in both the Resid_Flag and Nonresid_Flag, since they contain both residential and nonresidential
+    uses, but having flags  in both of those columns does not necessarily mean that it is a mixed-use development since the flags
+    do not distinguish between the initial and proposed uses in the building.
+  example: Non-Residential
+  values:
+  - value: Non-Residential
+- id: job_status
+  name: Job_Status
+  data_type: text
+  description: |
+    DCP recode of DOB's status label. This describes the status of the job at the date of the data vintage. For example, a job marked as "3. Permitted" was at that status as of June 30, 2020 if using version 20Q2 of the DCP Housing Database. More details on each DOB status is available here:
+
+    https://www1.nyc.gov/assets/buildings/pdf/bisjobstatus.pdf
+
+    Jobs typically move through status A through X over time as they reach certain approval milestones:
+
+    1. Filed: job application is at status A - G at the time of publication. Application submitted, but review is not yet in progress.
+
+    2. Plan Examination: application is at status H - P. Plan examination is in progress, but not yet approved.
+
+    3. Permitted: application is at status Q and R and may begin construction.
+
+    4. Partial Complete: application at status U and X, and CO issued for NB or A1 job type, and the CO is a Temporary CO AND less than 80% of the units are completed for a building with 20 or more units.
+
+    5. Complete: For new buildings and alterations, application is at status U and X, or a CO has been issued. For demolitions, the application is at status X. DCP has decided to mark demolitions as complete when they reach status X, but list the completion date as equal to status Q because this is likely when the building must be vacated, and it appears that many buildings are physically demolished some time before receiving sign off (status X).
+
+    9. Withdrawn: application is at status 3. The application has been withdrawn by the applicant.
+  example: 5. Completed Construction
+  values:
+  - value: 1. Filed Application
+  - value: 2. Approved Application
+  - value: 3. Permitted for Construction
+  - value: 4. Partially Completed Construction
+  - value: 5. Completed Construction
+- id: compltyear
+  name: CompltYear
+  data_type: text
+  description: >
+    Year the job was completed.  For new buildings and alterations, this is defined as the year of the first certificate of
+    occupancy issuance.
+     For demolitions, this is the year that the demolition was permitted (reached status Q).
+  example: '2010'
+- id: permityear
+  name: PermitYear
+  data_type: text
+  description: Year the job was permitted. For all job types, this is defined as the status Q year.
+  example: '2017'
+- id: classainit
+  name: ClassAInit
+  data_type: decimal
+  description: |
+    Number of units that initially existed in the building at the time of the job application, as reported by the applicant. This field is edited by DCP to only count Class A units, which are units in houses or apartment buildings intended for long-term residential use (greater than 30 days), and typically do not require the use of shared kitchens and bathrooms. The definition of Class A and other unit types is available here:
+
+    https://www1.nyc.gov/assets/buildings/pdf/MultipleDwellingLaw.pdf
+  example: '0.0'
+- id: classaprop
+  name: ClassAProp
+  data_type: decimal
+  description: Number of units proposed in the job application after the proposed work has been completed, as reported by the
+    applicant and edited by DCP to count only Class A units.
+  example: '2.0'
+- id: classanet
+  name: ClassANet
+  data_type: decimal
+  description: Net change in Class A unit count between the number of units existing at the time of application and the number of
+    units proposed.
+  example: '0.0'
+- id: hotelinit
+  name: HotelInit
+  data_type: text
+  description: >
+    Number of hotel units that initially existed in the building at the time of the job application, as determined through DCP
+    research.  Note that hotel units are a subtype of Class B units which are typically occupied as for-profit businesses for
+    short-term (less than 30 days), full-service lodging.
+  example: '0'
+- id: hotelprop
+  name: HotelProp
+  data_type: text
+  description: Number of hotel units proposed in the job application after the proposed work has been completed, as determined
+    through DCP research.
+  example: '0'
+- id: otherbinit
+  name: OtherBInit
+  data_type: text
+  description: |
+    Number of Class B units (excluding hotel units) that initially existed in building at the time of the job application, as determined through DCP research. Other Class B units include all dwellings that are not Class A units or hotels, and may include single room occupancy units, dormitories, certain kinds of supportive housing and assisted living, homeless shelters, convents and monasteries, among many other forms of temporary lodging or lodging with communal kitchens or bathrooms. The definition of Class B and other unit types is available here:
+
+    https://www1.nyc.gov/assets/buildings/pdf/MultipleDwellingLaw.pdf
+  example: '0'
+- id: otherbprop
+  name: OtherBProp
+  data_type: text
+  description: Number of Class B units (excluding hotel units) proposed in the job application after the proposed work has been
+    completed, as determined through DCP research.
+  example: '0'
+- id: units_co
+  name: Units_CO
+  data_type: decimal
+  description: Number of dwelling units provided on the temporary or final certificates of occupancy. This unit count may include
+    Class A units in addition to Class B units and hotel units.
+  example: '2.0'
+- id: boro
+  name: Boro
+  data_type: text
+  description: The NYC borough code where the proposed work will take place.
+  example: '4'
+  values:
+  - value: '1'
+  - value: '2'
+  - value: '3'
+  - value: '4'
+  - value: '5'
+- id: bin
+  name: BIN
+  data_type: text
+  description: Building Identification Number (BIN), supplied by Geosupport, that identifies each unique building in the city.
+  example: '4466645'
+- id: bbl
+  name: BBL
+  data_type: text
+  description: Borough-Block-Lot tax ID number of the parcel where the proposed work will take place.
+  example: '4163500400'
+- id: addressnum
+  name: AddressNum
+  data_type: text
+  description: The house number for the building where the proposed work will take place.
+  example: '15'
+- id: addressst
+  name: AddressSt
+  data_type: text
+  description: The street name for the building where the proposed work will take place.
+  example: BROADWAY
+- id: occ_init
+  name: Occ_Init
+  data_type: text
+  description: >
+    Description of the existing occupancy type at the time of the job application. This indicates what a site was used for before
+    the proposed job.  It is a more descriptive recode of the occupancy code that the applicant submitted to DOB as the initial
+    occupancy type of the building.  Note that the applicant may only choose one occupancy code, even in a building containing
+    multiple uses, so this code is only able to describe one of many possible uses.
+  example: Empty Site
+- id: occ_prop
+  name: Occ_Prop
+  data_type: text
+  description: >
+    Description of the proposed occupancy type at the time of the job application. This indicates what a site will be used for
+    after the proposed job is complete.  It is a more descriptive recode of the occupancy code that the applicant submitted to DOB
+    as the proposed occupancy type of the building.  Note that the applicant may only choose one occupancy code, even in a
+    building containing multiple uses, so this code is only able to describe one of many possible uses.
+  example: 'Residential: 1-2 Family Houses (R-3)'
+- id: bldg_class
+  name: Bldg_Class
+  data_type: text
+  description: Building Class code. A code used by Department of Finance (DOF) and Department of Buildings (DOB) describing the
+    major use of a structure.
+  example: A1
+- id: job_desc
+  name: Job_Desc
+  data_type: text
+  description: The general description of the work being applied for. This field is free text, and is filled out by the applicant.
+  example: DEMOLITION OF STRUCTURE
+- id: datefiled
+  name: DateFiled
+  data_type: datetime
+  description: >-
+    Date of job status A (pre-filing application). This is the first step in the process for all job applications. The job
+    application # is assigned at this status. This occurs when the applicant submits any part of the application (even a single
+    form), in person or electronically.
+  example: '2007-12-18T00:00:00.000'
+- id: datepermit
+  name: DatePermit
+  data_type: datetime
+  description: >-
+    Date of job status Q (first partial permit issuance). This is when construction work may begin. This field should be used for
+    identifying the number of permits approved in a given year.
+  example: '2008-07-29T00:00:00.000'
+- id: datelstupd
+  name: DateLstUpd
+  data_type: datetime
+  description: The date of the last update to the DOB record for the job filing.
+  example: '2023-12-28T00:00:00.000'
+- id: datecomplt
+  name: DateComplt
+  data_type: datetime
+  description: >-
+    DCP's best estimate of completion date for all jobs. For new buildings and alterations, date complete is equal to the date of
+    the earliest certificate of occupancy. For demolitions, date complete is equal to status Q (permit issued), since demolitions
+    do not receive certificates of occupancy. Blank indicates no certificate of occupancy has been issued. Typically, a building
+    can be considered complete at this stage. Large buildings with many units may have units receiving certificates of occupancy
+    over a longer period of time.
+  example: '2013-10-23T00:00:00.000'
+- id: zoningdst1
+  name: ZoningDst1
+  data_type: text
+  description: The primary zoning district of the tax lot per the applicant at time of application. For more information see
+    http://www1.nyc.gov/site/planning/zoning/about-zoning.page.
+  example: R6
+- id: zoningdst2
+  name: ZoningDst2
+  data_type: text
+  description: The secondary zoning district of the tax lot per the applicant at time of application.
+  example: R6
+- id: zoningdst3
+  name: ZoningDst3
+  data_type: text
+  description: The tertiary zoning district of the tax lot per the applicant at time of application.
+  example: R6B
+- id: specldst1
+  name: SpeclDst1
+  data_type: text
+  description: >
+    The primary special zoning district of the tax lot per the applicant at time of application. Other zoning designations may
+    appear in this field, such as industrial business zones (IBZ), mandatory inclusionary housing (MIH) areas, or other zoning
+    designations. This field is provided by the applicant, and is likely inconsistent.
+  example: SRD
+- id: specldst2
+  name: SpeclDst2
+  data_type: text
+  description: The secondary special zoning district of the tax lot per the applicant at time of application.
+  example: MS4
+- id: landmark
+  name: Landmark
+  data_type: text
+  description: Indicates that the building has been designated as a landmark building by the Landmarks Preservation Commission.
+  example: 'Yes'
+  values:
+  - value: 'Yes'
+- id: floorsinit
+  name: FloorsInit
+  data_type: decimal
+  description: The existing number of stories/floors in the building, as reported by the applicant.
+  example: '2.0'
+- id: floorsprop
+  name: FloorsProp
+  data_type: decimal
+  description: The number of stories/floors in the building after the work is done, as reported by the applicant.
+  example: '2.0'
+- id: enlargemnt
+  name: Enlargemnt
+  data_type: text
+  description: "This indicates if the work to be done under the application will result in a horizontal and/or vertical enlargement,
+    as reported by the applicant. Values include: Horizontal, Vertical, Horizontal and Vertical, [blank]."
+  example: Horizontal and Vertical
+  values:
+  - value: Horizontal and Vertical
+  - value: Horizontal
+  - value: Vertical
+- id: ownership
+  name: Ownership
+  data_type: text
+  description: This indicates whether the property is government owned, the ownership structure, and non-profit status, as reported
+    by the applicant and recoded by DCP.
+  example: 'Private For-Profit: Individual'
+- id: cenblock20
+  name: CenBlock20
+  data_type: text
+  description: 2020 Census Block FIPS code.
+  example: '360471070011011'
+- id: centract20
+  name: CenTract20
+  data_type: text
+  description: 2020 Census Tract FIPS code.
+  example: '36081091603'
+- id: bctcb2020
+  name: BCTCB2020
+  data_type: text
+  description: The Borough - 2020 Census Tract - Census Block code.
+  example: '31070011011'
+- id: bct2020
+  name: BCT2020
+  data_type: text
+  description: The Borough - 2020 Census Tract code.
+  example: '4091603'
+- id: nta2020
+  name: NTA2020
+  data_type: text
+  description: 2020 Neighborhood Tabulation Area (NTA) code.
+  example: SI0304
+- id: ntaname20
+  name: NTAName20
+  data_type: text
+  description: 2020 Neighborhood Tabulation Area (NTA) descriptive name.
+  example: Annadale-Huguenot-Prince's Bay-Woodrow
+- id: cdta2020
+  name: CDTA2020
+  data_type: text
+  description: 2020 Community District Tabulation Area (NTA) code.
+  example: SI03
+- id: cdtaname20
+  name: CDTAName20
+  data_type: text
+  description: 2020 Community District Tabulation Area (NTA) descriptive name.
+  example: SI03 South Shore (CD 3 Approximation)
+- id: commntydst
+  name: CommntyDst
+  data_type: text
+  description: NYC Community District code.
+  example: '503'
+- id: councildst
+  name: CouncilDst
+  data_type: text
+  description: NYC City Council District code.
+  example: '50'
+- id: schsubdist
+  name: SchSubDist
+  data_type: text
+  description: NYC School Subdistrict code.
+  example: '31_1'
+- id: schcommnty
+  name: SchCommnty
+  data_type: text
+  description: NYC Community School District code.
+  example: '31'
+- id: schelmntry
+  name: SchElmntry
+  data_type: text
+  description: NYC Elementary School Zone code.
+  example: '404'
+- id: schmiddle
+  name: SchMiddle
+  data_type: text
+  description: NYC Middle School Zone code.
+  example: '7'
+- id: firecmpany
+  name: FireCmpany
+  data_type: text
+  description: NYC Fire Company code.
+  example: E329
+- id: firebattln
+  name: FireBattln
+  data_type: text
+  description: NYC Fire Battalion code.
+  example: '23'
+- id: firedivsn
+  name: FireDivsn
+  data_type: text
+  description: NYC Fire Division code.
+  example: 8
+- id: policepcnt
+  name: PolicePcnt
+  data_type: text
+  description: NYC Police Precinct code.
+  example: '122'
+- id: pl_firm07
+  name: PL_FIRM07
+  data_type: text
+  description: >
+    A value of 1 means that some portion of the tax lot falls within the 1% annual chance floodplain as determined by  FEMA’s 2007
+    Flood Insurance Rate Map. Note that buildings on the tax lot may or may not be in the portion of the  tax lot that is within
+    the 1% annual chance floodplain.
+  example: '1'
+  values:
+  - value: '1'
+- id: pl_pfirm15
+  name: PL_PFIRM15
+  data_type: text
+  description: >
+    A value of 1 means that some portion of the tax lot falls within the 1% annual chance floodplain as determined by  FEMA’s 2015
+    Preliminary Flood Insurance Rate Map. Note that buildings on the tax lot may or may not be in the portion  of the tax lot that
+    is within the 1% annual chance floodplain.
+  example: '1'
+  values:
+  - value: '1'
+- id: latitude
+  name: Latitude
+  data_type: decimal
+  description: Latitude in WGS84 / SRID:4326
+  example: '40.556881'
+- id: longitude
+  name: Longitude
+  data_type: decimal
+  description: Longitude in WGS84 / SRID:4326
+  example: '-73.920731'
+- id: geomsource
+  name: GeomSource
+  data_type: text
+  description: Source of the geographic coordinates for the record.
+  example: BIN DOB buildingfootprints
+  values:
+  - value: BIN DOB buildingfootprints
+    description: Geometry is the centroid of the DOITT building footprint that has the same BIN as the DOB job BIN
+  - value: BIN DCP geosupport
+    description: Geometry is the centroid of the DOITT building footprint that has the same BIN as the BIN returned by Geosupport
+  - value: Lat/Lon geosupport
+    description: Geometry is created from the latitude and longitude values returned by Geosupport
+  - value: BBL DOB MapPLUTO
+    description: Geometry is the centroid of the Mappluto lot that has the same BBL as the DOB job BBL
+  - value: BIN DOB buildingfootprints (historical)
+    description: Geometry is the centroid of the historical DOITT building footprint that has the same BIN as the DOB job BIN
+  - value: Lat/Lon DOB
+    description: Geometry is created from the latitude and longitude values in the DOB source data
+  - value: Lat/Lon DCP
+    description: Geometry is created from latitude and longitude provided in the manual corrections file"
+- id: dcpedited
+  name: DCPEdited
+  data_type: text
+  description: >
+    List of fields that were edited by DCP. This only lists fields where original DOB source data was overwritten by DCP,  and
+    doesn't include fields where DCP recodes data as part of the standard methodology.
+  example: classa_init
+- id: version
+  name: Version
+  data_type: text
+  description: Version of the Developments Database.
+  example: 23Q4
