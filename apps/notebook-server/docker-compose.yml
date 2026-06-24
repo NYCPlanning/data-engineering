@@ -12,15 +12,13 @@ services:
       - MARIMO_PASSWORD=pw
       - MARIMO_PORT=8080
       - MARIMO_HOST=0.0.0.0
-      - MARMIMO_NOTEBOOK_DIR=/app/notebooks/marimo
-      - PRODUCT_METADATA_REPO_PATH=/app/product-metadata
+      - MARMIMO_NOTEBOOK_DIR=/repos/data-engineering/notebooks/marimo
       - SOCRATA_USER
       - SOCRATA_PASSWORD
-
+    entrypoint: ["sh", "-c", "uv pip install --system -e /repos/data-engineering && python3 /repos/data-engineering/apps/notebook-server/server.py"]
     volumes:
-      # Mount notebooks directory for development. This won't exist in the deployed
-      # version.
-      - ../../notebooks:/app/notebooks
+      # Mount the whole repo (someday this becomes the droplet's /root/data-engineering).
+      - ../..:/repos/data-engineering
     restart: unless-stopped
     healthcheck:
       test:

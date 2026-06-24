@@ -4,9 +4,8 @@
 services:
   qa-streamlit:
     volumes:
-      # Mount local repos instead of using shared volume
+      # Mount local repo instead of using shared volume; product-metadata lives inside it
       - ${DATA_ENGINEERING_PATH:-..}:/repos/data-engineering
-      - ${PRODUCT_METADATA_PATH:-../product-metadata}:/repos/product-metadata
 
   dagster:
     ports:
@@ -14,7 +13,6 @@ services:
     volumes:
       # Mount local repos instead of using shared volume (mount parent to get dcpy)
       - ${DATA_ENGINEERING_PATH:-..}:/app/repos/data-engineering
-      - ${PRODUCT_METADATA_PATH:-../product-metadata}:/app/repos/product-metadata
       - ${DATA_ENGINEERING_PATH:-..}/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
 
@@ -22,7 +20,6 @@ services:
     volumes:
       # Mount local repos for daemon as well
       - ${DATA_ENGINEERING_PATH:-..}:/app/repos/data-engineering
-      - ${PRODUCT_METADATA_PATH:-../product-metadata}:/app/repos/product-metadata
       - ${DATA_ENGINEERING_PATH:-..}/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
 

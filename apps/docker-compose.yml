@@ -48,13 +48,13 @@ services:
       - GHP_TOKEN=${GHP_TOKEN}
       - PUBLISHING_BUCKET=edm-publishing
       - RECIPES_BUCKET=edm-recipes
-      - PRODUCT_METADATA_REPO_PATH=/repos/product-metadata
       - SOCRATA_USER=${SOCRATA_USER}
       - SOCRATA_PASSWORD=${SOCRATA_PASSWORD}
-    command: ["streamlit", "run", "/repos/data-engineering/apps/qa/src/index.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.baseUrlPath=/qaqc"]
+    # cd into the app dir first: the app does `from src import …`, which needs apps/qa as the
+    # working directory (the old image ran from WORKDIR /app where the app was baked).
+    entrypoint: ["sh", "-c", "uv pip install --system -e /repos/data-engineering && cd /repos/data-engineering/apps/qa && streamlit run src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc"]
     volumes:
       - /root/data-engineering:/repos/data-engineering
-      - /root/data-engineering/product-metadata:/repos/product-metadata
     restart: unless-stopped
     networks:
       - app-network
@@ -73,7 +73,6 @@ services:
       - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
-      - /root/data-engineering/product-metadata:/app/repos/product-metadata
       - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
     restart: unless-stopped
@@ -95,7 +94,6 @@ services:
       - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
-      - /root/data-engineering/product-metadata:/app/repos/product-metadata
       - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
     restart: unless-stopped
