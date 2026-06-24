@@ -1,4 +1,6 @@
+import socket
 import stat
+import time
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -9,6 +11,21 @@ from dcpy.utils.logging import logger
 
 KNOWN_HOSTS_DEFAULT_PATH = Path.home() / ".ssh/known_hosts"
 
+# The DOF SFTP server intermittently drops the SFTP channel right after a
+# successful auth (paramiko raises a bare EOFError) for a window of a minute or
+# two before recovering. Retry connection setup across that window before giving
+# up. Worst-case added wait on persistent failure is the sum of the backoffs.
+CONNECT_MAX_ATTEMPTS = 4
+CONNECT_BACKOFF_SECONDS = 15
+# Auth / host-key failures are deterministic, so they must surface immediately
+# rather than be retried (these are paramiko.SSHException subclasses, so they're
+# checked before the broader retryable set below).
+_NON_RETRYABLE_CONNECT_ERRORS = (
+    paramiko.AuthenticationException,
+    paramiko.BadHostKeyException,
+)
+_RETRYABLE_CONNECT_ERRORS = (EOFError, paramiko.SSHException, socket.error)
+
 
 class SFTPServer(BaseModel):
     hostname: str
@@ -17,10 +34,10 @@ class SFTPServer(BaseModel):
     known_hosts_path: Path = KNOWN_HOSTS_DEFAULT_PATH
     port: int = 22
 
-    @contextmanager
-    def _connection(self):
+    def _open_client(self) -> tuple[paramiko.SSHClient, paramiko.SFTPClient]:
         """
-        Establishes a secure SFTP connection using Paramiko.
+        Open an authenticated SSH client and SFTP channel, retrying transient
+        connection failures with backoff.
 
         The connection succeeds only if the server's host key is present in known_hosts and matches
         what the server presents during the handshake. Unknown or mismatched keys are rejected.
@@ -28,28 +45,63 @@ class SFTPServer(BaseModel):
         Note: Unlike OpenSSH, Paramiko does not negotiate host key algorithms. It accepts only the
         first host key the server offers. If that key type isn't in known_hosts, the connection fails
         even if another valid key is listed (https://github.com/paramiko/paramiko/issues/2411).
+
+        Both connect() and open_sftp() are retried: the server's intermittent drop happens at SFTP
+        channel open, *after* a successful auth, so retrying connect() alone wouldn't help.
         """
-        logger.info(f"Connecting to SFTP server {self.hostname}")
+        last_error: Exception | None = None
+        for attempt in range(1, CONNECT_MAX_ATTEMPTS + 1):
+            logger.info(
+                f"Connecting to SFTP server {self.hostname} "
+                f"(attempt {attempt}/{CONNECT_MAX_ATTEMPTS})"
+            )
+            client = paramiko.SSHClient()
+            client.load_host_keys(str(self.known_hosts_path))
+            client.set_missing_host_key_policy(
+                paramiko.RejectPolicy()
+            )  # if server presents unknown host key, client won't connect to the server
+            try:
+                client.connect(
+                    hostname=self.hostname,
+                    port=self.port,
+                    username=self.username,
+                    key_filename=str(self.private_key_path),
+                    look_for_keys=False,
+                    allow_agent=False,
+                )
+                sftp = client.open_sftp()
+                return client, sftp
+            except _NON_RETRYABLE_CONNECT_ERRORS:
+                client.close()
+                raise
+            except _RETRYABLE_CONNECT_ERRORS as e:
+                client.close()
+                last_error = e
+                if attempt < CONNECT_MAX_ATTEMPTS:
+                    delay = CONNECT_BACKOFF_SECONDS * attempt
+                    logger.warning(
+                        f"SFTP connection to {self.hostname} failed "
+                        f"(attempt {attempt}/{CONNECT_MAX_ATTEMPTS}): {e!r}. "
+                        f"Retrying in {delay}s ..."
+                    )
+                    time.sleep(delay)
 
-        client = paramiko.SSHClient()
-        client.load_host_keys(str(self.known_hosts_path))
-        client.set_missing_host_key_policy(
-            paramiko.RejectPolicy()
-        )  # if server presents unknown host key, client won't connect to the server
-        client.connect(
-            hostname=self.hostname,
-            port=self.port,
-            username=self.username,
-            key_filename=str(self.private_key_path),
-            look_for_keys=False,
-            allow_agent=False,
-        )
+        # Re-raise as a ConnectionError so the real failure stays visible: paramiko
+        # raises a bare EOFError, which Typer's CLI wrapper would otherwise swallow
+        # into "Aborted." with no traceback (its EOFError handler is meant for
+        # interactive prompts hitting end-of-input).
+        raise ConnectionError(
+            f"SFTP connection to {self.hostname} failed after "
+            f"{CONNECT_MAX_ATTEMPTS} attempts"
+        ) from last_error
 
+    @contextmanager
+    def _connection(self):
+        client, sftp = self._open_client()
         try:
-            sftp = client.open_sftp()
             yield sftp
         finally:
-            sftp.close()
+            # close() tears down the underlying transport and the SFTP channel.
             client.close()
 
     def list_directory(self, path: Path = Path(".")) -> list[str]:
