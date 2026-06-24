@@ -54,7 +54,7 @@ services:
     command: ["streamlit", "run", "/repos/data-engineering/apps/qa/src/index.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.baseUrlPath=/qaqc"]
     volumes:
       - /root/data-engineering:/repos/data-engineering
-      - /root/product-metadata:/repos/product-metadata
+      - /root/data-engineering/product-metadata:/repos/product-metadata
     restart: unless-stopped
     networks:
       - app-network
@@ -73,7 +73,7 @@ services:
       - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
-      - /root/product-metadata:/app/repos/product-metadata
+      - /root/data-engineering/product-metadata:/app/repos/product-metadata
       - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
     restart: unless-stopped
@@ -95,7 +95,7 @@ services:
       - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
-      - /root/product-metadata:/app/repos/product-metadata
+      - /root/data-engineering/product-metadata:/app/repos/product-metadata
       - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
     restart: unless-stopped

@@ -1,0 +1,11 @@
+id: cpdb
+
+dataset_defaults:
+  current_version: {{ current_version_cpdb }}
+  publishing_frequency: Tri-annually
+  date_made_public: '9/13/2021'
+  attribution_link: {{ bytes_url__cpdb }}
+
+datasets:
+- commitments
+- projects

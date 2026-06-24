@@ -1,0 +1,205 @@
+id: 2010_census_tracts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__census_tracts }}
+  display_name: 2010 Census Tracts
+  each_row_is_a: Census Tract
+  tags:
+  - census tract
+  - '2010'
+  - us census bureau
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '1/31/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nyct2010_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_water_not_included
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: bmjq-373p
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nyct2010wi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_water_included
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary_wi
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: ht7m-2uh6
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile_water_not_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/census-tracts/nyct2010_{{ current_version_lion }}.zip
+  - id: shapefile_water_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/census-tracts/nyct2010wi_{{ current_version_lion }}.zip
+  - id: nyct2010_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyct2010_metadata.pdf
+  - id: nyct2010wi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyct2010wi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_water_not_included
+    filename: nyct2010.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |
+        Census Tracts from the 2010 US Census for New York City clipped to the shoreline. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map. Because some census tracts are under water not all census tracts are contained in this file, only census tracts that are partially or totally located on land have been mapped in this file.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__census_tracts }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: 2010 Census Tracts
+- file:
+    id: shapefile_water_included
+    filename: nyct2010wi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |
+        Census Tracts from the 2010 US Census for New York City including portions under water. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__census_tracts }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: 2010 Census Tracts (water areas included)
+- file:
+    id: nyct2010_metadata.pdf
+    filename: nyct2010_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nyct2010wi_metadata.pdf
+    filename: nyct2010wi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_water_not_included
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_water_included
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: None
+  example: None
+  custom:
+    readme_data_type: geometry
+- id: ctlabel
+  name: CTLabel
+  data_type: text
+  description: The census tract identifier for maps and publication. Uses the least number of digits. Each 2010 census tract
+    number is unique to its borough.
+  example: None
+- id: borocode
+  name: BoroCode
+  data_type: text
+  description: Borough of census tract.
+  example: None
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough name.
+  example: Queens
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: ct2010
+  name: CT2010
+  data_type: text
+  description: Census tract number.
+  example: None
+- id: boroct2010
+  name: BoroCT2010
+  data_type: text
+  description: Merged string of borough code (BoroCode) and census tract number (CT2010).
+  example: '20060002009'
+- id: cdeligibil
+  name: CDEligibil
+  data_type: text
+  description: Community Development Block Grant eligibility.
+  example: None
+- id: ntacode
+  name: NTACode
+  data_type: text
+  description: 2010 Neighborhood Tabulation Area code.
+  example: None
+- id: ntaname
+  name: NTAName
+  data_type: text
+  description: 2010 Neighborhood Tabulation Area name.
+  example: None
+- id: puma
+  name: PUMA
+  data_type: text
+  description: 2010 Public Use Microdata Area code.
+  example: None
+- id: shape_area
+  name: Shape__Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: None
+- id: shape_leng
+  name: Shape__Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: None

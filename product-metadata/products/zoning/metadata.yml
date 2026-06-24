@@ -1,0 +1,18 @@
+id: zoning
+
+dataset_defaults:
+  current_version: {{ current_version_zoning }}
+  publishing_frequency: Monthly
+  data_change_frequency: Monthly
+  attribution_link: "https://www.nyc.gov/site/planning/data-maps/open-data/dwn-gis-zoning.page"
+  geocoded: False
+
+datasets:
+- commercial_overlay_district
+- zoning_districts
+- zoning_map_amendments
+- special_purpose_districts_subdistricts
+- zoning_features
+- limited_height_districts
+- special_purpose_districts
+- georeferenced_nyc_zoning_maps

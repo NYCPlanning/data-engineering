@@ -1,0 +1,136 @@
+id: change_file
+
+attributes:
+  attribution_link: {{ bytes_url__pluto }}
+  description: |-
+    This is a companion dataset to PLUTO and MapPLUTO. PLUTO and MapPLUTO are created using the best available data from a number of city agencies. To further improve data quality, the Department of City Planning (DCP) applies changes to selected field values. DCPEdited is set to "1" in PLUTO if the record contains any changed values.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__pluto }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_pluto }}
+  display_name: PLUTO Change File
+  each_row_is_a: change to selected filed value in PLUTO
+  tags:
+  - pluto
+  - mappluto
+  - dtm
+  - tax block
+  - tax lot
+  - parcels
+  - change
+  - correction
+  - dcp
+  - city planning
+
+assembly:
+- id: csv_package
+  filename: PLUTOChangeFile{{ current_version_pluto }}.zip
+  type: zip
+  contents:
+  - id: pluto_changes_applied
+    filename: pluto_changes_applied.csv
+  - id: pluto_changes_not_applied
+    filename: pluto_changes_not_applied.csv
+  - id: pluto_removed_records
+    filename: pluto_removed_records.csv
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: pluto_removed_records
+    custom:
+      destination_use: attachment
+  - id: pluto_changes_applied
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: qt5r-nqxp
+- id: bytes
+  type: bytes
+  files:
+  - id: csv_package
+    custom:
+      url: "{{ bytes_zip_prefix_url }}/pluto-change-file/PLUTOChangeFile{{ current_version_pluto }}.zip"
+  - id: pluto_change_file_readme
+    custom:
+      url: "{{ bytes_pdf_prefix_url }}/plutochangefile_readme.pdf"
+
+files:
+- file:
+    id: pluto_changes_applied
+    filename: pluto_changes_applied.csv
+    type: csv
+- file:
+    id: pluto_changes_not_applied
+    filename: pluto_changes_not_applied.csv
+    type: csv
+- file:
+    id: pluto_removed_records
+    filename: pluto_removed_records.csv
+    is_metadata: true
+    type: None
+- file:
+    id: pluto_change_file_readme
+    filename: pluto_change_file_readme.pdf
+    is_metadata: true
+    type: None
+
+columns:
+- id: bbl
+  name: bbl
+  data_type: bbl
+  description: A concatenation of the borough code, tax block and tax lot
+  example: '3002600011'
+- id: field
+  name: field
+  data_type: text
+  description: Name of the PLUTO field being changed
+  example: yearbuilt
+- id: old_value
+  name: old_value
+  data_type: text
+  description: The original value of the field
+  example: '1899'
+- id: new_value
+  name: new_value
+  data_type: text
+  description: The changed value of the field
+  example: NYC DEPARTMENT OF PARKS AND RECREATION
+- id: type
+  name: type
+  data_type: integer
+  description: Flag indicating the type of change
+  example: '2'
+  values:
+  - value: '1'
+    description: Programmatic
+    custom:
+      other_details: '[''Changes that are applied programmatically to each new version of
+        PLUTO. For example, if lot area is zero in DOF’s Property Tax System, PLUTO uses
+        the area of the tax lot’s geometric shape.'']'
+  - value: '2'
+    description: Research
+    custom:
+      other_details: '[''Changes resulting from DCP research that are stored in
+        PLUTO_input_research.csv. Each row in this file contains a change needed for a
+        particular BBL and field. The change will be applied for each new version unless
+        the original value of the field changes.'']'
+  - value: '3'
+    description: User reported
+    custom:
+      other_details: '[''Errors reported by users. These are verified by DCP and stored in
+        PLUTO_input_research.csv.'']'
+- id: reason
+  name: reason
+  data_type: text
+  description: The reason the field value was changed. See Appendix for valid values for
+    programmatic and research changes. For user reported changes, the reason states the
+    field that was wrong, e.g. "Lot area wrong."
+  example: LPC year built
+- id: version
+  name: version
+  data_type: text
+  description: For programmatic changes, this is version in which the programmatic change
+    was implemented.
+  example: 20v1

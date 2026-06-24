@@ -1,0 +1,7 @@
+id: inclusionary_housing_designated_areas
+
+dataset_defaults:
+  current_version: {{ current_version_inclusionary_housing_designated_areas }}
+
+datasets:
+- inclusionary_housing_designated_areas

@@ -1,0 +1,396 @@
+id: street_name_changes
+
+attributes:
+  description: |-
+    Local Law name changes to public places (areas). Polygon (area) features
+    of official street and honorary name changes established by City Council Local
+    Law. Years included are from 1998 to current. {{ streets_map_app_link }}
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__dcm }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_dcm }}
+  display_name: Digital City Map (DCM) - Street Name Changes (Areas)
+  each_row_is_a: Street Name Change
+  publishing_purpose:
+    "Local Law name changes to public places (areas). Dataset last
+    updated: March 31, 2024."
+  tags:
+    - Local Law
+    - official street name
+    - honorary street name
+    - conames
+    - New York City City Council
+    - street name change
+    - Introduction
+    - City Map of New York City
+    - New York Department of City Planning
+    - DCP
+    - NYC
+    - New York City base map
+    - New York Streets
+    - NYC Streets
+    - Mapped Streets
+    - Official Map
+    - Archive
+
+assembly:
+- id: dcm_multilayer
+  filename: dcm_{{ current_version_dcm }}shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: areas_shapefile
+    custom:
+      layer_name: DCM_StreetNameChanges_Areas
+  - id: lines_shapefile
+    custom:
+      layer_name: DCM_StreetNameChanges_Lines
+  - id: points_shapefile
+    custom:
+      layer_name: DCM_StreetNameChanges_Points
+
+custom: {}
+
+destinations:
+  - id: socrata_areas
+    tags: [socrata_unpublished]
+    type: open_data
+    files:
+      - id: areas_shapefile
+        dataset_overrides:
+          attributes:
+            description: |-
+              Local Law name changes to public places (areas). Polygon (area) features
+              of official street and honorary name changes established by City Council Local
+              Law. Years included are from 1998 to current. {{ streets_map_app_link }}
+            display_name: Digital City Map (DCM) - Street Name Changes (Areas)
+            publishing_purpose:
+              "Local Law name changes to public places (areas). Dataset last
+              updated: March 31, 2024."
+          omitted_columns:
+            - shape_leng
+            - shape_area
+          overridden_columns:
+          - id: geometry
+            custom:
+              api_name: the_geom
+        custom:
+          destination_use: dataset_file
+      - id: areas_data_dictionary_pdf
+        custom:
+          destination_use: attachment
+      # - id: oti_data_dictionary_areas
+      #   custom:
+      #     destination_use: attachment
+    custom:
+      four_four: nzui-5vt3
+
+  - id: socrata_lines
+    tags: [socrata_unpublished]
+    type: open_data
+    files:
+      - id: lines_shapefile
+        dataset_overrides:
+          attributes:
+            description: |-
+              Local Law name changes to public thoroughfares (lines). Single line
+              features of official street and honorary name changes estalbished by City Council
+              Local Law. Years included are from 1997 to current. {{ streets_map_app_link }}
+            display_name: Digital City Map (DCM) - Street Name Changes (Lines)
+            publishing_purpose:
+              "Local Law name changes to pulibc throughfares (lines). Dataset
+              last updated: March 30, 2024."
+          omitted_columns:
+            - shape_leng
+            - shape_area
+          overridden_columns:
+          - id: geometry
+            custom:
+              api_name: the_geom
+        custom:
+          destination_use: dataset_file
+      - id: lines_data_dictionary_pdf
+        custom:
+          destination_use: attachment
+      # - id: oti_data_dictionary_lines
+      #   custom:
+      #     destination_use: attachment
+    custom:
+      four_four: i3nt-3kau
+
+  - id: socrata_points
+    tags: [socrata_unpublished]
+    type: open_data
+    files:
+      - id: points_shapefile
+        dataset_overrides:
+          attributes:
+            description: |-
+              Local Law name changes to corners or intersections (points). Point
+              features of official street and honorary name changes established by City Council
+              Local Law. Years included are from 1998 to current. {{ streets_map_app_link }}
+            display_name: Digital City Map (DCM) - Street Name Changes (Points)
+            publishing_purpose:
+              "Local Law name changes to to corners or intersections (points).
+              Dataset last updated: March 31, 2024."
+          omitted_columns:
+            - shape_leng
+            - shape_area
+          overridden_columns:
+          - id: geometry
+            custom:
+              api_name: the_geom
+        custom:
+          destination_use: dataset_file
+      - id: points_data_dictionary_pdf
+        custom:
+          destination_use: attachment
+      # - id: oti_data_dictionary_points
+      #   custom:
+      #     destination_use: attachment
+    custom:
+      four_four: hsi9-e2ec
+
+  - id: bytes
+    type: bytes
+    files:
+      - id: dcm_multilayer
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/dcm_{{ current_version_dcm }}shp.zip
+      - id: areas_data_dictionary_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_name_changes_areas.pdf
+      - id: lines_data_dictionary_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_name_changes_lines.pdf
+      - id: points_data_dictionary_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_name_changes_points.pdf
+
+files:
+  - file:
+      id: areas_shapefile
+      filename: StreetNameChanges_Areas.shp.zip
+      type: shapefile
+  - file:
+      id: lines_shapefile
+      filename: StreetNameChanges_Lines.shp.zip
+      type: shapefile
+    dataset_overrides:
+      omitted_columns:
+      - shape_area
+  - file:
+      id: points_shapefile
+      filename: StreetNameChanges_Points.shp.zip
+      type: shapefile
+    dataset_overrides:
+      omitted_columns:
+      - shape_area
+      - shape_leng
+  - file:
+      id: areas_data_dictionary_pdf
+      filename: dcm_street_name_changes_areas.pdf
+      is_metadata: true
+  - file:
+      id: lines_data_dictionary_pdf
+      filename: dcm_street_name_changes_lines.pdf
+      is_metadata: true
+  - file:
+      id: points_data_dictionary_pdf
+      filename: dcm_street_name_changes_points.pdf
+      is_metadata: true
+  - file:
+      id: oti_data_dictionary_areas
+      filename: data_dictionary_areas.xlsx
+      is_metadata: true
+      type: oti_data_dictionary
+      custom:
+        assembly:
+          with_metadata_from:
+            file_id: areas_shapefile
+            destination_id: socrata_areas
+  - file:
+      id: oti_data_dictionary_lines
+      filename: data_dictionary_lines.xlsx
+      is_metadata: true
+      type: oti_data_dictionary
+      custom:
+        assembly:
+          with_metadata_from:
+            file_id: lines_shapefile
+            destination_id: socrata_lines
+  - file:
+      id: oti_data_dictionary_points
+      filename: data_dictionary_points.xlsx
+      is_metadata: true
+      type: oti_data_dictionary
+      custom:
+        assembly:
+          with_metadata_from:
+            file_id: points_shapefile
+            destination_id: socrata_points
+
+columns:
+  - id: borough
+    name: Borough
+    data_type: text
+    description: The borough in which the area or place named by the Local Law is located.
+    values:
+      - value: Bronx
+      - value: Brooklyn
+      - value: Manahttan
+      - value: Manhattan
+      - value: Manhattan and Queens
+      - value: None
+      - value: Queens
+      - value: Staten island
+      - value: Staten Island
+  - id: feat_type
+    name: Feat_Type
+    data_type: text
+    description:
+      The type of feature that is being renamed in the Local Law (e.g. street,
+      corner, etc).
+    values:
+      - value: Ballfield name
+      - value: Bike lane name
+      - value: Boardwalk name
+      - value: Corner name
+      - value: Field name
+      - value: Intersection Corner
+      - value: Intersection name
+      - value: None
+      - value: Park name
+      - value: Pier name
+      - value: Playground name
+      - value: Plaza name
+      - value: Public place
+      - value: Square name
+      - value: Street name
+      - value: Street Name
+      - value: Streetname
+      - value: Structure name
+      - value: Triangle name
+      - value: Triangle Name
+  - id: officialnm
+    name: OfficialNM
+    data_type: text
+    description:
+      Official Street name shown on the City Map. This is the renaming of
+      a street or public place through Local Law legislation and should be considered
+      an official name change. This is different from an honorary name change which
+      is a designation of an additional name to an existing official name.
+  - id: honor_name
+    name: Honor_Name
+    data_type: text
+    description:
+      A co-name or additional but secondary name given to an official place
+      name through Local Law legislation.
+  - id: old_name
+    name: Old_Name
+    data_type: text
+    description:
+      The retired official name being renamed by Local Law legislation. Specifically
+      when the Local Law designates a new name with the aim to replace an old one.
+  - id: ulurpcpnum
+    name: ULURPCPNUM
+    data_type: text
+    description:
+      The City planning (CP) or Uniform Land Use Review Process (ULURP) application
+      number associated with the street name change.
+  - id: intro_num
+    name: Intro_NUM
+    data_type: text
+    description: Introduction number associated with the Local Law.
+  - id: intro_year
+    name: Intro_Year
+    data_type: integer
+    description: The Introduction year associated with the Local Law.
+  - id: intromonth
+    name: IntroMonth
+    data_type: integer
+    description: The Introduction month associated with the Local Law.
+  - id: intro_day
+    name: Intro_Day
+    data_type: integer
+    description: The Introduction day associated with the Local Law.
+  - id: ll_num
+    name: LL_NUM
+    data_type: text
+    description: Local Law number assigned to Local Law legistlation.
+  - id: ll_sec
+    name: LL_SEC
+    data_type: integer
+    description: The Local Law section number found within the legislation.
+  - id: ll_type
+    name: LL_Type
+    data_type: text
+    description:
+      The type of name change by the Local Law; Official, Renaming or Honorary.
+      Honorary is a co-name or secondary name designated in addition to the official
+      name.
+  - id: lleffectdt
+    name: LLEffectDT
+    data_type: text
+    description:
+      The effective date of the Local Law. The effective date is when City
+      Council adopts the Local Law.
+  - id: ll_limits
+    name: LL_Limits
+    data_type: text
+    description:
+      The limits text included with the Local Law. The limits text describes
+      the extent of where the Local Law applies.
+  - id: limits_er
+    name: Limits_ER
+    data_type: text
+    description:
+      Flag that indicates and desdribes errors found in the limits section
+      of the Local Law (if applicable).
+  - id: repealed
+    name: Repealed
+    data_type: text
+    description:
+      Flag that indicates whether the Local Law was repealed by another Local
+      Law.
+    values:
+      - value: "No"
+      - value: "Yes"
+      - value: None
+  - id: repeal_dt
+    name: Repeal_DT
+    data_type: text
+    description: The date the Local Law was repealed (if applicable).
+  - id: amended
+    name: Amended
+    data_type: text
+    description:
+      Flag that indicates whether the Local Law was amended by another Local
+      Law.
+    values:
+      - value: "No"
+      - value: "Yes"
+      - value: None
+  - id: amend_dt
+    name: Amend_DT
+    data_type: text
+    description: The date the Local Law was amended (if applicable).
+  - id: amendt_txt
+    name: Amendt_TXT
+    data_type: text
+    description:
+      Text included with the Local Law amendment action that describes the
+      amendment provision in relation to the original Local Law.
+  - id: amdyrllsec
+    name: AMDYRLLSEC
+    data_type: text
+    description:
+      A unique identifier concatenating Local Law amendment year, Local Law
+      section (in that order).
+  - id: geometry
+    name: geometry
+    data_type: geometry
+    description: Feature geometry.
+  - id: shape_leng
+    name: Shape_Leng
+    data_type: decimal
+  - id: shape_area
+    name: Shape_Area
+    data_type: decimal

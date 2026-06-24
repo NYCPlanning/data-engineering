@@ -1,0 +1,114 @@
+id: housing_database
+
+attributes:
+  description: >-
+    The NYC Department of City Planning's (DCP)  <a href =
+    "https://www.nyc.gov/site/planning/data-maps/open-data/dwn-housing-database.page#housingdevelopmentproject">Housing
+    Database</a>  contains all NYC Department of Buildings (DOB) approved housing construction and demolition jobs filed or
+    completed in NYC since January 1, 2010.  It includes the three primary construction job types that add or remove residential
+    units: new buildings, major alterations, and demolitions, and can be used to determine the change in legal housing units
+    across time and space. Records in the Housing Database Project-Level Files are geocoded to the greatest level of precision
+    possible, subject to numerous quality assurance and control checks, recoded for usability, and joined to other housing data
+    sources relevant to city planners and analysts.
+
+    Data are updated semiannually, at the end of the second and fourth quarters of each year.
+
+    Please see DCP's annual Housing Production Snapshot summarizing findings from the 21Q4 data release <a
+    href="https://storymaps.arcgis.com/stories/1c9138dc24064b2e8142ff156345a719">here</a>.  Additional Housing and Economic
+    analyses are also <a
+    href="https://www.nyc.gov/site/planning/planning-level/housing-economy/housing-economy.page">available</a>. 
+
+    The NYC Department of City Planning's (DCP) <a
+    href="https://www.nyc.gov/site/planning/data-maps/open-data/dwn-housing-database.page#housingdevelopmentunit">Housing Database
+    Unit Change Summary Files</a> provide the net change in Class A housing units since 2010, and the count of units pending
+    completion for commonly used political and statistical boundaries (Census Block, Census Tract, City Council district,
+    Community District, Community District Tabulation Area (CDTA), Neighborhood Tabulation Area (NTA). These tables are aggregated
+    from the DCP Housing Database Project-Level Files, which is derived from Department of Buildings (DOB) approved housing
+    construction and demolition jobs filed or completed in NYC since January 1, 2010. Net housing unit change is calculated as the
+    sum of all three construction job types that add or remove residential units: new buildings, major alterations, and
+    demolitions. These files can be used to determine the change in legal housing units across time and space.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__housing_database }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_developments }}
+  display_name: Housing Database
+  each_row_is_a: DOB-approved housing construction or demolition job
+  tags:
+  - housing
+  - house
+  - building
+  - development
+  - dwelling unit
+  - alteration
+  - demolition
+  - certificate of occupancy
+  - co
+  - permit
+  - job application
+  - filing
+  - net units
+  - unit change
+  - hotel
+  - class b
+  - class a
+  - pipeline
+  - existing units
+  - proposed units
+  - construction
+  date_made_public: "4/7/2021"
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data_bytes_link # Probably a better way to do this - I just don't want it to show up as out-of-date on our dashboard
+  files:
+  - id: data_dictionary
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: 6umk-irkx
+- id: bytes
+  type: bytes
+  files:
+  - id: csv
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychousingdb_{{ current_version_developments }}_csv.zip
+  - id: gdb
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychousingdb_{{ current_version_developments }}_gdb.zip
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychousingdb_{{ current_version_developments }}_shp.zip
+  - id: data_dictionary
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/Housing_Database_Data_Dictionary.xlsx
+  - id: data_dictionary_summary_files
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/Housing_Summary_Files_Data_Dictionary.xlsx
+
+files:
+- file:
+    id: csv
+    filename: nychousingdb_{{ current_version_developments }}_csv.zip
+    type: csv
+- file:
+    id: shapefile
+    filename: nychousingdb_{{ current_version_developments }}_shp.zip
+    type: shapefile
+- file:
+    id: gdb
+    filename: nychousingdb_{{ current_version_developments }}_gdb.zip
+    type: fgdb
+- file:
+    id: data_dictionary
+    filename: Housing_Database_Data_Dictionary.xlsx
+    is_metadata: true
+    type: None
+- file:
+    id: data_dictionary_summary_files
+    filename: Housing_Summary_Files_Data_Dictionary.xlsx
+    is_metadata: true
+    type: None
+
+columns: []

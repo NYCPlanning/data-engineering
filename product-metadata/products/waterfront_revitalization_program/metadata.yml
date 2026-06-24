@@ -1,0 +1,7 @@
+id: waterfront_revitalization_program
+
+dataset_defaults:
+  current_version: {{ current_version_waterfront_revitalization_program }}
+
+datasets:
+- waterfront_revitalization_program

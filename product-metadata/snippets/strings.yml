@@ -1,0 +1,94 @@
+bytes_previous_versions_link: All previously released versions of this data are
+  available at <a href="https://www.nyc.gov/content/planning/pages/resources#datasets">BYTES of the BIG APPLE - Archive</a>.
+streets_map_app_link: This dataset is featured on the Department of City Planning's <a
+  href="https://streets.planning.nyc.gov/">Street Map application</a>.
+bytes_zip_prefix_url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes
+bytes_pdf_prefix_url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes
+bytes_xl_prefix_url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes
+
+## BYTES urls
+bytes_lion_urls__census_blocks: https://www.nyc.gov/content/planning/pages/resources/datasets/census-blocks
+bytes_lion_urls__census_tracts: https://www.nyc.gov/content/planning/pages/resources/datasets/census-tracts
+bytes_lion_urls__ntas: https://www.nyc.gov/content/planning/pages/resources/datasets/neighborhood-tabulation
+bytes_lion_urls__pumas: https://www.nyc.gov/content/planning/pages/resources/datasets/public-use-microdata-areas
+bytes_lion_urls__cdtas: https://www.nyc.gov/content/planning/pages/resources/datasets/community-district-tabulation
+bytes_lion_urls__atomic_polygons: https://www.nyc.gov/content/planning/pages/resources/datasets/atomic-polygons
+bytes_lion_urls__borough_boundaries: https://www.nyc.gov/content/planning/pages/resources/datasets/borough-boundaries
+bytes_lion_urls__ccds: https://www.nyc.gov/content/planning/pages/resources/datasets/city-council
+bytes_lion_urls__comm_dists: https://www.nyc.gov/content/planning/pages/resources/datasets/community-districts
+bytes_lion_urls__cong_dists: https://www.nyc.gov/content/planning/pages/resources/datasets/congressional-districts
+bytes_lion_urls__elec_dists: https://www.nyc.gov/content/planning/pages/resources/datasets/election-districts
+bytes_lion_urls__fire: https://www.nyc.gov/content/planning/pages/resources/datasets/fire-battalions-companies-divisions
+bytes_lion_urls__health: https://www.nyc.gov/content/planning/pages/resources/datasets/health-area-center
+bytes_lion_urls__hurricane: https://www.nyc.gov/content/planning/pages/resources/datasets/hurricane-evacuation-zones
+bytes_lion_urls__lion: https://www.nyc.gov/content/planning/pages/resources/datasets/lion
+bytes_lion_urls__lion_diff: https://www.nyc.gov/content/planning/pages/resources/datasets/lion-difference-files
+bytes_lion_urls__municipal_court: https://www.nyc.gov/content/planning/pages/resources/datasets/municipal-court
+bytes_lion_urls__police_precincts: https://www.nyc.gov/content/planning/pages/resources/datasets/police-precincts
+bytes_lion_urls__pad: https://www.nyc.gov/content/planning/pages/resources/datasets/pad
+bytes_lion_urls__pseudo_lots: https://www.nyc.gov/content/planning/pages/resources/datasets/pseudo-lots
+bytes_lion_urls__rpl: https://www.nyc.gov/content/planning/pages/resources/datasets/road-pointer-list
+bytes_lion_urls__school_districts: https://www.nyc.gov/content/planning/pages/resources/datasets/school-districts
+bytes_lion_urls__state_assembly: https://www.nyc.gov/content/planning/pages/resources/datasets/state-assembly
+bytes_lion_urls__state_senate: https://www.nyc.gov/content/planning/pages/resources/datasets/state-senate
+bytes_lion_urls__snd: https://www.nyc.gov/content/planning/pages/resources/datasets/snd
+bytes_url__building_elevation_and_subgrade: https://www.nyc.gov/content/planning/pages/resources/datasets/building-evaluation-subgrade
+bytes_url__cdbg: https://www.nyc.gov/content/planning/pages/resources/datasets/community-development-block-grant
+bytes_url__colp: https://www.nyc.gov/content/planning/pages/resources/datasets/city-owned-leased-properties
+bytes_url__cpdb: https://www.nyc.gov/content/planning/pages/resources/datasets/capital-projects-database
+bytes_url__dcm: http://nyc.gov/content/planning/pages/resources/datasets/digital-city-map
+bytes_url__designated_areas_m_districts_appendix_j: https://www.nyc.gov/content/planning/pages/resources/datasets/designated-areas-manufacturing-districts
+bytes_url__housing_database: https://www.nyc.gov/content/planning/pages/resources/datasets/housing-unit-change-summary
+bytes_url__housing_database_project_level_files: https://www.nyc.gov/content/planning/pages/resources/datasets/housing-project-level
+bytes_url__e_designations: https://www.nyc.gov/content/planning/pages/resources/datasets/e-designations
+bytes_url__facilities: https://www.nyc.gov/content/planning/pages/resources/datasets/facilities
+bytes_url__fresh_zoning_boundary: https://www.nyc.gov/content/planning/pages/resources/datasets/fresh
+bytes_url__inclusionary_housing_designated_areas: https://www.nyc.gov/content/planning/pages/resources/datasets/inclusionary-housing-designated-areas
+bytes_url__lower_density_growth_management_areas: https://www.nyc.gov/content/planning/pages/resources/datasets/lower-density-growth-management-area
+bytes_url__mandatory_inclusionary_housing: https://www.nyc.gov/content/planning/pages/resources/datasets/mandatory-inclusionary-housing
+bytes_url__new_york_city_neighborhood_name_centroid: https://www.nyc.gov/content/planning/pages/resources/datasets/neighborhood-names
+bytes_url__pluto: https://www.nyc.gov/content/planning/pages/resources/datasets/mappluto-pluto-change
+bytes_url__pops: https://www.nyc.gov/content/planning/pages/resources/datasets/privately-owned-public-space
+bytes_url__projected_sea_level_rise: https://www.nyc.gov/content/planning/pages/resources/datasets/future-hide-tides
+bytes_url__transit_zones: https://www.nyc.gov/content/planning/pages/resources/datasets/transit-zones
+bytes_url__waterfront_public_access_areas: https://www.nyc.gov/content/planning/pages/resources/datasets/nyc-waterfront-access-map
+bytes_url__waterfront_revitalization_program: https://www.nyc.gov/content/planning/pages/resources/datasets/wrp-coastal-zone-boundary
+bytes_url__zap: https://www.nyc.gov/content/planning/pages/resources/datasets/zoning-application-portal
+bytes_url__zoning_features: https://www.nyc.gov/content/planning/pages/resources/datasets/gis-zoning-features
+bytes_url__zoning_map_index: https://www.nyc.gov/content/planning/pages/resources/datasets/zoning-map-index
+bytes_url__ztl: https://www.nyc.gov/content/planning/pages/resources/datasets/zoning-map-index
+
+# Versions
+current_version_lion: 26b
+current_version_pluto: 26v1
+current_version_facilities: 25v2
+current_version_building_elevation_and_subgrade: 202510
+current_version_cdbg: 202503
+current_version_census_equivalency_tract_table:
+current_version_colp: 202610
+current_version_cpdb: 26pre
+current_version_dcm: 20251031
+current_version_designated_areas_m_districts_appendix_j:
+current_version_developments: 25q4
+current_version_directory_of_land_use_application_fees:
+current_version_e_designations: 20260401
+current_version_fresh_zoning_boundary: 202602
+current_version_inclusionary_housing_designated_areas: 20251031
+current_version_lower_density_growth_management_areas: 202604
+current_version_mandatory_inclusionary_housing: 20260331
+current_version_new_york_city_neighborhood_name_centroid: 2014.8
+current_version_pops: 25v2
+current_version_projected_sea_level_rise: 201705
+current_version_template_db: latest
+current_version_transit_zones: 202410
+current_version_waterfront_public_access_areas: 202309
+current_version_waterfront_revitalization_program: 2016.1
+current_version_zap: 20260427
+current_version_zoning: 202604
+current_version_zoning_map_index:
+
+# Test variables for dcpy test suite
+test_product_freq: Test Product Frequency
+test_dataset_freq: Test Dataset Frequency
+test_agency: DCP
+test_version: 24c

@@ -1,0 +1,53 @@
+id: waterfront_revitalization_program
+
+attributes:
+  attribution_link: {{ bytes_url__waterfront_revitalization_program }}
+  description: |-
+    Waterfront Revitalization Program.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__waterfront_revitalization_program }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_waterfront_revitalization_program }}
+  display_name: Waterfront Revitalization Program (WRP)
+  each_row_is_a: Waterfront Revitalization Program
+  tags:
+    - waterfront revitalization program
+    - waterfront
+    - wrp
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: readme_pdf
+        custom:
+          destination_use: attachment
+    custom:
+      four_four: cbn4-bn4p
+      is_unparsed_dataset: true
+  - id: bytes
+    type: bytes
+    files:
+      - id: shapefile
+        custom:
+          url: http://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/nycwrpgdb{{ current_version_waterfront_revitalization_program }}.zip
+      - id: readme_pdf
+        custom:
+          url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/meta_wap.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: nycwrpgdb.zip
+      type: shapefile
+  - file:
+      id: readme_pdf
+      filename: meta_wap.pdf
+      is_metadata: true
+
+columns: []

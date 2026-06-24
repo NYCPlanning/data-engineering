@@ -1,0 +1,147 @@
+id: arterials_major_streets
+
+attributes:
+  description: |-
+    Designated rights-of-way shown on the City Planning Commission Master
+    Plan of Arterial Highways and Major Streets referenced in Appendix H of the NYC
+    Zoning Resolution. Single line features representing rights-of-way which appear
+    on the City Map of New York City and are also classified as Principal Routes,
+    Parkways and Toll Crossings on the adopted Master Plan of Arterial Highways and
+    Major Streets. {{ streets_map_app_link }}
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__dcm }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_dcm }}
+  display_name: Digital City Map (DCM) - Arterials and Major Streets
+  each_row_is_a: Designated rights-of-way
+  publishing_purpose:
+    "Designated rights-of-way shown on the City Planning Commission
+    Master Plan of Arterial Highways and Major Streets referenced in Appendix H of
+    the NYC Zoning Resolution. Dataset last updated: March 31, 2024."
+  tags:
+    - New York City City Map
+    - Master Plan Map
+    - City Map
+    - Arterials
+    - Major Streets
+    - Department of City Planning
+    - Principal Routes
+    - Parkways
+    - Toll Crossing
+    - Archive
+
+assembly:
+- id: dcm_multilayer
+  filename: dcm_{{ current_version_dcm }}shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: shapefile
+    custom:
+      layer_name: DCM_ArterialsMajorStreets
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    tags: [socrata_unpublished]
+    files:
+      - id: shapefile
+        dataset_overrides:
+          omitted_columns:
+            - shape_leng
+          overridden_columns:
+          - id: geometry
+            custom:
+              api_name: the_geom
+        custom:
+          destination_use: dataset_file
+      - id: data_dictionary_pdf
+        custom:
+          destination_use: attachment
+      # - id: oti_data_dictionary
+      #   custom:
+      #     destination_use: attachment
+    custom:
+      four_four: 6r5z-bkpx
+  - id: bytes
+    type: bytes
+    files:
+      - id: dcm_multilayer
+      - id: data_dictionary_pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: arterials_major_streets.shp.zip
+      type: shapefile
+  - file:
+      id: data_dictionary_pdf
+      filename: dcm_arterials_major_streets.pdf
+      is_metadata: true
+  - file:
+      id: oti_data_dictionary
+      filename: data_dictionary.xlsx
+      is_metadata: true
+      type: oti_data_dictionary
+
+columns:
+  - id: borough
+    name: Borough
+    data_type: text
+    description: The borough in which the route is located.
+    values:
+      - value: Bronx
+      - value: Brooklyn
+      - value: Manhattan
+      - value: Queens
+      - value: Staten Island
+  - id: boro_code
+    name: Boro_Code
+    data_type: integer
+    description: Single digit code for the borough in which the route is located.
+    values:
+      - value: "1"
+        description: Manhattan
+      - value: "2"
+        description: Bronx
+      - value: "3"
+        description: Brooklyn
+      - value: "4"
+        description: Queens
+      - value: "5"
+        description: Staten Island
+  - id: route_name
+    name: Route_Name
+    data_type: text
+    description: Official name of the route shown on the City Map.
+  - id: route_type
+    name: Route_Type
+    data_type: text
+    description: Types of routes shown on the Master Plan.
+    values:
+      - value: Arterial Highway
+      - value: Major Streets
+  - id: route_sub
+    name: Route_Sub
+    data_type: text
+    description: Types of routes and any other additional status from the Master Plan.
+    values:
+      - value: Intersection requiring special treatment
+      - value: Major Street
+      - value: Major street to be improved
+      - value: Parkway
+      - value: Principal Route
+      - value: Toll Crossing
+      - value: Toll Crossing Under Authorities
+      - value: Parkway/Toll Crossing
+      - value: Principal Route/Toll Crossing
+      - value: None
+  - id: geometry
+    name: geometry
+    data_type: geometry
+    description: Feature geometry.
+  - id: shape_leng
+    name: Shape_Leng
+    data_type: decimal
+  - id: route_stat
+    name: Route_Stat
+    data_type: text

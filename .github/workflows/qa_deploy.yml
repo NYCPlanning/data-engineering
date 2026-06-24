@@ -7,17 +7,12 @@ on:
         description: 'Data Engineering branch to deploy'
         required: true
         default: 'main'
-      product_metadata_branch:
-        description: 'Product Metadata branch to deploy'
-        required: true
-        default: 'main'
 
 jobs:
   deploy:
     runs-on: ubuntu-22.04
     env:
       DATA_ENGINEERING_BRANCH: ${{ github.event.inputs.data_engineering_branch || 'main' }}
-      PRODUCT_METADATA_BRANCH: ${{ github.event.inputs.product_metadata_branch || 'main' }}
       QA_DROPLET_SSH_PRIVATE_KEY: ${{ secrets.QA_DROPLET_SSH_PRIVATE_KEY }}
       QA_DROPLET_SSH_HOST: ${{ secrets.QA_DROPLET_SSH_HOST }}
 
@@ -42,19 +37,6 @@ jobs:
             cd /root/data-engineering && \
             git fetch origin $DATA_ENGINEERING_BRANCH --depth 1 && \
             git reset --hard FETCH_HEAD"
-
-      - name: Clone/update product-metadata on droplet
-        run: |
-          ssh droplet "\
-            if [ ! -d /root/product-metadata/.git ]; then
-              echo 'Cloning product-metadata...';
-              git clone --depth 1 --branch $PRODUCT_METADATA_BRANCH https://github.com/NYCPlanning/product-metadata.git /root/product-metadata;
-            else
-              echo 'Updating product-metadata...';
-              cd /root/product-metadata;
-              git fetch origin $PRODUCT_METADATA_BRANCH --depth 1;
-              git reset --hard FETCH_HEAD;
-            fi"
 
       - name: Deploy services
         run: |

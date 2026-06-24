@@ -1,0 +1,9 @@
+id: pluto
+
+dataset_defaults:
+  current_version: {{ current_version_pluto }}
+  publishing_frequency: Quarterly
+
+datasets:
+- change_file
+- pluto

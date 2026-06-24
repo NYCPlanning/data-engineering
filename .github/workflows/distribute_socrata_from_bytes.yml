@@ -65,17 +65,9 @@ jobs:
     env:
       PUBLISHING_BUCKET: edm-publishing
       RECIPES_BUCKET: edm-recipes
-      PRODUCT_METADATA_REPO_PATH: product-metadata
       _TYPER_STANDARD_TRACEBACK: 1
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/checkout@v4
-        with:
-          repository: NYCPlanning/product-metadata
-          path: product-metadata
-          # ref: ${{ inputs.MD_REPO_BRANCH }}
-
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1

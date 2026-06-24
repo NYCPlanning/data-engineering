@@ -1,0 +1,155 @@
+id: 2020_community_district_tabulation_areas
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__cdtas }}
+  description: |
+    The Department of City Planning (DCP) created Community District Tabulation Areas (CDTAs) to closely approximate the 59 Community Districts of New York City for the purpose of reporting American Community Survey (ACS) data. CDTAs are built by aggregating whole 2020 census tracts.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__cdtas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: 2020 Community District Tabulation Areas (CDTAs)
+  date_made_public: '9/13/2021'
+  each_row_is_a: Community District Tabulation Area
+  tags:
+  - community district tabulation area
+  - cdta
+  - '2020'
+  - census
+  - american community survey
+  - acs
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nycdta2020_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: xn3r-zk6y
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/community-district-tabulation-areas/nycdta2020_{{ current_version_lion }}.zip
+  - id: nycdta2020_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycdta2020_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nycdta2020.zip
+    type: shapefile
+- file:
+    id: nycdta2020_metadata.pdf
+    filename: nycdta2020_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: borocode
+  name: BoroCode
+  data_type: integer
+  description: Borough of census tract.
+  example: '3'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough Name.
+  example: Brooklyn
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: countyfips
+  name: CountyFIPS
+  data_type: text
+  description: The Census Bureau defined County FIPS code
+  example: '047'
+  values:
+  - value: '005'
+    description: Bronx County
+  - value: '047'
+    description: Kings County (Brooklyn)
+  - value: '061'
+    description: New York County (Manhattan)
+  - value: 081
+    description: Queens County
+  - value: 085
+    description: Richmond County (Staten Island)
+- id: cdta2020
+  name: CDTA2020
+  data_type: text
+  description: Community District Tabulation Area code.
+  example: BK56
+- id: cdtaname
+  name: CDTAName
+  data_type: text
+  description: Community District Tabulation Area name.
+  example: QN82 Forest Park (JIA 82 Approximation)
+- id: cdtatype
+  name: CDTAType
+  data_type: text
+  description: Type of Community District Tabulation Area. One digit code assigned
+    to a CDTA to distinguish between those that are representative of a Community
+    District (given a code of 0) and those that are representative of a Joint Interest
+    Area (given a code of 1). Joint Interest Areas are large open spaces or airports
+    that are not part of any Community District.
+  example: '0'
+  values:
+  - value: '0'
+    description: Representative of a Community District
+  - value: '1'
+    description: Joint Interest Areas
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: '37550.8572191'
+  custom:
+    api_name: shape_leng
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: '66224982.0063'
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  example: None
+  custom:
+    readme_data_type: geometry

@@ -1,0 +1,137 @@
+id: health_areas
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__health }}
+  description: |-
+    Health Area boundaries for New York City. Health areas are used for reporting health statistics and were created by the NYC Department of Health and Mental Hygiene (DOHMH)
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__health }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Health Areas
+  each_row_is_a: Health area
+  tags:
+  - health areas
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: ''
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nyha_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: boro_code
+        name: Borough Code
+      - id: boro_name
+        name: Borough Name
+      - id: health_area
+        name: Health Area Number
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary
+  #   custom:
+  #     destination_use: attachment
+  tags: [socrata_unpublished, 25c]
+  custom:
+    four_four: jntv-ngw5
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/health-area/nyha_{{ current_version_lion }}.zip
+  - id: nyha_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyha_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nyha.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+- file:
+    id: nyha_metadata.pdf
+    filename: nyha_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: boro_code
+  name: borocode
+  data_type: integer
+  description: Borough code for the Health Area.
+  example: None
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+  custom:
+    api_name: borocode
+- id: boro_name
+  name: boroname
+  data_type: text
+  description: Borough Name for the Health Area.
+  example: Queens
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+  custom:
+    api_name: boroname
+- id: health_area
+  name: healtharea
+  data_type: integer
+  description: Denotes the Health Area number.
+  example: None
+  custom:
+    api_name: healtharea
+- id: shape_length
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: None
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: None
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: ''
+  example: None

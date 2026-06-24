@@ -1,0 +1,85 @@
+id: test_overrides
+
+attributes:
+  description: Dataset for testing override hierarchy and metadata merging behavior
+  display_name: Test Overrides Dataset
+  each_row_is_a: Test Record
+  publishing_frequency: "{{ test_dataset_freq }}"
+  current_version: dataset-override-3.0
+  tags:
+    - test
+    - dcpy
+
+assembly: []
+
+files:
+  - file:
+      id: shapefile
+      filename: test_overrides.shp.zip
+      type: shapefile
+    dataset_overrides:
+      attributes:
+        description: description overridden at file level
+        display_name: display_name overridden at file level
+        custom:
+          file_level_custom: file_value
+      overridden_columns:
+        - id: geom
+          description: Overridden geometry description at file level
+          custom:
+            file_level_col_custom: file_col_value
+        - id: test_field
+          data_type: text
+          values:
+            - value: A
+              description: Value A
+            - value: B
+              description: Value B
+  - file:
+      id: csv
+      filename: test_overrides.csv
+      type: csv
+    dataset_overrides:
+      omitted_columns:
+        - geom
+
+destinations:
+  - id: socrata
+    type: open_data
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+    tags: [test_tag]
+    current_version: destination-override-4.0
+  - id: bytes
+    type: bytes
+    files:
+      - id: shapefile
+        dataset_overrides:
+          attributes:
+            description: description overridden at destination level
+            custom:
+              destination_level_custom: dest_value
+          overridden_columns:
+            - id: test_field
+              description: Destination-level column override
+          omitted_columns:
+            - another_field
+
+columns:
+  - id: geom
+    name: geom
+    data_type: geometry
+    description: Feature geometry
+    example: POINT(0 0)
+  - id: test_field
+    name: test_field
+    data_type: integer
+    description: Test field for override testing
+    example: "42"
+  - id: another_field
+    name: another_field
+    data_type: text
+    description: Another field for omitted columns testing
+    example: test

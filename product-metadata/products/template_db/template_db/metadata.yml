@@ -1,0 +1,108 @@
+id: template_db
+
+attributes:
+  display_name: Template DB
+  description: |
+    Template DB is a mock dataset created by the Data Engineering team at the Department of City Planning (DCP). Current version: {{ current_version_template_db }}
+  each_row_is_a: Interesting place in NYC
+  publishing_frequency: As-Needed
+  tags:
+  - Department of City Planning
+  - DCP
+  - New York City
+  - NYC
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: source_data_versions.csv
+    custom:
+      destination_use: attachment
+  - id: shapefile_points
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  custom:
+    four_four: b7pm-uzu7
+- id: my_edm_publishing_destination
+  type: edm.publishing.published
+  files:
+  - id: source_data_versions.csv
+    custom:
+      key: db-template
+      filepath: source_data_versions.csv
+  - id: shapefile_points
+    custom:
+      key: db-template
+      filepath: templatedb_points.zip
+
+files:
+- file:
+    id: primary_csv
+    filename: templatedb.csv
+    type: csv
+- file:
+    id: shapefile_points
+    filename: templatedb_points.shp.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: wkb_geometry
+      name: the_geom
+- file:
+    id: shapefile_polygons
+    filename: templatedb_polygons.shp.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: wkb_geometry
+      name: the_geom
+- file:
+    id: source_data_versions.csv
+    filename: source_data_versions.csv
+    is_metadata: true
+    type: None
+- file:
+    id: build_metadata.json
+    filename: build_metadata.json
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: place_name
+  name: Place Name
+  data_type: text
+  description: The name of the Place
+  example: None
+- id: bbl
+  name: BBL
+  data_type: bbl
+  description: The Borough-Block-Lot (BBL) of the Place
+  example: None
+- id: place_type
+  name: Place Type
+  data_type: text
+  description: The type of the Place
+  example: None
+- id: borough
+  name: Borough
+  data_type: text
+  description: The borough of the Place
+  example: None
+- id: wkb_geometry
+  name: Geometry
+  data_type: geometry
+  description: The geometry of the Place
+  example: None

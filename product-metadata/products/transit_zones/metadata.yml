@@ -1,0 +1,7 @@
+id: transit_zones
+
+dataset_defaults:
+  current_version: {{ current_version_transit_zones }}
+
+datasets:
+- transit_zones

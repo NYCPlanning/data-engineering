@@ -1,0 +1,56 @@
+id: test
+
+attributes:
+  display_name: dcp_test
+  each_row_is_a: row
+  tags: []
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_2
+  type: open_data_mock
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: abcd-1234
+- id: socrata
+  type: open_data_mock
+  files:
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: 5n4u-q8gi
+files:
+- file:
+    id: shapefile
+    filename: test.zip
+    type: shapefile
+
+columns:
+- id: boro_code
+  name: boro_code
+  data_type: text
+  description: Borough code for the borough in which the census block is located.
+- id: block
+  name: block
+  data_type: text
+- id: lot
+  name: lot
+  data_type: text
+- id: bbl
+  name: bbl
+  data_type: text
+- id: text
+  name: text
+  data_type: text
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: None
+  example: None

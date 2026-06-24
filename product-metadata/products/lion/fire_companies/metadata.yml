@@ -1,0 +1,134 @@
+id: fire_companies
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__fire }}
+  description: |-
+    Fire Companies boundaries of New York City.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__fire }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Fire Companies
+  each_row_is_a: Fire company
+  tags:
+  - fire companies
+  - fdny
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+  date_made_public: '1/31/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nyfc_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: fire_company_type
+        name: Fire Company Type
+      - id: fire_company_number
+        name: Fire Company Number
+      - id: fire_division
+        name: Fire Division
+      - id: fire_battalion
+        name: Fire Battalion
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: bst7-5464
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/fire-companies/nyfc_{{ current_version_lion }}.zip
+  - id: nyfc_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyfc_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nyfc.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+    - id: fire_company_type
+      name: firecotype
+    - id: fire_company_number
+      name: fireconum
+    - id: fire_battalion
+      name: firebn
+    - id: fire_division
+      name: firediv
+- file:
+    id: nyfc_metadata.pdf
+    filename: nyfc_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: fire_company_type
+  name: FireCoType
+  data_type: text
+  description: Denotes whether the company is an engine company, ladder company or
+    squad.
+  example: None
+  values:
+  - value: L
+    description: Ladder Company
+  - value: E
+    description: Engine Company
+  - value: Q
+    description: Fire Squad
+  custom:
+    api_name: fire_co_type
+- id: fire_company_number
+  name: FireCoNum
+  data_type: integer
+  description: The company number servicing the district.
+  example: None
+  custom:
+    api_name: fire_co_num
+- id: fire_division
+  name: FireDiv
+  data_type: text
+  description: The division number servicing the district.
+  example: None
+  custom:
+    api_name: fire_div
+- id: fire_battalion
+  name: FireBN
+  data_type: integer
+  description: The battalion number servicing the district.
+  example: None
+  custom:
+    api_name: fire_bn
+- id: the_geom
+  data_type: geometry
+- id: shape_length
+  data_type: decimal
+- id: shape_area
+  data_type: decimal

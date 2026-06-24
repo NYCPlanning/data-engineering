@@ -1,0 +1,142 @@
+id: digital_city_map__geodatabase
+
+attributes:
+  description: |-
+    The Digital City Map (DCM) data represents street lines and other
+    features shown on the City Map, which is the official street map of the City
+    of New York. The City Map consists of 5 different sets of maps, one for each
+    borough, totaling over 8000 individual paper maps. The DCM datasets were created
+    in an ongoing effort to digitize official street records and bring them together
+    with other street information to make them easily accessible to the public.
+    The Digital City Map (DCM) is comprised of seven datasets; Digital City Map,
+    Street Center Line, City Map Alterations, Arterial Highways and Major Streets,
+    Street Name Changes (areas), Street Name Changes (lines), and Street Name Changes
+    (points). {{ streets_map_app_link }}
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__dcm }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_dcm }}
+  display_name: Digital City Map – Geodatabase
+  each_row_is_a: NA
+  tags:
+    - digital city map
+    - dcm
+    - official city map
+    - final section map
+    - alteration map
+    - base map
+    - street
+    - mapped streets
+    - unmapped streets
+    - street treatment
+    - paper streets
+    - record streets
+    - pierhead line
+    - bulkhead line
+    - arterial highways
+    - major streets
+    - street width
+    - street names
+    - honorary names
+    - conames
+    - department of city planning
+    - dcp
+    - new york city
+    - nyc
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    files:
+      - id: fgdb
+        custom:
+          destination_use: dataset_file
+      - id: dcm_street_name_changes_areas_pdf
+        custom:
+          destination_use: attachment
+      - id: dcm_street_name_changes_lines_pdf
+        custom:
+          destination_use: attachment
+      - id: dcm_street_name_changes_points_pdf
+        custom:
+          destination_use: attachment
+      - id: dcm_arterials_major_streets_pdf
+        custom:
+          destination_use: attachment
+      - id: dcm_city_map_alterations_pdf
+        custom:
+          destination_use: attachment
+      - id: dcm_pdf
+        custom:
+          destination_use: attachment
+      - id: dcm_street_centerline_pdf
+        custom:
+          destination_use: attachment
+    custom:
+      four_four: eak9-f97n
+      is_unparsed_dataset: true
+  - id: bytes
+    type: bytes
+    files:
+      - id: fgdb
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/dcm_{{ current_version_dcm }}fdgb.zip
+      - id: dcm_street_name_changes_areas_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_name_changes_areas.pdf
+      - id: dcm_street_name_changes_lines_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_name_changes_lines.pdf
+      - id: dcm_street_name_changes_points_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_name_changes_points.pdf
+      - id: dcm_arterials_major_streets_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_arterials_major_streets.pdf
+      - id: dcm_city_map_alterations_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_city_map_alterations.pdf
+      - id: dcm_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm.pdf
+      - id: dcm_street_centerline_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm_street_centerline.pdf
+
+files:
+  - file:
+      id: fgdb
+      filename: fgdb.zip
+      type: fgdb
+  - file:
+      id: dcm_arterials_major_streets_pdf
+      filename: dcm_arterials_major_streets.pdf
+      is_metadata: true
+  - file:
+      id: dcm_city_map_alterations_pdf
+      filename: dcm_city_map_alterations.pdf
+      is_metadata: true
+  - file:
+      id: dcm_street_centerline_pdf
+      filename: dcm_street_centerline.pdf
+      is_metadata: true
+  - file:
+      id: dcm_street_name_changes_areas_pdf
+      filename: dcm_street_name_changes_areas.pdf
+      is_metadata: true
+  - file:
+      id: dcm_street_name_changes_lines_pdf
+      filename: dcm_street_name_changes_lines.pdf
+      is_metadata: true
+  - file:
+      id: dcm_street_name_changes_points_pdf
+      filename: dcm_street_name_changes_points.pdf
+      is_metadata: true
+  - file:
+      id: dcm_pdf
+      filename: dcm.pdf
+      is_metadata: true
+
+columns: []

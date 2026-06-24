@@ -1,0 +1,128 @@
+id: designated_areas_m_districts_appendix_j
+
+attributes:
+  attribution_link: {{ bytes_url__designated_areas_m_districts_appendix_j }}
+  description: |
+    Designated Areas in M districts (shown in the maps of Appendix J in
+    the Zoning Resolution) are areas where the development of new self-storage facilities
+    are subject to restrictions. Designated areas in which self-storage facilities
+    are subject to the as-of-right provisions of Section 42-121 are shown as Subarea
+    1, and those in which such use is subject to special permit of the City Planning
+    Commission pursuant to Section 74-932 are shown as Subarea 2. Current version: {{ current_version_designated_areas_m_districts_appendix_j }}
+
+  display_name: Designated_Areas_M_districts_AppendixJ
+  each_row_is_a: <FILL ME IN>
+  tags:
+    - self-storage facilities
+    - self storage
+    - self-service storage facility
+    - ministorage
+    - mini-storage
+    - ibz
+    - industrial business zone
+    - designated areas in m district
+    - appendix j
+    - use restrictions in industrial districts
+    - use restrictions in manufacturing districts
+    - use group 16
+    - ug 16
+    - self-storage zoning text amendment
+    - 42-121
+    - 74-932
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: data_dictionary_xlsx
+        custom:
+          destination_use: attachment
+      - id: metadata_pdf
+        custom:
+          destination_use: attachment
+    custom:
+      four_four: rdff-24yn
+  - id: bytes
+    type: bytes
+    files:
+      - id: shapefile
+        custom:
+          url: http://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/designated_areas_m_districts_{{ current_version_designated_areas_m_districts_appendix_j }}.zip
+      - id: metadata_pdf
+        custom:
+          url: https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/designated_areas_m_districts_metadata.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: designated_areas_m_districts.shp.zip
+      type: shapefile
+  - file:
+      id: data_dictionary_xlsx
+      filename: Open-Data-Dictionary-DAWMD.xlsx
+  - file:
+      id: metadata_pdf
+      filename: designated_areas_m_districts_metadata.pdf
+
+columns:
+  - id: the_geom
+    name: the_geom
+    data_type: geometry
+    custom:
+      geometry_type: multipolygon
+  - id: name
+    name: NAME
+    data_type: text
+    description: Indicates the commonly used name of the Designated Areas in M district, based off of the commonly used name of the Industrial Business Zone represented or the neighborhood.
+    example: Jamaica
+  - id: boroname
+    name: BORONAME
+    data_type: text
+    description: Indicates the name of the borough in which the Designated Area in M district is situated.
+    example: Queens
+    values:
+      - value: Brooklyn
+      - value: Bronx
+      - value: Manhattan
+      - value: Queens
+      - value: Staten Island
+  - id: borocode
+    name: BOROCODE
+    data_type: integer
+    description: Indicates the code of the borough in which the Designated Area in M district is located.
+    example: "4"
+    values:
+      - value: "1"
+        description: Manhattan
+      - value: "2"
+        description: Bronx
+      - value: "3"
+        description: Brooklyn
+      - value: "4"
+        description: Queens
+      - value: "5"
+        description: Staten Island
+  - id: subarea
+    name: Subarea
+    data_type: integer
+    description: |-
+      Indicates whether the Designated Area is classified as Subarea 1 or Subarea 2. Zoning
+      restrictions differ based on subarea. In Subarea 1, the as-of-right provisions of Section
+      42-121 apply. In Subarea 2, the CPC special permit pursuant to Section 74-932 applies.
+    example: "2"
+    values:
+      - value: "2"
+        description: CPC special permit pursuant to Section 74-932 applies
+      - value: "1"
+        description: The as-of-right provisions of Section 42-121 applies
+  - id: source
+    name: Source
+    data_type: text
+    example: NYC DCP December 2017

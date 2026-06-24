@@ -1,0 +1,60 @@
+id: transit_zones
+
+attributes:
+  description: |-
+    Shapefile of Transit Zone boundaries where parking requirements are
+    eliminated or reduced for a range of affordable and senior housing units.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__transit_zones }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_transit_zones }}
+  publishing_frequency: As-Needed
+
+  display_name: Transit Zones
+  each_row_is_a: Transit Zone
+
+assembly: []
+
+custom: {}
+destinations:
+  - id: socrata
+    type: open_data
+    custom:
+      four_four: dpnc-b2hd
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: readme_pdf
+        custom:
+          destination_use: attachment
+  - id: bytes
+    type: bytes
+    files:
+      - id: shapefile
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyctransitzones_{{ current_version_transit_zones }}.zip
+      - id: readme_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyctransitzones_metadata.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: nyctransitzones.shp.zip
+      type: shapefile
+  - file:
+      id: readme_pdf
+      filename: transitzones_metadata.pdf
+      is_metadata: true
+
+columns:
+  - id: the_geom
+    name: the_geom
+    data_type: geometry
+    description: Feature geometry.
+  - id: shape_leng
+    name: Shape_Leng
+    data_type: decimal
+  - id: shape_area
+    name: Shape_Area
+    data_type: decimal
+    description: Area of feature in internal units squared.

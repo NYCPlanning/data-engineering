@@ -1,0 +1,182 @@
+id: 2020_census_blocks
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__census_blocks }}
+  each_row_is_a: Census Block
+  date_made_public: '9/13/2021'
+  display_name: 2020 Census Blocks
+  tags:
+  - census block
+  - '2020'
+  - us census bureau
+  - boundary
+  - boundaries
+  - districts
+  - lion
+  - cscl
+  - department of city planning
+  - dcp
+  - new york city
+  - nyc
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: nycb2020_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_water_not_included
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: wmsu-5muw
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nycb2020wi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_water_included
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: wrzv-t2c4
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile_water_not_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/census-blocks/nycb2020_{{ current_version_lion }}.zip
+  - id: shapefile_water_included
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/census-blocks/nycb2020wi_{{ current_version_lion }}.zip
+  - id: nycb2020_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycb2020_metadata.pdf
+  - id: nycb2020wi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nycb2020wi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_water_not_included
+    filename: nycb2020.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |
+        Census Blocks from the 2020 US Census for New York City clipped to the shoreline. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map. Because some census blocks are under water not all census blocks are contained in this file, only census blocks that are partially or totally located on land have been mapped in this file.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__census_blocks }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: 2020 Census Blocks
+- file:
+    id: shapefile_water_included
+    filename: nycb2020wi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |
+        Census Blocks from the 2020 US Census for New York City including portions under water. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__census_blocks }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: 2020 Census Blocks (water areas included)
+- file:
+    id: nycb2020_metadata.pdf
+    filename: nycb2020_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nycb2020wi_metadata.pdf
+    filename: nycb2020wi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_water_not_included
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary_wi.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_water_included
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  example: None
+  custom:
+    readme_data_type: geometry
+- id: cb2020
+  name: CB2020
+  data_type: text
+  description: 2020 census block number.
+  example: '1000'
+- id: borocode
+  name: BoroCode
+  data_type: text
+  description: Borough code for the borough in which the census block is located.
+  example: '4'
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+- id: boroname
+  name: BoroName
+  data_type: text
+  description: Borough Name.
+  example: Queens
+  values:
+  - value: Brooklyn
+  - value: Bronx
+  - value: Manhattan
+  - value: Queens
+  - value: Staten Island
+- id: ct2020
+  name: CT2020
+  data_type: text
+  description: 2020 census tract number.
+  example: 013800
+- id: bctcb2020
+  name: BCTCB2020
+  data_type: text
+  description: Merged string value of the BoroCode, 2020 census tract number, and
+    2020 census block number.
+  example: '20060002009'
+- id: geoid
+  name: GEOID
+  data_type: text
+  description: Full Census Block number including the FIPS state and county code
+  example: '360050351003008'
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  description: Length of feature in internal units.
+  example: '1751.44780206'
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.
+  example: '85357.5399913'

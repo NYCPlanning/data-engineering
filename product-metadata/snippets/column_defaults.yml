@@ -1,0 +1,24 @@
+- id: bbl
+  name: BBL
+  data_type: bbl
+  example: '1016370141'
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: ''
+- id: shape_length
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  custom:
+    api_name: shape_leng
+- id: shape_leng
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  custom:
+    api_name: shape_leng
+- id: shape_area
+  name: Shape_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.

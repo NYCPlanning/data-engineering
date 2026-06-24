@@ -1,0 +1,7 @@
+id: projected_sea_level_rise
+
+dataset_defaults:
+  current_version: {{ current_version_projected_sea_level_rise }}
+
+datasets:
+- projected_sea_level_rise

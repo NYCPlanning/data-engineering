@@ -1,0 +1,17 @@
+id: dcm
+
+dataset_defaults:
+  current_version: {{ current_version_dcm }}
+  publishing_frequency: Monthly
+  data_change_frequency: Monthly
+  attribution_link: {{ bytes_url__dcm }}
+  geocoded: True
+  date_made_public: '6/1/2020'
+
+datasets:
+- digital_city_map
+- street_center_line
+- city_map_alterations
+- street_name_changes
+- arterials_major_streets
+- digital_city_map__geodatabase

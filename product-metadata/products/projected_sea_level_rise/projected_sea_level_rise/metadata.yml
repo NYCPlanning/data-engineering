@@ -1,0 +1,50 @@
+id: projected_sea_level_rise
+
+attributes:
+  description: |-
+    Geodatabase of projected sea level rise based on models released by  New
+    York City Panel on Climate Change (NPCC). Data includes the 10th, 25th, 50th,
+    75th and 90th percentile projections for the years 2020, 2050, 2080 and 2100.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__projected_sea_level_rise }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_projected_sea_level_rise }}
+  display_name: Projected Sea Level Rise
+  each_row_is_a: N/A
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    files:
+      - id: fgdb
+        custom:
+          destination_use: dataset_file
+      - id: metadata_pdf
+        custom:
+          destination_use: attachment
+    custom:
+      four_four: 6an6-9htp
+      is_unparsed_dataset: true
+  - id: bytes
+    type: bytes
+    files:
+      - id: fgdb
+        custom:
+          url: https://www.nyc.gov/assets/planning/download/zip/data-maps/open-data/nyc-future-high-tides-with-slr-{{ current_version_projected_sea_level_rise }}.zip
+      - id: metadata_pdf
+        custom:
+          url: https://www.nyc.gov/assets/planning/download/pdf/data-maps/open-data/slr_metadata.pdf
+
+files:
+  - file:
+      id: fgdb
+      filename: nyc-future-high-tides-with-slr.zip
+      type: fgdb
+  - file:
+      id: metadata_pdf
+      filename: slr_metadata.pdf
+      is_metadata: true
+
+columns: []

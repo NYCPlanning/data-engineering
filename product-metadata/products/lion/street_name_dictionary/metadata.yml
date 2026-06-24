@@ -1,0 +1,75 @@
+id: street_name_dictionary
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__snd }}
+  description: |-
+    The Street Name Dictionary (SND) contains street names and street codes for New York City.  Street names (which include names of other geographic features as well) are associated to street codes.  Alias street names and variant spellings are related through a street code hierarchy.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__snd }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+  display_name: Street Name Dictionary
+  each_row_is_a: Street Name
+  tags:
+  - dcp
+  - street
+  - street name
+  - street code
+  - dictionary
+  - snd
+  - geographic
+  - intersection
+  attribution_link: https://www.nyc.gov/site/planning/data-maps/open-data.page#other
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: snd_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  tags: [25c]
+  custom:
+    four_four: w4v2-rv6b
+    is_unparsed_dataset: true
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/snd/snd_{{ current_version_lion }}.zip
+  - id: snd_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/snd_metadata.pdf
+  - id: snd_userguide.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/snd_userguide.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: snd.zip
+    type: zip
+- file:
+    id: snd_metadata.pdf
+    filename: snd_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: snd_userguide.pdf
+    filename: snd_userguide.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+
+columns: []

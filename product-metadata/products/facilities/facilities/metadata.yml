@@ -1,0 +1,466 @@
+id: facilities
+
+attributes:
+  attribution_link: {{ bytes_url__facilities }}
+  description: |-
+    The Department of City Planning aggregates information about 30,000+ facilities and program sites that are owned, operated, funded, licensed, or certified by a City, State, or Federal agency in the City of New York into a central database called the City Planning Facilities Database (FacDB). These facilities generally help to shape quality of life in the city's neighborhoods, and this dataset is the basis for a series of planning activities. This public data resource allows all New Yorkers to understand the breadth of government resources in their neighborhoods. The data is also complemented with a <b><a href="https://capitalplanning.nyc.gov/facilities">new interactive web map</a></b> that enables users to easily filter the data for their needs. Users are strongly encouraged to read the database documentation, particularly with regard to analytical limitations.
+
+    Questions about this database can be directed to <b><a href="mailto:dcpopendata@planning.nyc.gov">dcpopendata@planning.nyc.gov</a></b>.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__facilities }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_facilities }}
+  display_name: Facilities Database
+  each_row_is_a: Public or Private Facility Licensed to Operate in NYC
+  publishing_frequency: Bi-annually
+  geocoded: true
+  tags:
+  - service
+  - services
+  - property
+  - facility
+  - facilities
+  - community
+  - program
+  - school
+  - park
+  - library
+  - day care
+  - foster care
+  - special needs
+  - mental health
+  - housing
+  - 'selected facilities and program sites: text'
+  - dcp
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  files:
+  - id: data_dictionary
+    custom:
+      destination_use: attachment
+  - id: readme
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: uid
+        name: uid
+      - id: facname
+        name: facname
+      - id: addressnum
+        name: addressnum
+      - id: streetname
+        name: streetname
+      - id: address
+        name: address
+      - id: city
+        name: city
+      - id: boro
+        name: boro
+      - id: borocode
+        name: borocode
+      - id: zipcode
+        name: zipcode
+      - id: latitude
+        name: latitude
+      - id: longitude
+        name: longitude
+      - id: xcoord
+        name: xcoord
+      - id: ycoord
+        name: ycoord
+      - id: bin
+        name: bin
+      - id: bbl
+        name: bbl
+      - id: cd
+        name: cd
+      - id: council
+        name: council
+      - id: ct2010
+        name: ct2010
+      - id: ct2020
+        name: ct2020
+      - id: nta2010
+        name: nta2010
+      - id: nta2020
+        name: nta2020
+      - id: facgroup
+        name: facgroup
+      - id: facsubgrp
+        name: facsubgrp
+      - id: factype
+        name: factype
+      - id: capacity
+        name: capacity
+      - id: captype
+        name: captype
+      - id: optype
+        name: optype
+      - id: opname
+        name: opname
+      - id: opabbrev
+        name: opabbrev
+      - id: overlevel
+        name: overlevel
+      - id: overagency
+        name: overagency
+      - id: overabbrev
+        name: overabbrev
+      - id: datasource
+        name: datasource
+      - id: facdomain
+        name: facdomain
+      - id: schooldist
+        name: schooldist
+      - id: policeprct
+        name: policeprct
+      - id: servarea
+        name: servarea
+      - id: geometry
+        name: geometry
+    custom:
+      destination_use: dataset_file
+  custom:
+    four_four: ji82-xba5
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/facilities-database/facilities_{{ current_version_facilities }}_shp.zip
+  - id: data_dictionary
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/facilities_datadictionary.xlsx
+  - id: readme
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/facilities_readme.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: facilities_shapefile.zip
+    type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: uid
+      name: UID
+    - id: facname
+      name: FACNAME
+    - id: addressnum
+      name: ADDRESSNUM
+    - id: streetname
+      name: STREETNAME
+    - id: address
+      name: ADDRESS
+    - id: city
+      name: CITY
+    - id: boro
+      name: BORO
+    - id: borocode
+      name: BOROCODE
+    - id: zipcode
+      name: ZIPCODE
+    - id: latitude
+      name: LATITUDE
+    - id: longitude
+      name: LONGITUDE
+    - id: xcoord
+      name: XCOORD
+    - id: ycoord
+      name: YCOORD
+    - id: bin
+      name: BIN
+    - id: bbl
+      name: BBL
+    - id: cd
+      name: CD
+    - id: council
+      name: COUNCIL
+    - id: ct2010
+      name: CT2010
+    - id: ct2020
+      name: CT2020
+    - id: nta2010
+      name: NTA2010
+    - id: nta2020
+      name: NTA2020
+    - id: facgroup
+      name: FACGROUP
+    - id: facsubgrp
+      name: FACSUBGRP
+    - id: factype
+      name: FACTYPE
+    - id: capacity
+      name: CAPACITY
+    - id: captype
+      name: CAPTYPE
+    - id: optype
+      name: OPTYPE
+    - id: opname
+      name: OPNAME
+    - id: opabbrev
+      name: OPABBREV
+    - id: overlevel
+      name: OVERLEVEL
+    - id: overagency
+      name: OVERAGENCY
+    - id: overabbrev
+      name: OVERABBREV
+    - id: datasource
+      name: DATASOURCE
+    - id: facdomain
+      name: FACDOMAIN
+    - id: schooldist
+      name: SCHOOLDIST
+    - id: policeprct
+      name: POLICEPRCT
+    - id: servarea
+      name: SERVAREA
+    - id: geometry
+      name: geometry
+- file:
+    id: data_dictionary
+    filename: facilities_data_dictionary.xlsx
+    is_metadata: true
+    type: None
+- file:
+    id: readme
+    filename: facilities_readme.pdf
+    is_metadata: true
+    type: None
+
+columns:
+- id: uid
+  name: uid
+  data_type: text
+  description: Universal Unique Identifier. When a row is added to the table the UID
+    is automatically generated, enabling database replication.
+  example: 0c34b4bf741f058bc765a48f40954318
+- id: facname
+  name: facname
+  data_type: text
+  description: The name of the facility in proper case.
+  example: SP PLUS CORPORATION
+- id: addressnum
+  name: number
+  data_type: text
+  description: The address number of where the facility is located, validated by GeoClient.
+    If the address that is available for the site is not complete with an address
+    number (only the street name), this field is left blank.
+  example: '100'
+- id: streetname
+  name: street
+  data_type: text
+  description: The name of the street where the facility is located, validated by
+    GeoClient. If the address that is available for the site is not complete with
+    an address number (only the street name), this field is left blank.
+  example: BROADWAY
+- id: address
+  name: address
+  data_type: text
+  description: The concatenated value of AddressNumber and StreetName of where the
+    facility is located. If there is not a valid, complete address available, any
+    location description that was provided is included in this field.
+  example: PANTRY
+- id: city
+  name: city
+  data_type: text
+  description: The USPS preferred name of the addressed city where the facility is
+    located. Generated by GeoClient and spatial joins. This field contains some blanks
+    for facilities that do not overlap with the shoreline Zip Code boundaries.
+  example: NEW YORK
+- id: boro
+  name: borough
+  data_type: text
+  description: The full name the borough the facility is within.
+  example: MANHATTAN
+- id: borocode
+  name: borocode
+  data_type: text
+  description: The number value representing the borough the facility is within.
+  example: '1'
+- id: zipcode
+  name: postcode
+  data_type: text
+  description: The ZIP Code the facility is within. This field contains some blanks
+    for facilities that do not overlap with the shoreline Zip Code boundaries.
+  example: '11201.0'
+- id: latitude
+  name: latitude
+  data_type: decimal
+  description: The latitude of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  example: '40.75361691617714'
+- id: longitude
+  name: longitude
+  data_type: decimal
+  description: The longitude of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  example: '-73.99190514220147'
+- id: xcoord
+  name: xcoord
+  data_type: decimal
+  description: The X coordinate of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  example: '986492.7437038543'
+- id: ycoord
+  name: ycoord
+  data_type: decimal
+  description: The Y coordinate of the location either calculated using the coordinates
+    in the source data or provided by GeoClient.
+  example: '213839.74968230928'
+- id: bin
+  name: bin
+  data_type: text
+  description: The BIN values for the buildings the facility is located in. This field
+    contains blanks, because 1) some lots do not have buildings on them, and 2) some
+    lots have multiple buildings and a single BIN could not be reliably assigned given
+    the information provided in the source data.
+  example: '1083624.0'
+- id: bbl
+  name: bbl
+  data_type: text
+  description: The BBL values for the tax lots the facility is located on. This field
+    contains blanks, because some facility categories, like pedestrian plazas are
+    not located on tax lots.
+  example: '1007860001.0'
+- id: cd
+  name: community district
+  data_type: text
+  description: The Community District the facility is within. This field contains
+    blanks because the Community District boundaries do not capture facilities beyond
+    the shoreline.
+  example: '105.0'
+- id: council
+  name: council district
+  data_type: text
+  description: The City Council District the facility is within
+  example: '8.0'
+- id: ct2010
+  name: census tract 2010
+  data_type: text
+  description: The 2010 U.S. Census Tract the facility is within
+  example: '2100.0'
+- id: ct2020
+  name: census tract 2020
+  data_type: text
+  description: The 2020 U.S. Census Tract the facility is within
+  example: '2100.0'
+- id: nta2010
+  name: nta 2010
+  data_type: text
+  description: The 2010 Neighborhood Tabulation Area (NTA) the facility is within.
+    This field contains blanks because the NTA boundaries do not capture facilities
+    beyond the shoreline.
+  example: MN17
+- id: nta2020
+  name: nta 2020
+  data_type: text
+  description: The 2020 Neighborhood Tabulation Area (NTA) the facility is within.
+    This field contains blanks because the NTA boundaries do not capture facilities
+    beyond the shoreline.
+  example: MN0502
+- id: facgroup
+  name: facgroup
+  data_type: text
+  description: The value representing the group type, the second broadest category.
+  example: DAY CARE AND PRE-KINDERGARTEN
+- id: facsubgrp
+  name: facsubgrp
+  data_type: text
+  description: The value representing the subgroup type.
+  example: PARKING LOTS AND GARAGES
+- id: factype
+  name: factype
+  data_type: text
+  description: The value representing the facility type, the most granular category
+    of facilities.
+  example: SUMMER ONLY FEEDING SITE
+- id: capacity
+  name: capacity
+  data_type: text
+  description: How many of capacity type/unit the facility is intended to hold. For
+    many types of facilities, no capacity information was available. The capacity-related
+    fields are blank when no information was provided in the source data.
+  example: '200.0'
+- id: captype
+  name: captype
+  data_type: text
+  description: The value representing the unit type of capacity, such as beds, visitors,
+    seats, etc.
+  example: seats
+- id: optype
+  name: optype
+  data_type: text
+  description: Indicates whether the operating entity is public or non-public.
+  example: Non-public
+- id: opname
+  name: opname
+  data_type: text
+  description: The name of the operating entity.
+  example: NYC Department of Education
+- id: opabbrev
+  name: opabbrev
+  data_type: text
+  description: Abbreviation for the oversight agency.
+  example: Non-public
+- id: overlevel
+  name: overlevel
+  data_type: text
+  description: 'The level of government of the oversight agency: City, State, City-State,
+    Federal, or Non-public Oversight.'
+  example: City
+- id: overagency
+  name: overagency
+  data_type: text
+  description: The name of the agency overseeing the facility.
+  example: NYC Department of Education
+- id: overabbrev
+  name: overabbrev
+  data_type: text
+  description: Abbreviation for the oversight agency.
+  example: NYCDOE
+- id: datasource
+  name: datasource
+  data_type: text
+  description: The Agency whose data was used as the source for the record.
+  example: nysed_activeinstitutions
+- id: facdomain
+  name: facdomain
+  data_type: text
+  description: The value representing the facility domain, the broadest category.
+  example: EDUCATION, CHILD WELFARE, AND YOUTH
+  values:
+  - value: EDUCATION, CHILD WELFARE, AND YOUTH
+  - value: HEALTH AND HUMAN SERVICES
+  - value: CORE INFRASTRUCTURE AND TRANSPORTATION
+  - value: PARKS, GARDENS, AND HISTORICAL SITES
+  - value: LIBRARIES AND CULTURAL PROGRAMS
+  - value: ADMINISTRATION OF GOVERNMENT
+  - value: PUBLIC SAFETY, EMERGENCY SERVICES, AND ADMINISTRATION OF JUSTICE
+- id: schooldist
+  name: schooldist
+  data_type: text
+  example: '2.0'
+- id: policeprct
+  name: policeprct
+  data_type: text
+  example: '1.0'
+- id: servarea
+  name: servarea
+  data_type: text
+  example: Local
+  values:
+  - value: Local
+  - value: Regional
+- id: geometry
+  name: geometry
+  data_type: text
+  description: Spatial data for the facility.
+  example: None

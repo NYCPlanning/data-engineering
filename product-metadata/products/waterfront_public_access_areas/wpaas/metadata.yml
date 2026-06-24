@@ -1,0 +1,437 @@
+id: wpaas
+
+attributes:
+  attribution_link: {{ bytes_url__waterfront_public_access_areas }}
+  description: |-
+    Waterfront Public Access Areas (WPAAs) are privately owned waterfront
+    zoning lots where publicly accessible open space is provided to and along the
+    shoreline for public enjoyment, as shown on the <a href="https://waterfrontaccess.planning.nyc.gov/">Waterfront Access Map (WAM)</a>.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__waterfront_public_access_areas }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_waterfront_public_access_areas }}
+  display_name: Waterfront Public Access Areas (WPAAs)
+  each_row_is_a:
+    A publicly accessible portion of the waterfront that is privately
+    owned, known as a Waterfront Public Access Area (WPAAs)
+  publishing_frequency: As-Needed
+  tags:
+    - waterfront public access areas
+    - wpaa
+    - open space
+    - parks
+    - waterfront access map
+    - wam
+    - publicly accessible waterfront
+    - shore public access
+    - department of city planning
+    - dcp
+    - nyc
+    - recreation
+
+assembly: []
+
+custom: {}
+
+destinations:
+  - id: socrata
+    type: open_data
+    custom:
+      four_four: 388s-pnvc
+    files:
+      - id: shapefile
+        custom:
+          destination_use: dataset_file
+      - id: readme_pdf
+        custom:
+          destination_use: attachment
+  - id: bytes
+    type: bytes
+    files:
+      # - id: shapefile
+      #   custom:
+      #     url: TODO
+      - id: readme_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/WAM_wpaas_metadata.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: wpaas.shp.zip
+      type: shapefile
+  - file:
+      id: readme_pdf
+      filename: WAM_wpaas_metadata.pdf
+      is_metadata: true
+
+columns:
+  - id: the_geom
+    name: the_geom
+    data_type: geometry
+    description: Geometry type
+    custom:
+      geometry_type: multipolygon
+  - id: wpaa_id
+    name: WPAA_ID
+    data_type: text
+    description:
+      A unique ID for each Waterfront Public Access Area (WPAA). FKA PAWS
+      ID - Publicly Accessible Waterfront Spaces ID.
+    example: "3010007"
+  - id: name
+    name: Name
+    data_type: text
+    description: The name of the Waterfront Public Access Area (WPAA)
+    example: North 5th Street Pier and Park
+  - id: status
+    name: Construction Status
+    data_type: text
+    description:
+      "The construction status of the Waterfront Public Access Area (WPAA),
+      it will be one of the following options: Approved (to be consutrcted), Open, Partially
+      Open, Under Construction"
+    example: Open
+    values:
+      - value: Open
+      - value: Approved (to be constructed)
+      - value: Approved  (to be constructed)
+      - value: Partially Open
+      - value: Closed
+  - id: chair_cert
+    name: Chair Certification Date
+    data_type: datetime
+    description:
+      The date of Chair Certification associated with the creation of the
+      Waterfront Public Access Area (WPAA), if applicable.
+    example: "2023-01-06T00:00:00.000"
+  - id: cpc_approv
+    name: CPC Approval Date
+    data_type: datetime
+    description:
+      The date of City Planning Commission (CPC) approval associated with
+      the creation of the Waterfront Public Access Area (WPAA), if applicable.
+    example: "2013-11-06T00:00:00.000"
+  - id: maintenanc
+    name: Maintained By
+    data_type: text
+    description:
+      "The entity responsible for the maintenance of the Waterfront Public
+      Access Area (WPAA). It is typically: Private Property Owned, but may also be:
+      NYC DPR or NYC EDC"
+    example: Private Property Owner
+    values:
+      - value: Private Property Owner
+      - value: NYC (DPR)
+      - value: NYC (DEP)
+      - value: NYC (EDC)
+  - id: summary
+    name: Summary of WPAA
+    data_type: text
+    description:
+      A general, 1-2 sentence descriptive overview of the Waterfront Public
+      Access Area (WPAA) highlighting key features
+    example:
+      Waterfront open space with shore public walkway, supplemental public access
+      area and street end improvement
+  - id: res_dec
+    name: Restrictive Declaration Link
+    data_type: text
+    description:
+      The hyperlink to or ID number of the restrictive declaration document
+      on Dept. of Finanace's (DOF) Automated City Register Information System (ACRIS)
+      webiste, associated with the creation of the Waterfront Public Access Area (WPAA),
+      if applicable.
+    example: https://acrisweb.csc.nycnet/DS/DocumentSearch/DocumentImageView?doc_id=2013123100717001
+  - id: cpc_report
+    name: CPC Report Link
+    data_type: text
+    description:
+      The hyperlink to the City Planning Commission (CPC) Report associated
+      with the creation of the Waterfront Public Access Area (WPAA), if applicable.
+    example: N/A
+  - id: sup_area
+    name: Supplemental Public Access Area
+    data_type: decimal
+    description:
+      Total supplemental public access area in square feet. Supplemental
+      public access area is a public access area required in order to fulfill the minimum
+      percentage of Waterfront Public Access Area (WPAA)required on a waterfront zoning
+      lot, once a shore public walkway and upland connection have been provided.
+    example: "0.0"
+  - id: wpaa_area
+    name: Total WPAA Area
+    data_type: decimal
+    description:
+      Total Waterfront Public Access Area (WPAA) in square feet. WPAA area
+      is the portion of a waterfront zoning lot where publicly accessible open space
+      is provided to and along the shoreline.
+    example: "0.0"
+  - id: zap_link
+    name: Zoning Application Portal (ZAP) Link
+    data_type: text
+    description:
+      The hyperlink to the project in the Zoning Application Portal (ZAP)
+      associated with the Waterfront Public Access Area (WPAA), if applicable.
+    example: N/A
+  - id: hours_open
+    name: Hours of Operation
+    data_type: text
+    description:
+      Public hours of operation for Waterfront Public Access Areas (WPAAs).
+      It is often Dawn to Dusk, but some WPAAs have seasonal differences in the times
+      they are open.
+    example: Dawn to Dusk
+  - id: waterway
+    name: Adjacent Waterway
+    data_type: text
+    description:
+      The name of the NYC waterbody that is adjacent to the Waterfront Public
+      Access Area (WPAA).
+    example: East River
+  - id: shore_area
+    name: Shore Public Walkway Area
+    data_type: decimal
+    description: Shore Public Walkway Area
+    example: "0.0"
+  - id: shore_line
+    name: Shore Public Walkway Linear Feet
+    data_type: decimal
+    description: Shore Public Walkway in linear feet
+    example: "0.0"
+  - id: a_volleyct
+    name: Activity Volleyball Court
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Volleyball Court, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_basketct
+    name: Activity Basketball Court
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Basketball Court, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_fishing
+    name: Activity Fishing
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Fishing, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_boating
+    name: Activity Boating/In-Water Access
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Boating/In-Water Access, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_playgrnd
+    name: Activity Tot Playground
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Tot Playground, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_splash
+    name: Activity Splash Feature
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Splash Feature, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_otherrec
+    name: Activity Other Recreational
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Other Recreational (Bocce, Skate Park, etc), active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: a_swimming
+    name: Activity Swimming
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Swimming, active use amenity. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_promenad
+    name: Feature Promenade
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Promenade/Esplanade, site feature. 1=Yes, 0=No
+    example: "1"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_seatlawn
+    name: Feature Seating Lawn
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Seating Lawn, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_pier
+    name: Feature Pier
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Pier, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_wetland
+    name: Feature Wetland/Natural Edge
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Wetland/Natural Edge, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_dogrun
+    name: Feature Dog Run
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Dog Run, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_edu_intp
+    name: Feature Educational or Interpretive Signs
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      Educational or Interpretive signs, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_restroom
+    name: Feature Public Restroom
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Public Restroom, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_shade
+    name: Feature Shade Structure
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Shade Structure, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_art
+    name: Feature Outdoor Art
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      an Outdoor Art, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_food_bev
+    name: Feature Food or Beverage Concessions
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      Food or Beverage Concessions, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: f_grpseat
+    name: Feature Group Seating
+    data_type: integer
+    description:
+      Flag to indicate whether the Waterfront Public Access Area (WPAA) contians
+      a Group Seating, site feature. 1=Yes, 0=No
+    example: "0"
+    values:
+      - value: "0"
+        description: "No"
+      - value: "1"
+        description: "Yes"
+  - id: shape_leng
+    name: Shape_Length
+    data_type: decimal
+    description: Length of feature in internal units.
+    example: "3420.55715186"
+  - id: shape_area
+    name: Shape_Area
+    data_type: decimal
+    description: Area of feature in internal units squared.
+    example: "112025.807895"

@@ -1,0 +1,7 @@
+id: fresh_zoning_boundary
+
+dataset_defaults:
+  current_version: {{ current_version_fresh_zoning_boundary }}
+
+datasets:
+- fresh_zoning_boundary

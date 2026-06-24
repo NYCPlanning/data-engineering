@@ -46,21 +46,17 @@ Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure
 
 ### Product metadata tests
 
-Tests in `dcpy/test/product_metadata/` require a local clone of the
-[product-metadata](https://github.com/NYCPlanning/product-metadata) repository:
+Metadata now lives at the top-level `product-metadata/` directory in this repo (migrated from
+the deprecated `NYCPlanning/product-metadata` standalone repo in issue #2436). Tests in
+`dcpy/test/product_metadata/` read from it by default — no extra setup is needed.
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/NYCPlanning/product-metadata.git ~/product-metadata
-   ```
-2. Point `PRODUCT_METADATA_REPO_PATH` at it (add to your shell profile to persist):
-   ```bash
-   export PRODUCT_METADATA_REPO_PATH=~/product-metadata
-   ```
-3. Run the tests:
-   ```bash
-   pytest dcpy/test/product_metadata/
-   ```
+`PRODUCT_METADATA_REPO_PATH` is optional; it defaults to the in-repo `product-metadata/`
+directory. Set it only if you want to point at a different checkout.
+
+Run the tests:
+```bash
+pytest dcpy/test/product_metadata/
+```
 
 These validate metadata loading/validation, the override hierarchy
 (org → product → dataset → destination), template variable substitution from

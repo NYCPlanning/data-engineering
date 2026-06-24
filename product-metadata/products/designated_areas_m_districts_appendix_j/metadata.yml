@@ -1,0 +1,7 @@
+id: designated_areas_m_districts_appendix_j
+
+dataset_defaults:
+  current_version: {{ current_version_designated_areas_m_districts_appendix_j }}
+
+datasets:
+- designated_areas_m_districts_appendix_j

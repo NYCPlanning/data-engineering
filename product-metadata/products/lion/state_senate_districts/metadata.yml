@@ -1,0 +1,159 @@
+id: state_senate_districts
+
+attributes:
+  attribution_link: {{ bytes_lion_urls__state_senate }}
+  display_name: State Senate Districts
+  each_row_is_a: State Senate district
+  tags:
+  - state senate districts
+  - dcp
+  - geographic
+  - voting
+  - location
+  - map
+  - cartography
+  - state
+  - senate
+  - district
+  - boundary
+  date_made_public: '1/31/2013'
+
+assembly: []
+
+custom: {}
+
+destinations:
+- id: socrata_water_included
+  type: open_data
+  files:
+  - id: nysswi_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile_wi
+    dataset_overrides:
+      overridden_columns:
+      - id: state_senate_district
+        name: AssemDist
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary_wi
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: 4294-fz9s
+- id: socrata
+  type: open_data
+  files:
+  - id: nyss_metadata.pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    dataset_overrides:
+      overridden_columns:
+      - id: state_senate_district
+        name: AssemDist
+      - id: shape_length
+        name: Shape_Length
+    custom:
+      destination_use: dataset_file
+  - id: oti_data_dictionary
+    custom:
+      destination_use: attachment
+  tags: [25c]
+  custom:
+    four_four: afns-vxeu
+- id: bytes
+  type: bytes
+  files:
+  - id: shapefile
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/state-senate/nyss_{{ current_version_lion }}.zip
+  - id: shapefile_wi
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/state-senate/nysswi_{{ current_version_lion }}.zip
+  - id: nyss_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyss_metadata.pdf
+  - id: nysswi_metadata.pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nysswi_metadata.pdf
+
+files:
+- file:
+    id: shapefile_wi
+    filename: nysswi.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        New York State Senate District boundaries for New York City including portions under water.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__state_senate }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+      display_name: State Senate Districts (water areas included)
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+    - id: state_senate_district
+      name: stsendist
+- file:
+    id: shapefile
+    filename: nyss.zip
+    type: shapefile
+  dataset_overrides:
+    attributes:
+      description: |-
+        New York State Senate District boundaries for New York City clipped to the shoreline.
+
+        All previously released versions of this data are available on the <a href="{{ bytes_lion_urls__state_senate }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_lion }}
+    overridden_columns:
+    - id: shape_length
+      name: shape_leng
+    - id: state_senate_district
+      name: stsendist
+- file:
+    id: nyss_metadata.pdf
+    filename: nyss_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: nysswi_metadata.pdf
+    filename: nysswi_metadata.pdf
+    is_metadata: true
+    type: None
+- file:
+    id: oti_data_dictionary
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile
+- file:
+    id: oti_data_dictionary_wi
+    filename: data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+    custom:
+      assembly:
+        with_metadata_from:
+          file_id: shapefile_wi
+
+columns:
+- id: state_senate_district
+  name: StateSenateDistrict
+  data_type: integer
+  description: New York State Senate district number.
+  example: None
+  custom:
+    api_name: st_sen_dist
+- id: the_geom
+  data_type: geometry
+- id: shape_length
+  data_type: decimal
+  example: None
+- id: shape_area
+  data_type: decimal

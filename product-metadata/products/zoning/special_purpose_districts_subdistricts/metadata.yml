@@ -1,0 +1,119 @@
+id: special_purpose_districts_subdistricts
+
+attributes:
+  attribution_link: {{ bytes_url__zoning_features }}
+  description: |-
+    Areas within Special Purpose Districts where unique rules apply.
+
+    This feature class contains only the internal subdistricts of any special purpose districts that are so subdivided. The main special purpose district name is indicated by the SPNAME attribute, the SUBDIST attribute contains the subdistrict name. Any further subdistrict divisions are named in the SUBAREA_NM or SUBAREA_OTR attribute. Subdistrict data has not been fully digitized and may be incomplete. See the Zoning Resolution for a complete description of the special purpose district. Where appropriate, the Zoning Resolution includes a district map showing subdistricts and subareas within the special purpose district.
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_features }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zoning }}
+  display_name: Special Purpose Subdistricts (NYSP_SD)
+  each_row_is_a: Special Purpose subdistrict
+  publishing_frequency: Monthly
+  tags:
+  - zoning
+  - special purpose districts
+  - nysp_sd
+  - subdistrict
+  - subarea
+  - sub-district
+  - sub-area
+  - New York City
+  - NYC
+  - Department of City Planning
+  - DCP
+
+assembly:
+- id: dcm_multilayer
+  filename: nycgiszoningfeatures_shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: shapefile
+    custom:
+      layer_name: nysp_sd
+
+custom: {}
+
+destinations:
+- id: socrata
+  type: open_data
+  tags: [socrata_unpublished]
+  files:
+  - id: metadata_pdf
+    custom:
+      destination_use: attachment
+  - id: shapefile
+    custom:
+      destination_use: dataset_file
+  # - id: oti_data_dictionary
+  #   custom:
+  #     destination_use: attachment
+  custom:
+    four_four: 9ng7-qsbs
+- id: bytes
+  type: bytes
+  files:
+  - id: dcm_multilayer
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
+  - id: metadata_pdf
+    custom:
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nysp_sd_metadata.pdf
+
+files:
+- file:
+    id: shapefile
+    filename: nysp_sd.shp.zip
+    type: shapefile
+- file:
+    id: metadata_pdf
+    filename: nysp_sd_metadata.pdf
+    is_metadata: true
+- file:
+    id: oti_data_dictionary
+    filename: special_subdistricts_data_dictionary.xlsx
+    is_metadata: true
+    type: oti_data_dictionary
+
+columns:
+- id: the_geom
+  name: the_geom
+  data_type: geometry
+  description: Feature geometry.
+- id: spname
+  name: SPNAME
+  data_type: text
+  description: Special Purpose district name.
+- id: splbl
+  name: SPLBL
+  data_type: text
+  description: Special Purpose district label, it appears on the Zoning Map of New York City.
+- id: subdist
+  name: SUBDIST
+  data_type: text
+  description: Special Purpose district subdistrict name.
+- id: sub_area_n
+  name: SUB_AREA_N
+  data_type: text
+  description: Sub-area name of a Special Purpose district sub-district.
+- id: subdist_lb
+  name: SUBDIST_LB
+  data_type: text
+  description: Special Purpose district subdistrict label
+- id: subarea_lb
+  name: SUBAREA_LB
+  data_type: text
+  description: Sub-area label of a Special Purpose district sub-district.
+- id: subarea_ot
+  name: SUBAREA_OT
+  data_type: text
+  description: Other sub-area name of a Special Purpose district sub-district, if needed.
+- id: shape_leng
+  name: Shape_Leng
+  data_type: decimal
+  description: Length of feature in internal units.
+- id: shape_area
+  name: SHAPE_Area
+  data_type: decimal
+  description: Area of feature in internal units squared.

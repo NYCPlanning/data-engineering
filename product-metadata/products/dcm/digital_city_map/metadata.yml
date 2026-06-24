@@ -1,0 +1,159 @@
+id: digital_city_map
+
+attributes:
+  description: |-
+    Citywide streets and other features (pierhead, bulkhead, etc) shown
+    on the official City Map of New York City. Street lines unmapped streets that
+    are NOT found on the City Map are included in this dataset for context and informational
+    purposes only. An exhaustive record of mapped city streets, parks and public places,
+    pierhead and bulkhead lines and borough and city boundaries digitized from georeferenced
+    Borough Final Section maps (except Staten Island), alteration maps, zoning maps,
+    and other reference data including: LION, Digital Tax Map (DTM), United States
+    Army Corps of Engineers (USACE), pierhead and bulkhead line maps, aerial images
+    and Google Streetview. Record streets and unmapped streets are included in this
+    dataset for context and informational purposes only. {{ streets_map_app_link }}
+
+    All previously released versions of this data are available on the <a href="{{ bytes_url__dcm }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_dcm }}
+  display_name: Digital City Map (DCM)
+  each_row_is_a: City Feature
+  publishing_purpose:
+    "Citywide streets and other features (pierhead, bulkhead, etc)
+    shown on the official City Map of New York City. Dataset last updated: March 31,
+    2024."
+  tags:
+    - Digital City Map
+    - DCM
+    - Official City Map
+    - final section map
+    - alteration map
+    - base map
+    - street
+    - mapped streets
+    - unmapped streets
+    - street treatment
+    - paper streets
+    - record streets
+    - pierhead line
+    - bulkhead line
+    - Department of City Planning
+    - DCP
+    - New York City
+    - NYC
+
+assembly:
+- id: dcm_multilayer
+  filename: dcm_{{ current_version_dcm }}shp.zip
+  type: multilayer_shapefile
+  contents:
+  - id: shapefile
+    custom:
+      layer_name: DCM
+
+custom: {}
+
+destinations:
+  - id: socrata
+    tags: [socrata_unpublished]
+    type: open_data
+    files:
+      - id: shapefile
+        dataset_overrides:
+          omitted_columns:
+            - shape_leng
+          overridden_columns:
+          - id: geometry
+            custom:
+              api_name: the_geom
+        custom:
+          destination_use: dataset_file
+      - id: data_dictionary_pdf
+        custom:
+          destination_use: attachment
+      # - id: oti_data_dictionary
+      #   custom:
+      #     destination_use: attachment
+    custom:
+      four_four: qrhk-k5wn
+  - id: bytes
+    type: bytes
+    files:
+      - id: dcm_multilayer
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/dcm_{{ current_version_dcm }}shp.zip
+      - id: data_dictionary_pdf
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/dcm.pdf
+
+files:
+  - file:
+      id: shapefile
+      filename: dcm.shp.zip
+      type: shapefile
+  - file:
+      id: data_dictionary_pdf
+      filename: dcm.pdf
+      is_metadata: true
+  - file:
+      id: oti_data_dictionary
+      filename: data_dictionary.xlsx
+      is_metadata: true
+      type: oti_data_dictionary
+
+columns:
+  - id: borough
+    name: Borough
+    data_type: text
+    description: The borough in which the city map feature is located.
+    values:
+      - value: Bronx
+      - value: Brooklyn
+      - value: CW
+        description: City-wide or more than one borough
+      - value: Manhattan
+      - value: Queens
+      - value: Staten Island
+      - value: Other
+      - value: None
+  - id: feat_type
+    name: Feat_Type
+    data_type: text
+    description:
+      City Map line types, includes mapped street line, record street line,
+      private ways, street treatment line, park and cemetary boundaries, public places,
+      shoreline, pierhead and bulkhead lines.
+    values:
+      - value: Boro_line
+      - value: Bulkhead_line
+      - value: Demapped_St
+      - value: Existing_St_geometry
+      - value: Infrastructure
+      - value: Mapped_St
+      - value: Non_z_boundary
+      - value: Pierhead_line
+      - value: Rail
+      - value: Street_treatment
+      - value: Underpass_or_tunnel
+      - value: Unmapped_St
+      - value: Water_edge
+      - value: None
+  - id: record_st
+    name: Record_ST
+    data_type: text
+    description:
+      A type of unmapped street that was recorded at local Borough President's
+      topographic offices and is displayed on the City Map and Zoning Map. New unapped
+      streets are not recoded and displayed on the City Map or Zoning Map.
+  - id: jurisdicti
+    name: Jurisdicti
+    data_type: text
+  - id: edit_date
+    name: Edit_Date
+    data_type: text
+    description: The date the record was last edited.
+  - id: geometry
+    name: geometry
+    data_type: geometry
+    description: Feature geometry.
+  - id: shape_leng
+    name: Shape_Leng
+    data_type: decimal

@@ -1,0 +1,7 @@
+id: template_db
+
+dataset_defaults:
+  current_version: {{ current_version_template_db }}
+
+datasets:
+- template_db
