@@ -96,6 +96,7 @@ WITH atomic_polygons_with_lookups AS (
         CASE
             WHEN pb.patrol_borough = 'MS' THEN '1'
             WHEN pb.patrol_borough = 'MN' THEN '2'
+            WHEN pb.patrol_borough = 'BX' THEN '3'  -- Temporary: fallback for current FGDB until XN/XS polygons added
             WHEN pb.patrol_borough = 'XS' THEN '3'
             WHEN pb.patrol_borough = 'BS' THEN '4'
             WHEN pb.patrol_borough = 'BN' THEN '5'
