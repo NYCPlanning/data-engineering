@@ -21,6 +21,7 @@ from rich.progress import (
 )
 
 from dcpy.library import models as library
+from dcpy.utils.logging import logger
 from dcpy.utils.metadata import get_run_details
 
 from . import base_path
@@ -89,8 +90,9 @@ def translator(func):
 
         output_files = []
         path = args[0]
-        c = Config(path, kwargs.get("version"), kwargs.get("source_path_override"))
-        dataset = c.compute
+        dataset = self._resolve_source(
+            path, kwargs.get("version"), kwargs.get("source_path_override")
+        )
         assert dataset.source.gdalpath
         assert dataset.version
         # initiate source and destination datasets
@@ -265,6 +267,32 @@ def translator(func):
 class Ingestor:
     def __init__(self):
         self.base_path = base_path
+        # Cache of resolved source datasets (Config.compute output), keyed by
+        # (path, version, source_path_override). One Ingestor is reused across
+        # all output formats of a single archive run, so this scopes the cache to
+        # that run and makes the source fetch happen once instead of per format.
+        self._source_cache: dict = {}
+
+    def _resolve_source(
+        self, path: str, version: str | None, source_path_override: str | None
+    ) -> library.DatasetDefinition:
+        """Resolve a dataset's source once per archive run and reuse it across
+        output formats. A single Ingestor is shared across all of a dataset's
+        formats (see Archive), so caching here avoids re-running an expensive
+        source fetch for each of pgdump/parquet/csv. This matters most for
+        `script:` sources, whose runner() can be a multi-hour API crawl."""
+        cache_key = (path, version, source_path_override)
+        if cache_key not in self._source_cache:
+            self._source_cache[cache_key] = Config(
+                path, version, source_path_override
+            ).compute
+        else:
+            cached = self._source_cache[cache_key]
+            logger.info(
+                f"Reusing already-resolved source for {cached.name} "
+                f"({cached.version}); skipping re-fetch."
+            )
+        return self._source_cache[cache_key]
 
     def compress(self, path: str, *files, inplace: bool = True):
         with zipfile.ZipFile(
