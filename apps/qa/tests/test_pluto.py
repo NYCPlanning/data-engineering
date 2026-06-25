@@ -1,8 +1,8 @@
 import pytest
-from src.pages.pluto.components.expected_value_differences_report import (
+from pages.pluto.components.expected_value_differences_report import (
     ExpectedValueDifferencesReport,
 )
-from src.pages.pluto.helpers import PRODUCT, get_data
+from pages.pluto.helpers import PRODUCT, get_data
 
 from dcpy.connectors.edm.models import PublishKey
 

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from dateutil.relativedelta import relativedelta
 
-from dcpy.models import library  # noqa
+from dcpy.library import models as library  # noqa
 
 
 def plot_series(

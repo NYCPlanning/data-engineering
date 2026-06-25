@@ -1,5 +1,5 @@
 import streamlit as st
-from src.shared.components import build_outputs
+from shared.components import build_outputs
 
 from .aggregate_report import AggregateReport
 from .bbl_diffs_report import BblDiffsReport

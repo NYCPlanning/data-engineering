@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 import streamlit as st
-from src.shared.constants import COLOR_SCHEME
+from shared.constants import COLOR_SCHEME
 
 
 class MismatchReport:

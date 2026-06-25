@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import pandas as pd
 import pytz
 import streamlit as st
-from src.shared.components.github import dispatch_workflow_button
+from shared.components.github import dispatch_workflow_button
 
 from dcpy.utils import s3
 from dcpy.utils.git import github

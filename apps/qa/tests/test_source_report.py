@@ -1,9 +1,9 @@
 # test generation of source data reports
 import pandas as pd
 import pytest
-from src import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
-from src.shared.constants import DATASET_NAMES
-from src.shared.utils.source_report import (
+from app_globals import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
+from shared.constants import DATASET_NAMES
+from shared.utils.source_report import (
     compare_source_data_columns,
     compare_source_data_row_count,
     get_source_data_versions,

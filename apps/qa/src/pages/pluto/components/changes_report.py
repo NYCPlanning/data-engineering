@@ -3,7 +3,7 @@ from abc import ABC
 import numpy as np
 import plotly.express as px
 import streamlit as st
-from src.shared.constants import COLOR_SCHEME
+from shared.constants import COLOR_SCHEME
 from st_aggrid import AgGrid
 
 

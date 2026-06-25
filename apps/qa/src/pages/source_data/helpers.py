@@ -1,10 +1,10 @@
 import os
 from typing import Dict
 
-from src import APP_PATH, ROOT_PATH
+from app_globals import APP_PATH, ROOT_PATH
 
 from dcpy.lifecycle.builds import plan
-from dcpy.models import library  # noqa
+from dcpy.library import models as library  # noqa
 
 
 def get_source_datasets(product: str) -> list[str]:
