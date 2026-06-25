@@ -505,7 +505,7 @@ class ProcessingFunctions:
             regex: True
 
         Which has the effect of
-        `df["jobnum"] = df["jobnum"].str.replace("-[a-zA-Z\d]1$", "", regex=True)`
+        `df["jobnum"] = df["jobnum"].str.replace("-[a-zA-Z\\d]1$", "", regex=True)`
 
         "function_name" must be a valid function of a pd.Series. This is validated
         kwargs are validated by name only, as annotations for these functions are quite messy
