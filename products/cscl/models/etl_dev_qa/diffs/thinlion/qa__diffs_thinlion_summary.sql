@@ -29,13 +29,20 @@ categorized AS (
         output_file_id,
         -- Categorize based on which fields changed
         CASE
-            -- If changes are only police_sector and/or patrol_borough
+            -- Bronx patrol borough split: production has XN/XS, we have BX (temporary until FGDB updated)
+            WHEN
+                status = 'modified'
+                AND changes ? 'patrol_borough'
+                AND changes->'patrol_borough'->>'new' = 'BX'
+                AND changes->'patrol_borough'->>'old' IN ('XN', 'XS')
+                THEN 'police geo discrepancy'
+            -- If changes are only police_sector and/or patrol_borough and/or police_patrol_borough_command
             WHEN
                 status = 'modified'
                 AND (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
-                ) <@ ARRAY['patrol_borough', 'police_sector'
+                ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
                 ]::text []
                 THEN 'police geo discrepancy'
             ELSE diff_group
@@ -46,12 +53,19 @@ categorized AS (
         production_table_name,
         -- Mark as accounted for if it's a police geo discrepancy
         coalesce(
-            status = 'modified'
-            AND (
-                SELECT array_agg(key ORDER BY key)
-                FROM jsonb_object_keys(changes) AS key
-            ) <@ ARRAY['patrol_borough', 'police_sector'
-            ]::text [], FALSE
+            -- Bronx patrol borough split
+            (status = 'modified'
+                AND changes ? 'patrol_borough'
+                AND changes->'patrol_borough'->>'new' = 'BX'
+                AND changes->'patrol_borough'->>'old' IN ('XN', 'XS'))
+            -- General police geo discrepancies
+            OR (status = 'modified'
+                AND (
+                    SELECT array_agg(key ORDER BY key)
+                    FROM jsonb_object_keys(changes) AS key
+                ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
+                ]::text []),
+            FALSE
         ) AS accounted_for
     FROM all_diffs
 )
