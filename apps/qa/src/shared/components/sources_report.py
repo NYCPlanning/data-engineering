@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
-from src import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
-from src.shared.utils.source_report import (
+from app_globals import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
+from shared.utils.source_report import (
     compare_source_data_columns,
     compare_source_data_row_count,
     dataframe_style_source_report_results,

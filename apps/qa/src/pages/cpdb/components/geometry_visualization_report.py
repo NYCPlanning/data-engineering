@@ -1,5 +1,5 @@
 import streamlit as st
-from src.shared.constants import COLOR_SCHEME
+from shared.constants import COLOR_SCHEME
 
 
 def geometry_visualization_report(data: dict):

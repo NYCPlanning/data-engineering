@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 import pandas as pd
-from src.shared.utils.publishing import get_zip_cached, read_csv_cached, unzip_csv
+from shared.utils.publishing import get_zip_cached, read_csv_cached, unzip_csv
 
 from dcpy.connectors.edm.models import ProductKey
 

@@ -1,8 +1,8 @@
 import plotly.graph_objects as go
 import streamlit as st
-from src.shared.constants import COLOR_SCHEME
-from src.shared.utils.publishing import read_csv_cached
-from src.shared.utils.source_report import get_source_data_versions_cached
+from shared.constants import COLOR_SCHEME
+from shared.utils.publishing import read_csv_cached
+from shared.utils.source_report import get_source_data_versions_cached
 
 from dcpy.connectors.edm.models import ProductKey, PublishKey
 

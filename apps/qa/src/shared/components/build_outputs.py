@@ -4,7 +4,7 @@ import geopandas as gpd
 import leafmap.foliumap as lmf
 import pandas as pd
 import streamlit as st
-from src.shared.utils.publishing import (
+from shared.utils.publishing import (
     get_data_directory_url,
     read_csv_cached,
     read_file_metadata,

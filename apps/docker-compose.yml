@@ -50,9 +50,10 @@ services:
       - RECIPES_BUCKET=edm-recipes
       - SOCRATA_USER=${SOCRATA_USER}
       - SOCRATA_PASSWORD=${SOCRATA_PASSWORD}
-    # cd into the app dir first: the app does `from src import …`, which needs apps/qa as the
-    # working directory (the old image ran from WORKDIR /app where the app was baked).
-    entrypoint: ["sh", "-c", "uv pip install --system -e /repos/data-engineering && cd /repos/data-engineering/apps/qa && streamlit run src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc"]
+    # Editable-install dcpy from the mount, then run the app. The qa app imports its modules
+    # relative to its source root src/ (e.g. `from shared...`), which streamlit puts on sys.path
+    # when it runs src/index.py — so no cd, no `python -m`, no PYTHONPATH needed.
+    entrypoint: ["sh", "-c", "uv pip install --system -e /repos/data-engineering && streamlit run /repos/data-engineering/apps/qa/src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc"]
     volumes:
       - /root/data-engineering:/repos/data-engineering
     restart: unless-stopped

@@ -3,8 +3,8 @@ from typing import cast
 
 import pandas as pd
 import streamlit as st
-from src import QAQC_DB_SCHEMA_SOURCE_DATA
-from src.shared.constants import construct_dataset_by_version
+from app_globals import QAQC_DB_SCHEMA_SOURCE_DATA
+from shared.constants import construct_dataset_by_version
 
 from dcpy.connectors.edm.models import (
     BuildKey,

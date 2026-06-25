@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 import streamlit as st
 from numerize.numerize import numerize
-from src.shared.constants import COLOR_SCHEME
+from shared.constants import COLOR_SCHEME
 
 
 class AggregateReport:

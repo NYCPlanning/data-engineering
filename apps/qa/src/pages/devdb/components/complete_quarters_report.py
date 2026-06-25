@@ -1,6 +1,6 @@
 import plotly.express as px
 import streamlit as st
-from src.shared.constants import COLOR_SCHEME
+from shared.constants import COLOR_SCHEME
 
 
 class CompleteQuartersReport:
