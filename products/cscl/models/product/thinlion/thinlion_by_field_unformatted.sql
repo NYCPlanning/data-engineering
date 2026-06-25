@@ -96,12 +96,13 @@ WITH atomic_polygons_with_lookups AS (
         CASE
             WHEN pb.patrol_borough = 'MS' THEN '1'
             WHEN pb.patrol_borough = 'MN' THEN '2'
-            WHEN pb.patrol_borough = 'BX' THEN '3'
+            WHEN pb.patrol_borough = 'XS' THEN '3'
             WHEN pb.patrol_borough = 'BS' THEN '4'
             WHEN pb.patrol_borough = 'BN' THEN '5'
             WHEN pb.patrol_borough = 'QN' THEN '6'
             WHEN pb.patrol_borough = 'SI' THEN '7'
             WHEN pb.patrol_borough = 'QS' THEN '8'
+            WHEN pb.patrol_borough = 'XN' THEN '9'
         END AS police_patrol_borough_command,
         pb.patrol_borough,
         beat.sector AS police_sector,
