@@ -47,6 +47,10 @@ jobs:
               - apps/qa/**
               - dcpy/**
               - admin/run_environment/**
+            notebook:
+              - apps/notebook-server/**
+              - dcpy/**
+              - admin/run_environment/**
             cbbr:
               - products/cbbr/**
               - admin/run_environment/**
@@ -207,6 +211,39 @@ jobs:
       image_tag: ${{ needs.determine_image_logic.outputs.child_tag }}
       path_filter: ${{ needs.check_changes.outputs.pr_changes }}
     secrets: inherit
+
+  smoke_test:
+    name: Smoke test - ${{ matrix.service }}
+    # The app services run dcpy + app code from the mounted repo at runtime, so the published
+    # image is deps-only and pytest never exercises the real entrypoint. This boots the service
+    # as deployed and asserts it imports + serves — catches launch/sys.path/editable-install
+    # bugs that only surface in a running container.
+    needs:
+      - check_changes
+      - determine_image_logic
+      - docker_child_images
+    if: contains(needs.check_changes.outputs.pr_changes, 'qa') || contains(needs.check_changes.outputs.pr_changes, 'notebook')
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - qa-streamlit
+          - notebook-server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          DOCKER_USERNAME: "op://Data Engineering/Dockerhub/username"
+          DOCKER_PASSWORD: "op://Data Engineering/Dockerhub/password"
+      - name: Docker login (to pull build-base)
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - name: Smoke test ${{ matrix.service }}
+        run: ./apps/bash/smoke_test.sh ${{ matrix.service }}
 
   build:
     needs: docker_child_images
