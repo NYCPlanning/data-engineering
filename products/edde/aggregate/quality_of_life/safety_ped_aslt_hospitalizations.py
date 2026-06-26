@@ -2,16 +2,13 @@ import pandas as pd
 from resources import load
 from utils import geo_helpers
 
-from aggregate.decennial_census.decennial_census_001020 import (
-    load_decennial_census_001020,
-)
-
 
 def assault_hospitalizations(geography):
     source_data = _load_assaults()
-    final = calculate_per100k_rate(source_data[source_data["geo_type"] == geography])
+    filtered = source_data[source_data["geo_type"] == geography]
     indicator_col_label = "safety_assaulthospital_rate"
 
+    final = pd.DataFrame(filtered["rate"]).replace({0: None})
     final.index.name = geography
     final.columns = [indicator_col_label]
     return final
@@ -19,29 +16,13 @@ def assault_hospitalizations(geography):
 
 def pedestrian_hospitalizations(geography):
     source_data = _load_pedestrians()
-    final = calculate_per100k_rate(source_data[source_data["geo_type"] == geography])
+    filtered = source_data[source_data["geo_type"] == geography]
     indicator_col_label = "safety_pedhospital_rate"
 
+    final = pd.DataFrame(filtered["rate"]).replace({0: None})
     final.index.name = geography
     final.columns = [indicator_col_label]
     return final
-
-
-CENSUS_POP_FIELD = "pop_20_count"
-ONE_HUNDRED_K = 100000
-
-
-def calculate_per100k_rate(source_data):
-    # We need population numbers by PUMA, which we'll take from the census
-    # TODO: check with Winnie/Pop about this. Eyeballing things, it doesn't look like anything changed drastically
-    census = load_decennial_census_001020()[CENSUS_POP_FIELD]
-    gb = source_data.join(census).groupby("geo_id").sum()
-
-    return pd.DataFrame(
-        (gb["count"] * (ONE_HUNDRED_K / gb[CENSUS_POP_FIELD]))
-        .round(2)
-        .replace({0: None})
-    )
 
 
 def _calc_geo_id(pd_row):
@@ -69,7 +50,9 @@ RAW_GEO_TYPE_MAPPER = {
 
 
 def _load_assaults():
-    df = load("assault_hospitalizations").rename(columns={"Number": "count"})
+    df = load("assault_hospitalizations").rename(
+        columns={"age_adjusted_rate_per_100k": "rate"}
+    )
 
     # Filter to the latest year only
     latest_year = df["TimePeriod"].max()
@@ -78,16 +61,15 @@ def _load_assaults():
     df["geo_type"] = df["GeoType"].map(RAW_GEO_TYPE_MAPPER)
     df["geo_id"] = df.apply(_calc_geo_id, axis=1)
 
-    # Clean count column: remove commas and convert suppressed values to None
+    # Clean rate column: convert suppressed values to None
     # "**" and "^^" are suppressed values in the source data
-    df["count"] = df["count"].astype(str).str.replace(",", "")
-    df["count"] = pd.to_numeric(df["count"], errors="coerce")
+    df["rate"] = pd.to_numeric(df["rate"], errors="coerce")
 
-    return df[["geo_type", "geo_id", "count"]].set_index("geo_id")
+    return df[["geo_type", "geo_id", "rate"]].set_index("geo_id")
 
 
 def _load_pedestrians():
-    df = load("pedestrian_hospitalizations").rename(columns={"Number": "count"})
+    df = load("pedestrian_hospitalizations").rename(columns={"rate_per_100k": "rate"})
 
     # Filter to the latest year only
     latest_year = df["TimePeriod"].max()
@@ -96,9 +78,8 @@ def _load_pedestrians():
     df["geo_type"] = df["GeoType"].map(RAW_GEO_TYPE_MAPPER)
     df["geo_id"] = df.apply(_calc_geo_id, axis=1)
 
-    # Clean count column: remove commas and convert suppressed values to None
+    # Clean rate column: convert suppressed values to None
     # "**" and "^^" are suppressed values in the source data
-    df["count"] = df["count"].astype(str).str.replace(",", "")
-    df["count"] = pd.to_numeric(df["count"], errors="coerce")
+    df["rate"] = pd.to_numeric(df["rate"], errors="coerce")
 
-    return df[["geo_type", "geo_id", "count"]].set_index("geo_id")
+    return df[["geo_type", "geo_id", "rate"]].set_index("geo_id")

@@ -1,4 +1,4 @@
-TimePeriod,GeoType,GeoID,GeoRank,Geography,"Age-adjusted rate per 100,000",Number
+TimePeriod,GeoType,GeoID,GeoRank,Geography,age_adjusted_rate_per_100k,Number
 2023,CD,101,6,Financial District (CD1),**,**
 2023,CD,102,6,Greenwich Village and Soho (CD2),10.7,11
 2023,CD,103,6,Lower East Side and Chinatown (CD3),33.4,61

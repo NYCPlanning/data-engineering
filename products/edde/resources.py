@@ -310,14 +310,19 @@ RESOURCES = {
         "filepath": "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
         "type": "csv",
         "data_table": "",
-        "required_columns": ["Geography", "Number", "GeoType"],
+        "required_columns": [
+            "Geography",
+            "Number",
+            "GeoType",
+            "age_adjusted_rate_per_100k",
+        ],
         "loader": _load_assault_hospitalizations,
     },
     "pedestrian_hospitalizations": {
         "filepath": "resources/quality_of_life/pedestrian_hospitalizations.csv",
         "type": "csv",
         "data_table": "",
-        "required_columns": ["Geography", "Number", "GeoType"],
+        "required_columns": ["Geography", "Number", "GeoType", "rate_per_100k"],
         "loader": _load_pedestrian_hospitalizations,
     },
     # Quality of Life - Health Mortality (multi-sheet)

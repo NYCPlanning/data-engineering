@@ -1,4 +1,4 @@
-﻿TimePeriod,GeoType,GeoID,GeoRank,Geography,Number,"Rate per 100,000"
+TimePeriod,GeoType,GeoID,GeoRank,Geography,Number,rate_per_100k
 2023,CD,101,6,Financial District (CD1),**,**
 2023,CD,102,6,Greenwich Village and Soho (CD2),**,**
 2023,CD,103,6,Lower East Side and Chinatown (CD3),22,10.8
