@@ -33,8 +33,8 @@ categorized AS (
             WHEN
                 status = 'modified'
                 AND changes ? 'patrol_borough'
-                AND changes->'patrol_borough'->>'new' = 'BX'
-                AND changes->'patrol_borough'->>'old' IN ('XN', 'XS')
+                AND changes -> 'patrol_borough' ->> 'new' = 'BX'
+                AND changes -> 'patrol_borough' ->> 'old' IN ('XN', 'XS')
                 THEN 'police geo discrepancy'
             -- If changes are only police_sector and/or patrol_borough and/or police_patrol_borough_command
             WHEN
@@ -54,17 +54,21 @@ categorized AS (
         -- Mark as accounted for if it's a police geo discrepancy
         coalesce(
             -- Bronx patrol borough split
-            (status = 'modified'
+            (
+                status = 'modified'
                 AND changes ? 'patrol_borough'
-                AND changes->'patrol_borough'->>'new' = 'BX'
-                AND changes->'patrol_borough'->>'old' IN ('XN', 'XS'))
+                AND changes -> 'patrol_borough' ->> 'new' = 'BX'
+                AND changes -> 'patrol_borough' ->> 'old' IN ('XN', 'XS')
+            )
             -- General police geo discrepancies
-            OR (status = 'modified'
+            OR (
+                status = 'modified'
                 AND (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
                 ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
-                ]::text []),
+                ]::text []
+            ),
             FALSE
         ) AS accounted_for
     FROM all_diffs
