@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any, Literal, TypedDict
 
 import pandas as pd
-import pytz
 import requests
 
 from dcpy.utils.logging import logger
@@ -63,7 +62,7 @@ VISID_COOKIE_TOKEN_ENV_VAR = "NYCOC_CHECKBOOK_VISID_COOKIE_TOKEN"
 MAYBE_VISID_TOKEN: str | None = os.environ.get(VISID_COOKIE_TOKEN_ENV_VAR)
 
 if not MAYBE_VISID_TOKEN:
-    logger.warn(
+    logger.warning(
         "Running nycoc ingestion without an incapsula token. This could cause problems if your IP is not whitelisted"
     )
 NYCOC_USER_AGENT_ENV_VAR = "NYCOC_CHECKBOOK_USER_AGENT"
@@ -120,6 +119,9 @@ class Scriptor(ScriptorInterface):
                 "end": end,
             }
             search_criteria_modified = search_criteria + [month_criteria]
+            logger.info(
+                f"Fetching {type_of_data} records for period {start} to {end}..."
+            )
             df = get_data(
                 type_of_data=type_of_data,
                 records_from=records_from,
@@ -128,7 +130,7 @@ class Scriptor(ScriptorInterface):
                 search_criteria=search_criteria_modified,
                 num_retries=num_retries,
             )
-            print(f"There are {len(df)} records for period {start}-{end}.")
+            logger.info(f"There are {len(df)} records for period {start}-{end}.")
 
             filename = f"{start}-{end}_checkbook.parquet"
             filepath = str(data_dir / filename)
@@ -234,20 +236,29 @@ def get_response(
 
     for n in range(num_retries):
         try:
+            logger.info(
+                f"Requesting {type_of_data} records from #{records_from} "
+                f"(attempt {n + 1}/{num_retries})..."
+            )
             response = requests.post(url=api_endpoint, data=xml_string, headers=headers)
             response.raise_for_status()
             return response
         except requests.exceptions.RequestException as e:
             # user_agent = random.choice(USER_AGENTS)   # TODO: uncomment or remove completely
-            timestamp = (
-                dt.datetime.utcnow()
-                .astimezone(pytz.timezone("US/Eastern"))
-                .strftime("%Y-%m-%d %H:%M")
+            # Surface what a rate limit / WAF block looks like: the HTTP status and
+            # any Retry-After header. Connection errors/timeouts carry no response.
+            failed_response = getattr(e, "response", None)
+            status = (
+                failed_response.status_code if failed_response is not None else "none"
             )
-            print(
-                f"Failed to get a response from api (try # {n + 1}/{num_retries}) at {timestamp}."
-                f"\nRequest body: \n{xml_string}"
-                f"\nException: {e}"
+            retry_after = (
+                failed_response.headers.get("Retry-After")
+                if failed_response is not None
+                else None
+            )
+            logger.warning(
+                f"Failed to get a response from api (try # {n + 1}/{num_retries}); "
+                f"status: {status}, Retry-After: {retry_after}. Exception: {e}"
             )
             # pausing before next request: we don't want to overload API
             time.sleep(random.randint(15, 20))

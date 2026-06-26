@@ -96,3 +96,30 @@ class TestIngestor:
     def test_script(self, request_get):
         self.ingestor.csv(f"{template_path}/bpl_libraries.yml", version="test")
         assert os.path.isfile(".library/datasets/bpl_libraries/test/bpl_libraries.csv")
+
+
+class TestResolveSourceCaching:
+    """A dataset's source must be resolved once per archive run and reused across
+    output formats. One Ingestor is shared across all of a dataset's formats, so
+    re-resolving would re-run the source fetch — e.g. a script source's multi-hour
+    API crawl — once for each output file format."""
+
+    @patch("dcpy.library.ingest.Config")
+    def test_resolves_once_per_key_and_reuses(self, MockConfig):
+        ingestor = Ingestor()
+
+        first = ingestor._resolve_source("template.yml", "v1", None)
+        second = ingestor._resolve_source("template.yml", "v1", None)
+
+        # Constructed (and thus source-fetched) exactly once...
+        assert MockConfig.call_count == 1
+        # ...and the same resolved dataset is handed back both times.
+        assert first is second is MockConfig.return_value.compute
+
+    @patch("dcpy.library.ingest.Config")
+    def test_distinct_sources_resolve_separately(self, MockConfig):
+        ingestor = Ingestor()
+        ingestor._resolve_source("a.yml", "v1", None)
+        ingestor._resolve_source("b.yml", "v1", None)  # different path
+        ingestor._resolve_source("a.yml", "v2", None)  # different version
+        assert MockConfig.call_count == 3
