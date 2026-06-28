@@ -14,7 +14,7 @@ app = typer.Typer(add_completion=False)
 @app.command()
 def _run(
     dataset: str = typer.Argument(),
-    vesion: str = typer.Argument(),
+    version: str = typer.Argument(),
     metadata_only: bool = typer.Option(
         False,
         "--metadata-only",
@@ -51,10 +51,10 @@ def _run(
     load_result = load.load_source_data_from_resolved_recipe(lockfile)
     match dataset:
         case "acs":
-            acs_manual_update.build(vesion, load_result)
+            acs_manual_update.build(version, load_result)
 
         case "decennial":
-            decennial_manual_update.build(vesion, load_result)
+            decennial_manual_update.build(version, load_result)
 
 
 if __name__ == "__main__":
