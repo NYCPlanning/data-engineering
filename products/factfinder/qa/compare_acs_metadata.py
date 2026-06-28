@@ -1,10 +1,17 @@
 """
-Compare ACS metadata JSON files between two years to identify new and dropped variables.
+Compare the ACS metadata for two release years to identify variables added and dropped between
+them.
+
+Both sides are read from the committed metadata at factfinder/data/acs/<year>/metadata.json — the
+current release vintage vs. the previous one. This does NOT read the local build output under
+.lifecycle/; it compares two in-repo years. The result is written to
+factfinder/data/acs/<current_year>/metadata_diffs.txt.
 
 Usage:
-    python compare_acs_metadata.py [current_year] [previous_year]
+    python compare_acs_metadata.py <current_year> <previous_year>
 
-Defaults to comparing the two most recent years found under factfinder/data/acs/.
+Both years are required, and current_year must be greater than previous_year, e.g.:
+    python compare_acs_metadata.py 2024 2023
 """
 
 import json
