@@ -57,6 +57,16 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.reindex(columns=OUTPUT_SCHEMA_COLUMNS)
 
 
+def strip_numeric_formatting(value):
+    """Population provides some values as formatted text (thousands commas and a
+    leading '$', e.g. top-coded medians like '200,000' or '$2,499'). Strip that
+    formatting so the values survive numeric coercion instead of becoming NaN.
+    Non-string values (already-numeric estimates, NaN) pass through unchanged."""
+    if isinstance(value, str):
+        return value.replace(",", "").replace("$", "")
+    return value
+
+
 def transform_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     df = strip_unnamed_columns(df)
     df.rename(columns=str.lower, inplace=True)
@@ -65,7 +75,9 @@ def transform_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
     df = pivot_factfinder_table(df)
     for column in ["c", "e", "m", "p", "z"]:
-        df[column] = pd.to_numeric(df[column], errors="coerce")
+        df[column] = pd.to_numeric(
+            df[column].map(strip_numeric_formatting), errors="coerce"
+        )
     return df
 
 
