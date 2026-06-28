@@ -47,6 +47,66 @@ Code in this repo primarily:
 2. Runs pipelines to build Decennial and ACS datasets. 
    You'll probably want to run both `products/factfinder/run.py` for both 'acs' and 'decennial'
 
+### Command
+
+Run from the **repo root**, with the environment loaded (direnv, or an activated `.venv`, so
+`API_KEY` and the recipe credentials are set):
+
+```bash
+python3 -m products.factfinder.run <dataset> <version>
+# e.g. the 2019-2023 ACS update (recipe version 2024):
+python3 -m products.factfinder.run acs 2024
+```
+
+`<dataset>` is `acs` or `decennial`; `<version>` is the recipe version (e.g. `2024`).
+
+### Output
+
+Build artifacts land under `.lifecycle/` (gitignored):
+
+- `.lifecycle/builds/load/<recipe_id>/<version>/` — source data pulled from `edm-recipes`
+  (e.g. `dcp_pop_acs/2024/dcp_pop_acs.xlsx`)
+- `.lifecycle/builds/build/factfinder/<dataset>/<version>/` — the build output: `<dataset>.csv`
+  plus `metadata.json`
+
+So the 2024 ACS run writes `.lifecycle/builds/build/factfinder/acs/2024/acs.csv` — the local
+build output to QA before it's promoted/published.
+
+### Promote to Draft (manual)
+
+Unlike our other products, PFF is **not** wired into the `promote_to_draft.yml` automation — there
+is no command for this step. **We copy the build output up to S3 by hand.** Drafts live in the
+`edm-publishing` bucket under `db-factfinder/`, structured to mirror how every other product
+stores drafts:
+
+```
+edm-publishing/db-factfinder/draft/<dataset>/<version>/<release>_<n>/
+```
+
+- `<dataset>` — `acs` or `decennial`
+- `<version>` — the data version: ACS current-window end year (e.g. `2024`), previous window
+  (`2010`), or decennial (`2020`)
+- `<release>_<n>` — PFF release year and draft revision, e.g. `2026_2` is the second draft of the
+  2026 release
+
+Each draft folder holds `<dataset>.csv` and `metadata.json`, copied up from the local build output
+at `.lifecycle/builds/build/factfinder/<dataset>/<version>/`. ACS drafts also include a
+`metadata_diffs.txt` listing the variables added and dropped between this ACS year and the previous
+one — generate it with `qa/compare_acs_metadata.py <current_year> <previous_year>` (e.g.
+`2024 2023`).
+
+Examples from the 2026 release:
+
+- `edm-publishing/db-factfinder/draft/acs/2024/2026_2/`
+- `edm-publishing/db-factfinder/draft/acs/2010/2026_2/`
+- `edm-publishing/db-factfinder/draft/decennial/2020/2026_1/decennial.csv`
+
+**Note:** Application Engineering's (AE) scripts historically read from an older, separate
+location — `edm-publishing/db-factfinder/ar_build/acs/<version>/<date>/` (e.g.
+`.../acs/2024/2026-04-21/`). The `draft/` layout above was introduced to bring PFF in line with our
+other products; AE may still consume `ar_build/` until they switch over. `ar_build/` is
+transitional and should be removed once AE migrates to `draft/`.
+
 
 ## Cheatsheet On The Data Sources 
 
