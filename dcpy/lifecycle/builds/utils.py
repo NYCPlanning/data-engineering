@@ -221,29 +221,27 @@ def read_recipe_df(
 
     last_error = None
     for file_type in file_types_to_try:
-        # Create temp file with appropriate extension
-        suffix = f".{file_type.to_extension()}"
-        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-
         try:
-            # Pull the file
-            result = connector.pull_versioned(
-                key=dataset.id,
-                version=dataset.version,
-                destination_path=tmp_path,
-                file_type=file_type,
-            )
-
-            # Read based on file type
-            if file_type == DatasetType.parquet:
-                return pd.read_parquet(result["path"])
-            elif file_type == DatasetType.csv:
-                return pd.read_csv(result["path"])
-            else:
-                raise ValueError(
-                    f"Unsupported file type for DataFrame reading: {file_type}"
+            # pull_versioned writes <filename> *inside* destination_path, so it
+            # must be a directory (as every other caller passes). TemporaryDirectory
+            # handles cleanup; read the file inside the `with`, before it's removed.
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                result = connector.pull_versioned(
+                    key=dataset.id,
+                    version=dataset.version,
+                    destination_path=Path(tmp_dir),
+                    file_type=file_type,
                 )
+
+                # Read based on file type
+                if file_type == DatasetType.parquet:
+                    return pd.read_parquet(result["path"])
+                elif file_type == DatasetType.csv:
+                    return pd.read_csv(result["path"])
+                else:
+                    raise ValueError(
+                        f"Unsupported file type for DataFrame reading: {file_type}"
+                    )
 
         except Exception as e:
             last_error = e
@@ -251,9 +249,6 @@ def read_recipe_df(
                 f"Failed to read {dataset.id} v{dataset.version} as {file_type}: {e}"
             )
             continue
-        finally:
-            if tmp_path.exists():
-                tmp_path.unlink()
 
     # If we get here, all attempts failed
     if last_error:
