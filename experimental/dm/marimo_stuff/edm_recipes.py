@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.17.0"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
 
 with app.setup(hide_code=True):
@@ -11,25 +11,27 @@ with app.setup(hide_code=True):
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(r"""# `edm-recipes` Data Catalog""")
+    mo.md(r"""
+    # `edm-recipes` Data Catalog
+    """)
     return
 
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(
-        r"""
+    mo.md(r"""
     This notebook is for exploring Data Engineering's source data stored in the `edm-recipes` S3 bucket in Digital Ocean.
 
     Every day, a duckdb database in `edm-reicpes` is refreshed to have up-to-date views of all versions of all datasets. This is limited to the versions that have a parquet files in them.
-    """
-    )
+    """)
     return
 
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(r"""## Setup""")
+    mo.md(r"""
+    ## Setup
+    """)
     return
 
 
@@ -83,7 +85,78 @@ def _(conn):
 
 @app.cell(hide_code=True)
 def _():
-    mo.md(r"""## Explore an example dataset""")
+    mo.md(r"""
+    ## Explore a dataset
+    """)
+    return
+
+
+@app.cell
+def _(conn):
+    dataset_names = (
+        conn.sql("select distinct schema from (show all tables) order by schema")
+        .df()["schema"]
+        .to_list()
+    )
+    return (dataset_names,)
+
+
+@app.cell
+def _(dataset_names):
+    dropdown_dataset_names = mo.ui.dropdown(options=dataset_names)
+    dropdown_dataset_names
+    return (dropdown_dataset_names,)
+
+
+@app.cell(hide_code=True)
+def _(conn, dropdown_dataset_names):
+    _df = mo.sql(
+        f"""
+        select
+            *
+        from
+            (show all tables)
+        where
+            schema = '{dropdown_dataset_names.value}'
+        """,
+        engine=conn,
+    )
+    return
+
+
+@app.cell
+def _(conn, dropdown_dataset_names):
+    dataset_versions = (
+        conn.sql(
+            f"select name from (show all tables) where schema = '{dropdown_dataset_names.value}' order by name"
+        )
+        .df()["name"]
+        .to_list()
+    )
+    dropdown_dataset_versions = mo.ui.dropdown(options=dataset_versions)
+    dropdown_dataset_versions
+    return (dropdown_dataset_versions,)
+
+
+@app.cell(hide_code=True)
+def _(conn, dropdown_dataset_names, dropdown_dataset_versions):
+    _df = mo.sql(
+        f"""
+        select
+            *
+        from
+            "{dropdown_dataset_names.value}"."{dropdown_dataset_versions.value}"
+        """,
+        engine=conn,
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _():
+    mo.md(r"""
+    ## Explore an example dataset
+    """)
     return
 
 
