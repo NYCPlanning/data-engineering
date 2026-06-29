@@ -1,0 +1,23 @@
+seeds:
+  - name: factype_rectype_mapping
+    description: >
+      Maps each facility type (factype) to a record type (rectype): 'facility' or
+      'program'. Used to set FacDB RECTYPE. Any other value (blank, or a factype
+      missing from this seed) yields a NULL RECTYPE, which fails the RECTYPE
+      not_null and FACTYPE relationships tests until resolved. Only 'facility'
+      records receive a mock asset_id/SGR.
+    columns:
+      - name: factype
+        description: Facility type, matching facdb.factype (uppercase).
+        tests:
+          - not_null
+          - unique
+          # The seed should reflect the data it maps: every seeded factype must
+          # exist in facdb (the table _create_rectype.sql joins it against). Fails
+          # on orphan rows (factypes no longer in the data) so the seed gets pruned
+          # rather than accumulating dead mappings.
+          - relationships:
+              to: source('facdb', 'facdb')
+              field: factype
+      - name: rectype
+        description: Record type, 'facility' or 'program'; blank yields a NULL RECTYPE.

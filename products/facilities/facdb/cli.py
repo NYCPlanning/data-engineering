@@ -1,5 +1,6 @@
 import concurrent.futures
 import importlib
+import shlex
 import shutil
 import subprocess
 import zipfile
@@ -113,16 +114,14 @@ def _export_fgdb(pg: postgres.PostgresClient, output_dir: Path) -> None:
 
 
 def _dbt(args: list[str]) -> None:
-    subprocess.check_call(
-        [
-            "dbt",
-            *args,
-            "--quiet",
-            "--warn-error-options",
-            '{"error": ["NoNodesForSelectionCriteria"]}',
-        ],
-        cwd=PRODUCT_PATH,
-    )
+    cmd = [
+        "dbt",
+        *args,
+        "--warn-error-options",
+        '{"error": ["NoNodesForSelectionCriteria"]}',
+    ]
+    typer.echo(typer.style(f"$ {shlex.join(cmd)}", fg=typer.colors.CYAN))
+    subprocess.check_call(cmd, cwd=PRODUCT_PATH)
 
 
 @app.command("init")
@@ -136,7 +135,15 @@ def _cli_init():
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_procedures.sql")
     _dbt(["deps"])
-    _dbt(["seed"])
+    _dbt(
+        [
+            "build",
+            "--select",
+            "config.materialized:seed",
+            "--indirect-selection=cautious",
+            "--full-refresh",
+        ]
+    )
 
 
 @app.command("build")
@@ -159,6 +166,8 @@ def _cli_build():
         build_schema=BUILD_NAME,
     )
     postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_deduplication.sql")
+    postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_rectype.sql")
+    postgres.execute_file_via_shell(BUILD_ENGINE, SQL_PATH / "_create_sgr_mock.sql")
 
 
 @app.command("qaqc")
