@@ -41,6 +41,7 @@ class InputDataset(BaseModel, extra="forbid"):
     destination: InputDatasetDestination | None = None
     load_engine: str | None = None
     archive_date: date | None = None
+    url: str | None = None
     custom: dict = Field(default_factory=dict)
 
     @property

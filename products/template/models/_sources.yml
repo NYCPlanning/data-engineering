@@ -13,6 +13,7 @@ sources:
           - name: v
           - name: file_type
           - name: archive_date
+          - name: url
 
   - name: tdb_sources
     schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"

@@ -14,6 +14,8 @@ models:
         description: "File format of the source data (e.g. csv, parquet, pg_dump)"
       - name: archive_date
         description: "Date the source dataset was ingested into edm-recipes (YYYY-MM-DD)"
+      - name: url
+        description: "Source URL the dataset was ingested from"
 
   - name: templatedb
     description: "Template DB place records"

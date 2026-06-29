@@ -227,6 +227,7 @@ def plan_recipe(
             ds.name = connector.get_name(ds.id, ds.version)  # type: ignore
             archive_dt = recipes.get_archive_date(ds.dataset)
             ds.archive_date = archive_dt.date() if archive_dt else None
+            ds.url = recipes.get_url(ds.dataset)
 
     # Resolve any unresolved conf values (e.g. from the environment or provided vars)
     for conf in recipe.get_unresolved_stage_config_values():
@@ -416,7 +417,7 @@ def write_source_data_versions(recipe_file: Path):
         logger.error(exception)
         raise Exception(exception)
 
-    header = ["schema_name", "dataset_name", "v", "file_type", "archive_date"]
+    header = ["schema_name", "dataset_name", "v", "file_type", "archive_date", "url"]
     with open(source_data_versions_path, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=header)
         writer.writeheader()
@@ -427,6 +428,7 @@ def write_source_data_versions(recipe_file: Path):
                 "v": x.version,
                 "file_type": x.file_type,
                 "archive_date": x.archive_date.isoformat() if x.archive_date else "",
+                "url": x.url if x.url else "",
             }
             for x in datasets
         )

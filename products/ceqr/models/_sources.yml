@@ -13,3 +13,4 @@ sources:
           - name: v
           - name: file_type
           - name: archive_date
+          - name: url

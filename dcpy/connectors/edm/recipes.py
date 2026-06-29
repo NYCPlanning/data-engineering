@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -45,6 +46,20 @@ def get_archive_date(ds: Dataset | DatasetKey) -> datetime | None:
     if date_created:
         return datetime.fromisoformat(date_created)
     return metadata.last_modified
+
+
+def get_url(ds: Dataset | DatasetKey) -> str | None:
+    """Source URL the dataset version was ingested from, from its archived config.json."""
+    folder = s3_folder_path(ds)
+    files = s3.get_filenames(_bucket(), folder)
+    if not files:
+        return None
+    if "config.json" not in files:
+        return None
+    config_key = f"{folder}/config.json"
+    with s3.get_file_as_stream(_bucket(), config_key) as stream:
+        config = json.loads(stream.read())
+    return config.get("attributes", {}).get("url")
 
 
 def get_all_versions(name: str) -> list[str]:
