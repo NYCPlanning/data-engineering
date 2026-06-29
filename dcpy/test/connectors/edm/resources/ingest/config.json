@@ -3,7 +3,8 @@
     "version": "ingest",
     "acl": "private",
     "attributes": {
-        "name": "Downstream Dataset 1"
+        "name": "Downstream Dataset 1",
+        "url": "https://example.com/data"
     },
     "source": {
         "id": "one_to_many",

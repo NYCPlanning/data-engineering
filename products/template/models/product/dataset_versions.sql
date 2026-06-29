@@ -5,5 +5,6 @@ SELECT
     dataset_name,
     v AS version,
     file_type,
-    archive_date
+    archive_date,
+    url
 FROM {{ source('recipe_sources', 'source_data_versions') }}

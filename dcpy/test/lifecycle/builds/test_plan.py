@@ -241,6 +241,13 @@ class TestRecipesNoDefaults(TestCase):
         planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
         assert planned.inputs.datasets[0].archive_date == date(2024, 6, 1)
 
+    @patch("dcpy.connectors.edm.recipes.get_url")
+    def test_plan_recipe_populates_url(self, mock_url, get_file_types):
+        get_file_types.return_value = {DatasetType.pg_dump}
+        mock_url.return_value = "https://example.com/data"
+        planned = plan.plan_recipe(RECIPE_NO_DEFAULTS_PATH)
+        assert planned.inputs.datasets[0].url == "https://example.com/data"
+
 
 @pytest.mark.usefixtures("create_buckets")
 class TestRecipeVars(TestCase):
@@ -561,3 +568,24 @@ class TestWriteSourceDataVersions(TestCase):
                 keep_default_na=False,
             )
         assert list(df["archive_date"]) == [""] * len(df)
+
+    def test_includes_url_column(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            lock_path = Path(tmpdir) / "simple.lock.yml"
+            lock_path.write_text(SIMPLE_LOCK_PATH.read_text())
+            plan.write_source_data_versions(lock_path)
+            df = pd.read_csv(Path(tmpdir) / "source_data_versions.csv")
+        assert "url" in df.columns
+        assert list(df["url"]) == ["https://example.com/data"] * len(df)
+
+    def test_url_none_writes_empty_string(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            lock_path = Path(tmpdir) / "simple_no_pg.lock.yml"
+            lock_path.write_text(SIMPLE_NO_PG_LOCK_PATH.read_text())
+            plan.write_source_data_versions(lock_path)
+            df = pd.read_csv(
+                Path(tmpdir) / "source_data_versions.csv",
+                dtype=str,
+                keep_default_na=False,
+            )
+        assert list(df["url"]) == [""] * len(df)

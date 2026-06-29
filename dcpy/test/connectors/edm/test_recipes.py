@@ -137,6 +137,18 @@ def test_get_archive_date_missing_dataset(create_buckets):
     assert result is None
 
 
+def test_get_url(load_ingest: SparseConfig):
+    ds = DatasetKey(id=load_ingest.id, version=load_ingest.version)
+    result = recipes.get_url(ds)
+    assert result == "https://example.com/data"
+
+
+def test_get_url_missing_dataset(create_buckets):
+    ds = DatasetKey(id="nonexistent", version="v1")
+    result = recipes.get_url(ds)
+    assert result is None
+
+
 def test_read_df_cache(load_ingest: SparseConfig, create_temp_filesystem: Path):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
     dataset = Dataset(id=load_ingest.id, version=load_ingest.version)
