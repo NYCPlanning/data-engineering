@@ -468,7 +468,8 @@ def generate_lock_file(
 ) -> Path:
     if output_path:
         # Use explicit output path if provided
-        lock_file = output_path
+        # Resolve relative paths to absolute paths
+        lock_file = output_path.resolve()
         lock_file.parent.mkdir(parents=True, exist_ok=True)
     elif recipe.build_name:
         # New approach: Use plan directory
