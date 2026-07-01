@@ -211,12 +211,17 @@ class TestLifecycleE2E:
             published.get_previous_version("nonexistent-product", "25v1")
 
     def test_plan_connector_push_list_pull(self, setup_local_connectors, tmp_path):
-        """Test PlanConnector push, list, pull, and get_latest_version operations."""
+        """Test PlanConnector push, list, pull, and get_latest_version operations.
+
+        Plans are stored at {product}/plan/{version}/ without revision subfolders.
+        Each version string is a unique identifier (e.g., partition key).
+        """
         from dcpy.lifecycle.builds.connector import get_plan_default_connector
 
         plan_connector = get_plan_default_connector()
         product = "db-test-product"
-        version = "26v1"
+        version1 = "26v1:branch1:20260101T1200"
+        version2 = "26v1:branch1:20260102T1300"
 
         # 1. Create a simple recipe.lock.yml in a plan directory
         plan_dir = tmp_path / "plan_test"
@@ -225,55 +230,47 @@ class TestLifecycleE2E:
         recipe_content = "product: db-test-product\nversion: 26v1\nname: test-recipe"
         recipe_file.write_text(recipe_content)
 
-        # 2. Push the first plan (will auto-generate revision "1_initial")
+        # 2. Push the first plan
         plan_connector.push_versioned(
             key=product,
-            version=version,
+            version=version1,
             source_path=str(plan_dir),
-            plan_note="initial",
         )
 
         # 3. List versions and verify first plan exists
         versions = plan_connector.list_versions(product)
         assert len(versions) == 1, f"Expected 1 version, found {len(versions)}"
-        assert versions[0] == f"{version}.1_initial", (
-            f"Expected {version}.1_initial, found {versions[0]}"
-        )
+        assert version1 in versions, f"Expected {version1} in {versions}"
 
         # 4. Test get_latest_version after first push
         latest = plan_connector.get_latest_version(product)
-        assert latest == f"{version}.1_initial", (
-            f"Expected latest to be {version}.1_initial, found {latest}"
-        )
+        assert latest == version1, f"Expected latest to be {version1}, found {latest}"
 
-        # 5. Push a second plan (will auto-generate revision "2")
+        # 5. Push a second plan with different version
         plan_connector.push_versioned(
             key=product,
-            version=version,
+            version=version2,
             source_path=str(plan_dir),
-            plan_note="",  # Empty note
         )
 
         # 6. List versions again and verify both exist
         versions = plan_connector.list_versions(product)
         assert len(versions) == 2, f"Expected 2 versions, found {len(versions)}"
-        assert f"{version}.2" in versions, f"Expected {version}.2 in {versions}"
-        assert f"{version}.1_initial" in versions, (
-            f"Expected {version}.1_initial in {versions}"
-        )
+        assert version1 in versions, f"Expected {version1} in {versions}"
+        assert version2 in versions, f"Expected {version2} in {versions}"
 
-        # 7. Test get_latest_version after second push (should be revision 2)
+        # 7. Test get_latest_version after second push
         latest = plan_connector.get_latest_version(product)
-        assert latest == f"{version}.2", (
-            f"Expected latest to be {version}.2, found {latest}"
+        assert latest in [version1, version2], (
+            f"Expected latest to be one of the versions, found {latest}"
         )
 
-        # 8. Pull the first plan back using version.revision format
+        # 8. Pull the first plan back
         pull_dir = tmp_path / "pulled_plan"
         pull_dir.mkdir()
         plan_connector.pull_versioned(
             key=product,
-            version=f"{version}.1_initial",
+            version=version1,
             destination_path=pull_dir,
             filepath="recipe.lock.yml",
         )

@@ -26,6 +26,9 @@ def _set_default_conf():
             "ingest": {
                 "local_data_path": "ingest",
             },
+            "plan": {
+                "local_data_path": "plan",
+            },
             "builds": {
                 "default_recipes_connector": "edm.recipes.datasets",
                 "default_builds_connector": "edm.publishing.builds",
@@ -110,3 +113,16 @@ def get_build_dir(product_name: str, version: str) -> Path:
         Path to the build directory: {DCPY_LIFECYCLE_DATA_DIR}/build/{product_name}/{version}
     """
     return local_data_path_for_stage("builds.build") / product_name / version
+
+
+def get_plan_dir(product_name: str, version: str) -> Path:
+    """Get the plan directory path for a product and version.
+
+    Args:
+        product_name: Name of the product (e.g., "edde", "cscl")
+        version: Plan version/build_name (e.g., "2024.1.0", "2026:main:20260623")
+
+    Returns:
+        Path to the plan directory: {DCPY_LIFECYCLE_DATA_DIR}/plan/{product_name}/{version}
+    """
+    return local_data_path_for_stage("builds.plan") / product_name / version

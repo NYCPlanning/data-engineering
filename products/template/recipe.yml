@@ -1,6 +1,8 @@
 name: Template DB
 product: template
 version: 24Q3
+env:
+  BUILD_ENGINE_DB: db-template
 
 inputs:
   datasets:
@@ -20,9 +22,27 @@ inputs:
         file_id: shapefile
   missing_versions_strategy: find_latest
 
+stage_config:
+  builds.build:
+    env:
+      BUILD_ENGINE_DB: db-template
+    commands:
+    - name: transform
+      run: python3 build_scripts/transform.py
+      command_type: shell
+    - name: generate_metadata
+      run: build_scripts.export:generate_data_dictionaries
+      command_type: python
+    - name: generate_socrata_package
+      run: build_scripts.export:generate_socrata_package
+      command_type: python
+    destination: edm.publishing.builds
+    destination_key: db-template
+    connector_args:
+      - name: acl
+        value: public-read
+
 exports:
-  # TODO add feature to export metadata files here or implicitly
-  output_folder: output
   zip_name: output
   datasets:
   - name: templatedb
@@ -31,7 +51,7 @@ exports:
     format: parquet
   - name: templatedb
     format: shp
-    filename: templatedb_points.zip
+    filename: templatedb_points.shp.zip
     custom:
       geom_column: wkb_geometry
       geometry_type: points
@@ -55,3 +75,7 @@ exports:
       geom_column: wkb_geometry
       geometry_type: polygons
       layer: templatedb_polygons
+
+distribution:
+  destination_ids:
+  - template_db.template_db.socrata

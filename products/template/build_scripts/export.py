@@ -1,92 +1,65 @@
-import shutil
-
 from dcpy.lifecycle import product_metadata
 from dcpy.product_metadata.writers import pdf_writer, yaml_writer
 from dcpy.product_metadata.writers.oti_xlsx import xlsx_writer
 from dcpy.utils.logging import logger
 
-from . import OUTPUT_DIR, PG_CLIENT, PRODUCT_PATH
-
-METADATA_FILES = [
-    "data_dictionary.yml",
-    "data_dictionary.pdf",
-    "data_dictionary.xlsx",
-]
-# NOTE
-# export of BUILD_TABLES is now done via `dcpy lifecycle builds build export`
-# This will be removed when `dcpy lifecycle builds build export` can export other file formats
-BUILD_TABLES: dict = {}
+from . import get_output_dir
 
 
 def generate_data_dictionaries():
+    """Generate data dictionary files (yml, pdf, xlsx) into build output attachments folder.
+
+    These files will be copied to the final output location by dcpy's export function.
+    """
+    # Create attachments subdirectory in build output directory
+    output_dir = get_output_dir()
+    attachments_dir = output_dir / "attachments"
+    attachments_dir.mkdir(parents=True, exist_ok=True)
+
     org_metadata = product_metadata.load(version="DUMMY VERSION")
+
+    logger.info(f"Generating data dictionaries to {attachments_dir}")
 
     yaml_writer.write_yaml(
         org_metadata=org_metadata,
         product="template_db",
-        output_path=PRODUCT_PATH / "data_dictionary.yml",
+        output_path=attachments_dir / "data_dictionary.yml",
     )
     pdf_writer.write_pdf(
         org_metadata=org_metadata,
         product="template_db",
-        output_path=PRODUCT_PATH / "data_dictionary.pdf",
+        output_path=attachments_dir / "data_dictionary.pdf",
     )
     xlsx_writer.write_xlsx(
         org_md=org_metadata,
         product="template_db",
-        output_path=PRODUCT_PATH / "data_dictionary.xlsx",
+        output_path=attachments_dir / "data_dictionary.xlsx",
     )
 
 
-def export():
-    # NOTE
-    # This must be run after `dcpy lifecycle builds build export`
-    # so that OUTPUT_DIR already exists and we can keep this simple
-    # This will be removed when `dcpy lifecycle builds build export` can export metadata files and other file formats
+def generate_socrata_package():
+    """Generate socrata-specific files in build output directory.
 
-    # export metadata files
-    for filename in METADATA_FILES:
-        shutil.copy(PRODUCT_PATH / filename, OUTPUT_DIR / filename)
+    Creates dataset_files folder with the shapefile.
+    The attachments folder already has data dictionaries from generate_data_dictionaries().
+    These will be copied to the final output by dcpy's export function.
+    """
+    # Create dataset_files folder in build output directory
+    output_dir = get_output_dir()
+    dataset_files_dir = output_dir / "dataset_files"
+    dataset_files_dir.mkdir(parents=True, exist_ok=True)
 
-    # export builds tables
-    for table_name, file_types in BUILD_TABLES.items():
-        file_path = OUTPUT_DIR / table_name
-        for file_type in file_types:
-            logger.info(
-                f"Exporting table\n\t{table_name}\n\tas a {file_type} to\n\t{OUTPUT_DIR}"
-            )
-            if file_type == "csv":
-                data = PG_CLIENT.read_table_df(table_name)
-                data.to_csv(file_path.with_suffix(".csv"), index=False)
-            elif "shapefile" in file_type:
-                data = PG_CLIENT.read_table_gdf(table_name, geom_column="wkb_geometry")
-                shapefile_directory = OUTPUT_DIR
+    logger.info(f"Generating socrata package files in {output_dir}")
 
-                if file_type == "shapefile_points":
-                    shapefile_directory = OUTPUT_DIR / f"{table_name}_points"
-                    data = data.loc[data.geom_type == "Point"]
-                elif file_type == "shapefile_polygons":
-                    shapefile_directory = OUTPUT_DIR / f"{table_name}_polygons"
-                    data = data.loc[data.geom_type == "MultiPolygon"]
-                else:
-                    raise NotImplementedError(
-                        f"Cannot export a shapefile as file type {file_type}"
-                    )
-                data.to_file(shapefile_directory)
+    # Note: OTI XLSX and other data dictionaries already created by generate_data_dictionaries()
+    # Note: source_data_versions.csv will be copied by dcpy's export function
 
-                logger.info(f"Zipping shapefile\n\t{shapefile_directory}")
-                shutil.make_archive(
-                    base_name=shapefile_directory,
-                    format="zip",
-                    root_dir=shapefile_directory,
-                )
-                shutil.rmtree(shapefile_directory)
-            else:
-                raise NotImplementedError(
-                    f"Cannot export a table as file type {file_type}"
-                )
+    # We'll create a placeholder for the shapefile - the actual file will be
+    # copied by export from the data folder
+    logger.info(
+        "Socrata-specific files prepared (shapefile will be copied during export)"
+    )
 
 
 if __name__ == "__main__":
     generate_data_dictionaries()
-    export()

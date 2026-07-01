@@ -10,7 +10,7 @@
         "version_type": null,
         "version_strategy": null,
         "version": "22v1",
-        "vars": {
+        "env": {
             "VERSION": "22v1"
         },
         "inputs": {

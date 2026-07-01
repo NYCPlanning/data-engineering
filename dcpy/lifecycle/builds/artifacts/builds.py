@@ -10,7 +10,7 @@ import pandas as pd
 import pytz
 import yaml
 
-from dcpy.configuration import BUILD_NAME, CI
+from dcpy.configuration import BUILD_NAME
 from dcpy.connectors.edm.models import BuildKey, DraftKey
 from dcpy.lifecycle.builds.artifacts import drafts
 from dcpy.lifecycle.builds.connector import (
@@ -22,14 +22,15 @@ from dcpy.utils import git, versions
 from dcpy.utils.logging import logger
 
 
-def _generate_metadata(running_in_gha: bool = False) -> dict[str, str]:
+def _generate_metadata() -> dict[str, str]:
     """Generates "standard" s3 metadata for our files"""
     metadata = {
         "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
     }
-    metadata["commit"] = git.commit_hash()
-    if running_in_gha:
-        metadata["run-url"] = git.action_url()
+    try:
+        metadata["commit"] = git.commit_hash()
+    except Exception:
+        pass  # No git repo or commit available
     return metadata
 
 
@@ -57,11 +58,6 @@ def get_build_metadata(product: str, build: str) -> BuildMetadata:
             raise FileNotFoundError(f"Build metadata not found for {product}/{build}")
 
         return BuildMetadata(**yaml.safe_load(open(metadata_path).read()))
-
-
-def get_version(product: str, build: str) -> str:
-    """Get version from build metadata."""
-    return get_build_metadata(product, build).version
 
 
 def _copy_to_draft(
@@ -129,7 +125,7 @@ def upload(
         )
 
     build_key = BuildKey(product, build_name)
-    meta = _generate_metadata(running_in_gha=CI)  # for now, same thing.
+    meta = _generate_metadata()
 
     logger.info(f"Uploading {output_path} to {build_key.path}")
     result = get_builds_default_connector().push_versioned(
@@ -150,6 +146,7 @@ def promote_to_draft(
     # keep_build: bool = True, # TODO: implement delete
     draft_revision_summary: str = "",
     metadata_file_dir: Path | None = None,
+    version: str | None = None,
 ) -> DraftKey:
     """
     Promotes a product build to draft using the configured connectors.
@@ -161,6 +158,7 @@ def promote_to_draft(
         keep_build: Whether to keep the original build after promotion
         draft_revision_summary: Summary description for the draft revision
         metadata_file_dir: Optional dir to save metadata file after promotion
+        version: Optional dataset version (if not provided, will be read from build metadata)
 
     Returns:
         DraftKey: The key for the created draft
@@ -171,8 +169,8 @@ def promote_to_draft(
     """
     logger.info(f'Promoting {product} {build} to draft with ACL "{acl}"')
 
-    # Figure out version stuff
-    version = get_version(product, build)
+    if version is None:
+        version = get_build_metadata(product, build).version
     draft_revision_number = (
         len(drafts.get_dataset_version_revisions(product, version)) + 1
     )

@@ -70,18 +70,31 @@ def import_dataset(
 
 
 def load_source_data_from_resolved_recipe(
-    recipe_lock_path: Path,
+    recipe_or_path: "plan.Recipe | Path",
     clear_pg_schema: bool = True,
     cache_schema: str | None = None,
     cached_entity_type: CachedEntityType | None = None,
     target_schema: str | None = None,
     _write_metadata_file: bool = True,
 ) -> LoadResult:
-    recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
+    import os
 
-    plan.write_source_data_versions(recipe_file=Path(recipe_lock_path))
+    # Accept either a Recipe model or a Path to recipe.lock.yml
+    if isinstance(recipe_or_path, Path):
+        recipe = plan.recipe_from_yaml(recipe_or_path)
+        recipe_lock_path = recipe_or_path
+    else:
+        recipe = recipe_or_path
+        recipe_lock_path = None  # We don't have a path if Recipe was passed directly
 
-    target_schema = target_schema or metadata.build_name()
+    # Write source data versions if we have a path
+    if recipe_lock_path:
+        plan.write_source_data_versions(recipe_file=recipe_lock_path)
+
+    # Priority: explicit arg > BUILD_ENGINE_SCHEMA env var > build_name()
+    target_schema = (
+        target_schema or os.environ.get("BUILD_ENGINE_SCHEMA") or metadata.build_name()
+    )
     logger.info(f"Loading source data for {recipe.name} build named {target_schema}")
     has_postgres = InputDatasetDestination.postgres in [
         dataset.destination for dataset in recipe.inputs.datasets
@@ -137,14 +150,16 @@ def load_source_data_from_resolved_recipe(
                     f"Copied {cache_schema}.{table_name} -> {target_schema}.{table_name}"
                 )
 
-    if has_postgres:
+    if has_postgres and recipe_lock_path:
         pg_client.create_table_from_csv(  # type: ignore
             recipe_lock_path.parent / "source_data_versions.csv"
         )
     load_result = LoadResult(
         name=recipe.name, build_name=target_schema, datasets=imported_datasets
     )
-    if _write_metadata_file:  # mostly an override for test cases, so we don't have build files lying around afterward
+    if (
+        _write_metadata_file and recipe_lock_path
+    ):  # mostly an override for test cases, so we don't have build files lying around afterward
         metadata.write_build_metadata(
             recipe, recipe_lock_path.parent, load_result=load_result
         )
@@ -234,7 +249,26 @@ def get_imported_file(load_result: LoadResult, ds_id: str):  # -> TextIOWrapper:
 
 
 def get_build_metadata(project_path: Path) -> BuildMetadata:
-    with open(project_path / "build_metadata.json") as f:
+    """Load build metadata from build_metadata.json.
+
+    Args:
+        project_path: Path to the product directory (unused, kept for compatibility)
+
+    Returns:
+        BuildMetadata model
+
+    Reads from: BUILD_ENV_OUTPUT_DIR/build_metadata.json
+    """
+    import os
+
+    if "BUILD_ENV_OUTPUT_DIR" not in os.environ:
+        raise ValueError(
+            "BUILD_ENV_OUTPUT_DIR environment variable must be set to load build metadata"
+        )
+
+    metadata_path = Path(os.environ["BUILD_ENV_OUTPUT_DIR"]) / "build_metadata.json"
+
+    with open(metadata_path) as f:
         return BuildMetadata(**yaml.safe_load(f))
 
 

@@ -7,6 +7,24 @@ CI = "CI" in env
 
 BUILD_NAME = env.get("BUILD_NAME")
 
+
+# Set BUILD_ENGINE_SCHEMA in environment if not already set
+# Used by recipe templates (via BUILD_ENGINE_* variable filtering)
+if "BUILD_ENGINE_SCHEMA" not in env:
+    try:
+        from dcpy.utils import git
+
+        branch = git.branch()
+        # DB schema names can't use dashes
+        sanitized_branch = branch.lower().replace("-", "_")
+        env["BUILD_ENGINE_SCHEMA"] = sanitized_branch
+        logger.info(
+            f"Set BUILD_ENGINE_SCHEMA to sanitized branch name: {sanitized_branch}"
+        )
+    except Exception as e:
+        # If we can't get git branch (e.g., not in a git repo), leave it unset
+        logger.debug(f"Could not set BUILD_ENGINE_SCHEMA from git branch: {e}")
+
 DEV_FLAG = env.get("DEV_FLAG") == "true"
 
 # Defaulting this is maybe not ideal. However, it does enable us ensure
@@ -82,3 +100,8 @@ SFTP_PORT = str(env.get("SFTP_PORT", "22"))
 SFTP_PRIVATE_KEY_PATH: Path | None = (
     Path(env["SFTP_PRIVATE_KEY_PATH"]) if env.get("SFTP_PRIVATE_KEY_PATH") else None
 )
+
+# Build engine configuration (set by recipe env vars)
+BUILD_ENGINE_DB = env.get("BUILD_ENGINE_DB")
+BUILD_ENGINE_SCHEMA = env.get("BUILD_ENGINE_SCHEMA")
+BUILD_ENV_OUTPUT_DIR = env.get("BUILD_ENV_OUTPUT_DIR")

@@ -97,6 +97,12 @@ class BuildExports(BaseModel, extra="forbid"):
     datasets: list[ExportDataset] = []
 
 
+class Distribution(BaseModel, extra="forbid"):
+    """Distribution configuration for publishing builds."""
+
+    destination_ids: list[str] = []  # List of destination identifiers
+
+
 class StageConfigValue(BaseModel, extra="forbid"):
     UNRESOLVABLE_ERROR: ClassVar[str] = (
         "Stage Conf Value requires either `value` or `value_from`"
@@ -126,12 +132,16 @@ class BuildCommand(BaseModel, extra="forbid"):
     name: str
     run: str
     command_type: CommandType = CommandType.shell
+    env: dict[str, str] = Field(default_factory=dict)  # Environment variables to set
 
 
 class StageConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     destination: str | None = None
     destination_key: str | None = None
     connector_args: list[StageConfigValue] = []
+    env: dict[str, str] = Field(
+        default_factory=dict
+    )  # Stage-level environment variables
     commands: list[BuildCommand] = []
 
     def get_connector_args_dict(self) -> dict[str, Any]:
@@ -145,11 +155,31 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     version_type: versions.VersionSubType | None = None
     version_strategy: versions.VersionStrategy | None = None
     version: str | None = None
-    vars: dict[str, str] | None = None
+    branch: str | None = None  # Optional branch identifier for the build
+    build_name: str | None = None  # Build identifier (e.g., branch name, partition key)
+    env: dict[str, str] = Field(
+        default_factory=dict
+    )  # Recipe-level environment variables
+    vars: dict[str, str] | None = Field(
+        default=None,
+        deprecated="'vars' field is deprecated. Use 'env' instead. Will be automatically migrated to 'env'.",
+    )  # DEPRECATED: Use 'env' instead
     inputs: RecipeInputs
     exports: BuildExports | None = None
+    distribution: Distribution | None = None
     stage_config: dict[str, StageConfig] = {}
     custom: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def migrate_vars_to_env(self):
+        """Automatically migrate deprecated 'vars' field to 'env' field."""
+        if self.vars:
+            # Merge vars into env, with env taking precedence
+            merged_env = {**self.vars, **self.env}
+            self.env = merged_env
+            # Clear vars after migration
+            self.vars = None
+        return self
 
     def is_resolved(self) -> bool:
         return (

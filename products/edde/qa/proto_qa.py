@@ -3,12 +3,12 @@
 Compares all indicator CSVs across two build versions to identify differences.
 """
 
-import json
 from pathlib import Path
 
 import pandas as pd
 
-from dcpy.lifecycle.builds import get_build_metadata_path, get_recipe_lock
+from dcpy.lifecycle.builds import get_recipe_lock
+from dcpy.lifecycle.builds.load import get_build_metadata
 from dcpy.lifecycle.config import get_build_dir
 from dcpy.utils.logging import logger
 
@@ -18,7 +18,7 @@ PRODUCT_NAME = "edde"
 
 
 def get_build_paths() -> tuple[Path, Path]:
-    """Get paths for old and new builds from build_metadata.json.
+    """Get paths for old and new builds.
 
     The old build path comes from the loaded EDDE dataset (previous published version).
     The new build path comes from the current build output directory.
@@ -26,61 +26,57 @@ def get_build_paths() -> tuple[Path, Path]:
     Returns:
         Tuple of (old_build_path, new_build_path)
     """
-    # Load build metadata
-    build_metadata_path = get_build_metadata_path(PRODUCT_PATH)
-    if not build_metadata_path.exists():
-        raise FileNotFoundError(
-            f"build_metadata.json not found at {build_metadata_path}. "
-            "Please run 'bd load' first."
-        )
+    # Get current build info from recipe.lock.yml
+    recipe_lock = get_recipe_lock(PRODUCT_PATH)
+    if not recipe_lock.version:
+        raise ValueError("version not found in recipe.lock.yml")
+    if not recipe_lock.build_name:
+        raise ValueError("build_name not found in recipe.lock.yml")
 
-    with open(build_metadata_path, "r") as f:
-        build_metadata = json.load(f)
+    current_version = recipe_lock.version
+    current_build_name = recipe_lock.build_name
 
-    # Get current version from recipe
-    current_version = build_metadata["recipe"]["vars"]["BUILD_ENV_EDDE_VERSION"]
+    # Get old build path from loaded EDDE dataset (from build_metadata.json)
+    build_metadata = get_build_metadata(PRODUCT_PATH)
 
-    # Get old build path from loaded EDDE dataset
-    if "load_result" not in build_metadata:
+    if not build_metadata.load_result:
         raise ValueError(
             "load_result not found in build_metadata.json. "
-            "Please run 'bd load' to load the recipe datasets first."
+            "Please run dcpy dataloading to load the recipe datasets first."
         )
 
-    load_result = build_metadata["load_result"]
-    if "datasets" not in load_result or "edde" not in load_result["datasets"]:
+    load_result = build_metadata.load_result
+    if not load_result.datasets or "edde" not in load_result.datasets:
         raise ValueError(
             "EDDE dataset not found in load_result. "
-            "Please ensure the recipe includes the 'edde' dataset and run 'bd load' first."
+            "Please ensure the recipe includes the 'edde' dataset and run dcpy dataloading first."
         )
 
     # Get the first (and should be only) version of the edde dataset
-    edde_versions = load_result["datasets"]["edde"]
+    edde_versions = load_result.datasets["edde"]
     if not edde_versions:
         raise ValueError(
             "No EDDE dataset versions found in load_result. "
-            "Please ensure the recipe includes the 'edde' dataset and run 'bd load' first."
+            "Please ensure the recipe includes the 'edde' dataset and run dcpy dataloading first."
         )
 
     # Get the first version's destination path
     edde_version_key = list(edde_versions.keys())[0]
     edde_data = edde_versions[edde_version_key]
-    # The loaded EDDE dataset has a "data" subdirectory containing the actual CSVs
-    old_build_path = Path(edde_data["destination"]) / "data"
+    # The loaded EDDE dataset has a "dataset_files" subdirectory containing the actual CSVs
+    old_build_path = Path(edde_data.destination) / "dataset_files"
 
-    # Get new build path from current build output directory
-    new_build_path = get_build_dir(PRODUCT_NAME, current_version) / "data"
+    # Get new build path from current build output directory (using build_name, not version)
+    new_build_path = get_build_dir(PRODUCT_NAME, current_build_name) / "dataset_files"
 
     logger.info(f"Previous EDDE version (loaded): {edde_version_key}")
     logger.info(f"Current build version: {current_version}")
+    logger.info(f"Current build name: {current_build_name}")
     logger.info(f"Old build path (from loaded EDDE): {old_build_path}")
     logger.info(f"New build path (current build): {new_build_path}")
 
     return old_build_path, new_build_path
 
-
-# Get build paths dynamically
-OLD_BUILD_PATH, NEW_BUILD_PATH = get_build_paths()
 
 GEOS = ["citywide", "borough", "puma"]
 CATEGORIES = [
@@ -96,7 +92,7 @@ OLD_YEAR_BANDS = {"0812": "prev", "1923": "current"}
 NEW_YEAR_BANDS = {"0812": "prev", "2024": "current"}
 
 # QA output directory (relative to build output)
-QA_OUTPUT_SUBDIR = "qa"
+QA_OUTPUT_SUBDIR = "diagnostics/qa"
 
 
 def decompose_column_name(col_name: str) -> dict[str, str]:
@@ -262,6 +258,10 @@ def all_indicators(
 def compare_builds():
     """Compare two EDDE builds and output differences."""
     logger.info("Starting EDDE build comparison")
+
+    # Get build paths (must be called at runtime, not at module import time)
+    OLD_BUILD_PATH, NEW_BUILD_PATH = get_build_paths()
+
     logger.info(f"Old build: {OLD_BUILD_PATH}")
     logger.info(f"New build: {NEW_BUILD_PATH}")
     logger.info(f"Old year bands: {OLD_YEAR_BANDS}")
@@ -466,5 +466,11 @@ def compare_builds():
     return indexed, comparison, differences
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for QA when called as a module."""
     indexed, comparison, differences = compare_builds()
+    return indexed, comparison, differences
+
+
+if __name__ == "__main__":
+    main()

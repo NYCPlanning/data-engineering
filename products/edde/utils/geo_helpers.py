@@ -4,17 +4,17 @@ from pathlib import Path
 import pandas as pd
 from numpy import nan
 from shapely.geometry import Point
-from utils.data_loaders import load_data
 
 from dcpy.lifecycle.builds import get_recipe_lock
 from dcpy.utils.logging import logger
+from utils.data_loaders import load_data
 
 # Get ACS year bands from recipe vars
 _PRODUCT_PATH = Path(__file__).parent.parent
 _recipe_lock = get_recipe_lock(_PRODUCT_PATH)
 acs_years = [
-    _recipe_lock.vars["BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND"],
-    _recipe_lock.vars["BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND"],
+    _recipe_lock.custom.get("ACS_PREV_YEAR_BAND", "0812"),
+    _recipe_lock.custom.get("ACS_CURRENT_YEAR_BAND", "2024"),
 ]
 
 borough_num_mapper = {"1": "MN", "2": "BX", "3": "BK", "4": "QN", "5": "SI"}

@@ -436,7 +436,7 @@
     "base": {
       "title": "Commute",
       "subcategory": "access_",
-      "years": ["_{{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND }}", "_{{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND }}"],
+      "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "has_change": true,
       "labels": ["Drove or carpooled to work"],
       "is_survey": true,
@@ -447,9 +447,9 @@
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
       "vintages": [
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ BUILD_ENV_EDDE_ACS_PREV_YEAR_BAND | expand_year_range }} to {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
+        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
+        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["carcommute"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -524,7 +524,7 @@
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
       "vintages": [
-        "ACS PUMS, {{ BUILD_ENV_EDDE_ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
       ],
       "variables": ["computer", "broadband"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],

@@ -20,7 +20,6 @@ from config import PRODUCT_PATH, clean_build_output_dir, get_build_output_dir
 from utils.geo_helpers import acs_years
 
 from dcpy.lifecycle.builds import (
-    get_build_metadata_path,
     get_recipe_lock,
     get_recipe_lock_path,
 )
@@ -96,8 +95,8 @@ def build_census_category(
 
     # Save to output directory
     build_output_dir = get_build_output_dir()
-    data_dir = build_output_dir / "data"
-    folder_path = data_dir / eddt_category
+    dataset_files_dir = build_output_dir / "dataset_files"
+    folder_path = dataset_files_dir / eddt_category
     folder_path.mkdir(parents=True, exist_ok=True)
     output_file = folder_path / f"{eddt_category}_{year}_{geography}.csv"
     logger.info(
@@ -152,8 +151,8 @@ def build_other_category(geography: str, category: str) -> pd.DataFrame:
 
     # Save to output directory
     build_output_dir = get_build_output_dir()
-    data_dir = build_output_dir / "data"
-    folder_path = data_dir / category
+    dataset_files_dir = build_output_dir / "dataset_files"
+    folder_path = dataset_files_dir / category
     folder_path.mkdir(parents=True, exist_ok=True)
     output_file = folder_path / f"{category}_{geography}.csv"
     logger.info(
@@ -167,6 +166,9 @@ def copy_build_metadata():
     """Copy recipe.lock.yml and build_metadata.json to build output directory."""
     build_output_dir = get_build_output_dir()
 
+    # Ensure build output directory exists
+    build_output_dir.mkdir(parents=True, exist_ok=True)
+
     # Copy recipe.lock.yml
     recipe_lock_source = get_recipe_lock_path(PRODUCT_PATH)
     recipe_lock_dest = build_output_dir / "recipe.lock.yml"
@@ -176,20 +178,15 @@ def copy_build_metadata():
     else:
         logger.warning(f"recipe.lock.yml not found at {recipe_lock_source}")
 
-    # Copy build_metadata.json
-    build_metadata_source = get_build_metadata_path(PRODUCT_PATH)
-    build_metadata_dest = build_output_dir / "build_metadata.json"
-    if build_metadata_source.exists():
-        shutil.copy2(build_metadata_source, build_metadata_dest)
-        logger.info(f"Copied build_metadata.json to {build_metadata_dest}")
-    else:
-        logger.warning(f"build_metadata.json not found at {build_metadata_source}")
+    # build_metadata.json is already in BUILD_ENV_OUTPUT_DIR (build output directory)
+    # No need to copy - it's created there by the build system
+    logger.info(f"build_metadata.json is in build output directory: {build_output_dir}")
 
 
 def main(
-    category: Optional[str] = typer.Argument(None),
-    geography: Optional[str] = typer.Argument(None),
-    year: Optional[str] = typer.Argument(None),
+    category: Optional[str] = None,
+    geography: Optional[str] = None,
+    year: Optional[str] = None,
 ):
     """Build EDDE indicators.
 
@@ -263,5 +260,10 @@ def main(
     copy_build_metadata()
 
 
-if __name__ == "__main__":
+def cli_main():
+    """CLI wrapper for typer."""
     typer.run(main)
+
+
+if __name__ == "__main__":
+    cli_main()

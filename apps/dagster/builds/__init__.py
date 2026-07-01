@@ -1,5 +1,11 @@
 from .assets import build_assets
-from .partitions import build_partition_def
+from .partition_creator import create_build_partition_asset
+from .partitions import get_build_partition_def
 from .resources import LocalStorageResource
 
-__all__ = ["build_assets", "build_partition_def", "LocalStorageResource"]
+__all__ = [
+    "build_assets",
+    "create_build_partition_asset",
+    "get_build_partition_def",
+    "LocalStorageResource",
+]
