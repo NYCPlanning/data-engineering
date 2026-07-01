@@ -14,10 +14,6 @@ files:
       overridden_columns:
         - id: uid
           name: OBJECTID
-        - id: borough
-          data_type: String
-        - id: appdate
-          data_type: Date
 
 columns:
   - id: uid
@@ -39,7 +35,11 @@ columns:
         description: Queens
       - value: SI
         description: Staten Island
+    custom:
+      fgdb_data_type: String
   - id: appdate
     name: APPDate
     data_type: date
     description: Date of most recent alteration permit application
+    custom:
+      fgdb_data_type: Date

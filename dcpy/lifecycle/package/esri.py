@@ -99,8 +99,8 @@ def _write_metadata(
     product_name: str,
     dataset_name: str,
     path: Path,
-    layer: str,
-    file_id: str,
+    layer: str | None = typer.Argument(None),
+    file_id: str = typer.Argument(...),
     org_md_path: Path | None = typer.Option(
         None,
         "--org-md-path",
@@ -121,14 +121,13 @@ def _write_metadata(
         zip_subdir=zip_subdir,
         org_md=org_md_path,
     )
-    logger.info(f"Wrote metadata to {layer} in {path}")
 
 
 def write_metadata(
     product_name: str,
     dataset_name: str,
     path: Path,
-    layer: str,
+    layer: str | None,
     file_id: str,  # refers to product md
     zip_subdir: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
@@ -140,7 +139,8 @@ def write_metadata(
         product_name (str): Name of product. e.g. "lion"
         dataset_name (str): Name of dataset within a product. e.g. "pseudo-lots"
         path (Path): Path to parent directory or zip file containing shapefile, or geodatabase.
-        layer (str): Shapefile or feature class name.
+        layer (str | None): Shapefile or feature class name. For single-layer GDBs, may be
+            omitted and will be inferred automatically.
         zip_subdir (str | None): Internal path if shp is nested within a zip file.
             Must be None when path is a file geodatabase.
         org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
@@ -149,60 +149,76 @@ def write_metadata(
         org_md = product_metadata.load(org_md_path_override=org_md)
 
     product_md = org_md.product(product_name).dataset(dataset_name)
-    file_metadata = product_md.calculate_file_dataset_metadata(file_id=file_id)
 
-    metadata = esri_metadata.generate_metadata()
+    is_gdb = ".gdb" in path.suffixes
+    is_shp = layer is not None and (".shp" in path.suffixes or layer.endswith(".shp"))
 
-    # Set dataset-level values
-    # TODO: define DCP organizationally required metadata fields
-    metadata.md_hr_lv_name = "dataset"
-    metadata.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
-    metadata.data_id_info.id_abs = file_metadata.attributes.description
-    # TODO: map idPurp to a product-metadata field
-    metadata.data_id_info.id_credit = file_metadata.attributes.attribution
-    metadata.data_id_info.res_const.consts.use_limit = (
-        file_metadata.attributes.disclaimer
-    )
-    metadata.data_id_info.other_keys.keyword = file_metadata.attributes.tags
-    metadata.data_id_info.search_keys.keyword = file_metadata.attributes.tags
-
-    if file_metadata.attributes.projection:
-        authority, code = file_metadata.attributes.projection.split(":")
-        ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
-        ref_sys_id.ident_code.code = int(code)
-        ref_sys_id.id_code_space.value = authority
-        # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
-
-    entity_name = layer.removesuffix(".shp")
-    metadata.eainfo.detailed.enttyp.enttypl.value = entity_name
-    metadata.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
-
-    # Build attribute metadata for each column
-    metadata.eainfo.detailed.attr = [
-        _create_attr_metadata(column) for column in file_metadata.columns
-    ]
-
-    if ".gdb" in path.suffixes:
+    if is_gdb:
         if zip_subdir is not None:
             raise ValueError(
                 "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
             )
-        metadata.eainfo.detailed.name = entity_name
-        fgdb.write_metadata(gdb=path, layer=layer, metadata=metadata, overwrite=True)
-
-    elif ".shp" in path.suffixes or layer.endswith(".shp"):
-        metadata.eainfo.detailed.name = entity_name
-        shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
-        shp.write_metadata(metadata, overwrite=True)
-
+        layer = fgdb.resolve_layer(path, layer)
+        file_metadata = product_md.calculate_layer_dataset_metadata(
+            file_id=file_id, layer=layer
+        )
+        custom_type_key = "fgdb_data_type"
+    elif is_shp:
+        file_metadata = product_md.calculate_file_dataset_metadata(file_id=file_id)
+        custom_type_key = "shp_data_type"
     else:
         raise ValueError(
             f"Unsupported file type for metadata writing: path='{path}', layer='{layer}'. "
             "Expected a .gdb or .shp path."
         )
 
+    assert layer is not None  # guaranteed: GDB branch resolved it, SHP branch required it
 
-def _create_attr_metadata(column: DatasetColumn) -> Attr:
+    logger.info(f"Wrote metadata to layer '{layer}' in {path}")
+
+    esri_md = esri_metadata.generate_metadata()
+
+    # Set dataset-level values
+    # TODO: define DCP organizationally required metadata fields
+    esri_md.md_hr_lv_name = "dataset"
+    esri_md.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
+    esri_md.data_id_info.id_abs = file_metadata.attributes.description
+    # TODO: map idPurp to a product-metadata field
+    esri_md.data_id_info.id_credit = file_metadata.attributes.attribution
+    esri_md.data_id_info.res_const.consts.use_limit = (
+        file_metadata.attributes.disclaimer
+    )
+    esri_md.data_id_info.other_keys.keyword = file_metadata.attributes.tags
+    esri_md.data_id_info.search_keys.keyword = file_metadata.attributes.tags
+
+    if file_metadata.attributes.projection:
+        authority, code = file_metadata.attributes.projection.split(":")
+        ref_sys_id = esri_md.ref_sys_info.ref_system.ref_sys_id
+        ref_sys_id.ident_code.code = int(code)
+        ref_sys_id.id_code_space.value = authority
+        # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
+
+    entity_name = layer.removesuffix(".shp")
+    esri_md.eainfo.detailed.enttyp.enttypl.value = entity_name
+    esri_md.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
+    esri_md.eainfo.detailed.name = entity_name
+
+    # Build attribute metadata for each column
+    esri_md.eainfo.detailed.attr = [
+        _create_attr_metadata(column, custom_type_key=custom_type_key)
+        for column in file_metadata.columns
+    ]
+
+    if is_gdb:
+        fgdb.write_metadata(gdb=path, layer=layer, metadata=esri_md, overwrite=True)
+    else:
+        shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
+        shp.write_metadata(esri_md, overwrite=True)
+
+
+def _create_attr_metadata(
+    column: DatasetColumn, custom_type_key: str | None = None
+) -> Attr:
     """Create an Attr metadata object from a column specification."""
     attr = Attr()
 
@@ -211,7 +227,10 @@ def _create_attr_metadata(column: DatasetColumn) -> Attr:
     attr.attalias.value = column.name
     attr.attrdef.value = column.description
     attr.attrdefs.value = column.data_source
-    attr.attrtype.value = "OID" if is_uid else column.data_type
+    effective_type = (
+        column.custom.get(custom_type_key) if custom_type_key else None
+    ) or column.data_type
+    attr.attrtype.value = "OID" if is_uid else effective_type
 
     if column.values:
         attr.attrdomv.udom = None

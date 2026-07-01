@@ -81,9 +81,10 @@ class DatasetColumn(CustomizableBase, Column):
     # Note: id isn't intended to be overrideable, but is always required as a
     # pointer back to the original column.
     name: str | None = None
-    # Widened from the base Column's COLUMN_TYPES Literal: file-entry overrides use
-    # this field to declare the column's actual Esri type (e.g. "String",
-    # "SmallInteger"), which isn't a DCP semantic type.
+    # Widened from base Column's COLUMN_TYPES Literal to str so the field can hold
+    # DCP semantic types and remain nullable in overrides. Format-specific Esri types
+    # (e.g. "String", "SmallInteger") belong in custom["fgdb_data_type"] or
+    # custom["shp_data_type"], not here.
     data_type: str | None = None  # type: ignore[assignment]
     data_source: str | None = None
     description: str | None = None
@@ -103,6 +104,14 @@ class FileOverrides(CustomizableBase):
     type: str | None = None
 
 
+class GdbLayerOverrides(CustomizableBase):
+    """Per-layer column overrides for a geodatabase file. `layer` must match
+    an actual layer name in the GDB."""
+
+    layer: str
+    overridden_columns: list["DatasetColumn"] = []
+
+
 class File(CustomizableBase):
     """Describes an actual dataset file, e.g. dataset files or attachments."""
 
@@ -112,6 +121,7 @@ class File(CustomizableBase):
     is_metadata: bool | None = (
         None  # e.g. readmes, data_dictionaries, version_files, etc.
     )
+    layers: list[GdbLayerOverrides] | None = None
 
     def override(self, overrides: FileOverrides) -> File:
         return File(
@@ -326,6 +336,18 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         return self.dataset.override(
             self.get_file_and_overrides(file_id).dataset_overrides
         )
+
+    def calculate_layer_dataset_metadata(self, *, file_id: str, layer: str) -> Dataset:
+        file_dataset = self.calculate_file_dataset_metadata(file_id=file_id)
+        file = self.get_file_and_overrides(file_id).file
+        if not file.layers:
+            return file_dataset
+        matching = [lo for lo in file.layers if lo.layer == layer]
+        if not matching:
+            return file_dataset
+        layer_overrides = matching[0]
+        overrides = DatasetOverrides(overridden_columns=layer_overrides.overridden_columns)
+        return file_dataset.override(overrides)
 
     def calculate_destination_metadata(
         self, *, file_id: str, destination_id: str

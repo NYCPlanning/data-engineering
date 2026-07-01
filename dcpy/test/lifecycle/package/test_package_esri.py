@@ -366,6 +366,24 @@ def test_create_attr_metadata_udom_none_when_values_present():
     assert attr.attrdomv.udom is None
 
 
+def test_create_attr_metadata_uses_custom_type_key():
+    col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
+    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    assert attr.attrtype.value == "String"
+
+
+def test_create_attr_metadata_falls_back_to_data_type_when_custom_key_absent():
+    col = _make_column(data_type="text")
+    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    assert attr.attrtype.value == "text"
+
+
+def test_create_attr_metadata_no_custom_key_ignores_custom_dict():
+    col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
+    attr = esri._create_attr_metadata(col)  # no custom_type_key
+    assert attr.attrtype.value == "text"
+
+
 def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     """Verifies GDB-specific metadata writing using the pluto test fixture.
 
@@ -410,6 +428,41 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
     assert ref_sys_id.id_code_space.value == "EPSG"
     assert ref_sys_id.ident_code.code == 2263
+
+
+def test_write_metadata_gdb_layer_none_auto_resolves(
+    temp_gdb_zip_path, org_metadata, monkeypatch
+):
+    """layer=None auto-resolves when GDB has exactly one layer."""
+    monkeypatch.setattr(fgdb, "get_layers", lambda _: [SPATIAL_LAYER])
+    esri.write_metadata(
+        product_name="pluto",
+        dataset_name="pluto",
+        path=temp_gdb_zip_path,
+        layer=None,
+        file_id="primary_file_geodatabase",
+        zip_subdir=None,
+        org_md=org_metadata,
+    )
+    metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
+    assert metadata is not None
+    assert metadata.md_hr_lv_name == "dataset"
+
+
+def test_write_metadata_gdb_layer_none_raises_when_ambiguous(
+    temp_gdb_zip_path, org_metadata
+):
+    """layer=None raises ValueError when GDB has multiple layers."""
+    with pytest.raises(ValueError, match="layer must be specified"):
+        esri.write_metadata(
+            product_name="pluto",
+            dataset_name="pluto",
+            path=temp_gdb_zip_path,
+            layer=None,
+            file_id="primary_file_geodatabase",
+            zip_subdir=None,
+            org_md=org_metadata,
+        )
 
 
 def test_write_metadata_raises_on_nested_gdb_zip(tmp_path, org_metadata):

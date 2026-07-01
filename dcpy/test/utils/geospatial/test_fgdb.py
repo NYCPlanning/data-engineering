@@ -72,6 +72,28 @@ def test_get_layers(path_fixture):
 
 
 @gdb_paths
+def test_resolve_layer_explicit_valid(path_fixture):
+    assert fgdb.resolve_layer(path_fixture, SPATIAL_LAYER) == SPATIAL_LAYER
+
+
+@gdb_paths
+def test_resolve_layer_explicit_invalid(path_fixture):
+    with pytest.raises(LookupError, match="nonexistent_layer"):
+        fgdb.resolve_layer(path_fixture, "nonexistent_layer")
+
+
+@gdb_paths
+def test_resolve_layer_omitted_ambiguous(path_fixture):
+    with pytest.raises(ValueError, match="layer must be specified"):
+        fgdb.resolve_layer(path_fixture)
+
+
+def test_resolve_layer_omitted_unambiguous(temp_gdb_zip_path, monkeypatch):
+    monkeypatch.setattr(fgdb, "get_layers", lambda _: [SPATIAL_LAYER])
+    assert fgdb.resolve_layer(temp_gdb_zip_path) == SPATIAL_LAYER
+
+
+@gdb_paths
 def test_read_metadata(path_fixture):
     md = fgdb.read_metadata(gdb=path_fixture, layer=SPATIAL_LAYER)
 
