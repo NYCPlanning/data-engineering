@@ -72,10 +72,14 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
+      - DCPY_LIFECYCLE_DATA_DIR=/opt/dagster/lifecycle
+      - PUBLISHING_BUCKET=edm-publishing
+      - RECIPES_BUCKET=edm-recipes
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
       - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
+      - dagster-lifecycle:/opt/dagster/lifecycle
     restart: unless-stopped
     networks:
       - app-network
@@ -93,10 +97,14 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - BUILD_ENGINE_SERVER=${BUILD_ENGINE_SERVER}
+      - DCPY_LIFECYCLE_DATA_DIR=/opt/dagster/lifecycle
+      - PUBLISHING_BUCKET=edm-publishing
+      - RECIPES_BUCKET=edm-recipes
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
       - /root/data-engineering/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
+      - dagster-lifecycle:/opt/dagster/lifecycle
     restart: unless-stopped
     networks:
       - app-network
@@ -105,6 +113,8 @@ services:
 
 volumes:
   dagster-storage:
+    driver: local
+  dagster-lifecycle:
     driver: local
   nginx-conf:
     driver: local
