@@ -10,6 +10,6 @@
 SELECT
     {{ apply_text_formatting_from_seed('text_formatting__lion_dat') }},
     source_table AS _source_table, -- TODO should be dropped when pipeline is in production. Helpful in comp to prod
-    boroughcode || face_code || segmentid AS _lion_key
+    boroughcode || face_code || LPAD(segmentid::text, 7, '0') AS _lion_key
 FROM {{ ref("int__lion") }}
 WHERE include_in_geosupport_lion
