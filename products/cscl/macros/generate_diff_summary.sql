@@ -73,7 +73,7 @@
       'only_in_legacy' as status,
       NULL::jsonb as changes
     FROM non_identical
-    WHERE dbt_audit_row_status = 'only_in_a'
+    WHERE dbt_audit_row_status = 'removed'
   ),
   only_in_build AS (
     SELECT
@@ -81,7 +81,7 @@
       'only_in_build' as status,
       NULL::jsonb as changes
     FROM non_identical
-    WHERE dbt_audit_row_status = 'only_in_b'
+    WHERE dbt_audit_row_status = 'added'
   ),
   -- Get old and new values for modified rows
   old_values AS (
