@@ -54,3 +54,10 @@ inputs:
   # Other
   - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
+
+stage_config:
+  builds.build:
+    commands:
+      - name: dbt_build
+        run: dbt build
+        command_type: shell

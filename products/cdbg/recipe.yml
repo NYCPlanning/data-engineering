@@ -14,3 +14,10 @@ inputs:
   - name: dcp_ct2020_wi
   - name: hud_lowmodincomebyblockgroup
   - name: dcp_projectbbls_cy
+
+stage_config:
+  builds.build:
+    commands:
+      - name: dbt_build
+        run: dbt build
+        command_type: shell

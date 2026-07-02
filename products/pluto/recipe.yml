@@ -46,3 +46,34 @@ inputs:
     - name: pluto_input_geocodes
     - name: pluto_input_numbldgs
     - name: pluto_pts
+
+stage_config:
+  builds.build:
+    commands:
+      - name: setup
+        run: bash pluto_build/00_setup.sh
+        command_type: shell
+
+      - name: dbt_staging
+        run: bash pluto_build/01a_dbt_staging.sh
+        command_type: shell
+
+      - name: build
+        run: bash pluto_build/02_build.sh
+        command_type: shell
+
+      - name: corrections
+        run: bash pluto_build/03_corrections.sh
+        command_type: shell
+
+      - name: archive
+        run: bash pluto_build/04_archive.sh
+        command_type: shell
+
+      - name: qaqc
+        run: bash pluto_build/05_qaqc.sh
+        command_type: shell
+
+      - name: custom_qaqc
+        run: bash pluto_build/07_custom_qaqc.sh
+        command_type: shell
