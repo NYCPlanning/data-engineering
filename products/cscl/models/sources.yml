@@ -78,3 +78,12 @@ sources:
   - name: sedat
   - name: special_sedat
   - name: snd
+  - name: thinfire_bronx
+  - name: thinfire_brooklyn
+  - name: thinfire_manhattan
+  - name: thinfire_queens
+  - name: thinfire_statenisland
+  - name: enders
+  - name: exception
+  - name: last_word
+  - name: universal_word

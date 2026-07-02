@@ -48,7 +48,7 @@ SAF,SAF,file,GenericD.txt,saf_d_generic,false
 SAF,SAF,file,GenericOV.txt,saf_ov_generic,false
 SAF,SAF,file,GenericS.txt,saf_s_generic,false
 SEDAT,SEDAT,file,SEDAT.txt,sedat,false
-SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,false
+SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true
 SND,SND,file,SND.txt,snd,false
 gdb,LION gdb,layer,node,gdb_node,false
 gdb,LION gdb,layer,lion,gdb_lion,false
