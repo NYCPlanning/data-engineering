@@ -20,6 +20,36 @@ WITH unioned_diffs AS (
     UNION ALL
     SELECT *
     FROM {{ ref('qa__diffs_saf_abcegnpx_roadbed') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_abcegnpx_generic') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_d_roadbed') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_d_generic') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_ov_roadbed') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_ov_generic') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_s_roadbed') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_s_generic') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_saf_i') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_snd') }}
+    UNION ALL
+    SELECT *
+    FROM {{ ref('qa__diffs_sedat') }}
 )
 
 SELECT

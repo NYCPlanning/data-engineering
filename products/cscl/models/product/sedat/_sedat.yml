@@ -61,6 +61,11 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 8 }
+  - name: _sedat_key
+    data_type: string
+    tests:
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        arguments: { value: 10 }
 
 
 - name: special_sedat_by_field

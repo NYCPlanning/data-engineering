@@ -1,56 +1,56 @@
-file_group,subgroup,type,filename,file_id
-Census,Census,file,NTA.csv,nta_csv
-Census,Census,file,NTA.txt,nta_txt
-Census,Census,file,NTA2020.csv,nta2020_csv
-Census,Census,file,NTA2020.txt,nta2020_dat
-Census,Census,file,CDTA2020.csv,cdta2020_csv
-Census,Census,file,CDTA2020.txt,cdta2020_dat
-Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log
-Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log
-Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log
-District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx
-District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn
-District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan
-District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens
-District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland
-District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all
-District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx
-District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn
-District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan
-District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens
-District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland
-Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code
-Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code
-Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code
-Face Code File,Face Code File,file,QueensFace.txt,queens_face_code
-Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code
-LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat
-LION Difference Files,LION Difference Files,file,LDF.header,ldf_header
-LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original
-LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx
-LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn
-LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan
-LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens
-LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland
-Normalizing Tables,Enders,file,Enders.txt,enders
-Normalizing Tables,Exception,file,Exception.txt,exception
-Normalizing Tables,Word Tables,file,LastWord.txt,last_word
-Normalizing Tables,Word Tables,file,Universal.txt,universal_word
-OTHER,Logs,file,Logs,log
-RPL,RPL,file,RPL.txt,rpl
-SAF,SAF,file,Intersection.txt,saf_i
-SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed
-SAF,SAF,file,RoadbedD.txt,saf_d_roadbed
-SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed
-SAF,SAF,file,RoadbedS.txt,saf_s_roadbed
-SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic
-SAF,SAF,file,GenericD.txt,saf_d_generic
-SAF,SAF,file,GenericOV.txt,saf_ov_generic
-SAF,SAF,file,GenericS.txt,saf_s_generic
-SEDAT,SEDAT,file,SEDAT.txt,sedat
-SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat
-SND,SND,file,SND.txt,snd
-gdb,LION gdb,layer,node,gdb_node
-gdb,LION gdb,layer,lion,gdb_lion
-gdb,LION gdb,layer,node_stname,gdb_node_stname
-gdb,LION gdb,layer,altnames,gdb_altnames
+file_group,subgroup,type,filename,file_id,skip_qa
+Census,Census,file,NTA.csv,nta_csv,true
+Census,Census,file,NTA.txt,nta_txt,true
+Census,Census,file,NTA2020.csv,nta2020_csv,true
+Census,Census,file,NTA2020.txt,nta2020_dat,true
+Census,Census,file,CDTA2020.csv,cdta2020_csv,true
+Census,Census,file,CDTA2020.txt,cdta2020_dat,true
+Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,true
+Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,true
+Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,true
+District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,false
+District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,false
+District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,false
+District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,false
+District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,false
+District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,false
+District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,false
+District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,false
+District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,false
+District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,false
+District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,false
+Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,true
+Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,true
+Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,true
+Face Code File,Face Code File,file,QueensFace.txt,queens_face_code,true
+Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code,true
+LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat,false
+LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,false
+LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original,false
+LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,false
+LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn,false
+LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan,false
+LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens,false
+LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland,false
+Normalizing Tables,Enders,file,Enders.txt,enders,false
+Normalizing Tables,Exception,file,Exception.txt,exception,false
+Normalizing Tables,Word Tables,file,LastWord.txt,last_word,false
+Normalizing Tables,Word Tables,file,Universal.txt,universal_word,false
+OTHER,Logs,file,Logs,log,true
+RPL,RPL,file,RPL.txt,rpl,false
+SAF,SAF,file,Intersection.txt,saf_i,false
+SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,false
+SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,false
+SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,false
+SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,false
+SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,false
+SAF,SAF,file,GenericD.txt,saf_d_generic,false
+SAF,SAF,file,GenericOV.txt,saf_ov_generic,false
+SAF,SAF,file,GenericS.txt,saf_s_generic,false
+SEDAT,SEDAT,file,SEDAT.txt,sedat,false
+SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,false
+SND,SND,file,SND.txt,snd,false
+gdb,LION gdb,layer,node,gdb_node,false
+gdb,LION gdb,layer,lion,gdb_lion,false
+gdb,LION gdb,layer,node_stname,gdb_node_stname,false
+gdb,LION gdb,layer,altnames,gdb_altnames,false

@@ -7,6 +7,10 @@ This is done ad-hoc and not on an operational basis
 It assumes that production outputs are specified as exports in recipe.yml
 """
 
+import subprocess
+import tempfile
+import urllib.request
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -124,6 +128,110 @@ def create_citywide_table(file: str):
     )
 
 
+def load_production_lion_fgdb_layers(version: str):
+    """
+    Downloads LION FGDB from DCP website and loads all layers into production_outputs schema.
+
+    Args:
+        version: Version string (e.g., "26b") to construct the download URL
+
+    The function will:
+    1. Download nyclion_{version}.zip from DCP website
+    2. Extract the FileGDB
+    3. Load all layers into db-cscl.production_outputs schema with "fgdb_" prefix
+    4. Does NOT drop the schema (appends/replaces tables only)
+    """
+    url = f"https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{version}.zip"
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        zip_path = tmpdir_path / f"nyclion_{version}.zip"
+
+        # Download the zip file
+        print(f"Downloading {url}...")
+        urllib.request.urlretrieve(url, zip_path)
+
+        # Extract the zip file
+        print(f"Extracting {zip_path}...")
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(tmpdir_path)
+
+        # Find the .gdb directory
+        gdb_dirs = list(tmpdir_path.glob("**/*.gdb"))
+        if not gdb_dirs:
+            raise Exception(f"No .gdb directory found in {zip_path}")
+
+        gdb_path = gdb_dirs[0]
+        print(f"Found FileGDB at {gdb_path}")
+
+        # List all layers in the FGDB
+        result = subprocess.run(
+            ["ogrinfo", "-q", str(gdb_path)], capture_output=True, text=True, check=True
+        )
+
+        # Parse layer names from ogrinfo output
+        layers = []
+        for line in result.stdout.split("\n"):
+            if line.startswith("1:") or line.startswith(" "):
+                continue
+            if ":" in line and not line.startswith("INFO"):
+                # Format is typically "N: layer_name (geometry_type)"
+                layer_name = line.split(":")[1].strip().split(" ")[0]
+                layers.append(layer_name)
+
+        print(f"Found {len(layers)} layers: {layers}")
+
+        # Verify we have the expected layers
+        expected_layers = ["node", "node_stname", "altnames", "lion"]
+        assert set(layers) == set(expected_layers), (
+            f"Expected layers {expected_layers} but found {layers}"
+        )
+
+        # Get connection info from CLIENT
+        # Build the PG connection string for ogr2ogr
+        engine_url = CLIENT.engine.url
+        host = engine_url.host
+        port = engine_url.port or 5432
+        db_name = engine_url.database
+        user = engine_url.username
+        password = engine_url.password
+
+        pg_connection = f"PG:host={host} port={port} dbname={db_name} user={user} password={password} active_schema={CLIENT.schema}"
+
+        # Load each layer with fgdb_ prefix
+        for layer in layers:
+            table_name = f"fgdb_{layer.lower()}"
+            print(f"Loading {layer} -> {CLIENT.schema}.{table_name}")
+
+            # Use ogr2ogr to load the layer
+            # -overwrite: replace table if it exists
+            # -nln: set the new layer name (table name)
+            # -nlt GEOMETRY: Use generic geometry type to handle all geometry types
+            # --config PG_USE_COPY NO: Disable COPY mode to allow geometry conversions
+            subprocess.run(
+                [
+                    "ogr2ogr",
+                    "-f",
+                    "PostgreSQL",
+                    pg_connection,
+                    str(gdb_path),
+                    layer,
+                    "-nln",
+                    table_name,
+                    "-nlt",
+                    "GEOMETRY",
+                    "-overwrite",
+                    "-progress",
+                    "--config",
+                    "PG_USE_COPY",
+                    "NO",
+                ],
+                check=True,
+            )
+
+        print(f"Successfully loaded {len(layers)} layers from LION {version}")
+
+
 app = typer.Typer()
 
 
@@ -178,6 +286,9 @@ def _load(
     load_datasets(datasets, local_folder)
 
     boro_level_files = {"lion", "face_code"}
+    assert False, (
+        "Hello, this is Alex from the past with a message for you. You NEED to fix the citywide table code for the flatfiles next time you load."
+    )
     for file in boro_level_files:
         if any(dataset.endswith(f"_{file}") for dataset in datasets):
             create_citywide_table(file)
