@@ -36,20 +36,20 @@ For the full workflow including GIS team review and issue tracking conventions, 
 
 ## Getting started
 
-See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup) for onboarding and the recommended Docker dev container. For manual (uv/venv) setup and Python dependency management, see [docs/development.md](docs/development.md).
-
-## Technical reference (`docs/`)
-
-- [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
-- [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
-- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + `tach` enforcement
-- [Test strategy](docs/testing.md) — suites, how to run them, conventions
-- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
-- [SQL reference](docs/sql-reference.md) — Postgres/MSSQL query and admin snippets
-- [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
-- [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
-
-## Documentation & team resources (wiki)
-
 The [wiki](https://github.com/NYCPlanning/data-engineering/wiki) covers team and operational content:
 [About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Environment Management](https://github.com/NYCPlanning/data-engineering/wiki/Environment-Management) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)
+
+See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup) for onboarding and the recommended Docker dev container. For manual (uv/venv) setup and Python dependency management, see [docs/development.md](docs/development.md).
+
+## Documentation
+
+- [Data Engineering Glossary](docs/glossary-data-engineering.md) — definitions of key terms and concepts
+- [Urban Planning Glossary](docs/glossary-urban-planning.md) — entities and relationships to model the built environment
+- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
+- [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
+- [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
+- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + `tach` enforcement
+- [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
+- [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
+- [Test strategy](docs/testing.md) — suites, how to run them, conventions
+- [SQL reference](docs/sql-reference.md) — Postgres/MSSQL query and admin snippets
