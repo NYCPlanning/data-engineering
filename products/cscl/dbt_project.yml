@@ -24,8 +24,14 @@ models:
       +materialized: table
       +docs:
         node_color: "#264653"  # Charcoal Blue - production outputs
+    qa_int:
+      +materialized: table
+      +tags: ['qa', 'qa_prod']
+      +docs:
+        node_color: "#f4a261"  # Orange - QA production wrappers
     etl_dev_qa:
       +materialized: table
+      +tags: ['qa']
       +docs:
         node_color: "#124559"
     log_files:
