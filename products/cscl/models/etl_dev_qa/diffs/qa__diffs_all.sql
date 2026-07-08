@@ -33,8 +33,9 @@ FROM (
     SELECT * FROM {{ ref('qa__diffs_saf_s_roadbed') }}
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_saf_s_generic') }}
-    UNION ALL
-    SELECT * FROM {{ ref('qa__diffs_saf_i') }}
+    -- ignoring for now, as there are no diffs, and the keys are messed up vis-a-vis prod
+    -- UNION ALL
+    -- SELECT * FROM {{ ref('qa__diffs_saf_i') }}
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_snd') }}
     UNION ALL
