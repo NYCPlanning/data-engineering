@@ -5,7 +5,7 @@ Run from the products/cscl directory:
     python poc_validation/compare_gdb.py
 
 The GDB filename(s) and version are resolved from recipe.yml. By default:
-    dev:  output/<gdb filename>                      (from the local/CI build)
+    dev:  output/dataset_files/<gdb filename>        (from the local/CI build)
     prod: edm-private/cscl_etl/<version>/<filename>  (fetched to .data/prod/)
 
 For local iteration without S3 access, pass a local prod copy with --prod
@@ -194,7 +194,7 @@ def run(
 
     version = prod_version or recipe.version
     for filename in gdb_filenames:
-        dev_path = dev if dev is not None else Path("output") / filename
+        dev_path = dev if dev is not None else Path("output") / "dataset_files" / filename
         if prod is not None:
             prod_path = prod
         else:
