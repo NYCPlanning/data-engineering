@@ -18,6 +18,6 @@
 ) -%}
 
 SELECT
-    *,
-    lookup_key AS _enders_key
+    dat_column AS lookup_key,
+    dat_column AS _enders_key
 FROM {{ prod_relation }}
