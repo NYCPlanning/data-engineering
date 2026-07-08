@@ -11,19 +11,25 @@ from dagster import (
     AssetExecutionContext,
     AutomationCondition,
     Config,
+    DynamicOut,
+    DynamicOutput,
+    In,
     MaterializeResult,
+    Nothing,
+    OpExecutionContext,
+    Out,
     asset,
+    graph_asset,
+    op,
 )
 
 # TODO: we need consistent import strategies. Unless these are referenced to build the dag, we should import them within the asset def.
 from dcpy import lifecycle
 from dcpy.lifecycle.builds import build as build_module
-from dcpy.lifecycle.builds import load as build_load
 from dcpy.lifecycle.builds import plan as build_plan
 from dcpy.lifecycle.builds.artifacts import builds as builds_artifacts
 from dcpy.lifecycle.builds.artifacts import plan as plan_artifacts
 from dcpy.lifecycle.builds.artifacts import published
-from dcpy.utils.logging import logger
 
 
 # Config classes for each asset type
@@ -179,6 +185,9 @@ def make_plan_asset(product: lifecycle.asset_models.Product):
 def make_build_asset(product: lifecycle.asset_models.Product):
     """Create a build asset for a specific product.
 
+    This creates a graph asset with dynamic ops for each build command.
+    Commands are determined at runtime from recipe.lock.yml.
+
     Args:
         product: Product object with name and path attributes
 
@@ -188,108 +197,232 @@ def make_build_asset(product: lifecycle.asset_models.Product):
     # Get product-specific partition definition
     partition_def = get_build_partition_def(product.name)
 
-    @asset(
+    # Op 1: Download recipe and parse commands dynamically
+    @op(
+        name=f"{product.name}_download",
+        ins={"plan": In(Nothing)},
+        out=DynamicOut(),
+    )
+    def _download_and_parse_recipe(context: OpExecutionContext):
+        """Download recipe.lock.yml and yield dynamic outputs for each command."""
+        from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY
+        from dcpy.lifecycle.config import get_build_dir
+
+        # Get partition key and run ID
+        partition_key = context.run.tags.get("dagster/partition")
+        run_id = context.run_id
+        parse_build_partition(partition_key)
+
+        context.log.info(f"Downloading recipe for {product.name}")
+        context.log.info(f"  Partition: {partition_key}")
+        context.log.info(f"  Run ID: {run_id}")
+
+        # Create build directory and download recipe
+        build_output_dir = get_build_dir(product.name, partition_key)
+        build_output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create .dagster folder for marker files
+        dagster_dir = build_output_dir / ".dagster"
+        dagster_dir.mkdir(exist_ok=True)
+        context.log.info(f"Created marker directory: {dagster_dir}")
+
+        recipe_lock_path = plan_artifacts.download(
+            product=product.name,
+            version=partition_key,
+            destination_path=build_output_dir,
+        )
+        context.log.info(f"Downloaded recipe to: {recipe_lock_path}")
+
+        # Parse recipe to get commands
+        recipe = build_plan.recipe_from_yaml(recipe_lock_path)
+
+        # Build list of commands: load -> build commands -> export
+        command_names = ["load_recipe_data"]
+
+        if BUILD_STAGE_KEY in recipe.stage_config:
+            build_commands = recipe.stage_config[BUILD_STAGE_KEY].commands
+            command_names.extend([cmd.name for cmd in build_commands])
+
+        command_names.append("export_recipe_data")
+
+        context.log.info(f"Found {len(command_names)} commands to execute:")
+        for i, cmd_name in enumerate(command_names):
+            context.log.info(f"  {i}: {cmd_name}")
+
+        # Yield a DynamicOutput for each command with sequence number, total count, and run ID
+        for i, cmd_name in enumerate(command_names):
+            yield DynamicOutput(
+                value={
+                    "command_name": cmd_name,
+                    "sequence": i,
+                    "total_commands": len(command_names),
+                    "run_id": run_id,
+                },
+                mapping_key=cmd_name,  # Use command name as mapping key for nice instance names
+            )
+
+    # Op 2: Execute a single command (mapped over dynamic outputs)
+    @op(
+        name=f"{product.name}_step",
+    )
+    def _execute_command(context: OpExecutionContext, command_info: dict):
+        """Execute a single build command with proper marker file coordination."""
+        import time
+
+        from dcpy.lifecycle.config import get_build_dir
+
+        command_name = command_info["command_name"]
+        sequence = command_info["sequence"]
+        total_commands = command_info["total_commands"]
+        run_id = command_info["run_id"]
+
+        # Get partition key
+        partition_key = context.run.tags.get("dagster/partition")
+
+        context.log.info("=" * 80)
+        context.log.info(f"EXECUTING COMMAND: {command_name}")
+        context.log.info(f"  Step {sequence + 1} of {total_commands}")
+        context.log.info(f"  Product: {product.name}")
+        context.log.info(f"  Partition: {partition_key}")
+        context.log.info(f"  Run ID: {run_id}")
+        context.log.info("=" * 80)
+
+        # Get build directory and marker directory
+        build_output_dir = get_build_dir(product.name, partition_key)
+        recipe_lock_path = build_output_dir / "recipe.lock.yml"
+        dagster_dir = build_output_dir / ".dagster"
+        dagster_dir.mkdir(exist_ok=True)
+
+        # Marker file management with run ID for sequential execution and re-runs
+        current_marker = dagster_dir / f"step_{sequence}_{run_id}_complete"
+        current_failure_marker = dagster_dir / f"step_{sequence}_{run_id}_failed"
+
+        # Wait for previous command to complete (sequential execution)
+        if sequence > 0:
+            prev_marker = dagster_dir / f"step_{sequence - 1}_{run_id}_complete"
+            prev_failure_marker = dagster_dir / f"step_{sequence - 1}_{run_id}_failed"
+            context.log.info(
+                f"Waiting for previous step ({sequence - 1}) to complete..."
+            )
+
+            max_wait = 3 * 3600  # 3 hour timeout
+            waited = 0
+            while (
+                not prev_marker.exists()
+                and not prev_failure_marker.exists()
+                and waited < max_wait
+            ):
+                time.sleep(2)
+                waited += 2
+
+            # Check if previous step failed
+            if prev_failure_marker.exists():
+                error_msg = f"Previous step (step_{sequence - 1}) failed. Aborting {command_name}."
+                context.log.error(error_msg)
+                # Mark this step as failed too
+                current_failure_marker.touch()
+                raise RuntimeError(error_msg)
+
+            # Check if we timed out
+            if not prev_marker.exists():
+                error_msg = f"Timeout waiting for previous step (step_{sequence - 1}) to complete after {max_wait}s"
+                context.log.error(error_msg)
+                current_failure_marker.touch()
+                raise TimeoutError(error_msg)
+
+            context.log.info("Previous step complete, proceeding...")
+
+        # Execute the command
+        try:
+            build_module.run_single_command(
+                product_path=product.path,
+                recipe_lock_path=recipe_lock_path,
+                command_name=command_name,
+                build_directory=build_output_dir,
+            )
+
+            # Create marker file to signal completion to next step
+            current_marker.touch()
+
+            context.log.info("=" * 80)
+            context.log.info(f"✓ COMPLETED: {command_name}")
+            context.log.info("=" * 80)
+
+            return command_name
+
+        except Exception as e:
+            # Create failure marker to signal to downstream steps
+            current_failure_marker.touch()
+            context.log.error(f"✗ FAILED: {command_name}")
+            context.log.error(f"Error: {str(e)}")
+            raise
+
+    # Op 3: Upload build (collects all command outputs)
+    @op(
+        name=f"{product.name}_upload",
+        out=Out(Nothing),
+    )
+    def _upload_build(context: OpExecutionContext, command_results: list):
+        """Upload build to storage after all commands complete."""
+        import shutil
+
+        from dcpy.lifecycle.config import get_build_dir
+
+        partition_key = context.run.tags.get("dagster/partition")
+        parse_build_partition(partition_key)
+
+        build_output_dir = get_build_dir(product.name, partition_key)
+        recipe_lock_path = build_output_dir / "recipe.lock.yml"
+
+        # Get recipe to extract version
+        build_plan.recipe_from_yaml(recipe_lock_path)
+
+        context.log.info(
+            f"All {len(command_results)} commands completed: {command_results}"
+        )
+        context.log.info(f"Uploading build for {product.name}")
+        context.log.info(f"  Output directory: {build_output_dir}")
+
+        # Upload build to storage
+        build_key = builds_artifacts.upload(
+            output_path=build_output_dir,
+            product=product.name,
+            build=partition_key,
+            acl="public-read",
+        )
+
+        context.log.info(f"Build uploaded: {build_key}")
+
+        # Clean up marker directory
+        dagster_dir = build_output_dir / ".dagster"
+        if dagster_dir.exists():
+            shutil.rmtree(dagster_dir)
+            context.log.info(f"Cleaned up marker directory: {dagster_dir}")
+
+    # Create graph that uses dynamic mapping
+    from dagster import AssetIn
+
+    @graph_asset(
         name=f"build_{product.name}",
         partitions_def=partition_def,
         group_name=f"build_{product.name}",
         tags={"product": product.name, "lifecycle_stage": "builds.build"},
         automation_condition=AutomationCondition.eager(),
-        deps=[f"plan_{product.name}"],
+        ins={"plan": AssetIn(key=f"plan_{product.name}", dagster_type=Nothing)},
     )
-    def _build_asset(
-        context: AssetExecutionContext,
-        config: BuildConfig,
-    ):
-        """Build product using lifecycle.builds.build.build() + upload()."""
-        import os
+    def _build_graph_asset(plan):
+        """Build product by executing commands as dynamic ops."""
+        # Parse recipe and yield dynamic outputs for each command
+        command_outputs = _download_and_parse_recipe(plan)
 
-        from dcpy.lifecycle.config import get_build_dir
+        # Map execute_command over all dynamic outputs
+        # Each command will execute sequentially via marker file coordination
+        executed_commands = command_outputs.map(_execute_command)
 
-        partition_key = context.partition_key
-        parsed = parse_build_partition(partition_key)
+        # Collect all results and upload
+        return _upload_build(executed_commands.collect())
 
-        context.log.info(f"Building {product.name}")
-        context.log.info(f"  Version: {parsed.version}")
-        context.log.info(f"  Branch: {parsed.branch}")
-        context.log.info(f"  Timestamp: {parsed.timestamp}")
-
-        # Download recipe to build directory first
-        # We use the recipe for both build_name (for directory) and dataset version
-        # Note: We create build_output_dir with a temp name first, then get actual build_name from recipe
-        temp_build_dir = get_build_dir(product.name, partition_key)
-        temp_build_dir.mkdir(parents=True, exist_ok=True)
-
-        # Download recipe to build directory
-        recipe_lock_path = plan_artifacts.download(
-            product=product.name,
-            version=partition_key,
-            destination_path=temp_build_dir,
-        )
-        context.log.info(f"Downloaded recipe to build directory: {recipe_lock_path}")
-
-        # Parse recipe to get build_name and dataset version
-        recipe = build_plan.recipe_from_yaml(recipe_lock_path)
-        recipe_version = recipe.version
-        context.log.info(f"  Dataset version from recipe: {recipe_version}")
-        context.log.info(f"  Build name: {recipe.build_name}")
-
-        # If recipe.build_name differs from partition_key, we'd need to rename the directory
-        # but typically they should match, so we just use the temp_build_dir as is
-        build_output_dir = temp_build_dir
-
-        # Set environment variables from recipe.env (needed by load and build)
-        if recipe.env:
-            for key, value in recipe.env.items():
-                os.environ[key] = value
-                context.log.info(f"Set recipe env: {key}={value}")
-
-        # Set additional environment variables for build
-        os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_output_dir)
-        context.log.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_output_dir}")
-
-        # Configure file logging now that BUILD_ENV_OUTPUT_DIR is set
-        logger.set_file_output(build_output_dir)
-
-        # Load source data from recipe into build database
-        load_result = build_load.load_source_data_from_resolved_recipe(
-            recipe_or_path=recipe_lock_path,  # Pass path to recipe in build directory
-            clear_pg_schema=True,  # Clear schema before loading
-            # target_schema will be read from BUILD_ENGINE_SCHEMA env var (set in recipe env)
-        )
-        context.log.info(f"Loaded {len(load_result.datasets)} datasets")
-
-        # Execute build commands from recipe
-        # BUILD_ENV_OUTPUT_DIR already set in environment above
-        output_path = build_module.build(
-            product_path=product.path,
-            build_directory=build_output_dir,  # Recipe in build directory
-        )
-
-        context.log.info(f"Build completed. Output: {output_path}")
-
-        # Upload build to storage
-        build_key = builds_artifacts.upload(
-            output_path=output_path,
-            product=product.name,  # Connector handles db- prefix mapping
-            build=partition_key,  # Use full partition key as build identifier
-            acl="public-read",  # Make builds publicly accessible
-        )
-
-        context.log.info(f"Build uploaded: {build_key}")
-
-        return MaterializeResult(
-            metadata={
-                "product": product.name,
-                "version": recipe_version,
-                "branch": parsed.branch,
-                "timestamp": parsed.timestamp,
-                "build_note": config.build_note or "",
-                "build_key": str(build_key),
-                "output_path": str(output_path),
-            }
-        )
-
-    return _build_asset
+    return _build_graph_asset
 
 
 def make_draft_asset(product: lifecycle.asset_models.Product):

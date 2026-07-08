@@ -76,5 +76,5 @@ class DcpyLogger(logging.Logger):
 
 # Set custom logger class and create logger
 logging.setLoggerClass(DcpyLogger)
-logger = logging.getLogger("dcpy")
+logger: DcpyLogger = logging.getLogger("dcpy")  # type: ignore[assignment]
 logger.addHandler(handler)

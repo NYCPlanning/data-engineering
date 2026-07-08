@@ -14,3 +14,14 @@ inputs:
   - name: doitt_buildingfootprints
   # other data
   - name: dcp_managing_agencies_lookup
+
+stage_config:
+  builds.build:
+    commands:
+      - name: cbbr_build
+        run: bash 02_cbbr.sh
+        command_type: shell
+
+      - name: spatial_processing
+        run: bash 03_spatial.sh
+        command_type: shell
