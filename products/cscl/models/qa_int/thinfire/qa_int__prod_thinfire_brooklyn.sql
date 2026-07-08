@@ -18,6 +18,11 @@
 ) -%}
 
 SELECT
-    *,
-    globalid AS _thinfire_key
+    fire_company_type,
+    fire_company_number,
+    fire_division,
+    fire_battalion,
+    borough,
+    fire_company_type || fire_company_number AS globalid,
+    fire_company_type || fire_company_number AS _thinfire_key
 FROM {{ prod_relation }}

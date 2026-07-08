@@ -53,8 +53,4 @@ FROM (
     SELECT * FROM {{ ref('qa__diffs_enders') }}
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_exception') }}
-    UNION ALL
-    SELECT * FROM {{ ref('qa__diffs_last_word') }}
-    UNION ALL
-    SELECT * FROM {{ ref('qa__diffs_universal_word') }}
 ) AS unioned_diffs

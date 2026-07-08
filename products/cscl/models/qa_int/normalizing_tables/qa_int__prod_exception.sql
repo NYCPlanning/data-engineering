@@ -18,6 +18,6 @@
 ) -%}
 
 SELECT
-    *,
-    place_name AS _exception_key
+    dat_column AS place_name,
+    dat_column AS _exception_key
 FROM {{ prod_relation }}
