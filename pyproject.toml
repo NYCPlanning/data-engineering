@@ -218,6 +218,34 @@ stubs = [
     "types-tqdm",
 ]
 
+# Apps - web services deployed to Azure Container Apps
+dagster = [
+    "dagster",
+    "dagster-webserver",
+    "supervisor",
+]
+
+qa = [
+    "folium",
+    "mapclassify",
+    "matplotlib",
+    "numerize",
+    "plotly",
+    "setuptools",
+    "streamlit",
+    "streamlit-aggrid",
+    "streamlit-folium",
+]
+
+notebook = [
+    "marimo>=0.8.0",
+    "uvicorn>=0.20.0",
+]
+
+all-apps = [
+    "dcpy[dagster,qa,notebook]",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 exclude = ["dcpy.test*"]
