@@ -40,7 +40,7 @@ def test_export_files():
     # Files are now organized in subdirectories:
     # - dataset_files/ contains the actual data files
     # - attachments/ contains data dictionaries and source_data_versions.csv
-    # - diagnostics/dbt/ contains the dbt target directory
+    # - diagnostics/dbt.zip contains the dbt target directory (zipped to reduce file count)
     # - Root contains metadata files
     expected_export_file_names = {
         # Root files
@@ -58,17 +58,11 @@ def test_export_files():
         "dataset_files/templatedb_points.shp.zip",
         "dataset_files/templatedb_polygons.zip",
         "dataset_files/templatedb.zip",
+        # Diagnostics
+        "diagnostics/dbt.zip",
     }
     # TODO: publishing connector refactor - replace with: builds.get_filenames(BUILD_KEY.product, BUILD_KEY.build)
     actual_files = publishing.get_filenames(BUILD_KEY)
-
-    # Check for dbt diagnostics
-    dbt_diagnostics_files = {
-        f for f in actual_files if f.startswith("diagnostics/dbt/")
-    }
-    assert dbt_diagnostics_files, (
-        "Expected dbt diagnostics directory to be present in export"
-    )
 
     # Check that all expected files are present
     assert expected_export_file_names.issubset(actual_files), (

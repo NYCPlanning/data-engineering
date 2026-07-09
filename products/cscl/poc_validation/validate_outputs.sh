@@ -13,8 +13,8 @@
 # mismatched row counts.
 #
 # Expects two folders in the current directory:
-#  output/      - contains outputs of the current dev build
-#  .data/prod/  - contains the production files to compare against
+#  output/dataset_files/  - contains outputs of the current dev build
+#  .data/prod/            - contains the production files to compare against
 mkdir -p output/validation_output
 
 csv_file="output/validation_output/validation_summary.csv"
@@ -22,7 +22,7 @@ echo "filename,prod_row_count,mismatched_rows" > "$csv_file"
 
 total_records=0
 total_mismatched=0
-for filepath in output/*; do
+for filepath in output/dataset_files/*; do
     file=$(basename "$filepath")
     if [[ "$file" =~ "zip" ]] || [[ -d "$filepath" ]]; then
         continue
@@ -32,7 +32,7 @@ for filepath in output/*; do
     prod_row_count="$(cat .data/prod/$file | wc -l | awk '{print $1}')"
     echo "Total records:      $prod_row_count"
     total_records=$(($total_records + $prod_row_count))
-    mismatched_rows=$(comm -23 <(sort output/$file) <(sort .data/prod/$file))
+    mismatched_rows=$(comm -23 <(sort output/dataset_files/$file) <(sort .data/prod/$file))
     
     if [ -z "$mismatched_rows" ]; then
         n_mismatched=0

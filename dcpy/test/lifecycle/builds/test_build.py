@@ -307,7 +307,7 @@ exports:
 
 
 def test_export_copies_target_dir_when_present(tmp_path):
-    """export() copies the dbt target/ sibling directory recursively into diagnostics/dbt/ folder."""
+    """export() zips the dbt target/ sibling directory into diagnostics/dbt.zip."""
     output_folder = tmp_path / "output"
     recipe_path = tmp_path / "recipe.lock.yml"
     recipe_path.write_text(_MINIMAL_RECIPE.format(output_folder=str(output_folder)))
@@ -321,10 +321,15 @@ def test_export_copies_target_dir_when_present(tmp_path):
 
     export(recipe_path, pg_client=MagicMock())
 
-    # target/ now goes to diagnostics/dbt/
-    assert (output_folder / "diagnostics" / "dbt").is_dir()
-    assert (output_folder / "diagnostics" / "dbt" / "run_results.json").exists()
-    assert (output_folder / "diagnostics" / "dbt" / "compiled" / "x.sql").exists()
+    # target/ now goes to diagnostics/dbt.zip
+    zip_path = output_folder / "diagnostics" / "dbt.zip"
+    assert zip_path.exists()
+    assert zip_path.is_file()
+    # Verify contents are in the zip
+    with zipfile.ZipFile(zip_path) as zf:
+        names = zf.namelist()
+        assert "run_results.json" in names
+        assert "compiled/x.sql" in names
 
 
 def test_export_warns_when_target_dir_missing(tmp_path):
@@ -336,8 +341,8 @@ def test_export_warns_when_target_dir_missing(tmp_path):
     with patch("dcpy.lifecycle.builds.export.logger") as mock_logger:
         export(recipe_path, pg_client=MagicMock())
 
-    # target/ directory should not exist in diagnostics/dbt/ since it wasn't created
-    assert not (output_folder / "diagnostics" / "dbt").exists()
+    # dbt.zip should not exist in diagnostics/ since target/ wasn't created
+    assert not (output_folder / "diagnostics" / "dbt.zip").exists()
     # Check debug logs for missing artifact directory message
     debug_calls = [str(call) for call in mock_logger.debug.call_args_list]
     assert any("target" in msg for msg in debug_calls)
