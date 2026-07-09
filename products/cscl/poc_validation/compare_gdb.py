@@ -169,7 +169,7 @@ def run(
         help="Prod CSCL version under edm-private/cscl_etl/. Defaults to recipe version.",
     ),
     dev: Path | None = typer.Option(
-        None, "--dev", "-d", help="Dev GDB zip. Default: output/<gdb filename>."
+        None, "--dev", "-d", help="Dev GDB zip. Default: output/dataset_files/<gdb filename>."
     ),
     prod: Path | None = typer.Option(
         None,
