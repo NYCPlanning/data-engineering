@@ -194,7 +194,9 @@ def run(
 
     version = prod_version or recipe.version
     for filename in gdb_filenames:
-        dev_path = dev if dev is not None else Path("output") / "dataset_files" / filename
+        dev_path = (
+            dev if dev is not None else Path("output") / "dataset_files" / filename
+        )
         if prod is not None:
             prod_path = prod
         else:
