@@ -2,18 +2,21 @@ name: Azure ACR - Build and Publish App Images
 on:
   workflow_dispatch:
     inputs:
-      push_to_acr:
-        description: "Push image to Azure Container Registry"
+      de-apps:
+        description: "Build and push 'de-apps' image"
         type: boolean
         required: true
         default: true
-
-env:
-  IMAGE_NAME: de-apps
+      nginx-azure:
+        description: "Build and push 'nginx-azure' image"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
-  build-and-push:
+  de-apps:
     runs-on: ubuntu-22.04
+    if: inputs.de-apps
     defaults:
       run:
         shell: bash
@@ -35,27 +38,72 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Azure Container Registry
-        if: inputs.push_to_acr
         uses: docker/login-action@v3
         with:
           registry: ${{ env.AZURE_ACR_LOGIN_SERVER }}
           username: ${{ env.AZURE_ACR_USERNAME }}
           password: ${{ env.AZURE_ACR_PASSWORD }}
 
-      - name: Build Docker image
+      - name: Build de-apps image
         run: |
           cd apps
           docker build \
             -f docker/Dockerfile \
-            -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest \
+            -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/de-apps:latest \
             .
 
-      - name: Push to ACR
-        if: inputs.push_to_acr
+      - name: Push de-apps to ACR
         run: |
-          docker push ${{ env.AZURE_ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.AZURE_ACR_LOGIN_SERVER }}/de-apps:latest
 
       - name: Image info
         run: |
-          echo "Image built: ${{ env.AZURE_ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest"
-          echo "Image size: $(docker images ${{ env.AZURE_ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest --format '{{.Size}}')"
+          echo "Image pushed: ${{ env.AZURE_ACR_LOGIN_SERVER }}/de-apps:latest"
+          echo "Image size: $(docker images ${{ env.AZURE_ACR_LOGIN_SERVER }}/de-apps:latest --format '{{.Size}}')"
+
+  nginx-azure:
+    runs-on: ubuntu-22.04
+    if: inputs.nginx-azure
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AZURE_ACR_USERNAME: "op://Data Engineering/de_az_acr/username"
+          AZURE_ACR_PASSWORD: "op://Data Engineering/de_az_acr/password"
+          AZURE_ACR_LOGIN_SERVER: "op://Data Engineering/de_az_acr/login_server"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.AZURE_ACR_LOGIN_SERVER }}
+          username: ${{ env.AZURE_ACR_USERNAME }}
+          password: ${{ env.AZURE_ACR_PASSWORD }}
+
+      - name: Build nginx-azure image
+        run: |
+          cd apps/nginx_azure
+          docker build \
+            -f Dockerfile \
+            -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest \
+            .
+
+      - name: Push nginx-azure to ACR
+        run: |
+          docker push ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest
+
+      - name: Image info
+        run: |
+          echo "Image pushed: ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest"
+          echo "Image size: $(docker images ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest --format '{{.Size}}')"
