@@ -13,6 +13,7 @@ WITH base_diffs AS (
       old_relation=ref('qa_int__prod_thinfire_queens'),
       new_relation=ref('thinfire_queens_by_field'),
       primary_key='_thinfire_key',
+      exclude_columns=['globalid'],
       output_file_id='thinfire_queens',
       build_table_name='thinfire_queens_by_field',
       production_table_name='qa_int__prod_thinfire_queens'

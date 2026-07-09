@@ -28,12 +28,13 @@ fire_companies_with_borough AS (
             WHEN fc.unit_short_normalized = 'E260' THEN '4'
             -- Special case: E-263 belongs to Queens even though it covers Rikers Island (Bronx)
             WHEN fc.unit_short_normalized = 'E263' THEN '4'
-            -- For all other cases, find borough from any matching Atomic Polygon
+            -- For all other cases, find borough with the most atomic polygons for this fire company
             ELSE (
                 SELECT ap.borocode
                 FROM {{ ref('stg__atomicpolygons') }} AS ap
                 WHERE ap.fire_company_type || ap.fire_company_number = fc.unit_short_normalized
-                ORDER BY ap.atomicid
+                GROUP BY ap.borocode
+                ORDER BY COUNT(*) DESC
                 LIMIT 1
             )
         END AS borough
