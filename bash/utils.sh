@@ -347,9 +347,15 @@ function build_and_publish_docker_image {
     echo "publishing $image_name:$version"
 
     # Build image
-    docker build --tag $image_name:$version "$@" $path_to_docker_file
-    # Update Dockerhub
-    docker push $image_name:$version
+    if [[ -n $USE_BUILDX ]]; then
+        # Multi-platform build using buildx
+        docker buildx build --platform linux/amd64,linux/arm64 --tag $image_name:$version --push "$@" $path_to_docker_file
+    else
+        # Standard single-platform build
+        docker build --tag $image_name:$version "$@" $path_to_docker_file
+        # Update Dockerhub
+        docker push $image_name:$version
+    fi
 }
 
 

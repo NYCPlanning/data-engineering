@@ -15,7 +15,12 @@ tag=$2
 base_tag=$3
 
 DOCKER_DIR=admin/run_environment/docker
-IMAGE_DIR=$DOCKER_DIR/$1
+# build-base-arm uses the same Dockerfile as build-base
+if [[ $image == "build-base-arm" ]]; then
+    IMAGE_DIR=$DOCKER_DIR/build-base
+else
+    IMAGE_DIR=$DOCKER_DIR/$1
+fi
 
 source bash/utils.sh
 set_error_traps
@@ -68,7 +73,11 @@ case $image in
         common
         cp $DOCKER_DIR/../requirements.txt $IMAGE_DIR
         $GEO_COMMAND;;
-    build-base) 
+    build-base)
+        common
+        generate_dcpy_requirements
+        $COMMAND;;
+    build-base-arm)
         common
         generate_dcpy_requirements
         $COMMAND;;
