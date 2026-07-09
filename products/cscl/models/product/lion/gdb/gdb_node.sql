@@ -14,12 +14,15 @@
 -- way prod's ESRI-written copy redundantly stores it. (Same as gdb_lion, which also
 -- doesn't list OBJECTID.) An emitted column would vanish into the FID with no effect.
 SELECT
-    nodeid::int AS "NODEID",
-    globalid AS "GLOBALID",
-    -- TODO: VIntersect ('' | 'VirtualIntersection') is not present in the source Node
-    -- layer (stg__nodes has no virtual-intersection flag; master_flag and saftype don't
-    -- correspond). The legacy ETL derived it elsewhere. Stubbed NULL until the source is
-    -- identified. Prod distribution: 2 distinct values, dominated by ''.
-    NULL::text AS "VIntersect",
-    geom
-FROM {{ ref('stg__nodes') }}
+    nodes.nodeid::int AS "NODEID",
+    nodes.globalid AS "GLOBALID",
+    -- VIntersect populated from VIRTUALINTERSECTION table
+    -- Nodes in that table get 'VirtualIntersection', all others get empty string
+    CASE
+        WHEN vi.nodeid IS NOT NULL THEN 'VirtualIntersection'
+        ELSE ''
+    END::text AS "VIntersect",
+    nodes.geom
+FROM {{ ref('stg__nodes') }} AS nodes
+LEFT JOIN {{ source('recipe_sources', 'dcp_cscl_virtualintersection') }} AS vi
+    ON nodes.nodeid = vi.nodeid

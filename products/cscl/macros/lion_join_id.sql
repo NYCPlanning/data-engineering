@@ -14,3 +14,19 @@
     || coalesce({{ lgc1 }}, '00') || coalesce({{ lgc2 }}, '00')
     || coalesce({{ lgc3 }}, '00') || coalesce({{ lgc4 }}, '00') || '  '
 {% endmacro %}
+
+{#
+  SAF Join_ID for ESRI LION — links SAF segments to their AltNames entries.
+  Per ETL spec §2.7.3, SAF form is a 15-char string:
+  Borough(1) + SAF_B5SC(5) + LGC1..LGC4 (2 bytes each, zero-filled, '00' if null) + SAFType(1).
+  e.g. boro 2, b5sc 12795, lgc1 02, saftype X -> '21279502000000X'.
+#}
+{% macro saf_join_id(
+    boro='boroughcode', b5sc='b5sc',
+    lgc1='lgc1', lgc2='lgc2', lgc3='lgc3', lgc4='lgc4',
+    saftype='saftype'
+) %}
+{{ boro }} || lpad({{ b5sc }}::text, 5, '0')
+    || coalesce({{ lgc1 }}, '00') || coalesce({{ lgc2 }}, '00')
+    || coalesce({{ lgc3 }}, '00') || coalesce({{ lgc4 }}, '00') || {{ saftype }}
+{% endmacro %}

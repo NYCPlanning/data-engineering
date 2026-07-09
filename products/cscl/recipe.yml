@@ -86,6 +86,11 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: NAMEDINTERSECTION
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_virtualintersection
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: VIRTUALINTERSECTION
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_nypdbeat
     custom:
       filename: ETL Working GDB.gdb.zip
