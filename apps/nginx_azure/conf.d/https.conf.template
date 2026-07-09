@@ -1,0 +1,64 @@
+# HTTP server - redirect to HTTPS
+server {
+    listen 80;
+    server_name ${NGINX_DOMAIN};
+
+    # Redirect all traffic to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPS server
+server {
+    listen 443 ssl http2;
+    server_name ${NGINX_DOMAIN};
+
+    # SSL configuration
+    # Certificate paths can be overridden via NGINX_SSL_CERT and NGINX_SSL_KEY env vars
+    ssl_certificate ${NGINX_SSL_CERT};
+    ssl_certificate_key ${NGINX_SSL_KEY};
+
+    # SSL security settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+    }
+
+    location /qaqc {
+        proxy_pass ${BACKEND_QA_URL};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Script-Name /qaqc;
+        proxy_read_timeout 86400;
+    }
+
+    location /dag {
+        proxy_pass ${BACKEND_DAGSTER_URL};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+}

@@ -38,8 +38,12 @@ apps/docker/
 
 1. Go to Actions tab in GitHub
 2. Run "Azure ACR - Build and Publish App Images" workflow
-3. Select "Push to ACR" checkbox
-4. Image will be pushed to: `${AZURE_ACR_NAME}/de-apps:latest`
+3. Select which images to build/push:
+   - **de-apps**: Builds and pushes the de-apps image (dagster, qa, notebook apps)
+   - **nginx-azure**: Builds and pushes the nginx-azure reverse proxy image
+4. Images will be pushed to:
+   - `${AZURE_ACR_LOGIN_SERVER}/de-apps:latest`
+   - `${AZURE_ACR_LOGIN_SERVER}/nginx-azure:latest` (if selected)
 
 **Prerequisites:**
 - 1Password vault "Data Engineering" with entry "de_az_acr" containing:
