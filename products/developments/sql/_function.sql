@@ -33,6 +33,32 @@ RETURNS boolean AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+-- check if numeric string is valid function
+CREATE OR REPLACE FUNCTION is_numeric(
+    s varchar
+)
+RETURNS boolean AS $$
+    BEGIN
+      perform s::numeric;
+      RETURN true;
+    exception WHEN others THEN
+      RETURN false;
+    END;
+$$ LANGUAGE plpgsql;
+
+-- normalize smart-punctuation dashes (e.g. an en-dash from copy-pasted source data) to a
+-- plain hyphen, then strip any remaining non-ASCII characters. Geosupport's fixed-width
+-- input buffers assume 1 byte per character and error on multi-byte UTF-8.
+CREATE OR REPLACE FUNCTION sanitize_address_text(
+    s text
+)
+RETURNS text AS $$
+    SELECT regexp_replace(
+        regexp_replace(s, '[' || chr(8208) || '-' || chr(8213) || chr(8722) || ']', '-', 'g'),
+        '[^\x01-\x7F]', '', 'g'
+    )
+$$ LANGUAGE sql;
+
 -- year quarter function
 CREATE OR REPLACE FUNCTION year_quarter(
     _date date
