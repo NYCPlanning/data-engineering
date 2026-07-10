@@ -96,11 +96,14 @@ def parse_pdf_text(
 
 @app.command("write_metadata")
 def _write_metadata(
-    product_name: str,
-    dataset_name: str,
-    path: Path,
-    layer: str | None = typer.Argument(None),
-    file_id: str = typer.Argument(...),
+    product_name: str = typer.Argument(..., help="Name of product. Example: 'pluto'"),
+    dataset_name: str = typer.Argument(..., help="Name of dataset. Example: 'pluto'"),
+    file_id: str = typer.Argument(
+        ...,
+        help="Identifier from within the org. metadata reference. Example: 'mappluto_unclipped_gdb'",
+    ),
+    path_to_file: Path = typer.Argument(..., help="Path to file."),
+    layer: str | None = typer.Argument(None, help="Name of layer within file"),
     org_md_path: Path | None = typer.Option(
         None,
         "--org-md-path",
@@ -115,7 +118,7 @@ def _write_metadata(
     write_metadata(
         product_name=product_name,
         dataset_name=dataset_name,
-        path=path,
+        path_to_file=path_to_file,
         layer=layer,
         file_id=file_id,
         zip_subdir=zip_subdir,
@@ -126,7 +129,7 @@ def _write_metadata(
 def write_metadata(
     product_name: str,
     dataset_name: str,
-    path: Path,
+    path_to_file: Path,
     layer: str | None,
     file_id: str,  # refers to product md
     zip_subdir: str | None,
@@ -150,15 +153,17 @@ def write_metadata(
 
     product_md = org_md.product(product_name).dataset(dataset_name)
 
-    is_gdb = ".gdb" in path.suffixes
-    is_shp = layer is not None and (".shp" in path.suffixes or layer.endswith(".shp"))
+    is_gdb = ".gdb" in path_to_file.suffixes
+    is_shp = layer is not None and (
+        ".shp" in path_to_file.suffixes or layer.endswith(".shp")
+    )
 
     if is_gdb:
         if zip_subdir is not None:
             raise ValueError(
                 "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
             )
-        layer = fgdb.resolve_layer(path, layer)
+        layer = fgdb.resolve_layer(path_to_file, layer)
         file_metadata = product_md.calculate_layer_dataset_metadata(
             file_id=file_id, layer=layer
         )
@@ -168,13 +173,15 @@ def write_metadata(
         custom_type_key = "shp_data_type"
     else:
         raise ValueError(
-            f"Unsupported file type for metadata writing: path='{path}', layer='{layer}'. "
+            f"Unsupported file type for metadata writing: path='{path_to_file}', layer='{layer}'. "
             "Expected a .gdb or .shp path."
         )
 
-    assert layer is not None  # guaranteed: GDB branch resolved it, SHP branch required it
+    assert (
+        layer is not None
+    )  # guaranteed: GDB branch resolved it, SHP branch required it
 
-    logger.info(f"Wrote metadata to layer '{layer}' in {path}")
+    logger.info(f"Wrote metadata to layer '{layer}' in {path_to_file}")
 
     esri_md = esri_metadata.generate_metadata()
 
@@ -210,9 +217,11 @@ def write_metadata(
     ]
 
     if is_gdb:
-        fgdb.write_metadata(gdb=path, layer=layer, metadata=esri_md, overwrite=True)
+        fgdb.write_metadata(
+            gdb=path_to_file, layer=layer, metadata=esri_md, overwrite=True
+        )
     else:
-        shp = Shapefile(path=path, shp_name=layer, zip_subdir=zip_subdir)
+        shp = Shapefile(path=path_to_file, shp_name=layer, zip_subdir=zip_subdir)
         shp.write_metadata(esri_md, overwrite=True)
 
 

@@ -203,7 +203,9 @@ def test_write_metadata(
     )
 
     product_md = org_metadata.product("colp").dataset("colp")
-    file_metadata = product_md.calculate_file_dataset_metadata(file_id="primary_shapefile")
+    file_metadata = product_md.calculate_file_dataset_metadata(
+        file_id="primary_shapefile"
+    )
 
     fields = Metadata.model_fields
 
@@ -211,7 +213,7 @@ def test_write_metadata(
     esri.write_metadata(
         product_name="colp",
         dataset_name="colp",
-        path=fixture_info["path"],
+        path_to_file=fixture_info["path"],
         layer=fixture_info["layer"],
         file_id="primary_shapefile",
         zip_subdir=subdir,
@@ -241,15 +243,23 @@ def test_write_metadata(
 
     # Test product-specific values
     assert metadata.md_hr_lv_name == "dataset"
-    assert metadata.data_id_info.id_citation.res_title == file_metadata.attributes.display_name
+    assert (
+        metadata.data_id_info.id_citation.res_title
+        == file_metadata.attributes.display_name
+    )
     assert metadata.data_id_info.id_abs == file_metadata.attributes.description
     assert metadata.data_id_info.id_credit == file_metadata.attributes.attribution
-    assert metadata.data_id_info.res_const.consts.use_limit == file_metadata.attributes.disclaimer
+    assert (
+        metadata.data_id_info.res_const.consts.use_limit
+        == file_metadata.attributes.disclaimer
+    )
     assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
     assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
 
     assert metadata.eainfo.detailed.name == fixture_info["layer"].removesuffix(".shp")
-    assert metadata.eainfo.detailed.enttyp.enttypl.value == fixture_info["layer"].removesuffix(".shp")
+    assert metadata.eainfo.detailed.enttyp.enttypl.value == fixture_info[
+        "layer"
+    ].removesuffix(".shp")
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
     # column 0 has no domain values: attrlabl, attrtype, and udom should all round-trip
@@ -265,9 +275,12 @@ def test_write_metadata(
     assert file_metadata.columns[1].values is not None, "Column values must be defined"
 
     # column 1 is borough in the colp test fixture — has domain values
-    assert metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
     assert (
-        metadata.eainfo.detailed.attr[1].attrtype.value == file_metadata.columns[1].data_type
+        metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
+    )
+    assert (
+        metadata.eainfo.detailed.attr[1].attrtype.value
+        == file_metadata.columns[1].data_type
     )
     udom_1 = metadata.eainfo.detailed.attr[1].attrdomv.udom
     assert udom_1 is None or udom_1.value is None
@@ -277,12 +290,19 @@ def test_write_metadata(
     )
     assert (
         metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
-        == file_metadata.columns[1].values[0].description  # "Manhattan", when org_md product is colp
+        == file_metadata.columns[1]
+        .values[0]
+        .description  # "Manhattan", when org_md product is colp
     )
 
 
 def _make_column(**kwargs) -> DatasetColumn:
-    defaults = dict(id="some_field", name="Some Field", data_type="text", description="A description")
+    defaults = dict(
+        id="some_field",
+        name="Some Field",
+        data_type="text",
+        description="A description",
+    )
     return DatasetColumn(**(defaults | kwargs))
 
 
@@ -395,7 +415,7 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     esri.write_metadata(
         product_name="pluto",
         dataset_name="pluto",
-        path=temp_gdb_zip_path,
+        path_to_file=temp_gdb_zip_path,
         layer=SPATIAL_LAYER,
         file_id="primary_file_geodatabase",
         zip_subdir=None,
@@ -406,7 +426,9 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
         pytest.fail("Expected metadata to exist after write")
 
     pluto_md = org_metadata.product("pluto").dataset("pluto")
-    file_metadata = pluto_md.calculate_file_dataset_metadata(file_id="primary_file_geodatabase")
+    file_metadata = pluto_md.calculate_file_dataset_metadata(
+        file_id="primary_file_geodatabase"
+    )
 
     assert metadata.eainfo.detailed.name == SPATIAL_LAYER
     assert metadata.eainfo.detailed.enttyp.enttypl.value == SPATIAL_LAYER
@@ -416,9 +438,13 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
     assert metadata.eainfo.detailed.attr[0].attrtype.value == "OID"
 
     # borough — full name, has domain values (edom), no truncation
-    assert metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
+    assert (
+        metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
+    )
     assert metadata.eainfo.detailed.attr[1].attrtype.value == "String"
-    assert len(metadata.eainfo.detailed.attr[1].attrdomv.edom) == len(file_metadata.columns[1].values)
+    assert len(metadata.eainfo.detailed.attr[1].attrdomv.edom) == len(
+        file_metadata.columns[1].values
+    )
 
     # appdate — file-entry override declares Esri type "Date" explicitly
     assert metadata.eainfo.detailed.attr[2].attrlabl.value == "APPDate"
@@ -438,7 +464,7 @@ def test_write_metadata_gdb_layer_none_auto_resolves(
     esri.write_metadata(
         product_name="pluto",
         dataset_name="pluto",
-        path=temp_gdb_zip_path,
+        path_to_file=temp_gdb_zip_path,
         layer=None,
         file_id="primary_file_geodatabase",
         zip_subdir=None,
@@ -457,7 +483,7 @@ def test_write_metadata_gdb_layer_none_raises_when_ambiguous(
         esri.write_metadata(
             product_name="pluto",
             dataset_name="pluto",
-            path=temp_gdb_zip_path,
+            path_to_file=temp_gdb_zip_path,
             layer=None,
             file_id="primary_file_geodatabase",
             zip_subdir=None,
@@ -472,7 +498,7 @@ def test_write_metadata_raises_on_nested_gdb_zip(tmp_path, org_metadata):
         esri.write_metadata(
             product_name="colp",
             dataset_name="colp",
-            path=gdb_path,
+            path_to_file=gdb_path,
             layer="some_layer",
             file_id="primary_shapefile",
             zip_subdir="some_subdir",
@@ -487,7 +513,7 @@ def test_write_metadata_raises_on_unsupported_file_type(tmp_path, org_metadata):
         esri.write_metadata(
             product_name="colp",
             dataset_name="colp",
-            path=bad_path,
+            path_to_file=bad_path,
             layer="some_layer",
             file_id="primary_shapefile",
             zip_subdir=None,
