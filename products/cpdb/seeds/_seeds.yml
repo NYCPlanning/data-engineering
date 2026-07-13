@@ -53,3 +53,12 @@ seeds:
       - name: parkid
       - name: parkname
       - name: zipcode
+
+  - name: type_category_patterns
+    description: |
+      Project type category patterns for mapping project descriptions to project types.
+    columns:
+      - name: typecategory
+        tests: [ not_null ]
+      - name: pattern
+        tests: [ not_null ]
