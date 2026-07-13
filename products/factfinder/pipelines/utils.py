@@ -17,11 +17,19 @@ COLUMN_CLEANUP = {"Male ": "Male", "Male P": "MaleP"}
 def process_metadata(
     dataset: str,
     excel_file: Path,
-    sheet_name: str,
+    sheet_name: str | None = None,
     skiprows: int = 0,
     output_folder: Path = OUTPUT_FOLDER,
     append=False,
 ) -> dict[str, Path]:
+    if sheet_name is None:
+        all_sheets = pd.ExcelFile(excel_file).sheet_names
+        if len(all_sheets) != 1:
+            raise ValueError(
+                f"Expected exactly one sheet but found {len(all_sheets)}: {all_sheets}. "
+                "Pass sheet_name explicitly."
+            )
+        sheet_name = all_sheets[0]
     df = pd.read_excel(excel_file, sheet_name=sheet_name, skiprows=skiprows)
     df = df.dropna(subset=["Category"])
     df["year"] = df["Dataset"].astype(str).str.split(", ")
@@ -108,9 +116,22 @@ def pivot_table_with_suffixes(
     pivot_columns: list[str],
     suffixes: list[str],
     *,
+    columns_to_ignore: list[str] = [],
     only_variables_with_all_suffixes: bool = True,
     variable_column: str = "variable",
 ) -> pd.DataFrame:
+    assert len(set(pivot_columns) & set(columns_to_ignore)) == 0, (
+        f"{pivot_columns=} cannot be in {columns_to_ignore=}"
+    )
+    if len(set(df.columns) & set(columns_to_ignore)) != len(columns_to_ignore):
+        columns_not_found = set(columns_to_ignore) - set(df.columns)
+        print(f"Some columns_to_ignore not found in dataframe: {columns_not_found}")
+        columns_to_ignore = [c for c in columns_to_ignore if c in df.columns]
+
+    if len(columns_to_ignore) > 0:
+        print(f"Ignoring columns: {columns_to_ignore}")
+        df = df.drop(columns=columns_to_ignore)
+
     incompatible_suffixes: list[tuple[str, str]] = []
     for i, suffix in enumerate(suffixes):
         for j, _suffix in enumerate(suffixes):
@@ -170,8 +191,9 @@ def pivot_table_with_suffixes(
 def pivot_factfinder_table(df: pd.DataFrame) -> pd.DataFrame:
     return pivot_table_with_suffixes(
         df,
-        ["geotype", "geoid"],
-        ["c", "e", "m", "p", "z"],
+        pivot_columns=["geotype", "geoid"],
+        suffixes=["c", "e", "m", "p", "z"],
+        columns_to_ignore=["geogname1", "geogname2", "geogname3", "altid"],
         variable_column="pff_variable",
     )
 
