@@ -1,0 +1,25 @@
+id: moeo_socialservicesitelocations_providers
+acl: public-read
+
+attributes:
+  name: Verified Locations for NYC City-Funded Social Service Contracts - Providers
+  description: >-
+    Provider-level records for NYC city-funded social service contracts. One of four related
+    datasets (sites, contracts, providers, programs) joined downstream in FacDB to form
+    `moeo_socialservicesitelocations`.
+  url: https://data.cityofnewyork.us/City-Government/Verified-Locations-for-NYC-City-Funded-Social-Serv/x882-mwt5
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: x882-mwt5
+    format: csv
+  file_format:
+    type: csv
+    dtype:
+      bbl: str
+      bin: str
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }

@@ -497,7 +497,7 @@ def hra_medicaid(df: pd.DataFrame):
     return df
 
 
-def moeo_socialservicesitelocations(df: pd.DataFrame):
+def moeo_socialservicesitelocations_sites(df: pd.DataFrame):
     df["borough"] = df.borough.str.upper()
     df["bbl"] = df.bbl.replace("undefinedundefinedundefined", None)
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
