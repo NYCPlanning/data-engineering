@@ -4,7 +4,7 @@ WITH proj AS (
     SELECT
         ST_MULTI(ST_UNION(wkb_geometry)) AS geom,
         '850' || projectid AS fmsid
-    FROM ddc_capitalprojects_infrastructure
+    FROM stg__ddc_capitalprojects_infrastructure
     GROUP BY projectid
 )
 
@@ -22,7 +22,7 @@ WITH proj AS (
     SELECT
         ST_MULTI(ST_UNION(ST_CENTROID(wkb_geometry))) AS geom,
         '850' || projectid AS fmsid
-    FROM ddc_capitalprojects_publicbuildings
+    FROM stg__ddc_capitalprojects_publicbuildings
     GROUP BY projectid
 )
 

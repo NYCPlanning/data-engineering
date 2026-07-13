@@ -7,7 +7,7 @@ SELECT
     'stateassembly'::text AS admin_boundary_type,
     b.assemdist::text AS admin_boundary_id
 FROM cpdb_dcpattributes AS a,
-    dcp_stateassemblydistricts AS b
+    stg__dcp_stateassemblydistricts AS b
 WHERE
     ST_INTERSECTS(a.geom, b.wkb_geometry)
     AND ST_GEOMETRYTYPE(b.wkb_geometry) = 'ST_MultiPolygon';

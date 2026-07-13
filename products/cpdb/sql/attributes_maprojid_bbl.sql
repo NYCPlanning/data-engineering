@@ -11,7 +11,7 @@ CREATE TABLE attributes_maprojid_bbl_tmp AS (
             a.maprojid,
             b.bbl::text
         FROM cpdb_dcpattributes AS a,
-            dcp_facilities AS b
+            stg__dcp_facilities AS b
         WHERE
             a.magency::int IN (39, 37, 38, 35)
             AND b.facgroup = 'Libraries'
@@ -22,7 +22,7 @@ CREATE TABLE attributes_maprojid_bbl_tmp AS (
             a.maprojid,
             b.bbl::text
         FROM cpdb_dcpattributes AS a,
-            dcp_facilities AS b
+            stg__dcp_facilities AS b
         WHERE
             a.magency IN ('850', '801', '806', '126', '819', '57', '72', '858', '827', '71', '56', '816', '125', '998')
             AND b.facname LIKE '%' || ' ' || '%' || ' ' || '%'
@@ -32,7 +32,7 @@ CREATE TABLE attributes_maprojid_bbl_tmp AS (
                 FROM (SELECT
                     facname,
                     count(facname) AS namecount
-                FROM dcp_facilities
+                FROM stg__dcp_facilities
                 GROUP BY facname) AS z
                 WHERE z.namecount = 1
             )
@@ -45,7 +45,7 @@ SELECT
     a.maprojid,
     b.mappluto_bbl
 FROM cpdb_dcpattributes AS a,
-    doitt_buildingfootprints AS b
+    stg__doitt_buildingfootprints AS b
 WHERE
     st_within(a.geom, b.wkb_geometry)
     AND b.bin IS NOT NULL;

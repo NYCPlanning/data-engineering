@@ -5,7 +5,7 @@ CREATE TABLE projects_by_communitydist_spending AS (
         SELECT
             TRIM(LEFT(capital_project, 12)) AS maprojid,
             SUM(check_amount::double precision) AS total_spend
-        FROM nycoc_checkbook
+        FROM stg__nycoc_checkbook
         -- WHERE LEFT(issue_date, 4)::double precision >= 2014
         GROUP BY TRIM(LEFT(capital_project, 12))
     ),
@@ -44,7 +44,7 @@ CREATE TABLE projects_by_communitydist_spending AS (
             b.maprojid,
             b.description,
             SUM(b.amt_per_pt) AS amt_pt
-        FROM dcp_cdboundaries AS a
+        FROM stg__dcp_cdboundaries AS a
         LEFT JOIN per_pt AS b ON ST_WITHIN(b.geom, a.wkb_geometry)
         GROUP BY a.borocd, b.maprojid, b.description
     ),
@@ -79,7 +79,7 @@ CREATE TABLE projects_by_communitydist_spending AS (
                 * (ST_AREA(c.geom) / c.total_area)
                 * ST_AREA(ST_INTERSECTION(c.geom, a.wkb_geometry)) / ST_AREA(c.geom)
             ) AS amt_poly
-        FROM dcp_cdboundaries AS a
+        FROM stg__dcp_cdboundaries AS a
         LEFT JOIN per_poly AS c ON ST_INTERSECTS(c.geom, a.wkb_geometry)
         WHERE
             ST_ISVALID(a.wkb_geometry) = 't'

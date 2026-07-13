@@ -7,5 +7,5 @@ SELECT
     'schooldistrict'::text AS admin_boundary_type,
     b.schooldist::text AS admin_boundary_id
 FROM cpdb_dcpattributes AS a,
-    dcp_school_districts AS b
+    stg__dcp_school_districts AS b
 WHERE ST_INTERSECTS(a.geom, b.wkb_geometry);

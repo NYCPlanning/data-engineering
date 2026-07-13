@@ -7,5 +7,5 @@ SELECT
     'congdist'::text AS admin_boundary_type,
     b.congdist::text AS admin_boundary_id
 FROM cpdb_dcpattributes AS a,
-    dcp_congressionaldistricts AS b
+    stg__dcp_congressionaldistricts AS b
 WHERE a.geom && b.wkb_geometry AND ST_INTERSECTS(a.geom, b.wkb_geometry);

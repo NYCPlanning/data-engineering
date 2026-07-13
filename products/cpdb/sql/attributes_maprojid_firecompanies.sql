@@ -7,5 +7,5 @@ SELECT
     unnest(ARRAY['fireconum'::text, 'firecotype'::text, 'firebn'::text, 'firediv'::text]) AS admin_boundary_type,
     unnest(ARRAY[fireconum::text, firecotype::text, firebn::text, firediv::text]) AS admin_boundary_id
 FROM cpdb_dcpattributes AS a,
-    dcp_firecompanies AS b
+    stg__dcp_firecompanies AS b
 WHERE st_intersects(a.geom, b.wkb_geometry);

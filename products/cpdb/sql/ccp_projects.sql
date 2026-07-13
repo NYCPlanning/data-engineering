@@ -46,15 +46,15 @@ SELECT
     CASE
         WHEN UPPER(descriptions.description) LIKE '%BNY%' AND projects.magency = '801' THEN 'BNY'
         WHEN LOWER(descriptions.description) LIKE '%governor%s island%' AND projects.magency = '801' THEN 'TGI'
-        ELSE dcp_managing_agencies_lookup.managing_agency_acronym
+        ELSE stg__dcp_managing_agencies_lookup.managing_agency_acronym
     END AS magencyacro,
     CASE
         WHEN UPPER(descriptions.description) LIKE '%BNY%' AND projects.magency = '801' THEN 'Brooklyn Navy Yard'
         WHEN
             LOWER(descriptions.description) LIKE '%governor%s island%' AND projects.magency = '801'
             THEN 'Trust for Governors Island'
-        ELSE dcp_managing_agencies_lookup.managing_agency
+        ELSE stg__dcp_managing_agencies_lookup.managing_agency
     END AS magencyname
 FROM projects
 INNER JOIN descriptions ON projects.maprojid = descriptions.maprojid AND descriptions.rk = 1
-INNER JOIN dcp_managing_agencies_lookup ON projects.magency = dcp_managing_agencies_lookup.agency_code;
+INNER JOIN stg__dcp_managing_agencies_lookup ON projects.magency = stg__dcp_managing_agencies_lookup.agency_code;

@@ -2,8 +2,9 @@
 source ../../bash/utils.sh
 set_error_traps
 
-case $1 in 
+case $1 in
     build)
+        dbt build --select staging
         ./bash/01_preprocessing.sh
         ./bash/02_build.sh
         ./bash/03_adminbounds.sh
