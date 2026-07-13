@@ -1,0 +1,35 @@
+id: dep_cats_permits
+acl: public-read
+
+attributes:
+  name: DEP Clean Air Tracking System (CATS) Permits
+  description: >-
+    Light industrial process permits registered with NYC DEP's Clean Air Tracking
+    System (CATS). Pulled directly from Socrata and geocoded via Geosupport
+    (dcpy.lifecycle.scripts.dep_cats_permits_geocode), replacing the prior dependency
+    on the CEQR app's own build pipeline
+    (products/ceqr/ceqr_app/recipes/dep_cats_permits/).
+  url: https://data.cityofnewyork.us/Environment/Clean-Air-Tracking-System-CATS-Permits/f4rp-2kvy
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: f4rp-2kvy
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: python_script
+    args:
+      module: dcpy.lifecycle.scripts.dep_cats_permits_geocode
+      function: process
+  # longitude/latitude only exist after the python_script geocoding step above runs,
+  # so geometry can't be declared in file_format (which reads the raw source) --
+  # convert_to_geometry is the step meant for this case (see its docstring).
+  - name: convert_to_geometry
+    args:
+      geom_column: { "x": "longitude", "y": "latitude" }
+      crs: EPSG:4326
