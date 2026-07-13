@@ -240,11 +240,13 @@ inputs:
     preprocessor:
       module: facdb.pipelines
       function: dispatch
-  - name: moeo_socialservicesitelocations
-    file_type: csv # not migrated to ingest
+  - name: moeo_socialservicesitelocations_sites
     preprocessor:
       module: facdb.pipelines
       function: dispatch
+  - name: moeo_socialservicesitelocations_contracts
+  - name: moeo_socialservicesitelocations_providers
+  - name: moeo_socialservicesitelocations_programs
   - name: nycdoc_corrections
     preprocessor:
       module: facdb.pipelines

@@ -1,8 +1,45 @@
 DROP TABLE IF EXISTS _moeo_socialservicesitelocations; -- noqa: disable=LT05
 
-WITH tmp AS (
+-- moeo_socialservicesitelocations is assembled from 4 independently-ingested Socrata sources
+-- (sites/contracts/providers/programs). Geocoding (parsed_hnum, parsed_sname, geo_1b, geo_bl,
+-- geo_bn, uid, source) happens only on `sites` at load time (facdb.pipelines.dispatch), since
+-- bbl/bin/address_1/borough all live natively on sites -- no join is needed to make geocoding
+-- possible. `contracts` contributes no columns to the final shape; it's joined only to filter
+-- sites down to those with a matching valid contract, mirroring the original pandas
+-- `sites.merge(contracts, ...)` step. Where a column exists on more than one joined table
+-- (bin, bbl, agency_name also exist on providers/contracts/programs), `sites` wins deliberately.
+WITH joined AS (
+    SELECT
+        sites.uid,
+        'moeo_socialservicesitelocations' AS source,
+        providers.provider_name,
+        sites.parsed_hnum,
+        sites.parsed_sname,
+        sites.address_1,
+        sites.city,
+        sites.postcode,
+        sites.borough,
+        sites.bin,
+        sites.bbl,
+        programs.program_name,
+        sites.agency_name,
+        sites.geo_1b,
+        sites.geo_bl,
+        sites.geo_bn
+    FROM moeo_socialservicesitelocations_sites AS sites
+    INNER JOIN moeo_socialservicesitelocations_contracts AS contracts
+        ON
+            sites.provider_id = contracts.provider_id
+            AND sites.program_id = contracts.program_id
+            AND sites.contract_id = contracts.contract_id
+    INNER JOIN moeo_socialservicesitelocations_providers AS providers
+        ON sites.provider_id = providers.provider_id
+    INNER JOIN moeo_socialservicesitelocations_programs AS programs
+        ON sites.program_id = programs.program_id
+),
+tmp AS (
     SELECT MIN(uid) AS uid
-    FROM moeo_socialservicesitelocations
+    FROM joined
     GROUP BY program_name || provider_name, address_1
 )
 SELECT
@@ -314,7 +351,7 @@ SELECT
     geo_bl,
     geo_bn
 INTO _moeo_socialservicesitelocations
-FROM moeo_socialservicesitelocations
+FROM joined
 WHERE
     uid IN (SELECT uid FROM tmp)
     AND program_name !~* 'Home Delivered Meals|senior center|CONDOM DISTRIBUTION SERVICES|GROWING UP NYC INITIATIVE SUPPORT SERVICES|PLANNING AND EVALUATION [BASE]|TO BE DETERMINED - UNKNOWN';
