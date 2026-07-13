@@ -33,6 +33,16 @@ ingestion:
     format: csv
   file_format:
     type: csv
+  # NOTE (dates & coverage): the Socrata /rows.csv export uses display-name headers,
+  # so clean_column_names(lower) yields columns with spaces (e.g. "c of o issuance
+  # date"); the build DB loader then launders those to underscores
+  # (c_of_o_issuance_date) for SQL. That column is a 12-hour text timestamp like
+  # "02/15/22 11:08:46 AM" (occasionally double-spaced) — parse with
+  # to_timestamp(..., 'MM/DD/YY HH12:MI:SS AM'), not a plain ::date cast.
+  # Coverage starts 2021-03 (DOB NOW go-live), so this does NOT carry pre-2021 COs;
+  # dob_cofos (appended email file) supplies the earlier history. DevDB unions both
+  # in products/developments/sql/_co.sql. Job id is "job filing name", not the CofO
+  # "application number".
   processing_steps:
   - name: clean_column_names
     args: { "lower": True }
