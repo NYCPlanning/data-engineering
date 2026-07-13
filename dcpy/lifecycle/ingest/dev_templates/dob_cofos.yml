@@ -44,6 +44,9 @@ processing_steps:
   args:
     column_name: v
     val: "{{ version }}"
+# append_prev accumulates full CO history (incl. pre-2021 / BIS-era COs) that the
+# Socrata-sourced dob_now_cofos does not carry. DevDB unions the two in
+# products/developments/sql/_co.sql rather than replacing this with dob_now_cofos.
 - name: append_prev
 
 library_dataset:
