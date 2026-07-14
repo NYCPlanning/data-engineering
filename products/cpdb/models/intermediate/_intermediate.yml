@@ -1,6 +1,9 @@
 version: 2
 
 models:
+  - name: int__ccp_commitments
+  - name: int__ccp_projects
+  - name: int__dcpattributes_base
   - name: int__maprojid_cd
   - name: int__maprojid_censustracts
   - name: int__maprojid_congressionaldistricts
