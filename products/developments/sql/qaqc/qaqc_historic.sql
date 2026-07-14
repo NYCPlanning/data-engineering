@@ -32,7 +32,7 @@ INSERT INTO qaqc_historic (
     dem_nb_overlap
 ) (
     SELECT
-        :'VERSION',
+        :'VERSION' AS version,
         sum(CASE WHEN b_likely_occ_desc != '0' THEN 1 ELSE 0 END) AS b_likely_occ_desc,
         sum(CASE WHEN b_large_alt_reduction != '0' THEN 1 ELSE 0 END) AS b_large_alt_reduction,
         sum(CASE WHEN b_nonres_with_units != '0' THEN 1 ELSE 0 END) AS b_nonres_with_units,
