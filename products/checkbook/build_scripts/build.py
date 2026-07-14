@@ -151,9 +151,11 @@ def _clean_joined_checkbook_cpdb(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """
     gdf.rename(columns={"typecatego": "cpdb_category"}, inplace=True)
     gdf["has_geometry"] = gdf["_merge"].map(lambda x: x == "both")
-    gdf["cpdb_category"].fillna("None", inplace=True)
-    gdf["bc_category"].fillna("None", inplace=True)
-    gdf["cp_category"].fillna("None", inplace=True)
+    # Assign back rather than chained `inplace=True`: under pandas 3.0 Copy-on-Write
+    # the latter mutates a temporary copy and silently no-ops.
+    gdf["cpdb_category"] = gdf["cpdb_category"].fillna("None")
+    gdf["bc_category"] = gdf["bc_category"].fillna("None")
+    gdf["cp_category"] = gdf["cp_category"].fillna("None")
     gdf.drop("_merge", axis=1, inplace=True)
     return _limit_cols(gdf)
 
