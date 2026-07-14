@@ -15,6 +15,9 @@ exclude_rules = [
     "references.consistent",
     "references.special_chars",
     "layout.cte_newline",
+    # Build SQL runs against ephemeral build tables in a single-user build DB,
+    # where CONCURRENTLY index DDL is inappropriate (it can't run in a transaction).
+    "postgres.excessive_locks",
 ]
 
 # The standard max_line_length is 80 in line with the convention of

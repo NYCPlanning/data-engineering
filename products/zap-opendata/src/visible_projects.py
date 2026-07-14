@@ -209,8 +209,10 @@ def open_data_recode(name: str, data: pd.DataFrame, headers: Dict) -> pd.DataFra
 
     # Standardize integer representation
     print("standardize integer representation ...")
+    # astype("string") first: pandas 3.0 reads these id fields as float, and the
+    # .str accessor rejects float dtype. Converting keeps NA as <NA> (not "nan").
     data[fields_to_rename] = data[fields_to_rename].apply(
-        func=lambda x: x.str.split(".").str[0], axis=1
+        func=lambda x: x.astype("string").str.split(".").str[0], axis=1
     )
 
     # Get metadata

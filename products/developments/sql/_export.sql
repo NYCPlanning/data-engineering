@@ -149,7 +149,8 @@ WHERE "ResidFlag" = 'Residential';
 -- internal project-level files
 -- created for distribution on m drive
 CREATE VIEW housingdb_post2010_inactive_included_internal AS
-SELECT :internal_columns
+-- placeholder expands to a one-line column list, so LT01/LT09 misfire here
+SELECT :internal_columns  -- noqa: LT01, LT09
 FROM shp_housing
 WHERE "CompltYear"::integer >= '2010'::integer OR ("CompltYear" IS NULL AND "DateLstUpd"::date >= '2010-01-01');
 
@@ -162,9 +163,9 @@ WHERE "Job_Inactv" IS NULL;
 -- external project-level files
 -- created for distribution via BYTES by GIS team
 CREATE VIEW housingdb_post2010_external AS
-SELECT :external_columns
+SELECT :external_columns  -- noqa: LT01, LT09
 FROM housingdb_post2010_internal;
 
 CREATE VIEW housingdb_post2010_inactive_included_external AS
-SELECT :external_columns
+SELECT :external_columns  -- noqa: LT01, LT09
 FROM housingdb_post2010_inactive_included_internal

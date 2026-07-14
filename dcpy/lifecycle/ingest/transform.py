@@ -355,7 +355,9 @@ class ProcessingFunctions:
     ) -> ProcessingResult:
         stripped = df.copy()
         modifications = {}
-        for col in cols or [c for c in df.columns if df[c].dtype == "object"]:
+        for col in cols or [
+            c for c in df.columns if pd.api.types.is_string_dtype(df[c])
+        ]:
             stripped[col] = stripped[col].str.strip()
             modifications[col] = len(stripped[col].compare(df[col]))
         return ProcessingResult(
@@ -405,8 +407,12 @@ class ProcessingFunctions:
                     result[column] = pd.to_datetime(result[column], errors=errors)
                     result[column] = result[column].replace(pd.NaT, None)  # type: ignore
 
-        modified_cols = df.dtypes.sort_index() == result.dtypes.sort_index()
-        modified = modified_cols.loc[~modified_cols].keys()
+        # Compare dtype string reprs, not dtype objects: elementwise comparison
+        # of a Series of numpy dtype objects raises under numpy 2.5+.
+        modified_cols = (
+            df.dtypes.astype(str).sort_index() != result.dtypes.astype(str).sort_index()
+        )
+        modified = modified_cols.loc[modified_cols].keys()
 
         return ProcessingResult(
             df=result,

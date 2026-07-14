@@ -24,8 +24,11 @@ SELECT
     dcp."on_street_(enter_street_name):complete_the_following_if_your_re" AS on_street,
     dcp."cross_street_1_(for_street_segment):request_location_(complete_" AS cross_street_1,
     dcp."cross_street_2_(for_street_segment):request_location_(complete_" AS cross_street_2,
-    dcp."intersection___street_1:complete_the_following_if_your_request_" AS intersection_street_1,
-    dcp."intersection___street_2:complete_the_following_if_your_request_" AS intersection_street_2,
+    -- ':' is part of the real column name; sqlfluff rule RF06 misfires here because the placeholder
+    -- templater strips the colon (param_style = "colon_optional_quotes" in pyproject.toml),
+    -- making the required quotes look unnecessary
+    dcp."intersection___street_1:complete_the_following_if_your_request_" AS intersection_street_1,  -- noqa: RF06
+    dcp."intersection___street_2:complete_the_following_if_your_request_" AS intersection_street_2,  -- noqa: RF06
     omb.lowsgrp1 AS supporters_1,
     omb.lowsgrp2 AS supporters_2,
     omb.capis1 AS project_id_1, -- all null

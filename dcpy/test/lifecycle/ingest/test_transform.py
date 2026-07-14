@@ -393,7 +393,7 @@ class TestProcessors:
 
         # TODO This is a little janky, esp with `object` pandas column types
         was_column_coerced = (
-            coerced.df[expected_column].dtype != self.coerce_df[original_column]
+            coerced.df[expected_column].dtype != self.coerce_df[original_column].dtype
         )
         expected_mods = (
             {
