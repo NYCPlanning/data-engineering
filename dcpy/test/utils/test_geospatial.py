@@ -77,7 +77,10 @@ class TestTransform:
             "geom",
         ]
         assert isinstance(gdf["geom"], gpd.GeoSeries)
-        assert gdf.geom_type.to_list() == ["Point", "MultiPolygon", None, None, None]
+        geom_types = gdf.geom_type.to_list()
+        assert geom_types[:2] == ["Point", "MultiPolygon"]
+        # geopandas returns NaN (not None) for missing geometries
+        assert all(pd.isna(g) for g in geom_types[2:])
         assert str(gdf.crs) == epsg
 
     def test_df_to_gdf_wkt(self, data_wkt):
@@ -95,13 +98,10 @@ class TestTransform:
             "geom",
         ]
         assert isinstance(geodata["geom"], gpd.GeoSeries)
-        assert geodata.geom_type.to_list() == [
-            "Point",
-            "MultiPolygon",
-            None,
-            None,
-            None,
-        ]
+        geom_types = geodata.geom_type.to_list()
+        assert geom_types[:2] == ["Point", "MultiPolygon"]
+        # geopandas returns NaN (not None) for missing geometries
+        assert all(pd.isna(g) for g in geom_types[2:])
         assert str(geodata.crs) == epsg
 
     def test_projected_crs(self, data_wkb):

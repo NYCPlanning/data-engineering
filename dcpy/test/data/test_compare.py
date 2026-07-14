@@ -67,7 +67,7 @@ class TestDataFrame:
                 left_only=set(),
                 right_only=set(),
                 type_differences={
-                    "c": comparison.Simple[str](left="object", right="int64")
+                    "c": comparison.Simple[str](left="str", right="int64")
                 },
             ),
             data_comparison=comparison.KeyedTable(

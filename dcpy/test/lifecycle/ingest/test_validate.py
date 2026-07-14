@@ -173,9 +173,8 @@ class TestValidatePdSeriesFunc:
         )
 
     def test_missing_arg(self):
-        assert "repl" in validate._validate_pd_series_func(
-            function_name="str.replace", pat="pat"
-        )
+        # `pat` is the only required arg of str.replace (pandas 3.0 gave `repl` a default)
+        assert "pat" in validate._validate_pd_series_func(function_name="str.replace")
 
     def test_extra_arg(self):
         assert "extra_arg" in validate._validate_pd_series_func(
