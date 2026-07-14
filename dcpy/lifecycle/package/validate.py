@@ -263,7 +263,10 @@ def validate_shapefile(
     columns: list[dataset_md.DatasetColumn],
     ignore_columns: list[str] | None = None,
 ) -> list[ValidationError]:
-    df = pd.DataFrame(gpd.read_file(shp_path), dtype=str)
+    # Construct first, then cast: passing dtype=str at construction routes the
+    # geometry column through Arrow (pandas 3.0 string backend), which raises
+    # "only handle 1-dimensional arrays". astype(str) stringifies geometry to WKT.
+    df = pd.DataFrame(gpd.read_file(shp_path)).astype(str)
     return validate_df(df, columns, ignore_columns=ignore_columns)
 
 

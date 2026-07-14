@@ -67,7 +67,12 @@ class TestDataFrame:
                 left_only=set(),
                 right_only=set(),
                 type_differences={
-                    "c": comparison.Simple[str](left="object", right="int64")
+                    # Derive expected dtypes from the inputs so this is
+                    # version-agnostic (pandas 3.0 renamed object -> str).
+                    "c": comparison.Simple[str](
+                        left=str(self.basic["c"].dtype),
+                        right=str(self.different_column_type["c"].dtype),
+                    )
                 },
             ),
             data_comparison=comparison.KeyedTable(
