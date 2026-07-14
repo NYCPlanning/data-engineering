@@ -1,0 +1,9 @@
+sources:
+  - name: cpdb_legacy_pipeline
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: cpdb_dcpattributes
+        description: >
+          Still built by the legacy bash/SQL pipeline (bash/02_build.sh). Declared as a source,
+          not a ref(), until it's converted to a dbt model in a later phase -- swap this to ref()
+          then.

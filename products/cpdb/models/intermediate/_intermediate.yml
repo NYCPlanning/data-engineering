@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: int__maprojid_cd
+  - name: int__maprojid_censustracts
+  - name: int__maprojid_congressionaldistricts
+  - name: int__maprojid_councildistricts
+  - name: int__maprojid_firecompanies
+  - name: int__maprojid_municipalcourtdistricts
+  - name: int__maprojid_policeprecincts
+  - name: int__maprojid_schooldistricts
+  - name: int__maprojid_stateassemblydistricts
+  - name: int__maprojid_statesenatedistricts
+  - name: int__maprojid_trafficanalysiszones

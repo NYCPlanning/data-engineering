@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: cpdb_adminbounds
+    description: >
+      Crosswalk of capital projects to the admin boundaries (community district,
+      census tract, congressional district, council district, fire company,
+      municipal court district, police precinct, school district, state assembly
+      district, state senate district, traffic analysis zone) they intersect.
+      One row per project x admin boundary type x admin boundary id.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - feature_id
+              - admin_boundary_type
+              - admin_boundary_id
+    columns:
+      - name: feature_id
+        tests: [ not_null ]
+      - name: admin_boundary_type
+        tests: [ not_null ]
+      - name: admin_boundary_id
+        tests: [ not_null ]
