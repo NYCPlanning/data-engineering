@@ -49,11 +49,11 @@ jobs:
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
       SFTP_PRIVATE_KEY_PATH: /github/home/.ssh/id_rsa_ginger # TODO as mentioned elsewhere, this should be configured
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Load Secrets
         id: op-load-secret
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v4
         with:
           export-env: false
         env:
@@ -68,7 +68,7 @@ jobs:
           echo "${{ steps.op-load-secret.outputs.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
       - name: Load Secrets to Env
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v4
         with:
           export-env: true
         env:
