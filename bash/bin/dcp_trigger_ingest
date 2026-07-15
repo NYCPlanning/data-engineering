@@ -1,0 +1,117 @@
+#!/bin/bash
+# Trigger GitHub Actions ingest_single workflow for current branch
+# See action workflow file: .github/workflows/ingest_single.yml
+# Usage: dcp_trigger_ingest [dataset] [version] [mode] [--no-latest] [--dev-image] [--dev-bucket=<x>] [--custom-dev-image=<tag>] [--no-tail]
+
+set -e
+
+# Parse options
+TAIL_LOGS=true
+LATEST=true
+DEV_IMAGE=false
+DEV_BUCKET=""
+CUSTOM_DEV_IMAGE=""
+ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --no-tail)
+            TAIL_LOGS=false
+            ;;
+        --no-latest)
+            LATEST=false
+            ;;
+        --dev-image)
+            DEV_IMAGE=true
+            ;;
+        --dev-bucket=*)
+            DEV_BUCKET="${arg#--dev-bucket=}"
+            ;;
+        --custom-dev-image=*)
+            CUSTOM_DEV_IMAGE="${arg#--custom-dev-image=}"
+            ;;
+        *)
+            ARGS+=("$arg")
+            ;;
+    esac
+done
+
+DATASET="${ARGS[0]:-${DATASET}}"
+VERSION="${ARGS[1]:-${VERSION}}"
+MODE="${ARGS[2]:-${MODE}}"
+BRANCH=$(git branch --show-current)
+
+if [ -z "$DATASET" ]; then
+    echo "Error: DATASET must be set as env var or passed as first argument"
+    echo "Usage: dcp_trigger_ingest <dataset> [version] [mode] [--no-latest] [--dev-image] [--dev-bucket=<x>] [--custom-dev-image=<tag>] [--no-tail]"
+    echo "   or: DATASET=dcp_pluto dcp_trigger_ingest [version] [mode] [...]"
+    exit 1
+fi
+
+echo "Triggering ingest_single workflow for:"
+echo "  Dataset: $DATASET"
+echo "  Branch: $BRANCH"
+echo "  Latest: $LATEST"
+if [ -n "$VERSION" ]; then
+    echo "  Version: $VERSION"
+fi
+if [ -n "$MODE" ]; then
+    echo "  Mode: $MODE"
+fi
+if [ -n "$DEV_BUCKET" ]; then
+    echo "  Dev bucket: de-dev-$DEV_BUCKET"
+fi
+if [ -n "$CUSTOM_DEV_IMAGE" ]; then
+    echo "  Custom dev image: $CUSTOM_DEV_IMAGE"
+elif [ "$DEV_IMAGE" = true ]; then
+    echo "  Dev image: dev-$BRANCH"
+fi
+echo ""
+
+WORKFLOW_ARGS=(
+    --ref "$BRANCH"
+    -f dataset="$DATASET"
+    -f latest="$LATEST"
+    -f dev_image="$DEV_IMAGE"
+)
+
+if [ -n "$VERSION" ]; then
+    WORKFLOW_ARGS+=(-f version="$VERSION")
+fi
+
+if [ -n "$MODE" ]; then
+    WORKFLOW_ARGS+=(-f mode="$MODE")
+fi
+
+if [ -n "$DEV_BUCKET" ]; then
+    WORKFLOW_ARGS+=(-f dev_bucket="$DEV_BUCKET")
+fi
+
+if [ -n "$CUSTOM_DEV_IMAGE" ]; then
+    WORKFLOW_ARGS+=(-f custom_dev_image="$CUSTOM_DEV_IMAGE")
+fi
+
+gh workflow run ingest_single.yml "${WORKFLOW_ARGS[@]}"
+
+echo ""
+echo "✓ Workflow dispatched!"
+echo ""
+
+# Wait a moment for the run to appear in the API
+sleep 2
+
+# Get the most recent run for this workflow and branch
+RUN_INFO=$(gh run list --workflow=ingest_single.yml --branch="$BRANCH" --limit 1 --json databaseId,url --jq '.[0]')
+RUN_URL=$(echo "$RUN_INFO" | jq -r '.url')
+RUN_ID=$(echo "$RUN_INFO" | jq -r '.databaseId')
+
+if [ -n "$RUN_URL" ]; then
+    # Create clickable hyperlink using ANSI escape codes
+    echo -e "View run: \033]8;;${RUN_URL}\033\\${RUN_URL}\033]8;;\033\\"
+    if [ "$TAIL_LOGS" = true ]; then
+        echo ""
+        echo "Tailing logs..."
+        gh run watch "$RUN_ID"
+    fi
+else
+    echo "View runs: gh run list --workflow=ingest_single.yml --branch=$BRANCH"
+fi

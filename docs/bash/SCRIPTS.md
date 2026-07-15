@@ -21,6 +21,13 @@ dcp_load_planned_recipe <product_name>
 dcp_trigger_build <dataset_name>
 ```
 
+**Trigger a single-dataset ingest:**
+```bash
+dcp_trigger_ingest <dataset_name> [version] [mode]
+```
+Runs `.github/workflows/ingest_single.yml` on the current branch. Flags:
+`--no-latest`, `--dev-image`, `--dev-bucket=<x>`, `--custom-dev-image=<tag>`, `--no-tail`.
+
 **Distribute outputs:**
 ```bash
 dcp_distribute <dataset_name>
