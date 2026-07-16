@@ -20,9 +20,13 @@ def hash_each_row(df: pd.DataFrame) -> pd.DataFrame:
     def hash_helper(row):
         if geom_column:
             geom_string = row[geom_column].wkt if row[geom_column] else "None"
-            s = geom_string + row.drop(geom_column).astype(str).values.sum()
+            # .sum(), not .values.sum(): under pandas' Arrow-backed string dtype
+            # (default under future.infer_string, pandas 3.x), .values returns an
+            # ArrowStringArray, which has no .sum() - Series.sum() still does the
+            # same string concatenation correctly regardless of backing dtype.
+            s = geom_string + row.drop(geom_column).astype(str).sum()
         else:
-            s = row.astype(str).values.sum()
+            s = row.astype(str).sum()
         return hashlib.md5(s.encode("utf-8")).hexdigest()
 
     df["uid"] = df.apply(hash_helper, axis=1)
