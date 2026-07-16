@@ -6,13 +6,9 @@ import yaml
 
 import dcpy.models.product.dataset.metadata as models
 from dcpy.lifecycle import product_metadata
-from dcpy.models.data.shapefile_metadata import Attr, Edom, Udom
-from dcpy.models.product.dataset.metadata import (
-    ColumnValue,
-    DatasetColumn,
-)
 from dcpy.models.product.metadata import OrgMetadata
 from dcpy.utils.geospatial import esri_metadata, fgdb
+from dcpy.utils.geospatial.esri_metadata import _create_attr_metadata
 from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
 
@@ -96,8 +92,10 @@ def parse_pdf_text(
 
 @app.command("write_metadata")
 def _write_metadata(
-    product_name: str = typer.Argument(..., help="Name of product. Example: 'pluto'"),
-    dataset_name: str = typer.Argument(..., help="Name of dataset. Example: 'pluto'"),
+    product_name: str = typer.Argument(..., help="Name of product. Example: 'lion'"),
+    dataset_name: str = typer.Argument(
+        ..., help="Name of dataset. Example: 'pseudo-lots'"
+    ),
     file_id: str = typer.Argument(
         ...,
         help="Identifier from within the org. metadata reference. Example: 'mappluto_unclipped_gdb'",
@@ -129,11 +127,11 @@ def _write_metadata(
 def write_metadata(
     product_name: str,
     dataset_name: str,
+    file_id: str,  # refers to product md
     path_to_file: Path,
     layer: str | None,
-    file_id: str,  # refers to product md
-    zip_subdir: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
+    zip_subdir: str | None,
 ):
     """Write product metadata to an Esri metadata XML embedded in a shapefile or geodatabase.
     Generates a new XML with defaults and applies product-specific values.
@@ -141,12 +139,15 @@ def write_metadata(
     Args:
         product_name (str): Name of product. e.g. "lion"
         dataset_name (str): Name of dataset within a product. e.g. "pseudo-lots"
-        path (Path): Path to parent directory or zip file containing shapefile, or geodatabase.
-        layer (str | None): Shapefile or feature class name. For single-layer GDBs, may be
-            omitted and will be inferred automatically.
+        file_id (str): File identifier from within the org. metadata yaml. e.g. "mappluto_unclipped_gdb"
+        path_to_file (Path): For shapefiles, path to the parent directory or zip file containing
+            the shapefile. For geodatabases, path to the `.gdb` itself or a zip containing it
+            at the top level.
+        layer (str | None): Shapefile filename (required for shapefiles) or GDB feature class name
+            (optional for single-layer GDBs; inferred automatically if omitted).
+        org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
         zip_subdir (str | None): Internal path if shp is nested within a zip file.
             Must be None when path is a file geodatabase.
-        org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
     """
     if isinstance(org_md, Path) or not org_md:
         org_md = product_metadata.load(org_md_path_override=org_md)
@@ -225,35 +226,3 @@ def write_metadata(
         shp.write_metadata(esri_md, overwrite=True)
 
 
-def _create_attr_metadata(
-    column: DatasetColumn, custom_type_key: str | None = None
-) -> Attr:
-    """Create an Attr metadata object from a column specification."""
-    attr = Attr()
-
-    is_uid = column.id == "uid"
-    attr.attrlabl.value = column.name
-    attr.attalias.value = column.name
-    attr.attrdef.value = column.description
-    attr.attrdefs.value = column.data_source
-    effective_type = (
-        column.custom.get(custom_type_key) if custom_type_key else None
-    ) or column.data_type
-    attr.attrtype.value = "OID" if is_uid else effective_type
-
-    if column.values:
-        attr.attrdomv.udom = None
-        attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
-    else:
-        attr.attrdomv.udom = Udom(value=column.description)
-        attr.attrdomv.edom = []
-    return attr
-
-
-def _create_edom_metadata(column_value: ColumnValue) -> Edom:
-    """Create an Edom metadata object from a column value specification."""
-    edom = Edom()
-    edom.edomv = column_value.value
-    edom.edomvd = column_value.description
-
-    return edom

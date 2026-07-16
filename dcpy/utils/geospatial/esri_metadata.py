@@ -1,11 +1,15 @@
 from datetime import datetime
 
 from dcpy.models.data.shapefile_metadata import (
+    Attr,
+    Edom,
     Esri,
     Mddatest,
     Metadata,
     Scalerange,
+    Udom,
 )
+from dcpy.models.product.dataset.metadata import ColumnValue, DatasetColumn
 
 
 def generate_metadata() -> Metadata:
@@ -53,3 +57,37 @@ def _get_esri_timestamp(dt_obj=None):
     )
 
     return crea_date, crea_time
+
+
+def _create_attr_metadata(
+    column: DatasetColumn, custom_type_key: str | None = None
+) -> Attr:
+    """Create an Attr metadata object from a column specification."""
+    attr = Attr()
+
+    is_uid = column.id == "uid"
+    attr.attrlabl.value = column.name
+    attr.attalias.value = column.name
+    attr.attrdef.value = column.description
+    attr.attrdefs.value = column.data_source
+    effective_type = (
+        column.custom.get(custom_type_key) if custom_type_key else None
+    ) or column.data_type
+    attr.attrtype.value = "OID" if is_uid else effective_type
+
+    if column.values:
+        attr.attrdomv.udom = None
+        attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
+    else:
+        attr.attrdomv.udom = Udom(value=column.description)
+        attr.attrdomv.edom = []
+    return attr
+
+
+def _create_edom_metadata(column_value: ColumnValue) -> Edom:
+    """Create an Edom metadata object from a column value specification."""
+    edom = Edom()
+    edom.edomv = column_value.value
+    edom.edomvd = column_value.description
+
+    return edom
