@@ -14,7 +14,7 @@ from .geocode.parseAddress import parse_address, use_airport_name
 
 
 def bpl_libraries(df: pd.DataFrame):
-    df["zipcode"] = df.address.apply(lambda x: x[-6:])
+    df["zipcode"] = df.address.apply(lambda x: str(x)[-6:])
     df["borough"] = "Brooklyn"
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="address")
@@ -68,7 +68,7 @@ def dca_operatingbusinesses(df: pd.DataFrame):
 
 
 def dcla_culturalinstitutions(df: pd.DataFrame):
-    df["zipcode"] = df.postcode.apply(lambda x: x[:5])
+    df["zipcode"] = df.postcode.apply(lambda x: str(x)[:5])
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="address")
     df = Function1B(
@@ -184,7 +184,7 @@ def dohmh_daycare(df: pd.DataFrame):
 
 
 def dot_bridgehouses(df: pd.DataFrame):
-    df["address"] = df.address.astype(str).replace("n/a", None)
+    df["address"] = df.address.apply(str).replace("n/a", None)
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="site")
     df = Function1B(
@@ -209,7 +209,7 @@ def dot_ferryterminals(df: pd.DataFrame):
 
 
 def dot_mannedfacilities(df: pd.DataFrame):
-    df["address"] = df.address.astype(str)
+    df["address"] = df.address.apply(str)
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="address")
@@ -228,7 +228,7 @@ def dot_pedplazas(df: pd.DataFrame):
 
 
 def dot_publicparking(df: pd.DataFrame):
-    df["address"] = df.address.astype(str)
+    df["address"] = df.address.apply(str)
     df["bbl"] = df.bbl.fillna(0).astype(float).astype(int)
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="address")
@@ -242,7 +242,12 @@ def dot_publicparking(df: pd.DataFrame):
 
 
 def dpr_parksproperties(df: pd.DataFrame):
-    df["zipcode"] = df.zipcode.astype(str).apply(lambda x: x[:5])
+    # str(x), not .astype(str) first: under pandas' Arrow-backed string dtype
+    # (default under future.infer_string, pandas 3.x), .astype(str) can leave a
+    # missing zipcode as an actual float nan instead of stringifying it, and
+    # x[:5] on a float crashes. Python's built-in str() per-element is reliable
+    # regardless of backing dtype.
+    df["zipcode"] = df.zipcode.apply(lambda x: str(x)[:5])
     df["boro"] = df.borough.map(
         {
             "M": "Manhattan",
@@ -264,7 +269,7 @@ def dpr_parksproperties(df: pd.DataFrame):
 
 
 def dsny_garages(df: pd.DataFrame):
-    df["address"] = df.address.astype(str)
+    df["address"] = df.address.apply(str)
     df = sanitize_df(df)
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
     df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
@@ -386,7 +391,7 @@ def fbop_corrections(df: pd.DataFrame):
 
 def fdny_firehouses(df: pd.DataFrame):
     df["cleaned_address"] = df["facilityaddress"].map(
-        lambda x: re.sub("[^A-Za-z0-9- ]+", "", x)
+        lambda x: re.sub("[^A-Za-z0-9- ]+", "", str(x))
     )
     research = (
         "facilityname,facilityaddress,borough,postcode,wkt\n"
@@ -394,7 +399,11 @@ def fdny_firehouses(df: pd.DataFrame):
         'Marine 1,Little West 12th Street/Hudson River,Manhattan,10014,"POINT (-74.0118215 40.7406884)"\n'
         'Engine 307/Ladder 154,81-17 Northern Blvd,Queens,11372,"POINT (-73.8877877 40.755805)"\n'
     )
-    df_research = pd.read_csv(StringIO(research))
+    # dtype=str: postcode would otherwise read as int64 while the other columns read
+    # as pandas' str dtype, and assigning that mixed-dtype .values into df.loc below
+    # fails with "Invalid value for dtype 'str'" under pandas' Arrow-backed string
+    # dtype (default under future.infer_string, pandas 3.x).
+    df_research = pd.read_csv(StringIO(research), dtype=str)
     df.loc[
         df.facilityname.isin(df_research.facilityname),
         ["facilityaddress", "borough", "postcode", "wkt"],
@@ -427,10 +436,12 @@ def foodbankny_foodbanks(df: pd.DataFrame):
 
 
 def hhc_hospitals(df: pd.DataFrame):
-    df["spatial"] = df["location_1"].apply(lambda x: x.split("(")[-1].replace(")", ""))
+    df["spatial"] = df["location_1"].apply(
+        lambda x: str(x).split("(")[-1].replace(")", "")
+    )
     df["longitude"] = df.spatial.apply(lambda x: x.split(",")[-1])
     df["latitude"] = df.spatial.apply(lambda x: x.split(",")[0])
-    df["location_1"] = df["location_1"].apply(lambda x: x.replace("\n", " "))
+    df["location_1"] = df["location_1"].apply(lambda x: str(x).replace("\n", " "))
     df = sanitize_df(df)
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)
     df = FunctionBL(bbl_field="bbl").geocode_a_dataframe(df)
@@ -573,7 +584,7 @@ def nysdec_solidwaste(df: pd.DataFrame):
 
 
 def nysdoccs_corrections(df: pd.DataFrame):
-    df["zipcode"] = df.zipcode.apply(lambda x: x[:5])
+    df["zipcode"] = df.zipcode.apply(lambda x: str(x)[:5])
     df = df[df.county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])]
     df = sanitize_df(df)
     df = Function1B(
@@ -589,7 +600,7 @@ def nysdoh_healthfacilities(df: pd.DataFrame):
     df = df.loc[
         df.facility_county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"]), :
     ].copy()
-    df["zipcode"] = df.facility_zip_code.apply(lambda x: x[:5])
+    df["zipcode"] = df.facility_zip_code.apply(lambda x: str(x)[:5])
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="facility_address_1")
     df = Function1B(
@@ -719,7 +730,7 @@ def sbs_workforce1(df: pd.DataFrame):
 
 
 def uscourts_courts(df: pd.DataFrame):
-    df["zipcode"] = df.buildingzip.apply(lambda x: x[:5])
+    df["zipcode"] = df.buildingzip.apply(lambda x: str(x)[:5])
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="buildingaddress")
     df = Function1B(

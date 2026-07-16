@@ -48,7 +48,13 @@ def _hash_each_row(df: pd.DataFrame) -> pd.DataFrame:
     ----------
     df: input dataframe
     """
-    df["temp_column"] = df.astype(str).values.sum(axis=1)
+    # .sum(axis=1), not .values.sum(axis=1): under pandas' Arrow-backed string dtype
+    # (default under future.infer_string, pandas 3.x), .values can hold a raw
+    # (non-stringified) float alongside the astype(str) columns, and summing
+    # (concatenating) those raw arrays fails with "can only concatenate str (not
+    # 'float') to str". DataFrame.sum(axis=1) does the same row-wise concatenation
+    # through pandas' own reduction machinery instead, which handles it correctly.
+    df["temp_column"] = df.astype(str).sum(axis=1)
 
     def _hash_helper(x):
         return hashlib.md5(x.encode("utf-8")).hexdigest()
