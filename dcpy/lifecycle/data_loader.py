@@ -60,22 +60,55 @@ def _get_preprocessor(ds: InputDataset):
         return identity
 
 
+# Rows per batch when streaming a parquet file into Postgres. Sized to keep peak
+# memory well under a standard CI runner (~7GB) while limiting round-trips.
+PARQUET_LOAD_BATCH_SIZE = 100_000
+
+
+def _sanitize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Rename columns to be more sql-friendly."""
+    return df.rename(
+        columns={
+            column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
+            for column in df.columns
+        }
+    )
+
+
 def _load_df(
     df: pd.DataFrame,
     ds_table_name: str,
     pg_client: postgres.PostgresClient,
     include_ogc_fid_col: bool = True,
 ):
-    # make column names more sql-friendly
-    columns = {
-        column: column.strip().replace("-", "_").replace("'", "_").replace(" ", "_")
-        for column in df.columns
-    }
-    df.rename(columns=columns, inplace=True)
-    pg_client.insert_dataframe(df, ds_table_name)
+    pg_client.insert_dataframe(_sanitize_columns(df), ds_table_name)
 
     if include_ogc_fid_col:
         # This maybe should be applicable to pg_dumps, but they tend to have this column already
+        pg_client.add_pk(ds_table_name, "ogc_fid")
+
+
+def _load_parquet_chunked(
+    local_dataset_path: Path,
+    ds_table_name: str,
+    pg_client: postgres.PostgresClient,
+    include_ogc_fid_col: bool = True,
+):
+    """Stream a parquet file into Postgres in batches, never holding it all in memory.
+
+    Only safe for plain (non-geo, un-preprocessed) parquet — see load_dataset_into_pg
+    for why the preprocessor / geoparquet cases still read the whole frame.
+    """
+    for i, batch in enumerate(
+        geoparquet.iter_batches_df(local_dataset_path, PARQUET_LOAD_BATCH_SIZE)
+    ):
+        pg_client.insert_dataframe(
+            _sanitize_columns(batch),
+            ds_table_name,
+            if_exists="replace" if i == 0 else "append",
+        )
+
+    if include_ogc_fid_col:
         pg_client.add_pk(ds_table_name, "ogc_fid")
 
 
@@ -132,9 +165,17 @@ def load_dataset_into_pg(
             df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
             _load_df(df, ds_table_name, pg_client, include_ogc_fid_col)
         case "pandas", DatasetType.parquet:
-            raw_df = geoparquet.read_df(local_dataset_path)
-            df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
-            _load_df(df, ds_table_name, pg_client, include_ogc_fid_col)
+            # A preprocessor may need the whole frame, and geoparquet needs geometry
+            # reconstructed into a GeoDataFrame — neither is safe to stream in batches.
+            # The plain path streams to keep large files off the runner's memory.
+            if has_preprocessor or geoparquet.is_geoparquet(local_dataset_path):
+                raw_df = geoparquet.read_df(local_dataset_path)
+                df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df
+                _load_df(df, ds_table_name, pg_client, include_ogc_fid_col)
+            else:
+                _load_parquet_chunked(
+                    local_dataset_path, ds_table_name, pg_client, include_ogc_fid_col
+                )
         case "pandas", DatasetType.json:
             with open(local_dataset_path, "r") as json_file:
                 records = json.load(json_file)
