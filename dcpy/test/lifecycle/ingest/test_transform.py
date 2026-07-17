@@ -477,6 +477,11 @@ class TestProcessors:
         assert transformed.df.active_geometry_name == "geom"
         expected = gpd.read_parquet(RESOURCES / TEST_DATA_DIR / "renamed.parquet")
         assert transformed.df.equals(expected)
+        # Regression: the geometry column is renamed via rename_geometry rather than
+        # .rename(), which used to be implemented by popping the matched key out of
+        # the map before logging it, so a successful geometry rename was misreported
+        # as an empty "renamed" summary.
+        assert transformed.summary.column_modifications["renamed"] == {"wkt": "geom"}
 
     def test_multi(self):
         gdf = gpd.GeoDataFrame(
