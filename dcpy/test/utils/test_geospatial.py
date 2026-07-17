@@ -143,6 +143,30 @@ class TestParquet:
         gdf = parquet.read_df(RESOURCES_DIR / "geo.parquet")
         assert isinstance(gdf, gpd.GeoDataFrame)
 
+    def test_is_geoparquet(self):
+        assert parquet.is_geoparquet(RESOURCES_DIR / "geo.parquet")
+        assert not parquet.is_geoparquet(RESOURCES_DIR / "simple.parquet")
+
+    def test_iter_batches_df(self):
+        # simple.parquet has 5 rows; a batch_size of 2 must split it without loss
+        batches = list(parquet.iter_batches_df(RESOURCES_DIR / "simple.parquet", 2))
+        assert len(batches) > 1
+        assert all(len(b) <= 2 for b in batches)
+        combined = pd.concat(batches, ignore_index=True)
+        assert combined.equals(parquet.read_df(RESOURCES_DIR / "simple.parquet"))
+
+    def test_iter_batches_df_empty(self):
+        with TemporaryDirectory() as dir:
+            filepath = f"{dir}/empty.parquet"
+            pd.DataFrame({"a": [], "b": []}).to_parquet(filepath)
+
+            batches = list(parquet.iter_batches_df(Path(filepath), 100))
+
+        # an empty file still yields one empty frame carrying the columns
+        assert len(batches) == 1
+        assert len(batches[0]) == 0
+        assert list(batches[0].columns) == ["a", "b"]
+
 
 @pytest.mark.parametrize(
     "input, expected",
