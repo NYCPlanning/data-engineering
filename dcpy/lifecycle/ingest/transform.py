@@ -205,27 +205,31 @@ class ProcessingFunctions:
         self, df: pd.DataFrame, drop_others=False, **kwargs
     ) -> ProcessingResult:
         assert "map" in kwargs, "map must be supplied to rename_columns"
-        col_map: dict[str, str] = kwargs[
-            "map"
-        ]  # doing this to avoid shadowing the builtin `map` fn
+        # copy so the geometry-column handling below (which pops the matched key,
+        # since it's renamed via rename_geometry instead of .rename()) doesn't mutate
+        # the caller's map or the "renamed"/drop_others column list derived from it
+        col_map: dict[str, str] = dict(
+            kwargs["map"]
+        )  # doing this to avoid shadowing the builtin `map` fn
+        full_col_map = dict(col_map)
         renamed = df.copy()
         if isinstance(renamed, gpd.GeoDataFrame) and renamed.geometry.name in col_map:
             renamed.rename_geometry(col_map.pop(renamed.geometry.name), inplace=True)
         renamed = renamed.rename(columns=col_map, errors="raise")
         removed_cols = []
         if drop_others:
-            renamed = renamed[list(col_map.values())]
+            renamed = renamed[list(full_col_map.values())]
             removed_cols = [
                 col
                 for col in (set(df.columns) - set(renamed.columns))
-                if col not in col_map
+                if col not in full_col_map
             ]
         return ProcessingResult(
             df=renamed,
             summary=ProcessingSummary(
                 name="rename_columns",
                 description="Renamed columns",
-                column_modifications={"renamed": col_map, "removed": removed_cols},
+                column_modifications={"renamed": full_col_map, "removed": removed_cols},
             ),
         )
 
