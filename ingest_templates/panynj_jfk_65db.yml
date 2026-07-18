@@ -1,0 +1,28 @@
+id: panynj_jfk_65db
+acl: public-read
+
+attributes:
+  name: JFK Airport Noise Contour (65 dB)
+  description: >
+    Continuous contour of the Day Night Average Sound Level (DNL) of at least 65 dB for
+    John F. Kennedy International Airport (JFK).
+
+    Data provided by the Port Authority of New York & New Jersey.
+  url: https://aircraftnoise.panynj.gov/
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/panynj_jfk_65db/{{ version }}/jfk_65db.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: jfk_65db.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
