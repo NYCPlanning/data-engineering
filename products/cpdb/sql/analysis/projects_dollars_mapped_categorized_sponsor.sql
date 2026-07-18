@@ -176,7 +176,7 @@ LEFT JOIN (
         OR geomsource = 'agency'
         OR geomsource = 'dpr'
         OR geomsource = 'edc'
-        OR dataname = 'dpr_capitalprojects_geo'
+        OR dataname = 'dpr_capitalprojects'
     )
     AND geom IS NOT NULL
     GROUP BY sagencyacro
