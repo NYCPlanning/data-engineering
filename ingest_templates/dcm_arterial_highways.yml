@@ -1,0 +1,23 @@
+id: dcm_arterial_highways
+acl: public-read
+
+attributes:
+  name: Arterial Highways
+  description: Arterial Highways, from the Digital City Map.
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcm_arterial_highways/{{ version }}/dcm_arterial_highways.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: dcm_arterial_highway.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
