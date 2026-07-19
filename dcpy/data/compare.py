@@ -57,7 +57,12 @@ def compare_df_keyed_rows(
     both = merged[merged["_merge"] == "both"]
     for column in columns:
         comp_df = both[[column + "_left", column + "_right"]]
-        comp_df = comp_df[comp_df[column + "_left"] != comp_df[column + "_right"]]
+        left_col = comp_df[column + "_left"]
+        right_col = comp_df[column + "_right"]
+        # left != right treats NaN != NaN as True (IEEE-754), which would flag every
+        # both-null row as a difference. Exclude those explicitly.
+        differs = (left_col != right_col) & ~(left_col.isna() & right_col.isna())
+        comp_df = comp_df[differs]
         comp_df.columns = pd.Index(["left", "right"])
         if len(comp_df) > 0:
             comps[column] = comp_df.copy()
