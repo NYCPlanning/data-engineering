@@ -11,7 +11,7 @@ WITH master AS (
         b.signname,
         b.wkb_geometry AS geom
     FROM cpdb_dcpattributes AS a,
-        dpr_parksproperties AS b
+        stg__dpr_parksproperties AS b
     WHERE
         a.geom IS NULL
         AND a.magency = '846'
@@ -45,7 +45,7 @@ WITH master AS (
         b.signname,
         b.wkb_geometry AS geom
     FROM cpdb_dcpattributes AS a,
-        dpr_parksproperties AS b
+        stg__dpr_parksproperties AS b
     WHERE
         a.geom IS NULL
         AND a.magency = '846'
@@ -78,7 +78,7 @@ WITH master AS (
         b.signname,
         b.wkb_geometry AS geom
     FROM cpdb_dcpattributes AS a,
-        dpr_parksproperties AS b
+        stg__dpr_parksproperties AS b
     WHERE
         a.geom IS NULL
         AND a.magency = '846'

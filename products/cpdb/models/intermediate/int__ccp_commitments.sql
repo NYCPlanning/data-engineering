@@ -1,0 +1,26 @@
+SELECT
+    'fisa_' || p.cycle_fy AS ccpversion,
+    p.managing_agcy_cd AS magency,
+    REPLACE(p.project_id, ' ', '') AS projectid,
+    p.managing_agcy_cd || REPLACE(p.project_id, ' ', '') AS maprojid,
+    REPLACE(p.budget_proj_type, ' ', '') || '-' || p.budget_line_id AS budgetline,
+    b.projecttype,
+    b.agencyacronym AS sagencyacro,
+    b.agencyabbrev AS sagencyabbrev,
+    b.agency AS sagencyname,
+    RIGHT(p.planned_commit_date, 2) || '/' || SUBSTRING(p.planned_commit_date FROM 3 FOR 2) AS plancommdate,
+    p.short_descr AS projectdescription,
+    p.object_name AS commitmentdescription,
+    p.object AS commitmentcode,
+    p.typ_category AS typc,
+    p.typ_category_name AS typcname,
+    p.fcst_cnx_amt AS plannedcommit_ccnonexempt,
+    p.fcst_cex_amt AS plannedcommit_ccexempt,
+    p.fcst_cnx_amt + p.fcst_cex_amt AS plannedcommit_citycost,
+    p.fcst_st_amt AS plannedcommit_nccstate,
+    p.fcst_fd_amt AS plannedcommit_nccfederal,
+    p.fcst_pv_amt AS plannedcommit_nccother,
+    p.fcst_st_amt + p.fcst_fd_amt + p.fcst_pv_amt AS plannedcommit_noncitycost,
+    p.fcst_cnx_amt + p.fcst_cex_amt + p.fcst_st_amt + p.fcst_fd_amt + p.fcst_pv_amt AS plannedcommit_total
+FROM {{ ref('stg__fisa_capitalcommitments') }} AS p
+LEFT JOIN {{ ref('dcp_projecttypes_agencies') }} AS b ON TRIM(p.budget_proj_type) = TRIM(b.projecttypeabbrev)

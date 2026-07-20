@@ -1,0 +1,21 @@
+sources:
+  - name: cpdb_legacy_pipeline
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: sprints
+        description: >
+          Loaded fresh every build from an 18MB static SQL dump of hardcoded INSERTs
+          (data/sprints.sql) -- historical AD Sprint project geometries, not a recipe.yml
+          dataset. Too large/wrong-shaped for a dbt seed, so it's declared as a source instead.
+      - name: dcp_cpdb_agencyverified_geo
+        description: >
+          Output of the legacy Python geocoding script
+          (python/attributes_geom_agencyverified_geocode.py), which runs mid-pipeline in
+          bash/02_build.sh. Declared as a source since geocoding an external table isn't
+          something a dbt model can do.
+      - name: dot_projects_bridges_byfms
+        description: >
+          Output of python/dot_bridges.py (run in bash/01_preprocessing.sh), which reads
+          stg__dot_projects_bridges and explodes comma/slash-delimited fms_id strings into one
+          row per individual id (with prefix-inheritance logic for the slash case). Declared as
+          a source rather than reimplemented in SQL for now.

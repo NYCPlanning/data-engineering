@@ -10,7 +10,7 @@ WITH proj AS (
     SELECT
         ST_MULTI(ST_UNION(wkb_geometry)) AS geom,
         REPLACE(fmsid, ' ', '') AS fmsid
-    FROM dpr_capitalprojects
+    FROM stg__dpr_capitalprojects
     GROUP BY fmsid
 )
 

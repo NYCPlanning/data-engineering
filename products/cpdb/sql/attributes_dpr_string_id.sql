@@ -17,7 +17,7 @@ SET
     datasource = 'dpr',
     geomsource = 'dpr'
 FROM proj AS a,
-    dpr_parksproperties AS b
+    stg__dpr_parksproperties AS b
 WHERE
     a.dprparkid = b.gispropnum
     AND cpdb_dcpattributes.maprojid = a.maprojid

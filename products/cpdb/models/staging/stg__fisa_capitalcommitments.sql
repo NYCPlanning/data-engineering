@@ -1,0 +1,22 @@
+SELECT
+    cycle_fy,
+    cycle_name,
+    budget_proj_type,
+    budget_line_id,
+    agency_class_cd,
+    unit_of_appr,
+    budget_line_descr,
+    managing_agcy_cd,
+    project_id,
+    short_descr,
+    object,
+    object_name,
+    (CASE WHEN fcst_cnx_amt ~* '_' THEN '0' ELSE fcst_cnx_amt END)::DOUBLE PRECISION AS fcst_cnx_amt,
+    (CASE WHEN fcst_cex_amt ~* '_' THEN '0' ELSE fcst_cex_amt END)::DOUBLE PRECISION AS fcst_cex_amt,
+    (CASE WHEN fcst_st_amt ~* '_' THEN '0' ELSE fcst_st_amt END)::DOUBLE PRECISION AS fcst_st_amt,
+    (CASE WHEN fcst_fd_amt ~* '_' THEN '0' ELSE fcst_fd_amt END)::DOUBLE PRECISION AS fcst_fd_amt,
+    (CASE WHEN fcst_pv_amt ~* '_' THEN '0' ELSE fcst_pv_amt END)::DOUBLE PRECISION AS fcst_pv_amt,
+    planned_commit_date,
+    typ_category,
+    typ_category_name
+FROM {{ source('recipe_sources', 'fisa_capitalcommitments') }}

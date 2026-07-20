@@ -9,16 +9,16 @@ SELECT
     atyp_cd AS fundingsource,
     bud_obj_cd AS commitmentcode,
     au_cd AS appropriationunit,
-    cmtmnt_am::numeric,
-    oblgtns_am::numeric,
-    adpt_am::numeric,
-    penc_am::numeric,
-    enc_am::numeric,
-    acrd_exp_am::numeric,
-    cash_exp_am::numeric,
-    ucomit_am::numeric,
-    actu_exp_am::numeric
-FROM fisa_dailybudget;
+    cmtmnt_am,
+    oblgtns_am,
+    adpt_am,
+    penc_am,
+    enc_am,
+    acrd_exp_am,
+    cash_exp_am,
+    ucomit_am,
+    actu_exp_am
+FROM stg__fisa_dailybudget;
 
 DROP TABLE IF EXISTS cpdb_budget_data;
 CREATE TABLE cpdb_budget_data AS

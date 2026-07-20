@@ -65,7 +65,7 @@ LEFT JOIN (
             trim(left(capital_project, 12)) AS maprojid,
             issue_date::text AS date,
             check_amount::double precision AS spent
-        FROM nycoc_checkbook
+        FROM stg__nycoc_checkbook
         UNION ALL
         SELECT
             maprojid,

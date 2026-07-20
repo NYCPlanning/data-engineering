@@ -53,3 +53,30 @@ seeds:
       - name: parkid
       - name: parkname
       - name: zipcode
+
+  - name: type_category_patterns
+    description: |
+      Project type category patterns for mapping project descriptions to project types.
+    columns:
+      - name: typecategory
+        tests: [ not_null ]
+      - name: pattern
+        tests: [ not_null ]
+
+  - name: dcp_manual_geoms_2020
+    description: |
+      Manually-collected 2020 project geometries (formerly data/edcgeoms_2021-01-08.csv, loaded
+      inline by bash/02_build.sh). Named with a dcp_ prefix, not the legacy table's bare
+      `manual_geoms_2020`, to avoid colliding with the legacy table of that exact name --
+      bash/02_build.sh drops and recreates it (with different, truncated column names) every
+      build, in the same shared schema. `geometry` is raw WKT text, not a PostGIS geometry type
+      -- casting to geometry(4326) and the legacy 'AD Sprint' -> 'EP 2020' geomsource relabeling
+      both happen in the intermediate model that consumes this seed, not here.
+    columns:
+      - name: cartodb_id
+        tests: [ unique, not_null ]
+      - name: maprojid
+        tests: [ not_null ]
+      - name: geometry
+        tests: [ not_null ]
+

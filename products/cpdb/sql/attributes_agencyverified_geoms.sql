@@ -14,7 +14,7 @@ WHERE
 -- add geom for DPR projects based on park ID
 UPDATE dcp_cpdb_agencyverified a
 SET geom = b.wkb_geometry
-FROM dpr_parksproperties AS b
+FROM stg__dpr_parksproperties AS b
 WHERE
     b.gispropnum::text = a.bin::text
     AND agency = 'DPR'
@@ -23,7 +23,7 @@ WHERE
 -- add geom for projects based on bin
 UPDATE dcp_cpdb_agencyverified a
 SET geom = ST_CENTROID(b.wkb_geometry)
-FROM doitt_buildingfootprints AS b
+FROM stg__doitt_buildingfootprints AS b
 WHERE
     a.bin::float::bigint = b.bin::bigint
     AND a.bin IS NOT NULL
@@ -34,7 +34,7 @@ WHERE
 -- add geom for projects based on bbl
 UPDATE dcp_cpdb_agencyverified a
 SET geom = ST_CENTROID(b.wkb_geometry)
-FROM dcp_mappluto_wi AS b
+FROM stg__dcp_mappluto_wi AS b
 WHERE
     a.bbl::text = b.bbl::text
     AND a.bbl IS NOT NULL
