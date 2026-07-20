@@ -3,7 +3,7 @@
     "base": {
       "title": "Change in Housing Units 2010 - 2024",
       "id": "4.01.T",
-      "vintages": ["NYC DEPARTMENT OF CITY PLANNING HOUSING DATABASE, 2024 Q4"],
+      "vintages": ["NYC DEPARTMENT OF CITY PLANNING HOUSING DATABASE, {{ HOUSING_DATABASE_QUARTER }}"],
       "denominator": {
         "label": "Net change",
         "subcategory": "classa_",
