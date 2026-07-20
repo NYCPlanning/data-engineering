@@ -25,7 +25,7 @@ SELECT
     {%- endif -%}
     {% endfor %}
 INTO checkbook_spending_by_year
-FROM nycoc_checkbook
+FROM stg__nycoc_checkbook
 WHERE TRIM(LEFT(capital_project,12)) in (SELECT DISTINCT maprojid FROM ccp_projects)
 GROUP BY TRIM(LEFT(capital_project,12));
 """

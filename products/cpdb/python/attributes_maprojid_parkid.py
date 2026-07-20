@@ -29,7 +29,7 @@ engine = create_engine(os.getenv("BUILD_ENGINE", ""))
 # makes selection
 with engine.begin() as conn:
     parkproj = pd.read_sql_query(
-        text("SELECT * FROM dpr_capitalprojects WHERE park_id is not NULL"), conn
+        text("SELECT * FROM stg__dpr_capitalprojects WHERE park_id is not NULL"), conn
     )
 
     # park_id cleaning

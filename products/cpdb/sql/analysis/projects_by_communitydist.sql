@@ -54,7 +54,7 @@ CREATE TABLE projects_by_communitydist AS (
             b.budget_proj_type,
             b.description,
             SUM(b.amt_per_pt) AS amt_pt
-        FROM dcp_cdboundaries AS a
+        FROM stg__dcp_cdboundaries AS a
         LEFT JOIN per_pt AS b ON ST_WITHIN(b.geom, a.wkb_geometry)
         GROUP BY a.borocd, b.maprojid, b.typc, b.budget_proj_type, b.description
     ),
@@ -95,7 +95,7 @@ CREATE TABLE projects_by_communitydist AS (
                 * (ST_AREA(c.geom) / c.total_area)
                 * ST_AREA(ST_INTERSECTION(c.geom, a.wkb_geometry)) / ST_AREA(c.geom)
             ) AS amt_poly
-        FROM dcp_cdboundaries AS a
+        FROM stg__dcp_cdboundaries AS a
         LEFT JOIN per_poly AS c ON ST_INTERSECTS(c.geom, a.wkb_geometry)
         WHERE
             ST_ISVALID(a.wkb_geometry) = 't'

@@ -1,0 +1,145 @@
+version: 2
+
+models:
+  # Political / administrative boundaries
+  - name: stg__dcp_boroboundaries_wi
+    columns:
+      - name: borocode
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_stateassemblydistricts
+    columns:
+      - name: assemdist
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_ct2020
+    columns:
+      - name: boroct2020
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_congressionaldistricts
+    columns:
+      - name: congdist
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_cdboundaries
+    columns:
+      - name: borocd
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_statesenatedistricts
+    columns:
+      - name: stsendist
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_municipalcourtdistricts
+    columns:
+      - name: municourt
+        tests: [ not_null ]
+
+  - name: stg__dcp_school_districts
+    columns:
+      - name: schooldist
+        tests: [ not_null ]
+
+  - name: stg__dcp_trafficanalysiszones
+    columns:
+      - name: geoid10
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_councildistricts
+    columns:
+      - name: coundist
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_policeprecincts
+    columns:
+      - name: precinct
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_firecompanies
+    columns:
+      - name: fireconum
+        tests: [ not_null ]
+
+  # Building and lot-level info
+  - name: stg__dcp_mappluto_wi
+    columns:
+      - name: bbl
+        tests: [ unique, not_null ]
+
+  - name: stg__dcp_facilities
+    columns:
+      - name: uid
+        tests: [ unique, not_null ]
+
+  - name: stg__doitt_buildingfootprints
+    columns:
+      - name: bin
+        tests: [ not_null ]
+
+  # Projects
+  - name: stg__dcp_managing_agencies_lookup
+    columns:
+      - name: managing_agency_acronym
+        tests: [ not_null ]
+
+  - name: stg__nycoc_checkbook
+    columns:
+      - name: capital_project
+        tests: [ not_null ]
+
+  - name: stg__fisa_capitalcommitments
+    columns:
+      - name: project_id
+        tests: [ not_null ]
+
+  - name: stg__fisa_dailybudget
+    columns:
+      - name: cptl_proj_id
+        tests: [ not_null ]
+
+  - name: stg__dot_projects_intersections
+    columns:
+      - name: fmsid
+        tests: [ not_null ]
+
+  - name: stg__dot_projects_streets
+    columns:
+      - name: fmsid
+        tests: [ not_null ]
+
+  - name: stg__dot_projects_bridges
+    columns:
+      - name: fms_id
+        tests: [ unique, not_null ]
+
+  - name: stg__dpr_capitalprojects
+    columns:
+      - name: proj_id
+        tests: [ not_null ]
+
+  - name: stg__dpr_parksproperties
+    columns:
+      - name: gispropnum
+        tests: [ not_null ]
+
+  - name: stg__edc_capitalprojects_ferry
+    columns:
+      - name: fmsid
+        tests: [ unique, not_null ]
+
+  - name: stg__edc_capitalprojects
+    columns:
+      - name: pjid
+        tests: [ unique, not_null ]
+
+  - name: stg__ddc_capitalprojects_infrastructure
+    columns:
+      - name: projectid
+        tests: [ not_null ]
+
+  - name: stg__ddc_capitalprojects_publicbuildings
+    columns:
+      - name: projectid
+        tests: [ not_null ]

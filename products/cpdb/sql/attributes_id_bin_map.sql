@@ -4,7 +4,7 @@ UPDATE cpdb_dcpattributes a
 SET
     geom = ST_CENTROID(b.wkb_geometry),
     geomsource = 'footprint_script'
-FROM doitt_buildingfootprints AS b,
+FROM stg__doitt_buildingfootprints AS b,
     dcp_id_bin_map AS c
 WHERE
     c.bin::bigint = b.bin::bigint

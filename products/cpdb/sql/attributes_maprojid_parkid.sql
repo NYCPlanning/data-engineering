@@ -27,6 +27,6 @@ SELECT
     a.maprojid,
     b.gispropnum AS parkid
 FROM cpdb_dcpattributes AS a,
-    dpr_parksproperties AS b
+    stg__dpr_parksproperties AS b
 WHERE ST_WITHIN(a.geom, b.wkb_geometry) AND ST_ISVALID(a.geom)
 ORDER BY maprojid;

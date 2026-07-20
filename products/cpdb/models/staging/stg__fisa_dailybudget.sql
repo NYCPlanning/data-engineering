@@ -1,0 +1,21 @@
+SELECT
+    rcat_cd,
+    rcls_cd,
+    atyp_cd,
+    mng_dpt_cd,
+    cptl_proj_id,
+    bud_obj_cd,
+    au_cd,
+    fndg_dpt_cd,
+    cmtmnt_am::NUMERIC AS cmtmnt_am,
+    oblgtns_am::NUMERIC AS oblgtns_am,
+    adpt_am::NUMERIC AS adpt_am,
+    penc_am::NUMERIC AS penc_am,
+    enc_am::NUMERIC AS enc_am,
+    acrd_exp_am::NUMERIC AS acrd_exp_am,
+    cash_exp_am::NUMERIC AS cash_exp_am,
+    ucomit_am::NUMERIC AS ucomit_am,
+    actu_exp_am::NUMERIC AS actu_exp_am,
+    tbl_last_dt,
+    fisa_version
+FROM {{ source('recipe_sources', 'fisa_dailybudget') }}

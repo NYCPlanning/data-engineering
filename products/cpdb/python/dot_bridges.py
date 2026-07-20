@@ -26,7 +26,7 @@ def fms_parse(x):
 with engine.begin() as conn:
     # makes selection
     bridges = pd.read_sql_query(
-        text("SELECT * FROM dot_projects_bridges WHERE fms_id is not NULL"), conn
+        text("SELECT * FROM stg__dot_projects_bridges WHERE fms_id is not NULL"), conn
     )
     bridges["fms_id"] = bridges["fms_id"].apply(fms_parse)
     # fms_id cleaning

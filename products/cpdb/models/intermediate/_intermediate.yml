@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: int__ccp_commitments
+  - name: int__ccp_projects
+  - name: int__dcpattributes_base
+  - name: int__dcpattributes_typecategory
+  - name: int__dcpattributes_geom_unconditional
+  - name: int__dcpattributes_geom_agencyverified
+  - name: int__dcpattributes_geom_stringmatch
+  - name: int__dcpattributes_geom_facilities
+  - name: int__fisa_budget_data
+  - name: int__budget_data
+  - name: int__budget_data_wide
+  - name: int__project_checkbook_dates
+  - name: int__budgets
+  - name: int__maprojid_cd
+  - name: int__maprojid_censustracts
+  - name: int__maprojid_congressionaldistricts
+  - name: int__maprojid_councildistricts
+  - name: int__maprojid_firecompanies
+  - name: int__maprojid_municipalcourtdistricts
+  - name: int__maprojid_policeprecincts
+  - name: int__maprojid_schooldistricts
+  - name: int__maprojid_stateassemblydistricts
+  - name: int__maprojid_statesenatedistricts
+  - name: int__maprojid_trafficanalysiszones

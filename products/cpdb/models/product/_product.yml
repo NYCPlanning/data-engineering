@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: cpdb_dcpattributes
+    description: >
+      Master capital-projects attributes table -- one row per project (maprojid), with the
+      project's managing agency, description, type category, and a single best-guess geometry
+      assembled from a long priority chain of geometry sources (manual sprints/geojson data,
+      building/park/facility footprints, agency-verified geocoding, and fuzzy park-name matching
+      as a last resort). Ported from the legacy bash/SQL pipeline (bash/02_build.sh); replaces
+      the `cpdb_legacy_pipeline.cpdb_dcpattributes` source.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+
+  - name: cpdb_projects_geom
+    description: >
+      Wide capital-projects table -- one row per project (maprojid), joining ccp_projects'
+      financial base data, checkbook/commitment date range, cpdb_dcpattributes' typecategory and
+      geom, and the pivoted budget data (adopted/allocated/committed/spent by exempt/non-exempt
+      city cost and non-city cost). The base table the other 3 cpdb_projects_* models are thin
+      views on top of.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+
+  - name: cpdb_projects
+    description: >
+      cpdb_projects_geom without the geom column -- the non-spatial export of the projects table.
+
+  - name: cpdb_projects_without_budget_data
+    description: >
+      cpdb_projects filtered to projects with no matching budget data (adopt_total IS NULL),
+      carrying only the non-budget columns.
+
+  - name: cpdb_projects_shp
+    description: >
+      cpdb_projects_geom (including geom) with shapefile-safe column names (<=10 characters).
+
+  - name: cpdb_dcpattributes_pts
+    description: cpdb_dcpattributes filtered to point geometries, for shapefile export.
+
+  - name: cpdb_dcpattributes_poly
+    description: cpdb_dcpattributes filtered to polygon geometries, for shapefile export.
+
+  - name: cpdb_projects_pts
+    description: cpdb_projects_shp filtered to point geometries, for shapefile export.
+
+  - name: cpdb_projects_poly
+    description: cpdb_projects_shp filtered to polygon geometries, for shapefile export.
+
+  - name: cpdb_budgets
+    description: >
+      ccp_commitments aggregated by (ccpversion, magency, projectid, maprojid, budgetline,
+      projecttype, sagencyacro, sagencyname) -- planned commitment amounts by sponsor agency and
+      budget line, not just by project.
+
+  - name: cpdb_budget_data
+    description: >
+      Daily budget data (stg__fisa_dailybudget) aggregated by (maprojid, magency, projectid,
+      fundingsource) -- the un-pivoted input to cpdb_projects_geom's adopted/allocated/committed/
+      spent columns.
+
+  - name: cpdb_adminbounds
+    description: >
+      Crosswalk of capital projects to the admin boundaries (community district,
+      census tract, congressional district, council district, fire company,
+      municipal court district, police precinct, school district, state assembly
+      district, state senate district, traffic analysis zone) they intersect.
+      One row per project x admin boundary type x admin boundary id.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - feature_id
+              - admin_boundary_type
+              - admin_boundary_id
+    columns:
+      - name: feature_id
+        tests: [ not_null ]
+      - name: admin_boundary_type
+        tests: [ not_null ]
+      - name: admin_boundary_id
+        tests: [ not_null ]

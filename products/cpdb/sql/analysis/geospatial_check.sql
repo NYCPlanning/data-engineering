@@ -22,7 +22,7 @@ INSERT INTO geospatial_check (
             FROM cpdb_dcpattributes AS a,
                 (
                     SELECT st_union(wkb_geometry) AS geom
-                    FROM dcp_boroboundaries_wi
+                    FROM stg__dcp_boroboundaries_wi
                 ) AS combined
             WHERE NOT st_within(a.geom, combined.geom)
         ) AS tmp

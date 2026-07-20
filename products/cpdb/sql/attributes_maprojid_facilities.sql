@@ -8,7 +8,7 @@ WITH master AS (
             SELECT
                 facname,
                 COUNT(facname) AS namecount
-            FROM dcp_facilities
+            FROM stg__dcp_facilities
             GROUP BY facname
         )
 
@@ -25,7 +25,7 @@ WITH master AS (
         b.facname,
         b.uid,
         b.wkb_geometry AS geom
-    FROM cpdb_dcpattributes AS a, dcp_facilities AS b
+    FROM cpdb_dcpattributes AS a, stg__dcp_facilities AS b
     WHERE
         a.geom IS NULL
         AND a.magency IN ('850', '801', '806', '126', '819', '57', '72', '858', '827', '71', '56', '816', '125', '998')
@@ -45,7 +45,7 @@ lib_master AS (
         b.wkb_geometry AS geom
     FROM cpdb_dcpattributes AS a,
         (
-            SELECT * FROM dcp_facilities
+            SELECT * FROM stg__dcp_facilities
             WHERE facgroup = 'Libraries'
         ) AS b
     WHERE

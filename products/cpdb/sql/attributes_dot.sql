@@ -15,7 +15,7 @@ WITH proj AS (
     SELECT
         st_multi(st_union(wkb_geometry)) AS geom,
         fmsagencyid || fmsid AS fmsid
-    FROM dot_projects_intersections
+    FROM stg__dot_projects_intersections
     GROUP BY fmsagencyid, fmsid
 )
 
@@ -32,7 +32,7 @@ WITH proj AS (
     SELECT
         st_multi(st_union(wkb_geometry)) AS geom,
         fmsagencyid || fmsid AS fmsid
-    FROM dot_projects_streets
+    FROM stg__dot_projects_streets
     GROUP BY fmsagencyid, fmsid
 )
 
