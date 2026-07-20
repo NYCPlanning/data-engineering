@@ -120,14 +120,6 @@ def _load_diabetes_self_report(path: str):
     )
 
 
-def _load_heat_vulnerability(path: str):
-    return pd.read_excel(
-        path,
-        usecols=["PUMACE10", "HVI"],
-        dtype={"PUMACE10": str, "HVI": int},
-    )
-
-
 def _load_covid_death(path: str):
     return pd.read_excel(
         path,
@@ -364,14 +356,6 @@ RESOURCES = {
             "Self_Rep_Health",
         ],
         "loader": _load_diabetes_self_report,
-    },
-    # Quality of Life - Heat Vulnerability
-    "heat_vulnerability": {
-        "filepath": "resources/quality_of_life/HVI_PUMA_Subboro_forSharing.xlsx",
-        "type": "excel",
-        "data_table": "",
-        "required_columns": ["PUMACE10", "HVI"],  # File missing
-        "loader": _load_heat_vulnerability,
     },
     # Quality of Life - COVID Death
     "covid_death": {

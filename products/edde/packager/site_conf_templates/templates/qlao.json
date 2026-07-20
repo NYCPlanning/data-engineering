@@ -320,37 +320,6 @@
   },
   {
     "base": {
-      "title": "Health Outcomes - Heat Vulnerability Index *",
-      "id": "5.07.T",
-      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE, 2021"],
-      "labels": ["Heat Vulnerability Index (1=Low)"],
-      "subcategory": "health_",
-      "variables": ["heat"],
-      "measures": ["INDEX"],
-      "variances": ["NONE"],
-      "placeholder": "N/A"
-    },
-    "geographies": {
-      "district": {
-        "files": ["quality_of_life_puma"]
-      },
-      "borough": {
-        "files": [""]
-      },
-      "citywide": {
-        "files": [""]
-      }
-    },
-    "subgroups": {
-      "tot": { },
-      "anh": { },
-      "bnh": { },
-      "wnh": { },
-      "hsp": { }
-    }
-  },
-  {
-    "base": {
       "title": "Access to Jobs",
       "id": "5.08.T",
       "vintages": ["NYC DEPARTMENT OF CITY PLANNING, 2023"],
