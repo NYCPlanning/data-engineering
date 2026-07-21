@@ -103,8 +103,8 @@ mapping_and_cleaning AS (
         existingoccupancyclassification::text AS _occ_initial,
         proposedoccupancyclassification::text AS _occ_proposed,
 
-        existing_stories::numeric AS stories_init,
-        proposed_no_of_stories::numeric AS stories_prop,
+        (CASE WHEN is_numeric(existing_stories) THEN existing_stories::numeric END) AS stories_init,
+        (CASE WHEN is_numeric(proposed_no_of_stories) THEN proposed_no_of_stories::numeric END) AS stories_prop,
 
         -- if existingdwellingunits is not a number then null
         (CASE
@@ -147,8 +147,8 @@ mapping_and_cleaning AS (
         zip AS owner_zipcode,
         ownerphone AS owner_phone,
 
-        existingbuildingheight::numeric AS height_init,
-        proposedbuildingheight::numeric AS height_prop,
+        (CASE WHEN is_numeric(existingbuildingheight) THEN existingbuildingheight::numeric END) AS height_init,
+        (CASE WHEN is_numeric(proposedbuildingheight) THEN proposedbuildingheight::numeric END) AS height_prop,
 
         CASE
             WHEN horizontalenlargement ~* 'true' AND NOT verticalenlargement ~* 'false'
@@ -168,15 +168,15 @@ mapping_and_cleaning AS (
         END AS curbcut,
 
         regexp_replace(
-            trim(house_no),
+            trim(sanitize_address_text(house_no)),
             '(^|)0*', '', ''
         ) AS address_numbr,
-        trim(street_name) AS address_street,
+        sanitize_address_text(trim(street_name)) AS address_street,
 
         regexp_replace(
-            trim(house_no),
+            trim(sanitize_address_text(house_no)),
             '(^|)0*', '', ''
-        ) || ' ' || trim(street_name) AS address,
+        ) || ' ' || sanitize_address_text(trim(street_name)) AS address,
 
         bin,
         left(bin, 1) || lpad(block, 5, '0') || lpad(right(lot, 4), 4, '0') AS bbl,
@@ -227,8 +227,18 @@ mapping_and_cleaning AS (
         (CASE
             WHEN uselabel ~* 'Manufacturing' THEN total_floor_area
         END)::numeric AS zsfm_prop,
-        no_of_parking_spaces::numeric + gc_numberofenclosedparkingspaces::numeric AS prkng_init,
-        total_number_of_open_parking_space::numeric + total_number_of_enclosed_parking_space::numeric AS prkng_prop,
+        (CASE WHEN is_numeric(no_of_parking_spaces) THEN no_of_parking_spaces::numeric END)
+        + (CASE WHEN is_numeric(gc_numberofenclosedparkingspaces) THEN gc_numberofenclosedparkingspaces::numeric END)
+            AS prkng_init,
+        (CASE WHEN is_numeric(total_number_of_open_parking_space) THEN total_number_of_open_parking_space::numeric END)
+        + (
+            CASE
+                WHEN
+                    is_numeric(total_number_of_enclosed_parking_space)
+                    THEN total_number_of_enclosed_parking_space::numeric
+            END
+        )
+            AS prkng_prop,
         building_type AS bldg_class,
         CASE
             WHEN filing_status ~* 'Withdrawn' THEN 'W'

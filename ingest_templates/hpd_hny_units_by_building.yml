@@ -1,5 +1,8 @@
 id: hpd_hny_units_by_building
-acl: public-read
+# ! Temporary: sourcing HPD's pre-publication internal extract from `inbox` instead of
+# ! Open Data, so 26Q2 can build before HPD publishes. Revert to the socrata source
+# ! (and acl: public-read) once the dataset is live on Open Data.
+acl: private
 
 attributes:
   name: Housing New York Units by Building
@@ -15,13 +18,31 @@ attributes:
 
 ingestion:
   source:
-    type: socrata
-    org: nyc
-    uid: hg8x-zxpr
-    format: csv
+    type: s3
+    bucket: edm-recipes
+    key: inbox/hpd_hny_units_by_building/{{ version }}/hpd_hny_units_by_building_internal.csv
   file_format:
     type: csv
     dtype: str
+    # HPD's extract is Windows-1252, not UTF-8 (en-dashes in project names).
+    encoding: cp1252
   processing_steps:
     - name: clean_column_names
       args: { "replace": { " ": "_" }, "strip": True, "lower": True }
+    # HPD's internal extract uses raw column names; Open Data applies its own display
+    # names. Realign so the output schema matches prior versions — `_hny_union.sql`
+    # unions this table with the historical one positionally, so arity and order matter.
+    - name: rename_columns
+      args:
+        map:
+          house_number: number
+          street_name: street
+          post_code: postcode
+          nta: nta_-_neighborhood_tabulation_area
+    # HPD's own geocoding notes; not present on Open Data.
+    - name: drop_columns
+      args:
+        columns: [message]
+    # ! Value-level cleanup (padding, thousands separators, '-' for null) is done in
+    # ! products/developments/sql/_hny_union.sql rather than here, to avoid re-ingesting
+    # ! the already-geocoded 20260721_internal version. Move it here when reverting.
