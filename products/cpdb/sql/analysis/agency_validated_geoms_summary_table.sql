@@ -7,7 +7,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
             COUNT(a.*) AS countnew,
             SUM(b.plannedcommit_total) AS totalplannedcommitnew
         FROM dcp_cpdb_agencyverified AS a
-        LEFT JOIN ccp_projects AS b
+        LEFT JOIN int__ccp_projects AS b
             ON a.maprojid = b.maprojid
         WHERE
             origin = 'unmapped'
@@ -21,7 +21,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
             COUNT(a.*) AS countcorrected,
             SUM(b.plannedcommit_total) AS totalplannedcommitcorrected
         FROM dcp_cpdb_agencyverified AS a
-        LEFT JOIN ccp_projects AS b
+        LEFT JOIN int__ccp_projects AS b
             ON a.maprojid = b.maprojid
         WHERE
             origin = 'mapped'
@@ -35,7 +35,7 @@ CREATE TABLE agency_validated_geoms_summary_table AS (
             COUNT(a.*) AS countremoved,
             SUM(b.plannedcommit_total) AS totalplannedcommitremoved
         FROM dcp_cpdb_agencyverified AS a
-        LEFT JOIN ccp_projects AS b
+        LEFT JOIN int__ccp_projects AS b
             ON a.maprojid = b.maprojid
         WHERE
             origin = 'mapped'

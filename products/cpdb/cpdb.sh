@@ -8,7 +8,6 @@ case $1 in
         ./bash/01_preprocessing.sh
         ./bash/02_build.sh
         dbt build --select intermediate product
-        ./bash/03_adminbounds.sh
         ./bash/04_analysis.sh
         ./bash/05_export.sh
 esac

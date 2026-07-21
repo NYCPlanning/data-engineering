@@ -2,7 +2,6 @@
 source ../../bash/utils.sh
 set_error_traps
 
-run_sql_file sql/_create_export.sql
 python3 python/checkbook_spending_by_year.py
 
 # Create and export tables of projects in geographies of interest
@@ -13,9 +12,9 @@ mkdir -p output && (
     
     csv_export cpdb_adminbounds &
     csv_export cpdb_projects &
-    csv_export ccp_commitments cpdb_planned_commitments &
+    csv_export int__ccp_commitments cpdb_planned_commitments &
     csv_export cpdb_budget_data &
-    csv_export ccp_budgets cpdb_budgets &
+    csv_export cpdb_budgets &
     csv_export checkbook_spending_by_year &
     csv_export geospatial_check &
     csv_export cpdb_projects_without_budget_data &

@@ -7,7 +7,7 @@ CREATE TABLE projects_by_communitydist AS (
             maprojid,
             SUBSTRING(budgetline FROM '([A-Z]+)(-{1})') AS budget_proj_type,
             SUM(plannedcommit_total) AS amt
-        FROM ccp_commitments
+        FROM int__ccp_commitments
         GROUP BY
             typc,
             maprojid,
