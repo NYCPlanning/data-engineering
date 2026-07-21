@@ -114,7 +114,7 @@ class ReuseTracker:
         self.total_records_recoded += 1
         for field in RECODE_ID_FIELDS:
             value = row[field]
-            if value is not None:
+            if not pd.isna(value):
                 if value in self.__getattribute__(field).keys():
                     row[field] = self.__getattribute__(field)[value]
                     self.reused_recodings[field] += 1
@@ -236,7 +236,7 @@ def convert_to_human_readable(
         metadata_keys[metadata_field][1],
     )
     if field_dict is None:
-        if id_val is not None:
+        if not pd.isna(id_val):
             raise Exception(
                 f"data has {local_fieldname} of {id_val} but expanded of {json.dumps(expanded, indent=2)}"
             )
