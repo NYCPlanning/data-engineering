@@ -108,7 +108,7 @@ def ETL(extractor_func) -> callable:
         # If it's a geopandas dataframe, we will have to
         # Convert geometry column to text first
         if isinstance(df, gpd.geodataframe.GeoDataFrame):
-            df = pd.DataFrame(df, dtype=str)
+            df = pd.DataFrame(df).astype(str)
 
         print(f"export\t{source_dataset_name} to postgres ...")
         df.to_sql(

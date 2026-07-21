@@ -26,7 +26,7 @@ GEOCODE_COLUMNS = [
 
 
 def get_hnum(address: str) -> str:
-    if not address:
+    if not isinstance(address, str) or not address:
         return None
     result = [k for (k, v) in usaddress.parse(address) if re.search("Address", v)]
     result = " ".join(result)
@@ -41,7 +41,7 @@ def get_hnum(address: str) -> str:
 
 
 def get_sname(address: str) -> str | None:
-    if not address:
+    if not isinstance(address, str) or not address:
         return None
     result = (
         [k for (k, v) in usaddress.parse(address) if re.search("Street", v)]
@@ -56,7 +56,7 @@ def get_sname(address: str) -> str | None:
 
 
 def get_landmarkname(address: str) -> str | None:
-    if not address:
+    if not isinstance(address, str) or not address:
         return None
     result = (
         [k for (k, v) in usaddress.parse(address) if v == "LandmarkName"]
