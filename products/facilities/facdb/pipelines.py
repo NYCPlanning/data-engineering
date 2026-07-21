@@ -787,5 +787,11 @@ def dispatch(name: str, df: pd.DataFrame):
     pipelines = importlib.import_module(__name__)
     pipeline = getattr(pipelines, name)
 
+    if df.empty:
+        raise ValueError(
+            f"Source dataset '{name}' is empty — refusing to build. "
+            "Check the ingest for this source."
+        )
+
     df["source"] = name  # legacy column. Easier to add here than modify SQL files
     return df.pipe(hash_each_row).pipe(format_field_names).pipe(pipeline)
