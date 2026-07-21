@@ -12,7 +12,7 @@ WITH projects AS (
             maprojid,
             sagencyacro,
             SUM(plannedcommit_total::double precision) AS totalcommit
-        FROM ccp_budgets
+        FROM cpdb_budgets
         GROUP BY maprojid, sagencyacro
     ) AS b
         ON a.maprojid = b.maprojid

@@ -1,3 +1,9 @@
+-- Write geocode results (dcp_cpdb_agencyverified_geo) back into dcp_cpdb_agencyverified's geom
+-- column. int__dcpattributes_geom_agencyverified.sql independently recomputes this same geom for
+-- cpdb_dcpattributes, so this is no longer needed for that -- but
+-- sql/analysis/agency_validated_geoms_summary_table.sql still reads dcp_cpdb_agencyverified.geom
+-- directly (filtering on IS NOT NULL), so it needs to reflect the geocode fill, not just the
+-- bin/bbl gap-fill from attributes_agencyverified_geoms.sql.
 UPDATE dcp_cpdb_agencyverified a
 SET geom = ST_CENTROID(b.wkb_geometry)
 FROM stg__doitt_buildingfootprints AS b, dcp_cpdb_agencyverified_geo AS c
@@ -9,28 +15,3 @@ UPDATE dcp_cpdb_agencyverified a
 SET geom = ST_SETSRID(ST_MAKEPOINT(c.lon::double precision, c.lat::double precision), 4326)
 FROM dcp_cpdb_agencyverified_geo AS c
 WHERE a.maprojid = c.maprojid AND c.lon IS NOT null AND c.lat IS NOT null;
-
--- UPDATE dcp_cpdb_agencyverified a 
--- SET geom = NULL
--- FROM dcp_cpdb_agencyverified_geo c
--- WHERE a.maprojid = c.maprojid and c.lon is null and c.lat is null and c.bin is null and a.geom is null;
-
--- Add agency verified geometries to attributes table
-WITH proj AS (
-    SELECT
-        ST_MULTI(ST_UNION(geom)) AS geom,
-        maprojid
-    FROM dcp_cpdb_agencyverified
-    GROUP BY maprojid
-)
-
-UPDATE cpdb_dcpattributes
-SET
-    geom = proj.geom,
-    dataname = 'dcp_cpdb_agencyverified',
-    datasource = 'agency',
-    geomsource = 'agency'
-FROM proj
-WHERE
-    cpdb_dcpattributes.maprojid = proj.maprojid
-    AND proj.geom IS NOT null;

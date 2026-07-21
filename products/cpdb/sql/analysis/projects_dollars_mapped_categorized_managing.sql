@@ -6,7 +6,7 @@ WITH projects AS (
         a.*,
         b.plannedcommit_total AS totalcommit
     FROM cpdb_dcpattributes AS a
-    LEFT JOIN ccp_projects AS b
+    LEFT JOIN int__ccp_projects AS b
         ON a.maprojid = b.maprojid
 ),
 
