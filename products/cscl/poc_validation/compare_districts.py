@@ -101,12 +101,24 @@ def _compare(dev_path: Path, prod_path: Path) -> None:
             f"  {layer:12s} dev={len(dev):>7,}  prod={len(prod):>7,}"
             f"  area={area_pct:+7.3f}%  {note}"
         )
-        rows.append({
-            "layer": layer, "dev_rows": len(dev), "prod_rows": len(prod),
-            "row_diff": row_diff, "dev_area": round(dev_area), "prod_area": round(prod_area),
-            "area_pct_diff": round(area_pct, 4), "missing_columns": ", ".join(missing),
-            "extra_columns": ", ".join(extra), "note": note,
-        })
+        rows.append(
+            {
+                "layer": layer,
+                "dev_rows": len(dev),
+                "prod_rows": len(prod),
+                "row_diff": row_diff,
+                "dev_area": round(dev_area),
+                "prod_area": round(prod_area),
+                "area_pct_diff": round(area_pct, 4),
+                "missing_columns": ", ".join(missing),
+                "extra_columns": ", ".join(extra),
+                "note": note,
+            }
+        )
+
+    if not rows:
+        print("No layers in common between dev and prod; nothing to report.")
+        return
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     out_csv = OUTPUT_DIR / "district_comparison.csv"
@@ -131,11 +143,13 @@ def run(
     recipe = plan.recipe_from_yaml(recipe_path)
     assert recipe.exports, "recipe has no exports"
 
-    filenames = sorted({
-        e.filename
-        for e in recipe.exports.datasets
-        if e.format.value == "gdb" and e.filename and "Districts" in e.filename
-    })
+    filenames = sorted(
+        {
+            e.filename
+            for e in recipe.exports.datasets
+            if e.format.value == "gdb" and e.filename and "Districts" in e.filename
+        }
+    )
     if not filenames:
         print("No district gdb exports in recipe; nothing to compare.")
         return
