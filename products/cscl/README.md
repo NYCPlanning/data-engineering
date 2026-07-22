@@ -133,6 +133,50 @@ python3 poc_validation/prod_data_loader.py pull
 
 This currently sorts the files before comparison, so this isn't quite valid for comparing outputs that actually have some sort of sorting requirement. However for LION and other unordered files, it currently works as a check of total records with issues in the actual output files.
 
+## District boundary gdb
+
+`v26B_Districts.gdb.zip` holds the 43 district polygon feature classes defined by chapter 10 / table 39 of the ETL doc. Models live in `models/product/districts/`, one per feature class, named `gdb_<feature class>`.
+
+Feature class and field names follow **appendix D**, which is stale in places but was confirmed against the shapefiles DCP publishes on BYTES — those use appendix D's names exactly (`AssemDist`, `BoroCD`, `HCentDist`, `SchoolDist`, `StSenDist`). The `name` values in `product-metadata/products/lion/*` are friendly display names, not field names; don't build from them.
+
+Two places where the 2009 doc and the real product disagree, both settled empirically against the published shapefiles:
+
+- **Land is `WATER_FLAG IN ('2', '3', '4')`**, not `('2', '3')` as the doc says. Flag `4` postdates the doc and is land for clipping purposes; including it reproduces the published clipped extent exactly, excluding it falls about 1% short.
+- **Table 39 understates which layers are clipped.** It says layers with no `wi` twin are "extracted exactly as stored", but `nyfb`, `nyfc`, `nyfd`, `nypp`, `nysd`, `nynta2010`, `nynta2020`, `nycdta2020` and `nypuma2010` are all shoreline-clipped in the published product. Only `nyap`, `nyhez` and the internal-only layers are genuinely unclipped.
+
+### How the shoreline clip works
+
+Clipping is done by **subtracting water**, not by intersecting a dissolved land mask. The two are exact complements (4.632e9 + 8.423e9 = 13.055e9 sq ft), but water is 1,875 atomic polygons against land's 66,717, so it is far less geometry to touch.
+
+This matters a lot. Dissolving land into a single mask produced one **7.2M-vertex, 117 MB** geometry: it took ~86 minutes to build, and intersecting every district feature against it exhausted the build server's memory and put Postgres into recovery mode. The water mask builds in ~2 seconds and clips a 38k-feature layer in ~80.
+
+`int__water_mask` subdivides water to 256 vertices per row and GIST-indexes it. Clipped models pair `clip_to_shoreline` (a `LEFT JOIN LATERAL` that unions only the water each feature actually overlaps) with `clipped_geom` (the subtraction) in a `clipped` CTE, then drop rows the clip emptied — that is why e.g. `nycb2020` is shorter than `nycb2020wi`. Use those macros rather than open-coding the difference, and keep the geometry expression identical between the two calls.
+
+### Validating the district gdb
+
+Prod archives the geodatabase alongside the flat files, so this is a direct dev/prod diff:
+
+```bash
+python3 poc_validation/compare_districts.py
+```
+
+It reports per-layer column set, row count and total area against `edm-private/cscl_etl/<version>/v26B_Districts.gdb.zip`, and writes `output/validation_output/district_comparison.csv`. `SHAPE_Length`/`SHAPE_Area` are written by the gdb driver rather than by our models, so they're excluded from the column comparison.
+
+Prod quirks worth knowing before reading a diff:
+
+- **`nyura` carries a stale copy of `nybid`'s schema** (`BIDID`/`BID`/`BOROUGH`) instead of anything urban-renewal related. Both prod and the CSCL source layer are empty, so the mistake never shows up in data. We emit the real URA identifiers, so a structural diff on this one layer is expected and is whitelisted in the comparison script.
+- **`nymcea` is singlepart.** Clipping splits some MCEAs into disjoint pieces and prod writes each as its own feature, so the 115 dissolved (borough, MCEA) groups become 122 features.
+- **`nymc`/`nymcwi` exclude `MUNICOURT = '00'`**, an unassigned placeholder on 6 of the 34 source rows. That's what takes them to 28 features.
+- **`nypuma2020` ships in prod** even though table 39 predates it.
+
+### Open dev/prod diffs
+
+Two differences are unresolved as of 26b — real diffs a reviewer will hit, not settled quirks. Left open deliberately: each needs a decision, not more code.
+
+**`nymcea` fragments to 249 parts (prod: 122).** Prod's singlepart behavior is described above — 115 dissolved (borough, MCEA) groups become 122 features. Our output splits the same groups into **249** parts at the shoreline clip. These aren't slivers: all residual parts are ≥100 sq ft, and the sub-100-sqft filter in `clipped_geom` already gives exact prod part counts on `nycb2010/2020`, `nyct2010/2020`, `nyed`, `nypuma2020`. Total area matches prod (+0.000%) and attributes are correct. We did **not** tune a per-layer threshold to force 122 — that would be fitting noise. Open question for whoever owns MCEA: does prod apply a larger minimum mapping unit for MCEA, or dissolve *after* clipping?
+
+**Sub-0.5% area deltas on unclipped passthroughs:** `nyhez −0.454%`, `nycdwi −0.397%`, `nypp +0.341%`. These layers aren't shoreline-clipped, so clipping can't explain the shift. Working theory is `linearize()` coercing curved source geometry that prod preserves (same mechanism as the LION "Center of curvature" note below). **Unverified** — confirm the cause before sign-off; a 0.4% area shift on straight passthrough data isn't obviously benign.
+
 ## LION - Known data issues
 
 As we've continue to validate the outputs for LION, we've come across a bunch of "known" issues that have either been resolved but may return, or we've accepted that there are diffs, or what have you. A lot of these are documented loosely [here](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/DE%20Pipeline%20-%20Project%20Tracking/Data%20Discrepancy%20Tracking/LION%20Flat%20Files%20%E2%80%93%20Data%20DiscrepancyIssue%20Tracking.docx?d=w60907e50f8044bd9bffe2508a299035f&csf=1&web=1&e=aZ59n8)
