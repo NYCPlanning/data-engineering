@@ -11,7 +11,7 @@ The GDB filename(s) and version are resolved from recipe.yml. By default:
 For local iteration without S3 access, pass a local prod copy with --prod
 (e.g. --prod ../../.task-pipeline/nyclion_26a.zip).
 
-Report-only: writes a per-column CSV to output/validation_output/gdb_comparison.csv
+Report-only: writes a per-column CSV per gdb to output/validation_output/<name>_comparison.csv
 and prints a report to stdout. It never fails the build on a data mismatch.
 """
 
@@ -55,7 +55,7 @@ def _list_layers(gdb_vsi: str) -> dict[str, str | None]:
     return {str(row[0]): (str(row[1]) if row[1] else None) for row in rows}
 
 
-def _compare_layers(dev_path: Path, prod_path: Path) -> None:
+def _compare_layers(dev_path: Path, prod_path: Path, report_name: str) -> None:
     dev_gdb = _inner_gdb(dev_path)
     prod_gdb = _inner_gdb(prod_path)
 
@@ -148,7 +148,7 @@ def _compare_layers(dev_path: Path, prod_path: Path) -> None:
         print()
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_csv = OUTPUT_DIR / "gdb_comparison.csv"
+    out_csv = OUTPUT_DIR / f"{report_name}_comparison.csv"
     if all_col_rows:
         with out_csv.open("w", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=list(all_col_rows[0].keys()))
@@ -207,7 +207,7 @@ def run(
 
         print(f"\ndev:  {dev_path.resolve()}")
         print(f"prod: {prod_path.resolve()}\n")
-        _compare_layers(dev_path, prod_path)
+        _compare_layers(dev_path, prod_path, Path(filename).name.split(".")[0])
 
 
 if __name__ == "__main__":
