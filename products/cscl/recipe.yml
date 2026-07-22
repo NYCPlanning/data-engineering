@@ -190,6 +190,103 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NEIGHBORHOODPUMACODES
+
+  # district boundary gdb source layers (ETL spec ch. 10, table 39)
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_assemblydistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: AssemblyDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_borough
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Borough
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_businessimprovementdistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: BusinessImprovementDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censusblock2010
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusBlock2010
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censusblock2020
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusBlock2020
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_censustract2000
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CensusTract2000
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_citycouncildistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CityCouncilDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_communitydistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CommunityDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_congressionaldistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CongressionalDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_firebattalion
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: FireBattalion
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_firedivision
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: FireDivision
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_healthcenterdistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: HealthCenterDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_historicdistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: HistoricDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_hurricaneevacuationzone
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: HurricaneEvacuationZone
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_municourtdistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: MunicipalCourtDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_neighborhood
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: Neighborhood
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_schooldistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: SchoolDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_statesenatedistrict
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: StateSenateDistrict
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_urbanrenewalarea
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: UrbanRenewalArea
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:
@@ -426,3 +523,179 @@ exports:
     filename: nyclion_26b.zip
     format: gdb
     custom: { layer: altnames }
+
+  # District boundary geodatabase (ETL spec ch. 10, table 39)
+  # filename must match prod's, which embeds the cycle from `version:` above
+  - name: gdb_nyad
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyad, geometry_type: polygons }
+  - name: gdb_nyadwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyadwi, geometry_type: polygons }
+  - name: gdb_nyap
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyap, geometry_type: polygons }
+  - name: gdb_nybb
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nybb, geometry_type: polygons }
+  - name: gdb_nybbwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nybbwi, geometry_type: polygons }
+  - name: gdb_nybid
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nybid, geometry_type: polygons }
+  - name: gdb_nycb2010
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycb2010, geometry_type: polygons }
+  - name: gdb_nycb2010wi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycb2010wi, geometry_type: polygons }
+  - name: gdb_nycb2020
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycb2020, geometry_type: polygons }
+  - name: gdb_nycb2020wi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycb2020wi, geometry_type: polygons }
+  - name: gdb_nycc
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycc, geometry_type: polygons }
+  - name: gdb_nyccwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyccwi, geometry_type: polygons }
+  - name: gdb_nycd
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycd, geometry_type: polygons }
+  - name: gdb_nycdta2020
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycdta2020, geometry_type: polygons }
+  - name: gdb_nycdwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycdwi, geometry_type: polygons }
+  - name: gdb_nycg
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycg, geometry_type: polygons }
+  - name: gdb_nycgwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nycgwi, geometry_type: polygons }
+  - name: gdb_nyct2010
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyct2010, geometry_type: polygons }
+  - name: gdb_nyct2010wi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyct2010wi, geometry_type: polygons }
+  - name: gdb_nyct2020
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyct2020, geometry_type: polygons }
+  - name: gdb_nyct2020wi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyct2020wi, geometry_type: polygons }
+  - name: gdb_nyed
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyed, geometry_type: polygons }
+  - name: gdb_nyedwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyedwi, geometry_type: polygons }
+  - name: gdb_nyfb
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyfb, geometry_type: polygons }
+  - name: gdb_nyfc
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyfc, geometry_type: polygons }
+  - name: gdb_nyfd
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyfd, geometry_type: polygons }
+  - name: gdb_nyha
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyha, geometry_type: polygons }
+  - name: gdb_nyhc
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyhc, geometry_type: polygons }
+  - name: gdb_nyhd
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyhd, geometry_type: polygons }
+  - name: gdb_nyhez
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyhez, geometry_type: polygons }
+  - name: gdb_nymc
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nymc, geometry_type: polygons }
+  - name: gdb_nymcea
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nymcea, geometry_type: polygons }
+  - name: gdb_nymcwi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nymcwi, geometry_type: polygons }
+  - name: gdb_nynta2010
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nynta2010, geometry_type: polygons }
+  - name: gdb_nynta2020
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nynta2020, geometry_type: polygons }
+  - name: gdb_nypp
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nypp, geometry_type: polygons }
+  - name: gdb_nypuma2010
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nypuma2010, geometry_type: polygons }
+  - name: gdb_nypuma2020
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nypuma2020, geometry_type: polygons }
+  - name: gdb_nysd
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nysd, geometry_type: polygons }
+  - name: gdb_nyss
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyss, geometry_type: polygons }
+  - name: gdb_nysswi
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nysswi, geometry_type: polygons }
+  - name: gdb_nyura
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    # the CSCL source layer is empty, but prod still ships the feature class
+    custom: { layer: nyura, geometry_type: polygons, allow_empty: true }
+  - name: gdb_nyzip
+    filename: v26B_Districts.gdb.zip
+    format: gdb
+    custom: { layer: nyzip, geometry_type: polygons }

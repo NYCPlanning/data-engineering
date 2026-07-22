@@ -7,6 +7,9 @@
 
 SELECT
     atomicid,
+    -- carried through raw for the nyap feature class, which publishes them as stored
+    atomic_num,
+    admin_fire_company,
     borough AS borocode,
     -- census 1990
     censustract_1990,

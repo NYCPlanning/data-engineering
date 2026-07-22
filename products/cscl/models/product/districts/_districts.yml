@@ -1,0 +1,390 @@
+version: 2
+
+# Feature classes of the district boundary geodatabase (ETL spec ch. 10, table 39).
+# Column names and row counts are matched against prod's v26B_Districts.gdb.zip.
+
+models:
+- name: gdb_nyad
+  description: State assembly districts clipped to the shoreline.
+  columns:
+  - name: "'AssemDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyadwi
+  description: State assembly districts, water areas included (as stored in CSCL).
+  columns:
+  - name: "'AssemDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyap
+  description: Atomic polygons, the base geography of the ETL. Near-passthrough of the CSCL source layer.
+  columns:
+  - name: "'ATOMICID'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nybb
+  description: Borough boundaries clipped to the shoreline.
+  columns:
+  - name: "'BoroCode'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nybbwi
+  description: Borough boundaries, water areas included.
+  columns:
+  - name: "'BoroCode'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nybid
+  description: Business improvement districts.
+  columns:
+  - name: "'BIDID'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycb2010
+  description: 2010 census blocks clipped to the shoreline.
+  columns:
+  - name: "'BCTCB2010'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycb2010wi
+  description: 2010 census blocks, water areas included.
+  columns:
+  - name: "'BCTCB2010'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycb2020
+  description: 2020 census blocks clipped to the shoreline.
+  columns:
+  - name: "'BCTCB2020'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycb2020wi
+  description: 2020 census blocks, water areas included.
+  columns:
+  - name: "'BCTCB2020'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycc
+  description: City council districts clipped to the shoreline.
+  columns:
+  - name: "'CounDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyccwi
+  description: City council districts, water areas included.
+  columns:
+  - name: "'CounDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycd
+  description: Community districts clipped to the shoreline.
+  columns:
+  - name: "'BoroCD'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycdta2020
+  description: 2020 community district tabulation areas clipped to the shoreline.
+  columns:
+  - name: "'CDTA2020'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycdwi
+  description: Community districts, water areas included.
+  columns:
+  - name: "'BoroCD'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycg
+  description: Congressional districts clipped to the shoreline.
+  columns:
+  - name: "'CongDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nycgwi
+  description: Congressional districts, water areas included.
+  columns:
+  - name: "'CongDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyct2010
+  description: 2010 census tracts clipped to the shoreline.
+  columns:
+  - name: "'BoroCT2010'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyct2010wi
+  description: 2010 census tracts, water areas included.
+  columns:
+  - name: "'BoroCT2010'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyct2020
+  description: 2020 census tracts clipped to the shoreline.
+  columns:
+  - name: "'BoroCT2020'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyct2020wi
+  description: 2020 census tracts, water areas included.
+  columns:
+  - name: "'BoroCT2020'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyed
+  description: Election districts clipped to the shoreline.
+  columns:
+  - name: "'ElectDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyedwi
+  description: Election districts, water areas included.
+  columns:
+  - name: "'ElectDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyfb
+  description: Fire battalions clipped to the shoreline.
+  columns:
+  - name: "'FireBN'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyfc
+  description: Fire companies clipped to the shoreline.
+  columns:
+  - name: "'FireCoNum'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyfd
+  description: Fire divisions clipped to the shoreline.
+  columns:
+  - name: "'FireDiv'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyha
+  description: Health areas clipped to the shoreline.
+  columns:
+  - name: "'HealthArea'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyhc
+  description: Health center districts clipped to the shoreline.
+  columns:
+  - name: "'HCentDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyhd
+  description: Historic districts.
+  columns:
+  - name: "'LP_NUMBER'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyhez
+  description: Hurricane evacuation zones, water areas included.
+  columns:
+  - name: "'HURRICANE_EVACUATION_ZONE'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nymc
+  description: Municipal court districts clipped to the shoreline, excluding the '00' placeholder.
+  columns:
+  - name: "'MuniCourt'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nymcea
+  description: Minor census economic areas, dissolved from 2000 census tracts, clipped and split to singlepart.
+  columns:
+  - name: "'MCEA'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nymcwi
+  description: Municipal court districts, water areas included, excluding the '00' placeholder.
+  columns:
+  - name: "'MuniCourt'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nynta2010
+  description: 2010 neighborhood tabulation areas clipped to the shoreline.
+  columns:
+  - name: "'NTACode'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nynta2020
+  description: 2020 neighborhood tabulation areas clipped to the shoreline.
+  columns:
+  - name: "'NTA2020'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nypp
+  description: Police precincts clipped to the shoreline.
+  columns:
+  - name: "'Precinct'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nypuma2010
+  description: 2010 public use microdata areas, dissolved from 2010 census tracts and clipped to the shoreline.
+  columns:
+  - name: "'PUMA'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nypuma2020
+  description: 2020 public use microdata areas, dissolved from 2020 census tracts and clipped to the shoreline.
+  columns:
+  - name: "'PUMA'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nysd
+  description: School districts clipped to the shoreline. District 10 is split into one polygon per borough.
+  columns:
+  - name: "'SchoolDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyss
+  description: State senate districts clipped to the shoreline.
+  columns:
+  - name: "'StSenDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nysswi
+  description: State senate districts, water areas included.
+  columns:
+  - name: "'StSenDist'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyura
+  description: Urban renewal areas. The CSCL source layer is currently empty.
+  columns:
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
+
+- name: gdb_nyzip
+  description: Zip code areas.
+  columns:
+  - name: "'ZIP_CODE'"
+    data_tests: [ not_null ]
+  - name: geom
+    description: Polygon geometry (MultiPolygon, EPSG:2263)
+    data_tests: [ not_null ]
