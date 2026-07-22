@@ -179,3 +179,69 @@ class TestGetDataset:
         with load.get_imported_file(self.load_result, "csv") as stream:
             df = pd.read_csv(stream, dtype=str)
         assert df.equals(_test_df)
+
+
+class TestCachedLoad:
+    """The cache is keyed by dataset id, but tables are named by `import_as`."""
+
+    @staticmethod
+    def _recipe():
+        recipe = MagicMock()
+        recipe.name = "Tester"
+        recipe.inputs.datasets = [
+            InputDataset(
+                name="multi_layer_source",
+                import_as="layer_b",
+                version="v1",
+                file_type=recipes.DatasetType.csv,
+                destination=InputDatasetDestination.postgres,
+            )
+        ]
+        return recipe
+
+    def _load(self, table_exists: bool):
+        pg_client = MagicMock()
+        pg_client.table_or_view_exists.return_value = table_exists
+        # source_data_versions reports the *dataset id*, so the cache looks populated
+        # for every layer of a multi-layer source once any one of them is cached.
+        versions = pd.DataFrame(
+            [{"schema_name": "multi_layer_source", "v": "v1", "file_type": "csv"}]
+        )
+        with (
+            patch.object(load.postgres, "PostgresClient", return_value=pg_client),
+            patch.object(load, "get_source_data_versions", return_value=versions),
+            patch.object(load, "setup_build_pg_schema"),
+            patch.object(load.data_loader, "pull_dataset", return_value=CSV),
+            patch.object(
+                load,
+                "import_dataset",
+                return_value=ImportedDataset(
+                    id="multi_layer_source",
+                    version="v1",
+                    file_type=recipes.DatasetType.csv,
+                    destination="layer_b",
+                    destination_type=InputDatasetDestination.postgres,
+                ),
+            ) as import_dataset,
+        ):
+            load.load_source_data_from_resolved_recipe(
+                self._recipe(),
+                cache_schema="recipe_cache",
+                cached_entity_type=load.CachedEntityType.view,
+                target_schema="build_schema",
+                _write_metadata_file=False,
+            )
+        return pg_client, import_dataset
+
+    def test_uses_cache_when_table_present(self):
+        pg_client, import_dataset = self._load(table_exists=True)
+        pg_client.create_view.assert_called_once_with("layer_b", "recipe_cache")
+        import_dataset.assert_not_called()
+
+    def test_falls_back_to_pull_when_table_absent(self):
+        pg_client, import_dataset = self._load(table_exists=False)
+        pg_client.table_or_view_exists.assert_called_once_with(
+            "layer_b", schema="recipe_cache"
+        )
+        pg_client.create_view.assert_not_called()
+        import_dataset.assert_called_once()

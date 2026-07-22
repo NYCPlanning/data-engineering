@@ -118,12 +118,18 @@ def load_source_data_from_resolved_recipe(
 
     imported_datasets: dict[str, dict[str, ImportedDataset]] = defaultdict(dict)
     for ds in recipe.inputs.datasets:
+        # source_data_versions is keyed by dataset id, so a multi-layer source (one
+        # id imported under several `import_as` names) reports every layer as cached
+        # once any one of them is. Confirm the table is really there before using it.
+        table_name = ds.import_as or ds.id
         use_cached = (
             cache_schema
             and cached_entity_type
             and ds.destination == InputDatasetDestination.postgres
             and cache_source_versions_df is not None
             and dataset_exists_in_schema(ds, cache_source_versions_df)
+            and pg_client is not None
+            and pg_client.table_or_view_exists(table_name, schema=cache_schema)
         )
         if not use_cached:  # business as usual. Pull data and load it.
             file_path = data_loader.pull_dataset(ds, stage=LIFECYCLE_STAGE)
@@ -135,7 +141,6 @@ def load_source_data_from_resolved_recipe(
             logger.info(
                 f"Dataset {ds.dataset} version {ds.version} exists in schema {cache_schema}"
             )
-            table_name = ds.import_as or ds.id
             imported_datasets[ds.id][str(ds.version)] = ImportedDataset.from_input(
                 ds, table_name
             )
