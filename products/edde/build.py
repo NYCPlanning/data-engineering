@@ -20,7 +20,6 @@ from utils.geo_helpers import acs_years
 
 from dcpy.lifecycle.builds import (
     get_recipe_lock,
-    get_recipe_lock_path,
 )
 from dcpy.utils.logging import logger
 
@@ -176,9 +175,13 @@ def copy_build_metadata():
     # Verify recipe.lock.yml exists (it should have been downloaded from S3)
     recipe_lock_dest = build_output_dir / "recipe.lock.yml"
     if recipe_lock_dest.exists():
-        logger.info(f"recipe.lock.yml found in build output directory: {recipe_lock_dest}")
+        logger.info(
+            f"recipe.lock.yml found in build output directory: {recipe_lock_dest}"
+        )
     else:
-        logger.warning(f"recipe.lock.yml not found in build output directory: {recipe_lock_dest}")
+        logger.warning(
+            f"recipe.lock.yml not found in build output directory: {recipe_lock_dest}"
+        )
 
     # build_metadata.json is already in BUILD_ENV_OUTPUT_DIR (build output directory)
     # No need to copy - it's created there by the build system

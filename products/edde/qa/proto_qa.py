@@ -311,12 +311,15 @@ def compare_builds():
     # - If 2025 is zero and 2026 is not zero: use inf or a large value
     # - Otherwise: normal percent change calculation
     # Use numpy's divide with where parameter to handle division by zero safely
-    comparison["pct_change"] = np.divide(
-        (comparison["2026"] - comparison["2025"]),
-        comparison["2025"],
-        out=np.zeros_like(comparison["2025"], dtype=float),
-        where=comparison["2025"] != 0,
-    ) * 100
+    comparison["pct_change"] = (
+        np.divide(
+            (comparison["2026"] - comparison["2025"]),
+            comparison["2025"],
+            out=np.zeros_like(comparison["2025"], dtype=float),
+            where=comparison["2025"] != 0,
+        )
+        * 100
+    )
 
     # Set appeared values (null -> value) to +100%
     appeared_mask = comparison["2025"].isna() & comparison["2026"].notna()
