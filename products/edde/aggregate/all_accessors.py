@@ -48,7 +48,6 @@ from aggregate.PUMS import (
 #     overdose_mortality,
 #     premature_mortality,
 # )
-# from aggregate.quality_of_life.heat_vulnerability import heat_vulnerability
 from aggregate.quality_of_life import (
     access_subway_and_access_ADA,
     access_to_broadband,
@@ -72,7 +71,6 @@ QOL_accessors = [
     access_subway_and_access_ADA,
     get_education_outcome,
     # covid_death,
-    # heat_vulnerability,
     health_self_reported,
     # infant_mortality,
     # overdose_mortality,

@@ -70,6 +70,7 @@ custom:
   CENSUS_BASE_YEAR: "2000"
   ACS_PREV_YEAR_BAND: "0812"
   ACS_CURRENT_YEAR_BAND: "2024"
+  HOUSING_DATABASE_QUARTER: "2024 Q4"
 
   ignored_indicators:
     - health_diabetes
