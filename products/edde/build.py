@@ -4,7 +4,6 @@ Combines census/ACS data (demographics, economics) with other indicators
 (housing_security, housing_production, quality_of_life).
 """
 
-import shutil
 from typing import Optional
 
 import pandas as pd
@@ -21,7 +20,6 @@ from utils.geo_helpers import acs_years
 
 from dcpy.lifecycle.builds import (
     get_recipe_lock,
-    get_recipe_lock_path,
 )
 from dcpy.utils.logging import logger
 
@@ -163,20 +161,27 @@ def build_other_category(geography: str, category: str) -> pd.DataFrame:
 
 
 def copy_build_metadata():
-    """Copy recipe.lock.yml and build_metadata.json to build output directory."""
+    """Verify build metadata files exist in build output directory.
+
+    Note: recipe.lock.yml is downloaded from S3 by the build system and should NOT be
+    overwritten. build_metadata.json is created by the build system in the output directory.
+    This function just verifies they're present.
+    """
     build_output_dir = get_build_output_dir()
 
     # Ensure build output directory exists
     build_output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy recipe.lock.yml
-    recipe_lock_source = get_recipe_lock_path(PRODUCT_PATH)
+    # Verify recipe.lock.yml exists (it should have been downloaded from S3)
     recipe_lock_dest = build_output_dir / "recipe.lock.yml"
-    if recipe_lock_source.exists():
-        shutil.copy2(recipe_lock_source, recipe_lock_dest)
-        logger.info(f"Copied recipe.lock.yml to {recipe_lock_dest}")
+    if recipe_lock_dest.exists():
+        logger.info(
+            f"recipe.lock.yml found in build output directory: {recipe_lock_dest}"
+        )
     else:
-        logger.warning(f"recipe.lock.yml not found at {recipe_lock_source}")
+        logger.warning(
+            f"recipe.lock.yml not found in build output directory: {recipe_lock_dest}"
+        )
 
     # build_metadata.json is already in BUILD_ENV_OUTPUT_DIR (build output directory)
     # No need to copy - it's created there by the build system
