@@ -42,12 +42,12 @@ from aggregate.PUMS import (
 )
 
 # Quality of life imports
-# from aggregate.quality_of_life.traffic_fatalities import traffic_fatalities_injuries
-# from aggregate.quality_of_life.health_mortality import (
-#     infant_mortality,
-#     overdose_mortality,
-#     premature_mortality,
-# )
+from aggregate.quality_of_life.traffic_fatalities import traffic_fatalities_injuries
+from aggregate.quality_of_life.health_mortality import (
+    infant_mortality,
+    overdose_mortality,
+    premature_mortality,
+)
 from aggregate.quality_of_life import (
     access_subway_and_access_ADA,
     access_to_broadband,
@@ -55,6 +55,7 @@ from aggregate.quality_of_life import (
     access_to_openspace,
     access_transit_car,
     assault_hospitalizations,
+    pedestrian_hospitalizations,
     get_education_outcome,
     health_diabetes,
     health_self_reported,
@@ -72,13 +73,13 @@ QOL_accessors = [
     get_education_outcome,
     # covid_death,
     health_self_reported,
-    # infant_mortality,
-    # overdose_mortality,
-    # premature_mortality,
+    infant_mortality,
+    overdose_mortality,
+    premature_mortality,
     health_diabetes,
-    # traffic_fatalities_injuries,
+    traffic_fatalities_injuries,
     assault_hospitalizations,
-    # pedestrian_hospitalizations,
+    pedestrian_hospitalizations,
 ]
 
 housing_security_accessors = [

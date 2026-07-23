@@ -12,6 +12,7 @@ from aggregate.quality_of_life.diabetes_self_report import (
 from aggregate.quality_of_life.education_outcome import get_education_outcome
 from aggregate.quality_of_life.safety_ped_aslt_hospitalizations import (
     assault_hospitalizations,
+    pedestrian_hospitalizations,
 )
 
 all_accessors = [
@@ -24,6 +25,7 @@ all_accessors = [
     health_self_reported,
     get_education_outcome,
     assault_hospitalizations,
+    pedestrian_hospitalizations,
 ]
 
 __all__ = [
@@ -36,5 +38,6 @@ __all__ = [
     "health_self_reported",
     "get_education_outcome",
     "assault_hospitalizations",
+    "pedestrian_hospitalizations",
     "all_accessors",
 ]
