@@ -101,15 +101,15 @@ def run_single_command(
         os.environ["BUILD_ENGINE"] = build_engine
         logger.info(f"Set BUILD_ENGINE: {build_engine}")
 
+    # Set BUILD_ENV_OUTPUT_DIR if build_directory is provided (needed for all commands)
+    if build_directory:
+        os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_directory)
+        logger.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_directory}")
+
     # Handle special command names
     if command_name == "load_recipe_data":
         logger.info("Executing load_recipe_data step")
         from dcpy.lifecycle.builds import load as build_load
-
-        # Determine build directory for setting BUILD_ENV_OUTPUT_DIR
-        if build_directory:
-            os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_directory)
-            logger.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_directory}")
 
         # Configure file logging
         if build_directory:
@@ -128,11 +128,6 @@ def run_single_command(
         from dcpy.lifecycle.builds import export as build_export
         from dcpy.lifecycle.builds import metadata as build_metadata
         from dcpy.lifecycle.config import get_build_dir
-
-        # Determine build directory
-        if build_directory:
-            os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_directory)
-            logger.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_directory}")
 
         # If recipe has exports, run the export step
         if recipe.exports:
