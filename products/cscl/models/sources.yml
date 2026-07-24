@@ -58,6 +58,27 @@ sources:
   - name: dcp_cscl_universalword
   - name: dcp_cscl_zipcode
   - name: dcp_cscl_electiondistrict
+
+  # district boundary gdb source layers (ETL spec ch. 10, table 39)
+  - name: dcp_cscl_assemblydistrict
+  - name: dcp_cscl_borough
+  - name: dcp_cscl_businessimprovementdistrict
+  - name: dcp_cscl_censusblock2010
+  - name: dcp_cscl_censusblock2020
+  - name: dcp_cscl_censustract2000
+  - name: dcp_cscl_citycouncildistrict
+  - name: dcp_cscl_communitydistrict
+  - name: dcp_cscl_congressionaldistrict
+  - name: dcp_cscl_firebattalion
+  - name: dcp_cscl_firedivision
+  - name: dcp_cscl_healthcenterdistrict
+  - name: dcp_cscl_historicdistrict
+  - name: dcp_cscl_hurricaneevacuationzone
+  - name: dcp_cscl_municourtdistrict
+  - name: dcp_cscl_neighborhood
+  - name: dcp_cscl_schooldistrict
+  - name: dcp_cscl_statesenatedistrict
+  - name: dcp_cscl_urbanrenewalarea
   - name: dcp_cscl_neighborhoodpumacodes
 
 # TODO - remove when pipeline is fully operationalized

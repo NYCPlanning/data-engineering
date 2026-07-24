@@ -174,14 +174,23 @@ def _write_shapefile_zip(gdf, table_name: str, file_path: Path, tmp_dir: Path) -
 
 
 def _write_gdb_zip(
-    layers: list[tuple[str, Any]], file_path: Path, tmp_dir: Path
+    layers: list[tuple[str, Any]],
+    file_path: Path,
+    tmp_dir: Path,
+    allow_empty: set[str] | None = None,
 ) -> None:
     """Write one or more named layers to a zipped FGDB.
 
     Each entry in `layers` is (layer_name, gdf). OpenFileGDB requires a single
     geometry type per layer; use geometry_type='points' or 'polygons' in the
     recipe custom fields to filter before reaching here.
+
+    An empty layer is an error by default, since it usually means a geometry_type
+    filter matched nothing. Layers named in `allow_empty` (recipe `custom.allow_empty`)
+    are written as schema-only instead, for feature classes that are legitimately
+    empty upstream and still have to appear in the output.
     """
+    allow_empty = allow_empty or set()
     gdb_name = file_path.stem
     gdb_path = tmp_dir / f"{gdb_name}.gdb"
     # OpenFileGDB requires creating the file on the first layer, then appending the
@@ -189,9 +198,14 @@ def _write_gdb_zip(
     # GeoDataFrames (spatial, one geometry type per layer) and plain DataFrames
     # (non-spatial tables like node_stname / altnames, which have no geometry column).
     for i, (layer_name, gdf) in enumerate(layers):
+        write_kwargs: dict[str, Any] = {}
         if gdf.empty:
-            raise ValueError(f"No rows to export for GDB layer '{layer_name}'")
-        if isinstance(gdf, gpd.GeoDataFrame):
+            if layer_name not in allow_empty:
+                raise ValueError(f"No rows to export for GDB layer '{layer_name}'")
+            # An empty frame carries no geometry to infer from, so name the type.
+            if isinstance(gdf, gpd.GeoDataFrame):
+                write_kwargs["geometry_type"] = "MultiPolygon"
+        elif isinstance(gdf, gpd.GeoDataFrame):
             gdf = _normalize_to_single_geom_type(gdf, layer_name)
         pyogrio.write_dataframe(
             gdf,
@@ -199,6 +213,7 @@ def _write_gdb_zip(
             driver="OpenFileGDB",
             layer=layer_name,
             append=i > 0,
+            **write_kwargs,
         )
     shutil.make_archive(
         str(file_path.with_suffix("")), "zip", tmp_dir, f"{gdb_name}.gdb"
@@ -308,6 +323,7 @@ def export(
 
     for filename, gdb_entries in gdb_groups.items():
         layers = []
+        allow_empty: set[str] = set()
         for output in gdb_entries:
             custom = output.custom or {}
             layer_name = custom.get("layer", output.name)
@@ -325,8 +341,12 @@ def export(
                 # Non-spatial GDB layer (no geometry_type) — read as a plain table.
                 gdf = pg_client.read_table_df(output.name)
             layers.append((layer_name, gdf))
+            if custom.get("allow_empty"):
+                allow_empty.add(layer_name)
         with tempfile.TemporaryDirectory() as tmp_str:
-            _write_gdb_zip(layers, dataset_files_folder / filename, Path(tmp_str))
+            _write_gdb_zip(
+                layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
+            )
 
     if recipe.exports.zip_name:
         zip_path = output_folder / f"{recipe.exports.zip_name}.zip"
