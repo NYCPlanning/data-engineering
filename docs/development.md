@@ -96,11 +96,23 @@ python -m pip install --editable . --constraint ./admin/run_environment/constrai
 ```
 
 > [!NOTE]
-> If you set up the venv via `uv sync` (e.g. in a git worktree) rather than `uv venv` + activate, use `uv pip install` instead — the synced venv has no `pip` module:
+> A `uv venv` environment has no `pip` module, so outside an activated venv (e.g. in a git
+> worktree) use `uv pip install` instead:
 > ```bash
 > uv pip install --requirement ./admin/run_environment/requirements.txt
 > uv pip install --editable . --constraint ./admin/run_environment/constraints.txt
 > ```
+
+> [!WARNING]
+> **Don't use `uv sync` or a bare `uv run` in this repo.** `pyproject.toml` lists dependencies
+> unpinned, so both resolve against `uv.lock` — a gitignored, per-machine file — rather than the
+> pinned `requirements.txt` that CI builds from. `uv run` re-syncs the venv on *every* invocation,
+> silently reverting the installs above; it regenerates `uv.lock` first if you deleted it, so
+> deleting the lockfile is not a fix. The result is local packages that differ from CI, which is
+> how pandas 3 breakages have reached nightly QA undetected.
+>
+> Run commands through the direnv-activated `.venv` instead (plain `python`, `pytest`, …). If you
+> want `uv run`, it must be `uv run --no-sync`.
 
 ## Loading environment variables (direnv)
 
