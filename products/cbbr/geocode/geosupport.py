@@ -199,7 +199,15 @@ if __name__ == "__main__":
     cbbr_data = client.read_table_df("_cbbr_submissions")
 
     print("parsing location data for geocoding ...")
-    cbbr_data = cbbr_data.where(pd.notnull(cbbr_data), None)
+    # pandas 3's `str` dtype stores missing values as `nan` — a truthy float that it
+    # coerces back from None — so the geocoding functions' `if not value` guards can
+    # only see them once text columns are held as object.
+    text_columns: pd.Index = cbbr_data.select_dtypes(include="str").columns
+    cbbr_data[text_columns] = (
+        cbbr_data[text_columns]
+        .astype(object)
+        .where(pd.notnull(cbbr_data[text_columns]), None)
+    )
     cbbr_data["addressnum"] = cbbr_data["address"].apply(get_hnum)
     cbbr_data["street_name"] = cbbr_data["address"].apply(get_sname)
     cbbr_data["landmark"] = cbbr_data["address"].apply(get_landmarkname)
