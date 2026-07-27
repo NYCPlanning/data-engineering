@@ -39,7 +39,13 @@ def resolve_all_projects(df):
 
     # Subtract units within cluster based on hierarchy
     print("Subtracting units within projcts based on source hierarchy...")
-    resolved = df.groupby(["project_id"], as_index=False).apply(resolve_project)
+    # pandas 3 no longer passes the grouping column to the applied function, so
+    # project_id has to be recovered from the group index rather than the frame.
+    resolved = (
+        df.groupby("project_id", group_keys=True)
+        .apply(resolve_project)
+        .reset_index("project_id")
+    )
     resolved = resolved[
         ["project_id", "source", "units_gross", "units_net", "record_id"]
     ]
