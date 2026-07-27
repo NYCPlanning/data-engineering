@@ -382,8 +382,8 @@ class ChangeCalculator:
             result[f"{pct_label}_pct"] = self._calculate_pct_change(old_val, new_val)
 
             # Percent change MOE (lines 117-128)
-            # Only add this column if MOE values exist (line 123: if(pumaNew[`${thisLabel}_moe`]))
-            if not pd.isna(new_moe):
+            # Add this column if MOE values exist in either old or new data
+            if not pd.isna(old_moe) or not pd.isna(new_moe):
                 result[f"{pct_label}_pct_moe"] = self._calculate_pct_change_moe(
                     old_val, new_val, old_moe, new_moe, result[f"{pct_label}_pct"]
                 )

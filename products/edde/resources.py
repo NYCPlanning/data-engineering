@@ -323,7 +323,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "PUMA",
         "data_table": "5.03,5.04,5.05",
-        "required_columns": ["PUMA"],  # File missing - columns TBD
+        "required_columns": ["PUMA"],
         "loader": _load_health_mortality_puma,
     },
     "health_mortality_borough": {
@@ -331,7 +331,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "Borough",
         "data_table": "5.03,5.04,5.05",
-        "required_columns": ["Borough"],  # File missing - columns TBD
+        "required_columns": ["Borough"],
         "loader": _load_health_mortality_borough,
     },
     "health_mortality_citywide": {
@@ -339,7 +339,7 @@ RESOURCES = {
         "type": "excel",
         "sheet_name": "City",
         "data_table": "5.03,5.04,5.05",
-        "required_columns": ["City"],  # File missing - columns TBD
+        "required_columns": ["City"],
         "loader": _load_health_mortality_citywide,
     },
     # Quality of Life - Diabetes
