@@ -4,6 +4,32 @@ DESCRIPTION:
 
 */
 
+-- HPD's pre-publication extract pads values, formats unit counts with thousands
+-- separators, and writes '-' for null. Postgres tolerates the padding but errors on
+-- the other two when downstream SQL casts these columns to numeric. No-op against the
+-- Open Data version, so this is safe to leave in place once that source returns.
+UPDATE hpd_hny_units_by_building
+SET
+    census_tract = btrim(census_tract),
+    extremely_low_income_units = nullif(replace(btrim(extremely_low_income_units), ',', ''), '-'),
+    very_low_income_units = nullif(replace(btrim(very_low_income_units), ',', ''), '-'),
+    low_income_units = nullif(replace(btrim(low_income_units), ',', ''), '-'),
+    moderate_income_units = nullif(replace(btrim(moderate_income_units), ',', ''), '-'),
+    middle_income_units = nullif(replace(btrim(middle_income_units), ',', ''), '-'),
+    other_income_units = nullif(replace(btrim(other_income_units), ',', ''), '-'),
+    studio_units = nullif(replace(btrim(studio_units), ',', ''), '-'),
+    "1_br_units" = nullif(replace(btrim("1_br_units"), ',', ''), '-'),
+    "2_br_units" = nullif(replace(btrim("2_br_units"), ',', ''), '-'),
+    "3_br_units" = nullif(replace(btrim("3_br_units"), ',', ''), '-'),
+    "4_br_units" = nullif(replace(btrim("4_br_units"), ',', ''), '-'),
+    "5_br_units" = nullif(replace(btrim("5_br_units"), ',', ''), '-'),
+    "6_br+_units" = nullif(replace(btrim("6_br+_units"), ',', ''), '-'),
+    unknown_br_units = nullif(replace(btrim(unknown_br_units), ',', ''), '-'),
+    counted_rental_units = nullif(replace(btrim(counted_rental_units), ',', ''), '-'),
+    counted_homeownership_units = nullif(replace(btrim(counted_homeownership_units), ',', ''), '-'),
+    all_counted_units = nullif(replace(btrim(all_counted_units), ',', ''), '-'),
+    total_units = nullif(replace(btrim(total_units), ',', ''), '-');
+
 -- HPD units data
 ALTER TABLE hpd_hny_units_by_building ADD COLUMN ogc_fid_text text;
 UPDATE hpd_hny_units_by_building
