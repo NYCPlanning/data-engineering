@@ -70,6 +70,33 @@ def expand_year_range(year_code: str) -> str:
     return year_code
 
 
+def get_end_year(year_code: str) -> str:
+    """
+    Extract the end year from an abbreviated year code.
+
+    Args:
+        year_code: Year code like "0812", "1923", or "2024"
+
+    Returns:
+        The end year in full 4-digit format like "2012", "2023", or "2024"
+
+    Examples:
+        "0812" -> "2012"
+        "1923" -> "2023"
+        "2024" -> "2024"
+    """
+    year_code = str(year_code)
+
+    # Handle 4-digit range codes (e.g., "0812" or "1923")
+    if len(year_code) == 4:
+        last_two = year_code[2:]
+        # Assume 20XX for years >= 00
+        return f"20{last_two}"
+
+    # For other formats (like "2024"), return as-is
+    return year_code
+
+
 def render_template(template_path: Path, variables: dict) -> str:
     """
     Render a single JSON template file with Jinja2.
@@ -90,8 +117,9 @@ def render_template(template_path: Path, variables: dict) -> str:
         lstrip_blocks=False,
     )
 
-    # Add custom filter for expanding year ranges
+    # Add custom filters for year manipulation
     env.filters["expand_year_range"] = expand_year_range
+    env.filters["get_end_year"] = get_end_year
 
     template = env.get_template(template_path.name)
     rendered = template.render(**variables)

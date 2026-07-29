@@ -90,10 +90,10 @@ def premature_mortality(geography: str, year=LATEST_YEAR):
 
 def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year: str):
     # Year lists from recipe vars
-    if geography == "puma":
-        years = health_mortality_puma_baseline_years + [year]
-    else:
-        years = health_mortality_baseline_years + ["20" + year[2:]]
+    # Output ALL year columns for all geographies (will fill missing with NaN)
+    puma_years = health_mortality_puma_baseline_years + [year]  # e.g., ["0004", "1014", "1923"]
+    borough_citywide_years = health_mortality_baseline_years + ["20" + year[2:]]  # e.g., ["2000", "2010", "2023"]
+    years = puma_years + borough_citywide_years  # All years combined
 
     cols = df.columns
     cols = [c.replace(ind_name, ind_name_mapper[ind_name]) for c in cols]

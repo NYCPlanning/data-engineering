@@ -111,7 +111,7 @@
           "quality_of_life_puma"
         ],
         "vintages": [
-          "NYC VITAL STATISTICS, 2016-2020"
+          "NYC VITAL STATISTICS, {{ health_mortality.latest_year | expand_year_range }}"
         ],
         "years": ["_{{ health_mortality.latest_year }}"]
       },
@@ -122,11 +122,11 @@
           "quality_of_life_borough"
         ],
         "vintages": [
-          "NYC VITAL STATISTICS, 2000",
-          "NYC VITAL STATISTICS, 2010",
-          "NYC VITAL STATISTICS, 2020"
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[0] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_2000", "_2010", "_2020"]
+        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
       },
       "citywide": {
         "files": [
@@ -135,11 +135,11 @@
           "quality_of_life_citywide"
         ],
         "vintages": [
-          "NYC VITAL STATISTICS, 2000",
-          "NYC VITAL STATISTICS, 2010",
-          "NYC VITAL STATISTICS, 2020"
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[0] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_2000", "_2010", "_2020"]
+        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
       }
     },
     "subgroups": {
@@ -178,7 +178,7 @@
           "quality_of_life_puma"
         ],
         "vintages": [
-          "NYC VITAL STATISTICS, 2016-2020"
+          "NYC VITAL STATISTICS, {{ health_mortality.latest_year | expand_year_range }}"
         ],
         "years": ["_{{ health_mortality.latest_year }}"]
       },
@@ -189,11 +189,11 @@
           "quality_of_life_borough"
         ],
         "vintages": [
-          "NYC VITAL STATISTICS, 2000",
-          "NYC VITAL STATISTICS, 2010",
-          "NYC VITAL STATISTICS, 2020"
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[0] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_2000", "_2010", "_2020"]
+        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
       },
       "citywide": {
         "files": [
@@ -202,11 +202,11 @@
           "quality_of_life_citywide"
         ],
         "vintages": [
-          "NYC VITAL STATISTICS, 2000",
-          "NYC VITAL STATISTICS, 2010",
-          "NYC VITAL STATISTICS, 2020"
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[0] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
+          "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_2000", "_2010", "_2020"]
+        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
       }
     },
     "subgroups": {
@@ -241,18 +241,18 @@
     "geographies": {
       "district": {
         "files": [ "quality_of_life_puma" ],
-        "vintages": [ "NYC VITAL STATISTICS, 2016-2020" ],
+        "vintages": [ "NYC VITAL STATISTICS, {{ health_mortality.latest_year | expand_year_range }}" ],
         "years": [ "_{{ health_mortality.latest_year }}" ]
       },
       "borough": {
         "files": [ "quality_of_life_borough"  ],
-        "vintages": [ "NYC VITAL STATISTICS, 2020" ],
-        "years": [ "_2020" ]
+        "vintages": [ "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}" ],
+        "years": [ "_{{ health_mortality.latest_year | get_end_year }}" ]
       },
       "citywide": {
         "files": [ "quality_of_life_citywide" ],
-        "vintages": [ "NYC VITAL STATISTICS, 2020" ],
-        "years": [ "_2020" ]
+        "vintages": [ "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}" ],
+        "years": [ "_{{ health_mortality.latest_year | get_end_year }}" ]
       }
     },
     "subgroups": {

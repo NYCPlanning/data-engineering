@@ -21,11 +21,7 @@ def get_edde_paths() -> tuple[Path, Path]:
         - old_edde_path: Path to loaded EDDE dataset from previous version
         - new_build_path: Path to current build data directory
     """
-    # Get current build info from recipe.lock.yml
-    recipe_lock = get_recipe_lock(PRODUCT_PATH)
-    if not recipe_lock.build_name:
-        raise ValueError("build_name not found in recipe.lock.yml")
-    current_build_name = recipe_lock.build_name
+    import os
 
     # Load build metadata for old EDDE path
     build_metadata = get_build_metadata(PRODUCT_PATH)
@@ -58,8 +54,17 @@ def get_edde_paths() -> tuple[Path, Path]:
     # The loaded EDDE dataset has a "dataset_files" subdirectory containing the actual CSVs
     old_edde_path = Path(edde_data.destination) / "dataset_files"
 
-    # Get new build path from current build output directory (using build_name, not version)
-    new_build_path = get_build_dir(PRODUCT_NAME, current_build_name) / "dataset_files"
+    # Get new build path - prioritize BUILD_ENV_OUTPUT_DIR
+    if "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        new_build_path = Path(os.environ["BUILD_ENV_OUTPUT_DIR"]) / "dataset_files"
+    else:
+        # Fallback: Get current build info from recipe.lock.yml
+        recipe_lock = get_recipe_lock(PRODUCT_PATH)
+        if not recipe_lock.build_name:
+            raise ValueError("build_name not found in recipe.lock.yml")
+        current_build_name = recipe_lock.build_name
+        # Get new build path from current build output directory (using build_name, not version)
+        new_build_path = get_build_dir(PRODUCT_NAME, current_build_name) / "dataset_files"
 
     return old_edde_path, new_build_path
 
