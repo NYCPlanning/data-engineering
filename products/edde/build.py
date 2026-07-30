@@ -176,7 +176,11 @@ def combine_geography_csvs(category: str):
     dataset_files_dir = build_output_dir / "dataset_files" / category
 
     geographies = ["puma", "borough", "citywide"]
-    geography_column_map = {"puma": "puma", "borough": "borough", "citywide": "citywide"}
+    geography_column_map = {
+        "puma": "puma",
+        "borough": "borough",
+        "citywide": "citywide",
+    }
 
     # Load each geography CSV
     dfs = []
@@ -247,7 +251,11 @@ def combine_census_geography_csvs(category: str, year: str):
     dataset_files_dir = build_output_dir / "dataset_files" / category
 
     geographies = ["puma", "borough", "citywide"]
-    geography_column_map = {"puma": "puma", "borough": "borough", "citywide": "citywide"}
+    geography_column_map = {
+        "puma": "puma",
+        "borough": "borough",
+        "citywide": "citywide",
+    }
 
     # Load each geography CSV
     dfs = []
@@ -256,7 +264,9 @@ def combine_census_geography_csvs(category: str, year: str):
     for geo in geographies:
         csv_path = dataset_files_dir / f"{category}_{year}_{geo}.csv"
         if not csv_path.exists():
-            logger.warning(f"Skipping combined CSV for {year}: {csv_path} does not exist")
+            logger.warning(
+                f"Skipping combined CSV for {year}: {csv_path} does not exist"
+            )
             return
 
         df = pd.read_csv(csv_path)
@@ -402,7 +412,9 @@ def main(
                     try:
                         combine_census_geography_csvs(cat, yr)
                     except Exception as e:
-                        logger.error(f"Failed to create combined CSV for {cat} {yr}: {e}")
+                        logger.error(
+                            f"Failed to create combined CSV for {cat} {yr}: {e}"
+                        )
                         raise
 
     # Build other categories
