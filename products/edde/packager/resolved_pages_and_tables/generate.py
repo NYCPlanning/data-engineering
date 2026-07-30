@@ -912,14 +912,19 @@ def main():
                     # For each geoid, call build_vintages to build the final output for that geoid and category
                     for subgroup, table_list in category_config.items():
                         if subgroup not in area:
-                            try:
-                                area[subgroup] = build_vintages(table_list, df_row)
-                            except KeyError as e:
-                                # Skip indicators that are missing (likely in ignored_indicators list)
-                                print(
-                                    f"WARNING: Skipping table due to missing data: {e}"
-                                )
-                                area[subgroup] = []
+                            # Process tables one by one to avoid entire subgroup failing if one table has missing data
+                            area[subgroup] = []
+                            for table_config in table_list:
+                                try:
+                                    # Call build_vintages with a single-item list
+                                    result = build_vintages([table_config], df_row)
+                                    area[subgroup].extend(result)
+                                except KeyError as e:
+                                    # Skip this individual table if columns are missing
+                                    print(
+                                        f"WARNING: Skipping table '{table_config.get('title', 'UNKNOWN')}' due to missing data: {e}"
+                                    )
+                                    continue
 
     # Finally, iterate through geoid in the output object and save that data to a file
     # containing all data for the given geoid and category. Each file will be a object

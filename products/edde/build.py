@@ -160,6 +160,157 @@ def build_other_category(geography: str, category: str) -> pd.DataFrame:
     return final_df
 
 
+def combine_geography_csvs(category: str):
+    """Combine geography-specific CSVs into one master CSV.
+
+    Verifies that all geography files have identical columns (except geography column),
+    then unions them together with a geography_type column.
+
+    Args:
+        category: Category name (e.g., "quality_of_life")
+
+    Raises:
+        ValueError: If column names or ordering differ between geographies
+    """
+    build_output_dir = get_build_output_dir()
+    dataset_files_dir = build_output_dir / "dataset_files" / category
+
+    geographies = ["puma", "borough", "citywide"]
+    geography_column_map = {
+        "puma": "puma",
+        "borough": "borough",
+        "citywide": "citywide",
+    }
+
+    # Load each geography CSV
+    dfs = []
+    all_columns = None
+
+    for geo in geographies:
+        csv_path = dataset_files_dir / f"{category}_{geo}.csv"
+        if not csv_path.exists():
+            logger.warning(f"Skipping combined CSV: {csv_path} does not exist")
+            return
+
+        df = pd.read_csv(csv_path)
+
+        # Get columns excluding the geography-specific column
+        geo_col = geography_column_map[geo]
+        cols_without_geo = [c for c in df.columns if c != geo_col]
+
+        # Verify columns match across all geographies
+        if all_columns is None:
+            all_columns = cols_without_geo
+        else:
+            if cols_without_geo != all_columns:
+                # Find differences for error message
+                missing = set(all_columns) - set(cols_without_geo)
+                extra = set(cols_without_geo) - set(all_columns)
+                raise ValueError(
+                    f"Column mismatch in {category}_{geo}.csv:\n"
+                    f"  Missing columns: {sorted(missing) if missing else 'None'}\n"
+                    f"  Extra columns: {sorted(extra) if extra else 'None'}\n"
+                    f"  Column ordering may also differ."
+                )
+
+        # Add geography_type column and rename geography column to geoid
+        df["geography_type"] = geo
+        df.rename(columns={geo_col: "geoid"}, inplace=True)
+        dfs.append(df)
+
+    # Combine all DataFrames
+    combined = pd.concat(dfs, ignore_index=True)
+
+    # Reorder columns: geography_type, geoid, then all data columns in original order
+    cols = ["geography_type", "geoid"] + all_columns
+    combined = combined[cols]
+
+    # Save combined CSV
+    output_path = dataset_files_dir / f"{category}.csv"
+    combined.to_csv(output_path, index=False)
+    logger.info(
+        f"Created combined CSV: {output_path} "
+        f"(rows: {len(combined)}, columns: {len(combined.columns)})"
+    )
+
+
+def combine_census_geography_csvs(category: str, year: str):
+    """Combine geography-specific census CSVs for a given year into one master CSV.
+
+    Verifies that all geography files have identical columns (except geography column),
+    then unions them together with a geography_type column.
+
+    Args:
+        category: Category name (e.g., "economics", "demographics")
+        year: Year string (e.g., "2000", "0812", "2024")
+
+    Raises:
+        ValueError: If column names or ordering differ between geographies
+    """
+    build_output_dir = get_build_output_dir()
+    dataset_files_dir = build_output_dir / "dataset_files" / category
+
+    geographies = ["puma", "borough", "citywide"]
+    geography_column_map = {
+        "puma": "puma",
+        "borough": "borough",
+        "citywide": "citywide",
+    }
+
+    # Load each geography CSV
+    dfs = []
+    all_columns = None
+
+    for geo in geographies:
+        csv_path = dataset_files_dir / f"{category}_{year}_{geo}.csv"
+        if not csv_path.exists():
+            logger.warning(
+                f"Skipping combined CSV for {year}: {csv_path} does not exist"
+            )
+            return
+
+        df = pd.read_csv(csv_path)
+
+        # Get columns excluding the geography-specific column
+        geo_col = geography_column_map[geo]
+        cols_without_geo = [c for c in df.columns if c != geo_col]
+
+        # Verify columns match across all geographies
+        if all_columns is None:
+            all_columns = cols_without_geo
+        else:
+            if cols_without_geo != all_columns:
+                # Find differences for error message
+                missing = set(all_columns) - set(cols_without_geo)
+                extra = set(cols_without_geo) - set(all_columns)
+                raise ValueError(
+                    f"Column mismatch in {category}_{year}_{geo}.csv:\n"
+                    f"  Missing columns: {sorted(missing) if missing else 'None'}\n"
+                    f"  Extra columns: {sorted(extra) if extra else 'None'}\n"
+                    f"  Column ordering may also differ."
+                )
+
+        # Add geography_type column and rename geography column to geoid
+        df["geography_type"] = geo
+        df.rename(columns={geo_col: "geoid"}, inplace=True)
+        dfs.append(df)
+
+    # Combine all DataFrames
+    combined = pd.concat(dfs, ignore_index=True)
+
+    # Reorder columns: geography_type, geoid, then all data columns in original order
+    cols = ["geography_type", "geoid"] + all_columns
+    combined = combined[cols]
+
+    # Save combined CSV
+    output_path = dataset_files_dir / f"{category}_{year}.csv"
+    combined.to_csv(output_path, index=False)
+    logger.info(
+        f"Created combined CSV: {output_path} "
+        f"(rows: {len(combined)}, columns: {len(combined.columns)})"
+    )
+
+
 def copy_build_metadata():
     """Verify build metadata files exist in build output directory.
 
@@ -251,15 +402,35 @@ def main(
     # Build census categories
     for cat in categories_to_build:
         if cat in census_categories:
-            for geo in geographies_to_build:
-                for yr in years_to_build:
+            for yr in years_to_build:
+                for geo in geographies_to_build:
                     build_census_category(cat, geo, yr)
+
+                # After all geographies are built for this year, combine into master CSV
+                # Only if building all geographies (otherwise columns might be missing)
+                if geographies_to_build == geographies:
+                    try:
+                        combine_census_geography_csvs(cat, yr)
+                    except Exception as e:
+                        logger.error(
+                            f"Failed to create combined CSV for {cat} {yr}: {e}"
+                        )
+                        raise
 
     # Build other categories
     for cat in categories_to_build:
         if cat in other_categories:
             for geo in geographies_to_build:
                 build_other_category(geo, cat)
+
+            # After all geographies are built, combine into master CSV
+            # Only if building all geographies (otherwise columns might be missing)
+            if geographies_to_build == geographies:
+                try:
+                    combine_geography_csvs(cat)
+                except Exception as e:
+                    logger.error(f"Failed to create combined CSV for {cat}: {e}")
+                    raise
 
     # Copy metadata files to build output directory
     copy_build_metadata()

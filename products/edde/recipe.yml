@@ -1,5 +1,6 @@
 name: EDDE
 product: db-eddt
+version: 26v1
 inputs:
   dataset_defaults:
     file_type: parquet
@@ -78,7 +79,7 @@ custom:
     - health_selfreportedhealth
 
   health_mortality:
-    latest_year: "1620"
+    latest_year: "1923"
     puma_baseline_years: ["0004", "1014"]
     baseline_years: ["2000", "2010"]
 

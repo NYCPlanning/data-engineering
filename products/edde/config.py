@@ -21,11 +21,7 @@ def get_edde_paths() -> tuple[Path, Path]:
         - old_edde_path: Path to loaded EDDE dataset from previous version
         - new_build_path: Path to current build data directory
     """
-    # Get current build info from recipe.lock.yml
-    recipe_lock = get_recipe_lock(PRODUCT_PATH)
-    if not recipe_lock.build_name:
-        raise ValueError("build_name not found in recipe.lock.yml")
-    current_build_name = recipe_lock.build_name
+    import os
 
     # Load build metadata for old EDDE path
     build_metadata = get_build_metadata(PRODUCT_PATH)
@@ -34,14 +30,14 @@ def get_edde_paths() -> tuple[Path, Path]:
     if not build_metadata.load_result:
         raise ValueError(
             "load_result not found in build_metadata.json. "
-            "Please run 'bd load' to load the recipe datasets first."
+            "Please run 'dcpy recipe load' to load the recipe datasets first."
         )
 
     load_result = build_metadata.load_result
     if not load_result.datasets or "edde" not in load_result.datasets:
         raise ValueError(
             "EDDE dataset not found in load_result. "
-            "Please ensure the recipe includes the 'edde' dataset and run 'bd load' first."
+            "Please ensure the recipe includes the 'edde' dataset and run 'dcpy recipe load' first."
         )
 
     # Get the first (and should be only) version of the edde dataset
@@ -49,7 +45,7 @@ def get_edde_paths() -> tuple[Path, Path]:
     if not edde_versions:
         raise ValueError(
             "No EDDE dataset versions found in load_result. "
-            "Please ensure the recipe includes the 'edde' dataset and run 'bd load' first."
+            "Please ensure the recipe includes the 'edde' dataset and run 'dcpy recipe load' first."
         )
 
     # Get the first version's destination path
@@ -58,8 +54,19 @@ def get_edde_paths() -> tuple[Path, Path]:
     # The loaded EDDE dataset has a "dataset_files" subdirectory containing the actual CSVs
     old_edde_path = Path(edde_data.destination) / "dataset_files"
 
-    # Get new build path from current build output directory (using build_name, not version)
-    new_build_path = get_build_dir(PRODUCT_NAME, current_build_name) / "dataset_files"
+    # Get new build path - prioritize BUILD_ENV_OUTPUT_DIR
+    if "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        new_build_path = Path(os.environ["BUILD_ENV_OUTPUT_DIR"]) / "dataset_files"
+    else:
+        # Fallback: Get current build info from recipe.lock.yml
+        recipe_lock = get_recipe_lock(PRODUCT_PATH)
+        if not recipe_lock.build_name:
+            raise ValueError("build_name not found in recipe.lock.yml")
+        current_build_name = recipe_lock.build_name
+        # Get new build path from current build output directory (using build_name, not version)
+        new_build_path = (
+            get_build_dir(PRODUCT_NAME, current_build_name) / "dataset_files"
+        )
 
     return old_edde_path, new_build_path
 
@@ -112,7 +119,7 @@ def get_build_output_dir() -> Path:
     recipe_lock_path = get_recipe_lock_path(PRODUCT_PATH)
     if not recipe_lock_path.exists():
         raise BuildNotPlannedError(
-            f"Recipe has not been planned. Please run 'bd plan' first.\n"
+            f"Recipe has not been planned. Please run 'dcpy recipe plan' first.\n"
             f"Expected recipe.lock.yml at: {recipe_lock_path}"
         )
 
@@ -121,7 +128,7 @@ def get_build_output_dir() -> Path:
         get_build_metadata(PRODUCT_PATH)
     except (FileNotFoundError, ValueError) as e:
         raise BuildDataNotLoadedError(
-            f"Build data has not been loaded. Please run 'bd load' first.\nError: {e}"
+            f"Build data has not been loaded. Please run 'dcpy recipe load' first.\nError: {e}"
         )
 
     # Get build_name from recipe lockfile

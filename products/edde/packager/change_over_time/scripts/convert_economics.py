@@ -136,6 +136,11 @@ def convert_economics(
 
     result_df = result_df.rename(columns=column_mapping)
 
+    # Sort columns alphabetically (except geography column) for consistent ordering across geographies
+    geo_col = result_df[[geography_col]]
+    other_cols = result_df[[c for c in sorted(result_df.columns) if c != geography_col]]
+    result_df = pd.concat([geo_col, other_cols], axis=1)
+
     # Write output
     result_df.to_csv(output_csv, index=False)
     print(f"✓ Converted {old_csv.name} + {new_csv.name}")

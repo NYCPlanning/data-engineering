@@ -472,6 +472,11 @@ def generate_lock_file(
         # Resolve relative paths to absolute paths
         lock_file = output_path.resolve()
         lock_file.parent.mkdir(parents=True, exist_ok=True)
+    elif "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        # Use BUILD_ENV_OUTPUT_DIR if set (for build environments)
+        build_output_dir = Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
+        build_output_dir.mkdir(parents=True, exist_ok=True)
+        lock_file = build_output_dir / "recipe.lock.yml"
     elif recipe.build_name:
         # New approach: Use plan directory
         from dcpy.lifecycle.config import get_plan_dir
