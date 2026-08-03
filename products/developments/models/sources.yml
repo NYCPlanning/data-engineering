@@ -33,3 +33,22 @@ sources:
       - name: dob_bis_permits
       - name: dob_bis_applications
       - name: dob_jobapplications_parkingspaces
+
+  - name: build_sources
+    description: >-
+      Intermediate tables written by the SQL steps in sql/, not dbt models. Declared
+      here only so data tests can reference them; nothing in this project builds them.
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: hny_geo
+        description: >-
+          One row per HNY building (hny_id = project_id/building_id), geocoded. Built by
+          sql/_hny_match.sql from hpd_units_by_building + hpd_geocode_results.
+      - name: hny_matches
+        description: >-
+          Surviving HNY-to-DOB job matches after the match-priority filter and
+          hny_corrections have been applied. Built by sql/_hny_match.sql.
+      - name: hny_corrections
+        description: >-
+          Manual add/remove overrides to the automated matching, loaded by sql/_create.sql
+          from data/corrections/hny_corrections.csv.
