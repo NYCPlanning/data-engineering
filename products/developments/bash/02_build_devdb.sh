@@ -97,6 +97,12 @@ display "Creating HNY fields:
       hny_jobrelate"
 run_sql_file sql/_hny_union.sql
 run_sql_file sql/_hny_match.sql
+
+# Warns, doesn't block: the duplicate HPD projects it finds need human triage and
+# there is no automated resolution yet. Failing rows land in the _tests schema.
+dbt test --select assert_no_duplicate_hny_projects_matched \
+    --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}'
+
 run_sql_file sql/_hny_join.sql
 sql_table_summary HNY_devdb_lookup
 
