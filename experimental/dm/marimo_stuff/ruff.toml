@@ -1,3 +1,7 @@
+# Inherit the repo's rule selection rather than tracking ruff's own defaults,
+# which shifted in 0.16 to flag marimo's per-cell idioms (B018, PLR1711).
+extend = "../../../pyproject.toml"
+
 [lint]
 # [f-string-missing-placeholders (F541)](https://docs.astral.sh/ruff/rules/f-string-missing-placeholders/#f-string-missing-placeholders-f541)
 ignore = ["E501", "F541"]
