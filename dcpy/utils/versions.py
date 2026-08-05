@@ -35,11 +35,15 @@ class RegexSpmMatch:
         self.match = re.match(re.compile(pattern), self.string)
         return self.match is not None
 
-    def __getitem__(self, group: int | str) -> str | None:
-        if self.match is not None:
-            return self.match[group]
-        else:
-            return None
+    def __getitem__(self, group: int | str) -> str:
+        # Groups are only read inside a matched `case`, and every group in the
+        # patterns below is mandatory — so a miss here is a bug, not a None.
+        if self.match is None:
+            raise LookupError(f"No pattern has been matched against {self.string!r}")
+        value = self.match[group]
+        if value is None:
+            raise LookupError(f"Group {group!r} did not participate in the match")
+        return value
 
 
 @total_ordering
