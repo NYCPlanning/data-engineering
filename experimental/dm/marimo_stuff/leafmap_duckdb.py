@@ -4,8 +4,8 @@ __generated_with = "0.17.0"
 app = marimo.App(width="medium")
 
 with app.setup:
-    import marimo as mo
     import leafmap.maplibregl as leafmapgl
+    import marimo as mo
 
 
 @app.cell(hide_code=True)

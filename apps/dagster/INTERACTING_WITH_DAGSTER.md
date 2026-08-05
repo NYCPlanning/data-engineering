@@ -126,7 +126,9 @@ sys.path.insert(0, "/Users/alexrichey/dev/data-engineering-de2")
 from dcpy.lifecycle.builds import build as build_module
 
 product_path = Path("/Users/alexrichey/dev/data-engineering-de2/products/edde")
-build_directory = Path("/Users/alexrichey/dev/.de_lifecycle_data/builds/build/edde/26v1")
+build_directory = Path(
+    "/Users/alexrichey/dev/.de_lifecycle_data/builds/build/edde/26v1"
+)
 
 # Recipe lock file should be in build_directory/recipe.lock.yml
 output_path = build_module.build(
@@ -230,7 +232,9 @@ if package_dir.exists():
     print(f"  Package subdirectories: {[d.name for d in subdirs if d.is_dir()]}")
 
 # 4. Check for wrong directory
-wrong_dir = Path("/Users/alexrichey/dev/.de_lifecycle_data/builds/build/edde/2026-06-01")
+wrong_dir = Path(
+    "/Users/alexrichey/dev/.de_lifecycle_data/builds/build/edde/2026-06-01"
+)
 if wrong_dir.exists():
     print(f"\n⚠️  WARNING: Outputs in wrong directory: {wrong_dir}")
 else:
