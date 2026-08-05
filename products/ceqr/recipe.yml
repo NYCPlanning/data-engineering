@@ -77,7 +77,6 @@ inputs:
     - name: dep_stormwater_moderate_2050
     - name: dep_stormwater_limited_current
     - name: dep_stormwater_extreme_2080
-    - name: sca_bluebook
     - name: dot_bike_routes
     - name: dot_open_streets
     - name: dot_traffic_sample_volume_counts
