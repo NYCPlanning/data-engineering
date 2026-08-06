@@ -41,7 +41,7 @@ def _add_download_link(
 
 
 def _add_link(url: str) -> str:
-    if not url:
+    if pd.isna(url) or not url:
         return "N/A"
     text = f'<a href="{url}" target="_blank">webpage</a>'
     return text
