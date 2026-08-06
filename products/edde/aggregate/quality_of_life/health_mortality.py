@@ -9,7 +9,6 @@ from utils.geo_helpers import clean_PUMAs
 
 from aggregate.clean_aggregated import order_PUMS_QOL_multiple_years
 from aggregate.config import (
-    health_mortality_baseline_years,
     health_mortality_latest_year,
     health_mortality_puma_baseline_years,
     health_mortality_year_band_mapping,
@@ -104,8 +103,15 @@ def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year
         # Translate year bands to single years using recipe mapping
         for year_band, single_year in health_mortality_year_band_mapping.items():
             # Handle both total columns (ending with year) and race columns (year followed by race suffix)
-            cols = [c.replace(f"_{year_band}_", f"_{single_year}_") for c in cols]  # Race columns
-            cols = [c.replace(f"_{year_band}", f"_{single_year}") if c.endswith(f"_{year_band}") else c for c in cols]  # Total columns
+            cols = [
+                c.replace(f"_{year_band}_", f"_{single_year}_") for c in cols
+            ]  # Race columns
+            cols = [
+                c.replace(f"_{year_band}", f"_{single_year}")
+                if c.endswith(f"_{year_band}")
+                else c
+                for c in cols
+            ]  # Total columns
     df.columns = ["health_" + col + "_rate" for col in cols]
     # reorder items to standard
     col_order = order_PUMS_QOL_multiple_years(
