@@ -140,6 +140,8 @@ def build_chapter_tables_markdown(
     }
     chapter_datasets = chapter_datasets.rename(columns=column_renamings)
     chapter_datasets = chapter_datasets.merge(datasets, on="Dataset Name", how="left")
+    # tabulate's missingval only substitutes for None, so a nan renders as literal "nan"
+    chapter_datasets = chapter_datasets.replace(np.nan, "")
 
     with open(file_path, "w") as f:
         for _, chapter in chapters.iterrows():
