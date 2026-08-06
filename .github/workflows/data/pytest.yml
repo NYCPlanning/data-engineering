@@ -9,6 +9,9 @@
   calls:
   - -m 'not end_to_end' -s --verbose --verbose --durations=0 --cov .
   - -m 'end_to_end' -s --verbose --verbose --durations=0 --cov .
+- name: ceqr
+  working-directory: products/ceqr
+  calls: [ "tests -s --verbose --verbose" ]
 - name: qa
   working-directory: apps/qa
   calls: [ "." ]
