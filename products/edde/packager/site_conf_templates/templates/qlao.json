@@ -102,8 +102,7 @@
       "variables": ["prematuremortality"],
       "measures": ["RATE"],
       "variances": ["NONE"],
-      "scales": [1],
-      "placeholder": "N/A"
+      "scales": [1]
     },
     "geographies": {
       "district": {
@@ -113,7 +112,7 @@
         "vintages": [
           "NYC VITAL STATISTICS, {{ health_mortality.latest_year | expand_year_range }}"
         ],
-        "years": ["_{{ health_mortality.latest_year }}"]
+        "years": ["_{{ health_mortality.mapped_years[2] }}"]
       },
       "borough": {
         "files": [
@@ -126,7 +125,7 @@
           "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
           "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
+        "years": ["_{{ health_mortality.mapped_years[0] }}", "_{{ health_mortality.mapped_years[1] }}", "_{{ health_mortality.mapped_years[2] }}"]
       },
       "citywide": {
         "files": [
@@ -139,7 +138,7 @@
           "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
           "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
+        "years": ["_{{ health_mortality.mapped_years[0] }}", "_{{ health_mortality.mapped_years[1] }}", "_{{ health_mortality.mapped_years[2] }}"]
       }
     },
     "subgroups": {
@@ -169,8 +168,7 @@
       "variables": ["infantmortality"],
       "measures": ["RATE"],
       "variances": ["NONE"],
-      "scales": [1],
-      "placeholder": "N/A"
+      "scales": [1]
     },
     "geographies": {
       "district": {
@@ -193,7 +191,7 @@
           "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
           "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
+        "years": ["_{{ health_mortality.mapped_years[0] }}", "_{{ health_mortality.mapped_years[1] }}", "_{{ health_mortality.mapped_years[2] }}"]
       },
       "citywide": {
         "files": [
@@ -206,7 +204,7 @@
           "NYC VITAL STATISTICS, {{ health_mortality.baseline_years[1] }}",
           "NYC VITAL STATISTICS, {{ health_mortality.latest_year | get_end_year }}"
         ],
-        "years": ["_{{ health_mortality.baseline_years[0] }}", "_{{ health_mortality.baseline_years[1] }}", "_{{ health_mortality.latest_year | get_end_year }}"]
+        "years": ["_{{ health_mortality.mapped_years[0] }}", "_{{ health_mortality.mapped_years[1] }}", "_{{ health_mortality.mapped_years[2] }}"]
       }
     },
     "subgroups": {
@@ -235,8 +233,7 @@
       "variables": ["overdosemortality"],
       "measures": ["RATE"],
       "variances": ["NONE"],
-      "scales": [1],
-      "placeholder": "N/A"
+      "scales": [1]
     },
     "geographies": {
       "district": {

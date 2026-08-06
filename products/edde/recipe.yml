@@ -82,6 +82,12 @@ custom:
     latest_year: "1923"
     puma_baseline_years: ["0004", "1014"]
     baseline_years: ["2000", "2010"]
+    year_band_mapping:
+      "0004": "2000"
+      "1014": "2010"
+      "1923": "2023"
+    # Mapped years for CSV column names (all geographies use same format now)
+    mapped_years: ["2000", "2010", "2023"]
 
   traffic_fatalities:
     year_ranges:
