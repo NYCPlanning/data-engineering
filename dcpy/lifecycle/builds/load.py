@@ -15,6 +15,7 @@ from dcpy.lifecycle.builds.models import (
     InputDatasetDestination,
     LoadResult,
 )
+from dcpy.utils import duckdb as duckdb_utils
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 
@@ -42,6 +43,7 @@ def import_dataset(
     ds: InputDataset,
     file_path: Path,
     pg_client: postgres.PostgresClient | None,
+    duckdb_client: duckdb_utils.DuckDBClient | None = None,
 ) -> ImportedDataset:
     """Import a recipe to local data library folder and build engine."""
     assert ds.version and not ds.version == "latest", ERROR_UNRESOLVED_DATASET_VERSION
@@ -59,6 +61,14 @@ def import_dataset(
                 ds, pg_client, local_dataset_path=file_path
             )
             logger.info(f"Finished inserting {ds.dataset} into postgres")
+            return ImportedDataset.from_input(ds, table)
+        case InputDatasetDestination.duckdb:
+            assert duckdb_client, "duckdb_client must be defined for duckdb import"
+            logger.info(f"Inserting {ds.dataset} into duckdb")
+            table = data_loader.load_dataset_into_duckdb(
+                ds, duckdb_client, local_dataset_path=file_path
+            )
+            logger.info(f"Finished inserting {ds.dataset} into duckdb")
             return ImportedDataset.from_input(ds, table)
         case InputDatasetDestination.df:
             df = utils.read_recipe_df(ds.dataset)
@@ -79,6 +89,8 @@ def load_source_data_from_resolved_recipe(
 ) -> LoadResult:
     import os
 
+    from dcpy.lifecycle import config
+
     # Accept either a Recipe model or a Path to recipe.lock.yml
     if isinstance(recipe_or_path, Path):
         recipe = plan.recipe_from_yaml(recipe_or_path)
@@ -86,6 +98,17 @@ def load_source_data_from_resolved_recipe(
     else:
         recipe = recipe_or_path
         recipe_lock_path = None  # We don't have a path if Recipe was passed directly
+
+    # Set BUILD_ENV_OUTPUT_DIR if not already set
+    # This ensures build artifacts (like DuckDB files) go to the correct location
+    if "BUILD_ENV_OUTPUT_DIR" not in os.environ:
+        assert (
+            recipe.version is not None
+        ), "Recipe version must be resolved before loading"
+        build_dir = config.get_build_dir(recipe.product, recipe.version)
+        build_dir.mkdir(parents=True, exist_ok=True)
+        os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_dir)
+        logger.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_dir}")
 
     # Write source data versions if we have a path
     if recipe_lock_path:
@@ -99,12 +122,39 @@ def load_source_data_from_resolved_recipe(
     has_postgres = InputDatasetDestination.postgres in [
         dataset.destination for dataset in recipe.inputs.datasets
     ]
+    has_duckdb = InputDatasetDestination.duckdb in [
+        dataset.destination for dataset in recipe.inputs.datasets
+    ]
+
     if has_postgres:
         pg_client = postgres.PostgresClient(schema=target_schema)
         if clear_pg_schema:
             setup_build_pg_schema(pg_client)
     else:
         pg_client = None
+
+    if has_duckdb:
+        # Create DuckDB file in the build output directory
+        # Priority: BUILD_ENV_OUTPUT_DIR > recipe_lock_path.parent > current directory
+        duckdb_filename = f"{recipe.product}_{recipe.version}.duckdb"
+
+        if "BUILD_ENV_OUTPUT_DIR" in os.environ:
+            # Use BUILD_ENV_OUTPUT_DIR when set (for build environments)
+            output_dir = Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
+            duckdb_path = output_dir / duckdb_filename
+        elif recipe_lock_path:
+            # Use recipe directory
+            duckdb_path = recipe_lock_path.parent / duckdb_filename
+        else:
+            # Fallback to current directory
+            duckdb_path = Path(duckdb_filename)
+
+        duckdb_client = duckdb_utils.DuckDBClient(
+            db_path=duckdb_path, schema=target_schema
+        )
+        logger.info(f"Created DuckDB database at {duckdb_path}")
+    else:
+        duckdb_client = None
 
     # Fetch source data versions if caching is enabled
     cache_source_versions_df = None
@@ -134,7 +184,7 @@ def load_source_data_from_resolved_recipe(
         if not use_cached:  # business as usual. Pull data and load it.
             file_path = data_loader.pull_dataset(ds, stage=LIFECYCLE_STAGE)
             imported_datasets[ds.id][str(ds.version)] = import_dataset(
-                ds, file_path, pg_client
+                ds, file_path, pg_client, duckdb_client
             )
         else:
             assert pg_client and cache_schema

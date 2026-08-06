@@ -11,6 +11,7 @@ from dcpy.connectors.edm.models import DatasetType
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds.models import InputDataset
 from dcpy.lifecycle.connector_registry import connectors
+from dcpy.utils import duckdb as duckdb_utils
 from dcpy.utils import postgres
 from dcpy.utils.geospatial import parquet as geoparquet
 from dcpy.utils.logging import logger
@@ -200,6 +201,58 @@ def load_dataset_into_pg(
         )
 
     return f"{pg_client.schema}.{ds_table_name}"
+
+
+def load_dataset_into_duckdb(
+    ds: InputDataset,
+    duckdb_client: duckdb_utils.DuckDBClient,
+    local_dataset_path: Path,
+    *,
+    include_version_col: bool = True,
+    include_ogc_fid_col: bool = True,
+):
+    """Load a dataset into DuckDB.
+
+    Args:
+        ds: Input dataset configuration
+        duckdb_client: DuckDB client instance
+        local_dataset_path: Path to local dataset file or directory
+        include_version_col: Whether to add data_library_version column
+        include_ogc_fid_col: Whether to add ogc_fid primary key column
+    """
+    ds_table_name = ds.import_as or ds.id
+
+    # If the path is a directory and custom.filename is specified, append the filename
+    if local_dataset_path.is_dir() and ds.custom and "filename" in ds.custom:
+        local_dataset_path = local_dataset_path / ds.custom["filename"]
+        logger.info(
+            f"Using specific file from directory: {local_dataset_path.name} for dataset {ds.id}"
+        )
+
+    # Currently only support CSV and Parquet
+    match ds.file_type:
+        case DatasetType.csv:
+            duckdb_client.load_csv(
+                local_dataset_path, ds_table_name, include_ogc_fid_col
+            )
+        case DatasetType.parquet:
+            duckdb_client.load_parquet(
+                local_dataset_path, ds_table_name, include_ogc_fid_col
+            )
+        case _:
+            raise Exception(
+                f"Unsupported file type for DuckDB: {ds.file_type}. Only CSV and Parquet are currently supported."
+            )
+
+    if include_version_col:
+        duckdb_client.add_table_column(
+            ds_table_name,
+            col_name="data_library_version",
+            col_type="VARCHAR",
+            default_value=str(ds.version),
+        )
+
+    return f"{duckdb_client.schema}.{duckdb_utils.sanitize_name(ds_table_name)}"
 
 
 def import_dataset(

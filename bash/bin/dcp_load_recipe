@@ -17,10 +17,8 @@ if [ ! -f "${RECIPE_FILE}.yml" ]; then
 fi
 
 # Check required environment variables
+# BUILD_ENGINE_* vars are only required for postgres destinations
 REQUIRED_VARS=(
-    "BUILD_ENGINE_DB"
-    "BUILD_ENGINE_SERVER"
-    "BUILD_ENGINE"
     "RECIPES_BUCKET"
     "PUBLISHING_BUCKET"
 )
@@ -48,9 +46,11 @@ export RECIPE_SCHEMA="${RECIPE_SCHEMA}"
 echo "🧑🏽‍🍳 Recipe Loader"
 echo "=================="
 echo "Recipe file:       ${RECIPE_FILE}.yml"
-echo "Database:          ${BUILD_ENGINE_DB}"
-echo "Schema:            ${BUILD_ENGINE_SCHEMA:-public}"
-echo "Recipe schema:     ${RECIPE_SCHEMA}"
+if [ -n "${BUILD_ENGINE_DB}" ]; then
+    echo "Database:          ${BUILD_ENGINE_DB}"
+    echo "Schema:            ${BUILD_ENGINE_SCHEMA:-public}"
+    echo "Recipe schema:     ${RECIPE_SCHEMA}"
+fi
 echo "Recipes bucket:    ${RECIPES_BUCKET}"
 echo "Publishing bucket: ${PUBLISHING_BUCKET}"
 echo ""
