@@ -83,7 +83,7 @@
   },
   {
     "base": {
-      "title": "Median Household Income (2023 Dollars)",
+      "title": "Median Household Income ({{ inflation_adjustment.year }} Dollars)",
       "is_survey": true,
       "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",  "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "has_change": true,
@@ -340,7 +340,7 @@
   },
   {
     "base": {
-      "title": "Median Wages By Occupation (2023 Dollars)",
+      "title": "Median Wages By Occupation ({{ inflation_adjustment.year }} Dollars)",
       "id": null,
       "is_survey": true,
       "has_change": true,
@@ -531,7 +531,7 @@
   },
   {
     "base": {
-      "title": "Median Wages By Industry (2023 Dollars)",
+      "title": "Median Wages By Industry ({{ inflation_adjustment.year }} Dollars)",
       "id": null,
       "is_survey": true,
       "has_change": true,
