@@ -124,7 +124,7 @@ def process_evictions(df: pd.DataFrame) -> pd.DataFrame:
     evictions = df.copy()
 
     # Extract year from executed_date (last 4 characters)
-    evictions["year"] = evictions.executed_date.apply(lambda x: x[-4:] if x else None)
+    evictions["year"] = evictions.executed_date.str[-4:]
 
     # Get current year and exclude those records (incomplete data)
     current_year = str(datetime.now().year)
