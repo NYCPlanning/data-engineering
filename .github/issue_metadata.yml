@@ -1,7 +1,8 @@
-# Maps issue-title patterns to `db-*` product labels.
+# Maps issue-title patterns to `db-*` product labels and to GitHub issue types.
 #
-# Keys are directories in `products/`; `label` is the GitHub label applied when
-# any `patterns` entry matches an issue title (case-insensitive, regex).
+# Keys under `products` are directories in `products/`; `label` is the GitHub
+# label applied when any `patterns` entry matches an issue title
+# (case-insensitive, regex).
 #
 # Patterns match titles only, not bodies. Bodies mention many products in
 # passing — matching them produced enough false positives to bury the signal.
@@ -72,3 +73,10 @@ products:
   zoningtaxlots:
     label: db-zoningtaxlots
     patterns: ['\bztl\b', '\bzoning[- ]?tax[- ]?lots?\b']
+
+# Issue types are org-level and already the team's convention (Bug is the most
+# used), so bug tracking lives here rather than in a `bug` label. Only applied
+# to issues that have no type yet — a human's classification always wins.
+types:
+  Bug:
+    patterns: ['^Scheduled Action Failure\b']
