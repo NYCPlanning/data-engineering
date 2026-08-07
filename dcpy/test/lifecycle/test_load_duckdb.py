@@ -235,7 +235,7 @@ def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path):
 
     import geopandas as gpd
     import yaml
-    from shapely.geometry import Point
+    from shapely.geometry import Point # type: ignore
 
     from dcpy.lifecycle.builds import load
 
