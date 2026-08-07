@@ -11,7 +11,6 @@ inputs:
     # Private CSV file from edm-private bucket
     - name: dcas_lift
       source: edm.private
-      version: "20260804"
       file_type: csv
       import_as: lift_csv
       custom:
@@ -26,7 +25,6 @@ inputs:
     # DRI subindices and indicators from edm-private
     - name: dcp_dri_subindices_indicators
       source: edm.private
-      version: "2025"
       file_type: csv
       import_as: dri_subindices_indicators
       custom:

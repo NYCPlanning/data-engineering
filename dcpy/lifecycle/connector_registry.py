@@ -13,6 +13,7 @@ from dcpy.connectors.edm.connectors import (
     BuildsConnector,
     DraftsConnector,
     PlanConnector,
+    PrivateConnector,
     PublishedConnector,
 )
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
@@ -60,7 +61,7 @@ def _make_ingest_datastores():
             "edm.recipes.raw_datasets",
         ],
         [
-            ingest_datastore.Connector(
+            PrivateConnector.create(
                 storage=PathedStorageConnector.from_storage_kwargs(
                     conn_type="edm.private",
                     storage_backend=StorageType.S3,
