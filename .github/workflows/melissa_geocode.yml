@@ -1,0 +1,106 @@
+name: Melissa - 🗺️ Geocode
+run-name: "Melissa - 🗺️ Geocode${{ inputs.limit && format(' (limit {0})', inputs.limit) || '' }}"
+
+# Standalone for now -- not wired into the shared build.yml dispatcher (used by
+# cbbr/cdbg/ceqr/etc.) since melissa doesn't have a dbt/SQL build step and is
+# still an experimental product. Mirrors the pattern in cbbr_build.yml /
+# recipe_load.yml: a single nycplanning/build-geosupport container job, since
+# that image has python-geosupport but not this repo's own dcpy package --
+# docker_container_setup.sh pip-installs dcpy from the checked-out repo into
+# that same container, so (unlike local dev) there's no need to split recipe
+# loading and geocoding across two separate environments.
+on:
+  workflow_dispatch:
+    inputs:
+      build_name:
+        description: "Build name / schema (defaults to branch name)"
+        type: string
+        required: false
+      image_tag:
+        description: "build-geosupport image tag"
+        type: string
+        required: false
+      limit:
+        description: "Only process the first N rows of melissa_input (for a cheap test run)"
+        type: string
+        required: false
+      dev_bucket:
+        description: "Dev bucket override, in place of edm-recipes/edm-publishing. If the bucket is 'de-dev-a', put 'a'"
+        type: string
+        required: false
+
+env:
+  build_name: ${{ inputs.build_name || github.head_ref || github.ref_name }}
+
+jobs:
+  geocode:
+    name: Geocode Melissa Addresses
+    runs-on: ubuntu-22.04
+    timeout-minutes: 240
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/melissa
+    container:
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
+    env:
+      BUILD_NAME: ${{ env.build_name }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Finish container setup (installs this repo's dcpy package)
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: Set build environment variables
+        working-directory: ./
+        run: ./bash/build_env_setup.sh
+
+      - name: Plan recipe
+        run: python3 -m dcpy.lifecycle.builds.plan recipe --recipe-path ./recipe.yml --output-path recipe.lock.yml
+
+      - name: Set recipe env vars
+        working-directory: ./
+        run: source ./bash/export_recipe_env.sh products/melissa/recipe.lock.yml
+
+      - name: Load melissa_input from edm-private
+        run: python3 -m dcpy lifecycle builds load load --recipe-path recipe.lock.yml
+
+      - name: Resolve DuckDB build path
+        id: db_path
+        run: |
+          DB_PATH=$(python3 -m dcpy lifecycle builds build path --duckdb)
+          echo "path=$DB_PATH" >> "$GITHUB_OUTPUT"
+          echo "dir=$(dirname "$DB_PATH")" >> "$GITHUB_OUTPUT"
+
+      - name: Geocode
+        run: |
+          python3 pipeline.py "${{ steps.db_path.outputs.dir }}/melissa_geocoded.csv" \
+            --skip-load \
+            --db-path "${{ steps.db_path.outputs.path }}" \
+            --schema "$BUILD_ENGINE_SCHEMA" \
+            ${{ inputs.limit && format('--limit {0}', inputs.limit) || '' }}
+
+      # TODO once melissa has a real publishing destination: export
+      # melissa_geocoded.csv to edm-publishing instead of (or in addition to)
+      # this artifact upload.
+      - name: Upload geocoded output
+        uses: actions/upload-artifact@v4
+        with:
+          name: melissa-geocoded-${{ env.build_name }}
+          path: ${{ steps.db_path.outputs.dir }}/melissa_geocoded.csv
+          retention-days: 14

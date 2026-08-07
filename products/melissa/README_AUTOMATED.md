@@ -27,7 +27,7 @@ This creates a folder at `C:\melissa-geocoding` on your Windows machine.
 Download the script from the repository:
 
 ```bash
-wget https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/experimental/melissa/run_geocode_automated.sh
+wget https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/melissa/run_geocode_automated.sh
 chmod +x run_geocode_automated.sh
 ```
 
@@ -57,12 +57,14 @@ The output file will be named automatically (e.g., `melissa_20260206_geocoded.tx
 
 ## What the Script Does
 
-1. **Installs dependencies**: `usaddress` and `python-geosupport`
-2. **Clones repository**: Gets the geocoding scripts from the data-engineering repo
+1. **Installs dependencies**: `usaddress`, `python-geosupport`, `duckdb`, `pandas`
+2. **Clones repository**: Gets the geocoding pipeline from the data-engineering repo
 3. **Downloads input**: Fetches your Melissa data file from S3
-4. **Geocodes addresses**: Processes all addresses using NYC Geosupport
-5. **Filters results**: Removes non-NYC addresses from output
-6. **Writes output**: Saves geocoded results to the mounted directory
+4. **Runs the pipeline**: Loads the input plus the checked-in `data/melissa_corrections.csv`
+   and `data/melissa_outsideofnyc.csv` reference files into DuckDB, geocodes every
+   distinct address with NYC Geosupport (Functions 1E, 1A, and AP), merges in
+   corrections, and writes the final CSV
+5. **Writes output**: Saves geocoded results to the mounted directory
 
 ## Alternative: Running from PowerShell/CMD
 
@@ -74,7 +76,7 @@ mkdir C:\melissa-geocoding
 cd C:\melissa-geocoding
 
 # Download script (using curl or browser)
-curl -O https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/experimental/melissa/run_geocode_automated.sh
+curl -O https://raw.githubusercontent.com/NYCPlanning/data-engineering/main/products/melissa/run_geocode_automated.sh
 
 # Run Docker
 docker run --rm -v C:\melissa-geocoding:/data nycplanning/build-geosupport:latest bash /data/run_geocode_automated.sh https://edm-recipes.nyc3.digitaloceanspaces.com/tmp/melissa_20260206.txt
@@ -116,34 +118,53 @@ Verify your volume mount path:
 - Ensure the volume mount is correctly configured
 
 ### Large files taking too long
-The geocoding process can take several hours for large datasets. The script will show progress updates every 1000 rows.
+Geocoding runs one Geosupport call per CPU core in parallel (`multiprocessing.Pool`),
+committing results in chunks (`--chunk-size`, default 5000) to the persistent
+DuckDB file as it goes. If a run is interrupted, just rerun the same command --
+it reuses the same `.duckdb` file by default and automatically skips addresses
+that were already geocoded, so at most one chunk's worth of work is lost.
 
 ## Technical Details
 
 ### Input Format
-The input file should be pipe-delimited with these columns:
-- `Address`: Street address
-- `City`: City/neighborhood name
-- `State`: State abbreviation
-- `Zip`: ZIP code
+The input file should be pipe-delimited, with columns matching the Melissa vendor
+data (`address`, `suite`, `city`, `state`, `zip`, `plus4`, `crrt`, `updatedate`, ...).
+Column names are lowercased automatically.
 
 ### Output Format
-The output includes all input columns plus:
-- `bbl`: Borough-Block-Lot identifier
-- `boro_code`: Borough code (1-5)
-- `bin`: Building Identification Number
-- `latitude`: Latitude coordinate
-- `longitude`: Longitude coordinate
-- `ct2020`: 2020 Census Tract
-- `cb2020`: 2020 Census Block
-- `bctcb2020`: Combined borough-census tract-block
-- `grc`: Geosupport Return Code
-- `message`: Geosupport message
+The output includes all input columns, plus `hnum`/`sname` (parsed house number and
+street name) and 35 geocode columns from Geosupport Functions 1E, 1A, and AP --
+matching `Melissa_Geocoded_Layout_And_Field_Source.csv` exactly (corrected
+borough/house number/street name, F1/F1A/FAP normalized house number and street
+name, centerline and address-point coordinates, BBL, BIN, CD, NTA, and each
+function's GRC/reason code/message). See `pipeline.py` for the full column list.
 
 ### Data Filtering
-- Non-NYC addresses are automatically filtered out
-- Addresses with unparseable components are included with empty geocoding fields
-- Failed geocodes are included with error messages in the `message` field
+- Addresses matching `data/melissa_outsideofnyc.csv` are excluded before geocoding
+- Addresses matching `data/melissa_corrections.csv` are re-geocoded using the
+  corrected house number/street/borough, and those results are preferred over the
+  original address's geocode result wherever both exist
+- Rows where Geosupport could not geocode the address are still included, with the
+  relevant GRC/message columns populated (including GRC 71, "address not found in
+  NYC" -- this is intentionally not filtered out, to match the reference pipeline)
+
+### Alternative: loading via `dcp_load_recipe`
+
+Instead of the S3-URL + local-file flow above, `recipe.yml` in this directory
+declares the same three inputs (`melissa_input`, `melissa_corrections`,
+`melissa_outsideofnyc`) as `edm.private` datasets, following the same convention
+`products/lift` uses for `dcas_lift.csv`. With direnv loaded and the files pushed
+to the private bucket:
+
+```bash
+cd products/melissa
+eval "$(direnv export bash)"
+dcp_load_recipe   # plans + loads recipe.yml into a local .duckdb file
+python3 pipeline.py melissa_geocoded.csv \
+    --skip-load \
+    --db-path melissa_v1.duckdb \
+    --schema "$BUILD_ENGINE_SCHEMA"
+```
 
 ## Support
 

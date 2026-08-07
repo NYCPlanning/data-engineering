@@ -21,10 +21,10 @@ echo ""
 
 # Extract filename from URL and generate output filename
 INPUT_FILENAME=$(basename "$S3_URL")
-OUTPUT_FILENAME="${INPUT_FILENAME%.txt}_geocoded.txt"
+OUTPUT_FILENAME="${INPUT_FILENAME%.txt}_geocoded.csv"
 
 echo "Step 1/5: Installing Python dependencies..."
-pip3 install -q usaddress python-geosupport
+pip3 install -q usaddress python-geosupport duckdb pandas
 
 echo "Step 2/5: Cloning data-engineering repository..."
 cd /tmp
@@ -39,12 +39,13 @@ echo "  Downloaded: $INPUT_FILENAME"
 echo "Step 4/5: Running geocoder..."
 echo "  Input:  $INPUT_FILENAME"
 echo "  Output: $OUTPUT_FILENAME"
-echo "  (Non-NYC addresses will be filtered out)"
 echo ""
 
-python3 /tmp/data-engineering/experimental/melissa/geocode.py \
-    "$INPUT_FILENAME" \
-    "$OUTPUT_FILENAME"
+python3 /tmp/data-engineering/products/melissa/pipeline.py \
+    "$OUTPUT_FILENAME" \
+    --input-file "$INPUT_FILENAME" \
+    --corrections /tmp/data-engineering/products/melissa/data/melissa_corrections.csv \
+    --outside-of-nyc /tmp/data-engineering/products/melissa/data/melissa_outsideofnyc.csv
 
 echo ""
 echo "Step 5/5: Cleaning up..."

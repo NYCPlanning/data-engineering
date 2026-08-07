@@ -1,0 +1,3277 @@
+address|suite|city|state|zip|plus4|crrt|updatedate
+1029 E 225th St||Bronx|NY|10466|4803|C012|R
+10312 97th St||Ozone Park|NY|11417|1622|C077|R
+10318 110th St||South Richmond Hill|NY|11419|1724|C031|R
+1033 E 101st St||Brooklyn|NY|11236|4417|C041|R
+1033 E 101st St|Apt 2|Brooklyn|NY|11236|4417|C041|R
+1033 E 101st St|Apt 1|Brooklyn|NY|11236|4417|C041|R
+1035 E 81st St||Brooklyn|NY|11236|4221|C037|R
+1036 Beach 20th St||Far Rockaway|NY|11691|3900|C019|B
+1036A Rev James A Polite Ave|Apt 3|Bronx|NY|10459|2701|C001|R
+1036A Rev James A Polite Ave|Apt 2|Bronx|NY|10459|2701|C001|R
+1036A Rev James A Polite Ave||Bronx|NY|10459|2701|C001|U
+1036A Rev James A Polite Ave|Apt 1|Bronx|NY|10459|2701|C001|R
+104 E 35th St|Apt 3A|New York|NY|10016|3884|C033|R
+104 E 35th St|Apt 2B|New York|NY|10016|3884|C033|R
+104 E 35th St|Apt 2C|New York|NY|10016|3884|C033|R
+104 E 35th St|Apt 3B|New York|NY|10016|3891|C033|R
+104 E 35th St|Apt 4B|New York|NY|10016|0227|C033|R
+104 E 35th St||New York|NY|10016|3818|C033|R
+104 E 35th St|Apt 5A|New York|NY|10016|3891|C033|R
+104 E 35th St|Apt 4A|New York|NY|10016|3891|C033|R
+104 E 35th St|Apt 2A|New York|NY|10016|3891|C033|R
+104 Fieldstone Rd||Staten Island|NY|10314|3264|C019|R
+104 Wade St||Staten Island|NY|10314|2101|C021|R
+10938 155th St||Jamaica|NY|11433|3147|C065|R
+10938 155th St|Unit 3|Jamaica|NY|11433|3147|C065|R
+10938 155th St|Unit 1|Jamaica|NY|11433|3147|C065|R
+10938 155th St|Unit 2|Jamaica|NY|11433|3147|C065|R
+1096 Essex St||Brooklyn|NY|11239|5701|C050|R
+11 Glover St||Staten Island|NY|10308|3321|C017|R
+11 Monroe Pl||Staten Island|NY|10314|6913|C045|R
+11 Russek Dr||Staten Island|NY|10312|1627|C037|R
+110 2nd Ct||Staten Island|NY|10312|6325|C033|R
+110 Ascan Ave||Forest Hills|NY|11375|A157|NULL|B
+110 Ascan Ave||Forest Hills|NY|11375|6014|C066|U
+11017 64th Rd||Forest Hills|NY|11375|1417|C025|R
+11045 173rd St||Jamaica|NY|11433|3438|C006|R
+11581 Lefferts Blvd||South Ozone Park|NY|11420|2405|C037|R
+11609 95th Ave||South Richmond Hill|NY|11419|1205|C042|R
+11618 201st St||Saint Albans|NY|11412|3216|C067|R
+11619 133rd St||South Ozone Park|NY|11420|2617|C031|R
+11676 233rd St||Cambria Heights|NY|11411|1836|C010|R
+11725 200th St||Saint Albans|NY|11412|3520|C068|R
+11731 126th St||South Ozone Park|NY|11420|2805|C035|R
+11732 141st St||Jamaica|NY|11436|1229|C013|R
+1235 55th St|Apt 2|Brooklyn|NY|11219|4119|C027|R
+1235 55th St||Brooklyn|NY|11219|4119|C027|U
+1235 55th St|Apt 1|Brooklyn|NY|11219|4119|C027|R
+1244 Ocean Pkwy||Brooklyn|NY|11230|5102|C025|U
+125 Blythe Pl||Staten Island|NY|10306|1100|C038|R
+1253 Franklin Ave|Apt 1C|Bronx|NY|10456|3531|C015|R
+1253 Franklin Ave|Bsmt 2|Bronx|NY|10456|3513|C015|R
+1253 Franklin Ave|Apt 2D|Bronx|NY|10456|3527|C015|R
+1253 Franklin Ave|Apt 1G|Bronx|NY|10456|3527|C015|R
+1253 Franklin Ave|Apt 4F|Bronx|NY|10456|3528|C015|R
+1253 Franklin Ave|Apt 5E|Bronx|NY|10456|3513|C015|R
+1253 Franklin Ave|Bsmt 3|Bronx|NY|10456|3513|C015|R
+1253 Franklin Ave|Apt 1B|Bronx|NY|10456|3531|C015|R
+1253 Franklin Ave|Apt 4D|Bronx|NY|10456|3526|C015|R
+1253 Franklin Ave|Apt 3D|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 5A|Bronx|NY|10456|3528|C015|R
+1253 Franklin Ave|Apt 5G|Bronx|NY|10456|3513|C015|R
+1253 Franklin Ave|Apt 5D|Bronx|NY|10456|3528|C015|R
+1253 Franklin Ave|Apt 5B|Bronx|NY|10456|3528|C015|R
+1253 Franklin Ave|Apt 3F|Bronx|NY|10456|3526|C015|R
+1253 Franklin Ave|Apt 1E|Bronx|NY|10456|3531|C015|R
+1253 Franklin Ave|Apt 2G|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 2E|Bronx|NY|10456|3527|C015|R
+1253 Franklin Ave|Apt 3G|Bronx|NY|10456|3526|C015|R
+1253 Franklin Ave|Apt 3C|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 5F|Bronx|NY|10456|3513|C015|R
+1253 Franklin Ave|Apt 1A|Bronx|NY|10456|3531|C015|R
+1253 Franklin Ave|Apt 1D|Bronx|NY|10456|3531|C015|R
+1253 Franklin Ave|Apt 5C|Bronx|NY|10456|3528|C015|R
+1253 Franklin Ave|Apt 2A|Bronx|NY|10456|3527|C015|R
+1253 Franklin Ave|Apt 1F|Bronx|NY|10456|3531|C015|R
+1253 Franklin Ave|Apt 2F|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 2B|Bronx|NY|10456|3527|C015|R
+1253 Franklin Ave|Apt 2C|Bronx|NY|10456|3527|C015|R
+1253 Franklin Ave|Apt 3E|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 3B|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 3A|Bronx|NY|10456|3512|C015|R
+1253 Franklin Ave|Apt 4B|Bronx|NY|10456|3526|C015|R
+1253 Franklin Ave|Bsmt 1|Bronx|NY|10456|3513|C015|R
+1253 Franklin Ave||Bronx|NY|10456|3525|C015|R
+1253 Franklin Ave|Apt 4G|Bronx|NY|10456|3528|C015|R
+1253 Franklin Ave|Apt 4E|Bronx|NY|10456|3526|C015|R
+1253 Franklin Ave|Apt 4A|Bronx|NY|10456|3526|C015|R
+1253 Franklin Ave|Apt 4C|Bronx|NY|10456|3526|C015|R
+1254 Sterling Pl||Brooklyn|NY|11213|2719|C006|R
+133 Senator St||Brooklyn|NY|11220|5116|C016|R
+13310 95th Ave||South Richmond Hill|NY|11419|1606|C030|R
+13334 121st St||South Ozone Park|NY|11420|3240|C037|R
+1334 Sterling Pl|Apt 4|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 1L|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 3|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 6|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 1|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl||Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 1R|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 5|Brooklyn|NY|11213|2832|C019|R
+1334 Sterling Pl|Apt 2|Brooklyn|NY|11213|2832|C019|R
+13352 244th St||Rosedale|NY|11422|1437|C087|R
+13436 173rd St|Apt 1|Jamaica|NY|11434|4515|C006|R
+13436 173rd St|Apt 2|Jamaica|NY|11434|4515|C006|R
+13436 173rd St||Jamaica|NY|11434|4515|C006|R
+1344 E 21st St||Brooklyn|NY|11210|4513|C009|R
+1344 E 35th St||Brooklyn|NY|11210|5430|C029|R
+1348 Amsterdam Ave||New York|NY|10027|2533|C008|B
+1348 E 3rd St||Brooklyn|NY|11230|4604|C024|R
+141 Weldon St||Brooklyn|NY|11208|2921|C012|R
+141 Weldon St|Apt 2|Brooklyn|NY|11208|2921|C012|R
+141 Weldon St|Apt 1|Brooklyn|NY|11208|2921|C012|R
+14104 Hoover Ave||Jamaica|NY|11435|1110|C042|R
+14723 Ferndale Ave||Jamaica|NY|11435|5719|C081|R
+14729 Ferndale Ave||Jamaica|NY|11435|5719|C081|R
+1475 60th St||Brooklyn|NY|11219|5021|C028|R
+14753 Coolidge Ave||Jamaica|NY|11435|1203|C012|R
+14811 111th Ave||Jamaica|NY|11435|5710|C081|R
+14811 231st St||Springfield Gardens|NY|11413|4244|C023|R
+1482 72nd St|Apt 1|Brooklyn|NY|11228|1712|C013|R
+1482 72nd St|Apt 2|Brooklyn|NY|11228|1712|C013|R
+1482 72nd St||Brooklyn|NY|11228|1712|C013|R
+1550 Bedford Ave||Brooklyn|NY|11225|1206|C017|B
+1552 Union St||Brooklyn|NY|11213|4501|C001|R
+15547 100th St||Howard Beach|NY|11414|2813|C002|R
+156 Royal Oak Rd|Apt 1|Staten Island|NY|10314|2519|C001|R
+156 Royal Oak Rd||Staten Island|NY|10314|2519|C001|U
+156 Royal Oak Rd|Apt 2|Staten Island|NY|10314|2519|C001|R
+161 Nevada Ave||Staten Island|NY|10306|1300|C036|R
+1617 Kennellworth Pl||Bronx|NY|10465|1011|C003|R
+1617 W 13th St||Brooklyn|NY|11223|1018|C001|R
+162 Van Pelt Ave||Staten Island|NY|10303|2409|C012|R
+1624 60th St||Brooklyn|NY|11204|2138|C017|R
+163 Attorney St|Apt 3D|New York|NY|10002|1894|C014|R
+163 Attorney St|Apt 2D|New York|NY|10002|1893|C014|R
+163 Attorney St|Apt 2C|New York|NY|10002|1893|C014|R
+163 Attorney St|Apt 3B|New York|NY|10002|1893|C014|R
+163 Attorney St|Apt 4A|New York|NY|10002|1894|C014|R
+163 Attorney St|Apt 2A|New York|NY|10002|1892|C014|R
+163 Attorney St|Apt 2B|New York|NY|10002|1892|C014|R
+163 Attorney St|Apt 5D|New York|NY|10002|1895|C014|R
+163 Attorney St|Apt 1A|New York|NY|10002|1892|C014|R
+163 Attorney St|Apt 4D|New York|NY|10002|1895|C014|R
+163 Attorney St|Apt 4B|New York|NY|10002|1894|C014|R
+163 Attorney St|Ofc 1|New York|NY|10002|1895|C014|B
+163 Attorney St|Apt 1B|New York|NY|10002|1892|C014|R
+163 Attorney St|Apt 5C|New York|NY|10002|1895|C014|R
+163 Attorney St|Apt 5A|New York|NY|10002|1895|C014|R
+163 Attorney St|Apt 4C|New York|NY|10002|1894|C014|R
+163 Attorney St|Apt 3A|New York|NY|10002|1893|C014|R
+163 Attorney St|Apt 5B|New York|NY|10002|1895|C014|R
+163 Attorney St||New York|NY|10002|1891|C014|R
+163 Attorney St|Apt 3C|New York|NY|10002|1894|C014|R
+163 Beach 121st St||Rockaway Park|NY|11694|1960|C005|R
+163 Prospect Pl|Apt 1|Brooklyn|NY|11238|3801|C026|R
+163 Prospect Pl||Brooklyn|NY|11238|3801|C026|U
+163 Prospect Pl|Apt 2|Brooklyn|NY|11238|3801|C026|R
+1630 Glover St||Bronx|NY|10462|4957|C020|R
+16311 85th St||Howard Beach|NY|11414|3326|C016|R
+1692 Rockaway Pkwy||Brooklyn|NY|11236|4824|C008|R
+17 Cranford St||Forest Hills|NY|11375|5917|C064|R
+17 Evelyn Pl||Staten Island|NY|10305|3828|C006|R
+1707 President St|Apt 3|Brooklyn|NY|11213|5096|C021|R
+1707 President St|Apt 2|Brooklyn|NY|11213|5096|C021|R
+1707 President St||Brooklyn|NY|11213|5096|C021|R
+1707 President St|Apt 1|Brooklyn|NY|11213|5096|C021|R
+171 Beach 138th St||Rockaway Park|NY|11694|1337|C012|R
+171 Mermaid Ln||Bronx|NY|10473|2499|C024|R
+1806 Jerome Ave||Brooklyn|NY|11235|3621|C053|B
+1811 Hone Ave||Bronx|NY|10461|1484|C003|B
+1811 Hone Ave||Bronx|NY|10461|1406|C003|B
+1813 Norman St||Ridgewood|NY|11385|5815|C021|R
+1816 E 34th St||Brooklyn|NY|11234|4430|C019|R
+182 Spring St||New York|NY|10012|3605|C010|B
+1820 Quentin Rd||Brooklyn|NY|11229|1310|C005|R
+18205 145th Dr||Springfield Gardens|NY|11413|3312|C018|R
+18240 Avon Rd||Jamaica|NY|11432|2317|C062|R
+1828 Colden Ave||Bronx|NY|10462|3113|C023|R
+1975 Coney Island Ave||Brooklyn|NY|11223|2328|C026|U
+1975 Coney Island Ave|Ste 1|Brooklyn|NY|11223|2328|C026|B
+1979 E 1st St||Brooklyn|NY|11223|2942|C021|R
+198 Fieldway Ave||Staten Island|NY|10308|3215|C007|R
+1981 E 15th St||Brooklyn|NY|11229|3307|C032|R
+1981 W 11th St|Apt 2R|Brooklyn|NY|11223|2463|C033|R
+1981 W 11th St||Brooklyn|NY|11223|2463|C033|R
+1981 W 11th St|Apt 1|Brooklyn|NY|11223|2463|C033|R
+1981 W 11th St|Apt 2|Brooklyn|NY|11223|2463|C033|R
+1981 W 11th St|Apt 2F|Brooklyn|NY|11223|2463|C033|R
+1998 Strauss St||Brooklyn|NY|11212|4525|C019|R
+19B Edgewater Park||Bronx|NY|10465|3504|C016|R
+20 Cambria St||Staten Island|NY|10305|A117|NULL|R
+20 Cambria St||Staten Island|NY|10305|4425|C021|R
+20 Holly Ave||Staten Island|NY|10308|2601|C004|R
+2016 Caesar Pl||Bronx|NY|10473|1800|C026|R
+2016 Caesar Pl|Apt 2|Bronx|NY|10473|1800|C026|R
+2016 Caesar Pl|Apt 1|Bronx|NY|10473|1800|C026|R
+202 E 94th St|Apt 2|Brooklyn|NY|11212|2065|C011|R
+202 E 94th St|Apt 3|Brooklyn|NY|11212|2065|C011|R
+202 E 94th St||Brooklyn|NY|11212|2065|C011|R
+202 E 94th St|Apt 1|Brooklyn|NY|11212|2065|C011|R
+20205 34th Ave||Bayside|NY|11361|1147|C009|R
+2022 46th St||Astoria|NY|11105|1238|C011|R
+213 Shepherd Ave||Brooklyn|NY|11208|1233|C007|R
+2130 29th Ave||Astoria|NY|11102|3334|C010|R
+21315 Hillside Ave||Queens Village|NY|11427|1813|C038|U
+2134 80th St||Brooklyn|NY|11214|1904|C021|R
+2142 46th St||Astoria|NY|11105|1334|C016|R
+2143 80th St||East Elmhurst|NY|11370|1322|C004|R
+21437 36th Ave||Bayside|NY|11361|1740|C033|R
+21437 36th Ave|Apt 1|Bayside|NY|11361|1740|C033|R
+21437 36th Ave|Apt 2|Bayside|NY|11361|1740|C033|R
+21443 39th Ave||Bayside|NY|11361|2113|C039|B
+21458 Jamaica Ave||Queens Village|NY|11428|1727|C026|B
+21519 39th Ave||Bayside|NY|11361|2114|C011|B
+227 Grand St|Apt 5C|New York|NY|10013|5237|C018|R
+227 Grand St|Apt 5D|New York|NY|10013|5237|C018|R
+227 Grand St|Apt 8C|New York|NY|10013|5239|C018|R
+227 Grand St|Apt 3D|New York|NY|10013|4425|C018|R
+227 Grand St|Apt 7D|New York|NY|10013|5238|C018|R
+227 Grand St|Apt 6B|New York|NY|10013|5237|C018|R
+227 Grand St|Apt 5E|New York|NY|10013|5237|C018|R
+227 Grand St|Apt 6A|New York|NY|10013|5237|C018|R
+227 Grand St|Apt 7C|New York|NY|10013|5238|C018|R
+227 Grand St|Apt 7B|New York|NY|10013|5238|C018|R
+227 Grand St|Apt 8B|New York|NY|10013|5239|C018|R
+227 Grand St|Apt 8A|New York|NY|10013|5239|C018|R
+227 Grand St|Fl 3|New York|NY|10013|4211|C018|B
+227 Grand St||New York|NY|10013|4211|C018|B
+227 Grand St|Apt 5A|New York|NY|10013|5237|C018|R
+227 Grand St|Frnt 1|New York|NY|10013|4211|C018|U
+227 Grand St|Apt 3E|New York|NY|10013|4425|C018|R
+227 Grand St|Apt 5B|New York|NY|10013|5237|C018|R
+227 Grand St|Apt 6C|New York|NY|10013|5238|C018|R
+227 Grand St|Apt 7A|New York|NY|10013|5238|C018|R
+227 Grand St|Apt 7E|New York|NY|10013|5239|C018|R
+227 Grand St|Apt 3C|New York|NY|10013|4425|C018|R
+227 Grand St|Apt 3A|New York|NY|10013|4425|C018|R
+227 Grand St|Apt 3B|New York|NY|10013|4425|C018|R
+227 Grand St|Ofc Mgmt|New York|NY|10013|5240|C018|B
+2284 E 2nd St||Brooklyn|NY|11223|5145|C004|R
+229 E 5th St||Brooklyn|NY|11218|2403|C019|R
+229 Mulberry St||New York|NY|10012|A062|NULL|R
+229 Mulberry St||New York|NY|10012|4104|C013|U
+23 Hemlock St||Staten Island|NY|10309|4288|C003|R
+236 E 68th St||New York|NY|10065|6001|C639|B
+237 Madison St|Apt 2|Brooklyn|NY|11216|5755|C011|U
+237 Madison St||Brooklyn|NY|11216|5755|C011|R
+237 Madison St|Apt 1|Brooklyn|NY|11216|5755|C011|U
+238 79th St||Brooklyn|NY|11209|3608|C010|R
+239 71st St||Brooklyn|NY|11209|1301|C003|R
+239 71st St|Apt 2|Brooklyn|NY|11209|1301|C003|R
+239 71st St|Apt 1|Brooklyn|NY|11209|1301|C003|R
+239 W 137th St|Apt 4|New York|NY|10030|2446|C007|R
+239 W 137th St|Apt 2|New York|NY|10030|2446|C007|R
+239 W 137th St|Apt 3|New York|NY|10030|2446|C007|R
+239 W 137th St|Apt 6|New York|NY|10030|2446|C007|R
+239 W 137th St|Apt 1|New York|NY|10030|2446|C007|R
+239 W 137th St|Apt 5|New York|NY|10030|2446|C007|R
+239 W 137th St||New York|NY|10030|2440|C007|R
+23935 148th Ave||Rosedale|NY|11422|3260|C088|R
+24 Stockholm St|Apt 3R|Brooklyn|NY|11221|3151|C019|R
+24 Stockholm St|Apt 1R|Brooklyn|NY|11221|3151|C019|R
+24 Stockholm St|Apt 2R|Brooklyn|NY|11221|3151|C019|R
+24 Stockholm St|Apt 3L|Brooklyn|NY|11221|3159|C019|R
+24 Stockholm St||Brooklyn|NY|11221|3100|C019|R
+24 Stockholm St|Apt 2L|Brooklyn|NY|11221|3159|C019|R
+24 Stockholm St|Apt 1L|Brooklyn|NY|11221|3159|C019|R
+247 80th St||Brooklyn|NY|11209|3611|C027|R
+24804 Cambria Ave||Little Neck|NY|11362|1230|C023|R
+249 E 7th St||Brooklyn|NY|11218|2653|C032|R
+25 Cromwell Cir||Staten Island|NY|10304|1103|C011|R
+25 Hilldale Ct||Staten Island|NY|10305|5104|C018|R
+250 Clove Rd||Staten Island|NY|10310|1210|C016|R
+2678 E 12th St||Brooklyn|NY|11235|5133|C003|R
+26811 Union Tpke||New Hyde Park|NY|11040|1538|C011|R
+26817 82nd Ave||New Hyde Park|NY|11040|1814|C005|R
+26817 82nd Ave|Apt 1|New Hyde Park|NY|11040|1814|C005|R
+26817 82nd Ave|Apt 2|New Hyde Park|NY|11040|1814|C005|R
+27 1st Pl||Brooklyn|NY|11231|3401|C012|U
+27 3rd Pl|Apt 1|Brooklyn|NY|11231|3301|C005|R
+27 3rd Pl||Brooklyn|NY|11231|3301|C005|R
+27 3rd Pl|Apt 2|Brooklyn|NY|11231|3301|C005|R
+27 Barker St||Staten Island|NY|10310|1205|C003|R
+27 Bentley Ln||Staten Island|NY|10307|1251|C004|R
+27 Saint Charles Pl||Brooklyn|NY|11216|4108|C005|R
+270 E Fordham Rd||Bronx|NY|10458|5028|C029|B
+271 Kiswick St||Staten Island|NY|10306|5446|C032|R
+2710 Amboy Rd|Fl 1|Staten Island|NY|10306|2140|C014|R
+2710 Amboy Rd|Fl 2|Staten Island|NY|10306|2140|C014|R
+2710 Amboy Rd||Staten Island|NY|10306|2140|C014|R
+282 Deems Ave||Staten Island|NY|10314|3139|C059|R
+2824 University Ave|Apt 2D|Bronx|NY|10468|2316|C023|R
+2824 University Ave|Apt 3D|Bronx|NY|10468|2362|C023|R
+2824 University Ave|Apt 2B|Bronx|NY|10468|2362|C023|R
+2824 University Ave|Apt 5D|Bronx|NY|10468|2317|C023|R
+2824 University Ave|Apt 1A|Bronx|NY|10468|2316|C023|R
+2824 University Ave|Apt 6B|Bronx|NY|10468|2318|C023|R
+2824 University Ave|Apt 5A|Bronx|NY|10468|2318|C023|R
+2824 University Ave|Apt 6A|Bronx|NY|10468|2318|C023|R
+2824 University Ave|Apt 3A|Bronx|NY|10468|2362|C023|R
+2824 University Ave|Apt 3C|Bronx|NY|10468|2362|C023|R
+2824 University Ave|Apt 4A|Bronx|NY|10468|2317|C023|R
+2824 University Ave|Apt 4B|Bronx|NY|10468|2317|C023|R
+2824 University Ave|Apt 5C|Bronx|NY|10468|2317|C023|R
+2824 University Ave|Apt 1B|Bronx|NY|10468|2316|C023|R
+2824 University Ave|Apt 1C|Bronx|NY|10468|2316|C023|R
+2824 University Ave|Apt 6C|Bronx|NY|10468|2318|C023|R
+2824 University Ave|Apt 1D|Bronx|NY|10468|2316|C023|R
+2824 University Ave|Apt 5B|Bronx|NY|10468|2318|C023|R
+2824 University Ave|Apt 3B|Bronx|NY|10468|2362|C023|R
+2824 University Ave|Apt 4C|Bronx|NY|10468|2317|C023|R
+2824 University Ave|Apt 4D|Bronx|NY|10468|2317|C023|R
+2824 University Ave|Apt 6D|Bronx|NY|10468|2318|C023|R
+2824 University Ave|Apt 2A|Bronx|NY|10468|2362|C023|R
+2824 University Ave|Apt 2C|Bronx|NY|10468|2316|C023|R
+2824 University Ave||Bronx|NY|10468|2315|C023|R
+285 Douglas Rd||Staten Island|NY|10304|1523|C019|R
+285 Norway Ave||Staten Island|NY|10305|3524|C010|R
+3053 Villa Ave||Bronx|NY|10468|1355|C001|R
+307 E 63rd St|Frnt 2|New York|NY|10065|7701|C614|B
+307 E 63rd St||New York|NY|10065|7701|C614|B
+307 E 63rd St|Frnt 1|New York|NY|10065|7701|C614|B
+3204 208th St||Bayside|NY|11361|1064|C009|R
+321 59th St|Apt 2A|Brooklyn|NY|11220|4141|C010|R
+321 59th St|Apt 1A|Brooklyn|NY|11220|4141|C010|R
+321 59th St|Apt 4A|Brooklyn|NY|11220|4141|C010|R
+321 59th St|Apt B1|Brooklyn|NY|11220|4142|C010|R
+321 59th St|Apt 3A|Brooklyn|NY|11220|4141|C010|R
+321 59th St||Brooklyn|NY|11220|4140|C010|R
+321 59th St|Apt 1B|Brooklyn|NY|11220|4141|C010|R
+3215 Newtown Ave||Astoria|NY|11102|1349|C005|B
+3217 Greenpoint Ave||Long Island City|NY|11101|2005|C024|B
+3229 86th St||East Elmhurst|NY|11369|2144|C010|R
+3229 86th St|Apt 1|East Elmhurst|NY|11369|2144|C010|R
+323 Retford Ave||Staten Island|NY|10312|6105|C002|R
+337 Rockaway Ave||Brooklyn|NY|11212|5633|C027|B
+34 E 72nd St||New York|NY|10021|4247|C292|B
+34 Ryan Pl||Staten Island|NY|10312|6065|C033|R
+3404 Jerome Ave||Bronx|NY|10467|1002|C031|B
+3618 Avenue I||Brooklyn|NY|11210|4330|C032|R
+362 Victory Blvd||Staten Island|NY|10301|3019|C027|R
+3624 11th St||Astoria|NY|11106|5016|C002|R
+3624 14th Ave|Apt 2|Brooklyn|NY|11218|3712|C027|R
+3624 14th Ave|Apt 3|Brooklyn|NY|11218|3712|C027|R
+3624 14th Ave||Brooklyn|NY|11218|3712|C027|R
+3624 Richmond Ave||Staten Island|NY|10312|3444|C045|R
+364 Manhattan Ave|Apt 3F|Brooklyn|NY|11211|2493|C027|R
+364 Manhattan Ave|Apt 2F|Brooklyn|NY|11211|2497|C027|R
+364 Manhattan Ave|Apt 4G|Brooklyn|NY|11211|2497|C027|R
+364 Manhattan Ave|Apt 1F|Brooklyn|NY|11211|2497|C027|R
+364 Manhattan Ave|Apt 1G|Brooklyn|NY|11211|2497|C027|R
+364 Manhattan Ave||Brooklyn|NY|11211|2493|C027|R
+366 President St||Brooklyn|NY|11231|5015|C017|R
+366 President St|Apt 1|Brooklyn|NY|11231|5015|C017|R
+3690 Jerome Ave||Bronx|NY|10467|1052|C033|B
+37 Kelly Blvd||Staten Island|NY|10314|6126|C052|R
+386 S 2nd St||Brooklyn|NY|11211|5802|C023|R
+386 S 2nd St|Apt 1|Brooklyn|NY|11211|5802|C023|R
+386 S 2nd St|Apt 2|Brooklyn|NY|11211|5802|C023|R
+39 Barb St||Staten Island|NY|10312|6349|C009|R
+39 E Buchanan St||Staten Island|NY|10301|1315|C028|R
+39 Knickerbocker Ave||Brooklyn|NY|11237|1409|C002|B
+392 Barlow Ave||Staten Island|NY|10308|1302|C009|R
+4145 Hampton St||Elmhurst|NY|11373|2558|C018|R
+415 Robinson Ave||Staten Island|NY|10312|5128|C006|R
+415 W 150th St||New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 403|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 502|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 301|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 402|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 302|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 201|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 601|New York|NY|10031|2834|C045|R
+415 W 150th St|Apt 303|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 603|New York|NY|10031|2834|C045|R
+415 W 150th St|Apt 701|New York|NY|10031|2834|C045|R
+415 W 150th St|Frnt 1|New York|NY|10031|2833|C045|B
+415 W 150th St|Apt 503|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 401|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 602|New York|NY|10031|2834|C045|R
+415 W 150th St|Apt 202|New York|NY|10031|2833|C045|R
+415 W 150th St|Apt 702|New York|NY|10031|2834|C045|R
+415 W 150th St|Apt 501|New York|NY|10031|2833|C045|R
+416 W 150th St|Bsmt B|New York|NY|10031|2820|C018|R
+416 W 150th St||New York|NY|10031|2820|C018|R
+416 W 150th St|Apt 3|New York|NY|10031|2820|C018|R
+416 W 150th St|Apt 5|New York|NY|10031|2820|C018|R
+416 W 150th St|Apt 1|New York|NY|10031|2820|C018|R
+416 W 150th St|Apt 2|New York|NY|10031|2820|C018|R
+416 W 150th St|Apt 6|New York|NY|10031|2820|C018|R
+4186 White Plains Rd||Bronx|NY|10466|3012|C006|B
+419S E 137th St||Bronx|NY|10454|4070|C003|R
+42 Oregon Rd||Staten Island|NY|10305|1418|C012|R
+4315 104th St||Corona|NY|11368|2523|C010|B
+4315 104th St|Apt 2|Corona|NY|11368|2523|C010|R
+4315 104th St|Apt 1|Corona|NY|11368|2523|C010|R
+435 Ridgewood Ave||Staten Island|NY|10312|2183|C038|R
+4714 16th Ave|Ste 201|Brooklyn|NY|11204|1198|C003|B
+4714 16th Ave|Ste 310|Brooklyn|NY|11204|1198|C003|B
+4714 16th Ave|Ste 202|Brooklyn|NY|11204|1198|C003|B
+4714 16th Ave|Ste 203|Brooklyn|NY|11204|1198|C003|B
+4714 16th Ave|Ste 205|Brooklyn|NY|11204|1198|C003|B
+4714 16th Ave||Brooklyn|NY|11204|1197|C003|B
+4716 Junction Blvd|Unit 4|Corona|NY|11368|2776|C010|R
+4716 Junction Blvd|Unit 3|Corona|NY|11368|2776|C010|R
+4716 Junction Blvd|Unit 1|Corona|NY|11368|2776|C010|R
+4716 Junction Blvd||Corona|NY|11368|2789|C010|B
+4716 Junction Blvd|Ste A|Corona|NY|11368|2790|C010|B
+4716 Junction Blvd|Unit 2|Corona|NY|11368|2776|C010|R
+473 46th St|Ste 2|Brooklyn|NY|11220|1213|C023|B
+473 46th St||Brooklyn|NY|11220|1213|C023|B
+473 46th St|Ste 1|Brooklyn|NY|11220|1213|C023|B
+475 E 165th St||Bronx|NY|10456|6608|C020|B
+475 Jefferson Ave|Apt 2|Brooklyn|NY|11221|6972|C012|R
+475 Jefferson Ave|Apt 3|Brooklyn|NY|11221|6972|C012|R
+475 Jefferson Ave||Brooklyn|NY|11221|1005|C012|R
+475 Jefferson Ave|Apt 1|Brooklyn|NY|11221|6972|C012|R
+5029 201st St||Oakland Gardens|NY|11364|1013|C001|R
+504 Beach 126th St|Apt 2|Rockaway Park|NY|11694|1725|C007|R
+504 Beach 126th St|Apt 3|Rockaway Park|NY|11694|1725|C007|R
+504 Beach 126th St|Apt 1|Rockaway Park|NY|11694|1725|C007|R
+504 Beach 126th St||Rockaway Park|NY|11694|1725|C007|R
+5283 79th St||Elmhurst|NY|11373|4157|C005|R
+530 53rd St||Brooklyn|NY|11220|2723|C028|R
+531 E 137th St||Bronx|NY|10454|4202|C012|B
+5328 69th St||Maspeth|NY|11378|1728|C022|R
+5764 79th St|Apt 1|Middle Village|NY|11379|5310|C020|R
+5764 79th St||Middle Village|NY|11379|5310|C020|R
+5764 79th St|Apt 2|Middle Village|NY|11379|5310|C020|R
+5820 Junction Blvd||Elmhurst|NY|11373|5155|C013|B
+584 Bradford St||Brooklyn|NY|11207|5903|C005|R
+5842 Maspeth Ave||Maspeth|NY|11378|2730|C005|B
+5857 43rd Ave||Woodside|NY|11377|4836|C028|R
+5863 78th Ave||Glendale|NY|11385|6022|C028|R
+588 19th St||Brooklyn|NY|11218|1001|C038|R
+59 Radford St||Staten Island|NY|10314|4811|C044|R
+61 N Henry St||Brooklyn|NY|11222|5046|C014|B
+6106 60th Ave||Maspeth|NY|11378|3423|C023|R
+611 W 180th St|Apt 6|New York|NY|10033|4920|C008|R
+611 W 180th St|Apt 4|New York|NY|10033|4921|C008|R
+611 W 180th St|Apt 12|New York|NY|10033|4922|C008|R
+611 W 180th St|Apt 17|New York|NY|10033|4922|C008|R
+611 W 180th St|Apt 9|New York|NY|10033|4920|C008|R
+611 W 180th St|Apt 2|New York|NY|10033|4921|C008|R
+611 W 180th St|Apt 8|New York|NY|10033|4920|C008|R
+611 W 180th St|Apt 1|New York|NY|10033|4921|C008|R
+611 W 180th St|Apt 3|New York|NY|10033|4921|C008|R
+611 W 180th St|Apt 19|New York|NY|10033|4923|C008|R
+611 W 180th St|Apt 15|New York|NY|10033|4923|C008|R
+611 W 180th St|Apt 10|New York|NY|10033|4920|C008|R
+611 W 180th St|Apt 11|New York|NY|10033|4922|C008|R
+611 W 180th St|Apt 22|New York|NY|10033|4923|C008|R
+611 W 180th St|Apt 14|New York|NY|10033|4922|C008|R
+611 W 180th St|Apt 7|New York|NY|10033|4920|C008|R
+611 W 180th St|Apt 16|New York|NY|10033|4923|C008|R
+611 W 180th St||New York|NY|10033|4925|C008|R
+611 W 180th St|Apt 21|New York|NY|10033|4922|C008|R
+611 W 180th St|Apt 18|New York|NY|10033|4923|C008|R
+611 W 180th St|Apt 5|New York|NY|10033|4921|C008|R
+611 W 180th St|Apt 20|New York|NY|10033|4923|C008|R
+611 W 180th St|Bsmt Supt|New York|NY|10033|4925|C008|R
+6111 156th St||Flushing|NY|11367|1238|C016|R
+6115 232nd St|Apt 1|Oakland Gardens|NY|11364|2428|C011|R
+6115 232nd St|Apt 2|Oakland Gardens|NY|11364|2428|C011|R
+6115 232nd St||Oakland Gardens|NY|11364|2428|C011|R
+613 5th Ave||Brooklyn|NY|11215|5433|C031|B
+613 E Tremont Ave||Bronx|NY|10457|4801|C019|B
+650 Thieriot Ave||Bronx|NY|10473|2922|C008|R
+6502 Almeda Ave||Arverne|NY|11692|1325|C004|R
+6508 Myrtle Ave||Glendale|NY|11385|6250|C034|R
+6508 Myrtle Ave|Ste 1|Glendale|NY|11385|6250|C034|B
+651 E 7th St|Apt 1|Brooklyn|NY|11218|5903|C023|R
+651 E 7th St|Apt 2|Brooklyn|NY|11218|5903|C023|R
+651 E 7th St||Brooklyn|NY|11218|5903|C023|R
+651 E 7th St|Apt 3|Brooklyn|NY|11218|5903|C023|R
+6524 Bayfield Ave||Arverne|NY|11692|1305|C004|R
+6524 Bayfield Ave|Apt 2|Arverne|NY|11692|1305|C004|R
+6524 Bayfield Ave|Apt 1|Arverne|NY|11692|1305|C004|R
+66 W Gun Hill Rd|Apt 5F|Bronx|NY|10467|1030|C032|R
+66 W Gun Hill Rd|Apt 6F|Bronx|NY|10467|1030|C032|R
+66 W Gun Hill Rd|Apt 6G|Bronx|NY|10467|1042|C032|R
+66 W Gun Hill Rd|Apt 1B|Bronx|NY|10467|1025|C032|R
+66 W Gun Hill Rd|Apt 6H|Bronx|NY|10467|1047|C032|R
+66 W Gun Hill Rd|Apt 2A|Bronx|NY|10467|1048|C032|R
+66 W Gun Hill Rd|Apt 2E|Bronx|NY|10467|1034|C032|R
+66 W Gun Hill Rd|Apt 3D|Bronx|NY|10467|1036|C032|R
+66 W Gun Hill Rd|Apt 3G|Bronx|NY|10467|1042|C032|R
+66 W Gun Hill Rd|Apt 4H|Bronx|NY|10467|1047|C032|R
+66 W Gun Hill Rd|Apt 2F|Bronx|NY|10467|1030|C032|R
+66 W Gun Hill Rd||Bronx|NY|10467|1000|C032|U
+66 W Gun Hill Rd|Apt 3C|Bronx|NY|10467|1018|C032|R
+66 W Gun Hill Rd|Apt 3A|Bronx|NY|10467|1048|C032|R
+66 W Gun Hill Rd|Apt 5B|Bronx|NY|10467|1025|C032|R
+66 W Gun Hill Rd|Apt 4A|Bronx|NY|10467|1048|C032|R
+66 W Gun Hill Rd|Apt 1D|Bronx|NY|10467|1036|C032|R
+66 W Gun Hill Rd|Apt 1F|Bronx|NY|10467|1030|C032|R
+66 W Gun Hill Rd|Apt 6C|Bronx|NY|10467|1018|C032|R
+66 W Gun Hill Rd|Apt 5H|Bronx|NY|10467|1047|C032|R
+66 W Gun Hill Rd|Apt 1H|Bronx|NY|10467|1047|C032|R
+66 W Gun Hill Rd|Apt 4F|Bronx|NY|10467|1030|C032|R
+66 W Gun Hill Rd|Apt 5A|Bronx|NY|10467|1048|C032|R
+66 W Gun Hill Rd|Apt 3E|Bronx|NY|10467|1034|C032|R
+66 W Gun Hill Rd|Apt 2G|Bronx|NY|10467|1042|C032|R
+66 W Gun Hill Rd|Apt 5C|Bronx|NY|10467|1018|C032|R
+66 W Gun Hill Rd|Apt 6A|Bronx|NY|10467|1048|C032|R
+66 W Gun Hill Rd|Apt 2D|Bronx|NY|10467|1036|C032|R
+66 W Gun Hill Rd|Apt 3B|Bronx|NY|10467|1025|C032|R
+66 W Gun Hill Rd|Apt 6D|Bronx|NY|10467|1036|C032|R
+66 W Gun Hill Rd|Apt 4D|Bronx|NY|10467|1036|C032|R
+66 W Gun Hill Rd|Apt 2C|Bronx|NY|10467|1018|C032|R
+66 W Gun Hill Rd|Apt 3F|Bronx|NY|10467|1030|C032|R
+66 W Gun Hill Rd|Apt 5G|Bronx|NY|10467|1042|C032|R
+66 W Gun Hill Rd|Apt 1A|Bronx|NY|10467|1048|C032|R
+66 W Gun Hill Rd|Apt 1G|Bronx|NY|10467|1042|C032|R
+66 W Gun Hill Rd|Apt 1E|Bronx|NY|10467|1034|C032|R
+66 W Gun Hill Rd|Apt 5D|Bronx|NY|10467|1036|C032|R
+66 W Gun Hill Rd|Apt 2H|Bronx|NY|10467|1047|C032|R
+66 W Gun Hill Rd|Apt 3H|Bronx|NY|10467|1047|C032|R
+66 W Gun Hill Rd|Apt 6B|Bronx|NY|10467|1025|C032|R
+66 W Gun Hill Rd|Apt 2B|Bronx|NY|10467|1025|C032|R
+66 W Gun Hill Rd|Apt 4G|Bronx|NY|10467|1042|C032|R
+66 W Gun Hill Rd|Apt 4E|Bronx|NY|10467|1034|C032|R
+66 W Gun Hill Rd|Apt 5E|Bronx|NY|10467|1034|C032|R
+66 W Gun Hill Rd|Apt 4B|Bronx|NY|10467|1025|C032|R
+66 W Gun Hill Rd|Apt 4C|Bronx|NY|10467|1018|C032|R
+66 W Gun Hill Rd|Apt 6E|Bronx|NY|10467|1034|C032|R
+7 Teleport Dr||Staten Island|NY|10311|1001|C054|B
+70 E 79th St|Apt 1A|New York|NY|10075|0206|C718|R
+70 E 79th St|Apt 4B|New York|NY|10075|0206|C718|R
+70 E 79th St|Apt 4A|New York|NY|10075|0206|C718|R
+70 E 79th St|Apt 5A|New York|NY|10075|0206|C718|R
+70 E 79th St|Apt 1|New York|NY|10075|0206|C718|R
+70 E 79th St|Ofc Mgmt|New York|NY|10075|0206|C718|B
+70 E 79th St||New York|NY|10075|0206|C718|R
+70 E 79th St|Apt 3|New York|NY|10075|0206|C718|R
+70 W Cedarview Ave||Staten Island|NY|10306|1708|C035|U
+7015 68th St||Glendale|NY|11385|6630|C037|R
+7019 67th St||Glendale|NY|11385|6662|C035|R
+7045 Queens Blvd||Woodside|NY|11377|5116|C013|B
+762 E 84th St|Apt 2|Brooklyn|NY|11236|3502|C012|R
+762 E 84th St|Apt 1|Brooklyn|NY|11236|3502|C012|R
+762 E 84th St||Brooklyn|NY|11236|3502|C012|R
+7620 97th Ave||Ozone Park|NY|11416|1102|C051|R
+763 Drew St|Apt 2|Brooklyn|NY|11208|4204|C032|R
+763 Drew St|Apt 1|Brooklyn|NY|11208|4204|C032|R
+763 Drew St||Brooklyn|NY|11208|4204|C032|R
+768 E 222nd St|Apt 3|Bronx|NY|10467|5198|C016|R
+768 E 222nd St|Apt 1|Bronx|NY|10467|5198|C016|R
+768 E 222nd St||Bronx|NY|10467|5198|C016|R
+768 E 222nd St|Apt 2|Bronx|NY|10467|5198|C016|R
+77 E 119th St|Fl 3|New York|NY|10035|3877|C002|R
+77 E 119th St||New York|NY|10035|3877|C002|R
+77 E 119th St|Fl 2|New York|NY|10035|3877|C002|R
+77 E 119th St|Fl 1|New York|NY|10035|3877|C002|R
+7717 Queens Blvd||Elmhurst|NY|11373|3741|C020|B
+7740 171st St||Fresh Meadows|NY|11366|1407|C041|R
+78 Annadale Rd||Staten Island|NY|10312|1504|C043|R
+825 Garrison Ave||Bronx|NY|10474|5305|C014|B
+827 Pine St||Brooklyn|NY|11208|5527|C029|R
+8281 166th St||Jamaica|NY|11432|1820|C020|R
+8317 78th Ave||Glendale|NY|11385|7657|C031|B
+8333 Langdale St||New Hyde Park|NY|11040|A218|NULL|B
+8333 Langdale St||New Hyde Park|NY|11040|1822|C005|U
+834 Westwood Ave||Staten Island|NY|10314|4342|C063|R
+8608 89th Ave||Woodhaven|NY|11421|2517|C022|R
+861 Fairmount Pl|Apt 3A|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 3B|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl||Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 1C|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 1D|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 1A|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 4C|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 3C|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 2D|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 2C|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 4B|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 4D|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 2B|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 1B|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 3D|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 4A|Bronx|NY|10460|4293|C011|R
+861 Fairmount Pl|Apt 2A|Bronx|NY|10460|4293|C011|R
+8611 Dexter Ct|Apt 2|Woodhaven|NY|11421|1027|C001|R
+8611 Dexter Ct||Woodhaven|NY|11421|1027|C001|R
+8611 Dexter Ct|Apt 1|Woodhaven|NY|11421|1027|C001|R
+8621 143rd St||Jamaica|NY|11435|3019|C026|R
+8629 Palermo St||Hollis|NY|11423|1219|C056|R
+8630 108th St||Richmond Hill|NY|11418|1606|C005|R
+8632 102nd Ave||Ozone Park|NY|11416|2130|C073|R
+866 Cauldwell Ave||Bronx|NY|10456|7619|C004|R
+8667 16th Ave|Apt 1R|Brooklyn|NY|11214|3648|C045|R
+8667 16th Ave|Apt 2F|Brooklyn|NY|11214|3648|C045|R
+8667 16th Ave||Brooklyn|NY|11214|3648|C045|R
+8667 16th Ave|Apt 3F|Brooklyn|NY|11214|3648|C045|R
+8667 16th Ave|Apt 1F|Brooklyn|NY|11214|3648|C045|R
+8667 16th Ave|Apt 3R|Brooklyn|NY|11214|3648|C045|R
+8667 16th Ave|Apt 2R|Brooklyn|NY|11214|3648|C045|R
+96 Jackie Robinson Pkwy|Apt 2|Brooklyn|NY|11207|1913|C013|R
+96 Jackie Robinson Pkwy||Brooklyn|NY|11207|1913|C013|R
+96 Jackie Robinson Pkwy|Apt 1|Brooklyn|NY|11207|1913|C013|R
+96 Waverly Ave|Apt 1|Brooklyn|NY|11205|2406|C021|R
+96 Waverly Ave|Apt 4|Brooklyn|NY|11205|2406|C021|R
+96 Waverly Ave|Apt 3|Brooklyn|NY|11205|2406|C021|R
+96 Waverly Ave||Brooklyn|NY|11205|2406|C021|R
+96 Waverly Ave|Apt 2|Brooklyn|NY|11205|2406|C021|R
+96 Waverly Ave|Apt 5|Brooklyn|NY|11205|2406|C021|R
+96 Wythe Ave||Brooklyn|NY|11249|1923|C024|B
+9630 42nd Ave||Corona|NY|11368|2147|C010|R
+967 E 105th St||Brooklyn|NY|11236|2803|C035|R
+969 62nd St|Apt 2|Brooklyn|NY|11219|5131|C020|R
+969 62nd St|Apt 3|Brooklyn|NY|11219|5131|C020|R
+969 62nd St||Brooklyn|NY|11219|5130|C020|U
+969 62nd St|Apt 1|Brooklyn|NY|11219|5131|C020|R
+97 Barrow St||New York|NY|10014|2824|C028|R
+97 Winchester Ave||Staten Island|NY|10312|6506|C025|R
+9722 100th St||Ozone Park|NY|11416|2603|C058|B
+2098 Frederick Douglass Blvd|Apt 9R|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 5J|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 5B|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 1C|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 10M|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 2D|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 8N|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|PH P|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 6Q|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 7M|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 6O|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 10R|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 4A|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|PH Q|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 4L|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 2L|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 9P|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 4K|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 4J|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 9O|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 5I|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 6R|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 5K|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 3J|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 7O|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 9N|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|PH M|New York|NY|10026|2794|C002|U
+2098 Frederick Douglass Blvd|Apt 2H|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 7R|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 5A|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 4D|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 3B|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 4I|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 5D|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 6M|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 2B|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 8P|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 10Q|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 5E|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 1B|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 4G|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 2C|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 4H|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 3L|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 10O|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 3F|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 2K|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 10N|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 8R|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 3E|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 4C|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|PH R|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 3K|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 3I|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 10P|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 2I|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 4B|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 7Q|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 2E|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 2J|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 6N|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 3G|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 4E|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 5L|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 9M|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 3D|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 2F|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 5F|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 3H|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 2G|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 7P|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 1D|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 5H|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 4F|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 6P|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 8Q|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|PH N|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 3A|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 2A|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 7N|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 9Q|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 5G|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 3C|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd||New York|NY|10026|2792|C002|B
+2098 Frederick Douglass Blvd|Apt 1A|New York|NY|10026|2795|C002|R
+2098 Frederick Douglass Blvd|Apt 8M|New York|NY|10026|2794|C002|R
+2098 Frederick Douglass Blvd|Apt 5C|New York|NY|10026|2793|C002|R
+2098 Frederick Douglass Blvd|Apt 8O|New York|NY|10026|2794|C002|R
+243 W End Ave|Apt 509|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1402|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 503|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 604|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 802|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1704|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1109|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 904|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 204|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 301|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 602|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 308|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1409|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 611|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1101|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1002|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 902|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 508|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1212|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 610|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 711|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1210|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 809|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 408|New York|NY|10023|3668|C044|R
+243 W End Ave|Frnt 1|New York|NY|10023|3615|C044|B
+243 W End Ave|Apt 101|New York|NY|10023|3667|C044|B
+243 W End Ave|Apt 1505|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 102|New York|NY|10023|3667|C044|B
+243 W End Ave|Apt 1205|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 412|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 203|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1209|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 707|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1607|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 606|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1214|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1201|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 804|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 811|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1103|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 403|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 210|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 805|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 614|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 703|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1114|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1412|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 808|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 206|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 305|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 502|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 801|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1511|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 506|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1014|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 806|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 605|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1001|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 607|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 505|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1110|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1510|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 405|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 504|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 507|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 303|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 906|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 910|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 302|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1609|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1204|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1011|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1004|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 407|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1111|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 211|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 209|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 608|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1012|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1608|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 107|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 601|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 712|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 814|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1408|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 903|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 414|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1005|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 212|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 812|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1105|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1603|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 214|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1407|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 702|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 514|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1614|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 312|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1008|New York|NY|10023|3670|C044|R
+243 W End Ave||New York|NY|10023|3615|C044|U
+243 W End Ave|Apt 1501|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 106|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1411|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 911|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1207|New York|NY|10023|3671|C044|R
+243 W End Ave|Ofc A|New York|NY|10023|3672|C044|B
+243 W End Ave|Apt 1404|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1414|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 103|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 810|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 401|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 306|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1009|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1610|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 912|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1102|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 612|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1512|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1604|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 908|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1208|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 311|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 208|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1211|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 803|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 201|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 304|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 706|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1108|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 701|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1508|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 708|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1702|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1504|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1605|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1107|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 807|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 501|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1601|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 402|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1514|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 609|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1703|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1410|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1503|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1507|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 704|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 907|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 309|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 905|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 314|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1405|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 310|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 909|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1401|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 404|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1104|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1612|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 511|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1203|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1010|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 202|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 1007|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 411|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 705|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1202|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 710|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 307|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 512|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 901|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 1003|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 914|New York|NY|10023|3670|C044|R
+243 W End Ave|Apt 207|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 714|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 709|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 510|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 409|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1611|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1502|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1509|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 1602|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 205|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 104|New York|NY|10023|3667|C044|R
+243 W End Ave|Apt 603|New York|NY|10023|3669|C044|R
+243 W End Ave|Apt 1701|New York|NY|10023|3672|C044|R
+243 W End Ave|Apt 406|New York|NY|10023|3668|C044|R
+243 W End Ave|Apt 1403|New York|NY|10023|3671|C044|R
+243 W End Ave|Apt 1112|New York|NY|10023|3671|C044|R
+2431 81st St||East Elmhurst|NY|11370|1622|C025|R
+10 Yacht Club Cv||Staten Island|NY|10308|3531|C007|R
+10001 205th St||Hollis|NY|11423|3432|C069|R
+10034 67th Dr||Forest Hills|NY|11375|3147|C007|R
+108 E 84th St|"# 2A"|New York|NY|10028|0901|C018|U
+108 E 84th St||New York|NY|10028|0901|C018|R
+108 E Brandis Ave||Staten Island|NY|10308|1246|C009|R
+108 Otis Ave||Staten Island|NY|10306|2310|C029|R
+108 S 2nd St||Brooklyn|NY|11249|5205|C011|R
+10845 37th Dr|Apt 3|Corona|NY|11368|2032|C018|R
+10845 37th Dr|Apt 1|Corona|NY|11368|2032|C018|R
+10845 37th Dr|Apt 2|Corona|NY|11368|2032|C018|R
+10845 37th Dr||Corona|NY|11368|2032|C018|R
+10850 38th Ave|Apt 2F|Corona|NY|11368|2073|C018|R
+10850 38th Ave|Apt 1F|Corona|NY|11368|2073|C018|R
+10850 38th Ave|Apt 1R|Corona|NY|11368|2073|C018|R
+10850 38th Ave||Corona|NY|11368|5259|C018|R
+10850 38th Ave|Apt 2R|Corona|NY|11368|2073|C018|R
+109 Indale Ave||Staten Island|NY|10309|3971|C004|R
+10912 Sutphin Blvd||Jamaica|NY|11435|5728|C081|U
+10912 Sutphin Blvd|Ste 1|Jamaica|NY|11435|5728|C081|B
+10915 199th St||Saint Albans|NY|11412|1219|C056|R
+1120 Avenue of the Americas|Ste 1510|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Frnt B|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1508|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1514|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Frnt A|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 17A|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1503|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1502|New York|NY|10036|6714|C025|B
+1120 Avenue of the Americas|Fl 6|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Frnt D|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1501|New York|NY|10036|6711|C025|B
+1120 Avenue of the Americas|Rm 1803|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1511|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 2100|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1808|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 12|New York|NY|10036|6700|C025|U
+1120 Avenue of the Americas|Ste 1504|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 8|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1507|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 13|New York|NY|10036|6700|C025|U
+1120 Avenue of the Americas|Fl 9|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 19|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1807|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 14|New York|NY|10036|6700|C025|U
+1120 Avenue of the Americas|Fl 7|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1804|New York|NY|10036|6700|C025|U
+1120 Avenue of the Americas|Rm 1809|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1802|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1505|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1806|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1513|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Lbby 1|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1801|New York|NY|10036|6700|C025|U
+1120 Avenue of the Americas|Fl 21|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1805|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 501|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 4036|New York|NY|10036|6749|C025|B
+1120 Avenue of the Americas|Frnt E|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 502|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Rm 1700|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 4|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1512|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1509|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Ste 1506|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas||New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Frnt C|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 17B|New York|NY|10036|6700|C025|B
+1120 Avenue of the Americas|Fl 10|New York|NY|10036|6700|C025|U
+11233 200th St|Apt 1|Saint Albans|NY|11412|2127|C064|R
+11233 200th St||Saint Albans|NY|11412|2127|C064|R
+1125 74th St||Brooklyn|NY|11228|2018|C010|R
+113 Hull St|Apt 1|Brooklyn|NY|11233|2704|C010|R
+113 Hull St||Brooklyn|NY|11233|2704|C010|R
+113 Hull St|Apt 2|Brooklyn|NY|11233|2704|C010|R
+113 Noel Rd||Far Rockaway|NY|11693|A117|NULL|B
+1132 E 221st St||Bronx|NY|10469|1506|C029|R
+1136 79th St||Brooklyn|NY|11228|2632|C006|R
+114 Reynolds St||Staten Island|NY|10305|1626|C003|R
+1140 E 85th St||Brooklyn|NY|11236|4735|C040|R
+1140 E 85th St|Apt 1|Brooklyn|NY|11236|4735|C040|R
+1140 E 85th St|Apt 2|Brooklyn|NY|11236|4735|C040|R
+11408 128th St||South Ozone Park|NY|11420|2128|C033|R
+1177 Avenue of the Americas|Fl 12|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 18|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 46|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 40|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 5|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 34|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 38|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 42|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Ste C2|New York|NY|10036|2731|C010|B
+1177 Avenue of the Americas|Fl 31|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 17|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 32|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 47|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Ste 10R|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Lbby 3|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 35|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 44|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 36|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 30|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 8|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas||New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 2B|New York|NY|10036|2757|C010|B
+1177 Avenue of the Americas|Fl 11|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 39|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 24|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 43|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 33|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 2|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 23|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Ste 10L|New York|NY|10036|2739|C010|B
+1177 Avenue of the Americas|Fl 9|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 6|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Frnt 2|New York|NY|10036|2789|C010|B
+1177 Avenue of the Americas|Fl 7|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 14|New York|NY|10036|2714|C010|U
+1177 Avenue of the Americas|Fl 41|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 15|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 45|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Fl 29|New York|NY|10036|2714|C010|B
+1177 Avenue of the Americas|Frnt 1|New York|NY|10036|2789|C010|B
+1177 Avenue of the Americas|Lbby B|New York|NY|10036|2789|C010|B
+1182 Putnam Ave|Apt 3A|Brooklyn|NY|11221|4961|C017|R
+1182 Putnam Ave|Apt 2A|Brooklyn|NY|11221|4960|C017|R
+1182 Putnam Ave|Apt 4A|Brooklyn|NY|11221|4961|C017|R
+1182 Putnam Ave|Apt 2C|Brooklyn|NY|11221|4960|C017|R
+1182 Putnam Ave|Apt 1B|Brooklyn|NY|11221|4960|C017|R
+1182 Putnam Ave|Apt 3B|Brooklyn|NY|11221|4961|C017|R
+1182 Putnam Ave|Apt 1C|Brooklyn|NY|11221|4960|C017|R
+1182 Putnam Ave|Apt 4C|Brooklyn|NY|11221|4961|C017|R
+1182 Putnam Ave|Apt 1A|Brooklyn|NY|11221|4960|C017|R
+1182 Putnam Ave|Apt 4B|Brooklyn|NY|11221|4961|C017|R
+1182 Putnam Ave|Apt 2B|Brooklyn|NY|11221|4960|C017|R
+1182 Putnam Ave||Brooklyn|NY|11221|4959|C017|R
+1182 Putnam Ave|Apt 3C|Brooklyn|NY|11221|4961|C017|R
+11840 235th St||Cambria Heights|NY|11411|2320|C008|R
+119 Cayuga Ave||Staten Island|NY|10301|4334|C022|R
+119 Reid Ave||Breezy Point|NY|11697|1916|C004|R
+11904 Merrick Blvd||Jamaica|NY|11434|2205|C088|B
+11916 111th Ave||South Ozone Park|NY|11420|1347|C025|R
+1193 E 55th St||Brooklyn|NY|11234|2417|C014|R
+11933 223rd St||Cambria Heights|NY|11411|2023|C011|R
+11938 221st St||Cambria Heights|NY|11411|2015|C011|R
+11948 Sutphin Blvd||Jamaica|NY|11434|2027|C056|B
+1195 Brooklyn Ave||Brooklyn|NY|11203|5114|C025|R
+1260 Linden Blvd||Brooklyn|NY|11212|A123|NULL|R
+1260 Linden Blvd||Brooklyn|NY|11212|2403|C008|U
+1261 Rogers Ave||Brooklyn|NY|11226|7823|C047|R
+1261 Rogers Ave|Apt 3|Brooklyn|NY|11226|7823|C047|R
+1261 Rogers Ave|Apt 2|Brooklyn|NY|11226|7823|C047|R
+1261 Rogers Ave|Apt 1|Brooklyn|NY|11226|7823|C047|R
+1264 Castleton Ave|Ste 1|Staten Island|NY|10310|1730|C016|B
+1264 Castleton Ave||Staten Island|NY|10310|1740|C016|B
+127 E Fordham Rd||Bronx|NY|10468|5404|C003|B
+12717 116th Ave||South Ozone Park|NY|11420|2643|C033|R
+1275 72nd St||Brooklyn|NY|11228|1506|C009|R
+1275 72nd St|Apt 1|Brooklyn|NY|11228|1506|C009|R
+1275 72nd St|Apt 3|Brooklyn|NY|11228|1506|C009|R
+1275 72nd St|Apt 5|Brooklyn|NY|11228|1506|C009|R
+1275 72nd St|Apt 4|Brooklyn|NY|11228|1506|C009|R
+1275 72nd St|Apt 2F|Brooklyn|NY|11228|1506|C009|R
+1279 Bergen St||Brooklyn|NY|11213|1507|C007|R
+128 W 80th St||New York|NY|10024|6301|C007|B
+1280 E 55th St||Brooklyn|NY|11234|3326|C073|R
+12816 22nd Ave||College Point|NY|11356|2704|C007|R
+12823 233rd St||Rosedale|NY|11422|1023|C085|R
+137 Lander Ave||Staten Island|NY|10314|2707|C057|R
+137 Quincy St||Brooklyn|NY|11216|1313|C003|R
+137 Rome Ave||Staten Island|NY|10304|3149|C015|R
+137 W 96th St||New York|NY|10025|6403|C104|B
+13720 243rd St||Rosedale|NY|11422|1824|C084|R
+13752B 68th Dr||Flushing|NY|11367|2028|C007|R
+13770 224th St||Laurelton|NY|11413|2426|C021|R
+1381 86th St||Brooklyn|NY|11228|3313|C016|R
+13830A Francis Lewis Blvd||Rosedale|NY|11422|1705|C084|R
+145 York Ave||Staten Island|NY|10301|1358|C011|R
+14626 26th Ave|Apt 1|Flushing|NY|11354|1426|C027|R
+14626 26th Ave|Apt 2|Flushing|NY|11354|1426|C027|R
+14626 26th Ave||Flushing|NY|11354|1426|C027|R
+14639 58th Rd||Flushing|NY|11355|5416|C010|U
+1465 E 13th St||Brooklyn|NY|11230|6603|C013|R
+15216 Roosevelt Ave||Flushing|NY|11354|4938|C011|R
+15227 13th Ave||Whitestone|NY|11357|1948|C022|R
+15331 79th St||Howard Beach|NY|11414|1723|C007|R
+15331 79th St|Apt 1|Howard Beach|NY|11414|1723|C007|R
+15331 79th St|Apt 2|Howard Beach|NY|11414|1723|C007|R
+1539 E 53rd St||Brooklyn|NY|11234|3927|C005|R
+15401 Barclay Ave||Flushing|NY|11355|1109|C019|B
+15418 19th Ave||Whitestone|NY|11357|3802|C042|R
+15421 21st Ave||Whitestone|NY|11357|3829|C009|R
+16345 15th Dr||Whitestone|NY|11357|2934|C017|R
+1638 E 23rd St||Brooklyn|NY|11229|1519|C007|R
+1640 W 4th St||Brooklyn|NY|11223|1542|C010|R
+1641 Taylor Ave||Bronx|NY|10460|2714|C002|R
+16415 86th Rd||Jamaica|NY|11432|1940|C017|R
+165 E 86th St||New York|NY|10028|2106|C032|B
+165 Eckford St||Brooklyn|NY|11222|3221|C005|R
+1655 E 54th St||Brooklyn|NY|11234|3919|C042|R
+165B Ainsworth Ave||Staten Island|NY|10308|3002|C002|R
+166 Brighton 11th St||Brooklyn|NY|11235|5327|C047|R
+166 Brighton 11th St|Apt 2|Brooklyn|NY|11235|5327|C047|R
+166 Brighton 11th St|Apt 1|Brooklyn|NY|11235|5327|C047|R
+1741 E 19th St||Brooklyn|NY|11229|2201|C005|R
+1747 Ryder St||Brooklyn|NY|11234|4308|C028|R
+175 Skillman St||Brooklyn|NY|11205|3537|C003|B
+175 Skillman St|Apt 5|Brooklyn|NY|11205|3538|C003|R
+175 Skillman St|Apt 3|Brooklyn|NY|11205|3538|C003|R
+175 Skillman St|Apt 1|Brooklyn|NY|11205|3538|C003|R
+175 Skillman St|Apt 2|Brooklyn|NY|11205|3538|C003|R
+175 Skillman St|Apt 4|Brooklyn|NY|11205|3538|C003|R
+17609 133rd Rd||Jamaica|NY|11434|5807|C066|R
+1868 E 13th St||Brooklyn|NY|11229|2808|C008|R
+187 Warwick Ave||Staten Island|NY|10314|4313|C028|R
+1870 Webster Ave||Bronx|NY|10457|6007|C026|B
+1877 49th St||Brooklyn|NY|11204|1245|C007|U
+1879 Brown St||Brooklyn|NY|11229|3207|C035|R
+188 Beach 141st St||Rockaway Park|NY|11694|1228|C014|R
+18903 120th Ave||Saint Albans|NY|11412|3609|C069|R
+18931 39th Ave|Apt 128|Flushing|NY|11358|2366|C022|R
+18931 39th Ave|Apt 129|Flushing|NY|11358|2366|C022|R
+18931 39th Ave|Apt 130|Flushing|NY|11358|2366|C022|R
+18931 39th Ave|Apt 127|Flushing|NY|11358|2366|C022|R
+18931 39th Ave||Flushing|NY|11358|2487|C022|R
+19 Elizabeth Ave||Staten Island|NY|10310|1509|C002|R
+19 Sumner Ave||Staten Island|NY|10314|1514|C050|R
+190 Barlow Dr S||Brooklyn|NY|11234|6722|C051|R
+21 Kayla Ct||Staten Island|NY|10306|1317|C030|R
+210 Stanley Ave||Staten Island|NY|10301|2846|C027|R
+2107 Avenue O||Brooklyn|NY|11210|5045|C011|R
+219 E 67th St|Fl 6|New York|NY|10065|6062|C626|U
+219 E 67th St|Fl 5|New York|NY|10065|6062|C626|R
+219 E 67th St||New York|NY|10065|6002|C626|B
+219 E 67th St|Fl 3|New York|NY|10065|6062|C626|R
+219 E 67th St|Fl 2|New York|NY|10065|6062|C626|R
+219 E 67th St|Fl 4|New York|NY|10065|6062|C626|R
+22 Depew Pl||Staten Island|NY|10309|2929|C002|R
+22 Union Ave||Staten Island|NY|10303|2425|C001|R
+22021 73rd Ave||Oakland Gardens|NY|11364|2603|C018|R
+22021 73rd Ave|Apt 1|Oakland Gardens|NY|11364|2603|C018|R
+22021 73rd Ave|Apt 2|Oakland Gardens|NY|11364|2603|C018|R
+2209 Clove Rd||Staten Island|NY|10305|1505|C014|R
+2307 Wallace Ave||Bronx|NY|10467|9213|C004|R
+23102 144th Ave||Springfield Gardens|NY|11413|3612|C020|R
+2312 E 29th St||Brooklyn|NY|11229|5028|C030|R
+23132 128th Ave||Springfield Gardens|NY|11413|1305|C007|R
+2317 29th St||Astoria|NY|11105|3159|C012|B
+2317 29th St|Apt 3RH|Astoria|NY|11105|2836|C012|R
+2317 29th St|Apt 1RH|Astoria|NY|11105|2836|C012|R
+2317 29th St|Apt 1|Astoria|NY|11105|2836|C012|R
+2317 29th St|Apt 2RH|Astoria|NY|11105|2836|C012|R
+2317 29th St|Apt 2|Astoria|NY|11105|2836|C012|R
+2317 29th St|Apt 3|Astoria|NY|11105|2836|C012|R
+232 E 50th St|Apt 3|New York|NY|10022|7736|C150|R
+232 E 50th St||New York|NY|10022|7762|C150|U
+232 E 50th St|Apt 6|New York|NY|10022|7736|C150|B
+232 E 50th St|Apt 4|New York|NY|10022|7736|C150|R
+232 E 50th St|Apt 1|New York|NY|10022|7736|C150|R
+232 E 50th St|Apt 5|New York|NY|10022|7736|C150|R
+232 E 50th St|Apt 2|New York|NY|10022|7736|C150|R
+2328 32nd St||Astoria|NY|11105|2404|C005|R
+2432 Dean St||Brooklyn|NY|11233|4316|C023|B
+244 E 74th St|Apt 2R|New York|NY|10021|3684|C234|R
+244 E 74th St|Apt 1R|New York|NY|10021|3681|C234|R
+244 E 74th St|Apt Gr|New York|NY|10021|3681|C234|R
+244 E 74th St|Apt 2F|New York|NY|10021|3684|C234|R
+244 E 74th St|Apt Gf|New York|NY|10021|3681|C234|R
+244 E 74th St|Apt 1F|New York|NY|10021|3681|C234|R
+244 E 74th St|Apt 3R|New York|NY|10021|3684|C234|R
+244 E 74th St||New York|NY|10021|3681|C234|R
+24407 134th Ave||Rosedale|NY|11422|1425|C087|R
+2442 83rd St||East Elmhurst|NY|11370|1633|C025|R
+24424 86th Ave||Bellerose|NY|11426|1620|C015|R
+2444 Dorsey St|Apt B|Bronx|NY|10461|2989|C011|R
+2444 Dorsey St|Apt 1|Bronx|NY|10461|2989|C011|R
+2444 Dorsey St||Bronx|NY|10461|2989|C011|R
+2444 Dorsey St|Apt 2|Bronx|NY|10461|2989|C011|R
+2451 Wickham Ave||Bronx|NY|10469|6235|C020|R
+2451 Wickham Ave|Apt A|Bronx|NY|10469|6235|C020|R
+2451 Wickham Ave|Apt B|Bronx|NY|10469|6235|C020|R
+24514 133rd Dr||Rosedale|NY|11422|1418|C087|R
+24518 Newhall Ave|Apt 2|Rosedale|NY|11422|2440|C080|R
+24518 Newhall Ave||Rosedale|NY|11422|2440|C080|R
+24518 Newhall Ave|Apt 1|Rosedale|NY|11422|2440|C080|R
+24618 137th Rd||Rosedale|NY|11422|1809|C082|R
+257 Boundary Ave||Staten Island|NY|10306|5039|C032|R
+258 Sharpe Ave||Staten Island|NY|10302|1647|C009|R
+259 W 139th St||New York|NY|10030|2104|C009|R
+25939 147th Rd||Rosedale|NY|11422|2911|C090|R
+2596 Linden Blvd|Ste 3|Brooklyn|NY|11208|4910|C001|B
+2596 Linden Blvd|Ste 2|Brooklyn|NY|11208|4910|C001|B
+2596 Linden Blvd||Brooklyn|NY|11208|4900|C001|B
+2596 Linden Blvd|Ste 4|Brooklyn|NY|11208|4910|C001|B
+2596 Linden Blvd|Ste 1|Brooklyn|NY|11208|4910|C001|B
+26 Beacon Pl||Staten Island|NY|10306|5769|C007|R
+26 Labau Ave||Staten Island|NY|10301|4202|C022|R
+260 Beach 137th St||Rockaway Park|NY|11694|1332|C012|R
+278 7th St||Brooklyn|NY|11215|3210|C013|R
+28 Coale Ave||Staten Island|NY|10314|2927|C015|R
+281 Buffalo Ave||Brooklyn|NY|11213|4105|C016|R
+30 Bayonne Ct||Staten Island|NY|10302|1168|C003|R
+30 Post Ln||Staten Island|NY|10303|2031|C010|R
+3110 Jerome Ave||Bronx|NY|10468|A113|NULL|B
+3110 Jerome Ave||Bronx|NY|10468|1346|C001|U
+3117 30th Ave|Apt 2F|Astoria|NY|11102|1555|C006|R
+3117 30th Ave|Apt 3R|Astoria|NY|11102|1555|C006|R
+3117 30th Ave|Apt 2|Astoria|NY|11102|1555|C006|R
+3117 30th Ave|Fl 1|Astoria|NY|11102|1555|C006|B
+3117 30th Ave|Apt 2R|Astoria|NY|11102|1555|C006|R
+3117 30th Ave||Astoria|NY|11102|1565|C006|B
+3119 43rd St||Astoria|NY|11103|2701|C007|R
+312 Elmwood Ave||Brooklyn|NY|11230|2649|C002|R
+3133 Willow Ln||Bronx|NY|10461|4603|C017|R
+3141 58th St|Apt 1|Woodside|NY|11377|1244|C005|R
+3141 58th St|Apt 3|Woodside|NY|11377|1244|C005|R
+3141 58th St||Woodside|NY|11377|1244|C005|U
+3141 58th St|Apt 2|Woodside|NY|11377|1244|C005|R
+3146 Greenpoint Ave|Fl 2|Long Island City|NY|11101|2006|C024|R
+3146 Greenpoint Ave||Long Island City|NY|11101|2006|C024|B
+3146 Greenpoint Ave|Fl 1|Long Island City|NY|11101|2006|C024|B
+3291 Hull Ave|Apt 24|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt 33|Bronx|NY|10467|3347|C021|R
+3291 Hull Ave|Apt 25|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt 44|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 1|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave|Apt WI1|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave|Apt 35|Bronx|NY|10467|3347|C021|R
+3291 Hull Ave|Apt 21|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt Wis|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave|Apt 22|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt 3|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave||Bronx|NY|10467|3344|C021|R
+3291 Hull Ave|Apt 51|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 42|Bronx|NY|10467|3347|C021|R
+3291 Hull Ave|Apt 41|Bronx|NY|10467|3347|C021|R
+3291 Hull Ave|Apt 45|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 4|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave|Apt Win|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave|Apt 34|Bronx|NY|10467|3347|C021|R
+3291 Hull Ave|Apt 23|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt 31|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt 2|Bronx|NY|10467|3345|C021|R
+3291 Hull Ave|Apt 5|Bronx|NY|10467|3346|C021|R
+3291 Hull Ave|Apt 55|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 53|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 32|Bronx|NY|10467|3347|C021|R
+3291 Hull Ave|Apt 52|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 54|Bronx|NY|10467|3374|C021|R
+3291 Hull Ave|Apt 43|Bronx|NY|10467|3347|C021|R
+33 Brookfield Ave||Staten Island|NY|10308|2246|C012|R
+33 Oswego St||Staten Island|NY|10301|4323|C022|R
+331 Hillside Ave||Staten Island|NY|10304|1812|C020|R
+3316 14th St|Apt 2|Astoria|NY|11106|4624|C020|R
+3316 14th St||Astoria|NY|11106|4624|C020|R
+3316 14th St|Apt 1|Astoria|NY|11106|4624|C020|R
+3324 Avenue I||Brooklyn|NY|11210|3945|C020|B
+348 E 146th St||Bronx|NY|10451|5702|C013|B
+350 Hudson St|Frnt 2|New York|NY|10014|4504|C035|B
+350 Hudson St|Fl 2|New York|NY|10014|4534|C035|B
+350 Hudson St|Frnt 1|New York|NY|10014|4504|C035|B
+350 Hudson St|Lbby A|New York|NY|10014|4504|C035|B
+350 Hudson St|Fl 6|New York|NY|10014|4506|C035|B
+350 Hudson St|Fl 5|New York|NY|10014|4537|C035|B
+350 Hudson St|Frnt 5|New York|NY|10014|4532|C035|B
+350 Hudson St|Frnt 4|New York|NY|10014|4504|C035|B
+350 Hudson St|Fl 3|New York|NY|10014|5827|C035|B
+350 Hudson St|Frnt 3|New York|NY|10014|4504|C035|B
+350 Hudson St|Frnt 6|New York|NY|10014|4533|C035|B
+350 Hudson St|Fl 9|New York|NY|10014|4535|C035|B
+350 Hudson St||New York|NY|10014|4504|C035|B
+350 Hudson St|Fl 4|New York|NY|10014|4500|C035|B
+350 Hudson St|Fl 8|New York|NY|10014|4505|C035|U
+3715 Mermaid Ave||Brooklyn|NY|11224|1218|C017|R
+3715 Mermaid Ave|Apt 1B|Brooklyn|NY|11224|1218|C017|R
+3715 Mermaid Ave|Apt 1A|Brooklyn|NY|11224|1218|C017|R
+3740 Hylan Blvd||Staten Island|NY|10308|3503|C017|R
+3747 97th St||Corona|NY|11368|1736|C014|R
+375 Hancock St|Apt 3|Brooklyn|NY|11216|2437|C020|R
+375 Hancock St|Apt 2|Brooklyn|NY|11216|2437|C020|R
+375 Hancock St||Brooklyn|NY|11216|2437|C020|R
+375 Hancock St|Apt 5|Brooklyn|NY|11216|2437|C020|R
+375 Hancock St|Apt 3F|Brooklyn|NY|11216|2437|C020|R
+375 Hancock St|Apt 4|Brooklyn|NY|11216|2437|C020|R
+375 Hancock St|Apt 1|Brooklyn|NY|11216|2437|C020|R
+400 Seabreeze Ave||Breezy Point|NY|11697|1303|C003|R
+4008 208th St||Bayside|NY|11361|2741|C006|R
+4008 Church Ave||Brooklyn|NY|11203|2917|C014|U
+4008 Clearview Expy||Bayside|NY|11361|2607|C006|R
+4009B 201st St||Bayside|NY|11361|1877|C007|R
+401 Essex St|Apt 3|Brooklyn|NY|11208|2282|C008|R
+401 Essex St|Apt 2|Brooklyn|NY|11208|2282|C008|R
+401 Essex St|Apt 1|Brooklyn|NY|11208|2282|C008|R
+401 Essex St||Brooklyn|NY|11208|2282|C008|R
+4013 159th St||Flushing|NY|11358|1622|C010|B
+4020C White Plains Rd||Bronx|NY|10466|3004|C002|B
+4024 18th Ave|Apt 1|Brooklyn|NY|11218|5708|C009|R
+4024 18th Ave||Brooklyn|NY|11218|5708|C009|B
+4024 18th Ave|Ste B|Brooklyn|NY|11218|5708|C009|B
+403 Hamden Ave||Staten Island|NY|10306|5136|C025|R
+4030 Murdock Ave|Apt 1|Bronx|NY|10466|2323|C027|R
+4030 Murdock Ave|Apt 2|Bronx|NY|10466|2323|C027|R
+4030 Murdock Ave||Bronx|NY|10466|2323|C027|R
+4211 Altschul||New York|NY|10027|9202|C025|U
+4230 Bell Blvd||Bayside|NY|11361|2862|C004|B
+4236 Hill Ave||Bronx|NY|10466|2108|C015|R
+424 Claremont Pkwy||Bronx|NY|10457|8009|C016|U
+424 Claremont Pkwy||Bronx|NY|10457|A148|NULL|B
+4247 Gleane St||Elmhurst|NY|11373|2748|C025|R
+4468 Vernon Blvd||Long Island City|NY|11101|7007|C007|B
+45 Demopolis Ave||Staten Island|NY|10308|1928|C012|R
+45 W Market St||Breezy Point|NY|11697|1123|C002|R
+46 Bentley St||Staten Island|NY|10307|1204|C004|R
+46 Hatfield Pl||Staten Island|NY|10302|2129|C006|R
+46 Selkirk St||Staten Island|NY|10309|1779|C012|R
+4619 11th Ave||Brooklyn|NY|11219|2432|C033|R
+4622 Queens Blvd||Sunnyside|NY|11104|1712|C010|B
+464 Humboldt St|Ste A|Brooklyn|NY|11211|1990|C033|B
+464 Humboldt St|Apt 2|Brooklyn|NY|11211|1990|C033|R
+464 Humboldt St||Brooklyn|NY|11211|1990|C033|B
+464 Humboldt St|Apt 1|Brooklyn|NY|11211|1990|C033|R
+465 W 21st St||New York|NY|10011|2943|C076|R
+466 E 185th St||Bronx|NY|10458|7704|C012|R
+467 5th Ave|Apt 1|Brooklyn|NY|11215|4086|C023|R
+467 5th Ave|Ste A|Brooklyn|NY|11215|4086|C023|B
+467 5th Ave|Apt 2|Brooklyn|NY|11215|4086|C023|R
+467 5th Ave|Ste Mgmt|Brooklyn|NY|11215|4086|C023|B
+467 5th Ave|Apt 3|Brooklyn|NY|11215|4086|C023|R
+467 5th Ave||Brooklyn|NY|11215|7074|C023|B
+468 New Jersey Ave|Apt 1|Brooklyn|NY|11207|4715|C024|R
+468 New Jersey Ave||Brooklyn|NY|11207|4715|C024|R
+468 New Jersey Ave|Apt 2|Brooklyn|NY|11207|4715|C024|R
+468 New Jersey Ave|Apt 3|Brooklyn|NY|11207|4715|C024|R
+509 Manida St||Bronx|NY|10474|6821|C015|B
+51 Bowling Green Pl||Staten Island|NY|10314|3701|C027|R
+51 Callahan Ln|Apt 1|Staten Island|NY|10307|2406|C007|R
+51 Callahan Ln|Apt 2|Staten Island|NY|10307|2406|C007|R
+51 Callahan Ln||Staten Island|NY|10307|2406|C007|R
+51 Rockaway Pkwy|Apt 2R|Brooklyn|NY|11212|3765|C003|R
+51 Rockaway Pkwy|Apt 1F|Brooklyn|NY|11212|3765|C003|R
+51 Rockaway Pkwy|Apt 2F|Brooklyn|NY|11212|3765|C003|R
+51 Rockaway Pkwy||Brooklyn|NY|11212|3765|C003|R
+51 Rockaway Pkwy|Apt 1R|Brooklyn|NY|11212|3765|C003|R
+5109 Avenue K|Ste 1|Brooklyn|NY|11234|3217|C026|B
+5109 Avenue K||Brooklyn|NY|11234|3217|C026|R
+512 Calhoun Ave|Apt 1|Bronx|NY|10465|2808|C023|R
+512 Calhoun Ave||Bronx|NY|10465|2808|C023|R
+5125 74th St||Elmhurst|NY|11373|4106|C005|R
+513 Clinton St||Brooklyn|NY|11231|3350|C005|R
+5135 71st St||Woodside|NY|11377|7648|C004|R
+5135 71st St|Apt 2|Woodside|NY|11377|7641|C004|R
+5135 71st St|Apt 4|Woodside|NY|11377|7641|C004|R
+5135 71st St|Apt 1|Woodside|NY|11377|7641|C004|R
+5135 71st St|Apt 3|Woodside|NY|11377|7641|C004|R
+5143 Bell Blvd||Bayside Hills|NY|11364|1225|C006|R
+546 Graham Ave||Brooklyn|NY|11222|4642|C017|R
+547 W 145th St||New York|NY|10031|5101|C014|B
+549 Watkins St||Brooklyn|NY|11212|5860|C031|R
+5507 Van Horn St||Elmhurst|NY|11373|4359|C033|R
+551A Commonwealth Ave||Bronx|NY|10473|3501|C007|B
+6001 8th Ave||Brooklyn|NY|11220|4337|C004|B
+602A 3rd St||Brooklyn|NY|11215|7077|C018|R
+603 4th Ave|Apt 4|Brooklyn|NY|11215|6747|C031|R
+603 4th Ave||Brooklyn|NY|11215|6746|C031|B
+603 4th Ave|Apt 5|Brooklyn|NY|11215|6747|C031|R
+603 4th Ave|Apt 3|Brooklyn|NY|11215|6747|C031|R
+603 4th Ave|Apt 2|Brooklyn|NY|11215|6747|C031|R
+603 4th Ave|Apt 6|Brooklyn|NY|11215|6747|C031|R
+603 4th Ave|Apt 1|Brooklyn|NY|11215|6747|C031|R
+6056 72nd St||Maspeth|NY|11378|2916|C002|R
+606 W 135th St|Apt 5B|New York|NY|10031|8531|C024|R
+606 W 135th St|Apt AA|New York|NY|10031|8535|C024|R
+606 W 135th St|Apt 1A|New York|NY|10031|8535|C024|R
+606 W 135th St|Apt 2C|New York|NY|10031|8534|C024|R
+606 W 135th St|Apt 3A|New York|NY|10031|8534|C024|R
+606 W 135th St|Apt 5C|New York|NY|10031|8531|C024|R
+606 W 135th St|Apt 2A|New York|NY|10031|8534|C024|R
+606 W 135th St|Apt 3B|New York|NY|10031|8534|C024|R
+606 W 135th St||New York|NY|10031|8527|C024|U
+606 W 135th St|Apt 5A|New York|NY|10031|8531|C024|R
+606 W 135th St|Apt 4C|New York|NY|10031|8531|C024|R
+606 W 135th St|Apt 2B|New York|NY|10031|8534|C024|R
+606 W 135th St|Apt 4A|New York|NY|10031|8531|C024|R
+606 W 135th St|Apt 1C|New York|NY|10031|8535|C024|R
+606 W 135th St|Apt 4B|New York|NY|10031|8531|C024|R
+606 W 135th St|Apt 1D|New York|NY|10031|8535|C024|R
+606 W 135th St|Apt 3C|New York|NY|10031|8534|C024|R
+606 W 135th St|Apt 1B|New York|NY|10031|8535|C024|R
+608 Lefferts Ave||Brooklyn|NY|11203|1005|C002|U
+608 Lefferts Ave||Brooklyn|NY|11203|A152|NULL|B
+619 E 77th St||Brooklyn|NY|11236|3315|C042|R
+62 Bay 26th St||Brooklyn|NY|11214|3906|C020|R
+62 Bay 26th St|Apt 3|Brooklyn|NY|11214|4094|C020|R
+62 Bay 26th St|Apt 2|Brooklyn|NY|11214|4094|C020|R
+62 Bay 26th St|Apt 1|Brooklyn|NY|11214|4094|C020|R
+620 E 88th St||Brooklyn|NY|11236|3402|C056|R
+620 W 232nd St||Bronx|NY|10463|3304|C002|R
+6201 80th St||Middle Village|NY|11379|1322|C007|R
+6210 12th Ave||Brooklyn|NY|11219|5210|C034|R
+6210 Ellwell Cres||Rego Park|NY|11374|4838|C028|R
+6266 Fresh Pond Rd||Ridgewood|NY|11385|2622|C005|B
+685 Pennsylvania Ave|Apt 2R|Brooklyn|NY|11207|6938|C016|R
+685 Pennsylvania Ave|Apt 1R|Brooklyn|NY|11207|6938|C016|R
+685 Pennsylvania Ave|Apt 4|Brooklyn|NY|11207|6938|C016|R
+685 Pennsylvania Ave|Apt 1F|Brooklyn|NY|11207|6938|C016|R
+685 Pennsylvania Ave||Brooklyn|NY|11207|6937|C016|U
+685 Pennsylvania Ave|Apt 2F|Brooklyn|NY|11207|6938|C016|R
+686 Metropolitan Ave||Brooklyn|NY|11211|3608|C019|B
+686 Metropolitan Ave|Ste 1|Brooklyn|NY|11211|3608|C019|B
+69 75th Rd||Forest Hills|NY|11375|A016|NULL|R
+69 Nagle Ave||New York|NY|10040|1405|C013|B
+69 Richardson St||Brooklyn|NY|11211|1305|C048|B
+6912B 215th St||Oakland Gardens|NY|11364|2528|C015|R
+6914 136th St|Apt A|Flushing|NY|11367|1628|C007|R
+6914 136th St|Apt B|Flushing|NY|11367|1628|C007|R
+6914 136th St||Flushing|NY|11367|1628|C007|U
+692 Wortman Ave||Brooklyn|NY|11208|5500|C010|R
+692 Wortman Ave|Apt 2|Brooklyn|NY|11208|5500|C010|R
+692 Wortman Ave|Apt 1|Brooklyn|NY|11208|5500|C010|R
+6951 210th St||Oakland Gardens|NY|11364|2504|C016|R
+696 Pennsylvania Ave|Apt 3F|Brooklyn|NY|11207|6924|C016|R
+696 Pennsylvania Ave|Apt 2F|Brooklyn|NY|11207|6924|C016|R
+696 Pennsylvania Ave|Apt 1R|Brooklyn|NY|11207|6924|C016|R
+696 Pennsylvania Ave||Brooklyn|NY|11207|6975|C016|R
+696 Pennsylvania Ave|Apt 1F|Brooklyn|NY|11207|6924|C016|R
+696 Pennsylvania Ave|Apt 2R|Brooklyn|NY|11207|6924|C016|R
+6961 Alderton St||Rego Park|NY|11374|5322|C001|R
+7 Minna St||Staten Island|NY|10304|4108|C004|R
+7343 187th St||Fresh Meadows|NY|11366|1723|C027|R
+74 Belmont Pl||Staten Island|NY|10301|1711|C015|R
+75 Elliott Ave||Yonkers|NY|10705|2101|C014|U
+75 Elliott Ave||Yonkers|NY|10705|A011|NULL|R
+8009 18th Ave||Brooklyn|NY|11214|1705|C007|U
+801 Logan St||Brooklyn|NY|11208|6025|C025|R
+8039 89th Ave||Woodhaven|NY|11421|2425|C022|R
+8039 89th Ave|Apt 3|Woodhaven|NY|11421|2425|C022|R
+8039 89th Ave|Apt 2|Woodhaven|NY|11421|2425|C022|R
+8039 89th Ave|Apt 1|Woodhaven|NY|11421|2425|C022|R
+8503 55th Rd||Elmhurst|NY|11373|4340|C031|R
+8511 104th St||Richmond Hill|NY|11418|1124|C003|R
+8516 57th Rd||Elmhurst|NY|11373|4843|C033|R
+852 E 215th St||Bronx|NY|10467|5813|C041|R
+8520 90th St|Apt 1|Woodhaven|NY|11421|1330|C005|R
+8520 90th St||Woodhaven|NY|11421|1330|C005|R
+8520 90th St|Apt 2|Woodhaven|NY|11421|1330|C005|R
+8527 67th Rd||Rego Park|NY|11374|5215|C001|R
+8541 113th St||Richmond Hill|NY|11418|1760|C041|R
+8546 168th St|Apt 1|Jamaica|NY|11432|2649|C086|R
+8546 168th St|Apt 3|Jamaica|NY|11432|2649|C086|R
+8546 168th St||Jamaica|NY|11432|2624|C086|R
+8546 168th St|Apt 2|Jamaica|NY|11432|2649|C086|R
+8548 Avon St||Jamaica|NY|11432|2329|C033|R
+8593 98th St||Woodhaven|NY|11421|1731|C006|R
+860 Southern Blvd|Apt 4K|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Frnt 2|Bronx|NY|10459|5257|C018|B
+860 Southern Blvd|Apt 1B|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 1J|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 5G|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 3I|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 3J|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 4G|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 5J|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 3G|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 5I|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 1K|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Frnt 1|Bronx|NY|10459|5257|C018|B
+860 Southern Blvd|Apt 1C|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 3H|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 2I|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 2G|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 2K|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Frnt 3|Bronx|NY|10459|5257|C018|B
+860 Southern Blvd|Apt 2H|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 4I|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 3K|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 4J|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 5K|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 1H|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd||Bronx|NY|10459|5257|C018|U
+860 Southern Blvd|Apt 5H|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 1G|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 2J|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 1I|Bronx|NY|10459|5222|C018|R
+860 Southern Blvd|Apt 4H|Bronx|NY|10459|5222|C018|R
+9 Cottage Pl||Staten Island|NY|10302|1521|C001|R
+90 Schenck Ave||Brooklyn|NY|11207|2616|C035|R
+90 Tanglewood Dr||Staten Island|NY|10308|1852|C015|R
+9009 63rd Ave||Rego Park|NY|11374|2837|C005|R
+9015 192nd St||Hollis|NY|11423|2018|C067|R
+9015 192nd St|Apt 1|Hollis|NY|11423|2018|C067|R
+9015 192nd St|Apt 2|Hollis|NY|11423|2018|C067|R
+9020 80th St|Apt 1A|Woodhaven|NY|11421|2953|C022|R
+9020 80th St|Apt 2|Woodhaven|NY|11421|2953|C022|R
+9020 80th St|Apt 5|Woodhaven|NY|11421|2953|C022|R
+9020 80th St|Ste A|Woodhaven|NY|11421|2953|C022|B
+9020 80th St|Apt 2R|Woodhaven|NY|11421|2953|C022|R
+9020 80th St||Woodhaven|NY|11421|2465|C022|B
+9020 80th St|Apt 2L|Woodhaven|NY|11421|2953|C022|R
+9020 80th St|Apt 6|Woodhaven|NY|11421|2953|C022|R
+9020 80th St|Apt 2B|Woodhaven|NY|11421|2953|C022|R
+9038 209th St||Queens Village|NY|11428|1063|C002|R
+904 Kent Ave|Apt 1|Brooklyn|NY|11205|3087|C003|R
+904 Kent Ave||Brooklyn|NY|11205|3086|C003|R
+904 Kent Ave|Apt 2R|Brooklyn|NY|11205|3087|C003|R
+904 Kent Ave|Apt 3L|Brooklyn|NY|11205|3088|C003|R
+904 Kent Ave|Apt 4R|Brooklyn|NY|11205|3088|C003|R
+904 Kent Ave|Apt 2L|Brooklyn|NY|11205|3087|C003|R
+904 Kent Ave|Apt 4L|Brooklyn|NY|11205|3088|C003|R
+904 Kent Ave|Apt RR|Brooklyn|NY|11205|3087|C003|R
+921 E 45th St||Brooklyn|NY|11203|6508|C031|R
+9224 216th St||Queens Village|NY|11428|1252|C011|R
+925B E 215th St||Bronx|NY|10469|1101|C006|R
+9292 224th St||Queens Village|NY|11428|1946|C014|R
+93 Lyndale Ave||Staten Island|NY|10312|5037|C042|R
+9318 Avenue A||Brooklyn|NY|11236|1112|C004|R
+933 E 102nd St||Brooklyn|NY|11236|2619|C031|R
+9334 213th St||Queens Village|NY|11428|1614|C040|R
+94 Decker Ave||Staten Island|NY|10302|2113|C005|R
+1230 Teller Ave|Apt 7D|Bronx|NY|10456|4136|C017|R
+1230 Teller Ave|Apt 4K|Bronx|NY|10456|4111|C017|R
+1230 Teller Ave|Apt 6D|Bronx|NY|10456|4133|C017|R
+1230 Teller Ave|Apt 8H|Bronx|NY|10456|4152|C017|R
+1230 Teller Ave|Apt 2J|Bronx|NY|10456|4114|C017|R
+1230 Teller Ave|Apt 1H|Bronx|NY|10456|4116|C017|R
+1230 Teller Ave|Apt Bsmt|Bronx|NY|10456|4152|C017|R
+1230 Teller Ave|Apt 6H|Bronx|NY|10456|4135|C017|R
+1230 Teller Ave|Apt 5G|Bronx|NY|10456|4132|C017|R
+1230 Teller Ave|Apt 2E|Bronx|NY|10456|4115|C017|R
+1230 Teller Ave|Apt 4H|Bronx|NY|10456|4111|C017|R
+1230 Teller Ave|Apt 4J|Bronx|NY|10456|4111|C017|R
+1230 Teller Ave|Apt 3E|Bronx|NY|10456|4113|C017|R
+1230 Teller Ave|Apt 8D|Bronx|NY|10456|4151|C017|R
+1230 Teller Ave|Apt 1A|Bronx|NY|10456|4117|C017|R
+1230 Teller Ave|Apt 5D|Bronx|NY|10456|4150|C017|R
+1230 Teller Ave|Apt 3A|Bronx|NY|10456|4114|C017|R
+1230 Teller Ave|Apt 1E|Bronx|NY|10456|4117|C017|R
+1230 Teller Ave|Apt 4C|Bronx|NY|10456|4112|C017|R
+1230 Teller Ave|Apt 4F|Bronx|NY|10456|4111|C017|R
+1230 Teller Ave|Apt 6F|Bronx|NY|10456|4133|C017|R
+1230 Teller Ave|Apt 7G|Bronx|NY|10456|4136|C017|R
+1230 Teller Ave|Apt 2H|Bronx|NY|10456|4114|C017|R
+1230 Teller Ave|Apt 6J|Bronx|NY|10456|4135|C017|R
+1230 Teller Ave|Apt 1J|Bronx|NY|10456|4116|C017|R
+1230 Teller Ave|Apt 4B|Bronx|NY|10456|4112|C017|R
+1230 Teller Ave|Apt 5J|Bronx|NY|10456|4132|C017|R
+1230 Teller Ave|Apt 6C|Bronx|NY|10456|4133|C017|R
+1230 Teller Ave|Apt 8J|Bronx|NY|10456|4152|C017|R
+1230 Teller Ave|Apt 7C|Bronx|NY|10456|4135|C017|R
+1230 Teller Ave|Apt 3H|Bronx|NY|10456|4113|C017|R
+1230 Teller Ave|Apt 5K|Bronx|NY|10456|4132|C017|R
+1230 Teller Ave|Apt 6G|Bronx|NY|10456|4133|C017|R
+1230 Teller Ave|Apt 1B|Bronx|NY|10456|4117|C017|R
+1230 Teller Ave|Apt 3D|Bronx|NY|10456|4113|C017|R
+1230 Teller Ave|Apt 2K|Bronx|NY|10456|4114|C017|R
+1230 Teller Ave|Apt 8F|Bronx|NY|10456|4152|C017|R
+1230 Teller Ave|Apt 4G|Bronx|NY|10456|4111|C017|R
+1230 Teller Ave|Apt 2C|Bronx|NY|10456|4115|C017|R
+1230 Teller Ave|Apt 3J|Bronx|NY|10456|4113|C017|R
+1230 Teller Ave|Apt 5H|Bronx|NY|10456|4132|C017|R
+1230 Teller Ave|Apt 4D|Bronx|NY|10456|4112|C017|R
+1230 Teller Ave|Apt 6B|Bronx|NY|10456|4133|C017|R
+1230 Teller Ave|Apt 8C|Bronx|NY|10456|4151|C017|R
+1230 Teller Ave|Apt 1F|Bronx|NY|10456|4116|C017|R
+1230 Teller Ave|Apt 6A|Bronx|NY|10456|4132|C017|R
+1230 Teller Ave||Bronx|NY|10456|4110|C017|R
+1230 Teller Ave|Apt 7A|Bronx|NY|10456|4135|C017|R
+1230 Teller Ave|Apt 7H|Bronx|NY|10456|4136|C017|R
+1230 Teller Ave|Apt 3K|Bronx|NY|10456|4112|C017|R
+1230 Teller Ave|Apt 8B|Bronx|NY|10456|4151|C017|R
+1230 Teller Ave|Apt 5B|Bronx|NY|10456|4150|C017|R
+1230 Teller Ave|Apt 8K|Bronx|NY|10456|4152|C017|R
+1230 Teller Ave|Apt 1D|Bronx|NY|10456|4117|C017|R
+1230 Teller Ave|Apt 1C|Bronx|NY|10456|4117|C017|R
+1230 Teller Ave|Apt 8A|Bronx|NY|10456|4151|C017|R
+1230 Teller Ave|Apt 7K|Bronx|NY|10456|4151|C017|R
+1230 Teller Ave|Apt 2A|Bronx|NY|10456|4116|C017|R
+1230 Teller Ave|Apt 5A|Bronx|NY|10456|4111|C017|R
+1230 Teller Ave|Apt 7E|Bronx|NY|10456|4136|C017|R
+1230 Teller Ave|Apt 6K|Bronx|NY|10456|4135|C017|R
+1230 Teller Ave|Apt 2B|Bronx|NY|10456|4115|C017|R
+1230 Teller Ave|Apt 8G|Bronx|NY|10456|4152|C017|R
+1230 Teller Ave|Apt 2F|Bronx|NY|10456|4115|C017|R
+1230 Teller Ave|Apt 2D|Bronx|NY|10456|4115|C017|R
+1230 Teller Ave|Apt 7J|Bronx|NY|10456|4136|C017|R
+1230 Teller Ave|Apt 3B|Bronx|NY|10456|4114|C017|R
+1230 Teller Ave|Apt 2G|Bronx|NY|10456|4115|C017|R
+1230 Teller Ave|Apt 5C|Bronx|NY|10456|4150|C017|R
+1230 Teller Ave|Apt 3F|Bronx|NY|10456|4113|C017|R
+1230 Teller Ave|Apt 3G|Bronx|NY|10456|4113|C017|R
+1230 Teller Ave|Apt 7F|Bronx|NY|10456|4136|C017|R
+1230 Teller Ave|Apt 4A|Bronx|NY|10456|4112|C017|R
+1230 Teller Ave|Apt 5E|Bronx|NY|10456|4150|C017|R
+1230 Teller Ave|Apt 6E|Bronx|NY|10456|4133|C017|R
+1230 Teller Ave|Apt 5F|Bronx|NY|10456|4150|C017|R
+1230 Teller Ave|Apt 8E|Bronx|NY|10456|4151|C017|R
+1230 Teller Ave|Apt 4E|Bronx|NY|10456|4112|C017|R
+1230 Teller Ave|Apt 3C|Bronx|NY|10456|4114|C017|R
+1230 Teller Ave|Apt 1G|Bronx|NY|10456|4116|C017|R
+1230 Teller Ave|Apt 7B|Bronx|NY|10456|4135|C017|R
+1715 Hering Ave||Bronx|NY|10461|1901|C002|R
+1716 Garfield St||Bronx|NY|10460|2605|C002|R
+1717 E 18th St|Apt 2A|Brooklyn|NY|11229|2100|C004|R
+1717 E 18th St|Apt 6E|Brooklyn|NY|11229|2172|C004|R
+1717 E 18th St|Apt 6A|Brooklyn|NY|11229|2158|C004|R
+1717 E 18th St|Apt 6S|Brooklyn|NY|11229|2187|C004|R
+1717 E 18th St|Apt 6J|Brooklyn|NY|11229|2181|C004|R
+1717 E 18th St|Apt 6B|Brooklyn|NY|11229|2173|C004|R
+1717 E 18th St|Apt 3N|Brooklyn|NY|11229|2180|C004|R
+1717 E 18th St|Apt 1S|Brooklyn|NY|11229|2186|C004|R
+1717 E 18th St|Apt 2P|Brooklyn|NY|11229|2182|C004|R
+1717 E 18th St|Apt 5E|Brooklyn|NY|11229|2172|C004|R
+1717 E 18th St|Apt 4L|Brooklyn|NY|11229|2183|C004|R
+1717 E 18th St|Apt L1|Brooklyn|NY|11229|2177|C004|R
+1717 E 18th St|Apt 4T|Brooklyn|NY|11229|2188|C004|R
+1717 E 18th St|Apt 5P|Brooklyn|NY|11229|2184|C004|R
+1717 E 18th St|Apt 5H|Brooklyn|NY|11229|2178|C004|R
+1717 E 18th St|Apt 5B|Brooklyn|NY|11229|2173|C004|R
+1717 E 18th St|Apt 6D|Brooklyn|NY|11229|2177|C004|R
+1717 E 18th St|Apt 2G|Brooklyn|NY|11229|2174|C004|R
+1717 E 18th St|Apt 3P|Brooklyn|NY|11229|2182|C004|R
+1717 E 18th St|Apt 3A|Brooklyn|NY|11229|2100|C004|R
+1717 E 18th St|Ste 2|Brooklyn|NY|11229|2147|C004|B
+1717 E 18th St|Apt 6H|Brooklyn|NY|11229|2178|C004|R
+1717 E 18th St|Apt 3G|Brooklyn|NY|11229|2176|C004|R
+1717 E 18th St|Apt 5L|Brooklyn|NY|11229|2183|C004|R
+1717 E 18th St|Apt 5R|Brooklyn|NY|11229|2186|C004|R
+1717 E 18th St|Apt 5N|Brooklyn|NY|11229|2182|C004|R
+1717 E 18th St|Apt 3K|Brooklyn|NY|11229|2181|C004|R
+1717 E 18th St|Apt 3R|Brooklyn|NY|11229|2184|C004|R
+1717 E 18th St|Apt 5C|Brooklyn|NY|11229|2175|C004|R
+1717 E 18th St|Apt 2F|Brooklyn|NY|11229|2172|C004|R
+1717 E 18th St|Apt 6P|Brooklyn|NY|11229|2184|C004|R
+1717 E 18th St|Apt L2|Brooklyn|NY|11229|2177|C004|R
+1717 E 18th St|Apt 1M|Brooklyn|NY|11229|2185|C004|R
+1717 E 18th St|Apt 2H|Brooklyn|NY|11229|2176|C004|R
+1717 E 18th St|Apt 6G|Brooklyn|NY|11229|2176|C004|R
+1717 E 18th St|Apt 2J|Brooklyn|NY|11229|2179|C004|R
+1717 E 18th St|Apt 4N|Brooklyn|NY|11229|2180|C004|R
+1717 E 18th St|Apt 5D|Brooklyn|NY|11229|2177|C004|R
+1717 E 18th St|Apt 4E|Brooklyn|NY|11229|2172|C004|R
+1717 E 18th St|Apt 2N|Brooklyn|NY|11229|2180|C004|R
+1717 E 18th St|Apt 3M|Brooklyn|NY|11229|2185|C004|R
+1717 E 18th St|Apt 6K|Brooklyn|NY|11229|2183|C004|R
+1717 E 18th St|Apt 2M|Brooklyn|NY|11229|2185|C004|R
+1717 E 18th St|Apt 3T|Brooklyn|NY|11229|2188|C004|R
+1717 E 18th St|Apt 2C|Brooklyn|NY|11229|2173|C004|R
+1717 E 18th St|Apt 4D|Brooklyn|NY|11229|2177|C004|R
+1717 E 18th St|Apt 1E|Brooklyn|NY|11229|2157|C004|R
+1717 E 18th St|Apt 6C|Brooklyn|NY|11229|2175|C004|R
+1717 E 18th St|Apt 1P|Brooklyn|NY|11229|2182|C004|R
+1717 E 18th St|Apt 4R|Brooklyn|NY|11229|2184|C004|R
+1717 E 18th St|Apt 1B|Brooklyn|NY|11229|2158|C004|R
+1717 E 18th St|Apt 3F|Brooklyn|NY|11229|2174|C004|R
+1717 E 18th St|Apt 3L|Brooklyn|NY|11229|2178|C004|R
+1717 E 18th St|Apt 1G|Brooklyn|NY|11229|2174|C004|R
+1717 E 18th St|Apt 4K|Brooklyn|NY|11229|2181|C004|R
+1717 E 18th St|Apt 3H|Brooklyn|NY|11229|2178|C004|R
+1717 E 18th St|Apt 1R|Brooklyn|NY|11229|2184|C004|R
+1717 E 18th St|Apt 5T|Brooklyn|NY|11229|2188|C004|R
+1717 E 18th St|Apt 1C|Brooklyn|NY|11229|2173|C004|R
+1717 E 18th St|Apt 6R|Brooklyn|NY|11229|2186|C004|R
+1717 E 18th St|Apt 4M|Brooklyn|NY|11229|2185|C004|R
+1717 E 18th St|Ste 1|Brooklyn|NY|11229|2147|C004|B
+1717 E 18th St|Apt 3E|Brooklyn|NY|11229|2157|C004|R
+1717 E 18th St|Apt 2D|Brooklyn|NY|11229|2175|C004|R
+1717 E 18th St|Apt 2T|Brooklyn|NY|11229|2187|C004|R
+1717 E 18th St|Apt 4J|Brooklyn|NY|11229|2179|C004|R
+1717 E 18th St|Apt 1J|Brooklyn|NY|11229|2179|C004|R
+1717 E 18th St|Apt 1A|Brooklyn|NY|11229|2100|C004|R
+1717 E 18th St|Apt 5G|Brooklyn|NY|11229|2176|C004|R
+1717 E 18th St|Apt 5K|Brooklyn|NY|11229|2181|C004|R
+1717 E 18th St|Apt 1N|Brooklyn|NY|11229|2180|C004|R
+1717 E 18th St|Apt 5A|Brooklyn|NY|11229|2158|C004|R
+1717 E 18th St|Apt 6F|Brooklyn|NY|11229|2174|C004|R
+1717 E 18th St|Apt 5S|Brooklyn|NY|11229|2187|C004|R
+1717 E 18th St|Apt 5F|Brooklyn|NY|11229|2174|C004|R
+1717 E 18th St|Apt 1T|Brooklyn|NY|11229|2187|C004|R
+1717 E 18th St|Apt 6L|Brooklyn|NY|11229|2185|C004|R
+1717 E 18th St|Apt 2R|Brooklyn|NY|11229|2184|C004|R
+1717 E 18th St|Apt 2K|Brooklyn|NY|11229|2181|C004|R
+1717 E 18th St|Apt 4B|Brooklyn|NY|11229|2173|C004|R
+1717 E 18th St|Apt 1H|Brooklyn|NY|11229|2176|C004|R
+1717 E 18th St|Apt 3C|Brooklyn|NY|11229|2175|C004|R
+1717 E 18th St|Apt 2S|Brooklyn|NY|11229|2186|C004|R
+1717 E 18th St|Apt 3J|Brooklyn|NY|11229|2179|C004|R
+1717 E 18th St|Apt 6M|Brooklyn|NY|11229|2180|C004|R
+1717 E 18th St|Apt 5J|Brooklyn|NY|11229|2179|C004|R
+1717 E 18th St|Apt L3|Brooklyn|NY|11229|2178|C004|R
+1717 E 18th St|Apt 1K|Brooklyn|NY|11229|2181|C004|R
+1717 E 18th St|Apt 1F|Brooklyn|NY|11229|2172|C004|R
+1717 E 18th St|Apt 4F|Brooklyn|NY|11229|2174|C004|R
+1717 E 18th St|Apt 4C|Brooklyn|NY|11229|2175|C004|R
+1717 E 18th St||Brooklyn|NY|11229|2147|C004|U
+1717 E 18th St|Apt 4H|Brooklyn|NY|11229|2178|C004|R
+1717 E 18th St|Apt 6N|Brooklyn|NY|11229|2182|C004|R
+1717 E 18th St|Apt 2B|Brooklyn|NY|11229|2158|C004|R
+1717 E 18th St|Apt 2L|Brooklyn|NY|11229|2183|C004|R
+1717 E 18th St|Apt 2E|Brooklyn|NY|11229|2157|C004|R
+1717 E 18th St|Apt 1D|Brooklyn|NY|11229|2175|C004|R
+1717 E 18th St|Apt 5M|Brooklyn|NY|11229|2185|C004|R
+1717 E 18th St|Apt 1L|Brooklyn|NY|11229|2183|C004|R
+1717 E 18th St|Apt 4P|Brooklyn|NY|11229|2182|C004|R
+1717 E 18th St|Apt 4A|Brooklyn|NY|11229|2158|C004|R
+1717 E 18th St|Apt 3S|Brooklyn|NY|11229|2186|C004|R
+1717 E 18th St|Apt 3B|Brooklyn|NY|11229|2173|C004|R
+1717 E 18th St|Apt 4G|Brooklyn|NY|11229|2176|C004|R
+1717 E 18th St|Apt 4S|Brooklyn|NY|11229|2186|C004|R
+1717 E 18th St|Apt 3D|Brooklyn|NY|11229|2177|C004|R
+1717 E 18th St|Apt 6T|Brooklyn|NY|11229|2188|C004|R
+6389 Saunders St|Apt 1E|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 4A|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 3G|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 3L|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 4H|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Ste BA2|Rego Park|NY|11374|3142|C008|B
+6389 Saunders St|Apt 1J|Rego Park|NY|11374|3114|C008|R
+6389 Saunders St|Apt 5D|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 1H|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 2C|Rego Park|NY|11374|3114|C008|R
+6389 Saunders St|Apt 1A|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 2E|Rego Park|NY|11374|3159|C008|R
+6389 Saunders St|Apt 6G|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 4D|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 4E|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 4K|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 2G|Rego Park|NY|11374|3159|C008|R
+6389 Saunders St|Apt 6B|Rego Park|NY|11374|3161|C008|R
+6389 Saunders St|Apt 5K|Rego Park|NY|11374|3161|C008|R
+6389 Saunders St|Apt 2F|Rego Park|NY|11374|3159|C008|R
+6389 Saunders St|Apt 6H|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 5J|Rego Park|NY|11374|3117|C008|R
+6389 Saunders St|Apt 3A|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 1K|Rego Park|NY|11374|3114|C008|R
+6389 Saunders St|Apt 1D|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 4L|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 3C|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 3E|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 6K|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 1C|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 1L|Rego Park|NY|11374|3114|C008|R
+6389 Saunders St|Apt 5B|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 5L|Rego Park|NY|11374|3161|C008|R
+6389 Saunders St|Apt 3J|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 6C|Rego Park|NY|11374|3161|C008|R
+6389 Saunders St|Apt 1G|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 4J|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 2K|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 2L|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 5A|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 5H|Rego Park|NY|11374|3117|C008|R
+6389 Saunders St||Rego Park|NY|11374|3107|C008|U
+6389 Saunders St|Apt 5E|Rego Park|NY|11374|3117|C008|R
+6389 Saunders St|Apt 1F|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 6J|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 4G|Rego Park|NY|11374|3160|C008|R
+6389 Saunders St|Ste BA3|Rego Park|NY|11374|3142|C008|B
+6389 Saunders St|Apt 6D|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 3H|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 4C|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 6A|Rego Park|NY|11374|3161|C008|R
+6389 Saunders St|Apt 5F|Rego Park|NY|11374|3117|C008|R
+6389 Saunders St|Apt 2B|Rego Park|NY|11374|3114|C008|R
+6389 Saunders St|Apt 5C|Rego Park|NY|11374|3115|C008|R
+6389 Saunders St|Apt 4B|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 1B|Rego Park|NY|11374|3113|C008|R
+6389 Saunders St|Apt 3B|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 3K|Rego Park|NY|11374|3118|C008|R
+6389 Saunders St|Apt 2H|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 4F|Rego Park|NY|11374|3160|C008|R
+6389 Saunders St|Apt 2J|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 2A|Rego Park|NY|11374|3114|C008|R
+6389 Saunders St|Apt 5G|Rego Park|NY|11374|3117|C008|R
+6389 Saunders St|Apt 3D|Rego Park|NY|11374|3116|C008|R
+6389 Saunders St|Apt 6E|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 3F|Rego Park|NY|11374|3160|C008|R
+6389 Saunders St|Apt 6L|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 6F|Rego Park|NY|11374|3119|C008|R
+6389 Saunders St|Apt 2D|Rego Park|NY|11374|3159|C008|R
+639 2nd Ave||New York|NY|10016|4805|C039|U
+639 2nd Ave||New York|NY|10016|A033|NULL|R
+1 Bridgewater St||Brooklyn|NY|11222|3803|C011|U
+1 White St||Staten Island|NY|10305|3034|C023|R
+10 Allen St||New York|NY|10002|5302|C020|B
+10 Oakville St||Staten Island|NY|10314|5028|C025|R
+1057 Quincy Ave|Apt 1|Bronx|NY|10465|1914|C007|R
+1057 Quincy Ave||Bronx|NY|10465|1914|C007|R
+10572 Flatlands 9th St||Brooklyn|NY|11236|4624|C034|R
+1061 E 31st St||Brooklyn|NY|11210|4128|C022|U
+1064 E 84th St||Brooklyn|NY|11236|4228|C040|R
+1065 Post Ave||Staten Island|NY|10302|1839|C006|B
+1065 Post Ave|Ste 2|Staten Island|NY|10302|1839|C006|B
+107 Gauldy Ave||Staten Island|NY|10314|7240|C013|R
+10703 Pinegrove St||Jamaica|NY|11435|5309|C024|R
+1141 Grant Ave|Apt 2|Brooklyn|NY|11208|3373|C029|R
+1141 Grant Ave||Brooklyn|NY|11208|3373|C029|U
+1141 Grant Ave|Apt 1|Brooklyn|NY|11208|3373|C029|R
+11432 150th Ave||South Ozone Park|NY|11420|3930|C046|R
+11433 224th St||Cambria Heights|NY|11411|1225|C012|R
+11443 114th St||South Ozone Park|NY|11420|1901|C028|R
+1145 Astor Ave||Bronx|NY|10469|5434|C008|R
+1145 E 86th St|Apt 2|Brooklyn|NY|11236|4736|C033|R
+1145 E 86th St|Apt 1|Brooklyn|NY|11236|4736|C033|R
+1145 E 86th St||Brooklyn|NY|11236|4736|C033|R
+115 Ryerson St||Brooklyn|NY|11205|2510|C018|R
+11514 174th St||Jamaica|NY|11434|1848|C038|R
+11535 Farmers Blvd||Saint Albans|NY|11412|2732|C066|R
+1155 E 103rd St||Brooklyn|NY|11236|4523|C023|R
+1155 E 103rd St|Apt 2|Brooklyn|NY|11236|4523|C023|R
+1155 E 103rd St|Apt 1|Brooklyn|NY|11236|4523|C023|R
+1217 Castle Hill Ave||Bronx|NY|10462|4804|C022|B
+1220 Carroll St||Brooklyn|NY|11225|2212|C029|R
+12204B Powells Cove Blvd||College Point|NY|11356|1266|C004|R
+1221 43rd St|Apt 2|Brooklyn|NY|11219|1330|C011|R
+1221 43rd St|Apt 3|Brooklyn|NY|11219|1330|C011|R
+1221 43rd St|Apt 1|Brooklyn|NY|11219|1330|C011|R
+1221 43rd St||Brooklyn|NY|11219|1330|C011|U
+1223 59th St||Brooklyn|NY|11219|4917|C026|R
+1225 Decatur St||Brooklyn|NY|11207|1221|C039|R
+123 E 57th St||Brooklyn|NY|11203|3730|C024|R
+12324 95th Ave||South Richmond Hill|NY|11419|1424|C040|R
+1233 2nd Ave||New York|NY|10065|6705|C621|B
+13001 Foch Blvd||South Ozone Park|NY|11420|2901|C029|R
+1301 Avenue O||Brooklyn|NY|11230|6615|C013|R
+1304 126th St||College Point|NY|11356|1851|C011|R
+1305 79th St|Ste 1|Brooklyn|NY|11228|2794|C011|B
+1305 79th St||Brooklyn|NY|11228|2709|C011|B
+1305 York Ave||New York|NY|10021|5663|C216|B
+1309 Avenue T||Brooklyn|NY|11229|3315|C010|R
+13905 230th Pl||Laurelton|NY|11413|2938|C008|R
+1438 E 96th St||Brooklyn|NY|11236|5004|C014|R
+1438 E 96th St|Apt 1|Brooklyn|NY|11236|5004|C014|R
+1438 E 96th St|Apt 2|Brooklyn|NY|11236|5004|C014|R
+144 Roxbury Ave||Breezy Point|NY|11697|1402|C003|R
+14406 Holly Ave||Flushing|NY|11355|2244|C025|R
+14443 230th St||Laurelton|NY|11413|3625|C023|R
+14448 229th St||Laurelton|NY|11413|3616|C023|R
+1445 43rd St||Brooklyn|NY|11219|1658|C030|R
+1445 43rd St|Apt 3|Brooklyn|NY|11219|1642|C030|R
+1445 43rd St|Apt 1|Brooklyn|NY|11219|1642|C030|R
+1445 43rd St|Apt 4|Brooklyn|NY|11219|1642|C030|R
+1445 43rd St|Apt 2|Brooklyn|NY|11219|1642|C030|R
+1445 Leland Ave|Apt 2F|Bronx|NY|10460|3910|C004|R
+1445 Leland Ave||Bronx|NY|10460|3910|C004|R
+1445 Leland Ave|Apt 1F|Bronx|NY|10460|3910|C004|R
+1445 Leland Ave|Apt 2R|Bronx|NY|10460|3910|C004|R
+1445 Leland Ave|Apt 1R|Bronx|NY|10460|3910|C004|R
+145 Bay 8th St|Apt 2|Brooklyn|NY|11228|3709|C018|R
+145 Bay 8th St|Apt 1|Brooklyn|NY|11228|3709|C018|R
+145 Bay 8th St||Brooklyn|NY|11228|3709|C018|R
+15011 Jewel Ave||Flushing|NY|11367|1433|C019|R
+15011 Jewel Ave|Apt 2|Flushing|NY|11367|1433|C019|R
+15011 Jewel Ave|Apt 1|Flushing|NY|11367|1433|C019|R
+15031 114th Pl||South Ozone Park|NY|11420|3926|C046|R
+1508 Boone Ave||Bronx|NY|10460|5936|C001|B
+151 N 7th St||Brooklyn|NY|11249|2921|C006|R
+1514 39th St|Apt 2|Brooklyn|NY|11218|4414|C016|R
+1514 39th St|Apt 1|Brooklyn|NY|11218|4414|C016|R
+1514 39th St||Brooklyn|NY|11218|4414|C016|U
+15920 89th Ave||Jamaica|NY|11432|3930|C031|R
+15932 98th St||Howard Beach|NY|11414|3534|C008|R
+16 114th Ave||Saint Albans|NY|11412|A005|NULL|R
+16 114th Ave|"# 58"|Saint Albans|NY|11412|A005|NULL|R
+16 Ferguson Ct||Staten Island|NY|10307|1370|C001|U
+16019 Rockaway Blvd|Ste C1|Jamaica|NY|11434|5100|C014|B
+16019 Rockaway Blvd|Ste D|Jamaica|NY|11434|5100|C014|B
+16019 Rockaway Blvd|Ste E|Jamaica|NY|11434|5100|C014|B
+16019 Rockaway Blvd||Jamaica|NY|11434|5130|C014|B
+16019 Rockaway Blvd|Ste 3|Jamaica|NY|11434|5100|C014|B
+16019 Rockaway Blvd|Ste F|Jamaica|NY|11434|5100|C014|B
+16019 Rockaway Blvd|Ste 2C|Jamaica|NY|11434|5100|C014|B
+16020 110th Ave||Jamaica|NY|11433|3224|C048|U
+16020 110th Ave||Jamaica|NY|11433|A158|NULL|R
+16030 17th Ave||Whitestone|NY|11357|3213|C017|R
+16031 25th Dr||Flushing|NY|11358|1003|C001|R
+1605 45th St||Brooklyn|NY|11204|1113|C001|U
+1606 Nostrand Ave||Brooklyn|NY|11226|5102|C034|B
+1711 Fillmore St|Apt B|Bronx|NY|10460|2601|C002|R
+1711 Fillmore St||Bronx|NY|10460|2601|C002|R
+1711 Fillmore St|Apt 1|Bronx|NY|10460|2601|C002|R
+1711 Fillmore St|Apt 2|Bronx|NY|10460|2601|C002|R
+172 Admiralty Loop||Staten Island|NY|10309|3964|C004|R
+172 Halsey St|Apt 2|Brooklyn|NY|11216|2170|C017|R
+172 Halsey St|Apt 3|Brooklyn|NY|11216|2170|C017|R
+172 Halsey St|Apt 4|Brooklyn|NY|11216|2170|C017|R
+172 Halsey St|Apt 1|Brooklyn|NY|11216|2170|C017|R
+172 Halsey St||Brooklyn|NY|11216|2170|C017|R
+1720 Avenue M||Brooklyn|NY|11230|5304|C035|B
+1720 Avenue M|Ste C|Brooklyn|NY|11230|5304|C035|B
+1720 Avenue M|Ste A|Brooklyn|NY|11230|5304|C035|B
+1720 Avenue M|Ste B|Brooklyn|NY|11230|5304|C035|B
+17209 84th Ave||Jamaica|NY|11432|2155|C030|U
+1721 E 174th St||Bronx|NY|10472|1801|C015|B
+1724 W 9th St||Brooklyn|NY|11223|1239|C005|R
+1739 Lexington Ave||New York|NY|10029|3511|C028|R
+1835 E 34th St||Brooklyn|NY|11234|4429|C019|R
+1839 Barnes Ave||Bronx|NY|10462|3607|C035|R
+184 Van Cortlandt Park Ave||Yonkers|NY|10705|A114|NULL|R
+184 Van Cortlandt Park Ave||Yonkers|NY|10705|1521|C012|U
+1859 74th St||Brooklyn|NY|11204|5753|C016|R
+1860 71st St||Brooklyn|NY|11204|5311|C021|R
+1860 71st St|Apt 1|Brooklyn|NY|11204|5311|C021|R
+1860 71st St|Apt 2|Brooklyn|NY|11204|5311|C021|R
+1863 E 19th St||Brooklyn|NY|11229|3505|C005|R
+1936 20th Dr|Apt 2|Brooklyn|NY|11214|6104|C008|R
+1936 20th Dr|Apt 1|Brooklyn|NY|11214|6104|C008|R
+1936 20th Dr||Brooklyn|NY|11214|6104|C008|R
+19413 Station Rd||Flushing|NY|11358|3038|C017|R
+1960 E 24th St||Brooklyn|NY|11229|2420|C019|R
+1960 Nereid Ave||Bronx|NY|10466|1246|C016|R
+19601 100th Ave||Hollis|NY|11423|3304|C069|R
+19609 Hillside Ave||Hollis|NY|11423|2124|C065|R
+2054 E 55th St||Brooklyn|NY|11234|4717|C001|R
+2059 63rd St||Brooklyn|NY|11204|3071|C026|R
+2068 S Railroad Ave||Staten Island|NY|10306|3802|C027|R
+207 E 23rd St||New York|NY|10010|3901|C051|B
+2070 E 28th St||Brooklyn|NY|11229|5048|C025|R
+2078 Davidson Ave|Apt 1|Bronx|NY|10453|3324|C006|R
+2078 Davidson Ave|Apt 2|Bronx|NY|10453|3324|C006|R
+2078 Davidson Ave||Bronx|NY|10453|3324|C006|R
+20802 15th Ave||Bayside|NY|11360|1116|C036|R
+216 Greenway S||Forest Hills|NY|11375|6837|C066|R
+21602 137th Ave||Springfield Gardens|NY|11413|2210|C025|B
+21602 137th Ave|Ste 1|Springfield Gardens|NY|11413|2210|C025|B
+21602 137th Ave|Ste 2|Springfield Gardens|NY|11413|2210|C025|B
+2162 Hendrickson St|Apt 1|Brooklyn|NY|11234|5041|C036|R
+2162 Hendrickson St||Brooklyn|NY|11234|5041|C036|R
+2162 Hendrickson St|Apt 2|Brooklyn|NY|11234|5041|C036|R
+21620 43rd Ave||Bayside|NY|11361|2926|C019|R
+2173 W 9th St||Brooklyn|NY|11223|3638|C003|R
+21757 Stewart Rd||Oakland Gardens|NY|11364|3538|C014|R
+218 Beach 9th St||Far Rockaway|NY|11691|5583|C005|R
+2180 E 29th St||Brooklyn|NY|11229|5020|C031|R
+22113 Linden Blvd||Cambria Heights|NY|11411|1622|C005|B
+2214 Pitkin Ave||Brooklyn|NY|11207|3619|C037|U
+2214 Pitkin Ave|Ste 1|Brooklyn|NY|11207|3619|C037|B
+22164 59th Ave||Oakland Gardens|NY|11364|1930|C025|R
+22164 59th Ave|Apt 1|Oakland Gardens|NY|11364|1930|C025|R
+22164 59th Ave|Apt 2|Oakland Gardens|NY|11364|1930|C025|R
+222 90th St||Brooklyn|NY|11209|5714|C026|R
+222 Neptune Ave||Brooklyn|NY|11235|6303|C031|R
+223 W 14th St|Apt 2B|New York|NY|10011|7169|C069|R
+223 W 14th St|Apt 1A|New York|NY|10011|7167|C069|R
+223 W 14th St|Frnt 1|New York|NY|10011|7113|C069|B
+223 W 14th St||New York|NY|10011|7113|C069|B
+223 W 14th St|Apt 3A|New York|NY|10011|7167|C069|R
+223 W 14th St|Apt 2A|New York|NY|10011|7167|C069|R
+223 W 14th St|Apt 4A|New York|NY|10011|7167|C069|R
+223 W 14th St|Apt 1C|New York|NY|10011|7169|C069|R
+223 W 14th St|Apt 1B|New York|NY|10011|7167|C069|R
+223 W 14th St|Apt 3B|New York|NY|10011|7169|C069|R
+223 W 14th St|Apt 4C|New York|NY|10011|7169|C069|R
+223 W 14th St|Apt Ll|New York|NY|10011|7167|C069|R
+223 W 14th St|Apt 2C|New York|NY|10011|7169|C069|R
+223 W 14th St|Apt 4B|New York|NY|10011|7169|C069|R
+2235 Cincinnatus Ave||Bronx|NY|10473|1403|C021|R
+2235 Turnbull Ave||Bronx|NY|10473|1327|C022|R
+224 Betts Ave||Bronx|NY|10473|2307|C015|R
+24115 Oak Park Dr||Little Neck|NY|11362|2611|C025|R
+24119 148th Rd||Rosedale|NY|11422|3282|C088|R
+24128 148th Ave||Rosedale|NY|11422|3264|C088|R
+2417 Stuart St||Brooklyn|NY|11229|5815|C044|R
+2419 E 23rd St||Brooklyn|NY|11235|2510|C007|R
+242 Westwood Ave||Staten Island|NY|10314|5417|C014|R
+24225A Oak Park Dr||Little Neck|NY|11362|2637|C025|R
+2424 E 17th St||Brooklyn|NY|11235|3524|C046|R
+251 Warwick St||Brooklyn|NY|11207|A215|NULL|B
+251 Warwick St||Brooklyn|NY|11207|2713|C036|U
+2510 Parsons Blvd||Flushing|NY|11354|1262|C027|R
+2517 98th St||East Elmhurst|NY|11369|1601|C018|R
+2526 E 15th St||Brooklyn|NY|11235|3504|C046|R
+2609 Decatur Ave||Bronx|NY|10458|A150|NULL|R
+2609 Decatur Ave||Bronx|NY|10458|4803|C029|U
+2609 Decatur Ave|Apt 1|Bronx|NY|10458|A150|NULL|U
+264 Bay 43rd St||Brooklyn|NY|11214|6702|C032|R
+264 New York City Term Mkt||Bronx|NY|10474|5375|C019|B
+265 15th St||Brooklyn|NY|11215|6877|C021|U
+265 15th St|Apt 3|Brooklyn|NY|11215|6877|C021|R
+265 15th St|Apt 1|Brooklyn|NY|11215|6877|C021|R
+265 15th St|Apt 2|Brooklyn|NY|11215|6877|C021|R
+2939 170th St||Flushing|NY|11358|1516|C005|R
+295 Manhattan St||Staten Island|NY|10307|1806|C002|R
+2959 W 33rd St||Brooklyn|NY|11224|1401|C014|B
+2959 Wallace Ave||Bronx|NY|10467|8403|C008|R
+296 Union St|Apt 1|Brooklyn|NY|11231|4612|C021|R
+296 Union St|Apt 2|Brooklyn|NY|11231|4612|C021|R
+296 Union St||Brooklyn|NY|11231|4612|C021|R
+297 Wyckoff Ave||Brooklyn|NY|11237|5386|C003|B
+297 Wyckoff Ave|Apt 1R|Brooklyn|NY|11237|5824|C003|R
+297 Wyckoff Ave|Apt 3R|Brooklyn|NY|11237|5824|C003|R
+297 Wyckoff Ave|Apt 2R|Brooklyn|NY|11237|5824|C003|R
+297 Wyckoff Ave|Apt 1L|Brooklyn|NY|11237|5824|C003|R
+297 Wyckoff Ave|Apt 3L|Brooklyn|NY|11237|5824|C003|R
+297 Wyckoff Ave|Apt 2L|Brooklyn|NY|11237|5824|C003|R
+298 Clinton Ave||Brooklyn|NY|11205|5116|C006|R
+298 Clinton Ave|Apt 2|Brooklyn|NY|11205|5116|C006|R
+298 Clinton Ave|Apt 1|Brooklyn|NY|11205|5116|C006|R
+298 Clinton Ave|Apt 3|Brooklyn|NY|11205|5116|C006|R
+2993 Avenue T||Brooklyn|NY|11229|4005|C049|R
+301 Bay 8th St||Brooklyn|NY|11228|3904|C019|R
+301 W 20th St|Apt 2B|New York|NY|10011|3377|C003|R
+301 W 20th St|Apt 1A|New York|NY|10011|3377|C003|R
+301 W 20th St|Apt 1C|New York|NY|10011|3377|C003|R
+301 W 20th St||New York|NY|10011|3326|C003|B
+301 W 20th St|Apt 3A|New York|NY|10011|3380|C003|R
+301 W 20th St|Apt 2C|New York|NY|10011|3380|C003|R
+301 W 20th St|Apt 1B|New York|NY|10011|3377|C003|R
+301 W 20th St|Apt 2A|New York|NY|10011|3377|C003|B
+301 W 20th St|Apt 3B|New York|NY|10011|3380|C003|R
+301 W 20th St|Apt 3C|New York|NY|10011|3380|C003|R
+3030 50th St||Woodside|NY|11377|1338|C019|R
+3035 90th St||East Elmhurst|NY|11369|1705|C011|R
+316 E 164th St||Bronx|NY|10456|6205|C019|R
+316 E 164th St|Apt 1|Bronx|NY|10456|6205|C019|R
+316 E 164th St|Apt 2|Bronx|NY|10456|6205|C019|R
+318 Flatbush Ave||Brooklyn|NY|11238|4302|C012|B
+319 Vanderbilt St||Brooklyn|NY|11218|1015|C002|R
+32 79th St||Brooklyn|NY|11209|2813|C008|R
+32 Evergreen Ave||Staten Island|NY|10304|4106|C004|R
+32 Winthrop St|Apt 2A|Brooklyn|NY|11225|6040|C016|R
+32 Winthrop St||Brooklyn|NY|11225|6076|C016|R
+32 Winthrop St|Apt 4A|Brooklyn|NY|11225|6005|C016|R
+32 Winthrop St|Apt 3B|Brooklyn|NY|11225|6005|C016|R
+32 Winthrop St|Apt 4B|Brooklyn|NY|11225|6005|C016|R
+32 Winthrop St|Apt 3A|Brooklyn|NY|11225|6040|C016|R
+32 Winthrop St|Apt 1B|Brooklyn|NY|11225|6076|C016|R
+32 Winthrop St|Apt 2B|Brooklyn|NY|11225|6040|C016|R
+32 Winthrop St|Apt 1A|Brooklyn|NY|11225|6040|C016|R
+3423 Avenue U||Brooklyn|NY|11234|5102|C018|R
+3430 75th St||Jackson Heights|NY|11372|1150|C004|R
+3433 209th St|Apt 1|Bayside|NY|11361|1460|C015|R
+3433 209th St||Bayside|NY|11361|1460|C015|R
+3433 209th St|Apt 2|Bayside|NY|11361|1460|C015|R
+3454 32nd St|Apt Bsmt|Astoria|NY|11106|2715|C022|R
+3454 32nd St||Astoria|NY|11106|2715|C022|R
+3454 32nd St|Fl 1|Astoria|NY|11106|2715|C022|R
+3454 32nd St|Fl 3|Astoria|NY|11106|2715|C022|R
+3454 32nd St|Fl 2|Astoria|NY|11106|2715|C022|R
+355 Sumpter St||Brooklyn|NY|11233|2518|C005|R
+355 Sumpter St|Apt 1|Brooklyn|NY|11233|2579|C005|U
+355 Sumpter St|Apt 2|Brooklyn|NY|11233|2579|C005|U
+355 Sumpter St|Apt 3|Brooklyn|NY|11233|2579|C005|U
+358 Miller Ave|Apt 2|Brooklyn|NY|11207|3602|C037|R
+358 Miller Ave|Apt 1|Brooklyn|NY|11207|3602|C037|R
+358 Miller Ave||Brooklyn|NY|11207|3602|C037|R
+359 Union Ave||Staten Island|NY|10303|2470|C011|R
+36 Hill St||Staten Island|NY|10304|2568|C003|R
+36 Ithaca St||Staten Island|NY|10306|4442|C046|R
+377 Grove St||Brooklyn|NY|11237|5502|C003|R
+38 Ashton Dr||Staten Island|NY|10312|1606|C020|R
+3803 10th Ave||New York|NY|10034|1852|C006|U
+3817 Sedgwick Ave|Apt 2|Bronx|NY|10463|4401|C027|R
+3817 Sedgwick Ave||Bronx|NY|10463|4401|C027|R
+3817 Sedgwick Ave|Apt 1|Bronx|NY|10463|4401|C027|R
+3823 216th St||Bayside|NY|11361|2317|C011|R
+383 Ocean Pkwy||Brooklyn|NY|11218|4701|C031|B
+383 Ocean Pkwy|Apt 2|Brooklyn|NY|11218|4701|C031|R
+383 Ocean Pkwy|Ste A|Brooklyn|NY|11218|4701|C031|B
+383 Ocean Pkwy|Apt 1|Brooklyn|NY|11218|4701|C031|R
+406 Loretto St||Staten Island|NY|10307|1920|C005|R
+408 E 11th St||New York|NY|10009|4541|C013|B
+408 Sterling Pl|Apt 3|Brooklyn|NY|11238|4501|C019|R
+408 Sterling Pl|Apt 1|Brooklyn|NY|11238|4501|C019|R
+408 Sterling Pl||Brooklyn|NY|11238|4501|C019|R
+408 Sterling Pl|Apt 2|Brooklyn|NY|11238|4501|C019|R
+409F E 137th St||Bronx|NY|10454|4060|C003|R
+41 Newkirk Plz|Ste B|Brooklyn|NY|11226|6525|C012|B
+41 Newkirk Plz|Ste A|Brooklyn|NY|11226|6525|C012|B
+41 Newkirk Plz||Brooklyn|NY|11226|6525|C012|B
+41 Tenafly Pl||Staten Island|NY|10312|4031|C026|R
+4388 Carpenter Ave|Apt 1|Bronx|NY|10466|1320|C007|R
+4388 Carpenter Ave|Apt 2|Bronx|NY|10466|1320|C007|R
+4388 Carpenter Ave||Bronx|NY|10466|1320|C007|R
+44 Charleston Ave||Staten Island|NY|10309|1608|C014|R
+44 Dorothy St||Staten Island|NY|10314|5008|C067|R
+440 Beach 125th St||Rockaway Park|NY|11694|1706|C007|R
+440 Calhoun Ave||Bronx|NY|10465|2906|C023|U
+440 Calhoun Ave|Apt 1|Bronx|NY|10465|2906|C023|R
+441 Beach 141st St||Rockaway Park|NY|11694|1246|C013|R
+441 Flint St||Staten Island|NY|10306|4042|C046|R
+442 Richard Ave||Staten Island|NY|10309|3826|C004|R
+443 59th St||Brooklyn|NY|11220|3813|C010|R
+443 59th St|Apt 1|Brooklyn|NY|11220|3813|C010|R
+443 59th St|Apt 2|Brooklyn|NY|11220|3813|C010|R
+48 Windemere Ave||Staten Island|NY|10306|2017|C035|R
+4804 16th Ave||Brooklyn|NY|11204|1108|C003|U
+4817 Avenue L||Brooklyn|NY|11234|3105|C027|R
+4823 Hylan Blvd||Staten Island|NY|10312|6317|C033|R
+49 Raymond Pl||Staten Island|NY|10310|2231|C010|R
+4901 Fillmore Ave||Brooklyn|NY|11234|4630|C059|B
+4902 66th St||Woodside|NY|11377|5938|C001|R
+4913 70th St||Woodside|NY|11377|6018|C013|R
+519 E 187th St|Apt Supt|Bronx|NY|10458|6669|C017|R
+519 E 187th St|Apt 1|Bronx|NY|10458|6669|C017|R
+519 E 187th St|Apt 4|Bronx|NY|10458|6669|C017|R
+519 E 187th St|Apt 3|Bronx|NY|10458|6669|C017|R
+519 E 187th St|Apt 2|Bronx|NY|10458|6669|C017|R
+519 E 187th St||Bronx|NY|10458|6669|C017|R
+5207 Avenue T||Brooklyn|NY|11234|4604|C001|R
+5219 Avenue K||Brooklyn|NY|11234|3219|C054|R
+5225 70th St||Maspeth|NY|11378|1443|C022|R
+523 Brooklyn Ave|Apt 1B|Brooklyn|NY|11225|5208|C027|R
+523 Brooklyn Ave|Apt 1D|Brooklyn|NY|11225|5208|C027|R
+523 Brooklyn Ave|Apt 1A|Brooklyn|NY|11225|5208|C027|R
+523 Brooklyn Ave|Apt 1C|Brooklyn|NY|11225|5208|C027|R
+523 Brooklyn Ave||Brooklyn|NY|11225|5208|C027|R
+524 E 80th St||Brooklyn|NY|11236|3123|C042|B
+5249 73rd St||Maspeth|NY|11378|1528|C003|R
+525 52nd St||Brooklyn|NY|11220|2720|C028|R
+56 Clifton Pl||Brooklyn|NY|11238|1302|C006|R
+56 Nehring Ave||Staten Island|NY|10314|6151|C075|R
+5907 Tilden Ave||Brooklyn|NY|11203|4825|C037|R
+5915 58th Dr||Maspeth|NY|11378|3209|C001|R
+5953 57th Dr||Maspeth|NY|11378|2701|C005|R
+6 Celeste Ct||Brooklyn|NY|11229|5909|C044|R
+60 Norman Ave|Apt 3|Brooklyn|NY|11222|7196|C020|R
+60 Norman Ave|Apt 1|Brooklyn|NY|11222|7196|C020|R
+60 Norman Ave|Apt 2|Brooklyn|NY|11222|7196|C020|R
+60 Norman Ave||Brooklyn|NY|11222|2936|C020|R
+630 E 16th St||Brooklyn|NY|11226|6508|C019|U
+6321 84th St||Middle Village|NY|11379|1951|C011|R
+633 W 131st St||New York|NY|10027|7903|C033|U
+633 W 131st St||New York|NY|10027|A100|NULL|B
+6759 Cloverdale Ln||Oakland Gardens|NY|11364|2759|C011|R
+677 Bay St|Apt 1|Staten Island|NY|10304|3887|C003|R
+677 Bay St|Apt 2|Staten Island|NY|10304|3887|C003|R
+677 Bay St||Staten Island|NY|10304|3887|C003|B
+677 Bay St|Ste A|Staten Island|NY|10304|3887|C003|B
+677 Cauldwell Ave||Bronx|NY|10455|1503|C009|R
+68 Windom Ave||Staten Island|NY|10305|4720|C004|R
+6810 Almeda Ave||Arverne|NY|11692|1368|C006|R
+6831 Olcott St||Forest Hills|NY|11375|5744|C057|R
+7105 Avenue Y||Brooklyn|NY|11234|6639|C012|R
+715 E 2nd St|Apt 4C|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 2D|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 1A|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 4A|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 2C|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 3A|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 3B|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St||Brooklyn|NY|11218|5645|C033|R
+715 E 2nd St|Apt 4D|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 1B|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 2B|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 1C|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 3C|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 3D|Brooklyn|NY|11218|5648|C033|R
+715 E 2nd St|Apt 4B|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 2A|Brooklyn|NY|11218|5614|C033|R
+715 E 2nd St|Apt 1D|Brooklyn|NY|11218|5648|C033|R
+75 Reeve Pl||Brooklyn|NY|11218|1315|C005|R
+7511 14th Ave||Brooklyn|NY|11228|2403|C014|R
+7514 66th Dr||Middle Village|NY|11379|2625|C013|R
+7517 Myrtle Ave||Glendale|NY|11385|7434|C042|R
+7517 Myrtle Ave|Ste 1|Glendale|NY|11385|7434|C042|B
+7539 192nd St||Fresh Meadows|NY|11366|1859|C026|R
+755 Jefferson Ave||Brooklyn|NY|11221|5778|C016|R
+755 Jefferson Ave|Ste A|Brooklyn|NY|11221|0649|C016|B
+755 Jefferson Ave|Apt 2|Brooklyn|NY|11221|0620|C016|R
+755 Jefferson Ave|Apt 1|Brooklyn|NY|11221|0620|C016|R
+76 Oak St||Brooklyn|NY|11222|2015|C004|R
+7604 69th Rd||Middle Village|NY|11379|2823|C003|R
+7604 Bay Pkwy||Brooklyn|NY|11214|1516|C025|U
+836 Bedford Ave|Apt 4R|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 6L|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 3R|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 5R|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave||Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 1R|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 3L|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 2R|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 1L|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 2L|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 6R|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 4L|Brooklyn|NY|11205|2934|C020|R
+836 Bedford Ave|Apt 5L|Brooklyn|NY|11205|2934|C020|R
+84 Westervelt Ave||Staten Island|NY|10301|1432|C010|R
+842 E 231st St||Bronx|NY|10466|4408|C023|R
+848 Driggs Ave||Brooklyn|NY|11211|5386|C013|U
+849 Ocean Pkwy||Brooklyn|NY|11230|2700|C047|B
+8715 Justice Ave||Elmhurst|NY|11373|4556|C037|R
+8715 Justice Ave|Ste 1|Elmhurst|NY|11373|4556|C037|U
+872 Bushwick Ave||Brooklyn|NY|11221|3113|C019|R
+873 54th St||Brooklyn|NY|11220|3208|C031|R
+8747 86th St||Woodhaven|NY|11421|1915|C020|R
+8756 26th Ave|Apt 3|Brooklyn|NY|11214|5493|C030|R
+8756 26th Ave|Apt 2|Brooklyn|NY|11214|5493|C030|R
+8756 26th Ave|Apt 1|Brooklyn|NY|11214|5493|C030|R
+8756 26th Ave||Brooklyn|NY|11214|5407|C030|R
+8769 112th St||Richmond Hill|NY|11418|2318|C008|R
+88 Eldridge St||New York|NY|10002|5263|C012|B
+88 Eldridge St|Apt 2|New York|NY|10002|5263|C012|R
+88 Eldridge St|Frnt A|New York|NY|10002|5263|C012|U
+88 Eldridge St|Apt 1|New York|NY|10002|5263|C012|R
+88 Eldridge St|Apt 3|New York|NY|10002|5263|C012|R
+88 Eldridge St|Apt 4|New York|NY|10002|5263|C012|R
+880 E 38th St||Brooklyn|NY|11210|3538|C037|R
+8817 80th St||Woodhaven|NY|11421|2403|C019|R
+905 Fulton St||Brooklyn|NY|11238|1704|C029|B
+9050 210th Pl||Queens Village|NY|11428|1023|C002|R
+91 Lorraine Loop||Staten Island|NY|10309|1514|C007|R
+91 Madison St|Apt 1|Brooklyn|NY|11216|5940|C015|R
+91 Madison St|Apt 2|Brooklyn|NY|11216|5940|C015|R
+91 Madison St||Brooklyn|NY|11216|5940|C015|R
+91 Madison St|Apt 3|Brooklyn|NY|11216|5940|C015|R
+912 71st St||Brooklyn|NY|11228|1110|C001|R
+913 Euclid Ave||Brooklyn|NY|11208|5521|C010|R
+913 Euclid Ave|Apt 2|Brooklyn|NY|11208|5521|C010|R
+913 Euclid Ave|Apt 1|Brooklyn|NY|11208|5521|C010|R
+9132 80th St||Woodhaven|NY|11421|2910|C010|R
+9133 Gold Rd||Ozone Park|NY|11417|2416|C056|R
+914 4th Ave||Brooklyn|NY|11232|2106|C016|B
+916 E 86th St|Apt 2|Brooklyn|NY|11236|3806|C012|R
+916 E 86th St||Brooklyn|NY|11236|3806|C012|U
+916 E 86th St|Apt 1|Brooklyn|NY|11236|3806|C012|R
+916 E 86th St|Apt 3|Brooklyn|NY|11236|3806|C012|R
+919 Atlantic Ave||Brooklyn|NY|11238|2704|C008|B
+1360 Ocean Pkwy|Apt 11L|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 2A|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 7A|Brooklyn|NY|11230|5623|C025|R
+1360 Ocean Pkwy|Apt 10C|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 15G|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 14D|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 9M|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 3G|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 5D|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 6E|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 9N|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 3H|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy|Apt 14A|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 10E|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 12H|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt Coop|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 5B|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 2J|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 6L|Brooklyn|NY|11230|5623|C025|R
+1360 Ocean Pkwy|Apt 14H|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 10J|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 5M|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 9E|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 12J|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 5N|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 8F|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 14K|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 8J|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 4D|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 2L|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 5F|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 6J|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 4B|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 11C|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 9B|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 1C|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 2H|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 12G|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 1B|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 5A|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 3K|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy|Apt 10H|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 15E|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 9A|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 9F|Brooklyn|NY|11230|5635|C025|R
+1360 Ocean Pkwy|Apt 9C|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 12A|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 11A|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 3J|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy|Apt 8M|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Ste A|Brooklyn|NY|11230|5621|C025|B
+1360 Ocean Pkwy|Apt 2K|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 2M|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 5L|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 8C|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 8E|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 8N|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 1E|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 3N|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy|Apt 1L|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 5C|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 5K|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 11B|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 2G|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 15K|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 7H|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 7C|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 11K|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 14F|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 3L|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy|Apt 11E|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 9H|Brooklyn|NY|11230|5635|C025|R
+1360 Ocean Pkwy|Apt 3E|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 1D|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 4A|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy|Apt 15D|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 6B|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 4E|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 15B|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 14J|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 6F|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 11J|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 5G|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 14B|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 3A|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 1J|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 12B|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 11D|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 6G|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 6K|Brooklyn|NY|11230|5623|C025|R
+1360 Ocean Pkwy|Apt 4N|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 2F|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 1A|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 5H|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 7D|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 10L|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 2D|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 7E|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 9J|Brooklyn|NY|11230|5635|C025|R
+1360 Ocean Pkwy|Apt 9G|Brooklyn|NY|11230|5635|C025|R
+1360 Ocean Pkwy|Apt 2E|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 3C|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 12K|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 1F|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 7B|Brooklyn|NY|11230|5623|C025|R
+1360 Ocean Pkwy|Apt 8G|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 7L|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 4L|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 8L|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 4J|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 8D|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 10K|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 7G|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 4G|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 8B|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 1K|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 4M|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 9D|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 7F|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 6C|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 12D|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 2C|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 3D|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 14G|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 6N|Brooklyn|NY|11230|5623|C025|R
+1360 Ocean Pkwy|Apt 1M|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 14E|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 15F|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 6H|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 1N|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 12L|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt Supt|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 7N|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 4C|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 6D|Brooklyn|NY|11230|5625|C025|R
+1360 Ocean Pkwy|Apt 12F|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 11N|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 3F|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 10B|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 5J|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 11H|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 7M|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 12M|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 3M|Brooklyn|NY|11230|5639|C025|R
+1360 Ocean Pkwy||Brooklyn|NY|11230|5660|C025|U
+1360 Ocean Pkwy|Apt 10G|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 2N|Brooklyn|NY|11230|5627|C025|R
+1360 Ocean Pkwy|Apt 11G|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 9L|Brooklyn|NY|11230|5635|C025|R
+1360 Ocean Pkwy|Apt 12E|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 8H|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 11F|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 7K|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 14C|Brooklyn|NY|11230|5631|C025|R
+1360 Ocean Pkwy|Apt 15C|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 6M|Brooklyn|NY|11230|5623|C025|R
+1360 Ocean Pkwy|Apt 15A|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 10F|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 1H|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 4H|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 9K|Brooklyn|NY|11230|5635|C025|R
+1360 Ocean Pkwy|Apt 2B|Brooklyn|NY|11230|5629|C025|R
+1360 Ocean Pkwy|Apt 15H|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 10D|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 8A|Brooklyn|NY|11230|5638|C025|R
+1360 Ocean Pkwy|Apt 15J|Brooklyn|NY|11230|5656|C025|R
+1360 Ocean Pkwy|Apt 4K|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 11M|Brooklyn|NY|11230|5634|C025|R
+1360 Ocean Pkwy|Apt 10A|Brooklyn|NY|11230|5633|C025|R
+1360 Ocean Pkwy|Apt 4F|Brooklyn|NY|11230|5628|C025|R
+1360 Ocean Pkwy|Apt 8K|Brooklyn|NY|11230|5637|C025|R
+1360 Ocean Pkwy|Apt 7J|Brooklyn|NY|11230|5624|C025|R
+1360 Ocean Pkwy|Apt 5E|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 10N|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 1G|Brooklyn|NY|11230|5630|C025|R
+1360 Ocean Pkwy|Apt 12C|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 6A|Brooklyn|NY|11230|5626|C025|R
+1360 Ocean Pkwy|Apt 12N|Brooklyn|NY|11230|5632|C025|R
+1360 Ocean Pkwy|Apt 10M|Brooklyn|NY|11230|5636|C025|R
+1360 Ocean Pkwy|Apt 3B|Brooklyn|NY|11230|5627|C025|R
+787 E 40th St||Brooklyn|NY|11210|2010|C033|R
+788 Riverside Dr|Apt 4A|New York|NY|10032|7423|C002|R
+788 Riverside Dr||New York|NY|10032|7458|C002|U
+788 Riverside Dr|Apt 3AA|New York|NY|10032|0360|C002|R
+788 Riverside Dr|Apt 10A|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 10D|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 1G|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 9B|New York|NY|10032|7425|C002|R
+788 Riverside Dr|Apt 11D|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 6A|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 8C|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 11AA|New York|NY|10032|0615|C002|R
+788 Riverside Dr|Apt 10C|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 2C|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 9E|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 5AA|New York|NY|10032|0260|C002|R
+788 Riverside Dr|Apt 1B|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 2D|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 8A|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 7A|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 3A|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 3C|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 2EE|New York|NY|10032|0360|C002|R
+788 Riverside Dr|Apt 9C|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 3EE|New York|NY|10032|0360|C002|R
+788 Riverside Dr|Apt 8AA|New York|NY|10032|0350|C002|R
+788 Riverside Dr|Apt 7AA|New York|NY|10032|0350|C002|R
+788 Riverside Dr|Apt 6E|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 6AA|New York|NY|10032|0260|C002|R
+788 Riverside Dr|Apt 4C|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 3E|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 3D|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 3B|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 4D|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 2E|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 1C|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 4B|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 11B|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 7D|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 9A|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 9D|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 10E|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 1A|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 9AA|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 6B|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 11A|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 11E|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 10AA|New York|NY|10032|0350|C002|R
+788 Riverside Dr|Apt 5B|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 10B|New York|NY|10032|7424|C002|R
+788 Riverside Dr|Apt 11C|New York|NY|10032|7424|C002|R
+788 Riverside Dr|PH PH|New York|NY|10032|7424|C002|U
+788 Riverside Dr|Apt 7B|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 1E|New York|NY|10032|7423|C002|R
+788 Riverside Dr|Apt 4E|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 4AA|New York|NY|10032|0360|C002|R
+788 Riverside Dr|Apt 6D|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 7E|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 5D|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 7C|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 8D|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 5C|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 6C|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 5E|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 5A|New York|NY|10032|7416|C002|R
+788 Riverside Dr|Apt 8B|New York|NY|10032|7422|C002|R
+788 Riverside Dr|Apt 8E|New York|NY|10032|7422|C002|R
+100A McDivitt Ave||Staten Island|NY|10314|4959|C038|R
+101 Dekalb St||Staten Island|NY|10304|3393|C010|R
+101 Grove St||Brooklyn|NY|11221|4405|C027|U
+101 Mersereau Ave||Staten Island|NY|10303|2028|C001|R
+10106 116th St||South Richmond Hill|NY|11419|1926|C036|R
+10118 98th St|Apt 4|Ozone Park|NY|11416|2555|C058|R
+10118 98th St||Ozone Park|NY|11416|2555|C058|R
+10118 98th St|Apt 3|Ozone Park|NY|11416|2555|C058|R
+10118 98th St|Apt 1|Ozone Park|NY|11416|2555|C058|R
+10118 98th St|Apt 2|Ozone Park|NY|11416|2555|C058|R
+10128 130th St||South Richmond Hill|NY|11419|2343|C032|R
+1015 Rathbun Ave||Staten Island|NY|10309|2112|C006|R
+10414 217th Ln||Queens Village|NY|11429|2057|C032|R
+10420 91st Ave||Richmond Hill|NY|11418|2134|C033|R
+10438 202nd St||Saint Albans|NY|11412|1316|C056|R
+1045 E 8th St||Brooklyn|NY|11230|4101|C016|R
+10459 90th Ave||Richmond Hill|NY|11418|2133|C033|R
+10462 45th Ave||Corona|NY|11368|2825|C007|R
+1048 Crescent St|Apt 1|Brooklyn|NY|11208|5520|C010|R
+1048 Crescent St||Brooklyn|NY|11208|5520|C010|R
+1048 Crescent St|Apt 2|Brooklyn|NY|11208|5520|C010|R
+10516 Avenue L||Brooklyn|NY|11236|4632|C043|R
+10516 Flatlands 8th St||Brooklyn|NY|11236|4622|C029|R
+10521 Flatlands 9th St||Brooklyn|NY|11236|4623|C034|R
+10524 134th St||South Richmond Hill|NY|11419|3210|C009|R
+10527 134th St||South Richmond Hill|NY|11419|3209|C009|R
+1053 E 10th St|Apt 2|Brooklyn|NY|11230|4109|C016|R
+1053 E 10th St||Brooklyn|NY|11230|4109|C016|R
+1053 E 10th St|Apt 1|Brooklyn|NY|11230|4109|C016|R
+10538 62nd Dr||Forest Hills|NY|11375|1136|C001|R
+11056 67th Rd||Forest Hills|NY|11375|2338|C015|R
+111 2nd St||Brooklyn|NY|11231|4803|C015|R
+111 Audley St||Kew Gardens|NY|11415|1317|C084|R
+111 Rugby Ave||Staten Island|NY|10301|4017|C019|R
+1111 Halsey St||Brooklyn|NY|11207|1111|C003|R
+1113 Flatbush Ave||Brooklyn|NY|11226|6141|C042|U
+1113 Flatbush Ave|Ste 1|Brooklyn|NY|11226|6141|C042|B
+11132 159th St||Jamaica|NY|11433|3804|C048|R
+11135 118th St||South Ozone Park|NY|11420|1220|C030|R
+11139 112th St||South Ozone Park|NY|11420|1025|C048|R
+11140 Farmers Blvd||Saint Albans|NY|11412|2328|C061|R
+11140 Farmers Blvd|Apt 1|Saint Albans|NY|11412|2328|C061|R
+11140 Farmers Blvd|Apt 2|Saint Albans|NY|11412|2328|C061|R
+112 Beach 62nd St||Arverne|NY|11692|1847|C001|R
+112 Beach 62nd St|Unit 2|Arverne|NY|11692|1847|C001|R
+112 Beach 62nd St|Unit 1|Arverne|NY|11692|1847|C001|R
+12003 Rockaway Beach Blvd||Rockaway Park|NY|11694|1968|C005|R
+1201 E 29th St||Brooklyn|NY|11210|4630|C013|R
+12014 Ketch Ct||College Point|NY|11356|1152|C003|R
+12015 196th St||Saint Albans|NY|11412|3721|C070|R
+12017 145th St||Jamaica|NY|11436|1510|C007|R
+12018 144th St||Jamaica|NY|11436|1507|C007|R
+1202 Troy Ave||Brooklyn|NY|11203|5728|C030|R
+121 E 39th St||Brooklyn|NY|11203|2902|C014|R
+131 W 110th St|Apt 6F|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 4C|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 1C|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 6G|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 6H|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 5C|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 1A|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 5G|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 6D|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 3A|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 4E|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 3F|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 4H|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 2G|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 3E|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 1H|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 6A|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 1B|New York|NY|10026|4205|C040|B
+131 W 110th St|Apt 3D|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 6C|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 5F|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 3G|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 4F|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 5A|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 2F|New York|NY|10026|4205|C040|R
+131 W 110th St||New York|NY|10026|4202|C040|U
+131 W 110th St|Apt 2D|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 2E|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 6B|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 5E|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 5H|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt S2|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 1G|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 2A|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 3B|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 5B|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 4G|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 2H|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 3H|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 4D|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 4A|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 4B|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 2B|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 6E|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt S1|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 2C|New York|NY|10026|4205|C040|R
+131 W 110th St|Apt 5D|New York|NY|10026|4216|C040|R
+131 W 110th St|Apt 3C|New York|NY|10026|4205|C040|R
+1312 Richmond Ave||Staten Island|NY|10314|1528|C043|R
+1316 51st St|Apt 1|Brooklyn|NY|11219|3656|C012|R
+1316 51st St||Brooklyn|NY|11219|3657|C012|R
+1316 51st St|Apt 2|Brooklyn|NY|11219|3656|C012|R
+1316 51st St|Ste A|Brooklyn|NY|11219|3656|C012|B
+1316 51st St|Apt 3|Brooklyn|NY|11219|3656|C012|R
+132 W 18th St||New York|NY|10011|5403|C004|B
+13209 Metropolitan Ave||Richmond Hill|NY|11418|1949|C015|R
+13221 60th Ave||Flushing|NY|11355|5249|C015|R
+13222 Hillside Ave||Richmond Hill|NY|11418|1926|C015|R
+135 Kane St||Brooklyn|NY|11231|5284|C002|R
+135 Kane St|Apt 1|Brooklyn|NY|11231|5227|C002|R
+135 Kane St|Apt 2|Brooklyn|NY|11231|5227|C002|R
+1350 76th St|Apt 2|Brooklyn|NY|11228|2420|C014|R
+1350 76th St||Brooklyn|NY|11228|2420|C014|R
+1350 76th St|Apt 1|Brooklyn|NY|11228|2420|C014|R
+13509 234th St||Rosedale|NY|11422|1506|C083|R
+13516 246th St||Rosedale|NY|11422|1633|C082|R
+13518 Lefferts Blvd||South Ozone Park|NY|11420|3602|C037|R
+13524 246th St||Rosedale|NY|11422|1633|C082|R
+13532 78th Ave|Apt E|Flushing|NY|11367|3218|C002|R
+13532 78th Ave|Apt F|Flushing|NY|11367|3218|C002|R
+13532 78th Ave|Apt C|Flushing|NY|11367|3218|C002|R
+13532 78th Ave|Apt A|Flushing|NY|11367|3218|C002|R
+13532 78th Ave|Apt D|Flushing|NY|11367|3218|C002|R
+13532 78th Ave|Apt B|Flushing|NY|11367|3218|C002|R
+13532 78th Ave||Flushing|NY|11367|4248|C002|R
+13534 226th St||Laurelton|NY|11413|2432|C021|R
+1355 79th St||Brooklyn|NY|11228|2709|C011|R
+13621 Cherry Ave||Flushing|NY|11355|4829|C026|R
+1363 65th St||Brooklyn|NY|11219|5617|C036|R
+13639 41st Ave|Apt 5F|Flushing|NY|11355|2431|C030|R
+13639 41st Ave|Apt 4A|Flushing|NY|11355|2427|C030|R
+13639 41st Ave|Apt 6A|Flushing|NY|11355|2427|C030|R
+13639 41st Ave|Ste 1K|Flushing|NY|11355|2426|C030|B
+13639 41st Ave|Apt Supt|Flushing|NY|11355|2430|C030|R
+13639 41st Ave|Apt 1H|Flushing|NY|11355|2432|C030|R
+13639 41st Ave|Apt 4E|Flushing|NY|11355|2430|C030|R
+13639 41st Ave|Apt 6J|Flushing|NY|11355|2454|C030|R
+13639 41st Ave|Apt 6F|Flushing|NY|11355|2431|C030|R
+13639 41st Ave|Apt 6D|Flushing|NY|11355|2447|C030|R
+13639 41st Ave|Apt 1I|Flushing|NY|11355|2456|C030|R
+13639 41st Ave|Apt 5B|Flushing|NY|11355|2428|C030|R
+13639 41st Ave|Apt 4H|Flushing|NY|11355|2432|C030|R
+13639 41st Ave|Apt 3B|Flushing|NY|11355|2428|C030|R
+13639 41st Ave|Apt 5H|Flushing|NY|11355|2432|C030|R
+13639 41st Ave|Apt 1A|Flushing|NY|11355|2427|C030|R
+13639 41st Ave|Apt 1G|Flushing|NY|11355|2457|C030|R
+13639 41st Ave|Apt 5E|Flushing|NY|11355|2430|C030|R
+13639 41st Ave|Apt 4B|Flushing|NY|11355|2428|C030|R
+13639 41st Ave|Apt 1C|Flushing|NY|11355|2429|C030|R
+13639 41st Ave|Apt 2F|Flushing|NY|11355|2431|C030|R
+13639 41st Ave|Apt 2E|Flushing|NY|11355|2430|C030|R
+13639 41st Ave|Apt 3C|Flushing|NY|11355|2429|C030|R
+13639 41st Ave|Apt 3E|Flushing|NY|11355|2430|C030|R
+13639 41st Ave|Apt 6C|Flushing|NY|11355|2429|C030|R
+13639 41st Ave|Apt 2D|Flushing|NY|11355|2447|C030|R
+13639 41st Ave|Apt 5A|Flushing|NY|11355|2427|C030|R
+13639 41st Ave|Apt 3H|Flushing|NY|11355|2432|C030|R
+13639 41st Ave|Apt 2H|Flushing|NY|11355|2432|C030|R
+13639 41st Ave|Apt 1B|Flushing|NY|11355|2428|C030|R
+13639 41st Ave|Apt 6B|Flushing|NY|11355|2428|C030|R
+13639 41st Ave|Apt 5G|Flushing|NY|11355|2457|C030|R
+13639 41st Ave|Apt 2A|Flushing|NY|11355|2427|C030|R
+13639 41st Ave|Apt 3A|Flushing|NY|11355|2427|C030|R
+13639 41st Ave|Apt 6E|Flushing|NY|11355|2430|C030|R
+13639 41st Ave|Apt 6I|Flushing|NY|11355|2456|C030|R
+13639 41st Ave|Apt 3G|Flushing|NY|11355|2457|C030|R
+13639 41st Ave|Apt 2G|Flushing|NY|11355|2457|C030|R
+13639 41st Ave|Apt 4D|Flushing|NY|11355|2447|C030|R
+13639 41st Ave|Apt 5C|Flushing|NY|11355|2429|C030|R
+13639 41st Ave||Flushing|NY|11355|2426|C030|U
+13639 41st Ave|Apt 2J|Flushing|NY|11355|2454|C030|R
+13639 41st Ave|Apt 4G|Flushing|NY|11355|2457|C030|R
+13639 41st Ave|Apt 2C|Flushing|NY|11355|2429|C030|R
+13639 41st Ave|Apt 3J|Flushing|NY|11355|2454|C030|R
+13639 41st Ave|Apt 4I|Flushing|NY|11355|2456|C030|R
+13639 41st Ave|Apt 6H|Flushing|NY|11355|2432|C030|R
+13639 41st Ave|Apt 1J|Flushing|NY|11355|2454|C030|R
+13639 41st Ave|Apt 3F|Flushing|NY|11355|2431|C030|R
+13639 41st Ave|Apt 3D|Flushing|NY|11355|2447|C030|R
+13639 41st Ave|Apt 4C|Flushing|NY|11355|2429|C030|R
+13639 41st Ave|Apt 1D|Flushing|NY|11355|2447|C030|R
+13639 41st Ave|Apt 6G|Flushing|NY|11355|2457|C030|R
+13639 41st Ave|Apt 5D|Flushing|NY|11355|2447|C030|R
+13639 41st Ave|Apt 5J|Flushing|NY|11355|2454|C030|R
+13639 41st Ave|Apt 4F|Flushing|NY|11355|2431|C030|R
+13639 41st Ave|Apt 4J|Flushing|NY|11355|2454|C030|R
+13639 41st Ave|Ste Mgmt|Flushing|NY|11355|2431|C030|B
+13639 41st Ave|Apt 3I|Flushing|NY|11355|2456|C030|R
+13639 41st Ave|Apt 2B|Flushing|NY|11355|2428|C030|R
+13639 41st Ave|Apt 2I|Flushing|NY|11355|2456|C030|R
+13639 41st Ave|Apt 5I|Flushing|NY|11355|2456|C030|R
+1424 66th St|Apt 4|Brooklyn|NY|11219|5710|C001|R
+1424 66th St||Brooklyn|NY|11219|5710|C001|R
+1424 66th St|Apt 2|Brooklyn|NY|11219|5710|C001|R
+1424 66th St|Apt 1|Brooklyn|NY|11219|5710|C001|R
+1424 66th St|Apt 3|Brooklyn|NY|11219|5710|C001|R
+1426 137th St||College Point|NY|11356|2028|C008|R
+14314 91st Ave||Jamaica|NY|11435|4220|C003|R
+14330 14th Ave||Whitestone|NY|11357|2331|C002|R
+14944 257th St||Rosedale|NY|11422|2844|C091|R
+1496 E 32nd St||Brooklyn|NY|11234|3404|C008|R
+1497 Ocean Pkwy|Ste A|Brooklyn|NY|11230|6401|C027|B
+1497 Ocean Pkwy||Brooklyn|NY|11230|6401|C027|B
+150 Berkeley Pl||Brooklyn|NY|11217|3604|C014|R
+150 Berkeley Pl|Apt 2|Brooklyn|NY|11217|3604|C014|R
+150 Berkeley Pl|Apt 1|Brooklyn|NY|11217|3604|C014|R
+15750 22nd Ave||Whitestone|NY|11357|3911|C020|R
+15751 11th Ave||Whitestone|NY|11357|1918|C030|R
+158 Tibbetts Rd||Yonkers|NY|10705|A096|NULL|R
+158 Tibbetts Rd||Yonkers|NY|10705|2644|C023|U
+15812 84th Rd|Apt 1|Jamaica|NY|11432|1628|C077|R
+15812 84th Rd||Jamaica|NY|11432|1628|C077|R
+15812 84th Rd|Apt 2|Jamaica|NY|11432|1628|C077|R
+1582 48th St||Brooklyn|NY|11219|3249|C032|R
+1584 E 172nd St|Apt 3E|Bronx|NY|10472|2134|C007|R
+1584 E 172nd St|Apt 3F|Bronx|NY|10472|2138|C007|R
+1584 E 172nd St|Apt 1B|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt 2C|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 1E|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 1L|Bronx|NY|10472|2137|C007|R
+1584 E 172nd St|Apt 2D|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 4F|Bronx|NY|10472|2157|C007|R
+1584 E 172nd St|Apt 3A|Bronx|NY|10472|2134|C007|R
+1584 E 172nd St|Apt A|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt 3H|Bronx|NY|10472|2138|C007|R
+1584 E 172nd St|Apt 4C|Bronx|NY|10472|2135|C007|R
+1584 E 172nd St|Apt 1C|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 4L|Bronx|NY|10472|2157|C007|R
+1584 E 172nd St|Apt 2G|Bronx|NY|10472|2137|C007|R
+1584 E 172nd St|Apt 2B|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 3C|Bronx|NY|10472|2134|C007|R
+1584 E 172nd St|Apt L|Bronx|NY|10472|2136|C007|R
+1584 E 172nd St|Apt 2H|Bronx|NY|10472|2138|C007|R
+1584 E 172nd St|Apt E|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt Cc|Bronx|NY|10472|2107|C007|R
+1584 E 172nd St|Apt Bb|Bronx|NY|10472|2107|C007|R
+1584 E 172nd St||Bronx|NY|10472|2107|C007|U
+1584 E 172nd St|Apt 4E|Bronx|NY|10472|2135|C007|R
+1584 E 172nd St|Apt 1G|Bronx|NY|10472|2137|C007|R
+1584 E 172nd St|Apt B|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt D|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt 1D|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 3D|Bronx|NY|10472|2134|C007|R
+1584 E 172nd St|Apt 4B|Bronx|NY|10472|2135|C007|R
+1584 E 172nd St|Apt 3L|Bronx|NY|10472|2157|C007|R
+1584 E 172nd St|Apt F|Bronx|NY|10472|2136|C007|R
+1584 E 172nd St|Apt Ff|Bronx|NY|10472|2107|C007|R
+1584 E 172nd St|Apt 3G|Bronx|NY|10472|2138|C007|R
+1584 E 172nd St|Apt 2L|Bronx|NY|10472|2138|C007|R
+1584 E 172nd St|Apt 4G|Bronx|NY|10472|2157|C007|R
+1584 E 172nd St|Apt 1A|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt 4H|Bronx|NY|10472|2157|C007|R
+1584 E 172nd St|Apt 2E|Bronx|NY|10472|2134|C007|R
+1584 E 172nd St|Apt 2A|Bronx|NY|10472|2133|C007|R
+1584 E 172nd St|Apt 1H|Bronx|NY|10472|2137|C007|R
+1584 E 172nd St|Apt 4D|Bronx|NY|10472|2135|C007|R
+1584 E 172nd St|Apt 1F|Bronx|NY|10472|2136|C007|R
+1584 E 172nd St|Apt AA|Bronx|NY|10472|2107|C007|R
+1584 E 172nd St|Apt 3B|Bronx|NY|10472|2134|C007|R
+1584 E 172nd St|Apt H|Bronx|NY|10472|2136|C007|R
+1584 E 172nd St|Apt 4A|Bronx|NY|10472|2135|C007|R
+1584 E 172nd St|Apt C|Bronx|NY|10472|2132|C007|R
+1584 E 172nd St|Apt 2F|Bronx|NY|10472|2137|C007|R
+1584 E 172nd St|Apt Dd|Bronx|NY|10472|2107|C007|R
+1584 E 172nd St|Apt G|Bronx|NY|10472|2136|C007|R
+159 Fields Ave||Staten Island|NY|10314|5060|C067|R
+15902 134th Ave||Jamaica|NY|11434|3706|C001|R
+1663 49th St||Brooklyn|NY|11204|1134|C003|R
+167 Wolverine St||Staten Island|NY|10306|1743|C026|R
+16736 118th Ave||Jamaica|NY|11434|2210|C025|R
+168 Hale Ave|Apt 1|Brooklyn|NY|11208|1248|C006|R
+168 Hale Ave||Brooklyn|NY|11208|1248|C006|R
+1680 85th St||Brooklyn|NY|11214|2814|C036|R
+16831 118th Rd||Jamaica|NY|11434|2241|C025|R
+1684 W 1st St|Apt B5|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt B8|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D3|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt B10|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D5|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt A4|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt D4|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt A6|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt C6|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt B3|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C7|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D8|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D10|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St||Brooklyn|NY|11223|1756|C012|R
+1684 W 1st St|Apt B2|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C4|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C11|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt B9|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D12|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt A2|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt D11|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D2|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt A3|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C10|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt C12|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt C3|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt D7|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt B12|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt A8|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt C1|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt D6|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt A7|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt D1|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt D9|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt A9|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt C2|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt B1|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C5|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C9|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt A5|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt B7|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt B6|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt B4|Brooklyn|NY|11223|1713|C012|R
+1684 W 1st St|Apt C8|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt B11|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt A10|Brooklyn|NY|11223|1714|C012|R
+1684 W 1st St|Apt A1|Brooklyn|NY|11223|1713|C012|R
+17756 Baisley Blvd||Jamaica|NY|11434|1911|C009|R
+178 Beach St||Bronx|NY|10464|1205|C002|R
+18 Dawn Ct||Staten Island|NY|10307|2000|C007|R
+18 Winslow Pl||Staten Island|NY|10312|4177|C009|R
+180 Edith Ave||Staten Island|NY|10312|5744|C005|R
+190 Hett Ave||Staten Island|NY|10306|5728|C040|R
+19003 121st Ave||Saint Albans|NY|11412|3909|C069|R
+1901 64th St||Brooklyn|NY|11204|3002|C015|R
+19040 111th Rd||Saint Albans|NY|11412|2017|C059|R
+1908 86th St|Ste 1|Brooklyn|NY|11214|3104|C015|B
+1908 86th St||Brooklyn|NY|11214|3104|C015|R
+191 Dean St||Brooklyn|NY|11217|4695|C010|U
+191 Dean St|Apt 2|Brooklyn|NY|11217|4695|C010|R
+191 Dean St|Apt 1|Brooklyn|NY|11217|4695|C010|R
+191 Dean St|Apt 3|Brooklyn|NY|11217|4695|C010|R
+19109 119th Ave||Saint Albans|NY|11412|3326|C069|R
+19110 Jamaica Ave||Hollis|NY|11423|2528|C067|B
+19148 114th Dr||Saint Albans|NY|11412|2720|C075|R
+1923 W Farms Rd||Bronx|NY|10460|A009|NULL|B
+1923 W Farms Rd||Bronx|NY|10460|6021|C001|U
+1924 Benedict Ave||Bronx|NY|10462|4402|C018|R
+1926 Putnam Ave||Ridgewood|NY|11385|4436|C009|R
+1928 2nd Ave||New York|NY|10029|A124|NULL|R
+1928 2nd Ave||New York|NY|10029|6303|C022|U
+1935 83rd St|Apt E5|Brooklyn|NY|11214|3052|C015|R
+1935 83rd St|Apt C8|Brooklyn|NY|11214|3045|C015|R
+1935 83rd St|Apt B5|Brooklyn|NY|11214|3053|C015|R
+1935 83rd St|Apt F7|Brooklyn|NY|11214|3047|C015|R
+1935 83rd St|Apt A3|Brooklyn|NY|11214|3055|C015|R
+1935 83rd St|Apt D5|Brooklyn|NY|11214|3054|C015|R
+1935 83rd St|Apt B7|Brooklyn|NY|11214|3053|C015|R
+1935 83rd St|Apt E2|Brooklyn|NY|11214|3046|C015|R
+1935 83rd St|Apt C3|Brooklyn|NY|11214|3045|C015|R
+1935 83rd St|Apt E8|Brooklyn|NY|11214|3052|C015|R
+1935 83rd St|Apt A2|Brooklyn|NY|11214|3055|C015|R
+1935 83rd St|Apt F6|Brooklyn|NY|11214|3047|C015|R
+1935 83rd St|Apt D3|Brooklyn|NY|11214|3054|C015|R
+1935 83rd St|Apt A5|Brooklyn|NY|11214|3055|C015|R
+1935 83rd St|Apt B3|Brooklyn|NY|11214|3000|C015|R
+1935 83rd St|Apt B4|Brooklyn|NY|11214|3000|C015|R
+1935 83rd St|Apt E7|Brooklyn|NY|11214|3052|C015|R
+1935 83rd St|Apt F2|Brooklyn|NY|11214|3052|C015|R
+1935 83rd St|Apt C6|Brooklyn|NY|11214|3045|C015|R
+1935 83rd St|Apt C4|Brooklyn|NY|11214|3045|C015|R
+1935 83rd St|Apt D6|Brooklyn|NY|11214|3054|C015|R
+1935 83rd St|Apt F3|Brooklyn|NY|11214|3047|C015|R
+1935 83rd St|Apt B6|Brooklyn|NY|11214|3053|C015|R
+1935 83rd St|Apt D1|Brooklyn|NY|11214|3054|C015|R
+1935 83rd St|Apt C2|Brooklyn|NY|11214|3053|C015|R
+1935 83rd St|Apt B8|Brooklyn|NY|11214|3053|C015|R
+1935 83rd St|Apt F8|Brooklyn|NY|11214|3047|C015|R
+1935 83rd St|Apt E1|Brooklyn|NY|11214|3046|C015|R
+1935 83rd St|Apt F1|Brooklyn|NY|11214|3052|C015|R
+1935 83rd St|Apt B1|Brooklyn|NY|11214|3000|C015|R
+1935 83rd St|Apt E3|Brooklyn|NY|11214|3046|C015|R
+1935 83rd St|Apt B2|Brooklyn|NY|11214|3000|C015|R
+1935 83rd St|Apt F5|Brooklyn|NY|11214|3047|C015|R
+1935 83rd St|Apt C7|Brooklyn|NY|11214|3045|C015|R
+1935 83rd St|Apt E6|Brooklyn|NY|11214|3052|C015|R
+1935 83rd St|Apt F4|Brooklyn|NY|11214|3047|C015|R
+1935 83rd St|Apt A6|Brooklyn|NY|11214|3055|C015|R
+1935 83rd St|Apt D4|Brooklyn|NY|11214|3054|C015|R
+1935 83rd St|Apt D7|Brooklyn|NY|11214|3046|C015|R
+1935 83rd St|Apt C1|Brooklyn|NY|11214|3053|C015|R
+1935 83rd St|Apt A1|Brooklyn|NY|11214|3055|C015|R
+1935 83rd St|Apt A4|Brooklyn|NY|11214|3055|C015|R
+1935 83rd St|Apt D8|Brooklyn|NY|11214|3046|C015|R
+1935 83rd St|Apt D2|Brooklyn|NY|11214|3054|C015|R
+1935 83rd St||Brooklyn|NY|11214|3060|C015|R
+1935 83rd St|Apt E4|Brooklyn|NY|11214|3046|C015|R
+1935 83rd St|Apt A8|Brooklyn|NY|11214|3000|C015|R
+1935 83rd St|Apt A7|Brooklyn|NY|11214|3000|C015|R
+1935 83rd St|Apt C5|Brooklyn|NY|11214|3045|C015|R
+2030 60th St|Apt 2|Brooklyn|NY|11204|2419|C026|R
+2030 60th St||Brooklyn|NY|11204|2419|C026|R
+2030 60th St|Apt 1|Brooklyn|NY|11204|2419|C026|R
+2030 E 64th St||Brooklyn|NY|11234|5912|C046|R
+2035 71st St||Brooklyn|NY|11204|5802|C027|R
+203B Wellbrook Ave||Staten Island|NY|10314|6926|C018|R
+2045 E 60th St|Apt 2|Brooklyn|NY|11234|4109|C044|R
+2045 E 60th St||Brooklyn|NY|11234|4109|C044|R
+2045 E 60th St|Apt 1|Brooklyn|NY|11234|4109|C044|R
+2050 Nostrand Ave||Brooklyn|NY|11210|2550|C024|B
+2051 Mayflower Ave||Bronx|NY|10461|3922|C028|R
+2051 W 7th St||Brooklyn|NY|11223|3730|C034|R
+21102 23rd Ave|Apt 3|Bayside|NY|11360|1900|C025|R
+21102 23rd Ave||Bayside|NY|11360|1900|C025|R
+21102 23rd Ave|Apt 1|Bayside|NY|11360|1900|C025|R
+21102 23rd Ave|Apt 2|Bayside|NY|11360|1900|C025|R
+2113 72nd St||East Elmhurst|NY|11370|1007|C001|R
+2119 24th Rd|Apt 1|Astoria|NY|11102|3447|C016|R
+2119 24th Rd|Apt 2|Astoria|NY|11102|3447|C016|R
+2119 24th Rd||Astoria|NY|11102|3447|C016|R
+2129 146th St||Whitestone|NY|11357|3549|C028|R
+2254 E 14th St||Brooklyn|NY|11229|4313|C015|R
+2328 Hoffman St||Bronx|NY|10458|8003|C012|R
+2339 80th St||East Elmhurst|NY|11370|1513|C025|R
+2339 E 64th St||Brooklyn|NY|11234|6313|C023|R
+234 Dover Grn||Staten Island|NY|10312|1709|C015|R
+234 N 12th St||Brooklyn|NY|11211|9345|C020|B
+234 N 12th St|Apt 3F|Brooklyn|NY|11211|9313|C020|R
+234 N 12th St|Apt 2F|Brooklyn|NY|11211|9320|C020|R
+234 N 12th St|Apt 1F|Brooklyn|NY|11211|9320|C020|R
+234 N 12th St|Apt 3R|Brooklyn|NY|11211|9313|C020|R
+234 N 12th St|Ste A|Brooklyn|NY|11211|9348|C020|B
+234 N 12th St|Apt 2R|Brooklyn|NY|11211|9313|C020|R
+234 N 12th St|Apt 1R|Brooklyn|NY|11211|9320|C020|R
+234 W 232nd St||Bronx|NY|10463|5531|C030|R
+2344 Victory Blvd||Staten Island|NY|10314|6607|C010|B
+23519 129th Ave||Rosedale|NY|11422|A067|NULL|R
+23519 129th Ave||Rosedale|NY|11422|1057|C085|U
+2352 28th St|Apt 2|Astoria|NY|11105|2802|C012|R
+2352 28th St||Astoria|NY|11105|2802|C012|R
+2359 Wickham Ave||Bronx|NY|10469|6321|C022|R
+2532 Eastchester Rd||Bronx|NY|10469|5942|C013|R
+254 E 110th St|Apt 4W|New York|NY|10029|3249|C039|R
+254 E 110th St|Apt 2W|New York|NY|10029|3249|C039|R
+254 E 110th St|Apt 3E|New York|NY|10029|3249|C039|R
+254 E 110th St|Apt 2E|New York|NY|10029|3249|C039|R
+254 E 110th St|Apt 4E|New York|NY|10029|3249|C039|R
+254 E 110th St|Apt 1R|New York|NY|10029|3249|C039|R
+254 E 110th St||New York|NY|10029|3249|C039|U
+254 E 110th St|Apt 3W|New York|NY|10029|3249|C039|R
+254 E 25th St||Brooklyn|NY|11226|6211|C042|R
+255 Targee St||Staten Island|NY|10304|1925|C020|R
+2551 126th St||Flushing|NY|11354|1127|C001|R
+2559 Decatur Ave|Apt 2|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave||Bronx|NY|10458|4823|C029|R
+2559 Decatur Ave|Apt 3|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave|Apt 10|Bronx|NY|10458|4834|C029|R
+2559 Decatur Ave|Apt 6|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave|Apt 12|Bronx|NY|10458|4834|C029|R
+2559 Decatur Ave|Apt 7|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave|Apt 5|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave|Apt 11|Bronx|NY|10458|4834|C029|R
+2559 Decatur Ave|Apt 1|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave|Apt 14|Bronx|NY|10458|4834|C029|R
+2559 Decatur Ave|Apt 4|Bronx|NY|10458|4833|C029|R
+2559 Decatur Ave|Apt 12A|Bronx|NY|10458|4834|C029|R
+2559 Decatur Ave|Apt 9|Bronx|NY|10458|4834|C029|R
+2559 Decatur Ave|Apt 8|Bronx|NY|10458|4834|C029|R
+2712 Crescent St|Apt 1|Astoria|NY|11102|3137|C013|R
+2712 Crescent St|Apt 2|Astoria|NY|11102|3137|C013|R
+2712 Crescent St||Astoria|NY|11102|4261|C013|R
+2712 Crescent St|Apt 3|Astoria|NY|11102|3137|C013|R
+2717 39th Ave||Long Island City|NY|11101|2703|C032|R
+2721 Young Ave||Bronx|NY|10469|5526|C032|R
+2727 Holland Ave||Bronx|NY|10467|8709|C037|R
+2736 Pitkin Ave|Apt 4|Brooklyn|NY|11208|3143|C023|R
+2736 Pitkin Ave|Apt 2|Brooklyn|NY|11208|3143|C023|R
+2736 Pitkin Ave|Apt 1|Brooklyn|NY|11208|3143|C023|R
+2736 Pitkin Ave|Apt 11|Brooklyn|NY|11208|3144|C023|R
+2736 Pitkin Ave|Apt 7|Brooklyn|NY|11208|3144|C023|R
+2736 Pitkin Ave|Apt 5|Brooklyn|NY|11208|3143|C023|R
+2736 Pitkin Ave||Brooklyn|NY|11208|3159|C023|R
+2736 Pitkin Ave|Apt 6|Brooklyn|NY|11208|3143|C023|R
+2736 Pitkin Ave|Apt 10|Brooklyn|NY|11208|3144|C023|R
+2736 Pitkin Ave|Apt 8|Brooklyn|NY|11208|3144|C023|R
+2736 Pitkin Ave|Apt 3|Brooklyn|NY|11208|3143|C023|R
+2736 Pitkin Ave|Apt 12|Brooklyn|NY|11208|3144|C023|R
+2736 Pitkin Ave|Apt 9|Brooklyn|NY|11208|3144|C023|R
+2739 E 26th St||Brooklyn|NY|11235|2405|C019|R
+2739 E 26th St|Apt 1|Brooklyn|NY|11235|2405|C019|R
+2739 E 26th St|Apt 2|Brooklyn|NY|11235|2405|C019|R
+274 Hamden Ave||Staten Island|NY|10306|5133|C025|R
+275 Thomas S Boyland St||Brooklyn|NY|11233|A033|NULL|B
+275 Thomas S Boyland St||Brooklyn|NY|11233|4101|C017|U
+2762 E 63rd St||Brooklyn|NY|11234|6814|C048|R
+2888 Roebling Ave||Bronx|NY|10461|5406|C013|R
+289 Page Ave|Ste 1|Staten Island|NY|10307|1167|C007|B
+289 Page Ave||Staten Island|NY|10307|1167|C007|B
+2890 Arthur Kill Rd||Staten Island|NY|10309|1124|C009|B
+29 Bowen St||Staten Island|NY|10304|3513|C017|R
+29 Clarkson Ave||Brooklyn|NY|11226|1997|C048|R
+2909 Wallace Ave||Bronx|NY|10467|8470|C008|R
+2912 Laconia Ave||Bronx|NY|10469|1419|C035|U
+2929 Gunther Ave||Bronx|NY|10469|3317|C039|R
+31 Franklin Ave|Apt 2|Staten Island|NY|10301|1257|C028|R
+31 Franklin Ave|Apt 3|Staten Island|NY|10301|1257|C028|R
+31 Franklin Ave||Staten Island|NY|10301|1257|C028|R
+31 Franklin Ave|Apt 1|Staten Island|NY|10301|1257|C028|R
+31 Paerdegat 9th St|Apt 1|Brooklyn|NY|11236|4109|C045|R
+31 Paerdegat 9th St|Apt 3|Brooklyn|NY|11236|4109|C045|R
+31 Paerdegat 9th St|Apt 2|Brooklyn|NY|11236|4109|C045|R
+31 Paerdegat 9th St||Brooklyn|NY|11236|4109|C045|R
+310 Naughton Ave||Staten Island|NY|10305|2224|C011|R
+3103 Cropsey Ave||Brooklyn|NY|11224|2701|C011|B
+3107A Starr Ave||Long Island City|NY|11101|3225|C024|B
+3108 Eastchester Rd||Bronx|NY|10469|3108|C021|R
+3236 99th St||East Elmhurst|NY|11369|1831|C020|R
+3240 154th St||Flushing|NY|11354|3321|C020|R
+325 Davis Ave||Staten Island|NY|10310|1552|C005|U
+3288 Perry Ave|Apt 1G|Bronx|NY|10467|3268|C024|R
+3288 Perry Ave|Apt 1K|Bronx|NY|10467|3268|C024|R
+3288 Perry Ave|Apt 6D|Bronx|NY|10467|3240|C024|R
+3288 Perry Ave||Bronx|NY|10467|3222|C024|U
+3288 Perry Ave|Apt 3K|Bronx|NY|10467|3272|C024|R
+3288 Perry Ave|Apt 1H|Bronx|NY|10467|3268|C024|R
+3288 Perry Ave|Apt 5C|Bronx|NY|10467|3241|C024|R
+3288 Perry Ave|Apt 1B|Bronx|NY|10467|3236|C024|R
+3288 Perry Ave|Apt 3D|Bronx|NY|10467|3231|C024|R
+3288 Perry Ave|Apt 5D|Bronx|NY|10467|3241|C024|R
+3288 Perry Ave|Apt 2C|Bronx|NY|10467|3235|C024|R
+3288 Perry Ave|Apt 5F|Bronx|NY|10467|3276|C024|R
+3288 Perry Ave|Apt 1D|Bronx|NY|10467|3236|C024|R
+3288 Perry Ave|Apt 4K|Bronx|NY|10467|3274|C024|R
+3288 Perry Ave|Apt 6C|Bronx|NY|10467|3240|C024|R
+3288 Perry Ave|Apt 6F|Bronx|NY|10467|3278|C024|R
+3288 Perry Ave|Apt 4J|Bronx|NY|10467|3274|C024|R
+3288 Perry Ave|Apt 6E|Bronx|NY|10467|3240|C024|R
+3288 Perry Ave|Apt 2G|Bronx|NY|10467|3270|C024|R
+3288 Perry Ave|Apt 2E|Bronx|NY|10467|3235|C024|R
+3288 Perry Ave|Apt 4A|Bronx|NY|10467|3230|C024|R
+3288 Perry Ave|Apt 5J|Bronx|NY|10467|3276|C024|R
+3288 Perry Ave|Apt 6G|Bronx|NY|10467|3278|C024|R
+3288 Perry Ave|Apt 4G|Bronx|NY|10467|3274|C024|R
+3288 Perry Ave|Apt 2K|Bronx|NY|10467|3270|C024|R
+3288 Perry Ave|Apt 2J|Bronx|NY|10467|3270|C024|R
+3288 Perry Ave|Apt 4H|Bronx|NY|10467|3274|C024|R
+3288 Perry Ave|Apt 6K|Bronx|NY|10467|3278|C024|R
+3288 Perry Ave|Apt 3J|Bronx|NY|10467|3272|C024|R
+3288 Perry Ave|Apt 6J|Bronx|NY|10467|3278|C024|R
+3288 Perry Ave|Apt 4B|Bronx|NY|10467|3230|C024|R
+3288 Perry Ave|Apt 3H|Bronx|NY|10467|3272|C024|R
+3288 Perry Ave|Apt 1E|Bronx|NY|10467|3236|C024|R
+3288 Perry Ave|Apt 4D|Bronx|NY|10467|3230|C024|R
+3288 Perry Ave|Apt 1J|Bronx|NY|10467|3268|C024|R
+3288 Perry Ave|Apt 5K|Bronx|NY|10467|3276|C024|R
+3288 Perry Ave|Apt 2H|Bronx|NY|10467|3270|C024|R
+3288 Perry Ave|Apt 3F|Bronx|NY|10467|3272|C024|R
+3288 Perry Ave|Apt 5G|Bronx|NY|10467|3276|C024|R
+3288 Perry Ave|Apt 6H|Bronx|NY|10467|3278|C024|R
+3288 Perry Ave|Apt 5E|Bronx|NY|10467|3241|C024|R
+3288 Perry Ave|Apt 3G|Bronx|NY|10467|3272|C024|R
+3288 Perry Ave|Apt 1A|Bronx|NY|10467|3236|C024|R
+3288 Perry Ave|Apt 2B|Bronx|NY|10467|3235|C024|R
+3288 Perry Ave|Apt 6B|Bronx|NY|10467|3240|C024|R
+3288 Perry Ave|Apt 5A|Bronx|NY|10467|3241|C024|R
+3288 Perry Ave|Apt 4E|Bronx|NY|10467|3230|C024|R
+3288 Perry Ave|Apt 4F|Bronx|NY|10467|3274|C024|R
+3288 Perry Ave|Apt 3A|Bronx|NY|10467|3231|C024|R
+3288 Perry Ave|Apt 5H|Bronx|NY|10467|3276|C024|R
+3288 Perry Ave|Apt 2F|Bronx|NY|10467|3270|C024|R
+3288 Perry Ave|Apt 4C|Bronx|NY|10467|3230|C024|R
+3288 Perry Ave|Apt 3E|Bronx|NY|10467|3231|C024|R
+3288 Perry Ave|Apt Supt|Bronx|NY|10467|3268|C024|R
+3288 Perry Ave|Apt 6A|Bronx|NY|10467|3240|C024|R
+329 88th St||Brooklyn|NY|11209|5601|C028|R
+3328 157th St||Flushing|NY|11354|3334|C010|R
+3328 61st St||Woodside|NY|11377|2234|C005|R
+3330 Hull Ave||Bronx|NY|10467|3306|C023|R
+3339 87th St||Jackson Heights|NY|11372|1668|C015|R
+3342 Shore Pkwy||Brooklyn|NY|11235|2720|C025|R
+335 Simonson Ave||Staten Island|NY|10303|2573|C008|R
+351 E 55th St||Brooklyn|NY|11203|4712|C034|R
+351 E 91st St||Brooklyn|NY|11212|1243|C004|R
+351 E 91st St|Apt 1|Brooklyn|NY|11212|1243|C004|R
+351 E 91st St|Apt 2|Brooklyn|NY|11212|1243|C004|R
+352 Retford Ave||Staten Island|NY|10312|6106|C002|U
+3539 Ropes Ave||Bronx|NY|10475|1018|C013|R
+3543 89th St||Jackson Heights|NY|11372|5756|C021|R
+398 Clarke Ave||Staten Island|NY|10306|6138|C039|R
+399 4th Ave|Apt 3|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 3L|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 5|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave||Brooklyn|NY|11215|3224|C013|U
+399 4th Ave|Apt 4|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 2R|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 1|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 2|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 1R|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 1L|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 6|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 2L|Brooklyn|NY|11215|3224|C013|R
+399 4th Ave|Apt 3R|Brooklyn|NY|11215|3224|C013|R
+40 Diamond St||Brooklyn|NY|11222|5331|C009|R
+40 Diamond St|Apt 2A|Brooklyn|NY|11222|5332|C009|R
+40 Diamond St|Apt B|Brooklyn|NY|11222|5332|C009|R
+40 Diamond St|Apt 1|Brooklyn|NY|11222|5332|C009|R
+40 Diamond St|Apt 2B|Brooklyn|NY|11222|5332|C009|R
+40 Fane Ct||Brooklyn|NY|11229|6517|C039|R
+4105 Farragut Rd||Brooklyn|NY|11210|2009|C033|B
+4111 73rd St||Woodside|NY|11377|3944|C026|U
+412 Beach 22nd St|Apt 3|Far Rockaway|NY|11691|2633|C021|R
+412 Beach 22nd St|Apt 2|Far Rockaway|NY|11691|2633|C021|R
+412 Beach 22nd St|Apt 1|Far Rockaway|NY|11691|2633|C021|R
+412 Beach 22nd St||Far Rockaway|NY|11691|2633|C021|R
+4130 249th St||Little Neck|NY|11363|1655|C001|U
+4133 Bruner Ave|Apt 1|Bronx|NY|10466|2027|C030|R
+4133 Bruner Ave||Bronx|NY|10466|2027|C030|R
+4272 Bedford Ave||Brooklyn|NY|11229|4915|C027|R
+428 E 168th St||Bronx|NY|10456|A169|NULL|B
+428 E 168th St||Bronx|NY|10456|3708|C013|U
+43 Barrow St||New York|NY|10014|3736|C028|U
+430 Taylor Ave||Bronx|NY|10473|3620|C013|R
+4309 Marathon Pkwy||Little Neck|NY|11363|1936|C021|R
+4515 23rd St||Long Island City|NY|11101|4734|C008|U
+454 W 142nd St||New York|NY|10031|6218|C049|R
+4545 220th Pl||Bayside|NY|11361|3648|C027|R
+4552 163rd St||Flushing|NY|11358|3223|C014|R
+456 Fulton St||Brooklyn|NY|11201|5216|C041|B
+4576 167th St||Flushing|NY|11358|3237|C026|R
+4916 Avenue K||Brooklyn|NY|11234|2128|C026|B
+493 Putnam Ave|Apt 3A|Brooklyn|NY|11221|5710|C011|R
+493 Putnam Ave|Apt 2A|Brooklyn|NY|11221|5710|C011|R
+493 Putnam Ave|Apt 1A|Brooklyn|NY|11221|5710|C011|R
+493 Putnam Ave||Brooklyn|NY|11221|5712|C011|R
+493 Putnam Ave|Apt 4A|Brooklyn|NY|11221|5710|C011|R
+493 Vermont St||Brooklyn|NY|11207|4813|C030|R
+50 Evelyn Pl||Staten Island|NY|10305|3829|C006|R
+536 E 54th St||Brooklyn|NY|11203|5417|C022|R
+5406 14th Ave||Brooklyn|NY|11219|4293|C008|U
+5406 14th Ave|Apt 3|Brooklyn|NY|11219|4294|C008|R
+5406 14th Ave|Apt 7|Brooklyn|NY|11219|4294|C008|R
+5406 14th Ave|Apt 5|Brooklyn|NY|11219|4294|C008|R
+5406 14th Ave|Apt 6|Brooklyn|NY|11219|4294|C008|R
+5406 14th Ave|Apt 4|Brooklyn|NY|11219|4294|C008|R
+5406 14th Ave|Apt 1|Brooklyn|NY|11219|4294|C008|R
+5406 14th Ave|Apt 2|Brooklyn|NY|11219|4294|C008|B
+540B Seaview Ave||Staten Island|NY|10305|3406|C005|R
+542 E 5th St||New York|NY|10009|6531|C045|R
+542 Vandalia Ave||Brooklyn|NY|11239|2809|C050|R
+5446 83rd St||Elmhurst|NY|11373|4724|C006|R
+564 E 191st St|Apt 1|Bronx|NY|10458|5102|C008|R
+564 E 191st St||Bronx|NY|10458|5102|C008|R
+565 Lenox Rd||Brooklyn|NY|11203|2105|C014|B
+567 E 29th St||Brooklyn|NY|11210|1444|C024|R
+569 Port Richmond Ave||Staten Island|NY|10302|1723|C007|R
+5705 Mosholu Ave||Bronx|NY|10471|2213|C014|B
+5718 159th St||Fresh Meadows|NY|11365|1409|C001|R
+572 Linden Blvd||Brooklyn|NY|11203|3016|C016|R
+573 Essex St||Brooklyn|NY|11208|3564|C016|R
+5731 Parsons Blvd||Fresh Meadows|NY|11365|1430|C001|R
+5747 Lawrence St||Flushing|NY|11355|5145|C014|R
+64 Saint Edwards St|Apt 5E|Brooklyn|NY|11205|2946|C004|R
+64 Saint Edwards St|Apt 3C|Brooklyn|NY|11205|2922|C004|R
+64 Saint Edwards St|Apt 6D|Brooklyn|NY|11205|2947|C004|R
+64 Saint Edwards St|Apt 1B|Brooklyn|NY|11205|2919|C004|R
+64 Saint Edwards St|Apt 4B|Brooklyn|NY|11205|2923|C004|R
+64 Saint Edwards St|Apt 2D|Brooklyn|NY|11205|2920|C004|R
+64 Saint Edwards St|Apt 5D|Brooklyn|NY|11205|2946|C004|R
+64 Saint Edwards St||Brooklyn|NY|11205|2935|C004|R
+64 Saint Edwards St|Apt 1E|Brooklyn|NY|11205|2921|C004|R
+64 Saint Edwards St|Apt 6C|Brooklyn|NY|11205|2947|C004|R
+64 Saint Edwards St|Apt 6E|Brooklyn|NY|11205|2947|C004|R
+64 Saint Edwards St|Apt 3B|Brooklyn|NY|11205|2920|C004|R
+64 Saint Edwards St|Apt 5C|Brooklyn|NY|11205|2946|C004|R
+64 Saint Edwards St|Apt 4C|Brooklyn|NY|11205|2923|C004|R
+64 Saint Edwards St|Apt 6A|Brooklyn|NY|11205|2946|C004|R
+64 Saint Edwards St|Apt 3E|Brooklyn|NY|11205|2922|C004|R
+64 Saint Edwards St|Apt 5A|Brooklyn|NY|11205|2933|C004|R
+64 Saint Edwards St|Apt 2B|Brooklyn|NY|11205|2921|C004|R
+64 Saint Edwards St|Apt 6B|Brooklyn|NY|11205|2947|C004|R
+64 Saint Edwards St|Apt 4E|Brooklyn|NY|11205|2933|C004|R
+64 Saint Edwards St|Apt 1D|Brooklyn|NY|11205|2919|C004|R
+64 Saint Edwards St|Apt 4D|Brooklyn|NY|11205|2923|C004|R
+64 Saint Edwards St|Apt 3D|Brooklyn|NY|11205|2922|C004|R
+64 Saint Edwards St|Apt 5B|Brooklyn|NY|11205|2933|C004|R
+64 Saint Edwards St|Apt 3A|Brooklyn|NY|11205|2920|C004|R
+64 Saint Edwards St|Apt 4A|Brooklyn|NY|11205|2922|C004|R
+64 Saint Edwards St|Apt 1C|Brooklyn|NY|11205|2919|C004|R
+64 Saint Edwards St|Apt 2E|Brooklyn|NY|11205|2920|C004|R
+64 Saint Edwards St|Apt 2C|Brooklyn|NY|11205|2921|C004|R
+64 Saint Edwards St|Apt 2A|Brooklyn|NY|11205|2921|C004|R
+64 Saint Edwards St|Apt 1A|Brooklyn|NY|11205|2919|C004|R
+640 E 2nd St||Brooklyn|NY|11218|5641|C033|R
+640 E 2nd St|Apt D1|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt CC4|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt CC2|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt DD2|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt B5|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt B4|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt BB1|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt C1|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt A2|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt BB2|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt AA1|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt CC1|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt DD1|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt BB3|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt AA4|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt BB4|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt CC5|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt C4|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt B2|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt AA5|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt DD3|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt D5|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt DD5|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt C2|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt A1|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt D3|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt C3|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt AA3|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt B1|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt A3|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt C5|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt B3|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt A4|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt D2|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt D4|Brooklyn|NY|11218|5618|C033|R
+640 E 2nd St|Apt DD4|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt CC3|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt AA2|Brooklyn|NY|11218|5622|C033|R
+640 E 2nd St|Apt BB5|Brooklyn|NY|11218|5622|C033|R
+6414 48th Ave||Woodside|NY|11377|5823|C017|R
+6417 78th St||Middle Village|NY|11379|2305|C006|R
+6432 58th Rd||Maspeth|NY|11378|2806|C006|R
+644 88th St||Brooklyn|NY|11228|3507|C024|R
+646 Tysens Ln|Apt 1|Staten Island|NY|10306|4616|C018|R
+646 Tysens Ln||Staten Island|NY|10306|4616|C018|R
+646 Tysens Ln|Apt 2|Staten Island|NY|10306|4616|C018|R
+6472 82nd Pl||Middle Village|NY|11379|2341|C006|R
+65 Buttonwood Rd||Staten Island|NY|10304|1246|C011|R
+65 Hart St||Brooklyn|NY|11206|6401|C013|R
+664 New Jersey Ave||Brooklyn|NY|11207|6302|C009|R
+664 New Jersey Ave|Ste 1|Brooklyn|NY|11207|6302|C009|B
+6668 70th St||Middle Village|NY|11379|1737|C002|R
+667 Sutter Ave||Brooklyn|NY|11207|4209|C024|U
+671 48th St||Brooklyn|NY|11220|2131|C026|R
+671 48th St|Apt 3R|Brooklyn|NY|11220|2131|C026|R
+671 48th St|Apt 2R|Brooklyn|NY|11220|2131|C026|R
+671 48th St|Apt 3F|Brooklyn|NY|11220|2131|C026|R
+671 48th St|Apt 2F|Brooklyn|NY|11220|2131|C026|R
+671 48th St|Apt 1R|Brooklyn|NY|11220|2131|C026|R
+671 48th St|Apt 1F|Brooklyn|NY|11220|2131|C026|R
+672 Sterling Pl||Brooklyn|NY|11216|3804|C005|R
+720 Sackett St||Brooklyn|NY|11217|3118|C024|R
+7204 73rd Pl||Glendale|NY|11385|8242|C044|R
+721 Washington Ave||Brooklyn|NY|11238|4503|C013|B
+7212 Dane Pl||Forest Hills|NY|11375|4108|C052|R
+722 Alabama Ave|Apt 1|Brooklyn|NY|11207|6708|C026|R
+722 Alabama Ave||Brooklyn|NY|11207|6708|C026|R
+722 Alabama Ave|Apt 2|Brooklyn|NY|11207|6708|C026|R
+722 Craig Ave||Staten Island|NY|10307|1510|C008|R
+7220 Loubet St||Forest Hills|NY|11375|6723|C064|R
+7224 61st St||Glendale|NY|11385|6114|C030|B
+724 Wilcox Ave||Bronx|NY|10465|1729|C018|R
+726 Desmond Ct||Brooklyn|NY|11235|4202|C002|R
+729 Howard Ave||Brooklyn|NY|11212|3939|C012|R
+780 Utica Ave||Brooklyn|NY|11203|3412|C043|B
+7804 220th St||Oakland Gardens|NY|11364|3529|C014|R
+7811 68th Rd||Middle Village|NY|11379|2836|C004|R
+7811 68th Rd|Apt 1|Middle Village|NY|11379|2836|C004|R
+7811 68th Rd|Apt 2|Middle Village|NY|11379|2836|C004|R
+78A Selvin Loop||Staten Island|NY|10303|1887|C007|R
+790 Classon Ave||Brooklyn|NY|11238|4610|C013|R
+790 Classon Ave|Apt 4R|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 2B|Brooklyn|NY|11238|4656|C013|R
+790 Classon Ave|Apt 1R|Brooklyn|NY|11238|4656|C013|R
+790 Classon Ave|Apt 4L|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 4B|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 3B|Brooklyn|NY|11238|4454|C013|R
+790 Classon Ave|Apt 3L|Brooklyn|NY|11238|4656|C013|R
+790 Classon Ave|Apt 5L|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 3R|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 5R|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 5B|Brooklyn|NY|11238|4657|C013|R
+790 Classon Ave|Apt 2L|Brooklyn|NY|11238|4656|C013|R
+790 Classon Ave|Apt 1L|Brooklyn|NY|11238|4656|C013|R
+790 Classon Ave|Apt 2R|Brooklyn|NY|11238|4656|C013|R
+790 E 103rd St||Brooklyn|NY|11236|A035|NULL|B
+790 E 103rd St||Brooklyn|NY|11236|2808|C025|U
+808 Lenox Rd||Brooklyn|NY|11203|2311|C043|R
+81 Brookfield Ave||Staten Island|NY|10308|1437|C010|R
+812 New York Ave|Apt 1|Brooklyn|NY|11203|2721|C007|R
+812 New York Ave|Apt 2|Brooklyn|NY|11203|2721|C007|R
+812 New York Ave||Brooklyn|NY|11203|2721|C007|R
+8840 198th St||Hollis|NY|11423|2119|C065|R
+8907 102nd St||Richmond Hill|NY|11418|2128|C016|R
+8921 70th Ave||Forest Hills|NY|11375|6613|C061|R
+8945 163rd St||Jamaica|NY|11432|5069|C018|B
+9421 111th St||South Richmond Hill|NY|11419|1020|C024|R
+945 E 231st St||Bronx|NY|10466|4607|C023|R
+947 59th St|Apt 3R|Brooklyn|NY|11219|4881|C020|R
+947 59th St|Apt 1F|Brooklyn|NY|11219|4881|C020|R
+947 59th St|Apt 3F|Brooklyn|NY|11219|4881|C020|R
+947 59th St|Apt 2F|Brooklyn|NY|11219|4881|C020|R
+947 59th St||Brooklyn|NY|11219|4881|C020|R
+947 59th St|Apt 1|Brooklyn|NY|11219|4881|C020|R
+95 Cooper St||New York|NY|10034|2323|C010|B
+95 Elmwood Ave||Staten Island|NY|10308|2637|C011|R
+951 Eastern Pkwy|Apt 2|Brooklyn|NY|11213|4457|C023|R
+951 Eastern Pkwy|Apt 1|Brooklyn|NY|11213|4457|C023|R
+951 Eastern Pkwy||Brooklyn|NY|11213|4457|C023|R
+951 Eastern Pkwy|Apt 3|Brooklyn|NY|11213|4457|C023|R
+9512 Seaview Ct|Apt 1|Brooklyn|NY|11236|5434|C026|R
+9512 Seaview Ct||Brooklyn|NY|11236|5434|C026|R
+9512 Seaview Ct|Apt 2|Brooklyn|NY|11236|5434|C026|R
+977 Herkimer St||Brooklyn|NY|11233|3120|C006|R
+98 3rd Ave||Brooklyn|NY|11217|2305|C023|B
+980 E 45th St||Brooklyn|NY|11203|6512|C031|R
+989 Burke Ave|Apt 2|Bronx|NY|10469|3818|C005|R
+989 Burke Ave|Apt 1|Bronx|NY|10469|3818|C005|R
+989 Burke Ave||Bronx|NY|10469|3818|C005|R

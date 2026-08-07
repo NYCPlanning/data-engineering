@@ -1,0 +1,36 @@
+name: Melissa Geocoding
+product: melissa
+version: 26v1
+
+inputs:
+  dataset_defaults:
+    destination: duckdb
+    file_type: csv
+  missing_versions_strategy: find_latest
+  datasets:
+    # Raw pipe-delimited Melissa vendor address file. Pushed to edm-private the
+    # same way products/lift pushes dcas_lift.csv: datasets/melissa/<version>/melissa.txt
+    # in the private bucket (currently version 20260206). DuckDB's CSV loader
+    # auto-detects the delimiter, so the pipe-delimited file doesn't need to be
+    # converted to comma-CSV first.
+    #
+    # melissa_corrections/melissa_outsideofnyc aren't listed here -- they
+    # haven't been pushed to edm-private yet, so pipeline.py always loads them
+    # from the local data/*.csv files in this directory instead (see
+    # load_reference_data in pipeline.py).
+    - name: melissa
+      source: edm.private
+      file_type: csv
+      import_as: melissa_input
+      custom:
+        filename: melissa.txt
+
+    # DCP's own 2020 NTA reference dataset (code -> name, plus geometry we
+    # don't use). Geosupport returns a 2020 NTA code but no paired name field
+    # (see geocoding.py's parse_1e), so pipeline.py's fill_nta_names() joins
+    # against this to populate nta_name. Sourced from edm.recipes.datasets
+    # (the default source), stored as parquet -- same as products/lift's use
+    # of it -- overriding dataset_defaults' file_type: csv, which is only
+    # right for the melissa dataset above.
+    - name: dcp_nta2020
+      file_type: parquet
