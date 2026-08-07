@@ -77,6 +77,25 @@ class PlanKey(ProductKey):
         return f"{self.product}/plan/{self.version}/{self.revision}"
 
 
+@dataclass
+class PrivateKey(ProductKey):
+    """Key for private datasets stored in edm-private bucket.
+
+    Simple structure: {dataset}/{version}
+    No folder_name hierarchy like publish/draft/build.
+    """
+
+    product: str
+    version: str
+
+    def __str__(self):
+        return f"Private: {self.product} - {self.version}"
+
+    @property
+    def path(self) -> str:
+        return f"{self.product}/{self.version}"
+
+
 #### Recipe/Dataset Models ####
 
 

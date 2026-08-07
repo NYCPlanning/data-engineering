@@ -1,0 +1,40 @@
+name: DCAS LIFT
+product: lift
+version: 26v1
+
+inputs:
+  dataset_defaults:
+    destination: duckdb
+    file_type: parquet
+  missing_versions_strategy: find_latest
+  datasets:
+    # Private CSV file from edm-private bucket
+    - name: dcas_lift
+      source: edm.private
+      file_type: csv
+      import_as: lift_csv
+      custom:
+        filename: dcas_lift.csv
+
+    # Latest PLUTO
+    - name: dcp_mappluto_wi
+
+    # 2020 NTAs
+    - name: dcp_nta2020
+
+    # DRI subindices and indicators from edm-private
+    - name: dcp_dri_subindices_indicators
+      source: edm.private
+      file_type: csv
+      import_as: dri_subindices_indicators
+      custom:
+        filename: dcp_dri_subindices_indicators.csv
+
+    # Capital Projects Database - specify single file from directory
+    - name: db-cpdb
+      source: edm.publishing.published
+      version: latest
+      file_type: csv
+      import_as: cpdb_projects
+      custom:
+        filename: cpdb_projects.csv

@@ -27,6 +27,7 @@ class InputDatasetDestination(StrEnum):
     postgres = "postgres"
     df = "df"
     file = "file"
+    duckdb = "duckdb"
 
 
 class InputDataset(BaseModel, extra="forbid"):

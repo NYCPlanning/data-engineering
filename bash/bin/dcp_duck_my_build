@@ -1,0 +1,44 @@
+#!/bin/bash
+set -e
+
+# DuckDB UI launcher - Opens the DuckDB UI for the current product's build
+# Must be run from a product directory (with recipe.yml)
+
+RECIPE_FILE="${1:-recipe}"
+
+# Verify we're in a product directory
+if [ ! -f "${RECIPE_FILE}.yml" ]; then
+    echo "Error: ${RECIPE_FILE}.yml not found in current directory"
+    echo "Usage: dcp_duck_my_build [recipe_file]"
+    echo "       recipe_file defaults to 'recipe' (without .yml extension)"
+    echo "       Must be run from a product directory"
+    exit 1
+fi
+
+# Get the DuckDB file path using the CLI command
+echo "🔍 Finding DuckDB file for ${RECIPE_FILE}.yml..."
+DUCKDB_PATH=$(python3 -m dcpy lifecycle builds build path --duckdb --recipe "${RECIPE_FILE}" 2>&1)
+
+# Check if the command succeeded
+if [ $? -ne 0 ]; then
+    echo "Error getting DuckDB path:"
+    echo "$DUCKDB_PATH"
+    exit 1
+fi
+
+# Check if the DuckDB file exists
+if [ ! -f "$DUCKDB_PATH" ]; then
+    echo "Error: DuckDB file not found at: $DUCKDB_PATH"
+    echo ""
+    echo "Have you run a build for this product yet?"
+    echo "The DuckDB file is created when you load recipe data with:"
+    echo "  dcp_load_recipe"
+    echo "or:"
+    echo "  python3 -m dcpy lifecycle builds load load --recipe-path ${RECIPE_FILE}.lock.yml"
+    exit 1
+fi
+
+# Open DuckDB UI
+echo "🦆 Opening DuckDB UI for: $DUCKDB_PATH"
+echo ""
+duckdb "$DUCKDB_PATH" -ui

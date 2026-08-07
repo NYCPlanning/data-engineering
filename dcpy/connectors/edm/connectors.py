@@ -24,6 +24,7 @@ from dcpy.connectors.edm.models import (
     BuildKey,
     DraftKey,
     PlanKey,
+    PrivateKey,
     ProductKey,
     PublishKey,
 )
@@ -401,6 +402,11 @@ def _create_plan_key(product: str, version: str, parsed: dict) -> PlanKey:
     return PlanKey(mapped_product, version=version, revision="")
 
 
+def _create_private_key(product: str, version: str, parsed: dict) -> PrivateKey:
+    """Create private key. Private datasets are stored at {dataset}/{version}/."""
+    return PrivateKey(product=product, version=version)
+
+
 # List versions implementations
 def _list_draft_versions(
     connector: "EdmConnector", key: str, kwargs: dict
@@ -504,6 +510,23 @@ def create_plan_connector(
     connector = object.__new__(_PlanConnector)
     EdmConnector.__init__(connector, config=config, storage=storage)
     return connector
+
+
+def create_private_connector(
+    storage: PathedStorageConnector | None = None,
+) -> EdmConnector:
+    """Create a connector for private datasets in edm-private bucket.
+
+    Private datasets are stored at {dataset}/{version}/ without folder hierarchy.
+    No config.json required - just the data files.
+    """
+    config = EdmConnectorConfig(
+        conn_type="edm.private",
+        folder_name="",  # No folder hierarchy for private datasets
+        key_factory=_create_private_key,
+        supports_latest=True,
+    )
+    return EdmConnector(config=config, storage=storage)
 
 
 # Connector wrapper classes for backwards compatibility
@@ -746,6 +769,25 @@ class PlanConnector:
     def create(storage: PathedStorageConnector | None = None) -> "_PlanConnector":
         """Create a PlanConnector with lazy-loaded S3 storage."""
         return create_plan_connector(storage=storage)
+
+
+class PrivateConnector:
+    """Connector for private datasets in edm-private bucket.
+
+    This is a compatibility wrapper around the unified EdmConnector.
+    Private datasets are stored at {dataset}/{version}/ without config.json.
+    """
+
+    def __new__(  # type: ignore[misc]
+        cls, storage: PathedStorageConnector | None = None, **kwargs
+    ) -> EdmConnector:
+        """Create a PrivateConnector instance."""
+        return create_private_connector(storage=storage)
+
+    @staticmethod
+    def create(storage: PathedStorageConnector | None = None) -> EdmConnector:
+        """Create a PrivateConnector with lazy-loaded S3 storage."""
+        return create_private_connector(storage=storage)
 
 
 # Helper function for external use

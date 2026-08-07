@@ -1,5 +1,6 @@
 from dcpy import configuration
 from dcpy.configuration import (
+    PRIVATE_BUCKET,
     SFTP_HOST,
     SFTP_PORT,
     SFTP_PRIVATE_KEY_PATH,
@@ -12,6 +13,7 @@ from dcpy.connectors.edm.connectors import (
     BuildsConnector,
     DraftsConnector,
     PlanConnector,
+    PrivateConnector,
     PublishedConnector,
 )
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
@@ -58,15 +60,28 @@ def _make_ingest_datastores():
             ),
             "edm.recipes.raw_datasets",
         ],
+        [
+            PrivateConnector.create(
+                storage=PathedStorageConnector.from_storage_kwargs(
+                    conn_type="edm.private",
+                    storage_backend=StorageType.S3,
+                    s3_bucket=PRIVATE_BUCKET,
+                    root_folder="datasets",
+                    _validate_root_path=False,
+                )
+            ),
+            "edm.private",
+        ],
     ]
 
 
 def _set_default_connectors():
     connectors.clear()
-    recipes_datasets, recipes_raw = _make_ingest_datastores()
+    recipes_datasets, recipes_raw, edm_private = _make_ingest_datastores()
     conns = [
         recipes_datasets,
         recipes_raw,
+        edm_private,
         DraftsConnector.create(),
         PublishedConnector.create(),
         BytesConnector(),

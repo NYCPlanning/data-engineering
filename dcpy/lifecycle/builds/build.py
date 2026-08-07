@@ -527,3 +527,75 @@ def _upload_build(
     """Upload a build to the destination configured in the recipe."""
     result = upload_build(build_path, recipe_lock_path)
     typer.echo(result)
+
+
+@app.command("path")
+def _get_build_path(
+    product_path: Path = typer.Option(
+        None,
+        "--product-path",
+        "-p",
+        help="Path to product directory (default: current directory)",
+    ),
+    duckdb: bool = typer.Option(
+        False,
+        "--duckdb",
+        help="Return path to DuckDB file instead of build directory",
+    ),
+    recipe_name: str = typer.Option(
+        None,
+        "--recipe",
+        "-r",
+        help="Name of recipe file (default: recipe.yml)",
+    ),
+):
+    """Get the build directory path for a product.
+
+    This command reads the recipe.yml from the product directory and uses
+    the version specified in it to determine the build directory path.
+    If no version is set in the recipe, an error is raised.
+    """
+    from dcpy.lifecycle.builds.config import get_recipe_path
+    from dcpy.lifecycle.config import get_build_dir
+
+    # Default to current directory
+    if product_path is None:
+        product_path = Path.cwd()
+
+    # Check if we're in a product directory
+    recipe_path = get_recipe_path(product_path, recipe_name)
+    if not recipe_path.exists():
+        typer.echo(
+            f"Error: No recipe file found at {recipe_path}. "
+            "Must be run from a product directory.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    # Load recipe.yml
+    recipe = plan.recipe_from_yaml(recipe_path)
+
+    # Ensure we have the necessary fields
+    if not recipe.product:
+        typer.echo("Error: Recipe does not specify a product name.", err=True)
+        raise typer.Exit(code=1)
+
+    if not recipe.version:
+        typer.echo(
+            "Error: Recipe does not have a version set. "
+            "Either set 'version' in recipe.yml or run a build first.",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+
+    # Get the build directory
+    build_dir = get_build_dir(recipe.product, recipe.version)
+
+    if duckdb:
+        # Return DuckDB file path
+        duckdb_filename = f"{recipe.product}_{recipe.version}.duckdb"
+        duckdb_path = build_dir / duckdb_filename
+        typer.echo(str(duckdb_path))
+    else:
+        # Return build directory path
+        typer.echo(str(build_dir))
