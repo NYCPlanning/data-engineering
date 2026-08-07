@@ -1,0 +1,74 @@
+# Maps issue-title patterns to `db-*` product labels.
+#
+# Keys are directories in `products/`; `label` is the GitHub label applied when
+# any `patterns` entry matches an issue title (case-insensitive, regex).
+#
+# Patterns match titles only, not bodies. Bodies mention many products in
+# passing — matching them produced enough false positives to bury the signal.
+#
+# Published products in `product-metadata/products/` are deliberately not the
+# spine here: only 7 issues in three years named one that has no build
+# pipeline. LION is the exception, and it maps to the cscl pipeline that
+# builds it.
+
+products:
+  cbbr:
+    label: db-cbbr
+    patterns: ['\bcbbr\b', '\bcapital budget requests?\b']
+  cdbg:
+    label: db-cdbg
+    patterns: ['\bcdbg\b']
+  ceqr:
+    label: db-ceqr
+    patterns: ['\bceqr\b']
+  checkbook:
+    label: db-checkbook
+    patterns: ['\bcheckbook\b']
+  colp:
+    label: db-colp
+    patterns: ['\bcolp\b']
+  cpdb:
+    label: db-cpdb
+    patterns: ['\bcpdb\b']
+  cscl:
+    # LION is the published product built by this pipeline, not a separate one.
+    label: db-cscl
+    patterns: ['\bcscl\b', '\blion\b']
+  developments:
+    # Published as "Housing Database", so HousingDB shows up in titles too.
+    label: db-developments
+    patterns: ['\bdev-?db\b', '\bdevelopments\b', '\bhousing-?db\b']
+  edde:
+    label: db-edde
+    patterns: ['\bedde\b']
+  facilities:
+    label: db-facilities
+    patterns: ['\bfac-?db\b', '\bfacilities\b']
+  factfinder:
+    label: db-factfinder
+    patterns: ['\bfact-?finder\b']
+  green_fast_track:
+    label: db-gft
+    patterns: ['\bgft\b', '\bgreen[- ]?fast[- ]?track\b']
+  knownprojects:
+    label: db-knownprojects
+    patterns: ['\bkpdb\b', '\bknown[- ]?projects?\b']
+  lift:
+    # "lift" is an ordinary English word; watch for false positives as this
+    # product generates more issues, and tighten to '\blift\b.*\b(data|db)\b'
+    # if they show up.
+    label: db-lift
+    patterns: ['\blift\b']
+  pluto:
+    label: db-pluto
+    patterns: ['\bpluto\b', '\bmappluto\b']
+  template:
+    label: db-template
+    patterns: ['\bdb-template\b']
+  zap-opendata:
+    # Covers ZAP as both a product and a source feed, per team preference.
+    label: db-zap
+    patterns: ['\bzap\b']
+  zoningtaxlots:
+    label: db-zoningtaxlots
+    patterns: ['\bztl\b', '\bzoning[- ]?tax[- ]?lots?\b']
