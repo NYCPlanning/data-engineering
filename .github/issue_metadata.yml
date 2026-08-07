@@ -77,6 +77,10 @@ products:
 # Issue types are org-level and already the team's convention (Bug is the most
 # used), so bug tracking lives here rather than in a `bug` label. Only applied
 # to issues that have no type yet — a human's classification always wins.
+# The QA label on these comes from product_qa.md's front matter; only the type
+# needs a rule here, since create-an-issue predates GitHub issue types.
 types:
   Bug:
     patterns: ['^Scheduled Action Failure\b']
+  Task:
+    patterns: ['\bQA Draft\b']

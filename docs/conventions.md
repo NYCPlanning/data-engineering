@@ -35,7 +35,9 @@ Rules live in [`.github/issue_metadata.yml`](../.github/issue_metadata.yml); add
 there when you add one under `products/`.
 
 Applying them by hand is still fine, and an issue type you set yourself is never
-overwritten. Other labels (`QA`, `data update`, `needs scoping`, …) remain manual.
+overwritten. Templated issues carry their own labels from front matter — `data update`
+on product updates, `QA` on draft-QA issues. Everything else (`needs scoping`,
+`discussion`, `GIS`, …) stays manual.
 
 ```bash
 python admin/ops/issue_metadata.py match "PLUTO - migrate build SQL"  # preview
