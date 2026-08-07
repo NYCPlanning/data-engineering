@@ -235,7 +235,7 @@ def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path):
 
     import geopandas as gpd
     import yaml
-    from shapely.geometry import Point # type: ignore
+    from shapely.geometry import Point  # type: ignore
 
     from dcpy.lifecycle.builds import load
 
@@ -457,7 +457,6 @@ def test_sanitize_table_names(tmp_path):
 
 def test_load_specific_file_from_directory(tmp_path):
     """Test loading a specific file from a directory using custom.filename."""
-    from pathlib import Path
 
     # Create a directory with multiple CSV files
     data_dir = tmp_path / "multi_csv_dataset"
@@ -465,9 +464,7 @@ def test_load_specific_file_from_directory(tmp_path):
 
     # Create multiple CSV files with different schemas to simulate real scenario
     df1 = pd.DataFrame({"id": [1, 2], "name": ["Alice", "Bob"]})
-    df2 = pd.DataFrame(
-        {"project_id": [101, 102], "title": ["Project A", "Project B"]}
-    )
+    df2 = pd.DataFrame({"project_id": [101, 102], "title": ["Project A", "Project B"]})
     df3 = pd.DataFrame({"other_col": [1, 2, 3]})
 
     (data_dir / "file1.csv").write_text(df1.to_csv(index=False))

@@ -102,9 +102,9 @@ def load_source_data_from_resolved_recipe(
     # Set BUILD_ENV_OUTPUT_DIR if not already set
     # This ensures build artifacts (like DuckDB files) go to the correct location
     if "BUILD_ENV_OUTPUT_DIR" not in os.environ:
-        assert (
-            recipe.version is not None
-        ), "Recipe version must be resolved before loading"
+        assert recipe.version is not None, (
+            "Recipe version must be resolved before loading"
+        )
         build_dir = config.get_build_dir(recipe.product, recipe.version)
         build_dir.mkdir(parents=True, exist_ok=True)
         os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_dir)
