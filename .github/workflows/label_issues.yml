@@ -1,4 +1,4 @@
-name: 🏷️ Label issues by product
+name: 🏷️ Label issues and set types
 
 on:
   issues:
@@ -31,13 +31,13 @@ jobs:
 
       - run: pip install pyyaml
 
-      - name: Apply product labels
+      - name: Apply product labels and issue types
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           if [ -n "$ISSUE_NUMBER" ]; then
-            python admin/ops/product_labels.py label --issue "$ISSUE_NUMBER" --apply
+            python admin/ops/issue_metadata.py apply --issue "$ISSUE_NUMBER" --write
           else
-            python admin/ops/product_labels.py backfill --apply
+            python admin/ops/issue_metadata.py backfill --write
           fi
