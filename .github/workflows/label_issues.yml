@@ -1,0 +1,43 @@
+name: 🏷️ Label issues and set types
+
+on:
+  issues:
+    types: [opened, edited]
+  # Issues opened by our own workflows (Scheduled Action Failure, QA drafts,
+  # product updates) authenticate with GITHUB_TOKEN, and GitHub does not fire
+  # `issues` events for those — they would never be labeled. The nightly sweep
+  # catches them, and anything else the event trigger missed.
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  label:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+            admin/ops
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: pip install pyyaml
+
+      - name: Apply product labels and issue types
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [ -n "$ISSUE_NUMBER" ]; then
+            python admin/ops/issue_metadata.py apply --issue "$ISSUE_NUMBER" --write
+          else
+            python admin/ops/issue_metadata.py backfill --write
+          fi

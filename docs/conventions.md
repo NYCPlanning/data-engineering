@@ -27,6 +27,23 @@ Squash or rebase (not a merge commit) when merging a PR.
 - Mark **Ready for Review** and assign reviewer(s) when development is complete.
 - Re-request review after significant changes post-feedback.
 
+### Issue labels and types
+
+`db-*` product labels and the `Bug` issue type are applied automatically from the issue
+title — name the product in the title (`PLUTO`, `DevDB`, `CSCL`, …) and the label follows.
+Rules live in [`.github/issue_metadata.yml`](../.github/issue_metadata.yml); add a product
+there when you add one under `products/`.
+
+Applying them by hand is still fine, and an issue type you set yourself is never
+overwritten. Templated issues carry their own labels from front matter — `data update`
+on product updates, `QA` on draft-QA issues. Everything else (`needs scoping`,
+`discussion`, `GIS`, …) stays manual.
+
+```bash
+python admin/ops/issue_metadata.py match "PLUTO - migrate build SQL"  # preview
+python admin/ops/issue_metadata.py backfill                           # dry run, all issues
+```
+
 ## Code formatting
 
 We use [`ruff`](https://docs.astral.sh/ruff/) for Python and [`sqlfluff`](https://docs.sqlfluff.com/en/stable/index.html) for SQL.
