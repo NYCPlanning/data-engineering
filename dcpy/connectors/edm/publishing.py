@@ -23,6 +23,7 @@ from dataclasses import asdict
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Callable, TypeVar
 from urllib.parse import urlencode, urljoin
 from zipfile import ZipFile
@@ -370,12 +371,9 @@ def promote_to_draft(
         draft_revision_number, draft_revision_summary
     ).label
 
-    # read in build metadata, update it with draft label, and save it locally
+    # read in build metadata, update it with draft label
     build_metadata = get_build_metadata(product_key=build_key)
     build_metadata.draft_revision_name = draft_revision_label
-    build_metadata_path = Path("build_metadata.json")
-    with open(build_metadata_path, "w", encoding="utf-8") as f:
-        json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
     # promote from build to draft
     draft_key = DraftKey(build_key.product, version, draft_revision_label)
@@ -383,13 +381,18 @@ def promote_to_draft(
     target = draft_key.path + "/"
     s3.copy_folder(bucket, source, target, acl, max_files=max_files)
 
-    # upload updated metadata file
-    s3.upload_file(
-        bucket,
-        build_metadata_path,
-        f"{target}{build_metadata_path.name}",
-        acl,
-    )
+    # upload updated metadata file. Staged in a temp dir rather than the cwd,
+    # which left a build_metadata.json behind wherever promote was run from.
+    with TemporaryDirectory() as tmp_dir:
+        build_metadata_path = Path(tmp_dir) / "build_metadata.json"
+        with open(build_metadata_path, "w", encoding="utf-8") as f:
+            json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
+        s3.upload_file(
+            bucket,
+            build_metadata_path,
+            f"{target}{build_metadata_path.name}",
+            acl,
+        )
 
     logger.info(
         f"Promoted {build_key.product} to drafts as {version}/{draft_revision_label}"
@@ -457,60 +460,66 @@ def publish(
     logger.info(
         f'Publishing {draft_key.path} as version {new_version} with ACL "{acl}"'
     )
-    # if it's patch, update version in metadata and dump it locally
+    # if it's patch, update version in metadata
     build_metadata = None
     if new_version != version:
         build_metadata = get_build_metadata(product_key=draft_key)
         build_metadata.version = new_version
-        build_metadata_path = Path("build_metadata.json")
-        with open(build_metadata_path, "w", encoding="utf-8") as f:
-            json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
     publish_key = PublishKey(draft_key.product, new_version)
     source = draft_key.path + "/"
     target = publish_key.path + "/"
-    s3.copy_folder(bucket, source, target, acl, max_files=max_files)
 
-    # upload metadata if version was patched
-    if build_metadata:
-        s3.upload_file(
-            bucket,
-            build_metadata_path,
-            f"{target}{build_metadata_path.name}",
-            acl,
-        )
-    # if current version comes after 'latest' version or there are no files in 'latest' folder,
-    # update 'latest' folder
-    if latest:
-        latest_version = get_latest_version(draft_key.product)
-        if latest_version:
-            # Both latest_version and version are expected to be of same version schema
-            after_latest_version = (
-                versions.is_newer(version_1=new_version, version_2=latest_version)
-                or new_version == latest_version
-            )
-        else:
-            after_latest_version = None
+    # Patched metadata is staged in a temp dir rather than the cwd, which left a
+    # build_metadata.json behind wherever publish was run from.
+    with TemporaryDirectory() as tmp_dir:
+        build_metadata_path = Path(tmp_dir) / "build_metadata.json"
+        if build_metadata:
+            with open(build_metadata_path, "w", encoding="utf-8") as f:
+                json.dump(build_metadata.model_dump(mode="json"), f, indent=4)
 
-        if after_latest_version or latest_version is None:
-            s3.copy_folder(
+        s3.copy_folder(bucket, source, target, acl, max_files=max_files)
+
+        # upload metadata if version was patched
+        if build_metadata:
+            s3.upload_file(
                 bucket,
-                source,
-                f"{draft_key.product}/publish/latest/",
+                build_metadata_path,
+                f"{target}{build_metadata_path.name}",
                 acl,
-                max_files=max_files,
             )
-            if build_metadata:
-                s3.upload_file(
-                    bucket,
-                    build_metadata_path,
-                    f"{draft_key.product}/publish/latest/{build_metadata_path.name}",
-                    acl,
+        # if current version comes after 'latest' version or there are no files in 'latest' folder,
+        # update 'latest' folder
+        if latest:
+            latest_version = get_latest_version(draft_key.product)
+            if latest_version:
+                # Both latest_version and version are expected to be of same version schema
+                after_latest_version = (
+                    versions.is_newer(version_1=new_version, version_2=latest_version)
+                    or new_version == latest_version
                 )
-        else:
-            raise ValueError(
-                f"Unable to update 'latest' folder: the version {new_version} is older than 'latest' ({latest_version})"
-            )
+            else:
+                after_latest_version = None
+
+            if after_latest_version or latest_version is None:
+                s3.copy_folder(
+                    bucket,
+                    source,
+                    f"{draft_key.product}/publish/latest/",
+                    acl,
+                    max_files=max_files,
+                )
+                if build_metadata:
+                    s3.upload_file(
+                        bucket,
+                        build_metadata_path,
+                        f"{draft_key.product}/publish/latest/{build_metadata_path.name}",
+                        acl,
+                    )
+            else:
+                raise ValueError(
+                    f"Unable to update 'latest' folder: the version {new_version} is older than 'latest' ({latest_version})"
+                )
     if download_metadata:
         publish_key = PublishKey(product=draft_key.product, version=new_version)
         download_file(
