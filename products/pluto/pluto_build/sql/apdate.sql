@@ -7,4 +7,4 @@
 -- format from MM/DD/YY to MM/DD/YYYY
 UPDATE pluto_rpad_geo
 SET ap_datef = to_char(to_date(ap_date, 'MM/DD/YY'), 'MM/DD/YYYY')
-WHERE ap_date IS NOT NULL;
+WHERE ap_date IS NOT NULL AND trim(ap_date) != '';

@@ -120,6 +120,7 @@ class TestProcessors:
     messy_names_df = pd.DataFrame({"Column": [1, 2], "Two_Words ": [3, 4]})
     dupe_df = pd.DataFrame({"a": [1, 1, 1, 2], "b": [3, 1, 3, 2]})
     whitespace_df = pd.DataFrame({"a": [2, 3, 1], "b": [" b_1 ", "  b_2", "c_3 "]})
+    blank_whitespace_df = pd.DataFrame({"a": [2, 3, 1], "b": ["   ", "b_2", "    "]})
     prev_df = pd.DataFrame({"a": [-1], "b": ["z"]})
     upsert_df = pd.DataFrame(
         {"a": [3, 2, 1], "b": ["d", "d", "d"], "c": [True, False, True], "d": [1, 2, 3]}
@@ -347,6 +348,15 @@ class TestProcessors:
         } == stripped.summary.data_modifications["by_column"], (
             "The rows modified count should be correct"
         )
+
+    def test_strip_columns_entirely_whitespace_becomes_empty_string(self):
+        # values that are ONLY whitespace (e.g. a blank fixed-width source field)
+        # must collapse to "", not survive untouched - see PLUTO's appbbl bug,
+        # where un-stripped all-whitespace values broke a downstream numeric cast.
+        stripped = self.proc.strip_columns(self.blank_whitespace_df, ["b"])
+        expected = pd.DataFrame({"a": [2, 3, 1], "b": ["", "b_2", ""]})
+        assert stripped.df.equals(expected)
+        assert {"b": 2} == stripped.summary.data_modifications["by_column"]
 
     @pytest.mark.parametrize(
         "original_column, cast, errors, expected_column",
