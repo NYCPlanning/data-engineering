@@ -316,11 +316,14 @@ def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path):
     os.environ["BUILD_ENV_OUTPUT_DIR"] = str(output_dir)
 
     try:
-        # Load the recipe using load_source_data_from_resolved_recipe
+        # Load the recipe using load_source_data_from_resolved_recipe.
+        # target_schema is passed explicitly (rather than left to fall back to
+        # BUILD_ENGINE_SCHEMA or the current git branch name)
         load_result = load.load_source_data_from_resolved_recipe(
             recipe_path,
             clear_pg_schema=False,
             _write_metadata_file=False,
+            target_schema="dcas_lift_join",
         )
 
         # Verify DuckDB file was created in correct location

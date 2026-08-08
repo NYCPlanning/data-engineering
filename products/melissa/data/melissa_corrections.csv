@@ -1,0 +1,1126 @@
+address,city,st,zip,street,researched,corrected_borough,corrected_hn,corrected_street
+0 W 32nd St,New York,NY,10001,W 32nd St,,1,0,W 32nd St
+1 144th St,Whitestone,NY,11357,144th St,,4,1,144th St
+1 242nd St and Van Cortlandt Park E,Bronx,NY,10470,242nd St and Van Cortlandt Park E,Invalid Address,4,1,242nd St and Van Cortlandt Park E
+1 50th Ave,Long Island City,NY,11101,50th Ave,,4,1,50th Ave
+1 73rd St,Brooklyn,NY,11209,73rd St,,4,1,73rd St
+1 Central Terminal Area,Jamaica,NY,11430,Central Terminal Area,,4,,JFK Terminal 1
+1 W 14th Upas,New York,NY,10011,W 14th Upas,,1,1,W 14th Upas
+1 W 86th Transverse Rd,New York,NY,10024,W 86th Transverse Rd,,1,1,W 86th Transverse Rd
+1 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,1,William Ct
+10 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,10,Dunhill Lane
+10 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,10,Eldert Lane
+10 Hudsonyards,New York,NY,10001,Hudsonyards,,1,10,Hudson Yards
+10 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,10,William Ct
+100 59th St,New York,NY,10022,59th St,,4,100,59th St
+100 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,100,Eldert Lane
+10010 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-10,Asch Loop
+10010 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-10,Bellamy Loop
+10010 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-10,Benchley Place
+10011 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-11,Benchley Place
+10012 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-12,Asch Loop
+10012 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-12,Benchley Place
+10013 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-13,Asch Loop
+10013 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-13,Bellamy Loop
+10013 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-13,Benchley Place
+10014 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-14,Asch Loop
+10014 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-14,Benchley Place
+10015 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-15,Asch Loop
+10015 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-15,Benchley Place
+10016 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-16,Asch Loop
+10016 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-16,Benchley Place
+10017 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-17,Asch Loop
+10018 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-18,Asch Loop
+10018 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-18,Bellamy Loop
+10018 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-18,Benchley Place
+10019 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-19,Asch Loop
+1002 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-02 ,Asch Loop
+1002 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-02 ,Bellamy Loop
+1002 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-02 ,Benchley Place
+10020 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-20,Asch Loop
+10020 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-20,Bellamy Loop
+10020 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-20,Benchley Place
+10021 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-21,Asch Loop
+10023 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-23,Asch Loop
+10023 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-23,Bellamy Loop
+10023 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-23,Benchley Place
+10024 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-24,Asch Loop
+10024 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-24,Bellamy Loop
+10024 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-24,Benchley Place
+10025 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-25,Asch Loop
+10025 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-25,Benchley Place
+10026 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-26,Asch Loop
+10026 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-26,Benchley Place
+10027 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-27,Benchley Place
+10028 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-28,Benchley Place
+10029 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-29,Benchley Place
+1003 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-03 ,Asch Loop
+1003 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-03 ,Bellamy Loop
+1003 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-03 ,Benchley Place
+10030 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-30,Benchley Place
+10031 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-31,Benchley Place
+10032 Benchley Pl,Bronx,NY,10475,Benchley Pl,House Number includes unit,2,100-32,Benchley Place
+1004 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-04 ,Bellamy Loop
+1007 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-07 ,Asch Loop
+1008 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-08 ,Asch Loop
+1008 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,100-08 ,Bellamy Loop
+1009 Asch Loop,Bronx,NY,10475,Asch Loop,,2,100-09 ,Asch Loop
+101 57th St,Maspeth,NY,11378,57th St,,4,101,57th St
+10101 E 101st St,Brooklyn,NY,11236,E 101st St,,3,10101,E 101st St
+102 159th Dr,Howard Beach,NY,11414,159th Dr,,4,102,159th Dr
+102 47th St,Ozone Park,NY,11416,47th St,,4,102,47th St
+102 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,102,Eldert Lane
+104 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,104,Eldert Lane
+105 156th St,Jamaica,NY,11433,156th St,,4,105,156th St
+105 160th St,Jamaica,NY,11433,160th St,,4,105,160th St
+1050 W 39th St,New York,NY,10018,W 39th St,,1,1050,W 39th St
+10516 75th St,Ozone Park,NY,11417,75th St,,3,10516,75 Street
+10520 75th St,Ozone Park,NY,11417,75th St,,3,10520,75 Street
+10522 75th St,Ozone Park,NY,11417,75th St,,3,10522,75 Street
+10524 75th St,Ozone Park,NY,11417,75th St,,3,10524,75 Street
+10526 75th St,Ozone Park,NY,11417,75th St,,3,10526,75 Street
+10528 75th St,Ozone Park,NY,11417,75th St,,3,10528,75 Street
+10530 75th St,Ozone Park,NY,11417,75th St,,3,10530,75 Street
+10532 75th St,Ozone Park,NY,11417,75th St,,3,10532,75 Street
+10534 75th St,Ozone Park,NY,11417,75th St,,3,10534,75 Street
+106 158th St,Jamaica,NY,11433,158th St,,4,106,158th St
+106 18th St,Ozone Park,NY,11417,18th St,,4,106,18th St
+10604 75th St,Ozone Park,NY,11417,75th St,,3,10604,75 Street
+10608 75th St,Ozone Park,NY,11417,75th St,,3,10608,75 Street
+10612 75th St,Ozone Park,NY,11417,75th St,,3,10612,75 Street
+10616 75th St,Ozone Park,NY,11417,75th St,,3,10616,75 Street
+10620 75th St,Ozone Park,NY,11417,75th St,,3,10620,75 Street
+10624 75th St,Ozone Park,NY,11417,75th St,,3,10624,75 Street
+10628 75th St,Ozone Park,NY,11417,75th St,,3,10628,75 Street
+10632 75th St,Ozone Park,NY,11417,75th St,,3,10632,75 Street
+10636 75th St,Ozone Park,NY,11417,75th St,,3,10636,75 Street
+10638 75th St,Ozone Park,NY,11417,75th St,,3,10638,75 Street
+10712 75th St,Ozone Park,NY,11417,75th St,,3,10712,75 Street
+10714 75th St,Ozone Park,NY,11417,75th St,,3,10714,75 Street
+10716 75th St,Ozone Park,NY,11417,75th St,,3,10716,75 Street
+10718 75th St,Ozone Park,NY,11417,75th St,,3,10718,75 Street
+10722 75th St,Ozone Park,NY,11417,75th St,,3,10722,75 Street
+10724 75th St,Ozone Park,NY,11417,75th St,,3,10724,75 Street
+10726 75th St,Ozone Park,NY,11417,75th St,,3,10726,75 Street
+1075 E 166th St,Bronx,NY,10456,E 166th St,,2,1075,E 166th St
+108 54th St,Corona,NY,11368,54th St,,4,108,54th St
+109 180th St,Jamaica,NY,11433,180th St,,4,109,180th St
+11 204th St,Saint Albans,NY,11412,204th St,,4,11,204th St
+11 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,11,Atlantic Commons
+11 E 210th St,Bronx,NY,10467,E 210th St,,2,11,E 210th St
+11 Union Sq E,New York,NY,10003,Union Sq E,,1,11,Union Square West
+110 73rd Rd,Forest Hills,NY,11375,73rd Rd,,4,110,73rd Rd
+1100 W 114th St,New York,NY,10025,W 114th St,,1,1100,W 114th St
+1103 E 11th St,Brooklyn,NY,11207,E 11th St,,3,1103,E 11th St
+111 13th Ave,College Point,NY,11356,13th Ave,,4,111,13th Ave
+1125 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1125,Harris Street
+1127 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1127,Harris Street
+1129 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1129,Harris Street
+113 196th St,Saint Albans,NY,11412,196th St,,4,113,196th St
+1130 226th Street Dr,Bronx,NY,10466,226th Street Dr,,4,1130,226th Street Dr
+1131 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1131,Harris Street
+1133 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1133,Harris Street
+1135 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1135,Harris Street
+1136 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1136,Harris Street
+1137 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1137,Harris Street
+1138 226th Street Dr,Bronx,NY,10466,226th Street Dr,,4,1138,226th Street Dr
+1138 Harris Ave,Far Rockaway,NY,11691,Harris Ave,,4,1138,Harris Street
+1141 227th St,Queens Village,NY,11429,227th St,,4,1141,227th St
+1141 228th St,Queens Village,NY,11429,228th St,,4,1141,228th St
+1141 229th St,Queens Village,NY,11429,229th St,,4,1141,229th St
+1141 230th St,Queens Village,NY,11429,230th St,,4,1141,230th St
+1141 231st St,Queens Village,NY,11429,231st St,,4,1141,231st St
+1141 76th Ave,Forest Hills,NY,11375,76th Ave,,4,1141,76th Ave
+1143 76th Ave,Forest Hills,NY,11375,76th Ave,,4,1143,76th Ave
+1151 219th St,Queens Village,NY,11429,219th St,,4,1151,219th St
+1151 220th St,Queens Village,NY,11429,220th St,,4,1151,220th St
+1151 222nd St,Queens Village,NY,11429,222nd St,,4,1151,222nd St
+116 15th Ave,College Point,NY,11356,15th Ave,,4,116,15th Ave
+116 195th St,Woodhaven,NY,11421,195th St,,3,116,Eldert Lane
+11827 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11827,Lakeview Blvd East
+11831 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11831,Lakeview Blvd East
+11839 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11839,Lakeview Blvd East
+11903 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11903,Lakeview Blvd East
+11907 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11907,Lakeview Blvd East
+11911 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11911,Lakeview Blvd East
+11917 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,11917,Lakeview Blvd East
+12 153rd St,Jamaica,NY,11434,153rd St,,4,12,153rd St
+12 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,12,Dunhill Lane
+12 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,12,Eldert Lane
+120 193rd St,Springfield Gardens,NY,11413,193rd St,,4,120,193rd St
+120 E 138th St,New York,NY,10037,E 138th St,,1,120,E 138th St
+12003 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,12003,Lakeview Blvd East
+12005 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,12005,Lakeview Blvd East
+12009 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,12009,Lakeview Blvd East
+1201 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-01 ,Asch Loop
+12010 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-10,Asch Loop
+12010 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-10,Bellamy Loop
+12010 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-10,Co Op City Blvd
+12011 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-11,Asch Loop
+12011 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-11,Co Op City Blvd
+12012 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-12,Asch Loop
+12012 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-12,Bellamy Loop
+12012 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-12,Co Op City Blvd
+12013 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-13,Asch Loop
+12013 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-13,Co Op City Blvd
+12014 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-14,Asch Loop
+12014 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-14,Co Op City Blvd
+12015 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-15,Asch Loop
+12015 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-15,Co Op City Blvd
+12016 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-16,Co Op City Blvd
+12017 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-17,Asch Loop
+12017 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-17,Bellamy Loop
+12017 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-17,Co Op City Blvd
+12018 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-18,Asch Loop
+12018 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-18,Co Op City Blvd
+12019 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,12019,Lakeview Blvd East
+1202 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-02 ,Asch Loop
+1202 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-02 ,Bellamy Loop
+1202 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-02 ,Co Op City Blvd
+12020 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-20,Asch Loop
+12020 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-20,Co Op City Blvd
+12021 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-21,Asch Loop
+12021 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-21,Co Op City Blvd
+12022 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-22,Asch Loop
+12022 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-22,Co Op City Blvd
+12023 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-23,Asch Loop
+12023 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-23,Co Op City Blvd
+12024 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-24,Asch Loop
+12024 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-24,Co Op City Blvd
+12025 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-25,Asch Loop
+12025 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-25,Bellamy Loop
+1203 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-03 ,Asch Loop
+1203 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-03 ,Bellamy Loop
+1203 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-03 ,Co Op City Blvd
+1204 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-04 ,Asch Loop
+1204 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-04 ,Co Op City Blvd
+1205 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-05 ,Asch Loop
+1205 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-05 ,Bellamy Loop
+1205 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-05 ,Co Op City Blvd
+1206 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-06 ,Co Op City Blvd
+1207 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-07 ,Co Op City Blvd
+1209 Asch Loop,Bronx,NY,10475,Asch Loop,,2,120-09 ,Asch Loop
+1209 Bellamy Loop,Bronx,NY,10475,Bellamy Loop,,2,120-09 ,Bellamy Loop
+1209 Co Op City Blvd,Bronx,NY,10475,Co Op City Blvd,House Number includes unit,2,120-09 ,Co Op City Blvd
+121 147th Ave,Jamaica,NY,11436,147th Ave,,4,121,147th Ave
+121 194th St,Saint Albans,NY,11412,194th St,,4,121,194th St
+121 195th St,Saint Albans,NY,11412,195th St,,4,121,195th St
+12105 Lakeview Blvd,Jamaica,NY,11434,Lakeview Blvd,,4,12105,Lakeview Blvd East
+1216 E 103rd St,New York,NY,10029,E 103rd St,,1,1216,E 103rd St
+122 5th Ave,College Point,NY,11356,5th Ave,,4,122,5th Ave
+12310 152nd Ave,South Ozone Park,NY,11420,152nd Ave,,4,12310,152nd Ave
+1239G 85th Ave,Kew Gardens,NY,11415,85th Ave,,4,1239G,85th Ave
+125 150th Ave,Jamaica,NY,11430,150th Ave,,4,125,150th Ave
+125 234th St,Rosedale,NY,11422,234th St,,4,125,234th St
+126 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,126,Eldert Lane
+127 143rd St,Jamaica,NY,11436,143rd St,,4,127,143rd St
+127 94th Ave,Richmond Hill,NY,11418,94th Ave,,4,127,94th Ave
+128 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,128,Eldert Lane
+129 14th Ave,College Point,NY,11356,14th Ave,,4,129,14th Ave
+13 13th Ave,Whitestone,NY,11357,13th Ave,,4,13,13th Ave
+13 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,13,Atlantic Commons
+130 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,130,Eldert Lane
+1301 E 169th St,Bronx,NY,10459,E 169th St,,2,1301,E 169th St
+132 149th Ave,South Ozone Park,NY,11420,149th Ave,,4,132,149th Ave
+13320 Whitestone Expy,Flushing,NY,11354,Whitestone Expy,,4,13320,WHITESTONE EXPWY FLUSHING  
+134 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,134,Eldert Lane
+13442 163rd St,Jamaica,NY,11434,163rd St,,4,13442,163rd St
+136 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,136,Eldert Lane
+137 15th Ave,College Point,NY,11356,15th Ave,,4,137,15th Ave
+137 182nd St,Springfield Gardens,NY,11413,182nd St,,4,137,182nd St
+13738 78th St,Howard Beach,NY,11414,78th St,,4,13738,78th St
+13740 78th St,Howard Beach,NY,11414,78th St,,4,13740,78th St
+139 141st Ave,Springfield Gardens,NY,11413,141st Ave,,4,139,141st Ave
+139 141st St,Jamaica,NY,11435,141st St,,4,139,141st St
+14 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,14,Eldert Lane
+14 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,14,William Ct
+140 140th Ave,Jamaica,NY,11436,140th Ave,,4,140,140th Ave
+140 220th St,Springfield Gardens,NY,11413,220th St,,4,140,220th St
+14009 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-09,Asch Loop
+14010 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-10,Asch Loop
+14011 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-11,Asch Loop
+14011 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-11,Donizetti Pl
+14012 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-12,Asch Loop
+14013 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-13,Asch Loop
+14013 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-13,Donizetti Pl
+14014 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-14,Asch Loop
+14014 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-14,Donizetti Pl
+14015 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-15,Asch Loop
+14015 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-15,Donizetti Pl
+14016 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-16,Asch Loop
+14016 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-16,Donizetti Pl
+14017 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-17,Asch Loop
+14017 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-17,Donizetti Pl
+14018 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-18,Asch Loop
+14018 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-18,Donizetti Pl
+14019 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-19,Donizetti Pl
+1402 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-02 ,Asch Loop
+1402 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-02 ,Donizetti Pl
+14020 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-20,Asch Loop
+14020 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-20,Donizetti Pl
+14021 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-21,Asch Loop
+14021 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-21,Donizetti Pl
+14022 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-22,Asch Loop
+14022 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-22,Donizetti Pl
+14023 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-23,Asch Loop
+14023 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-23,Donizetti Pl
+14024 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-24,Asch Loop
+14024 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-24,Donizetti Pl
+14025 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-25,Asch Loop
+14025 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-25,Donizetti Pl
+14026 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-26,Asch Loop
+14026 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-26,Donizetti Pl
+1403 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-03 ,Donizetti Pl
+1404 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-04 ,Asch Loop
+1404 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-04 ,Donizetti Pl
+1405 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-05 ,Asch Loop
+1405 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-05 ,Donizetti Pl
+1406 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-06 ,Asch Loop
+1407 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-07 ,Asch Loop
+1407 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-07 ,Donizetti Pl
+1408 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-08 ,Asch Loop
+1408 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-08 ,Donizetti Pl
+1409 Asch Loop,Bronx,NY,10475,Asch Loop,,2,140-09 ,Asch Loop
+1409 Donizetti Pl,Bronx,NY,10475,Donizetti Pl,,2,140-09 ,Donizetti Pl
+141 141st Ave,Springfield Gardens,NY,11413,141st Ave,,4,141,141st Ave
+141 142nd St,Jamaica,NY,11436,142nd St,,4,141,142nd St
+143 1/2 Orchard St,New York,NY,10002,1/2 Orchard St,,1,1431/2,Orchard Street
+143 181st St,Springfield Gardens,NY,11413,181st St,,4,143,181st St
+144 144th Rd,College Point,NY,11356,144th Rd,,4,144,144th Rd
+144 153rd Pl,Jamaica,NY,11434,153rd Pl,,4,144,153rd Pl
+144 181st St,Springfield Gardens,NY,11413,181st St,,4,144,181st St
+145 145th Pl,College Point,NY,11356,145th Pl,,4,145,145th Pl
+145 145th Rd,Springfield Gardens,NY,11413,145th Rd,,4,145,145th Rd
+146 147th Ave,Jamaica,NY,11434,147th Ave,,4,146,147th Ave
+1464 Avenue M,Brooklyn,NY,11230,Avenue M,,3,1464,Avenue M
+147 1/2 E 103rd St,New York,NY,10029,1/2 E 103rd St,,1,1471/2,East 103 Street
+147 147th Dr,Rosedale,NY,11422,147th Dr,,4,147,147th Dr
+147 148th St,Jamaica,NY,11435,148th St,,4,147,148th St
+147 59th St,Arverne,NY,11692,59th St,,4,147,59th St
+148 148th Ave,Springfield Gardens,NY,11413,148th Ave,,4,148,148th Ave
+148 148th Rd,Rosedale,NY,11422,148th Rd,,4,148,148th Rd
+14800 134th St,Jamaica,NY,11430,134th St,,4,14800,134th St
+149 149th Rd,Rosedale,NY,11422,149th Rd,,4,149,149th Rd
+14940 78th St,Howard Beach,NY,11414,78th St,,4,14940,78th St
+15 15th Ave,Bayside,NY,11360,15th Ave,,4,15,15th Ave
+15 15th Dr,Whitestone,NY,11357,15th Dr,,4,15,15th Dr
+15 18th Ave,College Point,NY,11356,18th Ave,,4,15,18th Ave
+15 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,15,Atlantic Commons
+15 State Plz,New York,NY,10004,State Plz,,1,15,STATE ST PLAZA
+15 Union Sq E,New York,NY,10003,Union Sq E,,1,15,Union Square West
+15 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,15,William Ct
+150 150th Ave,South Ozone Park,NY,11420,150th Ave,,4,150,150th Ave
+150 155th St,Jamaica,NY,11432,155th St,,4,150,155th St
+150 20th Rd,Whitestone,NY,11357,20th Rd,,4,150,20th Rd
+150 6th Ave,Whitestone,NY,11357,6th Ave,,4,150,6th Ave
+150 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,150,Eldert Lane
+151 153rd Pl,Jamaica,NY,11434,153rd Pl,,4,151,153rd Pl
+151 153rd St,Flushing,NY,11358,153rd St,,4,151,153rd St
+152 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,152,Eldert Lane
+153 153rd Ave,Howard Beach,NY,11414,153rd Ave,,4,153,153rd Ave
+153 153rd Pl,Jamaica,NY,11434,153rd Pl,,4,153,153rd Pl
+153 155th St,Jamaica,NY,11434,155th St,,4,153,155th St
+153 56th Rd,Flushing,NY,11355,56th Rd,,4,153,56th Rd
+153 61st Rd,Flushing,NY,11367,61st Rd,,4,153,61st Rd
+154 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,154,Eldert Lane
+155 155th Ave,Howard Beach,NY,11414,155th Ave,,4,155,155th Ave
+156 156th St,Flushing,NY,11354,156th St,,4,156,156th St
+156 157th St,Whitestone,NY,11357,157th St,,4,156,157th St
+157 158th St,Jamaica,NY,11433,158th St,,4,157,158th St
+157 158th St,Jamaica,NY,11435,158th St,,4,157,158th St
+158 158th Ave,Howard Beach,NY,11414,158th Ave,,4,158,158th Ave
+158 158th St,Whitestone,NY,11357,158th St,,4,158,158th St
+158 160th St,Fresh Meadows,NY,11366,160th St,,4,158,160th St
+158 20th Rd,Whitestone,NY,11357,20th Rd,,4,158,20th Rd
+158 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,158,Eldert Lane
+159 160th Ave,Howard Beach,NY,11414,160th Ave,,4,159,160th Ave
+16 16th Ave,Bayside,NY,11360,16th Ave,,4,16,16th Ave
+16 16th Dr,Whitestone,NY,11357,16th Dr,,4,16,16th Dr
+16 17th Ave,Whitestone,NY,11357,17th Ave,,4,16,17th Ave
+16 219th St,Cambria Heights,NY,11411,219th St,,4,16,219th St
+16 5th Ave,Breezy Point,NY,11697,5th Ave,,4,16,5th Ave
+16 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,16,Dunhill Lane
+16 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,16,William Ct
+160 161st St,Jamaica,NY,11434,161st St,,4,160,161st St
+160 161st St,Whitestone,NY,11357,161st St,,4,160,161st St
+160 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,160,Eldert Lane
+16021 Sapphire St,Howard Beach,NY,11414,Sapphire St,,4,16021,78 Street
+161 162nd St,Flushing,NY,11358,162nd St,,4,161,162nd St
+162 164th St,Jamaica,NY,11432,164th St,,4,162,164th St
+162 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,162,Eldert Lane
+1628 E 173rd St,Bronx,NY,10457,E 173rd St,,2,1628,E 173rd St
+163 164th Ave,Howard Beach,NY,11414,164th Ave,,4,163,164th Ave
+163 164th St,Jamaica,NY,11434,164th St,,4,163,164th St
+163 166th St,Flushing,NY,11358,166th St,,4,163,166th St
+164 164th Ave,Howard Beach,NY,11414,164th Ave,,4,164,164th Ave
+164 165th St,Jamaica,NY,11432,165th St,,4,164,165th St
+164 165th St,Whitestone,NY,11357,165th St,,4,164,165th St
+164 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,164,Eldert Lane
+165 145th Rd,Jamaica,NY,11434,145th Rd,,4,165,145th Rd
+1660 Avenue K,Brooklyn,NY,11230,Avenue K,,3,1660,Avenue K
+169 146th Ave,Jamaica,NY,11434,146th Ave,,4,169,146th Ave
+169 170th St,Jamaica,NY,11432,170th St,,4,169,170th St
+17 149th Ave,South Ozone Park,NY,11420,149th Ave,,4,17,149th Ave
+17 154th St,Whitestone,NY,11357,154th St,,4,17,154th St
+17 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,17,Atlantic Commons
+17 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,17,William Ct
+170 170th St,Flushing,NY,11358,170th St,,4,170,170th St
+170 170th St,Jamaica,NY,11432,170th St,,4,170,170th St
+171 46th Ave,Flushing,NY,11358,46th Ave,,4,171,46th Ave
+172 172nd St,Jamaica,NY,11432,172nd St,,4,172,172nd St
+17343 124th Ave,Jamaica,NY,11434,124th Ave,,4,17343,124th Ave
+174 174th St,Fresh Meadows,NY,11365,174th St,,4,174,174th St
+174 175th Pl,Fresh Meadows,NY,11365,175th Pl,,4,174,175th Pl
+175 140th Ave,Jamaica,NY,11434,140th Ave,,4,175,140th Ave
+175 148th St,Jamaica,NY,11434,148th St,,4,175,148th St
+175 149th Rd,Jamaica,NY,11434,149th Rd,,4,175,149th Rd
+175 175th Pl,Fresh Meadows,NY,11365,175th Pl,,4,175,175th Pl
+175 175th St,Jamaica,NY,11432,175th St,,4,175,175th St
+176 145th Rd,Jamaica,NY,11434,145th Rd,,4,176,145th Rd
+176 177th St,Jamaica,NY,11434,177th St,,4,176,177th St
+177 146th Ave,Jamaica,NY,11434,146th Ave,,4,177,146th Ave
+177 147th Ave,Jamaica,NY,11434,147th Ave,,4,177,147th Ave
+177 177th St,Jamaica,NY,11433,177th St,,4,177,177th St
+178 178th Pl,Jamaica,NY,11433,178th Pl,,4,178,178th Pl
+178 179th St,Jamaica,NY,11433,179th St,,4,178,179th St
+179 143rd Rd,Jamaica,NY,11434,143rd Rd,,4,179,143rd Rd
+179 179th St,Jamaica,NY,11433,179th St,,4,179,179th St
+18 18th Ave,Bayside,NY,11360,18th Ave,,4,18,18th Ave
+18 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,18,Dunhill Lane
+18 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,18,William Ct
+181 181st St,Hollis,NY,11423,181st St,,4,181,181st St
+185 188th St,Jamaica,NY,11432,188th St,,4,185,188th St
+185 Baisley Blvd,Woodhaven,NY,11421,Baisley Blvd,,3,185,Eldert Lane
+186 188th St,Jamaica,NY,11432,188th St,,4,186,188th St
+1866 E 16th St,Brooklyn,NY,11229,E 16th St,,3,1866,E 16th St
+187 188th St,Fresh Meadows,NY,11365,188th St,,4,187,188th St
+188 120th Rd,Woodhaven,NY,11421,120th Rd,,3,188,Eldert Lane
+189 190th St,Hollis,NY,11423,190th St,,4,189,190th St
+189 73rd Ave,Fresh Meadows,NY,11366,73rd Ave,,4,189,73rd Ave
+19 68th Rd,Ridgewood,NY,11385,68th Rd,,4,19,68th Rd
+19 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,19,Atlantic Commons
+19 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,19,William Ct
+190 191st St,Hollis,NY,11423,191st St,,4,190,191st St
+190 192nd St,Saint Albans,NY,11412,192nd St,,4,190,192nd St
+1904 95th Ave,South Richmond Hill,NY,11419,95th Ave,,4,1904,95th Ave
+192 192nd St,Flushing,NY,11358,192nd St,,4,192,192nd St
+192 192nd St,Hollis,NY,11423,192nd St,,4,192,192nd St
+192 193rd St,Fresh Meadows,NY,11365,193rd St,,4,192,193rd St
+192 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,192,Eldert Lane
+194 196th St,Saint Albans,NY,11412,196th St,,4,194,196th St
+195 195th St,Hollis,NY,11423,195th St,,4,195,195th St
+195 196th St,Saint Albans,NY,11412,196th St,,4,195,196th St
+195 67th Ave,Fresh Meadows,NY,11365,67th Ave,,4,195,67th Ave
+196 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,196,Eldert Lane
+1960 E 46th St,Brooklyn,NY,11234,E 46th St,,3,1960,E 46th St
+198 198th St,Saint Albans,NY,11412,198th St,,4,198,198th St
+198 199th St,Fresh Meadows,NY,11366,199th St,,4,198,199th St
+198 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,198,Eldert Lane
+199 22nd Ave,Bayside,NY,11360,22nd Ave,,4,199,22nd Ave
+2 192nd St,Bronx,NY,10468,192nd St,,4,2,192nd St
+2 58th St,Maspeth,NY,11378,58th St,,4,2,58th St
+2 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,2,Eldert Lane
+2 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,2,William Ct
+20 21st St,Astoria,NY,11105,21st St,,4,20,21st St
+20 Old Fulton St,Brooklyn,NY,11201,Old Fulton St,,3,20,Old Fulton Street
+20 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,20,William Ct
+200 200th St,Saint Albans,NY,11412,200th St,,4,200,200th St
+200 4th Ave,New York,NY,10003,4th Ave,,4,200,4th Ave
+200 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,200,Eldert Lane
+200 Liberty Ave,New York,NY,10281,Liberty Ave,,1,200,Liberty Street
+200 Liberty,New York,NY,10281,Liberty,,1,200,Liberty Street
+2018G 118th Ave,Saint Albans,NY,11412,118th Ave,,4,2018G,118th Ave
+202 202nd St,Saint Albans,NY,11412,202nd St,,4,202,202nd St
+202 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,202,Eldert Lane
+203 203rd St,Hollis,NY,11423,203rd St,,4,203,203rd St
+204 203rd St,Saint Albans,NY,11412,203rd St,,4,204,203rd St
+206 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,206,Eldert Lane
+208 208th St,Queens Village,NY,11427,208th St,,4,208,208th St
+208 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,208,Eldert Lane
+21 21st St,Astoria,NY,11105,21st St,,4,21,21st St
+21 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,21,William Ct
+210 4th Ave,New York,NY,10003,4th Ave,,4,210,4th Ave
+210 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,210,Eldert Lane
+211 15th Rd,Bayside,NY,11360,15th Rd,,4,211,15th Rd
+212 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,212,Eldert Lane
+2127 E 181st St,Bronx,NY,10457,E 181st St,,2,2127,E 181st St
+214 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,214,Eldert Lane
+216 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,216,Eldert Lane
+218 219th St,Queens Village,NY,11429,219th St,,4,218,219th St
+218 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,218,Eldert Lane
+219 143rd Rd,Springfield Gardens,NY,11413,143rd Rd,,4,219,143rd Rd
+219 219th St,Springfield Gardens,NY,11413,219th St,,4,219,219th St
+219 220th St,Queens Village,NY,11429,220th St,,4,219,220th St
+22 22nd Ave,Whitestone,NY,11357,22nd Ave,,4,22,22nd Ave
+22 23rd Ave,Whitestone,NY,11357,23rd Ave,,4,22,23rd Ave
+22 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,22,Dunhill Lane
+22 Old Fulton St,Brooklyn,NY,11201,Old Fulton St,,3,22,Old Fulton Street
+220 4th Ave,New York,NY,10003,4th Ave,,4,220,4th Ave
+220 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,220,Eldert Lane
+221 19th St,Far Rockaway,NY,11691,19th St,,4,221,B 19 Street
+222 143rd Rd,Springfield Gardens,NY,11413,143rd Rd,,4,222,143rd Rd
+222 222nd St,Saint Albans,NY,11412,222nd St,,4,222,222nd St
+2231 Avenue V,Brooklyn,NY,11229,Avenue V,,3,2231,Avenue V
+2245 Avenue V,Brooklyn,NY,11229,Avenue V,,3,2245,Avenue V
+22484 W 70th St,New York,NY,10023,W 70th St,,1,22484,W 70th St
+225 19th St,Far Rockaway,NY,11691,19th St,,4,225,B 19 Street
+225 227th St,Saint Albans,NY,11412,227th St,,4,225,227th St
+2282 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2282,12 Avenue
+229 145th Ave,Springfield Gardens,NY,11413,145th Ave,,4,229,145th Ave
+2290 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2290,12 Avenue
+2298 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2298,12 Avenue
+23 21st St,Astoria,NY,11105,21st St,,4,23,21st St
+23 43rd St,Astoria,NY,11105,43rd St,,4,23,43rd St
+23 49th St,Astoria,NY,11105,49th St,,4,23,49th St
+230 230th St,Springfield Gardens,NY,11413,230th St,,4,230,230th St
+2300 W 124th St,New York,NY,10027,W 124th St,,1,2300,W 124th St
+2301 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2301,12 Avenue
+2302 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2302,12 Avenue
+2307 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2307,12 Avenue
+2308 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2308,12 Avenue
+231 231st St,Springfield Gardens,NY,11413,231st St,,4,231,231st St
+231 232nd St,Springfield Gardens,NY,11413,232nd St,,4,231,232nd St
+2321 Brooklyn Queens Expy E,Astoria,NY,11103,Brooklyn Queens Expy E,,4,2321,Brooklyn Queens Expy
+2321 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2321,12 Avenue
+2328 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2328,12 Avenue
+233 141st Ave,Springfield Gardens,NY,11413,141st Ave,,4,233,141st Ave
+233 19th St,Far Rockaway,NY,11691,19th St,,4,233,B 19 Street
+233 233rd St,Rosedale,NY,11422,233rd St,,4,233,233rd St
+2331 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2331,12 Avenue
+2335 Brooklyn Queens Expy E,Astoria,NY,11103,Brooklyn Queens Expy E,,4,2335,Brooklyn Queens Expy
+2337 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2337,12 Avenue
+2339 Brooklyn Queens Expy E,Astoria,NY,11103,Brooklyn Queens Expy E,,4,2339,Brooklyn Queens Expy
+234 234th St,Rosedale,NY,11422,234th St,,4,234,234th St
+2342 W 7th St,Brooklyn,NY,11223,W 7th St,,3,2342,W 7th St
+235 Thelonius Monk Cir,New York,NY,10023,Thelonius Monk Cir,,1,235,THELONIOUS MONK CIRCLE
+2350 Joe Dimaggio Hwy,New York,NY,10027,Joe Dimaggio Hwy,Should be 12 Avenue,1,2350,12 Avenue
+2351 Joe Dimaggio Hwy,New York,NY,10031,Joe Dimaggio Hwy,Should be 12 Avenue,1,2351,12 Avenue
+236 236th St,Queens Village,NY,11429,236th St,,4,236,236th St
+2362 W 7th St,Brooklyn,NY,11223,W 7th St,,3,2362,W 7th St
+237 E 136th St,Bronx,NY,10451,E 136th St,,2,237,E 136th St
+239 Thelonius Monk Cir,New York,NY,10023,Thelonius Monk Cir,,1,239,THELONIOUS MONK CIRCLE
+24 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,24,Dunhill Lane
+240 234th St,Little Neck,NY,11363,234th St,,4,240,234th St
+2425 1st Ave,New York,NY,10035,1st Ave,,4,2425,1st Ave
+242W W 104th St,New York,NY,10025,W 104th St,,1,242W,W 104th St
+243 Thelonius Monk Cir,New York,NY,10023,Thelonius Monk Cir,,1,243,THELONIOUS MONK CIRCLE
+247 Thelonius Monk Cir,New York,NY,10023,Thelonius Monk Cir,,1,247,THELONIOUS MONK CIRCLE
+2475 E 53rd St,Brooklyn,NY,11234,E 53rd St,,3,2475,E 53rd St
+25 143rd St,Flushing,NY,11354,143rd St,,4,25,143rd St
+25 W 5th St,East Elmhurst,NY,11370,W 5th St,,4,25,W 5th St
+251 1st St,Jamaica,NY,11430,1st St,,4,251,1st St
+2550 1st Ave,New York,NY,10035,1st Ave,,4,2550,1st Ave
+2551 1st Ave,New York,NY,10035,1st Ave,,4,2551,1st Ave
+257 147th Dr,Rosedale,NY,11422,147th Dr,,4,257,147th Dr
+2570 1st Ave,New York,NY,10035,1st Ave,,4,2570,1st Ave
+2590 1st Ave,New York,NY,10035,1st Ave,,4,2590,1st Ave
+260 69th Ave,Sunnyside,NY,11104,69th Ave,,4,260,69th Ave
+2600 2nd Ave,New York,NY,10035,2nd Ave,,4,2600,2nd Ave
+261 19th St,Far Rockaway,NY,11691,19th St,,4,261,B 19 Street
+261 69th Ave,Sunnyside,NY,11104,69th Ave,,4,261,69th Ave
+261 72nd Rd,Sunnyside,NY,11104,72nd Rd,,4,261,72nd Rd
+264 73rd Ave,Sunnyside,NY,11104,73rd Ave,,4,264,73rd Ave
+266 69th Ave,Sunnyside,NY,11104,69th Ave,,4,266,69th Ave
+266 72nd Rd,Sunnyside,NY,11104,72nd Rd,,4,266,72nd Rd
+266 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,266,Eldert Lane
+267 73rd Ave,Sunnyside,NY,11104,73rd Ave,,4,267,73rd Ave
+268 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,268,Eldert Lane
+270 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,270,Eldert Lane
+272 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,272,Eldert Lane
+274 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,274,Eldert Lane
+276 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,276,Eldert Lane
+278 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,278,Eldert Lane
+28 1/2 Bowery,New York,NY,10013,1/2 Bowery,,1,281/2,Bowery
+28 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,28,Dunhill Lane
+280 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,280,Eldert Lane
+282 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,282,Eldert Lane
+284 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,284,Eldert Lane
+286 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,286,Eldert Lane
+288 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,288,Eldert Lane
+29 23rd St,Astoria,NY,11102,23rd St,,4,29,23rd St
+290 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,290,Eldert Lane
+292 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,292,Eldert Lane
+2929 W 2nd St,Brooklyn,NY,11224,W 2nd St,,3,2929,W 2nd St
+294 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,294,Eldert Lane
+296 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,296,Eldert Lane
+3 1/2 Van Corlear Pl,Bronx,NY,10463,1/2 Van Corlear Pl,,2,31/2,Van Corlear Place
+3 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,3,Atlantic Commons
+3 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,3,William Ct
+12 Olmstead Dr,Corona,NY,11368,Olmstead Dr,,4,12,OLMSTED DRIVE
+30 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,30,Dunhill Lane
+30 W 8th St,East Elmhurst,NY,11370,W 8th St,,4,30,W 8th St
+300 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,300,Eldert Lane
+302 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,302,Eldert Lane
+302 W 27th St,New York,NY,10001,W 27th St,,1,302,W 27th St
+304 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,304,Eldert Lane
+306 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,306,Eldert Lane
+308 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,308,Eldert Lane
+310 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,310,Eldert Lane
+312 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,312,Eldert Lane
+314 E 2nd St,New York,NY,10009,E 2nd St,,1,314,E 2nd St
+314 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,314,Eldert Lane
+316 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,316,Eldert Lane
+317 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,317,Eldert Ln
+319 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,319,Eldert Ln
+319G 137th St,Flushing,NY,11354,137th St,,4,319G,137th St
+6 Olmstead Dr,Corona,NY,11368,Olmstead Dr,,4,6,OLMSTED DRIVE
+32 191st St,Flushing,NY,11358,191st St,,4,32,191st St
+32 47th Ave,Long Island City,NY,11101,47th Ave,,4,32,47th Ave
+32 56th St,Woodside,NY,11377,56th St,,4,32,56th St
+321 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,321,Eldert Ln
+3225 Reservoir Oval W,Bronx,NY,10467,Reservoir Oval W,,2,3225, Reservoir Oval East
+323 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,323,Eldert Ln
+325 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,325,Eldert Ln
+327 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,327,Eldert Ln
+329 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,329,Eldert Ln
+331 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,331,Eldert Ln
+335 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,335,Eldert Ln
+337 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,337,Eldert Ln
+339 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,339,Eldert Ln
+34 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,34,Dunhill Lane
+34 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,34,Eldert Lane
+341 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,341,Eldert Ln
+343 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,343,Eldert Ln
+345 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,345,Eldert Ln
+3537 W 129th St,New York,NY,10027,W 129th St,,1,3537,W 129th St
+354 E 154th St,Bronx,NY,10455,E 154th St,,2,354,E 154th St
+359 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,359,Eldert Ln
+36 Attorney Pl,New York,NY,10002,Attorney Pl,,1,36,ATTORNEY STREET
+36 Dunhill Ave,Staten Island,NY,10309,Dunhill Ave,,5,36,Dunhill Lane
+36 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,36,Eldert Lane
+361 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,361,Eldert Ln
+363 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,363,Eldert Ln
+365 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,365,Eldert Ln
+367 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,367,Eldert Ln
+369 Eldert Ln,Brooklyn,NY,11208,Eldert Ln,,4,369,Eldert Ln
+37 68th Rd,Ridgewood,NY,11385,68th Rd,,4,37,68th Rd
+38 233rd St,Little Neck,NY,11363,233rd St,,4,38,233rd St
+3810 138th St,Flushing,NY,11354,138th St,,4,3810,138th St
+4 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,4,Eldert Lane
+4 Union Sq W,New York,NY,10003,Union Sq W,,1,4,Union Square East
+4 W 5th St,East Elmhurst,NY,11370,W 5th St,,4,4,W 5th St
+40 59th St,Woodside,NY,11377,59th St,,4,40,59th St
+40 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,40,Eldert Lane
+4005 Altschul,New York,NY,10027,Altschul,,1,4005,Altschul Hall
+4008 Altschul,New York,NY,10027,Altschul,,1,4008,Altschul Hall
+4029 Altschul,New York,NY,10027,Altschul,,1,4029,Altschul Hall
+4037 Altschul,New York,NY,10027,Altschul,,1,4037,Altschul Hall
+404 E 150th St,Bronx,NY,10455,E 150th St,,2,404,E 150th St
+4058 Altschul,New York,NY,10027,Altschul,,1,4058,Altschul Hall
+4061 Altschul,New York,NY,10027,Altschul,,1,4061,Altschul Hall
+4075 Altschul,New York,NY,10027,Altschul,,1,4075,Altschul Hall
+4092 Altschul,New York,NY,10027,Altschul,,1,4092,Altschul Hall
+4096 Altschul,New York,NY,10027,Altschul,,1,4096,Altschul Hall
+4097 Altschul,New York,NY,10027,Altschul,,1,4097,Altschul Hall
+4098 Altschul,New York,NY,10027,Altschul,,1,4098,Altschul Hall
+4099 Altschul,New York,NY,10027,Altschul,,1,4099,Altschul Hall
+41 149th Pl,Flushing,NY,11355,149th Pl,,4,41,149th Pl
+41 61st St,Woodside,NY,11377,61st St,,4,41,61st St
+41 E 136th St,New York,NY,10037,E 136th St,,1,41,E 136th St
+4104 Altschul,New York,NY,10027,Altschul,,1,4104,Altschul Hall
+4112 Altschul,New York,NY,10027,Altschul,,1,4112,Altschul Hall
+4116 W 220th St,New York,NY,10034,W 220th St,,1,4116,W 220th St
+4127 Altschul,New York,NY,10027,Altschul,,1,4127,Altschul Hall
+4145 Altschul,New York,NY,10027,Altschul,,1,4145,Altschul Hall
+4150 Altschul,New York,NY,10027,Altschul,,1,4150,Altschul Hall
+4157 Altschul,New York,NY,10027,Altschul,,1,4157,Altschul Hall
+4164 Altschul,New York,NY,10027,Altschul,,1,4164,Altschul Hall
+4191 Altschul,New York,NY,10027,Altschul,,1,4191,Altschul Hall
+4195 Altschul,New York,NY,10027,Altschul,,1,4195,Altschul Hall
+42 54th Dr,Maspeth,NY,11378,54th Dr,,4,42,54th Dr
+42 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,42,Eldert Lane
+420 227th St,Saint Albans,NY,11412,227th St,,4,420,227th St
+4206 Altschul,New York,NY,10027,Altschul,,1,4206,Altschul Hall
+4211 Altschul,New York,NY,10027,Altschul,,1,4211,Altschul Hall
+4216 Altschul,New York,NY,10027,Altschul,,1,4216,Altschul Hall
+4223 Altschul,New York,NY,10027,Altschul,,1,4223,Altschul Hall
+4226 Altschul,New York,NY,10027,Altschul,,1,4226,Altschul Hall
+4227 Altschul,New York,NY,10027,Altschul,,1,4227,Altschul Hall
+4233 Altschul,New York,NY,10027,Altschul,,1,4233,Altschul Hall
+4234 Altschul,New York,NY,10027,Altschul,,1,4234,Altschul Hall
+4239 Altschul,New York,NY,10027,Altschul,,1,4239,Altschul Hall
+425 W 63rd St,New York,NY,10069,W 63rd St,,1,425,W 63rd St
+4257 Altschul,New York,NY,10027,Altschul,,1,4257,Altschul Hall
+4262 Altschul,New York,NY,10027,Altschul,,1,4262,Altschul Hall
+428 33rd St,Long Island City,NY,11101,33rd St,,4,428,33rd St
+4288 Altschul,New York,NY,10027,Altschul,,1,4288,Altschul Hall
+43 51st Ave,Woodside,NY,11377,51st Ave,,4,43,51st Ave
+430 Fdr Drive West Ln,New York,NY,10002,Fdr Drive West Ln,,1,430,FDR
+4307 Altschul,New York,NY,10027,Altschul,,1,4307,Altschul Hall
+4309 Altschul,New York,NY,10027,Altschul,,1,4309,Altschul Hall
+4314 Altschul,New York,NY,10027,Altschul,,1,4314,Altschul Hall
+4319 Altschul,New York,NY,10027,Altschul,,1,4319,Altschul Hall
+4336 Altschul,New York,NY,10027,Altschul,,1,4336,Altschul Hall
+4344 Altschul,New York,NY,10027,Altschul,,1,4344,Altschul Hall
+4345 W 129th St,New York,NY,10027,W 129th St,,1,4345,W 129th St
+4349 E 234th St,Bronx,NY,10470,E 234th St,,2,4349,E 234th St
+4363 Altschul,New York,NY,10027,Altschul,,1,4363,Altschul Hall
+4369 Altschul,New York,NY,10027,Altschul,,1,4369,Altschul Hall
+4377 Altschul,New York,NY,10027,Altschul,,1,4377,Altschul Hall
+4379 Altschul,New York,NY,10027,Altschul,,1,4379,Altschul Hall
+4385 Altschul,New York,NY,10027,Altschul,,1,4385,Altschul Hall
+4396 Altschul,New York,NY,10027,Altschul,,1,4396,Altschul Hall
+44 166th St,Flushing,NY,11358,166th St,,4,44,166th St
+44 177th St,Jamaica,NY,11434,177th St,,4,44,177th St
+44 44th Dr,Sunnyside,NY,11104,44th Dr,,4,44,44th Dr
+44 5th St,Long Island City,NY,11101,5th St,,4,44,5th St
+44 63rd St,Woodside,NY,11377,63rd St,,4,44,63rd St
+4410 Altschul,New York,NY,10027,Altschul,,1,4410,Altschul Hall
+4412 Altschul,New York,NY,10027,Altschul,,1,4412,Altschul Hall
+4415 Altschul,New York,NY,10027,Altschul,,1,4415,Altschul Hall
+4434 Altschul,New York,NY,10027,Altschul,,1,4434,Altschul Hall
+4439 Altschul,New York,NY,10027,Altschul,,1,4439,Altschul Hall
+4440 Altschul,New York,NY,10027,Altschul,,1,4440,Altschul Hall
+4449 Altschul,New York,NY,10027,Altschul,,1,4449,Altschul Hall
+4450 Altschul,New York,NY,10027,Altschul,,1,4450,Altschul Hall
+4455 Altschul,New York,NY,10027,Altschul,,1,4455,Altschul Hall
+4457 Altschul,New York,NY,10027,Altschul,,1,4457,Altschul Hall
+4478 Altschul,New York,NY,10027,Altschul,,1,4478,Altschul Hall
+4484 Altschul,New York,NY,10027,Altschul,,1,4484,Altschul Hall
+4487 Altschul,New York,NY,10027,Altschul,,1,4487,Altschul Hall
+45 21st St,Astoria,NY,11105,21st St,,4,45,21st St
+45 47th St,Brooklyn,NY,11232,47th St,,4,45,47th St
+45 63rd St,Woodside,NY,11377,63rd St,,4,45,63rd St
+4500 Altschul,New York,NY,10027,Altschul,,1,4500,Altschul Hall
+4511 Altschul,New York,NY,10027,Altschul,,1,4511,Altschul Hall
+4517 Altschul,New York,NY,10027,Altschul,,1,4517,Altschul Hall
+4522 Altschul,New York,NY,10027,Altschul,,1,4522,Altschul Hall
+4525 Altschul,New York,NY,10027,Altschul,,1,4525,Altschul Hall
+4528 Altschul,New York,NY,10027,Altschul,,1,4528,Altschul Hall
+4547 Altschul,New York,NY,10027,Altschul,,1,4547,Altschul Hall
+4550 Altschul,New York,NY,10027,Altschul,,1,4550,Altschul Hall
+4568 Altschul,New York,NY,10027,Altschul,,1,4568,Altschul Hall
+4570 Altschul,New York,NY,10027,Altschul,,1,4570,Altschul Hall
+46 46th St,Woodside,NY,11377,46th St,,4,46,46th St
+46 Cadman Plz W,Brooklyn,NY,11201,Cadman Plz W,,3,46,CADMAN PLAZA WEST 
+46 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,46,Eldert Lane
+4601 Altschul,New York,NY,10027,Altschul,,1,4601,Altschul Hall
+4621 Altschul,New York,NY,10027,Altschul,,1,4621,Altschul Hall
+4624 Altschul,New York,NY,10027,Altschul,,1,4624,Altschul Hall
+4628 Altschul,New York,NY,10027,Altschul,,1,4628,Altschul Hall
+4642 Altschul,New York,NY,10027,Altschul,,1,4642,Altschul Hall
+4645 Altschul,New York,NY,10027,Altschul,,1,4645,Altschul Hall
+4650 Altschul,New York,NY,10027,Altschul,,1,4650,Altschul Hall
+4654 Altschul,New York,NY,10027,Altschul,,1,4654,Altschul Hall
+4657 Altschul,New York,NY,10027,Altschul,,1,4657,Altschul Hall
+4667 Altschul,New York,NY,10027,Altschul,,1,4667,Altschul Hall
+4677 Altschul,New York,NY,10027,Altschul,,1,4677,Altschul Hall
+4699 Altschul,New York,NY,10027,Altschul,,1,4699,Altschul Hall
+4713 Altschul,New York,NY,10027,Altschul,,1,4713,Altschul Hall
+4722 Altschul,New York,NY,10027,Altschul,,1,4722,Altschul Hall
+4725 Altschul,New York,NY,10027,Altschul,,1,4725,Altschul Hall
+4737 Altschul,New York,NY,10027,Altschul,,1,4737,Altschul Hall
+4741 Altschul,New York,NY,10027,Altschul,,1,4741,Altschul Hall
+4747 Altschul,New York,NY,10027,Altschul,,1,4747,Altschul Hall
+4749 Altschul,New York,NY,10027,Altschul,,1,4749,Altschul Hall
+4778 Altschul,New York,NY,10027,Altschul,,1,4778,Altschul Hall
+4784 Altschul,New York,NY,10027,Altschul,,1,4784,Altschul Hall
+4790 Altschul,New York,NY,10027,Altschul,,1,4790,Altschul Hall
+4799 Altschul,New York,NY,10027,Altschul,,1,4799,Altschul Hall
+48 58th St,Woodside,NY,11377,58th St,,4,48,58th St
+48 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,48,Eldert Lane
+4806 Altschul,New York,NY,10027,Altschul,,1,4806,Altschul Hall
+4816 Altschul,New York,NY,10027,Altschul,,1,4816,Altschul Hall
+4819 Altschul,New York,NY,10027,Altschul,,1,4819,Altschul Hall
+4824 Altschul,New York,NY,10027,Altschul,,1,4824,Altschul Hall
+4831 Altschul,New York,NY,10027,Altschul,,1,4831,Altschul Hall
+483F E 138th St,Bronx,NY,10454,E 138th St,,2,483F,E 138th St
+483S E 138th St,Bronx,NY,10454,E 138th St,,2,483S,E 138th St
+4844 Altschul,New York,NY,10027,Altschul,,1,4844,Altschul Hall
+4858 Altschul,New York,NY,10027,Altschul,,1,4858,Altschul Hall
+4874 Altschul,New York,NY,10027,Altschul,,1,4874,Altschul Hall
+4877 Altschul,New York,NY,10027,Altschul,,1,4877,Altschul Hall
+4881 Altschul,New York,NY,10027,Altschul,,1,4881,Altschul Hall
+488I 98th St,Corona,NY,11368,98th St,,4,488I,98th St
+4890 Altschul,New York,NY,10027,Altschul,,1,4890,Altschul Hall
+4926 Altschul,New York,NY,10027,Altschul,,1,4926,Altschul Hall
+4928 Altschul,New York,NY,10027,Altschul,,1,4928,Altschul Hall
+4938 Altschul,New York,NY,10027,Altschul,,1,4938,Altschul Hall
+4948 Altschul,New York,NY,10027,Altschul,,1,4948,Altschul Hall
+4951 Altschul,New York,NY,10027,Altschul,,1,4951,Altschul Hall
+4956 Altschul,New York,NY,10027,Altschul,,1,4956,Altschul Hall
+4989 Altschul,New York,NY,10027,Altschul,,1,4989,Altschul Hall
+4990 Altschul,New York,NY,10027,Altschul,,1,4990,Altschul Hall
+5 160th St,Whitestone,NY,11357,160th St,,4,5,160th St
+5 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,5,Atlantic Commons
+50 50th Ave,Long Island City,NY,11101,50th Ave,,4,50,50th Ave
+50 Cadman Plz W,Brooklyn,NY,11201,Cadman Plz W,,3,50,CADMAN PLAZA WEST 
+50 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,50,Eldert Lane
+50 W 8th St,East Elmhurst,NY,11370,W 8th St,,4,50,W 8th St
+500 E 115th St,New York,NY,10029,E 115th St,,1,500,E 115th St
+5015 Altschul,New York,NY,10027,Altschul,,1,5015,Altschul Hall
+5024 51st St,Brooklyn,NY,11219,51st St,,4,5024,51st St
+5043 Altschul,New York,NY,10027,Altschul,,1,5043,Altschul Hall
+5059 Altschul,New York,NY,10027,Altschul,,1,5059,Altschul Hall
+5066 Altschul,New York,NY,10027,Altschul,,1,5066,Altschul Hall
+5074 Altschul,New York,NY,10027,Altschul,,1,5074,Altschul Hall
+5088 Altschul,New York,NY,10027,Altschul,,1,5088,Altschul Hall
+509 W 115th St,New York,NY,10027,W 115th St,,1,509,W 115th St
+5092 Altschul,New York,NY,10027,Altschul,,1,5092,Altschul Hall
+51 51st Ave,Corona,NY,11368,51st Ave,,4,51,51st Ave
+51 72nd Pl,Maspeth,NY,11378,72nd Pl,,4,51,72nd Pl
+5107 Altschul,New York,NY,10027,Altschul,,1,5107,Altschul Hall
+511 220th St,Saint Albans,NY,11412,220th St,,4,511,220th St
+512 66th St,Arverne,NY,11692,66th St,,4,512,66th St
+5128 Altschul,New York,NY,10027,Altschul,,1,5128,Altschul Hall
+5143 Altschul,New York,NY,10027,Altschul,,1,5143,Altschul Hall
+515 W 115th St,New York,NY,10027,W 115th St,,1,515,W 115th St
+5154 Altschul,New York,NY,10027,Altschul,,1,5154,Altschul Hall
+516 66th St,Arverne,NY,11692,66th St,,4,516,66th St
+516 E 34th St,New York,NY,10016,E 34th St,,1,516,E 34th St
+5173 Altschul,New York,NY,10027,Altschul,,1,5173,Altschul Hall
+5176 Altschul,New York,NY,10027,Altschul,,1,5176,Altschul Hall
+5187 Altschul,New York,NY,10027,Altschul,,1,5187,Altschul Hall
+52 59th St,Woodside,NY,11377,59th St,,4,52,59th St
+520 66th St,Arverne,NY,11692,66th St,,4,520,66th St
+521 79th St,Maspeth,NY,11378,79th St,,4,521,79th St
+5234 Altschul,New York,NY,10027,Altschul,,1,5234,Altschul Hall
+5235 Altschul,New York,NY,10027,Altschul,,1,5235,Altschul Hall
+5243 Altschul,New York,NY,10027,Altschul,,1,5243,Altschul Hall
+5255 Altschul,New York,NY,10027,Altschul,,1,5255,Altschul Hall
+5259 Altschul,New York,NY,10027,Altschul,,1,5259,Altschul Hall
+5272 Altschul,New York,NY,10027,Altschul,,1,5272,Altschul Hall
+5297 Altschul,New York,NY,10027,Altschul,,1,5297,Altschul Hall
+53 53rd Ave,Elmhurst,NY,11373,53rd Ave,,4,53,53rd Ave
+53 53rd St,Woodside,NY,11377,53rd St,,4,53,53rd St
+5301 53rd St,Brooklyn,NY,11204,53rd St,,4,5301,53rd St
+5301 Altschul,New York,NY,10027,Altschul,,1,5301,Altschul Hall
+5309 50th St,Maspeth,NY,11378,50th St,,4,5309,50th St
+5319 43rd St,Maspeth,NY,11378,43rd St,,4,5319,43rd St
+531R 11th St,Long Island City,NY,11101,11th St,,4,531R,11th St
+5329 Altschul,New York,NY,10027,Altschul,,1,5329,Altschul Hall
+532O 44th St,Maspeth,NY,11378,44th St,,4,532O,44th St
+5347 Altschul,New York,NY,10027,Altschul,,1,5347,Altschul Hall
+535 W 115th St,New York,NY,10027,W 115th St,,1,535,W 115th St
+5352 Altschul,New York,NY,10027,Altschul,,1,5352,Altschul Hall
+5358 Altschul,New York,NY,10027,Altschul,,1,5358,Altschul Hall
+5380 Altschul,New York,NY,10027,Altschul,,1,5380,Altschul Hall
+5382 Altschul,New York,NY,10027,Altschul,,1,5382,Altschul Hall
+5389 Altschul,New York,NY,10027,Altschul,,1,5389,Altschul Hall
+54 202nd St,Oakland Gardens,NY,11364,202nd St,,4,54,202nd St
+54 58th St,Maspeth,NY,11378,58th St,,4,54,58th St
+54 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,54,Eldert Lane
+5431 Altschul,New York,NY,10027,Altschul,,1,5431,Altschul Hall
+5433 Altschul,New York,NY,10027,Altschul,,1,5433,Altschul Hall
+5434 Altschul,New York,NY,10027,Altschul,,1,5434,Altschul Hall
+5436 Altschul,New York,NY,10027,Altschul,,1,5436,Altschul Hall
+5441 Altschul,New York,NY,10027,Altschul,,1,5441,Altschul Hall
+5451 Altschul,New York,NY,10027,Altschul,,1,5451,Altschul Hall
+5479 Altschul,New York,NY,10027,Altschul,,1,5479,Altschul Hall
+5483 Altschul,New York,NY,10027,Altschul,,1,5483,Altschul Hall
+5492 Altschul,New York,NY,10027,Altschul,,1,5492,Altschul Hall
+55 55th Ave,Maspeth,NY,11378,55th Ave,,4,55,55th Ave
+5505 Altschul,New York,NY,10027,Altschul,,1,5505,Altschul Hall
+5511 Altschul,New York,NY,10027,Altschul,,1,5511,Altschul Hall
+5518 Altschul,New York,NY,10027,Altschul,,1,5518,Altschul Hall
+5546 Altschul,New York,NY,10027,Altschul,,1,5546,Altschul Hall
+5548 Altschul,New York,NY,10027,Altschul,,1,5548,Altschul Hall
+5552 Altschul,New York,NY,10027,Altschul,,1,5552,Altschul Hall
+5576 Altschul,New York,NY,10027,Altschul,,1,5576,Altschul Hall
+56 56th Ave,Maspeth,NY,11378,56th Ave,,4,56,56th Ave
+56 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,56,Eldert Lane
+5608 Altschul,New York,NY,10027,Altschul,,1,5608,Altschul Hall
+5619 Altschul,New York,NY,10027,Altschul,,1,5619,Altschul Hall
+5620 Altschul,New York,NY,10027,Altschul,,1,5620,Altschul Hall
+5621 Altschul,New York,NY,10027,Altschul,,1,5621,Altschul Hall
+5631 Altschul,New York,NY,10027,Altschul,,1,5631,Altschul Hall
+5634 Altschul,New York,NY,10027,Altschul,,1,5634,Altschul Hall
+5640 Altschul,New York,NY,10027,Altschul,,1,5640,Altschul Hall
+5646 Altschul,New York,NY,10027,Altschul,,1,5646,Altschul Hall
+5661 Altschul,New York,NY,10027,Altschul,,1,5661,Altschul Hall
+5674 Altschul,New York,NY,10027,Altschul,,1,5674,Altschul Hall
+5680 Altschul,New York,NY,10027,Altschul,,1,5680,Altschul Hall
+57 57th St,Ridgewood,NY,11385,57th St,,4,57,57th St
+57 58th St,Maspeth,NY,11378,58th St,,4,57,58th St
+570 W 11th St,New York,NY,10036,W 11th St,,1,570,W 11th St
+5704 Altschul,New York,NY,10027,Altschul,,1,5704,Altschul Hall
+5715 Altschul,New York,NY,10027,Altschul,,1,5715,Altschul Hall
+5718 Altschul,New York,NY,10027,Altschul,,1,5718,Altschul Hall
+5766 Altschul,New York,NY,10027,Altschul,,1,5766,Altschul Hall
+5770 Altschul,New York,NY,10027,Altschul,,1,5770,Altschul Hall
+5775 Altschul,New York,NY,10027,Altschul,,1,5775,Altschul Hall
+5777 Altschul,New York,NY,10027,Altschul,,1,5777,Altschul Hall
+5780 Altschul,New York,NY,10027,Altschul,,1,5780,Altschul Hall
+5796 Altschul,New York,NY,10027,Altschul,,1,5796,Altschul Hall
+58 146th St,Flushing,NY,11355,146th St,,4,58,146th St
+58 54th Ave,Woodside,NY,11377,54th Ave,,4,58,54th Ave
+58 56th Ave,Maspeth,NY,11378,56th Ave,,4,58,56th Ave
+58 60th Ave,Elmhurst,NY,11373,60th Ave,,4,58,60th Ave
+58 Cadman Plz W,Brooklyn,NY,11201,Cadman Plz W,,3,58,CADMAN PLAZA WEST 
+5807 Altschul,New York,NY,10027,Altschul,,1,5807,Altschul Hall
+58100 55th St,Maspeth,NY,11378,55th St,,4,58100,55th St
+5829 Altschul,New York,NY,10027,Altschul,,1,5829,Altschul Hall
+5831 Altschul,New York,NY,10027,Altschul,,1,5831,Altschul Hall
+5832 Altschul,New York,NY,10027,Altschul,,1,5832,Altschul Hall
+583O 57th St,Maspeth,NY,11378,57th St,,4,583O,57th St
+5840 Altschul,New York,NY,10027,Altschul,,1,5840,Altschul Hall
+5844 Altschul,New York,NY,10027,Altschul,,1,5844,Altschul Hall
+5860 W 106th St,New York,NY,10025,W 106th St,,1,5860,W 106th St
+5872 Altschul,New York,NY,10027,Altschul,,1,5872,Altschul Hall
+5873 Altschul,New York,NY,10027,Altschul,,1,5873,Altschul Hall
+5876 Altschul,New York,NY,10027,Altschul,,1,5876,Altschul Hall
+5878 Altschul,New York,NY,10027,Altschul,,1,5878,Altschul Hall
+5882 Altschul,New York,NY,10027,Altschul,,1,5882,Altschul Hall
+5883 Altschul,New York,NY,10027,Altschul,,1,5883,Altschul Hall
+5884 Altschul,New York,NY,10027,Altschul,,1,5884,Altschul Hall
+5888 Altschul,New York,NY,10027,Altschul,,1,5888,Altschul Hall
+5898 Altschul,New York,NY,10027,Altschul,,1,5898,Altschul Hall
+5902 59th St,Brooklyn,NY,11204,59th St,,4,5902,59th St
+5915 Altschul,New York,NY,10027,Altschul,,1,5915,Altschul Hall
+5920 Altschul,New York,NY,10027,Altschul,,1,5920,Altschul Hall
+5927 Altschul,New York,NY,10027,Altschul,,1,5927,Altschul Hall
+5929 Altschul,New York,NY,10027,Altschul,,1,5929,Altschul Hall
+5933 Altschul,New York,NY,10027,Altschul,,1,5933,Altschul Hall
+5962 Altschul,New York,NY,10027,Altschul,,1,5962,Altschul Hall
+5963 Altschul,New York,NY,10027,Altschul,,1,5963,Altschul Hall
+5965 Altschul,New York,NY,10027,Altschul,,1,5965,Altschul Hall
+5976 Altschul,New York,NY,10027,Altschul,,1,5976,Altschul Hall
+5999 Altschul,New York,NY,10027,Altschul,,1,5999,Altschul Hall
+8 Olmstead Dr,Corona,NY,11368,Olmstead Dr,,4,8,OLMSTED DRIVE
+6 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,6,Eldert Lane
+6 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,6,William Ct
+60 Cadman Plz W,Brooklyn,NY,11201,Cadman Plz W,,3,60,CADMAN PLAZA WEST 
+60 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,60,Eldert Lane
+60011 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-11,Baychester Ave
+60012 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-12,Baychester Ave
+60013 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-13,Baychester Ave
+60015 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-15,Baychester Ave
+60016 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-16,Baychester Ave
+60017 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-17,Baychester Ave
+60019 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-19,Baychester Ave
+6002 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-02 ,Baychester Ave
+60020 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-20,Baychester Ave
+60021 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-21,Baychester Ave
+60023 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-23,Baychester Ave
+6003 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-03 ,Baychester Ave
+6007 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-07 ,Baychester Ave
+6009 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,600-09 ,Baychester Ave
+6011 Altschul,New York,NY,10027,Altschul,,1,6011,Altschul Hall
+6015 Altschul,New York,NY,10027,Altschul,,1,6015,Altschul Hall
+6038 Altschul,New York,NY,10027,Altschul,,1,6038,Altschul Hall
+6047 Altschul,New York,NY,10027,Altschul,,1,6047,Altschul Hall
+6076 Altschul,New York,NY,10027,Altschul,,1,6076,Altschul Hall
+6084 Altschul,New York,NY,10027,Altschul,,1,6084,Altschul Hall
+6091 Altschul,New York,NY,10027,Altschul,,1,6091,Altschul Hall
+6094 Altschul,New York,NY,10027,Altschul,,1,6094,Altschul Hall
+61 69th Rd,Forest Hills,NY,11375,69th Rd,,4,61,69th Rd
+6104 Altschul,New York,NY,10027,Altschul,,1,6104,Altschul Hall
+6105 Altschul,New York,NY,10027,Altschul,,1,6105,Altschul Hall
+6108 Altschul,New York,NY,10027,Altschul,,1,6108,Altschul Hall
+6117 Altschul,New York,NY,10027,Altschul,,1,6117,Altschul Hall
+6118 Altschul,New York,NY,10027,Altschul,,1,6118,Altschul Hall
+6122 Altschul,New York,NY,10027,Altschul,,1,6122,Altschul Hall
+6131 Altschul,New York,NY,10027,Altschul,,1,6131,Altschul Hall
+6158 Altschul,New York,NY,10027,Altschul,,1,6158,Altschul Hall
+6162 Altschul,New York,NY,10027,Altschul,,1,6162,Altschul Hall
+6180 Altschul,New York,NY,10027,Altschul,,1,6180,Altschul Hall
+6181 Altschul,New York,NY,10027,Altschul,,1,6181,Altschul Hall
+6187 Altschul,New York,NY,10027,Altschul,,1,6187,Altschul Hall
+6196 Altschul,New York,NY,10027,Altschul,,1,6196,Altschul Hall
+62 61st Ave,Little Neck,NY,11362,61st Ave,,4,62,61st Ave
+62 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,62,Eldert Lane
+62010 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-10,Baychester Ave
+62011 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-11,Baychester Ave
+62015 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-15,Baychester Ave
+62016 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-16,Baychester Ave
+62017 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-17,Baychester Ave
+62018 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-18,Baychester Ave
+62019 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-19,Baychester Ave
+6202 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-02 ,Baychester Ave
+62021 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-21,Baychester Ave
+62022 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-22,Baychester Ave
+62023 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-23,Baychester Ave
+6205 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-05 ,Baychester Ave
+6206 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-06 ,Baychester Ave
+6207 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,620-07 ,Baychester Ave
+6210 Altschul,New York,NY,10027,Altschul,,1,6210,Altschul Hall
+6223 Altschul,New York,NY,10027,Altschul,,1,6223,Altschul Hall
+6229 Altschul,New York,NY,10027,Altschul,,1,6229,Altschul Hall
+6233 Altschul,New York,NY,10027,Altschul,,1,6233,Altschul Hall
+6236 Altschul,New York,NY,10027,Altschul,,1,6236,Altschul Hall
+6238 Altschul,New York,NY,10027,Altschul,,1,6238,Altschul Hall
+6241 Altschul,New York,NY,10027,Altschul,,1,6241,Altschul Hall
+6242 Altschul,New York,NY,10027,Altschul,,1,6242,Altschul Hall
+6246 Altschul,New York,NY,10027,Altschul,,1,6246,Altschul Hall
+6255 Altschul,New York,NY,10027,Altschul,,1,6255,Altschul Hall
+6273 Altschul,New York,NY,10027,Altschul,,1,6273,Altschul Hall
+6276 Altschul,New York,NY,10027,Altschul,,1,6276,Altschul Hall
+6279 Altschul,New York,NY,10027,Altschul,,1,6279,Altschul Hall
+6281 Altschul,New York,NY,10027,Altschul,,1,6281,Altschul Hall
+6297 Altschul,New York,NY,10027,Altschul,,1,6297,Altschul Hall
+6299 Altschul,New York,NY,10027,Altschul,,1,6299,Altschul Hall
+14 Pn Plz,New York,NY,10122,Pn Plz,,1,14,Penn Plaza
+6307 Altschul,New York,NY,10027,Altschul,,1,6307,Altschul Hall
+6332 Altschul,New York,NY,10027,Altschul,,1,6332,Altschul Hall
+6335 Altschul,New York,NY,10027,Altschul,,1,6335,Altschul Hall
+6340 Altschul,New York,NY,10027,Altschul,,1,6340,Altschul Hall
+6356 Altschul,New York,NY,10027,Altschul,,1,6356,Altschul Hall
+6387 Altschul,New York,NY,10027,Altschul,,1,6387,Altschul Hall
+6392 Altschul,New York,NY,10027,Altschul,,1,6392,Altschul Hall
+6394 Altschul,New York,NY,10027,Altschul,,1,6394,Altschul Hall
+64 186th Ln,Fresh Meadows,NY,11365,186th Ln,,4,64,186th Ln
+64 56th Ave,Maspeth,NY,11378,56th Ave,,4,64,56th Ave
+64 64th St,Middle Village,NY,11379,64th St,,4,64,64th St
+64 65th Ave,Middle Village,NY,11379,65th Ave,,4,64,65th Ave
+64 67th Ave,Bayside,NY,11359,67th Ave,,4,64,67th Ave
+6401 Altschul,New York,NY,10027,Altschul,,1,6401,Altschul Hall
+641 E 151st St,Bronx,NY,10454,E 151st St,,2,641,E 151st St
+6412 Altschul,New York,NY,10027,Altschul,,1,6412,Altschul Hall
+6429 Altschul,New York,NY,10027,Altschul,,1,6429,Altschul Hall
+6436 Altschul,New York,NY,10027,Altschul,,1,6436,Altschul Hall
+6445 Altschul,New York,NY,10027,Altschul,,1,6445,Altschul Hall
+6450 Altschul,New York,NY,10027,Altschul,,1,6450,Altschul Hall
+6462 Altschul,New York,NY,10027,Altschul,,1,6462,Altschul Hall
+6486 Altschul,New York,NY,10027,Altschul,,1,6486,Altschul Hall
+6491 Altschul,New York,NY,10027,Altschul,,1,6491,Altschul Hall
+6492 Altschul,New York,NY,10027,Altschul,,1,6492,Altschul Hall
+20 Rockerfeller Plz,New York,NY,10020,Rockerfeller Plz,,1,20,ROCKEFELLER PLAZA 
+650 E 153rd St,Bronx,NY,10451,E 153rd St,,2,650,E 153rd St
+6501 Altschul,New York,NY,10027,Altschul,,1,6501,Altschul Hall
+6513 Altschul,New York,NY,10027,Altschul,,1,6513,Altschul Hall
+6523 Altschul,New York,NY,10027,Altschul,,1,6523,Altschul Hall
+6524 Altschul,New York,NY,10027,Altschul,,1,6524,Altschul Hall
+6525 Altschul,New York,NY,10027,Altschul,,1,6525,Altschul Hall
+6536 Altschul,New York,NY,10027,Altschul,,1,6536,Altschul Hall
+6581 Altschul,New York,NY,10027,Altschul,,1,6581,Altschul Hall
+66 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,66,Eldert Lane
+666 56th Rd,Maspeth,NY,11378,56th Rd,,4,666,56th Rd
+67 67th Dr,Ridgewood,NY,11385,67th Dr,,4,67,67th Dr
+68 68th Ave,Forest Hills,NY,11375,68th Ave,,4,68,68th Ave
+68 68th Rd,Ridgewood,NY,11385,68th Rd,,4,68,68th Rd
+68 69th St,Ridgewood,NY,11385,69th St,,4,68,69th St
+68 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,68,Eldert Lane
+680 W 249th St,Bronx,NY,10471,W 249th St,,2,680,W 249th St
+69 69th St,Ridgewood,NY,11385,69th St,,4,69,69th St
+69 73rd Pl,Forest Hills,NY,11375,73rd Pl,,4,69,73rd Pl
+6902 E 69th St,Brooklyn,NY,11234,E 69th St,,3,6902,E 69th St
+7 152nd St,Whitestone,NY,11357,152nd St,,4,7,152nd St
+7 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,7,Atlantic Commons
+7 World Trade St,New York,NY,10007,World Trade St,,1,7,WORLD TRADE CENTER 
+70 71st St,Ridgewood,NY,11385,71st St,,4,70,71st St
+70 Avenue K,Brooklyn,NY,11236,Avenue K,,3,70,Avenue K
+70 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,70,Eldert Lane
+700 W 131st St,New York,NY,10027,W 131st St,,1,700,W 131st St
+7022 E 71st St,Brooklyn,NY,11234,E 71st St,,3,7022,E 71st St
+71 71st St,Ridgewood,NY,11385,71st St,,4,71,71st St
+71 73rd Ave,Fresh Meadows,NY,11365,73rd Ave,,4,71,73rd Ave
+711 19th St,Far Rockaway,NY,11691,19th St,,4,711,B 19 Street
+719 E 24th St,Brooklyn,NY,11210,E 24th St,,3,719,E 24th St
+72 72nd Rd,Forest Hills,NY,11375,72nd Rd,,4,72,72nd Rd
+7228 60th Ln,Glendale,NY,11385,60th Ln,,4,7228,60th Ln
+73 71st St,Ridgewood,NY,11385,71st St,,4,73,71st St
+7312 95th Ave,Ozone Park,NY,11416,95th Ave,,4,7312,95th Ave
+7314 95th Ave,Ozone Park,NY,11416,95th Ave,,4,7314,95th Ave
+7315 W 183rd St,New York,NY,10033,W 183rd St,,1,7315,W 183rd St
+739 5th St,New York,NY,10022,5th St,,4,739,5th St
+74 70th Ave,Middle Village,NY,11379,70th Ave,,4,74,70th Ave
+74 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,74,Eldert Lane
+75 181st St,Fresh Meadows,NY,11366,181st St,,4,75,181st St
+76179 7th Ave,New York,NY,10019,7th Ave,,1,761-79,7 Avenue
+779 W 97th St,New York,NY,10025,W 97th St,,1,779,W 97th St
+8 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,8,Eldert Ln
+8 Williams Ct,Far Rockaway,NY,11691,Williams Ct,,4,8,William Ct
+80 W 8th St,New York,NY,10011,W 8th St,,1,80,W 8th St
+8020 179th Pl,Jamaica,NY,11432,179th Pl,,4,8020,179th Pl
+8119 E 81st St,Brooklyn,NY,11236,E 81st St,,3,8119,E 81st St
+825 E 98th St,Brooklyn,NY,11236,E 98th St,,3,825,E 98th St
+84 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,84,Eldert Ln
+85 51st Ave,Elmhurst,NY,11373,51st Ave,,4,85,51st Ave
+86 235th St,Bellerose,NY,11426,235th St,,4,86,235th St
+87 155th St,Jamaica,NY,11432,155th St,,4,87,155th St
+88 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,88,Eldert Ln
+889 1/2 1st Ave,New York,NY,10022,1/2 1st Ave,,1,8891/2,1 Avenue
+11 Woods St,Brooklyn,NY,11226,Woods St,,3,11,Woods Place
+9 44th Rd,Long Island City,NY,11101,44th Rd,,4,9,44th Rd
+9 50th Ave,Long Island City,NY,11101,50th Ave,,4,9,50th Ave
+9 Atlantic Cmns,Brooklyn,NY,11217,Atlantic Cmns,,3,9,Atlantic Commons
+90 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,90,Eldert Ln
+90010 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-10,Baychester Ave
+90011 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-11,Baychester Ave
+90012 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-12,Baychester Ave
+90013 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-13,Baychester Ave
+90014 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-14,Baychester Ave
+90015 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-15,Baychester Ave
+90016 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-16,Baychester Ave
+90017 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-17,Baychester Ave
+90018 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-18,Baychester Ave
+90019 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-19,Baychester Ave
+9002 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-02 ,Baychester Ave
+90020 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-20,Baychester Ave
+90021 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-21,Baychester Ave
+90023 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-23,Baychester Ave
+90024 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-24,Baychester Ave
+9003 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-03 ,Baychester Ave
+9004 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-04 ,Baychester Ave
+9005 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-05 ,Baychester Ave
+9006 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-06 ,Baychester Ave
+9008 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-08 ,Baychester Ave
+9009 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,900-09 ,Baychester Ave
+9036 E 92nd St,Brooklyn,NY,11236,E 92nd St,,3,9036,E 92nd St
+92010 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-10,Baychester Ave
+92011 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-11,Baychester Ave
+92012 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-12,Baychester Ave
+92013 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-13,Baychester Ave
+92014 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-14,Baychester Ave
+92015 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-15,Baychester Ave
+92016 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-16,Baychester Ave
+92017 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-17,Baychester Ave
+92018 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-18,Baychester Ave
+92019 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-19,Baychester Ave
+9202 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-02 ,Baychester Ave
+92020 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-20,Baychester Ave
+92021 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-21,Baychester Ave
+92022 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-22,Baychester Ave
+92023 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-23,Baychester Ave
+92024 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-24,Baychester Ave
+9203 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-03 ,Baychester Ave
+9204 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-04 ,Baychester Ave
+9205 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-05 ,Baychester Ave
+9206 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-06 ,Baychester Ave
+9207 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-07 ,Baychester Ave
+9209 Baychester Ave,Bronx,NY,10475,Baychester Ave,,2,920-09 ,Baychester Ave
+93 149th Ave,Ozone Park,NY,11417,149th Ave,,4,93,149th Ave
+93 178th Pl,Jamaica,NY,11433,178th Pl,,4,93,178th Pl
+93 182nd Pl,Hollis,NY,11423,182nd Pl,,4,93,182nd Pl
+93 230th St,Queens Village,NY,11428,230th St,,4,93,230th St
+93 234th St,Little Neck,NY,11363,234th St,,4,93,234th St
+93 94th St,Elmhurst,NY,11373,94th St,,4,93,94th St
+94 23rd Ave,East Elmhurst,NY,11369,23rd Ave,,4,94,23rd Ave
+94 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,94,Eldert Ln
+9512 Drew St,Ozone Park,NY,11416,Drew St,,3,9512,Drew Street
+9514 Drew St,Ozone Park,NY,11416,Drew St,,3,9514,Drew Street
+9514 E 96th St,Brooklyn,NY,11236,E 96th St,,3,9514,E 96th St
+9516 Drew St,Ozone Park,NY,11416,Drew St,,3,9516,Drew Street
+9518 Drew St,Ozone Park,NY,11416,Drew St,,3,9518,Drew Street
+9520 5th St,Brooklyn,NY,11215,5th St,,4,9520,5th St
+9520 Drew St,Ozone Park,NY,11416,Drew St,,3,9520,Drew Street
+9522 Drew St,Ozone Park,NY,11416,Drew St,,3,9522,Drew Street
+9524 Drew St,Ozone Park,NY,11416,Drew St,,3,9524,Drew Street
+9526 Drew St,Ozone Park,NY,11416,Drew St,,3,9526,Drew Street
+9528 Drew St,Ozone Park,NY,11416,Drew St,,3,9528,Drew Street
+9530 Drew St,Ozone Park,NY,11416,Drew St,,3,9530,Drew Street
+96 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,96,Eldert Ln
+97 165th St,Jamaica,NY,11433,165th St,,4,97,165th St
+9712 Drew St,Ozone Park,NY,11416,Drew St,,3,9712,Drew Street
+9714 Drew St,Ozone Park,NY,11416,Drew St,,3,9714,Drew Street
+9716 Drew St,Ozone Park,NY,11416,Drew St,,3,9716,Drew Street
+9718 Drew St,Ozone Park,NY,11416,Drew St,,3,9718,Drew Street
+9720 Drew St,Ozone Park,NY,11416,Drew St,,3,9720,Drew Street
+9722 Drew St,Ozone Park,NY,11416,Drew St,,3,9722,Drew Street
+9724 Drew St,Ozone Park,NY,11416,Drew St,,3,9724,Drew Street
+9726 Drew St,Ozone Park,NY,11416,Drew St,,3,9726,Drew Street
+9728 Drew St,Ozone Park,NY,11416,Drew St,,3,9728,Drew Street
+9730 Drew St,Ozone Park,NY,11416,Drew St,,3,9730,Drew Street
+9732 Drew St,Ozone Park,NY,11416,Drew St,,3,9732,Drew Street
+9734 Drew St,Ozone Park,NY,11416,Drew St,,3,9734,Drew Street
+9736 Drew St,Ozone Park,NY,11416,Drew St,,3,9736,Drew Street
+9740 Drew St,Ozone Park,NY,11416,Drew St,,3,9740,Drew Street
+9742 Drew St,Ozone Park,NY,11416,Drew St,,3,9742,Drew Street
+9744 Drew St,Ozone Park,NY,11416,Drew St,,3,9744,Drew Street
+9746 Drew St,Ozone Park,NY,11416,Drew St,,3,9746,Drew Street
+9750 Drew St,Ozone Park,NY,11416,Drew St,,3,9750,Drew Street
+9752 Drew St,Ozone Park,NY,11416,Drew St,,3,9752,Drew Street
+9754 Drew St,Ozone Park,NY,11416,Drew St,,3,9754,Drew Street
+9756 Drew St,Ozone Park,NY,11416,Drew St,,3,9756,Drew Street
+9758 Drew St,Ozone Park,NY,11416,Drew St,,3,9758,Drew Street
+98 Eldert Ln,Woodhaven,NY,11421,Eldert Ln,,3,98,Eldert Ln
