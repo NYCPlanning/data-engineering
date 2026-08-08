@@ -22,6 +22,11 @@ TEST_BUCKETS = [
 ]
 os.environ["RECIPES_BUCKET"] = RECIPES_BUCKET
 os.environ["PUBLISHING_BUCKET"] = PUBLISHING_BUCKET
+# Must be set before dcpy.configuration is imported below: it otherwise defaults
+# BUILD_ENGINE_SCHEMA to the sanitized git branch name, which makes any test that
+# reaches the build-schema fallback pass or fail depending on the branch it runs on.
+BUILD_ENGINE_SCHEMA = "unit_tests"
+os.environ["BUILD_ENGINE_SCHEMA"] = BUILD_ENGINE_SCHEMA
 # PRODUCT_METADATA_REPO_PATH should be set in the environment to point to
 # the real product-metadata repo, not the old mock in test/resources
 

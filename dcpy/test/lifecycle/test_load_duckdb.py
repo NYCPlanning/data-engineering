@@ -229,10 +229,8 @@ def test_load_multiple_datasets_into_duckdb(test_data_dir, tmp_path):
     duckdb_client.close()
 
 
-def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path):
+def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path, monkeypatch):
     """Test loading a recipe with multiple datasets including geospatial Parquet into DuckDB."""
-    import os
-
     import geopandas as gpd
     import yaml
     from shapely.geometry import Point  # type: ignore
@@ -312,80 +310,67 @@ def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path):
     # Set BUILD_ENV_OUTPUT_DIR for this test
     output_dir = tmp_path / "build_output"
     output_dir.mkdir()
-    old_env = os.environ.get("BUILD_ENV_OUTPUT_DIR")
-    os.environ["BUILD_ENV_OUTPUT_DIR"] = str(output_dir)
+    monkeypatch.setenv("BUILD_ENV_OUTPUT_DIR", str(output_dir))
 
-    try:
-        # Load the recipe using load_source_data_from_resolved_recipe.
-        # target_schema is passed explicitly (rather than left to fall back to
-        # BUILD_ENGINE_SCHEMA or the current git branch name)
-        load_result = load.load_source_data_from_resolved_recipe(
-            recipe_path,
-            clear_pg_schema=False,
-            _write_metadata_file=False,
-            target_schema="dcas_lift_join",
-        )
+    # Load the recipe using load_source_data_from_resolved_recipe.
+    # target_schema is passed explicitly (rather than left to fall back to
+    # BUILD_ENGINE_SCHEMA or the current git branch name)
+    load_result = load.load_source_data_from_resolved_recipe(
+        recipe_path,
+        clear_pg_schema=False,
+        _write_metadata_file=False,
+        target_schema="test_schema",
+    )
 
-        # Verify DuckDB file was created in correct location
-        duckdb_path = output_dir / "test_product_1.0.duckdb"
-        assert duckdb_path.exists(), f"DuckDB file should exist at {duckdb_path}"
+    # Verify DuckDB file was created in correct location
+    duckdb_path = output_dir / "test_product_1.0.duckdb"
+    assert duckdb_path.exists(), f"DuckDB file should exist at {duckdb_path}"
 
-        # Connect to the created DuckDB database and verify data
-        import duckdb
+    # Connect to the created DuckDB database and verify data
+    import duckdb
 
-        conn = duckdb.connect(str(duckdb_path))
+    conn = duckdb.connect(str(duckdb_path))
 
-        # Verify both tables exist
-        tables = conn.execute(
-            "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema', 'pg_catalog')"
-        ).fetchall()
-        table_names = [(t[0], t[1]) for t in tables]
-        assert ("dcas_lift_join", "people") in table_names
-        assert ("dcas_lift_join", "cities") in table_names
+    # Verify both tables exist
+    tables = conn.execute(
+        "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema NOT IN ('information_schema', 'pg_catalog')"
+    ).fetchall()
+    table_names = [(t[0], t[1]) for t in tables]
+    assert ("test_schema", "people") in table_names
+    assert ("test_schema", "cities") in table_names
 
-        # Verify CSV data
-        csv_result = conn.execute(
-            "SELECT COUNT(*) FROM dcas_lift_join.people"
-        ).fetchone()[0]
-        assert csv_result == 3
+    # Verify CSV data
+    csv_result = conn.execute("SELECT COUNT(*) FROM test_schema.people").fetchone()[0]
+    assert csv_result == 3
 
-        # Verify geospatial Parquet data loaded correctly (with CRS)
-        geo_result = conn.execute(
-            "SELECT COUNT(*) FROM dcas_lift_join.cities"
-        ).fetchone()[0]
-        assert geo_result == 3
+    # Verify geospatial Parquet data loaded correctly (with CRS)
+    geo_result = conn.execute("SELECT COUNT(*) FROM test_schema.cities").fetchone()[0]
+    assert geo_result == 3
 
-        # Verify geometry column exists with CRS (this tests our storage version fix!)
-        geo_cols = conn.execute(
-            "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'dcas_lift_join' AND table_name = 'cities'"
-        ).fetchall()
-        col_types = {col: dtype for col, dtype in geo_cols}
-        assert "geometry" in col_types
-        # The geometry type should include the SRID - this confirms v1.5.0+ storage is working
-        assert "GEOMETRY" in col_types["geometry"]
-        assert "EPSG:4326" in col_types["geometry"]
+    # Verify geometry column exists with CRS (this tests our storage version fix!)
+    geo_cols = conn.execute(
+        "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'test_schema' AND table_name = 'cities'"
+    ).fetchall()
+    col_types = {col: dtype for col, dtype in geo_cols}
+    assert "geometry" in col_types
+    # The geometry type should include the SRID - this confirms v1.5.0+ storage is working
+    assert "GEOMETRY" in col_types["geometry"]
+    assert "EPSG:4326" in col_types["geometry"]
 
-        # Verify we can query the geometry
-        geom_check = conn.execute(
-            "SELECT city, ST_AsText(geometry) as geom_wkt FROM dcas_lift_join.cities ORDER BY city"
-        ).fetchall()
-        assert len(geom_check) == 3
-        assert geom_check[0][0] == "Chicago"  # First alphabetically
-        assert "POINT" in geom_check[0][1]
+    # Verify we can query the geometry
+    geom_check = conn.execute(
+        "SELECT city, ST_AsText(geometry) as geom_wkt FROM test_schema.cities ORDER BY city"
+    ).fetchall()
+    assert len(geom_check) == 3
+    assert geom_check[0][0] == "Chicago"  # First alphabetically
+    assert "POINT" in geom_check[0][1]
 
-        conn.close()
+    conn.close()
 
-        # Verify load result
-        assert load_result.name == "Test Recipe"
-        assert "test_csv" in load_result.datasets
-        assert "test_geo" in load_result.datasets
-
-    finally:
-        # Restore environment
-        if old_env:
-            os.environ["BUILD_ENV_OUTPUT_DIR"] = old_env
-        elif "BUILD_ENV_OUTPUT_DIR" in os.environ:
-            del os.environ["BUILD_ENV_OUTPUT_DIR"]
+    # Verify load result
+    assert load_result.name == "Test Recipe"
+    assert "test_csv" in load_result.datasets
+    assert "test_geo" in load_result.datasets
 
 
 def test_load_without_ogc_fid(test_data_dir, tmp_path):
