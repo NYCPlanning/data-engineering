@@ -154,6 +154,60 @@ class DuckDBClient:
         logger.info(f"Loaded Parquet {parquet_path} into {full_table_name}")
         return full_table_name
 
+    def load_spatial(
+        self,
+        source_path: Path,
+        table_name: str,
+        include_ogc_fid_col: bool = True,
+        layer_name: str | None = None,
+    ) -> str:
+        """Load a GDAL/OGR-readable spatial dataset (e.g. shapefile) into a DuckDB table.
+
+        Uses the spatial extension's ST_Read, which reads zipped shapefiles
+        (e.g. `foo.shp.zip`) directly without needing to unzip first.
+
+        Args:
+            source_path: Path to the spatial dataset (e.g. a .shp or .shp.zip file)
+            table_name: Name of table to create
+            include_ogc_fid_col: Whether to add ogc_fid primary key column
+            layer_name: Optional layer to read, for multi-layer sources
+
+        Returns:
+            Fully qualified table name (schema.table)
+        """
+        sanitized_table = sanitize_name(table_name)
+        full_table_name = f"{self.schema}.{sanitized_table}"
+
+        # Drop table if exists
+        self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
+
+        st_read_call = (
+            f"ST_Read('{source_path}', layer='{layer_name}')"
+            if layer_name
+            else f"ST_Read('{source_path}')"
+        )
+
+        # ST_Read includes its own OGC_FID column; exclude it so our row_number()
+        # based ogc_fid (consistent with the CSV/Parquet loaders) doesn't collide with it.
+        if include_ogc_fid_col:
+            self.conn.execute(
+                f"""
+                CREATE TABLE {full_table_name} AS
+                SELECT row_number() OVER () AS ogc_fid, * EXCLUDE (OGC_FID)
+                FROM {st_read_call}
+                """
+            )
+        else:
+            self.conn.execute(
+                f"""
+                CREATE TABLE {full_table_name} AS
+                SELECT * EXCLUDE (OGC_FID) FROM {st_read_call}
+                """
+            )
+
+        logger.info(f"Loaded spatial dataset {source_path} into {full_table_name}")
+        return full_table_name
+
     def add_table_column(
         self, table_name: str, col_name: str, col_type: str, default_value: str
     ) -> None:
