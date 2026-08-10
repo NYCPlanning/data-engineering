@@ -111,7 +111,8 @@ jobs:
             --product ${{ inputs.product }} \
             --build ${{ inputs.build }} \
             ${{ (inputs.draft_summary != '' && format('--draft-summary {0}', inputs.draft_summary)) || ''}} \
-            --acl ${{ inputs.product_acl }}
+            --acl ${{ inputs.product_acl }} \
+            --download-metadata
   
       - name: Set version and draft number 
         run: |
