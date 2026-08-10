@@ -45,3 +45,32 @@ inputs:
       import_as: cpdb_projects_points
       custom:
         filename: cpdb_projects_pts.shp.zip
+
+exports:
+  output_folder: output
+  zip_name: output
+  datasets:
+  - name: lift_supplemented
+    filename: lift_supplemented.csv
+    format: csv
+
+stage_config:
+  builds.build:
+    commands:
+    # dbt needs DUCKDB_PATH pointed at the file load_recipe_data just created. Each
+    # command below runs as its own subprocess (no state carries over between them), but
+    # BUILD_ENV_OUTPUT_DIR and VERSION are both guaranteed set in the environment before
+    # every command (recipe.env["VERSION"] is set at plan time; BUILD_ENV_OUTPUT_DIR is set
+    # from the build directory) - same convention as the loader's own duckdb filename.
+    - name: dbt_deps
+      command_type: shell
+      run: dbt deps
+    - name: dbt_build
+      command_type: shell
+      run: >-
+        export DUCKDB_PATH="$BUILD_ENV_OUTPUT_DIR/lift_${VERSION}.duckdb" &&
+        dbt debug &&
+        dbt test --select "source:*" &&
+        dbt build --select staging &&
+        dbt build --select intermediate &&
+        dbt build --select product

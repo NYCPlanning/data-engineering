@@ -7,8 +7,13 @@ import geopandas as gpd
 import pytest
 from shapely import LineString, MultiPolygon, Point, Polygon
 
-from dcpy.lifecycle.builds.export import export, export_geodataset_from_postgres
+from dcpy.lifecycle.builds.export import (
+    export,
+    export_dataset_from_duckdb,
+    export_geodataset_from_postgres,
+)
 from dcpy.lifecycle.builds.models import ExportFormat
+from dcpy.utils import duckdb as duckdb_utils
 
 _point_row = {"id": 1, "geometry": Point(0, 0)}
 _polygon_row = {
@@ -346,3 +351,137 @@ def test_export_warns_when_target_dir_missing(tmp_path):
     # Check debug logs for missing artifact directory message
     debug_calls = [str(call) for call in mock_logger.debug.call_args_list]
     assert any("target" in msg for msg in debug_calls)
+
+
+def test_csv_export_from_duckdb(tmp_path):
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute("CREATE TABLE test_schema.mytable AS SELECT 1 AS a, 'x' AS b")
+
+    out = tmp_path / "mytable.csv"
+    export_dataset_from_duckdb(
+        table_name="mytable",
+        file_path=out,
+        format=ExportFormat.csv,
+        duckdb_client=client,
+    )
+
+    assert out.read_text() == "a,b\n1,x\n"
+    client.close()
+
+
+def test_parquet_export_from_duckdb(tmp_path):
+    import pandas as pd
+
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute("CREATE TABLE test_schema.mytable AS SELECT 1 AS a, 'x' AS b")
+
+    out = tmp_path / "mytable.parquet"
+    export_dataset_from_duckdb(
+        table_name="mytable",
+        file_path=out,
+        format=ExportFormat.parquet,
+        duckdb_client=client,
+    )
+
+    result = pd.read_parquet(out)
+    assert result.to_dict("records") == [{"a": 1, "b": "x"}]
+    client.close()
+
+
+def test_dat_export_from_duckdb_uses_crlf_no_header(tmp_path):
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute("CREATE TABLE test_schema.mytable AS SELECT 1 AS a, 'x' AS b")
+
+    out = tmp_path / "mytable.dat"
+    export_dataset_from_duckdb(
+        table_name="mytable",
+        file_path=out,
+        format=ExportFormat.dat,
+        duckdb_client=client,
+    )
+
+    assert out.read_bytes() == b"1,x\r\n"
+    client.close()
+
+
+def test_unsupported_format_from_duckdb_raises(tmp_path):
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute("CREATE TABLE test_schema.mytable AS SELECT 1 AS a")
+
+    with pytest.raises(NotImplementedError, match="shp"):
+        export_dataset_from_duckdb(
+            table_name="mytable",
+            file_path=tmp_path / "out.zip",
+            format=ExportFormat.shapefile,
+            duckdb_client=client,
+        )
+    client.close()
+
+
+def test_export_routes_to_duckdb_when_recipe_uses_duckdb(tmp_path):
+    """export() reads from DuckDB, not postgres, when the recipe's inputs all target DuckDB."""
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets:
+  - name: mytable
+    destination: duckdb
+exports:
+  output_folder: {output_folder}
+  datasets:
+  - name: mytable
+    format: csv
+""".format(output_folder=str(tmp_path / "output"))
+    )
+
+    with patch(
+        "dcpy.lifecycle.builds.export.export_dataset_from_duckdb"
+    ) as mock_export:
+        mock_export.return_value = None
+        export(recipe_path, duckdb_client=MagicMock())
+
+    assert mock_export.called
+
+
+def test_export_mixed_destinations_falls_back_to_postgres(tmp_path):
+    """A recipe with both postgres- and duckdb-destined inputs falls back to the postgres
+    export path (gdb/shapefile export and mixed-backend export aren't supported for DuckDB)."""
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets:
+  - name: pgtable
+    destination: postgres
+  - name: ducktable
+    destination: duckdb
+exports:
+  output_folder: {output_folder}
+  datasets:
+  - name: pgtable
+    format: csv
+""".format(output_folder=str(tmp_path / "output"))
+    )
+
+    with patch(
+        "dcpy.lifecycle.builds.export.export_dataset_from_postgres"
+    ) as mock_export:
+        mock_export.return_value = None
+        export(recipe_path, pg_client=MagicMock())
+
+    assert mock_export.called

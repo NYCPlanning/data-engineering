@@ -208,6 +208,47 @@ class DuckDBClient:
         logger.info(f"Loaded spatial dataset {source_path} into {full_table_name}")
         return full_table_name
 
+    def export_to_csv(
+        self,
+        table_name: str,
+        output_path: Path,
+        *,
+        query: str | None = None,
+        include_header: bool = True,
+    ) -> None:
+        """Export a table (or query) to a CSV file.
+
+        Args:
+            table_name: Name of table to export (ignored if `query` is given)
+            output_path: Path to write the CSV file to
+            query: Optional SQL query to export instead of the full table
+            include_header: Whether to write a header row
+        """
+        select = query or f"SELECT * FROM {self.schema}.{sanitize_name(table_name)}"
+        header = "true" if include_header else "false"
+        self.conn.execute(
+            f"COPY ({select}) TO '{output_path}' (FORMAT CSV, HEADER {header})"
+        )
+        logger.info(f"Exported {table_name} to {output_path}")
+
+    def export_to_parquet(
+        self,
+        table_name: str,
+        output_path: Path,
+        *,
+        query: str | None = None,
+    ) -> None:
+        """Export a table (or query) to a Parquet file.
+
+        Args:
+            table_name: Name of table to export (ignored if `query` is given)
+            output_path: Path to write the Parquet file to
+            query: Optional SQL query to export instead of the full table
+        """
+        select = query or f"SELECT * FROM {self.schema}.{sanitize_name(table_name)}"
+        self.conn.execute(f"COPY ({select}) TO '{output_path}' (FORMAT PARQUET)")
+        logger.info(f"Exported {table_name} to {output_path}")
+
     def add_table_column(
         self, table_name: str, col_name: str, col_type: str, default_value: str
     ) -> None:

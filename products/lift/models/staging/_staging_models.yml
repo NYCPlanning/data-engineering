@@ -1,0 +1,8 @@
+version: 2
+
+models:
+- name: stg__lift_csv
+- name: stg__pluto
+- name: stg__ct2020
+- name: stg__dri
+- name: stg__cpdb_points
