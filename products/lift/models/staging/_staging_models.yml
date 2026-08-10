@@ -6,3 +6,4 @@ models:
 - name: stg__ct2020
 - name: stg__dri
 - name: stg__cpdb_points
+- name: stg__cpdb_poly

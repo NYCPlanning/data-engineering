@@ -6,6 +6,58 @@ Product supporting DCAS's Land Inventory / Fast Track (LIFT) process.
 
 [recipe](https://github.com/NYCPlanning/data-engineering/blob/main/products/lift/recipe.yml)
 
+## `lift_supplemented`
+
+`models/product/lift_supplemented.sql` is a drop-in copy of the `lift_csv` extract (same grain,
+one row per `bbl`, every other column untouched), with three empty placeholder columns
+populated - `DISPLACEMENT_RISK_FORMULA`, `CPSPENTTOTAL`, `CPPROJECTS` - plus one new column,
+`cp_project_ids` (a JSON array of the intersecting CPDB project ids, for QA/traceability behind
+`cpspenttotal`/`cpprojects`). BBLs with no intersecting capital project get `0`/`[]`, not `null`,
+for `cpspenttotal`/`cpprojects`/`cp_project_ids`.
+
+Join path, all verified against a real build rather than assumed (see `models/intermediate/`):
+
+- **DRI Tier**: `lift_csv.bbl` -> `pluto.bbl` (99.8% match) -> `pluto.bct2020 = ct2020.boroct2020`
+  (99.997% match) -> `ct2020.nta2020 = dri.NTACode`. `dcp_ct2020` already carries `nta2020`
+  directly, so it doubles as the census-tract-to-NTA crosswalk - no separate lookup dataset
+  needed. `dri_tier` is `dri_subindices_indicators.DisplacementRiskIndex` (5-level categorical:
+  Lowest/Low/Intermediate/High/Highest). DRI is null for ~2.6% of BBLs - confirmed this is
+  complete and legitimate, not a join gap: DRI only covers 197 of NTA2020's 262 NTAs, and every
+  one of the 65 missing NTAs is a park/cemetery/airport/institutional area (Central Park, Rikers
+  Island, JFK, etc.) with no residential population to measure displacement risk for.
+- **CPSpentTotal / CPProjects / cp_project_ids**: spatial join, `pluto.geom` `ST_Intersects`
+  CPDB project geometries, grouped by `bbl` (`COUNT(DISTINCT project_id)`, `SUM(spent_total)`,
+  sorted JSON list of `project_id`). Both CPDB layers are joined (`stg__cpdb_points` UNION ALL
+  `stg__cpdb_poly` in `int__lift_cpdb.sql`) - confirmed via `cpdb`'s own pipeline
+  (`cpdb_projects_pts`/`cpdb_projects_poly` are `cpdb_projects_shp` filtered by
+  `ST_GeometryType`) that every project has exactly one geometry, point or polygon, so the two
+  layers are a strict partition of one canonical project table with zero overlapping
+  `project_id`s - `UNION ALL` can't double-count a project. Points-only matched 1,327 distinct
+  LIFT BBLs; adding poly brings that to 5,367 - poly isn't redundant with points, most non-point
+  projects (park/street/facility footprints) simply never got a point representation at all.
+  Worth knowing: a handful of large public-land BBLs (Rikers Island, Flushing Meadows, Central
+  Park, etc. - PLUTO represents each as one enormous lot) will show very high `cpprojects`/
+  `cpspenttotal`, since every CPDB project anywhere within that huge polygon attributes entirely
+  to that one BBL. Not a bug, but worth knowing before treating these numbers as "investment at
+  this specific site" for LIFT's actual redevelopment-site use case.
+
+### Initial results
+
+From a full build against the current recipe (14,244 LIFT rows):
+
+- **5,367** BBLs (37.7%) have at least one intersecting CPDB capital project (points + poly
+  combined; 1,327 with points alone).
+- **10,726** total project-lot hits, **~$1.03B** total `cpspenttotal` represented across all BBLs.
+- **DRI Tier** populated for **97.4%** of BBLs; the remaining 2.6% are legitimately outside DRI's
+  residential-NTA coverage (see above), not a join failure.
+
+**Implementation note**: DuckDB's spatial extension is strict about CRS equality - `pluto.geom` is
+stored labeled `OGC:CRS84` and `cpdb_projects_points.geom` as `EPSG:4326`; calling `ST_Intersects`
+across them errors unless the CRSes match. Both are numerically lon/lat WGS84 in this data, so
+`stg__pluto.sql` relabels with `ST_SetCRS(geom, 'EPSG:4326')` rather than actually reprojecting -
+`ST_Transform` attempts to download PROJ grid files over the network on first use, which isn't
+something we want as a build-time dependency.
+
 ## Running locally
 
 This product loads its recipe sources directly into **DuckDB**, not Postgres - `BUILD_ENGINE_*`
@@ -90,43 +142,3 @@ directory before executing a command.
 Verified by calling `dcpy.lifecycle.builds.build.run_single_command()` directly for each command
 name, exactly as `apps/dagster/builds/assets.py`'s `_execute_command` op does - not just by
 reading the code.
-
-## `lift_supplemented`
-
-The DCAS customer asked for three fields added to the `lift_csv` extract - DRI Tier,
-CPSpentTotal (total capital-project spend intersecting the lot), and CPProjects (count of
-capital projects intersecting the lot). The source spreadsheet already ships empty placeholder
-columns for exactly these - `DISPLACEMENT_RISK_FORMULA`, `CPSPENTTOTAL`, `CPPROJECTS` - so
-`models/product/lift_supplemented.sql` is a drop-in copy of `lift_csv` (same grain, one row per
-`bbl`, every other column untouched) with those three populated. BBLs with no intersecting
-capital project get `0`, not `null`, for `cpspenttotal`/`cpprojects`.
-
-Join path, all verified against a real build rather than assumed (see `models/intermediate/`):
-
-- **DRI Tier**: `lift_csv.bbl` -> `pluto.bbl` (99.8% match) -> `pluto.bct2020 = ct2020.boroct2020`
-  (99.997% match) -> `ct2020.nta2020 = dri.NTACode`. `dcp_ct2020` already carries `nta2020`
-  directly, so it doubles as the census-tract-to-NTA crosswalk mentioned in the request - no
-  separate lookup dataset needed. `dri_tier` is `dri_subindices_indicators.DisplacementRiskIndex`
-  (5-level categorical: Lowest/Low/Intermediate/High/Highest).
-- **CPSpentTotal / CPProjects**: spatial join, `pluto.geom` `ST_Intersects` `cpdb_projects_points.geom`,
-  grouped by `bbl` (`COUNT(DISTINCT project_id)`, `SUM(spent_total)`). Only the CPDB *points* layer
-  is joined so far, per the initial request - `cpdb_projects_poly` is loaded and listed as a source
-  but not yet used.
-
-**Open question worth a sanity check with capital planning**: CPDB has several `*total` dollar
-columns (`pctotal`/`adtotal`/`altotal`/`cototal`/`sptotal`/`sptotalcb`), following what looks like
-a Prior-Commitments / Adopted-Budget / All-Commitments / Current-Commitments / Spending-Plan
-naming scheme. `product-metadata/products/cpdb/projects/metadata.yml` documents `sptotal` (id
-`spent_total`) as *"Sum of the total funding spent associated with the project within the City's
-budget"* - which is what `stg__cpdb_points.spent_total` uses - as opposed to `sptotalcb` (id
-`spent_total_checkbooknyc`, *"Sum of check values from Checkbook NYC"*), a separate,
-alternatively-sourced total. `sptotal` reads as the right field for "total spend," but worth
-confirming with capital planning that it's the one they meant, given how many adjacent `*total`
-columns exist.
-
-**Implementation note**: DuckDB's spatial extension is strict about CRS equality - `pluto.geom` is
-stored labeled `OGC:CRS84` and `cpdb_projects_points.geom` as `EPSG:4326`; calling `ST_Intersects`
-across them errors unless the CRSes match. Both are numerically lon/lat WGS84 in this data, so
-`stg__pluto.sql` relabels with `ST_SetCRS(geom, 'EPSG:4326')` rather than actually reprojecting -
-`ST_Transform` attempts to download PROJ grid files over the network on first use, which isn't
-something we want as a build-time dependency.
