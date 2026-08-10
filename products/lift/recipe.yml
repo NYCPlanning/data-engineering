@@ -20,7 +20,7 @@ inputs:
     - name: dcp_mappluto_wi
 
     # 2020 NTAs
-    - name: dcp_nta2020
+    - name: dcp_ct2020
 
     # DRI subindices and indicators from edm-private
     - name: dcp_dri_subindices_indicators
@@ -34,7 +34,14 @@ inputs:
     - name: db-cpdb
       source: edm.publishing.published
       version: latest
-      file_type: csv
-      import_as: cpdb_projects
+      file_type: shapefile
+      import_as: cpdb_projects_poly
       custom:
-        filename: cpdb_projects.csv
+        filename: cpdb_projects_poly.shp.zip
+    - name: db-cpdb
+      source: edm.publishing.published
+      version: latest
+      file_type: shapefile
+      import_as: cpdb_projects_points
+      custom:
+        filename: cpdb_projects_pts.shp.zip
