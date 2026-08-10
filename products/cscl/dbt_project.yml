@@ -39,6 +39,15 @@ models:
       +docs:
         node_color: "#3e5c76"
 
+# LDF header fields. Nothing in the source data identifies a LION release or the date it
+# was deployed - GR's extract tool takes all four as operator input, and so do we. Pass
+# them per release, e.g. --vars '{ldf_new_release: 26B, ldf_new_release_date: 2026-04-22}'.
+vars:
+  ldf_old_release: null
+  ldf_old_release_date: null # ISO YYYY-MM-DD
+  ldf_new_release: null
+  ldf_new_release_date: null # ISO YYYY-MM-DD
+
 on-run-start:
 - '{{ create_pg_functions() }}'
 

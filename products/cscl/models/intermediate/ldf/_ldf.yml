@@ -1,0 +1,95 @@
+version: 2
+
+models:
+- name: int__ldf_nodes
+  description: >
+    Node change records for the LION Differences File, derived by diffing the previous
+    LION release against this build's LION. Action codes follow the CSCL Phase III
+    layout: A = node added, D = node deleted, M = node moved but kept its ID.
+  columns:
+  - name: record_type
+    description: Always 'N'.
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "N" ] }
+  - name: action_code
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "A", "D", "M" ] }
+  - name: nodeid
+    description: >
+      A node appears at most once. A renumbered node that did not move is represented as
+      a delete of the old ID plus an add of the new one, so the IDs still differ.
+    tests: [ unique, not_null ]
+  - name: x_coord
+    description: New location on adds, old location on deletes and moves.
+    tests: [ not_null ]
+  - name: y_coord
+    tests: [ not_null ]
+  - name: destination_x_coord
+    description: New location. Populated on moves only, blank on adds and deletes.
+  - name: destination_y_coord
+
+- name: int__ldf_header
+  description: >
+    The LDF's single header record. Release IDs and dates come from vars (nothing in the
+    source data identifies them); the cumulative record number is chained from the
+    previous edition's header rather than entered by hand.
+  columns:
+  - name: record_type
+    description: Always 'H'.
+    tests: [ not_null ]
+  - name: record_count
+    description: Records in this edition, including the header itself.
+    tests: [ not_null ]
+  - name: cumulative_record_number
+    description: >
+      Previous header's number plus its record count. Data records continue from this
+      value plus one.
+    tests: [ not_null ]
+  - name: old_lion_release
+    tests: [ not_null ]
+  - name: old_lion_release_date
+    description: MMDDYYYY, converted from the ISO date passed in.
+    tests: [ not_null ]
+  - name: new_lion_release
+    tests: [ not_null ]
+  - name: new_lion_release_date
+    tests: [ not_null ]
+
+- name: int__ldf_segments
+  tests:
+  # 'P'/'G' mean "ID changed, topology didn't" and are only meaningful on their own
+  # record type -- a 'G' action on a 'P' record would mean the two got crossed.
+  - dbt_utils.expression_is_true:
+      arguments:
+        expression: "action_code NOT IN ('P', 'G') OR action_code = record_type"
+  description: >
+    Segment change records for the LION Differences File - 'S' (base centerline), 'P'
+    (physical) and 'G' (generic) - taken from CSCL's edit journal for the release being
+    cut, with transitory lineages removed. Reproduces roughly 97% of GR's published
+    records - see design_doc.md "Known dev/prod differences" for the residual and why.
+  columns:
+  - name: record_type
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "S", "P", "G" ] }
+  - name: action_code
+    description: >
+      A = add, C = change node(s), D = delete, M = merge, S = split. 'P' and 'G' mean an
+      ID change with no topology change, and only occur on their own record type.
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "A", "C", "D", "M", "S", "P", "G" ] }
+  - name: old_id
+    description: Segment, physical or generic ID per record_type. Blank on adds.
+  - name: new_id
+    description: Blank on deletes.
+  - name: old_from_nodeid
+  - name: old_to_nodeid
+  - name: new_from_nodeid
+  - name: new_to_nodeid

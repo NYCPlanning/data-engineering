@@ -316,5 +316,103 @@ def _pull(
         )
 
 
+@app.command("load_previous_lion")
+def _load_previous_lion(
+    previous_version: str = typer.Option(..., "--previous-version", "-p"),
+    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+    table_name: str = typer.Option("previous_citywide_lion_dat", "--table", "-t"),
+):
+    """
+    Load the *prior* release's production LION into the build db.
+
+    The LDF documents changes between two LION releases, so unlike the rest of this
+    script - which loads the current release for dev/prod comparison - this pulls the
+    release before it. Boroughs are concatenated because the LDF is citywide.
+    """
+    lion_datasets = [
+        d for d in datasets_by_name.values() if d.name.endswith("_lion_dat")
+    ]
+    assert len(lion_datasets) == 5, (
+        f"expected 5 borough LION exports in recipe.yml, found {len(lion_datasets)}"
+    )
+
+    frames = []
+    for dataset in lion_datasets:
+        local_path = local_folder / previous_version / dataset.file_name
+        s3.download_file(
+            "edm-private",
+            f"cscl_etl/{previous_version}/{dataset.file_name}",
+            local_path,
+        )
+        assert dataset.formatting_path, f"{dataset.name} has no formatting csv"
+        frames.append(parse_file(local_path, formatting_path=dataset.formatting_path))
+
+    df = pd.concat(frames, ignore_index=True)
+    print(
+        f"loading {len(df)} rows from LION {previous_version} to {CLIENT.schema}.{table_name}"
+    )
+    CLIENT.insert_dataframe(df, table_name)
+
+
+@app.command("load_previous_ldf_header")
+def _load_previous_ldf_header(
+    previous_version: str = typer.Option(..., "--previous-version", "-p"),
+    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+    table_name: str = typer.Option("previous_ldf_header", "--table", "-t"),
+):
+    """
+    Load the *prior* LDF edition's header record.
+
+    LDF record numbers are cumulative across editions forever, so a new edition has to
+    start where the last one stopped. The prior header carries both numbers we need:
+    its own cumulative number and its record count.
+    """
+    file_name = "LDF.header"
+    local_path = local_folder / previous_version / file_name
+    s3.download_file(
+        "edm-private", f"cscl_etl/{previous_version}/{file_name}", local_path
+    )
+    df = parse_file(
+        local_path,
+        formatting_path=Path("seeds/text_formatting/text_formatting__ldf_h.csv"),
+    )
+    assert len(df) == 1, f"expected exactly 1 LDF header record, found {len(df)}"
+
+    print(f"loading LDF {previous_version} header to {CLIENT.schema}.{table_name}")
+    CLIENT.insert_dataframe(df, table_name)
+
+
+@app.command("load_prod_ldf")
+def _load_prod_ldf(
+    version: str | None = typer.Option(version, "--version", "-v"),
+    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+):
+    """
+    Load the production LDF for this release, for dev/prod comparison.
+
+    Records are kept as raw 100-character lines rather than parsed into fields: the LDF
+    mixes record layouts in one file, and the QA models compare whole records anyway.
+    """
+    if not version:
+        raise Exception("Specify version with '-v'")
+
+    for file_name, table_name in [
+        ("LDF.dat", "ldf_base"),
+        ("LDF.header", "ldf_header"),
+    ]:
+        local_path = local_folder / version / file_name
+        s3.download_file("edm-private", f"cscl_etl/{version}/{file_name}", local_path)
+        with open(local_path) as f:
+            rows = [line.rstrip("\n") for line in f if line.strip()]
+        bad = {len(r) for r in rows} - {100}
+        assert not bad, f"{file_name} has records of length {sorted(bad)}, expected 100"
+
+        df = pd.DataFrame({"dat_column": rows})
+        print(
+            f"loading {len(df)} rows from {file_name} to {CLIENT.schema}.{table_name}"
+        )
+        CLIENT.insert_dataframe(df, table_name)
+
+
 if __name__ == "__main__":
     app()

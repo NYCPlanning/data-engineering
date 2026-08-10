@@ -1497,6 +1497,156 @@ Two output files are produced: a fixed-width `.dat` and a `.csv`. Both share the
 
 : NTA 2020 field formatting. {#tbl:nta2020-field-format}
 
+## LION Differences File (LDF)
+
+### Description
+
+Every row is a: change to a node or segment since the previous LION release
+
+The LDF documents what changed between the previous LION release and this one, so that
+users whose application files are keyed to LION geography can resynchronise. A single
+citywide edition is published per LION release, as two files: `LDFBASE.dat` holding the
+records and `LDFHEADER.dat` holding a single header record.
+
+It differs from every other output here in three ways. It takes **two** LION releases as
+input rather than one; it carries **state across releases**, since record numbers run
+consecutively over all editions ever published; and in production it is built by a
+separate tool rather than by the ETL tool.
+
+Records are emitted grouped by record type in the order **N, S, G, P** - not alphabetical,
+and not the order the 2009 file documentation implies.
+
+| Type | Content | Source |
+|-|-|-|
+| H | Header: both release IDs and dates, record count, cumulative number | Assembled at export |
+| N | Node added, deleted or moved | Diff of previous vs current LION |
+| S | Base centerline segment change | `CENTERLINEHISTORY` |
+| P | Physical segment change | `CENTERLINEHISTORY` |
+| G | Generic segment change | `CENTERLINEHISTORY` |
+
+: LDF record types and their sources. {#tbl:ldf-record-types}
+
+Action codes are `A` (add), `C` (change node(s)), `D` (delete), `M` (merge) and `S`
+(split). Record types `P` and `G` additionally use their own letter to mean an ID change
+with no topology change. Node records use only `A`, `D` and `M`.
+
+`CENTERLINEHISTORY` is CSCL's centerline edit journal - the "LDF table" of the CSCL Phase
+III design, kept under its older name. It carries the lineage that a set comparison of two
+LION releases cannot recover, since a split otherwise looks like one delete and two adds.
+Rows belonging to the release being cut carry a NULL `RELEASE_NUM`, which is stamped at
+publish time, after the geodatabase we ingest is snapshotted.
+
+### Format
+
+All records are 100 bytes regardless of type. The layouts below follow the CSCL Phase III
+document; the 2009 DCP file documentation is superseded and describes only three record
+types, 6-character dates and populated LION-key fields.
+
+#### LDF header record (type H)
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| LDFH1 | record_type | Record Type | 1 | 1 | 1 | RJSF | FALSE |
+|  | filler_ldfh1 | Filler | 4 | 2 | 5 | RJSF | FALSE |
+| LDFH2 | old_lion_release | Old LION Release | 3 | 6 | 8 | LJSF | FALSE |
+|  | filler_ldfh2 | Filler | 3 | 9 | 11 | RJSF | FALSE |
+| LDFH3 | old_lion_release_date | Date of Old LION Release (MMDDYYYY) | 8 | 12 | 19 | RJZF | FALSE |
+|  | filler_ldfh3 | Filler | 3 | 20 | 22 | RJSF | FALSE |
+| LDFH4 | new_lion_release | New LION Release | 3 | 23 | 25 | LJSF | FALSE |
+|  | filler_ldfh4 | Filler | 3 | 26 | 28 | RJSF | FALSE |
+| LDFH5 | new_lion_release_date | Date of New LION Release (MMDDYYYY) | 8 | 29 | 36 | RJZF | FALSE |
+|  | filler_ldfh5 | Filler | 3 | 37 | 39 | RJSF | FALSE |
+| LDFH6 | record_count | Record Count (includes header record) | 6 | 40 | 45 | RJZF | FALSE |
+|  | filler_ldfh6 | Filler | 45 | 46 | 90 | RJSF | FALSE |
+| LDFH7 | cumulative_record_number | Cumulative LDF Record Number | 10 | 91 | 100 | RJZF | FALSE |
+
+: LDF header record (type H) formatting. {#tbl:ldf-h-field-format}
+#### LDF node change record (type N)
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| LDFN1 | record_type | Record Type | 1 | 1 | 1 | RJSF | FALSE |
+|  | filler_ldfn1 | Filler | 1 | 2 | 2 | RJSF | FALSE |
+| LDFN2 | action_code | Action Code | 1 | 3 | 3 | RJSF | FALSE |
+|  | filler_ldfn2 | Filler | 7 | 4 | 10 | RJSF | FALSE |
+| LDFN3 | x_coord | X-Coordinate | 7 | 11 | 17 | RJZF | TRUE |
+| LDFN4 | y_coord | Y-Coordinate | 7 | 18 | 24 | RJZF | TRUE |
+|  | filler_ldfn3 | Filler | 7 | 25 | 31 | RJSF | FALSE |
+| LDFN5 | nodeid | Node-ID | 7 | 32 | 38 | RJZF | TRUE |
+|  | filler_ldfn4 | Filler | 2 | 39 | 40 | RJSF | FALSE |
+| LDFN6 | destination_x_coord | Destination X-Coordinate | 7 | 41 | 47 | RJZF | TRUE |
+| LDFN7 | destination_y_coord | Destination Y-Coordinate | 7 | 48 | 54 | RJZF | TRUE |
+|  | filler_ldfn5 | Filler | 36 | 55 | 90 | RJSF | FALSE |
+| LDFN8 | cumulative_record_number | Cumulative LDF Record Number | 10 | 91 | 100 | RJZF | FALSE |
+
+: LDF node change record (type N) formatting. {#tbl:ldf-n-field-format}
+#### LDF segment change record (types S, P and G)
+
+| fic | field name | field label | field length | start index | end index | justify and fill | blank if none |
+|-|-|-|-|-|-|-|-|
+| LDFS1 | record_type | Record Type | 1 | 1 | 1 | RJSF | FALSE |
+|  | filler_ldfs1 | Filler | 1 | 2 | 2 | RJSF | FALSE |
+| LDFS2 | action_code | Action Code | 1 | 3 | 3 | RJSF | FALSE |
+|  | filler_ldfs2 | Filler | 7 | 4 | 10 | RJSF | FALSE |
+| LDFS3 | old_id | Old Segment-ID / Physical-ID / Generic-ID | 7 | 11 | 17 | RJZF | TRUE |
+|  | filler_ldfs3 | Filler (formerly Old LION Key) | 10 | 18 | 27 | RJSF | FALSE |
+| LDFS4 | old_from_nodeid | Old From Node-ID | 7 | 28 | 34 | RJZF | TRUE |
+| LDFS5 | old_to_nodeid | Old To Node-ID | 7 | 35 | 41 | RJZF | TRUE |
+|  | filler_ldfs4 | Filler | 2 | 42 | 43 | RJSF | FALSE |
+| LDFS6 | new_id | New Segment-ID / Physical-ID / Generic-ID | 7 | 44 | 50 | RJZF | TRUE |
+|  | filler_ldfs5 | Filler (formerly New LION Key) | 10 | 51 | 60 | RJSF | FALSE |
+| LDFS7 | new_from_nodeid | New From Node-ID | 7 | 61 | 67 | RJZF | TRUE |
+| LDFS8 | new_to_nodeid | New To Node-ID | 7 | 68 | 74 | RJZF | TRUE |
+|  | filler_ldfs6 | Filler | 16 | 75 | 90 | RJSF | FALSE |
+| LDFS9 | cumulative_record_number | Cumulative LDF Record Number | 10 | 91 | 100 | RJZF | FALSE |
+
+: LDF segment change record (types S, P and G) formatting. {#tbl:ldf-segment-field-format}
+### Known dev/prod differences
+
+Our LDF does not yet match production exactly, and the reason is narrow and worth stating
+precisely, because everything else about this output does reconcile.
+
+Every record production publishes is present in `CENTERLINEHISTORY`, and our node records
+reproduce production's exactly. The sole open question is **which journal rows production
+suppresses before publishing**. A segment created and destroyed between two releases was
+never visible to LION users, so its whole lineage is dropped rather than published - the
+Phase III document calls this eliminating transitory records, but describes it only as
+pseudocode that does not match observed behaviour. The real rule lives in
+`CSCL_Editor.LDFExtractHelper`, part of the CSCL Maintenance System, whose source we do
+not have. The ETL tool source archived in `edm-private/cscl_etl/prod_etl_code/` contains
+only the extract tool's user interface, not this logic.
+
+We approximate it by building a lineage graph per record type and dropping a connected
+component when none of its IDs appear in either LION release. Measured against
+production's published editions:
+
+| Edition | Prod records | Matched | Missing | Extra |
+|-|-|-|-|-|
+| 26a (25D to 26A) | 3,120 | 3,052 | 68 | 99 |
+| 26b (26A to 26B) | 896 | 860 | 36 | 61 |
+
+: LDF dev/prod agreement by edition. {#tbl:ldf-dev-prod}
+
+That is 97.4% recall at 96.1% precision. Publishing the journal with no elimination at all
+gives 99.9% recall but 511 spurious records, so the step is a clear net gain and is still
+wrong on roughly 3%.
+
+Two findings constrain any attempt to close this:
+
+- **A rule confined to the journal cannot work.** Deciding "created and destroyed within
+  the window" from `CENTERLINEHISTORY` alone fails, because a segment can be created,
+  never destroyed, and still be absent from LION - the include/exclude flag and roadway
+  jurisdiction filters exclude it. LION membership is genuinely required, which is why the
+  model reads both releases.
+- **The residual should not be tuned away.** It is roughly the same shape across both
+  editions tested. Fitting a rule to match production exactly on two samples would encode
+  coincidence, and we would have no way to tell which.
+
+Because `record_count` and the cumulative record numbers are derived from the record set,
+**the header disagrees with production too**, as a consequence of the same gap rather than
+as a separate defect. Until the suppression rule is settled, the LDF should be treated as
+validating rather than releasable.
+
 ## Log
 
 ### Description

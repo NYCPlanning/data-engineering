@@ -1,0 +1,16 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+LDFS1,record_type,Record Type,1,1,1,RJSF,FALSE
+,filler_ldfs1,Filler,1,2,2,RJSF,FALSE
+LDFS2,action_code,Action Code,1,3,3,RJSF,FALSE
+,filler_ldfs2,Filler,7,4,10,RJSF,FALSE
+LDFS3,old_id,Old Segment-ID / Physical-ID / Generic-ID,7,11,17,RJZF,TRUE
+,filler_ldfs3,Filler (formerly Old LION Key),10,18,27,RJSF,FALSE
+LDFS4,old_from_nodeid,Old From Node-ID,7,28,34,RJZF,TRUE
+LDFS5,old_to_nodeid,Old To Node-ID,7,35,41,RJZF,TRUE
+,filler_ldfs4,Filler,2,42,43,RJSF,FALSE
+LDFS6,new_id,New Segment-ID / Physical-ID / Generic-ID,7,44,50,RJZF,TRUE
+,filler_ldfs5,Filler (formerly New LION Key),10,51,60,RJSF,FALSE
+LDFS7,new_from_nodeid,New From Node-ID,7,61,67,RJZF,TRUE
+LDFS8,new_to_nodeid,New To Node-ID,7,68,74,RJZF,TRUE
+,filler_ldfs6,Filler,16,75,90,RJSF,FALSE
+LDFS9,cumulative_record_number,Cumulative LDF Record Number,10,91,100,RJZF,FALSE

@@ -22,6 +22,31 @@ models:
   - name: atomicid
     tests: [ unique, not_null ]
 
+- name: stg__centerlinehistory
+  description: >
+    CSCL's centerline edit journal -- the "LDF table" of the CSCL Phase III design, kept
+    under its older name. Supplies the S/P/G records of the LION Differences File; the N
+    (node) records are derived by diffing two LION releases instead.
+  columns:
+  - name: ldf_num
+    description: Auto-numbered primary key of the journal.
+    tests: [ unique, not_null ]
+  - name: record_type
+    description: S = base segment, P = physical, G = generic. L and R are not emitted to the LDF.
+    tests: [ not_null ]
+  - name: action_code
+    description: >
+      A = add, C = change node(s), D = delete, M = merge, S = split. Record types P and G
+      additionally use their own letter to mean an ID change with no topology change.
+    tests: [ not_null ]
+  - name: release_num
+    description: >
+      LION release this change was published in. NULL for the release currently being cut.
+  - name: old_segment_id
+    description: NULL on adds.
+  - name: new_segment_id
+    description: NULL on deletes.
+
 - name: stg__facecode_and_featurename
   columns:
   - name: b7sc

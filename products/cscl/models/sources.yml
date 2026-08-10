@@ -26,6 +26,7 @@ sources:
   - name: dcp_cscl_addresspoints
   - name: dcp_cscl_addresspoint_lgcs
   - name: dcp_cscl_altsegmentdata
+  - name: dcp_cscl_centerlinehistory
   - name: dcp_cscl_commonplace_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
   - name: dcp_cscl_featurename
   - name: dcp_cscl_lastword
@@ -86,6 +87,18 @@ sources:
   schema: production_outputs
   tables:
   - name: citywide_lion_dat
+  # The release *before* the one being built, loaded by
+  # `prod_data_loader.py load_previous_lion`. The LDF's node records are the diff
+  # between it and this build's LION.
+  - name: previous_citywide_lion_dat
+  # Header record of the previous LDF edition, loaded by
+  # `prod_data_loader.py load_previous_ldf_header`. Supplies the cumulative record
+  # number this edition continues from.
+  - name: previous_ldf_header
+  # This release's production LDF, loaded by `prod_data_loader.py load_prod_ldf`.
+  # Raw 100-character records; the file mixes layouts.
+  - name: ldf_base
+  - name: ldf_header
   - name: rpl
   - name: saf_abcegnpx_generic
   - name: saf_abcegnpx_roadbed

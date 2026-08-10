@@ -177,6 +177,87 @@ Two differences are unresolved as of 26b — real diffs a reviewer will hit, not
 
 **Sub-0.5% area deltas on unclipped passthroughs:** `nyhez −0.454%`, `nycdwi −0.397%`, `nypp +0.341%`. These layers aren't shoreline-clipped, so clipping can't explain the shift. Working theory is `linearize()` coercing curved source geometry that prod preserves (same mechanism as the LION "Center of curvature" note below). **Unverified** — confirm the cause before sign-off; a 0.4% area shift on straight passthrough data isn't obviously benign.
 
+## LION Differences File (LDF)
+
+The LDF documents what changed between the previous LION release and this one. It doesn't
+fit the "adding a new output" workflow above, for three reasons: it takes **two** LION
+releases as input, it's the only output carrying **state across releases**, and it's the
+only one GR builds with a separate tool rather than the ETL tool.
+
+Two files, both 100-byte fixed width: `LDFBASE.dat` (records) and `LDFHEADER.dat` (one
+header record).
+
+### Record types and where each comes from
+
+| Type | Content | Source |
+|---|---|---|
+| `H` | Header: both release IDs and dates, record count, cumulative number | Assembled at export |
+| `N` | Node added / deleted / moved | Diff of previous vs current LION |
+| `S` | Base centerline segment change | `CENTERLINEHISTORY` |
+| `P` | Physical segment change | `CENTERLINEHISTORY` |
+| `G` | Generic segment change | `CENTERLINEHISTORY` |
+
+Records are emitted in the order **N, S, G, P** — not alphabetical, and not the order the
+2009 spec implies.
+
+> [!IMPORTANT]
+> Use the layout in `CSCL III LDF` (the 2008 Phase III doc), **not** the 2009 DCP `LDF.pdf`.
+> The PDF is superseded: it describes only three record types, 6-character dates, and
+> populated LION-key fields. The real files have five record types, 8-character `MMDDYYYY`
+> dates, and the LION-key positions (18–27 and 51–60) as permanent filler. Every field
+> offset in `seeds/text_formatting/text_formatting__ldf_*.csv` was verified byte-for-byte
+> against GR's published 26a and 26b files.
+
+### `CENTERLINEHISTORY` is the LDF table
+
+Despite the name, `CENTERLINEHISTORY` is the "LDF table" of the Phase III design — the
+rename described in that doc never happened. It's CSCL's edit journal: every centerline
+add, delete, merge, split and node change, with the lineage that a set comparison of two
+LION releases cannot recover (a split looks like one delete plus two adds).
+
+**Rows for the release being cut carry a NULL `release_num`.** GR stamps it at publish
+time, which is after the GDB snapshot we ingest is taken. Select on NULL — never on
+`release_num = '<this release>'`, which matches nothing.
+
+The journal also carries `L` and `R` record types that are never emitted to the LDF. Their
+counts mirror `G` and `P` exactly, which suggests parallel bookkeeping, but that is an
+assumption and hasn't been confirmed with GR.
+
+### Transitory record elimination — the open gap
+
+`int__ldf_segments` drops the lineage of segments that were created *and* destroyed between
+two releases. Our rule is an approximation of GR's, which lives in an assembly we don't
+have, so this output does not yet match prod exactly — currently ~97% of records.
+
+**The dev/prod difference, why it exists, and what constrains fixing it are documented in
+[design_doc.md → Known dev/prod differences](./design_doc.md#known-devprod-differences).**
+Read that before changing the elimination logic; in particular, don't tune it to match
+prod's counts on the two editions we have.
+
+### Cumulative record numbers
+
+Every record carries a number in positions 91–100 that is cumulative *across editions*, so
+a value identifies one record in one edition forever. It chains exactly:
+
+```
+26a header: cumulative 565223 + count 3611 = 568834 = 26b header cumulative
+```
+
+In GR's tool this is **typed in by the operator** each release, along with both release IDs
+and both dates. That's worth knowing because it's fallible: the 25B→25C edition doesn't
+chain into 26a's start (561831 + 4181 = 566012, but 26a begins at 565223). Ours should
+derive it from the previous edition's header rather than accept a hand-entered value.
+
+### Validating
+
+GR archives their own `LDF.dat` and `LDF.header` in `edm-private/cscl_etl/<version>/`, so
+this output has direct ground truth — unlike most others, no separate prod pull is needed.
+Load the prior release's LION first, since the node records diff against it:
+
+```bash
+python3 poc_validation/prod_data_loader.py load_previous_lion -p 26a
+```
+
 ## LION - Known data issues
 
 As we've continue to validate the outputs for LION, we've come across a bunch of "known" issues that have either been resolved but may return, or we've accepted that there are diffs, or what have you. A lot of these are documented loosely [here](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/DE%20Pipeline%20-%20Project%20Tracking/Data%20Discrepancy%20Tracking/LION%20Flat%20Files%20%E2%80%93%20Data%20DiscrepancyIssue%20Tracking.docx?d=w60907e50f8044bd9bffe2508a299035f&csf=1&web=1&e=aZ59n8)

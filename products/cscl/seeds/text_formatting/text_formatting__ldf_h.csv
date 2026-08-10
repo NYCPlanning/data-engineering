@@ -1,0 +1,14 @@
+fic,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+LDFH1,record_type,Record Type,1,1,1,RJSF,FALSE
+,filler_ldfh1,Filler,4,2,5,RJSF,FALSE
+LDFH2,old_lion_release,Old LION Release,3,6,8,LJSF,FALSE
+,filler_ldfh2,Filler,3,9,11,RJSF,FALSE
+LDFH3,old_lion_release_date,Date of Old LION Release (MMDDYYYY),8,12,19,RJZF,FALSE
+,filler_ldfh3,Filler,3,20,22,RJSF,FALSE
+LDFH4,new_lion_release,New LION Release,3,23,25,LJSF,FALSE
+,filler_ldfh4,Filler,3,26,28,RJSF,FALSE
+LDFH5,new_lion_release_date,Date of New LION Release (MMDDYYYY),8,29,36,RJZF,FALSE
+,filler_ldfh5,Filler,3,37,39,RJSF,FALSE
+LDFH6,record_count,Record Count (includes header record),6,40,45,RJZF,FALSE
+,filler_ldfh6,Filler,45,46,90,RJSF,FALSE
+LDFH7,cumulative_record_number,Cumulative LDF Record Number,10,91,100,RJZF,FALSE
