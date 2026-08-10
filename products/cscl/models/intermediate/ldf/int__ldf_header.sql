@@ -10,7 +10,8 @@ same four values.
 The third, the cumulative record number, is mechanical and is *not* taken as input here.
 LDF record numbers run consecutively across editions forever, so this edition starts
 where the last one stopped: previous header's number plus its record count. GR types this
-in by hand, which is how the published sequence acquired a gap at 25C -> 25D.
+in by hand, which is how the published sequence acquired a gap (data_issues.md
+CSCL-LDF-03).
 */
 
 {% set required = [

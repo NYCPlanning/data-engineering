@@ -1601,51 +1601,17 @@ types, 6-character dates and populated LION-key fields.
 | LDFS9 | cumulative_record_number | Cumulative LDF Record Number | 10 | 91 | 100 | RJZF | FALSE |
 
 : LDF segment change record (types S, P and G) formatting. {#tbl:ldf-segment-field-format}
-### Known dev/prod differences
+### Eliminating transitory records
 
-Our LDF does not yet match production exactly, and the reason is narrow and worth stating
-precisely, because everything else about this output does reconcile.
+A segment created *and* destroyed between two releases was never visible to LION users, so
+its whole lineage is suppressed rather than published. The Phase III document calls this
+eliminating transitory records, but gives only pseudocode that does not match the observed
+behaviour of the published files; production's real rule lives in
+`CSCL_Editor.LDFExtractHelper`, part of the CSCL Maintenance System.
 
-Every record production publishes is present in `CENTERLINEHISTORY`, and our node records
-reproduce production's exactly. The sole open question is **which journal rows production
-suppresses before publishing**. A segment created and destroyed between two releases was
-never visible to LION users, so its whole lineage is dropped rather than published - the
-Phase III document calls this eliminating transitory records, but describes it only as
-pseudocode that does not match observed behaviour. The real rule lives in
-`CSCL_Editor.LDFExtractHelper`, part of the CSCL Maintenance System, whose source we do
-not have. The ETL tool source archived in `edm-private/cscl_etl/prod_etl_code/` contains
-only the extract tool's user interface, not this logic.
-
-We approximate it by building a lineage graph per record type and dropping a connected
-component when none of its IDs appear in either LION release. Measured against
-production's published editions:
-
-| Edition | Prod records | Matched | Missing | Extra |
-|-|-|-|-|-|
-| 26a (25D to 26A) | 3,120 | 3,052 | 68 | 99 |
-| 26b (26A to 26B) | 896 | 860 | 36 | 61 |
-
-: LDF dev/prod agreement by edition. {#tbl:ldf-dev-prod}
-
-That is 97.4% recall at 96.1% precision. Publishing the journal with no elimination at all
-gives 99.9% recall but 511 spurious records, so the step is a clear net gain and is still
-wrong on roughly 3%.
-
-Two findings constrain any attempt to close this:
-
-- **A rule confined to the journal cannot work.** Deciding "created and destroyed within
-  the window" from `CENTERLINEHISTORY` alone fails, because a segment can be created,
-  never destroyed, and still be absent from LION - the include/exclude flag and roadway
-  jurisdiction filters exclude it. LION membership is genuinely required, which is why the
-  model reads both releases.
-- **The residual should not be tuned away.** It is roughly the same shape across both
-  editions tested. Fitting a rule to match production exactly on two samples would encode
-  coincidence, and we would have no way to tell which.
-
-Because `record_count` and the cumulative record numbers are derived from the record set,
-**the header disagrees with production too**, as a consequence of the same gap rather than
-as a separate defect. Until the suppression rule is settled, the LDF should be treated as
-validating rather than releasable.
+Our approximation of that rule, how closely it matches, and the other open data questions
+for this output are recorded in [data_issues.md](./data_issues.md) under `CSCL-LDF-*`.
+Until the suppression rule is settled the LDF is validating, not releasable.
 
 ## Log
 

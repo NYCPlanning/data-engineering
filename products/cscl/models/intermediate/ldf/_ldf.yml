@@ -70,7 +70,7 @@ models:
     Segment change records for the LION Differences File - 'S' (base centerline), 'P'
     (physical) and 'G' (generic) - taken from CSCL's edit journal for the release being
     cut, with transitory lineages removed. Reproduces roughly 97% of GR's published
-    records - see design_doc.md "Known dev/prod differences" for the residual and why.
+    records - see data_issues.md CSCL-LDF-01 for the residual and why.
   columns:
   - name: record_type
     tests:
