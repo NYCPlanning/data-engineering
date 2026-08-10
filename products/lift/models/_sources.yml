@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+- name: recipe_sources
+  schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+  tables:
+  - name: lift_csv
+  - name: dcp_mappluto_wi
+  - name: dcp_ct2020
+  - name: dri_subindices_indicators
+  - name: cpdb_projects_poly
+  - name: cpdb_projects_points

@@ -14,7 +14,12 @@ from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY
-from dcpy.lifecycle.builds.models import ExportDataset, ExportFormat
+from dcpy.lifecycle.builds.models import (
+    ExportDataset,
+    ExportFormat,
+    InputDatasetDestination,
+)
+from dcpy.utils import duckdb as duckdb_utils
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 
@@ -76,6 +81,48 @@ def export_dataset_from_postgres(
         case _:
             raise NotImplementedError(
                 f"Export of dataset format {format} not implemented yet"
+            )
+
+    if line_endings == "crlf":
+        with open(file_path, "rb") as f_in:
+            content = f_in.read().replace(b"\n", b"\r\n")
+        with open(file_path, "wb") as f:
+            f.write(content)
+
+
+def export_dataset_from_duckdb(
+    table_name: str,
+    file_path: Path,
+    format: ExportFormat,
+    duckdb_client: duckdb_utils.DuckDBClient,
+    *,
+    header: bool = True,
+    line_endings: Literal["lf", "crlf"] = "lf",
+    **kwargs,  # ignore other custom things like 'formatting', matching the postgres path
+) -> None:
+    """Export a table from DuckDB in the specified format."""
+    logger.info(
+        f"Exporting table {table_name} from DuckDB to {file_path} in format {format}"
+    )
+    if file_path.exists():
+        file_path.unlink()
+    match format:
+        case ExportFormat.csv:
+            duckdb_client.export_to_csv(
+                table_name=table_name, output_path=file_path, include_header=header
+            )
+        case ExportFormat.dat:
+            duckdb_client.export_to_csv(
+                table_name=table_name, output_path=file_path, include_header=False
+            )
+            line_endings = "crlf"
+        case ExportFormat.parquet:
+            duckdb_client.export_to_parquet(
+                table_name=table_name, output_path=file_path
+            )
+        case _:
+            raise NotImplementedError(
+                f"Export of dataset format {format} from DuckDB not implemented yet"
             )
 
     if line_endings == "crlf":
@@ -228,9 +275,20 @@ def _output_filename(output: ExportDataset) -> str:
     return output.filename or f"{output.name}.{default_ext}"
 
 
+def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
+    if not recipe.version:
+        raise ValueError("Recipe version must be set for export")
+    duckdb_path = (
+        config.get_build_dir(recipe.product, recipe.version)
+        / f"{recipe.product}_{recipe.version}.duckdb"
+    )
+    return duckdb_utils.DuckDBClient(db_path=duckdb_path, schema=metadata.build_name())
+
+
 def export(
     recipe_lock_path: Path,
     pg_client: postgres.PostgresClient | None = None,
+    duckdb_client: duckdb_utils.DuckDBClient | None = None,
 ) -> Path | None:
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
 
@@ -238,10 +296,23 @@ def export(
         logger.info("No exports defined in recipe, skipping export step")
         return None
 
-    pg_client = pg_client or postgres.PostgresClient(schema=metadata.build_name())
-    logger.info(
-        f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
-    )
+    # A recipe's export backend follows where its input datasets actually landed. Mixed
+    # postgres+duckdb recipes fall back to postgres (the long-standing default) since gdb/
+    # shapefile export - and mixed-backend exports generally - aren't supported from DuckDB yet.
+    destinations = {ds.destination for ds in recipe.inputs.datasets}
+    uses_duckdb = InputDatasetDestination.duckdb in destinations
+    uses_postgres = InputDatasetDestination.postgres in destinations
+
+    if uses_duckdb and not uses_postgres:
+        duckdb_client = duckdb_client or _default_duckdb_client(recipe)
+        logger.info(
+            f"Exporting build outputs for {recipe.name} from DuckDB schema {duckdb_client.schema}"
+        )
+    else:
+        pg_client = pg_client or postgres.PostgresClient(schema=metadata.build_name())
+        logger.info(
+            f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
+        )
 
     # Use version for output path, not schema/branch name
     if recipe.exports and recipe.exports.output_folder:
@@ -310,9 +381,18 @@ def export(
 
     for output in recipe.exports.datasets:
         filename = _output_filename(output)
-        if output.format == ExportFormat.gdb:
+        if duckdb_client is not None:
+            export_dataset_from_duckdb(
+                table_name=output.name,
+                file_path=dataset_files_folder / filename,
+                duckdb_client=duckdb_client,
+                format=output.format,
+                **output.custom or {},
+            )
+        elif output.format == ExportFormat.gdb:
             gdb_groups[filename].append(output)
         else:
+            assert pg_client is not None
             export_dataset_from_postgres(
                 table_name=output.name,
                 file_path=dataset_files_folder / filename,
@@ -322,6 +402,7 @@ def export(
             )
 
     for filename, gdb_entries in gdb_groups.items():
+        assert pg_client is not None
         layers = []
         allow_empty: set[str] = set()
         for output in gdb_entries:

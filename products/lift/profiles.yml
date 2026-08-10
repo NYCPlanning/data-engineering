@@ -1,0 +1,10 @@
+dcp-de-duckdb:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH') }}"
+      schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+      threads: 4
+      extensions:
+      - spatial
