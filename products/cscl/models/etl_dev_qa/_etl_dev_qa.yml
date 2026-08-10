@@ -54,6 +54,43 @@ models:
     production. Reports total row counts, unique key counts, keys missing
     from each side, and a per-column diff count across the full dataset.
 
+# ── LDF QA ───────────────────────────────────────────────────────────────────
+
+- name: qa__ldf_summary
+  description: >
+    Dev/prod agreement for the LDF, broken down by record type and action code.
+    Compares positions 1-90 of each record: positions 91-100 hold the cumulative
+    record number, which is derived from each file's own ordering, so one extra
+    record would otherwise make every later record look different. Duplicate
+    records are legitimate in the LDF, so counts are compared rather than sets.
+  columns:
+  - name: record_type
+    description: N, S, P or G.
+  - name: matched
+    description: Records present the same number of times on both sides.
+  - name: dev_only
+    description: Surplus copies in dev. Usually transitory records we failed to eliminate.
+  - name: prod_only
+    description: Records prod publishes that we dropped or never generated.
+
+- name: qa__ldf_diffs
+  description: >
+    The individual LDF records dev and prod disagree on, with node and segment
+    identifiers extracted from the fixed-width record. Expect most rows here to be
+    transitory-elimination differences - see design_doc.md "Known dev/prod
+    differences" before treating one as a new defect.
+  columns:
+  - name: missing_from
+    description: Which side lacks the record - dev_only or prod_only.
+  - name: records
+    description: How many copies the two sides differ by.
+  - name: x_coord_or_old_id
+    description: >
+      Positions 11-17, which hold the X coordinate on node records and the old
+      segment/physical/generic ID on the others.
+  - name: record_body
+    description: The raw record, positions 1-90.
+
 # ── RPL QA ───────────────────────────────────────────────────────────────────
 
 - name: qa__rpl_order

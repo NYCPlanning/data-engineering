@@ -65,6 +65,11 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ALTSEGMENTDATA
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_centerlinehistory
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: CENTERLINEHISTORY
   - name: dcp_cscl_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
     import_as: dcp_cscl_commonplace_gdb
     custom:
@@ -314,6 +319,14 @@ exports:
     filename: StatenIslandLION.dat
     format: dat
     custom: { formatting: lion_dat }
+
+  # LDF - formatting is applied inside the models, since the record file mixes layouts
+  - name: ldf_base
+    filename: LDFBASE.dat
+    format: dat
+  - name: ldf_header
+    filename: LDFHEADER.dat
+    format: dat
 
   # SAF
   - name: saf_abcegnpx_generic
