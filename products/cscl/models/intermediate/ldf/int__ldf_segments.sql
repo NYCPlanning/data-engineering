@@ -18,8 +18,8 @@ edit in CENTERLINEHISTORY and the LDF publishes that journal, so two things happ
 2. Eliminate transitory records. A segment created and destroyed between two releases was
    never visible to LION users, so its whole lineage is dropped. GR's rule for this lives
    in an assembly we don't have; we approximate it by dropping a lineage component when
-   none of its IDs surface in either LION release. See design_doc.md, "Known dev/prod
-   differences", for how close that gets and what constrains improving it.
+   none of its IDs surface in either LION release. See data_issues.md CSCL-LDF-01 for how
+   close that gets and what constrains improving it.
 */
 
 WITH RECURSIVE pending AS (

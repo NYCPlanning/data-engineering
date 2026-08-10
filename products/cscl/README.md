@@ -171,11 +171,9 @@ Prod quirks worth knowing before reading a diff:
 
 ### Open dev/prod diffs
 
-Two differences are unresolved as of 26b — real diffs a reviewer will hit, not settled quirks. Left open deliberately: each needs a decision, not more code.
-
-**`nymcea` fragments to 249 parts (prod: 122).** Prod's singlepart behavior is described above — 115 dissolved (borough, MCEA) groups become 122 features. Our output splits the same groups into **249** parts at the shoreline clip. These aren't slivers: all residual parts are ≥100 sq ft, and the sub-100-sqft filter in `clipped_geom` already gives exact prod part counts on `nycb2010/2020`, `nyct2010/2020`, `nyed`, `nypuma2020`. Total area matches prod (+0.000%) and attributes are correct. We did **not** tune a per-layer threshold to force 122 — that would be fitting noise. Open question for whoever owns MCEA: does prod apply a larger minimum mapping unit for MCEA, or dissolve *after* clipping?
-
-**Sub-0.5% area deltas on unclipped passthroughs:** `nyhez −0.454%`, `nycdwi −0.397%`, `nypp +0.341%`. These layers aren't shoreline-clipped, so clipping can't explain the shift. Working theory is `linearize()` coercing curved source geometry that prod preserves (same mechanism as the LION "Center of curvature" note below). **Unverified** — confirm the cause before sign-off; a 0.4% area shift on straight passthrough data isn't obviously benign.
+Two district layers still differ from prod as of 26b: `nymcea` part counts and sub-0.5%
+area deltas on unclipped passthroughs. Both are recorded in
+[data_issues.md](./data_issues.md) as CSCL-DISTRICTS-01 and CSCL-DISTRICTS-02.
 
 ## LION Differences File (LDF)
 
@@ -219,10 +217,6 @@ LION releases cannot recover (a split looks like one delete plus two adds).
 time, which is after the GDB snapshot we ingest is taken. Select on NULL — never on
 `release_num = '<this release>'`, which matches nothing.
 
-The journal also carries `L` and `R` record types that are never emitted to the LDF. Their
-counts mirror `G` and `P` exactly, which suggests parallel bookkeeping, but that is an
-assumption and hasn't been confirmed with GR.
-
 ### Transitory record elimination — the open gap
 
 `int__ldf_segments` drops the lineage of segments that were created *and* destroyed between
@@ -230,9 +224,9 @@ two releases. Our rule is an approximation of GR's, which lives in an assembly w
 have, so this output does not yet match prod exactly — currently ~97% of records.
 
 **The dev/prod difference, why it exists, and what constrains fixing it are documented in
-[design_doc.md → Known dev/prod differences](./design_doc.md#known-devprod-differences).**
-Read that before changing the elimination logic; in particular, don't tune it to match
-prod's counts on the two editions we have.
+[data_issues.md → CSCL-LDF-01](./data_issues.md#cscl-ldf-01)**, alongside the other open
+data questions for this output. Read that before changing the elimination logic; in
+particular, don't tune it to match prod's counts on the two editions we have.
 
 ### Cumulative record numbers
 
@@ -243,10 +237,9 @@ a value identifies one record in one edition forever. It chains exactly:
 26a header: cumulative 565223 + count 3611 = 568834 = 26b header cumulative
 ```
 
-In GR's tool this is **typed in by the operator** each release, along with both release IDs
-and both dates. That's worth knowing because it's fallible: the 25B→25C edition doesn't
-chain into 26a's start (561831 + 4181 = 566012, but 26a begins at 565223). Ours should
-derive it from the previous edition's header rather than accept a hand-entered value.
+GR's tool takes this number as operator input; ours derives it from the previous edition's
+header instead. That difference matters — see
+[data_issues.md → CSCL-LDF-03](./data_issues.md#cscl-ldf-03).
 
 ### Validating
 
@@ -260,76 +253,16 @@ python3 poc_validation/prod_data_loader.py load_previous_lion -p 26a
 
 ## LION - Known data issues
 
-As we've continue to validate the outputs for LION, we've come across a bunch of "known" issues that have either been resolved but may return, or we've accepted that there are diffs, or what have you. A lot of these are documented loosely [here](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/DE%20Pipeline%20-%20Project%20Tracking/Data%20Discrepancy%20Tracking/LION%20Flat%20Files%20%E2%80%93%20Data%20DiscrepancyIssue%20Tracking.docx?d=w60907e50f8044bd9bffe2508a299035f&csf=1&web=1&e=aZ59n8)
+Individual LION discrepancies — what's accepted, what's still open — live in
+[data_issues.md](./data_issues.md) under `CSCL-LION-*`. What follows is the runbook for a
+new build, not a list of issues.
 
 ### Common things to check for in new build
 
 As in, we're doing 26a for the first time. Some things that could go wrong. In general, most issues are discovered/handled by looking into `qa__lion_dat_individual_diffs`, but there are a few special things
 
-- duplicate boro + face_code + segmentid in dev. This is diagnosed by looking at `qa__lion_dat_summary` and looking at "unique keys in dev". This is a source data issue to be reported to GR. See link above, there's some info on when this happened before
+- duplicate boro + face_code + segmentid in dev. This is diagnosed by looking at `qa__lion_dat_summary` and looking at "unique keys in dev". This is a source data issue to be reported to GR. GR's discrepancy log (linked from [data_issues.md](./data_issues.md)) has some info on when this happened before
 - duplicate boro + face_code + segment_seqnum in prod. This should only happen in cases of the above, though I'm not 100% sure. Needs a custom query. This has no impact on our pipeline but GR wants to know.
 - empty geoms. This has happened in the past. We probably want to add more data testing to `sources.yml`. But also a simple query of certain layers/tables where `ST_ISEMPTY(geom)` will work too.
 - sectionalmap issues. This would appear in `qa__lion_dat_summary` in terms of number of dev rows and `qa__lion_dat_individual_diffs` with `sectional_map` diffs (and other diffs as well due to duplicate rows). I think this is fully resolved but there were topology issues in the source data causing duplicate rows on joins.
 - giant circles. Open up int__primary_segments in qgis and see if we have a large hadron collider in nyc.
-
-
-### Doubly-reversed proto segments
-
-| lionkey | segmentid | 
-|-|-|
-| 3966000330 | 0016558 | 
-| 2866000025 | 0343093 | 
-| 2866000020 | 0343094 | 
-| 2865900235 | 0343095 | 
-| 2865900230 | 0343096 |
-
-These segments are reversed protosegments. In prod, they are not reversed. This is because of a bug in the prod etl where
-- geometry-modeled segments are processed on at a time.
-- during this, protosegments for a given geometry-modeled segment are looked up and processed.
-- while a protosegment is processed, it refers back to the fields of the geometry-modeled segment
-- if a protosegment is reversed, it flips many fields in its representation of the source segment.
-- If there are multiple reversed protosegments for a single geometry-modeled segment, the same fields get flipped back and forth erroneously.
-
-GR confirmed this is a bug, and we will not try to recreate.
-
-### 10 rows missing zip code 10035 in production
-
-The following segmentids are in the middle of Randall's island, which is all the same zip code. They're all missing zip in production.
-- 0246013
-- 0246014
-- 0246016
-- 0246017
-- 0246018
-- 0246019
-- 0246021
-- 0246022
-- 0279055
-- 0279056 
-
-GR has said this is fine.
-
-### Curve Flag
-
-Many rows have `curve_flag` = 'I' while prod has blank. These are compoundcurves, which in our pipeline get coerced to multistring for geometric operations while prod handles some other way, and how they check if a curve is "irregular" doesn't work for them.
-
-GR has confirmed this is fine. Specifically, for diffs where `field = 'curve_flag' AND 'dev' = 'I' AND prod = ' ' AND source_table <> 'centerline'`
-
-### BOE LGC Pointer
-
-This is wrong for 568 records. This is an error at the Face Code level, it applies to 5 face codes.
-
-GR has confirmed ours is right.
-
-### Nonstreet Feature segment sequence numbers
-
-These just don't match prod for funky reasons, since they're generated on the fly. They're only generated for nonstreet feature segments, and they're only used as a unique key in LION, so it's fine that they don't match as long as they're unique.
-
-GR has confirmed this is fine.
-
-### Coincident segments
-
-There are some remaining, and some decision needs to be made with GR as to how we handle this
-
-### Center of curvature
-
-I had resolved all of these for 25d by "linearizing" geoms with a very small tolerance. Looks like we've got at least one back in 26a. Can chat with GR if we want to play whack-a-mole or if the difference is small enough that we're okay
