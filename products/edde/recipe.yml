@@ -77,6 +77,7 @@ custom:
     - health_diabetes
     - health_self_reported
     - health_selfreportedhealth
+    - traffic_fatalities_injuries
 
   health_mortality:
     latest_year: "1923"

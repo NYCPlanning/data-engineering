@@ -30,9 +30,6 @@ def nycha_tenants(geography: str, year: str = acs_years[-1]):
         census20_agg = pd.concat([census20, agg], axis=1)
         final = get_percentage(census20_agg)
 
-    final = final.round(2)
-    final.fillna(0, inplace=True)
-
     order_cols = order_aggregated_columns(
         df=final,
         indicators_denom=[("pop",), ("nycha_tenants",)],
@@ -48,6 +45,9 @@ def nycha_tenants(geography: str, year: str = acs_years[-1]):
     final_cols = [col for col in order_cols if "cv" not in col]
     final_cols = [col for col in final_cols if "moe" not in col]
     final = final.reindex(columns=final_cols)
+
+    final = final.round(2)
+    final.fillna(0, inplace=True)
 
     return final
 
