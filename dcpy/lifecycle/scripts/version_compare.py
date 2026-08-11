@@ -196,8 +196,22 @@ def get_bytes_versions(all_keys):
     return versions_by_key
 
 
+def get_metadata_versions(metadata) -> dict[str, str]:
+    """Map each product.dataset.destination_id to the current_version product-metadata declares.
+
+    This is the version a distribution run would stamp onto Open Data — the connector reads a
+    dataset's Open Data version back out of its rendered description, so `open_data_versions`
+    is really this value as of the *last* run, not a fact about the data itself.
+    """
+    return dict(
+        line.split("|", 1)  # type: ignore[misc]
+        for line in metadata.get_all_destination_current_versions()
+    )
+
+
 def make_comparison_dataframe(bytes_versions, open_data_versions):
     metadata = product_metadata.load()
+    metadata_versions = get_metadata_versions(metadata)
     rows = []
     for key in open_data_versions:
         product, dataset, destination_id = key.split(".")
@@ -212,11 +226,23 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
         bytes_version = bytes_versions.get(f"{product}.{dataset}")
         open_data_vers = open_data_versions.get(key, [])
 
+        metadata_version = metadata_versions.get(key, "")
+
         # Determine if versions are up to date using fuzzy comparison
         up_to_date = False
         try:
             up_to_date = FuzzyVersion(bytes_version).probably_equals(
                 FuzzyVersion(open_data_vers)
+            )
+        except Exception:
+            pass
+
+        # Distributing can only close the gap when product-metadata already declares the
+        # version that's on Bytes; otherwise the run republishes under the stale version.
+        metadata_matches_bytes = False
+        try:
+            metadata_matches_bytes = FuzzyVersion(bytes_version).probably_equals(
+                FuzzyVersion(metadata_version)
             )
         except Exception:
             pass
@@ -227,8 +253,10 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
                 "dataset": dataset,
                 "destination_id": destination_id,
                 "bytes_version": bytes_version,
+                "metadata_version": metadata_version,
                 "open_data_versions": open_data_vers,
                 "up_to_date": up_to_date,
+                "metadata_matches_bytes": metadata_matches_bytes,
                 "bytes_url": bytes_url,
                 "open_data_url": open_data_url,
             }
