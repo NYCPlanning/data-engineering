@@ -1,12 +1,33 @@
 name: Deploy DE Tools to DO
 
 on:
+  # The droplet mounts the repo and editable-installs dcpy at container start, so the app only
+  # picks up merged changes once it is redeployed. Deliberately excludes
+  # admin/run_environment/** and pyproject.toml: those rebuild the qa-streamlit image via
+  # docker_publish.yml, and deploy.sh pulls that image — triggering here would race the build
+  # and could deploy the previous one. Dependency changes stay a manual dispatch.
+  push:
+    branches:
+      - main
+    paths:
+      - apps/**
+      - dcpy/**
+      - product-metadata/**
+      - '!**/test/**'
+      - '!**/tests/**'
+      - '!**/*.md'
   workflow_dispatch:
     inputs:
       data_engineering_branch:
         description: 'Data Engineering branch to deploy'
         required: true
         default: 'main'
+
+# Deploys ssh into one droplet and mutate it in place, so they must not overlap. Queue rather
+# than cancel: a cancelled run could leave the checkout reset but the containers not recreated.
+concurrency:
+  group: qa-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:
