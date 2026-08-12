@@ -4,9 +4,11 @@ models:
 - name: lift_supplemented
   description: >
     Supplemented version of lift_csv with the displacement_risk_formula,
-    cpspenttotal, and cpprojects placeholder columns populated, plus a new
-    cp_project_ids column (comma-delimited list of intersecting CPDB project
-    ids; kept as a JSON array in int__lift_cpdb).
+    cpspenttotal, and cpprojects placeholder columns populated, plus new columns:
+    boroct2020/nta2020/ntaname (census tract & NTA a bbl resolves to), and
+    cp_project_ids/cp_project_descriptions (comma/pipe-delimited lists of
+    intersecting CPDB project ids and descriptions; both kept as JSON arrays
+    in int__lift_cpdb).
   columns:
   - name: bbl
     tests:
