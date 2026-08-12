@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from typing import NamedTuple
 
 import pandas as pd
 from dateutil.parser import parse as dateutil_parse
@@ -165,10 +166,53 @@ def sort_by_outdated_products(df):
     return df_sorted.set_index(["product", "dataset"])
 
 
-def get_all_open_data_keys() -> list[str]:
-    """retrieve all product.dataset.destination_ids"""
-    return product_metadata.load().query_product_dataset_destinations(
+class MetadataSnapshot(NamedTuple):
+    """Everything the comparison needs out of product-metadata, read in a single pass."""
+
+    keys: list[str]
+    """Every open_data destination, as product.dataset.destination_id."""
+    current_versions: dict[str, str]
+    """Per key, the current_version product-metadata declares."""
+    four_fours: dict[str, str | None]
+    """Per key, the Socrata four-four, for building Open Data page urls."""
+    version_tag_in_description: dict[str, bool]
+    """Per key, whether the description carries the marker the Open Data version is read back
+    out of. Where it doesn't, that dataset's version is unreadable no matter how often it's
+    distributed — closing the gap needs a product-metadata edit, not a distribution."""
+
+
+VERSION_TAG = "Current version:"
+"""The marker `connectors.edm.open_data_nyc` greps out of a Socrata description to recover a
+dataset's published version."""
+
+
+def get_metadata_snapshot() -> MetadataSnapshot:
+    metadata = product_metadata.load()
+    keys = metadata.query_product_dataset_destinations(
         destination_filter={"types": {"open_data"}},
+    )
+    four_fours = {}
+    version_tag_in_description = {}
+    for key in keys:
+        product, dataset_id, destination_id = key.split(".")
+        dataset = metadata.product(product).dataset(dataset_id)
+        destination = dataset.get_destination(destination_id)
+        four_fours[key] = destination.custom.get("four_four")
+
+        # A destination's files may override the description, so honour an override before
+        # looking for the marker — the dataset-level description alone can be misleading.
+        description = dataset.attributes.description or ""
+        for destination_file in destination.files:
+            override = destination_file.dataset_overrides.attributes.description
+            if override is not None:
+                description = override
+                break
+        version_tag_in_description[key] = VERSION_TAG in description
+    return MetadataSnapshot(
+        keys=keys,
+        current_versions=get_metadata_versions(metadata),
+        four_fours=four_fours,
+        version_tag_in_description=version_tag_in_description,
     )
 
 
@@ -209,43 +253,59 @@ def get_metadata_versions(metadata) -> dict[str, str]:
     )
 
 
-def make_comparison_dataframe(bytes_versions, open_data_versions):
-    metadata = product_metadata.load()
-    metadata_versions = get_metadata_versions(metadata)
+def render_version(value) -> str:
+    """Flatten a fetched version into a string for the dataframe.
+
+    The fetchers record a failure as the exception object itself. Left in place those make the
+    version columns heterogeneous `object` columns, which Arrow cannot serialize — so anything
+    rendering the frame (Streamlit, parquet) fails on a dataset we merely couldn't reach.
+    """
+    if isinstance(value, Exception):
+        return f"error: {type(value).__name__}"
+    if value is None or isinstance(value, list) and not value:
+        return ""
+    return str(value)
+
+
+def make_comparison_dataframe(metadata_snapshot, bytes_versions, open_data_versions):
     rows = []
     for key in open_data_versions:
         product, dataset, destination_id = key.split(".")
-        four_four = (
-            metadata.product(product)
-            .dataset(dataset)
-            .get_destination(destination_id)
-            .custom.get("four_four")
-        )
+        four_four = metadata_snapshot.four_fours.get(key)
         open_data_url = open_data_page_url(four_four) if four_four else None
         bytes_url = connectors["bytes"].get_page_url(f"{product}.{dataset}")
-        bytes_version = bytes_versions.get(f"{product}.{dataset}")
-        open_data_vers = open_data_versions.get(key, [])
+        raw_bytes_version = bytes_versions.get(f"{product}.{dataset}")
+        raw_open_data_vers = open_data_versions.get(key)
+        bytes_version = render_version(raw_bytes_version)
+        open_data_vers = render_version(raw_open_data_vers)
 
-        metadata_version = metadata_versions.get(key, "")
+        metadata_version = metadata_snapshot.current_versions.get(key, "")
+
+        # A failed fetch is never "equal" to anything: two errors of the same type render to the
+        # same string, which would otherwise compare equal and read as up to date.
+        bytes_ok = not isinstance(raw_bytes_version, Exception)
+        open_data_ok = not isinstance(raw_open_data_vers, Exception)
 
         # Determine if versions are up to date using fuzzy comparison
         up_to_date = False
-        try:
-            up_to_date = FuzzyVersion(bytes_version).probably_equals(
-                FuzzyVersion(open_data_vers)
-            )
-        except Exception:
-            pass
+        if bytes_ok and open_data_ok:
+            try:
+                up_to_date = FuzzyVersion(bytes_version).probably_equals(
+                    FuzzyVersion(open_data_vers)
+                )
+            except Exception:
+                pass
 
         # Distributing can only close the gap when product-metadata already declares the
         # version that's on Bytes; otherwise the run republishes under the stale version.
         metadata_matches_bytes = False
-        try:
-            metadata_matches_bytes = FuzzyVersion(bytes_version).probably_equals(
-                FuzzyVersion(metadata_version)
-            )
-        except Exception:
-            pass
+        if bytes_ok:
+            try:
+                metadata_matches_bytes = FuzzyVersion(bytes_version).probably_equals(
+                    FuzzyVersion(metadata_version)
+                )
+            except Exception:
+                pass
 
         rows.append(
             {
@@ -257,6 +317,11 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
                 "open_data_versions": open_data_vers,
                 "up_to_date": up_to_date,
                 "metadata_matches_bytes": metadata_matches_bytes,
+                "bytes_version_known": bytes_ok and bool(bytes_version),
+                "open_data_version_known": open_data_ok and bool(open_data_vers),
+                "open_data_version_readable": metadata_snapshot.version_tag_in_description.get(
+                    key, False
+                ),
                 "bytes_url": bytes_url,
                 "open_data_url": open_data_url,
             }
@@ -272,8 +337,10 @@ def make_comparison_dataframe(bytes_versions, open_data_versions):
 
 
 def run():
-    all_keys = get_all_open_data_keys()
-    open_data_versions = get_open_data_versions(all_keys)
-    bytes_versions = get_bytes_versions(all_keys)
-    df = make_comparison_dataframe(bytes_versions, open_data_versions)
+    metadata_snapshot = get_metadata_snapshot()
+    open_data_versions = get_open_data_versions(metadata_snapshot.keys)
+    bytes_versions = get_bytes_versions(metadata_snapshot.keys)
+    df = make_comparison_dataframe(
+        metadata_snapshot, bytes_versions, open_data_versions
+    )
     return sort_by_outdated_products(df)
