@@ -1,0 +1,5 @@
+- id: bbl
+  name: BBL
+  data_type: bbl
+  description: sample bbl description
+  example: '1016370141'

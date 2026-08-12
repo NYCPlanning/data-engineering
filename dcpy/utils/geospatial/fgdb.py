@@ -17,6 +17,21 @@ def get_layers(gdb: Path) -> list[str]:
     return info["rootGroup"]["layerNames"]
 
 
+def resolve_layer(gdb: Path, layer: str | None = None) -> str:
+    layers = get_layers(gdb)
+    if layer is not None:
+        if layer not in layers:
+            raise LookupError(
+                f"Layer '{layer}' not found in {gdb}. Found layers: {layers}."
+            )
+        return layer
+    if len(layers) != 1:
+        raise ValueError(
+            f"{gdb} has {len(layers)} layers ({layers}); layer must be specified to disambiguate."
+        )
+    return layers[0]
+
+
 def read_metadata(gdb: Path, layer: str, as_string: bool = False) -> Metadata | None:
     with gdal.ExceptionMgr():
         layer_info = gdal.alg.vector.info(

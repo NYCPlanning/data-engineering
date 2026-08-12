@@ -5,6 +5,11 @@ import typer
 import yaml
 
 import dcpy.product_metadata.models.metadata.product as models
+from dcpy.lifecycle import product_metadata
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
+from dcpy.utils.geospatial import esri_metadata, fgdb
+from dcpy.utils.geospatial.esri_metadata import _create_attr_metadata
+from dcpy.utils.geospatial.shapefile import Shapefile
 from dcpy.utils.logging import logger
 
 
@@ -83,3 +88,139 @@ def parse_pdf_text(
     output_path = output_path or Path("columns.yml")
     with open(output_path, "w") as outfile:
         yaml.dump(fields, outfile, sort_keys=False)
+
+
+@app.command("write_metadata")
+def _write_metadata(
+    product_name: str = typer.Argument(..., help="Name of product. Example: 'lion'"),
+    dataset_name: str = typer.Argument(
+        ..., help="Name of dataset. Example: 'pseudo-lots'"
+    ),
+    file_id: str = typer.Argument(
+        ...,
+        help="Identifier from within the org. metadata reference. Example: 'mappluto_unclipped_gdb'",
+    ),
+    path_to_file: Path = typer.Argument(..., help="Path to file."),
+    layer: str | None = typer.Argument(None, help="Name of layer within file"),
+    org_md_path: Path | None = typer.Option(
+        None,
+        "--org-md-path",
+        help="Path to organizational metadata",
+    ),
+    zip_subdir: str | None = typer.Option(
+        None,
+        "--zip-subdir",
+        help="Directory structure within zip file, if relevant",
+    ),
+):
+    write_metadata(
+        product_name=product_name,
+        dataset_name=dataset_name,
+        path_to_file=path_to_file,
+        layer=layer,
+        file_id=file_id,
+        zip_subdir=zip_subdir,
+        org_md=org_md_path,
+    )
+
+
+def write_metadata(
+    product_name: str,
+    dataset_name: str,
+    file_id: str,  # refers to product md
+    path_to_file: Path,
+    layer: str | None,
+    org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
+    zip_subdir: str | None,
+):
+    """Write product metadata to an Esri metadata XML embedded in a shapefile or geodatabase.
+    Generates a new XML with defaults and applies product-specific values.
+
+    Args:
+        product_name (str): Name of product. e.g. "lion"
+        dataset_name (str): Name of dataset within a product. e.g. "pseudo-lots"
+        file_id (str): File identifier from within the org. metadata yaml. e.g. "mappluto_unclipped_gdb"
+        path_to_file (Path): For shapefiles, path to the parent directory or zip file containing
+            the shapefile. For geodatabases, path to the `.gdb` itself or a zip containing it
+            at the top level.
+        layer (str | None): Shapefile filename (required for shapefiles) or GDB feature class name
+            (optional for single-layer GDBs; inferred automatically if omitted).
+        org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
+        zip_subdir (str | None): Internal path if shp is nested within a zip file.
+            Must be None when path is a file geodatabase.
+    """
+    if isinstance(org_md, Path) or not org_md:
+        org_md = product_metadata.load(org_md_path_override=org_md)
+
+    product_md = org_md.product(product_name).dataset(dataset_name)
+
+    is_gdb = ".gdb" in path_to_file.suffixes
+    is_shp = layer is not None and (
+        ".shp" in path_to_file.suffixes or layer.endswith(".shp")
+    )
+
+    if is_gdb:
+        if zip_subdir is not None:
+            raise ValueError(
+                "Nested zipped GDBs are not supported. The GDB must be at the top level of the zip."
+            )
+        layer = fgdb.resolve_layer(path_to_file, layer)
+        file_metadata = product_md.calculate_layer_dataset_metadata(
+            file_id=file_id, layer=layer
+        )
+        custom_type_key = "fgdb_data_type"
+    elif is_shp:
+        file_metadata = product_md.calculate_file_dataset_metadata(file_id=file_id)
+        custom_type_key = "shp_data_type"
+    else:
+        raise ValueError(
+            f"Unsupported file type for metadata writing: path='{path_to_file}', layer='{layer}'. "
+            "Expected a .gdb or .shp path."
+        )
+
+    assert (
+        layer is not None
+    )  # guaranteed: GDB branch resolved it, SHP branch required it
+
+    logger.info(f"Wrote metadata to layer '{layer}' in {path_to_file}")
+
+    esri_md = esri_metadata.generate_metadata()
+
+    # Set dataset-level values
+    # TODO: define DCP organizationally required metadata fields
+    esri_md.md_hr_lv_name = "dataset"
+    esri_md.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
+    esri_md.data_id_info.id_abs = file_metadata.attributes.description
+    # TODO: map idPurp to a product-metadata field
+    esri_md.data_id_info.id_credit = file_metadata.attributes.attribution
+    esri_md.data_id_info.res_const.consts.use_limit = (
+        file_metadata.attributes.disclaimer
+    )
+    esri_md.data_id_info.other_keys.keyword = file_metadata.attributes.tags
+    esri_md.data_id_info.search_keys.keyword = file_metadata.attributes.tags
+
+    if file_metadata.attributes.projection:
+        authority, code = file_metadata.attributes.projection.split(":")
+        ref_sys_id = esri_md.ref_sys_info.ref_system.ref_sys_id
+        ref_sys_id.ident_code.code = int(code)
+        ref_sys_id.id_code_space.value = authority
+        # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
+
+    entity_name = layer.removesuffix(".shp")
+    esri_md.eainfo.detailed.enttyp.enttypl.value = entity_name
+    esri_md.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
+    esri_md.eainfo.detailed.name = entity_name
+
+    # Build attribute metadata for each column
+    esri_md.eainfo.detailed.attr = [
+        _create_attr_metadata(column, custom_type_key=custom_type_key)
+        for column in file_metadata.columns
+    ]
+
+    if is_gdb:
+        fgdb.write_metadata(
+            gdb=path_to_file, layer=layer, metadata=esri_md, overwrite=True
+        )
+    else:
+        shp = Shapefile(path=path_to_file, shp_name=layer, zip_subdir=zip_subdir)
+        shp.write_metadata(esri_md, overwrite=True)
