@@ -71,7 +71,7 @@ current_version_dcm: 20251031
 current_version_designated_areas_m_districts_appendix_j:
 current_version_developments: 25q4
 current_version_directory_of_land_use_application_fees:
-current_version_e_designations: 20260401
+current_version_e_designations: 20260707
 current_version_fresh_zoning_boundary: 202602
 current_version_inclusionary_housing_designated_areas: 20251031
 current_version_lower_density_growth_management_areas: 202604
@@ -83,8 +83,8 @@ current_version_template_db: latest
 current_version_transit_zones: 202410
 current_version_waterfront_public_access_areas: 202309
 current_version_waterfront_revitalization_program: 2016.1
-current_version_zap: 20260427
-current_version_zoning: 202604
+current_version_zap: 20260706
+current_version_zoning: 202606
 current_version_zoning_map_index:
 
 # Test variables for dcpy test suite
