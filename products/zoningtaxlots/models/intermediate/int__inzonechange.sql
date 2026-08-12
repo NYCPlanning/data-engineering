@@ -13,8 +13,10 @@ dcp_zoningmapamendments AS (
     SELECT * FROM {{ ref('stg__dcp_zoningmapamendments') }}
 ),
 
+-- DISTINCT because a lot can sit under two overlapping amendments, and
+-- int__zoningtaxlots joins this 1:1 on dtm_id
 inzonechange AS (
-    SELECT
+    SELECT DISTINCT
         a.dtm_id,
         'Y' AS inzonechange
     FROM dtm AS a
@@ -23,7 +25,7 @@ inzonechange AS (
             ST_INTERSECTS(a.geom, b.geom)
             AND b.effective::DATE > CURRENT_DATE - INTERVAL '2 months'
 )
--- left join to the product ztl table 
--- use coalesce to set null to 0 
+-- TODO left join to the product ztl table
+-- use coalesce to set null to 0
 
 SELECT * FROM inzonechange
