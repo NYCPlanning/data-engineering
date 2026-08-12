@@ -27,7 +27,7 @@ from dcpy.connectors.registry import (
     ConnectorRegistry,
 )
 from dcpy.connectors.socrata.connector import SocrataConnector
-from dcpy.connectors.web_scrapers import foodbankny, myschools_nyc, qpl, uscourts
+from dcpy.connectors.web_scrapers import foodbankny, myschools_nyc, qpl, uscourts, usps
 from dcpy.utils.logging import logger
 
 connectors = ConnectorRegistry[Connector]()
@@ -94,6 +94,7 @@ def _set_default_connectors():
         qpl.QPLConnector(),
         foodbankny.FoodBankNYConnector(),
         myschools_nyc.MySchoolsNYCConnector(),
+        usps.USPSLocationsConnector(),
         [web.WebConnector(), "api"],
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],

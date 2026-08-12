@@ -614,6 +614,42 @@ class ProcessingFunctions:
         )
         return ProcessingResult(df=transformed, summary=summary)
 
+    def geocode_address(
+        self,
+        df: pd.DataFrame,
+        address_column: str = "address1",
+        zip_column: str = "zip5",
+        output_prefix: str = "geosupport_",
+    ) -> ProcessingResult:
+        """Geocodes a street address + zip column via Geosupport functions 1A/1E,
+        appending the resulting columns (bbl, cd, council, census tract, borough,
+        lat/long, grc, ...) rather than replacing df, since (unlike geocode_bbl /
+        geocode_bin) the input isn't already reduced to just the geocoding inputs.
+        Output columns are prefixed to avoid colliding with source columns of the
+        same name (e.g. a source "latitude"/"longitude" already on df).
+        """
+        from dcpy.geosupport import pluto as geosupport_pluto
+
+        geocoded = geosupport_pluto.geocode_df_address(
+            df, address_column=address_column, zip_column=zip_column
+        ).add_prefix(output_prefix)
+        transformed = pd.concat(
+            [df.reset_index(drop=True), geocoded.reset_index(drop=True)], axis=1
+        )
+        summary = ProcessingSummary(
+            name="geocode_address",
+            description="Geocoded with function 1A/1E",
+            column_modifications={"added": sorted(geocoded.columns.tolist())},
+            custom={
+                "rows_geocoded": int(
+                    transformed[f"{output_prefix}grc"].isin(["00", "01"]).sum()
+                ),
+                "total_rows": len(transformed),
+                "geosupport_version": geosupport_pluto.geosupport_version(),
+            },
+        )
+        return ProcessingResult(df=transformed, summary=summary)
+
     def python_script(
         self,
         df: pd.DataFrame,

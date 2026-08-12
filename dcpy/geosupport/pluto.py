@@ -2,6 +2,7 @@ import os
 import re
 
 import pandas as pd
+import usaddress
 from geosupport import Geosupport, GeosupportError
 
 g = Geosupport()
@@ -165,3 +166,68 @@ def geocode_df_bbl(df: pd.DataFrame) -> pd.DataFrame:
     df = df.apply(geocode, axis=1, result_type="expand")
     print("geocoding finished ...")
     return df
+
+
+######### Address (function 1A/1E) #########################
+
+
+def _split_address(address: str) -> tuple[str, str]:
+    """Splits a street address (e.g. "124 GREENE ST") into (house_number, street_name),
+    as required by Geosupport functions 1/1A/1B/1E. Drops any unit/suite/floor info."""
+    tagged, _ = usaddress.tag(address)
+    house_number = tagged.get("AddressNumber", "")
+    street_parts = [
+        tagged[key]
+        for key in (
+            "StreetNamePreDirectional",
+            "StreetNamePreModifier",
+            "StreetNamePreType",
+            "StreetName",
+            "StreetNamePostType",
+            "StreetNamePostDirectional",
+        )
+        if key in tagged
+    ]
+    return house_number, " ".join(street_parts)
+
+
+def get_address_geocode(inputs):
+    """Geocodes a street address via Geosupport functions 1A/1E, using ZIP Code in
+    place of Borough Code (both are valid inputs; a ZIP Code is what we have)."""
+    house_number, street_name = _split_address(inputs["address"])
+    zip_code = inputs["zip"]
+    try:
+        geo_regular = g["1A"](
+            house_number=house_number,
+            street_name=street_name,
+            zip_code=zip_code,
+            mode="regular",
+        )
+    except GeosupportError as e:
+        geo_regular = e.result
+    try:
+        geo_extended = g["1E"](
+            house_number=house_number,
+            street_name=street_name,
+            zip_code=zip_code,
+            mode="extended",
+        )
+    except GeosupportError as e:
+        geo_extended = e.result
+    geo = {**geo_extended, **geo_regular}
+    return parse_output(geo)
+
+
+def geocode_df_address(
+    df: pd.DataFrame, address_column: str = "address1", zip_column: str = "zip5"
+) -> pd.DataFrame:
+    print("geocoding begins here ...")
+    geocoded = df.apply(
+        lambda row: get_address_geocode(
+            {"address": row[address_column], "zip": row[zip_column]}
+        ),
+        axis=1,
+        result_type="expand",
+    )
+    print("geocoding finished ...")
+    return geocoded

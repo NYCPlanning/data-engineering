@@ -1,0 +1,38 @@
+id: usps_locations_nyc
+acl: public-read
+
+attributes:
+  name: USPS Post Office Locations - NYC
+  url: https://tools.usps.com/locations/home.htm
+  description: >-
+    Post office locations scraped from USPS's location finder tool. The site sits
+    behind Akamai Bot Manager, so the connector needs a fresh session captured from a
+    real browser - see USPS_LOCATIONS_SESSION_HEADERS in
+    dcpy/connectors/web_scrapers/usps.py.
+
+ingestion:
+  source:
+    # custom web-scraping connector, requires USPS_LOCATIONS_SESSION_HEADERS env var
+    type: usps_locations
+    key: ""
+  file_format:
+    type: json
+    json_read_fn: normalize
+    geometry:
+      geom_column:
+        x: longitude
+        y: latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: geocode_address
+    args:
+      address_column: address1
+      zip_column: zip5
+  # USPS's 10-mile search radius reaches into NJ/Westchester, and Geosupport's GRC
+  # ("Geosupport Return Code") is the authoritative NYC-membership check: 71 means
+  # the input zip isn't a NYC zip code; 00/01 mean a successful match (01 covers minor
+  # normalizations, e.g. Geosupport inserting the hyphen in Queens-style house numbers).
+  - name: pd_df_func
+    args:
+      function_name: query
+      expr: "geosupport_grc in ['00', '01']"
