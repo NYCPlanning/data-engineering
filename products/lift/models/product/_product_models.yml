@@ -1,0 +1,14 @@
+version: 2
+
+models:
+- name: lift_supplemented
+  description: >
+    Supplemented version of lift_csv with the displacement_risk_formula,
+    cpspenttotal, and cpprojects placeholder columns populated, plus a new
+    cp_project_ids column (comma-delimited list of intersecting CPDB project
+    ids; kept as a JSON array in int__lift_cpdb).
+  columns:
+  - name: bbl
+    tests:
+    - not_null
+    - unique

@@ -154,6 +154,101 @@ class DuckDBClient:
         logger.info(f"Loaded Parquet {parquet_path} into {full_table_name}")
         return full_table_name
 
+    def load_spatial(
+        self,
+        source_path: Path,
+        table_name: str,
+        include_ogc_fid_col: bool = True,
+        layer_name: str | None = None,
+    ) -> str:
+        """Load a GDAL/OGR-readable spatial dataset (e.g. shapefile) into a DuckDB table.
+
+        Uses the spatial extension's ST_Read, which reads zipped shapefiles
+        (e.g. `foo.shp.zip`) directly without needing to unzip first.
+
+        Args:
+            source_path: Path to the spatial dataset (e.g. a .shp or .shp.zip file)
+            table_name: Name of table to create
+            include_ogc_fid_col: Whether to add ogc_fid primary key column
+            layer_name: Optional layer to read, for multi-layer sources
+
+        Returns:
+            Fully qualified table name (schema.table)
+        """
+        sanitized_table = sanitize_name(table_name)
+        full_table_name = f"{self.schema}.{sanitized_table}"
+
+        # Drop table if exists
+        self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
+
+        st_read_call = (
+            f"ST_Read('{source_path}', layer='{layer_name}')"
+            if layer_name
+            else f"ST_Read('{source_path}')"
+        )
+
+        # ST_Read includes its own OGC_FID column; exclude it so our row_number()
+        # based ogc_fid (consistent with the CSV/Parquet loaders) doesn't collide with it.
+        if include_ogc_fid_col:
+            self.conn.execute(
+                f"""
+                CREATE TABLE {full_table_name} AS
+                SELECT row_number() OVER () AS ogc_fid, * EXCLUDE (OGC_FID)
+                FROM {st_read_call}
+                """
+            )
+        else:
+            self.conn.execute(
+                f"""
+                CREATE TABLE {full_table_name} AS
+                SELECT * EXCLUDE (OGC_FID) FROM {st_read_call}
+                """
+            )
+
+        logger.info(f"Loaded spatial dataset {source_path} into {full_table_name}")
+        return full_table_name
+
+    def export_to_csv(
+        self,
+        table_name: str,
+        output_path: Path,
+        *,
+        query: str | None = None,
+        include_header: bool = True,
+    ) -> None:
+        """Export a table (or query) to a CSV file.
+
+        Args:
+            table_name: Name of table to export (ignored if `query` is given)
+            output_path: Path to write the CSV file to
+            query: Optional SQL query to export instead of the full table
+            include_header: Whether to write a header row
+        """
+        select = query or f"SELECT * FROM {self.schema}.{sanitize_name(table_name)}"
+        header = "true" if include_header else "false"
+        self.conn.execute(
+            f"COPY ({select}) TO '{output_path}' (FORMAT CSV, HEADER {header})"
+        )
+        logger.info(f"Exported {table_name} to {output_path}")
+
+    def export_to_parquet(
+        self,
+        table_name: str,
+        output_path: Path,
+        *,
+        query: str | None = None,
+    ) -> None:
+        """Export a table (or query) to a Parquet file.
+
+        Args:
+            table_name: Name of table to export (ignored if `query` is given)
+            output_path: Path to write the Parquet file to
+            query: Optional SQL query to export instead of the full table
+        """
+        select = query or f"SELECT * FROM {self.schema}.{sanitize_name(table_name)}"
+        self.conn.execute(f"COPY ({select}) TO '{output_path}' (FORMAT PARQUET)")
+        logger.info(f"Exported {table_name} to {output_path}")
+
     def add_table_column(
         self, table_name: str, col_name: str, col_type: str, default_value: str
     ) -> None:

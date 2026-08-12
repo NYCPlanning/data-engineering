@@ -229,6 +229,69 @@ def test_load_multiple_datasets_into_duckdb(test_data_dir, tmp_path):
     duckdb_client.close()
 
 
+def test_load_shapefile_into_duckdb(tmp_path):
+    """Test loading a zipped shapefile into DuckDB."""
+    import zipfile
+
+    import geopandas as gpd
+    from shapely.geometry import Point  # type: ignore
+
+    gdf = gpd.GeoDataFrame(
+        {"name": ["Alice", "Bob", "Charlie"]},
+        geometry=[Point(1, 2), Point(3, 4), Point(5, 6)],
+        crs="EPSG:4326",
+    )
+    shp_dir = tmp_path / "shp_build"
+    shp_dir.mkdir()
+    shp_path = shp_dir / "test_dataset.shp"
+    gdf.to_file(shp_path)
+
+    zip_path = tmp_path / "test_dataset.shp.zip"
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        for component in shp_dir.glob("test_dataset.*"):
+            zf.write(component, arcname=component.name)
+
+    db_path = tmp_path / "test.duckdb"
+    duckdb_client = duckdb_utils.DuckDBClient(db_path=db_path, schema="test_schema")
+
+    dataset = InputDataset(
+        id="test_dataset",
+        version="v1",
+        source="test_source",
+        file_type="shapefile",
+        import_as="my_shp_table",
+        custom={"filename": "test_dataset.shp.zip"},
+    )
+
+    table_name = data_loader.load_dataset_into_duckdb(
+        ds=dataset,
+        duckdb_client=duckdb_client,
+        local_dataset_path=zip_path,
+        include_version_col=True,
+        include_ogc_fid_col=True,
+    )
+
+    assert table_name == "test_schema.my_shp_table"
+    assert duckdb_client.table_exists("my_shp_table")
+
+    row_count = duckdb_client.get_table_count("my_shp_table")
+    assert row_count == 3
+
+    result_df = duckdb_client.query_to_df(
+        "SELECT * FROM test_schema.my_shp_table ORDER BY name"
+    )
+    assert "ogc_fid" in result_df.columns
+    assert "data_library_version" in result_df.columns
+    assert result_df["name"].tolist() == ["Alice", "Bob", "Charlie"]
+
+    geom_check = duckdb_client.query_to_df(
+        "SELECT ST_AsText(geom) as geom_wkt FROM test_schema.my_shp_table ORDER BY name"
+    )
+    assert geom_check["geom_wkt"].iloc[0] == "POINT (1 2)"
+
+    duckdb_client.close()
+
+
 def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path, monkeypatch):
     """Test loading a recipe with multiple datasets including geospatial Parquet into DuckDB."""
     import geopandas as gpd

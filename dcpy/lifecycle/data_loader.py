@@ -229,7 +229,6 @@ def load_dataset_into_duckdb(
             f"Using specific file from directory: {local_dataset_path.name} for dataset {ds.id}"
         )
 
-    # Currently only support CSV and Parquet
     match ds.file_type:
         case DatasetType.csv:
             duckdb_client.load_csv(
@@ -239,9 +238,16 @@ def load_dataset_into_duckdb(
             duckdb_client.load_parquet(
                 local_dataset_path, ds_table_name, include_ogc_fid_col
             )
+        case DatasetType.shapefile:
+            duckdb_client.load_spatial(
+                local_dataset_path,
+                ds_table_name,
+                include_ogc_fid_col,
+                layer_name=ds.custom.get("layer_name"),
+            )
         case _:
             raise Exception(
-                f"Unsupported file type for DuckDB: {ds.file_type}. Only CSV and Parquet are currently supported."
+                f"Unsupported file type for DuckDB: {ds.file_type}. Only CSV, Parquet, and shapefile are currently supported."
             )
 
     if include_version_col:

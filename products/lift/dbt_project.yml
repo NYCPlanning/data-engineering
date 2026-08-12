@@ -1,0 +1,21 @@
+name: "lift"
+
+profile: "dcp-de-duckdb"
+
+model-paths: [ "models" ]
+
+tests:
+  +store_failures: true
+  schema: "_tests"
+
+models:
+  lift:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    product:
+      +materialized: table
+
+flags:
+  fail-fast: true
