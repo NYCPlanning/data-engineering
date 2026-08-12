@@ -13,9 +13,10 @@ def __(mo):
         Welcome to the NYC DCP Data Engineering notebook server.
 
         ## Available Notebooks
-        - Lifecycle:
-          - Distribution
-            - [Socrata Bytes Version Tracker](/notebooks/marimo/lifecycle/distribution/bytes_socrata_versions)
+
+        None at the moment. The Bytes/Open Data version tracker moved to the QA app's
+        [Data Distribution](/qaqc/?page=Data%20Distribution) page, which also dispatches
+        the distribution workflow.
         """
     )
     return

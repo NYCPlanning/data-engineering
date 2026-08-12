@@ -32,8 +32,15 @@ def distribution():
     if not st.session_state.get("show_versions"):
         st.info("Click a button on the left to fetch and display versions.")
     else:
-        with st.spinner("Getting versions from Bytes and Open Data ..."):
-            versions = helpers.get_versions()
+        with st.spinner("Reading product metadata ..."):
+            metadata_snapshot = helpers.get_metadata_snapshot()
+        with st.spinner("Getting versions from Open Data ..."):
+            open_data_versions = helpers.get_open_data_versions(metadata_snapshot.keys)
+        with st.spinner("Getting versions from Bytes ..."):
+            bytes_versions = helpers.get_bytes_versions(metadata_snapshot.keys)
+        versions = helpers.compare(
+            metadata_snapshot, bytes_versions, open_data_versions
+        )
         st.dataframe(
             versions.reset_index(),
             width="stretch",
@@ -48,8 +55,8 @@ def distribution():
             },
         )
 
-        groups = helpers.outdated_groups(versions)
-        st.subheader(f"Outdated on Open Data ({len(groups)})")
+        attention = helpers.needs_attention(versions)
+
         st.markdown(
             f"""
             Distributing opens a revision on Open Data but does not publish it — sign in to
@@ -71,44 +78,99 @@ def distribution():
                 f"Track it in [GitHub Actions]({helpers.DISTRIBUTE_WORKFLOW_URL})."
             )
 
-        if not groups:
-            st.info("Every dataset on Open Data matches the version on Bytes.")
-
         def record_dispatch(name: str):
             st.session_state["last_distribution_dispatch"] = name
 
-        for group in groups:
-            group_name = f"{group.product} → {group.destination_id}"
-            datasets = sorted(group.ready["dataset"])
-            summary, button = st.columns((6, 1), vertical_alignment="center")
-            with summary:
-                st.markdown(f"**{group.product}** → `{group.destination_id}`")
-                for row in group.ready.itertuples():
-                    st.caption(
-                        f"{row.dataset} — bytes `{row.bytes_version}`, open data `{row.open_data_versions}`"
+        def render_dispatchable(groups, key_prefix):
+            for group in groups:
+                group_name = f"{group.product} → {group.destination_id}"
+                datasets = sorted(group.ready["dataset"])
+                summary, button = st.columns((6, 1), vertical_alignment="center")
+                with summary:
+                    st.markdown(f"**{group.product}** → `{group.destination_id}`")
+                    for row in group.ready.itertuples():
+                        st.caption(
+                            f"{row.dataset} — bytes `{row.bytes_version}`, "
+                            f"open data `{row.open_data_versions}`"
+                        )
+                    for row in group.blocked.itertuples():
+                        st.caption(
+                            f"⚠️ {row.dataset} — bytes `{row.bytes_version}`, open data "
+                            f"`{row.open_data_versions}`, product-metadata `{row.metadata_version}`. "
+                            "Bump `current_version` in strings.yml before distributing."
+                        )
+                with button:
+                    dispatch_workflow_button(
+                        helpers.DISTRIBUTE_REPO,
+                        helpers.DISTRIBUTE_WORKFLOW,
+                        key=f"{key_prefix}-{group.product}-{group.destination_id}",
+                        label="Distribute",
+                        disabled=not datasets,
+                        run_after=lambda name=group_name: record_dispatch(name),
+                        product=group.product,
+                        source="bytes",
+                        datasets=",".join(datasets),
+                        destination_ids=group.destination_id,
+                        # Sent explicitly rather than relying on the workflow default, so a
+                        # change to that default can't turn a click here into a public publish.
+                        publish=False,
                     )
-                for row in group.blocked.itertuples():
-                    st.caption(
-                        f"⚠️ {row.dataset} — bytes `{row.bytes_version}`, open data "
-                        f"`{row.open_data_versions}`, product-metadata `{row.metadata_version}`. "
-                        "Bump `current_version` in strings.yml before distributing."
-                    )
-            with button:
-                dispatch_workflow_button(
-                    helpers.DISTRIBUTE_REPO,
-                    helpers.DISTRIBUTE_WORKFLOW,
-                    key=f"distribute-{group.product}-{group.destination_id}",
-                    label="Distribute",
-                    disabled=not datasets,
-                    run_after=lambda name=group_name: record_dispatch(name),
-                    product=group.product,
-                    source="bytes",
-                    datasets=",".join(datasets),
-                    destination_ids=group.destination_id,
-                    # Sent explicitly rather than relying on the workflow default, so a change
-                    # to that default can't turn a click here into a public publish.
-                    publish=False,
+
+        at_risk = attention.would_lose_version
+        if len(at_risk):
+            st.warning(
+                f"**{len(at_risk)} datasets would lose their version if distributed.** Their Open "
+                "Data page shows a version, but product-metadata's description no longer carries "
+                "a `Current version:` line — so distributing patches the weaker description over "
+                "the live one. Most read as up to date below, which is exactly why this is easy "
+                "to miss. Fix the description in product-metadata before distributing these."
+            )
+            with st.expander(f"Show the {len(at_risk)} at risk"):
+                st.dataframe(
+                    at_risk[
+                        [
+                            "product",
+                            "dataset",
+                            "destination_id",
+                            "open_data_versions",
+                            "up_to_date",
+                        ]
+                    ],
+                    width="stretch",
+                    hide_index=True,
                 )
+
+        st.subheader(f"Outdated on Open Data ({len(attention.outdated)})")
+        if not attention.outdated:
+            st.info(
+                "Every dataset with a readable version matches the version on Bytes."
+            )
+        render_dispatchable(attention.outdated, "distribute")
+
+        st.subheader(
+            f"No version published to Open Data yet ({len(attention.unconfirmed)})"
+        )
+        st.caption(
+            "No version could be read off the Open Data page, but the description does carry a "
+            "`Current version:` line — so it has never been stamped, or the fetch failed. These "
+            "may already be up to date; distributing publishes the version and makes it readable "
+            "from then on."
+        )
+        render_dispatchable(attention.unconfirmed, "distribute-unconfirmed")
+
+        no_tag = attention.no_version_tag
+        st.subheader(f"No version tag in product-metadata ({len(no_tag)})")
+        st.caption(
+            "These descriptions carry no `Current version:` line, so the published version can "
+            "never be read back — distributing will not change that. Add the line in "
+            "product-metadata to bring them into the comparison."
+        )
+        if len(no_tag):
+            st.dataframe(
+                no_tag[["product", "dataset", "destination_id", "bytes_version"]],
+                width="stretch",
+                hide_index=True,
+            )
 
     st.subheader("Helpful links")
     st.markdown(
