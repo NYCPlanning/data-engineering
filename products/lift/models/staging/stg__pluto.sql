@@ -6,6 +6,7 @@ final AS (
     SELECT
         bbl::bigint AS bbl,
         bct2020 AS boroct2020,
+        trnstzone,
         -- stored CRS is labeled OGC:CRS84 (lon/lat, same axis order and values as
         -- the EPSG:4326 data we join against) - relabel rather than ST_Transform,
         -- which tries to fetch PROJ grid files over the network for exact

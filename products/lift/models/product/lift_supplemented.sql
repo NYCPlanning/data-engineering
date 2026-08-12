@@ -3,7 +3,7 @@
 --   displacement_risk_formula <- DRI tier, via pluto/census-tract -> NTA (int__lift_dri)
 --   cpspenttotal / cpprojects <- spatial join to CPDB points (int__lift_cpdb)
 -- bbls with no intersecting capital projects get 0, not null, for cpspenttotal/cpprojects.
--- Four new columns (not source placeholders):
+-- Five new columns (not source placeholders):
 --   boroct2020 / nta2020 / ntaname - census tract & NTA a bbl resolves to (int__lift_dri).
 --     Populated independently of displacement_risk_formula - a bbl in a park/cemetery/airport
 --     NTA (no DRI value, see README) still gets its real census tract/NTA here.
@@ -17,6 +17,8 @@
 --     cp_project_ids[i] and cp_project_descriptions[i] refer to the same project (both ordered
 --     by project_id in int__lift_cpdb). '' (not null) for bbls with no intersecting projects,
 --     matching the 0-not-null convention on cpspenttotal/cpprojects.
+--   trnstzone - PLUTO's transit zone designation, carried straight through from dcp_mappluto_wi
+--     via stg__pluto.
 WITH lift AS (
     SELECT * FROM {{ ref('stg__lift_csv') }}
 ),
@@ -27,6 +29,10 @@ dri AS (
 
 cpdb AS (
     SELECT * FROM {{ ref('int__lift_cpdb') }}
+),
+
+pluto AS (
+    SELECT bbl, trnstzone FROM {{ ref('stg__pluto') }}
 ),
 
 final AS (
@@ -41,10 +47,12 @@ final AS (
         ARRAY_TO_STRING(CAST(COALESCE(cpdb.cp_project_ids, '[]') AS VARCHAR []), ',') AS cp_project_ids,
         ARRAY_TO_STRING(
             CAST(COALESCE(cpdb.cp_project_descriptions, '[]') AS VARCHAR []), ' | '
-        ) AS cp_project_descriptions
+        ) AS cp_project_descriptions,
+        pluto.trnstzone
     FROM lift
     LEFT JOIN dri ON lift.bbl = dri.bbl
     LEFT JOIN cpdb ON lift.bbl = cpdb.bbl
+    LEFT JOIN pluto ON lift.bbl = pluto.bbl
 )
 
 SELECT * FROM final
