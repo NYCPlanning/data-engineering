@@ -33,6 +33,7 @@ os.environ["BUILD_ENGINE_SCHEMA"] = BUILD_ENGINE_SCHEMA
 from dcpy import configuration
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.models import BuildMetadata
+from dcpy.test.resources import package_and_distribute
 from dcpy.utils import s3, versions
 
 RESOURCES = Path(__file__).parent / "resources"
@@ -57,6 +58,11 @@ def resources_path():
 @pytest.fixture(scope="function")
 def utils_resources_path():
     return UTILS_RESOURCES
+
+
+@pytest.fixture(scope="function")
+def package_and_dist_test_resources():
+    return package_and_distribute
 
 
 @pytest.fixture(scope="function")
