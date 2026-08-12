@@ -5,10 +5,10 @@ models:
   description: >
     Supplemented version of lift_csv with the displacement_risk_formula,
     cpspenttotal, and cpprojects placeholder columns populated, plus new columns:
-    boroct2020/nta2020/ntaname (census tract & NTA a bbl resolves to), and
+    boroct2020/nta2020/ntaname (census tract & NTA a bbl resolves to),
     cp_project_ids/cp_project_descriptions (comma/pipe-delimited lists of
     intersecting CPDB project ids and descriptions; both kept as JSON arrays
-    in int__lift_cpdb).
+    in int__lift_cpdb), and trnstzone (PLUTO's transit zone designation).
   columns:
   - name: bbl
     tests:
