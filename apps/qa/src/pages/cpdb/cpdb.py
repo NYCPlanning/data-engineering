@@ -2,8 +2,8 @@ def cpdb():
     import plotly.express as px
     import plotly.graph_objects as go
     import streamlit as st
-    from src.shared.components import build_outputs, sidebar
-    from src.shared.constants import COLOR_SCHEME
+    from shared.components import build_outputs, sidebar
+    from shared.constants import COLOR_SCHEME
 
     from .components.adminbounds import adminbounds
     from .components.geometry_visualization_report import (

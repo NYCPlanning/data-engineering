@@ -1,6 +1,6 @@
 def devdb():
     import streamlit as st
-    from src.shared.components import build_outputs, sidebar
+    from shared.components import build_outputs, sidebar
 
     from .components.complete_quarters_report import CompleteQuartersReport
     from .components.field_distribution_report import FieldDistributionReport
