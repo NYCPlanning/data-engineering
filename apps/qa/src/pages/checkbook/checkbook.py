@@ -1,7 +1,7 @@
 def checkbook():
     import streamlit as st
-    from src.shared.components import build_outputs, sidebar
-    from src.shared.utils import publishing
+    from shared.components import build_outputs, sidebar
+    from shared.utils import publishing
 
     from .components import output_map
 
