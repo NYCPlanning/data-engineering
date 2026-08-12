@@ -19,6 +19,7 @@ pluto AS (
 cpdb AS (
     SELECT
         project_id,
+        description,
         spent_total,
         geom
     FROM {{ ref('stg__cpdb_points') }}
@@ -27,6 +28,7 @@ cpdb AS (
 
     SELECT
         project_id,
+        description,
         spent_total,
         geom
     FROM {{ ref('stg__cpdb_poly') }}
@@ -36,6 +38,7 @@ intersections AS (
     SELECT
         lift.bbl,
         cpdb.project_id,
+        cpdb.description,
         cpdb.spent_total
     FROM lift
     INNER JOIN pluto ON lift.bbl = pluto.bbl
@@ -47,7 +50,10 @@ final AS (
         bbl,
         COUNT(DISTINCT project_id) AS cp_projects,
         SUM(spent_total) AS cp_spent_total,
-        TO_JSON(LIST_SORT(LIST(DISTINCT project_id))) AS cp_project_ids
+        -- ids and descriptions are both ordered by project_id, so position i in one
+        -- list corresponds to position i in the other.
+        TO_JSON(LIST(DISTINCT project_id ORDER BY project_id)) AS cp_project_ids,
+        TO_JSON(LIST(description ORDER BY project_id)) AS cp_project_descriptions
     FROM intersections
     GROUP BY bbl
 )
