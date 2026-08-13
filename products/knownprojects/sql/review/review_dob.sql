@@ -24,7 +24,7 @@ stand_alone_projects AS (
     -- Stand-alone records
     SELECT
         record_id,
-        ARRAY[]::text [] || record_id AS project_record_ids,
+        ARRAY[]::text[] || record_id AS project_record_ids,
         row_number()
             OVER (
                 ORDER BY record_id

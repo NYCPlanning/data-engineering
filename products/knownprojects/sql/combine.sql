@@ -43,7 +43,7 @@ _dcp_application AS (
         0 AS prop_after_10_years,
         0 AS phasing_known,
         geom,
-        array_append(ARRAY[]::text [], a.record_id::text) AS record_id_input,
+        array_append(ARRAY[]::text[], a.record_id::text) AS record_id_input,
         (CASE
             WHEN status = 'Record Closed'
                 THEN 0
@@ -120,7 +120,7 @@ _edc_projects AS (
 
         -- phasing
         b.geom,
-        array_append(ARRAY[]::text [], a.uid) AS record_id_input,
+        array_append(ARRAY[]::text[], a.uid) AS record_id_input,
         (CASE
             WHEN build_year::numeric <= date_part('year', current_date) + 5
                 THEN 1
@@ -161,7 +161,7 @@ _dcp_planneradded AS (
         portion_2::numeric AS prop_after_10_years,
         1 AS phasing_known,
         geometry AS geom,
-        array_append(ARRAY[]::text [], a.uid) AS record_id_input,
+        array_append(ARRAY[]::text[], a.uid) AS record_id_input,
         flag_nycha(a::text) AS nycha,
         flag_classb(a::text) AS classb,
         flag_senior_housing(a::text) AS senior_housing
@@ -185,7 +185,7 @@ _dcp_n_study_future AS (
         NULL::integer AS nycha,
         NULL::integer AS classb,
         NULL::integer AS senior_housing,
-        array_append(ARRAY[]::text [], uid) AS record_id_input,
+        array_append(ARRAY[]::text[], uid) AS record_id_input,
         record_nam || ' ' || 'Future Rezoning Development' AS record_name
     FROM dcp_n_study_future
 ),
@@ -208,7 +208,7 @@ _dcp_n_study_projected AS (
         NULL::integer AS nycha,
         NULL::integer AS classb,
         NULL::integer AS senior_housing,
-        array_append(ARRAY[]::text [], a.uid) AS record_id_input,
+        array_append(ARRAY[]::text[], a.uid) AS record_id_input,
         replace(study, ' Projected Development Sites', '') AS record_name
     FROM dcp_n_study_projected AS a
 ),
@@ -231,7 +231,7 @@ _dcp_n_study AS (
         NULL::integer AS nycha,
         NULL::integer AS classb,
         NULL::integer AS senior_housing,
-        array_append(ARRAY[]::text [], uid::text) AS record_id_input
+        array_append(ARRAY[]::text[], uid::text) AS record_id_input
     FROM dcp_n_study
 ),
 
@@ -322,7 +322,7 @@ _dcp_housing AS (
         senior_housing,
         inactive,
         no_classa,
-        array_append(ARRAY[]::text [], record_id::text) AS record_id_input
+        array_append(ARRAY[]::text[], record_id::text) AS record_id_input
     FROM dcp_housing_poly
 )
 
