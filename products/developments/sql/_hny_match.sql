@@ -448,11 +448,14 @@ one_to_many AS (
         'Multiple' AS hny_id,
         sum(coalesce(all_counted_units::int, '0'))::text AS classa_hnyaff,
         sum(coalesce(total_units::int, '0'))::text AS all_hny_units,
-        one_dev_to_many_hny,
-        one_hny_to_many_dev
+        1 AS one_dev_to_many_hny,
+        /** one_hny_to_many_dev is per-hny, not per-job, so grouping on it splits a job
+            whose hny records disagree into two partial sums — which then breaks the
+            single-row lookups into this CTE below. Aggregate it instead. **/
+        max(one_hny_to_many_dev) AS one_hny_to_many_dev
     FROM relateflags_hny_matches
     WHERE one_dev_to_many_hny = 1
-    GROUP BY job_number, one_dev_to_many_hny, one_hny_to_many_dev
+    GROUP BY job_number
 ),
 
 -- c) For multiple dev to one hny, assign units to the one with the lowest job_number
