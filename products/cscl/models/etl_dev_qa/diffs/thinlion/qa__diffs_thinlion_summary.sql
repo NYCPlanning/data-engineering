@@ -43,7 +43,7 @@ categorized AS (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
                 ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
-                ]::text []
+                ]::text[]
                 THEN 'police geo discrepancy'
             ELSE diff_group
         END AS diff_group,
@@ -67,7 +67,7 @@ categorized AS (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
                 ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
-                ]::text []
+                ]::text[]
             ),
             FALSE
         ) AS accounted_for

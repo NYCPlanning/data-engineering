@@ -77,19 +77,19 @@ SELECT
     COALESCE(
         status = 'modified' AND (
             -- Bug: segment_seqnum can differ (legacy issue)
-            change_keys = ARRAY['segment_seqnum']::text []
+            change_keys = ARRAY['segment_seqnum']::text[]
             -- Bug 001: BOE LGC pointer incorrect for two-digit LGC codes
             -- See: docs/bugs/001-boe-lgc-pointer-two-digit-codes.md
             -- Only when old value was "1" (the legacy default)
             OR (
-                change_keys = ARRAY['boe_lgc_pointer']::text []
+                change_keys = ARRAY['boe_lgc_pointer']::text[]
                 AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
             )
             -- Curve flag: CompoundCurves in non-centerline features
             -- Legacy ETL doesn't detect irregular curves in shoreline/subway/rail
             -- New ETL correctly identifies them as 'I'
             OR (
-                change_keys = ARRAY['curve_flag']::text []
+                change_keys = ARRAY['curve_flag']::text[]
                 AND changes -> 'curve_flag' ->> 'old' = ' '
                 AND changes -> 'curve_flag' ->> 'new' = 'I'
                 AND _source_table IN ('shoreline', 'subway', 'rail')

@@ -30,7 +30,7 @@ FROM _project_record_ids;
 as well as projects from sources that were excluded
 from the non-DOB match process. */
 INSERT INTO project_record_ids
-SELECT ARRAY[]::text [] || record_id AS project_record_ids
+SELECT ARRAY[]::text[] || record_id AS project_record_ids
 FROM (
     SELECT record_id::text FROM combined
     WHERE
