@@ -30,10 +30,23 @@ function set_env {
 function set_error_traps {
   # Exit when any command fails
   set -e
-  # keep track of the last executed command
-  trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
-  # echo an error message before exiting
-  trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
+  # -E propagates the ERR trap into functions. Without it, errexit exits from inside
+  # the function and the trap never runs, so a failing run_sql_file reports nothing.
+  set -E
+  trap 'error_exit_code=$?; display_error_trace' ERR
+}
+
+
+# Report the failing command and the call stack that reached it. $BASH_COMMAND is
+# intentionally unexpanded — expanding it would print BUILD_ENGINE, which carries the
+# database password.
+function display_error_trace {
+  echo "ERROR: \"${BASH_COMMAND}\" failed with exit code ${error_exit_code}" >&2
+  local frame=0
+  while caller ${frame} > /dev/null 2>&1; do
+    echo "  at $(caller ${frame} | awk '{print $3":"$1" in "$2}')" >&2
+    frame=$((frame + 1))
+  done
 }
 
 
