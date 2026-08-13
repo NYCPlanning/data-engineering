@@ -7,6 +7,13 @@ dbt debug
 
 run_sql_file sql/_create.sql
 
+# Warns, doesn't block: the conflicting pairs it finds need triage with the Housing
+# team, and the corrections CSV is an export of a workbook they maintain, so there is
+# nothing to fix here. Runs beside _create.sql, which has just loaded the corrections,
+# rather than beside the other HNY checks further down.
+dbt test --select assert_no_conflicting_hny_corrections \
+    --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}'
+
 display "Starting to build Developments DB"
 run_sql_file sql/_function.sql
 run_sql_file sql/_procedures.sql -v build_schema=${BUILD_ENGINE_SCHEMA}
