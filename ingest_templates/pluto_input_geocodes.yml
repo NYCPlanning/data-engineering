@@ -7,9 +7,8 @@ attributes:
 
 ingestion:
   source:
-    type: s3
-    bucket: edm-recipes
-    key: inbox/dof/{{ version }}/PTS_Propmast.gz
+    type: axway
+    key: "FromDOF (ptsaxway@finance.nyc.gov)/PTS_Propmast.gz"
   file_format:
     type: csv
     delimiter: "\t"

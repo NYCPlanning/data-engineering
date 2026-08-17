@@ -1,11 +1,8 @@
+from os import environ as env
+from pathlib import Path
+
 from dcpy import configuration
-from dcpy.configuration import (
-    PRIVATE_BUCKET,
-    SFTP_HOST,
-    SFTP_PORT,
-    SFTP_PRIVATE_KEY_PATH,
-    SFTP_USER,
-)
+from dcpy.configuration import PRIVATE_BUCKET
 from dcpy.connectors import filesystem, ingest_datastore, s3, sftp, web
 from dcpy.connectors.edm import gis
 from dcpy.connectors.edm.bytes import BytesConnector
@@ -31,6 +28,19 @@ from dcpy.connectors.web_scrapers import foodbankny, myschools_nyc, qpl, uscourt
 from dcpy.utils.logging import logger
 
 connectors = ConnectorRegistry[Connector]()
+
+SFTP_HOST = env.get("SFTP_HOST")
+SFTP_USER = env.get("SFTP_USER")
+SFTP_PORT = str(env.get("SFTP_PORT", "22"))
+SFTP_PRIVATE_KEY_PATH: Path | None = (
+    Path(env["SFTP_PRIVATE_KEY_PATH"]) if env.get("SFTP_PRIVATE_KEY_PATH") else None
+)
+
+# Axway SecureTransport - DOF's PLUTO input files (PTS_Propmast.gz, CAMA.zip)
+AXWAY_SFTP_HOST = env.get("AXWAY_SFTP_HOST", "securetransport.nyc.gov")
+AXWAY_SFTP_USER = env.get("AXWAY_SFTP_USER")
+AXWAY_SFTP_PASSWORD = env.get("AXWAY_SFTP_PASSWORD")
+AXWAY_SFTP_PORT = str(env.get("AXWAY_SFTP_PORT", "22"))
 
 
 def _make_ingest_datastores():
@@ -108,6 +118,15 @@ def _set_default_connectors():
                 private_key_path=SFTP_PRIVATE_KEY_PATH,
             ),
             "ginger",  # TODO - name and env var names should be configurable
+        ],
+        [
+            sftp.SFTPConnector(
+                hostname=AXWAY_SFTP_HOST,
+                username=AXWAY_SFTP_USER,
+                port=int(AXWAY_SFTP_PORT),
+                password=AXWAY_SFTP_PASSWORD,
+            ),
+            "axway",  # DOF Axway SecureTransport - PLUTO input files
         ],
     ]
 

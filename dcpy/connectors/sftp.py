@@ -11,7 +11,8 @@ class SFTPConnector(StorageConnector):
     hostname: str | None
     username: str | None
     port: int
-    private_key_path: Path | None
+    private_key_path: Path | None = None
+    password: str | None = None
     known_hosts_path: Path = KNOWN_HOSTS_DEFAULT_PATH
 
     @cached_property
@@ -21,7 +22,7 @@ class SFTPConnector(StorageConnector):
             [
                 self.hostname,
                 self.username,
-                self.private_key_path,
+                self.private_key_path or self.password,
                 self.known_hosts_path,
             ]
         ):
@@ -31,7 +32,8 @@ class SFTPConnector(StorageConnector):
         return SFTPServer(
             hostname=cast(str, self.hostname),
             username=cast(str, self.username),
-            private_key_path=cast(Path, self.private_key_path),
+            private_key_path=self.private_key_path,
+            password=self.password,
             known_hosts_path=cast(Path, self.known_hosts_path),
             port=self.port,
         )
