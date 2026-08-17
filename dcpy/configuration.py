@@ -97,13 +97,6 @@ elif not Path(INGEST_DEF_DIR).exists():
 # Products directory for build recipes
 PRODUCTS_DIR = Path(env.get("PRODUCTS_DIR", PROJECT_ROOT_PATH / "products"))
 
-SFTP_HOST = env.get("SFTP_HOST")
-SFTP_USER = env.get("SFTP_USER")
-SFTP_PORT = str(env.get("SFTP_PORT", "22"))
-SFTP_PRIVATE_KEY_PATH: Path | None = (
-    Path(env["SFTP_PRIVATE_KEY_PATH"]) if env.get("SFTP_PRIVATE_KEY_PATH") else None
-)
-
 # Build engine configuration (set by recipe env vars)
 BUILD_ENGINE_DB = env.get("BUILD_ENGINE_DB")
 BUILD_ENGINE_SCHEMA = env.get("BUILD_ENGINE_SCHEMA")

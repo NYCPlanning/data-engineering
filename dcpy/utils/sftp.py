@@ -3,7 +3,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import paramiko
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
+from typing_extensions import Self
 
 from dcpy.utils.logging import logger
 
@@ -13,9 +14,18 @@ KNOWN_HOSTS_DEFAULT_PATH = Path.home() / ".ssh/known_hosts"
 class SFTPServer(BaseModel):
     hostname: str
     username: str
-    private_key_path: Path
+    private_key_path: Path | None = None
+    password: str | None = None
     known_hosts_path: Path = KNOWN_HOSTS_DEFAULT_PATH
     port: int = 22
+
+    @model_validator(mode="after")
+    def check_auth_method(self) -> Self:
+        if bool(self.private_key_path) == bool(self.password):
+            raise ValueError(
+                "Exactly one of 'private_key_path' or 'password' must be set"
+            )
+        return self
 
     @contextmanager
     def _connection(self):
@@ -40,7 +50,8 @@ class SFTPServer(BaseModel):
             hostname=self.hostname,
             port=self.port,
             username=self.username,
-            key_filename=str(self.private_key_path),
+            key_filename=str(self.private_key_path) if self.private_key_path else None,
+            password=self.password,
             look_for_keys=False,
             allow_agent=False,
         )
