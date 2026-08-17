@@ -83,6 +83,12 @@ custom:
     latest_year: "1923"
     puma_baseline_years: ["0004", "1014"]
     baseline_years: ["2000", "2010"]
+    year_band_mapping:
+      "0004": "2000"
+      "1014": "2010"
+      "1923": "2023"
+    # Mapped years for CSV column names (all geographies use same format now)
+    mapped_years: ["2000", "2010", "2023"]
 
   traffic_fatalities:
     year_ranges:
@@ -91,6 +97,28 @@ custom:
 
   dhs_shelter:
     years: ["2020", "2025"]
+
+  # Data vintage years for site configuration
+  education:
+    year: "2025"  # NYC DOE test proficiency and graduation data
+
+  hpd_hny:
+    start_year: "2014"
+    end_year: "2026"  # HPD Housing New York units (completion years 2014-2026)
+
+  nycha:
+    year: "2024"  # NYCHA units and tenant data
+
+  housing_lottery:
+    start_year: "2022"
+    end_year: "2024"  # Housing Connect applications and leases
+
+  evictions:
+    start_year: "2019"
+    end_year: "2025"  # DOI residential evictions by city marshals
+
+  inflation_adjustment:
+    year: "2023"  # Year for inflation-adjusted dollar amounts (income, rent, home values, wages)
 
 stage_config:
   builds.build:

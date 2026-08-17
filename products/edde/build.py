@@ -192,7 +192,9 @@ def combine_geography_csvs(category: str):
             logger.warning(f"Skipping combined CSV: {csv_path} does not exist")
             return
 
-        df = pd.read_csv(csv_path)
+        # Preserve string type for geography columns (especially PUMA with leading zeros)
+        geo_col = geography_column_map[geo]
+        df = pd.read_csv(csv_path, dtype={geo_col: str})
 
         # Get columns excluding the geography-specific column
         geo_col = geography_column_map[geo]

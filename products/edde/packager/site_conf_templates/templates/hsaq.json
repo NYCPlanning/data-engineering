@@ -59,7 +59,7 @@
   },
   {
     "base": {
-      "title": "Median Home Value (2023 Dollars)",
+      "title": "Median Home Value ({{ inflation_adjustment.year }} Dollars)",
       "has_change": true,
       "is_survey": true,
       "denominator": {
@@ -111,7 +111,7 @@
   },
   {
     "base": {
-      "title": "Median Gross Rent (2023 dollars)",
+      "title": "Median Gross Rent ({{ inflation_adjustment.year }} dollars)",
       "has_change": true,
       "is_survey": true,
       "denominator": {
@@ -456,8 +456,8 @@
         "measures": ["COUNT"],
         "variances": ["NONE"]
       },
-      "vintages": ["NYC DEPARTMENT OF INVESTIGATION, 2019-2025"],
-      "labels": ["Residential evictions executed by a city marshal 2019 - 2025"],
+      "vintages": ["NYC DEPARTMENT OF INVESTIGATION, {{ evictions.start_year }}-{{ evictions.end_year }}"],
+      "labels": ["Residential evictions executed by a city marshal {{ evictions.start_year }} - {{ evictions.end_year }}"],
       "variables": ["evictions"],
       "headers": [[["number", 1]]],
       "measures": ["COUNT"],
@@ -535,7 +535,7 @@
       "title": "Income-restricted Housing",
       "id": "3.11.T",
       "subcategory": "units_",
-      "vintages": ["NYC Housing Authority, 2024; NYC Housing Preservation and Development, 2025"],
+      "vintages": ["NYC Housing Authority, {{ nycha.year }}; NYC Housing Preservation and Development, {{ hpd_hny.end_year }}"],
       "labels": ["NYCHA units", "Homes with new or extended affordability requirements"],
       "variables": ["nycha","hpd"],
       "headers": [[["number", 1]]],
@@ -572,7 +572,7 @@
   {
     "base": {
       "title": "Population In NYC Housing Authority Housing",
-      "vintages": ["NYC HOUSING AUTHORITY, 2024"],
+      "vintages": ["NYC HOUSING AUTHORITY, {{ nycha.year }}"],
       "denominator": {
         "variable": "pop",
         "measures": ["COUNT","PERCENT"],
@@ -621,7 +621,7 @@
     "base": {
       "title": "Housing Lottery Applications",
       "id": "3.13.T",
-      "vintages": ["NYC HOUSING CONNECT 2022-2024"],
+      "vintages": ["NYC HOUSING CONNECT {{ housing_lottery.start_year }}-{{ housing_lottery.end_year }}"],
       "subcategory": "housing_lottery_",
       "variables": ["applications"],
       "measures": ["COUNT","PERCENT"],
@@ -705,7 +705,7 @@
     "base": {
       "title": "Housing Lottery Leases",
       "id": "3.14.T",
-      "vintages": ["NYC HOUSING CONNECT 2022-2024"],
+      "vintages": ["NYC HOUSING CONNECT {{ housing_lottery.start_year }}-{{ housing_lottery.end_year }}"],
       "subcategory": "housing_lottery_",
       "variables": ["leases"],
       "measures": ["COUNT","PERCENT"],

@@ -39,6 +39,9 @@ health_mortality_puma_baseline_years = health_mortality_config.get(
 health_mortality_baseline_years = health_mortality_config.get(
     "baseline_years", ["2000", "2010"]
 )
+health_mortality_year_band_mapping = health_mortality_config.get(
+    "year_band_mapping", {"0004": "2000", "1014": "2010", "1923": "2023"}
+)
 
 # Traffic fatalities configuration from recipe custom section
 traffic_fatalities_config = _recipe_lock.custom.get("traffic_fatalities", {})

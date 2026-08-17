@@ -21,6 +21,8 @@ def traffic_fatalities_injuries(geography):
     ]
     if geography == "puma":
         final = pd.DataFrame(index=get_all_NYC_PUMAs())
+        # Ensure index is string type to preserve leading zeros
+        final.index = final.index.astype(str)
     if geography == "borough":
         final = pd.DataFrame(index=get_all_boroughs())
     if geography == "citywide":
@@ -67,6 +69,9 @@ def get_year_range_df(year_range):
 
     """
     big_df = pd.DataFrame(data={"puma": get_all_NYC_PUMAs()})
+    # Ensure puma column is string type to match cleaned PUMAs from source data
+    big_df["puma"] = big_df["puma"].astype(str)
+
     for year in year_range:
         raw_df = data_loaders.load_data(
             name=TRAFFIC_FATALITIES_DATASET, version=str(year)
@@ -103,6 +108,8 @@ def get_year_range_df(year_range):
             ) / 100
             raw_df.drop(columns=[d], inplace=True)
         raw_df["puma"] = raw_df["puma"].apply(clean_PUMAs)
+        # Ensure puma column is string type to match big_df
+        raw_df["puma"] = raw_df["puma"].astype(str)
 
         big_df = big_df.merge(
             raw_df,

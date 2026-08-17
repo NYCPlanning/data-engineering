@@ -9,9 +9,9 @@ from utils.geo_helpers import clean_PUMAs
 
 from aggregate.clean_aggregated import order_PUMS_QOL_multiple_years
 from aggregate.config import (
-    health_mortality_baseline_years,
     health_mortality_latest_year,
     health_mortality_puma_baseline_years,
+    health_mortality_year_band_mapping,
 )
 
 # Load health mortality configuration from centralized config
@@ -89,15 +89,10 @@ def premature_mortality(geography: str, year=LATEST_YEAR):
 
 
 def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year: str):
-    # Year lists from recipe vars
-    # Output ALL year columns for all geographies (will fill missing with NaN)
-    puma_years = health_mortality_puma_baseline_years + [
-        year
-    ]  # e.g., ["0004", "1014", "1923"]
-    borough_citywide_years = health_mortality_baseline_years + [
-        "20" + year[2:]
-    ]  # e.g., ["2000", "2010", "2023"]
-    years = puma_years + borough_citywide_years  # All years combined
+    # Year lists from recipe vars - now using only single year format after mapping
+    # Convert all year bands to single years using the mapping
+    all_year_bands = health_mortality_puma_baseline_years + [year]
+    years = [health_mortality_year_band_mapping[yb] for yb in all_year_bands]
 
     cols = df.columns
     cols = [c.replace(ind_name, ind_name_mapper[ind_name]) for c in cols]
@@ -105,6 +100,18 @@ def rename_reorder_columns(df: pd.DataFrame, ind_name: str, geography: str, year
         cols = [c.replace(letter, race) for c in cols]
     if geography == "puma":
         cols = [shorten_year_range(c) for c in cols]
+        # Translate year bands to single years using recipe mapping
+        for year_band, single_year in health_mortality_year_band_mapping.items():
+            # Handle both total columns (ending with year) and race columns (year followed by race suffix)
+            cols = [
+                c.replace(f"_{year_band}_", f"_{single_year}_") for c in cols
+            ]  # Race columns
+            cols = [
+                c.replace(f"_{year_band}", f"_{single_year}")
+                if c.endswith(f"_{year_band}")
+                else c
+                for c in cols
+            ]  # Total columns
     df.columns = ["health_" + col + "_rate" for col in cols]
     # reorder items to standard
     col_order = order_PUMS_QOL_multiple_years(
