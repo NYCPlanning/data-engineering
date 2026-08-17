@@ -48,7 +48,7 @@
         "measures": ["COUNT", "COUNT"],
         "variances": ["NONE", "NONE"]
       },
-      "vintages": ["NYC HOUSING PRESERVATION AND DEVELOPMENT, 2014 - 2025"],
+      "vintages": ["NYC HOUSING PRESERVATION AND DEVELOPMENT, {{ hpd_hny.start_year }} - {{ hpd_hny.end_year }}"],
       "headers": [
         [
           ["new construction", 1],
