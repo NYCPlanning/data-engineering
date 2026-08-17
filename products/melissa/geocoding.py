@@ -118,6 +118,7 @@ def parse_1e(geo):
         e_wa2_communitydistrict=geo.get("COMMUNITY DISTRICT", {}).get(
             "COMMUNITY DISTRICT", ""
         ),
+        e_wa2_zipcode=geo.get("ZIP Code", ""),
         e_wa2_nta=geo.get("Neighborhood Tabulation Area (NTA)", ""),
         e_wa2_physicalid=geo.get("Physical ID", ""),
         # "NTA Name" is the paired name field for the (2010-vintage) "Neighborhood

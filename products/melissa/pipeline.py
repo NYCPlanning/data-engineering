@@ -63,6 +63,7 @@ GEOCODE_COLUMNS = [
     "e_wa2_xcoordinate",
     "e_wa2_ycoordinate",
     "e_wa2_communitydistrict",
+    "e_wa2_zipcode",
     "e_wa2_nta",
     "e_wa2_physicalid",
     "e_wa2_ntaname",
@@ -320,6 +321,10 @@ def build(conn: duckdb.DuckDBPyConnection) -> None:
             COALESCE(cg.e_wa2_physicalid, ig.e_wa2_physicalid) AS physicalid,
             COALESCE(cg.e_wa2_blockfaceid, ig.e_wa2_blockfaceid) AS blockfaceid,
             COALESCE(cg.e_wa2_communitydistrict, ig.e_wa2_communitydistrict) AS cd,
+            -- Geosupport's own ZIP Code (Function 1E), alongside Melissa's own "zip"
+            -- input column (passed through untouched in output()) -- named distinctly
+            -- so the two can be compared directly per address.
+            COALESCE(cg.e_wa2_zipcode, ig.e_wa2_zipcode) AS geo_zipcode,
             -- NTA is the 2020-vintage code (not the 2010-vintage code the
             -- original db-melissa pipeline's WA2_NTA field mapping used) so
             -- it's consistent with nta_name, which can only be sourced
@@ -405,7 +410,7 @@ def output(conn: duckdb.DuckDBPyConnection, output_path: Path) -> None:
                 id, hnum, sname, corrected_borough, corrected_house_number,
                 corrected_street_name, borough_code, f1_normalized_hn, f1_normalized_sn,
                 centerline_xcoordinate, centerline_ycoordinate, centerline_latitude,
-                centerline_longitude, physicalid, blockfaceid, cd, nta, nta_name,
+                centerline_longitude, physicalid, blockfaceid, cd, geo_zipcode, nta, nta_name,
                 f1_grc, f1_reasoncode, f1_message, f1a_normalized_hn, f1a_normalized_sn,
                 bin, is_tpad_bin, bbl, f1a_grc, f1a_reasoncode, f1a_message,
                 fap_normalized_hn, fap_normalized_sn, addresspointid,
