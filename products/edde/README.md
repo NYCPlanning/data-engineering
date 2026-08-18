@@ -52,6 +52,17 @@ One file per year per geography. e.g. In this most recent build (in 2025), there
 In terms of input data, `Economics` and `Demographics` are the most straightforward. The data are similar to PFF: very wide tables of census data. 
 By contrast, `Housing Security`, `Housing Production`, and `Quality Of Life` are messier and sometimes require processing or re-aggregating to different geographies.
 
+#### Packaging: Change-Over-Time
+
+As part of packaging (`python3 -m packager`), `packager/change_over_time/` generates year-over-year "change" files per category, written to `attachments/change_over_time/`. The comparison basis differs by category — this is intentional, not a bug:
+
+- **Demographics & Economics**: compared against the *previous published EDDE release* (loaded as the `edde` input dataset per `recipe.yml`, `version: latest`). The "old" value comes from the oldest-yearband file found in that prior release's own output — not from this build's own recomputation of the same yearband (the current build does compute its own `_0812_` files, but they aren't used for this comparison). `custom.EDDE_VERSION_PREV` in `recipe.yml` is not read by any code; the previous version used is always whatever the `edde` input resolves to as `latest` at plan time.
+- **Housing Security & Quality of Life**: compared entirely *within the current build* — two year-banded columns from the same single output file (e.g. `health_infantmortality_2000_rate` vs. `health_infantmortality_2023_rate`), both computed in this run. The previous published release is never consulted for these two categories.
+
+**Housing Production has no change-over-time output at all** — the category isn't wired into `packager/change_over_time/run_all.py`, and the reason isn't currently known. See [`data_issues.md`](./data_issues.md#edde-cot-01).
+
+See [`data_issues.md`](./data_issues.md) for other known gaps in change-over-time coverage — several indicators across categories are only ever computed as a single snapshot, so they can't be diffed year-over-year without further aggregator changes.
+
 ### 3. Post-Build: Application Engineering's Role
 AE has two processes to run to supplement the data:
 1. Manually assemble the "Data Download" files. 
