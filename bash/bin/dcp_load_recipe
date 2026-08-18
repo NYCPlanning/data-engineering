@@ -59,16 +59,24 @@ echo ""
 echo "📋 Planning recipe..."
 python3 -m dcpy.lifecycle.builds.plan recipe
 
+# Determine lockfile path - plan.py writes to BUILD_ENV_OUTPUT_DIR when it's set,
+# falling back to the product directory otherwise
+if [ -n "${BUILD_ENV_OUTPUT_DIR}" ]; then
+    LOCKFILE_PATH="${BUILD_ENV_OUTPUT_DIR}/${RECIPE_FILE}.lock.yml"
+else
+    LOCKFILE_PATH="${RECIPE_FILE}.lock.yml"
+fi
+
 # Export recipe environment variables
-if [ -f "${RECIPE_FILE}.lock.yml" ]; then
+if [ -f "${LOCKFILE_PATH}" ]; then
     echo "🔧 Setting recipe environment variables..."
-    source "${PROJECT_ROOT_PATH}/bash/export_recipe_env.sh" "${RECIPE_FILE}.lock.yml"
+    source "${PROJECT_ROOT_PATH}/bash/export_recipe_env.sh" "${LOCKFILE_PATH}"
 fi
 
 # Load the recipe
 echo "📥 Loading recipe to database..."
 python3 -m dcpy lifecycle builds load load \
-    --recipe-path "${RECIPE_FILE}.lock.yml" \
+    --recipe-path "${LOCKFILE_PATH}" \
     --cache-schema "${RECIPE_SCHEMA}" \
     --cached-entity-type view
 

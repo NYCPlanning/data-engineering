@@ -7,6 +7,7 @@ from pathlib import Path
 
 import typer
 
+from dcpy.configuration import PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY
 from dcpy.lifecycle.connector_registry import connectors
@@ -275,6 +276,40 @@ def run_single_command(
             raise RuntimeError(error_msg) from e
 
 
+def run_build_commands(
+    product_path: Path,
+    recipe_lock_path: Path,
+    build_directory: Path | None = None,
+) -> None:
+    """Execute just the build-stage commands from a recipe (stage_config.builds.build.commands).
+
+    Unlike `build()`, this does not load source data, run the export step, write build
+    metadata, or upload anything - it only runs the product's own build commands, e.g. for
+    local iteration on the transform logic itself.
+    """
+    recipe = plan.recipe_from_yaml(recipe_lock_path)
+
+    if BUILD_STAGE_KEY not in recipe.stage_config:
+        raise ValueError(
+            f"Recipe does not contain '{BUILD_STAGE_KEY}' stage configuration. "
+            f"Add stage_config.{BUILD_STAGE_KEY}.commands to recipe.yml"
+        )
+
+    build_config = recipe.stage_config[BUILD_STAGE_KEY]
+    if not build_config.commands:
+        raise ValueError(
+            "No build commands specified in recipe stage_config.build.commands"
+        )
+
+    for cmd in build_config.commands:
+        run_single_command(
+            product_path=product_path,
+            recipe_lock_path=recipe_lock_path,
+            command_name=cmd.name,
+            build_directory=build_directory,
+        )
+
+
 def build(
     product_path: Path,
     recipe_lock_or_path: "plan.Recipe | Path | None" = None,
@@ -512,6 +547,52 @@ def build(
 
     logger.info(f"Build completed successfully. Output: {output_path}")
     return output_path
+
+
+@app.command("run")
+def _run_build_commands(
+    product: str = typer.Option(
+        None,
+        "--product",
+        "-p",
+        help="Name of the product, looked up under PRODUCTS_DIR (alternative to --product-path)",
+    ),
+    product_path: Path = typer.Option(
+        None,
+        "--product-path",
+        help="Path to product directory (default: current directory, or PRODUCTS_DIR/<product> if --product is given)",
+    ),
+    recipe_lock_path: Path = typer.Option(
+        None,
+        "--recipe-path",
+        "-r",
+        help="Path of recipe lock file to use (default: recipe.lock.yml in --build-dir if given, else in the product path)",
+    ),
+    build_directory: Path = typer.Option(
+        None,
+        "--build-dir",
+        "-d",
+        help="Build directory to use for command output (sets BUILD_ENV_OUTPUT_DIR); also supplies the default recipe lock path",
+    ),
+):
+    """Execute the build-stage commands from a recipe.lock.yml (stage_config.builds.build.commands).
+
+    Runs only the product's own build commands (e.g. `build`, `qa`, `package` for EDDE) -
+    it does not load source data, export, or upload anything.
+    """
+    if product and product_path:
+        typer.echo("Error: pass only one of --product or --product-path", err=True)
+        raise typer.Exit(code=1)
+
+    if product:
+        product_path = PRODUCTS_DIR / product
+    product_path = product_path or Path.cwd()
+
+    if recipe_lock_path is None:
+        recipe_lock_path = (build_directory or product_path) / "recipe.lock.yml"
+
+    run_build_commands(product_path, recipe_lock_path, build_directory)
+    typer.echo("Build commands completed successfully.")
 
 
 @app.command("upload")
