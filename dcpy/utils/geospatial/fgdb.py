@@ -3,13 +3,19 @@ import uuid
 import zipfile
 from pathlib import Path
 
-from osgeo import gdal
-
 from dcpy.utils.geospatial.shapefile_metadata import Metadata
 
 
 # possible TODO: replace this fn with an Info() object, from which methods like .get_layers() can be called
 def get_layers(gdb: Path) -> list[str]:
+    # Imported lazily: eagerly importing osgeo.gdal at module load time (this
+    # module is imported as part of the dcpy CLI bootstrap) triggers GDAL's
+    # driver registration, which collides with pyarrow's Arrow filesystem
+    # registration ("Attempted to register factory for scheme 'file' but that
+    # scheme is already registered") if pyarrow is used anywhere else in the
+    # same process.
+    from osgeo import gdal
+
     with gdal.ExceptionMgr():
         info = gdal.alg.vector.info(
             input=gdb,
@@ -33,6 +39,8 @@ def resolve_layer(gdb: Path, layer: str | None = None) -> str:
 
 
 def read_metadata(gdb: Path, layer: str, as_string: bool = False) -> Metadata | None:
+    from osgeo import gdal  # see get_layers() for why this is a local import
+
     with gdal.ExceptionMgr():
         layer_info = gdal.alg.vector.info(
             input=gdb,
@@ -62,6 +70,8 @@ def write_metadata(
     xml_data = metadata.to_xml()
     md = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
 
+    from osgeo import gdal  # see get_layers() for why this is a local import
+
     with gdal.ExceptionMgr():
         _edit_layer_metadata_inplace(
             gdb=gdb,
@@ -71,6 +81,8 @@ def write_metadata(
 
 
 def metadata_exists(gdb: Path, layer: str) -> bool:
+    from osgeo import gdal  # see get_layers() for why this is a local import
+
     with gdal.ExceptionMgr():
         layer_info = gdal.alg.vector.info(
             input=gdb,
@@ -87,6 +99,8 @@ def metadata_exists(gdb: Path, layer: str) -> bool:
 
 
 def remove_metadata(gdb: Path, layer: str) -> None:
+    from osgeo import gdal  # see get_layers() for why this is a local import
+
     with gdal.ExceptionMgr():
         _edit_layer_metadata_inplace(gdb=gdb, layer=layer, metadata="")
 
@@ -98,6 +112,8 @@ def _edit_layer_metadata_inplace(
     layer: str,
     metadata: str,
 ) -> None:
+    from osgeo import gdal  # see get_layers() for why this is a local import
+
     intermediate_layer = f"fc_{uuid.uuid4().hex}"
 
     def _edit_md(
