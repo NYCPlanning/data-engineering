@@ -209,7 +209,15 @@ jobs:
     - name: dcpy integration pytests
       run: |
         docker exec --user root de \
-        python3 -m pytest dcpy/test_integration -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+      env:
+        RECIPES_BUCKET: "test-recipes"
+
+    # separate for the same gdal/pyarrow reason as the unit library suite above
+    - name: dcpy integration library pytests
+      run: |
+        docker exec --user root de \
+        python3 -m pytest dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
       env:
         RECIPES_BUCKET: "test-recipes"
 

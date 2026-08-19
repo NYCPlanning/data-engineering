@@ -8,7 +8,8 @@ How tests are organized across the repo, how to run them, and the conventions we
 |---|---|---|
 | **dcpy unit** | `dcpy/test/` | Mocked externals (`moto` for S3/AWS); a live Postgres in CI |
 | **dcpy library** | `dcpy/test/library/` | Run **separately** — gdal + pyarrow conflict (parquet read/write fails after importing gdal) |
-| **dcpy integration** | `dcpy/test_integration/` | Live infrastructure (Postgres, SFTP) |
+| **dcpy integration** | `dcpy/test_integration/` | Live infrastructure (Postgres, SFTP, S3) |
+| **dcpy integration library** | `dcpy/test_integration/library/` | Live S3 + Postgres; run **separately** for the same gdal/pyarrow reason |
 | **product / app** | `products/*`, `apps/qa/` | Per-product; matrix-driven |
 
 ### dcpy unit tests (`dcpy/test/`)
@@ -73,9 +74,17 @@ Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflow
 python3 -m pytest dcpy/test --ignore dcpy/test/library --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
 # library suite, separately (gdal/pyarrow conflict), appending coverage
 python3 -m pytest dcpy/test/library --cov=dcpy --cov-report=xml --cov-append
-# integration suite
-python3 -m pytest dcpy/test_integration ...
+# integration suite (its own library subdir excluded)
+python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library ...
+# integration library suite, separately (gdal/pyarrow again)
+python3 -m pytest dcpy/test_integration/library ...
 ```
+
+> [!NOTE]
+> The `dcpy/test/conftest.py` internet guard (`ensure_no_callouts`) only replaces Python's
+> `socket.socket`, so it can't see connections opened from C extensions — libpq, gdal. A unit
+> test reaching live infrastructure through those will pass the guard; keep such tests in
+> `dcpy/test_integration/` rather than relying on the guard to catch them.
 
 ## Known gaps
 

@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
@@ -135,6 +134,7 @@ def test_upload_build_success(
     assert publishing.get_version(product_key=build_key) == TEST_VERSION
 
 
+@patch("dcpy.connectors.edm.publishing.BUILD_NAME", None)
 def test_upload_build_missing_build_name(
     create_buckets,
     create_temp_filesystem,
@@ -143,7 +143,6 @@ def test_upload_build_missing_build_name(
     """Tests failure when build name is not provided and env variable is missing."""
     data_path = mock_data_constants["TEST_DATA_DIR"]
 
-    assert os.getenv("BUILD_NAME") is None  # sanity check
     with pytest.raises(ValueError, match="'BUILD_NAME' cannot be"):
         publishing.upload_build(
             data_path,

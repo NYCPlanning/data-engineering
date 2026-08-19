@@ -3,8 +3,7 @@ import os
 from sqlalchemy import text
 
 from dcpy.library.archive import Archive
-
-from . import (
+from dcpy.test.library import (
     TEST_DATASET_CONFIG_FILE,
     TEST_DATASET_NAME,
     TEST_DATASET_OUTPUT_DIRECTORY,
