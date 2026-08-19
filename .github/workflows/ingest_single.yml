@@ -78,6 +78,9 @@ jobs:
           SOCRATA_PASSWORD: "op://Data Engineering/DCP_OpenData/password"
           AXWAY_SFTP_USER: "op://Data Engineering/DOF FTP/username"
           AXWAY_SFTP_PASSWORD: "op://Data Engineering/DOF FTP/password"
+          # Expires with the browser session it was captured from - refresh the 1Password
+          # item before ingesting usps_locations_nyc.
+          USPS_LOCATIONS_SESSION_HEADERS: "op://Data Engineering/USPS_LOCATIONS/session_headers"
 
       - name: Finish container setup ...
         run: ./bash/docker_container_setup.sh
