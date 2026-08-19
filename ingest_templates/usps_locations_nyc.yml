@@ -10,6 +10,12 @@ attributes:
     real browser - see USPS_LOCATIONS_SESSION_HEADERS in
     dcpy/connectors/web_scrapers/usps.py.
 
+    This dataset cannot currently be ingested unattended. USPS blocks the client after
+    roughly 4-8 of the 18 queries, and a browser capture cannot be automated, so a
+    workflow dispatch will fail partway through. Run it locally instead; the connector
+    checkpoints after every zip so repeated runs accumulate. See the module docstring
+    in dcpy/connectors/web_scrapers/usps.py.
+
 ingestion:
   source:
     # custom web-scraping connector, requires USPS_LOCATIONS_SESSION_HEADERS env var
