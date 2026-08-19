@@ -1,0 +1,46 @@
+name: CEQR - Schools
+on:
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Dataset to build"
+        type: choice
+        required: true
+        options:
+        - sca_capacity_projects
+        - sca_e_projections_by_boro
+        - sca_e_projections_by_sd
+        - ceqr_school_buildings
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/ceqr/ceqr_app
+    container:
+      image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+    - name: Setup build environment
+      working-directory: ./
+      run: ./bash/docker_container_setup.sh
+
+    - name: Run recipe
+      run: |
+        export RECIPE_EGNINE=$BUILD_ENGINE_SERVER/recipe
+        export EDM_DATA=$BUILD_ENGINE_SERVER/defaultdb
+        ./ceqr run recipe ${{ inputs.dataset }}
