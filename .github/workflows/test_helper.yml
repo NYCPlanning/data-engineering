@@ -161,7 +161,7 @@ jobs:
   pytest_dcpy:
     name: Pytest - dcpy
     runs-on: ubuntu-22.04
-    #if: (inputs.path_filter == '') || contains(inputs.path_filter, 'dcpy')
+    if: (inputs.path_filter == '') || contains(inputs.path_filter, 'dcpy')
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
       RECIPES_BUCKET: edm-recipes
