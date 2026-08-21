@@ -1,4 +1,4 @@
-"""Apply `db-*` product labels and issue types to issues by matching their titles.
+"""Apply `db-*` product labels, topic labels, and issue types by matching issue titles.
 
 Both were applied by hand for years and landed on a minority of the issues they
 should have — product labels on 18% of the issues naming a product, the Bug type
@@ -25,9 +25,12 @@ REPO = "NYCPlanning/data-engineering"
 LIST_FIELDS = "number,title,labels,issueType"
 
 
+Rules = list[tuple[str, re.Pattern]]
+
+
 @lru_cache(maxsize=1)
-def _rules() -> tuple[list[tuple[str, re.Pattern]], list[tuple[str, re.Pattern]]]:
-    """(label, pattern) and (issue type, pattern) pairs, one pattern per target."""
+def _rules() -> tuple[Rules, Rules, Rules]:
+    """(label, pattern) pairs for products then topics, then (issue type, pattern)."""
     config = yaml.safe_load(CONFIG_PATH.read_text())
 
     def compile_specs(specs, key):
@@ -38,17 +41,28 @@ def _rules() -> tuple[list[tuple[str, re.Pattern]], list[tuple[str, re.Pattern]]
 
     return (
         compile_specs(config["products"], "label"),
+        compile_specs(config.get("labels", {}), None),
         compile_specs(config.get("types", {}), None),
     )
 
 
 def match_labels(title: str) -> list[str]:
-    return sorted(label for label, pattern in _rules()[0] if pattern.search(title))
+    """Product labels if any match, else topic labels.
+
+    Topic labels describe work that isn't a data product, so a title naming a
+    product can't also be one — otherwise `PLUTO docker image` reads as platform
+    work rather than PLUTO's.
+    """
+    products, topics, _ = _rules()
+    matched = [label for label, pattern in products if pattern.search(title)]
+    if not matched:
+        matched = [label for label, pattern in topics if pattern.search(title)]
+    return sorted(matched)
 
 
 def match_type(title: str) -> str | None:
     """First matching issue type, or None. Types are mutually exclusive."""
-    return next((name for name, p in _rules()[1] if p.search(title)), None)
+    return next((name for name, p in _rules()[2] if p.search(title)), None)
 
 
 def _gh(*args: str) -> str:
