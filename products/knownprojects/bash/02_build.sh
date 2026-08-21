@@ -11,6 +11,7 @@ run_sql_file sql/_procedures.sql
 run_sql_file sql/dcp_application.sql
 run_sql_file sql/dcp_housing.sql
 run_sql_file sql/combine.sql
+run_sql_command "CREATE INDEX IF NOT EXISTS combined_record_id_idx ON combined (record_id);"
 run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'combined', 'corrections_main');"
 run_sql_command "VACUUM ANALYZE combined;"
 
@@ -33,11 +34,14 @@ run_sql_command "VACUUM ANALYZE project_record_ids;"
 
 # Dedup units
 python3 -m python.dedup_units
+run_sql_command "CREATE INDEX IF NOT EXISTS deduped_units_record_id_idx ON deduped_units (record_id);"
 run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'deduped_units', 'corrections_main');"
 run_sql_command "VACUUM ANALYZE deduped_units;"
 
 # Join to boro, clean duplicates
 run_sql_file sql/join_boroughs.sql
+# join_boroughs.sql rebuilds combined via SELECT INTO, dropping its indexes
+run_sql_command "CREATE INDEX IF NOT EXISTS combined_record_id_idx ON combined (record_id);"
 run_sql_command "CALL apply_correction('${BUILD_ENGINE_SCHEMA}', 'combined', 'corrections_borough');"
 
 # Create KPDB
