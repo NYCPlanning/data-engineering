@@ -56,3 +56,16 @@ models:
           combination_of_columns:
             - record_id
             - ct
+
+  - name: kpdb_match_geom
+    description: >
+      Project records with the geometry each boundary aggregation should match
+      on, resolved once instead of inline in every aggregation's join.
+    columns:
+      - name: record_id
+        tests: [not_null]
+      - name: match_geom
+        tests: [not_null]
+      - name: polygon_mode
+        description: "Project is allocated only to boundaries it covers >= 10% of"
+        tests: [not_null]
