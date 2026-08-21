@@ -8,8 +8,9 @@
     (project, boundary) pair. Hoisting it here leaves a bare st_intersects() in
     the join, which the index can serve.
 
-    The 'DCP Planner-Added PROJECTs' casing is preserved verbatim from those
-    scripts; it matches no rows.
+    The Resilient Housing and NIHOP/NCP branches spelled the source
+    'DCP Planner-Added PROJECTs', which matches no rows, so planner-added
+    projects in those programmes were treated as points rather than polygons.
 #}
 
 {% macro match_geometry(source_model) %}
@@ -39,7 +40,7 @@ WITH classified AS (
             WHEN
                 d.record_name LIKE '%Resilient Housing%'
                 AND d.source IN (
-                    'DCP Application', 'DCP Planner-Added PROJECTs'
+                    'DCP Application', 'DCP Planner-Added Projects'
                 )
                 THEN 'polygon'
             WHEN
@@ -48,7 +49,7 @@ WITH classified AS (
                     OR d.record_name LIKE '%NCP%'
                 )
                 AND d.source IN (
-                    'DCP Application', 'DCP Planner-Added PROJECTs'
+                    'DCP Application', 'DCP Planner-Added Projects'
                 )
                 THEN 'polygon'
             WHEN
