@@ -36,6 +36,8 @@ jobs:
               - dcpy/**
               - pyproject.toml
               - admin/run_environment/**
+              - .github/workflows/test.yml
+              - .github/workflows/test_helper.yml
             template:
               - .github/workflows/test.yml
               - .github/workflows/build.yml
