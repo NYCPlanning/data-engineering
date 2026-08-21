@@ -58,7 +58,8 @@ python3 -m products.factfinder.run <dataset> <version>
 python3 -m products.factfinder.run acs 2024
 ```
 
-`<dataset>` is `acs` or `decennial`; `<version>` is the recipe version (e.g. `2024`).
+`<dataset>` is `acs` or `decennial`; `<version>` is the recipe version (e.g. `2024`) — which is
+the data's *vintage*, not the PFF release version used in publishing paths below.
 
 ### Output
 
@@ -66,46 +67,85 @@ Build artifacts land under `.lifecycle/` (gitignored):
 
 - `.lifecycle/builds/load/<recipe_id>/<version>/` — source data pulled from `edm-recipes`
   (e.g. `dcp_pop_acs/2024/dcp_pop_acs.xlsx`)
-- `.lifecycle/builds/build/factfinder/<dataset>/<version>/` — the build output: `<dataset>.csv`
+- `.lifecycle/builds/build/factfinder/<dataset>/<vintage>/` — the build output: `<dataset>.csv`
   plus `metadata.json`
 
 So the 2024 ACS run writes `.lifecycle/builds/build/factfinder/acs/2024/acs.csv` — the local
 build output to QA before it's promoted/published.
 
-### Promote to Draft (manual)
+### Publishing
 
-Unlike our other products, PFF is **not** wired into the `promote_to_draft.yml` automation — there
-is no command for this step. **We copy the build output up to S3 by hand.** Drafts live in the
-`edm-publishing` bucket under `db-factfinder/`, structured to mirror how every other product
-stores drafts:
+PFF is **not** wired into the shared publishing tooling — no `promote_to_draft.yml`, no `dcpy`
+publish command — because its folder layout can't be produced by `DraftKey`/`PublishKey`
+(`dcpy/connectors/edm/models.py`), which give `<product>/draft/<version>/<revision>` and
+`<product>/publish/<version>`. PFF's is:
 
 ```
-edm-publishing/db-factfinder/draft/<dataset>/<version>/<release>_<n>/
+edm-publishing/db-factfinder/<stage>/<datasource>/<vintage>/<version>/
 ```
 
-- `<dataset>` — `acs` or `decennial`
-- `<version>` — the data version: ACS current-window end year (e.g. `2024`), previous window
-  (`2010`), or decennial (`2020`)
-- `<release>_<n>` — PFF release year and draft revision, e.g. `2026_2` is the second draft of the
-  2026 release
+| segment | values | notes |
+| --- | --- | --- |
+| `<stage>` | `draft`, `publish` | `main` is legacy but still live — see below |
+| `<datasource>` | `acs`, `decennial` | |
+| `<vintage>` | acs: `2024`, `2010`; decennial: `2020`, `2010` | the years the data describes (ACS `2024` = the 2019–2023 window) |
+| `<version>` | draft: `2026_3`; publish: `2026` | PFF release year, with a `_<n>` draft revision suffix |
 
-Each draft folder holds `<dataset>.csv` and `metadata.json`, copied up from the local build output
-at `.lifecycle/builds/build/factfinder/<dataset>/<version>/`. ACS drafts also include a
-`metadata_diffs.txt` listing the variables added and dropped between this ACS year and the previous
-one — generate it with `qa/compare_acs_metadata.py <current_year> <previous_year>` (e.g.
-`2024 2023`).
+The two extra segments exist because the app builds its URL as
+`$BASE_URL/$datasource/$year/$version/$datasource.csv`
+([`migrations/etl.sh`](https://github.com/NYCPlanning/labs-factfinder-api/blob/master/migrations/etl.sh)) —
+one segment each, which is why our version and draft revision are fused into a single `2026_3`
+folder name rather than nested.
+
+Each folder holds `<datasource>.csv` and `metadata.json`, copied up from the local build output at
+`.lifecycle/builds/build/factfinder/<datasource>/<vintage>/`. ACS drafts should also carry
+`metadata_diffs.txt`, the variables added and dropped versus the previous ACS year — generate it
+with `qa/compare_acs_metadata.py <current_year> <previous_year>` (e.g. `2024 2023`).
 
 Examples from the 2026 release:
 
-- `edm-publishing/db-factfinder/draft/acs/2024/2026_2/`
-- `edm-publishing/db-factfinder/draft/acs/2010/2026_2/`
-- `edm-publishing/db-factfinder/draft/decennial/2020/2026_1/decennial.csv`
+- `db-factfinder/draft/acs/2024/2026_3/`
+- `db-factfinder/draft/acs/2010/2026_3/`
+- `db-factfinder/draft/decennial/2020/2026_1/`
+- `db-factfinder/publish/acs/2024/2026/`
+- `db-factfinder/publish/decennial/2020/2026/`
 
-**Note:** Application Engineering's (AE) scripts historically read from an older, separate
-location — `edm-publishing/db-factfinder/ar_build/acs/<version>/<date>/` (e.g.
-`.../acs/2024/2026-04-21/`). The `draft/` layout above was introduced to bring PFF in line with our
-other products; AE may still consume `ar_build/` until they switch over. `ar_build/` is
-transitional and should be removed once AE migrates to `draft/`.
+Use `products/factfinder/publish.py` for both copies rather than assembling the path by hand —
+it's the only place the segment order is defined, and it rejects a swapped vintage/version:
+
+```bash
+# upload the local build output as a new draft
+python3 -m products.factfinder.publish draft acs 2024 2026_3
+# promote the draft that passed QA, dropping the revision suffix
+python3 -m products.factfinder.publish publish acs 2024 2026_3
+```
+
+Keep the draft folders after publishing — the app reads from `draft/` until AE repoints it at
+`publish/`. Drafts that were built but never released get a `_unused` suffix (e.g.
+`2026_4_unused`), which also stops `publish.py` from accepting them as a version.
+
+### Handoff to Application Engineering
+
+The app pins each dataset's path in code, so a data update isn't finished until AE changes it.
+Hand them the datasource / vintage / version for all four datasets and point at:
+
+- `special-calculations/data/constants.js` — `ACS_LATEST_TABLE_NAME`, `ACS_LATEST_VERSION`,
+  `ACS_EARLIEST_TABLE_NAME`, `ACS_EARLIEST_VERSION`, and the `DECENNIAL_*` equivalents.
+  `*_TABLE_NAME` is the vintage, `*_VERSION` is the version folder.
+- `migrations/etl.sh` and `migrations/metadata.sh` — `BASE_URL` selects the stage. Both moved from
+  `ar_build` to `draft` in [PR #362](https://github.com/NYCPlanning/labs-factfinder-api/pull/362);
+  switching to `publish` is another edit to those same two lines.
+
+### Other prefixes under `db-factfinder/`
+
+- `main/` — **do not delete.** `migrations/cli.sh` still loads
+  `main/support_geoids/$version/support_geoids.csv`, pinned by `GEOGRAPHY_VERSION` in
+  `constants.js`. Its `acs/` and `decennial/` trees are the pre-2025 layout
+  (`<datasource>/<vintage>/<date>` plus a `latest/`) and are no longer written to.
+- `ar_build/` — ad-hoc build location, superseded by `draft/` and unread since PR #362.
+- `publish/2022v1/`, `2023v1/`, `2024v1/` — publish versions predating the datasource-first
+  layout, so they sit alongside `publish/acs/` and `publish/decennial/`.
+- `draft/DEPRECATED/` — the old `draft/<version>/<revision>/` layout, parked.
 
 
 ## Cheatsheet On The Data Sources 
