@@ -13,14 +13,13 @@ _proj_root = _product_path.parent.parent
 sys.path.append(str(_proj_root))
 
 
+# Source data only; build output goes to PUBLISHING_BUCKET via dcpy
 S3_BUCKET = "edm-private"
 S3_SOURCE_HOUSING_TEAM_DIR = "dcp_housing_team/db-knownprojects/20250430"
-S3_OUTPUT_DIR = "db-kpdb"
 
 DATA_PATH = _product_path / "data"
 RAW_DATA_PATH = DATA_PATH / "raw"
 CORRECTIONS_DATA_PATH = DATA_PATH / "corrections"
-OUTPUT_PATH = _product_path / "output"
 
 DCP_HOUSING_DATA_FILENAMES = {
     "dcp_knownprojects": "KPDB_20240710.zip",
@@ -44,4 +43,3 @@ DCP_HOUSING_CORRECTIONS_FILENAMES = {
 load_dotenv()
 BUILD_ENGINE = os.environ["BUILD_ENGINE"]
 BUILD_ENGINE_SCHEMA = os.environ["BUILD_ENGINE_SCHEMA"]
-VERSION = os.environ["VERSION"]
