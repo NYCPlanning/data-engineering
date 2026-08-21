@@ -26,11 +26,12 @@ LIST_FIELDS = "number,title,labels,issueType"
 
 
 Rules = list[tuple[str, re.Pattern]]
+TopicRules = list[tuple[str, re.Pattern, bool]]
 
 
 @lru_cache(maxsize=1)
-def _rules() -> tuple[Rules, Rules, Rules]:
-    """(label, pattern) pairs for products then topics, then (issue type, pattern)."""
+def _rules() -> tuple[Rules, TopicRules, Rules]:
+    """(label, pattern) for products and types; topics also carry their exclusivity."""
     config = yaml.safe_load(CONFIG_PATH.read_text())
 
     def compile_specs(specs, key):
@@ -39,25 +40,33 @@ def _rules() -> tuple[Rules, Rules, Rules]:
             for name, spec in specs.items()
         ]
 
+    topics = [
+        (name, pattern, config["labels"][name].get("exclusive", False))
+        for name, pattern in compile_specs(config.get("labels", {}), None)
+    ]
     return (
         compile_specs(config["products"], "label"),
-        compile_specs(config.get("labels", {}), None),
+        topics,
         compile_specs(config.get("types", {}), None),
     )
 
 
 def match_labels(title: str) -> list[str]:
-    """Product labels if any match, else topic labels.
+    """Product labels, plus every topic label that matches.
 
-    Topic labels describe work that isn't a data product, so a title naming a
-    product can't also be one — otherwise `PLUTO docker image` reads as platform
-    work rather than PLUTO's.
+    An `exclusive` topic is dropped when a product matched too: `platform` means
+    work that isn't a data product, so `PLUTO docker image` stays PLUTO's. Stage
+    labels like `ingest/library` describe *where* in the pipeline a product
+    broke, so they stack with the product label.
     """
     products, topics, _ = _rules()
-    matched = [label for label, pattern in products if pattern.search(title)]
-    if not matched:
-        matched = [label for label, pattern in topics if pattern.search(title)]
-    return sorted(matched)
+    from_product = [label for label, pattern in products if pattern.search(title)]
+    from_topic = [
+        label
+        for label, pattern, exclusive in topics
+        if pattern.search(title) and not (exclusive and from_product)
+    ]
+    return sorted(from_product + from_topic)
 
 
 def match_type(title: str) -> str | None:

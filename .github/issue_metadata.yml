@@ -74,15 +74,17 @@ products:
     label: db-zoningtaxlots
     patterns: ['\bztl\b', '\bzoning[- ]?tax[- ]?lots?\b']
 
-# Non-product labels, keyed by the label name itself. Only applied when no
-# product pattern matched — `platform` means work that isn't a data product,
-# so `PLUTO docker image` stays PLUTO's.
+# Non-product labels, keyed by the label name itself. `exclusive` means the
+# label can't sit alongside a db-* one — `platform` is work that isn't a data
+# product, so `PLUTO docker image` stays PLUTO's. Stage labels say where in the
+# pipeline a product broke, so they stack with it.
 #
 # Patterns are deliberately narrow: proper nouns and tool names, not the
 # generic words (build, test, ingest, library, app) that every product issue
 # also uses.
 labels:
   platform:
+    exclusive: true
     patterns:
       - '\bdcpy\b'
       - '\bazure\b'
@@ -99,6 +101,18 @@ labels:
       - '\bcredential management\b'
       - '\bbuild engine\b'
       - '\bqa ?/? ?qc app\b'
+      - '\bcompile python requirements\b'
+      - '\bstale build artifacts\b'
+  ingest/library:
+    patterns:
+      - '^Scheduled Action Failure - (Ingest|Data Library) - '
+      - '^Scheduled Action Failure - DevDB - Data Sync'
+      - '^Scheduled Action Failure - PLUTO Inputs\b'
+      - '^Scheduled Action Failure - ZAP - Weekly Export'
+      - '^Scheduled Action Failure - .*\bDEP CATS permits\b'
+  QA:
+    patterns:
+      - '^Scheduled Action Failure - .*\bNightly QA\b'
 
 # Issue types are org-level and already the team's convention (Bug is the most
 # used), so bug tracking lives here rather than in a `bug` label. Only applied
