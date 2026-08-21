@@ -28,10 +28,12 @@ DCP_HOUSING_DATA_FILENAMES = {
     "edc_projects": "2022.11.18 EDC inputs for DCP housing projections.xlsx",
     "edc_dcp_inputs": "edc_shapefile_20250225.zip",
     "dcp_n_study": "nstudy_rezoning_commitments_shapefile_20250430.zip",
-    "dcp_n_study_future": "future_neighborhoodstudies_20250304.zip",
-    "dcp_n_study_projected": "past_neighborhoodstudies_20250304.zip",
+    # There are no future neighborhood studies at the momemnt
+    # "dcp_n_study_future": "future_neighborhoodstudies_20250304.zip",
+    "dcp_n_study_projected": "past_neighborhoodstudies_20260305.zip",
     "hpd_rfp": "HPD_RFPs_20250110.xlsx",
     "dcp_planneradded": "dcp_planneradded_2025_04_30.csv",
+    "dcp_hudsonsquare": "HudsonSquare_P2012M0255_4326.zip",
 }
 DCP_HOUSING_CORRECTIONS_FILENAMES = {
     "corrections_dob": "corrections_dob.csv",

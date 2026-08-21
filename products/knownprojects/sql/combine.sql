@@ -167,7 +167,7 @@ _dcp_planneradded AS (
         flag_senior_housing(a::text) AS senior_housing
     FROM dcp_planneradded AS a
 ),
-
+/* There are no future neighborhood studies at the momemnt
 _dcp_n_study_future AS (
     SELECT
         'Future Neighborhood Studies' AS source,
@@ -189,6 +189,7 @@ _dcp_n_study_future AS (
         record_nam || ' ' || 'Future Rezoning Development' AS record_name
     FROM dcp_n_study_future
 ),
+*/
 
 _dcp_n_study_projected AS (
     SELECT
@@ -415,6 +416,7 @@ FROM (
             record_id_input,
             st_makevalid(geom) AS geom
         FROM _dcp_n_study
+        /* There are no future neighborhood studies at the momemnt
         UNION
         SELECT
             source,
@@ -435,6 +437,7 @@ FROM (
             record_id_input,
             st_makevalid(geom) AS geom
         FROM _dcp_n_study_future
+        */
         UNION
         SELECT
             source,
