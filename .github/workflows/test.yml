@@ -40,6 +40,7 @@ jobs:
               - .github/workflows/test_helper.yml
             template:
               - .github/workflows/test.yml
+              - .github/workflows/test_helper.yml
               - .github/workflows/build.yml
               - .github/workflows/template_test.yml
               - products/template/**
@@ -61,6 +62,27 @@ jobs:
               - admin/run_environment/**
             zap:
               - products/zap-opendata/**
+              - admin/run_environment/**
+            cdbg:
+              - products/cdbg/**
+              - admin/run_environment/**
+            ceqr:
+              - products/ceqr/**
+              - admin/run_environment/**
+            cpdb:
+              - products/cpdb/**
+              - admin/run_environment/**
+            cscl:
+              - products/cscl/**
+              - admin/run_environment/**
+            green_fast_track:
+              - products/green_fast_track/**
+              - admin/run_environment/**
+            pluto:
+              - products/pluto/**
+              - admin/run_environment/**
+            zoningtaxlots:
+              - products/zoningtaxlots/**
               - admin/run_environment/**
             docker:
               - admin/run_environment/**
