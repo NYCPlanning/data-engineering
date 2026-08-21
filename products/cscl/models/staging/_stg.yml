@@ -29,8 +29,15 @@ models:
     (node) records are derived by diffing two LION releases instead.
   columns:
   - name: ldf_num
-    description: Auto-numbered primary key of the journal.
-    tests: [ unique, not_null ]
+    description: >
+      Auto-numbered primary key of the journal. A handful of historical rows carry the
+      sentinel `-1` instead of a real number (see data_issues.md CSCL-LDF-05); uniqueness
+      is only meaningful for real values.
+    tests:
+    - not_null
+    - unique:
+        arguments:
+          config: { where: "ldf_num != -1" }
   - name: record_type
     description: S = base segment, P = physical, G = generic. L and R are not emitted to the LDF.
     tests: [ not_null ]
