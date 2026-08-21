@@ -67,3 +67,4 @@ jobs:
           github.run_id }}
       with:
         filename: .github/ISSUE_TEMPLATE/scheduled_action_failure.md
+        update_existing: true
