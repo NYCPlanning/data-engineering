@@ -50,8 +50,32 @@ jobs:
         sqlfluff lint products/knownprojects/sql --templater=jinja
         sqlfluff lint products/pluto/pluto_build/sql/
 
+  set_dbt_matrix:
+    name: Setup dbt tests
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.set-dbt-matrix.outputs.matrix }}
+      matrix_raw: ${{ steps.set-dbt-matrix.outputs.matrix_raw }}
+    steps:
+    # path_filter is JSON from paths-filter, or empty on pushes, where everything runs.
+    - name: Confirm changes and set matrix for dbt
+      id: set-dbt-matrix
+      env:
+        CHANGED: ${{ inputs.path_filter }}
+      run: |
+        # Not every products/*/dbt_project.yml is here; the rest aren't migrated far enough to test.
+        projects=$(jq -cn \
+          --argjson all '["template","cdbg","ceqr","cpdb","cscl","green_fast_track","pluto","zoningtaxlots"]' \
+          --argjson changed "${CHANGED:-null}" \
+          '$all | map(select($changed == null or IN($changed[])))')
+        echo "dbt projects to test: $projects"
+        echo "matrix_raw=$projects" >> $GITHUB_OUTPUT
+        echo "matrix={\"project\":$projects}" >> $GITHUB_OUTPUT
+
   dbt:
     name: dbt tests
+    needs: set_dbt_matrix
+    if: needs.set_dbt_matrix.outputs.matrix_raw != '[]'
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/dev:${{ inputs.image_tag }}
@@ -81,16 +105,7 @@ jobs:
         - 5432:5432
     strategy:
       fail-fast: false
-      matrix:
-        project:
-        - template
-        - cdbg
-        - ceqr
-        - cpdb
-        - cscl
-        - green_fast_track
-        - pluto
-        - zoningtaxlots
+      matrix: ${{ fromJson(needs.set_dbt_matrix.outputs.matrix) }}
     steps:
     - uses: actions/checkout@v4
     - name: setup
