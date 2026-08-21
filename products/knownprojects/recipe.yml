@@ -3,6 +3,9 @@ product: db-kpdb
 version_strategy: first_of_month
 vars:
   ZAP_VERSION: "20250303"
+  # Year the phasing proportions are measured from. Names the calendar
+  # window on the CPP housing growth outputs; does not change within_5_years.
+  PHASING_ANCHOR_YEAR: "2025"
 inputs:
   missing_versions_strategy: find_latest
   datasets:
@@ -17,6 +20,7 @@ inputs:
   - name: dcp_mappluto_wi
   - name: dcp_boroboundaries
   - name: dcp_housing
+    version: 25Q4
   - name: dcp_zoningmapamendments
   - name: doe_eszones
   - name: doe_school_subdistricts
@@ -25,3 +29,5 @@ inputs:
   - name: dcp_nta2020
   - name: dcp_cdta2020
   - name: dcp_cdboundaries_wi
+  - name: dcp_censusdata
+    version: "2020"
