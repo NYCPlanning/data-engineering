@@ -69,3 +69,45 @@ models:
       - name: polygon_mode
         description: "Project is allocated only to boundaries it covers >= 10% of"
         tests: [not_null]
+
+  - name: longform_csd_output
+    description: "Project records with a row for each community school district it intersects with"
+    columns:
+      - name: record_id
+        tests: [not_null]
+      # Not not_null: dcp_school_districts has no water-included variant, so a
+      # project can fall outside every district (P2010K0258 does).
+      - name: csd
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_csd_output_compound_key
+          combination_of_columns:
+            - record_id
+            - csd
+
+  - name: longform_es_zone_output
+    description: "Project records with a row for each elementary school zone it intersects with"
+    columns:
+      - name: record_id
+        tests: [not_null]
+      - name: es_zone
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_es_zone_output_compound_key
+          combination_of_columns:
+            - record_id
+            - es_zone
+
+  - name: longform_subdist_output_cp_assumptions
+    description: "Project records with a row for each school subdistrict it intersects with"
+    columns:
+      - name: record_id
+        tests: [not_null]
+      - name: subdistzone
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: longform_subdist_output_compound_key
+          combination_of_columns:
+            - record_id
+            - distzone
+            - subdistzone

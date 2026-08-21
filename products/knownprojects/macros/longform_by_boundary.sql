@@ -6,13 +6,22 @@
       boundary_table  relation holding the boundaries
       boundary_cols   list of {source, alias} passed through from that relation
       suffix          names the output columns (proportion_in_<suffix>, ...)
+      source_model    project records to allocate; must be the model that
+                      match_model was built from
+      match_model     precomputed match geometry for source_model
 
     Projects that overlap several boundaries have their units split by area
     share; the shares are then renormalised so each project's units still sum to
     its total even when a <10% sliver was dropped.
 #}
 
-{% macro longform_by_boundary(boundary_table, boundary_cols, suffix) %}
+{% macro longform_by_boundary(
+    boundary_table,
+    boundary_cols,
+    suffix,
+    source_model='kpdb_deduplicated',
+    match_model='kpdb_match_geom'
+) %}
 
 WITH boundaries AS (
     SELECT
@@ -37,7 +46,7 @@ matched AS (
         st_distance(
             a.geometry::geography, b.geometry::geography
         ) AS {{ suffix }}_distance
-    FROM {{ ref('kpdb_match_geom') }} AS a
+    FROM {{ ref(match_model) }} AS a
     LEFT JOIN boundaries AS b
         ON
             st_intersects(a.match_geom, b.geometry)
@@ -177,7 +186,7 @@ SELECT
     round(
         b.proportion_final * a.after_10_years::decimal
     ) AS after_10_years_in_{{ suffix }}
-FROM {{ ref('kpdb_deduplicated') }} AS a
+FROM {{ ref(source_model) }} AS a
 LEFT JOIN closest AS b
     ON a.source = b.source AND a.record_id = b.record_id
 ORDER BY
