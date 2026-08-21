@@ -9,23 +9,9 @@ run_sql_file sql/aggregate/create_zap_projects.sql
 echo "Preprocess column names to standardize"
 run_sql_file sql/aggregate/preprocessing.sql
 
-## Do SCA aggregations
-echo "Create the SCA aggregation tables..."
-
-echo "Build Elementary School Zones aggregate table"
-run_sql_file sql/aggregate/sca/boundaries_es_zone.sql
-
-echo "Build School Districts aggregate table"
-run_sql_file sql/aggregate/sca/boundaries_school_districts.sql
-
-echo "Build School Subdistricts aggregate table"
-run_sql_file sql/aggregate/sca/boundaries_school_subdistricts.sql
-echo "SCA aggregations are complete"
-
-## Do general aggregations
-echo "Create the general aggregate tables..."
-dbt build --select tag:aggregate_general \
+## Do aggregations
+echo "Create the aggregate tables..."
+dbt build --select tag:aggregate_general tag:aggregate_sca \
     --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}'
-echo "General aggregations are complete"
 
 echo "All aggregations are complete"
