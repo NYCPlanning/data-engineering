@@ -1,3 +1,5 @@
+{{ config(tags=['aggregate_general']) }}
+
 WITH project_records AS (
     SELECT * FROM {{ ref('longform_ct_output') }}
 ),
