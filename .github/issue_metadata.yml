@@ -74,6 +74,32 @@ products:
     label: db-zoningtaxlots
     patterns: ['\bztl\b', '\bzoning[- ]?tax[- ]?lots?\b']
 
+# Non-product labels, keyed by the label name itself. Only applied when no
+# product pattern matched — `platform` means work that isn't a data product,
+# so `PLUTO docker image` stays PLUTO's.
+#
+# Patterns are deliberately narrow: proper nouns and tool names, not the
+# generic words (build, test, ingest, library, app) that every product issue
+# also uses.
+labels:
+  platform:
+    patterns:
+      - '\bdcpy\b'
+      - '\bazure\b'
+      - '\bdocker\b'
+      - '\bdev ?container\b'
+      - '\bcontainer instances?\b'
+      - '\bblob storage\b'
+      - '\bci/cd\b'
+      - '\borchestration tool\b'
+      - '\bsqlfluff\b'
+      - '\bpre-commit\b'
+      - '\bgdal\b'
+      - '\bconnector\b'
+      - '\bcredential management\b'
+      - '\bbuild engine\b'
+      - '\bqa ?/? ?qc app\b'
+
 # Issue types are org-level and already the team's convention (Bug is the most
 # used), so bug tracking lives here rather than in a `bug` label. Only applied
 # to issues that have no type yet — a human's classification always wins.
