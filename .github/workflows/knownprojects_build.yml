@@ -98,4 +98,6 @@ jobs:
         run: ./bash/04_export.sh
 
       - name: Upload
-        run: python3 -m python.upload
+        run: |
+          python3 -m dcpy.connectors.edm.publishing upload \
+            --product db-kpdb --acl private
