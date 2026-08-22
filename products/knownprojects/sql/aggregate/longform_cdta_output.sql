@@ -1,18 +1,7 @@
 {{ config(
     materialized='table',
     tags=['aggregate_general'],
-    post_hook="""
-        UPDATE {{ this }} AS a
-        SET
-            cdta = b.cdta2020,
-            proportion_in_cdta = 1,
-            units_net_in_cdta = a.units_net
-        FROM {{ source('recipe_sources', 'dcp_cdta2020') }} AS b
-        WHERE
-            a.cdta IS NULL
-            AND NOT st_isempty(a.geometry)
-            AND st_intersects(a.geometry, b.geometry)
-    """
+    post_hook="{{ boundary_fallback_update(boundary_table='dcp_cdta2020', id_column='cdta2020', suffix='cdta') }}"
 ) }}
 
 -- Project records allocated to Community District Tabulation Areas, one row per project/cdta pair.

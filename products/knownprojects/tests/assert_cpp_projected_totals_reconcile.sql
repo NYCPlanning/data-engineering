@@ -1,10 +1,9 @@
 {{ config(severity='warn') }}
 
--- Warn, not error: NTA and CD citywide projections do not currently agree.
--- KPDB rounds each project's units per geography row, so a project split across
--- many small geographies loses units to rounding. NTA has 262 geographies to
--- CD's 71, so NTA reads low. Pre-existing in future_units_by_*, surfaced here so
--- the two CSVs' differing citywide totals are expected rather than alarming.
+-- Warn, not error: NTA and CD citywide projections need not agree exactly.
+-- Each geography allocates projects independently, and the small residual comes
+-- from projects that match no boundary spatially and are placed by the fallback
+-- in each model's post-hook, which can land them in a district but not an NTA.
 
 WITH nta AS (
     SELECT sum(projected_completed_units_2025_2035) AS projected
