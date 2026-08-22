@@ -33,7 +33,7 @@ WITH classified AS (
             WHEN
                 d.record_id IN (
                     SELECT record_id
-                    FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.zap_project_many_bbls -- noqa: PRS, TMP
+                    FROM {{ source('build_sources', 'zap_project_many_bbls') }}
                 )
                 AND d.record_name LIKE '%SD %'
                 THEN 'polygon'

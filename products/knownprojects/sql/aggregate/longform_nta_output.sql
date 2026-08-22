@@ -7,7 +7,7 @@
             nta = b.nta2020,
             proportion_in_nta = 1,
             units_net_in_nta = a.units_net
-        FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_nta2020 AS b
+        FROM {{ source('recipe_sources', 'dcp_nta2020') }} AS b
         WHERE
             a.nta IS NULL
             AND NOT st_isempty(a.geometry)
