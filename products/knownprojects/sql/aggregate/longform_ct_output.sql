@@ -1,18 +1,7 @@
 {{ config(
     materialized='table',
     tags=['aggregate_general'],
-    post_hook="""
-        UPDATE {{ this }} AS a
-        SET
-            ct = b.boroct2020,
-            proportion_in_ct = 1,
-            units_net_in_ct = a.units_net
-        FROM {{ source('recipe_sources', 'dcp_ct2020_wi') }} AS b
-        WHERE
-            a.ct IS NULL
-            AND NOT st_isempty(a.geometry)
-            AND st_intersects(a.geometry, b.geometry)
-    """
+    post_hook="{{ boundary_fallback_update(boundary_table='dcp_ct2020_wi', id_column='boroct2020', suffix='ct') }}"
 ) }}
 
 -- Project records allocated to census tracts, one row per project/ct pair.

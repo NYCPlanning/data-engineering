@@ -34,7 +34,7 @@ models:
     description: >
       Housing growth by NTA for the Capital Projects Portal. Only units_2020 is
       fixed; the rest move with the dcp_housing pin and PHASING_ANCHOR_YEAR.
-      Citywide projections differ from the CD output — see
+      Citywide projections differ slightly from the CD output; see
       assert_cpp_projected_totals_reconcile.
     tests: &cpp_identities
       - dbt_utils.expression_is_true:

@@ -1,18 +1,7 @@
 {{ config(
     materialized='table',
     tags=['aggregate_general'],
-    post_hook="""
-        UPDATE {{ this }} AS a
-        SET
-            nta = b.nta2020,
-            proportion_in_nta = 1,
-            units_net_in_nta = a.units_net
-        FROM {{ source('recipe_sources', 'dcp_nta2020') }} AS b
-        WHERE
-            a.nta IS NULL
-            AND NOT st_isempty(a.geometry)
-            AND st_intersects(a.geometry, b.geometry)
-    """
+    post_hook="{{ boundary_fallback_update(boundary_table='dcp_nta2020', id_column='nta2020', suffix='nta') }}"
 ) }}
 
 -- Project records allocated to Neighborhood Tabulation Areas, one row per project/nta pair.

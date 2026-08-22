@@ -44,10 +44,6 @@ completions AS (
     GROUP BY {{ housing_column }}::text
 ),
 
--- Reads low for fine-grained geographies: KPDB rounds each project's units
--- once per geography it touches, so a project split across 262 NTAs loses more
--- to rounding than the same project split across 71 community districts. The
--- two outputs' citywide projections differ by ~1% for that reason.
 projected AS (
     SELECT
         {{ kpdb_geo_column }}::text AS geography_id,

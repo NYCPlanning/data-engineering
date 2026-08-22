@@ -1,18 +1,7 @@
 {{ config(
     materialized='table',
     tags=['aggregate_sca'],
-    post_hook="""
-        UPDATE {{ this }} AS a
-        SET
-            csd = b.schooldist,
-            proportion_in_csd = 1,
-            units_net_in_csd = a.units_net
-        FROM {{ source('recipe_sources', 'dcp_school_districts') }} AS b
-        WHERE
-            a.csd IS NULL
-            AND NOT st_isempty(a.geometry)
-            AND st_intersects(a.geometry, b.geometry)
-    """
+    post_hook="{{ boundary_fallback_update(boundary_table='dcp_school_districts', id_column='schooldist', suffix='csd') }}"
 ) }}
 
 -- Project records allocated to community school districts.
