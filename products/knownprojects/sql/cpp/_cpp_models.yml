@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: census_housing_units_2020
+    description: >
+      2020 Census housing unit counts for the geographies KPDB aggregates to.
+      Baseline for every CPP housing growth figure.
+    columns:
+      - name: geography_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['NTA2020', 'CD']
+      - name: geography_id
+        tests: [not_null]
+      - name: units_2020
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: census_housing_units_2020_compound_key
+          combination_of_columns:
+            - geography_type
+            - geography_id
+      - dbt_utils.equal_rowcount:
+          name: cpp_housing_growth_nta_covers_every_nta
+          compare_model: ref('cpp_housing_growth_nta')
+          config:
+            where: "geography_type = 'NTA2020'"
+      - dbt_utils.equal_rowcount:
+          name: cpp_housing_growth_cd_covers_every_cd
+          compare_model: ref('cpp_housing_growth_cd')
+          config:
+            where: "geography_type = 'CD'"
+
+  - name: cpp_housing_growth_nta
+    description: >
+      Housing growth by Neighborhood Tabulation Area for the Capital Projects
+      Portal. Column years are literal. units_2020 is fixed to the 2020 Census;
+      the completed and 2025 figures move with the pinned dcp_housing version,
+      and the projected window is anchored to PHASING_ANCHOR_YEAR in recipe.yml
+      because KPDB phasing is a proportion relative to the data vintage.
+      Citywide projected totals differ slightly from cpp_housing_growth_cd:
+      KPDB rounds units per project per geography, so splitting across 262
+      NTAs loses more to rounding than across 71 community districts.
+    tests: &cpp_identities
+      - dbt_utils.expression_is_true:
+          name: cpp_housing_growth_nta_units_2025_identity
+          expression: "units_2025 = units_2020 + completed_units_2020_2025"
+      - dbt_utils.expression_is_true:
+          name: cpp_housing_growth_nta_units_2035_identity
+          expression: >-
+            projected_units_2035
+            = units_2025 + projected_completed_units_2025_2035
+    columns: &cpp_columns
+      - name: geography_id
+        tests:
+          - not_null
+          - unique
+      - name: units_2020
+        tests: [not_null]
+      - name: completed_units_2015_2025
+        description: "Net of demolitions and unit losses, not gross completions"
+        tests: [not_null]
+      - name: completed_units_2020_2025
+        description: >
+          Net change since the 2020 baseline, excluding 2020Q1. Same net
+          semantics as completed_units_2015_2025. Equals units_2025 minus
+          units_2020, so the file reconciles on its own.
+        tests: [not_null]
+      - name: units_2025
+        tests: [not_null]
+      - name: projected_completed_units_2025_2035
+        tests: [not_null]
+      - name: projected_units_2035
+        tests: [not_null]
+
+  - name: cpp_housing_growth_cd
+    description: >
+      Housing growth by community district for the Capital Projects Portal.
+      Same column semantics as cpp_housing_growth_nta.
+    tests:
+      - dbt_utils.expression_is_true:
+          name: cpp_housing_growth_cd_units_2025_identity
+          expression: "units_2025 = units_2020 + completed_units_2020_2025"
+      - dbt_utils.expression_is_true:
+          name: cpp_housing_growth_cd_units_2035_identity
+          expression: >-
+            projected_units_2035
+            = units_2025 + projected_completed_units_2025_2035
+    columns: *cpp_columns

@@ -29,7 +29,7 @@ WITH boundaries AS (
         {% for col in boundary_cols -%}
         {{ col.source }} AS {{ col.alias }}{{ "," if not loop.last }}
         {% endfor %}
-    FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.{{ boundary_table }} -- noqa: PRS, TMP
+    FROM {{ source('recipe_sources', boundary_table) }}
 ),
 
 /*

@@ -7,7 +7,7 @@
             ct = b.boroct2020,
             proportion_in_ct = 1,
             units_net_in_ct = a.units_net
-        FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_ct2020_wi AS b
+        FROM {{ source('recipe_sources', 'dcp_ct2020_wi') }} AS b
         WHERE
             a.ct IS NULL
             AND NOT st_isempty(a.geometry)

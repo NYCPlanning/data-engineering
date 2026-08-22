@@ -61,6 +61,7 @@ external_columns = '"Job_Number","Job_Type"'
 # generates are covered by their dbt tests instead.
 longform_by_boundary = "{% macro longform_by_boundary(boundary_table, boundary_cols, suffix) %}SELECT 1 AS placeholder{% endmacro %}"
 match_geometry = "{% macro match_geometry(source_model) %}SELECT 1 AS placeholder{% endmacro %}"
+cpp_housing_growth = "{% macro cpp_housing_growth(geography_type, kpdb_model, kpdb_geo_column, housing_column) %}SELECT 1 AS placeholder{% endmacro %}"
 
 [tool.sqlfluff.templater.jinja.context]
 source_column = "bct2020"

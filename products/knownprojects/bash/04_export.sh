@@ -64,6 +64,15 @@ mkdir -p output
     echo "Compress aggregation folder"
     zip -r aggregation.zip aggregation/
 
+    echo "Export CPP housing growth tables"
+    mkdir -p cpp_housing_growth
+    (
+        cd cpp_housing_growth
+        csv_export cpp_housing_growth_nta &
+        csv_export cpp_housing_growth_cd
+        wait
+    )
+
     echo "Export summary tables"
     mkdir -p summary
     (   

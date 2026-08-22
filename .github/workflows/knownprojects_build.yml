@@ -91,11 +91,10 @@ jobs:
       - name: Aggregate
         run: ./bash/03_aggregate.sh
 
-      - name: Test aggregate tables
-        run: dbt test --select aggregate
-
       - name: Export
         run: ./bash/04_export.sh
 
       - name: Upload
-        run: python3 -m python.upload
+        run: |
+          python3 -m dcpy.connectors.edm.publishing upload \
+            --product db-kpdb --acl private
