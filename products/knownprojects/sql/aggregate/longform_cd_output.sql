@@ -7,7 +7,7 @@
             cd = b.borocd,
             proportion_in_cd = 1,
             units_net_in_cd = a.units_net
-        FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_cdboundaries_wi AS b
+        FROM {{ source('recipe_sources', 'dcp_cdboundaries_wi') }} AS b
         WHERE
             a.cd IS NULL
             AND NOT st_isempty(a.geometry)

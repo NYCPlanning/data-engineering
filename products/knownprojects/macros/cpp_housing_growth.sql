@@ -39,7 +39,7 @@ completions AS (
         sum(classa_net::numeric) FILTER (
             WHERE complete_qrtr > '2020Q1' AND complete_year::numeric <= 2025
         ) AS net_units_since_2020
-    FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_housing -- noqa: PRS, TMP
+    FROM {{ source('recipe_sources', 'dcp_housing') }}
     WHERE {{ housing_column }} IS NOT NULL
     GROUP BY {{ housing_column }}::text
 ),

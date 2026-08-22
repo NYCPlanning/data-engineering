@@ -7,7 +7,7 @@
             csd = b.schooldist,
             proportion_in_csd = 1,
             units_net_in_csd = a.units_net
-        FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_school_districts AS b
+        FROM {{ source('recipe_sources', 'dcp_school_districts') }} AS b
         WHERE
             a.csd IS NULL
             AND NOT st_isempty(a.geometry)

@@ -5,7 +5,7 @@ WITH project_records AS (
 ),
 
 cdta_details AS (
-    SELECT * FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_cdta2020 -- noqa: PRS, TMP
+    SELECT * FROM {{ source('recipe_sources', 'dcp_cdta2020') }}
 ),
 
 project_records_with_cdta_details AS (

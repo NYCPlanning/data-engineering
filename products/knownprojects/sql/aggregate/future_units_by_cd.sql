@@ -5,7 +5,7 @@ WITH project_records AS (
 ),
 
 cd_details AS (
-    SELECT * FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_cdboundaries_wi -- noqa: PRS, TMP
+    SELECT * FROM {{ source('recipe_sources', 'dcp_cdboundaries_wi') }}
 ),
 
 project_records_with_cd_details AS (
