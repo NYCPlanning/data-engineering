@@ -7,7 +7,7 @@
             cdta = b.cdta2020,
             proportion_in_cdta = 1,
             units_net_in_cdta = a.units_net
-        FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_cdta2020 AS b
+        FROM {{ source('recipe_sources', 'dcp_cdta2020') }} AS b
         WHERE
             a.cdta IS NULL
             AND NOT st_isempty(a.geometry)

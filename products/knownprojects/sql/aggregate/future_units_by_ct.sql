@@ -5,7 +5,7 @@ WITH project_records AS (
 ),
 
 ct_details AS (
-    SELECT * FROM {{ env_var('BUILD_ENGINE_SCHEMA') }}.dcp_ct2020_wi -- noqa: PRS, TMP
+    SELECT * FROM {{ source('recipe_sources', 'dcp_ct2020_wi') }}
 ),
 
 project_records_with_ct_details AS (
