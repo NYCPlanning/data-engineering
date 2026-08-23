@@ -6,12 +6,12 @@
 -- in each model's post-hook, which can land them in a district but not an NTA.
 
 WITH nta AS (
-    SELECT sum(projected_completed_units_2025_2035) AS projected
+    SELECT sum(projected_completed_units_2026_2035) AS projected
     FROM {{ ref('cpp_housing_growth_nta') }}
 ),
 
 cd AS (
-    SELECT sum(projected_completed_units_2025_2035) AS projected
+    SELECT sum(projected_completed_units_2026_2035) AS projected
     FROM {{ ref('cpp_housing_growth_cd') }}
 )
 
