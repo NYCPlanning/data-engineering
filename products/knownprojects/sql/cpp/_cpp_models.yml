@@ -32,48 +32,51 @@ models:
 
   - name: cpp_housing_growth_nta
     description: >
-      Housing growth by NTA for the Capital Projects Portal. Only units_2020 is
-      fixed; the rest move with the dcp_housing pin and PHASING_ANCHOR_YEAR.
-      Citywide projections differ slightly from the CD output; see
-      assert_cpp_projected_totals_reconcile.
+      Housing growth by NTA for the Capital Projects Portal. Year-labeled
+      counts are as of the end of that year. Only units_2020_census is fixed;
+      everything else moves with the dcp_housing version.
     tests: &cpp_identities
       - dbt_utils.expression_is_true:
           name: cpp_housing_growth_nta_units_2025_identity
-          expression: "units_2025 = units_2020 + completed_units_2020_2025"
+          expression: "units_2025 = units_2020 + completed_units_2021_2025"
       - dbt_utils.expression_is_true:
           name: cpp_housing_growth_nta_units_2035_identity
           expression: >-
             projected_units_2035
-            = units_2025 + projected_completed_units_2025_2035
+            = units_2025 + projected_completed_units_2026_2035
     columns: &cpp_columns
       - name: geography_id
         tests:
           - not_null
           - unique
-      - name: units_2020
+      - name: units_2020_census
+        description: "2020 Census count, as of April 1 2020"
         tests: [not_null]
-      - name: completed_units_2015_2025
+      - name: units_2020
+        description: "As of the end of 2020, so the census count plus the rest of that year"
+        tests: [not_null]
+      - name: completed_units_2016_2025
         description: "Net of demolitions, not gross completions"
         tests: [not_null]
-      - name: completed_units_2020_2025
-        description: "Net change since the baseline, excluding 2020Q1"
+      - name: completed_units_2021_2025
+        description: "Net change from units_2020 to units_2025"
         tests: [not_null]
       - name: units_2025
         tests: [not_null]
-      - name: projected_completed_units_2025_2035
+      - name: projected_completed_units_2026_2035
         tests: [not_null]
       - name: projected_units_2035
         tests: [not_null]
 
   - name: cpp_housing_growth_cd
-    description: "Housing growth by community district, as cpp_housing_growth_nta"
+    description: "Housing growth by community district, same columns as cpp_housing_growth_nta"
     tests:
       - dbt_utils.expression_is_true:
           name: cpp_housing_growth_cd_units_2025_identity
-          expression: "units_2025 = units_2020 + completed_units_2020_2025"
+          expression: "units_2025 = units_2020 + completed_units_2021_2025"
       - dbt_utils.expression_is_true:
           name: cpp_housing_growth_cd_units_2035_identity
           expression: >-
             projected_units_2035
-            = units_2025 + projected_completed_units_2025_2035
+            = units_2025 + projected_completed_units_2026_2035
     columns: *cpp_columns
