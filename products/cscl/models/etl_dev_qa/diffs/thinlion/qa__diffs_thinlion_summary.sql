@@ -36,15 +36,20 @@ categorized AS (
                 AND changes -> 'patrol_borough' ->> 'new' = 'BX'
                 AND changes -> 'patrol_borough' ->> 'old' IN ('XN', 'XS')
                 THEN 'police geo discrepancy'
-            -- If changes are only police_sector and/or patrol_borough and/or police_patrol_borough_command
+            -- Bug 002: ESRI vs PostGIS centroid-in-polygon disagreement for police geography
+            -- joins. If changes are only police_precinct and/or police_sector and/or
+            -- patrol_borough and/or police_patrol_borough_command.
+            -- See: docs/prod_bugs/002-police-geo-centroid-mismatch.md
             WHEN
                 status = 'modified'
                 AND (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
-                ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
+                ) <@ ARRAY[
+                    'patrol_borough', 'police_patrol_borough_command', 'police_precinct',
+                    'police_sector'
                 ]::text[]
-                THEN 'police geo discrepancy'
+                THEN 'Bug 002: police geo centroid mismatch'
             ELSE diff_group
         END AS diff_group,
         '' AS subgroup,
@@ -60,13 +65,16 @@ categorized AS (
                 AND changes -> 'patrol_borough' ->> 'new' = 'BX'
                 AND changes -> 'patrol_borough' ->> 'old' IN ('XN', 'XS')
             )
-            -- General police geo discrepancies
+            -- Bug 002: ESRI vs PostGIS centroid-in-polygon disagreement for police geography
+            -- joins. See: docs/prod_bugs/002-police-geo-centroid-mismatch.md
             OR (
                 status = 'modified'
                 AND (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
-                ) <@ ARRAY['patrol_borough', 'police_patrol_borough_command', 'police_sector'
+                ) <@ ARRAY[
+                    'patrol_borough', 'police_patrol_borough_command', 'police_precinct',
+                    'police_sector'
                 ]::text[]
             ),
             FALSE
