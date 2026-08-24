@@ -25,6 +25,12 @@ ind_name_mapper = {
 
 race_mapper = {"_A": "_anh", "_B": "_bnh", "_H": "_hsp", "_W": "_wnh"}
 
+# Source data (dohmh_death_rate_and_overdose.xlsx) marks suppressed/unreliable cells
+# inconsistently: most use "*", but at least one uses the numeric sentinel 9999
+# (e.g. PUMA 04309's 2023 Asian-NH premature mortality rate). Both must be cleaned
+# to NaN, or the sentinel is published as if it were a real rate.
+SUPPRESSED_VALUES = ["*", 9999, 9999.0]
+
 borough_name_mapper = {
     "Bronx": "BX",
     "Brooklyn": "BK",
@@ -55,7 +61,7 @@ def infant_mortality(geography: str, year=LATEST_YEAR):
         clean_data[ind_cols], ind_name=ind_name, geography=geography, year=year
     )
 
-    final.replace(to_replace="*", value=np.nan, inplace=True)
+    final.replace(to_replace=SUPPRESSED_VALUES, value=np.nan, inplace=True)
     return final
 
 
@@ -69,7 +75,7 @@ def overdose_mortality(geography: str, year=LATEST_YEAR):
         clean_data[ind_cols], ind_name=ind_name, geography=geography, year=year
     )
 
-    final.replace(to_replace="*", value=np.nan, inplace=True)
+    final.replace(to_replace=SUPPRESSED_VALUES, value=np.nan, inplace=True)
 
     return final
 
@@ -84,7 +90,7 @@ def premature_mortality(geography: str, year=LATEST_YEAR):
         clean_data[ind_cols], ind_name=ind_name, geography=geography, year=year
     )
 
-    final.replace(to_replace="*", value=np.nan, inplace=True)
+    final.replace(to_replace=SUPPRESSED_VALUES, value=np.nan, inplace=True)
     return final
 
 
