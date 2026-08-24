@@ -11,5 +11,5 @@ WITH combined AS (
 )
 SELECT
     *,
-    boroughcode || face_code || segment_seqnum AS _saf_key
+    boroughcode || face_code || segmentid AS _saf_key
 FROM combined

@@ -43,3 +43,4 @@ OR change_keys = ARRAY['field_name']::text []
 ## Current Bugs
 
 - [Bug 001](./001-boe-lgc-pointer-two-digit-codes.md): BOE LGC Pointer incorrect for two-digit LGC codes (67 records, all Queens)
+- [Bug 002](./002-police-geo-centroid-mismatch.md): Police precinct/sector/patrol borough assignment differs near boundaries due to ESRI vs. PostGIS centroid computation (7 Atomic Polygons citywide)
