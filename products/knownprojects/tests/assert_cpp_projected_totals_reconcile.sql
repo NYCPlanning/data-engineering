@@ -1,23 +1,29 @@
-{{ config(severity='warn') }}
+-- NTAs and community districts both tile the city, so the same projects should
+-- add up to about the same citywide total either way.
+--
+-- They won't match exactly. Units are rounded once per project per geography,
+-- and a project split across 262 NTAs rounds more often than the same project
+-- across 71 districts, so a handful of units of drift is normal.
+--
+-- The tolerance is here to catch structural problems, not rounding. When
+-- projects that matched no boundary were losing their phased measures, and
+-- Hudson Square's geometry was wrong, the two disagreed by 3,795 units.
 
--- Warn, not error: NTA and CD citywide projections need not agree exactly.
--- Each geography allocates projects independently, and the small residual comes
--- from projects that match no boundary spatially and are placed by the fallback
--- in each model's post-hook, which can land them in a district but not an NTA.
-
-WITH nta AS (
-    SELECT sum(projected_completed_units_2026_2035) AS projected
-    FROM {{ ref('cpp_housing_growth_nta') }}
-),
-
-cd AS (
-    SELECT sum(projected_completed_units_2026_2035) AS projected
-    FROM {{ ref('cpp_housing_growth_cd') }}
+WITH totals AS (
+    SELECT
+        (
+            SELECT sum(projected_completed_units_2026_2035)
+            FROM {{ ref('cpp_housing_growth_nta') }}
+        ) AS nta,
+        (
+            SELECT sum(projected_completed_units_2026_2035)
+            FROM {{ ref('cpp_housing_growth_cd') }}
+        ) AS cd
 )
 
 SELECT
-    nta.projected AS nta_projected,
-    cd.projected AS cd_projected,
-    cd.projected - nta.projected AS difference
-FROM nta, cd
-WHERE nta.projected != cd.projected
+    nta,
+    cd,
+    abs(cd - nta) AS difference
+FROM totals
+WHERE abs(cd - nta) > 100
