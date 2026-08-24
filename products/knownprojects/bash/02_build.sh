@@ -49,4 +49,3 @@ run_sql_file sql/create_kpdb.sql
 
 echo "Generate output tables"
 run_sql_file sql/product/kpdb.sql
-run_sql_file sql/summary/summary_record_phasing.sql

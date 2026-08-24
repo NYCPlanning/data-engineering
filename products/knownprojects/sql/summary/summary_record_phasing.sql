@@ -1,5 +1,6 @@
--- Contains summary 
-DROP TABLE IF EXISTS summary_record_phasing;
+{{ config(materialized='table', tags=['aggregate_general']) }}
+
+-- How many records from each source and status carry phasing information.
 
 WITH kpdb_limited AS (
     SELECT
@@ -10,7 +11,7 @@ WITH kpdb_limited AS (
         prop_within_5_years,
         prop_5_to_10_years,
         prop_after_10_years
-    FROM kpdb
+    FROM {{ ref('kpdb') }}
 ),
 
 summary_record_phasing_final AS (
@@ -37,6 +38,5 @@ SELECT
     records_with_phase_1,
     records_with_phase_2,
     records_with_phase_3
-INTO summary_record_phasing
 FROM summary_record_phasing_final
-ORDER BY source, status;
+ORDER BY source, status
