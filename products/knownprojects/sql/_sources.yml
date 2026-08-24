@@ -8,6 +8,8 @@ sources:
         description: "Housing DB, pinned in recipe.yml so published figures are reproducible"
       - name: dcp_censusdata
         description: "2020 Census, supplies the housing stock baseline"
+      - name: dcp_projectbbls
+        description: "ZAP project to BBL mapping"
       - name: dcp_ct2020_wi
       - name: dcp_nta2020
       - name: dcp_cdta2020
@@ -15,14 +17,3 @@ sources:
       - name: dcp_school_districts
       - name: doe_eszones
       - name: doe_school_subdistricts
-
-  # Tables created during the build by steps dbt does not run, following the
-  # pattern in products/pluto/models/_sources.yml
-  - name: build_sources
-    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
-    tables:
-      - name: zap_project_many_bbls
-        description: >-
-          ZAP projects spanning many BBLs, created by
-          sql/aggregate/create_zap_projects.sql. Used to decide which projects
-          are matched to boundaries as polygons rather than centroids.
