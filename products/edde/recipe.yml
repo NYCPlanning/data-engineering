@@ -117,9 +117,6 @@ custom:
     start_year: "2019"
     end_year: "2025"  # DOI residential evictions by city marshals
 
-  inflation_adjustment:
-    year: "2023"  # Year for inflation-adjusted dollar amounts (income, rent, home values, wages)
-
 stage_config:
   builds.build:
     commands:

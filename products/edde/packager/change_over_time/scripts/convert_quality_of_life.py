@@ -34,6 +34,10 @@ def convert_quality_of_life(
         old_yearband=old_yearband,
         new_yearband=new_yearband,
         special_yearbands=quality_of_life.SPECIAL_YEARBANDS,
+        # Derived _pct/_pnt columns must be named "{variable}_change{subgroup}_pct",
+        # not "{variable}_change{subgroup}_count_pct" - resolved_pages_and_tables/generate.py
+        # constructs column names assuming the former and finds nothing (silently NaN) otherwise.
+        strip_suffix_for_derived=True,
     )
 
     result_df = calculator.run()

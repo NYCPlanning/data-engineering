@@ -83,9 +83,9 @@
   },
   {
     "base": {
-      "title": "Median Household Income ({{ inflation_adjustment.year }} Dollars)",
+      "title": "Median Household Income",
       "is_survey": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",  "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)",  "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "has_change": true,
       "denominator": {
         "subcategory": "",
@@ -340,11 +340,11 @@
   },
   {
     "base": {
-      "title": "Median Wages By Occupation ({{ inflation_adjustment.year }} Dollars)",
+      "title": "Median Wages By Occupation",
       "id": null,
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
       "subcategory": "occupation_",
@@ -531,11 +531,11 @@
   },
   {
     "base": {
-      "title": "Median Wages By Industry ({{ inflation_adjustment.year }} Dollars)",
+      "title": "Median Wages By Industry",
       "id": null,
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
       "subcategory": "industry_",

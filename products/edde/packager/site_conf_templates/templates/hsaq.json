@@ -59,7 +59,7 @@
   },
   {
     "base": {
-      "title": "Median Home Value ({{ inflation_adjustment.year }} Dollars)",
+      "title": "Median Home Value",
       "has_change": true,
       "is_survey": true,
       "denominator": {
@@ -69,7 +69,7 @@
       },
       "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Median Home Value (Dollars)"],
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["homevalue_median"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
@@ -111,7 +111,7 @@
   },
   {
     "base": {
-      "title": "Median Gross Rent ({{ inflation_adjustment.year }} dollars)",
+      "title": "Median Gross Rent",
       "has_change": true,
       "is_survey": true,
       "denominator": {
@@ -121,7 +121,7 @@
       },
       "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Median gross rent (dollars)"],
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["rent_median"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],

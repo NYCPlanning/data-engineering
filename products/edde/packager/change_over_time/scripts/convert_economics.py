@@ -13,6 +13,24 @@ import pandas as pd
 from packager.change_over_time.calculator import ChangeCalculator
 from packager.change_over_time.config import economics
 
+RACE_SUFFIXES = ("anh", "bnh", "hsp", "wnh")
+
+
+def _reorder_change_column(col: str) -> str:
+    """Convert this file's internal '{variable}[_{race}]_change_{type}' column naming
+    (subgroup embedded in "variable", before "_change") to the
+    '{variable}_change[_{race}]_{type}' shape resolved_pages_and_tables/generate.py expects
+    (subgroup token *after* "_change", matching demographics/housing_security/quality_of_life).
+    """
+    if "_change_" not in col:
+        return col
+    before, after = col.split("_change_", 1)
+    parts = before.rsplit("_", 1)
+    if len(parts) == 2 and parts[1] in RACE_SUFFIXES:
+        base, race = parts
+        return f"{base}_change_{race}_{after}"
+    return f"{before}_change_{after}"
+
 
 def convert_economics(
     old_csv: Path,
@@ -126,13 +144,13 @@ def convert_economics(
 
     result_df = calculator.calculate_change(old_df_renamed, new_df_renamed)
 
-    # Rename columns to remove _change_ suffix (economics output format)
+    # Reorder columns to match resolved_pages_and_tables/generate.py's expected shape:
+    # "{variable}_change{_subgroup}{_type}" instead of this file's internal
+    # "{variable}{_subgroup}_change{_type}". See _reorder_change_column for details.
     column_mapping = {geography_col: geography_col}
     for col in result_df.columns:
         if col != geography_col:
-            # Remove _change_ from column name
-            new_col = col.replace("_change_", "_")
-            column_mapping[col] = new_col
+            column_mapping[col] = _reorder_change_column(col)
 
     result_df = result_df.rename(columns=column_mapping)
 
