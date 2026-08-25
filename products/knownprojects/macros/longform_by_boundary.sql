@@ -11,8 +11,10 @@
       match_model     precomputed match geometry for source_model
 
     Projects that overlap several boundaries have their units split by area
-    share; the shares are then renormalised so each project's units still sum to
-    its total even when a <10% sliver was dropped.
+    share; the shares are then rescaled so each project's units still sum to its
+    total even when a <10% sliver was dropped. The split itself uses largest
+    remainder, so the rounded parts also sum to the whole and a project counts
+    the same no matter which geography you aggregate by.
 #}
 
 {% macro longform_by_boundary(
@@ -167,25 +169,48 @@ SELECT
     b.{{ col.alias }},
     {% endfor -%}
     b.proportion_final AS proportion_in_{{ suffix }},
-    round(a.units_net * b.proportion_final) AS units_net_in_{{ suffix }},
-    round(
-        a.future_phased_units_total * b.proportion_final
-    ) AS future_phased_units_total_in_{{ suffix }},
-    round(
-        a.future_units_without_phasing * b.proportion_final
-    ) AS future_units_without_phasing_in_{{ suffix }},
-    round(
-        a.completed_units * b.proportion_final
-    ) AS completed_units_in_{{ suffix }},
-    round(
-        b.proportion_final * a.within_5_years::decimal
-    ) AS within_5_years_in_{{ suffix }},
-    round(
-        b.proportion_final * a.from_5_to_10_years::decimal
-    ) AS from_5_to_10_years_in_{{ suffix }},
-    round(
-        b.proportion_final * a.after_10_years::decimal
-    ) AS after_10_years_in_{{ suffix }}
+    {{ largest_remainder(
+        measure='a.units_net',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS units_net_in_{{ suffix }},
+    {{ largest_remainder(
+        measure='a.future_phased_units_total',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS future_phased_units_total_in_{{ suffix }},
+    {{ largest_remainder(
+        measure='a.future_units_without_phasing',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS future_units_without_phasing_in_{{ suffix }},
+    {{ largest_remainder(
+        measure='a.completed_units',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS completed_units_in_{{ suffix }},
+    {{ largest_remainder(
+        measure='a.within_5_years',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS within_5_years_in_{{ suffix }},
+    {{ largest_remainder(
+        measure='a.from_5_to_10_years',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS from_5_to_10_years_in_{{ suffix }},
+    {{ largest_remainder(
+        measure='a.after_10_years',
+        share='b.proportion_final',
+        partition_by='a.source, a.record_id',
+        tiebreak='b.' ~ boundary_cols[0].alias
+    ) }} AS after_10_years_in_{{ suffix }}
 FROM {{ ref(source_model) }} AS a
 LEFT JOIN closest AS b
     ON a.source = b.source AND a.record_id = b.record_id
