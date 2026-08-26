@@ -93,6 +93,422 @@ destinations:
 
 files:
 - file:
+    id: mappluto_unclipped_gdb
+    filename: mappluto_unclipped_gdb.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: mappluto_unclipped_gdb
+  dataset_overrides:
+    overridden_columns:
+    - id: geom
+      name: geometry
+    - id: firm07_flag
+      name: FIRM07_FLAG
+    - id: healthcenterdistrict
+      name: HealthCenterDistrict
+    - id: pfirm15_flag
+      name: PFIRM15_FLAG
+    - id: sanitdistrict
+      name: SanitDistrict
+    - id: address
+      name: Address
+    - id: appbbl
+      name: APPBBL
+    - id: appdate
+      name: APPDate
+    - id: areasource
+      name: AreaSource
+    - id: assessland
+      name: AssessLand
+    - id: assesstot
+      name: AssessTot
+    - id: bbl
+      name: BBL
+    - id: bct2020
+      name: BCT2020
+    - id: bctcb2020
+      name: BCTCB2020
+    - id: bldgarea
+      name: BldgArea
+    - id: bldgclass
+      name: BldgClass
+    - id: bldgdepth
+      name: BldgDepth
+    - id: bldgfront
+      name: BldgFront
+    - id: block
+      name: Block
+    - id: borocode
+      name: BoroCode
+    - id: borough
+      name: Borough
+    - id: bsmtcode
+      name: BsmtCode
+    - id: builtfar
+      name: BuiltFAR
+    - id: cb2010
+      name: CB2010
+    - id: cd
+      name: CD
+    - id: comarea
+      name: ComArea
+    - id: commfar
+      name: CommFAR
+    - id: condono
+      name: CondoNo
+    - id: council
+      name: Council
+    - id: ct2010
+      name: CT2010
+    - id: dcpedited
+      name: DCPEdited
+    - id: easements
+      name: Easements
+    - id: edesignum
+      name: EDesigNum
+    - id: exempttot
+      name: ExemptTot
+    - id: ext
+      name: Ext
+    - id: facilfar
+      name: FacilFAR
+    - id: affresfar
+      name: AffResFAR
+    - id: mnffar
+      name: ManuFAR
+    - id: factryarea
+      name: FactryArea
+    - id: firecomp
+      name: FireComp
+    - id: garagearea
+      name: GarageArea
+    - id: healtharea
+      name: HealthArea
+    - id: histdist
+      name: HistDist
+    - id: irrlotcode
+      name: IrrLotCode
+    - id: landmark
+      name: Landmark
+    - id: landuse
+      name: LandUse
+    - id: latitude
+      name: Latitude
+    - id: longitude
+      name: Longitude
+    - id: lot
+      name: Lot
+    - id: lotarea
+      name: LotArea
+    - id: lotdepth
+      name: LotDepth
+    - id: lotfront
+      name: LotFront
+    - id: lottype
+      name: LotType
+    - id: ltdheight
+      name: LtdHeight
+    - id: mih_opt1
+      name: MIHOption1
+    - id: mih_opt2
+      name: MIHOption2
+    - id: mih_opt3
+      name: MIHOption3
+    - id: mih_opt4
+      name: MIHOption4
+    - id: notes
+      name: Notes
+    - id: numbldgs
+      name: NumBldgs
+    - id: numfloors
+      name: NumFloors
+    - id: officearea
+      name: OfficeArea
+    - id: otherarea
+      name: OtherArea
+    - id: overlay1
+      name: Overlay1
+    - id: overlay2
+      name: Overlay2
+    - id: ownername
+      name: OwnerName
+    - id: ownertype
+      name: OwnerType
+    - id: plutomapid
+      name: PLUTOMapID
+    - id: policeprct
+      name: PolicePrct
+    - id: proxcode
+      name: ProxCode
+    - id: resarea
+      name: ResArea
+    - id: residfar
+      name: ResidFAR
+    - id: retailarea
+      name: RetailArea
+    - id: sanborn
+      name: Sanborn
+    - id: sanitboro
+      name: Sanitboro
+    - id: sanitsub
+      name: SanitSub
+    - id: schooldist
+      name: SchoolDist
+    - id: spdist1
+      name: SPDist1
+    - id: spdist2
+      name: SPDist2
+    - id: spdist3
+      name: SPDist3
+    - id: splitzone
+      name: SplitZone
+    - id: strgearea
+      name: StrgeArea
+    - id: taxmap
+      name: TaxMap
+    - id: tract2010
+      name: Tract2010
+    - id: transitzone
+      name: TrnstZone
+    - id: unitsres
+      name: UnitsRes
+    - id: unitstotal
+      name: UnitsTotal
+    - id: version
+      name: Version
+    - id: xcoord
+      name: XCoord
+    - id: ycoord
+      name: YCoord
+    - id: yearalter1
+      name: YearAlter1
+    - id: yearalter2
+      name: YearAlter2
+    - id: yearbuilt
+      name: YearBuilt
+    - id: zipcode
+      name: ZipCode
+    - id: zmcode
+      name: ZMCode
+    - id: zonedist1
+      name: ZoneDist1
+    - id: zonedist2
+      name: ZoneDist2
+    - id: zonedist3
+      name: ZoneDist3
+    - id: zonedist4
+      name: ZoneDist4
+    - id: zonemap
+      name: ZoneMap
+- file:
+    id: mappluto_gdb
+    filename: mappluto_gdb.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: mappluto_gdb
+  dataset_overrides:
+    overridden_columns:
+    - id: geom
+      name: geometry
+    - id: firm07_flag
+      name: FIRM07_FLAG
+    - id: healthcenterdistrict
+      name: HealthCenterDistrict
+    - id: pfirm15_flag
+      name: PFIRM15_FLAG
+    - id: sanitdistrict
+      name: SanitDistrict
+    - id: address
+      name: Address
+    - id: appbbl
+      name: APPBBL
+    - id: appdate
+      name: APPDate
+    - id: areasource
+      name: AreaSource
+    - id: assessland
+      name: AssessLand
+    - id: assesstot
+      name: AssessTot
+    - id: bbl
+      name: BBL
+    - id: bct2020
+      name: BCT2020
+    - id: bctcb2020
+      name: BCTCB2020
+    - id: bldgarea
+      name: BldgArea
+    - id: bldgclass
+      name: BldgClass
+    - id: bldgdepth
+      name: BldgDepth
+    - id: bldgfront
+      name: BldgFront
+    - id: block
+      name: Block
+    - id: borocode
+      name: BoroCode
+    - id: borough
+      name: Borough
+    - id: bsmtcode
+      name: BsmtCode
+    - id: builtfar
+      name: BuiltFAR
+    - id: cb2010
+      name: CB2010
+    - id: cd
+      name: CD
+    - id: comarea
+      name: ComArea
+    - id: commfar
+      name: CommFAR
+    - id: condono
+      name: CondoNo
+    - id: council
+      name: Council
+    - id: ct2010
+      name: CT2010
+    - id: dcpedited
+      name: DCPEdited
+    - id: easements
+      name: Easements
+    - id: edesignum
+      name: EDesigNum
+    - id: exempttot
+      name: ExemptTot
+    - id: ext
+      name: Ext
+    - id: facilfar
+      name: FacilFAR
+    - id: affresfar
+      name: AffResFAR
+    - id: mnffar
+      name: ManuFAR
+    - id: factryarea
+      name: FactryArea
+    - id: firecomp
+      name: FireComp
+    - id: garagearea
+      name: GarageArea
+    - id: healtharea
+      name: HealthArea
+    - id: histdist
+      name: HistDist
+    - id: irrlotcode
+      name: IrrLotCode
+    - id: landmark
+      name: Landmark
+    - id: landuse
+      name: LandUse
+    - id: latitude
+      name: Latitude
+    - id: longitude
+      name: Longitude
+    - id: lot
+      name: Lot
+    - id: lotarea
+      name: LotArea
+    - id: lotdepth
+      name: LotDepth
+    - id: lotfront
+      name: LotFront
+    - id: lottype
+      name: LotType
+    - id: ltdheight
+      name: LtdHeight
+    - id: mih_opt1
+      name: MIHOption1
+    - id: mih_opt2
+      name: MIHOption2
+    - id: mih_opt3
+      name: MIHOption3
+    - id: mih_opt4
+      name: MIHOption4
+    - id: notes
+      name: Notes
+    - id: numbldgs
+      name: NumBldgs
+    - id: numfloors
+      name: NumFloors
+    - id: officearea
+      name: OfficeArea
+    - id: otherarea
+      name: OtherArea
+    - id: overlay1
+      name: Overlay1
+    - id: overlay2
+      name: Overlay2
+    - id: ownername
+      name: OwnerName
+    - id: ownertype
+      name: OwnerType
+    - id: plutomapid
+      name: PLUTOMapID
+    - id: policeprct
+      name: PolicePrct
+    - id: proxcode
+      name: ProxCode
+    - id: resarea
+      name: ResArea
+    - id: residfar
+      name: ResidFAR
+    - id: retailarea
+      name: RetailArea
+    - id: sanborn
+      name: Sanborn
+    - id: sanitboro
+      name: Sanitboro
+    - id: sanitsub
+      name: SanitSub
+    - id: schooldist
+      name: SchoolDist
+    - id: spdist1
+      name: SPDist1
+    - id: spdist2
+      name: SPDist2
+    - id: spdist3
+      name: SPDist3
+    - id: splitzone
+      name: SplitZone
+    - id: strgearea
+      name: StrgeArea
+    - id: taxmap
+      name: TaxMap
+    - id: tract2010
+      name: Tract2010
+    - id: transitzone
+      name: TrnstZone
+    - id: unitsres
+      name: UnitsRes
+    - id: unitstotal
+      name: UnitsTotal
+    - id: version
+      name: Version
+    - id: xcoord
+      name: XCoord
+    - id: ycoord
+      name: YCoord
+    - id: yearalter1
+      name: YearAlter1
+    - id: yearalter2
+      name: YearAlter2
+    - id: yearbuilt
+      name: YearBuilt
+    - id: zipcode
+      name: ZipCode
+    - id: zmcode
+      name: ZMCode
+    - id: zonedist1
+      name: ZoneDist1
+    - id: zonedist2
+      name: ZoneDist2
+    - id: zonedist3
+      name: ZoneDist3
+    - id: zonedist4
+      name: ZoneDist4
+    - id: zonemap
+      name: ZoneMap
+- file:
     id: shapefile_water_incl
     filename: mappluto_wi_shp.zip
     type: shapefile
@@ -535,6 +951,8 @@ columns:
   - value: SI
     description: Staten Island
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 2 characters
 - id: block
   name: Tax block
@@ -548,6 +966,8 @@ columns:
     non_nullable: true
   example: '1637'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 5 digits (99999)
 - id: lot
   name: Tax lot
@@ -575,6 +995,8 @@ columns:
     non_nullable: true
   example: '141'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 4 digits (9999)
 - id: cd
   name: community board
@@ -609,6 +1031,8 @@ columns:
   data_source: Department of City Planning
   example: '111'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 3 digits (999)
 - id: ct2010
   name: census tract 2010
@@ -633,6 +1057,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '226'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 7 characters
 - id: cb2010
   name: cb2010
@@ -654,6 +1080,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '1000'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 5 characters
 - id: schooldist
   name: schooldist
@@ -671,6 +1099,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '31'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 2 characters
 - id: council
   name: council district
@@ -685,6 +1115,9 @@ columns:
     Department of City Planning - Geosupport System
     Department of City Planning - Administrative District Base Map files
   example: '51'
+  custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
 - id: zipcode
   name: postcode
   data_type: integer
@@ -697,6 +1130,8 @@ columns:
   data_source: Department of City Planning - Geosupport System
   example: '10314'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Alphanumeric - 5 characters
 - id: firecomp
   name: firecomp
@@ -709,6 +1144,8 @@ columns:
     FIRE COMPANY contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, FIRE COMPANY is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files. data_type: text
   example: L170
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 4 characters
 - id: policeprct
   name: policeprct
@@ -728,6 +1165,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '105'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 3 digits
 - id: healtharea
   name: healtharea
@@ -745,6 +1184,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '800'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 4 digits (9999)
 - id: sanitboro
   name: sanitboro
@@ -766,6 +1207,8 @@ columns:
   - value: '5'
     description: Staten Island
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Numeric - 1 digit
 - id: sanitsub
   name: sanitsub
@@ -779,6 +1222,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: 2C
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Numeric - 2 digits
 - id: address
   name: address
@@ -794,6 +1239,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: HYLAN BOULEVARD
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 28 characters
 - id: zonedist1
   name: zonedist1
@@ -821,6 +1268,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: R5
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 9 characters
 - id: zonedist2
   name: zonedist2
@@ -836,6 +1285,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: R6B
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 9 characters
 - id: zonedist3
   name: zonedist3
@@ -851,6 +1302,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: R5
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 9 characters
 - id: zonedist4
   name: zonedist4
@@ -868,6 +1321,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: PARK
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 9 characters
 - id: overlay1
   name: overlay1
@@ -883,6 +1338,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: C2-4
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 4 characters
 - id: overlay2
   name: overlay2
@@ -896,6 +1353,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: C2-4
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 4 characters
 - id: spdist1
   name: spdist1
@@ -911,6 +1370,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: SRD
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 12 characters
 - id: spdist2
   name: spdist2
@@ -928,6 +1389,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: TA
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 12 characters
 - id: spdist3
   name: spdist3
@@ -945,6 +1408,8 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: TA
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 12 characters
 - id: ltdheight
   name: ltdheight
@@ -959,6 +1424,8 @@ columns:
   - value: LH-1
   - value: LH-1A
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 5 characters
 - id: splitzone
   name: splitzone
@@ -972,6 +1439,8 @@ columns:
   - value: 'Y'
   - value: 'N'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: bldgclass
   name: bldgclass
@@ -1009,6 +1478,8 @@ columns:
     Department of Finance - Property Tax System (PTS)
   example: A1
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 2 characters
 - id: landuse
   name: landuse
@@ -1045,6 +1516,8 @@ columns:
   - value: '11'
     description: Vacant Land
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 2 characters
 - id: easements
   name: easements
@@ -1058,6 +1531,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '0'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 2 digits (99)
 - id: ownertype
   name: ownertype
@@ -1089,6 +1564,8 @@ columns:
   - value: M
     description: Mixed city & private ownership
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: ownername
   name: ownername
@@ -1104,6 +1581,8 @@ columns:
     Department of City Planning - [PLUTO_input_research.csv](https://github.com/NYCPlanning/db-pluto/blob/dev/pluto_build/data/pluto_input_research.csv), field ownername
   example: UNAVAILABLE OWNER
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 81 characters
 - id: lotarea
   name: lotarea
@@ -1122,6 +1601,8 @@ columns:
     Department of Finance - Digital Tax Map (DTM)
   example: '2000'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 9 digits (999999999)
 - id: bldgarea
   name: bldgarea
@@ -1158,6 +1639,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: comarea
   name: comarea
@@ -1183,6 +1666,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: resarea
   name: resarea
@@ -1204,6 +1689,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: officearea
   name: officearea
@@ -1225,6 +1712,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: retailarea
   name: retailarea
@@ -1246,6 +1735,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: garagearea
   name: garagearea
@@ -1271,6 +1762,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: strgearea
   name: strgearea
@@ -1292,6 +1785,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '100'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: factryarea
   name: factryarea
@@ -1313,6 +1808,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: otherarea
   name: otherarea
@@ -1334,6 +1831,8 @@ columns:
     Department of Finance - Mass Appraisal System (CAMA)
   example: '0'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: areasource
   name: areasource
@@ -1358,6 +1857,8 @@ columns:
   - value: '7'
     description: Department of Finance's Mass Appraisal System (CAMA)
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: numbldgs
   name: numbldgs
@@ -1372,6 +1873,8 @@ columns:
     Department of Finance - Property Tax System (PTS)
   example: '1'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 5 digits (99999)
 - id: numfloors
   name: numfloors
@@ -1387,6 +1890,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '2.000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 6 digits (999.99)
 - id: unitsres
   name: unitsres
@@ -1402,6 +1907,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '1'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 5 digits (99999)
 - id: unitstotal
   name: unitstotal
@@ -1417,6 +1924,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '1'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 5 digits (99999)
 - id: lotfront
   name: lotfront
@@ -1428,6 +1937,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '20.0'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 7 digits (9999.99)
 - id: lotdepth
   name: lotdepth
@@ -1436,6 +1947,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '100.0000000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 7 digits (9999.99)
 - id: bldgfront
   name: bldgfront
@@ -1444,6 +1957,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '20.0000000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 7 digits (9999.99)
 - id: bldgdepth
   name: bldgdepth
@@ -1452,6 +1967,9 @@ columns:
     measured in feet.
   data_source: Department of Finance - Property Tax System (PTS)
   example: '40.0000000'
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
 - id: ext
   name: ext
   data_type: text
@@ -1469,6 +1987,8 @@ columns:
   - value: N
     description: None
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 2 Characters
 - id: proxcode
   name: proxcode
@@ -1488,6 +2008,8 @@ columns:
   - value: '3'
     description: Attached
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: irrlotcode
   name: irrlotcode
@@ -1501,6 +2023,9 @@ columns:
     description: No, not an irregularly shaped lot
   - value: None
     description: Unknown
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
 - id: lottype
   name: lottype
   data_type: integer
@@ -1538,6 +2063,8 @@ columns:
   - value: '9'
     description: Submerged land lot - a tax lot that is totally or almost completely submerged
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: bsmtcode
   name: bsmtcode
@@ -1568,6 +2095,8 @@ columns:
   - value: '5'
     description: Unknown
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: assessland
   name: assessland
@@ -1581,6 +2110,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '10080.00000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: assesstot
   name: assesstot
@@ -1602,6 +2133,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '0.00000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: exempttot
   name: exempttot
@@ -1615,6 +2148,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '0.00000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 11 digits (99999999999)
 - id: yearbuilt
   name: yearbuilt
@@ -1630,6 +2165,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '1920'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 4 digits (9999)
 - id: yearalter1
   name: yearalter1
@@ -1645,6 +2182,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '0'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 4 digits (9999)
 - id: yearalter2
   name: yearalter2
@@ -1660,6 +2199,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '0'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 4 digits (9999)
 - id: histdist
   name: histdist
@@ -1669,6 +2210,8 @@ columns:
   data_source: Landmarks Preservation Commission Historic Districts dataset
   example: Park Slope Historic District
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 40 characters
 - id: landmark
   name: landmark
@@ -1682,6 +2225,8 @@ columns:
   - value: INTERIOR LANDMARK
   - value: INDIVIDUAL AND INTERIOR LANDMARK
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 35 characters
 - id: builtfar
   name: builtfar
@@ -1695,6 +2240,8 @@ columns:
     Department of Finance - Property Tax System (PTS)
   example: '0.0000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 7 digits (9999.99)
     human_readable_name: Built Floor Area Ratio
 - id: residfar
@@ -1711,6 +2258,8 @@ columns:
   data_source: Department of City Planning Zoning Division
   example: '0.50000000000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 5 digits (99.99)
     human_readable_name: Maximum Allowable Residential FAR
 - id: commfar
@@ -1725,6 +2274,8 @@ columns:
   data_source: Department of City Planning Zoning Division
   example: '0.00'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 5 digits (99.99)
     human_readable_name: Maximum Allowable Commercial FAR
 - id: facilfar
@@ -1739,6 +2290,8 @@ columns:
   data_source: Department of City Planning Zoning Division
   example: '2.00'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 5 digits (99.99)
     human_readable_name: Maximum Allowable Affordable Residential FAR
 - id: affresfar
@@ -1754,6 +2307,8 @@ columns:
     Department of City Planning Zoning Division
   example: 0.50
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 5 digits (99.99)
     human_readable_name: Maximum Allowable Affordable Residential FAR
 - id: mnffar
@@ -1769,6 +2324,8 @@ columns:
     Department of City Planning Zoning Division
   example: 0.50
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 5 digits (99.99)
     human_readable_name: Maximum Allowable Manufacturing FAR (ManuFAR)
 - id: borocode
@@ -1794,6 +2351,8 @@ columns:
   - value: '5'
     description: Staten Island
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 1 digit (9)
 - id: bbl
   name: BBL
@@ -1815,6 +2374,8 @@ columns:
     non_nullable: true
   example: '1016370141'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 10 digits
 - id: condono
   name: condono
@@ -1826,6 +2387,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '100'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 5 digits
 - id: tract2010
   name: tract2010
@@ -1843,6 +2406,8 @@ columns:
   data_source: Department of City Planning - Geosupport System
   example: '226'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 6 characters
 - id: xcoord
   name: xcoord
@@ -1858,6 +2423,8 @@ columns:
     Department of Finance - Digital Tax Map: Calculated from centroid of tax lot
   example: '999440'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 7 digits (9999999)
 - id: ycoord
   name: ycoord
@@ -1873,6 +2440,8 @@ columns:
     Department of Finance - Digital Tax Map: Calculated from centroid of tax lot
   example: '199486'
   custom:
+    fgdb_data_type: Integer
+    shp_data_type: Integer
     readme_data_type: Numeric - 7 digits (9999999)
 - id: latitude
   name: latitude
@@ -1882,6 +2451,8 @@ columns:
   data_source: Department of City Planning
   example: '40.7142067'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric
 - id: longitude
   name: longitude
@@ -1891,6 +2462,8 @@ columns:
   data_source: Department of City Planning
   example: '-73.9452063'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric
 - id: zonemap
   name: zonemap
@@ -1901,6 +2474,8 @@ columns:
   data_source: Department of City Planning Georeferenced NYC Zoning Maps
   example: 17a
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 3 characters
 - id: zmcode
   name: zmcode
@@ -1909,6 +2484,8 @@ columns:
   data_source: Department of City Planning Georeferenced NYC Zoning Maps
   example: 'True'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: sanborn
   name: sanborn
@@ -1925,6 +2502,9 @@ columns:
     This field has been deprecated and will be removed at a future date. The data in the field cannot be considered reliable.
   data_source: Department of City Planning - Geosupport System
   example: 504 436
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
 - id: taxmap
   name: taxmap
   data_type: text
@@ -1937,6 +2517,8 @@ columns:
   data_source: Department of City Planning - Geosupport System
   example: '52402'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 5 characters
 - id: edesignum
   name: edesignum
@@ -1948,6 +2530,8 @@ columns:
   data_source: Department of City Planning - E-Designation File
   example: E-175
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 5 characters
 - id: appbbl
   name: appbbl
@@ -1959,6 +2543,8 @@ columns:
   data_source: Department of Finance - Property Tax System (PTS)
   example: '5057350102.00000000'
   custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
     readme_data_type: Numeric - 10 digits
 - id: appdate
   name: appdate
@@ -1972,6 +2558,8 @@ columns:
     Department of Finance - Property Tax System (PTS)
   example: 25/08/1988
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Numeric - 10 characters
 - id: plutomapid
   name: plutomapid
@@ -2006,6 +2594,8 @@ columns:
     description: Lot is in MapPLUTO (with water areas included), but not in the clipped
       version of MapPLUTO or in PLUTO. Tax lot is completely under water.
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Numeric - 1 digit
 - id: version
   name: version
@@ -2022,6 +2612,8 @@ columns:
     non_nullable: true
   example: 24v1.1
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 6 characters
 - id: sanitdistrict
   name: sanitdistrict
@@ -2035,6 +2627,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '3'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Numeric - 2 digits
 - id: healthcenterdistrict
   name: healthcenterdistrict
@@ -2050,6 +2644,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '51'
   custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
     readme_data_type: Numeric - 2 digits (99)
 - id: firm07_flag
   name: firm07_flag
@@ -2067,6 +2663,8 @@ columns:
     description: Some portion of the tax lot falls within the 1% annual chance floodplain as
       determined by FEMA's 2007 Flood Insurance Rate Map
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: pfirm15_flag
   name: pfirm15_flag
@@ -2084,6 +2682,8 @@ columns:
     description: Some portion of the tax lot falls within the 1% annual chance floodplain as
       determined by FEMA's 2015 Preliminary Flood Insurance Rate Map.
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
 - id: dcpedited
   name: dcpedited
@@ -2098,6 +2698,8 @@ columns:
   - value: t
     description: City Planning has made a change to any field values for this tax lot
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 3 characters
 - id: notes
   name: notes
@@ -2106,6 +2708,8 @@ columns:
   data_source: Department of City Planning
   example: None
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 20 characters
 - id: bct2020
   name: bct2020
@@ -2129,6 +2733,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '4089201'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 7 characters
 - id: bctcb2020
   name: bctcb2020
@@ -2152,6 +2758,8 @@ columns:
     Department of City Planning - Administrative District Base Map files
   example: '50170071000'
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 11 characters
 - id: mih_opt1
   name: mihopt1
@@ -2164,6 +2772,8 @@ columns:
     Department of City Planning Mandatory Inclusionary Housing (MIH)
   example: 1
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric – 1 character
 - id: mih_opt2
   name: mihopt2
@@ -2176,6 +2786,8 @@ columns:
     Department of City Planning Mandatory Inclusionary Housing (MIH)
   example: 1
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 characters
 - id: mih_opt3
   name: mihopt3
@@ -2188,6 +2800,8 @@ columns:
     Department of City Planning Mandatory Inclusionary Housing (MIH)
   example: 1
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 characters
 - id: mih_opt4
   name: mihopt4
@@ -2200,6 +2814,8 @@ columns:
     Department of City Planning Mandatory Inclusionary Housing (MIH)
   example: 1
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 1 characters
 - id: transitzone
   name: transitzone
@@ -2223,57 +2839,13 @@ columns:
   - value: Beyond the Greater Transit Zone
     description: Beyond the Greater Transit Zone
   custom:
+    fgdb_data_type: String
+    shp_data_type: String
     readme_data_type: Alphanumeric - 50 characters
 - id: geom
   name: geom
   data_type: text
   example: None
-# Deprecated Fields
-- id: basempdate
-  name: basempdate
-  data_type: text
-  example: None
   custom:
-    note: deprecated
-- id: dcasdate
-  name: dcasdate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
-- id: edesigdate
-  name: edesigdate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
-- id: landmkdate
-  name: landmkdate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
-- id: masdate
-  name: masdate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
-- id: polidate
-  name: polidate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
-- id: rpaddate
-  name: rpaddate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
-- id: zoningdate
-  name: zoningdate
-  data_type: text
-  example: None
-  custom:
-    note: deprecated
+    fgdb_data_type: Geometry
+    shp_data_type: Geometry
