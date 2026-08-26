@@ -40,8 +40,10 @@ models:
         node_color: "#3e5c76"
 
 # LDF header fields. Nothing in the source data identifies a LION release or the date it
-# was deployed - GR's extract tool takes all four as operator input, and so do we. Pass
-# them per release, e.g. --vars '{ldf_new_release: 26B, ldf_new_release_date: 2026-04-22}'.
+# was deployed - GR's extract tool takes all four as operator input, and so do we. They're
+# recorded in recipe.yml and passed in with
+# `dbt build --vars "$(python3 scripts/ldf_vars.py)"`; the nulls below make a build that
+# omits them fail in int__ldf_header rather than emit a wrong header.
 vars:
   ldf_old_release: null
   ldf_old_release_date: null # ISO YYYY-MM-DD

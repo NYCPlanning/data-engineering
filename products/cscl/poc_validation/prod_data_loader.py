@@ -40,6 +40,7 @@ class OutputDataset:
 try:
     recipe = plan.recipe_from_yaml(Path("./recipe.yml"))
     version = recipe.version
+    previous_version = (recipe.custom or {}).get("ldf", {}).get("previous_version")
     assert recipe.exports
 
     for export in recipe.exports.datasets:
@@ -318,7 +319,9 @@ def _pull(
 
 @app.command("load_previous_lion")
 def _load_previous_lion(
-    previous_version: str = typer.Option(..., "--previous-version", "-p"),
+    previous_version: str | None = typer.Option(
+        previous_version, "--previous-version", "-p"
+    ),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str = typer.Option("previous_citywide_lion_dat", "--table", "-t"),
 ):
@@ -329,6 +332,12 @@ def _load_previous_lion(
     script - which loads the current release for dev/prod comparison - this pulls the
     release before it. Boroughs are concatenated because the LDF is citywide.
     """
+    if not previous_version:
+        raise Exception(
+            "Specify the previous release with '-p'. "
+            "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
+        )
+
     lion_datasets = [
         d for d in datasets_by_name.values() if d.name.endswith("_lion_dat")
     ]
@@ -356,7 +365,9 @@ def _load_previous_lion(
 
 @app.command("load_previous_ldf_header")
 def _load_previous_ldf_header(
-    previous_version: str = typer.Option(..., "--previous-version", "-p"),
+    previous_version: str | None = typer.Option(
+        previous_version, "--previous-version", "-p"
+    ),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str = typer.Option("previous_ldf_header", "--table", "-t"),
 ):
@@ -367,6 +378,12 @@ def _load_previous_ldf_header(
     start where the last one stopped. The prior header carries both numbers we need:
     its own cumulative number and its record count.
     """
+    if not previous_version:
+        raise Exception(
+            "Specify the previous release with '-p'. "
+            "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
+        )
+
     file_name = "LDF.header"
     local_path = local_folder / previous_version / file_name
     s3.download_file(

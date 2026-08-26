@@ -2,6 +2,20 @@ name: CSCL
 product: cscl
 version: 26b
 
+# The LDF documents the change between two LION releases. `previous_version` is the one
+# being diffed against, and the dates are when each release was deployed. Nothing in the
+# source data records either, so they're entered here and passed to dbt by
+# scripts/ldf_vars.py.
+#
+# These belong under `env`, not `custom`, once CSCL's dbt build moves into `stage_config`.
+# dcpy exports recipe `env` into the process it launches build commands in, so dbt would
+# read them with `env_var()` and scripts/ldf_vars.py would no longer be needed.
+custom:
+  ldf:
+    previous_version: 26a
+    old_release_date: 2026-02-09
+    new_release_date: 2026-04-22
+
 inputs:
   dataset_defaults:
     destination: postgres
