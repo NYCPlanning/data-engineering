@@ -404,51 +404,48 @@ def test_create_attr_metadata_no_custom_key_ignores_custom_dict():
     assert attr.attrtype.value == "text"
 
 
-def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
-    """Verifies GDB-specific metadata writing using the pluto test fixture.
+def test_write_metadata_gdb_pluto(temp_gdb_zip_path, real_org_metadata):
+    """Verifies GDB-specific metadata writing using the real PLUTO product-metadata.
 
     Checks:
-    - eainfo.detailed.name is product_md.id ("pluto"), not the layer name
-    - data_type overrides (e.g. "String", "Date") pass through verbatim to attrtype
-    - full column names are used (no shapefile truncation)
+    - eainfo.detailed.name is the layer name
+    - fgdb_data_type overrides pass through verbatim to attrtype
+    - full column names are used (no shapefile truncation) — including the
+      GDB-specific overrides for the 4 columns that are truncated in SHP
+      (firm07_flag → FIRM07_FLAG, not FIRM07_FLA)
     """
     esri.write_metadata(
         product_name="pluto",
         dataset_name="pluto",
         path_to_file=temp_gdb_zip_path,
         layer=SPATIAL_LAYER,
-        file_id="primary_file_geodatabase",
+        file_id="mappluto_gdb",
         zip_subdir=None,
-        org_md=org_metadata,
+        org_md=real_org_metadata,
     )
     metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
     if metadata is None:
         pytest.fail("Expected metadata to exist after write")
 
-    pluto_md = org_metadata.product("pluto").dataset("pluto")
-    file_metadata = pluto_md.calculate_file_dataset_metadata(
-        file_id="primary_file_geodatabase"
-    )
+    pluto_md = real_org_metadata.product("pluto").dataset("pluto")
+    file_metadata = pluto_md.calculate_file_dataset_metadata(file_id="mappluto_gdb")
 
     assert metadata.eainfo.detailed.name == SPATIAL_LAYER
     assert metadata.eainfo.detailed.enttyp.enttypl.value == SPATIAL_LAYER
 
-    # uid → GDB-specific name override (OBJECTID), attrtype always OID
-    assert metadata.eainfo.detailed.attr[0].attrlabl.value == "OBJECTID"
-    assert metadata.eainfo.detailed.attr[0].attrtype.value == "OID"
+    attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
 
-    # borough — full name, has domain values (edom), no truncation
-    assert (
-        metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
-    )
-    assert metadata.eainfo.detailed.attr[1].attrtype.value == "String"
-    assert len(metadata.eainfo.detailed.attr[1].attrdomv.edom) == len(
-        file_metadata.columns[1].values
-    )
+    # borough — full name, String type, has domain values (edom)
+    borough = attrs_by_label["Borough"]
+    assert borough.attrtype.value == "String"
+    borough_column = next(c for c in file_metadata.columns if c.id == "borough")
+    assert len(borough.attrdomv.edom) == len(borough_column.values)
 
-    # appdate — file-entry override declares Esri type "Date" explicitly
-    assert metadata.eainfo.detailed.attr[2].attrlabl.value == "APPDate"
-    assert metadata.eainfo.detailed.attr[2].attrtype.value == "Date"
+    # firm07_flag → GDB uses the real untruncated field name (FIRM07_FLAG),
+    # not the SHP-truncated one (FIRM07_FLA)
+    assert "FIRM07_FLAG" in attrs_by_label
+    assert "FIRM07_FLA" not in attrs_by_label
+    assert attrs_by_label["FIRM07_FLAG"].attrtype.value == "String"
 
     # projection — EPSG:2263 maps to refSysInfo
     ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
@@ -457,7 +454,7 @@ def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
 
 
 def test_write_metadata_gdb_layer_none_auto_resolves(
-    temp_gdb_zip_path, org_metadata, monkeypatch
+    temp_gdb_zip_path, real_org_metadata, monkeypatch
 ):
     """layer=None auto-resolves when GDB has exactly one layer."""
     monkeypatch.setattr(fgdb, "get_layers", lambda _: [SPATIAL_LAYER])
@@ -466,9 +463,9 @@ def test_write_metadata_gdb_layer_none_auto_resolves(
         dataset_name="pluto",
         path_to_file=temp_gdb_zip_path,
         layer=None,
-        file_id="primary_file_geodatabase",
+        file_id="mappluto_gdb",
         zip_subdir=None,
-        org_md=org_metadata,
+        org_md=real_org_metadata,
     )
     metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
     assert metadata is not None
@@ -476,7 +473,7 @@ def test_write_metadata_gdb_layer_none_auto_resolves(
 
 
 def test_write_metadata_gdb_layer_none_raises_when_ambiguous(
-    temp_gdb_zip_path, org_metadata
+    temp_gdb_zip_path, real_org_metadata
 ):
     """layer=None raises ValueError when GDB has multiple layers."""
     with pytest.raises(ValueError, match="layer must be specified"):
@@ -485,9 +482,9 @@ def test_write_metadata_gdb_layer_none_raises_when_ambiguous(
             dataset_name="pluto",
             path_to_file=temp_gdb_zip_path,
             layer=None,
-            file_id="primary_file_geodatabase",
+            file_id="mappluto_gdb",
             zip_subdir=None,
-            org_md=org_metadata,
+            org_md=real_org_metadata,
         )
 
 
