@@ -413,9 +413,9 @@
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
       "vintages": [
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['5.10'].earliest_range }}",
+        "ACS PUMS, {{ indicators['5.10'].current_range }}",
+        "CHANGE, {{ indicators['5.10'].earliest_range }} to {{ indicators['5.10'].current_range }}"
       ],
       "variables": ["carcommute"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],

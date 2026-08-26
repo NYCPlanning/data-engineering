@@ -15,9 +15,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['3.01'].middle_range }}",
+        "ACS PUMS, {{ indicators['3.01'].current_range }}",
+        "CHANGE, {{ indicators['3.01'].middle_range }} to {{ indicators['3.01'].current_range }}"
       ],
       "variables": ["occupied_owner", "occupied_renter"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -175,7 +175,7 @@
       },
       "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["30.0 percent or more (rent-burdened)","50.0 percent or more (severely rent-burdened)"],
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['3.04'].earliest_range }}", "ACS PUMS, {{ indicators['3.04'].current_range }}", "CHANGE, {{ indicators['3.04'].earliest_range }} to {{ indicators['3.04'].current_range }}"],
       "variables": ["rb","erb"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
       "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
@@ -403,7 +403,7 @@
         "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['3.08'].earliest_range }}", "ACS PUMS, {{ indicators['3.08'].current_range }}", "CHANGE, {{ indicators['3.08'].earliest_range }} to {{ indicators['3.08'].current_range }}"],
       "years": ["_{{ ACS_PREV_YEAR_BAND }}","_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Overcrowded units (> 1 person per room)"],
       "subcategory": "units_",

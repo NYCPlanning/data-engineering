@@ -6,9 +6,9 @@
       "has_change": true,
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['2.01'].middle_range }}",
+        "ACS PUMS, {{ indicators['2.01'].current_range }}",
+        "CHANGE, {{ indicators['2.01'].middle_range }} to {{ indicators['2.01'].current_range }}"
       ],
       "denominator": {
         "subcategory": "age_",
@@ -85,7 +85,7 @@
     "base": {
       "title": "Median Household Income",
       "is_survey": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)",  "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.02'].earliest_range }} ({{ indicators['2.02'].earliest_end }} dollars)", "ACS PUMS, {{ indicators['2.02'].current_range }} ({{ indicators['2.02'].current_end }} dollars)",  "CHANGE, {{ indicators['2.02'].earliest_range }} to {{ indicators['2.02'].current_range }}"],
       "has_change": true,
       "denominator": {
         "subcategory": "",
@@ -151,7 +151,7 @@
     "base": {
       "title": "Households By AMI* Band",
       "is_survey": true,
-      "vintages": ["ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.03'].current_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "households",
@@ -216,7 +216,7 @@
       "title": "Labor Force",
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.04'].earliest_range }}", "ACS PUMS, {{ indicators['2.04'].current_range }}", "CHANGE, {{ indicators['2.04'].earliest_range }} to {{ indicators['2.04'].current_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "age_p16t64",
@@ -274,7 +274,7 @@
       "title": "Occupation",
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.05'].earliest_range }}", "ACS PUMS, {{ indicators['2.05'].current_range }}", "CHANGE, {{ indicators['2.05'].earliest_range }} to {{ indicators['2.05'].current_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "cvem",
@@ -344,7 +344,7 @@
       "id": null,
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.05'].earliest_range }} ({{ indicators['2.05'].earliest_end }} dollars)", "ACS PUMS, {{ indicators['2.05'].current_range }} ({{ indicators['2.05'].current_end }} dollars)", "CHANGE, {{ indicators['2.05'].earliest_range }} to {{ indicators['2.05'].current_range }}"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
       "subcategory": "occupation_",
@@ -443,7 +443,7 @@
       "title": "Industry",
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.06'].earliest_range }}", "ACS PUMS, {{ indicators['2.06'].current_range }}", "CHANGE, {{ indicators['2.06'].earliest_range }} to {{ indicators['2.06'].current_range }}"],
       "denominator": {
         "subcategory": "",
         "variable": "cvem",
@@ -535,7 +535,7 @@
       "id": null,
       "is_survey": true,
       "has_change": true,
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['2.06'].earliest_range }} ({{ indicators['2.06'].earliest_end }} dollars)", "ACS PUMS, {{ indicators['2.06'].current_range }} ({{ indicators['2.06'].current_end }} dollars)", "CHANGE, {{ indicators['2.06'].earliest_range }} to {{ indicators['2.06'].current_range }}"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
       "subcategory": "industry_",

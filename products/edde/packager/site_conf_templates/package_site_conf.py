@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 from config import PRODUCT_PATH, get_build_output_dir
+from indicators import load_indicators
 from jinja2 import Environment, FileSystemLoader
 
 from dcpy.lifecycle.builds import get_recipe_lock
@@ -17,12 +18,14 @@ from dcpy.utils.logging import logger
 
 def get_template_variables() -> dict:
     """
-    Extract template variables from recipe.lock.yml.
+    Extract template variables from recipe.lock.yml, plus per-table year data
+    from indicators.csv.
 
     Returns:
         Dictionary containing all template variables including:
         - All env variables (VERSION, VERSION_PREV, etc.)
         - All custom variables (ACS_PREV_YEAR_BAND, ACS_CURRENT_YEAR_BAND, dhs_shelter, health_mortality, etc.)
+        - "indicators": dict of data_table (e.g. "2.02") -> IndicatorYears, from indicators.csv
     """
     recipe_lock = get_recipe_lock(PRODUCT_PATH)
 
@@ -32,6 +35,9 @@ def get_template_variables() -> dict:
     # Add all custom variables
     if recipe_lock.custom:
         template_vars.update(recipe_lock.custom)
+
+    # Per-table year bands from indicators.csv (see products/edde/indicators.py)
+    template_vars["indicators"] = load_indicators()
 
     logger.info(f"Loaded template variables: {list(template_vars.keys())}")
     return template_vars
