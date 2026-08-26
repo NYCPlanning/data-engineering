@@ -1,0 +1,53 @@
+id: esri
+
+attributes:
+  display_name: Test Esri Metadata Dataset
+  description: Dataset for testing write_metadata packaging (GDB vs. SHP overrides)
+  each_row_is_a: Test Record
+  attribution: Department of City Planning
+  disclaimer: For testing purposes only
+  projection: "EPSG:4326"
+  tags:
+    - test
+    - dcpy
+
+files:
+  - file:
+      id: gdb
+      filename: test_esri.gdb.zip
+      type: geodatabase
+    dataset_overrides:
+      overridden_columns:
+        - id: renamed_field
+          name: RENAMED_FIELD_FULL
+  - file:
+      id: shapefile
+      filename: test_esri.shp.zip
+      type: shapefile
+    dataset_overrides:
+      overridden_columns:
+        - id: renamed_field
+          name: RENAMEDFLD
+
+columns:
+  - id: category
+    name: Category
+    data_type: text
+    description: A category code with domain values
+    example: A
+    values:
+      - value: A
+        description: Alpha
+      - value: B
+        description: Beta
+    custom:
+      fgdb_data_type: String
+      shp_data_type: String
+  - id: renamed_field
+    name: renamed_field
+    data_type: text
+    description: A field whose written name differs between GDB and SHP outputs
+    example: sample
+    custom:
+      fgdb_data_type: String
+      shp_data_type: String

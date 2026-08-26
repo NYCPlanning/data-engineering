@@ -404,71 +404,180 @@ def test_create_attr_metadata_no_custom_key_ignores_custom_dict():
     assert attr.attrtype.value == "text"
 
 
-def test_write_metadata_gdb_pluto(temp_gdb_zip_path, org_metadata):
-    """Verifies GDB-specific metadata writing using the pluto test fixture.
+def _assert_write_metadata_defaults_and_attributes(
+    metadata, file_metadata, layer, custom_type_key
+):
+    """Shared assertions for the test_dcpy/esri write_metadata tests: defaults,
+    product attributes, entity name/type, and column-0 (category) round-trip.
+    """
+    fields = Metadata.model_fields
+    assert metadata.md_stan_name == fields["md_stan_name"].default
+    assert metadata.md_stan_ver == fields["md_stan_ver"].default
+
+    assert metadata.md_hr_lv_name == "dataset"
+    assert (
+        metadata.data_id_info.id_citation.res_title
+        == file_metadata.attributes.display_name
+    )
+    assert metadata.data_id_info.id_abs == file_metadata.attributes.description
+    assert metadata.data_id_info.id_credit == file_metadata.attributes.attribution
+    assert (
+        metadata.data_id_info.res_const.consts.use_limit
+        == file_metadata.attributes.disclaimer
+    )
+    assert metadata.data_id_info.other_keys.keyword == file_metadata.attributes.tags
+    assert metadata.data_id_info.search_keys.keyword == file_metadata.attributes.tags
+
+    entity_name = layer.removesuffix(".shp")
+    assert metadata.eainfo.detailed.name == entity_name
+    assert metadata.eainfo.detailed.enttyp.enttypl.value == entity_name
+    assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
+
+    # column 0 (category) — full round-trip: label, type override, domain values
+    col0 = file_metadata.columns[0]
+    assert col0.id == "category"
+    attr0 = metadata.eainfo.detailed.attr[0]
+    assert attr0.attrlabl.value == col0.name
+    expected_type_0 = col0.custom.get(custom_type_key) or col0.data_type
+    assert attr0.attrtype.value == expected_type_0
+    assert col0.values is not None, "Column values must be defined"
+    assert len(attr0.attrdomv.edom) == len(col0.values)
+    assert attr0.attrdomv.edom[0].edomv == col0.values[0].value
+    assert attr0.attrdomv.edom[0].edomvd == col0.values[0].description
+
+
+@pytest.mark.parametrize(
+    "path_fixture, file_type",
+    [
+        pytest.param("temp_gdb_zip_path", "zip", id="gdb_zip"),
+        pytest.param("temp_gdb_nonzipped_path", "nonzip", id="gdb_nonzip"),
+    ],
+)
+def test_write_metadata_gdb_format_overrides(
+    request, path_fixture, file_type, test_dcpy_org_metadata
+):
+    """Verifies GDB-specific metadata writing using the synthetic test_dcpy/esri
+    product-metadata.
 
     Checks:
-    - eainfo.detailed.name is product_md.id ("pluto"), not the layer name
-    - data_type overrides (e.g. "String", "Date") pass through verbatim to attrtype
-    - full column names are used (no shapefile truncation)
+    - eainfo.detailed.name is the layer name
+    - fgdb_data_type overrides pass through verbatim to attrtype
+    - GDB and SHP outputs use different overridden column names for the same
+      base column (renamed_field → RENAMED_FIELD_FULL in GDB, RENAMEDFLD in SHP)
     """
-    esri.write_metadata(
-        product_name="pluto",
-        dataset_name="pluto",
-        path_to_file=temp_gdb_zip_path,
-        layer=SPATIAL_LAYER,
-        file_id="primary_file_geodatabase",
-        zip_subdir=None,
-        org_md=org_metadata,
+    fixture_info = _get_info_from_file_fixture(
+        request, fixture=path_fixture, file_type=file_type
     )
-    metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
+
+    esri.write_metadata(
+        product_name="test_dcpy",
+        dataset_name="esri",
+        path_to_file=fixture_info["path"],
+        layer=fixture_info["layer"],
+        file_id="gdb",
+        zip_subdir=None,
+        org_md=test_dcpy_org_metadata,
+    )
+    metadata = fgdb.read_metadata(gdb=fixture_info["path"], layer=fixture_info["layer"])
     if metadata is None:
         pytest.fail("Expected metadata to exist after write")
 
-    pluto_md = org_metadata.product("pluto").dataset("pluto")
-    file_metadata = pluto_md.calculate_file_dataset_metadata(
-        file_id="primary_file_geodatabase"
+    esri_md = test_dcpy_org_metadata.product("test_dcpy").dataset("esri")
+    file_metadata = esri_md.calculate_file_dataset_metadata(file_id="gdb")
+
+    _assert_write_metadata_defaults_and_attributes(
+        metadata, file_metadata, fixture_info["layer"], "fgdb_data_type"
     )
 
-    assert metadata.eainfo.detailed.name == SPATIAL_LAYER
-    assert metadata.eainfo.detailed.enttyp.enttypl.value == SPATIAL_LAYER
+    attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
 
-    # uid → GDB-specific name override (OBJECTID), attrtype always OID
-    assert metadata.eainfo.detailed.attr[0].attrlabl.value == "OBJECTID"
-    assert metadata.eainfo.detailed.attr[0].attrtype.value == "OID"
+    # renamed_field → GDB uses the full name (RENAMED_FIELD_FULL),
+    # not the SHP-specific one (RENAMEDFLD)
+    assert "RENAMED_FIELD_FULL" in attrs_by_label
+    assert "RENAMEDFLD" not in attrs_by_label
+    assert attrs_by_label["RENAMED_FIELD_FULL"].attrtype.value == "String"
 
-    # borough — full name, has domain values (edom), no truncation
-    assert (
-        metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
-    )
-    assert metadata.eainfo.detailed.attr[1].attrtype.value == "String"
-    assert len(metadata.eainfo.detailed.attr[1].attrdomv.edom) == len(
-        file_metadata.columns[1].values
-    )
-
-    # appdate — file-entry override declares Esri type "Date" explicitly
-    assert metadata.eainfo.detailed.attr[2].attrlabl.value == "APPDate"
-    assert metadata.eainfo.detailed.attr[2].attrtype.value == "Date"
-
-    # projection — EPSG:2263 maps to refSysInfo
+    # projection — EPSG:4326 maps to refSysInfo
     ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
     assert ref_sys_id.id_code_space.value == "EPSG"
-    assert ref_sys_id.ident_code.code == 2263
+    assert ref_sys_id.ident_code.code == 4326
+
+
+@pytest.mark.parametrize(
+    "path_fixture, file_type, subdir",
+    [
+        pytest.param("temp_shp_zip_no_md_path", "zip", None, id="shp_zip_no_md"),
+        pytest.param(
+            "temp_nonzipped_shp_no_md_path", "nonzip", None, id="shp_nonzip_no_md"
+        ),
+        pytest.param("temp_shp_zip_with_md_path", "zip", None, id="shp_zip_with_md"),
+        pytest.param(
+            "temp_nonzipped_shp_with_md_path", "nonzip", None, id="shp_nonzip_with_md"
+        ),
+        pytest.param(
+            "temp_shp_zip_with_subdir_path", "zip", SHP_SUBDIR, id="shp_zip_with_subdir"
+        ),
+    ],
+)
+def test_write_metadata_shp_format_overrides(
+    request, path_fixture, file_type, subdir, test_dcpy_org_metadata
+):
+    """Verifies SHP-specific metadata writing using the synthetic test_dcpy/esri
+    product-metadata.
+
+    Checks:
+    - eainfo.detailed.name is the layer name
+    - shp_data_type overrides pass through verbatim to attrtype
+    - GDB and SHP outputs use different overridden column names for the same
+      base column (renamed_field → RENAMEDFLD in SHP, RENAMED_FIELD_FULL in GDB)
+    """
+    fixture_info = _get_info_from_file_fixture(
+        request, fixture=path_fixture, file_type=file_type
+    )
+
+    esri.write_metadata(
+        product_name="test_dcpy",
+        dataset_name="esri",
+        path_to_file=fixture_info["path"],
+        layer=fixture_info["layer"],
+        file_id="shapefile",
+        zip_subdir=subdir,
+        org_md=test_dcpy_org_metadata,
+    )
+    shp = shp_utils.from_path(
+        path=fixture_info["path"], shp_name=fixture_info["layer"], zip_subdir=subdir
+    )
+    metadata = shp.read_metadata()
+    if metadata is None:
+        pytest.fail("Expected metadata to exist after write")
+
+    esri_md = test_dcpy_org_metadata.product("test_dcpy").dataset("esri")
+    file_metadata = esri_md.calculate_file_dataset_metadata(file_id="shapefile")
+
+    _assert_write_metadata_defaults_and_attributes(
+        metadata, file_metadata, fixture_info["layer"], "shp_data_type"
+    )
+
+    attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
+
+    # renamed_field → SHP uses RENAMEDFLD, unlike GDB
+    assert "RENAMEDFLD" in attrs_by_label
+    assert "RENAMED_FIELD_FULL" not in attrs_by_label
 
 
 def test_write_metadata_gdb_layer_none_auto_resolves(
-    temp_gdb_zip_path, org_metadata, monkeypatch
+    temp_gdb_zip_path, test_dcpy_org_metadata, monkeypatch
 ):
     """layer=None auto-resolves when GDB has exactly one layer."""
     monkeypatch.setattr(fgdb, "get_layers", lambda _: [SPATIAL_LAYER])
     esri.write_metadata(
-        product_name="pluto",
-        dataset_name="pluto",
+        product_name="test_dcpy",
+        dataset_name="esri",
         path_to_file=temp_gdb_zip_path,
         layer=None,
-        file_id="primary_file_geodatabase",
+        file_id="gdb",
         zip_subdir=None,
-        org_md=org_metadata,
+        org_md=test_dcpy_org_metadata,
     )
     metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
     assert metadata is not None
@@ -476,18 +585,18 @@ def test_write_metadata_gdb_layer_none_auto_resolves(
 
 
 def test_write_metadata_gdb_layer_none_raises_when_ambiguous(
-    temp_gdb_zip_path, org_metadata
+    temp_gdb_zip_path, test_dcpy_org_metadata
 ):
     """layer=None raises ValueError when GDB has multiple layers."""
     with pytest.raises(ValueError, match="layer must be specified"):
         esri.write_metadata(
-            product_name="pluto",
-            dataset_name="pluto",
+            product_name="test_dcpy",
+            dataset_name="esri",
             path_to_file=temp_gdb_zip_path,
             layer=None,
-            file_id="primary_file_geodatabase",
+            file_id="gdb",
             zip_subdir=None,
-            org_md=org_metadata,
+            org_md=test_dcpy_org_metadata,
         )
 
 
