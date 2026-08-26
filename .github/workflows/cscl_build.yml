@@ -64,13 +64,25 @@ jobs:
     - name: Dataloading
       run: dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
 
+    - name: Load LDF inputs from the legacy pipeline
+      # The LDF diffs this release against the one before it, and its QA models compare
+      # the result against prod's own LDF. Neither is in edm-recipes, so both come from
+      # the legacy pipeline's outputs. Remove alongside the rest of production_outputs
+      # once the pipeline is operationalized.
+      run: |
+        python3 poc_validation/prod_data_loader.py load_previous_lion
+        python3 poc_validation/prod_data_loader.py load_previous_ldf_header
+        python3 poc_validation/prod_data_loader.py load_prod_ldf
+
     - name: Build
       run: |
         dbt deps
         dbt debug
 
+        ldf_vars="$(python3 scripts/ldf_vars.py)"
+
         echo "Run full dbt build"
-        dbt build --full-refresh
+        dbt build --full-refresh --vars "$ldf_vars"
 
     - name: Export
       run: dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml

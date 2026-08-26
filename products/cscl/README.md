@@ -241,14 +241,42 @@ GR's tool takes this number as operator input; ours derives it from the previous
 header instead. That difference matters — see
 [data_issues.md → CSCL-LDF-03](./data_issues.md#cscl-ldf-03).
 
+### Release inputs
+
+Four header fields aren't in the source data: the two release IDs and the dates each was
+deployed. GR's tool prompts an operator for all four. We record them in `recipe.yml`:
+
+```yaml
+version: 26b
+custom:
+  ldf:
+    previous_version: 26a
+    old_release_date: 2026-02-09
+    new_release_date: 2026-04-22
+```
+
+`scripts/ldf_vars.py` turns that block into dbt vars, so any build including the LDF needs:
+
+```bash
+dbt build --vars "$(python3 scripts/ldf_vars.py)"
+```
+
+Without them `int__ldf_header` errors instead of emitting a header with wrong dates.
+`previous_version` also picks the LION release the node records diff against, so all four
+move together when the release changes.
+
 ### Validating
 
 GR archives their own `LDF.dat` and `LDF.header` in `edm-private/cscl_etl/<version>/`, so
 this output has direct ground truth — unlike most others, no separate prod pull is needed.
-Load the prior release's LION first, since the node records diff against it:
+The build loads all three inputs itself: the prior release's LION and LDF header (both
+defaulting to `custom.ldf.previous_version`) and prod's own LDF for this release, which
+`qa__ldf_diffs` and `qa__ldf_summary` compare against. To load them by hand:
 
 ```bash
 python3 poc_validation/prod_data_loader.py load_previous_lion -p 26a
+python3 poc_validation/prod_data_loader.py load_previous_ldf_header -p 26a
+python3 poc_validation/prod_data_loader.py load_prod_ldf -v 26b
 ```
 
 ## LION - Known data issues
