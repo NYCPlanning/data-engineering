@@ -453,27 +453,23 @@
         "denominator": {
           "label": "Asian non-Hispanic workers 16 years and over"
         },
-        "id": "5.10.A",
-        "placeholder": "N/A"
+        "id": "5.10.A"
       },
       "bnh": {
         "denominator": {
           "label": "Black non-Hispanic workers 16 years and over"
         },
-        "id": "5.10.B",
-        "placeholder": "N/A"
+        "id": "5.10.B"
       },
       "wnh": {
         "denominator": {
           "label": "White non-Hispanic workers 16 years and over"
         },
-        "id": "5.10.W",
-        "placeholder": "N/A"
+        "id": "5.10.W"
       },
       "hsp": {
         "denominator": { "label": "Hispanic workers 16 years and over" },
-        "id": "5.10.H",
-        "placeholder": "N/A"
+        "id": "5.10.H"
       }
     }
   },
