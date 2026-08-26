@@ -7,7 +7,7 @@ attributes:
   can_be_automated: True
   on_agency_website: True
   agency_website_data_updated_automatically: False
-  projection: NAD 1983 StatePlane New York Long Isl FIPS 3104 (US Feet)
+  projection: EPSG:2263
   publishing_purpose: >
     The Department of City Planning (DCP) is New York City's primary land use agency.
     DCP is responsible for maintaining the Zoning Resolution text and maps that provide
