@@ -535,7 +535,7 @@
       "title": "Income-restricted Housing",
       "id": "3.11.T",
       "subcategory": "units_",
-      "vintages": ["NYC Housing Authority, {{ nycha.year }}; NYC Housing Preservation and Development, {{ hpd_hny.end_year }}"],
+      "vintages": ["NYC Housing Authority, {{ indicators['3.11'].middle_end }}; NYC Housing Preservation and Development, {{ indicators['3.11'].current_end }}"],
       "labels": ["NYCHA units", "Homes with new or extended affordability requirements"],
       "variables": ["nycha","hpd"],
       "headers": [[["number", 1]]],
@@ -572,7 +572,7 @@
   {
     "base": {
       "title": "Population In NYC Housing Authority Housing",
-      "vintages": ["NYC HOUSING AUTHORITY, {{ nycha.year }}"],
+      "vintages": ["NYC HOUSING AUTHORITY, {{ indicators['3.12'].current_end }}"],
       "denominator": {
         "variable": "pop",
         "measures": ["COUNT","PERCENT"],

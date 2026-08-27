@@ -40,7 +40,7 @@ data_table,category,indicator_name,earliest_start_year,earliest_end_year,middle_
 5.10,Quality of Life and Access to Opportunity,Commute,2008,2012,,,2020,2024,
 5.11,Quality of Life and Access to Opportunity,Education Access - Access to Broadband,,,,,2020,2024,
 5.12,Quality of Life and Access to Opportunity,"Educational Outcomes - Subject Test Proficiency (Tested Student Population, 3rd-8th Grade)",,,,,2025,,
-5.13,Quality of Life and Access to Opportunity,Educational Outcomes - High School Graduation Rate (Students Entering 9th Grade In 2021),,,,,2025,,
+5.13,Quality of Life and Access to Opportunity,Educational Outcomes - High School Graduation Rate (Students Entering 9th Grade In 2021),2021,,,,2025,,
 5.14,Quality of Life and Access to Opportunity,Open Space - Park Access,,,,,2024,,
 5.15,Quality of Life and Access to Opportunity,Public Safety - Traffic Injuries,,,,,2019,2023,
 5.16,Quality of Life and Access to Opportunity,Public Safety - Traffic Fatalies,,,,,2019,2023,

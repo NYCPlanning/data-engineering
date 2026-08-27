@@ -577,13 +577,13 @@
   },
   {
     "base": {
-      "title": "Educational Outcomes - High School Graduation Rate (Students Entering 9th Grade In 2020)",
+      "title": "Educational Outcomes - High School Graduation Rate (Students Entering 9th Grade In {{ indicators['5.13'].earliest_end }})",
       "id": "5.13.T",
       "subcategory": "edu_",
       "labels": [
-        "Students graduating high school by 2018 (local or Regents diploma)"
+        "Students graduating high school by {{ indicators['5.13'].current_end }} (local or Regents diploma)"
       ],
-      "vintages": ["NYC DEPARTMENT OF EDUCATION, {{ education.year }}"],
+      "vintages": ["NYC DEPARTMENT OF EDUCATION, {{ indicators['5.13'].current_end }}"],
       "headers": [[["percent", 1]]],
       "variables": ["graduation"],
       "measures": ["PERCENT"],
