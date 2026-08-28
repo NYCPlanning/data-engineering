@@ -293,7 +293,7 @@
         "Middle-income (121-165% AMI)",
         "High-income (166% or higher AMI)"
       ],
-      "vintages": ["ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['3.06'].current_range }}"],
       "subcategory": "units_",
       "variables": [
         "affordable_eli",
@@ -358,7 +358,7 @@
           ["moe", 1]
         ]
       ],
-      "vintages": ["NYC HOUSING AND VACANCY SURVEY, 2023"],
+      "vintages": ["NYC HOUSING AND VACANCY SURVEY, {{ indicators['3.07'].current_end }}"],
       "labels": ["Housing with 3 or more housing problems"],
       "subcategory": "units_",
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -621,7 +621,7 @@
     "base": {
       "title": "Housing Lottery Applications",
       "id": "3.13.T",
-      "vintages": ["NYC HOUSING CONNECT {{ housing_lottery.start_year }}-{{ housing_lottery.end_year }}"],
+      "vintages": ["NYC HOUSING CONNECT {{ indicators['3.13'].current_range }}"],
       "subcategory": "housing_lottery_",
       "variables": ["applications"],
       "measures": ["COUNT","PERCENT"],
@@ -705,7 +705,7 @@
     "base": {
       "title": "Housing Lottery Leases",
       "id": "3.14.T",
-      "vintages": ["NYC HOUSING CONNECT {{ housing_lottery.start_year }}-{{ housing_lottery.end_year }}"],
+      "vintages": ["NYC HOUSING CONNECT {{ indicators['3.14'].current_range }}"],
       "subcategory": "housing_lottery_",
       "variables": ["leases"],
       "measures": ["COUNT","PERCENT"],

@@ -319,7 +319,7 @@
     "base": {
       "title": "Access to Jobs",
       "id": "5.08.T",
-      "vintages": ["NYC DEPARTMENT OF CITY PLANNING, 2023"],
+      "vintages": ["NYC DEPARTMENT OF CITY PLANNING, {{ indicators['5.08'].current_end }}"],
       "headers": [[["number", 1]], [["estimate", 1]]],
       "labels": ["Total jobs within 30 minutes"],
       "subcategory": "access_",
@@ -360,7 +360,7 @@
     "base": {
       "title": "Access to Transit",
       "id": "5.09.T",
-      "vintages": ["NYC DEPARTMENT OF CITY PLANNING, 2023"],
+      "vintages": ["NYC DEPARTMENT OF CITY PLANNING, {{ indicators['5.09'].current_end }}"],
       "headers": [[["number", 1]], [["estimate", 1]]],
       "labels": [
         "Residents living within 1/4 mile of Select Bus Station or subway station",
@@ -486,7 +486,7 @@
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
       "vintages": [
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['5.11'].current_range }}"
       ],
       "variables": ["computer", "broadband"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -540,7 +540,7 @@
       "id": "5.12.T",
       "subcategory": "edu_",
       "labels": ["English Language Arts proficient", "Math proficient"],
-      "vintages": ["NYC DEPARTMENT OF EDUCATION, {{ education.year }}"],
+      "vintages": ["NYC DEPARTMENT OF EDUCATION, {{ indicators['5.12'].current_end }}"],
       "headers": [[["percent", 1]]],
       "variables": ["ela", "math"],
       "measures": ["PERCENT"],
@@ -625,7 +625,7 @@
       "id": "5.14.T",
       "subcategory": "access_",
       "labels": ["Residents within walking distance of a park"],
-      "vintages": ["NYC DEPARTMENT OF PARKS AND RECREATION, 2023"],
+      "vintages": ["NYC DEPARTMENT OF PARKS AND RECREATION, {{ indicators['5.14'].current_end }}"],
       "headers": [
         [
           ["number", 1],
@@ -763,7 +763,7 @@
       "id": "5.17.T",
       "subcategory": "safety_",
       "labels": ["Total pedestrian hospitalizations"],
-      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE, 2019"],
+      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE, {{ indicators['5.17'].current_end }}"],
       "variables": ["pedhospital"],
       "measures": ["RATE"],
       "variances": ["NONE"],
@@ -795,7 +795,7 @@
       "id": "5.18.T",
       "subcategory": "safety_",
       "labels": ["Total non-fatal, violence-related hospitalizations"],
-      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE, 2021"],
+      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE, {{ indicators['5.18'].current_end }}"],
       "variables": ["assaulthospital"],
       "measures": ["RATE"],
       "variances": ["NONE"],
