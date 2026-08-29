@@ -24,6 +24,7 @@ dataset:
   info:
     description: |
       ### NYC School Construction Authority - Enrollment Percentages by Zone
-      Provided by DCP Capital Planning team as an excel file.
+      Provided by DCP Capital Planning team as an excel file
+      with a name like "20XX ENROLLMENT _ by Zone".
     url: ""
     dependents: []

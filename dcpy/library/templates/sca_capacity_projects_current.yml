@@ -24,6 +24,7 @@ dataset:
   info:
     description: |
       ### NYC School Construction Authority - Capacity Projects in Progress
-      Provided by DCP Capital Planning team as an excel file.
+      Provided by DCP Capital Planning team as an excel file
+      with a name like "Section 6 Capacity Projects in Process".
     url: ""
     dependents: []

@@ -24,6 +24,7 @@ dataset:
   info:
     description: |
       ### NYC School Construction Authority - Enrollment Projections by Grade
-      Provided by DCP Capital Planning team as an excel file.
+      Provided by DCP Capital Planning team as an excel file
+      with a name like "20XX-20XX Enrollment Projection By Grade".
     url: ""
     dependents: []
