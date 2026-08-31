@@ -1,6 +1,18 @@
+from dataclasses import dataclass
+
 import pandas as pd
 
 bucket = "edm-publishing"
+
+CHECKS_REPO = "db-gru-qaqc"
+CHECKS_WORKFLOW = "main.yml"
+
+INGEST_REPO = "data-engineering"
+INGEST_WORKFLOW = "ingest_single.yml"
+INGEST_WORKFLOW_URL = (
+    f"https://github.com/NYCPlanning/{INGEST_REPO}/actions/workflows/{INGEST_WORKFLOW}"
+)
+
 qa_checks = pd.DataFrame(
     [
         (
@@ -43,16 +55,120 @@ qa_checks = pd.DataFrame(
     columns=["display_name", "action_name", "sources"],
 )
 
-readme_markdown_text = """### Source Data Info
-+ Quarterly load to data-library using [dataloading workflow](https://github.com/NYCPlanning/db-gru-qaqc/blob/main/.github/workflows/dataloading.yml) included in this repo
-+ **`dcp_addresspoints`**: Uploaded to edm-publishing data staging by GIS
-+ **`dcp_atomicpolygons`**: Pulled from Bytes of the Big Apple
-+ **`dcp_pad`**: Pulled from Bytes of the Big Apple and parsed through a [python script](https://github.com/NYCPlanning/db-data-library/blob/main/library/script/dcp_pad.py)
-+ **`dcp_dcmstreetcenterline`**: Uploaded to edm-publishing data staging by GIS
-+ **`dcp_saf`**: Uploaded to edm-publishing data staging by GIS. These files get read directly from the upload location, and are not loaded to data-library.
-+ Requires manual reloading to data-library
-+ **`doitt_buildingfootprints`**: Pulled from [OpenData](https://data.cityofnewyork.us/Housing-Development/Building-Footprints/nqwf-w8eh) and parsed through a [python script](https://github.com/NYCPlanning/db-data-library/blob/main/library/script/doitt_buildingfootprints.py). Due to instability, this data update is not get included in the batch update workflow.
-+ **`dcp_developments`**: Gets published to data-library upon rebuilding using a [workflow](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/developments_publish.yml) in the db-developments repo. No other update necessary.
+
+@dataclass(frozen=True)
+class SourceDataset:
+    """A source dataset the checks read, and where its newest version comes from."""
+
+    id: str
+    refresh: str
+    """How a new version reaches edm-recipes, in a reviewer's terms."""
+
+    upstream_kind: str | None = None
+    """Which connector holds the newest version at the origin: "template" (ask the ingest
+    template's own source connector), "bytes", or "publishing".
+
+    None means there is no archive step that can fall behind, so there is nothing to compare
+    against. Only dcp_saf, which the checks read straight out of edm-publishing.
+    """
+
+    upstream_key: str | None = None
+    """Key for that connector, where it differs from the dataset id."""
+
+
+BYTES_QUARTERLY = "Bytes quarterly release. Archived by ingest_bytes_quarterly.yml, dispatched by hand."
+GIS_UPLOAD = (
+    "GIS drops a new version to edm-publishing/datasets. Archiving it is manual."
+)
+OPEN_DATA_WEEKLY = (
+    "Open Data. Archived automatically by ingest_open_data.yml every Sunday."
+)
+
+source_datasets = {
+    source.id: source
+    for source in [
+        SourceDataset(
+            id="dcp_addresspoints",
+            upstream_kind="template",
+            refresh=GIS_UPLOAD,
+        ),
+        SourceDataset(
+            id="dcp_atomicpolygons",
+            upstream_kind="bytes",
+            upstream_key="lion.atomic_polygons",
+            refresh=BYTES_QUARTERLY,
+        ),
+        SourceDataset(
+            id="dcp_dcmstreetcenterline",
+            upstream_kind="template",
+            refresh=GIS_UPLOAD,
+        ),
+        SourceDataset(
+            id="dcp_developments",
+            upstream_kind="publishing",
+            upstream_key="db-developments",
+            refresh=(
+                "Published by a DevDB build. Archiving it is manual: the workflow that used "
+                "to do it, developments_publish.yml, is in .github/workflows/archive."
+            ),
+        ),
+        SourceDataset(
+            id="dcp_pad",
+            upstream_kind="bytes",
+            upstream_key="lion.property_address_directory",
+            refresh=BYTES_QUARTERLY,
+        ),
+        SourceDataset(
+            id="dcp_saf",
+            refresh=(
+                "GIS uploads to edm-publishing/gru/dcp_saf. The checks read it from there, so "
+                "it is never archived to edm-recipes and cannot fall behind a newer version."
+            ),
+        ),
+        SourceDataset(
+            id="doitt_buildingfootprints",
+            upstream_kind="template",
+            refresh=OPEN_DATA_WEEKLY,
+        ),
+        SourceDataset(
+            id="doitt_buildingfootprints_historical",
+            upstream_kind="template",
+            refresh=OPEN_DATA_WEEKLY,
+        ),
+    ]
+}
+
+readme_markdown_text = """### Source data
+
+The checks read source data from `edm-recipes`, archived there by ingest in the
+[data-engineering](https://github.com/NYCPlanning/data-engineering) repo. This repo only runs the
+checks themselves. The table above compares what is archived against the newest version at each
+origin, so a stale source shows up before a check runs on it rather than after.
+
+Three of the eight need a person to archive them:
+
++ **`dcp_addresspoints`** and **`dcp_dcmstreetcenterline`** land in `edm-publishing/datasets` when
+  the GIS team drops them. Nothing archives them on a schedule.
++ **`dcp_developments`** comes from a DevDB build published to `edm-publishing`. The workflow that
+  used to archive it on publish now sits in `.github/workflows/archive`.
+
+The rest are on a schedule:
+
++ **`dcp_atomicpolygons`** and **`dcp_pad`** come from Bytes of the Big Apple, once a quarter.
+  [`ingest_bytes_quarterly.yml`](https://github.com/NYCPlanning/data-engineering/actions/workflows/ingest_bytes_quarterly.yml)
+  archives both, along with LION and the district boundary files, but someone has to dispatch it
+  with the new quarter.
++ **`doitt_buildingfootprints`** and **`doitt_buildingfootprints_historical`** come from Open Data
+  and are archived every Sunday by
+  [`ingest_open_data.yml`](https://github.com/NYCPlanning/data-engineering/actions/workflows/ingest_open_data.yml).
+  Nothing to run by hand.
++ **`dcp_saf`** is a GIS upload to `edm-publishing/gru/dcp_saf`. The checks read it straight from
+  there, so it is never archived and never behind.
+
+The Ingest buttons above dispatch
+[`ingest_single.yml`](https://github.com/NYCPlanning/data-engineering/actions/workflows/ingest_single.yml)
+on `main` for one dataset at the version shown, so an out of date source can be refreshed without
+leaving this page.
 
 ### PAD checks
 
