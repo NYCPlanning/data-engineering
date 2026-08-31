@@ -1,4 +1,5 @@
 import os
+from contextlib import contextmanager
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
@@ -133,13 +134,37 @@ def list_objects(bucket: str, prefix: str) -> list[dict]:
     return objects
 
 
+MISSING_OBJECT_CODES = {"404", "NoSuchKey"}
+
+
+@contextmanager
+def _named(bucket: str, key: str):
+    """
+    Report a missing object as FileNotFoundError naming it.
+
+    Botocore raises a bare 404 against whatever verb it happened to use, which never
+    says which object was missing and often points at an unrelated-looking call: a
+    download reports HeadObject, because the size lookup runs first.
+    """
+    try:
+        yield
+    except ClientError as e:
+        if e.response["Error"]["Code"] in MISSING_OBJECT_CODES:
+            raise FileNotFoundError(f"s3://{bucket}/{key}") from e
+        raise
+
+
 def object_exists(bucket: str, key: str) -> bool:
     """Returns true if an object with given bucket and key exists"""
     try:
         client().head_object(Bucket=bucket, Key=key)
         return True
-    except ClientError:
-        return False
+    except ClientError as e:
+        # Only a missing object answers this question. Anything else (403 on a bucket we
+        # can't read, expired credentials) would otherwise read as "not there".
+        if e.response["Error"]["Code"] in MISSING_OBJECT_CODES:
+            return False
+        raise
 
 
 def folder_exists(bucket: str, prefix: str) -> bool:
@@ -149,12 +174,14 @@ def folder_exists(bucket: str, prefix: str) -> bool:
 
 
 def get_custom_metadata(bucket: str, key: str) -> dict:
-    return client().head_object(Bucket=bucket, Key=key)["Metadata"]
+    with _named(bucket, key):
+        return client().head_object(Bucket=bucket, Key=key)["Metadata"]
 
 
 def get_metadata(bucket: str, key: str) -> Metadata:
     """Gets custom metadata as well as three standard s3 fields"""
-    response = client().head_object(Bucket=bucket, Key=key)
+    with _named(bucket, key):
+        response = client().head_object(Bucket=bucket, Key=key)
     return Metadata(
         last_modified=response["LastModified"],
         content_length=response["ContentLength"],
@@ -176,10 +203,11 @@ def get_file(
     key: str,
 ) -> StreamingBody:
     """Downloads a file from S3"""
-    obj = client().get_object(
-        Bucket=bucket,
-        Key=key,
-    )
+    with _named(bucket, key):
+        obj = client().get_object(
+            Bucket=bucket,
+            Key=key,
+        )
     return obj["Body"]
 
 
@@ -194,7 +222,7 @@ def download_file(
     else:
         path.parent.mkdir(parents=True, exist_ok=True)
         filepath = path
-    with _progress() as progress:
+    with _named(bucket, key), _progress() as progress:
         size = get_metadata(bucket, key).content_length
         task = progress.add_task(
             f"[green]Downloading [bold]{Path(key).name}[/bold]", total=size
@@ -502,13 +530,15 @@ def get_subfolders(bucket: str, prefix: str, index=1) -> list[str]:
 
 def get_file_as_stream(bucket: str, path: str) -> BytesIO:
     stream = BytesIO()
-    client().download_fileobj(Bucket=bucket, Key=path, Fileobj=stream)
+    with _named(bucket, path):
+        client().download_fileobj(Bucket=bucket, Key=path, Fileobj=stream)
     stream.seek(0)
     return stream
 
 
 def get_file_as_text(bucket: str, path: str) -> str:
-    resp = client().get_object(Bucket=bucket, Key=path).get("Body")
+    with _named(bucket, path):
+        resp = client().get_object(Bucket=bucket, Key=path).get("Body")
     if resp:
         return resp.read().decode()
     else:

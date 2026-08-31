@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from botocore.exceptions import ClientError
 
 from dcpy.test.conftest import (
     PUBLISHING_BUCKET,
@@ -191,3 +192,45 @@ def test_copy_folder_across_regions(bucket_region, create_buckets, put_test_obje
         target_bucket=PUBLISHING_BUCKET,
     )
     assert s3.get_filenames(PUBLISHING_BUCKET, "") == set(TEST_OBJECTS[:2])
+
+
+MISSING_KEY = "no-such-folder/no-such-file"
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        lambda: s3.download_file(TEST_BUCKET, MISSING_KEY, Path("unused")),
+        lambda: s3.get_file(TEST_BUCKET, MISSING_KEY),
+        lambda: s3.get_file_as_stream(TEST_BUCKET, MISSING_KEY),
+        lambda: s3.get_file_as_text(TEST_BUCKET, MISSING_KEY),
+        lambda: s3.get_metadata(TEST_BUCKET, MISSING_KEY),
+        lambda: s3.get_custom_metadata(TEST_BUCKET, MISSING_KEY),
+    ],
+    ids=[
+        "download_file",
+        "get_file",
+        "get_file_as_stream",
+        "get_file_as_text",
+        "get_metadata",
+        "get_custom_metadata",
+    ],
+)
+def test_missing_object_names_itself(create_buckets, call):
+    """A missing object reports its bucket and key, not a bare botocore 404."""
+    with pytest.raises(FileNotFoundError, match=f"s3://{TEST_BUCKET}/{MISSING_KEY}"):
+        call()
+
+
+def test_object_exists_false_when_missing(create_buckets):
+    assert not s3.object_exists(TEST_BUCKET, MISSING_KEY)
+
+
+@patch("dcpy.utils.s3.client")
+def test_object_exists_raises_on_access_denied(mock_client):
+    """A permissions failure must not be reported as a missing object."""
+    mock_client.return_value.head_object.side_effect = ClientError(
+        {"Error": {"Code": "403", "Message": "Forbidden"}}, "HeadObject"
+    )
+    with pytest.raises(ClientError):
+        s3.object_exists(TEST_BUCKET, MISSING_KEY)
