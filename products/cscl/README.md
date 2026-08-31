@@ -35,7 +35,7 @@ Basically, for a new file output, you must
   - create a "dat" formatting csv in `./seeds/formatting`.
     - if this is not a "dat" file with formatting rules for fields, strict field lengths, etc, you might need to make a tweak to `./poc_validation/prod_data_loader.py`. Look at cases like "enders", "last_word" in both `recipe.yml` and how they're handled (based on file format, and formatting) in prod_data_loader.
   - add them as an export in `recipe.yml`. See others as examples. The custom formatting field should point to the formatting csv seed (and is not actually used by dcpy export utilities).
-  - load production data into `db-cscl.production_outputs` by running `python3 poc_validation/prod_data_loader.py -v {version} -d {dataset_name}`.
+  - load production data into `db-cscl.production_outputs` by running `python3 poc_validation/prod_data_loader.py load -v {version} -d {dataset_name}`. LION is the exception: its five borough files are loaded as one citywide table by `load_prod_lion`, which `load` doesn't do.
 - [transform](#write-the-actual-transformations)
   - add any new source layers to `recipe.yml` if needed.
   - add staging and int tables as needed to actually perform transformations as required by the etl docs.

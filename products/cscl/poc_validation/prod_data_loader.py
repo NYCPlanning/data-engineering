@@ -111,6 +111,36 @@ def load_datasets(datasets: list[str], folder: Path):
         CLIENT.insert_dataframe(dat_df, dataset.name)
 
 
+def load_citywide_lion(version: str, table_name: str, local_folder: Path):
+    """
+    Load one release's five borough LION .dat files as a single citywide table.
+
+    The .dat files are parsed and concatenated here rather than unioned from the
+    per-borough tables, so this works without `load` having run first.
+    """
+    lion_datasets = [
+        d for d in datasets_by_name.values() if d.name.endswith("_lion_dat")
+    ]
+    assert len(lion_datasets) == 5, (
+        f"expected 5 borough LION exports in recipe.yml, found {len(lion_datasets)}"
+    )
+
+    frames = []
+    for dataset in lion_datasets:
+        local_path = local_folder / version / dataset.file_name
+        s3.download_file(
+            "edm-private",
+            f"cscl_etl/{version}/{dataset.file_name}",
+            local_path,
+        )
+        assert dataset.formatting_path, f"{dataset.name} has no formatting csv"
+        frames.append(parse_file(local_path, formatting_path=dataset.formatting_path))
+
+    df = pd.concat(frames, ignore_index=True)
+    print(f"loading {len(df)} rows from LION {version} to {CLIENT.schema}.{table_name}")
+    CLIENT.insert_dataframe(df, table_name)
+
+
 def create_citywide_table(file: str):
     CLIENT.execute_query(
         f"""
@@ -286,13 +316,11 @@ def _load(
 
     load_datasets(datasets, local_folder)
 
-    boro_level_files = {"lion", "face_code"}
-    assert False, (
-        "Hello, this is Alex from the past with a message for you. You NEED to fix the citywide table code for the flatfiles next time you load."
-    )
-    for file in boro_level_files:
-        if any(dataset.endswith(f"_{file}") for dataset in datasets):
-            create_citywide_table(file)
+    # Citywide LION is `load_prod_lion`, which parses the .dat files directly. A union of
+    # the per-borough tables written above can't build it: they're named for their recipe
+    # exports (bronx_lion_dat), not the bronx_lion that create_citywide_table expects.
+    if any(dataset.endswith("_face_code") for dataset in datasets):
+        create_citywide_table("face_code")
 
 
 @app.command("pull")
@@ -317,6 +345,23 @@ def _pull(
         )
 
 
+@app.command("load_prod_lion")
+def _load_prod_lion(
+    version: str | None = typer.Option(version, "--version", "-v"),
+    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+    table_name: str = typer.Option("citywide_lion_dat", "--table", "-t"),
+):
+    """
+    Load this release's production LION into the build db, citywide.
+
+    The `qa__lion_dat_*` models compare our LION against this table.
+    """
+    if not version:
+        raise Exception("Specify version with '-v'")
+
+    load_citywide_lion(version, table_name, local_folder)
+
+
 @app.command("load_previous_lion")
 def _load_previous_lion(
     previous_version: str | None = typer.Option(
@@ -338,29 +383,7 @@ def _load_previous_lion(
             "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
         )
 
-    lion_datasets = [
-        d for d in datasets_by_name.values() if d.name.endswith("_lion_dat")
-    ]
-    assert len(lion_datasets) == 5, (
-        f"expected 5 borough LION exports in recipe.yml, found {len(lion_datasets)}"
-    )
-
-    frames = []
-    for dataset in lion_datasets:
-        local_path = local_folder / previous_version / dataset.file_name
-        s3.download_file(
-            "edm-private",
-            f"cscl_etl/{previous_version}/{dataset.file_name}",
-            local_path,
-        )
-        assert dataset.formatting_path, f"{dataset.name} has no formatting csv"
-        frames.append(parse_file(local_path, formatting_path=dataset.formatting_path))
-
-    df = pd.concat(frames, ignore_index=True)
-    print(
-        f"loading {len(df)} rows from LION {previous_version} to {CLIENT.schema}.{table_name}"
-    )
-    CLIENT.insert_dataframe(df, table_name)
+    load_citywide_lion(previous_version, table_name, local_folder)
 
 
 @app.command("load_previous_ldf_header")
