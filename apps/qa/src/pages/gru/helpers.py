@@ -1,7 +1,9 @@
+import os
 import re
 import time
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import quote
 
 import pandas as pd
 import requests
@@ -39,6 +41,12 @@ UP_TO_DATE = "up to date"
 BEHIND = "behind"
 UNKNOWN = "unknown"
 READ_IN_PLACE = "read in place"
+
+
+def public_url(key: str) -> str:
+    """Unsigned, non-expiring link. QAQC outputs are uploaded public-read."""
+    endpoint = os.environ["AWS_S3_ENDPOINT"].rstrip("/")
+    return f"{endpoint}/{bucket}/{quote(key)}"
 
 
 def _read_in_place(source: SourceDataset) -> tuple[str, datetime | None]:
