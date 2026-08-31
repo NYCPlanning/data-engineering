@@ -334,13 +334,18 @@ exports:
     format: dat
     custom: { formatting: lion_dat }
 
-  # LDF - formatting is applied inside the models, since the record file mixes layouts
+  # LDF - formatting is applied inside the models, since the record file mixes layouts.
+  # compare_file is off because positions 91-100 carry a cumulative record number that
+  # diverges from prod's (data_issues.md CSCL-LDF-03), so a whole-line file diff reports
+  # every record after the first divergence. qa__ldf_summary compares positions 1-90.
   - name: ldf_base
     filename: LDFBASE.dat
     format: dat
+    custom: { compare_file: false }
   - name: ldf_header
     filename: LDFHEADER.dat
     format: dat
+    custom: { compare_file: false }
 
   # SAF
   - name: saf_abcegnpx_generic
