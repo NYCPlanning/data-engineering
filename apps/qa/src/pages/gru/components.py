@@ -9,8 +9,25 @@ from shared.components.github import dispatch_workflow_button
 from dcpy.utils import s3
 from dcpy.utils.git import github
 
-from .constants import bucket, qa_checks
-from .helpers import get_geosupport_versions, get_source_versions
+from .constants import (
+    CHECKS_REPO,
+    CHECKS_WORKFLOW,
+    INGEST_REPO,
+    INGEST_WORKFLOW,
+    INGEST_WORKFLOW_URL,
+    bucket,
+    qa_checks,
+)
+from .helpers import behind_sources, get_geosupport_versions, get_source_status
+
+SOURCE_COLUMNS = {
+    "dataset": "Source",
+    "archived_version": "Archived",
+    "archived_on": "Archived on",
+    "latest_version": "Latest at origin",
+    "status": "Status",
+    "refreshed_by": "How it refreshes",
+}
 
 
 def status_details(workflow_run: github.WorkflowRun) -> None:
@@ -36,17 +53,63 @@ def status_details(workflow_run: github.WorkflowRun) -> None:
 
 
 def source_table() -> None:
-    column_widths = (4, 5, 3)
-    cols = st.columns(column_widths)
-    fields = ["Name", "Latest version archived by DE", "Date of archival"]
-    for col, field_name in zip(cols, fields):
-        col.write(f"**{field_name}**")
-    source_versions = get_source_versions()
-    for source in source_versions:
-        col1, col2, col3 = st.columns(column_widths)
-        col1.write(source)
-        col2.write(source_versions[source]["version"])
-        col3.write(source_versions[source]["timestamp"].strftime("%Y-%m-%d"))
+    status = get_source_status()
+    st.dataframe(
+        status,
+        width="stretch",
+        hide_index=True,
+        column_config=SOURCE_COLUMNS,
+    )
+
+    last_dispatch = st.session_state.get("last_ingest_dispatch")
+    if last_dispatch:
+        st.success(
+            f"Dispatched ingest for {last_dispatch}. Track it in "
+            f"[GitHub Actions]({INGEST_WORKFLOW_URL}). This table refreshes once the run "
+            "archives the new version."
+        )
+
+    behind = behind_sources(status)
+    if behind.empty:
+        st.info(
+            "Every source is archived at the newest version its origin offers, so the checks "
+            "below will run against current data."
+        )
+        return
+
+    st.warning(
+        f"**{len(behind)} of these are behind.** A check run now compares against the archived "
+        "version, not the one at the origin. Ingest them first."
+    )
+
+    def record_dispatch(dataset: str) -> None:
+        st.session_state["last_ingest_dispatch"] = dataset
+
+    for row in behind.itertuples():
+        summary, button = st.columns((6, 1), vertical_alignment="center")
+        with summary:
+            st.markdown(
+                f"**{row.dataset}**: archived `{row.archived_version}`, "
+                f"origin has `{row.latest_version}`"
+            )
+            st.caption(row.refreshed_by)
+        with button:
+            dispatch_workflow_button(
+                INGEST_REPO,
+                INGEST_WORKFLOW,
+                key=f"ingest-{row.dataset}",
+                label="Ingest",
+                run_after=lambda dataset=row.dataset: record_dispatch(dataset),
+                dataset=row.dataset,
+                # Pinned to the version this page actually read, so the run archives what the
+                # table claims. Bytes and DevDB templates need it: their source is a raw
+                # versioned URL that resolves to nothing without one.
+                version=row.latest_version,
+                latest=True,
+                # Sent explicitly rather than relying on the workflow default, so a change to
+                # that default can't turn a click here into a dev-image run.
+                dev_image=False,
+            )
 
 
 def check_table(
@@ -115,19 +178,17 @@ def check_table(
             name.write(check["display_name"])
             with column:
                 st.info(
-                    format(
-                        f"Check has not been run yet for Geosupport {geosupport_version}"
-                    )
+                    f"Check has not been run yet for Geosupport {geosupport_version}"
                 )
             running = False
 
         with run:
             dispatch_workflow_button(
-                "db-gru-qaqc",
-                "main.yml",
+                CHECKS_REPO,
+                CHECKS_WORKFLOW,
                 disabled=running,
                 key=check["action_name"],
                 name=check["action_name"],
                 geosupport_version=get_geosupport_versions()[geosupport_version],
                 run_after=lambda: time.sleep(2),
-            )  ## refresh after 2 so that status has hopefully
+            )  ## refresh after 2 so that status has hopefully changed

@@ -4,7 +4,7 @@ def gru():
     import streamlit as st
 
     from .components import check_table, source_table
-    from .constants import qa_checks, readme_markdown_text
+    from .constants import CHECKS_REPO, qa_checks, readme_markdown_text
     from .helpers import (
         get_geosupport_versions,
         get_qaqc_runs,
@@ -23,13 +23,13 @@ def gru():
 
     st.header("GRU QAQC")
     st.write(
-        """This page runs automated QAQC checks for various GRU-maintained files, displays source data info and makes outputs available for download.  \n
+        f"""This page runs automated QAQC checks for various GRU-maintained files, shows how current their source data is, and makes outputs available for download.  \n
 Checks are performed either by comparing files to each other or by comparing a file to the latest Geosupport release.
-To perform a check, hit a button in the table below. The status column has a link to the latest Github workflow run for a given check  \n
-Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
+To perform a check, hit a button in the check table below. The status column has a link to the latest Github workflow run for a given check.  \n
+The checks live in [{CHECKS_REPO}](https://github.com/NYCPlanning/{CHECKS_REPO}/). The source data they read is archived by ingest in [data-engineering](https://github.com/NYCPlanning/data-engineering/), which is what the source table below reports on."""
     )
 
-    st.header("Latest Source Data")
+    st.header("Source data")
     source_table()
 
     st.header(f"QAQC Checks - Geosupport {geosupport_version}")
