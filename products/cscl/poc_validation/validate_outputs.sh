@@ -2,10 +2,11 @@
 
 # Compares dev build output files against production files and writes per-file diff results.
 #
-# NOTE: This script is a legacy local tool. The primary method for generating diffs is
-# poc_validation/run_validation.py, which streams files from S3 without requiring local
-# copies and is used by both the nightly build and the QA app.
-# Use this script only if you have local copies of both output/ and .data/prod/ already.
+# NOTE: This is what the build runs (see cscl_build.yml), and the QA app reads the
+# validation_output/ files it writes. It needs local copies of both output/ and
+# .data/prod/, so it only works during or just after a build.
+# poc_validation/run_validation.py runs the same comparison against a build that has
+# already been published, streaming both sides from S3.
 #
 # For each file in output/, performs a line-level comparison against the matching file in
 # .data/prod/ and writes the mismatched (dev-only) rows to output/validation_output/<filename>.
@@ -27,6 +28,13 @@ for filepath in output/dataset_files/*; do
     if [[ "$file" =~ "zip" ]] || [[ -d "$filepath" ]]; then
         continue
     fi
+    # Outputs marked compare_file: false in recipe.yml are never pulled, so there is
+    # nothing to compare against. The LDF is one: see qa__ldf_summary instead.
+    if [ ! -f ".data/prod/$file" ]; then
+        echo "Skipping $file, no production file to compare against"
+        continue
+    fi
+
     echo "Validating $file"
 
     prod_row_count="$(cat .data/prod/$file | wc -l | awk '{print $1}')"

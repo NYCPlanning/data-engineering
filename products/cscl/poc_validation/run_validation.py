@@ -14,6 +14,7 @@ The prod version is read from the build metadata by default; override with --pro
 import csv
 from pathlib import Path
 
+import exports
 import typer
 
 # TODO: publishing connector refactor - replace with: from dcpy.lifecycle.builds import builds
@@ -86,9 +87,14 @@ def run(
 
     # TODO: publishing connector refactor - replace with: builds.get_filenames(build_key.product, build_key.build)
     all_filenames = publishing.get_filenames(build_key)
+    excluded = exports.excluded_filenames()
     cscl_output_filenames = sorted(
-        f for f in all_filenames if "/" not in f and f not in BUILD_METADATA_FILES
+        f
+        for f in all_filenames
+        if "/" not in f and f not in BUILD_METADATA_FILES and f not in excluded
     )
+    for filename in sorted(excluded & all_filenames):
+        print(f"Skipping {filename}, no production file to compare against")
     print(f"\nValidating {len(cscl_output_filenames)} files...")
 
     VALIDATION_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

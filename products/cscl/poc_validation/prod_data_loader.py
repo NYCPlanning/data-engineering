@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
+import exports
 import pandas as pd
 import typer
 
@@ -35,6 +36,7 @@ class OutputDataset:
     file_name: str
     file_format: Literal["dat", "csv"]
     formatting_path: Path | None = None
+    compare_file: bool = True
 
 
 try:
@@ -60,6 +62,7 @@ try:
             file_name=export.filename,
             file_format=export.format.value,  # type: ignore
             formatting_path=f_path,
+            compare_file=exports.compares_to_prod(export),
         )
         datasets_by_filename[export.filename] = dataset
         datasets_by_name[export.name] = dataset
@@ -339,9 +342,14 @@ def _pull(
         )
 
     for dataset in datasets:
-        file_name = datasets_by_name[dataset].file_name
+        output = datasets_by_name[dataset]
+        if not output.compare_file:
+            print(f"skipping {output.file_name}: compare_file is off in recipe.yml")
+            continue
         s3.download_file(
-            "edm-private", f"cscl_etl/{version}/{file_name}", local_folder / file_name
+            "edm-private",
+            f"cscl_etl/{version}/{output.file_name}",
+            local_folder / output.file_name,
         )
 
 
