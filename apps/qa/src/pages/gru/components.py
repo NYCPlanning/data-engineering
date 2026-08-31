@@ -18,7 +18,12 @@ from .constants import (
     bucket,
     qa_checks,
 )
-from .helpers import behind_sources, get_geosupport_versions, get_source_status
+from .helpers import (
+    behind_sources,
+    get_geosupport_versions,
+    get_source_status,
+    public_url,
+)
 
 SOURCE_COLUMNS = {
     "dataset": "Source",
@@ -135,10 +140,7 @@ def check_table(
             if not running:
                 with sources:
                     try:
-                        path = s3.get_presigned_get_url(
-                            bucket, f"{s3_folder}/versions.csv", 5
-                        )
-                        versions = pd.read_csv(path)
+                        versions = pd.read_csv(public_url(f"{s3_folder}/versions.csv"))
                         st.download_button(
                             label="\n".join(check["sources"]),
                             data=versions.to_csv(index=False).encode("utf-8"),
@@ -154,16 +156,9 @@ def check_table(
 
                 filenames = sorted(s3.get_filenames(bucket, s3_folder))
 
-                def get_url(f: str) -> str:
-                    """
-                    page refreshes every 10 min as set in gru.py
-                    urls valid just past that
-                    """
-                    return s3.get_presigned_get_url(bucket, f"{s3_folder}/{f}", 610)
-
                 files = "  \n".join(
                     [
-                        f"[{filename}]({get_url(filename)})"
+                        f"[{filename}]({public_url(f'{s3_folder}/{filename}')})"
                         for filename in filenames
                         if filename != "versions.csv"
                     ]

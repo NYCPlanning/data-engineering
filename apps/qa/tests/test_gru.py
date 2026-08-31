@@ -63,3 +63,13 @@ def test_bytes_sources_carry_an_explicit_key():
     for source in source_datasets.values():
         if source.upstream_kind == "bytes":
             assert source.upstream_key, source.id
+
+
+def test_public_url_is_unsigned(monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://nyc3.digitaloceanspaces.com/")
+    url = helpers.public_url("db-gru-qaqc/26c/housing/latest/versions.csv")
+    assert url == (
+        "https://nyc3.digitaloceanspaces.com/edm-publishing/"
+        "db-gru-qaqc/26c/housing/latest/versions.csv"
+    )
+    assert "?" not in url
