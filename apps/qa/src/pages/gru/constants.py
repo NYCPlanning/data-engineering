@@ -47,7 +47,7 @@ qa_checks = pd.DataFrame(
             ["dcp_dcmstreetcenterline"],
         ),
         (
-            "Generic SAF Addresses vs PAD Roadbed SAF Addresses vs PAD",
+            "Gen/RB SAF Addresses vs PAD & GRID",
             "saf-vs-pad",
             ["dcp_saf"],
         ),
@@ -165,6 +165,11 @@ The rest are on a schedule:
 + **`dcp_saf`** is a GIS upload to `edm-publishing/gru/dcp_saf`. The checks read it straight from
   there, so it is never archived and never behind.
 
+Not every source a check name mentions is a dataset in this table. The checks named "vs PAD"
+get PAD from the Geosupport release they run against, not from the archived `dcp_pad`: each
+run's `versions.csv` lists only Geosupport and the dataset it compares. `dcp_pad` is read as a
+dataset by one check, PAD BINs vs Footprint BINs.
+
 The Ingest buttons above dispatch
 [`ingest_single.yml`](https://github.com/NYCPlanning/data-engineering/actions/workflows/ingest_single.yml)
 on `main` for one dataset at the version shown, so an out of date source can be refreshed without
@@ -194,7 +199,10 @@ This check merges PAD addresses on DOITT building footprints using BIN. Records 
 
 #### Check that SAF addresses exist in PAD
 
-The output of this check contains SAF records that were not successfully geocoded with
+This one check produces both of the SAF reports GR circulates, **Gen/RB SAF Addresses vs PAD**
+and **Gen/RB SAF Addresses vs GRID**, so the check table above lists it as a single row.
+
+The output contains SAF records that were not successfully geocoded with
 geosupport function 1, 1A, or 1R. SAF records come from the following files:
 
 + GenericABCEGNPX
@@ -206,8 +214,9 @@ geosupport function 1, 1A, or 1R. SAF records come from the following files:
 + RoadbedOV
 + RoadbedS
 
-Results are organized into 6 files -- three for generic and three for roadbed.
-Within these six, two geocode using 1A, two use 1, and two use 1 with the roadbed switch.
+Results are organized into 6 files -- three for generic and three for roadbed:
+`GN_SAFs_vs_PAD.csv`, `GN_SAFs_vs_GRID1G.csv`, `GN_SAFs_vs_GRID1R.csv`, and the matching `RB_`
+files. Within these six, two geocode using 1A, two use 1, and two use 1 with the roadbed switch.
 
 ### TPAD checks
 
