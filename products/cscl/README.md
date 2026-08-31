@@ -271,7 +271,12 @@ GR archives their own `LDF.dat` and `LDF.header` in `edm-private/cscl_etl/<versi
 this output has direct ground truth — unlike most others, no separate prod pull is needed.
 The build loads all three inputs itself: the prior release's LION and LDF header (both
 defaulting to `custom.ldf.previous_version`) and prod's own LDF for this release, which
-`qa__ldf_diffs` and `qa__ldf_summary` compare against. To load them by hand:
+`qa__ldf_diffs` and `qa__ldf_summary` compare against.
+
+Each load records what it wrote in `production_outputs.load_log` and is skipped when that
+table already holds the version being asked for, since the citywide LION load alone runs
+about eleven minutes. A release bump reloads on its own; pass `--force` to reload anyway.
+To load them by hand:
 
 ```bash
 python3 poc_validation/prod_data_loader.py load_previous_lion -p 26a

@@ -114,13 +114,72 @@ def load_datasets(datasets: list[str], folder: Path):
         CLIENT.insert_dataframe(dat_df, dataset.name)
 
 
-def load_citywide_lion(version: str, table_name: str, local_folder: Path):
+LOAD_LOG = "load_log"
+
+
+def _ensure_load_log() -> None:
+    CLIENT.execute_query(
+        f"""
+            CREATE TABLE IF NOT EXISTS {LOAD_LOG} (
+                table_name text PRIMARY KEY,
+                version text NOT NULL,
+                loaded_at timestamptz NOT NULL
+            );
+        """
+    )
+
+
+def already_loaded(table_name: str, version: str) -> bool:
+    """
+    Whether table_name already holds this version of the legacy pipeline's output.
+
+    These loads run into the minutes and every build asks for the same version, so
+    without this each one repeats the last one's work. Keyed on version rather than on
+    the table existing, so a release bump still reloads rather than leaving stale data
+    behind.
+
+    production_outputs is shared across builds, so skipping also keeps concurrent builds
+    from blocking each other while they rewrite it with identical data.
+    """
+    _ensure_load_log()
+    logged = CLIENT.execute_select_query(
+        f"SELECT version FROM {LOAD_LOG} WHERE table_name = :table_name",
+        table_name=table_name,
+    )
+    return not logged.empty and logged["version"].iloc[0] == version
+
+
+def record_load(table_name: str, version: str) -> None:
+    """
+    Written after the data lands, so an interrupted load repeats rather than being
+    skipped as though it finished.
+    """
+    _ensure_load_log()
+    CLIENT.execute_query(
+        f"""
+            INSERT INTO {LOAD_LOG} (table_name, version, loaded_at)
+            VALUES (:table_name, :version, now())
+            ON CONFLICT (table_name) DO UPDATE
+            SET version = excluded.version, loaded_at = excluded.loaded_at;
+        """,
+        table_name=table_name,
+        version=version,
+    )
+
+
+def load_citywide_lion(
+    version: str, table_name: str, local_folder: Path, force: bool = False
+):
     """
     Load one release's five borough LION .dat files as a single citywide table.
 
     The .dat files are parsed and concatenated here rather than unioned from the
     per-borough tables, so this works without `load` having run first.
     """
+    if not force and already_loaded(table_name, version):
+        print(f"{table_name} already holds LION {version}, skipping")
+        return
+
     lion_datasets = [
         d for d in datasets_by_name.values() if d.name.endswith("_lion_dat")
     ]
@@ -142,6 +201,7 @@ def load_citywide_lion(version: str, table_name: str, local_folder: Path):
     df = pd.concat(frames, ignore_index=True)
     print(f"loading {len(df)} rows from LION {version} to {CLIENT.schema}.{table_name}")
     CLIENT.insert_dataframe(df, table_name)
+    record_load(table_name, version)
 
 
 def create_citywide_table(file: str):
@@ -358,6 +418,7 @@ def _load_prod_lion(
     version: str | None = typer.Option(version, "--version", "-v"),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str = typer.Option("citywide_lion_dat", "--table", "-t"),
+    force: bool = typer.Option(False, "--force", "-F"),
 ):
     """
     Load this release's production LION into the build db, citywide.
@@ -367,7 +428,7 @@ def _load_prod_lion(
     if not version:
         raise Exception("Specify version with '-v'")
 
-    load_citywide_lion(version, table_name, local_folder)
+    load_citywide_lion(version, table_name, local_folder, force)
 
 
 @app.command("load_previous_lion")
@@ -377,6 +438,7 @@ def _load_previous_lion(
     ),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str = typer.Option("previous_citywide_lion_dat", "--table", "-t"),
+    force: bool = typer.Option(False, "--force", "-F"),
 ):
     """
     Load the *prior* release's production LION into the build db.
@@ -391,7 +453,7 @@ def _load_previous_lion(
             "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
         )
 
-    load_citywide_lion(previous_version, table_name, local_folder)
+    load_citywide_lion(previous_version, table_name, local_folder, force)
 
 
 @app.command("load_previous_ldf_header")
@@ -401,6 +463,7 @@ def _load_previous_ldf_header(
     ),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
     table_name: str = typer.Option("previous_ldf_header", "--table", "-t"),
+    force: bool = typer.Option(False, "--force", "-F"),
 ):
     """
     Load the *prior* LDF edition's header record.
@@ -415,6 +478,10 @@ def _load_previous_ldf_header(
             "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
         )
 
+    if not force and already_loaded(table_name, previous_version):
+        print(f"{table_name} already holds LDF {previous_version}, skipping")
+        return
+
     file_name = "LDF.header"
     local_path = local_folder / previous_version / file_name
     s3.download_file(
@@ -428,12 +495,14 @@ def _load_previous_ldf_header(
 
     print(f"loading LDF {previous_version} header to {CLIENT.schema}.{table_name}")
     CLIENT.insert_dataframe(df, table_name)
+    record_load(table_name, previous_version)
 
 
 @app.command("load_prod_ldf")
 def _load_prod_ldf(
     version: str | None = typer.Option(version, "--version", "-v"),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+    force: bool = typer.Option(False, "--force", "-F"),
 ):
     """
     Load the production LDF for this release, for dev/prod comparison.
@@ -448,6 +517,10 @@ def _load_prod_ldf(
         ("LDF.dat", "ldf_base"),
         ("LDF.header", "ldf_header"),
     ]:
+        if not force and already_loaded(table_name, version):
+            print(f"{table_name} already holds LDF {version}, skipping")
+            continue
+
         local_path = local_folder / version / file_name
         s3.download_file("edm-private", f"cscl_etl/{version}/{file_name}", local_path)
         with open(local_path) as f:
@@ -460,6 +533,7 @@ def _load_prod_ldf(
             f"loading {len(df)} rows from {file_name} to {CLIENT.schema}.{table_name}"
         )
         CLIENT.insert_dataframe(df, table_name)
+        record_load(table_name, version)
 
 
 if __name__ == "__main__":
