@@ -123,6 +123,9 @@ stage_config:
       - name: build
         run: build
         command_type: python
+      - name: data_checks
+        run: python -m pytest tests/ -v
+        command_type: shell
       - name: qa
         run: qa.proto_qa
         command_type: python
