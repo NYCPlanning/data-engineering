@@ -607,40 +607,81 @@ def build_vintages(table_list, df_row):
             file_for_vintage = table_config["files"][vintage_index]
             if is_change_vintage:
                 for row_index, cells_row in enumerate(vintage_cells):
-                    # READ THIS - There is an issue with how the change over time data files are generated where
-                    # columns are not added to the file if all of the values for the column are null
-                    # This code checks that all the column names exist before trying to get the data out of the dataframe
-                    # and adds columns where they are not found with np.nan for the value of every row, and prints a statement
-                    # because this is bound to cause hard to debug issues in the future. Note that this is only done here
-                    # for change over time data files because this issue isn't present in the regular files - those files
-                    # have columns for all of the values as they should, even if every value is null.
-                    for column_name in cells_row:
-                        if column_name not in df_row[file_for_vintage].index:
-                            print(
-                                f"COULD NOT FIND COLUMN {column_name} IN CHANGE FILE {file_for_vintage}. ADDING COLUMN WITH NAN VALUES"
-                            )
-                            df_row[file_for_vintage, column_name] = np.nan
-                    values = df_row[file_for_vintage][cells_row].to_list()
-                    scale = None
-                    # "scales" is an optional property on table config. In this context, a "scale" refers to the mathematical term
-                    # for the number of digits after the decimal that a given float has (for more explanation, see https://math.stackexchange.com/a/1628229)
-                    # "scales" is an array with one integer for each row in the table (including denominator row if there is one) where the number
-                    # for the given row is the scale for datapoints in that row that don't have a variance of "CV" or a "measure" of "PERCENT"
-                    # or "PERCENTAGE_POINT". This allows us to arbitrarily assign scales to datapoints such as median age. Note that datapoints
-                    # with variance of "CV" and datapoints with measure of "PERCENT" or "PERCENTAGE_POINT" will not be assigned a "scale" value
-                    # but the front end always shows them with one digit after the decimal. Other data points (those for counts, medians, rates, etc)
-                    # will show up on the front end with no digits after the decimal if "scales" is not set.
-                    if "scales" in table_config:
-                        scale = table_config["scales"][row_index]
-                    new_row = build_row(
-                        table_config["labels"][row_index],
-                        values,
-                        table_config["change"]["measures"][row_index],
-                        table_config["change"]["variances"][row_index],
-                        is_change=is_change_vintage,
-                        is_survey=table_config["is_survey"],
-                        scale=scale,
+                    is_denominator = (
+                        True
+                        if row_index == 0 and table_config["has_denominator"]
+                        else False
                     )
+                    # A table (or its denominator row) marked with "placeholder" hides real
+                    # data in the non-change vintages below (e.g. unreliable at this
+                    # geography/subgroup) - the change row must respect the same flag, or a
+                    # real computed value leaks through here even though it's hidden elsewhere.
+                    if (
+                        is_denominator
+                        and "denominator_placeholder" in table_config
+                        and len(table_config["denominator_placeholder"]) > 0
+                    ):
+                        new_row = build_placeholder_row(
+                            table_config["labels"][row_index],
+                            table_config["denominator_placeholder"],
+                            is_denominator,
+                        )
+                    elif (
+                        is_denominator
+                        and "placeholder" in table_config
+                        and len(table_config["placeholder"]) > 0
+                        and "denominator_placeholder" not in table_config
+                    ):
+                        new_row = build_placeholder_row(
+                            table_config["labels"][row_index],
+                            table_config["placeholder"],
+                            is_denominator,
+                        )
+                    elif (
+                        not is_denominator
+                        and "placeholder" in table_config
+                        and len(table_config["placeholder"]) > 0
+                    ):
+                        new_row = build_placeholder_row(
+                            table_config["labels"][row_index],
+                            table_config["placeholder"],
+                            is_denominator,
+                        )
+                    else:
+                        # READ THIS - There is an issue with how the change over time data files are generated where
+                        # columns are not added to the file if all of the values for the column are null
+                        # This code checks that all the column names exist before trying to get the data out of the dataframe
+                        # and adds columns where they are not found with np.nan for the value of every row, and prints a statement
+                        # because this is bound to cause hard to debug issues in the future. Note that this is only done here
+                        # for change over time data files because this issue isn't present in the regular files - those files
+                        # have columns for all of the values as they should, even if every value is null.
+                        for column_name in cells_row:
+                            if column_name not in df_row[file_for_vintage].index:
+                                print(
+                                    f"COULD NOT FIND COLUMN {column_name} IN CHANGE FILE {file_for_vintage}. ADDING COLUMN WITH NAN VALUES"
+                                )
+                                df_row[file_for_vintage, column_name] = np.nan
+                        values = df_row[file_for_vintage][cells_row].to_list()
+                        scale = None
+                        # "scales" is an optional property on table config. In this context, a "scale" refers to the mathematical term
+                        # for the number of digits after the decimal that a given float has (for more explanation, see https://math.stackexchange.com/a/1628229)
+                        # "scales" is an array with one integer for each row in the table (including denominator row if there is one) where the number
+                        # for the given row is the scale for datapoints in that row that don't have a variance of "CV" or a "measure" of "PERCENT"
+                        # or "PERCENTAGE_POINT". This allows us to arbitrarily assign scales to datapoints such as median age. Note that datapoints
+                        # with variance of "CV" and datapoints with measure of "PERCENT" or "PERCENTAGE_POINT" will not be assigned a "scale" value
+                        # but the front end always shows them with one digit after the decimal. Other data points (those for counts, medians, rates, etc)
+                        # will show up on the front end with no digits after the decimal if "scales" is not set.
+                        if "scales" in table_config:
+                            scale = table_config["scales"][row_index]
+                        new_row = build_row(
+                            table_config["labels"][row_index],
+                            values,
+                            table_config["change"]["measures"][row_index],
+                            table_config["change"]["variances"][row_index],
+                            is_change=is_change_vintage,
+                            is_survey=table_config["is_survey"],
+                            scale=scale,
+                        )
                     new_vintage["rows"].append(new_row)
             else:
                 for row_index, cells_row in enumerate(vintage_cells):

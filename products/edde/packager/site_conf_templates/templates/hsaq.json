@@ -15,9 +15,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['3.01'].middle_range }}",
+        "ACS PUMS, {{ indicators['3.01'].current_range }}",
+        "CHANGE, {{ indicators['3.01'].middle_range }} to {{ indicators['3.01'].current_range }}"
       ],
       "variables": ["occupied_owner", "occupied_renter"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -59,7 +59,7 @@
   },
   {
     "base": {
-      "title": "Median Home Value ({{ inflation_adjustment.year }} Dollars)",
+      "title": "Median Home Value",
       "has_change": true,
       "is_survey": true,
       "denominator": {
@@ -69,7 +69,7 @@
       },
       "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Median Home Value (Dollars)"],
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["homevalue_median"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
@@ -111,7 +111,7 @@
   },
   {
     "base": {
-      "title": "Median Gross Rent ({{ inflation_adjustment.year }} dollars)",
+      "title": "Median Gross Rent",
       "has_change": true,
       "is_survey": true,
       "denominator": {
@@ -121,7 +121,7 @@
       },
       "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Median gross rent (dollars)"],
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ({{ ACS_PREV_YEAR_BAND | get_end_year }} dollars)", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }} ({{ ACS_CURRENT_YEAR_BAND | get_end_year }} dollars)", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
       "variables": ["rent_median"],
       "measures": ["MEDIAN", "MEDIAN", "MEDIAN"],
       "variances": ["NONE", "MOE", "CV"],
@@ -175,7 +175,7 @@
       },
       "years": ["_{{ ACS_PREV_YEAR_BAND }}", "_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["30.0 percent or more (rent-burdened)","50.0 percent or more (severely rent-burdened)"],
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['3.04'].earliest_range }}", "ACS PUMS, {{ indicators['3.04'].current_range }}", "CHANGE, {{ indicators['3.04'].earliest_range }} to {{ indicators['3.04'].current_range }}"],
       "variables": ["rb","erb"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
       "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
@@ -293,7 +293,7 @@
         "Middle-income (121-165% AMI)",
         "High-income (166% or higher AMI)"
       ],
-      "vintages": ["ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['3.06'].current_range }}"],
       "subcategory": "units_",
       "variables": [
         "affordable_eli",
@@ -358,7 +358,7 @@
           ["moe", 1]
         ]
       ],
-      "vintages": ["NYC HOUSING AND VACANCY SURVEY, 2023"],
+      "vintages": ["NYC HOUSING AND VACANCY SURVEY, {{ indicators['3.07'].current_end }}"],
       "labels": ["Housing with 3 or more housing problems"],
       "subcategory": "units_",
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -403,7 +403,7 @@
         "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
         "variances": ["NONE", "MOE", "CV", "NONE", "MOE"]
       },
-      "vintages": ["ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}", "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}", "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"],
+      "vintages": ["ACS PUMS, {{ indicators['3.08'].earliest_range }}", "ACS PUMS, {{ indicators['3.08'].current_range }}", "CHANGE, {{ indicators['3.08'].earliest_range }} to {{ indicators['3.08'].current_range }}"],
       "years": ["_{{ ACS_PREV_YEAR_BAND }}","_{{ ACS_CURRENT_YEAR_BAND }}"],
       "labels": ["Overcrowded units (> 1 person per room)"],
       "subcategory": "units_",
@@ -535,7 +535,7 @@
       "title": "Income-restricted Housing",
       "id": "3.11.T",
       "subcategory": "units_",
-      "vintages": ["NYC Housing Authority, {{ nycha.year }}; NYC Housing Preservation and Development, {{ hpd_hny.end_year }}"],
+      "vintages": ["NYC Housing Authority, {{ indicators['3.11'].middle_end }}; NYC Housing Preservation and Development, {{ indicators['3.11'].current_end }}"],
       "labels": ["NYCHA units", "Homes with new or extended affordability requirements"],
       "variables": ["nycha","hpd"],
       "headers": [[["number", 1]]],
@@ -572,7 +572,7 @@
   {
     "base": {
       "title": "Population In NYC Housing Authority Housing",
-      "vintages": ["NYC HOUSING AUTHORITY, {{ nycha.year }}"],
+      "vintages": ["NYC HOUSING AUTHORITY, {{ indicators['3.12'].current_end }}"],
       "denominator": {
         "variable": "pop",
         "measures": ["COUNT","PERCENT"],
@@ -621,7 +621,7 @@
     "base": {
       "title": "Housing Lottery Applications",
       "id": "3.13.T",
-      "vintages": ["NYC HOUSING CONNECT {{ housing_lottery.start_year }}-{{ housing_lottery.end_year }}"],
+      "vintages": ["NYC HOUSING CONNECT {{ indicators['3.13'].current_range }}"],
       "subcategory": "housing_lottery_",
       "variables": ["applications"],
       "measures": ["COUNT","PERCENT"],
@@ -705,7 +705,7 @@
     "base": {
       "title": "Housing Lottery Leases",
       "id": "3.14.T",
-      "vintages": ["NYC HOUSING CONNECT {{ housing_lottery.start_year }}-{{ housing_lottery.end_year }}"],
+      "vintages": ["NYC HOUSING CONNECT {{ indicators['3.14'].current_range }}"],
       "subcategory": "housing_lottery_",
       "variables": ["leases"],
       "measures": ["COUNT","PERCENT"],

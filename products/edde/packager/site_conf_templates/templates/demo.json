@@ -95,9 +95,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['1.02'].middle_range }} ",
+        "ACS PUMS, {{ indicators['1.02'].current_range }}",
+        "CHANGE, {{ indicators['1.02'].middle_range }} to {{ indicators['1.02'].current_range }}"
       ],
       "variables": ["popu16", "p16t64", "p65pl", "median"],
       "measures": [
@@ -181,9 +181,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }} ",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['1.03'].middle_range }} ",
+        "ACS PUMS, {{ indicators['1.03'].current_range }}",
+        "CHANGE, {{ indicators['1.03'].middle_range }} to {{ indicators['1.03'].current_range }}"
       ],
       "variables": ["fb"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
@@ -260,9 +260,9 @@
       },
       "vintages": [
         "CENSUS PUMS, 2000",
-        "ACS PUMS, {{ ACS_PREV_YEAR_BAND | expand_year_range }}",
-        "ACS PUMS, {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}",
-        "CHANGE, {{ ACS_PREV_YEAR_BAND | expand_year_range }} to {{ ACS_CURRENT_YEAR_BAND | expand_year_range }}"
+        "ACS PUMS, {{ indicators['1.04'].middle_range }}",
+        "ACS PUMS, {{ indicators['1.04'].current_range }}",
+        "CHANGE, {{ indicators['1.04'].middle_range }} to {{ indicators['1.04'].current_range }}"
       ],
       "variables": ["lep"],
       "measures": ["COUNT", "COUNT", "COUNT", "PERCENT", "PERCENT"],
