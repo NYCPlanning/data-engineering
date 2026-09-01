@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
-from tests.general_indicator_tests.general_indicator_test_helpers import get_by_geo
 from utils.geo_helpers import get_all_boroughs, get_all_NYC_PUMAs
+
+from tests.general_indicator_tests.general_indicator_test_helpers import get_by_geo
 
 all_PUMAs = get_all_NYC_PUMAs()
 all_boroughs = get_all_boroughs()
