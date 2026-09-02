@@ -92,7 +92,7 @@
     "base": {
       "title": "Area Within A Historic District",
       "id": "4.03.T",
-      "vintages": ["HISTORIC DISTRICTS - OPEN DATA"],
+      "vintages": ["HISTORIC DISTRICTS - OPEN DATA, {{ indicators['4.03'].current_end }}"],
       "denominator": {
         "variable": "total",
         "measures": ["COUNT", "PERCENT"],
