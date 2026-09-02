@@ -27,13 +27,13 @@ data_table,category,indicator_name,earliest_start_year,earliest_end_year,middle_
 3.14,"Housing Affordability, Quality and Security",Housing Lottery Leases,,,,,2022,2024,
 4.01,Housing Production,Change in Housing Units 2010-2025,,,,,2010,2025,
 4.02,Housing Production,Homes with New or Extended Affordability Requirements by AMI* Band,,,,,2014,2026,
-4.03,Housing Production,Area within a Historic District,,,,,,,
+4.03,Housing Production,Area within a Historic District,,,,,2026,,"Year is the LPC historic districts Open Data ingest snapshot (recipe.yml lpc_historic_district_areas version 20260202), not a survey/report year - this dataset has no inherent vintage of its own."
 5.01,Quality of Life and Access to Opportunity,Health Outcomes - Self Reported,,,,,2021,2022,
 5.02,Quality of Life and Access to Opportunity,Health Outcomes - Diabetes Prevalence,,,,,2021,2022,
 5.03,Quality of Life and Access to Opportunity,Health Outcomes - Premature Mortality,,,,,2019,2023,
 5.04,Quality of Life and Access to Opportunity,Health Outcomes - Infant Mortality,,,,,2019,2023,
 5.05,Quality of Life and Access to Opportunity,Health Outcomes - Overdose Deaths,,,,,2019,2023,
-5.06,Quality of Life and Access to Opportunity,Health Outcomes - COVID-19 Deaths,,,,,,,
+5.06,Quality of Life and Access to Opportunity,Health Outcomes - COVID-19 Deaths,,,,,2020,2025,
 5.07,Quality of Life and Access to Opportunity,Health Outcomes - Heat Vulnerability Index,,,,,,,Remove Indicator
 5.08,Quality of Life and Access to Opportunity,Access to Jobs,,,,,2024,,
 5.09,Quality of Life and Access to Opportunity,Access to Transit,,,,,2024,,

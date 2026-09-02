@@ -273,7 +273,7 @@
   {
     "base": {
       "title": "Health Outcomes - COVID-19 Deaths (Rate Per 100,000 Residents) *",
-      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE"],
+      "vintages": ["NYC DEPARTMENT OF HEALTH AND MENTAL HYGIENE, {{ indicators['5.06'].current_range }}"],
       "subcategory": "health_",
       "variables": ["covid19deaths"],
       "measures": ["RATE"],

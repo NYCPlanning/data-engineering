@@ -6,89 +6,60 @@ The [Racial Impact Study Coalition](https://racialimpactnyc.wordpress.com/our-st
 
 DCP Housing is the product owner, and Data Engineering's point-person has (as of this writing in 2025) been Winnie Shen.
 
-# The End to End Lifecycle for EDDE
+# Annual Refresh Process
 
-### 1. Data Collection
-The EDDE tool has historically been updated in June. A few months prior, typically someone in Housing reach out to other agencies
-to request data for the indicators. Data Engineering is provided with a set of Excel/csv files or links to OpenData pages. 
+Each year, stakeholders (DCP Population, HPD, DOHMH, etc.) send updated source files. Updating
+EDDE for a new year is three steps:
 
-The files we receive will map to aggregators under the /aggregate/* folder. ("aggregator" is a bit of a misnomer in the code base: input columns map pretty transparently to output columns, and unlike the typical DE data product, there isn't really any aggregation of this data)
+## 1. Drop the new files into `products/edde/resources/`
 
-So for example, we receive an Excel file from HPD for the Housing Vacancy Survey that contains multiple tables pertaining to housing, e.g. how many are renter-occupied, or are rent stabilized. The `housing_security/rent_stable_three_maintenance.py` aggregator translates these into four separate indicators in the app. An "indicator" typically contains multiple columns: e.g. a count, a margin of error, pcts, etc., and then potentially those same breakdowns by ethnicity.
+Each stakeholder file replaces the existing file at the same relative path, in the same format
+(sheet names, column names) as the prior year's - the loaders in `resources.py` expect an exact
+match. If a format changes, update the corresponding loader in `resources.py` too.
 
-### 2. The DE Build
+| Relative path (under `products/edde/resources/`) | Indicator(s) |
+|---|---|
+| `housing_production/2010_census_housing_units_by_2020_NTA.csv` | 4.01 |
+| `decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx` | 1.01 |
+| `ACS_PUMS/EDDE_Census2000PUMS.xlsx` | 1.02–1.04, 2.01, 2.04–2.06, 3.01–3.04, 3.06, 3.08, 5.10, 5.11 (2000 vintage) |
+| `ACS_PUMS/EDDE_ACS2008-2012.xlsx` | same set as above, prior ACS vintage |
+| `ACS_PUMS/EDDE_ACS2020-2024.xlsx` | same set as above, current ACS vintage |
+| `quality_of_life/education_math_ela_grad.xlsx` | 5.12, 5.13 |
+| `quality_of_life/non_fatal_assault_hospitalizations.csv` | 5.18 |
+| `quality_of_life/pedestrian_hospitalizations.csv` | 5.17 |
+| `quality_of_life/dohmh_death_rate_and_overdose.xlsx` | 5.03, 5.04, 5.05 |
+| `quality_of_life/diabetes_self_report/diabetes_self_report_processed_<year>.xlsx` | 5.01, 5.02 (currently disabled) |
+| `quality_of_life/deaths_by_race_and_puma.xlsx` | 5.06 (currently disabled) |
+| `quality_of_life/pop_census_aggregations.csv` | 5.06 denominator (currently disabled) |
+| `quality_of_life/transportation.xlsx` | 5.08, 5.09, 5.14 |
+| `housing_security/nychvs.xlsx` | 3.05, 3.07 |
+| `housing_security/nycha_tenants.xlsx` | 3.11 (NYCHA portion), 3.12 |
+| `housing_security/hpd_housing_lottery.xlsx` | 3.13, 3.14 |
 
-#### Data Loading
-Some of the data sources are links to OpenData. Loading these follows our normal process: Ingest a new version, and load via the recipe.
+A few indicators (e.g. 3.09 evictions, 3.11's HPD portion, 4.02, 4.03) instead come from datasets
+ingested via `dcpy.lifecycle.ingest` and declared in `recipe.yml`'s `inputs.datasets` - update
+those dataset versions there rather than dropping a file into `resources/`.
 
-For data we receive in step 1 above, those files are copied into the /resources/ folder. Certain datasets are manipulated for ease of loading. (TODO: AR to add instructions on the mapping, and rename some of our files. See #1702)
+## 2. Update `recipe.yml` and `indicators.csv`
 
+Bump the year variables under `recipe.yml`'s `custom:` block (`ACS_CURRENT_YEAR_BAND`, `nycha.year`,
+`education.year`, etc.) and the corresponding rows in `indicators.csv` (the `earliest`/`middle`/
+`current` start/end years shown in each table's vintage header - see `indicators.py` for how these
+get loaded and templated into `packager/site_conf_templates/templates/*.json`).
 
-#### The Build
+## 3. Run the build
 
-``` shell
-# runs all aggregators for housing security, housing production, and quality of life
-python3 -m external_review.external_review_collate all
-
-# runs aggregators for Economics and Demographics, which are pulled from census data. 
-# There are typically three years: Census 2000, ACS previous window (e.g. 2008-2011), 
-# And the ACS current window (e.g. 2019-2023)
-python3 -m external_review.collate_save_census [year]
+```bash
+python -m dcpy.lifecycle.builds.plan recipe --recipe-path products/edde/recipe.yml --output-path products/edde/recipe.lock.yml
+python -m dcpy lifecycle builds build run --product edde --build-dir <build-dir>
 ```
 
-The outputs of this are a set files to be fed into AE's apps. They're uploaded similar to other products via our connectors.
-
-#### The Outputs
-
-For each of `Housing Security`, `Housing Production`, and `Quality Of Life`:
-There will be one separate file per geography ['puma', 'borough', 'citywide'] per category. E.g. for `Quality of Life` we'll have:
-- quality_of_life_puma.csv
-- quality_of_life_borough.csv
-- quality_of_life_citywide.csv
-
-For `Economics` and `Demographics`:
-One file per year per geography. e.g. In this most recent build (in 2025), there is one file for each combination of ['2000', '2008-2012', '2019-2023'] x ['puma', 'borough', 'citywide'] for 9 files each in each category. (so 18 files total for these two categories) 
-
-In terms of input data, `Economics` and `Demographics` are the most straightforward. The data are similar to PFF: very wide tables of census data. 
-By contrast, `Housing Security`, `Housing Production`, and `Quality Of Life` are messier and sometimes require processing or re-aggregating to different geographies.
-
-#### Packaging: Change-Over-Time
-
-As part of packaging (`python3 -m packager`), `packager/change_over_time/` generates year-over-year "change" files per category, written to `attachments/change_over_time/`. The comparison basis differs by category — this is intentional, not a bug:
-
-- **Demographics & Economics**: compared against the *previous published EDDE release* (loaded as the `edde` input dataset per `recipe.yml`, `version: latest`). The "old" value comes from the oldest-yearband file found in that prior release's own output — not from this build's own recomputation of the same yearband (the current build does compute its own `_0812_` files, but they aren't used for this comparison). `custom.EDDE_VERSION_PREV` in `recipe.yml` is not read by any code; the previous version used is always whatever the `edde` input resolves to as `latest` at plan time.
-- **Housing Security & Quality of Life**: compared entirely *within the current build* — two year-banded columns from the same single output file (e.g. `health_infantmortality_2000_rate` vs. `health_infantmortality_2023_rate`), both computed in this run. The previous published release is never consulted for these two categories.
-
-**Housing Production has no change-over-time output at all** — the category isn't wired into `packager/change_over_time/run_all.py`, and the reason isn't currently known. See [`data_issues.md`](./data_issues.md#edde-cot-01).
-
-See [`data_issues.md`](./data_issues.md) for other known gaps in change-over-time coverage — several indicators across categories are only ever computed as a single snapshot, so they can't be diffed year-over-year without further aggregator changes.
-
-### 3. Post-Build: Application Engineering's Role
-AE has two processes to run to supplement the data:
-1. Manually assemble the "Data Download" files. 
-For any geography in the EDDE app, you can download a PDF of the Community Profile and a Data set xlsx
-
-2. Run the [ETL here](https://github.com/NYCPlanning/ose-equity-tool-etl/) 
-
-Additionally (and independently of DE), Pop/Housing calculate the Displacement Risk Index, which AE incoporates into the application from an Excel sheet.
-
-### Future Work:
-This product should be almost entirely declarative. The configurations in AEs repo should drive the builds. 
-The AE ETL should live in data-engineering's repo, and be run with the build.
-
-There is no codified QA process for this product. The thought previously (outside of DE) was that this product was a fairly straightforward Data In -> Data Out set of mappings, and if the source data was correct, then so too would be the outputs. There is some truth to this, but we also should add data validation that could fail a build. 
-
-Some of this would be an easy lift: for example, there should only ever be 55 PUMAs. Any file with more or less should fail the build. 
-
-Then there's more qualitative checks that should be written to compare a geography year over year. (Richey note: I added a qa/proto-qa.py to start in on this. I used it for validation, but it needs some work.)
-
-## Important files
-
-[Data Dictionary](https://www.nyc.gov/assets/planning/download/pdf/data-maps/edde/edde-data-dictionary.pdf)
+This runs `build` → `data_checks` → `qa` → `package` in sequence (see `recipe.yml`'s
+`stage_config.builds.build.commands`), producing both the per-year indicator CSVs
+(`<build-dir>/dataset_files/`) and the final packaged site artifacts
+(`<build-dir>/attachments/` - site config JSON, resolved per-district pages, district XLSX exports).
 
 ## Links
 
 [EDDE application](https://equitableexplorer.planning.nyc.gov/map/data/district)
 [EDDE legislation](https://legistar.council.nyc.gov/MeetingDetail.aspx?ID=829692&GUID=2F8FEE3A-D5AE-4E32-9BF5-2D935AD6C868&Options=&Search=)
-
-For more in-depth information, check out the data product's [wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Product:-EDDE)
