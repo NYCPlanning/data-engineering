@@ -64,6 +64,18 @@ SELECT
             AND change_keys[1] = 'boe_lgc_pointer'
             AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
             THEN 'Bug 001: boe_lgc_pointer two-digit codes'
+        -- Bug 004: Randall's Island NSF segments missing zip code in production.
+        -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
+        -- segmentid, since segmentids can be renumbered/reused across LION editions.
+        -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
+        WHEN
+            status = 'modified'
+            AND change_keys @> ARRAY['l_zip', 'r_zip']::text[]
+            AND changes -> 'l_zip' ->> 'new' = '10035'
+            AND TRIM(changes -> 'l_zip' ->> 'old') = ''
+            AND changes -> 'r_zip' ->> 'new' = '10035'
+            AND TRIM(changes -> 'r_zip' ->> 'old') = ''
+            THEN 'Bug 004: Randalls Island missing zip'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -93,6 +105,17 @@ SELECT
                 AND changes -> 'curve_flag' ->> 'old' = ' '
                 AND changes -> 'curve_flag' ->> 'new' = 'I'
                 AND _source_table IN ('shoreline', 'subway', 'rail')
+            )
+            -- Bug 004: Randall's Island NSF segments missing zip code in production.
+            -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
+            -- segmentid, since segmentids can be renumbered/reused across LION editions.
+            -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
+            OR (
+                change_keys @> ARRAY['l_zip', 'r_zip']::text[]
+                AND changes -> 'l_zip' ->> 'new' = '10035'
+                AND TRIM(changes -> 'l_zip' ->> 'old') = ''
+                AND changes -> 'r_zip' ->> 'new' = '10035'
+                AND TRIM(changes -> 'r_zip' ->> 'old') = ''
             )
         ),
         FALSE

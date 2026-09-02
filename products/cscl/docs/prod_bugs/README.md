@@ -44,3 +44,5 @@ OR change_keys = ARRAY['field_name']::text []
 
 - [Bug 001](./001-boe-lgc-pointer-two-digit-codes.md): BOE LGC Pointer incorrect for two-digit LGC codes (67 records, all Queens)
 - [Bug 002](./002-police-geo-centroid-mismatch.md): Police precinct/sector/patrol borough assignment differs near boundaries due to ESRI vs. PostGIS centroid computation (7 Atomic Polygons citywide)
+- [Bug 003](./003-saf-gnx-side-ap-point-mismatch.md): SAF GNX side-AP fields differ near Atomic Polygon boundaries due to ESRI vs. PostGIS point-in-polygon computation
+- [Bug 004](./004-randalls-island-missing-zip.md): Randall's Island NSF segments missing zip code in production (10 records, all Manhattan) - GR-confirmed production bug
