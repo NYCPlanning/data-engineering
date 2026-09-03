@@ -65,6 +65,99 @@ inputs:
     version: 2020
     file_type: csv
 
+  # Former products/edde/resources/ files, now pushed to edm-private as
+  # individual versioned datasets (datasets/<name>/<version>/<name>.<ext>)
+  - name: dcp_pop_acs_08_12 # 1.02-1.04, 2.01, 2.04-2.06, 3.01-3.04, 3.06, 3.08, 5.10, 5.11 (ACS 2008-2012)
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dcp_pop_acs_08_12.xlsx
+  - name: dcp_pop_acs_20_24 # same indicators as above, ACS 2020-2024
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dcp_pop_acs_20_24.xlsx
+  - name: dcp_pop_census_2000_pums # same indicators as above, Census 2000 PUMS
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dcp_pop_census_2000_pums.xlsx
+  - name: dcp_pop_census_by_puma # 1.01
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dcp_pop_census_by_puma.xlsx
+  - name: dcp_pop_census_housing_by_puma_2010 # 4.01
+    source: edm.private
+    file_type: csv
+    version: "20260601"
+    custom:
+      filepath: dcp_pop_census_housing_by_puma_2010.csv
+  - name: hpd_housing_lottery_by_puma # 3.13, 3.14
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: hpd_housing_lottery_by_puma.xlsx
+  - name: nycha_public_housing_by_puma # 3.05, 3.07 (NYCHVS)
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: nycha_public_housing_by_puma.xlsx
+  - name: nycha_occupants_by_puma # 3.11 (NYCHA portion), 3.12
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: nycha_occupants_by_puma.xlsx
+  - name: dohmh_deaths_by_race_and_puma # 5.06 (currently disabled)
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dohmh_deaths_by_race_and_puma.xlsx
+  - name: dohmh_death_rate_and_overdose_by_puma # 5.03, 5.04, 5.05
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dohmh_death_rate_and_overdose_by_puma.xlsx
+  - name: doe_education_math_ela_grad_by_puma # 5.12, 5.13
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: doe_education_math_ela_grad_by_puma.xlsx
+  - name: dohmh_non_fatal_assault_hospitalizations_by_puma # 5.18
+    source: edm.private
+    file_type: csv
+    version: "20260601"
+    custom:
+      filepath: dohmh_non_fatal_assault_hospitalizations_by_puma.csv
+  - name: dohmh_pedestrian_hospitalizations_by_puma # 5.17
+    source: edm.private
+    file_type: csv
+    version: "20260601"
+    custom:
+      filepath: dohmh_pedestrian_hospitalizations_by_puma.csv
+  - name: dcp_pop_census_aggregations_by_puma # 5.06 denominator (currently disabled)
+    source: edm.private
+    file_type: csv
+    version: "20260601"
+    custom:
+      filepath: dcp_pop_census_aggregations_by_puma.csv
+  - name: dcp_transpo_access_by_puma # 5.08, 5.09, 5.14
+    source: edm.private
+    file_type: xlsx
+    version: "20260601"
+    custom:
+      filepath: dcp_transpo_access_by_puma.xlsx
+
 custom:
   # Build configuration
   EDDE_VERSION_PREV: "2025-05-30"

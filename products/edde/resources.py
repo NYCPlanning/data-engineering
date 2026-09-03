@@ -1,8 +1,10 @@
 """
 Resource manager for EDDE data sources.
 
-This module centralizes loading of all source data files from the resources/ folder,
-making it easier to update and maintain data sources.
+This module centralizes loading of all source data files, resolving each one to a local
+path via the recipe's loaded datasets (products/edde/recipe.yml -> `dcpy lifecycle builds
+load`) rather than a static file under this product's directory. Requires BUILD_ENV_OUTPUT_DIR
+to be set and the recipe to have been loaded first (see bash/bin/dcp_load_recipe).
 
 Usage:
     from resources import load
@@ -12,10 +14,10 @@ Usage:
 
 from pathlib import Path
 
+import config
 import pandas as pd
 
-# Get the absolute path to this file's directory
-_MODULE_DIR = Path(__file__).parent.resolve()
+from dcpy.lifecycle.builds import load as build_load
 
 # Helper functions for loading resources
 
@@ -113,13 +115,6 @@ def _load_health_mortality_citywide(path: str):
     )
 
 
-def _load_diabetes_self_report(path: str):
-    return pd.read_excel(
-        path,
-        sheet_name="DCHP_Diabetes_SelfRepHealth",
-    )
-
-
 def _load_covid_death(path: str):
     return pd.read_excel(
         path,
@@ -198,14 +193,6 @@ def _load_nychvs_three_plus_probs(path: str):
     )
 
 
-def _load_eviction_filings(path: str):
-    return pd.read_excel(
-        path,
-        skiprows=4,
-        nrows=59,
-    )
-
-
 def _load_nycha_tenants(path: str):
     return pd.read_excel(
         path,
@@ -229,21 +216,22 @@ def _load_housing_lottery_leases(path: str):
     )
 
 
-# Resource registry
+# Resource registry. `dataset` is the dataset name declared in recipe.yml's
+# inputs.datasets - the actual file path is resolved at load time from the loaded recipe.
 RESOURCES = {
     # Housing Production
     "2010_census_housing_units_by_2020_nta": {
-        "filepath": "resources/housing_production/2010_census_housing_units_by_2020_NTA.csv",
+        "dataset": "dcp_pop_census_housing_by_puma_2010",
         "type": "csv",
-        "data_table": "",
+        "data_table": "4.01",
         "required_columns": ["HUnits", "GeoType", "Geog"],
         "loader": _load_2010_census_housing_units,
     },
     # Decennial Census
     "decennial_census_001020": {
-        "filepath": "resources/decennial_census_data/EDDE_Census00-10-20_MUTU.xlsx",
+        "dataset": "dcp_pop_census_by_puma",
         "type": "excel",
-        "data_table": "",
+        "data_table": "1.01",
         "required_columns": [
             "GeogType",
             "GeoID",
@@ -260,48 +248,48 @@ RESOURCES = {
     },
     # ACS PUMS - specific year windows
     "acs_prev_year_band": {
-        "filepath": "resources/ACS_PUMS/EDDE_ACS2008-2012.xlsx",
+        "dataset": "dcp_pop_acs_08_12",
         "type": "excel",
-        "data_table": "",
+        "data_table": "1.02,1.03,1.04,2.01,2.04,2.05,2.06,3.01,3.02,3.03,3.04,3.06,3.08,5.10,5.11",
         "required_columns": ["Geog"],
         "loader": _load_acs_prev_year_band,
     },
     "acs_current_year_band": {
-        "filepath": "resources/ACS_PUMS/EDDE_ACS2020-2024.xlsx",
+        "dataset": "dcp_pop_acs_20_24",
         "type": "excel",
-        "data_table": "",
+        "data_table": "1.02,1.03,1.04,2.01,2.04,2.05,2.06,3.01,3.02,3.03,3.04,3.06,3.08,5.10,5.11",
         "required_columns": ["Geog"],
         "loader": _load_acs_current_year_band,
     },
     "census_2000": {
-        "filepath": "resources/ACS_PUMS/EDDE_Census2000PUMS.xlsx",
+        "dataset": "dcp_pop_census_2000_pums",
         "type": "excel",
-        "data_table": "",
+        "data_table": "1.02,1.03,1.04,2.01,2.04,2.05,2.06,3.01,3.02,3.03,3.04,3.06,3.08,5.10,5.11",
         "required_columns": ["GeoID"],
         "loader": _load_census_2000,
     },
     # Quality of Life - Education
     "education_outcome_data": {
-        "filepath": "resources/quality_of_life/education_math_ela_grad.xlsx",
+        "dataset": "doe_education_math_ela_grad_by_puma",
         "type": "excel",
         "sheet_name": "Data",
-        "data_table": "5.11,5.12,5.13",
+        "data_table": "5.12,5.13",
         "required_columns": ["NTA Code", "NTA Name"],
         "loader": _load_education_outcome_data,
     },
     "education_outcome_data_dictionary": {
-        "filepath": "resources/quality_of_life/education_math_ela_grad.xlsx",
+        "dataset": "doe_education_math_ela_grad_by_puma",
         "type": "excel",
         "sheet_name": "Data Dictionary",
-        "data_table": "5.11,5.12,5.13",
+        "data_table": "5.12,5.13",
         "required_columns": ["varlabel", "varname"],
         "loader": _load_education_outcome_data_dictionary,
     },
     # Quality of Life - Safety
     "assault_hospitalizations": {
-        "filepath": "resources/quality_of_life/non_fatal_assault_hospitalizations.csv",
+        "dataset": "dohmh_non_fatal_assault_hospitalizations_by_puma",
         "type": "csv",
-        "data_table": "",
+        "data_table": "5.18",
         "required_columns": [
             "Geography",
             "Number",
@@ -311,15 +299,15 @@ RESOURCES = {
         "loader": _load_assault_hospitalizations,
     },
     "pedestrian_hospitalizations": {
-        "filepath": "resources/quality_of_life/pedestrian_hospitalizations.csv",
+        "dataset": "dohmh_pedestrian_hospitalizations_by_puma",
         "type": "csv",
-        "data_table": "",
+        "data_table": "5.17",
         "required_columns": ["Geography", "Number", "GeoType", "rate_per_100k"],
         "loader": _load_pedestrian_hospitalizations,
     },
     # Quality of Life - Health Mortality (multi-sheet)
     "health_mortality_puma": {
-        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
+        "dataset": "dohmh_death_rate_and_overdose_by_puma",
         "type": "excel",
         "sheet_name": "PUMA",
         "data_table": "5.03,5.04,5.05",
@@ -327,7 +315,7 @@ RESOURCES = {
         "loader": _load_health_mortality_puma,
     },
     "health_mortality_borough": {
-        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
+        "dataset": "dohmh_death_rate_and_overdose_by_puma",
         "type": "excel",
         "sheet_name": "Borough",
         "data_table": "5.03,5.04,5.05",
@@ -335,31 +323,16 @@ RESOURCES = {
         "loader": _load_health_mortality_borough,
     },
     "health_mortality_citywide": {
-        "filepath": "resources/quality_of_life/dohmh_death_rate_and_overdose.xlsx",
+        "dataset": "dohmh_death_rate_and_overdose_by_puma",
         "type": "excel",
         "sheet_name": "City",
         "data_table": "5.03,5.04,5.05",
         "required_columns": ["City"],
         "loader": _load_health_mortality_citywide,
     },
-    # Quality of Life - Diabetes
-    "diabetes_self_report": {
-        "filepath": "resources/quality_of_life/diabetes_self_report/diabetes_self_report_processed_2024.xlsx",
-        "type": "excel",
-        "sheet_name": "DCHP_Diabetes_SelfRepHealth",
-        "data_table": "",
-        "required_columns": [
-            "ID",
-            "Borough",
-            "geo_type",
-            "Diabetes",
-            "Self_Rep_Health",
-        ],
-        "loader": _load_diabetes_self_report,
-    },
     # Quality of Life - COVID Death
     "covid_death": {
-        "filepath": "resources/quality_of_life/deaths_by_race_and_puma.xlsx",
+        "dataset": "dohmh_deaths_by_race_and_puma",
         "type": "excel",
         "sheet_name": "Sheet 1",
         "data_table": "5.06",
@@ -367,9 +340,9 @@ RESOURCES = {
         "loader": _load_covid_death,
     },
     "census_aggregations": {
-        "filepath": "resources/quality_of_life/pop_census_aggregations.csv",
+        "dataset": "dcp_pop_census_aggregations_by_puma",
         "type": "csv",
-        "data_table": "",
+        "data_table": "5.06",
         "required_columns": [
             "GeogType",
             "GeoID",
@@ -378,20 +351,20 @@ RESOURCES = {
             "Hsp20",
             "OTwoNH20",
             "WNH20",
-        ],  # File missing
+        ],
         "loader": _load_census_aggregations,
     },
     # Quality of Life - Transportation Access (multi-sheet)
     "transportation_park_access": {
-        "filepath": "resources/quality_of_life/transportation.xlsx",
+        "dataset": "dcp_transpo_access_by_puma",
         "type": "excel",
         "sheet_name": "Park_Qtr_Mile_Access",
-        "data_table": "5.09",
+        "data_table": "5.14",
         "required_columns": ["PUMA", "Pop_Served", "Total_Pop"],
         "loader": _load_transportation_park_access,
     },
     "transportation_jobs_access": {
-        "filepath": "resources/quality_of_life/transportation.xlsx",
+        "dataset": "dcp_transpo_access_by_puma",
         "type": "excel",
         "sheet_name": "Access_to_Jobs",
         "data_table": "5.08",
@@ -402,7 +375,7 @@ RESOURCES = {
         "loader": _load_transportation_jobs_access,
     },
     "transportation_subway_sbs_access": {
-        "filepath": "resources/quality_of_life/transportation.xlsx",
+        "dataset": "dcp_transpo_access_by_puma",
         "type": "excel",
         "sheet_name": "Subway_SBS_Qr_Mile_Access",
         "data_table": "5.09",
@@ -414,7 +387,7 @@ RESOURCES = {
         "loader": _load_transportation_subway_sbs_access,
     },
     "transportation_ada_subway_access": {
-        "filepath": "resources/quality_of_life/transportation.xlsx",
+        "dataset": "dcp_transpo_access_by_puma",
         "type": "excel",
         "sheet_name": "ADA_Subway_Qtr_Mile_Access",
         "data_table": "5.09",
@@ -427,57 +400,49 @@ RESOURCES = {
     },
     # Housing Security - NYCHVS (multi-sheet)
     "nychvs_renter_occupied": {
-        "filepath": "resources/housing_security/nychvs.xlsx",
+        "dataset": "nycha_occupants_by_puma",
         "type": "excel",
         "sheet_name": "Renter-occupied housing units",
-        "data_table": "",
+        "data_table": "3.05",
         "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_renter_occupied,
     },
     "nychvs_rent_stabilized": {
-        "filepath": "resources/housing_security/nychvs.xlsx",
+        "dataset": "nycha_occupants_by_puma",
         "type": "excel",
         "sheet_name": "Occupied rent stabilized",
-        "data_table": "",
+        "data_table": "3.05",
         "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_rent_stabilized,
     },
     "nychvs_occupied": {
-        "filepath": "resources/housing_security/nychvs.xlsx",
+        "dataset": "nycha_occupants_by_puma",
         "type": "excel",
         "sheet_name": "Occupied housing units",
-        "data_table": "",
+        "data_table": "3.07",
         "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_occupied,
     },
     "nychvs_three_plus_probs": {
-        "filepath": "resources/housing_security/nychvs.xlsx",
+        "dataset": "nycha_occupants_by_puma",
         "type": "excel",
         "sheet_name": "Occupied housing 3+ problems",
-        "data_table": "",
+        "data_table": "3.07",
         "required_columns": ["geo_id", "geo_type"],
         "loader": _load_nychvs_three_plus_probs,
     },
     # Housing Security - Other
-    # AR NOTE: commenting out bc we get this from Open Data
-    # "eviction_filings": {
-    #     "filepath": "resources/housing_security/eviction_filings.xlsx",
-    #     "type": "excel",
-    #     "data_table": "",
-    #     "required_columns": ["Community District", "Eviction Fillings*"],
-    #     "loader": _load_eviction_filings,
-    # },
     "nycha_tenants": {
-        "filepath": "resources/housing_security/nycha_tenants.xlsx",
+        "dataset": "nycha_public_housing_by_puma",
         "type": "excel",
         "sheet_name": "PUMA",
-        "data_table": "",
+        "data_table": "3.11,3.12",
         "required_columns": ["PUMA (2020)", "Total Unit Count"],
         "loader": _load_nycha_tenants,
     },
     # Housing Security - HPD Housing Lottery (multi-sheet)
     "housing_lottery_applications": {
-        "filepath": "resources/housing_security/hpd_housing_lottery.xlsx",
+        "dataset": "hpd_housing_lottery_by_puma",
         "type": "excel",
         "sheet_name": "housing_lottery_applications",
         "data_table": "3.13",
@@ -485,7 +450,7 @@ RESOURCES = {
         "loader": _load_housing_lottery_applications,
     },
     "housing_lottery_leases": {
-        "filepath": "resources/housing_security/hpd_housing_lottery.xlsx",
+        "dataset": "hpd_housing_lottery_by_puma",
         "type": "excel",
         "sheet_name": "housing_lottery_leases",
         "data_table": "3.14",
@@ -493,6 +458,16 @@ RESOURCES = {
         "loader": _load_housing_lottery_leases,
     },
 }
+
+
+def _resolve_path(dataset: str) -> Path:
+    """Resolve an ingested dataset name to its local path via the loaded recipe."""
+    build_metadata = build_load.get_build_metadata(config.PRODUCT_PATH)
+    assert build_metadata.load_result, (
+        "You must run `dcp_load_recipe` (or `dcpy lifecycle builds load load`) before "
+        "reading resources."
+    )
+    return Path(build_load.get_imported_filepath(build_metadata.load_result, dataset))
 
 
 def load(resource_name: str) -> pd.DataFrame:
@@ -518,9 +493,8 @@ def load(resource_name: str) -> pd.DataFrame:
         )
 
     resource = RESOURCES[resource_name]
-    # Convert relative filepath to absolute path
-    absolute_filepath = _MODULE_DIR / resource["filepath"]
-    return resource["loader"](str(absolute_filepath))
+    path = _resolve_path(resource["dataset"])
+    return resource["loader"](str(path))
 
 
 def list_resources() -> list[str]:
@@ -536,7 +510,7 @@ def get_resource_info(resource_name: str) -> dict:
         resource_name: The name of the resource
 
     Returns:
-        Dict containing filepath, type, data_table, and other metadata
+        Dict containing the source dataset name, type, data_table, and other metadata
 
     Raises:
         KeyError: If the resource_name is not found
@@ -546,7 +520,7 @@ def get_resource_info(resource_name: str) -> dict:
 
     resource = RESOURCES[resource_name]
     return {
-        "filepath": resource["filepath"],
+        "dataset": resource["dataset"],
         "type": resource["type"],
         "data_table": resource["data_table"],
         "sheet_name": resource.get("sheet_name", None),
