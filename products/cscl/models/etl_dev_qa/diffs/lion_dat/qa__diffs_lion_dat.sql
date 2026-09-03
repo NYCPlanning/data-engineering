@@ -64,6 +64,29 @@ SELECT
             AND change_keys[1] = 'boe_lgc_pointer'
             AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
             THEN 'Bug 001: boe_lgc_pointer two-digit codes'
+        -- Bug 004: Randall's Island NSF segments missing zip code in production.
+        -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
+        -- segmentid, since segmentids can be renumbered/reused across LION editions.
+        -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
+        WHEN
+            status = 'modified'
+            AND change_keys @> ARRAY['l_zip', 'r_zip']::text[]
+            AND changes -> 'l_zip' ->> 'new' = '10035'
+            AND TRIM(changes -> 'l_zip' ->> 'old') = ''
+            AND changes -> 'r_zip' ->> 'new' = '10035'
+            AND TRIM(changes -> 'r_zip' ->> 'old') = ''
+            THEN 'Bug 004: Randalls Island missing zip'
+        -- Bug 005: doubly-reversed protosegments not reversed in production. Fingerprinted on
+        -- segmentid (unlike Bug 004) since this list has been independently verified stable
+        -- since 2026-03-02 (~6 months, unchanged across a file move) - see the bug doc for the
+        -- source-data-derived query to re-verify/re-derive this list if it's ever in doubt.
+        -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
+        WHEN
+            status = 'modified'
+            AND RIGHT(_lion_key, 7) = ANY(ARRAY[
+                '0016558', '0343093', '0343094', '0343095', '0343096'
+            ]::text[])
+            THEN 'Bug 005: doubly-reversed protosegments'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -94,6 +117,22 @@ SELECT
                 AND changes -> 'curve_flag' ->> 'new' = 'I'
                 AND _source_table IN ('shoreline', 'subway', 'rail')
             )
+            -- Bug 004: Randall's Island NSF segments missing zip code in production.
+            -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
+            -- segmentid, since segmentids can be renumbered/reused across LION editions.
+            -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
+            OR (
+                change_keys @> ARRAY['l_zip', 'r_zip']::text[]
+                AND changes -> 'l_zip' ->> 'new' = '10035'
+                AND TRIM(changes -> 'l_zip' ->> 'old') = ''
+                AND changes -> 'r_zip' ->> 'new' = '10035'
+                AND TRIM(changes -> 'r_zip' ->> 'old') = ''
+            )
+            -- Bug 005: doubly-reversed protosegments not reversed in production.
+            -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
+            OR RIGHT(_lion_key, 7) = ANY(ARRAY[
+                '0016558', '0343093', '0343094', '0343095', '0343096'
+            ]::text[])
         ),
         FALSE
     ) AS accounted_for
