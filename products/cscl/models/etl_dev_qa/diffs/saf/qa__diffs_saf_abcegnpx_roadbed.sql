@@ -46,7 +46,8 @@ diff_grouped AS (
                 AND (
                     SELECT array_agg(key ORDER BY key)
                     FROM jsonb_object_keys(changes) AS key
-                ) <@ ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic',
+                ) <@ ARRAY[
+                    'side_ap', 'side_borough_code', 'side_ct2020_basic',
                     'side_ct2020_suffix'
                 ]::text[]
                 THEN 'Bug 003: SAF GNX side-AP point mismatch'
