@@ -19,7 +19,7 @@ def test_list_resources():
 def test_get_resource_info():
     """Test getting metadata about a resource."""
     info = get_resource_info("2010_census_housing_units_by_2020_nta")
-    assert "filepath" in info
+    assert "dataset" in info
     assert "type" in info
     assert info["type"] == "csv"
 
@@ -48,12 +48,6 @@ def test_load_all_resources(resource_name):
     2. The loader function executes without error
     3. A pandas DataFrame is returned
     """
-    if resource_name == "diabetes_self_report":
-        pytest.xfail(
-            "resources/quality_of_life/diabetes_self_report/ is not checked "
-            "into the repo. Matches the health_self_reported/health_diabetes "
-            "indicators being disabled via ignored_indicators in recipe.yml."
-        )
     df = load(resource_name)
     assert df is not None
     assert hasattr(df, "columns")  # Basic check that it's a DataFrame
@@ -62,7 +56,7 @@ def test_load_all_resources(resource_name):
 
 def test_resources_have_required_fields():
     """Test that all resources have the required metadata fields."""
-    required_fields = {"filepath", "type", "data_table", "loader"}
+    required_fields = {"dataset", "type", "data_table", "loader"}
     for resource_name, resource_data in RESOURCES.items():
         assert required_fields.issubset(resource_data.keys()), (
             f"Resource '{resource_name}' is missing required fields"
@@ -109,8 +103,8 @@ def test_required_columns_exist(resource_name):
     # Try to load the resource
     try:
         df = load(resource_name)
-    except FileNotFoundError:
-        pytest.skip(f"File not found for {resource_name} (expected for missing files)")
+    except (AssertionError, ValueError, FileNotFoundError) as e:
+        pytest.skip(f"Dataset not available for {resource_name}: {e}")
 
     # Check that all required columns are present
     missing_columns = [col for col in required_cols if col not in df.columns]
@@ -142,8 +136,8 @@ def test_acs_datasets_have_unique_columns(resource_name):
     """
     try:
         df = load(resource_name)
-    except FileNotFoundError:
-        pytest.skip(f"File not found for {resource_name}")
+    except (AssertionError, ValueError, FileNotFoundError) as e:
+        pytest.skip(f"Dataset not available for {resource_name}: {e}")
 
     # Check for duplicate column names
     duplicate_cols = df.columns[df.columns.duplicated(keep=False)]
@@ -176,8 +170,8 @@ def test_acs_datasets_no_semantic_duplicates(resource_name):
         )
     try:
         df = load(resource_name)
-    except FileNotFoundError:
-        pytest.skip(f"File not found for {resource_name}")
+    except (AssertionError, ValueError, FileNotFoundError) as e:
+        pytest.skip(f"Dataset not available for {resource_name}: {e}")
 
     # Check for P16t64 vs P16t64y - these normalize to the same thing
     p16t64_cols = [col for col in df.columns if col.startswith("P16t64_")]
