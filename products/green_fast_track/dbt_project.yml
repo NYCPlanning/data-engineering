@@ -1,6 +1,6 @@
 name: "green_fast_track"
 
-profile: "dcp-de-postgres"
+profile: "dcp-de-duckdb"
 
 model-paths: [ "models" ]
 macro-paths: [ "macros" ]

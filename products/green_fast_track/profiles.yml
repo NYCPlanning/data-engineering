@@ -1,11 +1,18 @@
-dcp-de-postgres:
+dcp-de-duckdb:
   target: dev
   outputs:
     dev:
-      type: postgres
-      host: "{{ env_var('BUILD_ENGINE_HOST') }}"
-      user: "{{ env_var('BUILD_ENGINE_USER') }}"
-      password: "{{ env_var('BUILD_ENGINE_PASSWORD') }}"
-      port: "{{ env_var('BUILD_ENGINE_PORT') | as_number }}"
-      dbname: "{{ env_var('BUILD_ENGINE_DB') }}"
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH') }}"
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+      threads: 2
+      extensions:
+      - spatial
+      settings:
+        # large spatial joins over geometry columns (e.g. int_flags__spatial) OOM with insertion
+        # order preserved -- it forces buffering results instead of streaming them
+        preserve_insertion_order: false
+        # counter-intuitively, capping memory_limit well below the default 80% of system RAM
+        # avoids OOM here: operations like array_agg allocate outside duckdb's buffer manager,
+        # so the tracked limit can look like it has room when physical memory is actually gone
+        memory_limit: '4GB'

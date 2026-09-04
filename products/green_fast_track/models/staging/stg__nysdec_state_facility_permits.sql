@@ -13,7 +13,7 @@ final AS (
         'state_facility_permits' AS variable_type,
         dec_id AS variable_id,
         facility_name,
-        ST_TRANSFORM(geom::geometry, 2263) AS permit_geom
+        {{ dcp_st_transform('geom', 2263) }} AS permit_geom
     FROM deduplicated
 )
 SELECT * FROM final

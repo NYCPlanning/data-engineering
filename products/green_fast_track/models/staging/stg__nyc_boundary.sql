@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-        {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH polygons AS (
@@ -13,12 +10,12 @@ WITH polygons AS (
     -- - MakePolygon converts these lines to polygons
     SELECT
         ST_MAKEPOLYGON(
-            ST_EXTERIORRING((ST_DUMP(ST_UNION(wkb_geometry))).geom)
+            ST_EXTERIORRING((UNNEST(ST_DUMP(ST_UNION_AGG(wkb_geometry)))).geom)
         ) AS geom
     FROM {{ source('recipe_sources', 'dcp_boroboundaries_wi') }}
 )
 
 -- another union is done to get a single row with all NYC area in a multipolygon
 -- postgresql is unhappy if this is attempted in the previous query
-SELECT ST_TRANSFORM(ST_UNION(geom), 2263) AS geom
+SELECT {{ dcp_st_transform('ST_UNION_AGG(geom)', 2263) }} AS geom
 FROM polygons

@@ -5,7 +5,7 @@ WITH dcp_lion AS (
 filtered AS (
     SELECT
         street,
-        ST_UNION(shape) AS geom
+        ST_UNION_AGG(shape) AS geom
     FROM dcp_lion
     WHERE row_type IN ('2', '3', '4', '5', '6', '7')
     GROUP BY street

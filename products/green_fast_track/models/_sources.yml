@@ -111,7 +111,7 @@ sources:
     - name: spdist1
     - name: spdist2
     - name: spdist3
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
       - is_epsg_2263:
@@ -322,7 +322,7 @@ sources:
       - not_null
       - unique
     - name: bbl
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
@@ -335,7 +335,7 @@ sources:
     - name: name
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
     - name: status
@@ -350,7 +350,7 @@ sources:
     - name: agency
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
     tests:
@@ -360,7 +360,7 @@ sources:
         combination_of_columns:
         - name
         - agency
-        - wkb_geometry
+        - geom
       config:
         severity: warn
 
@@ -415,7 +415,7 @@ sources:
     - name: name
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geometry
       tests:
       - not_null
 
@@ -425,7 +425,7 @@ sources:
       tests:
       - unique
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
@@ -435,7 +435,7 @@ sources:
       tests:
       - unique
       - not_null
-    - name: wkb_geometry
+    - name: geom
       tests:
       - not_null
 
@@ -464,7 +464,7 @@ sources:
       tests:
       - unique
       - not_null
-    - name: wkb_geometry
+    - name: geometry
       tests:
       - not_null
 
@@ -473,7 +473,7 @@ sources:
     - name: wetid
       tests:
       - not_null
-    - name: wkb_geometry
+    - name: geometry
       tests:
       - not_null
 
@@ -551,4 +551,4 @@ sources:
       - unique
     - name: coastal_hazard_area_flag
     - name: fresh_water_wetlands_flag
-    - name: tidal_coastal_wetlands_flag
+    - name: '"tidal-coastal_wetlands_flag"'
