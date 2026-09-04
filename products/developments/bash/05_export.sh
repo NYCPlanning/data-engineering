@@ -28,7 +28,9 @@ mkdir -p output
     csv_export FINAL_qaqc &
     csv_export HNY_no_match & 
     csv_export qaqc_app &
-    csv_export qaqc_historic
+    # qaqc_historic is re-imported from the published output on the next build,
+    # so it must not carry the loader's own ogc_fid / data_library_version columns.
+    csv_export_drop_columns qaqc_historic "'ogc_fid', 'data_library_version'"
     pg_dump -d $BUILD_ENGINE -t qaqc_historic -f qaqc_historic.sql
     csv_export qaqc_field_distribution &
     csv_export qaqc_quarter_check &
