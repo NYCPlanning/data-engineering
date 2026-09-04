@@ -297,6 +297,43 @@ class DuckDBClient:
         """
         return self.conn.execute(query).df()
 
+    def read_table_df(self, table_name: str) -> pd.DataFrame:
+        """Read a full table into a DataFrame. Mirrors postgres.PostgresClient.read_table_df."""
+        sanitized_table = sanitize_name(table_name)
+        return self.query_to_df(f"SELECT * FROM {self.schema}.{sanitized_table}")
+
+    def read_table_gdf(self, table_name: str, geom_column: str = "geom"):
+        """Read a table into a GeoDataFrame. Mirrors postgres.PostgresClient.read_table_gdf.
+
+        Duckdb's spatial GEOMETRY type doesn't convert to shapely via .df() the way
+        postgis geometry does through geopandas' read_postgis, so this goes through WKB
+        explicitly instead.
+        """
+        import geopandas as gpd
+        import shapely.wkb
+
+        sanitized_table = sanitize_name(table_name)
+        full_table_name = f"{self.schema}.{sanitized_table}"
+
+        crs_row = self.conn.execute(
+            f"""
+            SELECT ST_CRS({geom_column}) FROM {full_table_name}
+            WHERE {geom_column} IS NOT NULL LIMIT 1
+            """
+        ).fetchone()
+        crs = crs_row[0] if crs_row and crs_row[0] else "EPSG:2263"
+
+        df = self.conn.execute(
+            f"""
+            SELECT * EXCLUDE ({geom_column}), ST_AsWKB({geom_column}) AS {geom_column}
+            FROM {full_table_name}
+            """
+        ).df()
+        df[geom_column] = df[geom_column].apply(
+            lambda wkb: shapely.wkb.loads(bytes(wkb)) if pd.notna(wkb) else None
+        )
+        return gpd.GeoDataFrame(df, geometry=geom_column, crs=crs)
+
     def close(self) -> None:
         """Close the database connection."""
         self.conn.close()

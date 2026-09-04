@@ -149,7 +149,7 @@ models:
 
   # lot geometry
   - name: geom
-    data_type: geometry(Geometry, 2263)
+    data_type: geometry
 
   data_tests:
   # domain knowledge

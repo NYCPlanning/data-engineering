@@ -1,9 +1,6 @@
 {{ config(
     materialized = 'table',
-    indexes=[
-      {'columns': ['geom'], 'type': 'gist'},
-      {'columns': ['bbl']},
-    ]
+    post_hook="CREATE INDEX IF NOT EXISTS stg__pluto_geom_idx ON {{ this }} USING RTREE (geom)"
 ) }}
 
 WITH mappluto_wi AS (
@@ -12,7 +9,10 @@ WITH mappluto_wi AS (
 
 final AS (
     SELECT
-        bbl::text,
+        -- bbl arrives as a DOUBLE in duckdb's parquet archive (a plain text cast in postgres
+        -- doesn't add a decimal, but duckdb's DOUBLE->VARCHAR cast does: "3062640072.0" instead
+        -- of "3062640072") -- round-tripping through BIGINT first strips it
+        CAST(bbl AS BIGINT)::text AS bbl,
         zonedist1,
         zonedist2,
         zonedist3,
@@ -21,7 +21,7 @@ final AS (
         spdist2,
         spdist3,
         landuse,
-        ST_TRANSFORM(wkb_geometry, 2263) AS geom
+        {{ dcp_st_transform(dcp_geom_column('dcp_mappluto_wi'), 2263) }} AS geom
     FROM mappluto_wi
 )
 

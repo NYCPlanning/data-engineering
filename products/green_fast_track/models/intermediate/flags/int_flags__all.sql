@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['bbl', 'variable_type']},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH all_flags AS (

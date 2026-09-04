@@ -12,7 +12,7 @@ validation_errors AS (
     SELECT
         geom_column
     FROM validation
-    WHERE ST_SRID(geom_column) != 2263
+    WHERE ST_CRS(geom_column) != 'EPSG:2263'
 
 )
 

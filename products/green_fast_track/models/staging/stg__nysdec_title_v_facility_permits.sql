@@ -14,7 +14,7 @@ final AS (
     SELECT
         'title_v_permits' AS variable_type,
         dec_id AS variable_id,
-        st_transform(geom::geometry, 2263) AS permit_geom
+        {{ dcp_st_transform('geom', 2263) }} AS permit_geom
     FROM deduplicated
 )
 SELECT * FROM final

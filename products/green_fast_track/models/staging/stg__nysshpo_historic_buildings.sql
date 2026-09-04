@@ -1,10 +1,7 @@
 -- stg__nysshpo_historic_buildings
 
 {{ config(
-    materialized = 'table',
-    indexes=[
-        {'columns': ['raw_geom'], 'type': 'gist'},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH points_clipped AS (
@@ -15,8 +12,11 @@ WITH points_clipped AS (
 final AS (
     SELECT
         'nys_historic_buildings' AS variable_type,
-        usnnum || COALESCE('-' || usnname, '') AS variable_id,
-        ST_TRANSFORM(geom, 2263) AS raw_geom
+        -- usnname is NULL in the postgres archive but '' (empty string) in duckdb's for the
+        -- same underlying records -- NULLIF normalizes both to "no suffix" instead of leaving
+        -- a trailing '-' on ~18k duckdb rows that postgres doesn't have
+        usnnum || COALESCE('-' || NULLIF(usnname, ''), '') AS variable_id,
+        {{ dcp_st_transform('geom', 2263) }} AS raw_geom
     FROM points_clipped
 )
 
