@@ -7,7 +7,11 @@ UPDATE stg__pluto_input_geocodes
 SET
     xcoord = ST_X(ST_TRANSFORM(geom, 2263))::integer,
     ycoord = ST_Y(ST_TRANSFORM(geom, 2263))::integer,
-    ct2010 = (CASE WHEN ct2010::numeric = 0 THEN NULL ELSE ct2010 END);
+    ct2010 = (CASE WHEN ct2010::numeric = 0 THEN NULL ELSE ct2010 END),
+    -- Geosupport occasionally returns a non-numeric placeholder here, which would
+    -- otherwise reach the numeric cast in export.sql. Null lets the zip code
+    -- boundary spatial join fill the value instead.
+    zipcode = (CASE WHEN zipcode ~ '^[0-9]{5}$' THEN zipcode END);
 
 DROP TABLE IF EXISTS pluto_rpad_geo;
 CREATE TABLE pluto_rpad_geo AS (
