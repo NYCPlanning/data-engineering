@@ -8,7 +8,7 @@ reprojected AS (
     SELECT
         gnis_id,
         parkname,
-        ST_TRANSFORM(geom, 2263) AS geom
+        {{ dcp_st_transform('geom', 2263) }} AS geom
     FROM source
 ),
 
@@ -29,6 +29,6 @@ final AS (
 SELECT
     variable_type,
     variable_id,
-    ST_UNION(raw_geom) AS raw_geom
+    ST_UNION_AGG(raw_geom) AS raw_geom
 FROM final
 GROUP BY variable_type, variable_id

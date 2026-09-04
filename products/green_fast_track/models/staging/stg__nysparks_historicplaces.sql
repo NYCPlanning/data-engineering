@@ -8,7 +8,7 @@ all_historic_places AS (
         historicname,
         countyname,
         citytown,
-        ST_TRANSFORM(geometry, 2263) AS geom
+        {{ dcp_st_transform('geometry', 2263) }} AS geom
     FROM historic_places
 ),
 
@@ -25,6 +25,6 @@ historic_places_nyc AS (
 SELECT
     'us_historic_places' AS variable_type,
     variable_id,
-    ST_UNION(geom) AS raw_geom
+    ST_UNION_AGG(geom) AS raw_geom
 FROM historic_places_nyc
 GROUP BY variable_id

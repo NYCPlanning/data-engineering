@@ -99,8 +99,8 @@ seeds:
       bbl: text
       industrial_lots: text
       wetland_checkzone: text
-      # geometry column type
-      geom: geometry(Geometry, 2263)
+      # geometry column type - duckdb's spatial GEOMETRY type takes no SRID modifier
+      geom: geometry
   columns:
   - name: project_label
     tests:
@@ -144,4 +144,4 @@ seeds:
   - name: shape_length
   config:
     column_types:
-      geom: geometry(Geometry, 2263)
+      geom: geometry
