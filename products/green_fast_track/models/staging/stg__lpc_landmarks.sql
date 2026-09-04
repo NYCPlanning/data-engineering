@@ -1,5 +1,9 @@
 WITH lpc_landmarks AS (
+    -- ~0.4% of records (mostly historic districts, interior landmarks, and multi-site
+    -- designations) have no geometry in the source archive -- see the
+    -- lpc_landmarks_wkb_geometry_mostly_not_null test on models/_sources.yml
     SELECT * FROM {{ source('recipe_sources', 'lpc_landmarks') }}
+    WHERE wkb_geometry IS NOT NULL
 ),
 
 all_landmarks AS (
