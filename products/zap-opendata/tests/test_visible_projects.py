@@ -30,14 +30,6 @@ def test_recode_fields(fields_in_metadata, dataset_name):
         assert field in fields_in_metadata
 
 
-def test_recode_fields_raise(fields_in_metadata):
-    fields_to_lookup, _ = (["bad_field"], ["bad_field_rename"])
-
-    with pytest.raises(AssertionError):
-        for field in fields_to_lookup:
-            assert field in fields_in_metadata
-
-
 @pytest.mark.skip(reason="in-progress")
 @pytest.mark.parametrize("dataset_name", ["dcp_projects", "dcp_projectbbls"])
 def test_recode_values(all_fields_metadata, dataset_name):

@@ -56,8 +56,8 @@ Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflow
   Codecov. `dcpy/utils` (the foundation) targets **>90%** — alter with care.
 - **Strict markers:** `addopts = "--strict-markers"` — every marker must be declared in
   `[tool.pytest.ini_options].markers`. The only custom marker is `end_to_end`, used to split fast
-  vs. slow runs in the **`zap` product suite** (`-m 'not end_to_end'` / `-m 'end_to_end'`); it is
-  declared but unused inside `dcpy/test`.
+  vs. slow runs in the **`template` product suite** (`-m 'not end_to_end'` / `-m 'end_to_end'`); it
+  is declared but unused inside `dcpy/test`.
 - **`xfail_strict = true`:** an `xfail` that unexpectedly passes is a failure — keep xfails honest.
 - **New processing functions need a test.** When you add an ingest processing step or similar
   reusable function, add a unit test for it (see the
