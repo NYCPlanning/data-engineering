@@ -76,13 +76,27 @@ def _sanitize_columns(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+# The loader owns these two columns: it appends ogc_fid as the surrogate primary key
+# and data_library_version as the version loaded. A product that re-imports its own
+# published output (see the edm.publishing.published sources in products/*/recipe.yml)
+# gets them back as data, and re-adding them then fails on a duplicate column. Drop
+# them on the way in so the loader's own values are the ones that land.
+LOADER_OWNED_COLUMNS = ["ogc_fid", "data_library_version"]
+
+
+def _drop_loader_owned_columns(df: pd.DataFrame) -> pd.DataFrame:
+    return df.drop(columns=LOADER_OWNED_COLUMNS, errors="ignore")
+
+
 def _load_df(
     df: pd.DataFrame,
     ds_table_name: str,
     pg_client: postgres.PostgresClient,
     include_ogc_fid_col: bool = True,
 ):
-    pg_client.insert_dataframe(_sanitize_columns(df), ds_table_name)
+    pg_client.insert_dataframe(
+        _drop_loader_owned_columns(_sanitize_columns(df)), ds_table_name
+    )
 
     if include_ogc_fid_col:
         # This maybe should be applicable to pg_dumps, but they tend to have this column already
@@ -104,7 +118,7 @@ def _load_parquet_chunked(
         geoparquet.iter_batches_df(local_dataset_path, PARQUET_LOAD_BATCH_SIZE)
     ):
         pg_client.insert_dataframe(
-            _sanitize_columns(batch),
+            _drop_loader_owned_columns(_sanitize_columns(batch)),
             ds_table_name,
             if_exists="replace" if i == 0 else "append",
         )

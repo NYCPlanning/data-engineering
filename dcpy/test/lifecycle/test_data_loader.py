@@ -45,3 +45,20 @@ def test_load_parquet_chunked_skips_pk_when_not_requested(monkeypatch):
         )
 
     pg_client.add_pk.assert_not_called()
+
+
+def test_load_df_drops_loader_owned_columns():
+    pg_client = MagicMock()
+    df = pd.DataFrame(
+        {
+            "ogc_fid": [1, 2],
+            "version": ["25Q4", "26Q2"],
+            "data_library_version": ["20240101", "20240101"],
+        }
+    )
+
+    data_loader._load_df(df, "my_table", pg_client)
+
+    inserted = pg_client.insert_dataframe.call_args.args[0]
+    assert list(inserted.columns) == ["version"]
+    pg_client.add_pk.assert_called_once_with("my_table", "ogc_fid")
