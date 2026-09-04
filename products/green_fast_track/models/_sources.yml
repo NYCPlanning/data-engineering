@@ -141,6 +141,14 @@ sources:
     - name: most_curre
     - name: status
     - name: wkb_geometry
+      tests:
+      # ~0.4% of records (historic districts, interior landmarks, and multi-site
+      # designations) have no geometry in the source archive -- stg__lpc_landmarks filters
+      # these out. This guards against that share growing unexpectedly.
+      - percent_not_null:
+          name: lpc_landmarks_wkb_geometry_mostly_not_null
+          arguments:
+            threshold: 0.01
 
   - name: lpc_scenic_landmarks
     columns:
