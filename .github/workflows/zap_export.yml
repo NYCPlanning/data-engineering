@@ -78,6 +78,10 @@ jobs:
       #     service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
       #     export_default_credentials: true
 
+      - name: Check recode fields still exist in CRM
+        if: ${{ matrix.open }}
+        run: python3 -m pytest tests/test_visible_projects.py -v
+
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }} $EDM_DATA_ZAP_SCHEMA
 

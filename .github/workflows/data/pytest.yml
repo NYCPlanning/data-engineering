@@ -6,9 +6,9 @@
   calls: [ "./products/checkbook -s --verbose --verbose" ]
 - name: zap
   working-directory: products/zap-opendata
-  calls:
-  - -m 'not end_to_end' -s --verbose --verbose --durations=0 --cov .
-  - -m 'end_to_end' -s --verbose --verbose --durations=0 --cov .
+  # test_visible_projects checks our recode fields against live CRM metadata;
+  # it runs in zap_export.yml, which already holds CRM credentials.
+  calls: [ "--ignore=tests/test_visible_projects.py -s --verbose --verbose --durations=0 --cov ." ]
 - name: ceqr
   working-directory: products/ceqr
   calls: [ "tests -s --verbose --verbose" ]
