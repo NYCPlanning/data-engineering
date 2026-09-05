@@ -21,10 +21,12 @@ class Client:
     @cached_property
     def access_token(self) -> str:
         result = self.app.acquire_token_for_client(scopes=self.config["scope"])
-        if list(result.keys()) == ["error"]:
+        # msal returns `error` alongside error_description, error_codes and friends,
+        # so an exact key-list match never fires on a real failure.
+        if "error" in result:
             raise PermissionError(result)
         return result["access_token"]
 
     @cached_property
-    def request_header(self) -> str:
+    def request_header(self) -> dict:
         return {"Authorization": "Bearer " + self.access_token}
