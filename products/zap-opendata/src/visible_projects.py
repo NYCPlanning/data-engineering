@@ -263,5 +263,12 @@ def get_metadata(headers) -> list:
     metadata_values = []
     for link in [PICKLIST_METADATA_LINK, STATUS_METADATA_LINK]:
         res = requests.get(link, headers=headers)
+        if res.status_code != 200:
+            # Status, url and body only. `headers` holds the bearer token, which CI
+            # does not mask: it's derived from the 1Password secrets, not one of them.
+            raise RuntimeError(
+                f"CRM metadata request failed with {res.status_code} for {link}\n"
+                f"{res.text[:500]}"
+            )
         metadata_values.extend(res.json()["value"])
     return metadata_values
