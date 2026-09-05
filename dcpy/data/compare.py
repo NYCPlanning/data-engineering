@@ -1,8 +1,85 @@
+import geopandas as gpd
+import numpy as np
 import pandas as pd
+import shapely
 
 from dcpy.data import models as comparison
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
+
+GEOMETRY_RTOL = 1e-12
+"""Relative tolerance for comparing coordinates.
+
+Roughly four orders of magnitude above float64 precision, and relative rather than
+absolute so the threshold stays meaningful whether the CRS is in feet or degrees.
+In EPSG:2263 it works out to about 1e-6 feet.
+"""
+
+
+def geometries_match(
+    left: gpd.GeoSeries, right: gpd.GeoSeries, *, rtol: float = GEOMETRY_RTOL
+) -> bool:
+    """
+    Whether two geometry series are equal, allowing coordinates to differ by `rtol`.
+
+    Structure must match exactly - null placement, geometry type, dimensionality, and
+    vertex count and order - so only last-bit float differences are absorbed. Sources
+    that reproject server-side (ArcGIS feature servers) are not bit-stable between
+    requests, and without a tolerance an unchanged layer reads as edited.
+    """
+    if len(left) != len(right):
+        return False
+
+    left_geoms, right_geoms = left.to_numpy(), right.to_numpy()
+    # A type id doesn't carry dimensionality: POINT and POINT Z are both 0, and each
+    # counts as one coordinate. Without has_z, a Z-only edit reads as unchanged.
+    for describe in (shapely.get_type_id, shapely.has_z, shapely.get_num_coordinates):
+        if not np.array_equal(describe(left_geoms), describe(right_geoms)):
+            return False
+
+    return bool(
+        np.allclose(
+            shapely.get_coordinates(left_geoms, include_z=True),
+            shapely.get_coordinates(right_geoms, include_z=True),
+            rtol=rtol,
+            atol=0.0,
+            # 2D geometries pad z with NaN, and has_z already matched
+            equal_nan=True,
+        )
+    )
+
+
+def dataframes_match(
+    left: pd.DataFrame, right: pd.DataFrame, *, rtol: float = GEOMETRY_RTOL
+) -> bool:
+    """
+    Whether two dataframes hold the same data, with `rtol` applied to geometry columns.
+
+    Non-geometry columns must be exactly equal.
+    """
+    if left.equals(right):
+        return True
+    if list(left.columns) != list(right.columns) or len(left) != len(right):
+        return False
+
+    def is_geometry(series: pd.Series) -> bool:
+        return isinstance(series.dtype, gpd.array.GeometryDtype)
+
+    geom_columns = [c for c in left.columns if is_geometry(left[c])]
+    if not geom_columns:
+        return False
+    # Same column names don't guarantee the same types. read_df hands back a plain
+    # DataFrame for parquet written without geo metadata.
+    if not all(is_geometry(right[c]) for c in geom_columns):
+        return False
+
+    left = left.reset_index(drop=True)
+    right = right.reset_index(drop=True)
+    other_columns = [c for c in left.columns if c not in geom_columns]
+    if not left[other_columns].equals(right[other_columns]):
+        return False
+
+    return all(geometries_match(left[c], right[c], rtol=rtol) for c in geom_columns)
 
 
 def compare_df_columns(left: pd.DataFrame, right: pd.DataFrame):

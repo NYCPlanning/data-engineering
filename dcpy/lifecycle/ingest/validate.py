@@ -5,6 +5,7 @@ import geopandas as gpd
 import pandas as pd
 from pydantic import ValidationError
 
+from dcpy.data import compare
 from dcpy.lifecycle.ingest import connectors, plan, transform
 from dcpy.lifecycle.ingest.models import (
     ProcessingStep,
@@ -183,7 +184,7 @@ def validate_data_against_existing_version(
             ]
             new = parquet.read_df(filepath)
             existing = parquet.read_df(existing_file)
-            if new.equals(existing):
+            if compare.dataframes_match(new, existing):
                 logger.info(
                     f"Dataset id='{ds}' version='{version}' already exists and matches newly processed data"
                 )
