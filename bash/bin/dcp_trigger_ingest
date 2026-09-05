@@ -1,13 +1,14 @@
 #!/bin/bash
 # Trigger GitHub Actions ingest_single workflow for current branch
 # See action workflow file: .github/workflows/ingest_single.yml
-# Usage: dcp_trigger_ingest [dataset] [version] [mode] [--no-latest] [--dev-image] [--dev-bucket=<x>] [--custom-dev-image=<tag>] [--no-tail]
+# Usage: dcp_trigger_ingest [dataset] [version] [mode] [--no-latest] [--overwrite] [--dev-image] [--dev-bucket=<x>] [--custom-dev-image=<tag>] [--no-tail]
 
 set -e
 
 # Parse options
 TAIL_LOGS=true
 LATEST=true
+OVERWRITE=false
 DEV_IMAGE=false
 DEV_BUCKET=""
 CUSTOM_DEV_IMAGE=""
@@ -19,6 +20,9 @@ for arg in "$@"; do
             ;;
         --no-latest)
             LATEST=false
+            ;;
+        --overwrite)
+            OVERWRITE=true
             ;;
         --dev-image)
             DEV_IMAGE=true
@@ -42,8 +46,13 @@ BRANCH=$(git branch --show-current)
 
 if [ -z "$DATASET" ]; then
     echo "Error: DATASET must be set as env var or passed as first argument"
-    echo "Usage: dcp_trigger_ingest <dataset> [version] [mode] [--no-latest] [--dev-image] [--dev-bucket=<x>] [--custom-dev-image=<tag>] [--no-tail]"
+    echo "Usage: dcp_trigger_ingest <dataset> [version] [mode] [--no-latest] [--overwrite] [--dev-image] [--dev-bucket=<x>] [--custom-dev-image=<tag>] [--no-tail]"
     echo "   or: DATASET=dcp_pluto dcp_trigger_ingest [version] [mode] [...]"
+    exit 1
+fi
+
+if [ "$OVERWRITE" = true ] && [ -z "$VERSION" ]; then
+    echo "Error: --overwrite requires a version, so replacing archived data is deliberate"
     exit 1
 fi
 
@@ -51,6 +60,7 @@ echo "Triggering ingest_single workflow for:"
 echo "  Dataset: $DATASET"
 echo "  Branch: $BRANCH"
 echo "  Latest: $LATEST"
+echo "  Overwrite: $OVERWRITE"
 if [ -n "$VERSION" ]; then
     echo "  Version: $VERSION"
 fi
@@ -71,6 +81,7 @@ WORKFLOW_ARGS=(
     --ref "$BRANCH"
     -f dataset="$DATASET"
     -f latest="$LATEST"
+    -f overwrite="$OVERWRITE"
     -f dev_image="$DEV_IMAGE"
 )
 
