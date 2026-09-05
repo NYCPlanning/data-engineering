@@ -26,8 +26,15 @@ def test_get_metadata(metadata_values):
 def test_recode_fields(fields_in_metadata, dataset_name):
     fields_to_lookup, _ = get_fields(dataset_name)
 
-    for field in fields_to_lookup:
-        assert field in fields_in_metadata
+    missing = [f for f in fields_to_lookup if f not in fields_in_metadata]
+
+    # Listing every field CRM does report is the point: a rename is usually fixed by
+    # spotting the new name in the list.
+    assert not missing, (
+        f"{dataset_name} recode fields missing from CRM metadata: {missing}\n\n"
+        f"CRM reports these {len(fields_in_metadata)} fields:\n"
+        + "\n".join(sorted(fields_in_metadata))
+    )
 
 
 @pytest.mark.skip(reason="in-progress")
