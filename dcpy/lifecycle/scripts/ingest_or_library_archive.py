@@ -20,9 +20,22 @@ def run(
     csv: bool = typer.Option(
         False, "-c", "--csv", help="Output csv locally as well as parquet"
     ),
+    overwrite: bool = typer.Option(
+        False,
+        "--overwrite",
+        help="Overwrite the archived version instead of failing. Requires --version",
+    ),
 ):
     if INGEST_DEF_DIR is None:
         raise KeyError("Missing required env variable: 'TEMPLATE_DIR'")
+
+    # This entrypoint takes any dataset, and the recipes bucket isn't versioned, so
+    # naming the version is what keeps an overwrite from quietly eating whichever one
+    # happened to be derived.
+    if overwrite and not version:
+        raise ValueError(
+            "--overwrite requires an explicit --version, so replacing archived data is deliberate."
+        )
 
     if (INGEST_DEF_DIR / f"{dataset_id}.yml").exists():
         ingest(
@@ -32,8 +45,13 @@ def run(
             latest=latest,
             push=push_to_s3,
             output_csv=csv,
+            overwrite_okay=overwrite,
         )
     else:
+        if overwrite:
+            raise ValueError(
+                f"'{dataset_id}' is archived by dcpy.library, which has no overwrite option."
+            )
         from dcpy.library import cli as library_cli
 
         library_cli.archive(
