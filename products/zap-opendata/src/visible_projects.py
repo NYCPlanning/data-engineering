@@ -4,11 +4,16 @@ import pandas as pd
 import requests
 from sqlalchemy import text
 
+from . import ZAP_DOMAIN
+
 OPEN_DATA = ["dcp_projects", "dcp_projectbbls"]
 
 
-PICKLIST_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
-STATUS_METADATA_LINK = "https://nycdcppfs.crm9.dynamics.com/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
+# Built from ZAP_DOMAIN so the metadata host can't drift from the host the bearer
+# token is scoped to. They were the same literal, but nothing kept them that way.
+_ENTITY_DEFINITIONS = f"{ZAP_DOMAIN}/api/data/v9.1/EntityDefinitions(LogicalName='dcp_project')/Attributes"
+PICKLIST_METADATA_LINK = f"{_ENTITY_DEFINITIONS}/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet"
+STATUS_METADATA_LINK = f"{_ENTITY_DEFINITIONS}/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet"
 RECODE_FIELDS = {
     "dcp_projects": [
         ("dcp_visibility", "dcp_visibility"),
