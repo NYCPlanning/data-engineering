@@ -101,13 +101,16 @@ class TestResolveLayer(TestCase):
 
 
 def mock_query_layer(url: str, data: dict):
+    # ids and features come back from the server in arbitrary order
     features = [
-        {"objectId": 1, "properties": {"Property": "value"}},
-        {"objectId": 2, "properties": {"Property": "value"}},
-        {"objectId": 3, "properties": {"Property": "value"}},
+        {"objectId": 3, "properties": {"OBJECTID": 3, "Property": "value"}},
+        {"objectId": 1, "properties": {"OBJECTID": 1, "Property": "value"}},
+        {"objectId": 2, "properties": {"OBJECTID": 2, "Property": "value"}},
     ]
     if data.get("returnIdsOnly"):
-        resp: dict = {"properties": {"objectIds": [1, 2, 3]}}
+        resp: dict = {
+            "properties": {"objectIdFieldName": "OBJECTID", "objectIds": [3, 1, 2]}
+        }
     else:
         if data.get("objectIds"):
             query_features = [f for f in features if f["objectId"] in data["objectIds"]]
@@ -143,6 +146,13 @@ class TestGetLayer:
 
         # one call to get ids, three calls to get data
         assert post.call_count == 4
+
+    def test_get_layer_sorts_features_by_object_id(self, post: MagicMock):
+        for chunk_size in (1, 2, 100):
+            features = arcfs.get_layer(MULTIPLE_LAYER, crs=1, chunk_size=chunk_size)[
+                "features"
+            ]
+            assert [f["properties"]["objectid"] for f in features] == [1, 2, 3]
 
 
 @patch("requests.get", side_effect=mock_request_get)
