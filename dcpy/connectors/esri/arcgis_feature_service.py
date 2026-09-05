@@ -158,7 +158,13 @@ def get_layer(layer: FeatureServerLayer, crs: int, chunk_size=100) -> dict:
     obj_params = params.copy()
     obj_params["returnIdsOnly"] = True
     object_id_resp = query_layer(layer, obj_params)
-    object_ids = cast(list[int], object_id_resp["properties"]["objectIds"])
+    # The server returns ids in arbitrary order, and returns features within a chunk in
+    # arbitrary order too. Sorting both keeps the output stable run-to-run, so a diff
+    # against a previously archived version reflects real edits rather than reshuffling.
+    object_ids = sorted(cast(list[int], object_id_resp["properties"]["objectIds"]))
+    object_id_field = cast(
+        str, object_id_resp["properties"]["objectIdFieldName"]
+    ).lower()
 
     features = []
 
@@ -182,7 +188,10 @@ def get_layer(layer: FeatureServerLayer, crs: int, chunk_size=100) -> dict:
             params["objectIds"] = object_ids[i : i + chunk_size]
             chunk = query_layer(layer, params)
             progress.update(task, completed=i + chunk_size)
-            features += [_downcase_properties_keys(feat) for feat in chunk["features"]]
+            features += sorted(
+                (_downcase_properties_keys(feat) for feat in chunk["features"]),
+                key=lambda feat: feat["properties"][object_id_field],
+            )
 
     return {"type": "FeatureCollection", "crs": crs, "features": features}
 
