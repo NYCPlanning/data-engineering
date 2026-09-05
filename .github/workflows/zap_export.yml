@@ -78,9 +78,11 @@ jobs:
       #     service_account_key: ${{ secrets.GCP_GCS_BQ_SA_KEY }}
       #     export_default_credentials: true
 
+      # --tb=short because the default traceback prints each frame's arguments, and
+      # get_metadata's argument is the request headers, bearer token included.
       - name: Check recode fields still exist in CRM
         if: ${{ matrix.open }}
-        run: python3 -m pytest tests/test_visible_projects.py -v
+        run: python3 -m pytest tests/test_visible_projects.py -v --tb=short
 
       - name: Get ${{ matrix.entity }}
         run: python3 -m src.runner ${{ matrix.entity }} $EDM_DATA_ZAP_SCHEMA

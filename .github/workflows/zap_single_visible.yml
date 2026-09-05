@@ -60,8 +60,9 @@ jobs:
           echo "version=$DATE" >> "$GITHUB_OUTPUT"
 
       # Both datasets this workflow offers are open, so no matrix.open gate here.
+      # --tb=short keeps the bearer token out of the log; see zap_export.yml.
       - name: Check recode fields still exist in CRM
-        run: python3 -m pytest tests/test_visible_projects.py -v
+        run: python3 -m pytest tests/test_visible_projects.py -v --tb=short
 
       - name: Get ${{ github.event.inputs.dataset }}
         run: python3 -m src.runner ${{ github.event.inputs.dataset }} $EDM_DATA_ZAP_SCHEMA
