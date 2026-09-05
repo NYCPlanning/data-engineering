@@ -32,6 +32,11 @@ on:
         description: "dev bucket to use in place of recipes. If name of bucket is 'de-dev-a' simply put 'a'"
         type: string
         required: false
+      overwrite:
+        description: "Overwrite the archived version if it already exists (requires version)"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   dataloading:
@@ -90,4 +95,5 @@ jobs:
           latest: ${{ github.event.inputs.latest == 'true' && '--latest' || '' }}
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
           mode: ${{ github.event.inputs.mode && format('--mode {0}', github.event.inputs.mode) || '' }}
-        run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ inputs.dataset }} $latest $version $mode --push-to-s3
+          overwrite: ${{ github.event.inputs.overwrite == 'true' && '--overwrite' || '' }}
+        run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ inputs.dataset }} $latest $version $mode $overwrite --push-to-s3
