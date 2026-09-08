@@ -43,6 +43,9 @@ def _get_nyc_links(params):
         params["page"] = page_num
 
         response = requests.get(BASE_URL, params=params)
+        # An error page parses to zero links, which the loop below would read as
+        # "no more pages" and archive as an empty dataset.
+        response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         court_divs = soup.find_all("div", class_="court-finder-result")
         links = [d.find("a").get("href") for d in court_divs]
@@ -57,6 +60,7 @@ def _get_nyc_links(params):
 def _fetch_location_info(link: str):
     logger.info(f"getting {link}")
     html = requests.get(link)
+    html.raise_for_status()
     soup = BeautifulSoup(html.text, "html.parser")
 
     # Extract the court name
