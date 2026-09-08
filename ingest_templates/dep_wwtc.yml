@@ -1,0 +1,19 @@
+id: dep_wwtc
+acl: public-read
+
+attributes:
+  name: NYC Wastewater Treatment Plants
+  description: >-
+    New York City's 14 wastewater treatment plants, which together treat 1.3 billion
+    gallons of wastewater daily. Hand-maintained: check the source for changes and
+    place an updated csv in the inbox.
+  url: https://www.nyc.gov/site/dep/water/wastewater-treatment-plants.page
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dep_wwtc/{{ version }}/dep_wwtc.csv
+  file_format:
+    type: csv
+    dtype: str
