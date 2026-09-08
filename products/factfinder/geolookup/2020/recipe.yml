@@ -1,0 +1,13 @@
+name: PFF - Geolookup 2020
+version: dummy
+product: db-factfinder
+inputs:
+  datasets:
+    - name: dcp_censusblocks
+      version: 21c
+    - name: dcp_censustracts
+      version: 21c
+    - name: dcp_pfirms
+    - name: dpr_park_access_zone
+    - name: fema_firms2007_100yr
+  missing_versions_strategy: find_latest

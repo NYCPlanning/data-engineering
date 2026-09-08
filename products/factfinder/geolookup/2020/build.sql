@@ -3,8 +3,8 @@ DROP TABLE IF EXISTS flood_500;
 SELECT 1 as id, wkb_geometry as wkb_geometry
 INTO flood_500
 FROM (
-	SELECT wkb_geometry
-	FROM fema_pfirms2015_100yr
+	SELECT geom AS wkb_geometry
+	FROM dcp_pfirms
 	WHERE fld_zone <> 'X'
 	UNION
 	SELECT wkb_geometry
@@ -17,8 +17,8 @@ DROP TABLE IF EXISTS flood_100;
 SELECT 1 as id, wkb_geometry as wkb_geometry
 INTO flood_100
 FROM (
-	SELECT wkb_geometry
-	FROM fema_pfirms2015_100yr
+	SELECT geom AS wkb_geometry
+	FROM dcp_pfirms
 	WHERE fld_zone <> 'X' AND fld_zone <> '0.2 PCT ANNUAL CHANCE FLOOD HAZARD'
 	UNION
 	SELECT wkb_geometry

@@ -1,5 +1,8 @@
 import argparse
 import os
+from pathlib import Path
+
+from dcpy.lifecycle.builds import load, plan
 
 
 def parse_args() -> str:
@@ -13,4 +16,6 @@ def parse_args() -> str:
 
 if __name__ == "__main__":
     geography = parse_args()
+    lockfile = plan.plan(Path(__file__).parent / geography / "recipe.yml")
+    load.load_source_data_from_resolved_recipe(lockfile)
     os.system(f"bash geolookup/{geography}/run.sh")
