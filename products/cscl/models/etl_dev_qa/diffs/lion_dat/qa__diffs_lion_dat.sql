@@ -87,6 +87,19 @@ SELECT
                 '0016558', '0343093', '0343094', '0343095', '0343096'
             ]::text[])
             THEN 'Bug 005: doubly-reversed protosegments'
+        -- Bug 006: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
+        -- and confirmed our new value is correct. Fingerprinted on _lion_key since these are a
+        -- one-off reviewed batch, not a general field-pattern rule - e.g. this does NOT mark
+        -- every coincident_seg_count diff accounted for, only these specific records.
+        -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
+        WHEN
+            status = 'modified'
+            AND _lion_key = ANY(ARRAY[
+                '101650330641', '116000297614', '125250032941', '130400327255',
+                '236590241972', '333280149383', '333280149678', '335640029283',
+                '335640188023', '416140101502'
+            ]::text[])
+            THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -132,6 +145,13 @@ SELECT
             -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
             OR RIGHT(_lion_key, 7) = ANY(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
+            ]::text[])
+            -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
+            -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
+            OR _lion_key = ANY(ARRAY[
+                '101650330641', '116000297614', '125250032941', '130400327255',
+                '236590241972', '333280149383', '333280149678', '335640029283',
+                '335640188023', '416140101502'
             ]::text[])
         ),
         FALSE
