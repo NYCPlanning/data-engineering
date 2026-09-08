@@ -101,7 +101,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: nycourts_courts
-    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -201,7 +200,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dep_wwtc
-    file_type: csv # not migrated to ingest
     version: "20210413"
     preprocessor:
       module: facdb.pipelines

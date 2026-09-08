@@ -1,0 +1,18 @@
+id: nycourts_courts
+acl: public-read
+
+attributes:
+  name: NYC Court Locations by County
+  description: >-
+    New York City court locations, by county. Hand-maintained: check the source for
+    changes and place an updated csv in the inbox.
+  url: https://ww2.nycourts.gov/courts/nyc/criminal/generalinfo.shtml
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/nycourts_courts/{{ version }}/nycourts_courts.csv
+  file_format:
+    type: csv
+    dtype: str
