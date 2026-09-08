@@ -33,9 +33,6 @@ jobs:
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
-      # DuckDB build database + exports live outside the checkout so a plain `dbt build`
-      # (run from this working-directory) and dcpy's load/export steps agree on one location.
-      BUILD_ENV_OUTPUT_DIR: ${{ runner.temp }}/gft_build
       # Conservative for the standard ubuntu-22.04 runner (~7GB RAM, 2 vCPU); threads is 1
       # (not 2) to sidestep a known dbt-duckdb table-materialization race condition at
       # threads > 1 - see "Open" section of products/green_fast_track/issues.md.
@@ -65,7 +62,12 @@ jobs:
 
       - name: Set DuckDB path
         run: |
+          # DuckDB build database + exports live outside the checkout (under the runner's
+          # temp dir) so a plain `dbt build` (run from this working-directory) and dcpy's
+          # load/export steps agree on one location.
+          BUILD_ENV_OUTPUT_DIR="$RUNNER_TEMP/gft_build"
           mkdir -p "$BUILD_ENV_OUTPUT_DIR"
+          echo "BUILD_ENV_OUTPUT_DIR=$BUILD_ENV_OUTPUT_DIR" >> "$GITHUB_ENV"
           VERSION=$(python3 -c "import yaml; print(yaml.safe_load(open('${{ inputs.recipe_file }}.lock.yml'))['version'])")
           echo "DUCKDB_PATH=$BUILD_ENV_OUTPUT_DIR/green_fast_track_${VERSION}.duckdb" >> "$GITHUB_ENV"
 
