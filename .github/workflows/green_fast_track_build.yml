@@ -27,7 +27,9 @@ jobs:
         shell: bash
         working-directory: products/green_fast_track
     container:
-      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
+      # build-base doesn't have the dbt-duckdb adapter installed; dev does (and is what
+      # template_build.yml, the other dcpy-native duckdb-capable workflow, already uses).
+      image: nycplanning/dev:${{ inputs.image_tag || 'latest' }}
     env:
       BUILD_NAME: ${{ inputs.build_name }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
