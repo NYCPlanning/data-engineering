@@ -1,0 +1,18 @@
+id: nycdoc_corrections
+acl: public-read
+
+attributes:
+  name: NYC DOC Correctional Facility Locations
+  description: >-
+    Addresses of NYC Department of Correction facilities, scraped from the facility
+    locations page.
+  url: https://www.nyc.gov/site/doc/about/facilities-locations.page
+
+ingestion:
+  source:
+    # custom web-scraping connector
+    type: nycdoc
+    key: ""
+  file_format:
+    type: csv
+    dtype: str
