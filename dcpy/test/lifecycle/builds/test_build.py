@@ -153,14 +153,14 @@ def test_gdb_export(tmp_path):
 
 def test_gdb_export_multi_table(tmp_path):
     """Multiple layers sharing a filename go into one GDB with separate named layers."""
-    from dcpy.utils.duckdb import _write_gdb_zip
+    from dcpy.utils.datastores import write_gdb_zip
 
     points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
     polygons_gdf = _mixed_gdf[_mixed_gdf.geom_type != "Point"].copy()
 
     out = tmp_path / "combined.zip"
     with tempfile.TemporaryDirectory() as tmp_str:
-        _write_gdb_zip(
+        write_gdb_zip(
             [("places", points_gdf), ("boundaries", polygons_gdf)],
             out,
             Path(tmp_str),
@@ -178,14 +178,14 @@ def test_gdb_export_non_spatial_table(tmp_path):
     alongside spatial layers in the same file."""
     import pandas as pd
 
-    from dcpy.utils.duckdb import _write_gdb_zip
+    from dcpy.utils.datastores import write_gdb_zip
 
     points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
     table_df = pd.DataFrame({"nodeid": [1, 2, 3], "stname": ["A ST", "B AVE", "C PL"]})
 
     out = tmp_path / "combined.zip"
     with tempfile.TemporaryDirectory() as tmp_str:
-        _write_gdb_zip(
+        write_gdb_zip(
             [("node", points_gdf), ("node_stname", table_df)],
             out,
             Path(tmp_str),
@@ -287,8 +287,8 @@ exports:
 """.format(output_folder=str(tmp_path / "output"))
     )
 
-    # GDB entries bypass export_dataset_from_postgres; patch _write_gdb_zip directly
-    with patch("dcpy.utils.duckdb._write_gdb_zip") as mock_write:
+    # GDB entries bypass export_dataset_from_postgres; patch write_gdb_zip directly
+    with patch("dcpy.utils.datastores.write_gdb_zip") as mock_write:
         with patch("dcpy.lifecycle.builds.export._read_filtered_gdf") as mock_read:
             mock_read.return_value = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
             export(recipe_path, pg_client=MagicMock())
@@ -453,6 +453,45 @@ exports:
         export(recipe_path, duckdb_client=MagicMock())
 
     assert mock_export.called
+
+
+def test_postgres_export_defaults_to_standard_build_dir_not_recipe_lock_dir(
+    tmp_path, monkeypatch
+):
+    """A postgres-backed build with no explicit output_folder and no BUILD_ENV_OUTPUT_DIR
+    must default to the standard {product}/{version} build dir - not recipe_lock_path's own
+    directory. Products (e.g. template) write build-stage artifacts like data dictionaries
+    to that standard path via dcpy.lifecycle.config.get_build_dir() directly, independent of
+    wherever recipe.lock.yml itself happens to live (e.g. inside the product's source dir in
+    CI); export() has to agree with that same location or it silently won't find them."""
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)
+    lifecycle_dir = tmp_path / "lifecycle_data"
+    monkeypatch.setenv("DCPY_LIFECYCLE_DATA_DIR", str(lifecycle_dir))
+
+    # recipe.lock.yml lives somewhere other than the standard build dir, mirroring a real
+    # product's checkout directory (e.g. products/template/recipe.lock.yml in CI).
+    product_dir = tmp_path / "some_other_dir"
+    product_dir.mkdir()
+    recipe_path = product_dir / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets: []
+exports:
+  datasets: []
+"""
+    )
+
+    export(recipe_path, pg_client=MagicMock())
+
+    from dcpy.lifecycle.config import get_build_dir
+
+    expected_output_folder = get_build_dir("test", "24Q1")
+    assert expected_output_folder.exists()
+    assert not (product_dir / "dataset_files").exists()
 
 
 def test_export_mixed_destinations_falls_back_to_postgres(tmp_path):

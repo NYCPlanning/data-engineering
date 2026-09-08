@@ -76,6 +76,9 @@ jobs:
       - name: Dataloading
         run: python3 -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
+      - name: dbt deps
+        run: dbt deps
+
       - name: Build
         run: python3 -m dcpy lifecycle builds build run --recipe-path ${{ inputs.recipe_file }}.lock.yml
 

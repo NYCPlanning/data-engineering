@@ -16,8 +16,8 @@ from dcpy.lifecycle.builds.models import (
     ExportFormat,
     InputDatasetDestination,
 )
+from dcpy.utils import datastores, postgres
 from dcpy.utils import duckdb as duckdb_utils
-from dcpy.utils import postgres
 from dcpy.utils.logging import logger
 
 
@@ -149,11 +149,9 @@ def export_geodataset_from_postgres(
     with tempfile.TemporaryDirectory() as tmp_str:
         tmp_dir = Path(tmp_str)
         if format == ExportFormat.shapefile:
-            duckdb_utils._write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
+            datastores.write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
         elif format == ExportFormat.gdb:
-            duckdb_utils._write_gdb_zip(
-                [(layer or table_name, gdf)], file_path, tmp_dir
-            )
+            datastores.write_gdb_zip([(layer or table_name, gdf)], file_path, tmp_dir)
 
 
 def _read_filtered_gdf(
@@ -164,11 +162,11 @@ def _read_filtered_gdf(
 ):
     gdf = client.read_table_gdf(table_name, geom_column=geom_column)
     if geometry_type == "points":
-        gdf = gdf[gdf.geom_type.isin(duckdb_utils._POINT_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(datastores.POINT_TYPES)]
     elif geometry_type == "polygons":
-        gdf = gdf[gdf.geom_type.isin(duckdb_utils._POLYGON_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(datastores.POLYGON_TYPES)]
     elif geometry_type == "lines":
-        gdf = gdf[gdf.geom_type.isin(duckdb_utils._LINE_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(datastores.LINE_TYPES)]
     return gdf
 
 
@@ -240,14 +238,23 @@ def export(
             f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
         )
 
-    # Use version for output path, not schema/branch name. Defaults to the same directory
-    # the duckdb file/build artifacts actually live in (see _default_build_output_dir) so
-    # dataset_files lands next to them, not off in the standard {product}/{version} path
-    # while BUILD_ENV_OUTPUT_DIR points somewhere else.
+    # Use version for output path, not schema/branch name. For duckdb-backed builds,
+    # defaults to the same directory the duckdb file actually lives in (see
+    # _default_build_output_dir) so dataset_files lands next to it rather than off in the
+    # standard {product}/{version} path while BUILD_ENV_OUTPUT_DIR points somewhere else.
+    # Postgres-backed builds have no such file to co-locate with, so they skip straight to
+    # BUILD_ENV_OUTPUT_DIR-or-standard-path - matching where other build-stage steps (e.g.
+    # products/template's own data-dictionary generation) already put their artifacts.
     if recipe.exports and recipe.exports.output_folder:
         output_folder = recipe.exports.output_folder
-    else:
+    elif duckdb_client is not None:
         output_folder = _default_build_output_dir(recipe, Path(recipe_lock_path))
+    elif "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        output_folder = Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
+    else:
+        if not recipe.version:
+            raise ValueError("Recipe version must be set for export")
+        output_folder = config.get_build_dir(recipe.product, recipe.version)
 
     # Create output folder if it doesn't exist (preserves existing artifacts like attachments)
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -303,7 +310,9 @@ def export(
                     if dest_dir.exists():
                         shutil.rmtree(dest_dir)
                     shutil.copytree(source_dir, dest_dir)
-                    logger.info(f"Copied artifact directory {dirname} from build output")
+                    logger.info(
+                        f"Copied artifact directory {dirname} from build output"
+                    )
         else:
             logger.debug(f"Artifact directory {dirname} does not exist in build output")
 
@@ -359,7 +368,7 @@ def export(
             if custom.get("allow_empty"):
                 allow_empty.add(layer_name)
         with tempfile.TemporaryDirectory() as tmp_str:
-            duckdb_utils._write_gdb_zip(
+            datastores.write_gdb_zip(
                 layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
             )
 

@@ -64,8 +64,9 @@ jobs:
         CHANGED: ${{ inputs.path_filter }}
       run: |
         # Not every products/*/dbt_project.yml is here; the rest aren't migrated far enough to test.
+        # green_fast_track is duckdb-only now, so it can't run in this postgres-backed job.
         projects=$(jq -cn \
-          --argjson all '["template","cdbg","ceqr","cpdb","cscl","green_fast_track","pluto","zoningtaxlots"]' \
+          --argjson all '["template","cdbg","ceqr","cpdb","cscl","pluto","zoningtaxlots"]' \
           --argjson changed "${CHANGED:-null}" \
           '$all | map(select($changed == null or IN($changed[])))')
         echo "dbt projects to test: $projects"

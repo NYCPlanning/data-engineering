@@ -1,5 +1,5 @@
 WITH clipped_to_nyc AS (
-    {{ clip_to_geom(left=source("recipe_sources", "usfws_nyc_wetlands"), left_by="geometry") }}
+    {{ clip_to_geom(left=source("recipe_sources", "usfws_nyc_wetlands"), left_by="geom") }}
 )
 
 --- wetland_types

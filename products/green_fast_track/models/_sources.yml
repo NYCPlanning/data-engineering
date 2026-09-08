@@ -397,7 +397,7 @@ sources:
 
   - name: usnps_parks
     columns:
-    - name: gnis_id
+    - name: unit_code
     - name: parkname
       tests:
       - not_null
@@ -409,7 +409,7 @@ sources:
       test_name: dbt_utils.unique_combination_of_columns
       arguments:
         combination_of_columns:
-        - gnis_id
+        - unit_code
         - parkname
         - geom
       config:
@@ -547,7 +547,7 @@ sources:
     - name: wetland_type
       tests:
       - not_null
-    - name: geometry
+    - name: geom
       tests:
       - not_null
 
