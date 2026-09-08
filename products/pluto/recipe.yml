@@ -25,6 +25,7 @@ inputs:
       # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
       version_env_var: VERSION_PREV
       import_as: previous_pluto
+    - name: dcp_pfirms
     - name: dcp_policeprecincts
     - name: dcp_school_districts
     - name: dcp_specialpurpose
@@ -39,7 +40,6 @@ inputs:
     - name: dpr_greenthumb
     - name: dsny_frequencies
     - name: fema_firms2007_100yr
-    - name: fema_pfirms2015_100yr
     - name: lpc_historic_districts
     - name: lpc_landmarks
     - name: pluto_input_cama_dof

@@ -14,7 +14,7 @@
 -- PLUTO input datasets now handled by DBT staging models:
 -- pluto_input_cama_dof, pluto_input_geocodes, pluto_input_numbldgs
 -- Flood/infrastructure datasets now handled by DBT staging models:
--- fema_firms2007_100yr, fema_pfirms2015_100yr, dcp_transit_zones,
+-- fema_firms2007_100yr, dcp_pfirms, dcp_transit_zones,
 -- dcp_gis_mandatory_inclusionary_housing
 
 -- All geometry column transformations now handled by DBT staging models!

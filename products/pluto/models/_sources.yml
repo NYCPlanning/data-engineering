@@ -39,7 +39,7 @@ sources:
   - name: dof_dtm
   - name: dof_shoreline
   - name: fema_firms2007_100yr
-  - name: fema_pfirms2015_100yr
+  - name: dcp_pfirms
   - name: dcp_transit_zones
   - name: dcp_gis_mandatory_inclusionary_housing
   - name: dcp_developments
