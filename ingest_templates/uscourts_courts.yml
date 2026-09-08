@@ -1,4 +1,4 @@
-id: uscourts_nyc_courts
+id: uscourts_courts
 acl: public-read
 
 attributes:
@@ -12,3 +12,23 @@ ingestion:
     key: ""
   file_format:
     type: csv
+  processing_steps:
+  # Column names below match what facdb's uscourts_courts.sql reads, which predates
+  # this scraper and follows the old court-finder export's naming.
+  - name: rename_columns
+    args:
+      map:
+        name: officename
+        place_name: buildingname
+        address: buildingaddress
+        city: buildingcity
+        zip_code: buildingzip
+        state: buildingstate
+        phone_number: phone
+  - name: pd_series_func
+    args:
+      column_name: officename
+      function_name: str.replace
+      pat: " - [^,]+, [A-Z]{2}$"
+      repl: ""
+      regex: True
