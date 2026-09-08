@@ -24,7 +24,14 @@ from dcpy.connectors.registry import (
     ConnectorRegistry,
 )
 from dcpy.connectors.socrata.connector import SocrataConnector
-from dcpy.connectors.web_scrapers import foodbankny, myschools_nyc, qpl, uscourts, usps
+from dcpy.connectors.web_scrapers import (
+    foodbankny,
+    myschools_nyc,
+    nycdoc,
+    qpl,
+    uscourts,
+    usps,
+)
 from dcpy.utils.logging import logger
 
 connectors = ConnectorRegistry[Connector]()
@@ -101,6 +108,7 @@ def _set_default_connectors():
         ArcGISFeatureServiceConnector(),
         web.WebConnector(),
         uscourts.USCourtsConnector(),
+        nycdoc.NYCDOCConnector(),
         qpl.QPLConnector(),
         foodbankny.FoodBankNYConnector(),
         myschools_nyc.MySchoolsNYCConnector(),
