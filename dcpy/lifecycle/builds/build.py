@@ -16,8 +16,16 @@ from dcpy.utils.logging import logger
 app = typer.Typer(add_completion=False)
 
 
-def upload_build(build_path: Path, recipe_lock_path: Path | None = None) -> dict:
-    """Upload a build to the destination configured in the recipe."""
+def upload_build(
+    build_path: Path, recipe_lock_path: Path | None = None, merge: bool = False
+) -> dict:
+    """Upload a build to the destination configured in the recipe.
+
+    merge: if True, upload into the destination without first clearing its existing
+    contents - for products (e.g. duckdb-backed builds) that call this more than once
+    for the same build/version to assemble the destination folder from several local
+    subfolders (e.g. dataset_files/, attachments/) without one call wiping another's.
+    """
     recipe = plan.recipe_from_yaml(
         recipe_lock_path or (Path(build_path).parent / "recipe.lock.yml")
     )
@@ -36,11 +44,13 @@ def upload_build(build_path: Path, recipe_lock_path: Path | None = None) -> dict
             "This should be set during planning from the BUILD_NAME environment variable."
         )
 
+    connector_args = stage_config.get_connector_args_dict()
+    connector_args["merge"] = merge
     result = connectors[stage_config.destination].push(
         version=recipe.build_name,
         build_path=build_path,
         key=connector_key,
-        connector_args=stage_config.get_connector_args_dict(),
+        connector_args=connector_args,
         # TODO: eventually also pass the metadata from the build stage output, which would allow us to skip passing the build path
     )
     return result
@@ -604,9 +614,18 @@ def _upload_build(
         "-r",
         help="Path of recipe lock file to use",
     ),
+    merge: bool = typer.Option(
+        False,
+        "--merge",
+        help=(
+            "Upload into the destination without clearing its existing contents first. "
+            "Use when calling 'upload' more than once for the same build (e.g. once per "
+            "local subfolder) so a later call doesn't wipe an earlier one's files."
+        ),
+    ),
 ):
     """Upload a build to the destination configured in the recipe."""
-    result = upload_build(build_path, recipe_lock_path)
+    result = upload_build(build_path, recipe_lock_path, merge=merge)
     typer.echo(result)
 
 

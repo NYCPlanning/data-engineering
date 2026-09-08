@@ -4,12 +4,9 @@ import subprocess
 import tempfile
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
-import geopandas as gpd
-import pyogrio
 import typer
-from shapely import MultiLineString, MultiPoint, MultiPolygon
 
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import config as build_config
@@ -22,13 +19,6 @@ from dcpy.lifecycle.builds.models import (
 from dcpy.utils import duckdb as duckdb_utils
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-
-# Both single and multi variants are treated as the same geometry family so that
-# PostGIS columns with mixed Point/MultiPoint (or Polygon/MultiPolygon) aren't
-# silently split or dropped when filtering by geometry_type.
-_POINT_TYPES = ["Point", "MultiPoint"]
-_POLYGON_TYPES = ["Polygon", "MultiPolygon"]
-_LINE_TYPES = ["LineString", "MultiLineString"]
 
 
 def export_dataset_from_postgres(
@@ -121,7 +111,7 @@ def export_dataset_from_duckdb(
                 table_name=table_name, output_path=file_path
             )
         case ExportFormat.shapefile | ExportFormat.gdb:
-            export_geodataset_from_duckdb(
+            duckdb_utils.export_geodataset_from_duckdb(
                 table_name=table_name,
                 file_path=file_path,
                 format=format,
@@ -159,33 +149,11 @@ def export_geodataset_from_postgres(
     with tempfile.TemporaryDirectory() as tmp_str:
         tmp_dir = Path(tmp_str)
         if format == ExportFormat.shapefile:
-            _write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
+            duckdb_utils._write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
         elif format == ExportFormat.gdb:
-            _write_gdb_zip([(layer or table_name, gdf)], file_path, tmp_dir)
-
-
-def export_geodataset_from_duckdb(
-    table_name: str,
-    file_path: Path,
-    format: ExportFormat,
-    duckdb_client: duckdb_utils.DuckDBClient,
-    *,
-    geom_column: str = "geom",
-    geometry_type: str | None = None,  # "points" | "polygons" | "lines" | None (no filter)
-    layer: str | None = None,
-) -> None:
-    """Export a geospatial table from duckdb as a zipped shapefile or FGDB."""
-    logger.info(
-        f"Exporting geospatial table {table_name} to {file_path} in format {format}"
-    )
-    gdf = _read_filtered_gdf(table_name, duckdb_client, geom_column, geometry_type)
-
-    with tempfile.TemporaryDirectory() as tmp_str:
-        tmp_dir = Path(tmp_str)
-        if format == ExportFormat.shapefile:
-            _write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
-        elif format == ExportFormat.gdb:
-            _write_gdb_zip([(layer or table_name, gdf)], file_path, tmp_dir)
+            duckdb_utils._write_gdb_zip(
+                [(layer or table_name, gdf)], file_path, tmp_dir
+            )
 
 
 def _read_filtered_gdf(
@@ -196,107 +164,12 @@ def _read_filtered_gdf(
 ):
     gdf = client.read_table_gdf(table_name, geom_column=geom_column)
     if geometry_type == "points":
-        gdf = gdf[gdf.geom_type.isin(_POINT_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(duckdb_utils._POINT_TYPES)]
     elif geometry_type == "polygons":
-        gdf = gdf[gdf.geom_type.isin(_POLYGON_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(duckdb_utils._POLYGON_TYPES)]
     elif geometry_type == "lines":
-        gdf = gdf[gdf.geom_type.isin(_LINE_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(duckdb_utils._LINE_TYPES)]
     return gdf
-
-
-def _normalize_to_single_geom_type(gdf, label: str):
-    """Normalize a GDF to a single geometry type within a family.
-
-    PostGIS columns often contain a mix of Point/MultiPoint or Polygon/MultiPolygon.
-    Both shapefiles and GDB layers require a single geometry type, so we promote to
-    the multi-variant when both are present. Raises if types span different families
-    (e.g. Point + Polygon), which requires an explicit geometry_type filter.
-    """
-    types_set = set(gdf.geom_type.dropna().unique())
-    if types_set <= set(_POINT_TYPES):
-        # Exact equality avoids a no-op copy when already single-type.
-        if types_set == {"Point", "MultiPoint"}:
-            gdf = gdf.copy()
-            gdf.geometry = gdf.geometry.apply(
-                lambda g: MultiPoint([g]) if g.geom_type == "Point" else g
-            )
-    elif types_set <= set(_POLYGON_TYPES):
-        if types_set == {"Polygon", "MultiPolygon"}:
-            gdf = gdf.copy()
-            gdf.geometry = gdf.geometry.apply(
-                lambda g: MultiPolygon([g]) if g.geom_type == "Polygon" else g
-            )
-    elif types_set <= set(_LINE_TYPES):
-        if types_set == {"LineString", "MultiLineString"}:
-            gdf = gdf.copy()
-            gdf["geometry"] = gdf["geometry"].apply(
-                lambda g: MultiLineString([g]) if g.geom_type == "LineString" else g
-            )
-    else:
-        raise ValueError(
-            f"'{label}' contains geometry types from different families: "
-            f"{sorted(types_set)}. Specify geometry_type='points', 'polygons', "
-            "or 'lines' in custom."
-        )
-    return gdf
-
-
-def _write_shapefile_zip(gdf, table_name: str, file_path: Path, tmp_dir: Path) -> None:
-    if gdf.empty:
-        raise ValueError(
-            f"No features to export for '{table_name}' shapefile "
-            "(geometry_type filter returned zero rows)"
-        )
-    gdf = _normalize_to_single_geom_type(gdf, table_name)
-    gdf.to_file(tmp_dir / table_name)
-    shutil.make_archive(str(file_path.with_suffix("")), "zip", tmp_dir / table_name)
-
-
-def _write_gdb_zip(
-    layers: list[tuple[str, Any]],
-    file_path: Path,
-    tmp_dir: Path,
-    allow_empty: set[str] | None = None,
-) -> None:
-    """Write one or more named layers to a zipped FGDB.
-
-    Each entry in `layers` is (layer_name, gdf). OpenFileGDB requires a single
-    geometry type per layer; use geometry_type='points' or 'polygons' in the
-    recipe custom fields to filter before reaching here.
-
-    An empty layer is an error by default, since it usually means a geometry_type
-    filter matched nothing. Layers named in `allow_empty` (recipe `custom.allow_empty`)
-    are written as schema-only instead, for feature classes that are legitimately
-    empty upstream and still have to appear in the output.
-    """
-    allow_empty = allow_empty or set()
-    gdb_name = file_path.stem
-    gdb_path = tmp_dir / f"{gdb_name}.gdb"
-    # OpenFileGDB requires creating the file on the first layer, then appending the
-    # rest — you can't write multiple layers in one call. write_dataframe handles both
-    # GeoDataFrames (spatial, one geometry type per layer) and plain DataFrames
-    # (non-spatial tables like node_stname / altnames, which have no geometry column).
-    for i, (layer_name, gdf) in enumerate(layers):
-        write_kwargs: dict[str, Any] = {}
-        if gdf.empty:
-            if layer_name not in allow_empty:
-                raise ValueError(f"No rows to export for GDB layer '{layer_name}'")
-            # An empty frame carries no geometry to infer from, so name the type.
-            if isinstance(gdf, gpd.GeoDataFrame):
-                write_kwargs["geometry_type"] = "MultiPolygon"
-        elif isinstance(gdf, gpd.GeoDataFrame):
-            gdf = _normalize_to_single_geom_type(gdf, layer_name)
-        pyogrio.write_dataframe(
-            gdf,
-            str(gdb_path),
-            driver="OpenFileGDB",
-            layer=layer_name,
-            append=i > 0,
-            **write_kwargs,
-        )
-    shutil.make_archive(
-        str(file_path.with_suffix("")), "zip", tmp_dir, f"{gdb_name}.gdb"
-    )
 
 
 def _output_filename(output: ExportDataset) -> str:
@@ -486,7 +359,7 @@ def export(
             if custom.get("allow_empty"):
                 allow_empty.add(layer_name)
         with tempfile.TemporaryDirectory() as tmp_str:
-            _write_gdb_zip(
+            duckdb_utils._write_gdb_zip(
                 layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
             )
 

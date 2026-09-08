@@ -153,7 +153,7 @@ def test_gdb_export(tmp_path):
 
 def test_gdb_export_multi_table(tmp_path):
     """Multiple layers sharing a filename go into one GDB with separate named layers."""
-    from dcpy.lifecycle.builds.export import _write_gdb_zip
+    from dcpy.utils.duckdb import _write_gdb_zip
 
     points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
     polygons_gdf = _mixed_gdf[_mixed_gdf.geom_type != "Point"].copy()
@@ -178,7 +178,7 @@ def test_gdb_export_non_spatial_table(tmp_path):
     alongside spatial layers in the same file."""
     import pandas as pd
 
-    from dcpy.lifecycle.builds.export import _write_gdb_zip
+    from dcpy.utils.duckdb import _write_gdb_zip
 
     points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
     table_df = pd.DataFrame({"nodeid": [1, 2, 3], "stname": ["A ST", "B AVE", "C PL"]})
@@ -288,7 +288,7 @@ exports:
     )
 
     # GDB entries bypass export_dataset_from_postgres; patch _write_gdb_zip directly
-    with patch("dcpy.lifecycle.builds.export._write_gdb_zip") as mock_write:
+    with patch("dcpy.utils.duckdb._write_gdb_zip") as mock_write:
         with patch("dcpy.lifecycle.builds.export._read_filtered_gdf") as mock_read:
             mock_read.return_value = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()
             export(recipe_path, pg_client=MagicMock())
@@ -416,11 +416,11 @@ def test_unsupported_format_from_duckdb_raises(tmp_path):
     )
     client.conn.execute("CREATE TABLE test_schema.mytable AS SELECT 1 AS a")
 
-    with pytest.raises(NotImplementedError, match="shp"):
+    with pytest.raises(NotImplementedError, match="unsupported_format"):
         export_dataset_from_duckdb(
             table_name="mytable",
             file_path=tmp_path / "out.zip",
-            format=ExportFormat.shapefile,
+            format="unsupported_format",
             duckdb_client=client,
         )
     client.close()

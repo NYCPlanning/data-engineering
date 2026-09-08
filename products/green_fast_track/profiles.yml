@@ -5,7 +5,10 @@ dcp-de-duckdb:
       type: duckdb
       path: "{{ env_var('DUCKDB_PATH') }}"
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
-      threads: 2
+      # Tuned for an ~8GB local dev box (see products/green_fast_track/issues.md) -- a GHA
+      # runner or other machine will need its own values, hence the env vars. Defaults keep
+      # today's local behavior when they're unset.
+      threads: "{{ env_var('DUCKDB_THREADS', '2') | as_number }}"
       extensions:
       - spatial
       settings:
@@ -15,4 +18,4 @@ dcp-de-duckdb:
         # counter-intuitively, capping memory_limit well below the default 80% of system RAM
         # avoids OOM here: operations like array_agg allocate outside duckdb's buffer manager,
         # so the tracked limit can look like it has room when physical memory is actually gone
-        memory_limit: '5GB'
+        memory_limit: "{{ env_var('DUCKDB_MEMORY_LIMIT', '5GB') }}"

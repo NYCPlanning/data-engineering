@@ -49,21 +49,23 @@ class LocalPathWrapper:
     def rmtree(self):
         shutil.rmtree(self.path)
 
-    def copytree(self, target: "Path | HybridPath"):
+    def copytree(self, target: "Path | HybridPath", merge: bool = False):
         """
         Recursively copy this directory to the target path.
-        If target exists, it will be overwritten.
+        If target exists, it will be overwritten - unless merge is True, in which case
+        this directory's contents are added into target's existing contents instead
+        (overwriting same-named files, leaving other existing files in target alone).
         """
         if isinstance(target, Path):
             target = LocalPathWrapper(target)
 
-        if target.exists():
+        if target.exists() and not merge:
             target.rmtree()
 
         if isinstance(target, LocalPathWrapper):
-            shutil.copytree(self.path, target.path)
+            shutil.copytree(self.path, target.path, dirs_exist_ok=merge)
         elif isinstance(target, Path):
-            shutil.copytree(self.path, target)
+            shutil.copytree(self.path, target, dirs_exist_ok=merge)
         else:
             target.upload_from(self.path)
 
@@ -228,6 +230,7 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
     def push(self, key: str, **kwargs) -> dict:
         # Push a file or directory from local to storage at key
         metadata = kwargs.get("metadata", {})
+        merge = kwargs.get("merge", False)
 
         source = kwargs.get("filepath")
         if source is None:
@@ -257,11 +260,9 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
         dest_path = dest_storage.root_path / key
 
         if source_path.is_dir():
-            if dest_path.exists():
+            if dest_path.exists() and not merge:
                 dest_path.rmtree()
-            source_path.copytree(
-                dest_path,
-            )
+            source_path.copytree(dest_path, merge=merge)
         else:
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             if dest_path.exists():
