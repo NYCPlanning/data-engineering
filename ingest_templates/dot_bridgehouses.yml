@@ -1,0 +1,28 @@
+id: dot_bridgehouses
+acl: public-read
+
+attributes:
+  name: DOT Bridge Houses
+  description: >-
+    NYC Department of Transportation DOT Bridge Houses. Delivered as a shapefile bundle and
+    manually refreshed into the inbox, not fetched from a live source.
+  url: https://www.nyc.gov/html/dot/html/about/datafeeds.shtml
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dot/{{ version }}.zip
+  file_format:
+    type: shapefile
+    # DOT ships the bundle inside a folder named DCP<MMDDYYYY>. Derived from the
+    # version so a new drop needs no template edit; a naming change fails loudly here.
+    unzipped_filename: DCP{{ version[4:6] }}{{ version[6:8] }}{{ version[0:4] }}/BRIDGE_HOUSES.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "geometry" }

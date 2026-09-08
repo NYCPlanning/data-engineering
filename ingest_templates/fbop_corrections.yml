@@ -1,0 +1,23 @@
+id: fbop_corrections
+acl: public-read
+
+attributes:
+  name: Federal Bureau of Prisons Locations
+  description: >-
+    Locations of Federal Bureau of Prisons facilities. Manually refreshed: check the
+    source for updates and compare against the latest version, then copy and edit the
+    latest csv into the inbox. Searching by state should return 5 NY prisons, 3 of them
+    in NYC (Brooklyn/New York).
+  url: https://www.bop.gov/locations/list.jsp
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/fbop_corrections/{{ version }}/fbop_corrections.csv
+  file_format:
+    type: csv
+    dtype: str
+    # The source writes "N/A" as a value; keep it rather than letting pandas null it.
+    keep_default_na: false
+    na_values: [""]
