@@ -43,7 +43,7 @@ SELECT
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         WHEN
             status = 'modified'
-            AND _saf_key = ANY(ARRAY['416070284412']::text[])
+            AND _saf_key = any(ARRAY['416070284412']::text[])
             THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND array_length(change_keys, 1) = 1
@@ -59,7 +59,7 @@ SELECT
         -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         status = 'modified'
-        AND _saf_key = ANY(ARRAY['416070284412']::text[]),
+        AND _saf_key = any(ARRAY['416070284412']::text[]),
         FALSE
     ) AS accounted_for
 FROM categorized
