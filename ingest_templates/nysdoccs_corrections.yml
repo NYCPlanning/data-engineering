@@ -1,0 +1,18 @@
+id: nysdoccs_corrections
+acl: public-read
+
+attributes:
+  name: NYS DOCCS Correctional Facilities
+  description: >-
+    New York State Department of Corrections and Community Supervision facilities.
+    Manually refreshed into the inbox.
+  url: https://doccs.ny.gov/find-facility
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/nysdoccs_corrections/{{ version }}/nysdoccs_corrections.csv
+  file_format:
+    type: csv
+    dtype: str
