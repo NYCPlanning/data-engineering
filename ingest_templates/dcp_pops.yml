@@ -1,0 +1,37 @@
+id: dcp_pops
+acl: public-read
+
+attributes:
+  name: Privately Owned Public Spaces (POPS)
+  description: >-
+    Privately owned public spaces are public spaces on private property in high density
+    commercial and residential districts, provided by developers in exchange for additional
+    floor area or other considerations. Exported from the POPS app in DCP Commons ("export
+    data", "for open data") and placed in the inbox by hand.
+  url: https://www.nyc.gov/site/planning/data-maps/open-data.page
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcp/dcp_pops/{{ version }}/POPS_Open_Data.CSV
+  file_format:
+    type: csv
+    dtype: str
+    # The source writes "None" as a value; keep it rather than letting pandas null it.
+    keep_default_na: false
+    na_values: [""]
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+  - name: coerce_column_types
+    args:
+      column_types: { "latitude": numeric, "longitude": numeric }
