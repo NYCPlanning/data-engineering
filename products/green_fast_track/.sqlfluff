@@ -1,0 +1,7 @@
+[sqlfluff]
+# Overrides the repo-wide postgres default (pyproject.toml) - this product's dbt build
+# targets DuckDB, not postgres (see products/green_fast_track/issues.md).
+dialect = duckdb
+
+[sqlfluff:templater:dbt]
+dialect = duckdb

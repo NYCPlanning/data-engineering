@@ -50,6 +50,19 @@ jobs:
         sqlfluff lint products/knownprojects/sql --templater=jinja
         sqlfluff lint products/pluto/pluto_build/sql/
 
+    - name: Check green_fast_track dbt models (DuckDB dialect)
+      # A full dbt project (ref()/source()/packages), so this needs --templater=dbt to
+      # compile - which in turn needs a resolvable DUCKDB_PATH, same as a real build.
+      # Dialect itself comes from products/green_fast_track/.sqlfluff (duckdb, not the
+      # repo-wide postgres default) - no live data needed, just a valid file path.
+      working-directory: products/green_fast_track
+      env:
+        BUILD_ENGINE_SCHEMA: sqlfluff_lint
+      run: |
+        export DUCKDB_PATH="$RUNNER_TEMP/gft_sqlfluff_lint.duckdb"
+        dbt deps
+        sqlfluff lint models --templater=dbt
+
   set_dbt_matrix:
     name: Setup dbt tests
     runs-on: ubuntu-22.04

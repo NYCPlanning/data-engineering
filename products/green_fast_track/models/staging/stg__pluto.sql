@@ -11,8 +11,8 @@ final AS (
     SELECT
         -- bbl arrives as a DOUBLE in duckdb's parquet archive (a plain text cast in postgres
         -- doesn't add a decimal, but duckdb's DOUBLE->VARCHAR cast does: "3062640072.0" instead
-        -- of "3062640072") -- round-tripping through BIGINT first strips it
-        CAST(bbl AS BIGINT)::text AS bbl,
+        -- of "3062640072") -- round-tripping through bigint first strips it
+        bbl::bigint::text AS bbl,
         zonedist1,
         zonedist2,
         zonedist3,

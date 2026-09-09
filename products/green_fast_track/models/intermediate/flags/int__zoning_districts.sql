@@ -28,10 +28,12 @@ zonedist_slots AS (
 ),
 
 districts_exploded AS (
-    SELECT bbl, zd
+    SELECT
+        bbl,
+        zd
     -- duckdb doesn't support UNNEST in the SELECT list alongside GROUP BY, so unnest in
     -- the FROM clause instead
-    FROM zonedist_slots, UNNEST(STRING_TO_ARRAY(zonedist_raw, '/')) AS _t(zd)
+    FROM zonedist_slots, UNNEST(STRING_TO_ARRAY(zonedist_raw, '/')) AS _t (zd)
     GROUP BY bbl, zd
 ),
 

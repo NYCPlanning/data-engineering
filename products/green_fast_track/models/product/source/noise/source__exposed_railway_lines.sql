@@ -3,4 +3,4 @@ SELECT
     variable_id,
     raw_geom
 FROM {{ ref("int_spatial__exposed_railway") }}
-WHERE ST_GeometryType(raw_geom) = 'MULTILINESTRING'
+WHERE ST_GEOMETRYTYPE(raw_geom) = 'MULTILINESTRING'
