@@ -1,4 +1,4 @@
-# DCAS LIFT
+# LIFT
 
 Land Inventory Fast Track (LIFT) is a multi-agency effort, established by Executive Order 4, to
 identify City-owned land suitable for housing. This product produces the supplemented LIFT
