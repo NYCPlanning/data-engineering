@@ -63,7 +63,11 @@ class TestValidateAgainstExistingVersion:
         assert get_processed_datastore_connector().version_exists(ds.id, ds.version), (
             "The version should be found"
         )
-        validate.validate_data_against_existing_version(ds.id, ds.version, TEST_OUTPUT)
+        # A library-era archive can't be compared, so it has to be replaced deliberately
+        with pytest.raises(FileExistsError, match="dcpy.library"):
+            validate.validate_data_against_existing_version(
+                ds.id, ds.version, TEST_OUTPUT
+            )
 
     def test_existing(self, connector: IngestDatastoreConnector):
         ds = DOWNSTREAM_DATASET_1
