@@ -29,7 +29,12 @@ from "left" table and the resulting geom column named "geom"
         END
          AS geom
     FROM {{ left }}
-    -- use ST_Relate rather than ST_Intersect to avoid overlapping edges
-    INNER JOIN {{ right }} ON ST_RELATE({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }}, 'T********')
+    -- duckdb has no ST_Relate (DE-9IM), so approximate 'T********' (interiors intersect) as
+    -- "intersects, but not merely touching at the boundary" -- excludes edge-only touches
+    -- the same way the postgis version did
+    INNER JOIN {{ right }} ON (
+        ST_INTERSECTS({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+        AND NOT ST_TOUCHES({{ left }}.{{ left_by }}, {{ right }}.{{ right_by }})
+    )
 
 {%- endmacro %}

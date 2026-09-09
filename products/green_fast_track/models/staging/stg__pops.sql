@@ -1,10 +1,7 @@
 -- stg__pops.sql
 
 {{ config(
-    materialized = 'table',
-    indexes=[
-        {'columns': ['raw_geom'], 'type': 'gist'},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH source AS (
@@ -16,8 +13,8 @@ final AS (
     SELECT
         'pops' AS variable_type,
         pops_number AS variable_id,
-        bbl::text,
-        st_transform(wkb_geometry, 2263) AS raw_geom
+        bbl::text AS bbl,
+        {{ dcp_st_transform(dcp_geom_column('dcp_pops'), 2263) }} AS raw_geom
     FROM source
 
 )

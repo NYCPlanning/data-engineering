@@ -1,8 +1,6 @@
 {{ config(
     materialized = 'table',
-    indexes=[
-        {'columns': ['buffer_geom'], 'type': 'gist'},
-    ]
+    post_hook="CREATE INDEX IF NOT EXISTS int_spatial__all_geom_idx ON {{ this }} USING RTREE (variable_geom)"
 ) }}
 
 WITH all_buffers AS (

@@ -3,6 +3,9 @@ product: green_fast_track
 version_strategy:
   pin_to_source_dataset: dcp_mappluto_wi
 inputs:
+  dataset_defaults:
+    destination: duckdb
+    file_type: parquet
   datasets:
   # Boundaries
   - name: dcp_boroboundaries_wi
@@ -55,9 +58,213 @@ inputs:
   - name: dcp_edesignation_csv
   missing_versions_strategy: find_latest
 
+exports:
+  zip_name: output
+  datasets:
+  # bbls + all flags, non-geodatabase
+  - name: green_fast_track_bbls
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geometry_type: polygons }
+  - name: int_flags__all
+    filename: all_flags.csv
+    format: csv
+
+  # Air quality
+  - name: source__cats_permit_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__cats_permit_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+  - name: source__cats_permit_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__industrial_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+  - name: source__industrial_lots_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__state_facility_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__state_facility_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+  - name: source__state_facility_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__title_v_permit_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__title_v_permit_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+  - name: source__title_v_permit_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__vent_tower_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+  - name: source__vent_tower_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__arterial_highway_lines
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: lines }
+  - name: source__arterial_highway_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  # Noise
+  - name: source__exposed_railway_lines
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: lines }
+  - name: source__exposed_railway_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+  - name: source__exposed_railway_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__airport_noise
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+
+  # Natural resources
+  - name: source__natural_resources_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__natural_resources_lines
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: lines }
+  - name: source__natural_resources_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+
+  - name: source__wetland_checkzone
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+
+  # Historic resources
+  - name: source__archaeological_area_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+  - name: source__historic_districts_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+  - name: source__historic_resources_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__historic_resources_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+
+  - name: source__historic_resources_adj_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__historic_resources_adj_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+  - name: source__historic_resources_adj_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  # Shadows
+  - name: source__shadow_open_spaces_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__shadow_open_spaces_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geometry_type: polygons }
+  - name: source__shadow_open_spaces_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__shadow_nat_resources_lines
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: lines }
+  - name: source__shadow_nat_resources_polys
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: polygons }
+  - name: source__shadow_nat_resources_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  - name: source__shadow_hist_resources_points
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: raw_geom, geometry_type: points }
+  - name: source__shadow_hist_resources_lots
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: lot_geom, geometry_type: polygons }
+  - name: source__shadow_hist_resources_buffer
+    filename: green_fast_track.gdb.zip
+    format: gdb
+    custom: { geom_column: buffer_geom, geometry_type: polygons }
+
+  # Non-spatial
+  - name: variables
+    filename: green_fast_track.gdb.zip
+    format: gdb
+
 stage_config:
   builds.build:
     commands:
       - name: dbt_build
         run: dbt build
         command_type: shell
+    destination: edm.publishing.builds
+    destination_key: db-green-fast-track
+    connector_args:
+      - name: acl
+        value: public-read
+      # BuildsConnector.push requires build_note; BUILD_NAME is already how the recipe's own
+      # build_name gets set at plan time (see products/edde/recipe.yml for the same pattern,
+      # though its own connector_args is missing this key)
+      - name: build_note
+        value_from:
+          env: BUILD_NAME

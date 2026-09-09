@@ -4,6 +4,7 @@ from pathlib import Path
 import duckdb  # type: ignore
 import pandas as pd
 
+from dcpy.utils import datastores
 from dcpy.utils.logging import logger
 
 
@@ -297,6 +298,81 @@ class DuckDBClient:
         """
         return self.conn.execute(query).df()
 
+    def read_table_df(self, table_name: str) -> pd.DataFrame:
+        """Read a full table into a DataFrame. Mirrors postgres.PostgresClient.read_table_df."""
+        sanitized_table = sanitize_name(table_name)
+        return self.query_to_df(f"SELECT * FROM {self.schema}.{sanitized_table}")
+
+    def read_table_gdf(self, table_name: str, geom_column: str = "geom"):
+        """Read a table into a GeoDataFrame. Mirrors postgres.PostgresClient.read_table_gdf.
+
+        Duckdb's spatial GEOMETRY type doesn't convert to shapely via .df() the way
+        postgis geometry does through geopandas' read_postgis, so this goes through WKB
+        explicitly instead.
+        """
+        import geopandas as gpd
+        import shapely.wkb
+
+        sanitized_table = sanitize_name(table_name)
+        full_table_name = f"{self.schema}.{sanitized_table}"
+
+        crs_row = self.conn.execute(
+            f"""
+            SELECT ST_CRS({geom_column}) FROM {full_table_name}
+            WHERE {geom_column} IS NOT NULL LIMIT 1
+            """
+        ).fetchone()
+        crs = crs_row[0] if crs_row and crs_row[0] else "EPSG:2263"
+
+        df = self.conn.execute(
+            f"""
+            SELECT * EXCLUDE ({geom_column}), ST_AsWKB({geom_column}) AS {geom_column}
+            FROM {full_table_name}
+            """
+        ).df()
+        df[geom_column] = df[geom_column].apply(
+            lambda wkb: shapely.wkb.loads(bytes(wkb)) if pd.notna(wkb) else None
+        )
+        return gpd.GeoDataFrame(df, geometry=geom_column, crs=crs)
+
     def close(self) -> None:
         """Close the database connection."""
         self.conn.close()
+
+
+def export_geodataset_from_duckdb(
+    table_name: str,
+    file_path: Path,
+    format: str,
+    duckdb_client: DuckDBClient,
+    *,
+    geom_column: str = "geom",
+    geometry_type: str
+    | None = None,  # "points" | "polygons" | "lines" | None (no filter)
+    layer: str | None = None,
+) -> None:
+    """Export a geospatial table from duckdb as a zipped shapefile or FGDB.
+
+    `format` takes a plain string ("shp" or "gdb") rather than
+    dcpy.lifecycle.builds.models.ExportFormat -- utils can't import from lifecycle -- but
+    ExportFormat is a StrEnum, so callers can pass its members here directly.
+    """
+    import tempfile
+
+    logger.info(
+        f"Exporting geospatial table {table_name} to {file_path} in format {format}"
+    )
+    gdf = duckdb_client.read_table_gdf(table_name, geom_column=geom_column)
+    if geometry_type == "points":
+        gdf = gdf[gdf.geom_type.isin(datastores.POINT_TYPES)]
+    elif geometry_type == "polygons":
+        gdf = gdf[gdf.geom_type.isin(datastores.POLYGON_TYPES)]
+    elif geometry_type == "lines":
+        gdf = gdf[gdf.geom_type.isin(datastores.LINE_TYPES)]
+
+    with tempfile.TemporaryDirectory() as tmp_str:
+        tmp_dir = Path(tmp_str)
+        if format == "shp":
+            datastores.write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
+        elif format == "gdb":
+            datastores.write_gdb_zip([(layer or table_name, gdf)], file_path, tmp_dir)

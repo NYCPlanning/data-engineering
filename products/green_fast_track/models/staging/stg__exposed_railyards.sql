@@ -18,7 +18,9 @@ joined_and_corrected AS (
         c.name,
         CASE
             WHEN hudson_correction.complexid IS NULL THEN c.geom
-            ELSE st_difference(c.geom, hudson_correction.geom, 1)
+            -- duckdb's ST_Difference has no precision-grid-size argument (postgis's 3rd arg,
+            -- used there to avoid GEOS sliver artifacts)
+            ELSE st_difference(c.geom, hudson_correction.geom)
         END AS raw_geom
     FROM cscl_commonplace AS p
     INNER JOIN cscl_complex AS c ON p.complexid = c.complexid

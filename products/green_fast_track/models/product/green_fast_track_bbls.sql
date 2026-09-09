@@ -24,23 +24,43 @@ flags_ranked AS (
     FROM flags_long
 ),
 
+/*
+Each flag used to be its own array_agg(...) FILTER (WHERE ...) column computed together in one
+GROUP BY. Duckdb doesn't share the underlying grouped scan across FILTER'd aggregates the way
+postgres does -- memory scaled roughly linearly per concurrent array_agg column in testing (1
+column ~1s, 15 ~8s, 22 OOM at 4GB) -- so each flag is aggregated in its own small GROUP BY here
+instead, then joined together. Distributing the 22x cost across sequential small aggregations
+instead of one giant concurrent one is what avoids the OOM.
+*/
+{% for row in question_flags %}
+flag_{{ loop.index0 }} AS (
+    SELECT
+        bbl,
+        /* construct a comma-separated list of values ordered by distance and value */
+        array_to_string(
+            array_agg(variable_id ORDER BY flag_id_field_name ASC),
+            ', '
+        ) AS "{{ row['flag_id_field_name'] }}"
+    FROM flags_ranked
+    WHERE flag_id_field_name = '{{ row["flag_id_field_name"] }}'
+    GROUP BY bbl
+),
+{% endfor %}
+
+flagged_bbls AS (
+    SELECT DISTINCT bbl FROM flags_ranked
+),
+
 flags_wide AS (
     SELECT
+        b.bbl,
         {% for row in question_flags -%}
-            /* construct a comma-separated list of values ordered by distance and value */
-            array_to_string(
-                array_agg(
-                    variable_id
-                    ORDER BY flag_id_field_name ASC
-                ) FILTER (
-                    WHERE flag_id_field_name = '{{ row["flag_id_field_name"] }}'
-                ),
-                ', '
-            ) AS "{{ row['flag_id_field_name'] }}",
+        flag_{{ loop.index0 }}."{{ row['flag_id_field_name'] }}",
         {% endfor %}
-        bbl
-    FROM flags_ranked
-    GROUP BY bbl
+    FROM flagged_bbls AS b
+    {% for row in question_flags -%}
+    LEFT JOIN flag_{{ loop.index0 }} ON b.bbl = flag_{{ loop.index0 }}.bbl
+    {% endfor %}
 ),
 
 final AS (
@@ -65,7 +85,10 @@ final AS (
                 flags_wide."{{ row['flag_id_field_name'] }}",
             {% endif %}
         {% endfor %}
-        pluto.geom
+        -- strip the embedded CRS type modifier (GEOMETRY('EPSG:2263')) so this matches the
+        -- generic `geometry` contract type below -- duckdb tracks CRS in the column type itself,
+        -- postgis tracks it as per-row metadata, so there's no modifier to match against there
+        pluto.geom::geometry AS geom
     FROM pluto
     LEFT JOIN flags_wide ON pluto.bbl = flags_wide.bbl
 )

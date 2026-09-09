@@ -45,7 +45,7 @@ long_flags AS (
         'DOB Tidal Wetland' AS variable_id,
         raw_geom
     FROM joined
-    WHERE tidal_coastal_wetlands_flag IS NOT NULL
+    WHERE "tidal-coastal_wetlands_flag" IS NOT NULL
 )
 
 SELECT

@@ -110,7 +110,7 @@ select = [
 "apps/qa/src/pages/source_data/*.py" = ["I001"]
 
 [[tool.mypy.overrides]]
-module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,socrata.*,faker.*,ruamel.*,pyogrio.*,ijson.*" # no stubs available
+module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,shapely.*,socrata.*,faker.*,ruamel.*,pyogrio.*,ijson.*" # no stubs available
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

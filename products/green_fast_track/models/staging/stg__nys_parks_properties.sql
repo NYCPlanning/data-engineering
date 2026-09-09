@@ -9,7 +9,7 @@ filtered AS (
     SELECT
         'nys_parks_properties' AS variable_type,
         COALESCE(uid || '-', '') || name AS variable_id,
-        ST_TRANSFORM(geometry, 2263) AS raw_geom
+        {{ dcp_st_transform('geometry', 2263) }} AS raw_geom
     FROM source
     WHERE UPPER(county) IN ('BRONX', 'KINGS', 'QUEENS', 'RICHMOND', 'MANHATTAN')
 )
@@ -17,6 +17,6 @@ filtered AS (
 SELECT
     variable_type,
     variable_id,
-    ST_UNION(raw_geom) AS raw_geom
+    ST_UNION_AGG(raw_geom) AS raw_geom
 FROM filtered
 GROUP BY variable_type, variable_id

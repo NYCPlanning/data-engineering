@@ -1,34 +1,24 @@
+import os
 import shutil
 import subprocess
 import tempfile
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
-import geopandas as gpd
-import pyogrio
 import typer
-from shapely import MultiLineString, MultiPoint, MultiPolygon
 
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
-from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY
 from dcpy.lifecycle.builds.models import (
     ExportDataset,
     ExportFormat,
     InputDatasetDestination,
 )
+from dcpy.utils import datastores, postgres
 from dcpy.utils import duckdb as duckdb_utils
-from dcpy.utils import postgres
 from dcpy.utils.logging import logger
-
-# Both single and multi variants are treated as the same geometry family so that
-# PostGIS columns with mixed Point/MultiPoint (or Polygon/MultiPolygon) aren't
-# silently split or dropped when filtering by geometry_type.
-_POINT_TYPES = ["Point", "MultiPoint"]
-_POLYGON_TYPES = ["Polygon", "MultiPolygon"]
-_LINE_TYPES = ["LineString", "MultiLineString"]
 
 
 def export_dataset_from_postgres(
@@ -120,6 +110,14 @@ def export_dataset_from_duckdb(
             duckdb_client.export_to_parquet(
                 table_name=table_name, output_path=file_path
             )
+        case ExportFormat.shapefile | ExportFormat.gdb:
+            duckdb_utils.export_geodataset_from_duckdb(
+                table_name=table_name,
+                file_path=file_path,
+                format=format,
+                duckdb_client=duckdb_client,
+                **kwargs,
+            )
         case _:
             raise NotImplementedError(
                 f"Export of dataset format {format} from DuckDB not implemented yet"
@@ -151,120 +149,25 @@ def export_geodataset_from_postgres(
     with tempfile.TemporaryDirectory() as tmp_str:
         tmp_dir = Path(tmp_str)
         if format == ExportFormat.shapefile:
-            _write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
+            datastores.write_shapefile_zip(gdf, table_name, file_path, tmp_dir)
         elif format == ExportFormat.gdb:
-            _write_gdb_zip([(layer or table_name, gdf)], file_path, tmp_dir)
+            datastores.write_gdb_zip([(layer or table_name, gdf)], file_path, tmp_dir)
 
 
 def _read_filtered_gdf(
     table_name: str,
-    pg_client: postgres.PostgresClient,
+    client: postgres.PostgresClient | duckdb_utils.DuckDBClient,
     geom_column: str = "geom",
     geometry_type: str | None = None,
 ):
-    gdf = pg_client.read_table_gdf(table_name, geom_column=geom_column)
+    gdf = client.read_table_gdf(table_name, geom_column=geom_column)
     if geometry_type == "points":
-        gdf = gdf[gdf.geom_type.isin(_POINT_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(datastores.POINT_TYPES)]
     elif geometry_type == "polygons":
-        gdf = gdf[gdf.geom_type.isin(_POLYGON_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(datastores.POLYGON_TYPES)]
     elif geometry_type == "lines":
-        gdf = gdf[gdf.geom_type.isin(_LINE_TYPES)]
+        gdf = gdf[gdf.geom_type.isin(datastores.LINE_TYPES)]
     return gdf
-
-
-def _normalize_to_single_geom_type(gdf, label: str):
-    """Normalize a GDF to a single geometry type within a family.
-
-    PostGIS columns often contain a mix of Point/MultiPoint or Polygon/MultiPolygon.
-    Both shapefiles and GDB layers require a single geometry type, so we promote to
-    the multi-variant when both are present. Raises if types span different families
-    (e.g. Point + Polygon), which requires an explicit geometry_type filter.
-    """
-    types_set = set(gdf.geom_type.dropna().unique())
-    if types_set <= set(_POINT_TYPES):
-        # Exact equality avoids a no-op copy when already single-type.
-        if types_set == {"Point", "MultiPoint"}:
-            gdf = gdf.copy()
-            gdf.geometry = gdf.geometry.apply(
-                lambda g: MultiPoint([g]) if g.geom_type == "Point" else g
-            )
-    elif types_set <= set(_POLYGON_TYPES):
-        if types_set == {"Polygon", "MultiPolygon"}:
-            gdf = gdf.copy()
-            gdf.geometry = gdf.geometry.apply(
-                lambda g: MultiPolygon([g]) if g.geom_type == "Polygon" else g
-            )
-    elif types_set <= set(_LINE_TYPES):
-        if types_set == {"LineString", "MultiLineString"}:
-            gdf = gdf.copy()
-            gdf["geometry"] = gdf["geometry"].apply(
-                lambda g: MultiLineString([g]) if g.geom_type == "LineString" else g
-            )
-    else:
-        raise ValueError(
-            f"'{label}' contains geometry types from different families: "
-            f"{sorted(types_set)}. Specify geometry_type='points', 'polygons', "
-            "or 'lines' in custom."
-        )
-    return gdf
-
-
-def _write_shapefile_zip(gdf, table_name: str, file_path: Path, tmp_dir: Path) -> None:
-    if gdf.empty:
-        raise ValueError(
-            f"No features to export for '{table_name}' shapefile "
-            "(geometry_type filter returned zero rows)"
-        )
-    gdf = _normalize_to_single_geom_type(gdf, table_name)
-    gdf.to_file(tmp_dir / table_name)
-    shutil.make_archive(str(file_path.with_suffix("")), "zip", tmp_dir / table_name)
-
-
-def _write_gdb_zip(
-    layers: list[tuple[str, Any]],
-    file_path: Path,
-    tmp_dir: Path,
-    allow_empty: set[str] | None = None,
-) -> None:
-    """Write one or more named layers to a zipped FGDB.
-
-    Each entry in `layers` is (layer_name, gdf). OpenFileGDB requires a single
-    geometry type per layer; use geometry_type='points' or 'polygons' in the
-    recipe custom fields to filter before reaching here.
-
-    An empty layer is an error by default, since it usually means a geometry_type
-    filter matched nothing. Layers named in `allow_empty` (recipe `custom.allow_empty`)
-    are written as schema-only instead, for feature classes that are legitimately
-    empty upstream and still have to appear in the output.
-    """
-    allow_empty = allow_empty or set()
-    gdb_name = file_path.stem
-    gdb_path = tmp_dir / f"{gdb_name}.gdb"
-    # OpenFileGDB requires creating the file on the first layer, then appending the
-    # rest — you can't write multiple layers in one call. write_dataframe handles both
-    # GeoDataFrames (spatial, one geometry type per layer) and plain DataFrames
-    # (non-spatial tables like node_stname / altnames, which have no geometry column).
-    for i, (layer_name, gdf) in enumerate(layers):
-        write_kwargs: dict[str, Any] = {}
-        if gdf.empty:
-            if layer_name not in allow_empty:
-                raise ValueError(f"No rows to export for GDB layer '{layer_name}'")
-            # An empty frame carries no geometry to infer from, so name the type.
-            if isinstance(gdf, gpd.GeoDataFrame):
-                write_kwargs["geometry_type"] = "MultiPolygon"
-        elif isinstance(gdf, gpd.GeoDataFrame):
-            gdf = _normalize_to_single_geom_type(gdf, layer_name)
-        pyogrio.write_dataframe(
-            gdf,
-            str(gdb_path),
-            driver="OpenFileGDB",
-            layer=layer_name,
-            append=i > 0,
-            **write_kwargs,
-        )
-    shutil.make_archive(
-        str(file_path.with_suffix("")), "zip", tmp_dir, f"{gdb_name}.gdb"
-    )
 
 
 def _output_filename(output: ExportDataset) -> str:
@@ -275,11 +178,30 @@ def _output_filename(output: ExportDataset) -> str:
     return output.filename or f"{output.name}.{default_ext}"
 
 
-def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
+def _default_build_output_dir(recipe, recipe_lock_path: Path | None) -> Path:
+    """Resolve the build output directory a recipe's artifacts (duckdb file, exports) live in.
+
+    Same priority order as load_source_data_from_resolved_recipe: BUILD_ENV_OUTPUT_DIR (set
+    by the build environment, or by a local dev workflow pointing at a custom directory) >
+    recipe_lock_path's own directory > the standard {product}/{version} build dir. Export has
+    to agree with wherever load actually put the duckdb file, or it can't find it.
+    """
+    if "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        return Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
+    if recipe_lock_path is not None:
+        return recipe_lock_path.parent
+    if not recipe.version:
+        raise ValueError("Recipe version must be set for export")
+    return config.get_build_dir(recipe.product, recipe.version)
+
+
+def _default_duckdb_client(
+    recipe, recipe_lock_path: Path | None = None
+) -> duckdb_utils.DuckDBClient:
     if not recipe.version:
         raise ValueError("Recipe version must be set for export")
     duckdb_path = (
-        config.get_build_dir(recipe.product, recipe.version)
+        _default_build_output_dir(recipe, recipe_lock_path)
         / f"{recipe.product}_{recipe.version}.duckdb"
     )
     return duckdb_utils.DuckDBClient(db_path=duckdb_path, schema=metadata.build_name())
@@ -297,14 +219,16 @@ def export(
         return None
 
     # A recipe's export backend follows where its input datasets actually landed. Mixed
-    # postgres+duckdb recipes fall back to postgres (the long-standing default) since gdb/
-    # shapefile export - and mixed-backend exports generally - aren't supported from DuckDB yet.
+    # postgres+duckdb recipes fall back to postgres (the long-standing default) since
+    # mixed-backend exports aren't supported.
     destinations = {ds.destination for ds in recipe.inputs.datasets}
     uses_duckdb = InputDatasetDestination.duckdb in destinations
     uses_postgres = InputDatasetDestination.postgres in destinations
 
     if uses_duckdb and not uses_postgres:
-        duckdb_client = duckdb_client or _default_duckdb_client(recipe)
+        duckdb_client = duckdb_client or _default_duckdb_client(
+            recipe, Path(recipe_lock_path)
+        )
         logger.info(
             f"Exporting build outputs for {recipe.name} from DuckDB schema {duckdb_client.schema}"
         )
@@ -314,17 +238,23 @@ def export(
             f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
         )
 
-    # Use version for output path, not schema/branch name
+    # Use version for output path, not schema/branch name. For duckdb-backed builds,
+    # defaults to the same directory the duckdb file actually lives in (see
+    # _default_build_output_dir) so dataset_files lands next to it rather than off in the
+    # standard {product}/{version} path while BUILD_ENV_OUTPUT_DIR points somewhere else.
+    # Postgres-backed builds have no such file to co-locate with, so they skip straight to
+    # BUILD_ENV_OUTPUT_DIR-or-standard-path - matching where other build-stage steps (e.g.
+    # products/template's own data-dictionary generation) already put their artifacts.
     if recipe.exports and recipe.exports.output_folder:
         output_folder = recipe.exports.output_folder
+    elif duckdb_client is not None:
+        output_folder = _default_build_output_dir(recipe, Path(recipe_lock_path))
+    elif "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        output_folder = Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
     else:
         if not recipe.version:
             raise ValueError("Recipe version must be set for export")
-        output_folder = (
-            config.local_data_path_for_stage(BUILD_STAGE_KEY)
-            / recipe.product
-            / recipe.version
-        )
+        output_folder = config.get_build_dir(recipe.product, recipe.version)
 
     # Create output folder if it doesn't exist (preserves existing artifacts like attachments)
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -346,10 +276,16 @@ def export(
             logger.warning(f"Expected build artifact {source_path} does not exist")
             continue
         # Put source_data_versions.csv in attachments folder, others in root
-        if filename == "source_data_versions.csv":
-            shutil.copy(source_path, attachments_folder / filename)
-        else:
-            shutil.copy(source_path, output_folder / filename)
+        dest_path = (
+            attachments_folder / filename
+            if filename == "source_data_versions.csv"
+            else output_folder / filename
+        )
+        # output_folder defaults to recipe_lock_path's own directory (see
+        # _default_build_output_dir) -- when they're literally the same directory, the
+        # artifact's already there
+        if source_path.resolve() != dest_path.resolve():
+            shutil.copy(source_path, dest_path)
 
     # Copy artifact directories from recipe_lock_path parent (build output directory)
     # Skip dataset_files since it's being generated by export
@@ -366,12 +302,17 @@ def export(
                 shutil.make_archive(str(zip_path), "zip", source_dir)
                 logger.info("Zipped dbt target directory to diagnostics/dbt.zip")
             else:
-                # Remove existing directory if it exists before copying
                 dest_dir = output_folder / dirname
-                if dest_dir.exists():
-                    shutil.rmtree(dest_dir)
-                shutil.copytree(source_dir, dest_dir)
-                logger.info(f"Copied artifact directory {dirname} from build output")
+                # output_folder defaults to recipe_lock_path's own directory (see
+                # _default_build_output_dir) -- when they're the same directory, the
+                # artifact's already there
+                if source_dir.resolve() != dest_dir.resolve():
+                    if dest_dir.exists():
+                        shutil.rmtree(dest_dir)
+                    shutil.copytree(source_dir, dest_dir)
+                    logger.info(
+                        f"Copied artifact directory {dirname} from build output"
+                    )
         else:
             logger.debug(f"Artifact directory {dirname} does not exist in build output")
 
@@ -381,7 +322,10 @@ def export(
 
     for output in recipe.exports.datasets:
         filename = _output_filename(output)
-        if duckdb_client is not None:
+        if output.format == ExportFormat.gdb:
+            # Grouped below so multiple tables can share one .gdb file, regardless of backend.
+            gdb_groups[filename].append(output)
+        elif duckdb_client is not None:
             export_dataset_from_duckdb(
                 table_name=output.name,
                 file_path=dataset_files_folder / filename,
@@ -389,8 +333,6 @@ def export(
                 format=output.format,
                 **output.custom or {},
             )
-        elif output.format == ExportFormat.gdb:
-            gdb_groups[filename].append(output)
         else:
             assert pg_client is not None
             export_dataset_from_postgres(
@@ -401,8 +343,9 @@ def export(
                 **output.custom or {},
             )
 
+    geo_client = duckdb_client if duckdb_client is not None else pg_client
     for filename, gdb_entries in gdb_groups.items():
-        assert pg_client is not None
+        assert geo_client is not None
         layers = []
         allow_empty: set[str] = set()
         for output in gdb_entries:
@@ -414,24 +357,30 @@ def export(
             if "geometry_type" in custom:
                 gdf = _read_filtered_gdf(
                     output.name,
-                    pg_client,
+                    geo_client,
                     geom_column=custom.get("geom_column", "geom"),
                     geometry_type=custom["geometry_type"],
                 )
             else:
                 # Non-spatial GDB layer (no geometry_type) — read as a plain table.
-                gdf = pg_client.read_table_df(output.name)
+                gdf = geo_client.read_table_df(output.name)
             layers.append((layer_name, gdf))
             if custom.get("allow_empty"):
                 allow_empty.add(layer_name)
         with tempfile.TemporaryDirectory() as tmp_str:
-            _write_gdb_zip(
+            datastores.write_gdb_zip(
                 layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
             )
 
     if recipe.exports.zip_name:
         zip_path = output_folder / f"{recipe.exports.zip_name}.zip"
-        subprocess.call(["zip", "-r", str(zip_path), str(output_folder)])
+        # Zip from within output_folder so entries are relative (e.g. "dataset_files/..."),
+        # not an absolute path chain -- and exclude the duckdb file itself, which can live
+        # alongside these artifacts (see _default_build_output_dir) but isn't a deliverable.
+        subprocess.call(
+            ["zip", "-r", str(zip_path), ".", "-x", "*.duckdb"],
+            cwd=output_folder,
+        )
         logger.info(f"Zipped export folder to {zip_path}")
 
     return output_folder

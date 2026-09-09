@@ -561,6 +561,7 @@ class _BuildsConnector(EdmConnector):
         *,
         acl: s3.ACL | None = None,
         build_name: str | None = None,
+        merge: bool = False,
     ) -> BuildKey:
         """
         Uploads a product build to an S3 bucket using cloudpathlib.
@@ -597,6 +598,7 @@ class _BuildsConnector(EdmConnector):
             filepath=str(build_dir),
             acl=str(acl) if acl else "private",
             metadata=metadata,
+            merge=merge,
         )
 
         return build_key
@@ -616,6 +618,7 @@ class _BuildsConnector(EdmConnector):
             product=key,
             acl=acl,
             build_name=version,
+            merge=bool(connector_args.get("merge", False)),
         )
         return asdict(result)
 
