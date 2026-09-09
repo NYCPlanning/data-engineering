@@ -174,7 +174,8 @@ def validate_data_against_existing_version(
     already exists
 
     The last archived dataset with the same version is pulled in by pandas and compared to what was just processed
-    If they differ, an error is raised
+    If they differ, an error is raised. A library-era archive can't be compared at all,
+    which also raises: replacing one is deliberate, via --overwrite.
     """
     processed_datastore = connectors.get_processed_datastore_connector()
     if not processed_datastore._is_library(ds, version):
@@ -193,8 +194,12 @@ def validate_data_against_existing_version(
                     f"Archived dataset id='{ds}' version='{version}' already exists and has different data."
                 )
 
-    # if previous was archived with library, we both expect some potential slight changes and will not compare
+    # A library-era archive can't be compared to ingest output: the two pipelines
+    # legitimately differ. That makes this unknown state, not a match, so it needs a
+    # person rather than a silent skip that leaves the version un-updated.
     else:
-        logger.warning(
-            f"Config of existing dataset id='{ds}' version='{version}' cannot be parsed."
+        raise FileExistsError(
+            f"Archived dataset id='{ds}' version='{version}' was archived by dcpy.library, "
+            "so it cannot be compared against newly processed data. Re-run with --overwrite "
+            "to replace it."
         )
