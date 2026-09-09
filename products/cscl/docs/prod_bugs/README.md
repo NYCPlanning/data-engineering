@@ -47,4 +47,4 @@ OR change_keys = ARRAY['field_name']::text []
 - [Bug 003](./003-saf-gnx-side-ap-point-mismatch.md): SAF GNX side-AP fields differ near Atomic Polygon boundaries due to ESRI vs. PostGIS point-in-polygon computation
 - [Bug 004](./004-randalls-island-missing-zip.md): Randall's Island NSF segments missing zip code in production (10 records, all Manhattan) - GR-confirmed production bug
 - [Bug 005](./005-doubly-reversed-protosegments.md): Doubly-reversed protosegments not reversed in production (5 segments, Bronx and Brooklyn) - GR-confirmed production bug
-- [Bug 006](./006-jr-reviewed-manual-diffs-aug-2026.md): 12 individually-reviewed diffs across LION and SAF s_generic/s_roadbed (various fields) - JR-confirmed correct via manual spreadsheet review, Aug 2026
+- [Bug 006](./006-jr-reviewed-manual-diffs-aug-2026.md): 14 individually-reviewed diffs across LION and SAF s_generic/s_roadbed (various fields) - JR-confirmed correct via manual spreadsheet review, Aug 2026
