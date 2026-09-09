@@ -15,6 +15,7 @@ inputs:
   - name: dcp_dcpprojectteams
     version_env_var: ZAP_VERSION
   - name: dcp_mappluto_wi
+    file_type: parquet
   - name: dcp_boroboundaries
   - name: dcp_housing
     version: 26Q2

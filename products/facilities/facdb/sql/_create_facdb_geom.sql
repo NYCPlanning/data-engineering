@@ -39,13 +39,13 @@ geom_sources AS (
         facdb_base_geom.geom_1b,
         facdb_base_geom.geom_bl,
         facdb_base_geom.geom_bn,
-        ST_CENTROID(dcp_mappluto_wi.wkb_geometry) AS geom_pluto,
+        ST_CENTROID(dcp_mappluto_wi.geom) AS geom_pluto,
         ST_CENTROID(doitt_buildingfootprints.wkb_geometry) AS geom_bldg,
         (CASE WHEN facdb_base_geom.wkb_geometry IS NOT null THEN 'wkb_geometry' END) AS source_wkb,
         (CASE WHEN geom_1b IS NOT null THEN '1b' END) AS source_1b,
         (CASE WHEN geom_bl IS NOT null THEN 'bl' END) AS source_bl,
         (CASE WHEN geom_bn IS NOT null THEN 'bn' END) AS source_bn,
-        (CASE WHEN dcp_mappluto_wi.wkb_geometry IS NOT null THEN 'pluto bbl centroid' END) AS source_pluto,
+        (CASE WHEN dcp_mappluto_wi.geom IS NOT null THEN 'pluto bbl centroid' END) AS source_pluto,
         (CASE WHEN doitt_buildingfootprints.wkb_geometry IS NOT null THEN 'building centroid' END) AS source_bldg
     FROM facdb_base_geom
     LEFT JOIN dcp_mappluto_wi

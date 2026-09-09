@@ -19,6 +19,7 @@ inputs:
 
     # Building and lot-level info
     - name: dcp_mappluto_wi
+      file_type: parquet
     - name: dcp_facilities
     - name: doitt_buildingfootprints
 

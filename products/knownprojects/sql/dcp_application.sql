@@ -293,7 +293,7 @@ WITH
 geom_pluto AS (
     SELECT
         applications.record_id,
-        ST_UNION(pluto.wkb_geometry) AS geom
+        ST_UNION(pluto.geom) AS geom
     FROM (
         SELECT
             a.record_id,
