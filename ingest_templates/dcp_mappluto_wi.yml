@@ -1,0 +1,22 @@
+id: dcp_mappluto_wi
+acl: public-read
+
+attributes:
+  name: MapPLUTO (water included)
+  description: >-
+    Tax lot polygons merged with PLUTO attributes, unclipped so lots extend to the
+    shoreline boundary rather than stopping at the water's edge.
+  url: https://www.nyc.gov/content/planning/pages/resources/datasets/mappluto-pluto-change
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/mappluto/nyc_mappluto_{{ version | replace(".", "_") }}_unclipped_shp.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: MapPLUTO_UNCLIPPED.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }

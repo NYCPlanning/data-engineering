@@ -11,6 +11,7 @@ inputs:
   - name: dcp_boroboundaries_wi
   # Zoning
   - name: dcp_mappluto_wi
+    file_type: parquet
   # Air
   - name: dep_cats_permits
   - name: nysdec_state_facility_permits
