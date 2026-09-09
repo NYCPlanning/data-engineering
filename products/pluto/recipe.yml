@@ -37,6 +37,7 @@ inputs:
     - name: dof_dtm
     - name: dof_shoreline
     - name: doitt_zipcodeboundaries
+      file_type: parquet
     - name: dpr_greenthumb
     - name: dsny_frequencies
     - name: fema_firms2007_100yr

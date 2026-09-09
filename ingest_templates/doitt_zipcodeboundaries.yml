@@ -1,0 +1,27 @@
+id: doitt_zipcodeboundaries
+acl: public-read
+
+attributes:
+  name: Zip Code Boundaries
+  description: >-
+    NYC zip code boundaries with USPS post office names. Published on Open Data as a file
+    attachment rather than a queryable dataset, so the download needs Socrata credentials
+    and the shapefile is staged in the inbox by hand. Last changed in 2014.
+  url: https://data.cityofnewyork.us/City-Government/Zip-Code-Boundaries/i8iw-xf4u
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/doitt_zipcodeboundaries/{{ version }}/ZIP_CODE_040114.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: ZIP_CODE_040114.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
