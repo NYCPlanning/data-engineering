@@ -1,0 +1,94 @@
+Field Group,Field Name,Description,Expected Values,Type,Source
+IPIS CITY MAIN,BORO,Numerical code for each borough,"1-digit codes: Manhattan = 1, Bronx = 2, Brooklyn = 3, Queens = 4, Staten Island = 5",Number,IPIS
+IPIS CITY MAIN,BLOCK,Numerical code for the tax block ,4- or 5-digit code,Number,IPIS
+IPIS CITY MAIN,LOT,Numerical code for the tax lot,1- to 4- digit code,Number,IPIS
+IPIS CITY MAIN,PARCEL_ADDRESS,Street address of the tax lot,House Number and Street Name,Text,IPIS
+IPIS CITY MAIN,LOCATION,Description of the location of the tax lot,Brief description of physical location of tax lot in relation to abutting lots or street corners with a known location. Particularly useful for interior lots with no street address. ,Text,IPIS
+IPIS CITY MAIN,PARCEL_NAME,"When applicable, name of the city facility or former city facility located on the lot",Brief facility name,Text,IPIS
+IPIS CITY MAIN,JURIS,City agency assigned jurisdiction of the lot by DCAS.  Jurisdiction is defined as official authority/decision-making power over the lot,Short acronym or abbreviation of city agency name. Blank= city owned but under the jurisdiction of a non-city entity like a state authority. JOINT= more than one city agency has jurisdiction of a portion of the lot. MIXED= the city owns only a portion of the lot,Text,IPIS
+IPIS CITY MAIN,MGMT123 CONCAT,City agency or agencies assigned management of the lot by DCAS. Management is defined as day-to-day or operational control over the lot,Short acronym or abbreviation of city agency name,Text,IPIS
+IPIS CITY MAIN,RENEWAL_AREA_NAME,Name of the Urban Renewal Area in which the lot is located,Full name of the Urban Renewal Area,Text,IPIS
+IPIS CITY MAIN,MOA_METHOD,"MOA= Method of Acquisition. The method the city used to acquire the lot, e.g. condemnation, negotiated purchase, in rem tax foreclosure",Short description of the aquisition method,Text,IPIS
+IPIS CITY MAIN,MOA_DATE,Date the acquired lot was vested in city ownership under the above acquisition method,MM/DD/YYYY,Date,IPIS
+IPIS CITY MAIN,URANRENEWALSITE,A lot designated in an Urban Renewal Plan for a project,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,WATERFRONT,A lot that either touches the shoreline or is partially under water,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,UNDERWATER,"A lot which is entirely underwater, or designated as wetland","Underwater, Freshwater Wetland, Tidal Wetland",Text,IPIS
+IPIS CITY MAIN,BEDOFSTREET,A lot with any portion of its area within a mapped bed of street,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,TITLE CHECK,Flag for further title research,"Short descriptions of type of title question: Old Road, MTA Master Lease, Easement, etc.",Text,IPIS
+IPIS CITY MAIN,LUR_CEMETERY,Lot with historic use as a cemetery/family burial plot,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,NO STREET FRONTAGE,A lot with no frontage on a mapped street,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,LUR_SLIVERLOT,"DCAS term: a lot less than 1,000 sf or with less than 10' of street frontage","Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,LUR_COMMONOPENSPACE,DCAS term: Open space between or adjacent to other properties,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,LUR_ACCESSWAY,DCAS term: used for access to at least one other property,"Y= yes,  NULL= No",Text,IPIS
+IPIS CITY MAIN,IBZ_NAME,Name of Industrial Business Zone,IBZ name,Text,IPIS
+IPIS CITY MAIN,BBL,"1-digit Borough, 5-digit Block and  4-digit Lot with leading zeros",10-digit BBL code ,Number,IPIS
+PLUTO,BLD_CLASS_CATEGORY,Broad Building Class category as defined by DOF,Name of category,Text,PLUTO
+PLUTO,BLD_CLASS_DESCRIPTION,Detailed Building Class description(like a subcategory) as defined by DOF,Short description,Text,PLUTO
+PLUTO,PROP_FRONT,The tax lot's frontage measured in feet.,Feet and inches as a decimal,Number,PLUTO
+PLUTO,PROP_DEPTH,The tax lot's depth measured in feet.,Feet and inches as a decimal,Number,PLUTO
+PLUTO,LotArea,The total gross area of the lot in square feet.,Square feet and inches as a decimal,Number,PLUTO
+PLUTO,BLD_SQFT,The total gross area of the building(s) on the lot in square feet.,Square feet and inches as a decimal,Number,PLUTO
+PLUTO,NUM_BLD,The number of buildings on the lot.,Count of buildings,Number,PLUTO
+PLUTO,FLOORS,"In the tallest building on the tax lot, the number of full and partial stories starting from the ground floor.",Height in floors of tallest building on lot,Number,PLUTO
+PLUTO,ASSESSED_VALUE,"Property tax value as assessed by DOF. Notoriously inaccurate for city properties, but useful as a quick way to weed out unlotted properties from IPIS",US Dollars and cents,Number,PLUTO
+PLUTO,CD,Community District in which the lot is located,1 or 2 digit numeric code with leading zeros,Text,PLUTO
+PLUTO,COUNCIL_DISTRICT,City Council District in which the lot is located,1 or 2 digit numeric code with leading zeros,Text,PLUTO
+PLUTO,ZoneDist,"Primary Zoning District in which the lot is located, as defined by the NYC Zoning Map",Abbreviation,Text,PLUTO
+PLUTO,Overlay,"Overlay Zoning District in which the lot is located, as defined by the NYC Zoning Map",Abbreviation,Text,PLUTO
+PLUTO,SpecDist,"Special Zoning District in which the lot is located, as defined by the NYC Zoning Map",Abbreviation,Text,PLUTO
+PLUTO,NYCLANDMARK,A lot with a designated NYC Landmark,"Interior, Individual, etc",Text,PLUTO
+PLUTO,HISTORICDISTRICT,A lot within a NYC Historic District,"Y= yes,  NULL= No",Text,PLUTO
+PLUTO,ResidFAR,Maximum allowable residential FAR,Numeric - 5 digits (99.99),Number,PLUTO
+PLUTO,CommFAR,Maximum allowable commercial FAR,Numeric - 5 digits (99.99),Number,PLUTO
+PLUTO,FacilFAR,Maximum allowable community facility FAR,Numeric - 5 digits (99.99),Number,PLUTO
+PLUTO,UnitsRes,Existing residential units on the lot,Numeric - 5 digits (99999),Number,PLUTO
+PLUTO,PFIRM15_Flag,2015 PRELIMINARY FLOOD INSURANCE RATE MAP INDICATOR,Alphanumeric - 1 character (1 = yes),Number,PLUTO
+PLUTO,Lat,Y coordinate,,Number,PLUTO
+PLUTO,Long,X coordinate,,Number,PLUTO
+IPIS ULURP,ULURP Status,"Whether the ULURP process is active/ongoing, complete, or inactive ","I= Inactive, process did not conclude or the land use authority was used up by a transaction.
+A= Active, process is ongoing /has not yet concluded
+C= Complete, process has concluded and the land use action was approved ",Text,IPIS
+IPIS ULURP,InactiveReasonDesc,Inactivation reason text,Short description,Text,IPIS
+IPIS ULURP,ULURP Disposition Type,ULURP Type,"Short description, ie., Disposition, Dispo (BOE)",Text,IPIS
+IPIS ULURP,ULURP Notes (AdditionalInfo + Remarks combined),Notes,Internal notes on ULURP application,Text,IPIS
+IPIS ULURP,ULURPNum,ULURP application number,Six digit code and three letter suffix ,Text,IPIS
+IPIS ULURP,CEQRNum,CEQR application number,Nine digit alphanumeric code,Text,IPIS
+IPIS ULURP,FinalLanguage,Excerpt from CPC and/or BOE/Council reolution language approving the action,Short text,Text,IPIS
+IPIS ULURP,BOE_CAL_NO,Board of Estimate Calendar Number and Date of BOE passed the Resolution ,"1- to 3- digit calendar number, and a Month, Day and Year ",Text,IPIS
+IPIS ULURP,ULURP_Name,Commonly known name for application or project,Short text,Text,IPIS
+IPIS ULURP,Primary_Applicant,Agency or entity applying for the land use action,IPIS agency acronym,Text,IPIS
+IPIS HOLDS,Agency with Hold,"Agency with the hold on property. The ""hold"" process ""reserves"" a DCAS surplus property for an agency that has future plans for the property but is not ready to accept jurisdiction and management of it. ",IPIS agency acronym ,Text,IPIS
+IPIS HOLDS,Hold_Name,Name of the agency project connected to their request for a hold,Short text,Text,IPIS
+IPIS HOLDS,Curr_Mile_DATE,Date Hold was granted or requested,"Two-digit sequential number, i.e., ""05"" or ""90"" ",Text,IPIS
+IPIS HOLDS,Curr_Mile_Desc,Short desription of most current process milestone in IPIS ,"Short text, i.e. ""Complete"" or ""Closed/Conveyed""",Text,IPIS
+DCAS TAS/Tenant Accounting System,Tenant Name,Name of entity on the lease agreement,Individual or Business Name,Text,IPIS
+DCAS TAS/Tenant Accounting System,Agr Type,Type of agreement,"Single digit code:
+1= Long Term, 2=License, 3= Short Term, 4= Use&Occupancy, 5= Unauth. User, 6= Expired LTL, 9= Permit",Number,IPIS
+DCAS TAS/Tenant Accounting System,EntryLongDesc,Detailed description of agreement type,Long translation of agreement type,Text,IPIS
+DCAS TAS/Tenant Accounting System,Lease Exp Date,End date of agreement,MM/DD/YYY,Date,IPIS
+IPIS Agency Use,User Agency,Agency reporting the use data on a property,Agency acronym,Text,IPIS
+IPIS Agency Use,Owned/Leased,Code tracking whether the property is owned by the City or leased by the City,"O= Owned, L=Leased",Text,IPIS
+IPIS Agency Use,Primary UseText,Description of the Primary Use Code,Short description of the primary use ,Text,IPIS
+IPIS Agency Use,Use_Remarks,Notes,Notes on use,Text,IPIS
+New suggested fields,UnitPotential,Potential number of units if activated for housing,Integers,Number,SWAT Database
+New suggested fields,LAA,Flag for sites that fall within Limited Affordability Areas,"Y= yes,  NULL= No",Text,GIS
+New suggested fields,Dev_Flags,Short description of any major barriers to future development,Short description,Text,CHAT/LIFT slides/studies
+New suggested fields,POA,Short description of prior commitments/POAs,Short description,Text,Rezoning commitments tracker; HPD trackers
+New suggested fields,AHFT,Flag for sites in Bottom 12 CDs eligible for AHFT,"Y= yes,  NULL= No",Text,To be determined -- Bottom 12 yet to be established
+New suggested fields,Displacement Risk Formula,Tier of the NTA the site is in from the Displacement Risk Index,"Lowest, Lower, Intermediate, Higher, Highest",Text,Displacement Risk Map
+New suggested fields,TransitGeog,Transit zone that site is in,"MN Core and LIC, Inner Transit Zone, Outer Transit Zone, Special ZR25-241 areas, Beyond the Greater Transit Zone",Text,Transit Zones -- intersect with 
+New suggested fields,CPSpentTotal,Total spend on capital projects intersecting with the zoning lot,Numeric,Number,"Capital Projects Database (field ""spent_total"")"
+New suggested fields,CPProjects,Total number of capital projects intersecting with the zoning lot,Numeric,Number,Capital Projects Database (number of capital projects intersecting with the zoning lot)
+New suggested fields,Proposal(?),Short description of any proposals agencies have identified for the site,Short description,Text,CHAT/LIFT spreadsheet
+New suggested fields,Last Updated,Date field was last updated,Date,Date,Generated based on update
+New suggested fields,POA Commitment,description of any previous POA commitments ,Short description,Text,POA Commitment Tracker
+New suggested fields,ReDev_Summary,description of redevelopment potential,Summary of CHAT/LIFT effot,Text,LIFT Database
+New suggested fields,ReDev_Strategy,description of redevelopment strategy,"short description ""Landmark TDR"", Co-Location (Library)",Text,LIFT Database
+New suggested fields,ReDev_Priority,description of priority,"Long-Term, Medium-Term, Near-Term, Active, Not Viable, etc. ",Text,LIFT Database
+New suggested fields,ReDev_Study,"description of consultant or agency study, with year, and description of study","Pull from ""Study Summary"" field in LIFT Database",Text,LIFT Database
+New suggested fields,CP_Remediation,description of amount and timing on any capital expenditures that need to be remediated prior to redevelopment,short description,Text,OMB (ad-hoc)
+New suggested fields,CapitalNeeds_unfunded,description of the total unfunded capital needs as identified by agencies with the amount,short description,Text,LIFT Database
+New suggested fields,SitePrep_Costs,dollar amount of site preparation costs,dollar amount,Number,LIFT Database
+New suggested fields,SitePrep_Desc,short description explaining site prep costs,"text, $300 - Office Relocation",Text,LIFT Database
+New suggested fields,RLV_amount,dollar amount of EDC residual land value analysis,number,Number,LIFT Database
+New suggested fields,RLV_Desc,description of development scenario on which EDC ran the residual land value analysis,text,Text,LIFT Database
