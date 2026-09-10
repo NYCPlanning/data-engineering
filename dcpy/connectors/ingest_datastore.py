@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -57,17 +58,32 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
             )
 
             if latest:
-                latest_folder_path = f"{key}/latest"
-                self.storage.push(
-                    f"{latest_folder_path}/{filepath.name}",
-                    filepath=filepath,
-                    acl=acl,
+                self.push_latest(
+                    key, filepath=filepath, config_path=config_path, acl=acl
                 )
-                self.storage.push(
-                    f"{latest_folder_path}/config.json",
-                    filepath=config_path,
-                    acl=acl,
-                )
+        return {}
+
+    def push_latest(
+        self,
+        key: str,
+        *,
+        filepath: Path,
+        config_path: Path,
+        acl: str | None = None,
+    ) -> dict:
+        """Point `latest` at one archive's files.
+
+        Pushed as a folder so it replaces whatever was there. Writing the files
+        individually leaves everything else in place, and a library-era .sql sitting
+        beside a new parquet wins file-type resolution, so consumers silently keep
+        reading the older archive.
+        """
+        with TemporaryDirectory() as tmp_dir:
+            latest_dir = Path(tmp_dir) / "latest"
+            latest_dir.mkdir()
+            shutil.copy(filepath, latest_dir / filepath.name)
+            shutil.copy(config_path, latest_dir / config_filename)
+            self.storage.push(f"{key}/latest", filepath=latest_dir, acl=acl)
         return {}
 
     def push_versioned(self, key: str, version: str, **kwargs) -> dict:
