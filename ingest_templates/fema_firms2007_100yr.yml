@@ -1,0 +1,24 @@
+id: fema_firms2007_100yr
+acl: public-read
+
+attributes:
+  name: FEMA 2007 Effective FIRM
+  description: >-
+    FEMA's 2007 effective Flood Insurance Rate Maps, the flood hazard areas in force
+    before the 2015 preliminary maps. Sourced in state plane and reprojected locally so
+    it stays in the same frame as PLUTO's lot geometry.
+  url: https://www.nyc.gov/site/planning/data-maps/open-data.page
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: arcgis_feature_server
+    server: dcp
+    dataset: 2007_Effective_FIRMs
+    layer_name: 2007_Effective_FIRMs
+    crs: EPSG:2263
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }

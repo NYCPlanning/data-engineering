@@ -7,7 +7,5 @@
   )
 }}
 
-SELECT
-    *,
-    wkb_geometry AS geom
+SELECT *
 FROM {{ source('recipe_sources', 'fema_firms2007_100yr') }}
