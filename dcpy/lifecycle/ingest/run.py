@@ -240,6 +240,18 @@ def archive_transformed_datasets(
                 overwrite=overwrite_okay,
                 latest=latest,
             )
+        elif latest:
+            # --latest is its own request: point latest at this archive even when the
+            # versioned copy is already there and doesn't need rewriting.
+            logger.info(
+                f"Version already archived, pointing latest at {dataset.version}"
+            )
+            datastore.push_latest(
+                dataset.id,
+                filepath=dataset_folder / dataset.filename,
+                config_path=dataset_folder / INGESTED_DATASET_FILENAME,
+                acl=dataset.source.acl,
+            )
         else:
             logger.info("Skipping archival")
 
