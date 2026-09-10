@@ -156,6 +156,8 @@ def find_definition_folder_validation_errors(
 
     errors = {}
     for file_path in folder_path.glob("*"):
+        if not file_path.is_file():
+            continue
         file_errors = find_definition_file_validation_errors(
             file_path.stem, folder_path
         )
