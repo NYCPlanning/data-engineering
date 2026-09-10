@@ -117,6 +117,14 @@ that they differ as long as they're unique.
 
 Some remain.
 
+One instance is diagnosed in detail in
+[docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md](./docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md#1-coincident_seg_count-lion_dat_brooklyn-304118101066):
+segmentid 8101066 (Brooklyn) has a centerline and *two* distinct `rail_and_subway` segments
+(itself plus 8105519) all coincident at the same point. Our count of 3 (self + 2 others) is
+marked `accounted_for` for that specific `_lion_key`, but this doesn't settle the general
+question - it's one data point suggesting prod may not count two same-feature-type duplicates
+as two separate coincidences.
+
 **What would settle it:** a decision with GR on how we handle them.
 
 ### CSCL-LION-07
