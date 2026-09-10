@@ -2,10 +2,9 @@ import shutil
 import zipfile
 
 import pytest
+from dcpy.geospatial import fgdb
+from dcpy.geospatial.shapefile_metadata import Metadata
 from pytest import fixture
-
-from dcpy.utils.geospatial import fgdb
-from dcpy.utils.geospatial.shapefile_metadata import Metadata
 
 GDB_ZIP = "geodatabase.gdb.zip"
 SPATIAL_LAYER = "mappluto_one_row"

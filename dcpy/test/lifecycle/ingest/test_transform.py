@@ -7,14 +7,13 @@ import numpy as np
 import pandas as pd
 import pytest
 import yaml
-from pydantic import BaseModel, TypeAdapter
-from shapely import MultiPolygon, Point, Polygon
-
+from dcpy.geospatial import data
+from dcpy.geospatial import parquet as geoparquet
 from dcpy.lifecycle.ingest import transform
 from dcpy.lifecycle.ingest.models import Column, ProcessingStep
-from dcpy.utils import data
 from dcpy.utils.formats import Format
-from dcpy.utils.geospatial import parquet as geoparquet
+from pydantic import BaseModel, TypeAdapter
+from shapely import MultiPolygon, Point, Polygon
 
 from .shared import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME, TEST_OUTPUT
 

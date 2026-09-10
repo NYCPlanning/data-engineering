@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import simplejson
 from config import get_edde_paths
-
 from dcpy.lifecycle.builds import get_recipe_lock
 
 ###

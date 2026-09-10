@@ -3,7 +3,6 @@ from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock
 
 import pandas as pd
-
 from dcpy.lifecycle import data_loader
 
 

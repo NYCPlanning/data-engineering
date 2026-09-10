@@ -4,14 +4,13 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from pytest import fixture
-
+from dcpy.geospatial import fgdb
+from dcpy.geospatial import shapefile as shp_utils
+from dcpy.geospatial.shapefile_metadata import Metadata
 from dcpy.lifecycle.package import esri
 from dcpy.product_metadata.models.metadata.org import OrgMetadata
 from dcpy.product_metadata.models.metadata.product import ColumnValue, DatasetColumn
-from dcpy.utils.geospatial import fgdb
-from dcpy.utils.geospatial import shapefile as shp_utils
-from dcpy.utils.geospatial.shapefile_metadata import Metadata
+from pytest import fixture
 
 SHP_ZIP_NO_MD = "shapefile_single_pluto_feature_no_metadata.shp.zip"
 SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"

@@ -119,7 +119,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-uv.lock
 
 # Spyder project settings
 .spyderproject
@@ -160,9 +159,6 @@ tmp/
 **/.user.yml
 dbt_packages/
 package-lock.yml
-
-# uv
-uv.lock
 
 # Marimo
 marimo/_static/

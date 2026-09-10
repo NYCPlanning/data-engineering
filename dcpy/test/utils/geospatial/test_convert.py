@@ -1,8 +1,7 @@
 import json
 
 import pytest
-
-from dcpy.utils.geospatial import convert
+from dcpy.geospatial import convert
 
 RECORDS = [
     {

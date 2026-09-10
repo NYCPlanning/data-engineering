@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
-
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.builds import load
 from dcpy.lifecycle.builds.models import (
@@ -13,6 +12,7 @@ from dcpy.lifecycle.builds.models import (
     InputDatasetDestination,
     LoadResult,
 )
+
 from dcpy.test.lifecycle.builds.conftest import RESOURCES_DIR, TEMP_DATA_PATH
 
 RECIPE_PATH = RESOURCES_DIR / "simple.lock.yml"

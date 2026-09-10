@@ -5,7 +5,17 @@
 # Layers are ordered highest → lowest. A module may only import from its own layer
 # or a lower one. `utility = true` modules are importable from anywhere.
 
-source_roots = ["."]
+source_roots = [
+    ".",
+    "python/utils",
+    "python/geospatial",
+    "python/geosupport",
+    "python/product-metadata",
+    "python/connectors",
+    "python/data",
+    "python/library",
+    "python/lifecycle",
+]
 exclude = [
     "**/*__pycache__",
     "**/*egg-info",
@@ -115,5 +125,9 @@ path = "dcpy.configuration"
 layer = "configuration"
 [[modules]]
 path = "dcpy.utils"
+layer = "utils"
+utility = true
+[[modules]]
+path = "dcpy.geospatial"  # GDAL-backed; split out of dcpy.utils.geospatial into its own package
 layer = "utils"
 utility = true

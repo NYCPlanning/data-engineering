@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-data"
+version = "0.0.1"
+description = "DCP Data Engineering - dataset comparison utilities"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-utils",
+    "geopandas",
+    "numpy",
+    "pandas",
+    "pydantic",
+    "shapely",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true
