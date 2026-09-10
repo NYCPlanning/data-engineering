@@ -1,0 +1,22 @@
+id: dcp_mappluto_clipped
+acl: public-read
+
+attributes:
+  name: MapPLUTO (shoreline clipped)
+  description: >-
+    Tax lot polygons merged with PLUTO attributes, clipped to the shoreline so lots
+    stop at the water's edge.
+  url: https://www.nyc.gov/content/planning/pages/resources/datasets/mappluto-pluto-change
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/mappluto/nyc_mappluto_{{ version | replace(".", "_") }}_shp.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: MapPLUTO.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
