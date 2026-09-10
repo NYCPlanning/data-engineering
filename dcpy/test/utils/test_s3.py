@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from botocore.exceptions import ClientError
+from dcpy.utils import s3
 
 from dcpy.test.conftest import (
     PUBLISHING_BUCKET,
@@ -12,7 +13,6 @@ from dcpy.test.conftest import (
     TEST_BUCKET,
     TEST_BUCKETS,
 )
-from dcpy.utils import s3
 
 TEST_DIR_NAME_1 = "test-dir-1"
 TEST_DIR_NAME_2 = "test-dir-2"

@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
-
 from dcpy.connectors.edm import publishing
-from dcpy.test.conftest import PUBLISHING_BUCKET
 from dcpy.utils import s3, versions
+
+from dcpy.test.conftest import PUBLISHING_BUCKET
 
 TEST_PRODUCT_NAME = "test-product"
 TEST_BUILD = "build-branch"

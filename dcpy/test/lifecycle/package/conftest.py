@@ -2,8 +2,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 from dcpy.lifecycle import product_metadata
+
 from dcpy.test.resources import package_and_distribute
 
 TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH = package_and_distribute.PACKAGE_PATH_ASSEMBLED

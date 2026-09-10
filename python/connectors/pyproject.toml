@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-connectors"
+version = "0.0.1"
+description = "DCP Data Engineering - atomic get/push connectors to external systems (s3, socrata, esri, sftp, edm, ...)"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-utils",
+    "dcpy-product-metadata",
+    "beautifulsoup4",
+    "cloudpathlib[all]",
+    "geopandas",
+    "pandas",
+    "pydantic",
+    "pytz",
+    "requests",
+    "rich",
+    "socrata-py",
+    "typer",
+    "typing_extensions",
+    "usaddress",
+    "PyYAML",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+dcpy-product-metadata = { workspace = true }
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+dcpy = ["connectors/edm/bytes/site_map.json"]

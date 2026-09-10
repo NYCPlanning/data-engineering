@@ -5,8 +5,6 @@ from unittest.mock import MagicMock, patch
 
 import geopandas as gpd
 import pytest
-from shapely import LineString, MultiPolygon, Point, Polygon
-
 from dcpy.lifecycle.builds.export import (
     export,
     export_dataset_from_duckdb,
@@ -14,6 +12,7 @@ from dcpy.lifecycle.builds.export import (
 )
 from dcpy.lifecycle.builds.models import ExportFormat
 from dcpy.utils import duckdb as duckdb_utils
+from shapely import LineString, MultiPolygon, Point, Polygon
 
 _point_row = {"id": 1, "geometry": Point(0, 0)}
 _polygon_row = {
@@ -177,7 +176,6 @@ def test_gdb_export_non_spatial_table(tmp_path):
     """A plain (non-spatial) DataFrame is written as a geometry-less GDB table,
     alongside spatial layers in the same file."""
     import pandas as pd
-
     from dcpy.utils.datastores import write_gdb_zip
 
     points_gdf = _mixed_gdf[_mixed_gdf.geom_type == "Point"].copy()

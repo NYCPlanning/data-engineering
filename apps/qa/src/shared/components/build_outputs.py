@@ -4,15 +4,14 @@ import geopandas as gpd
 import leafmap.foliumap as lmf
 import pandas as pd
 import streamlit as st
+from dcpy.connectors.edm.models import ProductKey
+from dcpy.geospatial import geometry, mapping, transform
+from dcpy.utils.formats import Geometry
 from shared.utils.publishing import (
     get_data_directory_url,
     read_csv_cached,
     read_file_metadata,
 )
-
-from dcpy.connectors.edm.models import ProductKey
-from dcpy.utils.formats import Geometry
-from dcpy.utils.geospatial import geometry, mapping, transform
 
 
 def data_directory_link(product_key: ProductKey):

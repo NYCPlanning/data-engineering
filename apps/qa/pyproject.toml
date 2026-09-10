@@ -1,0 +1,26 @@
+[project]
+name = "dcpy-app-qa"
+version = "0.0.1"
+description = "DCP Data Engineering - QA/QC streamlit app"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-lifecycle",
+    "folium",
+    "geoalchemy2",
+    "leafmap",
+    "mapclassify",
+    "matplotlib",
+    "numerize",
+    "plotly",
+    "setuptools",
+    "streamlit",
+    "streamlit-aggrid",
+    "streamlit-folium",
+    "tabulate",
+]
+
+[tool.uv.sources]
+dcpy-lifecycle = { workspace = true }
+
+[tool.uv]
+package = false

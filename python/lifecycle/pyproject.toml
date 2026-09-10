@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-lifecycle"
+version = "0.0.1"
+description = "DCP Data Engineering - lifecycle stages (ingest, builds, package, distribute, validate) that orchestrate a data product from source to distribution"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-utils",
+    "dcpy-connectors",
+    "dcpy-product-metadata",
+    "dcpy-geospatial",
+    "dcpy-geosupport",
+    "dcpy-data",
+    "dcpy-library",
+    "geoalchemy2",
+    "geopandas",
+    "Jinja2",
+    "pandas",
+    "pandera",
+    "pydantic",
+    "pyproj",
+    "python-dateutil",
+    "pytz",
+    "ruamel.yaml",
+    "shapely",
+    "tabulate",
+    "typer",
+    "typing_extensions",
+    "usaddress",
+    "PyYAML",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+dcpy-connectors = { workspace = true }
+dcpy-product-metadata = { workspace = true }
+dcpy-geospatial = { workspace = true }
+dcpy-geosupport = { workspace = true }
+dcpy-data = { workspace = true }
+dcpy-library = { workspace = true }
+
+[project.scripts]
+dcpy = "dcpy.__main__:cli"
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true

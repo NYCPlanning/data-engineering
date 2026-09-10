@@ -42,7 +42,8 @@ def test_default_path_is_inside_repo():
     """When no env var is set, the default path is inside the data-engineering repo.
 
     This asserts the specific invariant from the spec: the default is
-    Path(__file__).parent.parent / "product-metadata" relative to configuration.py,
+    Path(__file__).parent.parent.parent.parent / "product-metadata" relative to
+    configuration.py (which lives at repo_root/python/utils/dcpy/configuration.py),
     which is the repo root / "product-metadata".
     """
     import os
@@ -57,7 +58,7 @@ def test_default_path_is_inside_repo():
 
     resolved = Path(config.PRODUCT_METADATA_REPO_PATH)
     config_file = Path(config.__file__)
-    expected = config_file.parent.parent / "product-metadata"
+    expected = config_file.parent.parent.parent.parent / "product-metadata"
 
     assert resolved == expected, (
         f"Default path {resolved} should equal {expected} (repo root / product-metadata)"

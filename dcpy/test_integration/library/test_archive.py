@@ -1,8 +1,8 @@
 import os
 
+from dcpy.library.archive import Archive
 from sqlalchemy import text
 
-from dcpy.library.archive import Archive
 from dcpy.test.library import (
     TEST_DATASET_CONFIG_FILE,
     TEST_DATASET_NAME,

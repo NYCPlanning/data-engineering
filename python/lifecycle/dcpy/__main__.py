@@ -1,0 +1,21 @@
+import dcpy.connectors._cli as connectors
+import dcpy.lifecycle._cli as lifecycle
+import dcpy.utils._cli as utils
+import typer
+
+# This is a separate module because it will eventually import most of dcpy
+# as we expand functionality. There maybe be cases where we don't want to do that,
+# e.g. if we just want to export one submodule (e.g. utils)
+
+
+def cli():
+    app = typer.Typer()
+
+    app.add_typer(lifecycle.app, name="lifecycle")
+    app.add_typer(connectors.app, name="connectors")
+    app.add_typer(utils.app, name="utils")
+    app()
+
+
+if __name__ == "__main__":
+    cli()

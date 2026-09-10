@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import dcpy.library
 from dotenv import load_dotenv
 from rich.console import Console
 from sqlalchemy import create_engine
@@ -13,7 +14,9 @@ pg = create_engine(recipe_engine)
 
 console = Console()
 test_root_path = Path(__file__).parent
-template_path = f"{Path(__file__).parent.parent.parent}/library/templates"
+# dcpy.library is its own workspace package now (a different directory tree than this
+# test file), so resolve its templates dir via the installed module.
+template_path = f"{Path(dcpy.library.__file__).parent}/templates"
 
 TEST_DATASET_NAME = "test_nypl_libraries"
 TEST_DATASET_VERSION = "20210122"

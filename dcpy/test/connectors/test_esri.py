@@ -3,13 +3,13 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from dcpy.connectors.esri import arcgis_feature_service as arcfs
 from dcpy.connectors.esri.models import (
     FeatureServer,
     FeatureServerLayer,
     Server,
 )
+
 from dcpy.test.conftest import MockResponse, mock_request_get
 
 DATASET_NAME = "National_Register_Building_Listings"

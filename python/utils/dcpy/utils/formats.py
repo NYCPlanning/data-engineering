@@ -1,0 +1,95 @@
+from __future__ import annotations
+
+from typing import Literal, TypeAlias
+
+from dcpy.geospatial import geometry
+from dcpy.utils.models import SortedSerializedBase
+from pydantic import BaseModel
+
+
+class Geometry(SortedSerializedBase, extra="forbid"):
+    """
+    Represents the geometric configuration for geospatial data.
+    Attributes:
+        geom_column: The name of geometry column in the dataset, or an instance of PointColumns if geometry is defined by separate longitude and latitude columns.
+        crs: The coordinate reference system (CRS) for the geometry.
+    Nested Classes:
+        PointColumns: Defines the names of the longitude and latitude columns for point geometries.
+    """
+
+    geom_column: str | PointColumns
+    crs: str
+    format: geometry.GeometryFormat | None = None
+
+    class PointColumns(SortedSerializedBase, extra="forbid"):
+        """This class defines longitude and latitude column names."""
+
+        x: str
+        y: str
+
+
+class Csv(BaseModel, extra="allow"):
+    type: Literal["csv"]
+    unzipped_filename: str | None = None
+    dtype: str | dict | None = None
+    geometry: Geometry | None = None
+
+
+class Excel(SortedSerializedBase, extra="forbid"):
+    type: Literal["excel", "xlsx"]  # union for backwards compatability
+    unzipped_filename: str | None = None
+    sheet_name: str | int
+    engine: Literal["xlrd", "openpyxl", "odf", "pyxlsb", "calamine"] | None = None
+    dtype: str | dict | None = None
+    geometry: Geometry | None = None
+
+
+class Shapefile(SortedSerializedBase, extra="forbid"):
+    type: Literal["shapefile"]
+    unzipped_filename: str | None = None
+    encoding: str = "utf-8"
+    crs: str
+
+
+class Geodatabase(SortedSerializedBase, extra="forbid"):
+    type: Literal["geodatabase"]
+    unzipped_filename: str | None = None
+    layer: str | None = None
+    encoding: str = "utf-8"
+    crs: str
+
+
+class Json(SortedSerializedBase, extra="forbid"):
+    type: Literal["json"]
+    json_read_fn: Literal["normalize", "read_json"]
+    json_read_kwargs: dict = {}
+    unzipped_filename: str | None = None
+    geometry: Geometry | None = None
+
+
+class GeoJson(SortedSerializedBase, extra="forbid"):
+    type: Literal["geojson"]
+    unzipped_filename: str | None = None
+    encoding: str = "utf-8"
+    # Note, crs is not an attribute for geojson format. Geojson has a specification of "EPSG:4326"
+    # regardless of this, we have gotten geojson files with other crs, so we allow it to be overridden
+    crs: str | None = None
+
+
+class Html(SortedSerializedBase, extra="forbid"):
+    type: Literal["html"]
+    kwargs: dict
+    table: int = 0
+    unzipped_filename: str | None = None
+    geometry: Geometry | None = None
+
+
+class Parquet(BaseModel, extra="allow"):
+    type: Literal["parquet"]
+    unzipped_filename: str | None = None
+    geometry: Geometry | None = None
+
+
+Format: TypeAlias = (
+    Csv | Excel | Shapefile | Geodatabase | Json | GeoJson | Html | Parquet
+)

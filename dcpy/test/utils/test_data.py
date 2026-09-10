@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-
-from dcpy.utils import data, formats
+from dcpy.geospatial import data
+from dcpy.utils import formats
 
 
 @pytest.fixture

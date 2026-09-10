@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-product-metadata"
+version = "0.0.1"
+description = "DCP Data Engineering - product/dataset metadata models, readers, writers (no GDAL)"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-utils",
+    "beautifulsoup4",
+    "css-inline",
+    "Jinja2",
+    "openpyxl",
+    "pandas",
+    "pydantic",
+    "tabulate",
+    "typer",
+    "PyYAML",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+dcpy = ["product_metadata/writers/resources/**"]

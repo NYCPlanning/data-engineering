@@ -11,7 +11,6 @@ import re
 from pathlib import Path
 
 import typer
-
 from dcpy.configuration import PUBLISHING_BUCKET
 from dcpy.utils import s3
 
