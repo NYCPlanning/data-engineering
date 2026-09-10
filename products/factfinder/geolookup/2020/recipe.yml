@@ -10,4 +10,5 @@ inputs:
     - name: dcp_pfirms
     - name: dpr_park_access_zone
     - name: fema_firms2007_100yr
+      file_type: parquet
   missing_versions_strategy: find_latest

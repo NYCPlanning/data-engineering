@@ -41,6 +41,7 @@ inputs:
     - name: dpr_greenthumb
     - name: dsny_frequencies
     - name: fema_firms2007_100yr
+      file_type: parquet
     - name: lpc_historic_districts
     - name: lpc_landmarks
     - name: pluto_input_cama_dof

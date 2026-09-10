@@ -7,7 +7,7 @@ FROM (
 	FROM dcp_pfirms
 	WHERE fld_zone <> 'X'
 	UNION
-	SELECT wkb_geometry
+	SELECT geom AS wkb_geometry
 	FROM fema_firms2007_100yr
 	WHERE fld_zone <> 'X'
 ) a;
@@ -21,7 +21,7 @@ FROM (
 	FROM dcp_pfirms
 	WHERE fld_zone <> 'X' AND fld_zone <> '0.2 PCT ANNUAL CHANCE FLOOD HAZARD'
 	UNION
-	SELECT wkb_geometry
+	SELECT geom AS wkb_geometry
 	FROM fema_firms2007_100yr
 	WHERE fld_zone <> 'X' AND fld_zone <> '0.2 PCT ANNUAL CHANCE FLOOD HAZARD'
 ) a;
