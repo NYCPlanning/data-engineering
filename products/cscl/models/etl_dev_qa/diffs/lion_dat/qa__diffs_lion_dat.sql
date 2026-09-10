@@ -100,6 +100,23 @@ SELECT
                 '335640188023', '416140101502', '104308103717', '104620245781'
             ]::text[])
             THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
+        -- CSCL-LION-06: coincident_seg_count. Segment 8101066 (Brooklyn) has a centerline and
+        -- two distinct rail_and_subway segments (itself + 8105519) coincident at one point;
+        -- our count of 3 (self + 2 others) vs prod's 2 doesn't settle the general open
+        -- question, just this record. See docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md
+        -- and data_issues.md CSCL-LION-06.
+        WHEN
+            status = 'modified'
+            AND _lion_key = '304118101066'
+            THEN 'CSCL-LION-06: coincident segments'
+        -- Bug 008: special_address_flag leaks from a centerline record onto its sibling
+        -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
+        -- legacy ETL's own documented rule that ramps never carry a SAF flag. Ours is correct.
+        -- See: docs/prod_bugs/008-saf-flag-leaks-onto-ramp-protosegment.md
+        WHEN
+            status = 'modified'
+            AND _lion_key = '493960174704'
+            THEN 'Bug 008: SAF flag leaks onto ramp protosegment'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -153,6 +170,12 @@ SELECT
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'
             ]::text[])
+            -- CSCL-LION-06: coincident_seg_count, one specific record only (not a general rule).
+            -- See: docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md, data_issues.md
+            OR _lion_key = '304118101066'
+            -- Bug 008: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
+            -- in production. See: docs/prod_bugs/008-saf-flag-leaks-onto-ramp-protosegment.md
+            OR _lion_key = '493960174704'
         ),
         FALSE
     ) AS accounted_for

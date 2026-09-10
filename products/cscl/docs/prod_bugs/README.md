@@ -48,3 +48,5 @@ OR change_keys = ARRAY['field_name']::text []
 - [Bug 004](./004-randalls-island-missing-zip.md): Randall's Island NSF segments missing zip code in production (10 records, all Manhattan) - GR-confirmed production bug
 - [Bug 005](./005-doubly-reversed-protosegments.md): Doubly-reversed protosegments not reversed in production (5 segments, Bronx and Brooklyn) - GR-confirmed production bug
 - [Bug 006](./006-jr-reviewed-manual-diffs-aug-2026.md): 14 individually-reviewed diffs across LION and SAF s_generic/s_roadbed (various fields) - JR-confirmed correct via manual spreadsheet review, Aug 2026
+- [Bug 007](./007-sept-2026-remaining-diffs-investigation.md): Root-cause investigation of the last 6 unaccounted-for diffs (LION coincident count, SAF flag on a ramp segment, corrupt curve geometry, RPL node swap, SAF lgc codes) - 4 resolved, 1 open pending a stale-prod-load recheck, Sept 2026
+- [Bug 008](./008-saf-flag-leaks-onto-ramp-protosegment.md): `special_address_flag` leaks from a centerline record onto its sibling on/off-ramp (`ALT_SEGDATA_TYPE = R`) protosegment in production, contradicting the legacy ETL's own documented rule - 1 record, Queens

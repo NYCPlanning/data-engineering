@@ -1,4 +1,10 @@
 WITH lion AS (
+    -- A segmentid can have more than one int__lion row (a centerline record plus one or
+    -- more altsegmentdata protosegments), and some of those protosegments are reversed
+    -- relative to the centerline - i.e. same endpoints, opposite from/to direction. Without
+    -- a tiebreak here, DISTINCT ON picks whichever row scan order happens to surface first,
+    -- so from/to nodeids could flip nondeterministically between runs. Prefer the
+    -- canonically-directed centerline row when one exists.
     SELECT DISTINCT ON (segmentid)
         segmentid,
         segment_type,
@@ -7,7 +13,7 @@ WITH lion AS (
         geom,
         midpoint
     FROM {{ ref("int__lion") }}
-    ORDER BY segmentid
+    ORDER BY segmentid, (source_table = 'centerline') DESC
 ),
 
 cscl_rpl AS (SELECT * FROM {{ source("recipe_sources", "dcp_cscl_roadbed_pointer_list") }}),
