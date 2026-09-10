@@ -2,18 +2,22 @@
 
 **Status:** JR-confirmed correct via manual spreadsheet review - not recreating prod's values
 **Affected Output:** LION .dat files (Manhattan, Bronx, Brooklyn, Queens), SAF `s_generic`/`s_roadbed`
-**Severity:** Low - 12 records
-**Discrepancy Count:** 12 records across 6 fields/field-groups (see table below)
+**Severity:** Low - 14 records
+**Discrepancy Count:** 14 records across 7 fields/field-groups (see table below)
 
 ## Summary
 
-JR reviewed this specific batch of 12 discrepant records against source data in a spreadsheet
-he sent over in August 2026, and confirmed that our (new) values are correct in each case.
-Unlike Bugs 001-005, this is not one systematic root cause - it's a curated set of
-individually-eyeballed records spanning several unrelated fields. Each is fingerprinted by its
-exact `comparison_id` (`_lion_key`/`_saf_key`) rather than by field-change pattern, so this does
-**not** blanket-approve every diff on the same field - e.g. `coincident_seg_count` diffs outside
-this list remain unaccounted for and open (see `CSCL-LION-06` in `data_issues.md`).
+JR reviewed this batch of 14 discrepant records against source data in a spreadsheet he sent
+over in August 2026, and confirmed that our (new) values are correct in each case. Unlike Bugs
+001-005, this is not one systematic root cause - it's a curated set of individually-eyeballed
+records spanning several unrelated fields. Each is fingerprinted by its exact `comparison_id`
+(`_lion_key`/`_saf_key`) rather than by field-change pattern, so this does **not**
+blanket-approve every diff on the same field - e.g. `coincident_seg_count` diffs outside this
+list remain unaccounted for and open (see `CSCL-LION-06` in `data_issues.md`).
+
+The original spreadsheet export mangled two of the ids into Excel scientific notation
+(`1.04308E+11`, `1.0462E+11`); the corrected ids (`104308103717`, `104620245781`) were added
+after the fact - same review, same batch, just a transcription fix.
 
 | comparison_id | table | field(s) changed | old &rarr; new |
 |---|---|---|---|
@@ -29,6 +33,8 @@ this list remain unaccounted for and open (see `CSCL-LION-06` in `data_issues.md
 | 416140101502 | lion_dat_queens | `curve_flag` | `R` &rarr; `L` |
 | 416070284412 | saf_s_roadbed | `lgc1` | `01` &rarr; `10` |
 | 416070284412 | saf_s_generic | `lgc1` | `01` &rarr; `10` |
+| 104308103717 | lion_dat_manhattan | `curve_flag`, `coincident_seg_count` | ` `&rarr;`I`, `1`&rarr;`2` |
+| 104620245781 | lion_dat_manhattan | `curve_flag`, `coincident_seg_count` | ` `&rarr;`I`, `1`&rarr;`2` |
 
 (A 13th record from the reviewed batch, `107660240593` / `saf_abcegnpx_generic` /
 `side_ap` `118` &rarr; `901`, was already `accounted_for = true` under
@@ -55,7 +61,7 @@ pipeline logic changes.
 
 ## Impact Assessment
 
-**Affected Records:** 12 records total - 10 in `qa__diffs_lion_dat.sql`, 1 in
+**Affected Records:** 14 records total - 12 in `qa__diffs_lion_dat.sql`, 1 in
 `qa__diffs_saf_s_roadbed.sql`, 1 in `qa__diffs_saf_s_generic.sql` (same `_saf_key`, two
 different output files).
 
