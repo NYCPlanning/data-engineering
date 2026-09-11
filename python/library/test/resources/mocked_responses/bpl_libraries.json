@@ -1,0 +1,54 @@
+{ "locations":
+    [
+        {
+            "data": {
+                "title": "Williamsburgh Library",
+                "address": "240 Division Ave. at Marcy Ave. Brooklyn, NY 11211",
+                "phone": "718.302.3485",
+                "position": "40.7069143, -73.9575883",
+                "bus": "",
+                "subway": "",
+                "Monday": "10:00am - 6:00pm",
+                "Tuesday": "1:00pm - 8:00pm",
+                "Wednesday": "10:00am - 6:00pm",
+                "Thursday": "10:00am - 8:00pm",
+                "Friday": "10:00am - 6:00pm",
+                "Saturday": "10:00am - 5:00pm",
+                "Sunday": "",
+                "hours": "Today\\u0027s Hours:  10:00am - 6:00pm",
+                "closingmsg": "",
+                "access": "Fully accessible",
+                "tags": "outdoor services;cooling center;closed;open late;",
+                "path": "https:\\/\\/www.bklynlibrary.org\\/locations\\/williamsburgh",
+                "branchid": "60",
+                "pickuploc": "1",
+                "branchlist": "1"
+            }
+        },
+        {
+            "data": {
+                "title": "Windsor Terrace Library",
+                "address": "160 E. 5th St. at Ft. Hamilton Pkwy. Brooklyn, NY 11218",
+                "phone": "718.686.9707",
+                "position": "40.648719, -73.976714",
+                "bus": "",
+                "subway": "",
+                "Monday": "10:00am - 6:00pm",
+                "Tuesday": "1:00pm - 8:00pm",
+                "Wednesday": "10:00am - 6:00pm",
+                "Thursday": "10:00am - 8:00pm",
+                "Friday": "10:00am - 6:00pm",
+                "Saturday": "10:00am - 5:00pm",
+                "Sunday": "",
+                "hours": "Today\\u0027s Hours:  10:00am - 6:00pm",
+                "closingmsg": "",
+                "access": "Partially accessible",
+                "tags": "after-hours returns;outdoor services;cooling center;closed;open late;",
+                "path": "https:\\/\\/www.bklynlibrary.org\\/locations\\/windsor-terrace",
+                "branchid": "77",
+                "pickuploc": "1",
+                "branchlist": "1"
+            }
+        }
+    ]
+}

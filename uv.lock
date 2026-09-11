@@ -1135,6 +1135,17 @@ dependencies = [
     { name = "usaddress" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "moto" },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-beautifulsoup4" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4" },
@@ -1154,6 +1165,17 @@ requires-dist = [
     { name = "usaddress" },
 ]
 
+[package.metadata.requires-dev]
+dev = [
+    { name = "moto" },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-beautifulsoup4" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml", specifier = ">=6.0.1" },
+    { name = "types-requests" },
+]
+
 [[package]]
 name = "dcpy-data"
 version = "0.0.1"
@@ -1168,6 +1190,12 @@ dependencies = [
     { name = "shapely" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "dcpy-utils", editable = "python/utils" },
@@ -1176,6 +1204,12 @@ requires-dist = [
     { name = "pandas" },
     { name = "pydantic" },
     { name = "shapely" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pandas-stubs" },
+    { name = "pytest" },
 ]
 
 [[package]]
@@ -1200,6 +1234,13 @@ dependencies = [
     { name = "typer" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pandas-stubs" },
+    { name = "pyarrow-stubs" },
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
@@ -1218,6 +1259,13 @@ requires-dist = [
     { name = "typer" },
 ]
 
+[package.metadata.requires-dev]
+dev = [
+    { name = "pandas-stubs" },
+    { name = "pyarrow-stubs" },
+    { name = "pytest" },
+]
+
 [[package]]
 name = "dcpy-geosupport"
 version = "0.0.1"
@@ -1228,11 +1276,23 @@ dependencies = [
     { name = "usaddress" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "pandas" },
     { name = "python-geosupport", git = "https://github.com/NYCPlanning/python-geosupport?rev=main" },
     { name = "usaddress" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pandas-stubs" },
+    { name = "pytest" },
 ]
 
 [[package]]
@@ -1255,6 +1315,15 @@ dependencies = [
     { name = "typer" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "boto3-stubs", extra = ["s3"] },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "boto3" },
@@ -1270,6 +1339,15 @@ requires-dist = [
     { name = "requests" },
     { name = "rich" },
     { name = "typer" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "boto3-stubs", extras = ["s3"] },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-pyyaml", specifier = ">=6.0.1" },
+    { name = "types-requests" },
 ]
 
 [[package]]
@@ -1302,6 +1380,17 @@ dependencies = [
     { name = "usaddress" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "faker" },
+    { name = "moto" },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "dcpy-connectors", editable = "python/connectors" },
@@ -1329,6 +1418,17 @@ requires-dist = [
     { name = "usaddress" },
 ]
 
+[package.metadata.requires-dev]
+dev = [
+    { name = "faker" },
+    { name = "moto" },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml", specifier = ">=6.0.1" },
+]
+
 [[package]]
 name = "dcpy-product-metadata"
 version = "0.0.1"
@@ -1346,6 +1446,15 @@ dependencies = [
     { name = "typer" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "openpyxl-stubs" },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-beautifulsoup4" },
+    { name = "types-pyyaml" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4" },
@@ -1360,29 +1469,24 @@ requires-dist = [
     { name = "typer" },
 ]
 
+[package.metadata.requires-dev]
+dev = [
+    { name = "openpyxl-stubs" },
+    { name = "pandas-stubs" },
+    { name = "pytest" },
+    { name = "types-beautifulsoup4" },
+    { name = "types-pyyaml", specifier = ">=6.0.1" },
+]
+
 [[package]]
 name = "dcpy-test-suite"
 version = "0.0.1"
-source = { editable = "." }
+source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
-    { name = "boto3-stubs", extra = ["s3"] },
-    { name = "faker" },
-    { name = "moto" },
-    { name = "openpyxl-stubs" },
-    { name = "pandas-stubs" },
-    { name = "pyarrow-stubs" },
     { name = "pytest" },
     { name = "pytest-xdist" },
-    { name = "sqlalchemy-stubs" },
-    { name = "types-beautifulsoup4" },
-    { name = "types-paramiko" },
-    { name = "types-psycopg2" },
-    { name = "types-python-dateutil" },
-    { name = "types-pytz" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
     { name = "types-setuptools" },
     { name = "types-tqdm" },
 ]
@@ -1391,22 +1495,8 @@ dev = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "boto3-stubs", extras = ["s3"] },
-    { name = "faker" },
-    { name = "moto" },
-    { name = "openpyxl-stubs" },
-    { name = "pandas-stubs" },
-    { name = "pyarrow-stubs" },
     { name = "pytest" },
     { name = "pytest-xdist" },
-    { name = "sqlalchemy-stubs" },
-    { name = "types-beautifulsoup4" },
-    { name = "types-paramiko" },
-    { name = "types-psycopg2" },
-    { name = "types-python-dateutil" },
-    { name = "types-pytz" },
-    { name = "types-pyyaml", specifier = ">=6.0.1" },
-    { name = "types-requests" },
     { name = "types-setuptools" },
     { name = "types-tqdm" },
 ]
@@ -1437,6 +1527,23 @@ dependencies = [
     { name = "xlrd" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "boto3-stubs", extra = ["s3"] },
+    { name = "moto" },
+    { name = "openpyxl-stubs" },
+    { name = "pandas-stubs" },
+    { name = "pyarrow-stubs" },
+    { name = "pytest" },
+    { name = "sqlalchemy-stubs" },
+    { name = "types-paramiko" },
+    { name = "types-psycopg2" },
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "boto3" },
@@ -1458,6 +1565,23 @@ requires-dist = [
     { name = "typer" },
     { name = "typing-extensions" },
     { name = "xlrd" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "boto3-stubs", extras = ["s3"] },
+    { name = "moto" },
+    { name = "openpyxl-stubs" },
+    { name = "pandas-stubs" },
+    { name = "pyarrow-stubs" },
+    { name = "pytest" },
+    { name = "sqlalchemy-stubs" },
+    { name = "types-paramiko" },
+    { name = "types-psycopg2" },
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml", specifier = ">=6.0.1" },
+    { name = "types-requests" },
 ]
 
 [[package]]

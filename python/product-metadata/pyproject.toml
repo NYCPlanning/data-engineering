@@ -23,6 +23,15 @@ dependencies = [
 [tool.uv.sources]
 dcpy-utils = { workspace = true }
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "openpyxl-stubs",
+    "pandas-stubs",
+    "types-beautifulsoup4",
+    "types-PyYAML>=6.0.1",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true

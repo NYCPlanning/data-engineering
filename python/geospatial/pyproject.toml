@@ -28,6 +28,13 @@ dependencies = [
 dcpy-utils = { workspace = true }
 dcpy-product-metadata = { workspace = true }
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "pandas-stubs",
+    "pyarrow-stubs",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true

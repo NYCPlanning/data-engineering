@@ -29,6 +29,17 @@ dependencies = [
 dcpy-utils = { workspace = true }
 dcpy-product-metadata = { workspace = true }
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "moto",
+    "pandas-stubs",
+    "types-beautifulsoup4",
+    "types-pytz",
+    "types-PyYAML>=6.0.1",
+    "types-requests",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true
