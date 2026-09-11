@@ -2,6 +2,7 @@ import typer
 
 from .compare_build_exports import app as compare_build_exports_app
 from .compare_build_tables import app as compare_build_tables_app
+from .distribute_pluto_to_dof import app as distribute_pluto_to_dof_app
 from .ingest_or_library_archive import run as ingest_or_library_archive
 from .package_and_distribute import app as package_dist_app
 from .product_metadata import app as product_metadata_app
@@ -14,4 +15,5 @@ app.add_typer(ingest_validation_app, name="validate_ingest")
 app.add_typer(package_dist_app, name="package_and_distribute")
 app.add_typer(compare_build_tables_app, name="compare_build_tables")
 app.add_typer(compare_build_exports_app, name="compare_build_exports")
+app.add_typer(distribute_pluto_to_dof_app, name="distribute_pluto_to_dof")
 app.command(name="ingest_or_library_archive")(ingest_or_library_archive)
