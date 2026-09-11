@@ -88,7 +88,7 @@ inputs:
   - name: dcp_pop_census_by_puma # 1.01
     source: edm.private
     file_type: xlsx
-    version: "20260601"
+    version: "20260911"
     custom:
       filepath: dcp_pop_census_by_puma.xlsx
   - name: dcp_pop_census_housing_by_puma_2010 # 4.01
