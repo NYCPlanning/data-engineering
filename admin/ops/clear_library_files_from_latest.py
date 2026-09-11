@@ -36,7 +36,8 @@ from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
 BUCKET = "edm-recipes"
-ACL = "public-read"  # matches what these datasets are archived with
+# matches what these datasets are archived with
+ARCHIVE_ACL: s3.ACL = "public-read"
 REPO_ROOT = Path(__file__).parent.parent.parent
 INGEST_TEMPLATES = REPO_ROOT / "ingest_templates"
 
@@ -51,6 +52,46 @@ def _is_ingest_output(filename: str) -> bool:
 
 def _folder_files(prefix: str) -> list[str]:
     return [f for f in s3.get_filenames(BUCKET, prefix) if f and not f.endswith("/")]
+
+
+def _versions(dataset_id: str) -> list[str]:
+    return [v.strip("/") for v in s3.get_subfolders(BUCKET, f"datasets/{dataset_id}/")]
+
+
+def _is_duplicated_elsewhere(dataset_id: str, filename: str, etag: str) -> bool:
+    """Is this `latest/` file byte-identical to one in a version folder?
+
+    `latest/` is a copy of some archive, so its files should exist under a version too.
+    Clearing one that doesn't would be the only way to actually lose data here.
+    """
+    for version in _versions(dataset_id):
+        if version == "latest":
+            continue
+        try:
+            other = s3.client().head_object(
+                Bucket=BUCKET, Key=f"datasets/{dataset_id}/{version}/{filename}"
+            )
+        except Exception:
+            continue
+        if other["ETag"] == etag:
+            return True
+    return False
+
+
+def unduplicated(dataset_id: str, stale: list[str]) -> list[str]:
+    """Stale files with no copy in any version folder. These are never cleared."""
+    orphans = []
+    for filename in stale:
+        try:
+            etag = s3.client().head_object(
+                Bucket=BUCKET, Key=f"datasets/{dataset_id}/latest/{filename}"
+            )["ETag"]
+        except Exception:
+            orphans.append(filename)
+            continue
+        if not _is_duplicated_elsewhere(dataset_id, filename, etag):
+            orphans.append(filename)
+    return orphans
 
 
 def classify(dataset_id: str) -> tuple[str, str | None, list[str]]:
@@ -96,6 +137,19 @@ def main(apply: bool) -> None:
     to_clear = cases.get("clear_latest", [])
     to_move = cases.get("mixed_version", [])
     if not apply:
+        orphaned = {
+            dataset_id: orphans
+            for dataset_id, _, stale in to_clear
+            if (orphans := unduplicated(dataset_id, stale))
+        }
+        if orphaned:
+            print(
+                f"\nno copy in any version folder, will not be cleared ({len(orphaned)})"
+            )
+            for dataset_id, orphans in orphaned.items():
+                print(f"  {dataset_id:38} {', '.join(orphans)}")
+        else:
+            print("\nevery clear_latest file has a copy in a version folder")
         print(
             f"\nreport only. --apply would clear "
             f"{sum(len(stale) for _, _, stale in to_clear)} files from latest/ across "
@@ -105,7 +159,14 @@ def main(apply: bool) -> None:
         return
 
     for dataset_id, _, stale in to_clear:
+        orphans = unduplicated(dataset_id, stale)
         for filename in stale:
+            if filename in orphans:
+                logger.warning(
+                    f"keeping datasets/{dataset_id}/latest/{filename}: no copy found "
+                    "in any version folder"
+                )
+                continue
             key = f"datasets/{dataset_id}/latest/{filename}"
             logger.info(f"deleting {key}")
             s3.delete(BUCKET, key)
@@ -116,7 +177,7 @@ def main(apply: bool) -> None:
             src = f"datasets/{dataset_id}/{version}/{filename}"
             dest = f"datasets/{dataset_id}/{version}_library/{filename}"
             logger.info(f"moving {src} -> {dest}")
-            s3.copy_file(BUCKET, src, dest, acl=ACL)
+            s3.copy_file(BUCKET, src, dest, acl=ARCHIVE_ACL)
             s3.delete(BUCKET, src)
         for filename in stale:
             key = f"datasets/{dataset_id}/latest/{filename}"
