@@ -14,16 +14,17 @@ Datasets fall into three cases, and only the first is safe to fix by clearing:
                  still exists in its own version folder, so clearing loses nothing.
 
   mixed_version  `latest/` holds an ingest config but `<version>/` is mixed too. Caused
-                 by `--overwrite`, which replaces only the files ingest writes. Clearing
-                 `latest/` would leave `<version>/` still resolving to the `.sql`, so
-                 these want a re-ingest at a fresh version instead.
+                 by `--overwrite`, which replaces only the files ingest writes. The
+                 library files move to `<version>_library/` so both folders come out
+                 clean. Note `--overwrite` already destroyed library's own config.json
+                 and parquet at these versions, so that folder ends up partial.
 
   needs_ingest   `latest/` still holds a library config, so the dataset has a template
                  but has never been archived through ingest. Rename `<version>` to
                  `<version>_library` and re-ingest; nothing to clear.
 
-Run with no arguments to report. Pass --apply to delete, which only ever touches files
-in the clear_latest group.
+Run with no arguments to report. Pass --apply to act on clear_latest and mixed_version;
+needs_ingest is left alone because it needs a rename plus a re-ingest.
 """
 
 import argparse
@@ -35,6 +36,7 @@ from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
 BUCKET = "edm-recipes"
+ACL = "public-read"  # matches what these datasets are archived with
 REPO_ROOT = Path(__file__).parent.parent.parent
 INGEST_TEMPLATES = REPO_ROOT / "ingest_templates"
 
@@ -92,14 +94,30 @@ def main(apply: bool) -> None:
             print(f"  {dataset_id:38} {str(version):12} {', '.join(stale)}")
 
     to_clear = cases.get("clear_latest", [])
+    to_move = cases.get("mixed_version", [])
     if not apply:
         print(
-            f"\nreport only. --apply would delete {sum(len(s) for _, _, s in to_clear)} "
-            f"files across {len(to_clear)} datasets in clear_latest."
+            f"\nreport only. --apply would clear "
+            f"{sum(len(stale) for _, _, stale in to_clear)} files from latest/ across "
+            f"{len(to_clear)} datasets, and move library files into <version>_library/ "
+            f"for {len(to_move)} datasets."
         )
         return
 
     for dataset_id, _, stale in to_clear:
+        for filename in stale:
+            key = f"datasets/{dataset_id}/latest/{filename}"
+            logger.info(f"deleting {key}")
+            s3.delete(BUCKET, key)
+
+    for dataset_id, version, stale in to_move:
+        versioned = _folder_files(f"datasets/{dataset_id}/{version}")
+        for filename in (f for f in versioned if not _is_ingest_output(f)):
+            src = f"datasets/{dataset_id}/{version}/{filename}"
+            dest = f"datasets/{dataset_id}/{version}_library/{filename}"
+            logger.info(f"moving {src} -> {dest}")
+            s3.copy_file(BUCKET, src, dest, acl=ACL)
+            s3.delete(BUCKET, src)
         for filename in stale:
             key = f"datasets/{dataset_id}/latest/{filename}"
             logger.info(f"deleting {key}")
