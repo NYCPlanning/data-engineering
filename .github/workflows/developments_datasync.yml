@@ -27,6 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -42,7 +44,7 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Ingest dataset
-        run: python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
+        run: uv run python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
 
   geocode:
     name: Geocode HPD Data

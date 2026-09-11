@@ -308,8 +308,10 @@ jobs:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - name: Install dcpy workspace
+      run: uv sync --all-packages
     - name: Validate All Metadata Files
-      run: python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
+      run: uv run python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
       env:
         RECIPES_BUCKET: edm-recipes
         PUBLISHING_BUCKET: edm-publishing
@@ -321,5 +323,7 @@ jobs:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - name: Install dcpy workspace
+      run: uv sync --all-packages
     - name: Validate All Templates
-      run: python -m dcpy lifecycle ingest validate_definitions ingest_templates
+      run: uv run python -m dcpy lifecycle ingest validate_definitions ingest_templates
