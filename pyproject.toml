@@ -143,44 +143,28 @@ build-backend = "setuptools.build_meta"
 members = ["python/*", "apps/qa", "apps/dagster", "apps/notebook-server"]
 
 # The root pyproject.toml is mostly a virtual workspace container: each dcpy-* package
-# under python/ and each app under apps/ has its own pyproject.toml with its own
-# [project] and dependencies. `uv sync` from here installs the whole workspace against
-# one shared uv.lock.
+# under python/ has its own test/ dir, own pyproject.toml, and own [dependency-groups]
+# dev with exactly the pytest/moto/faker/stubs its tests need. `uv sync` from here
+# installs the whole workspace against one shared uv.lock.
 #
-# The one exception is dcpy/test and dcpy/test_integration, which stayed at their
-# original repo-root location (dev-only, not distributed) rather than being split
-# across packages/. They do `from dcpy.test.resources import ...`, so dcpy.test needs
-# to be on the importable dcpy namespace too - hence the [project] table below, whose
-# only job is to make this root pyproject.toml an (unpublished, dev-only) workspace
-# member that contributes dcpy.test/dcpy.test_integration to the shared dcpy namespace.
+# The one exception is dcpy/test_integration, which stayed at its original repo-root
+# location (dev-only, not distributed, spans multiple packages) rather than being split
+# apart. It's plain pytest-discovered-by-path (nothing imports it as `dcpy.test_integration`),
+# so it doesn't need to be part of the installable dcpy namespace - the [project] table
+# below exists only so this root pyproject.toml can carry its own [dependency-groups] dev.
 [project]
 name = "dcpy-test-suite"
 version = "0.0.1"
 requires-python = ">=3.11"
 dependencies = []
 
-[tool.setuptools.packages.find]
-include = ["dcpy.test*"]
-namespaces = true
+[tool.uv]
+package = false
 
 [dependency-groups]
 dev = [
-    "faker",
-    "moto",
     "pytest",
     "pytest-xdist",
-    "boto3-stubs[s3]",
-    "openpyxl-stubs",
-    "pandas-stubs",
-    "pyarrow-stubs",
-    "sqlalchemy-stubs",
-    "types-beautifulsoup4",
-    "types-paramiko",
-    "types-psycopg2",
-    "types-python-dateutil",
-    "types-pytz",
-    "types-PyYAML>=6.0.1",
-    "types-requests",
     "types-setuptools",
     "types-tqdm",
 ]

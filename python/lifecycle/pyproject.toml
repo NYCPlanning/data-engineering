@@ -45,6 +45,17 @@ dcpy-library = { workspace = true }
 [project.scripts]
 dcpy = "dcpy.__main__:cli"
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "moto",
+    "faker",
+    "pandas-stubs",
+    "types-python-dateutil",
+    "types-pytz",
+    "types-PyYAML>=6.0.1",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true

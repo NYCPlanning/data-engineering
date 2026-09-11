@@ -29,6 +29,23 @@ dependencies = [
     "xlrd",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "moto",
+    "boto3-stubs[s3]",
+    "openpyxl-stubs",
+    "pandas-stubs",
+    "pyarrow-stubs",
+    "sqlalchemy-stubs",
+    "types-paramiko",
+    "types-psycopg2",
+    "types-python-dateutil",
+    "types-pytz",
+    "types-PyYAML>=6.0.1",
+    "types-requests",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true

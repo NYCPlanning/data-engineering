@@ -1,0 +1,373 @@
+{
+    "currentVersion": 11.2,
+    "id": 13,
+    "name": "National Register Building Listings",
+    "type": "Feature Layer",
+    "serviceItemId": "aaf1773f65e14e3fabc4dc2e8cbc7ad9",
+    "cacheMaxAge": 30,
+    "displayField": "HistoricName",
+    "description": "",
+    "copyrightText": "Division for Historic Preservation, New York State Office of Parks, Recreation and Historic Preservation",
+    "defaultVisibility": true,
+    "editingInfo": {
+        "lastEditDate": 1722957839237,
+        "schemaLastEditDate": 1722957839237,
+        "dataLastEditDate": 1722957831575
+    },
+    "relationships": [],
+    "isDataVersioned": false,
+    "hasContingentValuesDefinition": false,
+    "supportsAppend": true,
+    "supportsCalculate": true,
+    "supportsASyncCalculate": true,
+    "supportsTruncate": true,
+    "supportsAttachmentsByUploadId": true,
+    "supportsAttachmentsResizing": true,
+    "supportsRollbackOnFailureParameter": true,
+    "supportsStatistics": true,
+    "supportsExceedsLimitStatistics": true,
+    "supportsAdvancedQueries": true,
+    "supportsValidateSql": true,
+    "supportsCoordinatesQuantization": true,
+    "supportsLayerOverrides": true,
+    "supportsTilesAndBasicQueriesMode": true,
+    "supportsFieldDescriptionProperty": true,
+    "supportsQuantizationEditMode": true,
+    "supportsApplyEditsWithGlobalIds": false,
+    "supportsMultiScaleGeometry": true,
+    "supportsReturningQueryGeometry": true,
+    "hasGeometryProperties": true,
+    "geometryProperties": {
+        "shapeAreaFieldName": "Shape__Area",
+        "shapeLengthFieldName": "Shape__Length",
+        "units": "esriMeters"
+    },
+    "advancedQueryCapabilities": {
+        "supportsPagination": true,
+        "supportsQueryAttachmentsCountOnly": true,
+        "supportsPaginationOnAggregatedQueries": true,
+        "supportsQueryRelatedPagination": true,
+        "supportsQueryWithDistance": true,
+        "supportsReturningQueryExtent": true,
+        "supportsStatistics": true,
+        "supportsOrderBy": true,
+        "supportsDistinct": true,
+        "supportsQueryWithResultType": true,
+        "supportsSqlExpression": true,
+        "supportsAdvancedQueryRelated": true,
+        "supportsCountDistinct": true,
+        "supportsPercentileStatistics": true,
+        "supportsSpatialAggregationStatistics": true,
+        "supportsTrueCurve": true,
+        "supportedSpatialAggregationStatistics": [
+            "EnvelopeAggregate",
+            "CentroidAggregate",
+            "ConvexHullAggregate"
+        ],
+        "supportsLod": true,
+        "supportsQueryWithLodSR": false,
+        "supportedLodTypes": [
+            "geohash"
+        ],
+        "supportsReturningGeometryCentroid": true,
+        "supportsReturningGeometryEnvelope": false,
+        "supportsReturningGeometryProperties": true,
+        "supportsQueryWithDatumTransformation": true,
+        "supportsCurrentUserQueries": true,
+        "supportsHavingClause": true,
+        "supportsOutFieldSQLExpression": true,
+        "supportsMaxRecordCountFactor": true,
+        "supportsTopFeaturesQuery": true,
+        "supportsDisjointSpatialRel": true,
+        "supportsQueryWithCacheHint": true,
+        "supportedOperationsWithCacheHint": [
+            "query",
+            "queryTopFilter",
+            "queryAnalytics",
+            "queryAttachments",
+            "queryRelated",
+            "queryBins"
+        ],
+        "supportsQueryAnalytic": true,
+        "supportsQueryBins": true,
+        "supportsDefaultSR": true,
+        "supportsFullTextSearch": true
+    },
+    "advancedQueryAnalyticCapabilities": {
+        "supportsLinearRegression": true,
+        "supportsAsync": true,
+        "supportsPercentileAnalytic": true
+    },
+    "queryBinsCapabilities": {
+        "supportsAsync": true,
+        "supportsAutoIntervalBin": true,
+        "supportsFixedIntervalBin": true,
+        "supportsFixedBoundariesBin": true,
+        "supportsDateBin": true,
+        "supportedStatisticTypes": [
+            "COUNT",
+            "SUM",
+            "AVG",
+            "VAR",
+            "STDDEV",
+            "MIN",
+            "MAX",
+            "PERCENTILE_CONT",
+            "PERCENTILE_DISC",
+            "CentroidAggregate",
+            "EnvelopeAggregate",
+            "ConvexHullAggregate"
+        ]
+    },
+    "advancedEditingCapabilities": {
+        "supportedSqlFormatsInCalculate": [
+            "standard"
+        ],
+        "supportsAsyncApplyEdits": true,
+        "supportsReturnEditResults": true,
+        "supportsApplyEditsbyUploadID": true,
+        "supportedApplyEditsUploadIDFormats": "JSON"
+    },
+    "infoInEstimates": [
+        "extent",
+        "count"
+    ],
+    "useStandardizedQueries": true,
+    "geometryType": "esriGeometryPolygon",
+    "minScale": 0,
+    "maxScale": 0,
+    "extent": {
+        "xmin": -8860546.0804,
+        "ymin": 4938680.741599999,
+        "xmax": -7998986.6488,
+        "ymax": 5623077.193799998,
+        "spatialReference": {
+            "wkid": 102100,
+            "latestWkid": 3857
+        }
+    },
+    "drawingInfo": {
+        "renderer": {
+            "type": "simple",
+            "symbol": {
+                "type": "esriSFS",
+                "style": "esriSFSSolid",
+                "color": [
+                    255,
+                    190,
+                    190,
+                    255
+                ],
+                "outline": {
+                    "type": "esriSLS",
+                    "style": "esriSLSSolid",
+                    "color": [
+                        230,
+                        0,
+                        0,
+                        255
+                    ],
+                    "width": 1.4999999999999998
+                }
+            }
+        },
+        "scaleSymbols": false,
+        "transparency": 65,
+        "labelingInfo": null
+    },
+    "allowGeometryUpdates": true,
+    "supportedCurveTypes": [
+        "esriGeometryCircularArc"
+    ],
+    "allowTrueCurvesUpdates": true,
+    "onlyAllowTrueCurveUpdatesByTrueCurveClients": false,
+    "hasAttachments": false,
+    "htmlPopupType": "esriServerHTMLPopupTypeAsHTMLText",
+    "hasMetadata": true,
+    "hasM": false,
+    "hasZ": false,
+    "objectIdField": "OBJECTID",
+    "uniqueIdField": {
+        "name": "OBJECTID",
+        "isSystemMaintained": true
+    },
+    "globalIdField": "",
+    "typeIdField": "",
+    "fields": [
+        {
+            "name": "NRNum",
+            "type": "esriFieldTypeString",
+            "alias": "NYSHPO National Register Number",
+            "sqlType": "sqlTypeOther",
+            "length": 9,
+            "nullable": true,
+            "editable": true,
+            "domain": null,
+            "defaultValue": null
+        },
+        {
+            "name": "HistoricName",
+            "type": "esriFieldTypeString",
+            "alias": "Historic Name",
+            "sqlType": "sqlTypeOther",
+            "length": 400,
+            "nullable": true,
+            "editable": true,
+            "domain": null,
+            "defaultValue": null
+        },
+        {
+            "name": "CityTown",
+            "type": "esriFieldTypeString",
+            "alias": "City or Town",
+            "sqlType": "sqlTypeOther",
+            "length": 80,
+            "nullable": true,
+            "editable": true,
+            "domain": null,
+            "defaultValue": null
+        },
+        {
+            "name": "CountyName",
+            "type": "esriFieldTypeString",
+            "alias": "County",
+            "sqlType": "sqlTypeOther",
+            "length": 30,
+            "nullable": true,
+            "editable": true,
+            "domain": null,
+            "defaultValue": null
+        },
+        {
+            "name": "DateSR",
+            "type": "esriFieldTypeDate",
+            "alias": "State Register Listing Date",
+            "sqlType": "sqlTypeOther",
+            "length": 8,
+            "nullable": true,
+            "editable": true,
+            "domain": null,
+            "defaultValue": null,
+            "precision": 1
+        },
+        {
+            "name": "DateNR",
+            "type": "esriFieldTypeDate",
+            "alias": "National Register Listing Date",
+            "sqlType": "sqlTypeOther",
+            "length": 8,
+            "nullable": true,
+            "editable": true,
+            "domain": null,
+            "defaultValue": null,
+            "precision": 1
+        },
+        {
+            "name": "OBJECTID",
+            "type": "esriFieldTypeOID",
+            "alias": "OBJECTID",
+            "sqlType": "sqlTypeOther",
+            "nullable": false,
+            "editable": false,
+            "domain": null,
+            "defaultValue": null
+        },
+        {
+            "name": "Shape__Area",
+            "type": "esriFieldTypeDouble",
+            "alias": "Shape__Area",
+            "sqlType": "sqlTypeDouble",
+            "nullable": true,
+            "editable": false,
+            "domain": null,
+            "defaultValue": null
+        },
+        {
+            "name": "Shape__Length",
+            "type": "esriFieldTypeDouble",
+            "alias": "Shape__Length",
+            "sqlType": "sqlTypeDouble",
+            "nullable": true,
+            "editable": false,
+            "domain": null,
+            "defaultValue": null
+        }
+    ],
+    "indexes": [
+        {
+            "name": "user_1629.NATIONAL_REGISTER_BUILDING_LISTINGS_NATIONAL_REGISTER_BUILDING_LISTINGS2_Shape_sidx",
+            "fields": "Shape",
+            "isAscending": true,
+            "isUnique": false,
+            "description": "",
+            "indexType": "Spatial"
+        },
+        {
+            "name": "Shape__Area_Index",
+            "fields": "Shape__Area",
+            "isAscending": true,
+            "isUnique": false,
+            "description": "",
+            "indexType": "Attribute"
+        },
+        {
+            "name": "Shape__Length_Index",
+            "fields": "Shape__Length",
+            "isAscending": true,
+            "isUnique": false,
+            "description": "",
+            "indexType": "Attribute"
+        },
+        {
+            "name": "PK__NATIONAL__F4B70D850ED5ADE1",
+            "fields": "OBJECTID",
+            "isAscending": true,
+            "isUnique": true,
+            "description": "clustered, unique, primary key",
+            "indexType": "Attribute"
+        }
+    ],
+    "dateFieldsTimeReference": {
+        "timeZone": "UTC",
+        "respectsDaylightSaving": false
+    },
+    "preferredTimeReference": null,
+    "types": [],
+    "templates": [
+        {
+            "name": "National Register Building Listings",
+            "description": "",
+            "drawingTool": "esriFeatureEditToolPolygon",
+            "prototype": {
+                "attributes": {}
+            }
+        }
+    ],
+    "supportedQueryFormats": "JSON, geoJSON, PBF",
+    "supportedAppendFormats": "sqlite,geoPackage,shapefile,filegdb,featureCollection,geojson,csv,excel,jsonl,featureService,pbf",
+    "supportedAppendSourceFilterFormats": "sqlite,geoPackage,shapefile,filegdb,featureService",
+    "supportedExportFormats": "csv,shapefile,sqlite,geoPackage,filegdb,featureCollection,geojson,kml,excel",
+    "supportedConvertFileFormats": "JSON,PBF",
+    "supportedConvertContentFormats": "LayerEditCollection,FeatureCollection",
+    "supportedSpatialRelationships": [
+        "esriSpatialRelIntersects",
+        "esriSpatialRelContains",
+        "esriSpatialRelCrosses",
+        "esriSpatialRelEnvelopeIntersects",
+        "esriSpatialRelIndexIntersects",
+        "esriSpatialRelOverlaps",
+        "esriSpatialRelTouches",
+        "esriSpatialRelWithin",
+        "esriSpatialRelDisjoint",
+        "esriSpatialRelRelation"
+    ],
+    "supportedContingentValuesFormats": "JSON, PBF",
+    "supportedSyncDataOptions": 260,
+    "hasStaticData": false,
+    "maxRecordCount": 2000,
+    "standardMaxRecordCount": 4000,
+    "standardMaxRecordCountNoGeometry": 32000,
+    "tileMaxRecordCount": 4000,
+    "maxRecordCountFactor": 1,
+    "capabilities": "Query"
+}

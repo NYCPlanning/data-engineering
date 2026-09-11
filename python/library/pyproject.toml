@@ -30,6 +30,15 @@ dcpy-connectors = { workspace = true }
 [project.scripts]
 library = "dcpy.library.cli:run"
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "boto3-stubs[s3]",
+    "pandas-stubs",
+    "types-PyYAML>=6.0.1",
+    "types-requests",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true

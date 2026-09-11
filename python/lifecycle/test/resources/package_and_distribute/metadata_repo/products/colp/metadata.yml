@@ -1,0 +1,7 @@
+id: colp
+
+attributes:
+  description: Product description {{ sample_text }}
+
+datasets:
+- colp

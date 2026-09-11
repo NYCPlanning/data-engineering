@@ -1,0 +1,369 @@
+id: colp
+
+attributes:
+  description: Dataset description {{ sample_text }}
+  display_name: City Owned and Leased Property (COLP)
+  each_row_is_a: City Owned Property
+  tags:
+    - a
+    - b
+
+assembly:
+  - id: csv_package
+    filename: csv_package.zip
+    type: Zip
+    contents:
+      - id: primary_csv
+        filename: colp_{{ version }}.csv
+      - id: colp_readme
+        filename: colp_readme
+      - id: colp_metadata
+        filename: colp_metadata.pdf
+
+custom: {}
+
+destinations:
+  - id: garlic_sftp
+    type: sftp
+    custom:
+      destination_path: somewhere
+      user_id: someone
+  - id: socrata_prod
+    type: socrata
+    files:
+      - id: colp_readme
+        custom:
+          destination_use: attachment
+      - id: primary_shapefile
+        dataset_overrides:
+          attributes:
+            description: Socrata Prod Shapefile Description Override
+        custom:
+          destination_use: dataset_file
+    custom:
+      four_four: fn4k-qyk2
+  - id: socrata_unparsed
+    type: socrata
+    files:
+      - id: colp_readme
+        custom:
+          destination_use: attachment
+      - id: primary_shapefile
+        custom:
+          destination_use: dataset_file
+    custom:
+      four_four: fn4k-abcd
+      is_unparsed_dataset: true
+  - id: bytes
+    type: bytes
+    files:
+      - id: csv_package
+        custom:
+          url:
+            https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/colp_{{
+            version }}_csv.zip
+      - id: colp_readme
+        custom:
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/colp_readme.pdf
+
+files:
+  - file:
+      id: primary_shapefile
+      filename: colp_single_feature_shp.zip
+      type: shapefile
+      custom:
+        ignore_validation:
+          - agreement
+          - dcpedited
+          - finalcom
+    dataset_overrides:
+      attributes:
+        description: description overridden at the dataset_file level
+        display_name: display_name overridden at the dataset_file level
+      overridden_columns:
+        - id: geom
+          name: geometry
+          data_type: geometry
+        - id: bbl
+          data_type: decimal
+        - id: mapbbl
+          data_type: decimal
+  - file:
+      id: primary_csv
+      filename: colp_single_feature.csv
+      type: csv
+    dataset_overrides:
+      omitted_columns:
+        - geom
+  - file:
+      id: secondary_csv
+      filename: colp_single_feature_secondary.csv
+      type: csv
+    dataset_overrides:
+      omitted_columns:
+        - geom
+  - file:
+      id: colp_readme
+      filename: colp_readme.pdf
+      is_metadata: true
+      type: None
+  - file:
+      id: colp_metadata
+      filename: colp_metadata.pdf
+      is_metadata: true
+      type: None
+
+columns:
+  - id: uid
+    name: uid
+    data_type: text
+    data_source: Department of City Planning
+    checks:
+      is_primary_key: true
+  - id: borough
+    name: BOROUGH
+    data_type: text
+    description:
+      NYC borough - 1 (Manhattan), 2 (Bronx), 3 (Brooklyn), 4 (Queens), 5
+      (Staten Island)
+    checks:
+      non_nullable: true
+    example: None
+    values:
+      - value: "1"
+        description: Manhattan
+      - value: "2"
+        description: Bronx
+      - value: "3"
+        description: Brooklyn
+      - value: "4"
+        description: Queens
+      - value: "5"
+        description: Staten Island
+  - id: tax_block
+    name: BLOCK
+    data_type: integer
+    description:
+      The tax block in which the tax lot is located. Each tax block is unique
+      within a borough.
+    checks:
+      non_nullable: true
+    example: "1637"
+  - id: tax_lot
+    name: LOT
+    data_type: integer
+    description: The number of the tax lot. Each tax lot is unique within a tax block.
+    checks:
+      non_nullable: true
+    example: "141"
+  - id: bbl
+    data_type: bbl
+  - id: mapbbl
+    name: MAPBBL
+    data_type: number # Data imported incorrectly for these in the shapefile
+    data_source: Department of City Planning - Geosupport
+    example: "1016370141"
+    custom:
+      readme_data_type: double
+  - id: cd
+    name: CD
+    data_type: integer
+    data_source: Department of City Planning
+    example: "111"
+  - id: hnum
+    name: HNUM
+    data_type: text
+    description: House number
+    example: "1955"
+  - id: sname
+    name: SNAME
+    data_type: text
+    description: Name of the street
+    example: Third Avenue
+  - id: address
+    name: ADDRESS
+    data_type: text
+    description: House number and street name
+    example: 1955 Third Avenue
+  - id: parcelname
+    name: PARCELNAME
+    data_type: text
+    example: AGUILAR BRANCH LIBRARY
+  - id: agency
+    name: AGENCY
+    data_type: text
+    example: NYPL
+  - id: usecode
+    name: USECODE
+    data_type: text
+    description:
+      The use code indicates how the lot is being used by the agency. See
+      Appendix B for a complete list of use codes and descriptions.
+    example: "218"
+  - id: usetype
+    name: USETYPE
+    data_type: text
+    description:
+      Description of how the lot is being used by the agency. See Appendix
+      B for a complete list of use codes and descriptions.
+    example: BRANCH LIBRARY
+  - id: ownership
+    name: OWNERSHIP
+    data_type: text
+    description: Type of owner
+    checks:
+      non_nullable: true
+    example: None
+    values:
+      - value: C
+        description: City owned
+      - value: M
+        description: Mixed ownership
+      - value: P
+        description: Private
+      - value: O
+        description:
+          Other/public authority (includes properties owned by federal and
+          state entities)
+  - id: category
+    name: CATEGORY
+    data_type: integer
+    description:
+      Category classifies lots as non-residential properties with a current
+      use, residential properties, or properties without a current use.
+    data_source: Department of City Planning
+    checks:
+      non_nullable: true
+    example: None
+    values:
+      - value: "1"
+        description: Non-residential properties with a current use
+      - value: "2"
+        description: Residential properties
+      - value: "3"
+        description: Properties with no current use
+  - id: expandcat
+    name: EXPANDCAT
+    data_type: integer
+    description:
+      This categorization classifies records into broad groups based on use.
+      Valid values are 1 - 9.
+    data_source: Department of City Planning
+    checks:
+      non_nullable: true
+    example: None
+    values:
+      - value: "1"
+        description: Office use
+      - value: "2"
+        description: Educational use
+      - value: "3"
+        description: Cultural & recreational use
+      - value: "4"
+        description: Public safety & criminal justice use
+      - value: "5"
+        description: Health & social service use
+      - value: "6"
+        description: Leased out to a private tenant
+      - value: "7"
+        description: Maintenance
+        custom:
+          other_details: "['storage & infrastructure']"
+      - value: "8"
+        description: Property with no use
+      - value: "9"
+        description: Property with a residential used
+  - id: excatdesc
+    name: EXCATDESC
+    data_type: text
+    description:
+      Descriptions for the expanded category values. See EXPANDCAT for the
+      domain values.
+    data_source: Department of City Planning
+    example: None
+  - id: leased
+    name: LEASED
+    data_type: text
+    description:
+      A value of "L" indicates that the agency's use of the property is authorized
+      through a lease. For questions about the lease or ownership status of specific
+      lots, please contact DCAS at (212) 386-0622 or RESPlanning311@dcas.nyc.gov.
+    example: None
+    values:
+      - value: L
+        description: Leased
+  - id: finalcom
+    name: FINALCOM
+    data_type: text
+    description: A value of "D" indicates potential disposition by the City.
+    example: None
+    values:
+      - value: D
+        description: Potential Disposition
+  - id: agreement
+    name: AGREEMENT
+    data_type: text
+    description:
+      For City-owned properties that are leased to another entity, this field
+      indicates whether the agreement is short-term, long-term, or there are both short-
+      and long-term agreements present.
+    example: None
+    values:
+      - value: S
+        description: Short-term
+      - value: L
+        description: Long-term
+      - value: M
+        description: Mixed (there are both short- and long-term agreements on the property)
+  - id: xcoord
+    name: XCOORD
+    data_type: integer
+    description:
+      X coordinate based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD 1983 State Plane New York Long Island FIPS 3104 Feet.
+    data_source: Department of City Planning
+    example: "999900"
+  - id: ycoord
+    name: YCOORD
+    data_type: integer
+    description:
+      Y coordinate based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD 1983 State Plane New York Long Island FIPS 3104 Feet.
+    data_source: Department of City Planning
+    example: "228619"
+  - id: latitude
+    name: LATITUDE
+    data_type: decimal
+    description:
+      Latitude based on the Geosupport label point for the billing BBL. Coordinate
+      system is NAD_1983.
+    data_source: Department of City Planning
+    example: "40.794169"
+  - id: longitude
+    name: LONGITUDE
+    data_type: decimal
+    description:
+      Longitude based on the Geosupport label point for the billing BBL.
+      Coordinate system is NAD_1983.
+    data_source: Department of City Planning
+    example: "-73.943479"
+  - id: dcpedited
+    name: DCPEDITED
+    data_type: text
+    description:
+      City Planning modifies some records to correct street names or normalize
+      parcel names when programmatic cleaning is insufficient. If a field has been manually
+      modified, the original value can be found on GitHub in the modifications_applied.csv
+      available in Outputs file series.
+    data_source: Department of City Planning
+    example: None
+    values:
+      - value: Y
+        description: "True"
+  - id: geom
+    name: Geometry
+    data_type: geometry
+    description: Point geometry type
+    example: None
+    custom:
+      readme_data_type: geometry

@@ -13,6 +13,12 @@ dependencies = [
     "usaddress",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "pandas-stubs",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true

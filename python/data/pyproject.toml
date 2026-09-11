@@ -19,6 +19,12 @@ dependencies = [
 [tool.uv.sources]
 dcpy-utils = { workspace = true }
 
+[dependency-groups]
+dev = [
+    "pytest",
+    "pandas-stubs",
+]
+
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
 namespaces = true
