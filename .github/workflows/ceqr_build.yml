@@ -37,6 +37,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -60,7 +62,7 @@ jobs:
 
       - name: Plan build
         run: |
-          python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
+          uv run python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
 
       - name: Set recipe env vars
         working-directory: ./
@@ -84,4 +86,4 @@ jobs:
 
       - name: Upload
         run: |
-          python3 -m dcpy.connectors.edm.publishing upload --product db-ceqr --acl public-read
+          uv run python3 -m dcpy.connectors.edm.publishing upload --product db-ceqr --acl public-read

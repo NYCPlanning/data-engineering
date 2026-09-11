@@ -52,6 +52,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -88,7 +90,7 @@ jobs:
           # Set BUILD_ENGINE_SCHEMA from branch name (lowercase, replace - with _)
           export BUILD_ENGINE_SCHEMA=$(echo "$BUILD_ENV_BRANCH" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
           echo "BUILD_ENGINE_SCHEMA=$BUILD_ENGINE_SCHEMA" >> $GITHUB_ENV
-          python -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
+          uv run python -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
 
       - name: Set recipe env vars
         working-directory: ./
@@ -97,7 +99,7 @@ jobs:
 
       - name: Load
         run: |
-          python -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
+          uv run python -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
       - name: Transform
         run: |
@@ -106,11 +108,11 @@ jobs:
       - name: Export
         run: |
           # build tables - capture output path
-          EXPORT_OUTPUT=$(python -m dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml | grep "Export completed:" | cut -d' ' -f3)
+          EXPORT_OUTPUT=$(uv run python -m dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml | grep "Export completed:" | cut -d' ' -f3)
           echo "BUILD_OUTPUT_PATH=$EXPORT_OUTPUT" >> $GITHUB_ENV
           # metadata files
           python -m build_scripts.export
 
       - name: Upload
         run: |
-          python -m dcpy lifecycle builds build upload "$BUILD_OUTPUT_PATH" --recipe-path ${{ inputs.recipe_file }}.lock.yml
+          uv run python -m dcpy lifecycle builds build upload "$BUILD_OUTPUT_PATH" --recipe-path ${{ inputs.recipe_file }}.lock.yml

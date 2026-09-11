@@ -85,11 +85,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            dcpy 
+            dcpy
+            python
             bash
             admin/run_environment
             .github
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -107,7 +110,7 @@ jobs:
 
       - name: Promote Build to Draft
         run: |
-          python3 -m dcpy.connectors.edm.publishing promote_to_draft \
+          uv run python3 -m dcpy.connectors.edm.publishing promote_to_draft \
             --product ${{ inputs.product }} \
             --build ${{ inputs.build }} \
             ${{ (inputs.draft_summary != '' && format('--draft-summary {0}', inputs.draft_summary)) || ''}} \

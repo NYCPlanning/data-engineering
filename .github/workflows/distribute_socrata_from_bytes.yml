@@ -69,6 +69,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -87,7 +89,7 @@ jobs:
 
       - name: Distribute to Destinations
         run: |
-          python3 -m dcpy lifecycle scripts package_and_distribute product \
+          uv run python3 -m dcpy lifecycle scripts package_and_distribute product \
             ${{ inputs.product }} \
             ${{ inputs.source }} \
             $(if [ "${{ inputs.destination_ids }}" != "" ]; then for dest_id in $(echo ${{ inputs.destination_ids }} | tr ',' ' '); do echo -i $dest_id; done; fi) \
