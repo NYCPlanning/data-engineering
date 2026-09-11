@@ -50,10 +50,11 @@ services:
       - RECIPES_BUCKET=edm-recipes
       - SOCRATA_USER=${SOCRATA_USER}
       - SOCRATA_PASSWORD=${SOCRATA_PASSWORD}
-    # Editable-install dcpy from the mount, then run the app. The qa app imports its modules
-    # relative to its source root src/ (e.g. `from shared...`), which streamlit puts on sys.path
-    # when it runs src/index.py — so no cd, no `python -m`, no PYTHONPATH needed.
-    entrypoint: ["sh", "-c", "uv pip install --system -e /repos/data-engineering && streamlit run /repos/data-engineering/apps/qa/src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc"]
+    # `uv run` resolves+installs the dcpy-app-qa workspace member (and its dcpy-* deps) from
+    # the mount, then runs the app in that environment. The qa app imports its modules relative
+    # to its source root src/ (e.g. `from shared...`), which streamlit puts on sys.path when it
+    # runs src/index.py — so no cd, no `python -m`, no PYTHONPATH needed.
+    entrypoint: ["sh", "-c", "uv run --project /repos/data-engineering --package dcpy-app-qa -- streamlit run /repos/data-engineering/apps/qa/src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc"]
     volumes:
       - /root/data-engineering:/repos/data-engineering
     restart: unless-stopped
@@ -90,7 +91,7 @@ services:
     build:
       context: ./dagster
       dockerfile: Dockerfile
-    command: ["sh", "-c", "uv pip install --system -e /app/repos/data-engineering && dagster-daemon run"]
+    command: ["sh", "-c", "uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster-daemon run"]
     environment:
       - DAGSTER_HOME=/opt/dagster/dagster_home
       - AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT}

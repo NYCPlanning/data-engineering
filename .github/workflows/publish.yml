@@ -67,10 +67,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            dcpy 
+            dcpy
+            python
             bash
             admin/run_environment
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -89,7 +92,7 @@ jobs:
 
       - name: Publish
         run: |
-          python3 -m dcpy.connectors.edm.publishing publish \
+          uv run python3 -m dcpy.connectors.edm.publishing publish \
             --product ${{ inputs.product }} \
             --version ${{ inputs.version }} \
             ${{ (inputs.draft_revision_num != '' && format('--draft-number {0}', inputs.draft_revision_num)) || ''}} \

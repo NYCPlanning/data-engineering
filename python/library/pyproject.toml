@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-library"
+version = "0.0.1"
+description = "DCP Data Engineering - DEPRECATED ingest/archive tool, being migrated to dcpy-lifecycle's ingest stage"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-utils",
+    "dcpy-connectors",
+    "boto3",
+    "GDAL==3.12.3",
+    "geopandas",
+    "Jinja2",
+    "pandas",
+    "pydantic",
+    "python-dotenv",
+    "requests",
+    "rich",
+    "typer",
+    "PyYAML",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+dcpy-connectors = { workspace = true }
+
+[project.scripts]
+library = "dcpy.library.cli:run"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "boto3-stubs[s3]",
+    "pandas-stubs",
+    "types-PyYAML>=6.0.1",
+    "types-requests",
+]
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+dcpy = ["library/templates/*.yml"]

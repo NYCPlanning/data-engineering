@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-geospatial"
+version = "0.0.1"
+description = "DCP Data Engineering - GDAL-backed geospatial utilities (shapefiles, geoparquet, format conversion)"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-utils",
+    "dcpy-product-metadata",
+    "geopandas",
+    "ijson",
+    "leafmap",
+    "numpy",
+    "pandas",
+    "pyarrow",
+    "pydantic",
+    "pydantic-xml",
+    "pyogrio",
+    "shapely",
+    "typer",
+    "rich",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+dcpy-product-metadata = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pandas-stubs",
+    "pyarrow-stubs",
+]
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true

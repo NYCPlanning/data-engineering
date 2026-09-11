@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-utils"
+version = "0.0.1"
+description = "DCP Data Engineering - pure, foundational utilities (no GDAL)"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3",
+    "duckdb",
+    "GitPython",
+    "Jinja2",
+    "openpyxl",
+    "pandas",
+    "paramiko",
+    "psycopg2-binary",
+    "pyarrow",
+    "pydantic",
+    "python-dateutil",
+    "pytz",
+    "PyYAML",
+    "requests",
+    "rich",
+    "sqlalchemy",
+    "typer",
+    "typing_extensions",
+    "xlrd",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "moto",
+    "boto3-stubs[s3]",
+    "openpyxl-stubs",
+    "pandas-stubs",
+    "pyarrow-stubs",
+    "sqlalchemy-stubs",
+    "types-paramiko",
+    "types-psycopg2",
+    "types-python-dateutil",
+    "types-pytz",
+    "types-PyYAML>=6.0.1",
+    "types-requests",
+]
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true

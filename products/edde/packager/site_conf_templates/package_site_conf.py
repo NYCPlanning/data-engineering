@@ -9,11 +9,10 @@ import json
 from pathlib import Path
 
 from config import PRODUCT_PATH, get_build_output_dir
-from indicators import load_indicators
-from jinja2 import Environment, FileSystemLoader
-
 from dcpy.lifecycle.builds import get_recipe_lock
 from dcpy.utils.logging import logger
+from indicators import load_indicators
+from jinja2 import Environment, FileSystemLoader
 
 
 def get_template_variables() -> dict:

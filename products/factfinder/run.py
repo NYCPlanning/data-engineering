@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-
 from dcpy.lifecycle.builds import load, plan
 
 from .paths import ROOT_PATH

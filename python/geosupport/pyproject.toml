@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-geosupport"
+version = "0.0.1"
+description = "DCP Data Engineering - NYC Geosupport geocoding bindings (PLUTO helpers)"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "python-geosupport @ git+https://github.com/NYCPlanning/python-geosupport@main",
+    "usaddress",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pandas-stubs",
+]
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true

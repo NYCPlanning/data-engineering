@@ -37,6 +37,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install dcpy workspace
+      run: uv sync --all-packages
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
       with:
@@ -98,4 +100,4 @@ jobs:
         python3 poc_validation/compare_districts.py
 
     - name: Upload
-      run: python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read --max_files 1000
+      run: uv run python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read --max_files 1000

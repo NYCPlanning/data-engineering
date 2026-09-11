@@ -136,139 +136,35 @@ exclude_lines = [
 ]
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.uv.workspace]
+members = ["python/*", "apps/qa", "apps/dagster", "apps/notebook-server"]
+
+# The root pyproject.toml is mostly a virtual workspace container: each dcpy-* package
+# under python/ has its own test/ dir, own pyproject.toml, and own [dependency-groups]
+# dev with exactly the pytest/moto/faker/stubs its tests need. `uv sync` from here
+# installs the whole workspace against one shared uv.lock.
+#
+# The one exception is dcpy/test_integration, which stayed at its original repo-root
+# location (dev-only, not distributed, spans multiple packages) rather than being split
+# apart. It's plain pytest-discovered-by-path (nothing imports it as `dcpy.test_integration`),
+# so it doesn't need to be part of the installable dcpy namespace - the [project] table
+# below exists only so this root pyproject.toml can carry its own [dependency-groups] dev.
 [project]
-name = "dcpy"
+name = "dcpy-test-suite"
 version = "0.0.1"
-description = "DCP Data Engineering's internal python package"
 requires-python = ">=3.11"
-dependencies = [
-    "beautifulsoup4",
-    "boto3",
-    "cloudpathlib[all]",
-    "duckdb",
-    "faker",
-    "geoalchemy2",
-    "geopandas",
-    "ijson",
-    "simplejson",
-    "Jinja2",
-    "leafmap",
-    "lxml",
-    "openpyxl",
-    "pandas",
-    "psycopg2-binary",
-    "pyarrow",
-    "pydantic",
-    "pydantic-xml",
-    "pyogrio",
+dependencies = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "pytest",
     "pytest-xdist",
-    "paramiko",
-    "python-dateutil",
-    "python-dotenv",
-    "pytz",
-    "PyYAML",
-    "requests",
-    "rich",
-    "shapely",
-    "socrata-py",
-    "sqlalchemy",
-    "tabulate",
-    "typer",
-    "urllib3",
-    "usaddress",
-    "xlrd",
-]
-
-[project.optional-dependencies]
-# Core utilities - database, s3, data processing (no GDAL)
-utils = [
-    "boto3",
-    "cloudpathlib[all]",
-    "duckdb",
-    "pandas",
-    "psycopg2-binary",
-    "pyarrow",
-    "python-dateutil",
-    "pytz",
-    "sqlalchemy",
-    "tabulate",
-    "urllib3",
-    "paramiko",
-]
-
-# Product metadata - standalone metadata reading/writing
-product-metadata = [
-    "dcpy[utils]",
-    "pydantic",
-    "PyYAML",
-    "openpyxl",
-    "beautifulsoup4",
-    "css-inline",
-    "lxml",
-    "Jinja2",
-]
-
-# Type stubs for development
-stubs = [
-    "boto3-stubs[s3]",
-    "openpyxl-stubs",
-    "pandas-stubs",
-    "pyarrow-stubs",
-    "sqlalchemy-stubs",
-    "types-beautifulsoup4",
-    "types-paramiko",
-    "types-psycopg2",
-    "types-python-dateutil",
-    "types-pytz",
-    "types-PyYAML>=6.0.1",
-    "types-requests",
     "types-setuptools",
     "types-tqdm",
-]
-
-# Apps - web services deployed to Azure Container Apps
-dagster = [
-    "dagster",
-    "dagster-webserver",
-    "supervisor",
-]
-
-qa = [
-    "folium",
-    "mapclassify",
-    "matplotlib",
-    "numerize",
-    "plotly",
-    "setuptools",
-    "streamlit",
-    "streamlit-aggrid",
-    "streamlit-folium",
-]
-
-notebook = [
-    "marimo>=0.8.0",
-    "uvicorn>=0.20.0",
-]
-
-all-apps = [
-    "dcpy[dagster,qa,notebook]",
-]
-
-[tool.setuptools.packages.find]
-include = ["dcpy*"]
-exclude = ["dcpy.test*"]
-
-[project.scripts]
-library = "dcpy.library.cli:run"
-dcpy = "dcpy.__main__:cli"
-
-[tool.setuptools.package-data]
-dcpy = [
-    "library/templates/*.yml",
-    "lifecycle/package/resources/**",
-    "product_metadata/writers/resources/**",
-    "connectors/edm/bytes/site_map.json",
 ]

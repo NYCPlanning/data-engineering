@@ -22,4 +22,4 @@ EXPOSE 3000
 
 # Install dcpy at runtime from mounted volume
 # Note: dagster code and dcpy will be mounted at runtime via volumes
-CMD sh -c "uv pip install --system -e /app/repos/data-engineering && dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml --path-prefix /dag"
+CMD sh -c "uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml --path-prefix /dag"

@@ -26,11 +26,20 @@ source bash/utils.sh
 set_error_traps
 
 # this currently is meant to be only run in CI, not run in one of our containers
-# TODO drop pip pin at some point - 25.3 has issue with pip-tools
-pip install --upgrade pip==25.2 requests beautifulsoup4 pip-tools
+pip install --upgrade pip==25.2 requests beautifulsoup4 uv
 
+# dcpy is a uv workspace (see python/*/pyproject.toml) rather than one monolithic
+# package, so each image only exports the workspace member(s) it actually needs instead
+# of the whole dependency set. build-base stays GDAL-free; build-geosupport additionally
+# needs everything dcpy-lifecycle depends on (geospatial, geosupport, connectors, etc).
 function generate_dcpy_requirements {
-    pip-compile ./pyproject.toml -o $IMAGE_DIR/dcpy_requirements.txt -c $IMAGE_DIR/constraints.txt
+    local packages=("$@")
+    local export_args=()
+    for pkg in "${packages[@]}"; do
+        export_args+=(--package "$pkg")
+    done
+    uv export --no-dev --no-hashes --no-editable "${export_args[@]}" \
+        -o "$IMAGE_DIR/dcpy_requirements.txt"
 }
 
 function export_geosupport_versions {
@@ -75,16 +84,16 @@ case $image in
         $GEO_COMMAND;;
     build-base)
         common
-        generate_dcpy_requirements
+        generate_dcpy_requirements dcpy-utils dcpy-product-metadata
         $COMMAND;;
     build-base-arm)
         common
-        generate_dcpy_requirements
+        generate_dcpy_requirements dcpy-utils dcpy-product-metadata
         $COMMAND;;
-    build-geosupport) 
+    build-geosupport)
         export_geosupport_versions
         common
-        generate_dcpy_requirements
+        generate_dcpy_requirements dcpy-lifecycle
         $GEO_COMMAND;;
     docker-geosupport)
         export_geosupport_versions
