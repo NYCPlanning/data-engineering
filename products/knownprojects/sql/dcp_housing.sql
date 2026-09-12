@@ -52,7 +52,7 @@ bbl_join AS (
         a.job_number,
         a.bbl,
         a.geom AS point_geom,
-        b.wkb_geometry AS bbl_join_geom
+        b.geom AS bbl_join_geom
     FROM dcp_housing_filtered AS a
     LEFT JOIN dcp_mappluto_wi AS b
         ON a.bbl = b.bbl::bigint::text
@@ -66,10 +66,10 @@ spatial_join AS (
         a.job_number,
         a.bbl,
         a.point_geom,
-        b.wkb_geometry AS spatial_join_geom
+        b.geom AS spatial_join_geom
     FROM bbl_join AS a
     INNER JOIN dcp_mappluto_wi AS b
-        ON ST_INTERSECTS(a.point_geom, b.wkb_geometry)
+        ON ST_INTERSECTS(a.point_geom, b.geom)
     WHERE a.bbl_join_geom IS NULL AND a.point_geom IS NOT NULL
 ),
 

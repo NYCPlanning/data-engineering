@@ -26,7 +26,7 @@ WITH boundary_geosupport AS (
         coalesce(
             (
                 SELECT left(bbl::text, 1)::integer FROM dcp_mappluto_wi AS b
-                WHERE st_intersects(b.wkb_geometry, a.geom)
+                WHERE st_intersects(b.geom, a.geom)
             ),
             (
                 SELECT borocode::integer FROM dcp_boroboundaries_wi AS b
@@ -47,7 +47,7 @@ WITH boundary_geosupport AS (
         ) AS bin,
         (
             SELECT bbl::bigint::text FROM dcp_mappluto_wi AS b
-            WHERE st_intersects(b.wkb_geometry, a.geom)
+            WHERE st_intersects(b.geom, a.geom)
         ) AS bbl,
         (
             SELECT upper(po_name) FROM doitt_zipcodeboundaries AS b

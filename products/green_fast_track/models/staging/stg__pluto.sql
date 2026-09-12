@@ -19,7 +19,9 @@ final AS (
         zonedist4,
         spdist1,
         spdist2,
-        spdist3,
+        -- empty in the source, so duckdb reads the parquet's null-typed column as
+        -- INTEGER and the LIKE in int_flags__zoning fails to bind
+        spdist3::varchar AS spdist3,
         landuse,
         {{ dcp_st_transform(dcp_geom_column('dcp_mappluto_wi'), 2263) }} AS geom
     FROM mappluto_wi

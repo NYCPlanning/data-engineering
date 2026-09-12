@@ -61,7 +61,7 @@ _edc_projects AS (
     geom_bbl AS (
         SELECT
             a.uid,
-            st_union(b.wkb_geometry) AS geom
+            st_union(b.geom) AS geom
         FROM (
             SELECT
                 uid,
@@ -75,7 +75,7 @@ _edc_projects AS (
     geom_borough_block AS (
         SELECT
             a.uid,
-            st_union(b.wkb_geometry) AS geom
+            st_union(b.geom) AS geom
         FROM edc_projects AS a
         LEFT JOIN dcp_mappluto_wi AS b
             ON
@@ -250,7 +250,7 @@ _esd_projects AS (
         0 AS phasing_known,
         md5(array_to_string(array_agg(a.uid), '')) AS record_id,
         array_agg(a.uid) AS record_id_input,
-        st_union(b.wkb_geometry) AS geom,
+        st_union(b.geom) AS geom,
         flag_nycha(array_agg(row_to_json(a))::text) AS nycha,
         flag_classb(array_agg(row_to_json(a))::text) AS classb,
         flag_senior_housing(array_agg(row_to_json(a))::text) AS senior_housing
@@ -288,7 +288,7 @@ _hpd_rfp AS (
             WHEN closed_date = '-' THEN NULL
             ELSE to_char(closed_date::date, 'YYYY/MM')
         END) AS date,
-        st_union(b.wkb_geometry) AS geom,
+        st_union(b.geom) AS geom,
         flag_nycha(array_agg(row_to_json(a))::text) AS nycha,
         flag_classb(array_agg(row_to_json(a))::text) AS classb,
         flag_senior_housing(array_agg(row_to_json(a))::text) AS senior_housing
