@@ -1,4 +1,4 @@
 SELECT
     *,
-    ST_TRANSFORM(geom, 2263) AS geom
+    geom AS wkb_geometry
 FROM {{ source('recipe_sources', 'dcp_mappluto_wi') }}
