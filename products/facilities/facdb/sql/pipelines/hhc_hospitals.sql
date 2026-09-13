@@ -20,8 +20,10 @@ SELECT
     'NYSDOH' AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
+    -- geom arrives as WKT text, not geometry: sanitize_df's replace() drops the
+    -- GeoDataFrame subclass for this dataset, so the loader writes it with to_sql.
     coalesce(
-        geom,
+        st_setsrid(geom::geometry, 4326),
         st_point(longitude::double precision, latitude::double precision)
     ) AS wkb_geometry,
     geo_1b,
