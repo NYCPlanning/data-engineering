@@ -205,31 +205,23 @@ def run_single_command(
             env.update(cmd.env)
             logger.info(f"  Setting env vars: {', '.join(cmd.env.keys())}")
 
-        # Execute as shell command in product directory
+        # Inherit stdout/stderr rather than capturing. A captured run reaches the log as
+        # one giant record only after the command exits, which for `dbt build` means no
+        # progress for the length of the build and then a wall of text the CI viewer wraps
+        # mid-word. Streaming keeps dbt's per-node lines as lines.
         result = subprocess.run(
             cmd.run,
             shell=True,
             cwd=product_path,
-            capture_output=True,
-            text=True,
             env=env,
         )
 
         if result.returncode != 0:
-            logger.error(f"Command '{cmd.name}' failed:")
-            logger.error(f"  stdout: {result.stdout}")
-            logger.error(f"  stderr: {result.stderr}")
+            raise RuntimeError(
+                f"Build command '{cmd.name}' failed with exit code {result.returncode}. "
+                "Its output is above."
+            )
 
-            error_msg = f"Build command '{cmd.name}' failed with exit code {result.returncode}\n"
-            if result.stdout:
-                error_msg += f"\nSTDOUT:\n{result.stdout}\n"
-            if result.stderr:
-                error_msg += f"\nSTDERR:\n{result.stderr}\n"
-
-            raise RuntimeError(error_msg)
-
-        if result.stdout:
-            logger.info(f"  stdout: {result.stdout}")
         logger.info("=" * 80)
         logger.info(f"✓ Command '{cmd.name}' completed successfully")
         logger.info("=" * 80)
