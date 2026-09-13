@@ -9,10 +9,16 @@ on:
         description: "Geosupport docker version"
         required: true
         default: latest
+      skip_sync:
+        description: "Skip the sync job and run geocoding only"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   sync:
     name: Sync DOB BIS and HPD HNY
+    if: ${{ !inputs.skip_sync }}
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
@@ -49,6 +55,10 @@ jobs:
   geocode:
     name: Geocode HPD Data
     needs: sync
+    # Geocoding reads the HPD datasets straight from edm-recipes, so it doesn't depend on
+    # what `sync` ingests. `always()` lets it run when sync is skipped; on a schedule
+    # `inputs.skip_sync` is empty, so a real sync failure still blocks it.
+    if: ${{ always() && (inputs.skip_sync || needs.sync.result == 'success') }}
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:${{ inputs.geosupport_docker_version || 'latest' }}
