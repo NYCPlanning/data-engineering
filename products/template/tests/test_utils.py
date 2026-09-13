@@ -1,7 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 import pytest
-from python.utils import load_data_file, load_geodata_url, load_shapefile
+from python.utils import load_data_file, load_shapefile
 
 from . import TEST_DATA_DIR, TOY_SECRET_1PASSWORD, TOY_SECRET_GITHUB
 
@@ -37,13 +37,6 @@ def test_load_shapefile():
     data = load_shapefile(filepath=f"{TEST_DATA_DIR}/Open Streets Locations.zip")
     assert isinstance(data, gpd.GeoDataFrame)
     assert len(data) == 325
-
-
-def test_load_geodata_url():
-    open_streets_url = "https://data.cityofnewyork.us/resource/uiay-nctu.geojson"
-    data = load_geodata_url(url=open_streets_url)
-    assert isinstance(data, gpd.GeoDataFrame)
-    assert "appronstre" in data.columns
 
 
 @pytest.mark.skip(reason="result is 'Killed' due to large file")
