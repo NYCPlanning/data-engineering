@@ -3,6 +3,7 @@ import importlib
 import re
 from io import StringIO
 
+import geopandas as gpd
 import pandas as pd
 
 from facdb.utility.utils import format_field_names, hash_each_row, sanitize_df
@@ -394,7 +395,7 @@ def fdny_firehouses(df: pd.DataFrame):
         lambda x: re.sub("[^A-Za-z0-9- ]+", "", str(x))
     )
     research = (
-        "facilityname,facilityaddress,borough,postcode,wkt\n"
+        "facilityname,facilityaddress,borough,postcode,geom\n"
         'Engine 261/Ladder 116,37-20 29 street,Queens,11101,"POINT (-73.9354517 40.755397)"\n'
         'Marine 1,Little West 12th Street/Hudson River,Manhattan,10014,"POINT (-74.0118215 40.7406884)"\n'
         'Engine 307/Ladder 154,81-17 Northern Blvd,Queens,11372,"POINT (-73.8877877 40.755805)"\n'
@@ -404,13 +405,16 @@ def fdny_firehouses(df: pd.DataFrame):
     # fails with "Invalid value for dtype 'str'" under pandas' Arrow-backed string
     # dtype (default under future.infer_string, pandas 3.x).
     df_research = pd.read_csv(StringIO(research), dtype=str)
+    matched = df_research.facilityname.isin(df.facilityname)
     df.loc[
         df.facilityname.isin(df_research.facilityname),
-        ["facilityaddress", "borough", "postcode", "wkt"],
-    ] = df_research.loc[
-        df_research.facilityname.isin(df.facilityname),
-        ["facilityaddress", "borough", "postcode", "wkt"],
-    ].values
+        ["facilityaddress", "borough", "postcode"],
+    ] = df_research.loc[matched, ["facilityaddress", "borough", "postcode"]].values
+    # geom is shapely geometry, not text, so the WKT above has to be parsed rather than
+    # assigned alongside the string columns.
+    df.loc[df.facilityname.isin(df_research.facilityname), "geom"] = (
+        gpd.GeoSeries.from_wkt(df_research.loc[matched, "geom"]).values
+    )
     df = sanitize_df(df)
     df = parse_address(df, raw_address_field="cleaned_address")
     df = FunctionBN(bin_field="bin").geocode_a_dataframe(df)

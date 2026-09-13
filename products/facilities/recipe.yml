@@ -131,7 +131,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: sbs_workforce1
-    file_type: csv # migrated - last updated in 2017
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -193,7 +192,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: fdny_firehouses
-    file_type: csv # migrated - last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -223,7 +221,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dohmh_daycare
-    file_type: csv # migrated, last updated in 2023
     preprocessor:
       module: facdb.pipelines
       function: dispatch
@@ -232,7 +229,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: hhc_hospitals
-    file_type: csv # migrated, but likely defunct
     preprocessor:
       module: facdb.pipelines
       function: dispatch

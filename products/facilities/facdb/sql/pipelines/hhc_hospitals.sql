@@ -21,7 +21,7 @@ SELECT
     NULL AS capacity,
     NULL AS captype,
     coalesce(
-        wkt::geometry,
+        geom,
         st_point(longitude::double precision, latitude::double precision)
     ) AS wkb_geometry,
     geo_1b,
