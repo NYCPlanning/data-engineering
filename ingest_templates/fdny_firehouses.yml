@@ -21,9 +21,6 @@ ingestion:
         x: Longitude
         y: Latitude
   processing_steps:
-    - name: rename_columns
-      args:
-        map: { "geom": "wkb_geometry" }
     - name: clean_column_names
       args: { "lower": True }
     - name: coerce_column_types
@@ -48,5 +45,5 @@ columns:
     data_type: text
   - id: bbl
     data_type: text
-  - id: wkb_geometry
+  - id: geom
     data_type: geometry
