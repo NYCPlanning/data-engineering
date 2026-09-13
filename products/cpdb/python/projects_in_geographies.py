@@ -8,6 +8,8 @@ from sqlalchemy import create_engine, text
 
 from python.admin_geographies import generate_all_admin_geographies
 
+ENGINE = create_engine(os.environ["BUILD_ENGINE"])
+
 OUTPUT_DIR = Path(__file__).parent.parent / "projects_in_geographies"
 
 SQL_TEMPLATE_PATH = (
@@ -34,15 +36,13 @@ def create_table(
         geography_name=geography_name,
     )
     # execute SQL
-    engine = create_engine(os.environ["BUILD_ENGINE"])
-    with engine.begin() as conn:
+    with ENGINE.begin() as conn:
         conn.execute(text(sql_rendered))
 
 
 def export_table(table_name: str) -> None:
     print(f"pd.read_sql from table {table_name} ...")
-    engine = create_engine(os.environ["BUILD_ENGINE"])
-    with engine.begin() as conn:
+    with ENGINE.begin() as conn:
         df = pd.read_sql(text("select * from %(name)s" % {"name": table_name}), conn)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
