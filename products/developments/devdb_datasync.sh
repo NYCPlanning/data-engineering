@@ -1,7 +1,6 @@
 #!/bin/bash
 source ../../bash/utils.sh
 set_error_traps
-install_minio
 
 function library_archive {
     set_error_traps
