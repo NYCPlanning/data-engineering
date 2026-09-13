@@ -36,6 +36,7 @@ intermediate output, not yet confirmed directly).
 | [DEVDB-HNY-06](#devdb-hny-06) | HNY | Many-to-one leaves units NULL on all but one job | Open | 26Q2 |
 | [DEVDB-HNY-07](#devdb-hny-07) | HNY | Duplicate HPD project_ids double unit counts | Open | 26Q2 |
 | [DEVDB-HNY-08](#devdb-hny-08) | HNY | Many-to-many collapse is order-dependent | Open | 26Q2 |
+| [DEVDB-SRC-01](#devdb-src-01) | Source data | `20260812_internal` HNY archive is Open Data | Open | 26Q2 |
 
 ---
 
@@ -267,3 +268,28 @@ equality then treats as unrelated.
 
 **What would settle it:** decide whether overlapping-but-unequal HNY sets should collapse
 together, and replace array equality with an explicit cluster identity if so.
+
+---
+
+## Source data
+
+### DEVDB-SRC-01
+
+**`20260812_internal` HNY archive is Open Data, not an internal extract** · Open ·
+Last verified 26Q2 · Evidence: measured
+
+`datasets/hpd_hny_units_by_building/20260812_internal/` was ingested from Socrata, not from
+the `inbox/` extract its version string implies. Its `config.json` records
+`source.source.type: socrata` and a single `clean_column_names` step, against the inbox source
+and three steps on `20260721_internal`. Both came from `ingest_single.yml`, but the August run
+was dispatched from `main`, where the template still points at Open Data
+([run 31697178251](https://github.com/NYCPlanning/data-engineering/actions/runs/31697178251)).
+
+The run tagged `latest`, so `get_latest_version` resolves to it. That matters because the
+datasync geocode job resolves `latest` rather than taking a version, so
+`hny_geocode_results/20260812_internal` is geocoded Open Data too. Builds are unaffected only
+because `recipe.yml` pins both datasets explicitly.
+
+**What is still open:** whether to delete or relabel the mislabeled version. While the
+template carries a branch-local source, dispatch `ingest_single.yml` from the product branch,
+never from `main`.
