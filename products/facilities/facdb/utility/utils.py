@@ -50,6 +50,14 @@ def format_field_names(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def sanitize_df(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.replace({np.nan: None})
-    df = df.drop_duplicates()
-    return df
+    """Replace NaN with None and drop duplicate rows.
+
+    replace() returns a plain DataFrame when a GeoDataFrame's geometry column has
+    missing values. Left alone, the loader then writes geometry as WKT text rather
+    than a geometry column, so whether a pipeline's SQL needs a ::geometry cast comes
+    down to whether that dataset happens to have a null geometry.
+    """
+    sanitized = df.replace({np.nan: None}).drop_duplicates()
+    if isinstance(df, gpd.GeoDataFrame) and not isinstance(sanitized, gpd.GeoDataFrame):
+        sanitized = gpd.GeoDataFrame(sanitized, geometry=df.geometry.name, crs=df.crs)
+    return sanitized
