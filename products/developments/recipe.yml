@@ -43,9 +43,9 @@ inputs:
     # a serial assigned at load time. The two must come from the same source version or
     # the join in _hny_match.sql silently matches the wrong rows.
     - name: hpd_hny_units_by_building
-      version: "20260721_internal"
+      version: "20260910_internal"
     - name: hny_geocode_results
-      version: "20260721_internal"
+      version: "20260910_internal"
     - name: hpd_historical_units_by_building
     - name: hpd_historical_geocode_results
     - name: dob_now_applications
