@@ -58,8 +58,13 @@ inputs:
       version: "2020"
     - name: dcp_censusdata_blocks
       version: "2020"
+    # Pinned to the versions the published 26Q2 build used. `ingest_single` and the
+    # datasync workflow both repoint `latest` for these, so an unpinned rebuild would
+    # silently pick up newer DOB data than the release it's reproducing.
     - name: dob_bis_permits
+      version: "20260809"
     - name: dob_bis_applications
+      version: "20260809"
     - name: dob_jobapplications_parkingspaces
       version: 20240603
     - id: db-developments
