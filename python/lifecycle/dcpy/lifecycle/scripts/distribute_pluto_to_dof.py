@@ -12,6 +12,7 @@ from zipfile import ZipFile
 import typer
 
 from dcpy.connectors.edm import publishing
+from dcpy.connectors.sftp import SFTPConnector
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils.logging import logger
 
@@ -29,12 +30,24 @@ def run(
     folder: str = typer.Option(DEFAULT_FOLDER, help="Destination folder on Axway"),
     dry_run: bool = typer.Option(False, help="Download and unpack, but don't push"),
 ) -> None:
+    axway = connectors["axway", SFTPConnector]
+
+    # This is a shared server we've only ever read from, so name the folders we
+    # can see before writing rather than trusting the one we were told.
+    parent = str(Path(folder).parent)
+    subfolders = axway.get_subfolders(parent)
+    logger.info(f"Folders under '{parent}' on Axway: {subfolders}")
+    if Path(folder).name not in subfolders:
+        raise ValueError(f"No folder '{folder}' on the Axway server")
+
     key = f"{folder}/{FILENAME}"
     with TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         zip_path = publishing.download_file(
             publishing.PublishKey(PRODUCT, version), PUBLISHED_ZIP, tmp_path
         )
+        # version.txt rides along in the published zip for our own archive; DOF
+        # asked for the csv alone.
         with ZipFile(zip_path) as z:
             csv_path = Path(z.extract(FILENAME, tmp_path))
 
@@ -42,5 +55,5 @@ def run(
             logger.info(f"Dry run: would push {csv_path.stat().st_size} bytes to {key}")
             return
 
-        connectors.push["axway"].push(key=key, filepath=csv_path)
+        axway.push(key=key, filepath=csv_path)
         logger.info(f"Pushed PLUTO {version} {FILENAME} to {key}")
