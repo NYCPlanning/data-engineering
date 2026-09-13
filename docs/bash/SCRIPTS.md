@@ -18,8 +18,10 @@ dcp_load_planned_recipe <product_name>
 
 **Trigger a build:**
 ```bash
-dcp_trigger_build <dataset_name>
+dcp_trigger_build <dataset_name> [recipe] [build_note]
 ```
+Runs `.github/workflows/build.yml` on the current branch. Flags:
+`--test-severity=<error|warn>` (defaults to `error`, matching the workflow), `--no-tail`.
 
 **Trigger a single-dataset ingest:**
 ```bash
