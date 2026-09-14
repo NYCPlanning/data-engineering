@@ -154,6 +154,10 @@ status, so it moves every build. Shares that come from a source were written on
 whatever date that file was made. So "within 5 years" counts from roughly
 whenever the build ran, not from a fixed year.
 
+EDC is the one source that reads a year, and it compares its build year against
+`current_date` rather than anything the recipe pins, so a pinned rebuild in a
+later calendar year moves it. See issue #2629.
+
 ## Outputs
 
 | Output | What's in it |
@@ -167,7 +171,8 @@ whenever the build ran, not from a fixed year.
 
 ### Capital Projects Portal outputs
 
-Two CSVs, one row per geography, with the years written into the column names:
+Two CSVs, one row per geography, with the years written into the column names.
+Shown here at the current `dcp_housing` pin:
 
 | Column | What it is |
 |---|---|
@@ -185,8 +190,17 @@ Year-labeled counts are as of the end of that year, so a project completed in
 `units_2020` adds the rest of 2020 to it and `units_2020_census` keeps the raw
 number.
 
-`units_2020_census` is the only fixed number. The rest move with the
-`dcp_housing` version, and the projected window has the same caveat as phasing
+`units_2020_census` is the only fixed number. Every other year in those column
+names comes from the `cpp_latest_complete_year` var in `dbt_project.yml`, which
+has to match the latest calendar year the pinned `dcp_housing` fully covers.
+Bump the pin and you bump the var, and the windows and the column names move
+together. `assert_cpp_window_matches_dcp_housing` fails the build if the two
+drift apart, which they otherwise would do silently: the numbers stay correct
+for their labels, so nothing else notices.
+
+The projected years are a labeling convention on top of that. KPDB picks a
+phasing bucket from record status, not from a date, so read that column as
+"units KPDB expects within ten years of the build" and see the phasing caveat
 above. Both `completed_units_*` columns are net of demolitions and lost units,
 so they aren't gross completions.
 

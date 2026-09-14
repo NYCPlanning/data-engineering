@@ -15,6 +15,12 @@
     Both completed_units_* columns are dcp_housing's classa_net summed over a
     window, so they are net of demolitions and unit losses rather than gross
     completions.
+
+    Every year but 2020 comes from the cpp_latest_complete_year var, so bumping
+    the dcp_housing pin moves the windows and the column names together. The
+    projected years are a labeling convention only: KPDB phases units by DOB
+    job status and ZAP record status, not by date, so nothing in the source
+    data ties them to these years. See the model descriptions.
 #}
 
 {% macro cpp_housing_growth(
@@ -24,6 +30,11 @@
     housing_column,
     source_model='kpdb_deduplicated'
 ) %}
+
+{%- set latest = var('cpp_latest_complete_year') | int -%}
+{%- set trailing_start = latest - 9 -%}
+{%- set projected_start = latest + 1 -%}
+{%- set projected_end = latest + 10 -%}
 
 WITH baseline AS (
     SELECT
@@ -41,11 +52,11 @@ completions AS (
             WHERE complete_qrtr > '2020Q1' AND complete_year::numeric = 2020
         ) AS completed_units_2020_q2_q4,
         sum(classa_net::numeric) FILTER (
-            WHERE complete_year::numeric BETWEEN 2016 AND 2025
-        ) AS completed_units_2016_2025,
+            WHERE complete_year::numeric BETWEEN {{ trailing_start }} AND {{ latest }}
+        ) AS completed_units_{{ trailing_start }}_{{ latest }},
         sum(classa_net::numeric) FILTER (
-            WHERE complete_year::numeric BETWEEN 2021 AND 2025
-        ) AS completed_units_2021_2025
+            WHERE complete_year::numeric BETWEEN 2021 AND {{ latest }}
+        ) AS completed_units_2021_{{ latest }}
     FROM {{ source('recipe_sources', 'dcp_housing') }}
     WHERE {{ housing_column }} IS NOT NULL
     GROUP BY {{ housing_column }}::text
@@ -55,7 +66,8 @@ projected AS (
     SELECT
         {{ kpdb_geo_column }}::text AS geography_id,
         coalesce(within_5_years, 0)
-        + coalesce(from_5_to_10_years, 0) AS projected_completed_units_2026_2035
+        + coalesce(from_5_to_10_years, 0)
+            AS projected_completed_units_{{ projected_start }}_{{ projected_end }}
     FROM {{ ref(kpdb_model) }}
 ),
 
@@ -65,11 +77,15 @@ joined AS (
         a.units_2020_census,
         a.units_2020_census
         + coalesce(b.completed_units_2020_q2_q4, 0) AS units_2020,
-        coalesce(b.completed_units_2016_2025, 0) AS completed_units_2016_2025,
-        coalesce(b.completed_units_2021_2025, 0) AS completed_units_2021_2025,
         coalesce(
-            c.projected_completed_units_2026_2035, 0
-        ) AS projected_completed_units_2026_2035
+            b.completed_units_{{ trailing_start }}_{{ latest }}, 0
+        ) AS completed_units_{{ trailing_start }}_{{ latest }},
+        coalesce(
+            b.completed_units_2021_{{ latest }}, 0
+        ) AS completed_units_2021_{{ latest }},
+        coalesce(
+            c.projected_completed_units_{{ projected_start }}_{{ projected_end }}, 0
+        ) AS projected_completed_units_{{ projected_start }}_{{ projected_end }}
     FROM baseline AS a
     LEFT JOIN completions AS b ON b.geography_id = a.geography_id
     LEFT JOIN projected AS c ON c.geography_id = a.geography_id
@@ -79,13 +95,14 @@ SELECT
     geography_id,
     units_2020_census,
     units_2020,
-    completed_units_2016_2025,
-    completed_units_2021_2025,
-    units_2020 + completed_units_2021_2025 AS units_2025,
-    projected_completed_units_2026_2035,
+    completed_units_{{ trailing_start }}_{{ latest }},
+    completed_units_2021_{{ latest }},
+    units_2020 + completed_units_2021_{{ latest }} AS units_{{ latest }},
+    projected_completed_units_{{ projected_start }}_{{ projected_end }},
     units_2020
-    + completed_units_2021_2025
-    + projected_completed_units_2026_2035 AS projected_units_2035
+    + completed_units_2021_{{ latest }}
+    + projected_completed_units_{{ projected_start }}_{{ projected_end }}
+        AS projected_units_{{ projected_end }}
 FROM joined
 ORDER BY geography_id ASC
 
