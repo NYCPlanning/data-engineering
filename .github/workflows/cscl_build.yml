@@ -96,6 +96,7 @@ jobs:
         python3 poc_validation/summarize_diffs.py
         python3 poc_validation/compare_gdb.py
         python3 poc_validation/compare_districts.py
+        python3 poc_validation/build_diffs_report.py
 
     - name: Upload
       run: python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read --max_files 1000
