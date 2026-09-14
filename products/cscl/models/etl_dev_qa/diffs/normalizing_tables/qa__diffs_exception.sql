@@ -11,10 +11,10 @@
 WITH base_diffs AS (
   {{ generate_diff_summary(
       old_relation=ref('qa_int__prod_exception'),
-      new_relation=ref('exception'),
+      new_relation=ref('exception_by_field'),
       primary_key='_exception_key',
       output_file_id='exception',
-      build_table_name='exception',
+      build_table_name='exception_by_field',
       production_table_name='qa_int__prod_exception'
   ) }}
 ),

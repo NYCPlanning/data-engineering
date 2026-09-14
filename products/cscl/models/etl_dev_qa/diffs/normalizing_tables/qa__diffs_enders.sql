@@ -11,10 +11,10 @@
 WITH base_diffs AS (
   {{ generate_diff_summary(
       old_relation=ref('qa_int__prod_enders'),
-      new_relation=ref('enders'),
+      new_relation=ref('enders_by_field'),
       primary_key='_enders_key',
       output_file_id='enders',
-      build_table_name='enders',
+      build_table_name='enders_by_field',
       production_table_name='qa_int__prod_enders'
   ) }}
 ),

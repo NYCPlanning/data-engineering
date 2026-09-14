@@ -19,5 +19,9 @@
 
 SELECT
     *,
-    boroughcode || face_code || segmentid AS _saf_key
+    -- Matches the extended key in saf_d_roadbed_by_field.sql - see that model for
+    -- why boroughcode/face_code/segmentid alone aren't unique.
+    boroughcode || face_code || segmentid || segment_seqnum || sos_indicator
+    || daps_b5sc || low_hn || high_hn || regular_b5sc || zipcode
+    || daps_type AS _saf_key
 FROM {{ prod_relation }}

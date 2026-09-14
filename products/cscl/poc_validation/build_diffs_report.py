@@ -18,8 +18,9 @@ qa__diffs_all_summary table in the build schema):
 Outputs:
   - output/validation_output/qa__diffs_all_summary.csv (raw export of the dbt view)
   - output/validation_output/diffs_report.csv (one row per lion_outputs.csv file_id)
-  - $GITHUB_STEP_SUMMARY (if set): headline counts + a table of files with diffs,
-    with the full per-file table tucked into a <details> block
+  - $GITHUB_STEP_SUMMARY (if set): headline counts + a table of files with diffs
+    (sorted by `gap` - see that function - so the most-worth-investigating files
+    are at the top), with the full per-file table tucked into a <details> block
 Report-only: never fails the build.
 """
 
@@ -63,6 +64,7 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("unaccounted_discrepant_rows", "Unaccounted rows"),
     ("unaccounted_discrepant_fields", "Unaccounted fields"),
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
+    ("_gap", "Gap"),
 ]
 
 
@@ -108,6 +110,23 @@ def has_coverage(row: dict) -> bool:
     )
 
 
+def gap(row: dict) -> int:
+    """How far the line-level file comparison and the field-level QA models
+    disagree about how many rows actually differ.
+
+    A large gap means one of the two systems is blind to something - see
+    products/cscl/docs/prod_bugs for examples (a too-broad diff key silently
+    hiding real per-field diffs, or an export bug corrupting every line of a
+    file that field-level QA says is clean). Sorting on this surfaces exactly
+    the kind of file worth a closer look, ahead of files with a merely large
+    but well-understood diff count.
+    """
+    accounted_for = row["accounted_for_discrepant_rows"] or 0
+    unaccounted = row["unaccounted_discrepant_rows"] or 0
+    file_level = row["discrepant_rows_from_file_comparison"] or 0
+    return abs(file_level - (accounted_for + unaccounted))
+
+
 def _markdown_cell(value) -> str:
     return "–" if value is None else str(value)
 
@@ -125,7 +144,10 @@ def _markdown_table(rows: list[dict]) -> str:
 
 
 def build_step_summary(rows: list[dict]) -> str:
-    flagged = [r for r in rows if has_diffs(r)]
+    for row in rows:
+        row["_gap"] = gap(row)
+
+    flagged = sorted((r for r in rows if has_diffs(r)), key=gap, reverse=True)
     uncovered = [r for r in rows if not has_coverage(r)]
 
     lines = [
