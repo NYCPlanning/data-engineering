@@ -10,3 +10,7 @@ tests:
 
 vars:
   max_duplicate_project_records: 250
+  # Latest calendar year fully covered by the pinned dcp_housing version.
+  # Drives the CPP census-side windows and every year in those column names.
+  # assert_cpp_window_matches_dcp_housing fails the build when it drifts.
+  cpp_latest_complete_year: 2025
