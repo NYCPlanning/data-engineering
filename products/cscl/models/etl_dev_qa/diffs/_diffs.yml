@@ -74,3 +74,26 @@ models:
     description: >
       Date this table was last materialized, stamped once via CURRENT_DATE at
       build time. All rows in a given materialization share the same value.
+
+- name: qa__diffs_all_summary
+  description: >
+    One row per output_file_id, aggregating qa__diffs_all's row-level diffs.
+    Exported to CSV during the build and joined against the lion_outputs seed
+    and the line-level file comparison to produce the CSCL diff report (see
+    poc_validation/build_diffs_report.py).
+  columns:
+  - name: output_file_id
+    description: Matches lion_outputs.file_id.
+  - name: accounted_for_discrepant_rows
+    description: >
+      Count of qa__diffs_all rows for this output_file_id where accounted_for
+      is true (known/legacy bugs or deliberate behavior changes).
+  - name: unaccounted_discrepant_rows
+    description: >
+      Count of qa__diffs_all rows for this output_file_id where accounted_for
+      is false.
+  - name: unaccounted_discrepant_fields
+    description: >
+      Count of individual changed fields (not rows) across unaccounted,
+      modified records for this output_file_id. only_in_build /
+      only_in_legacy rows have no changes jsonb and so don't contribute here.

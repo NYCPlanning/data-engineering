@@ -19,6 +19,7 @@ District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,false
 District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,false
 District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,false
 District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,false
+District Equivalency,ThinED,file,thined.txt,thined_dat,false
 Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,true
 Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,true
 Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,true
@@ -36,7 +37,7 @@ Normalizing Tables,Enders,file,Enders.txt,enders,false
 Normalizing Tables,Exception,file,Exception.txt,exception,false
 Normalizing Tables,Word Tables,file,LastWord.txt,last_word,false
 Normalizing Tables,Word Tables,file,Universal.txt,universal_word,false
-OTHER,Logs,file,Logs,log,true
+OTHER,Logs,file,log.csv,log,true
 RPL,RPL,file,RPL.txt,rpl,false
 SAF,SAF,file,Intersection.txt,saf_i,false
 SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,false
@@ -54,3 +55,46 @@ gdb,LION gdb,layer,node,gdb_node,false
 gdb,LION gdb,layer,lion,gdb_lion,false
 gdb,LION gdb,layer,node_stname,gdb_node_stname,false
 gdb,LION gdb,layer,altnames,gdb_altnames,false
+gdb,District gdb,layer,nyad,gdb_nyad,false
+gdb,District gdb,layer,nyadwi,gdb_nyadwi,false
+gdb,District gdb,layer,nyap,gdb_nyap,false
+gdb,District gdb,layer,nybb,gdb_nybb,false
+gdb,District gdb,layer,nybbwi,gdb_nybbwi,false
+gdb,District gdb,layer,nybid,gdb_nybid,false
+gdb,District gdb,layer,nycb2010,gdb_nycb2010,false
+gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,false
+gdb,District gdb,layer,nycb2020,gdb_nycb2020,false
+gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,false
+gdb,District gdb,layer,nycc,gdb_nycc,false
+gdb,District gdb,layer,nyccwi,gdb_nyccwi,false
+gdb,District gdb,layer,nycd,gdb_nycd,false
+gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,false
+gdb,District gdb,layer,nycdwi,gdb_nycdwi,false
+gdb,District gdb,layer,nycg,gdb_nycg,false
+gdb,District gdb,layer,nycgwi,gdb_nycgwi,false
+gdb,District gdb,layer,nyct2010,gdb_nyct2010,false
+gdb,District gdb,layer,nyct2010wi,gdb_nyct2010wi,false
+gdb,District gdb,layer,nyct2020,gdb_nyct2020,false
+gdb,District gdb,layer,nyct2020wi,gdb_nyct2020wi,false
+gdb,District gdb,layer,nyed,gdb_nyed,false
+gdb,District gdb,layer,nyedwi,gdb_nyedwi,false
+gdb,District gdb,layer,nyfb,gdb_nyfb,false
+gdb,District gdb,layer,nyfc,gdb_nyfc,false
+gdb,District gdb,layer,nyfd,gdb_nyfd,false
+gdb,District gdb,layer,nyha,gdb_nyha,false
+gdb,District gdb,layer,nyhc,gdb_nyhc,false
+gdb,District gdb,layer,nyhd,gdb_nyhd,false
+gdb,District gdb,layer,nyhez,gdb_nyhez,false
+gdb,District gdb,layer,nymc,gdb_nymc,false
+gdb,District gdb,layer,nymcea,gdb_nymcea,false
+gdb,District gdb,layer,nymcwi,gdb_nymcwi,false
+gdb,District gdb,layer,nynta2010,gdb_nynta2010,false
+gdb,District gdb,layer,nynta2020,gdb_nynta2020,false
+gdb,District gdb,layer,nypp,gdb_nypp,false
+gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,false
+gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,false
+gdb,District gdb,layer,nysd,gdb_nysd,false
+gdb,District gdb,layer,nyss,gdb_nyss,false
+gdb,District gdb,layer,nysswi,gdb_nysswi,false
+gdb,District gdb,layer,nyura,gdb_nyura,false
+gdb,District gdb,layer,nyzip,gdb_nyzip,false
