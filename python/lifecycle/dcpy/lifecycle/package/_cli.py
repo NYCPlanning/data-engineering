@@ -1,10 +1,11 @@
 from pathlib import Path
 
 import typer
+from tabulate import tabulate  # type: ignore
+
 from dcpy.lifecycle import product_metadata
 from dcpy.product_metadata import generate
 from dcpy.product_metadata.writers.oti_xlsx.xlsx_writer import app as xlsx_writer_app
-from tabulate import tabulate  # type: ignore
 
 from .assemble import assemble_dataset_package
 from .esri import app as esri_app

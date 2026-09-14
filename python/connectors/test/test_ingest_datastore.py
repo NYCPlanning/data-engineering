@@ -4,7 +4,7 @@ import pytest
 
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
-from shared import DOWNSTREAM_DATASET_1, TEST_OUTPUT
+from shared import DOWNSTREAM_DATASET_1, TEST_OUTPUT  # type: ignore[import-not-found]
 
 
 @pytest.fixture

@@ -1,14 +1,13 @@
 """Asset for creating build partitions and triggering materializations."""
 
 from builds.partitions import get_build_partition_def
-from dagster_utils.partitions import create_build_partition
-
 from dagster import (
     AssetExecutionContext,
     Config,
     MaterializeResult,
     asset,
 )
+from dagster_utils.partitions import create_build_partition
 from dcpy import lifecycle
 
 

@@ -3,6 +3,8 @@ from tempfile import TemporaryDirectory
 
 import geopandas as gpd
 import pandas as pd
+from pydantic import ValidationError
+
 from dcpy.data import compare
 from dcpy.geospatial import parquet
 from dcpy.lifecycle.ingest import connectors, plan, transform
@@ -13,7 +15,6 @@ from dcpy.lifecycle.ingest.models import (
 )
 from dcpy.utils import introspect
 from dcpy.utils.logging import logger
-from pydantic import ValidationError
 
 
 def find_source_validation_errors(source: Source) -> dict:

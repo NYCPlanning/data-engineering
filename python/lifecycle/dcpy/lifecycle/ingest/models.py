@@ -2,13 +2,14 @@ from datetime import datetime
 from typing import Any
 
 import pandas as pd
+from pydantic import AliasChoices, AliasPath, BaseModel, Field, TypeAdapter
+
 from dcpy.connectors.edm import models as recipes
 from dcpy.utils import formats as file
 from dcpy.utils.metadata import RunDetails
 from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader
 from dcpy.utils.schema import COLUMN_TYPES
 from dcpy.utils.schema import Column as BaseColumn
-from pydantic import AliasChoices, AliasPath, BaseModel, Field, TypeAdapter
 
 
 class DatasetAttributes(SortedSerializedBase):

@@ -12,8 +12,6 @@ import typer
 from botocore.client import Config
 from botocore.exceptions import ClientError
 from botocore.response import StreamingBody
-from dcpy.utils import git
-from dcpy.utils.logging import logger
 from pyarrow import fs
 from pydantic import BaseModel
 from rich.progress import (
@@ -23,6 +21,9 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+
+from dcpy.utils import git
+from dcpy.utils.logging import logger
 
 if TYPE_CHECKING:
     from mypy_boto3_s3.client import S3Client

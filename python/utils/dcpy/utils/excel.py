@@ -3,6 +3,7 @@ from pathlib import Path
 
 import openpyxl  # type: ignore
 import typer
+
 from dcpy.utils.logging import logger
 
 MISSING_KEYS_ERROR = "Supplied keys must be found in the target table"

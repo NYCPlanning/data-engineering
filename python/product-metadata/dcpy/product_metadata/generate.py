@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pydantic import BaseModel
+
 from dcpy.product_metadata.models.metadata.org import OrgMetadata
 from dcpy.product_metadata.models.metadata.product import (
     DestinationPackageMetadata,
@@ -11,7 +13,6 @@ from dcpy.product_metadata.writers.oti_xlsx.xlsx_writer import (
     write_xlsx,
 )
 from dcpy.utils.logging import logger
-from pydantic import BaseModel
 
 
 class GenerateResult(BaseModel):

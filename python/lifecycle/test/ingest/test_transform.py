@@ -7,13 +7,14 @@ import numpy as np
 import pandas as pd
 import pytest
 import yaml
+from pydantic import BaseModel, TypeAdapter
+from shapely import MultiPolygon, Point, Polygon
+
 from dcpy.geospatial import data
 from dcpy.geospatial import parquet as geoparquet
 from dcpy.lifecycle.ingest import transform
 from dcpy.lifecycle.ingest.models import Column, ProcessingStep
 from dcpy.utils.formats import Format
-from pydantic import BaseModel, TypeAdapter
-from shapely import MultiPolygon, Point, Polygon
 
 from .shared import RESOURCES, TEST_DATA_DIR, TEST_DATASET_NAME, TEST_OUTPUT
 
@@ -524,7 +525,7 @@ class TestProcessors:
         """Test python_script with simple transformation"""
         result = self.proc.python_script(
             self.basic_df,
-            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            module="test.ingest.resources.test_scripts",
             function="simple_transform",
         )
         assert "new_column" in result.df.columns
@@ -532,10 +533,7 @@ class TestProcessors:
         assert result.summary.name == "python_script"
         assert result.summary.data_modifications["rows_before"] == len(self.basic_df)
         assert result.summary.data_modifications["rows_after"] == len(result.df)
-        assert (
-            result.summary.custom["module"]
-            == "dcpy.test.lifecycle.ingest.resources.test_scripts"
-        )
+        assert result.summary.custom["module"] == "test.ingest.resources.test_scripts"
         assert result.summary.custom["function"] == "simple_transform"
 
     def test_python_script_with_kwargs(self):
@@ -543,7 +541,7 @@ class TestProcessors:
         df = pd.DataFrame({"value": [1, 2, 3]})
         result = self.proc.python_script(
             df,
-            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            module="test.ingest.resources.test_scripts",
             function="transform_with_kwargs",
             multiplier=3,
         )
@@ -555,7 +553,7 @@ class TestProcessors:
         """Test python_script preserves GeoDataFrame type"""
         result = self.proc.python_script(
             self.gdf,
-            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            module="test.ingest.resources.test_scripts",
             function="geo_transform",
         )
         assert isinstance(result.df, gpd.GeoDataFrame)
@@ -566,7 +564,7 @@ class TestProcessors:
         """Test that plain DataFrame return is converted back to GeoDataFrame if input was GeoDataFrame"""
         result = self.proc.python_script(
             self.gdf,
-            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            module="test.ingest.resources.test_scripts",
             function="returns_plain_df_from_gdf",
         )
         assert isinstance(result.df, gpd.GeoDataFrame)
@@ -589,7 +587,7 @@ class TestProcessors:
         ):
             self.proc.python_script(
                 self.basic_df,
-                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                module="test.ingest.resources.test_scripts",
                 function="nonexistent_function",
             )
 
@@ -600,7 +598,7 @@ class TestProcessors:
         ):
             self.proc.python_script(
                 self.basic_df,
-                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                module="test.ingest.resources.test_scripts",
                 function="NOT_CALLABLE",
             )
 
@@ -612,7 +610,7 @@ class TestProcessors:
         ):
             self.proc.python_script(
                 self.basic_df,
-                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                module="test.ingest.resources.test_scripts",
                 function="wrong_return_type",
             )
 
@@ -620,7 +618,7 @@ class TestProcessors:
         """Test python_script with proper type hint"""
         result = self.proc.python_script(
             self.basic_df,
-            module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+            module="test.ingest.resources.test_scripts",
             function="with_type_hint",
         )
         assert "type_hinted" in result.df.columns
@@ -634,7 +632,7 @@ class TestProcessors:
         ):
             self.proc.python_script(
                 self.basic_df,
-                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                module="test.ingest.resources.test_scripts",
                 function="wrong_type_hint",
             )
 
@@ -645,7 +643,7 @@ class TestProcessors:
         ):
             self.proc.python_script(
                 self.basic_df,
-                module="dcpy.test.lifecycle.ingest.resources.test_scripts",
+                module="test.ingest.resources.test_scripts",
                 function="returns_wrong_type_at_runtime",
             )
 

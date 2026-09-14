@@ -3,10 +3,6 @@ from pathlib import Path
 
 import openpyxl  # type: ignore
 import typer
-from dcpy.lifecycle import product_metadata
-from dcpy.product_metadata.models.design import elements as de
-from dcpy.product_metadata.models.metadata.org import OrgMetadata
-from dcpy.utils.logging import logger
 from openpyxl.cell.rich_text import CellRichText, TextBlock  # type: ignore
 from openpyxl.cell.text import InlineFont  # type: ignore
 from openpyxl.drawing.image import Image  # type: ignore
@@ -16,6 +12,11 @@ from openpyxl.worksheet.dimensions import (  # type: ignore
     ColumnDimension,
     DimensionHolder,
 )
+
+from dcpy.lifecycle import product_metadata
+from dcpy.product_metadata.models.design import elements as de
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
+from dcpy.utils.logging import logger
 
 from .._paths import RESOURCES_PATH
 from . import abstract_doc

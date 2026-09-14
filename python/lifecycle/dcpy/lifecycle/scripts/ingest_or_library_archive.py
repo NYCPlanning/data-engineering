@@ -1,4 +1,5 @@
 import typer
+
 from dcpy.configuration import INGEST_DEF_DIR
 from dcpy.lifecycle.ingest.run import ingest
 

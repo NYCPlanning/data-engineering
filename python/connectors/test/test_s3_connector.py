@@ -2,6 +2,7 @@ from io import BytesIO
 from pathlib import Path
 
 import pytest
+
 from dcpy.connectors.s3 import S3Connector
 from dcpy.utils import s3 as s3_utils
 

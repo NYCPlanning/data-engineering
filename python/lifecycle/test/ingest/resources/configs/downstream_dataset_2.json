@@ -20,7 +20,7 @@
         },
         "source": {
             "type": "local_file",
-            "key": "dcpy/test/lifecycle/ingest/resources/test_data/test.gdb.zip"
+            "key": "python/lifecycle/test/ingest/resources/test_data/test.gdb.zip"
         }
     },
     "transformation": {

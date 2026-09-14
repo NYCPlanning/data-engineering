@@ -1,6 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 import shapely
+
 from dcpy.data import compare
 from dcpy.data import models as comparison
 

@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import shapely
 import typer
+
 from dcpy.utils.logging import logger
 
 # The sidecar files a shapefile is made of. Named explicitly rather than globbed on the

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import openpyxl  # type: ignore
 import pytest
+
 from dcpy.utils import excel
 
 RESOURCES_DIR = Path(__file__).parent / "resources"

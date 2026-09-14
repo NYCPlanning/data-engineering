@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import usaddress
 from bs4 import BeautifulSoup
+
 from dcpy.connectors.registry import Pull
 from dcpy.utils.logging import logger
 

@@ -1,6 +1,7 @@
 from unittest import mock
 
 import pytest
+
 from dcpy.connectors.socrata import configuration, connector, extract
 
 from ..conftest import mock_request_get

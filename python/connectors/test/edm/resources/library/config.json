@@ -5,7 +5,7 @@
         "acl": "public-read",
         "source": {
             "url": {
-                "path": "dcpy/test/connectors/edm/resources/test.csv",
+                "path": "python/connectors/test/edm/resources/library/test.csv",
                 "subpath": ""
             },
             "script": null,
@@ -14,7 +14,7 @@
             "layer_name": null,
             "geometry": null,
             "options": null,
-            "gdalpath": "dcpy/test/connectors/edm/resources/test.csv"
+            "gdalpath": "python/connectors/test/edm/resources/library/test.csv"
         },
         "destination": {
             "geometry": {

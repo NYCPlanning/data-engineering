@@ -3,13 +3,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
-import dcpy.product_metadata.models.metadata.product as dataset_md
 import geopandas as gpd
 import pandas as pd
 import typer
-from dcpy.utils.logging import logger
 from shapely import wkb, wkt
 from tabulate import tabulate  # type: ignore
+
+import dcpy.product_metadata.models.metadata.product as dataset_md
+from dcpy.utils.logging import logger
 
 
 class ErrorType(Enum):

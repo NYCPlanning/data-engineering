@@ -6,10 +6,6 @@ from typing import cast
 import requests
 import typer
 import yaml
-from dcpy.connectors.esri.models import FeatureServer, FeatureServerLayer, Server
-from dcpy.connectors.registry import Connector
-from dcpy.product_metadata.models.metadata import product as metadata
-from dcpy.utils.logging import logger
 from rich.progress import (
     BarColumn,
     Progress,
@@ -17,6 +13,11 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+
+from dcpy.connectors.esri.models import FeatureServer, FeatureServerLayer, Server
+from dcpy.connectors.registry import Connector
+from dcpy.product_metadata.models.metadata import product as metadata
+from dcpy.utils.logging import logger
 
 
 def get_feature_server_metadata(feature_server: FeatureServer) -> dict:

@@ -1,7 +1,8 @@
+import typer
+
 import dcpy.connectors._cli as connectors
 import dcpy.lifecycle._cli as lifecycle
 import dcpy.utils._cli as utils
-import typer
 
 # This is a separate module because it will eventually import most of dcpy
 # as we expand functionality. There maybe be cases where we don't want to do that,

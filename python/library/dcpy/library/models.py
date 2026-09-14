@@ -4,10 +4,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 
+from pydantic import BaseModel
+
 from dcpy.connectors.edm import models as recipes
 from dcpy.connectors.esri import models as esri
 from dcpy.utils import metadata
-from pydantic import BaseModel
 
 
 #### library objects

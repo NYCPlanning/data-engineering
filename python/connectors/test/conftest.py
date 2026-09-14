@@ -32,12 +32,27 @@ sys.path.insert(0, str(TEST_RESOURCES_PATH))
 # test_ingest_datastore.py needs dcpy-lifecycle's ingest test fixtures (shared.py +
 # its resources/), matching the same known connectors->lifecycle coupling documented
 # in docs/dcpy/known-package-violations.md.
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "lifecycle" / "test" / "ingest"))
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / "lifecycle" / "test" / "ingest")
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
 def ensure_no_callouts():
     import socket
+
+    # botocore lazily imports urllib3.contrib.socks (-> PySocks) the first time a
+    # boto3 client is constructed, to register SOCKS proxy support - if that first
+    # happens after socket.socket is replaced below, PySocks' `class
+    # _BaseSocket(socket.socket)` tries to subclass a plain function and crashes.
+    # Pre-importing here (while socket.socket is still the real class) caches it in
+    # sys.modules, so any later import elsewhere is a no-op. Only surfaces when this
+    # package's tests run in isolation (own pytest process, nothing else has already
+    # triggered the import first).
+    try:
+        import socks  # noqa: F401
+    except ImportError:
+        pass
 
     def guard(*args, **kwargs):
         raise Exception("No internet allowed in the unit tests!")
@@ -57,8 +72,9 @@ def aws_credentials():
 @pytest.fixture(scope="function")
 def create_buckets(aws_credentials):
     """Creates a test S3 bucket."""
-    from dcpy.utils import s3
     from moto import mock_aws
+
+    from dcpy.utils import s3
 
     with mock_aws():
         for bucket in TEST_BUCKETS:

@@ -145,13 +145,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # Runs every mypy target (dcpy/test_integration, products/*, admin/ops, and each
+    # python/*/ workspace package - the last group needs --namespace-packages
+    # --explicit-package-bases, the others must NOT get those flags globally; see the
+    # comments in the script for why) and reports every failure, not just the first.
     - name: Check python files
-      run: |
-        mypy dcpy
-        mypy products/facilities
-        mypy products/template
-        mypy products/ceqr/build_scripts
-        mypy admin/ops
+      run: ./bash/run_mypy.sh
 
   template-db:
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
@@ -222,22 +221,32 @@ jobs:
     - name: Run Container Setup
       run: docker exec --user root de ./bash/docker_container_setup.sh
 
+    # dcpy split into a uv workspace (python/*/test, see docker_container_setup.sh) - each
+    # `docker exec` here is a fresh process against the running "de" container, so it
+    # doesn't see PATH changes from earlier steps (those only apply within a single shell
+    # on the runner itself). Prefix with `uv run` rather than relying on PATH.
+    # Every dcpy-* package's test dir is literally named "test" (with its own
+    # __init__.py), so passing them all to one pytest invocation makes it try to
+    # register two different conftest.py files under the same plugin name
+    # ("test.conftest") and crash - has to be one invocation per package instead.
     - name: dcpy main pytests
       run: |
-        docker exec --user root de \
-        python3 -m pytest dcpy/test --ignore dcpy/test/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
+        for pkg in connectors data geospatial lifecycle product-metadata utils; do
+          docker exec --user root de \
+          uv run python3 -m pytest python/$pkg/test -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        done
 
     # separate because of issues w/ gdal and pyarrow
     # errors occur when writing/reading parquet files after importing gdal
     - name: dcpy library pytests
       run: |
         docker exec --user root de \
-        python3 -m pytest dcpy/test/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        uv run python3 -m pytest python/library/test -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
 
     - name: dcpy integration pytests
       run: |
         docker exec --user root de \
-        python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        uv run python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
       env:
         RECIPES_BUCKET: "test-recipes"
 
@@ -245,7 +254,7 @@ jobs:
     - name: dcpy integration library pytests
       run: |
         docker exec --user root de \
-        python3 -m pytest dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        uv run python3 -m pytest dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
       env:
         RECIPES_BUCKET: "test-recipes"
 

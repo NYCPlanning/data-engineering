@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import typer
+
 from dcpy.lifecycle import distribute
 
 app = typer.Typer()

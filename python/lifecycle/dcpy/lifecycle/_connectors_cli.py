@@ -1,4 +1,5 @@
 import typer
+
 from dcpy.lifecycle.connector_registry import connectors
 
 app = typer.Typer()

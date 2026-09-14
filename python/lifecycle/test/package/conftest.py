@@ -1,8 +1,9 @@
 import shutil
 from pathlib import Path
 
-import package_and_distribute
+import package_and_distribute  # type: ignore[import-not-found]
 import pytest
+
 from dcpy.lifecycle import product_metadata
 
 TEST_ASSEMBLED_PACKAGE_AND_METADATA_PATH = package_and_distribute.PACKAGE_PATH_ASSEMBLED

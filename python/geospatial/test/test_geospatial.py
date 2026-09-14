@@ -5,8 +5,6 @@ import geopandas as gpd
 import pandas as pd
 import pytest
 import shapely
-from dcpy.geospatial import geometry, parquet, transform
-from dcpy.utils.formats import Geometry as FileGeometry
 from shapely import (
     LineString,
     MultiLineString,
@@ -15,6 +13,9 @@ from shapely import (
     Point,
     Polygon,
 )
+
+from dcpy.geospatial import geometry, parquet, transform
+from dcpy.utils.formats import Geometry as FileGeometry
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 

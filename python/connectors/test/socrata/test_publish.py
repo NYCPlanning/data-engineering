@@ -3,11 +3,12 @@ from pathlib import Path
 from unittest import mock
 from unittest.mock import MagicMock, call
 
-import dcpy.product_metadata.models.metadata.product as md
 import pytest
+from socrata.output_schema import OutputSchema
+
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.socrata import publish
-from socrata.output_schema import OutputSchema
 
 open_data_conn = OpenDataConnector()
 open_data_conn.SOCRATA_DOMAIN = "mock.data.cityofnewyork.us"
@@ -16,7 +17,7 @@ open_data_conn.PRE_PUBLISH_SLEEP_SECS = 0
 
 @pytest.fixture
 def package_path():
-    import package_and_distribute
+    import package_and_distribute  # type: ignore[import-not-found]
 
     return package_and_distribute.PACKAGE_PATH_ASSEMBLED
 

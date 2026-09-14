@@ -8,6 +8,7 @@ from pathlib import Path
 from xml.etree.ElementTree import canonicalize
 
 import pytest
+
 from dcpy.utils.code_gen import pydantic_from_xml
 
 PLUTO_METADATA_XML = "esri_metadata_pluto_export.xml"

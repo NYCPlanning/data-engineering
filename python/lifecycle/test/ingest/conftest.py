@@ -5,11 +5,12 @@ from typing import Callable
 import geopandas as gpd
 import pandas as pd
 import pytest
+from faker import Faker
+from shapely import wkt
+
 from dcpy.connectors import filesystem, ingest_datastore
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.lifecycle import connector_registry
-from faker import Faker
-from shapely import wkt
 
 random.seed(0)
 

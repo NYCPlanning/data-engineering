@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 import requests
+
 from dcpy.connectors.web_scrapers import usps
 from dcpy.connectors.web_scrapers.usps import session_headers_from_curl
 

@@ -3,9 +3,10 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import paramiko
-from dcpy.utils.logging import logger
 from pydantic import BaseModel, model_validator
 from typing_extensions import Self
+
+from dcpy.utils.logging import logger
 
 KNOWN_HOSTS_DEFAULT_PATH = Path.home() / ".ssh/known_hosts"
 

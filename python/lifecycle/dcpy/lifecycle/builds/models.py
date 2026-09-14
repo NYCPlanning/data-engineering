@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 import pandas as pd
-from dcpy.connectors.edm import models as recipes
-from dcpy.utils import versions
 from pydantic import AliasChoices, BaseModel, Field, model_serializer, model_validator
 from typing_extensions import Self
+
+from dcpy.connectors.edm import models as recipes
+from dcpy.utils import versions
 
 
 class RecipeInputsVersionStrategy(StrEnum):

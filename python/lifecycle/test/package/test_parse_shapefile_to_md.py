@@ -1,6 +1,7 @@
 # TODO: Move this file into test.utils.shapefiles
 
 import yaml
+
 from dcpy.lifecycle.package import shapefiles
 from dcpy.product_metadata.models.metadata import product as dsmd
 

@@ -1,6 +1,7 @@
 from os import environ as env
 from pathlib import Path
 
+from dcpy import configuration
 from dcpy.configuration import PRIVATE_BUCKET
 from dcpy.connectors import filesystem, ingest_datastore, s3, sftp, web
 from dcpy.connectors.edm import gis
@@ -32,8 +33,6 @@ from dcpy.connectors.web_scrapers import (
     usps,
 )
 from dcpy.utils.logging import logger
-
-from dcpy import configuration
 
 connectors = ConnectorRegistry[Connector]()
 

@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from dcpy.product_metadata.keys import DestinationKey
 from pydantic import BaseModel
+
+from dcpy.product_metadata.keys import DestinationKey
 
 
 class DestinationVersion(BaseModel):

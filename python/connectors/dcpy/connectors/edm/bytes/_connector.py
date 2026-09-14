@@ -5,10 +5,11 @@ from pathlib import Path
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from pydantic import BaseModel, TypeAdapter
+
 from dcpy.connectors import web
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.utils.logging import logger
-from pydantic import BaseModel, TypeAdapter
 
 from . import _sitemap
 

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import duckdb  # type: ignore
 import pandas as pd
+
 from dcpy.utils import datastores
 from dcpy.utils.logging import logger
 

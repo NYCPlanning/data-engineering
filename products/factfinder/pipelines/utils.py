@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Tuple
 
 import pandas as pd
+
 from dcpy.utils import string
 
 from . import DATA_PATH, OUTPUT_FOLDER

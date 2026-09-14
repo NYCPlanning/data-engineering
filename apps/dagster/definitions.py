@@ -3,10 +3,9 @@
 import os
 
 from builds import build_assets, create_build_partition_asset
+from dagster import Definitions
 from ingest import ingest_assets
 from ingest.resources import LocalStorageResource
-
-from dagster import Definitions
 
 # Combine all assets
 all_assets = [*build_assets, create_build_partition_asset, *ingest_assets]

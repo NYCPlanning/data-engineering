@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 
 import typer
+
 from dcpy.configuration import INGEST_DEF_DIR
 from dcpy.lifecycle.ingest import plan, run, validate
 from dcpy.utils.logging import logger

@@ -2,6 +2,8 @@ from pathlib import Path
 
 import jinja2
 import yaml
+from jinja2 import meta
+
 from dcpy.lifecycle.ingest.connectors import source_connectors
 from dcpy.lifecycle.ingest.models import (
     DatasetDefinition,
@@ -13,7 +15,6 @@ from dcpy.lifecycle.ingest.models import (
 )
 from dcpy.utils.collections import deep_merge_dict
 from dcpy.utils.logging import logger
-from jinja2 import meta
 
 
 def get_jinja_vars(s: str) -> set[str]:

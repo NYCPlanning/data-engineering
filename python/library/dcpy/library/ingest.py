@@ -11,9 +11,6 @@ from math import floor
 from pathlib import Path
 
 import yaml
-from dcpy.library import models as library
-from dcpy.utils.logging import logger
-from dcpy.utils.metadata import get_run_details
 from osgeo import gdal
 from rich.progress import (
     BarColumn,
@@ -22,6 +19,10 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
+
+from dcpy.library import models as library
+from dcpy.utils.logging import logger
+from dcpy.utils.metadata import get_run_details
 
 from . import base_path
 from .config import Config

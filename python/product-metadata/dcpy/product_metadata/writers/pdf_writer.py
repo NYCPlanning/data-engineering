@@ -3,10 +3,11 @@ from pathlib import Path
 
 import css_inline
 from bs4 import BeautifulSoup
+from jinja2 import Environment, FileSystemLoader
+
 from dcpy.product_metadata.models.metadata.org import OrgMetadata
 from dcpy.product_metadata.models.metadata.product import Metadata
 from dcpy.utils.logging import logger
-from jinja2 import Environment, FileSystemLoader
 
 from ._paths import RESOURCES_PATH
 

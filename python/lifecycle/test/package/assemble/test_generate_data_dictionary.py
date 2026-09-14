@@ -1,4 +1,5 @@
 import pytest
+
 from dcpy.product_metadata.writers import pdf_writer, yaml_writer
 from dcpy.product_metadata.writers.oti_xlsx import xlsx_writer
 

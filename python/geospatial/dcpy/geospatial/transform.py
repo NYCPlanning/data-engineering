@@ -1,8 +1,5 @@
 import geopandas as gpd
 import pandas as pd
-from dcpy.geospatial import geometry as geom
-from dcpy.utils import formats as file
-from dcpy.utils.logging import logger
 from numpy import floor
 from rich.progress import (
     BarColumn,
@@ -20,6 +17,10 @@ from shapely import (
     Point,
     Polygon,
 )
+
+from dcpy.geospatial import geometry as geom
+from dcpy.utils import formats as file
+from dcpy.utils.logging import logger
 
 
 def multi(geom: Geometry | None) -> Geometry | None:

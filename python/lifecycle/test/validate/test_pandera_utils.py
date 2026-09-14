@@ -6,9 +6,10 @@ import pandas as pd
 import pandera as pa
 import pytest
 import yaml
+from pydantic import TypeAdapter
+
 from dcpy.lifecycle.validate import pandera_utils
 from dcpy.utils.schema import CheckAttributes, Column
-from pydantic import TypeAdapter
 
 from . import RESOURCES
 

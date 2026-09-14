@@ -32,12 +32,25 @@ TEST_BUCKETS = [TEST_BUCKET, RECIPES_BUCKET, PUBLISHING_BUCKET]
 # dcpy namespace - it lives alongside this conftest rather than being importable as a
 # proper dependency, so it needs its own directory on sys.path.
 sys.path.insert(0, str(RESOURCES))
-import package_and_distribute  # noqa: E402
+import package_and_distribute  # type: ignore[import-not-found]  # noqa: E402
 
 
 @pytest.fixture(scope="session", autouse=True)
 def ensure_no_callouts():
     import socket
+
+    # botocore lazily imports urllib3.contrib.socks (-> PySocks) the first time a
+    # boto3 client is constructed, to register SOCKS proxy support - if that first
+    # happens after socket.socket is replaced below, PySocks' `class
+    # _BaseSocket(socket.socket)` tries to subclass a plain function and crashes.
+    # Pre-importing here (while socket.socket is still the real class) caches it in
+    # sys.modules, so any later import elsewhere is a no-op. Only surfaces when this
+    # package's tests run in isolation (own pytest process, nothing else has already
+    # triggered the import first).
+    try:
+        import socks  # noqa: F401
+    except ImportError:
+        pass
 
     def guard(*args, **kwargs):
         raise Exception("No internet allowed in the unit tests!")

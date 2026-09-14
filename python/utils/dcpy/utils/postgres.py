@@ -8,9 +8,10 @@ from typing import Literal
 import geopandas as gpd
 import pandas as pd
 import typer
-from dcpy.utils.logging import logger
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, dialects, text
+
+from dcpy.utils.logging import logger
 
 
 class TableType(Enum):

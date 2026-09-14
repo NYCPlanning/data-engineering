@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, Mock
 
 import pytest
+
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.lifecycle import connector_registry
 

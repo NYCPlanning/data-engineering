@@ -2,8 +2,9 @@ import os
 from unittest.mock import patch
 
 import pandas as pd
-from dcpy.library.ingest import Ingestor, format_field_names
 from osgeo import gdal
+
+from dcpy.library.ingest import Ingestor, format_field_names
 
 from . import (
     get_config_file,

@@ -2,9 +2,8 @@ import os
 from os import environ as env
 from pathlib import Path
 
-from dcpy.utils.logging import logger
-
 from dcpy import configuration
+from dcpy.utils.logging import logger
 
 
 def _set_default_conf():

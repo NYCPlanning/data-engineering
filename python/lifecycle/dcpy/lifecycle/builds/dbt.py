@@ -1,9 +1,10 @@
 from pathlib import Path
 
 import typer
+from ruamel.yaml import YAML
+
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.models import InputDataset, Recipe
-from ruamel.yaml import YAML
 
 DEFAULT_RECIPE = "recipe.yml"
 

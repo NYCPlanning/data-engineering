@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Any
 
-import dcpy.product_metadata.models.metadata.product as md
 import typer
+
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.connectors.socrata import metadata
 from dcpy.connectors.socrata import publish as pub
 from dcpy.utils.logging import logger

@@ -5,9 +5,10 @@ from pathlib import Path
 import jinja2
 import pandas as pd
 import yaml
-from dcpy.utils.logging import logger
 from pydantic import BaseModel, model_serializer
 from pydantic.fields import PrivateAttr
+
+from dcpy.utils.logging import logger
 
 
 class SortedSerializedBase(BaseModel):

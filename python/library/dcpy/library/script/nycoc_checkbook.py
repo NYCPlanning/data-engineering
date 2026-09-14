@@ -12,6 +12,7 @@ from typing import Any, Literal, TypedDict
 
 import pandas as pd
 import requests
+
 from dcpy.utils.logging import logger
 
 from . import df_to_tempfile

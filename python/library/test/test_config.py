@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 import yaml
+
 from dcpy.library import TEMPLATE_DIR
 from dcpy.library.config import Config
 from dcpy.library.models import DatasetDefinition

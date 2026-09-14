@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import typer
+
 from dcpy.product_metadata.models.metadata.product import (
     ColumnValue,
     DatasetAttributes,

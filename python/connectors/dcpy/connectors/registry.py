@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Callable, Generic, TypeVar, overload
 
-from dcpy.utils.logging import logger
 from pydantic import BaseModel
+
+from dcpy.utils.logging import logger
 
 
 ### Connector Base Classes

@@ -1,8 +1,9 @@
 from typing import Generic, TypeVar
 
 import pandas as pd
-from dcpy.utils.models import ModelWithDataFrame, SortedSerializedBase
 from pydantic import BaseModel, Field
+
+from dcpy.utils.models import ModelWithDataFrame, SortedSerializedBase
 
 T = TypeVar("T")
 

@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest
+
 from dcpy.connectors.edm import recipes
 from dcpy.lifecycle.builds import load
 from dcpy.lifecycle.builds.models import (

@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+
 from dcpy.connectors.edm import publishing
 from dcpy.utils import s3, versions
 

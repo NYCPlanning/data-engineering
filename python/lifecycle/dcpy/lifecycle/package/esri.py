@@ -1,9 +1,10 @@
 import re
 from pathlib import Path
 
-import dcpy.product_metadata.models.metadata.product as models
 import typer
 import yaml
+
+import dcpy.product_metadata.models.metadata.product as models
 from dcpy.geospatial import esri_metadata, fgdb
 from dcpy.geospatial.esri_metadata import _create_attr_metadata
 from dcpy.geospatial.shapefile import Shapefile

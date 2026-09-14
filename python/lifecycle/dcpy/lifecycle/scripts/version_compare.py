@@ -4,6 +4,7 @@ from typing import NamedTuple
 
 import pandas as pd
 from dateutil.parser import parse as dateutil_parse
+
 from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.connector_registry import connectors
 

@@ -109,8 +109,42 @@ select = [
 "setup_dev_bucket.py" = ["E402"]
 "apps/qa/src/pages/source_data/*.py" = ["I001"]
 
+[tool.ruff.lint.isort]
+# dcpy split into a uv workspace (packages under python/*/) rather than one directory
+# at the repo root, so ruff can no longer auto-detect it as first-party for files
+# outside those packages (admin/, apps/, products/, etc). Declare it explicitly.
+# Same story for apps/qa's and apps/dagster's own local packages - ruff can't
+# auto-detect them as first-party either, so they get lumped in with third-party
+# imports unless listed here too.
+known-first-party = [
+    "dcpy",
+    "shared",         # apps/qa
+    "app_globals",    # apps/qa
+    "pages",          # apps/qa
+    "dagster_utils",  # apps/dagster
+    "ingest",         # apps/dagster
+    "builds",         # apps/dagster
+]
+
+[tool.mypy]
+# dcpy is a uv workspace now (each package under python/*/ has its own dcpy/ dir, merged
+# at runtime into one namespace package by the editable installs' import hooks). mypy
+# doesn't execute those hooks, so it needs every package root listed here to resolve
+# dcpy.* imports from files outside that package (e.g. dcpy/test_integration, products/*,
+# admin/ops).
+mypy_path = [
+    "python/utils",
+    "python/connectors",
+    "python/data",
+    "python/geospatial",
+    "python/geosupport",
+    "python/library",
+    "python/lifecycle",
+    "python/product-metadata",
+]
+
 [[tool.mypy.overrides]]
-module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,shapely.*,socrata.*,faker.*,ruamel.*,pyogrio.*,ijson.*" # no stubs available
+module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,shapely.*,socrata.*,faker.*,ruamel.*,pyogrio.*,ijson.*,socks" # no stubs available
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import typer
+
 from dcpy.configuration import PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY

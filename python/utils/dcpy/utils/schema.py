@@ -1,7 +1,8 @@
 from typing import Any, Callable, Literal
 
-from dcpy.utils.models import SortedSerializedBase
 from pydantic import field_validator
+
+from dcpy.utils.models import SortedSerializedBase
 
 COLUMN_TYPES = Literal[
     "bbl",

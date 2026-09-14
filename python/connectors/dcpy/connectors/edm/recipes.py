@@ -3,6 +3,8 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+
+from dcpy import configuration
 from dcpy.connectors.edm.models import (
     Dataset,
     DatasetKey,
@@ -10,8 +12,6 @@ from dcpy.connectors.edm.models import (
 )
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
-
-from dcpy import configuration
 
 # TODO: continuing hacking away until this module is no more.
 

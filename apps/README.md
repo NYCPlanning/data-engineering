@@ -36,11 +36,11 @@ Access at: http://localhost:8501
 For working on ingest/build pipelines without the full Docker stack. Requires `dagster` and `dcpy` installed in your environment.
 
 ```bash
-# From repo root, with .venv active:
-pip install -e .
+# From repo root:
+uv sync --all-packages
 cd apps/dagster
 # Set required env vars (see apps/example.env for the full list)
-dagster dev
+uv run --project .. dagster dev
 ```
 
 Access at: http://localhost:3000

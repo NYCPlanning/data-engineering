@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+
 from dcpy.lifecycle.ingest.models import SparseConfig
 
 

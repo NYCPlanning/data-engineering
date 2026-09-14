@@ -1,6 +1,9 @@
 import pandas as pd
 import streamlit as st
+
 from app_globals import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
+from dcpy.connectors.edm.models import ProductKey
+from dcpy.utils import postgres
 from shared.utils.source_report import (
     compare_source_data_columns,
     compare_source_data_row_count,
@@ -8,9 +11,6 @@ from shared.utils.source_report import (
     get_source_data_versions_to_compare,
     load_source_data_to_compare,
 )
-
-from dcpy.connectors.edm.models import ProductKey
-from dcpy.utils import postgres
 
 
 def sources_report(

@@ -1,8 +1,9 @@
 from pathlib import Path
 
 import typer
-from dcpy.lifecycle import product_metadata
 from tabulate import tabulate  # type: ignore
+
+from dcpy.lifecycle import product_metadata
 
 app = typer.Typer()
 

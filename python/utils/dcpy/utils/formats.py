@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Literal, TypeAlias
 
+from pydantic import BaseModel
+
 from dcpy.geospatial import geometry
 from dcpy.utils.models import SortedSerializedBase
-from pydantic import BaseModel
 
 
 class Geometry(SortedSerializedBase, extra="forbid"):

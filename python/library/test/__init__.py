@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 
-import dcpy.library
 from dotenv import load_dotenv
 from rich.console import Console
 from sqlalchemy import create_engine
+
+import dcpy.library
 
 # Load environmental variables
 load_dotenv()

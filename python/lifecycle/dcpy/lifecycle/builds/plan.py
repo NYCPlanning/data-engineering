@@ -5,6 +5,15 @@ from pathlib import Path
 import pandas as pd
 import typer
 import yaml
+from jinja2 import (
+    Environment,
+    StrictUndefined,
+    TemplateSyntaxError,
+    Undefined,
+    UndefinedError,
+    meta,
+)
+
 from dcpy.configuration import BUILD_NAME
 from dcpy.connectors.edm import recipes
 from dcpy.connectors.edm.models import BuildKey, DatasetType, DraftKey, PublishKey
@@ -21,14 +30,6 @@ from dcpy.lifecycle.builds.models import (
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
-from jinja2 import (
-    Environment,
-    StrictUndefined,
-    TemplateSyntaxError,
-    Undefined,
-    UndefinedError,
-    meta,
-)
 
 DEFAULT_RECIPE = "recipe.yml"
 RECIPE_FILE_TYPE_PREFERENCE = [

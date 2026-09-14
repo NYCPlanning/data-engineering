@@ -3,11 +3,12 @@ from __future__ import annotations
 import unicodedata
 from typing import Any, List
 
+from pydantic import BaseModel
+from tabulate import tabulate  # type: ignore
+
 from dcpy.utils.collections import deep_merge_dict as merge
 from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader, YamlWriter
 from dcpy.utils.schema import Column
-from pydantic import BaseModel
-from tabulate import tabulate  # type: ignore
 
 ERROR_MISSING_COLUMN = "MISSING COLUMN"
 

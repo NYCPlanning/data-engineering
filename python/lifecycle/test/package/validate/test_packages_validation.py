@@ -1,6 +1,7 @@
-import dcpy.product_metadata.models.metadata.product as md
-import package_and_distribute
+import package_and_distribute  # type: ignore[import-not-found]
 import pytest
+
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle import package
 
 

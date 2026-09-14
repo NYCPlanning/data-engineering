@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from botocore.exceptions import ClientError
+
 from dcpy.utils import s3
 
 from .conftest import (

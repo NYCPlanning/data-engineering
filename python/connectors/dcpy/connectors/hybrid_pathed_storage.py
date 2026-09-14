@@ -8,10 +8,11 @@ from typing import Any, Unpack
 
 from cloudpathlib import CloudPath, S3Client
 from cloudpathlib.azure import AzureBlobClient
+from typing_extensions import NotRequired, TypedDict
+
 from dcpy.configuration import DEFAULT_S3_URL
 from dcpy.connectors.registry import Connector
 from dcpy.utils.logging import logger
-from typing_extensions import NotRequired, TypedDict
 
 default_logging.getLogger("azure").setLevel(
     "ERROR"

@@ -2,12 +2,13 @@ import random
 import uuid
 from typing import Callable
 
-import dcpy.product_metadata.models.metadata.product as md
-from dcpy.lifecycle.package import validate
-from dcpy.utils import schema as dataset
 from faker import Faker
 from pandas import DataFrame as df
 from shapely import wkb, wkt
+
+import dcpy.product_metadata.models.metadata.product as md
+from dcpy.lifecycle.package import validate
+from dcpy.utils import schema as dataset
 
 from ..conftest import TEST_METADATA_YAML_PATH
 

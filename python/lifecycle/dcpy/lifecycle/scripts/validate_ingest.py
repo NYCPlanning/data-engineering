@@ -5,9 +5,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Literal
 
-import dcpy.library
 import typer
 import yaml
+
+from dcpy import configuration
 from dcpy.connectors.edm import recipes
 from dcpy.data import compare
 from dcpy.data import models as comparison
@@ -19,8 +20,6 @@ from dcpy.lifecycle.ingest.run import ingest as run_ingest
 from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
 from dcpy.utils.models import SortedSerializedBase, YamlWriter
-
-from dcpy import configuration
 
 DATABASE = "sandbox"
 LIBRARY_DEFAULT_PATH = (
@@ -73,9 +72,14 @@ class Converter(SortedSerializedBase, YamlWriter):
 
 
 def convert_template(dataset: str):
-    # dcpy.library now lives in its own workspace package (a physically different
-    # directory tree than dcpy.lifecycle), so resolve its templates dir via the
-    # installed module rather than a fixed number of `..` hops from this file.
+    # Local import: dcpy.library has module-level side effects (S3/GDAL config) that
+    # shouldn't run just because this file was imported - only when this function is
+    # actually called. dcpy.library now lives in its own workspace package (a
+    # physically different directory tree than dcpy.lifecycle), so resolve its
+    # templates dir via the installed module rather than a fixed number of `..` hops
+    # from this file.
+    import dcpy.library
+
     library_path = Path(dcpy.library.__file__).parent / "templates" / f"{dataset}.yml"
     ingest_path = (
         Path(__file__).parent.parent.parent

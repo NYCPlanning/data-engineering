@@ -2,6 +2,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import shapely
+
 from dcpy.data import models as comparison
 from dcpy.utils import postgres
 from dcpy.utils.logging import logger

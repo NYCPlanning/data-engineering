@@ -3,6 +3,7 @@ from unittest import mock
 
 import geopandas as gpd
 import pytest
+
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
 from dcpy.lifecycle.ingest import connectors, run
 from dcpy.lifecycle.ingest.models import ArchivedDataSource, IngestedDataset

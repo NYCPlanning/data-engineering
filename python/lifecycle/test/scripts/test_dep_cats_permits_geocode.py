@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+
 from dcpy.lifecycle.scripts import dep_cats_permits_geocode as m
 
 

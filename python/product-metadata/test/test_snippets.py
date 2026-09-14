@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from dcpy.product_metadata.models.metadata import org as md
-
 from dcpy import configuration
+from dcpy.product_metadata.models.metadata import org as md
 
 
 def test_org_get_snippets():

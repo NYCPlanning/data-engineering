@@ -2,10 +2,11 @@ import json
 import os
 
 import typer
-from dcpy.library.models import Config
 from rich import box
 from rich.console import Console
 from rich.table import Table
+
+from dcpy.library.models import Config
 
 from . import aws_s3_bucket
 from .archive import Archive

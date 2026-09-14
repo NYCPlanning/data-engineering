@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from dcpy.utils.models import SortedSerializedBase
 from tabulate import tabulate  # type: ignore
+
+from dcpy.utils.models import SortedSerializedBase
 
 
 class LifecycleDatasetResult(SortedSerializedBase):

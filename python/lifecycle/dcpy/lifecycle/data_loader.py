@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 import typer
+
 from dcpy.connectors.edm.models import DatasetType
 from dcpy.geospatial import parquet as geoparquet
 from dcpy.lifecycle import config

@@ -38,6 +38,10 @@ jobs:
           BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
           TOY_SECRET_1PASSWORD: "op://Data Engineering/TestSecretsFile/TOY_SECRET"
 
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
       - name: Run python tests
         run: |
           python3 -m pytest ./products/template -m "not end_to_end" -s --verbose --verbose

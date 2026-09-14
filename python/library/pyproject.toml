@@ -15,6 +15,7 @@ dependencies = [
     "geopandas",
     "Jinja2",
     "pandas",
+    "pyarrow",
     "pydantic",
     "python-dotenv",
     "requests",

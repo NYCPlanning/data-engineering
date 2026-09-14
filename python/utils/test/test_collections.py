@@ -1,6 +1,7 @@
 import pandas as pd
-from dcpy.utils import collections
 from pydantic import BaseModel
+
+from dcpy.utils import collections
 
 
 def test_deep_merge():

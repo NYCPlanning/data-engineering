@@ -20,16 +20,17 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NotRequired, TypedDict
 
-import dcpy.product_metadata.models.metadata.product as md
 import requests
-from dcpy.utils import schema as dataset
-from dcpy.utils.logging import logger
 from pydantic import BaseModel
 from socrata import Socrata as SocrataPy
 from socrata.authorization import Authorization
 from socrata.output_schema import OutputSchema
 from socrata.revisions import Revision as SocrataPyRevision
 from socrata.sources import Source
+
+import dcpy.product_metadata.models.metadata.product as md
+from dcpy.utils import schema as dataset
+from dcpy.utils.logging import logger
 
 # There are required publishing frequency fields in two different sections of
 # the required metadata, and they're different. Below are the shared fields

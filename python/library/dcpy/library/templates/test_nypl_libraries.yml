@@ -4,7 +4,7 @@ dataset:
   acl: public-read
   source:
     url:
-      path: dcpy/test/library/data/test_nypl_libraries.csv
+      path: python/library/test/data/test_nypl_libraries.csv
     options:
       - "AUTODETECT_TYPE=NO"
       - "EMPTY_STRING_AS_NULL=YES"

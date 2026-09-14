@@ -1,14 +1,15 @@
 import zipfile
 from pathlib import Path
 
-import dcpy.product_metadata.models.metadata.product as md
 import pytest
+
+import dcpy.product_metadata.models.metadata.product as md
 from dcpy.lifecycle.package import assemble
 
 
 @pytest.fixture
 def package_path():
-    import package_and_distribute
+    import package_and_distribute  # type: ignore[import-not-found]
 
     return package_and_distribute.PACKAGE_PATH_ASSEMBLED
 

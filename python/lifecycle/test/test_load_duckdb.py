@@ -2,6 +2,7 @@
 
 import pandas as pd
 import pytest
+
 from dcpy.connectors import ingest_datastore
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.lifecycle import data_loader
@@ -295,8 +296,9 @@ def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path, monke
     """Test loading a recipe with multiple datasets including geospatial Parquet into DuckDB."""
     import geopandas as gpd
     import yaml
-    from dcpy.lifecycle.builds import load
     from shapely.geometry import Point  # type: ignore
+
+    from dcpy.lifecycle.builds import load
 
     test_storage = setup_test_connectors
 

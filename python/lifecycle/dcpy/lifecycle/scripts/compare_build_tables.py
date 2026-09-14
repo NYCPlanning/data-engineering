@@ -1,4 +1,5 @@
 import typer
+
 from dcpy.data import compare
 from dcpy.utils import postgres
 from dcpy.utils.collections import indented_report
