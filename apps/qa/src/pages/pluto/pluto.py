@@ -1,5 +1,6 @@
 def pluto():
     import streamlit as st
+
     from shared.components import sidebar
 
     from .components.changes_report import ChangesReport

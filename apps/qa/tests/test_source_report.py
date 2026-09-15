@@ -1,7 +1,10 @@
 # test generation of source data reports
 import pandas as pd
 import pytest
+
 from app_globals import QAQC_DB, QAQC_DB_SCHEMA_SOURCE_DATA
+from dcpy.connectors.edm.models import PublishKey
+from dcpy.utils.postgres import PostgresClient
 from shared.constants import DATASET_NAMES
 from shared.utils.source_report import (
     compare_source_data_columns,
@@ -9,9 +12,6 @@ from shared.utils.source_report import (
     get_source_data_versions,
     get_source_dataset_ids,
 )
-
-from dcpy.connectors.edm.models import PublishKey
-from dcpy.utils.postgres import PostgresClient
 
 REFERENCE_VESION = "2023-04-01"
 

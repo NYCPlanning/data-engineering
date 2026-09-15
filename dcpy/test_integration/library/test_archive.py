@@ -1,18 +1,34 @@
 import os
+from pathlib import Path
 
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 
 from dcpy.library.archive import Archive
-from dcpy.test.library import (
-    TEST_DATASET_CONFIG_FILE,
-    TEST_DATASET_NAME,
-    TEST_DATASET_OUTPUT_DIRECTORY,
-    TEST_DATASET_OUTPUT_PATH,
-    TEST_DATASET_OUTPUT_PATH_S3,
-    TEST_DATASET_VERSION,
-    pg,
-    recipe_engine,
+
+# dcpy.test.library doesn't exist anymore - its fixtures live in dcpy-library's own test
+# package (python/library/test/). "test" is too generic a name to import across package
+# boundaries (every dcpy-* package has its own test/ dir named exactly "test", so
+# sys.path tricks to reach it collide with mypy's namespace-package resolution), so the
+# handful of constants this file needs are inlined here instead. The underlying fixture
+# data file itself isn't duplicated - it's referenced from where it actually lives.
+TEST_DATASET_NAME = "test_nypl_libraries"
+TEST_DATASET_VERSION = "20210122"
+TEST_DATASET_CONFIG_FILE = str(
+    Path(__file__).parent.parent.parent.parent
+    / "python"
+    / "library"
+    / "test"
+    / "data"
+    / f"{TEST_DATASET_NAME}.yml"
 )
+TEST_DATASET_OUTPUT_DIRECTORY = (
+    f".library/datasets/{TEST_DATASET_NAME}/{TEST_DATASET_VERSION}"
+)
+TEST_DATASET_OUTPUT_PATH = f"{TEST_DATASET_OUTPUT_DIRECTORY}/{TEST_DATASET_NAME}"
+TEST_DATASET_OUTPUT_PATH_S3 = f"datasets/{TEST_DATASET_NAME}/{TEST_DATASET_VERSION}"
+
+recipe_engine = os.environ["RECIPE_ENGINE"]
+pg = create_engine(recipe_engine)
 
 archive = Archive()
 

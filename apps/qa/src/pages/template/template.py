@@ -1,4 +1,5 @@
 import streamlit as st
+
 from shared.components import sidebar
 from shared.components.build_outputs import (
     generate_geo_data,

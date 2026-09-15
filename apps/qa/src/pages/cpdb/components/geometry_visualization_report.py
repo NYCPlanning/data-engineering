@@ -1,4 +1,5 @@
 import streamlit as st
+
 from shared.constants import COLOR_SCHEME
 
 

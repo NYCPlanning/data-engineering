@@ -4,9 +4,8 @@ import os
 from typing import Optional
 
 import yaml
-from builds.partitions import get_build_partition_def
-from dagster_utils.partitions import parse_build_partition
 
+from builds.partitions import get_build_partition_def
 from dagster import (
     AssetExecutionContext,
     AutomationCondition,
@@ -22,6 +21,7 @@ from dagster import (
     graph_asset,
     op,
 )
+from dagster_utils.partitions import parse_build_partition
 
 # TODO: we need consistent import strategies. Unless these are referenced to build the dag, we should import them within the asset def.
 from dcpy import lifecycle

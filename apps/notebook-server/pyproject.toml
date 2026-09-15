@@ -1,0 +1,16 @@
+[project]
+name = "dcpy-app-notebook-server"
+version = "0.0.1"
+description = "DCP Data Engineering - marimo notebook server"
+requires-python = ">=3.11"
+dependencies = [
+    "dcpy-lifecycle",
+    "marimo>=0.8.0",
+    "uvicorn>=0.20.0",
+]
+
+[tool.uv.sources]
+dcpy-lifecycle = { workspace = true }
+
+[tool.uv]
+package = false

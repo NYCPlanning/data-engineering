@@ -145,13 +145,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    # Runs every mypy target (dcpy/test_integration, products/*, admin/ops, and each
+    # python/*/ workspace package - the last group needs --namespace-packages
+    # --explicit-package-bases, the others must NOT get those flags globally; see the
+    # comments in the script for why) and reports every failure, not just the first.
     - name: Check python files
-      run: |
-        mypy dcpy
-        mypy products/facilities
-        mypy products/template
-        mypy products/ceqr/build_scripts
-        mypy admin/ops
+      run: ./bash/run_mypy.sh
 
   template-db:
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
@@ -222,38 +221,169 @@ jobs:
     - name: Run Container Setup
       run: docker exec --user root de ./bash/docker_container_setup.sh
 
+    # dcpy split into a uv workspace (python/*/test, see docker_container_setup.sh). Each
+    # package here gets its own isolated sync (uv sync --package dcpy-X) before its tests
+    # run - `uv sync --all-packages` (used elsewhere in this job for dcpy/test_integration,
+    # which genuinely spans packages) would let a package's tests pass by accidentally
+    # importing a sibling package that was never declared as a real dependency. Re-syncing
+    # the same venv scoped to just one package actually prunes it (verified), so this
+    # catches that class of bug for real.
+    #
+    # Coverage is scoped to just that package's own source (--cov=python/X, own
+    # COVERAGE_FILE, own coverage-X.xml) rather than the whole dcpy.* namespace - measuring
+    # broadly would blend "covered by this package's own tests" with "incidentally
+    # executed by a downstream consumer's tests", which defeats the point of asking "how
+    # well does dcpy-utils's own test suite cover dcpy-utils". Each package uploads to
+    # Codecov under its own flag below, so per-package and overall numbers are both
+    # meaningful. (Also: --cov=dcpy - the bare namespace package - silently measures zero
+    # files and writes no xml at all now that dcpy/__init__.py is gone; coverage.py can't
+    # resolve an implicit PEP 420 namespace package passed by import name. Scoping by
+    # directory path sidesteps that entirely.)
+    #
+    # connectors and product-metadata have a real, currently-undeclared runtime dependency
+    # on dcpy-lifecycle (see docs/dcpy/known-package-violations.md, bd issue de-24n.1) -
+    # sync lifecycle alongside them too until that's cleaned up, or their tests won't even
+    # collect. dcpy-utils/test_postgres.py has a similar undeclared geopandas dependency
+    # in dcpy.utils.postgres itself, but that one's excluded rather than worked around:
+    # utils sits under nearly every other package, so declaring geopandas there would drag
+    # GDAL back into every consumer, undermining the whole point of the split. Needs an
+    # actual decision (lazy-import it? move the geospatial bits out of utils?), not a sync
+    # flag - tracked separately.
+    #
+    # Every dcpy-* package's test dir is literally named "test" (with its own
+    # __init__.py), so passing them all to one pytest invocation makes it try to
+    # register two different conftest.py files under the same plugin name
+    # ("test.conftest") and crash - has to be one invocation per package instead.
     - name: dcpy main pytests
       run: |
-        docker exec --user root de \
-        python3 -m pytest dcpy/test --ignore dcpy/test/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml
+        for pkg in connectors data geospatial lifecycle product-metadata utils; do
+          sync_extra=()
+          test_extra=()
+          if [[ "$pkg" == "connectors" || "$pkg" == "product-metadata" ]]; then
+            sync_extra=(--package dcpy-lifecycle)
+          fi
+          if [[ "$pkg" == "utils" ]]; then
+            test_extra=(--ignore=python/utils/test/test_postgres.py)
+          fi
+          docker exec --user root de \
+            uv sync --package "dcpy-$pkg" "${sync_extra[@]}"
+          docker exec --user root de bash -c \
+            "COVERAGE_FILE=.coverage.$pkg uv run --no-sync python3 -m pytest python/$pkg/test ${test_extra[*]} -v --cov=python/$pkg --cov-report=xml:coverage-$pkg.xml --cov-config=pyproject.toml"
+        done
 
     # separate because of issues w/ gdal and pyarrow
     # errors occur when writing/reading parquet files after importing gdal
     - name: dcpy library pytests
       run: |
         docker exec --user root de \
-        python3 -m pytest dcpy/test/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+          uv sync --package dcpy-library
+        docker exec --user root de bash -c \
+          "COVERAGE_FILE=.coverage.library uv run --no-sync python3 -m pytest python/library/test -v --cov=python/library --cov-report=xml:coverage-library.xml --cov-config=pyproject.toml"
 
+    # dcpy/test_integration spans multiple packages by design (it isn't owned by any one
+    # dcpy-* package, see pyproject.toml's [project] comment) so it needs the full
+    # workspace, not an isolated sync like the packages above.
     - name: dcpy integration pytests
       run: |
         docker exec --user root de \
-        python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+          uv sync --all-packages
+        docker exec --user root de bash -c \
+          "COVERAGE_FILE=.coverage.integration uv run --no-sync python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library -v --cov=python --cov-report=xml:coverage-integration.xml --cov-config=pyproject.toml"
       env:
         RECIPES_BUCKET: "test-recipes"
 
     # separate for the same gdal/pyarrow reason as the unit library suite above
     - name: dcpy integration library pytests
       run: |
-        docker exec --user root de \
-        python3 -m pytest dcpy/test_integration/library -v --cov-config=pyproject.toml --cov=dcpy --cov-report=xml --cov-append
+        docker exec --user root de bash -c \
+          "COVERAGE_FILE=.coverage.integration-library uv run --no-sync python3 -m pytest dcpy/test_integration/library -v --cov=python --cov-report=xml:coverage-integration-library.xml --cov-config=pyproject.toml"
       env:
         RECIPES_BUCKET: "test-recipes"
 
-    - name: Upload dcpy test coverage to Codecov
+    # One flagged upload per package, rather than a single combined report, so Codecov
+    # shows both per-package coverage (e.g. "how much of dcpy-utils do dcpy-utils's own
+    # tests cover") and an overall total (which it aggregates across flags automatically).
+    # (Steps can't use `strategy.matrix` - that's job-level only - hence nine explicit
+    # copies instead of a loop.)
+    - name: Upload connectors coverage to Codecov
       uses: codecov/codecov-action@v4
       env:
         CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
       with:
+        files: coverage-connectors.xml
+        flags: dcpy-connectors
+        verbose: true
+
+    - name: Upload data coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-data.xml
+        flags: dcpy-data
+        verbose: true
+
+    - name: Upload geospatial coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-geospatial.xml
+        flags: dcpy-geospatial
+        verbose: true
+
+    - name: Upload lifecycle coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-lifecycle.xml
+        flags: dcpy-lifecycle
+        verbose: true
+
+    - name: Upload product-metadata coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-product-metadata.xml
+        flags: dcpy-product-metadata
+        verbose: true
+
+    - name: Upload utils coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-utils.xml
+        flags: dcpy-utils
+        verbose: true
+
+    - name: Upload library coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-library.xml
+        flags: dcpy-library
+        verbose: true
+
+    - name: Upload integration coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-integration.xml
+        flags: dcpy-integration
+        verbose: true
+
+    - name: Upload integration-library coverage to Codecov
+      uses: codecov/codecov-action@v4
+      env:
+        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
+      with:
+        files: coverage-integration-library.xml
+        flags: dcpy-integration-library
         verbose: true
 
   pytest_other:
@@ -308,8 +438,10 @@ jobs:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - name: Install dcpy workspace
+      run: uv sync --all-packages
     - name: Validate All Metadata Files
-      run: python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
+      run: uv run python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
       env:
         RECIPES_BUCKET: edm-recipes
         PUBLISHING_BUCKET: edm-publishing
@@ -321,5 +453,7 @@ jobs:
       image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - name: Install dcpy workspace
+      run: uv sync --all-packages
     - name: Validate All Templates
-      run: python -m dcpy lifecycle ingest validate_definitions ingest_templates
+      run: uv run python -m dcpy lifecycle ingest validate_definitions ingest_templates

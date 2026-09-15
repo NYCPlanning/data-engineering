@@ -3,8 +3,9 @@ from abc import ABC
 import numpy as np
 import plotly.express as px
 import streamlit as st
-from shared.constants import COLOR_SCHEME
 from st_aggrid import AgGrid
+
+from shared.constants import COLOR_SCHEME
 
 
 class ChangesReport:

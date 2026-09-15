@@ -55,6 +55,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         id: op-load-secret
         uses: 1password/load-secrets-action@v4
@@ -96,4 +98,4 @@ jobs:
           version: ${{ github.event.inputs.version && format('--version {0}', github.event.inputs.version) || '' }}
           mode: ${{ github.event.inputs.mode && format('--mode {0}', github.event.inputs.mode) || '' }}
           overwrite: ${{ github.event.inputs.overwrite == 'true' && '--overwrite' || '' }}
-        run: python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ inputs.dataset }} $latest $version $mode $overwrite --push-to-s3
+        run: uv run python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ inputs.dataset }} $latest $version $mode $overwrite --push-to-s3

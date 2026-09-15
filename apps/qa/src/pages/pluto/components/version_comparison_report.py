@@ -1,4 +1,5 @@
 import streamlit as st
+
 from shared.components import build_outputs
 
 from .aggregate_report import AggregateReport

@@ -34,6 +34,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
@@ -50,18 +52,18 @@ jobs:
 
       - name: Set build directory
         run: |
-          BUILD_DIR=$(python3 -c "from dcpy.lifecycle.config import get_build_dir; print(get_build_dir('edde', '${BUILD_NAME}'))")
+          BUILD_DIR=$(uv run python3 -c "from dcpy.lifecycle.config import get_build_dir; print(get_build_dir('edde', '${BUILD_NAME}'))")
           mkdir -p "$BUILD_DIR"
           echo "BUILD_ENV_OUTPUT_DIR=$BUILD_DIR" >> "$GITHUB_ENV"
 
       - name: Plan build
-        run: python3 -m dcpy.lifecycle.builds.plan recipe --recipe-path recipe.yml --output-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml"
+        run: uv run python3 -m dcpy.lifecycle.builds.plan recipe --recipe-path recipe.yml --output-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml"
 
       - name: Dataloading
-        run: python3 -m dcpy lifecycle builds load load --recipe-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml"
+        run: uv run python3 -m dcpy lifecycle builds load load --recipe-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml"
 
       - name: Build (build, data_checks, qa, package)
-        run: python3 -m dcpy lifecycle builds build run --recipe-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml" --build-dir "$BUILD_ENV_OUTPUT_DIR"
+        run: uv run python3 -m dcpy lifecycle builds build run --recipe-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml" --build-dir "$BUILD_ENV_OUTPUT_DIR"
 
       - name: Upload
-        run: python3 -m dcpy lifecycle builds build upload "$BUILD_ENV_OUTPUT_DIR" --recipe-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml"
+        run: uv run python3 -m dcpy lifecycle builds build upload "$BUILD_ENV_OUTPUT_DIR" --recipe-path "$BUILD_ENV_OUTPUT_DIR/recipe.lock.yml"

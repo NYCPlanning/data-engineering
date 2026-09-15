@@ -1,6 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 import pytest
+
 from python.utils import load_data_file, load_shapefile
 
 from . import TEST_DATA_DIR, TOY_SECRET_1PASSWORD, TOY_SECRET_GITHUB

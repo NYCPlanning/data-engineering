@@ -1,9 +1,9 @@
 import json
 
 import pandas as pd
-from shared.utils.publishing import read_csv_cached
 
 from dcpy.connectors.edm.models import ProductKey
+from shared.utils.publishing import read_csv_cached
 
 PRODUCT = "db-developments"
 

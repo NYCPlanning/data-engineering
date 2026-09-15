@@ -1,10 +1,10 @@
 import pytest
+
+from dcpy.connectors.edm.models import PublishKey
 from pages.pluto.components.expected_value_differences_report import (
     ExpectedValueDifferencesReport,
 )
 from pages.pluto.helpers import PRODUCT, get_data
-
-from dcpy.connectors.edm.models import PublishKey
 
 TEST_VERSION_1 = "23v1"
 TEST_VERSION_2 = "22v3"

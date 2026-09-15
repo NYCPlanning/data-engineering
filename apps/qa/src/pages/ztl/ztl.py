@@ -1,9 +1,9 @@
 import pandas as pd
 import streamlit as st
-from shared.components import build_outputs, sidebar
-from shared.components.sources_report import sources_report
 
 from dcpy.lifecycle.builds import published
+from shared.components import build_outputs, sidebar
+from shared.components.sources_report import sources_report
 
 from .components.outputs_report import PRODUCT, output_report
 

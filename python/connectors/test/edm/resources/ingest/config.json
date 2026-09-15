@@ -1,0 +1,60 @@
+{
+    "id": "test",
+    "version": "ingest",
+    "acl": "private",
+    "attributes": {
+        "name": "Downstream Dataset 1",
+        "url": "https://example.com/data"
+    },
+    "source": {
+        "id": "one_to_many",
+        "timestamp": "2025-09-26T12:38:22.544455-04:00",
+        "raw_filename": "test.gdb.zip",
+        "acl": "private",
+        "attributes": {
+            "name": "Sample One-To-Many Definition"
+        },
+        "run_details": {
+            "type": "manual",
+            "runner": {
+                "username": "user"
+            },
+            "timestamp": "2025-09-26T12:38:22.544455-04:00"
+        },
+        "source": {
+            "type": "local_file",
+            "key": "python/lifecycle/test/ingest/resources/test_data/test.gdb.zip"
+        }
+    },
+    "transformation": {
+        "file_format": {
+            "crs": "EPSG:4326",
+            "layer": "downstream_1",
+            "type": "geodatabase"
+        },
+        "processing_steps": [
+            {
+                "name": "clean_column_names",
+                "args": {
+                    "lower": true
+                }
+            }
+        ],
+        "processing_steps_summaries": [
+            {
+                "description": "Cleaned column names",
+                "name": "clean_column_names",
+                "column_modifications": {
+                    "renamed": {}
+                }
+            }
+        ],
+        "run_details": {
+            "type": "manual",
+            "runner": {
+                "username": "user"
+            },
+            "timestamp": "2025-09-26T12:38:22.544455-04:00"
+        }
+    }
+}

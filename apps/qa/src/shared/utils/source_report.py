@@ -3,9 +3,8 @@ from typing import cast
 
 import pandas as pd
 import streamlit as st
-from app_globals import QAQC_DB_SCHEMA_SOURCE_DATA
-from shared.constants import construct_dataset_by_version
 
+from app_globals import QAQC_DB_SCHEMA_SOURCE_DATA
 from dcpy.connectors.edm.models import (
     BuildKey,
     DatasetType,
@@ -15,6 +14,7 @@ from dcpy.connectors.edm.models import (
 from dcpy.lifecycle import data_loader
 from dcpy.lifecycle.builds import builds, published
 from dcpy.lifecycle.builds.models import InputDataset
+from shared.constants import construct_dataset_by_version
 
 
 def dataframe_style_source_report_results(value) -> str:

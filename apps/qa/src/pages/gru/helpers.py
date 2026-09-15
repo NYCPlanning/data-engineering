@@ -8,8 +8,8 @@ from urllib.parse import quote
 import pandas as pd
 import requests
 import streamlit as st
-from app_globals import ROOT_PATH
 
+from app_globals import ROOT_PATH
 from dcpy.configuration import INGEST_DEF_DIR
 from dcpy.connectors.edm import publishing
 from dcpy.lifecycle.connector_registry import connectors
