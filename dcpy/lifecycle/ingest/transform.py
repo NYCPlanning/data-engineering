@@ -492,7 +492,7 @@ class ProcessingFunctions:
         geo: bool = False,  # only used for validation
         **kwargs,
     ) -> ProcessingResult:
-        """
+        r"""
         Operates on a given column using a given pandas Series function and supplied kwargs
 
         Example yml which defines a call:
