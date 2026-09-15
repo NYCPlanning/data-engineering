@@ -3,12 +3,18 @@ Builds a single per-output-file diff report, using seeds/lion_outputs.csv as the
 backbone, and writes it to the build folder. Also appends a condensed version to the
 GitHub Actions step summary, when running in CI.
 
-Marries two systems that otherwise don't talk to each other:
+Marries three systems that otherwise don't talk to each other:
   - qa__diffs_all_summary: a dbt view aggregating qa__diffs_all's field-level diffs
     (row + changed-field granularity, with an accounted_for flag for known/legacy
-    bugs) by output_file_id. Exported to CSV here.
+    bugs) by output_file_id, plus the LDF's separate count-based QA models
+    (qa__ldf_summary, qa__ldf_header_diffs). Exported to CSV here.
   - validation_summary.csv: whole-line file diffs from validate_outputs.sh, keyed by
-    filename. Covers every export (including the ones with no dbt QA model yet).
+    filename. Covers every flat-file export (including the ones with no dbt QA
+    model yet).
+  - compare_gdb.py's per-gdb-export <name>_comparison.csv files: row-count deltas
+    for gdb layers (there's no line-level analog for a gdb), plus its consolidated
+    layer_note (structure/row/area) surfaced in the notes column. Keyed by layer
+    name.
 
 Run from the products/cscl directory, after validate_outputs.sh and
 summarize_diffs.py (needs validation_summary.csv) and after `dbt build` (needs the
@@ -18,8 +24,9 @@ qa__diffs_all_summary table in the build schema):
 Outputs:
   - output/validation_output/qa__diffs_all_summary.csv (raw export of the dbt view)
   - output/validation_output/diffs_report.csv (one row per lion_outputs.csv file_id)
-  - $GITHUB_STEP_SUMMARY (if set): headline counts + a table of files with diffs,
-    with the full per-file table tucked into a <details> block
+  - $GITHUB_STEP_SUMMARY (if set): headline counts + a table of files with diffs
+    (sorted by `gap` - see that function - so the most-worth-investigating files
+    are at the top), with the full per-file table tucked into a <details> block
 Report-only: never fails the build.
 """
 
@@ -27,13 +34,29 @@ import csv
 import os
 from pathlib import Path
 
+from dcpy.lifecycle.builds import plan
 from dcpy.utils.postgres import PostgresClient
 
+RECIPE_PATH = Path("recipe.yml")
 LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
 VALIDATION_DIR = Path("output/validation_output")
 OUTPUT_PATH = VALIDATION_DIR / "diffs_report.csv"
 VALIDATION_SUMMARY_PATH = VALIDATION_DIR / "validation_summary.csv"
 DIFFS_SUMMARY_PATH = VALIDATION_DIR / "qa__diffs_all_summary.csv"
+
+# Static, human-written notes for known/open issues that don't come from any QA
+# model - keyed by lion_outputs.csv file_id. Left deliberately unaccounted (not
+# folded into accounted_for_discrepant_rows) pending outside confirmation.
+KNOWN_NOTES: dict[str, str] = {
+    "ldf_dat": (
+        "CSCL-LDF-01 (open, see data_issues.md): transitory-elimination residual "
+        "- our lineage-graph approximation of GR's undisclosed suppression rule "
+        "disagrees with prod on which intermediate segment/node records survive. "
+        "Documented as ~3% as of 26b; currently measuring ~8% on this same "
+        "version - worth a look, may be drift rather than the same known gap. "
+        "Follow up with GR."
+    ),
+}
 
 REPORT_COLUMNS = [
     "file_group",
@@ -42,10 +65,12 @@ REPORT_COLUMNS = [
     "filename",
     "file_id",
     "skip_qa",
+    "diffable",
     "accounted_for_discrepant_rows",
     "unaccounted_discrepant_fields",
     "unaccounted_discrepant_rows",
     "discrepant_rows_from_file_comparison",
+    "notes",
 ]
 FIELD_LEVEL_COUNT_COLUMNS = [
     "accounted_for_discrepant_rows",
@@ -63,6 +88,8 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("unaccounted_discrepant_rows", "Unaccounted rows"),
     ("unaccounted_discrepant_fields", "Unaccounted fields"),
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
+    ("_gap", "Gap"),
+    ("notes", "Notes"),
 ]
 
 
@@ -71,12 +98,18 @@ def load_backbone() -> list[dict]:
         return list(csv.DictReader(f))
 
 
-def load_field_level_counts() -> dict[str, dict[str, int]]:
-    """output_file_id -> field-level count columns, from qa__diffs_all_summary."""
+def load_field_level_counts() -> dict[str, dict[str, int | None]]:
+    """output_file_id -> field-level count columns, from qa__diffs_all_summary.
+
+    Postgres COPY renders SQL NULL as an empty string - the LDF rows leave
+    unaccounted_discrepant_fields null (no per-field concept for a count-based
+    comparison), so that has to map back to None rather than fail int().
+    """
     with DIFFS_SUMMARY_PATH.open(newline="") as f:
         return {
             row["output_file_id"]: {
-                col: int(row[col]) for col in FIELD_LEVEL_COUNT_COLUMNS
+                col: (int(row[col]) if row[col] != "" else None)
+                for col in FIELD_LEVEL_COUNT_COLUMNS
             }
             for row in csv.DictReader(f)
         }
@@ -92,12 +125,74 @@ def load_file_comparison_counts() -> dict[str, int]:
         }
 
 
+def load_gdb_layer_stats() -> dict[str, dict]:
+    """layer name -> {"row_diff": int, "note": str}, from compare_gdb.py's
+    per-gdb-export CSVs (one row per (layer, column); the layer-level fields -
+    rows_only_in_dev/rows_only_in_prod/rows_modified and the consolidated
+    layer_note - repeat down each layer's rows, so take the first).
+
+    row_diff here is the real keyed row-level diff total (only_in_dev +
+    only_in_prod + modified), not a net row-count delta - a layer can have equal
+    row counts on both sides while every row's attributes differ, which a naive
+    count comparison would completely miss. See compare_gdb.py's
+    _row_level_diff for how it's computed (and when "modified" isn't available
+    because no column was unique enough to pair rows precisely).
+
+    lion_outputs.csv's filename column holds the layer name for gdb-type rows
+    (not the gdb zip's filename), which is what this is keyed on. Every gdb
+    export in recipe.yml is covered, not just one - compare_gdb.py runs once
+    per gdb-format export.
+    """
+    if not RECIPE_PATH.exists():
+        return {}
+    recipe = plan.recipe_from_yaml(RECIPE_PATH)
+    assert recipe.exports
+    gdb_filenames = sorted(
+        {
+            export.filename
+            for export in recipe.exports.datasets
+            if export.format.value == "gdb" and export.filename
+        }
+    )
+
+    stats: dict[str, dict] = {}
+    for filename in gdb_filenames:
+        report_name = Path(filename).name.split(".")[0]
+        comparison_path = VALIDATION_DIR / f"{report_name}_comparison.csv"
+        if not comparison_path.exists():
+            continue
+        with comparison_path.open(newline="") as f:
+            for row in csv.DictReader(f):
+                layer = row["layer"]
+                if layer in stats:
+                    continue
+                only_in_dev = int(row["rows_only_in_dev"])
+                only_in_prod = int(row["rows_only_in_prod"])
+                modified = (
+                    int(row["rows_modified"]) if row["rows_modified"] != "" else 0
+                )
+                stats[layer] = {
+                    "row_diff": only_in_dev + only_in_prod + modified,
+                    "note": row.get("layer_note", ""),
+                }
+    return stats
+
+
 def has_diffs(row: dict) -> bool:
-    """Whether a row has anything worth a human looking at (accounted-for diffs
-    don't count - they're already known/expected)."""
-    return (row["unaccounted_discrepant_rows"] or 0) > 0 or (
-        row["discrepant_rows_from_file_comparison"] or 0
-    ) > 0
+    """Whether a row has anything worth a human looking at.
+
+    Two independent triggers: the accounted-for count doesn't fully explain the
+    file-level diff count (equal means every discrepant row in the raw file
+    comparison is already a known/expected diff), OR there's any unaccounted
+    row from qa__diffs_all directly. The second guards against a case the first
+    alone would miss: accounted_for + unaccounted could exceed file_level while
+    accounted_for alone happens to equal it, which would otherwise hide a real,
+    unexplained diff behind a coincidental count match.
+    """
+    accounted_for = row["accounted_for_discrepant_rows"] or 0
+    file_level = row["discrepant_rows_from_file_comparison"] or 0
+    unaccounted = row["unaccounted_discrepant_rows"] or 0
+    return accounted_for != file_level or unaccounted > 0
 
 
 def has_coverage(row: dict) -> bool:
@@ -106,6 +201,29 @@ def has_coverage(row: dict) -> bool:
         row["unaccounted_discrepant_rows"] is not None
         or row["discrepant_rows_from_file_comparison"] is not None
     )
+
+
+def is_diffable(row: dict) -> bool:
+    """Whether lion_outputs.csv marks this file as comparable at all (false for
+    build logs and other artifacts with no prod counterpart to diff against)."""
+    return row["diffable"] == "true"
+
+
+def gap(row: dict) -> int:
+    """How far the line-level file comparison and the field-level QA models
+    disagree about how many rows actually differ.
+
+    A large gap means one of the two systems is blind to something - see
+    products/cscl/docs/prod_bugs for examples (a too-broad diff key silently
+    hiding real per-field diffs, or an export bug corrupting every line of a
+    file that field-level QA says is clean). Sorting on this surfaces exactly
+    the kind of file worth a closer look, ahead of files with a merely large
+    but well-understood diff count.
+    """
+    accounted_for = row["accounted_for_discrepant_rows"] or 0
+    unaccounted = row["unaccounted_discrepant_rows"] or 0
+    file_level = row["discrepant_rows_from_file_comparison"] or 0
+    return abs(file_level - (accounted_for + unaccounted))
 
 
 def _markdown_cell(value) -> str:
@@ -125,15 +243,21 @@ def _markdown_table(rows: list[dict]) -> str:
 
 
 def build_step_summary(rows: list[dict]) -> str:
-    flagged = [r for r in rows if has_diffs(r)]
-    uncovered = [r for r in rows if not has_coverage(r)]
+    for row in rows:
+        row["_gap"] = gap(row)
+
+    diffable_rows = [r for r in rows if is_diffable(r)]
+    not_diffable = [r for r in rows if not is_diffable(r)]
+    flagged = sorted((r for r in diffable_rows if has_diffs(r)), key=gap, reverse=True)
+    uncovered = [r for r in diffable_rows if not has_coverage(r)]
 
     lines = [
         "## CSCL diff report",
         "",
-        f"- {len(rows)} files tracked in `lion_outputs.csv`",
+        f"- {len(rows)} files tracked in `lion_outputs.csv` "
+        f"({len(not_diffable)} marked not diffable - logs and similar - excluded below)",
         f"- **{len(flagged)} have diffs to review**",
-        f"- {len(uncovered)} have no comparison at all "
+        f"- {len(uncovered)} are diffable but have no comparison at all "
         "(no field-level QA model, no matching prod file to diff)",
         "",
     ]
@@ -164,10 +288,18 @@ def main() -> None:
     backbone = load_backbone()
     field_level_by_file = load_field_level_counts()
     file_comparison_counts = load_file_comparison_counts()
+    gdb_layer_stats = load_gdb_layer_stats()
+    gdb_row_diffs = {layer: s["row_diff"] for layer, s in gdb_layer_stats.items()}
+    # Disjoint key spaces (flat filenames vs. gdb layer names) - safe to merge.
+    row_comparison_counts = {**file_comparison_counts, **gdb_row_diffs}
 
     rows = []
     for record in backbone:
         field_counts = field_level_by_file.get(record["file_id"])
+        gdb_stats = gdb_layer_stats.get(record["filename"])
+        note = gdb_stats["note"] if gdb_stats else ""
+        note = note if note != "OK" else ""
+        note = note or KNOWN_NOTES.get(record["file_id"], "")
         rows.append(
             {
                 **record,
@@ -175,9 +307,10 @@ def main() -> None:
                     col: (field_counts[col] if field_counts else None)
                     for col in FIELD_LEVEL_COUNT_COLUMNS
                 },
-                "discrepant_rows_from_file_comparison": file_comparison_counts.get(
+                "discrepant_rows_from_file_comparison": row_comparison_counts.get(
                     record["filename"]
                 ),
+                "notes": note,
             }
         )
 
