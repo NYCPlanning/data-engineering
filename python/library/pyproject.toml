@@ -11,7 +11,7 @@ dependencies = [
     "dcpy-utils",
     "dcpy-connectors",
     "boto3",
-    "GDAL==3.12.3",
+    "GDAL==3.13.1",
     "geopandas",
     "Jinja2",
     "pandas",
