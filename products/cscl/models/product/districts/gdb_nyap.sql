@@ -16,9 +16,12 @@ SELECT
     d.censustract_1990 AS "CENSUSTRACT_1990",
     d.admin_fire_company AS "ADMIN_FIRE_COMPANY",
     d.water_flag AS "WATER_FLAG",
-    d.assemdist AS "ASSEMDIST",
-    d.electdist AS "ELECTDIST",
-    d.schooldist AS "SCHOOLDIST",
+    -- stg__atomicpolygons nullifies these sentinels (' '/'0') for internal join logic
+    -- elsewhere (see int__segment_atomicpolygons); nyap publishes stored values, per
+    -- the staging model's own comment, so put the sentinels back for this feature class.
+    coalesce(d.assemdist, ' ') AS "ASSEMDIST",
+    coalesce(d.electdist, ' ') AS "ELECTDIST",
+    coalesce(d.schooldist, '0') AS "SCHOOLDIST",
     d.commdist AS "COMMDIST",
     d.sb1_volume AS "SB1_VOLUME",
     d.sb1_page AS "SB1_PAGE",
@@ -30,7 +33,7 @@ SELECT
     d.atomic_num AS "ATOMIC_NUM",
     d.hurricane_evacuation_zone AS "HURRICANE_EVACUATION_ZONE",
     d.censustract_2020 AS "CENSUSTRACT_2020",
-    d.censusblock_2020_basic::text AS "CENSUSBLOCK_2020",
+    d.censusblock_2020_raw AS "CENSUSBLOCK_2020",
     d.censusblock_2020_suffix::text AS "CENSUSBLOCK_2020_SUFFIX",
     d.commercial_waste_zone AS "COMMERCIAL_WASTE_ZONE",
     d.geom

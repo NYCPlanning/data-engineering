@@ -42,8 +42,11 @@ models:
     description: >
       Alternate street/feature names (non-spatial) for the published LION GDB, keyed by
       Join_ID. Non-SAF Join_IDs only — SAF-replicant Join_IDs (…X/…N) use a different
-      B7SC encoding (ETL spec §2.7.3) and are not yet produced, so dev covers ~the non-SAF
-      subset (~92% of produced rows match prod exactly; prod also has SAF-replicant rows).
+      B7SC encoding (ETL spec §2.7.3) and are not yet produced (~92% of produced rows
+      match prod exactly). That scope gap doesn't fully explain dev's Join_ID coverage
+      though - only ~7% of segments carry a SAF flag at all, but dev covers only ~half
+      of prod's distinct Join_IDs; see CSCL-LION-09 in data_issues.md for what's been
+      ruled out so far.
     columns:
       - name: "'Join_ID'"
         description: "15-char link to the lion layer's Join_ID (ETL spec §2.7.3)"

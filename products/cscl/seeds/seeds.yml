@@ -14,3 +14,27 @@ seeds:
         description: "Name of the output file"
       - name: file_id
         description: "Unique identifier for the file"
+      - name: skip_qa
+        description: "Whether this file is excluded from field-level dbt QA models (etl_dev_qa)"
+      - name: diffable
+        description: >
+          Whether this file has any prod counterpart worth comparing against at
+          all. False for build logs and other artifacts (e.g. the previous LDF
+          edition, kept only as an input) with nothing on the other side to diff
+          against - see poc_validation/build_diffs_report.py.
+      - name: key_columns
+        description: >
+          gdb layers only (type = 'layer'): the pipe-separated column name(s)
+          that uniquely identify a row in that layer, used by
+          poc_validation/compare_gdb.py for its row-level diff. Declared here
+          deliberately rather than auto-detected at comparison time, so the
+          comparison is agnostic to whatever happens to be unique in a given
+          run's data - a column that's coincidentally unique today (e.g.
+          SHAPE_Length) isn't a real identity and would silently produce a
+          different key on a different run. Verified unique against a real
+          build's data when declared; a few layers have a small, known,
+          accepted number of exceptions (e.g. lion's ~36 legitimate lionkey
+          collisions, nysd's school district 10 written once per borough it
+          spans, nyzip's multi-part zip codes) rather than a column to add -
+          see each gdb_<layer>.sql model for the specific reason. Empty for
+          non-gdb rows.

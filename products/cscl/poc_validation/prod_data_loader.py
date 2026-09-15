@@ -93,9 +93,29 @@ def parse_file(
     return pd.DataFrame(records)
 
 
-def load_datasets(datasets: list[str], folder: Path):
+def load_datasets(
+    datasets: list[str],
+    folder: Path,
+    version: str | None = None,
+    force: bool = False,
+):
+    """
+    version is optional (a `-l/--local` load has none) - staleness tracking only
+    applies when it's given, same as load_citywide_lion/load_previous_ldf_header/
+    load_prod_ldf already do. Before this, `load` was the one loader with no
+    already_loaded/record_load tracking at all, so a table loaded once could sit
+    stale in the shared production_outputs schema indefinitely with no record of
+    what version it actually holds - root-caused for SAF in
+    docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md (item 5&6),
+    and the likely explanation for a similar pattern seen on ThinFire.
+    """
     for ds_name in datasets:
         dataset = datasets_by_name[ds_name]
+
+        if version and not force and already_loaded(dataset.name, version):
+            print(f"{dataset.name} already holds {version}, skipping")
+            continue
+
         match dataset.file_format, dataset.formatting_path:
             case "csv", _:
                 dat_df = pd.read_csv(folder / dataset.file_name, dtype=str, header=None)
@@ -112,6 +132,9 @@ def load_datasets(datasets: list[str], folder: Path):
 
         print(f"loading {folder / dataset.file_name} to {CLIENT.schema}.{dataset.name}")
         CLIENT.insert_dataframe(dat_df, dataset.name)
+
+        if version:
+            record_load(dataset.name, version)
 
 
 LOAD_LOG = "load_log"
@@ -359,6 +382,11 @@ def _load(
     version: str | None = typer.Option(version, "--version", "-v"),
     local: bool = typer.Option(False, "--local", "-l"),
     local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Reload even if this version is already logged as loaded",
+    ),
 ):
     """
     Primary purpose is to load production outputs for comparison to outputs of this pipeline.
@@ -377,7 +405,7 @@ def _load(
                 local_folder / file_name,
             )
 
-    load_datasets(datasets, local_folder)
+    load_datasets(datasets, local_folder, version=version, force=force)
 
     # Citywide LION is `load_prod_lion`, which parses the .dat files directly. A union of
     # the per-borough tables written above can't build it: they're named for their recipe

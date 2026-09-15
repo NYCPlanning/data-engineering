@@ -37,7 +37,9 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-05](#cscl-lion-05) | LION | Nonstreet feature segment sequence numbers | Accepted | 26b |
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Open | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
-| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | `nymcea` fragments to 249 parts | Open | 26b |
+| [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Open | 26b |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname`/`altnames` abbreviation mismatches | Open | 26b |
+| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | Shoreline-clip part counts differ (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
@@ -140,25 +142,83 @@ Related: the working theory for [CSCL-DISTRICTS-02](#cscl-districts-02) is the s
 **What would settle it:** a decision with GR — play whack-a-mole per release, or agree the
 difference is small enough to accept.
 
+### CSCL-LION-08
+
+**`VIntersect` hardcoded null in `gdb_node`** · Open · Last verified 26b
+
+Prod's `node` layer populates `VIntersect` (`''` or `'VirtualIntersection'`) on effectively
+every row; our `gdb_node.sql` hardcodes it to `NULL::text` because the source Node file has
+no field to derive it from (see the TODO there). Row-level comparison flags ~139,700 of
+~142,800 node rows as "modified" as a result — by construction, not because of a data bug.
+`poc_validation/compare_gdb.py`'s `KNOWN_STRUCTURAL_DIFFS` now tags `node` so the diff report
+reads this as understood rather than a fresh regression each run.
+
+**What would settle it:** finding (or deriving) a source for virtual-intersection status —
+possibly inferable from node degree / LGC combinations at each node, but unconfirmed.
+
+### CSCL-LION-09
+
+**`node_stname`/`altnames` abbreviation mismatches** · Open · Last verified 26b
+
+`node_stname`'s `STNAME` only abbreviates a name's *last* word (via the
+`dcp_cscl_lastword` table); prod also abbreviates leading/interior words in ways we don't
+reproduce. Examples from the same `NODEID` on both sides:
+
+| Ours | Prod |
+|---|---|
+| `EAST 174 ST` | `E 174 ST` |
+| `CROSS BRONX EXPWY` | `CROSS BRONX EXPY` |
+| `UNIVERSITY HEIGHTS BRG SHL` | `UNIVERSITY HEIGHTS BRG SHORELINE` |
+| `PELHAM PY HOUSES PEDESTRIAN PTH` | `PELHAM PKWY HOUSES PEDESTRIAN PATH` |
+
+Note the mismatches go both directions (we abbreviate where prod spells out, and vice
+versa) — this isn't a single missing rule, more likely a different/more complete
+abbreviation table or a name-formatting step we don't have.
+
+**`gdb_altnames`'s `Join_ID` gap is bigger than the documented SAF-replicant scope can
+explain.** `gdb_altnames.sql`'s comment attributes dev's ~50%-of-prod `Join_ID` coverage
+(16,617 vs prod's 32,867, this build) to SAF-replicant Join_IDs "not yet produced." Checked
+this cycle: only 14,759 of 219,931 `include_in_bytes_lion` segments (6.7%) carry a
+`special_address_flag` at all, nowhere near enough to explain a ~2x gap on its own. Also
+checked that the gap isn't from `gdb_altnames.sql`'s `INNER JOIN` to the name-lookup
+tables - the pre-join B7SC count from `segments`/`b7scs` alone is already exactly 16,617,
+identical to the final output, so nothing is being dropped there. The shortfall is upstream
+of both of those, in how many (B5SC, LGC) combinations `int__lion` produces in the first
+place - not yet root-caused.
+
+**What would settle it:** GR confirming whether prod's abbreviation source is a superset of
+`dcp_cscl_lastword`, or a different mechanism entirely (e.g. applied to every word, not just
+the last). Separately, someone needs to re-derive where prod's other ~16,000 `Join_ID`s come
+from, since SAF-replicant scope alone doesn't account for them.
+
 ## District gdb
 
 ### CSCL-DISTRICTS-01
 
-**`nymcea` fragments to 249 parts (prod: 122)** · Open · Last verified 26b
+**Shoreline-clip part counts differ, direction varies by layer** · Open · Last verified 26b
 
-Prod is singlepart: clipping splits some MCEAs into disjoint pieces and prod writes each as
-its own feature, so 115 dissolved (borough, MCEA) groups become 122 features. Our output
-splits the same groups into **249** parts at the shoreline clip.
+`nymcea` fragments to 249 parts (prod: 122) — prod is singlepart: clipping splits some MCEAs
+into disjoint pieces and prod writes each as its own feature, so 115 dissolved (borough, MCEA)
+groups become 122 features. Our output splits the same groups into **249** parts.
 
 These aren't slivers — all residual parts are ≥100 sq ft, and the sub-100-sqft filter in
-`clipped_geom` already gives exact prod part counts on `nycb2010/2020`, `nyct2010/2020`,
-`nyed` and `nypuma2020`. Total area matches prod (+0.000%) and attributes are correct.
+`clipped_geom` was tuned to reproduce prod's part counts on `nycb2010/2020`, `nyct2010/2020`
+and `nyed` (still exact as of this check - part counts within a handful on both sides). Total
+area matches prod (+0.000%) and attributes are correct.
 
-We deliberately did **not** tune a per-layer threshold to force 122; that would be fitting
-noise.
+Re-measured this cycle, the same over-fragmentation-with-matching-area signature also shows on
+**`nypuma2010`** (355 dev parts vs 178 prod, every one of the 55 PUMAs affected, area deltas
+all <0.002%) and **`nypuma2020`** (210 vs 182) - both dissolve from census tracts and
+shoreline-clip the same way `nymcea` does, so this is likely one mechanism, not three. `nynta2020`
+also mismatches, but in the **opposite direction** (381 dev parts vs 858 prod - prod is the more
+fragmented one here), which doesn't fit a single "we over-fragment" story and needs its own look.
 
-**What would settle it:** whoever owns MCEA answering whether prod applies a larger minimum
-mapping unit for it, or dissolves *after* clipping.
+We deliberately did **not** tune a per-layer threshold to force exact part-count matches; that
+would be fitting noise rather than understanding the mechanism.
+
+**What would settle it:** whoever owns these district layers answering whether prod applies a
+larger minimum mapping unit for large/coastal aggregates, or dissolves *after* clipping. The
+`nynta2020` reverse-direction case suggests the answer may not be uniform across layers.
 
 ### CSCL-DISTRICTS-02
 

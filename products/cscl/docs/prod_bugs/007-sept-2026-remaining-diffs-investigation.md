@@ -287,6 +287,15 @@ and matches [design_doc.md's description](../../design_doc.md) of the Segment_LG
 
 Not marking `accounted_for` yet - this needs the reload-and-recheck step above first.
 
+**Update 2026-09-15:** recommendation #3 has since shipped - the generic `load` command now
+calls `already_loaded`/`record_load` like the others do. That only prevents *future* staleness,
+though; it doesn't retroactively fix a table already loaded before the fix landed. Re-querying
+`production_outputs.load_log` today confirms the same untracked-load pattern also covers
+`thinfire_bronx/brooklyn/manhattan/queens` - all present in the schema, none logged - which lines
+up with the small, persistent `thinfire_*` diffs (2-10 rows each) seen in every `diffs_report.csv`
+run since. Recommendation #1 (reload via `prod_data_loader.py load -v 26b -d <table>`) covers
+these too; not done here since it's a live shared-database write outside this diagnosis pass.
+
 ## References
 
 - Diff accounting: `models/etl_dev_qa/diffs/lion_dat/qa__diffs_lion_dat.sql`,
