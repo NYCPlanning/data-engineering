@@ -157,10 +157,10 @@ This matters a lot. Dissolving land into a single mask produced one **7.2M-verte
 Prod archives the geodatabase alongside the flat files, so this is a direct dev/prod diff:
 
 ```bash
-python3 poc_validation/compare_districts.py
+python3 poc_validation/compare_gdb.py
 ```
 
-It reports per-layer column set, row count and total area against `edm-private/cscl_etl/<version>/v26B_Districts.gdb.zip`, and writes `output/validation_output/district_comparison.csv`. `SHAPE_Length`/`SHAPE_Area` are written by the gdb driver rather than by our models, so they're excluded from the column comparison.
+This script covers every gdb export in `recipe.yml` (the LION gdb and the district gdb alike), not just this one. It reports per-layer column set and row count for all of them, and additionally total area for polygon layers (per `geometry_type: polygons` in each export's `recipe.yml` entry) — that covers every district layer. Output is one CSV per gdb, e.g. `output/validation_output/v26B_Districts_comparison.csv`, plus a whitelist (`KNOWN_STRUCTURAL_DIFFS` in the script) for already-understood structural diffs like `nyura` below.
 
 Prod quirks worth knowing before reading a diff:
 
