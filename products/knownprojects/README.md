@@ -154,6 +154,10 @@ status, so it moves every build. Shares that come from a source were written on
 whatever date that file was made. So "within 5 years" counts from roughly
 whenever the build ran, not from a fixed year.
 
+EDC is the one source that reads a year, and it compares its build year against
+`current_date` rather than anything the recipe pins, so a pinned rebuild in a
+later calendar year moves it. See issue #2629.
+
 ## Outputs
 
 | Output | What's in it |
@@ -161,13 +165,19 @@ whenever the build ran, not from a fixed year.
 | `kpdb` | one row per project record, the main product |
 | `aggregation.zip` | project-level and summary tables by census tract, NTA, CDTA, and community district |
 | `sca_aggregation.zip` | the same by school district, elementary school zone, and school subdistrict |
-| `cpp_housing_growth/` | housing growth by NTA and community district, for the Capital Projects Portal |
+| `cpp_housing_growth/` | housing growth by NTA, community district, and borough, plus the map legend, for the Capital Projects Portal |
 | `review.zip` | tables for reviewing matches and corrections by hand |
 | `summary_record_phasing` | phasing summary |
 
 ### Capital Projects Portal outputs
 
-Two CSVs, one row per geography, with the years written into the column names:
+[![CPP housing growth timeline](../../docs/diagrams/cpp_housing_growth_timeline.drawio.png)](../../docs/diagrams/cpp_housing_growth_timeline.drawio.png)
+
+The timeline above shows what span each source and each column covers, which figures are
+totals and which are net change, and where the source runs past the last window.
+
+Two CSVs, one row per geography, with the years written into the column names.
+Shown here at the current `dcp_housing` pin:
 
 | Column | What it is |
 |---|---|
@@ -185,8 +195,57 @@ Year-labeled counts are as of the end of that year, so a project completed in
 `units_2020` adds the rest of 2020 to it and `units_2020_census` keeps the raw
 number.
 
-`units_2020_census` is the only fixed number. The rest move with the
-`dcp_housing` version, and the projected window has the same caveat as phasing
+#### Map legend
+
+`cpp_housing_growth_layers` carries the five natural-break classes the app colors
+geographies by, one set per geography and measure, plus a Net loss class where a
+measure goes negative. Breaks are Fisher's exact algorithm, recomputed every
+build, so a class boundary moves when the values move.
+
+| Column | What it is |
+|---|---|
+| `geo` | `nta`, `cd`, or `boro` |
+| `range` | `past`, `latest`, or `projected` |
+| `geoName` | always null; the app's table shape carries it for a borough layer we don't produce |
+| `rangeMin` / `rangeMax` | class bounds |
+| `rangeLabel` | display string, or `Net loss` |
+| `colorHex` / `colorRgba` | from the `cpp_housing_growth_colors` seed; rgba is derived from hex so the two can't disagree |
+
+The app has to match this assignment rule or the classes stop being disjoint,
+since they share boundaries:
+
+- `Net loss` is `units < 0`
+- the class whose `rangeMin` is 0 is `0 <= units <= rangeMax`
+- every other class is `rangeMin < units <= rangeMax`
+
+Negative values are excluded from the break computation, so the classes describe
+growth only and every decline falls in the one grey class. `units_2025` does go
+negative, in the park and airport NTAs that pick up demolition jobs from their
+neighbors.
+
+Boroughs aren't classified. There are only five, so each takes one step of the
+ramp ordered by value, with `geoName` set and `rangeMin` = `rangeMax` = its
+value. Match those rows on `geoName`, not on the bounds.
+
+`cpp_housing_growth_boro` rolls up the NTA model, not the CD one. CD is
+allocated against water-included boundaries whose Manhattan polygons reach the
+middle of the East River, so eleven Brooklyn waterfront projects get split
+across the river into a Manhattan CD. NTA boundaries are land only and split
+none of them. Until [#2633](https://github.com/NYCPlanning/data-engineering/issues/2633)
+is fixed the borough figures won't match `cpp_housing_growth_cd` per borough on
+projected, though citywide totals tie.
+
+`units_2020_census` is the only fixed number. Every other year in those column
+names comes from the `cpp_latest_complete_year` var in `dbt_project.yml`, which
+has to match the latest calendar year the pinned `dcp_housing` fully covers.
+Bump the pin and you bump the var, and the windows and the column names move
+together. `assert_cpp_window_matches_dcp_housing` fails the build if the two
+drift apart, which they otherwise would do silently: the numbers stay correct
+for their labels, so nothing else notices.
+
+The projected years are a labeling convention on top of that. KPDB picks a
+phasing bucket from record status, not from a date, so read that column as
+"units KPDB expects within ten years of the build" and see the phasing caveat
 above. Both `completed_units_*` columns are net of demolitions and lost units,
 so they aren't gross completions.
 

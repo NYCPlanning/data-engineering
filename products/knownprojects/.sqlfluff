@@ -1,0 +1,15 @@
+# CI lints this product with --templater=jinja, which knows nothing about dbt
+# macros or vars. Loading the macro directory lets the CPP models expand, and
+# cpp_latest_complete_year backs the fallback in the cpp_latest_year() macro.
+# Keep it equal to the var in dbt_project.yml.
+[sqlfluff:templater:jinja]
+load_macros_from_path = macros
+
+[sqlfluff:templater:jinja:context]
+cpp_latest_complete_year = 2025
+
+#
+# "range" is quoted on purpose. It's the app-facing column name, sitting next to
+# camelCase columns that have to be quoted anyway.
+[sqlfluff:rules:references.quoting]
+ignore_words = range

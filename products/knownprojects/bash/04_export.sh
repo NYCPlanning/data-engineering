@@ -69,7 +69,9 @@ mkdir -p output
     (
         cd cpp_housing_growth
         csv_export cpp_housing_growth_nta &
-        csv_export cpp_housing_growth_cd
+        csv_export cpp_housing_growth_cd &
+        csv_export cpp_housing_growth_boro &
+        csv_export cpp_housing_growth_layers
         wait
     )
 

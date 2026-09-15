@@ -1,5 +1,9 @@
 version: 2
 
+# Every year below comes from the cpp_latest_complete_year var so the column
+# names track the dcp_housing pin. dbt loads this file as YAML before rendering
+# Jinja, so the years have to be inline expressions, not {% set %} variables.
+
 models:
   - name: census_housing_units_2020
     description: "2020 Census housing units, the baseline for CPP growth figures"
@@ -34,16 +38,21 @@ models:
     description: >
       Housing growth by NTA for the Capital Projects Portal. Year-labeled
       counts are as of the end of that year. Only units_2020_census is fixed;
-      everything else moves with the dcp_housing version.
+      the rest of the years come from the cpp_latest_complete_year var and move
+      with the dcp_housing pin.
     tests: &cpp_identities
       - dbt_utils.expression_is_true:
-          name: cpp_housing_growth_nta_units_2025_identity
-          expression: "units_2025 = units_2020 + completed_units_2021_2025"
-      - dbt_utils.expression_is_true:
-          name: cpp_housing_growth_nta_units_2035_identity
+          name: cpp_housing_growth_nta_latest_units_identity
           expression: >-
-            projected_units_2035
-            = units_2025 + projected_completed_units_2026_2035
+            units_{{ var('cpp_latest_complete_year') }}
+            = units_2020
+            + completed_units_2021_{{ var('cpp_latest_complete_year') }}
+      - dbt_utils.expression_is_true:
+          name: cpp_housing_growth_nta_projected_units_identity
+          expression: >-
+            projected_units_{{ var('cpp_latest_complete_year') | int + 10 }}
+            = units_{{ var('cpp_latest_complete_year') }}
+            + projected_completed_units_{{ var('cpp_latest_complete_year') | int + 1 }}_{{ var('cpp_latest_complete_year') | int + 10 }}
     columns: &cpp_columns
       - name: geography_id
         tests:
@@ -55,28 +64,152 @@ models:
       - name: units_2020
         description: "As of the end of 2020, so the census count plus the rest of that year"
         tests: [not_null]
-      - name: completed_units_2016_2025
+      - name: "completed_units_{{ var('cpp_latest_complete_year') | int - 9 }}_{{ var('cpp_latest_complete_year') }}"
         description: "Net of demolitions, not gross completions"
         tests: [not_null]
-      - name: completed_units_2021_2025
-        description: "Net change from units_2020 to units_2025"
+      - name: "completed_units_2021_{{ var('cpp_latest_complete_year') }}"
+        description: "Net change from units_2020 to units_{{ var('cpp_latest_complete_year') }}"
         tests: [not_null]
-      - name: units_2025
+      - name: "units_{{ var('cpp_latest_complete_year') }}"
         tests: [not_null]
-      - name: projected_completed_units_2026_2035
+      - name: "projected_completed_units_{{ var('cpp_latest_complete_year') | int + 1 }}_{{ var('cpp_latest_complete_year') | int + 10 }}"
+        description: >
+          KPDB units phased into its within_5_years and from_5_to_10_years
+          buckets. The years in this name are a labeling convention, not a
+          property of the data. KPDB picks the bucket from record status, not
+          from a date: DOB records (41% of these units on the 26Q2 build) go
+          on job status alone, so a job permitted in 2008 and still open
+          counts here, and open ZAP applications (34%) all land in
+          from_5_to_10_years unless the record is closed. The rest carry
+          shares supplied by the source file. Only EDC Projected Projects
+          (0.8%) reads a year, and it compares against current_date, so a
+          pinned rebuild in a later year moves it. Read this as "units KPDB
+          expects within ten years of the build".
         tests: [not_null]
-      - name: projected_units_2035
+      - name: "projected_units_{{ var('cpp_latest_complete_year') | int + 10 }}"
+        description: >
+          units_{{ var('cpp_latest_complete_year') }} plus the column above, so
+          it inherits that column's caveat.
         tests: [not_null]
 
   - name: cpp_housing_growth_cd
     description: "Housing growth by community district, same columns as cpp_housing_growth_nta"
     tests:
       - dbt_utils.expression_is_true:
-          name: cpp_housing_growth_cd_units_2025_identity
-          expression: "units_2025 = units_2020 + completed_units_2021_2025"
-      - dbt_utils.expression_is_true:
-          name: cpp_housing_growth_cd_units_2035_identity
+          name: cpp_housing_growth_cd_latest_units_identity
           expression: >-
-            projected_units_2035
-            = units_2025 + projected_completed_units_2026_2035
+            units_{{ var('cpp_latest_complete_year') }}
+            = units_2020
+            + completed_units_2021_{{ var('cpp_latest_complete_year') }}
+      - dbt_utils.expression_is_true:
+          name: cpp_housing_growth_cd_projected_units_identity
+          expression: >-
+            projected_units_{{ var('cpp_latest_complete_year') | int + 10 }}
+            = units_{{ var('cpp_latest_complete_year') }}
+            + projected_completed_units_{{ var('cpp_latest_complete_year') | int + 1 }}_{{ var('cpp_latest_complete_year') | int + 10 }}
     columns: *cpp_columns
+
+  - name: cpp_housing_growth_boro
+    description: >
+      Housing growth by borough, rolled up from cpp_housing_growth_nta.
+
+      NTA and not CD, because CD is allocated against water-included boundaries
+      whose Manhattan polygons reach the middle of the East River. Eleven
+      Brooklyn waterfront projects are split across the river into a Manhattan
+      CD, so a CD rollup credits Manhattan with units that belong to Brooklyn
+      (878 projected units on the 26Q2 build). NTA boundaries are land only and
+      split none of them. See issue #2633.
+
+      Until that is fixed these figures will not agree with
+      cpp_housing_growth_cd per borough on projected, though citywide totals
+      tie.
+    columns:
+      - name: geography_id
+        description: "Borough code, 1 through 5"
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              values: ['1', '2', '3', '4', '5']
+      - name: borough_name
+        tests: [not_null]
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: cpp_housing_growth_boro_has_five_boroughs
+          compare_model: source('recipe_sources', 'dcp_boroboundaries')
+
+  - name: cpp_housing_growth_layers
+    description: >
+      Map legend for the Capital Projects Portal: five natural-break classes per
+      geography and measure, plus a Net loss class where the measure goes
+      negative. Breaks are Fisher's exact algorithm, recomputed every build, so
+      a boundary moves when the underlying values move. Column names are
+      camelCase to match what the app already consumes.
+
+      Boroughs are not classified. There are only five, so each takes one step
+      of the ramp ordered by value, with geoName set and rangeMin = rangeMax =
+      its value, which is what the template the app consumes already did.
+
+      Assignment rule, which the app has to match for the classes to stay
+      disjoint: Net loss is units < 0; the class whose rangeMin is 0 is
+      0 <= units <= rangeMax; every other class is rangeMin < units <= rangeMax.
+      Borough rows are matched on geoName instead.
+    columns:
+      - name: geo
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['nta', 'cd', 'boro']
+      - name: range
+        quote: true
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['past', 'latest', 'projected']
+              quote: true
+      - name: geoName
+        quote: true
+        description: "Borough name on boro rows, null on nta and cd rows."
+      - name: rangeMin
+        quote: true
+        tests: [not_null]
+      - name: rangeMax
+        quote: true
+        tests: [not_null]
+      - name: rangeLabel
+        quote: true
+        tests: [not_null]
+      - name: colorHex
+        quote: true
+        tests: [not_null]
+      - name: colorRgba
+        quote: true
+        description: "Derived from colorHex in SQL so the two cannot drift apart."
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: cpp_housing_growth_layers_compound_key
+          combination_of_columns: ['geo', '"range"', '"rangeLabel"', '"geoName"']
+
+seeds:
+  - name: cpp_housing_growth_colors
+    description: >
+      Five-step color ramp per measure plus grey for Net loss, lifted from the
+      layers template the app already uses. Hex only: colorRgba is derived from
+      it so they cannot disagree, which the source file did on one row.
+    columns:
+      - name: range
+        quote: true
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['past', 'latest', 'projected']
+              quote: true
+      - name: class_id
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6]
+              quote: false
+      - name: color_hex
+        tests: [not_null]
