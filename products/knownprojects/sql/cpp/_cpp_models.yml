@@ -108,3 +108,108 @@ models:
             = units_{{ var('cpp_latest_complete_year') }}
             + projected_completed_units_{{ var('cpp_latest_complete_year') | int + 1 }}_{{ var('cpp_latest_complete_year') | int + 10 }}
     columns: *cpp_columns
+
+  - name: cpp_housing_growth_boro
+    description: >
+      Housing growth by borough, rolled up from cpp_housing_growth_nta.
+
+      NTA and not CD, because CD is allocated against water-included boundaries
+      whose Manhattan polygons reach the middle of the East River. Eleven
+      Brooklyn waterfront projects are split across the river into a Manhattan
+      CD, so a CD rollup credits Manhattan with units that belong to Brooklyn
+      (878 projected units on the 26Q2 build). NTA boundaries are land only and
+      split none of them. See issue #2633.
+
+      Until that is fixed these figures will not agree with
+      cpp_housing_growth_cd per borough on projected, though citywide totals
+      tie.
+    columns:
+      - name: geography_id
+        description: "Borough code, 1 through 5"
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              values: ['1', '2', '3', '4', '5']
+      - name: borough_name
+        tests: [not_null]
+    tests:
+      - dbt_utils.equal_rowcount:
+          name: cpp_housing_growth_boro_has_five_boroughs
+          compare_model: source('recipe_sources', 'dcp_boroboundaries')
+
+  - name: cpp_housing_growth_layers
+    description: >
+      Map legend for the Capital Projects Portal: five natural-break classes per
+      geography and measure, plus a Net loss class where the measure goes
+      negative. Breaks are Fisher's exact algorithm, recomputed every build, so
+      a boundary moves when the underlying values move. Column names are
+      camelCase to match what the app already consumes.
+
+      Boroughs are not classified. There are only five, so each takes one step
+      of the ramp ordered by value, with geoName set and rangeMin = rangeMax =
+      its value, which is what the template the app consumes already did.
+
+      Assignment rule, which the app has to match for the classes to stay
+      disjoint: Net loss is units < 0; the class whose rangeMin is 0 is
+      0 <= units <= rangeMax; every other class is rangeMin < units <= rangeMax.
+      Borough rows are matched on geoName instead.
+    columns:
+      - name: geo
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['nta', 'cd', 'boro']
+      - name: range
+        quote: true
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['past', 'latest', 'projected']
+              quote: true
+      - name: geoName
+        quote: true
+        description: "Borough name on boro rows, null on nta and cd rows."
+      - name: rangeMin
+        quote: true
+        tests: [not_null]
+      - name: rangeMax
+        quote: true
+        tests: [not_null]
+      - name: rangeLabel
+        quote: true
+        tests: [not_null]
+      - name: colorHex
+        quote: true
+        tests: [not_null]
+      - name: colorRgba
+        quote: true
+        description: "Derived from colorHex in SQL so the two cannot drift apart."
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: cpp_housing_growth_layers_compound_key
+          combination_of_columns: ['geo', '"range"', '"rangeLabel"', '"geoName"']
+
+seeds:
+  - name: cpp_housing_growth_colors
+    description: >
+      Five-step color ramp per measure plus grey for Net loss, lifted from the
+      layers template the app already uses. Hex only: colorRgba is derived from
+      it so they cannot disagree, which the source file did on one row.
+    columns:
+      - name: range
+        quote: true
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['past', 'latest', 'projected']
+              quote: true
+      - name: class_id
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6]
+              quote: false
+      - name: color_hex
+        tests: [not_null]

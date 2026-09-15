@@ -8,6 +8,11 @@ tests:
   +store_failures: true
   schema: "_tests"
 
+seeds:
+  dbt_knownprojects:
+    cpp_housing_growth_colors:
+      +tags: ["cpp"]
+
 vars:
   max_duplicate_project_records: 250
   # Latest calendar year fully covered by the pinned dcp_housing version.
