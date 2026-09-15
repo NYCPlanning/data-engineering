@@ -14,3 +14,11 @@ seeds:
         description: "Name of the output file"
       - name: file_id
         description: "Unique identifier for the file"
+      - name: skip_qa
+        description: "Whether this file is excluded from field-level dbt QA models (etl_dev_qa)"
+      - name: diffable
+        description: >
+          Whether this file has any prod counterpart worth comparing against at
+          all. False for build logs and other artifacts (e.g. the previous LDF
+          edition, kept only as an input) with nothing on the other side to diff
+          against - see poc_validation/build_diffs_report.py.

@@ -91,6 +91,19 @@ models:
   - name: record_body
     description: The raw record, positions 1-90.
 
+- name: qa__ldf_header_diffs
+  description: >
+    Dev/prod agreement for the single LDF header record, on positions 1-90 only
+    (same reasoning as qa__ldf_summary). One row - there's exactly one header
+    record per side.
+  columns:
+  - name: matched
+    description: 1 if the two header records agree (on positions 1-90), else 0.
+  - name: dev_only
+    description: 1 if dev's header doesn't match prod's, else 0.
+  - name: prod_only
+    description: 1 if prod's header doesn't match dev's, else 0.
+
 # ── RPL QA ───────────────────────────────────────────────────────────────────
 
 - name: qa__rpl_order
