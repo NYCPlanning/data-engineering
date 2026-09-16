@@ -40,6 +40,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Open | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname`/`altnames` abbreviation mismatches | Open | 26b |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
+| [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | Shoreline-clip part counts differ (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
@@ -269,6 +270,22 @@ prod's legacy ID reflects and our current CSCL extract.
 **What would settle it:** picking a handful of the 3,170 mismatched segments and checking
 whether their `legacy_segmentid` value changed in a more recent CSCL release, or whether
 our lookup is joining to the wrong record for them.
+
+### CSCL-LION-11
+
+**`segment_locational_status` uses 2010, not 2020, census tracts** · Accepted · Last verified 26b
+
+Legacy incorrectly uses 2010 census tracts (not 2020) when computing `segment_locational_status`'s
+`'X'` case (different atomic polygons, same borough, different census tract). We deliberately
+match this - `int__segment_locational_status.sql` already carries the note ("TODO all these
+2010 fields should be 2020, but this aligns with current ETL tool"). Per
+[#2193](https://github.com/NYCPlanning/data-engineering/issues/2193), this is a known legacy
+bug, not a spec requirement - flagging here so it isn't "fixed" later and silently
+reintroduces a diff against prod.
+
+**What would settle it:** nothing needed to settle the *cause* - this is understood. Only
+open question is whether/when GR wants the legacy pipeline itself corrected to 2020, at
+which point we'd follow.
 
 ## District gdb
 
