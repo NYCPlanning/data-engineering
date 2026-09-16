@@ -41,6 +41,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname`/`altnames` abbreviation mismatches | Open | 26b |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
+| [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | Shoreline-clip part counts differ (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
@@ -286,6 +287,29 @@ reintroduces a diff against prod.
 **What would settle it:** nothing needed to settle the *cause* - this is understood. Only
 open question is whether/when GR wants the legacy pipeline itself corrected to 2020, at
 which point we'd follow.
+
+### CSCL-LION-12
+
+**Two GR/GSS-flagged discrepancies, not yet resolved** · Open · Last verified 26b
+
+From [#2184](https://github.com/NYCPlanning/data-engineering/issues/2184)'s discrepancy
+table - a third item there (segmentid 174704, `special_address_flag`) is already covered by
+[Bug 008](./docs/prod_bugs/008-saf-flag-leaks-onto-ramp-protosegment.md); these two aren't
+tracked elsewhere:
+
+- **segmentid 133963 (boro 3, face_code 1248, seqnum 01205), `traffic_direction`: dev `A`,
+  prod `W`.** Same segment as the RPL node-swap fix in
+  [Bug 007 item 4](./docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md#4-rpl-node-swap-0167138_0133963)
+  (a reversed protosegment) - different field/output though, not resolved by that fix. Per
+  the issue's own investigation: "the only reversed protosegment where altsegdata_type is
+  null, and the only one where this field doesn't match prod."
+- **segmentid 241972 (boro 2, face_code 3659, seqnum 00035, shoreline),
+  `special_address_flag`: dev `N`, prod blank.** A `commonplace` record with flag `N` exists
+  for this segment; prod's corresponding node/protosegment carries no flag at all. Per the
+  issue's own investigation, this looks like a genuine prod gap, not ours.
+
+**What would settle it:** both were already flagged to GR/GSS in the original investigation
+- no code action pending, just needs their response.
 
 ## District gdb
 
