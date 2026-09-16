@@ -38,7 +38,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Open | 26b |
-| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname`/`altnames` abbreviation mismatches | Open | 26b |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (open) | Open | 26b |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
@@ -175,53 +175,29 @@ logic against real data, then re-check once 26c versions of the two source table
 
 ### CSCL-LION-09
 
-**`node_stname`/`altnames` abbreviation mismatches** · Open · Last verified 26b
+**`node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (open)** · Open · Last verified 26b
 
-Nothing in `design_doc.md` covers node/node_stname/altnames abbreviation - checked again
-this cycle, broadly (not just literal string search): the one adjacent passage (the
-Exception Table's "examine last word for possible deletion" rule) is itself struck through
-with "TODO this seems to not be done at all? Talk to GR/GSS". `gdb_node_stname.sql`'s own
-header already said this was "derived empirically" - there's no written rule to follow here,
-only prod's actual output to reverse-engineer against.
-
-**`node_stname` fix (2026-09-16):** `STNAME` only abbreviated a name's *last* word (via
-`dcp_cscl_lastword`'s `standard_abbreviation`); prod also abbreviates directional first
-words, and uses a different abbreviation for several last words entirely. Root-caused by,
-for every node with a matching prefix on both sides, recording what suffix prod actually
-used - see `seeds/node_stname_lastword_overrides.csv` and `gdb_node_stname.sql`'s module
-comment for the mechanics. This took `node_stname`'s dev-only row count from 66,649 to
-15,888 (76% reduction on that side; the reported "133,287 rows differ" should drop by
-roughly the same proportion). Examples now fixed:
-
-| Ours (before) | Prod | Mechanism |
-|---|---|---|
-| `EAST 174 ST` | `E 174 ST` | first-word directional (`dcp_cscl_universalword`) |
-| `CROSS BRONX EXPWY` | `CROSS BRONX EXPY` | last-word override (not in any `dcp_cscl_lastword` column) |
-| `UNIVERSITY HEIGHTS BRG SHL` | `UNIVERSITY HEIGHTS BRG SHORELINE` | last-word override (prod essentially never abbreviates SHORELINE - 9,084 vs 113 city-wide) |
-| `PELHAM PY HOUSES PEDESTRIAN PTH` (partial) | `PELHAM PKWY HOUSES PEDESTRIAN PATH` | not fixed - `PY` is baked into the raw source `lookup_key` already, see below |
-
-**Known remaining patterns, not fixed** (this is a lexical/word-level substitution; these
-need positional or semantic context a per-word table can't express):
-- **Directional words are contextual, not absolute.** `WEST` is abbreviated in ~85% of
-  cases (`WEST 42 ST` → `W 42 ST`) but not in proper nouns like `WEST FARMS RD`; `EAST
-  RIVER` is never abbreviated even though standalone `EAST` usually is. A blanket
-  first-word rule can't distinguish "directional modifier" from "part of a proper name."
-- **Trailing single-letter designators hide the real last word.** `AVENUE M`/`N`/`S`
-  (Brooklyn's lettered avenues) never get `AVENUE`→`AVE` applied, because the regex-based
-  "last word" is the letter (`M`), not `AVENUE`.
-- **Some raw `lookup_key` source text is already partially abbreviated** (e.g. `PELHAM PY
-  HOUSES...` where `PARKWAY` is already stored as `PY`, not `PARKWAY`) - forward-applying an
-  abbreviation table can't fix text that's already abbreviated differently than prod chose.
-- Standalone generic names sometimes stay unabbreviated where the same word is abbreviated
-  as a suffix (`DRIVEWAY` alone stays `DRIVEWAY`; `... DY` when it follows a proper name).
-
-**What would settle it (node_stname):** GR confirming whether prod's abbreviation source is
-a superset of `dcp_cscl_lastword`/`dcp_cscl_universalword` or built from an entirely
-different word list, and whether the contextual/proper-noun exceptions above are worth a
-curated exception list.
+**`node_stname` - root-caused and fixed (2026-09-16).** The "abbreviation mismatch" framing
+below was wrong: there is no abbreviation step in prod at all. JD's legacy source
+(`Report_NY_Nodestr(12B).py`, ITD-DCP) revealed the real algorithm - it builds each street
+name directly from `dcp_cscl_streetname`'s structured pre/post fields
+(`pre_modifier`/`pre_directional`/`pre_type`, `post_type`/`post_directional`/`post_modifier`),
+which store the *already-abbreviated* short form (`pre_directional='W'`, `post_type='ST'`).
+The old model instead abbreviated `lookup_key`, which stores the spelled-out form (`'WEST 174
+STREET'`) - so it was reverse-engineering an abbreviation table to patch over having started
+from the wrong column. `gdb_node_stname.sql` was fully rewritten to match the legacy
+algorithm: direct field concatenation (asymmetric order - pre puts directional before type,
+post puts type before directional, confirmed from source), `dcp_cscl_featurename` overriding
+`dcp_cscl_streetname` when both exist for a segment's preferred B7SC, and a segmentid-keyed
+fallback (Subway/Rail/Shoreline/NonStreetFeature/Centerline) for segments with neither. Node
+membership now comes from `STREETSHAVEINTERSECTIONS` (also just wired up for `VIntersect`,
+see CSCL-LION-08) rather than spatial from/to-node adjacency. The old
+`node_stname_lastword_overrides` seed and its `dcp_cscl_lastword`/`dcp_cscl_universalword`
+abbreviation CTEs are removed - not needed by the real algorithm. Unverified against a live
+build as of this writing; update this note once a build confirms the diff count.
 
 **`gdb_altnames`'s `Join_ID` gap** is a separate, larger-magnitude issue with a different
-root cause (not an abbreviation problem - see below).
+root cause (not an abbreviation problem - see below), still open.
 
 **`gdb_altnames`'s `Join_ID` gap is bigger than the documented SAF-replicant scope can
 explain.** `gdb_altnames.sql`'s comment attributes dev's ~50%-of-prod `Join_ID` coverage
