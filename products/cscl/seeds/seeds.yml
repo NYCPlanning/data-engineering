@@ -9,11 +9,10 @@ seeds:
           Which of the three physical deliverables this row belongs to:
           flat_files, lion_gdb, or district_gdb - matching the top-level split
           in GitHub issue #1816's CSCL ETL epic (LION gdb and District gdb are
-          separate zips; everything else ships as flat/text files). Coarser
-          than file_group/subgroup, which distinguish categories *within* a
-          deliverable (e.g. SAF vs SND, both flat_files). See
-          gh_project_summary.md for the full output-group breakdown this was
-          derived from - treat that GitHub issue content as a lead, not fact.
+          separate zips; everything else ships as flat/text files - see that
+          issue's sub-issue tree for the derivation, and treat it as a lead,
+          not fact). Coarser than file_group/subgroup, which distinguish
+          categories *within* a deliverable (e.g. SAF vs SND, both flat_files).
       - name: file_group
         description: "Primary grouping category"
       - name: subgroup
