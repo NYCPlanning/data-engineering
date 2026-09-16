@@ -38,3 +38,20 @@ seeds:
           spans, nyzip's multi-part zip codes) rather than a column to add -
           see each gdb_<layer>.sql model for the specific reason. Empty for
           non-gdb rows.
+
+  - name: node_stname_lastword_overrides
+    description: >
+      Corrections to dcp_cscl_lastword's standard_abbreviation, used by
+      gdb_node_stname.sql when abbreviating a name's last word. Empirically
+      derived (no ETL spec coverage) by comparing prod's node_stname output
+      against dev's raw, unabbreviated names sharing the same node and prefix -
+      some words need a different dcp_cscl_lastword column (e.g. COURT's real
+      abbreviation is its shortest_abbreviation "CT", not standard_abbreviation
+      "CRT"), others (e.g. CAMP -> CP, SHORELINE -> SHORELINE i.e. unabbreviated)
+      aren't in any dcp_cscl_lastword column at all. See CSCL-LION-09 in
+      data_issues.md for the full derivation and known remaining gaps.
+    columns:
+      - name: full_name
+        description: "Word as it appears in dcp_cscl_lastword.full_name"
+      - name: abbr
+        description: "The abbreviation prod actually uses for this word as a name's last word"

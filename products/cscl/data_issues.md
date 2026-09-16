@@ -161,24 +161,51 @@ possibly inferable from node degree / LGC combinations at each node, but unconfi
 
 **`node_stname`/`altnames` abbreviation mismatches** · Open · Last verified 26b
 
-`node_stname`'s `STNAME` only abbreviates a name's *last* word (via the
-`dcp_cscl_lastword` table); prod also abbreviates leading/interior words in ways we don't
-reproduce. Examples from the same `NODEID` on both sides:
+Nothing in `design_doc.md` covers node/node_stname/altnames abbreviation - checked again
+this cycle, broadly (not just literal string search): the one adjacent passage (the
+Exception Table's "examine last word for possible deletion" rule) is itself struck through
+with "TODO this seems to not be done at all? Talk to GR/GSS". `gdb_node_stname.sql`'s own
+header already said this was "derived empirically" - there's no written rule to follow here,
+only prod's actual output to reverse-engineer against.
 
-| Ours | Prod |
-|---|---|
-| `EAST 174 ST` | `E 174 ST` |
-| `CROSS BRONX EXPWY` | `CROSS BRONX EXPY` |
-| `UNIVERSITY HEIGHTS BRG SHL` | `UNIVERSITY HEIGHTS BRG SHORELINE` |
-| `PELHAM PY HOUSES PEDESTRIAN PTH` | `PELHAM PKWY HOUSES PEDESTRIAN PATH` |
+**`node_stname` fix (2026-09-16):** `STNAME` only abbreviated a name's *last* word (via
+`dcp_cscl_lastword`'s `standard_abbreviation`); prod also abbreviates directional first
+words, and uses a different abbreviation for several last words entirely. Root-caused by,
+for every node with a matching prefix on both sides, recording what suffix prod actually
+used - see `seeds/node_stname_lastword_overrides.csv` and `gdb_node_stname.sql`'s module
+comment for the mechanics. This took `node_stname`'s dev-only row count from 66,649 to
+15,888 (76% reduction on that side; the reported "133,287 rows differ" should drop by
+roughly the same proportion). Examples now fixed:
 
-Note the mismatches go both directions (we abbreviate where prod spells out, and vice
-versa) — this isn't a single missing rule, more likely a different/more complete
-abbreviation table or a name-formatting step we don't have.
+| Ours (before) | Prod | Mechanism |
+|---|---|---|
+| `EAST 174 ST` | `E 174 ST` | first-word directional (`dcp_cscl_universalword`) |
+| `CROSS BRONX EXPWY` | `CROSS BRONX EXPY` | last-word override (not in any `dcp_cscl_lastword` column) |
+| `UNIVERSITY HEIGHTS BRG SHL` | `UNIVERSITY HEIGHTS BRG SHORELINE` | last-word override (prod essentially never abbreviates SHORELINE - 9,084 vs 113 city-wide) |
+| `PELHAM PY HOUSES PEDESTRIAN PTH` (partial) | `PELHAM PKWY HOUSES PEDESTRIAN PATH` | not fixed - `PY` is baked into the raw source `lookup_key` already, see below |
 
-**What would settle it:** GR confirming whether prod's abbreviation source is a superset of
-`dcp_cscl_lastword`, or a different mechanism entirely (e.g. applied to every word, not just
-the last).
+**Known remaining patterns, not fixed** (this is a lexical/word-level substitution; these
+need positional or semantic context a per-word table can't express):
+- **Directional words are contextual, not absolute.** `WEST` is abbreviated in ~85% of
+  cases (`WEST 42 ST` → `W 42 ST`) but not in proper nouns like `WEST FARMS RD`; `EAST
+  RIVER` is never abbreviated even though standalone `EAST` usually is. A blanket
+  first-word rule can't distinguish "directional modifier" from "part of a proper name."
+- **Trailing single-letter designators hide the real last word.** `AVENUE M`/`N`/`S`
+  (Brooklyn's lettered avenues) never get `AVENUE`→`AVE` applied, because the regex-based
+  "last word" is the letter (`M`), not `AVENUE`.
+- **Some raw `lookup_key` source text is already partially abbreviated** (e.g. `PELHAM PY
+  HOUSES...` where `PARKWAY` is already stored as `PY`, not `PARKWAY`) - forward-applying an
+  abbreviation table can't fix text that's already abbreviated differently than prod chose.
+- Standalone generic names sometimes stay unabbreviated where the same word is abbreviated
+  as a suffix (`DRIVEWAY` alone stays `DRIVEWAY`; `... DY` when it follows a proper name).
+
+**What would settle it (node_stname):** GR confirming whether prod's abbreviation source is
+a superset of `dcp_cscl_lastword`/`dcp_cscl_universalword` or built from an entirely
+different word list, and whether the contextual/proper-noun exceptions above are worth a
+curated exception list.
+
+**`gdb_altnames`'s `Join_ID` gap** is a separate, larger-magnitude issue with a different
+root cause (not an abbreviation problem - see below).
 
 **`gdb_altnames`'s `Join_ID` gap is bigger than the documented SAF-replicant scope can
 explain.** `gdb_altnames.sql`'s comment attributes dev's ~50%-of-prod `Join_ID` coverage
