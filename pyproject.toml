@@ -147,6 +147,13 @@ mypy_path = [
 module = "geopandas.*,geosupport.*,cerberus.*,osgeo.*,diagrams.*,usaddress.*,plotly.*,folium.*,streamlit_folium.*,st_aggrid.*,numerize.*,moto.*,matplotlib.*,contextily,leafmap.*,shapely,shapely.*,socrata.*,faker.*,ruamel.*,pyogrio.*,ijson.*,socks" # no stubs available
 ignore_missing_imports = true
 
+# `uv sync --all-packages` (the usual local dev setup) installs every dcpy-* package
+# into one shared venv, so `pytest python/utils/test` etc. can pass by silently
+# importing a sibling package that was never declared as a real dependency - each
+# package's test/test_package_boundary.py only fails the way it's supposed to when
+# that package is synced in isolation. Run `bash/run_isolated_tests.sh` (mirrors the
+# CI job in .github/workflows/test_helper.yml) to sync + test each package that way
+# and actually reproduce those failures.
 [tool.pytest.ini_options]
 xfail_strict = true
 addopts = "--strict-markers"
