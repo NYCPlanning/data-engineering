@@ -32,6 +32,7 @@ Report-only: never fails the build.
 
 import csv
 import os
+from collections import Counter
 from pathlib import Path
 
 from dcpy.lifecycle.builds import plan
@@ -71,6 +72,7 @@ KNOWN_NOTES: dict[str, str] = {
 # rejects any dict key not in REPORT_COLUMNS. This is what broke the build after
 # key_columns was added: https://github.com/NYCPlanning/data-engineering/actions/runs/35026079124
 SEED_COLUMNS = [
+    "output_group",
     "file_group",
     "subgroup",
     "type",
@@ -94,6 +96,7 @@ FIELD_LEVEL_COUNT_COLUMNS = [
 # Columns shown in the step summary tables (narrower than REPORT_COLUMNS - drops
 # type/skip_qa, which aren't useful for a quick read).
 SUMMARY_DISPLAY_COLUMNS = [
+    ("output_group", "Output"),
     ("file_group", "Group"),
     ("subgroup", "Subgroup"),
     ("filename", "Filename"),
@@ -265,12 +268,19 @@ def build_step_summary(rows: list[dict]) -> str:
     flagged = sorted((r for r in diffable_rows if has_diffs(r)), key=gap, reverse=True)
     uncovered = [r for r in diffable_rows if not has_coverage(r)]
 
+    flagged_by_group = Counter(r["output_group"] for r in flagged)
+    diffable_by_group = Counter(r["output_group"] for r in diffable_rows)
+    group_breakdown = ", ".join(
+        f"{group} {flagged_by_group.get(group, 0)}/{count}"
+        for group, count in sorted(diffable_by_group.items())
+    )
+
     lines = [
         "## CSCL diff report",
         "",
         f"- {len(rows)} files tracked in `lion_outputs.csv` "
         f"({len(not_diffable)} marked not diffable - logs and similar - excluded below)",
-        f"- **{len(flagged)} have diffs to review**",
+        f"- **{len(flagged)} have diffs to review** ({group_breakdown})",
         f"- {len(uncovered)} are diffable but have no comparison at all "
         "(no field-level QA model, no matching prod file to diff)",
         "",
