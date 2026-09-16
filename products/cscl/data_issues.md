@@ -39,7 +39,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (open) | Open | 26b |
-| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
+| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
@@ -241,7 +241,7 @@ always been this low or is specific to this source snapshot.
 
 ### CSCL-LION-10
 
-**`LegacyID` real-value mismatches on ~2% of segments** · Open · Last verified 26b
+**`LegacyID` real-value mismatches on ~2% of segments** · Accepted (comparison-tool artifact, not a data bug) · Last verified 26b
 
 `gdb_lion.sql` computed `LegacyID` as `lpad(legacy_segmentid::text, 7, '0')`, which produces
 SQL NULL whenever `legacy_segmentid` is null. Prod's convention for "no legacy ID" is the
@@ -251,15 +251,32 @@ large `LegacyID` null-rate gap flagged in `gdb_lion`'s per-column report. Fixed 
 
 After that fix, on the ~161,000 segments where we have a real (non-`0000000`) `LegacyID`,
 160,889 match prod exactly and 156 are null in dev where prod has a real value - both small.
-But **3,170 segments (~2%) have a real `LegacyID` on both sides that simply disagrees**
-(e.g. dev `0039154` vs prod `0061538` for the same `LBoro/FaceCode/SeqNum`). This is a
-genuine content difference, not a representation artifact, and hasn't been investigated -
-worth checking whether `legacy_segmentid` itself drifted between whatever source vintage
-prod's legacy ID reflects and our current CSCL extract.
+That left **3,170 segments (~2%) with a real `LegacyID` on both sides that simply disagreed**
+(e.g. dev `0039154` vs prod `0061538` for the same `LBoro/FaceCode/SeqNum`).
 
-**What would settle it:** picking a handful of the 3,170 mismatched segments and checking
-whether their `legacy_segmentid` value changed in a more recent CSCL release, or whether
-our lookup is joining to the wrong record for them.
+**Root-caused (2026-09-16): the 3,170 figure is a row-alignment artifact of
+`compare_gdb.py`'s key choice for the `lion` layer, not a real content mismatch.**
+`lion_outputs.csv` keys the `lion` layer on `LBoro|FaceCode|SeqNum`, not `SegmentID` - even
+though `gdb_lion.sql` publishes a real, 1:1 `SegmentID` (`lpad(segmentid::text, 7, '0')`).
+Rejoining dev's source `legacy_segmentid` straight to prod's `citywide_lion_dat` (cached in
+`production_outputs`, loaded by `poc_validation/prod_data_loader.py`) **by `SegmentID`
+instead** - across all 218,384 dev segments citywide - gives **zero** real disagreements.
+`LBoro/FaceCode/SeqNum` isn't unique or stable enough to be a safe row key here: the lion
+layer already has a large row-count gap (219,931 dev vs 243,237 prod, a separate, known scope
+gap) large enough that unrelated dev/prod segments coincidentally sharing the same
+`LBoro/FaceCode/SeqNum` triple get paired up and reported as content mismatches. (Aside,
+unrelated to this fix: prod's own `citywide_lion_dat` has ~1,521 duplicate `segmentid` values
+across its 214,466 rows - not investigated further here.)
+
+**Not changed as part of this fix:** `lion_outputs.csv`'s `key_columns` for `lion` is still
+`LBoro|FaceCode|SeqNum`. Switching the whole layer's comparison key to `SegmentID` would
+likely clean up other reported `lion`-layer diffs the same way, but changes what every
+column's dev/prod row-alignment means for that layer, not just `LegacyID` - worth doing as
+its own change, tested against the full layer, rather than folded into this note.
+
+**What would settle it:** deciding whether to switch `lion_outputs.csv`'s `key_columns` for
+`lion` to `SegmentID` citywide-wide, now that it's confirmed to be a reliable 1:1 key on both
+sides.
 
 ### CSCL-LION-11
 
