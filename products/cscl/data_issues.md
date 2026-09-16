@@ -378,16 +378,48 @@ touch code other products' gdb exports depend on.
 
 ### CSCL-DISTRICTS-02
 
-**Sub-0.5% area deltas on unclipped passthroughs** · Open · Last verified 26b
+**Sub-0.5% area deltas, two different mechanisms** · Open · Last verified 26b
 
-`nyhez` −0.454%, `nycdwi` −0.397%, `nypp` +0.341%. These layers aren't shoreline-clipped, so
-clipping can't explain the shift.
+`nyhez` −0.454%, `nycdwi` −0.397%, `nypp` +0.341%. `nyhez`/`nycdwi` are genuinely unclipped
+passthroughs (`gdb_nyhez.sql`/`gdb_nycdwi.sql` select straight off their staging models); `nypp`
+is not - `gdb_nypp.sql` shoreline-clips via `clipped_geom`/`clip_to_shoreline` like the
+`CSCL-DISTRICTS-01` layers, so it needs its own explanation, not this one.
 
-Working theory is `linearize()` coercing curved source geometry that prod preserves — the
-same mechanism as [CSCL-LION-07](#cscl-lion-07). **Unverified.**
+**`nyhez`/`nycdwi` root-caused (2026-09-16): invalid source geometry, resolved differently by
+`ST_MakeValid` than whatever prod's pipeline does - not `linearize()`.** Measured area at each
+step of `stg__hurricaneevacuationzone.sql`/`stg__communitydistrict.sql`'s
+`st_makevalid(linearize(geom))`:
 
-**What would settle it:** confirming the cause. A 0.4% area shift on straight passthrough
-data isn't obviously benign, so this should be checked before sign-off rather than accepted.
+| Layer | Raw area | After `linearize()` | After `st_makevalid()` | linearize Δ | makevalid Δ |
+|---|---|---|---|---|---|
+| `nyhez` | 13,114,487,444 | 13,114,487,819 | 13,054,906,370 | +0.0000029% | **−0.4543%** |
+| `nycdwi` | 13,106,010,319 | 13,106,010,248 | 13,053,921,284 | −0.0000005% | **−0.3974%** |
+
+`linearize()` only affects `ST_MultiCurve`/`ST_MultiSurface` geometry, and even then its effect
+here is negligible (sub-0.0001%) - the working theory (same mechanism as `ArcCenterX`/
+`ArcCenterY`, [CSCL-LION-07](#cscl-lion-07)) was wrong. The real driver is `st_makevalid()`:
+6 of `nyhez`'s 9 source polygons are genuinely invalid before any of our processing -
+`ST_IsValidReason` reports "Ring Self-intersection" (3 polygons) and "Nested shells" (3
+polygons, one of them alone shrinking 891M→851M sq ft, a ~4.5% drop). This is bad source
+geometry, not something our pipeline introduces - PostGIS's `ST_MakeValid` has to choose *some*
+resolution for a self-intersecting ring or a shell nested inside another shell, and there's no
+reason to expect its choice matches whatever ArcGIS-based repair prod's legacy pipeline applies
+to the same invalid input. `nycdwi` wasn't individually inspected polygon-by-polygon but shows
+the same signature (linearize negligible, makevalid the whole effect) strongly enough to assume
+the same cause.
+
+**`nypp`'s +0.341% is unexplained and likely unrelated** - `stg__nypdprecinct.sql` only calls
+`linearize()` (no `st_makevalid()`), and all 78 precincts are already valid after linearize
+(`ST_IsValid` true on every one), so the invalid-geometry mechanism above doesn't apply. Its
+delta is positive (we have *more* area than prod) where `nyhez`/`nycdwi` are negative, and it
+goes through the shoreline-clip macros instead - most likely explanation is a real difference
+in the clip itself (water mask boundary, not source validity), still unverified.
+
+**What would settle it:** `nyhez`/`nycdwi` - deciding whether `ST_MakeValid`'s resolution is
+acceptable as-is (the source data is objectively invalid; matching prod exactly would require
+replicating ArcGIS's specific repair algorithm, not obviously worth it) or worth reporting to
+GR as a source-quality issue. `nypp` - still needs its own investigation into the shoreline-clip
+mechanics, separate from this entry.
 
 ## LDF
 
