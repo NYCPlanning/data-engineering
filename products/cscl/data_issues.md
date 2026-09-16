@@ -42,7 +42,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
-| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
+| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`); `nynta2020` is a separate, unexplained clip-fragmentation gap | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
@@ -365,9 +365,18 @@ the dbt layer entirely:
 
 Export goes through `pyogrio.write_dataframe()` in `dcpy/utils/datastores.py`'s
 `write_gdb_zip` - **shared infrastructure, not CSCL-specific SQL**. This likely also
-explains `nymcea`'s and `nynta2020`'s fragmentation (same shoreline-clip-driven high ring
-count), though the `nynta2020` reverse-direction case hasn't been re-checked against this
-theory yet.
+explains `nymcea`'s fragmentation (same shoreline-clip-driven high ring count).
+
+**`nynta2020`'s reverse-direction case checked (2026-09-16) - it's not the same mechanism,
+and not an export artifact.** Recomputed `clipped_geom`'s exact SQL live for all 262 NTAs:
+`ST_NumGeometries` sums to exactly **381** real disjoint parts total, matching our reported
+dev part count exactly - so unlike `nypuma`/`nymcea`, our export isn't misreading anything;
+381 is genuinely how many parts our clip produces. Prod's 858 is more than double that, on
+objectively small polygons (NTAs, not long coastline PUMAs/MCEAs) unlikely to hit the
+high-ring-count `organizePolygons()` trigger at all. Whatever's driving prod to fragment
+NTAs into more than twice as many pieces as our clip finds - a different/more granular water
+mask, a different clip tolerance, no min-area floor on prod's side - is a genuinely separate,
+still-open question from the `organizePolygons()` mechanism above.
 
 **What would settle it:** this needs a decision before touching shared code - candidates are
 simplifying/consolidating high-ring-count geometry before export, a GDAL layer-creation
