@@ -14,6 +14,9 @@ dbt debug
 echo "Test source tables"
 dbt test --select "source:*"
 
+echo "Load seeds"
+dbt seed
+
 echo "Build staging tables"
 dbt build --select staging
 

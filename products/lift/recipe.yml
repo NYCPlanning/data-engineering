@@ -21,6 +21,7 @@ inputs:
 
     # 2020 NTAs
     - name: dcp_ct2020
+    - name: dcp_nta2020
 
     # DRI subindices and indicators from edm-private
     - name: dcp_dri_subindices_indicators
@@ -29,6 +30,17 @@ inputs:
       import_as: dri_subindices_indicators
       custom:
         filename: dcp_dri_subindices_indicators.csv
+
+    # HPD Limited Affordability Areas from edm-private
+    - name: hpd_limited_affordability_areas
+      source: edm.private
+      file_type: shapefile
+      import_as: hpd_limited_affordability_areas
+      custom:
+        filename: hpd_limited_affordability_areas.shp
+
+    # NYC Rezoning Tracker - capital/programmatic commitments from neighborhood rezonings
+    - name: hpd_rezoning_tracker
 
     # Capital Projects Database - specify single file from directory
     - name: db-cpdb
@@ -53,6 +65,9 @@ exports:
   - name: lift_supplemented
     filename: lift_supplemented.csv
     format: csv
+  - name: rezoning_commitments
+    filename: rezoning_commitments.csv
+    format: csv
 
 stage_config:
   builds.build:
@@ -71,6 +86,7 @@ stage_config:
         export DUCKDB_PATH="$BUILD_ENV_OUTPUT_DIR/lift_${VERSION}.duckdb" &&
         dbt debug &&
         dbt test --select "source:*" &&
+        dbt seed &&
         dbt build --select staging &&
         dbt build --select intermediate &&
         dbt build --select product

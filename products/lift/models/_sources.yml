@@ -10,3 +10,5 @@ sources:
   - name: dri_subindices_indicators
   - name: cpdb_projects_poly
   - name: cpdb_projects_points
+  - name: hpd_limited_affordability_areas
+  - name: hpd_rezoning_tracker

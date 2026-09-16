@@ -31,12 +31,19 @@ def sanitize_name(name: str) -> str:
 class DuckDBClient:
     """Client for managing DuckDB databases with schema support."""
 
-    def __init__(self, db_path: Path, schema: str):
+    def __init__(self, db_path: Path, schema: str, clear_schema: bool = False):
         """Initialize DuckDB client.
 
         Args:
             db_path: Path to DuckDB database file
             schema: Schema name to use (will be created if doesn't exist)
+            clear_schema: Drop the schema (and everything in it - source tables,
+                any dbt-built views/tables/seeds sharing it) before creating it fresh.
+                Off by default since it's destructive; the recipe loader only ever
+                drops+recreates the individual source tables it's re-inserting, so a
+                build directory reused across runs (same product/version) can
+                otherwise accumulate stale objects (e.g. a dbt seed) that a plain
+                reload won't clear.
         """
         self.db_path = db_path
         self.schema = sanitize_name(schema)
@@ -53,12 +60,19 @@ class DuckDBClient:
         self.conn.execute("INSTALL spatial;")
         self.conn.execute("LOAD spatial;")
 
+        if clear_schema:
+            self.drop_schema()
         self.create_schema()
 
     def create_schema(self) -> None:
         """Create schema if it doesn't exist."""
         self.conn.execute(f"CREATE SCHEMA IF NOT EXISTS {self.schema}")
         logger.info(f"Created/verified schema: {self.schema}")
+
+    def drop_schema(self) -> None:
+        """Drop schema (and everything in it) if it exists."""
+        self.conn.execute(f"DROP SCHEMA IF EXISTS {self.schema} CASCADE")
+        logger.info(f"Dropped schema: {self.schema}")
 
     def execute_query(self, query: str) -> None:
         """Execute a SQL query."""
@@ -182,10 +196,14 @@ class DuckDBClient:
         # Drop table if exists
         self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
 
+        # SHAPE_RESTORE_SHX lets GDAL's shapefile driver regenerate a missing/corrupt
+        # .shx index from the .shp file itself - a no-op when .shx is already present
+        # and valid, but necessary for sources uploaded without their full sidecar set.
         st_read_call = (
-            f"ST_Read('{source_path}', layer='{layer_name}')"
+            f"ST_Read('{source_path}', layer='{layer_name}', "
+            "open_options=['SHAPE_RESTORE_SHX=YES'])"
             if layer_name
-            else f"ST_Read('{source_path}')"
+            else f"ST_Read('{source_path}', open_options=['SHAPE_RESTORE_SHX=YES'])"
         )
 
         # ST_Read includes its own OGC_FID column; exclude it so our row_number()

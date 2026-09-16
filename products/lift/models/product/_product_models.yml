@@ -4,13 +4,24 @@ models:
 - name: lift_supplemented
   description: >
     Supplemented version of lift_csv with the displacement_risk_formula,
-    cpspenttotal, and cpprojects placeholder columns populated, plus new columns:
-    boroct2020/nta2020/ntaname (census tract & NTA a bbl resolves to),
-    cp_project_ids/cp_project_descriptions (comma/pipe-delimited lists of
-    intersecting CPDB project ids and descriptions; both kept as JSON arrays
-    in int__lift_cpdb), and trnstzone (PLUTO's transit zone designation).
+    cpspenttotal, cpprojects, laa, poa, and poa_commitment placeholder columns
+    populated, plus new columns: boroct2020/nta2020/ntaname (census tract & NTA
+    a bbl resolves to), cp_project_ids/cp_project_descriptions (comma/pipe-delimited
+    lists of intersecting CPDB project ids and descriptions; both kept as JSON
+    arrays in int__lift_cpdb), and trnstzone (PLUTO's transit zone designation).
   columns:
   - name: bbl
+    tests:
+    - not_null
+    - unique
+
+- name: rezoning_commitments
+  description: >
+    Full NYC Rezoning Tracker commitment listing, current status only (one row per
+    commitment_id) - a lookup table for the commitment_id values embedded in
+    lift_supplemented.poa_commitment.
+  columns:
+  - name: commitment_id
     tests:
     - not_null
     - unique
