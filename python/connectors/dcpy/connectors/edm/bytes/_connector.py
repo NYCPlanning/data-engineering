@@ -13,6 +13,9 @@ from dcpy.utils.logging import logger
 
 from . import _sitemap
 
+# Some nyc.gov endpoints (behind Akamai) 403 requests lacking a browser-like User-Agent.
+_REQUEST_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
 
 class _RawBytesCatalogYear(BaseModel):
     link: str
@@ -48,7 +51,8 @@ class BytesConnector(VersionedConnector):
             return {}
 
         logger.info(f"Grabbing version catalog from {catalog_url_file}")
-        response = requests.get(catalog_url_file)
+        response = requests.get(catalog_url_file, headers=_REQUEST_HEADERS)
+        response.raise_for_status()
         product_versions = TypeAdapter(list[_RawBytesCatalogVersion]).validate_python(
             response.json()
         )
@@ -74,7 +78,9 @@ class BytesConnector(VersionedConnector):
         """Unfortunately the most recent version isn't recorded in a JSON file, so we need to parse it from the HTML."""
         url = _sitemap.get_most_recent_version_url(product, dataset)
         logger.info(f"Grabbing latest version from {url}")
-        content = json.loads(requests.get(url).content)
+        response = requests.get(url, headers=_REQUEST_HEADERS)
+        response.raise_for_status()
+        content = json.loads(response.content)
         assert "description" in content, (
             f"The JSON response should have a `description` field. If not, it indicates the url is probably wrong. Response: {content}"
         )
