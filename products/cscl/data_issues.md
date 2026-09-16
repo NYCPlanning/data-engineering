@@ -37,7 +37,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-05](#cscl-lion-05) | LION | Nonstreet feature segment sequence numbers | Accepted | 26b |
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
-| [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Open | 26b |
+| [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (open) | Open | 26b |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
@@ -151,7 +151,7 @@ difference is small enough to accept.
 
 ### CSCL-LION-08
 
-**`VIntersect` hardcoded null in `gdb_node`** · Open (fix implemented, unverified) · Last verified 26b
+**`VIntersect` hardcoded null in `gdb_node`** · Accepted (fixed and verified) · Last verified 26b
 
 Was hardcoded `NULL::text` - the ETL spec has no coverage of this field, and neither
 `stg__nodes` nor anything else in our pipeline had a source for it. Resolved (2026-09-16)
@@ -165,13 +165,16 @@ Both source tables are already ingested from the same `ETL Working GDB.gdb.zip` 
 CSCL layer comes from (added as `dcp_cscl_streetshaveintersections`/
 `dcp_cscl_virtualintersection` in `recipe.yml`), but neither has a `26b` archive yet - only
 `26a` (from before these were removed from `recipe.yml`, apparently). Proceeding with the
-`26a` data via `missing_versions_strategy: find_latest` per explicit decision - expect some
-diffs from the version mismatch until the next full re-ingest (26c) refreshes them.
+`26a` data via `missing_versions_strategy: find_latest` per explicit decision.
 `compare_gdb.py`'s `KNOWN_STRUCTURAL_DIFFS` entry for `node` was removed since this is a
 real computation now, not a placeholder.
 
-**What would settle it:** a build to confirm the implementation matches the legacy script's
-logic against real data, then re-check once 26c versions of the two source tables land.
+**Verified (build 35140557487, 2026-09-16):** `node` layer row counts match exactly
+(139,674 = 139,674) and `VIntersect` itself matches exactly on both null rate (97.3% both
+sides) and distinct-value count (1 = 1, i.e. only `'VirtualIntersection'` on each side) -
+zero flagged columns on the layer. The 26a/26b version-mismatch risk noted above didn't
+materialize into any visible diff. Re-check once 26c versions of the two source tables land,
+per the standing note that a full re-ingest is imminent.
 
 ### CSCL-LION-09
 
