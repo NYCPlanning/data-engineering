@@ -7,7 +7,11 @@ SELECT
     -- Street name (not in int__lion — follow-up work)
     NULL::text AS "Street",
     NULL::text AS "SAFStreetName",
-    feature_type_code AS "FeatureTyp",
+    -- Prod's literal value for the default (no-specific-type) case is '0', not
+    -- blank - confirmed against prod's FeatureTyp (190,050 rows citywide). Left as
+    -- NULL upstream (see stg__centerline.sql) since int__protosegments.sql keys a
+    -- different join off that NULL; only substituted here, at the output boundary.
+    coalesce(feature_type_code, '0') AS "FeatureTyp",
     segment_type AS "SegmentTyp",
     incex_flag AS "IncExFlag",
     NULL::text AS "RB_Layer",
