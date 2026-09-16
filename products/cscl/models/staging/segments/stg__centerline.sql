@@ -115,7 +115,11 @@ SELECT
         WHEN rw_type = 14 THEN 'F'
         -- Constructed
         WHEN status = '2' AND rwjurisdiction = '5' THEN 'C'
-        -- Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W  -- redundant but to be explicit about above case
+        -- Public street, bridge or tunnel that exists physically (or its generic
+        -- geometry), other than Feature Type Code W. Prod's literal value for this
+        -- default case is '0', not blank - confirmed against gdb_lion's FeatureTyp
+        -- (190,050 rows citywide).
+        ELSE '0'
     END AS feature_type_code,
     'centerline' AS feature_type,
     'centerline' AS source_table,

@@ -1,5 +1,5 @@
 source_feature_class,code,description
-centerline,,"Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W"
+centerline,0,"Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W"
 centerline,5,Paper street that is not also a boundary
 centerline,6,Private street that exists physically
 centerline,9,Paper street that coincides with a non-physical boundary
