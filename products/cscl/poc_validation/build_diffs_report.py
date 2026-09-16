@@ -82,10 +82,12 @@ SEED_COLUMNS = [
     "diffable",
 ]
 REPORT_COLUMNS = SEED_COLUMNS + [
+    "prod_row_count",
     "accounted_for_discrepant_rows",
     "unaccounted_discrepant_fields",
     "unaccounted_discrepant_rows",
     "discrepant_rows_from_file_comparison",
+    "pct_diff",
     "notes",
 ]
 FIELD_LEVEL_COUNT_COLUMNS = [
@@ -101,10 +103,12 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("subgroup", "Subgroup"),
     ("filename", "Filename"),
     ("file_id", "File ID"),
+    ("prod_row_count", "Prod rows"),
     ("accounted_for_discrepant_rows", "Accounted-for rows"),
     ("unaccounted_discrepant_rows", "Unaccounted rows"),
     ("unaccounted_discrepant_fields", "Unaccounted fields"),
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
+    ("pct_diff", "% diff"),
     ("_gap", "Gap"),
     ("notes", "Notes"),
 ]
@@ -132,21 +136,28 @@ def load_field_level_counts() -> dict[str, dict[str, int | None]]:
         }
 
 
-def load_file_comparison_counts() -> dict[str, int]:
-    """filename -> mismatched row count, from the line-level file comparison."""
+def load_file_comparison_counts() -> dict[str, dict[str, int]]:
+    """filename -> {mismatched_rows, prod_row_count}, from the line-level file
+    comparison (validate_outputs.sh already computes prod_row_count per file -
+    this just carries it through instead of dropping it)."""
     if not VALIDATION_SUMMARY_PATH.exists():
         return {}
     with VALIDATION_SUMMARY_PATH.open(newline="") as f:
         return {
-            row["filename"]: int(row["mismatched_rows"]) for row in csv.DictReader(f)
+            row["filename"]: {
+                "mismatched_rows": int(row["mismatched_rows"]),
+                "prod_row_count": int(row["prod_row_count"]),
+            }
+            for row in csv.DictReader(f)
         }
 
 
 def load_gdb_layer_stats() -> dict[str, dict]:
-    """layer name -> {"row_diff": int, "note": str}, from compare_gdb.py's
-    per-gdb-export CSVs (one row per (layer, column); the layer-level fields -
-    rows_only_in_dev/rows_only_in_prod/rows_modified and the consolidated
-    layer_note - repeat down each layer's rows, so take the first).
+    """layer name -> {"row_diff": int, "note": str, "prod_row_count": int}, from
+    compare_gdb.py's per-gdb-export CSVs (one row per (layer, column); the
+    layer-level fields - rows_only_in_dev/rows_only_in_prod/rows_modified,
+    prod_row_count, and the consolidated layer_note - repeat down each layer's
+    rows, so take the first).
 
     row_diff here is the real keyed row-level diff total (only_in_dev +
     only_in_prod + modified), not a net row-count delta - a layer can have equal
@@ -191,6 +202,7 @@ def load_gdb_layer_stats() -> dict[str, dict]:
                 stats[layer] = {
                     "row_diff": only_in_dev + only_in_prod + modified,
                     "note": row.get("layer_note", ""),
+                    "prod_row_count": int(row["prod_row_count"]),
                 }
     return stats
 
@@ -243,8 +255,12 @@ def gap(row: dict) -> int:
     return abs(file_level - (accounted_for + unaccounted))
 
 
-def _markdown_cell(value) -> str:
-    return "–" if value is None else str(value)
+def _markdown_cell(col: str, value) -> str:
+    if value is None:
+        return "–"
+    if col == "pct_diff":
+        return f"{value:.2f}%"
+    return str(value)
 
 
 def _markdown_table(rows: list[dict]) -> str:
@@ -252,7 +268,9 @@ def _markdown_table(rows: list[dict]) -> str:
     sep = "| " + " | ".join("---" for _ in SUMMARY_DISPLAY_COLUMNS) + " |"
     body_lines = [
         "| "
-        + " | ".join(_markdown_cell(row[col]) for col, _ in SUMMARY_DISPLAY_COLUMNS)
+        + " | ".join(
+            _markdown_cell(col, row[col]) for col, _ in SUMMARY_DISPLAY_COLUMNS
+        )
         + " |"
         for row in rows
     ]
@@ -313,9 +331,15 @@ def main() -> None:
     field_level_by_file = load_field_level_counts()
     file_comparison_counts = load_file_comparison_counts()
     gdb_layer_stats = load_gdb_layer_stats()
-    gdb_row_diffs = {layer: s["row_diff"] for layer, s in gdb_layer_stats.items()}
     # Disjoint key spaces (flat filenames vs. gdb layer names) - safe to merge.
-    row_comparison_counts = {**file_comparison_counts, **gdb_row_diffs}
+    row_comparison_counts = {
+        filename: counts["mismatched_rows"]
+        for filename, counts in file_comparison_counts.items()
+    } | {layer: s["row_diff"] for layer, s in gdb_layer_stats.items()}
+    prod_row_counts = {
+        filename: counts["prod_row_count"]
+        for filename, counts in file_comparison_counts.items()
+    } | {layer: s["prod_row_count"] for layer, s in gdb_layer_stats.items()}
 
     rows = []
     for record in backbone:
@@ -324,6 +348,8 @@ def main() -> None:
         note = gdb_stats["note"] if gdb_stats else ""
         note = note if note != "OK" else ""
         note = note or KNOWN_NOTES.get(record["file_id"], "")
+        discrepant_rows = row_comparison_counts.get(record["filename"])
+        prod_row_count = prod_row_counts.get(record["filename"])
         rows.append(
             {
                 **record,
@@ -331,8 +357,12 @@ def main() -> None:
                     col: (field_counts[col] if field_counts else None)
                     for col in FIELD_LEVEL_COUNT_COLUMNS
                 },
-                "discrepant_rows_from_file_comparison": row_comparison_counts.get(
-                    record["filename"]
+                "prod_row_count": prod_row_count,
+                "discrepant_rows_from_file_comparison": discrepant_rows,
+                "pct_diff": (
+                    round(discrepant_rows / prod_row_count * 100, 2)
+                    if discrepant_rows is not None and prod_row_count
+                    else None
                 ),
                 "notes": note,
             }
