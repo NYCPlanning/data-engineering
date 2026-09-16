@@ -18,6 +18,12 @@ time - see _load_declared_keys and that column's doc in seeds.yml for why.
 Add an entry there (verified against a real build) for any layer that logs a
 "no declared key" warning.
 
+By default, NULL and whitespace-only strings compare as equal (prod's FileGDB
+export stores "no value" as blank/spaces for many text fields where we store
+a real NULL - see _stringify's docstring). Whether we should adopt that
+convention ourselves is undecided, so this is a default, not a fact - pass
+--strict-nulls to compare them as distinct instead.
+
 Report-only: writes a per-column CSV per gdb to output/validation_output/<name>_comparison.csv
 and prints a report to stdout. It never fails the build on a data mismatch.
 """
@@ -147,7 +153,9 @@ _FLOAT_RTOL = 5e-4
 _FLOAT_ATOL = 5e-4
 
 
-def _stringify(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+def _stringify(
+    df: pd.DataFrame, cols: list[str], blank_as_null: bool = True
+) -> pd.DataFrame:
     """String-ify columns for keying/comparison.
 
     Four normalizations, all aimed at not fooling ourselves into reporting a
@@ -161,13 +169,18 @@ def _stringify(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
         this is purely a read-side artifact) are converted to UTC and made
         naive first, so "2025-08-13 13:03:19+00:00" stringifies the same as
         prod's "2025-08-13 13:03:19" instead of mismatching on every row.
-      - Whitespace-only string columns (e.g. LION's LGC2 - prod stores "no
-        LGC2" as two spaces, we store it as a real SQL NULL) are blanked to
-        NULL before the sentinel fill, so both sides land on the same
-        sentinel. Measured on LION's LGC2: prod is blank/whitespace 68.0% of
-        the time, we're NULL 66.8% of the time - matching rates once you
-        account for the ~10% row-count gap between the two builds, i.e. this
-        is one representation of the same "no value", not a population gap.
+      - If blank_as_null (the default): whitespace-only string columns (e.g.
+        LION's LGC2 - prod stores "no LGC2" as two spaces, we store it as a
+        real SQL NULL) are blanked to NULL before the sentinel fill, so both
+        sides land on the same sentinel. Measured on LION's LGC2: prod is
+        blank/whitespace 68.0% of the time, we're NULL 66.8% of the time -
+        matching rates once you account for the ~10% row-count gap between
+        the two builds, i.e. this is one representation of the same "no
+        value", not a population gap. It's a legacy FileGDB convention we
+        haven't decided whether to adopt ourselves, so pass
+        blank_as_null=False (--strict-nulls on the CLI) to see the raw,
+        unnormalized comparison instead - e.g. to check whether adopting
+        prod's convention would actually change anything.
       - Nulls are filled with a sentinel after each column's own astype(str),
         one column at a time - not via a single DataFrame-wide fillna after
         combining columns, which raises if any column is still a numeric
@@ -187,31 +200,37 @@ def _stringify(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
                 s = s.astype("Int64")
         elif isinstance(s.dtype, pd.DatetimeTZDtype):
             s = s.dt.tz_convert("UTC").dt.tz_localize(None)
-        elif pd.api.types.is_string_dtype(s):
+        elif blank_as_null and pd.api.types.is_string_dtype(s):
             s = s.mask(s.str.strip() == "", None)
         out[col] = s.astype(str).fillna(_NA_SENTINEL)
     return pd.DataFrame(out, index=df.index)
 
 
-def _effective_isna(s: pd.Series) -> pd.Series:
-    """True nulls plus whitespace-only strings - see _stringify's docstring for
-    why FileGDB's blank-string convention needs to count as "no value" too."""
+def _effective_isna(s: pd.Series, blank_as_null: bool = True) -> pd.Series:
+    """True nulls, plus (if blank_as_null) whitespace-only strings - see
+    _stringify's docstring for why FileGDB's blank-string convention needs to
+    count as "no value" too, and why that's togglable."""
     isna = s.isna()
-    if pd.api.types.is_string_dtype(s):
+    if blank_as_null and pd.api.types.is_string_dtype(s):
         return isna | (s.fillna("x").str.strip() == "")
     return isna
 
 
-def _composite_key(df: pd.DataFrame, key_cols: list[str]) -> pd.Series:
+def _composite_key(
+    df: pd.DataFrame, key_cols: list[str], blank_as_null: bool = True
+) -> pd.Series:
     if df.empty:
         # .agg(..., axis=1) on a 0-row frame returns the frame unchanged rather
         # than an empty Series - nyura (both sides empty) hits this for real.
         return pd.Series([], dtype=str)
-    return _stringify(df, key_cols).agg("|".join, axis=1)
+    return _stringify(df, key_cols, blank_as_null).agg("|".join, axis=1)
 
 
 def _columns_differ(
-    dev: pd.DataFrame, prod: pd.DataFrame, cols: list[str]
+    dev: pd.DataFrame,
+    prod: pd.DataFrame,
+    cols: list[str],
+    blank_as_null: bool = True,
 ) -> pd.Series:
     """Row-wise: does ANY of these columns differ between dev and prod?
 
@@ -235,8 +254,8 @@ def _columns_differ(
             )
             diff |= ~close
         else:
-            dev_str = _stringify(dev, [col])[col]
-            prod_str = _stringify(prod, [col])[col]
+            dev_str = _stringify(dev, [col], blank_as_null)[col]
+            prod_str = _stringify(prod, [col], blank_as_null)[col]
             diff |= dev_str.to_numpy() != prod_str.to_numpy()
     return diff
 
@@ -246,6 +265,7 @@ def _row_level_diff(
     prod_df: pd.DataFrame,
     key_cols: list[str],
     compare_cols: list[str],
+    blank_as_null: bool = True,
 ) -> dict:
     """Keyed row-level diff: how many rows exist only in dev, only in prod, or on
     both sides but with a differing attribute value.
@@ -257,8 +277,8 @@ def _row_level_diff(
     falls back to a duplicate-tolerant multiset comparison (same approach as
     qa__ldf_summary - counts, not row-for-row pairing).
     """
-    dev_keys = _composite_key(dev_df, key_cols)
-    prod_keys = _composite_key(prod_df, key_cols)
+    dev_keys = _composite_key(dev_df, key_cols, blank_as_null)
+    prod_keys = _composite_key(prod_df, key_cols, blank_as_null)
     precise = dev_keys.is_unique and prod_keys.is_unique
 
     if not precise:
@@ -287,7 +307,10 @@ def _row_level_diff(
     if len(common) > 0 and compare_cols:
         modified = int(
             _columns_differ(
-                dev_indexed.loc[common], prod_indexed.loc[common], compare_cols
+                dev_indexed.loc[common],
+                prod_indexed.loc[common],
+                compare_cols,
+                blank_as_null,
             ).sum()
         )
 
@@ -358,12 +381,20 @@ def _compare_layers(
     report_name: str,
     polygon_layers: set[str],
     declared_keys: dict[str, list[str]],
+    blank_as_null: bool = True,
 ) -> None:
     dev_gdb = _inner_gdb(dev_path)
     prod_gdb = _inner_gdb(prod_path)
 
     dev_layers = _list_layers(dev_gdb)
     prod_layers = _list_layers(prod_gdb)
+
+    mode = (
+        "NULL and whitespace-only strings treated as equivalent"
+        if blank_as_null
+        else "STRICT: NULL and whitespace-only strings treated as distinct"
+    )
+    print(f"=== NULL/BLANK MODE: {mode} ===\n")
 
     print("=== LAYER STRUCTURE ===")
     all_layers = sorted(set(dev_layers) | set(prod_layers))
@@ -418,7 +449,9 @@ def _compare_layers(
                     )
                 key_cols = _guess_key_columns(dev_gdf, prod_gdf, attribute_cols)
             compare_cols = [c for c in attribute_cols if c not in key_cols]
-            row_level = _row_level_diff(dev_gdf, prod_gdf, key_cols, compare_cols)
+            row_level = _row_level_diff(
+                dev_gdf, prod_gdf, key_cols, compare_cols, blank_as_null
+            )
         else:
             # No non-geometry columns at all - fall back to a plain count.
             key_cols = []
@@ -447,8 +480,8 @@ def _compare_layers(
             dev_s = dev_gdf[col]
             prod_s = prod_gdf[col]
 
-            dev_na = _effective_isna(dev_s)
-            prod_na = _effective_isna(prod_s)
+            dev_na = _effective_isna(dev_s, blank_as_null)
+            prod_na = _effective_isna(prod_s, blank_as_null)
             dev_null_pct = dev_na.mean() * 100
             prod_null_pct = prod_na.mean() * 100
 
@@ -571,6 +604,17 @@ def run(
         "-p",
         help="Local prod GDB zip. If omitted, fetched from S3 instead.",
     ),
+    treat_blank_as_null: bool = typer.Option(
+        True,
+        "--treat-blank-as-null/--strict-nulls",
+        help=(
+            "Treat NULL and whitespace-only strings as equivalent (default). "
+            "Prod's FileGDB export stores 'no value' as blank/spaces where we "
+            "store a real NULL - it's undecided whether we should adopt that "
+            "convention, so pass --strict-nulls to compare them as distinct "
+            "and see whether it would actually change anything."
+        ),
+    ),
 ) -> None:
     """Compare dev vs prod GDB layers for each gdb export in the recipe."""
     recipe = plan.recipe_from_yaml(recipe_path)
@@ -611,6 +655,7 @@ def run(
             Path(filename).name.split(".")[0],
             polygon_layers,
             declared_keys,
+            treat_blank_as_null,
         )
 
 
