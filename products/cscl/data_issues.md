@@ -42,7 +42,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
-| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | Shoreline-clip part counts differ (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
+| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
@@ -336,9 +336,39 @@ fragmented one here), which doesn't fit a single "we over-fragment" story and ne
 We deliberately did **not** tune a per-layer threshold to force exact part-count matches; that
 would be fitting noise rather than understanding the mechanism.
 
-**What would settle it:** whoever owns these district layers answering whether prod applies a
-larger minimum mapping unit for large/coastal aggregates, or dissolves *after* clipping. The
-`nynta2020` reverse-direction case suggests the answer may not be uniform across layers.
+**Root cause found for the over-fragmentation direction (2026-09-16), and it isn't the SQL
+clip at all.** Traced `nypuma2010`'s worst case (PUMA 4105: dev 87 parts vs prod's 1) past
+the dbt layer entirely:
+
+- Recomputing `clipped_geom`'s exact SQL live gives only **2** real parts (areas
+  550,137,046 and 623 sq ft - matching prod's shape almost exactly, 0.0000187% area diff).
+  The dissolve-before-clip step is clean too (max 3 parts across all 55 PUMAs, before any
+  clipping). So the *data* going into the export is correct.
+- The big part alone has **4,927 rings** (`ST_DumpRings`) - one exterior ring plus ~4,926
+  small interior holes, from differencing against the water mask's many small subdivided
+  pieces along a long coastline.
+- `ogrinfo` on our *actual exported* gdb throws `Warning: organizePolygons() received a
+  polygon with more than 100 parts` for this feature; the same command against **prod's**
+  export of the same layer throws nothing - prod's `Feature Count: 1` reads back clean.
+  GDAL's `organizePolygons()` only runs when the ring→polygon/hole nesting is ambiguous on
+  read, meaning our FileGDB write doesn't preserve that structure as unambiguously as
+  whatever wrote prod's.
+- The other 85 "parts" `compare_gdb.py` and QGIS see are `organizePolygons()` misreading
+  some of those ~4,926 holes as separate exterior parts (each with a near-zero area, `1e-5`
+  sq ft range) instead of subtracting them - not a real geometry difference.
+
+Export goes through `pyogrio.write_dataframe()` in `dcpy/utils/datastores.py`'s
+`write_gdb_zip` - **shared infrastructure, not CSCL-specific SQL**. This likely also
+explains `nymcea`'s and `nynta2020`'s fragmentation (same shoreline-clip-driven high ring
+count), though the `nynta2020` reverse-direction case hasn't been re-checked against this
+theory yet.
+
+**What would settle it:** this needs a decision before touching shared code - candidates are
+simplifying/consolidating high-ring-count geometry before export, a GDAL layer-creation
+option to control `organizePolygons()` behavior on read (`METHOD=SKIP`/`ONLY_CCW`), checking
+whether ring winding order (`ST_ForceRHR` or similar) differs from what OpenFileGDB expects,
+or a `pyogrio`/GDAL version difference from whatever produced prod's export. All of these
+touch code other products' gdb exports depend on.
 
 ### CSCL-DISTRICTS-02
 
