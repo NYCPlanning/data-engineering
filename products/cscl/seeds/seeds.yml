@@ -47,6 +47,17 @@ seeds:
           spans, nyzip's multi-part zip codes) rather than a column to add -
           see each gdb_<layer>.sql model for the specific reason. Empty for
           non-gdb rows.
+      - name: description
+        description: >
+          District gdb layers only: what the layer represents and its CSCL
+          source feature class, e.g. "Assembly Districts clipped to
+          shoreline". Sourced from GitHub issue #1840's output table - a
+          project-management issue, not verified project documentation, so
+          treat as a lead rather than fact. Two gaps in that source were
+          filled by inference rather than the issue itself: nycdta2020's
+          description was blank there, and nypuma2020 wasn't listed at all
+          (only nypuma2010) - both filled in by pattern from sibling rows.
+          Empty for non-district-gdb rows.
 
   - name: node_stname_lastword_overrides
     description: >
