@@ -12,7 +12,7 @@ models:
         data_tests:
           - not_null
   - name: gdb_node
-    description: "LION node point layer for the published ESRI geodatabase (nyclion_*.zip). Near-passthrough of the source Node layer (dcp_cscl_nodes, via stg__nodes); columns match the prod GDB field names."
+    description: "LION node point layer for the published ESRI geodatabase (nyclion_*.zip). Mostly a passthrough of the source Node layer (dcp_cscl_nodes, via stg__nodes), except floating virtual-intersection nodes (see VIntersect) are dropped; columns match the prod GDB field names."
     columns:
       - name: "'NODEID'"
         description: "Node identifier"

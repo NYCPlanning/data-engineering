@@ -61,10 +61,6 @@ KNOWN_STRUCTURAL_DIFFS = {
     # Prod's nyura carries a stale copy of nybid's schema; both are empty, so the
     # structural diff on this layer is expected. See models/product/districts/gdb_nyura.sql.
     "nyura",
-    # VIntersect is hardcoded to NULL::text - the source Node file has no field to
-    # derive it from, so it disagrees with prod's populated values on nearly every
-    # row by construction, not by bug. See the TODO in models/product/lion/gdb/gdb_node.sql.
-    "node",
 }
 
 # Columns hardcoded to a NULL placeholder in a gdb_<layer>.sql model (unimplemented

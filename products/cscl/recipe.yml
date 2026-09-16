@@ -62,6 +62,19 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Node
+  # node -> intersecting-segment lookup and virtual-intersection flags, used together to
+  # derive gdb_node's VIntersect (see the legacy Create_Node_Shape script). No 26b archive
+  # yet (last archived 26a) - missing_versions_strategy: find_latest picks that up instead.
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_streetshaveintersections
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: STREETSHAVEINTERSECTIONS
+  - name: dcp_cscl_gdb
+    import_as: dcp_cscl_virtualintersection
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: VIRTUALINTERSECTION
 
   # all other tables
   - name: dcp_cscl_gdb

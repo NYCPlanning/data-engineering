@@ -151,17 +151,27 @@ difference is small enough to accept.
 
 ### CSCL-LION-08
 
-**`VIntersect` hardcoded null in `gdb_node`** · Open · Last verified 26b
+**`VIntersect` hardcoded null in `gdb_node`** · Open (fix implemented, unverified) · Last verified 26b
 
-Prod's `node` layer populates `VIntersect` (`''` or `'VirtualIntersection'`) on effectively
-every row; our `gdb_node.sql` hardcodes it to `NULL::text` because the source Node file has
-no field to derive it from (see the TODO there). Row-level comparison flags ~139,700 of
-~142,800 node rows as "modified" as a result — by construction, not because of a data bug.
-`poc_validation/compare_gdb.py`'s `KNOWN_STRUCTURAL_DIFFS` now tags `node` so the diff report
-reads this as understood rather than a fresh regression each run.
+Was hardcoded `NULL::text` - the ETL spec has no coverage of this field, and neither
+`stg__nodes` nor anything else in our pipeline had a source for it. Resolved (2026-09-16)
+from the actual legacy source code (`Create_Node_Shape(12B).py`, J. Ding/ITD-DCP, obtained
+directly - not reverse-engineered): a node is `'VirtualIntersection'` iff it's listed in the
+`VIRTUALINTERSECTION` table *and* has at least one segment in `STREETSHAVEINTERSECTIONS`;
+if it's in `VIRTUALINTERSECTION` with zero such segments, the node is **deleted from the
+output entirely**, not just left blank.
 
-**What would settle it:** finding (or deriving) a source for virtual-intersection status —
-possibly inferable from node degree / LGC combinations at each node, but unconfirmed.
+Both source tables are already ingested from the same `ETL Working GDB.gdb.zip` every other
+CSCL layer comes from (added as `dcp_cscl_streetshaveintersections`/
+`dcp_cscl_virtualintersection` in `recipe.yml`), but neither has a `26b` archive yet - only
+`26a` (from before these were removed from `recipe.yml`, apparently). Proceeding with the
+`26a` data via `missing_versions_strategy: find_latest` per explicit decision - expect some
+diffs from the version mismatch until the next full re-ingest (26c) refreshes them.
+`compare_gdb.py`'s `KNOWN_STRUCTURAL_DIFFS` entry for `node` was removed since this is a
+real computation now, not a placeholder.
+
+**What would settle it:** a build to confirm the implementation matches the legacy script's
+logic against real data, then re-check once 26c versions of the two source tables land.
 
 ### CSCL-LION-09
 
