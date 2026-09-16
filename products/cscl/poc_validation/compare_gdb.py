@@ -67,6 +67,38 @@ KNOWN_STRUCTURAL_DIFFS = {
     "node",
 }
 
+# Columns hardcoded to a NULL placeholder in a gdb_<layer>.sql model (unimplemented
+# fields, not bugs) - excluded from a layer's flagged-column count/list so it reflects
+# genuinely unexplained gaps, not fields already known to be unimplemented. Still shown
+# per-column in the CSV with a "KNOWN:" note rather than silently dropped.
+KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
+    # 21 fields with no source in our current pipeline (roadbed/SAF-scope, mostly) -
+    # see the NULL::text/NULL::int literals in models/product/lion/gdb/gdb_lion.sql.
+    "lion": {
+        "Street",
+        "SAFStreetName",
+        "RB_Layer",
+        "TrafSrc",
+        "SAFStreetCode",
+        "RBoro",
+        "L_CD",
+        "R_CD",
+        "LCT1990",
+        "LCT1990Suf",
+        "RCT1990",
+        "RCT1990Suf",
+        "SplitSchl",
+        "MH_RI_Flag",
+        "Radius",
+        "ACTIVE_FLAG",
+        "Carto_Display_Level",
+        "FromLeft",
+        "ToLeft",
+        "FromRight",
+        "ToRight",
+    },
+}
+
 app = typer.Typer(add_completion=False)
 
 
@@ -491,6 +523,9 @@ def _compare_layers(
             note = ""
             if col == "geometry":
                 note = "spatial"
+            elif col in KNOWN_NULL_COLUMNS.get(layer, set()):
+                if dev_null_pct == 100 and prod_null_pct < 100:
+                    note = "KNOWN: unimplemented (hardcoded null)"
             elif dev_null_pct == 100 and prod_null_pct < 100:
                 note = "ALL NULL in dev"
             elif abs(dev_null_pct - prod_null_pct) > 5:
@@ -508,7 +543,9 @@ def _compare_layers(
             )
 
         flagged_columns = [
-            s["column"] for s in col_stats if s["note"] and s["note"] != "spatial"
+            s["column"]
+            for s in col_stats
+            if s["note"] and s["note"] != "spatial" and "KNOWN:" not in s["note"]
         ]
 
         layer_note = _layer_note(
