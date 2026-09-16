@@ -35,7 +35,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-03](#cscl-lion-03) | LION | Curve flag `I` where prod is blank | Accepted | 26b |
 | [CSCL-LION-04](#cscl-lion-04) | LION | BOE LGC pointer wrong for 568 records in prod | Accepted | 26b |
 | [CSCL-LION-05](#cscl-lion-05) | LION | Nonstreet feature segment sequence numbers | Accepted | 26b |
-| [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Open | 26b |
+| [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Open | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname`/`altnames` abbreviation mismatches | Open | 26b |
@@ -116,19 +116,23 @@ that they differ as long as they're unique.
 
 ### CSCL-LION-06
 
-**Coincident segments** · Open · Last verified 26b
+**Coincident segments** · Accepted (root-caused and fixed) · Last verified 26b
 
-Some remain.
+segmentid 8101066 (Brooklyn) had a centerline plus *two* `rail_and_subway` segments
+(itself plus 8105519, a Subway/Rail crossing at Broadway Junction) all coincident at the
+same point - see
+[docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md](./docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md#1-coincident_seg_count-lion_dat_brooklyn-304118101066)
+for the original diagnosis. Root cause: `int__noncenterline_coincident_segments.sql` scoped
+its "same type" match to `feature_type`, which merges Subway and Rail into one
+`rail_and_subway` value - legacy scopes this to the literal ArcGIS feature class, where
+Subway and Rail are separate, so it never counts a Subway/Rail crossing as "same type."
+Fixed by matching on `source_table` instead (the actual feature-class distinction),
+verified against 8101066 (3 → 2, matching legacy) and confirmed it's the only segment
+citywide the change affects.
 
-One instance is diagnosed in detail in
-[docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md](./docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md#1-coincident_seg_count-lion_dat_brooklyn-304118101066):
-segmentid 8101066 (Brooklyn) has a centerline and *two* distinct `rail_and_subway` segments
-(itself plus 8105519) all coincident at the same point. Our count of 3 (self + 2 others) is
-marked `accounted_for` for that specific `_lion_key`, but this doesn't settle the general
-question - it's one data point suggesting prod may not count two same-feature-type duplicates
-as two separate coincidences.
-
-**What would settle it:** a decision with GR on how we handle them.
+Related, not yet verified: legacy also gates its centerline-overlap check on the feature's
+own `ROW_TYPE != "1"`; ours gates on `segmentid NOT IN int__underground_rail` - a different
+condition that may diverge elsewhere. Not touched by this fix.
 
 ### CSCL-LION-07
 
