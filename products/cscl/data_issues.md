@@ -39,6 +39,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Open | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname`/`altnames` abbreviation mismatches | Open | 26b |
+| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Open | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | Shoreline-clip part counts differ (`nymcea`, `nypuma2010/2020`, `nynta2020`) | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
@@ -175,21 +176,68 @@ Note the mismatches go both directions (we abbreviate where prod spells out, and
 versa) — this isn't a single missing rule, more likely a different/more complete
 abbreviation table or a name-formatting step we don't have.
 
-**`gdb_altnames`'s `Join_ID` gap is bigger than the documented SAF-replicant scope can
-explain.** `gdb_altnames.sql`'s comment attributes dev's ~50%-of-prod `Join_ID` coverage
-(16,617 vs prod's 32,867, this build) to SAF-replicant Join_IDs "not yet produced." Checked
-this cycle: only 14,759 of 219,931 `include_in_bytes_lion` segments (6.7%) carry a
-`special_address_flag` at all, nowhere near enough to explain a ~2x gap on its own. Also
-checked that the gap isn't from `gdb_altnames.sql`'s `INNER JOIN` to the name-lookup
-tables - the pre-join B7SC count from `segments`/`b7scs` alone is already exactly 16,617,
-identical to the final output, so nothing is being dropped there. The shortfall is upstream
-of both of those, in how many (B5SC, LGC) combinations `int__lion` produces in the first
-place - not yet root-caused.
-
 **What would settle it:** GR confirming whether prod's abbreviation source is a superset of
 `dcp_cscl_lastword`, or a different mechanism entirely (e.g. applied to every word, not just
-the last). Separately, someone needs to re-derive where prod's other ~16,000 `Join_ID`s come
-from, since SAF-replicant scope alone doesn't account for them.
+the last).
+
+**`gdb_altnames`'s `Join_ID` gap is bigger than the documented SAF-replicant scope can
+explain.** `gdb_altnames.sql`'s comment attributes dev's ~50%-of-prod `Join_ID` coverage
+(16,617 vs prod's 32,867, this build) to SAF-replicant Join_IDs "not yet produced." Ruled
+out so far, across two rounds of investigation:
+
+1. SAF-replicant scope: only 14,759 of 219,931 `include_in_bytes_lion` segments (6.7%)
+   carry a `special_address_flag` at all - nowhere near enough to explain a ~2x gap alone.
+2. `gdb_altnames.sql`'s `INNER JOIN` to the name-lookup tables: the pre-join B7SC count
+   from its `segments`/`b7scs` CTEs alone is already exactly 16,617, identical to the
+   final output, so nothing is being dropped there.
+3. Blank-vs-null representation (the fix that cut `gdb_lion`'s flagged columns from 75 to
+   24 - see `compare_gdb.py`): re-measured dev's/prod's unique `Join_ID` counts after that
+   fix landed and they're unchanged, so this isn't a comparison-tool artifact.
+4. `gdb_lion.sql` publishes its own `Join_ID` (same macro, same inputs) - it shows the
+   identical gap (dev 16,617 vs prod 32,897), confirming the shortfall is upstream of
+   `gdb_altnames.sql` entirely, in `int__lion`/`int__streetcode_and_facecode`'s `face_code`
+   itself, not anything altnames-specific.
+5. `face_code` join failure: `log__lion_segments_missing_facecode` shows exactly 1
+   segment citywide with no facecode - the join essentially never fails.
+6. Stale/partial source ingest: `dcp_cscl_streetname` (like `dcp_cscl_segment_lgc`,
+   already checked in [Bug 007](./docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md))
+   comes from the single-archive `ETL Working GDB.gdb.zip`, one atomic ingest - not a
+   version-skew issue.
+
+What's left: `dcp_cscl_streetname` itself has only 6,927 distinct `facecode` values across
+73,396 rows (one `principal_flag='Y'` row per facecode, correctly). That's the real ceiling
+on `Join_ID` diversity, and it's roughly half of what prod's `Join_ID` count implies it
+should be. Two possibilities, both requiring more than code archaeology to resolve: either
+this CSCL source snapshot genuinely has fewer distinct facecodes than whatever prod's
+legacy pipeline read (a real, structural source-data difference, not a bug), or prod
+computes `Join_ID`/`FaceCode` from a different mechanism entirely - e.g. per-segment rather
+than per-principal-streetname - that we haven't replicated.
+
+**What would settle it:** GR/legacy-pipeline owner confirming what `Join_ID` is actually
+keyed on in the legacy ETL, and whether `dcp_cscl_streetname`'s facecode cardinality has
+always been this low or is specific to this source snapshot.
+
+### CSCL-LION-10
+
+**`LegacyID` real-value mismatches on ~2% of segments** · Open · Last verified 26b
+
+`gdb_lion.sql` computed `LegacyID` as `lpad(legacy_segmentid::text, 7, '0')`, which produces
+SQL NULL whenever `legacy_segmentid` is null. Prod's convention for "no legacy ID" is the
+literal string `'0000000'`, not blank - so this alone accounted for the vast majority of a
+large `LegacyID` null-rate gap flagged in `gdb_lion`'s per-column report. Fixed by
+`coalesce`-ing to `0` before padding.
+
+After that fix, on the ~161,000 segments where we have a real (non-`0000000`) `LegacyID`,
+160,889 match prod exactly and 156 are null in dev where prod has a real value - both small.
+But **3,170 segments (~2%) have a real `LegacyID` on both sides that simply disagrees**
+(e.g. dev `0039154` vs prod `0061538` for the same `LBoro/FaceCode/SeqNum`). This is a
+genuine content difference, not a representation artifact, and hasn't been investigated -
+worth checking whether `legacy_segmentid` itself drifted between whatever source vintage
+prod's legacy ID reflects and our current CSCL extract.
+
+**What would settle it:** picking a handful of the 3,170 mismatched segments and checking
+whether their `legacy_segmentid` value changed in a more recent CSCL release, or whether
+our lookup is joining to the wrong record for them.
 
 ## District gdb
 

@@ -104,7 +104,9 @@ SELECT
     fdnyid AS "FDNYID",
     l_blockfaceid::text AS "LBlockFaceID",
     r_blockfaceid::text AS "RBlockFaceID",
-    lpad(legacy_segmentid::text, 7, '0') AS "LegacyID",
+    -- Prod's convention for "no legacy ID" is a literal '0000000', not blank/null -
+    -- coalesce before padding so segments without one match that instead of NULL.
+    lpad(coalesce(legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
     status AS "Status",
     streetwidth_min::float AS "StreetWidth_Min",
     streetwidth_max::float AS "StreetWidth_Max",
