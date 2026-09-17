@@ -12,7 +12,7 @@ models:
         data_tests:
           - not_null
   - name: gdb_node
-    description: "LION node point layer for the published ESRI geodatabase (nyclion_*.zip). Near-passthrough of the source Node layer (dcp_cscl_nodes, via stg__nodes); columns match the prod GDB field names."
+    description: "LION node point layer for the published ESRI geodatabase (nyclion_*.zip). Mostly a passthrough of the source Node layer (dcp_cscl_nodes, via stg__nodes), except floating virtual-intersection nodes (see VIntersect) are dropped; columns match the prod GDB field names."
     columns:
       - name: "'NODEID'"
         description: "Node identifier"
@@ -25,10 +25,12 @@ models:
   - name: gdb_node_stname
     description: >
       Node-to-street-name crosswalk (non-spatial) for the published LION GDB: for each
-      node, the principal names of the segments meeting at it. Structurally matches prod
-      (row/node counts within ~0.02%). STNAME street-type abbreviation uses LASTWORD's
-      standard_abbreviation; prod's exact DCP abbreviations (e.g. PLACE→PL, TERRACE→TER)
-      need the un-ingested STREETTYPE source, so ~27% of names differ on type only.
+      node, the principal names of the segments meeting at it (via STREETSHAVEINTERSECTIONS).
+      Implements the real legacy algorithm (Report_NY_Nodestr(12B).py) - StreetName's
+      structured pre/post fields concatenated directly (already abbreviated at the source,
+      e.g. pre_directional "W"/post_type "ST"), overridden by FeatureName when both exist
+      for a segment's preferred B7SC, with a segmentid-keyed fallback (Subway/Rail/
+      Shoreline/NonStreetFeature/Centerline) when neither name table has an entry.
     columns:
       - name: "'NODEID'"
         description: "Node identifier"
@@ -42,8 +44,11 @@ models:
     description: >
       Alternate street/feature names (non-spatial) for the published LION GDB, keyed by
       Join_ID. Non-SAF Join_IDs only — SAF-replicant Join_IDs (…X/…N) use a different
-      B7SC encoding (ETL spec §2.7.3) and are not yet produced, so dev covers ~the non-SAF
-      subset (~92% of produced rows match prod exactly; prod also has SAF-replicant rows).
+      B7SC encoding (ETL spec §2.7.3) and are not yet produced (~92% of produced rows
+      match prod exactly). That scope gap doesn't fully explain dev's Join_ID coverage
+      though - only ~7% of segments carry a SAF flag at all, but dev covers only ~half
+      of prod's distinct Join_IDs; see CSCL-LION-09 in data_issues.md for what's been
+      ruled out so far.
     columns:
       - name: "'Join_ID'"
         description: "15-char link to the lion layer's Join_ID (ETL spec §2.7.3)"

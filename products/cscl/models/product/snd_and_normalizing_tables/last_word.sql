@@ -26,7 +26,6 @@ SELECT
     other_abbreviation_7,
     other_abbreviation_8,
     other_abbreviation_9,
-    other_abbreviation_10,
-    first_letter || LPAD(row_number::TEXT, 3, '0') AS _last_word_key
+    other_abbreviation_10
 FROM ranked
 ORDER BY full_name

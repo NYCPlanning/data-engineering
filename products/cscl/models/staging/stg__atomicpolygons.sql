@@ -32,6 +32,7 @@ SELECT
     censustract_2020,
     left(censustract_2020, 4)::INT AS censustract_2020_basic,
     nullif(right(censustract_2020, 2), '00')::INT AS censustract_2020_suffix,
+    censusblock_2020 AS censusblock_2020_raw,
     censusblock_2020::INT AS censusblock_2020_basic,
     censusblock_2020_suffix::INT,
     --

@@ -61,7 +61,9 @@ names AS (
 SELECT DISTINCT
     names.pdir AS "PDir",
     names.ptype AS "PType",
-    names.sname AS "SName",
+    -- ETL spec §2.7.4: SName is a 30-byte field, truncated on the right if the
+    -- concatenated name is longer - not a length limit we enforce upstream.
+    left(names.sname, 30) AS "SName",
     names.stype AS "SType",
     names.sdir AS "SDir",
     names.street AS "Street",

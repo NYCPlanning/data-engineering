@@ -55,6 +55,42 @@ centerline_coincident_subway_or_rail AS (
 ),
 noncl_coincident_segment AS (
     SELECT * FROM {{ ref("int__noncenterline_coincident_segment_count") }}
+),
+
+-- Street (ETL spec §2.7.3/BL1): each segment's preferred B7SC's principal name, as the
+-- single unparsed LOOKUP_KEY string - same source and same "FeatureName overrides
+-- StreetName" rule as AltNames' own Street column (spec §2.7.4), just resolved per
+-- segment here instead of per Join_ID. SAF replicant records would override this with
+-- their own SAF Streetname (spec §2.7.3); SAF replication itself isn't produced, so
+-- that override never applies here.
+principal_b7sc AS (
+    SELECT
+        segmentid,
+        b7sc
+    FROM {{ ref("int__lgc") }}
+    WHERE lgc_rank = 1
+),
+street_names AS (
+    SELECT
+        b7sc,
+        lookup_key
+    FROM {{ source("recipe_sources", "dcp_cscl_streetname") }}
+    WHERE principal_flag = 'Y'
+),
+feature_names AS (
+    SELECT
+        b7sc,
+        lookup_key
+    FROM {{ source("recipe_sources", "dcp_cscl_featurename") }}
+    WHERE principal_flag = 'Y'
+),
+principal_street_name AS (
+    SELECT
+        principal_b7sc.segmentid,
+        coalesce(feature_names.lookup_key, street_names.lookup_key) AS street
+    FROM principal_b7sc
+    LEFT JOIN street_names ON principal_b7sc.b7sc = street_names.b7sc
+    LEFT JOIN feature_names ON principal_b7sc.b7sc = feature_names.b7sc
 )
 
 SELECT
@@ -72,6 +108,7 @@ SELECT
         WHEN segments.feature_type = 'centerline' THEN coalesce(segments.boe_lgc_pointer, '1')
         ELSE '1'
     END AS boe_lgc_pointer,
+    principal_street_name.street,
     nodes.from_sectionalmap,
     nodes.from_nodeid,
     round(nodes.from_x)::INT AS from_x,
@@ -267,6 +304,7 @@ SELECT
         ELSE TRUE
     END AS include_in_bytes_lion
 FROM segments
+LEFT JOIN principal_street_name ON segments.segmentid = principal_street_name.segmentid
 LEFT JOIN nodes ON segments.globalid = nodes.globalid
 LEFT JOIN segment_locational_status ON segments.globalid = segment_locational_status.globalid
 LEFT JOIN

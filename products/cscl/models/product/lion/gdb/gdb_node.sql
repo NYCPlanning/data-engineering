@@ -13,13 +13,32 @@
 -- our written layer already has an OBJECTID/FID; it just isn't a listed attribute the
 -- way prod's ESRI-written copy redundantly stores it. (Same as gdb_lion, which also
 -- doesn't list OBJECTID.) An emitted column would vanish into the FID with no effect.
+--
+-- VIntersect and the node exclusion below come from the legacy Create_Node_Shape(12B).py
+-- script (J. Ding, ITD-DCP), not the ETL spec doc - a node is a "virtual intersection"
+-- (VIntersect = 'VirtualIntersection') iff it's listed in VIRTUALINTERSECTION *and* has
+-- at least one segment in STREETSHAVEINTERSECTIONS. If it's in VIRTUALINTERSECTION with
+-- zero such segments, the legacy script deletes it from the output entirely (a
+-- "floating" virtual node with nothing attached), rather than emitting it with a blank
+-- flag - hence the WHERE clause below, not just the CASE. Everything else gets a blank
+-- VIntersect (untouched by either source table).
+WITH virtual_segment_counts AS (
+    SELECT
+        virtualintersection.nodeid,
+        count(streetshaveintersections.segmentid) AS n_segments
+    FROM {{ ref('stg__virtualintersection') }} AS virtualintersection
+    LEFT JOIN {{ ref('stg__streetshaveintersections') }} AS streetshaveintersections
+        ON virtualintersection.nodeid = streetshaveintersections.nodeid
+    GROUP BY virtualintersection.nodeid
+)
+
 SELECT
-    nodeid::int AS "NODEID",
-    globalid AS "GLOBALID",
-    -- TODO: VIntersect ('' | 'VirtualIntersection') is not present in the source Node
-    -- layer (stg__nodes has no virtual-intersection flag; master_flag and saftype don't
-    -- correspond). The legacy ETL derived it elsewhere. Stubbed NULL until the source is
-    -- identified. Prod distribution: 2 distinct values, dominated by ''.
-    NULL::text AS "VIntersect",
-    geom
-FROM {{ ref('stg__nodes') }}
+    nodes.nodeid::int AS "NODEID",
+    nodes.globalid AS "GLOBALID",
+    CASE
+        WHEN counts.n_segments > 0 THEN 'VirtualIntersection'
+    END AS "VIntersect",
+    nodes.geom
+FROM {{ ref('stg__nodes') }} AS nodes
+LEFT JOIN virtual_segment_counts AS counts ON nodes.nodeid = counts.nodeid
+WHERE counts.n_segments IS DISTINCT FROM 0

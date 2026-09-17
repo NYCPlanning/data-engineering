@@ -1,3 +1,8 @@
+# Session-local scratch notes (agent-written summaries/briefings, not meant
+# to be checked in - keep locally, don't commit)
+products/cscl/gh_project_summary.md
+products/cscl/docs/diffs_agent_briefing.md
+
 # Lifecycle artifacts
 .library/
 .publishing/

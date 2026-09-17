@@ -13,7 +13,7 @@ WITH atomicpolygons AS (
         segment_borocode,
         left_atomicid,
         left_borocode,
-        left_2010_census_tract, -- TODO all these 2010 fields should be 2020, but this aligns with current ETL tool
+        left_2010_census_tract, -- CSCL-LION-11 (data_issues.md): legacy uses 2010 not 2020 here - matched deliberately
         right_atomicid,
         right_borocode,
         right_2010_census_tract

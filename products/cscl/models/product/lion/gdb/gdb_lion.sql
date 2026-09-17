@@ -4,10 +4,15 @@
 ) }}
 
 SELECT
-    -- Street name (not in int__lion — follow-up work)
-    NULL::text AS "Street",
+    street AS "Street",
+    -- SAF replicant records would override this with their own SAF Streetname (ETL
+    -- spec §2.7.3) - not produced, since SAF replication itself isn't implemented.
     NULL::text AS "SAFStreetName",
-    feature_type_code AS "FeatureTyp",
+    -- Prod's literal value for the default (no-specific-type) case is '0', not
+    -- blank - confirmed against prod's FeatureTyp (190,050 rows citywide). Left as
+    -- NULL upstream (see stg__centerline.sql) since int__protosegments.sql keys a
+    -- different join off that NULL; only substituted here, at the output boundary.
+    coalesce(feature_type_code, '0') AS "FeatureTyp",
     segment_type AS "SegmentTyp",
     incex_flag AS "IncExFlag",
     NULL::text AS "RB_Layer",
@@ -104,7 +109,9 @@ SELECT
     fdnyid AS "FDNYID",
     l_blockfaceid::text AS "LBlockFaceID",
     r_blockfaceid::text AS "RBlockFaceID",
-    lpad(legacy_segmentid::text, 7, '0') AS "LegacyID",
+    -- Prod's convention for "no legacy ID" is a literal '0000000', not blank/null -
+    -- coalesce before padding so segments without one match that instead of NULL.
+    lpad(coalesce(legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
     status AS "Status",
     streetwidth_min::float AS "StreetWidth_Min",
     streetwidth_max::float AS "StreetWidth_Max",

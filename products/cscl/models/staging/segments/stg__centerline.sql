@@ -115,7 +115,12 @@ SELECT
         WHEN rw_type = 14 THEN 'F'
         -- Constructed
         WHEN status = '2' AND rwjurisdiction = '5' THEN 'C'
-        -- Public street, bridge or tunnel that exists physically (or its generic geometry), other than Feature Type Code W  -- redundant but to be explicit about above case
+        -- Public street, bridge or tunnel that exists physically (or its generic
+        -- geometry), other than Feature Type Code W. Left NULL rather than '0'
+        -- (prod's actual output value - see gdb_lion.sql) because NULL is the
+        -- sentinel int__protosegments.sql's own feature_type_code join keys off
+        -- of ("NULL -> centerline") for a *different* default-case column - '0'
+        -- here would silently break that join instead.
     END AS feature_type_code,
     'centerline' AS feature_type,
     'centerline' AS source_table,

@@ -1,100 +1,100 @@
-file_group,subgroup,type,filename,file_id,skip_qa
-Census,Census,file,NTA.csv,nta_csv,true
-Census,Census,file,NTA.txt,nta_txt,true
-Census,Census,file,NTA2020.csv,nta2020_csv,true
-Census,Census,file,NTA2020.txt,nta2020_dat,true
-Census,Census,file,CDTA2020.csv,cdta2020_csv,true
-Census,Census,file,CDTA2020.txt,cdta2020_dat,true
-Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,true
-Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,true
-Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,true
-District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,false
-District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,false
-District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,false
-District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,false
-District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,false
-District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,false
-District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,false
-District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,false
-District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,false
-District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,false
-District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,false
-District Equivalency,ThinED,file,thined.txt,thined_dat,false
-Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,true
-Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,true
-Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,true
-Face Code File,Face Code File,file,QueensFace.txt,queens_face_code,true
-Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code,true
-LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat,false
-LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,false
-LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original,false
-LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,false
-LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn,false
-LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan,false
-LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens,false
-LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland,false
-Normalizing Tables,Enders,file,Enders.txt,enders,false
-Normalizing Tables,Exception,file,Exception.txt,exception,false
-Normalizing Tables,Word Tables,file,LastWord.txt,last_word,false
-Normalizing Tables,Word Tables,file,Universal.txt,universal_word,false
-OTHER,Logs,file,log.csv,log,true
-RPL,RPL,file,RPL.txt,rpl,false
-SAF,SAF,file,Intersection.txt,saf_i,false
-SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,false
-SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,false
-SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,false
-SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,false
-SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,false
-SAF,SAF,file,GenericD.txt,saf_d_generic,false
-SAF,SAF,file,GenericOV.txt,saf_ov_generic,false
-SAF,SAF,file,GenericS.txt,saf_s_generic,false
-SEDAT,SEDAT,file,SEDAT.txt,sedat,false
-SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true
-SND,SND,file,SND.txt,snd,false
-gdb,LION gdb,layer,node,gdb_node,false
-gdb,LION gdb,layer,lion,gdb_lion,false
-gdb,LION gdb,layer,node_stname,gdb_node_stname,false
-gdb,LION gdb,layer,altnames,gdb_altnames,false
-gdb,District gdb,layer,nyad,gdb_nyad,false
-gdb,District gdb,layer,nyadwi,gdb_nyadwi,false
-gdb,District gdb,layer,nyap,gdb_nyap,false
-gdb,District gdb,layer,nybb,gdb_nybb,false
-gdb,District gdb,layer,nybbwi,gdb_nybbwi,false
-gdb,District gdb,layer,nybid,gdb_nybid,false
-gdb,District gdb,layer,nycb2010,gdb_nycb2010,false
-gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,false
-gdb,District gdb,layer,nycb2020,gdb_nycb2020,false
-gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,false
-gdb,District gdb,layer,nycc,gdb_nycc,false
-gdb,District gdb,layer,nyccwi,gdb_nyccwi,false
-gdb,District gdb,layer,nycd,gdb_nycd,false
-gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,false
-gdb,District gdb,layer,nycdwi,gdb_nycdwi,false
-gdb,District gdb,layer,nycg,gdb_nycg,false
-gdb,District gdb,layer,nycgwi,gdb_nycgwi,false
-gdb,District gdb,layer,nyct2010,gdb_nyct2010,false
-gdb,District gdb,layer,nyct2010wi,gdb_nyct2010wi,false
-gdb,District gdb,layer,nyct2020,gdb_nyct2020,false
-gdb,District gdb,layer,nyct2020wi,gdb_nyct2020wi,false
-gdb,District gdb,layer,nyed,gdb_nyed,false
-gdb,District gdb,layer,nyedwi,gdb_nyedwi,false
-gdb,District gdb,layer,nyfb,gdb_nyfb,false
-gdb,District gdb,layer,nyfc,gdb_nyfc,false
-gdb,District gdb,layer,nyfd,gdb_nyfd,false
-gdb,District gdb,layer,nyha,gdb_nyha,false
-gdb,District gdb,layer,nyhc,gdb_nyhc,false
-gdb,District gdb,layer,nyhd,gdb_nyhd,false
-gdb,District gdb,layer,nyhez,gdb_nyhez,false
-gdb,District gdb,layer,nymc,gdb_nymc,false
-gdb,District gdb,layer,nymcea,gdb_nymcea,false
-gdb,District gdb,layer,nymcwi,gdb_nymcwi,false
-gdb,District gdb,layer,nynta2010,gdb_nynta2010,false
-gdb,District gdb,layer,nynta2020,gdb_nynta2020,false
-gdb,District gdb,layer,nypp,gdb_nypp,false
-gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,false
-gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,false
-gdb,District gdb,layer,nysd,gdb_nysd,false
-gdb,District gdb,layer,nyss,gdb_nyss,false
-gdb,District gdb,layer,nysswi,gdb_nysswi,false
-gdb,District gdb,layer,nyura,gdb_nyura,false
-gdb,District gdb,layer,nyzip,gdb_nyzip,false
+output_group,file_group,subgroup,type,filename,file_id,skip_qa,diffable,key_columns,description
+flat_files,Census,Census,file,NTA.csv,nta_csv,true,true,,
+flat_files,Census,Census,file,NTA.txt,nta_txt,true,true,,
+flat_files,Census,Census,file,NTA2020.csv,nta2020_csv,true,true,,
+flat_files,Census,Census,file,NTA2020.txt,nta2020_dat,true,true,,
+flat_files,Census,Census,file,CDTA2020.csv,cdta2020_csv,true,true,,
+flat_files,Census,Census,file,CDTA2020.txt,cdta2020_dat,true,true,,
+flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,true,false,,
+flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,true,false,,
+flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,true,false,,
+flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,false,true,,
+flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,false,true,,
+flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,false,true,,
+flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,false,true,,
+flat_files,District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,false,true,,
+flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,false,true,,
+flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,false,true,,
+flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,false,true,,
+flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,false,true,,
+flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,false,true,,
+flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,false,true,,
+flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,false,true,,
+flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,true,true,,
+flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,true,true,,
+flat_files,Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,true,true,,
+flat_files,Face Code File,Face Code File,file,QueensFace.txt,queens_face_code,true,true,,
+flat_files,Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code,true,true,,
+flat_files,LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat,false,true,,
+flat_files,LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,false,true,,
+flat_files,LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original,false,false,,
+flat_files,LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,false,true,,
+flat_files,LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn,false,true,,
+flat_files,LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan,false,true,,
+flat_files,LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens,false,true,,
+flat_files,LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland,false,true,,
+flat_files,Normalizing Tables,Enders,file,Enders.txt,enders,false,true,,
+flat_files,Normalizing Tables,Exception,file,Exception.txt,exception,false,true,,
+flat_files,Normalizing Tables,Word Tables,file,LastWord.txt,last_word,false,true,,
+flat_files,Normalizing Tables,Word Tables,file,Universal.txt,universal_word,false,true,,
+flat_files,OTHER,Logs,file,log.csv,log,true,false,,
+flat_files,RPL,RPL,file,RPL.txt,rpl,false,true,,
+flat_files,SAF,SAF,file,Intersection.txt,saf_i,false,true,,
+flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,false,true,,
+flat_files,SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,false,true,,
+flat_files,SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,false,true,,
+flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,false,true,,
+flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,false,true,,
+flat_files,SAF,SAF,file,GenericD.txt,saf_d_generic,false,true,,
+flat_files,SAF,SAF,file,GenericOV.txt,saf_ov_generic,false,true,,
+flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,false,true,,
+flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,false,true,,
+flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,
+flat_files,SND,SND,file,SND.txt,snd,false,true,,
+lion_gdb,gdb,LION gdb,layer,node,gdb_node,false,true,NODEID,
+lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,false,true,LBoro|FaceCode|SeqNum,
+lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,false,true,NODEID|STNAME,
+lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,false,true,PDir|PType|SName|SType|SDir|Street|Join_ID,
+district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,false,true,AssemDist,Assembly Districts clipped to shoreline
+district_gdb,gdb,District gdb,layer,nyadwi,gdb_nyadwi,false,true,AssemDist,"Assembly Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nyap,gdb_nyap,false,true,ATOMICID,Atomic Polygons
+district_gdb,gdb,District gdb,layer,nybb,gdb_nybb,false,true,BoroCode,Borough Boundaries clipped to shoreline
+district_gdb,gdb,District gdb,layer,nybbwi,gdb_nybbwi,false,true,BoroCode,"Borough Boundaries, unclipped"
+district_gdb,gdb,District gdb,layer,nybid,gdb_nybid,false,true,BIDID,Business Improvement Districts
+district_gdb,gdb,District gdb,layer,nycb2010,gdb_nycb2010,false,true,BCTCB2010,2010 Census Blocks clipped to shoreline
+district_gdb,gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,false,true,BCTCB2010,"2010 Census Blocks, unclipped"
+district_gdb,gdb,District gdb,layer,nycb2020,gdb_nycb2020,false,true,BCTCB2020,2020 Census Blocks clipped to shoreline
+district_gdb,gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,false,true,BCTCB2020,"2020 Census Blocks, unclipped"
+district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,false,true,CounDist,City Council Districts
+district_gdb,gdb,District gdb,layer,nyccwi,gdb_nyccwi,false,true,CounDist,"City Council Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nycd,gdb_nycd,false,true,BoroCD,Community Districts clipped to shoreline
+district_gdb,gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,false,true,CDTA2020,Community District Tabulation Areas 2020
+district_gdb,gdb,District gdb,layer,nycdwi,gdb_nycdwi,false,true,BoroCD,"Community Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nycg,gdb_nycg,false,true,CongDist,Congressional Districts
+district_gdb,gdb,District gdb,layer,nycgwi,gdb_nycgwi,false,true,CongDist,"Congressional Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nyct2010,gdb_nyct2010,false,true,BoroCT2010,2010 Census Tracts clipped to shoreline
+district_gdb,gdb,District gdb,layer,nyct2010wi,gdb_nyct2010wi,false,true,BoroCT2010,"2010 Census Tracts, unclipped"
+district_gdb,gdb,District gdb,layer,nyct2020,gdb_nyct2020,false,true,BoroCT2020,2020 Census Tracts clipped to shoreline
+district_gdb,gdb,District gdb,layer,nyct2020wi,gdb_nyct2020wi,false,true,BoroCT2020,"2020 Census Tracts, unclipped"
+district_gdb,gdb,District gdb,layer,nyed,gdb_nyed,false,true,ElectDist,Election Districts
+district_gdb,gdb,District gdb,layer,nyedwi,gdb_nyedwi,false,true,ElectDist,"Election Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nyfb,gdb_nyfb,false,true,FireBN,Fire Battalions
+district_gdb,gdb,District gdb,layer,nyfc,gdb_nyfc,false,true,FireCoType|FireCoNum,Fire Companies
+district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,false,true,FireDiv,Fire Divisions
+district_gdb,gdb,District gdb,layer,nyha,gdb_nyha,false,true,BoroCode|HealthArea,Health Areas clipped to shoreline
+district_gdb,gdb,District gdb,layer,nyhc,gdb_nyhc,false,true,HCentDist,Health Center Districts clipped to shoreline
+district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,false,true,NAME,Historic Districts
+district_gdb,gdb,District gdb,layer,nyhez,gdb_nyhez,false,true,HURRICANE_EVACUATION_ZONE,Hurricane Evacuation Zones
+district_gdb,gdb,District gdb,layer,nymc,gdb_nymc,false,true,BoroCode|MuniCourt,Municipal Court Districts
+district_gdb,gdb,District gdb,layer,nymcea,gdb_nymcea,false,true,BOROCODE|MCEA,"Minor Census Economic Areas, dissolved from 2000 Census Tracts by MCEA attribute, clipped to shoreline"
+district_gdb,gdb,District gdb,layer,nymcwi,gdb_nymcwi,false,true,BoroCode|MuniCourt,"Municipal Court Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nynta2010,gdb_nynta2010,false,true,NTACode,Neighborhood Tabulation Areas 2010
+district_gdb,gdb,District gdb,layer,nynta2020,gdb_nynta2020,false,true,NTA2020,Neighborhood Tabulation Areas 2020
+district_gdb,gdb,District gdb,layer,nypp,gdb_nypp,false,true,Precinct,Police Precincts
+district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,false,true,PUMA,Public Use Microdata Areas (PUMA) 2010
+district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,false,true,PUMA,Public Use Microdata Areas (PUMA) 2020
+district_gdb,gdb,District gdb,layer,nysd,gdb_nysd,false,true,SchoolDist,School Districts
+district_gdb,gdb,District gdb,layer,nyss,gdb_nyss,false,true,StSenDist,State Senatorial Districts
+district_gdb,gdb,District gdb,layer,nysswi,gdb_nysswi,false,true,StSenDist,"State Senatorial Districts, unclipped"
+district_gdb,gdb,District gdb,layer,nyura,gdb_nyura,false,true,URAID,Urban Renewal Areas
+district_gdb,gdb,District gdb,layer,nyzip,gdb_nyzip,false,true,ZIP_CODE,Zip Code Areas

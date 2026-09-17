@@ -21,6 +21,8 @@ sources:
   # other more "primary" layers
   - name: dcp_cscl_atomicpolygons
   - name: dcp_cscl_nodes
+  - name: dcp_cscl_streetshaveintersections
+  - name: dcp_cscl_virtualintersection
 
   # all other tables
   - name: dcp_cscl_addresspoints
