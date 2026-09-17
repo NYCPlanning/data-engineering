@@ -87,7 +87,7 @@ jobs:
       run: ./bash/build_env_setup.sh
 
     - name: Plan build
-      run: uv run python3 -m dcpy.lifecycle.builds.plan recipe
+      run: uv run python3 -m dcpy.lifecycle.builds.plan recipe --output-path ${{ inputs.recipe_file }}.lock.yml
 
     - name: Set recipe env vars
       working-directory: ./
