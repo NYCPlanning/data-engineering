@@ -88,6 +88,7 @@ REPORT_COLUMNS = SEED_COLUMNS + [
     "unaccounted_discrepant_rows",
     "discrepant_rows_from_file_comparison",
     "pct_diff",
+    "unaccounted_pct_diff",
     "notes",
 ]
 FIELD_LEVEL_COUNT_COLUMNS = [
@@ -109,6 +110,7 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("unaccounted_discrepant_fields", "Unaccounted fields"),
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
     ("pct_diff", "% diff"),
+    ("unaccounted_pct_diff", "% diff (unaccounted)"),
     ("_gap", "Gap"),
     ("notes", "Notes"),
 ]
@@ -238,6 +240,27 @@ def is_diffable(row: dict) -> bool:
     return row["diffable"] == "true"
 
 
+def unaccounted_pct_diff(row: dict) -> float | None:
+    """% of prod rows that differ *and* aren't already a known/explained diff -
+    the number that actually indicates outstanding work (a file fully accounted
+    for has a large `pct_diff` but a near-zero value here).
+
+    Only qa__diffs_all-covered files (and the LDF) have a real accounted_for
+    split - `unaccounted_discrepant_rows` there and `pct_diff`'s denominator
+    (`prod_row_count`) are independent, so dividing one by the other is a
+    legitimate (if approximate - see `gap`) read on remaining work. Everything
+    else (gdb layers via compare_gdb.py, plain file-line comparisons) has no
+    numeric accounted_for breakdown at all yet - falls back to `pct_diff`
+    unchanged, i.e. treated as 100% unaccounted, rather than silently implying
+    0% accounted-for progress that was never actually measured.
+    """
+    unaccounted = row["unaccounted_discrepant_rows"]
+    prod_row_count = row["prod_row_count"]
+    if unaccounted is not None and prod_row_count:
+        return round(unaccounted / prod_row_count * 100, 2)
+    return row["pct_diff"]
+
+
 def gap(row: dict) -> int:
     """How far the line-level file comparison and the field-level QA models
     disagree about how many rows actually differ.
@@ -258,7 +281,7 @@ def gap(row: dict) -> int:
 def _markdown_cell(col: str, value) -> str:
     if value is None:
         return "–"
-    if col == "pct_diff":
+    if col in ("pct_diff", "unaccounted_pct_diff"):
         return f"{value:.2f}%"
     return str(value)
 
@@ -283,7 +306,11 @@ def build_step_summary(rows: list[dict]) -> str:
 
     diffable_rows = [r for r in rows if is_diffable(r)]
     not_diffable = [r for r in rows if not is_diffable(r)]
-    flagged = sorted((r for r in diffable_rows if has_diffs(r)), key=gap, reverse=True)
+    flagged = sorted(
+        (r for r in diffable_rows if has_diffs(r)),
+        key=lambda r: r["unaccounted_pct_diff"] or 0,
+        reverse=True,
+    )
     uncovered = [r for r in diffable_rows if not has_coverage(r)]
 
     flagged_by_group = Counter(r["output_group"] for r in flagged)
@@ -350,23 +377,23 @@ def main() -> None:
         note = note or KNOWN_NOTES.get(record["file_id"], "")
         discrepant_rows = row_comparison_counts.get(record["filename"])
         prod_row_count = prod_row_counts.get(record["filename"])
-        rows.append(
-            {
-                **record,
-                **{
-                    col: (field_counts[col] if field_counts else None)
-                    for col in FIELD_LEVEL_COUNT_COLUMNS
-                },
-                "prod_row_count": prod_row_count,
-                "discrepant_rows_from_file_comparison": discrepant_rows,
-                "pct_diff": (
-                    round(discrepant_rows / prod_row_count * 100, 2)
-                    if discrepant_rows is not None and prod_row_count
-                    else None
-                ),
-                "notes": note,
-            }
-        )
+        row = {
+            **record,
+            **{
+                col: (field_counts[col] if field_counts else None)
+                for col in FIELD_LEVEL_COUNT_COLUMNS
+            },
+            "prod_row_count": prod_row_count,
+            "discrepant_rows_from_file_comparison": discrepant_rows,
+            "pct_diff": (
+                round(discrepant_rows / prod_row_count * 100, 2)
+                if discrepant_rows is not None and prod_row_count
+                else None
+            ),
+            "notes": note,
+        }
+        row["unaccounted_pct_diff"] = unaccounted_pct_diff(row)
+        rows.append(row)
 
     with OUTPUT_PATH.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=REPORT_COLUMNS)
