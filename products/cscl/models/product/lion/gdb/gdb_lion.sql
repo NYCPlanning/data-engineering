@@ -4,8 +4,9 @@
 ) }}
 
 SELECT
-    -- Street name (not in int__lion — follow-up work)
-    NULL::text AS "Street",
+    street AS "Street",
+    -- SAF replicant records would override this with their own SAF Streetname (ETL
+    -- spec §2.7.3) - not produced, since SAF replication itself isn't implemented.
     NULL::text AS "SAFStreetName",
     -- Prod's literal value for the default (no-specific-type) case is '0', not
     -- blank - confirmed against prod's FeatureTyp (190,050 rows citywide). Left as

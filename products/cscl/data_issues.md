@@ -42,6 +42,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
+| [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Open | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`); `nynta2020` is a separate, unexplained clip-fragmentation gap | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
@@ -335,6 +336,30 @@ tracked elsewhere:
 
 **What would settle it:** both were already flagged to GR/GSS in the original investigation
 - no code action pending, just needs their response.
+
+### CSCL-LION-13
+
+**`gdb_lion`'s `Street` field was hardcoded null** · Open (fix implemented, unverified) · Last verified 26b
+
+`Street` (ETL spec §2.7.3/BL1) had never been wired up - `gdb_lion.sql` emitted a literal
+`NULL::text` with a "not in int__lion - follow-up work" comment. Fixed (2026-09-16) by adding
+a `principal_street_name` CTE to `int__lion.sql`: each segment's preferred B7SC (`int__lgc`,
+`lgc_rank = 1`) resolved to its principal name's `LOOKUP_KEY` from `dcp_cscl_streetname`,
+overridden by `dcp_cscl_featurename` when both exist for that B7SC - the same source and
+override rule AltNames' own `Street` column already uses (spec §2.7.4), just resolved per
+segment instead of per `Join_ID`. 100% of `gdb_lion`'s 219,931 rows now populate `Street`;
+spot-checked values look correct (unabbreviated full names, e.g. `EAST 34 STREET`,
+`UNION SQUARE WEST`).
+
+**Not fixed:** `SAFStreetName` stays `NULL` - per spec §2.7.3 it's populated on SAF replicant
+records (copied from `Street`, or from the SAF entry's own principal name for some SAF
+types), and SAF replication itself isn't produced (same scope gap as `gdb_altnames`'
+Join_ID coverage, CSCL-LION-09) - implementing it here without the replicant records
+themselves wouldn't mean anything.
+
+**What would settle it:** a build to confirm `Street` matches prod's actual GDB (not yet
+checked against real data as of this writing - the local dev-side check only confirmed
+100% coverage and spec-plausible values).
 
 ## District gdb
 
