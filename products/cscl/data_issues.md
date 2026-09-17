@@ -261,9 +261,32 @@ representation bug - not investigated further here.
 
 **Verified (build 35177981946, 2026-09-17):** the full `altnames` layer diff dropped from
 65,270 rows (6,093 dev-only / 59,177 prod-only) to 55,132 rows (**1,024 dev-only** / 54,108
-prod-only) - dev-only fell by ~83%, consistent with the local estimate above. `SType` remains
-the one flagged column (53.9% dev null vs 45.1% prod, +8.9pp) - not yet investigated; a good
-candidate for the next round.
+prod-only) - dev-only fell by ~83%, consistent with the local estimate above.
+
+**`SType`'s null-rate flag (53.9% dev vs 45.1% prod) traces back to this same coverage gap,
+not an independent bug.** `gdb_altnames.sql`'s `names` CTE always sets `SType` (and
+`PDir`/`PType`/`SDir`) null for `FeatureName`-sourced rows, by construction - only
+`StreetName`-sourced rows can have a real `SType`. 40,082 of dev's 75,729 output rows
+(53%) have all four of those fields null simultaneously - i.e. `FeatureName` rows make up
+just over half of dev's output. If prod's *covered* population (the same
+16,617 `Join_ID`s, once the coverage gap is set aside) has a different `FeatureName`-vs-
+`StreetName` mix than dev's, the aggregate null rate would differ for that reason alone,
+with no bug in the `SType` logic itself. Given `Join_ID` coverage is already known to skew
+by facecode (see above), this is the more likely explanation than a new defect - not
+investigated further, since a real fix would mean resolving the `Join_ID` gap itself.
+
+**The residual ~1,024 dev-only rows (within shared `Join_ID`s) point at a deeper mechanism
+difference, not a small fixable bug.** Sampled several dev-only rows against prod's actual
+`fgdb_altnames` for the same `Join_ID` (e.g. `4389401053100` "Congressman T. Manton
+Boulevard", `1237501020405` "85 St Transverse"/"Det. Steven McDonald Way"): prod generates
+**dozens of name variants per `Join_ID`** - full and abbreviated spellings, alternate word
+orders, and a systematic "EB RB"/"WB RB" (east/westbound roadbed) suffixed duplicate of
+nearly every variant (80 rows for `1237501020405` alone). Dev's single bare name for these
+`Join_ID`s (e.g. plain `MANTON`, plain `85 ST`) doesn't match any prod variant exactly. This
+isn't the `SName`-truncation bug just fixed above - it's evidence for the `Join_ID`
+generation-mechanism hypothesis already on record (prod likely builds AltNames per-segment
+or per-LGC-variant rather than per-principal-name), not something to chase further without
+GR/legacy-pipeline input on how that variant expansion actually works.
 
 ### CSCL-LION-10
 
