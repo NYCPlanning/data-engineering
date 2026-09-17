@@ -196,8 +196,13 @@ fallback (Subway/Rail/Shoreline/NonStreetFeature/Centerline) for segments with n
 membership now comes from `STREETSHAVEINTERSECTIONS` (also just wired up for `VIntersect`,
 see CSCL-LION-08) rather than spatial from/to-node adjacency. The old
 `node_stname_lastword_overrides` seed and its `dcp_cscl_lastword`/`dcp_cscl_universalword`
-abbreviation CTEs are removed - not needed by the real algorithm. Unverified against a live
-build as of this writing; update this note once a build confirms the diff count.
+abbreviation CTEs are removed - not needed by the real algorithm.
+
+**Verified (build 35144154727, 2026-09-16):** row counts now match almost exactly
+(245,444 dev vs 245,482 prod) and only **38 rows differ, all prod-only, zero dev-only** -
+down from 31,765 (15,888 dev-only/15,877 prod-only) under the old abbreviation-table
+approach. Not yet investigated further; the remaining 38 are a good candidate for the next
+round.
 
 **`gdb_altnames`'s `Join_ID` gap** is a separate, larger-magnitude issue with a different
 root cause (not an abbreviation problem - see below), still open.
@@ -238,6 +243,20 @@ than per-principal-streetname - that we haven't replicated.
 **What would settle it:** GR/legacy-pipeline owner confirming what `Join_ID` is actually
 keyed on in the legacy ETL, and whether `dcp_cscl_streetname`'s facecode cardinality has
 always been this low or is specific to this source snapshot.
+
+**Separate fix, within the covered `Join_ID`s (2026-09-16): `SName` wasn't truncated to its
+30-byte field width.** The coverage-gap analysis above only asks whether a `Join_ID` exists
+on both sides. Restricting to the 16,617 `Join_ID`s dev *does* produce and diffing dev's rows
+against `production_outputs.fgdb_altnames` (loaded via
+`poc_validation.prod_data_loader.load_production_lion_fgdb_layers`) row-for-row still showed
+5,723 dev-only / 5,931 prod-only rows even within that shared set. Per ETL spec §2.7.4,
+`SName` is a fixed 30-byte field - "truncat[ed] on the right if necessary" - but
+`gdb_altnames.sql` emitted the full, untruncated `feature_name`/concatenated street name
+(dev's longest ran to 38 bytes). Truncating dev's `SName` to 30 bytes before diffing dropped
+the mismatch to 654 dev-only / 877 prod-only (~89% reduction) - confirming this explained
+nearly all of it. Fixed with `left(names.sname, 30)`. The residual ~650 rows look like
+genuine content differences (e.g. dev `TOMAS MANTON` vs a fuller prod form), not another
+representation bug - not investigated further here.
 
 ### CSCL-LION-10
 
