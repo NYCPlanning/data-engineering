@@ -42,7 +42,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
-| [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Open | 26b |
+| [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`); `nynta2020` is a separate, unexplained clip-fragmentation gap | Open | 26b |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
@@ -259,6 +259,12 @@ nearly all of it. Fixed with `left(names.sname, 30)`. The residual ~650 rows loo
 genuine content differences (e.g. dev `TOMAS MANTON` vs a fuller prod form), not another
 representation bug - not investigated further here.
 
+**Verified (build 35177981946, 2026-09-17):** the full `altnames` layer diff dropped from
+65,270 rows (6,093 dev-only / 59,177 prod-only) to 55,132 rows (**1,024 dev-only** / 54,108
+prod-only) - dev-only fell by ~83%, consistent with the local estimate above. `SType` remains
+the one flagged column (53.9% dev null vs 45.1% prod, +8.9pp) - not yet investigated; a good
+candidate for the next round.
+
 ### CSCL-LION-10
 
 **`LegacyID` real-value mismatches on ~2% of segments** · Accepted (comparison-tool artifact, not a data bug) · Last verified 26b
@@ -339,7 +345,7 @@ tracked elsewhere:
 
 ### CSCL-LION-13
 
-**`gdb_lion`'s `Street` field was hardcoded null** · Open (fix implemented, unverified) · Last verified 26b
+**`gdb_lion`'s `Street` field was hardcoded null** · Accepted (fixed and verified) · Last verified 26b
 
 `Street` (ETL spec §2.7.3/BL1) had never been wired up - `gdb_lion.sql` emitted a literal
 `NULL::text` with a "not in int__lion - follow-up work" comment. Fixed (2026-09-16) by adding
@@ -357,9 +363,11 @@ types), and SAF replication itself isn't produced (same scope gap as `gdb_altnam
 Join_ID coverage, CSCL-LION-09) - implementing it here without the replicant records
 themselves wouldn't mean anything.
 
-**What would settle it:** a build to confirm `Street` matches prod's actual GDB (not yet
-checked against real data as of this writing - the local dev-side check only confirmed
-100% coverage and spec-plausible values).
+**Verified (build 35177981946, 2026-09-17):** `Street` no longer appears in `lion`'s flagged
+columns at all. Null rate matches exactly (0.0% both sides, was 100.0% dev / ~0% prod before
+the fix) and distinct-value counts are close (11,159 dev vs 11,190 prod - the small residual
+gap is consistent with the existing `Join_ID`/facecode coverage gap, CSCL-LION-09, not a new
+problem). `SAFStreetName` correctly still shows up flagged as `KNOWN: unimplemented`.
 
 ## District gdb
 
