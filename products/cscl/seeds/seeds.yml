@@ -58,3 +58,18 @@ seeds:
           description was blank there, and nypuma2020 wasn't listed at all
           (only nypuma2010) - both filled in by pattern from sibling rows.
           Empty for non-district-gdb rows.
+      - name: status
+        description: >
+          Known investigation status of this output's dev/prod discrepancy,
+          e.g. "blocked" (a real, understood diff with no fix yet - see
+          notes). Blank means no known issue, not "verified clean" - most
+          rows have never been individually investigated. Free text, not an
+          enum; add values as they come up.
+      - name: notes
+        description: >
+          Brief explanation backing up `status` - what's actually going on
+          and why, so a reader doesn't have to re-derive it. Blank when
+          status is blank. For anything substantial, write it up in
+          docs/prod_bugs/ (see that directory's README for the template) and
+          just point to it here rather than duplicating the write-up; move
+          the doc to a resolved/ subfolder once it's fixed.

@@ -27,10 +27,16 @@
 --     Shoreline.SHORELINE_LABEL, NonStreetFeature.LINETYPE (mapped through a fixed 1-7
 --     code table), Centerline.STNAME_LABEL - in that priority order.
 --   - Node-to-segment comes from STREETSHAVEINTERSECTIONS, not spatial adjacency.
--- Prod prefixes every STNAME with a single leading space - confirmed (via the legacy
--- Create_table_from_txtfile script) to be an incidental artifact of the legacy pipeline's
--- own intermediate report format, not an intentional convention. Kept here to match prod
--- byte-for-byte.
+-- No leading space: an earlier version of this comment claimed prod prefixes every STNAME
+-- with one (inferred from reading the legacy Create_table_from_txtfile script, not from
+-- comparing real output), and that space survived this rewrite unquestioned. Checked
+-- directly against prod's real, freshly-downloaded 26c node_stname layer
+-- (production_outputs.fgdb_node_stname, loaded via
+-- poc_validation/prod_data_loader.py's load_production_lion_fgdb_layers): zero of its
+-- 245,529 rows have a leading space, and stripping ours makes every single dev row match a
+-- prod row exactly (245,529/245,529, both directions). Whether the space assumption was
+-- ever correct for an older release or the original verification compared against stale
+-- production_outputs data is unknown - either way it's demonstrably wrong for 26c.
 WITH principal_b7sc AS (
     SELECT
         segmentid,
@@ -118,7 +124,7 @@ segment_names AS (
 
 SELECT DISTINCT
     streetshaveintersections.nodeid::int AS "NODEID",
-    ' ' || segment_names.stname AS "STNAME"
+    segment_names.stname AS "STNAME"
 FROM {{ ref('stg__streetshaveintersections') }} AS streetshaveintersections
 INNER JOIN segment_names ON streetshaveintersections.segmentid = segment_names.segmentid
 WHERE segment_names.stname IS NOT NULL

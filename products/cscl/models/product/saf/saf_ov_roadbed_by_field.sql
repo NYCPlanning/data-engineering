@@ -14,7 +14,8 @@ SELECT
     -- boroughcode/face_code/segmentid alone aren't unique per row - a segment can
     -- carry many SAF sub-records (different house-number ranges, sides, etc).
     -- Verified unique against a real build's output.
-    boroughcode || face_code || segmentid || segment_seqnum || sos_indicator
-    || b5sc || low_hn || low_hn_suffix || high_hn || high_hn_suffix
-    || x_coord || y_coord AS _saf_key
+    boroughcode || '|' || face_code || '|' || segmentid || '|' || segment_seqnum
+    || '|' || sos_indicator || '|' || b5sc || '|' || low_hn || '|' || low_hn_suffix
+    || '|' || high_hn || '|' || high_hn_suffix || '|' || x_coord || '|' || y_coord
+    AS _saf_key
 FROM combined

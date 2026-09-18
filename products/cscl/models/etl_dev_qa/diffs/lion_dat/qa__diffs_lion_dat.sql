@@ -117,6 +117,16 @@ SELECT
             status = 'modified'
             AND _lion_key = '493960174704'
             THEN 'Bug 008: SAF flag leaks onto ramp protosegment'
+        -- Bug 007 §3: segmentid 358043's raw centerline geometry has a CIRCULARSTRING control
+        -- point of 2*pi() (6.283185307179586) sitting in a coordinate slot - corrupt source
+        -- data, not our SQL. Both offset points land wildly outside the city, so the
+        -- atomicpolygon join returns NULL on both sides, blanking every left_/right_
+        -- district/census field derived from it at once. See:
+        -- docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md #3
+        WHEN
+            status = 'modified'
+            AND _lion_key = '527570358043'
+            THEN 'Bug 007 #3: corrupt centerline geometry (2*pi() artifact)'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -176,6 +186,11 @@ SELECT
             -- Bug 008: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
             -- in production. See: docs/prod_bugs/008-saf-flag-leaks-onto-ramp-protosegment.md
             OR _lion_key = '493960174704'
+            -- Bug 007 #3: corrupt centerline geometry (2*pi() control point) zeroes out every
+            -- district/census field derived from segment 358043's location. Corrupt source
+            -- data, reported to GR. See:
+            -- docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md #3
+            OR _lion_key = '527570358043'
         ),
         FALSE
     ) AS accounted_for

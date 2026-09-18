@@ -16,9 +16,9 @@ back through the `main` schema's intermediate tables to a specific mechanism.
 |---|---|---|---|---|
 | 304118101066 | lion_dat_brooklyn | `coincident_seg_count` | `2` &rarr; `3` | **Accounted for** - folds into [CSCL-LION-06](../../data_issues.md#cscl-lion-06), open in general |
 | 493960174704 | lion_dat_queens | `special_address_flag` | `B` &rarr; ` ` | **Accounted for** - see [Bug 008](./008-saf-flag-leaks-onto-ramp-protosegment.md), prod bug |
-| 527570358043 | lion_dat_statenisland | `left_`/`right_` `dynamic_block`, census tract/block basics, assembly/election/school district | various &rarr; all blank | Corrupt source geometry - reported upstream, see item 3 |
+| 527570358043 | lion_dat_statenisland | `left_`/`right_` `dynamic_block`, census tract/block basics, assembly/election/school district | various &rarr; all blank | **Accounted for** (2026-09-17) - corrupt source geometry, reported upstream, see item 3 |
 | `0167138_0133963` | rpl | `to_nodeid_of_roadbed_segment`, `from_nodeid_of_roadbed_segment` | swapped | **Fixed** - `int__rpl.sql` tiebreak added |
-| 415730136981 | saf_s_roadbed, saf_s_generic | `lgc1`, `lgc2` | `01`/` ` &rarr; `03`/`02` | **Still open** - see corrected item 5&6 below |
+| 415730136981 | saf_s_roadbed, saf_s_generic | `lgc1`, `lgc2` | `01`/` ` &rarr; `03`/`02` | **Still open** - stale-load theory retracted (2026-09-18), see [CSCL-SAF-01](../../data_issues.md#cscl-saf-01) |
 
 ## 1. `coincident_seg_count`, lion_dat_brooklyn, 304118101066
 
@@ -174,6 +174,12 @@ reject centerline geometries whose linearized length is wildly disproportionate 
 count) so one corrupt curve can't silently null out a segment's LION district fields in the
 future - nothing catches that today.
 
+**Update 2026-09-17:** wired into `qa__diffs_lion_dat.sql`'s `accounted_for` logic (fingerprinted
+on `_lion_key = '527570358043'`, same pattern as Bugs 006/008) - this had been fully root-caused
+here since the doc was written but never actually marked accounted for, so it kept resurfacing
+as an "unaccounted" diff in every build's report. Reporting the bad GlobalID to GR is still
+outstanding.
+
 ## 4. RPL node swap, `0167138_0133963`
 
 **generic_segmentid 0167138, roadbed_segmentid 0133963.** `int__lion` has two rows for segmentid
@@ -295,6 +301,30 @@ though; it doesn't retroactively fix a table already loaded before the fix lande
 up with the small, persistent `thinfire_*` diffs (2-10 rows each) seen in every `diffs_report.csv`
 run since. Recommendation #1 (reload via `prod_data_loader.py load -v 26b -d <table>`) covers
 these too; not done here since it's a live shared-database write outside this diagnosis pass.
+
+**Update 2026-09-18: the stale-load theory is retracted - this needed the recheck, and the
+recheck says no.** SAF was fully reloaded fresh for 26c this cycle (`prod_data_loader.py load
+-v 26c`, with proper `already_loaded`/`record_load` tracking now in place per the fix above),
+and the exact same `lgc1`/`lgc2` mismatch on segmentid 136981 persists identically
+(`lgc1`: prod `01` &rarr; dev `03`, `lgc2`: prod blank &rarr; dev `02`). A stale table can't
+explain a mismatch that survives a confirmed-fresh, correctly-versioned reload.
+
+Re-checked the same way as before, directly against current source: `dcp_cscl_segment_lgc`
+for segmentid 136981 still has only `03` (`preferred_lgc_flag = 'Y'`) and `02` - no `01`. Our
+ranking is correct given that source. The pattern turns out not to be one segment - **9 of 11**
+`saf_s_generic` and **9 of 13** `saf_s_roadbed` unaccounted `modified` rows show the identical
+shape: prod's `lgc1 = '01'`, dev showing a specific code (`03`/`04`/`05`/`10`/`11`/`14`) that
+prod doesn't have. `01` itself isn't rare or retired (201,372 of 319,257 current
+`dcp_cscl_segment_lgc` rows carry it) - these are specific segments where CSCL's LGC
+assignment has since been refined away from a generic `01` to something more specific, and
+prod's SAF hasn't picked up the edit. This is the same shape of problem as
+[Bug 010](./010-featurename-normalizing-tables-stale-accretion.md) (`Exception.txt`/
+`Enders.txt`/`SND.txt` carrying entries a fresh rebuild from current source could never
+produce) - not independent, the general pattern is now confirmed across at least four
+different derived outputs. Root cause (why prod doesn't pick up these CSCL edits) still needs
+GR; see [CSCL-SAF-01](../../data_issues.md#cscl-saf-01) for the tracked entry and the smaller
+remaining anomalies (a segment_seqnum key-alignment gap, two blank-`place_name` rows) not yet
+folded into this explanation.
 
 ## References
 

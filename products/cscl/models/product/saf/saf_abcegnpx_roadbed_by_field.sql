@@ -19,7 +19,8 @@ SELECT
     -- putting them in the key would hide real diffs instead of catching them.
     -- Verified unique (bar one known place_name-spelling-variant pair) against a
     -- real build's output.
-    boroughcode || face_code || segmentid || segment_seqnum || sos_indicator
-    || b5sc || l_low_hn || l_high_hn || r_low_hn || r_high_hn || x_coord
-    || y_coord AS _saf_key
+    boroughcode || '|' || face_code || '|' || segmentid || '|' || segment_seqnum
+    || '|' || sos_indicator || '|' || b5sc || '|' || l_low_hn || '|' || l_high_hn
+    || '|' || r_low_hn || '|' || r_high_hn || '|' || x_coord || '|' || y_coord
+    AS _saf_key
 FROM combined

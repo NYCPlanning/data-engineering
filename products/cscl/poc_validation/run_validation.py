@@ -40,11 +40,15 @@ app = typer.Typer(add_completion=False)
 
 def _compute_file_diff(
     build_key: BuildKey, filename: str, prod_version: str
-) -> tuple[list[str], int]:
-    """Stream both files from S3 and return (diff_rows, prod_row_count).
+) -> tuple[list[str], list[str], int]:
+    """Stream both files from S3 and return (dev_only_rows, prod_only_rows, prod_row_count).
 
-    diff_rows contains lines present in the dev build but not in prod,
-    equivalent to comm -23 <(sort dev) <(sort prod).
+    Two-directional: dev_only is dev_lines - prod_lines (comm -23), prod_only is
+    prod_lines - dev_lines (comm -13). A dev-only-only diff can't see rows prod has that dev
+    is missing, which silently undercounts any file where dev is missing real content rather
+    than producing spurious extra rows - found via Exception.txt, where a real 4-row diff
+    (3 prod-only, 1 dev-only) showed up here as just 1. Keep this in sync with
+    poc_validation/validate_outputs.sh, which computes the same thing during a build.
     """
     # TODO: publishing connector refactor - replace with: builds.get_file(build_key.product, build_key.build, filename)
     dev_buffer = publishing.get_file(build_key, filename)
@@ -63,7 +67,11 @@ def _compute_file_diff(
         if line.strip()
     }
 
-    return sorted(dev_lines - prod_lines), len(prod_lines)
+    return (
+        sorted(dev_lines - prod_lines),
+        sorted(prod_lines - dev_lines),
+        len(prod_lines),
+    )
 
 
 @app.command()
@@ -104,25 +112,43 @@ def run(
 
     for filename in cscl_output_filenames:
         print(f"Validating {filename}")
-        diff_rows, prod_row_count = _compute_file_diff(
+        dev_only_rows, prod_only_rows, prod_row_count = _compute_file_diff(
             build_key, filename, prod_version
         )
-        n_mismatched = len(diff_rows)
+        n_dev_only = len(dev_only_rows)
+        n_prod_only = len(prod_only_rows)
+        n_mismatched = n_dev_only + n_prod_only
         print(f"  Total records:      {prod_row_count}")
-        print(f"  Mismatched records: {n_mismatched}")
+        print(
+            f"  Mismatched records: {n_mismatched} "
+            f"(dev-only: {n_dev_only}, prod-only: {n_prod_only})"
+        )
 
         total_records += prod_row_count
         total_mismatched += n_mismatched
 
+        output_lines = list(dev_only_rows)
+        if prod_only_rows:
+            output_lines += ["--- ONLY IN PROD (missing from dev) ---", *prod_only_rows]
         (VALIDATION_OUTPUT_DIR / filename).write_text(
-            "\n".join(diff_rows), encoding="latin-1"
+            "\n".join(output_lines), encoding="latin-1"
         )
-        summary_rows.append((filename, prod_row_count, n_mismatched))
+        summary_rows.append(
+            (filename, prod_row_count, n_mismatched, n_dev_only, n_prod_only)
+        )
 
     summary_path = VALIDATION_OUTPUT_DIR / "validation_summary.csv"
     with summary_path.open("w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["filename", "prod_row_count", "mismatched_rows"])
+        writer.writerow(
+            [
+                "filename",
+                "prod_row_count",
+                "mismatched_rows",
+                "dev_only_rows",
+                "prod_only_rows",
+            ]
+        )
         writer.writerows(summary_rows)
 
     print("\nComparison complete!")
