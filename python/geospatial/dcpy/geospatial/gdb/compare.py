@@ -1,12 +1,26 @@
-"""Row/column-level comparison between two attribute-matched (Geo)DataFrames.
+"""Row/column/layer-level comparison between two attribute-matched (Geo)DataFrames.
 
 Built to compare a "dev" and "prod" read of the same GDB layer (e.g. a rebuilt
 export vs. a known-good one), but the functions here don't know anything about
-GDBs, recipes, or any particular product - they only assume two DataFrames
-share a set of key columns that identify a row, and a set of other columns to
-compare. Callers own resolving those column lists, fetching the two
-DataFrames, and deciding what to do with the result (report it, fail a build,
+GDB files, recipes, or any particular product - they operate purely on
+already-loaded (Geo)DataFrames. Callers own reading those DataFrames (see
+dcpy.geospatial.gdb.fgdb for listing/reading GDB layers), resolving key/compare
+column lists, and deciding what to do with a result (report it, fail a build,
 write a CSV, ...).
+
+Layered, composable rather than one all-in-one entry point, so a caller only
+pays for what it needs:
+  - compare_layer: the whole thing for one layer - structure, key
+    resolution (declared-or-guessed), row-level diff, area, and per-column
+    stats, bundled into one LayerComparison. What most callers want.
+  - structure_diff / area_diff / column_stats: the layer-level pieces
+    compare_layer is built from - column set, CRS, polygon area, and
+    per-column null-rate/nunique comparisons - for a caller that wants only
+    one of them.
+  - row_level_diff: row-level - which rows are add/removed/modified, given a
+    resolved key.
+  - stringify / columns_differ / composite_key / etc.: the row/column-level
+    primitives those are built from.
 """
 
 import uuid
@@ -30,6 +44,14 @@ _NA_SENTINEL = "\x00NA\x00"
 # was never meant for it.
 DEFAULT_FLOAT_RTOL = 5e-4
 DEFAULT_FLOAT_ATOL = 5e-4
+
+# Field names (lowercased for a case-insensitive match) that OpenFileGDB/ArcGIS
+# always populate as GDAL-recomputed geometry measures, never real source data -
+# "Shape_Length"/"Shape_Area" from OpenFileGDB, "SHAPE_Length" from some ArcGIS
+# exports. This is a FileGDB format convention, not a product-specific one, so
+# compare_layer treats these as tolerant floats by default - pass
+# tolerant_float_cols explicitly to override.
+DEFAULT_GEOMETRY_DERIVED_FLOAT_COLUMNS = {"shape_length", "shape_area"}
 
 
 def stringify(
@@ -285,4 +307,224 @@ def row_level_diff(
         only_in_prod=len(prod_only_index),
         modified=modified,
         precise=True,
+    )
+
+
+@dataclass
+class StructureDiff:
+    missing_from_dev: list[str]  # columns present in prod, absent from dev
+    extra_in_dev: list[str]  # columns present in dev, absent from prod
+    columns_match_but_order_differs: bool
+    crs_match: bool
+    # Columns common to both sides, in prod's order - "geometry" included for
+    # common_cols, excluded from attribute_cols (attribute_cols is what a
+    # caller typically wants for key resolution / row-level comparison).
+    common_cols: list[str]
+    attribute_cols: list[str]
+
+
+def structure_diff(dev_gdf: pd.DataFrame, prod_gdf: pd.DataFrame) -> StructureDiff:
+    """Column-set, column-order, and CRS comparison for one layer."""
+    dev_cols = list(dev_gdf.columns)
+    prod_cols = list(prod_gdf.columns)
+    dev_col_set = set(dev_cols)
+    prod_col_set = set(prod_cols)
+    missing_from_dev = sorted(prod_col_set - dev_col_set)
+    extra_in_dev = sorted(dev_col_set - prod_col_set)
+    order_ok = dev_cols == prod_cols
+    common_cols = [c for c in prod_cols if c in dev_col_set]
+    attribute_cols = [c for c in common_cols if c != "geometry"]
+    dev_crs = str(getattr(dev_gdf, "crs", None) or "None")
+    prod_crs = str(getattr(prod_gdf, "crs", None) or "None")
+    return StructureDiff(
+        missing_from_dev=missing_from_dev,
+        extra_in_dev=extra_in_dev,
+        columns_match_but_order_differs=(
+            not order_ok and not missing_from_dev and not extra_in_dev
+        ),
+        crs_match=dev_crs == prod_crs,
+        common_cols=common_cols,
+        attribute_cols=attribute_cols,
+    )
+
+
+@dataclass
+class AreaDiff:
+    dev_area: float
+    prod_area: float
+    pct_diff: float
+
+
+def area_diff(dev_gdf: pd.DataFrame, prod_gdf: pd.DataFrame) -> AreaDiff:
+    """Total polygon area on each side and the relative difference. Only
+    meaningful for polygon layers - callers should gate this on knowing the
+    layer is a polygon layer (a line/point layer's area is always zero)."""
+    dev_area = dev_gdf.geometry.area.sum()
+    prod_area = prod_gdf.geometry.area.sum()
+    pct_diff = (dev_area - prod_area) / prod_area * 100 if prod_area else 0.0
+    return AreaDiff(dev_area=dev_area, prod_area=prod_area, pct_diff=pct_diff)
+
+
+@dataclass
+class ColumnStats:
+    column: str
+    dev_null_pct: float
+    prod_null_pct: float
+    dev_nunique: int
+    prod_nunique: int
+    all_null_in_dev: bool
+    # "spatial" for the geometry column, "ALL NULL in dev", a null-rate-diff
+    # message, or "" - a generic note only. A caller with its own conventions
+    # (e.g. "this column is known/expected to be all-NULL for now") should
+    # treat all_null_in_dev/the raw percentages as the source of truth and
+    # overlay its own annotation rather than parse this string.
+    note: str
+
+
+def column_stats(
+    dev_gdf: pd.DataFrame,
+    prod_gdf: pd.DataFrame,
+    cols: list[str],
+    blank_as_null: bool = True,
+    null_pct_diff_threshold: float = 5.0,
+) -> list[ColumnStats]:
+    """Per-column null-rate and nunique comparison, for every column in cols
+    (pass structure_diff's common_cols to cover every shared column,
+    including geometry)."""
+    stats = []
+    for col in cols:
+        dev_s = dev_gdf[col]
+        prod_s = prod_gdf[col]
+        dev_na = effective_isna(dev_s, blank_as_null)
+        prod_na = effective_isna(prod_s, blank_as_null)
+        dev_null_pct = dev_na.mean() * 100
+        prod_null_pct = prod_na.mean() * 100
+        dev_nunique = dev_s[~dev_na].nunique(dropna=True)
+        prod_nunique = prod_s[~prod_na].nunique(dropna=True)
+        all_null_in_dev = bool(dev_null_pct == 100 and prod_null_pct < 100)
+
+        note = ""
+        if col == "geometry":
+            note = "spatial"
+        elif all_null_in_dev:
+            note = "ALL NULL in dev"
+        elif abs(dev_null_pct - prod_null_pct) > null_pct_diff_threshold:
+            note = f"null rate diff {dev_null_pct - prod_null_pct:+.1f}pp"
+
+        stats.append(
+            ColumnStats(
+                column=col,
+                dev_null_pct=dev_null_pct,
+                prod_null_pct=prod_null_pct,
+                dev_nunique=dev_nunique,
+                prod_nunique=prod_nunique,
+                all_null_in_dev=all_null_in_dev,
+                note=note,
+            )
+        )
+    return stats
+
+
+@dataclass
+class LayerComparison:
+    structure: StructureDiff
+    key_cols: list[str]
+    # True when no usable declared_key was given (either None, or its columns
+    # aren't all present) and guess_key_columns had to pick instead - a
+    # caller usually wants to surface this (e.g. a warning) since a guessed
+    # key is data-dependent and can silently pick a different column on a
+    # different run.
+    key_was_guessed: bool
+    # The declared_key the caller passed, if it was rejected for not being a
+    # subset of the layer's attribute columns - None if no key was declared,
+    # or the declared key was used as-is.
+    declared_key_rejected: list[str] | None
+    row_level: RowLevelDiff
+    area: AreaDiff | None  # None unless is_polygon=True
+    column_stats: list[ColumnStats]
+
+
+def compare_layer(
+    dev_gdf: pd.DataFrame,
+    prod_gdf: pd.DataFrame,
+    *,
+    declared_key: list[str] | None = None,
+    is_polygon: bool = False,
+    blank_as_null: bool = True,
+    tolerant_float_cols: Collection[str] | None = None,
+    rtol: float = DEFAULT_FLOAT_RTOL,
+    atol: float = DEFAULT_FLOAT_ATOL,
+    null_pct_diff_threshold: float = 5.0,
+) -> LayerComparison:
+    """Everything for one layer: structure, key resolution, row-level diff,
+    (for polygons) area, and per-column stats - the composition every caller
+    of the pieces below ends up needing to do anyway.
+
+    Key resolution: declared_key is used as-is if given and every one of its
+    columns is actually present; otherwise guess_key_columns picks instead
+    (see key_was_guessed/declared_key_rejected on the result - a caller
+    usually wants to log this, since a guessed key is data-dependent).
+
+    tolerant_float_cols=None (the default) auto-detects
+    DEFAULT_GEOMETRY_DERIVED_FLOAT_COLUMNS among the layer's compare columns
+    (case-insensitively) rather than requiring every caller to rediscover
+    that FileGDB convention itself - pass an explicit collection (including
+    an empty one) to override.
+    """
+    structure = structure_diff(dev_gdf, prod_gdf)
+
+    key_was_guessed = False
+    declared_key_rejected = None
+    if not structure.attribute_cols:
+        # No non-geometry columns at all - fall back to a plain row-count diff.
+        key_cols: list[str] = []
+        row_level = RowLevelDiff(
+            only_in_dev=max(len(dev_gdf) - len(prod_gdf), 0),
+            only_in_prod=max(len(prod_gdf) - len(dev_gdf), 0),
+            modified=None,
+            precise=False,
+        )
+    else:
+        if declared_key and all(c in structure.attribute_cols for c in declared_key):
+            key_cols = declared_key
+        else:
+            if declared_key:
+                declared_key_rejected = declared_key
+            key_was_guessed = True
+            key_cols = guess_key_columns(dev_gdf, prod_gdf, structure.attribute_cols)
+
+        compare_cols = [c for c in structure.attribute_cols if c not in key_cols]
+        resolved_tolerant_float_cols: Collection[str]
+        if tolerant_float_cols is None:
+            resolved_tolerant_float_cols = {
+                c
+                for c in compare_cols
+                if c.lower() in DEFAULT_GEOMETRY_DERIVED_FLOAT_COLUMNS
+            }
+        else:
+            resolved_tolerant_float_cols = tolerant_float_cols
+        row_level = row_level_diff(
+            dev_gdf,
+            prod_gdf,
+            key_cols,
+            compare_cols,
+            blank_as_null,
+            resolved_tolerant_float_cols,
+            rtol,
+            atol,
+        )
+
+    area = area_diff(dev_gdf, prod_gdf) if is_polygon else None
+    stats = column_stats(
+        dev_gdf, prod_gdf, structure.common_cols, blank_as_null, null_pct_diff_threshold
+    )
+
+    return LayerComparison(
+        structure=structure,
+        key_cols=key_cols,
+        key_was_guessed=key_was_guessed,
+        declared_key_rejected=declared_key_rejected,
+        row_level=row_level,
+        area=area,
+        column_stats=stats,
     )

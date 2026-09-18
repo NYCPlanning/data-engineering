@@ -72,6 +72,49 @@ def test_get_layers(path_fixture):
 
 
 @gdb_paths
+def test_layer_geometry_types(path_fixture):
+    types = fgdb.layer_geometry_types(path_fixture)
+    assert types[SPATIAL_LAYER] == "MultiPolygon Z"
+    assert types[TABLE_LAYER] is None
+
+
+def test_layer_geometry_types_accepts_zip_path_directly(temp_gdb_zip_path):
+    """No manual /vsizip/ resolution needed - pyogrio handles a zipped GDB
+    natively, straight from the zip's own path."""
+    types = fgdb.layer_geometry_types(temp_gdb_zip_path)
+    assert set(types) == {SPATIAL_LAYER, TABLE_LAYER}
+
+
+def test_zip_gdb_round_trips(temp_gdb_nonzipped_path, tmp_path):
+    """Zip an unzipped .gdb directory, then confirm the archive opens the
+    same way a normal GDB export does: readable directly (no manual
+    extraction/vsizip path) and with every layer intact."""
+    zip_path = tmp_path / "rezipped.gdb.zip"
+    fgdb.zip_gdb(temp_gdb_nonzipped_path, zip_path)
+
+    assert zipfile.is_zipfile(zip_path)
+    assert fgdb.get_layers(zip_path) == [SPATIAL_LAYER, TABLE_LAYER]
+
+    # The .gdb directory itself must be the top-level entry in the archive -
+    # not its contents flattened, and not nested under tmp_path's full path.
+    with zipfile.ZipFile(zip_path) as z:
+        top_level_dirs = {name.split("/")[0] for name in z.namelist()}
+    assert top_level_dirs == {temp_gdb_nonzipped_path.name}
+
+
+def test_zip_gdb_can_overwrite_its_own_source_zip(temp_gdb_zip_path, tmp_path):
+    """The in-place metadata-edit workflow unzips a GDB, edits it, then
+    rezips over the SAME path it came from - zip_gdb must support that."""
+    unzip_dir = tmp_path / "unzipped"
+    shutil.unpack_archive(filename=temp_gdb_zip_path, extract_dir=unzip_dir)
+    gdb_dir = unzip_dir / temp_gdb_zip_path.stem
+
+    fgdb.zip_gdb(gdb_dir, temp_gdb_zip_path)
+
+    assert fgdb.get_layers(temp_gdb_zip_path) == [SPATIAL_LAYER, TABLE_LAYER]
+
+
+@gdb_paths
 def test_resolve_layer_explicit_valid(path_fixture):
     assert fgdb.resolve_layer(path_fixture, SPATIAL_LAYER) == SPATIAL_LAYER
 

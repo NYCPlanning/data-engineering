@@ -4,34 +4,7 @@ import pytest
 
 from dcpy.geospatial.gdb import compare
 
-GDB_ZIP = "districts_sample.gdb.zip"
-
-# nynta2010: two NYC neighborhood tabulation areas, chosen for contrast - BK95
-# (Erasmus) is a single, 58-vertex polygon, while BK99 (park-cemetery-etc-
-# Brooklyn) is a genuinely pathological multi-part polygon: 37 parts, ~14,600
-# vertices. The point of including BK99 is to make sure row-level diff
-# counting is driven by the key column, not by geometry complexity - a
-# comparison shouldn't get slower, wronger, or crash just because one row's
-# shape is enormous.
-NTA_LAYER = "nynta2010"
-NTA_KEY = ["NTACode"]
-NTA_INSANE_KEY = "BK99"
-NTA_SIMPLE_KEY = "BK95"
-
-# nyad: two NY State Assembly districts, picked as the simplest (lowest
-# vertex-count) polygons in the source gdb.
-AD_LAYER = "nyad"
-AD_KEY = ["AssemDist"]
-
-
-@pytest.fixture
-def nta_gdf(utils_resources_path) -> gpd.GeoDataFrame:
-    return gpd.read_file(utils_resources_path / GDB_ZIP, layer=NTA_LAYER)
-
-
-@pytest.fixture
-def ad_gdf(utils_resources_path) -> gpd.GeoDataFrame:
-    return gpd.read_file(utils_resources_path / GDB_ZIP, layer=AD_LAYER)
+from .conftest import AD_KEY, NTA_INSANE_KEY, NTA_KEY, NTA_SIMPLE_KEY
 
 
 def _compare_cols(gdf: gpd.GeoDataFrame, key_cols: list[str]) -> list[str]:
@@ -322,3 +295,185 @@ def test_row_level_diff_on_disjoint_frames_reports_full_replacement(ad_gdf):
     assert result == compare.RowLevelDiff(
         only_in_dev=1, only_in_prod=1, modified=0, precise=True
     )
+
+
+def test_structure_diff_on_identical_frames_is_clean(nta_gdf):
+    result = compare.structure_diff(nta_gdf, nta_gdf.copy())
+    assert result.missing_from_dev == []
+    assert result.extra_in_dev == []
+    assert result.columns_match_but_order_differs is False
+    assert result.crs_match is True
+    assert set(result.attribute_cols) == {
+        "BoroCode",
+        "BoroName",
+        "CountyFIPS",
+        "NTACode",
+        "NTAName",
+        "Shape_Length",
+        "Shape_Area",
+    }
+    assert "geometry" not in result.attribute_cols
+    assert "geometry" in result.common_cols
+
+
+def test_structure_diff_detects_missing_and_extra_columns(nta_gdf):
+    dev = nta_gdf.drop(columns=["BoroName"])
+    prod = nta_gdf.drop(columns=["CountyFIPS"])
+    result = compare.structure_diff(dev, prod)
+    assert result.missing_from_dev == ["BoroName"]
+    assert result.extra_in_dev == ["CountyFIPS"]
+
+
+def test_structure_diff_detects_column_order_difference(nta_gdf):
+    reordered = nta_gdf[[*reversed(nta_gdf.columns)]]
+    result = compare.structure_diff(nta_gdf, reordered)
+    assert result.columns_match_but_order_differs is True
+    assert result.missing_from_dev == []
+    assert result.extra_in_dev == []
+
+
+def test_structure_diff_detects_crs_mismatch(nta_gdf):
+    reprojected = nta_gdf.to_crs("EPSG:4326")
+    result = compare.structure_diff(nta_gdf, reprojected)
+    assert result.crs_match is False
+
+
+def test_area_diff_on_identical_geometry_is_zero(nta_gdf):
+    result = compare.area_diff(nta_gdf, nta_gdf.copy())
+    assert result.pct_diff == 0.0
+    assert result.dev_area == result.prod_area
+
+
+def test_area_diff_reflects_a_real_area_change(nta_gdf):
+    prod = nta_gdf.copy()
+    prod.loc[prod.NTACode == NTA_INSANE_KEY, "geometry"] = prod.loc[
+        prod.NTACode == NTA_INSANE_KEY, "geometry"
+    ].scale(2, 2)
+    result = compare.area_diff(nta_gdf, prod)
+    assert result.pct_diff < 0  # dev's total area is now smaller than prod's
+
+
+def test_column_stats_flags_all_null_in_dev(nta_gdf):
+    dev = nta_gdf.copy()
+    dev["NTAName"] = None
+    stats = {s.column: s for s in compare.column_stats(dev, nta_gdf, ["NTAName"])}
+    assert stats["NTAName"].all_null_in_dev
+    assert stats["NTAName"].note == "ALL NULL in dev"
+
+
+def test_column_stats_flags_null_rate_diff_above_threshold(nta_gdf):
+    dev = nta_gdf.copy()
+    dev.loc[dev.NTACode == NTA_SIMPLE_KEY, "CountyFIPS"] = None
+    stats = {s.column: s for s in compare.column_stats(dev, nta_gdf, ["CountyFIPS"])}
+    # 1 of 2 rows null in dev, 0 in prod -> 50pp diff, comfortably above the
+    # default 5pp threshold. Not "ALL NULL in dev" (only 1 of 2 rows is null).
+    assert not stats["CountyFIPS"].all_null_in_dev
+    assert "null rate diff" in stats["CountyFIPS"].note
+
+
+def test_column_stats_marks_geometry_column_as_spatial(nta_gdf):
+    stats = {
+        s.column: s for s in compare.column_stats(nta_gdf, nta_gdf.copy(), ["geometry"])
+    }
+    assert stats["geometry"].note == "spatial"
+
+
+def test_column_stats_clean_column_has_no_note(nta_gdf):
+    stats = {
+        s.column: s for s in compare.column_stats(nta_gdf, nta_gdf.copy(), ["NTACode"])
+    }
+    assert stats["NTACode"].note == ""
+    assert not stats["NTACode"].all_null_in_dev
+
+
+def test_compare_layer_with_valid_declared_key_uses_it_without_guessing(nta_gdf):
+    result = compare.compare_layer(nta_gdf, nta_gdf.copy(), declared_key=NTA_KEY)
+    assert result.key_cols == NTA_KEY
+    assert result.key_was_guessed is False
+    assert result.declared_key_rejected is None
+    assert result.row_level == compare.RowLevelDiff(
+        only_in_dev=0, only_in_prod=0, modified=0, precise=True
+    )
+
+
+def test_compare_layer_with_no_declared_key_guesses_one(nta_gdf):
+    # Both rows given the same Shape_Area/Shape_Length so only NTACode is
+    # actually unique - otherwise guess_key_columns could pick either float
+    # column first, since the fixture only has 2 rows.
+    dev = nta_gdf.copy()
+    dev["Shape_Area"] = 1.0
+    dev["Shape_Length"] = 1.0
+    result = compare.compare_layer(dev, dev.copy(), declared_key=None)
+    assert result.key_was_guessed is True
+    assert result.declared_key_rejected is None
+    assert result.key_cols == ["NTACode"]
+
+
+def test_compare_layer_with_invalid_declared_key_falls_back_to_guessing(nta_gdf):
+    dev = nta_gdf.copy()
+    dev["Shape_Area"] = 1.0
+    dev["Shape_Length"] = 1.0
+    bogus_key = ["NotARealColumn"]
+    result = compare.compare_layer(dev, dev.copy(), declared_key=bogus_key)
+    assert result.key_was_guessed is True
+    assert result.declared_key_rejected == bogus_key
+    assert result.key_cols == ["NTACode"]
+
+
+def test_compare_layer_computes_area_only_when_is_polygon(nta_gdf):
+    with_area = compare.compare_layer(nta_gdf, nta_gdf.copy(), is_polygon=True)
+    assert with_area.area is not None
+    assert with_area.area.pct_diff == 0.0
+
+    without_area = compare.compare_layer(nta_gdf, nta_gdf.copy(), is_polygon=False)
+    assert without_area.area is None
+
+
+def test_compare_layer_defaults_to_tolerant_shape_area_case_insensitively(nta_gdf):
+    """No tolerant_float_cols passed: compare_layer should auto-detect
+    Shape_Area as a geometry-derived measure (case-insensitively) and absorb
+    a tiny recompute-noise-scale perturbation on it by default."""
+    prod = nta_gdf.copy()
+    prod.loc[prod.NTACode == NTA_INSANE_KEY, "Shape_Area"] *= 1 + 1e-5
+    result = compare.compare_layer(nta_gdf, prod, declared_key=NTA_KEY)
+    assert result.row_level.modified == 0
+
+
+def test_compare_layer_still_catches_a_real_shape_area_change_by_default(nta_gdf):
+    prod = nta_gdf.copy()
+    prod.loc[prod.NTACode == NTA_INSANE_KEY, "Shape_Area"] *= 1.1
+    result = compare.compare_layer(nta_gdf, prod, declared_key=NTA_KEY)
+    assert result.row_level.modified == 1
+
+
+def test_compare_layer_default_tolerance_does_not_apply_to_ordinary_floats(nta_gdf):
+    """Regression guard: only the recognized geometry-derived measure names
+    get the default tolerance - an ordinary float attribute must still be
+    compared exactly even without the caller doing anything special."""
+    dev = nta_gdf.copy()
+    dev["growth_rate"] = [0.0001, 0.05]
+    prod = dev.copy()
+    prod.loc[prod.NTACode == NTA_INSANE_KEY, "growth_rate"] = 0.0006
+    result = compare.compare_layer(dev, prod, declared_key=NTA_KEY)
+    assert result.row_level.modified == 1
+
+
+def test_compare_layer_explicit_tolerant_float_cols_overrides_the_default(nta_gdf):
+    prod = nta_gdf.copy()
+    prod.loc[prod.NTACode == NTA_INSANE_KEY, "Shape_Area"] *= 1 + 1e-5
+    result = compare.compare_layer(
+        nta_gdf, prod, declared_key=NTA_KEY, tolerant_float_cols=set()
+    )
+    # Explicitly overridden to an empty set - even Shape_Area is now exact.
+    assert result.row_level.modified == 1
+
+
+def test_compare_layer_populates_column_stats_for_every_common_column(nta_gdf):
+    result = compare.compare_layer(nta_gdf, nta_gdf.copy(), declared_key=NTA_KEY)
+    assert {s.column for s in result.column_stats} == set(nta_gdf.columns)
+
+
+def test_compare_layer_structure_reflects_real_column_differences(nta_gdf):
+    dev = nta_gdf.drop(columns=["BoroName"])
+    result = compare.compare_layer(dev, nta_gdf, declared_key=NTA_KEY)
+    assert result.structure.missing_from_dev == ["BoroName"]
