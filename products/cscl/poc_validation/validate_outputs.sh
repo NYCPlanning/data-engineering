@@ -9,9 +9,18 @@
 # already been published, streaming both sides from S3.
 #
 # For each file in output/, performs a line-level comparison against the matching file in
-# .data/prod/ and writes the mismatched (dev-only) rows to output/validation_output/<filename>.
-# Also writes a summary CSV (validation_summary.csv) with per-file prod row counts and
-# mismatched row counts.
+# .data/prod/ and writes the mismatched rows to output/validation_output/<filename> - dev-only
+# rows first, then (if any) a "--- ONLY IN PROD ---" section for rows prod has that dev is
+# missing. Also writes a summary CSV (validation_summary.csv) with per-file prod row counts,
+# dev-only/prod-only counts, and their total (mismatched_rows).
+#
+# mismatched_rows is a two-directional set difference (dev-only + prod-only), not just
+# dev-only - comm -23 alone can't see rows prod has that dev is missing, which silently
+# undercounts any file where dev is missing real content rather than producing spurious extra
+# rows (found via Exception.txt: qa__diffs_exception found 4 real diffs - 3 prod-only, 1
+# dev-only - while a dev-only-only comparison here reported just 1). Keep this in sync with
+# poc_validation/run_validation.py's _compute_file_diff, which is meant to compute the same
+# thing against a published build.
 #
 # Expects two folders in the current directory:
 #  output/dataset_files/  - contains outputs of the current dev build
@@ -19,7 +28,7 @@
 mkdir -p output/validation_output
 
 csv_file="output/validation_output/validation_summary.csv"
-echo "filename,prod_row_count,mismatched_rows" > "$csv_file"
+echo "filename,prod_row_count,mismatched_rows,dev_only_rows,prod_only_rows" > "$csv_file"
 
 total_records=0
 total_mismatched=0
@@ -40,18 +49,36 @@ for filepath in output/dataset_files/*; do
     prod_row_count="$(cat .data/prod/$file | wc -l | awk '{print $1}')"
     echo "Total records:      $prod_row_count"
     total_records=$(($total_records + $prod_row_count))
-    mismatched_rows=$(comm -23 <(sort output/dataset_files/$file) <(sort .data/prod/$file))
-    
-    if [ -z "$mismatched_rows" ]; then
-        n_mismatched=0
+    dev_sorted=$(mktemp)
+    prod_sorted=$(mktemp)
+    sort output/dataset_files/$file > "$dev_sorted"
+    sort .data/prod/$file > "$prod_sorted"
+    dev_only_rows=$(comm -23 "$dev_sorted" "$prod_sorted")
+    prod_only_rows=$(comm -13 "$dev_sorted" "$prod_sorted")
+    rm -f "$dev_sorted" "$prod_sorted"
+
+    if [ -z "$dev_only_rows" ]; then
+        n_dev_only=0
     else
-        n_mismatched=$(echo "$mismatched_rows" | wc -l | awk '{print $1}')
+        n_dev_only=$(echo "$dev_only_rows" | wc -l | awk '{print $1}')
     fi
-    echo "Mismatched records: $n_mismatched"
+    if [ -z "$prod_only_rows" ]; then
+        n_prod_only=0
+    else
+        n_prod_only=$(echo "$prod_only_rows" | wc -l | awk '{print $1}')
+    fi
+    n_mismatched=$(($n_dev_only + $n_prod_only))
+    echo "Mismatched records: $n_mismatched (dev-only: $n_dev_only, prod-only: $n_prod_only)"
     total_mismatched=$(($total_mismatched + $n_mismatched))
 
-    echo -e "$mismatched_rows" > output/validation_output/$file
-    echo "$file,$prod_row_count,$n_mismatched" >> "$csv_file"
+    {
+        [ -n "$dev_only_rows" ] && echo -e "$dev_only_rows"
+        if [ -n "$prod_only_rows" ]; then
+            echo "--- ONLY IN PROD (missing from dev) ---"
+            echo -e "$prod_only_rows"
+        fi
+    } > output/validation_output/$file
+    echo "$file,$prod_row_count,$n_mismatched,$n_dev_only,$n_prod_only" >> "$csv_file"
     echo ""
 done
 

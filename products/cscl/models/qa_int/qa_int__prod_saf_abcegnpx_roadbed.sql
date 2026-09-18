@@ -22,7 +22,8 @@ SELECT
     -- Matches the extended key in saf_abcegnpx_roadbed_by_field.sql - see that
     -- model for why boroughcode/face_code/segmentid alone aren't unique, and why
     -- the side_* columns are deliberately excluded from the key.
-    boroughcode || face_code || segmentid || segment_seqnum || sos_indicator
-    || b5sc || l_low_hn || l_high_hn || r_low_hn || r_high_hn || x_coord
-    || y_coord AS _saf_key
+    boroughcode || '|' || face_code || '|' || segmentid || '|' || segment_seqnum
+    || '|' || sos_indicator || '|' || b5sc || '|' || l_low_hn || '|' || l_high_hn
+    || '|' || r_low_hn || '|' || r_high_hn || '|' || x_coord || '|' || y_coord
+        AS _saf_key
 FROM {{ prod_relation }}

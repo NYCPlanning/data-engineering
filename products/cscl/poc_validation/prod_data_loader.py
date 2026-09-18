@@ -396,8 +396,17 @@ def _load(
             "Either specify loading locally with '-l' flag or specify version to pull from s3 with '-v' flag"
         )
 
+    # compare_file: false datasets (e.g. ldf_base/ldf_header) have no prod file to load -
+    # their `filename` is dev's own export name, not something GR archives. `_pull` already
+    # skips these; mirror that here rather than 404ing on s3.
+    comparable_datasets = [d for d in datasets if datasets_by_name[d].compare_file]
+    for dataset in set(datasets) - set(comparable_datasets):
+        print(
+            f"skipping {datasets_by_name[dataset].file_name}: compare_file is off in recipe.yml"
+        )
+
     if not local:
-        for dataset in datasets:
+        for dataset in comparable_datasets:
             file_name = datasets_by_name[dataset].file_name
             s3.download_file(
                 "edm-private",
@@ -405,12 +414,12 @@ def _load(
                 local_folder / file_name,
             )
 
-    load_datasets(datasets, local_folder, version=version, force=force)
+    load_datasets(comparable_datasets, local_folder, version=version, force=force)
 
     # Citywide LION is `load_prod_lion`, which parses the .dat files directly. A union of
     # the per-borough tables written above can't build it: they're named for their recipe
     # exports (bronx_lion_dat), not the bronx_lion that create_citywide_table expects.
-    if any(dataset.endswith("_face_code") for dataset in datasets):
+    if any(dataset.endswith("_face_code") for dataset in comparable_datasets):
         create_citywide_table("face_code")
 
 

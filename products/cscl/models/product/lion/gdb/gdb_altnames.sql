@@ -6,8 +6,10 @@
 -- are the segment's B5SC (StreetCode) concatenated with each of its LGCs. Names come
 -- from the CSCL StreetName / FeatureName tables (excluding StreetName DCP_FLAG = 'N').
 --
--- Scope: non-SAF Join_IDs only. SAF-replicant Join_IDs (…X/…N-suffixed) use a different
--- B7SC encoding (spec §2.7.3) and are not yet produced — see _gdb.yml.
+-- Scope: non-SAF Join_IDs, plus the commonplace/addresspoint SAF-replicant Join_IDs from
+-- int__saf_altnames_join_ids.sql (see that model's docstring for why altsegmentdata-sourced
+-- SAF Join_IDs are deliberately excluded - traced against the legacy ETL's own C# source,
+-- they're expected to already be covered by the regular segment-level path below).
 WITH segments AS (
     SELECT DISTINCT
         {{ lion_join_id() }} AS join_id,
@@ -21,7 +23,7 @@ WITH segments AS (
 ),
 
 -- the B7SCs implicit in each Join_ID: b5sc + each non-null LGC
-b7scs AS (
+segment_b7scs AS (
     SELECT DISTINCT
         segments.join_id,
         segments.b5sc || lgc.lgc AS b7sc
@@ -31,6 +33,22 @@ b7scs AS (
             VALUES (segments.lgc1), (segments.lgc2), (segments.lgc3), (segments.lgc4)
         ) AS lgc (lgc)
     WHERE lgc.lgc IS NOT null
+),
+
+-- SAF-replicant Join_IDs (commonplace/addresspoint only - see docstring above), unnested
+-- from their implicit_b7scs array the same way segment_b7scs unnests LGC1-4.
+saf_b7scs AS (
+    SELECT DISTINCT
+        saf.join_id,
+        b7sc
+    FROM {{ ref('int__saf_altnames_join_ids') }} AS saf
+    CROSS JOIN LATERAL unnest(saf.implicit_b7scs) AS b7sc
+),
+
+b7scs AS (
+    SELECT * FROM segment_b7scs
+    UNION
+    SELECT * FROM saf_b7scs
 ),
 
 -- names keyed by B7SC. StreetName carries ESRI's parsed components; FeatureName puts

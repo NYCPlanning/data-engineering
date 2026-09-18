@@ -38,7 +38,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
-| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (open) | Open | 26b |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (51%→93% coverage, not yet CI-verified) | Open | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
@@ -49,6 +49,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
 | [CSCL-LDF-03](#cscl-ldf-03) | LDF | Cumulative record number is transcribed, not chained | Open | 26b |
 | [CSCL-LDF-04](#cscl-ldf-04) | LDF | One LION record carries `-1` as GENERICID | Open | 26b |
+| [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load | Open | 26c |
 
 ---
 
@@ -205,6 +206,22 @@ down from 31,765 (15,888 dev-only/15,877 prod-only) under the old abbreviation-t
 approach. Not yet investigated further; the remaining 38 are a good candidate for the next
 round.
 
+**Leading-space bug found and fixed (2026-09-18).** `gdb_node_stname.sql` prefixed every
+`STNAME` with a literal space, based on a comment claiming "prod prefixes every STNAME with a
+single leading space" (inferred from reading the legacy `Create_table_from_txtfile` script,
+not from comparing real output - this predates even the 2026-09-16 rewrite, carried over
+unquestioned). Checked directly against prod's real, freshly-downloaded 26c
+`node_stname` layer (`production_outputs.fgdb_node_stname`): **zero of 245,529 rows have a
+leading space.** With `key_columns = NODEID|STNAME`, this single leading-space byte made
+every row fail to key-match, producing a 200% "discrepant" rate (245,529 dev-only +
+245,529 prod-only, 0 modified) - not a real data problem, a self-inflicted formatting bug.
+Removed the leading space; **stripping it makes all 245,529 dev rows match a prod row
+exactly, both directions.** Whether the space was ever actually correct for an older release,
+or the 2026-09-16 verification's `production_outputs` copy was already stale, is unknown -
+the 26b copy that would settle it is empty in the preserved `production_outputs_26b` schema
+(consistent with the incomplete-FGDB-load pattern noted elsewhere this cycle). Either way, it
+is demonstrably wrong for 26c.
+
 **`gdb_altnames`'s `Join_ID` gap** is a separate, larger-magnitude issue with a different
 root cause (not an abbreviation problem - see below), still open.
 
@@ -244,6 +261,25 @@ than per-principal-streetname - that we haven't replicated.
 **What would settle it:** GR/legacy-pipeline owner confirming what `Join_ID` is actually
 keyed on in the legacy ETL, and whether `dcp_cscl_streetname`'s facecode cardinality has
 always been this low or is specific to this source snapshot.
+
+**Root-caused and largely fixed (2026-09-18) - possibility #2 above was right.** GR pointed at
+the actual legacy ETL C# source this round (`ExtractorClass.cs`'s `AddAltNames`/
+`GetSAFBytesJoinID`) rather than us guessing from output samples. Confirmed: prod really does
+compute a large share of its `Join_ID`s from a mechanism unrelated to `dcp_cscl_streetname`'s
+facecode diversity - SAF-replicant `Join_ID`s, generated from `CommonPlace` and `AddressPoint`
+records whose B7SC has no relationship at all to any segment's own street classification. Item
+1 in the earlier "ruled out" list above measured the wrong thing (raw segment count carrying
+`special_address_flag`, 6.7%) rather than how many *distinct `Join_ID`s* those two source types
+actually contribute - which turns out to be substantial. See
+[Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md) for the full mechanism,
+implementation (`int__saf_altnames_join_ids.sql` + `gdb_altnames.sql`), and a real B7SC-width
+bug caught during implementation. Result: dev's distinct `Join_ID` coverage went from
+16,617/32,867 (~51%) to 30,820/33,246 (~93%) against a fresh prod comparison - closing ~85% of
+the gap. Not yet verified via a full CI build. A third SAF source type
+(`ALTSEGMENTDATA`) was deliberately left unimplemented - traced `SetSAFStreetNameAndCode` and
+confirmed it doesn't overwrite the segment's own output LGC fields, so `AddAltNames`'s regular
+per-segment path likely already covers it; implementing it too could double-count rather than
+add coverage. The remaining ~7% gap is most likely this, unconfirmed.
 
 **Separate fix, within the covered `Join_ID`s (2026-09-16): `SName` wasn't truncated to its
 30-byte field width.** The coverage-gap analysis above only asks whether a `Join_ID` exists
@@ -589,3 +625,48 @@ its casts against it so it doesn't break the build, but this is bad source data 
 something we should tolerate silently.
 
 **What would settle it:** reporting it to GR.
+
+## SAF
+
+### CSCL-SAF-01
+
+**`lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load** ·
+Open · Last verified 26c
+
+`saf_s_generic`/`saf_s_roadbed`'s unaccounted `modified` rows are dominated by one pattern:
+prod's `lgc1 = '01'`, dev showing a specific code (`03`/`04`/`05`/`10`/`11`/`14`) that prod
+doesn't have - **9 of 11** `saf_s_generic` and **9 of 13** `saf_s_roadbed` unaccounted rows
+this build. `docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md` originally
+attributed segmentid 136981's version of this to a stale `production_outputs` load (SAF's
+generic `load` command didn't track versions at the time). That theory is retracted: SAF was
+reloaded fresh for 26c with proper version tracking, and the identical mismatch persists.
+`dcp_cscl_segment_lgc` for segmentid 136981 still has only `03` (preferred) and `02` - no
+`01` anywhere - so our output (`lgc1=03, lgc2=02`) is correct given current source; `01`
+itself isn't rare or retired (201,372 of 319,257 current `dcp_cscl_segment_lgc` rows carry
+it), it's just gone specifically for these segments, replaced by a more specific
+classification prod's SAF hasn't picked up.
+
+This is the same shape of problem as `Exception.txt`/`Enders.txt`/`SND.txt`'s stale entries
+(`docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md`) - prod's derived
+output not fully regenerated from current source each cycle - now confirmed in a fourth
+output family. Not yet folded into that doc's scope explicitly; tracked separately here since
+the source table (`dcp_cscl_segment_lgc`) differs from the FEATURENAME-derived ones.
+
+Two smaller, distinct anomalies on the same two files, not yet root-caused:
+- One segment (`27080026604206151R.../268020`) has 3 SAF sub-records whose keys don't align
+  between dev and prod (`only_in_legacy`/`only_in_build`, 3 each, identical in both
+  `saf_s_generic` and `saf_s_roadbed`) - the key embeds `segment_seqnum`, and dev's values for
+  this segment's multiple sub-records look offset from prod's, not missing outright.
+- Two rows (`43500017073100790R`, both roadbed sides) have dev's `place_name` blank where
+  prod has `NORTH BOUNDARY ROAD`.
+
+`saf_i`, `saf_d_generic`, `saf_d_roadbed`, `saf_ov_generic`, and `saf_ov_roadbed` show zero
+diffs against the fresh 26c reload - confirms the reload itself was not the problem for those
+files specifically. `saf_abcegnpx_generic`/`saf_abcegnpx_roadbed` retain a handful (3-7) of
+row-count-only mismatches, not yet traced but consistent in scale with the already-open,
+unimplemented SAF-replicant scope (see `docs/ETL_V8_02012024.md`, "Segment Replication for SAF
+Data").
+
+**What would settle it:** ask GR whether `saf_s_*`'s LGC values are regenerated from CSCL's
+current `Segment_LGC` table each release or carried forward, using segmentid 136981 as a
+concrete example (current source has no LGC `01` for it at all).
