@@ -3,7 +3,30 @@ import uuid
 import zipfile
 from pathlib import Path
 
+import pyogrio
+
 from dcpy.geospatial.shapefile_metadata import Metadata
+
+
+def layer_geometry_types(gdb: Path | str) -> dict[str, str | None]:
+    """Layer name -> geometry type name (None for a non-spatial table).
+
+    Accepts a .gdb directory or a .zip containing one at its top level -
+    pyogrio resolves a zipped GDB natively, no manual /vsizip/ path needed.
+    """
+    rows = pyogrio.list_layers(str(gdb))
+    return {str(row[0]): (str(row[1]) if row[1] else None) for row in rows}
+
+
+def zip_gdb(gdb_dir: Path, zip_path: Path) -> None:
+    """Zip a .gdb directory into zip_path, with the .gdb directory itself as
+    the archive's top-level entry - so it unpacks the same way a normal GDB
+    export ships (<name>.gdb.zip containing <name>.gdb/...), and downstream
+    tools that read a zipped GDB natively (pyogrio, GDAL) can open it as-is.
+    """
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+        for file in gdb_dir.rglob("*"):
+            z.write(file, arcname=file.relative_to(gdb_dir.parent))
 
 
 # possible TODO: replace this fn with an Info() object, from which methods like .get_layers() can be called
@@ -156,10 +179,6 @@ def _edit_layer_metadata_inplace(
 
             _edit_md(gdb=uncompressed_gdb, layer=layer, metadata=metadata)
 
-            with zipfile.ZipFile(gdb, "w", zipfile.ZIP_DEFLATED) as z:
-                for file in uncompressed_gdb.rglob("*"):
-                    z.write(
-                        filename=file, arcname=file.relative_to(uncompressed_gdb.parent)
-                    )
+            zip_gdb(uncompressed_gdb, gdb)
     else:
         _edit_md(gdb=gdb, layer=layer, metadata=metadata)

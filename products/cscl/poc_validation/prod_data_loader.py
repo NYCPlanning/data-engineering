@@ -10,7 +10,6 @@ It assumes that production outputs are specified as exports in recipe.yml
 import subprocess
 import tempfile
 import urllib.request
-import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -19,6 +18,7 @@ import exports
 import pandas as pd
 import typer
 
+from dcpy.geospatial.gdb import fgdb
 from dcpy.lifecycle.builds import plan
 from dcpy.utils import postgres, s3
 
@@ -254,48 +254,22 @@ def load_production_lion_fgdb_layers(version: str):
 
     The function will:
     1. Download nyclion_{version}.zip from DCP website
-    2. Extract the FileGDB
-    3. Load all layers into db-cscl.production_outputs schema with "fgdb_" prefix
-    4. Does NOT drop the schema (appends/replaces tables only)
+    2. Load all layers into db-cscl.production_outputs schema with "fgdb_" prefix
+    3. Does NOT drop the schema (appends/replaces tables only)
     """
     url = f"https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{version}.zip"
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        zip_path = tmpdir_path / f"nyclion_{version}.zip"
+        zip_path = Path(tmpdir) / f"nyclion_{version}.zip"
 
         # Download the zip file
         print(f"Downloading {url}...")
         urllib.request.urlretrieve(url, zip_path)
 
-        # Extract the zip file
-        print(f"Extracting {zip_path}...")
-        with zipfile.ZipFile(zip_path, "r") as zip_ref:
-            zip_ref.extractall(tmpdir_path)
-
-        # Find the .gdb directory
-        gdb_dirs = list(tmpdir_path.glob("**/*.gdb"))
-        if not gdb_dirs:
-            raise Exception(f"No .gdb directory found in {zip_path}")
-
-        gdb_path = gdb_dirs[0]
-        print(f"Found FileGDB at {gdb_path}")
-
-        # List all layers in the FGDB
-        result = subprocess.run(
-            ["ogrinfo", "-q", str(gdb_path)], capture_output=True, text=True, check=True
-        )
-
-        # Parse layer names from ogrinfo output
-        layers = []
-        for line in result.stdout.split("\n"):
-            if line.startswith("1:") or line.startswith(" "):
-                continue
-            if ":" in line and not line.startswith("INFO"):
-                # Format is typically "N: layer_name (geometry_type)"
-                layer_name = line.split(":")[1].strip().split(" ")[0]
-                layers.append(layer_name)
-
+        # No extraction needed - GDAL/ogr2ogr resolve a zipped GDB natively,
+        # straight from the zip's own path (gdb_path below).
+        gdb_path = zip_path
+        layers = fgdb.get_layers(gdb_path)
         print(f"Found {len(layers)} layers: {layers}")
 
         # Verify we have the expected layers
