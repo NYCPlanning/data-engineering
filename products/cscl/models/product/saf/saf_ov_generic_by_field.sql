@@ -17,5 +17,5 @@ SELECT
     boroughcode || '|' || face_code || '|' || segmentid || '|' || segment_seqnum
     || '|' || sos_indicator || '|' || b5sc || '|' || low_hn || '|' || low_hn_suffix
     || '|' || high_hn || '|' || high_hn_suffix || '|' || x_coord || '|' || y_coord
-    AS _saf_key
+        AS _saf_key
 FROM combined

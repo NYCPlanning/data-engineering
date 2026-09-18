@@ -34,7 +34,10 @@ WITH saf_segments AS (
 ),
 
 lion AS (
-    SELECT segmentid, boroughcode FROM {{ ref('int__lion') }}
+    SELECT
+        segmentid,
+        boroughcode
+    FROM {{ ref('int__lion') }}
     WHERE include_in_bytes_lion
 ),
 
@@ -42,10 +45,10 @@ commonplace_join_ids AS (
     SELECT
         saf.segmentid,
         lion.boroughcode
-            || substring(cp.b7sc, 2, 5)
-            || lpad(right(cp.b7sc, 2), 2, '0')
-            || '000000'
-            || saf.saftype AS join_id,
+        || substring(cp.b7sc, 2, 5)
+        || lpad(right(cp.b7sc, 2), 2, '0')
+        || '000000'
+        || saf.saftype AS join_id,
         ARRAY[cp.b7sc] AS implicit_b7scs
     FROM saf_segments AS saf
     INNER JOIN lion ON saf.segmentid = lion.segmentid
@@ -79,12 +82,12 @@ addresspoint_join_ids AS (
     SELECT
         saf.segmentid,
         lion.boroughcode
-            || substring(ab.b7sc, 2, 5)
-            || lpad(right(ab.b7sc, 2), 2, '0')
-            || lpad(coalesce(l1.lgc, '00'), 2, '0')
-            || lpad(coalesce(l2.lgc, '00'), 2, '0')
-            || lpad(coalesce(l3.lgc, '00'), 2, '0')
-            || saf.saftype AS join_id,
+        || substring(ab.b7sc, 2, 5)
+        || lpad(right(ab.b7sc, 2), 2, '0')
+        || lpad(coalesce(l1.lgc, '00'), 2, '0')
+        || lpad(coalesce(l2.lgc, '00'), 2, '0')
+        || lpad(coalesce(l3.lgc, '00'), 2, '0')
+        || saf.saftype AS join_id,
         array_remove(
             ARRAY[
                 ab.b7sc,

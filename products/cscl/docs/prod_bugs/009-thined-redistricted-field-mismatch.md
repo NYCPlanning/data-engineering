@@ -65,9 +65,16 @@ direct pass-through of `stg__electiondistrict`'s `congress_district`, `state_sen
 ### Reproducing this
 
 ```python
-widths = [(0,3),(3,5),(5,7),(7,9),(9,11),(11,13),(13,14)]
-names = ["election_district","assembly_district","congress_district",
-         "state_sen_district","muni_court_district","city_council_district","borough"]
+widths = [(0, 3), (3, 5), (5, 7), (7, 9), (9, 11), (11, 13), (13, 14)]
+names = [
+    "election_district",
+    "assembly_district",
+    "congress_district",
+    "state_sen_district",
+    "muni_court_district",
+    "city_council_district",
+    "borough",
+]
 # parse both files fixed-width per seeds/text_formatting/text_formatting__thined_dat.csv,
 # key on assembly_district + election_district, then diff field by field.
 ```
