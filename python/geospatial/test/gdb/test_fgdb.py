@@ -4,7 +4,7 @@ import zipfile
 import pytest
 from pytest import fixture
 
-from dcpy.geospatial import fgdb
+from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile_metadata import Metadata
 
 GDB_ZIP = "geodatabase.gdb.zip"

@@ -36,7 +36,7 @@ import geopandas as gpd
 import pyogrio
 import typer
 
-from dcpy.geospatial import compare as gdb_compare
+from dcpy.geospatial.gdb import compare as gdb_compare
 from dcpy.lifecycle.builds import plan
 from dcpy.utils import s3
 

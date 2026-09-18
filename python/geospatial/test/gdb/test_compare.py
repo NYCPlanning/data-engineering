@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 import pytest
 
-from dcpy.geospatial import compare
+from dcpy.geospatial.gdb import compare
 
 GDB_ZIP = "districts_sample.gdb.zip"
 
