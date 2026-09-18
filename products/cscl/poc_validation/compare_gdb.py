@@ -144,6 +144,22 @@ def _compare_layers(
         dev_gdf = gpd.read_file(dev_path, layer=layer)
         prod_gdf = gpd.read_file(prod_path, layer=layer)
 
+        # Match columns case-insensitively before comparing - FileGDB/ArcGIS
+        # export tooling isn't consistent about the casing of its own built-in
+        # fields (Shape_Area vs SHAPE_Area has shown up across releases), and
+        # compare_layer's exact-name structure_diff would otherwise drop a
+        # column from every row/column-level comparison whenever the two
+        # sides disagree on case, silently hiding a real content difference
+        # behind what reads like a missing/extra-column note. Harmonize
+        # prod's spelling to dev's for every case-insensitive match so
+        # compare_layer (which assumes identical column names) never sees
+        # the mismatch.
+        col_match = gdb_compare.match_columns(dev_gdf.columns, prod_gdf.columns)
+        if col_match.case_mismatches:
+            prod_gdf = prod_gdf.rename(
+                columns=dict((p, d) for d, p in col_match.case_mismatches)
+            )
+
         result = gdb_compare.compare_layer(
             dev_gdf,
             prod_gdf,
