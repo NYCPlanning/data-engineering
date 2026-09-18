@@ -54,7 +54,7 @@ flat_files,SND,SND,file,SND.txt,snd,false,true,,,blocked,See docs/prod_bugs/010-
 lion_gdb,gdb,LION gdb,layer,node,gdb_node,false,true,NODEID,,,
 lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,false,true,LBoro|FaceCode|SeqNum,,,
 lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,false,true,NODEID|STNAME,,,
-lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,false,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,,
+lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,false,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,blocked,See docs/prod_bugs/011-altnames-saf-replicant-join-ids.md
 district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,false,true,AssemDist,Assembly Districts clipped to shoreline,,
 district_gdb,gdb,District gdb,layer,nyadwi,gdb_nyadwi,false,true,AssemDist,"Assembly Districts, unclipped",,
 district_gdb,gdb,District gdb,layer,nyap,gdb_nyap,false,true,ATOMICID,Atomic Polygons,,
