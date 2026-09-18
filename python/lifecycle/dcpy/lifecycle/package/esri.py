@@ -5,8 +5,9 @@ import typer
 import yaml
 
 import dcpy.product_metadata.models.metadata.product as models
-from dcpy.geospatial import esri_metadata, fgdb
+from dcpy.geospatial import esri_metadata
 from dcpy.geospatial.esri_metadata import _create_attr_metadata
+from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile import Shapefile
 from dcpy.lifecycle import product_metadata
 from dcpy.product_metadata.models.metadata.org import OrgMetadata

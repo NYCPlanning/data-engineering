@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from pytest import fixture
 
-from dcpy.geospatial import fgdb
 from dcpy.geospatial import shapefile as shp_utils
+from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile_metadata import Metadata
 from dcpy.lifecycle.package import esri
 from dcpy.product_metadata.models.metadata.org import OrgMetadata
