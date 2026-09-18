@@ -82,6 +82,7 @@ def import_dataset(
 def load_source_data_from_resolved_recipe(
     recipe_or_path: "plan.Recipe | Path",
     clear_pg_schema: bool = True,
+    clear_duckdb_schema: bool = False,
     cache_schema: str | None = None,
     cached_entity_type: CachedEntityType | None = None,
     target_schema: str | None = None,
@@ -150,7 +151,7 @@ def load_source_data_from_resolved_recipe(
             duckdb_path = Path(duckdb_filename)
 
         duckdb_client = duckdb_utils.DuckDBClient(
-            db_path=duckdb_path, schema=target_schema
+            db_path=duckdb_path, schema=target_schema, clear_schema=clear_duckdb_schema
         )
         logger.info(f"Created DuckDB database at {duckdb_path}")
     else:
@@ -342,7 +343,15 @@ def _cli_wrapper_load(
         True,
         "--clear-schema",
         "-x",
-        help="Clear the build schema?",
+        help="Clear the build schema? (postgres only)",
+    ),
+    clear_duckdb_schema: bool = typer.Option(
+        False,
+        "--clear-duckdb-schema",
+        help="Drop and recreate the DuckDB build schema before loading? Off by "
+        "default since it's destructive; use this for a true clean-slate build "
+        "(e.g. to catch a dbt seed/model that only exists because a prior build "
+        "left it behind in a reused build directory).",
     ),
     cache_schema: str = typer.Option(
         None,
@@ -357,13 +366,15 @@ def _cli_wrapper_load(
         help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
     ),
 ):
-    print(f"clearing schema? {clear_pg_schema}")
+    print(f"clearing pg schema? {clear_pg_schema}")
+    print(f"clearing duckdb schema? {clear_duckdb_schema}")
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
     load_source_data_from_resolved_recipe(
         recipe_lock_path,
         clear_pg_schema=clear_pg_schema,
+        clear_duckdb_schema=clear_duckdb_schema,
         cache_schema=cache_schema,
         cached_entity_type=cached_entity_type,
     )

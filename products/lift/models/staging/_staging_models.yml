@@ -7,3 +7,5 @@ models:
 - name: stg__dri
 - name: stg__cpdb_points
 - name: stg__cpdb_poly
+- name: stg__hpd_limited_affordability_areas
+- name: stg__hpd_rezoning_tracker
