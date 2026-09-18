@@ -133,11 +133,19 @@ def test_shape_area_noise_within_tolerance_is_not_flagged(nta_gdf):
     same geometry, recomputed, landing a hair off in its last few significant
     digits. BK99's Shape_Area is large and its geometry is complex, so a
     relative perturbation near the tolerance boundary is a meaningful check
-    of DEFAULT_FLOAT_RTOL specifically for a noisy, many-vertex polygon."""
+    of DEFAULT_FLOAT_RTOL specifically for a noisy, many-vertex polygon.
+    Shape_Area must be opted in via tolerant_float_cols - see
+    test_float_column_not_opted_in_is_compared_exactly for why that matters."""
     dev = nta_gdf
     prod = nta_gdf.copy()
     prod.loc[prod.NTACode == NTA_INSANE_KEY, "Shape_Area"] *= 1 + 1e-5
-    result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
+    result = compare.row_level_diff(
+        dev,
+        prod,
+        NTA_KEY,
+        _compare_cols(dev, NTA_KEY),
+        tolerant_float_cols=["Shape_Area"],
+    )
     assert result.modified == 0
 
 
@@ -145,6 +153,24 @@ def test_shape_area_change_beyond_tolerance_is_flagged(nta_gdf):
     dev = nta_gdf
     prod = nta_gdf.copy()
     prod.loc[prod.NTACode == NTA_INSANE_KEY, "Shape_Area"] *= 1.1
+    result = compare.row_level_diff(
+        dev,
+        prod,
+        NTA_KEY,
+        _compare_cols(dev, NTA_KEY),
+        tolerant_float_cols=["Shape_Area"],
+    )
+    assert result.modified == 1
+
+
+def test_float_column_not_opted_in_is_compared_exactly(nta_gdf):
+    """Regression test: the recompute-noise tolerance used to apply to every
+    float column by default. That silently swallowed real changes in ordinary
+    float attributes - a tiny Shape_Area-scale perturbation on a column NOT
+    named in tolerant_float_cols must now be caught, not absorbed."""
+    dev = nta_gdf
+    prod = nta_gdf.copy()
+    prod.loc[prod.NTACode == NTA_INSANE_KEY, "Shape_Area"] *= 1 + 1e-5
     result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
     assert result.modified == 1
 
@@ -223,15 +249,68 @@ def test_composite_key_on_empty_dataframe_returns_empty_series():
     assert len(key) == 0
 
 
-def test_columns_differ_uses_tolerance_only_for_float_columns():
+def test_composite_key_does_not_collide_when_a_part_contains_the_join_separator():
+    """Regression test: composite_key used to join key parts with "|", so two
+    genuinely different multi-column keys could collide into the same string
+    ("|".join(["X|Y", "Z"]) == "|".join(["X", "Y|Z"])). A real attribute
+    change on one of those rows must still be caught, not silently merged
+    into a false match via the imprecise fallback."""
+    dev = pd.DataFrame({"k1": ["X|Y", "X"], "k2": ["Z", "Y|Z"], "val": [1, 2]})
+    prod = pd.DataFrame({"k1": ["X|Y", "X"], "k2": ["Z", "Y|Z"], "val": [99, 2]})
+    keys = compare.composite_key(dev, ["k1", "k2"])
+    assert keys.is_unique
+    result = compare.row_level_diff(dev, prod, ["k1", "k2"], ["val"])
+    assert result == compare.RowLevelDiff(
+        only_in_dev=0, only_in_prod=0, modified=1, precise=True
+    )
+
+
+def test_null_keyed_rows_are_never_paired_with_each_other():
+    """Regression test: a NULL key used to fill a fixed sentinel, so any two
+    NULL-keyed rows (on either side) collided into "the same row" - pairing
+    unrelated records instead of counting them as an add and a remove."""
+    dev = pd.DataFrame({"id": ["A", None], "val": ["a-value", "dev-unrelated"]})
+    prod = pd.DataFrame({"id": ["A", None], "val": ["a-value", "prod-unrelated"]})
+    result = compare.row_level_diff(dev, prod, ["id"], ["val"])
+    assert result == compare.RowLevelDiff(
+        only_in_dev=1, only_in_prod=1, modified=0, precise=True
+    )
+
+
+def test_key_identity_ignores_blank_as_null():
+    """Regression test: composite_key used to run key columns through the
+    same blank-as-null normalization as attribute values, so a key of ""
+    and a key of "   " collapsed into the same identity. Row identity must
+    stay exact regardless of blank_as_null."""
+    dev = pd.DataFrame({"code": ["A", ""], "val": ["a-value", "dev-record"]})
+    prod = pd.DataFrame({"code": ["A", "   "], "val": ["a-value", "prod-record"]})
+    result = compare.row_level_diff(dev, prod, ["code"], ["val"], blank_as_null=True)
+    assert result == compare.RowLevelDiff(
+        only_in_dev=1, only_in_prod=1, modified=0, precise=True
+    )
+
+
+def test_columns_differ_applies_tolerance_only_to_opted_in_float_columns():
     dev = pd.DataFrame({"f": [1.0], "s": ["x"]})
     prod = pd.DataFrame({"f": [1.0 + 1e-8], "s": ["x"]})
-    diff = compare.columns_differ(dev, prod, ["f", "s"])
+    diff = compare.columns_differ(dev, prod, ["f", "s"], tolerant_float_cols=["f"])
     assert not diff.iloc[0]
 
     prod_str_diff = pd.DataFrame({"f": [1.0], "s": ["y"]})
-    diff2 = compare.columns_differ(dev, prod_str_diff, ["f", "s"])
+    diff2 = compare.columns_differ(
+        dev, prod_str_diff, ["f", "s"], tolerant_float_cols=["f"]
+    )
     assert diff2.iloc[0]
+
+
+def test_columns_differ_defaults_to_exact_comparison_for_float_columns():
+    """No tolerant_float_cols passed: even a tiny float perturbation - well
+    within DEFAULT_FLOAT_RTOL/ATOL - must be caught, since nothing opted this
+    column into the geometry-noise tolerance."""
+    dev = pd.DataFrame({"f": [1.0]})
+    prod = pd.DataFrame({"f": [1.0 + 1e-8]})
+    diff = compare.columns_differ(dev, prod, ["f"])
+    assert diff.iloc[0]
 
 
 def test_row_level_diff_on_disjoint_frames_reports_full_replacement(ad_gdf):

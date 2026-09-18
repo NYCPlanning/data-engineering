@@ -20,9 +20,15 @@ Add an entry there (verified against a real build) for any layer that logs a
 
 By default, NULL and whitespace-only strings compare as equal (prod's FileGDB
 export stores "no value" as blank/spaces for many text fields where we store
-a real NULL - see dcpy.geospatial.compare.stringify's docstring). Whether we
-should adopt that convention ourselves is undecided, so this is a default,
-not a fact - pass --strict-nulls to compare them as distinct instead.
+a real NULL - see dcpy.geospatial.gdb.compare.stringify's docstring). Whether
+we should adopt that convention ourselves is undecided, so this is a default,
+not a fact - pass --strict-nulls to compare them as distinct instead. This
+only affects attribute values, never row identity: a layer's key columns are
+always compared exactly (see dcpy.geospatial.gdb.compare.composite_key).
+
+Only GEOMETRY_DERIVED_FLOAT_COLUMNS (Shape_Length/Shape_Area) get the
+recompute-noise float tolerance - every other float column, including
+ordinary numeric attributes, is compared exactly.
 
 Report-only: writes a per-column CSV per gdb to output/validation_output/<name>_comparison.csv
 and prints a report to stdout. It never fails the build on a data mismatch.
@@ -52,6 +58,14 @@ AREA_PCT_THRESHOLD = 0.5
 # a layer with dozens of null-rate anomalies would otherwise produce an unreadable
 # one-line note.
 FLAGGED_COLUMNS_LISTED = 5
+
+# Field names (case-insensitive - OpenFileGDB writes "Shape_Length"/"Shape_Area",
+# some ArcGIS exports use "SHAPE_Length") for the geometry-derived measures GDAL
+# recomputes on read. These are the only float columns granted the recompute-noise
+# tolerance in gdb_compare.row_level_diff - every other float column is compared
+# exactly, so a real change in an ordinary float attribute can't be silently
+# absorbed by a tolerance that exists only for geometry noise.
+GEOMETRY_DERIVED_FLOAT_COLUMNS = {"shape_length", "shape_area"}
 
 # Layers with a known, already-understood structural diff - the layer note gets a
 # "KNOWN: " prefix instead of reading like a fresh problem every run.
@@ -128,7 +142,7 @@ def _load_declared_keys(seed_path: Path) -> dict[str, list[str]]:
     (e.g. SHAPE_Length) isn't a real identity, and auto-detection would pick a
     different key on a different run with no warning. Add a row here (and
     verify it against a real build) for any layer this doesn't cover yet -
-    dcpy.geospatial.compare.guess_key_columns is only a stopgap for that gap,
+    dcpy.geospatial.gdb.compare.guess_key_columns is only a stopgap for that gap,
     not a substitute.
     """
     if not seed_path.exists():
@@ -269,8 +283,16 @@ def _compare_layers(
                     dev_gdf, prod_gdf, attribute_cols
                 )
             compare_cols = [c for c in attribute_cols if c not in key_cols]
+            tolerant_float_cols = {
+                c for c in compare_cols if c.lower() in GEOMETRY_DERIVED_FLOAT_COLUMNS
+            }
             row_level = gdb_compare.row_level_diff(
-                dev_gdf, prod_gdf, key_cols, compare_cols, blank_as_null
+                dev_gdf,
+                prod_gdf,
+                key_cols,
+                compare_cols,
+                blank_as_null,
+                tolerant_float_cols,
             )
         else:
             # No non-geometry columns at all - fall back to a plain count.

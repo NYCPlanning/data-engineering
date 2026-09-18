@@ -9,7 +9,9 @@ DataFrames, and deciding what to do with the result (report it, fail a build,
 write a CSV, ...).
 """
 
+import uuid
 from collections import Counter
+from collections.abc import Collection
 from dataclasses import dataclass
 
 import numpy as np
@@ -22,7 +24,10 @@ _NA_SENTINEL = "\x00NA\x00"
 # last handful of significant digits even when nothing real changed. These are
 # defaults, not universal truths - a layer with noisier geometry (many
 # vertices, complex coastlines) can need a looser tolerance; pass rtol/atol to
-# override per call.
+# override per call. They only apply to columns named in a tolerant_float_cols
+# argument (see columns_differ) - never to every float column, or a real
+# change in an ordinary float attribute could be swallowed by a tolerance that
+# was never meant for it.
 DEFAULT_FLOAT_RTOL = 5e-4
 DEFAULT_FLOAT_ATOL = 5e-4
 
@@ -59,6 +64,11 @@ def stringify(
         of stringifying it to "nan", so "|".join would choke on the leftover
         float, and two genuinely-null cells would otherwise compare as
         "different" (float NaN is never equal to itself).
+
+    This is for ATTRIBUTE VALUE comparison, where "two nulls are equal" is the
+    right call. composite_key below has different needs (a null key isn't a
+    value that should ever compare equal to another null key) and does not
+    reuse this sentinel behavior for that reason.
     """
     out = {}
     for col in cols:
@@ -85,14 +95,49 @@ def effective_isna(s: pd.Series, blank_as_null: bool = True) -> pd.Series:
     return isna
 
 
-def composite_key(
-    df: pd.DataFrame, key_cols: list[str], blank_as_null: bool = True
-) -> pd.Series:
+def composite_key(df: pd.DataFrame, key_cols: list[str]) -> pd.Series:
+    """Build each row's identity from key_cols.
+
+    Two things this deliberately does NOT do, both to avoid a key silently
+    misidentifying rows:
+      - It ignores FileGDB's blank/whitespace-as-null convention. That
+        normalization (see stringify's blank_as_null) exists so "no value"
+        text compares equal for ATTRIBUTE values - it has nothing to do with
+        row identity, so a key of "" and a key of "   " must stay distinct
+        rather than silently becoming "the same row."
+      - It never joins key parts into a single string. "|".join(["X|Y", "Z"])
+        == "|".join(["X", "Y|Z"]) - two genuinely different key tuples can
+        collide into the same joined string if any part happens to contain
+        the separator. Returning a tuple per row instead makes that
+        collision impossible: tuples compare element-wise, never as
+        concatenated text.
+
+    A row with a NULL in any key column can't be identified at all. Rather
+    than let it silently collide with every other NULL-keyed row - its own
+    side's, or the other side's, which a fixed sentinel would do - each gets
+    a one-off identity unique to this call, so it's always counted as
+    unmatched (only_in_dev/only_in_prod) instead of being coincidentally
+    paired with an unrelated row that also happens to be missing a key.
+    """
     if df.empty:
-        # .agg(..., axis=1) on a 0-row frame returns the frame unchanged rather
-        # than an empty Series.
-        return pd.Series([], dtype=str)
-    return stringify(df, key_cols, blank_as_null).agg("|".join, axis=1)
+        return pd.Series([], dtype=object)
+    stringified = stringify(df, key_cols, blank_as_null=False)
+    keys = pd.Series(
+        list(stringified.itertuples(index=False, name=None)), index=df.index
+    )
+    has_null = pd.Series(False, index=df.index)
+    for col in key_cols:
+        has_null |= df[col].isna()
+    if has_null.any():
+        # One salt per call, not per row: enough to guarantee dev's null-keyed
+        # rows can never coincide with prod's (they come from separate calls,
+        # each with its own salt), while the row position makes null-keyed
+        # rows distinct from each other within the same call.
+        salt = uuid.uuid4().hex
+        keys = keys.mask(
+            has_null, [f"{_NA_SENTINEL}{salt}:{pos}" for pos in range(len(df))]
+        )
+    return keys
 
 
 def columns_differ(
@@ -100,21 +145,31 @@ def columns_differ(
     prod: pd.DataFrame,
     cols: list[str],
     blank_as_null: bool = True,
+    tolerant_float_cols: Collection[str] = (),
     rtol: float = DEFAULT_FLOAT_RTOL,
     atol: float = DEFAULT_FLOAT_ATOL,
 ) -> pd.Series:
     """Row-wise: does ANY of these columns differ between dev and prod?
 
-    Float columns use a relative+absolute tolerance instead of exact string
-    equality - see DEFAULT_FLOAT_RTOL/DEFAULT_FLOAT_ATOL for why. Everything
-    else goes through stringify's exact comparison.
+    Only columns named in tolerant_float_cols get the relative+absolute float
+    tolerance - see DEFAULT_FLOAT_RTOL/DEFAULT_FLOAT_ATOL for why it exists
+    (GDAL/pyproj recompute noise on geometry-derived measures like
+    Shape_Length/Shape_Area). Every other column, float or not, is compared
+    exactly via stringify - an ordinary float attribute (a rate, a score, a
+    measured value) that isn't named here gets exact comparison like any
+    other column, so a real small-magnitude change can't be silently absorbed
+    by a tolerance that was never meant for it.
     """
     if not cols:
         return pd.Series(False, index=dev.index)
     diff = pd.Series(False, index=dev.index)
     for col in cols:
         dev_s, prod_s = dev[col], prod[col]
-        if pd.api.types.is_float_dtype(dev_s) and pd.api.types.is_float_dtype(prod_s):
+        if (
+            col in tolerant_float_cols
+            and pd.api.types.is_float_dtype(dev_s)
+            and pd.api.types.is_float_dtype(prod_s)
+        ):
             close = np.isclose(
                 dev_s.to_numpy(dtype=float),
                 prod_s.to_numpy(dtype=float),
@@ -166,6 +221,7 @@ def row_level_diff(
     key_cols: list[str],
     compare_cols: list[str],
     blank_as_null: bool = True,
+    tolerant_float_cols: Collection[str] = (),
     rtol: float = DEFAULT_FLOAT_RTOL,
     atol: float = DEFAULT_FLOAT_ATOL,
 ) -> RowLevelDiff:
@@ -178,9 +234,14 @@ def row_level_diff(
     real disagreement shows up as an add+remove pair instead, and this falls
     back to a duplicate-tolerant multiset comparison (counts, not row-for-row
     pairing).
+
+    tolerant_float_cols controls which compare_cols (if any) get a fuzzy
+    float comparison instead of an exact one - see columns_differ. Row
+    identity (key_cols) is always exact, regardless of blank_as_null: see
+    composite_key.
     """
-    dev_keys = composite_key(dev_df, key_cols, blank_as_null)
-    prod_keys = composite_key(prod_df, key_cols, blank_as_null)
+    dev_keys = composite_key(dev_df, key_cols)
+    prod_keys = composite_key(prod_df, key_cols)
     precise = dev_keys.is_unique and prod_keys.is_unique
 
     if not precise:
@@ -201,8 +262,8 @@ def row_level_diff(
 
     dev_indexed = dev_df.set_index(dev_keys)
     prod_indexed = prod_df.set_index(prod_keys)
-    only_in_dev = dev_indexed.index.difference(prod_indexed.index)
-    only_in_prod = prod_indexed.index.difference(dev_indexed.index)
+    dev_only_index = dev_indexed.index.difference(prod_indexed.index)
+    prod_only_index = prod_indexed.index.difference(dev_indexed.index)
     common = dev_indexed.index.intersection(prod_indexed.index)
 
     modified = 0
@@ -213,14 +274,15 @@ def row_level_diff(
                 prod_indexed.loc[common],
                 compare_cols,
                 blank_as_null,
+                tolerant_float_cols,
                 rtol,
                 atol,
             ).sum()
         )
 
     return RowLevelDiff(
-        only_in_dev=len(only_in_dev),
-        only_in_prod=len(only_in_prod),
+        only_in_dev=len(dev_only_index),
+        only_in_prod=len(prod_only_index),
         modified=modified,
         precise=True,
     )
