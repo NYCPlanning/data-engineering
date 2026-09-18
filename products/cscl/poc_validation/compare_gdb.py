@@ -20,9 +20,9 @@ Add an entry there (verified against a real build) for any layer that logs a
 
 By default, NULL and whitespace-only strings compare as equal (prod's FileGDB
 export stores "no value" as blank/spaces for many text fields where we store
-a real NULL - see _stringify's docstring). Whether we should adopt that
-convention ourselves is undecided, so this is a default, not a fact - pass
---strict-nulls to compare them as distinct instead.
+a real NULL - see dcpy.geospatial.compare.stringify's docstring). Whether we
+should adopt that convention ourselves is undecided, so this is a default,
+not a fact - pass --strict-nulls to compare them as distinct instead.
 
 Report-only: writes a per-column CSV per gdb to output/validation_output/<name>_comparison.csv
 and prints a report to stdout. It never fails the build on a data mismatch.
@@ -30,15 +30,13 @@ and prints a report to stdout. It never fails the build on a data mismatch.
 
 import csv
 import zipfile
-from collections import Counter
 from pathlib import Path
 
 import geopandas as gpd
-import numpy as np
-import pandas as pd
 import pyogrio
 import typer
 
+from dcpy.geospatial import compare as gdb_compare
 from dcpy.lifecycle.builds import plan
 from dcpy.utils import s3
 
@@ -130,7 +128,8 @@ def _load_declared_keys(seed_path: Path) -> dict[str, list[str]]:
     (e.g. SHAPE_Length) isn't a real identity, and auto-detection would pick a
     different key on a different run with no warning. Add a row here (and
     verify it against a real build) for any layer this doesn't cover yet -
-    _guess_key_columns is only a stopgap for that gap, not a substitute.
+    dcpy.geospatial.compare.guess_key_columns is only a stopgap for that gap,
+    not a substitute.
     """
     if not seed_path.exists():
         return {}
@@ -143,220 +142,13 @@ def _load_declared_keys(seed_path: Path) -> dict[str, list[str]]:
     return declared
 
 
-def _guess_key_columns(
-    dev_df: pd.DataFrame, prod_df: pd.DataFrame, candidate_cols: list[str]
-) -> list[str]:
-    """Fallback only, for a layer with no declared key in lion_outputs.csv (see
-    _load_declared_keys) - a single column unique in both dev and prod if one
-    exists, otherwise every candidate column together as the row's identity.
-
-    Data-dependent by nature: which column (if any) comes back unique can
-    change from run to run. Declaring the real key in the seed is what makes
-    the comparison stable - this only exists so a newly-added layer isn't
-    silently skipped before someone gets to declare it.
-    """
-    for col in candidate_cols:
-        if dev_df[col].nunique(dropna=False) == len(dev_df) and prod_df[col].nunique(
-            dropna=False
-        ) == len(prod_df):
-            return [col]
-    return candidate_cols
-
-
-_NA_SENTINEL = "\x00NA\x00"
-
-# GDAL/pyproj recompute SHAPE_Length/SHAPE_Area (and similar geometry-derived floats)
-# from scratch on read, so dev and prod differ in the last handful of significant
-# digits on nearly every row even when the geometry is identical. Measured against
-# districts/nycb2010, the recompute-noise ceiling is ~1.3e-5 relative for
-# SHAPE_Length and ~3.9e-5 for SHAPE_Area, while the smallest real boundary change
-# there is ~1.4e-3. But noise scales with a polygon's vertex count/complexity, not
-# just nycb2010's: nyhez (Hurricane Evacuation Zones, complex coastal boundaries,
-# only 8 rows) has a noise ceiling of ~1.16e-4 - already past a 1e-4 threshold with
-# no real change involved. 5e-4 still sits comfortably below every real change found
-# so far (smallest is 1.4e-3) while covering nyhez's noisier geometry too. Exact-
-# string comparison (the pre-tolerance behavior) flagged nearly every polygon
-# layer's rows as "modified" for no real reason.
-_FLOAT_RTOL = 5e-4
-_FLOAT_ATOL = 5e-4
-
-
-def _stringify(
-    df: pd.DataFrame, cols: list[str], blank_as_null: bool = True
-) -> pd.DataFrame:
-    """String-ify columns for keying/comparison.
-
-    Four normalizations, all aimed at not fooling ourselves into reporting a
-    diff that isn't real:
-      - Whole-number float columns (e.g. NODEID coming back from pyogrio as
-        9057546.0 instead of an int) are cast to a nullable integer type first,
-        so they stringify as "9057546" and compare equal to an int-typed twin
-        holding the same value instead of mismatching on every single row.
-      - Timezone-aware datetime columns (e.g. dev's CREATED_DATE coming back as
-        UTC-aware while prod's is naive - FileGDB dates have no zone concept,
-        this is purely a read-side artifact) are converted to UTC and made
-        naive first, so "2025-08-13 13:03:19+00:00" stringifies the same as
-        prod's "2025-08-13 13:03:19" instead of mismatching on every row.
-      - If blank_as_null (the default): whitespace-only string columns (e.g.
-        LION's LGC2 - prod stores "no LGC2" as two spaces, we store it as a
-        real SQL NULL) are blanked to NULL before the sentinel fill, so both
-        sides land on the same sentinel. Measured on LION's LGC2: prod is
-        blank/whitespace 68.0% of the time, we're NULL 66.8% of the time -
-        matching rates once you account for the ~10% row-count gap between
-        the two builds, i.e. this is one representation of the same "no
-        value", not a population gap. It's a legacy FileGDB convention we
-        haven't decided whether to adopt ourselves, so pass
-        blank_as_null=False (--strict-nulls on the CLI) to see the raw,
-        unnormalized comparison instead - e.g. to check whether adopting
-        prod's convention would actually change anything.
-      - Nulls are filled with a sentinel after each column's own astype(str),
-        one column at a time - not via a single DataFrame-wide fillna after
-        combining columns, which raises if any column is still a numeric
-        dtype (Int64 rejects a string fill value) - and not before astype(str)
-        either: pandas' string dtype (default since pandas 3.0) makes
-        astype(str) preserve NaN as a true null rather than the old behavior
-        of stringifying it to "nan", so "|".join would choke on the leftover
-        float, and two genuinely-null cells would otherwise compare as
-        "different" (float NaN is never equal to itself).
-    """
-    out = {}
-    for col in cols:
-        s = df[col]
-        if pd.api.types.is_float_dtype(s):
-            non_null = s.dropna()
-            if not non_null.empty and (non_null % 1 == 0).all():
-                s = s.astype("Int64")
-        elif isinstance(s.dtype, pd.DatetimeTZDtype):
-            s = s.dt.tz_convert("UTC").dt.tz_localize(None)
-        elif blank_as_null and pd.api.types.is_string_dtype(s):
-            s = s.mask(s.str.strip() == "", None)
-        out[col] = s.astype(str).fillna(_NA_SENTINEL)
-    return pd.DataFrame(out, index=df.index)
-
-
-def _effective_isna(s: pd.Series, blank_as_null: bool = True) -> pd.Series:
-    """True nulls, plus (if blank_as_null) whitespace-only strings - see
-    _stringify's docstring for why FileGDB's blank-string convention needs to
-    count as "no value" too, and why that's togglable."""
-    isna = s.isna()
-    if blank_as_null and pd.api.types.is_string_dtype(s):
-        return isna | (s.fillna("x").str.strip() == "")
-    return isna
-
-
-def _composite_key(
-    df: pd.DataFrame, key_cols: list[str], blank_as_null: bool = True
-) -> pd.Series:
-    if df.empty:
-        # .agg(..., axis=1) on a 0-row frame returns the frame unchanged rather
-        # than an empty Series - nyura (both sides empty) hits this for real.
-        return pd.Series([], dtype=str)
-    return _stringify(df, key_cols, blank_as_null).agg("|".join, axis=1)
-
-
-def _columns_differ(
-    dev: pd.DataFrame,
-    prod: pd.DataFrame,
-    cols: list[str],
-    blank_as_null: bool = True,
-) -> pd.Series:
-    """Row-wise: does ANY of these columns differ between dev and prod?
-
-    Float columns (SHAPE_Length/SHAPE_Area and similar geometry-derived measures)
-    use a relative+absolute tolerance instead of exact string equality - see
-    _FLOAT_RTOL/_FLOAT_ATOL for why. Everything else still goes through
-    _stringify's exact comparison.
-    """
-    if not cols:
-        return pd.Series(False, index=dev.index)
-    diff = pd.Series(False, index=dev.index)
-    for col in cols:
-        dev_s, prod_s = dev[col], prod[col]
-        if pd.api.types.is_float_dtype(dev_s) and pd.api.types.is_float_dtype(prod_s):
-            close = np.isclose(
-                dev_s.to_numpy(dtype=float),
-                prod_s.to_numpy(dtype=float),
-                rtol=_FLOAT_RTOL,
-                atol=_FLOAT_ATOL,
-                equal_nan=True,
-            )
-            diff |= ~close
-        else:
-            dev_str = _stringify(dev, [col], blank_as_null)[col]
-            prod_str = _stringify(prod, [col], blank_as_null)[col]
-            diff |= dev_str.to_numpy() != prod_str.to_numpy()
-    return diff
-
-
-def _row_level_diff(
-    dev_df: pd.DataFrame,
-    prod_df: pd.DataFrame,
-    key_cols: list[str],
-    compare_cols: list[str],
-    blank_as_null: bool = True,
-) -> dict:
-    """Keyed row-level diff: how many rows exist only in dev, only in prod, or on
-    both sides but with a differing attribute value.
-
-    "modified" is only meaningful when key_cols uniquely identifies a row on both
-    sides (precise=True) - if _find_key_columns fell back to the full attribute
-    tuple, two rows can never differ while sharing a key by construction, so
-    every real disagreement shows up as an add+remove pair instead, and this
-    falls back to a duplicate-tolerant multiset comparison (same approach as
-    qa__ldf_summary - counts, not row-for-row pairing).
-    """
-    dev_keys = _composite_key(dev_df, key_cols, blank_as_null)
-    prod_keys = _composite_key(prod_df, key_cols, blank_as_null)
-    precise = dev_keys.is_unique and prod_keys.is_unique
-
-    if not precise:
-        dev_counts = Counter(dev_keys)
-        prod_counts = Counter(prod_keys)
-        only_in_dev = sum(
-            max(c - prod_counts.get(k, 0), 0) for k, c in dev_counts.items()
-        )
-        only_in_prod = sum(
-            max(c - dev_counts.get(k, 0), 0) for k, c in prod_counts.items()
-        )
-        return {
-            "only_in_dev": only_in_dev,
-            "only_in_prod": only_in_prod,
-            "modified": None,
-            "precise": False,
-        }
-
-    dev_indexed = dev_df.set_index(dev_keys)
-    prod_indexed = prod_df.set_index(prod_keys)
-    only_in_dev = dev_indexed.index.difference(prod_indexed.index)
-    only_in_prod = prod_indexed.index.difference(dev_indexed.index)
-    common = dev_indexed.index.intersection(prod_indexed.index)
-
-    modified = 0
-    if len(common) > 0 and compare_cols:
-        modified = int(
-            _columns_differ(
-                dev_indexed.loc[common],
-                prod_indexed.loc[common],
-                compare_cols,
-                blank_as_null,
-            ).sum()
-        )
-
-    return {
-        "only_in_dev": len(only_in_dev),
-        "only_in_prod": len(only_in_prod),
-        "modified": modified,
-        "precise": True,
-    }
-
-
 def _layer_note(
     *,
     layer: str,
     missing_from_dev: list[str],
     extra_in_dev: list[str],
     columns_match_but_order_differs: bool,
-    row_level: dict,
+    row_level: gdb_compare.RowLevelDiff,
     area_pct_diff: float | None,
     flagged_columns: list[str],
 ) -> str:
@@ -374,21 +166,19 @@ def _layer_note(
         flags.append("column ORDER differs")
 
     total_diff = (
-        row_level["only_in_dev"]
-        + row_level["only_in_prod"]
-        + (row_level["modified"] or 0)
+        row_level.only_in_dev + row_level.only_in_prod + (row_level.modified or 0)
     )
     if total_diff:
-        if row_level["precise"]:
+        if row_level.precise:
             flags.append(
-                f"{total_diff:,} rows differ ({row_level['modified']:,} modified, "
-                f"{row_level['only_in_dev']:,} dev-only, "
-                f"{row_level['only_in_prod']:,} prod-only)"
+                f"{total_diff:,} rows differ ({row_level.modified:,} modified, "
+                f"{row_level.only_in_dev:,} dev-only, "
+                f"{row_level.only_in_prod:,} prod-only)"
             )
         else:
             flags.append(
-                f"{total_diff:,} rows differ ({row_level['only_in_dev']:,} dev-only, "
-                f"{row_level['only_in_prod']:,} prod-only)"
+                f"{total_diff:,} rows differ ({row_level.only_in_dev:,} dev-only, "
+                f"{row_level.only_in_prod:,} prod-only)"
             )
 
     if area_pct_diff is not None and abs(area_pct_diff) > AREA_PCT_THRESHOLD:
@@ -475,20 +265,22 @@ def _compare_layers(
                         "lion_outputs.csv - guessing one for this run only. Add a "
                         "key_columns entry once you've verified one against real data."
                     )
-                key_cols = _guess_key_columns(dev_gdf, prod_gdf, attribute_cols)
+                key_cols = gdb_compare.guess_key_columns(
+                    dev_gdf, prod_gdf, attribute_cols
+                )
             compare_cols = [c for c in attribute_cols if c not in key_cols]
-            row_level = _row_level_diff(
+            row_level = gdb_compare.row_level_diff(
                 dev_gdf, prod_gdf, key_cols, compare_cols, blank_as_null
             )
         else:
             # No non-geometry columns at all - fall back to a plain count.
             key_cols = []
-            row_level = {
-                "only_in_dev": max(row_diff, 0),
-                "only_in_prod": max(-row_diff, 0),
-                "modified": None,
-                "precise": False,
-            }
+            row_level = gdb_compare.RowLevelDiff(
+                only_in_dev=max(row_diff, 0),
+                only_in_prod=max(-row_diff, 0),
+                modified=None,
+                precise=False,
+            )
 
         dev_area = prod_area = area_pct_diff = None
         if layer in polygon_layers:
@@ -508,8 +300,8 @@ def _compare_layers(
             dev_s = dev_gdf[col]
             prod_s = prod_gdf[col]
 
-            dev_na = _effective_isna(dev_s, blank_as_null)
-            prod_na = _effective_isna(prod_s, blank_as_null)
+            dev_na = gdb_compare.effective_isna(dev_s, blank_as_null)
+            prod_na = gdb_compare.effective_isna(prod_s, blank_as_null)
             dev_null_pct = dev_na.mean() * 100
             prod_null_pct = prod_na.mean() * 100
 
@@ -592,13 +384,11 @@ def _compare_layers(
                         round(area_pct_diff, 4) if area_pct_diff is not None else ""
                     ),
                     "key_columns": ", ".join(key_cols),
-                    "key_precise": row_level["precise"],
-                    "rows_only_in_dev": row_level["only_in_dev"],
-                    "rows_only_in_prod": row_level["only_in_prod"],
+                    "key_precise": row_level.precise,
+                    "rows_only_in_dev": row_level.only_in_dev,
+                    "rows_only_in_prod": row_level.only_in_prod,
                     "rows_modified": (
-                        row_level["modified"]
-                        if row_level["modified"] is not None
-                        else ""
+                        row_level.modified if row_level.modified is not None else ""
                     ),
                     "note": s["note"],
                     "layer_note": layer_note,
