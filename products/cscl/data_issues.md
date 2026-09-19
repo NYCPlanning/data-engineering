@@ -38,7 +38,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
-| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (51%→93% coverage, not yet CI-verified) | Open | 26c |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, but row-diff 43%→51% (net worse) - blocked on probable AddressPoint staleness | Open | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
@@ -262,24 +262,33 @@ than per-principal-streetname - that we haven't replicated.
 keyed on in the legacy ETL, and whether `dcp_cscl_streetname`'s facecode cardinality has
 always been this low or is specific to this source snapshot.
 
-**Root-caused and largely fixed (2026-09-18) - possibility #2 above was right.** GR pointed at
-the actual legacy ETL C# source this round (`ExtractorClass.cs`'s `AddAltNames`/
-`GetSAFBytesJoinID`) rather than us guessing from output samples. Confirmed: prod really does
-compute a large share of its `Join_ID`s from a mechanism unrelated to `dcp_cscl_streetname`'s
-facecode diversity - SAF-replicant `Join_ID`s, generated from `CommonPlace` and `AddressPoint`
-records whose B7SC has no relationship at all to any segment's own street classification. Item
-1 in the earlier "ruled out" list above measured the wrong thing (raw segment count carrying
-`special_address_flag`, 6.7%) rather than how many *distinct `Join_ID`s* those two source types
-actually contribute - which turns out to be substantial. See
-[Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md) for the full mechanism,
-implementation (`int__saf_altnames_join_ids.sql` + `gdb_altnames.sql`), and a real B7SC-width
-bug caught during implementation. Result: dev's distinct `Join_ID` coverage went from
-16,617/32,867 (~51%) to 30,820/33,246 (~93%) against a fresh prod comparison - closing ~85% of
-the gap. Not yet verified via a full CI build. A third SAF source type
-(`ALTSEGMENTDATA`) was deliberately left unimplemented - traced `SetSAFStreetNameAndCode` and
-confirmed it doesn't overwrite the segment's own output LGC fields, so `AddAltNames`'s regular
-per-segment path likely already covers it; implementing it too could double-count rather than
-add coverage. The remaining ~7% gap is most likely this, unconfirmed.
+**Root-caused (2026-09-18) - possibility #2 above was right, but the fix is blocked, not
+closed.** GR pointed at the actual legacy ETL C# source this round (`ExtractorClass.cs`'s
+`AddAltNames`/`GetSAFBytesJoinID`) rather than us guessing from output samples. Confirmed: prod
+really does compute a large share of its `Join_ID`s from a mechanism unrelated to
+`dcp_cscl_streetname`'s facecode diversity - SAF-replicant `Join_ID`s, generated from
+`CommonPlace` and `AddressPoint` records whose B7SC has no relationship at all to any segment's
+own street classification. Item 1 in the earlier "ruled out" list above measured the wrong thing
+(raw segment count carrying `special_address_flag`, 6.7%) rather than how many *distinct
+`Join_ID`s* those two source types actually contribute - which turns out to be substantial. A
+third SAF source type (`ALTSEGMENTDATA`) was deliberately left unimplemented - traced
+`SetSAFStreetNameAndCode` and confirmed it doesn't overwrite the segment's own output LGC
+fields, so `AddAltNames`'s regular per-segment path likely already covers it.
+
+Implemented and CI-verified (`ar-cscl-26c`, run `35354234855`): `Join_ID` coverage went from
+16,617/32,867 (~51%) to 30,820/33,246 (~93%). **But the row-level diff `compare_gdb.py` actually
+reports went from 56,017 (43.18%, pre-session baseline) to 66,076 (50.9%) - net worse**, after
+also fixing a second bug (SAF names were joining every StreetName/FeatureName variant instead of
+the principal-only row the legacy SAF name lookup actually uses - that alone had made it 100,940/
+77.8%). Spot-checking the remaining 13,564 SAF-derived dev-only rows found the same staleness
+shape as `CSCL-SAF-01`/`Bug 010`, now in `AddressPoint.B7SC_VANITY`/`B7SC_ACTUAL`: one address
+point's current vanity B7SC resolves to "East 14 Street," while prod's real row at that exact
+computed `Join_ID` shows "Avenue Y" - the underlying record's vanity code appears to have been
+reclassified in CSCL since whatever snapshot prod is stuck on, same as everywhere else this
+session. Only checked one example, not confirmed at scale. See
+[Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md) for full detail and the
+recommendation to confirm this systematically before deciding whether to keep the
+`commonplace`/`addresspoint` implementation as-is.
 
 **Separate fix, within the covered `Join_ID`s (2026-09-16): `SName` wasn't truncated to its
 30-byte field width.** The coverage-gap analysis above only asks whether a `Join_ID` exists

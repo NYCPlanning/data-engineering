@@ -207,6 +207,64 @@ def columns_differ(
     return diff
 
 
+@dataclass
+class ColumnMatch:
+    """Result of matching two schemas' columns case-insensitively.
+
+    common: (dev_name, prod_name) pairs for every column present, under some
+        casing, on both sides - use these exact spellings to index each
+        side's own DataFrame; a case-mismatched pair keeps each side's own
+        original name rather than picking one canonical spelling.
+    case_mismatches: the subset of common where the two spellings differ -
+        same column, worth its own note rather than being conflated with a
+        genuinely missing/extra one.
+    missing_from_dev / extra_in_dev: columns with no match on the other side
+        under any casing - a real structural difference, not a casing quirk.
+    """
+
+    common: list[tuple[str, str]]
+    case_mismatches: list[tuple[str, str]]
+    missing_from_dev: list[str]
+    extra_in_dev: list[str]
+
+
+def match_columns(dev_cols: Collection[str], prod_cols: Collection[str]) -> ColumnMatch:
+    """Match dev/prod column names case-insensitively.
+
+    FileGDB/ArcGIS tooling isn't consistent about the casing of its own
+    built-in fields - the same conceptual export has shown up with
+    Shape_Length/Shape_Area from one tool and SHAPE_Length/SHAPE_Area from
+    another. Treating differently-cased names as entirely different columns
+    silently drops them from every row- and column-level comparison (neither
+    side's spelling is "in" the other's exact column set), hiding a real
+    content difference behind what looks like a missing/extra-column note
+    instead. Matching case-insensitively, while still reporting the casing
+    difference itself via case_mismatches, keeps the column in the
+    comparison without pretending nothing changed.
+
+    Assumes each side's own column names are unique after lowercasing - two
+    columns differing only by case *within* one schema (not across dev/prod)
+    isn't a real FileGDB schema this needs to handle, and lowercasing would
+    silently collapse them if it existed.
+    """
+    dev_by_lower = {c.lower(): c for c in dev_cols}
+    prod_by_lower = {c.lower(): c for c in prod_cols}
+    common_lower = set(dev_by_lower) & set(prod_by_lower)
+    common_pairs = sorted(
+        (dev_by_lower[low], prod_by_lower[low]) for low in common_lower
+    )
+    return ColumnMatch(
+        common=common_pairs,
+        case_mismatches=[(d, p) for d, p in common_pairs if d != p],
+        missing_from_dev=sorted(
+            prod_by_lower[low] for low in set(prod_by_lower) - set(dev_by_lower)
+        ),
+        extra_in_dev=sorted(
+            dev_by_lower[low] for low in set(dev_by_lower) - set(prod_by_lower)
+        ),
+    )
+
+
 def guess_key_columns(
     dev_df: pd.DataFrame, prod_df: pd.DataFrame, candidate_cols: list[str]
 ) -> list[str]:

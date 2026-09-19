@@ -117,6 +117,10 @@ SELECT
     nodes.to_nodeid,
     round(nodes.to_x)::INT AS to_x,
     round(nodes.to_y)::INT AS to_y,
+    ap_left.left_borocode,
+    ap_left.left_community_district,
+    ap_left.left_1990_census_tract_basic,
+    ap_left.left_1990_census_tract_suffix,
     ap_left.left_2000_census_tract_basic,
     ap_left.left_2000_census_tract_suffix,
     ap_left.left_atomicid,
@@ -147,6 +151,10 @@ SELECT
     ap_left.left_assembly_district,
     ap_left.left_election_district,
     ap_left.left_school_district,
+    ap_right.right_borocode,
+    ap_right.right_community_district,
+    ap_right.right_1990_census_tract_basic,
+    ap_right.right_1990_census_tract_suffix,
     ap_right.right_2000_census_tract_basic,
     ap_right.right_2000_census_tract_suffix,
     ap_right.right_atomicid,
@@ -229,6 +237,7 @@ SELECT
         CASE WHEN segments.primary_feature_type = 'shoreline' THEN 'shoreline' ELSE segments.feature_type END
     ) AS to_level_code, -- TODO this is an obvious bug in prod
     centerline.trafdir_ver_flag,
+    centerline.carto_display_level,
     coalesce(centerline.segment_type, 'U') AS segment_type,
     CASE
         WHEN segments.feature_type = 'centerline'
@@ -249,6 +258,7 @@ SELECT
     centerline.bike_lane_1,
     centerline.fcc,
     rail.right_of_way_type,
+    rail.active_flag,
     ap_left.left_2010_census_tract_basic,
     ap_left.left_2010_census_tract_suffix,
     ap_right.right_2010_census_tract_basic,

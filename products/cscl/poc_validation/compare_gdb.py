@@ -70,26 +70,18 @@ KNOWN_STRUCTURAL_DIFFS = {
 # genuinely unexplained gaps, not fields already known to be unimplemented. Still shown
 # per-column in the CSV with a "KNOWN:" note rather than silently dropped.
 KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
-    # 21 fields with no source in our current pipeline (roadbed/SAF-scope, mostly) -
-    # see the NULL::text/NULL::int literals in models/product/lion/gdb/gdb_lion.sql.
+    # Fields still hardcoded to a NULL placeholder in gdb_lion.sql, and why:
+    # - SplitSchl: per ETL spec, an unused one-digit filler in Geosupport LION - blank
+    #   in prod 100% of the time (confirmed against production_outputs.fgdb_lion), so
+    #   this isn't a gap, just a field with no real content to derive.
+    # - Radius: tied to the ArcCenterX/Y curve-geometry issue (CSCL-LION-07,
+    #   data_issues.md) - on hold, not implemented.
+    # - FromLeft/ToLeft/FromRight/ToRight: real prod data contradicts a literal reading
+    #   of the spec's zero-out rule - needs dedicated investigation (see gdb_lion.sql).
+    # See models/product/lion/gdb/gdb_lion.sql for the NULL::text/NULL::int literals.
     "lion": {
-        "Street",
-        "SAFStreetName",
-        "RB_Layer",
-        "TrafSrc",
-        "SAFStreetCode",
-        "RBoro",
-        "L_CD",
-        "R_CD",
-        "LCT1990",
-        "LCT1990Suf",
-        "RCT1990",
-        "RCT1990Suf",
         "SplitSchl",
-        "MH_RI_Flag",
         "Radius",
-        "ACTIVE_FLAG",
-        "Carto_Display_Level",
         "FromLeft",
         "ToLeft",
         "FromRight",
@@ -143,6 +135,22 @@ def _compare_layers(
     for layer in report.common_layers:
         dev_gdf = gpd.read_file(dev_path, layer=layer)
         prod_gdf = gpd.read_file(prod_path, layer=layer)
+
+        # Match columns case-insensitively before comparing - FileGDB/ArcGIS
+        # export tooling isn't consistent about the casing of its own built-in
+        # fields (Shape_Area vs SHAPE_Area has shown up across releases), and
+        # compare_layer's exact-name structure_diff would otherwise drop a
+        # column from every row/column-level comparison whenever the two
+        # sides disagree on case, silently hiding a real content difference
+        # behind what reads like a missing/extra-column note. Harmonize
+        # prod's spelling to dev's for every case-insensitive match so
+        # compare_layer (which assumes identical column names) never sees
+        # the mismatch.
+        col_match = gdb_compare.match_columns(dev_gdf.columns, prod_gdf.columns)
+        if col_match.case_mismatches:
+            prod_gdf = prod_gdf.rename(
+                columns=dict((p, d) for d, p in col_match.case_mismatches)
+            )
 
         result = gdb_compare.compare_layer(
             dev_gdf,

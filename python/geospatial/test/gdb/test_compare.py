@@ -286,6 +286,26 @@ def test_columns_differ_defaults_to_exact_comparison_for_float_columns():
     assert diff.iloc[0]
 
 
+def test_match_columns_matches_same_name_regardless_of_case():
+    """Regression test: SHAPE_Area (dev) vs Shape_Area (prod) used to be
+    treated as entirely different columns - dropped from every row/column
+    comparison instead of being recognized as the same field with a casing
+    quirk, silently hiding real content differences."""
+    result = compare.match_columns(["SHAPE_Area", "NTACode"], ["Shape_Area", "NTACode"])
+    assert result.common == [("NTACode", "NTACode"), ("SHAPE_Area", "Shape_Area")]
+    assert result.case_mismatches == [("SHAPE_Area", "Shape_Area")]
+    assert result.missing_from_dev == []
+    assert result.extra_in_dev == []
+
+
+def test_match_columns_reports_genuinely_missing_or_extra_columns():
+    result = compare.match_columns(["NTACode", "DevOnly"], ["NTACode", "ProdOnly"])
+    assert result.common == [("NTACode", "NTACode")]
+    assert result.case_mismatches == []
+    assert result.missing_from_dev == ["ProdOnly"]
+    assert result.extra_in_dev == ["DevOnly"]
+
+
 def test_row_level_diff_on_disjoint_frames_reports_full_replacement(ad_gdf):
     """No overlap at all: every dev row is dev-only, every prod row is
     prod-only, nothing is "modified" (there's no common row to compare)."""
