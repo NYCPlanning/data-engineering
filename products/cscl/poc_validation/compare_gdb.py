@@ -62,6 +62,9 @@ PROD_BUCKET = "edm-private"
 KNOWN_STRUCTURAL_DIFFS = {
     # Prod's nyura carries a stale copy of nybid's schema; both are empty, so the
     # structural diff on this layer is expected. See models/product/districts/gdb_nyura.sql.
+    # Root cause confirmed via FileGDB item metadata: nyura and nybid share the same frozen
+    # 2009-10-20 CopyFeatures batch (Windows XP/ArcGIS 9.3 era) - see
+    # docs/prod_bugs/013-gdb-creadate-staleness-fossils.md.
     "nyura",
 }
 

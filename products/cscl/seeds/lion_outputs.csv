@@ -55,12 +55,12 @@ lion_gdb,gdb,LION gdb,layer,node,gdb_node,false,true,NODEID,,,
 lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,false,true,LBoro|FaceCode|SeqNum,,,
 lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,false,true,NODEID|STNAME,,,
 lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,false,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,blocked,See docs/prod_bugs/011-altnames-saf-replicant-join-ids.md
-district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,false,true,AssemDist,Assembly Districts clipped to shoreline,,
+district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,false,true,AssemDist,Assembly Districts clipped to shoreline,blocked,Layer frozen since 2012 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
 district_gdb,gdb,District gdb,layer,nyadwi,gdb_nyadwi,false,true,AssemDist,"Assembly Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyap,gdb_nyap,false,true,ATOMICID,Atomic Polygons,,
-district_gdb,gdb,District gdb,layer,nybb,gdb_nybb,false,true,BoroCode,Borough Boundaries clipped to shoreline,,
+district_gdb,gdb,District gdb,layer,nyap,gdb_nyap,false,true,ATOMICID,Atomic Polygons,blocked,Layer frozen since 2015 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nybb,gdb_nybb,false,true,BoroCode,Borough Boundaries clipped to shoreline,blocked,Layer frozen since 2012 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
 district_gdb,gdb,District gdb,layer,nybbwi,gdb_nybbwi,false,true,BoroCode,"Borough Boundaries, unclipped",,
-district_gdb,gdb,District gdb,layer,nybid,gdb_nybid,false,true,BIDID,Business Improvement Districts,,
+district_gdb,gdb,District gdb,layer,nybid,gdb_nybid,false,true,BIDID,Business Improvement Districts,blocked,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
 district_gdb,gdb,District gdb,layer,nycb2010,gdb_nycb2010,false,true,BCTCB2010,2010 Census Blocks clipped to shoreline,,
 district_gdb,gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,false,true,BCTCB2010,"2010 Census Blocks, unclipped",,
 district_gdb,gdb,District gdb,layer,nycb2020,gdb_nycb2020,false,true,BCTCB2020,2020 Census Blocks clipped to shoreline,,
@@ -69,7 +69,7 @@ district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,false,true,CounDist,City Counc
 district_gdb,gdb,District gdb,layer,nyccwi,gdb_nyccwi,false,true,CounDist,"City Council Districts, unclipped",,
 district_gdb,gdb,District gdb,layer,nycd,gdb_nycd,false,true,BoroCD,Community Districts clipped to shoreline,,
 district_gdb,gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,false,true,CDTA2020,Community District Tabulation Areas 2020,,
-district_gdb,gdb,District gdb,layer,nycdwi,gdb_nycdwi,false,true,BoroCD,"Community Districts, unclipped",,
+district_gdb,gdb,District gdb,layer,nycdwi,gdb_nycdwi,false,true,BoroCD,"Community Districts, unclipped",blocked,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
 district_gdb,gdb,District gdb,layer,nycg,gdb_nycg,false,true,CongDist,Congressional Districts,,
 district_gdb,gdb,District gdb,layer,nycgwi,gdb_nycgwi,false,true,CongDist,"Congressional Districts, unclipped",,
 district_gdb,gdb,District gdb,layer,nyct2010,gdb_nyct2010,false,true,BoroCT2010,2010 Census Tracts clipped to shoreline,,
@@ -83,10 +83,10 @@ district_gdb,gdb,District gdb,layer,nyfc,gdb_nyfc,false,true,FireCoType|FireCoNu
 district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,false,true,FireDiv,Fire Divisions,,
 district_gdb,gdb,District gdb,layer,nyha,gdb_nyha,false,true,BoroCode|HealthArea,Health Areas clipped to shoreline,,
 district_gdb,gdb,District gdb,layer,nyhc,gdb_nyhc,false,true,HCentDist,Health Center Districts clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,false,true,NAME,Historic Districts,,
+district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,false,true,NAME,Historic Districts,blocked,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
 district_gdb,gdb,District gdb,layer,nyhez,gdb_nyhez,false,true,HURRICANE_EVACUATION_ZONE,Hurricane Evacuation Zones,,
 district_gdb,gdb,District gdb,layer,nymc,gdb_nymc,false,true,BoroCode|MuniCourt,Municipal Court Districts,,
-district_gdb,gdb,District gdb,layer,nymcea,gdb_nymcea,false,true,BOROCODE|MCEA,"Minor Census Economic Areas, dissolved from 2000 Census Tracts by MCEA attribute, clipped to shoreline",,
+district_gdb,gdb,District gdb,layer,nymcea,gdb_nymcea,false,true,BOROCODE|MCEA,"Minor Census Economic Areas, dissolved from 2000 Census Tracts by MCEA attribute, clipped to shoreline",blocked,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
 district_gdb,gdb,District gdb,layer,nymcwi,gdb_nymcwi,false,true,BoroCode|MuniCourt,"Municipal Court Districts, unclipped",,
 district_gdb,gdb,District gdb,layer,nynta2010,gdb_nynta2010,false,true,NTACode,Neighborhood Tabulation Areas 2010,,
 district_gdb,gdb,District gdb,layer,nynta2020,gdb_nynta2020,false,true,NTA2020,Neighborhood Tabulation Areas 2020,,
@@ -96,5 +96,5 @@ district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,false,true,PUMA,Pu
 district_gdb,gdb,District gdb,layer,nysd,gdb_nysd,false,true,SchoolDist,School Districts,,
 district_gdb,gdb,District gdb,layer,nyss,gdb_nyss,false,true,StSenDist,State Senatorial Districts,,
 district_gdb,gdb,District gdb,layer,nysswi,gdb_nysswi,false,true,StSenDist,"State Senatorial Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyura,gdb_nyura,false,true,URAID,Urban Renewal Areas,,
-district_gdb,gdb,District gdb,layer,nyzip,gdb_nyzip,false,true,ZIP_CODE,Zip Code Areas,,
+district_gdb,gdb,District gdb,layer,nyura,gdb_nyura,false,true,URAID,Urban Renewal Areas,blocked,Layer frozen since 2009 (same batch as nybid - see KNOWN_STRUCTURAL_DIFFS in compare_gdb.py) - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nyzip,gdb_nyzip,false,true,ZIP_CODE,Zip Code Areas,blocked,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md

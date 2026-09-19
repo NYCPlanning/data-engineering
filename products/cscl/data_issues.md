@@ -38,12 +38,12 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
-| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, but row-diff 43%→51% (net worse) - blocked on probable AddressPoint staleness | Open | 26c |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
-| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`); `nynta2020` is a separate, unexplained clip-fragmentation gap | Open | 26b |
+| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
@@ -290,6 +290,21 @@ session. Only checked one example, not confirmed at scale. See
 recommendation to confirm this systematically before deciding whether to keep the
 `commonplace`/`addresspoint` implementation as-is.
 
+**Confirmed at scale (2026-09-19), with new queryable QA models
+(`gdb_altnames_by_field`/`qa_int__prod_fgdb_altnames`/`qa__diffs_fgdb_altnames`, full-row-content
+hash diff).** Total diff: 66,056 rows, 77-82% of it concentrated in `CommonPlace`-sourced SAF
+Join_IDs (types N/X), not `AddressPoint` as the one-example writeup above suspected. For every one
+of the 4,064 distinct problem `Join_ID`s, reconstructed the underlying B7SC's street-code+LGC
+suffix and searched current `StreetName`/`FeatureName` under all 5 possible borough digits (the
+`Join_ID` formula discards the source B7SC's own borough digit) - **zero matched anything in
+current source, under any borough.** Concrete example: `Join_ID` `20079701000000N`'s current B7SC
+is unambiguously "BAY PLAZA" (matches dev's single row exactly); prod carries 106 unrelated
+alternate names under that same `Join_ID` string (every spelling of "Martin Luther King Jr
+Avenue"/"Bartow Avenue"). This is the same staleness pattern as `CSCL-SAF-01`/`Bug 010`, now
+confirmed as the dominant driver of the whole-project diff (`qa__diffs_all`), not a code bug. Not
+fixable on our side. See [Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md)'s
+2026-09-19 update for the full methodology.
+
 **Separate fix, within the covered `Join_ID`s (2026-09-16): `SName` wasn't truncated to its
 30-byte field width.** The coverage-gap analysis above only asks whether a `Join_ID` exists
 on both sides. Restricting to the 16,617 `Join_ID`s dev *does* produce and diffing dev's rows
@@ -498,12 +513,41 @@ NTAs into more than twice as many pieces as our clip finds - a different/more gr
 mask, a different clip tolerance, no min-area floor on prod's side - is a genuinely separate,
 still-open question from the `organizePolygons()` mechanism above.
 
-**What would settle it:** this needs a decision before touching shared code - candidates are
-simplifying/consolidating high-ring-count geometry before export, a GDAL layer-creation
-option to control `organizePolygons()` behavior on read (`METHOD=SKIP`/`ONLY_CCW`), checking
-whether ring winding order (`ST_ForceRHR` or similar) differs from what OpenFileGDB expects,
-or a `pyogrio`/GDAL version difference from whatever produced prod's export. All of these
-touch code other products' gdb exports depend on.
+**Fixed (2026-09-19) - root cause was our own SQL, not shared export code.** Ruled out the
+"needs a decision before touching shared code" candidates empirically rather than guessing:
+
+- **Ring winding order is already correct.** Checked PUMA 4105's actual geometry: exterior
+  ring is clockwise, all 4,926 interior rings are counter-clockwise, 100% consistent - the
+  standard, unambiguous convention. Not the cause.
+- **`OGR_ORGANIZE_POLYGONS` config (`ONLY_CCW`/`SKIP`) doesn't fully fix it either way, and
+  only matters on read, never on write.** Verified: writing with any config setting produces
+  byte-identical read-back results to writing with defaults (confirmed via
+  `pyogrio.set_gdal_config_options`, `use_arrow=False`, and env vars) - whatever's ambiguous
+  about the file is baked in by the OpenFileGDB writer itself, not fixable from the read side.
+  `METHOD=ONLY_CCW` on read improves PUMA 4105 from 87 misread parts to 58 (better, still
+  wrong); `METHOD=SKIP` makes it worse (4,928 - every single ring treated as its own polygon).
+  Would require *every* downstream consumer of our exports to also set this, which isn't
+  practical anyway.
+- **The real fix: the holes shouldn't exist in the first place.** Checked the size of all
+  4,926 "holes" in PUMA 2010's worst case (PUMA 4105): every single one is under 0.24 sq ft
+  (max 0.237, min ~1.7e-9) - the same hairline-sliver artifact `clipped_geom`'s existing
+  `min_area` floor already removes for whole *parts* (district/water-mask boundaries are
+  nominally coincident but differ in the last bits), just never applied to *interior rings
+  within* a part that survives that filter. Stripping sub-`min_area` holes the same way:
+  PUMA 4105 goes from 4,926 holes to **0**, area changes by 6.9 sq ft (0.0000013%). Below
+  GDAL's 100-ring `organizePolygons()` trigger entirely, so the ambiguous-reconstruction
+  problem never arises on export.
+
+Implemented in `macros/clip_to_shoreline.sql`'s `clipped_geom` macro (CSCL-local code, not
+shared `dcpy` export infrastructure - no cross-product risk). Verified on rebuild:
+`nypuma2010` total exported parts 355 → **182** (prod: 178); `nypuma2020` 210 → **180**
+(prod: 182) - both now within a handful of prod, the same margin the existing whole-part
+`min_area` floor already achieves elsewhere. **`nymcea`'s row count is unchanged (249,
+unaffected by this fix)** - contradicts the earlier "likely the same mechanism" note two
+paragraphs up; its fragmentation is a genuinely different, still-open mechanism (real disjoint
+parts from the dissolve/clip step, not a ring-hole export artifact) and needs its own
+investigation. `nynta2020`'s reverse-direction gap (above) is also confirmed separate, unaffected
+by this fix.
 
 ### CSCL-DISTRICTS-02
 
