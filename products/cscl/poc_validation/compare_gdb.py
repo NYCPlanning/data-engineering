@@ -70,26 +70,18 @@ KNOWN_STRUCTURAL_DIFFS = {
 # genuinely unexplained gaps, not fields already known to be unimplemented. Still shown
 # per-column in the CSV with a "KNOWN:" note rather than silently dropped.
 KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
-    # 21 fields with no source in our current pipeline (roadbed/SAF-scope, mostly) -
-    # see the NULL::text/NULL::int literals in models/product/lion/gdb/gdb_lion.sql.
+    # Fields still hardcoded to a NULL placeholder in gdb_lion.sql, and why:
+    # - SplitSchl: per ETL spec, an unused one-digit filler in Geosupport LION - blank
+    #   in prod 100% of the time (confirmed against production_outputs.fgdb_lion), so
+    #   this isn't a gap, just a field with no real content to derive.
+    # - Radius: tied to the ArcCenterX/Y curve-geometry issue (CSCL-LION-07,
+    #   data_issues.md) - on hold, not implemented.
+    # - FromLeft/ToLeft/FromRight/ToRight: real prod data contradicts a literal reading
+    #   of the spec's zero-out rule - needs dedicated investigation (see gdb_lion.sql).
+    # See models/product/lion/gdb/gdb_lion.sql for the NULL::text/NULL::int literals.
     "lion": {
-        "Street",
-        "SAFStreetName",
-        "RB_Layer",
-        "TrafSrc",
-        "SAFStreetCode",
-        "RBoro",
-        "L_CD",
-        "R_CD",
-        "LCT1990",
-        "LCT1990Suf",
-        "RCT1990",
-        "RCT1990Suf",
         "SplitSchl",
-        "MH_RI_Flag",
         "Radius",
-        "ACTIVE_FLAG",
-        "Carto_Display_Level",
         "FromLeft",
         "ToLeft",
         "FromRight",
