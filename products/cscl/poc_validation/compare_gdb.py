@@ -129,15 +129,23 @@ def _compare_layers(
     report = gdb_report.GdbComparisonReport()
     report.log_settings(blank_as_null)
 
-    # fgdb.layer_geometry_types/gpd.read_file both resolve a zipped GDB
-    # natively (no manual /vsizip/ path needed).
+    # pyogrio's native zip-GDB handling only fires when the zip's own
+    # filename ends in ".gdb.zip" - CSCL's recipe.yml exports (e.g.
+    # "nyclion_26c.zip") don't follow that convention, and real prod
+    # deliveries additionally nest the .gdb in a folder rather than at the
+    # zip root. Resolve each path once, up front, to something pyogrio can
+    # actually open - reused for every read below instead of the raw path.
+    resolved_dev_path = fgdb.resolve_gdb_path(dev_path)
+    resolved_prod_path = fgdb.resolve_gdb_path(prod_path)
+
     report.log_layer_structure(
-        fgdb.layer_geometry_types(dev_path), fgdb.layer_geometry_types(prod_path)
+        fgdb.layer_geometry_types(resolved_dev_path),
+        fgdb.layer_geometry_types(resolved_prod_path),
     )
 
     for layer in report.common_layers:
-        dev_gdf = gpd.read_file(dev_path, layer=layer)
-        prod_gdf = gpd.read_file(prod_path, layer=layer)
+        dev_gdf = gpd.read_file(resolved_dev_path, layer=layer)
+        prod_gdf = gpd.read_file(resolved_prod_path, layer=layer)
 
         # Match columns case-insensitively before comparing - FileGDB/ArcGIS
         # export tooling isn't consistent about the casing of its own built-in

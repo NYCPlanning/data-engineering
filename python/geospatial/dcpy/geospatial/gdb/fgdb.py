@@ -8,14 +8,61 @@ import pyogrio
 from dcpy.geospatial.shapefile_metadata import Metadata
 
 
+def resolve_gdb_path(gdb: Path | str) -> str:
+    """A path string pyogrio/GDAL can actually open for this .gdb or .zip.
+
+    pyogrio's own native zip-GDB handling only kicks in when the *filename*
+    itself ends in ".gdb.zip" - confirmed empirically: identical zip bytes
+    open fine as "x.gdb.zip" and fail as plain "x.zip", regardless of
+    whether the .gdb inside is at the archive root or nested in a folder
+    (real prod deliveries nest it, e.g. a LION zip's .gdb lives at
+    "lion/lion.gdb/...", not the zip root - our own zip_gdb() always writes
+    it at the root, but under whatever filename the recipe declares, which
+    for LION is "nyclion_*.zip", not "*.gdb.zip"). Returns the path as-is
+    when pyogrio can already open it; otherwise scans the zip for a *.gdb
+    entry and returns an explicit /vsizip/ path to it.
+    """
+    path_str = str(gdb)
+    try:
+        pyogrio.list_layers(path_str)
+    except Exception:
+        inner = _find_inner_gdb(Path(gdb))
+        if inner is None:
+            raise
+        return inner
+    return path_str
+
+
 def layer_geometry_types(gdb: Path | str) -> dict[str, str | None]:
     """Layer name -> geometry type name (None for a non-spatial table).
 
-    Accepts a .gdb directory or a .zip containing one at its top level -
-    pyogrio resolves a zipped GDB natively, no manual /vsizip/ path needed.
+    Accepts anything resolve_gdb_path does: a .gdb directory, or a .zip
+    containing one - at its top level or nested, and regardless of whether
+    the zip's own filename ends in ".gdb.zip".
     """
-    rows = pyogrio.list_layers(str(gdb))
+    rows = pyogrio.list_layers(resolve_gdb_path(gdb))
     return {str(row[0]): (str(row[1]) if row[1] else None) for row in rows}
+
+
+def _find_inner_gdb(zip_path: Path) -> str | None:
+    """The /vsizip/<abs zip path>/<inner .gdb path> VSI path for the first
+    *.gdb directory found anywhere in the zip (not just at its top level), or
+    None if zip_path isn't a zip or contains no .gdb."""
+    if not zipfile.is_zipfile(zip_path):
+        return None
+    with zipfile.ZipFile(zip_path) as z:
+        gdb_dirs = sorted(
+            {
+                "/".join(parts[: i + 1])
+                for name in z.namelist()
+                for parts in [name.split("/")]
+                for i, part in enumerate(parts)
+                if part.endswith(".gdb")
+            }
+        )
+    if not gdb_dirs:
+        return None
+    return f"/vsizip/{zip_path.resolve()}/{gdb_dirs[0]}"
 
 
 def zip_gdb(gdb_dir: Path, zip_path: Path) -> None:
