@@ -204,8 +204,11 @@ package = false
 
 [dependency-groups]
 dev = [
+    "dbt-postgres",
+    "dbt-duckdb",
     "pytest",
     "pytest-xdist",
     "types-setuptools",
     "types-tqdm",
+    "sqlfluff",
 ]
