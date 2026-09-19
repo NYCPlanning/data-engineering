@@ -54,4 +54,6 @@ FROM (
     SELECT * FROM {{ ref('qa__diffs_enders') }}
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_exception') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_fgdb_altnames') }}
 ) AS unioned_diffs
