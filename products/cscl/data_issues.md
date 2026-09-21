@@ -51,6 +51,8 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LDF-03](#cscl-ldf-03) | LDF | Cumulative record number is transcribed, not chained | Open | 26b |
 | [CSCL-LDF-04](#cscl-ldf-04) | LDF | One LION record carries `-1` as GENERICID | Open | 26b |
 | [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load | Open | 26c |
+| [CSCL-THINED-01](#cscl-thined-01) | ThinED | Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source | Watch | 26c |
+| [CSCL-THINED-02](#cscl-thined-02) | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c |
 
 ---
 
@@ -665,6 +667,55 @@ two NTA models so far). Worth auditing each for whether its own source geometry 
 its borough/jurisdiction the same way `stg__neighborhood` does before deciding whether to extend
 the borough-bound pattern to them too.
 
+**Audited 2026-09-21 - `nycc`, `nyfd`, `nypuma2010`, `nypuma2020`.** Compared each layer's
+per-row `SHAPE_Length`/`SHAPE_Area` directly against prod's real district gdb (downloaded from
+`edm-private/cscl_etl/26c/v26C_Districts.gdb.zip`, matched on each layer's declared key). All
+four show exactly this issue's signature - `SHAPE_Area` within noise while `SHAPE_Length` is
+inflated on a subset of rows - concentrated on Queens' most complex/marshy coastline:
+
+- `nycc`: 35/51 districts differ at all; worst is CD31 (+5.67%, 20,842 ft) and CD19 (+1.48%),
+  both Queens waterfront districts (Rockaway/Jamaica Bay, Whitestone/Little Neck Bay). CD8 - the
+  one council district that genuinely spans two boroughs (East Harlem/Manhattan and Mott
+  Haven/Bronx, connected across the Harlem River - confirmed real, not a data error) - is *not*
+  a source of error: its `SHAPE_Length` matches prod to 0.0002%.
+- `nyfd`: 9/9 divisions differ; worst is FireDiv 13 (+2.04%, 13,985 ft) - also the only row with
+  an area delta above noise (-0.118%, vs <0.005% on the other 8), suggesting something beyond a
+  pure hairline-seam issue. FireDiv 13 is ~99.9% Queens (a sliver of Brooklyn) - same coastline
+  profile as `nycc`'s worst offenders.
+- `nypuma2010`/`nypuma2020`: every row differs, up to 13.6% (`nypuma2020` PUMA 4403). Worst
+  offender both editions is PUMA 4105 (Rockaway peninsula/Jamaica Bay) - the same PUMA already
+  flagged as `CSCL-DISTRICTS-01`'s worst ring-count case, so this is evidently a second, distinct
+  issue on the same especially complex piece of coastline.
+
+**Ruled out for all four: the `nynta`-style borough-bound fix (mechanism 2).** Checked whether
+any of these layers' raw source geometry extends past its own assigned borough the way
+`stg__neighborhood`'s did (QN99/Perth Amboy, SI12/NJ state line) - none of the *problem* rows do
+(CD31/19/32, FireDiv 13, PUMA 4105 are all >99.9% inside a single borough). So the residual here
+isn't a jurisdictional-edge coverage void; these layers already get mechanism 1's hairline-seam
+closing for free via the shared `int__water_mask.sql` macro, and it evidently isn't sufficient on
+Queens' more convoluted marsh/bay coastline (many more, smaller AtomicPolygon seams per mile of
+district boundary than the NTA cases that motivated the 0.01 ft buffer). Extending the
+borough-bound pattern to these layers would add code with no expected effect - don't.
+
+**New, unrelated finding while checking `nypuma`'s borough containment:** one of
+`dcp_cscl_censustract2010`'s source tracts feeding PUMA 4101's dissolve carries `BoroCode=5`
+(Staten Island) and contributes 864M sq ft - roughly a third of the dissolved PUMA's raw area -
+to a PUMA that is otherwise 60/62 tracts of Queens (`BoroCode=4`); a second tract is mislabeled
+`BoroCode=3` (Brooklyn). Both are almost certainly open-water Census tracts (this stretch is the
+Rockaway Inlet/lower Jamaica Bay, between Queens and Staten Island) that get clipped away by
+`clipped_geom`'s water subtraction regardless, so they likely don't explain the `SHAPE_Length`
+gap above - PUMA 4101 itself isn't among the worst-affected rows (+0.95%). Flagging since it's
+the same shape of source-data mislabeling as QN99's Perth Amboy polygon, just apparently
+inconsequential here.
+
+**Still not done:** the actual coastline-seam-gap fix for these Queens-heavy layers - likely
+needs sampling actual gap sizes along CD31/FireDiv13/PUMA4105's boundaries the way SI12's
+~0.0001-0.0002 ft gaps were measured for `CSCL-DISTRICTS-01`, to see whether a larger (but still
+safe - see the MN24 regression note above) closing buffer would close them, or whether it's a
+structurally different gap (e.g. real multi-hundred-foot voids between Jamaica Bay's marsh
+islands) that no single buffer size can close. FireDiv 13's above-noise area delta specifically
+deserves its own look before assuming it's the same mechanism as the others.
+
 ## LDF
 
 ### CSCL-LDF-01
@@ -794,3 +845,71 @@ Data").
 **What would settle it:** ask GR whether `saf_s_*`'s LGC values are regenerated from CSCL's
 current `Segment_LGC` table each release or carried forward, using segmentid 136981 as a
 concrete example (current source has no LGC `01` for it at all).
+
+## ThinED
+
+### CSCL-THINED-01
+
+**Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source** ·
+Watch · Last verified 26c
+
+`docs/prod_bugs/009-thined-redistricted-field-mismatch.md` documented real mismatches in the
+four fields tied to offices redistricted since the last cycle (`congress_district`,
+`state_sen_district`, `muni_court_district`, `city_council_district`), hypothesized as a
+source-vintage skew between whatever `ElectionDistrict` snapshot our 26c archive held and
+whatever prod's separate legacy pipeline used to generate its own `thined.txt`. GR sent a
+corrected `thined.txt` for 26c; comparing our (unchanged) output against it directly
+(`assembly_district + election_district` keyed, as bug 009 established) shows **zero** field-level
+mismatches across all 4285 rows - full multiset match, confirmed with `sort`/`comm` (the same
+method `validate_outputs.sh` uses) as well as a keyed per-row check. The hypothesis in bug 009
+is the likely explanation: our source data was fine, prod's `thined.txt` snapshot just wasn't
+freshly-vintaged. No code change needed here - see `CSCL-THINED-02` for the one remaining,
+purely structural gap this same comparison surfaced.
+
+**What would settle it:** nothing further needed on our side; watch for recurrence next cycle if
+GR's `thined.txt` and `ElectionDistrict` snapshots drift out of sync again.
+
+### CSCL-THINED-02
+
+**`thined.txt` missing prod's 3-line file header** · Fixed · Last verified 26c
+
+Once `CSCL-THINED-01`'s real data mismatch was resolved, `validate_outputs.sh` still reported 3
+discrepant rows for `thined.txt`. Root cause: prod's real `thined.txt` carries a 3-line,
+14-byte-wide file header *before* the data records - our build emitted only the 4285 data rows,
+no header. `comm -13` (prod-only) on the sorted raw files showed exactly the 3 header lines;
+`comm -23` (dev-only) was empty, consistent with `CSCL-THINED-01`'s finding that the data itself
+is a perfect match.
+
+The header isn't documented in `design_doc.md`/`docs/ETL_V8_02012024.md`, and isn't produced by
+the legacy ETL tool archived in `cscl_etl_archive` - `etl_docs.MD` states explicitly "The ETL
+tool produces two types of district equivalency files: ThinLION and ThinFire," with no ThinED
+extractor class anywhere in that archive. `thined.txt`, like the LDF, is evidently built by a
+separate legacy tool we don't have source for.
+
+Header record layout (each line 14 bytes, same width as a data record):
+
+| Line | Content | Meaning |
+|---|---|---|
+| `0000THIN260309` | record type `0000` + `THIN260309` | Unknown exact meaning; the trailing 6 digits parse as a plausible `YYMMDD` (2026-03-09), but nothing in this codebase or the legacy archive confirms that reading or what date it should represent. |
+| `000126A1      ` | record type `0001` + `26A1` + 6 spaces | Unknown exact meaning; looks like an edition/version tag, but `26A1` doesn't correspond to this build's own `26c` version - plausibly a stale/frozen tag prod's tool carries forward without updating each cycle, in the same spirit as the frozen 2009-batch district gdb layers (`docs/prod_bugs/013`), though unconfirmed. |
+| `000200004288  ` | record type `0002` + record count `00004288` + 2 spaces | **Understood and computed.** Self-referential: counts every line in the file, header included (3 + 4285 = 4288) - the same "record count includes header record" convention `design_doc.md` documents explicitly for the LDF header (`LDFH6`). |
+
+**Fixed for 26c** in `models/product/thined/thined_dat.sql`: prepends a `header` CTE ahead of
+the data rows. The record-count line (`0002`) is computed from the real row count, since we
+understand its rule precisely. The other two lines (`0000`, `0001`) are hardcoded literals
+copied verbatim from 26c's real prod file - not derived from any understood formula, since we
+have no source confirming what (if anything) should change about them release to release.
+Verified against 26c's real prod `thined.txt`: zero dev-only, zero prod-only rows.
+
+**Deliberately not attempted:** reverse-engineering an update rule for the `THIN260309`/`26A1`
+fields well enough to compute them for a future release. Given neither this codebase nor the
+available legacy source explains their real semantics, guessing a formula risks encoding
+coincidence as fact - the same trap `CSCL-LDF-01` warns against for tuning to match a small
+sample. The hardcoded literals will silently go stale (byte-mismatch reappearing as this same 3
+discrepant-row pattern) the moment either value legitimately changes upstream.
+
+**What would settle it:** ask GR what `thined.txt`'s file header actually encodes, and whether
+`26A1`/`THIN260309` are expected to change release to release or are effectively frozen
+constants from whatever tool originally generated this format. **Follow up with GS** - since
+neither `design_doc.md`/`docs/ETL_V8_02012024.md` nor `cscl_etl_archive` document this format,
+Geosupport (the actual consumer of this file) may know what it's for even if GR doesn't.

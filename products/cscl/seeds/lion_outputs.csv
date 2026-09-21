@@ -19,7 +19,7 @@ flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_broo
 flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,blocked,"Redistricted-field mismatch, no fix identified yet",See docs/prod_bugs/009-thined-redistricted-field-mismatch.md
+flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,done,"1 Expected discrepant row in header","Follow up with GS"
 flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,false,true,,,done,Matches prod exactly,
@@ -65,7 +65,7 @@ district_gdb,gdb,District gdb,layer,nycb2010,gdb_nycb2010,true,true,BCTCB2010,20
 district_gdb,gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,true,true,BCTCB2010,"2010 Census Blocks, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
 district_gdb,gdb,District gdb,layer,nycb2020,gdb_nycb2020,true,true,BCTCB2020,2020 Census Blocks clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,true,true,BCTCB2020,"2020 Census Blocks, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
-district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,true,true,CounDist,City Council Districts,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,true,true,CounDist,City Council Districts,open,"Shoreline-clip SHAPE_Length noise, worst on Queens coastline","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21: not a borough-bound (mechanism 2) issue like nynta - CD8's real cross-borough span isn't the cause either; residual is unclosed coastline seams on Queens' most complex shoreline (CD31/19/32)."
 district_gdb,gdb,District gdb,layer,nyccwi,gdb_nyccwi,true,true,CounDist,"City Council Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
 district_gdb,gdb,District gdb,layer,nycd,gdb_nycd,true,true,BoroCD,Community Districts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,true,true,CDTA2020,Community District Tabulation Areas 2020,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
@@ -80,7 +80,7 @@ district_gdb,gdb,District gdb,layer,nyed,gdb_nyed,true,true,ElectDist,Election D
 district_gdb,gdb,District gdb,layer,nyedwi,gdb_nyedwi,true,true,ElectDist,"Election Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
 district_gdb,gdb,District gdb,layer,nyfb,gdb_nyfb,true,true,FireBN,Fire Battalions,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nyfc,gdb_nyfc,true,true,FireCoType|FireCoNum,Fire Companies,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
-district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,true,true,FireDiv,Fire Divisions,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,true,true,FireDiv,Fire Divisions,open,"Shoreline-clip SHAPE_Length noise; FireDiv 13 also has an above-noise area delta","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21: same Queens-coastline seam-gap pattern as nycc/nypuma; FireDiv 13's -0.118% area delta (vs <0.005% on other divisions) may be a distinct, second mechanism - not yet isolated."
 district_gdb,gdb,District gdb,layer,nyha,gdb_nyha,true,true,BoroCode|HealthArea,Health Areas clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nyhc,gdb_nyhc,true,true,HCentDist,Health Center Districts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,true,true,NAME,Historic Districts,blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
@@ -91,8 +91,8 @@ district_gdb,gdb,District gdb,layer,nymcwi,gdb_nymcwi,true,true,BoroCode|MuniCou
 district_gdb,gdb,District gdb,layer,nynta2010,gdb_nynta2010,true,true,NTACode,Neighborhood Tabulation Areas 2010,in progress,Resolving water-boundary clipping issues,See CSCL-DISTRICTS-03 in data_issues.md
 district_gdb,gdb,District gdb,layer,nynta2020,gdb_nynta2020,true,true,NTA2020,Neighborhood Tabulation Areas 2020,in progress,Resolving water-boundary clipping issues,See CSCL-DISTRICTS-03 in data_issues.md
 district_gdb,gdb,District gdb,layer,nypp,gdb_nypp,true,true,Precinct,Police Precincts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
-district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,true,true,PUMA,Public Use Microdata Areas (PUMA) 2010,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
-district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,true,true,PUMA,Public Use Microdata Areas (PUMA) 2020,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,true,true,PUMA,Public Use Microdata Areas (PUMA) 2010,open,"Shoreline-clip SHAPE_Length noise, worst on Rockaway/Jamaica Bay (PUMA 4105)","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21: every PUMA row shows some inflation; not a borough-bound issue. Also found an unrelated BoroCode mislabeling in source census tracts feeding PUMA 4101's dissolve (doesn't appear to explain the gap)."
+district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,true,true,PUMA,Public Use Microdata Areas (PUMA) 2020,open,"Shoreline-clip SHAPE_Length noise, worst on Rockaway/Jamaica Bay (PUMA 4105)","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21, same finding as nypuma2010 (worst on PUMA 4105/Rockaway) - see that row's notes for detail."
 district_gdb,gdb,District gdb,layer,nysd,gdb_nysd,true,true,SchoolDist,School Districts,done,Matches prod exactly,
 district_gdb,gdb,District gdb,layer,nyss,gdb_nyss,true,true,StSenDist,State Senatorial Districts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nysswi,gdb_nysswi,true,true,StSenDist,"State Senatorial Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",

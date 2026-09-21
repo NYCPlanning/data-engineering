@@ -199,6 +199,22 @@ def _compare_layers(
             known=layer in KNOWN_STRUCTURAL_DIFFS,
         )
 
+    # A layer present on only one side (e.g. a layer prod stopped shipping
+    # entirely) has nothing to column/row-compare against - report it
+    # explicitly instead of silently skipping it. Skipping it isn't neutral:
+    # a caller merging this report's CSV into a broader summary (see
+    # build_diffs_report.py's load_gdb_layer_stats) would find no row for
+    # the layer at all and read that as "zero known diffs" rather than
+    # "entirely missing" (see CSCL-DISTRICTS: nyzip, frozen since 2009 in
+    # prod, dropped from prod's 26C release outright - this used to report
+    # a "Gap" of 0 instead of the real, maximal discrepancy).
+    for layer in report.only_in_dev_layers:
+        dev_gdf = gpd.read_file(resolved_dev_path, layer=layer)
+        report.add_missing_layer(layer, dev_row_count=len(dev_gdf), prod_row_count=0)
+    for layer in report.only_in_prod_layers:
+        prod_gdf = gpd.read_file(resolved_prod_path, layer=layer)
+        report.add_missing_layer(layer, dev_row_count=0, prod_row_count=len(prod_gdf))
+
     report.log_summary()
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

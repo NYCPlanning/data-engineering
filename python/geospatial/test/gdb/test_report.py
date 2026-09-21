@@ -100,6 +100,80 @@ def test_log_layer_structure_sets_common_layers():
     assert r.common_layers == ["nynta2010"]
 
 
+def test_log_layer_structure_sets_only_in_dev_and_only_in_prod_layers():
+    r = report.GdbComparisonReport()
+    r.log_layer_structure(
+        {"nynta2010": "MultiPolygon", "dev_only": "MultiPolygon"},
+        {"nynta2010": "MultiPolygon", "prod_only": "MultiPolygon"},
+    )
+    assert r.only_in_dev_layers == ["dev_only"]
+    assert r.only_in_prod_layers == ["prod_only"]
+
+
+def test_add_missing_layer_absent_from_prod():
+    """A layer prod no longer ships at all (e.g. dropped between releases) -
+    every dev row should count as undiffable, not as zero diffs. See
+    CSCL-DISTRICTS: nyzip, frozen since 2009 in prod, dropped from prod's
+    26C release outright - this used to report a "Gap" of 0 (silently
+    absent from the report entirely) instead of the real, maximal
+    discrepancy."""
+    r = report.GdbComparisonReport()
+    r.log_layer_structure({"nyzip": "MultiPolygon"}, {})
+    entry = r.add_missing_layer("nyzip", dev_row_count=263, prod_row_count=0)
+
+    assert entry.dev_row_count == 263
+    assert entry.prod_row_count == 0
+    assert entry.comparison.row_level.only_in_dev == 263
+    assert entry.comparison.row_level.only_in_prod == 0
+    assert "MISSING FROM PROD" in entry.note
+    assert not entry.is_clean
+    assert r.clean_layer_count == 0
+
+
+def test_add_missing_layer_absent_from_dev():
+    r = report.GdbComparisonReport()
+    r.log_layer_structure({}, {"nyzip": "MultiPolygon"})
+    entry = r.add_missing_layer("nyzip", dev_row_count=0, prod_row_count=263)
+
+    assert entry.comparison.row_level.only_in_dev == 0
+    assert entry.comparison.row_level.only_in_prod == 263
+    assert "MISSING FROM DEV" in entry.note
+
+
+def test_add_missing_layer_rejects_both_sides_present():
+    r = report.GdbComparisonReport()
+    raised = False
+    try:
+        r.add_missing_layer("nyzip", dev_row_count=5, prod_row_count=5)
+    except ValueError:
+        raised = True
+    assert raised
+
+
+def test_rows_includes_one_row_for_a_missing_layer():
+    """The bug this guards against: a layer with no column_stats (nothing to
+    compare column-by-column against a side that doesn't exist) used to
+    contribute zero rows to rows() - meaning it silently disappeared from
+    every downstream CSV/report instead of showing up as fully undiffable."""
+    r = report.GdbComparisonReport()
+    r.log_layer_structure({"nyzip": "MultiPolygon"}, {})
+    r.add_missing_layer("nyzip", dev_row_count=263, prod_row_count=0)
+
+    rows = r.rows()
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["layer"] == "nyzip"
+    assert row["prod_row_count"] == 0
+    assert row["dev_row_count"] == 263
+    assert row["rows_only_in_dev"] == 263
+    assert row["rows_only_in_prod"] == 0
+    assert row["row_diff"] == 263
+    assert "MISSING FROM PROD" in row["layer_note"]
+    # No per-column comparison is possible - blank, not a fabricated stat.
+    assert row["column"] == ""
+    assert row["dev_null_pct"] == ""
+
+
 def test_rows_produces_one_dict_per_layer_column(nta_gdf, ad_gdf):
     r = report.GdbComparisonReport()
     nta_result = compare.compare_layer(
