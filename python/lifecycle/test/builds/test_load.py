@@ -245,3 +245,62 @@ class TestCachedLoad:
         )
         pg_client.create_view.assert_not_called()
         import_dataset.assert_called_once()
+
+
+class TestLoadSingleDataset:
+    """load_single_dataset_from_resolved_recipe filters to one dataset, then delegates
+    to load_source_data_from_resolved_recipe for the actual pull/import."""
+
+    @staticmethod
+    def _recipe():
+        recipe = MagicMock()
+        recipe.name = "Tester"
+        recipe.inputs.datasets = [
+            InputDataset(
+                id="wanted",
+                version="v1",
+                file_type=recipes.DatasetType.parquet,
+                destination=InputDatasetDestination.duckdb,
+            ),
+            InputDataset(
+                id="multi",
+                import_as="layer_a",
+                version="v1",
+                file_type=recipes.DatasetType.csv,
+                destination=InputDatasetDestination.postgres,
+            ),
+            InputDataset(
+                id="multi",
+                import_as="layer_b",
+                version="v1",
+                file_type=recipes.DatasetType.csv,
+                destination=InputDatasetDestination.postgres,
+            ),
+        ]
+        recipe.inputs.model_copy = lambda update: MagicMock(datasets=update["datasets"])
+        recipe.model_copy = lambda update: MagicMock(inputs=update["inputs"])
+        return recipe
+
+    def test_filters_to_matching_dataset_id(self):
+        with patch.object(load, "load_source_data_from_resolved_recipe") as delegate:
+            load.load_single_dataset_from_resolved_recipe(self._recipe(), "wanted")
+        (subset_recipe,), _ = delegate.call_args
+        assert [ds.id for ds in subset_recipe.inputs.datasets] == ["wanted"]
+
+    def test_import_as_disambiguates_duplicate_ids(self):
+        with patch.object(load, "load_source_data_from_resolved_recipe") as delegate:
+            load.load_single_dataset_from_resolved_recipe(
+                self._recipe(), "multi", import_as="layer_b"
+            )
+        (subset_recipe,), _ = delegate.call_args
+        assert [ds.import_as for ds in subset_recipe.inputs.datasets] == ["layer_b"]
+
+    def test_no_match_raises(self):
+        with pytest.raises(ValueError, match="No dataset with id 'missing'"):
+            load.load_single_dataset_from_resolved_recipe(self._recipe(), "missing")
+
+    def test_no_match_for_import_as_raises(self):
+        with pytest.raises(ValueError, match="No dataset with id 'multi'"):
+            load.load_single_dataset_from_resolved_recipe(
+                self._recipe(), "multi", import_as="layer_c"
+            )

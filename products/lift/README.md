@@ -30,7 +30,9 @@ when DCAS sends a new revision.
 | `db-cpdb` (points and poly) | `edm-publishing` | Capital project geometries and spending |
 | `hpd_limited_affordability_areas` | `edm-private` | Limited Affordability Area boundaries |
 | `hpd_rezoning_tracker` | `edm-recipes` (ingested from NYC Open Data) | Rezoning-commitment tracker, by neighborhood study area |
-| `dcp_nta2020` | `edm-recipes` | NTA names and boundaries, for the `seeds/rezoning_areas.csv` crosswalk |
+| `dcp_zoningmapamendments` | `edm-recipes` | Mapped geometry for each adopted rezoning, by ULURP number - joined via `seeds/rezoning_areas.csv` |
+| `dcp_nta2020` | `edm-recipes` | NTA names and boundaries; no longer used in any model (see Limitations) |
+| `cityhall_public_sites_for_housing` | `edm-private` | City Hall's "Public Sites for Housing" tracker - redevelopment strategy/priority/cost fields, by BBL |
 
 DCAS assembles the extract on their side from several IPIS tables plus a block of PLUTO fields
 and a block of LIFT fields. The `ZZZ_*_ZZZ` columns in the CSV mark those section boundaries,
@@ -44,8 +46,8 @@ LIFT releases quarterly, timed to coincide with PLUTO major releases.
 ## What we add
 
 `models/product/lift_supplemented.sql` copies `lift_csv` at the same grain, one row per `bbl`
-with every other column untouched. It fills the six columns the source extract leaves empty
-and adds six more.
+with every other column untouched. It fills the placeholder columns the source extract leaves
+empty and adds six more.
 
 Filled in:
 
@@ -55,8 +57,23 @@ Filled in:
 | `cpspenttotal` | sum of `spent_total` across intersecting CPDB projects |
 | `cpprojects` | count of distinct intersecting CPDB projects |
 | `laa` | `'Y'` if the BBL's lot intersects a Limited Affordability Area, else `NULL` |
-| `poa` | count + status breakdown of rezoning-tracker commitments tied to the BBL's NTA, e.g. `"63 commitments (49 done, 13 in progress, 1 other)"`, or `NULL` |
+| `poa` | count + status breakdown of rezoning-tracker commitments for the rezoning area whose mapped ULURP geometry intersects the BBL's lot, e.g. `"63 commitments (49 done, 13 in progress, 1 other)"`, or `NULL` |
 | `poa_commitment` | `"id: title (stage)"` for each of those commitments, pipe-delimited, or `NULL` |
+| `zzz_lift_data_zzz` | Public Sites `Site` name, by BBL - see Limitations, this is an unusual mapping |
+| `unitpotential` | Public Sites `UnitPot`, by BBL |
+| `dev_flags` | Public Sites `Key Challenges`, by BBL |
+| `redev_summary` | Public Sites `Summary`, by BBL |
+| `redev_strategy` | Public Sites `Redevelopment Strategy`, by BBL |
+| `redev_priority` | Public Sites `Prioritization`, by BBL - see Limitations, source field named in the mapping doesn't exist verbatim |
+| `redev_study` | Public Sites `Study Summary`, by BBL |
+| `cp_remediation` | Public Sites `OMB Remediation Cost`, by BBL |
+| `siteprep_costs` | Public Sites `Site Preparation Costs`, by BBL |
+| `siteprep_desc` | Public Sites `Site Preparation Description`, by BBL |
+| `rlv_amount` | Public Sites `RLV`, by BBL |
+| `rlv_desc` | Public Sites `RLV_desc`, by BBL |
+
+`capitalneeds_unfunded` stays empty - City Hall's field mapping explicitly excluded it ("Strike,
+not needed").
 
 Added:
 
@@ -94,16 +111,26 @@ is just the distinct set of intersecting BBLs; `lift_supplemented` turns presenc
 Rezoning Tracker (`hpd_rezoning_tracker`) has no BBL *or* geometry - it's keyed by
 `rezoning_area`, one of 13 named neighborhood-scale study areas (East Harlem, Gowanus, Inwood,
 etc.), crossed with year and commitment. `seeds/rezoning_areas.csv` is a hand-built crosswalk
-from `rezoning_area` to the NTA(s) it covers, checked by textual overlap against `dcp_nta2020`
-(e.g. `Gowanus` -> `Carroll Gardens-Cobble Hill-Gowanus-Red Hook`; some areas, like `Bay Street`,
-span more than one NTA). Areas with no clear NTA match (`Atlantic Avenue`, `Bronx Metro-North`,
-`Jerome`, and the two citywide rollups) are left in the seed with a blank `nta_name` and dropped
-before joining. A BBL's NTA (same `pluto.boroct2020 -> ct2020.boroct2020` path as
-`int__lift_dri`) then decides which area's commitments apply to it. The tracker is a yearly
-progress snapshot - the same commitment recurs across multiple years with an evolving
-`commitment_stage` - so the intermediate model first collapses to each commitment's latest year
-before counting. `stg__hpd_rezoning_tracker` assigns an artificial `commitment_id` (source has no
-usable one - see Limitations) that `poa_commitment` uses for traceability.
+from `rezoning_area` to the ULURP number of the zoning map amendment that made it up (each area
+maps to exactly one ULURP number today, but the crosswalk and the join both support more than
+one per area). `dcp_zoningmapamendments` carries the actual mapped geometry per ULURP number -
+one row per disjoint sub-area, since a single ULURP action can produce several unconnected
+mapped areas. A BBL whose PLUTO lot `ST_Intersects` any sub-area of a rezoning area's ULURP
+number(s) gets that area's commitments; areas with no ULURP number in the seed (the two citywide
+rollups) are dropped before joining. This replaced an earlier NTA-based join
+(`pluto.boroct2020 -> ct2020.boroct2020 -> ntaname`, matched against a hand-built
+`rezoning_area` -> NTA crosswalk) that was too coarse - NTAs run far larger than the actual
+rezoning boundaries. The tracker is a yearly progress snapshot - the same commitment recurs
+across multiple years with an evolving `commitment_stage` - so the intermediate model first
+collapses to each commitment's latest year before counting. `stg__hpd_rezoning_tracker` assigns
+an artificial `commitment_id` (source has no usable one - see Limitations) that `poa_commitment`
+uses for traceability.
+
+**Public Sites for Housing** (`models/staging/stg__public_sites_for_housing.sql`): a plain
+`LEFT JOIN ... ON lift.bbl = public_sites.bbl` - City Hall's tracker has a BBL column, so no
+spatial join is needed. The field mapping (which source column feeds which LIFT column) came
+from City Hall by email and is applied as given, naively, in `lift_supplemented.sql` - see
+Limitations for the open questions to confirm with them.
 
 ## Limitations
 
@@ -119,10 +146,12 @@ the raw coordinate range, same non-`ST_Transform` approach as `stg__pluto`. If a
 (with sidecars) gets uploaded later, re-running the loader will pick up the real CRS and any
 attribute columns without further code changes.
 
-**`poa`/`poa_commitment` are matched at the NTA level, not the individual site level.** A BBL
-gets *every* commitment tied to its NTA's rezoning study area, not commitments specific to that
-lot - the rezoning tracker has no finer-grained location data than the study area itself. Read
-these as "rezoning activity in this BBL's neighborhood," not "commitments about this BBL."
+**`poa`/`poa_commitment` are matched at the rezoning-area level, not the individual site
+level.** A BBL gets *every* commitment tied to a rezoning area whose mapped geometry it falls
+in, not commitments specific to that lot - the rezoning tracker has no finer-grained location
+data than the study area itself. This is far tighter than the old NTA-based match (the mapped
+rezoning boundary vs. the whole neighborhood it sits in), but read `poa`/`poa_commitment` as
+"rezoning activity covering this BBL," not "commitments about this BBL."
 
 **The rezoning tracker has no reliable id, so `commitment_id` is artificial.** The closest thing
 to a source id, `map_order`, isn't stable: in 25 cases one `map_order` covers multiple different
@@ -133,11 +162,34 @@ long as the distinct (area, title) set doesn't change, but it's ours, not the so
 guaranteed stable across a source refresh that adds or removes commitments.
 
 **`seeds/rezoning_areas.csv` is a manually-curated crosswalk, not authoritative.** Matches were
-made by checking textual overlap between `rezoning_area` and `dcp_nta2020.ntaname` (e.g. `Bay
-Street` -> `St. George-New Brighton` and `Tompkinsville-Stapleton-Clifton-Fox Hills`, since Bay
-Street runs through both). Areas with no textual anchor were left unmatched rather than guessed.
-If DCP publishes an authoritative rezoning-study-area boundary layer, spatially joining against
-that (like LAA/CPDB) would replace this and pick up the currently-unmatched areas too.
+made by hand, pairing each `rezoning_area` with the ULURP number(s) of the zoning map
+amendment(s) that make it up. The two citywide rollups (`COY: Economic Opportunity`, `COY:
+Housing`) have no single ULURP action behind them and are left unmatched (`ulurp_no` blank)
+rather than guessed. `dcp_nta2020` is no longer used anywhere in the pipeline - it's still an
+input in `recipe.yml` as a leftover from the prior NTA-based crosswalk and can be dropped if
+nothing else picks it up.
+
+**The Public Sites for Housing field mapping is unconfirmed - raise these at the City Hall
+meeting.** The mapping was supplied by email (2026-09-21) and applied naively, without back-and-
+forth:
+- `zzz_lift_data_zzz <- Site` is odd on its face: `ZZZ_LIFT_DATA_ZZZ` is documented elsewhere in
+  this README as one of DCAS's section-boundary marker columns (`ZZZ_*_ZZZ`), not a real data
+  field. Populating it with the Public Sites `Site` name is exactly what the email asked for, but
+  worth confirming that's actually the intended target column.
+- `redev_priority <- Priority` doesn't exist verbatim in the Public Sites spreadsheet. The closest
+  field is `Prioritization` (there's also `Prioritization Sort`, `DCP Priorization`, and a
+  `Prioritization` column per reviewing agency - `HPD Prioritization`, `EDC Prioritization`, etc.)
+  - `Prioritization` was used as the best guess.
+- **BBL is the join key** (not stated in the email, inferred from the data - the Public Sites
+  sheet has its own `BBL ` column matching LIFT's grain). Of 379 source rows, 14 have no BBL and 7
+  list multiple BBLs in one cell (a site spanning several tax lots, in a mix of comma/semicolon/
+  dash-range formats) - none of these currently join. 5 BBLs appear on more than one row (distinct
+  named sub-sites/proposals sharing one tax lot); `stg__public_sites_for_housing.sql` keeps only
+  the first row per BBL to preserve `lift_supplemented`'s one-row-per-bbl grain, so the other
+  sub-site's fields are silently dropped for those BBLs. Of ~352 rows with a usable BBL, only ~324
+  match a LIFT bbl - the remaining Public Sites rows may reference city-owned sites outside the
+  current LIFT extract.
+- `capitalneeds_unfunded` was excluded per the email ("Strike, not needed") and is left empty.
 
 **Large public-land lots inflate `cpspenttotal` and `cpprojects`.** PLUTO represents Rikers
 Island, Flushing Meadows, Central Park and similar sites as one enormous lot, so every capital

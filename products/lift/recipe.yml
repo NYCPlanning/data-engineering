@@ -18,6 +18,7 @@ inputs:
 
     # Latest PLUTO
     - name: dcp_mappluto_wi
+    - name: dcp_zoningmapamendments
 
     # 2020 NTAs
     - name: dcp_ct2020
@@ -41,6 +42,15 @@ inputs:
 
     # NYC Rezoning Tracker - capital/programmatic commitments from neighborhood rezonings
     - name: hpd_rezoning_tracker
+
+    # City Hall's "Public Sites for Housing" tracker - redevelopment strategy/priority/
+    # cost fields for LIFT sites, from edm-private
+    - name: cityhall_public_sites_for_housing
+      source: edm.private
+      file_type: csv
+      import_as: public_sites_for_housing
+      custom:
+        filename: cityhall_public_sites_for_housing.csv
 
     # Capital Projects Database - specify single file from directory
     - name: db-cpdb

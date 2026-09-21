@@ -6,9 +6,11 @@ sources:
   tables:
   - name: lift_csv
   - name: dcp_mappluto_wi
+  - name: dcp_zoningmapamendments
   - name: dcp_ct2020
   - name: dri_subindices_indicators
   - name: cpdb_projects_poly
   - name: cpdb_projects_points
   - name: hpd_limited_affordability_areas
   - name: hpd_rezoning_tracker
+  - name: public_sites_for_housing
