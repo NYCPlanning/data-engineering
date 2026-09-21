@@ -24,8 +24,9 @@ pyogrio.write_dataframe(gdf, gdb_path, driver="OpenFileGDB")
 **`OpenFileGDB` is GDAL's open-source reimplementation of the FileGDB format** - not ESRI's
 own proprietary FileGDB SDK. GDAL actually ships a *separate* driver, `"FileGDB"`, that
 wraps ESRI's real SDK; we're not using it. Prod's original FGDB was almost certainly written
-by ArcGIS/ArcPy itself (the legacy ETL scripts obtained for this project are `arcpy`-based),
-i.e. by ESRI's own writer. This driver mismatch turns out to matter for one of the three
+by ArcGIS's own writer via the legacy ETL's real ArcObjects C# code (`cscl_etl_archive`,
+`GDBExtractorClass.cs` - confirmed 2026-09-21; this doc previously assumed the legacy ETL was
+`arcpy`-based, which was wrong). This driver mismatch turns out to matter for one of the three
 mechanisms below.
 
 This is shared infrastructure - `write_gdb_zip` is used by every product's gdb export, not

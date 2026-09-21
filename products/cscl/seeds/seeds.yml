@@ -23,8 +23,15 @@ seeds:
         description: "Name of the output file"
       - name: file_id
         description: "Unique identifier for the file"
-      - name: skip_qa
-        description: "Whether this file is excluded from field-level dbt QA models (etl_dev_qa)"
+      - name: has_db_qa
+        description: >
+          Whether a field-level dbt QA model exists for this file in
+          models/etl_dev_qa (qa__diffs_<file_id>.sql or similar feeding
+          qa__diffs_all_summary). False just means no model has been built yet
+          for that file type - not a deliberate exclusion. Previously named
+          skip_qa with the opposite polarity; renamed since the column was
+          never actually read anywhere to skip/gate a build step - it's purely
+          descriptive of QA coverage.
       - name: diffable
         description: >
           Whether this file has any prod counterpart worth comparing against at
@@ -60,11 +67,34 @@ seeds:
           Empty for non-district-gdb rows.
       - name: status
         description: >
-          Known investigation status of this output's dev/prod discrepancy,
-          e.g. "blocked" (a real, understood diff with no fix yet - see
-          notes). Blank means no known issue, not "verified clean" - most
-          rows have never been individually investigated. Free text, not an
-          enum; add values as they come up.
+          Known investigation status of this output's dev/prod discrepancy.
+          Free text, not an enum; add values as they come up. Known values as
+          of this writing: blank (no known issue - most rows have never been
+          individually investigated, this is not "verified clean"), "done"
+          (verified matching prod, or as close as this pipeline is expected to
+          get), "open" (investigated and understood, a real diff, no fix
+          landed yet - see notes/status_summary for the mechanism), "blocked"
+          (a real, understood diff with no path to fix on our side), "on hold"
+          (a real, understood diff whose investigation was deliberately paused
+          by explicit decision, not abandoned - distinct from "blocked",
+          which has no known path forward at all), "GR Review" (flat files
+          only - a diff has been raised with NYC Planning's GR team and is
+          awaiting their input before we can proceed), "in progress" (actively
+          being worked - see notes for what's queued/next), "Needs
+          Investigation" (checked against a real build and either found
+          nothing conclusive or found something genuinely confusing - a
+          deliberate flag to come back to, not a placeholder for "never
+          looked"), "n/a" (not comparable to prod at all - a build log or
+          input-only artifact, see the diffable column).
+      - name: status_summary
+        description: >
+          One short, plain-English sentence on where this output stands right
+          now, e.g. "Resolving water intersections" or "Inaccurate 26C ETL
+          outputs" - written for someone skimming the build step summary who
+          has no other context. This is what the step summary shows instead
+          of `notes` (see build_diffs_report.py) - keep it to a sentence, not
+          a paragraph, and put the actual explanation in `notes`/a linked doc
+          instead of trying to fit it here. Blank when status is blank.
       - name: notes
         description: >
           Brief explanation backing up `status` - what's actually going on

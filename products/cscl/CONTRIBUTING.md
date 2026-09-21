@@ -39,6 +39,17 @@ Each quarter, we receive a set of outputs from the legacy system that serve as o
 2. **If we can't reproduce legacy behavior** → Document why and note the differences
 3. **All known discrepancies must be tracked** - see [Known Data Issues](#known-data-issues) in [README.md](./README.md)
 
+### Project Status Tracking
+
+`seeds/lion_outputs.csv` is the backbone status record for every output file/gdb layer, not
+just comparison config - it's what the CI build's step summary reports from. Each row's
+`status` and one-sentence `status_summary` are the at-a-glance state; `notes` backs that up
+with the fuller explanation (pointing to a `docs/prod_bugs/` writeup or a `data_issues.md`
+entry for anything substantial). If an output is blocked on something outside this team - e.g.
+needing NYC Planning's GR team's input on undocumented legacy behavior - record that there
+(`status: GR Review` while it's with them, `blocked` once it's a known dead end) rather than
+leaving it untracked.
+
 ## Getting Started
 
 ### Prerequisites

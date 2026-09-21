@@ -77,7 +77,12 @@ names AS (
 -- the principal one, for segment-derived Join_IDs).
 segment_altnames AS (
     SELECT DISTINCT
-        names.pdir, names.ptype, names.sname, names.stype, names.sdir, names.street,
+        names.pdir,
+        names.ptype,
+        names.sname,
+        names.stype,
+        names.sdir,
+        names.street,
         segment_b7scs.join_id
     FROM segment_b7scs
     INNER JOIN names ON segment_b7scs.b7sc = names.b7sc
@@ -91,7 +96,12 @@ segment_altnames AS (
 -- that joining the regular way multiplies out per Join_ID far beyond what prod produces.
 saf_altnames AS (
     SELECT DISTINCT
-        names.pdir, names.ptype, names.sname, names.stype, names.sdir, names.street,
+        names.pdir,
+        names.ptype,
+        names.sname,
+        names.stype,
+        names.sdir,
+        names.street,
         saf_b7scs.join_id
     FROM saf_b7scs
     INNER JOIN names ON saf_b7scs.b7sc = names.b7sc AND names.principal_flag = 'Y'
@@ -109,5 +119,12 @@ SELECT
     join_id AS "Join_ID"
 FROM segment_altnames
 UNION
-SELECT pdir, ptype, left(sname, 30), stype, sdir, street, join_id
+SELECT
+    pdir,
+    ptype,
+    left(sname, 30) AS sname,
+    stype,
+    sdir,
+    street,
+    join_id
 FROM saf_altnames

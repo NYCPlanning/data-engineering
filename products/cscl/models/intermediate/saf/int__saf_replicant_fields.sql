@@ -29,11 +29,17 @@ altsegdata AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
 ),
 street_names AS (
-    SELECT b7sc, lookup_key FROM {{ source('recipe_sources', 'dcp_cscl_streetname') }}
+    SELECT
+        b7sc,
+        lookup_key
+    FROM {{ source('recipe_sources', 'dcp_cscl_streetname') }}
     WHERE principal_flag = 'Y'
 ),
 feature_names AS (
-    SELECT b7sc, lookup_key FROM {{ source('recipe_sources', 'dcp_cscl_featurename') }}
+    SELECT
+        b7sc,
+        lookup_key
+    FROM {{ source('recipe_sources', 'dcp_cscl_featurename') }}
     WHERE principal_flag = 'Y'
 ),
 address_points AS (
@@ -43,7 +49,10 @@ altnames_join_ids AS (
     SELECT * FROM {{ ref('int__saf_altnames_join_ids') }}
 ),
 lion AS (
-    SELECT lionkey, boroughcode FROM {{ ref('int__lion') }}
+    SELECT
+        lionkey,
+        boroughcode
+    FROM {{ ref('int__lion') }}
     WHERE include_in_bytes_lion
 ),
 
@@ -65,20 +74,22 @@ altsegmentdata_fields AS (
         -- continuous-parity flag when set, not a side indicator - not replicated, see
         -- module docstring - so both sides just pass through as given).
         -- D/F/O: SOSINDICATOR is a side indicator - only the indicated side is populated.
-        CASE
-            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '1' THEN NULL
+        -- sqlfluff 4.3.0 can't parse IS DISTINCT FROM inside a CASE WHEN (reproduced in
+        -- isolation, no AND needed - a parser bug, not invalid SQL); noqa'd below.
+        CASE -- noqa: PRS
+            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '1' THEN NULL -- noqa: PRS
             ELSE nullif(altsegdata.l_low_hn, '0')
         END AS l_low_hn,
-        CASE
-            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '1' THEN NULL
+        CASE -- noqa: PRS
+            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '1' THEN NULL -- noqa: PRS
             ELSE nullif(altsegdata.l_high_hn, '0')
         END AS l_high_hn,
-        CASE
-            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '2' THEN NULL
+        CASE -- noqa: PRS
+            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '2' THEN NULL -- noqa: PRS
             ELSE nullif(altsegdata.r_low_hn, '0')
         END AS r_low_hn,
-        CASE
-            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '2' THEN NULL
+        CASE -- noqa: PRS
+            WHEN altsegdata.saftype IN ('D', 'F', 'O') AND altsegdata.sosindicator IS DISTINCT FROM '2' THEN NULL -- noqa: PRS
             ELSE nullif(altsegdata.r_high_hn, '0')
         END AS r_high_hn,
         CASE WHEN altsegdata.saftype IN ('D', 'F') AND altsegdata.sosindicator = '1' THEN altsegdata.zipcode END AS l_zip,
@@ -198,7 +209,7 @@ combined AS (
 deduped AS (
     SELECT DISTINCT ON (saf_globalid) *
     FROM combined
-    ORDER BY saf_globalid, roadbed DESC, generic DESC
+    ORDER BY saf_globalid ASC, roadbed DESC, generic DESC
 )
 
 SELECT
