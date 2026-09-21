@@ -14,6 +14,8 @@ SELECT
     'rail_and_subway' AS feature_type,
     'rail' AS source_table,
     row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
+    -- ETL spec BL113: "Active_Flag" is a Subway-only attribute; Rail has no equivalent.
+    NULL::text AS active_flag,
     geom,
     shape_length,
     globalid,
@@ -31,6 +33,7 @@ SELECT
     'rail_and_subway' AS feature_type,
     'subway' AS source_table,
     row_type NOT IN ('1', '8') AS include_in_geosupport_lion,
+    active_flag,
     geom,
     shape_length,
     globalid,

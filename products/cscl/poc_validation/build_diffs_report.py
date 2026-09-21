@@ -48,23 +48,11 @@ DIFFS_SUMMARY_PATH = VALIDATION_DIR / "qa__diffs_all_summary.csv"
 # Static, human-written notes for known/open issues that don't come from any QA
 # model - keyed by lion_outputs.csv file_id. Left deliberately unaccounted (not
 # folded into accounted_for_discrepant_rows) pending outside confirmation.
-KNOWN_NOTES: dict[str, str] = {
-    "ldf_dat": (
-        "CSCL-LDF-01 (open, see data_issues.md): transitory-elimination residual "
-        "- our lineage-graph approximation of GR's undisclosed suppression rule "
-        "disagrees with prod on which intermediate segment/node records survive. "
-        "Documented as ~3% as of 26b; currently measuring ~8% on this same "
-        "version - worth a look, may be drift rather than the same known gap. "
-        "Follow up with GR."
-    ),
-    "ldf_header": (
-        "Not an independent diff - the header's own record_count field is body "
-        "records + 1, so it inherits ldf_dat's CSCL-LDF-01 residual exactly: "
-        "dev/prod header record_count differed by 25 on 2026-09-15, matching "
-        "qa__ldf_summary's dev/prod body-record gap (1217 vs 1192) that same "
-        "run. Resolves whenever CSCL-LDF-01 does - see the ldf_dat note."
-    ),
-}
+#
+# ldf_dat/ldf_header used to live here; both now have real status/status_summary/
+# notes directly in lion_outputs.csv (load_seed_notes always wins over this dict,
+# so keeping stale duplicate entries here would just be dead code).
+KNOWN_NOTES: dict[str, str] = {}
 
 # Seed columns this report actually uses. load_backbone() drops everything else
 # from lion_outputs.csv (e.g. key_columns, which is compare_gdb.py's concern, not
@@ -78,7 +66,7 @@ SEED_COLUMNS = [
     "type",
     "filename",
     "file_id",
-    "skip_qa",
+    "has_db_qa",
     "diffable",
 ]
 REPORT_COLUMNS = SEED_COLUMNS + [
@@ -89,6 +77,8 @@ REPORT_COLUMNS = SEED_COLUMNS + [
     "discrepant_rows_from_file_comparison",
     "pct_diff",
     "unaccounted_pct_diff",
+    "status",
+    "status_summary",
     "notes",
 ]
 FIELD_LEVEL_COUNT_COLUMNS = [
@@ -97,7 +87,9 @@ FIELD_LEVEL_COUNT_COLUMNS = [
     "unaccounted_discrepant_fields",
 ]
 # Columns shown in the step summary tables (narrower than REPORT_COLUMNS - drops
-# type/skip_qa, which aren't useful for a quick read).
+# type/has_db_qa, which aren't useful for a quick read). Shows status_summary, not
+# notes - the full explanation is one click away in diffs_report.csv/lion_outputs.csv
+# itself; this table is for skimming.
 SUMMARY_DISPLAY_COLUMNS = [
     ("output_group", "Output"),
     ("file_group", "Group"),
@@ -112,7 +104,8 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("pct_diff", "% diff"),
     ("unaccounted_pct_diff", "% diff (unaccounted)"),
     ("_gap", "Gap"),
-    ("notes", "Notes"),
+    ("status", "Status"),
+    ("status_summary", "Status summary"),
 ]
 
 
@@ -152,6 +145,36 @@ def load_file_comparison_counts() -> dict[str, dict[str, int]]:
             }
             for row in csv.DictReader(f)
         }
+
+
+def load_seed_column(column: str) -> dict[str, str]:
+    """file_id -> a raw lion_outputs.csv column value, non-empty entries only."""
+    with LION_OUTPUTS_SEED_PATH.open(newline="") as f:
+        return {
+            row["file_id"]: row[column].strip()
+            for row in csv.DictReader(f)
+            if row.get(column, "").strip()
+        }
+
+
+def load_seed_notes() -> dict[str, str]:
+    """file_id -> a human-curated note, from lion_outputs.csv's own status/notes
+    columns - the durable, manually-maintained source of truth for known/blocked
+    issues (e.g. "BLOCKED: Layer frozen since 2009 - see docs/prod_bugs/013...").
+    Takes priority over any auto-generated note in build_step_summary/the report
+    below - see main()."""
+    with LION_OUTPUTS_SEED_PATH.open(newline="") as f:
+        result: dict[str, str] = {}
+        for row in csv.DictReader(f):
+            status = (row.get("status") or "").strip()
+            note = (row.get("notes") or "").strip()
+            if status and note:
+                result[row["file_id"]] = f"{status.upper()}: {note}"
+            elif status:
+                result[row["file_id"]] = status.upper()
+            elif note:
+                result[row["file_id"]] = note
+    return result
 
 
 def load_gdb_layer_stats() -> dict[str, dict]:
@@ -358,6 +381,9 @@ def main() -> None:
     field_level_by_file = load_field_level_counts()
     file_comparison_counts = load_file_comparison_counts()
     gdb_layer_stats = load_gdb_layer_stats()
+    seed_notes = load_seed_notes()
+    seed_status = load_seed_column("status")
+    seed_status_summary = load_seed_column("status_summary")
     # Disjoint key spaces (flat filenames vs. gdb layer names) - safe to merge.
     row_comparison_counts = {
         filename: counts["mismatched_rows"]
@@ -372,9 +398,15 @@ def main() -> None:
     for record in backbone:
         field_counts = field_level_by_file.get(record["file_id"])
         gdb_stats = gdb_layer_stats.get(record["filename"])
-        note = gdb_stats["note"] if gdb_stats else ""
-        note = note if note != "OK" else ""
-        note = note or KNOWN_NOTES.get(record["file_id"], "")
+        # lion_outputs.csv's own status/notes are the curated, durable source of
+        # truth (see load_seed_notes) - only fall back to compare_gdb.py's
+        # auto-generated technical note or the static KNOWN_NOTES dict when we
+        # haven't manually annotated this file yet.
+        note = seed_notes.get(record["file_id"], "")
+        if not note:
+            note = gdb_stats["note"] if gdb_stats else ""
+            note = note if note != "OK" else ""
+            note = note or KNOWN_NOTES.get(record["file_id"], "")
         discrepant_rows = row_comparison_counts.get(record["filename"])
         prod_row_count = prod_row_counts.get(record["filename"])
         row = {
@@ -390,6 +422,8 @@ def main() -> None:
                 if discrepant_rows is not None and prod_row_count
                 else None
             ),
+            "status": seed_status.get(record["file_id"], ""),
+            "status_summary": seed_status_summary.get(record["file_id"], ""),
             "notes": note,
         }
         row["unaccounted_pct_diff"] = unaccounted_pct_diff(row)

@@ -1,5 +1,6 @@
 import shutil
 import zipfile
+from pathlib import Path
 
 import pytest
 from pytest import fixture
@@ -31,6 +32,35 @@ def temp_gdb_nonzipped_path(temp_gdb_zip_path, tmp_path):
     gdb_path = tmp_path / temp_gdb_zip_path.stem
     assert gdb_path.is_dir(), "Expected a gdb directory, but found none"
     return gdb_path
+
+
+@fixture
+def temp_gdb_nested_zip_path(temp_gdb_nonzipped_path, tmp_path):
+    """A zip with the .gdb one folder deep instead of at the archive root -
+    matching how real prod deliveries are packaged (e.g. a LION zip's .gdb
+    lives at "lion/lion.gdb/...", not the zip root), unlike zip_gdb()'s own
+    always-top-level output."""
+    zip_path = tmp_path / "nested.gdb.zip"
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+        for file in temp_gdb_nonzipped_path.rglob("*"):
+            z.write(
+                file,
+                arcname=Path("some_subfolder")
+                / file.relative_to(temp_gdb_nonzipped_path.parent),
+            )
+    return zip_path
+
+
+@fixture
+def temp_gdb_zip_wrong_extension_path(temp_gdb_zip_path, tmp_path):
+    """The same zip bytes, but under a filename that doesn't end in
+    ".gdb.zip" - matching CSCL's real recipe.yml exports (e.g.
+    "nyclion_26c.zip"). pyogrio's native zip-GDB handling only fires when the
+    filename itself ends in ".gdb.zip" - confirmed empirically that identical
+    zip content opens fine under one name and fails under the other."""
+    new_path = tmp_path / "not_a_gdb_extension.zip"
+    shutil.copy2(src=temp_gdb_zip_path, dst=new_path)
+    return new_path
 
 
 @fixture
@@ -82,6 +112,25 @@ def test_layer_geometry_types_accepts_zip_path_directly(temp_gdb_zip_path):
     """No manual /vsizip/ resolution needed - pyogrio handles a zipped GDB
     natively, straight from the zip's own path."""
     types = fgdb.layer_geometry_types(temp_gdb_zip_path)
+    assert set(types) == {SPATIAL_LAYER, TABLE_LAYER}
+
+
+def test_layer_geometry_types_accepts_zip_not_named_gdb_zip(
+    temp_gdb_zip_wrong_extension_path,
+):
+    """pyogrio's native zip-GDB auto-detection keys off the filename suffix
+    (".gdb.zip"), not the contents - a real recipe.yml export like
+    "nyclion_26c.zip" needs the same explicit-path fallback as a nested .gdb,
+    even though its .gdb is at the archive root."""
+    types = fgdb.layer_geometry_types(temp_gdb_zip_wrong_extension_path)
+    assert set(types) == {SPATIAL_LAYER, TABLE_LAYER}
+
+
+def test_layer_geometry_types_accepts_nested_gdb_in_zip(temp_gdb_nested_zip_path):
+    """Real prod deliveries nest the .gdb inside a folder rather than at the
+    zip root (pyogrio's own zip auto-detection only finds a top-level .gdb) -
+    layer_geometry_types must fall back to locating it explicitly."""
+    types = fgdb.layer_geometry_types(temp_gdb_nested_zip_path)
     assert set(types) == {SPATIAL_LAYER, TABLE_LAYER}
 
 

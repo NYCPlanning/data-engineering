@@ -1,100 +1,100 @@
-output_group,file_group,subgroup,type,filename,file_id,skip_qa,diffable,key_columns,description,status,notes
-flat_files,Census,Census,file,NTA.csv,nta_csv,true,true,,,,
-flat_files,Census,Census,file,NTA.txt,nta_txt,true,true,,,,
-flat_files,Census,Census,file,NTA2020.csv,nta2020_csv,true,true,,,,
-flat_files,Census,Census,file,NTA2020.txt,nta2020_dat,true,true,,,,
-flat_files,Census,Census,file,CDTA2020.csv,cdta2020_csv,true,true,,,,
-flat_files,Census,Census,file,CDTA2020.txt,cdta2020_dat,true,true,,,,
-flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,true,false,,,,
-flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,true,false,,,,
-flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,true,false,,,,
-flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,false,true,,,,
-flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,false,true,,,,
-flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,false,true,,,,
-flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,false,true,,,,
-flat_files,District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,false,true,,,,
-flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,false,true,,,,
-flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,false,true,,,,
-flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,false,true,,,,
-flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,false,true,,,,
-flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,false,true,,,,
-flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,false,true,,,,
-flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,false,true,,,blocked,See docs/prod_bugs/009-thined-redistricted-field-mismatch.md
-flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,true,true,,,,
-flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,true,true,,,,
-flat_files,Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,true,true,,,,
-flat_files,Face Code File,Face Code File,file,QueensFace.txt,queens_face_code,true,true,,,,
-flat_files,Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code,true,true,,,,
-flat_files,LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat,false,true,,,,
-flat_files,LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,false,true,,,,
-flat_files,LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original,false,false,,,,
-flat_files,LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,false,true,,,,
-flat_files,LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn,false,true,,,,
-flat_files,LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan,false,true,,,,
-flat_files,LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens,false,true,,,,
-flat_files,LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland,false,true,,,,
-flat_files,Normalizing Tables,Enders,file,Enders.txt,enders,false,true,,,blocked,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
-flat_files,Normalizing Tables,Exception,file,Exception.txt,exception,false,true,,,blocked,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
-flat_files,Normalizing Tables,Word Tables,file,LastWord.txt,last_word,false,true,,,,
-flat_files,Normalizing Tables,Word Tables,file,Universal.txt,universal_word,false,true,,,,
-flat_files,OTHER,Logs,file,log.csv,log,true,false,,,,
-flat_files,RPL,RPL,file,RPL.txt,rpl,false,true,,,,
-flat_files,SAF,SAF,file,Intersection.txt,saf_i,false,true,,,,
-flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,false,true,,,,
-flat_files,SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,false,true,,,,
-flat_files,SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,false,true,,,,
-flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,false,true,,,blocked,See data_issues.md CSCL-SAF-01
-flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,false,true,,,,
-flat_files,SAF,SAF,file,GenericD.txt,saf_d_generic,false,true,,,,
-flat_files,SAF,SAF,file,GenericOV.txt,saf_ov_generic,false,true,,,,
-flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,false,true,,,blocked,See data_issues.md CSCL-SAF-01
-flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,false,true,,,,
-flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,,,
-flat_files,SND,SND,file,SND.txt,snd,false,true,,,blocked,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
-lion_gdb,gdb,LION gdb,layer,node,gdb_node,false,true,NODEID,,,
-lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,false,true,LBoro|FaceCode|SeqNum,,,
-lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,false,true,NODEID|STNAME,,,
-lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,false,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,,
-district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,false,true,AssemDist,Assembly Districts clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nyadwi,gdb_nyadwi,false,true,AssemDist,"Assembly Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyap,gdb_nyap,false,true,ATOMICID,Atomic Polygons,,
-district_gdb,gdb,District gdb,layer,nybb,gdb_nybb,false,true,BoroCode,Borough Boundaries clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nybbwi,gdb_nybbwi,false,true,BoroCode,"Borough Boundaries, unclipped",,
-district_gdb,gdb,District gdb,layer,nybid,gdb_nybid,false,true,BIDID,Business Improvement Districts,,
-district_gdb,gdb,District gdb,layer,nycb2010,gdb_nycb2010,false,true,BCTCB2010,2010 Census Blocks clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,false,true,BCTCB2010,"2010 Census Blocks, unclipped",,
-district_gdb,gdb,District gdb,layer,nycb2020,gdb_nycb2020,false,true,BCTCB2020,2020 Census Blocks clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,false,true,BCTCB2020,"2020 Census Blocks, unclipped",,
-district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,false,true,CounDist,City Council Districts,,
-district_gdb,gdb,District gdb,layer,nyccwi,gdb_nyccwi,false,true,CounDist,"City Council Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nycd,gdb_nycd,false,true,BoroCD,Community Districts clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,false,true,CDTA2020,Community District Tabulation Areas 2020,,
-district_gdb,gdb,District gdb,layer,nycdwi,gdb_nycdwi,false,true,BoroCD,"Community Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nycg,gdb_nycg,false,true,CongDist,Congressional Districts,,
-district_gdb,gdb,District gdb,layer,nycgwi,gdb_nycgwi,false,true,CongDist,"Congressional Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyct2010,gdb_nyct2010,false,true,BoroCT2010,2010 Census Tracts clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nyct2010wi,gdb_nyct2010wi,false,true,BoroCT2010,"2010 Census Tracts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyct2020,gdb_nyct2020,false,true,BoroCT2020,2020 Census Tracts clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nyct2020wi,gdb_nyct2020wi,false,true,BoroCT2020,"2020 Census Tracts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyed,gdb_nyed,false,true,ElectDist,Election Districts,,
-district_gdb,gdb,District gdb,layer,nyedwi,gdb_nyedwi,false,true,ElectDist,"Election Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyfb,gdb_nyfb,false,true,FireBN,Fire Battalions,,
-district_gdb,gdb,District gdb,layer,nyfc,gdb_nyfc,false,true,FireCoType|FireCoNum,Fire Companies,,
-district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,false,true,FireDiv,Fire Divisions,,
-district_gdb,gdb,District gdb,layer,nyha,gdb_nyha,false,true,BoroCode|HealthArea,Health Areas clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nyhc,gdb_nyhc,false,true,HCentDist,Health Center Districts clipped to shoreline,,
-district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,false,true,NAME,Historic Districts,,
-district_gdb,gdb,District gdb,layer,nyhez,gdb_nyhez,false,true,HURRICANE_EVACUATION_ZONE,Hurricane Evacuation Zones,,
-district_gdb,gdb,District gdb,layer,nymc,gdb_nymc,false,true,BoroCode|MuniCourt,Municipal Court Districts,,
-district_gdb,gdb,District gdb,layer,nymcea,gdb_nymcea,false,true,BOROCODE|MCEA,"Minor Census Economic Areas, dissolved from 2000 Census Tracts by MCEA attribute, clipped to shoreline",,
-district_gdb,gdb,District gdb,layer,nymcwi,gdb_nymcwi,false,true,BoroCode|MuniCourt,"Municipal Court Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nynta2010,gdb_nynta2010,false,true,NTACode,Neighborhood Tabulation Areas 2010,,
-district_gdb,gdb,District gdb,layer,nynta2020,gdb_nynta2020,false,true,NTA2020,Neighborhood Tabulation Areas 2020,,
-district_gdb,gdb,District gdb,layer,nypp,gdb_nypp,false,true,Precinct,Police Precincts,,
-district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,false,true,PUMA,Public Use Microdata Areas (PUMA) 2010,,
-district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,false,true,PUMA,Public Use Microdata Areas (PUMA) 2020,,
-district_gdb,gdb,District gdb,layer,nysd,gdb_nysd,false,true,SchoolDist,School Districts,,
-district_gdb,gdb,District gdb,layer,nyss,gdb_nyss,false,true,StSenDist,State Senatorial Districts,,
-district_gdb,gdb,District gdb,layer,nysswi,gdb_nysswi,false,true,StSenDist,"State Senatorial Districts, unclipped",,
-district_gdb,gdb,District gdb,layer,nyura,gdb_nyura,false,true,URAID,Urban Renewal Areas,,
-district_gdb,gdb,District gdb,layer,nyzip,gdb_nyzip,false,true,ZIP_CODE,Zip Code Areas,,
+output_group,file_group,subgroup,type,filename,file_id,has_db_qa,diffable,key_columns,description,status,status_summary,notes
+flat_files,Census,Census,file,NTA.csv,nta_csv,false,true,,,done,Matches prod exactly,
+flat_files,Census,Census,file,NTA.txt,nta_txt,false,true,,,done,Matches prod exactly,
+flat_files,Census,Census,file,NTA2020.csv,nta2020_csv,false,true,,,done,Matches prod exactly,
+flat_files,Census,Census,file,NTA2020.txt,nta2020_dat,false,true,,,done,Matches prod exactly,
+flat_files,Census,Census,file,CDTA2020.csv,cdta2020_csv,false,true,,,done,Matches prod exactly,
+flat_files,Census,Census,file,CDTA2020.txt,cdta2020_dat,false,true,,,done,Matches prod exactly,
+flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,false,false,,,n/a,"Build log, not compared to prod",
+flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,false,false,,,n/a,"Build log, not compared to prod",
+flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,false,false,,,n/a,"Build log, not compared to prod",
+flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,true,true,,,Needs Investigation,,
+flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,true,true,,,Needs Investigation,,
+flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,true,true,,,Needs Investigation,,
+flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,true,true,,,Needs Investigation,,
+flat_files,District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,true,true,,,done,Matches prod exactly,
+flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,blocked,"Redistricted-field mismatch, no fix identified yet",See docs/prod_bugs/009-thined-redistricted-field-mismatch.md
+flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,false,true,,,done,Matches prod exactly,
+flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,false,true,,,done,Matches prod exactly,
+flat_files,Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,false,true,,,done,Matches prod exactly,
+flat_files,Face Code File,Face Code File,file,QueensFace.txt,queens_face_code,false,true,,,done,Matches prod exactly,
+flat_files,Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code,false,true,,,done,Matches prod exactly,
+flat_files,LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat,true,true,,,blocked,Rethinking our approach; pending GR/Steve discussion,"CSCL-LDF-01: our lineage-graph approximation of the transitory-elimination rule disagrees with prod on which intermediate segment/node records survive. Documented as ~3% as of 26b; measuring ~8% on 26c (may be drift, not the same gap - worth rechecking). Needs both an internal rework of our approach and a discussion with GR and Steve before proceeding."
+flat_files,LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,true,true,,,blocked,Rethinking our approach; pending GR/Steve discussion,"Not an independent diff - the header's own record_count field is body records + 1, so it inherits ldf_dat's CSCL-LDF-01 residual exactly (dev/prod header record_count differed by 25 on 2026-09-15, matching qa__ldf_summary's dev/prod body-record gap that same run). Resolves whenever CSCL-LDF-01 does - see the ldf_dat row."
+flat_files,LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original,true,false,,,n/a,"Input artifact only, not compared to prod",
+flat_files,LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,true,true,,,Needs Investigation,"1 residual row out of 35,136, not yet identified","discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - see lion_dat_brooklyn/manhattan/queens/statenisland for the counting-convention explanation. 1 row (out of 35,136) remains genuinely unaccounted for."
+flat_files,LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
+flat_files,LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
+flat_files,LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
+flat_files,LION flat files,LION flat files,file,StatenIslandLION.dat,lion_dat_statenisland,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
+flat_files,Normalizing Tables,Enders,file,Enders.txt,enders,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
+flat_files,Normalizing Tables,Exception,file,Exception.txt,exception,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
+flat_files,Normalizing Tables,Word Tables,file,LastWord.txt,last_word,true,true,,,done,Matches prod exactly,
+flat_files,Normalizing Tables,Word Tables,file,Universal.txt,universal_word,true,true,,,done,Matches prod exactly,
+flat_files,OTHER,Logs,file,log.csv,log,false,false,,,n/a,"Build log, not compared to prod",
+flat_files,RPL,RPL,file,RPL.txt,rpl,true,true,,,done,Matches prod exactly,
+flat_files,SAF,SAF,file,Intersection.txt,saf_i,true,true,,,done,Matches prod exactly,
+flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,true,true,,,done,Matches prod exactly,
+flat_files,SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,true,true,,,done,Matches prod exactly,
+flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,true,true,,,blocked,Stale LGC assignments in prod,See data_issues.md CSCL-SAF-01
+flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,SAF,SAF,file,GenericD.txt,saf_d_generic,true,true,,,done,Matches prod exactly,
+flat_files,SAF,SAF,file,GenericOV.txt,saf_ov_generic,true,true,,,done,Matches prod exactly,
+flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,true,true,,,blocked,Stale LGC assignments in prod,See data_issues.md CSCL-SAF-01
+flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,true,true,,,done,Matches prod exactly,
+flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,,done,Matches prod exactly (both sides empty this quarter),
+flat_files,SND,SND,file,SND.txt,snd,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
+lion_gdb,gdb,LION gdb,layer,node,gdb_node,true,true,NODEID,,done,Matches prod exactly,
+lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,true,true,LBoro|FaceCode|SeqNum,,on hold,"ArcCenterX/ArcCenterY curve-flag gap (CSCL-LION-07), on hold",
+lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,true,true,NODEID|STNAME,,done,Matches prod (38 residual rows out of 245K),
+lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,true,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,blocked,Prod altnames output is roughly a decade stale,See docs/prod_bugs/011-altnames-saf-replicant-join-ids.md
+district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,true,true,AssemDist,Assembly Districts clipped to shoreline,blocked,Layer frozen in prod since 2012,Layer frozen since 2012 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nyadwi,gdb_nyadwi,true,true,AssemDist,"Assembly Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nyap,gdb_nyap,true,true,ATOMICID,Atomic Polygons,blocked,Layer frozen in prod since 2015,Layer frozen since 2015 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nybb,gdb_nybb,true,true,BoroCode,Borough Boundaries clipped to shoreline,blocked,Layer frozen in prod since 2012,Layer frozen since 2012 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nybbwi,gdb_nybbwi,true,true,BoroCode,"Borough Boundaries, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nybid,gdb_nybid,true,true,BIDID,Business Improvement Districts,blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nycb2010,gdb_nycb2010,true,true,BCTCB2010,2010 Census Blocks clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,true,true,BCTCB2010,"2010 Census Blocks, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nycb2020,gdb_nycb2020,true,true,BCTCB2020,2020 Census Blocks clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,true,true,BCTCB2020,"2020 Census Blocks, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,true,true,CounDist,City Council Districts,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nyccwi,gdb_nyccwi,true,true,CounDist,"City Council Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nycd,gdb_nycd,true,true,BoroCD,Community Districts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,true,true,CDTA2020,Community District Tabulation Areas 2020,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nycdwi,gdb_nycdwi,true,true,BoroCD,"Community Districts, unclipped",blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nycg,gdb_nycg,true,true,CongDist,Congressional Districts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nycgwi,gdb_nycgwi,true,true,CongDist,"Congressional Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nyct2010,gdb_nyct2010,true,true,BoroCT2010,2010 Census Tracts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nyct2010wi,gdb_nyct2010wi,true,true,BoroCT2010,"2010 Census Tracts, unclipped",Needs Investigation,,"Unclipped layer still shows 4 row-count mismatches (2 dev-only, 2 prod-only) - doesn't fit the shoreline-clip explanation since there's no clipping here."
+district_gdb,gdb,District gdb,layer,nyct2020,gdb_nyct2020,true,true,BoroCT2020,2020 Census Tracts clipped to shoreline,open,Column order differs from prod; also has shoreline-clip geometry noise,"compare_gdb.py flags column ORDER differs from prod (separate from the row-level diff) in addition to the usual shoreline-clip geometry noise (CSCL-DISTRICTS-03) - the ordering issue looks like an easy, independent fix worth doing first."
+district_gdb,gdb,District gdb,layer,nyct2020wi,gdb_nyct2020wi,true,true,BoroCT2020,"2020 Census Tracts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nyed,gdb_nyed,true,true,ElectDist,Election Districts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nyedwi,gdb_nyedwi,true,true,ElectDist,"Election Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nyfb,gdb_nyfb,true,true,FireBN,Fire Battalions,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nyfc,gdb_nyfc,true,true,FireCoType|FireCoNum,Fire Companies,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,true,true,FireDiv,Fire Divisions,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nyha,gdb_nyha,true,true,BoroCode|HealthArea,Health Areas clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nyhc,gdb_nyhc,true,true,HCentDist,Health Center Districts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,true,true,NAME,Historic Districts,blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nyhez,gdb_nyhez,true,true,HURRICANE_EVACUATION_ZONE,Hurricane Evacuation Zones,done,Matches prod exactly,
+district_gdb,gdb,District gdb,layer,nymc,gdb_nymc,true,true,BoroCode|MuniCourt,Municipal Court Districts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nymcea,gdb_nymcea,true,true,BOROCODE|MCEA,"Minor Census Economic Areas, dissolved from 2000 Census Tracts by MCEA attribute, clipped to shoreline",blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nymcwi,gdb_nymcwi,true,true,BoroCode|MuniCourt,"Municipal Court Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nynta2010,gdb_nynta2010,true,true,NTACode,Neighborhood Tabulation Areas 2010,in progress,Resolving water-boundary clipping issues,See CSCL-DISTRICTS-03 in data_issues.md
+district_gdb,gdb,District gdb,layer,nynta2020,gdb_nynta2020,true,true,NTA2020,Neighborhood Tabulation Areas 2020,in progress,Resolving water-boundary clipping issues,See CSCL-DISTRICTS-03 in data_issues.md
+district_gdb,gdb,District gdb,layer,nypp,gdb_nypp,true,true,Precinct,Police Precincts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,true,true,PUMA,Public Use Microdata Areas (PUMA) 2010,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,true,true,PUMA,Public Use Microdata Areas (PUMA) 2020,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nysd,gdb_nysd,true,true,SchoolDist,School Districts,done,Matches prod exactly,
+district_gdb,gdb,District gdb,layer,nyss,gdb_nyss,true,true,StSenDist,State Senatorial Districts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
+district_gdb,gdb,District gdb,layer,nysswi,gdb_nysswi,true,true,StSenDist,"State Senatorial Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
+district_gdb,gdb,District gdb,layer,nyura,gdb_nyura,true,true,URAID,Urban Renewal Areas,blocked,Layer frozen in prod since 2009 (nybid's stale batch),Layer frozen since 2009 (same batch as nybid - see KNOWN_STRUCTURAL_DIFFS in compare_gdb.py) - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
+district_gdb,gdb,District gdb,layer,nyzip,gdb_nyzip,true,true,ZIP_CODE,Zip Code Areas,blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md

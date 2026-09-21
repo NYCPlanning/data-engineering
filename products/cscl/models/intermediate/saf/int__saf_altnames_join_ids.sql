@@ -44,6 +44,7 @@ lion AS (
 commonplace_join_ids AS (
     SELECT
         saf.segmentid,
+        saf.saf_globalid,
         lion.boroughcode
         || substring(cp.b7sc, 2, 5)
         || lpad(right(cp.b7sc, 2), 2, '0')
@@ -81,6 +82,7 @@ addresspoint_b7sc AS (
 addresspoint_join_ids AS (
     SELECT
         saf.segmentid,
+        saf.saf_globalid,
         lion.boroughcode
         || substring(ab.b7sc, 2, 5)
         || lpad(right(ab.b7sc, 2), 2, '0')

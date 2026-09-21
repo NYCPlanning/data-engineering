@@ -38,13 +38,14 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
-| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (51%→93% coverage, not yet CI-verified) | Open | 26c |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
-| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nymcea`, `nypuma2010/2020`); `nynta2020` is a separate, unexplained clip-fragmentation gap | Open | 26b |
+| [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
+| [CSCL-DISTRICTS-03](#cscl-districts-03) | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
 | [CSCL-LDF-03](#cscl-ldf-03) | LDF | Cumulative record number is transcribed, not chained | Open | 26b |
@@ -262,24 +263,48 @@ than per-principal-streetname - that we haven't replicated.
 keyed on in the legacy ETL, and whether `dcp_cscl_streetname`'s facecode cardinality has
 always been this low or is specific to this source snapshot.
 
-**Root-caused and largely fixed (2026-09-18) - possibility #2 above was right.** GR pointed at
-the actual legacy ETL C# source this round (`ExtractorClass.cs`'s `AddAltNames`/
-`GetSAFBytesJoinID`) rather than us guessing from output samples. Confirmed: prod really does
-compute a large share of its `Join_ID`s from a mechanism unrelated to `dcp_cscl_streetname`'s
-facecode diversity - SAF-replicant `Join_ID`s, generated from `CommonPlace` and `AddressPoint`
-records whose B7SC has no relationship at all to any segment's own street classification. Item
-1 in the earlier "ruled out" list above measured the wrong thing (raw segment count carrying
-`special_address_flag`, 6.7%) rather than how many *distinct `Join_ID`s* those two source types
-actually contribute - which turns out to be substantial. See
-[Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md) for the full mechanism,
-implementation (`int__saf_altnames_join_ids.sql` + `gdb_altnames.sql`), and a real B7SC-width
-bug caught during implementation. Result: dev's distinct `Join_ID` coverage went from
-16,617/32,867 (~51%) to 30,820/33,246 (~93%) against a fresh prod comparison - closing ~85% of
-the gap. Not yet verified via a full CI build. A third SAF source type
-(`ALTSEGMENTDATA`) was deliberately left unimplemented - traced `SetSAFStreetNameAndCode` and
-confirmed it doesn't overwrite the segment's own output LGC fields, so `AddAltNames`'s regular
-per-segment path likely already covers it; implementing it too could double-count rather than
-add coverage. The remaining ~7% gap is most likely this, unconfirmed.
+**Root-caused (2026-09-18) - possibility #2 above was right, but the fix is blocked, not
+closed.** GR pointed at the actual legacy ETL C# source this round (`ExtractorClass.cs`'s
+`AddAltNames`/`GetSAFBytesJoinID`) rather than us guessing from output samples. Confirmed: prod
+really does compute a large share of its `Join_ID`s from a mechanism unrelated to
+`dcp_cscl_streetname`'s facecode diversity - SAF-replicant `Join_ID`s, generated from
+`CommonPlace` and `AddressPoint` records whose B7SC has no relationship at all to any segment's
+own street classification. Item 1 in the earlier "ruled out" list above measured the wrong thing
+(raw segment count carrying `special_address_flag`, 6.7%) rather than how many *distinct
+`Join_ID`s* those two source types actually contribute - which turns out to be substantial. A
+third SAF source type (`ALTSEGMENTDATA`) was deliberately left unimplemented - traced
+`SetSAFStreetNameAndCode` and confirmed it doesn't overwrite the segment's own output LGC
+fields, so `AddAltNames`'s regular per-segment path likely already covers it.
+
+Implemented and CI-verified (`ar-cscl-26c`, run `35354234855`): `Join_ID` coverage went from
+16,617/32,867 (~51%) to 30,820/33,246 (~93%). **But the row-level diff `compare_gdb.py` actually
+reports went from 56,017 (43.18%, pre-session baseline) to 66,076 (50.9%) - net worse**, after
+also fixing a second bug (SAF names were joining every StreetName/FeatureName variant instead of
+the principal-only row the legacy SAF name lookup actually uses - that alone had made it 100,940/
+77.8%). Spot-checking the remaining 13,564 SAF-derived dev-only rows found the same staleness
+shape as `CSCL-SAF-01`/`Bug 010`, now in `AddressPoint.B7SC_VANITY`/`B7SC_ACTUAL`: one address
+point's current vanity B7SC resolves to "East 14 Street," while prod's real row at that exact
+computed `Join_ID` shows "Avenue Y" - the underlying record's vanity code appears to have been
+reclassified in CSCL since whatever snapshot prod is stuck on, same as everywhere else this
+session. Only checked one example, not confirmed at scale. See
+[Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md) for full detail and the
+recommendation to confirm this systematically before deciding whether to keep the
+`commonplace`/`addresspoint` implementation as-is.
+
+**Confirmed at scale (2026-09-19), with new queryable QA models
+(`gdb_altnames_by_field`/`qa_int__prod_fgdb_altnames`/`qa__diffs_fgdb_altnames`, full-row-content
+hash diff).** Total diff: 66,056 rows, 77-82% of it concentrated in `CommonPlace`-sourced SAF
+Join_IDs (types N/X), not `AddressPoint` as the one-example writeup above suspected. For every one
+of the 4,064 distinct problem `Join_ID`s, reconstructed the underlying B7SC's street-code+LGC
+suffix and searched current `StreetName`/`FeatureName` under all 5 possible borough digits (the
+`Join_ID` formula discards the source B7SC's own borough digit) - **zero matched anything in
+current source, under any borough.** Concrete example: `Join_ID` `20079701000000N`'s current B7SC
+is unambiguously "BAY PLAZA" (matches dev's single row exactly); prod carries 106 unrelated
+alternate names under that same `Join_ID` string (every spelling of "Martin Luther King Jr
+Avenue"/"Bartow Avenue"). This is the same staleness pattern as `CSCL-SAF-01`/`Bug 010`, now
+confirmed as the dominant driver of the whole-project diff (`qa__diffs_all`), not a code bug. Not
+fixable on our side. See [Bug 011](./docs/prod_bugs/011-altnames-saf-replicant-join-ids.md)'s
+2026-09-19 update for the full methodology.
 
 **Separate fix, within the covered `Join_ID`s (2026-09-16): `SName` wasn't truncated to its
 30-byte field width.** The coverage-gap analysis above only asks whether a `Join_ID` exists
@@ -489,12 +514,41 @@ NTAs into more than twice as many pieces as our clip finds - a different/more gr
 mask, a different clip tolerance, no min-area floor on prod's side - is a genuinely separate,
 still-open question from the `organizePolygons()` mechanism above.
 
-**What would settle it:** this needs a decision before touching shared code - candidates are
-simplifying/consolidating high-ring-count geometry before export, a GDAL layer-creation
-option to control `organizePolygons()` behavior on read (`METHOD=SKIP`/`ONLY_CCW`), checking
-whether ring winding order (`ST_ForceRHR` or similar) differs from what OpenFileGDB expects,
-or a `pyogrio`/GDAL version difference from whatever produced prod's export. All of these
-touch code other products' gdb exports depend on.
+**Fixed (2026-09-19) - root cause was our own SQL, not shared export code.** Ruled out the
+"needs a decision before touching shared code" candidates empirically rather than guessing:
+
+- **Ring winding order is already correct.** Checked PUMA 4105's actual geometry: exterior
+  ring is clockwise, all 4,926 interior rings are counter-clockwise, 100% consistent - the
+  standard, unambiguous convention. Not the cause.
+- **`OGR_ORGANIZE_POLYGONS` config (`ONLY_CCW`/`SKIP`) doesn't fully fix it either way, and
+  only matters on read, never on write.** Verified: writing with any config setting produces
+  byte-identical read-back results to writing with defaults (confirmed via
+  `pyogrio.set_gdal_config_options`, `use_arrow=False`, and env vars) - whatever's ambiguous
+  about the file is baked in by the OpenFileGDB writer itself, not fixable from the read side.
+  `METHOD=ONLY_CCW` on read improves PUMA 4105 from 87 misread parts to 58 (better, still
+  wrong); `METHOD=SKIP` makes it worse (4,928 - every single ring treated as its own polygon).
+  Would require *every* downstream consumer of our exports to also set this, which isn't
+  practical anyway.
+- **The real fix: the holes shouldn't exist in the first place.** Checked the size of all
+  4,926 "holes" in PUMA 2010's worst case (PUMA 4105): every single one is under 0.24 sq ft
+  (max 0.237, min ~1.7e-9) - the same hairline-sliver artifact `clipped_geom`'s existing
+  `min_area` floor already removes for whole *parts* (district/water-mask boundaries are
+  nominally coincident but differ in the last bits), just never applied to *interior rings
+  within* a part that survives that filter. Stripping sub-`min_area` holes the same way:
+  PUMA 4105 goes from 4,926 holes to **0**, area changes by 6.9 sq ft (0.0000013%). Below
+  GDAL's 100-ring `organizePolygons()` trigger entirely, so the ambiguous-reconstruction
+  problem never arises on export.
+
+Implemented in `macros/clip_to_shoreline.sql`'s `clipped_geom` macro (CSCL-local code, not
+shared `dcpy` export infrastructure - no cross-product risk). Verified on rebuild:
+`nypuma2010` total exported parts 355 → **182** (prod: 178); `nypuma2020` 210 → **180**
+(prod: 182) - both now within a handful of prod, the same margin the existing whole-part
+`min_area` floor already achieves elsewhere. **`nymcea`'s row count is unchanged (249,
+unaffected by this fix)** - contradicts the earlier "likely the same mechanism" note two
+paragraphs up; its fragmentation is a genuinely different, still-open mechanism (real disjoint
+parts from the dissolve/clip step, not a ring-hole export artifact) and needs its own
+investigation. `nynta2020`'s reverse-direction gap (above) is also confirmed separate, unaffected
+by this fix.
 
 ### CSCL-DISTRICTS-02
 
@@ -538,8 +592,78 @@ in the clip itself (water mask boundary, not source validity), still unverified.
 **What would settle it:** `nyhez`/`nycdwi` - deciding whether `ST_MakeValid`'s resolution is
 acceptable as-is (the source data is objectively invalid; matching prod exactly would require
 replicating ArcGIS's specific repair algorithm, not obviously worth it) or worth reporting to
-GR as a source-quality issue. `nypp` - still needs its own investigation into the shoreline-clip
-mechanics, separate from this entry.
+GR as a source-quality issue. `nypp` - see `CSCL-DISTRICTS-03` below, which root-causes the
+shoreline-clip mechanism `nypp`'s own delta was left pointing at.
+
+### CSCL-DISTRICTS-03
+
+**Coastline-adjacent features: `SHAPE_Length` inflated well past area-preserving tolerance,
+`SHAPE_Area` essentially untouched** · Fixed (partial - `nynta2010`/`nynta2020` only) · Last
+verified 26c
+
+Every `clip_to_shoreline`/`clipped_geom`-based layer (`nycc`, `nycd`, `nyed`, `nyha`, `nyfb`,
+`nyfc`, `nynta2010`, `nynta2020`, `nypp`, and others) shows a small subset of rows - the ones
+whose district actually touches a complex stretch of coastline - flagged as "modified" by
+`compare_gdb.py`, but *only* on `SHAPE_Length`: area differs by ~1e-6% to ~1e-9% (i.e. not at
+all, in any practical sense) while perimeter differs by anywhere from a fraction of a percent
+up to **55%** on the worst-affected rows. This is a different mechanism from the hole-sliver
+issue fixed in `CSCL-DISTRICTS-01` (which showed up as extra tiny *parts*/holes, not this).
+
+**Root-caused (2026-09-20/21), two distinct mechanisms, both inside `clip_to_shoreline`'s
+`ST_Difference` against `int__water_mask`:**
+
+1. **Hairline gaps between adjacent AtomicPolygons.** Confirmed empirically: nearby
+   AtomicPolygons meant to share an edge exactly differ by ~0.0001-0.0002 ft after import (500
+   sampled pairs, 0 exactly touching). Individually invisible, but wherever a district's own
+   source boundary happens to run *parallel* to a chain of these seams for some distance, the
+   gaps accumulate into a long, thin, un-clipped "spur" reaching into the water - confirmed on a
+   MN31 (`nynta2010`) spur where checking every AtomicPolygon of any `WATER_FLAG` (not just `1`)
+   showed ~43% of the sliver's own footprint has literally no polygon covering it at all.
+2. **Genuine AtomicPolygon coverage voids at jurisdictional edges**, unrelated to import
+   precision. `stg__neighborhood`'s raw boundary sometimes runs out to a legal line - e.g. the
+   NY/NJ state line - that has no reason to coincide with any real AtomicPolygon edge, since
+   AtomicPolygons model NYC's own physical geography, not legal jurisdiction. Confirmed on SI12:
+   its dominant ~4,300 ft spur is **~100% uncovered by any AtomicPolygon of any flag** within 20
+   ft, sits on the NY/NJ state line (visually confirmed against Shooters Island in the Kill Van
+   Kull), and the nearest *any* other polygon from its midpoint is 113.9 ft away - one single
+   massive water polygon whose own edge simply doesn't reach as far as `stg__neighborhood`'s
+   does. No buffer/snap distance fixes this class: there's no second polygon nearby to bridge to.
+
+Independently confirmed against the **real legacy ETL** (`cscl_etl_archive`, C# ArcObjects, not
+arcpy as previously assumed): `GDBExtractorClass.cs` clips via `APClipByDissolved`, a real
+ArcGIS **Clip** tool (intersect-with-boundary) against a `Select`-then-`Dissolve` of AtomicPolygons
+(`APMultiPartDissolve`) - i.e. prod dissolves *land* and intersects, we dissolve *water* and
+subtract. These are only equivalent where AtomicPolygons fully tile the area; mechanism 2 above is
+exactly a place they don't.
+
+**Fixed for `nynta2010`/`nynta2020` (2026-09-21):**
+
+- `int__water_mask.sql`: water AtomicPolygons are now buffered out 0.01 ft, unioned, and buffered
+  back in before subdividing (a "morphological closing") - closes mechanism 1's hairline seams.
+  0.01 ft, not a larger value: at 0.05 ft the closing merged two water areas across a real (if
+  narrow) non-water feature on MN24, eating a genuine sliver of land prod keeps - 0.01 ft is
+  still ~50x the measured gap size with much less room to reach a real feature by mistake.
+- `gdb_nynta2010.sql`/`gdb_nynta2020.sql`: the neighborhood polygon is now intersected with its
+  own assigned borough (shrunk 5 ft) *before* shoreline clipping - closes mechanism 2, since
+  anything outside the district's own borough is dropped regardless of AtomicPolygon coverage.
+  This also caught a real, previously-unknown error in `stg__neighborhood` itself: QN99's raw
+  polygon extended all the way past Staten Island to Perth Amboy, NJ - a ~2.9B sq ft polygon
+  standing in for what should be prod's ~308M sq ft scatter of Queens parks/cemeteries. Bounding
+  to Queens' own extent brings the area back in line with prod to within 0.24%.
+
+**Results on `nynta2010`** (`SHAPE_Length` gap vs. prod): SI12 14,353 ft → **-9 ft**; QN45 9,614
+ft → **-55 ft**; QN98 12,728 ft → 424 ft (better, not fully closed - unexplained residual);
+MN31/BK29 → 0 ft exactly. A handful of rows (QN99 -4,021 ft, BK29 1,585 ft, MN34 1,370 ft, and a
+few others under ~600 ft) are new/changed smaller-magnitude gaps from the 0.01 ft buffer choice,
+not yet individually root-caused - QN99's is very likely just the new boundary tracing along the
+borough line itself (its `SHAPE_Area` matches prod to 0.24%, so the underlying shape is right).
+
+**Not yet done:** the other `clip_to_shoreline` layers (`nycc`, `nycd`, `nyed`, `nyha`, `nyfb`,
+`nyfc`, `nypp`, etc.) still use the un-bounded water mask only (they get mechanism 1's fix for
+free via `int__water_mask`, but not mechanism 2's borough-bound fix, which was only added to the
+two NTA models so far). Worth auditing each for whether its own source geometry ever runs past
+its borough/jurisdiction the same way `stg__neighborhood` does before deciding whether to extend
+the borough-bound pattern to them too.
 
 ## LDF
 

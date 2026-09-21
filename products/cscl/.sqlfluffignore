@@ -1,0 +1,9 @@
+# models/intermediate/saf/int__saf_replicant_fields.sql: sqlfluff 4.3.0's postgres
+# dialect can't parse `IS DISTINCT FROM` inside a CASE WHEN (reproduced in total
+# isolation - a bare `SELECT CASE WHEN a.x IS DISTINCT FROM '1' THEN ... END` fails
+# to parse, no other syntax involved) - a parser bug, not invalid SQL. The resulting
+# broken parse tree also throws spurious RF01 (reference not found) and LT02
+# (indent) violations earlier/later in the same file as a side effect; noqa can
+# suppress PRS's own report but not the cascade from an actually-malformed tree,
+# so the whole file is excluded here rather than chasing rule codes one by one.
+models/intermediate/saf/int__saf_replicant_fields.sql

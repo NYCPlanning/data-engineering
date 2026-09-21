@@ -1,10 +1,34 @@
 # Bug 011: `gdb_altnames` Join_ID Coverage Gap - SAF-Replicant Join_IDs Were Entirely Missing
 
-**Status:** Fixed (partial - `commonplace`/`addresspoint` branches only, see Scope below)
+**Status:** Confirmed prod-side staleness at scale (2026-09-19) - not a code bug, root cause
+understood; not fixable on our side
 **Affected Output:** `gdb_altnames` (LION gdb, `nyclion_*.zip`)
-**Severity:** High - was the largest unexplained magnitude in the LION gdb
-**Discrepancy Count:** Distinct `Join_ID` coverage went from 16,617/32,867 (~51%) to
-30,820/33,246 (~93%) against a fresh, real prod comparison.
+**Severity:** High - the largest single diff category in the whole CSCL project (~40,000 of
+`qa__diffs_all`'s 72,039 rows)
+**Discrepancy Count:** Distinct `Join_ID` coverage improved from 16,617/32,867 (~51%) to
+30,820/33,246 (~93%). With `qa__diffs_fgdb_altnames`/`qa_int__prod_fgdb_altnames` now in place
+(exact full-row-content diff, not the coarser distinct-`Join_ID`-count comparison used
+previously): 66,056 total diff rows (51,467 legacy-only, 14,589 build-only) - see the 2026-09-19
+update below for the full breakdown.
+
+## Flagship example
+
+`Join_ID 21543702000000N`: our build's current-source row is `BX PSYCHIATRIC CTR CHILDRENS CTR`.
+Prod's row at that *exact same* `Join_ID` is `BRONX STATE HOSPITAL ENTRANCE`/
+`BX STATE HOSPITAL ENTRANCE`. "Bronx State Hospital" was renamed **Bronx Psychiatric Center** in
+the 1970s - institutionally wrong for roughly fifty years. But it's better than that: the
+underlying B7SC (`21543702`) has **11** carefully-documented alternate spellings in current
+source (`NYC CHILDRENS CENTER`, `NYC CHILDREN'S CTR BX CAMPUS`, etc.) - all created by DCP staff
+in a single 13-minute window on **2016-08-31** (14:48:58-15:01:52), clearly one deliberate
+data-entry session properly re-surveying this campus. Prod's altnames output has not picked up
+that update in the ten years since. Checked whether this points at a missing input source (a
+"historical names" layer we're failing to ingest) before concluding staleness - it doesn't:
+current source already has both a legitimate non-principal alternate name for the *street*
+(`BRONX STATE HOSPITAL ENTRANCE`, `dcp_flag='Y'`, a different B7SC for the actual road) and the
+full 2016 building-level rename for the *place*. Nothing is missing on the input side; prod
+simply hasn't regenerated this output from source in at least a decade. See the 2026-09-19 update
+below for how this generalizes (checked across the full population of ~4,000 problem `Join_ID`s,
+not just this one).
 
 ## Summary
 
@@ -68,9 +92,11 @@ regular LGC list, so nothing else could ever produce them.
 resolution (roadbed-pointer-list generic mapping, inclusion via `int__lion`) rather than
 re-deriving it. Outputs `(segmentid, join_id, implicit_b7scs[])`.
 
-**`gdb_altnames.sql` change:** the `b7scs` CTE now unions `segment_b7scs` (unchanged) with a new
-`saf_b7scs` CTE that unnests `int__saf_altnames_join_ids`'s `implicit_b7scs` array, before the
-existing `names` join - no other change to the model.
+**`gdb_altnames.sql` change:** split into two parallel paths instead of one shared `b7scs`/`names`
+join - `segment_altnames` (unchanged: every non-excluded name variant per implicit B7SC) and
+`saf_altnames` (new: `saf_b7scs`, unnested from `int__saf_altnames_join_ids`'s `implicit_b7scs`,
+joined against `names` **restricted to `principal_flag = 'Y'`**). See the second bug below for
+why the SAF path needed its own, narrower join rather than reusing `segment_altnames`'s.
 
 ### A real bug found and fixed during implementation
 
@@ -87,12 +113,41 @@ matching the legacy code's `b7sc.Substring(1,5)`) and the *full* B7SC (`left(b7s
 just the B7SC itself for the row's own LGC slot) for the `implicit_b7scs` used in the name
 lookup. After the fix: 14,105 of 14,108 candidate B7SCs matched a real name (99.98%).
 
+### A second real bug, found via an actual CI build: over-generation of names per SAF Join_ID
+
+A real build (`ar-cscl-26c`, run `35354234855`) with the fix above deployed showed `gdb_altnames`
+at **100,940 row diffs (77.8%)** - worse than the 56,017/43.18% baseline before any of this
+session's `gdb_altnames` work, despite `Join_ID` coverage having genuinely improved. Traced one
+SAF Join_ID generating **84 name rows** on its own (`B7SC 11254001`, "Dr. Ronald E. McNair
+Playground" - 84 `FeatureName` spelling variants, exactly 1 `principal_flag = 'Y'` row). The
+`saf_b7scs` join was reusing `segment_altnames`'s "every non-excluded variant" `names` join,
+correct for real segments (spec §2.7.4 genuinely wants every StreetName/FeatureName variant
+there) but wrong for SAF records - the legacy `SetSAFStreetNameAndCode`'s SAF-specific name
+lookup uses `GetRow(... AND PRINCIPAL_FLAG = 'Y')`, singular, principal-only. Fixed by giving the
+SAF path (`saf_altnames`) its own join restricted to `principal_flag = 'Y'`.
+
+**Effect:** 100,940 (77.8%) → 66,076 (50.9%), dev-only 47,658 → 14,589. Confirmed the regular
+segment path's own dev-only count is untouched (1,025, matching the pre-existing 1,023 baseline)
+- the fix is isolated to the SAF path as intended.
+
+### The remaining gap looks like more prod staleness, not a code bug
+
+Of the 14,589 dev-only rows post-fix, 13,564 are SAF-derived (only 1,025 are the pre-existing
+regular-segment gap). Spot-checked one: dev's row at Join_ID `33543001000000V` is "EAST 14
+STREET"; prod's real row at that *exact same Join_ID* is "AVENUE Y". Traced the source: address
+point `5158331`'s `B7SC_VANITY = '33543001'` in current source (which does mean "East 14
+Street") - matches what the code reads exactly, no bug there. Since the Join_ID is *derived
+directly from* the vanity B7SC, this isn't "right key, wrong name" - it means this specific
+address point's vanity B7SC has itself been reclassified in CSCL since whatever snapshot prod's
+`AltNames` generation is working from. Same staleness shape as `CSCL-SAF-01`
+(`Segment_LGC`) and `Bug 010` (`FEATURENAME`) - now apparently also affecting
+`AddressPoint.B7SC_VANITY`/`B7SC_ACTUAL`. **Only checked one example** - not yet confirmed
+systematically across the 13,564 the way `CSCL-SAF-01`'s LGC pattern was confirmed at full scale.
+
 ## Verification
 
-Tested directly against Postgres (not yet run through a full CI build) with a fresh,
-independently-verified 26c prod `fgdb_altnames` copy (loaded this session via
-`load_production_lion_fgdb_layers`, not the stale copy an earlier investigation round may have
-used):
+`Join_ID` coverage, tested directly against Postgres with a fresh, independently-verified 26c
+prod `fgdb_altnames` copy (loaded via `load_production_lion_fgdb_layers`):
 
 | | before | after |
 |---|---|---|
@@ -100,24 +155,129 @@ used):
 | prod distinct `Join_ID` | ~32,867 (stale estimate) / 33,246 (fresh) | 33,246 |
 | overlap | ~16,617 (~51%) | 30,820 (~93%) |
 
-Closes roughly 85% of the original gap. Remaining ~2,426 uncovered `Join_ID`s are most likely
-the `altsegmentdata` branch (deliberately not implemented, see Scope above) plus SAF records
-whose B7SC didn't pass the `length(b7sc) = 8` guard or genuinely have no matching name - not yet
-individually characterized.
+Row-level diff, confirmed via a real CI build (`ar-cscl-26c`, run `35354234855`) both before and
+after the principal-only fix above:
 
-**Not yet verified:** a full CI build + `compare_gdb.py` run (only checked directly in Postgres
-against a manually-materialized copy of the new logic). Do that before treating this as closed,
-and check whether the `SType`/`Join_ID` diversity flags in `compare_gdb.py`'s per-column report
-clear as expected.
+| | pre-session baseline | first (buggy) fix | after principal-only fix |
+|---|---|---|---|
+| Total row diff | 56,017 (43.18%) | 100,940 (77.8%) | 66,076 (50.9%) |
+| dev-only | 1,023 | 47,658 | 14,589 (1,025 regular + 13,564 SAF) |
+| prod-only | 54,994 | 53,282 | 51,487 |
+
+**Net result: `Join_ID` coverage genuinely improved (51%→93%), but the row-level diff is still
+worse than the pre-session baseline (50.9% vs 43.18%).** That's not a sign the fix is wrong -
+it's that we're now generating content for ~14,000 previously-entirely-absent `Join_ID`s, and a
+large fraction of the underlying `AddressPoint` records appear to have drifted from whatever
+CSCL snapshot prod's `AltNames` generation is stuck on (see staleness section above). Marking
+this **blocked** rather than fixed until that's confirmed at scale - see Recommendation.
 
 ## New ETL Implementation
 
 `models/intermediate/saf/int__saf_altnames_join_ids.sql` (new) +
-`models/product/lion/gdb/gdb_altnames.sql` (extended `b7scs` CTE).
+`models/product/lion/gdb/gdb_altnames.sql` (split into `segment_altnames`/`saf_altnames` paths,
+the latter principal-only).
+
+## Recommendation
+
+1. Confirm the `AddressPoint.B7SC_VANITY`/`B7SC_ACTUAL` staleness theory at scale, the way
+   `CSCL-SAF-01`'s `LGC`-01 pattern was confirmed across all 9-13 affected rows - sample a larger
+   set of the 13,564 SAF-derived dev-only rows and check whether their underlying address point's
+   current vanity/actual B7SC resolves to a *different* real street than whatever prod's row at
+   that same computed `Join_ID` shows.
+2. If confirmed, this folds into the same GR conversation as `CSCL-SAF-01`/`Bug 010` - one more
+   data category where prod's output reflects an older CSCL state than the current release.
+3. Not yet worth reverting the `commonplace`/`addresspoint` implementation - `Join_ID` coverage
+   is a real, durable improvement, and the row-level regression looks like previously-invisible
+   staleness surfacing, not new bugs in the join logic itself.
+
+## Update 2026-09-19: root cause confirmed at scale, via new QA models
+
+A queryable diff layer now exists for this specific output: `gdb_altnames_by_field` (dev, keyed by
+`_altnames_key = md5(PDir|PType|SName|SType|SDir|Street|Join_ID)` - the full row content, since
+this layer has no natural row id), `qa_int__prod_fgdb_altnames` (the same hash over a fresh prod
+`fgdb_altnames` copy), and `qa__diffs_fgdb_altnames` (their set difference, now folded into
+`qa__diffs_all`). This made it possible to actually answer Recommendation #1 above instead of
+extrapolating from one example.
+
+**Row-count-per-`Join_ID` differences are a red herring.** Some `Join_ID`s (e.g. a Bronx subway
+line, `2504604010000  `) show prod with 30x more raw rows than dev (458 vs 14) - but that's prod
+carrying literal duplicate copies of the same handful of names (one subway line spans many
+physical rail segments; prod appears to insert its name set once per segment without deduping,
+dev's `SELECT DISTINCT` correctly collapses them). Confirmed this produces **zero** actual diff
+rows: the hash-based key already treats duplicate content as identical regardless of how many
+times each side repeats it.
+
+**The real, dominant diff is concentrated in `CommonPlace`-sourced SAF Join_IDs (types N and X -
+Non-Addressable Placenames), not `AddressPoint` as originally suspected:** N+X account for 39,593
+of 51,467 legacy-only rows (77%) and 11,974 of 14,589 build-only rows (82%); every other type
+combined is a minority. `V` (AddressPoint vanity) also contributes but at much smaller scale.
+
+**Mechanism, confirmed on concrete examples then verified at full scale:** `Join_ID`
+`20079701000000N` decodes (boro 2, streetcode `00797`, LGC `01`) to a B7SC whose *current* source
+value is unambiguous - `dcp_cscl_featurename` has exactly one entry there, `BAY PLAZA` (principal)
+and `BAY PLAZA SHOPPING CENTER` - which is exactly dev's single row for that `Join_ID`. Prod's row
+for the *same* `Join_ID` string has **106 distinct alternate names**, none related to Bay Plaza -
+every spelling variant of "Martin Luther King Jr Avenue" and "Bartow Avenue" (`MLK`, `M L KING`,
+`REV MARTIN LUTHER KING JR`, `...AVENUE EB ROADBED`, etc). A second example (`11041001000000V`)
+showed the same shape: prod's 109 rows are ~109 *different, unrelated* East/West numbered cross
+streets, dev's 1 row is the correct current name (`5 AVENUE`).
+
+Checked whether these prod-only clusters correspond to *any* currently-valid entity: for each
+problem `Join_ID`, reconstructed its underlying 7-character street-code+LGC suffix and searched
+`dcp_cscl_featurename`/`dcp_cscl_streetname` for that suffix under **all 5 possible borough
+digits** (since the `CommonPlace`/`AddressPoint` Join_ID formula discards the source B7SC's own
+borough digit, substituting the host segment's borough instead - confirmed from
+`GetSAFBytesJoinID` above - so the true borough of the original B7SC can't be recovered from the
+`Join_ID` string alone, and all 5 possibilities must be checked). Across all 4,064 distinct
+problem `Join_ID` suffixes: **zero matched anything in current source, under any borough
+interpretation.** This isn't a name that moved to a different borough's B7SC and got missed - the
+name clusters prod carries for these `Join_ID`s have no relationship to *any* currently-active
+`StreetName`/`FeatureName` entry anywhere in the city.
+
+**The flagship example above** (`Join_ID 21543702000000N`, see top of this doc) has four more
+siblings showing the identical pattern: `21543704/705/708000000N`, `27335001000000V`. A second,
+independently-dateable one: `Join_ID 21503001000000P`, prod-only, `BRONX TERMINAL MARKET`/
+`...BUILDING` - the original market structure at 149th St was demolished and redeveloped into the
+Gateway Center mall, which opened in 2009.
+
+**Conclusion:** confirmed, not just for one example but for the entire population of problem
+`Join_ID`s. This is the same "prod accumulates decades of historical alias records and never
+fully regenerates them" pattern as `CSCL-SAF-01` and `Bug 010`, now shown to be the dominant
+driver of the whole-project diff (`qa__diffs_all`, 72,039 rows) once the coverage gap itself was
+fixed. Not fixable on our side - we can only regenerate from current source, and prod's data for
+these `Join_ID`s doesn't correspond to current source at all. Worth raising with GR as its own,
+largest-magnitude example of the staleness pattern, alongside `CSCL-SAF-01`/`Bug 010`.
+
+**Corroborating evidence found in the FileGDB's own metadata (2026-09-19).** Inspected a real
+26C `v26C_Lion.gdb` (`ogrinfo`'s `GDB_Items` system table, which carries ArcGIS's per-item ESRI
+metadata as embedded FGDC XML). All three layers in the GDB were assembled into this container on
+the same day (2026-08-10, per the workspace-level processing lineage:
+`CreateFileGDB` → `FeatureClassToGeodatabase node` → `TableToGeodatabase node_stname` →
+`TableToGeodatabase altnames`, all within one minute of each other). Their item-level `CreaDate`
+fields tell a different story:
+
+| Layer | Item `CreaDate` |
+|---|---|
+| `node` | 2026-07-28 (current cycle) |
+| `node_stname` | 2026-07-29 (current cycle) |
+| `altnames` | **2009-01-05** - unchanged |
+
+`node`/`node_stname` both show a `CreaDate` matching this release cycle - they were genuinely
+recreated. `altnames`'s `CreaDate` is still January 2009, seventeen years old, sitting right next
+to two siblings that were freshly rebuilt the same day. Its `ModDate`/`SyncDate` *are* 2026-08-10
+(it was touched during packaging), consistent with "the same underlying table object got copied
+into this export" rather than "this table's contents were regenerated." Not proof on its own
+(`CreaDate` is a well-known ArcGIS field that rides along unchanged across template/object reuse),
+but a concrete, independent data point pointing the same direction as the content-level analysis
+above. The embedded FGDC abstract also documents the many-alias-spellings mechanism as
+intentional design (its own worked example: "Adam Clayton Powell Boulevard" →
+"Powell Boulevard"/"A C Powell Boulevard") - confirming the *mechanism* is real and deliberate,
+just evidently not kept in sync with current source for a large fraction of entries.
 
 ## References
 
-- `data_issues.md` CSCL-LION-09 (updated with this fix)
+- `data_issues.md` CSCL-LION-09 (updated with this)
 - Legacy source: `~/dev/cscl_etl_archive/ETL/CSCL.ETL.Extractor/Source Files/ExtractorClass.cs`
   (`AddAltNames`, `GetBytesJoinID`, `GetSAFBytesJoinID`, `SetSAFStreetNameAndCode`)
 - `models/intermediate/saf/int__saf_segments.sql` - reused SAF-record resolution
+- Related: `CSCL-SAF-01`, `Bug 010` (same staleness shape, different source tables)
