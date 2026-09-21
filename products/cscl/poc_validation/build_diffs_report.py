@@ -154,6 +154,26 @@ def load_file_comparison_counts() -> dict[str, dict[str, int]]:
         }
 
 
+def load_seed_notes() -> dict[str, str]:
+    """file_id -> a human-curated note, from lion_outputs.csv's own status/notes
+    columns - the durable, manually-maintained source of truth for known/blocked
+    issues (e.g. "BLOCKED: Layer frozen since 2009 - see docs/prod_bugs/013...").
+    Takes priority over any auto-generated note in build_step_summary/the report
+    below - see main()."""
+    with LION_OUTPUTS_SEED_PATH.open(newline="") as f:
+        result: dict[str, str] = {}
+        for row in csv.DictReader(f):
+            status = (row.get("status") or "").strip()
+            note = (row.get("notes") or "").strip()
+            if status and note:
+                result[row["file_id"]] = f"{status.upper()}: {note}"
+            elif status:
+                result[row["file_id"]] = status.upper()
+            elif note:
+                result[row["file_id"]] = note
+    return result
+
+
 def load_gdb_layer_stats() -> dict[str, dict]:
     """layer name -> {"row_diff": int, "note": str, "prod_row_count": int}, from
     compare_gdb.py's per-gdb-export CSVs (one row per (layer, column); the
@@ -358,6 +378,7 @@ def main() -> None:
     field_level_by_file = load_field_level_counts()
     file_comparison_counts = load_file_comparison_counts()
     gdb_layer_stats = load_gdb_layer_stats()
+    seed_notes = load_seed_notes()
     # Disjoint key spaces (flat filenames vs. gdb layer names) - safe to merge.
     row_comparison_counts = {
         filename: counts["mismatched_rows"]
@@ -372,9 +393,15 @@ def main() -> None:
     for record in backbone:
         field_counts = field_level_by_file.get(record["file_id"])
         gdb_stats = gdb_layer_stats.get(record["filename"])
-        note = gdb_stats["note"] if gdb_stats else ""
-        note = note if note != "OK" else ""
-        note = note or KNOWN_NOTES.get(record["file_id"], "")
+        # lion_outputs.csv's own status/notes are the curated, durable source of
+        # truth (see load_seed_notes) - only fall back to compare_gdb.py's
+        # auto-generated technical note or the static KNOWN_NOTES dict when we
+        # haven't manually annotated this file yet.
+        note = seed_notes.get(record["file_id"], "")
+        if not note:
+            note = gdb_stats["note"] if gdb_stats else ""
+            note = note if note != "OK" else ""
+            note = note or KNOWN_NOTES.get(record["file_id"], "")
         discrepant_rows = row_comparison_counts.get(record["filename"])
         prod_row_count = prod_row_counts.get(record["filename"])
         row = {

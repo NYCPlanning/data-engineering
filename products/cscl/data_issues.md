@@ -45,6 +45,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
+| [CSCL-DISTRICTS-03](#cscl-districts-03) | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c |
 | [CSCL-LDF-01](#cscl-ldf-01) | LDF | Transitory elimination leaves ~3% residual | Open | 26b |
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
 | [CSCL-LDF-03](#cscl-ldf-03) | LDF | Cumulative record number is transcribed, not chained | Open | 26b |
@@ -591,8 +592,78 @@ in the clip itself (water mask boundary, not source validity), still unverified.
 **What would settle it:** `nyhez`/`nycdwi` - deciding whether `ST_MakeValid`'s resolution is
 acceptable as-is (the source data is objectively invalid; matching prod exactly would require
 replicating ArcGIS's specific repair algorithm, not obviously worth it) or worth reporting to
-GR as a source-quality issue. `nypp` - still needs its own investigation into the shoreline-clip
-mechanics, separate from this entry.
+GR as a source-quality issue. `nypp` - see `CSCL-DISTRICTS-03` below, which root-causes the
+shoreline-clip mechanism `nypp`'s own delta was left pointing at.
+
+### CSCL-DISTRICTS-03
+
+**Coastline-adjacent features: `SHAPE_Length` inflated well past area-preserving tolerance,
+`SHAPE_Area` essentially untouched** · Fixed (partial - `nynta2010`/`nynta2020` only) · Last
+verified 26c
+
+Every `clip_to_shoreline`/`clipped_geom`-based layer (`nycc`, `nycd`, `nyed`, `nyha`, `nyfb`,
+`nyfc`, `nynta2010`, `nynta2020`, `nypp`, and others) shows a small subset of rows - the ones
+whose district actually touches a complex stretch of coastline - flagged as "modified" by
+`compare_gdb.py`, but *only* on `SHAPE_Length`: area differs by ~1e-6% to ~1e-9% (i.e. not at
+all, in any practical sense) while perimeter differs by anywhere from a fraction of a percent
+up to **55%** on the worst-affected rows. This is a different mechanism from the hole-sliver
+issue fixed in `CSCL-DISTRICTS-01` (which showed up as extra tiny *parts*/holes, not this).
+
+**Root-caused (2026-09-20/21), two distinct mechanisms, both inside `clip_to_shoreline`'s
+`ST_Difference` against `int__water_mask`:**
+
+1. **Hairline gaps between adjacent AtomicPolygons.** Confirmed empirically: nearby
+   AtomicPolygons meant to share an edge exactly differ by ~0.0001-0.0002 ft after import (500
+   sampled pairs, 0 exactly touching). Individually invisible, but wherever a district's own
+   source boundary happens to run *parallel* to a chain of these seams for some distance, the
+   gaps accumulate into a long, thin, un-clipped "spur" reaching into the water - confirmed on a
+   MN31 (`nynta2010`) spur where checking every AtomicPolygon of any `WATER_FLAG` (not just `1`)
+   showed ~43% of the sliver's own footprint has literally no polygon covering it at all.
+2. **Genuine AtomicPolygon coverage voids at jurisdictional edges**, unrelated to import
+   precision. `stg__neighborhood`'s raw boundary sometimes runs out to a legal line - e.g. the
+   NY/NJ state line - that has no reason to coincide with any real AtomicPolygon edge, since
+   AtomicPolygons model NYC's own physical geography, not legal jurisdiction. Confirmed on SI12:
+   its dominant ~4,300 ft spur is **~100% uncovered by any AtomicPolygon of any flag** within 20
+   ft, sits on the NY/NJ state line (visually confirmed against Shooters Island in the Kill Van
+   Kull), and the nearest *any* other polygon from its midpoint is 113.9 ft away - one single
+   massive water polygon whose own edge simply doesn't reach as far as `stg__neighborhood`'s
+   does. No buffer/snap distance fixes this class: there's no second polygon nearby to bridge to.
+
+Independently confirmed against the **real legacy ETL** (`cscl_etl_archive`, C# ArcObjects, not
+arcpy as previously assumed): `GDBExtractorClass.cs` clips via `APClipByDissolved`, a real
+ArcGIS **Clip** tool (intersect-with-boundary) against a `Select`-then-`Dissolve` of AtomicPolygons
+(`APMultiPartDissolve`) - i.e. prod dissolves *land* and intersects, we dissolve *water* and
+subtract. These are only equivalent where AtomicPolygons fully tile the area; mechanism 2 above is
+exactly a place they don't.
+
+**Fixed for `nynta2010`/`nynta2020` (2026-09-21):**
+
+- `int__water_mask.sql`: water AtomicPolygons are now buffered out 0.01 ft, unioned, and buffered
+  back in before subdividing (a "morphological closing") - closes mechanism 1's hairline seams.
+  0.01 ft, not a larger value: at 0.05 ft the closing merged two water areas across a real (if
+  narrow) non-water feature on MN24, eating a genuine sliver of land prod keeps - 0.01 ft is
+  still ~50x the measured gap size with much less room to reach a real feature by mistake.
+- `gdb_nynta2010.sql`/`gdb_nynta2020.sql`: the neighborhood polygon is now intersected with its
+  own assigned borough (shrunk 5 ft) *before* shoreline clipping - closes mechanism 2, since
+  anything outside the district's own borough is dropped regardless of AtomicPolygon coverage.
+  This also caught a real, previously-unknown error in `stg__neighborhood` itself: QN99's raw
+  polygon extended all the way past Staten Island to Perth Amboy, NJ - a ~2.9B sq ft polygon
+  standing in for what should be prod's ~308M sq ft scatter of Queens parks/cemeteries. Bounding
+  to Queens' own extent brings the area back in line with prod to within 0.24%.
+
+**Results on `nynta2010`** (`SHAPE_Length` gap vs. prod): SI12 14,353 ft → **-9 ft**; QN45 9,614
+ft → **-55 ft**; QN98 12,728 ft → 424 ft (better, not fully closed - unexplained residual);
+MN31/BK29 → 0 ft exactly. A handful of rows (QN99 -4,021 ft, BK29 1,585 ft, MN34 1,370 ft, and a
+few others under ~600 ft) are new/changed smaller-magnitude gaps from the 0.01 ft buffer choice,
+not yet individually root-caused - QN99's is very likely just the new boundary tracing along the
+borough line itself (its `SHAPE_Area` matches prod to 0.24%, so the underlying shape is right).
+
+**Not yet done:** the other `clip_to_shoreline` layers (`nycc`, `nycd`, `nyed`, `nyha`, `nyfb`,
+`nyfc`, `nypp`, etc.) still use the un-bounded water mask only (they get mechanism 1's fix for
+free via `int__water_mask`, but not mechanism 2's borough-bound fix, which was only added to the
+two NTA models so far). Worth auditing each for whether its own source geometry ever runs past
+its borough/jurisdiction the same way `stg__neighborhood` does before deciding whether to extend
+the borough-bound pattern to them too.
 
 ## LDF
 
