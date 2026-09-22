@@ -270,41 +270,52 @@ class GdbComparisonReport:
         for entry in self.layers:
             c = entry.comparison
             row_diff = entry.dev_row_count - entry.prod_row_count
-            for s in c.column_stats or [None]:
+            # Shared across every row for this layer - column_stats-derived fields
+            # (column, dev_null_pct, ...) are added per-branch below.
+            layer_fields = {
+                "layer": entry.layer,
+                "dev_row_count": entry.dev_row_count,
+                "prod_row_count": entry.prod_row_count,
+                "row_diff": row_diff,
+                "dev_area": round(c.area.dev_area) if c.area is not None else "",
+                "prod_area": round(c.area.prod_area) if c.area is not None else "",
+                "area_pct_diff": (
+                    round(c.area.pct_diff, 4) if c.area is not None else ""
+                ),
+                "key_columns": ", ".join(c.key_cols),
+                "key_precise": c.row_level.precise,
+                "rows_only_in_dev": c.row_level.only_in_dev,
+                "rows_only_in_prod": c.row_level.only_in_prod,
+                "rows_modified": (
+                    c.row_level.modified if c.row_level.modified is not None else ""
+                ),
+                "layer_note": entry.note,
+            }
+            if not c.column_stats:
                 out.append(
                     {
-                        "layer": entry.layer,
-                        "column": s.column if s else "",
-                        "dev_row_count": entry.dev_row_count,
-                        "prod_row_count": entry.prod_row_count,
-                        "row_diff": row_diff,
-                        "dev_null_pct": round(s.dev_null_pct, 2) if s else "",
-                        "prod_null_pct": round(s.prod_null_pct, 2) if s else "",
-                        "null_pct_diff": (
-                            round(s.dev_null_pct - s.prod_null_pct, 2) if s else ""
-                        ),
-                        "dev_nunique": s.dev_nunique if s else "",
-                        "prod_nunique": s.prod_nunique if s else "",
-                        "dev_area": (
-                            round(c.area.dev_area) if c.area is not None else ""
-                        ),
-                        "prod_area": (
-                            round(c.area.prod_area) if c.area is not None else ""
-                        ),
-                        "area_pct_diff": (
-                            round(c.area.pct_diff, 4) if c.area is not None else ""
-                        ),
-                        "key_columns": ", ".join(c.key_cols),
-                        "key_precise": c.row_level.precise,
-                        "rows_only_in_dev": c.row_level.only_in_dev,
-                        "rows_only_in_prod": c.row_level.only_in_prod,
-                        "rows_modified": (
-                            c.row_level.modified
-                            if c.row_level.modified is not None
-                            else ""
-                        ),
-                        "note": s.note if s else entry.note,
-                        "layer_note": entry.note,
+                        **layer_fields,
+                        "column": "",
+                        "dev_null_pct": "",
+                        "prod_null_pct": "",
+                        "null_pct_diff": "",
+                        "dev_nunique": "",
+                        "prod_nunique": "",
+                        "note": entry.note,
+                    }
+                )
+                continue
+            for s in c.column_stats:
+                out.append(
+                    {
+                        **layer_fields,
+                        "column": s.column,
+                        "dev_null_pct": round(s.dev_null_pct, 2),
+                        "prod_null_pct": round(s.prod_null_pct, 2),
+                        "null_pct_diff": round(s.dev_null_pct - s.prod_null_pct, 2),
+                        "dev_nunique": s.dev_nunique,
+                        "prod_nunique": s.prod_nunique,
+                        "note": s.note,
                     }
                 )
         return out
