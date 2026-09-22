@@ -43,6 +43,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
+| [CSCL-LION-14](#cscl-lion-14) | LION | `coincident_seg_count` = 0 in prod for one Bronx centerline segment, forbidden by spec | Accepted | 26c |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-DISTRICTS-03](#cscl-districts-03) | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c |
@@ -53,6 +54,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load | Open | 26c |
 | [CSCL-THINED-01](#cscl-thined-01) | ThinED | Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source | Watch | 26c |
 | [CSCL-THINED-02](#cscl-thined-02) | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c |
+| [CSCL-THINLION-01](#cscl-thinlion-01) | ThinLION | `nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed) | Accepted | 26c |
 | [CSCL-THINFIRE-01](#cscl-thinfire-01) | ThinFire | Borough field picked an arbitrary AtomicPolygon instead of a spatial match - fixed, 12 companies | Accepted | 26c |
 
 ---
@@ -455,6 +457,25 @@ columns at all. Null rate matches exactly (0.0% both sides, was 100.0% dev / ~0%
 the fix) and distinct-value counts are close (11,159 dev vs 11,190 prod - the small residual
 gap is consistent with the existing `Join_ID`/facecode coverage gap, CSCL-LION-09, not a new
 problem). `SAFStreetName` correctly still shows up flagged as `KNOWN: unimplemented`.
+
+### CSCL-LION-14
+
+**`coincident_seg_count` = 0 in prod for one Bronx centerline segment, forbidden by spec** ·
+Accepted · Last verified 26c
+
+Segment 359093 (`_lion_key 211480359093`): our output is `1`, prod's real, byte-verified
+`BronxLION.dat` has `0`. The ETL spec is explicit that `0` should never appear here - "If there
+are no segments coincident with the one being written out, the ETL tool will populate its L57
+field with the value '1'." Our `1` is exactly that documented floor; prod's `0` isn't a value
+the spec sanctions anywhere. Confirmed directly against the raw delivered file (position 188 of
+the actual line), not just the loaded comparison table, to rule out a loading artifact. See
+[docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md](./docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md).
+Different mechanism from `CSCL-LION-06` (that one was non-centerline/rail-subway feature-type
+merging; this is a centerline segment's own source `COINCIDENT_SEG_COUNT` attribute, passed
+through unmodified, with prod apparently publishing something spec forbids).
+
+**What would settle it:** report to GR - not fixable on our side since our value is already
+correct per spec.
 
 ## District gdb
 
@@ -917,6 +938,22 @@ that seed's per-row description for the same caveat, and the "Follow up with GS"
 constants from whatever tool originally generated this format. **Follow up with GS** - since
 neither `design_doc.md`/`docs/ETL_V8_02012024.md` nor `cscl_etl_archive` document this format,
 Geosupport (the actual consumer of this file) may know what it's for even if GR doesn't.
+
+## ThinLION
+
+### CSCL-THINLION-01
+
+**`nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed)** · Accepted ·
+Last verified 26c
+
+`qa__diffs_thinlion_summary` reported one `thinlion_all` row as `only_in_legacy` with a garbage
+key (`\x1A000000`) and every field blank - not a real record. Prod's real delivered
+`nyc.thinlion` ends in a trailing DOS-era Ctrl-Z (`0x1A`) EOF marker byte with no newline after
+it; `prod_data_loader.py`'s line-based `parse_file` read that stray byte as one more row.
+Confirmed at the byte level against the raw file (`xxd` tail: `0d 0a 1a`) and swept every other
+file in the delivery - only `nyc.thinlion` has this. Fixed by skipping empty/marker-only lines
+before field slicing. See
+[docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md](./docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md).
 
 ## ThinFire
 

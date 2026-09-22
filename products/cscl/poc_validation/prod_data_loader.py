@@ -88,6 +88,15 @@ def parse_file(
     with open(file_path) as f:
         i = 0
         for row in f:
+            # GR's tooling terminates at least one file (nyc.thinlion) with a trailing
+            # DOS-era Ctrl-Z (0x1A) EOF marker and no newline after it - plain line
+            # iteration yields that as one more "row", producing a spurious all-blank
+            # record with only the marker byte sliced into the first field (confirmed:
+            # qa__diffs_thinlion_summary's thinlion_all "only_in_legacy" comparison_id
+            # \x1A000000 - see docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md). Skip
+            # any line that's empty once stripped of whitespace and that marker.
+            if row.strip("\x1a\r\n ") == "":
+                continue
             if max_records and i > max_records:
                 break
             record = {}
