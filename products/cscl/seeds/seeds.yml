@@ -13,12 +13,17 @@ seeds:
     columns:
       - name: key
         description: "Unique config key, e.g. ldf_previous_version."
+        tests:
+        - not_null
+        - unique
       - name: value
         description: >
           The value, always stored as text - callers cast as needed (e.g. ::date). Where a
           value's real meaning/update rule is unconfirmed (see the per-row description),
           it's copied verbatim from a known-good release rather than derived, and may need
           confirming or updating for a future release.
+        tests:
+        - not_null
       - name: description
         description: "What this key means, where it's used, and any known caveats."
   - name: lion_outputs
