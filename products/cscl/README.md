@@ -244,34 +244,31 @@ header instead. That difference matters — see
 ### Release inputs
 
 Four header fields aren't in the source data: the two release IDs and the dates each was
-deployed. GR's tool prompts an operator for all four. We record them in `recipe.yml`:
+deployed. GR's tool prompts an operator for all four. We record them as plain rows in
+`seeds/config.csv` (see that seed's description in `seeds.yml`):
 
-```yaml
-version: 26b
-custom:
-  ldf:
-    previous_version: 26a
-    old_release_date: 2026-02-09
-    new_release_date: 2026-04-22
+```
+key,value
+ldf_previous_version,26a
+ldf_old_release_date,2026-02-09
+ldf_new_release,26b
+ldf_new_release_date,2026-04-22
 ```
 
-`scripts/ldf_vars.py` turns that block into dbt vars, so any build including the LDF needs:
-
-```bash
-dbt build --vars "$(python3 scripts/ldf_vars.py)"
-```
-
-Without them `int__ldf_header` errors instead of emitting a header with wrong dates.
-`previous_version` also picks the LION release the node records diff against, so all four
-move together when the release changes.
+`int__ldf_header.sql` reads them straight from the seed (`config_value('ldf_previous_version')`
+etc., no dbt `--vars` flag needed) and errors at build time if any of the four rows is missing,
+instead of emitting a header with wrong dates. `ldf_previous_version` also picks the LION
+release the node records diff against, and `ldf_new_release`/`ldf_new_release_date` describe
+*this* release - keep `ldf_new_release` in sync with `recipe.yml`'s top-level `version` by hand
+when it's bumped, since nothing ties them together automatically.
 
 ### Validating
 
 GR archives their own `LDF.dat` and `LDF.header` in `edm-private/cscl_etl/<version>/`, so
 this output has direct ground truth — unlike most others, no separate prod pull is needed.
 The build loads all three inputs itself: the prior release's LION and LDF header (both
-defaulting to `custom.ldf.previous_version`) and prod's own LDF for this release, which
-`qa__ldf_diffs` and `qa__ldf_summary` compare against.
+defaulting to `seeds/config.csv`'s `ldf_previous_version`) and prod's own LDF for this release,
+which `qa__ldf_diffs` and `qa__ldf_summary` compare against.
 
 Each load records what it wrote in `production_outputs.load_log` and is skipped when that
 table already holds the version being asked for, since the citywide LION load alone runs

@@ -81,10 +81,8 @@ jobs:
         dbt deps
         dbt debug
 
-        ldf_vars="$(python3 scripts/ldf_vars.py)"
-
         echo "Run full dbt build"
-        dbt build --full-refresh --vars "$ldf_vars"
+        dbt build --full-refresh
 
     - name: Export
       run: dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml

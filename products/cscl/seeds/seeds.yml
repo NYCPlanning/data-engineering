@@ -1,6 +1,26 @@
 version: 2
 
 seeds:
+  - name: config
+    description: >
+      Generic key/value config for values no source data carries - GR's export tools take
+      these as operator input, so we do too, rather than hardcoding them into SQL or
+      passing them as dbt --vars. One row per value; add new keys here instead of a new
+      column or a new seed. Read with a scalar subquery against this seed (see
+      int__ldf_header.sql/thined_dat.sql for the pattern) rather than dbt vars, so a build
+      needs no extra --vars flag and a missing/wrong value is a normal row-level fact to
+      fix, not a build invocation to remember.
+    columns:
+      - name: key
+        description: "Unique config key, e.g. ldf_previous_version."
+      - name: value
+        description: >
+          The value, always stored as text - callers cast as needed (e.g. ::date). Where a
+          value's real meaning/update rule is unconfirmed (see the per-row description),
+          it's copied verbatim from a known-good release rather than derived, and may need
+          confirming or updating for a future release.
+      - name: description
+        description: "What this key means, where it's used, and any known caveats."
   - name: lion_outputs
     description: "LION output file mappings by group, subgroup, and type"
     columns:

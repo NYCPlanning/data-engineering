@@ -19,7 +19,7 @@ flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_broo
 flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,done,"1 Expected discrepant row in header","Follow up with GS"
+flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,done,"","Small todo: Follow up with GS about header vars. Bigger todo: plan a better approach with them."
 flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,false,true,,,done,Matches prod exactly,

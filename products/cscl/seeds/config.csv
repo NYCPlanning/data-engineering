@@ -1,0 +1,7 @@
+key,value,description
+ldf_previous_version,26b,"LION release the LDF diffs this edition against (lowercase, uppercased where used). Bump alongside recipe.yml's version every release - see design_doc.md's LDF header record (type H)."
+ldf_old_release_date,2026-02-09,"Deployment date of ldf_previous_version, ISO YYYY-MM-DD. GR's tool takes this as operator input; nothing in source data records it."
+ldf_new_release,26c,"This release's own LION release code, uppercased where used. Must match recipe.yml's top-level version field - not derived automatically, so keep them in sync by hand."
+ldf_new_release_date,2026-04-22,"Deployment date of ldf_new_release (this release), ISO YYYY-MM-DD. GR's tool takes this as operator input; nothing in source data records it."
+thined_version,26A1,"thined.txt file header's record 0001 payload. Real meaning/update rule unconfirmed - copied verbatim from 26c's real prod file so the header byte-matches. See CSCL-THINED-02 in data_issues.md."
+thined_file_tag,THIN260309,"thined.txt file header's record 0000 payload. Real meaning/update rule unconfirmed - copied verbatim from 26c's real prod file so the header byte-matches. See CSCL-THINED-02 in data_issues.md."

@@ -896,17 +896,20 @@ Header record layout (each line 14 bytes, same width as a data record):
 
 **Fixed for 26c** in `models/product/thined/thined_dat.sql`: prepends a `header` CTE ahead of
 the data rows. The record-count line (`0002`) is computed from the real row count, since we
-understand its rule precisely. The other two lines (`0000`, `0001`) are hardcoded literals
-copied verbatim from 26c's real prod file - not derived from any understood formula, since we
-have no source confirming what (if anything) should change about them release to release.
-Verified against 26c's real prod `thined.txt`: zero dev-only, zero prod-only rows.
+understand its rule precisely. The other two lines' payloads (`thined_file_tag`, `thined_version`)
+live in `seeds/config.csv` (see `macros/config_value.sql`) rather than being literals in the SQL -
+not derived from any understood formula, since we have no source confirming what (if anything)
+should change about them release to release, but at least editable in one obvious place instead
+of a SQL string. Verified against 26c's real prod `thined.txt`: zero dev-only, zero prod-only
+rows.
 
-**Deliberately not attempted:** reverse-engineering an update rule for the `THIN260309`/`26A1`
-fields well enough to compute them for a future release. Given neither this codebase nor the
-available legacy source explains their real semantics, guessing a formula risks encoding
-coincidence as fact - the same trap `CSCL-LDF-01` warns against for tuning to match a small
-sample. The hardcoded literals will silently go stale (byte-mismatch reappearing as this same 3
-discrepant-row pattern) the moment either value legitimately changes upstream.
+**Deliberately not attempted:** reverse-engineering an update rule for `thined_file_tag`/
+`thined_version` well enough to compute them for a future release. Given neither this codebase
+nor the available legacy source explains their real semantics, guessing a formula risks
+encoding coincidence as fact - the same trap `CSCL-LDF-01` warns against for tuning to match a
+small sample. The `seeds/config.csv` values will silently go stale (byte-mismatch reappearing as
+this same 3 discrepant-row pattern) the moment either value legitimately changes upstream - see
+that seed's per-row description for the same caveat, and the "Follow up with GS" note above.
 
 **What would settle it:** ask GR what `thined.txt`'s file header actually encodes, and whether
 `26A1`/`THIN260309` are expected to change release to release or are effectively frozen

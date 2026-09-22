@@ -11,15 +11,16 @@ WITH data AS (
 -- self-referential - it counts every line in the file, header included -
 -- confirmed by the same "record count includes header record" convention
 -- design_doc.md documents explicitly for the LDF header (LDFH6); computed
--- here, not guessed. Records 0000/0001's "THIN260309"/"26A1" payloads have
--- no available source explaining what, if anything, should change about
--- them release to release - carried forward verbatim from 26c's real prod
--- file rather than guessed at. See CSCL-THINED-02 in data_issues.md before
--- assuming these are still correct on a future release.
+-- here, not guessed. Records 0000/0001's payloads (thined_file_tag,
+-- thined_version in seeds/config.csv) have no available source explaining
+-- what, if anything, should change about them release to release - copied
+-- verbatim from 26c's real prod file rather than guessed at. See
+-- CSCL-THINED-02 in data_issues.md before assuming these are still correct
+-- on a future release.
 header AS (
-    SELECT '0000THIN260309' AS dat_column
+    SELECT '0000' || rpad({{ config_value('thined_file_tag') }}, 10) AS dat_column
     UNION ALL
-    SELECT '000126A1      '
+    SELECT '0001' || rpad({{ config_value('thined_version') }}, 10)
     UNION ALL
     SELECT '0002' || lpad((count(*) + 3)::text, 8, '0') || '  '
     FROM data
