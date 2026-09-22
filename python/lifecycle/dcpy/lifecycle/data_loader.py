@@ -139,6 +139,18 @@ def load_dataset_into_pg(
     preprocessor = _get_preprocessor(ds)
     ds_table_name = ds.import_as or ds.id
     engine = ds.load_engine or "pandas"
+
+    # If the path is a directory and custom.filename is specified, append the filename -
+    # same fallback load_dataset_into_duckdb already has. A connector's pull() can return
+    # a directory rather than a single file (e.g. edm.private, which downloads the whole
+    # version folder when no single-file filepath/source_path kwarg is set - custom.filename
+    # only narrows which file *this* loader reads, same recipe.yml convention as duckdb).
+    if local_dataset_path.is_dir() and ds.custom and "filename" in ds.custom:
+        local_dataset_path = local_dataset_path / ds.custom["filename"]
+        logger.info(
+            f"Using specific file from directory: {local_dataset_path.name} for dataset {ds.id}"
+        )
+
     match engine, ds.file_type:
         case _, DatasetType.pg_dump:
             logger.info(f"DatasetType pg_dump specified, ignoring engine '{engine}'")
