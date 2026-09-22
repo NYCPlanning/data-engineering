@@ -68,16 +68,11 @@ SELECT
         -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         status = 'modified'
-        AND _saf_key = any(ARRAY['416070284412']::text[])
-        -- CSCL-SAF-01: prod's lgc1 = '01' where current source no longer supports that
-        -- classification. lgc2/lgc3 may co-change (blank -> real code) alongside lgc1, but no
-        -- other field. See: data_issues.md CSCL-SAF-01
-        OR (
-            status = 'modified'
-            AND change_keys <@ ARRAY['lgc1', 'lgc2', 'lgc3']::text[]
-            AND 'lgc1' = any(change_keys)
-            AND changes -> 'lgc1' ->> 'old' = '01'
-        ),
+        AND _saf_key = any(ARRAY['416070284412']::text[]),
         FALSE
     ) AS accounted_for
+    -- NOTE: CSCL-SAF-01's lgc1='01' pattern is categorized above (diff_group) but deliberately
+    -- NOT marked accounted_for - traced to a plausible stale-source-snapshot explanation but not
+    -- GR-confirmed. Same convention as qa__diffs_exception.sql/qa__diffs_enders.sql/
+    -- qa__diffs_snd.sql for the sibling Bug 010 pattern. See: data_issues.md CSCL-SAF-01
 FROM categorized

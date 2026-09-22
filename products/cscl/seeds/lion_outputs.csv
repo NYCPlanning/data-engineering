@@ -40,14 +40,14 @@ flat_files,Normalizing Tables,Word Tables,file,Universal.txt,universal_word,true
 flat_files,OTHER,Logs,file,log.csv,log,false,false,,,n/a,"Build log, not compared to prod",
 flat_files,RPL,RPL,file,RPL.txt,rpl,true,true,,,done,Matches prod exactly,
 flat_files,SAF,SAF,file,Intersection.txt,saf_i,true,true,,,done,Matches prod exactly,
-flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,true,true,,,blocked,Stale prod source snapshot,See docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md
+flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,true,true,,,blocked,Small row-count gaps - traced (2 mechanisms) but not GR-confirmed,See docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md
 flat_files,SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,true,true,,,done,Matches prod exactly,
 flat_files,SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,true,true,,,done,Matches prod exactly,
-flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,true,true,,,blocked,Stale LGC assignments in prod (accounted for; 2 residual anomalies open),See data_issues.md CSCL-SAF-01
-flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,true,true,,,blocked,Stale prod source snapshot,See docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md
+flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,true,true,,,blocked,Stale LGC assignments in prod - traced but not GR-confirmed,See data_issues.md CSCL-SAF-01
+flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,true,true,,,blocked,Small row-count gaps - traced (2 mechanisms) but not GR-confirmed,See docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md
 flat_files,SAF,SAF,file,GenericD.txt,saf_d_generic,true,true,,,done,Matches prod exactly,
 flat_files,SAF,SAF,file,GenericOV.txt,saf_ov_generic,true,true,,,done,Matches prod exactly,
-flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,true,true,,,blocked,Stale LGC assignments in prod (accounted for; 2 residual anomalies open),See data_issues.md CSCL-SAF-01
+flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,true,true,,,blocked,Stale LGC assignments in prod - traced but not GR-confirmed,See data_issues.md CSCL-SAF-01
 flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,true,true,,,done,Matches prod exactly,
 flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,,done,Matches prod exactly (both sides empty this quarter),
 flat_files,SND,SND,file,SND.txt,snd,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
