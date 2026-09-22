@@ -78,6 +78,13 @@ exports:
   - name: rezoning_commitments
     filename: rezoning_commitments.csv
     format: csv
+  - name: lift_supplemented_map
+    filename: lift.gdb.zip
+    format: gdb
+    custom: { geometry_type: polygons, layer: lift_supplemented }
+  - name: rezoning_commitments
+    filename: lift.gdb.zip
+    format: gdb
 
 stage_config:
   builds.build:

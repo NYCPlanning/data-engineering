@@ -196,33 +196,39 @@ class DuckDBClient:
         # Drop table if exists
         self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
 
-        # SHAPE_RESTORE_SHX lets GDAL's shapefile driver regenerate a missing/corrupt
-        # .shx index from the .shp file itself - a no-op when .shx is already present
-        # and valid, but necessary for sources uploaded without their full sidecar set.
         st_read_call = (
-            f"ST_Read('{source_path}', layer='{layer_name}', "
-            "open_options=['SHAPE_RESTORE_SHX=YES'])"
+            f"ST_Read('{source_path}', layer='{layer_name}')"
             if layer_name
-            else f"ST_Read('{source_path}', open_options=['SHAPE_RESTORE_SHX=YES'])"
+            else f"ST_Read('{source_path}')"
+        )
+        select = (
+            "SELECT row_number() OVER () AS ogc_fid, * EXCLUDE (OGC_FID)"
+            if include_ogc_fid_col
+            else "SELECT * EXCLUDE (OGC_FID)"
         )
 
-        # ST_Read includes its own OGC_FID column; exclude it so our row_number()
-        # based ogc_fid (consistent with the CSV/Parquet loaders) doesn't collide with it.
-        if include_ogc_fid_col:
+        # SHAPE_RESTORE_SHX lets GDAL rebuild a missing .shx from the .shp. GDAL only reads
+        # it as a config option (the environment), not an ST_Read open option, and it makes
+        # zipped shapefiles fail to open, so it's set only for a bare .shp missing its .shx.
+        restore_shx = (
+            source_path.suffix.lower() == ".shp"
+            and not source_path.with_suffix(".shx").exists()
+        )
+        previous = os.environ.get("SHAPE_RESTORE_SHX")
+        if restore_shx:
+            os.environ["SHAPE_RESTORE_SHX"] = "YES"
+        try:
+            # ST_Read includes its own OGC_FID column; exclude it so our row_number()
+            # based ogc_fid (consistent with the CSV/Parquet loaders) doesn't collide with it.
             self.conn.execute(
-                f"""
-                CREATE TABLE {full_table_name} AS
-                SELECT row_number() OVER () AS ogc_fid, * EXCLUDE (OGC_FID)
-                FROM {st_read_call}
-                """
+                f"CREATE TABLE {full_table_name} AS {select} FROM {st_read_call}"
             )
-        else:
-            self.conn.execute(
-                f"""
-                CREATE TABLE {full_table_name} AS
-                SELECT * EXCLUDE (OGC_FID) FROM {st_read_call}
-                """
-            )
+        finally:
+            if restore_shx:
+                if previous is None:
+                    del os.environ["SHAPE_RESTORE_SHX"]
+                else:
+                    os.environ["SHAPE_RESTORE_SHX"] = previous
 
         logger.info(f"Loaded spatial dataset {source_path} into {full_table_name}")
         return full_table_name

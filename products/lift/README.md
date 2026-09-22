@@ -259,20 +259,22 @@ pulls in `dbt-adapters` and friends, and dbt fails at import (`No module named
 
 ### Export
 
-`recipe.yml` declares two exports (see `exports:` at the bottom of the recipe) - `lift_supplemented`
-and `rezoning_commitments` (the full NYC Rezoning Tracker commitment listing, one row per
-`commitment_id`, for tracing the ids embedded in `lift_supplemented.poa_commitment` back to full
-detail). Both are CSVs today; likely candidates for bundling into a single XLSX (one sheet each)
-at some point. Run the export after the dbt build:
+`recipe.yml` declares these exports (see `exports:` at the bottom of the recipe):
+
+- `lift_supplemented.csv`
+- `rezoning_commitments.csv`: the full NYC Rezoning Tracker commitment listing, one row per
+  `commitment_id`, for tracing the ids embedded in `lift_supplemented.poa_commitment` back to full
+  detail
+- `lift.gdb.zip`: a FileGDB with `lift_supplemented` as a polygon layer (PLUTO lot geometry, via
+  `lift_supplemented_map`) and `rezoning_commitments` as a non-spatial table.
+
+Run the export after the dbt build:
 
 ```bash
 python3 -m dcpy lifecycle builds export export --recipe-path recipe.lock.yml
 ```
 
-This writes `output/dataset_files/lift_supplemented.csv` and
-`output/dataset_files/rezoning_commitments.csv` (plus `output/output.zip`). DuckDB
-export only covers `csv`, `dat` and `parquet` so far. `shp` and `gdb` export from DuckDB raises
-`NotImplementedError`; those still require a postgres-backed recipe.
+This writes the files above to `output/dataset_files/`, plus `output/output.zip`.
 
 ## Dagster
 
