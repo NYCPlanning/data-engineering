@@ -1,0 +1,93 @@
+name: LIFT - 🏗️ Build
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        type: string
+        required: false
+      build_name:
+        type: string
+        required: true
+      recipe_file:
+        type: string
+        required: true
+      plan_command:
+        type: string
+        default: recipe
+      dev_bucket:
+        type: string
+        required: false
+
+jobs:
+  build:
+    name: Build LIFT
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/lift
+    container:
+      # build-base doesn't have the dbt-duckdb adapter installed; dev does (and is what
+      # template_build.yml, the other dcpy-native duckdb-capable workflow, already uses).
+      image: nycplanning/dev:${{ inputs.image_tag || 'latest' }}
+    env:
+      BUILD_NAME: ${{ inputs.build_name }}
+      RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
+      DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      - name: Setup build environment
+        working-directory: ./
+        run: |
+          ./bash/docker_container_setup.sh
+          ./bash/build_env_setup.sh
+
+      - name: Plan build
+        run: uv run python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
+
+      - name: Set DuckDB path
+        run: |
+          # DuckDB build database + exports live outside the checkout (under the runner's
+          # temp dir) so a plain `dbt build` (run from this working-directory) and dcpy's
+          # load/export steps agree on one location.
+          BUILD_ENV_OUTPUT_DIR="$RUNNER_TEMP/lift_build"
+          mkdir -p "$BUILD_ENV_OUTPUT_DIR"
+          echo "BUILD_ENV_OUTPUT_DIR=$BUILD_ENV_OUTPUT_DIR" >> "$GITHUB_ENV"
+          VERSION=$(python3 -c "import yaml; print(yaml.safe_load(open('${{ inputs.recipe_file }}.lock.yml'))['version'])")
+          echo "DUCKDB_PATH=$BUILD_ENV_OUTPUT_DIR/lift_${VERSION}.duckdb" >> "$GITHUB_ENV"
+
+      - name: Dataloading
+        run: uv run python3 -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
+
+      - name: Build
+        run: uv run python3 -m dcpy lifecycle builds build run --recipe-path ${{ inputs.recipe_file }}.lock.yml
+
+      - name: Export
+        run: uv run python3 -m dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml
+
+      - name: Upload
+        run: |
+          # LIFT carries private source data, so builds go to edm-private, not edm-publishing.
+          # upload_folder clears the target first, so keep the path scoped to one build.
+          cp "$DUCKDB_PATH" output/
+          uv run python3 -m dcpy utils s3 upload_folder \
+            --bucket "${PRIVATE_BUCKET:-edm-private}" \
+            --folder-path output \
+            --s3-path "lift/builds/$BUILD_NAME" \
+            --acl private \
+            --contents-only \
+            --max-files 50
