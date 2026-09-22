@@ -1,0 +1,27 @@
+id: hpd_rezoning_tracker
+acl: public-read
+
+attributes:
+  name: NYC Rezoning Tracker
+  description: >-
+    Pursuant to Local Law 175 of 2016, the City is responsible for publishing a list of
+    capital and programmatic commitments associated with neighborhood-scale rezonings,
+    and an annual progress report detailing the status of each initiative. These
+    rezoning commitments are the product of comprehensive and community-driven planning
+    processes in each neighborhood (East New York; Greater East Midtown; Downtown Far
+    Rockaway; East Harlem; Jerome Avenue; and Inwood) and have been organized by policy
+    domain (Housing; Open Space; Community Resources; Transportation; and Economic and
+    Workforce Development).
+  url: https://data.cityofnewyork.us/City-Government/NYC-Rezoning-Tracker/fd95-5ihz/data_preview
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: fd95-5ihz
+    format: csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }

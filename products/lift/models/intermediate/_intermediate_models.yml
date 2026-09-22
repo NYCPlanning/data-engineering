@@ -3,3 +3,7 @@ version: 2
 models:
 - name: int__lift_dri
 - name: int__lift_cpdb
+- name: int__lift_laa
+- name: int__lift_rezoning_areas
+- name: int__lift_rezoning_tracker
+- name: int__rezoning_commitments_latest

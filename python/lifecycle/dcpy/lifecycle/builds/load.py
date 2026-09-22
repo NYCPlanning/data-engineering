@@ -82,6 +82,7 @@ def import_dataset(
 def load_source_data_from_resolved_recipe(
     recipe_or_path: "plan.Recipe | Path",
     clear_pg_schema: bool = True,
+    clear_duckdb_schema: bool = False,
     cache_schema: str | None = None,
     cached_entity_type: CachedEntityType | None = None,
     target_schema: str | None = None,
@@ -150,7 +151,7 @@ def load_source_data_from_resolved_recipe(
             duckdb_path = Path(duckdb_filename)
 
         duckdb_client = duckdb_utils.DuckDBClient(
-            db_path=duckdb_path, schema=target_schema
+            db_path=duckdb_path, schema=target_schema, clear_schema=clear_duckdb_schema
         )
         logger.info(f"Created DuckDB database at {duckdb_path}")
     else:
@@ -220,6 +221,51 @@ def load_source_data_from_resolved_recipe(
         )
 
     return load_result
+
+
+def load_single_dataset_from_resolved_recipe(
+    recipe_or_path: "plan.Recipe | Path",
+    dataset_id: str,
+    import_as: str | None = None,
+    clear_pg_schema: bool = False,
+    clear_duckdb_schema: bool = False,
+    target_schema: str | None = None,
+) -> LoadResult:
+    """Load one dataset from a resolved recipe, skipping every other input.
+
+    For adding a newly-added recipe input to a build directory already loaded by a
+    prior `load_source_data_from_resolved_recipe` run, without re-pulling and
+    re-importing datasets that are already there. `import_as` disambiguates when a
+    dataset id is imported multiple times under different names (e.g. a shapefile
+    source split into points/poly layers).
+    """
+    if isinstance(recipe_or_path, Path):
+        recipe = plan.recipe_from_yaml(recipe_or_path)
+    else:
+        recipe = recipe_or_path
+
+    matches = [
+        ds
+        for ds in recipe.inputs.datasets
+        if ds.id == dataset_id and (import_as is None or ds.import_as == import_as)
+    ]
+    if not matches:
+        disambiguator = f" and import_as '{import_as}'" if import_as else ""
+        raise ValueError(
+            f"No dataset with id '{dataset_id}'{disambiguator} found in recipe '{recipe.name}'"
+        )
+
+    subset_recipe = recipe.model_copy(
+        update={"inputs": recipe.inputs.model_copy(update={"datasets": matches})}
+    )
+
+    return load_source_data_from_resolved_recipe(
+        subset_recipe,
+        clear_pg_schema=clear_pg_schema,
+        clear_duckdb_schema=clear_duckdb_schema,
+        target_schema=target_schema,
+        _write_metadata_file=False,
+    )
 
 
 def dataset_exists_in_schema(
@@ -342,7 +388,15 @@ def _cli_wrapper_load(
         True,
         "--clear-schema",
         "-x",
-        help="Clear the build schema?",
+        help="Clear the build schema? (postgres only)",
+    ),
+    clear_duckdb_schema: bool = typer.Option(
+        False,
+        "--clear-duckdb-schema",
+        help="Drop and recreate the DuckDB build schema before loading? Off by "
+        "default since it's destructive; use this for a true clean-slate build "
+        "(e.g. to catch a dbt seed/model that only exists because a prior build "
+        "left it behind in a reused build directory).",
     ),
     cache_schema: str = typer.Option(
         None,
@@ -357,15 +411,59 @@ def _cli_wrapper_load(
         help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
     ),
 ):
-    print(f"clearing schema? {clear_pg_schema}")
+    print(f"clearing pg schema? {clear_pg_schema}")
+    print(f"clearing duckdb schema? {clear_duckdb_schema}")
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
     load_source_data_from_resolved_recipe(
         recipe_lock_path,
         clear_pg_schema=clear_pg_schema,
+        clear_duckdb_schema=clear_duckdb_schema,
         cache_schema=cache_schema,
         cached_entity_type=cached_entity_type,
+    )
+
+
+@app.command("dataset")
+def _cli_wrapper_load_single_dataset(
+    dataset_id: str = typer.Argument(
+        help="Id of the dataset to load, as it appears in the recipe"
+    ),
+    recipe_lock_path: Path = typer.Option(
+        None,
+        "--recipe-path",
+        "-r",
+        help="Path of recipe lock file to use",
+    ),
+    import_as: str = typer.Option(
+        None,
+        "--import-as",
+        help="Disambiguate when the dataset id appears more than once under different import_as names",
+    ),
+    clear_pg_schema: bool = typer.Option(
+        False,
+        "--clear-schema",
+        "-x",
+        help="Clear the build schema first? (postgres only)",
+    ),
+    clear_duckdb_schema: bool = typer.Option(
+        False,
+        "--clear-duckdb-schema",
+        help="Drop and recreate the DuckDB build schema before loading? Off by default "
+        "- defeats the point of loading a single dataset, since it would wipe out "
+        "every other table already in the schema.",
+    ),
+):
+    recipe_lock_path = recipe_lock_path or (
+        Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
+    )
+    load_single_dataset_from_resolved_recipe(
+        recipe_lock_path,
+        dataset_id,
+        import_as=import_as,
+        clear_pg_schema=clear_pg_schema,
+        clear_duckdb_schema=clear_duckdb_schema,
     )
 
 

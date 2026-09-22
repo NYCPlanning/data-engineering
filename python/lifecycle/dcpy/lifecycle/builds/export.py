@@ -373,7 +373,11 @@ def export(
             )
 
     if recipe.exports.zip_name:
-        zip_path = output_folder / f"{recipe.exports.zip_name}.zip"
+        # Resolve to absolute first: the zip subprocess below runs with cwd=output_folder,
+        # so a relative zip_path (output_folder is often just "output", per recipe.yml)
+        # would get re-resolved against that cwd by the zip command itself, landing at
+        # output_folder/output_folder/zip_name.zip instead of output_folder/zip_name.zip.
+        zip_path = (output_folder / f"{recipe.exports.zip_name}.zip").resolve()
         # Zip from within output_folder so entries are relative (e.g. "dataset_files/..."),
         # not an absolute path chain -- and exclude the duckdb file itself, which can live
         # alongside these artifacts (see _default_build_output_dir) but isn't a deliverable.
