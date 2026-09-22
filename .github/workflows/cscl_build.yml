@@ -68,13 +68,13 @@ jobs:
 
     # - name: Load LDF inputs from the legacy pipeline
     #   # The LDF diffs this release against the one before it, and its QA models compare
-    #   # the result against prod's own LDF. The previous release's citywide LION comes in
-    #   # as a normal recipe source now (dcp_cscl_temp_mock_previous_release), loaded by
-    #   # the Dataloading step above - only the previous LDF header and this release's own
-    #   # prod LDF still come from the legacy pipeline's outputs this way. Remove alongside
-    #   # the rest of production_outputs once the pipeline is operationalized.
+    #   # the result against prod's own LDF. The previous release's citywide LION and LDF
+    #   # header both come in as normal recipe sources now
+    #   # (dcp_cscl_temp_mock_previous_release), loaded by the Dataloading step above -
+    #   # only this release's own prod LDF still comes from the legacy pipeline's outputs
+    #   # this way. Remove alongside the rest of production_outputs once the pipeline is
+    #   # operationalized.
     #   run: |
-    #     python3 poc_validation/prod_data_loader.py load_previous_ldf_header
     #     python3 poc_validation/prod_data_loader.py load_prod_ldf
 
     - name: Build

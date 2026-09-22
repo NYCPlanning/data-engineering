@@ -334,6 +334,21 @@ inputs:
     import_as: previous_citywide_lion
     custom:
       filename: citywide_lion_dat.csv
+
+  # Same shtick as dcp_cscl_temp_mock_previous_release above, second file in the same
+  # S3 folder: the previous LDF edition's header record, which int__ldf_header.sql
+  # needs for the cumulative record number this edition continues from. Was loaded
+  # ad-hoc via `prod_data_loader.py load_previous_ldf_header`, and went stale the exact
+  # same way (stuck on 26a while previous_citywide_lion had already moved to 26b) -
+  # root-caused and fixed together 2026-09-22. Bump alongside the entry above.
+  - name: dcp_cscl_temp_mock_previous_release
+    source: edm.private
+    version: 26B
+    file_type: csv
+    load_engine: pandas
+    import_as: previous_ldf_header
+    custom:
+      filename: previous_ldf_header.csv
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:

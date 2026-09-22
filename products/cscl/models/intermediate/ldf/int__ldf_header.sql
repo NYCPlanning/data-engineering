@@ -38,7 +38,7 @@ WITH previous_edition AS (
     SELECT
         cumulative_record_number::bigint AS cumulative_record_number,
         record_count::int AS record_count
-    FROM {{ source('production_outputs', 'previous_ldf_header') }}
+    FROM {{ source('recipe_sources', 'previous_ldf_header') }}
 ),
 
 -- Counts the header itself, matching the spec's "includes header record"

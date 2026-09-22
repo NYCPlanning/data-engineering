@@ -88,16 +88,16 @@ sources:
   # recipe.yml's dcp_cscl_temp_mock_previous_release entry for why this is a pinned,
   # hand-parsed CSV rather than a normal CSCL archive dataset.
   - name: previous_citywide_lion
+  # Header record of the previous LDF edition - supplies the cumulative record number
+  # this edition continues from. Same pinned-CSV arrangement as previous_citywide_lion
+  # above (same recipe.yml dataset, second file).
+  - name: previous_ldf_header
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs
   schema: production_outputs
   tables:
   - name: citywide_lion_dat
-  # Header record of the previous LDF edition, loaded by
-  # `prod_data_loader.py load_previous_ldf_header`. Supplies the cumulative record
-  # number this edition continues from.
-  - name: previous_ldf_header
   # This release's production LDF, loaded by `prod_data_loader.py load_prod_ldf`.
   # Raw 100-character records; the file mixes layouts.
   - name: ldf_base

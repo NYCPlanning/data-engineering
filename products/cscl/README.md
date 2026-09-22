@@ -267,22 +267,22 @@ when it's bumped, since nothing ties them together automatically.
 GR archives their own `LDF.dat` and `LDF.header` in `edm-private/cscl_etl/<version>/`, so
 this output has direct ground truth — unlike most others, no separate prod pull is needed.
 
-The prior release's citywide LION - what `int__ldf_nodes.sql`/`int__ldf_segments.sql` diff
-against - comes in as a normal recipe source now (`recipe.yml`'s
-`dcp_cscl_temp_mock_previous_release`, imported as `previous_citywide_lion`), not an ad-hoc
-load. It's a pinned, hand-parsed CSV (see that recipe entry's comment) - bump it by hand
-alongside `seeds/config.csv`'s `ldf_previous_version` when the release this LDF documents
-moves on; nothing currently keeps the two in sync automatically.
+The prior release's citywide LION and LDF header - what `int__ldf_nodes.sql`/
+`int__ldf_segments.sql` diff against, and where `int__ldf_header.sql` gets the cumulative
+record number this edition continues from - both come in as normal recipe sources now
+(`recipe.yml`'s `dcp_cscl_temp_mock_previous_release`, imported as `previous_citywide_lion`
+and `previous_ldf_header`), not ad-hoc loads. Both are pinned, hand-parsed CSVs (see that
+recipe entry's comment) - bump them by hand alongside `seeds/config.csv`'s
+`ldf_previous_version` when the release this LDF documents moves on; nothing currently keeps
+the three in sync automatically.
 
-The build still loads two things itself: the *previous* LDF edition's header (for the
-cumulative record number) and prod's own LDF for this release, which `qa__ldf_diffs` and
-`qa__ldf_summary` compare against. Each load records what it wrote in
+The build still loads prod's own LDF for this release itself, which `qa__ldf_diffs` and
+`qa__ldf_summary` compare against. The load records what it wrote in
 `production_outputs.load_log` and is skipped when that table already holds the version being
-asked for. A release bump reloads on its own; pass `--force` to reload anyway. To load them by
+asked for. A release bump reloads on its own; pass `--force` to reload anyway. To load it by
 hand:
 
 ```bash
-python3 poc_validation/prod_data_loader.py load_previous_ldf_header -p 26a
 python3 poc_validation/prod_data_loader.py load_prod_ldf -v 26b
 ```
 
