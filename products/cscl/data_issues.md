@@ -53,6 +53,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load | Open | 26c |
 | [CSCL-THINED-01](#cscl-thined-01) | ThinED | Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source | Watch | 26c |
 | [CSCL-THINED-02](#cscl-thined-02) | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c |
+| [CSCL-THINFIRE-01](#cscl-thinfire-01) | ThinFire | Borough field picked an arbitrary AtomicPolygon instead of a spatial match - fixed, 12 companies | Accepted | 26c |
 
 ---
 
@@ -916,3 +917,47 @@ that seed's per-row description for the same caveat, and the "Follow up with GS"
 constants from whatever tool originally generated this format. **Follow up with GS** - since
 neither `design_doc.md`/`docs/ETL_V8_02012024.md` nor `cscl_etl_archive` document this format,
 Geosupport (the actual consumer of this file) may know what it's for even if GR doesn't.
+
+## ThinFire
+
+### CSCL-THINFIRE-01
+
+**Borough field picked an arbitrary AtomicPolygon instead of a spatial match (fixed)** ·
+Accepted · Last verified 26c
+
+12 fire companies (`E068`, `L052`, `E202`, `E205`, `E221`, `E224`, `L106`, `L118`, `E262`,
+`L115`, `E266`, `L173`) appeared in the wrong borough's ThinFire file. `thinfire_by_field_
+unformatted.sql`'s `TF5`/Borough logic picked whichever AtomicPolygon tagged with a company's
+code happened to have the lowest `atomicid` - meaningless for any company whose territory spans
+an AtomicPolygon in more than one borough, which is completely normal (rivers, bridges,
+boundary streets). 10 of the 12 landed in Manhattan regardless of the company's real borough -
+not a Manhattan-specific mechanism, just that Manhattan's AtomicPolygons happen to have lower
+IDs, so any company touching it at all got biased there.
+
+`docs/ETL_V8_02012024.md` Table 25 Note 1 explicitly authorizes this - "Populate TF5 with the
+BOROUGH attribute of any of the matching AP's" - as an ESRI-desktop-era performance shortcut
+for a spatial method (company centroid, point-in-polygon against boroughs) the spec itself
+describes as the "proper" approach. Not a deviation from spec; the spec's own arbitrary choice
+just doesn't have to agree with ours.
+
+**Fixed:** replaced the AtomicPolygon lookup with the spec's own preferred method - company
+centroid (falling back to `ST_PointOnSurface`) point-in-polygon against `stg__borough`, the same
+pattern already used for police precinct/sector/patrol-borough assignment
+([Bug 002](./docs/prod_bugs/002-police-geo-centroid-mismatch.md)). Verified before
+applying: AtomicPolygon count-majority, AtomicPolygon area-majority, and the spatial method all
+independently agreed on the correct borough for all 12 known-mismatched companies *and* the 3
+already-hardcoded special cases (`E-81`, `E-260`, `E-263`) - the spatial method was chosen for
+consistency with the existing police-geography pattern. Full company-roster regression check:
+exactly those 12 companies change, zero others. `qa__diffs_thinfire_{bronx,brooklyn,manhattan,
+queens,statenisland}` all return 0 rows after the fix. See
+[docs/prod_bugs/014-thinfire-borough-arbitrary-atomicpolygon-pick.md](./docs/prod_bugs/014-thinfire-borough-arbitrary-atomicpolygon-pick.md).
+
+**Related, separate finding:** prod's ThinFire delivery is byte-identical to the 26b snapshot
+across all 5 boroughs (confirmed via content hash) - GR's legacy pipeline doesn't regenerate
+this file family each cycle, the same pattern as `Enders.txt`/`Exception.txt`/`SND.txt`
+(`docs/prod_bugs/010`) and the frozen district gdb layers (`docs/prod_bugs/013`). Doesn't affect
+this fix (verified against prod's actual, if stale, values) but ThinFire should be re-checked
+whenever prod's delivery is eventually refreshed.
+
+**What would settle it:** nothing further needed for the fix itself. Worth reporting the frozen
+ThinFire delivery to GR alongside the other stale-regeneration findings.

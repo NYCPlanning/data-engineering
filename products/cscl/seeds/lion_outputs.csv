@@ -8,10 +8,10 @@ flat_files,Census,Census,file,CDTA2020.txt,cdta2020_dat,false,true,,,done,Matche
 flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,false,false,,,n/a,"Build log, not compared to prod",
 flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,false,false,,,n/a,"Build log, not compared to prod",
 flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,false,false,,,n/a,"Build log, not compared to prod",
-flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,true,true,,,Needs Investigation,,
-flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,true,true,,,Needs Investigation,,
-flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,true,true,,,Needs Investigation,,
-flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,true,true,,,Needs Investigation,,
+flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
+flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
+flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
+flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
 flat_files,District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,true,true,,,done,Matches prod exactly,
 flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,true,true,,,GR Review,Small residual diffs under review with GR,
