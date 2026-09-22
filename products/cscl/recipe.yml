@@ -312,6 +312,28 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: UrbanRenewalArea
+
+  # The LDF diffs the previous LION release's nodes/segments against this one -
+  # int__ldf_nodes.sql/int__ldf_segments.sql need the *prior* release's citywide LION,
+  # which isn't part of this release's own CSCL archive. Previously loaded ad-hoc via
+  # `prod_data_loader.py load_previous_lion` straight into production_outputs, which
+  # silently went stale for a full release cycle with no error (root-caused 2026-09-22
+  # while chasing a wrong LDF header cumulative_record_number) - a real recipe source at
+  # least makes it visible in `dcpy lifecycle builds load load` and the lockfile, rather
+  # than an ad-hoc script step nobody remembers to re-run. "temp_mock" because this is a
+  # stopgap: a one-off CSV parsed from prod's real 26b LION .dat files (via
+  # poc_validation/prod_data_loader.py's parse_file, same formatting seed as
+  # lion_dat_by_field - see the git history around 2026-09-22 for the exact script),
+  # pinned to version 26B by hand - bump both the S3 folder and this version when the
+  # release this LDF documents moves on, nothing here bumps it automatically.
+  - name: dcp_cscl_temp_mock_previous_release
+    source: edm.private
+    version: 26B
+    file_type: csv
+    load_engine: pandas
+    import_as: previous_citywide_lion
+    custom:
+      filename: citywide_lion_dat.csv
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:

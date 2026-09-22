@@ -41,7 +41,7 @@ lion_rows AS (
         segmentid,
         physicalid,
         genericid
-    FROM {{ source('production_outputs', 'previous_citywide_lion_dat') }}
+    FROM {{ source('recipe_sources', 'previous_citywide_lion') }}
     UNION ALL
     SELECT
         segmentid,
