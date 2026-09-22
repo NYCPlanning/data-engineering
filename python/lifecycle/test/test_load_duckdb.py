@@ -1,5 +1,7 @@
 """Tests for loading datasets into DuckDB."""
 
+import os
+
 import pandas as pd
 import pytest
 
@@ -290,6 +292,27 @@ def test_load_shapefile_into_duckdb(tmp_path):
     assert geom_check["geom_wkt"].iloc[0] == "POINT (1 2)"
 
     duckdb_client.close()
+
+
+def test_load_shapefile_missing_shx_into_duckdb(tmp_path, monkeypatch):
+    """A bare .shp without its .shx loads, and SHAPE_RESTORE_SHX doesn't leak out."""
+    import geopandas as gpd
+    from shapely.geometry import Point  # type: ignore
+
+    monkeypatch.delenv("SHAPE_RESTORE_SHX", raising=False)
+    shp_path = tmp_path / "no_shx.shp"
+    gpd.GeoDataFrame(
+        {"name": ["Alice", "Bob"]}, geometry=[Point(1, 2), Point(3, 4)], crs="EPSG:4326"
+    ).to_file(shp_path)
+    shp_path.with_suffix(".shx").unlink()
+
+    duckdb_client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    duckdb_client.load_spatial(shp_path, "no_shx")
+
+    assert duckdb_client.get_table_count("no_shx") == 2
+    assert "SHAPE_RESTORE_SHX" not in os.environ
 
 
 def test_load_recipe_with_geospatial_data(setup_test_connectors, tmp_path, monkeypatch):
