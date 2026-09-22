@@ -1,61 +1,71 @@
 # dcpy Architecture & Import Flow
 
 Depth companion to [`README.md`](./README.md) (the quick reference). This doc describes the
-**desired** dependency direction between dcpy's submodules and how it's checked.
+dependency direction between dcpy's packages and how it's enforced.
 
 > [!NOTE]
-> **First pass — provisional.** The layer assignments below and in [`tach.toml`](../../tach.toml)
-> encode *intended* import direction; the team should review and confirm them. The dependency
-> *facts* (what imports what, and the violations) are generated from the real code via `tach`.
+> dcpy is split into separate installable packages under `python/*/` (`dcpy-utils`,
+> `dcpy-connectors`, …), joined into one [uv workspace](../development.md) and merged into a single
+> `dcpy` namespace package at import time. The package-level layering below (utils/geosupport →
+> everything else → lifecycle) is enforced structurally — each package only declares the dcpy
+> packages it actually depends on — not by a separate static-analysis config. See
+> [Enforcement](#enforcement) for how that's checked. The finer-grained layers within
+> `dcpy-lifecycle` itself (`cli`, `scripts`, `stages`, `lifecycle_base`) remain intended-only
+> convention, since they aren't separate installable packages.
 
 ## The layered model
 
-dcpy is organized into layers. **A module may import from its own layer or a lower one, never a
-higher one.** `utils` is a cross-cutting utility layer importable from anywhere. Read top-to-bottom
-as "depends on what's below":
+dcpy is organized into layers. **A package may import from its own layer or a lower one, never a
+higher one.** `dcpy-utils` is a cross-cutting utility layer importable from anywhere. Read
+top-to-bottom as "depends on what's below":
 
 ```mermaid
 flowchart TD
-    cli["cli — entrypoints (__main__, *_cli)"]
-    scripts["lifecycle.scripts — cross-stage orchestration"]
-    stages["lifecycle stages — ingest · builds · package · distribute · validate"]
-    base["lifecycle base — config · data_loader · product_metadata · connector_registry"]
-    domain["domain — connectors (+ connectors.dcp/edm) · geosupport · product_metadata · data · library*"]
-    found["foundations — models* · configuration · migrations"]
-    utils["utils (cross-cutting, importable anywhere)"]
+    lifecycle["dcpy-lifecycle — ingest · builds · package · distribute · validate · scripts · cli"]
+    library["dcpy-library — deprecated, being replaced by lifecycle.ingest"]
+    connectors["dcpy-connectors"]
+    geospatial["dcpy-geospatial"]
+    data["dcpy-data"]
+    product_metadata["dcpy-product-metadata"]
+    geosupport["dcpy-geosupport"]
+    utils["dcpy-utils (cross-cutting, importable anywhere)"]
 
-    cli --> scripts --> stages --> base --> domain --> found
-    found -.-> utils
-    domain -.-> utils
-    stages -.-> utils
+    lifecycle --> library --> connectors --> product_metadata
+    lifecycle --> geospatial --> product_metadata
+    lifecycle --> data
+    lifecycle --> geosupport
+    product_metadata -.-> utils
+    connectors -.-> utils
+    geospatial -.-> utils
+    data -.-> utils
+    library -.-> utils
+    lifecycle -.-> utils
 ```
 
-`*` = deprecated (`dcpy.models` for new code; `dcpy.library`, being replaced by `lifecycle.ingest`).
+Each edge above is a real `dependencies` entry in the downstream package's `pyproject.toml` — see
+[Enforcement](#enforcement). `dcpy-geosupport` and `dcpy-utils` are the two foundations: neither
+declares a dependency on any other dcpy package.
 
-The full ordering, highest → lowest, is the `layers` list in [`tach.toml`](../../tach.toml):
-`cli → scripts → stages → lifecycle_base → connectors_dcp → connectors → geosupport →
-product_metadata → data → library → migrations → models → configuration → utils`.
+## Packages
 
-## Submodules by layer
+| Package | Role |
+|---|---|
+| **`dcpy-lifecycle`** | Top of the hierarchy — the lifecycle stages (`ingest`, `builds`, `package`, `distribute`, `validate`), their shared base (`config`, `data_loader`, `product_metadata`, `connector_registry`), cross-stage `scripts`, `migrations`, and the CLI entrypoints (`dcpy.__main__`, `lifecycle._cli`, `lifecycle._connectors_cli`). May depend on every other package. |
+| **`dcpy-library`** | **Deprecated** ingest/archive tool; being migrated to `lifecycle.ingest`. Depends on `dcpy-connectors`, `dcpy-utils`. |
+| **`dcpy-connectors`** | Atomic get/push to external systems (`registry`, `s3`, `web`, `socrata`, `esri`, `sftp`, …) plus the DCP-specific `connectors.edm` (`edm.recipes`, `edm.publishing`) that composes them. Depends on `dcpy-product-metadata`, `dcpy-utils`. |
+| **`dcpy-geospatial`** | Geospatial format conversion/comparison helpers. Depends on `dcpy-product-metadata`, `dcpy-utils`. |
+| **`dcpy-data`** | Dataset comparison and data helpers (e.g. `dcpy.data.compare`). Depends on `dcpy-utils`. |
+| **`dcpy-product-metadata`** | Product/dataset metadata models, readers, writers. Depends on `dcpy-utils`. |
+| **`dcpy-geosupport`** | Geosupport bindings / geocoding. No dcpy dependencies. |
+| **`dcpy-utils`** | Pure, atomic utilities, plus `dcpy.configuration` (central runtime configuration). No dcpy dependencies. |
 
-| Layer | Submodule(s) | Role |
-|---|---|---|
-| **cli** | `dcpy.__main__`, `dcpy.lifecycle._cli`, `dcpy.lifecycle._connectors_cli` | Typer entrypoints; may wire together anything below. |
-| **scripts** | `dcpy.lifecycle.scripts` | Cross-stage glue and one-off targets (prefer here for code used across stages). |
-| **stages** | `dcpy.lifecycle.{ingest,builds,package,distribute,validate}` | The lifecycle stages. Should avoid importing *each other*. |
-| **lifecycle_base** | `dcpy.lifecycle.{config,data_loader,product_metadata,connector_registry}` | Shared wiring the stages build on. |
-| **connectors_dcp** | `dcpy.connectors.edm` | DCP-specific connectors (`edm.recipes`, `edm.publishing`) that compose the generic ones. |
-| **connectors** | `dcpy.connectors` (`registry`, `s3`, `web`, `socrata`, `esri`, `sftp`, …) | Atomic get/push to external systems; no business logic. |
-| **geosupport** | `dcpy.geosupport` | Geosupport bindings / geocoding. |
-| **product_metadata** | `dcpy.product_metadata` | Product/dataset metadata models, readers, writers. |
-| **data** | `dcpy.data` | Dataset comparison and data helpers (e.g. `dcpy.data.compare`). |
-| **library** | `dcpy.library` | **Deprecated** ingest/archive tool; being migrated to `lifecycle.ingest`. |
-| **migrations** | `dcpy.migrations` | Database migration scripts. |
-| **models** | `dcpy.models` | **Deprecated for new code.** Pydantic entity definitions; no dependencies on other submodules. |
-| **configuration** | `dcpy.configuration` | Central runtime configuration. |
-| **utils** | `dcpy.utils` | Pure, atomic utilities. No dependencies on other dcpy submodules. |
+Today `dcpy-utils` and `dcpy-geosupport` depend on **no other dcpy package** — the two foundations
+hold.
 
-Today `dcpy.utils` and `dcpy.models` import **nothing** else in dcpy — the two foundations hold.
+Within `dcpy-lifecycle` itself, `cli → scripts → stages → lifecycle_base` is still a meaningful
+internal layering (a stage shouldn't reach into another stage; `scripts` is for code shared across
+stages) — but it's convention only, not a separately installable package, so nothing prunes an
+import between them the way [Enforcement](#enforcement) does at the package level.
 
 ### Lifecycle stages
 
@@ -76,62 +86,68 @@ Today `dcpy.utils` and `dcpy.models` import **nothing** else in dcpy — the two
 
 ```python
 # ✅ Allowed
-from dcpy.utils import ...
-from dcpy.library import ...  # in layer 2+ only
-from dcpy.lifecycle.scripts import ...  # in lifecycle only
+from dcpy.utils import ...              # importable from any package
+from dcpy.product_metadata import ...   # from dcpy-connectors, dcpy-geospatial, dcpy-lifecycle, ...
+from dcpy.lifecycle.scripts import ...  # from within dcpy-lifecycle itself only
 
 # ❌ Not allowed
-from dcpy.lifecycle import ...  # in layer 1 or 2
-from dcpy.models import ...  # anywhere (deprecated)
+from dcpy.lifecycle import ...   # from dcpy-utils, dcpy-connectors, etc. — not a declared dependency
+from dcpy.connectors import ...  # from dcpy-utils, dcpy-data, etc. — not a declared dependency
 ```
 
-## The `models` tension
+An import that crosses one of these boundaries isn't just against convention — see
+[Enforcement](#enforcement) below for why it fails outright once a package is synced on its own.
 
-The intended design is one foundational `dcpy.models` package that every layer can reference
-without circular imports. In practice, several packages keep their own `models.py`
-(`lifecycle.builds.models`, `lifecycle.ingest.models`, `connectors.edm.models`, …), and these get
-imported *upward* across layers. Most of the violations below are this pattern. Worth a team
-decision: promote these to `dcpy.models` (or treat them as published interfaces) vs. accept the
-coupling.
+## Per-package `models.py`
+
+There's no single foundational `dcpy.models` package. Every package keeps its own `models.py`
+(`lifecycle.builds.models`, `lifecycle.ingest.models`, `connectors.edm.models`, `library.models`,
+`utils.models`, …), and that's the accepted design — not a gap to close. Most of these stay inside
+their own package. The exception is a couple of `lifecycle.*.models` modules that get imported
+*upward* by `dcpy-connectors` and `dcpy-product-metadata` — see [Known deviations](#known-deviations-to-review).
 
 ## Enforcement
 
-[`tach.toml`](../../tach.toml) defines the layers above. It is **not yet wired into CI** — enabling
-that would currently fail on the known deviations, so for now it's a **local check we run
-ourselves** until the team confirms the target and the debt is triaged.
+Each package declares the dcpy packages it actually depends on in its own `pyproject.toml`
+(`[project].dependencies`), and that declaration is what's enforced — not a separate lint config.
+`uv sync --package dcpy-X` installs only `X` and its declared dependencies into the shared venv,
+pruning everything else; an import that reaches outside that set then fails with
+`ModuleNotFoundError` at test collection time, not just a warning.
+
+Each package also carries a `test/test_package_boundary.py` that asserts the packages above it in
+the hierarchy raise `ImportError` when the package is synced in isolation — e.g.
+[`python/connectors/test/test_package_boundary.py`](../../python/connectors/test/test_package_boundary.py)
+asserts `dcpy-connectors` cannot import `dcpy.lifecycle`.
 
 ### Running it yourself
 
-`tach` isn't a project dependency; run it on demand with `uvx` (no install needed):
-
 ```bash
-uvx tach check          # list cross-layer violations (exits non-zero if any exist)
-uvx tach show --web     # open an interactive dependency graph in the browser
+bash/run_isolated_tests.sh
 ```
 
-For repeated use, install it once with `uv tool install tach`, then drop the `uvx` prefix.
+This mirrors the `pytest_dcpy` job in
+[`test_helper.yml`](../../.github/workflows/test_helper.yml): it syncs each `python/*/` package on
+its own (`uv sync --package dcpy-<name>`) and runs that package's tests against the pruned venv, so
+a test can only pass by importing a sibling package if that package is a real, declared dependency.
+See [testing.md](../testing.md) for the full CI breakdown.
 
-**When to run it:** before opening or updating a PR that adds or moves imports under `dcpy/`.
-Compare the output against the [known deviations](#known-deviations-to-review) below — those are
-expected for now. **A violation that isn't on that list is one your change introduced:** fix the
-import, or — if it's a deliberate, agreed boundary change — raise it with the team and update
-`tach.toml` rather than silencing it.
-
-> [!WARNING]
-> Don't reach for `tach sync` to make `check` pass. It rewrites `tach.toml` to bless whatever
-> imports currently exist, which would quietly legitimize the very violations we're trying to track.
+**When to run it:** before opening or updating a PR that adds or moves imports under
+`python/*/dcpy/`. A boundary violation shows up as a collection failure for the offending
+package's tests — fix the import, or — if it's a deliberate, agreed boundary change — add the
+dependency to that package's `pyproject.toml` rather than working around the missing import.
 
 ## Known deviations (to review)
 
-`tach check` currently reports these upward imports. Grouped by theme:
+Two real, currently-undeclared *upward* imports are carved out in `bash/run_isolated_tests.sh` /
+`test_helper.yml` (both packages are synced together with `dcpy-lifecycle` so their tests can even
+collect), and each is tracked as an `xfail`-marked case in that package's `test_package_boundary.py`
+so the suite fails loudly if it's ever fixed without removing the marker. A third, unrelated gap —
+an undeclared *third-party* dependency — is carved out the same way:
 
-| Theme | Examples (`file:line` → disallowed import) | Likely disposition |
+| Theme | Where | Likely disposition |
 |---|---|---|
-| Per-package `models.py` imported upward | `connectors/ingest_datastore.py:11` → `lifecycle.ingest.models`; `connectors/edm/publishing.py:29` → `lifecycle.builds.models`; `library/models.py:9` → `connectors.edm.models` | Promote shared models to `dcpy.models`, or treat as interfaces. |
-| `connectors.edm` reaches into `lifecycle` | `connectors/edm/open_data_nyc.py:9` → `lifecycle.product_metadata` | Decide whether `edm` may depend on `lifecycle_base`, or invert. |
-| Generic `connectors` imports `connectors.edm` | `connectors/ingest_datastore.py:8` → `connectors.edm.models` | Move shared types down out of `edm`. |
-| `lifecycle_base` imports a stage | `lifecycle/data_loader.py:12` → `lifecycle.builds.models` | Base→stage inversion; relocate the model. |
-| `product_metadata` ↔ `lifecycle.product_metadata` | `product_metadata/writers/oti_xlsx/xlsx_writer.py:16` → `lifecycle.product_metadata` | Clarify the split between the two `product_metadata` modules. |
-| `dcpy.library` coupling (deprecated) | `library/config.py:10-12`, `library/validator.py:3`, `library/script/dob_cofos.py:4` → `connectors.*` | Resolves when `library` is removed; no action needed. |
+| `dcpy-connectors` reaches into `dcpy-lifecycle` | `connectors/ingest_datastore.py`, `connectors/edm/open_data_nyc.py`, `connectors/edm/publishing.py` → `dcpy.lifecycle.*` | Resolves when `dcpy-library` is removed / the shared models are relocated. |
+| `dcpy-product-metadata` reaches into `dcpy-lifecycle` | `product_metadata/writers/oti_xlsx/xlsx_writer.py` → `dcpy.lifecycle.product_metadata` | Clarify the split between the two `product_metadata` modules. |
+| `dcpy-utils` has an undeclared runtime dependency on `geopandas` | `dcpy.utils.postgres` imports `geopandas`, which isn't declared in `dcpy-utils`'s `pyproject.toml` — declaring it would drag GDAL into every consumer | Needs an actual decision (lazy import? move the geospatial bits out of `dcpy-utils`?); `python/utils/test/test_postgres.py` is excluded from the isolated run in the meantime. |
 
-Run `uvx tach check` for the authoritative, line-accurate list.
+Run `bash/run_isolated_tests.sh` for the authoritative, current list.
