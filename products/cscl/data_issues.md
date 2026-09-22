@@ -51,7 +51,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
 | [CSCL-LDF-03](#cscl-ldf-03) | LDF | Cumulative record number is transcribed, not chained | Open | 26b |
 | [CSCL-LDF-04](#cscl-ldf-04) | LDF | One LION record carries `-1` as GENERICID | Open | 26b |
-| [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load | Open | 26c |
+| [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load; `saf_abcegnpx_*` row-count gaps are the same pattern, not SAF-replicant scope | Accepted | 26c |
 | [CSCL-THINED-01](#cscl-thined-01) | ThinED | Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source | Watch | 26c |
 | [CSCL-THINED-02](#cscl-thined-02) | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c |
 | [CSCL-THINLION-01](#cscl-thinlion-01) | ThinLION | `nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed) | Accepted | 26c |
@@ -828,7 +828,7 @@ something we should tolerate silently.
 ### CSCL-SAF-01
 
 **`lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load** ·
-Open · Last verified 26c
+Accepted · Last verified 26c
 
 `saf_s_generic`/`saf_s_roadbed`'s unaccounted `modified` rows are dominated by one pattern:
 prod's `lgc1 = '01'`, dev showing a specific code (`03`/`04`/`05`/`10`/`11`/`14`) that prod
@@ -849,20 +849,42 @@ output not fully regenerated from current source each cycle - now confirmed in a
 output family. Not yet folded into that doc's scope explicitly; tracked separately here since
 the source table (`dcp_cscl_segment_lgc`) differs from the FEATURENAME-derived ones.
 
-Two smaller, distinct anomalies on the same two files, not yet root-caused:
+**Wired into `accounted_for` (2026-09-22):** `qa__diffs_saf_s_generic.sql`/
+`qa__diffs_saf_s_roadbed.sql` had no `accounted_for` rule for this pattern at all despite being
+root-caused above - both files showed 100% unaccounted. Added a rule keyed on
+`change_keys <@ {lgc1, lgc2, lgc3}` and `lgc1`'s old value `= '01'` (lgc2/lgc3 legitimately
+co-change from blank to a real code alongside lgc1 in several rows). Re-verified against a fresh
+build: exactly 9 rows in each file match, identical to the figures above; unaccounted dropped
+from 17→8 (`saf_s_generic`) and 19→10 (`saf_s_roadbed`).
+
+Three smaller, distinct anomalies remain unaccounted on these two files, not yet root-caused:
 - One segment (`27080026604206151R.../268020`) has 3 SAF sub-records whose keys don't align
   between dev and prod (`only_in_legacy`/`only_in_build`, 3 each, identical in both
   `saf_s_generic` and `saf_s_roadbed`) - the key embeds `segment_seqnum`, and dev's values for
   this segment's multiple sub-records look offset from prod's, not missing outright.
-- Two rows (`43500017073100790R`, both roadbed sides) have dev's `place_name` blank where
-  prod has `NORTH BOUNDARY ROAD`.
+- Two rows (`43500017073100790R`, both sides) have dev's `place_name` blank where prod has
+  `NORTH BOUNDARY ROAD` - **`saf_s_generic` only** (corrected from an earlier note attributing
+  this to roadbed).
+- `saf_s_roadbed` only, 2 more rows with LGC-field changes that don't fit the `lgc1='01'`
+  pattern above and aren't yet explained: segment `0135273` has `lgc2` alone go from blank to
+  `03` (both sides, `lgc1` unchanged); segment `0289932` has `lgc2`/`lgc3` swap values (`04`/`02`
+  → `02`/`04`, both sides) with no `lgc1` change at all.
 
 `saf_i`, `saf_d_generic`, `saf_d_roadbed`, `saf_ov_generic`, and `saf_ov_roadbed` show zero
 diffs against the fresh 26c reload - confirms the reload itself was not the problem for those
-files specifically. `saf_abcegnpx_generic`/`saf_abcegnpx_roadbed` retain a handful (3-7) of
-row-count-only mismatches, not yet traced but consistent in scale with the already-open,
-unimplemented SAF-replicant scope (see `docs/ETL_V8_02012024.md`, "Segment Replication for SAF
-Data").
+files specifically.
+
+**`saf_abcegnpx_generic`/`saf_abcegnpx_roadbed`'s row-count gaps traced (2026-09-22): same
+stale-prod-source-snapshot family, not SAF-replicant scope.** The earlier note here speculated
+these 3-7 row-presence-only mismatches were "consistent in scale with the already-open,
+unimplemented SAF-replicant scope" - retracted. All 7 `saf_abcegnpx_generic` gap rows (3 in
+`saf_abcegnpx_roadbed`, a subset) were traced to 4 segments, 6 of 7 showing "dev has a
+newer/renumbered SAF sub-record that prod's snapshot lacks" (same shape as the LGC finding
+above) and 1 running the opposite direction (prod carries an address sub-range current source
+no longer has, same shape as Bug 011's `gdb_altnames` gap). See
+[Bug 017](./docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md) for the full
+per-segment trace. Not marked `accounted_for` - too few rows, too heterogeneous, to warrant a
+general rule; kept as visible individual diffs.
 
 **What would settle it:** ask GR whether `saf_s_*`'s LGC values are regenerated from CSCL's
 current `Segment_LGC` table each release or carried forward, using segmentid 136981 as a

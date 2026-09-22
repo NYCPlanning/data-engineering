@@ -45,6 +45,15 @@ SELECT
             status = 'modified'
             AND _saf_key = any(ARRAY['416070284412']::text[])
             THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
+        -- CSCL-SAF-01: prod's lgc1 = '01' where current dcp_cscl_segment_lgc source no longer
+        -- supports that classification (stale prod, not a stale load - reload-verified 26c).
+        -- See: data_issues.md CSCL-SAF-01
+        WHEN
+            status = 'modified'
+            AND change_keys <@ ARRAY['lgc1', 'lgc2', 'lgc3']::text[]
+            AND 'lgc1' = any(change_keys)
+            AND changes -> 'lgc1' ->> 'old' = '01'
+            THEN 'CSCL-SAF-01: stale prod lgc1'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND array_length(change_keys, 1) = 1
             THEN change_keys[1]
@@ -59,7 +68,16 @@ SELECT
         -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         status = 'modified'
-        AND _saf_key = any(ARRAY['416070284412']::text[]),
+        AND _saf_key = any(ARRAY['416070284412']::text[])
+        -- CSCL-SAF-01: prod's lgc1 = '01' where current source no longer supports that
+        -- classification. lgc2/lgc3 may co-change (blank -> real code) alongside lgc1, but no
+        -- other field. See: data_issues.md CSCL-SAF-01
+        OR (
+            status = 'modified'
+            AND change_keys <@ ARRAY['lgc1', 'lgc2', 'lgc3']::text[]
+            AND 'lgc1' = any(change_keys)
+            AND changes -> 'lgc1' ->> 'old' = '01'
+        ),
         FALSE
     ) AS accounted_for
 FROM categorized
