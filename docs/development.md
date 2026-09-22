@@ -91,28 +91,23 @@ SET client_encoding = 'UTF8';
 ### Install this repo's packages
 
 ```bash
+# Third-party tooling that sits outside the dcpy workspace (mypy, and everything else baked
+# into the nycplanning/dev image), pinned for reproducibility with CI
 python -m pip install --requirement ./admin/run_environment/requirements.txt
-python -m pip install --editable . --constraint ./admin/run_environment/constraints.txt
+
+# The dcpy workspace itself — every dcpy-* package under python/*/, plus dbt/sqlfluff/pytest —
+# synced against the committed uv.lock, the same one CI syncs against
+uv sync --all-packages
 ```
 
 > [!NOTE]
 > A `uv venv` environment has no `pip` module, so outside an activated venv (e.g. in a git
-> worktree) use `uv pip install` instead:
-> ```bash
-> uv pip install --requirement ./admin/run_environment/requirements.txt
-> uv pip install --editable . --constraint ./admin/run_environment/constraints.txt
-> ```
+> worktree) use `uv pip install --requirement ...` instead of `python -m pip install ...`.
 
-> [!WARNING]
-> **Don't use `uv sync` or a bare `uv run` in this repo.** `pyproject.toml` lists dependencies
-> unpinned, so both resolve against `uv.lock` — a gitignored, per-machine file — rather than the
-> pinned `requirements.txt` that CI builds from. `uv run` re-syncs the venv on *every* invocation,
-> silently reverting the installs above; it regenerates `uv.lock` first if you deleted it, so
-> deleting the lockfile is not a fix. The result is local packages that differ from CI, which is
-> how pandas 3 breakages have reached nightly QA undetected.
->
-> Run commands through the direnv-activated `.venv` instead (plain `python`, `pytest`, …). If you
-> want `uv run`, it must be `uv run --no-sync`.
+`uv sync --all-packages` is the standard way to install and update the dcpy workspace — re-run it
+after pulling changes that touch any `python/*/pyproject.toml` or `uv.lock`. Prefer `uv run
+--no-sync <command>` for one-off commands over a bare `uv run`, which re-syncs the venv on every
+invocation — harmless, but pointlessly slow to repeat.
 
 ## Loading environment variables (direnv)
 
@@ -139,9 +134,23 @@ source .venv/bin/activate && export $(cat .env | sed 's/#.*//g' | xargs)
 
 ## Managing Python dependencies
 
-### General uv workflow
+### Adding a dependency to a dcpy package
 
-When adding or updating packages in a project, our preferred workflow is:
+1. Add the package to the relevant `python/<pkg>/pyproject.toml`'s `dependencies` (or
+   `[dependency-groups] dev` for a test-only dependency).
+2. Run `uv sync --all-packages` — this re-resolves and updates the committed `uv.lock` to match,
+   and installs the new package into your venv.
+3. Commit both the `pyproject.toml` change and the updated `uv.lock`.
+
+This is separate from `admin/run_environment/requirements.in` below — that file pins tooling that
+sits outside the dcpy workspace, like `mypy` (see `bash/run_mypy.sh`) and whatever's baked into
+the `nycplanning/dev` image; it isn't dcpy's own dependency list, so a new dcpy-only dependency
+doesn't belong there.
+
+### General uv workflow (`admin/run_environment/`)
+
+For the repo-wide tooling pinned in `admin/run_environment/` (not the dcpy workspace — see above),
+our preferred workflow when adding or updating packages is:
 1. List required packages in a `requirements.in`
 2. Compile them to a pinned `requirements.txt` via uv
 3. Install from `requirements.txt`
@@ -169,12 +178,11 @@ uv pip list
 
 Do check in `requirements.in` and `requirements.txt`. Don't check in your virtual environment — make sure the folder is in `.gitignore`.
 
-### Adding a package to dcpy
+### Updating `admin/run_environment/` packages
 
 1. Be up-to-date with `main`. If you have a long-running PR with merge conflicts in requirement files, it's far easier to take latest `main`, add new packages, and recompile.
 2. Add the package(s) to `admin/run_environment/requirements.in`.
 3. Run `admin/ops/python_compile_requirements.sh --no-upgrade`.
-4. Add the package(s) to dcpy's explicit requirements in `pyproject.toml`.
 
 The `--no-upgrade` flag resolves the new package against the existing pinned versions in
 `admin/run_environment/requirements.txt`, which can conflict. If so, run

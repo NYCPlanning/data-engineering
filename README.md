@@ -10,7 +10,7 @@ Product metadata now lives in the [`product-metadata/`](product-metadata/) direc
 
 | Path | Purpose |
 |---|---|
-| `dcpy/` | Core Python package: lifecycle orchestration, connectors, utilities |
+| `python/` | Core `dcpy` packages (uv workspace): lifecycle orchestration, connectors, utilities, … |
 | `products/` | One folder per data product — code, dbt models, recipe files, README |
 | `product-metadata/` | Dataset specifications (metadata.yml) for DCP products — copied from the former `product-metadata` repo |
 | `ingest_templates/` | YAML specs for extracting and archiving source datasets |
@@ -48,7 +48,7 @@ See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineer
 - [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
 - [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
-- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + `tach` enforcement
+- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + package-boundary enforcement
 - [dbt project conventions](docs/dbt/project_conventions.md) — model layers, materialization, geometry standards, linting
 - [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
 - [Test strategy](docs/testing.md) — suites, how to run them, conventions
