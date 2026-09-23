@@ -8,6 +8,8 @@ sources:
         description: "Housing DB, pinned in recipe.yml so published figures are reproducible"
       - name: dcp_censusdata
         description: "2020 Census, supplies the housing stock baseline"
+      - name: dcp_projects
+        description: "ZAP projects"
       - name: dcp_projectbbls
         description: "ZAP project to BBL mapping"
       - name: dcp_ct2020_wi
@@ -19,3 +21,19 @@ sources:
       - name: dcp_school_districts
       - name: doe_eszones
       - name: doe_school_subdistricts
+
+  - name: corrections
+    description: "Manual corrections files, loaded by sql/create_corrections.sql"
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: zap_record_ids
+        description: "ZAP project IDs to include in KPDB. Any ZAP project not listed is removed."
+      - name: corrections_main
+        description: "Field-level corrections. field = 'remove' drops a record from combined."
+
+  - name: build_tables
+    description: "Tables built by bash/02_build.sh outside of dbt"
+    schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+    tables:
+      - name: review_no_geometry
+        description: "Records dropped from kpdb for having no geometry"

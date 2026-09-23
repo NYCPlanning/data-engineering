@@ -8,7 +8,7 @@ run_sql_file sql/aggregate/preprocessing.sql
 
 ## Do aggregations
 echo "Create the aggregate tables..."
-dbt build --select tag:aggregate_general tag:aggregate_sca tag:cpp \
+dbt build --select tag:aggregate_general tag:aggregate_sca tag:cpp tag:review \
     --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}'
 
 echo "All aggregations are complete"

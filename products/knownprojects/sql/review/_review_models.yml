@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: review_zap_projects
+    description: >
+      All ZAP projects (dcp_projects) with an application filed, noticed,
+      certified/referred, approval, completed, or current milestone date on or
+      after January 1 three years before the build year (e.g. 2023-01-01 for a
+      2026 build), flagged by whether they're in zap_record_ids and in KPDB.
+    columns:
+      - name: project_id
+        tests:
+          - not_null
+          - unique:
+              config:
+                severity: warn
+      - name: latest_date
+        description: "Latest of the six dates above, the one the cutoff filters on"
+        tests: [not_null]
+      - name: latest_date_source
+        description: "Which date columns equal latest_date, comma-separated when several tie"
+        tests: [not_null]
+      - name: filed_in_last_three_years
+        description: "Whether app_filed_date is on or after the same cutoff. False when there's no filed date."
+        tests: [not_null]
+      - name: in_zap_record_ids
+        description: "Whether project_id is listed in the zap_record_ids corrections file"
+        tests: [not_null]
+      - name: in_kpdb
+        description: "Whether project_id is a DCP Application record in kpdb"
+        tests: [not_null]
+      - name: not_in_kpdb_reason
+        description: >
+          Where the build dropped a project that's in zap_record_ids but not in
+          kpdb. Null for every other row. 'other' means it fell out somewhere
+          this column doesn't check yet.
+        tests:
+          - accepted_values:
+              values: ['removed by correction', 'no geometry']
+              config:
+                severity: warn
