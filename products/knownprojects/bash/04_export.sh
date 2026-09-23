@@ -29,6 +29,8 @@ mkdir -p output
         csv_export corrections_not_applied &
         csv_export corrections_dob_match &
         csv_export corrections_project &
+        csv_export zap_record_ids &
+        csv_export review_zap_projects &
         csv_export corrections_main
         wait
     )
