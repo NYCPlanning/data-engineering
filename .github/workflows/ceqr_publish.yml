@@ -65,7 +65,7 @@ jobs:
                 
       - name: Success Message
         if: success() && github.event_name == 'issue_comment'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         with:
           comment-id: ${{ github.event.comment.id }}
           body: |
