@@ -50,6 +50,9 @@ services:
       - RECIPES_BUCKET=edm-recipes
       - SOCRATA_USER=${SOCRATA_USER}
       - SOCRATA_PASSWORD=${SOCRATA_PASSWORD}
+      # Keep the venv out of the repo mount. Editable installs hardcode this container's mount
+      # path, so a venv shared with dagster-daemon (mounted elsewhere) breaks dcpy imports.
+      - UV_PROJECT_ENVIRONMENT=/opt/venv
     # `uv run` resolves+installs the dcpy-app-qa workspace member (and its dcpy-* deps) from
     # the mount, then runs the app in that environment. The qa app imports its modules relative
     # to its source root src/ (e.g. `from shared...`), which streamlit puts on sys.path when it
@@ -76,6 +79,8 @@ services:
       - DCPY_LIFECYCLE_DATA_DIR=/opt/dagster/lifecycle
       - PUBLISHING_BUCKET=edm-publishing
       - RECIPES_BUCKET=edm-recipes
+      # See qa-streamlit: keep the venv out of the shared repo mount.
+      - UV_PROJECT_ENVIRONMENT=/opt/venv
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
       - /root/data-engineering/apps/dagster:/app/dagster
@@ -101,6 +106,8 @@ services:
       - DCPY_LIFECYCLE_DATA_DIR=/opt/dagster/lifecycle
       - PUBLISHING_BUCKET=edm-publishing
       - RECIPES_BUCKET=edm-recipes
+      # See qa-streamlit: keep the venv out of the shared repo mount.
+      - UV_PROJECT_ENVIRONMENT=/opt/venv
     volumes:
       - /root/data-engineering:/app/repos/data-engineering
       - /root/data-engineering/apps/dagster:/app/dagster
