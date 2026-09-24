@@ -448,26 +448,23 @@ jobs:
   validate_product_metadata:
     if: contains(inputs.path_filter, 'dcpy')
     name: Validate Product Metadata
-    # The actual validation is a plain YAML/metadata check, but it's invoked through
-    # `dcpy lifecycle scripts ...` - and dcpy/__main__.py -> dcpy.lifecycle._cli eagerly
-    # imports every lifecycle stage (including builds, which needs geopandas/GDAL) at CLI
-    # construction time, regardless of subcommand. So this still needs dcpy-lifecycle's full
-    # closure installed - build-geosupport (not the much bigger nycplanning/dev, which also
-    # carries the whole rest of the workspace + products extra + dev tooling) already has
-    # exactly that baked in as system site-packages, so `--package dcpy-lifecycle` here is
-    # a fast top-up (editable-install dcpy-lifecycle + confirm its pins), not a fresh install.
+    # This used to be invoked via `dcpy lifecycle scripts product_metadata validate_repo`,
+    # which needed dcpy-lifecycle's full GDAL/geopandas closure installed just to build the
+    # CLI tree (dcpy.lifecycle._cli eagerly imports every stage, including the one that
+    # imports geopandas), even though the actual validation logic never touches any of that.
+    # The command now lives in dcpy-product-metadata itself (explicitly "no GDAL"), as its
+    # own console script - so this runs on a bare runner with nothing but that one package.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-geosupport:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install dcpy-lifecycle
-      run: ./bash/docker_container_setup.sh --package dcpy-lifecycle
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - run: uv sync --package dcpy-product-metadata
     - name: Validate All Metadata Files
-      run: uv run --no-sync python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
-      env:
-        RECIPES_BUCKET: edm-recipes
-        PUBLISHING_BUCKET: edm-publishing
+      # Typer collapses a single-command app to a bare invocation (no "validate_repo" name).
+      run: uv run --no-sync product-metadata product-metadata
 
   validate_ingest_definitions:
     name: Validate Ingest Definition

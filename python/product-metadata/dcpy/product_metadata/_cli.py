@@ -3,15 +3,15 @@ from pathlib import Path
 import typer
 from tabulate import tabulate  # type: ignore
 
-from dcpy.lifecycle import product_metadata
+from dcpy.product_metadata.models.metadata.org import OrgMetadata
 
 app = typer.Typer()
 
 
 @app.command("validate_repo")
 def validate_repo_cli(repo_path: Path):
-    errors = product_metadata.load(
-        org_md_path_override=repo_path, version="TEST_VERSION"
+    errors = OrgMetadata.from_path(
+        repo_path, template_vars={"version": "TEST_VERSION"}
     ).validate_metadata()
     if errors:
         flattened_errors = []

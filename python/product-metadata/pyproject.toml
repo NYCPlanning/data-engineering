@@ -23,6 +23,9 @@ dependencies = [
 [tool.uv.sources]
 dcpy-utils = { workspace = true }
 
+[project.scripts]
+product-metadata = "dcpy.product_metadata._cli:app"
+
 [dependency-groups]
 dev = [
     "pytest",
