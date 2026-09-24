@@ -1,0 +1,51 @@
+name: Dependabot - regenerate uv.lock
+on:
+  pull_request:
+    paths:
+      - pyproject.toml
+      - "python/*/pyproject.toml"
+      - "apps/*/pyproject.toml"
+
+jobs:
+  relock:
+    name: Regenerate uv.lock on Dependabot PR
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v1
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          GHP_TOKEN: "op://Data Engineering/GITHUB_TOKENS/de_repo_management"
+
+      # Dependabot's PR already bumped a version constraint in some pyproject.toml. Its
+      # uv-workspace support is still rough (dependabot/dependabot-core#12788, #14004) -
+      # it can leave uv.lock stale, or only partially updated across our multi-package
+      # workspace. `uv lock` fully understands the workspace, so just regenerate it fresh
+      # from whatever Dependabot changed and commit if that changes anything.
+      - name: Regenerate uv.lock
+        run: uv lock
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- uv.lock; then
+            echo "uv.lock already up to date - nothing to do"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add uv.lock
+          git commit -m "Regenerate uv.lock"
+          git push "https://x-access-token:${GHP_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${{ github.event.pull_request.head.ref }}"

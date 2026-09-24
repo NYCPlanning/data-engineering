@@ -1,4 +1,4 @@
-name: Compile python requirements
+name: Upgrade uv.lock
 on:
   schedule:
   - cron: 0 0 1 * *
@@ -6,21 +6,17 @@ on:
 
 
 jobs:
-  compile_requirements:
-    name: Compile requirements and commit changes
+  upgrade_lock:
+    name: Upgrade uv.lock and commit changes
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/base:latest
     defaults:
       run:
         shell: bash
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install git and uv
-      run: |
-        apt-get update && apt-get -y install git
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+    - name: Install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
@@ -30,22 +26,26 @@ jobs:
         OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         GHP_TOKEN: "op://Data Engineering/GITHUB_TOKENS/de_repo_management"
 
-    - name: Compile requirements
-      run: ./admin/ops/python_compile_requirements.sh --upgrade
+    # Upgrades every package in the workspace lock to its latest allowed version. Every
+    # Docker image and CI job resolves from this one committed uv.lock (see
+    # admin/ops/docker_build_and_publish.sh), so this is the single place a scheduled
+    # dependency-freshness/vuln-fix bump happens for the whole repo.
+    - name: Upgrade uv.lock
+      run: uv lock --upgrade
 
     - name: Create PR
       uses: peter-evans/create-pull-request@v5
       with:
-        commit-message: automated compiling of python requirements
-        add-paths: admin/run_environment
-        title: Compile python requirements
+        commit-message: automated upgrade of uv.lock
+        add-paths: uv.lock
+        title: Upgrade uv.lock
         author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
         assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey' || '' }}
         branch: compile_python_reqs
         token: ${{ env.GHP_TOKEN }}
 
   create_issue_on_failure:
-    needs: compile_requirements
+    needs: upgrade_lock
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:

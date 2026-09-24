@@ -14,23 +14,35 @@ on:
 jobs:
   ruff:
     name: Lint/check formatting of python files
+    # Doesn't need any dcpy code or the GDAL-laden nycplanning/dev image - just ruff itself,
+    # from the root pyproject.toml's `dev` dependency-group - so this runs on a bare runner
+    # with a narrow `uv sync --only-group dev` instead of pulling a multi-GB container.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - run: uv sync --only-group dev
     - name: Lint python files
-      run: ruff check .
+      run: uv run --no-sync ruff check .
     - name: Check format of python files
-      run: ruff format . --check
+      run: uv run --no-sync ruff format . --check
 
   sqlfluff:
     name: Check formatting of sql files
+    # Same reasoning as ruff above: sqlfluff + sqlfluff-templater-dbt + the dbt CLI (for the
+    # green_fast_track dbt-templater step below) all come from the `dev` group - no dcpy code
+    # or GDAL needed, so this runs on a bare runner instead of the nycplanning/dev image.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - run: uv sync --only-group dev
 
     - name: Setup build environment (envars only)
       run: |
@@ -39,16 +51,16 @@ jobs:
     - name: Check sql files in products
       run: |
         # TODO: Gradually expand this to cover more products
-        sqlfluff lint products/cbbr/sql
-        sqlfluff lint products/cpdb/sql/
-        sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
-        sqlfluff lint products/colp/sql
-        sqlfluff lint products/developments/sql/*.sql
-        sqlfluff lint products/developments/sql/qaqc
-        sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
-        sqlfluff lint products/facilities/facdb/sql/
-        sqlfluff lint products/knownprojects/sql --templater=jinja
-        sqlfluff lint products/pluto/pluto_build/sql/
+        uv run --no-sync sqlfluff lint products/cbbr/sql
+        uv run --no-sync sqlfluff lint products/cpdb/sql/
+        uv run --no-sync sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
+        uv run --no-sync sqlfluff lint products/colp/sql
+        uv run --no-sync sqlfluff lint products/developments/sql/*.sql
+        uv run --no-sync sqlfluff lint products/developments/sql/qaqc
+        uv run --no-sync sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
+        uv run --no-sync sqlfluff lint products/facilities/facdb/sql/
+        uv run --no-sync sqlfluff lint products/knownprojects/sql --templater=jinja
+        uv run --no-sync sqlfluff lint products/pluto/pluto_build/sql/
 
     - name: Check green_fast_track dbt models (DuckDB dialect)
       # A full dbt project (ref()/source()/packages), so this needs --templater=dbt to
@@ -60,8 +72,8 @@ jobs:
         BUILD_ENGINE_SCHEMA: sqlfluff_lint
       run: |
         export DUCKDB_PATH="$RUNNER_TEMP/gft_sqlfluff_lint.duckdb"
-        dbt deps
-        sqlfluff lint models --templater=dbt
+        uv run --no-sync dbt deps
+        uv run --no-sync sqlfluff lint models --templater=dbt
 
   set_dbt_matrix:
     name: Setup dbt tests
@@ -139,11 +151,48 @@ jobs:
         dbt test --resource-type unit_test
 
   mypy:
+    name: Check python types
+    # mypy's own [[tool.mypy.overrides]] in pyproject.toml already sets
+    # ignore_missing_imports=true for geopandas/osgeo/shapely/pyogrio/etc (no type stubs
+    # available for them anyway), and [tool.mypy] mypy_path lists every python/*/ package
+    # root directly, so mypy resolves our own dcpy.* modules from source without needing
+    # them installed as packages. The only thing actually required is every *other*
+    # third-party dependency (pandas, boto3, pydantic, the various *-stubs packages, etc)
+    # - excluding just the raw `gdal` binding (needed only by dcpy-library, and only
+    # buildable against a matching system libgdal) lets this run on a bare runner instead
+    # of the GDAL-laden nycplanning/dev image. Verified locally: identical "Success: no
+    # issues found" results with gdal excluded from the install.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - name: Cache mypy incremental state
+      uses: actions/cache@v4
+      with:
+        path: .mypy_cache
+        # Keyed on uv.lock so a dependency/stub bump starts fresh instead of reusing
+        # stale per-module fingerprints; github.sha makes every run save its own updated
+        # copy. The restore-keys fallback lets a PR pick up the most recent matching
+        # cache as a starting point - GitHub Actions caches built on the default branch
+        # (main) are visible to every branch as a fallback - so mypy only re-checks
+        # what actually changed instead of every file every time.
+        key: mypy-${{ hashFiles('uv.lock') }}-${{ github.sha }}
+        restore-keys: |
+          mypy-${{ hashFiles('uv.lock') }}-
+          mypy-
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - name: Install dependencies (everything except the gdal binding)
+      run: |
+        uv export --all-packages --extra products --no-hashes --no-editable \
+          --no-emit-workspace --no-emit-package gdal -o /tmp/mypy_requirements.txt
+        # Not --system: astral-sh/setup-uv's own managed interpreter refuses --system
+        # installs ("externally managed"). Put .venv/bin on PATH instead, same pattern
+        # bash/docker_container_setup.sh uses, so the plain `mypy` below resolves here.
+        uv venv
+        uv pip install -r /tmp/mypy_requirements.txt
+        echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
     # Runs every mypy target (dcpy/test_integration, products/*, admin/ops, and each
     # python/*/ workspace package - the last group needs --namespace-packages
@@ -436,27 +485,35 @@ jobs:
   validate_product_metadata:
     if: contains(inputs.path_filter, 'dcpy')
     name: Validate Product Metadata
+    # This used to be invoked via `dcpy lifecycle scripts product_metadata validate_repo`,
+    # which needed dcpy-lifecycle's full GDAL/geopandas closure installed just to build the
+    # CLI tree (dcpy.lifecycle._cli eagerly imports every stage, including the one that
+    # imports geopandas), even though the actual validation logic never touches any of that.
+    # The command now lives in dcpy-product-metadata itself (explicitly "no GDAL"), as its
+    # own console script - so this runs on a bare runner with nothing but that one package.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install dcpy workspace
-      run: uv sync --all-packages
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - run: uv sync --package dcpy-product-metadata
     - name: Validate All Metadata Files
-      run: uv run python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
-      env:
-        RECIPES_BUCKET: edm-recipes
-        PUBLISHING_BUCKET: edm-publishing
+      # Typer collapses a single-command app to a bare invocation (no "validate_repo" name).
+      run: uv run --no-sync product-metadata product-metadata
 
   validate_ingest_definitions:
     name: Validate Ingest Definition
+    # Same reasoning as validate_product_metadata above: `dcpy lifecycle ingest ...` still
+    # eagerly imports the whole lifecycle stage tree via dcpy.lifecycle._cli, so this needs
+    # dcpy-lifecycle's full closure - build-geosupport already has it baked in.
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
+      image: nycplanning/build-geosupport:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install dcpy workspace
-      run: uv sync --all-packages
+    - name: Install dcpy-lifecycle
+      run: ./bash/docker_container_setup.sh --package dcpy-lifecycle
     - name: Validate All Templates
-      run: uv run python -m dcpy lifecycle ingest validate_definitions ingest_templates
+      run: uv run --no-sync python -m dcpy lifecycle ingest validate_definitions ingest_templates

@@ -8,7 +8,8 @@
 #                 This is used when building non-base images off of a base image tag other than latest
 #
 # This must be run from the root of the project to run correctly.
-# Assumes existence of admin/run_environment folder with docker folder and python requirements/constraints inside
+# Assumes existence of admin/run_environment/docker; python deps come from `uv export`
+# against the workspace's uv.lock (see generate_dcpy_requirements / generate_dev_requirements).
 
 image=$1
 tag=$2
@@ -32,13 +33,26 @@ pip install --upgrade pip==25.2 requests beautifulsoup4 uv
 # package, so each image only exports the workspace member(s) it actually needs instead
 # of the whole dependency set. build-base stays GDAL-free; build-geosupport additionally
 # needs everything dcpy-lifecycle depends on (geospatial, geosupport, connectors, etc).
+# --no-emit-workspace: these images only ship third-party deps (the dcpy source itself
+# isn't in the docker build context - it's added by later images / mounted at runtime),
+# but `uv export --package X` emits X and its workspace-internal deps as local `file://`
+# path installs by default, which fail to resolve since that source isn't present here.
 function generate_dcpy_requirements {
     local packages=("$@")
     local export_args=()
     for pkg in "${packages[@]}"; do
         export_args+=(--package "$pkg")
     done
-    uv export --no-dev --no-hashes --no-editable "${export_args[@]}" \
+    uv export --no-dev --no-hashes --no-editable --no-emit-workspace "${export_args[@]}" \
+        -o "$IMAGE_DIR/dcpy_requirements.txt"
+}
+
+# dev is the omnibus image: the whole workspace, plus products (deps of one-off scripts
+# under products/ and notebooks/ that aren't dcpy code, declared as the "products" extra
+# on the root dcpy-test-suite package) and dev (mypy, ruff, dbt-duckdb test tooling, etc).
+function generate_dev_requirements {
+    uv export --no-hashes --no-editable --no-emit-workspace --all-packages \
+        --extra products --group dev \
         -o "$IMAGE_DIR/dcpy_requirements.txt"
 }
 
@@ -53,7 +67,6 @@ function export_geosupport_versions {
 
 function common {
     DOCKER_IMAGE_NAME=nycplanning/$image
-    cp $DOCKER_DIR/../constraints.txt $IMAGE_DIR
     cp $DOCKER_DIR/config.sh $IMAGE_DIR
 
     docker_login
@@ -80,7 +93,7 @@ case $image in
     dev)
         export_geosupport_versions
         common
-        cp $DOCKER_DIR/../requirements.txt $IMAGE_DIR
+        generate_dev_requirements
         $GEO_COMMAND;;
     build-base)
         common

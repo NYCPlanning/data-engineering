@@ -43,7 +43,10 @@ uv python install 3.13
 #### Mac
 
 With homebrew, install:
-- `gdal` - the same version as in `admin/run_environment/requirements.txt` if possible. If not, edit the `gdal` version in that file to align with the version returned from running `gdalinfo --version`
+- `gdal` - the same version pinned in `python/library/pyproject.toml` (`GDAL==...`, which must exactly
+  match the system libgdal used to build `nycplanning/base` - see `gdal_version` in
+  `admin/run_environment/docker/base/setup.sh`) if possible. If not, edit that pin to align with the
+  version returned from running `gdalinfo --version`, then run `uv lock`.
 - postgres (latest version)
 
 #### Windows
@@ -90,24 +93,27 @@ SET client_encoding = 'UTF8';
 
 ### Install this repo's packages
 
-```bash
-# Third-party tooling that sits outside the dcpy workspace (mypy, and everything else baked
-# into the nycplanning/dev image), pinned for reproducibility with CI
-python -m pip install --requirement ./admin/run_environment/requirements.txt
+`dcpy` is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) (each
+`python/*` directory, plus `apps/qa`, `apps/dagster`, `apps/notebook-server`, is its own workspace
+member with its own `pyproject.toml`); the whole workspace resolves against one committed
+`uv.lock` at the repo root, which is the single source of truth for CI and local dev alike:
 
-# The dcpy workspace itself — every dcpy-* package under python/*/, plus dbt/sqlfluff/pytest —
-# synced against the committed uv.lock, the same one CI syncs against
+```bash
 uv sync --all-packages
 ```
 
-> [!NOTE]
-> A `uv venv` environment has no `pip` module, so outside an activated venv (e.g. in a git
-> worktree) use `uv pip install --requirement ...` instead of `python -m pip install ...`.
+This installs every dcpy-* package editable, plus every workspace member's own dependencies, into
+`.venv`. Run commands through the direnv-activated `.venv` (plain `python`, `pytest`, `dcpy`, …).
+If you want `uv run`, it must be `uv run --no-sync --all-packages` to avoid re-syncing to a
+narrower package set than the full workspace.
 
-`uv sync --all-packages` is the standard way to install and update the dcpy workspace — re-run it
-after pulling changes that touch any `python/*/pyproject.toml` or `uv.lock`. Prefer `uv run
---no-sync <command>` for one-off commands over a bare `uv run`, which re-syncs the venv on every
-invocation — harmless, but pointlessly slow to repeat.
+Product scripts under `products/` (not part of the uv workspace) and notebooks under `notebooks/`
+sometimes need packages that aren't a dcpy dependency - those live in the root `pyproject.toml`'s
+`products` extra:
+
+```bash
+uv sync --all-packages --extra products
+```
 
 ## Loading environment variables (direnv)
 
@@ -134,65 +140,25 @@ source .venv/bin/activate && export $(cat .env | sed 's/#.*//g' | xargs)
 
 ## Managing Python dependencies
 
-### Adding a dependency to a dcpy package
+### Adding a package
 
-1. Add the package to the relevant `python/<pkg>/pyproject.toml`'s `dependencies` (or
-   `[dependency-groups] dev` for a test-only dependency).
-2. Run `uv sync --all-packages` — this re-resolves and updates the committed `uv.lock` to match,
-   and installs the new package into your venv.
-3. Commit both the `pyproject.toml` change and the updated `uv.lock`.
+1. Add the package to the `dependencies` (or a `[dependency-groups]`/`[project.optional-dependencies]`
+   entry, for dev-only or non-dcpy-code needs) of whichever `pyproject.toml` actually needs it:
+   - A dcpy layer's own runtime need → that package's `python/<name>/pyproject.toml`
+     (e.g. `python/lifecycle/pyproject.toml` for something `dcpy.lifecycle` uses).
+   - Dev/CI tooling (linters, test runners) not imported by any package → the root
+     `pyproject.toml`'s `[dependency-groups] dev`.
+   - A dependency of a one-off script under `products/` or `notebooks/` that isn't a dcpy
+     dependency → the root `pyproject.toml`'s `products` extra.
+   - An app (`apps/qa`, `apps/notebook-server`, `apps/dagster`) → that app's own `pyproject.toml`.
+2. Run `uv lock` from the repo root and commit the updated `uv.lock` alongside the `pyproject.toml`
+   change.
+3. Run `uv sync --all-packages` (add `--extra products` if you touched that extra) to update your
+   local `.venv`.
 
-This is separate from `admin/run_environment/requirements.in` below — that file pins tooling that
-sits outside the dcpy workspace, like `mypy` (see `bash/run_mypy.sh`) and whatever's baked into
-the `nycplanning/dev` image; it isn't dcpy's own dependency list, so a new dcpy-only dependency
-doesn't belong there.
-
-### General uv workflow (`admin/run_environment/`)
-
-For the repo-wide tooling pinned in `admin/run_environment/` (not the dcpy workspace — see above),
-our preferred workflow when adding or updating packages is:
-1. List required packages in a `requirements.in`
-2. Compile them to a pinned `requirements.txt` via uv
-3. Install from `requirements.txt`
-
-```bash
-# Compile
-uv pip compile requirements.in --output-file requirements.txt
-
-# Install
-uv pip sync requirements.txt
-```
-
-Use the `--upgrade` flag to update pinned versions:
-
-```bash
-uv pip compile --upgrade requirements.in --output-file requirements.txt
-```
-
-Confirm the active environment and its packages:
-
-```bash
-which python
-uv pip list
-```
-
-Do check in `requirements.in` and `requirements.txt`. Don't check in your virtual environment — make sure the folder is in `.gitignore`.
-
-### Updating `admin/run_environment/` packages
-
-1. Be up-to-date with `main`. If you have a long-running PR with merge conflicts in requirement files, it's far easier to take latest `main`, add new packages, and recompile.
-2. Add the package(s) to `admin/run_environment/requirements.in`.
-3. Run `admin/ops/python_compile_requirements.sh --no-upgrade`.
-
-The `--no-upgrade` flag resolves the new package against the existing pinned versions in
-`admin/run_environment/requirements.txt`, which can conflict. If so, run
-`admin/ops/python_compile_requirements.sh` without the flag — it may upgrade unrelated packages
-(usually fine). You can also selectively pin packages in `requirements.in` for the compile, then
-unpin afterwards.
-
-No other action is needed for CI: PR tests build a new image and run tests in it. Locally, either
-update your venv with the regenerated `requirements.txt`, or once CI has run, build your dev
-container from the `nycplanning/dev:dev-{branch}` image produced by tests.
+No other action is needed for CI or Docker images: they all export from the same committed
+`uv.lock` (`uv export --package <name> ...`, see `admin/ops/docker_build_and_publish.sh`), so a
+locked version bump here is picked up automatically the next time each image is built.
 
 ## Running a build locally
 

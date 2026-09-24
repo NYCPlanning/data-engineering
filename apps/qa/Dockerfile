@@ -1,11 +1,13 @@
-FROM nycplanning/build-base:latest
+FROM nycplanning/build-geosupport:latest
 
 WORKDIR /app
 
-# Only the QA app's own deps (streamlit, folium, …); dcpy's deps come from build-base.
-COPY constraints.txt .
-COPY requirements.txt .
-RUN uv pip install --system -r requirements.txt -c constraints.txt
+# dcpy-app-qa's full closure (its own deps like streamlit/folium, plus everything
+# dcpy-lifecycle needs transitively) resolved from the workspace uv.lock - see
+# apps/qa/bash/docker_build_and_publish.sh. Already satisfied by build-geosupport
+# for the dcpy-lifecycle portion; this just adds/pins the app's own extras.
+COPY dcpy_requirements.txt .
+RUN uv pip install --system -r dcpy_requirements.txt
 
 
 EXPOSE 8501

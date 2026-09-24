@@ -15,6 +15,10 @@ dependencies = [
     "dcpy-geosupport",
     "dcpy-data",
     "dcpy-library",
+    # dcpy.lifecycle.builds shells out to the `dbt` CLI (see builds/build.py) rather than
+    # importing it, but the executable still needs to be installed here.
+    "dbt-postgres",
+    "dbt-duckdb",
     "geoalchemy2",
     "geopandas",
     "Jinja2",

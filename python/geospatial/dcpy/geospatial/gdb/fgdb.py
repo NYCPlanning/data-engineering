@@ -191,24 +191,38 @@ def _edit_layer_metadata_inplace(
         layer: str,
         metadata: str,
     ) -> None:
-        # create intermediate layer
+        # GDAL 3.13 requires active_layer alongside output_layer (to disambiguate which
+        # input layer to copy when the FGDB has several), and now rejects output_layer
+        # naming an already-existing layer even with overwrite_layer=True ("--output-layer
+        # name must be ... different from an existing layer"). So: copy `layer` to a new
+        # name, drop the original to free up the name, then copy back to the original name
+        # (safe now that it's free) with the metadata attached - layer_creation_option has
+        # to be on this final copy, since an intermediate copy's metadata doesn't survive
+        # a subsequent rename-via-edit.
         gdal.alg.vector.edit(
             input_format="OpenFileGDB",
             input=gdb,
             output=gdb,
             input_layer=layer,
             output_layer=intermediate_layer,
+            active_layer=layer,
             update=True,
         )
-        # add metadata
+        gdal.alg.vector.sql(
+            input_format="OpenFileGDB",
+            input=gdb,
+            sql=f"DROP TABLE {layer}",
+            update=True,
+        )
         gdal.alg.vector.edit(
             input_format="OpenFileGDB",
             input=gdb,
             output=gdb,
             input_layer=intermediate_layer,
             output_layer=layer,
+            active_layer=intermediate_layer,
             layer_creation_option=f"DOCUMENTATION={metadata}",
-            overwrite_layer=True,
+            update=True,
         )
         # delete intermediate layer
         gdal.alg.vector.sql(

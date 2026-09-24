@@ -19,8 +19,9 @@ fi
 # a package root here (there are several: apps/, dcpy/, products/, etc). `uv sync`
 # installs every dcpy-* workspace package editable in one shot instead.
 #
-# The venv is created with access to system site-packages (where dbt, mypy, sqlfluff,
-# and the rest of admin/run_environment/requirements.in already live in this image) -
+# The venv is created with access to system site-packages (where dbt, mypy, sqlfluff, and
+# the rest of the root pyproject.toml's `dev` group and `products` extra already live in
+# this image - see generate_dev_requirements in admin/ops/docker_build_and_publish.sh) -
 # product build scripts commonly need both those AND dcpy in the same process, e.g.
 # products/template/build_scripts/transform.py imports both `dbt` and `dcpy.utils`.
 #
@@ -28,11 +29,19 @@ fi
 # script), which creates a plain venv without that flag. Reusing it here would silently
 # leave dbt/mypy/etc unreachable, so check for the flag rather than just venv existence,
 # and recreate if it's missing.
+# Accepts optional uv sync scope args (e.g. `--package dcpy-lifecycle`) for callers that
+# only need a subset of the workspace; defaults to the full workspace for every existing
+# caller that invokes this with no arguments.
+SYNC_ARGS=("$@")
+if [[ ${#SYNC_ARGS[@]} -eq 0 ]]; then
+    SYNC_ARGS=(--all-packages)
+fi
+
 if [[ ! -d .venv ]] || ! grep -qx "include-system-site-packages = true" .venv/pyvenv.cfg 2>/dev/null; then
     rm -rf .venv
     uv venv --system-site-packages
 fi
-uv sync --all-packages
+uv sync "${SYNC_ARGS[@]}"
 
 # Put the synced venv on PATH for the rest of this job, so every later step's plain
 # `python3`, `dcpy`, `pytest`, etc. resolves against it - without that, only commands

@@ -251,11 +251,7 @@ Or run the whole thing (load excluded) via:
 ./bash/build.sh
 ```
 
-`dbt-duckdb` isn't in the compiled `requirements.txt` yet (only added to
-`admin/run_environment/requirements.in` so far) - install it into your venv directly
-(`uv pip install dbt-duckdb`) until the pin is compiled in. Don't use `--no-deps`: `dbt-core`
-pulls in `dbt-adapters` and friends, and dbt fails at import (`No module named
-'dbt.adapters.factory'`) without them.
+`dbt-duckdb` is a real dependency of `dcpy-lifecycle` now, so `uv sync --all-packages` picks it up.
 
 ### Export
 

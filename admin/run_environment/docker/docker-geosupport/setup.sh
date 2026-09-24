@@ -7,4 +7,5 @@ apt update && apt install -y $GEOSUPPORT_APT_PACKAGES
 
 install_geosupport
 
-pip install -r requirements.txt -c constraints.txt
+# Standalone image, not part of the uv workspace - no shared lock to pin against.
+pip install -r requirements.txt

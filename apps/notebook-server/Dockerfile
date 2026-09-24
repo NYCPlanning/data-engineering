@@ -1,13 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM nycplanning/build-base:latest
+FROM nycplanning/build-geosupport:latest
 
 WORKDIR /app
 
-# Only the notebook server's own deps (marimo, uvicorn); dcpy's deps come from build-base.
-COPY --link admin/run_environment/constraints.txt admin/run_environment/
-COPY --link apps/notebook-server/requirements.txt apps/notebook-server/
-RUN uv pip install --system -r apps/notebook-server/requirements.txt -c admin/run_environment/constraints.txt
+# dcpy-app-notebook-server's full closure (its own deps like marimo/uvicorn, plus everything
+# dcpy-lifecycle needs transitively) resolved from the workspace uv.lock - see
+# apps/bash/smoke_test.sh. Already satisfied by build-geosupport for the dcpy-lifecycle
+# portion; this just adds/pins the app's own extras.
+COPY --link apps/notebook-server/dcpy_requirements.txt apps/notebook-server/
+RUN uv pip install --system -r apps/notebook-server/dcpy_requirements.txt
 
 EXPOSE 8080
 

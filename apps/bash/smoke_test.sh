@@ -21,17 +21,23 @@ SERVICE="${1:?usage: smoke_test.sh <service>}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
+command -v uv >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # Per-service: compose file (where the entrypoint lives), Dockerfile + build context, port,
-# and the URL path that returns 200 once the server is up.
+# the URL path that returns 200 once the server is up, and the app's dcpy_requirements.txt
+# path (exported fresh from the workspace lock; the Dockerfile COPYs it from its context).
 case "$SERVICE" in
   qa-streamlit)
     COMPOSE="apps/docker-compose.yml"; DOCKERFILE="apps/qa/Dockerfile"; CTX="apps/qa"
     PORT=8501; HEALTH="/qaqc/_stcore/health"
-    cp admin/run_environment/constraints.txt apps/qa/constraints.txt   # qa Dockerfile copies it from its context
+    DCPY_REQS="apps/qa/dcpy_requirements.txt"
+    uv export --no-dev --no-hashes --no-editable --no-emit-workspace --package dcpy-app-qa -o "$DCPY_REQS"
     ;;
   notebook-server)
     COMPOSE="apps/notebook-server/docker-compose.yml"; DOCKERFILE="apps/notebook-server/Dockerfile"; CTX="."
     PORT=8080; HEALTH="/"
+    DCPY_REQS="apps/notebook-server/dcpy_requirements.txt"
+    uv export --no-dev --no-hashes --no-editable --no-emit-workspace --package dcpy-app-notebook-server -o "$DCPY_REQS"
     ;;
   *)
     echo "smoke_test.sh: unsupported service '$SERVICE' (add a case)"; exit 2 ;;
@@ -41,7 +47,7 @@ IMAGE="smoke/$SERVICE:test"; CONTAINER="smoke-$SERVICE"
 cleanup() {
   echo "::group::container logs ($CONTAINER)"; docker logs "$CONTAINER" 2>&1 || true; echo "::endgroup::"
   docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
-  rm -f apps/qa/constraints.txt
+  rm -f "$DCPY_REQS"
 }
 trap cleanup EXIT
 

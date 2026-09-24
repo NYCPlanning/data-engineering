@@ -199,16 +199,41 @@ version = "0.0.1"
 requires-python = ">=3.11"
 dependencies = []
 
+# Dependencies of one-off product/notebook scripts under products/ and notebooks/ - not
+# dcpy code, and products/ isn't a uv workspace member, so these have no other home.
+# Exported for the `dev` image via `uv export --package dcpy-test-suite --extra products`.
+[project.optional-dependencies]
+products = [
+    "cached-property",
+    "contextily",
+    "msal>=1.23.0",
+    "openlayers",
+    "simplejson",
+    "tqdm>=4.59.0",
+    "us",
+]
+
 [tool.uv]
 package = false
 
 [dependency-groups]
+# CI/lint/test tooling - kept in one group so a narrow `uv sync --only-group dev` (no
+# --all-packages, no products extra) is enough for jobs that only need these tools, not
+# dcpy code. dbt-postgres/dbt-duckdb are also a real dependency of dcpy-lifecycle (it shells
+# out to `dbt` at runtime) - listed here too so the sqlfluff dbt-templater lint step gets a
+# `dbt` CLI without pulling in dcpy-lifecycle's GDAL/geopandas closure. Same lock either way,
+# so no drift risk from declaring it twice.
 dev = [
-    "dbt-postgres",
-    "dbt-duckdb",
     "pytest",
     "pytest-xdist",
     "types-setuptools",
     "types-tqdm",
     "sqlfluff",
+    "sqlfluff-templater-dbt",
+    "mypy",
+    "ruff",
+    "pre-commit",
+    "pytest-cov",
+    "dbt-postgres",
+    "dbt-duckdb",
 ]
