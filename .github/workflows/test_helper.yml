@@ -165,6 +165,20 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
+    - name: Cache mypy incremental state
+      uses: actions/cache@v4
+      with:
+        path: .mypy_cache
+        # Keyed on uv.lock so a dependency/stub bump starts fresh instead of reusing
+        # stale per-module fingerprints; github.sha makes every run save its own updated
+        # copy. The restore-keys fallback lets a PR pick up the most recent matching
+        # cache as a starting point - GitHub Actions caches built on the default branch
+        # (main) are visible to every branch as a fallback - so mypy only re-checks
+        # what actually changed instead of every file every time.
+        key: mypy-${{ hashFiles('uv.lock') }}-${{ github.sha }}
+        restore-keys: |
+          mypy-${{ hashFiles('uv.lock') }}-
+          mypy-
     - uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true
