@@ -1,17 +1,26 @@
+# Deferred annotation evaluation: read_table_gdf()'s return type references geopandas,
+# but the import itself is lazy (inside the functions that use it) so dcpy-utils - "pure,
+# foundational utilities (no GDAL)" per its own pyproject.toml - stays importable without
+# geopandas/GDAL installed unless those specific methods are actually called. The
+# TYPE_CHECKING import below is only for mypy/pyright; it's never evaluated at runtime.
+from __future__ import annotations
+
 import csv
 import os
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-import geopandas as gpd
 import pandas as pd
 import typer
 from psycopg2.extensions import AsIs
 from sqlalchemy import create_engine, dialects, text
 
 from dcpy.utils.logging import logger
+
+if TYPE_CHECKING:
+    import geopandas as gpd
 
 
 class TableType(Enum):
@@ -138,6 +147,8 @@ class PostgresClient:
         conn=None,
         **kwargs,
     ) -> gpd.GeoDataFrame:
+        import geopandas as gpd
+
         if conn is None:
             with self.engine.connect() as conn:
                 return gpd.read_postgis(
@@ -404,6 +415,8 @@ class PostgresClient:
         schema: str | None = None,
         if_exists: Literal["fail", "replace", "append"] = "replace",
     ):
+        import geopandas as gpd
+
         # our custom insert method seems to make this not work properly, so need to manually drop first
         with self.connect() as conn:
             with conn.begin():

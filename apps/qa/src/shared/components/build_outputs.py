@@ -6,7 +6,8 @@ import pandas as pd
 import streamlit as st
 
 from dcpy.connectors.edm.models import ProductKey
-from dcpy.geospatial import geometry, mapping, transform
+from dcpy.geospatial import mapping, transform
+from dcpy.utils import geometry
 from dcpy.utils.formats import Geometry
 from shared.utils.publishing import (
     get_data_directory_url,

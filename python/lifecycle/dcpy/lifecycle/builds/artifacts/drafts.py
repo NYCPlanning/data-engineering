@@ -1,15 +1,25 @@
+# Deferred annotation evaluation: read_shapefile()'s return type references geopandas,
+# but the import itself is lazy (inside the function) so this module - and everything
+# that imports it, including dcpy.lifecycle.builds's own __init__ - stays importable
+# without geopandas/GDAL installed unless read_shapefile() is actually called. The
+# TYPE_CHECKING import below is only for mypy/pyright; it's never evaluated at runtime.
+from __future__ import annotations
+
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
-import geopandas as gpd
 import pandas as pd
 import yaml
 
 from dcpy.lifecycle.builds.connector import get_drafts_default_connector
 from dcpy.lifecycle.builds.models import BuildMetadata
+
+if TYPE_CHECKING:
+    import geopandas as gpd
 
 
 def get_dataset_versions(product: str) -> list[str]:
@@ -304,6 +314,8 @@ def read_shapefile(
     Returns:
         GeoDataFrame containing the shapefile data
     """
+    import geopandas as gpd
+
     connector = get_drafts_default_connector()
     full_version = f"{version}.{revision}"
 
