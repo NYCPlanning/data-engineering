@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # dcpy is a uv workspace (root pyproject.toml + python/*, apps/qa, apps/dagster,
+  # apps/notebook-server) sharing one uv.lock. Dependabot's uv-workspace support is still
+  # rough as of 2026 (see dependabot/dependabot-core#12788, #14004) - it can bump a
+  # constraint without correctly regenerating the lock across the whole workspace. The
+  # companion "Dependabot - regenerate uv.lock" workflow (.github/workflows/dependabot_lock.yml)
+  # re-runs `uv lock` on every Dependabot PR that touches a pyproject.toml, so correctness
+  # doesn't depend on Dependabot's own workspace handling.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
