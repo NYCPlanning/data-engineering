@@ -6,6 +6,9 @@ on:
     paths:
       - admin/run_environment/**
       - pyproject.toml
+      - uv.lock
+      - python/*/pyproject.toml
+      - apps/*/pyproject.toml
   workflow_dispatch:
     inputs:
       base:

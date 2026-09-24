@@ -72,7 +72,7 @@ Currently, roughly 25% of capital projects in Checkbook NYC can be assigned geom
 
 ## Todo
 
-- [ ] make a data product-level requirements doc if needed, and update top-level requirements doc (requirements.in) in monorepo with python modules that are generally applicable to the team's work
+- [ ] make a data product-level requirements doc if needed, and add python modules that are generally applicable to the team's work to the `products` extra in the root `pyproject.toml`
 
 ## Eventually todo
 

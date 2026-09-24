@@ -19,8 +19,9 @@ fi
 # a package root here (there are several: apps/, dcpy/, products/, etc). `uv sync`
 # installs every dcpy-* workspace package editable in one shot instead.
 #
-# The venv is created with access to system site-packages (where dbt, mypy, sqlfluff,
-# and the rest of admin/run_environment/requirements.in already live in this image) -
+# The venv is created with access to system site-packages (where dbt, mypy, sqlfluff, and
+# the rest of the root pyproject.toml's `dev` group and `products` extra already live in
+# this image - see generate_dev_requirements in admin/ops/docker_build_and_publish.sh) -
 # product build scripts commonly need both those AND dcpy in the same process, e.g.
 # products/template/build_scripts/transform.py imports both `dbt` and `dcpy.utils`.
 #
