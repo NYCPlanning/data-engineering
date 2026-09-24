@@ -151,11 +151,34 @@ jobs:
         dbt test --resource-type unit_test
 
   mypy:
+    name: Check python types
+    # mypy's own [[tool.mypy.overrides]] in pyproject.toml already sets
+    # ignore_missing_imports=true for geopandas/osgeo/shapely/pyogrio/etc (no type stubs
+    # available for them anyway), and [tool.mypy] mypy_path lists every python/*/ package
+    # root directly, so mypy resolves our own dcpy.* modules from source without needing
+    # them installed as packages. The only thing actually required is every *other*
+    # third-party dependency (pandas, boto3, pydantic, the various *-stubs packages, etc)
+    # - excluding just the raw `gdal` binding (needed only by dcpy-library, and only
+    # buildable against a matching system libgdal) lets this run on a bare runner instead
+    # of the GDAL-laden nycplanning/dev image. Verified locally: identical "Success: no
+    # issues found" results with gdal excluded from the install.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - name: Install dependencies (everything except the gdal binding)
+      run: |
+        uv export --all-packages --extra products --no-hashes --no-editable \
+          --no-emit-workspace --no-emit-package gdal -o /tmp/mypy_requirements.txt
+        # Not --system: astral-sh/setup-uv's own managed interpreter refuses --system
+        # installs ("externally managed"). Put .venv/bin on PATH instead, same pattern
+        # bash/docker_container_setup.sh uses, so the plain `mypy` below resolves here.
+        uv venv
+        uv pip install -r /tmp/mypy_requirements.txt
+        echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
     # Runs every mypy target (dcpy/test_integration, products/*, admin/ops, and each
     # python/*/ workspace package - the last group needs --namespace-packages
