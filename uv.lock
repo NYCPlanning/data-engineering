@@ -1929,6 +1929,8 @@ products = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "dbt-duckdb" },
+    { name = "dbt-postgres" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -1955,6 +1957,8 @@ provides-extras = ["products"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "dbt-duckdb" },
+    { name = "dbt-postgres" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pytest" },

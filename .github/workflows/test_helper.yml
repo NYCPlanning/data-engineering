@@ -14,23 +14,35 @@ on:
 jobs:
   ruff:
     name: Lint/check formatting of python files
+    # Doesn't need any dcpy code or the GDAL-laden nycplanning/dev image - just ruff itself,
+    # from the root pyproject.toml's `dev` dependency-group - so this runs on a bare runner
+    # with a narrow `uv sync --only-group dev` instead of pulling a multi-GB container.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - run: uv sync --only-group dev
     - name: Lint python files
-      run: ruff check .
+      run: uv run --no-sync ruff check .
     - name: Check format of python files
-      run: ruff format . --check
+      run: uv run --no-sync ruff format . --check
 
   sqlfluff:
     name: Check formatting of sql files
+    # Same reasoning as ruff above: sqlfluff + sqlfluff-templater-dbt + the dbt CLI (for the
+    # green_fast_track dbt-templater step below) all come from the `dev` group - no dcpy code
+    # or GDAL needed, so this runs on a bare runner instead of the nycplanning/dev image.
     runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.13"
+    - run: uv sync --only-group dev
 
     - name: Setup build environment (envars only)
       run: |
@@ -39,16 +51,16 @@ jobs:
     - name: Check sql files in products
       run: |
         # TODO: Gradually expand this to cover more products
-        sqlfluff lint products/cbbr/sql
-        sqlfluff lint products/cpdb/sql/
-        sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
-        sqlfluff lint products/colp/sql
-        sqlfluff lint products/developments/sql/*.sql
-        sqlfluff lint products/developments/sql/qaqc
-        sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
-        sqlfluff lint products/facilities/facdb/sql/
-        sqlfluff lint products/knownprojects/sql --templater=jinja
-        sqlfluff lint products/pluto/pluto_build/sql/
+        uv run --no-sync sqlfluff lint products/cbbr/sql
+        uv run --no-sync sqlfluff lint products/cpdb/sql/
+        uv run --no-sync sqlfluff lint products/cpdb/sql_templates/ --templater=jinja
+        uv run --no-sync sqlfluff lint products/colp/sql
+        uv run --no-sync sqlfluff lint products/developments/sql/*.sql
+        uv run --no-sync sqlfluff lint products/developments/sql/qaqc
+        uv run --no-sync sqlfluff lint products/developments/sql/unit_change_summary --templater=jinja
+        uv run --no-sync sqlfluff lint products/facilities/facdb/sql/
+        uv run --no-sync sqlfluff lint products/knownprojects/sql --templater=jinja
+        uv run --no-sync sqlfluff lint products/pluto/pluto_build/sql/
 
     - name: Check green_fast_track dbt models (DuckDB dialect)
       # A full dbt project (ref()/source()/packages), so this needs --templater=dbt to
@@ -60,8 +72,8 @@ jobs:
         BUILD_ENGINE_SCHEMA: sqlfluff_lint
       run: |
         export DUCKDB_PATH="$RUNNER_TEMP/gft_sqlfluff_lint.duckdb"
-        dbt deps
-        sqlfluff lint models --templater=dbt
+        uv run --no-sync dbt deps
+        uv run --no-sync sqlfluff lint models --templater=dbt
 
   set_dbt_matrix:
     name: Setup dbt tests
@@ -436,27 +448,38 @@ jobs:
   validate_product_metadata:
     if: contains(inputs.path_filter, 'dcpy')
     name: Validate Product Metadata
+    # The actual validation is a plain YAML/metadata check, but it's invoked through
+    # `dcpy lifecycle scripts ...` - and dcpy/__main__.py -> dcpy.lifecycle._cli eagerly
+    # imports every lifecycle stage (including builds, which needs geopandas/GDAL) at CLI
+    # construction time, regardless of subcommand. So this still needs dcpy-lifecycle's full
+    # closure installed - build-geosupport (not the much bigger nycplanning/dev, which also
+    # carries the whole rest of the workspace + products extra + dev tooling) already has
+    # exactly that baked in as system site-packages, so `--package dcpy-lifecycle` here is
+    # a fast top-up (editable-install dcpy-lifecycle + confirm its pins), not a fresh install.
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
+      image: nycplanning/build-geosupport:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install dcpy workspace
-      run: uv sync --all-packages
+    - name: Install dcpy-lifecycle
+      run: ./bash/docker_container_setup.sh --package dcpy-lifecycle
     - name: Validate All Metadata Files
-      run: uv run python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
+      run: uv run --no-sync python -m dcpy lifecycle scripts product_metadata validate_repo product-metadata
       env:
         RECIPES_BUCKET: edm-recipes
         PUBLISHING_BUCKET: edm-publishing
 
   validate_ingest_definitions:
     name: Validate Ingest Definition
+    # Same reasoning as validate_product_metadata above: `dcpy lifecycle ingest ...` still
+    # eagerly imports the whole lifecycle stage tree via dcpy.lifecycle._cli, so this needs
+    # dcpy-lifecycle's full closure - build-geosupport already has it baked in.
     runs-on: ubuntu-22.04
     container:
-      image: nycplanning/dev:${{ inputs.image_tag }}
+      image: nycplanning/build-geosupport:${{ inputs.image_tag }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install dcpy workspace
-      run: uv sync --all-packages
+    - name: Install dcpy-lifecycle
+      run: ./bash/docker_container_setup.sh --package dcpy-lifecycle
     - name: Validate All Templates
-      run: uv run python -m dcpy lifecycle ingest validate_definitions ingest_templates
+      run: uv run --no-sync python -m dcpy lifecycle ingest validate_definitions ingest_templates

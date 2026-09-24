@@ -217,6 +217,12 @@ products = [
 package = false
 
 [dependency-groups]
+# CI/lint/test tooling - kept in one group so a narrow `uv sync --only-group dev` (no
+# --all-packages, no products extra) is enough for jobs that only need these tools, not
+# dcpy code. dbt-postgres/dbt-duckdb are also a real dependency of dcpy-lifecycle (it shells
+# out to `dbt` at runtime) - listed here too so the sqlfluff dbt-templater lint step gets a
+# `dbt` CLI without pulling in dcpy-lifecycle's GDAL/geopandas closure. Same lock either way,
+# so no drift risk from declaring it twice.
 dev = [
     "pytest",
     "pytest-xdist",
@@ -228,4 +234,6 @@ dev = [
     "ruff",
     "pre-commit",
     "pytest-cov",
+    "dbt-postgres",
+    "dbt-duckdb",
 ]
