@@ -176,7 +176,10 @@ jobs:
 
   qa-streamlit:
     runs-on: ubuntu-22.04
-    needs: [base]
+    # apps/qa/Dockerfile builds FROM nycplanning/build-geosupport (needs dcpy-lifecycle's
+    # full closure), not build-base - must wait for that job too, or this can pull a
+    # stale build-geosupport:latest that hasn't picked up this same push's changes yet.
+    needs: [base, build-geosupport]
     if: inputs.qa-streamlit || github.event_name == 'push'
     defaults:
       run:
