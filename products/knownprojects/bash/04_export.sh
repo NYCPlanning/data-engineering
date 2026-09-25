@@ -12,7 +12,9 @@ mkdir -p output
     mkdir -p review
     (
         cd review
-        shp_export combined MULTIPOLYGON
+        # shapefiles have no list type, and GDAL 3.13+ fails rather than
+        # dropping the record_id_input array column
+        shp_export combined MULTIPOLYGON -mapFieldType StringList=String
         shp_export review_project MULTIPOLYGON
         shp_export review_dob MULTIPOLYGON
 
