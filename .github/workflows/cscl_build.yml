@@ -68,12 +68,13 @@ jobs:
 
     # - name: Load LDF inputs from the legacy pipeline
     #   # The LDF diffs this release against the one before it, and its QA models compare
-    #   # the result against prod's own LDF. Neither is in edm-recipes, so both come from
-    #   # the legacy pipeline's outputs. Remove alongside the rest of production_outputs
-    #   # once the pipeline is operationalized.
+    #   # the result against prod's own LDF. The previous release's citywide LION and LDF
+    #   # header both come in as normal recipe sources now
+    #   # (dcp_cscl_temp_mock_previous_release), loaded by the Dataloading step above -
+    #   # only this release's own prod LDF still comes from the legacy pipeline's outputs
+    #   # this way. Remove alongside the rest of production_outputs once the pipeline is
+    #   # operationalized.
     #   run: |
-    #     python3 poc_validation/prod_data_loader.py load_previous_lion
-    #     python3 poc_validation/prod_data_loader.py load_previous_ldf_header
     #     python3 poc_validation/prod_data_loader.py load_prod_ldf
 
     - name: Build
@@ -81,10 +82,8 @@ jobs:
         dbt deps
         dbt debug
 
-        ldf_vars="$(python3 scripts/ldf_vars.py)"
-
         echo "Run full dbt build"
-        dbt build --full-refresh --vars "$ldf_vars"
+        dbt build --full-refresh
 
     - name: Export
       run: dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml

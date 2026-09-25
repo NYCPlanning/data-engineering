@@ -127,6 +127,14 @@ SELECT
             status = 'modified'
             AND _lion_key = '527570358043'
             THEN 'Bug 007 #3: corrupt centerline geometry (2*pi() artifact)'
+        -- Bug 016: prod's real, byte-verified BronxLION.dat has coincident_seg_count = 0 for
+        -- this segment, which the ETL spec explicitly forbids (its own documented floor for
+        -- "no coincidences" is '1', never '0') - our 1 is spec-correct, prod's 0 is the bug.
+        -- See: docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md
+        WHEN
+            status = 'modified'
+            AND _lion_key = '211480359093'
+            THEN 'Bug 016: prod coincident_seg_count = 0'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -191,6 +199,10 @@ SELECT
             -- data, reported to GR. See:
             -- docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md #3
             OR _lion_key = '527570358043'
+            -- Bug 016: prod's coincident_seg_count = 0 for this segment, which the spec
+            -- forbids (documented floor is '1', never '0') - one specific record only.
+            -- See: docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md
+            OR _lion_key = '211480359093'
         ),
         FALSE
     ) AS accounted_for

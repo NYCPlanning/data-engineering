@@ -45,6 +45,15 @@ SELECT
             status = 'modified'
             AND _saf_key = any(ARRAY['416070284412']::text[])
             THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
+        -- CSCL-SAF-01: prod's lgc1 = '01' where current dcp_cscl_segment_lgc source no longer
+        -- supports that classification (stale prod, not a stale load - reload-verified 26c).
+        -- See: data_issues.md CSCL-SAF-01
+        WHEN
+            status = 'modified'
+            AND change_keys <@ ARRAY['lgc1', 'lgc2', 'lgc3']::text[]
+            AND 'lgc1' = any(change_keys)
+            AND changes -> 'lgc1' ->> 'old' = '01'
+            THEN 'CSCL-SAF-01: stale prod lgc1'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND array_length(change_keys, 1) = 1
             THEN change_keys[1]
@@ -62,4 +71,8 @@ SELECT
         AND _saf_key = any(ARRAY['416070284412']::text[]),
         FALSE
     ) AS accounted_for
+    -- NOTE: CSCL-SAF-01's lgc1='01' pattern is categorized above (diff_group) but deliberately
+    -- NOT marked accounted_for - traced to a plausible stale-source-snapshot explanation but not
+    -- GR-confirmed. Same convention as qa__diffs_exception.sql/qa__diffs_enders.sql/
+    -- qa__diffs_snd.sql for the sibling Bug 010 pattern. See: data_issues.md CSCL-SAF-01
 FROM categorized

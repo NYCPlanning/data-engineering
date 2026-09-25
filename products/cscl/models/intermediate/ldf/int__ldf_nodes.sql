@@ -17,13 +17,13 @@ WITH previous_nodes AS (
         from_nodeid AS nodeid,
         from_x AS x_coord,
         from_y AS y_coord
-    FROM {{ source('production_outputs', 'previous_citywide_lion_dat') }}
+    FROM {{ source('recipe_sources', 'previous_citywide_lion') }}
     UNION
     SELECT
         to_nodeid,
         to_x,
         to_y
-    FROM {{ source('production_outputs', 'previous_citywide_lion_dat') }}
+    FROM {{ source('recipe_sources', 'previous_citywide_lion') }}
 ),
 
 current_nodes AS (

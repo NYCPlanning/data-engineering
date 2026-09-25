@@ -43,6 +43,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
+| [CSCL-LION-14](#cscl-lion-14) | LION | `coincident_seg_count` = 0 in prod for one Bronx centerline segment, forbidden by spec | Accepted | 26c |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-DISTRICTS-03](#cscl-districts-03) | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c |
@@ -50,7 +51,11 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LDF-02](#cscl-ldf-02) | LDF | `L` and `R` journal record types never published | Open | 26b |
 | [CSCL-LDF-03](#cscl-ldf-03) | LDF | Cumulative record number is transcribed, not chained | Open | 26b |
 | [CSCL-LDF-04](#cscl-ldf-04) | LDF | One LION record carries `-1` as GENERICID | Open | 26b |
-| [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load | Open | 26c |
+| [CSCL-SAF-01](#cscl-saf-01) | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load; `saf_abcegnpx_*` row-count gaps are the same pattern, not SAF-replicant scope | Open | 26c |
+| [CSCL-THINED-01](#cscl-thined-01) | ThinED | Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source | Watch | 26c |
+| [CSCL-THINED-02](#cscl-thined-02) | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c |
+| [CSCL-THINLION-01](#cscl-thinlion-01) | ThinLION | `nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed) | Accepted | 26c |
+| [CSCL-THINFIRE-01](#cscl-thinfire-01) | ThinFire | Borough field picked an arbitrary AtomicPolygon instead of a spatial match - fixed, 12 companies | Accepted | 26c |
 
 ---
 
@@ -453,6 +458,25 @@ the fix) and distinct-value counts are close (11,159 dev vs 11,190 prod - the sm
 gap is consistent with the existing `Join_ID`/facecode coverage gap, CSCL-LION-09, not a new
 problem). `SAFStreetName` correctly still shows up flagged as `KNOWN: unimplemented`.
 
+### CSCL-LION-14
+
+**`coincident_seg_count` = 0 in prod for one Bronx centerline segment, forbidden by spec** ·
+Accepted · Last verified 26c
+
+Segment 359093 (`_lion_key 211480359093`): our output is `1`, prod's real, byte-verified
+`BronxLION.dat` has `0`. The ETL spec is explicit that `0` should never appear here - "If there
+are no segments coincident with the one being written out, the ETL tool will populate its L57
+field with the value '1'." Our `1` is exactly that documented floor; prod's `0` isn't a value
+the spec sanctions anywhere. Confirmed directly against the raw delivered file (position 188 of
+the actual line), not just the loaded comparison table, to rule out a loading artifact. See
+[docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md](./docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md).
+Different mechanism from `CSCL-LION-06` (that one was non-centerline/rail-subway feature-type
+merging; this is a centerline segment's own source `COINCIDENT_SEG_COUNT` attribute, passed
+through unmodified, with prod apparently publishing something spec forbids).
+
+**What would settle it:** report to GR - not fixable on our side since our value is already
+correct per spec.
+
 ## District gdb
 
 ### CSCL-DISTRICTS-01
@@ -665,6 +689,55 @@ two NTA models so far). Worth auditing each for whether its own source geometry 
 its borough/jurisdiction the same way `stg__neighborhood` does before deciding whether to extend
 the borough-bound pattern to them too.
 
+**Audited 2026-09-21 - `nycc`, `nyfd`, `nypuma2010`, `nypuma2020`.** Compared each layer's
+per-row `SHAPE_Length`/`SHAPE_Area` directly against prod's real district gdb (downloaded from
+`edm-private/cscl_etl/26c/v26C_Districts.gdb.zip`, matched on each layer's declared key). All
+four show exactly this issue's signature - `SHAPE_Area` within noise while `SHAPE_Length` is
+inflated on a subset of rows - concentrated on Queens' most complex/marshy coastline:
+
+- `nycc`: 35/51 districts differ at all; worst is CD31 (+5.67%, 20,842 ft) and CD19 (+1.48%),
+  both Queens waterfront districts (Rockaway/Jamaica Bay, Whitestone/Little Neck Bay). CD8 - the
+  one council district that genuinely spans two boroughs (East Harlem/Manhattan and Mott
+  Haven/Bronx, connected across the Harlem River - confirmed real, not a data error) - is *not*
+  a source of error: its `SHAPE_Length` matches prod to 0.0002%.
+- `nyfd`: 9/9 divisions differ; worst is FireDiv 13 (+2.04%, 13,985 ft) - also the only row with
+  an area delta above noise (-0.118%, vs <0.005% on the other 8), suggesting something beyond a
+  pure hairline-seam issue. FireDiv 13 is ~99.9% Queens (a sliver of Brooklyn) - same coastline
+  profile as `nycc`'s worst offenders.
+- `nypuma2010`/`nypuma2020`: every row differs, up to 13.6% (`nypuma2020` PUMA 4403). Worst
+  offender both editions is PUMA 4105 (Rockaway peninsula/Jamaica Bay) - the same PUMA already
+  flagged as `CSCL-DISTRICTS-01`'s worst ring-count case, so this is evidently a second, distinct
+  issue on the same especially complex piece of coastline.
+
+**Ruled out for all four: the `nynta`-style borough-bound fix (mechanism 2).** Checked whether
+any of these layers' raw source geometry extends past its own assigned borough the way
+`stg__neighborhood`'s did (QN99/Perth Amboy, SI12/NJ state line) - none of the *problem* rows do
+(CD31/19/32, FireDiv 13, PUMA 4105 are all >99.9% inside a single borough). So the residual here
+isn't a jurisdictional-edge coverage void; these layers already get mechanism 1's hairline-seam
+closing for free via the shared `int__water_mask.sql` macro, and it evidently isn't sufficient on
+Queens' more convoluted marsh/bay coastline (many more, smaller AtomicPolygon seams per mile of
+district boundary than the NTA cases that motivated the 0.01 ft buffer). Extending the
+borough-bound pattern to these layers would add code with no expected effect - don't.
+
+**New, unrelated finding while checking `nypuma`'s borough containment:** one of
+`dcp_cscl_censustract2010`'s source tracts feeding PUMA 4101's dissolve carries `BoroCode=5`
+(Staten Island) and contributes 864M sq ft - roughly a third of the dissolved PUMA's raw area -
+to a PUMA that is otherwise 60/62 tracts of Queens (`BoroCode=4`); a second tract is mislabeled
+`BoroCode=3` (Brooklyn). Both are almost certainly open-water Census tracts (this stretch is the
+Rockaway Inlet/lower Jamaica Bay, between Queens and Staten Island) that get clipped away by
+`clipped_geom`'s water subtraction regardless, so they likely don't explain the `SHAPE_Length`
+gap above - PUMA 4101 itself isn't among the worst-affected rows (+0.95%). Flagging since it's
+the same shape of source-data mislabeling as QN99's Perth Amboy polygon, just apparently
+inconsequential here.
+
+**Still not done:** the actual coastline-seam-gap fix for these Queens-heavy layers - likely
+needs sampling actual gap sizes along CD31/FireDiv13/PUMA4105's boundaries the way SI12's
+~0.0001-0.0002 ft gaps were measured for `CSCL-DISTRICTS-01`, to see whether a larger (but still
+safe - see the MN24 regression note above) closing buffer would close them, or whether it's a
+structurally different gap (e.g. real multi-hundred-foot voids between Jamaica Bay's marsh
+islands) that no single buffer size can close. FireDiv 13's above-noise area delta specifically
+deserves its own look before assuming it's the same mechanism as the others.
+
 ## LDF
 
 ### CSCL-LDF-01
@@ -755,7 +828,7 @@ something we should tolerate silently.
 ### CSCL-SAF-01
 
 **`lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load** ·
-Open · Last verified 26c
+Open, pending GR confirmation · Last verified 26c
 
 `saf_s_generic`/`saf_s_roadbed`'s unaccounted `modified` rows are dominated by one pattern:
 prod's `lgc1 = '01'`, dev showing a specific code (`03`/`04`/`05`/`10`/`11`/`14`) that prod
@@ -776,21 +849,188 @@ output not fully regenerated from current source each cycle - now confirmed in a
 output family. Not yet folded into that doc's scope explicitly; tracked separately here since
 the source table (`dcp_cscl_segment_lgc`) differs from the FEATURENAME-derived ones.
 
-Two smaller, distinct anomalies on the same two files, not yet root-caused:
+**Categorized, but deliberately NOT marked `accounted_for` (2026-09-22):** `qa__diffs_saf_s_generic.sql`/
+`qa__diffs_saf_s_roadbed.sql` had no `diff_group`/`accounted_for` logic for this pattern at all
+despite being root-caused above. Added a `diff_group` rule (keyed on `change_keys <@ {lgc1, lgc2,
+lgc3}` and `lgc1`'s old value `= '01'`; lgc2/lgc3 legitimately co-change from blank to a real code
+alongside lgc1 in several rows) so these 9-per-file rows are labeled for triage - re-verified
+against a fresh build, exactly 9 rows in each file match, identical to the figures above. Left
+`accounted_for = false`: this is a plausible, traced explanation, not a GR confirmation, and per
+this project's own convention for the sibling Bug 010 pattern (`qa__diffs_exception.sql`/
+`qa__diffs_enders.sql`/`qa__diffs_snd.sql` all leave `accounted_for` false for understood-but-
+unconfirmed staleness), a traced-but-unconfirmed prod-staleness story shouldn't hide the diff from
+QA rollups.
+
+Beyond the `lgc1` pattern above, three smaller, distinct anomalies show up in these two files'
+remaining diffs, not yet root-caused even provisionally:
 - One segment (`27080026604206151R.../268020`) has 3 SAF sub-records whose keys don't align
   between dev and prod (`only_in_legacy`/`only_in_build`, 3 each, identical in both
   `saf_s_generic` and `saf_s_roadbed`) - the key embeds `segment_seqnum`, and dev's values for
   this segment's multiple sub-records look offset from prod's, not missing outright.
-- Two rows (`43500017073100790R`, both roadbed sides) have dev's `place_name` blank where
-  prod has `NORTH BOUNDARY ROAD`.
+- Two rows (`43500017073100790R`, both sides) have dev's `place_name` blank where prod has
+  `NORTH BOUNDARY ROAD` - **`saf_s_generic` only** (corrected from an earlier note attributing
+  this to roadbed).
+- `saf_s_roadbed` only, 2 more rows with LGC-field changes that don't fit the `lgc1='01'`
+  pattern above and aren't yet explained: segment `0135273` has `lgc2` alone go from blank to
+  `03` (both sides, `lgc1` unchanged); segment `0289932` has `lgc2`/`lgc3` swap values (`04`/`02`
+  → `02`/`04`, both sides) with no `lgc1` change at all.
 
 `saf_i`, `saf_d_generic`, `saf_d_roadbed`, `saf_ov_generic`, and `saf_ov_roadbed` show zero
 diffs against the fresh 26c reload - confirms the reload itself was not the problem for those
-files specifically. `saf_abcegnpx_generic`/`saf_abcegnpx_roadbed` retain a handful (3-7) of
-row-count-only mismatches, not yet traced but consistent in scale with the already-open,
-unimplemented SAF-replicant scope (see `docs/ETL_V8_02012024.md`, "Segment Replication for SAF
-Data").
+files specifically.
+
+**`saf_abcegnpx_generic`/`saf_abcegnpx_roadbed`'s row-count gaps traced (2026-09-22), not
+GR-confirmed - and not one mechanism.** The earlier note here speculated these 3-7
+row-presence-only mismatches were "consistent in scale with the already-open, unimplemented
+SAF-replicant scope" - retracted, but the replacement explanation isn't a single clean story
+either. All 7 `saf_abcegnpx_generic` gap rows were traced to specific source records
+(`dcp_cscl_commonplace_gdb`/`dcp_cscl_altsegmentdata`, using their `created_date`/`modified_date`
+audit columns as evidence): **6 of 7** show dev with a CommonPlace-sourced sub-record prod's SAF
+lacks (same stale-source-snapshot shape as the LGC finding above), but **1 of 7** (`9017010`,
+originally thought to run the opposite direction) turned out not to be staleness at all - it
+traces to a single `dcp_cscl_altsegmentdata` row (1 of 8,043 citywide) with a blank
+`ALT_SEGDATA_TYPE`, which our filter correctly excludes per spec Table 13 (only `B`/`C`/`R`/`S`
+are valid, `S` = SAF entry). See
+[Bug 017](./docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md) for the full trace and
+the audit-column evidence. Not marked `accounted_for` on any of these 7 rows - traced but
+unconfirmed, same convention as the LGC pattern above.
 
 **What would settle it:** ask GR whether `saf_s_*`'s LGC values are regenerated from CSCL's
 current `Segment_LGC` table each release or carried forward, using segmentid 136981 as a
-concrete example (current source has no LGC `01` for it at all).
+concrete example (current source has no LGC `01` for it at all). Same question, same mechanism,
+for `saf_abcegnpx_*`'s 6 CommonPlace-sourced rows - ask whether SAF is re-extracted from
+`CommonPlace` fresh each release, using the `9014017`/`0080484`/`0277830`/`0175232`/`0343566`
+`globalid`s and their `created_date`/`modified_date` in `dcp_cscl_commonplace_gdb` as concrete
+evidence (see Bug 017). The 7th row (`9017010`) is a separate, narrower question: whether the one
+`dcp_cscl_altsegmentdata` row with a blank `ALT_SEGDATA_TYPE` was ever validly `S`-typed.
+
+## ThinED
+
+### CSCL-THINED-01
+
+**Redistricted-field mismatch (`docs/prod_bugs/009`) - resolved by GR's corrected 26c source** ·
+Watch · Last verified 26c
+
+`docs/prod_bugs/009-thined-redistricted-field-mismatch.md` documented real mismatches in the
+four fields tied to offices redistricted since the last cycle (`congress_district`,
+`state_sen_district`, `muni_court_district`, `city_council_district`), hypothesized as a
+source-vintage skew between whatever `ElectionDistrict` snapshot our 26c archive held and
+whatever prod's separate legacy pipeline used to generate its own `thined.txt`. GR sent a
+corrected `thined.txt` for 26c; comparing our (unchanged) output against it directly
+(`assembly_district + election_district` keyed, as bug 009 established) shows **zero** field-level
+mismatches across all 4285 rows - full multiset match, confirmed with `sort`/`comm` (the same
+method `validate_outputs.sh` uses) as well as a keyed per-row check. The hypothesis in bug 009
+is the likely explanation: our source data was fine, prod's `thined.txt` snapshot just wasn't
+freshly-vintaged. No code change needed here - see `CSCL-THINED-02` for the one remaining,
+purely structural gap this same comparison surfaced.
+
+**What would settle it:** nothing further needed on our side; watch for recurrence next cycle if
+GR's `thined.txt` and `ElectionDistrict` snapshots drift out of sync again.
+
+### CSCL-THINED-02
+
+**`thined.txt` missing prod's 3-line file header** · Fixed · Last verified 26c
+
+Once `CSCL-THINED-01`'s real data mismatch was resolved, `validate_outputs.sh` still reported 3
+discrepant rows for `thined.txt`. Root cause: prod's real `thined.txt` carries a 3-line,
+14-byte-wide file header *before* the data records - our build emitted only the 4285 data rows,
+no header. `comm -13` (prod-only) on the sorted raw files showed exactly the 3 header lines;
+`comm -23` (dev-only) was empty, consistent with `CSCL-THINED-01`'s finding that the data itself
+is a perfect match.
+
+The header isn't documented in `design_doc.md`/`docs/ETL_V8_02012024.md`, and isn't produced by
+the legacy ETL tool archived in `cscl_etl_archive` - `etl_docs.MD` states explicitly "The ETL
+tool produces two types of district equivalency files: ThinLION and ThinFire," with no ThinED
+extractor class anywhere in that archive. `thined.txt`, like the LDF, is evidently built by a
+separate legacy tool we don't have source for.
+
+Header record layout (each line 14 bytes, same width as a data record):
+
+| Line | Content | Meaning |
+|---|---|---|
+| `0000THIN260309` | record type `0000` + `THIN260309` | Unknown exact meaning; the trailing 6 digits parse as a plausible `YYMMDD` (2026-03-09), but nothing in this codebase or the legacy archive confirms that reading or what date it should represent. |
+| `000126A1      ` | record type `0001` + `26A1` + 6 spaces | Unknown exact meaning; looks like an edition/version tag, but `26A1` doesn't correspond to this build's own `26c` version - plausibly a stale/frozen tag prod's tool carries forward without updating each cycle, in the same spirit as the frozen 2009-batch district gdb layers (`docs/prod_bugs/013`), though unconfirmed. |
+| `000200004288  ` | record type `0002` + record count `00004288` + 2 spaces | **Understood and computed.** Self-referential: counts every line in the file, header included (3 + 4285 = 4288) - the same "record count includes header record" convention `design_doc.md` documents explicitly for the LDF header (`LDFH6`). |
+
+**Fixed for 26c** in `models/product/thined/thined_dat.sql`: prepends a `header` CTE ahead of
+the data rows. The record-count line (`0002`) is computed from the real row count, since we
+understand its rule precisely. The other two lines' payloads (`thined_file_tag`, `thined_version`)
+live in `seeds/config.csv` (see `macros/config_value.sql`) rather than being literals in the SQL -
+not derived from any understood formula, since we have no source confirming what (if anything)
+should change about them release to release, but at least editable in one obvious place instead
+of a SQL string. Verified against 26c's real prod `thined.txt`: zero dev-only, zero prod-only
+rows.
+
+**Deliberately not attempted:** reverse-engineering an update rule for `thined_file_tag`/
+`thined_version` well enough to compute them for a future release. Given neither this codebase
+nor the available legacy source explains their real semantics, guessing a formula risks
+encoding coincidence as fact - the same trap `CSCL-LDF-01` warns against for tuning to match a
+small sample. The `seeds/config.csv` values will silently go stale (byte-mismatch reappearing as
+this same 3 discrepant-row pattern) the moment either value legitimately changes upstream - see
+that seed's per-row description for the same caveat, and the "Follow up with GS" note above.
+
+**What would settle it:** ask GR what `thined.txt`'s file header actually encodes, and whether
+`26A1`/`THIN260309` are expected to change release to release or are effectively frozen
+constants from whatever tool originally generated this format. **Follow up with GS** - since
+neither `design_doc.md`/`docs/ETL_V8_02012024.md` nor `cscl_etl_archive` document this format,
+Geosupport (the actual consumer of this file) may know what it's for even if GR doesn't.
+
+## ThinLION
+
+### CSCL-THINLION-01
+
+**`nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed)** · Accepted ·
+Last verified 26c
+
+`qa__diffs_thinlion_summary` reported one `thinlion_all` row as `only_in_legacy` with a garbage
+key (`\x1A000000`) and every field blank - not a real record. Prod's real delivered
+`nyc.thinlion` ends in a trailing DOS-era Ctrl-Z (`0x1A`) EOF marker byte with no newline after
+it; `prod_data_loader.py`'s line-based `parse_file` read that stray byte as one more row.
+Confirmed at the byte level against the raw file (`xxd` tail: `0d 0a 1a`) and swept every other
+file in the delivery - only `nyc.thinlion` has this. Fixed by skipping empty/marker-only lines
+before field slicing. See
+[docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md](./docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md).
+
+## ThinFire
+
+### CSCL-THINFIRE-01
+
+**Borough field picked an arbitrary AtomicPolygon instead of a spatial match (fixed)** ·
+Accepted · Last verified 26c
+
+12 fire companies (`E068`, `L052`, `E202`, `E205`, `E221`, `E224`, `L106`, `L118`, `E262`,
+`L115`, `E266`, `L173`) appeared in the wrong borough's ThinFire file. `thinfire_by_field_
+unformatted.sql`'s `TF5`/Borough logic picked whichever AtomicPolygon tagged with a company's
+code happened to have the lowest `atomicid` - meaningless for any company whose territory spans
+an AtomicPolygon in more than one borough, which is completely normal (rivers, bridges,
+boundary streets). 10 of the 12 landed in Manhattan regardless of the company's real borough -
+not a Manhattan-specific mechanism, just that Manhattan's AtomicPolygons happen to have lower
+IDs, so any company touching it at all got biased there.
+
+`docs/ETL_V8_02012024.md` Table 25 Note 1 explicitly authorizes this - "Populate TF5 with the
+BOROUGH attribute of any of the matching AP's" - as an ESRI-desktop-era performance shortcut
+for a spatial method (company centroid, point-in-polygon against boroughs) the spec itself
+describes as the "proper" approach. Not a deviation from spec; the spec's own arbitrary choice
+just doesn't have to agree with ours.
+
+**Fixed:** replaced the AtomicPolygon lookup with the spec's own preferred method - company
+centroid (falling back to `ST_PointOnSurface`) point-in-polygon against `stg__borough`, the same
+pattern already used for police precinct/sector/patrol-borough assignment
+([Bug 002](./docs/prod_bugs/002-police-geo-centroid-mismatch.md)). Verified before
+applying: AtomicPolygon count-majority, AtomicPolygon area-majority, and the spatial method all
+independently agreed on the correct borough for all 12 known-mismatched companies *and* the 3
+already-hardcoded special cases (`E-81`, `E-260`, `E-263`) - the spatial method was chosen for
+consistency with the existing police-geography pattern. Full company-roster regression check:
+exactly those 12 companies change, zero others. `qa__diffs_thinfire_{bronx,brooklyn,manhattan,
+queens,statenisland}` all return 0 rows after the fix. See
+[docs/prod_bugs/014-thinfire-borough-arbitrary-atomicpolygon-pick.md](./docs/prod_bugs/014-thinfire-borough-arbitrary-atomicpolygon-pick.md).
+
+**Related, separate finding:** prod's ThinFire delivery is byte-identical to the 26b snapshot
+across all 5 boroughs (confirmed via content hash) - GR's legacy pipeline doesn't regenerate
+this file family each cycle, the same pattern as `Enders.txt`/`Exception.txt`/`SND.txt`
+(`docs/prod_bugs/010`) and the frozen district gdb layers (`docs/prod_bugs/013`). Doesn't affect
+this fix (verified against prod's actual, if stale, values) but ThinFire should be re-checked
+whenever prod's delivery is eventually refreshed.
+
+**What would settle it:** nothing further needed for the fix itself. Worth reporting the frozen
+ThinFire delivery to GR alongside the other stale-regeneration findings.

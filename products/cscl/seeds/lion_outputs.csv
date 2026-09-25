@@ -8,27 +8,27 @@ flat_files,Census,Census,file,CDTA2020.txt,cdta2020_dat,false,true,,,done,Matche
 flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,false,false,,,n/a,"Build log, not compared to prod",
 flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,false,false,,,n/a,"Build log, not compared to prod",
 flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,false,false,,,n/a,"Build log, not compared to prod",
-flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,true,true,,,Needs Investigation,,
-flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,true,true,,,Needs Investigation,,
-flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,true,true,,,Needs Investigation,,
-flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,true,true,,,Needs Investigation,,
+flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
+flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
+flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
+flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
 flat_files,District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,true,true,,,done,Matches prod exactly,
-flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,true,true,,,done,,""
 flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,true,true,,,GR Review,Small residual diffs under review with GR,
 flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,blocked,"Redistricted-field mismatch, no fix identified yet",See docs/prod_bugs/009-thined-redistricted-field-mismatch.md
+flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,done,"","Small todo: Follow up with GS about header vars. Bigger todo: plan a better approach with them."
 flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,ManhattanFace.txt,manhattan_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,QueensFace.txt,queens_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,StatenIslandFace.txt,staten_island_face_code,false,true,,,done,Matches prod exactly,
 flat_files,LION Difference Files,LION Difference Files,file,LDF.dat,ldf_dat,true,true,,,blocked,Rethinking our approach; pending GR/Steve discussion,"CSCL-LDF-01: our lineage-graph approximation of the transitory-elimination rule disagrees with prod on which intermediate segment/node records survive. Documented as ~3% as of 26b; measuring ~8% on 26c (may be drift, not the same gap - worth rechecking). Needs both an internal rework of our approach and a discussion with GR and Steve before proceeding."
-flat_files,LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,true,true,,,blocked,Rethinking our approach; pending GR/Steve discussion,"Not an independent diff - the header's own record_count field is body records + 1, so it inherits ldf_dat's CSCL-LDF-01 residual exactly (dev/prod header record_count differed by 25 on 2026-09-15, matching qa__ldf_summary's dev/prod body-record gap that same run). Resolves whenever CSCL-LDF-01 does - see the ldf_dat row."
+flat_files,LION Difference Files,LION Difference Files,file,LDF.header,ldf_header,true,true,,,done,,"See thined. Same TODOs apply."
 flat_files,LION Difference Files,LION Difference Files,file,original_LDF.dat,ldf_dat_original,true,false,,,n/a,"Input artifact only, not compared to prod",
-flat_files,LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,true,true,,,Needs Investigation,"1 residual row out of 35,136, not yet identified","discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - see lion_dat_brooklyn/manhattan/queens/statenisland for the counting-convention explanation. 1 row (out of 35,136) remains genuinely unaccounted for."
+flat_files,LION flat files,LION flat files,file,BronxLION.dat,lion_dat_bronx,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - see lion_dat_brooklyn/manhattan/queens/statenisland for the counting-convention explanation. The 1 previously-unaccounted row (segmentid 359093, coincident_seg_count) is CSCL-LION-14 - see data_issues.md."
 flat_files,LION flat files,LION flat files,file,BrooklynLION.dat,lion_dat_brooklyn,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
 flat_files,LION flat files,LION flat files,file,ManhattanLION.dat,lion_dat_manhattan,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
 flat_files,LION flat files,LION flat files,file,QueensLION.dat,lion_dat_queens,true,true,,,done,Matches prod exactly,"discrepant_rows_from_file_comparison is ~2x accounted_for_discrepant_rows - the line-level file-diff tool counts both sides of a changed line (old + new) while the field-level QA model counts one row per diff. A counting-convention difference, not a real gap - 0 unaccounted rows once backed out."
@@ -40,14 +40,14 @@ flat_files,Normalizing Tables,Word Tables,file,Universal.txt,universal_word,true
 flat_files,OTHER,Logs,file,log.csv,log,false,false,,,n/a,"Build log, not compared to prod",
 flat_files,RPL,RPL,file,RPL.txt,rpl,true,true,,,done,Matches prod exactly,
 flat_files,SAF,SAF,file,Intersection.txt,saf_i,true,true,,,done,Matches prod exactly,
-flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,SAF,SAF,file,RoadbedABCEGNPX.txt,saf_abcegnpx_roadbed,true,true,,,blocked,Small row-count gaps - traced (2 mechanisms) but not GR-confirmed,See docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md
 flat_files,SAF,SAF,file,RoadbedD.txt,saf_d_roadbed,true,true,,,done,Matches prod exactly,
 flat_files,SAF,SAF,file,RoadbedOV.txt,saf_ov_roadbed,true,true,,,done,Matches prod exactly,
-flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,true,true,,,blocked,Stale LGC assignments in prod,See data_issues.md CSCL-SAF-01
-flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,SAF,SAF,file,RoadbedS.txt,saf_s_roadbed,true,true,,,blocked,Stale LGC assignments in prod - traced but not GR-confirmed,See data_issues.md CSCL-SAF-01
+flat_files,SAF,SAF,file,GenericABCEGNPX.txt,saf_abcegnpx_generic,true,true,,,blocked,Small row-count gaps - traced (2 mechanisms) but not GR-confirmed,See docs/prod_bugs/017-saf-abcegnpx-stale-prod-source-snapshot.md
 flat_files,SAF,SAF,file,GenericD.txt,saf_d_generic,true,true,,,done,Matches prod exactly,
 flat_files,SAF,SAF,file,GenericOV.txt,saf_ov_generic,true,true,,,done,Matches prod exactly,
-flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,true,true,,,blocked,Stale LGC assignments in prod,See data_issues.md CSCL-SAF-01
+flat_files,SAF,SAF,file,GenericS.txt,saf_s_generic,true,true,,,blocked,Stale LGC assignments in prod - traced but not GR-confirmed,See data_issues.md CSCL-SAF-01
 flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,true,true,,,done,Matches prod exactly,
 flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,,done,Matches prod exactly (both sides empty this quarter),
 flat_files,SND,SND,file,SND.txt,snd,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
@@ -65,7 +65,7 @@ district_gdb,gdb,District gdb,layer,nycb2010,gdb_nycb2010,true,true,BCTCB2010,20
 district_gdb,gdb,District gdb,layer,nycb2010wi,gdb_nycb2010wi,true,true,BCTCB2010,"2010 Census Blocks, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
 district_gdb,gdb,District gdb,layer,nycb2020,gdb_nycb2020,true,true,BCTCB2020,2020 Census Blocks clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nycb2020wi,gdb_nycb2020wi,true,true,BCTCB2020,"2020 Census Blocks, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
-district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,true,true,CounDist,City Council Districts,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nycc,gdb_nycc,true,true,CounDist,City Council Districts,open,"Shoreline-clip SHAPE_Length noise, worst on Queens coastline","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21: not a borough-bound (mechanism 2) issue like nynta - CD8's real cross-borough span isn't the cause either; residual is unclosed coastline seams on Queens' most complex shoreline (CD31/19/32)."
 district_gdb,gdb,District gdb,layer,nyccwi,gdb_nyccwi,true,true,CounDist,"City Council Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
 district_gdb,gdb,District gdb,layer,nycd,gdb_nycd,true,true,BoroCD,Community Districts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nycdta2020,gdb_nycdta2020,true,true,CDTA2020,Community District Tabulation Areas 2020,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
@@ -80,7 +80,7 @@ district_gdb,gdb,District gdb,layer,nyed,gdb_nyed,true,true,ElectDist,Election D
 district_gdb,gdb,District gdb,layer,nyedwi,gdb_nyedwi,true,true,ElectDist,"Election Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",
 district_gdb,gdb,District gdb,layer,nyfb,gdb_nyfb,true,true,FireBN,Fire Battalions,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nyfc,gdb_nyfc,true,true,FireCoType|FireCoNum,Fire Companies,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
-district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,true,true,FireDiv,Fire Divisions,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nyfd,gdb_nyfd,true,true,FireDiv,Fire Divisions,open,"Shoreline-clip SHAPE_Length noise; FireDiv 13 also has an above-noise area delta","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21: same Queens-coastline seam-gap pattern as nycc/nypuma; FireDiv 13's -0.118% area delta (vs <0.005% on other divisions) may be a distinct, second mechanism - not yet isolated."
 district_gdb,gdb,District gdb,layer,nyha,gdb_nyha,true,true,BoroCode|HealthArea,Health Areas clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nyhc,gdb_nyhc,true,true,HCentDist,Health Center Districts clipped to shoreline,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nyhd,gdb_nyhd,true,true,NAME,Historic Districts,blocked,Layer frozen in prod since 2009,Layer frozen since 2009 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md
@@ -91,8 +91,8 @@ district_gdb,gdb,District gdb,layer,nymcwi,gdb_nymcwi,true,true,BoroCode|MuniCou
 district_gdb,gdb,District gdb,layer,nynta2010,gdb_nynta2010,true,true,NTACode,Neighborhood Tabulation Areas 2010,in progress,Resolving water-boundary clipping issues,See CSCL-DISTRICTS-03 in data_issues.md
 district_gdb,gdb,District gdb,layer,nynta2020,gdb_nynta2020,true,true,NTA2020,Neighborhood Tabulation Areas 2020,in progress,Resolving water-boundary clipping issues,See CSCL-DISTRICTS-03 in data_issues.md
 district_gdb,gdb,District gdb,layer,nypp,gdb_nypp,true,true,Precinct,Police Precincts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
-district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,true,true,PUMA,Public Use Microdata Areas (PUMA) 2010,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
-district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,true,true,PUMA,Public Use Microdata Areas (PUMA) 2020,in progress,Next up for investigation,Largest unresolved district-gdb gaps after nynta2010/nynta2020 - next up.
+district_gdb,gdb,District gdb,layer,nypuma2010,gdb_nypuma2010,true,true,PUMA,Public Use Microdata Areas (PUMA) 2010,open,"Shoreline-clip SHAPE_Length noise, worst on Rockaway/Jamaica Bay (PUMA 4105)","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21: every PUMA row shows some inflation; not a borough-bound issue. Also found an unrelated BoroCode mislabeling in source census tracts feeding PUMA 4101's dissolve (doesn't appear to explain the gap)."
+district_gdb,gdb,District gdb,layer,nypuma2020,gdb_nypuma2020,true,true,PUMA,Public Use Microdata Areas (PUMA) 2020,open,"Shoreline-clip SHAPE_Length noise, worst on Rockaway/Jamaica Bay (PUMA 4105)","See CSCL-DISTRICTS-03 in data_issues.md. Audited 2026-09-21, same finding as nypuma2010 (worst on PUMA 4105/Rockaway) - see that row's notes for detail."
 district_gdb,gdb,District gdb,layer,nysd,gdb_nysd,true,true,SchoolDist,School Districts,done,Matches prod exactly,
 district_gdb,gdb,District gdb,layer,nyss,gdb_nyss,true,true,StSenDist,State Senatorial Districts,open,"Shoreline-clip geometry noise (CSCL-DISTRICTS-03), not yet borough-bound",
 district_gdb,gdb,District gdb,layer,nysswi,gdb_nysswi,true,true,StSenDist,"State Senatorial Districts, unclipped",done,"Matches prod exactly (unclipped, unaffected by CSCL-DISTRICTS-03)",

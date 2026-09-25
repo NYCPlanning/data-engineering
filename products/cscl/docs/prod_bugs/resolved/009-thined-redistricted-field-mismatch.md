@@ -1,6 +1,10 @@
 # Bug 009: `thined.txt` District Fields Diverge from Prod, Likely Source-Vintage Mismatch
 
-**Status:** Under Investigation - blocked, root cause unconfirmed
+**Status:** Resolved (26c) - GR sent a corrected `thined.txt`; comparing against it shows zero
+field-level mismatches. This document's investigation is kept as-is below since the
+source-vintage-skew hypothesis was never independently confirmed, only superseded by a fixed
+input - see `CSCL-THINED-01`/`CSCL-THINED-02` in `data_issues.md` for the current, authoritative
+status (including a separate, purely structural header gap this fix surfaced).
 **Affected Output:** `thined.txt` (Thin Election District flat file, `file_id: thined_dat`)
 **Severity:** Medium - ~2% of rows per affected field, no fix identified yet
 **Discrepancy Count:** 4267 rows in common by the real key (see below); of those,

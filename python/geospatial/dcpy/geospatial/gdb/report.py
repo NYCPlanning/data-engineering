@@ -92,6 +92,72 @@ class GdbComparisonReport:
     def common_layers(self) -> list[str]:
         return sorted(set(self.dev_layers) & set(self.prod_layers))
 
+    @property
+    def only_in_dev_layers(self) -> list[str]:
+        return sorted(set(self.dev_layers) - set(self.prod_layers))
+
+    @property
+    def only_in_prod_layers(self) -> list[str]:
+        return sorted(set(self.prod_layers) - set(self.dev_layers))
+
+    def add_missing_layer(
+        self, layer: str, dev_row_count: int, prod_row_count: int
+    ) -> LayerReport:
+        """Record a layer that exists on only one side - not a row-level
+        diff (there's nothing on the other side to diff against), a
+        structural one. A caller that only calls add_layer for
+        common_layers never calls it at all for a layer like this, which
+        otherwise vanishes from the report entirely rather than showing up
+        as the maximum possible discrepancy - downstream, a missing row
+        reads as "zero known diffs", not "entirely missing".
+
+        Exactly one of dev_row_count/prod_row_count should be 0 - the real
+        count (from whichever side actually has the layer), 0 for the side
+        that doesn't.
+        """
+        if dev_row_count and prod_row_count:
+            raise ValueError(
+                "add_missing_layer is for a layer absent from one side - "
+                "both row counts are nonzero"
+            )
+        missing_side = "prod" if prod_row_count == 0 else "dev"
+        present_count = dev_row_count or prod_row_count
+        note = (
+            f"MISSING FROM {missing_side.upper()} "
+            f"({present_count:,} rows on the other side)"
+        )
+        entry = LayerReport(
+            layer=layer,
+            comparison=compare.LayerComparison(
+                structure=compare.StructureDiff(
+                    missing_from_dev=[],
+                    extra_in_dev=[],
+                    columns_match_but_order_differs=False,
+                    crs_match=False,
+                    common_cols=[],
+                    attribute_cols=[],
+                ),
+                key_cols=[],
+                key_was_guessed=False,
+                declared_key_rejected=None,
+                row_level=compare.RowLevelDiff(
+                    only_in_dev=dev_row_count,
+                    only_in_prod=prod_row_count,
+                    modified=None,
+                    precise=False,
+                ),
+                area=None,
+                column_stats=[],
+            ),
+            dev_row_count=dev_row_count,
+            prod_row_count=prod_row_count,
+            note=note,
+            flagged_columns=[],
+        )
+        self.layers.append(entry)
+        self._log_layer(entry)
+        return entry
+
     def add_layer(
         self,
         layer: str,
@@ -189,44 +255,67 @@ class GdbComparisonReport:
 
     def rows(self) -> list[dict]:
         """One dict per (layer, column) across every layer added so far -
-        ready to write straight to a CSV with csv.DictWriter."""
+        ready to write straight to a CSV with csv.DictWriter.
+
+        A layer added via add_missing_layer has no column_stats at all (no
+        column-level comparison is possible against a side that doesn't
+        exist) - it still gets exactly one row here, with blank per-column
+        fields, so the layer's row-level counts and note reach the CSV. A
+        caller like build_diffs_report.py keys off "the first row for each
+        layer" for its layer-level fields; without this, a layer with empty
+        column_stats would contribute zero rows and silently disappear from
+        every downstream report instead of surfacing as fully undiffable.
+        """
         out = []
         for entry in self.layers:
             c = entry.comparison
             row_diff = entry.dev_row_count - entry.prod_row_count
+            # Shared across every row for this layer - column_stats-derived fields
+            # (column, dev_null_pct, ...) are added per-branch below.
+            layer_fields = {
+                "layer": entry.layer,
+                "dev_row_count": entry.dev_row_count,
+                "prod_row_count": entry.prod_row_count,
+                "row_diff": row_diff,
+                "dev_area": round(c.area.dev_area) if c.area is not None else "",
+                "prod_area": round(c.area.prod_area) if c.area is not None else "",
+                "area_pct_diff": (
+                    round(c.area.pct_diff, 4) if c.area is not None else ""
+                ),
+                "key_columns": ", ".join(c.key_cols),
+                "key_precise": c.row_level.precise,
+                "rows_only_in_dev": c.row_level.only_in_dev,
+                "rows_only_in_prod": c.row_level.only_in_prod,
+                "rows_modified": (
+                    c.row_level.modified if c.row_level.modified is not None else ""
+                ),
+                "layer_note": entry.note,
+            }
+            if not c.column_stats:
+                out.append(
+                    {
+                        **layer_fields,
+                        "column": "",
+                        "dev_null_pct": "",
+                        "prod_null_pct": "",
+                        "null_pct_diff": "",
+                        "dev_nunique": "",
+                        "prod_nunique": "",
+                        "note": entry.note,
+                    }
+                )
+                continue
             for s in c.column_stats:
                 out.append(
                     {
-                        "layer": entry.layer,
+                        **layer_fields,
                         "column": s.column,
-                        "dev_row_count": entry.dev_row_count,
-                        "prod_row_count": entry.prod_row_count,
-                        "row_diff": row_diff,
                         "dev_null_pct": round(s.dev_null_pct, 2),
                         "prod_null_pct": round(s.prod_null_pct, 2),
                         "null_pct_diff": round(s.dev_null_pct - s.prod_null_pct, 2),
                         "dev_nunique": s.dev_nunique,
                         "prod_nunique": s.prod_nunique,
-                        "dev_area": (
-                            round(c.area.dev_area) if c.area is not None else ""
-                        ),
-                        "prod_area": (
-                            round(c.area.prod_area) if c.area is not None else ""
-                        ),
-                        "area_pct_diff": (
-                            round(c.area.pct_diff, 4) if c.area is not None else ""
-                        ),
-                        "key_columns": ", ".join(c.key_cols),
-                        "key_precise": c.row_level.precise,
-                        "rows_only_in_dev": c.row_level.only_in_dev,
-                        "rows_only_in_prod": c.row_level.only_in_prod,
-                        "rows_modified": (
-                            c.row_level.modified
-                            if c.row_level.modified is not None
-                            else ""
-                        ),
                         "note": s.note,
-                        "layer_note": entry.note,
                     }
                 )
         return out

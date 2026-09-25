@@ -7,6 +7,7 @@ This is done ad-hoc and not on an operational basis
 It assumes that production outputs are specified as exports in recipe.yml
 """
 
+import csv
 import subprocess
 import tempfile
 import urllib.request
@@ -24,10 +25,18 @@ from dcpy.utils import postgres, s3
 
 CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
 LOAD_FOLDER = Path(".data/prod")
+CONFIG_PATH = Path("seeds/config.csv")
 
 version: str | None = None
 datasets_by_name = {}
 datasets_by_filename = {}
+
+
+def read_config(path: Path = CONFIG_PATH) -> dict[str, str]:
+    """seeds/config.csv's key/value rows, as a dict - see that seed's
+    description in seeds.yml for what belongs there and why."""
+    with path.open(newline="") as f:
+        return {row["key"]: row["value"] for row in csv.DictReader(f)}
 
 
 @dataclass
@@ -42,7 +51,7 @@ class OutputDataset:
 try:
     recipe = plan.recipe_from_yaml(Path("./recipe.yml"))
     version = recipe.version
-    previous_version = (recipe.custom or {}).get("ldf", {}).get("previous_version")
+    previous_version = read_config().get("ldf_previous_version")
     assert recipe.exports
 
     for export in recipe.exports.datasets:
@@ -79,6 +88,15 @@ def parse_file(
     with open(file_path) as f:
         i = 0
         for row in f:
+            # GR's tooling terminates at least one file (nyc.thinlion) with a trailing
+            # DOS-era Ctrl-Z (0x1A) EOF marker and no newline after it - plain line
+            # iteration yields that as one more "row", producing a spurious all-blank
+            # record with only the marker byte sliced into the first field (confirmed:
+            # qa__diffs_thinlion_summary's thinlion_all "only_in_legacy" comparison_id
+            # \x1A000000 - see docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md). Skip
+            # any line that's empty once stripped of whitespace and that marker.
+            if row.strip("\x1a\r\n ") == "":
+                continue
             if max_records and i > max_records:
                 break
             record = {}
@@ -461,7 +479,7 @@ def _load_previous_lion(
     if not previous_version:
         raise Exception(
             "Specify the previous release with '-p'. "
-            "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
+            "If running in CI, this defaults to seeds/config.csv's ldf_previous_version"
         )
 
     load_citywide_lion(previous_version, table_name, local_folder, force)
@@ -486,7 +504,7 @@ def _load_previous_ldf_header(
     if not previous_version:
         raise Exception(
             "Specify the previous release with '-p'. "
-            "If running in CI, this defaults to custom.ldf.previous_version in recipe.yml"
+            "If running in CI, this defaults to seeds/config.csv's ldf_previous_version"
         )
 
     if not force and already_loaded(table_name, previous_version):
