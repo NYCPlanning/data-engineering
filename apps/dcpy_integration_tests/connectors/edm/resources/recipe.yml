@@ -13,7 +13,7 @@ inputs:
     source: edm.recipes.datasets
     version: latest
     preprocessor:
-      module: dcpy.test_integration.connectors.preprocessor
+      module: dcpy_integration_tests.connectors.preprocessor
       function: truncate_to_single_row
     custom:
       file_type: parquet

@@ -8,8 +8,8 @@ How tests are organized across the repo, how to run them, and the conventions we
 |---|---|---|
 | **dcpy unit (per package)** | `python/*/test/` | Mocked externals (`moto` for S3/AWS); each package synced **in isolation** in CI — see [Isolated packages](#isolated-packages-package-boundaries) |
 | **dcpy library** | `python/library/test/` | Run **separately** — gdal + pyarrow conflict (parquet read/write fails after importing gdal) |
-| **dcpy integration** | `dcpy/test_integration/` | Live infrastructure (Postgres, SFTP, S3); needs the **whole workspace** (`uv sync --all-packages`) — spans packages by design |
-| **dcpy integration library** | `dcpy/test_integration/library/` | Live S3 + Postgres; run **separately** for the same gdal/pyarrow reason |
+| **dcpy integration** | `apps/dcpy_integration_tests/` | Live infrastructure (Postgres, SFTP, S3); its own `pyproject.toml` declares exactly which dcpy-* packages it needs, so it gets a scoped sync (`uv sync --package dcpy_integration_tests`) like the unit suites, despite spanning packages by design |
+| **dcpy integration library** | `apps/dcpy_integration_tests/library/` | Live S3 + Postgres; run **separately** for the same gdal/pyarrow reason |
 | **product / app** | `products/*`, `apps/qa/` | Per-product; matrix-driven |
 
 ### dcpy unit tests (`python/*/test/`)
@@ -59,17 +59,21 @@ a test-collection failure on that package's isolated sync, not as a separate lin
 [dcpy architecture → Enforcement](./dcpy/architecture.md#enforcement) for the full mechanics and the
 currently-known, `xfail`-tracked exceptions.
 
-### dcpy integration tests (`dcpy/test_integration/`)
+### dcpy integration tests (`apps/dcpy_integration_tests/`)
 
-Require real services (Postgres, SFTP). Unlike the per-package unit suites, this one spans
-multiple dcpy packages by design and isn't owned by any single one, so it stayed at its original
-repo-root location and needs the full workspace (`uv sync --all-packages`) rather than an isolated
-sync. CI runs it inside the dev container stack (`de`, `postgis`, `sftp-server`) started via
-`docker compose`. To run it locally, start the dev container and run:
+Require real services (Postgres, SFTP). It spans multiple dcpy packages by design and isn't owned
+by any single one, so it lives as its own `apps/*` workspace member (an "app" in this repo's sense:
+a `package = false` project with its own `pyproject.toml`, own dependency list, and its own
+specific runtime/environment needs — same shape as `apps/qa`) rather than under `python/`. Its
+`pyproject.toml` declares exactly the dcpy-* packages it needs (`dcpy-connectors`, `dcpy-library`,
+`dcpy-lifecycle[geo]`, `dcpy-utils`), so — despite spanning packages — it gets a scoped sync just
+like the per-package unit suites, not the whole workspace. CI runs it inside the dev container
+stack (`de`, `postgis`, `sftp-server`) started via `docker compose`. To run it locally, start the
+dev container and run:
 
 ```bash
-uv sync --all-packages
-uv run --no-sync pytest dcpy/test_integration -v -s
+uv sync --package dcpy_integration_tests
+uv run --no-sync pytest apps/dcpy_integration_tests -v -s
 ```
 
 
@@ -98,7 +102,7 @@ Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflow
 - **New processing functions need a test.** When you add an ingest processing step or similar
   reusable function, add a unit test for it (see the
   [library → ingest migration guide](./dcpy/library-to-ingest-migration.md)).
-- **Don't introduce flaky tests** into `python/*/test` or `dcpy/test_integration`.
+- **Don't introduce flaky tests** into `python/*/test` or `apps/dcpy_integration_tests`.
 
 ## How CI runs the dcpy suite
 
@@ -108,9 +112,12 @@ Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflow
 ```bash
 # main unit suite: each package synced and tested in isolation (uv sync --package dcpy-<pkg>),
 # one invocation per package — connectors and product-metadata sync dcpy-lifecycle alongside them
-# too, to cover the known deviations (see dcpy/architecture.md#enforcement)
+# too, to cover the known deviations (see dcpy/architecture.md#enforcement). connectors, data,
+# lifecycle, and utils also need --extra geo: GDAL/geosupport-backed functionality (e.g.
+# dcpy.data.compare's spatial comparisons, dcpy.lifecycle.ingest.validate's gpd.GeoDataFrame
+# usage) lives behind each package's own optional "geo" extra rather than a hard dependency.
 for pkg in connectors data geospatial lifecycle product-metadata utils; do
-  uv sync --package "dcpy-$pkg" [--package dcpy-lifecycle]  # for connectors, product-metadata
+  uv sync --package "dcpy-$pkg" [--package dcpy-lifecycle] [--extra geo]
   uv run --no-sync pytest "python/$pkg/test" --cov="python/$pkg" --cov-report="xml:coverage-$pkg.xml"
 done
 
@@ -118,18 +125,19 @@ done
 uv sync --package dcpy-library
 uv run --no-sync pytest python/library/test --cov=python/library --cov-report=xml:coverage-library.xml
 
-# integration suite: needs the whole workspace, since it spans packages by design
-uv sync --all-packages
-uv run --no-sync pytest dcpy/test_integration --ignore dcpy/test_integration/library ...
+# integration suite: apps/dcpy_integration_tests's own pyproject.toml declares exactly what it
+# needs, so this is a scoped sync too, despite spanning packages by design
+uv sync --package dcpy_integration_tests
+uv run --no-sync pytest apps/dcpy_integration_tests --ignore apps/dcpy_integration_tests/library ...
 # integration library suite, separately (gdal/pyarrow again)
-uv run --no-sync pytest dcpy/test_integration/library ...
+uv run --no-sync pytest apps/dcpy_integration_tests/library ...
 ```
 
 > [!NOTE]
 > Every package's `test/conftest.py` carries the same internet guard (`ensure_no_callouts`), which
 > only replaces Python's `socket.socket`, so it can't see connections opened from C extensions —
 > libpq, gdal. A unit test reaching live infrastructure through those will pass the guard; keep
-> such tests in `dcpy/test_integration/` rather than relying on the guard to catch them.
+> such tests in `apps/dcpy_integration_tests/` rather than relying on the guard to catch them.
 
 ## Known gaps
 

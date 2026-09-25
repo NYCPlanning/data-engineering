@@ -28,11 +28,12 @@ members = [
     "dcpy-data",
     "dcpy-geospatial",
     "dcpy-geosupport",
+    "dcpy-integration-tests",
     "dcpy-library",
     "dcpy-lifecycle",
     "dcpy-product-metadata",
-    "dcpy-test-suite",
     "dcpy-utils",
+    "dcpy-workspace",
 ]
 
 [[package]]
@@ -1490,14 +1491,14 @@ name = "dcpy-app-notebook-server"
 version = "0.0.1"
 source = { virtual = "apps/notebook-server" }
 dependencies = [
-    { name = "dcpy-lifecycle" },
+    { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "marimo" },
     { name = "uvicorn" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "dcpy-lifecycle", editable = "python/lifecycle" },
+    { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "marimo", specifier = ">=0.8.0" },
     { name = "uvicorn", specifier = ">=0.20.0" },
 ]
@@ -1507,7 +1508,7 @@ name = "dcpy-app-qa"
 version = "0.0.1"
 source = { virtual = "apps/qa" }
 dependencies = [
-    { name = "dcpy-lifecycle" },
+    { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "folium" },
     { name = "geoalchemy2" },
     { name = "leafmap" },
@@ -1525,7 +1526,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dcpy-lifecycle", editable = "python/lifecycle" },
+    { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "folium" },
     { name = "geoalchemy2" },
     { name = "leafmap" },
@@ -1549,7 +1550,6 @@ dependencies = [
     { name = "cloudpathlib", extra = ["all"] },
     { name = "dcpy-product-metadata" },
     { name = "dcpy-utils" },
-    { name = "geopandas" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "pytz" },
@@ -1560,6 +1560,11 @@ dependencies = [
     { name = "typer" },
     { name = "typing-extensions" },
     { name = "usaddress" },
+]
+
+[package.optional-dependencies]
+geo = [
+    { name = "geopandas" },
 ]
 
 [package.dev-dependencies]
@@ -1579,7 +1584,7 @@ requires-dist = [
     { name = "cloudpathlib", extras = ["all"] },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "dcpy-utils", editable = "python/utils" },
-    { name = "geopandas" },
+    { name = "geopandas", marker = "extra == 'geo'" },
     { name = "pandas" },
     { name = "pydantic" },
     { name = "pytz" },
@@ -1591,6 +1596,7 @@ requires-dist = [
     { name = "typing-extensions" },
     { name = "usaddress" },
 ]
+provides-extras = ["geo"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1609,11 +1615,15 @@ version = "0.0.1"
 source = { editable = "python/data" }
 dependencies = [
     { name = "dcpy-utils" },
-    { name = "geopandas" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pandas" },
     { name = "pydantic" },
+]
+
+[package.optional-dependencies]
+geo = [
+    { name = "geopandas" },
     { name = "shapely" },
 ]
 
@@ -1626,12 +1636,13 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "dcpy-utils", editable = "python/utils" },
-    { name = "geopandas" },
+    { name = "geopandas", marker = "extra == 'geo'" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "pydantic" },
-    { name = "shapely" },
+    { name = "shapely", marker = "extra == 'geo'" },
 ]
+provides-extras = ["geo"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1725,6 +1736,37 @@ dev = [
 ]
 
 [[package]]
+name = "dcpy-integration-tests"
+version = "0.0.1"
+source = { virtual = "apps/dcpy_integration_tests" }
+dependencies = [
+    { name = "dcpy-connectors" },
+    { name = "dcpy-library" },
+    { name = "dcpy-lifecycle", extra = ["geo"] },
+    { name = "dcpy-utils" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dcpy-connectors", editable = "python/connectors" },
+    { name = "dcpy-library", editable = "python/library" },
+    { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
+    { name = "dcpy-utils", editable = "python/utils" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+
+[[package]]
 name = "dcpy-library"
 version = "0.0.1"
 source = { editable = "python/library" }
@@ -1789,27 +1831,31 @@ dependencies = [
     { name = "dbt-duckdb" },
     { name = "dbt-postgres" },
     { name = "dcpy-connectors" },
-    { name = "dcpy-data" },
-    { name = "dcpy-geospatial" },
-    { name = "dcpy-geosupport" },
-    { name = "dcpy-library" },
     { name = "dcpy-product-metadata" },
     { name = "dcpy-utils" },
-    { name = "geoalchemy2" },
-    { name = "geopandas" },
     { name = "jinja2" },
     { name = "pandas" },
     { name = "pandera" },
     { name = "pydantic" },
-    { name = "pyproj" },
     { name = "python-dateutil" },
     { name = "pytz" },
     { name = "pyyaml" },
     { name = "ruamel-yaml" },
-    { name = "shapely" },
     { name = "tabulate" },
     { name = "typer" },
     { name = "typing-extensions" },
+]
+
+[package.optional-dependencies]
+geo = [
+    { name = "dcpy-data" },
+    { name = "dcpy-geospatial" },
+    { name = "dcpy-geosupport" },
+    { name = "dcpy-library" },
+    { name = "geoalchemy2" },
+    { name = "geopandas" },
+    { name = "pyproj" },
+    { name = "shapely" },
     { name = "usaddress" },
 ]
 
@@ -1829,29 +1875,30 @@ requires-dist = [
     { name = "dbt-duckdb" },
     { name = "dbt-postgres" },
     { name = "dcpy-connectors", editable = "python/connectors" },
-    { name = "dcpy-data", editable = "python/data" },
-    { name = "dcpy-geospatial", editable = "python/geospatial" },
-    { name = "dcpy-geosupport", editable = "python/geosupport" },
-    { name = "dcpy-library", editable = "python/library" },
+    { name = "dcpy-data", marker = "extra == 'geo'", editable = "python/data" },
+    { name = "dcpy-geospatial", marker = "extra == 'geo'", editable = "python/geospatial" },
+    { name = "dcpy-geosupport", marker = "extra == 'geo'", editable = "python/geosupport" },
+    { name = "dcpy-library", marker = "extra == 'geo'", editable = "python/library" },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "dcpy-utils", editable = "python/utils" },
-    { name = "geoalchemy2" },
-    { name = "geopandas" },
+    { name = "geoalchemy2", marker = "extra == 'geo'" },
+    { name = "geopandas", marker = "extra == 'geo'" },
     { name = "jinja2" },
     { name = "pandas" },
     { name = "pandera" },
     { name = "pydantic" },
-    { name = "pyproj" },
+    { name = "pyproj", marker = "extra == 'geo'" },
     { name = "python-dateutil" },
     { name = "pytz" },
     { name = "pyyaml" },
     { name = "ruamel-yaml" },
-    { name = "shapely" },
+    { name = "shapely", marker = "extra == 'geo'" },
     { name = "tabulate" },
     { name = "typer" },
     { name = "typing-extensions" },
-    { name = "usaddress" },
+    { name = "usaddress", marker = "extra == 'geo'" },
 ]
+provides-extras = ["geo"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1914,7 +1961,97 @@ dev = [
 ]
 
 [[package]]
-name = "dcpy-test-suite"
+name = "dcpy-utils"
+version = "0.0.1"
+source = { editable = "python/utils" }
+dependencies = [
+    { name = "boto3" },
+    { name = "duckdb" },
+    { name = "gitpython" },
+    { name = "jinja2" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "paramiko" },
+    { name = "psycopg2-binary" },
+    { name = "pyarrow" },
+    { name = "pydantic" },
+    { name = "python-dateutil" },
+    { name = "pytz" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "rich" },
+    { name = "sqlalchemy" },
+    { name = "typer" },
+    { name = "typing-extensions" },
+    { name = "xlrd" },
+]
+
+[package.optional-dependencies]
+geo = [
+    { name = "geopandas" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "boto3-stubs", extra = ["s3"] },
+    { name = "moto" },
+    { name = "openpyxl-stubs" },
+    { name = "pandas-stubs" },
+    { name = "pyarrow-stubs" },
+    { name = "pytest" },
+    { name = "sqlalchemy-stubs" },
+    { name = "types-paramiko" },
+    { name = "types-psycopg2" },
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "boto3" },
+    { name = "duckdb" },
+    { name = "geopandas", marker = "extra == 'geo'" },
+    { name = "gitpython" },
+    { name = "jinja2" },
+    { name = "openpyxl" },
+    { name = "pandas" },
+    { name = "paramiko" },
+    { name = "psycopg2-binary" },
+    { name = "pyarrow" },
+    { name = "pydantic" },
+    { name = "python-dateutil" },
+    { name = "pytz" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "rich" },
+    { name = "sqlalchemy" },
+    { name = "typer" },
+    { name = "typing-extensions" },
+    { name = "xlrd" },
+]
+provides-extras = ["geo"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "boto3-stubs", extras = ["s3"] },
+    { name = "moto" },
+    { name = "openpyxl-stubs" },
+    { name = "pandas-stubs" },
+    { name = "pyarrow-stubs" },
+    { name = "pytest" },
+    { name = "sqlalchemy-stubs" },
+    { name = "types-paramiko" },
+    { name = "types-psycopg2" },
+    { name = "types-python-dateutil" },
+    { name = "types-pytz" },
+    { name = "types-pyyaml", specifier = ">=6.0.1" },
+    { name = "types-requests" },
+]
+
+[[package]]
+name = "dcpy-workspace"
 version = "0.0.1"
 source = { virtual = "." }
 
@@ -1971,89 +2108,6 @@ dev = [
     { name = "sqlfluff-templater-dbt" },
     { name = "types-setuptools" },
     { name = "types-tqdm" },
-]
-
-[[package]]
-name = "dcpy-utils"
-version = "0.0.1"
-source = { editable = "python/utils" }
-dependencies = [
-    { name = "boto3" },
-    { name = "duckdb" },
-    { name = "gitpython" },
-    { name = "jinja2" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "paramiko" },
-    { name = "psycopg2-binary" },
-    { name = "pyarrow" },
-    { name = "pydantic" },
-    { name = "python-dateutil" },
-    { name = "pytz" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "sqlalchemy" },
-    { name = "typer" },
-    { name = "typing-extensions" },
-    { name = "xlrd" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "boto3-stubs", extra = ["s3"] },
-    { name = "moto" },
-    { name = "openpyxl-stubs" },
-    { name = "pandas-stubs" },
-    { name = "pyarrow-stubs" },
-    { name = "pytest" },
-    { name = "sqlalchemy-stubs" },
-    { name = "types-paramiko" },
-    { name = "types-psycopg2" },
-    { name = "types-python-dateutil" },
-    { name = "types-pytz" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "boto3" },
-    { name = "duckdb" },
-    { name = "gitpython" },
-    { name = "jinja2" },
-    { name = "openpyxl" },
-    { name = "pandas" },
-    { name = "paramiko" },
-    { name = "psycopg2-binary" },
-    { name = "pyarrow" },
-    { name = "pydantic" },
-    { name = "python-dateutil" },
-    { name = "pytz" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "sqlalchemy" },
-    { name = "typer" },
-    { name = "typing-extensions" },
-    { name = "xlrd" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "boto3-stubs", extras = ["s3"] },
-    { name = "moto" },
-    { name = "openpyxl-stubs" },
-    { name = "pandas-stubs" },
-    { name = "pyarrow-stubs" },
-    { name = "pytest" },
-    { name = "sqlalchemy-stubs" },
-    { name = "types-paramiko" },
-    { name = "types-psycopg2" },
-    { name = "types-python-dateutil" },
-    { name = "types-pytz" },
-    { name = "types-pyyaml", specifier = ">=6.0.1" },
-    { name = "types-requests" },
 ]
 
 [[package]]

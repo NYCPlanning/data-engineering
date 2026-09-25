@@ -194,7 +194,7 @@ jobs:
         uv pip install -r /tmp/mypy_requirements.txt
         echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
-    # Runs every mypy target (dcpy/test_integration, products/*, admin/ops, and each
+    # Runs every mypy target (apps/dcpy_integration_tests, products/*, admin/ops, and each
     # python/*/ workspace package - the last group needs --namespace-packages
     # --explicit-package-bases, the others must NOT get those flags globally; see the
     # comments in the script for why) and reports every failure, not just the first.
@@ -272,9 +272,8 @@ jobs:
 
     # dcpy split into a uv workspace (python/*/test, see docker_container_setup.sh). Each
     # package here gets its own isolated sync (uv sync --package dcpy-X) before its tests
-    # run - `uv sync --all-packages` (used elsewhere in this job for dcpy/test_integration,
-    # which genuinely spans packages) would let a package's tests pass by accidentally
-    # importing a sibling package that was never declared as a real dependency. Re-syncing
+    # run - a broader sync would let a package's tests pass by accidentally importing a
+    # sibling package that was never declared as a real dependency. Re-syncing
     # the same venv scoped to just one package actually prunes it (verified), so this
     # catches that class of bug for real.
     #
@@ -294,13 +293,16 @@ jobs:
     # dcpy/connectors/edm/open_data_nyc.py, dcpy/connectors/edm/publishing.py, and
     # dcpy/product_metadata/writers/oti_xlsx/xlsx_writer.py all import from
     # dcpy.lifecycle) - sync lifecycle alongside them too until that's cleaned up, or
-    # their tests won't even collect. dcpy-utils/test_postgres.py has a similar undeclared
-    # geopandas dependency
-    # in dcpy.utils.postgres itself, but that one's excluded rather than worked around:
-    # utils sits under nearly every other package, so declaring geopandas there would drag
-    # GDAL back into every consumer, undermining the whole point of the split. Needs an
-    # actual decision (lazy-import it? move the geospatial bits out of utils?), not a sync
-    # flag - tracked separately.
+    # their tests won't even collect.
+    #
+    # connectors/data/lifecycle/utils each declare a "geo" extra (see their pyproject.toml)
+    # for GDAL/geosupport-backed functionality that isn't a hard dependency -
+    # dcpy.data.compare (spatial comparisons), dcpy.lifecycle.ingest.validate
+    # (gpd.GeoDataFrame usage) and others, dcpy.utils.postgres/datastores (lazily imported,
+    # geo-aware I/O paths), and connectors/test/edm/test_recipes.py's direct `from
+    # dcpy.library import models` (only reachable via dcpy-lifecycle's own "geo" extra,
+    # synced in alongside connectors above) - so their isolated test syncs need
+    # --extra geo to exercise that code for real.
     #
     # Every dcpy-* package's test dir is literally named "test" (with its own
     # __init__.py), so passing them all to one pytest invocation makes it try to
@@ -310,17 +312,16 @@ jobs:
       run: |
         for pkg in connectors data geospatial lifecycle product-metadata utils; do
           sync_extra=()
-          test_extra=()
           if [[ "$pkg" == "connectors" || "$pkg" == "product-metadata" ]]; then
             sync_extra=(--package dcpy-lifecycle)
           fi
-          if [[ "$pkg" == "utils" ]]; then
-            test_extra=(--ignore=python/utils/test/test_postgres.py)
+          if [[ "$pkg" == "connectors" || "$pkg" == "data" || "$pkg" == "lifecycle" || "$pkg" == "utils" ]]; then
+            sync_extra+=(--extra geo)
           fi
           docker exec --user root de \
             uv sync --package "dcpy-$pkg" "${sync_extra[@]}"
           docker exec --user root de bash -c \
-            "COVERAGE_FILE=.coverage.$pkg uv run --no-sync python3 -m pytest python/$pkg/test ${test_extra[*]} -v --cov=python/$pkg --cov-report=xml:coverage-$pkg.xml --cov-config=pyproject.toml"
+            "COVERAGE_FILE=.coverage.$pkg uv run --no-sync python3 -m pytest python/$pkg/test -v --cov=python/$pkg --cov-report=xml:coverage-$pkg.xml --cov-config=pyproject.toml"
         done
 
     # separate because of issues w/ gdal and pyarrow
@@ -332,15 +333,17 @@ jobs:
         docker exec --user root de bash -c \
           "COVERAGE_FILE=.coverage.library uv run --no-sync python3 -m pytest python/library/test -v --cov=python/library --cov-report=xml:coverage-library.xml --cov-config=pyproject.toml"
 
-    # dcpy/test_integration spans multiple packages by design (it isn't owned by any one
-    # dcpy-* package, see pyproject.toml's [project] comment) so it needs the full
-    # workspace, not an isolated sync like the packages above.
+    # apps/dcpy_integration_tests spans multiple packages by design (it isn't owned by any
+    # one dcpy-* package - see its own pyproject.toml) but, unlike dcpy/test_integration
+    # before it moved there, it now declares its own real dependencies (dcpy-connectors,
+    # dcpy-library, dcpy-lifecycle, dcpy-utils) - so it gets its own scoped isolated sync
+    # too, same as the packages above, instead of needing the whole workspace.
     - name: dcpy integration pytests
       run: |
         docker exec --user root de \
-          uv sync --all-packages
+          uv sync --package dcpy_integration_tests
         docker exec --user root de bash -c \
-          "COVERAGE_FILE=.coverage.integration uv run --no-sync python3 -m pytest dcpy/test_integration --ignore dcpy/test_integration/library -v --cov=python --cov-report=xml:coverage-integration.xml --cov-config=pyproject.toml"
+          "COVERAGE_FILE=.coverage.integration uv run --no-sync python3 -m pytest apps/dcpy_integration_tests --ignore apps/dcpy_integration_tests/library -v --cov=python --cov-report=xml:coverage-integration.xml --cov-config=pyproject.toml"
       env:
         RECIPES_BUCKET: "test-recipes"
 
@@ -348,7 +351,7 @@ jobs:
     - name: dcpy integration library pytests
       run: |
         docker exec --user root de bash -c \
-          "COVERAGE_FILE=.coverage.integration-library uv run --no-sync python3 -m pytest dcpy/test_integration/library -v --cov=python --cov-report=xml:coverage-integration-library.xml --cov-config=pyproject.toml"
+          "COVERAGE_FILE=.coverage.integration-library uv run --no-sync python3 -m pytest apps/dcpy_integration_tests/library -v --cov=python --cov-report=xml:coverage-integration-library.xml --cov-config=pyproject.toml"
       env:
         RECIPES_BUCKET: "test-recipes"
 
@@ -514,6 +517,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install dcpy-lifecycle
-      run: ./bash/docker_container_setup.sh --package dcpy-lifecycle
+      # --extra geo: dcpy.lifecycle.ingest.validate imports dcpy.geospatial directly, which
+      # is now behind dcpy-lifecycle's optional "geo" extra rather than a hard dependency -
+      # the image already has the extra's third-party deps baked in, but the dcpy-geospatial
+      # *source* itself only gets installed here if explicitly requested.
+      run: ./bash/docker_container_setup.sh --package dcpy-lifecycle --extra geo
     - name: Validate All Templates
       run: uv run --no-sync python -m dcpy lifecycle ingest validate_definitions ingest_templates

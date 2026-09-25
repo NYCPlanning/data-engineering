@@ -33,7 +33,8 @@ jobs:
         with:
           filters: |
             dcpy:
-              - dcpy/**
+              - python/**
+              - apps/dcpy_integration_tests/**
               - pyproject.toml
               - admin/run_environment/**
               - .github/workflows/test.yml
@@ -44,15 +45,15 @@ jobs:
               - .github/workflows/build.yml
               - .github/workflows/template_test.yml
               - products/template/**
-              - dcpy/**
+              - python/**
               - admin/run_environment/**
             qa:
               - apps/qa/**
-              - dcpy/**
+              - python/**
               - admin/run_environment/**
             notebook:
               - apps/notebook-server/**
-              - dcpy/**
+              - python/**
               - admin/run_environment/**
             cbbr:
               - products/cbbr/**
