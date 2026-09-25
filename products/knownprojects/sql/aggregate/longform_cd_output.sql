@@ -1,7 +1,7 @@
 {{ config(
     materialized='table',
     tags=['aggregate_general'],
-    post_hook="{{ boundary_fallback_update(boundary_table='dcp_cdboundaries_wi', id_column='borocd', suffix='cd') }}"
+    post_hook="{{ boundary_fallback_update(boundary_table='dcp_cdboundaries', id_column='borocd', suffix='cd') }}"
 ) }}
 
 -- Project records allocated to community districts, one row per project/cd pair.
@@ -10,7 +10,7 @@
 -- source script's closing UPDATE.
 
 {{ longform_by_boundary(
-    boundary_table='dcp_cdboundaries_wi',
+    boundary_table='dcp_cdboundaries',
     boundary_cols=[{'source': 'borocd', 'alias': 'cd'}],
     suffix='cd'
 ) }}

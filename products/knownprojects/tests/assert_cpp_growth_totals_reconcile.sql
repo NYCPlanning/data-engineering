@@ -1,7 +1,7 @@
 -- NTAs, community districts and boroughs all tile the city, so their citywide
 -- totals must agree. Catches a join that matched only part of one geography's
--- keys. This is citywide only on purpose: per borough, CD and NTA disagree by
--- 878 projected units until issue #2633 is fixed.
+-- keys. Per-borough agreement is checked upstream by
+-- assert_boundaries_agree_by_borough.
 {% set latest = var('cpp_latest_complete_year') | int %}
 WITH nta AS (
     SELECT

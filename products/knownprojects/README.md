@@ -227,13 +227,13 @@ Boroughs aren't classified. There are only five, so each takes one step of the
 ramp ordered by value, with `geoName` set and `rangeMin` = `rangeMax` = its
 value. Match those rows on `geoName`, not on the bounds.
 
-`cpp_housing_growth_boro` rolls up the NTA model, not the CD one. CD is
-allocated against water-included boundaries whose Manhattan polygons reach the
-middle of the East River, so eleven Brooklyn waterfront projects get split
-across the river into a Manhattan CD. NTA boundaries are land only and split
-none of them. Until [#2633](https://github.com/NYCPlanning/data-engineering/issues/2633)
-is fixed the borough figures won't match `cpp_housing_growth_cd` per borough on
-projected, though citywide totals tie.
+`cpp_housing_growth_boro` rolls up the NTA model. It matches
+`cpp_housing_growth_cd` per borough because every KPDB geography is allocated
+against land-only boundaries. The water-included community district and tract
+files reach across the East River and put Brooklyn waterfront projects in
+Manhattan ([#2633](https://github.com/NYCPlanning/data-engineering/issues/2633)).
+`assert_boundaries_agree_by_borough` fails the build if CD, tract, and NTA
+allocations stop agreeing per borough.
 
 `units_2020_census` is the only fixed number. Every other year in those column
 names comes from the `cpp_latest_complete_year` var in `dbt_project.yml`, which

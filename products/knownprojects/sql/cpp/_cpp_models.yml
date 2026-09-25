@@ -111,18 +111,8 @@ models:
 
   - name: cpp_housing_growth_boro
     description: >
-      Housing growth by borough, rolled up from cpp_housing_growth_nta.
-
-      NTA and not CD, because CD is allocated against water-included boundaries
-      whose Manhattan polygons reach the middle of the East River. Eleven
-      Brooklyn waterfront projects are split across the river into a Manhattan
-      CD, so a CD rollup credits Manhattan with units that belong to Brooklyn
-      (878 projected units on the 26Q2 build). NTA boundaries are land only and
-      split none of them. See issue #2633.
-
-      Until that is fixed these figures will not agree with
-      cpp_housing_growth_cd per borough on projected, though citywide totals
-      tie.
+      Housing growth by borough, rolled up from cpp_housing_growth_nta. Matches
+      cpp_housing_growth_cd per borough (see assert_boundaries_agree_by_borough).
     columns:
       - name: geography_id
         description: "Borough code, 1 through 5"

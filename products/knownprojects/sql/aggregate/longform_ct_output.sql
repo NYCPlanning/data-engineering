@@ -1,7 +1,7 @@
 {{ config(
     materialized='table',
     tags=['aggregate_general'],
-    post_hook="{{ boundary_fallback_update(boundary_table='dcp_ct2020_wi', id_column='boroct2020', suffix='ct') }}"
+    post_hook="{{ boundary_fallback_update(boundary_table='dcp_ct2020', id_column='boroct2020', suffix='ct') }}"
 ) }}
 
 -- Project records allocated to census tracts, one row per project/ct pair.
@@ -10,7 +10,7 @@
 -- source script's closing UPDATE.
 
 {{ longform_by_boundary(
-    boundary_table='dcp_ct2020_wi',
+    boundary_table='dcp_ct2020',
     boundary_cols=[{'source': 'boroct2020', 'alias': 'ct'}],
     suffix='ct'
 ) }}
