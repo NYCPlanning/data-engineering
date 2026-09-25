@@ -225,6 +225,10 @@ columns:
   description: Net change in Class A unit count between the number of units existing at the time of application and the number of
     units proposed.
   example: '0.0'
+- id: classa_hpdaff
+  name: classa_HPDaff
+  data_type: decimal
+  description: 'TODO: placeholder, description pending from the Housing team'
 - id: hotelinit
   name: HotelInit
   data_type: text
@@ -558,6 +562,14 @@ columns:
     List of fields that were edited by DCP. This only lists fields where original DOB source data was overwritten by DCP,  and
     doesn't include fields where DCP recodes data as part of the standard methodology.
   example: classa_init
+- id: hpd_id
+  name: HPD_id
+  data_type: text
+  description: 'TODO: placeholder, description pending from the Housing team'
+- id: hpd_jobrelate
+  name: HPD_jobrelate
+  data_type: text
+  description: 'TODO: placeholder, description pending from the Housing team'
 - id: version
   name: Version
   data_type: text
