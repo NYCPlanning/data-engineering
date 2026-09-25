@@ -6,9 +6,9 @@ How tests are organized across the repo, how to run them, and the conventions we
 
 | Suite | Location | Needs |
 |---|---|---|
-| **dcpy unit (per package)** | `python/*/test/` | Mocked externals (`moto` for S3/AWS); each package synced **in isolation** in CI — see [Isolated packages](#isolated-packages-package-boundaries) |
-| **dcpy library** | `python/library/test/` | Run **separately** — gdal + pyarrow conflict (parquet read/write fails after importing gdal) |
-| **dcpy integration** | `apps/dcpy_integration_tests/` | Live infrastructure (Postgres, SFTP, S3); its own `pyproject.toml` declares exactly which dcpy-* packages it needs, so it gets a scoped sync (`uv sync --package dcpy_integration_tests`) like the unit suites, despite spanning packages by design |
+| **dcpy unit (per package)** | `python/*/test/` | Mocked externals (`moto` for S3/AWS), **no repo secrets**; each package synced **in isolation** in CI — see [Isolated packages](#isolated-packages-package-boundaries) |
+| **dcpy library** | `python/library/test/` | Run **separately** — gdal + pyarrow conflict (parquet read/write fails after importing gdal); mocked, no repo secrets |
+| **dcpy integration** | `apps/dcpy_integration_tests/` | Live infrastructure (Postgres, SFTP, S3) and real credentials, loaded from 1Password in its own CI job (`pytest_dcpy_integration`); its own `pyproject.toml` declares exactly which dcpy-* packages it needs, so it gets a scoped sync (`uv sync --package dcpy_integration_tests`) like the unit suites, despite spanning packages by design |
 | **dcpy integration library** | `apps/dcpy_integration_tests/library/` | Live S3 + Postgres; run **separately** for the same gdal/pyarrow reason |
 | **product / app** | `products/*`, `apps/qa/` | Per-product; matrix-driven |
 
@@ -61,15 +61,17 @@ currently-known, `xfail`-tracked exceptions.
 
 ### dcpy integration tests (`apps/dcpy_integration_tests/`)
 
-Require real services (Postgres, SFTP). It spans multiple dcpy packages by design and isn't owned
-by any single one, so it lives as its own `apps/*` workspace member (an "app" in this repo's sense:
-a `package = false` project with its own `pyproject.toml`, own dependency list, and its own
-specific runtime/environment needs — same shape as `apps/qa`) rather than under `python/`. Its
-`pyproject.toml` declares exactly the dcpy-* packages it needs (`dcpy-connectors`, `dcpy-library`,
-`dcpy-lifecycle[geo]`, `dcpy-utils`), so — despite spanning packages — it gets a scoped sync just
-like the per-package unit suites, not the whole workspace. CI runs it inside the dev container
-stack (`de`, `postgis`, `sftp-server`) started via `docker compose`. To run it locally, start the
-dev container and run:
+Require real services (Postgres, SFTP, S3) and real credentials. It spans multiple dcpy packages
+by design and isn't owned by any single one, so it lives as its own `apps/*` workspace member (an
+"app" in this repo's sense: a `package = false` project with its own `pyproject.toml`, own
+dependency list, and its own specific runtime/environment needs — same shape as `apps/qa`) rather
+than under `python/`. Its `pyproject.toml` declares exactly the dcpy-* packages it needs
+(`dcpy-connectors`, `dcpy-library`, `dcpy-lifecycle[geo]`, `dcpy-utils`), so — despite spanning
+packages — it gets a scoped sync just like the per-package unit suites, not the whole workspace.
+CI runs it in its own job (`pytest_dcpy_integration`, separate from the unit suite's `pytest_dcpy`
+— see [How CI runs the dcpy suite](#how-ci-runs-the-dcpy-suite)) inside the dev container stack
+(`de`, `postgis`, `sftp-server`) started via `docker compose`. To run it locally, start the dev
+container and run:
 
 ```bash
 uv sync --package dcpy_integration_tests
@@ -106,8 +108,18 @@ Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflow
 
 ## How CI runs the dcpy suite
 
-`test_helper.yml` (job `pytest_dcpy`) runs inside the `de` dev container with `postgis` and
-`sftp-server` services. Roughly:
+`test_helper.yml` splits this into two jobs, on purpose: **`pytest_dcpy`** (the unit + library
+suites, fully mocked) gets **no repository secrets at all**, while **`pytest_dcpy_integration`**
+(real Postgres/SFTP/S3) loads them via 1Password. That split is a security boundary, not just an
+organizational one: GitHub withholds repo secrets from Dependabot-triggered `pull_request` runs by
+default, so a Dependabot PR bumping a `python/*/pyproject.toml` dependency can still get a real
+signal from the unit suite; `pytest_dcpy_integration` explicitly skips for `dependabot[bot]`
+instead of failing on a missing `OP_SERVICE_ACCOUNT_TOKEN` it can never have. Don't add a secret to
+`pytest_dcpy` — if new test code needs one, that code belongs in
+`apps/dcpy_integration_tests/` instead.
+
+`pytest_dcpy` runs inside the `de` dev container (no `postgis`/`sftp-server` — nothing in it talks
+to real infra). Roughly:
 
 ```bash
 # main unit suite: each package synced and tested in isolation (uv sync --package dcpy-<pkg>),
@@ -124,9 +136,14 @@ done
 # library suite, separately (gdal/pyarrow conflict)
 uv sync --package dcpy-library
 uv run --no-sync pytest python/library/test --cov=python/library --cov-report=xml:coverage-library.xml
+```
 
-# integration suite: apps/dcpy_integration_tests's own pyproject.toml declares exactly what it
-# needs, so this is a scoped sync too, despite spanning packages by design
+`pytest_dcpy_integration` runs inside the `de` dev container with `postgis` and `sftp-server`
+services, after loading secrets:
+
+```bash
+# apps/dcpy_integration_tests's own pyproject.toml declares exactly what it needs, so this is a
+# scoped sync too, despite spanning packages by design
 uv sync --package dcpy_integration_tests
 uv run --no-sync pytest apps/dcpy_integration_tests --ignore apps/dcpy_integration_tests/library ...
 # integration library suite, separately (gdal/pyarrow again)
