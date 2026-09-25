@@ -225,10 +225,10 @@ columns:
   description: Net change in Class A unit count between the number of units existing at the time of application and the number of
     units proposed.
   example: '0.0'
-- id: classa_hpdaff
-  name: classa_HPDaff
+- id: hpdaffrdbl
+  name: HPDAffrdbl
   data_type: decimal
-  description: 'TODO: placeholder, description pending from the Housing team'
+  description: Affordable units associated with a given project.
 - id: hotelinit
   name: HotelInit
   data_type: text
@@ -565,11 +565,13 @@ columns:
 - id: hpd_id
   name: HPD_id
   data_type: text
-  description: 'TODO: placeholder, description pending from the Housing team'
+  description: Unique ID assigned to a project by Housing Preservation and Development.
 - id: hpd_jobrelate
   name: HPD_jobrelate
   data_type: text
-  description: 'TODO: placeholder, description pending from the Housing team'
+  description: >-
+    The relationship between DOB and HPD records. This relationship can be one-to-one, one-to-many, many-to-one, or
+    many-to-many.
 - id: version
   name: Version
   data_type: text

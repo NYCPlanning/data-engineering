@@ -48,7 +48,7 @@ Orientation for the entries below. HNY runs in three steps inside `02_build_devd
 | Step | File | Builds | Consumed by |
 |---|---|---|---|
 | Union | `sql/_hny_union.sql` | `hpd_units_by_building`, `hpd_geocode_results` — current HNY + historical, with prefixed ids | `_hny_match.sql` |
-| Match | `sql/_hny_match.sql` | `hny_geo` (one row per HNY building), `hny_matches` (surviving HNY↔job matches), `hny_no_match`, **`devdb_hny_lookup`** | `final.sql` → the DevDB product columns `classa_HPDaff`, `HPD_id`, `HPD_jobrelate` |
+| Match | `sql/_hny_match.sql` | `hny_geo` (one row per HNY building), `hny_matches` (surviving HNY↔job matches), `hny_no_match`, **`devdb_hny_lookup`** | `final.sql` → the DevDB product columns `HPDAffrdbl`, `HPD_id`, `HPD_jobrelate` |
 | Join | `sql/_hny_join.sql` | **`hny_devdb_lookup`** | Exported standalone as `HNY_devdb_lookup.csv`; nothing else reads it |
 
 The two lookup tables are near-anagrams of each other and are easy to confuse. See
@@ -121,7 +121,7 @@ the same CTE names (`many_developments`, `many_hny`, `relateflags_hny_matches`, 
 | Many-to-many | Folded into the other two branches | Explicit `_many_to_many` → `many_to_many` two-step |
 | `hny_id` for grouped rows | Literal `'Multiple'` | `string_agg` of the real ids |
 | Columns | 5 | 24 — adds income bands, bedroom mix, project dates |
-| Feeds | The DevDB product (`classa_HPDaff`, `HPD_id`, `HPD_jobrelate`) | A standalone CSV export only |
+| Feeds | The DevDB product (`HPDAffrdbl`, `HPD_id`, `HPD_jobrelate`) | A standalone CSV export only |
 
 The overlapping filters in `_hny_match.sql` are what made the 26Q2 build fail: its
 `one_to_many` grouped on a per-row flag that is not constant within its own filter. The
