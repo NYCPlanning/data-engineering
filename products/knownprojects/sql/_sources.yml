@@ -12,10 +12,10 @@ sources:
         description: "ZAP projects"
       - name: dcp_projectbbls
         description: "ZAP project to BBL mapping"
-      - name: dcp_ct2020_wi
+      - name: dcp_ct2020
       - name: dcp_nta2020
       - name: dcp_cdta2020
-      - name: dcp_cdboundaries_wi
+      - name: dcp_cdboundaries
       - name: dcp_boroboundaries
         description: "Borough codes and names for the CPP borough rollup"
       - name: dcp_school_districts

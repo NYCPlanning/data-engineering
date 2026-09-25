@@ -23,9 +23,9 @@ inputs:
   - name: doe_eszones
   - name: doe_school_subdistricts
   - name: dcp_school_districts
-  - name: dcp_ct2020_wi
+  - name: dcp_ct2020
   - name: dcp_nta2020
   - name: dcp_cdta2020
-  - name: dcp_cdboundaries_wi
+  - name: dcp_cdboundaries
   - name: dcp_censusdata
     version: "2020"

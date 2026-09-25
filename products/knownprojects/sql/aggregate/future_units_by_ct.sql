@@ -5,7 +5,7 @@ WITH project_records AS (
 ),
 
 ct_details AS (
-    SELECT * FROM {{ source('recipe_sources', 'dcp_ct2020_wi') }}
+    SELECT * FROM {{ source('recipe_sources', 'dcp_ct2020') }}
 ),
 
 project_records_with_ct_details AS (
