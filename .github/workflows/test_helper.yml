@@ -239,6 +239,13 @@ jobs:
     name: Pytest - dcpy
     runs-on: ubuntu-22.04
     if: (inputs.path_filter == '') || contains(inputs.path_filter, 'dcpy')
+    # No secrets here on purpose: every python/*/test suite mocks its externals (moto for
+    # S3, dummy AWS creds in each package's conftest.py, no real postgres/sftp) - see
+    # docs/testing.md. That's what lets this job run on a Dependabot PR at all: GitHub
+    # withholds repo secrets from Dependabot-triggered `pull_request` runs by default, so
+    # a job that actually needed them would just fail (as it did for the integration suite
+    # before it was split into its own job below). Keep it that way - don't add a secret
+    # here without moving the code that needs it to pytest_dcpy_integration instead.
     env:
       GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
       RECIPES_BUCKET: edm-recipes
@@ -247,25 +254,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Load Secrets
-      uses: 1password/load-secrets-action@v1
-      with:
-        export-env: true
-      env:
-        AZURE_STORAGE_CONNECTION_STRING: "op://Data Engineering/azure_integration_test/AZURE_STORAGE_CONNECTION_STRING"
-        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-        CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
-        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
-        RECIPE_ENGINE: "op://Data Engineering/EDM_DATA/defaultdb_url"
 
     - name: Start images
+      # Just `de` - no postgis/sftp-server, nothing here talks to real infra.
       run: |
         env > .env
-        docker compose -f .devcontainer/docker-compose.yml up -d --wait de postgis sftp-server
+        docker compose -f .devcontainer/docker-compose.yml up -d --wait de
 
     - name: Run Container Setup
       run: docker exec --user root de ./bash/docker_container_setup.sh
@@ -333,11 +327,107 @@ jobs:
         docker exec --user root de bash -c \
           "COVERAGE_FILE=.coverage.library uv run --no-sync python3 -m pytest python/library/test -v --cov=python/library --cov-report=xml:coverage-library.xml --cov-config=pyproject.toml"
 
+    # One flagged upload per package, rather than a single combined report, so Codecov
+    # shows both per-package coverage (e.g. "how much of dcpy-utils do dcpy-utils's own
+    # tests cover") and an overall total (which it aggregates across flags automatically).
+    # (Steps can't use `strategy.matrix` - that's job-level only - hence seven explicit
+    # copies instead of a loop.) No CODECOV_TOKEN: this repo is public, so codecov-action
+    # uploads tokenless - keeping it that way here is also what lets this job stay
+    # secret-free end to end, see the job-level comment above.
+    - name: Upload connectors coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-connectors.xml
+        flags: dcpy-connectors
+        verbose: true
+
+    - name: Upload data coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-data.xml
+        flags: dcpy-data
+        verbose: true
+
+    - name: Upload geospatial coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-geospatial.xml
+        flags: dcpy-geospatial
+        verbose: true
+
+    - name: Upload lifecycle coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-lifecycle.xml
+        flags: dcpy-lifecycle
+        verbose: true
+
+    - name: Upload product-metadata coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-product-metadata.xml
+        flags: dcpy-product-metadata
+        verbose: true
+
+    - name: Upload utils coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-utils.xml
+        flags: dcpy-utils
+        verbose: true
+
+    - name: Upload library coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage-library.xml
+        flags: dcpy-library
+        verbose: true
+
+  pytest_dcpy_integration:
+    name: Pytest - dcpy integration
+    runs-on: ubuntu-22.04
+    # Unlike pytest_dcpy above, this suite hits real infrastructure (Postgres, SFTP, S3)
+    # and needs real credentials for it - that's exactly why it's a separate job. Skip it
+    # outright for Dependabot PRs rather than let it fail: GitHub withholds repo secrets
+    # from Dependabot-triggered `pull_request` runs by design (a security default, not a
+    # bug), so a run here would just fail on "$OP_SERVICE_ACCOUNT_TOKEN must be set" no
+    # matter what - a permanent, unfixable red X that could block auto-merge for nothing.
+    # A human-authored PR still gets full coverage here.
+    if: (github.actor != 'dependabot[bot]') && ((inputs.path_filter == '') || contains(inputs.path_filter, 'dcpy'))
+    env:
+      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v1
+      with:
+        export-env: true
+      env:
+        AZURE_STORAGE_CONNECTION_STRING: "op://Data Engineering/azure_integration_test/AZURE_STORAGE_CONNECTION_STRING"
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        CODECOV_TOKEN: "op://Data Engineering/Codecov/CODECOV_TOKEN"
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
+        RECIPE_ENGINE: "op://Data Engineering/EDM_DATA/defaultdb_url"
+
+    - name: Start images
+      run: |
+        env > .env
+        docker compose -f .devcontainer/docker-compose.yml up -d --wait de postgis sftp-server
+
+    - name: Run Container Setup
+      run: docker exec --user root de ./bash/docker_container_setup.sh
+
     # apps/dcpy_integration_tests spans multiple packages by design (it isn't owned by any
     # one dcpy-* package - see its own pyproject.toml) but, unlike dcpy/test_integration
     # before it moved there, it now declares its own real dependencies (dcpy-connectors,
-    # dcpy-library, dcpy-lifecycle, dcpy-utils) - so it gets its own scoped isolated sync
-    # too, same as the packages above, instead of needing the whole workspace.
+    # dcpy-library, dcpy-lifecycle, dcpy-utils) - so it gets its own scoped isolated sync,
+    # instead of needing the whole workspace.
     - name: dcpy integration pytests
       run: |
         docker exec --user root de \
@@ -354,74 +444,6 @@ jobs:
           "COVERAGE_FILE=.coverage.integration-library uv run --no-sync python3 -m pytest apps/dcpy_integration_tests/library -v --cov=python --cov-report=xml:coverage-integration-library.xml --cov-config=pyproject.toml"
       env:
         RECIPES_BUCKET: "test-recipes"
-
-    # One flagged upload per package, rather than a single combined report, so Codecov
-    # shows both per-package coverage (e.g. "how much of dcpy-utils do dcpy-utils's own
-    # tests cover") and an overall total (which it aggregates across flags automatically).
-    # (Steps can't use `strategy.matrix` - that's job-level only - hence nine explicit
-    # copies instead of a loop.)
-    - name: Upload connectors coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-connectors.xml
-        flags: dcpy-connectors
-        verbose: true
-
-    - name: Upload data coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-data.xml
-        flags: dcpy-data
-        verbose: true
-
-    - name: Upload geospatial coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-geospatial.xml
-        flags: dcpy-geospatial
-        verbose: true
-
-    - name: Upload lifecycle coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-lifecycle.xml
-        flags: dcpy-lifecycle
-        verbose: true
-
-    - name: Upload product-metadata coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-product-metadata.xml
-        flags: dcpy-product-metadata
-        verbose: true
-
-    - name: Upload utils coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-utils.xml
-        flags: dcpy-utils
-        verbose: true
-
-    - name: Upload library coverage to Codecov
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
-      with:
-        files: coverage-library.xml
-        flags: dcpy-library
-        verbose: true
 
     - name: Upload integration coverage to Codecov
       uses: codecov/codecov-action@v4
