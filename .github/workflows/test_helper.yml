@@ -335,49 +335,49 @@ jobs:
     # uploads tokenless - keeping it that way here is also what lets this job stay
     # secret-free end to end, see the job-level comment above.
     - name: Upload connectors coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-connectors.xml
         flags: dcpy-connectors
         verbose: true
 
     - name: Upload data coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-data.xml
         flags: dcpy-data
         verbose: true
 
     - name: Upload geospatial coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-geospatial.xml
         flags: dcpy-geospatial
         verbose: true
 
     - name: Upload lifecycle coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-lifecycle.xml
         flags: dcpy-lifecycle
         verbose: true
 
     - name: Upload product-metadata coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-product-metadata.xml
         flags: dcpy-product-metadata
         verbose: true
 
     - name: Upload utils coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-utils.xml
         flags: dcpy-utils
         verbose: true
 
     - name: Upload library coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       with:
         files: coverage-library.xml
         flags: dcpy-library
@@ -446,7 +446,7 @@ jobs:
         RECIPES_BUCKET: "test-recipes"
 
     - name: Upload integration coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       env:
         CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
       with:
@@ -455,7 +455,7 @@ jobs:
         verbose: true
 
     - name: Upload integration-library coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v7
       env:
         CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
       with:
