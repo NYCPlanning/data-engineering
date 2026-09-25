@@ -7,7 +7,6 @@ package: this is one csv that DOF's scripts read by name.
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile
 
 import typer
 
@@ -17,8 +16,8 @@ from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils.logging import logger
 
 PRODUCT = "db-pluto"
-PUBLISHED_ZIP = "dof/pluto.zip"
 FILENAME = "pluto.csv"
+PUBLISHED_PATH = f"dof/{FILENAME}"
 DEFAULT_FOLDER = "ToDOF"
 
 app = typer.Typer(add_completion=False)
@@ -28,7 +27,7 @@ app = typer.Typer(add_completion=False)
 def run(
     version: str = typer.Argument(help="Published PLUTO version, e.g. 26v2"),
     folder: str = typer.Option(DEFAULT_FOLDER, help="Destination folder on Axway"),
-    dry_run: bool = typer.Option(False, help="Download and unpack, but don't push"),
+    dry_run: bool = typer.Option(False, help="Download, but don't push"),
 ) -> None:
     axway = connectors["axway", SFTPConnector]
 
@@ -42,14 +41,9 @@ def run(
 
     key = f"{folder}/{FILENAME}"
     with TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp)
-        zip_path = publishing.download_file(
-            publishing.PublishKey(PRODUCT, version), PUBLISHED_ZIP, tmp_path
+        csv_path = publishing.download_file(
+            publishing.PublishKey(PRODUCT, version), PUBLISHED_PATH, Path(tmp)
         )
-        # version.txt rides along in the published zip for our own archive; DOF
-        # asked for the csv alone.
-        with ZipFile(zip_path) as z:
-            csv_path = Path(z.extract(FILENAME, tmp_path))
 
         if dry_run:
             logger.info(f"Dry run: would push {csv_path.stat().st_size} bytes to {key}")

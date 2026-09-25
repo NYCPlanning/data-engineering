@@ -14,7 +14,7 @@ on:
         default: ToDOF
         required: true
       dry_run:
-        description: "Download and unpack, but don't push"
+        description: "Download, but don't push"
         type: boolean
         default: true
         required: true
@@ -32,8 +32,12 @@ jobs:
         with:
           sparse-checkout: |
             dcpy
+            python
             bash
             admin/run_environment
+
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
 
       - name: Load Secrets
         id: op-load-secret
@@ -67,7 +71,7 @@ jobs:
 
       - name: Distribute
         run: |
-          python3 -m dcpy lifecycle scripts distribute_pluto_to_dof run \
+          uv run python3 -m dcpy lifecycle scripts distribute_pluto_to_dof run \
             ${{ inputs.version }} \
             --folder "${{ inputs.folder }}" \
             ${{ inputs.dry_run == true && '--dry-run' || '--no-dry-run' }}

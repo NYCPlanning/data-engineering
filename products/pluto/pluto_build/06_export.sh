@@ -57,14 +57,11 @@ echo "Exporting DOF"
 # bbl goes out as a bigint here, unlike the numeric(19,8) the other exports carry.
 mkdir -p dof && (
     cd dof
-    rm -f pluto.zip
     run_sql_command "\COPY ( 
             SELECT bbl::bigint AS bbl, council, latitude, longitude, schooldist FROM export_pluto
             WHERE bbl is not null
         ) TO STDOUT DELIMITER ',' CSV HEADER;" > pluto.csv
     echo "${VERSION}" > version.txt
-    zip pluto.zip *
-    ls | grep -v pluto.zip | xargs rm
 )
 
 echo "Exporting QAQC"
