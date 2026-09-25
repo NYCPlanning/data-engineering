@@ -30,7 +30,7 @@ SELECT
     classa_init AS "ClassAInit",
     classa_prop AS "ClassAProp",
     classa_net AS "ClassANet",
-    classa_hnyaff::numeric AS "ClassA_HNY",
+    classa_hnyaff::numeric AS "HPDAffrdbl",
     hotel_init AS "HotelInit",
     hotel_prop AS "HotelProp",
     otherb_init AS "OtherBInit",
@@ -134,8 +134,8 @@ SELECT
     datasource AS "DataSource",
     geomsource AS "GeomSource",
     dcpeditfields AS "DCPEdited",
-    hny_id AS "HNY_ID",
-    hny_jobrelate AS "HNY_Relate",
+    hny_id AS "HPD_id",
+    hny_jobrelate AS "HPD_jobrelate",
     version AS "Version",
     st_setsrid(st_makepoint(longitude, latitude), 4326) AS geom
 FROM export_devdb;

@@ -1,4 +1,8 @@
 DROP TABLE IF EXISTS final_devdb;
+/** DISTINCT ON is load-bearing: mid_devdb and devdb_hny_lookup both carry duplicate
+    job_number rows, so this join multiplies without it. There is no ORDER BY, so the
+    surviving row is an arbitrary pick -- safe only while the duplicates agree on every
+    column selected here, which they currently do. See ../data_issues.md, DEVDB-MID-01. **/
 SELECT DISTINCT ON (mid_devdb.job_number)
     mid_devdb.job_number,
     mid_devdb.job_type,

@@ -3,6 +3,10 @@ DESCRIPTION:
     Merging devdb with hny. This requires the following procedure.
     Following _hny.sql query with HNY_matches were completed
 
+    hny_devdb_lookup is exported standalone and read by nothing else in the build. The
+    product columns come from devdb_hny_lookup, which _hny_match.sql builds from the
+    same hny_matches table by different rules. See ../data_issues.md, DEVDB-HNY-01.
+
     5) Assign flags to indicate one_hny_to_many_dev and/or one_dev_to_many_hny.
         a) handle one devdb to many hny records cases by concatenating those hny_ids and combines units/fields
         to create a single record

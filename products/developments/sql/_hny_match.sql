@@ -2,6 +2,11 @@
 DESCRIPTION:
     Merging devdb with hny. This requires the following procedure.
 
+    Steps 5-7 below are implemented a second time, differently, in _hny_join.sql, which
+    builds hny_devdb_lookup for a standalone export. This file builds devdb_hny_lookup,
+    which is what reaches the product. Known defects in both, and in the corrections
+    file they share, are registered in ../data_issues.md (DEVDB-HNY-01 for the split).
+
     1) Merge hny data from hpd_units_by_building with hpd_geocode_results,
         and filter to new construction that isn't confidential. Create a unique ID
         using a hash.
@@ -122,6 +127,8 @@ DROP TABLE IF EXISTS hny_geo;
 -- 1) Merge with geocoding results and create a unique ID
 WITH hny AS (
     SELECT
+        -- building_id is not a fixed width in the source. Padding to 6 gives one building
+        -- one hny_id; ids already longer than 6 are left alone rather than truncated.
         concat_ws(
             '/',
             a.project_id,
@@ -281,9 +288,9 @@ best_matches_by_hny AS (
             AND t1.match_priority = t2.match_priority
 ),
 
--- Then find highest priority match(es) for each job_number	
--- if a job number is same priority for different hny projects. 
--- it should be considered for all of the hny projects		
+-- Then the same filter by job_number. Two passes because the two sides can disagree: a
+-- match that is the best available for its hny record need not be the best available for
+-- its job. Ties survive both passes, which is how one job keeps several hny records.
 best_matches AS (
     SELECT
         t2.hny_id,
@@ -315,7 +322,11 @@ SELECT
 INTO hny_matches
 FROM best_matches;
 
--- Apply corrections to add or remove matches
+/** Apply corrections to add or remove matches.
+    Order matters and is not symmetric: removals run first, so an 'add' for the same pair
+    reinstates it and 'remove' has no effect. The INSERT below also selects FROM
+    hny_corrections without filtering by action, so a pair carrying more than one row
+    inserts once per row. See ../data_issues.md, DEVDB-HNY-02 and DEVDB-HNY-04. **/
 DELETE FROM hny_matches
 WHERE
     hny_id || job_number
@@ -353,7 +364,11 @@ WHERE
         FROM hny_matches
     );
 
---- cross grouping of all hny_id and job between manual and other matching methods
+/** Cross-grouping: where two jobs share any hny record, give each job the other's hny
+    records as well, so a cluster is described the same way from every job in it. The
+    downstream one-to-many and many-to-many steps rely on that completeness.
+    Single pass, and the CTE reads the pre-INSERT snapshot, so clusters linked only
+    through a third job are not necessarily closed. **/
 WITH associative_matches AS (
     SELECT DISTINCT
         a.job_number AS j1,
@@ -448,15 +463,20 @@ one_to_many AS (
         'Multiple' AS hny_id,
         sum(coalesce(all_counted_units::int, '0'))::text AS classa_hnyaff,
         sum(coalesce(total_units::int, '0'))::text AS all_hny_units,
-        one_dev_to_many_hny,
-        one_hny_to_many_dev
+        1 AS one_dev_to_many_hny,
+        /** one_hny_to_many_dev is per-hny, not per-job, so grouping on it splits a job
+            whose hny records disagree into two partial sums — which then breaks the
+            single-row lookups into this CTE below. Aggregate it instead. **/
+        max(one_hny_to_many_dev) AS one_hny_to_many_dev
     FROM relateflags_hny_matches
     WHERE one_dev_to_many_hny = 1
-    GROUP BY job_number, one_dev_to_many_hny, one_hny_to_many_dev
+    GROUP BY job_number
 ),
 
--- c) For multiple dev to one hny, assign units to the one with the lowest job_number
--- Find the minimum job_number per hny in RELATEFLAGS_hny_matches
+/** c) For multiple dev to one hny, assign units to the one with the lowest job_number.
+    Every other job matched to that hny record keeps its row but gets NULL units -- the
+    CASE below has no ELSE. That prevents double-counting one building across jobs, but
+    min(job_number) picks the winner arbitrarily. See ../data_issues.md, DEVDB-HNY-06. **/
 min_job_number_per_hny AS (
     SELECT
         min(job_number) AS job_number,
@@ -510,7 +530,11 @@ many_to_one AS (
     WHERE one_hny_to_many_dev = 1
 ),
 
--- Combine into a single look-up table					
+/** Combine into a single look-up table.
+    The branches are not disjoint -- one_to_many and many_to_one both take many-to-many
+    rows -- so the exclusion below is what stops a job appearing from both. Composite keys
+    are compared by concatenating without a separator here and in the corrections
+    statements above, which relies on the parts being fixed enough not to realign. **/
 hny_lookup AS (
     SELECT * FROM one_to_one
     UNION

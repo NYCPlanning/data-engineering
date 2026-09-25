@@ -30,7 +30,9 @@ SET
     all_counted_units = nullif(replace(btrim(all_counted_units), ',', ''), '-'),
     total_units = nullif(replace(btrim(total_units), ',', ''), '-');
 
--- HPD units data
+-- ogc_fid is assigned at load time, so it is only unique within one extract. Prefixing
+-- keeps the two apart once unioned. The same prefixes go on the geocode results below,
+-- because _hny_match.sql joins units to geocodes on ogc_fid = uid.
 ALTER TABLE hpd_hny_units_by_building ADD COLUMN ogc_fid_text text;
 UPDATE hpd_hny_units_by_building
 SET ogc_fid_text = 'hny' || '-' || cast(ogc_fid AS text);
@@ -46,6 +48,9 @@ SET ogc_fid_text = 'historical' || '-' || cast(ogc_fid AS text);
 ALTER TABLE _init_hpd_historical_units_by_building DROP COLUMN ogc_fid;
 ALTER TABLE _init_hpd_historical_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
 
+-- SELECT * UNION matches columns positionally, so both extracts must agree on column count,
+-- order and type. The rename and drop steps in the hpd_hny_units_by_building ingest template
+-- exist to hold that; see the comments there.
 DROP TABLE IF EXISTS hpd_units_by_building;
 CREATE TABLE hpd_units_by_building AS
 SELECT * FROM hpd_hny_units_by_building
