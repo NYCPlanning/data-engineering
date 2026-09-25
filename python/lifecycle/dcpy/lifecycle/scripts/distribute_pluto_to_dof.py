@@ -1,4 +1,4 @@
-"""Push PLUTO's BBL/council extract to DOF's Axway SecureTransport folder.
+"""Push PLUTO's extract for DOF to their Axway SecureTransport folder.
 
 DOF pulls this from the same server we pull their PTS and CAMA inputs from. It
 doesn't go through the metadata-driven distribute stage, which expects a dataset
