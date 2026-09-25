@@ -4,7 +4,9 @@ version = "0.0.1"
 description = "DCP Data Engineering - QA/QC streamlit app"
 requires-python = ">=3.11"
 dependencies = [
-    "dcpy-lifecycle",
+    # apps/qa/src/shared/components/build_outputs.py uses dcpy.geospatial directly
+    # (mapping, transform) and displays shapefile build artifacts.
+    "dcpy-lifecycle[geo]",
     "folium",
     "geoalchemy2",
     "leafmap",

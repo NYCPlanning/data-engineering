@@ -9,12 +9,16 @@ description = "DCP Data Engineering - dataset comparison utilities"
 requires-python = ">=3.11"
 dependencies = [
     "dcpy-utils",
-    "geopandas",
     "numpy",
     "pandas",
     "pydantic",
-    "shapely",
 ]
+
+# geopandas/shapely are used throughout compare.py's spatial-aware comparison logic (not
+# a narrow function), so kept optional rather than lazily imported - importing
+# dcpy.data.compare without this extra fails cleanly at that point.
+[project.optional-dependencies]
+geo = ["geopandas", "shapely"]
 
 [tool.uv.sources]
 dcpy-utils = { workspace = true }
