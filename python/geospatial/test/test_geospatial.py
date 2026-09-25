@@ -14,7 +14,8 @@ from shapely import (
     Polygon,
 )
 
-from dcpy.geospatial import geometry, parquet, transform
+from dcpy.geospatial import parquet, transform
+from dcpy.utils import geometry
 from dcpy.utils.formats import Geometry as FileGeometry
 
 RESOURCES_DIR = Path(__file__).parent / "resources"

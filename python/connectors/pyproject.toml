@@ -12,7 +12,6 @@ dependencies = [
     "dcpy-product-metadata",
     "beautifulsoup4",
     "cloudpathlib[all]",
-    "geopandas",
     "pandas",
     "pydantic",
     "pytz",
@@ -24,6 +23,12 @@ dependencies = [
     "usaddress",
     "PyYAML",
 ]
+
+# geopandas is only needed by edm/publishing.py's read_shapefile() (lazily imported there) -
+# kept optional so consumers that don't need that (e.g. apps/dagster, via dcpy-lifecycle)
+# aren't forced to install it.
+[project.optional-dependencies]
+geo = ["geopandas"]
 
 [tool.uv.sources]
 dcpy-utils = { workspace = true }

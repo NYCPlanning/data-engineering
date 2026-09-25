@@ -17,6 +17,12 @@ that still need migration. Each method below is marked with specific references.
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
+# Deferred annotation evaluation: read_shapefile()'s return type references geopandas,
+# but the import itself is lazy (inside the function) so this module stays importable
+# without geopandas/GDAL installed unless read_shapefile() is actually called. The
+# TYPE_CHECKING import below is only for mypy/pyright; it's never evaluated at runtime.
+from __future__ import annotations
+
 import json
 import re
 from dataclasses import asdict
@@ -24,15 +30,17 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable, TypeVar
+from typing import TYPE_CHECKING, Callable, TypeVar
 from urllib.parse import urlencode, urljoin
 from zipfile import ZipFile
 
-import geopandas as gpd
 import pandas as pd
 import pytz
 import typer
 import yaml
+
+if TYPE_CHECKING:
+    import geopandas as gpd
 
 from dcpy.configuration import (
     BUILD_NAME,
@@ -616,6 +624,8 @@ def read_shapefile(product_key: ProductKey, filepath: str) -> gpd.GeoDataFrame:
     product_key -- a key to find a specific instance of a data product
     filepath -- the filepath of the desired csv in the output folder
     """
+    import geopandas as gpd
+
     return _read_data_helper(f"{product_key.path}/{filepath}", gpd.read_file)
 
 

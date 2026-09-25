@@ -130,8 +130,8 @@ known-first-party = [
 # dcpy is a uv workspace now (each package under python/*/ has its own dcpy/ dir, merged
 # at runtime into one namespace package by the editable installs' import hooks). mypy
 # doesn't execute those hooks, so it needs every package root listed here to resolve
-# dcpy.* imports from files outside that package (e.g. dcpy/test_integration, products/*,
-# admin/ops).
+# dcpy.* imports from files outside that package (e.g. apps/dcpy_integration_tests,
+# products/*, admin/ops).
 mypy_path = [
     "python/utils",
     "python/connectors",
@@ -162,7 +162,7 @@ markers = ["end_to_end"]
 [tool.coverage.run]
 # Measure branch coverage (https://coverage.readthedocs.io/en/latest/branch.html)
 branch = true
-omit = ["python/*/test/*", "dcpy/test_integration/*"]
+omit = ["python/*/test/*", "apps/dcpy_integration_tests/*"]
 
 [tool.coverage.report]
 include_namespace_packages = true
@@ -181,27 +181,32 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.uv.workspace]
-members = ["python/*", "apps/qa", "apps/dagster", "apps/notebook-server"]
+members = [
+    "python/*",
+    "apps/qa",
+    "apps/dagster",
+    "apps/notebook-server",
+    "apps/dcpy_integration_tests",
+]
 
-# The root pyproject.toml is mostly a virtual workspace container: each dcpy-* package
-# under python/ has its own test/ dir, own pyproject.toml, and own [dependency-groups]
-# dev with exactly the pytest/moto/faker/stubs its tests need. `uv sync` from here
-# installs the whole workspace against one shared uv.lock.
-#
-# The one exception is dcpy/test_integration, which stayed at its original repo-root
-# location (dev-only, not distributed, spans multiple packages) rather than being split
-# apart. It's plain pytest-discovered-by-path (nothing imports it as `dcpy.test_integration`),
-# so it doesn't need to be part of the installable dcpy namespace - the [project] table
-# below exists only so this root pyproject.toml can carry its own [dependency-groups] dev.
+# The root pyproject.toml is a virtual workspace container: every dcpy-* package under
+# python/, and every apps/* member (including apps/dcpy_integration_tests - cross-package
+# integration tests against live infra, see its own pyproject.toml), has its own test/ dir,
+# own pyproject.toml, and own [dependency-groups] dev with exactly what its tests need.
+# `uv sync` from here installs the whole workspace against one shared uv.lock. This root
+# project itself carries no code of its own - just the repo-wide `dev` tooling group below
+# and the `products` extra for one-off product/notebook scripts (products/ isn't a uv
+# workspace member).
 [project]
-name = "dcpy-test-suite"
+name = "dcpy-workspace"
 version = "0.0.1"
 requires-python = ">=3.11"
 dependencies = []
 
 # Dependencies of one-off product/notebook scripts under products/ and notebooks/ - not
 # dcpy code, and products/ isn't a uv workspace member, so these have no other home.
-# Exported for the `dev` image via `uv export --package dcpy-test-suite --extra products`.
+# Exported for the `dev` image via generate_dev_requirements's --all-extras (see
+# admin/ops/docker_build_and_publish.sh).
 [project.optional-dependencies]
 products = [
     "cached-property",

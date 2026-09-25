@@ -11,30 +11,40 @@ dependencies = [
     "dcpy-utils",
     "dcpy-connectors",
     "dcpy-product-metadata",
-    "dcpy-geospatial",
-    "dcpy-geosupport",
-    "dcpy-data",
-    "dcpy-library",
     # dcpy.lifecycle.builds shells out to the `dbt` CLI (see builds/build.py) rather than
     # importing it, but the executable still needs to be installed here.
     "dbt-postgres",
     "dbt-duckdb",
-    "geoalchemy2",
-    "geopandas",
     "Jinja2",
     "pandas",
     "pandera",
     "pydantic",
-    "pyproj",
     "python-dateutil",
     "pytz",
     "ruamel.yaml",
-    "shapely",
     "tabulate",
     "typer",
     "typing_extensions",
-    "usaddress",
     "PyYAML",
+]
+
+# GDAL/geosupport-backed functionality (ingest.transform/validate, package.esri/validate,
+# builds.export's geometry columns, the geocoding scripts) - not needed to load or run
+# dcpy.lifecycle's core orchestration (builds, distribute, the CLI skeleton), only to
+# actually execute those specific stages. Kept optional so consumers that only need the
+# orchestration layer (e.g. apps/dagster) aren't forced to install GDAL/geosupport at all.
+# apps/qa and apps/notebook-server, which do need this, depend on "dcpy-lifecycle[geo]".
+[project.optional-dependencies]
+geo = [
+    "dcpy-geospatial",
+    "dcpy-geosupport",
+    "dcpy-data",
+    "dcpy-library",
+    "geoalchemy2",
+    "geopandas",
+    "pyproj",
+    "shapely",
+    "usaddress",
 ]
 
 [tool.uv.sources]

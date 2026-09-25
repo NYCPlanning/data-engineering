@@ -32,27 +32,36 @@ pip install --upgrade pip==25.2 requests beautifulsoup4 uv
 # dcpy is a uv workspace (see python/*/pyproject.toml) rather than one monolithic
 # package, so each image only exports the workspace member(s) it actually needs instead
 # of the whole dependency set. build-base stays GDAL-free; build-geosupport additionally
-# needs everything dcpy-lifecycle depends on (geospatial, geosupport, connectors, etc).
+# needs everything dcpy-lifecycle needs to actually run its GDAL/geosupport-backed stages
+# (geospatial, geosupport, connectors' geo bits, etc) - which now live behind
+# dcpy-lifecycle's own "geo" extra rather than being hard dependencies, precisely so
+# consumers that don't need them (e.g. apps/dagster) aren't forced to install them - so
+# this must pass --extra geo explicitly to get the same closure build-geosupport needs.
 # --no-emit-workspace: these images only ship third-party deps (the dcpy source itself
 # isn't in the docker build context - it's added by later images / mounted at runtime),
 # but `uv export --package X` emits X and its workspace-internal deps as local `file://`
 # path installs by default, which fail to resolve since that source isn't present here.
 function generate_dcpy_requirements {
+    local extra=$1
+    shift
     local packages=("$@")
     local export_args=()
     for pkg in "${packages[@]}"; do
         export_args+=(--package "$pkg")
     done
+    if [[ -n "$extra" ]]; then
+        export_args+=(--extra "$extra")
+    fi
     uv export --no-dev --no-hashes --no-editable --no-emit-workspace "${export_args[@]}" \
         -o "$IMAGE_DIR/dcpy_requirements.txt"
 }
 
-# dev is the omnibus image: the whole workspace, plus products (deps of one-off scripts
-# under products/ and notebooks/ that aren't dcpy code, declared as the "products" extra
-# on the root dcpy-test-suite package) and dev (mypy, ruff, dbt-duckdb test tooling, etc).
+# dev is the omnibus image: the whole workspace, every optional extra (dcpy-lifecycle's
+# "geo", the root "products" extra for one-off product/notebook scripts, etc), and dev
+# (mypy, ruff, dbt-duckdb test tooling, etc).
 function generate_dev_requirements {
-    uv export --no-hashes --no-editable --no-emit-workspace --all-packages \
-        --extra products --group dev \
+    uv export --no-hashes --no-editable --no-emit-workspace --all-packages --all-extras \
+        --group dev \
         -o "$IMAGE_DIR/dcpy_requirements.txt"
 }
 
@@ -97,16 +106,16 @@ case $image in
         $GEO_COMMAND;;
     build-base)
         common
-        generate_dcpy_requirements dcpy-utils dcpy-product-metadata
+        generate_dcpy_requirements "" dcpy-utils dcpy-product-metadata
         $COMMAND;;
     build-base-arm)
         common
-        generate_dcpy_requirements dcpy-utils dcpy-product-metadata
+        generate_dcpy_requirements "" dcpy-utils dcpy-product-metadata
         $COMMAND;;
     build-geosupport)
         export_geosupport_versions
         common
-        generate_dcpy_requirements dcpy-lifecycle
+        generate_dcpy_requirements geo dcpy-lifecycle
         $GEO_COMMAND;;
     docker-geosupport)
         export_geosupport_versions

@@ -1,0 +1,30 @@
+[project]
+name = "dcpy_integration_tests"
+version = "0.0.1"
+description = "DCP Data Engineering - cross-package integration tests against live infra (postgres, S3-compatible storage, sftp) - see .devcontainer/docker-compose.yml. Not a distributed dcpy-* package: nothing imports it, it's pytest-discovered by path."
+requires-python = ">=3.11"
+# dcpy-lifecycle needs its "geo" extra even though nothing here directly imports
+# dcpy.geospatial: dcpy.lifecycle.data_loader (imported by dcpy.lifecycle.builds.load,
+# exercised by lifecycle/builds/load/test_load_cache.py and
+# connectors/edm/test_plan_load.py) unconditionally imports dcpy.geospatial.parquet.
+dependencies = [
+    "dcpy-connectors",
+    "dcpy-library",
+    "dcpy-lifecycle[geo]",
+    "dcpy-utils",
+]
+
+[tool.uv.sources]
+dcpy-connectors = { workspace = true }
+dcpy-library = { workspace = true }
+dcpy-lifecycle = { workspace = true }
+dcpy-utils = { workspace = true }
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+]

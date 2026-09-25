@@ -35,18 +35,26 @@ declare -A EXTRA_SYNC=(
     [product-metadata]="dcpy-lifecycle"
 )
 
-# dcpy-utils/test/test_postgres.py needs geopandas, which dcpy-utils imports in
-# production code (dcpy.utils.postgres) but doesn't declare - see the comment in
-# .github/workflows/test_helper.yml. Excluded here too until that's resolved.
-declare -A EXTRA_PYTEST_ARGS=(
-    [utils]="--ignore=python/utils/test/test_postgres.py"
+# GDAL/geosupport-backed functionality lives behind each package's own "geo" extra (see
+# python/{lifecycle,data,utils}/pyproject.toml) rather than being a hard dependency, so a
+# plain `uv sync --package dcpy-X` for these won't install it - but their test suites
+# exercise it for real: dcpy.lifecycle.ingest.validate's gpd.GeoDataFrame usage,
+# dcpy.data.compare's spatial comparisons, dcpy.utils.test_datastores's geo fixtures, and
+# connectors/test/edm/test_recipes.py's direct `from dcpy.library import models` (only
+# reachable via dcpy-lifecycle's own "geo" extra, since it's synced in alongside above).
+declare -A EXTRA_ARGS=(
+    [lifecycle]="--extra geo"
+    [data]="--extra geo"
+    [utils]="--extra geo"
+    [connectors]="--extra geo"
 )
 
 FAILED=()
 
 for pkg in "${PACKAGES[@]}"; do
-    echo "=== uv sync --package dcpy-$pkg ${EXTRA_SYNC[$pkg]:+--package ${EXTRA_SYNC[$pkg]}} ==="
-    uv sync --package "dcpy-$pkg" ${EXTRA_SYNC[$pkg]:+--package "${EXTRA_SYNC[$pkg]}"} || {
+    echo "=== uv sync --package dcpy-$pkg ${EXTRA_SYNC[$pkg]:+--package ${EXTRA_SYNC[$pkg]}} ${EXTRA_ARGS[$pkg]:-} ==="
+    # shellcheck disable=SC2086
+    uv sync --package "dcpy-$pkg" ${EXTRA_SYNC[$pkg]:+--package "${EXTRA_SYNC[$pkg]}"} ${EXTRA_ARGS[$pkg]:-} || {
         FAILED+=("$pkg (sync)")
         continue
     }
@@ -56,8 +64,7 @@ for pkg in "${PACKAGES[@]}"; do
     fi
 
     echo "=== pytest python/$pkg/test ==="
-    # shellcheck disable=SC2086
-    uv run --no-sync python3 -m pytest "python/$pkg/test" ${EXTRA_PYTEST_ARGS[$pkg]:-} -v || FAILED+=("$pkg")
+    uv run --no-sync python3 -m pytest "python/$pkg/test" -v || FAILED+=("$pkg")
 done
 
 if [ ${#FAILED[@]} -ne 0 ]; then

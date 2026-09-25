@@ -10,7 +10,7 @@ cd "$PARENT_DIR/.."
 # non-zero at the end if anything failed.
 
 STANDARD_TARGETS=(
-    dcpy
+    apps/dcpy_integration_tests
     products/facilities
     products/template
     products/ceqr/build_scripts

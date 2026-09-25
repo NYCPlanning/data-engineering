@@ -29,6 +29,12 @@ dependencies = [
     "xlrd",
 ]
 
+# geopandas is a real dependency of dcpy.utils.postgres's read_table_gdf/insert_dataframe,
+# but only those two methods (lazily imported there) need it - kept optional so consumers
+# that don't need geo-aware postgres I/O (e.g. apps/dagster) aren't forced to install it.
+[project.optional-dependencies]
+geo = ["geopandas"]
+
 [dependency-groups]
 dev = [
     "pytest",

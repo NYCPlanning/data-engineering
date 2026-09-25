@@ -12,7 +12,7 @@ inputs:
     import_as: decennial_json
     destination: postgres
     preprocessor:
-      module: dcpy.test_integration.connectors.preprocessor
+      module: dcpy_integration_tests.connectors.preprocessor
       function: json_key_upcase_preprocessor
     custom:
       dataset: decennial_2010

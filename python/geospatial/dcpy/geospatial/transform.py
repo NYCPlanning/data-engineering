@@ -18,8 +18,8 @@ from shapely import (
     Polygon,
 )
 
-from dcpy.geospatial import geometry as geom
 from dcpy.utils import formats as file
+from dcpy.utils import geometry as geom
 from dcpy.utils.logging import logger
 
 
