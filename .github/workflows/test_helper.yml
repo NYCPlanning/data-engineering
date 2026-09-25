@@ -166,7 +166,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Cache mypy incremental state
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: .mypy_cache
         # Keyed on uv.lock so a dependency/stub bump starts fresh instead of reusing
