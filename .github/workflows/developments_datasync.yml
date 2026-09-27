@@ -29,9 +29,7 @@ jobs:
         dataset:
           - dob_bis_permits
           - dob_bis_applications
-          # ! Temporary: hpd_hny_units_by_building is ingested manually from the internal
-          # ! extract for 26Q2. Re-ingesting here would overwrite `latest` with the
-          # ! Open Data version. Restore once HPD publishes.
+          - hpd_hny_units_by_building
     steps:
       - uses: actions/checkout@v4
 
