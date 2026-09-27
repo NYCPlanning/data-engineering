@@ -27,7 +27,7 @@ When adding a new .sql file, also check whether you need to add an accompanying 
 
 ### Materialization
 - `staging/`: `view` (default) unless indexes are required
-- `intermediate/`: `table` with appropriate indexes
+- `intermediate/`: `view` by default. Set specific models to `table` (with appropriate indexes) when they're expensive to recompute or read by several downstream models.
 - `product/`: `table` with appropriate indexes
 
 ### Indexing
@@ -54,7 +54,7 @@ models:
 ## Geometry Standards
 
 - **Column name**: `geom` (not `wkb_geometry`)
-- **Projection**: EPSG:2263 (NY State Plane) for build-time, EPSG:4326 (WGS84) only for export
+- **Projection**: builds and exports use both EPSG:2263 (NY State Plane) and EPSG:4326 (WGS84), depending on the product. Measure areas and distances in 2263.
 
 ## Linting
 
