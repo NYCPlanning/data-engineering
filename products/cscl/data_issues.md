@@ -39,7 +39,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY` resolved (9,802/9,803 exact match vs prod); `Radius` unimplemented, real 100% gap | Accepted (partial) | 26c |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
-| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` ~2% mismatch was a comparison-tool artifact (fixed); `lion` layer's key switched to `SegmentID\|Join_ID`, still no key achieves precise row-level diffing (SAF-replicant multiplicity) | Accepted | 26c |
+| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` ~2% mismatch was a comparison-tool artifact (fixed); `lion` layer's key switched to `SegmentID\|Join_ID`; row-level diffing is now partial-precision (fixed, in `dcpy`); prod's `lion`-layer `Join_ID` is missing spec-mandated padding that prod's own `altnames` layer has (tooling accommodation added, not a code fix) | Accepted | 26c |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
@@ -436,24 +436,54 @@ just a load-time Postgres sequence value, not a stable source identifier, and de
 **Landed on `SegmentID|Join_ID`.** 99.27% unique (240,236/241,999), zero `NULL`s in either
 column (unlike the house-number attempt), and every remaining collision traced to a real,
 understood cause (genuine sub-range multiplicity or genuine record multiplicity), not
-cross-contamination like the old `LBoro|FaceCode|SeqNum` key. Because
-`dcpy.geospatial.gdb.compare.row_level_diff`'s `precise` flag requires *global* uniqueness (any
-collision anywhere drops the whole layer to its duplicate-tolerant multiset fallback -
-`only_in_dev`/`only_in_prod` counts, no `modified` detection), this key doesn't unlock
-row-level `modified` diffing for `lion` - and neither would any other key built purely from
-exposed output columns, since the 19-`AddressPoint` case has no distinguishing column to
-find. That's a property of the output schema, not a gap in key selection. It's still a real
-improvement over the old key: far fewer, semantically-meaningful collision buckets (0.73% of
-rows vs. whatever `LBoro|FaceCode|SeqNum`'s row-count-gap-driven mispairing was actually
-hitting), so the multiset-mode `only_in_dev`/`only_in_prod` counts this layer now produces are
-much more trustworthy.
+cross-contamination like the old `LBoro|FaceCode|SeqNum` key. `dcpy.geospatial.gdb.compare` used
+to make `precise` an all-or-nothing flag (any collision anywhere dropped the *whole* layer to a
+duplicate-tolerant multiset fallback - counts only, no `modified` detection at all), which meant
+even this much-improved key still couldn't unlock row-level `modified` diffing for `lion` on its
+own.
 
-**What would settle it (going further, if worth it):** either patch
-`dcpy.geospatial.gdb.compare`'s key handling to support partial precision (compare exactly
-where the key is unique, fall back only where it isn't, instead of an all-or-nothing flag), or
-find/add a genuinely distinguishing per-record identifier on both sides (not attempted -
-prod's `objectid` doesn't qualify, and nothing else surfaced). Neither was pursued here since
-this is shared `dcpy` code, not `cscl`-specific.
+**Fixed at the tooling level (2026-09-28), not by finding a better key - there wasn't one to
+find.** `row_level_diff` now does partial-precision diffing: rows whose key is unique on both
+sides get precisely paired and real `modified` detection; only the rows whose key actually
+collides fall back to the count-based comparison, scoped to just that subset.
+`RowLevelDiff` gains `duplicate_key_dev_rows`/`duplicate_key_prod_rows` so a caller can see how
+many rows went through each path. For `lion`, that's ~0.7% of rows (the genuine multiplicity
+above) - the other ~99.3% now get real `modified` detection, which was previously impossible
+citywide for this layer no matter which key was declared. Fully backward compatible (reduces to
+the old behavior at both extremes - zero collisions, or every row colliding). See
+`python/geospatial/dcpy/geospatial/gdb/compare.py`/`report.py` and their test suites.
+
+**A second, unrelated finding surfaced verifying the new key against real data: prod's `lion`
+layer's `Join_ID` is missing its spec-mandated trailing padding - but prod's `altnames` layer's
+copy of the same field has it.** ETL spec (~line 5006) is explicit: `Join_ID` is a 15-character
+string, and the non-SAF form is built from Borough + FaceCode + LGC1-4 + **two literal trailing
+spaces**. `gdb_lion.sql`'s `lion_join_id()` macro implements this exactly, and it's correct
+against `fgdb_altnames` (same macro, same field) - checked directly:
+`production_outputs.fgdb_altnames`'s real, freshly-loaded `Join_ID` has the padding on 78,540 of
+129,740 rows (the rest are the 15-char SAF-replicant form, which never had padding to begin
+with). But `production_outputs.fgdb_lion`'s `Join_ID` - loaded via the identical `ogr2ogr` call,
+same run, same source zip, ruling out a per-loader artifact - has **zero** padded rows out of
+243,706, and every non-SAF value is a clean 13 characters. Two output layers, same field, same
+formula, and prod's own legacy tool evidently formats it differently between them (presumably two
+separate extractor classes, only one of which follows the spec's own trailing-space rule). Our
+output is spec-compliant and matches what `altnames` needs; it's `lion`'s copy specifically that
+deviates from prod's own documented spec, not ours to fix.
+
+**Not fixed in `gdb_lion.sql`** - changing our real output to drop the padding, to match prod's
+`lion`-layer-specific quirk, would break comparison against `fgdb_altnames` (which needs it) and
+deviate from the documented spec everywhere else `Join_ID` is used, to chase a bug that's
+apparently specific to one prod extractor class. Instead, fixed where it actually matters -
+comparison tooling: `poc_validation/compare_gdb.py`'s new `KNOWN_TRAILING_WHITESPACE_COLUMNS`
+rstrips `Join_ID` for the `lion` layer specifically (both sides, comparison-time only) before
+diffing, since composite_key deliberately doesn't apply `blank_as_null` normalization to key
+columns (a real, if padded, value isn't blank). Verified: re-running the `SegmentID|Join_ID` key
+against real data through this fix drops `only_in_dev`/`only_in_prod` from noise at nearly the
+full row count (an artifact of comparing padded-vs-unpadded strings) down to 41/1,748 out of
+~242K rows - a believable, small residual gap, not a tooling artifact.
+
+**What would settle it:** ask GR/the legacy pipeline owner whether the `lion` extractor's
+`Join_ID` formatting was ever intentionally different from `AltNames`'s, or whether this is
+itself an unnoticed prod bug worth fixing on their side.
 
 ### CSCL-LION-11
 
