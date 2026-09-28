@@ -9,6 +9,7 @@ description = "DCP Data Engineering - pure, foundational utilities (no GDAL)"
 requires-python = ">=3.11"
 dependencies = [
     "boto3",
+    "dbt-artifacts-parser",
     "duckdb",
     "GitPython",
     "Jinja2",

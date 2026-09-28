@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: stg_widgets
+    description: Raw widgets, lightly renamed for staging.
+    columns:
+      - name: widget_id
+        data_type: string
+        description: Unique widget identifier.
+      - name: widget_name
+        data_type: string
+        description: Widget display name.

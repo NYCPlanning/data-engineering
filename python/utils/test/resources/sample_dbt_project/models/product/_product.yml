@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: widgets_export_by_field
+    description: Widgets formatted for export, one row per widget.
+    columns:
+      - name: widget_id
+        data_type: string
+        description: '{{ doc("widget_id_doc") }}'
+        meta:
+          value_labels:
+            "": blank
+      - name: widget_name
+        data_type: string
+        description: Human-readable widget name.
+      - name: status
+        data_type: string
+        description: Processing status, always "enriched" today.
+
+  - name: widgets_export
+    description: Final concatenated widget export row.
+    config:
+      tags: [export_doc]
+    columns:
+      - name: dat_row
+        data_type: string
+        description: The fixed-width concatenated export row.
