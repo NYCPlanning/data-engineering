@@ -185,6 +185,87 @@ def test_non_unique_key_falls_back_to_imprecise_multiset_diff(nta_gdf):
     assert result.modified is None
     assert result.only_in_dev == 0
     assert result.only_in_prod == 0
+    # Every row on both sides collided with another - the entire dataset went
+    # through the duplicate-tolerant path, none through the precise one.
+    assert result.duplicate_key_dev_rows == len(dev)
+    assert result.duplicate_key_prod_rows == len(prod)
+
+
+def test_row_level_diff_precise_subset_still_gets_modified_detection_alongside_a_duplicate_key():
+    """A key that's unique for most rows but collides for a handful (the real
+    gdb_lion shape - SAF replicant multiplicity on a handful of segments)
+    shouldn't lose modified-detection for the rows it CAN pair precisely.
+    Regression guard for the old all-or-nothing behavior, where a single
+    colliding key anywhere forced modified=None for the whole layer."""
+    dev = pd.DataFrame(
+        {
+            "key": ["A", "B", "DUP", "DUP"],
+            "val": ["a-value", "b-value", "dup-value", "dup-value"],
+        }
+    )
+    prod = pd.DataFrame(
+        {
+            "key": ["A", "B", "DUP", "DUP"],
+            # "A"'s value changed - must still be caught as modified even
+            # though "DUP" collides on both sides.
+            "val": ["a-CHANGED", "b-value", "dup-value", "dup-value"],
+        }
+    )
+    result = compare.row_level_diff(dev, prod, ["key"], ["val"])
+    assert result.precise is False
+    assert result.modified == 1
+    assert result.only_in_dev == 0
+    assert result.only_in_prod == 0
+    assert result.duplicate_key_dev_rows == 2
+    assert result.duplicate_key_prod_rows == 2
+
+
+def test_row_level_diff_duplicate_key_same_count_and_content_is_clean():
+    """The real scenario this was built for: several rows share a key
+    (gdb_lion's SAF-replicant rows, or - as found in production - 19
+    genuinely distinct AddressPoint records that collapse to identical
+    content once house_number_suffix is dropped from the output schema).
+    When both sides have the same NUMBER of identically-valued rows under
+    that key, there's nothing to report - not an add, not a remove, not a
+    (undetectable) modification."""
+    dev = pd.DataFrame(
+        {"key": ["DUP"] * 19, "val": ["same-address-different-unit"] * 19}
+    )
+    prod = dev.copy()
+    result = compare.row_level_diff(dev, prod, ["key"], ["val"])
+    assert result.precise is False
+    assert result.only_in_dev == 0
+    assert result.only_in_prod == 0
+    assert result.modified is None
+    assert result.duplicate_key_dev_rows == 19
+    assert result.duplicate_key_prod_rows == 19
+
+
+def test_row_level_diff_duplicate_key_count_mismatch_is_add_or_remove():
+    """Same colliding key on both sides, but dev has more copies than prod -
+    the excess must show up as only_in_dev, not get silently absorbed."""
+    dev = pd.DataFrame({"key": ["DUP"] * 3, "val": ["x"] * 3})
+    prod = pd.DataFrame({"key": ["DUP"] * 2, "val": ["x"] * 2})
+    result = compare.row_level_diff(dev, prod, ["key"], ["val"])
+    assert result.only_in_dev == 1
+    assert result.only_in_prod == 0
+    assert result.modified is None
+
+
+def test_row_level_diff_content_difference_within_a_duplicate_key_group_is_invisible():
+    """Known, documented limitation: the duplicate-tolerant fallback only
+    counts by key, not content - if dev and prod both have 2 rows under a
+    colliding key, but the actual VALUES differ between the two sides'
+    members, there's no way to tell which dev row corresponds to which prod
+    row, so this reports clean. Codifying the limitation as a test, not just
+    a docstring claim, so a future "smarter" fallback can't silently change
+    this without a test noticing."""
+    dev = pd.DataFrame({"key": ["DUP", "DUP"], "val": ["x", "y"]})
+    prod = pd.DataFrame({"key": ["DUP", "DUP"], "val": ["y", "z"]})  # "x" -> "z"
+    result = compare.row_level_diff(dev, prod, ["key"], ["val"])
+    assert result.only_in_dev == 0
+    assert result.only_in_prod == 0
+    assert result.modified is None
 
 
 def test_guess_key_columns_picks_a_unique_column(nta_gdf):

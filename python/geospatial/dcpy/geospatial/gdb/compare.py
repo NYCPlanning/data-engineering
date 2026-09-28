@@ -289,10 +289,23 @@ def guess_key_columns(
 class RowLevelDiff:
     only_in_dev: int
     only_in_prod: int
-    # None when precise is False: with a non-unique key, two rows can never be
-    # detected as "the same row, modified" - see row_level_diff's docstring.
+    # Modified-row count among precisely-paired rows only (see row_level_diff's
+    # docstring) - None only when there's no precisely-paired subset at all to
+    # measure it from (every row's key collides with another on its own side).
     modified: int | None
+    # True iff every key was unique on both sides - no row anywhere needed the
+    # duplicate-tolerant fallback. False doesn't mean modified is unusable
+    # (see docstring); it means at least one key collided somewhere.
     precise: bool
+    # How many dev/prod rows had a key that collided with another row on
+    # EITHER side (and so were compared via the count-based fallback instead
+    # of precise pairing) - 0/0 whenever precise is True. A caller that wants
+    # to flag "this layer unexpectedly started having duplicate keys" should
+    # watch these, not just `precise`, since a layer can have a handful of
+    # known-duplicate keys release after release without every row losing
+    # precision.
+    duplicate_key_dev_rows: int = 0
+    duplicate_key_prod_rows: int = 0
 
 
 def row_level_diff(
@@ -308,12 +321,24 @@ def row_level_diff(
     """Keyed row-level diff: how many rows exist only in dev, only in prod, or
     on both sides but with a differing attribute value.
 
-    "modified" is only meaningful when key_cols uniquely identifies a row on
-    both sides (precise=True) - if key_cols doesn't uniquely identify rows,
-    two rows can never differ while sharing a key by construction, so every
-    real disagreement shows up as an add+remove pair instead, and this falls
-    back to a duplicate-tolerant multiset comparison (counts, not row-for-row
-    pairing).
+    Rows whose key is unique on BOTH sides are compared precisely (paired by
+    key, "modified" = a real per-row attribute comparison). Rows whose key
+    collides with another row on EITHER side - the key doesn't uniquely
+    identify them - can never be paired (two rows can't be told apart by a
+    key they share), so those are compared with a duplicate-tolerant multiset
+    fallback instead: per colliding key, how many more copies exist on one
+    side than the other, contributing to only_in_dev/only_in_prod but never
+    to "modified" (a content difference among same-keyed rows shows up as one
+    extra add + one extra remove, not a detected "modified" pair - there's no
+    way to know which of several same-keyed rows to compare against which).
+
+    This means only_in_dev/only_in_prod are always exact counts, over the
+    whole dataset. "modified" is exact too, but only reflects the
+    precisely-paired subset - it's None only when that subset is empty (every
+    row, on at least one side, collides with another). precise=True iff there
+    were no colliding keys anywhere, in which case this reduces to a plain
+    keyed diff over the whole dataset, same as if every row had gone through
+    the precise path directly.
 
     tolerant_float_cols controls which compare_cols (if any) get a fuzzy
     float comparison instead of an exact one - see columns_differ. Row
@@ -322,49 +347,66 @@ def row_level_diff(
     """
     dev_keys = composite_key(dev_df, key_cols)
     prod_keys = composite_key(prod_df, key_cols)
-    precise = dev_keys.is_unique and prod_keys.is_unique
 
-    if not precise:
-        dev_counts = Counter(dev_keys)
-        prod_counts = Counter(prod_keys)
-        only_in_dev = sum(
-            max(c - prod_counts.get(k, 0), 0) for k, c in dev_counts.items()
+    dev_key_counts = Counter(dev_keys)
+    prod_key_counts = Counter(prod_keys)
+    duplicated_keys = {k for k, c in dev_key_counts.items() if c > 1} | {
+        k for k, c in prod_key_counts.items() if c > 1
+    }
+    precise = not duplicated_keys
+
+    is_dup_dev = dev_keys.isin(duplicated_keys)
+    is_dup_prod = prod_keys.isin(duplicated_keys)
+
+    dup_only_in_dev = 0
+    dup_only_in_prod = 0
+    if duplicated_keys:
+        dup_dev_counts = Counter(dev_keys[is_dup_dev])
+        dup_prod_counts = Counter(prod_keys[is_dup_prod])
+        dup_only_in_dev = sum(
+            max(c - dup_prod_counts.get(k, 0), 0) for k, c in dup_dev_counts.items()
         )
-        only_in_prod = sum(
-            max(c - dev_counts.get(k, 0), 0) for k, c in prod_counts.items()
-        )
-        return RowLevelDiff(
-            only_in_dev=only_in_dev,
-            only_in_prod=only_in_prod,
-            modified=None,
-            precise=False,
+        dup_only_in_prod = sum(
+            max(c - dup_dev_counts.get(k, 0), 0) for k, c in dup_prod_counts.items()
         )
 
-    dev_indexed = dev_df.set_index(dev_keys)
-    prod_indexed = prod_df.set_index(prod_keys)
-    dev_only_index = dev_indexed.index.difference(prod_indexed.index)
-    prod_only_index = prod_indexed.index.difference(dev_indexed.index)
-    common = dev_indexed.index.intersection(prod_indexed.index)
+    dev_precise_df = dev_df[~is_dup_dev]
+    prod_precise_df = prod_df[~is_dup_prod]
 
-    modified = 0
-    if len(common) > 0 and compare_cols:
-        modified = int(
-            columns_differ(
-                dev_indexed.loc[common],
-                prod_indexed.loc[common],
-                compare_cols,
-                blank_as_null,
-                tolerant_float_cols,
-                rtol,
-                atol,
-            ).sum()
-        )
+    modified: int | None = None
+    only_in_dev = dup_only_in_dev
+    only_in_prod = dup_only_in_prod
+    if len(dev_precise_df) > 0 or len(prod_precise_df) > 0:
+        dev_indexed = dev_precise_df.set_index(dev_keys[~is_dup_dev])
+        prod_indexed = prod_precise_df.set_index(prod_keys[~is_dup_prod])
+        dev_only_index = dev_indexed.index.difference(prod_indexed.index)
+        prod_only_index = prod_indexed.index.difference(dev_indexed.index)
+        common = dev_indexed.index.intersection(prod_indexed.index)
+
+        modified = 0
+        if len(common) > 0 and compare_cols:
+            modified = int(
+                columns_differ(
+                    dev_indexed.loc[common],
+                    prod_indexed.loc[common],
+                    compare_cols,
+                    blank_as_null,
+                    tolerant_float_cols,
+                    rtol,
+                    atol,
+                ).sum()
+            )
+
+        only_in_dev += len(dev_only_index)
+        only_in_prod += len(prod_only_index)
 
     return RowLevelDiff(
-        only_in_dev=len(dev_only_index),
-        only_in_prod=len(prod_only_index),
+        only_in_dev=only_in_dev,
+        only_in_prod=only_in_prod,
         modified=modified,
-        precise=True,
+        precise=precise,
+        duplicate_key_dev_rows=int(is_dup_dev.sum()),
+        duplicate_key_prod_rows=int(is_dup_prod.sum()),
     )
 
 
