@@ -6,7 +6,9 @@ rm -rf output
 mkdir -p output
 (
     cd output
+
     csv_export source_data_versions
+    cp ../build_metadata.json .
 
     echo "Export review tables"
     mkdir -p review
