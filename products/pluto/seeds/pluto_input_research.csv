@@ -27533,3 +27533,6 @@ bbl,field,old_value,new_value,Type,reason,version
 4004317501,unitsres,55,28,2,PTS error – units,26v1
 1015550046,unitsres,56,18,2,PTS error – units,26v1
 1007660030,unitsres,59,20,2,PTS error – units,26v1
+3031547501,unitsres,324,81,2,PTS error – units,26v3
+3033877504,unitsres,64,8,2,PTS error – units,26v3
+3063377501,unitsres,120,8,2,PTS error – units,26v3
