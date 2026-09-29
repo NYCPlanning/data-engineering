@@ -18,7 +18,7 @@ jobs:
         shell: bash
         working-directory: products/zap-opendata
     container:
-      image: nycplanning/build-base:latest
+      image: nycplanning/dev:latest
     env:
       EDM_DATA_ZAP_SCHEMA: weekly_export_${{ github.event_name }}_${{ github.ref_name }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
