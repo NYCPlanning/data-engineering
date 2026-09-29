@@ -88,6 +88,10 @@ files:
     id: shapefile
     filename: nychdb_{{ current_version_developments }}_shp.zip
     type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: hpd_jobrelate
+      name: HPD_jobrel
 - file:
     id: csv
     filename: nychdb_{{ current_version_developments }}_csv.zip
@@ -96,6 +100,10 @@ files:
     id: shapefile_inactive_included
     filename: nychdb_inactiveincluded_{{ current_version_developments }}_shp.zip
     type: shapefile
+  dataset_overrides:
+    overridden_columns:
+    - id: hpd_jobrelate
+      name: HPD_jobrel
 - file:
     id: csv_inactive_included
     filename: nychdb_inactiveincluded_{{ current_version_developments }}_csv.zip
