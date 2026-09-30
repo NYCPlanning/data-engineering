@@ -91,3 +91,24 @@ jobs:
             --acl private \
             --contents-only \
             --max-files 50
+
+      - name: Upload failed build for inspection
+        if: failure()
+        run: |
+          # The duckdb file and dbt target/ live only in this container, so save whatever
+          # exists to query or rerun dbt against locally. Private data rules out GHA artifacts.
+          mkdir -p "$RUNNER_TEMP/failed"
+          [ -f "$DUCKDB_PATH" ] && cp "$DUCKDB_PATH" "$RUNNER_TEMP/failed/"
+          [ -d target ] && cp -r target "$RUNNER_TEMP/failed/"
+          [ -d logs ] && cp -r logs "$RUNNER_TEMP/failed/"
+          if [ -z "$(ls -A "$RUNNER_TEMP/failed")" ]; then
+            echo "Nothing to upload"
+            exit 0
+          fi
+          uv run python3 -m dcpy utils s3 upload_folder \
+            --bucket "${PRIVATE_BUCKET:-edm-private}" \
+            --folder-path "$RUNNER_TEMP/failed" \
+            --s3-path "lift/builds/$BUILD_NAME/failed" \
+            --acl private \
+            --contents-only \
+            --max-files 200
