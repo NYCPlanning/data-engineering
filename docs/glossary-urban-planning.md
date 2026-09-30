@@ -46,6 +46,8 @@ The table and diagram cover some of the hierarchies and relationships between en
 
 ## See also
 
+- [Capital Planning Glossary](glossary-capital-planning.md) - capital budget terms and the annual budget calendar
+
 Relevant external glossaries:
 
 - [NYC Planning Glossary of Zoning Terms](https://www.nyc.gov/assets/planning/downloads/pdf/zoning/downloadable-zoning-resources/zoning-glossary.pdf) - brief explanations of planning and zoning terminology, including terms highlighted in the Zoning Handbook.
