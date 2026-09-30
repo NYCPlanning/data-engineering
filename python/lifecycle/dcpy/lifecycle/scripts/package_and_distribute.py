@@ -106,7 +106,6 @@ def run(
         if not package_result.success:
             result = event_result.DistributeResult(
                 destination_id=",".join(batch),
-                version=version,
                 **package_result.model_dump(),
             )
             results.append(result)
