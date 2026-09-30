@@ -12,7 +12,8 @@ Dates with "by" are the latest dates set by the City Charter, as described by IB
 | When | Event | Source |
 |---|---|---|
 | July 1 | Fiscal year begins | [Council][council], [IBO][ibo] |
-| September | OMB publishes the Adopted **Capital Commitment Plan**, a four-year plan due within 90 days of the Capital Budget's adoption | [Comptroller][comptroller] |
+| September | OMB publishes the Adopted **Capital Commitment Plan**, a four-year plan due within 90 days of the Capital Budget's adoption | [Comptroller][comptroller], [OMB][omb] |
+| November | OMB releases the November Financial Plan | [OMB][omb] |
 | January (by Jan 16) | Mayor releases the **Preliminary Budget**, including the Preliminary Capital Budget | [IBO][ibo], [Comptroller][comptroller] |
 | January | OMB publishes the Preliminary Capital Commitment Plan, a five-year plan | [Comptroller][comptroller] |
 | January, odd-numbered years | Preliminary **Ten-Year Capital Strategy** | [Comptroller][comptroller] |
@@ -23,26 +24,40 @@ Dates with "by" are the latest dates set by the City Charter, as described by IB
 | May to June (by Jun 5) | Council and Mayor negotiate, then Council votes to adopt the **Adopted Budget**, including the Capital Budget | [Council][council], [IBO][ibo] |
 | June 30 | Fiscal year ends. The Adopted Budget must be in place before July 1 | [Council][council], [Comptroller][comptroller] |
 
-Capital Commitment Plan months are when OMB typically publishes, not Charter deadlines.
-Recent plans were dated 4/26/2023, 9/28/2023, 1/16/2024, 4/24/2024, 9/30/2024, 1/16/2025, and 5/1/2025 ([Comptroller][comptroller], Table 1).
-The Adopted plan comes out after the fiscal year it starts in has already begun.
+### Recent release dates
+
+OMB release dates, grouped the way OMB's publications pages group them: by the fiscal year they were released in.
+Preliminary, Executive, and Adopted are the financial plans released with each budget, which funds the next fiscal year.
+
+| Released in | November Financial Plan | Preliminary | Executive | Adopted | September CCP |
+|---|---|---|---|---|---|
+| FY 2022 | 11/30/2021 | 02/16/2022 | 04/26/2022 | 06/13/2022 | 10/22/2021 |
+| FY 2023 | 11/15/2022 | 01/12/2023 | 04/26/2023 | 06/30/2023 | 09/12/2022 |
+| FY 2024 | 11/16/2023 | 01/16/2024 | 04/24/2024 | 06/30/2024 | 09/28/2023 |
+| FY 2025 | 11/20/2024 | 01/16/2025 | 05/01/2025 | 06/30/2025 | 09/30/2024 |
+| FY 2026 | 11/17/2025 | 02/17/2026 | 05/12/2026 | 06/30/2026 | 09/30/2025 |
+
+Source: [OMB publications][omb], one page per fiscal year.
+Those pages only show the latest Capital Commitment Plan, so the September plan is the only one listed.
+Where the Comptroller lists January and April or May plan dates (FY 2023 to FY 2025), each matches the financial plan's release date ([Comptroller][comptroller], Table 1).
+The Charter dates are deadlines, and releases sometimes miss them: the Preliminary came out in February in FY 2022 and FY 2026, and the Executive in May in FY 2025 and FY 2026.
 
 ## Version labels
 
 The same release can carry three different year labels:
 
-- **Budgets** are named for the fiscal year they fund. The Preliminary Budget released in January covers the upcoming fiscal year ([IBO][ibo]).
-- **The Comptroller** names Capital Commitment Plans for the fiscal year they're released in: the plan dated 5/1/2025 is the "FY 2025 May CCP", and the September 2025 plan is the "FY 2026 Adopted CCP" ([Comptroller][comptroller]).
+- **Budgets** are named for the fiscal year they fund. OMB lists the May 2026 Executive Budget as Fiscal Year 2027 ([OMB][omb]).
+- **OMB and the Comptroller** group publications by the fiscal year they're released in. The September 2025 plan is on OMB's FY 2026 page, and the Comptroller calls it the "FY 2026 Adopted CCP" ([OMB][omb], [Comptroller][comptroller]).
 - **CPDB** versions (`ccpversion`, and `version` in `products/cpdb/recipe.yml`) use the calendar year the plan was released in.
 
-| Plan | FISA extract date | CPDB version | Comptroller label | Budget it accompanies |
-|---|---|---|---|---|
-| Adopted, fall 2025 | 2025-09-30 | `25adopt` | FY 2026 Adopted CCP | FY 2026 Adopted |
-| Preliminary, early 2026 | 2026-02-18 | `26prelim` | FY 2026 January CCP | FY 2027 Preliminary |
-| Executive, spring 2026 | 2026-05-18 | `26exec` | FY 2026 May CCP | FY 2027 Executive |
+| Plan | OMB release | FISA extract date | CPDB version | Released in | Budget it accompanies |
+|---|---|---|---|---|---|
+| Adopted | 09/30/2025 | 2025-09-30 | `25adopt` | FY 2026 | FY 2026 Adopted |
+| Preliminary | 02/17/2026 | 2026-02-18 | `26prelim` | FY 2026 | FY 2027 Preliminary |
+| Executive | 05/12/2026 | 2026-05-18 | `26exec` | FY 2026 | FY 2027 Executive |
 
 FISA extract dates come from `ingest_templates/fisa_capitalcommitments.yml` history.
-CPDB and Comptroller labels differ only for Adopted plans.
+CPDB and fiscal-year-of-release labels differ only for Adopted plans.
 Budget labels are one year ahead for Preliminary and Executive plans.
 
 ## Terms
@@ -113,11 +128,13 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 - [NYC Comptroller: Flying Blind on Billions][comptroller] (December 2025), especially "What is the Capital Budget?"
 - [IBO: Understanding New York City's Budget][ibo] (July 2021)
 - [NYC Council: Budget Process][council]
+- [OMB: Publications][omb], one page per fiscal year
 - [DCP: CPDB data dictionary][cpdb-dd]
 - [NYC Ten-Year Capital Strategy site][tycs]
 
 [comptroller]: https://comptroller.nyc.gov/reports/flying-blind-on-billions-how-weak-capital-data-undermines-new-york-citys-infrastructure-investments/
 [ibo]: https://www.ibo.nyc.gov/assets/ibo/downloads/pdf/budget-guides/understandingthebudget.pdf
 [council]: https://council.nyc.gov/budget/process/
+[omb]: https://www.nyc.gov/content/omb/pages/publications
 [cpdb-dd]: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/cpdb_data_dictionary.xlsx
 [tycs]: https://accordion-smilodon-prwk.squarespace.com/
