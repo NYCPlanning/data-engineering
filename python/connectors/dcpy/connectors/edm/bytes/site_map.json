@@ -299,7 +299,7 @@
           "filename": "nychdb_community_{v}_shp.zip"
         },
         "csv": {
-          "filename": "nychdb_council_{v}_csv.zip"
+          "filename": "nychdb_community_{v}_csv.zip"
         },
         "data_dictionary": {
           "filename": "Housing_Summary_Files_Data_Dictionary.xlsx"

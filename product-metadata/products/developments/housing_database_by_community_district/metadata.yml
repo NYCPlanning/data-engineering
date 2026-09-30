@@ -62,7 +62,7 @@ destinations:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_community_{{ current_version_developments }}_shp.zip
   - id: csv
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_council_{{ current_version_developments }}_csv.zip
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nychdb_community_{{ current_version_developments }}_csv.zip
   - id: data_dictionary
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/Housing_Summary_Files_Data_Dictionary.xlsx
