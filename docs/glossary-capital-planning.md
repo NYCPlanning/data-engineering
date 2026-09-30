@@ -24,6 +24,8 @@ Dates with "by" are the latest dates set by the City Charter, as described by IB
 | May to June (by Jun 5) | Council and Mayor negotiate, then Council votes to adopt the **Adopted Budget**, including the Capital Budget | [Council][council], [IBO][ibo] |
 | June 30 | Fiscal year ends. The Adopted Budget must be in place before July 1 | [Council][council], [Comptroller][comptroller] |
 
+![Capital budget calendar](diagrams/capital_budget_calendar.drawio.png)
+
 ### Recent release dates
 
 OMB release dates, grouped the way OMB's publications pages group them: by the fiscal year they were released in.
