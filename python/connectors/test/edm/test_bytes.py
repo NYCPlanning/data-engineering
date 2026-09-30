@@ -1,4 +1,7 @@
+import pytest
+
 from dcpy.connectors.edm.bytes import _sitemap
+from dcpy.connectors.edm.bytes._connector import _parse_latest_version
 
 
 def test_facilities_urls():
@@ -50,3 +53,27 @@ def test_lion_differences_file():
     assert EXPECTED_FILE_URL == _sitemap.get_file_url(
         "lion", "lion_differences_file", "shapefile", version=VERSION
     )
+
+
+def _version_block(*lines):
+    spans = "".join(
+        f'<span class="display--block copy--lg">{line}</span>' for line in lines
+    )
+    return f'<p class="copy--lg">{spans}</p>'
+
+
+@pytest.mark.parametrize(
+    "lines, expected",
+    [
+        (["Latest Release: 26Q2.1", "Date of Data: June 2026"], "26q2.1"),
+        (["Latest Version: 26Q2.1", "Latest Release: June 2026"], "26q2.1"),
+        (["Latest Release: April 2026", "Date of Data: April 2026"], "april 2026"),
+    ],
+)
+def test_parse_latest_version(lines, expected):
+    assert _parse_latest_version(_version_block(*lines)) == expected
+
+
+def test_parse_latest_version_without_label():
+    with pytest.raises(AssertionError):
+        _parse_latest_version(_version_block("Date of Data: June 2026"))
