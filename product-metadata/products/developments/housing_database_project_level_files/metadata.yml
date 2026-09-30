@@ -92,6 +92,8 @@ files:
     overridden_columns:
     - id: hpd_jobrelate
       name: HPD_jobrel
+      custom:
+        api_name: hpd_jobrel
 - file:
     id: csv
     filename: nychdb_{{ current_version_developments }}_csv.zip
@@ -104,6 +106,8 @@ files:
     overridden_columns:
     - id: hpd_jobrelate
       name: HPD_jobrel
+      custom:
+        api_name: hpd_jobrel
 - file:
     id: csv_inactive_included
     filename: nychdb_inactiveincluded_{{ current_version_developments }}_csv.zip
