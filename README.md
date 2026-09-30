@@ -45,7 +45,7 @@ See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineer
 
 - [Data Engineering Glossary](docs/glossary-data-engineering.md) — definitions of key terms and concepts
 - [Urban Planning Glossary](docs/glossary-urban-planning.md) — entities and relationships to model the built environment
-- [Capital Planning Glossary](docs/glossary-capital-planning.md) - capital budget terms and the annual budget calendar
+- [Capital Planning Glossary](docs/glossary-capital-planning.md) - capital budget terms and the budget cycle
 - [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
 - [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules

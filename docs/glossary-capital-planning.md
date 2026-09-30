@@ -4,27 +4,41 @@ Terms and timelines for New York City's capital budget and the capital planning 
 
 For the physical things capital money is spent on, see **Capital Asset** in the [Urban Planning Glossary](glossary-urban-planning.md).
 
-## Annual calendar
+## Budget cycle
 
 The city's budget follows the **Fiscal Year**, July 1 through June 30.
-Dates with "by" are the latest dates set by the City Charter, as described by IBO.
+Each budget takes more than a year, from community boards assessing needs the summer before to the Adopted Capital Commitment Plan the September after the fiscal year starts.
+Cycles overlap: boards start on the next budget before the current one is adopted ([OMB community board manual][cb-manual]).
+
+The table follows one cycle, for the budget of fiscal year Y+1, where Y is a calendar year.
+Dates with "by" are deadlines. The Charter ones are cited to IBO or the Charter, the rest to OMB's community board manual.
+The manual copy is from 2015, so its dates may have drifted.
 
 | When | Event | Source |
 |---|---|---|
-| July 1 | Fiscal year begins | [Council][council], [IBO][ibo] |
-| September | OMB publishes the Adopted **Capital Commitment Plan**, a four-year plan due within 90 days of the Capital Budget's adoption | [Comptroller][comptroller], [OMB][omb] |
-| November | OMB releases the November Financial Plan | [OMB][omb] |
-| January (by Jan 16) | Mayor releases the **Preliminary Budget**, including the Preliminary Capital Budget | [IBO][ibo], [Comptroller][comptroller] |
-| January | OMB publishes the Preliminary Capital Commitment Plan, a five-year plan | [Comptroller][comptroller] |
-| January, odd-numbered years | Preliminary **Ten-Year Capital Strategy** | [Comptroller][comptroller] |
-| March to April | Council analyzes the Preliminary Budget, holds public hearings, and releases its response | [Council][council] |
-| April (by Apr 26) | Mayor presents the **Executive Budget**, including the Executive Capital Budget | [IBO][ibo], [Comptroller][comptroller] |
-| April or May | OMB publishes the Executive Capital Commitment Plan, a five-year plan | [Comptroller][comptroller] |
-| April or May, odd-numbered years | Final Ten-Year Capital Strategy | [IBO][ibo], [Comptroller][comptroller] |
-| May to June (by Jun 5) | Council and Mayor negotiate, then Council votes to adopt the **Adopted Budget**, including the Capital Budget | [Council][council], [IBO][ibo] |
-| June 30 | Fiscal year ends. The Adopted Budget must be in place before July 1 | [Council][council], [Comptroller][comptroller] |
+| June to August, Y-1 | Community boards assess district needs and submit District Needs Statements to DCP in August | [CB manual][cb-manual] |
+| Late spring to early October, Y-1 | Community boards consult with agencies: district level in late spring, borough level in September and early October | [CB manual][cb-manual] |
+| September to October, Y-1 | Community boards hold public hearings on budget requests and district needs | [CB manual][cb-manual] |
+| Late October, Y-1 | Community boards submit **Community Board Budget Requests** to OMB, by a date OMB sets | [CB manual][cb-manual] |
+| Early November to mid-December, Y-1 | OMB sends the requests to agencies, which review them as part of their **Departmental Estimates** and return responses | [CB manual][cb-manual] |
+| By November 15, Y-1 | Mayor submits the **Citywide Statement of Needs** | [Charter §204][charter-204] |
+| January (by Jan 16), Y | Mayor releases the **Preliminary Budget**, including the Preliminary Capital Budget and departmental estimates. OMB sends boards the **Register of Community Board Budget Requests** for the Preliminary Budget | [IBO][ibo], [Comptroller][comptroller], [CB manual][cb-manual] |
+| January, Y | OMB publishes the Preliminary **Capital Commitment Plan**, a five-year plan | [Comptroller][comptroller] |
+| January, odd-numbered Y | Preliminary **Ten-Year Capital Strategy** | [Comptroller][comptroller] |
+| By February 15, Y | Community boards send their Statement on the Preliminary Budget | [CB manual][cb-manual] |
+| February to April, Y | DE builds CBBR for FY Y+1 from the requests and agency responses | [#1474][cbbr-fy26], [#1856][cbbr-fy27] |
+| March to April, Y | Council analyzes the Preliminary Budget, holds public hearings, and releases its response | [Council][council] |
+| April (by Apr 26), Y | Mayor presents the **Executive Budget**, including the Executive Capital Budget. OMB sends boards the register for the Executive Budget | [IBO][ibo], [Comptroller][comptroller], [CB manual][cb-manual] |
+| April or May, Y | OMB publishes the Executive Capital Commitment Plan, a five-year plan | [Comptroller][comptroller] |
+| April or May, odd-numbered Y | Final Ten-Year Capital Strategy | [IBO][ibo], [Comptroller][comptroller] |
+| May to June (by Jun 5), Y | Council and Mayor negotiate, then Council votes to adopt the **Adopted Budget**, including the Capital Budget | [Council][council], [IBO][ibo] |
+| After adoption, Y | OMB publishes the register for the Adopted Budget | [CB manual][cb-manual] |
+| July 1, Y | Fiscal year Y+1 begins. The Adopted Budget must be in place before then | [Council][council], [Comptroller][comptroller] |
+| September, Y | OMB publishes the Adopted Capital Commitment Plan, a four-year plan due within 90 days of the Capital Budget's adoption | [Comptroller][comptroller], [OMB][omb] |
 
-![Capital budget calendar](diagrams/capital_budget_calendar.drawio.png)
+OMB also releases a November Financial Plan, but it updates the current fiscal year's plan rather than feeding the next budget ([IBO][ibo]).
+
+![Capital budget cycle](diagrams/capital_budget_calendar.drawio.png)
 
 ### Recent release dates
 
@@ -51,6 +65,7 @@ The same release can carry three different year labels:
 - **Budgets** are named for the fiscal year they fund. OMB lists the May 2026 Executive Budget as Fiscal Year 2027 ([OMB][omb]).
 - **OMB and the Comptroller** group publications by the fiscal year they're released in. The September 2025 plan is on OMB's FY 2026 page, and the Comptroller calls it the "FY 2026 Adopted CCP" ([OMB][omb], [Comptroller][comptroller]).
 - **CPDB** versions (`ccpversion`, and `version` in `products/cpdb/recipe.yml`) use the calendar year the plan was released in.
+- **CBBR** versions use the fiscal year of the budget the requests are for: CBBR FY2027 was built in spring 2026 ([#1856][cbbr-fy27]).
 
 | Plan | OMB release | FISA extract date | CPDB version | Released in | Budget it accompanies |
 |---|---|---|---|---|---|
@@ -85,6 +100,18 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 **Reserve for Unattained Commitments**: The reserve for unattained capital commitments is a lump-sum reduction in the Capital Commitment Plan that brings each fiscal year's planned commitments down to a realistic level, since OMB and agencies plan more than they can take on. It isn't broken out by project or agency, so project and agency totals from the plan add up to more than the plan's bottom line. ([Comptroller][comptroller])
 
 **Ten-Year Capital Strategy**: The ten-year capital strategy (TYCS) is the Mayor's ten-year schedule of planned commitments, with the city's goals, key investments, and financing plan. A preliminary version comes out in January of odd-numbered years and the final version in April or May. It groups projects into agency-specific categories and lifecycle categories: state of good repair, program expansion, and programmatic replacement. It's separate from the Adopted Capital Budget and the Capital Commitment Plan. ([Comptroller][comptroller], [IBO][ibo], [Ten-Year Capital Strategy site][tycs])
+
+### Community input
+
+**Statement of Community District Needs**: A statement of community district needs is a community board's statement of its district's long-range needs. Boards submit them to DCP in August, and DCP publishes them. ([CB manual][cb-manual])
+
+**Community Board Budget Request**: A community board budget request is a board's request for capital or expense funding in the next fiscal year's budget. Each board votes separate priorities for up to 40 capital and 25 expense requests. DE's CBBR product is built from them. ([CB manual][cb-manual], [CBBR README](../products/cbbr/README.md))
+
+**Register of Community Board Budget Requests**: The register of community board budget requests is OMB's publication of responses to every community board budget request. The Preliminary Budget register has agency responses, the Executive Budget register has OMB's recommendations, and the Adopted Budget register has the outcome. ([CB manual][cb-manual])
+
+**Departmental Estimates**: Departmental estimates are agencies' budget estimates, published with the Preliminary Budget. Agencies review community board budget requests as part of preparing them. ([CB manual][cb-manual])
+
+**Citywide Statement of Needs**: The citywide statement of needs is the Mayor's list of new city facilities and significant expansions, and of facilities to close or significantly reduce, planned for the next two fiscal years. It's due by November 15. ([Charter §204][charter-204])
 
 ### Money
 
@@ -130,6 +157,9 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 - [NYC Comptroller: Flying Blind on Billions][comptroller] (December 2025), especially "What is the Capital Budget?"
 - [IBO: Understanding New York City's Budget][ibo] (July 2021)
 - [NYC Council: Budget Process][council]
+- [OMB: Community Participation in the Budget Process][cb-manual], excerpted from OMB's Manual for Participation in the Budget Process (2015 copy)
+- [NYC Charter §204: Citywide statement of needs][charter-204]
+- CBBR update issues [#1474][cbbr-fy26] and [#1856][cbbr-fy27]
 - [OMB: Publications][omb], one page per fiscal year
 - [DCP: CPDB data dictionary][cpdb-dd]
 - [NYC Ten-Year Capital Strategy site][tycs]
@@ -137,6 +167,10 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 [comptroller]: https://comptroller.nyc.gov/reports/flying-blind-on-billions-how-weak-capital-data-undermines-new-york-citys-infrastructure-investments/
 [ibo]: https://www.ibo.nyc.gov/assets/ibo/downloads/pdf/budget-guides/understandingthebudget.pdf
 [council]: https://council.nyc.gov/budget/process/
+[cb-manual]: https://bronxboropres.nyc.gov/Community/Community%20Boards/summary_community_participation_budget_process.pdf
+[charter-204]: https://codelibrary.amlegal.com/codes/newyorkcity/latest/NYCcharter/0-0-0-899
+[cbbr-fy26]: https://github.com/NYCPlanning/data-engineering/issues/1474
+[cbbr-fy27]: https://github.com/NYCPlanning/data-engineering/issues/1856
 [omb]: https://www.nyc.gov/content/omb/pages/publications
 [cpdb-dd]: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/cpdb_data_dictionary.xlsx
 [tycs]: https://accordion-smilodon-prwk.squarespace.com/

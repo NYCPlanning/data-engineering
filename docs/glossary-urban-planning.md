@@ -46,7 +46,7 @@ The table and diagram cover some of the hierarchies and relationships between en
 
 ## See also
 
-- [Capital Planning Glossary](glossary-capital-planning.md) - capital budget terms and the annual budget calendar
+- [Capital Planning Glossary](glossary-capital-planning.md) - capital budget terms and the budget cycle
 
 Relevant external glossaries:
 
