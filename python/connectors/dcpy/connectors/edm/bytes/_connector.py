@@ -16,6 +16,19 @@ from . import _sitemap
 # Some nyc.gov endpoints (behind Akamai) 403 requests lacking a browser-like User-Agent.
 _REQUEST_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
+# Most pages put the version under `Latest Release:`, but some put it under
+# `Latest Version:` and use `Latest Release:` for the release month instead.
+_VERSION_LABELS = ("Latest Version:", "Latest Release:")
+
+
+def _parse_latest_version(description_html: str) -> str:
+    soup = BeautifulSoup(description_html, features="html.parser")
+    for label in _VERSION_LABELS:
+        span = soup.find("span", string=lambda text: text is not None and label in text)
+        if span:
+            return span.text.split(": ")[1].lower()
+    raise AssertionError(f"None of {_VERSION_LABELS} was found! Can't parse version.")
+
 
 class _RawBytesCatalogYear(BaseModel):
     link: str
@@ -85,15 +98,7 @@ class BytesConnector(VersionedConnector):
             f"The JSON response should have a `description` field. If not, it indicates the url is probably wrong. Response: {content}"
         )
 
-        soup = BeautifulSoup(content["description"], features="html.parser")
-        latest_release_text = soup.find(
-            "span", string=lambda text: "Latest Release:" in text
-        )
-        assert latest_release_text, (
-            "No `Latest Release:` text was found! Can't parse version."
-        )
-
-        return latest_release_text.text.split(": ")[1].lower()
+        return _parse_latest_version(content["description"])
 
     def _key_to_product_dataset(self, key: str) -> tuple[str, str]:
         """e.g.
