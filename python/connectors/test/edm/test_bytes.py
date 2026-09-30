@@ -77,3 +77,31 @@ def test_parse_latest_version(lines, expected):
 def test_parse_latest_version_without_label():
     with pytest.raises(AssertionError):
         _parse_latest_version(_version_block("Date of Data: June 2026"))
+
+
+@pytest.mark.parametrize(
+    "dataset, file_id, path",
+    [
+        (
+            "housing_database_project_level_files",
+            "shapefile_inactive_included",
+            "housing-database/housing-project-level/nychdb_inactiveincluded_26q2.1_shp.zip",
+        ),
+        (
+            "housing_database_by_2020_nta",
+            "shapefile",
+            "housing-database/housing-unit-summary/nychdb_nta_26q2.1_shp.zip",
+        ),
+        (
+            "housing_database_by_community_district",
+            "csv",
+            "housing-database/housing-unit-summary/nychdb_community_26q2.1_csv.zip",
+        ),
+    ],
+)
+def test_developments_file_urls(dataset, file_id, path):
+    assert _sitemap.get_file_url(
+        "developments", dataset, file_id, version="26q2.1"
+    ) == (
+        "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/" + path
+    )
