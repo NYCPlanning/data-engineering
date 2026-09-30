@@ -12,19 +12,38 @@ Dates with "by" are the latest dates set by the City Charter, as described by IB
 | When | Event | Source |
 |---|---|---|
 | July 1 | Fiscal year begins | [Council][council], [IBO][ibo] |
-| January (by Jan 16) | Mayor releases the **Preliminary Budget**, including proposed capital expenditures | [IBO][ibo] |
-| January | OMB publishes the Preliminary **Capital Commitment Plan** | [CPDB data dictionary][cpdb-dd] |
-| January, odd-numbered years | OMB publishes the Preliminary **Ten-Year Capital Strategy** | [OMB][ptyp-25] |
+| September | OMB publishes the Adopted **Capital Commitment Plan**, a four-year plan due within 90 days of the Capital Budget's adoption | [Comptroller][comptroller] |
+| January (by Jan 16) | Mayor releases the **Preliminary Budget**, including the Preliminary Capital Budget | [IBO][ibo], [Comptroller][comptroller] |
+| January | OMB publishes the Preliminary Capital Commitment Plan, a five-year plan | [Comptroller][comptroller] |
+| January, odd-numbered years | Preliminary **Ten-Year Capital Strategy** | [Comptroller][comptroller] |
 | March to April | Council analyzes the Preliminary Budget, holds public hearings, and releases its response | [Council][council] |
-| April (by Apr 26) | Mayor presents the **Executive Budget** | [IBO][ibo] |
-| April | OMB publishes the Executive Capital Commitment Plan | [CPDB data dictionary][cpdb-dd] |
-| April (by Apr 26), odd-numbered years | Mayor issues the Ten-Year Capital Strategy | [IBO][ibo] |
-| May to June (by Jun 5) | Council and Mayor negotiate, then Council votes to adopt the **Adopted Budget** | [Council][council], [IBO][ibo] |
-| June 30 | Fiscal year ends. The Adopted Budget must be in place before July 1 | [Council][council] |
-| September | OMB publishes the Adopted Capital Commitment Plan | [CPDB data dictionary][cpdb-dd] |
+| April (by Apr 26) | Mayor presents the **Executive Budget**, including the Executive Capital Budget | [IBO][ibo], [Comptroller][comptroller] |
+| April or May | OMB publishes the Executive Capital Commitment Plan, a five-year plan | [Comptroller][comptroller] |
+| April or May, odd-numbered years | Final Ten-Year Capital Strategy | [IBO][ibo], [Comptroller][comptroller] |
+| May to June (by Jun 5) | Council and Mayor negotiate, then Council votes to adopt the **Adopted Budget**, including the Capital Budget | [Council][council], [IBO][ibo] |
+| June 30 | Fiscal year ends. The Adopted Budget must be in place before July 1 | [Council][council], [Comptroller][comptroller] |
 
-The Capital Commitment Plan months are when OMB "generally" publishes, not Charter deadlines.
-The Adopted Capital Commitment Plan comes out a few months after the budget is adopted, early in the next fiscal year.
+Capital Commitment Plan months are when OMB typically publishes, not Charter deadlines.
+Recent plans were dated 4/26/2023, 9/28/2023, 1/16/2024, 4/24/2024, 9/30/2024, 1/16/2025, and 5/1/2025 ([Comptroller][comptroller], Table 1).
+The Adopted plan comes out after the fiscal year it starts in has already begun.
+
+## Version labels
+
+The same release can carry three different year labels:
+
+- **Budgets** are named for the fiscal year they fund. The Preliminary Budget released in January covers the upcoming fiscal year ([IBO][ibo]).
+- **The Comptroller** names Capital Commitment Plans for the fiscal year they're released in: the plan dated 5/1/2025 is the "FY 2025 May CCP", and the September 2025 plan is the "FY 2026 Adopted CCP" ([Comptroller][comptroller]).
+- **CPDB** versions (`ccpversion`, and `version` in `products/cpdb/recipe.yml`) use the calendar year the plan was released in.
+
+| Plan | FISA extract date | CPDB version | Comptroller label | Budget it accompanies |
+|---|---|---|---|---|
+| Adopted, fall 2025 | 2025-09-30 | `25adopt` | FY 2026 Adopted CCP | FY 2026 Adopted |
+| Preliminary, early 2026 | 2026-02-18 | `26prelim` | FY 2026 January CCP | FY 2027 Preliminary |
+| Executive, spring 2026 | 2026-05-18 | `26exec` | FY 2026 May CCP | FY 2027 Executive |
+
+FISA extract dates come from `ingest_templates/fisa_capitalcommitments.yml` history.
+CPDB and Comptroller labels differ only for Adopted plans.
+Budget labels are one year ahead for Preliminary and Executive plans.
 
 ## Terms
 
@@ -42,13 +61,13 @@ The Adopted Capital Commitment Plan comes out a few months after the budget is a
 
 ### Capital documents
 
-**Capital Budget**: The capital budget is a budget covering one fiscal year that funds physical infrastructure, separate from the expense budget. A project must be worth at least $50,000 to be included and, for most projects, have a period of probable usefulness of at least five years. ([IBO][ibo])
+**Capital Budget**: The capital budget sets the maximum capital appropriations, by budget line, that sponsor agencies can spend in the upcoming fiscal year, and projects appropriations for the three years after. It's released three times a year with the Preliminary, Executive, and Adopted Budgets. It works more as a spending limit than a plan. A project must be worth at least $50,000 to be included and, for most projects, have a period of probable usefulness of at least five years. ([Comptroller][comptroller], [IBO][ibo])
 
-**Capital Program**: The capital program is a multiyear plan of the funds needed for the current fiscal year and the next three, for projects already underway and new projects started in the Capital Budget. ([IBO][ibo])
+**Capital Commitment Plan**: The capital commitment plan (CCP) is OMB's schedule of **Planned Commitments** by FMS ID over the next four or five fiscal years. It's more granular than the Capital Budget and is the main capital planning document. OMB publishes it three times a year as a multi-volume PDF. CPDB is built from one release of it. ([Comptroller][comptroller], [CPDB data dictionary][cpdb-dd])
 
-**Capital Commitment Plan**: The capital commitment plan is OMB's plan of **Planned Commitments** by capital project. OMB publishes it three times a year, alongside the Preliminary, Executive, and Adopted Capital Budgets. CPDB is built from one release of it, identified by `ccpversion` (for example `26exec`). ([CPDB data dictionary][cpdb-dd])
+**Reserve for Unattained Commitments**: The reserve for unattained capital commitments is a lump-sum reduction in the Capital Commitment Plan that brings each fiscal year's planned commitments down to a realistic level, since OMB and agencies plan more than they can take on. It isn't broken out by project or agency, so project and agency totals from the plan add up to more than the plan's bottom line. ([Comptroller][comptroller])
 
-**Ten-Year Capital Strategy**: The ten-year capital strategy is the Mayor's plan for developing the city's capital facilities over the next decade, issued in odd-numbered years. It's separate from the Adopted Capital Budget and the Capital Commitment Plan. ([IBO][ibo], [Ten-Year Capital Strategy site][tycs])
+**Ten-Year Capital Strategy**: The ten-year capital strategy (TYCS) is the Mayor's ten-year schedule of planned commitments, with the city's goals, key investments, and financing plan. A preliminary version comes out in January of odd-numbered years and the final version in April or May. It groups projects into agency-specific categories and lifecycle categories: state of good repair, program expansion, and programmatic replacement. It's separate from the Adopted Capital Budget and the Capital Commitment Plan. ([Comptroller][comptroller], [IBO][ibo], [Ten-Year Capital Strategy site][tycs])
 
 ### Money
 
@@ -58,20 +77,47 @@ The Adopted Capital Commitment Plan comes out a few months after the budget is a
 
 **Allocation**: An allocation is a sum of money within an appropriation that is set aside for a specific purpose. ([IBO][ibo])
 
-**Commitment**: A commitment is an awarded contract for capital budget spending, often covering several years, that has been registered with the City Comptroller. ([IBO][ibo])
+**Planned Commitment**: A planned commitment is a commitment an agency expects to make, listed in the Capital Commitment Plan with a planned month and year, amounts by funding source (city, state, federal, other), and what it pays for, such as design or construction. The planned month and year aren't very reliable for predicting which fiscal year it will actually happen in. ([CPDB data dictionary][cpdb-dd], [Comptroller][comptroller])
 
-**Planned Commitment**: A planned commitment is a commitment an agency expects to make, listed in the Capital Commitment Plan with a planned month and year, amounts by funding source (city, state, federal, other), and what it pays for, such as design or construction. It's the row grain of CPDB's commitments dataset. ([CPDB data dictionary][cpdb-dd])
+**Commitment**: A commitment is an awarded contract for capital spending, often covering several years, that has been registered with the City Comptroller. ([IBO][ibo], [Comptroller][comptroller])
+
+**Liquidation**: A liquidation is a payment drawn down from a commitment's contract. It's the actual spending, and what Checkbook NYC's capital checks record. ([Comptroller][comptroller], [CSDB README](../products/checkbook/README.md))
+
+### Projects and agencies
+
+**Capital Project**: A capital project is the unit OMB plans commitments against, identified by an FMS ID (`maprojid` in CPDB, the managing agency code followed by a project ID). It has one or more planned commitments. An FMS ID isn't always a discrete project: some are holding codes, some are lump sums for a whole program or agency, and some are split by fiscal year. ([CPDB data dictionary][cpdb-dd], [Comptroller][comptroller])
+
+**Holding Code**: A holding code is an FMS ID that holds planned commitments for a larger citywide program until they're moved to more specific FMS IDs, where the actual commitments and liquidations happen. FMS doesn't link a holding code to the IDs it's later spent under. ([Comptroller][comptroller])
+
+**Budget Line**: A budget line is the Capital Budget's unit of appropriation, broader than an FMS ID. FMS IDs roll up to budget lines. ([Comptroller][comptroller], [CPDB data dictionary][cpdb-dd])
+
+**Sponsor Agency**: A sponsor agency is the city agency sponsoring a capital project's planned commitments, derived from the budget line. The Capital Budget tells sponsor agencies how much they can spend. ([CPDB data dictionary][cpdb-dd], [Comptroller][comptroller])
+
+**Managing Agency**: A managing agency is the city agency that manages a capital project, identified by the three-digit code at the start of its FMS ID. ([CPDB data dictionary][cpdb-dd])
+
+**Financial Management System**: The Financial Management System (FMS) is the city's internal financial system and the authoritative source of capital financial data. It holds TYCS and CCP planned commitments plus actual commitments and liquidations by FMS ID. It doesn't hold project schedules or reasons for delays. ([Comptroller][comptroller])
+
+## Relationships
+
+| Entity | Relationship | Cardinality | Entity |
+|---|---|---|---|
+| Capital Commitment Plan | lists | 1 : 1..N | Planned Commitment |
+| Capital Project | has | 1 : 1..N | Planned Commitment |
+| Planned Commitment | funded by | 0..N : 1 | Budget Line |
+| Budget Line | sponsored by | 0..N : 1 | Sponsor Agency |
+| Capital Project | managed by | 0..N : 1 | Managing Agency |
+| Commitment | paid out by | 1 : 0..N | Liquidation |
 
 ## Sources
 
+- [NYC Comptroller: Flying Blind on Billions][comptroller] (December 2025), especially "What is the Capital Budget?"
 - [IBO: Understanding New York City's Budget][ibo] (July 2021)
 - [NYC Council: Budget Process][council]
 - [DCP: CPDB data dictionary][cpdb-dd]
-- [OMB: Preliminary Ten-Year Capital Strategy, Fiscal Years 2026-2035][ptyp-25]
 - [NYC Ten-Year Capital Strategy site][tycs]
 
+[comptroller]: https://comptroller.nyc.gov/reports/flying-blind-on-billions-how-weak-capital-data-undermines-new-york-citys-infrastructure-investments/
 [ibo]: https://www.ibo.nyc.gov/assets/ibo/downloads/pdf/budget-guides/understandingthebudget.pdf
 [council]: https://council.nyc.gov/budget/process/
 [cpdb-dd]: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/cpdb_data_dictionary.xlsx
-[ptyp-25]: https://www.nyc.gov/assets/omb/downloads/pdf/jan25/ptyp1-25.pdf
 [tycs]: https://accordion-smilodon-prwk.squarespace.com/
