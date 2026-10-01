@@ -1,0 +1,25 @@
+# Boilerplate doc content with no natural home on any one dbt model - loaded via
+# dcpy.utils.doc.load_sections() and prepended to the generated per-model sections.
+# Top level must be a list of Section objects (dcpy.utils.doc.Section).
+
+- title: Field Formatting
+  elements:
+    - kind: text
+      text: >-
+        A field marked "filler" in a layout below is always blank. A field sourced
+        from a CSCL attribute is blank whenever that attribute is null, unless the
+        field's own description says otherwise.
+    - kind: text
+      text: >-
+        Every [[dat_file|text-formatted]] export field's justification and fill are
+        set by a 4-letter code (e.g. `RJZF`) in that export's `text_formatting__*`
+        seed -
+        `apply_text_formatting_from_seed` only checks the code's first two characters
+        for justification and its last two for fill:
+    - kind: table
+      headers: ["Code", "Meaning"]
+      rows:
+        - ["LJ", "Left-justified"]
+        - ["RJ", "Right-justified - the default if a code doesn't start with LJ, including a few seeds that use RF for the same thing"]
+        - ["SF", "Space-filled - the default if a code doesn't end in ZF"]
+        - ["ZF", "Zero-filled"]

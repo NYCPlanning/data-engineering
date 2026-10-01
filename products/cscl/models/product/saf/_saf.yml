@@ -3,9 +3,30 @@ version: 2
 models:
 # Models with column per field
 - name: saf_abcegnpx_generic_by_field
+  description: >-
+    One row per AltSegmentData SAF entry of type A, B, C, E or P, or CommonPlace
+    non-addressable place name (NAP) of type G, N or X - these eight types share one
+    record layout (Legacy Table 28) despite two different source tables, since a
+    street segment's address data and a place name attached to that segment need the
+    same shape. This is the generic-file version.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A SAF address range or place name (types A/B/C/E/G/N/P/X)
+      is_geospatial: true
+      implementation_notes: >-
+        Rows are filtered to segments whose SEGMENT_TYPE puts them in the generic
+        file - see the Special Address File section's own implementation notes for
+        the full generic/roadbed routing rule.
   columns: &safa_columns
     - name: place_name
       data_type: string
+      description: >-
+        For type C: hardcoded '75 STREET' (a known CSCL data quirk), not a real
+        street name. For A/B/E/P: the principal street name for this AltSegmentData
+        row's B5SC + LGC1 ("the preferred B7SC"). For G/N/X: the CommonPlace feature's
+        own name. All three sourced from StreetName/FeatureName's LOOKUP_KEY,
+        normalized to Geosupport Sort Format.
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 32 }
@@ -26,15 +47,403 @@ models:
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 5 }
+    - name: sos_indicator
+      data_type: string
+      description: >-
+        'L'/'R' translated from AltSegmentData's SOSINDICATOR (1/2) for A/B/C/E/P, or
+        CommonPlace's for G/N/X; blank otherwise.
+    - name: b5sc
+      data_type: string
+    - name: l_low_hn
+      data_type: string
+    - name: filler_safa7
+      data_type: string
+    - name: l_high_hn
+      data_type: string
+    - name: filler_safa8
+      data_type: string
+    - name: r_low_hn
+      data_type: string
+    - name: filler_safa9
+      data_type: string
+    - name: r_high_hn
+      data_type: string
+    - name: filler_safa10
+      data_type: string
+    - name: saftype
+      data_type: string
+      description: >-
+        The record's own SAF type - A/B/C/E/P (from AltSegmentData) or G/N/X (from
+        CommonPlace). This is what actually varies row to row despite the shared file
+        and layout.
+    - name: filler_safa11
+      data_type: string
+    - name: lgc1
+      data_type: string
+    - name: lgc2
+      data_type: string
+    - name: lgc3
+      data_type: string
+    - name: lgc4
+      data_type: string
+    - name: boe_lgc_pointer
+      data_type: string
+    - name: segment_type
+      data_type: string
+    - name: segmentid
+      data_type: string
+    - name: x_coord
+      data_type: string
+      description: >-
+        Only populated for G/N/X (the CommonPlace point's own coordinates, rounded to
+        the nearest integer); always blank for A/B/C/E/P. This field only exists in
+        the shared layout because G/N/X need it - see legacy Table 29 Note 4.
+    - name: y_coord
+      data_type: string
+      description: Same as x_coord - GNX only, always blank for A/B/C/E/P.
+    - name: side_borough_code
+      data_type: string
+      description: >-
+        GNX only (see x_coord) - the borough of the Atomic Polygon the CommonPlace
+        point falls in, which can differ from boroughcode near a border.
+      meta:
+        is_geospatial: true
+    - name: side_ct2020_basic
+      data_type: string
+      meta:
+        is_geospatial: true
+    - name: side_ct2020_suffix
+      data_type: string
+      meta:
+        is_geospatial: true
+    - name: side_ap
+      data_type: string
+      meta:
+        is_geospatial: true
 
 - name: saf_abcegnpx_roadbed_by_field
+  description: >-
+    The roadbed-file counterpart of [GenericABCEGNPX.txt](#genericabcegnpxtxt-saf) -
+    same source entries, same layout.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A SAF address range or place name (types A/B/C/E/G/N/P/X)
+      is_geospatial: true
+      implementation_notes: >-
+        Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
+        file - see the Special Address File section's own implementation notes for
+        the full generic/roadbed routing rule.
   columns: *safa_columns
 
 - name: saf_d_generic_by_field
+  description: >-
+    One row per AltSegmentData SAF entry of type D or F - a Duplicate Address
+    Pseudo-Street (DAPS): an alternate address range for a street that's also known by
+    a different "regular" name elsewhere in the city (see regular_b5sc). Type F is
+    always relabeled to 'D' in the output (see saftype).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A duplicate address pseudo-street (DAPS) record
+  columns: &safd_columns
+    - name: place_name
+      data_type: string
+      description: >-
+        The DAPS name itself (StreetName entry for this row's B5SC, PRIMARY_FLAG =
+        'Y'), normalized to Sort Format - not the regular street name (see
+        regular_b5sc).
+    - name: boroughcode
+      data_type: string
+    - name: face_code
+      data_type: string
+    - name: segment_seqnum
+      data_type: string
+    - name: sos_indicator
+      data_type: string
+      description: "'L'/'R' translated from AltSegmentData's SOS_INDICATOR (1/2); blank otherwise."
+    - name: daps_b5sc
+      data_type: string
+      description: The DAPS street's own B5SC (AltSegmentData's B5SC directly).
+    - name: low_hn
+      data_type: string
+      description: >-
+        Whichever of AltSegmentData's l_low_hn/r_low_hn is non-null - a type D record
+        represents one side only, the side named by sos_indicator.
+    - name: filler_safd7
+      data_type: string
+    - name: high_hn
+      data_type: string
+      description: Same side-selection as low_hn.
+    - name: filler_safd8
+      data_type: string
+    - name: regular_b5sc
+      data_type: string
+      description: >-
+        The "real" street's B5SC for this DAPS name, from a hardcoded lookup
+        (saf_d_hardcoded_regular_b5sc seed) matching the legacy spec's fixed list -
+        not derived from any CSCL table. A street can have more than one valid regular
+        name, so there's no reliable automatic way to pick one (legacy Table 30 Note 4).
+    - name: filler_safd9
+      data_type: string
+    - name: saftype
+      data_type: string
+      description: Always 'D' in the output, even for a row whose source SAFTYPE was 'F'.
+    - name: zipcode
+      data_type: string
+    - name: daps_type
+      data_type: string
+      description: >-
+        '1' if this row's source AltSegmentData entry was actually type 'F' (a
+        "pseudo-DAPS"); blank for a true 'D'.
+    - name: filler_safa12
+      data_type: string
+    - name: segment_type
+      data_type: string
+    - name: segmentid
+      data_type: string
+
 - name: saf_d_roadbed_by_field
+  description: >-
+    The roadbed-file counterpart of [GenericD.txt](#genericdtxt-saf) - same source
+    entries, same layout.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A duplicate address pseudo-street (DAPS) record
+      implementation_notes: >-
+        Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
+        file - see the Special Address File section's own implementation notes for
+        the full generic/roadbed routing rule.
+  columns: *safd_columns
+
 - name: saf_i_by_field
+  description: >-
+    One row per CSCL NamedIntersection entry - the only SAF type that isn't
+    segment-based (it's keyed by NODEID, not a LION Key). No generic/roadbed split;
+    one file, one row per intersection.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A named street intersection
+  columns:
+    - name: place_name
+      data_type: string
+      description: >-
+        The intersection's own name (StreetName entry for its B7SC, PRINCIPAL_FLAG =
+        'Y'), normalized to Sort Format.
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 32 }
+    - name: nodeid
+      data_type: string
+    - name: filler_safi2
+      data_type: string
+    - name: multiplefield
+      data_type: string
+      description: >-
+        'M' if NamedIntersection.MULTIPLEFIELD = 'Y' (more than one intersection
+        exists between this same pair of streets); blank otherwise.
+    - name: b7sc_intersection
+      data_type: string
+      description: The intersection's own B7SC - distinct from the two cross-street B5SCs below.
+    - name: b5sc_cross1
+      data_type: string
+    - name: b5sc_cross2
+      data_type: string
+    - name: filler_safi6
+      data_type: string
+    - name: saftype
+      data_type: string
+      description: Always 'I'.
+    - name: filler_safi7
+      data_type: string
+
 - name: saf_ov_generic_by_field
+  description: >-
+    One row per AltSegmentData SAF entry of type O, or AddressPoint of type V (a
+    vanity address - e.g. a building's alternate/promotional address on a different
+    street than the one it physically sits on) - these two types share one record
+    layout (Legacy Table 33/35) with different populating rules. x_coord/y_coord are
+    only ever populated for V.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A SAF 'other' address or vanity address record
+  columns: &safov_columns
+    - name: place_name
+      data_type: string
+      description: >-
+        For O: the principal street name, same B5SC+LGC1 lookup used for the A/B/E/P
+        address-range types. For V: the vanity street's own preferred name (via
+        b7sc_vanity), which can be a completely different street than the one the
+        address physically sits on.
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 32 }
+    - name: boroughcode
+      data_type: string
+    - name: face_code
+      data_type: string
+      description: >-
+        For O: from the segment's LION key, same as the address-range types. For V:
+        the *actual* physical segment's face code (via b7sc_actual) - not the vanity
+        street's.
+    - name: segment_seqnum
+      data_type: string
+      description: For V, describes the actual physical segment, not the vanity street.
+    - name: sos_indicator
+      data_type: string
+    - name: b5sc
+      data_type: string
+      description: >-
+        For O: AltSegmentData's B5SC directly. For V: first 6 bytes of the address
+        point's B7SC_VANITY - the vanity street's own code.
+    - name: low_hn
+      data_type: string
+    - name: low_hn_suffix
+      data_type: string
+    - name: filler_safv8
+      data_type: string
+    - name: high_hn
+      data_type: string
+      description: >-
+        For O: whichever side AltSegmentData populates. For V: depends on the address
+        point's HYPHEN_TYPE - a single house number repeats low_hn here; a hyphenated
+        range splits low/high across the two fields. See legacy Table 35 Note 5 for
+        the full HYPHEN_TYPE-by-HYPHEN_TYPE breakdown.
+    - name: high_hn_suffix
+      data_type: string
+    - name: filler_safv10
+      data_type: string
+    - name: saftype
+      data_type: string
+      description: "'O' or 'V'."
+    - name: filler_safv11
+      data_type: string
+    - name: lgc1
+      data_type: string
+      description: >-
+        For O: AltSegmentData's LGC1. For V: bytes 7-8 of B7SC_VANITY (the vanity
+        street's own LGC) - additional vanity LGCs (lgc2-4 below) come from a separate
+        AddressPointLGCs join, not from B7SC_VANITY.
+    - name: lgc2
+      data_type: string
+    - name: lgc3
+      data_type: string
+    - name: lgc4
+      data_type: string
+    - name: boe_lgc_pointer
+      data_type: string
+    - name: segment_type
+      data_type: string
+      description: For V, describes the actual physical segment, not the vanity street.
+    - name: segmentid
+      data_type: string
+      description: For V, describes the actual physical segment, not the vanity street.
+    - name: x_coord
+      data_type: string
+      description: Only populated for V (the address point's own coordinates); always blank for O.
+    - name: y_coord
+      data_type: string
+      description: Only populated for V; always blank for O.
+
 - name: saf_ov_roadbed_by_field
+  description: >-
+    The roadbed-file counterpart of [GenericOV.txt](#genericovtxt-saf) - same source
+    entries, same layout.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A SAF 'other' address or vanity address record
+      implementation_notes: >-
+        Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
+        file - see the Special Address File section's own implementation notes for
+        the full generic/roadbed routing rule.
+  columns: *safov_columns
+
+- name: saf_s_generic_by_field
+  description: >-
+    One row per AddressPoint where SPECIAL_CONDITION = 'S' - an address point tied to
+    a specific physical segment (as opposed to a whole street name, the way most other
+    SAF types work).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A SAF address point
+  columns: &safs_columns
+    - name: place_name
+      data_type: string
+      tests:
+      - dbt_expectations.expect_column_value_lengths_to_equal:
+          arguments: { value: 32 }
+    - name: boroughcode
+      data_type: string
+    - name: face_code
+      data_type: string
+      description: >-
+        Principal StreetName's FACECODE for the address point's B7SC_ACTUAL, falling
+        back to the segment's own LION-key-derived face code if that lookup comes up
+        empty - see doc_reconciliation_log.md (DOC-005) for why this fallback exists.
+    - name: segment_seqnum
+      data_type: string
+    - name: sos_indicator
+      data_type: string
+    - name: b5sc
+      data_type: string
+    - name: hn
+      data_type: string
+      description: >-
+        House number, straight from the address point. Edgewater Park addresses are
+        already reformatted upstream into the special multiple-of-10,000 format by
+        the time they reach this table.
+    - name: filler_safs7
+      data_type: string
+    - name: hn_suffix
+      data_type: string
+      description: The low/basic house-number suffix - distinct from high_alpha_hn_suffix below.
+    - name: filler_safs8
+      data_type: string
+    - name: high_alpha_hn_suffix
+      data_type: string
+      description: >-
+        A second, high-end suffix (the address point's HOUSE_NUMBER_RANGE_SUFFIX) -
+        distinct from hn_suffix.
+    - name: filler_saf85
+      data_type: string
+    - name: saftype
+      data_type: string
+      description: Always 'S'.
+    - name: filler_safs9
+      data_type: string
+    - name: lgc1
+      data_type: string
+    - name: lgc2
+      data_type: string
+    - name: lgc3
+      data_type: string
+    - name: lgc4
+      data_type: string
+    - name: boe_lgc_pointer
+      data_type: string
+    - name: segment_type
+      data_type: string
+    - name: segmentid
+      data_type: string
+
+- name: saf_s_roadbed_by_field
+  description: >-
+    The roadbed-file counterpart of [GenericS.txt](#genericstxt-saf) - same source
+    entries, same layout.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A SAF address point
+      implementation_notes: >-
+        Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
+        file - see the Special Address File section's own implementation notes for
+        the full generic/roadbed routing rule.
+  columns: *safs_columns
 
 # models with one text column per row
 

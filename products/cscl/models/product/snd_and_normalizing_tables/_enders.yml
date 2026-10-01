@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: enders_by_field
+    description: >-
+      One row per street/feature-name entry flagged as an "ender" - a name
+      Geosupport's normalizer would otherwise mis-expand (e.g. "B Q E" into
+      "B Q EAST", reading the "E" as "East" instead of "Expressway"). Each row
+      supplies the already-correct form via lookup_key, so Geosupport recognizes it
+      instead of guessing.
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: An enders name entry
+        implementation_notes: >-
+          Sourced from the same combined street/feature-name reference data used
+          elsewhere, filtered to rows with the enders flag set.
+    columns:
+      - name: lookup_key
+        data_type: string
+        description: >-
+          Left 32 bytes of the name-table entry's LOOKUP_KEY, space-padded. For an
+          enders row this already holds the corrected form Geosupport should
+          recognize, not the raw/ambiguous name.
+      - name: _enders_key
+        data_type: string
+        description: Identical to lookup_key - not a CSCL field, just the key this
+          model builds.

@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: face_code_by_field
+    description: >-
+      One row per (borough, face code) pair - the lookup Geosupport uses to resolve a
+      4-digit face code back to a street or non-street feature name. Built from the
+      combined street-name and non-street-feature-name reference data.
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: A (borough, face code) pair
+        implementation_notes: >-
+          Filtered to rows that actually have a face code assigned - not every
+          street/feature-name entry does.
+    columns:
+      - name: boroughcode
+        data_type: string
+      - name: face_code
+        data_type: string
+        description: >-
+          The 4-digit code this record defines, right-justified zero-filled. Copied
+          from the name table's FACECODE field.
+      - name: filler_fc2
+        data_type: string
+      - name: b10sc
+        data_type: string
+        description: >-
+          10-digit street code (B10SC) of the name-table entry this face code was
+          pulled from - which row produced the record, not a property of the face
+          code itself.
+      - name: filler_fc3
+        data_type: string
+      - name: lookup_key
+        data_type: string
+        description: >-
+          Street or non-street-feature name associated with this face code,
+          left-justified space-filled. The human-readable name Geosupport displays
+          for the face code.

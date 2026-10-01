@@ -1,0 +1,4 @@
+name: sample_project
+version: "1.0"
+profile: sample_project
+model-paths: ["models"]

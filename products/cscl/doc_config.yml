@@ -1,0 +1,206 @@
+# Declarative plan for generate_docs.py: what appears, in what order, and per-model
+# rendering directives. Deserialized via dcpy.utils.doc_config.load_doc_config into
+# DocConfig (a single ordered `items` list of ModelGroup | BoilerplateInclude).
+#
+# Every ModelGroup entry.name must be a dbt model tagged `export_doc`, and vice versa -
+# generate_docs.py warns (doesn't yet fail - see Q10 in the docs-generation scoping
+# notes) if the two drift out of sync.
+#
+# RULE: a dbt model name must never appear anywhere in the generated doc - not the
+# yml `description`/`each_row_is_a`/`implementation_notes` on any model, not the group
+# intro text below. Not just as a section title: nowhere, ever. Describe *what* it is
+# and *how it works* without naming the file that implements it - generate_docs.py
+# warns (doesn't yet fail) at generation time if it spots a likely violation
+# (`int__...`, `stg__...`, `..._by_field`, `....sql`), but that's a backstop, not a
+# substitute for writing it right the first time.
+#
+# RULE: never reference another section by relative position ("above", "below", "the
+# generic version above") - `items` order here isn't fixed, so a reordering silently
+# turns a correct reference into a wrong one. Point at a section by anchor instead:
+# `[GenericABCEGNPX.txt](#genericabcegnpxtxt-saf)`. The anchor is derived from the
+# target's own rendered title (`_slugify("{display_name} ({group short_title or
+# title})")` - see dcpy.utils.doc._slugify/Section.resolved_anchor) - rather than
+# hand-computing it, grab it from a freshly generated output/docs/cscl_exports.md's
+# `<a id="...">` tag for that section. This only applies to cross-section references;
+# a position word describing the document's own fixed structure (e.g. "the N sections
+# below" introducing a group's own entries) is fine, since subsections always render
+# after their own section's text - that ordering isn't something `items` reordering
+# can break.
+#
+# A ModelGroup's own custom keys (its wrapper section, not any one model within it):
+#   short_title - used in place of the full group `title` when combined into a
+#              model's own heading (see entries[].display_name below) - e.g. "SAF"
+#              instead of "Special Address File". Falls back to the full title if
+#              omitted.
+#   elements - raw Doc elements (dcpy.utils.doc.parse_elements), the group's own intro
+#              prose - not specific to any one model. Split overview from mechanism
+#              the same way a model's description/implementation_notes are: a
+#              "#### Implementation Details" Heading element, then Text, marks where
+#              the technical half starts.
+#
+# A ModelGroup entry's custom keys:
+#   display_name - required. The dbt model name is an internal implementation detail
+#              and must never be exposed as a section title - this is the actual
+#              deliverable file name a reader would recognize instead, rendered as
+#              "{display_name} ({group's short_title or title})" so a file's section
+#              heading is unambiguous out of context. Declared explicitly here (not
+#              inferred) because the mapping isn't always 1:1: lion_dat_by_field and
+#              face_code_by_field each fan out into five borough files downstream of
+#              the model this doc section describes, so their display_name is a
+#              filename *pattern*, not one concrete file.
+#   table    - dat_fields (full DAT field layout - every field in the model's
+#              text_formatting__* seed, joined with whatever column descriptions
+#              exist; only valid for a model that actually depends on such a seed),
+#              columns (a plain documented-columns table), or omitted (no table).
+#   images   - a list of {path, alt} - Image.path is relative to the product root
+#              (see media/README.md); generate_docs.py resolves it relative to the
+#              final output location.
+#   elements - raw Doc elements (dcpy.utils.doc.parse_elements), appended after the
+#              table/images/Implementation Details (from the model's own
+#              implementation_notes) - an escape hatch for anything that doesn't fit
+#              the vocabulary above.
+#
+# A BoilerplateInclude's `path` (dcpy.utils.doc.load_sections) is resolved relative to
+# the product root. It can appear anywhere in `items` - this is what lets an intro sit
+# before every model group and an appendix after all of them, purely by position.
+
+items:
+  - kind: boilerplate
+    path: docs/boilerplate/field_formatting.yml
+
+  - kind: model_group
+    title: LION
+    entries:
+      - name: lion_dat_by_field
+        custom:
+          display_name: "{Borough}LION.dat"
+          table: dat_fields
+
+  - kind: model_group
+    title: Roadbed Pointer List
+    custom:
+      short_title: RPL
+    entries:
+      - name: rpl_by_field
+        custom:
+          display_name: RPL.txt
+          table: dat_fields
+          images:
+            - path: docs/roadbed_v_generic.png
+              alt: Hudson Parkway - Roadbed and Generic Segments
+
+  - kind: model_group
+    title: Face Code File
+    entries:
+      - name: face_code_by_field
+        custom:
+          display_name: "{Borough}Face.txt"
+          table: dat_fields
+
+  - kind: model_group
+    title: Geosupport System Normalizing Tables
+    entries:
+      - name: enders_by_field
+        custom:
+          display_name: Enders.txt
+          table: columns
+
+  - kind: model_group
+    title: District Boundary Geodatabase
+    entries:
+      - name: gdb_nycd
+        custom:
+          display_name: nycd
+          table: columns
+
+  - kind: model_group
+    title: Special Address File
+    custom:
+      short_title: SAF
+      elements:
+        - kind: text
+          text: >-
+            13 [[saf|SAF]] record types (A, B, C, [[saf_type_d|D]], E, G, [[saf_type_i|I]],
+            N, O, P, [[saf_type_s|S]], [[saf_type_v|V]], X - CSCL also has a source type
+            'F', always relabeled to 'D' on output) collapse into 5 distinct record
+            layouts, and so into 9 output files: one for Type I (intersections), and a
+            generic + roadbed pair for each of the other four layout families -
+            "abcegnpx" (A, B, C, E, G, N, P, X), "d" (D, F), "ov" (O, V), and "s" (S) -
+            the nine sections below follow that same grouping. (We only have solid
+            definitions for I/D/S/V above - the individual A/B/C/E/G/N/O/P/X
+            distinctions live in Geosupport's own SAFTYPE domain, not in anything we
+            have on hand; happy to fill those glossary entries in once we have a
+            source for them.)
+        - kind: text
+          text: >-
+            Every SAF record traces back to one of three CSCL tables, by record type:
+            AltSegmentData's own SAF entries (A, B, C, D, E, F, O, P), the CommonPlace
+            feature class (G, N, X - non-addressable place names), or the AddressPoint
+            feature class (S, V).
+        - kind: text
+          text: >-
+            Every SAF layout's first 32 bytes are a name (street, place, or
+            intersection name), pulled from StreetName/FeatureName's LOOKUP_KEY and
+            normalized into Geosupport's Sort Format.
+        - kind: heading
+          text: Implementation Details
+          level: 3
+        - kind: text
+          text: >-
+            AltSegmentData, CommonPlace, and AddressPoint are combined into one shared
+            representation that resolves each record's LION key and segment type,
+            including the generic/roadbed redirect described next.
+        - kind: text
+          text: >-
+            Whether a record belongs in the generic file, the roadbed file, or both
+            depends only on the appurtenant segment's SEGMENT_TYPE (and, in one case,
+            INCEX_FLAG) - the same rule for every layout family. For G/N/S/V/X
+            specifically, CommonPlace/AddressPoint only ever point at a
+            [[roadbed_segment|roadbed segment]] - producing the generic-file row
+            requires looking up the corresponding [[generic_segment|generic segment]]
+            via the Roadbed Pointer List. Rather than deciding up front which applies,
+            both interpretations (the record's own segment, and its RPL-redirected
+            generic counterpart) are computed as separate candidate rows, and a final
+            filter on each output file keeps only the one that actually belongs there.
+        - kind: text
+          text: >-
+            See CSCL-SAF-01 in data_issues.md for a known, open [[lgc|LGC]]-mismatch
+            pattern affecting several of these outputs - traced to stale LGC
+            assignments in prod, not a bug in this pipeline.
+    entries:
+      - name: saf_abcegnpx_generic_by_field
+        custom:
+          display_name: GenericABCEGNPX.txt
+          table: dat_fields
+      - name: saf_abcegnpx_roadbed_by_field
+        custom:
+          display_name: RoadbedABCEGNPX.txt
+          table: dat_fields
+      - name: saf_d_generic_by_field
+        custom:
+          display_name: GenericD.txt
+          table: dat_fields
+      - name: saf_d_roadbed_by_field
+        custom:
+          display_name: RoadbedD.txt
+          table: dat_fields
+      - name: saf_i_by_field
+        custom:
+          display_name: Intersection.txt
+          table: dat_fields
+      - name: saf_ov_generic_by_field
+        custom:
+          display_name: GenericOV.txt
+          table: dat_fields
+      - name: saf_ov_roadbed_by_field
+        custom:
+          display_name: RoadbedOV.txt
+          table: dat_fields
+      - name: saf_s_generic_by_field
+        custom:
+          display_name: GenericS.txt
+          table: dat_fields
+      - name: saf_s_roadbed_by_field
+        custom:
+          display_name: RoadbedS.txt
+          table: dat_fields

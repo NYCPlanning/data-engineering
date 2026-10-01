@@ -50,6 +50,82 @@ needing NYC Planning's GR team's input on undocumented legacy behavior - record 
 (`status: GR Review` while it's with them, `blocked` once it's a known dead end) rather than
 leaving it untracked.
 
+## Documentation Generation
+
+We're replacing `docs/ETL_V8_02012024.md` (a static, hand-maintained Word-doc export)
+with documentation generated from the dbt project itself - model/column `description`s
+live in each model's own yml, close to the code that implements them, and
+`scripts/generate_docs.py` assembles them into `output/docs/cscl_exports.md`.
+
+**Reusable machinery** lives in `dcpy-utils` (`dcpy.utils.dbt_project`,
+`dcpy.utils.doc`, `dcpy.utils.doc_config`) - parsing the dbt project, a small
+format-agnostic `Doc`/`Section`/element model, and a declarative `DocConfig`. Anything
+CSCL-specific (DAT field-layout tables built from `text_formatting__*` seeds, image
+path conventions) lives in `scripts/generate_docs.py` and `doc_config.yml` instead -
+see the module docstrings for the full design.
+
+### `doc_config.yml`
+
+The single source of truth for what appears and in what order - model groups and
+boilerplate includes, interleaved however they're declared. A model belongs in the
+generated doc because it's listed here (and tagged `config: {tags: [export_doc]}` in
+its own dbt yml - `generate_docs.py` warns if the two disagree), not because a script
+inferred it. See the comments at the top of `doc_config.yml` for the full directive
+vocabulary (`table`, `images`, `elements`).
+
+### Writing conventions
+
+- **No model names.** See the RULE comment at the top of `doc_config.yml` - a dbt
+  model name must never appear anywhere in the generated doc.
+- **No positional cross-references.** Don't write "the generic version above" or "the
+  roadbed file below" - `doc_config.yml`'s `items` order isn't fixed, and reordering it
+  silently turns a correct reference into a wrong one. Link to the target section's
+  anchor instead (e.g. `[GenericABCEGNPX.txt](#genericabcegnpxtxt-saf)`) - see the
+  matching RULE comment in `doc_config.yml` for how to find the anchor.
+- **Spell out acronyms.** Every `glossary.csv` entry for an acronym should give the
+  full term in the `term` column, e.g. `Local Group Code (LGC)`, not just `LGC` -
+  verify the expansion against a real source (the legacy ETL doc, Geosupport's own UPG
+  glossary) rather than guessing.
+
+### `doc_generation_plan.csv`
+
+The work tracker - one row per model or boilerplate section still needing docs,
+covering every section of the legacy ETL doc. Columns: `id`, `dbt_model`,
+`type` (`model_dat_fields` / `model_columns` / `boilerplate` / `group_intro`),
+`doc_config_group`, `legacy_section` + `legacy_line` (for looking up the source text),
+`status`, `notes`.
+
+**Status vocabulary:**
+
+| Status | Meaning |
+|---|---|
+| `not_started` | Nothing written yet. |
+| `drafted` | Description(s) written, based on the code - step 1 below done. |
+| `reconciled` | Compared against the legacy doc; any real discrepancy logged - step 2 done. |
+| `reviewed` | You've signed off. Only you set this status. |
+| `skip` | Deliberately not carrying this forward (e.g. a deprecated legacy output, or content with no equivalent in this pipeline) - tracked so it reads as a decision, not an oversight. |
+
+### The process, per row
+
+1. **Generate fresh.** Write the model's `description` and column `description`s from
+   your own understanding of the code (the SQL, any comments, `data_issues.md`) - not
+   copied from the legacy doc's prose. Match its level of detail (methodology, edge
+   cases, value meanings), not its wording or tone.
+2. **Reconcile against the legacy doc.** Read the corresponding legacy section
+   (`legacy_line` in the CSV) and compare. Anything worth calling out - a gap in what
+   you wrote, a rule the legacy doc states more precisely, a discrepancy between the
+   two - goes in [`docs/doc_reconciliation_log.md`](./docs/doc_reconciliation_log.md).
+   If a finding turns out to be a real *behavioral* discrepancy (not just a wording
+   gap), it belongs in `data_issues.md` instead - link to it from the reconciliation
+   log rather than duplicating the analysis there.
+3. **Review.** Flag the row for review (PR, or however you're tracking it day to day).
+   Only mark `reviewed` in the CSV once you've actually looked at it - that status is
+   the sign-off gate, not something to set for yourself.
+
+Run `python scripts/generate_docs.py` (needs `target/manifest.json` - run `dbt parse`
+first) to regenerate `output/docs/cscl_exports.md` and see the result; it's a build
+artifact, not checked in.
+
 ## Getting Started
 
 ### Prerequisites

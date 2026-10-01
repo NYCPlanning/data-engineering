@@ -1333,6 +1333,18 @@ wheels = [
 ]
 
 [[package]]
+name = "dbt-artifacts-parser"
+version = "0.15.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/33/b7/c31a7d44dd86453a54b4bf363c0f185e871d087e7e66d3e27f0706564b17/dbt_artifacts_parser-0.15.0.tar.gz", hash = "sha256:ccfc2d8d92cbd9237213b5e939145b25a01e729c863493a33914db0aa800607d", size = 72800, upload-time = "2026-08-10T07:56:24.804Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/af/4dbee3332a3032940eb94d49a5b338142ae223be6cc22a70bff6dadf6b61/dbt_artifacts_parser-0.15.0-py3-none-any.whl", hash = "sha256:d1050ec55983566c29328a6180f3b7832abe4325959214ba1eee7ffae8c4a133", size = 95562, upload-time = "2026-08-10T07:56:23.726Z" },
+]
+
+[[package]]
 name = "dbt-common"
 version = "1.39.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1966,6 +1978,7 @@ version = "0.0.1"
 source = { editable = "python/utils" }
 dependencies = [
     { name = "boto3" },
+    { name = "dbt-artifacts-parser" },
     { name = "duckdb" },
     { name = "gitpython" },
     { name = "jinja2" },
@@ -2011,6 +2024,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "boto3" },
+    { name = "dbt-artifacts-parser" },
     { name = "duckdb" },
     { name = "geopandas", marker = "extra == 'geo'" },
     { name = "gitpython" },
