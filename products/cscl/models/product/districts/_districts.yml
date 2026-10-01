@@ -113,7 +113,19 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycd
-  description: Community districts clipped to the shoreline.
+  description: >-
+    Community districts clipped to the shoreline. One of ~43 layers bundled together
+    in a single citywide district-boundary geodatabase zip file, not its own
+    standalone file.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A community district
+      is_geospatial: true
+      implementation_notes: >-
+        Clipped by subtracting a water mask (Atomic Polygons flagged as water) rather
+        than intersecting a land mask - subtracting is much cheaper, since the city's
+        water area breaks into far fewer, smaller polygons than its land area does.
   columns:
   - name: "'BoroCD'"
     data_tests: [ not_null ]

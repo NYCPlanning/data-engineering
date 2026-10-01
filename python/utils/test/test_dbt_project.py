@@ -8,9 +8,14 @@ from dcpy.utils.dbt_project import (
     DbtModelDoc,
     DbtProject,
     DbtProjectCycleError,
+    build_doc,
+    each_row_is_a_text,
+    geospatial_badge_text,
+    implementation_details_elements,
     load_dbt_project,
     load_dbt_project_from_manifest,
 )
+from dcpy.utils.doc import Heading, Section, Table, Text
 
 
 @pytest.fixture
@@ -93,6 +98,49 @@ class TestLoadDbtProject:
     def test_tags_from_yml_config_block(self, sample_project: DbtProject):
         model = sample_project.models["widgets_export"]
         assert model.tags == ["export_doc"]
+
+    def test_each_row_is_a_is_promoted_out_of_meta(self, sample_project: DbtProject):
+        model = sample_project.models["widgets_export_by_field"]
+        assert model.each_row_is_a == "a widget"
+        # popped out, not duplicated
+        assert "each_row_is_a" not in model.meta
+
+    def test_each_row_is_a_defaults_to_none(self, sample_project: DbtProject):
+        assert sample_project.models["widgets_export"].each_row_is_a is None
+
+    def test_implementation_notes_is_promoted_out_of_meta(
+        self, sample_project: DbtProject
+    ):
+        model = sample_project.models["widgets_export_by_field"]
+        assert model.implementation_notes == (
+            "Computed by joining the widget catalog to its current price tier."
+        )
+        assert "implementation_notes" not in model.meta
+
+    def test_implementation_notes_defaults_to_none(self, sample_project: DbtProject):
+        assert sample_project.models["widgets_export"].implementation_notes is None
+
+    def test_is_geospatial_is_promoted_out_of_meta(self, sample_project: DbtProject):
+        model = sample_project.models["widgets_export_by_field"]
+        assert model.is_geospatial is True
+        # popped out, not duplicated
+        assert "is_geospatial" not in model.meta
+
+    def test_is_geospatial_defaults_to_false(self, sample_project: DbtProject):
+        assert sample_project.models["widgets_export"].is_geospatial is False
+
+    def test_column_is_geospatial_is_promoted_out_of_meta(
+        self, sample_project: DbtProject
+    ):
+        column = sample_project.models["widgets_export_by_field"].column("widget_name")
+        assert column is not None
+        assert column.is_geospatial is True
+        assert "is_geospatial" not in column.meta
+
+    def test_column_is_geospatial_defaults_to_false(self, sample_project: DbtProject):
+        column = sample_project.models["widgets_export_by_field"].column("widget_id")
+        assert column is not None
+        assert column.is_geospatial is False
 
     def test_column_meta_is_preserved(self, sample_project: DbtProject):
         column = sample_project.models["widgets_export_by_field"].column("widget_id")
@@ -225,6 +273,46 @@ class TestLoadDbtProjectFromManifest:
         assert column is not None
         assert column.meta == {"value_labels": {"": "blank"}}
 
+    def test_each_row_is_a_is_promoted_out_of_meta(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        model = sample_project_from_manifest.models["widgets_export_by_field"]
+        assert model.each_row_is_a == "a widget"
+        assert "each_row_is_a" not in model.meta
+
+    def test_implementation_notes_is_promoted_out_of_meta(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        model = sample_project_from_manifest.models["widgets_export_by_field"]
+        assert model.implementation_notes == (
+            "Computed by joining the widget catalog to its current price tier."
+        )
+        assert "implementation_notes" not in model.meta
+
+    def test_is_geospatial_is_promoted_out_of_meta(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        model = sample_project_from_manifest.models["widgets_export_by_field"]
+        assert model.is_geospatial is True
+        assert "is_geospatial" not in model.meta
+
+    def test_is_geospatial_defaults_to_false(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        assert sample_project_from_manifest.models["widgets_export"].is_geospatial is (
+            False
+        )
+
+    def test_column_is_geospatial_is_promoted_out_of_meta(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        column = sample_project_from_manifest.models["widgets_export_by_field"].column(
+            "widget_name"
+        )
+        assert column is not None
+        assert column.is_geospatial is True
+        assert "is_geospatial" not in column.meta
+
     def test_source_call_is_captured_as_a_dependency(
         self, sample_project_from_manifest: DbtProject
     ):
@@ -241,3 +329,134 @@ class TestLoadDbtProjectFromManifest:
         model = sample_project_from_manifest.models["stg_widgets"]
         assert model.sql_path == Path("models/staging/stg_widgets.sql")
         assert model.schema_path == Path("models/staging/_stg.yml")
+
+
+class TestBuildDoc:
+    def test_one_section_per_tagged_model_in_topological_order(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        doc = build_doc(
+            sample_project_from_manifest, "export_doc", title="Sample Project"
+        )
+        assert doc.title == "Sample Project"
+        assert [s.title for s in doc.sections] == [
+            "widgets_export_by_field",
+            "widgets_export",
+        ]
+
+    def test_section_gets_description_as_text_and_documented_columns_as_a_table(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        doc = build_doc(
+            sample_project_from_manifest, "export_doc", title="Sample Project"
+        )
+        section = doc.sections[0]
+        assert section.title == "widgets_export_by_field"
+
+        text_elements = [e for e in section.elements if isinstance(e, Text)]
+        assert text_elements[0].text == "**Each row is a:** a widget"
+        assert text_elements[1].text == "🌐 **Geospatially determined**"
+        assert text_elements[2].text == (
+            "Widgets formatted for export, one row per widget."
+        )
+
+        [table] = [e for e in section.elements if isinstance(e, Table)]
+        assert table.headers == ["column", "description", "values"]
+        rows_by_column = {row[0]: row for row in table.rows}
+        # widget_id's description comes from the {{ doc(...) }} block, expanded because
+        # this is built from the manifest-based project
+        assert rows_by_column["widget_id"][1].startswith(
+            "Zero-padded widget identifier"
+        )
+        assert rows_by_column["widget_id"][2] == "`` blank"
+        # widget_name is flagged is_geospatial - its Field-cell name is icon-prefixed
+        assert "widget_name" not in rows_by_column
+        assert "🌐 widget_name" in rows_by_column
+        assert "status" in rows_by_column
+
+    def test_undocumented_model_still_gets_a_section_with_no_elements(self):
+        # A tagged model with no description and no documented columns should degrade
+        # gracefully to an empty section, not an empty/broken Text or Table element.
+        undocumented = DbtModelDoc(
+            name="mystery_model",
+            sql_path=Path("mystery_model.sql"),
+            tags=["export_doc"],
+        )
+        project = DbtProject(
+            name="p",
+            root_path=Path("/tmp/doesnt-matter"),
+            models={"mystery_model": undocumented},
+        )
+        doc = build_doc(project, "export_doc", title="Sample Project")
+        assert doc.sections == [Section(title="mystery_model")]
+
+    def test_rendered_markdown_is_well_formed(
+        self, sample_project_from_manifest: DbtProject
+    ):
+        doc = build_doc(
+            sample_project_from_manifest, "export_doc", title="Sample Project"
+        )
+        markdown = doc.to_markdown()
+        assert markdown.startswith("# Sample Project")
+        assert "## widgets_export_by_field" in markdown
+        assert "## widgets_export" in markdown
+        assert "| widget_id |" in markdown
+        assert "**Each row is a:** a widget" in markdown
+        assert "🌐 **Geospatially determined**" in markdown
+        assert "#### Implementation Details" in markdown
+        assert "Computed by joining the widget catalog" in markdown
+
+
+class TestEachRowIsAText:
+    def test_renders_a_bolded_lead_in_line(self):
+        model = DbtModelDoc(name="m", sql_path=Path("m.sql"), each_row_is_a="a widget")
+        text = each_row_is_a_text(model)
+        assert text is not None
+        assert text.to_markdown() == "**Each row is a:** a widget"
+
+    def test_none_when_not_set(self):
+        model = DbtModelDoc(name="m", sql_path=Path("m.sql"))
+        assert each_row_is_a_text(model) is None
+
+
+class TestGeospatialBadgeText:
+    def test_renders_a_badge_line(self):
+        model = DbtModelDoc(name="m", sql_path=Path("m.sql"), is_geospatial=True)
+        text = geospatial_badge_text(model)
+        assert text is not None
+        assert text.to_markdown() == "🌐 **Geospatially determined**"
+
+    def test_custom_label(self):
+        model = DbtModelDoc(name="m", sql_path=Path("m.sql"), is_geospatial=True)
+        text = geospatial_badge_text(model, label="Spatially assigned")
+        assert text is not None
+        assert text.to_markdown() == "🌐 **Spatially assigned**"
+
+    def test_none_when_not_set(self):
+        model = DbtModelDoc(name="m", sql_path=Path("m.sql"))
+        assert geospatial_badge_text(model) is None
+
+
+class TestImplementationDetailsElements:
+    def test_renders_a_heading_and_text(self):
+        model = DbtModelDoc(
+            name="m",
+            sql_path=Path("m.sql"),
+            implementation_notes="Joined to a price tier lookup.",
+        )
+        elements = implementation_details_elements(model)
+        assert elements == [
+            Heading(text="Implementation Details", level=4),
+            Text(text="Joined to a price tier lookup."),
+        ]
+
+    def test_custom_heading_level(self):
+        model = DbtModelDoc(
+            name="m", sql_path=Path("m.sql"), implementation_notes="Notes."
+        )
+        [heading, _] = implementation_details_elements(model, heading_level=2)
+        assert heading == Heading(text="Implementation Details", level=2)
+
+    def test_empty_list_when_not_set(self):
+        model = DbtModelDoc(name="m", sql_path=Path("m.sql"))
+        assert implementation_details_elements(model) == []

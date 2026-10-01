@@ -3,6 +3,10 @@ version: 2
 models:
   - name: widgets_export_by_field
     description: Widgets formatted for export, one row per widget.
+    meta:
+      each_row_is_a: a widget
+      implementation_notes: Computed by joining the widget catalog to its current price tier.
+      is_geospatial: true
     columns:
       - name: widget_id
         data_type: string
@@ -13,6 +17,8 @@ models:
       - name: widget_name
         data_type: string
         description: Human-readable widget name.
+        meta:
+          is_geospatial: true
       - name: status
         data_type: string
         description: Processing status, always "enriched" today.

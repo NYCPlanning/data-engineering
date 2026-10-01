@@ -27,17 +27,24 @@ import yaml
 from dbt_artifacts_parser.parser import parse_manifest
 from pydantic import BaseModel, Field
 
+from dcpy.utils.doc import Doc, Heading, Image, Section, Table, Text
+
 _REF_CALL_PATTERN = re.compile(r"\bref\(([^()]*)\)")
 _QUOTED_STRING_PATTERN = re.compile(r"""['"]([^'"]+)['"]""")
 _CONFIG_CALL_START_PATTERN = re.compile(r"\bconfig\s*\(")
 
 
 class DbtColumnDoc(BaseModel):
-    """A dbt model column, as declared in a `_*.yml` schema file."""
+    """A dbt model column, as declared in a `_*.yml` schema file. `is_geospatial` -
+    see `DbtModelDoc.is_geospatial` - can be set per column when only some of a
+    model's columns are geometry-dependent, for a more precise signal than flagging
+    the whole model.
+    """
 
     name: str
     data_type: str | None = None
     description: str | None = None
+    is_geospatial: bool = False
     meta: dict[str, Any] = Field(default_factory=dict)
     tags: list[str] = Field(default_factory=list)
 
@@ -45,12 +52,36 @@ class DbtColumnDoc(BaseModel):
 class DbtModelDoc(BaseModel):
     """A dbt model, assembled from its `.sql` file and (if present) its schema yml
     entry. `sql_path`/`schema_path` are relative to the project root.
+
+    `each_row_is_a` is a short noun phrase for what one row represents (e.g. "City
+    Street") - the same convention already used in our open-data product-metadata
+    (`product-metadata/products/*/*/metadata.yml`), promoted to a first-class field
+    here. `implementation_notes` is deliberately separate from `description`: the
+    latter is what a row *means* (business-facing, safe to read with zero pipeline
+    context); the former is *how it's computed* (joins, filters, algorithms) - keeping
+    them apart, rather than one paragraph mixing both, is what makes it possible to
+    render the technical half under its own clearly-labeled heading instead of
+    silently burying mechanism inside what's supposed to be a plain-language summary.
+    `is_geospatial` flags a model whose values depend on geometry - a spatial join
+    (containment, intersection, proximity) or a geometric computation (ordering by
+    position, clipping) - as opposed to plain attribute/key joins. Worth knowing at a
+    glance: geometry-dependent derivations carry a different class of risk (precision,
+    boundary/overlap edge cases, coordinate-system issues) than an ordinary join does.
+
+    All three are read from `meta` (`meta.each_row_is_a` / `meta.implementation_notes`
+    / `meta.is_geospatial`) and popped out once read, so none is duplicated - a plain
+    top-level yml key wouldn't work here, since dbt silently drops unrecognized
+    model-level keys before they reach `manifest.json`, breaking
+    `load_dbt_project_from_manifest`; `meta` is the one place that survives.
     """
 
     name: str
     sql_path: Path
     schema_path: Path | None = None
     description: str | None = None
+    each_row_is_a: str | None = None
+    implementation_notes: str | None = None
+    is_geospatial: bool = False
     meta: dict[str, Any] = Field(default_factory=dict)
     tags: list[str] = Field(default_factory=list)
     columns: list[DbtColumnDoc] = Field(default_factory=list)
@@ -144,16 +175,26 @@ def load_dbt_project(project_dir: Path) -> DbtProject:
         entry, schema_path = schema_entries.get(model_name, ({}, None))
         yml_config = entry.get("config") or {}
 
-        columns = [
-            DbtColumnDoc(
-                name=col["name"],
-                data_type=col.get("data_type"),
-                description=col.get("description"),
-                meta=col.get("meta") or {},
-                tags=_as_list(col.get("tags")),
+        columns = []
+        for col in entry.get("columns") or []:
+            col_meta = dict(col.get("meta") or {})
+            columns.append(
+                DbtColumnDoc(
+                    name=col["name"],
+                    data_type=col.get("data_type"),
+                    description=col.get("description"),
+                    is_geospatial=col_meta.pop("is_geospatial", False),
+                    meta=col_meta,
+                    tags=_as_list(col.get("tags")),
+                )
             )
-            for col in entry.get("columns") or []
-        ]
+
+        merged_meta = _merge_meta(
+            sql_config.get("meta"), entry.get("meta"), yml_config.get("meta")
+        )
+        each_row_is_a = merged_meta.pop("each_row_is_a", None)
+        implementation_notes = merged_meta.pop("implementation_notes", None)
+        is_geospatial = merged_meta.pop("is_geospatial", False)
 
         other_model_names = sql_paths.keys() - {model_name}
         models[model_name] = DbtModelDoc(
@@ -161,9 +202,10 @@ def load_dbt_project(project_dir: Path) -> DbtProject:
             sql_path=sql_path.relative_to(project_dir),
             schema_path=schema_path.relative_to(project_dir) if schema_path else None,
             description=entry.get("description"),
-            meta=_merge_meta(
-                sql_config.get("meta"), entry.get("meta"), yml_config.get("meta")
-            ),
+            each_row_is_a=each_row_is_a,
+            implementation_notes=implementation_notes,
+            is_geospatial=is_geospatial,
+            meta=merged_meta,
             tags=_merge_tags(
                 sql_config.get("tags"), entry.get("tags"), yml_config.get("tags")
             ),
@@ -189,7 +231,11 @@ def load_dbt_project_from_manifest(
     """
     manifest_path = Path(manifest_path)
     manifest = parse_manifest(manifest=json.loads(manifest_path.read_text()))
-    project_name = manifest.metadata.project_name
+    # Not every historical manifest schema version's ManifestMetadata declares
+    # project_name (mypy sees the full union across all of them) - it's been present
+    # since dbt's early manifest versions in practice, but fall back to getattr rather
+    # than assert the type away.
+    project_name = getattr(manifest.metadata, "project_name", None)
     if not project_name:
         raise ValueError(f"{manifest_path} has no project_name in its metadata")
 
@@ -205,31 +251,48 @@ def load_dbt_project_from_manifest(
         if node.resource_type != "model" or node.package_name != project_name:
             continue
 
-        columns = [
-            DbtColumnDoc(
-                name=column.name,
-                data_type=column.data_type,
-                description=column.description or None,
-                meta=dict(column.meta or {}),
-                tags=list(column.tags or []),
+        columns = []
+        for column in (node.columns or {}).values():
+            col_meta = dict(column.meta or {})
+            columns.append(
+                DbtColumnDoc(
+                    name=column.name,
+                    data_type=column.data_type,
+                    description=column.description or None,
+                    is_geospatial=col_meta.pop("is_geospatial", False),
+                    meta=col_meta,
+                    tags=list(column.tags or []),
+                )
             )
-            for column in node.columns.values()
-        ]
 
         schema_path = None
         if node.patch_path:
             # "<package_name>://<path relative to project root>"
             schema_path = Path(node.patch_path.split("://", 1)[-1])
 
+        meta = dict(node.meta or {})
+        each_row_is_a = meta.pop("each_row_is_a", None)
+        implementation_notes = meta.pop("implementation_notes", None)
+        is_geospatial = meta.pop("is_geospatial", False)
+
         models[node.name] = DbtModelDoc(
             name=node.name,
             sql_path=Path(node.original_file_path),
             schema_path=schema_path,
             description=node.description or None,
-            meta=dict(node.meta or {}),
+            each_row_is_a=each_row_is_a,
+            implementation_notes=implementation_notes,
+            is_geospatial=is_geospatial,
+            meta=meta,
             tags=list(node.tags or []),
             columns=columns,
-            depends_on=sorted({resolve_name(dep) for dep in node.depends_on.nodes}),
+            depends_on=sorted(
+                {
+                    resolve_name(dep)
+                    for dep in (node.depends_on.nodes if node.depends_on else None)
+                    or []
+                }
+            ),
         )
 
     return DbtProject(
@@ -237,6 +300,107 @@ def load_dbt_project_from_manifest(
         root_path=project_root or manifest_path.parent.parent,
         models=models,
     )
+
+
+def documented_columns_table(model: DbtModelDoc) -> Table | None:
+    """A plain column table (name/description/value labels) for whichever of `model`'s
+    columns have a description - `None` if none do. Reused by `build_doc` and by
+    products that assemble their own `Doc` from a `DocConfig` instead.
+    """
+    documented = [column for column in model.columns if column.description]
+    if not documented:
+        return None
+
+    rows = []
+    for column in documented:
+        value_labels = column.meta.get("value_labels")
+        values = (
+            "; ".join(f"`{value}` {label}" for value, label in value_labels.items())
+            if value_labels
+            else ""
+        )
+        name = f"🌐 {column.name}" if column.is_geospatial else column.name
+        rows.append([name, column.description or "", values])
+    return Table(headers=["column", "description", "values"], rows=rows)
+
+
+def each_row_is_a_text(model: DbtModelDoc) -> Text | None:
+    """A bolded "Each row is a: <phrase>" lead-in line, if `model.each_row_is_a` is
+    set - `None` otherwise. Meant to be a section's first element, before its
+    description. Reused by `build_doc` and by products assembling their own `Doc`
+    from a `DocConfig`.
+    """
+    if not model.each_row_is_a:
+        return None
+    return Text(text=f"**Each row is a:** {model.each_row_is_a}")
+
+
+def geospatial_badge_text(
+    model: DbtModelDoc, label: str = "Geospatially determined"
+) -> Text | None:
+    """A small "🌐 **<label>**" badge line if `model.is_geospatial` is set - `None`
+    otherwise. Meant to sit alongside `each_row_is_a_text` near the top of a section,
+    flagging that the model's values depend on a spatial join or geometric computation
+    rather than plain attribute/key joins. Deliberately not glossary-aware: pass a
+    `[[glossary_key|...]]`-style label if the caller wants it linked.
+    """
+    if not model.is_geospatial:
+        return None
+    return Text(text=f"🌐 **{label}**")
+
+
+def implementation_details_elements(
+    model: DbtModelDoc, heading_level: int = 4
+) -> list[Heading | Text]:
+    """A "#### Implementation Details" heading plus `model.implementation_notes`, if
+    set - an empty list otherwise. Meant to be appended after a section's main
+    description/table, keeping "what this is" (description) visibly separate from
+    "how it's computed" (implementation_notes) rather than one paragraph blending
+    both. Reused by `build_doc` and by products assembling their own `Doc` from a
+    `DocConfig`.
+    """
+    if not model.implementation_notes:
+        return []
+    return [
+        Heading(text="Implementation Details", level=heading_level),
+        Text(text=model.implementation_notes),
+    ]
+
+
+def build_doc(project: DbtProject, tag: str, title: str) -> Doc:
+    """A first-draft `Doc`: one `Section` per model carrying `tag` (in the project's
+    topological order - see `DbtProject.find_models`), with an "Each row is a" lead-in
+    (if set), the model's description as a `Text` element, a
+    `documented_columns_table`, and an "Implementation Details" block (if
+    `implementation_notes` is set). A caller with more specific needs - different
+    table shapes per model, images, explicit grouping/ordering - is expected to build
+    its `Doc` directly from a `DocConfig` instead; see CSCL's own generate_docs.py for
+    an example.
+    """
+    sections = []
+    for model in project.find_models(tag):
+        elements: list[Heading | Text | Table | Image] = []
+
+        each_row_is_a = each_row_is_a_text(model)
+        if each_row_is_a is not None:
+            elements.append(each_row_is_a)
+
+        geospatial_badge = geospatial_badge_text(model)
+        if geospatial_badge is not None:
+            elements.append(geospatial_badge)
+
+        if model.description:
+            elements.append(Text(text=model.description))
+
+        table = documented_columns_table(model)
+        if table is not None:
+            elements.append(table)
+
+        elements.extend(implementation_details_elements(model))
+
+        sections.append(Section(title=model.name, elements=elements))
+
+    return Doc(title=title, sections=sections)
 
 
 def _as_list(value: str | list[str] | None) -> list[str]:

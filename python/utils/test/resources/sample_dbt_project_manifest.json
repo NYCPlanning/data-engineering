@@ -1,400 +1,285 @@
 {
-  "child_map": {
-    "model.sample_project.int_widgets_enriched": [
-      "model.sample_project.widgets_export_by_field"
-    ],
-    "model.sample_project.stg_widgets": [
-      "model.sample_project.int_widgets_enriched"
-    ],
-    "model.sample_project.widgets_export": [],
-    "model.sample_project.widgets_export_by_field": [
-      "model.sample_project.widgets_export"
-    ],
-    "source.sample_project.raw.widgets": [
-      "model.sample_project.stg_widgets"
-    ]
-  },
-  "disabled": {},
-  "docs": {
-    "doc.dbt.__overview__": {
-      "block_contents": "### Welcome!\n\nWelcome to the auto-generated documentation for your dbt project!\n\n### Navigation\n\nYou can use the `Project` and `Database` navigation tabs on the left side of the window to explore the models\nin your project.\n\n#### Project Tab\nThe `Project` tab mirrors the directory structure of your dbt project. In this tab, you can see all of the\nmodels defined in your dbt project, as well as models imported from dbt packages.\n\n#### Database Tab\nThe `Database` tab also exposes your models, but in a format that looks more like a database explorer. This view\nshows relations (tables and views) grouped into database schemas. Note that ephemeral models are _not_ shown\nin this interface, as they do not exist in the database.\n\n### Graph Exploration\nYou can click the blue icon on the bottom-right corner of the page to view the lineage graph of your models.\n\nOn model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the `Expand`\nbutton at the top-right of this lineage pane, you'll be able to see all of the models that are used to build,\nor are built from, the model you're exploring.\n\nOnce expanded, you'll be able to use the `--select` and `--exclude` model selection syntax to filter the\nmodels in the graph. For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/docs/model-selection-syntax).\n\nNote that you can also right-click on models to interactively filter and explore the graph.\n\n---\n\n### More information\n\n- [What is dbt](https://docs.getdbt.com/docs/introduction)?\n- Read the [dbt viewpoint](https://docs.getdbt.com/docs/viewpoint)\n- [Installation](https://docs.getdbt.com/docs/installation)\n- Join the [dbt Community](https://www.getdbt.com/community/) for questions and discussion",
-      "name": "__overview__",
-      "original_file_path": "docs/overview.md",
-      "package_name": "dbt",
-      "path": "overview.md",
-      "resource_type": "doc",
-      "unique_id": "doc.dbt.__overview__"
-    },
-    "doc.sample_project.widget_id_doc": {
-      "block_contents": "Zero-padded widget identifier, expanded from a shared docs block - proves doc-block\nresolution works end-to-end when read from a compiled manifest, not just raw yaml text.",
-      "name": "widget_id_doc",
-      "original_file_path": "models/product/_docs.md",
-      "package_name": "sample_project",
-      "path": "product/_docs.md",
-      "resource_type": "doc",
-      "unique_id": "doc.sample_project.widget_id_doc"
-    }
-  },
-  "exposures": {},
-  "functions": {},
-  "group_map": {},
-  "groups": {},
-  "macros": {},
   "metadata": {
-    "adapter_type": "duckdb",
     "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v12.json",
     "dbt_version": "1.12.5",
+    "generated_at": "2026-09-29T17:02:22.844464Z",
+    "invocation_id": "d65c2c97-9941-4ad9-a26a-e218d56e7ce8",
+    "invocation_started_at": "2026-09-29T17:02:22.303616Z",
     "env": {},
-    "generated_at": "2026-09-28T18:03:19.231860Z",
-    "invocation_id": "0a924009-b1d8-41da-bc41-a4807e5dacd8",
-    "invocation_started_at": "2026-09-28T18:03:18.845953Z",
-    "project_id": "d23c389078ec5f6b9744f941acd736bf",
     "project_name": "sample_project",
-    "quoting": {
-      "column": null,
-      "database": true,
-      "identifier": true,
-      "schema": true
-    },
-    "run_started_at": "2026-09-28T18:03:18.846176+00:00",
+    "project_id": "d23c389078ec5f6b9744f941acd736bf",
+    "user_id": "33ec8425-1ced-4702-beb4-ee7358ce59ff",
     "send_anonymous_usage_stats": true,
-    "user_id": "33ec8425-1ced-4702-beb4-ee7358ce59ff"
-  },
-  "metrics": {},
-  "nodes": {
-    "model.sample_project.int_widgets_enriched": {
-      "access": "protected",
-      "alias": "int_widgets_enriched",
-      "build_path": null,
-      "checksum": {
-        "checksum": "cfb1bb14d3826efce8b25585fe7afcf2db33f7ec2876c0318b3ada62b8ea8795",
-        "name": "sha256"
-      },
-      "columns": {},
-      "compiled_path": null,
-      "config": {
-        "access": "protected",
-        "alias": null,
-        "batch_size": null,
-        "begin": null,
-        "column_types": {},
-        "concurrent_batches": null,
-        "contract": {
-          "alias_types": true,
-          "enforced": false
-        },
-        "database": null,
-        "docs": {
-          "node_color": null,
-          "show": true
-        },
-        "enabled": true,
-        "event_time": null,
-        "freshness": null,
-        "full_refresh": null,
-        "grants": {},
-        "group": null,
-        "incremental_strategy": null,
-        "latest_version_pointer": {
-          "alias": null,
-          "enabled": null
-        },
-        "lookback": 1,
-        "materialized": "view",
-        "meta": {},
-        "on_configuration_change": "apply",
-        "on_error": null,
-        "on_schema_change": "ignore",
-        "packages": [],
-        "persist_docs": {},
-        "post-hook": [],
-        "pre-hook": [],
-        "quoting": {},
-        "schema": null,
-        "static_analysis": null,
-        "tags": [],
-        "unique_key": null
-      },
-      "constraints": [],
-      "contract": {
-        "alias_types": true,
-        "checksum": null,
-        "enforced": false
-      },
-      "created_at": 1790618599.7719371,
-      "database": "memory",
-      "depends_on": {
-        "macros": [],
-        "nodes": [
-          "model.sample_project.stg_widgets"
-        ]
-      },
-      "deprecation_date": null,
-      "description": "",
-      "doc_blocks": [],
-      "docs": {
-        "node_color": null,
-        "show": true
-      },
-      "fqn": [
-        "sample_project",
-        "intermediate",
-        "int_widgets_enriched"
-      ],
-      "functions": [],
-      "group": null,
-      "language": "sql",
-      "latest_version": null,
-      "meta": {},
-      "metrics": [],
-      "name": "int_widgets_enriched",
-      "original_file_path": "models/intermediate/int_widgets_enriched.sql",
-      "package_name": "sample_project",
-      "patch_path": null,
-      "path": "intermediate/int_widgets_enriched.sql",
-      "primary_key": [],
-      "raw_code": "-- Deliberately has no schema yml entry - exercises the \"no documentation yet\" path.\nSELECT\n    widget_id,\n    widget_name,\n    'enriched' AS status\nFROM {{ ref('stg_widgets') }}",
-      "refs": [
-        {
-          "name": "stg_widgets",
-          "package": null,
-          "version": null
-        }
-      ],
-      "relation_name": "\"memory\".\"main\".\"int_widgets_enriched\"",
-      "resource_type": "model",
-      "schema": "main",
-      "sources": [],
-      "tags": [],
-      "time_spine": null,
-      "unique_id": "model.sample_project.int_widgets_enriched",
-      "unrendered_config": {},
-      "version": null
+    "adapter_type": "duckdb",
+    "quoting": {
+      "database": true,
+      "schema": true,
+      "identifier": true,
+      "column": null
     },
+    "run_started_at": "2026-09-29T17:02:22.304037+00:00"
+  },
+  "nodes": {
     "model.sample_project.stg_widgets": {
-      "access": "protected",
-      "alias": "stg_widgets",
-      "build_path": null,
-      "checksum": {
-        "checksum": "f3ce80154b69e03807b2f133179b1edc4ae5b434daa396a405ba7706429c83fd",
-        "name": "sha256"
-      },
-      "columns": {
-        "widget_id": {
-          "config": {
-            "meta": {},
-            "tags": []
-          },
-          "constraints": [],
-          "data_type": "string",
-          "description": "Unique widget identifier.",
-          "dimension": null,
-          "doc_blocks": [],
-          "entity": null,
-          "granularity": null,
-          "meta": {},
-          "name": "widget_id",
-          "quote": null,
-          "tags": []
-        },
-        "widget_name": {
-          "config": {
-            "meta": {},
-            "tags": []
-          },
-          "constraints": [],
-          "data_type": "string",
-          "description": "Widget display name.",
-          "dimension": null,
-          "doc_blocks": [],
-          "entity": null,
-          "granularity": null,
-          "meta": {},
-          "name": "widget_name",
-          "quote": null,
-          "tags": []
-        }
-      },
-      "compiled_path": null,
-      "config": {
-        "access": "protected",
-        "alias": null,
-        "batch_size": null,
-        "begin": null,
-        "column_types": {},
-        "concurrent_batches": null,
-        "contract": {
-          "alias_types": true,
-          "enforced": false
-        },
-        "database": null,
-        "docs": {
-          "node_color": null,
-          "show": true
-        },
-        "enabled": true,
-        "event_time": null,
-        "freshness": null,
-        "full_refresh": null,
-        "grants": {},
-        "group": null,
-        "incremental_strategy": null,
-        "latest_version_pointer": {
-          "alias": null,
-          "enabled": null
-        },
-        "lookback": 1,
-        "materialized": "view",
-        "meta": {},
-        "on_configuration_change": "apply",
-        "on_error": null,
-        "on_schema_change": "ignore",
-        "packages": [],
-        "persist_docs": {},
-        "post-hook": [],
-        "pre-hook": [],
-        "quoting": {},
-        "schema": null,
-        "static_analysis": null,
-        "tags": [],
-        "unique_key": null
-      },
-      "constraints": [],
-      "contract": {
-        "alias_types": true,
-        "checksum": null,
-        "enforced": false
-      },
-      "created_at": 1790618599.871785,
       "database": "memory",
-      "depends_on": {
-        "macros": [],
-        "nodes": [
-          "source.sample_project.raw.widgets"
-        ]
-      },
-      "deprecation_date": null,
-      "description": "Raw widgets, lightly renamed for staging.",
-      "doc_blocks": [],
-      "docs": {
-        "node_color": null,
-        "show": true
-      },
+      "schema": "main",
+      "name": "stg_widgets",
+      "resource_type": "model",
+      "package_name": "sample_project",
+      "path": "staging/stg_widgets.sql",
+      "original_file_path": "models/staging/stg_widgets.sql",
+      "unique_id": "model.sample_project.stg_widgets",
       "fqn": [
         "sample_project",
         "staging",
         "stg_widgets"
       ],
-      "functions": [],
-      "group": null,
-      "language": "sql",
-      "latest_version": null,
+      "alias": "stg_widgets",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "f3ce80154b69e03807b2f133179b1edc4ae5b434daa396a405ba7706429c83fd"
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "group": null,
+        "static_analysis": null,
+        "materialized": "view",
+        "incremental_strategy": null,
+        "batch_size": null,
+        "lookback": 1,
+        "begin": null,
+        "persist_docs": {},
+        "post-hook": [],
+        "pre-hook": [],
+        "quoting": {},
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": null,
+        "on_schema_change": "ignore",
+        "on_configuration_change": "apply",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "contract": {
+          "enforced": false,
+          "alias_types": true
+        },
+        "event_time": null,
+        "concurrent_batches": null,
+        "access": "protected",
+        "freshness": null,
+        "on_error": null,
+        "latest_version_pointer": {
+          "enabled": null,
+          "alias": null
+        }
+      },
+      "tags": [],
+      "description": "Raw widgets, lightly renamed for staging.",
+      "columns": {
+        "widget_id": {
+          "name": "widget_id",
+          "description": "Unique widget identifier.",
+          "meta": {},
+          "data_type": "string",
+          "constraints": [],
+          "quote": null,
+          "config": {
+            "meta": {},
+            "tags": []
+          },
+          "tags": [],
+          "granularity": null,
+          "dimension": null,
+          "entity": null,
+          "doc_blocks": []
+        },
+        "widget_name": {
+          "name": "widget_name",
+          "description": "Widget display name.",
+          "meta": {},
+          "data_type": "string",
+          "constraints": [],
+          "quote": null,
+          "config": {
+            "meta": {},
+            "tags": []
+          },
+          "tags": [],
+          "granularity": null,
+          "dimension": null,
+          "entity": null,
+          "doc_blocks": []
+        }
+      },
       "meta": {},
-      "metrics": [],
-      "name": "stg_widgets",
-      "original_file_path": "models/staging/stg_widgets.sql",
-      "package_name": "sample_project",
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
       "patch_path": "sample_project://models/staging/_stg.yml",
-      "path": "staging/stg_widgets.sql",
-      "primary_key": [],
-      "raw_code": "SELECT * FROM {{ source('raw', 'widgets') }}",
-      "refs": [],
+      "build_path": null,
+      "unrendered_config": {},
+      "created_at": 1790701343.510894,
       "relation_name": "\"memory\".\"main\".\"stg_widgets\"",
-      "resource_type": "model",
-      "schema": "main",
+      "raw_code": "SELECT * FROM {{ source('raw', 'widgets') }}",
+      "doc_blocks": [],
+      "language": "sql",
+      "refs": [],
       "sources": [
         [
           "raw",
           "widgets"
         ]
       ],
-      "tags": [],
-      "time_spine": null,
-      "unique_id": "model.sample_project.stg_widgets",
-      "unrendered_config": {},
-      "version": null
-    },
-    "model.sample_project.widgets_export": {
-      "access": "protected",
-      "alias": "widgets_export",
-      "build_path": null,
-      "checksum": {
-        "checksum": "1bb3c76589e6ca6efee75461e3a4371c595dc580a38969cd596f139e9e434ecd",
-        "name": "sha256"
-      },
-      "columns": {
-        "dat_row": {
-          "config": {
-            "meta": {},
-            "tags": []
-          },
-          "constraints": [],
-          "data_type": "string",
-          "description": "The fixed-width concatenated export row.",
-          "dimension": null,
-          "doc_blocks": [],
-          "entity": null,
-          "granularity": null,
-          "meta": {},
-          "name": "dat_row",
-          "quote": null,
-          "tags": []
-        }
+      "metrics": [],
+      "functions": [],
+      "depends_on": {
+        "macros": [],
+        "nodes": [
+          "source.sample_project.raw.widgets"
+        ]
       },
       "compiled_path": null,
+      "contract": {
+        "enforced": false,
+        "alias_types": true,
+        "checksum": null
+      },
+      "access": "protected",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null,
+      "primary_key": [],
+      "time_spine": null
+    },
+    "model.sample_project.widgets_export": {
+      "database": "memory",
+      "schema": "main",
+      "name": "widgets_export",
+      "resource_type": "model",
+      "package_name": "sample_project",
+      "path": "product/widgets_export.sql",
+      "original_file_path": "models/product/widgets_export.sql",
+      "unique_id": "model.sample_project.widgets_export",
+      "fqn": [
+        "sample_project",
+        "product",
+        "widgets_export"
+      ],
+      "alias": "widgets_export",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "1bb3c76589e6ca6efee75461e3a4371c595dc580a38969cd596f139e9e434ecd"
+      },
       "config": {
-        "access": "protected",
-        "alias": null,
-        "batch_size": null,
-        "begin": null,
-        "column_types": {},
-        "concurrent_batches": null,
-        "contract": {
-          "alias_types": true,
-          "enforced": false
-        },
-        "database": null,
-        "docs": {
-          "node_color": null,
-          "show": true
-        },
         "enabled": true,
-        "event_time": null,
-        "freshness": null,
-        "full_refresh": null,
-        "grants": {},
-        "group": null,
-        "incremental_strategy": null,
-        "latest_version_pointer": {
-          "alias": null,
-          "enabled": null
-        },
-        "lookback": 1,
-        "materialized": "table",
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [
+          "export_doc"
+        ],
         "meta": {},
-        "on_configuration_change": "apply",
-        "on_error": null,
-        "on_schema_change": "ignore",
-        "packages": [],
+        "group": null,
+        "static_analysis": null,
+        "materialized": "table",
+        "incremental_strategy": null,
+        "batch_size": null,
+        "lookback": 1,
+        "begin": null,
         "persist_docs": {},
         "post-hook": [],
         "pre-hook": [],
         "quoting": {},
-        "schema": null,
-        "static_analysis": null,
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": null,
+        "on_schema_change": "ignore",
+        "on_configuration_change": "apply",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "contract": {
+          "enforced": false,
+          "alias_types": true
+        },
+        "event_time": null,
+        "concurrent_batches": null,
+        "access": "protected",
+        "freshness": null,
+        "on_error": null,
+        "latest_version_pointer": {
+          "enabled": null,
+          "alias": null
+        }
+      },
+      "tags": [
+        "export_doc"
+      ],
+      "description": "Final concatenated widget export row.",
+      "columns": {
+        "dat_row": {
+          "name": "dat_row",
+          "description": "The fixed-width concatenated export row.",
+          "meta": {},
+          "data_type": "string",
+          "constraints": [],
+          "quote": null,
+          "config": {
+            "meta": {},
+            "tags": []
+          },
+          "tags": [],
+          "granularity": null,
+          "dimension": null,
+          "entity": null,
+          "doc_blocks": []
+        }
+      },
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": "sample_project://models/product/_product.yml",
+      "build_path": null,
+      "unrendered_config": {
         "tags": [
+          "export_doc",
           "export_doc"
         ],
-        "unique_key": null
+        "materialized": "table"
       },
-      "constraints": [],
-      "contract": {
-        "alias_types": true,
-        "checksum": null,
-        "enforced": false
-      },
-      "created_at": 1790618599.92094,
-      "database": "memory",
+      "created_at": 1790701343.5619168,
+      "relation_name": "\"memory\".\"main\".\"widgets_export\"",
+      "raw_code": "{{ config(materialized='table') }}\n\n-- Its dependency on widgets_export_by_field is intentionally hidden behind a macro\n-- argument rather than a literal ref() - see macros/pull_named_model.sql.\nSELECT widget_id || widget_name || status AS dat_row\nFROM {{ pull_named_model('widgets_export_by_field') }}",
+      "doc_blocks": [],
+      "language": "sql",
+      "refs": [
+        {
+          "name": "widgets_export_by_field",
+          "package": null,
+          "version": null
+        }
+      ],
+      "sources": [],
+      "metrics": [],
+      "functions": [],
       "depends_on": {
         "macros": [
           "macro.sample_project.pull_named_model"
@@ -403,83 +288,105 @@
           "model.sample_project.widgets_export_by_field"
         ]
       },
-      "deprecation_date": null,
-      "description": "Final concatenated widget export row.",
-      "doc_blocks": [],
-      "docs": {
-        "node_color": null,
-        "show": true
+      "compiled_path": null,
+      "contract": {
+        "enforced": false,
+        "alias_types": true,
+        "checksum": null
       },
+      "access": "protected",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null,
+      "primary_key": [],
+      "time_spine": null
+    },
+    "model.sample_project.widgets_export_by_field": {
+      "database": "memory",
+      "schema": "main",
+      "name": "widgets_export_by_field",
+      "resource_type": "model",
+      "package_name": "sample_project",
+      "path": "product/widgets_export_by_field.sql",
+      "original_file_path": "models/product/widgets_export_by_field.sql",
+      "unique_id": "model.sample_project.widgets_export_by_field",
       "fqn": [
         "sample_project",
         "product",
-        "widgets_export"
+        "widgets_export_by_field"
       ],
-      "functions": [],
-      "group": null,
-      "language": "sql",
-      "latest_version": null,
-      "meta": {},
-      "metrics": [],
-      "name": "widgets_export",
-      "original_file_path": "models/product/widgets_export.sql",
-      "package_name": "sample_project",
-      "patch_path": "sample_project://models/product/_product.yml",
-      "path": "product/widgets_export.sql",
-      "primary_key": [],
-      "raw_code": "{{ config(materialized='table') }}\n\n-- Its dependency on widgets_export_by_field is intentionally hidden behind a macro\n-- argument rather than a literal ref() - see macros/pull_named_model.sql.\nSELECT widget_id || widget_name || status AS dat_row\nFROM {{ pull_named_model('widgets_export_by_field') }}",
-      "refs": [
-        {
-          "name": "widgets_export_by_field",
-          "package": null,
-          "version": null
+      "alias": "widgets_export_by_field",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "f12559e9b748e0d5d26a4a9232f513d1a4364acd12454a4fc88309292347340d"
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [
+          "export_doc"
+        ],
+        "meta": {
+          "each_row_is_a": "a widget",
+          "implementation_notes": "Computed by joining the widget catalog to its current price tier.",
+          "is_geospatial": true,
+          "group": "widgets"
+        },
+        "group": null,
+        "static_analysis": null,
+        "materialized": "view",
+        "incremental_strategy": null,
+        "batch_size": null,
+        "lookback": 1,
+        "begin": null,
+        "persist_docs": {},
+        "post-hook": [],
+        "pre-hook": [],
+        "quoting": {},
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": null,
+        "on_schema_change": "ignore",
+        "on_configuration_change": "apply",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "contract": {
+          "enforced": false,
+          "alias_types": true
+        },
+        "event_time": null,
+        "concurrent_batches": null,
+        "access": "protected",
+        "freshness": null,
+        "on_error": null,
+        "latest_version_pointer": {
+          "enabled": null,
+          "alias": null
         }
-      ],
-      "relation_name": "\"memory\".\"main\".\"widgets_export\"",
-      "resource_type": "model",
-      "schema": "main",
-      "sources": [],
+      },
       "tags": [
         "export_doc"
       ],
-      "time_spine": null,
-      "unique_id": "model.sample_project.widgets_export",
-      "unrendered_config": {
-        "materialized": "table",
-        "tags": [
-          "export_doc",
-          "export_doc"
-        ]
-      },
-      "version": null
-    },
-    "model.sample_project.widgets_export_by_field": {
-      "access": "protected",
-      "alias": "widgets_export_by_field",
-      "build_path": null,
-      "checksum": {
-        "checksum": "f12559e9b748e0d5d26a4a9232f513d1a4364acd12454a4fc88309292347340d",
-        "name": "sha256"
-      },
+      "description": "Widgets formatted for export, one row per widget.",
       "columns": {
-        "status": {
-          "config": {
-            "meta": {},
-            "tags": []
-          },
-          "constraints": [],
-          "data_type": "string",
-          "description": "Processing status, always \"enriched\" today.",
-          "dimension": null,
-          "doc_blocks": [],
-          "entity": null,
-          "granularity": null,
-          "meta": {},
-          "name": "status",
-          "quote": null,
-          "tags": []
-        },
         "widget_id": {
+          "name": "widget_id",
+          "description": "Zero-padded widget identifier, expanded from a shared docs block - proves doc-block\nresolution works end-to-end when read from a compiled manifest, not just raw yaml text.",
+          "meta": {
+            "value_labels": {
+              "": "blank"
+            }
+          },
+          "data_type": "string",
+          "constraints": [],
+          "quote": null,
           "config": {
             "meta": {
               "value_labels": {
@@ -488,147 +395,66 @@
             },
             "tags": []
           },
-          "constraints": [],
-          "data_type": "string",
-          "description": "Zero-padded widget identifier, expanded from a shared docs block - proves doc-block\nresolution works end-to-end when read from a compiled manifest, not just raw yaml text.",
+          "tags": [],
+          "granularity": null,
           "dimension": null,
+          "entity": null,
           "doc_blocks": [
             "doc.sample_project.widget_id_doc"
-          ],
-          "entity": null,
-          "granularity": null,
-          "meta": {
-            "value_labels": {
-              "": "blank"
-            }
-          },
-          "name": "widget_id",
-          "quote": null,
-          "tags": []
+          ]
         },
         "widget_name": {
+          "name": "widget_name",
+          "description": "Human-readable widget name.",
+          "meta": {
+            "is_geospatial": true
+          },
+          "data_type": "string",
+          "constraints": [],
+          "quote": null,
+          "config": {
+            "meta": {
+              "is_geospatial": true
+            },
+            "tags": []
+          },
+          "tags": [],
+          "granularity": null,
+          "dimension": null,
+          "entity": null,
+          "doc_blocks": []
+        },
+        "status": {
+          "name": "status",
+          "description": "Processing status, always \"enriched\" today.",
+          "meta": {},
+          "data_type": "string",
+          "constraints": [],
+          "quote": null,
           "config": {
             "meta": {},
             "tags": []
           },
-          "constraints": [],
-          "data_type": "string",
-          "description": "Human-readable widget name.",
-          "dimension": null,
-          "doc_blocks": [],
-          "entity": null,
+          "tags": [],
           "granularity": null,
-          "meta": {},
-          "name": "widget_name",
-          "quote": null,
-          "tags": []
+          "dimension": null,
+          "entity": null,
+          "doc_blocks": []
         }
       },
-      "compiled_path": null,
-      "config": {
-        "access": "protected",
-        "alias": null,
-        "batch_size": null,
-        "begin": null,
-        "column_types": {},
-        "concurrent_batches": null,
-        "contract": {
-          "alias_types": true,
-          "enforced": false
-        },
-        "database": null,
-        "docs": {
-          "node_color": null,
-          "show": true
-        },
-        "enabled": true,
-        "event_time": null,
-        "freshness": null,
-        "full_refresh": null,
-        "grants": {},
-        "group": null,
-        "incremental_strategy": null,
-        "latest_version_pointer": {
-          "alias": null,
-          "enabled": null
-        },
-        "lookback": 1,
-        "materialized": "view",
-        "meta": {
-          "group": "widgets"
-        },
-        "on_configuration_change": "apply",
-        "on_error": null,
-        "on_schema_change": "ignore",
-        "packages": [],
-        "persist_docs": {},
-        "post-hook": [],
-        "pre-hook": [],
-        "quoting": {},
-        "schema": null,
-        "static_analysis": null,
-        "tags": [
-          "export_doc"
-        ],
-        "unique_key": null
-      },
-      "constraints": [],
-      "contract": {
-        "alias_types": true,
-        "checksum": null,
-        "enforced": false
-      },
-      "created_at": 1790618599.919517,
-      "database": "memory",
-      "depends_on": {
-        "macros": [],
-        "nodes": [
-          "model.sample_project.int_widgets_enriched"
-        ]
-      },
-      "deprecation_date": null,
-      "description": "Widgets formatted for export, one row per widget.",
-      "doc_blocks": [],
-      "docs": {
-        "node_color": null,
-        "show": true
-      },
-      "fqn": [
-        "sample_project",
-        "product",
-        "widgets_export_by_field"
-      ],
-      "functions": [],
-      "group": null,
-      "language": "sql",
-      "latest_version": null,
       "meta": {
+        "each_row_is_a": "a widget",
+        "implementation_notes": "Computed by joining the widget catalog to its current price tier.",
+        "is_geospatial": true,
         "group": "widgets"
       },
-      "metrics": [],
-      "name": "widgets_export_by_field",
-      "original_file_path": "models/product/widgets_export_by_field.sql",
-      "package_name": "sample_project",
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
       "patch_path": "sample_project://models/product/_product.yml",
-      "path": "product/widgets_export_by_field.sql",
-      "primary_key": [],
-      "raw_code": "{{ config(tags=['export_doc'], meta={'group': 'widgets'}) }}\n\nSELECT\n    widget_id,\n    widget_name,\n    status\nFROM {{ ref('int_widgets_enriched') }}",
-      "refs": [
-        {
-          "name": "int_widgets_enriched",
-          "package": null,
-          "version": null
-        }
-      ],
-      "relation_name": "\"memory\".\"main\".\"widgets_export_by_field\"",
-      "resource_type": "model",
-      "schema": "main",
-      "sources": [],
-      "tags": [
-        "export_doc"
-      ],
-      "time_spine": null,
-      "unique_id": "model.sample_project.widgets_export_by_field",
+      "build_path": null,
       "unrendered_config": {
         "meta": {
           "group": "widgets"
@@ -637,13 +463,257 @@
           "export_doc"
         ]
       },
-      "version": null
+      "created_at": 1790701343.560642,
+      "relation_name": "\"memory\".\"main\".\"widgets_export_by_field\"",
+      "raw_code": "{{ config(tags=['export_doc'], meta={'group': 'widgets'}) }}\n\nSELECT\n    widget_id,\n    widget_name,\n    status\nFROM {{ ref('int_widgets_enriched') }}",
+      "doc_blocks": [],
+      "language": "sql",
+      "refs": [
+        {
+          "name": "int_widgets_enriched",
+          "package": null,
+          "version": null
+        }
+      ],
+      "sources": [],
+      "metrics": [],
+      "functions": [],
+      "depends_on": {
+        "macros": [],
+        "nodes": [
+          "model.sample_project.int_widgets_enriched"
+        ]
+      },
+      "compiled_path": null,
+      "contract": {
+        "enforced": false,
+        "alias_types": true,
+        "checksum": null
+      },
+      "access": "protected",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null,
+      "primary_key": [],
+      "time_spine": null
+    },
+    "model.sample_project.int_widgets_enriched": {
+      "database": "memory",
+      "schema": "main",
+      "name": "int_widgets_enriched",
+      "resource_type": "model",
+      "package_name": "sample_project",
+      "path": "intermediate/int_widgets_enriched.sql",
+      "original_file_path": "models/intermediate/int_widgets_enriched.sql",
+      "unique_id": "model.sample_project.int_widgets_enriched",
+      "fqn": [
+        "sample_project",
+        "intermediate",
+        "int_widgets_enriched"
+      ],
+      "alias": "int_widgets_enriched",
+      "checksum": {
+        "name": "sha256",
+        "checksum": "cfb1bb14d3826efce8b25585fe7afcf2db33f7ec2876c0318b3ada62b8ea8795"
+      },
+      "config": {
+        "enabled": true,
+        "alias": null,
+        "schema": null,
+        "database": null,
+        "tags": [],
+        "meta": {},
+        "group": null,
+        "static_analysis": null,
+        "materialized": "view",
+        "incremental_strategy": null,
+        "batch_size": null,
+        "lookback": 1,
+        "begin": null,
+        "persist_docs": {},
+        "post-hook": [],
+        "pre-hook": [],
+        "quoting": {},
+        "column_types": {},
+        "full_refresh": null,
+        "unique_key": null,
+        "on_schema_change": "ignore",
+        "on_configuration_change": "apply",
+        "grants": {},
+        "packages": [],
+        "docs": {
+          "show": true,
+          "node_color": null
+        },
+        "contract": {
+          "enforced": false,
+          "alias_types": true
+        },
+        "event_time": null,
+        "concurrent_batches": null,
+        "access": "protected",
+        "freshness": null,
+        "on_error": null,
+        "latest_version_pointer": {
+          "enabled": null,
+          "alias": null
+        }
+      },
+      "tags": [],
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "group": null,
+      "docs": {
+        "show": true,
+        "node_color": null
+      },
+      "patch_path": null,
+      "build_path": null,
+      "unrendered_config": {},
+      "created_at": 1790701343.410634,
+      "relation_name": "\"memory\".\"main\".\"int_widgets_enriched\"",
+      "raw_code": "-- Deliberately has no schema yml entry - exercises the \"no documentation yet\" path.\nSELECT\n    widget_id,\n    widget_name,\n    'enriched' AS status\nFROM {{ ref('stg_widgets') }}",
+      "doc_blocks": [],
+      "language": "sql",
+      "refs": [
+        {
+          "name": "stg_widgets",
+          "package": null,
+          "version": null
+        }
+      ],
+      "sources": [],
+      "metrics": [],
+      "functions": [],
+      "depends_on": {
+        "macros": [],
+        "nodes": [
+          "model.sample_project.stg_widgets"
+        ]
+      },
+      "compiled_path": null,
+      "contract": {
+        "enforced": false,
+        "alias_types": true,
+        "checksum": null
+      },
+      "access": "protected",
+      "constraints": [],
+      "version": null,
+      "latest_version": null,
+      "deprecation_date": null,
+      "primary_key": [],
+      "time_spine": null
     }
   },
+  "sources": {
+    "source.sample_project.raw.widgets": {
+      "database": "memory",
+      "schema": "raw",
+      "name": "widgets",
+      "resource_type": "source",
+      "package_name": "sample_project",
+      "path": "models/staging/_sources.yml",
+      "original_file_path": "models/staging/_sources.yml",
+      "unique_id": "source.sample_project.raw.widgets",
+      "fqn": [
+        "sample_project",
+        "staging",
+        "raw",
+        "widgets"
+      ],
+      "source_name": "raw",
+      "source_description": "",
+      "loader": "",
+      "identifier": "widgets",
+      "quoting": {
+        "database": null,
+        "schema": null,
+        "identifier": null,
+        "column": null
+      },
+      "loaded_at_field": null,
+      "loaded_at_query": null,
+      "freshness": {
+        "warn_after": {
+          "count": null,
+          "period": null
+        },
+        "error_after": {
+          "count": null,
+          "period": null
+        },
+        "filter": null
+      },
+      "external": null,
+      "description": "",
+      "columns": {},
+      "meta": {},
+      "source_meta": {},
+      "tags": [],
+      "config": {
+        "enabled": true,
+        "event_time": null,
+        "freshness": {
+          "warn_after": {
+            "count": null,
+            "period": null
+          },
+          "error_after": {
+            "count": null,
+            "period": null
+          },
+          "filter": null
+        },
+        "loaded_at_field": null,
+        "loaded_at_query": null,
+        "meta": {},
+        "tags": [],
+        "static_analysis": null
+      },
+      "patch_path": null,
+      "unrendered_config": {
+        "loaded_at_field": null,
+        "loaded_at_query": null,
+        "meta": {},
+        "tags": []
+      },
+      "relation_name": "\"memory\".\"raw\".\"widgets\"",
+      "created_at": 1790701343.573233,
+      "unrendered_database": null,
+      "unrendered_schema": null,
+      "doc_blocks": []
+    }
+  },
+  "macros": {},
+  "docs": {
+    "doc.sample_project.widget_id_doc": {
+      "name": "widget_id_doc",
+      "resource_type": "doc",
+      "package_name": "sample_project",
+      "path": "product/_docs.md",
+      "original_file_path": "models/product/_docs.md",
+      "unique_id": "doc.sample_project.widget_id_doc",
+      "block_contents": "Zero-padded widget identifier, expanded from a shared docs block - proves doc-block\nresolution works end-to-end when read from a compiled manifest, not just raw yaml text."
+    },
+    "doc.dbt.__overview__": {
+      "name": "__overview__",
+      "resource_type": "doc",
+      "package_name": "dbt",
+      "path": "overview.md",
+      "original_file_path": "docs/overview.md",
+      "unique_id": "doc.dbt.__overview__",
+      "block_contents": "### Welcome!\n\nWelcome to the auto-generated documentation for your dbt project!\n\n### Navigation\n\nYou can use the `Project` and `Database` navigation tabs on the left side of the window to explore the models\nin your project.\n\n#### Project Tab\nThe `Project` tab mirrors the directory structure of your dbt project. In this tab, you can see all of the\nmodels defined in your dbt project, as well as models imported from dbt packages.\n\n#### Database Tab\nThe `Database` tab also exposes your models, but in a format that looks more like a database explorer. This view\nshows relations (tables and views) grouped into database schemas. Note that ephemeral models are _not_ shown\nin this interface, as they do not exist in the database.\n\n### Graph Exploration\nYou can click the blue icon on the bottom-right corner of the page to view the lineage graph of your models.\n\nOn model pages, you'll see the immediate parents and children of the model you're exploring. By clicking the `Expand`\nbutton at the top-right of this lineage pane, you'll be able to see all of the models that are used to build,\nor are built from, the model you're exploring.\n\nOnce expanded, you'll be able to use the `--select` and `--exclude` model selection syntax to filter the\nmodels in the graph. For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/docs/model-selection-syntax).\n\nNote that you can also right-click on models to interactively filter and explore the graph.\n\n---\n\n### More information\n\n- [What is dbt](https://docs.getdbt.com/docs/introduction)?\n- Read the [dbt viewpoint](https://docs.getdbt.com/docs/viewpoint)\n- [Installation](https://docs.getdbt.com/docs/installation)\n- Join the [dbt Community](https://www.getdbt.com/community/) for questions and discussion"
+    }
+  },
+  "exposures": {},
+  "metrics": {},
+  "groups": {},
+  "selectors": {},
+  "disabled": {},
   "parent_map": {
-    "model.sample_project.int_widgets_enriched": [
-      "model.sample_project.stg_widgets"
-    ],
     "model.sample_project.stg_widgets": [
       "source.sample_project.raw.widgets"
     ],
@@ -653,89 +723,29 @@
     "model.sample_project.widgets_export_by_field": [
       "model.sample_project.int_widgets_enriched"
     ],
+    "model.sample_project.int_widgets_enriched": [
+      "model.sample_project.stg_widgets"
+    ],
     "source.sample_project.raw.widgets": []
   },
-  "saved_queries": {},
-  "selectors": {},
-  "semantic_models": {},
-  "sources": {
-    "source.sample_project.raw.widgets": {
-      "columns": {},
-      "config": {
-        "enabled": true,
-        "event_time": null,
-        "freshness": {
-          "error_after": {
-            "count": null,
-            "period": null
-          },
-          "filter": null,
-          "warn_after": {
-            "count": null,
-            "period": null
-          }
-        },
-        "loaded_at_field": null,
-        "loaded_at_query": null,
-        "meta": {},
-        "static_analysis": null,
-        "tags": []
-      },
-      "created_at": 1790618599.9326952,
-      "database": "memory",
-      "description": "",
-      "doc_blocks": [],
-      "external": null,
-      "fqn": [
-        "sample_project",
-        "staging",
-        "raw",
-        "widgets"
-      ],
-      "freshness": {
-        "error_after": {
-          "count": null,
-          "period": null
-        },
-        "filter": null,
-        "warn_after": {
-          "count": null,
-          "period": null
-        }
-      },
-      "identifier": "widgets",
-      "loaded_at_field": null,
-      "loaded_at_query": null,
-      "loader": "",
-      "meta": {},
-      "name": "widgets",
-      "original_file_path": "models/staging/_sources.yml",
-      "package_name": "sample_project",
-      "patch_path": null,
-      "path": "models/staging/_sources.yml",
-      "quoting": {
-        "column": null,
-        "database": null,
-        "identifier": null,
-        "schema": null
-      },
-      "relation_name": "\"memory\".\"raw\".\"widgets\"",
-      "resource_type": "source",
-      "schema": "raw",
-      "source_description": "",
-      "source_meta": {},
-      "source_name": "raw",
-      "tags": [],
-      "unique_id": "source.sample_project.raw.widgets",
-      "unrendered_config": {
-        "loaded_at_field": null,
-        "loaded_at_query": null,
-        "meta": {},
-        "tags": []
-      },
-      "unrendered_database": null,
-      "unrendered_schema": null
-    }
+  "child_map": {
+    "model.sample_project.stg_widgets": [
+      "model.sample_project.int_widgets_enriched"
+    ],
+    "model.sample_project.widgets_export": [],
+    "model.sample_project.widgets_export_by_field": [
+      "model.sample_project.widgets_export"
+    ],
+    "model.sample_project.int_widgets_enriched": [
+      "model.sample_project.widgets_export_by_field"
+    ],
+    "source.sample_project.raw.widgets": [
+      "model.sample_project.stg_widgets"
+    ]
   },
-  "unit_tests": {}
+  "group_map": {},
+  "saved_queries": {},
+  "semantic_models": {},
+  "unit_tests": {},
+  "functions": {}
 }
