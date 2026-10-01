@@ -44,6 +44,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
 | [CSCL-LION-14](#cscl-lion-14) | LION | `coincident_seg_count` = 0 in prod for one Bronx centerline segment, forbidden by spec | Accepted | 26c |
+| [CSCL-LION-15](#cscl-lion-15) | LION | Generic-segment house numbers not consistently zeroed in prod (real legacy rule found, GP tool, inconsistently applied) | Open | 26c |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-DISTRICTS-03](#cscl-districts-03) | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c |
@@ -590,6 +591,41 @@ through unmodified, with prod apparently publishing something spec forbids).
 
 **What would settle it:** report to GR - not fixable on our side since our value is already
 correct per spec.
+
+### CSCL-LION-15
+
+**Generic-segment house numbers not consistently zeroed in prod** · Open, pending GR
+confirmation · Last verified 26c
+
+ETL spec §2.7.3 says all 8 `gdb_lion` house-number fields (`LLo_Hyphen`/`LHi_Hyphen`/
+`RLo_Hyphen`/`RHi_Hyphen` and their normalized twins `FromLeft`/`FromRight`/`ToLeft`/`ToRight`)
+should be zeroed/blanked for Generic segments (`SegmentTyp = 'G'`) and a few other cases,
+"regardless of the values in the CSCL source data." Checking prod's real `fgdb_lion` directly:
+5,743 of 13,592 Generic segments (42%) have real, nonzero values instead.
+
+Found the actual rule in the real legacy tool (not just the spec text):
+`cscl_etl_archive/lion_dist_tool_files/BytesLION_CSCL_workflow_tool_PUB.py` runs a
+`gp.CalculateField` cleanup (classic ArcGIS Geoprocessor, not `arcpy`) selecting
+`SegmentTyp IN ('G','F') OR FeatureTyp NOT IN ('0','6','W')` - unconditional, no exceptions -
+and zeroing all 8 fields for that selection. It mutates the real, final `LION` feature class
+directly, via a hardcoded local `C:\temp\<Version>\...` path - strong evidence this is a
+manually-triggered, operator-run step, not an automated one that re-applies itself whenever the
+data changes. Searched the entire `cscl_etl_archive` (476 files) for any other trace of this
+rule: none - this script is the only place it exists.
+
+Implemented as `qa__diffs_lion_house_numbers` (`models/etl_dev_qa/diffs/lion_gdb/`) - **not a
+real dev-vs-prod diff**, since our own `FromLeft`/`FromRight`/`ToLeft`/`ToRight` are still
+unimplemented (hardcoded `NULL`, see `compare_gdb.py`'s `KNOWN_NULL_COLUMNS`) and comparing
+"always NULL" against prod's real values would just flag every addressed segment regardless of
+type. Instead flags prod rows that violate prod's own rule (self-consistency check). 5,928 rows
+flagged, **deliberately left `accounted_for = FALSE`** - the manual/inconsistent-script
+hypothesis is strong but not GR-confirmed. See
+[docs/prod_bugs/018-generic-segment-house-numbers-not-zeroed.md](./docs/prod_bugs/018-generic-segment-house-numbers-not-zeroed.md)
+for full detail, including pseudocode (in `gdb_lion.sql`, not implemented) for the fix if/when
+confirmed.
+
+**What would settle it:** ask GR/the legacy pipeline owner whether this cleanup script is run
+fresh every release or can miss segments added/updated after it last ran.
 
 ## District gdb
 
