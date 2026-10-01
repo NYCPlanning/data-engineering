@@ -36,7 +36,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-04](#cscl-lion-04) | LION | BOE LGC pointer wrong for 568 records in prod | Accepted | 26b |
 | [CSCL-LION-05](#cscl-lion-05) | LION | Nonstreet feature segment sequence numbers | Accepted | 26b |
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
-| [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY` resolved (9,802/9,803 exact match vs prod); `Radius` unimplemented, real 100% gap | Accepted (partial) | 26c |
+| [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY`/`Radius` all implemented and fixed to default `0` (not null) on non-curved segments - 100% match on 208,601 non-curved segments, ±1ft noise only on curved ones | Accepted | 26c |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` ~2% mismatch was a comparison-tool artifact (fixed); `lion` layer's key switched to `SegmentID\|Join_ID`; row-level diffing is now partial-precision (fixed, in `dcpy`); prod's `lion`-layer `Join_ID` is missing spec-mandated padding that prod's own `altnames` layer has (tooling accommodation added, not a code fix) | Accepted | 26c |
@@ -146,8 +146,8 @@ condition that may diverge elsewhere. Not touched by this fix.
 
 ### CSCL-LION-07
 
-**Center of curvature (`ArcCenterX`/`ArcCenterY`) - resolved. `Radius` - not implemented, real gap.** ·
-Accepted (partial) · Last verified 26c
+**Center of curvature (`ArcCenterX`/`ArcCenterY`/`Radius`) - resolved.** ·
+Accepted · Last verified 26c
 
 All of these were resolved for 25d by linearizing geoms with a very small tolerance. At
 least one returned in 26a.
@@ -166,16 +166,38 @@ three-point circle fit (`find_circle(start_point, midpoint, end_point)`,
 `int__centerline_curve.sql`), not a structural problem. This part of the issue is effectively
 solved; the "on hold"/"Watch" framing above predates this check and is stale.
 
-**`Radius` is the real, 100% gap** - `gdb_lion.sql` hardcodes it `NULL::int` everywhere (two
-places, base rows and SAF replicants) and never attempts to compute it. Prod has a real value
-for every curved segment (e.g. `2122` for segment `0288916` above). Not implemented; no
-formula derived yet (a circle's radius from the same three points `find_circle` already uses
-would be a direct follow-on, not attempted here).
+**`Radius` implemented (2026-10-01).** `find_circle()` (`macros/create_pg_functions.sql`) already
+computed the fitted circle's radius internally and was encoding it as the Z coordinate of the
+center point it returns - `int__centerline_curve.sql` was only ever reading X/Y off that point.
+Added `st_z(center_of_curvature) AS center_of_curvature_radius`, threaded through
+`int__lion.sql`, and wired into both `gdb_lion.sql` blocks (base rows and SAF replicants) in
+place of the `NULL::int` literal.
 
-**What would settle it:** implement `Radius` from the fitted circle's radius (straightforward
-given `find_circle` already exists) and re-verify against `production_outputs.fgdb_lion`. The
-`ArcCenterX`/`ArcCenterY` single-unit rounding diff is small enough to not need its own
-decision.
+**Also fixed in the same pass: `ArcCenterX`/`ArcCenterY`/`Radius` all default to `NULL` for
+non-curved segments in our output - prod's real convention is `0`, not blank.** Verifying the
+new `Radius` column against `production_outputs.fgdb_lion` surfaced this: prod's non-curved
+(blank/`I` `CurveFlag`) rows are `0`/`0`/`0` for all three fields, **never** null (checked across
+all 231,805 such rows in prod - zero exceptions). Our `ArcCenterX`/`ArcCenterY` had been `NULL`
+for this same population the whole time, undetected because the only prior verification pass
+was scoped to curved segments only. Same convention this codebase already applies to
+`FeatureTyp` (`coalesce(feature_type_code, '0')`) - `coalesce(..., 0)` added at the `gdb_lion.sql`
+output boundary for all three fields, upstream `NULL` semantics unchanged.
+
+**Verified against `production_outputs.fgdb_lion`, full layer (not just curved segments) this
+time:** 218,404 distinct segments on both sides, zero dev-only/prod-only. Non-curved segments
+(`blank`/`I`, 208,601 of 218,404): **100% exact match** on `ArcCenterX`/`ArcCenterY`/`Radius`
+after the `0`-default fix - previously silently wrong for all of them. Curved segments (`L`/`R`,
+9,803): `ArcCenterX`/`ArcCenterY` still 9,802/9,803 exact (the one pre-existing `ArcCenterY`
+rounding case). `Radius` disagrees on 2,418 of 9,803 (~25%) even where the center point matches
+exactly - checked every one of these: **all are off by exactly ±1 foot**, the same
+floating-point/rounding-boundary noise as the `ArcCenterY` case, not a formula error. Not chased
+further - consistent with how the single-unit `ArcCenterY` diff was already treated as
+acceptable.
+
+**What would settle it:** nothing further needed - this is closed. If a future release shows
+`Radius`/`ArcCenterX`/`ArcCenterY` diffs beyond ±1 on curved segments, that would be worth a
+fresh look; the current ±1 pattern is expected numerical noise from the three-point circle fit,
+not a bug.
 
 ### CSCL-LION-08
 

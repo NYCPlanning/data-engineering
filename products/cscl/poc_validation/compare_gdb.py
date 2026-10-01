@@ -77,14 +77,13 @@ KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
     # - SplitSchl: per ETL spec, an unused one-digit filler in Geosupport LION - blank
     #   in prod 100% of the time (confirmed against production_outputs.fgdb_lion), so
     #   this isn't a gap, just a field with no real content to derive.
-    # - Radius: tied to the ArcCenterX/Y curve-geometry issue (CSCL-LION-07,
-    #   data_issues.md) - on hold, not implemented.
     # - FromLeft/ToLeft/FromRight/ToRight: real prod data contradicts a literal reading
     #   of the spec's zero-out rule - needs dedicated investigation (see gdb_lion.sql).
+    # (Radius was here too, tied to CSCL-LION-07 - implemented 2026-10-01, see
+    # data_issues.md.)
     # See models/product/lion/gdb/gdb_lion.sql for the NULL::text/NULL::int literals.
     "lion": {
         "SplitSchl",
-        "Radius",
         "FromLeft",
         "ToLeft",
         "FromRight",

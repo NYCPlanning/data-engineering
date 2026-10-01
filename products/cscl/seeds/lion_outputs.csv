@@ -52,7 +52,7 @@ flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,true,true,,,done,Matches prod exactl
 flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,,done,Matches prod exactly (both sides empty this quarter),
 flat_files,SND,SND,file,SND.txt,snd,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
 lion_gdb,gdb,LION gdb,layer,node,gdb_node,true,true,NODEID,,done,Matches prod exactly,
-lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,true,true,SegmentID|Join_ID,,open,ArcCenterX/ArcCenterY resolved (99.99% match vs prod) - Radius unimplemented; layer has no key that achieves precise row-level diffing (SAF-replicant multiplicity),Switched key_columns from LBoro|FaceCode|SeqNum - see CSCL-LION-10/CSCL-LION-07 updates
+lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,true,true,SegmentID|Join_ID,,open,ArcCenterX/ArcCenterY/Radius all implemented (CSCL-LION-07) - layer has no key that achieves precise row-level diffing (SAF-replicant multiplicity),Switched key_columns from LBoro|FaceCode|SeqNum - see CSCL-LION-10/CSCL-LION-07 updates
 lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,true,true,NODEID|STNAME,,done,Matches prod (38 residual rows out of 245K),
 lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,true,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,blocked,Prod altnames output is roughly a decade stale,See docs/prod_bugs/011-altnames-saf-replicant-join-ids.md
 district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,true,true,AssemDist,Assembly Districts clipped to shoreline,blocked,Layer frozen in prod since 2012,Layer frozen since 2012 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md

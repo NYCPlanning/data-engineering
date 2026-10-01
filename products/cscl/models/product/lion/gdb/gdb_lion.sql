@@ -145,12 +145,14 @@ base_rows AS (
         from_y AS "YFrom",
         to_x AS "XTo",
         to_y AS "YTo",
-        center_of_curvature_x::int AS "ArcCenterX",
-        center_of_curvature_y::int AS "ArcCenterY",
+        -- Prod's literal value for a non-curved segment is 0, not blank (confirmed
+        -- against production_outputs.fgdb_lion: ArcCenterX/Y/Radius are 0 for every
+        -- blank/'I'-CurveFlag row, never null) - coalesced at this output boundary
+        -- only, same convention as FeatureTyp above (see CSCL-LION-07, data_issues.md).
+        coalesce(center_of_curvature_x::int, 0) AS "ArcCenterX",
+        coalesce(center_of_curvature_y::int, 0) AS "ArcCenterY",
         curve_flag AS "CurveFlag",
-        -- Tied to the ArcCenterX/Y curve-geometry issue (CSCL-LION-07, data_issues.md) -
-        -- on hold, not implemented here.
-        NULL::int AS "Radius",
+        coalesce(center_of_curvature_radius::int, 0) AS "Radius",
         lpad(from_nodeid::text, 7, '0') AS "NodeIDFrom",
         lpad(to_nodeid::text, 7, '0') AS "NodeIDTo",
         from_level_code AS "NodeLevelF",
@@ -321,10 +323,10 @@ replicant_rows AS (
         lion.from_y AS "YFrom",
         lion.to_x AS "XTo",
         lion.to_y AS "YTo",
-        lion.center_of_curvature_x::int AS "ArcCenterX",
-        lion.center_of_curvature_y::int AS "ArcCenterY",
+        coalesce(lion.center_of_curvature_x::int, 0) AS "ArcCenterX",
+        coalesce(lion.center_of_curvature_y::int, 0) AS "ArcCenterY",
         lion.curve_flag AS "CurveFlag",
-        NULL::int AS "Radius",
+        coalesce(lion.center_of_curvature_radius::int, 0) AS "Radius",
         lpad(lion.from_nodeid::text, 7, '0') AS "NodeIDFrom",
         lpad(lion.to_nodeid::text, 7, '0') AS "NodeIDTo",
         lion.from_level_code AS "NodeLevelF",

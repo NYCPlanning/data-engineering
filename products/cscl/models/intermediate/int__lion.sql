@@ -227,6 +227,7 @@ SELECT
     END AS curve_flag,
     round(centerline_curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
     round(centerline_curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
+    round(centerline_curve.center_of_curvature_radius)::BIGINT AS center_of_curvature_radius,
     round(segments.shape_length)::INT AS segment_length_ft,
     convert_level_code(
         segments.from_level_code,
