@@ -36,10 +36,10 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-04](#cscl-lion-04) | LION | BOE LGC pointer wrong for 568 records in prod | Accepted | 26b |
 | [CSCL-LION-05](#cscl-lion-05) | LION | Nonstreet feature segment sequence numbers | Accepted | 26b |
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
-| [CSCL-LION-07](#cscl-lion-07) | LION | Center of curvature | Watch | 26a |
+| [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY`/`Radius` all implemented and fixed to default `0` (not null) on non-curved segments - 100% match on 208,601 non-curved segments, ±1ft noise only on curved ones | Accepted | 26c |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
-| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` real-value mismatches on ~2% of segments | Accepted | 26b |
+| [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` ~2% mismatch was a comparison-tool artifact (fixed); `lion` layer's key switched to `SegmentID\|Join_ID`; row-level diffing is now partial-precision (fixed, in `dcpy`); prod's `lion`-layer `Join_ID` is missing spec-mandated padding that prod's own `altnames` layer has (tooling accommodation added, not a code fix) | Accepted | 26c |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
@@ -146,16 +146,58 @@ condition that may diverge elsewhere. Not touched by this fix.
 
 ### CSCL-LION-07
 
-**Center of curvature** · Watch · Last verified 26a
+**Center of curvature (`ArcCenterX`/`ArcCenterY`/`Radius`) - resolved.** ·
+Accepted · Last verified 26c
 
 All of these were resolved for 25d by linearizing geoms with a very small tolerance. At
 least one returned in 26a.
 
 Related: the working theory for [CSCL-DISTRICTS-02](#cscl-districts-02) is the same
-`linearize()` mechanism, so the two may resolve together.
+`linearize()` mechanism, so the two may resolve together. (That theory was later retracted
+for `CSCL-DISTRICTS-03`'s coastline case - `st_makevalid()`, not `linearize()`, was the real
+driver there - so treat the shared-mechanism claim here as unconfirmed too.)
 
-**What would settle it:** a decision with GR — play whack-a-mole per release, or agree the
-difference is small enough to accept.
+**Checked directly against prod (2026-09-28):** `production_outputs.fgdb_lion` (prod's real
+`lion` gdb layer) is already loaded. Comparing `ArcCenterX`/`ArcCenterY` on every distinct
+curved segment (`CurveFlag` `L`/`R`) citywide, joined by `SegmentID`: **9,803 curved segments
+on both sides, 9,802 match exactly.** The one mismatch (segment `0288916`) is off by a single
+unit on `ArcCenterY` (`191658` vs prod's `191657`) - a floating-point/rounding artifact of the
+three-point circle fit (`find_circle(start_point, midpoint, end_point)`,
+`int__centerline_curve.sql`), not a structural problem. This part of the issue is effectively
+solved; the "on hold"/"Watch" framing above predates this check and is stale.
+
+**`Radius` implemented (2026-10-01).** `find_circle()` (`macros/create_pg_functions.sql`) already
+computed the fitted circle's radius internally and was encoding it as the Z coordinate of the
+center point it returns - `int__centerline_curve.sql` was only ever reading X/Y off that point.
+Added `st_z(center_of_curvature) AS center_of_curvature_radius`, threaded through
+`int__lion.sql`, and wired into both `gdb_lion.sql` blocks (base rows and SAF replicants) in
+place of the `NULL::int` literal.
+
+**Also fixed in the same pass: `ArcCenterX`/`ArcCenterY`/`Radius` all default to `NULL` for
+non-curved segments in our output - prod's real convention is `0`, not blank.** Verifying the
+new `Radius` column against `production_outputs.fgdb_lion` surfaced this: prod's non-curved
+(blank/`I` `CurveFlag`) rows are `0`/`0`/`0` for all three fields, **never** null (checked across
+all 231,805 such rows in prod - zero exceptions). Our `ArcCenterX`/`ArcCenterY` had been `NULL`
+for this same population the whole time, undetected because the only prior verification pass
+was scoped to curved segments only. Same convention this codebase already applies to
+`FeatureTyp` (`coalesce(feature_type_code, '0')`) - `coalesce(..., 0)` added at the `gdb_lion.sql`
+output boundary for all three fields, upstream `NULL` semantics unchanged.
+
+**Verified against `production_outputs.fgdb_lion`, full layer (not just curved segments) this
+time:** 218,404 distinct segments on both sides, zero dev-only/prod-only. Non-curved segments
+(`blank`/`I`, 208,601 of 218,404): **100% exact match** on `ArcCenterX`/`ArcCenterY`/`Radius`
+after the `0`-default fix - previously silently wrong for all of them. Curved segments (`L`/`R`,
+9,803): `ArcCenterX`/`ArcCenterY` still 9,802/9,803 exact (the one pre-existing `ArcCenterY`
+rounding case). `Radius` disagrees on 2,418 of 9,803 (~25%) even where the center point matches
+exactly - checked every one of these: **all are off by exactly ±1 foot**, the same
+floating-point/rounding-boundary noise as the `ArcCenterY` case, not a formula error. Not chased
+further - consistent with how the single-unit `ArcCenterY` diff was already treated as
+acceptable.
+
+**What would settle it:** nothing further needed - this is closed. If a future release shows
+`Radius`/`ArcCenterX`/`ArcCenterY` diffs beyond ±1 on curved segments, that would be worth a
+fresh look; the current ±1 pattern is expected numerical noise from the three-point circle fit,
+not a bug.
 
 ### CSCL-LION-08
 
@@ -383,15 +425,87 @@ gap) large enough that unrelated dev/prod segments coincidentally sharing the sa
 unrelated to this fix: prod's own `citywide_lion_dat` has ~1,521 duplicate `segmentid` values
 across its 214,466 rows - not investigated further here.)
 
-**Not changed as part of this fix:** `lion_outputs.csv`'s `key_columns` for `lion` is still
-`LBoro|FaceCode|SeqNum`. Switching the whole layer's comparison key to `SegmentID` would
-likely clean up other reported `lion`-layer diffs the same way, but changes what every
-column's dev/prod row-alignment means for that layer, not just `LegacyID` - worth doing as
-its own change, tested against the full layer, rather than folded into this note.
+**Key switched to `SegmentID|Join_ID` (2026-09-28) - but bare `SegmentID` alone turned out
+unsafe, and no key fully solves this layer.** `gdb_lion` is `base_rows UNION saf_replicants`
+(ETL spec §2.7.2, "Segment Replication for SAF Data") - every SAF association on a segment
+gets its own duplicate row, so `SegmentID` is never 1:1 on this layer (241,999 rows, only
+218,403 distinct `SegmentID`s). Checked citywide before committing to `SegmentID` alone:
+segment `0118421` has **37** replicant rows sharing one `Join_ID` (`55551701000000A`) - traced
+to source and confirmed genuine, not a join-fanout bug: 37 distinct `AltSegmentData` type-`A`
+`saf_globalid`s, each a real, different house-number sub-range on the same street (`473-475`
+through `543-545`). So even `SegmentID + Join_ID` isn't unique (240,236 distinct of 241,999
+rows, 1,763 short).
 
-**What would settle it:** deciding whether to switch `lion_outputs.csv`'s `key_columns` for
-`lion` to `SegmentID` citywide-wide, now that it's confirmed to be a reliable 1:1 key on both
-sides.
+Tried adding the house-number fields (`LLo_Hyphen`/`LHi_Hyphen`/`RLo_Hyphen`/`RHi_Hyphen`) to
+the key to resolve the Willow Road-style cases - this makes it worse, not better:
+`dcpy.geospatial.gdb.compare.composite_key` deliberately gives every row with a `NULL` in *any*
+key column a one-off identity (so NULL-keyed rows never coincidentally collide) - and those
+four fields are `NULL` on **151,762 of 241,999 rows (63%)**, including half of plain base
+rows, not just SAF replicants. Using them in the key would force nearly two-thirds of the
+layer into permanent guaranteed non-match, citywide, regardless of whether dev and prod
+actually agree - far worse than the multiplicity it was meant to fix.
+
+Checked one more residual group for a real content-uniqueness problem, not just a key-search
+gap: segment `0108546`/`Join_ID 52292901000000S` has 19 rows, all identical on every exposed
+`gdb_lion` column (same house number `46` on the same side) - traced to source and confirmed
+these are 19 *genuinely distinct* `AddressPoint` records (19 different `addresspointid`s, real
+separate units/BINs at that address) that the `lion` gdb layer's spec'd attribute set has no
+field to distinguish (no unit/apartment/individual-record identifier is part of the output
+schema). Checked whether either side exposes anything better: prod's `fgdb_lion.objectid` is
+just a load-time Postgres sequence value, not a stable source identifier, and dev's own
+`gdb_lion` has no equivalent column at all - nothing usable there either.
+
+**Landed on `SegmentID|Join_ID`.** 99.27% unique (240,236/241,999), zero `NULL`s in either
+column (unlike the house-number attempt), and every remaining collision traced to a real,
+understood cause (genuine sub-range multiplicity or genuine record multiplicity), not
+cross-contamination like the old `LBoro|FaceCode|SeqNum` key. `dcpy.geospatial.gdb.compare` used
+to make `precise` an all-or-nothing flag (any collision anywhere dropped the *whole* layer to a
+duplicate-tolerant multiset fallback - counts only, no `modified` detection at all), which meant
+even this much-improved key still couldn't unlock row-level `modified` diffing for `lion` on its
+own.
+
+**Fixed at the tooling level (2026-09-28), not by finding a better key - there wasn't one to
+find.** `row_level_diff` now does partial-precision diffing: rows whose key is unique on both
+sides get precisely paired and real `modified` detection; only the rows whose key actually
+collides fall back to the count-based comparison, scoped to just that subset.
+`RowLevelDiff` gains `duplicate_key_dev_rows`/`duplicate_key_prod_rows` so a caller can see how
+many rows went through each path. For `lion`, that's ~0.7% of rows (the genuine multiplicity
+above) - the other ~99.3% now get real `modified` detection, which was previously impossible
+citywide for this layer no matter which key was declared. Fully backward compatible (reduces to
+the old behavior at both extremes - zero collisions, or every row colliding). See
+`python/geospatial/dcpy/geospatial/gdb/compare.py`/`report.py` and their test suites.
+
+**A second, unrelated finding surfaced verifying the new key against real data: prod's `lion`
+layer's `Join_ID` is missing its spec-mandated trailing padding - but prod's `altnames` layer's
+copy of the same field has it.** ETL spec (~line 5006) is explicit: `Join_ID` is a 15-character
+string, and the non-SAF form is built from Borough + FaceCode + LGC1-4 + **two literal trailing
+spaces**. `gdb_lion.sql`'s `lion_join_id()` macro implements this exactly, and it's correct
+against `fgdb_altnames` (same macro, same field) - checked directly:
+`production_outputs.fgdb_altnames`'s real, freshly-loaded `Join_ID` has the padding on 78,540 of
+129,740 rows (the rest are the 15-char SAF-replicant form, which never had padding to begin
+with). But `production_outputs.fgdb_lion`'s `Join_ID` - loaded via the identical `ogr2ogr` call,
+same run, same source zip, ruling out a per-loader artifact - has **zero** padded rows out of
+243,706, and every non-SAF value is a clean 13 characters. Two output layers, same field, same
+formula, and prod's own legacy tool evidently formats it differently between them (presumably two
+separate extractor classes, only one of which follows the spec's own trailing-space rule). Our
+output is spec-compliant and matches what `altnames` needs; it's `lion`'s copy specifically that
+deviates from prod's own documented spec, not ours to fix.
+
+**Not fixed in `gdb_lion.sql`** - changing our real output to drop the padding, to match prod's
+`lion`-layer-specific quirk, would break comparison against `fgdb_altnames` (which needs it) and
+deviate from the documented spec everywhere else `Join_ID` is used, to chase a bug that's
+apparently specific to one prod extractor class. Instead, fixed where it actually matters -
+comparison tooling: `poc_validation/compare_gdb.py`'s new `KNOWN_TRAILING_WHITESPACE_COLUMNS`
+rstrips `Join_ID` for the `lion` layer specifically (both sides, comparison-time only) before
+diffing, since composite_key deliberately doesn't apply `blank_as_null` normalization to key
+columns (a real, if padded, value isn't blank). Verified: re-running the `SegmentID|Join_ID` key
+against real data through this fix drops `only_in_dev`/`only_in_prod` from noise at nearly the
+full row count (an artifact of comparing padded-vs-unpadded strings) down to 41/1,748 out of
+~242K rows - a believable, small residual gap, not a tooling artifact.
+
+**What would settle it:** ask GR/the legacy pipeline owner whether the `lion` extractor's
+`Join_ID` formatting was ever intentionally different from `AltNames`'s, or whether this is
+itself an unnoticed prod bug worth fixing on their side.
 
 ### CSCL-LION-11
 

@@ -1,3 +1,5 @@
+import pandas as pd
+
 from dcpy.geospatial.gdb import compare, report
 
 from .conftest import AD_KEY, NTA_INSANE_KEY, NTA_KEY, NTA_SIMPLE_KEY
@@ -89,6 +91,28 @@ def test_add_layer_respects_caller_overridden_column_notes(nta_gdf):
     entry = r.add_layer("nynta2010", result, len(dev), len(nta_gdf))
 
     assert "NTAName" not in entry.flagged_columns
+
+
+def test_add_layer_reports_modified_and_duplicate_keys_together():
+    """A layer with a partially-colliding key (the real gdb_lion shape) should
+    still show a real modified count for the precisely-paired rows, plus a
+    separate note calling out how many rows went through the duplicate-key
+    fallback instead - not silently drop into "N dev-only, N prod-only" with
+    no explanation, which is all the old all-or-nothing precise flag allowed."""
+    dev = pd.DataFrame({"key": ["A", "DUP", "DUP"], "val": ["a", "d", "d"]})
+    prod = pd.DataFrame({"key": ["A", "DUP", "DUP"], "val": ["a-changed", "d", "d"]})
+
+    r = report.GdbComparisonReport()
+    result = compare.compare_layer(dev, prod, declared_key=["key"])
+    entry = r.add_layer("some_layer", result, len(dev), len(prod))
+
+    assert "1 modified" in entry.note
+    assert "key has duplicates" in entry.note
+    assert "2 dev / 2 prod" in entry.note
+
+    row = r.rows()[0]
+    assert row["duplicate_key_dev_rows"] == 2
+    assert row["duplicate_key_prod_rows"] == 2
 
 
 def test_log_layer_structure_sets_common_layers():

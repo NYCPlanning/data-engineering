@@ -77,19 +77,37 @@ KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
     # - SplitSchl: per ETL spec, an unused one-digit filler in Geosupport LION - blank
     #   in prod 100% of the time (confirmed against production_outputs.fgdb_lion), so
     #   this isn't a gap, just a field with no real content to derive.
-    # - Radius: tied to the ArcCenterX/Y curve-geometry issue (CSCL-LION-07,
-    #   data_issues.md) - on hold, not implemented.
     # - FromLeft/ToLeft/FromRight/ToRight: real prod data contradicts a literal reading
     #   of the spec's zero-out rule - needs dedicated investigation (see gdb_lion.sql).
+    # (Radius was here too, tied to CSCL-LION-07 - implemented 2026-10-01, see
+    # data_issues.md.)
     # See models/product/lion/gdb/gdb_lion.sql for the NULL::text/NULL::int literals.
     "lion": {
         "SplitSchl",
-        "Radius",
         "FromLeft",
         "ToLeft",
         "FromRight",
         "ToRight",
     },
+}
+
+# Columns whose prod values are missing trailing whitespace our own output correctly
+# includes, per spec - a real, confirmed prod-side inconsistency, not a bug in our
+# output or a loader artifact. ETL spec (~line 5006) mandates Join_ID as a 15-char
+# string, non-SAF form ending in two literal spaces - gdb_lion.sql's lion_join_id()
+# macro follows that exactly. Verified against prod's real, freshly-loaded FileGDB
+# (both layers loaded via the same ogr2ogr run, ruling out a per-loader artifact):
+# production_outputs.fgdb_lion's non-SAF Join_IDs are all 13 chars, zero trailing
+# whitespace (0/243,706 rows) - but production_outputs.fgdb_altnames's Join_ID
+# (same field, same formula, computed by presumably a different extractor class in
+# prod's own legacy tool) DOES carry the spec'd padding (78,540/129,740 rows). So
+# this is specific to prod's `lion` layer, not a general Join_ID convention -
+# rstrip'd here for comparison purposes only, not fixed in gdb_lion.sql itself
+# (changing our real output to drop the padding would break comparison against
+# fgdb_altnames, which needs it, and would deviate from the documented spec to match
+# a bug in one specific prod layer).
+KNOWN_TRAILING_WHITESPACE_COLUMNS: dict[str, set[str]] = {
+    "lion": {"Join_ID"},
 }
 
 app = typer.Typer(add_completion=False)
@@ -162,6 +180,19 @@ def _compare_layers(
             prod_gdf = prod_gdf.rename(
                 columns=dict((p, d) for d, p in col_match.case_mismatches)
             )
+
+        # See KNOWN_TRAILING_WHITESPACE_COLUMNS - a confirmed prod-side
+        # inconsistency (specific to this layer), not a bug in our own output.
+        # Stripped here, at comparison time, so both the row-identity key and
+        # attribute-value comparison for this column tolerate it - a plain
+        # blank_as_null pass wouldn't, since composite_key deliberately
+        # ignores blank_as_null for key columns, and these values aren't
+        # blank, just padded.
+        for col in KNOWN_TRAILING_WHITESPACE_COLUMNS.get(layer, set()):
+            if col in dev_gdf.columns:
+                dev_gdf[col] = dev_gdf[col].str.rstrip()
+            if col in prod_gdf.columns:
+                prod_gdf[col] = prod_gdf[col].str.rstrip()
 
         result = gdb_compare.compare_layer(
             dev_gdf,

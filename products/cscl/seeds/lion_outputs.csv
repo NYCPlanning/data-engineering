@@ -14,11 +14,11 @@ flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_man
 flat_files,District Equivalency,ThinFire,file,QueensThinFire.txt,thinfire_queens,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
 flat_files,District Equivalency,ThinFire,file,StatenIslandThinFire.txt,thinfire_statenisland,true,true,,,done,Matches prod exactly,
 flat_files,District Equivalency,ThinLION,file,nyc.thinlion,thinlion_all,true,true,,,done,,""
-flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,true,true,,,GR Review,Small residual diffs under review with GR,
-flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,true,true,,,GR Review,Small residual diffs under review with GR,
+flat_files,District Equivalency,ThinLION,file,BronxThinLION.txt,thinlion_bronx,true,true,,,done,,""
+flat_files,District Equivalency,ThinLION,file,BrooklynThinLION.txt,thinlion_brooklyn,true,true,,,done,,""
+flat_files,District Equivalency,ThinLION,file,ManhattanThinLION.txt,thinlion_manhattan,true,true,,,done,,""
+flat_files,District Equivalency,ThinLION,file,QueensThinLION.txt,thinlion_queens,true,true,,,done,,""
+flat_files,District Equivalency,ThinLION,file,StatenIslandThinLION.txt,thinlion_statenisland,true,true,,,done,,""
 flat_files,District Equivalency,ThinED,file,thined.txt,thined_dat,true,true,,,done,"","Small todo: Follow up with GS about header vars. Bigger todo: plan a better approach with them."
 flat_files,Face Code File,Face Code File,file,BronxFace.txt,bronx_face_code,false,true,,,done,Matches prod exactly,
 flat_files,Face Code File,Face Code File,file,BrooklynFace.txt,brooklyn_face_code,false,true,,,done,Matches prod exactly,
@@ -52,7 +52,7 @@ flat_files,SEDAT,SEDAT,file,SEDAT.txt,sedat,true,true,,,done,Matches prod exactl
 flat_files,SEDAT,SpecialSEDAT,file,SpecialSEDAT.txt,special_sedat,true,true,,,done,Matches prod exactly (both sides empty this quarter),
 flat_files,SND,SND,file,SND.txt,snd,true,true,,,blocked,Suspected stale data in prod normalizing tables,See docs/prod_bugs/010-featurename-normalizing-tables-stale-accretion.md
 lion_gdb,gdb,LION gdb,layer,node,gdb_node,true,true,NODEID,,done,Matches prod exactly,
-lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,true,true,LBoro|FaceCode|SeqNum,,on hold,"ArcCenterX/ArcCenterY curve-flag gap (CSCL-LION-07), on hold",
+lion_gdb,gdb,LION gdb,layer,lion,gdb_lion,true,true,SegmentID|Join_ID,,open,ArcCenterX/ArcCenterY/Radius all implemented (CSCL-LION-07) - layer has no key that achieves precise row-level diffing (SAF-replicant multiplicity),Switched key_columns from LBoro|FaceCode|SeqNum - see CSCL-LION-10/CSCL-LION-07 updates
 lion_gdb,gdb,LION gdb,layer,node_stname,gdb_node_stname,true,true,NODEID|STNAME,,done,Matches prod (38 residual rows out of 245K),
 lion_gdb,gdb,LION gdb,layer,altnames,gdb_altnames,true,true,PDir|PType|SName|SType|SDir|Street|Join_ID,,blocked,Prod altnames output is roughly a decade stale,See docs/prod_bugs/011-altnames-saf-replicant-join-ids.md
 district_gdb,gdb,District gdb,layer,nyad,gdb_nyad,true,true,AssemDist,Assembly Districts clipped to shoreline,blocked,Layer frozen in prod since 2012,Layer frozen since 2012 - see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md

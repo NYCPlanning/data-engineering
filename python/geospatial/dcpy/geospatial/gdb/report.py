@@ -213,7 +213,7 @@ class GdbComparisonReport:
             row_level.only_in_dev + row_level.only_in_prod + (row_level.modified or 0)
         )
         if total_diff:
-            if row_level.precise:
+            if row_level.modified is not None:
                 flags.append(
                     f"{total_diff:,} rows differ ({row_level.modified:,} modified, "
                     f"{row_level.only_in_dev:,} dev-only, "
@@ -224,6 +224,13 @@ class GdbComparisonReport:
                     f"{total_diff:,} rows differ ({row_level.only_in_dev:,} dev-only, "
                     f"{row_level.only_in_prod:,} prod-only)"
                 )
+        if row_level.duplicate_key_dev_rows or row_level.duplicate_key_prod_rows:
+            flags.append(
+                "key has duplicates: "
+                f"{row_level.duplicate_key_dev_rows:,} dev / "
+                f"{row_level.duplicate_key_prod_rows:,} prod rows compared "
+                "by count only, not paired"
+            )
 
         if c.area is not None and abs(c.area.pct_diff) > self.area_pct_threshold:
             flags.append(f"area {c.area.pct_diff:+.2f}%")
@@ -284,6 +291,8 @@ class GdbComparisonReport:
                 ),
                 "key_columns": ", ".join(c.key_cols),
                 "key_precise": c.row_level.precise,
+                "duplicate_key_dev_rows": c.row_level.duplicate_key_dev_rows,
+                "duplicate_key_prod_rows": c.row_level.duplicate_key_prod_rows,
                 "rows_only_in_dev": c.row_level.only_in_dev,
                 "rows_only_in_prod": c.row_level.only_in_prod,
                 "rows_modified": (

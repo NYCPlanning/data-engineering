@@ -40,5 +40,9 @@ center_calculated AS (
 SELECT
     *,
     st_x(center_of_curvature) AS center_of_curvature_x,
-    st_y(center_of_curvature) AS center_of_curvature_y
+    st_y(center_of_curvature) AS center_of_curvature_y,
+    -- find_circle() (macros/create_pg_functions.sql) encodes the fitted circle's
+    -- radius as the Z coordinate of the center point it returns, alongside the X/Y
+    -- center coordinates - same three-point fit, so no separate computation needed.
+    st_z(center_of_curvature) AS center_of_curvature_radius
 FROM center_calculated
