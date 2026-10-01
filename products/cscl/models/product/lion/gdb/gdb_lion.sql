@@ -186,15 +186,36 @@ base_rows AS (
         carto_display_level AS "Carto_Display_Level",
         fcc AS "FCC",
         right_of_way_type AS "ROW_Type",
+        -- ETL spec §2.7.3 (BL101-104): all 8 house-number fields (this block) should be
+        -- zeroed/blanked for certain segment types - confirmed via the real legacy tool
+        -- (cscl_etl_archive/lion_dist_tool_files/BytesLION_CSCL_workflow_tool_PUB.py,
+        -- ~line 353): SegmentTyp IN ('G','F') OR FeatureTyp NOT IN ('0','6','W'),
+        -- unconditionally. Not implemented - prod's own delivered fgdb_lion only follows
+        -- this rule for ~58% of matching rows (manual, operator-run GP script, evidently
+        -- not consistently re-applied - see docs/prod_bugs/018-generic-segment-house-
+        -- numbers-not-zeroed.md), and the inconsistency isn't GR-confirmed as a bug worth
+        -- matching or diverging from. Flagged (not accounted_for) in
+        -- qa__diffs_lion_house_numbers.sql pending that confirmation.
+        --
+        -- Pseudocode for the fix, if/when confirmed - applies to LLo_Hyphen/LHi_Hyphen/
+        -- RLo_Hyphen/RHi_Hyphen above too, not just FromLeft/ToLeft/FromRight/ToRight:
+        --   is_addressable = segment_type NOT IN ('G', 'F')
+        --                    AND feature_type_code IN ('0', '6', 'W')  -- or NULL
+        --   LLo_Hyphen  = is_addressable ? nullif(l_low_hn, '0')  : NULL
+        --   LHi_Hyphen  = is_addressable ? nullif(l_high_hn, '0') : NULL
+        --   RLo_Hyphen  = is_addressable ? nullif(r_low_hn, '0')  : NULL
+        --   RHi_Hyphen  = is_addressable ? nullif(r_high_hn, '0') : NULL
+        --   FromLeft    = is_addressable ? <normalized form, still unimplemented> : 0
+        --   ToLeft      = is_addressable ? <normalized form, still unimplemented> : 0
+        --   FromRight   = is_addressable ? <normalized form, still unimplemented> : 0
+        --   ToRight     = is_addressable ? <normalized form, still unimplemented> : 0
+        -- Note this only decides WHEN to zero - FromLeft/ToLeft/FromRight/ToRight's own
+        -- normalized-form computation (hyphen stripped, 3-digit zero-fill per spec) is a
+        -- separate, still-unimplemented piece (see compare_gdb.py's KNOWN_NULL_COLUMNS).
         nullif(l_low_hn, '0') AS "LLo_Hyphen",
         nullif(l_high_hn, '0') AS "LHi_Hyphen",
         nullif(r_low_hn, '0') AS "RLo_Hyphen",
         nullif(r_high_hn, '0') AS "RHi_Hyphen",
-        -- ETL spec §2.7.3 (BL101-104): normalized Queens-hyphen house numbers, zeroed out
-        -- for certain segment types (Generic, non-physical, etc). Investigated 2026-09-18:
-        -- real prod data contradicts a literal reading of the zero-out rule (SegmentTyp='G'
-        -- rows exist in prod with nonzero FromRight/ToRight), so this needs more targeted
-        -- investigation before implementing - left unimplemented for now.
         NULL::int AS "FromLeft",
         NULL::int AS "ToLeft",
         NULL::int AS "FromRight",
@@ -362,6 +383,12 @@ replicant_rows AS (
         saf_replicants.l_high_hn AS "LHi_Hyphen",
         saf_replicants.r_low_hn AS "RLo_Hyphen",
         saf_replicants.r_high_hn AS "RHi_Hyphen",
+        -- FromLeft/ToLeft/FromRight/ToRight (normalized form) remain unimplemented here
+        -- too - see the base_rows block above (~line 189) for the pseudocode and
+        -- docs/prod_bugs/018-generic-segment-house-numbers-not-zeroed.md. Note replicant
+        -- rows source LLo_Hyphen etc. from the SAF entry, not the Generic-segment
+        -- zero-out rule investigated there - whether that rule applies here too (e.g.
+        -- for a replicant on an otherwise-Generic segment) isn't confirmed either.
         NULL::int AS "FromLeft",
         NULL::int AS "ToLeft",
         NULL::int AS "FromRight",
