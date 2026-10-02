@@ -26,7 +26,7 @@ jobs:
       pr_changes: ${{ steps.pr_changes.outputs.changes }}
       push_changes: ${{ steps.push_changes.outputs.changes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v2
         if: github.event_name == 'pull_request'
         id: pr_changes
@@ -170,7 +170,7 @@ jobs:
     needs: determine_image_logic
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: needs.determine_image_logic.outputs.base_action == 'Build'
       - name: Load Secrets
         if: needs.determine_image_logic.outputs.base_action == 'Build'
@@ -206,7 +206,7 @@ jobs:
           - build-geosupport
           - dev
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: needs.determine_image_logic.outputs.child_action == 'Build'
       - name: Set up Python 3.13
         if: needs.determine_image_logic.outputs.child_action == 'Build'
@@ -256,7 +256,7 @@ jobs:
           - qa-streamlit
           - notebook-server
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
         with:
