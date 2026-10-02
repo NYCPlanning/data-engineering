@@ -71,6 +71,24 @@ As mentioned, while Data Engineering is the maintainer of this pipeline, its arc
 
 Requirements for this interface are not fully flushed out, nor is the design. This document will be updated accordingly as the project progresses.
 
+## Interim workflow
+
+Until the pipeline can pull from the CSCL database itself, GR exports the ETL Working GDB and hands it to the pipeline through a CSCL Build page in DE's QA app.
+
+![GR launcher workflow](docs/workflow_gr_launcher.drawio.png)
+
+1. GR exports the ETL Working GDB from CSCL and zips it.
+2. GR uploads the zip to `edm-private/inbox/` with an S3 client. At ~800 MB it's too big to upload through the app.
+3. On the CSCL Build page, GR picks the inbox file and enters the version and release params (the LDF header dates).
+4. **Archive**: the app copies the file to `edm-private/cscl_etl/{version}/ETL Working GDB.gdb.zip` and dispatches ingest for `dcp_cscl_gdb`.
+5. Ingest archives the GDB to `edm-recipes`.
+6. **Build**: the app dispatches the CSCL build with the version and release params.
+7. The build loads the GDB into the build database and runs dbt.
+8. Outputs are exported to the `edm-publishing` draft.
+9. GR reviews run status and outputs on the page, and diffs on the CSCL QA page.
+
+Release params are required build inputs with no committed defaults. They resolve into the build's `recipe.lock.yml`, which is the record of what each build ran with.
+
 # Transformation
 
 This section is largely organized by output file. Each of these has the following sections
