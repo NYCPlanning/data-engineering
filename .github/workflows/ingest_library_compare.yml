@@ -35,7 +35,7 @@ jobs:
       RECIPES_BUCKET: edm-recipes
       PUBLISHING_BUCKET: edm-publishing
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dcpy workspace
         run: uv sync --all-packages

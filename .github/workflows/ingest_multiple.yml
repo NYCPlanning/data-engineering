@@ -83,7 +83,7 @@ jobs:
       matrix:
         dataset: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install dcpy workspace
       run: uv sync --all-packages
@@ -144,7 +144,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: ${{ failure() && (inputs.error_behavior == 'raise') && (inputs.create_issue == 'true') }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Create issue on failure

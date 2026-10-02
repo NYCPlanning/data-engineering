@@ -19,7 +19,7 @@ jobs:
     # with a narrow `uv sync --only-group dev` instead of pulling a multi-GB container.
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
@@ -37,7 +37,7 @@ jobs:
     # or GDAL needed, so this runs on a bare runner instead of the nycplanning/dev image.
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
@@ -133,7 +133,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_dbt_matrix.outputs.matrix) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: setup
       run: |
         git config --global --add safe.directory /__w/data-engineering/data-engineering
@@ -164,7 +164,7 @@ jobs:
     # issues found" results with gdal excluded from the install.
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Cache mypy incremental state
       uses: actions/cache@v6
       with:
@@ -216,7 +216,7 @@ jobs:
       matrix: ${{ steps.set-pytest-matrix.outputs.matrix }}
       matrix_raw: ${{ steps.set-pytest-matrix.outputs.matrix_raw }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Confirm changes and set matrix for pytest
       id: set-pytest-matrix
@@ -253,7 +253,7 @@ jobs:
       IMAGE_TAG: ${{ inputs.image_tag }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Start images
       # Just `de` - no postgis/sftp-server, nothing here talks to real infra.
@@ -399,7 +399,7 @@ jobs:
       IMAGE_TAG: ${{ inputs.image_tag }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
       with:
@@ -481,7 +481,7 @@ jobs:
       RECIPES_BUCKET: edm-recipes
       BUILD_ENGINE_DB: ${{ matrix.db }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Load Secrets
       uses: 1password/load-secrets-action@v1
       with:
@@ -518,7 +518,7 @@ jobs:
     # own console script - so this runs on a bare runner with nothing but that one package.
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
@@ -537,7 +537,7 @@ jobs:
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dcpy-lifecycle
       # --extra geo: dcpy.lifecycle.ingest.validate imports dcpy.geospatial directly, which
       # is now behind dcpy-lifecycle's optional "geo" extra rather than a hard dependency -

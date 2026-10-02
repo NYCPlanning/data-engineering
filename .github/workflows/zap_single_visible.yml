@@ -32,7 +32,7 @@ jobs:
       PRIVATE_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-private' }}
       EDM_DATA_ZAP_SCHEMA: export_single_${{ github.event_name }}_${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
