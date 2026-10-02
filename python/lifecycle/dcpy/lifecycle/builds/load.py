@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 from enum import StrEnum
 from pathlib import Path
@@ -7,6 +8,7 @@ import typer
 import yaml
 
 from dcpy.lifecycle import data_loader
+from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan, utils
 from dcpy.lifecycle.builds.models import (
     BuildMetadata,
@@ -88,10 +90,6 @@ def load_source_data_from_resolved_recipe(
     target_schema: str | None = None,
     _write_metadata_file: bool = True,
 ) -> LoadResult:
-    import os
-
-    from dcpy.lifecycle import config
-
     # Accept either a Recipe model or a Path to recipe.lock.yml
     if isinstance(recipe_or_path, Path):
         recipe = plan.recipe_from_yaml(recipe_or_path)
@@ -100,16 +98,11 @@ def load_source_data_from_resolved_recipe(
         recipe = recipe_or_path
         recipe_lock_path = None  # We don't have a path if Recipe was passed directly
 
-    # Set BUILD_ENV_OUTPUT_DIR if not already set
-    # This ensures build artifacts (like DuckDB files) go to the correct location
-    if "BUILD_ENV_OUTPUT_DIR" not in os.environ:
-        assert recipe.version is not None, (
-            "Recipe version must be resolved before loading"
-        )
-        build_dir = config.get_build_dir(recipe.product, recipe.version)
-        build_dir.mkdir(parents=True, exist_ok=True)
-        os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_dir)
-        logger.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_dir}")
+    assert recipe.version is not None, "Recipe version must be resolved before loading"
+    build_dir = build_config.get_build_output_dir(recipe.product, recipe.version)
+    build_dir.mkdir(parents=True, exist_ok=True)
+    # Later steps in this process (e.g. get_build_metadata) read it from the environment.
+    os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_dir)
 
     # Write source data versions if we have a path
     if recipe_lock_path:
@@ -135,21 +128,7 @@ def load_source_data_from_resolved_recipe(
         pg_client = None
 
     if has_duckdb:
-        # Create DuckDB file in the build output directory
-        # Priority: BUILD_ENV_OUTPUT_DIR > recipe_lock_path.parent > current directory
-        duckdb_filename = f"{recipe.product}_{recipe.version}.duckdb"
-
-        if "BUILD_ENV_OUTPUT_DIR" in os.environ:
-            # Use BUILD_ENV_OUTPUT_DIR when set (for build environments)
-            output_dir = Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
-            duckdb_path = output_dir / duckdb_filename
-        elif recipe_lock_path:
-            # Use recipe directory
-            duckdb_path = recipe_lock_path.parent / duckdb_filename
-        else:
-            # Fallback to current directory
-            duckdb_path = Path(duckdb_filename)
-
+        duckdb_path = build_config.get_duckdb_path(recipe.product, recipe.version)
         duckdb_client = duckdb_utils.DuckDBClient(
             db_path=duckdb_path, schema=target_schema, clear_schema=clear_duckdb_schema
         )
@@ -360,8 +339,6 @@ def get_build_metadata(project_path: Path) -> BuildMetadata:
 
     Reads from: BUILD_ENV_OUTPUT_DIR/build_metadata.json
     """
-    import os
-
     if "BUILD_ENV_OUTPUT_DIR" not in os.environ:
         raise ValueError(
             "BUILD_ENV_OUTPUT_DIR environment variable must be set to load build metadata"

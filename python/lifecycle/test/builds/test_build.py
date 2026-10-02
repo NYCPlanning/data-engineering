@@ -494,6 +494,46 @@ exports:
     assert not (product_dir / "dataset_files").exists()
 
 
+def test_duckdb_build_commands_and_export_agree_on_duckdb_path(tmp_path, monkeypatch):
+    """Build commands and export run as separate processes from load. Without
+    BUILD_ENV_OUTPUT_DIR, both must still resolve the duckdb file to the standard build dir,
+    not recipe_lock_path's own directory."""
+    import os
+
+    from dcpy.lifecycle.builds import build, plan
+    from dcpy.lifecycle.config import get_build_dir
+
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)
+    monkeypatch.setenv("DUCKDB_PATH", "placeholder")  # restored after _set_duckdb_path
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets:
+  - name: mytable
+    destination: duckdb
+exports:
+  datasets:
+  - name: mytable
+    format: csv
+"""
+    )
+    expected = get_build_dir("test", "24Q1") / "test_24Q1.duckdb"
+
+    build._set_duckdb_path(plan.recipe_from_yaml(recipe_path))
+    assert os.environ["DUCKDB_PATH"] == str(expected)
+
+    with (
+        patch("dcpy.lifecycle.builds.export.duckdb_utils.DuckDBClient") as mock_client,
+        patch("dcpy.lifecycle.builds.export.export_dataset_from_duckdb"),
+    ):
+        export(recipe_path)
+    assert mock_client.call_args.kwargs["db_path"] == expected
+
+
 def test_export_mixed_destinations_falls_back_to_postgres(tmp_path):
     """A recipe with both postgres- and duckdb-destined inputs falls back to the postgres
     export path (gdb/shapefile export and mixed-backend export aren't supported for DuckDB)."""

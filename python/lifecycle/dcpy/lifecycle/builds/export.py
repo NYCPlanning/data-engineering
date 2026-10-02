@@ -1,4 +1,3 @@
-import os
 import shutil
 import subprocess
 import tempfile
@@ -8,7 +7,6 @@ from typing import Literal
 
 import typer
 
-from dcpy.lifecycle import config
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.models import (
@@ -178,32 +176,10 @@ def _output_filename(output: ExportDataset) -> str:
     return output.filename or f"{output.name}.{default_ext}"
 
 
-def _default_build_output_dir(recipe, recipe_lock_path: Path | None) -> Path:
-    """Resolve the build output directory a recipe's artifacts (duckdb file, exports) live in.
-
-    Same priority order as load_source_data_from_resolved_recipe: BUILD_ENV_OUTPUT_DIR (set
-    by the build environment, or by a local dev workflow pointing at a custom directory) >
-    recipe_lock_path's own directory > the standard {product}/{version} build dir. Export has
-    to agree with wherever load actually put the duckdb file, or it can't find it.
-    """
-    if "BUILD_ENV_OUTPUT_DIR" in os.environ:
-        return Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
-    if recipe_lock_path is not None:
-        return recipe_lock_path.parent
+def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
     if not recipe.version:
         raise ValueError("Recipe version must be set for export")
-    return config.get_build_dir(recipe.product, recipe.version)
-
-
-def _default_duckdb_client(
-    recipe, recipe_lock_path: Path | None = None
-) -> duckdb_utils.DuckDBClient:
-    if not recipe.version:
-        raise ValueError("Recipe version must be set for export")
-    duckdb_path = (
-        _default_build_output_dir(recipe, recipe_lock_path)
-        / f"{recipe.product}_{recipe.version}.duckdb"
-    )
+    duckdb_path = build_config.get_duckdb_path(recipe.product, recipe.version)
     return duckdb_utils.DuckDBClient(db_path=duckdb_path, schema=metadata.build_name())
 
 
@@ -226,9 +202,7 @@ def export(
     uses_postgres = InputDatasetDestination.postgres in destinations
 
     if uses_duckdb and not uses_postgres:
-        duckdb_client = duckdb_client or _default_duckdb_client(
-            recipe, Path(recipe_lock_path)
-        )
+        duckdb_client = duckdb_client or _default_duckdb_client(recipe)
         logger.info(
             f"Exporting build outputs for {recipe.name} from DuckDB schema {duckdb_client.schema}"
         )
@@ -238,23 +212,14 @@ def export(
             f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
         )
 
-    # Use version for output path, not schema/branch name. For duckdb-backed builds,
-    # defaults to the same directory the duckdb file actually lives in (see
-    # _default_build_output_dir) so dataset_files lands next to it rather than off in the
-    # standard {product}/{version} path while BUILD_ENV_OUTPUT_DIR points somewhere else.
-    # Postgres-backed builds have no such file to co-locate with, so they skip straight to
-    # BUILD_ENV_OUTPUT_DIR-or-standard-path - matching where other build-stage steps (e.g.
-    # products/template's own data-dictionary generation) already put their artifacts.
     if recipe.exports and recipe.exports.output_folder:
         output_folder = recipe.exports.output_folder
-    elif duckdb_client is not None:
-        output_folder = _default_build_output_dir(recipe, Path(recipe_lock_path))
-    elif "BUILD_ENV_OUTPUT_DIR" in os.environ:
-        output_folder = Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
     else:
         if not recipe.version:
             raise ValueError("Recipe version must be set for export")
-        output_folder = config.get_build_dir(recipe.product, recipe.version)
+        output_folder = build_config.get_build_output_dir(
+            recipe.product, recipe.version
+        )
 
     # Create output folder if it doesn't exist (preserves existing artifacts like attachments)
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -281,9 +246,7 @@ def export(
             if filename == "source_data_versions.csv"
             else output_folder / filename
         )
-        # output_folder defaults to recipe_lock_path's own directory (see
-        # _default_build_output_dir) -- when they're literally the same directory, the
-        # artifact's already there
+        # When the lock file lives in the build output dir, the artifact's already there
         if source_path.resolve() != dest_path.resolve():
             shutil.copy(source_path, dest_path)
 
@@ -303,9 +266,7 @@ def export(
                 logger.info("Zipped dbt target directory to diagnostics/dbt.zip")
             else:
                 dest_dir = output_folder / dirname
-                # output_folder defaults to recipe_lock_path's own directory (see
-                # _default_build_output_dir) -- when they're the same directory, the
-                # artifact's already there
+                # When the lock file lives in the build output dir, it's already there
                 if source_dir.resolve() != dest_dir.resolve():
                     if dest_dir.exists():
                         shutil.rmtree(dest_dir)
@@ -380,7 +341,7 @@ def export(
         zip_path = (output_folder / f"{recipe.exports.zip_name}.zip").resolve()
         # Zip from within output_folder so entries are relative (e.g. "dataset_files/..."),
         # not an absolute path chain -- and exclude the duckdb file itself, which can live
-        # alongside these artifacts (see _default_build_output_dir) but isn't a deliverable.
+        # alongside these artifacts (see build_config.get_duckdb_path) but isn't a deliverable.
         subprocess.call(
             ["zip", "-r", str(zip_path), ".", "-x", "*.duckdb"],
             cwd=output_folder,

@@ -1,4 +1,7 @@
+import os
 from pathlib import Path
+
+from dcpy.lifecycle import config
 
 # Build configuration constants
 BUILD_ARTIFACT_DIRS = ["target", "attachments", "dataset_files"]
@@ -51,3 +54,18 @@ def get_build_metadata_path(product_path: Path) -> Path:
         Path to the build_metadata.json file
     """
     return product_path / "build_metadata.json"
+
+
+def get_build_output_dir(product: str, version: str) -> Path:
+    """Directory a build's artifacts (duckdb file, exports) live in.
+
+    BUILD_ENV_OUTPUT_DIR overrides the standard {product}/{version} build dir. Load, build,
+    and export run as separate processes, so they all resolve it here to agree.
+    """
+    if "BUILD_ENV_OUTPUT_DIR" in os.environ:
+        return Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
+    return config.get_build_dir(product, version)
+
+
+def get_duckdb_path(product: str, version: str) -> Path:
+    return get_build_output_dir(product, version) / f"{product}_{version}.duckdb"
