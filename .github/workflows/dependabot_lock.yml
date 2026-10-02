@@ -23,7 +23,7 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
