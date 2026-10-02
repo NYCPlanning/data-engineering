@@ -108,7 +108,7 @@ jobs:
 
       - name: create tag
         if: ${{ env.PUBLISHING_BUCKET == 'edm-publishing' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ env.GHP_TOKEN }}
           script: |
