@@ -174,7 +174,7 @@ jobs:
         if: needs.determine_image_logic.outputs.base_action == 'Build'
       - name: Load Secrets
         if: needs.determine_image_logic.outputs.base_action == 'Build'
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -215,7 +215,7 @@ jobs:
           python-version: '3.13'
       - name: Load Secrets
         if: needs.determine_image_logic.outputs.child_action == 'Build'
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -258,7 +258,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
