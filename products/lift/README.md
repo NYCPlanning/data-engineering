@@ -29,8 +29,8 @@ when DCAS sends a new revision.
 | `dcp_dri_subindices_indicators` | `edm-private` | Displacement Risk Index, by NTA |
 | `db-cpdb` (points and poly) | `edm-publishing` | Capital project geometries and spending |
 | `hpd_limited_affordability_areas` | `edm-private` | Limited Affordability Area boundaries |
-| `hpd_rezoning_tracker` | `edm-recipes` (ingested from NYC Open Data) | Rezoning-commitment tracker, by neighborhood study area |
-| `dcp_zoningmapamendments` | `edm-recipes` | Mapped geometry for each adopted rezoning, by ULURP number - joined via `seeds/rezoning_areas.csv` |
+| `hpd_poa_commitments` | `edm-private` | HPD's Points of Agreement (POA) commitments tracker, by BBL |
+| `dcp_housing_ahft` | `edm-private` | DCP's Affordable Housing Fair Share (AHFT) tracker - housing production stats and rank, by community district |
 | `dcp_nta2020` | `edm-recipes` | NTA names and boundaries; no longer used in any model (see Limitations) |
 | `cityhall_public_sites_for_housing` | `edm-private` | City Hall's "Public Sites for Housing" tracker - redevelopment strategy/priority/cost fields, by BBL |
 
@@ -57,8 +57,9 @@ Filled in:
 | `cpspenttotal` | sum of `spent_total` across intersecting CPDB projects |
 | `cpprojects` | count of distinct intersecting CPDB projects |
 | `laa` | `'Y'` if the BBL's lot intersects a Limited Affordability Area, else `NULL` |
-| `poa` | count + status breakdown of rezoning-tracker commitments for the rezoning area whose mapped ULURP geometry intersects the BBL's lot, e.g. `"63 commitments (49 done, 13 in progress, 1 other)"`, or `NULL` |
-| `poa_commitment` | `"id: title (stage)"` for each of those commitments, pipe-delimited, or `NULL` |
+| `poa` | HPD POA commitments tracker's `Site` name for the BBL, or `NULL` - see Limitations, unconfirmed mapping |
+| `poa_commitment` | HPD POA commitments tracker's free-text commitment narrative for the BBL, or `NULL` |
+| `ahft` | `'Y'` if the BBL's community district is in the bottom 12 of 59 CDs by rate of affordable housing development (DCP's AHFT tracker), else `NULL` |
 | `zzz_lift_data_zzz` | Public Sites `Site` name, by BBL - see Limitations, this is an unusual mapping |
 | `unitpotential` | Public Sites `UnitPot`, by BBL |
 | `dev_flags` | Public Sites `Key Challenges`, by BBL |
@@ -107,24 +108,28 @@ Unlike CPDB there's no attribute data to aggregate (see Limitations), so the int
 is just the distinct set of intersecting BBLs; `lift_supplemented` turns presence/absence into
 `'Y'`/`NULL`.
 
-**Rezoning commitments** (`models/intermediate/int__lift_rezoning_tracker.sql`): the NYC
-Rezoning Tracker (`hpd_rezoning_tracker`) has no BBL *or* geometry - it's keyed by
-`rezoning_area`, one of 13 named neighborhood-scale study areas (East Harlem, Gowanus, Inwood,
-etc.), crossed with year and commitment. `seeds/rezoning_areas.csv` is a hand-built crosswalk
-from `rezoning_area` to the ULURP number of the zoning map amendment that made it up (each area
-maps to exactly one ULURP number today, but the crosswalk and the join both support more than
-one per area). `dcp_zoningmapamendments` carries the actual mapped geometry per ULURP number -
-one row per disjoint sub-area, since a single ULURP action can produce several unconnected
-mapped areas. A BBL whose PLUTO lot `ST_Intersects` any sub-area of a rezoning area's ULURP
-number(s) gets that area's commitments; areas with no ULURP number in the seed (the two citywide
-rollups) are dropped before joining. This replaced an earlier NTA-based join
-(`pluto.boroct2020 -> ct2020.boroct2020 -> ntaname`, matched against a hand-built
-`rezoning_area` -> NTA crosswalk) that was too coarse - NTAs run far larger than the actual
-rezoning boundaries. The tracker is a yearly progress snapshot - the same commitment recurs
-across multiple years with an evolving `commitment_stage` - so the intermediate model first
-collapses to each commitment's latest year before counting. `stg__hpd_rezoning_tracker` assigns
-an artificial `commitment_id` (source has no usable one - see Limitations) that `poa_commitment`
-uses for traceability.
+**POA commitments** (`models/staging/stg__hpd_poa_commitments.sql`): HPD's Points of Agreement
+(POA) commitments tracker has a BBL column, so - like Public Sites below - this is a plain
+`LEFT JOIN ... ON lift.bbl = poa_commitments.bbl`, no spatial match needed. This replaced an
+earlier match through the NYC Rezoning Tracker (no BBL or geometry of its own - keyed by
+`rezoning_area`, one of 13 named neighborhood-scale study areas, joined to a BBL via
+`pluto.geom ST_Intersects` the mapped ULURP geometry of that area's zoning map amendment), which
+gave a BBL *every* commitment tied to the rezoning area covering it rather than commitments
+specific to that site. The new tracker is keyed directly to BBL, one row per site, so no such
+over-matching or spatial join is needed. The field mapping (which source column feeds `poa` vs.
+`poa_commitment`) is a naive best-effort guess - see Limitations.
+
+**AHFT** (`models/staging/stg__dcp_housing_ahft.sql`): joined by community district, not bbl -
+`LEFT JOIN ... ON lift.cd = ahft.borocd`. `lift_csv` already carries `boro`/`cd` directly from
+DCAS's extract (`cd` is PLUTO's format: `BORO` int 1-5 * 100 + district, e.g. Brooklyn CD10 ->
+`310`); AHFT's own `Community District` column uses a different format (2-letter borough
+abbreviation + 2-digit district, e.g. `BK10`), so `stg__dcp_housing_ahft` derives `borocd` to
+match LIFT's format instead of touching `stg__lift_csv`. `ahft_rank` (1 = lowest rate of
+affordable housing development, e.g. Bay Ridge/BK10 is rank 1, up to 59 = highest) comes straight
+from the source; `lift_supplemented` turns `ahft_rank <= 12` into `'Y'`/`NULL`. A dedicated test
+(`tests/assert_ahft_cds_in_lift.sql`) checks every AHFT community district has a matching
+`lift.cd` value, since the 59-row tracker covers the city's full CD set and a silent non-match
+would most likely mean the key derivation broke.
 
 **Public Sites for Housing** (`models/staging/stg__public_sites_for_housing.sql`): a plain
 `LEFT JOIN ... ON lift.bbl = public_sites.bbl` - City Hall's tracker has a BBL column, so no
@@ -146,28 +151,22 @@ the raw coordinate range, same non-`ST_Transform` approach as `stg__pluto`. If a
 (with sidecars) gets uploaded later, re-running the loader will pick up the real CRS and any
 attribute columns without further code changes.
 
-**`poa`/`poa_commitment` are matched at the rezoning-area level, not the individual site
-level.** A BBL gets *every* commitment tied to a rezoning area whose mapped geometry it falls
-in, not commitments specific to that lot - the rezoning tracker has no finer-grained location
-data than the study area itself. This is far tighter than the old NTA-based match (the mapped
-rezoning boundary vs. the whole neighborhood it sits in), but read `poa`/`poa_commitment` as
-"rezoning activity covering this BBL," not "commitments about this BBL."
+**The HPD POA commitments field mapping is unconfirmed.** The 2026-09-29 extract has no
+short/long split like the data dictionary implies (`poa` = "short description", `poa_commitment`
+= "description of any previous POA commitments") - just one free-text narrative column
+(`POA/Community`) plus a `Site` name. `stg__hpd_poa_commitments`/`lift_supplemented` map
+`Site -> poa` and `POA/Community -> poa_commitment`, naively, without confirming with HPD.
 
-**The rezoning tracker has no reliable id, so `commitment_id` is artificial.** The closest thing
-to a source id, `map_order`, isn't stable: in 25 cases one `map_order` covers multiple different
-`commitment_title`s within the same area, and titles drift across multiple `map_order` values
-across years. `stg__hpd_rezoning_tracker` assigns `commitment_id` via
-`DENSE_RANK() OVER (ORDER BY rezoning_area, commitment_title)` instead - stable within a build as
-long as the distinct (area, title) set doesn't change, but it's ours, not the source's, and isn't
-guaranteed stable across a source refresh that adds or removes commitments.
+**At least one BBL in the HPD POA commitments extract is malformed.** `400024007` (for "44-59
+45th Avenue (LIC)") is only 9 digits - a standard BBL is boro(1) + block(5) + lot(4) = 10 - most
+likely a dropped leading zero on the lot number somewhere upstream. `stg__hpd_poa_commitments`
+doesn't try to guess the correct value, so this row silently fails to join to any LIFT bbl; worth
+raising with HPD if/when the mapping above gets confirmed.
 
-**`seeds/rezoning_areas.csv` is a manually-curated crosswalk, not authoritative.** Matches were
-made by hand, pairing each `rezoning_area` with the ULURP number(s) of the zoning map
-amendment(s) that make it up. The two citywide rollups (`COY: Economic Opportunity`, `COY:
-Housing`) have no single ULURP action behind them and are left unmatched (`ulurp_no` blank)
-rather than guessed. `dcp_nta2020` is no longer used anywhere in the pipeline - it's still an
-input in `recipe.yml` as a leftover from the prior NTA-based crosswalk and can be dropped if
-nothing else picks it up.
+**`dcp_nta2020` is no longer used anywhere in the pipeline.** It's a leftover from the prior
+NTA-based rezoning crosswalk (replaced, then removed entirely in favor of HPD's new BBL-keyed POA
+commitments tracker) - still an input in `recipe.yml` and can be dropped if nothing else picks it
+up.
 
 **The Public Sites for Housing field mapping is unconfirmed - raise these at the City Hall
 meeting.** The mapping was supplied by email (2026-09-21) and applied naively, without back-and-
@@ -243,6 +242,7 @@ dbt seed
 dbt build --select staging
 dbt build --select intermediate
 dbt build --select product
+dbt test --select assert_ahft_cds_in_lift
 ```
 
 Or run the whole thing (load excluded) via:
@@ -258,11 +258,8 @@ Or run the whole thing (load excluded) via:
 `recipe.yml` declares these exports (see `exports:` at the bottom of the recipe):
 
 - `lift_supplemented.csv`
-- `rezoning_commitments.csv`: the full NYC Rezoning Tracker commitment listing, one row per
-  `commitment_id`, for tracing the ids embedded in `lift_supplemented.poa_commitment` back to full
-  detail
 - `lift.gdb.zip`: a FileGDB with `lift_supplemented` as a polygon layer (PLUTO lot geometry, via
-  `lift_supplemented_map`) and `rezoning_commitments` as a non-spatial table.
+  `lift_supplemented_map`)
 
 Run the export after the dbt build:
 

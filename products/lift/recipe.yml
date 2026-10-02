@@ -18,7 +18,6 @@ inputs:
 
     # Latest PLUTO
     - name: dcp_mappluto_wi
-    - name: dcp_zoningmapamendments
 
     # 2020 NTAs
     - name: dcp_ct2020
@@ -40,8 +39,22 @@ inputs:
       custom:
         filename: hpd_limited_affordability_areas.shp
 
-    # NYC Rezoning Tracker - capital/programmatic commitments from neighborhood rezonings
-    - name: hpd_rezoning_tracker
+    # HPD Points of Agreement (POA) commitments tracker, by bbl, from edm-private
+    - name: hpd_poa_commitments
+      source: edm.private
+      file_type: csv
+      import_as: hpd_poa_commitments
+      custom:
+        filename: hpd_poa_commitments.csv
+
+    # DCP's Affordable Housing Fair Share (AHFT) tracker - housing production stats
+    # and rank by community district, from edm-private
+    - name: dcp_housing_ahft
+      source: edm.private
+      file_type: csv
+      import_as: dcp_housing_ahft
+      custom:
+        filename: dcp_housing_ahft.csv
 
     # City Hall's "Public Sites for Housing" tracker - redevelopment strategy/priority/
     # cost fields for LIFT sites, from edm-private
@@ -75,16 +88,10 @@ exports:
   - name: lift_supplemented
     filename: lift_supplemented.csv
     format: csv
-  - name: rezoning_commitments
-    filename: rezoning_commitments.csv
-    format: csv
   - name: lift_supplemented_map
     filename: lift.gdb.zip
     format: gdb
     custom: { geometry_type: polygons, layer: lift_supplemented }
-  - name: rezoning_commitments
-    filename: lift.gdb.zip
-    format: gdb
 
 stage_config:
   builds.build:
@@ -100,4 +107,5 @@ stage_config:
         dbt seed &&
         dbt build --select staging &&
         dbt build --select intermediate &&
-        dbt build --select product
+        dbt build --select product &&
+        dbt test --select assert_ahft_cds_in_lift
