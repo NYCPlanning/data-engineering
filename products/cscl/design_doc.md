@@ -87,7 +87,27 @@ Until the pipeline can pull from the CSCL database itself, GR exports the ETL Wo
 8. Outputs are exported to the `edm-publishing` draft.
 9. GR reviews run status and outputs on the page, and diffs on the CSCL QA page.
 
+### Build inputs
+
 Release params are required build inputs with no committed defaults. They resolve into the build's `recipe.lock.yml`, which is the record of what each build ran with.
+
+| Value | Source |
+|---|---|
+| `ldf_new_release` | the build's `version` |
+| `ldf_previous_version` | `VERSION_PREV`, a GR input for now. Once CSCL is published and its versions parse ([#2702](https://github.com/NYCPlanning/data-engineering/issues/2702)), plan looks it up. |
+| `ldf_old_release_date` | GR input. Once published, it can come from the previous build's lock file. |
+| `ldf_new_release_date` | GR input |
+| `thined_version`, `thined_file_tag` | stay in the `config` seed until GR confirms what they mean |
+
+How they get from the page to dbt:
+
+1. `build.yml` gets one general input, `build_env`: space-separated `KEY=value` pairs. The workflow exports each as `BUILD_ENV_<KEY>` before planning, so it can't set anything outside that namespace. Values can't contain spaces.
+2. `recipe.yml` declares each param under `env:` as a template, e.g. `LDF_NEW_RELEASE_DATE: "{{ BUILD_ENV_LDF_NEW_RELEASE_DATE }}"`. Plan renders with `StrictUndefined`, so a missing param fails the build at plan time.
+3. `cscl_build.yml` sources `export_recipe_env.sh` on the lock file, and dbt reads the values with `env_var()`.
+
+The page builds the `build_env` string, so GR never types it.
+
+`cscl_build.yml`'s "Validate against production outputs" step only runs when `build_env` sets `VALIDATE_AGAINST_PROD=true`. It depends on GR's prod outputs for the version, which won't exist for GR-triggered builds.
 
 # Transformation
 
