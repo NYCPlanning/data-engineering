@@ -107,7 +107,7 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 
 **Community Board Budget Request**: A community board budget request is a board's request for capital or expense funding in the next fiscal year's budget. Each board votes separate priorities for up to 40 capital and 25 expense requests. DE's CBBR product is built from them. ([CB manual][cb-manual], [CBBR README](../products/cbbr/README.md))
 
-**Register of Community Board Budget Requests**: The register of community board budget requests is OMB's publication of responses to every community board budget request. The Preliminary Budget register has agency responses, the Executive Budget register has OMB's recommendations, and the Adopted Budget register has the outcome. ([CB manual][cb-manual])
+**Register of Community Board Budget Requests**: The register of community board budget requests is OMB's publication of responses to every community board budget request. The Preliminary Budget register has agency responses, the Executive Budget register has OMB's recommendations, and the Adopted Budget register has the outcome. OMB publishes all three editions on [Open Data][register-od], one row per request per edition. DE's CBBR uses only the Preliminary Budget edition. ([CB manual][cb-manual], [Open Data][register-od])
 
 **Departmental Estimates**: Departmental estimates are agencies' budget estimates, published with the Preliminary Budget. Agencies review community board budget requests as part of preparing them. ([CB manual][cb-manual])
 
@@ -159,6 +159,7 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 - [NYC Council: Budget Process][council]
 - [OMB: Community Participation in the Budget Process][cb-manual], excerpted from OMB's Manual for Participation in the Budget Process (2015 copy)
 - [NYC Charter §204: Citywide statement of needs][charter-204]
+- [OMB: Register of Community Board Budget Requests][register-od] on NYC Open Data
 - CBBR update issues [#1474][cbbr-fy26] and [#1856][cbbr-fy27]
 - [OMB: Publications][omb], one page per fiscal year
 - [DCP: CPDB data dictionary][cpdb-dd]
@@ -167,6 +168,7 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 [comptroller]: https://comptroller.nyc.gov/reports/flying-blind-on-billions-how-weak-capital-data-undermines-new-york-citys-infrastructure-investments/
 [ibo]: https://www.ibo.nyc.gov/assets/ibo/downloads/pdf/budget-guides/understandingthebudget.pdf
 [council]: https://council.nyc.gov/budget/process/
+[register-od]: https://data.cityofnewyork.us/d/vn4m-mk4t
 [cb-manual]: https://bronxboropres.nyc.gov/Community/Community%20Boards/summary_community_participation_budget_process.pdf
 [charter-204]: https://codelibrary.amlegal.com/codes/newyorkcity/latest/NYCcharter/0-0-0-899
 [cbbr-fy26]: https://github.com/NYCPlanning/data-engineering/issues/1474
