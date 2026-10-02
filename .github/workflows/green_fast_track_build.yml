@@ -64,17 +64,6 @@ jobs:
       - name: Plan build
         run: uv run python3 -m dcpy.lifecycle.builds.plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
 
-      - name: Set DuckDB path
-        run: |
-          # DuckDB build database + exports live outside the checkout (under the runner's
-          # temp dir) so a plain `dbt build` (run from this working-directory) and dcpy's
-          # load/export steps agree on one location.
-          BUILD_ENV_OUTPUT_DIR="$RUNNER_TEMP/gft_build"
-          mkdir -p "$BUILD_ENV_OUTPUT_DIR"
-          echo "BUILD_ENV_OUTPUT_DIR=$BUILD_ENV_OUTPUT_DIR" >> "$GITHUB_ENV"
-          VERSION=$(python3 -c "import yaml; print(yaml.safe_load(open('${{ inputs.recipe_file }}.lock.yml'))['version'])")
-          echo "DUCKDB_PATH=$BUILD_ENV_OUTPUT_DIR/green_fast_track_${VERSION}.duckdb" >> "$GITHUB_ENV"
-
       - name: Dataloading
         run: uv run python3 -m dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml
 
@@ -92,6 +81,7 @@ jobs:
           # build_metadata.json is required downstream (dcpy.lifecycle.builds.artifacts) and must
           # land flat at the build root, same as source_data_versions.csv - ride it along with
           # attachments/ rather than a third connector call.
-          cp "$BUILD_ENV_OUTPUT_DIR/build_metadata.json" "$BUILD_ENV_OUTPUT_DIR/attachments/build_metadata.json"
-          uv run python3 -m dcpy lifecycle builds build upload "$BUILD_ENV_OUTPUT_DIR/dataset_files" --recipe-path ${{ inputs.recipe_file }}.lock.yml
-          uv run python3 -m dcpy lifecycle builds build upload "$BUILD_ENV_OUTPUT_DIR/attachments" --recipe-path ${{ inputs.recipe_file }}.lock.yml --merge
+          BUILD_DIR=$(uv run python3 -m dcpy lifecycle builds build path --recipe-path ${{ inputs.recipe_file }}.lock.yml)
+          cp "$BUILD_DIR/build_metadata.json" "$BUILD_DIR/attachments/build_metadata.json"
+          uv run python3 -m dcpy lifecycle builds build upload "$BUILD_DIR/dataset_files" --recipe-path ${{ inputs.recipe_file }}.lock.yml
+          uv run python3 -m dcpy lifecycle builds build upload "$BUILD_DIR/attachments" --recipe-path ${{ inputs.recipe_file }}.lock.yml --merge

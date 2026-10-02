@@ -279,6 +279,4 @@ and generates `plan_lift` / `build_lift` / `draft_lift` assets from it, so there
 LIFT-specific Dagster code. `build_lift` runs each command in `recipe.yml`'s
 `stage_config.builds.build.commands` in order, each as its own subprocess.
 
-Those subprocesses share no state, so `dbt_build` recomputes `DUCKDB_PATH` from
-`$BUILD_ENV_OUTPUT_DIR` and `$VERSION` every time rather than relying on an earlier step's
-`export`. Both are set before any command runs.
+dcpy sets `DUCKDB_PATH` before each command to the same file the loader created.

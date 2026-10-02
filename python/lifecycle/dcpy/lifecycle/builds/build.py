@@ -9,7 +9,8 @@ import typer
 
 from dcpy.configuration import PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
-from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY
+from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY, get_duckdb_path
+from dcpy.lifecycle.builds.models import InputDatasetDestination
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils.logging import logger
 
@@ -54,6 +55,16 @@ def upload_build(
         # TODO: eventually also pass the metadata from the build stage output, which would allow us to skip passing the build path
     )
     return result
+
+
+def _set_duckdb_path(recipe: "plan.Recipe") -> None:
+    """Point dbt at the duckdb file load created, since commands run as separate processes."""
+    destinations = {ds.destination for ds in recipe.inputs.datasets}
+    if InputDatasetDestination.duckdb not in destinations or not recipe.version:
+        return
+    duckdb_path = get_duckdb_path(recipe.product, recipe.version)
+    os.environ["DUCKDB_PATH"] = str(duckdb_path)
+    logger.info(f"Set DUCKDB_PATH: {duckdb_path}")
 
 
 def run_single_command(
@@ -116,6 +127,7 @@ def run_single_command(
     if build_directory:
         os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_directory)
         logger.info(f"Set BUILD_ENV_OUTPUT_DIR: {build_directory}")
+    _set_duckdb_path(recipe)
 
     # Handle special command names
     if command_name == "load_recipe_data":
@@ -408,6 +420,8 @@ def build(
         )
         os.environ["BUILD_ENGINE"] = build_engine
         logger.info(f"Set BUILD_ENGINE: {build_engine}")
+    _set_duckdb_path(recipe)
+
     # Execute each build command
     for cmd in build_config.commands:
         logger.info(f"Executing build command '{cmd.name}': {cmd.run}")
@@ -640,6 +654,11 @@ def _get_build_path(
         "-r",
         help="Name of recipe file (default: recipe.yml)",
     ),
+    recipe_file: Path = typer.Option(
+        None,
+        "--recipe-path",
+        help="Path to a recipe or recipe lock file (overrides --product-path and --recipe)",
+    ),
 ):
     """Get the build directory path for a product.
 
@@ -647,15 +666,14 @@ def _get_build_path(
     the version specified in it to determine the build directory path.
     If no version is set in the recipe, an error is raised.
     """
-    from dcpy.lifecycle.builds.config import get_recipe_path
-    from dcpy.lifecycle.config import get_build_dir
+    from dcpy.lifecycle.builds.config import get_build_output_dir, get_recipe_path
 
     # Default to current directory
     if product_path is None:
         product_path = Path.cwd()
 
     # Check if we're in a product directory
-    recipe_path = get_recipe_path(product_path, recipe_name)
+    recipe_path = recipe_file or get_recipe_path(product_path, recipe_name)
     if not recipe_path.exists():
         typer.echo(
             f"Error: No recipe file found at {recipe_path}. "
@@ -680,14 +698,7 @@ def _get_build_path(
         )
         raise typer.Exit(code=1)
 
-    # Get the build directory
-    build_dir = get_build_dir(recipe.product, recipe.version)
-
     if duckdb:
-        # Return DuckDB file path
-        duckdb_filename = f"{recipe.product}_{recipe.version}.duckdb"
-        duckdb_path = build_dir / duckdb_filename
-        typer.echo(str(duckdb_path))
+        typer.echo(str(get_duckdb_path(recipe.product, recipe.version)))
     else:
-        # Return build directory path
-        typer.echo(str(build_dir))
+        typer.echo(str(get_build_output_dir(recipe.product, recipe.version)))
