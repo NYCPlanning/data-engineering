@@ -214,7 +214,7 @@ products = [
     "msal>=1.23.0",
     "openlayers",
     "simplejson",
-    "tqdm>=4.59.0",
+    "tqdm>=4.70.1",
     "us",
 ]
 
