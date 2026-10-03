@@ -2,12 +2,11 @@ import time
 from urllib.error import HTTPError
 
 import pandas as pd
-import pytz
 import streamlit as st
 
 from dcpy.utils import s3
 from dcpy.utils.git import github
-from shared.components.github import dispatch_workflow_button
+from shared.components.github import dispatch_workflow_button, status_details
 
 from .constants import (
     CHECKS_REPO,
@@ -33,28 +32,6 @@ SOURCE_COLUMNS = {
     "status": "Status",
     "refreshed_by": "How it refreshes",
 }
-
-
-def status_details(workflow_run: github.WorkflowRun) -> None:
-    timestamp = workflow_run.timestamp.astimezone(pytz.timezone("US/Eastern")).strftime(
-        "%Y-%m-%d %H:%M"
-    )
-
-    def format(status: str) -> str:
-        return f"{status}  \n[{timestamp}]({workflow_run.url})"
-
-    if workflow_run.is_running:
-        st.warning(format(workflow_run.status.capitalize().replace("_", " ")))
-        st.spinner()
-    elif workflow_run.status == "completed":
-        if workflow_run.conclusion == "success":
-            st.success(format("Success"))
-        elif workflow_run.conclusion == "cancelled":
-            st.info(format("Cancelled"))
-        elif workflow_run.conclusion == "failure":
-            st.error(format("Failed"))
-        else:
-            st.write(workflow_run.conclusion)
 
 
 def source_table() -> None:

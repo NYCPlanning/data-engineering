@@ -1,0 +1,7 @@
+# Default (200MB) is too small for source files like a CSCL fgdb.zip uploaded via the
+# Inbox Ingest page. Keep in sync with apps/docker-compose.yml's --server.maxUploadSize
+# and apps/nginx/conf.d/*.conf.template's client_max_body_size for the containerized path.
+[server]
+maxUploadSize = 2048
+# Auto-rerun on save instead of waiting on the "Source file changed" banner's click.
+runOnSave = true

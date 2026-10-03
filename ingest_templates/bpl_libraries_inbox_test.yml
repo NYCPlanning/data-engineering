@@ -1,0 +1,26 @@
+id: bpl_libraries_inbox_test
+acl: private
+
+attributes:
+  name: BPL Libraries (Inbox Test)
+  description: >-
+    Scratch dataset for exercising the QA app's generic inbox-ingest flow end to end.
+    Not the real BPL Libraries source - see bpl_libraries.yml for that. Upload any small
+    CSV with title/address columns to test with.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: qa_app/inbox/bpl_libraries_inbox_test/{{ version }}/bpl_libraries.csv
+  file_format:
+    type: csv
+  processing_steps:
+  - name: clean_column_names
+    args: { lower: True }
+
+columns:
+- id: title
+  data_type: text
+- id: address
+  data_type: text
