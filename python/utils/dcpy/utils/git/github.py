@@ -17,6 +17,17 @@ headers = {"Authorization": "Bearer %s" % PERSONAL_TOKEN}
 BASE_URL = f"https://api.github.com/repos/{ORG}"
 
 
+def _check_auth(response: requests.Response) -> None:
+    """Raise a pointed error for the one failure mode that isn't about the request
+    itself: GHP_TOKEN missing, expired, or missing the 'repo'/'workflow' scopes this
+    needs. See apps/qa/README.md for how it's meant to be configured locally."""
+    if response.status_code == 401:
+        raise Exception(
+            "GitHub API returned 401 Unauthorized. GHP_TOKEN is unset, empty, expired, "
+            "or lacks the 'repo' and 'workflow' scopes needed here - see apps/qa/README.md."
+        )
+
+
 @dataclass(frozen=True)
 class WorkflowRun:
     name: str
@@ -88,12 +99,14 @@ def get_workflow(repo: str, name: str):
 def _get_workflow_runs_helper(
     url: str, params: Dict[str, Any] | None = None
 ) -> list[dict]:
-    response = requests.get(url, headers=headers, params=params).json()
-    if "workflow_runs" in response:
-        return response["workflow_runs"]
+    response = requests.get(url, headers=headers, params=params)
+    _check_auth(response)
+    body = response.json()
+    if "workflow_runs" in body:
+        return body["workflow_runs"]
     else:
         raise Exception(
-            f"Error retreiving workflow runs from Github. If error persists, contact Data Engineering. Github API response: {response}"
+            f"Error retreiving workflow runs from Github. If error persists, contact Data Engineering. Github API response: {body}"
         )
 
 
@@ -133,6 +146,7 @@ def dispatch_workflow(
     params = {"ref": branch, "inputs": inputs}
     url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/dispatches"
     response = requests.post(url, headers=headers, json=params)
+    _check_auth(response)
     if response.status_code != 204:
         print(response.content)
         raise Exception(

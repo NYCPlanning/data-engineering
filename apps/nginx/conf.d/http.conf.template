@@ -19,7 +19,10 @@ server {
     location /qaqc {
         auth_basic "DE Tools";
         auth_basic_user_file /etc/nginx/.htpasswd;
-        
+
+        # Matches server.maxUploadSize on the qa-streamlit container - raise together.
+        client_max_body_size 2048m;
+
         proxy_pass http://qa-streamlit:8501/qaqc;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

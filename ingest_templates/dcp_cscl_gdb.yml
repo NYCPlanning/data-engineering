@@ -7,7 +7,7 @@ attributes:
 source:
   type: s3
   bucket: edm-private
-  key: cscl_etl/{{ version }}/ETL Working GDB.gdb.zip
+  key: qa_app/inbox/dcp_cscl_gdb/{{ version }}/ETL Working GDB.gdb.zip
 
 dataset_defaults:
   file_format:

@@ -25,6 +25,8 @@ PAGES = {
     "Checkbook": "checkbook",
     "Data Ingestion": "ingest",
     "Data Distribution": "distribution",
+    "Inbox Ingest": "inbox_ingest",
+    "CSCL Builds": "cscl_builds",
 }
 
 DATASET_NAMES = {
