@@ -57,7 +57,7 @@ services:
     # the mount, then runs the app in that environment. The qa app imports its modules relative
     # to its source root src/ (e.g. `from shared...`), which streamlit puts on sys.path when it
     # runs src/index.py — so no cd, no `python -m`, no PYTHONPATH needed.
-    entrypoint: ["sh", "-c", "uv run --project /repos/data-engineering --package dcpy-app-qa -- streamlit run /repos/data-engineering/apps/qa/src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc"]
+    entrypoint: ["sh", "-c", "uv run --project /repos/data-engineering --package dcpy-app-qa -- streamlit run /repos/data-engineering/apps/qa/src/index.py --server.port=8501 --server.address=0.0.0.0 --server.baseUrlPath=/qaqc --server.maxUploadSize=2048"]
     volumes:
       - /root/data-engineering:/repos/data-engineering
     restart: unless-stopped
