@@ -1,10 +1,21 @@
 {{ config(
+    enabled = false,
     materialized = 'table',
     indexes=[
       {'columns': ['node_lo', 'node_hi']},
       {'columns': ['is_resolved']},
     ]
 ) }}
+
+-- DISABLED (2026-10-02): the orphan-vs-any-edge nearest-neighbor search below ran for
+-- 20+ hours citywide and never finished (see products/cscl chat log, 2026-10-02/03) -
+-- the "East River false positive" fix (searching orphans against other orphans too,
+-- not just confirmed matches) means the `WHERE NOT (e.atomicids && o.atomicids)` filter
+-- sits outside what the GiST KNN index on `geom <-> geom` can use: for an orphan whose
+-- truly-nearest candidates are also excluded by the filter, the index scan has to keep
+-- pulling candidates further and further out before one survives. Needs a real fix
+-- (pre-filter candidates spatially before the KNN, or batch orphan clusters) before
+-- re-enabling, not just a bigger timeout.
 
 -- Resolves orphan edges (from int__atomicpolygon_shoreline_edges) against the nearest
 -- edge belonging to a genuinely different atomicid, of ANY edge_type - including other
