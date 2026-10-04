@@ -1,0 +1,110 @@
+##### Atomic Polygon Topology POC #####
+# Points-based topology experiment: instead of atomic polygons carrying their own literal
+# boundary coordinates (which drift apart by hairline amounts between adjacent polygons -
+# see CSCL-DISTRICTS-01 in data_issues.md), explode every ring vertex, snap it to a shared
+# "node" table, and rejoin. Adjacent polygons whose boundary vertices snap to the same node
+# are then structurally guaranteed to share that coordinate, not just be close to it.
+
+models:
+- name: int__atomicpolygon_vertices
+  description: Every ring vertex of every stg__atomicpolygons geometry, exploded via ST_DumpPoints.
+  columns:
+  - name: atomicid
+    tests: [ not_null ]
+  - name: path
+  - name: part_index
+  - name: ring_index
+  - name: point_ordinal
+  - name: geom
+
+- name: int__atomicpolygon_nodes
+  description: >
+    Canonical topology nodes - atomic polygon vertices grid-snapped and collapsed to one
+    node (centroid) per grid cell. See model SQL for how the grid size was picked.
+  columns:
+  - name: node_id
+    tests: [ unique, not_null ]
+  - name: grid_key
+    tests: [ unique, not_null ]
+  - name: geom
+  - name: vertex_count
+  - name: polygon_count
+
+- name: int__atomicpolygon_vertices_snapped
+  description: Each original vertex joined to its canonical node_id, for ring/polygon reconstruction.
+  columns:
+  - name: atomicid
+    tests: [ not_null ]
+  - name: node_id
+    tests: [ not_null ]
+
+- name: int__atomicpolygon_rings
+  description: Each ring rebuilt as a closed linestring of shared node coordinates.
+  columns:
+  - name: atomicid
+    tests: [ not_null ]
+  - name: part_index
+  - name: ring_index
+  - name: ring_geom
+
+- name: int__atomicpolygon_rebuilt
+  description: >
+    Atomic polygons reassembled from node-snapped rings. Adjacent polygons that snapped to
+    the same node now literally share that boundary coordinate; compare against
+    stg__atomicpolygons.geom, which this pipeline never touches.
+  columns:
+  - name: atomicid
+    tests: [ unique, not_null ]
+  - name: geom
+
+- name: int__atomicpolygon_edges
+  description: Every ring edge (consecutive node pair), keyed so the same physical edge traced by two adjacent polygons lands on the same key regardless of winding direction.
+  columns:
+  - name: atomicid
+    tests: [ not_null ]
+  - name: node_lo
+    tests: [ not_null ]
+  - name: node_hi
+    tests: [ not_null ]
+
+- name: int__atomicpolygon_shoreline_edges
+  description: >
+    Every distinct edge classified by ownership/water_flag - shoreline, internal_seam,
+    orphan_water_edge, orphan_land_edge, multi_owner. A GROUP BY, not a polygon overlay -
+    the alternative to finding gaps via ST_Union/ST_Difference sliver holes.
+  columns:
+  - name: node_lo
+    tests: [ not_null ]
+  - name: node_hi
+    tests: [ not_null ]
+  - name: edge_type
+    tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values: [ shoreline, internal_seam, orphan_water_edge, orphan_land_edge, multi_owner ]
+  - name: geom
+
+- name: int__atomicpolygon_edge_matches
+  description: >
+    Every orphan edge resolved against its nearest edge of ANY type/atomicid (including
+    other orphans - excluding those was the East River false-positive bug, see chat log
+    2026-09-20). is_resolved distinguishes real bookkeeping artifacts (something sits
+    right on top of this edge, just unmatched) from genuine gap candidates. Classification
+    only - does not yet splice a host's missing vertex into its ring.
+  columns:
+  - name: node_lo
+    tests: [ not_null ]
+  - name: node_hi
+    tests: [ not_null ]
+  - name: is_resolved
+    tests: [ not_null ]
+
+- name: int__atomicpolygon_water_mask
+  description: >
+    POC comparison for int__water_mask - the water atomic polygons unioned from
+    int__atomicpolygon_rebuilt (node-snapped) instead of raw stg__atomicpolygons, no
+    buffer-closing trick, to test whether node-snapping alone closes the
+    CSCL-DISTRICTS-03 spur gaps.
+  columns:
+  - name: geom

@@ -8,7 +8,11 @@
 WITH dissolved AS (
     SELECT
         puma,
-        st_union(geom) AS geom
+        -- gridSize=0.001: a plain st_union over many source-tract polygons meeting at
+        -- exactly-coincident vertices can still produce spurious needle-shaped holes
+        -- (a GEOS overlay-robustness artifact, not a real gap) - see
+        -- int__water_mask.sql's comment and chat log 2026-10-03.
+        st_union(geom, 0.001) AS geom
     FROM {{ ref('stg__censustract2010') }}
     WHERE puma IS NOT NULL
     GROUP BY puma
