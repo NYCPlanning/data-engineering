@@ -3,39 +3,20 @@
     indexes=[{'columns': ['geom'], 'type': 'gist'}]
 ) }}
 
-WITH clipped AS (
-    SELECT
-        d.schooldist::int AS "SchoolDist",
-        {{ clipped_geom('d.geom') }} AS geom
-    FROM {{ ref('stg__schooldistrict') }} AS d
-    {{ clip_to_shoreline('d.geom') }}
-    WHERE d.schooldist::int != 10
-),
+-- School districts; District 10 is published once per borough, every other district whole. Boundaries come from
+-- the AtomicPolygon topology (int__boundary__sd_boro); columns, column order and types
+-- match the published layer.
 
--- District 10 spans two boroughs and is written out once per borough, both parts
--- keeping the same district number (ETL spec ch. 10, table 39 note **).
-district_10_split AS (
+WITH boundaries AS (
     SELECT
-        d.schooldist::int AS "SchoolDist",
-        {{ clipped_geom('st_intersection(d.geom, b.geom)') }} AS geom
-    FROM {{ ref('stg__schooldistrict') }} AS d
-    INNER JOIN {{ ref('stg__borough') }} AS b ON st_intersects(d.geom, b.geom)
-    {{ clip_to_shoreline('st_intersection(d.geom, b.geom)') }}
-    WHERE d.schooldist::int = 10
+        entity_id,
+        st_multi(geom) AS geom
+    FROM {{ ref('int__boundary__sd_boro') }}
 )
 
 SELECT
-    *,
-    st_perimeter(geom) AS "SHAPE_Length",
-    st_area(geom) AS "SHAPE_Area"
-FROM clipped
-WHERE NOT st_isempty(geom)
-
-UNION ALL
-
-SELECT
-    *,
-    st_perimeter(geom) AS "SHAPE_Length",
-    st_area(geom) AS "SHAPE_Area"
-FROM district_10_split
-WHERE NOT st_isempty(geom)
+    split_part(b.entity_id, '-', 1)::smallint AS "SchoolDist",
+    b.geom,
+    st_perimeter(b.geom) AS "SHAPE_Length",
+    st_area(b.geom) AS "SHAPE_Area"
+FROM boundaries AS b

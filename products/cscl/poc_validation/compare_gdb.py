@@ -36,8 +36,22 @@ The comparison logic and its report formatting both live in
 dcpy.geospatial.gdb (compare.py / report.py) - this script only supplies
 CSCL's own inputs (declared keys, known/expected diffs) and CLI/S3 wiring.
 
-Report-only: writes a per-column CSV per gdb to output/validation_output/<name>_comparison.csv
-and logs a report. It never fails the build on a data mismatch.
+Report-only: writes two CSVs per gdb (per-column summary and per-row flagged-feature
+identifiers) to output/validation_output/, and logs a report. It never fails the
+build on a data mismatch.
+
+output/validation_output/<name>_comparison.csv - one row per (layer, column): null
+rates, nunique, and the layer-level row counts/note. Says THAT a layer has N rows
+modified/dev-only/prod-only.
+
+output/validation_output/<name>_flagged_rows.csv - one row per flagged FEATURE (not
+column): layer, status (only_in_dev/only_in_prod/modified), key_columns, key. Says
+WHICH rows those were, so a flagged layer can be chased down by key directly (e.g.
+SELECT ... WHERE "BoroCD" = '...') instead of re-deriving the affected rows by hand
+(chat log 2026-10-06). Only written when at least one layer in this gdb actually has
+a declared/guessed key - a keyless layer's diffs only ever show up as the aggregate
+counts in the per-column CSV. Can be large for a layer with many real diffs - that's
+the point, it's meant to enumerate exactly what's flagged, not summarize it.
 """
 
 import csv
@@ -257,6 +271,21 @@ def _compare_layers(
             writer.writeheader()
             writer.writerows(rows)
         logger.info(f"Per-column CSV written to {out_csv}")
+
+    # Per-column CSV above says THAT a layer has N rows modified/dev-only/
+    # prod-only; this says WHICH ones, so a flagged layer can be chased down
+    # directly instead of re-deriving the affected keys by hand (chat log
+    # 2026-10-05/06). One row per flagged feature, not per column - can be
+    # large for a layer with many real diffs (that's the point: it's meant to
+    # enumerate exactly what's flagged, not summarize it).
+    flagged_rows = report.flagged_rows()
+    if flagged_rows:
+        out_flagged_csv = OUTPUT_DIR / f"{report_name}_flagged_rows.csv"
+        with out_flagged_csv.open("w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=list(flagged_rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(flagged_rows)
+        logger.info(f"{len(flagged_rows):,} flagged rows written to {out_flagged_csv}")
 
 
 @app.command()

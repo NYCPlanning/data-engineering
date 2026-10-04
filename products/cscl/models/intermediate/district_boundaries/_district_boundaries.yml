@@ -1,0 +1,314 @@
+version: 2
+
+models:
+- name: int__boundary__ct2010_edges
+- name: int__boundary__ct2010_raw
+- name: int__boundary__ct2010
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cb2010_edges
+- name: int__boundary__cb2010_raw
+- name: int__boundary__cb2010
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__puma2010_edges
+- name: int__boundary__puma2010_raw
+- name: int__boundary__puma2010
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__fd_edges
+- name: int__boundary__fd_raw
+- name: int__boundary__fd
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ct2020_edges
+- name: int__boundary__ct2020_raw
+- name: int__boundary__ct2020
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__nta2020_edges
+- name: int__boundary__nta2020_raw
+- name: int__boundary__nta2020
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cdta2020_edges
+- name: int__boundary__cdta2020_raw
+- name: int__boundary__cdta2020
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__fb_edges
+- name: int__boundary__fb_raw
+- name: int__boundary__fb
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__fc_edges
+- name: int__boundary__fc_raw
+- name: int__boundary__fc
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__puma2020_edges
+- name: int__boundary__puma2020_raw
+- name: int__boundary__puma2020
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__nta2010_edges
+- name: int__boundary__nta2010_raw
+- name: int__boundary__nta2010
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__mcea_edges
+- name: int__boundary__mcea_raw
+- name: int__boundary__mcea
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ha_edges
+- name: int__boundary__ha_raw
+- name: int__boundary__ha
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__hc_edges
+- name: int__boundary__hc_raw
+- name: int__boundary__hc
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ad_edges
+- name: int__boundary__ad_raw
+- name: int__boundary__ad
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ed_edges
+- name: int__boundary__ed_raw
+- name: int__boundary__ed
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__sd_edges
+- name: int__boundary__sd_raw
+- name: int__boundary__sd
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cd_edges
+- name: int__boundary__cd_raw
+- name: int__boundary__cd
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__bb_edges
+- name: int__boundary__bb_raw
+- name: int__boundary__bb
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cb2020_edges
+- name: int__boundary__cb2020_raw
+- name: int__boundary__cb2020
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__hez_edges
+- name: int__boundary__hez_raw
+- name: int__boundary__hez
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cc_edges
+- name: int__boundary__cc_raw
+- name: int__boundary__cc
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cg_edges
+- name: int__boundary__cg_raw
+- name: int__boundary__cg
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ss_edges
+- name: int__boundary__ss_raw
+- name: int__boundary__ss
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__mc_edges
+- name: int__boundary__mc_raw
+- name: int__boundary__mc
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__sd_boro_edges
+- name: int__boundary__sd_boro_raw
+- name: int__boundary__sd_boro
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ct2010wi_edges
+- name: int__boundary__ct2010wi_raw
+- name: int__boundary__ct2010wi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ct2020wi_edges
+- name: int__boundary__ct2020wi_raw
+- name: int__boundary__ct2020wi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cb2010wi_edges
+- name: int__boundary__cb2010wi_raw
+- name: int__boundary__cb2010wi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cb2020wi_edges
+- name: int__boundary__cb2020wi_raw
+- name: int__boundary__cb2020wi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__bbwi_edges
+- name: int__boundary__bbwi_raw
+- name: int__boundary__bbwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cdwi_edges
+- name: int__boundary__cdwi_raw
+- name: int__boundary__cdwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__adwi_edges
+- name: int__boundary__adwi_raw
+- name: int__boundary__adwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__edwi_edges
+- name: int__boundary__edwi_raw
+- name: int__boundary__edwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__ccwi_edges
+- name: int__boundary__ccwi_raw
+- name: int__boundary__ccwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__cgwi_edges
+- name: int__boundary__cgwi_raw
+- name: int__boundary__cgwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__sswi_edges
+- name: int__boundary__sswi_raw
+- name: int__boundary__sswi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__mcwi_edges
+- name: int__boundary__mcwi_raw
+- name: int__boundary__mcwi
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+  - name: geom
+    tests: [ not_null ]
+- name: int__boundary__pp
+  description: Police precincts - NYPD source polygons clipped to topology-built land (not topology-built).
+  columns:
+  - name: entity_id
+    tests: [ unique, not_null ]
+- name: int__boundary__mcea_rows
+  description: MCEA boundaries grouped into the published layer's rows (connected pieces of the dissolved 2000 tracts).

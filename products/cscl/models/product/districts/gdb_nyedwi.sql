@@ -3,11 +3,20 @@
     indexes=[{'columns': ['geom'], 'type': 'gist'}]
 ) }}
 
--- ElectDist packs the assembly district into the high digits (AD 23, ED 003 -> 23003).
+-- Election districts (entity_id is assembly district * 1000 + ED), water included (the
+-- *wi variant). Boundaries come from the AtomicPolygon topology (int__boundary__edwi);
+-- columns, column order and types match the published layer.
+
+WITH boundaries AS (
+    SELECT
+        entity_id,
+        st_multi(geom) AS geom
+    FROM {{ ref('int__boundary__edwi') }}
+)
 
 SELECT
-    (d.assembly_district::int * 1000 + d.electdist::int) AS "ElectDist",
-    d.geom,
-    st_perimeter(d.geom) AS "SHAPE_Length",
-    st_area(d.geom) AS "SHAPE_Area"
-FROM {{ ref('stg__electiondistrict') }} AS d
+    b.entity_id::int AS "ElectDist",
+    b.geom,
+    st_perimeter(b.geom) AS "SHAPE_Length",
+    st_area(b.geom) AS "SHAPE_Area"
+FROM boundaries AS b

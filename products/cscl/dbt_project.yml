@@ -42,5 +42,46 @@ models:
 on-run-start:
 - '{{ create_pg_functions() }}'
 
+vars:
+  # qa__context_geoms: buffer applied to the SUBTRACTED side before computing
+  # build_minus_legacy/legacy_minus_build, to separate real spurs/gaps from needle-sliver
+  # noise - NOT a proxy for perimeter/length. Confirmed on PUMA 3808 (chat log 2026-10-06):
+  # its tract-dissolve needle noise hugs the true boundary within 0.004 ft even at 2,838 ft
+  # long (perimeter is not a usable signal - some noise needles are LONGER than the real
+  # defect below), while its one genuine self-touching-vertex spur reaches 104.5 ft from
+  # the true boundary despite a smaller, 501 ft perimeter. A 1 ft buffer fully absorbs the
+  # former (needle max gap is two orders of magnitude under 1 ft) while only trimming the
+  # base of the latter, leaving its real extent visible.
+  context_geom_noise_buffer_ft: 1.0
+  # AtomicPolygon topology (models/intermediate/atomicpolygon_topology) and the district
+  # boundaries built from it (macros/district_boundary.sql).
+  #
+  # Node merge tolerance (ft): two independently digitized copies of the same corner
+  # differ by small multiples of the source's 2^-14 ft quantization (observed up to
+  # 0.000307 ft). 2 x quantum covers every observed case; ST_DWithin measures true
+  # distance, so this also covers a diagonal offset of one quantum per axis.
+  ap_topology_node_merge_tolerance_ft: 0.0003662109375
+  # Scope: an AtomicPolygon is in scope if its 2010 tract's PUMA is in
+  # ap_topology_scope_pumas OR its borocode is in ap_topology_scope_boros. Citywide by
+  # default (full rebuild ~3 min); narrow it when iterating on vertices/nodes/edges.
+  # Must be a union of whole districts for any district type compared against prod.
+  ap_topology_scope_pumas: []
+  ap_topology_scope_boros: ['1', '2', '3', '4', '5']
+  # Orphan edge splitting (int__topology__edges): an alternate path may replace a
+  # one-owner edge only if its length matches the direct distance within this
+  # tolerance - by the triangle inequality, i.e. only if every intermediate vertex is
+  # collinear. Observed real cases are 0.00001-0.00006 ft off the chord; real lot-line
+  # kinks are far larger.
+  ap_topology_edge_split_tolerance_ft: 0.001
+  # Max edges in an alternate path. The length budget prunes the search on its own; this
+  # only guarantees termination. Real cases seen need up to 3.
+  ap_topology_edge_split_max_hops: 6
+  # QA (models/etl_dev_qa/district_boundaries): floors for qa__boundary__*_outliers, and
+  # the vertex-count product above which GEOS Hausdorff (O(n*m), uninterruptible) is
+  # skipped - 5e7 is a few seconds; whole fire divisions are ~1e10.
+  boundary_qa_outlier_min_hausdorff_ft: 5
+  boundary_qa_outlier_min_symdiff_pct: 0.01
+  boundary_qa_hausdorff_max_vertex_product: 50000000
+
 flags:
   fail-fast: true

@@ -1,0 +1,41 @@
+version: 2
+
+models:
+- name: int__topology__ap_entities
+  description: One row per in-scope AtomicPolygon with one membership column per district type.
+  columns:
+  - name: atomicid
+    tests: [ unique, not_null ]
+- name: int__topology__ap_police
+  description: Police precinct, patrol borough and sector per AtomicPolygon (polygon at the centroid, or majority of area where the centroid falls outside the AP), shared by ThinLION.
+  columns:
+  - name: atomicid
+    tests: [ unique, not_null ]
+- name: int__topology__vertices
+  description: Ring vertices of every in-scope AtomicPolygon in ring order, from the raw curved geometry.
+- name: int__topology__exact_points
+  description: Distinct vertex coordinates (arc mid control points excluded).
+  columns:
+  - name: point_id
+    tests: [ unique, not_null ]
+- name: int__topology__grid_cells
+  description: Occupied grid cells at the node merge tolerance.
+- name: int__topology__point_to_node
+  description: Exact point to canonical node id.
+  columns:
+  - name: exact_point_id
+    tests: [ unique, not_null ]
+- name: int__topology__nodes
+  description: Canonical topology nodes.
+  columns:
+  - name: node_id
+    tests: [ unique, not_null ]
+- name: int__topology__edges_unnoded
+  description: Topology edges before splitting at crossings.
+- name: int__topology__edge_crossings
+  description: Points where two straight topology edges properly cross (source AP overlaps), with new node ids.
+- name: int__topology__edges
+  description: One row per (edge, owning AtomicPolygon), keyed by (node_lo, node_hi, is_arc); fully noded.
+  columns:
+  - name: atomicid
+    tests: [ not_null ]

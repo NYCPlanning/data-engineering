@@ -41,7 +41,11 @@ def test_row_added_in_dev_counts_as_dev_only(nta_gdf):
     prod = nta_gdf[nta_gdf.NTACode != NTA_INSANE_KEY].reset_index(drop=True)
     result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
     assert result == compare.RowLevelDiff(
-        only_in_dev=1, only_in_prod=0, modified=0, precise=True
+        only_in_dev=1,
+        only_in_prod=0,
+        modified=0,
+        precise=True,
+        only_in_dev_keys=[(NTA_INSANE_KEY,)],
     )
 
 
@@ -50,7 +54,11 @@ def test_row_removed_from_dev_counts_as_prod_only(nta_gdf):
     prod = nta_gdf
     result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
     assert result == compare.RowLevelDiff(
-        only_in_dev=0, only_in_prod=1, modified=0, precise=True
+        only_in_dev=0,
+        only_in_prod=1,
+        modified=0,
+        precise=True,
+        only_in_prod_keys=[(NTA_INSANE_KEY,)],
     )
 
 
@@ -74,7 +82,11 @@ def test_modified_attribute_on_insane_geometry_row_counts_as_modified(nta_gdf):
     prod.loc[prod.NTACode == NTA_INSANE_KEY, "NTAName"] = "changed name"
     result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
     assert result == compare.RowLevelDiff(
-        only_in_dev=0, only_in_prod=0, modified=1, precise=True
+        only_in_dev=0,
+        only_in_prod=0,
+        modified=1,
+        precise=True,
+        modified_keys=[(NTA_INSANE_KEY,)],
     )
 
 
@@ -84,7 +96,11 @@ def test_modified_attribute_on_simple_geometry_row_counts_as_modified(nta_gdf):
     prod.loc[prod.NTACode == NTA_SIMPLE_KEY, "BoroCode"] = 99
     result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
     assert result == compare.RowLevelDiff(
-        only_in_dev=0, only_in_prod=0, modified=1, precise=True
+        only_in_dev=0,
+        only_in_prod=0,
+        modified=1,
+        precise=True,
+        modified_keys=[(NTA_SIMPLE_KEY,)],
     )
 
 
@@ -97,7 +113,12 @@ def test_add_remove_and_modify_combine_correctly(nta_gdf):
     prod.loc[prod.NTACode == NTA_SIMPLE_KEY, "NTAName"] = "changed name"
     result = compare.row_level_diff(dev, prod, NTA_KEY, _compare_cols(dev, NTA_KEY))
     assert result == compare.RowLevelDiff(
-        only_in_dev=1, only_in_prod=0, modified=1, precise=True
+        only_in_dev=1,
+        only_in_prod=0,
+        modified=1,
+        precise=True,
+        only_in_dev_keys=[(NTA_INSANE_KEY,)],
+        modified_keys=[(NTA_SIMPLE_KEY,)],
     )
 
 
@@ -315,7 +336,11 @@ def test_composite_key_does_not_collide_when_a_part_contains_the_join_separator(
     assert keys.is_unique
     result = compare.row_level_diff(dev, prod, ["k1", "k2"], ["val"])
     assert result == compare.RowLevelDiff(
-        only_in_dev=0, only_in_prod=0, modified=1, precise=True
+        only_in_dev=0,
+        only_in_prod=0,
+        modified=1,
+        precise=True,
+        modified_keys=[("X|Y", "Z")],
     )
 
 
@@ -326,9 +351,15 @@ def test_null_keyed_rows_are_never_paired_with_each_other():
     dev = pd.DataFrame({"id": ["A", None], "val": ["a-value", "dev-unrelated"]})
     prod = pd.DataFrame({"id": ["A", None], "val": ["a-value", "prod-unrelated"]})
     result = compare.row_level_diff(dev, prod, ["id"], ["val"])
-    assert result == compare.RowLevelDiff(
-        only_in_dev=1, only_in_prod=1, modified=0, precise=True
-    )
+    assert result.only_in_dev == 1
+    assert result.only_in_prod == 1
+    assert result.modified == 0
+    assert result.precise is True
+    # Each NULL-keyed row gets a one-off salted identity (see composite_key),
+    # so the exact key value is non-deterministic - just check one of each
+    # category showed up, not what it says.
+    assert len(result.only_in_dev_keys) == 1
+    assert len(result.only_in_prod_keys) == 1
 
 
 def test_key_identity_ignores_blank_as_null():
@@ -340,7 +371,12 @@ def test_key_identity_ignores_blank_as_null():
     prod = pd.DataFrame({"code": ["A", "   "], "val": ["a-value", "prod-record"]})
     result = compare.row_level_diff(dev, prod, ["code"], ["val"], blank_as_null=True)
     assert result == compare.RowLevelDiff(
-        only_in_dev=1, only_in_prod=1, modified=0, precise=True
+        only_in_dev=1,
+        only_in_prod=1,
+        modified=0,
+        precise=True,
+        only_in_dev_keys=[("",)],
+        only_in_prod_keys=[("   ",)],
     )
 
 
@@ -394,7 +430,12 @@ def test_row_level_diff_on_disjoint_frames_reports_full_replacement(ad_gdf):
     prod = ad_gdf[ad_gdf.AssemDist == 48].reset_index(drop=True)
     result = compare.row_level_diff(dev, prod, AD_KEY, _compare_cols(dev, AD_KEY))
     assert result == compare.RowLevelDiff(
-        only_in_dev=1, only_in_prod=1, modified=0, precise=True
+        only_in_dev=1,
+        only_in_prod=1,
+        modified=0,
+        precise=True,
+        only_in_dev_keys=[("43",)],
+        only_in_prod_keys=[("48",)],
     )
 
 

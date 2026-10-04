@@ -263,6 +263,45 @@ def create_citywide_table(file: str):
     )
 
 
+def _pg_connection_string() -> str:
+    """ogr2ogr's `PG:...` connection string for CLIENT, shared by every fgdb loader."""
+    engine_url = CLIENT.engine.url
+    host = engine_url.host
+    port = engine_url.port or 5432
+    db_name = engine_url.database
+    user = engine_url.username
+    password = engine_url.password
+    return f"PG:host={host} port={port} dbname={db_name} user={user} password={password} active_schema={CLIENT.schema}"
+
+
+def _ogr2ogr_load_layer(gdb_path: Path, layer: str, table_name: str) -> None:
+    """Load one FGDB layer into CLIENT's schema as table_name, replacing it if present.
+
+    -nlt GEOMETRY handles layers of mixed/unknown geometry type; PG_USE_COPY=NO is
+    required for ogr2ogr to run its usual geometry conversions (COPY mode skips them).
+    """
+    subprocess.run(
+        [
+            "ogr2ogr",
+            "-f",
+            "PostgreSQL",
+            _pg_connection_string(),
+            str(gdb_path),
+            layer,
+            "-nln",
+            table_name,
+            "-nlt",
+            "GEOMETRY",
+            "-overwrite",
+            "-progress",
+            "--config",
+            "PG_USE_COPY",
+            "NO",
+        ],
+        check=True,
+    )
+
+
 def load_production_lion_fgdb_layers(version: str):
     """
     Downloads LION FGDB from DCP website and loads all layers into production_outputs schema.
@@ -296,49 +335,84 @@ def load_production_lion_fgdb_layers(version: str):
             f"Expected layers {expected_layers} but found {layers}"
         )
 
-        # Get connection info from CLIENT
-        # Build the PG connection string for ogr2ogr
-        engine_url = CLIENT.engine.url
-        host = engine_url.host
-        port = engine_url.port or 5432
-        db_name = engine_url.database
-        user = engine_url.username
-        password = engine_url.password
-
-        pg_connection = f"PG:host={host} port={port} dbname={db_name} user={user} password={password} active_schema={CLIENT.schema}"
-
         # Load each layer with fgdb_ prefix
         for layer in layers:
             table_name = f"fgdb_{layer.lower()}"
             print(f"Loading {layer} -> {CLIENT.schema}.{table_name}")
-
-            # Use ogr2ogr to load the layer
-            # -overwrite: replace table if it exists
-            # -nln: set the new layer name (table name)
-            # -nlt GEOMETRY: Use generic geometry type to handle all geometry types
-            # --config PG_USE_COPY NO: Disable COPY mode to allow geometry conversions
-            subprocess.run(
-                [
-                    "ogr2ogr",
-                    "-f",
-                    "PostgreSQL",
-                    pg_connection,
-                    str(gdb_path),
-                    layer,
-                    "-nln",
-                    table_name,
-                    "-nlt",
-                    "GEOMETRY",
-                    "-overwrite",
-                    "-progress",
-                    "--config",
-                    "PG_USE_COPY",
-                    "NO",
-                ],
-                check=True,
-            )
+            _ogr2ogr_load_layer(gdb_path, layer, table_name)
 
         print(f"Successfully loaded {len(layers)} layers from LION {version}")
+
+
+def _district_gdb_filename(version: str) -> str:
+    """Prod's district gdb filename, e.g. "v26C_Districts.gdb.zip" for version "26c".
+
+    Capitalization is inconsistent with everywhere else this script deals with
+    `version`: the S3 folder segment stays lowercase (cscl_etl/26c/...) but the file
+    itself only uppercases the trailing release letter - confirmed against the real
+    object at cscl_etl/26c/v26C_Districts.gdb.zip, not a documented convention.
+    """
+    return f"v{version[:-1]}{version[-1].upper()}_Districts.gdb.zip"
+
+
+def _frozen_district_layers() -> set[str]:
+    """District gdb layers flagged `status: blocked` in seeds/lion_outputs.csv.
+
+    These haven't been genuinely rebuilt in prod since 2009-2015, only re-exported
+    (docs/prod_bugs/013-gdb-creadate-staleness-fossils.md) - still under separate
+    investigation with another team as of this writing. Skipped entirely rather than
+    loaded-and-ignored: comparing our output against a FileGDB object prod hasn't
+    touched in over a decade wouldn't tell us anything about our own pipeline.
+    """
+    with Path("seeds/lion_outputs.csv").open(newline="") as f:
+        return {
+            row["filename"]
+            for row in csv.DictReader(f)
+            if row["output_group"] == "district_gdb" and row["status"] == "blocked"
+        }
+
+
+def load_production_district_gdb(version: str, force: bool = False):
+    """
+    Downloads the district boundary FGDB from edm-private and loads every non-frozen
+    layer into production_outputs, same fgdb_ prefix convention as
+    load_production_lion_fgdb_layers - so gdb_nynta2010 compares against
+    production_outputs.fgdb_nynta2010, and so on.
+
+    Frozen layers (see _frozen_district_layers) are skipped, not loaded.
+    """
+    filename = _district_gdb_filename(version)
+    frozen = _frozen_district_layers()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        gdb_path = Path(tmpdir) / filename
+        print(f"Downloading {filename} ({version}) from edm-private...")
+        s3.download_file("edm-private", f"cscl_etl/{version}/{filename}", gdb_path)
+
+        layers = fgdb.get_layers(gdb_path)
+        to_load = sorted(layer for layer in layers if layer not in frozen)
+        skipped = sorted(layer for layer in layers if layer in frozen)
+        print(
+            f"Found {len(layers)} layers; skipping {len(skipped)} frozen "
+            f"(docs/prod_bugs/013): {skipped}"
+        )
+
+        loaded = 0
+        for layer in to_load:
+            table_name = f"fgdb_{layer.lower()}"
+            if not force and already_loaded(table_name, version):
+                print(f"{table_name} already holds {version}, skipping")
+                continue
+
+            print(f"Loading {layer} -> {CLIENT.schema}.{table_name}")
+            _ogr2ogr_load_layer(gdb_path, layer, table_name)
+            record_load(table_name, version)
+            loaded += 1
+
+        print(
+            f"Successfully loaded {loaded} layers from district gdb {version} "
+            f"({len(to_load) - loaded} already up to date, {len(skipped)} frozen skipped)"
+        )
 
 
 app = typer.Typer()
@@ -563,6 +637,30 @@ def _load_prod_ldf(
         )
         CLIENT.insert_dataframe(df, table_name)
         record_load(table_name, version)
+
+
+@app.command("load_prod_district_gdb")
+def _load_prod_district_gdb(
+    version: str | None = typer.Option(version, "--version", "-v"),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        "-F",
+        help="Reload every non-frozen layer even if this version is already logged as loaded",
+    ),
+):
+    """
+    Load this release's production district gdb into production_outputs, for
+    in-database comparison against our own gdb_* district models.
+
+    Skips layers frozen in prod (status=blocked in seeds/lion_outputs.csv, see
+    docs/prod_bugs/013-gdb-creadate-staleness-fossils.md) - still under separate
+    investigation with another team as of this writing.
+    """
+    if not version:
+        raise Exception("Specify version with '-v'")
+
+    load_production_district_gdb(version, force)
 
 
 if __name__ == "__main__":
