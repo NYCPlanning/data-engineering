@@ -9,7 +9,13 @@
   rather than the whole city.
 -#}
 LEFT JOIN LATERAL (
-        SELECT st_union(m.geom) AS geom
+        -- gridSize=0.001 (PostGIS's precision-aware overlay path, snaps during the
+        -- union's internal noding rather than only rounding inputs beforehand) - same
+        -- overlay-robustness fix as int__water_mask's own union, applied again here
+        -- since this is a second, independent union over whatever subset of mask
+        -- pieces intersect this specific feature. See int__water_mask.sql's comment
+        -- and chat log 2026-10-03 for the measurements behind this value.
+        SELECT st_union(m.geom, 0.001) AS geom
         FROM {{ ref('int__water_mask') }} AS m
         WHERE st_intersects({{ geom_column }}, m.geom)
     ) AS water ON TRUE
@@ -43,6 +49,24 @@ LEFT JOIN LATERAL (
 
   Features left with no qualifying part come back empty rather than NULL, so callers
   can drop them with `WHERE NOT st_isempty(geom)`.
+
+  gridSize=0.001 on the difference itself (on top of the gridSize already applied to
+  `water.geom`'s own union in `clip_to_shoreline`) measurably reduces the hole count
+  further on top of that - confirmed on PUMA 4105: the union fix alone already took
+  4,609 holes down to 271 differencing against the fixed mask, and adding gridSize
+  here too brought it to 218 (chat log 2026-10-03). Both fixes are needed; neither
+  alone gets all the way there - see that log for the still-unexplained residual.
+
+  The precision-aware (gridSize) overlay path is stricter than the classic one about
+  its inputs: it throws "Overlay input is mixed-dimension" instead of just tolerating
+  it when `geom_column` isn't purely polygonal - which `st_intersection(...)` callers
+  (e.g. gdb_nysd's District 10 split, two polygons that only graze at a shared
+  boundary) can legitimately produce, as a GeometryCollection with stray points/lines
+  mixed into the polygon part. The classic difference silently handled this; the new
+  one errors immediately, before this macro's own st_collectionextract downstream ever
+  gets a chance to clean it up (confirmed broke the real build, chat log 2026-10-04).
+  Fixed by running geom_column through st_collectionextract(st_multi(...), 3) - keep
+  only the polygonal component - before it ever reaches the difference call.
 -#}
 st_multi(coalesce(
         (
@@ -50,8 +74,9 @@ st_multi(coalesce(
             FROM (
                 SELECT (st_dump(st_collectionextract(
                     st_difference(
-                        {{ geom_column }},
-                        coalesce(water.geom, st_setsrid('POLYGON EMPTY'::geometry, st_srid({{ geom_column }})))
+                        st_collectionextract(st_multi({{ geom_column }}), 3),
+                        coalesce(water.geom, st_setsrid('POLYGON EMPTY'::geometry, st_srid({{ geom_column }}))),
+                        0.001
                     ), 3
                 ))).geom AS part_geom
             ) AS parts

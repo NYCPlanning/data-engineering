@@ -47,11 +47,26 @@
 -- CSCL-DISTRICTS-03) completely untouched, while introducing the same MN24-style
 -- regressions on other previously-exact NTAs. Back on stg__atomicpolygons directly
 -- pending further investigation.
+--
+-- Separate from the hairline-seam closing above: st_union over many polygons that meet
+-- at exactly-coincident vertices can still produce spurious needle-shaped holes in the
+-- result - a GEOS overlay-robustness artifact, not a real gap (confirmed empirically on
+-- PUMA 4105, chat log 2026-10-03: every pairwise ST_Distance between adjacent source
+-- polygons there is exactly 0, yet st_union(stg__atomicpolygons...) alone, with no
+-- buffering/clipping involved at all, produced 8,893 interior-ring holes, one spanning
+-- ~1,900 ft while enclosing 0.237 sq ft - a zigzag, not a real loop). Passing a gridSize
+-- to st_union (PostGIS's precision-aware overlay path, which snaps during noding rather
+-- than only rounding inputs beforehand) cuts this dramatically: 0.001 ft took that same
+-- census-tract-dissolve case from 8,893 holes to 675 (92% fewer) for a 1.4 sq ft area
+-- change citywide - negligible, and comfortably smaller than this data's real positional
+-- accuracy. Coarser grids (0.01-0.05 ft) did better still (down to ~51-82 holes) but
+-- 0.001 ft was chosen to stay well under any tolerance a client might object to; the
+-- residual ~675 holes at this setting aren't yet root-caused (see follow-up).
 
 WITH closed AS (
     SELECT
         st_buffer(
-            st_union(st_buffer(geom, 0.01, 'quad_segs=2')),
+            st_union(st_buffer(geom, 0.01, 'quad_segs=2'), 0.001),
             -0.01, 'quad_segs=2'
         ) AS geom
     FROM {{ ref('stg__atomicpolygons') }}

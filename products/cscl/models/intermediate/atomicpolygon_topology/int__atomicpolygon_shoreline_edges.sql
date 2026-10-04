@@ -3,6 +3,7 @@
     indexes=[
       {'columns': ['node_lo', 'node_hi']},
       {'columns': ['edge_type']},
+      {'columns': ['geom'], 'type': 'gist'},
     ]
 ) }}
 
