@@ -1,0 +1,336 @@
+version: 2
+
+models:
+- name: qa__boundary__ct2010_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cb2010_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__puma2010_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__fd_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ct2020_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__nta2020_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cdta2020_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__fb_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__fc_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__puma2020_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__nta2010_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__mcea_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ha_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__hc_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ad_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ed_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__sd_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cd_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__bb_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cb2020_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__hez_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cc_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cg_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ss_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__mc_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ct2010wi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ct2020wi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cb2010wi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cb2020wi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__bbwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cdwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__adwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__edwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__ccwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__cgwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__sswi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn
+- name: qa__boundary__mcwi_validity
+  columns:
+  - name: is_valid
+    tests:
+    - accepted_values:
+        arguments:
+          values: [true]
+        config:
+          severity: warn

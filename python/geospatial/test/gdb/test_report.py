@@ -220,6 +220,54 @@ def test_rows_produces_one_dict_per_layer_column(nta_gdf, ad_gdf):
     assert ad_row["area_pct_diff"] == ""
 
 
+def test_flagged_rows_lists_the_actual_dev_only_prod_only_and_modified_keys():
+    """flagged_rows() is the per-ROW counterpart to rows()'s per-column counts -
+    a caller that sees "1 dev-only, 1 modified" in a layer's note should be
+    able to find out WHICH rows those were from here, not just how many."""
+    dev = pd.DataFrame({"key": ["A", "B", "C"], "val": ["a", "b", "c"]})
+    prod = pd.DataFrame({"key": ["A", "B", "D"], "val": ["a", "b-changed", "d"]})
+
+    r = report.GdbComparisonReport()
+    result = compare.compare_layer(dev, prod, declared_key=["key"])
+    r.add_layer("some_layer", result, len(dev), len(prod))
+
+    flagged = r.flagged_rows()
+    by_status = {(row["status"], row["key"]) for row in flagged}
+    assert by_status == {
+        ("only_in_dev", "C"),
+        ("only_in_prod", "D"),
+        ("modified", "B"),
+    }
+    assert all(row["layer"] == "some_layer" for row in flagged)
+    assert all(row["key_columns"] == "key" for row in flagged)
+
+
+def test_flagged_rows_formats_a_composite_key_with_its_column_names():
+    dev = pd.DataFrame({"k1": ["X"], "k2": ["Y"], "val": ["old"]})
+    prod = pd.DataFrame({"k1": ["X"], "k2": ["Y"], "val": ["new"]})
+
+    r = report.GdbComparisonReport()
+    result = compare.compare_layer(dev, prod, declared_key=["k1", "k2"])
+    r.add_layer("some_layer", result, len(dev), len(prod))
+
+    flagged = r.flagged_rows()
+    assert len(flagged) == 1
+    assert flagged[0]["key_columns"] == "k1, k2"
+    assert flagged[0]["key"] == "X | Y"
+
+
+def test_flagged_rows_is_empty_for_a_clean_layer_and_for_a_missing_one():
+    r = report.GdbComparisonReport()
+    r.log_layer_structure({"nyzip": "MultiPolygon"}, {})
+    r.add_missing_layer("nyzip", dev_row_count=263, prod_row_count=0)
+
+    clean = pd.DataFrame({"key": ["A"], "val": ["a"]})
+    result = compare.compare_layer(clean, clean.copy(), declared_key=["key"])
+    r.add_layer("some_layer", result, len(clean), len(clean))
+
+    assert r.flagged_rows() == []
+
+
 def test_log_summary_and_clean_layer_count_track_multiple_layers(nta_gdf, ad_gdf):
     r = report.GdbComparisonReport()
     clean = compare.compare_layer(ad_gdf, ad_gdf.copy(), declared_key=AD_KEY)

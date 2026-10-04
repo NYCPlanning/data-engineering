@@ -3,17 +3,19 @@
     indexes=[{'columns': ['geom'], 'type': 'gist'}]
 ) }}
 
-WITH clipped AS (
+-- State assembly districts. Boundaries come from the AtomicPolygon topology
+-- (int__boundary__ad); columns, column order and types match the published layer.
+
+WITH boundaries AS (
     SELECT
-        d.assemdist::int AS "AssemDist",
-        {{ clipped_geom('d.geom') }} AS geom
-    FROM {{ ref('stg__assemblydistrict') }} AS d
-    {{ clip_to_shoreline('d.geom') }}
+        entity_id,
+        st_multi(geom) AS geom
+    FROM {{ ref('int__boundary__ad') }}
 )
 
 SELECT
-    *,
-    st_perimeter(geom) AS "SHAPE_Length",
-    st_area(geom) AS "SHAPE_Area"
-FROM clipped
-WHERE NOT st_isempty(geom)
+    b.entity_id::smallint AS "AssemDist",
+    b.geom,
+    st_perimeter(b.geom) AS "SHAPE_Length",
+    st_area(b.geom) AS "SHAPE_Area"
+FROM boundaries AS b

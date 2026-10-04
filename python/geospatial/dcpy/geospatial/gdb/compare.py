@@ -26,7 +26,7 @@ pays for what it needs:
 import uuid
 from collections import Counter
 from collections.abc import Collection
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
@@ -306,6 +306,18 @@ class RowLevelDiff:
     # precision.
     duplicate_key_dev_rows: int = 0
     duplicate_key_prod_rows: int = 0
+    # The actual row identities behind the counts above - each a composite key
+    # tuple (see composite_key), in no particular order. len(only_in_dev_keys)
+    # == only_in_dev always holds (same for prod/modified) - for a duplicated
+    # key with an excess on one side, that key appears once per excess copy,
+    # since individual same-keyed rows can't be told apart (see row_level_diff's
+    # docstring), only the key and how many more of it exist on one side.
+    # A caller that only wants counts (the original, pre-2026-10-06 behavior)
+    # can ignore these; a caller that wants to know WHICH rows triggered a
+    # diff (e.g. writing flagged identifiers to a file) now can.
+    only_in_dev_keys: list[tuple] = field(default_factory=list)
+    only_in_prod_keys: list[tuple] = field(default_factory=list)
+    modified_keys: list[tuple] = field(default_factory=list)
 
 
 def row_level_diff(
@@ -360,20 +372,25 @@ def row_level_diff(
 
     dup_only_in_dev = 0
     dup_only_in_prod = 0
+    only_in_dev_keys: list[tuple] = []
+    only_in_prod_keys: list[tuple] = []
     if duplicated_keys:
         dup_dev_counts = Counter(dev_keys[is_dup_dev])
         dup_prod_counts = Counter(prod_keys[is_dup_prod])
-        dup_only_in_dev = sum(
-            max(c - dup_prod_counts.get(k, 0), 0) for k, c in dup_dev_counts.items()
-        )
-        dup_only_in_prod = sum(
-            max(c - dup_dev_counts.get(k, 0), 0) for k, c in dup_prod_counts.items()
-        )
+        for k, c in dup_dev_counts.items():
+            excess = max(c - dup_prod_counts.get(k, 0), 0)
+            dup_only_in_dev += excess
+            only_in_dev_keys.extend([k] * excess)
+        for k, c in dup_prod_counts.items():
+            excess = max(c - dup_dev_counts.get(k, 0), 0)
+            dup_only_in_prod += excess
+            only_in_prod_keys.extend([k] * excess)
 
     dev_precise_df = dev_df[~is_dup_dev]
     prod_precise_df = prod_df[~is_dup_prod]
 
     modified: int | None = None
+    modified_keys: list[tuple] = []
     only_in_dev = dup_only_in_dev
     only_in_prod = dup_only_in_prod
     if len(dev_precise_df) > 0 or len(prod_precise_df) > 0:
@@ -385,20 +402,22 @@ def row_level_diff(
 
         modified = 0
         if len(common) > 0 and compare_cols:
-            modified = int(
-                columns_differ(
-                    dev_indexed.loc[common],
-                    prod_indexed.loc[common],
-                    compare_cols,
-                    blank_as_null,
-                    tolerant_float_cols,
-                    rtol,
-                    atol,
-                ).sum()
+            diff_mask = columns_differ(
+                dev_indexed.loc[common],
+                prod_indexed.loc[common],
+                compare_cols,
+                blank_as_null,
+                tolerant_float_cols,
+                rtol,
+                atol,
             )
+            modified = int(diff_mask.sum())
+            modified_keys = list(common[diff_mask.to_numpy()])
 
         only_in_dev += len(dev_only_index)
         only_in_prod += len(prod_only_index)
+        only_in_dev_keys.extend(dev_only_index)
+        only_in_prod_keys.extend(prod_only_index)
 
     return RowLevelDiff(
         only_in_dev=only_in_dev,
@@ -407,6 +426,9 @@ def row_level_diff(
         precise=precise,
         duplicate_key_dev_rows=int(is_dup_dev.sum()),
         duplicate_key_prod_rows=int(is_dup_prod.sum()),
+        only_in_dev_keys=only_in_dev_keys,
+        only_in_prod_keys=only_in_prod_keys,
+        modified_keys=modified_keys,
     )
 
 

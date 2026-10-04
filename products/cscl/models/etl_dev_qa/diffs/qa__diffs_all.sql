@@ -56,4 +56,18 @@ FROM (
     SELECT * FROM {{ ref('qa__diffs_exception') }}
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_fgdb_altnames') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_fgdb_nycb2010') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_fgdb_nyfb') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_fgdb_nycd') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_fgdb_nypuma2010') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_fgdb_nypuma2020') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_geometry_fgdb_district_layers') }}
+    UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_geometry_fgdb_district_layers_cheap') }}
 ) AS unioned_diffs

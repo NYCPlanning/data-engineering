@@ -78,19 +78,16 @@ def zip_gdb(gdb_dir: Path, zip_path: Path) -> None:
 
 # possible TODO: replace this fn with an Info() object, from which methods like .get_layers() can be called
 def get_layers(gdb: Path) -> list[str]:
-    # Imported lazily: eagerly importing osgeo.gdal at module load time (this
-    # module is imported as part of the dcpy CLI bootstrap) triggers GDAL's
-    # driver registration, which collides with pyarrow's Arrow filesystem
-    # registration ("Attempted to register factory for scheme 'file' but that
-    # scheme is already registered") if pyarrow is used anywhere else in the
-    # same process.
-    from osgeo import gdal
-
-    with gdal.ExceptionMgr():
-        info = gdal.alg.vector.info(
-            input=gdb,
-        ).Output()
-    return info["rootGroup"]["layerNames"]
+    # Delegates to layer_geometry_types (pyogrio-based, already proven against
+    # both classic and modern FileGDB formats via compare_gdb.py) rather than
+    # GDAL's vector.info() algorithm directly - that API's Output()["rootGroup"]
+    # only exists for geodatabases with a hierarchical group structure (modern/
+    # 10.x+ FileGDBs). A "classic" pre-10.x FileGDB (e.g. CSCL's district gdb -
+    # see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md) has no rootGroup
+    # at all; vector.info() returns a flat "layers" list instead, and the old
+    # info["rootGroup"]["layerNames"] lookup raised KeyError('rootGroup') for
+    # every such file (confirmed on v26C_Districts.gdb.zip, chat log 2026-10-05).
+    return list(layer_geometry_types(gdb).keys())
 
 
 def resolve_layer(gdb: Path, layer: str | None = None) -> str:

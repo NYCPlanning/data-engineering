@@ -3,24 +3,23 @@
     indexes=[{'columns': ['geom'], 'type': 'gist'}]
 ) }}
 
--- MUNICOURT '00' is an unassigned placeholder (6 of the 34 source rows) and is
--- excluded, which is what takes prod to 28 features.
+-- Municipal court districts (entity_id is borocode(1) || court(2); the '00' placeholder
+-- never gets an id). Boundaries come from the AtomicPolygon topology
+-- (int__boundary__mc); columns, column order and types match the published layer.
 
-WITH clipped AS (
+WITH boundaries AS (
     SELECT
-        b.borocode::int AS "BoroCode",
-        b.boroname AS "BoroName",
-        d.municourt AS "MuniCourt",
-        {{ clipped_geom('d.geom') }} AS geom
-    FROM {{ ref('stg__municourtdistrict') }} AS d
-    INNER JOIN {{ ref('stg__borough') }} AS b ON d.borough = b.borocode
-    {{ clip_to_shoreline('d.geom') }}
-    WHERE d.municourt != '00'
+        entity_id,
+        st_multi(geom) AS geom
+    FROM {{ ref('int__boundary__mc') }}
 )
 
 SELECT
-    *,
-    st_perimeter(geom) AS "SHAPE_Length",
-    st_area(geom) AS "SHAPE_Area"
-FROM clipped
-WHERE NOT st_isempty(geom)
+    left(b.entity_id, 1)::smallint AS "BoroCode",
+    boro.boroname::varchar(32) AS "BoroName",
+    substr(b.entity_id, 2)::varchar(2) AS "MuniCourt",
+    b.geom,
+    st_perimeter(b.geom) AS "SHAPE_Length",
+    st_area(b.geom) AS "SHAPE_Area"
+FROM boundaries AS b
+LEFT JOIN {{ ref('stg__borough') }} AS boro ON left(b.entity_id, 1) = boro.borocode

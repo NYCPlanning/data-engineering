@@ -27,7 +27,7 @@ WITH atomic_polygons_with_lookups AS (
         END AS health_area,
         ha.health_ct_district AS health_center_district,
         -- NULL AS police_patrol_borough_command,  -- TL12: NYPDPrecinct doesn't have this field
-        prec.precinct AS police_precinct,
+        police.police_precinct,
         ap.water_flag AS water_block_mapping_suppression_flag,
         CASE
             WHEN TRIM(ap.fire_company_type) IN ('', 'null', 'NULL', '0') THEN ''
@@ -94,19 +94,19 @@ WITH atomic_polygons_with_lookups AS (
             ELSE ap.hurricane_evacuation_zone
         END AS hurricane_evacuation_zone,
         CASE
-            WHEN pb.patrol_borough = 'MS' THEN '1'
-            WHEN pb.patrol_borough = 'MN' THEN '2'
-            WHEN pb.patrol_borough = 'BX' THEN '3'  -- Temporary: fallback for current FGDB until XN/XS polygons added
-            WHEN pb.patrol_borough = 'XS' THEN '3'
-            WHEN pb.patrol_borough = 'BS' THEN '4'
-            WHEN pb.patrol_borough = 'BN' THEN '5'
-            WHEN pb.patrol_borough = 'QN' THEN '6'
-            WHEN pb.patrol_borough = 'SI' THEN '7'
-            WHEN pb.patrol_borough = 'QS' THEN '8'
-            WHEN pb.patrol_borough = 'XN' THEN '9'
+            WHEN police.patrol_borough = 'MS' THEN '1'
+            WHEN police.patrol_borough = 'MN' THEN '2'
+            WHEN police.patrol_borough = 'BX' THEN '3'  -- Temporary: fallback for current FGDB until XN/XS polygons added
+            WHEN police.patrol_borough = 'XS' THEN '3'
+            WHEN police.patrol_borough = 'BS' THEN '4'
+            WHEN police.patrol_borough = 'BN' THEN '5'
+            WHEN police.patrol_borough = 'QN' THEN '6'
+            WHEN police.patrol_borough = 'SI' THEN '7'
+            WHEN police.patrol_borough = 'QS' THEN '8'
+            WHEN police.patrol_borough = 'XN' THEN '9'
         END AS police_patrol_borough_command,
-        pb.patrol_borough,
-        beat.sector AS police_sector,
+        police.patrol_borough,
+        police.police_sector,
         ct2020.neighborhood_code AS nta2020,
         ct2020.cdta_code AS cdta,
         ap.commercial_waste_zone AS cwz,
@@ -115,9 +115,9 @@ WITH atomic_polygons_with_lookups AS (
         ct2010.globalid AS ct2010_globalid,
         ct2020.globalid AS ct2020_globalid,
         ha.globalid AS healtharea_globalid,
-        prec.globalid AS nypdprecinct_globalid,
-        pb.globalid AS nypdpatrolborough_globalid,
-        beat.globalid AS nypdbeat_globalid
+        police.nypdprecinct_globalid,
+        police.nypdpatrolborough_globalid,
+        police.nypdbeat_globalid
     FROM {{ ref("stg__atomicpolygons") }} AS ap
     -- Join CensusTract2010 via concatenated key
     LEFT JOIN {{ ref("stg__censustract2010") }} AS ct2010
@@ -128,35 +128,11 @@ WITH atomic_polygons_with_lookups AS (
     -- Join HealthArea via health_area from CensusTract2010
     LEFT JOIN {{ ref("stg__healtharea") }} AS ha
         ON ct2010.health_area = ha.healtharea AND ct2010.borocode = ha.borough
-    -- Spatial joins using point-in-polygon with C# centroid fallback logic
-    -- First try centroid, if outside polygon use ST_PointOnSurface, else fallback to centroid
-    LEFT JOIN {{ ref("stg__nypdprecinct") }} AS prec
-        ON ST_WITHIN(
-            CASE
-                WHEN ST_WITHIN(ST_CENTROID(ap.geom), ap.geom) THEN ST_CENTROID(ap.geom)
-                WHEN ST_POINTONSURFACE(ap.geom) IS NOT NULL THEN ST_POINTONSURFACE(ap.geom)
-                ELSE ST_CENTROID(ap.geom)
-            END,
-            prec.geom
-        )
-    LEFT JOIN {{ ref("stg__nypdpatrolborough") }} AS pb
-        ON ST_WITHIN(
-            CASE
-                WHEN ST_WITHIN(ST_CENTROID(ap.geom), ap.geom) THEN ST_CENTROID(ap.geom)
-                WHEN ST_POINTONSURFACE(ap.geom) IS NOT NULL THEN ST_POINTONSURFACE(ap.geom)
-                ELSE ST_CENTROID(ap.geom)
-            END,
-            pb.geom
-        )
-    LEFT JOIN {{ ref("stg__nypdbeat") }} AS beat
-        ON ST_WITHIN(
-            CASE
-                WHEN ST_WITHIN(ST_CENTROID(ap.geom), ap.geom) THEN ST_CENTROID(ap.geom)
-                WHEN ST_POINTONSURFACE(ap.geom) IS NOT NULL THEN ST_POINTONSURFACE(ap.geom)
-                ELSE ST_CENTROID(ap.geom)
-            END,
-            beat.geom
-        )
+    -- Police geography (precinct, patrol borough, sector) is computed once per AP in
+    -- int__topology__ap_police: the polygon at the AP's centroid, or majority of area
+    -- where the centroid falls outside the AP - the rule that reproduces prod.
+    LEFT JOIN {{ ref("int__topology__ap_police") }} AS police
+        ON ap.atomicid = police.atomicid
 )
 
 SELECT * FROM atomic_polygons_with_lookups

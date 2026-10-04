@@ -3,17 +3,19 @@
     indexes=[{'columns': ['geom'], 'type': 'gist'}]
 ) }}
 
-WITH clipped AS (
+-- Community districts. Boundaries come from the AtomicPolygon topology
+-- (int__boundary__cd); columns, column order and types match the published layer.
+
+WITH boundaries AS (
     SELECT
-        d.commdist::int AS "BoroCD",
-        {{ clipped_geom('d.geom') }} AS geom
-    FROM {{ ref('stg__communitydistrict') }} AS d
-    {{ clip_to_shoreline('d.geom') }}
+        entity_id,
+        st_multi(geom) AS geom
+    FROM {{ ref('int__boundary__cd') }}
 )
 
 SELECT
-    *,
-    st_perimeter(geom) AS "SHAPE_Length",
-    st_area(geom) AS "SHAPE_Area"
-FROM clipped
-WHERE NOT st_isempty(geom)
+    b.entity_id::smallint AS "BoroCD",
+    b.geom,
+    st_perimeter(b.geom) AS "SHAPE_Length",
+    st_area(b.geom) AS "SHAPE_Area"
+FROM boundaries AS b

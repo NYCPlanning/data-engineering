@@ -329,6 +329,47 @@ class GdbComparisonReport:
                 )
         return out
 
+    def flagged_rows(self) -> list[dict]:
+        """One dict per flagged ROW (not column) across every layer added so
+        far - the actual identities behind rows_only_in_dev/rows_only_in_prod/
+        rows_modified in rows()'s per-layer counts, for a caller that needs to
+        know WHICH rows triggered a diff, not just how many (e.g. writing a
+        per-row CSV so someone can go look at the specific features flagged by
+        a build, rather than re-deriving them by hand - see
+        RowLevelDiff.only_in_dev_keys/only_in_prod_keys/modified_keys).
+
+        Empty for a layer with no declared/guessed key (key_cols == []) or one
+        added via add_missing_layer (no per-row diff is possible against a
+        side that doesn't exist at all) - those only ever show up in rows()'s
+        layer-level counts.
+
+        key is each flagged row's composite key, formatted as its key_cols'
+        values joined by " | " in key_cols order - readable on its own, and
+        paired with the key_columns field here so a multi-column key's parts
+        aren't ambiguous.
+        """
+        out = []
+        for entry in self.layers:
+            key_cols = entry.comparison.key_cols
+            if not key_cols:
+                continue
+            row_level = entry.comparison.row_level
+            for status, keys in (
+                ("only_in_dev", row_level.only_in_dev_keys),
+                ("only_in_prod", row_level.only_in_prod_keys),
+                ("modified", row_level.modified_keys),
+            ):
+                for k in keys:
+                    out.append(
+                        {
+                            "layer": entry.layer,
+                            "status": status,
+                            "key_columns": ", ".join(key_cols),
+                            "key": " | ".join(str(part) for part in k),
+                        }
+                    )
+        return out
+
     @property
     def clean_layer_count(self) -> int:
         return sum(1 for entry in self.layers if entry.is_clean)

@@ -3,57 +3,55 @@
     indexes=[{'columns': ['geom'], 'type': 'gist'}]
 ) }}
 
--- Borough is assigned by point-on-surface containment per the ETL spec's centroid
--- rule; point-on-surface keeps the probe inside concave shapes.
--- CDTA is matched the same way.
---
--- d.geom is bounded to its own assigned borough (shrunk 5 ft) before shoreline
--- clipping - see gdb_nynta2010.sql and CSCL-DISTRICTS-03 for why (a genuine
--- AtomicPolygon coverage void past legal/jurisdictional lines like the NY/NJ state
--- line, plus at least one real stg__neighborhood/stg__nta2020-family data error
--- caught the same way).
+-- 2020 neighborhood tabulation areas. Boundaries come from the AtomicPolygon topology
+-- (int__boundary__nta2020); columns, column order and types match the published layer.
 
-WITH bounded AS (
-    SELECT
-        b.borocode::int AS "BoroCode",
-        b.boroname AS "BoroName",
-        b.fips AS "CountyFIPS",
-        d.neighborhood_code AS "NTA2020",
-        nta.nta_name AS "NTAName",
-        nta.nta_abbrev AS "NTAAbbrev",
-        nta.nta_type AS "NTAType",
-        cdta.cdta_code AS "CDTA2020",
-        cdta_equiv.cdta_name AS "CDTAName",
-        st_intersection(d.geom, st_buffer(b.geom, -5)) AS geom
-    FROM {{ ref('stg__nta2020') }} AS d
-    INNER JOIN {{ ref('stg__borough') }} AS b
-        ON st_contains(b.geom, st_pointonsurface(d.geom))
-    LEFT JOIN {{ ref('stg__ntaequiv2020') }} AS nta ON d.neighborhood_code = nta.nta_code
-    LEFT JOIN {{ ref('stg__cdta2020') }} AS cdta
-        ON st_contains(cdta.geom, st_pointonsurface(d.geom))
-    LEFT JOIN {{ ref('stg__cdtaequiv2020') }} AS cdta_equiv
-        ON cdta.cdta_code = cdta_equiv.cdta_code
+-- borough holding most of the district's AP area - the borough it physically sits in
+-- (Rikers Island's NTA QN0151 belongs to a Queens CDTA but is in the Bronx), robust to a
+-- few APs across a borough line (QN99, Queens parks and cemeteries, has Brooklyn APs)
+WITH district_borough AS (
+    SELECT DISTINCT ON (m.nta2020)  -- noqa: AM01
+        m.nta2020 AS entity_id,
+        m.borocode
+    FROM {{ ref('int__topology__ap_entities') }} AS m
+    WHERE m.nta2020 IS NOT NULL
+    GROUP BY m.nta2020, m.borocode
+    ORDER BY m.nta2020, sum(m.area_sqft) DESC
 ),
 
-clipped AS (
+-- every NTA nests in exactly one CDTA (via its 2020 tracts)
+nta_cdta AS (
     SELECT
-        "BoroCode",
-        "BoroName",
-        "CountyFIPS",
-        "NTA2020",
-        "NTAName",
-        "NTAAbbrev",
-        "NTAType",
-        "CDTA2020",
-        "CDTAName",
-        {{ clipped_geom('bounded.geom') }} AS geom
-    FROM bounded
-    {{ clip_to_shoreline('bounded.geom') }}
+        nta2020 AS entity_id,
+        min(cdta2020) AS cdta2020
+    FROM {{ ref('int__topology__ap_entities') }}
+    WHERE nta2020 IS NOT NULL
+    GROUP BY nta2020
+),
+
+boundaries AS (
+    SELECT
+        entity_id,
+        st_multi(geom) AS geom
+    FROM {{ ref('int__boundary__nta2020') }}
 )
 
 SELECT
-    *,
-    st_perimeter(geom) AS "SHAPE_Length",
-    st_area(geom) AS "SHAPE_Area"
-FROM clipped
-WHERE NOT st_isempty(geom)
+    db.borocode::smallint AS "BoroCode",
+    boro.boroname::varchar(13) AS "BoroName",
+    boro.fips::varchar(3) AS "CountyFIPS",
+    b.entity_id::varchar(6) AS "NTA2020",
+    nta.nta_name::varchar(75) AS "NTAName",
+    nta.nta_abbrev::varchar(10) AS "NTAAbbrev",
+    nta.nta_type::varchar(1) AS "NTAType",
+    nc.cdta2020::varchar(4) AS "CDTA2020",
+    cdta.cdta_name::varchar(75) AS "CDTAName",
+    b.geom,
+    st_perimeter(b.geom) AS "SHAPE_Length",
+    st_area(b.geom) AS "SHAPE_Area"
+FROM boundaries AS b
+LEFT JOIN district_borough AS db ON b.entity_id = db.entity_id
+LEFT JOIN {{ ref('stg__borough') }} AS boro ON db.borocode = boro.borocode
+LEFT JOIN {{ ref('stg__ntaequiv2020') }} AS nta ON b.entity_id = nta.nta_code
+LEFT JOIN nta_cdta AS nc ON b.entity_id = nc.entity_id
+LEFT JOIN {{ ref('stg__cdtaequiv2020') }} AS cdta ON nc.cdta2020 = cdta.cdta_code

@@ -5,7 +5,7 @@ version: 2
 
 models:
 - name: gdb_nyad
-  description: State assembly districts clipped to the shoreline.
+  description: State assembly districts built from the AtomicPolygon topology.
   columns:
   - name: "'AssemDist'"
     data_tests: [ not_null ]
@@ -14,7 +14,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyadwi
-  description: State assembly districts, water areas included (as stored in CSCL).
+  description: State assembly districts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'AssemDist'"
     data_tests: [ not_null ]
@@ -32,7 +32,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nybb
-  description: Borough boundaries clipped to the shoreline.
+  description: Borough boundaries built from the AtomicPolygon topology.
   columns:
   - name: "'BoroCode'"
     data_tests: [ not_null ]
@@ -41,7 +41,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nybbwi
-  description: Borough boundaries, water areas included.
+  description: Borough boundaries built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'BoroCode'"
     data_tests: [ not_null ]
@@ -59,7 +59,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycb2010
-  description: 2010 census blocks clipped to the shoreline.
+  description: 2010 census blocks built from the AtomicPolygon topology.
   columns:
   - name: "'BCTCB2010'"
     data_tests: [ not_null ]
@@ -68,7 +68,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycb2010wi
-  description: 2010 census blocks, water areas included.
+  description: 2010 census blocks built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'BCTCB2010'"
     data_tests: [ not_null ]
@@ -77,7 +77,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycb2020
-  description: 2020 census blocks clipped to the shoreline.
+  description: 2020 census blocks built from the AtomicPolygon topology.
   columns:
   - name: "'BCTCB2020'"
     data_tests: [ not_null ]
@@ -86,7 +86,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycb2020wi
-  description: 2020 census blocks, water areas included.
+  description: 2020 census blocks built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'BCTCB2020'"
     data_tests: [ not_null ]
@@ -95,7 +95,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycc
-  description: City council districts clipped to the shoreline.
+  description: City council districts built from the AtomicPolygon topology.
   columns:
   - name: "'CounDist'"
     data_tests: [ not_null ]
@@ -104,7 +104,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyccwi
-  description: City council districts, water areas included.
+  description: City council districts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'CounDist'"
     data_tests: [ not_null ]
@@ -114,7 +114,7 @@ models:
 
 - name: gdb_nycd
   description: >-
-    Community districts clipped to the shoreline. One of ~43 layers bundled together
+    Community districts built from the AtomicPolygon topology. One of ~43 layers bundled together
     in a single citywide district-boundary geodatabase zip file, not its own
     standalone file.
   config:
@@ -134,7 +134,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycdta2020
-  description: 2020 community district tabulation areas clipped to the shoreline.
+  description: 2020 community district tabulation areas built from the AtomicPolygon topology.
   columns:
   - name: "'CDTA2020'"
     data_tests: [ not_null ]
@@ -143,7 +143,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycdwi
-  description: Community districts, water areas included.
+  description: Community districts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'BoroCD'"
     data_tests: [ not_null ]
@@ -152,7 +152,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycg
-  description: Congressional districts clipped to the shoreline.
+  description: Congressional districts built from the AtomicPolygon topology.
   columns:
   - name: "'CongDist'"
     data_tests: [ not_null ]
@@ -161,7 +161,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nycgwi
-  description: Congressional districts, water areas included.
+  description: Congressional districts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'CongDist'"
     data_tests: [ not_null ]
@@ -170,7 +170,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyct2010
-  description: 2010 census tracts clipped to the shoreline.
+  description: 2010 census tracts built from the AtomicPolygon topology.
   columns:
   - name: "'BoroCT2010'"
     data_tests: [ not_null ]
@@ -179,7 +179,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyct2010wi
-  description: 2010 census tracts, water areas included.
+  description: 2010 census tracts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'BoroCT2010'"
     data_tests: [ not_null ]
@@ -188,7 +188,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyct2020
-  description: 2020 census tracts clipped to the shoreline.
+  description: 2020 census tracts built from the AtomicPolygon topology.
   columns:
   - name: "'BoroCT2020'"
     data_tests: [ not_null ]
@@ -197,7 +197,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyct2020wi
-  description: 2020 census tracts, water areas included.
+  description: 2020 census tracts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'BoroCT2020'"
     data_tests: [ not_null ]
@@ -206,7 +206,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyed
-  description: Election districts clipped to the shoreline.
+  description: Election districts built from the AtomicPolygon topology.
   columns:
   - name: "'ElectDist'"
     data_tests: [ not_null ]
@@ -215,7 +215,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyedwi
-  description: Election districts, water areas included.
+  description: Election districts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'ElectDist'"
     data_tests: [ not_null ]
@@ -224,7 +224,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyfb
-  description: Fire battalions clipped to the shoreline.
+  description: Fire battalions built from the AtomicPolygon topology.
   columns:
   - name: "'FireBN'"
     data_tests: [ not_null ]
@@ -233,7 +233,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyfc
-  description: Fire companies clipped to the shoreline.
+  description: Fire companies built from the AtomicPolygon topology.
   columns:
   - name: "'FireCoNum'"
     data_tests: [ not_null ]
@@ -242,7 +242,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyfd
-  description: Fire divisions clipped to the shoreline.
+  description: Fire divisions built from the AtomicPolygon topology.
   columns:
   - name: "'FireDiv'"
     data_tests: [ not_null ]
@@ -251,7 +251,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyha
-  description: Health areas clipped to the shoreline.
+  description: Health areas built from the AtomicPolygon topology.
   columns:
   - name: "'HealthArea'"
     data_tests: [ not_null ]
@@ -260,7 +260,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyhc
-  description: Health center districts clipped to the shoreline.
+  description: Health center districts built from the AtomicPolygon topology.
   columns:
   - name: "'HCentDist'"
     data_tests: [ not_null ]
@@ -278,7 +278,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyhez
-  description: Hurricane evacuation zones, water areas included.
+  description: Hurricane evacuation zones built from the AtomicPolygon topology, water areas assigned a zone included.
   columns:
   - name: "'HURRICANE_EVACUATION_ZONE'"
     data_tests: [ not_null ]
@@ -287,7 +287,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nymc
-  description: Municipal court districts clipped to the shoreline, excluding the '00' placeholder.
+  description: Municipal court districts built from the AtomicPolygon topology, excluding the '00' placeholder.
   columns:
   - name: "'MuniCourt'"
     data_tests: [ not_null ]
@@ -296,7 +296,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nymcea
-  description: Minor census economic areas, dissolved from 2000 census tracts, clipped and split to singlepart.
+  description: Minor census economic areas, built from the AtomicPolygon topology and split to singlepart.
   columns:
   - name: "'MCEA'"
     data_tests: [ not_null ]
@@ -305,7 +305,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nymcwi
-  description: Municipal court districts, water areas included, excluding the '00' placeholder.
+  description: Municipal court districts built from the AtomicPolygon topology, water areas included, excluding the '00' placeholder.
   columns:
   - name: "'MuniCourt'"
     data_tests: [ not_null ]
@@ -314,7 +314,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nynta2010
-  description: 2010 neighborhood tabulation areas clipped to the shoreline.
+  description: 2010 neighborhood tabulation areas built from the AtomicPolygon topology.
   columns:
   - name: "'NTACode'"
     data_tests: [ not_null ]
@@ -323,7 +323,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nynta2020
-  description: 2020 neighborhood tabulation areas clipped to the shoreline.
+  description: 2020 neighborhood tabulation areas built from the AtomicPolygon topology.
   columns:
   - name: "'NTA2020'"
     data_tests: [ not_null ]
@@ -332,7 +332,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nypp
-  description: Police precincts clipped to the shoreline.
+  description: Police precincts, the NYPD source precinct polygons clipped to land (NYPD lines don't follow AtomicPolygon edges).
   columns:
   - name: "'Precinct'"
     data_tests: [ not_null ]
@@ -341,7 +341,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nypuma2010
-  description: 2010 public use microdata areas, dissolved from 2010 census tracts and clipped to the shoreline.
+  description: 2010 public use microdata areas, built from the AtomicPolygon topology.
   columns:
   - name: "'PUMA'"
     data_tests: [ not_null ]
@@ -350,7 +350,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nypuma2020
-  description: 2020 public use microdata areas, dissolved from 2020 census tracts and clipped to the shoreline.
+  description: 2020 public use microdata areas, built from the AtomicPolygon topology.
   columns:
   - name: "'PUMA'"
     data_tests: [ not_null ]
@@ -359,7 +359,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nysd
-  description: School districts clipped to the shoreline. District 10 is split into one polygon per borough.
+  description: School districts built from the AtomicPolygon topology. District 10 is split into one polygon per borough.
   columns:
   - name: "'SchoolDist'"
     data_tests: [ not_null ]
@@ -368,7 +368,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nyss
-  description: State senate districts clipped to the shoreline.
+  description: State senate districts built from the AtomicPolygon topology.
   columns:
   - name: "'StSenDist'"
     data_tests: [ not_null ]
@@ -377,7 +377,7 @@ models:
     data_tests: [ not_null ]
 
 - name: gdb_nysswi
-  description: State senate districts, water areas included.
+  description: State senate districts built from the AtomicPolygon topology, water areas included.
   columns:
   - name: "'StSenDist'"
     data_tests: [ not_null ]

@@ -1,0 +1,8 @@
+version: 2
+
+models:
+- name: int__fire_company_borough
+  description: Borough of each fire company (company centroid in borough polygons, with the ETL spec's exceptions).
+  columns:
+  - name: globalid
+    tests: [ unique, not_null ]

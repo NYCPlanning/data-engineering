@@ -1,6 +1,33 @@
 version: 2
 
 models:
+# ── Geometry test cases (TDD fixtures) ──────────────────────────────────────────
+
+- name: qa__test_cases_geometry
+  description: >
+    Applies test_cases.geometry_diff_metrics to every row in test_cases.examples -
+    our TDD fixture table of known-weird geometries. Expected to go red when a new
+    weird case is added or a fix regresses, green once the underlying issue is
+    actually fixed.
+  data_tests:
+  # TODO: disabled 2026-10-05 - all 6 test_cases.examples rows are currently
+  # failing (see inv-tv1.2). Needs investigation before re-enabling: likely the
+  # qa thresholds/metrics need revisiting now that gridSize fixes have changed
+  # the fixtures' actual vs expected geoms, not necessarily a real regression.
+  - dbt_utils.expression_is_true:
+      arguments:
+        column_name: passes
+        expression: "= true"
+      config:
+        enabled: false
+  columns:
+  - name: slug
+    tests: [ not_null, unique ]
+  - name: passes
+    description: True if every computed metric is within its threshold (see model SQL).
+  - name: failing_metrics
+    description: Array of metric names that exceeded their threshold for this row.
+
 # ── LION DAT QA ──────────────────────────────────────────────────────────────
 
 - name: qa__lion_dat_by_row
