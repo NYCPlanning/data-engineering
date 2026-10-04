@@ -29,7 +29,7 @@ WITH edges AS (
         e.atomicid,
         a.water_flag
     FROM {{ ref('int__atomicpolygon_edges') }} AS e
-    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON a.atomicid = e.atomicid
+    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON e.atomicid = a.atomicid
 ),
 
 classified AS (
@@ -60,5 +60,5 @@ SELECT
     END AS edge_type,
     st_makeline(n_lo.geom, n_hi.geom) AS geom
 FROM classified AS c
-INNER JOIN {{ ref('int__atomicpolygon_nodes') }} AS n_lo ON n_lo.node_id = c.node_lo
-INNER JOIN {{ ref('int__atomicpolygon_nodes') }} AS n_hi ON n_hi.node_id = c.node_hi
+INNER JOIN {{ ref('int__atomicpolygon_nodes') }} AS n_lo ON c.node_lo = n_lo.node_id
+INNER JOIN {{ ref('int__atomicpolygon_nodes') }} AS n_hi ON c.node_hi = n_hi.node_id

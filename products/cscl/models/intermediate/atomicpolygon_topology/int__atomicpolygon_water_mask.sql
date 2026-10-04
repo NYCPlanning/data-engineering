@@ -17,7 +17,7 @@
 WITH unioned AS (
     SELECT st_unaryunion(st_collect(r.geom)) AS geom
     FROM {{ ref('int__atomicpolygon_rebuilt') }} AS r
-    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON a.atomicid = r.atomicid
+    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON r.atomicid = a.atomicid
     WHERE a.water_flag = '1'
 )
 

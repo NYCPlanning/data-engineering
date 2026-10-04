@@ -26,7 +26,7 @@ WITH grid_keys AS (
     SELECT
         atomicid,
         geom,
-        ST_SnapToGrid(geom, {{ var('atomicpolygon_node_grid_size', 0.02) }}) AS grid_key
+        st_snaptogrid(geom, {{ var('atomicpolygon_node_grid_size', 0.02) }}) AS grid_key
     FROM {{ ref('int__atomicpolygon_vertices') }}
 )
 

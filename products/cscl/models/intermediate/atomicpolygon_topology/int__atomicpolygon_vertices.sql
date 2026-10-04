@@ -14,8 +14,8 @@
 WITH dumped AS (
     SELECT
         atomicid,
-        (ST_DumpPoints(geom)).path AS path,
-        (ST_DumpPoints(geom)).geom AS geom
+        (st_dumppoints(geom)).path AS path,
+        (st_dumppoints(geom)).geom AS geom
     FROM {{ ref('stg__atomicpolygons') }}
 )
 

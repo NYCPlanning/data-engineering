@@ -17,7 +17,7 @@ WITH vertices AS (
         ring_index,
         point_ordinal,
         geom AS original_geom,
-        ST_SnapToGrid(geom, {{ var('atomicpolygon_node_grid_size', 0.02) }}) AS grid_key
+        st_snaptogrid(geom, {{ var('atomicpolygon_node_grid_size', 0.02) }}) AS grid_key
     FROM {{ ref('int__atomicpolygon_vertices') }}
 )
 
