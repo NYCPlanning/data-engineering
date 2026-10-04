@@ -70,7 +70,7 @@ For code comments, use consistent tags (inspired by [Better Comments](https://ma
 ## dbt
 
 Model-layer structure, materialization, indexing, geometry standards, and linting live in
-[dbt project conventions](./dbt/project_conventions.md) — read that before adding a model.
+[dbt project conventions](./dbt-project-conventions.md) — read that before adding a model.
 
 We validate conventions with [`dbt-checkpoint`](https://github.com/dbt-checkpoint/dbt-checkpoint) via pre-commit:
 

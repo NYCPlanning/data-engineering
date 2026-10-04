@@ -7,7 +7,7 @@ Migrate PLUTO SQL build files to dbt intermediate models for targeted re-running
 
 ## End Goals
 - All SQL transformations are declarative (SELECT, not UPDATE/INSERT)
-- Aligns with docs/dbt/project_conventions.md
+- Aligns with docs/dbt-project-conventions.md
 - No potentially circular logic
   - e.g. tables that feed into pluto should not read from or modify pluto. Currently they do, which is fine for the moment, but should be refactored away. 
 - One stg__* table per recipe source
