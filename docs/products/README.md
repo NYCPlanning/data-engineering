@@ -31,4 +31,4 @@ Critical variables like `BUILD_ENGINE_SCHEMA` are set here.
 
 ## Related Docs
 
-- [dbt project conventions](../dbt/project_conventions.md) - Data modeling standards
+- [dbt project conventions](../dbt-project-conventions.md) - Data modeling standards
