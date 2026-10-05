@@ -80,3 +80,37 @@ seeds:
       - name: geometry
         tests: [ not_null ]
 
+
+  - name: tycs_lifecycle_crosswalk
+    description: |
+      Ten-Year Capital Strategy (TYCS) lifecycle category for each project type and ten-year
+      plan category (`typc`), for joining to planned commitments. OMB doesn't publish this
+      mapping. It's inferred from the FY 2026-2035 strategy: each lifecycle line on its "Life
+      Cycle Category" page was matched to the set of TYCS Open Data categories (b37a-3faw,
+      pub_date 20250501) whose totals sum to it. `lifecycle_confidence` is `exact` when the
+      categories were picked by name and their totals match the line, `plausible` when several
+      sets of categories match the line's total and one was picked by judgment, and `unresolved`
+      when no pick was made. TYCS categories are matched to `typc`
+      codes by project type and name, except six renamed Parks and Sanitation categories
+      matched by hand. The TYCS treats project types BR (waterway bridges) and HB (highway
+      bridges) as one program, `BR and HB`, so each bridge category has a row for both.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc ]
+    columns:
+      - name: project_type
+        tests: [ not_null ]
+      - name: tycs_project_type
+        tests: [ not_null ]
+      - name: typc
+        tests: [ not_null ]
+      - name: tycs_category
+        tests: [ not_null ]
+      - name: lifecycle
+        tests:
+          - accepted_values:
+              values: [ State of Good Repair, Program Expansion, Programmatic Replacement ]
+      - name: lifecycle_confidence
+        tests:
+          - accepted_values:
+              values: [ exact, plausible, unresolved ]
