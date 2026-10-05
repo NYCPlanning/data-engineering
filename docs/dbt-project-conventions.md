@@ -27,17 +27,10 @@ Business logic and transformations:
 - `intermediate/{topic}/` - Complex multi-table logic grouped by domain (e.g., `intermediate/cama/`, `intermediate/zoning/`)
 
 ### `core/`
-The clean model of the data, built only from `select` and joins of `intermediate/` models. All logic stays in `intermediate/`. One model per grain:
-- `dim_`: one row per thing that persists (a lot, a building, an application)
-- `fact_`: one row per thing that happened (a filing, a permit issuance)
-- `scd_`: one row per version of an entity's attributes, with `valid_from` / `valid_to`
-- `mart_`: one row per combination of things (e.g. community district by year)
-- `ref_`: one row per code in a code list, with its label
+Tables exposed to engineers and internal analysts. See [Data modeling](./data-modeling.md#core-shapes) for their shapes and rules.
 
 ### `product/`
-Final tables ready for export, in one folder per product. Names match the exported files, so renaming a product model breaks its consumers.
-
-Product models shape `core/` models for a destination or tool. They can filter rows, select and rename columns, choose a geometry column, and cast types. They don't compute anything new: if a product model couldn't be generated from a config file, its logic belongs in `intermediate/`.
+Final tables ready for export, in one folder per product. Names match the exported files, so renaming a product model breaks its consumers. See [Data modeling](./data-modeling.md#product-tables) for what a product model can do.
 
 ## Model Configuration
 
