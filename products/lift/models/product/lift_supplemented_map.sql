@@ -17,6 +17,11 @@
     'lur_commonopenspace': 'Common open space',
     'lur_bedofstreet': 'Bed of street',
 } %}
+{#- Public Sites categories typed by hand, so the same value arrives in several spellings
+    ('New Construction ', 'Co-location' vs 'Co-Location'). Each is collapsed to its most
+    common spelling so map widgets don't split one category into several bars. #}
+{%- set category_columns = ['redev_strategy', 'redev_priority'] %}
+{%- set squish = "REGEXP_REPLACE(TRIM({}), '\\s+', ' ', 'g')" %}
 WITH lift AS (
     SELECT * FROM {{ ref('lift_supplemented') }}
 ),
@@ -31,7 +36,21 @@ ahft_districts AS (
 
 tracts AS (
     SELECT boroct2020, cdta2020, cdtaname FROM {{ ref('stg__ct2020') }}
-)
+),
+{% for col in category_columns %}
+{{ col }}_spellings AS (
+    SELECT
+        LOWER(spelling) AS spelling_key,
+        FIRST(spelling ORDER BY n DESC, spelling) AS canonical
+    FROM (
+        SELECT {{ squish.format(col) }} AS spelling, COUNT(*) AS n
+        FROM lift
+        WHERE {{ col }} IS NOT NULL
+        GROUP BY 1
+    )
+    GROUP BY 1
+){{ "," if not loop.last }}
+{% endfor %}
 
 SELECT
     lift.* REPLACE (
@@ -52,7 +71,10 @@ SELECT
         CASE WHEN lift.pluto_bbl IS NOT NULL THEN COALESCE(lift.pfirm15_flag = 1, FALSE) END AS pfirm15_flag,
         CASE WHEN pluto.geom IS NOT NULL THEN COALESCE(lift.laa = 'Y', FALSE) END AS laa,
         -- AHFT only ranks the 59 community districts, so a lot outside them is unranked, not "no".
-        CASE WHEN ahft_districts.borocd IS NOT NULL THEN COALESCE(lift.ahft = 'Y', FALSE) END AS ahft
+        CASE WHEN ahft_districts.borocd IS NOT NULL THEN COALESCE(lift.ahft = 'Y', FALSE) END AS ahft,
+        {%- for col in category_columns %}
+        {{ col }}_spellings.canonical AS {{ col }}{{ "," if not loop.last }}
+        {%- endfor %}
     ),
     CASE lift.boro
         WHEN 1 THEN 'Manhattan'
@@ -90,3 +112,6 @@ FROM lift
 LEFT JOIN pluto ON lift.bbl = pluto.bbl
 LEFT JOIN ahft_districts ON lift.cd = ahft_districts.borocd
 LEFT JOIN tracts ON lift.boroct2020 = tracts.boroct2020
+{%- for col in category_columns %}
+LEFT JOIN {{ col }}_spellings ON LOWER({{ squish.format('lift.' ~ col) }}) = {{ col }}_spellings.spelling_key
+{%- endfor %}
