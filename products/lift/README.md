@@ -259,7 +259,9 @@ Or run the whole thing (load excluded) via:
 
 - `lift_supplemented.csv`
 - `lift.gdb.zip`: a FileGDB with `lift_supplemented` as a polygon layer (PLUTO lot geometry, via
-  `lift_supplemented_map`)
+  `lift_supplemented_map`). The layer's columns are retyped for mapping (see
+  `lift_supplemented_map` in `_product_models.yml`), so it doesn't match the CSV column for
+  column. FileGDB has no boolean type, so flags land as 0/1.
 
 Run the export after the dbt build:
 
