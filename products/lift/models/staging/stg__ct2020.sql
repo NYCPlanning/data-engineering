@@ -6,7 +6,9 @@ final AS (
     SELECT
         boroct2020,
         nta2020,
-        ntaname
+        ntaname,
+        cdta2020,
+        cdtaname
     FROM ct2020_raw
 )
 

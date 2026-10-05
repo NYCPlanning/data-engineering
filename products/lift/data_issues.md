@@ -20,6 +20,7 @@ It isn't a work tracker.
 |---|---|---|---|---|
 | [LIFT-01](#lift-01) | `moa_date` | 2-digit years and Excel `####` values | Open | 26v1 |
 | [LIFT-02](#lift-02) | `redev_priority` | Mixes time horizon, target quarter, and strategy | Open | 26v1 |
+| [LIFT-03](#lift-03) | `juris` | Blank on lots the City leases, though the dictionary says blank means city owned | Open | 26v1 |
 
 ## LIFT-01
 
@@ -48,3 +49,13 @@ Both are already in the raw `dcas_lift.csv` (`edm-private`, version `20260804`),
 That makes it unusable as a single category filter or widget.
 The planned fix is to split it into separate columns in `lift_supplemented` while keeping the original, batched with other higher-impact build changes.
 The source field mapping is also unconfirmed (see README Limitations).
+
+## LIFT-03
+
+The data dictionary says a blank `juris` means the lot is "city owned but under the jurisdiction of a non-city entity like a state authority".
+But 22 of the 23 lots whose IPIS agency use records are all leased (`ownedleased` all `L`) have a blank `juris`, e.g. the World Trade Center and Stuyvesant High School.
+So a blank `juris` doesn't reliably mean the City owns the lot.
+
+`lift_supplemented_map.owned_leased` reads ownership from `ownedleased` instead.
+
+**What would settle it:** DCAS confirming what a blank `juris` means for lots the City only leases.

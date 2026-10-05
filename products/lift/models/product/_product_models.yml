@@ -18,9 +18,49 @@ models:
 - name: lift_supplemented_map
   description: >
     lift_supplemented with each bbl's PLUTO lot geometry (from dcp_mappluto_wi) added,
-    for the geospatial export. geom is null for bbls with no PLUTO match.
+    for the geospatial export and map tools. geom is null for bbls with no PLUTO match.
+    Columns are retyped for mapping rather than kept to DCAS's field spec: cd and council
+    are text, unitpotential is an integer, the dollar columns are numeric, and Y/NULL
+    flags are booleans.
   columns:
   - name: bbl
     tests:
     - not_null
     - unique
+  - name: borough
+    description: Borough name decoded from boro.
+    tests:
+    - not_null
+  - name: is_lift_site
+    description: >
+      True if the bbl matched a row in City Hall's Public Sites for Housing tracker.
+    tests:
+    - not_null
+  - name: site_name
+    description: Public Sites site name, copied from zzz_lift_data_zzz.
+  - name: dcas_flags
+    description: >
+      Comma-separated labels for the DCAS flags (lur_* and no_street_frontage) that are
+      true for the lot, e.g. "Waterfront, Urban renewal site". Null when none are.
+  - name: pfirm15_flag
+    description: Null when DCAS's extract has no PLUTO match for the bbl (no pluto_bbl).
+  - name: laa
+    description: Null when the bbl has no PLUTO lot geometry to intersect.
+  - name: ahft
+    description: Null when the bbl's community district isn't one of the 59 that AHFT ranks.
+  - name: owned_leased
+    description: >
+      Whether the City owns or leases the lot, from the IPIS agency use records' ownedleased
+      codes: "Owned", "Leased", "Owned and leased" (different agencies' records disagree), or
+      "No agency use record".
+    tests:
+    - not_null
+    - accepted_values:
+        values: ['Owned', 'Leased', 'Owned and leased', 'No agency use record']
+  - name: agency_owned_leased
+    description: >
+      Each agency in agencys with its owned/leased code, e.g. "NYCHA: owned, EDUC: leased".
+  - name: cdta2020
+    description: Community district tabulation area the bbl's census tract falls in, from dcp_ct2020.
+  - name: cdtaname
+    description: Name of cdta2020, e.g. "BK01 Williamsburg-Greenpoint (CD 1 Equivalent)".
