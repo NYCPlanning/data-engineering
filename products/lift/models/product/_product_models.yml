@@ -60,7 +60,35 @@ models:
   - name: agency_owned_leased
     description: >
       Each agency in agencys with its owned/leased code, e.g. "NYCHA: owned, EDUC: leased".
+  - name: community_district
+    description: >
+      The bbl's community district as a code like "BK10" (from cd), matching
+      community_districts_map. Null when cd is null or not a mapped district.
   - name: cdta2020
     description: Community district tabulation area the bbl's census tract falls in, from dcp_ct2020.
   - name: cdtaname
     description: Name of cdta2020, e.g. "BK01 Williamsburg-Greenpoint (CD 1 Equivalent)".
+
+- name: community_districts_map
+  description: >
+    Community district boundaries (dcp_cdboundaries, shoreline-clipped) with each district's
+    AHFT rank, for the map's AHFT layer. One row per district, including the unranked
+    joint interest areas (parks, airports).
+  columns:
+  - name: borocd
+    tests:
+    - not_null
+    - unique
+  - name: community_district
+    description: Borough abbreviation plus 2-digit district, e.g. "BK10", matching AHFT's codes.
+    tests:
+    - not_null
+  - name: ahft
+    description: >
+      True for the 12 lowest-ranked districts, same cutoff as lift_supplemented.ahft.
+      Null for districts AHFT doesn't rank.
+  - name: ahft_group
+    description: >
+      ahft as a label for map legends: "AHFT bottom 12", "Other ranked district", or "Not ranked".
+    tests:
+    - not_null

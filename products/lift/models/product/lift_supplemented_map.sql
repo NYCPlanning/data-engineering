@@ -37,6 +37,10 @@ ahft_districts AS (
 tracts AS (
     SELECT boroct2020, cdta2020, cdtaname FROM {{ ref('stg__ct2020') }}
 ),
+
+districts AS (
+    SELECT borocd, community_district FROM {{ ref('stg__dcp_cdboundaries') }}
+),
 {% for col in category_columns %}
 {{ col }}_spellings AS (
     SELECT
@@ -86,6 +90,7 @@ SELECT
     -- zzz_lift_data_zzz holds the Public Sites site name (see README Limitations).
     lift.zzz_lift_data_zzz IS NOT NULL AS is_lift_site,
     lift.zzz_lift_data_zzz AS site_name,
+    districts.community_district,
     tracts.cdta2020,
     tracts.cdtaname,
     -- One readable list of the flags a lot carries, for popups; null when it has none.
@@ -112,6 +117,7 @@ FROM lift
 LEFT JOIN pluto ON lift.bbl = pluto.bbl
 LEFT JOIN ahft_districts ON lift.cd = ahft_districts.borocd
 LEFT JOIN tracts ON lift.boroct2020 = tracts.boroct2020
+LEFT JOIN districts ON lift.cd = districts.borocd
 {%- for col in category_columns %}
 LEFT JOIN {{ col }}_spellings ON LOWER({{ squish.format('lift.' ~ col) }}) = {{ col }}_spellings.spelling_key
 {%- endfor %}
