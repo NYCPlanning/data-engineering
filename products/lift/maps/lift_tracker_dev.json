@@ -1,0 +1,3106 @@
+{
+  "agent": {
+    "enabledForViewer": true
+  },
+  "collaborative": false,
+  "containerId": "e7879058-369d-4eca-8ed5-27e94e1de490",
+  "datasets": [
+    {
+      "aggregationExp": null,
+      "aggregationResLevel": null,
+      "color": "#80BA5A",
+      "columns": [
+        "_carto_feature_id",
+        "coundist",
+        "geom"
+      ],
+      "connectionId": "48c91ec1-6802-42cb-88f9-9039c17ec170",
+      "format": "tilejson",
+      "geoColumn": "geom",
+      "id": "ca1e55c7-0df0-460d-ba15-e5ef15a84a52",
+      "label": "City Council Districts",
+      "name": null,
+      "prepareLabels": true,
+      "queryParameters": null,
+      "queryTemplate": null,
+      "source": "carto-dw-ac-xh9k79q8.shared.lift_dev_council_districts",
+      "spatialIndex": null,
+      "type": "table",
+      "uniqueIdProperty": null
+    },
+    {
+      "aggregationExp": null,
+      "aggregationResLevel": null,
+      "color": "#E73F74",
+      "columns": [
+        "_carto_feature_id",
+        "ahft_group",
+        "ahft_rank",
+        "community_district",
+        "geom"
+      ],
+      "connectionId": "48c91ec1-6802-42cb-88f9-9039c17ec170",
+      "format": "tilejson",
+      "geoColumn": "geom",
+      "id": "be46bc61-33f9-4624-9fec-c443873c0776",
+      "label": "Community Districts (AHFT)",
+      "name": null,
+      "prepareLabels": true,
+      "queryParameters": null,
+      "queryTemplate": null,
+      "source": "carto-dw-ac-xh9k79q8.shared.lift_dev_community_districts",
+      "spatialIndex": null,
+      "type": "table",
+      "uniqueIdProperty": null
+    },
+    {
+      "aggregationExp": null,
+      "aggregationResLevel": null,
+      "color": "#3969AC",
+      "columns": [
+        "_carto_feature_id",
+        "borough",
+        "geom",
+        "parcel_address",
+        "site_name",
+        "unitpotential"
+      ],
+      "connectionId": "48c91ec1-6802-42cb-88f9-9039c17ec170",
+      "format": "tilejson",
+      "geoColumn": "geom",
+      "id": "cb5402be-54dc-48af-89bc-0a82637302e7",
+      "label": "LIFT sites (points)",
+      "name": null,
+      "prepareLabels": false,
+      "queryParameters": {
+        "ahft_scope": [
+          "All districts"
+        ],
+        "borough": [
+          "Manhattan",
+          "Bronx",
+          "Brooklyn",
+          "Queens",
+          "Staten Island"
+        ],
+        "community_district": [
+          "BK01",
+          "BK02",
+          "BK03",
+          "BK04",
+          "BK05",
+          "BK06",
+          "BK07",
+          "BK08",
+          "BK09",
+          "BK10",
+          "BK11",
+          "BK12",
+          "BK13",
+          "BK14",
+          "BK15",
+          "BK16",
+          "BK17",
+          "BK18",
+          "BK55",
+          "BK56",
+          "BX01",
+          "BX02",
+          "BX03",
+          "BX04",
+          "BX05",
+          "BX06",
+          "BX07",
+          "BX08",
+          "BX09",
+          "BX10",
+          "BX11",
+          "BX12",
+          "BX26",
+          "BX27",
+          "BX28",
+          "MN01",
+          "MN02",
+          "MN03",
+          "MN04",
+          "MN05",
+          "MN06",
+          "MN07",
+          "MN08",
+          "MN09",
+          "MN10",
+          "MN11",
+          "MN12",
+          "MN64",
+          "QN01",
+          "QN02",
+          "QN03",
+          "QN04",
+          "QN05",
+          "QN06",
+          "QN07",
+          "QN08",
+          "QN09",
+          "QN10",
+          "QN11",
+          "QN12",
+          "QN13",
+          "QN14",
+          "QN80",
+          "QN81",
+          "QN82",
+          "QN83",
+          "QN84",
+          "SI01",
+          "SI02",
+          "SI03",
+          "SI95"
+        ]
+      },
+      "queryTemplate": "SELECT lift_site.* EXCEPT (geom), ST_CENTROID(lift_site.geom) AS geom\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT lift_site.* EXCEPT (geom), ST_CENTROID(lift_site.geom) AS geom\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "spatialIndex": null,
+      "type": "query",
+      "uniqueIdProperty": null
+    },
+    {
+      "aggregationExp": null,
+      "aggregationResLevel": null,
+      "color": "#7F3C8D",
+      "columns": [
+        "_carto_feature_id",
+        "borough",
+        "geom",
+        "juris",
+        "parcel_address",
+        "parcel_name"
+      ],
+      "connectionId": "48c91ec1-6802-42cb-88f9-9039c17ec170",
+      "format": "tilejson",
+      "geoColumn": "geom",
+      "id": "cff9ab8d-092c-4405-a137-00878b006ab4",
+      "label": "City-controlled lots",
+      "name": null,
+      "prepareLabels": true,
+      "queryParameters": {
+        "ahft_scope": [
+          "All districts"
+        ],
+        "borough": [
+          "Manhattan",
+          "Bronx",
+          "Brooklyn",
+          "Queens",
+          "Staten Island"
+        ],
+        "community_district": [
+          "BK01",
+          "BK02",
+          "BK03",
+          "BK04",
+          "BK05",
+          "BK06",
+          "BK07",
+          "BK08",
+          "BK09",
+          "BK10",
+          "BK11",
+          "BK12",
+          "BK13",
+          "BK14",
+          "BK15",
+          "BK16",
+          "BK17",
+          "BK18",
+          "BK55",
+          "BK56",
+          "BX01",
+          "BX02",
+          "BX03",
+          "BX04",
+          "BX05",
+          "BX06",
+          "BX07",
+          "BX08",
+          "BX09",
+          "BX10",
+          "BX11",
+          "BX12",
+          "BX26",
+          "BX27",
+          "BX28",
+          "MN01",
+          "MN02",
+          "MN03",
+          "MN04",
+          "MN05",
+          "MN06",
+          "MN07",
+          "MN08",
+          "MN09",
+          "MN10",
+          "MN11",
+          "MN12",
+          "MN64",
+          "QN01",
+          "QN02",
+          "QN03",
+          "QN04",
+          "QN05",
+          "QN06",
+          "QN07",
+          "QN08",
+          "QN09",
+          "QN10",
+          "QN11",
+          "QN12",
+          "QN13",
+          "QN14",
+          "QN80",
+          "QN81",
+          "QN82",
+          "QN83",
+          "QN84",
+          "SI01",
+          "SI02",
+          "SI03",
+          "SI95"
+        ],
+        "hide_flagged": [
+          "(none)"
+        ]
+      },
+      "queryTemplate": "SELECT controlled.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN {{hide_flagged}})\n  OR (lur_waterfront AND 'Waterfront' IN {{hide_flagged}})\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN {{hide_flagged}})\n  OR (lur_sliverlot AND 'Sliver lot' IN {{hide_flagged}})\n  OR (no_street_frontage AND 'No street frontage' IN {{hide_flagged}})\n  OR (lur_accessway AND 'Accessway' IN {{hide_flagged}})\n  OR (lur_cemetery AND 'Cemetery' IN {{hide_flagged}})\n  OR (lur_commonopenspace AND 'Common open space' IN {{hide_flagged}})\n  OR (lur_bedofstreet AND 'Bed of street' IN {{hide_flagged}})\n)\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT controlled.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN UNNEST(@hide_flagged))\n  OR (lur_waterfront AND 'Waterfront' IN UNNEST(@hide_flagged))\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN UNNEST(@hide_flagged))\n  OR (lur_sliverlot AND 'Sliver lot' IN UNNEST(@hide_flagged))\n  OR (no_street_frontage AND 'No street frontage' IN UNNEST(@hide_flagged))\n  OR (lur_accessway AND 'Accessway' IN UNNEST(@hide_flagged))\n  OR (lur_cemetery AND 'Cemetery' IN UNNEST(@hide_flagged))\n  OR (lur_commonopenspace AND 'Common open space' IN UNNEST(@hide_flagged))\n  OR (lur_bedofstreet AND 'Bed of street' IN UNNEST(@hide_flagged))\n)\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "spatialIndex": null,
+      "type": "query",
+      "uniqueIdProperty": null
+    },
+    {
+      "aggregationExp": null,
+      "aggregationResLevel": null,
+      "color": "#F2B701",
+      "columns": [
+        "_carto_feature_id",
+        "borough",
+        "geom",
+        "parcel_address",
+        "site_name",
+        "unitpotential"
+      ],
+      "connectionId": "48c91ec1-6802-42cb-88f9-9039c17ec170",
+      "format": "tilejson",
+      "geoColumn": "geom",
+      "id": "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+      "label": "LIFT sites (lots)",
+      "name": null,
+      "prepareLabels": false,
+      "queryParameters": {
+        "ahft_scope": [
+          "All districts"
+        ],
+        "borough": [
+          "Manhattan",
+          "Bronx",
+          "Brooklyn",
+          "Queens",
+          "Staten Island"
+        ],
+        "community_district": [
+          "BK01",
+          "BK02",
+          "BK03",
+          "BK04",
+          "BK05",
+          "BK06",
+          "BK07",
+          "BK08",
+          "BK09",
+          "BK10",
+          "BK11",
+          "BK12",
+          "BK13",
+          "BK14",
+          "BK15",
+          "BK16",
+          "BK17",
+          "BK18",
+          "BK55",
+          "BK56",
+          "BX01",
+          "BX02",
+          "BX03",
+          "BX04",
+          "BX05",
+          "BX06",
+          "BX07",
+          "BX08",
+          "BX09",
+          "BX10",
+          "BX11",
+          "BX12",
+          "BX26",
+          "BX27",
+          "BX28",
+          "MN01",
+          "MN02",
+          "MN03",
+          "MN04",
+          "MN05",
+          "MN06",
+          "MN07",
+          "MN08",
+          "MN09",
+          "MN10",
+          "MN11",
+          "MN12",
+          "MN64",
+          "QN01",
+          "QN02",
+          "QN03",
+          "QN04",
+          "QN05",
+          "QN06",
+          "QN07",
+          "QN08",
+          "QN09",
+          "QN10",
+          "QN11",
+          "QN12",
+          "QN13",
+          "QN14",
+          "QN80",
+          "QN81",
+          "QN82",
+          "QN83",
+          "QN84",
+          "SI01",
+          "SI02",
+          "SI03",
+          "SI95"
+        ]
+      },
+      "queryTemplate": "SELECT lift_site.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT lift_site.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "spatialIndex": null,
+      "type": "query",
+      "uniqueIdProperty": null
+    },
+    {
+      "aggregationExp": null,
+      "aggregationResLevel": null,
+      "color": "#11A579",
+      "columns": [
+        "_carto_feature_id",
+        "borough",
+        "geom_point",
+        "juris",
+        "parcel_address",
+        "parcel_name"
+      ],
+      "connectionId": "48c91ec1-6802-42cb-88f9-9039c17ec170",
+      "format": "tilejson",
+      "geoColumn": "geom_point",
+      "id": "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+      "label": "City-controlled lots (points)",
+      "name": null,
+      "prepareLabels": false,
+      "queryParameters": {
+        "ahft_scope": [
+          "All districts"
+        ],
+        "borough": [
+          "Manhattan",
+          "Bronx",
+          "Brooklyn",
+          "Queens",
+          "Staten Island"
+        ],
+        "community_district": [
+          "BK01",
+          "BK02",
+          "BK03",
+          "BK04",
+          "BK05",
+          "BK06",
+          "BK07",
+          "BK08",
+          "BK09",
+          "BK10",
+          "BK11",
+          "BK12",
+          "BK13",
+          "BK14",
+          "BK15",
+          "BK16",
+          "BK17",
+          "BK18",
+          "BK55",
+          "BK56",
+          "BX01",
+          "BX02",
+          "BX03",
+          "BX04",
+          "BX05",
+          "BX06",
+          "BX07",
+          "BX08",
+          "BX09",
+          "BX10",
+          "BX11",
+          "BX12",
+          "BX26",
+          "BX27",
+          "BX28",
+          "MN01",
+          "MN02",
+          "MN03",
+          "MN04",
+          "MN05",
+          "MN06",
+          "MN07",
+          "MN08",
+          "MN09",
+          "MN10",
+          "MN11",
+          "MN12",
+          "MN64",
+          "QN01",
+          "QN02",
+          "QN03",
+          "QN04",
+          "QN05",
+          "QN06",
+          "QN07",
+          "QN08",
+          "QN09",
+          "QN10",
+          "QN11",
+          "QN12",
+          "QN13",
+          "QN14",
+          "QN80",
+          "QN81",
+          "QN82",
+          "QN83",
+          "QN84",
+          "SI01",
+          "SI02",
+          "SI03",
+          "SI95"
+        ],
+        "hide_flagged": [
+          "(none)"
+        ]
+      },
+      "queryTemplate": "SELECT controlled.* EXCEPT (geom), ST_CENTROID(controlled.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN {{hide_flagged}})\n  OR (lur_waterfront AND 'Waterfront' IN {{hide_flagged}})\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN {{hide_flagged}})\n  OR (lur_sliverlot AND 'Sliver lot' IN {{hide_flagged}})\n  OR (no_street_frontage AND 'No street frontage' IN {{hide_flagged}})\n  OR (lur_accessway AND 'Accessway' IN {{hide_flagged}})\n  OR (lur_cemetery AND 'Cemetery' IN {{hide_flagged}})\n  OR (lur_commonopenspace AND 'Common open space' IN {{hide_flagged}})\n  OR (lur_bedofstreet AND 'Bed of street' IN {{hide_flagged}})\n)\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT controlled.* EXCEPT (geom), ST_CENTROID(controlled.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN UNNEST(@hide_flagged))\n  OR (lur_waterfront AND 'Waterfront' IN UNNEST(@hide_flagged))\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN UNNEST(@hide_flagged))\n  OR (lur_sliverlot AND 'Sliver lot' IN UNNEST(@hide_flagged))\n  OR (no_street_frontage AND 'No street frontage' IN UNNEST(@hide_flagged))\n  OR (lur_accessway AND 'Accessway' IN UNNEST(@hide_flagged))\n  OR (lur_cemetery AND 'Cemetery' IN UNNEST(@hide_flagged))\n  OR (lur_commonopenspace AND 'Common open space' IN UNNEST(@hide_flagged))\n  OR (lur_bedofstreet AND 'Bed of street' IN UNNEST(@hide_flagged))\n)\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "spatialIndex": null,
+      "type": "query",
+      "uniqueIdProperty": null
+    }
+  ],
+  "description": "**LIFT sites** (orange) are City-controlled lots that matched City Hall's Public Sites for Housing tracker by BBL. They show as points when zoomed out and as lots when zoomed in.\n\n**City-controlled lots** (purple) are every lot in DCAS's LIFT extract, including LIFT sites. Most are owned by the City. 23 are only leased by the City and 34 are partly leased. A lot's details show which.\n\n**Borough**, **Community district** and **AHFT districts** narrow both LIFT sites and City-controlled lots to a place. The 34 lots with no community district always show.\n\n**Hide lots flagged as** hides City-controlled lots with any checked DCAS flag. It doesn't affect LIFT sites.\n\n**Community Districts (AHFT)** and **City Council Districts** are off by default. Turn them on from the layer list. Community Districts are shaded by AHFT rank: the 12 lowest-ranked districts stand out.\n\nWidgets count lots citywide, not just the area in view. Click a bar to filter its layers.\n\n### Data notes\n\n- Tracker sites with no BBL, several BBLs in one cell, or a BBL outside DCAS's extract aren't on the map.\n- About half of LIFT sites' total unit potential comes from sites with the strategy \"Landmark TDR opportunity\".\n- Capital project spending sums every project that touches a lot, so very large lots like parks show high totals.\n- 45 lots have no lot geometry. Widgets count them, but they aren't drawn.\n",
+  "id": "8735d5c1-94eb-472f-a2b8-fb8106c54e9b",
+  "keplerMapConfig": {
+    "config": {
+      "basemapConfig": {
+        "styleId": "positron",
+        "visibleLayerGroups": {
+          "border": false,
+          "building": true,
+          "label": true,
+          "land": true,
+          "road": true,
+          "water": true
+        }
+      },
+      "customBaseMaps": {},
+      "filters": {
+        "7fe346bc-458f-442c-a9d7-60a3463e28f7": {},
+        "be46bc61-33f9-4624-9fec-c443873c0776": {},
+        "ca1e55c7-0df0-460d-ba15-e5ef15a84a52": {},
+        "cb5402be-54dc-48af-89bc-0a82637302e7": {},
+        "cff9ab8d-092c-4405-a137-00878b006ab4": {},
+        "e5b06e0b-bf79-4f14-b722-f3484cf7a302": {}
+      },
+      "layerGrouping": [
+        {
+          "layerId": "lotnames",
+          "type": "layer"
+        },
+        {
+          "layerId": "liftsites",
+          "type": "layer"
+        },
+        {
+          "layerId": "liftsitelots",
+          "type": "layer"
+        },
+        {
+          "layerId": "ku187bs",
+          "type": "layer"
+        },
+        {
+          "layerId": "x7ghjlb",
+          "type": "layer"
+        },
+        {
+          "layerId": "rgx78vr",
+          "type": "layer"
+        },
+        {
+          "layerId": "9pqif9",
+          "type": "layer"
+        }
+      ],
+      "legendSettings": {
+        "expanded": {
+          "0": true,
+          "1": false
+        },
+        "layers": {
+          "9pqif9": {
+            "active": true,
+            "shouldDisplayEntries": true
+          },
+          "ku187bs": {
+            "active": true,
+            "shouldDisplayEntries": true
+          },
+          "liftsitelots": {
+            "active": true,
+            "shouldDisplayEntries": true
+          },
+          "liftsites": {
+            "active": true,
+            "shouldDisplayEntries": true
+          },
+          "lotnames": {
+            "active": false,
+            "shouldDisplayEntries": false
+          },
+          "rgx78vr": {
+            "active": true,
+            "shouldDisplayEntries": true
+          },
+          "x7ghjlb": {
+            "active": true,
+            "shouldDisplayEntries": true
+          }
+        },
+        "version": "v1"
+      },
+      "mapSettings": {
+        "addressSearchBar": false,
+        "basemapsSelector": false,
+        "cacheTime": 0,
+        "comments": false,
+        "controlCacheTime": false,
+        "exportMap": true,
+        "exportPDF": true,
+        "exportViewportData": true,
+        "featureSelectionTool": false,
+        "measurementUnit": "kilometers",
+        "reorderLayers": false,
+        "scrollWheelZoom": true,
+        "showMeasureDistanceTool": false,
+        "showMyLocationButton": false,
+        "showPerformanceWarnings": false,
+        "showTitlePublicMap": true,
+        "sqlParameterControls": true
+      },
+      "mapState": {
+        "bearing": 0,
+        "dragRotate": false,
+        "latitude": 40.656736000194506,
+        "longitude": -73.97891336374755,
+        "pitch": 0,
+        "zoom": 9.844666662568724
+      },
+      "mapStyle": {
+        "styleType": "positron",
+        "visibleLayerGroups": {
+          "border": false,
+          "building": true,
+          "label": true,
+          "land": true,
+          "road": true,
+          "water": true
+        }
+      },
+      "popupSettings": {
+        "layers": {
+          "9pqif9": {
+            "enabled": true,
+            "hover": {
+              "fields": [
+                {
+                  "customName": "Council district",
+                  "name": "coundist"
+                }
+              ],
+              "style": "light",
+              "templateMode": false
+            }
+          },
+          "ku187bs": {
+            "click": {
+              "fields": [
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "BBL",
+                  "format": "d",
+                  "name": "bbl"
+                },
+                {
+                  "customName": "Name",
+                  "name": "parcel_name"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Neighborhood",
+                  "name": "ntaname"
+                },
+                {
+                  "customName": "Community district",
+                  "name": "community_district"
+                },
+                {
+                  "customName": "Council district",
+                  "name": "council"
+                },
+                {
+                  "customName": "CDTA",
+                  "name": "cdtaname"
+                },
+                {
+                  "customName": "Jurisdiction",
+                  "name": "juris"
+                },
+                {
+                  "customName": "Owned or leased",
+                  "name": "owned_leased"
+                },
+                {
+                  "customName": "Agency use (owned/leased)",
+                  "name": "agency_owned_leased"
+                },
+                {
+                  "customName": "Flags",
+                  "name": "dcas_flags"
+                },
+                {
+                  "customName": "Primary uses",
+                  "name": "primary_uses_text"
+                },
+                {
+                  "customName": "Building class",
+                  "name": "bld_class_description"
+                },
+                {
+                  "customName": "Lot area (sq ft)",
+                  "format": ",.0f",
+                  "name": "lotarea"
+                },
+                {
+                  "customName": "Building area (sq ft)",
+                  "format": ",.0f",
+                  "name": "bldgarea"
+                },
+                {
+                  "customName": "Floors",
+                  "name": "numfloors"
+                },
+                {
+                  "customName": "Residential units",
+                  "format": ",.0f",
+                  "name": "unitsres"
+                },
+                {
+                  "customName": "Zoning district",
+                  "name": "zonedist1"
+                },
+                {
+                  "customName": "Special district",
+                  "name": "spdist1"
+                },
+                {
+                  "customName": "Max residential FAR",
+                  "name": "residfar"
+                },
+                {
+                  "customName": "Landmark",
+                  "name": "landmark"
+                },
+                {
+                  "customName": "Historic district",
+                  "name": "histdist"
+                },
+                {
+                  "customName": "Displacement risk",
+                  "name": "displacement_risk_formula"
+                },
+                {
+                  "customName": "Transit zone",
+                  "name": "trnstzone"
+                },
+                {
+                  "customName": "Limited Affordability Area",
+                  "name": "laa"
+                },
+                {
+                  "customName": "AHFT bottom-12 district",
+                  "name": "ahft"
+                },
+                {
+                  "customName": "2015 flood map (PFIRM)",
+                  "name": "pfirm15_flag"
+                },
+                {
+                  "customName": "Capital project spending",
+                  "format": "$,.0f",
+                  "name": "cpspenttotal"
+                },
+                {
+                  "customName": "POA site",
+                  "name": "poa"
+                },
+                {
+                  "customName": "POA commitment",
+                  "name": "poa_commitment"
+                }
+              ],
+              "style": "panel",
+              "templateMode": false
+            },
+            "enabled": true,
+            "featureFilterScope": "same-source",
+            "hover": {
+              "fields": [
+                {
+                  "customName": "Name",
+                  "name": "parcel_name"
+                },
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Jurisdiction",
+                  "name": "juris"
+                }
+              ],
+              "style": "light",
+              "templateMode": false
+            }
+          },
+          "liftsitelots": {
+            "click": {
+              "fields": [
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "BBL",
+                  "format": "d",
+                  "name": "bbl"
+                },
+                {
+                  "customName": "Name",
+                  "name": "parcel_name"
+                },
+                {
+                  "customName": "Site",
+                  "name": "site_name"
+                },
+                {
+                  "customName": "Unit potential",
+                  "format": ",.0f",
+                  "name": "unitpotential"
+                },
+                {
+                  "customName": "Redevelopment strategy",
+                  "name": "redev_strategy"
+                },
+                {
+                  "customName": "Prioritization",
+                  "name": "redev_priority"
+                },
+                {
+                  "customName": "Summary",
+                  "name": "redev_summary"
+                },
+                {
+                  "customName": "Key challenges",
+                  "name": "dev_flags"
+                },
+                {
+                  "customName": "Studies",
+                  "name": "redev_study"
+                },
+                {
+                  "customName": "Site prep costs",
+                  "format": "$,.0f",
+                  "name": "siteprep_costs"
+                },
+                {
+                  "customName": "Residual land value",
+                  "format": "$,.0f",
+                  "name": "rlv_amount"
+                },
+                {
+                  "customName": "OMB remediation cost",
+                  "format": "$,.0f",
+                  "name": "cp_remediation"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Neighborhood",
+                  "name": "ntaname"
+                },
+                {
+                  "customName": "Community district",
+                  "name": "community_district"
+                },
+                {
+                  "customName": "Council district",
+                  "name": "council"
+                },
+                {
+                  "customName": "CDTA",
+                  "name": "cdtaname"
+                },
+                {
+                  "customName": "Jurisdiction",
+                  "name": "juris"
+                },
+                {
+                  "customName": "Owned or leased",
+                  "name": "owned_leased"
+                },
+                {
+                  "customName": "Agency use (owned/leased)",
+                  "name": "agency_owned_leased"
+                },
+                {
+                  "customName": "Flags",
+                  "name": "dcas_flags"
+                },
+                {
+                  "customName": "Primary uses",
+                  "name": "primary_uses_text"
+                },
+                {
+                  "customName": "Building class",
+                  "name": "bld_class_description"
+                },
+                {
+                  "customName": "Lot area (sq ft)",
+                  "format": ",.0f",
+                  "name": "lotarea"
+                },
+                {
+                  "customName": "Building area (sq ft)",
+                  "format": ",.0f",
+                  "name": "bldgarea"
+                },
+                {
+                  "customName": "Floors",
+                  "name": "numfloors"
+                },
+                {
+                  "customName": "Residential units",
+                  "format": ",.0f",
+                  "name": "unitsres"
+                },
+                {
+                  "customName": "Zoning district",
+                  "name": "zonedist1"
+                },
+                {
+                  "customName": "Special district",
+                  "name": "spdist1"
+                },
+                {
+                  "customName": "Max residential FAR",
+                  "name": "residfar"
+                },
+                {
+                  "customName": "Landmark",
+                  "name": "landmark"
+                },
+                {
+                  "customName": "Historic district",
+                  "name": "histdist"
+                },
+                {
+                  "customName": "Displacement risk",
+                  "name": "displacement_risk_formula"
+                },
+                {
+                  "customName": "Transit zone",
+                  "name": "trnstzone"
+                },
+                {
+                  "customName": "Limited Affordability Area",
+                  "name": "laa"
+                },
+                {
+                  "customName": "AHFT bottom-12 district",
+                  "name": "ahft"
+                },
+                {
+                  "customName": "2015 flood map (PFIRM)",
+                  "name": "pfirm15_flag"
+                },
+                {
+                  "customName": "Capital project spending",
+                  "format": "$,.0f",
+                  "name": "cpspenttotal"
+                },
+                {
+                  "customName": "POA site",
+                  "name": "poa"
+                },
+                {
+                  "customName": "POA commitment",
+                  "name": "poa_commitment"
+                }
+              ],
+              "style": "panel",
+              "templateMode": false
+            },
+            "enabled": true,
+            "hover": {
+              "fields": [
+                {
+                  "customName": "Site",
+                  "name": "site_name"
+                },
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Unit potential",
+                  "format": ",.0f",
+                  "name": "unitpotential"
+                }
+              ],
+              "style": "light",
+              "templateMode": false
+            }
+          },
+          "liftsites": {
+            "click": {
+              "fields": [
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "BBL",
+                  "format": "d",
+                  "name": "bbl"
+                },
+                {
+                  "customName": "Name",
+                  "name": "parcel_name"
+                },
+                {
+                  "customName": "Site",
+                  "name": "site_name"
+                },
+                {
+                  "customName": "Unit potential",
+                  "format": ",.0f",
+                  "name": "unitpotential"
+                },
+                {
+                  "customName": "Redevelopment strategy",
+                  "name": "redev_strategy"
+                },
+                {
+                  "customName": "Prioritization",
+                  "name": "redev_priority"
+                },
+                {
+                  "customName": "Summary",
+                  "name": "redev_summary"
+                },
+                {
+                  "customName": "Key challenges",
+                  "name": "dev_flags"
+                },
+                {
+                  "customName": "Studies",
+                  "name": "redev_study"
+                },
+                {
+                  "customName": "Site prep costs",
+                  "format": "$,.0f",
+                  "name": "siteprep_costs"
+                },
+                {
+                  "customName": "Residual land value",
+                  "format": "$,.0f",
+                  "name": "rlv_amount"
+                },
+                {
+                  "customName": "OMB remediation cost",
+                  "format": "$,.0f",
+                  "name": "cp_remediation"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Neighborhood",
+                  "name": "ntaname"
+                },
+                {
+                  "customName": "Community district",
+                  "name": "community_district"
+                },
+                {
+                  "customName": "Council district",
+                  "name": "council"
+                },
+                {
+                  "customName": "CDTA",
+                  "name": "cdtaname"
+                },
+                {
+                  "customName": "Jurisdiction",
+                  "name": "juris"
+                },
+                {
+                  "customName": "Owned or leased",
+                  "name": "owned_leased"
+                },
+                {
+                  "customName": "Agency use (owned/leased)",
+                  "name": "agency_owned_leased"
+                },
+                {
+                  "customName": "Flags",
+                  "name": "dcas_flags"
+                },
+                {
+                  "customName": "Primary uses",
+                  "name": "primary_uses_text"
+                },
+                {
+                  "customName": "Building class",
+                  "name": "bld_class_description"
+                },
+                {
+                  "customName": "Lot area (sq ft)",
+                  "format": ",.0f",
+                  "name": "lotarea"
+                },
+                {
+                  "customName": "Building area (sq ft)",
+                  "format": ",.0f",
+                  "name": "bldgarea"
+                },
+                {
+                  "customName": "Floors",
+                  "name": "numfloors"
+                },
+                {
+                  "customName": "Residential units",
+                  "format": ",.0f",
+                  "name": "unitsres"
+                },
+                {
+                  "customName": "Zoning district",
+                  "name": "zonedist1"
+                },
+                {
+                  "customName": "Special district",
+                  "name": "spdist1"
+                },
+                {
+                  "customName": "Max residential FAR",
+                  "name": "residfar"
+                },
+                {
+                  "customName": "Landmark",
+                  "name": "landmark"
+                },
+                {
+                  "customName": "Historic district",
+                  "name": "histdist"
+                },
+                {
+                  "customName": "Displacement risk",
+                  "name": "displacement_risk_formula"
+                },
+                {
+                  "customName": "Transit zone",
+                  "name": "trnstzone"
+                },
+                {
+                  "customName": "Limited Affordability Area",
+                  "name": "laa"
+                },
+                {
+                  "customName": "AHFT bottom-12 district",
+                  "name": "ahft"
+                },
+                {
+                  "customName": "2015 flood map (PFIRM)",
+                  "name": "pfirm15_flag"
+                },
+                {
+                  "customName": "Capital project spending",
+                  "format": "$,.0f",
+                  "name": "cpspenttotal"
+                },
+                {
+                  "customName": "POA site",
+                  "name": "poa"
+                },
+                {
+                  "customName": "POA commitment",
+                  "name": "poa_commitment"
+                }
+              ],
+              "style": "panel",
+              "templateMode": false
+            },
+            "enabled": true,
+            "hover": {
+              "fields": [
+                {
+                  "customName": "Site",
+                  "name": "site_name"
+                },
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Unit potential",
+                  "format": ",.0f",
+                  "name": "unitpotential"
+                }
+              ],
+              "style": "light",
+              "templateMode": false
+            }
+          },
+          "lotnames": {
+            "enabled": false
+          },
+          "rgx78vr": {
+            "enabled": true,
+            "hover": {
+              "fields": [
+                {
+                  "customName": "Community district",
+                  "name": "community_district"
+                },
+                {
+                  "customName": "AHFT rank (1 = lowest)",
+                  "name": "ahft_rank"
+                },
+                {
+                  "customName": "AHFT group",
+                  "name": "ahft_group"
+                }
+              ],
+              "style": "light",
+              "templateMode": false
+            }
+          },
+          "x7ghjlb": {
+            "click": {
+              "fields": [
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "BBL",
+                  "format": "d",
+                  "name": "bbl"
+                },
+                {
+                  "customName": "Name",
+                  "name": "parcel_name"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Neighborhood",
+                  "name": "ntaname"
+                },
+                {
+                  "customName": "Community district",
+                  "name": "community_district"
+                },
+                {
+                  "customName": "Council district",
+                  "name": "council"
+                },
+                {
+                  "customName": "CDTA",
+                  "name": "cdtaname"
+                },
+                {
+                  "customName": "Jurisdiction",
+                  "name": "juris"
+                },
+                {
+                  "customName": "Owned or leased",
+                  "name": "owned_leased"
+                },
+                {
+                  "customName": "Agency use (owned/leased)",
+                  "name": "agency_owned_leased"
+                },
+                {
+                  "customName": "Flags",
+                  "name": "dcas_flags"
+                },
+                {
+                  "customName": "Primary uses",
+                  "name": "primary_uses_text"
+                },
+                {
+                  "customName": "Building class",
+                  "name": "bld_class_description"
+                },
+                {
+                  "customName": "Lot area (sq ft)",
+                  "format": ",.0f",
+                  "name": "lotarea"
+                },
+                {
+                  "customName": "Building area (sq ft)",
+                  "format": ",.0f",
+                  "name": "bldgarea"
+                },
+                {
+                  "customName": "Floors",
+                  "name": "numfloors"
+                },
+                {
+                  "customName": "Residential units",
+                  "format": ",.0f",
+                  "name": "unitsres"
+                },
+                {
+                  "customName": "Zoning district",
+                  "name": "zonedist1"
+                },
+                {
+                  "customName": "Special district",
+                  "name": "spdist1"
+                },
+                {
+                  "customName": "Max residential FAR",
+                  "name": "residfar"
+                },
+                {
+                  "customName": "Landmark",
+                  "name": "landmark"
+                },
+                {
+                  "customName": "Historic district",
+                  "name": "histdist"
+                },
+                {
+                  "customName": "Displacement risk",
+                  "name": "displacement_risk_formula"
+                },
+                {
+                  "customName": "Transit zone",
+                  "name": "trnstzone"
+                },
+                {
+                  "customName": "Limited Affordability Area",
+                  "name": "laa"
+                },
+                {
+                  "customName": "AHFT bottom-12 district",
+                  "name": "ahft"
+                },
+                {
+                  "customName": "2015 flood map (PFIRM)",
+                  "name": "pfirm15_flag"
+                },
+                {
+                  "customName": "Capital project spending",
+                  "format": "$,.0f",
+                  "name": "cpspenttotal"
+                },
+                {
+                  "customName": "POA site",
+                  "name": "poa"
+                },
+                {
+                  "customName": "POA commitment",
+                  "name": "poa_commitment"
+                }
+              ],
+              "style": "panel",
+              "templateMode": false
+            },
+            "enabled": true,
+            "featureFilterScope": "same-source",
+            "hover": {
+              "fields": [
+                {
+                  "customName": "Name",
+                  "name": "parcel_name"
+                },
+                {
+                  "customName": "Address",
+                  "name": "parcel_address"
+                },
+                {
+                  "customName": "Borough",
+                  "name": "borough"
+                },
+                {
+                  "customName": "Jurisdiction",
+                  "name": "juris"
+                }
+              ],
+              "style": "light",
+              "templateMode": false
+            }
+          }
+        }
+      },
+      "spatialFilter": null,
+      "sqlParameters": [
+        {
+          "id": "p-borough",
+          "item": {
+            "sqlName": "borough",
+            "value": [
+              "Manhattan",
+              "Bronx",
+              "Brooklyn",
+              "Queens",
+              "Staten Island"
+            ]
+          },
+          "name": "Borough",
+          "selectionMode": "multi",
+          "type": "Category",
+          "values": [
+            "Manhattan",
+            "Bronx",
+            "Brooklyn",
+            "Queens",
+            "Staten Island"
+          ]
+        },
+        {
+          "id": "p-community-district",
+          "item": {
+            "sqlName": "community_district",
+            "value": [
+              "BK01",
+              "BK02",
+              "BK03",
+              "BK04",
+              "BK05",
+              "BK06",
+              "BK07",
+              "BK08",
+              "BK09",
+              "BK10",
+              "BK11",
+              "BK12",
+              "BK13",
+              "BK14",
+              "BK15",
+              "BK16",
+              "BK17",
+              "BK18",
+              "BK55",
+              "BK56",
+              "BX01",
+              "BX02",
+              "BX03",
+              "BX04",
+              "BX05",
+              "BX06",
+              "BX07",
+              "BX08",
+              "BX09",
+              "BX10",
+              "BX11",
+              "BX12",
+              "BX26",
+              "BX27",
+              "BX28",
+              "MN01",
+              "MN02",
+              "MN03",
+              "MN04",
+              "MN05",
+              "MN06",
+              "MN07",
+              "MN08",
+              "MN09",
+              "MN10",
+              "MN11",
+              "MN12",
+              "MN64",
+              "QN01",
+              "QN02",
+              "QN03",
+              "QN04",
+              "QN05",
+              "QN06",
+              "QN07",
+              "QN08",
+              "QN09",
+              "QN10",
+              "QN11",
+              "QN12",
+              "QN13",
+              "QN14",
+              "QN80",
+              "QN81",
+              "QN82",
+              "QN83",
+              "QN84",
+              "SI01",
+              "SI02",
+              "SI03",
+              "SI95"
+            ]
+          },
+          "name": "Community district",
+          "selectionMode": "multi",
+          "type": "Category",
+          "values": [
+            "BK01",
+            "BK02",
+            "BK03",
+            "BK04",
+            "BK05",
+            "BK06",
+            "BK07",
+            "BK08",
+            "BK09",
+            "BK10",
+            "BK11",
+            "BK12",
+            "BK13",
+            "BK14",
+            "BK15",
+            "BK16",
+            "BK17",
+            "BK18",
+            "BK55",
+            "BK56",
+            "BX01",
+            "BX02",
+            "BX03",
+            "BX04",
+            "BX05",
+            "BX06",
+            "BX07",
+            "BX08",
+            "BX09",
+            "BX10",
+            "BX11",
+            "BX12",
+            "BX26",
+            "BX27",
+            "BX28",
+            "MN01",
+            "MN02",
+            "MN03",
+            "MN04",
+            "MN05",
+            "MN06",
+            "MN07",
+            "MN08",
+            "MN09",
+            "MN10",
+            "MN11",
+            "MN12",
+            "MN64",
+            "QN01",
+            "QN02",
+            "QN03",
+            "QN04",
+            "QN05",
+            "QN06",
+            "QN07",
+            "QN08",
+            "QN09",
+            "QN10",
+            "QN11",
+            "QN12",
+            "QN13",
+            "QN14",
+            "QN80",
+            "QN81",
+            "QN82",
+            "QN83",
+            "QN84",
+            "SI01",
+            "SI02",
+            "SI03",
+            "SI95"
+          ]
+        },
+        {
+          "defaultValue": "All districts",
+          "id": "p-ahft",
+          "item": {
+            "sqlName": "ahft_scope",
+            "value": [
+              "All districts"
+            ]
+          },
+          "name": "AHFT districts",
+          "selectionMode": "single",
+          "type": "Category",
+          "values": [
+            "All districts",
+            "AHFT bottom 12 only"
+          ]
+        },
+        {
+          "id": "p-hide-flagged",
+          "item": {
+            "sqlName": "hide_flagged",
+            "value": [
+              "(none)"
+            ]
+          },
+          "name": "Hide lots flagged as",
+          "selectionMode": "multi",
+          "type": "Category",
+          "values": [
+            "(none)",
+            "Underwater",
+            "Waterfront",
+            "Urban renewal site",
+            "Sliver lot",
+            "No street frontage",
+            "Accessway",
+            "Cemetery",
+            "Common open space",
+            "Bed of street"
+          ]
+        }
+      ],
+      "uiState": {
+        "commentsVisible": true,
+        "controlsPaneOpen": true,
+        "controlsPaneTab": "widgets",
+        "descriptionOpen": false,
+        "descriptionPreview": true
+      },
+      "visState": {
+        "animationConfig": {
+          "currentTime": null,
+          "speed": 1
+        },
+        "filters": [],
+        "interactionConfig": {
+          "brush": {
+            "enabled": false,
+            "size": 0.5
+          },
+          "coordinate": {
+            "enabled": false
+          },
+          "geocoder": {
+            "enabled": false
+          },
+          "tooltip": {
+            "compareMode": false,
+            "compareType": "absolute",
+            "enabled": true
+          }
+        },
+        "layerBlending": "normal",
+        "layers": [
+          {
+            "config": {
+              "color": [
+                169,
+                168,
+                209
+              ],
+              "columns": {},
+              "dataId": "cff9ab8d-092c-4405-a137-00878b006ab4",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": true,
+              "label": "City-controlled lot names",
+              "textLabel": [
+                {
+                  "alignment": "center",
+                  "anchor": "start",
+                  "color": [
+                    44,
+                    48,
+                    50
+                  ],
+                  "field": {
+                    "name": "parcel_name",
+                    "type": "string"
+                  },
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "outlineColor": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "size": 8
+                }
+              ],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": [
+                  0,
+                  2
+                ],
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": false,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": [
+                  221,
+                  178,
+                  124
+                ],
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 0.2,
+                "radius": 2,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": [
+                  50,
+                  22,
+                  159
+                ],
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 1,
+                "stroked": false,
+                "textLabelUniqueIdField": null,
+                "thickness": 1,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 21,
+                "min": 15
+              }
+            },
+            "id": "lotnames",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": null,
+              "colorScale": "quantile",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          },
+          {
+            "config": {
+              "color": [
+                232,
+                89,
+                12
+              ],
+              "columns": {},
+              "dataId": "cb5402be-54dc-48af-89bc-0a82637302e7",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": true,
+              "label": "LIFT sites (points)",
+              "textLabel": [],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": null,
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": true,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": null,
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 0.9,
+                "radius": 3.5,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": [
+                  255,
+                  255,
+                  255
+                ],
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 1,
+                "stroked": true,
+                "textLabelUniqueIdField": null,
+                "thickness": 1,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 14,
+                "min": 0
+              }
+            },
+            "id": "liftsites",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": null,
+              "colorScale": "quantile",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          },
+          {
+            "config": {
+              "color": [
+                232,
+                89,
+                12
+              ],
+              "columns": {},
+              "dataId": "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": true,
+              "label": "LIFT sites (lots)",
+              "textLabel": [],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": [
+                  0,
+                  2
+                ],
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": true,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": [
+                  221,
+                  178,
+                  124
+                ],
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 0.6,
+                "radius": 2,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": [
+                  166,
+                  54,
+                  3
+                ],
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 1,
+                "stroked": true,
+                "textLabelUniqueIdField": null,
+                "thickness": 2,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 21,
+                "min": 0
+              }
+            },
+            "id": "liftsitelots",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": null,
+              "colorScale": "quantile",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          },
+          {
+            "config": {
+              "color": [
+                169,
+                168,
+                209
+              ],
+              "columns": {},
+              "dataId": "cff9ab8d-092c-4405-a137-00878b006ab4",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": true,
+              "label": "City-controlled lots",
+              "textLabel": [
+                {
+                  "alignment": "center",
+                  "anchor": "start",
+                  "color": [
+                    44,
+                    48,
+                    50
+                  ],
+                  "field": null,
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "outlineColor": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "size": 8
+                }
+              ],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": [
+                  0,
+                  2
+                ],
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": true,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": [
+                  221,
+                  178,
+                  124
+                ],
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 0.2,
+                "radius": 2,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": [
+                  50,
+                  22,
+                  159
+                ],
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 1,
+                "stroked": true,
+                "textLabelUniqueIdField": null,
+                "thickness": 1,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 21,
+                "min": 0
+              }
+            },
+            "id": "ku187bs",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": null,
+              "colorScale": "quantile",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          },
+          {
+            "config": {
+              "color": [
+                50,
+                22,
+                159
+              ],
+              "columns": {},
+              "dataId": "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": true,
+              "label": "City-controlled lots (points)",
+              "textLabel": [
+                {
+                  "alignment": "center",
+                  "anchor": "start",
+                  "color": [
+                    44,
+                    48,
+                    50
+                  ],
+                  "field": null,
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "outlineColor": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "size": 12
+                }
+              ],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": null,
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": true,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": null,
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 0.3,
+                "radius": 0.5,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": null,
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 0.8,
+                "stroked": true,
+                "textLabelUniqueIdField": null,
+                "thickness": 1,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 14,
+                "min": 0
+              }
+            },
+            "id": "x7ghjlb",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": null,
+              "colorScale": "quantile",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          },
+          {
+            "config": {
+              "color": [
+                200,
+                200,
+                200
+              ],
+              "columns": {},
+              "dataId": "be46bc61-33f9-4624-9fec-c443873c0776",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": false,
+              "label": "Community Districts (AHFT)",
+              "textLabel": [
+                {
+                  "alignment": "center",
+                  "anchor": "start",
+                  "color": [
+                    44,
+                    48,
+                    50
+                  ],
+                  "field": {
+                    "name": "community_district",
+                    "type": "string"
+                  },
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "outlineColor": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "size": 12
+                }
+              ],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "CARTO",
+                  "colorMap": [
+                    [
+                      "AHFT bottom 12",
+                      "#11A579"
+                    ],
+                    [
+                      "Other ranked district",
+                      "#BDBDBD"
+                    ],
+                    [
+                      "Not ranked",
+                      "#F0F0F0"
+                    ]
+                  ],
+                  "colors": [
+                    "#11A579",
+                    "#BDBDBD",
+                    "#F0F0F0"
+                  ],
+                  "name": "Bold",
+                  "type": "qualitative"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": null,
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": true,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": [
+                  221,
+                  178,
+                  124
+                ],
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 0.35,
+                "radius": 2,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": [
+                  90,
+                  90,
+                  90
+                ],
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 0.8,
+                "stroked": true,
+                "textLabelUniqueIdField": null,
+                "thickness": 1,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 21,
+                "min": 0
+              }
+            },
+            "id": "rgx78vr",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": {
+                "name": "ahft_group",
+                "type": "string"
+              },
+              "colorScale": "ordinal",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          },
+          {
+            "config": {
+              "color": [
+                57,
+                105,
+                172
+              ],
+              "columns": {},
+              "dataId": "ca1e55c7-0df0-460d-ba15-e5ef15a84a52",
+              "hidden": false,
+              "highlightColor": [
+                229,
+                238,
+                245,
+                127
+              ],
+              "isVisible": false,
+              "label": "City Council Districts",
+              "textLabel": [
+                {
+                  "alignment": "center",
+                  "anchor": "start",
+                  "color": [
+                    44,
+                    48,
+                    50
+                  ],
+                  "field": {
+                    "name": "coundist",
+                    "type": "integer"
+                  },
+                  "offset": [
+                    0,
+                    0
+                  ],
+                  "outlineColor": [
+                    255,
+                    255,
+                    255
+                  ],
+                  "size": 12
+                }
+              ],
+              "visConfig": {
+                "colorAggregation": "average",
+                "colorAggregationDomain": null,
+                "colorAggregationExp": null,
+                "colorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "customMarkerSize": 2,
+                "customMarkerSizeRange": [
+                  0,
+                  50
+                ],
+                "customMarkers": false,
+                "customMarkersUrl": "",
+                "dashArray": null,
+                "elevationScale": 5,
+                "enable3d": false,
+                "fillPattern": "diag-left",
+                "fillPatternDensity": "medium",
+                "fillPatternEnabled": false,
+                "fillPatternRange": null,
+                "fillPatternSize": 1,
+                "filled": false,
+                "heightRange": [
+                  0,
+                  500
+                ],
+                "initialStrokeColor": [
+                  255,
+                  153,
+                  31
+                ],
+                "lineStyle": "solid",
+                "lineStyleRange": null,
+                "opacity": 1,
+                "radius": 2,
+                "radiusAggregation": null,
+                "radiusAggregationDomain": null,
+                "radiusAggregationExp": null,
+                "radiusRange": [
+                  0,
+                  50
+                ],
+                "radiusReferenceZoom": 12,
+                "radiusScaleWithZoom": false,
+                "sizeAggregation": null,
+                "sizeAggregationDomain": null,
+                "sizeAggregationExp": null,
+                "sizeMaxPixels": 100,
+                "sizeMinPixels": 2,
+                "sizeRange": [
+                  0,
+                  10
+                ],
+                "strokeColor": [
+                  57,
+                  105,
+                  172
+                ],
+                "strokeColorAggregation": null,
+                "strokeColorAggregationDomain": null,
+                "strokeColorAggregationExp": null,
+                "strokeColorRange": {
+                  "category": "Uber",
+                  "colors": [
+                    "#5A1846",
+                    "#900C3F",
+                    "#C70039",
+                    "#E3611C",
+                    "#F1920E",
+                    "#FFC300"
+                  ],
+                  "name": "Global Warming",
+                  "type": "sequential"
+                },
+                "strokeOpacity": 1,
+                "stroked": true,
+                "textLabelUniqueIdField": null,
+                "thickness": 2,
+                "wireframe": false
+              },
+              "visibilityByZoom": {
+                "max": 21,
+                "min": 0
+              }
+            },
+            "id": "9pqif9",
+            "legendSettings": {},
+            "type": "tileset",
+            "visualChannels": {
+              "colorField": null,
+              "colorScale": "quantile",
+              "customMarkersField": null,
+              "fillPatternField": null,
+              "fillPatternScale": "ordinal",
+              "heightField": null,
+              "heightScale": "linear",
+              "lineStyleField": null,
+              "lineStyleScale": "ordinal",
+              "radiusField": null,
+              "radiusScale": "linear",
+              "rotationField": null,
+              "sizeField": null,
+              "sizeScale": "linear",
+              "strokeColorField": null,
+              "strokeColorScale": "quantile"
+            }
+          }
+        ],
+        "splitMaps": []
+      },
+      "widgets": [
+        {
+          "collapsible": true,
+          "column": "",
+          "dataSource": "cb5402be-54dc-48af-89bc-0a82637302e7",
+          "formatter": "DECIMAL_ZERO",
+          "global": true,
+          "id": "w-sites-count",
+          "isValid": true,
+          "operation": "count",
+          "title": "LIFT sites: count",
+          "type": "formula",
+          "wrapperProps": {
+            "expanded": true
+          }
+        },
+        {
+          "collapsible": true,
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "formatter": "DECIMAL_ZERO",
+          "global": true,
+          "id": "52f9ff94-dcbf-4674-bd64-ee54338b94fa",
+          "isValid": true,
+          "operation": "count",
+          "title": "City-controlled lots: count",
+          "type": "formula",
+          "wrapperProps": {
+            "expanded": true
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "unitpotential",
+          "dataSource": "cb5402be-54dc-48af-89bc-0a82637302e7",
+          "formatter": "DECIMAL_ZERO",
+          "global": true,
+          "id": "w-sites-units",
+          "isValid": true,
+          "operation": "sum",
+          "title": "LIFT sites: total unit potential",
+          "type": "formula",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "buckets": 20,
+          "collapsible": true,
+          "column": "unitpotential",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cb5402be-54dc-48af-89bc-0a82637302e7",
+          "formatter": "DECIMAL_ZERO",
+          "global": true,
+          "id": "w-sites-units-hist",
+          "isValid": true,
+          "max": 1000,
+          "min": 0,
+          "operation": "count",
+          "title": "LIFT sites: unit potential (last bar is 950+)",
+          "type": "histogram",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "borough",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cb5402be-54dc-48af-89bc-0a82637302e7",
+          "global": true,
+          "id": "w-sites-borough",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "LIFT sites: by borough",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "redev_strategy",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cb5402be-54dc-48af-89bc-0a82637302e7",
+          "global": true,
+          "id": "w-sites-strategy",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "LIFT sites: redevelopment strategy",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "borough",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "global": true,
+          "id": "w-lots-borough",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "City-controlled lots: by borough",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "owned_leased",
+          "crossFilteringDataSourceIds": [
+            "cff9ab8d-092c-4405-a137-00878b006ab4",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7"
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "global": true,
+          "id": "w-lots-owned-leased",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "City-controlled lots: owned or leased",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "juris",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "formatter": "NONE",
+          "global": true,
+          "id": "eb49f748-86da-471a-981f-bd9bbcf5b491",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "City-controlled lots: jurisdiction",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "bld_class_category",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "global": true,
+          "id": "31c7b0fe-ae56-4810-b732-5bfcdb687f63",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "City-controlled lots: building class",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "primary_uses_text",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "global": true,
+          "id": "b80fb43c-a62b-489a-9a8a-80ee3e9d920f",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "City-controlled lots: primary use",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "column": "zonedist1",
+          "crossFilteringDataSourceIds": [
+            "e5b06e0b-bf79-4f14-b722-f3484cf7a302",
+            "7fe346bc-458f-442c-a9d7-60a3463e28f7",
+            "cb5402be-54dc-48af-89bc-0a82637302e7",
+            "cff9ab8d-092c-4405-a137-00878b006ab4"
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "global": true,
+          "id": "8e6e6ae3-c66e-4636-9684-792e3ecba92c",
+          "isValid": true,
+          "operation": "count",
+          "operationColumn": "",
+          "orderBy": "frequency_desc",
+          "title": "City-controlled lots: zoning district",
+          "type": "category",
+          "wrapperProps": {
+            "expanded": false
+          }
+        },
+        {
+          "collapsible": true,
+          "columns": [
+            {
+              "field": "parcel_name",
+              "headerName": "Name"
+            },
+            {
+              "field": "parcel_address",
+              "headerName": "Address"
+            },
+            {
+              "field": "borough",
+              "headerName": "Borough"
+            },
+            {
+              "field": "bbl",
+              "format": "d",
+              "headerName": "BBL"
+            },
+            {
+              "field": "is_lift_site",
+              "headerName": "LIFT site"
+            },
+            {
+              "field": "site_name",
+              "headerName": "LIFT site name"
+            },
+            {
+              "field": "juris",
+              "headerName": "Jurisdiction"
+            },
+            {
+              "field": "primary_uses_text",
+              "headerName": "Primary uses"
+            },
+            {
+              "field": "bld_class_category",
+              "headerName": "Building class"
+            },
+            {
+              "field": "lotarea",
+              "format": ",.0f",
+              "headerName": "Lot area (sq ft)"
+            },
+            {
+              "field": "bldgarea",
+              "format": ",.0f",
+              "headerName": "Building area (sq ft)"
+            },
+            {
+              "field": "zonedist1",
+              "headerName": "Zoning district"
+            },
+            {
+              "field": "residfar",
+              "headerName": "Max residential FAR"
+            },
+            {
+              "field": "unitsres",
+              "format": ",.0f",
+              "headerName": "Residential units"
+            },
+            {
+              "field": "displacement_risk_formula",
+              "headerName": "Displacement risk"
+            },
+            {
+              "field": "trnstzone",
+              "headerName": "Transit zone"
+            },
+            {
+              "field": "laa",
+              "headerName": "Limited Affordability Area"
+            },
+            {
+              "field": "pfirm15_flag",
+              "headerName": "2015 flood map (PFIRM)"
+            },
+            {
+              "field": "landmark",
+              "headerName": "Landmark"
+            },
+            {
+              "field": "community_district",
+              "headerName": "Community district"
+            },
+            {
+              "field": "council",
+              "headerName": "Council district"
+            },
+            {
+              "field": "ntaname",
+              "headerName": "Neighborhood"
+            }
+          ],
+          "dataSource": "cff9ab8d-092c-4405-a137-00878b006ab4",
+          "global": false,
+          "id": "7914b0c0-71a3-40b0-af30-d50efc6dcfd9",
+          "isValid": true,
+          "title": "City-controlled lots: table",
+          "type": "table",
+          "wrapperProps": {
+            "expanded": false
+          }
+        }
+      ],
+      "widgetsPanelLayout": {
+        "columns": 1,
+        "placement": "docked"
+      }
+    },
+    "version": "v1"
+  },
+  "tags": [],
+  "title": "LIFT Tracker Map - DEV"
+}

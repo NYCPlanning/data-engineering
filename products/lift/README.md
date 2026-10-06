@@ -2,7 +2,7 @@
 
 Land Inventory Fast Track (LIFT) is a multi-agency effort, established by Executive Order 4, to
 identify City-owned land suitable for housing. This product produces the supplemented LIFT
-dataset: DCAS sends an extract of city-owned tax lots and we add DCP data on displacement risk,
+dataset: DCAS sends an extract of City-controlled tax lots and we add DCP data on displacement risk,
 capital project spending, census tract and NTA, and transit zone.
 
 ## Important files
@@ -12,6 +12,10 @@ capital project spending, census tract and NTA, and transit zone.
 [data_dictionary.csv](./data_dictionary.csv) - DCAS's field spec, generated from their workbook
 by [scripts/update_data_dictionary.py](./scripts/update_data_dictionary.py). Rerun that script
 when DCAS sends a new revision.
+
+[data_issues.md](./data_issues.md) - known problems in LIFT's source data.
+
+[maps/](./maps/README.md) - CARTO Builder map configs and how to load their data.
 
 ## Links
 
