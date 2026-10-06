@@ -262,6 +262,8 @@ Or run the whole thing (load excluded) via:
   `lift_supplemented_map`). The layer's columns are retyped for mapping (see
   `lift_supplemented_map` in `_product_models.yml`), so it doesn't match the CSV column for
   column. FileGDB has no boolean type, so flags land as 0/1.
+  It also has `community_districts` (via `community_districts_map`): community district
+  boundaries with each district's AHFT rank, for the map's AHFT layer.
 
 Run the export after the dbt build:
 

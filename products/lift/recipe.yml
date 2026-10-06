@@ -23,6 +23,9 @@ inputs:
     - name: dcp_ct2020
     - name: dcp_nta2020
 
+    # Community district boundaries (shoreline-clipped), for the map's AHFT layer
+    - name: dcp_cdboundaries
+
     # DRI subindices and indicators from edm-private
     - name: dcp_dri_subindices_indicators
       source: edm.private
@@ -92,6 +95,10 @@ exports:
     filename: lift.gdb.zip
     format: gdb
     custom: { geometry_type: polygons, layer: lift_supplemented }
+  - name: community_districts_map
+    filename: lift.gdb.zip
+    format: gdb
+    custom: { geometry_type: polygons, layer: community_districts }
 
 stage_config:
   builds.build:
