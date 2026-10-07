@@ -10,6 +10,7 @@ import typer
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.models import (
+    LAYERED_EXPORT_FORMATS,
     ExportDataset,
     ExportFormat,
     InputDatasetDestination,
@@ -185,16 +186,6 @@ def _read_filtered_gdf(
     return gdf
 
 
-def _output_filename(output: ExportDataset) -> str:
-    if output.format in (ExportFormat.shapefile, ExportFormat.gdb):
-        default_ext = "zip"
-    elif output.format == ExportFormat.geoparquet:
-        default_ext = "parquet"
-    else:
-        default_ext = output.format.value
-    return output.filename or f"{output.name}.{default_ext}"
-
-
 def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
     if not recipe.version:
         raise ValueError("Recipe version must be set for export")
@@ -303,8 +294,8 @@ def export(
     )
 
     for output in recipe.exports.datasets:
-        filename = _output_filename(output)
-        if output.format in (ExportFormat.gdb, ExportFormat.geopackage):
+        filename = output.output_filename
+        if output.format in LAYERED_EXPORT_FORMATS:
             # Grouped below, regardless of backend.
             layered_groups[(output.format, filename)].append(output)
         elif duckdb_client is not None:
@@ -332,7 +323,7 @@ def export(
         allow_empty: set[str] = set()
         for output in entries:
             custom = output.custom or {}
-            layer_name = custom.get("layer", output.name)
+            layer_name = output.layer_name
             logger.info(
                 f"Reading table '{output.name}' as layer '{layer_name}' for {filename}"
             )
