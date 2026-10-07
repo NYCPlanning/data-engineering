@@ -633,7 +633,6 @@ exports:
   datasets:
   - name: mytable
     format: {format}
-    custom: {{ geometry_type: points }}
 """.format(output_folder=str(tmp_path / "output"), format=format)
     )
 
@@ -644,3 +643,67 @@ exports:
     export(recipe_path, pg_client=pg_client)
 
     assert (tmp_path / "output" / "dataset_files" / expected_name).exists()
+
+
+_LAYERED_RECIPE = """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets: []
+exports:
+  output_folder: {output_folder}
+  datasets:
+  - name: mytable
+    filename: out.gpkg
+    format: gpkg
+    custom: {custom}
+"""
+
+
+def test_layered_export_keeps_geometry_by_default(tmp_path):
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        _LAYERED_RECIPE.format(output_folder=tmp_path / "output", custom="{}")
+    )
+    pg_client = MagicMock()
+    pg_client.read_table_gdf.return_value = _mixed_gdf[
+        _mixed_gdf.geom_type == "Point"
+    ].copy()
+
+    export(recipe_path, pg_client=pg_client)
+
+    result = gpd.read_file(tmp_path / "output" / "dataset_files" / "out.gpkg")
+    assert result.geom_type.iloc[0] == "Point"
+    pg_client.read_table_df.assert_not_called()
+
+
+def test_layered_export_spatial_false_writes_plain_table(tmp_path):
+    import pandas as pd
+
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        _LAYERED_RECIPE.format(
+            output_folder=tmp_path / "output", custom="{ spatial: false }"
+        )
+    )
+    pg_client = MagicMock()
+    pg_client.read_table_df.return_value = pd.DataFrame({"id": [1, 2]})
+
+    export(recipe_path, pg_client=pg_client)
+
+    result = gpd.read_file(tmp_path / "output" / "dataset_files" / "out.gpkg")
+    assert list(result.columns) == ["id"]
+    pg_client.read_table_gdf.assert_not_called()
+
+
+def test_layered_export_spatial_false_with_geometry_type_raises(tmp_path):
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        _LAYERED_RECIPE.format(
+            output_folder=tmp_path / "output",
+            custom="{ spatial: false, geometry_type: points }",
+        )
+    )
+    with pytest.raises(ValueError, match="spatial: false and geometry_type"):
+        export(recipe_path, pg_client=MagicMock())

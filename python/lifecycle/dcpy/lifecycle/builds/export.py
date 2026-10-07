@@ -336,15 +336,18 @@ def export(
             logger.info(
                 f"Reading table '{output.name}' as layer '{layer_name}' for {filename}"
             )
-            if "geometry_type" in custom:
+            if custom.get("spatial", True):
                 gdf = _read_filtered_gdf(
                     output.name,
                     geo_client,
                     geom_column=custom.get("geom_column", "geom"),
-                    geometry_type=custom["geometry_type"],
+                    geometry_type=custom.get("geometry_type"),
+                )
+            elif "geometry_type" in custom:
+                raise ValueError(
+                    f"'{output.name}' sets both spatial: false and geometry_type"
                 )
             else:
-                # Non-spatial layer (no geometry_type) — read as a plain table.
                 gdf = geo_client.read_table_df(output.name)
             layers.append((layer_name, gdf))
             if custom.get("allow_empty"):
