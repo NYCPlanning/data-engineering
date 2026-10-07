@@ -779,7 +779,7 @@ columns:
 
     Each tax lot is unique within a tax block (see TAX BLOCK).
 
-    <b>Special handling for condominiums:</b>
+    Special handling for condominiums:
 
     In a condominium complex, each condominium unit is a separate tax lot and has its own lot number. In a residential condominium, the condominium units are generally the individual apartments; in a commercial condominium, the units might be floors in an office building, individual retail shops, or blocks of office space. These unit lot numbers have values between 1001 - 6999.
 
