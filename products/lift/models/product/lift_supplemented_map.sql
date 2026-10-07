@@ -1,10 +1,13 @@
 -- lift_supplemented plus each bbl's PLUTO lot geometry, for the gdb export. Kept separate
 -- so lift_supplemented.csv doesn't carry a geometry column.
 -- Unlike lift_supplemented, this model isn't held to DCAS's field spec: columns are
--- retyped so map tools (CARTO Builder) can filter and style on them. Y/NULL flags become
--- booleans (the data dictionary defines NULL as "no"), and dollar text like
--- ' $(80,200,000)' becomes numeric, dropping the few non-numeric values ('TBD', 'Requested').
-{%- set dollar_columns = ['rlv_amount', 'siteprep_costs', 'cp_remediation'] %}
+-- retyped so map tools (CARTO Builder) can filter and style on them. Flags become booleans,
+-- with NULL as "no" per the data dictionary's Y/NULL spec (lur_underwater's entry lists
+-- wetland types instead, but the data only has 'Y'). Dollar text like ' $(80,200,000)'
+-- becomes numeric for the columns the dictionary types as numbers. cp_remediation stays
+-- text, trimmed: the dictionary describes it as a short description, and it holds values
+-- like 'Requested' alongside dollar amounts.
+{%- set dollar_columns = ['rlv_amount', 'siteprep_costs'] %}
 {#- Y/NULL flags, with the label each gets in dcas_flags. #}
 {%- set yn_flags = {
     'lur_underwater': 'Underwater',
@@ -61,6 +64,7 @@ SELECT
         CAST(lift.cd AS VARCHAR) AS cd,
         CAST(lift.council AS VARCHAR) AS council,
         TRY_CAST(lift.unitpotential AS INTEGER) AS unitpotential,
+        TRIM(lift.cp_remediation) AS cp_remediation,
         {%- for col in dollar_columns %}
         TRY_CAST(
             REPLACE(REPLACE(REPLACE(REPLACE(TRIM(lift.{{ col }}), '$', ''), ',', ''), '(', '-'), ')', '')

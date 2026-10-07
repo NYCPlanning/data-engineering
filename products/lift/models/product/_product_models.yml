@@ -20,8 +20,8 @@ models:
     lift_supplemented with each bbl's PLUTO lot geometry (from dcp_mappluto_wi) added,
     for the geospatial export and map tools. geom is null for bbls with no PLUTO match.
     Columns are retyped for mapping rather than kept to DCAS's field spec: cd and council
-    are text, unitpotential is an integer, the dollar columns are numeric, and Y/NULL
-    flags are booleans.
+    are text, unitpotential is an integer, rlv_amount and siteprep_costs are numeric, and
+    Y/NULL flags are booleans.
   columns:
   - name: bbl
     tests:
