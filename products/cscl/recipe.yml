@@ -576,11 +576,11 @@ exports:
   - name: gdb_node_stname
     filename: nyclion_26c.zip
     format: gdb
-    custom: { layer: node_stname }
+    custom: { layer: node_stname, spatial: false }
   - name: gdb_altnames
     filename: nyclion_26c.zip
     format: gdb
-    custom: { layer: altnames }
+    custom: { layer: altnames, spatial: false }
 
   # District boundary geodatabase (ETL spec ch. 10, table 39)
   # filename must match prod's, which embeds the cycle from `version:` above

@@ -251,6 +251,7 @@ exports:
   - name: variables
     filename: green_fast_track.gdb.zip
     format: gdb
+    custom: { spatial: false }
 
 stage_config:
   builds.build:
