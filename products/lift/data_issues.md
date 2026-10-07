@@ -21,6 +21,7 @@ It isn't a work tracker.
 | [LIFT-01](#lift-01) | `moa_date` | 2-digit years and Excel `####` values | Open | 26v1 |
 | [LIFT-02](#lift-02) | `redev_priority` | Mixes time horizon, target quarter, and strategy | Open | 26v1 |
 | [LIFT-03](#lift-03) | `juris` | Blank on lots the City leases, though the dictionary says blank means city owned | Open | 26v1 |
+| [LIFT-04](#lift-04) | `cd`, `council` | Data dictionary describes the wrong format | Open | 26v1 |
 
 ## LIFT-01
 
@@ -59,3 +60,15 @@ So a blank `juris` doesn't reliably mean the City owns the lot.
 `lift_supplemented_map.owned_leased` reads ownership from `ownedleased` instead.
 
 **What would settle it:** DCAS confirming what a blank `juris` means for lots the City only leases.
+
+## LIFT-04
+
+The data dictionary describes `CD` and `COUNCIL_DISTRICT` as a "1 or 2 digit numeric code with leading zeros".
+The data doesn't match either way:
+
+- `cd` is a 3-digit borough-and-district code, e.g. `310` for Brooklyn Community District 10.
+- `council` has no leading zeros, e.g. `1`, `10`.
+
+The data matches PLUTO's own `cd` and `council`, so the dictionary entry is what's off.
+
+**What would settle it:** DCAS correcting the two entries in their field spec.
