@@ -50,8 +50,9 @@ LIFT releases quarterly, timed to coincide with PLUTO major releases.
 ## What we add
 
 `models/product/lift_supplemented.sql` copies `lift_csv` at the same grain, one row per `bbl`
-with every other column untouched. It fills the placeholder columns the source extract leaves
-empty and adds six more.
+with every other column unchanged, apart from staging trimming stray leading and trailing
+spaces from text values (both DCAS's and the Public Sites fields). It fills the placeholder
+columns the source extract leaves empty and adds six more.
 
 Filled in:
 

@@ -15,18 +15,19 @@ WITH raw AS (
 final AS (
     SELECT
         TRY_CAST(bbl AS BIGINT) AS bbl,
-        site,
-        unitpot,
-        key_challenges,
-        summary,
-        redevelopment_strategy,
-        prioritization,
-        study_summary,
-        omb_remediation_cost,
-        site_preparation_costs,
-        site_preparation_description,
-        rlv,
-        rlv_desc
+        -- Hand-typed text with stray leading/trailing spaces (e.g. ' $384,202 ').
+        TRIM(site) AS site,
+        TRIM(unitpot) AS unitpot,
+        TRIM(key_challenges) AS key_challenges,
+        TRIM(summary) AS summary,
+        TRIM(redevelopment_strategy) AS redevelopment_strategy,
+        TRIM(prioritization) AS prioritization,
+        TRIM(study_summary) AS study_summary,
+        TRIM(omb_remediation_cost) AS omb_remediation_cost,
+        TRIM(site_preparation_costs) AS site_preparation_costs,
+        TRIM(site_preparation_description) AS site_preparation_description,
+        TRIM(rlv) AS rlv,
+        TRIM(rlv_desc) AS rlv_desc
     FROM raw
     WHERE TRY_CAST(bbl AS BIGINT) IS NOT NULL
     QUALIFY ROW_NUMBER() OVER (PARTITION BY TRY_CAST(bbl AS BIGINT) ORDER BY ogc_fid) = 1
