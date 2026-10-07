@@ -58,7 +58,12 @@ def export_dataset_from_postgres(
                     # Convert WKBElement to WKT string
                     df[col] = df[col].apply(lambda x: x.desc if x is not None else None)
             df.to_parquet(file_path, index=False)
-        case ExportFormat.shapefile | ExportFormat.gdb:
+        case (
+            ExportFormat.shapefile
+            | ExportFormat.gdb
+            | ExportFormat.geopackage
+            | ExportFormat.geoparquet
+        ):
             export_geodataset_from_postgres(
                 table_name=table_name,
                 file_path=file_path,
@@ -108,7 +113,12 @@ def export_dataset_from_duckdb(
             duckdb_client.export_to_parquet(
                 table_name=table_name, output_path=file_path
             )
-        case ExportFormat.shapefile | ExportFormat.gdb:
+        case (
+            ExportFormat.shapefile
+            | ExportFormat.gdb
+            | ExportFormat.geopackage
+            | ExportFormat.geoparquet
+        ):
             duckdb_utils.export_geodataset_from_duckdb(
                 table_name=table_name,
                 file_path=file_path,
@@ -138,12 +148,19 @@ def export_geodataset_from_postgres(
     geometry_type: str | None = None,  # "points" | "polygons" | None (no filter)
     layer: str | None = None,
 ) -> None:
-    """Export a geospatial table from postgres as a zipped shapefile or FGDB."""
+    """Export a geospatial table from postgres as a zipped shapefile or FGDB, a
+    GeoPackage, or GeoParquet."""
     logger.info(
         f"Exporting geospatial table {table_name} to {file_path} in format {format}"
     )
     gdf = _read_filtered_gdf(table_name, pg_client, geom_column, geometry_type)
 
+    if format == ExportFormat.geopackage:
+        datastores.write_gpkg([(layer or table_name, gdf)], file_path)
+        return
+    if format == ExportFormat.geoparquet:
+        datastores.write_geoparquet(gdf, table_name, file_path)
+        return
     with tempfile.TemporaryDirectory() as tmp_str:
         tmp_dir = Path(tmp_str)
         if format == ExportFormat.shapefile:
@@ -171,6 +188,8 @@ def _read_filtered_gdf(
 def _output_filename(output: ExportDataset) -> str:
     if output.format in (ExportFormat.shapefile, ExportFormat.gdb):
         default_ext = "zip"
+    elif output.format == ExportFormat.geoparquet:
+        default_ext = "parquet"
     else:
         default_ext = output.format.value
     return output.filename or f"{output.name}.{default_ext}"
@@ -277,15 +296,17 @@ def export(
         else:
             logger.debug(f"Artifact directory {dirname} does not exist in build output")
 
-    # GDB entries are grouped by output filename so multiple tables can share one file.
-    # All other formats are written one entry at a time.
-    gdb_groups: defaultdict[str, list[ExportDataset]] = defaultdict(list)
+    # GDB and GeoPackage entries are grouped by output filename so multiple tables can
+    # share one file. All other formats are written one entry at a time.
+    layered_groups: defaultdict[tuple[ExportFormat, str], list[ExportDataset]] = (
+        defaultdict(list)
+    )
 
     for output in recipe.exports.datasets:
         filename = _output_filename(output)
-        if output.format == ExportFormat.gdb:
-            # Grouped below so multiple tables can share one .gdb file, regardless of backend.
-            gdb_groups[filename].append(output)
+        if output.format in (ExportFormat.gdb, ExportFormat.geopackage):
+            # Grouped below, regardless of backend.
+            layered_groups[(output.format, filename)].append(output)
         elif duckdb_client is not None:
             export_dataset_from_duckdb(
                 table_name=output.name,
@@ -305,11 +326,11 @@ def export(
             )
 
     geo_client = duckdb_client if duckdb_client is not None else pg_client
-    for filename, gdb_entries in gdb_groups.items():
+    for (format, filename), entries in layered_groups.items():
         assert geo_client is not None
         layers = []
         allow_empty: set[str] = set()
-        for output in gdb_entries:
+        for output in entries:
             custom = output.custom or {}
             layer_name = custom.get("layer", output.name)
             logger.info(
@@ -323,15 +344,18 @@ def export(
                     geometry_type=custom["geometry_type"],
                 )
             else:
-                # Non-spatial GDB layer (no geometry_type) — read as a plain table.
+                # Non-spatial layer (no geometry_type) — read as a plain table.
                 gdf = geo_client.read_table_df(output.name)
             layers.append((layer_name, gdf))
             if custom.get("allow_empty"):
                 allow_empty.add(layer_name)
-        with tempfile.TemporaryDirectory() as tmp_str:
-            datastores.write_gdb_zip(
-                layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
-            )
+        if format == ExportFormat.geopackage:
+            datastores.write_gpkg(layers, dataset_files_folder / filename, allow_empty)
+        else:
+            with tempfile.TemporaryDirectory() as tmp_str:
+                datastores.write_gdb_zip(
+                    layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
+                )
 
     if recipe.exports.zip_name:
         # Resolve to absolute first: the zip subprocess below runs with cwd=output_folder,

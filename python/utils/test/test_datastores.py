@@ -101,3 +101,43 @@ def test_write_gdb_zip_writes_schema_only_for_allowed_empty_layer(tmp_path):
 
     read_back = gpd.read_file(out_path, layer="empty_layer")
     assert len(read_back) == 0
+
+
+def test_write_geoparquet_round_trips_geometry_and_crs(tmp_path):
+    points = _point_gdf([Point(0, 0), Point(1, 1)])
+    out_path = tmp_path / "out.parquet"
+
+    datastores.write_geoparquet(points, "points", out_path)
+
+    read_back = gpd.read_parquet(out_path)
+    assert len(read_back) == 2
+    assert read_back.crs == points.crs
+    assert list(read_back.geom_type) == ["Point", "Point"]
+
+
+def test_write_geoparquet_raises_on_empty_frame(tmp_path):
+    with pytest.raises(ValueError, match="No features to export"):
+        datastores.write_geoparquet(_point_gdf([]), "empty", tmp_path / "out.parquet")
+
+
+def test_write_gpkg_writes_multiple_layers(tmp_path):
+    points = _point_gdf([Point(0, 0), Point(1, 1)])
+    table = pd.DataFrame({"id": [1, 2], "note": ["a", "b"]})
+    out_path = tmp_path / "out.gpkg"
+
+    datastores.write_gpkg([("points_layer", points), ("plain_table", table)], out_path)
+
+    read_points = gpd.read_file(out_path, layer="points_layer")
+    assert len(read_points) == 2
+    read_table = gpd.read_file(out_path, layer="plain_table")
+    assert list(read_table["note"]) == ["a", "b"]
+
+
+def test_write_gpkg_replaces_existing_file(tmp_path):
+    import pyogrio
+
+    out_path = tmp_path / "out.gpkg"
+    datastores.write_gpkg([("stale", _point_gdf([Point(0, 0)]))], out_path)
+    datastores.write_gpkg([("fresh", _point_gdf([Point(1, 1)]))], out_path)
+
+    assert [name for name, _ in pyogrio.list_layers(out_path)] == ["fresh"]

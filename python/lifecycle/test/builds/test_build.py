@@ -564,3 +564,83 @@ exports:
         export(recipe_path, pg_client=MagicMock())
 
     assert mock_export.called
+
+
+def test_geoparquet_export(tmp_path):
+    out = tmp_path / "out.parquet"
+    export_geodataset_from_postgres(
+        table_name="mytable",
+        file_path=out,
+        format=ExportFormat.geoparquet,
+        pg_client=_make_pg_client(_mixed_gdf.copy()),
+        geometry_type="polygons",
+    )
+    result = gpd.read_parquet(out)
+    assert len(result) == 1
+    assert result.geom_type.iloc[0] == "MultiPolygon"
+
+
+def test_gpkg_entries_sharing_a_filename_become_layers_of_one_file(tmp_path):
+    """export() groups gpkg entries by filename, like gdb, and writes an unzipped .gpkg."""
+    import pyogrio
+
+    output_folder = tmp_path / "output"
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets: []
+exports:
+  output_folder: {output_folder}
+  datasets:
+  - name: places
+    filename: combined.gpkg
+    format: gpkg
+    custom: {{ geometry_type: points }}
+  - name: boundaries
+    filename: combined.gpkg
+    format: gpkg
+    custom: {{ geometry_type: polygons }}
+""".format(output_folder=str(output_folder))
+    )
+
+    pg_client = MagicMock()
+    pg_client.read_table_gdf.return_value = _mixed_gdf.copy()
+    export(recipe_path, pg_client=pg_client)
+
+    out = output_folder / "dataset_files" / "combined.gpkg"
+    assert [name for name, _ in pyogrio.list_layers(out)] == ["places", "boundaries"]
+
+
+@pytest.mark.parametrize(
+    "format, expected_name",
+    [("gpkg", "mytable.gpkg"), ("geoparquet", "mytable.parquet")],
+)
+def test_default_filename_geo_formats(tmp_path, format, expected_name):
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets: []
+exports:
+  output_folder: {output_folder}
+  datasets:
+  - name: mytable
+    format: {format}
+    custom: {{ geometry_type: points }}
+""".format(output_folder=str(tmp_path / "output"), format=format)
+    )
+
+    pg_client = MagicMock()
+    pg_client.read_table_gdf.return_value = _mixed_gdf[
+        _mixed_gdf.geom_type == "Point"
+    ].copy()
+    export(recipe_path, pg_client=pg_client)
+
+    assert (tmp_path / "output" / "dataset_files" / expected_name).exists()

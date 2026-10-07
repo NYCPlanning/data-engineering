@@ -48,8 +48,6 @@ exports:
   - name: templatedb
     format: csv
   - name: templatedb
-    format: parquet
-  - name: templatedb
     format: shp
     filename: templatedb_points.shp.zip
     custom:
@@ -75,6 +73,23 @@ exports:
       geom_column: wkb_geometry
       geometry_type: polygons
       layer: templatedb_polygons
+  - name: templatedb
+    format: gpkg
+    custom:
+      geom_column: wkb_geometry
+      geometry_type: points
+      layer: templatedb_points
+  - name: templatedb
+    format: gpkg
+    custom:
+      geom_column: wkb_geometry
+      geometry_type: polygons
+      layer: templatedb_polygons
+  # One file with both points and polygons: geoparquet has no single-geometry-type rule.
+  - name: templatedb
+    format: geoparquet
+    custom:
+      geom_column: wkb_geometry
 
 distribution:
   destination_ids:

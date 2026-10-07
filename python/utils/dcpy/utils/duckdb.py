@@ -375,9 +375,10 @@ def export_geodataset_from_duckdb(
     | None = None,  # "points" | "polygons" | "lines" | None (no filter)
     layer: str | None = None,
 ) -> None:
-    """Export a geospatial table from duckdb as a zipped shapefile or FGDB.
+    """Export a geospatial table from duckdb as a zipped shapefile or FGDB, a
+    GeoPackage, or GeoParquet.
 
-    `format` takes a plain string ("shp" or "gdb") rather than
+    `format` takes a plain string ("shp", "gdb", "gpkg", or "geoparquet") rather than
     dcpy.lifecycle.builds.models.ExportFormat -- utils can't import from lifecycle -- but
     ExportFormat is a StrEnum, so callers can pass its members here directly.
     """
@@ -394,6 +395,12 @@ def export_geodataset_from_duckdb(
     elif geometry_type == "lines":
         gdf = gdf[gdf.geom_type.isin(datastores.LINE_TYPES)]
 
+    if format == "gpkg":
+        datastores.write_gpkg([(layer or table_name, gdf)], file_path)
+        return
+    if format == "geoparquet":
+        datastores.write_geoparquet(gdf, table_name, file_path)
+        return
     with tempfile.TemporaryDirectory() as tmp_str:
         tmp_dir = Path(tmp_str)
         if format == "shp":
