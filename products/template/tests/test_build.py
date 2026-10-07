@@ -58,6 +58,7 @@ def test_export_files():
         "dataset_files/templatedb_points.shp.zip",
         "dataset_files/templatedb_polygons.zip",
         "dataset_files/templatedb.zip",
+        "dataset_files/templatedb.gpkg",
         # Diagnostics
         "diagnostics/dbt.zip",
     }

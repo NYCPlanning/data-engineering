@@ -1,6 +1,6 @@
 """Datastore-agnostic geospatial export helpers.
 
-Writing a GeoDataFrame to a zipped shapefile or FGDB has nothing to do with which
+Writing a GeoDataFrame to a shapefile, FGDB, GeoPackage, or GeoParquet file has nothing to do with which
 datastore (postgres, duckdb, ...) the data came from - these helpers are shared by both
 dcpy.utils.postgres and dcpy.utils.duckdb's export paths.
 """
@@ -69,17 +69,26 @@ def write_shapefile_zip(gdf, table_name: str, file_path: Path, tmp_dir: Path) ->
     shutil.make_archive(str(file_path.with_suffix("")), "zip", tmp_dir / table_name)
 
 
-def write_gdb_zip(
+def write_geoparquet(gdf, table_name: str, file_path: Path) -> None:
+    if gdf.empty:
+        raise ValueError(
+            f"No features to export for '{table_name}' geoparquet "
+            "(geometry_type filter returned zero rows)"
+        )
+    gdf.to_parquet(file_path, index=False)
+
+
+def _write_layers(
     layers: list[tuple[str, "pd.DataFrame"]],
-    file_path: Path,
-    tmp_dir: Path,
+    path: Path,
+    driver: str,
     allow_empty: set[str] | None = None,
 ) -> None:
-    """Write one or more named layers to a zipped FGDB.
+    """Write one or more named layers to a single multi-layer file (FGDB or GeoPackage).
 
-    Each entry in `layers` is (layer_name, gdf). OpenFileGDB requires a single
-    geometry type per layer; use geometry_type='points' or 'polygons' in the
-    recipe custom fields to filter before reaching here.
+    Each entry in `layers` is (layer_name, gdf). Layers are normalized to a single
+    geometry type; use geometry_type='points' or 'polygons' in the recipe custom fields
+    to filter before reaching here.
 
     An empty layer is an error by default, since it usually means a geometry_type
     filter matched nothing. Layers named in `allow_empty` (recipe `custom.allow_empty`)
@@ -90,17 +99,15 @@ def write_gdb_zip(
     import pyogrio
 
     allow_empty = allow_empty or set()
-    gdb_name = file_path.stem
-    gdb_path = tmp_dir / f"{gdb_name}.gdb"
-    # OpenFileGDB requires creating the file on the first layer, then appending the
-    # rest — you can't write multiple layers in one call. write_dataframe handles both
-    # GeoDataFrames (spatial, one geometry type per layer) and plain DataFrames
-    # (non-spatial tables like node_stname / altnames, which have no geometry column).
+    # The file is created on the first layer and the rest are appended. You can't write
+    # multiple layers in one call. write_dataframe handles both GeoDataFrames (spatial,
+    # one geometry type per layer) and plain DataFrames (non-spatial tables like
+    # node_stname / altnames, which have no geometry column).
     for i, (layer_name, gdf) in enumerate(layers):
         write_kwargs: dict = {}
         if gdf.empty:
             if layer_name not in allow_empty:
-                raise ValueError(f"No rows to export for GDB layer '{layer_name}'")
+                raise ValueError(f"No rows to export for layer '{layer_name}'")
             # An empty frame carries no geometry to infer from, so name the type.
             if isinstance(gdf, gpd.GeoDataFrame):
                 write_kwargs["geometry_type"] = "MultiPolygon"
@@ -108,14 +115,40 @@ def write_gdb_zip(
             gdf = _normalize_to_single_geom_type(gdf, layer_name)
         pyogrio.write_dataframe(
             gdf,
-            str(gdb_path),
-            driver="OpenFileGDB",
+            str(path),
+            driver=driver,
             layer=layer_name,
             append=i > 0,
             **write_kwargs,
         )
+
+
+def write_gdb_zip(
+    layers: list[tuple[str, "pd.DataFrame"]],
+    file_path: Path,
+    tmp_dir: Path,
+    allow_empty: set[str] | None = None,
+) -> None:
+    """Write one or more named layers to a zipped FGDB. See `_write_layers`."""
     import shutil
 
+    gdb_name = file_path.stem
+    _write_layers(layers, tmp_dir / f"{gdb_name}.gdb", "OpenFileGDB", allow_empty)
     shutil.make_archive(
         str(file_path.with_suffix("")), "zip", tmp_dir, f"{gdb_name}.gdb"
     )
+
+
+def write_gpkg(
+    layers: list[tuple[str, "pd.DataFrame"]],
+    file_path: Path,
+    allow_empty: set[str] | None = None,
+) -> None:
+    """Write one or more named layers to a GeoPackage. See `_write_layers`.
+
+    Not zipped: a GeoPackage is already a single file.
+    """
+    # The first layer is written with append=False, which would add to a stale file
+    # rather than replace it.
+    file_path.unlink(missing_ok=True)
+    _write_layers(layers, file_path, "GPKG", allow_empty)

@@ -80,6 +80,8 @@ class ExportFormat(StrEnum):
     parquet = "parquet"
     shapefile = "shp"
     gdb = "gdb"
+    geopackage = "gpkg"
+    geoparquet = "geoparquet"
     dat = "dat"
 
 
