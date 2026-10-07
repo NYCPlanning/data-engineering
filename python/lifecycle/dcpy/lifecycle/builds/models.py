@@ -85,6 +85,10 @@ class ExportFormat(StrEnum):
     dat = "dat"
 
 
+# Formats where entries sharing a filename are written as layers of one file.
+LAYERED_EXPORT_FORMATS = {ExportFormat.gdb, ExportFormat.geopackage}
+
+
 class ExportDataset(BaseModel, extra="forbid"):
     """Assumed to come from postgres for now"""
 
@@ -93,11 +97,60 @@ class ExportDataset(BaseModel, extra="forbid"):
     format: ExportFormat
     custom: dict | None = None
 
+    @property
+    def output_filename(self) -> str:
+        if self.filename:
+            return self.filename
+        if self.format in (ExportFormat.shapefile, ExportFormat.gdb):
+            default_ext = "zip"
+        elif self.format == ExportFormat.geoparquet:
+            default_ext = "parquet"
+        else:
+            default_ext = self.format.value
+        return f"{self.name}.{default_ext}"
+
+    @property
+    def layer_name(self) -> str:
+        return (self.custom or {}).get("layer", self.name)
+
 
 class BuildExports(BaseModel, extra="forbid"):
     output_folder: Path | None = None
     zip_name: str | None = None
     datasets: list[ExportDataset] = []
+
+    @model_validator(mode="after")
+    def _check_filename_collisions(self) -> Self:
+        """Fail at plan time, not after the build, when two entries would write the
+        same file. Only layers of one gdb or gpkg may share a filename."""
+        by_filename: dict[str, list[ExportDataset]] = {}
+        for ds in self.datasets:
+            by_filename.setdefault(ds.output_filename, []).append(ds)
+
+        errors = []
+        for filename, entries in by_filename.items():
+            formats = {ds.format for ds in entries}
+            if len(formats) > 1:
+                errors.append(
+                    f"'{filename}' is written by more than one format: "
+                    f"{sorted(f.value for f in formats)}"
+                )
+            elif formats <= LAYERED_EXPORT_FORMATS:
+                layers = [ds.layer_name for ds in entries]
+                duplicates = sorted({x for x in layers if layers.count(x) > 1})
+                if duplicates:
+                    errors.append(f"'{filename}' has duplicate layers: {duplicates}")
+            elif len(entries) > 1:
+                errors.append(
+                    f"'{filename}' is written by {len(entries)} entries: "
+                    f"{[ds.name for ds in entries]}"
+                )
+        if errors:
+            raise ValueError(
+                "Export filename collisions (set `filename` to disambiguate): "
+                + "; ".join(errors)
+            )
+        return self
 
 
 class Distribution(BaseModel, extra="forbid"):

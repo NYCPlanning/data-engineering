@@ -12,7 +12,7 @@ from dcpy.connectors.edm.models import BuildKey, DatasetType, PublishKey
 from dcpy.connectors.registry import ConnectorRegistry, VersionedConnector
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.builds import plan
-from dcpy.lifecycle.builds.models import InputDataset, StageConfigValue
+from dcpy.lifecycle.builds.models import BuildExports, InputDataset, StageConfigValue
 from dcpy.utils import versions
 
 from .conftest import (
@@ -590,3 +590,63 @@ class TestWriteSourceDataVersions(TestCase):
                 keep_default_na=False,
             )
         assert list(df["url"]) == [""] * len(df)
+
+
+@pytest.mark.parametrize(
+    "datasets",
+    [
+        # same name, different extensions
+        [{"name": "t", "format": "csv"}, {"name": "t", "format": "geoparquet"}],
+        # layers of one gdb
+        [
+            {"name": "a", "filename": "x.zip", "format": "gdb"},
+            {"name": "b", "filename": "x.zip", "format": "gdb"},
+        ],
+        # same table, two layers of one gpkg
+        [
+            {"name": "t", "format": "gpkg", "custom": {"layer": "pts"}},
+            {"name": "t", "format": "gpkg", "custom": {"layer": "polys"}},
+        ],
+    ],
+)
+def test_export_filenames_without_collisions_are_valid(datasets):
+    BuildExports(datasets=datasets)
+
+
+@pytest.mark.parametrize(
+    "datasets, match",
+    [
+        # geoparquet's default extension is .parquet
+        (
+            [{"name": "t", "format": "parquet"}, {"name": "t", "format": "geoparquet"}],
+            "more than one format",
+        ),
+        # shp and gdb both default to .zip
+        (
+            [{"name": "t", "format": "shp"}, {"name": "t", "format": "gdb"}],
+            "more than one format",
+        ),
+        (
+            [
+                {"name": "a", "filename": "x.csv", "format": "csv"},
+                {"name": "b", "filename": "x.csv", "format": "csv"},
+            ],
+            "written by 2 entries",
+        ),
+        (
+            [
+                {"name": "a", "filename": "x.gpkg", "format": "gpkg"},
+                {
+                    "name": "b",
+                    "filename": "x.gpkg",
+                    "format": "gpkg",
+                    "custom": {"layer": "a"},
+                },
+            ],
+            "duplicate layers",
+        ),
+    ],
+)
+def test_export_filename_collisions_raise(datasets, match):
+    with pytest.raises(ValueError, match=match):
+        BuildExports(datasets=datasets)
