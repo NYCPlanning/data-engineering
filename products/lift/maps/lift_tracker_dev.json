@@ -157,8 +157,8 @@
           "SI95"
         ]
       },
-      "queryTemplate": "SELECT lift_site.* EXCEPT (geom), ST_CENTROID(lift_site.geom) AS geom\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
-      "source": "SELECT lift_site.* EXCEPT (geom), ST_CENTROID(lift_site.geom) AS geom\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "queryTemplate": "SELECT site.* EXCEPT (geom), ST_CENTROID(site.geom) AS geom\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS site\nWHERE site.is_lift_site\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT site.* EXCEPT (geom), ST_CENTROID(site.geom) AS geom\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS site\nWHERE site.is_lift_site\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
       "spatialIndex": null,
       "type": "query",
       "uniqueIdProperty": null
@@ -270,8 +270,8 @@
           "(none)"
         ]
       },
-      "queryTemplate": "SELECT controlled.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN {{hide_flagged}})\n  OR (lur_waterfront AND 'Waterfront' IN {{hide_flagged}})\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN {{hide_flagged}})\n  OR (lur_sliverlot AND 'Sliver lot' IN {{hide_flagged}})\n  OR (no_street_frontage AND 'No street frontage' IN {{hide_flagged}})\n  OR (lur_accessway AND 'Accessway' IN {{hide_flagged}})\n  OR (lur_cemetery AND 'Cemetery' IN {{hide_flagged}})\n  OR (lur_commonopenspace AND 'Common open space' IN {{hide_flagged}})\n  OR (lur_bedofstreet AND 'Bed of street' IN {{hide_flagged}})\n)\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
-      "source": "SELECT controlled.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN UNNEST(@hide_flagged))\n  OR (lur_waterfront AND 'Waterfront' IN UNNEST(@hide_flagged))\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN UNNEST(@hide_flagged))\n  OR (lur_sliverlot AND 'Sliver lot' IN UNNEST(@hide_flagged))\n  OR (no_street_frontage AND 'No street frontage' IN UNNEST(@hide_flagged))\n  OR (lur_accessway AND 'Accessway' IN UNNEST(@hide_flagged))\n  OR (lur_cemetery AND 'Cemetery' IN UNNEST(@hide_flagged))\n  OR (lur_commonopenspace AND 'Common open space' IN UNNEST(@hide_flagged))\n  OR (lur_bedofstreet AND 'Bed of street' IN UNNEST(@hide_flagged))\n)\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "queryTemplate": "SELECT city_lot.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS city_lot\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN {{hide_flagged}})\n  OR (lur_waterfront AND 'Waterfront' IN {{hide_flagged}})\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN {{hide_flagged}})\n  OR (lur_sliverlot AND 'Sliver lot' IN {{hide_flagged}})\n  OR (no_street_frontage AND 'No street frontage' IN {{hide_flagged}})\n  OR (lur_accessway AND 'Accessway' IN {{hide_flagged}})\n  OR (lur_cemetery AND 'Cemetery' IN {{hide_flagged}})\n  OR (lur_commonopenspace AND 'Common open space' IN {{hide_flagged}})\n  OR (lur_bedofstreet AND 'Bed of street' IN {{hide_flagged}})\n)\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT city_lot.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS city_lot\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN UNNEST(@hide_flagged))\n  OR (lur_waterfront AND 'Waterfront' IN UNNEST(@hide_flagged))\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN UNNEST(@hide_flagged))\n  OR (lur_sliverlot AND 'Sliver lot' IN UNNEST(@hide_flagged))\n  OR (no_street_frontage AND 'No street frontage' IN UNNEST(@hide_flagged))\n  OR (lur_accessway AND 'Accessway' IN UNNEST(@hide_flagged))\n  OR (lur_cemetery AND 'Cemetery' IN UNNEST(@hide_flagged))\n  OR (lur_commonopenspace AND 'Common open space' IN UNNEST(@hide_flagged))\n  OR (lur_bedofstreet AND 'Bed of street' IN UNNEST(@hide_flagged))\n)\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
       "spatialIndex": null,
       "type": "query",
       "uniqueIdProperty": null
@@ -380,8 +380,8 @@
           "SI95"
         ]
       },
-      "queryTemplate": "SELECT lift_site.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
-      "source": "SELECT lift_site.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_site\nWHERE lift_site.is_lift_site\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "queryTemplate": "SELECT site.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS site\nWHERE site.is_lift_site\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT site.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS site\nWHERE site.is_lift_site\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
       "spatialIndex": null,
       "type": "query",
       "uniqueIdProperty": null
@@ -493,8 +493,8 @@
           "(none)"
         ]
       },
-      "queryTemplate": "SELECT controlled.* EXCEPT (geom), ST_CENTROID(controlled.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN {{hide_flagged}})\n  OR (lur_waterfront AND 'Waterfront' IN {{hide_flagged}})\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN {{hide_flagged}})\n  OR (lur_sliverlot AND 'Sliver lot' IN {{hide_flagged}})\n  OR (no_street_frontage AND 'No street frontage' IN {{hide_flagged}})\n  OR (lur_accessway AND 'Accessway' IN {{hide_flagged}})\n  OR (lur_cemetery AND 'Cemetery' IN {{hide_flagged}})\n  OR (lur_commonopenspace AND 'Common open space' IN {{hide_flagged}})\n  OR (lur_bedofstreet AND 'Bed of street' IN {{hide_flagged}})\n)\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
-      "source": "SELECT controlled.* EXCEPT (geom), ST_CENTROID(controlled.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS controlled\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN UNNEST(@hide_flagged))\n  OR (lur_waterfront AND 'Waterfront' IN UNNEST(@hide_flagged))\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN UNNEST(@hide_flagged))\n  OR (lur_sliverlot AND 'Sliver lot' IN UNNEST(@hide_flagged))\n  OR (no_street_frontage AND 'No street frontage' IN UNNEST(@hide_flagged))\n  OR (lur_accessway AND 'Accessway' IN UNNEST(@hide_flagged))\n  OR (lur_cemetery AND 'Cemetery' IN UNNEST(@hide_flagged))\n  OR (lur_commonopenspace AND 'Common open space' IN UNNEST(@hide_flagged))\n  OR (lur_bedofstreet AND 'Bed of street' IN UNNEST(@hide_flagged))\n)\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
+      "queryTemplate": "SELECT city_lot.* EXCEPT (geom), ST_CENTROID(city_lot.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS city_lot\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN {{hide_flagged}})\n  OR (lur_waterfront AND 'Waterfront' IN {{hide_flagged}})\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN {{hide_flagged}})\n  OR (lur_sliverlot AND 'Sliver lot' IN {{hide_flagged}})\n  OR (no_street_frontage AND 'No street frontage' IN {{hide_flagged}})\n  OR (lur_accessway AND 'Accessway' IN {{hide_flagged}})\n  OR (lur_cemetery AND 'Cemetery' IN {{hide_flagged}})\n  OR (lur_commonopenspace AND 'Common open space' IN {{hide_flagged}})\n  OR (lur_bedofstreet AND 'Bed of street' IN {{hide_flagged}})\n)\n  AND borough IN {{borough}}\n  AND (community_district IN {{community_district}} OR community_district IS NULL)\n  AND ('All districts' IN {{ahft_scope}} OR ahft)",
+      "source": "SELECT city_lot.* EXCEPT (geom), ST_CENTROID(city_lot.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS city_lot\nWHERE NOT (\n  (lur_underwater AND 'Underwater' IN UNNEST(@hide_flagged))\n  OR (lur_waterfront AND 'Waterfront' IN UNNEST(@hide_flagged))\n  OR (lur_urbanrenewalsite AND 'Urban renewal site' IN UNNEST(@hide_flagged))\n  OR (lur_sliverlot AND 'Sliver lot' IN UNNEST(@hide_flagged))\n  OR (no_street_frontage AND 'No street frontage' IN UNNEST(@hide_flagged))\n  OR (lur_accessway AND 'Accessway' IN UNNEST(@hide_flagged))\n  OR (lur_cemetery AND 'Cemetery' IN UNNEST(@hide_flagged))\n  OR (lur_commonopenspace AND 'Common open space' IN UNNEST(@hide_flagged))\n  OR (lur_bedofstreet AND 'Bed of street' IN UNNEST(@hide_flagged))\n)\n  AND borough IN UNNEST(@borough)\n  AND (community_district IN UNNEST(@community_district) OR community_district IS NULL)\n  AND ('All districts' IN UNNEST(@ahft_scope) OR ahft)",
       "spatialIndex": null,
       "type": "query",
       "uniqueIdProperty": null
@@ -862,7 +862,6 @@
                 },
                 {
                   "customName": "OMB remediation cost",
-                  "format": "$,.0f",
                   "name": "cp_remediation"
                 },
                 {
@@ -1067,7 +1066,6 @@
                 },
                 {
                   "customName": "OMB remediation cost",
-                  "format": "$,.0f",
                   "name": "cp_remediation"
                 },
                 {
@@ -3101,6 +3099,17 @@
     },
     "version": "v1"
   },
+  "privacy": {
+    "policies": [
+      {
+        "type": "organization"
+      },
+      {
+        "type": "public"
+      }
+    ]
+  },
+  "publicMapPassword": "citylandforhousing",
   "tags": [],
   "title": "LIFT Tracker Map - DEV"
 }
