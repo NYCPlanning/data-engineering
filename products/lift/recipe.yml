@@ -95,10 +95,14 @@ exports:
     filename: lift.gdb.zip
     format: gdb
     custom: { geometry_type: polygons, layer: lift_supplemented }
+  - name: lift_supplemented_map
+    format: geoparquet
   - name: community_districts_map
     filename: lift.gdb.zip
     format: gdb
     custom: { geometry_type: polygons, layer: community_districts }
+  - name: community_districts_map
+    format: geoparquet
 
 stage_config:
   builds.build:
