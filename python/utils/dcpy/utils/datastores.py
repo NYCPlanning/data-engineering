@@ -9,12 +9,43 @@ from pathlib import Path
 
 import pandas as pd
 
+from dcpy.utils.logging import logger
+
 # Both single and multi variants are treated as the same geometry family so that a
 # GEOMETRY column with mixed Point/MultiPoint (or Polygon/MultiPolygon) isn't silently
 # split or dropped when filtering by geometry_type.
 POINT_TYPES = ["Point", "MultiPoint"]
 POLYGON_TYPES = ["Polygon", "MultiPolygon"]
 LINE_TYPES = ["LineString", "MultiLineString"]
+
+
+_GEOMETRY_FAMILIES = {
+    "points": POINT_TYPES,
+    "polygons": POLYGON_TYPES,
+    "lines": LINE_TYPES,
+}
+
+
+def filter_geometry_type(gdf, geometry_type: str | None, label: str):
+    """Keep only rows in one geometry family ("points" | "polygons" | "lines").
+
+    Rows with null or empty geometry belong to no family and are dropped, with a
+    warning, since they'd otherwise vanish from split exports without a trace.
+    """
+    if geometry_type is None:
+        return gdf
+    if geometry_type not in _GEOMETRY_FAMILIES:
+        raise ValueError(
+            f"Unknown geometry_type '{geometry_type}' for '{label}', "
+            f"expected one of {sorted(_GEOMETRY_FAMILIES)}"
+        )
+    missing = gdf.geometry.isna() | gdf.geometry.is_empty
+    if missing.any():
+        logger.warning(
+            f"Dropping {missing.sum()} row(s) with no geometry from '{label}' "
+            f"(geometry_type={geometry_type})"
+        )
+    return gdf[gdf.geom_type.isin(_GEOMETRY_FAMILIES[geometry_type])]
 
 
 def _normalize_to_single_geom_type(gdf, label: str):

@@ -388,12 +388,7 @@ def export_geodataset_from_duckdb(
         f"Exporting geospatial table {table_name} to {file_path} in format {format}"
     )
     gdf = duckdb_client.read_table_gdf(table_name, geom_column=geom_column)
-    if geometry_type == "points":
-        gdf = gdf[gdf.geom_type.isin(datastores.POINT_TYPES)]
-    elif geometry_type == "polygons":
-        gdf = gdf[gdf.geom_type.isin(datastores.POLYGON_TYPES)]
-    elif geometry_type == "lines":
-        gdf = gdf[gdf.geom_type.isin(datastores.LINE_TYPES)]
+    gdf = datastores.filter_geometry_type(gdf, geometry_type, table_name)
 
     if format == "gpkg":
         datastores.write_gpkg([(layer or table_name, gdf)], file_path)
