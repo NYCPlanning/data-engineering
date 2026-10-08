@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import geopandas as gpd
 import pandas as pd
 import pytest
@@ -141,3 +143,29 @@ def test_write_gpkg_replaces_existing_file(tmp_path):
     datastores.write_gpkg([("fresh", _point_gdf([Point(1, 1)]))], out_path)
 
     assert [name for name, _ in pyogrio.list_layers(out_path)] == ["fresh"]
+
+
+def test_filter_geometry_type_drops_null_geometry_with_warning():
+    gdf = _point_gdf([Point(0, 0), None, Point(1, 1)])
+
+    with patch.object(datastores.logger, "warning") as warning:
+        result = datastores.filter_geometry_type(gdf, "points", "mytable")
+
+    assert len(result) == 2
+    assert (
+        "Dropping 1 row(s) with no geometry from 'mytable'" in warning.call_args[0][0]
+    )
+
+
+def test_filter_geometry_type_without_null_geometry_does_not_warn():
+    gdf = _point_gdf([Point(0, 0)])
+
+    with patch.object(datastores.logger, "warning") as warning:
+        datastores.filter_geometry_type(gdf, "points", "mytable")
+
+    warning.assert_not_called()
+
+
+def test_filter_geometry_type_raises_on_unknown_family():
+    with pytest.raises(ValueError, match="Unknown geometry_type 'point'"):
+        datastores.filter_geometry_type(_point_gdf([Point(0, 0)]), "point", "mytable")
