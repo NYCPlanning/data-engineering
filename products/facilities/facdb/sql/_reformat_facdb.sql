@@ -5,6 +5,8 @@
 DROP TABLE IF EXISTS facdb_export;
 CREATE TABLE facdb_export AS
 SELECT
+    asset_id::INTEGER AS asset_id,
+    rectype::VARCHAR(12) AS record_type,
     facname::VARCHAR(250) AS facility_name,
     addressnum::VARCHAR(12) AS address_number,
     streetname::VARCHAR(50) AS street_name,
@@ -24,6 +26,15 @@ SELECT
     overlevel::VARCHAR(12) AS oversight_agency_level,
     capacity::INT AS capacity,
     captype::VARCHAR(12) AS capacity_unit_type,
+    fcs_score_total::SMALLINT AS fcs_score_total,
+    fcs_letter_grade_total::VARCHAR(1) AS fcs_letter_grade_total,
+    fcs_score_architectural::SMALLINT AS fcs_score_architectural,
+    fcs_letter_grade_architectural::VARCHAR(1) AS fcs_letter_grade_architectural,
+    fcs_score_systems::SMALLINT AS fcs_score_systems,
+    fcs_letter_grade_systems::VARCHAR(1) AS fcs_letter_grade_systems,
+    fcs_assessment_year::SMALLINT AS fcs_assessment_year,
+    fcs_assessment_month::SMALLINT AS fcs_assessment_month,
+    fcs_assessment_date::DATE AS fcs_assessment_date,
     boro::VARCHAR(15) AS borough,
     borocode::SMALLINT AS borough_code,
     bin::INT AS bin,
@@ -59,6 +70,8 @@ ALTER TABLE facdb_export_csv DROP COLUMN geom;
 DROP TABLE IF EXISTS facdb_export_shp;
 CREATE TABLE facdb_export_shp AS
 SELECT
+    asset_id AS "ASSET_ID",
+    record_type AS "RECTYPE",
     facility_name AS "FACNAME",
     address_number AS "ADDRESSNUM",
     street_name AS "STREETNAME",
@@ -78,6 +91,15 @@ SELECT
     oversight_agency_level AS "OVERLEVEL",
     capacity AS "CAPACITY",
     capacity_unit_type AS "CAPTYPE",
+    fcs_score_total AS "FCS_NUM",
+    fcs_letter_grade_total AS "FCS_LTR",
+    fcs_score_architectural AS "FCS_NUMARC",
+    fcs_letter_grade_architectural AS "FCS_LTRARC",
+    fcs_score_systems AS "FCS_NUMSYS",
+    fcs_letter_grade_systems AS "FCS_LTRSYS",
+    fcs_assessment_year AS "FCS_ASMTYR",
+    fcs_assessment_month AS "FCS_ASMTMO",
+    fcs_assessment_date AS "FCS_ASMTDT",
     borough AS "BORO",
     borough_code AS "BOROCODE",
     bin AS "BIN",

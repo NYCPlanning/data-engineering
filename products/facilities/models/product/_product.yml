@@ -16,9 +16,103 @@ models:
           - not_null
           - many_to_one:
               parent_column: facility_subgroup
+          # Every factype must be covered by the rectype seed, else record_type is NULL.
+          # Fails listing the factypes missing from factype_rectype_mapping.
+          - relationships:
+              to: ref('factype_rectype_mapping')
+              field: factype
+          # Each factype should resolve to a single overlevel/optype; mixed factypes
+          # warn (not error) because they can't be cleanly classified at factype
+          # grain.
+          - many_to_one:
+              parent_column: oversight_agency_level
+              config:
+                severity: warn
+          - many_to_one:
+              parent_column: operator_type
+              config:
+                severity: warn
       - name: facility_subgroup
         tests: [ not_null ]
+      - name: oversight_agency_level
+        tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: operator_type
+        tests:
+          - not_null:
+              config:
+                severity: warn
       - name: operating_entity_name
         tests:
           - not_null_if_other_not_null:
               other_column_name: operating_entity_abbreviation
+      - name: record_type
+        description: >
+          Whether the record is a facility (a physical location operated by a
+          government agency — city, state, or federal), a program (a service
+          that may operate within a facility, including privately-operated sites),
+          or other. Assigned from facility_type via the factype_rectype_mapping
+          seed; FacDB owns this classification (AIMS does not provide it).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['facility', 'program', 'other']
+      # asset_id and all fcs_* columns below are MOCK data: deterministically
+      # generated, not from AIMS. Only city facility records with a real BIN are
+      # scored (AIMS surveys city facilities only); all are NULL otherwise.
+      - name: asset_id
+        description: >
+          ID of the city asset (building) from OMB AIMS or an agency asset-tracking
+          system. Mock: deterministic and 1:1 with BIN, populated only for city
+          facility records with a real BIN, NULL otherwise. Not a real AIMS id.
+      - name: fcs_score_total
+        description: >
+          Total facility condition score (FCS), a weighted average of the
+          architectural (70%) and systems (30%) scores. Mock; NULL when asset_id
+          is NULL.
+      - name: fcs_letter_grade_total
+        description: >
+          Letter grade for the total FCS (A=85-100, B=70-84, C=55-69, D=0-54).
+          Mock.
+        tests:
+          - accepted_values:
+              values: ['A', 'B', 'C', 'D']
+      - name: fcs_score_architectural
+        description: >
+          Architectural FCS, reflecting the condition of a facility's physical
+          structure and building envelope. Mock; NULL when asset_id is NULL.
+      - name: fcs_letter_grade_architectural
+        description: >
+          Letter grade for the architectural FCS (same bands as
+          fcs_letter_grade_total). Mock.
+        tests:
+          - accepted_values:
+              values: ['A', 'B', 'C', 'D']
+      - name: fcs_score_systems
+        description: >
+          Systems FCS, reflecting the condition of a facility's mechanical and
+          electrical (M&E) systems. Mock; NULL when asset_id is NULL.
+      - name: fcs_letter_grade_systems
+        description: >
+          Letter grade for the systems FCS (same bands as
+          fcs_letter_grade_total). Mock.
+        tests:
+          - accepted_values:
+              values: ['A', 'B', 'C', 'D']
+      - name: fcs_assessment_year
+        description: >
+          Year the facility's condition assessment was conducted. Mock; NULL when
+          asset_id is NULL.
+      - name: fcs_assessment_month
+        description: >
+          Month (1-12) the facility's condition assessment was conducted. Mock;
+          NULL when asset_id is NULL.
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      - name: fcs_assessment_date
+        description: >
+          Date the facility's condition assessment was conducted. Mock; NULL when
+          asset_id is NULL.

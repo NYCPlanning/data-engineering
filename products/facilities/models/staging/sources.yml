@@ -7,6 +7,15 @@ sources:
       Tables produced by the FacDB Python pipeline (geocoding, preprocessing,
       and per-dataset SQL scripts). These are the handoff point into dbt.
     tables:
+      - name: facdb
+        description: >
+          Working table built from facdb_base by the pipeline SQL scripts
+          (_create_facdb.sql, _deduplication.sql, classification/agency/geom
+          joins). Carries the normalized factype that _create_rectype.sql joins
+          the factype_rectype_mapping seed against.
+        columns:
+          - name: factype
+            description: Normalized facility type; join key for the rectype seed.
       - name: facdb_base
         description: >
           Staging table populated by the 50+ dataset-specific pipeline scripts.
