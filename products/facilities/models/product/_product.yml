@@ -1,24 +1,24 @@
 models:
   - name: facdb_export
     columns:
-      - name: '"UID"'
+      - name: uid
         tests: [ not_null, unique ]
-      - name: '"DATASOURCE"'
+      - name: data_source_file
         tests: [ not_null ]
-      - name: '"FACNAME"'
+      - name: facility_name
         tests:
           - not_null:
               config:
                 severity: error
                 error_if: ">10"
-      - name: '"FACTYPE"'
+      - name: facility_type
         tests:
           - not_null
           - many_to_one:
-              parent_column: '"FACSUBGRP"'
-      - name: '"FACSUBGRP"'
+              parent_column: facility_subgroup
+      - name: facility_subgroup
         tests: [ not_null ]
-      - name: '"OPNAME"'
+      - name: operating_entity_name
         tests:
           - not_null_if_other_not_null:
-              other_column_name: '"OPABBREV"'
+              other_column_name: operating_entity_abbreviation

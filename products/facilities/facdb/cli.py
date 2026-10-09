@@ -64,7 +64,7 @@ def _export_shp(pg: postgres.PostgresClient, output_dir: Path) -> None:
             "ESRI Shapefile",
             str(shp_dir / "facilities.shp"),
             f"PG:{BUILD_ENGINE}",
-            f"{pg.schema}.facdb_export",
+            f"{pg.schema}.facdb_export_shp",
             "-nlt",
             "POINT",
             "-t_srs",
