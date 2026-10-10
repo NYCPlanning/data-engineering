@@ -6,6 +6,14 @@ set_error_traps
 rm -rf data
 mkdir -p data
 
+# These pinned versions predate the ingest migration, so their geometry columns
+# aren't named geom. The dcp_housing parquet also declares no CRS, so it loads with
+# SRID 0 even though the coordinates are lon/lat. dcp_mappluto_wi loads from the
+# pg_dump because bbl is null in every row of the 25v1.1 parquet.
+run_sql_command "ALTER TABLE dcp_mappluto_wi RENAME COLUMN wkb_geometry TO geom;"
+run_sql_command "ALTER TABLE dcp_housing RENAME COLUMN geometry TO geom;"
+run_sql_command "ALTER TABLE dcp_housing ALTER COLUMN geom TYPE geometry USING ST_SetSRID(geom, 4326);"
+
 # download data/raw
 # download data/corrections
 python3 -m python.download

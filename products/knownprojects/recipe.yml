@@ -2,7 +2,7 @@ name: Known Projects Database
 product: db-kpdb
 version_strategy: first_of_month
 vars:
-  ZAP_VERSION: "20260817"
+  ZAP_VERSION: "20250303"
 inputs:
   missing_versions_strategy: find_latest
   datasets:
@@ -15,17 +15,28 @@ inputs:
   - name: dcp_dcpprojectteams
     version_env_var: ZAP_VERSION
   - name: dcp_mappluto_wi
-    file_type: parquet
+    version: 25v1.1
+    file_type: pg_dump
   - name: dcp_boroboundaries
+    version: 25a
   - name: dcp_housing
-    version: 26Q2
+    version: 24Q4
+    file_type: parquet
   - name: dcp_zoningmapamendments
+    version: "20250331"
   - name: doe_eszones
+    version: "20240313"
   - name: doe_school_subdistricts
+    version: "20250901"
   - name: dcp_school_districts
+    version: 25a
   - name: dcp_ct2020
+    version: 25a
   - name: dcp_nta2020
+    version: 25a
   - name: dcp_cdta2020
+    version: 25a
   - name: dcp_cdboundaries
+    version: 25a
   - name: dcp_censusdata
     version: "2020"
