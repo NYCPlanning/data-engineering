@@ -36,7 +36,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-04](#cscl-lion-04) | LION | BOE LGC pointer wrong for 568 records in prod | Accepted | 26b |
 | [CSCL-LION-05](#cscl-lion-05) | LION | Nonstreet feature segment sequence numbers | Accepted | 26b |
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
-| [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY`/`Radius` all implemented and fixed to default `0` (not null) on non-curved segments - 100% match on 208,601 non-curved segments, ±1ft noise only on curved ones | Accepted | 26c |
+| [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY`/`Radius` all implemented and fixed to default `0` (not null) on non-curved segments; `Radius` is measured from the rounded center, as prod does - 9,801 of 9,802 curved segments match | Accepted | 26c |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
 | [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` ~2% mismatch was a comparison-tool artifact (fixed); `lion` layer's key switched to `SegmentID\|Join_ID`; row-level diffing is now partial-precision (fixed, in `dcpy`); prod's `lion`-layer `Join_ID` is missing spec-mandated padding that prod's own `altnames` layer has (tooling accommodation added, not a code fix) | Accepted | 26c |
@@ -190,15 +190,19 @@ time:** 218,404 distinct segments on both sides, zero dev-only/prod-only. Non-cu
 after the `0`-default fix - previously silently wrong for all of them. Curved segments (`L`/`R`,
 9,803): `ArcCenterX`/`ArcCenterY` still 9,802/9,803 exact (the one pre-existing `ArcCenterY`
 rounding case). `Radius` disagrees on 2,418 of 9,803 (~25%) even where the center point matches
-exactly - checked every one of these: **all are off by exactly ±1 foot**, the same
-floating-point/rounding-boundary noise as the `ArcCenterY` case, not a formula error. Not chased
-further - consistent with how the single-unit `ArcCenterY` diff was already treated as
-acceptable.
+exactly - all off by exactly ±1 foot. That was first written off as floating-point noise; it
+wasn't (see below).
 
-**What would settle it:** nothing further needed - this is closed. If a future release shows
-`Radius`/`ArcCenterX`/`ArcCenterY` diffs beyond ±1 on curved segments, that would be worth a
-fresh look; the current ±1 pattern is expected numerical noise from the three-point circle fit,
-not a bug.
+**`Radius` formula corrected (2026-10-10).** Prod's `Radius` is the distance from the
+*rounded* (integer-foot) center - the published `ArcCenterX`/`ArcCenterY` - to the segment's
+start point, rounded, not the fitted circle's own radius. The two round to different integers
+whenever the fitted radius is near .5, which is where the 2,418 mismatches clustered. With that
+formula in `int__centerline_curve.sql`, 9,801 of 9,802 curved segments match prod on all three
+fields; the one exception is the `ArcCenterY` rounding case above (segment `0288916`), whose
+radius is computed from that center, so it's off too.
+
+**What would settle it:** nothing further needed. If a future release shows
+`ArcCenterX`/`ArcCenterY` diffs beyond the one ±1 case, that would be worth a fresh look.
 
 ### CSCL-LION-08
 

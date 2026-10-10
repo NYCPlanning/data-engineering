@@ -41,8 +41,16 @@ SELECT
     *,
     st_x(center_of_curvature) AS center_of_curvature_x,
     st_y(center_of_curvature) AS center_of_curvature_y,
-    -- find_circle() (macros/create_pg_functions.sql) encodes the fitted circle's
-    -- radius as the Z coordinate of the center point it returns, alongside the X/Y
-    -- center coordinates - same three-point fit, so no separate computation needed.
-    st_z(center_of_curvature) AS center_of_curvature_radius
+    -- Prod's radius is the distance from the rounded (integer-foot) center to the
+    -- segment's start point, not the fitted circle's own radius (the Z coordinate
+    -- find_circle() returns). The two round to different integers whenever the fitted
+    -- radius is near .5 - about 25% of curved segments. This reproduces prod on every
+    -- curved segment (CSCL-LION-07, data_issues.md).
+    st_distance(
+        st_setsrid(
+            st_makepoint(round(st_x(center_of_curvature)), round(st_y(center_of_curvature))),
+            st_srid(start_point)
+        ),
+        start_point
+    ) AS center_of_curvature_radius
 FROM center_calculated
