@@ -24,16 +24,24 @@ qa__diffs_all_summary table in the build schema):
 Outputs:
   - output/validation_output/qa__diffs_all_summary.csv (raw export of the dbt view)
   - output/validation_output/diffs_report.csv (one row per lion_outputs.csv file_id)
-  - $GITHUB_STEP_SUMMARY (if set): headline counts + a table of files with diffs
-    (sorted by `gap` - see that function - so the most-worth-investigating files
-    are at the top), with the full per-file table tucked into a <details> block
+  - $GITHUB_STEP_SUMMARY (if set): headline counts + one table of every tracked
+    file. On a branch build (BUILD_NAME other than main), each numeric cell also
+    shows its change vs main's latest diffs_report.csv (MAIN_REPORT_URL).
+
+To render the step summary from existing report CSVs, without Postgres:
+    python poc_validation/build_diffs_report.py --summary-only <diffs_report.csv> \
+        [--main-csv <main's diffs_report.csv>]
 Report-only: never fails the build.
 """
 
+import argparse
 import csv
+import io
 import os
 from collections import Counter
 from pathlib import Path
+
+import requests
 
 from dcpy.lifecycle.builds import plan
 from dcpy.utils.postgres import PostgresClient
@@ -44,6 +52,8 @@ VALIDATION_DIR = Path("output/validation_output")
 OUTPUT_PATH = VALIDATION_DIR / "diffs_report.csv"
 VALIDATION_SUMMARY_PATH = VALIDATION_DIR / "validation_summary.csv"
 DIFFS_SUMMARY_PATH = VALIDATION_DIR / "qa__diffs_all_summary.csv"
+# main's latest diffs_report.csv - branch builds show each file's change against it
+MAIN_REPORT_URL = "https://edm-publishing.nyc3.digitaloceanspaces.com/db-cscl/build/main/validation_output/diffs_report.csv"
 
 # Static, human-written notes for known/open issues that don't come from any QA
 # model - keyed by lion_outputs.csv file_id. Left deliberately unaccounted (not
@@ -86,27 +96,36 @@ FIELD_LEVEL_COUNT_COLUMNS = [
     "unaccounted_discrepant_rows",
     "unaccounted_discrepant_fields",
 ]
-# Columns shown in the step summary tables (narrower than REPORT_COLUMNS - drops
-# type/has_db_qa, which aren't useful for a quick read). Shows status_summary, not
-# notes - the full explanation is one click away in diffs_report.csv/lion_outputs.csv
-# itself; this table is for skimming.
+# Columns shown in the step summary table (narrower than REPORT_COLUMNS - drops
+# subgroup/filename/type/has_db_qa, plus the field count and raw % diff, which
+# aren't useful for a quick read). Shows status_summary, not notes - the full
+# explanation is one click away in diffs_report.csv/lion_outputs.csv itself; this
+# table is for skimming.
 SUMMARY_DISPLAY_COLUMNS = [
     ("output_group", "Output"),
     ("file_group", "Group"),
-    ("subgroup", "Subgroup"),
-    ("filename", "Filename"),
     ("file_id", "File ID"),
     ("prod_row_count", "Prod rows"),
     ("accounted_for_discrepant_rows", "Accounted-for rows"),
     ("unaccounted_discrepant_rows", "Unaccounted rows"),
-    ("unaccounted_discrepant_fields", "Unaccounted fields"),
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
-    ("pct_diff", "% diff"),
     ("unaccounted_pct_diff", "% diff (unaccounted)"),
     ("_gap", "Gap"),
     ("status", "Status"),
     ("status_summary", "Status summary"),
 ]
+# Numeric report columns, for reading a diffs_report.csv back in (main's, or a
+# local one via --summary-only). Empty cells are None.
+INT_REPORT_COLUMNS = [
+    "prod_row_count",
+    "accounted_for_discrepant_rows",
+    "unaccounted_discrepant_fields",
+    "unaccounted_discrepant_rows",
+    "discrepant_rows_from_file_comparison",
+]
+PCT_COLUMNS = ["pct_diff", "unaccounted_pct_diff"]
+# Summary columns that show their change vs main
+DELTA_COLUMNS = INT_REPORT_COLUMNS + PCT_COLUMNS + ["_gap"]
 
 
 def load_backbone() -> list[dict]:
@@ -301,39 +320,98 @@ def gap(row: dict) -> int:
     return abs(file_level - (accounted_for + unaccounted))
 
 
-def _markdown_cell(col: str, value) -> str:
-    if value is None:
-        return "–"
-    if col in ("pct_diff", "unaccounted_pct_diff"):
+def read_report_csv(source: Path | str) -> list[dict]:
+    """Rows of a diffs_report.csv (a path, or the CSV text itself), with the numeric
+    columns converted back from strings - the inverse of what main() writes."""
+    text = source.read_text() if isinstance(source, Path) else source
+    rows = []
+    for row in csv.DictReader(io.StringIO(text)):
+        for col in INT_REPORT_COLUMNS:
+            row[col] = int(row[col]) if row[col] != "" else None
+        for col in PCT_COLUMNS:
+            row[col] = float(row[col]) if row[col] != "" else None
+        rows.append(row)
+    return rows
+
+
+def load_main_rows() -> dict[str, dict] | None:
+    """file_id -> row of main's latest diffs_report.csv, or None if it can't be
+    loaded (a missing or unreadable report never fails the build)."""
+    try:
+        response = requests.get(MAIN_REPORT_URL, timeout=30)
+        response.raise_for_status()
+        return {row["file_id"]: row for row in read_report_csv(response.text)}
+    except Exception as e:
+        print(f"Couldn't load main's diffs report ({MAIN_REPORT_URL}): {e}")
+        return None
+
+
+def _format_value(col: str, value) -> str:
+    if col in PCT_COLUMNS:
         return f"{value:.2f}%"
     return str(value)
 
 
-def _markdown_table(rows: list[dict]) -> str:
+def _delta(col: str, value, main_value) -> str:
+    """The change vs main, as GitHub-rendered colored math: red for an increase
+    (more diffs), green for a decrease. Empty when there's nothing to compare."""
+    if value is None or main_value is None:
+        return ""
+    change = value - main_value
+    if col in PCT_COLUMNS:
+        change = round(change, 2)
+        if change == 0:
+            return ""
+        text = f"{change:+.2f}\\%"
+    else:
+        if change == 0:
+            return ""
+        text = f"{change:+d}"
+    color = "red" if change > 0 else "green"
+    return f" $\\color{{{color}}}{{\\text{{{text}}}}}$"
+
+
+def _markdown_cell(col: str, row: dict, main_row: dict | None) -> str:
+    value = row[col]
+    if value is None:
+        return "–"
+    cell = _format_value(col, value)
+    if main_row is not None and col in DELTA_COLUMNS:
+        cell += _delta(col, value, main_row[col])
+    return cell
+
+
+def _markdown_table(rows: list[dict], main_rows: dict[str, dict] | None) -> str:
     header = "| " + " | ".join(label for _, label in SUMMARY_DISPLAY_COLUMNS) + " |"
     sep = "| " + " | ".join("---" for _ in SUMMARY_DISPLAY_COLUMNS) + " |"
-    body_lines = [
-        "| "
-        + " | ".join(
-            _markdown_cell(col, row[col]) for col, _ in SUMMARY_DISPLAY_COLUMNS
-        )
-        + " |"
-        for row in rows
-    ]
+    body_lines = []
+    for row in rows:
+        main_row = main_rows.get(row["file_id"]) if main_rows is not None else None
+        cells = [
+            _markdown_cell(col, row, main_row) for col, _ in SUMMARY_DISPLAY_COLUMNS
+        ]
+        if main_rows is not None and main_row is None:
+            cells[[c for c, _ in SUMMARY_DISPLAY_COLUMNS].index("file_id")] += " (new)"
+        body_lines.append("| " + " | ".join(cells) + " |")
     return "\n".join([header, sep, *body_lines])
 
 
-def build_step_summary(rows: list[dict]) -> str:
+def build_step_summary(
+    rows: list[dict], main_rows: dict[str, dict] | None = None, vs_main: bool = False
+) -> str:
+    """The step summary: headline counts and one table of every tracked file. With
+    main_rows (main's latest report, keyed by file_id), numeric cells also show
+    their change vs main. vs_main without main_rows means main's report couldn't be
+    loaded - noted, and the table renders without deltas."""
     for row in rows:
         row["_gap"] = gap(row)
+    if main_rows is not None:
+        for main_row in main_rows.values():
+            main_row["_gap"] = gap(main_row)
 
     diffable_rows = [r for r in rows if is_diffable(r)]
     not_diffable = [r for r in rows if not is_diffable(r)]
-    flagged = sorted(
-        (r for r in diffable_rows if has_diffs(r)),
-        key=lambda r: r["unaccounted_pct_diff"] or 0,
-        reverse=True,
-    )
+    flagged = [r for r in diffable_rows if has_diffs(r)]
     uncovered = [r for r in diffable_rows if not has_coverage(r)]
 
     flagged_by_group = Counter(r["output_group"] for r in flagged)
@@ -347,30 +425,41 @@ def build_step_summary(rows: list[dict]) -> str:
         "## CSCL diff report",
         "",
         f"- {len(rows)} files tracked in `lion_outputs.csv` "
-        f"({len(not_diffable)} marked not diffable - logs and similar - excluded below)",
+        f"({len(not_diffable)} marked not diffable - logs and similar)",
         f"- **{len(flagged)} have diffs to review** ({group_breakdown})",
         f"- {len(uncovered)} are diffable but have no comparison at all "
         "(no field-level QA model, no matching prod file to diff)",
-        "",
     ]
-
-    if flagged:
-        lines += ["### Files with diffs", "", _markdown_table(flagged)]
-    else:
-        lines.append("No diffs found across any tracked file.")
-
+    if main_rows is not None:
+        lines.append(
+            "- Changes vs main's latest build are shown in each cell "
+            "(red: more than main, green: fewer)"
+        )
+    elif vs_main:
+        lines.append(f"- Main's diffs report couldn't be loaded ({MAIN_REPORT_URL})")
     lines += [
         "",
-        "<details>",
-        f"<summary>All {len(rows)} tracked files</summary>",
-        "",
-        _markdown_table(rows),
-        "",
-        "</details>",
+        _markdown_table(rows, main_rows),
         "",
         "Full data: `output/validation_output/diffs_report.csv` (uploaded with the build).",
     ]
     return "\n".join(lines)
+
+
+def is_branch_build() -> bool:
+    build_name = os.environ.get("BUILD_NAME")
+    return bool(build_name) and build_name != "main"
+
+
+def print_summary_from_csv(current_csv: Path, main_csv: Path | None) -> None:
+    """Render the step summary from report CSVs, without Postgres or a build."""
+    rows = read_report_csv(current_csv)
+    main_rows = (
+        {row["file_id"]: row for row in read_report_csv(main_csv)}
+        if main_csv and main_csv.exists()
+        else None
+    )
+    print(build_step_summary(rows, main_rows, vs_main=main_csv is not None))
 
 
 def main() -> None:
@@ -448,9 +537,27 @@ def main() -> None:
 
     step_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if step_summary_path:
+        vs_main = is_branch_build()
+        main_rows = load_main_rows() if vs_main else None
         with open(step_summary_path, "a") as f:
-            f.write(build_step_summary(rows) + "\n")
+            f.write(build_step_summary(rows, main_rows, vs_main) + "\n")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--summary-only",
+        type=Path,
+        metavar="REPORT_CSV",
+        help="print the step summary for an existing diffs_report.csv and exit",
+    )
+    parser.add_argument(
+        "--main-csv",
+        type=Path,
+        help="main's diffs_report.csv, to show changes against (with --summary-only)",
+    )
+    args = parser.parse_args()
+    if args.summary_only:
+        print_summary_from_csv(args.summary_only, args.main_csv)
+    else:
+        main()
