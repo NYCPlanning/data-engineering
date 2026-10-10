@@ -99,6 +99,31 @@ models:
       - name: cptl_proj_id
         tests: [ not_null ]
 
+  - name: stg__omb_tycs
+    description: |
+      Ten-Year Capital Strategy, every release since 2019, realigned to the published column
+      layout. Amounts are in thousands.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ pub_date, projtype, typc, funding ]
+    columns:
+      - name: pub_date
+        tests: [ not_null ]
+      - name: projtype
+        tests: [ not_null ]
+      - name: projtype_desc
+        description: |
+          Agency name. 20230112 and 20250116 don't have it, so it comes from the same cycle's
+          final release. It's null for PU / Vehicle Purchase or Retrofit in 20230112, since
+          that category is only in that release and PU has two agency names.
+      - name: typc
+        description: Ten-year plan category name, not the `typc` code used in FISA.
+        tests: [ not_null ]
+      - name: funding
+        tests:
+          - accepted_values:
+              values: [ City, Federal, State, Private ]
+
   - name: stg__dot_projects_intersections
     columns:
       - name: fmsid

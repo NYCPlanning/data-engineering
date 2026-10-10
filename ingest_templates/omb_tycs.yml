@@ -1,0 +1,81 @@
+id: omb_tycs
+acl: public-read
+
+attributes:
+  name: Ten-Year Capital Strategy
+  description: >-
+    Ten-Year Capital Strategy by project type, ten-year plan category, and source of funds,
+    with every release since 2019 identified by pub_date. Dollar values are in thousands.
+  url: https://data.cityofnewyork.us/d/b37a-3faw
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: b37a-3faw
+    format: csv
+  file_format:
+    # some releases put values in the wrong columns (e.g. a fiscal year in `funding`),
+    # so types are set in staging after those are realigned
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Published Date": "pub_date",
+            "Project Type": "projtype",
+            "Project Type Description": "projtype_desc",
+            "Ten-Year Plan Category": "typc",
+            "Funding Type": "funding",
+            "First Fiscal Year": "yr1_fy",
+            "Fiscal Year 1 Amount": "year1_amt",
+            "Fiscal Year 2 Amount": "year2_amt",
+            "Fiscal Year 3 Amount": "year3_amt",
+            "Fiscal Year 4 Amount": "year4_amt",
+            "Fiscal Year 5 Amount": "year5_amt",
+            "Fiscal Year 6 Amount": "year6_amt",
+            "Fiscal Year 7 Amount": "year7_amt",
+            "Fiscal Year 8 Amount": "year8_amt",
+            "Fiscal Year 9 Amount": "year9_amt",
+            "Fiscal Year 10 Amount": "year10_amt",
+            "Ten-Year Total": "total",
+          }
+
+columns:
+  - id: pub_date
+    data_type: text
+  - id: projtype
+    data_type: text
+  - id: projtype_desc
+    data_type: text
+  - id: typc
+    data_type: text
+  - id: funding
+    data_type: text
+  - id: yr1_fy
+    data_type: text
+  - id: year1_amt
+    data_type: text
+  - id: year2_amt
+    data_type: text
+  - id: year3_amt
+    data_type: text
+  - id: year4_amt
+    data_type: text
+  - id: year5_amt
+    data_type: text
+  - id: year6_amt
+    data_type: text
+  - id: year7_amt
+    data_type: text
+  - id: year8_amt
+    data_type: text
+  - id: year9_amt
+    data_type: text
+  - id: year10_amt
+    data_type: text
+  - id: total
+    data_type: text
