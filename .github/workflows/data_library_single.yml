@@ -39,7 +39,7 @@ jobs:
       RECIPES_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-recipes' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Load Secrets
         uses: 1password/load-secrets-action@v1
