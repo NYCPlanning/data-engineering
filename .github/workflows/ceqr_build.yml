@@ -40,7 +40,7 @@ jobs:
       - name: Install dcpy workspace
         run: uv sync --all-packages
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
