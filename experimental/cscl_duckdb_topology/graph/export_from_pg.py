@@ -3,7 +3,7 @@
 Inputs for the DuckDB build:
   vertices.parquet  - int__topology__vertices, point geometry as exact x/y doubles
   arc_lines.parquet - one canonical linearized arc per arc edge, keyed by its endpoint
-                      coordinates (DuckDB spatial has no curve types; see RESULTS.md)
+                      coordinates (DuckDB spatial has no curve types)
 
 PG reference outputs (pg_*.parquet) are only read by compare.py.
 

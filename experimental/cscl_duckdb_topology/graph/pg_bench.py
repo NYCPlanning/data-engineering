@@ -4,7 +4,7 @@ previous steps' temp tables and the existing int__topology__vertices from --sour
 The dbt-configured indexes are built on each temp table and it's ANALYZEd (temp tables
 are never auto-analyzed), timed separately from the CTAS.
 
-    cd products/cscl && dbt compile --select int__topology__exact_points+ ...  # see RESULTS.md
+    cd products/cscl && dbt compile --select int__topology__exact_points+ ...
     python pg_bench.py --source-schema ar_cscl_districts_gdb_db_qa_oct4 --runs 3
 
 Needs BUILD_ENGINE_SERVER and BUILD_ENGINE_SCHEMA (load the cscl direnv first).
