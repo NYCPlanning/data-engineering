@@ -34,7 +34,7 @@ jobs:
       run: uv lock --upgrade
 
     - name: Create PR
-      uses: peter-evans/create-pull-request@v5
+      uses: peter-evans/create-pull-request@v8
       with:
         commit-message: automated upgrade of uv.lock
         add-paths: uv.lock
