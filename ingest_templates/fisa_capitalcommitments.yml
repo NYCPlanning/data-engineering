@@ -10,7 +10,7 @@ ingestion:
   source:
     type: s3
     bucket: edm-recipes
-    key: inbox/fisa_capitalcommitments/AICP_OREQ_CAPPLN_PJCP_20260518153253.asc
+    key: inbox/fisa_capitalcommitments/AICP_OREQ_CAPPLN_PJCP_20260929092945.asc
   file_format:
     type: csv
     encoding: ISO-8859-1
