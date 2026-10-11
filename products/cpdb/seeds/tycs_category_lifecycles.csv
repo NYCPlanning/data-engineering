@@ -1,0 +1,170 @@
+tycs_project_type,tycs_category,lifecycle,lifecycle_line,lifecycle_confidence
+AG,Data Processing and Information Technology,Programmatic Replacement,Social Services Management Systems & Equipment,plausible
+AG,Department for the Aging Building Reconstruction,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+AG,Equipment and Vehicles,,,unresolved
+BR and HB,Bridge Facilities,State of Good Repair,East River & Other Bridge Reconstruction,exact
+BR and HB,Bridge Life Extension and Miscellaneous Work,State of Good Repair,East River & Other Bridge Reconstruction,exact
+BR and HB,Bridge Painting,State of Good Repair,East River & Other Bridge Reconstruction,exact
+BR and HB,Bridge Vehicles,,,unresolved
+BR and HB,East River Bridges,State of Good Repair,East River & Other Bridge Reconstruction,exact
+BR and HB,Fair Bridges,State of Good Repair,East River & Other Bridge Reconstruction,exact
+C,Building Systems and Infrastructure,,,unresolved
+C,Equipment,Programmatic Replacement,Correctional Equipment,exact
+C,New Jail Facilities,Programmatic Replacement,Design & Construction of New Jail Facilities,exact
+C,Support Space,Program Expansion,New Correction Training Academy,exact
+CO,Construction of New Court Facilities,Program Expansion,Construction of Court Facilities,exact
+CO,Reconstruction/Renovation of Court Facilities,Programmatic Replacement,Reconstruction & Renovation of Court Facilities,exact
+CS,Child Welfare Facilities,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+CS,Equipment,Programmatic Replacement,Social Services Management Systems & Equipment,plausible
+CS,Social Service Buildings,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+DP,"Electronic Data Processing Equipment for DoITT, Citynet",Programmatic Replacement,Citywide Information Systems & Equipment,plausible
+E,Ancillary Facilities (Administration),State of Good Repair,Reconstruction & Rehabilitation of Schools,exact
+E,Educational Enhancements,State of Good Repair,Reconstruction & Rehabilitation of Schools,exact
+E,"Emergency, Inspection and Miscellaneous",State of Good Repair,Reconstruction & Rehabilitation of Schools,exact
+E,Rehabilitation of School Components,State of Good Repair,Reconstruction & Rehabilitation of Schools,exact
+E,Safety and Security,State of Good Repair,Reconstruction & Rehabilitation of Schools,exact
+E,System Expansion (New Schools),Program Expansion,New School Construction,exact
+E,System Expansion (Other),Program Expansion,New School Construction,exact
+ED,Commercial Development,Program Expansion,"Industrial, Commercial, Waterfront & Market Development",exact
+ED,Community Development,Program Expansion,Neighborhood Revitalization & Community Development,exact
+ED,Cultural Development,,,unresolved
+ED,Industrial Development,Program Expansion,"Industrial, Commercial, Waterfront & Market Development",exact
+ED,Market Development,Program Expansion,"Industrial, Commercial, Waterfront & Market Development",exact
+ED,Miscellaneous,Program Expansion,Neighborhood Revitalization & Community Development,exact
+ED,Neighborhood Revitalization,Program Expansion,Neighborhood Revitalization & Community Development,exact
+ED,Waterfront Development,Program Expansion,"Industrial, Commercial, Waterfront & Market Development",exact
+EP,Conservation for Water Meter Replacements,Programmatic Replacement,Replacement of DEP Facilities & Equipment,exact
+EP,Facility Purchases and Reconstruction,Programmatic Replacement,Replacement of DEP Facilities & Equipment,exact
+EP,Management Information Systems,Programmatic Replacement,Replacement of DEP Facilities & Equipment,exact
+EP,Utility Relocation for SE and WM Projects,Programmatic Replacement,Replacement of DEP Facilities & Equipment,exact
+EP,Vehicles and Equipment,Programmatic Replacement,Replacement of DEP Facilities & Equipment,exact
+EP,Water for the Future,State of Good Repair,Water for the Future & Filtration Avoidance,exact
+F,Communications,Programmatic Replacement,Firefighting Equipment & Vehicles,exact
+F,Electronics and Data Processing,Programmatic Replacement,Firefighting Equipment & Vehicles,exact
+F,New Facilities and Renovations,State of Good Repair,Fire House Renovations,exact
+F,"Vehicles, Firefighting Tools and Equipment",Programmatic Replacement,Firefighting Equipment & Vehicles,exact
+FA,Reconstruction of Ferry Boats,Programmatic Replacement,Ferry Boats & Terminals,exact
+FA,Reconstruction of Ferry Terminal Facilities,Programmatic Replacement,Ferry Boats & Terminals,exact
+HA,Low to Moderate Income Public Housing Upgrade,State of Good Repair,Housing Preservation & Rehabilitation,exact
+HD,NYCHA Preservation Programs,State of Good Repair,Housing Preservation & Rehabilitation,exact
+HD,New Housing Construction,Program Expansion,New & Special Needs Housing,exact
+HD,Occupied In Rem Rehabilitation,State of Good Repair,Housing Preservation & Rehabilitation,exact
+HD,Other Housing Support Investment,State of Good Repair,Housing Preservation & Rehabilitation,exact
+HD,Preservation,State of Good Repair,Housing Preservation & Rehabilitation,exact
+HD,Special Needs Housing,Program Expansion,New & Special Needs Housing,exact
+HH,Equipment,Programmatic Replacement,Social Services Management Systems & Equipment,plausible
+HH,Shelters for Homeless Families,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+HH,Shelters for Homeless Individuals,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+HL,Administration,,,unresolved
+HL,Animal Care,,,unresolved
+HL,Clinic Renovation and Rehabilitation,State of Good Repair,Rehabilitation of Hospitals & Health Facilities,plausible
+HL,Equipment and Vehicles,Programmatic Replacement,Medical Equipment & Systems,plausible
+HL,Information Technology,State of Good Repair,Rehabilitation of Hospitals & Health Facilities,plausible
+HL,Laboratories,State of Good Repair,Rehabilitation of Hospitals & Health Facilities,plausible
+HL,OCME,Programmatic Replacement,Medical Equipment & Systems,plausible
+HN,Data Processing and Other Equipment,,,unresolved
+HN,Miscellaneous Reconstruction,State of Good Repair,Reconstruction & Rehabilitation of CUNY Facilities,exact
+HN,New School Construction,Program Expansion,New School Construction,exact
+HO,Emergency Medical Services Equipment,Programmatic Replacement,Medical Equipment & Systems,plausible
+HO,Information Systems,Programmatic Replacement,Medical Equipment & Systems,plausible
+HO,Major Medical Equipment,Programmatic Replacement,Medical Equipment & Systems,plausible
+HO,Major or Partial Hospital Reconstruction,,,unresolved
+HO,Routine Reconstruction,State of Good Repair,Rehabilitation of Hospitals & Health Facilities,plausible
+HR,Automotive Equipment,,,unresolved
+HR,Data Processing Equipment,Programmatic Replacement,Social Services Management Systems & Equipment,plausible
+HR,Social Services Buildings,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+HR,Telecommunications Equipment,State of Good Repair,Social Services Facility & Technology Upgrades,plausible
+HW,Facility Reconstruction,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Local Street Reconstruction,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Pedestrian Ramp Construction,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Primary Street Reconstruction,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Primary Street Resurfacing,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Reconstruction of Retaining Walls,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Reconstruction of Step Streets,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+HW,Sidewalk Reconstruction,State of Good Repair,Reconstruction & Resurfacing of Streets & Highways,exact
+L,Essential Reconstruction of Facilities,,,unresolved
+L,Improvements to Existing Facilities,,,unresolved
+L,New York Library Support Service Improvements,,,unresolved
+LB,Essential Reconstruction of Facilities,State of Good Repair,,plausible
+LN,Access for the Handicapped,,,unresolved
+LN,Essential Reconstruction of Facilities,State of Good Repair,,plausible
+LN,Expansion and Construction of Facilities,,,unresolved
+LN,Improvements to Existing Facilities,,,unresolved
+LN,Support Services Improvements,,,unresolved
+LQ,Essential Reconstruction of Facilities,State of Good Repair,,plausible
+LQ,Reconstruction Necessary to Maintain Facilities,,,unresolved
+LQ,Replacement Branches,State of Good Repair,,plausible
+LQ,Support Services Improvements,State of Good Repair,,plausible
+P,Beaches and Boardwalks,State of Good Repair,Reconstruction of Recreational Spaces,exact
+P,Land Acquisition and Tree Planting,Program Expansion,Improvements to Cultural & Recreational Facilities,exact
+P,"Large, Major and Regional Park Reconstruction",State of Good Repair,Reconstruction of Recreational Spaces,exact
+P,Major Recreational Facilities,State of Good Repair,Reconstruction of Recreational Spaces,exact
+P,Neighborhood Parks and Playgrounds,State of Good Repair,Reconstruction of Recreational Spaces,exact
+P,Park Pedestrian Bridges,State of Good Repair,Reconstruction of Recreational Spaces,exact
+P,"Vehicles, Equipment and Facility Reconstruction",State of Good Repair,Reconstruction of Recreational Spaces,exact
+P,Zoos,State of Good Repair,Reconstruction of Recreational Spaces,exact
+PO,Communications Equipment,Programmatic Replacement,Police Vehicles & Equipment,exact
+PO,Computer Equipment,Programmatic Replacement,Police Vehicles & Equipment,exact
+PO,Miscellaneous Equipment,Programmatic Replacement,Police Vehicles & Equipment,exact
+PO,Police Facilities,State of Good Repair,Renovation of Police Facilities,exact
+PO,Vehicles,Programmatic Replacement,Police Vehicles & Equipment,exact
+PU,"Building Construction, Reconstruction or Retrofit",State of Good Repair,"Resiliency, Energy Efficiency & Sustainability",exact
+PU,Distributed Generation,,,unresolved
+PU,Electronic Data Processing Equipment - City-Wide,Programmatic Replacement,Citywide Information Systems & Equipment,plausible
+PU,Electronic Data Processing Equipment - FISA,Programmatic Replacement,Citywide Information Systems & Equipment,plausible
+PU,Miscellaneous Energy Efficiency and Sustainability,State of Good Repair,"Resiliency, Energy Efficiency & Sustainability",exact
+PV,Capital Equipment,,,unresolved
+PV,Essential Reconstruction of Facilities,State of Good Repair,,plausible
+PW,Acquisition of Real Property,,,unresolved
+PW,Board of Elections Modernization,Programmatic Replacement,Citywide Information Systems & Equipment,plausible
+PW,Equipment and Interagency Services,Programmatic Replacement,Citywide Information Systems & Equipment,plausible
+PW,Legal Mandates and Correction of Unsafe Conditions,State of Good Repair,Rehabilitation of Public Buildings & Systems,plausible
+PW,Miscellaneous Construction,State of Good Repair,,plausible
+PW,Rehabilitation of City-Owned Office Space,State of Good Repair,Rehabilitation of Public Buildings & Systems,plausible
+PW,Renovation of Leased Space,State of Good Repair,Rehabilitation of Public Buildings & Systems,plausible
+PW,Renovation of Other City-Owned Facilities,State of Good Repair,Rehabilitation of Public Buildings & Systems,plausible
+RE,Rehabilitation of Non-Waterfront Properties,State of Good Repair,Rehabilitation of Public Buildings & Systems,plausible
+RE,Rehabilitation of Waterfront Properties,State of Good Repair,Rehabilitation of Public Buildings & Systems,plausible
+S,Equipment,Programmatic Replacement,Purchase of Sanitation Equipment,exact
+S,Garages and Facilities,State of Good Repair,Sanitation Garages & Facilities,exact
+S,Information Technology and Communications,Programmatic Replacement,Purchase of Sanitation Equipment,exact
+S,Solid Waste Management,,,unresolved
+SE,Bluebelt Program,Program Expansion,Bluebelt Program,exact
+SE,Extensions to Accommodate New Development,Program Expansion,Sewer Extensions to Accommodate New Development,exact
+SE,Programmatic Replacement and Reconstruction,Programmatic Replacement,Sewer Components,exact
+SE,Replacement of Chronically Failing Components,State of Good Repair,Replacement of Failing Sewer Components,exact
+SE,Replacement or Augmentation of Existing Systems,Program Expansion,Augmentation of Sewers,exact
+SE,Trunk and Distribution Main Replacement,Programmatic Replacement,Sewer Components,exact
+T,IFA Trackwork Project for New York City Transit,Programmatic Replacement,Transit System Rehabilitation,exact
+T,Miscellaneous Projects for New York City Transit,Programmatic Replacement,Transit System Rehabilitation,exact
+TD,Automotive and Other Equipment,Programmatic Replacement,Transportation Equipment & Vehicles,exact
+TD,Data Processing Equipment,Programmatic Replacement,Transportation Equipment & Vehicles,exact
+TF,"Communications, Surveillance Equipment",State of Good Repair,Upgrades to Traffic Systems,exact
+TF,Highway Drawdown Program,State of Good Repair,Upgrades to Traffic Systems,exact
+TF,Installation of Lampposts and Luminaires,State of Good Repair,Upgrades to Traffic Systems,exact
+TF,Installation of Pavement Markings,State of Good Repair,Upgrades to Traffic Systems,exact
+TF,"Parking Meters, Lots and Garages",State of Good Repair,Upgrades to Traffic Systems,exact
+TF,Signal Installation and Computerization,State of Good Repair,Upgrades to Traffic Systems,exact
+TF,Traffic Work in Conjunction with Highway Reconstruction,State of Good Repair,Upgrades to Traffic Systems,exact
+W,"City Tunnel No. 3, Stage 1",Program Expansion,Construction of the Third Water Tunnel,exact
+W,"City Tunnel No. 3, Stage 2",Program Expansion,Construction of the Third Water Tunnel,exact
+W,Kensico-City Tunnel,Program Expansion,Construction of the Third Water Tunnel,exact
+W,Miscellaneous Programs,,,unresolved
+W,Water For The Future,State of Good Repair,Water for the Future & Filtration Avoidance,exact
+WM,Augmentation of Water Supply Systems,Program Expansion,Water Main Construction,exact
+WM,Bluebelt Program,Program Expansion,Bluebelt Program,exact
+WM,Croton Filter Project,Program Expansion,Water Quality Preservation,exact
+WM,Dam Safety Program,Programmatic Replacement,Water Main Replacement & Dam Safety Program,exact
+WM,Extensions,Program Expansion,Water Main Construction,exact
+WM,Filtration Avoidance Determination,State of Good Repair,Water for the Future & Filtration Avoidance,exact
+WM,Miscellaneous Improvements Upstate,Program Expansion,Water Main Construction,exact
+WM,Trunk and Distribution Main Extension,Program Expansion,Water Main Construction,exact
+WM,Trunk and Distribution Main Replacement,Programmatic Replacement,Water Main Replacement & Dam Safety Program,exact
+WM,Water For The Future,State of Good Repair,Water for the Future & Filtration Avoidance,exact
+WM,Water Quality Preservation,Program Expansion,Water Quality Preservation,exact
+WP,Biological Nutrient Removal,Program Expansion,Water Pollution Improvements,exact
+WP,Consent Decree Upgrading and Construction,Program Expansion,Water Pollution Improvements,exact
+WP,Green Infrastructure Program,Program Expansion,Green Infrastructure,exact
+WP,Plant Component Stabilization,Programmatic Replacement,Upgrade of Water Pollution Control Plants,exact
+WP,Plant Upgrading and Reconstruction,Programmatic Replacement,Upgrade of Water Pollution Control Plants,exact
+WP,Water Quality Mandates,Programmatic Replacement,Water Quality Mandates & Preservation,exact

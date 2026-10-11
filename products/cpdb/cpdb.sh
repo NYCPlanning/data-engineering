@@ -7,7 +7,7 @@ case $1 in
         dbt build --select staging
         ./bash/01_preprocessing.sh
         ./bash/02_build.sh
-        dbt build --select intermediate product
+        dbt build --select intermediate core product
         ./bash/04_analysis.sh
         ./bash/05_export.sh
 esac
