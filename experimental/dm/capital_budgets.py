@@ -130,10 +130,47 @@ def _(read_recipe):
         )
     ).df()
     fisa_typc_names = pd.read_csv(SEEDS_DIR / "fisa_typc_names.csv", dtype="string")
-    tycs_crosswalk = pd.read_csv(
-        SEEDS_DIR / "tycs_lifecycle_crosswalk.csv", dtype="string"
+    tycs_manual_matches = pd.read_csv(
+        SEEDS_DIR / "tycs_category_matches.csv", dtype="string"
     )
-    return fisa_typc_names, tycs, tycs_crosswalk
+    return fisa_typc_names, tycs, tycs_manual_matches
+
+
+@app.cell
+def _(fisa_typc_names, tycs, tycs_manual_matches):
+    # a CCP code matches the TYCS category with any name the code has had in FISA, or by
+    # hand, the same way as cpdb's int__ten_year_plan_category_tycs_matches
+    tycs_names = (
+        tycs.assign(category=lambda d: d["typc"].str.upper())
+        .groupby(["projtype", "category"], as_index=False)
+        .agg(tycs_category=("typc", "first"), last_pub_date=("pub_date", "max"))
+    )
+    name_matches = (
+        fisa_typc_names.assign(
+            project_type=lambda d: d["budget_proj_type"],
+            projtype=lambda d: d["budget_proj_type"].replace(
+                {"BR": "BR and HB", "HB": "BR and HB"}
+            ),
+            category=lambda d: d["typc_name"].str.upper(),
+        )[["project_type", "typc", "projtype", "category"]]
+        .drop_duplicates()
+        .merge(tycs_names, on=["projtype", "category"])
+        .sort_values("last_pub_date")
+        .drop_duplicates(["project_type", "typc"], keep="last")
+        .rename(columns={"projtype": "tycs_project_type"})
+    )
+    code_tycs_matches = pd.concat(
+        [
+            tycs_manual_matches,
+            name_matches.merge(
+                tycs_manual_matches[["project_type", "typc"]],
+                on=["project_type", "typc"],
+                how="left",
+                indicator=True,
+            ).query("_merge == 'left_only'"),
+        ]
+    )[["project_type", "typc", "tycs_project_type", "tycs_category"]]
+    return (code_tycs_matches,)
 
 
 @app.cell(hide_code=True)
@@ -432,16 +469,16 @@ def _():
     mo.md("""
     ## Categories: TYCS vs CCP
 
-    The TYCS names categories, and the CCP has a code and a name for each. CCP categories
-    are matched to the TYCS through `tycs_lifecycle_crosswalk`, falling back to project type
-    and name (ignoring case) for codes the crosswalk doesn't have. The TYCS reports waterway and highway bridges
-    together as `BR and HB`, so the CCP's BR and HB are combined to match.
+    The TYCS names categories, and the CCP has a code and a name for each. A CCP code
+    matches the TYCS category with any name the code has had in FISA, ignoring case, or by
+    hand through the `tycs_category_matches` seed. The TYCS reports waterway and highway
+    bridges together as `BR and HB`, so the CCP's BR and HB are combined to match.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(plan_commitments, tycs, tycs_crosswalk, tycs_fisa_pairs):
+def _(code_tycs_matches, plan_commitments, tycs, tycs_fisa_pairs):
     tycs_categories = (
         tycs.merge(
             tycs_fisa_pairs[["pub_date", "fisa_version"]].dropna(),
@@ -451,10 +488,10 @@ def _(plan_commitments, tycs, tycs_crosswalk, tycs_fisa_pairs):
         .groupby(["fisa_version", "projtype", "category"], as_index=False)
         .agg(tycs_name=("typc", "first"), tycs_total=("total", "sum"))
     )
-    # CCP categories take their TYCS project type and name from the crosswalk where it has
-    # the code, which covers renamed categories and the combined BR and HB program
+    # CCP categories take their TYCS project type and name from the code's TYCS match,
+    # which covers renamed categories and the combined BR and HB program
     plan_commitments_tycs = plan_commitments.merge(
-        tycs_crosswalk[["project_type", "typc", "tycs_project_type", "tycs_category"]],
+        code_tycs_matches,
         left_on=["budget_proj_type", "typ_category"],
         right_on=["project_type", "typc"],
         how="left",

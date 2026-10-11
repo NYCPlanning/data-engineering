@@ -25,3 +25,32 @@ models:
   - name: int__maprojid_stateassemblydistricts
   - name: int__maprojid_statesenatedistricts
   - name: int__maprojid_trafficanalysiszones
+  - name: int__fisa_releases
+    description: One row per archived FISA release, in release order.
+    columns:
+      - name: fisa_version
+        tests: [ unique, not_null ]
+      - name: release_order
+        tests: [ unique, not_null ]
+  - name: int__ten_year_plan_category_releases
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc, release_order ]
+  - name: int__ten_year_plan_category_names
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc, first_release_order ]
+  - name: int__ten_year_plan_categories
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc ]
+  - name: int__tycs_categories
+    description: One row per Ten-Year Capital Strategy category, across every TYCS release.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ tycs_project_type, tycs_category ]
+  - name: int__ten_year_plan_category_tycs_matches
+    description: The TYCS category each ten-year plan category code matches, by hand or by name.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc ]

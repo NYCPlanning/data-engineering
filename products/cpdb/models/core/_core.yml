@@ -1,0 +1,87 @@
+version: 2
+
+models:
+  - name: dim_ten_year_plan_category
+    description: |
+      One row per ten-year plan category, identified by project type and `typc` code, for
+      every category in an archived FISA release of the Capital Commitment Plan. The code
+      is the category's identity: names change between releases (see
+      `scd_ten_year_plan_category_name`), and the Ten-Year Capital Strategy reports by name
+      and combines BR and HB into one program. A code matches a TYCS category with any name
+      it has had in FISA, or by hand through `tycs_category_matches`; TYCS columns are null
+      for the codes no TYCS release since 2019 reports.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc ]
+    columns:
+      - name: project_type
+        description: Capital program the category belongs to, the prefix of its budget lines.
+        tests: [ not_null ]
+      - name: project_type_name
+        description: Name of the project type, like Highway Bridges for HB.
+      - name: agency
+        description: Acronym of the agency the project type belongs to.
+      - name: typc
+        description: Ten-year plan category code. Only unique within a project type.
+        tests: [ not_null ]
+      - name: name
+        description: Category name in the latest FISA release that has the code.
+        tests: [ not_null ]
+      - name: first_release
+        description: First archived FISA release (`fisa_capitalcommitments` version) with the code.
+      - name: last_release
+        description: Last archived FISA release with the code.
+      - name: first_release_order
+        description: Position of `first_release` among archived FISA releases, oldest first.
+      - name: last_release_order
+        description: Position of `last_release` among archived FISA releases, oldest first.
+      - name: successor_typc
+        description: |
+          Code in the same project type that took over this retired code's projects, from the
+          `ten_year_plan_category_successors` seed. Null for codes that weren't retired into
+          another.
+      - name: tycs_project_type
+        description: Project type or combined program the Ten-Year Capital Strategy reports this category under.
+      - name: tycs_project_type_desc
+        description: The TYCS's description of that program, like "Department of Transportation - Bridges" for BR and HB.
+      - name: tycs_category
+        description: Category name in the Ten-Year Capital Strategy, which can lag a rename in the CCP.
+      - name: tycs_match
+        description: How the TYCS category was matched, `name` or `manual`.
+        tests:
+          - accepted_values:
+              values: [ name, manual ]
+      - name: tycs_last_pub_date
+        description: Latest TYCS release (`pub_date`) that published the matched category.
+      - name: lifecycle
+        description: TYCS lifecycle category (state of good repair, program expansion, or programmatic replacement), from the 2025-05-01 strategy. Null for categories not in it.
+      - name: lifecycle_confidence
+        description: How `lifecycle` was matched; see `tycs_category_lifecycles`.
+
+  - name: scd_ten_year_plan_category_name
+    description: |
+      One row per version of a ten-year plan category's name: a new row starts when a
+      release renames the code. Releases the code is missing from don't start a new
+      version. This is an SCD rather than a release snapshot because names rarely change
+      (4 of 234 codes across 19 releases). The bounds are the releases that published a
+      name, not the dates it changed.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc, first_release_order ]
+    columns:
+      - name: project_type
+        tests: [ not_null ]
+      - name: typc
+        tests: [ not_null ]
+      - name: name
+        tests: [ not_null ]
+      - name: first_release
+        description: First archived FISA release with this name.
+        tests: [ not_null ]
+      - name: last_release
+        description: Last archived FISA release with this name.
+        tests: [ not_null ]
+      - name: first_release_order
+        description: Position of `first_release` among archived FISA releases, oldest first.
+      - name: last_release_order
+        description: Position of `last_release` among archived FISA releases, oldest first.
