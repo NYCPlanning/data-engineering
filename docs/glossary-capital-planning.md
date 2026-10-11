@@ -65,6 +65,8 @@ The same release can carry three different year labels:
 - **OMB and the Comptroller** group publications by the fiscal year they're released in. The September 2025 plan is on OMB's FY 2026 page, and the Comptroller calls it the "FY 2026 Adopted CCP" ([OMB][omb], [Comptroller][comptroller]).
 - **CPDB** versions (`version` in `products/cpdb/recipe.yml`) use the calendar year the plan was released in. The `ccpversion` column in CPDB outputs is different: it's `fisa_` plus FISA's cycle fiscal year (`fisa_2026` for `26exec`).
 - **CBBR** versions use the fiscal year of the budget the requests are for: CBBR FY2027 was built in spring 2026 ([#1856][cbbr-fy27]).
+- **FISA** extracts label each plan with `cycle_fy`, the fiscal year it was released in, and `cycle_name`, whose letter after `CP` is the plan's month: `CPJ` for January (Preliminary), `CPA` for April (Executive), and `CPS` for September (Adopted). `26exec` is `2026 CPA FP`.
+- **Ten-Year Capital Strategy** releases on [Open Data][tycs-od] are identified by `pub_date`, and `yr1_fy` uses the budget's fiscal year: the January 2025 Preliminary strategy starts in FY 2026. A Preliminary strategy goes with the `CPJ` plan and a Final strategy with the `CPA` plan of the same `cycle_fy`.
 
 | Plan | OMB release | FISA extract date | CPDB version | Released in | Budget it accompanies |
 |---|---|---|---|---|---|
@@ -94,7 +96,7 @@ Budget labels are one year ahead for Preliminary and Executive plans.
 
 **Capital Budget**: The capital budget sets the maximum capital appropriations, by budget line, that sponsor agencies can spend in the upcoming fiscal year, and projects appropriations for the three years after. It's released three times a year with the Preliminary, Executive, and Adopted Budgets. It works more as a spending limit than a plan. A project must be worth at least $50,000 to be included and, for most projects, have a period of probable usefulness of at least five years. ([Comptroller][comptroller], [IBO][ibo])
 
-**Capital Commitment Plan**: The capital commitment plan (CCP) is OMB's schedule of **Planned Commitments** by FMS ID over the next four or five fiscal years. It's more granular than the Capital Budget, and the Comptroller calls it the more important planning document of the two. OMB publishes it three times a year as a multi-volume PDF. CPDB is built from one release of it, using FISA data that runs ten fiscal years rather than the PDF's four or five. ([Comptroller][comptroller], [CPDB data dictionary][cpdb-dd])
+**Capital Commitment Plan**: The capital commitment plan (CCP) is OMB's schedule of **Planned Commitments** by FMS ID over the next four or five fiscal years. It's more granular than the Capital Budget, and the Comptroller calls it the more important planning document of the two. OMB publishes it three times a year as a multi-volume PDF. CPDB is built from one release of it, using FISA data that runs ten fiscal years rather than the PDF's four or five. Each release only schedules commitments still to come. ([Comptroller][comptroller], [CPDB data dictionary][cpdb-dd])
 
 **Reserve for Unattained Commitments**: The reserve for unattained capital commitments is a lump-sum reduction in the Capital Commitment Plan that brings each fiscal year's planned commitments down to a realistic level, since OMB and agencies plan more than they can take on. It isn't broken out by project or agency, so project and agency totals from the plan add up to more than the plan's bottom line. ([Comptroller][comptroller])
 
@@ -172,89 +174,6 @@ In CPDB's [commitments dataset][cpdb-commitments], many projects have more than 
 
 Each Capital Commitment Plan release lists its own planned commitments, so the same project shows up again in every plan.
 Within one plan, a planned commitment is unique on project, budget line, planned month, `commitmentcode`, and `typc` (the Ten-Year Plan Category). That holds in CPDB's commitments dataset, and without `typc` some combinations repeat.
-
-## Examples
-
-Each source has its own grain, and they connect through only a few keys.
-
-| Source | One row per | Joins on |
-|---|---|---|
-| Ten-Year Capital Strategy | release, project type, category, funding source | project type + category |
-| Capital Commitment Plan | plan, project, budget line, planned month, commitment code, category | project type + category, `maprojid` |
-| Checkbook NYC | payment line | `maprojid` (first 12 characters of `capital_project`) |
-
-In each table below, a row is one record and the columns are the keys it carries. A blank means that source doesn't have the key.
-The strategy has category names, not `typc` codes, and Checkbook rows are summed by contract.
-Amount is the ten-year all-funds total for a strategy row, the planned amount for a plan row, and the sum of payments for a Checkbook row.
-
-### FDNY: ePCR equipment replacement
-
-| Source | Project type | Category | `budgetline` | `maprojid` | `plancommdate` | `commitmentcode` | `contract_id` | Amount |
-|---|---|---|---|---|---|---|---|---|
-| Strategy | F | Electronics and Data Processing | | | | | | $101M |
-| Plan | F | EDP | F-0212 | 057F212EPCR2 | 2026-06 | EQFN | | $2.08M |
-| Plan | F | EDP | F-0212 | 057F212EPCR2 | 2027-06 | EQFN | | $37K |
-| Checkbook (8 rows) | | | | 057F212EPCR2 | | | DO105720262006226 | $1.70M |
-
-One budget line, one category, one contract. Payments started in March 2026, before the June 2026 planned commitment.
-
-### Bridges: Woodhaven Blvd over Atlantic Ave
-
-| Source | Project type | Category | `budgetline` | `maprojid` | `plancommdate` | `commitmentcode` | `contract_id` | Amount |
-|---|---|---|---|---|---|---|---|---|
-| Strategy | BR and HB | Bridge Life Extension and Miscellaneous Work | | | | | | $4.87B |
-| Plan | HB | BLE | HB-0215 | 841HBQ8019 | 2027-06 | DSGN | | $2.93M |
-| Plan | HB | BLE | HB-0215 | 841HBQ8019 | 2029-06 | CNSP | | $7.59M |
-| Plan | HB | BLE | HB-0215 | 841HBQ8019 | 2030-06 | CONS | | $50.1M |
-| Plan | HB | BLE | HB-0215 | 841HBQ8019 | 2030-06 | SVCS | | $3.62M |
-| Checkbook (9 rows) | | | | 841HBQ8019 | | | CT184120248805915 | $931K |
-
-Every planned commitment is in June 2027 or later, but design payments started in June 2025. The plan only schedules commitments still to come.
-
-### HPD: West 108th Street Apartments
-
-| Source | Project type | Category | `budgetline` | `maprojid` | `plancommdate` | `commitmentcode` | `contract_id` | Amount |
-|---|---|---|---|---|---|---|---|---|
-| Strategy | HD | New Housing Construction | | | | | | $8.08B |
-| Plan | HD | NEW | HD-D021 | 806SW108 | 2025-12 | CONS | | $500K |
-| Plan | HD | NEW | HD-M020 | 806SW108 | 2025-12 | CONS | | $1.00M |
-| Plan | HD | NEW | HD-M020 | 806SW108 | 2026-06 | CONS | | $250K |
-| Checkbook (3 rows) | | | | 806SW108 | | | POC80620262007141 | $1.50M |
-
-Two budget lines, one category. The 3 Checkbook rows were all paid on 2026-02-11 under 3 `capital_project` suffixes (`001`, `003`, `004`), and they total the two December 2025 planned commitments.
-
-### QPL: Mobile Library Unit
-
-| Source | Project type | Category | `budgetline` | `maprojid` | `plancommdate` | `commitmentcode` | `contract_id` | Amount |
-|---|---|---|---|---|---|---|---|---|
-| Strategy | LQ | Support Services Improvements | | | | | | $20.8M |
-| Plan | LQ | SSQ | LQ-D001 | 039LQD122VEN | 2026-06 | EQVH | | $31K |
-| Plan | LQ | SSQ | LQ-D001 | 039LQD122VEN | 2027-06 | EQVH | | $200K |
-| Plan | LQ | SSQ | LQ-D122 | 039LQD122VEN | 2028-06 | EQVH | | $16K |
-| Checkbook (1 row) | | | | 039LQD122VEN | | | CT103920231405176 | $443K |
-| Checkbook (1 row) | | | | 039LQD122VEN | | | CT103920231405177 | $294K |
-
-Two budget lines and two contracts. Both payments, in December 2024 and April 2025, came before any planned commitment.
-
-### Parks: Bayswater Park
-
-| Source | Project type | Category | `budgetline` | `maprojid` | `plancommdate` | `commitmentcode` | `contract_id` | Amount |
-|---|---|---|---|---|---|---|---|---|
-| Strategy | P | Large, Major and Regional Park Reconstruction | | | | | | $912M |
-| Strategy | P | Neighborhood Parks and Playgrounds | | | | | | $3.42B |
-| Strategy | TF | Installation of Lampposts and Luminaires | | | | | | $23.2M |
-| Plan | P | PRE | P-I001 | 846SANDY4-48 | 2025-12 | IFDS | | $140K |
-| Plan | P | NFP | P-1018 | 846SANDY4-48 | 2026-01 | CONS | | $326K |
-| Plan | P | PRE | P-I001 | 846SANDY4-48 | 2026-06 | IFDS | | $3.93M |
-| Plan | P | PRE | P-I001 | 846SANDY4-48 | 2026-06 | IFSP | | $5.22M |
-| Plan | TF | ILL | TF-0502 | 846SANDY4-48 | 2026-06 | IFSP | | $20K |
-| Plan | P | NFP | P-1018 | 846SANDY4-48 | 2027-06 | CONS | | $9.09M |
-| Checkbook (10 rows) | | | | 846SANDY4-48 | | | CT184620258806808 | $4.38M |
-
-One DPR project spans 3 budget lines in 2 project types, including DOT's `TF-0502`, so it has 2 sponsor agencies.
-`NFP` doesn't join to the strategy by name: "Neighborhood Parks and Playgrounds" there, "Neighborhood Parks, Playgrounds and Ballfields" in the plan.
-
-Sources: [TYCS on Open Data][tycs-od] (`pub_date` 20250501), [CPDB commitments][cpdb-commitments] (`fisa_2026`), and Checkbook NYC as archived for CPDB (`nycoc_checkbook`, 20260626).
 
 ## Sources
 
