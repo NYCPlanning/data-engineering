@@ -76,9 +76,15 @@ vars:
   # Max edges in an alternate path. The length budget prunes the search on its own; this
   # only guarantees termination. Real cases seen need up to 3.
   ap_topology_edge_split_max_hops: 6
-  # LION left/right AtomicPolygons from the AP topology
-  # (models/intermediate/adjacent_polygons/int__segment_topology_*).
-  # Segment-to-edge matching (int__segment_topology_edge_matches): length tolerance
+  # LION left/right AtomicPolygons (models/intermediate/adjacent_polygons).
+  # Off: left/right come from the 2 ft offset probe (int__segment_offsets), as in prod.
+  # On: from int__segment_topology_sides - the owners of the AP topology edge a segment
+  # runs along at its midpoint, falling back to the probe where it runs along none. The
+  # probe overshoots into the AP behind wherever the adjacent AP is under 2 ft deep at
+  # the midpoint (~100 segments citywide); edge ownership can't. Both pairs are always
+  # output in int__segment_atomicpolygons; this only picks which fills left_*/right_*.
+  lion_lr_from_topology: false
+  # Segment-to-edge matching (int__segment_topology_edge_matches). Length tolerance
   # (ft) between a segment step and its edge or edge path: correct matches differ by at
   # most 0.13 ft (offset centerlines: a bump of h over a step L adds ~2h^2/L); unmatched
   # steps with an edge between the same nodes differ by 0.4 ft (2) or > 10 ft (109).
