@@ -39,3 +39,16 @@ models:
   columns:
   - name: atomicid
     tests: [ not_null ]
+- name: int__topology__edge_sides
+  description: >
+    Which side of each topology edge each owner AtomicPolygon lies on, from ring orientation.
+    One row per int__topology__edges row.
+  columns:
+  - name: atomicid
+    tests: [ not_null ]
+  - name: owner_left
+    description: >
+      The owner is on the left walking the edge from node_lo to node_hi. NULL where the
+      owner's side can't be determined (~50 split or crossing pieces with no resolved co-owner).
+  - name: side_source
+    description: "'ring' (the owner's own ring step) or 'co_owner' (opposite a co-owner's side); NULL with owner_left."
