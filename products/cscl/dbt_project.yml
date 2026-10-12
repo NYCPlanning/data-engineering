@@ -76,6 +76,26 @@ vars:
   # Max edges in an alternate path. The length budget prunes the search on its own; this
   # only guarantees termination. Real cases seen need up to 3.
   ap_topology_edge_split_max_hops: 6
+  # LION left/right AtomicPolygons from the AP topology
+  # (models/intermediate/adjacent_polygons/int__segment_topology_*).
+  # Segment-to-edge matching (int__segment_topology_edge_matches): length tolerance
+  # (ft) between a segment step and its edge or edge path: correct matches differ by at
+  # most 0.13 ft (offset centerlines: a bump of h over a step L adds ~2h^2/L); unmatched
+  # steps with an edge between the same nodes differ by 0.4 ft (2) or > 10 ft (109).
+  lion_lr_edge_match_length_tolerance_ft: 0.25
+  # Max Hausdorff distance (ft) between a step and its matched edge(s) - how far off the
+  # AP boundary a centerline can run and still count as on it. Matches run up to 1.46 ft
+  # off, and all 13 over 0.5 ft agree with both the probe and prod. 2 ft is the probe's
+  # own reach, so "near the boundary" means the same thing on both paths.
+  lion_lr_edge_match_max_offset_ft: 2.0
+  # Max edges in a path for one step; the longest match seen needs 7.
+  lion_lr_edge_match_max_hops: 10
+  # Fallback probe offset (ft). Unmatched segments that sit between two APs mostly end
+  # off a node, just beside the boundary; a smaller probe stays on the segment's side and
+  # reports the same AP both sides. Of the ~10.8k unmatched segments, the answer that
+  # crosses the boundary (as prod does) is missed by 40 at 0.01 ft, 8 at 0.25, 4 at 1,
+  # and 0 at 2 - where 1 known overshoot (segmentid 359111) remains.
+  lion_lr_fallback_probe_offset_ft: 2.0
   # QA (models/etl_dev_qa/district_boundaries): floors for qa__boundary__*_outliers, and
   # the vertex-count product above which GEOS Hausdorff (O(n*m), uninterruptible) is
   # skipped - 5e7 is a few seconds; whole fire divisions are ~1e10.
