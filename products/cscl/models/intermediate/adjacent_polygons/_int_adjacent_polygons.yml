@@ -1,6 +1,9 @@
 models:
 - name: int__segment_atomicpolygons
-  description: segment segments joined to left and right atomic polygons
+  description: >
+    segment segments joined to left and right atomic polygons. left_atomicid/right_atomicid
+    and every left_*/right_* attribute come from the probe pair, or the topo pair when
+    lion_lr_from_topology is on; both pairs are always output.
   columns:
   - name: segmentid
     tests: [ not_null ]
@@ -60,6 +63,16 @@ models:
   - name: right_assembly_district
   - name: right_election_district
   - name: right_school_district
+  - name: probe_left_atomicid
+    description: Left AP from the 2 ft offset probe (int__segment_offsets).
+  - name: probe_right_atomicid
+    description: Right AP from the 2 ft offset probe.
+  - name: topo_left_atomicid
+    description: Left AP from int__segment_topology_sides.
+  - name: topo_right_atomicid
+    description: Right AP from int__segment_topology_sides.
+  - name: topo_method
+    description: int__segment_topology_sides.method for the topo pair.
   data_tests: [] #
 #- dbt_expectations.expect_table_row_count_to_equal_other_table: TODO: commented out while weird rows in source data are unresolved
 #    compare_model: ref("int__segments")
