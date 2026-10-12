@@ -72,3 +72,82 @@ models:
   - name: right_line
   - name: left_offset_point
   - name: right_offset_point
+
+- name: int__segment_topology_vertices
+  description: Segment vertices that sit on an AP topology node, with their position along the segment.
+  columns:
+  - name: globalid
+    tests: [ not_null ]
+  - name: idx
+    description: Vertex index in the segment's linearized geometry (1-based).
+  - name: along_ft
+    description: Distance along the segment to this vertex.
+  - name: node_id
+    tests: [ not_null ]
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - globalid
+        - idx
+
+- name: int__segment_topology_edge_matches
+  description: >
+    The AP topology edges each segment runs along: one row per step between consecutive
+    snapped vertices, and one row per edge for a step matched to a path.
+  columns:
+  - name: globalid
+    tests: [ not_null ]
+  - name: match_type
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "edge", "path", "same_node", "none" ] }
+  - name: from_node
+    description: Edge node the segment enters by (NULL unless matched).
+  - name: to_node
+    description: Edge node the segment leaves by.
+  - name: covers_midpoint
+    description: This edge holds the segment's midpoint (exactly one per matched segment).
+  - name: len_diff_ft
+    description: Length difference between the step and its edge or path.
+  - name: offset_ft
+    description: Hausdorff distance between the step and its edge or path (0 for a straight step on a straight edge).
+
+- name: int__segment_topology_sides
+  description: Left/right AtomicPolygon of every segment from the AP topology, with the probe as fallback.
+  columns:
+  - name: globalid
+    tests: [ unique, not_null ]
+  - name: method
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "edges", "probe_fallback", "out_of_scope", "bad_geom" ] }
+  - name: topo_left_atomicid
+  - name: topo_right_atomicid
+  - name: topo_left_source
+    description: "'edge', 'probe' (lion_lr_fallback_probe_offset_ft) or 'probe_2ft' (out_of_scope / bad_geom)."
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "edge", "probe", "probe_2ft" ] }
+  - name: topo_right_source
+    tests:
+    - not_null
+    - accepted_values:
+        arguments: { values: [ "edge", "probe", "probe_2ft" ] }
+  - name: starts_on_node
+    description: The segment's first vertex sits on a topology node.
+  - name: ends_on_node
+    description: The segment's last vertex sits on a topology node.
+  - name: n_unmatched_steps
+  - name: n_edges
+    description: Matched edges along the whole segment.
+  - name: n_path_edges
+    description: Of those, edges in multi-edge paths.
+  - name: max_len_diff_ft
+  - name: max_offset_ft
+  - name: n_left_aps
+    description: Distinct APs on the left along all matched edges (more than 1 where the segment crosses an AP corner).
+  - name: n_right_aps
