@@ -61,7 +61,6 @@ PRODUCT_NAME_MAPPING = {
     "cpdb": "db-cpdb",
     "community-profiles": "db-community-profiles",
     "colp": "db-colp",
-    "checkbook": "db-checkbook",
     "ceqr": "db-ceqr",
     "cdbg": "db-cdbg",
     "cbbr": "db-cbbr",

@@ -82,7 +82,7 @@ uv run --no-sync pytest apps/dcpy_integration_tests -v -s
 ### Product / app suites
 
 Defined as a matrix in [`.github/workflows/data/pytest.yml`](../.github/workflows/data/pytest.yml)
-(e.g. `checkbook`, `zap`, `qa`), each a `pytest` invocation run by `test_helper.yml`.
+(e.g. `zap`, `ceqr`, `qa`), each a `pytest` invocation run by `test_helper.yml`.
 
 ## Conventions
 

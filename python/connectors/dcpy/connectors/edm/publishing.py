@@ -323,7 +323,6 @@ def legacy_upload(
 
 
 # TODO: publishing connector refactor
-# Used in: products/checkbook/build_scripts/export.py
 # Replace with: builds.upload(output_path, product, build, acl)
 # Search for: "publishing.upload_build"
 def upload_build(
