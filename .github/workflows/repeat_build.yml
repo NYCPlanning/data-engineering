@@ -13,7 +13,6 @@ on:
         - cbbr
         - cdbg
         - ceqr
-        #- checkbook
         - colp
         - cpdb
         - developments
@@ -139,14 +138,6 @@ jobs:
       image_tag: ${{ needs.health_check.outputs.tag }}
       build_name: ${{ needs.health_check.outputs.build_name }}
       dev_bucket: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || '' }}
-  #checkbook:
-  #  needs: health_check
-  #  if: inputs.product == 'checkbook'
-  #  uses: ./.github/workflows/checkbook_build.yml
-  #  secrets: inherit
-  #  with:
-  #    image_tag: ${{ needs.health_check.outputs.tag }}
-  #    build_name: ${{ needs.health_check.outputs.build_name }}
   colp:
     needs: health_check
     if: inputs.product == 'colp'

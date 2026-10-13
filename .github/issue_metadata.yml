@@ -22,9 +22,6 @@ products:
   ceqr:
     label: db-ceqr
     patterns: ['\bceqr\b']
-  checkbook:
-    label: db-checkbook
-    patterns: ['\bcheckbook\b']
   colp:
     label: db-colp
     patterns: ['\bcolp\b']

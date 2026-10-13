@@ -10,7 +10,6 @@ on:
         required: true
         options:
           - db-cbbr
-          - db-checkbook
           - db-colp
           - db-cpdb
           - db-developments

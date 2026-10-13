@@ -62,9 +62,6 @@ jobs:
             cbbr:
               - products/cbbr/**
               - admin/run_environment/**
-            checkbook:
-              - products/checkbook/**
-              - admin/run_environment/**
             zap:
               - products/zap-opendata/**
               - admin/run_environment/**

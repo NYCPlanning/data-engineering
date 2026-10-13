@@ -1,9 +1,6 @@
 # This file determines what pytests are run as part of test_helper.yml
 # Each element in the list is a pytest job that will get run in by the matrix strategy
 # Each job can have multiple calls, which will be run in order with the prefix "python3 -m pytest"
-- name: checkbook
-  db: db-checkbook
-  calls: [ "./products/checkbook -s --verbose --verbose" ]
 - name: zap
   working-directory: products/zap-opendata
   # test_visible_projects checks our recode fields against live CRM metadata;

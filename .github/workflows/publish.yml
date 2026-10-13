@@ -11,7 +11,6 @@ on:
         options:
           - db-cbbr
           - db-cdbg
-          - db-checkbook
           - db-colp
           - db-cpdb
           - db-developments

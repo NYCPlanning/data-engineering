@@ -22,7 +22,6 @@ PAGES = {
     "GRU QAQC": "gru",
     "CSCL": "cscl",
     "Source Data": "source_data",
-    "Checkbook": "checkbook",
     "Data Ingestion": "ingest",
     "Data Distribution": "distribution",
     "Inbox Ingest": "inbox_ingest",
