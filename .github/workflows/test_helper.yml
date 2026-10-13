@@ -202,7 +202,8 @@ jobs:
       run: ./bash/run_mypy.sh
 
   template-db:
-    if: (inputs.path_filter == '') || contains(inputs.path_filter, 'template')
+    # needs 1Password secrets, see pytest_dcpy_integration for why Dependabot runs skip
+    if: (github.actor != 'dependabot[bot]') && ((inputs.path_filter == '') || contains(inputs.path_filter, 'template'))
     uses: ./.github/workflows/template_test.yml
     with:
       image_tag: ${{ inputs.image_tag }}
