@@ -61,7 +61,7 @@ jobs:
       matrix:
         dataset: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install dcpy workspace
       run: uv sync --all-packages
