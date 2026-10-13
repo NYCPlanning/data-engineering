@@ -45,9 +45,9 @@ class Columns(BaseModel, extra="ignore"):
 
 
 class GeoParquet(BaseModel, extra="forbid"):
-    """GeoParquet metadata as specified by https://geoparquet.org/releases/v1.0.0/schema.json"""
+    """GeoParquet metadata as specified by https://geoparquet.org/releases/v1.0.0/schema.json (also accepts v1.1.0)"""
 
-    version: Literal["1.0.0"]
+    version: Literal["1.0.0", "1.1.0"]
     primary_column_str: str = Field(alias="primary_column")
     columns: dict[str, Columns]
     creator: dict | None = None
