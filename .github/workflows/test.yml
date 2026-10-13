@@ -33,6 +33,7 @@ jobs:
         with:
           filters: |
             dcpy:
+              - uv.lock
               - python/**
               - apps/dcpy_integration_tests/**
               - pyproject.toml
@@ -40,6 +41,7 @@ jobs:
               - .github/workflows/test.yml
               - .github/workflows/test_helper.yml
             template:
+              - uv.lock
               - .github/workflows/test.yml
               - .github/workflows/test_helper.yml
               - .github/workflows/build.yml
@@ -48,10 +50,12 @@ jobs:
               - python/**
               - admin/run_environment/**
             qa:
+              - uv.lock
               - apps/qa/**
               - python/**
               - admin/run_environment/**
             notebook:
+              - uv.lock
               - apps/notebook-server/**
               - python/**
               - admin/run_environment/**
