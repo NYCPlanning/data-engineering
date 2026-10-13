@@ -23,4 +23,4 @@ SELECT
     p.fcst_st_amt + p.fcst_fd_amt + p.fcst_pv_amt AS plannedcommit_noncitycost,
     p.fcst_cnx_amt + p.fcst_cex_amt + p.fcst_st_amt + p.fcst_fd_amt + p.fcst_pv_amt AS plannedcommit_total
 FROM {{ ref('stg__fisa_capitalcommitments') }} AS p
-LEFT JOIN {{ ref('dcp_projecttypes_agencies') }} AS b ON TRIM(p.budget_proj_type) = TRIM(b.projecttypeabbrev)
+LEFT JOIN {{ ref('project_types') }} AS b ON TRIM(p.budget_proj_type) = TRIM(b.projecttypeabbrev)

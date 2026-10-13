@@ -1,5 +1,5 @@
 seeds:
-  - name: dcp_projecttypes_agencies
+  - name: project_types
     description: |
       The agency associated with each project type.
     columns:
