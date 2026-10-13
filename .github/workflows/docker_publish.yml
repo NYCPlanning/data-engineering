@@ -58,7 +58,7 @@ jobs:
         if: inputs.base || github.event_name == 'push'
       - name: Load Secrets
         if: inputs.base || github.event_name == 'push'
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -84,7 +84,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -109,7 +109,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -142,7 +142,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -163,7 +163,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -187,7 +187,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
@@ -207,7 +207,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Load Secrets
-        uses: 1password/load-secrets-action@v1
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
