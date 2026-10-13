@@ -1,0 +1,24 @@
+id: nycoc_checkbook_contracts
+acl: public-read
+
+attributes:
+  name: Checkbook NYC Registered Expense Contracts
+  description: >-
+    Registered expense contracts from the NYC Comptroller's Checkbook NYC, one row per
+    contract and vendor record (prime vendor or sub vendor), by registration date since
+    2010. Includes non-capital contracts: join prime_contract_id to contract_id in
+    nycoc_checkbook payments to find capital ones.
+  url: https://www.checkbooknyc.com/contracts_landing
+
+ingestion:
+  source:
+    type: checkbook_nyc
+    key: Contracts
+    date_field: registration_date
+    start_date: "2010-01-01"
+    search_criteria:
+      - { name: status, type: value, value: registered }
+      - { name: category, type: value, value: expense }
+  file_format:
+    type: csv
+    dtype: str

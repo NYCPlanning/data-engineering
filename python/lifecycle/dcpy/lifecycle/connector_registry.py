@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dcpy import configuration
 from dcpy.configuration import PRIVATE_BUCKET
-from dcpy.connectors import filesystem, ingest_datastore, s3, sftp, web
+from dcpy.connectors import checkbook_nyc, filesystem, ingest_datastore, s3, sftp, web
 from dcpy.connectors.edm import gis
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.connectors import (
@@ -104,6 +104,7 @@ def _set_default_connectors():
         BytesConnector(),
         gis.GisDatasetsConnector.create(),
         SocrataConnector(),
+        checkbook_nyc.CheckbookNYCConnector(),
         OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
         web.WebConnector(),
