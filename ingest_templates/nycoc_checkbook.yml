@@ -1,0 +1,21 @@
+id: nycoc_checkbook
+acl: public-read
+
+attributes:
+  name: Checkbook NYC Capital Spending
+  description: >-
+    Capital spending payments from the NYC Comptroller's Checkbook NYC (spending category
+    "cc", capital contracts), one row per payment line, by issue date since 2010.
+  url: https://www.checkbooknyc.com/spending_landing
+
+ingestion:
+  source:
+    type: checkbook_nyc
+    key: Spending
+    date_field: issue_date
+    start_date: "2010-01-01"
+    search_criteria:
+      - { name: spending_category, type: value, value: cc }
+  file_format:
+    type: csv
+    dtype: str
