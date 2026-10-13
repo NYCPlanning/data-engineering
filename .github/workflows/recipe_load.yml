@@ -59,7 +59,7 @@ jobs:
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
       RECIPE_SCHEMA: ${{ inputs.schema }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install dcpy workspace
       run: uv sync --all-packages
