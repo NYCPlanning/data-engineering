@@ -160,6 +160,36 @@ No other action is needed for CI or Docker images: they all export from the same
 `uv.lock` (`uv export --package <name> ...`, see `admin/ops/docker_build_and_publish.sh`), so a
 locked version bump here is picked up automatically the next time each image is built.
 
+### Upgrading packages
+
+Most `pyproject.toml` dependencies are unpinned, so `uv.lock` is what actually holds versions. Two
+things keep it current:
+
+- Dependabot opens weekly PRs for individual bumps (see `.github/dependabot.yml`). It stops at 10
+  open PRs, so a backlog stalls it.
+- The "Upgrade uv.lock" workflow (`.github/workflows/python_compile_requirements.yml`) runs
+  `uv lock --upgrade` on the 1st of each month and opens a PR from the `compile_python_reqs` branch.
+  Run it by hand from the Actions tab to upgrade sooner.
+
+PRs from `compile_python_reqs` get special handling in `test.yml`: CI rebuilds the Docker images
+and runs every product build against them. A PR from any other branch only runs the tests. To make
+changes on top of the upgrade (like pinning a package that breaks), push them to that branch.
+
+Before merging, read the lock diff for major and minor bumps of packages we import directly. Then
+close the open Dependabot PRs that the upgrade covers. Exact `==` pins (like `GDAL` in
+`python/library/pyproject.toml`) don't move and have to be edited by hand.
+
+To upgrade locally:
+
+```bash
+uv lock --upgrade                      # re-resolve every package to its newest allowed version
+uv lock --upgrade-package <name>       # or just one
+uv sync --all-packages                 # update your local .venv
+```
+
+Avoid `uv sync --upgrade` without `--all-packages`: it relocks the whole workspace but syncs only
+the root project, which removes every other workspace member from `.venv`.
+
 ## Running a build locally
 
 Examples mirror `.github/workflows/template_build.yml`:
