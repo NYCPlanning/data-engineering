@@ -45,6 +45,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-13](#cscl-lion-13) | LION | `gdb_lion`'s `Street` field was hardcoded null | Accepted | 26b |
 | [CSCL-LION-14](#cscl-lion-14) | LION | `coincident_seg_count` = 0 in prod for one Bronx centerline segment, forbidden by spec | Accepted | 26c |
 | [CSCL-LION-15](#cscl-lion-15) | LION | Generic-segment house numbers not consistently zeroed in prod (real legacy rule found, GP tool, inconsistently applied) | Open | 26c |
+| [CSCL-LION-16](#cscl-lion-16) | LION | Left/right AtomicPolygon from the AP topology instead of the 2 ft probe (`lion_lr_from_topology`) | Accepted | 26c |
 | [CSCL-DISTRICTS-01](#cscl-districts-01) | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c |
 | [CSCL-DISTRICTS-02](#cscl-districts-02) | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b |
 | [CSCL-DISTRICTS-03](#cscl-districts-03) | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c |
@@ -626,6 +627,31 @@ confirmed.
 
 **What would settle it:** ask GR/the legacy pipeline owner whether this cleanup script is run
 fresh every release or can miss segments added/updated after it last ran.
+
+### CSCL-LION-16
+
+**Left/right AtomicPolygon from the AP topology, not the 2 ft probe** · Accepted (our call,
+not yet put to GR) · Last verified 26c
+
+Prod (and our build with `lion_lr_from_topology: false`) finds a segment's left and right
+AtomicPolygons by dropping a point 2 ft either side of the segment's midpoint. Where the AP
+next to the segment is under 2 ft deep at that spot, the point lands in the AP behind it.
+With the flag on, left/right are the owners of the AP topology edge the segment runs along
+(`int__segment_topology_sides`), falling back to the probe where it runs along none. Edge
+ownership can't overshoot.
+
+Turning the flag on changes 101 LION dat rows on 100 segments, every changed field one the
+side AP determines (census tract/block, dynamic block, election/assembly/school district,
+segment locational status). `qa__diffs_lion_dat` marks those accounted for when the
+segment's chosen AP differs from the probe's and only side-derived fields changed (98 rows).
+One row stops being a diff: segment 330641, whose geometry runs back over itself, so the
+probe's side depends on which pass it picks.
+
+Left unaccounted on purpose: segment 36461's two rows. The topology puts a Queens AP on both
+sides, so the segment stops being a Manhattan/Queens borough boundary - its borough boundary
+indicator and zips change and its Manhattan row loses every Manhattan value.
+
+**Still open:** GR's view on topology left/right, and a decision on 36461.
 
 ## District gdb
 
