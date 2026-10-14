@@ -83,7 +83,7 @@ vars:
   # probe overshoots into the AP behind wherever the adjacent AP is under 2 ft deep at
   # the midpoint (~100 segments citywide); edge ownership can't. Both pairs are always
   # output in int__segment_atomicpolygons; this only picks which fills left_*/right_*.
-  lion_lr_from_topology: false
+  lion_lr_from_topology: true
   # Segment-to-edge matching (int__segment_topology_edge_matches). Length tolerance
   # (ft) between a segment step and its edge or edge path: correct matches differ by at
   # most 0.13 ft (offset centerlines: a bump of h over a step L adds ~2h^2/L); unmatched

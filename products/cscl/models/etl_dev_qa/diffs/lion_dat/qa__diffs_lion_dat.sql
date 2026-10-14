@@ -27,6 +27,15 @@ with_borough AS (
     LEFT JOIN {{ ref('lion_dat_by_field') }} AS b ON d._lion_key = b._lion_key
     LEFT JOIN {{ ref('qa_int__prod_citywide_lion_dat') }} AS p ON d._lion_key = p._lion_key
 ),
+-- CSCL-LION-16: segments whose left or right AP comes from the topology and differs from
+-- the 2 ft probe's (prod's method). Empty when lion_lr_from_topology is off.
+topology_lr_segments AS (
+    SELECT DISTINCT segmentid
+    FROM {{ ref('int__segment_atomicpolygons') }}
+    WHERE
+        left_atomicid IS DISTINCT FROM probe_left_atomicid
+        OR right_atomicid IS DISTINCT FROM probe_right_atomicid
+),
 categorized AS (
     SELECT
         _lion_key,
@@ -46,8 +55,24 @@ categorized AS (
         (SELECT ARRAY_AGG(key) FROM JSONB_OBJECT_KEYS(changes) AS key) AS change_keys,
         comparison_column,
         build_table_name,
-        production_table_name
+        production_table_name,
+        -- CSCL-LION-16: every changed field is one the side AP determines (plus the
+        -- already-accepted segment_seqnum / Bug 001 boe_lgc_pointer). Borough boundary
+        -- and zip changes are left out on purpose: those rows need a look.
+        (
+            tlr.segmentid IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1
+                FROM JSONB_OBJECT_KEYS(changes) AS key
+                WHERE NOT (
+                    key ~ '^(left|right)_'
+                    OR key IN ('segment_locational_status', 'segment_seqnum')
+                    OR (key = 'boe_lgc_pointer' AND changes -> 'boe_lgc_pointer' ->> 'old' = '1')
+                )
+            )
+        ) AS is_topology_lr_change
     FROM with_borough
+    LEFT JOIN topology_lr_segments AS tlr ON RIGHT(with_borough._lion_key, 7)::int = tlr.segmentid
 )
 SELECT
     _lion_key AS comparison_id,
@@ -135,6 +160,10 @@ SELECT
             status = 'modified'
             AND _lion_key = '211480359093'
             THEN 'Bug 016: prod coincident_seg_count = 0'
+        -- CSCL-LION-16: left/right AP from the AP topology, where prod's 2 ft probe
+        -- overshoots the adjacent AP. See data_issues.md CSCL-LION-16.
+        WHEN status = 'modified' AND is_topology_lr_change
+            THEN 'CSCL-LION-16: topology left/right AP'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -203,6 +232,9 @@ SELECT
             -- forbids (documented floor is '1', never '0') - one specific record only.
             -- See: docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md
             OR _lion_key = '211480359093'
+            -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.
+            -- See data_issues.md CSCL-LION-16.
+            OR is_topology_lr_change
         ),
         FALSE
     ) AS accounted_for
