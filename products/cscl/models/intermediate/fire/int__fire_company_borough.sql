@@ -4,9 +4,9 @@
 ) }}
 
 -- Borough of each fire company: the company polygon's centroid (falling back to a point
--- on its surface) against the borough polygons, with the ETL spec's documented
--- exceptions. The one geometric step in THINFIRE, computed here so the product model is
--- plain joins.
+-- on its surface) against the topology-built borough boundary, with the ETL spec's
+-- documented exceptions. The one geometric step in THINFIRE, computed here so the
+-- product model is plain joins.
 
 WITH fire_companies_normalized AS (
     SELECT
@@ -38,9 +38,13 @@ SELECT
         -- and the full company roster: exactly those 12 change, zero regressions
         -- elsewhere. Same centroid/fallback pattern as the police precinct/sector/
         -- patrol-borough joins - see docs/prod_bugs/002-police-geo-centroid-mismatch.md.
+        -- Boroughs come from the AP topology's water-included boundary (bbwi), not the
+        -- land-only one (bb): bbwi covers the same area as the source borough polygons,
+        -- so a centroid falling in water still lands in a borough. Same result as the
+        -- source polygons for all 348 companies, the 3 special cases included.
         ELSE (
-            SELECT b.borocode
-            FROM {{ ref('stg__borough') }} AS b
+            SELECT b.entity_id::text
+            FROM {{ ref('int__boundary__bbwi') }} AS b
             WHERE st_within(
                 CASE
                     WHEN st_within(st_centroid(fc.geom), fc.geom) THEN st_centroid(fc.geom)
