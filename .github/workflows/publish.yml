@@ -52,6 +52,11 @@ on:
         description: "dev bucket to use in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'"
         type: string
         required: false
+      overwrite_tag:
+        description: "Move this version's git tag if it already exists (only when replacing a release)"
+        type: boolean
+        default: false
+        required: true
 
 jobs:
   publish:
@@ -91,6 +96,31 @@ jobs:
         working-directory: ./
         run: ./bash/docker_container_setup.sh
 
+      # Runs before Publish so a tag conflict fails the run before S3 changes.
+      # A patch publishes a new version, so there's no existing tag to check.
+      - name: Check tag
+        if: ${{ env.PUBLISHING_BUCKET == 'edm-publishing' && !inputs.is_patch }}
+        uses: actions/github-script@v9
+        env:
+          TAG: ${{ inputs.product }}__${{ inputs.version }}
+          OVERWRITE_TAG: ${{ inputs.overwrite_tag }}
+        with:
+          github-token: ${{ env.GHP_TOKEN }}
+          script: |
+            const { TAG, OVERWRITE_TAG } = process.env;
+            try {
+              await github.rest.git.getRef({ ...context.repo, ref: `tags/${TAG}` });
+            } catch (e) {
+              if (e.status === 404) return;
+              throw e;
+            }
+            if (OVERWRITE_TAG !== 'true') {
+              core.setFailed(
+                `Tag ${TAG} already exists. To publish a fix, use is_patch. ` +
+                `To replace this release, delete its publish folder and set overwrite_tag.`
+              );
+            }
+
       - name: Publish
         run: |
           uv run python3 -m dcpy.connectors.edm.publishing publish \
@@ -110,12 +140,27 @@ jobs:
       - name: create tag
         if: ${{ env.PUBLISHING_BUCKET == 'edm-publishing' }}
         uses: actions/github-script@v9
+        env:
+          TAG: ${{ inputs.product }}__${{ env.version }}
+          COMMIT: ${{ env.commit }}
+          OVERWRITE_TAG: ${{ inputs.overwrite_tag }}
         with:
           github-token: ${{ env.GHP_TOKEN }}
           script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/${{ inputs.product }}__${{ env.version }}',
-              sha: '${{ env.commit }}'
-            })
+            const { TAG, COMMIT, OVERWRITE_TAG } = process.env;
+            let exists = true;
+            try {
+              await github.rest.git.getRef({ ...context.repo, ref: `tags/${TAG}` });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+              exists = false;
+            }
+            if (exists && OVERWRITE_TAG === 'true') {
+              await github.rest.git.updateRef({
+                ...context.repo, ref: `tags/${TAG}`, sha: COMMIT, force: true
+              });
+              return;
+            }
+            await github.rest.git.createRef({
+              ...context.repo, ref: `refs/tags/${TAG}`, sha: COMMIT
+            });
