@@ -18,6 +18,7 @@ on:
           - db-eddt
           - db-facilities
           - db-green-fast-track
+          - db-kpdb
           - db-pluto
           - db-zoningtaxlots
           - db-template
