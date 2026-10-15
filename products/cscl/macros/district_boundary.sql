@@ -9,6 +9,12 @@
     district_boundary_validity          -> qa__boundary__<district>_validity
     district_boundary_vs_prod           -> qa__boundary__<district>_vs_prod
 
+  The _edges models are views (the intermediate/ default). Each is a classified copy of
+  most of int__topology__edges - 75-130 MB apiece as a table, ~80% of all boundary
+  storage - and the classification takes seconds, so its three readers (_raw, the final
+  boundary, _validity) recompute it. _raw and the final boundary stay tables: polygonizing
+  and ring-stripping are the expensive steps, and each has more than one reader.
+
   Every step outputs `entity_id` as its key. No step touches the topology itself
   (int__topology__edges is shared), so adding a district type costs only these steps.
   No polygon overlay on source polygons is on the construction path: boundaries are
