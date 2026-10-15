@@ -111,8 +111,8 @@ models:
 
   - name: cpp_housing_growth_boro
     description: >
-      Housing growth by borough, rolled up from cpp_housing_growth_nta. Matches
-      cpp_housing_growth_cd per borough (see assert_boundaries_agree_by_borough).
+      Housing growth by borough, rolled up from cpp_housing_growth_cd, so each
+      borough equals the sum of its CDs (see assert_cpp_boro_matches_cd).
     columns:
       - name: geography_id
         description: "Borough code, 1 through 5"

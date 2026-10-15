@@ -1,7 +1,7 @@
 -- NTAs, community districts and boroughs all tile the city, so their citywide
 -- totals must agree. Catches a join that matched only part of one geography's
--- keys. Per-borough agreement is checked upstream by
--- assert_boundaries_agree_by_borough.
+-- keys. Per-borough agreement is checked by assert_cpp_boro_matches_cd, and
+-- for KPDB's allocations upstream by assert_boundaries_agree_by_borough.
 {% set latest = var('cpp_latest_complete_year') | int %}
 WITH nta AS (
     SELECT
