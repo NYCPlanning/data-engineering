@@ -227,9 +227,12 @@ Boroughs aren't classified. There are only five, so each takes one step of the
 ramp ordered by value, with `geoName` set and `rangeMin` = `rangeMax` = its
 value. Match those rows on `geoName`, not on the bounds.
 
-`cpp_housing_growth_boro` rolls up the NTA model. It matches
-`cpp_housing_growth_cd` per borough because every KPDB geography is allocated
-against land-only boundaries. The water-included community district and tract
+`cpp_housing_growth_boro` rolls up the CD model, so each borough equals the sum
+of its CDs (`assert_cpp_boro_matches_cd`). An NTA rollup by borough code
+wouldn't: Rikers Island's NTA is coded Bronx, but it's in Queens CD 1.
+
+KPDB's own allocations agree per borough across geographies because every KPDB
+geography is allocated against land-only boundaries. The water-included community district and tract
 files reach across the East River and put Brooklyn waterfront projects in
 Manhattan ([#2633](https://github.com/NYCPlanning/data-engineering/issues/2633)).
 `assert_boundaries_agree_by_borough` fails the build if CD, tract, and NTA
