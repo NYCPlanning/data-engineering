@@ -8,9 +8,9 @@
 -- house-number/zip overrides (side-gated per ETL spec §2.7.2),
 -- SAFStreetName/SAFStreetCode (the two fields that only exist on SAF replicants, per
 -- spec §2.7.3), and the SAF-replicant Join_ID (same 15-char
--- Boro+StreetCode+LGC1-4+SpecAddr formula as int__saf_altnames_join_ids, extended here
--- to AltSegmentData too - not needed there since AltSegmentData-sourced names already
--- surface via the regular Join_ID/AltNames path).
+-- Boro+StreetCode+LGC1-4+SpecAddr formula as int__saf_altnames_join_ids, which supplies
+-- the CommonPlace/AddressPoint ones; computed here for AltSegmentData). gdb_altnames
+-- reads its SAF Join_IDs from this model too, so AltNames and LION agree.
 --
 -- Known v1 simplifications (see docs/prod_bugs/012-saf-replicant-lion-rows.md):
 -- - Continuous-parity SAF entries (SOSINDICATOR used as a parity flag rather than a
@@ -112,8 +112,7 @@ altsegmentdata_fields AS (
 ),
 
 -- CommonPlace: types G, N, X (Non-Addressable Placenames). All house number fields are
--- blank per spec. Join_ID reuses int__saf_altnames_join_ids (already computed for
--- gdb_altnames matching purposes - same formula).
+-- blank per spec. Join_ID from int__saf_altnames_join_ids.
 commonplace_fields AS (
     SELECT
         saf.segment_lionkey AS lionkey,
@@ -140,7 +139,8 @@ commonplace_fields AS (
     INNER JOIN {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }} AS cp ON saf.saf_globalid = cp.globalid
     LEFT JOIN street_names ON cp.b7sc = street_names.b7sc
     LEFT JOIN feature_names ON cp.b7sc = feature_names.b7sc
-    LEFT JOIN altnames_join_ids AS aj ON saf.saf_globalid = aj.saf_globalid
+    LEFT JOIN altnames_join_ids AS aj
+        ON saf.saf_globalid = aj.saf_globalid AND saf.segment_lionkey = aj.lionkey
     WHERE saf.saf_source_table = 'commonplace'
 ),
 
@@ -187,7 +187,8 @@ addresspoint_fields AS (
     LEFT JOIN feature_names AS feature_names_vanity ON ap.b7sc_vanity = feature_names_vanity.b7sc
     LEFT JOIN street_names AS street_names_actual ON ap.b7sc_actual = street_names_actual.b7sc
     LEFT JOIN feature_names AS feature_names_actual ON ap.b7sc_actual = feature_names_actual.b7sc
-    LEFT JOIN altnames_join_ids AS aj ON saf.saf_globalid = aj.saf_globalid
+    LEFT JOIN altnames_join_ids AS aj
+        ON saf.saf_globalid = aj.saf_globalid AND saf.segment_lionkey = aj.lionkey
     WHERE saf.saf_source_table = 'addresspoints'
 ),
 

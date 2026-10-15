@@ -38,7 +38,7 @@ was written. If it's stale, treat the entry as a hypothesis rather than a findin
 | [CSCL-LION-06](#cscl-lion-06) | LION | Coincident segments | Accepted | 26b |
 | [CSCL-LION-07](#cscl-lion-07) | LION | `ArcCenterX`/`ArcCenterY`/`Radius` all implemented and fixed to default `0` (not null) on non-curved segments; `Radius` is measured from the rounded center, as prod does - 9,801 of 9,802 curved segments match | Accepted | 26c |
 | [CSCL-LION-08](#cscl-lion-08) | LION | `VIntersect` hardcoded null in `gdb_node` | Accepted | 26b |
-| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` coverage 51%→93%, remaining diff confirmed as prod-side staleness (CommonPlace N/X alias clusters, not fixable on our side) | Watch | 26c |
+| [CSCL-LION-09](#cscl-lion-09) | LION | `node_stname` abbreviation (fixed) / `gdb_altnames`: a SAF Join_ID lists its host segment's names, not its own B7SC's (fixed, 66,056 → 12 diff rows; the rest are Join_IDs only one side's LION has) | Watch | 26c |
 | [CSCL-LION-10](#cscl-lion-10) | LION | `LegacyID` ~2% mismatch was a comparison-tool artifact (fixed); `lion` layer's key switched to `SegmentID\|Join_ID`; row-level diffing is now partial-precision (fixed, in `dcpy`); prod's `lion`-layer `Join_ID` is missing spec-mandated padding that prod's own `altnames` layer has (tooling accommodation added, not a code fix) | Accepted | 26c |
 | [CSCL-LION-11](#cscl-lion-11) | LION | `segment_locational_status` uses 2010, not 2020, census tracts | Accepted | 26b |
 | [CSCL-LION-12](#cscl-lion-12) | LION | Two GR/GSS-flagged discrepancies (133963 traffic_direction, 241972 SAF) | Open | 26b |
@@ -234,7 +234,7 @@ per the standing note that a full re-ingest is imminent.
 
 ### CSCL-LION-09
 
-**`node_stname` abbreviation (fixed) / `gdb_altnames` `Join_ID` gap (open)** · Open · Last verified 26b
+**`node_stname` abbreviation (fixed) / `gdb_altnames` SAF Join_ID names (fixed)** · Watch · Last verified 26c
 
 **`node_stname` - root-caused and fixed (2026-09-16).** The "abbreviation mismatch" framing
 below was wrong: there is no abbreviation step in prod at all. JD's legacy source
@@ -277,7 +277,80 @@ the 26b copy that would settle it is empty in the preserved `production_outputs_
 is demonstrably wrong for 26c.
 
 **`gdb_altnames`'s `Join_ID` gap** is a separate, larger-magnitude issue with a different
-root cause (not an abbreviation problem - see below), still open.
+root cause (not an abbreviation problem). The 2026-10-15 update directly below supersedes
+the history after it: several conclusions further down (principal-only SAF names,
+AltSegmentData covered by the segment path, the N/X diff being prod staleness) were wrong.
+
+**Update 2026-10-15: a SAF Join_ID lists its host segment's names (fixed).** Legacy
+`AddAltNames` (`ExtractorClass.cs`) runs once per LION output record, SAF replicants
+included. It looks up names for B7SC = `L1` + `L5` + each of `L6`-`L9`, under the record's
+own Join_ID. On a SAF replicant those fields come from the host segment
+(`CenterlineExtractFile.cs`), except `L5` for AltSegmentData types B/C/D/E/F/O/P, which is
+the AltSegmentData street code (`GetStreetCodeFromSAF`). The names are therefore *not* the
+names of the B7SC written in the Join_ID, which is what the spec says and what we did:
+
+- G/N/X (CommonPlace), S/V (AddressPoint), A: the host segment's names. Example:
+  `30013701000000N` (place "PS 44", segment 43046). Prod lists MONROE STREET / NTOZAKE
+  SHANGE WAY / SHANGE WAY, the names of 43046's own Join_ID `3543201030000`. We listed
+  "PS 44".
+- B/C/D/E/O/P: AltSegmentData street code + the host's LGCs. This is why
+  `43569001000000B` is 'BELL BOULEVARD NB ROADBED' in prod and not 'BELL BOULEVARD': the
+  name comes from the host's LGC, not the AltSegmentData row's LGC1.
+- Names are every StreetName (DCP_FLAG <> 'N') / FeatureName variant, deduped on
+  Join_ID + LOOKUP_KEY. They are not principal-only.
+
+This explains the "stale alias clusters" above. Prod's 106 MLK/Bartow names under
+`20079701000000N` are its host segment's names; they are not stale names for Bay Plaza.
+
+`gdb_altnames.sql` now builds one record per LION row. It takes the SAF Join_IDs and host
+lionkeys from `int__saf_replicant_fields`, the same source `gdb_lion` uses, so AltNames and
+LION can't disagree on which SAF Join_IDs exist. AltSegmentData SAF Join_IDs were missing
+entirely (5,745 prod rows). Three smaller legacy behaviours were also matched:
+
+- For a StreetName row with a pre/post modifier, `SName` is the concatenated components,
+  each followed by a space, truncated to 30. Prod keeps the trailing space, e.g.
+  'TREMONT AVE BRG '.
+- For a FeatureName row, `SName` is `LOOKUP_KEY`, not `FEATURE_NAME` ('DIST BOUNDARY',
+  not 'DIST BNDY').
+- A null `LOOKUP_KEY` becomes `''`. When one Join_ID has two variants with the same
+  `LOOKUP_KEY`, the row from the lowest LGC slot, then the lowest `ogc_fid`, wins (prod
+  has exactly one row per Join_ID + Street).
+
+Together these three clear all 970 / 1,025 segment-Join_ID diff rows. 966 of those had the
+same Street on both sides and differed only in the parsed fields.
+
+Two upstream Join_ID fixes in `int__saf_altnames_join_ids`:
+
+- `int__lion` is joined on the host lionkey, not segmentid. A segmentid with
+  proto-segments in two boroughs had given 3 CommonPlaces the wrong borough digit, e.g.
+  `10050302000000N` vs prod's `20050302000000N` on segment 241972.
+- `ADDRESSPOINTLGCS` uses `BOE_LGC <> 'Y'`, so null rows are dropped as in legacy SQL:
+  address point 5146023 becomes `12469002000000V`.
+
+`int__saf_replicant_fields` now joins those Join_IDs on lionkey too.
+
+`qa__diffs_fgdb_altnames` (schema `ar_cscl_districts_gdb_db_qa_oct4`):
+
+| | only_in_build | only_in_legacy | accounted for |
+|---|---|---|---|
+| before | 14,589 | 51,467 | 0 |
+| after (`gdb_altnames` rebuilt only) | 29 | 33 | 60 |
+| after full rebuild (simulated) | 4 | 8 | 12 |
+
+The 12 left after a full rebuild are all Join_IDs that only one side's LION has, and
+they are accounted for in `qa__diffs_fgdb_altnames`:
+
+- prod-only (8 rows, 5 Join_IDs): CommonPlaces with `SECURITY_LEVEL` 3, which
+  `int__saf_segments` drops. Prod's LION still replicates them: `10144701000000N`,
+  `20001201000000G`, `40019402000000X`, `40022501000000N`, `50077501000000N`. Open question:
+  which side is right for LION.
+- build-only (4 rows): CommonPlaces edited in source 2026-04 to 2026-07, after prod's
+  extract (e.g. `12063505000000X`; prod's LION has `12063502000000X` on the same segment).
+
+Prod also repeats each FeatureName row longer than 30 characters once per LION record
+carrying its Join_ID (134 keys, 2,873 extra rows). This happens because legacy truncates
+the name before adding it to its dedup list. We don't replicate it, and the hash-keyed diff
+doesn't see it.
 
 **`gdb_altnames`'s `Join_ID` gap is bigger than the documented SAF-replicant scope can
 explain.** `gdb_altnames.sql`'s comment attributes dev's ~50%-of-prod `Join_ID` coverage

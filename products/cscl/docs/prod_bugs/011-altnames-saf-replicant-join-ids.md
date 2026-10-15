@@ -1,7 +1,8 @@
 # Bug 011: `gdb_altnames` Join_ID Coverage Gap - SAF-Replicant Join_IDs Were Entirely Missing
 
-**Status:** Confirmed prod-side staleness at scale (2026-09-19) - not a code bug, root cause
-understood; not fixable on our side
+**Status:** Fixed 2026-10-15. This was our bug, not prod staleness: a SAF Join_ID carries
+its host segment's names. See the 2026-10-15 update at the end and data_issues.md
+CSCL-LION-09. The 2026-09-18/19 conclusions below are superseded.
 **Affected Output:** `gdb_altnames` (LION gdb, `nyclion_*.zip`)
 **Severity:** High - the largest single diff category in the whole CSCL project (~40,000 of
 `qa__diffs_all`'s 72,039 rows)
@@ -274,10 +275,33 @@ intentional design (its own worked example: "Adam Clayton Powell Boulevard" →
 "Powell Boulevard"/"A C Powell Boulevard") - confirming the *mechanism* is real and deliberate,
 just evidently not kept in sync with current source for a large fraction of entries.
 
+## Update 2026-10-15: superseded - host-segment names, not staleness
+
+Three conclusions above were wrong:
+
+- that `SetSAFStreetNameAndCode` leaving `L1`/`L5`/`L6`-`L9` alone means AltSegmentData is
+  covered by the segment path;
+- that the SAF path should be principal-only;
+- that the N/X diff is prod staleness.
+
+`AddAltNames` does run on each SAF replicant, under the SAF Join_ID. It reads
+`L1`/`L5`/`L6`-`L9`, which on a replicant are the host segment's
+(`CenterlineExtractFile.cs`), except `L5` for AltSegmentData B/C/D/E/F/O/P
+(`GetStreetCodeFromSAF`). So prod's "unrelated" name clusters (e.g. 106 MLK/Bartow names
+under `20079701000000N`) are the host segment's names. The 4,064 suffixes matched nothing
+in current source because the names were never keyed on the Join_ID's B7SC.
+
+The McNair Playground over-generation (84 variants) only happened because we used the
+place's own B7SC. Under the host rule, every variant is correct.
+
+Fixed in `gdb_altnames.sql`. 66,056 diff rows drop to 12 after a full rebuild, all of them
+Join_IDs that only one side's LION has. See CSCL-LION-09 for details.
+
 ## References
 
 - `data_issues.md` CSCL-LION-09 (updated with this)
 - Legacy source: `~/dev/cscl_etl_archive/ETL/CSCL.ETL.Extractor/Source Files/ExtractorClass.cs`
-  (`AddAltNames`, `GetBytesJoinID`, `GetSAFBytesJoinID`, `SetSAFStreetNameAndCode`)
+  (`AddAltNames`, `GetBytesJoinID`, `GetSAFBytesJoinID`, `SetSAFStreetNameAndCode`) and
+  `CenterlineExtractFile.cs` (`L1`/`L5` on SAF replicants, `GetStreetCodeFromSAF`)
 - `models/intermediate/saf/int__saf_segments.sql` - reused SAF-record resolution
 - Related: `CSCL-SAF-01`, `Bug 010` (same staleness shape, different source tables)
