@@ -282,9 +282,10 @@ replicant_rows AS (
         lpad(lion.segmentid::text, 7, '0') AS "SegmentID",
         segment_row_counts.n_rows::text AS "SegCount",
         lion.segment_locational_status AS "LocStatus",
-        -- Overridden only for AltSegmentData type D/F, side-gated; else the base zip.
-        coalesce(saf_replicants.l_zip, lion.l_zip) AS "LZip",
-        coalesce(saf_replicants.r_zip, lion.r_zip) AS "RZip",
+        -- AltSegmentData type D/F: zip only on the side with the SAF's house numbers, the
+        -- other side stays blank (as in prod); other replicants take the base zip.
+        CASE WHEN saf_replicants.specaddr IN ('D', 'F') THEN saf_replicants.l_zip ELSE coalesce(saf_replicants.l_zip, lion.l_zip) END AS "LZip",
+        CASE WHEN saf_replicants.specaddr IN ('D', 'F') THEN saf_replicants.r_zip ELSE coalesce(saf_replicants.r_zip, lion.r_zip) END AS "RZip",
         CASE WHEN lion.borough_boundary_indicator = 'L' THEN NULL ELSE lion.boroughcode::int END AS "LBoro",
         CASE WHEN lion.borough_boundary_indicator = 'R' THEN NULL ELSE lion.boroughcode::int END AS "RBoro",
         lion.left_community_district AS "L_CD",
