@@ -1,0 +1,55 @@
+id: moo_capital_projects_budget_schedule
+acl: public-read
+
+attributes:
+  name: Capital Projects Dashboard - Citywide Budget and Schedule
+  description: >-
+    Capital projects with a committed budget, by reporting period, from the Mayor's Office of
+    Operations' Capital Projects Dashboard. FMS budget and spending are joined by FMS ID to
+    the managing agency's project schedules, which can split one FMS ID into several projects
+    (pid).
+  url: https://data.cityofnewyork.us/d/fb86-vt7u
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: fb86-vt7u
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Reporting Period": "reporting_period",
+            "Managing Agency": "managing_agency",
+            "Sponsor Agency": "sponsor_agency",
+            "PID": "pid",
+            "FMS ID": "fms_id",
+            "Total Budget": "total_budget",
+            "Spend to Date": "spend_to_date",
+            "Spend to Date (%)": "spend_to_date_1",
+            "FMS Project Name": "fms_project_name",
+            "Agency Project Name": "agency_project_name",
+            "Agency Project Description": "agency_project_description",
+            "Current Phase": "current_phase",
+            "Current Phase Start": "current_phase_start",
+            "Forecast Current Phase End": "forecast_current_phase_end",
+            "Forecast Completion": "forecast_completion",
+            "Actual Design Start": "actual_design_start",
+            "Actual Design End": "actual_design_end",
+            "Actual Construction Procurement Start": "actual_construction",
+            "Actual Construction Procurement End": "actual_construction_1",
+            "Actual Construction Start": "actual_construction_start",
+            "Actual Construction End": "actual_construction_end",
+            "Borough": "borough",
+            "Community Board": "community_board",
+            "Budget Line": "budget_line",
+            "Ten Year Plan Category": "ten_year_plan_category",
+            "Agency Data Date": "agency_data_date",
+            "FMS Data Date": "fms_data_date",
+          }

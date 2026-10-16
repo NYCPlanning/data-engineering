@@ -1,0 +1,39 @@
+id: omb_capital_project_milestones
+acl: public-read
+
+attributes:
+  name: OMB Capital Project Detail Data - Milestones
+  description: >-
+    Capital Commitment Plan project schedules by managing agency and project, with each
+    task's original and current dates, from 14 plans, April 2019 to October 2023. OMB stopped
+    updating it in January 2024.
+  url: https://data.cityofnewyork.us/d/s7yh-frbm
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: s7yh-frbm
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "PUB_DATE": "pub_date",
+            "BORO": "boro",
+            "MANAGING_AGCY_CD": "managing_agcy_cd",
+            "MANAGING_AGCY": "managing_agcy",
+            "PROJECT_ID": "project_id",
+            "PROJECT_DESCR": "project_descr",
+            "SEQ_NUMBER": "seq_number",
+            "TASK_DESCRIPTION": "task_description",
+            "ORIG_START_DATE": "orig_start_date",
+            "ORIG_END_DATE": "orig_end_date",
+            "TASK_START_DATE": "task_start_date",
+            "TASK_END_DATE": "task_end_date",
+          }

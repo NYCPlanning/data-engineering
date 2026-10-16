@@ -1,0 +1,57 @@
+id: omb_capital_project_dollars
+acl: public-read
+
+attributes:
+  name: OMB Capital Project Detail Data - Dollars
+  description: >-
+    Capital Commitment Plan data by project, budget line, and source of funds, with each
+    project's scope and site text, from 14 plans, April 2019 to October 2023. Dollar values
+    are in thousands. OMB stopped updating it in January 2024.
+  url: https://data.cityofnewyork.us/d/wa2y-rh4b
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: wa2y-rh4b
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "PUB_DATE": "pub_date",
+            "BORO": "boro",
+            "MANAGING_AGCY_CD": "managing_agcy_cd",
+            "MANAGING_AGCY": "managing_agcy",
+            "PROJECT_ID": "project_id",
+            "PROJECT_DESCR": "project_descr",
+            "TYP_CATEGORY_NAME": "typ_category_name",
+            "COMMUNITY_BOARD": "community_board",
+            "BUDGET_LINE": "budget_line",
+            "DELAY_DESC": "delay_desc",
+            "SITE_DESCR": "site_descr",
+            "SCOPE_TEXT": "scope_text",
+            "FY_YR1_PLAN": "fy_yr1_plan",
+            "ORIG_BUD_AMT": "orig_bud_amt",
+            "CITY_PRIOR_ACTUAL": "city_prior_actual",
+            "CITY_YR1_PLAN": "city_yr1_plan",
+            "CITY_YR2_PLAN": "city_yr2_plan",
+            "CITY_YR3_PLAN": "city_yr3_plan",
+            "CITY_YR4_PLAN": "city_yr4_plan",
+            "CITY_YR5_PLAN": "city_yr5_plan",
+            "CITY_RTC": "city_rtc",
+            "CITY_PLAN_TOTAL": "city_plan_total",
+            "NONCITY_PRIOR_ACTUAL": "noncity_prior_actual",
+            "NONCITY_YR1_PLAN": "noncity_yr1_plan",
+            "NONCITY_YR2_PLAN": "noncity_yr2_plan",
+            "NONCITY_YR3_PLAN": "noncity_yr3_plan",
+            "NONCITY_YR4_PLAN": "noncity_yr4_plan",
+            "NONCITY_YR5_PLAN": "noncity_yr5_plan",
+            "NONCITY_RTC": "noncity_rtc",
+            "NONCITY_PLAN_TOTAL": "noncity_plan_total",
+          }

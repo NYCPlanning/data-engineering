@@ -1,0 +1,34 @@
+id: moo_capital_projects_budget_history
+acl: public-read
+
+attributes:
+  name: Capital Projects Dashboard - Citywide Budget Spend History and Variance
+  description: >-
+    Budget and spending by FMS ID for every reported year and month, with the change from the
+    prior report, from the Mayor's Office of Operations' Capital Projects Dashboard.
+  url: https://data.cityofnewyork.us/d/qj5n-h5qp
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: qj5n-h5qp
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Managing Agency": "managing_agency",
+            "FMS ID": "fms_id",
+            "Year-Month Reported": "year_month_reported",
+            "Total Budget": "total_budget",
+            "Spend to Date": "spend_to_date",
+            "Spend to Date %": "spend_to_date_1",
+            "Budget Variance": "budget_variance",
+            "Budget Variance %": "budget_variance_1",
+          }

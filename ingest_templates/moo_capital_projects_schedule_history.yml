@@ -1,0 +1,37 @@
+id: moo_capital_projects_schedule_history
+acl: public-read
+
+attributes:
+  name: Capital Projects Dashboard - Citywide Schedule History and Variance
+  description: >-
+    Every forecast and actual completion date agencies reported for each project (pid), with
+    the change from the prior reporting period and its reason, from the Mayor's Office of
+    Operations' Capital Projects Dashboard.
+  url: https://data.cityofnewyork.us/d/95tx-snak
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 95tx-snak
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Reporting Period": "reporting_period",
+            "Managing Agency": "managing_agency",
+            "PID": "pid",
+            "Agency Project Name": "agency_project_name",
+            "Current Phase": "current_phase",
+            "Completion Date": "completion_date",
+            "Completion Date Type": "completion_date_type",
+            "Variance (day)": "variance_day",
+            "Reason for Forecast Completion Change": "reason_for_forecast_completion_change",
+            "Data Date": "data_date",
+          }
