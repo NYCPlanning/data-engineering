@@ -1,6 +1,7 @@
 {{
   config(
     materialized='table',
+    enabled=var('qa_gdb_lion_diffs'),
     indexes=[{'columns': ['_gdb_lion_key']}]
   )
 }}

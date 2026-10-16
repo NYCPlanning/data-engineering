@@ -1,6 +1,7 @@
 {{
   config(
     materialized='table',
+    enabled=var('qa_gdb_lion_diffs'),
     tags=['on_demand', 'diffs', 'diffs_lion_gdb']
   )
 }}
