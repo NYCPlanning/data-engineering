@@ -304,9 +304,9 @@ SELECT
     END AS include_in_bytes_lion
 FROM segments
 LEFT JOIN street_names
-    ON (segments.boroughcode::text || segments.five_digit_street_code || segments.lgc1) = street_names.b7sc
+    ON (segments.boroughcode::TEXT || segments.five_digit_street_code || segments.lgc1) = street_names.b7sc
 LEFT JOIN feature_names
-    ON (segments.boroughcode::text || segments.five_digit_street_code || segments.lgc1) = feature_names.b7sc
+    ON (segments.boroughcode::TEXT || segments.five_digit_street_code || segments.lgc1) = feature_names.b7sc
 LEFT JOIN nodes ON segments.globalid = nodes.globalid
 LEFT JOIN segment_locational_status ON segments.globalid = segment_locational_status.globalid
 LEFT JOIN
