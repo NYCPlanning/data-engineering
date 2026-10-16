@@ -1,0 +1,34 @@
+id: moo_capital_projects_budget_spend
+acl: public-read
+
+attributes:
+  name: Capital Projects Dashboard - Citywide Budget and Spend by Fiscal Year
+  description: >-
+    Budget and spending by FMS ID and fiscal year, by reporting period, from the Mayor's
+    Office of Operations' Capital Projects Dashboard.
+  url: https://data.cityofnewyork.us/d/gyhf-rsr3
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: gyhf-rsr3
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Reporting Period": "reporting_period",
+            "Managing Agency": "managing_agency",
+            "FMS ID": "fms_id",
+            "Fiscal Year": "fiscal_year",
+            "Total Budget City Non City": "total_budget_city_non_city",
+            "City": "city",
+            "Non City": "non_city",
+            "Spend": "spend",
+          }

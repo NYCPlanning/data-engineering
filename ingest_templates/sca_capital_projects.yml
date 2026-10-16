@@ -1,0 +1,40 @@
+id: sca_capital_projects
+acl: public-read
+
+attributes:
+  name: SCA Capital Project Schedules and Budgets
+  description: >-
+    School Construction Authority capital projects by school building, with each project's
+    work, phase, status, budget, and spending.
+  url: https://data.cityofnewyork.us/d/2xh6-psuq
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 2xh6-psuq
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Project Geographic District ": "project_geographic_district_",
+            "Project Building Identifier": "project_building_identifier",
+            "Project School Name": "project_school_name",
+            "Project Type ": "project_type_",
+            "Project Description": "project_description",
+            "Project Phase Name": "project_phase_name",
+            "Project Status Name": "project_status_name",
+            "Project Phase Actual Start Date": "project_phase_actual_start_date",
+            "Project Phase Planned End Date": "project_phase_planned_end_date",
+            "Project Phase Actual End Date": "project_phase_actual_end_date",
+            "Project Budget Amount": "project_budget_amount",
+            "Final Estimate of Actual Costs Through End of Phase Amount": "final_estimate_of_actual_costs_through_end_of_phase_amount",
+            "Total Phase Actual Spending Amount": "total_phase_actual_spending_amount",
+            "DSF Number(s)": "dsf_number_s_",
+          }
