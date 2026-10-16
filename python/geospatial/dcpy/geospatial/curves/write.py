@@ -40,7 +40,7 @@ def write_geoparquet(
     crs: str | None,
     geom_col: str = "wkb_geometry",
 ) -> int:
-    """Write linearized batches one at a time; returns the row count.
+    """Write linearized batches one at a time; returns the row count (0 writes no file).
 
     ``geometry_types`` and ``bbox`` are computed from the linear output and
     added to the footer metadata after the last batch.
@@ -64,7 +64,7 @@ def write_geoparquet(
         writer.write_batch(batch)
         rows += batch.num_rows
     if writer is None:
-        raise ValueError("no batches to write")
+        return 0  # nothing to write; no file is created
     writer.add_key_value_metadata(
         {"geo": _geo_metadata(geom_col, crs, types, bbox).decode()}
     )
