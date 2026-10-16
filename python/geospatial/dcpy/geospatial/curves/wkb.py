@@ -26,6 +26,8 @@ class Arc(NamedTuple):
     part: int  # member index within a multi-geometry (0 otherwise)
     ring: int  # ring index within a polygon (0 = shell); -1 for lines
     seq: int  # arc order within its (part, ring)
+    v0: int  # index of the arc's first vertex in the emitted linear ring/line
+    v1: int  # index of its last vertex (vertices strictly between are linearization)
     x0: float
     y0: float
     x1: float  # interior control point
@@ -41,6 +43,7 @@ class CurveStats:
     geometries: int = 0
     arcs: int = 0
     zm_stripped: int = 0  # geometries whose Z and/or M values were dropped
+    closed_rings: int = 0  # unclosed polygon rings closed by repeating the first point
 
 
 # linear geometry tree: ("Point", pt) | ("LineString", pts) | ("Polygon", [pts])
@@ -90,8 +93,9 @@ class _Reader:
             p0, pm, p1 = pts[i], pts[i + 1], pts[i + 2]
             seq = self._seq.get((part, ring), 0)
             self._seq[(part, ring)] = seq + 1
-            self.arcs.append(Arc(part, ring, seq, *p0, *pm, *p1))
+            v0 = len(out) - 1
             out.extend(linearize_arc(p0, pm, p1, self.tol, self.min_seg)[1:])
+            self.arcs.append(Arc(part, ring, seq, v0, len(out) - 1, *p0, *pm, *p1))
         return out
 
     def curve(
@@ -107,7 +111,12 @@ class _Reader:
         if code == COMPOUNDCURVE:
             out: list[Point] = []
             for _ in range(self.count(endian)):
+                first, offset = len(self.arcs), max(len(out) - 1, 0)
                 seg = self.curve(part, ring)
+                self.arcs[first:] = [
+                    a._replace(v0=a.v0 + offset, v1=a.v1 + offset)
+                    for a in self.arcs[first:]
+                ]
                 out.extend(seg if not out else seg[1:])
             return out
         raise ValueError(f"unsupported curve type {code}")
@@ -123,9 +132,14 @@ class _Reader:
             rings = []
             for ri in range(self.count(endian)):
                 if code == POLYGON:
-                    rings.append(self.points(endian, extra, self.count(endian)))
+                    ring = self.points(endian, extra, self.count(endian))
                 else:
-                    rings.append(self.curve(part, ri))
+                    ring = self.curve(part, ri)
+                if ring and ring[0] != ring[-1]:
+                    # GDAL accepts unclosed rings on read (and closes them on write)
+                    ring.append(ring[0])
+                    self.stats.closed_rings += 1
+                rings.append(ring)
             return ("Polygon", rings)
         names = {
             MULTIPOINT: "MultiPoint",

@@ -15,31 +15,37 @@ inputs:
     file_type: gdb
     source: edm.recipes.raw_datasets
     load_engine: gdal
+    # curves: linear geometry + <table>_arcs side table (see dcpy.geospatial.curves)
   missing_versions_strategy: find_latest # TODO - they should all match
   datasets:
   # segment source layers - backbone
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_centerline
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Centerline
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_shoreline
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Shoreline
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_rail
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Rail
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_subway
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Subway
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_nonstreetfeatures
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NonStreetFeature
@@ -47,6 +53,7 @@ inputs:
   # other more "primary" layers
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_atomicpolygons
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: AtomicPolygon
@@ -117,6 +124,7 @@ inputs:
       layer_name: NYPDBeat
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_nypdprecinct
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDPrecinct
@@ -202,6 +210,7 @@ inputs:
       layer_name: UNIVERSALWORD
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_zipcode
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ZipCode
@@ -229,6 +238,7 @@ inputs:
       layer_name: Borough
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_businessimprovementdistrict
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: BusinessImprovementDistrict
@@ -279,6 +289,7 @@ inputs:
       layer_name: HealthCenterDistrict
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_historicdistrict
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: HistoricDistrict
@@ -309,6 +320,7 @@ inputs:
       layer_name: StateSenateDistrict
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_urbanrenewalarea
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: UrbanRenewalArea

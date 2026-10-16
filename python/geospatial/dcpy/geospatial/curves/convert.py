@@ -16,6 +16,8 @@ ARC_TYPE = pa.struct(
         ("part", pa.int32()),
         ("ring", pa.int32()),
         ("seq", pa.int32()),
+        ("v0", pa.int32()),
+        ("v1", pa.int32()),
         ("x0", pa.float64()),
         ("y0", pa.float64()),
         ("x1", pa.float64()),

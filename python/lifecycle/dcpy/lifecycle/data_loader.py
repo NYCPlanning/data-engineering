@@ -2,6 +2,7 @@ import importlib
 import json
 import os
 import subprocess
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -9,6 +10,7 @@ import typer
 
 from dcpy.connectors.edm.models import DatasetType
 from dcpy.geospatial import parquet as geoparquet
+from dcpy.geospatial.curves.layer import layer_to_parquet
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds.models import InputDataset
 from dcpy.lifecycle.connector_registry import connectors
@@ -127,6 +129,63 @@ def _load_parquet_chunked(
         pg_client.add_pk(ds_table_name, "ogc_fid")
 
 
+def _ogr2ogr_to_pg(
+    source: Path,
+    layer_name: str,
+    ds_table_name: str,
+    pg_client: postgres.PostgresClient,
+):
+    command = " ".join(
+        [
+            "ogr2ogr",
+            "-f",
+            "PostgreSQL",
+            'PG:"host=$BUILD_ENGINE_HOST port=$BUILD_ENGINE_PORT user=$BUILD_ENGINE_USER password=$BUILD_ENGINE_PASSWORD dbname=$BUILD_ENGINE_DB"',
+            f'"{source}"',
+            layer_name,
+            "-nln",
+            f'"{pg_client.schema}"."{ds_table_name.lower()}"',
+            "-nlt",
+            "geometry",
+            "-lco",
+            "GEOMETRY_NAME=geom",
+            "-lco",
+            "FID=ogc_fid",
+            "-overwrite",
+        ]
+    )
+    subprocess.check_call(command, shell=True)
+
+
+def _load_curved_layer(
+    source: Path,
+    layer_name: str,
+    ds_table_name: str,
+    pg_client: postgres.PostgresClient,
+):
+    """Load a curved GDB layer as linear geometry plus a ``<table>_arcs`` side table.
+
+    The layer is converted to a linear GeoParquet (curves kept as arcs, symmetric
+    linearization) and loaded with the same ogr2ogr options as the plain gdal engine, so
+    table/column names and ogc_fid (1..N in source FID order) match a direct GDAL load.
+    ``<table>_arcs`` holds one row per circular arc, keyed by ogc_fid.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        linear = Path(tmp) / f"{ds_table_name.lower()}.parquet"
+        arcs = Path(tmp) / "arcs.parquet"
+        n_rows, stats = layer_to_parquet(source, layer_name, linear, arcs)
+        logger.info(f"{layer_name}: {n_rows} rows, {stats.arcs} arcs")
+        if n_rows == 0:  # no parquet was written; GDAL creates the empty table
+            _ogr2ogr_to_pg(source, layer_name, ds_table_name, pg_client)
+        else:
+            _ogr2ogr_to_pg(linear, linear.stem, ds_table_name, pg_client)
+        arcs_table = f"{ds_table_name.lower()}_arcs"
+        pg_client.insert_dataframe(pd.read_parquet(arcs), arcs_table)
+        pg_client.execute_query(
+            f'CREATE INDEX ON "{pg_client.schema}"."{arcs_table}" (ogc_fid)'
+        )
+
+
 def load_dataset_into_pg(
     ds: InputDataset,
     pg_client: postgres.PostgresClient,
@@ -164,29 +223,13 @@ def load_dataset_into_pg(
                 target_table_name=ds_table_name,
             )
         case "gdal", _:
-            command = " ".join(
-                [
-                    "ogr2ogr",
-                    "-f",
-                    "PostgreSQL",
-                    'PG:"host=$BUILD_ENGINE_HOST port=$BUILD_ENGINE_PORT user=$BUILD_ENGINE_USER password=$BUILD_ENGINE_PASSWORD dbname=$BUILD_ENGINE_DB"',
-                    f'"{local_dataset_path}"',
-                    ds.custom["layer_name"],
-                    "-nln",
-                    f'"{pg_client.schema}"."{ds_table_name.lower()}"',
-                    "-nlt",
-                    "geometry",
-                    "-lco",
-                    "GEOMETRY_NAME=geom",
-                    "-lco",
-                    "FID=ogc_fid",
-                    "-overwrite",
-                ]
+            _ogr2ogr_to_pg(
+                local_dataset_path, ds.custom["layer_name"], ds_table_name, pg_client
             )
-
-            # process = subprocess.list2cmdline(command)
-            # print(f"Command to be executed (list): {process}")
-            subprocess.check_call(command, shell=True)
+        case "curves", _:
+            _load_curved_layer(
+                local_dataset_path, ds.custom["layer_name"], ds_table_name, pg_client
+            )
         case "pandas", DatasetType.csv:
             raw_df = pd.read_csv(local_dataset_path, dtype=str)
             df = preprocessor(ds.id, raw_df) if has_preprocessor else raw_df

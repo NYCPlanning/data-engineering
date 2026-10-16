@@ -54,7 +54,7 @@ primary_segments AS (
                 source.segment_seqnum,
             {% endif -%}
             source.feature_type_code,
-            LINEARIZE(source.geom) AS geom,
+            ST_LINEMERGE(source.geom) AS geom, -- already linear; merge as linearize() did
             source.geom AS raw_geom,
             source.shape_length,
             source.feature_type,

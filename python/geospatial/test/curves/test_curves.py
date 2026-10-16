@@ -139,7 +139,8 @@ def test_circularstring_to_linestring_with_arc():
         g.geom_type == "LineString" and g.coords[0] == (0, 0) and g.coords[-1] == (2, 0)
     )
     assert len(arcs) == 1
-    assert arcs[0] == (0, -1, 0, 0, 0, 1, 1, 2, 0)
+    assert arcs[0][:3] == (0, -1, 0) and arcs[0][3] == 0
+    assert arcs[0][4] == len(g.coords) - 1 and arcs[0][5:] == (0, 0, 1, 1, 2, 0)
 
 
 def test_compound_curve_mixes_lines_and_arcs():
@@ -151,6 +152,8 @@ def test_compound_curve_mixes_lines_and_arcs():
     assert g.geom_type == "LineString"
     assert g.coords[0] == (0, 0) and g.coords[-1] == (4, 0)
     assert len(arcs) == 1 and (arcs[0].x0, arcs[0].x2) == (1, 3)
+    cs = list(g.coords)
+    assert cs[arcs[0].v0] == (1, 0) and cs[arcs[0].v1] == (3, 0) and arcs[0].v0 == 1
     assert len(set(g.coords)) == len(g.coords)  # joints not duplicated
 
 
@@ -261,3 +264,15 @@ def test_geoparquet_roundtrip(tmp_path):
     assert geo["version"] == "1.1.0" and col["encoding"] == "WKB"
     assert col["geometry_types"] == ["LineString", "MultiPolygon"]
     assert col["crs"]["id"]["code"] == 2263
+
+
+def test_unclosed_ring_is_closed_and_counted():
+    stats = CurveStats()
+    out, _ = split_curve_wkb(
+        curvepoly(
+            compound(line([(0, 0), (4, 0), (4, 4)]), circ([(4, 4), (2, 5), (0, 4)]))
+        ),
+        stats=stats,
+    )
+    g = from_wkb(out)
+    assert g.exterior.is_closed and stats.closed_rings == 1
