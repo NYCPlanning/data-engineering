@@ -44,8 +44,8 @@ def layer_to_parquet(
 ) -> tuple[int, CurveStats]:
     """Stream ``layer`` into a linear GeoParquet and a flat arcs parquet.
 
-    Rows keep source (FID) order. The arcs file carries ``ogc_fid`` = 1-based row
-    number, the id a GDAL/ogr2ogr load assigns, so arcs join back to the loaded table.
+    Rows keep source (FID) order. Both files carry ``ogc_fid`` = 1-based row number,
+    the id a GDAL/ogr2ogr load assigns, so arcs join back to the linear table.
     Returns (row count, stats).
     """
     stats = CurveStats()
@@ -74,8 +74,15 @@ def layer_to_parquet(
                             schema=ARCS_SCHEMA,
                         )
                     )
+                out = out.drop_columns([ARCS_COLUMN])
+                fid_col = pa.array(
+                    range(n_rows + 1, n_rows + 1 + out.num_rows), pa.int32()
+                )
                 n_rows += batch.num_rows
-                yield out.drop_columns([ARCS_COLUMN])
+                yield pa.RecordBatch.from_arrays(
+                    [fid_col, *out.columns],
+                    schema=out.schema.insert(0, pa.field("ogc_fid", pa.int32())),
+                )
 
         write_geoparquet(
             linear_batches(), linear_out, crs=meta["crs"], geom_col=geom_col

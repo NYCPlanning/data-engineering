@@ -2,13 +2,17 @@ import importlib
 import json
 import os
 import subprocess
+import tempfile
 from pathlib import Path
 
+import duckdb
 import pandas as pd
+import pyogrio
 import typer
 
 from dcpy.connectors.edm.models import DatasetType
 from dcpy.geospatial import parquet as geoparquet
+from dcpy.geospatial.curves.layer import layer_to_parquet
 from dcpy.lifecycle import config
 from dcpy.lifecycle.builds.models import InputDataset
 from dcpy.lifecycle.connector_registry import connectors
@@ -229,6 +233,55 @@ def load_dataset_into_pg(
     return f"{pg_client.schema}.{ds_table_name}"
 
 
+def _load_gdb_into_duckdb(
+    ds: InputDataset,
+    duckdb_client: duckdb_utils.DuckDBClient,
+    gdb_path: Path,
+    table_name: str,
+) -> None:
+    """Load one GDB layer. ``load_engine: curves`` goes through the curve library
+    (linear table plus ``<table>_arcs``); ``gdal`` uses DuckDB's ST_Read."""
+    layer_name = (ds.custom or {}).get("layer_name")
+    if not layer_name:
+        raise Exception(f"GDB dataset {ds.id} ({table_name}) needs custom.layer_name")
+
+    def load_via_curves():
+        with tempfile.TemporaryDirectory() as tmp:
+            linear, arcs = Path(tmp) / "linear.parquet", Path(tmp) / "arcs.parquet"
+            n_rows, _ = layer_to_parquet(gdb_path, layer_name, linear, arcs)
+            if n_rows:
+                duckdb_client.load_geoparquet(linear, table_name)
+            else:  # no GeoParquet is written for an empty layer; ST_Read keeps its schema
+                duckdb_client.load_gdb_layer(gdb_path, table_name, layer_name)
+            duckdb_client.load_parquet(
+                arcs, f"{table_name}_arcs", include_ogc_fid_col=False
+            )
+
+    match ds.load_engine:
+        case "curves":
+            load_via_curves()
+        case "gdal":
+            if pyogrio.read_info(gdb_path, layer=layer_name)["geometry_type"] is None:
+                # attribute-only table: pyogrio reads these reliably (ST_Read can stall)
+                df = pyogrio.read_dataframe(
+                    gdb_path, layer=layer_name, read_geometry=False, fid_as_index=True
+                ).sort_index()
+                duckdb_client.load_dataframe(df, table_name)
+                return
+            try:
+                duckdb_client.load_gdb_layer(gdb_path, table_name, layer_name)
+            except duckdb.InvalidInputException as e:
+                # ST_Read can't parse curved geometry (CompoundCurve, CurvePolygon, ...)
+                if "Unsupported geometry type" not in str(e):
+                    raise
+                logger.warning(f"{table_name}: curved geometry, using curve library")
+                load_via_curves()
+        case _:
+            raise Exception(
+                f"Unsupported load_engine for GDB into DuckDB: {ds.load_engine}"
+            )
+
+
 def load_dataset_into_duckdb(
     ds: InputDataset,
     duckdb_client: duckdb_utils.DuckDBClient,
@@ -271,9 +324,11 @@ def load_dataset_into_duckdb(
                 include_ogc_fid_col,
                 layer_name=ds.custom.get("layer_name"),
             )
+        case DatasetType.geodatabase:
+            _load_gdb_into_duckdb(ds, duckdb_client, local_dataset_path, ds_table_name)
         case _:
             raise Exception(
-                f"Unsupported file type for DuckDB: {ds.file_type}. Only CSV, Parquet, and shapefile are currently supported."
+                f"Unsupported file type for DuckDB: {ds.file_type}. Only CSV, Parquet, shapefile, and gdb are currently supported."
             )
 
     if include_version_col:

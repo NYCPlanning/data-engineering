@@ -276,3 +276,23 @@ def test_unclosed_ring_is_closed_and_counted():
     )
     g = from_wkb(out)
     assert g.exterior.is_closed and stats.closed_rings == 1
+
+
+def test_layer_to_parquet_adds_ogc_fid_in_source_order(tmp_path):
+    import geopandas as gpd
+    from shapely.geometry import LineString
+
+    from dcpy.geospatial.curves.layer import layer_to_parquet
+
+    src = tmp_path / "src.gpkg"
+    gpd.GeoDataFrame(
+        {"name": ["a", "b", "c"]},
+        geometry=[LineString([(0, 0), (i + 1, 1)]) for i in range(3)],
+        crs="EPSG:2263",
+    ).to_file(src, layer="lyr", driver="GPKG")
+    n, _ = layer_to_parquet(src, "lyr", tmp_path / "l.parquet", tmp_path / "a.parquet")
+    t = pq.read_table(tmp_path / "l.parquet")
+    assert n == 3
+    assert t.column_names[0] == "ogc_fid"
+    assert t.column("ogc_fid").to_pylist() == [1, 2, 3]
+    assert t.column("name").to_pylist() == ["a", "b", "c"]

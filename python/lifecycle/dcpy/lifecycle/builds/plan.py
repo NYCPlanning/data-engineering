@@ -134,6 +134,32 @@ def resolve_version(recipe: Recipe) -> str:
             )
 
 
+def _merge_base_recipe_inputs(
+    recipe: Recipe, recipe_path: Path, vars: dict[str, str] | None
+) -> None:
+    # merge in base recipe inputs. A child that declares its own `dataset_defaults`
+    # applies them to inherited datasets too (the base's defaults aren't applied first).
+    inherit_defaults = bool(recipe.inputs.dataset_defaults.model_fields_set)  # type: ignore[union-attr]
+    base_recipe = (
+        recipe_from_yaml(
+            recipe_path.parent / recipe.base_recipe,
+            vars=vars,
+            apply_defaults=not inherit_defaults,
+        )
+        if recipe.base_recipe is not None
+        else None
+    )
+
+    # keyed on (id, import_as): one dataset (e.g. a multi-layer GDB) can be imported many times
+    input_dataset_keys = {(d.id, d.import_as) for d in recipe.inputs.datasets}
+    if base_recipe is not None:
+        for base_ds in base_recipe.inputs.datasets:
+            if (base_ds.id, base_ds.import_as) not in input_dataset_keys:
+                recipe.inputs.datasets.append(base_ds)
+        if inherit_defaults:
+            _apply_recipe_defaults(recipe)
+
+
 def plan_recipe(
     recipe_path: Path,
     version: str | None = None,
@@ -219,18 +245,7 @@ def plan_recipe(
     logger.info(f"Export envars: {recipe.env}")
     os.environ.update(recipe.env)
 
-    # merge in base recipe inputs
-    base_recipe = (
-        recipe_from_yaml(recipe_path.parent / recipe.base_recipe, vars=vars)
-        if recipe.base_recipe is not None
-        else None
-    )
-
-    input_dataset_names = {d.id for d in recipe.inputs.datasets}
-    if base_recipe is not None:
-        for base_ds in base_recipe.inputs.datasets:
-            if base_ds.id not in input_dataset_names:
-                recipe.inputs.datasets.append(base_ds)
+    _merge_base_recipe_inputs(recipe, recipe_path, vars)
 
     # Fill in omitted versions
     previous_versions = {}
@@ -320,7 +335,10 @@ def _apply_recipe_defaults(recipe: Recipe):
 
 
 def recipe_from_yaml(
-    path: Path, render_templates: bool = True, vars: dict[str, str] | None = None
+    path: Path,
+    render_templates: bool = True,
+    vars: dict[str, str] | None = None,
+    apply_defaults: bool = True,
 ) -> Recipe:
     """Import a recipe file from yaml, and validate schema.
 
@@ -394,7 +412,8 @@ def recipe_from_yaml(
     # Parse the rendered YAML
     s = yaml.safe_load(rendered_content)
     recipe = Recipe(**s)
-    _apply_recipe_defaults(recipe)
+    if apply_defaults:
+        _apply_recipe_defaults(recipe)
     return recipe
 
 

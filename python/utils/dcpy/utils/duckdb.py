@@ -233,6 +233,77 @@ class DuckDBClient:
         logger.info(f"Loaded spatial dataset {source_path} into {full_table_name}")
         return full_table_name
 
+    def load_geoparquet(
+        self, parquet_path: Path, table_name: str, geom_col: str | None = None
+    ) -> str:
+        """Load a GeoParquet file as-is, renaming its geometry column to ``geom``.
+
+        The file is expected to already carry its own ``ogc_fid``.
+        """
+        full_table_name = f"{self.schema}.{sanitize_name(table_name)}"
+        self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
+        src = f"read_parquet('{parquet_path}')"
+        if geom_col is None:
+            geom_col = self._geometry_column(src)
+        rename = f" RENAME ({geom_col} AS geom)" if geom_col.lower() != "geom" else ""
+        self.conn.execute(
+            f"CREATE TABLE {full_table_name} AS SELECT *{rename} FROM {src}"
+        )
+        logger.info(f"Loaded GeoParquet {parquet_path} into {full_table_name}")
+        return full_table_name
+
+    def _geometry_column(self, relation: str) -> str:
+        cols = self.conn.execute(
+            f"SELECT column_name FROM (DESCRIBE SELECT * FROM {relation}) "
+            "WHERE column_type LIKE 'GEOMETRY%'"
+        ).fetchall()
+        assert len(cols) == 1, f"expected one geometry column, found {cols}"
+        return cols[0][0]
+
+    def load_dataframe(self, df: pd.DataFrame, table_name: str) -> str:
+        """Load a dataframe (already in FID order), adding ``ogc_fid`` = 1..N."""
+        full_table_name = f"{self.schema}.{sanitize_name(table_name)}"
+        self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
+        df = df.reset_index(drop=True)
+        df.insert(0, "ogc_fid", range(1, len(df) + 1))
+        self.conn.register("_df_to_load", df)
+        try:
+            self.conn.execute(
+                f"CREATE TABLE {full_table_name} AS SELECT * FROM _df_to_load"
+            )
+        finally:
+            self.conn.unregister("_df_to_load")
+        return full_table_name
+
+    def load_gdb_layer(
+        self, source_path: Path, table_name: str, layer_name: str
+    ) -> str:
+        """Load one File Geodatabase layer through ST_Read, matching an ogr2ogr-to-PG load.
+
+        ``ogc_fid`` is numbered 1..N in OBJECTID order (the GDB's FID, which ogr2ogr
+        consumes rather than emitting as a column), and the geometry column is ``geom``.
+        """
+        full_table_name = f"{self.schema}.{sanitize_name(table_name)}"
+        self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
+        src = f"ST_Read('{source_path}', layer='{layer_name}')"
+        described = self.conn.execute(
+            f"SELECT column_name, column_type FROM (DESCRIBE SELECT * FROM {src})"
+        ).fetchall()
+        fid = next((c for c, _ in described if c.lower() == "objectid"), None)
+        geom = next((c for c, t in described if t.startswith("GEOMETRY")), None)
+        star = "*"
+        if fid:
+            star += f" EXCLUDE ({fid})"
+        if geom and geom != "geom":
+            star += f" RENAME ({geom} AS geom)"
+        order = f"ORDER BY {fid}" if fid else ""
+        self.conn.execute(
+            f"CREATE TABLE {full_table_name} AS "
+            f"SELECT row_number() OVER ({order}) AS ogc_fid, {star} FROM {src} {order}"
+        )
+        logger.info(f"Loaded GDB layer {layer_name} into {full_table_name}")
+        return full_table_name
+
     def export_to_csv(
         self,
         table_name: str,
