@@ -2,7 +2,7 @@ version: 2
 
 models:
 - name: int__fire_company_borough
-  description: Borough of each fire company (company centroid in borough polygons, with the ETL spec's exceptions).
+  description: Borough of each fire company (company centroid in the topology-built borough boundary, water included, with the ETL spec's exceptions).
   columns:
   - name: globalid
     tests: [ unique, not_null ]

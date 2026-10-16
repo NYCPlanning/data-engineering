@@ -53,8 +53,9 @@ SELECT DISTINCT
     -- same format as fgdb_nycb2010.bctcb2010: borocode(1) || ct2010(6) || cb2010(4)
     a.borocode || a.censustract_2010 || a.censusblock_2010_raw AS bctcb2010,
     ct.puma,
-    -- via the AP's administering fire company and the THINFIRE company roster; NULL
-    -- where admin_fire_company is '0' (unassigned islands/marshes, outside fgdb_nyfd)
+    -- via the AP's administering fire company and the fire company roster; NULL where
+    -- admin_fire_company is '0' (unassigned islands/marshes, outside fgdb_nyfd). Joined
+    -- to stg__firecompany, not THINFIRE: THINFIRE's borough comes from this topology
     fc.fire_division,
     fc.fire_battalion,
     fc.unit_short AS fire_company,
@@ -84,8 +85,10 @@ LEFT JOIN {{ ref('stg__healtharea') }} AS ha
     ON a.borocode = ha.borough AND ct.health_area = ha.healtharea
 LEFT JOIN {{ ref('thined_by_field_unformatted') }} AS thined
     ON a.electdist = thined.election_district AND a.assemdist = thined.assembly_district
-LEFT JOIN {{ ref('thinfire_by_field_unformatted') }} AS fc
-    ON a.fire_company_type = fc.fire_company_type AND a.fire_company_number = fc.fire_company_number
+LEFT JOIN {{ ref('stg__firecompany') }} AS fc
+    ON
+        a.fire_company_type = left(replace(fc.unit_short, ' ', ''), 1)
+        AND a.fire_company_number = substring(replace(fc.unit_short, ' ', '') FROM 2)
 WHERE
     FALSE
     {%- if pumas %}
