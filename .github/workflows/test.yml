@@ -27,7 +27,7 @@ jobs:
       push_changes: ${{ steps.push_changes.outputs.changes }}
     steps:
       - uses: actions/checkout@v7
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v4
         if: github.event_name == 'pull_request'
         id: pr_changes
         with:
