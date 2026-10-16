@@ -51,30 +51,47 @@ field_causes AS (
         w._gdb_lion_key,
         f.key,
         CASE
-            WHEN f.key IN ('llo_hyphen', 'lhi_hyphen', 'rlo_hyphen', 'rhi_hyphen', 'fromleft', 'toleft', 'fromright', 'toright')
+            WHEN
+                f.key IN (
+                    'llo_hyphen', 'lhi_hyphen', 'rlo_hyphen', 'rhi_hyphen',
+                    'fromleft', 'toleft', 'fromright', 'toright'
+                )
                 THEN 'CSCL-LION-15: house numbers'
             WHEN f.key IN ('lzip', 'rzip') THEN 'Zip'
             WHEN f.key = 'segcount' THEN 'CSCL-LION-06?: SegCount'
             WHEN f.key = 'street' THEN 'Street'
-            WHEN f.key = 'seqnum' THEN
-                CASE WHEN w._feature_type = 'nonstreetfeatures' THEN 'CSCL-LION-05: nonstreet SeqNum' ELSE 'SeqNum on non-nonstreet feature' END
-            WHEN f.key = 'boe_lgc' THEN
-                CASE
-                    -- prod's legacy default pointer '1' for two-digit LGC codes
-                    WHEN w.changes -> 'boe_lgc' ->> 'old' = '1' THEN 'CSCL-LION-04: BOE_LGC'
-                    ELSE 'BOE_LGC other'
-                END
-            WHEN f.key = 'curveflag' THEN
-                CASE
-                    WHEN coalesce(trim(w.changes -> 'curveflag' ->> 'old'), '') = '' AND w.changes -> 'curveflag' ->> 'new' = 'I'
-                        THEN 'CSCL-LION-03: CurveFlag I where prod blank'
-                    ELSE 'CurveFlag other'
-                END
+            WHEN f.key = 'seqnum' AND w._feature_type = 'nonstreetfeatures'
+                THEN 'CSCL-LION-05: nonstreet SeqNum'
+            WHEN f.key = 'seqnum' THEN 'SeqNum on non-nonstreet feature'
+            -- prod's legacy default pointer '1' for two-digit LGC codes
+            WHEN f.key = 'boe_lgc' AND w.changes -> 'boe_lgc' ->> 'old' = '1'
+                THEN 'CSCL-LION-04: BOE_LGC'
+            WHEN f.key = 'boe_lgc' THEN 'BOE_LGC other'
+            WHEN
+                f.key = 'curveflag'
+                AND coalesce(trim(w.changes -> 'curveflag' ->> 'old'), '') = ''
+                AND w.changes -> 'curveflag' ->> 'new' = 'I'
+                THEN 'CSCL-LION-03: CurveFlag I where prod blank'
+            WHEN f.key = 'curveflag' THEN 'CurveFlag other'
+            WHEN
+                (
+                    f.key ~ '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$'
+                    OR f.key IN (
+                        'latomicpolygon', 'ratomicpolygon', 'l_cd', 'r_cd', 'lassmdist', 'rassmdist',
+                        'lelectdist', 'relectdist', 'splitelect', 'lschldist', 'rschldist', 'splitschl',
+                        'locstatus', 'borobndry'
+                    )
+                )
+                AND w.is_topology_lr_segment
+                THEN 'CSCL-LION-16: topology left/right AP'
             WHEN
                 f.key ~ '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$'
-                OR f.key IN ('latomicpolygon', 'ratomicpolygon', 'l_cd', 'r_cd', 'lassmdist', 'rassmdist', 'lelectdist', 'relectdist', 'splitelect', 'lschldist', 'rschldist', 'splitschl', 'locstatus', 'borobndry')
-                THEN
-                    CASE WHEN w.is_topology_lr_segment THEN 'CSCL-LION-16: topology left/right AP' ELSE 'L/R AP fields, non-topology segment' END
+                OR f.key IN (
+                    'latomicpolygon', 'ratomicpolygon', 'l_cd', 'r_cd', 'lassmdist', 'rassmdist',
+                    'lelectdist', 'relectdist', 'splitelect', 'lschldist', 'rschldist', 'splitschl',
+                    'locstatus', 'borobndry'
+                )
+                THEN 'L/R AP fields, non-topology segment'
             ELSE f.key
         END AS cause
     FROM with_context AS w
@@ -84,8 +101,12 @@ field_causes AS (
 cause_summary AS (
     SELECT
         _gdb_lion_key,
-        array_agg(DISTINCT cause) FILTER (WHERE cause LIKE 'CSCL-LION-0_:%' OR cause LIKE 'CSCL-LION-16:%') AS explained_causes,
-        array_agg(DISTINCT cause) FILTER (WHERE NOT (cause LIKE 'CSCL-LION-0_:%' OR cause LIKE 'CSCL-LION-16:%')) AS open_causes
+        array_agg(DISTINCT cause) FILTER (
+            WHERE cause LIKE 'CSCL-LION-0_:%' OR cause LIKE 'CSCL-LION-16:%'
+        ) AS explained_causes,
+        array_agg(DISTINCT cause) FILTER (
+            WHERE NOT (cause LIKE 'CSCL-LION-0_:%' OR cause LIKE 'CSCL-LION-16:%')
+        ) AS open_causes
     FROM field_causes
     GROUP BY _gdb_lion_key
 ),

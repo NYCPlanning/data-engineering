@@ -44,7 +44,12 @@ ranked AS (
         base.*,
         prod_fks.fk IS NULL AS _unmatched,
         row_number() OVER (
-            PARTITION BY (prod_fks.fk IS NULL), CASE WHEN prod_fks.fk IS NULL THEN concat_ws('|', base.segmentid, rtrim(base.join_id)) ELSE base._gdb_lion_fk END
+            PARTITION BY
+                (prod_fks.fk IS NULL),
+                CASE
+                    WHEN prod_fks.fk IS NULL THEN concat_ws('|', base.segmentid, rtrim(base.join_id))
+                    ELSE base._gdb_lion_fk
+                END
             ORDER BY base.llo_hyphen, base.rlo_hyphen, base.lhi_hyphen, base.rhi_hyphen, base.street, base::text
         ) AS _rank
     FROM base
