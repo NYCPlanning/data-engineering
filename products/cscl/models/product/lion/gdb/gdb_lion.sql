@@ -170,7 +170,7 @@ base_rows AS (
         -- coalesce before padding so segments without one match that instead of NULL.
         lpad(coalesce(legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
         status AS "Status",
-        streetwidth_min::float AS "StreetWidth_Min",
+        streetwidth_min_with_zeros::float AS "StreetWidth_Min",
         streetwidth_max::float AS "StreetWidth_Max",
         streetwidth_irr AS "StreetWidth_Irr",
         lpad(coalesce(bike_lane_2, ''), 2, ' ') AS "BikeLane",
@@ -363,7 +363,7 @@ replicant_rows AS (
         coalesce(lpad(lion.r_blockfaceid::text, 10, '0'), repeat(' ', 10)) AS "RBlockFaceID",
         lpad(coalesce(lion.legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
         lion.status AS "Status",
-        lion.streetwidth_min::float AS "StreetWidth_Min",
+        lion.streetwidth_min_with_zeros::float AS "StreetWidth_Min",
         lion.streetwidth_max::float AS "StreetWidth_Max",
         lion.streetwidth_irr AS "StreetWidth_Irr",
         lpad(coalesce(lion.bike_lane_2, ''), 2, ' ') AS "BikeLane",

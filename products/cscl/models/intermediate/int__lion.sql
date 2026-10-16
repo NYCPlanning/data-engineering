@@ -257,6 +257,7 @@ SELECT
     centerline.fdnyid,
     centerline.status,
     centerline.streetwidth_min,
+    centerline.streetwidth_min_with_zeros,
     centerline.streetwidth_irr,
     centerline.bike_lane_1,
     centerline.fcc,
