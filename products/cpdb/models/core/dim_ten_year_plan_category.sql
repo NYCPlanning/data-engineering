@@ -15,7 +15,10 @@ SELECT
     t.tycs_match,
     t.tycs_last_pub_date,
     l.lifecycle,
-    l.lifecycle_confidence
+    l.lifecycle_confidence,
+    a.asset_type,
+    a.place_link,
+    a.confidence AS asset_type_confidence
 FROM {{ ref('int__ten_year_plan_categories') }} AS c
 LEFT JOIN {{ ref('ten_year_plan_category_successors') }} AS s
     ON c.project_type = s.project_type AND c.typc = s.typc
@@ -23,3 +26,5 @@ LEFT JOIN {{ ref('int__ten_year_plan_category_tycs_matches') }} AS t
     ON c.project_type = t.project_type AND c.typc = t.typc
 LEFT JOIN {{ ref('tycs_category_lifecycles') }} AS l
     ON t.tycs_project_type = l.tycs_project_type AND t.tycs_category = l.tycs_category
+LEFT JOIN {{ ref('ten_year_plan_category_asset_types') }} AS a
+    ON c.project_type = a.project_type AND c.typc = a.typc

@@ -1,6 +1,6 @@
-project_type,typc,tycs_project_type,tycs_category
-BR,BLE,BR and HB,Bridge Life Extension and Miscellaneous Work
-P,MRF,P,Major Recreational Facilities
-P,OEI,P,"Vehicles, Equipment and Facility Reconstruction"
-S,ITT,S,Information Technology and Communications
-TF,PKG,TF,"Parking Meters, Lots and Garages"
+project_type,typc,tycs_project_type,tycs_category,confidence,evidence
+BR,BLE,BR and HB,Bridge Life Extension and Miscellaneous Work,plausible,"The TYCS combines BR and HB, and HB BLE matches this category by name. BR BLE's FISA name is USEFUL LIFE EXTENSION, so the match rests on the shared code."
+P,MRF,P,Major Recreational Facilities,plausible,"One of two P categories and two P codes left after name matching. FISA's names for MRF start with the TYCS name (MAJOR RECREATIONAL FACILITIES AND FACILITY RECONSTRUCTION)."
+P,OEI,P,"Vehicles, Equipment and Facility Reconstruction",plausible,"The other P category and code left after name matching. FISA's name is VEHICLES AND EQUIPMENT."
+S,ITT,S,Information Technology and Communications,plausible,"The only S category left after name matching, and ITT is the only unmatched S code still in FISA. FISA's name says Telecommunications where the TYCS says Communications."
+TF,PKG,TF,"Parking Meters, Lots and Garages",exact,"Same name as FISA's apart from a comma."

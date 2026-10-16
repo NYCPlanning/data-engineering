@@ -127,6 +127,15 @@ seeds:
         tests: [ not_null ]
       - name: tycs_category
         tests: [ not_null ]
+      - name: confidence
+        description: |
+          `exact` when the names differ only in punctuation or case. `plausible` when the
+          match was picked by judgment, usually by elimination within the project type.
+        tests:
+          - accepted_values:
+              values: [ exact, plausible ]
+      - name: evidence
+        tests: [ not_null ]
 
   - name: fisa_typc_names
     description: |
@@ -158,5 +167,46 @@ seeds:
     columns:
       - name: successor_typc
         tests: [ not_null ]
+      - name: confidence
+        description: |
+          `exact` when every project on the retired code moved to the successor. `plausible`
+          when the successor was picked by judgment.
+        tests:
+          - accepted_values:
+              values: [ exact, plausible ]
       - name: evidence
         tests: [ not_null ]
+
+  - name: ten_year_plan_category_asset_types
+    description: |
+      Asset type of each ten-year plan category with planned dollars in FISA 20260929.
+      Categories with none in that release aren't classified. Each row was checked against
+      the category's largest projects and the datasets CPDB mapped them from, not just its
+      name.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ project_type, typc ]
+    columns:
+      - name: asset_type
+        description: What the category's spending builds or keeps up, like bridge or school.
+      - name: place_link
+        description: |
+          How the asset reaches a place: `site` (a location), `network` (segments, like
+          streets or sewers), `fleet` (vehicles and equipment), or `system` (like IT, with no
+          location).
+        tests:
+          - accepted_values:
+              values: [ site, network, fleet, system ]
+      - name: confidence
+        description: |
+          `exact` when the largest projects (or the datasets their geometries came from) show
+          the asset type. `plausible` when the name and agency suggest it but the largest
+          projects are lump sums or programs that don't name an asset. `unresolved` when the
+          projects don't share one asset type; `asset_type` is null.
+        tests:
+          - not_null
+          - accepted_values:
+              values: [ exact, plausible, unresolved ]
+      - name: evidence
+        tests: [ not_null ]
+
