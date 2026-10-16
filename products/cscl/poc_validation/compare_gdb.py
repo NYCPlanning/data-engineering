@@ -105,23 +105,22 @@ KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
     },
 }
 
-# Columns whose prod values are missing trailing whitespace our own output correctly
-# includes, per spec - a real, confirmed prod-side inconsistency, not a bug in our
-# output or a loader artifact. ETL spec (~line 5006) mandates Join_ID as a 15-char
-# string, non-SAF form ending in two literal spaces - gdb_lion.sql's lion_join_id()
-# macro follows that exactly. Verified against prod's real, freshly-loaded FileGDB
-# (both layers loaded via the same ogr2ogr run, ruling out a per-loader artifact):
-# production_outputs.fgdb_lion's non-SAF Join_IDs are all 13 chars, zero trailing
-# whitespace (0/243,706 rows) - but production_outputs.fgdb_altnames's Join_ID
-# (same field, same formula, computed by presumably a different extractor class in
-# prod's own legacy tool) DOES carry the spec'd padding (78,540/129,740 rows). So
-# this is specific to prod's `lion` layer, not a general Join_ID convention -
-# rstrip'd here for comparison purposes only, not fixed in gdb_lion.sql itself
-# (changing our real output to drop the padding would break comparison against
-# fgdb_altnames, which needs it, and would deviate from the documented spec to match
-# a bug in one specific prod layer).
-KNOWN_TRAILING_WHITESPACE_COLUMNS: dict[str, set[str]] = {
-    "lion": {"Join_ID"},
+# Columns padded differently on the two sides, stripped of leading/trailing
+# whitespace on both sides at comparison time. Needed wherever the column is part
+# of the layer's key (composite_key compares keys exactly), and applied to the
+# rest of the same field family so key and value comparison agree.
+#
+# lion:
+# - Join_ID: the ETL spec (~line 5006) mandates a 15-char string, non-SAF form
+#   ending in two literal spaces, and gdb_lion.sql's lion_join_id() macro follows
+#   it. Prod's lion layer drops that padding (0/243,706 non-SAF Join_IDs padded)
+#   while its altnames layer keeps it (78,540/129,740 rows) - a prod-side
+#   inconsistency, not fixed in our output (altnames needs the padding).
+# - LLo_Hyphen/LHi_Hyphen/RLo_Hyphen/RHi_Hyphen: prod right-justifies house
+#   numbers to the 7-byte field width (" 64-099"); ours are unpadded. LLo/RLo are
+#   part of the lion key (see lion_outputs.csv).
+PADDED_COLUMNS: dict[str, set[str]] = {
+    "lion": {"Join_ID", "LLo_Hyphen", "LHi_Hyphen", "RLo_Hyphen", "RHi_Hyphen"},
 }
 
 app = typer.Typer(add_completion=False)
@@ -195,18 +194,16 @@ def _compare_layers(
                 columns=dict((p, d) for d, p in col_match.case_mismatches)
             )
 
-        # See KNOWN_TRAILING_WHITESPACE_COLUMNS - a confirmed prod-side
-        # inconsistency (specific to this layer), not a bug in our own output.
-        # Stripped here, at comparison time, so both the row-identity key and
-        # attribute-value comparison for this column tolerate it - a plain
-        # blank_as_null pass wouldn't, since composite_key deliberately
-        # ignores blank_as_null for key columns, and these values aren't
-        # blank, just padded.
-        for col in KNOWN_TRAILING_WHITESPACE_COLUMNS.get(layer, set()):
+        # See PADDED_COLUMNS. Stripped here, at comparison time, so both the
+        # row-identity key and attribute-value comparison tolerate it - a plain
+        # blank_as_null pass wouldn't, since composite_key deliberately ignores
+        # blank_as_null for key columns, and these values aren't blank, just
+        # padded.
+        for col in PADDED_COLUMNS.get(layer, set()):
             if col in dev_gdf.columns:
-                dev_gdf[col] = dev_gdf[col].str.rstrip()
+                dev_gdf[col] = dev_gdf[col].str.strip()
             if col in prod_gdf.columns:
-                prod_gdf[col] = prod_gdf[col].str.rstrip()
+                prod_gdf[col] = prod_gdf[col].str.strip()
 
         result = gdb_compare.compare_layer(
             dev_gdf,

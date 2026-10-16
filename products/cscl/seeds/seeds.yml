@@ -74,11 +74,14 @@ seeds:
           SHAPE_Length) isn't a real identity and would silently produce a
           different key on a different run. Verified unique against a real
           build's data when declared; a few layers have a small, known,
-          accepted number of exceptions (e.g. lion's ~36 legitimate lionkey
-          collisions, nysd's school district 10 written once per borough it
-          spans, nyzip's multi-part zip codes) rather than a column to add -
-          see each gdb_<layer>.sql model for the specific reason. Empty for
-          non-gdb rows.
+          accepted number of exceptions (e.g. nysd's school district 10
+          written once per borough it spans, nyzip's multi-part zip codes)
+          rather than a column to add - see each gdb_<layer>.sql model for the
+          specific reason. Exact duplicate rows are collapsed and counted
+          separately by the comparison, so they don't need a key column to
+          tell them apart. A NULL in some key columns is an ordinary value
+          (it pairs with NULL); only an all-NULL key is unidentifiable. Empty
+          for non-gdb rows.
       - name: description
         description: >
           District gdb layers only: what the layer represents and its CSCL

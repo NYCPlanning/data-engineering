@@ -574,7 +574,7 @@ deviates from prod's own documented spec, not ours to fix.
 `lion`-layer-specific quirk, would break comparison against `fgdb_altnames` (which needs it) and
 deviate from the documented spec everywhere else `Join_ID` is used, to chase a bug that's
 apparently specific to one prod extractor class. Instead, fixed where it actually matters -
-comparison tooling: `poc_validation/compare_gdb.py`'s new `KNOWN_TRAILING_WHITESPACE_COLUMNS`
+comparison tooling: `poc_validation/compare_gdb.py`'s `PADDED_COLUMNS` (originally `KNOWN_TRAILING_WHITESPACE_COLUMNS`)
 rstrips `Join_ID` for the `lion` layer specifically (both sides, comparison-time only) before
 diffing, since composite_key deliberately doesn't apply `blank_as_null` normalization to key
 columns (a real, if padded, value isn't blank). Verified: re-running the `SegmentID|Join_ID` key
