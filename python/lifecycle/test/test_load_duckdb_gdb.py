@@ -147,3 +147,10 @@ def test_gdal_engine_loads_attribute_only_table(tmp_path, client):
     assert client.conn.execute(
         "SELECT ogc_fid, name FROM s.tbl ORDER BY 1"
     ).fetchall() == [(1, "a"), (2, "b")]
+
+
+@pytest.mark.parametrize("engine", ["curves", "gdal"])
+def test_column_names_are_lowercased_like_ogr2ogr(gpkg, client, engine):
+    data_loader.load_dataset_into_duckdb(_ds(engine), client, gpkg)
+    cols = [r[0] for r in client.conn.execute("DESCRIBE s.tbl").fetchall()]
+    assert cols == [c.lower() for c in cols] and "name" in cols

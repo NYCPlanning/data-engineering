@@ -249,8 +249,20 @@ class DuckDBClient:
         self.conn.execute(
             f"CREATE TABLE {full_table_name} AS SELECT *{rename} FROM {src}"
         )
+        self._lowercase_columns(full_table_name)
         logger.info(f"Loaded GeoParquet {parquet_path} into {full_table_name}")
         return full_table_name
+
+    def _lowercase_columns(self, full_table_name: str) -> None:
+        """ogr2ogr lowercases GDB field names when loading into Postgres; match that."""
+        cols = self.conn.execute(
+            f"SELECT column_name FROM (DESCRIBE {full_table_name})"
+        ).fetchall()
+        for (col,) in cols:
+            if col != col.lower():
+                self.conn.execute(
+                    f'ALTER TABLE {full_table_name} RENAME COLUMN "{col}" TO "{col.lower()}"'
+                )
 
     def _geometry_column(self, relation: str) -> str:
         cols = self.conn.execute(
@@ -265,6 +277,9 @@ class DuckDBClient:
         full_table_name = f"{self.schema}.{sanitize_name(table_name)}"
         self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
         df = df.reset_index(drop=True)
+        # an all-null object column would otherwise be typed INTEGER by DuckDB
+        for col in [c for c in df.columns if pd.api.types.is_object_dtype(df[c])]:
+            df[col] = df[col].astype("string")
         df.insert(0, "ogc_fid", range(1, len(df) + 1))
         self.conn.register("_df_to_load", df)
         try:
@@ -273,6 +288,8 @@ class DuckDBClient:
             )
         finally:
             self.conn.unregister("_df_to_load")
+        self.conn.execute(f"ALTER TABLE {full_table_name} ALTER ogc_fid TYPE INTEGER")
+        self._lowercase_columns(full_table_name)
         return full_table_name
 
     def load_gdb_layer(
@@ -301,6 +318,7 @@ class DuckDBClient:
             f"CREATE TABLE {full_table_name} AS "
             f"SELECT row_number() OVER ({order}) AS ogc_fid, {star} FROM {src} {order}"
         )
+        self._lowercase_columns(full_table_name)
         logger.info(f"Loaded GDB layer {layer_name} into {full_table_name}")
         return full_table_name
 
