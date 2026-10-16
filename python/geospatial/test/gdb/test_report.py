@@ -99,8 +99,8 @@ def test_add_layer_reports_modified_and_duplicate_keys_together():
     separate note calling out how many rows went through the duplicate-key
     fallback instead - not silently drop into "N dev-only, N prod-only" with
     no explanation, which is all the old all-or-nothing precise flag allowed."""
-    dev = pd.DataFrame({"key": ["A", "DUP", "DUP"], "val": ["a", "d", "d"]})
-    prod = pd.DataFrame({"key": ["A", "DUP", "DUP"], "val": ["a-changed", "d", "d"]})
+    dev = pd.DataFrame({"key": ["A", "DUP", "DUP"], "val": ["a", "d1", "d2"]})
+    prod = pd.DataFrame({"key": ["A", "DUP", "DUP"], "val": ["a-changed", "d1", "d2"]})
 
     r = report.GdbComparisonReport()
     result = compare.compare_layer(dev, prod, declared_key=["key"])
@@ -113,6 +113,23 @@ def test_add_layer_reports_modified_and_duplicate_keys_together():
     row = r.rows()[0]
     assert row["duplicate_key_dev_rows"] == 2
     assert row["duplicate_key_prod_rows"] == 2
+
+
+def test_add_layer_reports_exact_duplicates_and_per_column_modified_counts():
+    dev = pd.DataFrame({"key": ["A", "B"], "val": ["a", "b"]})
+    prod = pd.DataFrame({"key": ["A", "B", "B"], "val": ["a-changed", "b", "b"]})
+
+    r = report.GdbComparisonReport()
+    result = compare.compare_layer(dev, prod, declared_key=["key"])
+    entry = r.add_layer("some_layer", result, len(dev), len(prod))
+
+    assert "1 modified" in entry.note
+    assert "0 dev / 1 prod surplus copies" in entry.note
+    rows = {row["column"]: row for row in r.rows()}
+    assert rows["val"]["exact_duplicate_prod_rows"] == 1
+    assert rows["val"]["rows_only_in_prod"] == 0
+    assert rows["val"]["rows_modified_in_column"] == 1
+    assert rows["key"]["rows_modified_in_column"] == ""
 
 
 def test_log_layer_structure_sets_common_layers():
@@ -279,3 +296,15 @@ def test_log_summary_and_clean_layer_count_track_multiple_layers(nta_gdf, ad_gdf
 
     assert r.clean_layer_count == 1
     assert len(r.layers) == 2
+
+
+def test_flagged_rows_show_null_key_parts_readably():
+    dev = pd.DataFrame({"pdir": [None], "sname": ["MAIN"], "val": ["x"]})
+    prod = pd.DataFrame({"pdir": ["E"], "sname": ["MAIN"], "val": ["x"]})
+
+    r = report.GdbComparisonReport()
+    result = compare.compare_layer(dev, prod, declared_key=["pdir", "sname"])
+    r.add_layer("some_layer", result, len(dev), len(prod))
+
+    keys = {row["status"]: row["key"] for row in r.flagged_rows()}
+    assert keys == {"only_in_dev": "<NULL> | MAIN", "only_in_prod": "E | MAIN"}

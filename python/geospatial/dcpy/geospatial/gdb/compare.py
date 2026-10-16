@@ -134,8 +134,15 @@ def composite_key(df: pd.DataFrame, key_cols: list[str]) -> pd.Series:
         collision impossible: tuples compare element-wise, never as
         concatenated text.
 
-    A row with a NULL in any key column can't be identified at all. Rather
-    than let it silently collide with every other NULL-keyed row - its own
+    A NULL in SOME key columns is an ordinary key value: it matches a NULL in
+    the same position on the other side (SQL's IS NOT DISTINCT FROM), and stays
+    distinct from "" and from whitespace. Composite keys routinely have optional
+    parts - e.g. a street-name key of PDir|PType|SName|SType|SDir, where PDir
+    and SDir are NULL on nearly every row - and treating any NULL part as "no
+    identity" made every such row unmatched on both sides.
+
+    A row whose key columns are ALL NULL can't be identified at all. Rather
+    than let it silently collide with every other all-NULL row - its own
     side's, or the other side's, which a fixed sentinel would do - each gets
     a one-off identity unique to this call, so it's always counted as
     unmatched (only_in_dev/only_in_prod) instead of being coincidentally
@@ -147,17 +154,15 @@ def composite_key(df: pd.DataFrame, key_cols: list[str]) -> pd.Series:
     keys = pd.Series(
         list(stringified.itertuples(index=False, name=None)), index=df.index
     )
-    has_null = pd.Series(False, index=df.index)
-    for col in key_cols:
-        has_null |= df[col].isna()
-    if has_null.any():
+    all_null = df[key_cols].isna().all(axis=1)
+    if all_null.any():
         # One salt per call, not per row: enough to guarantee dev's null-keyed
         # rows can never coincide with prod's (they come from separate calls,
         # each with its own salt), while the row position makes null-keyed
         # rows distinct from each other within the same call.
         salt = uuid.uuid4().hex
         keys = keys.mask(
-            has_null, [f"{_NA_SENTINEL}{salt}:{pos}" for pos in range(len(df))]
+            all_null, [f"{_NA_SENTINEL}{salt}:{pos}" for pos in range(len(df))]
         )
     return keys
 
@@ -318,6 +323,42 @@ class RowLevelDiff:
     only_in_dev_keys: list[tuple] = field(default_factory=list)
     only_in_prod_keys: list[tuple] = field(default_factory=list)
     modified_keys: list[tuple] = field(default_factory=list)
+    # Surplus copies of exact duplicate rows (same key AND same compare_cols
+    # values as another row on the same side), collapsed before keying - see
+    # row_level_diff. Never part of only_in_dev/only_in_prod/modified: a side
+    # repeating a row it otherwise agrees on is reported here, on its own,
+    # rather than as hundreds of phantom adds/removes.
+    exact_duplicate_dev_rows: int = 0
+    exact_duplicate_prod_rows: int = 0
+    # Per compare column: how many precisely-paired rows differ in that
+    # column. Sums to >= modified (one modified row can differ in several
+    # columns). Columns with no differences are omitted.
+    modified_by_column: dict[str, int] = field(default_factory=dict)
+
+
+def _drop_exact_duplicates(
+    df: pd.DataFrame,
+    key_cols: list[str],
+    compare_cols: list[str],
+    blank_as_null: bool,
+) -> tuple[pd.DataFrame, int]:
+    """Keep the first of each group of rows identical in key_cols and
+    compare_cols, using the same normalization the diff itself uses (key
+    columns exact, compare columns via stringify) - returns the deduplicated
+    frame and how many surplus copies were dropped."""
+    if df.empty:
+        return df, 0
+    signature = pd.concat(
+        [
+            stringify(df, key_cols, blank_as_null=False),
+            stringify(df, compare_cols, blank_as_null),
+        ],
+        axis=1,
+    )
+    # Rows with an all-NULL key are never duplicates of anything - see
+    # composite_key - so they're always kept.
+    dup = signature.duplicated() & ~df[key_cols].isna().all(axis=1)
+    return df[~dup], int(dup.sum())
 
 
 def row_level_diff(
@@ -352,11 +393,25 @@ def row_level_diff(
     keyed diff over the whole dataset, same as if every row had gone through
     the precise path directly.
 
+    Exact duplicate rows - same key and same (normalized) compare_cols
+    values as another row on the same side - are collapsed to one copy per
+    side before any of the above, and the surplus copies are counted in
+    exact_duplicate_dev_rows/exact_duplicate_prod_rows instead. Without this,
+    a side that merely repeats rows (e.g. a legacy export that writes the
+    same record once per related feature) would surface every repeat as an
+    add or remove indistinguishable from a real missing/extra row.
+
     tolerant_float_cols controls which compare_cols (if any) get a fuzzy
     float comparison instead of an exact one - see columns_differ. Row
     identity (key_cols) is always exact, regardless of blank_as_null: see
     composite_key.
     """
+    dev_df, exact_duplicate_dev_rows = _drop_exact_duplicates(
+        dev_df, key_cols, compare_cols, blank_as_null
+    )
+    prod_df, exact_duplicate_prod_rows = _drop_exact_duplicates(
+        prod_df, key_cols, compare_cols, blank_as_null
+    )
     dev_keys = composite_key(dev_df, key_cols)
     prod_keys = composite_key(prod_df, key_cols)
 
@@ -391,6 +446,7 @@ def row_level_diff(
 
     modified: int | None = None
     modified_keys: list[tuple] = []
+    modified_by_column: dict[str, int] = {}
     only_in_dev = dup_only_in_dev
     only_in_prod = dup_only_in_prod
     if len(dev_precise_df) > 0 or len(prod_precise_df) > 0:
@@ -402,15 +458,23 @@ def row_level_diff(
 
         modified = 0
         if len(common) > 0 and compare_cols:
-            diff_mask = columns_differ(
-                dev_indexed.loc[common],
-                prod_indexed.loc[common],
-                compare_cols,
-                blank_as_null,
-                tolerant_float_cols,
-                rtol,
-                atol,
-            )
+            dev_common = dev_indexed.loc[common]
+            prod_common = prod_indexed.loc[common]
+            diff_mask = pd.Series(False, index=dev_common.index)
+            for col in compare_cols:
+                col_mask = columns_differ(
+                    dev_common,
+                    prod_common,
+                    [col],
+                    blank_as_null,
+                    tolerant_float_cols,
+                    rtol,
+                    atol,
+                )
+                n_col = int(col_mask.sum())
+                if n_col:
+                    modified_by_column[col] = n_col
+                diff_mask |= col_mask
             modified = int(diff_mask.sum())
             modified_keys = list(common[diff_mask.to_numpy()])
 
@@ -429,6 +493,9 @@ def row_level_diff(
         only_in_dev_keys=only_in_dev_keys,
         only_in_prod_keys=only_in_prod_keys,
         modified_keys=modified_keys,
+        exact_duplicate_dev_rows=exact_duplicate_dev_rows,
+        exact_duplicate_prod_rows=exact_duplicate_prod_rows,
+        modified_by_column=modified_by_column,
     )
 
 
