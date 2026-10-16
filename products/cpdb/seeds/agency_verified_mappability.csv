@@ -1,0 +1,11 @@
+mappable,mappability,geographic_scope
+Yes - Single Building,place-specific but unmapped,site
+Yes - Single Park,place-specific but unmapped,site
+Yes - Single park,place-specific but unmapped,site
+Yes - Multi-site,place-specific but unmapped,multiple sites
+"Yes - Line segment (e.g. roadway, sewer, etc.) or polygon (e.g greenway, waterfront inf)",place-specific but unmapped,network
+Yes - Consult with DDC,place-specific but unmapped,
+YES,place-specific but unmapped,
+No - Can be in future,place-specific but unmapped,
+No - Can never be mapped,not place-specific,
+IT Project,not place-specific,

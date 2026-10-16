@@ -227,3 +227,33 @@ seeds:
         tests: [ unique, not_null ]
       - name: draft_group
         tests: [ not_null ]
+
+  - name: agency_verified_mappability
+    description: |
+      Mappability and geographic scope for each `mappable` answer in
+      `dcp_cpdb_agencyverified`. Answers that don't say whether a project has a place
+      (`No`, `NO`, `Not Mappable`, `Pass-through`, `In queue`) aren't listed, so those
+      projects fall through to the next source.
+    columns:
+      - name: mappable
+        tests: [ unique, not_null ]
+      - name: mappability
+        tests:
+          - not_null
+          - accepted_values:
+              values: [ place-specific but unmapped, not place-specific ]
+      - name: geographic_scope
+        tests:
+          - accepted_values:
+              values: [ site, multiple sites, network ]
+
+  - name: dashboard_managing_agencies
+    description: |
+      The Capital Projects Dashboard's acronym for a managing agency code, where it differs
+      from CPDB's (`magencyacro`). Both come from the three-digit managing agency code: CPDB
+      calls 801 SBS (or BNY or TGI by description), and the dashboard calls it EDC.
+    columns:
+      - name: magency
+        tests: [ unique, not_null ]
+      - name: dashboard_managing_agency
+        tests: [ not_null ]

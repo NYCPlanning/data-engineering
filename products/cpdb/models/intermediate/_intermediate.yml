@@ -56,3 +56,8 @@ models:
           combination_of_columns: [ project_type, typc ]
   - name: int__commitment_codes
     description: Commitment codes and their names in the latest FISA release of the Capital Commitment Plan.
+  - name: int__capital_project_geographic_scope
+    description: Mappability and geographic scope of each project; see `dim_capital_project`.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]

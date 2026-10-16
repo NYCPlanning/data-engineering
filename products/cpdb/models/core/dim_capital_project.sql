@@ -54,7 +54,11 @@ SELECT
     COALESCE(l.lifecycles > 1, FALSE) AS has_multiple_lifecycles,
     c.commitment_description,
     c.plannedcommit_total / NULLIF(p.plannedcommit_total, 0) AS commitment_description_share,
-    COALESCE(c.commitment_descriptions > 1, FALSE) AS has_multiple_commitment_descriptions
+    COALESCE(c.commitment_descriptions > 1, FALSE) AS has_multiple_commitment_descriptions,
+    g.mappability,
+    g.geographic_scope,
+    g.scope_source
 FROM {{ ref('int__ccp_projects') }} AS p
 LEFT JOIN lifecycles AS l ON p.maprojid = l.maprojid AND l.rk = 1
 LEFT JOIN commitments AS c ON p.maprojid = c.maprojid AND c.rk = 1
+LEFT JOIN {{ ref('int__capital_project_geographic_scope') }} AS g ON p.maprojid = g.maprojid
