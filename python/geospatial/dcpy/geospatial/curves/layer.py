@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -13,7 +14,10 @@ from dcpy.geospatial.curves.read import read_curved_batches
 from dcpy.geospatial.curves.wkb import CurveStats
 from dcpy.geospatial.curves.write import write_geoparquet
 
-ARCS_SCHEMA = pa.schema([("ogc_fid", pa.int32()), *list(ARC_TYPE)])
+ARCS_SCHEMA = pa.schema(
+    [pa.field("ogc_fid", pa.int32())]
+    + [ARC_TYPE.field(i) for i in range(ARC_TYPE.num_fields)]
+)
 
 
 def _decode_dictionaries(batch: pa.RecordBatch) -> pa.RecordBatch:
@@ -24,7 +28,7 @@ def _decode_dictionaries(batch: pa.RecordBatch) -> pa.RecordBatch:
             batch = batch.set_column(
                 i,
                 pa.field(field.name, field.type.index_type),
-                batch.column(i).indices,
+                cast(pa.DictionaryArray, batch.column(i)).indices,
             )
     return batch
 
