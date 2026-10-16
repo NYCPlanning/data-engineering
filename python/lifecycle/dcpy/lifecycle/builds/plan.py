@@ -139,25 +139,23 @@ def _merge_base_recipe_inputs(
 ) -> None:
     # merge in base recipe inputs. A child that declares its own `dataset_defaults`
     # applies them to inherited datasets too (the base's defaults aren't applied first).
-    inherit_defaults = bool(recipe.inputs.dataset_defaults.model_fields_set)  # type: ignore[union-attr]
-    base_recipe = (
-        recipe_from_yaml(
-            recipe_path.parent / recipe.base_recipe,
-            vars=vars,
-            apply_defaults=not inherit_defaults,
-        )
-        if recipe.base_recipe is not None
-        else None
+    if recipe.base_recipe is None:
+        return
+    defaults = recipe.inputs.dataset_defaults
+    inherit_defaults = defaults is not None and bool(defaults.model_fields_set)
+    base_recipe = recipe_from_yaml(
+        recipe_path.parent / recipe.base_recipe,
+        vars=vars,
+        apply_defaults=not inherit_defaults,
     )
 
     # keyed on (id, import_as): one dataset (e.g. a multi-layer GDB) can be imported many times
     input_dataset_keys = {(d.id, d.import_as) for d in recipe.inputs.datasets}
-    if base_recipe is not None:
-        for base_ds in base_recipe.inputs.datasets:
-            if (base_ds.id, base_ds.import_as) not in input_dataset_keys:
-                recipe.inputs.datasets.append(base_ds)
-        if inherit_defaults:
-            _apply_recipe_defaults(recipe)
+    for base_ds in base_recipe.inputs.datasets:
+        if (base_ds.id, base_ds.import_as) not in input_dataset_keys:
+            recipe.inputs.datasets.append(base_ds)
+    if inherit_defaults:
+        _apply_recipe_defaults(recipe)
 
 
 def plan_recipe(
