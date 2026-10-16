@@ -57,6 +57,8 @@ FROM (
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_fgdb_altnames') }}
     UNION ALL
+    SELECT * FROM {{ ref('qa__diffs_gdb_lion') }}
+    UNION ALL
     SELECT * FROM {{ ref('qa__diffs_fgdb_nycb2010') }}
     UNION ALL
     SELECT * FROM {{ ref('qa__diffs_fgdb_nyfb') }}
