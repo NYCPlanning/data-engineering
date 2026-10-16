@@ -20,6 +20,7 @@ dependencies = [
     "pydantic",
     "pydantic-xml",
     "pyogrio",
+    "pyproj",
     "shapely",
     "typer",
     "rich",
