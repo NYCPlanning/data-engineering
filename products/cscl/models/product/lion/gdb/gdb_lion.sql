@@ -228,7 +228,10 @@ base_rows AS (
         geom
     FROM lion
     INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
-    CROSS JOIN LATERAL generate_series(1, CASE WHEN lion.continuous_parity_flag IN ('L', 'R') THEN 2 ELSE 1 END) AS rng (n)
+    CROSS JOIN
+        LATERAL generate_series(
+            1, CASE WHEN lion.continuous_parity_flag IN ('L', 'R') THEN 2 ELSE 1 END
+        ) AS rng (n)
     CROSS JOIN LATERAL (
         {{ lion_house_number_split(
             "nullif(lion.l_low_hn, '0')", "nullif(lion.l_high_hn, '0')",
