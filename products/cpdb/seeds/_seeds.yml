@@ -189,6 +189,12 @@ seeds:
     columns:
       - name: asset_type
         description: What the category's spending builds or keeps up, like bridge or school.
+        tests:
+          - relationships:
+              to: ref('draft_asset_type_groups')
+              field: asset_type
+              config:
+                severity: warn
       - name: place_link
         description: |
           How the asset reaches a place: `site` (a location), `network` (segments, like
@@ -210,3 +216,14 @@ seeds:
       - name: evidence
         tests: [ not_null ]
 
+  - name: draft_asset_type_groups
+    description: |
+      Draft grouping of the asset types in `ten_year_plan_category_asset_types`. Every row is
+      our reading of the asset type's name: no source defines these groups, and nothing
+      checked them against data. `note` names another group a type could reasonably go in.
+      Not used by any model.
+    columns:
+      - name: asset_type
+        tests: [ unique, not_null ]
+      - name: draft_group
+        tests: [ not_null ]
