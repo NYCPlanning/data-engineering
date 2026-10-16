@@ -1,0 +1,188 @@
+project_type,typc,asset_type,place_link,confidence,evidence
+C,NJF,jail,site,exact,Largest projects are the four borough-based jails.
+WP,REC,wastewater treatment plant,site,plausible,"Largest projects are at named WPCPs, but pump station upgrades and agency lump sums are also large."
+HD,NEW,housing,site,plausible,"Largest projects are ELLA program funding by fiscal year, which don't name buildings."
+HD,PRV,housing,site,plausible,"Largest projects are loan programs (Participation Loan, HRP), which don't name buildings."
+HB,BFC,bridge,site,exact,87% of dollars are in projects mapped from DOT bridge projects. Largest projects name bridges and BINs.
+HB,BLE,bridge,site,exact,88% of dollars are in projects mapped from DOT bridge projects. Largest projects name bridges and BINs.
+E,REH,school,site,plausible,"Name says school components, but the largest projects are SCA lump sums by fiscal year."
+HW,PSR,street,network,exact,Largest projects are named street reconstructions and corridor safety projects.
+E,XNS,school,site,plausible,"Name says new schools, but the largest projects are SCA lump sums by fiscal year."
+HD,SPC,housing,site,plausible,"Largest projects are supportive housing funding, which doesn't name buildings."
+WP,WQM,combined sewer overflow facility,site,plausible,"Largest projects are CSO storage tunnels and retention and detention facilities, plus tide gates."
+SE,AUG,sewer,network,plausible,"Largest projects are sewer build-outs, but Bluebelt and rezoning lump sums are also large."
+E,EMG,school,site,plausible,SCA lump sums by fiscal year. The name doesn't say which part of a school.
+P,NFP,park,site,exact,64% of dollars are in projects mapped from DPR capital projects or parks properties. Largest projects are recreation centers and playgrounds.
+HO,REH,hospital,site,plausible,"Largest projects are systemwide or corporate-wide reconstruction, plus outposted therapeutic units in jails."
+E,XOT,,,unresolved,"SCA lump sums by fiscal year, and the name doesn't say what is expanded."
+PU,MSC,,,unresolved,Energy projects in other agencies' buildings (like DOE lighting) and lump sums.
+HA,LMU,public housing,site,exact,"Largest projects are building improvements, lead abatement, and roof work at NYCHA developments."
+P,MRF,recreation facility,site,plausible,Largest project is a citywide lump sum. The next are recreation centers and park buildings.
+HW,PSS,street,network,exact,Largest projects are in-house resurfacing and citywide milling.
+HW,PDR,pedestrian ramp,network,exact,Largest projects are pedestrian ramp rehabilitation and installation.
+SE,EXT,sewer,network,plausible,Largest projects are agency-proposed lump sums. The next are named sewer extensions.
+CO,REC,court,site,exact,Largest projects are court facility rehabilitations and named courthouses.
+PU,DPO,IT system,system,exact,Largest projects are citywide technology and administrative systems.
+PV,REC,cultural facility,site,exact,Largest project is a DCLA emergency fund. The next are named museums and the Bronx Zoo.
+WM,WQP,water supply system,network,plausible,"Largest projects are upstate aqueducts, dams, and pump stations, mostly outside the city."
+E,ENH,,,unresolved,"SCA lump sums by fiscal year, and the name doesn't say what is enhanced."
+WM,TMR,water main,network,exact,Largest projects are water main emergency contracts and named main replacements.
+HD,HAP,public housing,site,exact,Largest projects are PACT and the NYC Public Housing Preservation Trust.
+S,EQP,sanitation vehicles and equipment,fleet,plausible,"Largest projects are equipment replacement by fiscal year, which don't say what equipment."
+T,CTO,transit,network,plausible,Nearly all dollars are one line of funding for the MTA's 2025-2029 program.
+BR,BER,bridge,site,exact,"Largest projects are Queensboro, Williamsburg, and Manhattan Bridge rehabilitations."
+ED,NRE,,,unresolved,"Largest projects are mixed: streetscapes, asset management lump sums, Willets Point, plazas."
+P,PRE,park,site,exact,"43% of dollars are in projects mapped from DPR capital projects or parks properties. Largest projects are esplanades, greenways, and named parks."
+P,B&B,waterfront infrastructure,site,exact,Coney Island Beach and Boardwalk is most of the category's dollars.
+ED,WTR,,,unresolved,"Largest projects are mixed: greenways, resilient waterfronts, and cruise terminal piers."
+SE,REP,sewer,network,exact,Largest projects are sewer emergency contracts and named sewer replacements.
+ED,IDV,,,unresolved,"Largest projects are buildings and infrastructure at Brooklyn Navy Yard and other industrial sites, and an offshore wind terminal."
+P,PBR,bridge,site,exact,82% of dollars are in projects mapped from DOT bridge projects. Largest projects name BINs.
+W,KCT,water supply tunnel,network,exact,Largest project is the Kensico-Eastview Connection Tunnel.
+WM,DAM,dam,site,exact,"Largest projects are named dams: Ashokan, Merriman, Amawalk, Gilboa."
+WM,AUG,water main,network,plausible,"Largest project is a trunk main lump sum. The next are named main replacements, plus a sewer build-out."
+S,CON,sanitation garage,site,exact,Largest projects are named garage replacements and rehabilitations.
+PW,REH,office building,site,exact,"Largest projects are at named city office buildings (125 Worth, 1 Centre, 2 Lafayette)."
+TF,SGM,traffic signal,network,plausible,"Largest projects are accessible pedestrian signals, but red light cameras and a traffic lump sum are also large."
+P,L&T,,,unresolved,"Mixed: street trees, tree-damaged sidewalks, green infrastructure, and land acquisition."
+DP,DPC,IT system,system,plausible,Most dollars are an out-year planning lump sum. The rest are named systems.
+HD,OIR,housing,site,plausible,"Largest projects are Affordable Neighborhood Cooperative Program funding, which doesn't name buildings."
+F,FAC,fire and EMS facility,site,exact,"Largest projects are training academies, apparatus floors, firehouse renovations, and an EMS station."
+E,SAF,school,site,plausible,SCA lump sums by fiscal year.
+HN,REH,college campus,site,plausible,Largest project is a CUNY-wide rehabilitation lump sum. The next are at named colleges.
+W,T32,water supply tunnel,network,exact,Largest project is completing City Tunnel 3 Stage 2.
+ED,MSC,,,unresolved,"Mixed: Governors Island infrastructure, a grant match, market upgrades."
+HW,FAC,operations facility,site,exact,"Largest projects are DOT yards, an asphalt plant, and an administration building."
+PO,VEH,police vehicles,fleet,exact,"Largest projects are marked and unmarked patrol vehicles, tow trucks, and vans."
+WP,GIP,green infrastructure,site,exact,Largest projects are right-of-way and onsite green infrastructure and porous pavement.
+ED,CDV,,,unresolved,"Mixed: a life sciences hub, a climate hub, grocery stores, a heliport."
+SE,BLT,stormwater infrastructure,network,plausible,"Largest projects are cloudburst initiatives, storm sewers, and a seawall."
+F,VEH,fire apparatus,fleet,exact,"Largest projects are tower ladders, pumpers, rear mounts, and rescue trucks."
+WM,TME,water main,network,plausible,Most dollars are agency-proposed lump sums. The rest are named main connections.
+PO,REC,police facility,site,exact,Largest projects are a firearms training facility and work at precincts.
+W,T31,reservoir,site,plausible,"Largest projects are chamber modifications and a cover at Hillview Reservoir, plus an agency lump sum."
+ED,MKT,wholesale market,site,exact,Largest projects are the Hunts Point markets and La Marqueta.
+HD,OHS,,,unresolved,"Mixed: a computer lump sum, a housing infrastructure fund, down payment assistance."
+CS,CWF,juvenile detention facility,site,exact,Largest projects are Horizon Juvenile Center and secure detention facilities. 80% of dollars are in projects mapped from DDC public buildings.
+PW,MSC,,,unresolved,Mixed: EV fast charging sites and building systems at various city buildings.
+FA,MOD,ferry terminal,site,plausible,"Largest project is ferryboat upgrades. The next are slips, terminal floodproofing, and a ferry rack."
+HH,ADU,homeless shelter,site,exact,Largest projects are at named shelters.
+PW,LMU,office building,site,exact,Largest projects are fire alarms and sprinklers at named city office buildings.
+LN,RCN,library,site,plausible,Largest project is a systemwide lump sum. The next are named branches.
+HO,EMS,ambulance,fleet,exact,Nearly all dollars are FDNY EMS ambulance purchases.
+BR,BPA,bridge,site,exact,The only project is Williamsburg Bridge painting.
+HN,NEW,college campus,site,plausible,Nearly all dollars are one project named BROOKDALE.
+LB,RCB,library,site,exact,Largest projects are named branch overhauls. 52% of dollars are in projects mapped from DDC public buildings.
+CO,CON,court,site,plausible,Nearly all dollars are a DASNY Staten Island master plan. Smaller lines name a new Staten Island Supreme Court.
+HL,REH,health clinic,site,plausible,Largest project is emergency funding for clinics. The next are named health centers.
+LQ,RCQ,library,site,exact,Largest projects are named branch renovations. 68% of dollars are in projects mapped from DDC public buildings.
+TF,ILL,street light,network,exact,Largest project is citywide LED street light replacement.
+T,TRK,transit,network,exact,The only project is trackwork for New York City Transit.
+HW,SDW,sidewalk,network,exact,Largest projects are prior notice sidewalk programs.
+TD,VEH,DOT vehicles and equipment,fleet,plausible,Most dollars are a fleet lump sum.
+HR,EDP,IT system,system,exact,Largest projects are data center and cloud migrations.
+HO,EQP,medical equipment,fleet,exact,Largest projects are systemwide medical and imaging equipment.
+PU,BLD,,,unresolved,"Work in other agencies' buildings: a DEP plant, a tunnel, a museum gallery."
+EP,PRB,operations facility,site,plausible,Most dollars are an agency lump sum. The rest are named DEP repair facilities and buildings.
+EP,CSV,water meter,network,exact,Largest project is automatic meter readers.
+PW,RPB,,,unresolved,"Most dollars are 70 Mulberry Street reconstruction, which doesn't say what the building is. The rest are TLC offices."
+E,ADM,school support facility,site,plausible,SCA lump sums by fiscal year.
+HW,LSR,street,network,exact,Largest projects are named street reconstructions.
+HR,REH,social services facility,site,exact,Largest projects are at named social services buildings and a shelter.
+C,REC,jail,site,exact,Largest projects are community centers at the borough-based jails and a Rikers steam tunnel.
+C,EQP,,,unresolved,"Mixed: vehicles, network infrastructure, radios, software."
+TF,PSR,street,network,plausible,Largest projects are bus initiatives and bike network development.
+HH,FAM,homeless shelter,site,exact,Largest projects are at named family residences and shelters.
+HO,EDP,IT system,system,exact,Largest projects are enterprise IT and technology infrastructure.
+P,OEI,,,unresolved,"Mixed: telecom and computer equipment, and vehicles."
+FA,BOT,ferry boat,fleet,exact,"Largest projects are ferryboat upgrades, new ferryboats, and a ferryboat replacement."
+EP,VEH,DEP vehicles,fleet,exact,Largest projects are DEP service vehicles.
+EP,UTI,sewer and water main,network,plausible,Largest projects are utility relocation for sewer and water main projects.
+LQ,RHQ,library,site,exact,Largest projects are named branch renovations and a replacement building.
+CS,EQP,IT system,system,plausible,"Largest projects are IT equipment, PC replacement, and business systems."
+HL,EDP,IT system,system,exact,Largest projects are network servers and information security.
+ED,CMD,,,unresolved,85% of dollars are Kingsbridge Armory renovations. The rest are grants to community groups.
+TF,PMK,pavement marking,network,exact,Largest projects are thermoplastic markings.
+P,ZOO,zoo,site,exact,Largest project is a citywide zoos lump sum. The next are at named zoos.
+HB,BPA,bridge,site,exact,95% of dollars are in projects mapped from DOT bridge projects. Largest projects name bridges.
+EP,EDP,security system,system,plausible,Most dollars are security systems design and installation.
+F,COM,communications system,system,exact,Largest projects are radio upgrades and communications conduit.
+PU,DPF,IT system,system,plausible,Most dollars are an out-year lump sum for FISA systems.
+PW,RLS,office building,site,plausible,Largest projects are leased space renovations.
+SE,PRO,sewer,network,exact,Nearly all dollars are the Southeast Queens sewer build-out.
+HL,EQP,,,unresolved,"Mixed: software licenses, financial systems, and radiology equipment at private hospitals."
+BR,BLE,bridge,site,plausible,Nearly all dollars are a waterway bridges ten-year plan lump sum.
+PO,COM,radio system,system,exact,Largest projects are radio system replacements.
+F,EDP,IT system,system,exact,Largest projects are technology and 911 system upgrades.
+PW,EQP,city vehicles,fleet,plausible,Largest project is electric vehicle acquisitions. The rest is IT and services.
+PO,EDP,IT system,system,exact,Largest projects are the Domain Awareness System and other named systems.
+TF,EQP,curbside charging and bike parking,network,plausible,"Largest projects are micromobility charging, curbside EV charging, and bike parking."
+ED,CTL,,,unresolved,"Mixed: a depot, an ice rink, a cultural campus."
+HL,LAB,laboratory,site,exact,Largest projects are the public health lab building and outfitting.
+AG,REH,senior center,site,plausible,Largest project is an agency office relocation. The next are older adult center renovations.
+W,CON,water supply tunnel,network,exact,Largest projects are the Delaware-Rondout Aqueduct parallel tunnel and Catskill Aqueduct capacity.
+MT,MBC,bus depot,site,plausible,Largest projects are MTA Bus facility work and depots.
+WM,FAD,watershed land,site,plausible,Most dollars are a holding code for land acquisition.
+HL,CME,,,unresolved,"Mixed: security systems, firewalls, a records room, IT equipment."
+HN,EDP,,,unresolved,"Mixed: A/V equipment, laptops, furniture, a fire hydrant system."
+HB,FAC,operations facility,site,plausible,Nearly all dollars are a facilities lump sum.
+HH,EQP,IT system,system,plausible,Largest project is network stabilization. Smaller lines are vehicles.
+C,NCR,jail,site,plausible,The only project is a Rikers parking lot and demolition.
+TD,EDP,IT system,system,exact,Largest projects are computers and named DOT systems.
+W,WFF,water supply tunnel,network,exact,Nearly all dollars are the Delaware-Rondout Aqueduct parallel tunnel.
+CS,REH,social services facility,site,plausible,Largest projects are field office renovations and grants to community centers.
+WP,MAN,wastewater treatment plant,site,exact,Largest projects are disinfection facilities and controls at named plants.
+WM,CFP,water filtration plant,site,plausible,"Largest projects are mitigation for the Croton plant, a park sewer line, and a shaft demolition."
+S,SWM,waste transfer and processing facility,site,exact,Largest projects are a compost processing building and marine transfer stations.
+LQ,ACQ,library,site,exact,Largest projects are named branch replacements. 98% of dollars are in projects mapped from DDC public buildings.
+S,ITT,IT system,system,exact,"Largest projects are software, hardware, and network replacement."
+E,SBA,school,site,plausible,The only project is an SCA lump sum.
+WM,EXT,water service line,network,exact,Nearly all dollars are lead service line replacement.
+T,REV,transit,network,plausible,The two projects are rapid transit and surface revolving funds.
+SE,TMR,water main,network,exact,Largest projects are named water main replacements.
+EP,WFF,,,unresolved,"Mixed: conservation grants, a park recirculation system, meters, hospital fixtures."
+TF,PKG,parking meters and garages,network,plausible,"Largest projects are parking meter retrofits, a municipal garage, and lump sums."
+PV,EQP,cultural facility,site,plausible,Many small equipment purchases at named cultural institutions.
+LQ,SSQ,,,unresolved,"Mixed: software, branch expansions, network upgrades."
+PO,EQP,,,unresolved,"Mixed: marine engines, lab projects, video security, lab instruments."
+WP,BNR,wastewater treatment plant,site,exact,Largest projects are nutrient removal at named plants.
+HR,COM,telecommunications system,system,exact,Largest projects are VoIP migration and telecom security.
+HW,STP,step street,network,exact,Largest projects are named step streets.
+LN,EXP,library,site,exact,Largest project is a named replacement branch.
+TF,HDD,street,network,plausible,"Many small projects: storm sewers, street reconstruction, trench restoration."
+LN,IPN,library,site,exact,Largest projects are named branch expansions and upgrades.
+L,RCN,library,site,exact,Largest projects are at the research libraries and the Library for the Performing Arts.
+WP,STB,wastewater treatment plant,site,exact,Largest projects are at named plants.
+WM,BLT,sewer,network,exact,Largest projects are named storm and sanitary sewer installations.
+HL,ANC,animal care center,site,exact,Largest projects are the Bronx and Brooklyn animal care centers.
+WM,WFF,water supply system,network,plausible,Largest project is Shaft 4 gate valve replacement.
+PW,ARP,land,site,plausible,"Largest projects are acquisitions, mostly for a levee and parkland."
+HB,VEH,bridge vehicles and equipment,fleet,plausible,Most dollars are a lump sum for bridge vehicles and equipment.
+LN,SSN,IT system,system,plausible,Largest projects are technology upgrades and network equipment. One is vehicles.
+HO,PAR,hospital,site,exact,Largest projects are named hospital modernizations and ED expansions.
+WM,MIU,water supply system,network,plausible,The two projects are dam improvements and release chamber valves.
+AG,EDP,IT system,system,exact,Largest projects are named DFTA systems.
+HA,LMC,public housing,site,exact,Largest projects are at named NYCHA developments.
+HR,VEH,social services vehicles,fleet,exact,"Largest projects are truck, van, and bus replacements."
+RE,WPR,waterfront property,site,plausible,Largest projects are waterfront property reconstruction and bulkheads.
+HA,OTH,public housing,site,exact,The only project is at Marlborough Houses.
+RE,MSC,,,unresolved,"Mixed: street reconstruction, a platform, a demolition."
+HW,RET,retaining wall,site,exact,All projects are named retaining walls.
+L,SSN,,,unresolved,"Mixed: CCTV, an ADA lift, PCs, a freezer."
+PU,DGN,energy generation,site,plausible,Largest projects are cogeneration and solar installations.
+AG,EQV,senior services vehicles,fleet,plausible,Largest projects are vehicles for senior centers.
+C,CON,jail,site,plausible,"Largest projects are support space and modular buildings, mostly on Rikers."
+HH,REH,social services facility,site,plausible,The only project is a renovation at one named house.
+HL,ADM,,,unresolved,"Mixed: a warehouse relocation, a health center facade, leased space."
+SE,EDS,sewer and water main,network,plausible,The only project is street utility improvements at one site.
+TF,BFC,bridge,site,exact,Projects are named pedestrian bridges with BINs.
+LB,RHB,library,site,exact,Projects are the Red Hook Library and Sandy damage at BPL.
+CO,COR,court,site,plausible,The only project is a DASNY backfill at one address.
+CS,DCC,day care center,site,exact,Projects are named day care centers.
+HH,VEH,social services vehicles,fleet,exact,Projects are vans and a mobile healthcare vehicle.
+SE,MAN,sewer,network,exact,"The only project is storm, sanitary, and combined sewers in one basin."
+ED,RDV,rail,network,exact,The only project is the Staten Island Railroad yard and extension.
+WM,NRE,sewer and water main,network,plausible,The only project is street utility improvements at one site.
+HD,OTH,,,unresolved,"Mixed: a greenhouse, Liberty Link, EDC-managed needs."
+PV,TEC,cultural facility,site,exact,Projects are a children's museum fitout and a performing arts center.
+BR,BFC,bridge,site,exact,The only project is the Willis Avenue Bridge.

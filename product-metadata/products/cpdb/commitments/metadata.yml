@@ -140,8 +140,7 @@ columns:
 - id: commitmentdescription
   name: commitmentdescription
   data_type: text
-  description: Short description of what the planned commtiment will specifically
-    fund. Not all commitments have descriptions.
+  description: Name of the commitment code, like CONSTRUCTION, DESIGN, or CONTINGENCY.
   example: None
 - id: commitmentcode
   name: commitmentcode

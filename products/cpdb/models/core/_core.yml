@@ -57,6 +57,15 @@ models:
         description: TYCS lifecycle category (state of good repair, program expansion, or programmatic replacement), from the 2025-05-01 strategy. Null for categories not in it.
       - name: lifecycle_confidence
         description: How `lifecycle` was matched; see `tycs_category_lifecycles`.
+      - name: asset_type
+        description: |
+          What the category's spending builds or keeps up, from
+          `ten_year_plan_category_asset_types`. Null for `unresolved` categories and for
+          categories with no planned dollars in FISA 20260929, which aren't classified.
+      - name: place_link
+        description: How the asset reaches a place (`site`, `network`, `fleet`, or `system`).
+      - name: asset_type_confidence
+        description: How sure `asset_type` is; see `ten_year_plan_category_asset_types`.
 
   - name: scd_ten_year_plan_category_name
     description: |
@@ -85,3 +94,98 @@ models:
         description: Position of `first_release` among archived FISA releases, oldest first.
       - name: last_release_order
         description: Position of `last_release` among archived FISA releases, oldest first.
+
+  - name: ref_commitment_code
+    description: |
+      One row per commitment code in the latest FISA release of the Capital Commitment Plan,
+      with its name. A planned commitment's code says what kind of spending it is (design,
+      construction, equipment, contingency), not what the project is for.
+    columns:
+      - name: commitment_code
+        description: Four-character code, FISA's `object`.
+        tests: [ unique, not_null ]
+      - name: name
+        description: FISA's name for the code (`object_name`), like CONSTRUCTION or CONTINGENCY.
+        tests: [ not_null ]
+
+  - name: fact_planned_commitment
+    description: |
+      One row per planned commitment in the Capital Commitment Plan loaded for the build: a
+      project's planned spending on one budget line, commitment code, and ten-year plan
+      category in one month. Lifecycle is set here rather than on the project because a
+      project's commitments can be in different categories and lifecycles.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, budget_line, commitment_code, planned_commit_date, typc ]
+    columns:
+      - name: ccp_version
+        description: FISA cycle of the plan, like `fisa_2027`.
+      - name: maprojid
+        description: Managing agency code and project ID, the project's key.
+        tests: [ not_null ]
+      - name: budget_line
+        description: Project type and budget line ID, like `HB-1012`.
+        tests: [ not_null ]
+      - name: project_type
+        description: Project type, the prefix of `budget_line`.
+        tests: [ not_null ]
+      - name: typc
+        description: Ten-year plan category code. With `project_type`, the key of `dim_ten_year_plan_category`.
+        tests:
+          # warn: the dim only has codes from releases in the fisa_typc_names seed, which
+          # lags a newly archived release until the seed is regenerated
+          - relationships:
+              to: ref('dim_ten_year_plan_category')
+              field: typc
+              config:
+                severity: warn
+      - name: commitment_code
+        description: What kind of spending the commitment is; see `ref_commitment_code`.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('ref_commitment_code')
+              field: commitment_code
+      - name: planned_commit_date
+        description: Month the commitment is planned for, as `MM/YY`.
+      - name: plannedcommit_total
+        description: Planned commitment from all funding sources.
+      - name: lifecycle
+        description: |
+          Lifecycle of the commitment's ten-year plan category, from
+          `dim_ten_year_plan_category`. Null when the category has no lifecycle.
+
+  - name: dim_capital_project
+    description: |
+      One row per capital project in the Capital Commitment Plan loaded for the build, with
+      the lifecycle and commitment code that get the most of its planned dollars. Use
+      `fact_planned_commitment` for a project's full split.
+    columns:
+      - name: maprojid
+        description: Managing agency code and project ID.
+        tests: [ unique, not_null ]
+      - name: description
+        description: The longest of the project's commitment descriptions.
+      - name: plannedcommit_total
+        description: Planned commitments from all funding sources, summed over the project.
+      - name: lifecycle
+        description: |
+          Lifecycle with the most planned dollars among the project's commitments, ignoring
+          commitments without one. Ties go to the lifecycle that sorts first. Null when no
+          commitment has a lifecycle.
+      - name: lifecycle_share
+        description: |
+          Share of the project's planned dollars in `lifecycle`. Can fall outside 0 to 1 when
+          some planned commitments are negative.
+      - name: has_multiple_lifecycles
+        description: Whether the project's commitments have more than one lifecycle.
+      - name: commitment_description
+        description: |
+          Name of the commitment code with the most planned dollars among the project's
+          commitments, like CONSTRUCTION. Ties go to the name that sorts first.
+      - name: commitment_description_share
+        description: |
+          Share of the project's planned dollars under `commitment_description`. Can fall
+          outside 0 to 1 when some planned commitments are negative.
+      - name: has_multiple_commitment_descriptions
+        description: Whether the project's commitments have more than one commitment description.
