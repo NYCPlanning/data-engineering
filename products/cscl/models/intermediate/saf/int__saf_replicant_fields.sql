@@ -12,10 +12,7 @@
 -- the CommonPlace/AddressPoint ones; computed here for AltSegmentData). gdb_altnames
 -- reads its SAF Join_IDs from this model too, so AltNames and LION agree.
 --
--- Known v1 simplifications (see docs/prod_bugs/012-saf-replicant-lion-rows.md):
--- - Continuous-parity SAF entries (SOSINDICATOR used as a parity flag rather than a
---   side indicator, on AltSegmentData types A/B/C/E/P) emit one row instead of the
---   spec'd two - affects a minority of those entries.
+-- Known gaps (see docs/prod_bugs/012-saf-replicant-lion-rows.md):
 -- - AddressPoint type S/V zip-code override isn't implemented (left as the base
 --   segment's own zip).
 -- - LGC1-4/StreetCode/BOE_LGC (the *non*-SAF fields) are never overridden on replicant
@@ -70,9 +67,8 @@ altsegmentdata_fields AS (
             ELSE coalesce(feature_names.lookup_key, street_names.lookup_key)
         END AS saf_street_name,
         altsegdata.b5sc AS saf_street_code,
-        -- A/B/C/E/P: house numbers apply directly to both sides (SOSINDICATOR here is a
-        -- continuous-parity flag when set, not a side indicator - not replicated, see
-        -- module docstring - so both sides just pass through as given).
+        -- A/B/C/E/P: both ranges pass through as given; when SOSINDICATOR is set it is a
+        -- continuous-parity flag (parity_side below) and gdb_lion splits them onto that side.
         -- D/F/O: SOSINDICATOR is a side indicator - only the indicated side is populated.
         -- sqlfluff 4.3.0 can't parse IS DISTINCT FROM inside a CASE WHEN (reproduced in
         -- isolation, no AND needed - a parser bug, not invalid SQL); noqa'd below.
@@ -101,7 +97,13 @@ altsegmentdata_fields AS (
         altsegdata.lgc4 AS join_lgc4,
         NULL::text AS precomputed_join_id,
         saf.roadbed,
-        saf.generic
+        saf.generic,
+        -- A/B/C/E/P: SOSINDICATOR is a continuous-parity flag (1 = L, 2 = R) when set -
+        -- gdb_lion writes these entries as two rows (ETL spec §2.7.1/§2.7.2).
+        CASE
+            WHEN altsegdata.saftype IN ('A', 'B', 'C', 'E', 'P') AND altsegdata.sosindicator = '1' THEN 'L'
+            WHEN altsegdata.saftype IN ('A', 'B', 'C', 'E', 'P') AND altsegdata.sosindicator = '2' THEN 'R'
+        END AS parity_side
     FROM saf_segments AS saf
     INNER JOIN altsegdata ON saf.saf_globalid = altsegdata.globalid
     LEFT JOIN street_names ON (altsegdata.b5sc || altsegdata.lgc1) = street_names.b7sc
@@ -134,7 +136,8 @@ commonplace_fields AS (
         NULL::text AS join_lgc4,
         aj.join_id AS precomputed_join_id,
         saf.roadbed,
-        saf.generic
+        saf.generic,
+        NULL::text AS parity_side
     FROM saf_segments AS saf
     INNER JOIN {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }} AS cp ON saf.saf_globalid = cp.globalid
     LEFT JOIN street_names ON cp.b7sc = street_names.b7sc
@@ -180,7 +183,8 @@ addresspoint_fields AS (
         NULL::text AS join_lgc4,
         aj.join_id AS precomputed_join_id,
         saf.roadbed,
-        saf.generic
+        saf.generic,
+        NULL::text AS parity_side
     FROM saf_segments AS saf
     INNER JOIN address_points AS ap ON saf.saf_globalid = ap.globalid
     LEFT JOIN street_names AS street_names_vanity ON ap.b7sc_vanity = street_names_vanity.b7sc
@@ -226,6 +230,7 @@ SELECT
     deduped.r_high_hn,
     deduped.l_zip,
     deduped.r_zip,
+    deduped.parity_side,
     coalesce(
         deduped.precomputed_join_id,
         lion.boroughcode

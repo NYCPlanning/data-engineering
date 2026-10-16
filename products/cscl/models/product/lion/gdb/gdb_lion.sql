@@ -7,9 +7,8 @@
 -- datum associated with a segment - ETL spec §2.7.2 "Segment Replication for SAF Data").
 -- A replicant has identical geometry/attributes to its base row except for SpecAddr,
 -- SAFStreetName/SAFStreetCode (fields that only exist on replicants), house
--- numbers/zip, and Join_ID - see int__saf_replicant_fields.sql for the override values
--- and its documented v1 simplifications (continuous-parity duplication and S/V zip
--- aren't implemented).
+-- numbers/zip, and Join_ID - see int__saf_replicant_fields.sql for the override values.
+-- Continuous-parity segments and SAF entries are written as two rows (ETL spec §2.7.1).
 
 WITH lion AS (
     SELECT * FROM {{ ref('int__lion') }}
@@ -17,6 +16,28 @@ WITH lion AS (
 ),
 saf_replicants AS (
     SELECT * FROM {{ ref('int__saf_replicant_fields') }}
+),
+
+-- SegCount (ETL spec §2.7.3): the number of output records for the segment, SAF
+-- replicants and continuous-parity copies included (prod's SegCount equals its own
+-- per-SegmentID row count for 98% of rows).
+segment_row_counts AS (
+    SELECT
+        segmentid,
+        sum(n_rows) AS n_rows
+    FROM (
+        SELECT
+            segmentid,
+            CASE WHEN continuous_parity_flag IN ('L', 'R') THEN 2 ELSE 1 END AS n_rows
+        FROM lion
+        UNION ALL
+        SELECT
+            lion.segmentid,
+            CASE WHEN saf_replicants.parity_side IS NOT NULL THEN 2 ELSE 1 END AS n_rows
+        FROM lion
+        INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey
+    ) AS per_record
+    GROUP BY segmentid
 ),
 
 base_rows AS (
@@ -65,7 +86,7 @@ base_rows AS (
         lgc9 AS "LGC9",
         boe_lgc_pointer AS "BOE_LGC",
         lpad(segmentid::text, 7, '0') AS "SegmentID",
-        coincident_seg_count::text AS "SegCount",
+        segment_row_counts.n_rows::text AS "SegCount",
         segment_locational_status AS "LocStatus",
         l_zip AS "LZip",
         r_zip AS "RZip",
@@ -186,40 +207,17 @@ base_rows AS (
         carto_display_level AS "Carto_Display_Level",
         fcc AS "FCC",
         right_of_way_type AS "ROW_Type",
-        -- ETL spec §2.7.3 (BL101-104): all 8 house-number fields (this block) should be
-        -- zeroed/blanked for certain segment types - confirmed via the real legacy tool
-        -- (cscl_etl_archive/lion_dist_tool_files/BytesLION_CSCL_workflow_tool_PUB.py,
-        -- ~line 353): SegmentTyp IN ('G','F') OR FeatureTyp NOT IN ('0','6','W'),
-        -- unconditionally. Not implemented - prod's own delivered fgdb_lion only follows
-        -- this rule for ~58% of matching rows (manual, operator-run GP script, evidently
-        -- not consistently re-applied - see docs/prod_bugs/018-generic-segment-house-
-        -- numbers-not-zeroed.md), and the inconsistency isn't GR-confirmed as a bug worth
-        -- matching or diverging from. Flagged (not accounted_for) in
-        -- qa__diffs_lion_house_numbers.sql pending that confirmation.
-        --
-        -- Pseudocode for the fix, if/when confirmed - applies to LLo_Hyphen/LHi_Hyphen/
-        -- RLo_Hyphen/RHi_Hyphen above too, not just FromLeft/ToLeft/FromRight/ToRight:
-        --   is_addressable = segment_type NOT IN ('G', 'F')
-        --                    AND feature_type_code IN ('0', '6', 'W')  -- or NULL
-        --   LLo_Hyphen  = is_addressable ? nullif(l_low_hn, '0')  : NULL
-        --   LHi_Hyphen  = is_addressable ? nullif(l_high_hn, '0') : NULL
-        --   RLo_Hyphen  = is_addressable ? nullif(r_low_hn, '0')  : NULL
-        --   RHi_Hyphen  = is_addressable ? nullif(r_high_hn, '0') : NULL
-        --   FromLeft    = is_addressable ? <normalized form, still unimplemented> : 0
-        --   ToLeft      = is_addressable ? <normalized form, still unimplemented> : 0
-        --   FromRight   = is_addressable ? <normalized form, still unimplemented> : 0
-        --   ToRight     = is_addressable ? <normalized form, still unimplemented> : 0
-        -- Note this only decides WHEN to zero - FromLeft/ToLeft/FromRight/ToRight's own
-        -- normalized-form computation (hyphen stripped, 3-digit zero-fill per spec) is a
-        -- separate, still-unimplemented piece (see compare_gdb.py's KNOWN_NULL_COLUMNS).
-        nullif(l_low_hn, '0') AS "LLo_Hyphen",
-        nullif(l_high_hn, '0') AS "LHi_Hyphen",
-        nullif(r_low_hn, '0') AS "RLo_Hyphen",
-        nullif(r_high_hn, '0') AS "RHi_Hyphen",
-        NULL::int AS "FromLeft",
-        NULL::int AS "ToLeft",
-        NULL::int AS "FromRight",
-        NULL::int AS "ToRight",
+        -- ETL spec §2.7.3 (BL101-104), House numbers: see lion_house_numbers.sql. Continuous
+        -- parity segments (ETL spec §2.7.1) come out as two rows (hn.n = 1, 2); segments the
+        -- legacy tool zeroes (generic/non-physical) come out empty.
+        lpad(hn.l_low, 7, ' ') AS "LLo_Hyphen",
+        lpad(hn.l_high, 7, ' ') AS "LHi_Hyphen",
+        lpad(hn.r_low, 7, ' ') AS "RLo_Hyphen",
+        lpad(hn.r_high, 7, ' ') AS "RHi_Hyphen",
+        {{ lion_normalized_house_number('hn.l_low') }} AS "FromLeft",
+        {{ lion_normalized_house_number('hn.l_high') }} AS "ToLeft",
+        {{ lion_normalized_house_number('hn.r_low') }} AS "FromRight",
+        {{ lion_normalized_house_number('hn.r_high') }} AS "ToRight",
         -- Join_ID links each segment to its AltNames entries (ETL spec §2.7.3). Non-SAF
         -- form; SAF replicants (below) use a different encoding.
         {{ lion_join_id() }} AS "Join_ID",
@@ -229,6 +227,16 @@ base_rows AS (
         st_length(geom)::float AS "SHAPE_Length",
         geom
     FROM lion
+    INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
+    CROSS JOIN LATERAL generate_series(1, CASE WHEN lion.continuous_parity_flag IN ('L', 'R') THEN 2 ELSE 1 END) AS rng (n)
+    CROSS JOIN LATERAL (
+        {{ lion_house_number_split(
+            "nullif(lion.l_low_hn, '0')", "nullif(lion.l_high_hn, '0')",
+            "nullif(lion.r_low_hn, '0')", "nullif(lion.r_high_hn, '0')",
+            'lion.continuous_parity_flag', 'rng.n',
+            "(lion.segment_type NOT IN ('G', 'F') AND coalesce(lion.feature_type_code, '0') IN ('0', '6', 'W'))"
+        ) }}
+    ) AS hn
 ),
 
 replicant_rows AS (
@@ -269,9 +277,7 @@ replicant_rows AS (
         lion.lgc9 AS "LGC9",
         lion.boe_lgc_pointer AS "BOE_LGC",
         lpad(lion.segmentid::text, 7, '0') AS "SegmentID",
-        -- Not adjusted for replication (see module docstring: SegCount should reflect
-        -- all coincident records including SAF replicants, per spec - not implemented).
-        lion.coincident_seg_count::text AS "SegCount",
+        segment_row_counts.n_rows::text AS "SegCount",
         lion.segment_locational_status AS "LocStatus",
         -- Overridden only for AltSegmentData type D/F, side-gated; else the base zip.
         coalesce(saf_replicants.l_zip, lion.l_zip) AS "LZip",
@@ -379,20 +385,14 @@ replicant_rows AS (
         lion.right_of_way_type AS "ROW_Type",
         -- Overridden: house numbers are SAF-specific and side-gated on replicant rows
         -- (ETL spec §2.7.2/§2.7.3), not the base segment's own house numbers.
-        saf_replicants.l_low_hn AS "LLo_Hyphen",
-        saf_replicants.l_high_hn AS "LHi_Hyphen",
-        saf_replicants.r_low_hn AS "RLo_Hyphen",
-        saf_replicants.r_high_hn AS "RHi_Hyphen",
-        -- FromLeft/ToLeft/FromRight/ToRight (normalized form) remain unimplemented here
-        -- too - see the base_rows block above (~line 189) for the pseudocode and
-        -- docs/prod_bugs/018-generic-segment-house-numbers-not-zeroed.md. Note replicant
-        -- rows source LLo_Hyphen etc. from the SAF entry, not the Generic-segment
-        -- zero-out rule investigated there - whether that rule applies here too (e.g.
-        -- for a replicant on an otherwise-Generic segment) isn't confirmed either.
-        NULL::int AS "FromLeft",
-        NULL::int AS "ToLeft",
-        NULL::int AS "FromRight",
-        NULL::int AS "ToRight",
+        lpad(hn.l_low, 7, ' ') AS "LLo_Hyphen",
+        lpad(hn.l_high, 7, ' ') AS "LHi_Hyphen",
+        lpad(hn.r_low, 7, ' ') AS "RLo_Hyphen",
+        lpad(hn.r_high, 7, ' ') AS "RHi_Hyphen",
+        {{ lion_normalized_house_number('hn.l_low') }} AS "FromLeft",
+        {{ lion_normalized_house_number('hn.l_high') }} AS "ToLeft",
+        {{ lion_normalized_house_number('hn.r_low') }} AS "FromRight",
+        {{ lion_normalized_house_number('hn.r_high') }} AS "ToRight",
         -- Overridden: the SAF-replicant Join_ID encoding (ETL spec §2.7.3), computed in
         -- int__saf_replicant_fields.sql.
         saf_replicants.join_id AS "Join_ID",
@@ -403,6 +403,16 @@ replicant_rows AS (
         lion.geom
     FROM lion
     INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey
+    INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
+    CROSS JOIN LATERAL generate_series(1, CASE WHEN saf_replicants.parity_side IS NOT NULL THEN 2 ELSE 1 END) AS rng (n)
+    CROSS JOIN LATERAL (
+        {{ lion_house_number_split(
+            'saf_replicants.l_low_hn', 'saf_replicants.l_high_hn',
+            'saf_replicants.r_low_hn', 'saf_replicants.r_high_hn',
+            'saf_replicants.parity_side', 'rng.n',
+            "(lion.segment_type NOT IN ('G', 'F') AND coalesce(lion.feature_type_code, '0') IN ('0', '6', 'W'))"
+        ) }}
+    ) AS hn
 )
 
 SELECT * FROM base_rows
