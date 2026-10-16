@@ -85,7 +85,7 @@ base_rows AS (
         lgc8 AS "LGC8",
         lgc9 AS "LGC9",
         boe_lgc_pointer AS "BOE_LGC",
-        lpad(segmentid::text, 7, '0') AS "SegmentID",
+        lpad(lion.segmentid::text, 7, '0') AS "SegmentID",
         segment_row_counts.n_rows::text AS "SegCount",
         segment_locational_status AS "LocStatus",
         l_zip AS "LZip",
