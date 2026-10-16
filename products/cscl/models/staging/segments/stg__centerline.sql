@@ -88,7 +88,8 @@ SELECT
     nullif(number_park_lanes::INT, 0) AS number_park_lanes, -- TODO - ingest read as int
     nullif(number_total_lanes::INT, 0) AS number_total_lanes, -- TODO - ingest read as int
     nullif(streetwidth_max::INT, 0) AS streetwidth_max, -- TODO - ingest read as int
-    nullif(round(streetwidth_min)::INT, 0) AS streetwidth_min, -- TODO - ingest read as int
+    -- not nullif'd: the delivered LION keeps a source 0 here (NULL only when source is NULL)
+    round(streetwidth_min)::INT AS streetwidth_min, -- TODO - ingest read as int
     bike_trafdir AS bike_traffic_direction,
     shape_length,
     geom,
