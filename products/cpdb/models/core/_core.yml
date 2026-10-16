@@ -189,3 +189,37 @@ models:
           outside 0 to 1 when some planned commitments are negative.
       - name: has_multiple_commitment_descriptions
         description: Whether the project's commitments have more than one commitment description.
+      - name: mappability
+        description: |
+          `mapped` when CPDB has a geometry for the project. `place-specific but unmapped`
+          when the project has a place but no geometry, like a building or a street that
+          CPDB couldn't locate. `not place-specific` when it doesn't have a place, like a
+          vehicle fleet or an IT system. Set by the first source in `scope_source` order
+          that has a value. Null when no source does.
+        tests:
+          - accepted_values:
+              values: [ mapped, place-specific but unmapped, not place-specific ]
+      - name: geographic_scope
+        description: |
+          How much of the city the project covers: `site`, `multiple sites`, `network`
+          (segments like streets or sewers), `community district`, `borough`, or
+          `citywide`. From a geometry, `site` is one point or polygon and `multiple sites`
+          is more than one. Null when the source
+          doesn't say, like a `site` category project with no geometry, which could be one
+          site or many.
+        tests:
+          - accepted_values:
+              values: [ site, multiple sites, network, community district, borough, citywide ]
+      - name: scope_source
+        description: |
+          What set `mappability` and `geographic_scope`, in order of precedence: `geometry`
+          (CPDB's), `agency verified` (the agency's answer in `dcp_cpdb_agencyverified`,
+          through `agency_verified_mappability`), `dashboard` (the Capital Projects
+          Dashboard's `community_board` in its latest reporting period, used only when it
+          names one community district or borough), or `category` (the `place_link` of the
+          ten-year plan category with most of the project's planned dollars). From a
+          category, `fleet` and `system` projects are `not place-specific` and `citywide`.
+          That's our reading, not the agency's.
+        tests:
+          - accepted_values:
+              values: [ geometry, agency verified, dashboard, category ]

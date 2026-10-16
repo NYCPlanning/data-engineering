@@ -29,6 +29,7 @@ inputs:
     - name: fisa_capitalcommitments
     - name: fisa_dailybudget
     - name: omb_tycs
+    - name: moo_capital_projects_budget_schedule
     - name: dot_projects_intersections
     - name: dot_projects_streets
     - name: dot_projects_bridges

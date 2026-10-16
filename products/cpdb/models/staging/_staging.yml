@@ -124,6 +124,18 @@ models:
           - accepted_values:
               values: [ City, Federal, State, Private ]
 
+  - name: stg__moo_capital_projects_budget_schedule
+    description: |
+      Capital Projects Dashboard projects, every reporting period. One FMS ID can have
+      several rows, one per agency project (`pid`). `agency_project_description` is null
+      where the source has the text `<blank>`.
+    columns:
+      - name: reporting_period
+        tests: [ not_null ]
+      - name: fms_id
+        description: FMS project ID, without the managing agency code that starts `maprojid`.
+        tests: [ not_null ]
+
   - name: stg__dot_projects_intersections
     columns:
       - name: fmsid
