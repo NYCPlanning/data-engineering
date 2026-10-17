@@ -39,8 +39,7 @@ WITH RECURSIVE segments AS (
     FROM {{ ref('int__segments') }}
 ),
 
--- consecutive snapped vertices: an index lookup per segment, so the window only ever
--- sorts one segment's vertices
+-- consecutive snapped vertices
 steps AS (
     SELECT
         s.globalid,
@@ -53,19 +52,18 @@ steps AS (
         vs.along_b,
         vs.along_b - vs.along_a AS step_len
     FROM segments AS s
-    CROSS JOIN
-        LATERAL (
-            SELECT
-                v.idx AS idx_a,
-                lead(v.idx) OVER w AS idx_b,
-                v.node_id AS node_a,
-                lead(v.node_id) OVER w AS node_b,
-                v.along_ft AS along_a,
-                lead(v.along_ft) OVER w AS along_b
-            FROM {{ ref('int__segment_topology_vertices') }} AS v
-            WHERE v.globalid = s.globalid
-            WINDOW w AS (ORDER BY v.idx)
-        ) AS vs
+    INNER JOIN (
+        SELECT
+            v.globalid,
+            v.idx AS idx_a,
+            lead(v.idx) OVER w AS idx_b,
+            v.node_id AS node_a,
+            lead(v.node_id) OVER w AS node_b,
+            v.along_ft AS along_a,
+            lead(v.along_ft) OVER w AS along_b
+        FROM {{ ref('int__segment_topology_vertices') }} AS v
+        WINDOW w AS (PARTITION BY v.globalid ORDER BY v.idx)
+    ) AS vs ON s.globalid = vs.globalid
     WHERE vs.idx_b IS NOT NULL
 ),
 
@@ -77,6 +75,18 @@ edges AS (
         min(st_length(geom)) AS edge_len
     FROM {{ ref('int__topology__edges') }}
     GROUP BY node_lo, node_hi, is_arc
+),
+
+-- one geometry per edge key (every owner's copy of an edge is the same line; the
+-- lowest atomicid's, as before)
+edge_geoms AS MATERIALIZED (
+    SELECT DISTINCT ON (node_lo, node_hi, is_arc)
+        node_lo,
+        node_hi,
+        is_arc,
+        geom
+    FROM {{ ref('int__topology__edges') }}
+    ORDER BY node_lo, node_hi, is_arc, atomicid
 ),
 
 -- a straight edge and an arc between the same nodes: the closer length wins (one
@@ -134,21 +144,15 @@ direct_offsets AS (
         SELECT
             p.globalid,
             p.idx_a,
-            st_hausdorffdistance(p.piece, eg.geom) AS offset_ft
+            hausdorff_distance(p.piece, eg.geom) AS offset_ft
         FROM step_pieces AS p
         INNER JOIN direct_matches AS pdm ON p.globalid = pdm.globalid AND p.idx_a = pdm.idx_a
         INNER JOIN steps AS st ON p.globalid = st.globalid AND p.idx_a = st.idx_a
-        -- every owner's copy of an edge is the same line
-        CROSS JOIN LATERAL (
-            SELECT e.geom
-            FROM {{ ref('int__topology__edges') }} AS e
-            WHERE
-                e.node_lo = least(st.node_a, st.node_b)
-                AND e.node_hi = greatest(st.node_a, st.node_b)
-                AND e.is_arc = pdm.is_arc
-            ORDER BY e.atomicid
-            LIMIT 1
-        ) AS eg
+        INNER JOIN edge_geoms AS eg
+            ON
+                least(st.node_a, st.node_b) = eg.node_lo
+                AND greatest(st.node_a, st.node_b) = eg.node_hi
+                AND pdm.is_arc = eg.is_arc
     ) AS po ON dm.globalid = po.globalid AND dm.idx_a = po.idx_a
 ),
 
@@ -208,9 +212,9 @@ path_search (
         node_b,
         step_len,
         node_a,
-        ARRAY[node_a],
-        ARRAY[]::boolean[],
-        0::double precision,
+        [node_a],
+        []::BOOLEAN[],
+        0::DOUBLE,
         0
     FROM search_steps
 
@@ -222,8 +226,8 @@ path_search (
         ps.node_b,
         ps.step_len,
         a.to_node,
-        ps.path_nodes || a.to_node,
-        ps.path_arcs || a.is_arc,
+        list_append(ps.path_nodes, a.to_node),
+        list_append(ps.path_arcs, a.is_arc),
         ps.path_len + a.edge_len,
         ps.hops + 1
     FROM path_search AS ps
@@ -233,40 +237,58 @@ path_search (
     WHERE
         ps.hops < {{ max_hops }}
         AND ps.cur_node != ps.node_b
-        AND NOT (a.to_node = any(ps.path_nodes))
+        AND NOT list_contains(ps.path_nodes, a.to_node)
         AND ps.path_len + a.edge_len <= ps.step_len + {{ len_tol }}
         AND (a.to_node = ps.node_b OR st_dwithin(n.geom, ss.piece, {{ max_offset }}))
 ),
 
-path_candidates AS (
+completed_paths AS MATERIALIZED (
     SELECT
         ps.globalid,
         ps.idx_a,
         ps.path_nodes,
         ps.path_arcs,
+        ps.hops,
         abs(ps.path_len - ps.step_len) AS len_diff,
-        st_hausdorffdistance(
-            ss.piece,
-            (
-                SELECT st_collect(e.geom)
-                FROM generate_series(1, ps.hops) AS i
-                CROSS JOIN LATERAL (
-                    SELECT te.geom
-                    FROM {{ ref('int__topology__edges') }} AS te
-                    WHERE
-                        te.node_lo = least(ps.path_nodes[i], ps.path_nodes[i + 1])
-                        AND te.node_hi = greatest(ps.path_nodes[i], ps.path_nodes[i + 1])
-                        AND te.is_arc = ps.path_arcs[i]
-                    ORDER BY te.atomicid
-                    LIMIT 1
-                ) AS e
-            )
-        ) AS offset_ft
+        ss.piece
     FROM path_search AS ps
     INNER JOIN search_steps AS ss ON ps.globalid = ss.globalid AND ps.idx_a = ss.idx_a
     WHERE
         ps.cur_node = ps.node_b
         AND abs(ps.path_len - ps.step_len) <= {{ len_tol }}
+),
+
+-- each completed path's edges, collected into one geometry
+completed_path_geoms AS (
+    SELECT
+        cp.globalid,
+        cp.idx_a,
+        cp.path_nodes,
+        cp.path_arcs,
+        st_collect(list(eg.geom)) AS geom
+    FROM completed_paths AS cp
+    CROSS JOIN LATERAL generate_series(1, cp.hops) AS g (i)
+    INNER JOIN edge_geoms AS eg
+        ON
+            least(cp.path_nodes[g.i], cp.path_nodes[g.i + 1]) = eg.node_lo
+            AND greatest(cp.path_nodes[g.i], cp.path_nodes[g.i + 1]) = eg.node_hi
+            AND cp.path_arcs[g.i] = eg.is_arc
+    GROUP BY cp.globalid, cp.idx_a, cp.path_nodes, cp.path_arcs
+),
+
+path_candidates AS (
+    SELECT DISTINCT
+        cp.globalid,
+        cp.idx_a,
+        cp.path_nodes,
+        cp.path_arcs,
+        cp.len_diff,
+        hausdorff_distance(cp.piece, pg.geom) AS offset_ft
+    FROM completed_paths AS cp
+    INNER JOIN completed_path_geoms AS pg
+        ON
+            cp.globalid = pg.globalid AND cp.idx_a = pg.idx_a
+            AND cp.path_nodes = pg.path_nodes AND cp.path_arcs = pg.path_arcs
 ),
 
 path_matches AS (
@@ -287,22 +309,22 @@ path_edges AS (
     SELECT
         pm.globalid,
         pm.idx_a,
-        i AS hop,
-        pm.path_nodes[i] AS from_node,
-        pm.path_nodes[i + 1] AS to_node,
-        pm.path_arcs[i] AS is_arc,
+        g.i AS hop,
+        pm.path_nodes[g.i] AS from_node,
+        pm.path_nodes[g.i + 1] AS to_node,
+        pm.path_arcs[g.i] AS is_arc,
         pm.len_diff,
         pm.offset_ft,
         e.edge_len,
-        sum(e.edge_len) OVER (PARTITION BY pm.globalid, pm.idx_a ORDER BY i) AS cum_len,
+        sum(e.edge_len) OVER (PARTITION BY pm.globalid, pm.idx_a ORDER BY g.i) AS cum_len,
         sum(e.edge_len) OVER (PARTITION BY pm.globalid, pm.idx_a) AS total_len
     FROM path_matches AS pm
-    CROSS JOIN LATERAL generate_series(1, array_length(pm.path_nodes, 1) - 1) AS i
+    CROSS JOIN LATERAL generate_series(1, len(pm.path_nodes) - 1) AS g (i)
     INNER JOIN edges AS e
         ON
-            least(pm.path_nodes[i], pm.path_nodes[i + 1]) = e.node_lo
-            AND greatest(pm.path_nodes[i], pm.path_nodes[i + 1]) = e.node_hi
-            AND pm.path_arcs[i] = e.is_arc
+            least(pm.path_nodes[g.i], pm.path_nodes[g.i + 1]) = e.node_lo
+            AND greatest(pm.path_nodes[g.i], pm.path_nodes[g.i + 1]) = e.node_hi
+            AND pm.path_arcs[g.i] = e.is_arc
 ),
 
 matched AS (

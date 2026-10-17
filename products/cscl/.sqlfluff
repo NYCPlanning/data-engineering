@@ -1,0 +1,11 @@
+[sqlfluff]
+# Overrides the repo-wide postgres default (pyproject.toml) - this product's dbt build
+# targets DuckDB, not postgres.
+dialect = duckdb
+# The repo-wide exclusions (pyproject.toml), which this setting replaces, plus RF06:
+# it flags quoted identifiers DuckDB doesn't strictly need (it's case-insensitive), but
+# the quotes here are deliberate - they pin exact output column names (e.g. "SegmentID").
+exclude_rules = ambiguous.column_count, references.qualification, structure.unused_cte, structure.column_order, structure.else_null, structure.subquery, references.keywords, references.consistent, references.special_chars, layout.cte_newline, references.quoting
+
+[sqlfluff:templater:dbt]
+dialect = duckdb

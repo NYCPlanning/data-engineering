@@ -17,7 +17,7 @@
 -- This absorbs prod's inconsistent house-number zeroing (CSCL-LION-15).
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "fgdb_lion"
 ) -%}

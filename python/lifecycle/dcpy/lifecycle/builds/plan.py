@@ -137,8 +137,9 @@ def resolve_version(recipe: Recipe) -> str:
 def _merge_base_recipe_inputs(
     recipe: Recipe, recipe_path: Path, vars: dict[str, str] | None
 ) -> None:
-    # merge in base recipe inputs. A child that declares its own `dataset_defaults`
-    # applies them to inherited datasets too (the base's defaults aren't applied first).
+    # merge in base recipe inputs, exports and stage_config. A child that declares its
+    # own `dataset_defaults` applies them to inherited datasets too (the base's defaults
+    # aren't applied first).
     if recipe.base_recipe is None:
         return
     defaults = recipe.inputs.dataset_defaults
@@ -156,6 +157,21 @@ def _merge_base_recipe_inputs(
             recipe.inputs.datasets.append(base_ds)
     if inherit_defaults:
         _apply_recipe_defaults(recipe)
+
+    # exports: fields the child sets override the base's, field by field, so a child can
+    # change e.g. how layers are packaged while keeping the base's list of datasets
+    if base_recipe.exports is not None:
+        if recipe.exports is None:
+            recipe.exports = base_recipe.exports
+        else:
+            recipe.exports = base_recipe.exports.model_copy(
+                update={
+                    f: getattr(recipe.exports, f)
+                    for f in recipe.exports.model_fields_set
+                }
+            )
+    # stage_config: per stage, the child's entry (if any) replaces the base's
+    recipe.stage_config = {**base_recipe.stage_config, **recipe.stage_config}
 
 
 def plan_recipe(

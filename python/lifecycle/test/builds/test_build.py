@@ -521,7 +521,8 @@ exports:
     format: csv
 """
     )
-    expected = get_build_dir("test", "24Q1") / "test_24Q1.duckdb"
+    # stage outputs live under <root>/build
+    expected = get_build_dir("test", "24Q1") / "build" / "test_24Q1.duckdb"
 
     build._set_duckdb_path(plan.recipe_from_yaml(recipe_path))
     assert os.environ["DUCKDB_PATH"] == str(expected)
@@ -707,3 +708,112 @@ def test_layered_export_spatial_false_with_geometry_type_raises(tmp_path):
     )
     with pytest.raises(ValueError, match="spatial: false and geometry_type"):
         export(recipe_path, pg_client=MagicMock())
+
+
+def test_parquet_first_export_then_package(tmp_path, monkeypatch):
+    """package_from_parquet: gdb entries export as parquet layers + a manifest, and
+    `package` folds them into the FGDB the entries name."""
+    from dcpy.lifecycle.builds.export import package
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.boundaries AS SELECT 1 AS id, "
+        "ST_GeomFromText('MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))') AS geom"
+    )
+    client.conn.execute("CREATE TABLE s.names AS SELECT 'x' AS name")
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  crs: EPSG:2263
+  datasets:
+  - name: boundaries
+    filename: things.gdb.zip
+    format: gdb
+  - name: names
+    filename: things.gdb.zip
+    format: gdb
+    custom: {{ spatial: false }}
+"""
+    )
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv(
+        "BUILD_ENV_OUTPUT_DIR", raising=False
+    )  # set by other tests' loads
+    out = export(lock, duckdb_client=client)
+    assert out is not None
+    assert (out / "raw_exports" / "manifest.json").exists()
+    assert (out / "raw_exports" / "things" / "boundaries.parquet").exists()
+    assert not (out / "dataset_files").exists()  # deliverables are package's job
+
+    packaged = package(lock)
+    assert packaged == tmp_path / "package"  # <root>/package
+    gdb = f"zip://{packaged / 'dataset_files' / 'things.gdb.zip'}!things.gdb"
+    boundaries = gpd.read_file(gdb, layer="boundaries")
+    assert len(boundaries) == 1
+    assert boundaries.crs.to_epsg() == 2263
+    assert len(gpd.read_file(gdb, layer="names")) == 1
+    client.close()
+
+
+def test_parquet_first_fixed_width(tmp_path, monkeypatch):
+    """A dat entry with custom.layout exports its unformatted rows to parquet, and
+    `package` formats them into the fixed-width file."""
+    from dcpy.lifecycle.builds.export import package
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.rows AS SELECT * FROM (VALUES (1, 'ab'), (2, NULL), (3, 'c')) t (id, code)"
+    )
+    (tmp_path / "layout.csv").write_text(
+        "field_name,field_length,justify_and_fill,blank_if_none\n"
+        "id,3,RJZF,FALSE\ncode,4,LJSF,TRUE\n"
+    )
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  datasets:
+  - name: rows
+    group: flat_files
+    filename: rows.dat
+    format: dat
+    custom: {{ layout: layout.csv, where: "id < 3", order_by: id }}
+"""
+    )
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv(
+        "BUILD_ENV_OUTPUT_DIR", raising=False
+    )  # set by other tests' loads
+    out = export(lock, duckdb_client=client)
+    assert out is not None
+    assert (out / "raw_exports" / "flat_files" / "rows.parquet").exists()
+    packaged = package(lock, product_path=tmp_path)
+    assert (packaged / "dataset_files" / "flat_files" / "rows.dat").read_bytes() == (
+        b"001ab  \r\n002    \r\n"
+    )
+    client.close()

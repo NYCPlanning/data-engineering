@@ -15,7 +15,7 @@
 -- for a stable primary key dbt's audit_helper comparison can use.
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "fgdb_altnames"
 ) -%}

@@ -97,13 +97,13 @@ SELECT
     nodes.from_sectionalmap,
     nodes.from_quarter_sectionalmap,
     nodes.from_nodeid,
-    round(nodes.from_x)::INT AS from_x,
-    round(nodes.from_y)::INT AS from_y,
+    round_even(nodes.from_x, 0)::INT AS from_x,
+    round_even(nodes.from_y, 0)::INT AS from_y,
     nodes.to_sectionalmap,
     nodes.to_quarter_sectionalmap,
     nodes.to_nodeid,
-    round(nodes.to_x)::INT AS to_x,
-    round(nodes.to_y)::INT AS to_y,
+    round_even(nodes.to_x, 0)::INT AS to_x,
+    round_even(nodes.to_y, 0)::INT AS to_y,
     ap_left.left_borocode,
     ap_left.left_community_district,
     ap_left.left_1990_census_tract_basic,
@@ -212,10 +212,10 @@ SELECT
         WHEN segments.feature_type = 'centerline' THEN centerline_curve.curve_flag
         WHEN st_numpoints(segments.geom) > 2 THEN 'I'
     END AS curve_flag,
-    round(centerline_curve.center_of_curvature_x)::BIGINT AS center_of_curvature_x,
-    round(centerline_curve.center_of_curvature_y)::BIGINT AS center_of_curvature_y,
-    round(centerline_curve.center_of_curvature_radius)::BIGINT AS center_of_curvature_radius,
-    round(segments.shape_length)::INT AS segment_length_ft,
+    round_even(centerline_curve.center_of_curvature_x, 0)::BIGINT AS center_of_curvature_x,
+    round_even(centerline_curve.center_of_curvature_y, 0)::BIGINT AS center_of_curvature_y,
+    round_even(centerline_curve.center_of_curvature_radius, 0)::BIGINT AS center_of_curvature_radius,
+    round_even(segments.shape_length, 0)::INT AS segment_length_ft,
     convert_level_code(
         segments.from_level_code,
         CASE WHEN segments.primary_feature_type = 'shoreline' THEN 'shoreline' ELSE segments.feature_type END
@@ -309,29 +309,36 @@ LEFT JOIN feature_names
     ON (segments.boroughcode::TEXT || segments.five_digit_street_code || segments.lgc1) = feature_names.b7sc
 LEFT JOIN nodes ON segments.globalid = nodes.globalid
 LEFT JOIN segment_locational_status ON segments.globalid = segment_locational_status.globalid
+-- conditions on the left side are folded into the join key (NULL = no match): a
+-- one-sided ON predicate makes DuckDB fall back to a nested-loop join
 LEFT JOIN
     atomic_polygons AS ap_left
     ON
-        segments.globalid = ap_left.globalid
-        AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L'
+        (CASE
+            WHEN segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'L' THEN segments.globalid
+        END) = ap_left.globalid
 LEFT JOIN
     atomic_polygons AS ap_right
     ON
-        segments.globalid = ap_right.globalid
-        AND segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R'
+        (CASE
+            WHEN segment_locational_status.borough_boundary_indicator IS DISTINCT FROM 'R' THEN segments.globalid
+        END) = ap_right.globalid
 LEFT JOIN saf ON segments.segmentid = saf.segmentid AND segments.boroughcode = saf.boroughcode
 LEFT JOIN nypd_service_areas ON segments.globalid = nypd_service_areas.globalid
 LEFT JOIN sedat ON segments.segmentid = sedat.segmentid AND segments.boroughcode = sedat.boroughcode
 -- centerline only
 LEFT JOIN centerline AS primary_centerline ON segments.segmentid = primary_centerline.segmentid
-LEFT JOIN centerline ON segments.segmentid = centerline.segmentid AND segments.feature_type = 'centerline'
-LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid AND segments.feature_type = 'centerline'
+LEFT JOIN centerline
+    ON (CASE WHEN segments.feature_type = 'centerline' THEN segments.segmentid END) = centerline.segmentid
+-- centerline.segmentid is NULL unless feature_type = 'centerline'
+LEFT JOIN centerline_curve ON centerline.segmentid = centerline_curve.segmentid
 LEFT JOIN centerline_coincident_subway_or_rail
-    ON centerline.segmentid = centerline_coincident_subway_or_rail.segmentid AND segments.feature_type = 'centerline'
+    ON centerline.segmentid = centerline_coincident_subway_or_rail.segmentid
 -- shoreline only
 -- rail only
 LEFT JOIN rail ON segments.segmentid = rail.segmentid
 -- other
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
-LEFT JOIN zips ON segments.globalid = zips.globalid AND segments.feature_type <> 'centerline'
+LEFT JOIN zips
+    ON (CASE WHEN segments.feature_type <> 'centerline' THEN segments.globalid END) = zips.globalid
 LEFT JOIN proto ON segments.globalid = proto.globalid

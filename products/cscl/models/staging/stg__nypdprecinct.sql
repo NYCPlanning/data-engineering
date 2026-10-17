@@ -15,5 +15,5 @@ SELECT
     shape_length,
     shape_area,
     geom AS raw_geom,
-    LINEARIZE(geom) AS geom
+    geom
 FROM {{ source("recipe_sources", "dcp_cscl_nypdprecinct") }}

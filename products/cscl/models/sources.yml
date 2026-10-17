@@ -13,13 +13,19 @@ sources:
   tables:
   # segment source layers - backbone
   - name: dcp_cscl_centerline
+  - name: dcp_cscl_centerline_arcs
   - name: dcp_cscl_shoreline
+  - name: dcp_cscl_shoreline_arcs
   - name: dcp_cscl_rail
+  - name: dcp_cscl_rail_arcs
   - name: dcp_cscl_subway
+  - name: dcp_cscl_subway_arcs
   - name: dcp_cscl_nonstreetfeatures
+  - name: dcp_cscl_nonstreetfeatures_arcs
 
   # other more "primary" layers
   - name: dcp_cscl_atomicpolygons
+  - name: dcp_cscl_atomicpolygons_arcs
   - name: dcp_cscl_nodes
   - name: dcp_cscl_streetshaveintersections
   - name: dcp_cscl_virtualintersection
@@ -43,6 +49,7 @@ sources:
   - name: dcp_cscl_firecompany
   - name: dcp_cscl_healtharea
   - name: dcp_cscl_nypdprecinct
+  - name: dcp_cscl_nypdprecinct_arcs
   - name: dcp_cscl_nypdpatrolborough
   - name: dcp_cscl_roadbed_pointer_list
   - name: dcp_cscl_sectionalmap
@@ -61,12 +68,14 @@ sources:
   - name: dcp_cscl_streetname
   - name: dcp_cscl_universalword
   - name: dcp_cscl_zipcode
+  - name: dcp_cscl_zipcode_arcs
   - name: dcp_cscl_electiondistrict
 
   # district boundary gdb source layers (ETL spec ch. 10, table 39)
   - name: dcp_cscl_assemblydistrict
   - name: dcp_cscl_borough
   - name: dcp_cscl_businessimprovementdistrict
+  - name: dcp_cscl_businessimprovementdistrict_arcs
   - name: dcp_cscl_censusblock2010
   - name: dcp_cscl_censusblock2020
   - name: dcp_cscl_censustract2000
@@ -77,12 +86,14 @@ sources:
   - name: dcp_cscl_firedivision
   - name: dcp_cscl_healthcenterdistrict
   - name: dcp_cscl_historicdistrict
+  - name: dcp_cscl_historicdistrict_arcs
   - name: dcp_cscl_hurricaneevacuationzone
   - name: dcp_cscl_municourtdistrict
   - name: dcp_cscl_neighborhood
   - name: dcp_cscl_schooldistrict
   - name: dcp_cscl_statesenatedistrict
   - name: dcp_cscl_urbanrenewalarea
+  - name: dcp_cscl_urbanrenewalarea_arcs
   - name: dcp_cscl_neighborhoodpumacodes
 
   # The prior LION release's citywide data, for the LDF's node/segment diffing - see
@@ -96,6 +107,7 @@ sources:
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs
+  # loaded from the production_outputs parquet bundle (recipe input dcp_cscl_production_outputs)
   schema: production_outputs
   tables:
   - name: citywide_lion_dat

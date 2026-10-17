@@ -38,7 +38,7 @@
 {% set probe_offset = var('lion_lr_fallback_probe_offset_ft') %}
 
 WITH ap_extent AS (
-    SELECT st_setsrid(st_extent(geom)::geometry, min(st_srid(geom))) AS geom
+    SELECT st_extent_agg(geom) AS geom
     FROM {{ ref('stg__atomicpolygons') }}
 ),
 
@@ -48,7 +48,11 @@ segments AS (
         s.segmentid,
         s.geom,
         st_npoints(s.geom) AS n_points,
-        not(s.geom @ e.geom) AS is_bad_geom
+        -- Postgres `s.geom @ e.geom`: bounding box contained by the extent's
+        not(
+            st_xmin(s.geom) >= st_xmin(e.geom) AND st_xmax(s.geom) <= st_xmax(e.geom)
+            AND st_ymin(s.geom) >= st_ymin(e.geom) AND st_ymax(s.geom) <= st_ymax(e.geom)
+        ) AS is_bad_geom
     FROM {{ ref('int__segments') }} AS s
     CROSS JOIN ap_extent AS e
 ),
@@ -120,28 +124,37 @@ matched AS (
 ),
 
 -- offset_points needs a LineString: a multi-part line probes its longest part
+probe_lines AS (
+    SELECT
+        globalid,
+        arg_max(part, st_length(part)) AS line
+    FROM (
+        SELECT
+            m.globalid,
+            unnest(st_dump(st_linemerge(m.geom))).geom AS part
+        FROM matched AS m
+        WHERE
+            NOT m.is_bad_geom
+            AND (NOT m.is_matched OR m.left_atomicid IS NULL OR m.right_atomicid IS NULL)
+    ) AS parts
+    GROUP BY globalid
+),
+
 probe_points AS (
     SELECT
-        m.globalid,
-        o.left_point,
-        o.right_point
-    FROM matched AS m
-    LEFT JOIN LATERAL (
-        SELECT d.geom
-        FROM st_dump(st_linemerge(m.geom)) AS d
-        WHERE st_geometrytype(m.geom) != 'ST_LineString'
-        ORDER BY st_length(d.geom) DESC
-        LIMIT 1
-    ) AS lp ON TRUE
-    CROSS JOIN
-        LATERAL offset_points(
-            coalesce(lp.geom, m.geom),
-            st_lineinterpolatepoint(coalesce(lp.geom, m.geom), 0.5),
-            {{ probe_offset }}
-        ) AS o (left_point geometry, right_point geometry)
-    WHERE
-        NOT m.is_bad_geom
-        AND (NOT m.is_matched OR m.left_atomicid IS NULL OR m.right_atomicid IS NULL)
+        globalid,
+        o.left_offset_point AS left_point,
+        o.right_offset_point AS right_point
+    FROM (
+        SELECT
+            pl.globalid,
+            offset_points(
+                pl.line,
+                st_lineinterpolatepoint(pl.line, 0.5),
+                offset_length := {{ probe_offset }}
+            ) AS o
+        FROM probe_lines AS pl
+    ) AS offsets
 ),
 
 probed AS (

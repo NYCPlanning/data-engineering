@@ -84,16 +84,10 @@ def _merged(path: Path):
     return recipe
 
 
-def test_cscl_duckdb_recipe_inherits_every_postgres_input():
-    pg = _merged(PRODUCT_DIR / "recipe.yml")
-    duck = _merged(PRODUCT_DIR / "recipe_duckdb.yml")
-    assert [
-        (d.id, d.import_as) for d in duck.inputs.datasets if d.load_engine == "curves"
-    ] and sum(d.load_engine == "curves" for d in duck.inputs.datasets) == 11
-    assert {(d.id, d.import_as) for d in duck.inputs.datasets} == {
-        (d.id, d.import_as) for d in pg.inputs.datasets
-    }
-    for d in duck.inputs.datasets:
+def test_cscl_recipe_loads_everything_into_duckdb():
+    recipe = _merged(PRODUCT_DIR / "recipe.yml")
+    assert sum(d.load_engine == "curves" for d in recipe.inputs.datasets) == 11
+    for d in recipe.inputs.datasets:
         assert d.destination == "duckdb"
         if d.file_type == "gdb":
             assert d.load_engine in ("curves", "gdal")
@@ -173,7 +167,7 @@ def test_cscl_duckdb_recipe_names_its_duckdb_file():
     from dcpy.lifecycle.builds import config as build_config
     from dcpy.lifecycle.builds.plan import recipe_from_yaml
 
-    recipe = recipe_from_yaml(PRODUCT_DIR / "recipe_duckdb.yml")
+    recipe = recipe_from_yaml(PRODUCT_DIR / "recipe.yml")
     assert (
         build_config.get_duckdb_path("cscl", "26c", recipe.duckdb_filename).name
         == "cscl.duckdb"
@@ -201,3 +195,94 @@ def test_zipped_gdb_is_extracted_once(tmp_path, gpkg):
     (gdb / "marker").write_text("")
     assert data_loader._unzipped_gdb(zpath) == gdb
     assert (gdb / "marker").exists(), "second call should reuse the extraction"
+
+
+def test_load_arrow_keeps_domain_codes(client):
+    import pyarrow as pa
+
+    codes = pa.DictionaryArray.from_arrays(
+        pa.array([1, None, 0], pa.int16()), pa.array(["Ground", "Elevated"])
+    )
+    client.load_arrow(pa.table({"level": codes}), "tbl")
+    assert client.conn.execute(
+        "SELECT level FROM s.tbl ORDER BY ogc_fid"
+    ).fetchall() == [
+        (1,),
+        (None,),
+        (0,),
+    ]
+
+
+def test_child_recipe_inherits_exports_and_stage_config(tmp_path):
+    (tmp_path / "base.yml").write_text(
+        """
+name: base
+product: p
+version: v1
+inputs:
+  datasets: []
+exports:
+  output_folder: output
+  datasets:
+  - name: a
+    format: csv
+stage_config:
+  builds.build:
+    commands:
+    - name: build
+      run: echo hi
+"""
+    )
+    (tmp_path / "child.yml").write_text(
+        """
+name: child
+product: p
+version: v1
+base_recipe: base.yml
+inputs:
+  datasets: []
+exports:
+  zip_name: z
+"""
+    )
+    recipe = _merged(tmp_path / "child.yml")
+    assert recipe.exports is not None
+    # the child's field is set, the base's are kept
+    assert recipe.exports.zip_name == "z"
+    assert str(recipe.exports.output_folder) == "output"
+    assert [d.name for d in recipe.exports.datasets] == ["a"]
+    assert [c.name for c in recipe.stage_config["builds.build"].commands] == ["build"]
+
+
+def test_parquet_bundle_loads_one_table_per_file(tmp_path, client):
+    import zipfile
+
+    import pandas as pd
+
+    gpd.GeoDataFrame(
+        {"id": [1]}, geometry=[LineString([(0, 0), (1, 1)])], crs="EPSG:2263"
+    ).to_parquet(tmp_path / "fgdb_lion.parquet")
+    pd.DataFrame({"dat_column": ["abc"]}).to_parquet(
+        tmp_path / "citywide_lion_dat.parquet"
+    )
+    bundle = tmp_path / "production_outputs.zip"
+    with zipfile.ZipFile(bundle, "w") as zf:
+        zf.write(tmp_path / "fgdb_lion.parquet", "26c/fgdb_lion.parquet")
+        zf.write(tmp_path / "citywide_lion_dat.parquet", "citywide_lion_dat.parquet")
+    ds = InputDataset(
+        id="dcp_cscl_production_outputs",
+        import_as="production_outputs",
+        file_type=DatasetType.parquet_bundle,
+        version="26c",
+    )
+    data_loader.load_dataset_into_duckdb(ds, client, bundle)
+    tables = client.conn.execute(
+        "SELECT table_name FROM information_schema.tables "
+        "WHERE table_schema = 'production_outputs' ORDER BY 1"
+    ).fetchall()
+    assert tables == [("citywide_lion_dat",), ("fgdb_lion",)]
+    geom_type = client.conn.execute(
+        "SELECT column_type FROM (DESCRIBE production_outputs.fgdb_lion) "
+        "WHERE column_name = 'geometry'"
+    ).fetchone()
+    assert geom_type is not None and geom_type[0].startswith("GEOMETRY")

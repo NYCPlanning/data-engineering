@@ -13,16 +13,16 @@ SELECT
     segments.segmentid AS record_id,
     FORMAT(
         'Neither of the AtomicPolygon borough matches the segment borough for '
-        || 'the %s feature with an OID = %s. Segment has boro ''%s'', '
-        || 'left atomic polygon with atomicid ''%s'' has boro ''%s'', '
-        || 'and right atomic polygon with atomicid ''%s'' has boro ''%s''.',
-        segments.source_table,
-        segments.globalid,
-        aps.segment_borocode,
-        aps.left_atomicid,
-        aps.left_borocode,
-        aps.right_atomicid,
-        aps.right_borocode
+        || 'the {} feature with an OID = {}. Segment has boro ''{}'', '
+        || 'left atomic polygon with atomicid ''{}'' has boro ''{}'', '
+        || 'and right atomic polygon with atomicid ''{}'' has boro ''{}''.',
+        COALESCE(segments.source_table::VARCHAR, ''),
+        COALESCE(segments.globalid::VARCHAR, ''),
+        COALESCE(aps.segment_borocode::VARCHAR, ''),
+        COALESCE(aps.left_atomicid::VARCHAR, ''),
+        COALESCE(aps.left_borocode::VARCHAR, ''),
+        COALESCE(aps.right_atomicid::VARCHAR, ''),
+        COALESCE(aps.right_borocode::VARCHAR, '')
     ) AS message
 FROM aps
 INNER JOIN segments ON aps.globalid = segments.globalid

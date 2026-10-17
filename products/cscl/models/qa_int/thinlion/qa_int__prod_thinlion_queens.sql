@@ -2,7 +2,7 @@
 -- Atomic ID is used as the primary key for dbt audit_helper comparisons
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "thinlion_queens"
 ) -%}

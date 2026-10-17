@@ -6,7 +6,7 @@
             PARTITION BY generic_segmentid
         ) AS rpl_id,
     *
-  from production_outputs.rpl
+  from {{ source('production_outputs', 'rpl') }}
   order by row_number asc
 {% endset %}
 

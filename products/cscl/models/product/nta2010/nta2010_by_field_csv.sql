@@ -12,7 +12,7 @@ preprocessed AS (
         borough,
         -- Census tracts stored as integers where last 2 digits are decimal suffix
         -- Convert to BBBBSS format: 4-byte basic (RJSF) + 2-byte suffix (RJZF or blank)
-        LPAD((censustract_int / 100)::TEXT, 4, ' ')
+        LPAD((censustract_int // 100)::TEXT, 4, ' ')
         || CASE
             WHEN censustract_int % 100 = 0 THEN '  '  -- No suffix: 2 blanks
             ELSE LPAD((censustract_int % 100)::TEXT, 2, '0')  -- Suffix: 2-digit zero-filled

@@ -1,0 +1,2 @@
+field_number,field_name,field_label,field_length,start_index,end_index,justify_and_fill,blank_if_none
+ENDERS1,lookup_key,Lookup Key,32,1,32,LJSF,FALSE

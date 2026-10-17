@@ -11,23 +11,28 @@
 
 WITH tract_components AS (
     SELECT
-        t.mcea,
-        (st_dump(st_union(t.geom))).geom AS geom
-    FROM {{ ref('stg__censustract2000') }} AS t
-    WHERE t.mcea IS NOT NULL
-    GROUP BY t.mcea
+        mcea,
+        unnest(st_dump(geom)).geom AS geom
+    FROM (
+        SELECT
+            t.mcea,
+            st_union_agg(t.geom) AS geom
+        FROM {{ ref('stg__censustract2000') }} AS t
+        WHERE t.mcea IS NOT NULL
+        GROUP BY t.mcea
+    ) AS dissolved
 ),
 
 parts AS (
     SELECT
         b.entity_id,
-        (st_dump(b.geom)).geom AS geom
+        unnest(st_dump(b.geom)).geom AS geom
     FROM {{ ref('int__boundary__mcea') }} AS b
 )
 
 SELECT
     c.mcea AS entity_id,
-    st_multi(st_collect(p.geom)) AS geom
+    st_multi(st_collect(list(p.geom))) AS geom
 FROM tract_components AS c
 INNER JOIN parts AS p
     ON c.mcea = p.entity_id AND st_intersects(c.geom, st_pointonsurface(p.geom))

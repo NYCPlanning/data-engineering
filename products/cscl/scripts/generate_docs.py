@@ -16,12 +16,17 @@ Requires target/manifest.json to already exist (run `dbt parse`, or any other db
 invocation, first) - see dcpy.utils.dbt_project.load_dbt_project_from_manifest.
 
 Usage:
-    python scripts/generate_docs.py
+    python scripts/generate_docs.py [--output PATH]
+
+--output defaults to output/docs/cscl_exports.md. Outside the product directory (e.g. a
+build's attachments/), referenced images are copied next to the doc instead of linked.
 """
 
+import argparse
 import csv
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -270,13 +275,21 @@ def _build_doc_from_config(project: DbtProject, config: DocConfig, title: str) -
 def _resolve_image_paths(doc: Doc, output_dir: Path) -> None:
     """Image.path values are authored relative to the product root (see
     media/README.md) - rewrite them relative to wherever this doc is actually written.
+    Outside the product root, copy each image next to the doc (keeping its relative
+    path) so the doc travels with its images.
     """
+    copy = not output_dir.resolve().is_relative_to(PRODUCT_ROOT)
     prefix = Path(os.path.relpath(PRODUCT_ROOT, start=output_dir))
 
     def rewrite(elements: list) -> None:
         for element in elements:
             if isinstance(element, Image):
-                element.path = str(prefix / element.path)
+                if copy:
+                    target = output_dir / element.path
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(PRODUCT_ROOT / element.path, target)
+                else:
+                    element.path = str(prefix / element.path)
 
     def walk(section: Section) -> None:
         rewrite(section.elements)
@@ -289,6 +302,10 @@ def _resolve_image_paths(doc: Doc, output_dir: Path) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Generate CSCL's export documentation")
+    parser.add_argument("--output", type=Path, default=OUTPUT_PATH)
+    output_path: Path = parser.parse_args().output
+
     if not MANIFEST_PATH.exists():
         print(f"✗ {MANIFEST_PATH} not found - run `dbt parse` first", file=sys.stderr)
         sys.exit(1)
@@ -310,11 +327,10 @@ def main() -> None:
     # reference another term too.
     glossary.resolve_in_doc(doc)
 
-    _resolve_image_paths(doc, OUTPUT_PATH.parent)
-
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(doc.to_markdown())
-    print(f"✓ Wrote {OUTPUT_PATH}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    _resolve_image_paths(doc, output_path.parent)
+    output_path.write_text(doc.to_markdown())
+    print(f"✓ Wrote {output_path}")
 
 
 if __name__ == "__main__":

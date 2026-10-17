@@ -57,17 +57,17 @@ lion_rows AS (
 published_ids AS (
     SELECT
         'S' AS record_type,
-        CASE WHEN trim(segmentid) ~ '^[0-9]+$' THEN trim(segmentid)::int END AS id
+        CASE WHEN regexp_matches(trim(segmentid), '^[0-9]+$') THEN trim(segmentid)::int END AS id
     FROM lion_rows
     UNION
     SELECT
         'P' AS record_type,
-        CASE WHEN trim(physicalid) ~ '^[0-9]+$' THEN trim(physicalid)::int END AS id
+        CASE WHEN regexp_matches(trim(physicalid), '^[0-9]+$') THEN trim(physicalid)::int END AS id
     FROM lion_rows
     UNION
     SELECT
         'G' AS record_type,
-        CASE WHEN trim(genericid) ~ '^[0-9]+$' THEN trim(genericid)::int END AS id
+        CASE WHEN regexp_matches(trim(genericid), '^[0-9]+$') THEN trim(genericid)::int END AS id
     FROM lion_rows
 ),
 

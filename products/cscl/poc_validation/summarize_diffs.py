@@ -4,15 +4,17 @@ Parses validation output text files and produces a CSV summary of diffs.
 Run from the products/cscl directory:
     python poc_validation/summarize_diffs.py
 
-Outputs: output/validation_output/diffs_summary.csv
+Outputs: <QA_DIR>/validation_output/diffs_summary.csv
 """
 
 import csv
 from pathlib import Path
 
+from paths import validation_dir
+
 from dcpy.lifecycle.builds import plan
 
-VALIDATION_DIR = Path("output/validation_output")
+VALIDATION_DIR = validation_dir()
 OUTPUT_PATH = VALIDATION_DIR / "diffs_summary.csv"
 VALIDATION_SUMMARY_PATH = VALIDATION_DIR / "validation_summary.csv"
 

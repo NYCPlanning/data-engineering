@@ -89,9 +89,10 @@ jobs:
         CHANGED: ${{ inputs.path_filter }}
       run: |
         # Not every products/*/dbt_project.yml is here; the rest aren't migrated far enough to test.
-        # green_fast_track is duckdb-only now, so it can't run in this postgres-backed job.
+        # green_fast_track and cscl are duckdb-only, so they can't run in this postgres-backed
+        # job (cscl has its own dbt_cscl job below).
         projects=$(jq -cn \
-          --argjson all '["template","cdbg","ceqr","cpdb","cscl","pluto","zoningtaxlots"]' \
+          --argjson all '["template","cdbg","ceqr","cpdb","pluto","zoningtaxlots"]' \
           --argjson changed "${CHANGED:-null}" \
           '$all | map(select($changed == null or IN($changed[])))')
         echo "dbt projects to test: $projects"
@@ -149,6 +150,41 @@ jobs:
     - name: unit tests
       run: |
         dbt test --resource-type unit_test
+
+  dbt_cscl:
+    name: dbt tests (cscl, DuckDB)
+    # CSCL builds on DuckDB: seeds go into a throwaway DuckDB file (the formatting macros
+    # read them at compile time), then the same lint + unit tests as the postgres dbt job.
+    # Dialect comes from products/cscl/.sqlfluff (duckdb).
+    if: inputs.path_filter == '' || contains(inputs.path_filter, '"cscl"')
+    runs-on: ubuntu-22.04
+    container:
+      image: nycplanning/dev:${{ inputs.image_tag }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/cscl
+    env:
+      BUILD_ENGINE_SCHEMA: cscl_ci
+    steps:
+    - uses: actions/checkout@v7
+    - name: setup
+      run: |
+        git config --global --add safe.directory /__w/data-engineering/data-engineering
+        echo "DUCKDB_PATH=$RUNNER_TEMP/cscl_ci.duckdb" >> "$GITHUB_ENV"
+    - name: seeds
+      run: |
+        dbt deps
+        dbt seed
+    - name: sqlfluff models
+      run: sqlfluff lint models --templater=dbt
+    - name: sqlfluff tests
+      run: |
+        if [ -d tests ]; then
+          sqlfluff lint tests --templater=dbt
+        fi
+    - name: unit tests
+      run: dbt test --resource-type unit_test
 
   mypy:
     name: Check python types

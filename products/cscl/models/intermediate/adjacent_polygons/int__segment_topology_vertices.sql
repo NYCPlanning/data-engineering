@@ -44,31 +44,27 @@ ap_point_cells AS (
     CROSS JOIN (VALUES (-1), (1)) AS oy (o)
 ),
 
--- dumped and measured one segment at a time, so the window sorts ~14 rows by an integer
--- instead of 3M rows by globalid
 vertices AS (
     SELECT
-        s.globalid,
-        d.idx,
-        d.x,
-        d.y,
-        d.along_ft
-    FROM {{ ref('int__segments') }} AS s
-    CROSS JOIN LATERAL (
+        globalid,
+        idx,
+        x,
+        y,
+        coalesce(sum(step_len) OVER (PARTITION BY globalid ORDER BY idx), 0) AS along_ft
+    FROM (
         SELECT
-            idx,
-            x,
-            y,
-            coalesce(sum(step_len) OVER (ORDER BY idx), 0) AS along_ft
+            globalid,
+            d.path[1] AS idx,
+            st_x(d.geom) AS x,
+            st_y(d.geom) AS y,
+            st_distance(d.geom, lag(d.geom) OVER (PARTITION BY globalid ORDER BY d.path[1])) AS step_len
         FROM (
             SELECT
-                dp.path[1] AS idx,
-                st_x(dp.geom) AS x,
-                st_y(dp.geom) AS y,
-                st_distance(dp.geom, lag(dp.geom) OVER (ORDER BY dp.path[1])) AS step_len
-            FROM st_dumppoints(s.geom) AS dp
-        ) AS steps
-    ) AS d
+                globalid,
+                unnest(st_dump(st_points(geom))) AS d
+            FROM {{ ref('int__segments') }}
+        ) AS dumped
+    ) AS steps
 ),
 
 candidates AS (

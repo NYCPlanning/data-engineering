@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import cast
 
 import duckdb  # type: ignore
 import pandas as pd
@@ -281,10 +282,24 @@ class DuckDBClient:
     def load_arrow(self, table: pa.Table, table_name: str) -> str:
         """Load an arrow table (already in FID order), adding ``ogc_fid`` = 1..N.
 
-        Timestamps are cast to plain TIMESTAMP, as ST_Read loads them.
+        Timestamps are cast to plain TIMESTAMP, as ST_Read loads them. Dictionary
+        columns (GDAL's coded-value-domain fields) keep their indices, the stored codes
+        that ogr2ogr writes, not the domain descriptions.
         """
         full_table_name = f"{self.schema}.{sanitize_name(table_name)}"
         self.conn.execute(f"DROP TABLE IF EXISTS {full_table_name}")
+        for i, field in enumerate(table.schema):
+            if pa.types.is_dictionary(field.type):
+                codes = pa.chunked_array(
+                    [
+                        cast(pa.DictionaryArray, chunk).indices
+                        for chunk in table.column(i).chunks
+                    ],
+                    type=field.type.index_type,
+                )
+                table = table.set_column(
+                    i, pa.field(field.name, field.type.index_type), codes
+                )
         table = table.add_column(
             0, "ogc_fid", pa.array(range(1, table.num_rows + 1), pa.int32())
         )

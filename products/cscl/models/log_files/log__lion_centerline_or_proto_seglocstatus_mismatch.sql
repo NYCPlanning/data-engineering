@@ -19,8 +19,11 @@ joined AS (
         END AS source_segment_locational_status,
         lion.source_table
     FROM lion
-    LEFT JOIN centerline ON lion.source_table = 'centerline' AND lion.segmentid = centerline.segmentid
-    LEFT JOIN proto ON lion.source_table = 'altsegmentdata' AND lion.globalid = proto.globalid
+    -- one-sided conditions folded into the key (a one-sided ON predicate nested-loops in DuckDB)
+    LEFT JOIN centerline
+        ON (CASE WHEN lion.source_table = 'centerline' THEN lion.segmentid END) = centerline.segmentid
+    LEFT JOIN proto
+        ON (CASE WHEN lion.source_table = 'altsegmentdata' THEN lion.globalid END) = proto.globalid
     WHERE lion.source_table IN ('centerline', 'altsegmentdata')
 )
 SELECT
@@ -31,12 +34,12 @@ SELECT
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     FORMAT(
-        'The %s feature with an OID = %s has a SEGLOCSTATUS value that is different than '
-        || 'what was found using the LION ETL rules.  Feature = ''{2}'', ETL Rules = ''{3}''.',
-        source_table,
-        globalid,
-        source_segment_locational_status,
-        segment_locational_status
+        'The {} feature with an OID = {} has a SEGLOCSTATUS value that is different than '
+        || 'what was found using the LION ETL rules.  Feature = ''{}'', ETL Rules = ''{}''.',
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(source_segment_locational_status::VARCHAR, ''),
+        COALESCE(segment_locational_status::VARCHAR, '')
     ) AS message
 FROM joined
 WHERE segment_locational_status IS DISTINCT FROM source_segment_locational_status

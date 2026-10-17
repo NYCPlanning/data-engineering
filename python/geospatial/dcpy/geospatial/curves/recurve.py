@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import struct
+import tempfile
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path
@@ -15,8 +16,6 @@ from typing import cast
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-from pyogrio.raw import write_arrow
-from pyproj import CRS
 
 from dcpy.geospatial.curves.convert import ARCS_COLUMN
 from dcpy.geospatial.curves.linearize import DEFAULT_MIN_SEGMENTS, DEFAULT_TOLERANCE
@@ -160,6 +159,43 @@ def _recurved_batches(
         yield pa.RecordBatch.from_arrays(cols, schema=schema)
 
 
+def recurve_parquet(
+    linear_parquet: str | Path,
+    arcs_parquet: str | Path,
+    out_parquet: str | Path,
+    batch_size: int = 10_000,
+) -> CurveStats:
+    """``layer_to_parquet`` output (linear GeoParquet + arcs) to one parquet file whose
+    geometry is ISO curve WKB, ready to fold into an FGDB (``gdb.write``).
+
+    The GeoParquet metadata is kept (CRS, primary column) with ``geometry_types``
+    emptied: curve types (CompoundCurve, CurvePolygon, MultiSurface, ...) are valid ISO
+    WKB but outside the GeoParquet 1.1 list, so readers can't trust a declared type.
+    """
+    linear = pq.ParquetFile(str(linear_parquet))
+    geo = json.loads((linear.metadata.metadata or {})[b"geo"])
+    geom_col = geo["primary_column"]
+    geo["columns"][geom_col]["geometry_types"] = []
+    geo["columns"][geom_col]["curved"] = True
+    schema = pa.schema(
+        (pa.field(f.name, pa.binary()) if f.name == geom_col else f.remove_metadata())
+        for f in linear.schema_arrow
+        if f.name != "ogc_fid"
+    ).with_metadata({b"geo": json.dumps(geo).encode()})
+    stats = CurveStats()
+    with pq.ParquetWriter(str(out_parquet), schema) as writer:
+        for batch in _recurved_batches(
+            linear,
+            _arcs_by_fid(arcs_parquet, batch_size),
+            geom_col,
+            schema,
+            batch_size,
+            stats,
+        ):
+            writer.write_batch(batch)
+    return stats
+
+
 def parquet_to_gdb(
     linear_parquet: str | Path,
     arcs_parquet: str | Path,
@@ -169,45 +205,29 @@ def parquet_to_gdb(
     layer_options: dict[str, str] | None = None,
     batch_size: int = 10_000,
 ) -> CurveStats:
-    """Stream ``layer_to_parquet`` output back into an FGDB layer with its curves.
+    """``recurve_parquet``, then fold the curved parquet into ``out_gdb`` as ``layer``.
 
-    The CRS comes from the GeoParquet metadata. ``geometry_type`` defaults to the
-    linear Multi* type in that metadata: FGDB has no separate curved layer types,
-    so a MultiPolygon layer holds MultiSurface features (pyogrio rejects the
-    curved type names). Pass ``gdb_xy_grid(source, layer)`` as ``layer_options``
-    to keep the source's coordinate grid, so coordinates round-trip exactly.
+    ``geometry_type`` defaults to the linear Multi* type in the linear file's
+    GeoParquet metadata: FGDB has no separate curved layer types, so a MultiPolygon
+    layer holds MultiSurface features (pyogrio rejects the curved type names). Pass
+    ``gdb_xy_grid(source, layer)`` as ``layer_options`` to keep the source's
+    coordinate grid, so coordinates round-trip exactly.
     """
-    linear = pq.ParquetFile(str(linear_parquet))
-    geo = json.loads((linear.metadata.metadata or {})[b"geo"])
-    geom_col = geo["primary_column"]
-    col = geo["columns"][geom_col]
+    from dcpy.geospatial.gdb.write import ParquetLayer, write_parquet_layer
+
     if geometry_type is None:
-        types = col["geometry_types"]
+        geo = json.loads(
+            (pq.ParquetFile(str(linear_parquet)).metadata.metadata or {})[b"geo"]
+        )
+        types = geo["columns"][geo["primary_column"]]["geometry_types"]
         multi = [t for t in types if t.startswith("Multi")]
         geometry_type = (multi or types or ["Unknown"])[0]
-    crs = CRS.from_json_dict(col["crs"]).to_wkt() if col.get("crs") else None
-    schema = pa.schema(
-        pa.field(f.name, pa.binary()) if f.name == geom_col else f.remove_metadata()
-        for f in linear.schema_arrow
-        if f.name != "ogc_fid"
-    )
-    stats = CurveStats()
-    batches = _recurved_batches(
-        linear,
-        _arcs_by_fid(arcs_parquet, batch_size),
-        geom_col,
-        schema,
-        batch_size,
-        stats,
-    )
-    write_arrow(
-        pa.RecordBatchReader.from_batches(schema, batches),
-        str(out_gdb),
-        layer=layer,
-        driver="OpenFileGDB",
-        geometry_name=geom_col,
-        geometry_type=geometry_type,
-        crs=crs,
-        layer_options=layer_options,
-    )
+    with tempfile.TemporaryDirectory() as tmp:
+        curved = Path(tmp) / "curved.parquet"
+        stats = recurve_parquet(linear_parquet, arcs_parquet, curved, batch_size)
+        write_parquet_layer(
+            ParquetLayer(layer, curved, geometry_type, layer_options or {}),
+            Path(out_gdb),
+            append=False,
+        )
     return stats

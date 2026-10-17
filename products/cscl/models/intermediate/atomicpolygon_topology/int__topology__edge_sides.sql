@@ -35,7 +35,9 @@ WITH vertex_nodes AS (
         lead(st_y(v.geom)) OVER w AS next_y
     FROM {{ ref('int__topology__vertices') }} AS v
     LEFT JOIN {{ ref('int__topology__exact_points') }} AS ec
-        ON v.geom = ec.geom AND NOT v.is_arc_mid
+    -- arc mids never match: NULL key (a left-only predicate in the ON clause makes
+        -- DuckDB fall back to a nested-loop join)
+        ON (CASE WHEN v.is_arc_mid THEN NULL ELSE v.geom END) = ec.geom
     LEFT JOIN {{ ref('int__topology__point_to_node') }} AS ptn ON ec.point_id = ptn.exact_point_id
     WINDOW w AS (PARTITION BY v.atomicid, v.part, v.ring ORDER BY v.seq)
 ),
@@ -136,9 +138,10 @@ SELECT
         WHEN r.owner_left IS NOT NULL THEN 'co_owner'
     END AS side_source
 FROM direct AS d
+-- (resolved has one row per edge key and d.owner_left wins above, so no
+-- "d.owner_left IS NULL" here - a left-only ON predicate makes DuckDB nested-loop)
 LEFT JOIN resolved AS r
     ON
-        d.owner_left IS NULL
-        AND d.node_lo = r.node_lo
+        d.node_lo = r.node_lo
         AND d.node_hi = r.node_hi
         AND d.is_arc = r.is_arc

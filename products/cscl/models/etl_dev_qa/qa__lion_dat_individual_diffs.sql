@@ -15,23 +15,23 @@ matches_as_jsonb AS (
         COALESCE(dev.segment_seqnum, prod.segment_seqnum) AS sequence_number,
         COALESCE(dev.segmentid, prod.segmentid) AS segmentid,
         CASE
-            WHEN dev.boroughcode IS NULL THEN '{"missing in dev": {}}'::jsonb
-            WHEN prod.boroughcode IS NULL THEN '{"missing in prod": {}}'::jsonb
+            WHEN dev.boroughcode IS NULL THEN '{"missing in dev": {}}'::JSON
+            WHEN prod.boroughcode IS NULL THEN '{"missing in prod": {}}'::JSON
             ELSE
-                JSONB_OBJECT(ARRAY[
+                JSON_OBJECT(
                     {%- for col in 
                         adapter.get_columns_in_relation(
                             source('production_outputs', 'citywide_lion_dat')
                         )
                     -%}
-                        '{{ col.column }}', JSON_BUILD_OBJECT(
+                        '{{ col.column }}', json_object(
                             'match', dev."{{ col.column }}" = prod."{{ col.column }}",
                             'dev', dev."{{ col.column }}",
                             'prod', prod."{{ col.column }}"
-                        )::text
+                        )
                         {%- if not loop.last -%},{% endif %}
                     {%- endfor %}
-                ])
+                )
         END AS columns_with_diffs
     FROM lion_dat_fields AS dev
     FULL JOIN production_lion AS prod
@@ -48,17 +48,27 @@ matches_as_jsonb AS (
         {%- if loop.last %} FALSE{% endif %}
     {%- endfor %}
 ),
+keyed AS (
+    SELECT
+        _source_table,
+        borough,
+        face_code,
+        sequence_number,
+        segmentid,
+        columns_with_diffs,
+        UNNEST(JSON_KEYS(columns_with_diffs)) AS field
+    FROM matches_as_jsonb
+),
 recast AS (
     SELECT
-        s._source_table,
-        s.borough,
-        s.face_code,
-        s.sequence_number,
-        s.segmentid,
-        j.key AS field,
-        (j.value::jsonb #>> '{}')::jsonb AS jsonb_values
-    FROM matches_as_jsonb AS s,
-        LATERAL JSONB_EACH(columns_with_diffs) AS j
+        _source_table,
+        borough,
+        face_code,
+        sequence_number,
+        segmentid,
+        field,
+        JSON_EXTRACT(columns_with_diffs, '$."' || field || '"') AS jsonb_values
+    FROM keyed
 )
 SELECT
     _source_table,
@@ -67,8 +77,8 @@ SELECT
     sequence_number,
     segmentid,
     field,
-    jsonb_values -> 'dev' #>> '{}' AS dev,
-    jsonb_values -> 'prod' #>> '{}' AS prod
+    jsonb_values ->> 'dev' AS dev,
+    jsonb_values ->> 'prod' AS prod
 FROM recast
-WHERE jsonb_values -> 'match' IS DISTINCT FROM 'true'
+WHERE jsonb_values ->> 'match' IS DISTINCT FROM 'true'
 ORDER BY borough, face_code, sequence_number

@@ -5,10 +5,10 @@
 
 SELECT
     segmentid,
-    fdnyid::INT,
-    nypdid::INT,
-    physicalid::INT,
-    genericid::INT,
+    fdnyid::INT AS fdnyid,
+    nypdid::INT AS nypdid,
+    physicalid::INT AS physicalid,
+    genericid::INT AS genericid,
     legacy_segmentid,
     segment_type,
     segment_seqnum,
@@ -53,7 +53,7 @@ SELECT
     END AS continuous_parity_flag,
     twisted_parity_flag,
     curve,
-    posted_speed::INT, -- TODO - ingest read as int
+    posted_speed::INT AS posted_speed, -- TODO - ingest read as int
     incex_flag,
     segmentlength,
     streetwidth,
@@ -88,9 +88,9 @@ SELECT
     nullif(number_park_lanes::INT, 0) AS number_park_lanes, -- TODO - ingest read as int
     nullif(number_total_lanes::INT, 0) AS number_total_lanes, -- TODO - ingest read as int
     nullif(streetwidth_max::INT, 0) AS streetwidth_max, -- TODO - ingest read as int
-    nullif(round(streetwidth_min)::INT, 0) AS streetwidth_min, -- TODO - ingest read as int
+    nullif(round_even(streetwidth_min, 0)::INT, 0) AS streetwidth_min, -- TODO - ingest read as int
     -- gdb_lion keeps a source 0 (NULL only when the source is NULL); lion_dat blanks it
-    round(streetwidth_min)::INT AS streetwidth_min_with_zeros,
+    round_even(streetwidth_min, 0)::INT AS streetwidth_min_with_zeros,
     bike_trafdir AS bike_traffic_direction,
     shape_length,
     geom,

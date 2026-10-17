@@ -9,10 +9,15 @@ from dcpy.utils.logging import logger
 def _set_default_conf():
     ## the default is a little sparse at the moment, and a little duplicative
     ## (ie each `local_data_path` is just the `stage` name.)
-    data_path = env.get("DCPY_LIFECYCLE_DATA_DIR") or Path(os.getcwd()) / ".lifecycle"
-    if not env.get("DCPY_LIFECYCLE_DATA_DIR"):
+    data_path = env.get("DCPY_LIFECYCLE_DATA_DIR")
+    if not data_path:
+        # Repo convention: lifecycle data goes in a git-ignored .lifecycle/ in the working
+        # directory. Set it in the environment so later steps and subprocesses (dbt,
+        # separate export/package runs) resolve the same place.
+        data_path = str((Path(os.getcwd()) / ".lifecycle").absolute())
+        env["DCPY_LIFECYCLE_DATA_DIR"] = data_path
         logger.warning(
-            f"warning: DCPY_LIFECYCLE_DATA_DIR is not set. Lifecycle data will be stored in potentially inconsistent locations. Currently: {data_path}."
+            f"DCPY_LIFECYCLE_DATA_DIR is not set; using (and exporting) {data_path}"
         )
 
     return {

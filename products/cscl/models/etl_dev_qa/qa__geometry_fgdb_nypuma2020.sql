@@ -6,6 +6,6 @@
 
 {{ geometry_diff_qa(
     build_relation=ref('gdb_nypuma2020'),
-    prod_relation=adapter.get_relation(database="db-cscl", schema="production_outputs", identifier="fgdb_nypuma2020"),
+    prod_relation=prod_fgdb_linear("fgdb_nypuma2020"),
     key_column='"PUMA"'
 ) }}
