@@ -39,6 +39,10 @@ models:
       +docs:
         node_color: "#3e5c76"
 
+dispatch:
+- macro_namespace: audit_helper
+  search_order: ['cscl', 'audit_helper']
+
 on-run-start:
 - "{{ create_pg_functions() if target.type == 'postgres' else create_duckdb_functions() }}"
 

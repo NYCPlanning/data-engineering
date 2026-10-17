@@ -17,7 +17,7 @@ focus_rpl_prod AS (
         ) AS rpl_id,
         prod_rpl.*
     FROM
-        production_outputs.rpl AS prod_rpl
+        {{ source('production_outputs', 'rpl') }} AS prod_rpl
     INNER JOIN diff_ids
         ON
             prod_rpl.generic_segmentid = diff_ids.generic_segmentid

@@ -388,7 +388,7 @@ WITH in_scope AS (
 prod AS (
     SELECT
         p.{{ prod_key }} AS entity_id,
-        {% if dissolve_prod %}st_union(linearize(p.shape)){% else %}linearize(p.shape){% endif %} AS geom
+        {% if dissolve_prod %}st_union_agg(linearize(p.shape)){% else %}linearize(p.shape){% endif %} AS geom
     FROM {{ adapter.get_relation(database="db-cscl", schema="production_outputs", identifier=prod_identifier) }} AS p
     INNER JOIN in_scope AS s ON p.{{ prod_key }} = s.entity_id
     {% if dissolve_prod %}GROUP BY p.{{ prod_key }}{% endif %}
@@ -399,7 +399,7 @@ structure AS (
         entity_id,
         geom,
         st_numgeometries(geom) AS n_parts,
-        (SELECT sum(st_numinteriorrings(d.geom)) FROM st_dump(geom) AS d) AS n_holes
+        list_sum(list_transform(st_dump(geom), d -> st_numinteriorrings(d.geom))) AS n_holes
     FROM {{ ref(boundary_model) }}
 ),
 
@@ -408,7 +408,7 @@ prod_structure AS (
         entity_id,
         geom,
         st_numgeometries(geom) AS n_parts,
-        (SELECT sum(st_numinteriorrings(d.geom)) FROM st_dump(geom) AS d) AS n_holes
+        list_sum(list_transform(st_dump(geom), d -> st_numinteriorrings(d.geom))) AS n_holes
     FROM prod
 )
 
@@ -430,7 +430,7 @@ SELECT
         WHEN
             (b.n_holes > 0 OR p.n_holes > 0 OR b.n_parts != p.n_parts)
             AND st_npoints(b.geom)::bigint * st_npoints(p.geom) <= {{ var('boundary_qa_hausdorff_max_vertex_product') }}
-            THEN round(st_hausdorffdistance(b.geom, p.geom)::DECIMAL(38, 12), 3)
+            THEN round(hausdorff_distance(b.geom, p.geom)::DECIMAL(38, 12), 3)
     END AS hausdorff_ft,
     round(st_area(b.geom)::DECIMAL(38, 12), 1) AS built_area_sqft,
     round(st_area(p.geom)::DECIMAL(38, 12), 1) AS prod_area_sqft

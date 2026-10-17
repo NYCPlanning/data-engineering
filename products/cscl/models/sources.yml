@@ -107,6 +107,7 @@ sources:
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs
+  database: db-cscl  # the Postgres database (attached under this name on --target duckdb_qa)
   schema: production_outputs
   tables:
   - name: citywide_lion_dat

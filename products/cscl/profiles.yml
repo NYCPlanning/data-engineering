@@ -11,7 +11,7 @@ dcp-de-postgres:
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
       threads: 4
     # the DuckDB build (cut-over in progress): dbt --target duckdb
-    duckdb:
+    duckdb: &duckdb
       type: duckdb
       path: "{{ env_var('DUCKDB_PATH', '') }}"
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
@@ -22,3 +22,15 @@ dcp-de-postgres:
         memory_limit: "{{ env_var('DUCKDB_MEMORY_LIMIT', '3GB') }}"
       extensions:
       - spatial
+    # the same, plus Postgres attached as "db-cscl" so the QA layers can read
+    # production_outputs: dbt --target duckdb_qa
+    duckdb_qa:
+      <<: *duckdb
+      extensions:
+      - spatial
+      - postgres
+      attach:
+      - path: "{{ env_var('BUILD_ENGINE_SERVER', '') }}/db-cscl"
+        type: postgres
+        alias: '"db-cscl"'
+        read_only: true
