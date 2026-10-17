@@ -142,6 +142,16 @@ models:
         description: |
           Whether the dashboard calls any of the project's agency projects `Citywide`. Set
           regardless of `borough_source`.
+  - name: int__project_mapping_outcomes
+    description: |
+      One row per project: the geometry source that won, whether the geometry was removed or
+      mapped, and whether a source using another method also had a geometry.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: mapped_as
+        description: |
+          `points` or `polygons`, the shapefile the project is in. Null when it isn't mapped.
   - name: int__fisa_budget_data
   - name: int__budget_data
   - name: int__budget_data_wide

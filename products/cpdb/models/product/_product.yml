@@ -12,6 +12,50 @@ models:
       - name: maprojid
         tests: [ unique, not_null ]
 
+  - name: cpdb_mapping_summary_by_source
+    description: |
+      Projects in the Capital Commitment Plan by how CPDB mapped them, with a final
+      `total` row. A project counts under the geometry source that won
+      (`int__project_geom`), or `none` when no source had a geometry. The project counts from
+      `projects_mapped_as_points` through `projects_no_geometry_found` split each row's
+      projects and add up to `projects_total`. The columns before them are subtotals.
+      `projects_also_found_by_another_method` counts projects where a source using a
+      different method also had a geometry.
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: >-
+            projects_mapped_as_points + projects_mapped_as_polygons
+            + projects_geometry_removed_flagged_bad
+            + projects_geometry_removed_agency_never_mappable
+            + projects_geometry_removed_agency_mappable_in_future
+            + projects_no_geometry_found = projects_total
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped_as_points + projects_mapped_as_polygons = projects_mapped
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped + projects_geometry_removed = projects_geometry_found
+
+  - name: cpdb_mapping_summary_by_source_and_agency
+    description: |
+      Projects in the Capital Commitment Plan by how CPDB mapped them, per managing agency,
+      with a final `total` row. A project counts under the geometry source that won
+      (`int__project_geom`), or `none` when no source had a geometry. The project counts from
+      `projects_mapped_as_points` through `projects_no_geometry_found` split each row's
+      projects and add up to `projects_total`. The columns before them are subtotals.
+      `projects_also_found_by_another_method` counts projects where a source using a
+      different method also had a geometry.
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: >-
+            projects_mapped_as_points + projects_mapped_as_polygons
+            + projects_geometry_removed_flagged_bad
+            + projects_geometry_removed_agency_never_mappable
+            + projects_geometry_removed_agency_mappable_in_future
+            + projects_no_geometry_found = projects_total
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped_as_points + projects_mapped_as_polygons = projects_mapped
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped + projects_geometry_removed = projects_geometry_found
+
   - name: cpdb_projects_geom
     description: >
       Wide capital-projects table -- one row per project (maprojid), joining ccp_projects'
