@@ -225,6 +225,7 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     distribution: Distribution | None = None
     stage_config: dict[str, StageConfig] = {}
     custom: dict[str, Any] | None = None
+    duckdb_filename: str | None = None  # default: {product}_{version}.duckdb
 
     @model_validator(mode="after")
     def migrate_vars_to_env(self):

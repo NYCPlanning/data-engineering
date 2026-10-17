@@ -67,5 +67,8 @@ def get_build_output_dir(product: str, version: str) -> Path:
     return config.get_build_dir(product, version)
 
 
-def get_duckdb_path(product: str, version: str) -> Path:
-    return get_build_output_dir(product, version) / f"{product}_{version}.duckdb"
+def get_duckdb_path(product: str, version: str, filename: str | None = None) -> Path:
+    """``filename`` (a recipe's ``duckdb_filename``) defaults to ``{product}_{version}.duckdb``."""
+    return get_build_output_dir(product, version) / (
+        filename or f"{product}_{version}.duckdb"
+    )

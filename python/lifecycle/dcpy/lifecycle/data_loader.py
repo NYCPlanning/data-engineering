@@ -9,6 +9,7 @@ import duckdb
 import pandas as pd
 import pyogrio
 import typer
+from pyogrio.raw import read_arrow
 
 from dcpy.connectors.edm.models import DatasetType
 from dcpy.geospatial import parquet as geoparquet
@@ -263,10 +264,9 @@ def _load_gdb_into_duckdb(
         case "gdal":
             if pyogrio.read_info(gdb_path, layer=layer_name)["geometry_type"] is None:
                 # attribute-only table: pyogrio reads these reliably (ST_Read can stall)
-                df = pyogrio.read_dataframe(
-                    gdb_path, layer=layer_name, read_geometry=False, fid_as_index=True
-                ).sort_index()
-                duckdb_client.load_dataframe(df, table_name)
+                # arrow (not pandas) keeps nullable integers as integers
+                _, table = read_arrow(gdb_path, layer=layer_name, read_geometry=False)
+                duckdb_client.load_arrow(table, table_name)
                 return
             try:
                 duckdb_client.load_gdb_layer(gdb_path, table_name, layer_name)
@@ -311,7 +311,10 @@ def load_dataset_into_duckdb(
     match ds.file_type:
         case DatasetType.csv:
             duckdb_client.load_csv(
-                local_dataset_path, ds_table_name, include_ogc_fid_col
+                local_dataset_path,
+                ds_table_name,
+                include_ogc_fid_col,
+                all_varchar=(ds.custom or {}).get("all_varchar", False),
             )
         case DatasetType.parquet:
             duckdb_client.load_parquet(

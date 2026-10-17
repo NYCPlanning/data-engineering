@@ -1,7 +1,8 @@
 name: CSCL DuckDB
 product: cscl
 version: 26c
-# Same inputs as recipe.yml, loaded into DuckDB (cscl.duckdb) instead of Postgres. Curved
+duckdb_filename: cscl.duckdb
+# Same inputs as recipe.yml, loaded into DuckDB (cscl.duckdb, via duckdb_filename) instead of Postgres. Curved
 # layers go through dcpy.geospatial.curves (linear table + <table>_arcs); every other GDB
 # layer uses ST_Read. Datasets listed here replace the base's entry for the same
 # (name, import_as), so they restate everything but the defaults.
@@ -82,3 +83,23 @@ inputs:
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDPrecinct
+  # all text, as the Postgres load (pandas, dtype=str) has it
+  - name: dcp_cscl_temp_mock_previous_release
+    source: edm.private
+    version: 26B
+    file_type: csv
+    load_engine: pandas
+    import_as: previous_citywide_lion
+    custom:
+      filename: citywide_lion_dat.csv
+      all_varchar: true
+  # all text, as the Postgres load (pandas, dtype=str) has it
+  - name: dcp_cscl_temp_mock_previous_release
+    source: edm.private
+    version: 26B
+    file_type: csv
+    load_engine: pandas
+    import_as: previous_ldf_header
+    custom:
+      filename: previous_ldf_header.csv
+      all_varchar: true

@@ -138,15 +138,46 @@ def test_gdal_engine_loads_attribute_only_table(tmp_path, client):
     import pandas as pd
 
     path = tmp_path / "t.gpkg"
-    pd.DataFrame({"name": ["a", "b"]}).pipe(
+    pd.DataFrame({"name": ["a", "b"], "n": pd.array([1, None], dtype="Int64")}).pipe(
         lambda df: gpd.GeoDataFrame(df, geometry=[None, None])
     ).to_file(path, layer="lyr", driver="GPKG")
     ds = _ds("gdal")
     ds.custom = {"layer_name": "lyr"}
     data_loader.load_dataset_into_duckdb(ds, client, path)
     assert client.conn.execute(
-        "SELECT ogc_fid, name FROM s.tbl ORDER BY 1"
-    ).fetchall() == [(1, "a"), (2, "b")]
+        "SELECT ogc_fid, name, n FROM s.tbl ORDER BY 1"
+    ).fetchall() == [(1, "a", 1), (2, "b", None)]
+    # a nullable integer stays an integer (pandas would make it a float)
+    n_type = client.conn.execute(
+        "SELECT column_type FROM (DESCRIBE s.tbl) WHERE column_name = 'n'"
+    ).fetchone()
+    assert n_type is not None and "INT" in n_type[0]
+
+
+def test_csv_all_varchar_keeps_numeric_looking_text(tmp_path, client):
+    path = tmp_path / "t.csv"
+    path.write_text("code,n\n007,1\n")
+    ds = InputDataset(
+        name="c",
+        import_as="tbl",
+        file_type="csv",
+        version="v1",
+        custom={"all_varchar": True},
+    )
+    data_loader.load_dataset_into_duckdb(ds, client, path)
+    assert client.conn.execute("SELECT code, n FROM s.tbl").fetchall() == [("007", "1")]
+
+
+def test_cscl_duckdb_recipe_names_its_duckdb_file():
+    from dcpy.lifecycle.builds import config as build_config
+    from dcpy.lifecycle.builds.plan import recipe_from_yaml
+
+    recipe = recipe_from_yaml(PRODUCT_DIR / "recipe_duckdb.yml")
+    assert (
+        build_config.get_duckdb_path("cscl", "26c", recipe.duckdb_filename).name
+        == "cscl.duckdb"
+    )
+    assert build_config.get_duckdb_path("cscl", "26c").name == "cscl_26c.duckdb"
 
 
 @pytest.mark.parametrize("engine", ["curves", "gdal"])
