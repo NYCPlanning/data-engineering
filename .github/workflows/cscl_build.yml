@@ -1,4 +1,7 @@
 name: CSCL - 🏗️ Build
+# DuckDB cut-over POC (branch ar-cscl-duckdb-build): builds CSCL on DuckDB from
+# recipe_duckdb.yml, whatever recipe build.yml passes, to check that the build runs on a
+# GHA runner. Plan, load, dbt seed, run and test only - no export, upload or prod validation.
 on:
   workflow_call:
     inputs:
@@ -20,20 +23,24 @@ on:
 
 jobs:
   build:
-    name: Build CSCL
+    name: Build CSCL (DuckDB)
     runs-on: ubuntu-22.04
     defaults:
       run:
         shell: bash
         working-directory: products/cscl
     container:
-      image: nycplanning/build-base:${{ inputs.image_tag || 'latest' }}
+      # build-base doesn't have the dbt-duckdb adapter installed; dev does
+      image: nycplanning/dev:${{ inputs.image_tag || 'latest' }}
     env:
-      BUILD_ENGINE_DB: db-cscl
       BUILD_NAME: ${{ inputs.build_name }}
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+      # GEOS allocates outside DuckDB's memory limit, so stay well under the runner's RAM
+      DUCKDB_MEMORY_LIMIT: 3GB
+      DUCKDB_THREADS: 2
+      LOCK_FILE: recipe_duckdb.lock.yml
     steps:
     - uses: actions/checkout@v7
 
@@ -48,11 +55,6 @@ jobs:
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-        BUILD_ENGINE_HOST: "op://Data Engineering/EDM_DATA/server"
-        BUILD_ENGINE_USER: "op://Data Engineering/EDM_DATA/username"
-        BUILD_ENGINE_PASSWORD: "op://Data Engineering/EDM_DATA/password"
-        BUILD_ENGINE_PORT: "op://Data Engineering/EDM_DATA/port"
 
     - name: Setup build environment
       working-directory: ./
@@ -60,43 +62,55 @@ jobs:
         ./bash/docker_container_setup.sh
         ./bash/build_env_setup.sh
 
+    - name: Runner resources
+      run: |
+        nproc
+        free -h
+        df -h .
+
     - name: Plan build
-      run: dcpy lifecycle builds plan ${{ inputs.plan_command }} --output-path ${{ inputs.recipe_file }}.lock.yml
+      run: uv run python3 -m dcpy lifecycle builds plan recipe --recipe-path ./recipe_duckdb.yml --output-path $LOCK_FILE
 
     - name: Dataloading
-      run: dcpy lifecycle builds load load --recipe-path ${{ inputs.recipe_file }}.lock.yml --cache-schema recipe_cache --cached-entity-type view
-
-    # - name: Load LDF inputs from the legacy pipeline
-    #   # The LDF diffs this release against the one before it, and its QA models compare
-    #   # the result against prod's own LDF. The previous release's citywide LION and LDF
-    #   # header both come in as normal recipe sources now
-    #   # (dcp_cscl_temp_mock_previous_release), loaded by the Dataloading step above -
-    #   # only this release's own prod LDF still comes from the legacy pipeline's outputs
-    #   # this way. Remove alongside the rest of production_outputs once the pipeline is
-    #   # operationalized.
-    #   run: |
-    #     python3 poc_validation/prod_data_loader.py load_prod_ldf
+      run: |
+        start=$(date +%s)
+        uv run python3 -m dcpy lifecycle builds load load --recipe-path $LOCK_FILE
+        echo "load: $(( $(date +%s) - start ))s" >> timings.txt
 
     - name: Build
       run: |
+        export DUCKDB_PATH=$(uv run python3 -m dcpy lifecycle builds build path --duckdb --recipe-path $LOCK_FILE)
+        echo "DUCKDB_PATH=$DUCKDB_PATH" >> "$GITHUB_ENV"
         dbt deps
-        dbt debug
+        start=$(date +%s)
+        dbt seed --target duckdb
+        dbt run --target duckdb --selector duckdb_build
+        echo "seed + run: $(( $(date +%s) - start ))s" >> timings.txt
 
-        echo "Run full dbt build"
-        dbt build --full-refresh
-
-    - name: Export
-      run: dcpy lifecycle builds export export --recipe-path ${{ inputs.recipe_file }}.lock.yml
-
-    - name: Validate against production outputs
-      # TODO - this currently relies on version hard-coded in recipe.yml
-      # Once this is operationalized, this step should be removed
+    - name: Test
       run: |
-        python3 poc_validation/prod_data_loader.py pull
-        ./poc_validation/validate_outputs.sh
-        python3 poc_validation/summarize_diffs.py
-        python3 poc_validation/compare_gdb.py
-        python3 poc_validation/build_diffs_report.py
+        start=$(date +%s)
+        dbt test --target duckdb --selector duckdb_build
+        echo "test: $(( $(date +%s) - start ))s" >> timings.txt
 
-    - name: Upload
-      run: uv run python3 -m dcpy.connectors.edm.publishing upload --product db-cscl --acl public-read --max_files 1000
+    - name: Summary
+      if: always()
+      run: |
+        {
+          echo "### CSCL DuckDB build"
+          echo '```'
+          cat timings.txt 2>/dev/null
+          [ -n "$DUCKDB_PATH" ] && ls -la "$DUCKDB_PATH"
+          free -h
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload dbt logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cscl-duckdb-dbt-logs
+        path: |
+          products/cscl/logs/
+          products/cscl/target/run_results.json
+        if-no-files-found: ignore
