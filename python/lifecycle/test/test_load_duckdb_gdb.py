@@ -6,6 +6,7 @@ import geopandas as gpd
 import pytest
 from shapely.geometry import LineString
 
+from dcpy.connectors.edm.models import DatasetType
 from dcpy.lifecycle import data_loader
 from dcpy.lifecycle.builds.models import InputDataset
 from dcpy.utils import duckdb as duckdb_utils
@@ -33,9 +34,9 @@ def client(tmp_path):
 
 def _ds(engine: str) -> InputDataset:
     return InputDataset(
-        name="gdb",
+        id="gdb",
         import_as="tbl",
-        file_type="gdb",
+        file_type=DatasetType.geodatabase,
         version="v1",
         load_engine=engine,
         custom={"layer_name": "lyr"},
@@ -158,9 +159,9 @@ def test_csv_all_varchar_keeps_numeric_looking_text(tmp_path, client):
     path = tmp_path / "t.csv"
     path.write_text("code,n\n007,1\n")
     ds = InputDataset(
-        name="c",
+        id="c",
         import_as="tbl",
-        file_type="csv",
+        file_type=DatasetType.csv,
         version="v1",
         custom={"all_varchar": True},
     )
