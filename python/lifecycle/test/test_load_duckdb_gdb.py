@@ -217,3 +217,44 @@ def test_load_arrow_keeps_domain_codes(client):
         (None,),
         (0,),
     ]
+
+
+def test_child_recipe_inherits_exports_and_stage_config(tmp_path):
+    (tmp_path / "base.yml").write_text(
+        """
+name: base
+product: p
+version: v1
+inputs:
+  datasets: []
+exports:
+  output_folder: output
+  datasets:
+  - name: a
+    format: csv
+stage_config:
+  builds.build:
+    commands:
+    - name: build
+      run: echo hi
+"""
+    )
+    (tmp_path / "child.yml").write_text(
+        """
+name: child
+product: p
+version: v1
+base_recipe: base.yml
+inputs:
+  datasets: []
+exports:
+  zip_name: z
+"""
+    )
+    recipe = _merged(tmp_path / "child.yml")
+    assert recipe.exports is not None
+    # the child's field is set, the base's are kept
+    assert recipe.exports.zip_name == "z"
+    assert str(recipe.exports.output_folder) == "output"
+    assert [d.name for d in recipe.exports.datasets] == ["a"]
+    assert [c.name for c in recipe.stage_config["builds.build"].commands] == ["build"]
