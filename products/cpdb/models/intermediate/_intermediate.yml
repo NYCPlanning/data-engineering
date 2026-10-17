@@ -93,6 +93,51 @@ models:
                 - flagged bad geometry
                 - 'agency: can never be mapped'
                 - 'agency: can be mapped in future'
+  - name: int__project_dashboard_areas
+    description: |
+      The boroughs and community districts the Capital Projects Dashboard gives each project
+      that matches one of its projects, in its latest reporting period. A dashboard project
+      can have several agency projects (`pid`), each listing one or more areas.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: dashboard_rows
+        description: Number of dashboard agency projects matched to the project.
+      - name: every_row_has_community_district
+        description: Whether every matched agency project names at least one community district.
+      - name: is_citywide
+        description: Whether any matched agency project says `Citywide`.
+      - name: boroughs
+        description: Distinct boroughs named, including those of named community districts.
+      - name: community_districts
+        description: Distinct community districts named, as `borocd` (like `407` for Queens 07).
+  - name: int__project_boundaries
+    description: |
+      Each project's borough and community district. They come from the project's geometry in
+      `cpdb_dcpattributes` when it intersects at least one, and otherwise from the Capital
+      Projects Dashboard (`int__project_dashboard_areas`).
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: borough
+        description: |
+          Borough name, `multiple` when the project is in more than one, or `citywide` when
+          the dashboard says so. Null when neither source places the project.
+      - name: borough_source
+        tests:
+          - accepted_values:
+              values: [ geometry, dashboard ]
+      - name: community_district
+        description: |
+          Community district as `borocd`, or `multiple` when the project is in more than one.
+          From the dashboard, a single community district only counts when every matched agency
+          project names it.
+      - name: community_district_source
+        tests:
+          - accepted_values:
+              values: [ geometry, dashboard ]
+      - name: community_districts
+        description: All of the project's community districts from the same source as `community_district`.
   - name: int__fisa_budget_data
   - name: int__budget_data
   - name: int__budget_data_wide
