@@ -40,10 +40,5 @@ SELECT
             base.description ~ '[BMQRX][0-9][0-9][0-9]'
             AND base.magencyacro = 'DPR'
             THEN 'Fixed Asset'
-    END AS typecategory,
-    geomsource,
-    dataname,
-    datasource,
-    datadate,
-    geom
-FROM {{ ref('int__dcpattributes_base') }} AS base
+    END AS typecategory
+FROM {{ ref('int__ccp_projects') }} AS base

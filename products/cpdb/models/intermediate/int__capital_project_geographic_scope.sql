@@ -11,7 +11,7 @@ WITH geometries AS (
             ELSE 'site'
         END AS geographic_scope
     FROM {{ ref('cpdb_dcpattributes') }} AS cleaned
-    INNER JOIN {{ ref('int__dcpattributes_geom_facilities') }} AS raw
+    INNER JOIN {{ ref('int__project_geom') }} AS raw
         ON cleaned.maprojid = raw.maprojid
     WHERE cleaned.geom IS NOT NULL
 ),
