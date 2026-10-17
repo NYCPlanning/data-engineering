@@ -244,7 +244,7 @@ def _(layers, outcomes, source_filter):
         if source_filter.value
         else mapped
     )
-    shown.explore(column="geometry_method", tiles="CartoDB positron", tooltip=True)
+    shown.explore(column="geometry_method", tooltip=True)
     return
 
 
@@ -275,7 +275,7 @@ def _(layers, maprojid):
             mo.ui.table(
                 pd.DataFrame(candidates.drop(columns="geometry")), selection=None
             ),
-            candidates.explore(column="candidate", tiles="CartoDB positron")
+            candidates.explore(column="candidate")
             if len(candidates)
             else mo.md("No candidates."),
         ]
