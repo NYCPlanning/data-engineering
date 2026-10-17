@@ -424,16 +424,16 @@ SELECT
     p.n_parts AS prod_parts,
     b.n_holes AS built_holes,
     p.n_holes AS prod_holes,
-    round((st_area(st_symdifference(b.geom, p.geom)) / nullif(st_area(p.geom), 0) * 100)::numeric, 6) AS symdiff_area_pct,
-    round(((st_perimeter(b.geom) - st_perimeter(p.geom)) / nullif(st_perimeter(p.geom), 0) * 100)::numeric, 4) AS perimeter_pct_diff,
+    round((st_area(st_symdifference(b.geom, p.geom)) / nullif(st_area(p.geom), 0) * 100)::DECIMAL(38, 12), 6) AS symdiff_area_pct,
+    round(((st_perimeter(b.geom) - st_perimeter(p.geom)) / nullif(st_perimeter(p.geom), 0) * 100)::DECIMAL(38, 12), 4) AS perimeter_pct_diff,
     CASE
         WHEN
             (b.n_holes > 0 OR p.n_holes > 0 OR b.n_parts != p.n_parts)
             AND st_npoints(b.geom)::bigint * st_npoints(p.geom) <= {{ var('boundary_qa_hausdorff_max_vertex_product') }}
-            THEN round(st_hausdorffdistance(b.geom, p.geom)::numeric, 3)
+            THEN round(st_hausdorffdistance(b.geom, p.geom)::DECIMAL(38, 12), 3)
     END AS hausdorff_ft,
-    round(st_area(b.geom)::numeric, 1) AS built_area_sqft,
-    round(st_area(p.geom)::numeric, 1) AS prod_area_sqft
+    round(st_area(b.geom)::DECIMAL(38, 12), 1) AS built_area_sqft,
+    round(st_area(p.geom)::DECIMAL(38, 12), 1) AS prod_area_sqft
 FROM prod_structure AS p
 FULL OUTER JOIN structure AS b ON p.entity_id = b.entity_id
 LEFT JOIN {{ ref(validity_model) }} AS v ON coalesce(p.entity_id, b.entity_id) = v.entity_id
@@ -496,7 +496,7 @@ SELECT
     l.water_flag,
     o.hausdorff_ft,
     o.symdiff_area_pct,
-    round(st_area(l.geom)::numeric, 1) AS area_sqft,
+    round(st_area(l.geom)::DECIMAL(38, 12), 1) AS area_sqft,
     st_multi(st_collectionextract(l.geom, 3))::geometry(MultiPolygon, 2263) AS geom
 FROM layers AS l
 INNER JOIN outliers AS o ON l.entity_id = o.entity_id

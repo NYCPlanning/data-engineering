@@ -47,6 +47,14 @@ at run start on the duckdb target.
 | `(st_dump(g)).geom` | `unnest(st_dump(g)).geom` in the select list | Aggregate in a subquery first if needed. |
 | `rpad(s, n)` | `rpad(s, n, ' ')` | The fill character is required. |
 | `ARRAY[]::geometry[]` with `array_agg` | `[]::GEOMETRY[]` with `list(...)` | |
+| `round(float_expr)` | `round_even(float_expr, 0)` | **Silent:** Postgres `round(float8)` rounds ties to even (219710.5 becomes 219710); DuckDB `round` rounds ties away from zero. `round(numeric)` is away from zero in both. `double::INT` rounds ties to even in both. |
+| `x::numeric` | `x::DECIMAL(38, 12)` | **Silent:** DuckDB's bare `NUMERIC` is `DECIMAL(18,3)`, so it rounds to 3 places first. |
+| `to_char(d, 'MMDDYYYY')` | `strftime(d, '%m%d%Y')` | |
+| `g1 @ g2` (bbox contained by) | compare `st_xmin`, `st_xmax`, `st_ymin`, `st_ymax` | |
+| `st_setsrid(st_extent(g)::geometry, ...)` (aggregate) | `st_extent_agg(g)` | |
+| `st_hausdorffdistance(a, b)` | `hausdorff_distance(a, b)` | Macro (GEOS discrete Hausdorff). |
+| `LATERAL fn(...) AS o (a geometry, b geometry)` (record) | `fn(...) AS o` in a subquery's select list, then `o.a`, `o.b` | `offset_points` returns a struct. Macros must be plain expressions: one whose subqueries reference its arguments can't be called on table columns. |
+| `x = any(arr)` | `list_contains(arr, x)` | |
 | `indexes=[...]` config | leave it | Skipped on DuckDB by `macros/duckdb_adapter_overrides.sql`. |
 
 ## Performance traps
@@ -55,6 +63,9 @@ at run start on the duckdb target.
   DuckDB give up the hash join and nested-loop. It took `edge_sides` from 0.4 s to 229 s.
   Fold the predicate into the key: `ON (CASE WHEN a.flag THEN NULL ELSE a.k END) = b.k`.
   Or drop it if the select list already handles it.
+- Same trap, other form: `LEFT JOIN t ON a.id = t.id AND a.feature_type = 'centerline'`
+  (`int__lion` went from more than 9 minutes to 2 s). Fold it:
+  `ON (CASE WHEN a.feature_type = 'centerline' THEN a.id END) = t.id`.
 - **A spatial predicate in the same join as cheap equality keys** can produce a bad plan.
   Join on the keys in a `MATERIALIZED` CTE, then filter with the spatial predicate.
 - **A lateral `unnest`** of large lists: see the first pattern above.

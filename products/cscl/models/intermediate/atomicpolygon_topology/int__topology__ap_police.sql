@@ -91,7 +91,7 @@ SELECT
     CASE WHEN a.centroid_inside THEN 'centroid' ELSE 'majority_area' END AS method,
 {% for l in layers %}
     coalesce({{ l.name }}_at_centroid.value, {{ l.name }}_majority.value) AS {{ l.out }},
-    round({{ l.name }}_majority.share::numeric, 4) AS {{ l.out }}_share,
+    round({{ l.name }}_majority.share::DECIMAL(38, 12), 4) AS {{ l.out }}_share,
     coalesce({{ l.name }}_at_centroid.globalid, {{ l.name }}_majority.globalid) AS {{ l.globalid }}
     {{- ',' if not loop.last }}
 {% endfor %}

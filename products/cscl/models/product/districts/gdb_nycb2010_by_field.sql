@@ -11,6 +11,6 @@ SELECT
     "BoroCode" AS borocode,
     "BoroName" AS boroname,
     "CT2010" AS ct2010,
-    round("SHAPE_Length"::numeric) AS shape_length,
-    round("SHAPE_Area"::numeric, -1) AS shape_area
+    round("SHAPE_Length"::DECIMAL(38, 12)) AS shape_length,
+    round("SHAPE_Area"::DECIMAL(38, 12), -1) AS shape_area
 FROM {{ ref('gdb_nycb2010') }}

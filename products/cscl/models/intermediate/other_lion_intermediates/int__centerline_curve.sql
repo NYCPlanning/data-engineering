@@ -47,7 +47,7 @@ SELECT
     -- radius is near .5 - about 25% of curved segments. This reproduces prod on every
     -- curved segment (CSCL-LION-07, data_issues.md).
     st_distance(
-        st_point(round(st_x(center_of_curvature)), round(st_y(center_of_curvature))),
+        st_point(round_even(st_x(center_of_curvature), 0), round_even(st_y(center_of_curvature), 0)),
         start_point
     ) AS center_of_curvature_radius
 FROM center_calculated
