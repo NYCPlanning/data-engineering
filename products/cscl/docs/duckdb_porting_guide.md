@@ -56,6 +56,21 @@ at run start on the duckdb target.
 | `LATERAL fn(...) AS o (a geometry, b geometry)` (record) | `fn(...) AS o` in a subquery's select list, then `o.a`, `o.b` | `offset_points` returns a struct. Macros must be plain expressions: one whose subqueries reference its arguments can't be called on table columns. |
 | `x = any(arr)` | `list_contains(arr, x)` | |
 | `format('... %s ...', x)` | `format('... {} ...', coalesce(x::VARCHAR, ''))` | **Silent:** DuckDB's `format` uses `{}` and leaves `%s` as literal text; a NULL argument makes the whole result NULL, where Postgres renders it as ''. |
+| `to_jsonb(x)`, `jsonb_build_object`, `jsonb_object_agg`, `NULL::jsonb` | `to_json(x)`, `json_object`, `json_group_object`, `NULL::JSON` | Compare values as `::VARCHAR`, as the diff macro does. |
+| `jsonb_object_keys(j)` (set-returning) | `json_keys(j)` (a list) | Use it as a list: `len`, `list_has_all(ARRAY[...], json_keys(j))`, `list_contains`. As rows: `unnest(json_keys(j))` in a select list or `LATERAL (SELECT unnest(...))`. |
+| `j ? 'k'` | `json_exists(j, '$.k')` | |
+| `j -> 'a' ->> 'b' = 'x'` | `(j -> 'a' ->> 'b') = 'x'` | **Silent/odd error:** without parentheses `->>` binds looser than `=`, giving "Failed to cast value to numerical". Always parenthesize. |
+| `j #>> '{}'`, `jsonb_each` | `->> '$'`, `unnest(json_keys(j))` then `json_extract(j, '$."' \|\| k \|\| '"')` | Unnest in one CTE, extract in the next. |
+| `jsonb_strip_nulls(obj)` | `to_json(map_from_entries(list_filter([{'k': 'a', 'v': x::JSON}, ...], e -> e.v IS NOT NULL)))` | Top-level only; nested null keys are kept. |
+| `array_agg(k) <@ ARRAY[..]`, `a @> b`, `x = any(arr)`, `array_length(a, 1)`, `cardinality(a)` | `list_has_all(arr, a)`, `list_has_all(a, b)`, `list_contains(arr, x)`, `len(a)` | `array_length(a, 1) IS NULL` for an empty array becomes `len(a) = 0`. |
+| `array_remove(ARRAY[...], NULL)` | `list_filter([...], x -> x IS NOT NULL)` | |
+| `(array_agg(g))[1]` | `any_value(g)` | |
+| `st_transform(g, 2263)` / `, 4326)` | drop (already 2263); for real 4326 use `st_transform(g, 'EPSG:2263', 'EPSG:4326', always_xy := true)` | `always_xy` keeps lon/lat order. A bare integer SRID fails on CRS-typed geometry. |
+| `::geometry(MultiPolygon, 2263)` | drop the cast | "Expected a constant as type modifier". |
+| `round(x::numeric, n)` | `round(x::DECIMAL(38, 12), n)` | Same trap as `::numeric` above. |
+| `SELECT * FROM prod.shape` where Postgres holds curves | `prod_fgdb_linear('fgdb_x')` macro | The scanner fails with "Unsupported geometry type in WKB". The macro reads through `postgres_query` with `ST_CurveToLine` and rebuilds the geometry. |
+| `test_cases.geometry_diff_metrics(a, e)` | `geometry_diff_metrics('rel', 'a_col', 'e_col')` dbt macro | See below. |
+| `st_makevalid(g)` inside a CASE'd aggregate | `try(st_makevalid(g))` | The aggregate is evaluated for every group, so one bad geometry fails all. |
 | `indexes=[...]` config | leave it | Skipped on DuckDB by `macros/duckdb_adapter_overrides.sql`. |
 
 ## Performance traps
@@ -78,6 +93,17 @@ at run start on the duckdb target.
 - **Memory:** GEOS allocates outside DuckDB's `memory_limit`. The profile caps DuckDB at
   3GB and 2 threads (`DUCKDB_MEMORY_LIMIT`, `DUCKDB_THREADS`), because the default 80% of
   RAM ran an 8 GB machine out of memory.
+
+## Geometry QA metrics (geometry_diff_metrics)
+
+`geometry_diff_metrics` is a dbt macro that emits a SELECT adding the eight metrics to an input relation. Inputs must already be EPSG:2263. Two differences from the Postgres function:
+
+- **hausdorff_ft is approximate.** DuckDB has no native Hausdorff, and the per-vertex `hausdorff_distance` macro runs out of memory on the district layers (a list of all vertex points per row). The macro measures only boundary pieces further than 1 ft (`geom_check_hausdorff_tolerance_ft`) from the other geometry. It is exact above 1 ft and reports 0 below, against a 50 ft threshold.
+- Fragments (symmetric difference pieces) are kept as a list per row rather than a correlated subquery.
+
+## Memory
+
+`qa__diffs_gdb_lion` (243k rows, ~90 columns through audit_helper) needs `DUCKDB_THREADS=1 DUCKDB_MEMORY_LIMIT=6GB` on an 8 GB machine. It is also disabled unless `--vars '{qa_gdb_lion_diffs: true}'`.
 
 ## Validating against the Postgres build
 

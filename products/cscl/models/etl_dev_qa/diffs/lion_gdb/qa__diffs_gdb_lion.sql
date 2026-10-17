@@ -61,8 +61,8 @@ field_causes AS (
             -- prod has no zip for the Randall's Island segments; ours is 10035
             WHEN
                 f.key IN ('lzip', 'rzip')
-                AND w.changes -> f.key ->> 'old' IS NULL
-                AND w.changes -> f.key ->> 'new' = '10035'
+                AND (w.changes -> f.key ->> 'old') IS NULL
+                AND (w.changes -> f.key ->> 'new') = '10035'
                 THEN 'CSCL-LION-02: Randall''s Island zip'
             WHEN f.key IN ('lzip', 'rzip') THEN 'Zip'
             WHEN f.key = 'segcount' THEN 'CSCL-LION-06?: SegCount'
@@ -71,13 +71,13 @@ field_causes AS (
                 THEN 'CSCL-LION-05: nonstreet SeqNum'
             WHEN f.key = 'seqnum' THEN 'SeqNum on non-nonstreet feature'
             -- prod's legacy default pointer '1' for two-digit LGC codes
-            WHEN f.key = 'boe_lgc' AND w.(changes -> 'boe_lgc' ->> 'old') = '1'
+            WHEN f.key = 'boe_lgc' AND (w.changes -> 'boe_lgc' ->> 'old') = '1'
                 THEN 'CSCL-LION-04: BOE_LGC'
             WHEN f.key = 'boe_lgc' THEN 'BOE_LGC other'
             WHEN
                 f.key = 'curveflag'
-                AND coalesce(trim(w.(changes -> 'curveflag' ->> 'old')), '') = ''
-                AND w.(changes -> 'curveflag' ->> 'new') = 'I'
+                AND coalesce(trim((w.changes -> 'curveflag' ->> 'old')), '') = ''
+                AND (w.changes -> 'curveflag' ->> 'new') = 'I'
                 THEN 'CSCL-LION-03: CurveFlag I where prod blank'
             WHEN f.key = 'curveflag' THEN 'CurveFlag other'
             WHEN
@@ -140,16 +140,16 @@ SELECT
     output_file_id,
     CASE
         WHEN status != 'modified' THEN ''
-        WHEN open_causes IS NULL AND cardinality(explained_causes) = 1 THEN explained_causes[1]
+        WHEN open_causes IS NULL AND len(explained_causes) = 1 THEN explained_causes[1]
         WHEN open_causes IS NULL THEN 'Multiple accounted causes'
-        WHEN cardinality(open_causes) = 1 THEN open_causes[1]
+        WHEN len(open_causes) = 1 THEN open_causes[1]
         ELSE ''
     END AS diff_group,
     -- subgroup: the open causes when mixed with accounted ones, else the feature source
     CASE
         WHEN status != 'modified' THEN ''
-        WHEN open_causes IS NULL AND cardinality(explained_causes) > 1 THEN array_to_string(explained_causes, ' + ')
-        WHEN cardinality(open_causes) > 1 THEN array_to_string(open_causes, ' + ')
+        WHEN open_causes IS NULL AND len(explained_causes) > 1 THEN array_to_string(explained_causes, ' + ')
+        WHEN len(open_causes) > 1 THEN array_to_string(open_causes, ' + ')
         ELSE coalesce(_source_table, '')
     END AS subgroup,
     comparison_column,
