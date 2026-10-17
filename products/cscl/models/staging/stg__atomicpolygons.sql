@@ -6,6 +6,7 @@
 ) }}
 
 SELECT
+    ogc_fid,
     atomicid,
     -- carried through raw for the nyap feature class, which publishes them as stored
     atomic_num,
@@ -55,6 +56,6 @@ SELECT
     water_flag,
     commercial_waste_zone,
     hurricane_evacuation_zone,
-    st_makevalid(linearize(geom)) AS geom,
+    st_makevalid(geom) AS geom,
     geom AS raw_geom
 FROM {{ source("recipe_sources", "dcp_cscl_atomicpolygons") }}
