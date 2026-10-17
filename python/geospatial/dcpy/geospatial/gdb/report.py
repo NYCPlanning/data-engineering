@@ -47,6 +47,18 @@ class LayerReport:
         return self.note == "OK"
 
 
+def _format_key(key) -> str:
+    """A composite key tuple as readable text: parts joined by " | ", NULL
+    parts shown as <NULL> rather than composite_key's internal sentinel. A
+    row whose key is entirely NULL has a one-off string identity (see
+    compare.composite_key) and is shown as <NULL>."""
+    if isinstance(key, str):
+        return "<NULL>" if key.startswith(compare._NA_SENTINEL) else key
+    return " | ".join(
+        "<NULL>" if part == compare._NA_SENTINEL else str(part) for part in key
+    )
+
+
 class GdbComparisonReport:
     """Accumulates one dev/prod GDB comparison's layer results, logging each
     as it's added, and renders a final per-(layer, column) CSV-ready row set
@@ -224,6 +236,12 @@ class GdbComparisonReport:
                     f"{total_diff:,} rows differ ({row_level.only_in_dev:,} dev-only, "
                     f"{row_level.only_in_prod:,} prod-only)"
                 )
+        if row_level.exact_duplicate_dev_rows or row_level.exact_duplicate_prod_rows:
+            flags.append(
+                "exact duplicate rows (not counted as diffs): "
+                f"{row_level.exact_duplicate_dev_rows:,} dev / "
+                f"{row_level.exact_duplicate_prod_rows:,} prod surplus copies"
+            )
         if row_level.duplicate_key_dev_rows or row_level.duplicate_key_prod_rows:
             flags.append(
                 "key has duplicates: "
@@ -293,6 +311,8 @@ class GdbComparisonReport:
                 "key_precise": c.row_level.precise,
                 "duplicate_key_dev_rows": c.row_level.duplicate_key_dev_rows,
                 "duplicate_key_prod_rows": c.row_level.duplicate_key_prod_rows,
+                "exact_duplicate_dev_rows": c.row_level.exact_duplicate_dev_rows,
+                "exact_duplicate_prod_rows": c.row_level.exact_duplicate_prod_rows,
                 "rows_only_in_dev": c.row_level.only_in_dev,
                 "rows_only_in_prod": c.row_level.only_in_prod,
                 "rows_modified": (
@@ -310,6 +330,7 @@ class GdbComparisonReport:
                         "null_pct_diff": "",
                         "dev_nunique": "",
                         "prod_nunique": "",
+                        "rows_modified_in_column": "",
                         "note": entry.note,
                     }
                 )
@@ -324,6 +345,13 @@ class GdbComparisonReport:
                         "null_pct_diff": round(s.dev_null_pct - s.prod_null_pct, 2),
                         "dev_nunique": s.dev_nunique,
                         "prod_nunique": s.prod_nunique,
+                        "rows_modified_in_column": (
+                            c.row_level.modified_by_column.get(s.column, 0)
+                            if c.row_level.modified is not None
+                            and s.column not in c.key_cols
+                            and s.column != "geometry"
+                            else ""
+                        ),
                         "note": s.note,
                     }
                 )
@@ -365,7 +393,7 @@ class GdbComparisonReport:
                             "layer": entry.layer,
                             "status": status,
                             "key_columns": ", ".join(key_cols),
-                            "key": " | ".join(str(part) for part in k),
+                            "key": _format_key(k),
                         }
                     )
         return out

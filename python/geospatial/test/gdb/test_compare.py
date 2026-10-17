@@ -87,6 +87,7 @@ def test_modified_attribute_on_insane_geometry_row_counts_as_modified(nta_gdf):
         modified=1,
         precise=True,
         modified_keys=[(NTA_INSANE_KEY,)],
+        modified_by_column={"NTAName": 1},
     )
 
 
@@ -101,6 +102,7 @@ def test_modified_attribute_on_simple_geometry_row_counts_as_modified(nta_gdf):
         modified=1,
         precise=True,
         modified_keys=[(NTA_SIMPLE_KEY,)],
+        modified_by_column={"BoroCode": 1},
     )
 
 
@@ -119,6 +121,7 @@ def test_add_remove_and_modify_combine_correctly(nta_gdf):
         precise=True,
         only_in_dev_keys=[(NTA_INSANE_KEY,)],
         modified_keys=[(NTA_SIMPLE_KEY,)],
+        modified_by_column={"NTAName": 1},
     )
 
 
@@ -221,7 +224,7 @@ def test_row_level_diff_precise_subset_still_gets_modified_detection_alongside_a
     dev = pd.DataFrame(
         {
             "key": ["A", "B", "DUP", "DUP"],
-            "val": ["a-value", "b-value", "dup-value", "dup-value"],
+            "val": ["a-value", "b-value", "dup-value-1", "dup-value-2"],
         }
     )
     prod = pd.DataFrame(
@@ -229,7 +232,7 @@ def test_row_level_diff_precise_subset_still_gets_modified_detection_alongside_a
             "key": ["A", "B", "DUP", "DUP"],
             # "A"'s value changed - must still be caught as modified even
             # though "DUP" collides on both sides.
-            "val": ["a-CHANGED", "b-value", "dup-value", "dup-value"],
+            "val": ["a-CHANGED", "b-value", "dup-value-1", "dup-value-2"],
         }
     )
     result = compare.row_level_diff(dev, prod, ["key"], ["val"])
@@ -242,35 +245,60 @@ def test_row_level_diff_precise_subset_still_gets_modified_detection_alongside_a
 
 
 def test_row_level_diff_duplicate_key_same_count_and_content_is_clean():
-    """The real scenario this was built for: several rows share a key
-    (gdb_lion's SAF-replicant rows, or - as found in production - 19
-    genuinely distinct AddressPoint records that collapse to identical
-    content once house_number_suffix is dropped from the output schema).
-    When both sides have the same NUMBER of identically-valued rows under
-    that key, there's nothing to report - not an add, not a remove, not a
-    (undetectable) modification."""
-    dev = pd.DataFrame(
-        {"key": ["DUP"] * 19, "val": ["same-address-different-unit"] * 19}
-    )
+    """Several rows share a key but differ in content (gdb_lion's SAF-replicant
+    rows: one per address range under the same SegmentID|Join_ID). When both
+    sides have the same NUMBER of rows under that key, there's nothing to
+    report - not an add, not a remove, not a (undetectable) modification."""
+    dev = pd.DataFrame({"key": ["DUP"] * 3, "val": ["1-5", "2-4", "7-9"]})
     prod = dev.copy()
     result = compare.row_level_diff(dev, prod, ["key"], ["val"])
     assert result.precise is False
     assert result.only_in_dev == 0
     assert result.only_in_prod == 0
     assert result.modified is None
-    assert result.duplicate_key_dev_rows == 19
-    assert result.duplicate_key_prod_rows == 19
+    assert result.duplicate_key_dev_rows == 3
+    assert result.duplicate_key_prod_rows == 3
 
 
 def test_row_level_diff_duplicate_key_count_mismatch_is_add_or_remove():
-    """Same colliding key on both sides, but dev has more copies than prod -
-    the excess must show up as only_in_dev, not get silently absorbed."""
-    dev = pd.DataFrame({"key": ["DUP"] * 3, "val": ["x"] * 3})
-    prod = pd.DataFrame({"key": ["DUP"] * 2, "val": ["x"] * 2})
+    """Same colliding key on both sides, but dev has more (distinct) rows
+    under it than prod - the excess must show up as only_in_dev, not get
+    silently absorbed."""
+    dev = pd.DataFrame({"key": ["DUP"] * 3, "val": ["x", "y", "z"]})
+    prod = pd.DataFrame({"key": ["DUP"] * 2, "val": ["x", "y"]})
     result = compare.row_level_diff(dev, prod, ["key"], ["val"])
     assert result.only_in_dev == 1
     assert result.only_in_prod == 0
     assert result.modified is None
+
+
+def test_row_level_diff_counts_exact_duplicate_rows_separately():
+    """Identical rows repeated on one side (prod's altnames repeats a name once
+    per related LION record) are surplus copies, not adds/removes - they're
+    collapsed before keying and reported on their own, and the remaining
+    rows still pair precisely."""
+    dev = pd.DataFrame({"key": ["A", "B"], "val": ["a", "b"]})
+    prod = pd.DataFrame({"key": ["A", "B", "B", "B"], "val": ["a", "b", "b", "b"]})
+    result = compare.row_level_diff(dev, prod, ["key"], ["val"])
+    assert result == compare.RowLevelDiff(
+        only_in_dev=0,
+        only_in_prod=0,
+        modified=0,
+        precise=True,
+        exact_duplicate_dev_rows=0,
+        exact_duplicate_prod_rows=2,
+    )
+
+
+def test_row_level_diff_same_key_different_content_is_not_an_exact_duplicate():
+    dev = pd.DataFrame({"key": ["A", "A"], "val": ["x", "x"]})
+    prod = pd.DataFrame({"key": ["A", "A"], "val": ["x", "y"]})
+    result = compare.row_level_diff(dev, prod, ["key"], ["val"])
+    assert result.exact_duplicate_dev_rows == 1
+    assert result.exact_duplicate_prod_rows == 0
+    # dev collapses to one row, prod keeps two under the same key
+    assert result.duplicate_key_prod_rows == 2
+    assert result.only_in_prod == 1
 
 
 def test_row_level_diff_content_difference_within_a_duplicate_key_group_is_invisible():
@@ -341,6 +369,7 @@ def test_composite_key_does_not_collide_when_a_part_contains_the_join_separator(
         modified=1,
         precise=True,
         modified_keys=[("X|Y", "Z")],
+        modified_by_column={"val": 1},
     )
 
 
@@ -360,6 +389,51 @@ def test_null_keyed_rows_are_never_paired_with_each_other():
     # category showed up, not what it says.
     assert len(result.only_in_dev_keys) == 1
     assert len(result.only_in_prod_keys) == 1
+
+
+def test_partially_null_composite_key_pairs_null_with_null():
+    """Regression test: a NULL in ANY key column used to give the row a
+    one-off identity, so a key with optional parts (PDir|SName|SDir, NULL
+    PDir/SDir on most rows) left every row unmatched on both sides. A NULL
+    part is an ordinary value: it pairs with NULL, and not with "" or a
+    different value."""
+    dev = pd.DataFrame(
+        {
+            "pdir": [None, "E", None],
+            "sname": ["MAIN", "14", "OAK"],
+            "val": ["x", "y", "z"],
+        }
+    )
+    prod = pd.DataFrame(
+        {
+            "pdir": [None, "E", ""],
+            "sname": ["MAIN", "14", "OAK"],
+            "val": ["x", "y-changed", "z"],
+        }
+    )
+    result = compare.row_level_diff(dev, prod, ["pdir", "sname"], ["val"])
+    assert result.modified == 1
+    assert result.modified_keys == [("E", "14")]
+    # NULL vs "" in a key part is a different identity
+    assert result.only_in_dev == 1
+    assert result.only_in_prod == 1
+    assert result.only_in_prod_keys == [("", "OAK")]
+
+
+def test_all_null_composite_key_rows_are_never_paired():
+    dev = pd.DataFrame({"a": [None], "b": [None], "val": ["x"]})
+    prod = pd.DataFrame({"a": [None], "b": [None], "val": ["x"]})
+    result = compare.row_level_diff(dev, prod, ["a", "b"], ["val"])
+    assert result.only_in_dev == 1
+    assert result.only_in_prod == 1
+
+
+def test_row_level_diff_counts_modified_rows_per_column():
+    dev = pd.DataFrame({"key": ["A", "B", "C"], "x": [1, 2, 3], "y": ["p", "q", "r"]})
+    prod = pd.DataFrame({"key": ["A", "B", "C"], "x": [1, 9, 9], "y": ["p", "Q", "r"]})
+    result = compare.row_level_diff(dev, prod, ["key"], ["x", "y"])
+    assert result.modified == 2
+    assert result.modified_by_column == {"x": 2, "y": 1}
 
 
 def test_key_identity_ignores_blank_as_null():

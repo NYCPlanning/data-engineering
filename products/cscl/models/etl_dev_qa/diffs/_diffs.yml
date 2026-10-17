@@ -3,7 +3,7 @@ version: 2
 models:
 - name: qa__diffs_all
   description: >
-    Union of all per-product diff summaries (thinlion, lion_dat, rpl, saf),
+    Union of all per-product diff summaries (thinlion, lion_dat, gdb_lion, rpl, saf),
     giving a single project-wide view of every discrepant record between the
     dev build and production. Intended as the source for burndown charts and
     cross-product diff tracking. Materialized as a table on demand (tags:
@@ -74,6 +74,18 @@ models:
     description: >
       Date this table was last materialized, stamped once via CURRENT_DATE at
       build time. All rows in a given materialization share the same value.
+
+- name: qa__diffs_gdb_lion
+  description: >
+    Row-level diff of the LION geodatabase `lion` layer (gdb_lion) against
+    production's fgdb_lion, in the shared qa__diffs_* schema. Rows are keyed
+    SegmentID|Join_ID|LLo_Hyphen|RLo_Hyphen (trimmed); rows with no full-key
+    match on the other side are re-paired on SegmentID|Join_ID|#rank so prod's
+    inconsistent house-number zeroing (CSCL-LION-15) shows as modified rows
+    rather than only_in pairs. diff_group names the cause of each modified row;
+    accounted_for is true when every changed field has a verified, accepted
+    cause (CSCL-LION-03, 04, 05, 16). House numbers, zips, SegCount and Street
+    are categorized but left unaccounted.
 
 - name: qa__diffs_all_summary
   description: >

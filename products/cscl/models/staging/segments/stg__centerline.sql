@@ -89,6 +89,8 @@ SELECT
     nullif(number_total_lanes::INT, 0) AS number_total_lanes, -- TODO - ingest read as int
     nullif(streetwidth_max::INT, 0) AS streetwidth_max, -- TODO - ingest read as int
     nullif(round(streetwidth_min)::INT, 0) AS streetwidth_min, -- TODO - ingest read as int
+    -- gdb_lion keeps a source 0 (NULL only when the source is NULL); lion_dat blanks it
+    round(streetwidth_min)::INT AS streetwidth_min_with_zeros,
     bike_trafdir AS bike_traffic_direction,
     shape_length,
     geom,

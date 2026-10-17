@@ -176,6 +176,11 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: SectionalMap
   - name: dcp_cscl_gdb
+    import_as: dcp_cscl_quartersectionalmap
+    custom:
+      filename: ETL Working GDB.gdb.zip
+      layer_name: QuarterSectionalMap
+  - name: dcp_cscl_gdb
     import_as: dcp_cscl_sedat
     custom:
       filename: ETL Working GDB.gdb.zip

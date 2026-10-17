@@ -111,6 +111,12 @@ datasets:
   file_format:
     layer: SectionalMap
 
+- id: dcp_cscl_quartersectionalmap
+  attributes:
+    name: CSCL Quarter Sectional Map
+  file_format:
+    layer: QuarterSectionalMap
+
 - id: dcp_cscl_sedat
   attributes:
     name: CSCL SEDAT (Split Election District Address Table)
