@@ -707,3 +707,55 @@ def test_layered_export_spatial_false_with_geometry_type_raises(tmp_path):
     )
     with pytest.raises(ValueError, match="spatial: false and geometry_type"):
         export(recipe_path, pg_client=MagicMock())
+
+
+def test_parquet_first_export_then_package(tmp_path, monkeypatch):
+    """package_from_parquet: gdb entries export as parquet layers + a manifest, and
+    `package` folds them into the FGDB the entries name."""
+    from dcpy.lifecycle.builds.export import package
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.boundaries AS SELECT 1 AS id, "
+        "ST_GeomFromText('MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))') AS geom"
+    )
+    client.conn.execute("CREATE TABLE s.names AS SELECT 'x' AS name")
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  crs: EPSG:2263
+  datasets:
+  - name: boundaries
+    filename: things.gdb.zip
+    format: gdb
+  - name: names
+    filename: things.gdb.zip
+    format: gdb
+    custom: {{ spatial: false }}
+"""
+    )
+    out = export(lock, duckdb_client=client)
+    assert out is not None
+    assert (out / "layers" / "manifest.json").exists()
+    assert not (out / "dataset_files" / "things.gdb.zip").exists()
+
+    package(lock)
+    gdb = f"zip://{out / 'dataset_files' / 'things.gdb.zip'}!things.gdb"
+    boundaries = gpd.read_file(gdb, layer="boundaries")
+    assert len(boundaries) == 1
+    assert boundaries.crs.to_epsg() == 2263
+    assert len(gpd.read_file(gdb, layer="names")) == 1
+    client.close()
