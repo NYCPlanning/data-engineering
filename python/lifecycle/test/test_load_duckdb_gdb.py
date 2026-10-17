@@ -201,3 +201,19 @@ def test_zipped_gdb_is_extracted_once(tmp_path, gpkg):
     (gdb / "marker").write_text("")
     assert data_loader._unzipped_gdb(zpath) == gdb
     assert (gdb / "marker").exists(), "second call should reuse the extraction"
+
+
+def test_load_arrow_keeps_domain_codes(client):
+    import pyarrow as pa
+
+    codes = pa.DictionaryArray.from_arrays(
+        pa.array([1, None, 0], pa.int16()), pa.array(["Ground", "Elevated"])
+    )
+    client.load_arrow(pa.table({"level": codes}), "tbl")
+    assert client.conn.execute(
+        "SELECT level FROM s.tbl ORDER BY ogc_fid"
+    ).fetchall() == [
+        (1,),
+        (None,),
+        (0,),
+    ]
