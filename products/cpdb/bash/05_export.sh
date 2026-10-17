@@ -28,7 +28,25 @@ mkdir -p output && (
     shp_export cpdb_dcpattributes_poly MULTIPOLYGON &
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
-    
+
+    # one GeoPackage for reviewing how projects were mapped. Layers are written one at a time
+    # since a GeoPackage can't take concurrent writes.
+    (
+        for table in \
+            cpdb_projects \
+            cpdb_dcpattributes \
+            int__project_geom_candidates \
+            int__project_mapping_outcomes \
+            int__project_boundaries \
+            cpdb_mapping_summary_by_source \
+            cpdb_mapping_summary_by_source_and_agency
+        do
+            update=$([ -f cpdb_mapping_review.gpkg ] && echo "-update")
+            ogr2ogr -f GPKG cpdb_mapping_review.gpkg PG:${BUILD_ENGINE} \
+                ${BUILD_ENGINE_SCHEMA:-public}.${table} -nln ${table} ${update}
+        done
+    ) &
+
     mv ../projects_in_geographies.zip ../projects_in_geographies/
     mv ../projects_in_geographies ./
 
