@@ -43,7 +43,11 @@ def duck():
         con.execute("LOAD spatial")
     except duckdb.Error:
         con.execute("INSTALL spatial; LOAD spatial")
-    con.execute(MACROS.read_text())
+    # the file is a dbt macro (run at run start); drop the jinja wrapper lines
+    sql = "\n".join(
+        line for line in MACROS.read_text().splitlines() if not line.startswith("{%")
+    )
+    con.execute(sql)
     return con
 
 

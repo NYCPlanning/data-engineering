@@ -79,47 +79,43 @@ CREATE OR REPLACE MACRO find_circle(p1, p2, p3) AS (
 -- midpoint along the normal of the line segment the midpoint sits on. Mirrors the
 -- Postgres logic: first segment intersecting midpoint, else the nearest segment.
 -- NULL if line is not a LineString. (Postgres raises if >2 segments match; this takes the first.)
-CREATE OR REPLACE MACRO offset_points(line, midpoint, offset_length := 1.0) AS (
-    SELECT
-        CASE
-            WHEN st_geometrytype(line) <> 'LINESTRING' THEN NULL
-            ELSE struct_pack(
-                left_offset_point := st_point(
-                    st_x(midpoint) - dx * offset_length / sqrt(dx * dx + dy * dy),
-                    st_y(midpoint) - dy * offset_length / sqrt(dx * dx + dy * dy)
-                )::geometry,
-                right_offset_point := st_point(
-                    st_x(midpoint) + dx * offset_length / sqrt(dx * dx + dy * dy),
-                    st_y(midpoint) + dy * offset_length / sqrt(dx * dx + dy * dy)
-                )::geometry
+-- (Pure expressions, no subqueries: a macro whose subqueries reference its arguments
+-- can't be called on table columns. [x] + list_transform binds an intermediate once.)
+CREATE OR REPLACE MACRO _offset_segment(line, midpoint) AS (
+    list_transform(
+        [list_transform(
+            range(1, st_npoints(line)),
+            i -> struct_pack(
+                d := st_distance(st_makeline(st_pointn(line, i::INTEGER), st_pointn(line, (i + 1)::INTEGER)), midpoint),
+                hit := st_intersects(st_makeline(st_pointn(line, i::INTEGER), st_pointn(line, (i + 1)::INTEGER)), midpoint),
+                p1 := st_pointn(line, i::INTEGER),
+                p2 := st_pointn(line, (i + 1)::INTEGER)
             )
-        END
-    FROM (
-        SELECT
-            st_y(seg.p2) - st_y(seg.p1) AS dx,
-            st_x(seg.p1) - st_x(seg.p2) AS dy
-        FROM (
-            SELECT
-                coalesce(
-                    list_filter(cands, c -> c.hit)[1],
-                    list_sort(cands)[1]
-                ) AS seg
-            FROM (
-                SELECT
-                    list_transform(
-                        range(1, len(pts)),
-                        i -> struct_pack(
-                            d := st_distance(st_makeline(pts[i], pts[i + 1]), midpoint),
-                            hit := st_intersects(st_makeline(pts[i], pts[i + 1]), midpoint),
-                            p1 := pts[i],
-                            p2 := pts[i + 1]
-                        )
-                    ) AS cands
-                FROM (SELECT list_transform(st_dump(st_points(line)), p -> p.geom) AS pts)
-            )
-        )
-    )
+        )],
+        cands -> coalesce(list_filter(cands, c -> c.hit)[1], list_sort(cands)[1])
+    )[1]
 );
+
+CREATE OR REPLACE MACRO offset_points(line, midpoint, offset_length := 1.0) AS
+CASE
+    WHEN st_geometrytype(line) <> 'LINESTRING' THEN NULL
+    ELSE list_transform(
+        [_offset_segment(line, midpoint)],
+        seg -> list_transform(
+            [struct_pack(dx := st_y(seg.p2) - st_y(seg.p1), dy := st_x(seg.p1) - st_x(seg.p2))],
+            n -> struct_pack(
+                left_offset_point := st_point(
+                    st_x(midpoint) - n.dx * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy),
+                    st_y(midpoint) - n.dy * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy)
+                ),
+                right_offset_point := st_point(
+                    st_x(midpoint) + n.dx * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy),
+                    st_y(midpoint) + n.dy * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy)
+                )
+            )
+        )[1]
+    )[1]
+END;
 
 -- linearize stand-in: curves are linearized at load time (dcpy.geospatial.curves), so only
 -- the ST_LineMerge branch of the Postgres function remains meaningful.

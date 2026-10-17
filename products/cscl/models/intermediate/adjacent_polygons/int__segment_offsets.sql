@@ -15,9 +15,9 @@ SELECT
     geom,
     offsets.left_offset_point,
     offsets.right_offset_point
-FROM segments,
-    LATERAL offset_points(
-        segments.geom,
-        segments.midpoint,
-        2
-    ) AS offsets (left_offset_point geometry, right_offset_point geometry)
+FROM (
+    SELECT
+        s.*,
+        offset_points(s.geom, s.midpoint, offset_length := 2) AS offsets
+    FROM segments AS s
+) AS segments_with_offsets
