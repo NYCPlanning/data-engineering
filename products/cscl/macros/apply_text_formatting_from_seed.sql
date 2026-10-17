@@ -39,3 +39,18 @@ Applies text formatting using pg function FORMAT_LION_TEXT to each field in the 
 {%- endif -%}
 
 {%- endmacro %}
+
+
+{#- The seed's (non-filler) fields, unformatted: the columns a packaging step formats
+    into fixed-width text (dcpy.utils.fixed_width) from an exported parquet file. -#}
+{% macro select_fields_from_seed(formatting_seed) -%}
+{%- set query -%}
+    SELECT field_name FROM {{ ref(formatting_seed) }}
+{%- endset -%}
+{%- set fields = run_query(query) -%}
+{%- if execute -%}
+    {%- for field in fields if not field['field_name'].startswith('filler_') -%}
+        {{ field['field_name'] }}{{ "," if not loop.last }}
+    {% endfor -%}
+{%- endif -%}
+{%- endmacro %}

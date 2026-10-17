@@ -348,27 +348,57 @@ exports:
     group: flat_files
     filename: ManhattanLION.dat
     format: dat
-    custom: { formatting: lion_dat }
+    custom:
+      formatting: lion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__lion_dat.csv
+      layout_source: lion_dat_fields
+      where: "boroughcode = '1'"
   - name: bronx_lion_dat
     group: flat_files
     filename: BronxLION.dat
     format: dat
-    custom: { formatting: lion_dat }
+    custom:
+      formatting: lion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__lion_dat.csv
+      layout_source: lion_dat_fields
+      where: "boroughcode = '2'"
   - name: brooklyn_lion_dat
     group: flat_files
     filename: BrooklynLION.dat
     format: dat
-    custom: { formatting: lion_dat }
+    custom:
+      formatting: lion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__lion_dat.csv
+      layout_source: lion_dat_fields
+      where: "boroughcode = '3'"
   - name: queens_lion_dat
     group: flat_files
     filename: QueensLION.dat
     format: dat
-    custom: { formatting: lion_dat }
+    custom:
+      formatting: lion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__lion_dat.csv
+      layout_source: lion_dat_fields
+      where: "boroughcode = '4'"
   - name: staten_island_lion_dat
     group: flat_files
     filename: StatenIslandLION.dat
     format: dat
-    custom: { formatting: lion_dat }
+    custom:
+      formatting: lion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__lion_dat.csv
+      layout_source: lion_dat_fields
+      where: "boroughcode = '5'"
 
   # LDF - formatting is applied inside the models, since the record file mixes layouts.
   # compare_file is off because positions 91-100 carry a cumulative record number that

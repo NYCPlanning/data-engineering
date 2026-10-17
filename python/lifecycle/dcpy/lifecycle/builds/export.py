@@ -17,7 +17,7 @@ from dcpy.lifecycle.builds.models import (
     ExportFormat,
     InputDatasetDestination,
 )
-from dcpy.utils import datastores, postgres
+from dcpy.utils import datastores, fixed_width, postgres
 from dcpy.utils import duckdb as duckdb_utils
 from dcpy.utils.logging import logger
 
@@ -234,6 +234,38 @@ def _write_parquet_layers(
     return {"filename": filename, "format": "gdb", "layers": entries}
 
 
+def _export_dat_source(
+    output: ExportDataset,
+    filename: str,
+    duckdb_client: duckdb_utils.DuckDBClient,
+    output_folder: Path,
+) -> dict:
+    """Export a fixed-width entry's unformatted rows to raw_exports/<group>/<file>.parquet
+    and return its manifest entry.
+
+    custom: layout (the column layout CSV, relative to the product directory),
+    layout_source (the unformatted model; default: the entry's name), where / order_by
+    (optional SQL for the rows and their order in the file).
+    """
+    custom = output.custom or {}
+    source = custom.get("layout_source", output.name)
+    query = f"SELECT * FROM {duckdb_client.schema}.{source}"
+    if custom.get("where"):
+        query += f" WHERE {custom['where']}"
+    if custom.get("order_by"):
+        query += f" ORDER BY {custom['order_by']}"
+    target = Path(filename)
+    parquet = output_folder / LAYERS_DIR / target.parent / f"{target.stem}.parquet"
+    parquet.parent.mkdir(parents=True, exist_ok=True)
+    duckdb_client.export_to_parquet(table_name=source, output_path=parquet, query=query)
+    return {
+        "filename": filename,
+        "format": "dat",
+        "path": str(parquet.relative_to(output_folder)),
+        "layout": custom["layout"],
+    }
+
+
 def _zip_outputs(output_folder: Path, zip_name: str) -> None:
     # Resolve to absolute first: the zip subprocess below runs with cwd=output_folder,
     # so a relative zip_path (output_folder is often just "output", per recipe.yml)
@@ -360,12 +392,26 @@ def export(
         defaultdict(list)
     )
 
+    from_parquet = recipe.exports.package_from_parquet
+    manifest: list[dict] = []
     for output in recipe.exports.datasets:
         filename = str(output.output_path)
         (dataset_files_folder / filename).parent.mkdir(parents=True, exist_ok=True)
+        custom = output.custom or {}
         if output.format in LAYERED_EXPORT_FORMATS:
             # Grouped below, regardless of backend.
             layered_groups[(output.format, filename)].append(output)
+        elif (
+            from_parquet
+            and output.format == ExportFormat.dat
+            and custom.get("layout")
+            and duckdb_client is not None
+        ):
+            # parquet-first fixed-width: export the unformatted rows; `package` formats
+            # them with the layout (dcpy.utils.fixed_width), not the database
+            manifest.append(
+                _export_dat_source(output, filename, duckdb_client, output_folder)
+            )
         elif duckdb_client is not None:
             export_dataset_from_duckdb(
                 table_name=output.name,
@@ -385,8 +431,6 @@ def export(
             )
 
     geo_client = duckdb_client if duckdb_client is not None else pg_client
-    from_parquet = recipe.exports.package_from_parquet
-    manifest = []
     for (format, filename), entries in layered_groups.items():
         assert geo_client is not None
         layers = []
@@ -440,7 +484,7 @@ def export(
         manifest_dir.mkdir(parents=True, exist_ok=True)
         (manifest_dir / LAYER_MANIFEST).write_text(json.dumps(manifest, indent=2))
         logger.info(
-            f"Wrote {sum(len(m['layers']) for m in manifest)} parquet layers; "
+            f"Wrote {len(manifest)} parquet exports to package; "
             "`builds export package` folds them into their FGDBs (and zips the outputs)"
         )
     elif recipe.exports.zip_name:
@@ -466,6 +510,17 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     manifest_path = output_folder / LAYERS_DIR / LAYER_MANIFEST
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else []
     for entry in manifest:
+        if entry["format"] == "dat":
+            layout = fixed_width.load_layout(
+                (product_path or Path.cwd()) / entry["layout"]
+            )
+            n = fixed_width.parquet_to_dat(
+                output_folder / entry["path"],
+                layout,
+                output_folder / "dataset_files" / entry["filename"],
+            )
+            logger.info(f"Packaged {n} fixed-width lines into {entry['filename']}")
+            continue
         layers = [
             ParquetLayer(
                 name=layer["name"],

@@ -760,3 +760,50 @@ exports:
     assert boundaries.crs.to_epsg() == 2263
     assert len(gpd.read_file(gdb, layer="names")) == 1
     client.close()
+
+
+def test_parquet_first_fixed_width(tmp_path, monkeypatch):
+    """A dat entry with custom.layout exports its unformatted rows to parquet, and
+    `package` formats them into the fixed-width file."""
+    from dcpy.lifecycle.builds.export import package
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.rows AS SELECT * FROM (VALUES (1, 'ab'), (2, NULL), (3, 'c')) t (id, code)"
+    )
+    (tmp_path / "layout.csv").write_text(
+        "field_name,field_length,justify_and_fill,blank_if_none\n"
+        "id,3,RJZF,FALSE\ncode,4,LJSF,TRUE\n"
+    )
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  datasets:
+  - name: rows
+    group: flat_files
+    filename: rows.dat
+    format: dat
+    custom: {{ layout: layout.csv, where: "id < 3", order_by: id }}
+"""
+    )
+    out = export(lock, duckdb_client=client)
+    assert out is not None
+    assert (out / "raw_exports" / "flat_files" / "rows.parquet").exists()
+    package(lock, product_path=tmp_path)
+    assert (out / "dataset_files" / "flat_files" / "rows.dat").read_bytes() == (
+        b"001ab  \r\n002    \r\n"
+    )
+    client.close()
