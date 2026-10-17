@@ -1,6 +1,6 @@
 name: CSCL - 🏗️ Build
 # Builds CSCL on DuckDB from recipe.yml. Plan, load, build (the recipe's stage_config commands), export (parquet-first)
-# and package (flat files, FGDBs, docs), then QA against prod. No upload.
+# and package (flat files, FGDBs, docs), QA against prod, then upload to edm-publishing.
 on:
   workflow_call:
     inputs:
@@ -107,6 +107,18 @@ jobs:
         uv run python3 -m dcpy lifecycle builds qa run --recipe-path $LOCK_FILE
         echo "qa: $(( $(date +%s) - start ))s" >> timings.txt
 
+    - name: Upload
+      # same layout as before the DuckDB cut-over: the package (dataset_files/, attachments/,
+      # the zip) plus QA's validation_output/ (read by the QA app), to
+      # edm-publishing db-cscl/build/<build name>/. qa/prod/ (private prod files) stays put.
+      run: |
+        ROOT=$(dirname "$(uv run python3 -m dcpy lifecycle builds build path --recipe-path $LOCK_FILE)")
+        STAGE="$RUNNER_TEMP/upload"
+        rm -rf "$STAGE" && mkdir -p "$STAGE"
+        cp -R "$ROOT/package/." "$STAGE/"
+        cp -R "$ROOT/qa/validation_output" "$STAGE/validation_output"
+        uv run python3 -m dcpy.connectors.edm.publishing upload -o "$STAGE" --product db-cscl --acl public-read --max_files 1000
+
     - name: Summary
       if: always()
       run: |
@@ -114,9 +126,11 @@ jobs:
           echo "### CSCL DuckDB build"
           echo '```'
           cat timings.txt 2>/dev/null
-          DATA=$DCPY_LIFECYCLE_DATA_DIR
-          (cd "$DATA/package/cscl" && find . -path "*dataset_files*" -type f | sort | head -60)
-          cat "$DATA"/builds/qa/cscl/*/validation_output/validation_summary.csv 2>/dev/null
+          # one root per build: <root>/{build,package,qa}
+          ROOT=$(ls -d "$DCPY_LIFECYCLE_DATA_DIR"/builds/build/cscl/*/ 2>/dev/null | head -1)
+          [ -n "$ROOT" ] && (cd "$ROOT" && du -sh build package qa 2>/dev/null; find package/dataset_files -type f | sort | head -60)
+          [ -n "$ROOT" ] && cat "$ROOT/qa/validation_output/validation_summary.csv" 2>/dev/null
+          true
           free -h
           echo '```'
         } >> "$GITHUB_STEP_SUMMARY"
@@ -129,5 +143,5 @@ jobs:
         path: |
           products/cscl/logs/
           products/cscl/target/run_results.json
-          ${{ env.DCPY_LIFECYCLE_DATA_DIR }}/builds/qa/
+          ${{ env.DCPY_LIFECYCLE_DATA_DIR }}/builds/build/cscl/*/qa/validation_output/
         if-no-files-found: ignore
