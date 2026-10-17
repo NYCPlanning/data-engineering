@@ -459,66 +459,126 @@ exports:
     group: flat_files
     filename: GenericABCEGNPX.txt
     format: dat
-    custom: { formatting: saf_a }
+    custom:
+      formatting: saf_a
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_a.csv
+      layout_source: saf_abcegnpx_generic_fields
   - name: saf_abcegnpx_roadbed
     group: flat_files
     filename: RoadbedABCEGNPX.txt
     format: dat
-    custom: { formatting: saf_a }
+    custom:
+      formatting: saf_a
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_a.csv
+      layout_source: saf_abcegnpx_roadbed_fields
   - name: saf_d_generic
     group: flat_files
     filename: GenericD.txt
     format: dat
-    custom: { formatting: saf_d }
+    custom:
+      formatting: saf_d
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_d.csv
+      layout_source: saf_d_generic_fields
   - name: saf_d_roadbed
     group: flat_files
     filename: RoadbedD.txt
     format: dat
-    custom: { formatting: saf_d }
+    custom:
+      formatting: saf_d
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_d.csv
+      layout_source: saf_d_roadbed_fields
   - name: saf_i
     group: flat_files
     filename: Intersection.txt
     format: dat
-    custom: { formatting: saf_i }
+    custom:
+      formatting: saf_i
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_i.csv
+      layout_source: saf_i_fields
   - name: saf_ov_generic
     group: flat_files
     filename: GenericOV.txt
     format: dat
-    custom: { formatting: saf_v }
+    custom:
+      formatting: saf_v
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_v.csv
+      layout_source: saf_ov_generic_fields
   - name: saf_ov_roadbed
     group: flat_files
     filename: RoadbedOV.txt
     format: dat
-    custom: { formatting: saf_v }
+    custom:
+      formatting: saf_v
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_v.csv
+      layout_source: saf_ov_roadbed_fields
   - name: saf_s_generic
     group: flat_files
     filename: GenericS.txt
     format: dat
-    custom: { formatting: saf_s }
+    custom:
+      formatting: saf_s
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_s.csv
+      layout_source: saf_s_generic_fields
   - name: saf_s_roadbed
     group: flat_files
     filename: RoadbedS.txt
     format: dat
-    custom: { formatting: saf_s }
+    custom:
+      formatting: saf_s
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__saf_s.csv
+      layout_source: saf_s_roadbed_fields
 
   # SEDAT
   - name: sedat
     group: flat_files
     filename: SEDAT.txt
     format: dat
-    custom: { formatting: sedat }
+    custom:
+      formatting: sedat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__sedat.csv
+      layout_source: sedat_fields
   - name: special_sedat
     group: flat_files
     filename: SpecialSEDAT.txt
     format: dat
-    custom: { formatting: sedat }
+    custom:
+      formatting: sedat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__sedat.csv
+      layout_source: special_sedat_fields
 
   # SND, Geosupport Normalizing Tables
   - name: snd
     group: flat_files
     filename: SND.txt
     format: dat
-    custom: { formatting: snd }
+    custom:
+      formatting: snd
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__snd.csv
+      layout_source: snd_fields
   - name: exception
     group: flat_files
     filename: Exception.txt
@@ -541,40 +601,80 @@ exports:
     group: flat_files
     filename: Enders.txt
     format: dat
+    custom:
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__enders.csv
+      layout_source: enders_fields
 
   # Face Code
   - name: manhattan_face_code
     group: flat_files
     filename: ManhattanFace.txt
     format: dat
-    custom: { formatting: face_code }
+    custom:
+      formatting: face_code
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__face_code.csv
+      layout_source: face_code_fields
+      where: "boroughcode = '1'"
   - name: bronx_face_code
     group: flat_files
     filename: BronxFace.txt
     format: dat
-    custom: { formatting: face_code }
+    custom:
+      formatting: face_code
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__face_code.csv
+      layout_source: face_code_fields
+      where: "boroughcode = '2'"
   - name: brooklyn_face_code
     group: flat_files
     filename: BrooklynFace.txt
     format: dat
-    custom: { formatting: face_code }
+    custom:
+      formatting: face_code
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__face_code.csv
+      layout_source: face_code_fields
+      where: "boroughcode = '3'"
   - name: queens_face_code
     group: flat_files
     filename: QueensFace.txt
     format: dat
-    custom: { formatting: face_code }
+    custom:
+      formatting: face_code
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__face_code.csv
+      layout_source: face_code_fields
+      where: "boroughcode = '4'"
   - name: staten_island_face_code
     group: flat_files
     filename: StatenIslandFace.txt
     format: dat
-    custom: { formatting: face_code }
+    custom:
+      formatting: face_code
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__face_code.csv
+      layout_source: face_code_fields
+      where: "boroughcode = '5'"
 
   # Other
   - name: rpl
     group: flat_files
     filename: RPL.txt
     format: dat
-    custom: { formatting: rpl }
+    custom:
+      formatting: rpl
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__rpl.csv
+      layout_source: rpl_fields
 
   # Log file
   - name: log
@@ -587,59 +687,124 @@ exports:
     group: flat_files
     filename: nyc.thinlion
     format: dat
-    custom: { formatting: thinlion_dat }
+    custom:
+      formatting: thinlion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
+      layout_source: thinlion_fields
   - name: thinlion_bronx
     group: flat_files
     filename: BronxThinLION.txt
     format: dat
-    custom: { formatting: thinlion_dat }
+    custom:
+      formatting: thinlion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
+      layout_source: thinlion_fields
+      where: "borough = '2'"
   - name: thinlion_brooklyn
     group: flat_files
     filename: BrooklynThinLION.txt
     format: dat
-    custom: { formatting: thinlion_dat }
+    custom:
+      formatting: thinlion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
+      layout_source: thinlion_fields
+      where: "borough = '3'"
   - name: thinlion_manhattan
     group: flat_files
     filename: ManhattanThinLION.txt
     format: dat
-    custom: { formatting: thinlion_dat }
+    custom:
+      formatting: thinlion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
+      layout_source: thinlion_fields
+      where: "borough = '1'"
   - name: thinlion_queens
     group: flat_files
     filename: QueensThinLION.txt
     format: dat
-    custom: { formatting: thinlion_dat }
+    custom:
+      formatting: thinlion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
+      layout_source: thinlion_fields
+      where: "borough = '4'"
   - name: thinlion_statenisland
     group: flat_files
     filename: StatenIslandThinLION.txt
     format: dat
-    custom: { formatting: thinlion_dat }
+    custom:
+      formatting: thinlion_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
+      layout_source: thinlion_fields
+      where: "borough = '5'"
 
   # Thin Fire
   - name: thinfire_bronx
     group: flat_files
     filename: BronxThinFire.txt
     format: dat
-    custom: { formatting: thinfire_dat }
+    custom:
+      formatting: thinfire_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
+      layout_source: thinfire_fields
+      where: "borough = '2'"
   - name: thinfire_brooklyn
     group: flat_files
     filename: BrooklynThinFire.txt
     format: dat
-    custom: { formatting: thinfire_dat }
+    custom:
+      formatting: thinfire_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
+      layout_source: thinfire_fields
+      where: "borough = '3'"
   - name: thinfire_manhattan
     group: flat_files
     filename: ManhattanThinFire.txt
     format: dat
-    custom: { formatting: thinfire_dat }
+    custom:
+      formatting: thinfire_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
+      layout_source: thinfire_fields
+      where: "borough = '1'"
   - name: thinfire_queens
     group: flat_files
     filename: QueensThinFire.txt
     format: dat
-    custom: { formatting: thinfire_dat }
+    custom:
+      formatting: thinfire_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
+      layout_source: thinfire_fields
+      where: "borough = '4'"
   - name: thinfire_statenisland
     group: flat_files
     filename: StatenIslandThinFire.txt
     format: dat
-    custom: { formatting: thinfire_dat }
+    custom:
+      formatting: thinfire_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
+      layout_source: thinfire_fields
+      where: "borough = '5'"
 
   # Thin Election District
   - name: thined_dat
@@ -653,7 +818,12 @@ exports:
     group: flat_files
     filename: CDTA2020.txt
     format: dat
-    custom: { formatting: cdta2020_dat }
+    custom:
+      formatting: cdta2020_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__cdta2020_dat.csv
+      layout_source: cdta2020_fields
   - name: cdta2020_csv
     group: flat_files
     filename: CDTA2020.csv
@@ -666,7 +836,12 @@ exports:
     group: flat_files
     filename: NTA2020.txt
     format: dat
-    custom: { formatting: nta2020_dat }
+    custom:
+      formatting: nta2020_dat
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__nta2020_dat.csv
+      layout_source: nta2020_fields
   - name: nta2020_csv
     group: flat_files
     filename: NTA2020.csv
@@ -685,6 +860,11 @@ exports:
     group: flat_files
     filename: NTA.txt
     format: dat
+    custom:
+      # parquet-first packaging (exports.package_from_parquet): format the
+      # unformatted rows outside the database
+      layout: seeds/text_formatting/text_formatting__nta2010_csv.csv
+      layout_source: nta2010_fields
 
   # ESRI / published LION geodatabase — filename must match `version:` at top of this file
   - name: gdb_lion
