@@ -1,7 +1,8 @@
 name: CSCL - 🏗️ Build
 # DuckDB cut-over POC (branch ar-cscl-duckdb-build): builds CSCL on DuckDB from
 # recipe_duckdb.yml, whatever recipe build.yml passes, to check that the build runs on a
-# GHA runner. Plan, load, dbt seed, run and test only - no export, upload or prod validation.
+# GHA runner. Plan, load, build (the recipe's stage_config commands), export (parquet-first)
+# and package the FGDBs. No upload or prod validation.
 on:
   workflow_call:
     inputs:
@@ -78,20 +79,25 @@ jobs:
         echo "load: $(( $(date +%s) - start ))s" >> timings.txt
 
     - name: Build
+      # the recipe's stage_config.builds.build.commands: dbt deps, seed, run, test
       run: |
-        export DUCKDB_PATH=$(uv run python3 -m dcpy lifecycle builds build path --duckdb --recipe-path $LOCK_FILE)
-        echo "DUCKDB_PATH=$DUCKDB_PATH" >> "$GITHUB_ENV"
-        dbt deps
         start=$(date +%s)
-        dbt seed --target duckdb
-        dbt run --target duckdb --selector duckdb_build
-        echo "seed + run: $(( $(date +%s) - start ))s" >> timings.txt
+        uv run python3 -m dcpy lifecycle builds build run --recipe-path $LOCK_FILE
+        echo "build (seed + run + test): $(( $(date +%s) - start ))s" >> timings.txt
 
-    - name: Test
+    - name: Export
+      # parquet-first: dat/csv files, plus one GeoParquet per FGDB layer
       run: |
         start=$(date +%s)
-        dbt test --target duckdb --selector duckdb_build
-        echo "test: $(( $(date +%s) - start ))s" >> timings.txt
+        uv run python3 -m dcpy lifecycle builds export export --recipe-path $LOCK_FILE
+        echo "export: $(( $(date +%s) - start ))s" >> timings.txt
+
+    - name: Package
+      # fold the parquet layers into the FGDBs, then zip the outputs
+      run: |
+        start=$(date +%s)
+        uv run python3 -m dcpy lifecycle builds export package --recipe-path $LOCK_FILE
+        echo "package: $(( $(date +%s) - start ))s" >> timings.txt
 
     - name: Summary
       if: always()
@@ -100,7 +106,7 @@ jobs:
           echo "### CSCL DuckDB build"
           echo '```'
           cat timings.txt 2>/dev/null
-          [ -n "$DUCKDB_PATH" ] && ls -la "$DUCKDB_PATH"
+          ls -la output/dataset_files 2>/dev/null | grep -iE "gdb|zip|dat$" | head -20
           free -h
           echo '```'
         } >> "$GITHUB_STEP_SUMMARY"
