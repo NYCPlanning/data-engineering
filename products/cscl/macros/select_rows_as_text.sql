@@ -22,9 +22,8 @@ typically internal/helper columns not meant for export.
     {%- endif -%}
 {%- endfor -%}
 {%- set all_excludes = underscore_cols + exclude -%}
-{%- if target.type == 'duckdb' %}
-{#- DuckDB has no row-to-text cast; concatenating the columns reproduces the Postgres
-    result below (commas and quotes removed from each value, NULL as empty). -#}
+{#- Concatenates the columns: commas and quotes removed from each value (the macro's
+    original row-to-text form), NULL as empty. -#}
 {%- set export_columns = [] -%}
 {%- for col in columns if col.name not in all_excludes -%}
     {%- do export_columns.append(col.name) -%}
@@ -35,12 +34,4 @@ SELECT rtrim(ltrim(concat(
     {%- endfor %}
 ), '('), ')') AS dat_column
 FROM {{ model_relation }}
-{%- else %}
-WITH source AS (
-    SELECT {{ dbt_utils.star(from=model_relation, except=all_excludes) }}
-    FROM {{ model_relation }}
-)
-SELECT rtrim(ltrim(replace(replace(source::text, ',', ''), '"', ''), '('), ')') AS dat_column
-FROM source
-{%- endif %}
 {%- endmacro %}

@@ -1,7 +1,5 @@
 name: CSCL - 🏗️ Build
-# DuckDB cut-over POC (branch ar-cscl-duckdb-build): builds CSCL on DuckDB from
-# recipe_duckdb.yml, whatever recipe build.yml passes, to check that the build runs on a
-# GHA runner. Plan, load, build (the recipe's stage_config commands), export (parquet-first)
+# Builds CSCL on DuckDB from recipe.yml. Plan, load, build (the recipe's stage_config commands), export (parquet-first)
 # and package (flat files, FGDBs, docs), then QA against prod. No upload.
 on:
   workflow_call:
@@ -41,7 +39,7 @@ jobs:
       # GEOS allocates outside DuckDB's memory limit, so stay well under the runner's RAM
       DUCKDB_MEMORY_LIMIT: 3GB
       DUCKDB_THREADS: 2
-      LOCK_FILE: recipe_duckdb.lock.yml
+      LOCK_FILE: recipe.lock.yml
       # lifecycle stage dirs: builds/build, package, builds/qa (+ the load cache)
       DCPY_LIFECYCLE_DATA_DIR: ${{ github.workspace }}/.lifecycle
     steps:
@@ -74,7 +72,7 @@ jobs:
         df -h .
 
     - name: Plan build
-      run: uv run python3 -m dcpy lifecycle builds plan recipe --recipe-path ./recipe_duckdb.yml --output-path $LOCK_FILE
+      run: uv run python3 -m dcpy lifecycle builds plan recipe --recipe-path ./recipe.yml --output-path $LOCK_FILE
 
     - name: Dataloading
       run: |

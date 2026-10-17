@@ -84,16 +84,10 @@ def _merged(path: Path):
     return recipe
 
 
-def test_cscl_duckdb_recipe_inherits_every_postgres_input():
-    pg = _merged(PRODUCT_DIR / "recipe.yml")
-    duck = _merged(PRODUCT_DIR / "recipe_duckdb.yml")
-    assert [
-        (d.id, d.import_as) for d in duck.inputs.datasets if d.load_engine == "curves"
-    ] and sum(d.load_engine == "curves" for d in duck.inputs.datasets) == 11
-    assert {(d.id, d.import_as) for d in duck.inputs.datasets} == {
-        (d.id, d.import_as) for d in pg.inputs.datasets
-    }
-    for d in duck.inputs.datasets:
+def test_cscl_recipe_loads_everything_into_duckdb():
+    recipe = _merged(PRODUCT_DIR / "recipe.yml")
+    assert sum(d.load_engine == "curves" for d in recipe.inputs.datasets) == 11
+    for d in recipe.inputs.datasets:
         assert d.destination == "duckdb"
         if d.file_type == "gdb":
             assert d.load_engine in ("curves", "gdal")
@@ -173,7 +167,7 @@ def test_cscl_duckdb_recipe_names_its_duckdb_file():
     from dcpy.lifecycle.builds import config as build_config
     from dcpy.lifecycle.builds.plan import recipe_from_yaml
 
-    recipe = recipe_from_yaml(PRODUCT_DIR / "recipe_duckdb.yml")
+    recipe = recipe_from_yaml(PRODUCT_DIR / "recipe.yml")
     assert (
         build_config.get_duckdb_path("cscl", "26c", recipe.duckdb_filename).name
         == "cscl.duckdb"
@@ -258,3 +252,37 @@ exports:
     assert str(recipe.exports.output_folder) == "output"
     assert [d.name for d in recipe.exports.datasets] == ["a"]
     assert [c.name for c in recipe.stage_config["builds.build"].commands] == ["build"]
+
+
+def test_parquet_bundle_loads_one_table_per_file(tmp_path, client):
+    import zipfile
+
+    import pandas as pd
+
+    gpd.GeoDataFrame(
+        {"id": [1]}, geometry=[LineString([(0, 0), (1, 1)])], crs="EPSG:2263"
+    ).to_parquet(tmp_path / "fgdb_lion.parquet")
+    pd.DataFrame({"dat_column": ["abc"]}).to_parquet(
+        tmp_path / "citywide_lion_dat.parquet"
+    )
+    bundle = tmp_path / "production_outputs.zip"
+    with zipfile.ZipFile(bundle, "w") as zf:
+        zf.write(tmp_path / "fgdb_lion.parquet", "26c/fgdb_lion.parquet")
+        zf.write(tmp_path / "citywide_lion_dat.parquet", "citywide_lion_dat.parquet")
+    ds = InputDataset(
+        id="dcp_cscl_production_outputs",
+        import_as="production_outputs",
+        file_type=DatasetType.parquet_bundle,
+        version="26c",
+    )
+    data_loader.load_dataset_into_duckdb(ds, client, bundle)
+    tables = client.conn.execute(
+        "SELECT table_name FROM information_schema.tables "
+        "WHERE table_schema = 'production_outputs' ORDER BY 1"
+    ).fetchall()
+    assert tables == [("citywide_lion_dat",), ("fgdb_lion",)]
+    geom_type = client.conn.execute(
+        "SELECT column_type FROM (DESCRIBE production_outputs.fgdb_lion) "
+        "WHERE column_name = 'geometry'"
+    ).fetchone()
+    assert geom_type is not None and geom_type[0].startswith("GEOMETRY")

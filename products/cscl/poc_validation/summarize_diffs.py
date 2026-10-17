@@ -4,7 +4,7 @@ Parses validation output text files and produces a CSV summary of diffs.
 Run from the products/cscl directory:
     python poc_validation/summarize_diffs.py
 
-Outputs: output/validation_output/diffs_summary.csv
+Outputs: <QA_DIR>/validation_output/diffs_summary.csv
 """
 
 import csv

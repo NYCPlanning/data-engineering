@@ -749,7 +749,9 @@ exports:
 """
     )
     monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
-    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)  # set by other tests' loads
+    monkeypatch.delenv(
+        "BUILD_ENV_OUTPUT_DIR", raising=False
+    )  # set by other tests' loads
     out = export(lock, duckdb_client=client)
     assert out is not None
     assert (out / "raw_exports" / "manifest.json").exists()
@@ -804,7 +806,9 @@ exports:
 """
     )
     monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
-    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)  # set by other tests' loads
+    monkeypatch.delenv(
+        "BUILD_ENV_OUTPUT_DIR", raising=False
+    )  # set by other tests' loads
     out = export(lock, duckdb_client=client)
     assert out is not None
     assert (out / "raw_exports" / "flat_files" / "rows.parquet").exists()

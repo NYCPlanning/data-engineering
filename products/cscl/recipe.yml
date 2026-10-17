@@ -1,6 +1,7 @@
 name: CSCL
 product: cscl
 version: 26c
+duckdb_filename: cscl.duckdb
 
 # The LDF documents the change between two LION releases, and its header also needs
 # thined.txt's own undocumented header tags - all of it values nothing in source data
@@ -11,7 +12,7 @@ version: 26c
 
 inputs:
   dataset_defaults:
-    destination: postgres
+    destination: duckdb
     file_type: gdb
     source: edm.recipes.raw_datasets
     load_engine: gdal
@@ -20,26 +21,36 @@ inputs:
   # segment source layers - backbone
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_centerline
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Centerline
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_shoreline
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Shoreline
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_rail
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Rail
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_subway
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Subway
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_nonstreetfeatures
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NonStreetFeature
@@ -47,6 +58,8 @@ inputs:
   # other more "primary" layers
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_atomicpolygons
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: AtomicPolygon
@@ -117,6 +130,8 @@ inputs:
       layer_name: NYPDBeat
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_nypdprecinct
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDPrecinct
@@ -207,6 +222,8 @@ inputs:
       layer_name: UNIVERSALWORD
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_zipcode
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ZipCode
@@ -234,6 +251,8 @@ inputs:
       layer_name: Borough
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_businessimprovementdistrict
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: BusinessImprovementDistrict
@@ -284,6 +303,8 @@ inputs:
       layer_name: HealthCenterDistrict
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_historicdistrict
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: HistoricDistrict
@@ -314,6 +335,8 @@ inputs:
       layer_name: StateSenateDistrict
   - name: dcp_cscl_gdb
     import_as: dcp_cscl_urbanrenewalarea
+    # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
+    load_engine: curves
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: UrbanRenewalArea
@@ -328,6 +351,7 @@ inputs:
     import_as: previous_citywide_lion
     custom:
       filename: citywide_lion_dat.csv
+      all_varchar: true  # all text, as the files are fixed-width records
 
   - name: dcp_cscl_temp_mock_previous_release
     source: edm.private
@@ -337,11 +361,15 @@ inputs:
     import_as: previous_ldf_header
     custom:
       filename: previous_ldf_header.csv
+      all_varchar: true  # all text, as the files are fixed-width records
   missing_versions_strategy: find_latest # TODO - they should all match
 
 exports:
-  output_folder: output
   zip_name: output
+  # parquet-first: export writes raw_exports/ (parquet layers + unformatted fixed-width
+  # rows); `builds export package` formats and assembles the deliverables
+  package_from_parquet: true
+  crs: EPSG:2263
   datasets:
   # GeoSupport LION
   - name: manhattan_lion_dat
@@ -887,3 +915,37 @@ exports:
     filename: v26C_Districts.gdb.zip
     format: gdb
     custom: { layer: nyzip, geometry_type: polygons }
+
+stage_config:
+  builds.build:
+    commands:
+      - name: dbt_deps
+        run: dbt deps
+      - name: dbt_seed
+        run: dbt seed
+      - name: dbt_run
+        run: dbt run --selector duckdb_build
+      - name: dbt_test
+        run: dbt test --selector duckdb_build
+  # run by `builds qa run`; results go in $QA_DIR (see poc_validation/paths.py). The QA
+  # models need Postgres for production_outputs (--target duckdb_qa attaches it).
+  builds.qa:
+    commands:
+      - name: qa_models
+        run: dbt run --target duckdb_qa --select path:models/qa_int path:models/etl_dev_qa
+      - name: pull_prod_files
+        run: mkdir -p "$QA_DIR/prod" && python poc_validation/prod_data_loader.py pull
+      - name: compare_flat_files
+        run: bash poc_validation/validate_outputs.sh
+      - name: summarize_diffs
+        run: python poc_validation/summarize_diffs.py
+      - name: compare_gdbs
+        run: python poc_validation/compare_gdb.py
+      - name: diffs_report
+        run: python poc_validation/build_diffs_report.py
+  # run by `builds export package`, after it folds the parquet layers into the FGDBs
+  builds.package:
+    commands:
+      - name: generate_docs
+        # needs target/manifest.json, which the build's dbt commands write
+        run: python scripts/generate_docs.py --output "$PACKAGE_DIR/attachments/cscl_exports.md"

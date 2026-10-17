@@ -1,16 +1,7 @@
-dcp-de-postgres:
-  target: dev
+cscl:
+  target: duckdb
   outputs:
-    dev:
-      type: postgres
-      host: "{{ env_var('BUILD_ENGINE_HOST') }}"
-      user: "{{ env_var('BUILD_ENGINE_USER') }}"
-      password: "{{ env_var('BUILD_ENGINE_PASSWORD') }}"
-      port: "{{ env_var('BUILD_ENGINE_PORT') | as_number }}"
-      dbname: "{{ env_var('BUILD_ENGINE_DB') }}"
-      schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
-      threads: 4
-    # the DuckDB build (cut-over in progress): dbt --target duckdb
+    # the build: dbt run (duckdb is the default target)
     duckdb: &duckdb
       type: duckdb
       path: "{{ env_var('DUCKDB_PATH', '') }}"

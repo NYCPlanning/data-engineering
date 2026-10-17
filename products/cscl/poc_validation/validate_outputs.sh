@@ -2,14 +2,13 @@
 
 # Compares dev build output files against production files and writes per-file diff results.
 #
-# NOTE: This is what the build runs (see cscl_build.yml), and the QA app reads the
-# validation_output/ files it writes. It needs local copies of both output/ and
-# .data/prod/, so it only works during or just after a build.
+# NOTE: This runs as the build's QA stage (recipe.yml stage_config builds.qa), and the QA
+# app reads the validation_output/ files it writes.
 # poc_validation/run_validation.py runs the same comparison against a build that has
 # already been published, streaming both sides from S3.
 #
-# For each file in output/, performs a line-level comparison against the matching file in
-# .data/prod/ and writes the mismatched rows to output/validation_output/<filename> - dev-only
+# For each packaged file, performs a line-level comparison against the matching prod file
+# and writes the mismatched rows to <validation dir>/<filename> - dev-only
 # rows first, then (if any) a "--- ONLY IN PROD ---" section for rows prod has that dev is
 # missing. Also writes a summary CSV (validation_summary.csv) with per-file prod row counts,
 # dev-only/prod-only counts, and their total (mismatched_rows).
@@ -22,17 +21,13 @@
 # poc_validation/run_validation.py's _compute_file_diff, which is meant to compute the same
 # thing against a published build.
 #
-# Expects two folders in the current directory:
-#  output/dataset_files/  - contains outputs of the current dev build
-#  .data/prod/            - contains the production files to compare against
-# Paths: see poc_validation/paths.py (same rules). Inside the lifecycle QA stage
-# (PACKAGE_DIR / QA_DIR set) dev files come from the package dir and the rest lives in QA_DIR.
-DEV_DIR=${DATASET_FILES_DIR:-${PACKAGE_DIR:+$PACKAGE_DIR/dataset_files}}
-DEV_DIR=${DEV_DIR:-output/dataset_files}
-PROD_DIR=${PROD_FILES_DIR:-${QA_DIR:+$QA_DIR/prod}}
-PROD_DIR=${PROD_DIR:-.data/prod}
-OUT_DIR=${VALIDATION_DIR:-${QA_DIR:+$QA_DIR/validation_output}}
-OUT_DIR=${OUT_DIR:-output/validation_output}
+# Paths: see poc_validation/paths.py (same rules). Runs as the QA stage
+# (dcpy lifecycle builds qa run), which sets PACKAGE_DIR and QA_DIR.
+: "${PACKAGE_DIR:?run as the QA stage (dcpy lifecycle builds qa run)}"
+: "${QA_DIR:?run as the QA stage (dcpy lifecycle builds qa run)}"
+DEV_DIR=${DATASET_FILES_DIR:-$PACKAGE_DIR/dataset_files}
+PROD_DIR=${PROD_FILES_DIR:-$QA_DIR/prod}
+OUT_DIR=${VALIDATION_DIR:-$QA_DIR/validation_output}
 mkdir -p "$OUT_DIR"
 
 csv_file="$OUT_DIR/validation_summary.csv"

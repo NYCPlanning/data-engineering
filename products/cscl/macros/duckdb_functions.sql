@@ -1,4 +1,4 @@
--- DuckDB equivalents of the plpgsql functions in create_pg_functions.sql.
+-- DuckDB functions used by the models, created at run start (dbt_project.yml on-run-start).
 -- Requires the spatial extension (INSTALL spatial; LOAD spatial;).
 -- Created at run start on the duckdb target (dbt_project.yml on-run-start). Geometry carries no SRID in DuckDB, so the
 -- ST_SetSRID calls of the Postgres originals have no counterpart here.

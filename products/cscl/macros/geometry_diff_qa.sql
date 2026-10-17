@@ -1,7 +1,7 @@
 {% macro geometry_diff_qa(build_relation, prod_relation, key_column, build_geom_column='geom', prod_geom_column='shape', prod_key_column=none) %}
 {#-
   Full-layer geometry QA: joins every build row to its prod counterpart by key, runs
-  test_cases.geometry_diff_metrics (macros/create_pg_functions.sql) on each pair, and
+  geometry_diff_metrics (macros/geometry_diff_qa.sql) on each pair, and
   flags pass/fail against the same thresholds qa__test_cases_geometry uses. See that
   model and the function's own docstring for why area/perimeter diffing alone isn't
   enough (products/cscl chat log, 2026-10-04/05).
@@ -214,7 +214,7 @@ FROM flagged
   DuckDB port of Postgres test_cases.geometry_diff_metrics. Returns every column of
   input_relation plus the eight metrics (actual_area_sqft, expected_area_sqft,
   symdiff_area_pct, hausdorff_ft, symdiff_boundary_len_ft, symdiff_fragment_count,
-  max_ring_eccentricity, perimeter_pct_diff). See create_pg_functions.sql for what each
+  max_ring_eccentricity, perimeter_pct_diff). See geometry_diff_metrics for what each
   metric means and why. Differences from the Postgres function: inputs must already be
   in the working SRID (EPSG:2263, no transform here), and it is a macro that emits SQL,
   not a table function (DuckDB macros can't hold the subqueries it needs).

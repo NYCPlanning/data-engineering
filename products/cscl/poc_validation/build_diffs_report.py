@@ -22,8 +22,8 @@ qa__diffs_all_summary table in the build schema):
     python poc_validation/build_diffs_report.py
 
 Outputs:
-  - output/validation_output/qa__diffs_all_summary.csv (raw export of the dbt view)
-  - output/validation_output/diffs_report.csv (one row per lion_outputs.csv file_id)
+  - <QA_DIR>/validation_output/qa__diffs_all_summary.csv (raw export of the dbt view)
+  - <QA_DIR>/validation_output/diffs_report.csv (one row per lion_outputs.csv file_id)
   - $GITHUB_STEP_SUMMARY (if set): headline counts + one table of every tracked
     file. On a branch build (BUILD_NAME other than main), each numeric cell also
     shows its change vs main's latest diffs_report.csv (MAIN_REPORT_URL).
@@ -45,7 +45,7 @@ import requests
 from paths import validation_dir
 
 from dcpy.lifecycle.builds import plan
-from dcpy.utils.postgres import PostgresClient
+from dcpy.utils.duckdb import DuckDBClient
 
 RECIPE_PATH = Path("recipe.yml")
 LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
@@ -442,7 +442,7 @@ def build_step_summary(
         "",
         _markdown_table(rows, main_rows),
         "",
-        "Full data: `output/validation_output/diffs_report.csv` (uploaded with the build).",
+        "Full data: `<QA_DIR>/validation_output/diffs_report.csv` (uploaded with the build).",
     ]
     return "\n".join(lines)
 
@@ -465,17 +465,9 @@ def print_summary_from_csv(current_csv: Path, main_csv: Path | None) -> None:
 
 def main() -> None:
     VALIDATION_DIR.mkdir(parents=True, exist_ok=True)
-    if os.environ.get("DUCKDB_PATH"):
-        # the DuckDB build (the lifecycle sets DUCKDB_PATH for its stage commands)
-        from dcpy.utils.duckdb import DuckDBClient
-
-        DuckDBClient(
-            Path(os.environ["DUCKDB_PATH"]), os.environ["BUILD_ENGINE_SCHEMA"]
-        ).export_to_csv(
-            table_name="qa__diffs_all_summary", output_path=DIFFS_SUMMARY_PATH
-        )
-    else:
-        PostgresClient().export_to_csv("qa__diffs_all_summary", DIFFS_SUMMARY_PATH)
+    DuckDBClient(
+        Path(os.environ["DUCKDB_PATH"]), os.environ["BUILD_ENGINE_SCHEMA"]
+    ).export_to_csv(table_name="qa__diffs_all_summary", output_path=DIFFS_SUMMARY_PATH)
 
     backbone = load_backbone()
     field_level_by_file = load_field_level_counts()

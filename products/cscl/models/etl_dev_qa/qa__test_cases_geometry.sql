@@ -1,6 +1,6 @@
 {{ config(materialized='table', tags=['qa']) }}
 
--- Runs test_cases.geometry_diff_metrics (macros/create_pg_functions.sql) against every
+-- Runs geometry_diff_metrics (macros/geometry_diff_qa.sql) against every
 -- row in test_cases.examples - our TDD fixture table for known-weird geometries (see
 -- products/cscl chat log, 2026-10-04). A row "passes" when none of its metrics exceed
 -- their threshold; data_tests in _etl_dev_qa.yml asserts every row passes, same as any
