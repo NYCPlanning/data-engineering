@@ -449,9 +449,11 @@ def export(
     return output_folder
 
 
-def package(recipe_lock_path: Path) -> Path:
+def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     """Fold the parquet layers from a `package_from_parquet` export into their FGDBs
-    (in dataset_files), then zip the outputs if the recipe names a zip."""
+    (in dataset_files), run the recipe's packaging commands (stage_config
+    builds.package, e.g. doc generation into attachments/; they see the build dir as
+    BUILD_ENV_OUTPUT_DIR), then zip the outputs if the recipe names a zip."""
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
     assert recipe.exports, "No exports defined in recipe"
     if recipe.exports.output_folder:
@@ -461,7 +463,8 @@ def package(recipe_lock_path: Path) -> Path:
         output_folder = build_config.get_build_output_dir(
             recipe.product, recipe.version
         )
-    manifest = json.loads((output_folder / LAYERS_DIR / LAYER_MANIFEST).read_text())
+    manifest_path = output_folder / LAYERS_DIR / LAYER_MANIFEST
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else []
     for entry in manifest:
         layers = [
             ParquetLayer(
@@ -476,6 +479,15 @@ def package(recipe_lock_path: Path) -> Path:
             layers, output_folder / "dataset_files" / entry["filename"]
         )
         logger.info(f"Packaged {len(layers)} layers into {out}")
+    if build_config.PACKAGE_STAGE_KEY in recipe.stage_config:
+        from dcpy.lifecycle.builds.build import run_build_commands
+
+        run_build_commands(
+            product_path=product_path or Path.cwd(),
+            recipe_lock_path=Path(recipe_lock_path),
+            build_directory=output_folder.absolute(),
+            stage_key=build_config.PACKAGE_STAGE_KEY,
+        )
     if recipe.exports.zip_name:
         _zip_outputs(output_folder, recipe.exports.zip_name)
     return output_folder

@@ -6,6 +6,9 @@ from dcpy.lifecycle import config
 # Build configuration constants
 BUILD_ARTIFACT_DIRS = ["target", "attachments", "dataset_files"]
 BUILD_STAGE_KEY = "builds.build"  # Recipe stage_config key for build commands
+# Recipe stage_config key for packaging commands, run by `builds export package` after
+# its built-in packaging (e.g. generating docs into attachments/)
+PACKAGE_STAGE_KEY = "builds.package"
 
 
 def get_recipe_path(product_path: Path, recipe_name: str | None = None) -> Path:

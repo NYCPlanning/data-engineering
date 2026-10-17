@@ -29,6 +29,12 @@ stage_config:
         run: dbt run --target duckdb --selector duckdb_build
       - name: dbt_test
         run: dbt test --target duckdb --selector duckdb_build
+  # run by `builds export package`, after it folds the parquet layers into the FGDBs
+  builds.package:
+    commands:
+      - name: generate_docs
+        # needs target/manifest.json, which the build's dbt commands write
+        run: python scripts/generate_docs.py --output "$BUILD_ENV_OUTPUT_DIR/attachments/cscl_exports.md"
 
 inputs:
   dataset_defaults:
