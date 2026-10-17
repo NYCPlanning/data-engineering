@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -266,6 +267,10 @@ def _export_dat_source(
     }
 
 
+def _copy_entry(filename: str) -> dict:
+    return {"filename": filename, "format": "copy", "path": f"{LAYERS_DIR}/{filename}"}
+
+
 def _zip_outputs(output_folder: Path, zip_name: str) -> None:
     # Resolve to absolute first: the zip subprocess below runs with cwd=output_folder,
     # so a relative zip_path (output_folder is often just "output", per recipe.yml)
@@ -292,54 +297,9 @@ def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
     return duckdb_utils.DuckDBClient(db_path=duckdb_path, schema=metadata.build_name())
 
 
-def export(
-    recipe_lock_path: Path,
-    pg_client: postgres.PostgresClient | None = None,
-    duckdb_client: duckdb_utils.DuckDBClient | None = None,
-) -> Path | None:
-    recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
-
-    if not recipe.exports:
-        logger.info("No exports defined in recipe, skipping export step")
-        return None
-
-    # A recipe's export backend follows where its input datasets actually landed. Mixed
-    # postgres+duckdb recipes fall back to postgres (the long-standing default) since
-    # mixed-backend exports aren't supported.
-    destinations = {ds.destination for ds in recipe.inputs.datasets}
-    uses_duckdb = InputDatasetDestination.duckdb in destinations
-    uses_postgres = InputDatasetDestination.postgres in destinations
-
-    if uses_duckdb and not uses_postgres:
-        duckdb_client = duckdb_client or _default_duckdb_client(recipe)
-        logger.info(
-            f"Exporting build outputs for {recipe.name} from DuckDB schema {duckdb_client.schema}"
-        )
-    else:
-        pg_client = pg_client or postgres.PostgresClient(schema=metadata.build_name())
-        logger.info(
-            f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
-        )
-
-    if recipe.exports and recipe.exports.output_folder:
-        output_folder = recipe.exports.output_folder
-    else:
-        if not recipe.version:
-            raise ValueError("Recipe version must be set for export")
-        output_folder = build_config.get_build_output_dir(
-            recipe.product, recipe.version
-        )
-
-    # Create output folder if it doesn't exist (preserves existing artifacts like attachments)
-    output_folder.mkdir(parents=True, exist_ok=True)
-
-    # Only clean the dataset_files folder (where exports will go)
-    # This preserves attachments and other build artifacts created before export
-    dataset_files_folder = output_folder / "dataset_files"
-    if dataset_files_folder.exists():
-        shutil.rmtree(dataset_files_folder)
-    dataset_files_folder.mkdir(parents=True)
-
+def _copy_build_artifacts(recipe_lock_path: Path, output_folder: Path) -> None:
+    """Copy the build's artifacts (source_data_versions.csv into attachments/, build
+    metadata, the dbt target as diagnostics/dbt.zip) next to the deliverables."""
     # Ensure attachments folder exists for source_data_versions.csv
     attachments_folder = output_folder / "attachments"
     attachments_folder.mkdir(parents=True, exist_ok=True)
@@ -386,14 +346,70 @@ def export(
         else:
             logger.debug(f"Artifact directory {dirname} does not exist in build output")
 
+
+def export(
+    recipe_lock_path: Path,
+    pg_client: postgres.PostgresClient | None = None,
+    duckdb_client: duckdb_utils.DuckDBClient | None = None,
+) -> Path | None:
+    recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
+
+    if not recipe.exports:
+        logger.info("No exports defined in recipe, skipping export step")
+        return None
+
+    # A recipe's export backend follows where its input datasets actually landed. Mixed
+    # postgres+duckdb recipes fall back to postgres (the long-standing default) since
+    # mixed-backend exports aren't supported.
+    destinations = {ds.destination for ds in recipe.inputs.datasets}
+    uses_duckdb = InputDatasetDestination.duckdb in destinations
+    uses_postgres = InputDatasetDestination.postgres in destinations
+
+    if uses_duckdb and not uses_postgres:
+        duckdb_client = duckdb_client or _default_duckdb_client(recipe)
+        logger.info(
+            f"Exporting build outputs for {recipe.name} from DuckDB schema {duckdb_client.schema}"
+        )
+    else:
+        pg_client = pg_client or postgres.PostgresClient(schema=metadata.build_name())
+        logger.info(
+            f"Exporting build outputs for {recipe.name} from schema {pg_client.schema}"
+        )
+
+    if recipe.exports and recipe.exports.output_folder:
+        output_folder = recipe.exports.output_folder
+    else:
+        if not recipe.version:
+            raise ValueError("Recipe version must be set for export")
+        output_folder = build_config.get_build_output_dir(
+            recipe.product, recipe.version
+        )
+
+    output_folder.mkdir(parents=True, exist_ok=True)
+    from_parquet = recipe.exports.package_from_parquet
+    manifest: list[dict] = []
+    if from_parquet:
+        # Parquet-first: export only writes raw_exports/ in the build dir; `package`
+        # assembles the deliverables (dataset_files, attachments, zip) in the package dir
+        dataset_files_folder = output_folder / LAYERS_DIR
+        if dataset_files_folder.exists():
+            shutil.rmtree(dataset_files_folder)
+        dataset_files_folder.mkdir(parents=True)
+    else:
+        # Only clean the dataset_files folder (where exports will go)
+        # This preserves attachments and other build artifacts created before export
+        dataset_files_folder = output_folder / "dataset_files"
+        if dataset_files_folder.exists():
+            shutil.rmtree(dataset_files_folder)
+        dataset_files_folder.mkdir(parents=True)
+        _copy_build_artifacts(Path(recipe_lock_path), output_folder)
+
     # GDB and GeoPackage entries are grouped by output filename so multiple tables can
     # share one file. All other formats are written one entry at a time.
     layered_groups: defaultdict[tuple[ExportFormat, str], list[ExportDataset]] = (
         defaultdict(list)
     )
 
-    from_parquet = recipe.exports.package_from_parquet
-    manifest: list[dict] = []
     for output in recipe.exports.datasets:
         filename = str(output.output_path)
         (dataset_files_folder / filename).parent.mkdir(parents=True, exist_ok=True)
@@ -412,23 +428,27 @@ def export(
             manifest.append(
                 _export_dat_source(output, filename, duckdb_client, output_folder)
             )
-        elif duckdb_client is not None:
-            export_dataset_from_duckdb(
-                table_name=output.name,
-                file_path=dataset_files_folder / filename,
-                duckdb_client=duckdb_client,
-                format=output.format,
-                **output.custom or {},
-            )
         else:
-            assert pg_client is not None
-            export_dataset_from_postgres(
-                table_name=output.name,
-                file_path=dataset_files_folder / filename,
-                pg_client=pg_client,
-                format=output.format,
-                **output.custom or {},
-            )
+            if duckdb_client is not None:
+                export_dataset_from_duckdb(
+                    table_name=output.name,
+                    file_path=dataset_files_folder / filename,
+                    duckdb_client=duckdb_client,
+                    format=output.format,
+                    **output.custom or {},
+                )
+            else:
+                assert pg_client is not None
+                export_dataset_from_postgres(
+                    table_name=output.name,
+                    file_path=dataset_files_folder / filename,
+                    pg_client=pg_client,
+                    format=output.format,
+                    **output.custom or {},
+                )
+            if from_parquet:
+                # exported as-is into raw_exports/; `package` copies it into dataset_files
+                manifest.append(_copy_entry(filename))
 
     geo_client = duckdb_client if duckdb_client is not None else pg_client
     for (format, filename), entries in layered_groups.items():
@@ -473,6 +493,8 @@ def export(
             )
         elif format == ExportFormat.geopackage:
             datastores.write_gpkg(layers, dataset_files_folder / filename, allow_empty)
+            if from_parquet:
+                manifest.append(_copy_entry(filename))
         else:
             with tempfile.TemporaryDirectory() as tmp_str:
                 datastores.write_gdb_zip(
@@ -494,58 +516,65 @@ def export(
 
 
 def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
-    """Fold the parquet layers from a `package_from_parquet` export into their FGDBs
-    (in dataset_files), run the recipe's packaging commands (stage_config
-    builds.package, e.g. doc generation into attachments/; they see the build dir as
-    BUILD_ENV_OUTPUT_DIR), then zip the outputs if the recipe names a zip."""
+    """Assemble a `package_from_parquet` export's deliverables in the package dir
+    ({DCPY_LIFECYCLE_DATA_DIR}/package/<product>/<version>): copy the build artifacts
+    into attachments/, then from the build dir's raw_exports/ (per its manifest) copy
+    files, format fixed-width files and fold parquet layers into FGDBs, all into
+    dataset_files/. Then run the recipe's packaging commands (stage_config
+    builds.package; they see BUILD_DIR / PACKAGE_DIR / QA_DIR) and zip the outputs if
+    the recipe names a zip."""
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
     assert recipe.exports, "No exports defined in recipe"
-    if recipe.exports.output_folder:
-        output_folder = recipe.exports.output_folder
-    else:
-        assert recipe.version, "Recipe version must be set for packaging"
-        output_folder = build_config.get_build_output_dir(
-            recipe.product, recipe.version
-        )
-    manifest_path = output_folder / LAYERS_DIR / LAYER_MANIFEST
+    assert recipe.version, "Recipe version must be set for packaging"
+    build_folder = recipe.exports.output_folder or build_config.get_build_output_dir(
+        recipe.product, recipe.version
+    )
+    package_folder = build_config.get_package_output_dir(recipe.product, recipe.version)
+    package_folder.mkdir(parents=True, exist_ok=True)
+    dataset_files = package_folder / "dataset_files"
+    if dataset_files.exists():
+        shutil.rmtree(dataset_files)
+    dataset_files.mkdir(parents=True)
+    _copy_build_artifacts(Path(recipe_lock_path), package_folder)
+
+    manifest_path = build_folder / LAYERS_DIR / LAYER_MANIFEST
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else []
     for entry in manifest:
-        if entry["format"] == "dat":
+        target = dataset_files / entry["filename"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if entry["format"] == "copy":
+            shutil.copy(build_folder / entry["path"], target)
+        elif entry["format"] == "dat":
             layout = fixed_width.load_layout(
                 (product_path or Path.cwd()) / entry["layout"]
             )
-            n = fixed_width.parquet_to_dat(
-                output_folder / entry["path"],
-                layout,
-                output_folder / "dataset_files" / entry["filename"],
-            )
+            n = fixed_width.parquet_to_dat(build_folder / entry["path"], layout, target)
             logger.info(f"Packaged {n} fixed-width lines into {entry['filename']}")
-            continue
-        layers = [
-            ParquetLayer(
-                name=layer["name"],
-                path=output_folder / layer["path"],
-                geometry_type=layer["geometry_type"],
-                layer_options=layer["layer_options"],
-            )
-            for layer in entry["layers"]
-        ]
-        out = write_gdb_from_parquet(
-            layers, output_folder / "dataset_files" / entry["filename"]
-        )
-        logger.info(f"Packaged {len(layers)} layers into {out}")
+        else:
+            layers = [
+                ParquetLayer(
+                    name=layer["name"],
+                    path=build_folder / layer["path"],
+                    geometry_type=layer["geometry_type"],
+                    layer_options=layer["layer_options"],
+                )
+                for layer in entry["layers"]
+            ]
+            write_gdb_from_parquet(layers, target)
+            logger.info(f"Packaged {len(layers)} layers into {entry['filename']}")
+
     if build_config.PACKAGE_STAGE_KEY in recipe.stage_config:
         from dcpy.lifecycle.builds.build import run_build_commands
 
+        os.environ.update(build_config.stage_dirs_env(recipe.product, recipe.version))
         run_build_commands(
             product_path=product_path or Path.cwd(),
             recipe_lock_path=Path(recipe_lock_path),
-            build_directory=output_folder.absolute(),
             stage_key=build_config.PACKAGE_STAGE_KEY,
         )
     if recipe.exports.zip_name:
-        _zip_outputs(output_folder, recipe.exports.zip_name)
-    return output_folder
+        _zip_outputs(package_folder, recipe.exports.zip_name)
+    return package_folder
 
 
 app = typer.Typer(add_completion=False)

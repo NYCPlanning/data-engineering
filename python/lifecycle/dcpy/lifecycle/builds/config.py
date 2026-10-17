@@ -9,6 +9,9 @@ BUILD_STAGE_KEY = "builds.build"  # Recipe stage_config key for build commands
 # Recipe stage_config key for packaging commands, run by `builds export package` after
 # its built-in packaging (e.g. generating docs into attachments/)
 PACKAGE_STAGE_KEY = "builds.package"
+# Recipe stage_config key for QA commands, run by `builds qa run` (they see BUILD_DIR,
+# PACKAGE_DIR and QA_DIR)
+QA_STAGE_KEY = "builds.qa"
 
 
 def get_recipe_path(product_path: Path, recipe_name: str | None = None) -> Path:
@@ -75,3 +78,27 @@ def get_duckdb_path(product: str, version: str, filename: str | None = None) -> 
     return get_build_output_dir(product, version) / (
         filename or f"{product}_{version}.duckdb"
     )
+
+
+def get_package_output_dir(product: str, version: str) -> Path:
+    """Directory a build's packaged deliverables (dataset_files, attachments, zip) go in.
+    PACKAGE_ENV_OUTPUT_DIR overrides the standard {product}/{version} package dir."""
+    if "PACKAGE_ENV_OUTPUT_DIR" in os.environ:
+        return Path(os.environ["PACKAGE_ENV_OUTPUT_DIR"])
+    return config.get_package_dir(product, version)
+
+
+def get_qa_output_dir(product: str, version: str) -> Path:
+    """Directory a build's QA outputs go in. QA_ENV_OUTPUT_DIR overrides it."""
+    if "QA_ENV_OUTPUT_DIR" in os.environ:
+        return Path(os.environ["QA_ENV_OUTPUT_DIR"])
+    return config.get_qa_dir(product, version)
+
+
+def stage_dirs_env(product: str, version: str) -> dict[str, str]:
+    """BUILD_DIR / PACKAGE_DIR / QA_DIR, for a recipe's stage commands."""
+    return {
+        "BUILD_DIR": str(get_build_output_dir(product, version).absolute()),
+        "PACKAGE_DIR": str(get_package_output_dir(product, version).absolute()),
+        "QA_DIR": str(get_qa_output_dir(product, version).absolute()),
+    }

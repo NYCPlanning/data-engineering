@@ -42,13 +42,14 @@ from collections import Counter
 from pathlib import Path
 
 import requests
+from paths import validation_dir
 
 from dcpy.lifecycle.builds import plan
 from dcpy.utils.postgres import PostgresClient
 
 RECIPE_PATH = Path("recipe.yml")
 LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
-VALIDATION_DIR = Path("output/validation_output")
+VALIDATION_DIR = validation_dir()
 OUTPUT_PATH = VALIDATION_DIR / "diffs_report.csv"
 VALIDATION_SUMMARY_PATH = VALIDATION_DIR / "validation_summary.csv"
 DIFFS_SUMMARY_PATH = VALIDATION_DIR / "qa__diffs_all_summary.csv"
@@ -464,7 +465,17 @@ def print_summary_from_csv(current_csv: Path, main_csv: Path | None) -> None:
 
 def main() -> None:
     VALIDATION_DIR.mkdir(parents=True, exist_ok=True)
-    PostgresClient().export_to_csv("qa__diffs_all_summary", DIFFS_SUMMARY_PATH)
+    if os.environ.get("DUCKDB_PATH"):
+        # the DuckDB build (the lifecycle sets DUCKDB_PATH for its stage commands)
+        from dcpy.utils.duckdb import DuckDBClient
+
+        DuckDBClient(
+            Path(os.environ["DUCKDB_PATH"]), os.environ["BUILD_ENGINE_SCHEMA"]
+        ).export_to_csv(
+            table_name="qa__diffs_all_summary", output_path=DIFFS_SUMMARY_PATH
+        )
+    else:
+        PostgresClient().export_to_csv("qa__diffs_all_summary", DIFFS_SUMMARY_PATH)
 
     backbone = load_backbone()
     field_level_by_file = load_field_level_counts()

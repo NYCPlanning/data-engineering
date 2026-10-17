@@ -59,6 +59,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import typer
+from paths import find_dataset_file, prod_files_dir, validation_dir
 
 from dcpy.geospatial.gdb import compare as gdb_compare
 from dcpy.geospatial.gdb import fgdb
@@ -67,7 +68,7 @@ from dcpy.lifecycle.builds import plan
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
-OUTPUT_DIR = Path("output/validation_output")
+OUTPUT_DIR = validation_dir()
 LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
 PROD_BUCKET = "edm-private"
 
@@ -337,13 +338,12 @@ def run(
 
     version = prod_version or recipe.version
     for filename in gdb_filenames:
-        dev_path = (
-            dev if dev is not None else Path("output") / "dataset_files" / filename
-        )
+        dev_path = dev if dev is not None else find_dataset_file(filename)
         if prod is not None:
             prod_path = prod
         else:
-            prod_path = Path(".data/prod") / filename
+            prod_path = prod_files_dir() / filename
+            prod_path.parent.mkdir(parents=True, exist_ok=True)
             key = f"cscl_etl/{version}/{filename}"
             logger.info(f"Fetching prod GDB s3://{PROD_BUCKET}/{key}")
             s3.download_file(PROD_BUCKET, key, prod_path)

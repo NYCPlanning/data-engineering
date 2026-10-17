@@ -29,12 +29,28 @@ stage_config:
         run: dbt run --target duckdb --selector duckdb_build
       - name: dbt_test
         run: dbt test --target duckdb --selector duckdb_build
+  # run by `builds qa run`; results go in $QA_DIR (see poc_validation/paths.py). The QA
+  # models need Postgres for production_outputs (--target duckdb_qa attaches it).
+  builds.qa:
+    commands:
+      - name: qa_models
+        run: dbt run --target duckdb_qa --select path:models/qa_int path:models/etl_dev_qa
+      - name: pull_prod_files
+        run: mkdir -p "$QA_DIR/prod" && python poc_validation/prod_data_loader.py pull
+      - name: compare_flat_files
+        run: bash poc_validation/validate_outputs.sh
+      - name: summarize_diffs
+        run: python poc_validation/summarize_diffs.py
+      - name: compare_gdbs
+        run: python poc_validation/compare_gdb.py
+      - name: diffs_report
+        run: python poc_validation/build_diffs_report.py
   # run by `builds export package`, after it folds the parquet layers into the FGDBs
   builds.package:
     commands:
       - name: generate_docs
         # needs target/manifest.json, which the build's dbt commands write
-        run: python scripts/generate_docs.py --output "$BUILD_ENV_OUTPUT_DIR/attachments/cscl_exports.md"
+        run: python scripts/generate_docs.py --output "$PACKAGE_DIR/attachments/cscl_exports.md"
 
 inputs:
   dataset_defaults:

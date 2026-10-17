@@ -10,9 +10,11 @@ Outputs: output/validation_output/diffs_summary.csv
 import csv
 from pathlib import Path
 
+from paths import validation_dir
+
 from dcpy.lifecycle.builds import plan
 
-VALIDATION_DIR = Path("output/validation_output")
+VALIDATION_DIR = validation_dir()
 OUTPUT_PATH = VALIDATION_DIR / "diffs_summary.csv"
 VALIDATION_SUMMARY_PATH = VALIDATION_DIR / "validation_summary.csv"
 

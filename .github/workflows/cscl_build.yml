@@ -2,7 +2,7 @@ name: CSCL - 🏗️ Build
 # DuckDB cut-over POC (branch ar-cscl-duckdb-build): builds CSCL on DuckDB from
 # recipe_duckdb.yml, whatever recipe build.yml passes, to check that the build runs on a
 # GHA runner. Plan, load, build (the recipe's stage_config commands), export (parquet-first)
-# and package the FGDBs. No upload or prod validation.
+# and package (flat files, FGDBs, docs), then QA against prod. No upload.
 on:
   workflow_call:
     inputs:
@@ -42,6 +42,8 @@ jobs:
       DUCKDB_MEMORY_LIMIT: 3GB
       DUCKDB_THREADS: 2
       LOCK_FILE: recipe_duckdb.lock.yml
+      # lifecycle stage dirs: builds/build, package, builds/qa (+ the load cache)
+      DCPY_LIFECYCLE_DATA_DIR: ${{ github.workspace }}/.lifecycle
     steps:
     - uses: actions/checkout@v7
 
@@ -56,6 +58,8 @@ jobs:
         AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
         AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
         AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+        # QA only: the QA models read production_outputs from Postgres
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
 
     - name: Setup build environment
       working-directory: ./
@@ -99,6 +103,14 @@ jobs:
         uv run python3 -m dcpy lifecycle builds export package --recipe-path $LOCK_FILE
         echo "package: $(( $(date +%s) - start ))s" >> timings.txt
 
+    - name: QA
+      # the recipe's stage_config.builds.qa commands: QA models, flat file and gdb
+      # comparisons against prod, the diffs report
+      run: |
+        start=$(date +%s)
+        uv run python3 -m dcpy lifecycle builds qa run --recipe-path $LOCK_FILE
+        echo "qa: $(( $(date +%s) - start ))s" >> timings.txt
+
     - name: Summary
       if: always()
       run: |
@@ -106,8 +118,9 @@ jobs:
           echo "### CSCL DuckDB build"
           echo '```'
           cat timings.txt 2>/dev/null
-          BUILD_DIR=$(uv run python3 -m dcpy lifecycle builds build path --recipe-path $LOCK_FILE)
-          (cd "$BUILD_DIR" && find dataset_files -type f | sort | head -60 && du -sh dataset_files raw_exports)
+          DATA=$DCPY_LIFECYCLE_DATA_DIR
+          (cd "$DATA/package/cscl" && find . -path "*dataset_files*" -type f | sort | head -60)
+          cat "$DATA"/builds/qa/cscl/*/validation_output/validation_summary.csv 2>/dev/null
           free -h
           echo '```'
         } >> "$GITHUB_STEP_SUMMARY"
@@ -116,8 +129,9 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: cscl-duckdb-dbt-logs
+        name: cscl-duckdb-logs-and-qa
         path: |
           products/cscl/logs/
           products/cscl/target/run_results.json
+          ${{ env.DCPY_LIFECYCLE_DATA_DIR }}/builds/qa/
         if-no-files-found: ignore

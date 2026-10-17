@@ -747,14 +747,16 @@ exports:
     custom: {{ spatial: false }}
 """
     )
+    monkeypatch.setenv("PACKAGE_ENV_OUTPUT_DIR", str(tmp_path / "package"))
     out = export(lock, duckdb_client=client)
     assert out is not None
     assert (out / "raw_exports" / "manifest.json").exists()
     assert (out / "raw_exports" / "things" / "boundaries.parquet").exists()
-    assert not (out / "dataset_files" / "things.gdb.zip").exists()
+    assert not (out / "dataset_files").exists()  # deliverables are package's job
 
-    package(lock)
-    gdb = f"zip://{out / 'dataset_files' / 'things.gdb.zip'}!things.gdb"
+    packaged = package(lock)
+    assert packaged == tmp_path / "package"
+    gdb = f"zip://{packaged / 'dataset_files' / 'things.gdb.zip'}!things.gdb"
     boundaries = gpd.read_file(gdb, layer="boundaries")
     assert len(boundaries) == 1
     assert boundaries.crs.to_epsg() == 2263
@@ -799,11 +801,12 @@ exports:
     custom: {{ layout: layout.csv, where: "id < 3", order_by: id }}
 """
     )
+    monkeypatch.setenv("PACKAGE_ENV_OUTPUT_DIR", str(tmp_path / "package"))
     out = export(lock, duckdb_client=client)
     assert out is not None
     assert (out / "raw_exports" / "flat_files" / "rows.parquet").exists()
-    package(lock, product_path=tmp_path)
-    assert (out / "dataset_files" / "flat_files" / "rows.dat").read_bytes() == (
+    packaged = package(lock, product_path=tmp_path)
+    assert (packaged / "dataset_files" / "flat_files" / "rows.dat").read_bytes() == (
         b"001ab  \r\n002    \r\n"
     )
     client.close()

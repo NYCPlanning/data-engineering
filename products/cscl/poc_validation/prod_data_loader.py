@@ -18,13 +18,14 @@ from typing import Literal
 import exports
 import pandas as pd
 import typer
+from paths import prod_files_dir
 
 from dcpy.geospatial.gdb import fgdb
 from dcpy.lifecycle.builds import plan
 from dcpy.utils import postgres, s3
 
 CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
-LOAD_FOLDER = Path(".data/prod")
+LOAD_FOLDER = prod_files_dir()
 CONFIG_PATH = Path("seeds/config.csv")
 
 version: str | None = None
