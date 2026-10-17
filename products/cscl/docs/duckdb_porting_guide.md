@@ -55,6 +55,7 @@ at run start on the duckdb target.
 | `st_hausdorffdistance(a, b)` | `hausdorff_distance(a, b)` | Macro (GEOS discrete Hausdorff). |
 | `LATERAL fn(...) AS o (a geometry, b geometry)` (record) | `fn(...) AS o` in a subquery's select list, then `o.a`, `o.b` | `offset_points` returns a struct. Macros must be plain expressions: one whose subqueries reference its arguments can't be called on table columns. |
 | `x = any(arr)` | `list_contains(arr, x)` | |
+| `format('... %s ...', x)` | `format('... {} ...', coalesce(x::VARCHAR, ''))` | **Silent:** DuckDB's `format` uses `{}` and leaves `%s` as literal text; a NULL argument makes the whole result NULL, where Postgres renders it as ''. |
 | `indexes=[...]` config | leave it | Skipped on DuckDB by `macros/duckdb_adapter_overrides.sql`. |
 
 ## Performance traps

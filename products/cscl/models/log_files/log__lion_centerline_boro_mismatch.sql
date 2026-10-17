@@ -22,8 +22,11 @@ lion_joined AS (
         END AS source_boroughcode,
         lion.source_table
     FROM lion
-    LEFT JOIN centerline ON lion.source_table = 'centerline' AND lion.segmentid = centerline.segmentid
-    LEFT JOIN proto ON lion.source_table = 'altsegmentdata' AND lion.globalid = proto.globalid
+    -- one-sided conditions folded into the key (a one-sided ON predicate nested-loops in DuckDB)
+    LEFT JOIN centerline
+        ON (CASE WHEN lion.source_table = 'centerline' THEN lion.segmentid END) = centerline.segmentid
+    LEFT JOIN proto
+        ON (CASE WHEN lion.source_table = 'altsegmentdata' THEN lion.globalid END) = proto.globalid
     WHERE lion.source_table IN ('centerline', 'altsegmentdata')
 )
 SELECT
@@ -34,12 +37,12 @@ SELECT
     'segmentid' AS record_id_type,
     lion_joined.segmentid AS record_id,
     FORMAT(
-        'The borough for the %s feature with an OID = "%s" (Borough = %s) does not '
-        || 'match the borough currently being extracted (Borough = %s).',
-        source_table,
-        globalid,
-        source_boroughcode,
-        lion_joined.boroughcode
+        'The borough for the {} feature with an OID = "{}" (Borough = {}) does not '
+        || 'match the borough currently being extracted (Borough = {}).',
+        coalesce(source_table::VARCHAR, ''),
+        coalesce(globalid::VARCHAR, ''),
+        coalesce(source_boroughcode::VARCHAR, ''),
+        coalesce(lion_joined.boroughcode::VARCHAR, '')
     ) AS message
 FROM lion_joined
 INNER JOIN centerline ON lion_joined.segmentid = centerline.segmentid
