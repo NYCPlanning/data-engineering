@@ -28,7 +28,7 @@ dpr_park_id AS (
 
 -- DPR park name in the description, in 3 rounds: round 1 excludes generic names including
 -- 'BRIDGE PARK', round 2 allows 'BRIDGE PARK', round 3 excludes it again but matches by
--- levenshtein distance instead of LIKE
+-- levenshtein distance instead of LIKE. Several parks share a name, so gispropnum breaks ties.
 dpr_park_name_round1 AS (
     SELECT DISTINCT ON (p.magency, p.projectid)
         p.maprojid,
@@ -40,7 +40,7 @@ dpr_park_name_round1 AS (
     WHERE
         p.magency = '846'
         AND UPPER(b.signname) NOT IN ('PARK', 'LOT', 'GARDEN', 'TRIANGLE', 'SITTING AREA', 'BRIDGE PARK')
-    ORDER BY p.magency ASC, p.projectid ASC, LENGTH(b.signname) DESC, b.signname ASC
+    ORDER BY p.magency ASC, p.projectid ASC, LENGTH(b.signname) DESC, b.signname ASC, b.gispropnum ASC
 ),
 
 dpr_park_name_round2 AS (
@@ -54,7 +54,7 @@ dpr_park_name_round2 AS (
     WHERE
         p.magency = '846'
         AND UPPER(b.signname) NOT IN ('PARK', 'LOT', 'GARDEN', 'TRIANGLE', 'SITTING AREA')
-    ORDER BY p.magency ASC, p.projectid ASC, LENGTH(b.signname) DESC, b.signname ASC
+    ORDER BY p.magency ASC, p.projectid ASC, LENGTH(b.signname) DESC, b.signname ASC, b.gispropnum ASC
 ),
 
 dpr_park_name_round3 AS (
@@ -71,7 +71,7 @@ dpr_park_name_round3 AS (
     ORDER BY
         p.magency ASC, p.projectid ASC,
         LEVENSHTEIN(UPPER(p.description), UPPER('%' || b.signname || '%')) ASC,
-        LENGTH(b.signname) DESC, b.signname ASC
+        LENGTH(b.signname) DESC, b.signname ASC, b.gispropnum ASC
 ),
 
 dpr_park_name AS (
