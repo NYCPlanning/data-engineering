@@ -48,24 +48,22 @@ altnames_join_ids AS (
 lion AS (
     SELECT
         lionkey,
-        boroughcode
+        boroughcode,
+        lgc1
     FROM {{ ref('int__lion') }}
     WHERE include_in_bytes_lion
 ),
 
 -- AltSegmentData: types A, B, C, D, E, F, O, P. SAF Streetname/Streetcode are the
--- principal name of (B5SC + LGC1) - for type A this is normally the same street as the
--- underlying segment (an alternate address range on it), for the others it can differ.
+-- principal name of (B5SC + LGC1) - type A uses the underlying segment's LGC1 (below), the
+-- others the entry's own.
 altsegmentdata_fields AS (
     SELECT
         saf.segment_lionkey AS lionkey,
         saf.saf_globalid,
         saf.saf_source_table,
         CASE WHEN altsegdata.saftype = 'F' THEN 'D' ELSE altsegdata.saftype END AS specaddr,
-        CASE
-            WHEN altsegdata.saftype = 'C' THEN '75 STREET'
-            ELSE coalesce(feature_names.lookup_key, street_names.lookup_key)
-        END AS saf_street_name,
+        coalesce(feature_names.lookup_key, street_names.lookup_key) AS saf_street_name,
         altsegdata.b5sc AS saf_street_code,
         -- A/B/C/E/P: both ranges pass through as given; when SOSINDICATOR is set it is a
         -- continuous-parity flag (parity_side below) and gdb_lion splits them onto that side.
@@ -106,8 +104,13 @@ altsegmentdata_fields AS (
         END AS parity_side
     FROM saf_segments AS saf
     INNER JOIN altsegdata ON saf.saf_globalid = altsegdata.globalid
-    LEFT JOIN street_names ON (altsegdata.b5sc || altsegdata.lgc1) = street_names.b7sc
-    LEFT JOIN feature_names ON (altsegdata.b5sc || altsegdata.lgc1) = feature_names.b7sc
+    INNER JOIN lion AS seg ON saf.segment_lionkey = seg.lionkey
+    -- Type A names its street with the underlying segment's LGC1 (prod: Boardwalk W entry
+    -- on a LGC 03 segment -> BOARDWALK WEST); the other types use the entry's own LGC1.
+    LEFT JOIN street_names
+        ON (altsegdata.b5sc || CASE WHEN altsegdata.saftype = 'A' THEN seg.lgc1 ELSE altsegdata.lgc1 END) = street_names.b7sc
+    LEFT JOIN feature_names
+        ON (altsegdata.b5sc || CASE WHEN altsegdata.saftype = 'A' THEN seg.lgc1 ELSE altsegdata.lgc1 END) = feature_names.b7sc
     -- 'Z' isn't a SAF-replicant type per the ETL spec's AltSegmentData list (A/B/C/D/E/
     -- F/O/P only) - confirmed absent from prod's SpecAddr domain.
     WHERE saf.saf_source_table = 'altsegmentdata' AND altsegdata.saftype <> 'Z'
