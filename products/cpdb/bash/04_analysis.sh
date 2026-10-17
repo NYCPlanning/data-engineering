@@ -30,6 +30,7 @@ mkdir -p $(pwd)/output/analysis && (
     csv_export projects_by_communitydist_spending &
     csv_export projects_by_communitydist_spending_date &
     csv_export agency_validated_geoms_summary_table &
-    wait 
+    # a bare `wait` returns 0 even when a job failed, so wait on each job to surface failures
+    for job in $(jobs -p); do wait $job; done
     echo "Analysis Done!"
 )

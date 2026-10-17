@@ -51,7 +51,8 @@ mkdir -p output && (
     mv ../projects_in_geographies ./
 
     echo $VERSION > version.txt
-    wait 
+    # a bare `wait` returns 0 even when a job failed, so wait on each job to surface failures
+    for job in $(jobs -p); do wait $job; done
 
     echo 
     echo "export complete"
