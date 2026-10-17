@@ -32,7 +32,9 @@ def _q(x: float, y: float) -> tuple[int, int]:
 
 def _segments(pts, arcs: list[Arc]):
     """Ring/line as ([(kind, start, end)], [arc interior point or None])."""
-    keys, mids, prev = [], [], 0
+    keys: list[tuple] = []
+    mids: list[tuple[float, float] | None] = []
+    prev = 0
     for a in arcs:
         for i in range(prev, a.v0):
             keys.append(("L", _q(*pts[i]), _q(*pts[i + 1])))
