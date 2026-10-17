@@ -35,7 +35,7 @@ candidate_pairs AS (
         b.geom AS b_geom
     FROM one_owner AS a
     INNER JOIN {{ ref('int__topology__edges_unnoded') }} AS b
-        ON a.geom && b.geom AND st_crosses(a.geom, b.geom)
+        ON st_crosses(a.geom, b.geom)
     WHERE NOT b.is_arc
 ),
 
@@ -73,14 +73,21 @@ pairs AS (
 
 points AS (
     SELECT
-        p.a_lo,
-        p.a_hi,
-        p.b_lo,
-        p.b_hi,
+        a_lo,
+        a_hi,
+        b_lo,
+        b_hi,
         d.geom
-    FROM pairs AS p
-    CROSS JOIN LATERAL st_dump(st_intersection(p.a_geom, p.b_geom)) AS d
-    WHERE st_geometrytype(d.geom) = 'ST_Point'
+    FROM (
+        SELECT
+            a_lo,
+            a_hi,
+            b_lo,
+            b_hi,
+            unnest(st_dump(st_intersection(a_geom, b_geom))) AS d
+        FROM pairs
+    ) AS dumped
+    WHERE st_geometrytype(d.geom) = 'POINT'
 ),
 
 numbered AS (

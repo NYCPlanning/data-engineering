@@ -49,7 +49,9 @@ WITH RECURSIVE pts_with_nodes AS (
         n.geom AS node_geom
     FROM {{ ref('int__topology__vertices') }} AS p
     LEFT JOIN {{ ref('int__topology__exact_points') }} AS ec
-        ON p.geom = ec.geom AND NOT p.is_arc_mid
+        -- arc mids never match: NULL key (a left-only predicate in the ON clause makes
+        -- DuckDB fall back to a nested-loop join)
+        ON (CASE WHEN p.is_arc_mid THEN NULL ELSE p.geom END) = ec.geom
     LEFT JOIN {{ ref('int__topology__point_to_node') }} AS ptn ON ec.point_id = ptn.exact_point_id
     LEFT JOIN {{ ref('int__topology__nodes') }} AS n ON ptn.node_id = n.node_id
 ),
