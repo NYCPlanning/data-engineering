@@ -85,7 +85,7 @@ vars:
   # output in int__segment_atomicpolygons; this only picks which fills left_*/right_*.
   # QA: build qa__diffs_gdb_lion (and its keyed inputs) - a full-row diff of the LION gdb
   # lion layer against prod. Slow (~8 min, ~120 columns); off by default.
-  qa_gdb_lion_diffs: true
+  qa_gdb_lion_diffs: false
   lion_lr_from_topology: true
   # Segment-to-edge matching (int__segment_topology_edge_matches). Length tolerance
   # (ft) between a segment step and its edge or edge path: correct matches differ by at

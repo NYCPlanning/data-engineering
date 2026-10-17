@@ -18,13 +18,21 @@ saf_replicants AS (
     SELECT * FROM {{ ref('int__saf_replicant_fields') }}
 ),
 
--- SegCount (ETL spec §2.7.3): the number of output records for the segment, SAF
--- replicants and continuous-parity copies included (prod's SegCount equals its own
--- per-SegmentID row count for 98% of rows).
-segment_row_counts AS (
+-- SegCount (legacy GetCoincidentSegmentCount): the number of output records for the
+-- segment (SAF replicants and continuous-parity copies included), plus one for each
+-- other centerline with identical geometry; capped at 9 (a single character in prod).
+centerline_geom_counts AS (
     SELECT
         segmentid,
-        sum(n_rows) AS n_rows
+        count(*) OVER (PARTITION BY md5(st_asbinary(st_normalize(geom)))) AS n_same_geom
+    FROM {{ ref('int__lion') }}
+    WHERE source_table = 'centerline'
+),
+
+segment_row_counts AS (
+    SELECT
+        per_record.segmentid,
+        least(9, sum(per_record.n_rows) + coalesce(max(centerline_geom_counts.n_same_geom), 1) - 1) AS n_rows
     FROM (
         SELECT
             segmentid,
@@ -37,7 +45,8 @@ segment_row_counts AS (
         FROM lion
         INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey
     ) AS per_record
-    GROUP BY segmentid
+    LEFT JOIN centerline_geom_counts ON per_record.segmentid = centerline_geom_counts.segmentid
+    GROUP BY per_record.segmentid
 ),
 
 base_rows AS (
