@@ -58,6 +58,12 @@ field_causes AS (
                     'fromleft', 'toleft', 'fromright', 'toright'
                 )
                 THEN 'CSCL-LION-15: house numbers'
+            -- prod has no zip for the Randall's Island segments; ours is 10035
+            WHEN
+                f.key IN ('lzip', 'rzip')
+                AND w.changes -> f.key ->> 'old' IS NULL
+                AND w.changes -> f.key ->> 'new' = '10035'
+                THEN 'CSCL-LION-02: Randall''s Island zip'
             WHEN f.key IN ('lzip', 'rzip') THEN 'Zip'
             WHEN f.key = 'segcount' THEN 'CSCL-LION-06?: SegCount'
             WHEN f.key = 'street' THEN 'Street'
@@ -149,6 +155,6 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- every changed field has a verified, accepted cause (data_issues.md CSCL-LION-03/04/05/16)
+    -- every changed field has a verified, accepted cause (data_issues.md CSCL-LION-02/03/04/05/16)
     coalesce(status = 'modified' AND open_causes IS NULL, FALSE) AS accounted_for
 FROM categorized
