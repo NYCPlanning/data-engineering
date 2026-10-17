@@ -121,8 +121,8 @@ models:
         tests: [ unique, not_null ]
       - name: borough
         description: |
-          Borough name, `multiple` when the project is in more than one, or `citywide` when
-          the dashboard says so. Null when neither source places the project.
+          Borough name, or `multiple` when the project is in more than one. Null when neither
+          source places the project.
       - name: borough_source
         tests:
           - accepted_values:
@@ -138,6 +138,10 @@ models:
               values: [ geometry, dashboard ]
       - name: community_districts
         description: All of the project's community districts from the same source as `community_district`.
+      - name: dashboard_citywide
+        description: |
+          Whether the dashboard calls any of the project's agency projects `Citywide`. Set
+          regardless of `borough_source`.
   - name: int__fisa_budget_data
   - name: int__budget_data
   - name: int__budget_data_wide

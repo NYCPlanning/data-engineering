@@ -50,7 +50,6 @@ labeled AS (
             WHEN CARDINALITY(gb.boroughs) > 1 THEN 'multiple'
         END AS geom_borough,
         CASE
-            WHEN d.is_citywide THEN 'citywide'
             WHEN CARDINALITY(d.boroughs) = 1 THEN d.boroughs[1]
             WHEN CARDINALITY(d.boroughs) > 1 THEN 'multiple'
         END AS dashboard_borough,
@@ -62,7 +61,8 @@ labeled AS (
             WHEN CARDINALITY(d.community_districts) = 1 THEN d.community_districts[1]
             WHEN CARDINALITY(d.community_districts) > 1 THEN 'multiple'
         END AS dashboard_community_district,
-        COALESCE(gc.community_districts, d.community_districts) AS community_districts
+        COALESCE(gc.community_districts, d.community_districts) AS community_districts,
+        COALESCE(d.is_citywide, FALSE) AS dashboard_citywide
     FROM {{ ref('int__ccp_projects') }} AS p
     LEFT JOIN geom_boroughs AS gb ON p.maprojid = gb.maprojid
     LEFT JOIN geom_community_districts AS gc ON p.maprojid = gc.maprojid
@@ -81,5 +81,6 @@ SELECT
         WHEN geom_community_district IS NOT NULL THEN 'geometry'
         WHEN dashboard_community_district IS NOT NULL THEN 'dashboard'
     END AS community_district_source,
-    ARRAY_TO_STRING(community_districts, ', ') AS community_districts
+    ARRAY_TO_STRING(community_districts, ', ') AS community_districts,
+    dashboard_citywide
 FROM labeled
