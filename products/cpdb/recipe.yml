@@ -49,6 +49,8 @@ inputs:
       version: "20260625"
     - name: omb_tycs
       version: "20250506"
+    - name: omb_capital_climate_investments
+      version: "20260811"
     - name: moo_capital_projects_budget_schedule
       version: "20260715"
     - name: dot_projects_intersections
