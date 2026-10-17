@@ -93,6 +93,15 @@ SELECT
     -- zzz_lift_data_zzz holds the Public Sites site name (see README Limitations).
     lift.zzz_lift_data_zzz IS NOT NULL AS is_lift_site,
     lift.zzz_lift_data_zzz AS site_name,
+    -- Text labels for is_lift_site and ahft, so map legends and filters don't read true/false.
+    CASE WHEN lift.zzz_lift_data_zzz IS NOT NULL THEN 'LIFT site' ELSE 'Not a LIFT site' END AS lift_status,
+    -- Unlike ahft, a lot in a district AHFT doesn't rank (a joint interest area) is "not",
+    -- since it can't be in the bottom 12. Only a lot with no cd is unknown.
+    CASE
+        WHEN lift.cd IS NULL THEN NULL
+        WHEN ahft_districts.borocd IS NOT NULL AND lift.ahft = 'Y' THEN 'AHFT district'
+        ELSE 'Non-AHFT district'
+    END AS ahft_status,
     districts.community_district,
     tracts.cdta2020,
     tracts.cdtaname,

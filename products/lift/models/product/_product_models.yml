@@ -48,6 +48,20 @@ models:
     description: Null when the bbl has no PLUTO lot geometry to intersect.
   - name: ahft
     description: Null when the bbl's community district isn't one of the 59 that AHFT ranks.
+  - name: lift_status
+    description: is_lift_site as a label for map legends and filters, "LIFT site" or "Not a LIFT site".
+    tests:
+    - not_null
+    - accepted_values:
+        values: ['LIFT site', 'Not a LIFT site']
+  - name: ahft_status
+    description: >
+      ahft as a label for map legends and filters, "AHFT district" or "Non-AHFT district".
+      Unlike ahft, a lot in a district AHFT doesn't rank (a joint interest area) is
+      "Non-AHFT district". Null only when cd is null.
+    tests:
+    - accepted_values:
+        values: ['AHFT district', 'Non-AHFT district']
   - name: owned_leased
     description: >
       Whether the City owns or leases the lot, from the IPIS agency use records' ownedleased
@@ -89,6 +103,9 @@ models:
       Null for districts AHFT doesn't rank.
   - name: ahft_group
     description: >
-      ahft as a label for map legends: "AHFT bottom 12", "Other ranked district", or "Not ranked".
+      ahft as a label for map legends: "AHFT district" or "Non-AHFT district", same as
+      lift_supplemented_map.ahft_status. Districts AHFT doesn't rank are "Non-AHFT district".
     tests:
     - not_null
+    - accepted_values:
+        values: ['AHFT district', 'Non-AHFT district']
