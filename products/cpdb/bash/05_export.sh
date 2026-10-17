@@ -32,8 +32,9 @@ mkdir -p output && (
     # one GeoPackage for reviewing how projects were mapped. Layers are written one at a time
     # since a GeoPackage can't take concurrent writes.
     (
+        ogr2ogr -f GPKG cpdb_mapping_review.gpkg PG:${BUILD_ENGINE} \
+            ${BUILD_ENGINE_SCHEMA:-public}.cpdb_projects -nln cpdb_projects
         for table in \
-            cpdb_projects \
             cpdb_dcpattributes \
             int__project_geom_candidates \
             int__project_mapping_outcomes \
@@ -41,9 +42,8 @@ mkdir -p output && (
             cpdb_mapping_summary_by_source \
             cpdb_mapping_summary_by_source_and_agency
         do
-            update=$([ -f cpdb_mapping_review.gpkg ] && echo "-update")
-            ogr2ogr -f GPKG cpdb_mapping_review.gpkg PG:${BUILD_ENGINE} \
-                ${BUILD_ENGINE_SCHEMA:-public}.${table} -nln ${table} ${update}
+            ogr2ogr -f GPKG -update cpdb_mapping_review.gpkg PG:${BUILD_ENGINE} \
+                ${BUILD_ENGINE_SCHEMA:-public}.${table} -nln ${table}
         done
     ) &
 
