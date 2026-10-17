@@ -749,7 +749,8 @@ exports:
     )
     out = export(lock, duckdb_client=client)
     assert out is not None
-    assert (out / "layers" / "manifest.json").exists()
+    assert (out / "raw_exports" / "manifest.json").exists()
+    assert (out / "raw_exports" / "things" / "boundaries.parquet").exists()
     assert not (out / "dataset_files" / "things.gdb.zip").exists()
 
     package(lock)

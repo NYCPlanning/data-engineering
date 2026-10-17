@@ -95,7 +95,14 @@ class ExportDataset(BaseModel, extra="forbid"):
     name: str
     filename: str | None = None
     format: ExportFormat
+    # Subfolder of dataset_files the file goes in (e.g. "district_gdb")
+    group: str | None = None
     custom: dict | None = None
+
+    @property
+    def output_path(self) -> Path:
+        """Path relative to dataset_files."""
+        return Path(self.group or "") / self.output_filename
 
     @property
     def output_filename(self) -> str:
@@ -131,7 +138,7 @@ class BuildExports(BaseModel, extra="forbid"):
         same file. Only layers of one gdb or gpkg may share a filename."""
         by_filename: dict[str, list[ExportDataset]] = {}
         for ds in self.datasets:
-            by_filename.setdefault(ds.output_filename, []).append(ds)
+            by_filename.setdefault(str(ds.output_path), []).append(ds)
 
         errors = []
         for filename, entries in by_filename.items():

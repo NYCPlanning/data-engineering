@@ -12,6 +12,9 @@ base_recipe: recipe.yml
 # exports: the base recipe's list of datasets, packaged parquet-first. Each gdb entry is
 # exported as one GeoParquet per layer; `builds export package` folds them into the FGDBs.
 exports:
+  # outputs go in the lifecycle build dir ({DCPY_LIFECYCLE_DATA_DIR}/builds/build/cscl/<version>),
+  # not recipe.yml's ./output
+  output_folder: null
   package_from_parquet: true
   crs: EPSG:2263
 

@@ -106,7 +106,8 @@ jobs:
           echo "### CSCL DuckDB build"
           echo '```'
           cat timings.txt 2>/dev/null
-          ls -la output/dataset_files 2>/dev/null | grep -iE "gdb|zip|dat$" | head -20
+          BUILD_DIR=$(uv run python3 -m dcpy lifecycle builds build path --recipe-path $LOCK_FILE)
+          (cd "$BUILD_DIR" && find dataset_files -type f | sort | head -60 && du -sh dataset_files raw_exports)
           free -h
           echo '```'
         } >> "$GITHUB_STEP_SUMMARY"

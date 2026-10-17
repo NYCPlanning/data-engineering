@@ -182,7 +182,8 @@ def _read_filtered_gdf(
     return datastores.filter_geometry_type(gdf, geometry_type, table_name)
 
 
-LAYERS_DIR = "layers"
+# raw exported data (e.g. parquet layers); dataset_files holds only what's delivered
+LAYERS_DIR = "raw_exports"
 LAYER_MANIFEST = "manifest.json"
 
 
@@ -194,12 +195,19 @@ def _write_parquet_layers(
     output_folder: Path,
     crs: str | None,
 ) -> dict:
-    """Write each layer of one layered export to <output>/layers/<filename>/<layer>.parquet
+    """Write each layer of one layered export to <output>/raw_exports/<filename>/<layer>.parquet
     and return its manifest entry. Same rules as datastores._write_layers: one geometry
     type per layer, and an empty layer is an error unless allowed."""
     import geopandas as gpd
 
-    folder = output_folder / LAYERS_DIR / filename
+    # e.g. raw_exports/district_gdb/v26C_Districts/ for district_gdb/v26C_Districts.gdb.zip
+    target = Path(filename)
+    folder = (
+        output_folder
+        / LAYERS_DIR
+        / target.parent
+        / target.name.removesuffix(".zip").removesuffix(".gdb")
+    )
     folder.mkdir(parents=True, exist_ok=True)
     entries = []
     for layer_name, frame in layers:
@@ -353,7 +361,8 @@ def export(
     )
 
     for output in recipe.exports.datasets:
-        filename = output.output_filename
+        filename = str(output.output_path)
+        (dataset_files_folder / filename).parent.mkdir(parents=True, exist_ok=True)
         if output.format in LAYERED_EXPORT_FORMATS:
             # Grouped below, regardless of backend.
             layered_groups[(output.format, filename)].append(output)
