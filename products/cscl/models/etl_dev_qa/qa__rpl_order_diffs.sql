@@ -47,8 +47,8 @@ all_segments AS (
         focus_rpl_prod.rpl_id AS rpl_id_prod,
         focus_rpl.roadbed_position_code,
         focus_rpl.generic_segmenttype,
-        ST_TRANSFORM(focus_rpl.midpoint, 4326) AS midpoint,
-        ST_TRANSFORM(focus_rpl.geom, 4326) AS geom,
+        st_transform(focus_rpl.midpoint, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS midpoint,
+        st_transform(focus_rpl.geom, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom,
         null AS midpoint_generic,
         null AS geom_generic
     FROM
@@ -67,8 +67,8 @@ all_segments AS (
         null AS generic_segmenttype,
         null AS midpoint,
         null AS geom,
-        ST_TRANSFORM(midpoint, 4326) AS midpoint_generic,
-        ST_TRANSFORM(geom, 4326) AS geom_generic
+        st_transform(midpoint, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS midpoint_generic,
+        st_transform(geom, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom_generic
     FROM
         focus_lion
 ),

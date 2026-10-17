@@ -45,7 +45,7 @@ WITH build AS (
         {{ key_column }}::text AS key_value,
         CASE
             WHEN count(*) = 1 THEN any_value({{ build_geom_column }})
-            ELSE st_union_agg(st_makevalid(linearize({{ build_geom_column }})))
+            ELSE st_union_agg(try(st_makevalid(linearize({{ build_geom_column }}))))
         END AS actual_geom
     FROM {{ build_relation }}
     GROUP BY 1
@@ -55,7 +55,7 @@ prod AS (
         {{ prod_key_column }}::text AS key_value,
         CASE
             WHEN count(*) = 1 THEN any_value({{ prod_geom_column }})
-            ELSE st_union_agg(st_makevalid(linearize({{ prod_geom_column }})))
+            ELSE st_union_agg(try(st_makevalid(linearize({{ prod_geom_column }}))))
         END AS expected_geom
     FROM {{ prod_relation }}
     GROUP BY 1
@@ -145,7 +145,7 @@ WITH build AS (
         {{ key_column }}::text AS key_value,
         CASE
             WHEN count(*) = 1 THEN any_value(linearize({{ build_geom_column }}))
-            ELSE st_union_agg(st_makevalid(linearize({{ build_geom_column }})))
+            ELSE st_union_agg(try(st_makevalid(linearize({{ build_geom_column }}))))
         END AS actual_geom
     FROM {{ build_relation }}
     GROUP BY 1
@@ -155,7 +155,7 @@ prod AS (
         {{ prod_key_column }}::text AS key_value,
         CASE
             WHEN count(*) = 1 THEN any_value(linearize({{ prod_geom_column }}))
-            ELSE st_union_agg(st_makevalid(linearize({{ prod_geom_column }})))
+            ELSE st_union_agg(try(st_makevalid(linearize({{ prod_geom_column }}))))
         END AS expected_geom
     FROM {{ prod_relation }}
     GROUP BY 1
@@ -209,6 +209,7 @@ FROM flagged
 
 
 {% macro geometry_diff_metrics(input_relation, actual_col, expected_col, min_fragment_sqft=100) %}
+{%- set hd_tol = var('geom_check_hausdorff_tolerance_ft', 1.0) -%}
 {#-
   DuckDB port of Postgres test_cases.geometry_diff_metrics. Returns every column of
   input_relation plus the eight metrics (actual_area_sqft, expected_area_sqft,
@@ -218,9 +219,14 @@ FROM flagged
   in the working SRID (EPSG:2263, no transform here), and it is a macro that emits SQL,
   not a table function (DuckDB macros can't hold the subqueries it needs).
   Fragments are kept as a list per row instead of a correlated subquery.
+  hausdorff_ft is not the exact discrete Hausdorff distance: DuckDB has none, and a
+  per-vertex st_distance over every vertex runs out of memory on the district layers.
+  Instead only boundary pieces further than hd_tol (var geom_check_hausdorff_tolerance_ft,
+  1 ft) from the other geometry are measured, vertex by vertex. So the result is exact
+  above hd_tol and 0 below it, against a 50 ft threshold.
 -#}
 SELECT
-    f.* EXCLUDE (_a, _e, _frags, _rings),
+    f.* EXCLUDE (_a, _e, _a_s, _e_s, _frags, _rings),
     st_area(_a) AS actual_area_sqft,
     st_area(_e) AS expected_area_sqft,
     CASE WHEN _e IS NOT NULL THEN
@@ -228,7 +234,16 @@ SELECT
         / nullif(st_area(_a), 0) * 100
     END AS symdiff_area_pct,
     CASE WHEN _e IS NOT NULL THEN
-        hausdorff_distance(st_simplify(_a, 0.05), st_simplify(_e, 0.05))
+        greatest(
+            coalesce(list_max(list_transform(
+                st_dump(st_points(st_difference(st_boundary(_a_s), st_buffer(_e_s, {{ hd_tol }})))),
+                p -> st_distance(p.geom, _e_s)
+            )), 0.0),
+            coalesce(list_max(list_transform(
+                st_dump(st_points(st_difference(st_boundary(_e_s), st_buffer(_a_s, {{ hd_tol }})))),
+                p -> st_distance(p.geom, _a_s)
+            )), 0.0)
+        )
     END AS hausdorff_ft,
     CASE WHEN _e IS NOT NULL THEN
         coalesce(list_sum(list_transform(_frags, g -> st_perimeter(g))), 0)
@@ -261,7 +276,9 @@ FROM (
         SELECT
             *,
             linearize({{ actual_col }}) AS _a,
-            linearize({{ expected_col }}) AS _e
+            linearize({{ expected_col }}) AS _e,
+            st_simplify(linearize({{ actual_col }}), 0.05) AS _a_s,
+            st_simplify(linearize({{ expected_col }}), 0.05) AS _e_s
         FROM {{ input_relation }}
     )
 ) AS f

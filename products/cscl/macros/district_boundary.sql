@@ -497,7 +497,7 @@ SELECT
     o.hausdorff_ft,
     o.symdiff_area_pct,
     round(st_area(l.geom)::DECIMAL(38, 12), 1) AS area_sqft,
-    st_multi(st_collectionextract(l.geom, 3))::geometry(MultiPolygon, 2263) AS geom
+    st_multi(st_collectionextract(l.geom, 3)) AS geom
 FROM layers AS l
 INNER JOIN outliers AS o ON l.entity_id = o.entity_id
 WHERE NOT st_isempty(l.geom)
