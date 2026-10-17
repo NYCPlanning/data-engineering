@@ -11,7 +11,7 @@ SELECT
         ELSE 'S'
     END AS principal_flag,
     b10sc,
-    CASE WHEN lookup_key ~ '(^| )[[:digit:]]' THEN 'N' END AS numeric_name_indicator,
+    CASE WHEN regexp_matches(lookup_key, '(^| )[[:digit:]]') THEN 'N' END AS numeric_name_indicator,
     snd_feature_type AS geographic_feature_type,
     LENGTH(RTRIM(place_name_sort_order)) AS name_length,
     lookup_key_trimmed AS full_name,

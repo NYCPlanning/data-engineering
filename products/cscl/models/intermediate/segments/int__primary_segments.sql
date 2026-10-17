@@ -43,7 +43,7 @@ primary_segments AS (
                 NULL AS to_level_code,
                 source.segment_seqnum,
             {% elif source_layer == 'stg__nonstreetfeatures' -%}
-                source.legacy_segmentid::INT,
+                source.legacy_segmentid::INT AS legacy_segmentid,
                 NULL AS from_level_code,
                 NULL AS to_level_code,
                 seqnum.segment_seqnum,
@@ -99,7 +99,7 @@ segment_attributes AS (
         street_and_facecode.lgc7,
         street_and_facecode.lgc8,
         street_and_facecode.lgc9,
-        street_and_facecode.boe_lgc_pointer::CHAR(1),
+        street_and_facecode.boe_lgc_pointer::CHAR(1) AS boe_lgc_pointer,
         primary_segments.feature_type,
         primary_segments.feature_type AS primary_feature_type,
         feature_type_codes.description AS feature_type_description,

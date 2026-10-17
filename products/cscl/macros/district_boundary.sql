@@ -142,43 +142,55 @@ SELECT * FROM shoreline_edges WHERE entity_id IS NOT NULL
   smaller built districts - an edge between two tracts in the same PUMA is 'interior'
   at PUMA level but 'exterior' at tract level.
 -#}
-WITH faces AS (
+WITH faces AS MATERIALIZED (
     SELECT
         entity_id,
-        (st_dump(st_polygonize(geom))).geom AS face
-    FROM {{ ref(edges_model) }}
-    WHERE edge_type = 'exterior'
-    GROUP BY entity_id
+        face,
+        st_pointonsurface(face) AS face_pt
+    FROM (
+        SELECT
+            entity_id,
+            unnest(st_dump(polygonized)).geom AS face
+        FROM (
+            SELECT
+                entity_id,
+                st_polygonize(list(geom)) AS polygonized
+            FROM {{ ref(edges_model) }}
+            WHERE edge_type = 'exterior'
+            GROUP BY entity_id
+        ) AS by_entity
+    ) AS dumped
 ),
 
-member_points AS (
-    SELECT
-        m.{{ entity_column }} AS entity_id,
-        st_pointonsurface(a.geom) AS pt
-    FROM {{ ref('int__topology__ap_entities') }} AS m
-    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON m.atomicid = a.atomicid
-    WHERE
-        m.{{ entity_column }} IS NOT NULL
-        {%- if not include_assigned_water %}
-        AND m.water_flag != '1'
-        {%- endif %}
+-- Which AP each face's interior point falls in. A face is bounded by the district's
+-- exterior edges, so it never holds both member and non-member APs: one point decides
+-- (st_contains of every member AP's point against large faces is far slower in DuckDB,
+-- which doesn't cache prepared geometries). Sliver faces fall in no AP and drop out.
+face_aps AS MATERIALIZED (
+    SELECT DISTINCT
+        f.entity_id,
+        f.face,
+        a.atomicid
+    FROM faces AS f
+    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON st_intersects(a.geom, f.face_pt)
 ),
 
 kept AS (
-    SELECT
-        f.entity_id,
-        f.face
-    FROM faces AS f
-    WHERE EXISTS (
-        SELECT 1 FROM member_points AS mp
-        WHERE mp.entity_id = f.entity_id AND f.face && mp.pt AND st_contains(f.face, mp.pt)
-    )
+    SELECT DISTINCT
+        fa.entity_id,
+        fa.face
+    FROM face_aps AS fa
+    INNER JOIN {{ ref('int__topology__ap_entities') }} AS m
+        ON fa.atomicid = m.atomicid AND fa.entity_id = m.{{ entity_column }}
+    {%- if not include_assigned_water %}
+    WHERE m.water_flag != '1'
+    {%- endif %}
 )
 
 -- kept faces share exact, already-noded edges, so this union only dissolves them
 SELECT
     entity_id,
-    st_union(face) AS geom
+    st_union_agg(face) AS geom
 FROM kept
 GROUP BY entity_id
 {% endmacro %}
@@ -212,22 +224,26 @@ one_owner_edges AS (
 
 parts AS (
     SELECT
-        r.entity_id,
+        entity_id,
         -- ST_Dump of a single Polygon has an empty path - NULL would never join below
         coalesce(d.path[1], 1) AS part_n,
         d.geom AS part
-    FROM {{ ref(boundary_raw_model) }} AS r
-    CROSS JOIN LATERAL st_dump(r.geom) AS d
+    FROM (
+        SELECT
+            entity_id,
+            unnest(st_dump(geom)) AS d
+        FROM {{ ref(boundary_raw_model) }}
+    ) AS dumped
 ),
 
 interior_rings AS (
     SELECT
         p.entity_id,
         p.part_n,
-        n AS ring_n,
-        st_interiorringn(p.part, n) AS ring
+        g.n AS ring_n,
+        st_interiorringn(p.part, g.n::INTEGER) AS ring
     FROM parts AS p
-    CROSS JOIN LATERAL generate_series(1, st_numinteriorrings(p.part)) AS n
+    CROSS JOIN LATERAL generate_series(1, st_numinteriorrings(p.part)) AS g (n)
 ),
 
 kept_rings AS (
@@ -239,7 +255,7 @@ kept_rings AS (
     WHERE NOT EXISTS (
         SELECT 1
         FROM one_owner_edges AS e
-        WHERE e.entity_id = ir.entity_id AND e.geom && ir.ring AND st_covers(ir.ring, e.geom)
+        WHERE e.entity_id = ir.entity_id AND st_covers(ir.ring, e.geom)
     )
     GROUP BY ir.entity_id, ir.part_n
 ),
@@ -257,7 +273,7 @@ rebuilt AS (
 
 SELECT
     entity_id,
-    st_union(geom) AS geom
+    st_union_agg(geom) AS geom
 FROM rebuilt
 GROUP BY entity_id
 {% endmacro %}
@@ -285,7 +301,7 @@ WITH exterior AS (
 merged_check AS (
     SELECT
         entity_id,
-        st_issimple(st_linemerge(st_collect(geom))) AS is_simple_ok
+        st_issimple(st_linemerge(st_collect(list(geom)))) AS is_simple_ok
     FROM exterior
     GROUP BY entity_id
 ),
@@ -317,7 +333,7 @@ buildarea_check AS (
         entity_id,
         geom IS NOT NULL
         AND NOT st_isempty(geom)
-        AND st_geometrytype(geom) IN ('ST_Polygon', 'ST_MultiPolygon') AS buildarea_ok
+        AND st_geometrytype(geom) IN ('POLYGON', 'MULTIPOLYGON') AS buildarea_ok
     FROM {{ ref(boundary_raw_model) }}
 ),
 

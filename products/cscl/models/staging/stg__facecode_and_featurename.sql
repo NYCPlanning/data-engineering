@@ -38,29 +38,20 @@ trimmed_key AS (
     FROM all_features
 ),
 sort_order AS (
+    -- NOTE - this regex is tested in _stg.yml with unit test 'test__stg__facecode_and_featurename_sortname'
     SELECT
-        string_agg(
-            CASE
-                WHEN match ~ '^\d+$' THEN lpad(match, 4, ' ')
-                ELSE match
-            END,
+        array_to_string(
+            list_transform(
+                regexp_extract_all(
+                    lookup_key_trimmed,
+                    '(?:(?:[^\d\-\/\s]+|\d+)?[\-\/])+(?:[^\d\-\/\s]+|\d+)?|\d+|[^\d\s]+'
+                ),
+                m -> CASE WHEN regexp_matches(m, '^\d+$') THEN lpad(m, 4, ' ') ELSE m END
+            ),
             ' '
         ) AS place_name_sort_order,
         globalid
-    FROM (
-        SELECT
-            unnest(
-                -- NOTE - this regex is tested in _stg.yml with unit test 'test__stg__facecode_and_featurename_sortname'
-                regexp_matches(
-                    lookup_key_trimmed,
-                    '(?:(?:[^\d\-\/\s]+|\d+)?[\-\/])+(?:[^\d\-\/\s]+|\d+)?|\d+|[^\d\s]+',
-                    'g'
-                )
-            ) AS match,
-            globalid
-        FROM trimmed_key
-    ) AS t
-    GROUP BY globalid
+    FROM trimmed_key
 )
 SELECT
     left(b10sc, 1) AS boroughcode,

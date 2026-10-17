@@ -75,7 +75,7 @@ potential_collisions AS (
     SELECT
         facecode.boroughcode,
         facecode.face_code,
-        other_segments.segment_seqnum::INT
+        other_segments.segment_seqnum::INT AS segment_seqnum
     FROM other_segments
     INNER JOIN facecode ON other_segments.segmentid = facecode.segmentid
     INNER JOIN nsf_bfcs ON facecode.boroughcode = nsf_bfcs.boroughcode AND facecode.face_code = nsf_bfcs.face_code

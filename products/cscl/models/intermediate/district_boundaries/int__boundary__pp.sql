@@ -12,14 +12,14 @@
 -- 1 sq ft; real pieces are far larger).
 
 WITH land AS (
-    SELECT st_union(geom) AS geom
+    SELECT st_union_agg(geom) AS geom
     FROM {{ ref('int__boundary__bb') }}
 ),
 
 clipped AS (
     SELECT
         p.precinct::smallint AS precinct,
-        (st_dump(st_collectionextract(st_intersection(p.geom, land.geom), 3))).geom AS part
+        unnest(st_dump(st_collectionextract(st_intersection(p.geom, land.geom), 3))).geom AS part
     FROM {{ ref('stg__nypdprecinct') }} AS p
     CROSS JOIN land
 ),
@@ -31,11 +31,11 @@ cleaned AS (
             st_exteriorring(c.part),
             coalesce(
                 (
-                    SELECT array_agg(st_interiorringn(c.part, n))
-                    FROM generate_series(1, st_numinteriorrings(c.part)) AS n
-                    WHERE st_area(st_makepolygon(st_interiorringn(c.part, n))) >= 100
+                    SELECT list(st_interiorringn(c.part, g.n::INTEGER))
+                    FROM generate_series(1, st_numinteriorrings(c.part)) AS g (n)
+                    WHERE st_area(st_makepolygon(st_interiorringn(c.part, g.n::INTEGER))) >= 100
                 ),
-                ARRAY[]::geometry[]
+                []::GEOMETRY[]
             )
         ) AS geom
     FROM clipped AS c
@@ -44,6 +44,6 @@ cleaned AS (
 
 SELECT
     precinct AS entity_id,
-    st_multi(st_union(geom)) AS geom
+    st_multi(st_union_agg(geom)) AS geom
 FROM cleaned
 GROUP BY precinct

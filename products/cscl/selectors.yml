@@ -1,0 +1,13 @@
+selectors:
+  # The DuckDB build (cut-over in progress): everything except the QA layers, which
+  # compare against production_outputs in Postgres. dbt run --target duckdb --selector duckdb_build
+  - name: duckdb_build
+    definition:
+      union:
+        - method: fqn
+          value: "*"
+        - exclude:
+            - method: path
+              value: models/etl_dev_qa
+            - method: path
+              value: models/qa_int

@@ -28,14 +28,14 @@ SELECT
     nullif(right(censustract_2010, 2), '00')::INT AS censustract_2010_suffix,
     censusblock_2010 AS censusblock_2010_raw,
     censusblock_2010::INT AS censusblock_2010_basic,
-    censusblock_2010_suffix::INT,
+    censusblock_2010_suffix::INT AS censusblock_2010_suffix,
     -- census 2020
     censustract_2020,
     left(censustract_2020, 4)::INT AS censustract_2020_basic,
     nullif(right(censustract_2020, 2), '00')::INT AS censustract_2020_suffix,
     censusblock_2020 AS censusblock_2020_raw,
     censusblock_2020::INT AS censusblock_2020_basic,
-    censusblock_2020_suffix::INT,
+    censusblock_2020_suffix::INT AS censusblock_2020_suffix,
     --
     right(atomicid, 3) AS dynamic_block,
     nullif(assemdist, ' ') AS assemdist,

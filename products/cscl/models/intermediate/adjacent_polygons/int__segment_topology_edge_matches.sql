@@ -248,7 +248,7 @@ path_candidates AS (
         st_hausdorffdistance(
             ss.piece,
             (
-                SELECT st_collect(e.geom)
+                SELECT st_collect(list(e.geom))
                 FROM generate_series(1, ps.hops) AS i
                 CROSS JOIN LATERAL (
                     SELECT te.geom

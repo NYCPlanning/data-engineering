@@ -5,10 +5,10 @@
 
 SELECT
     segmentid,
-    fdnyid::INT,
-    nypdid::INT,
-    physicalid::INT,
-    genericid::INT,
+    fdnyid::INT AS fdnyid,
+    nypdid::INT AS nypdid,
+    physicalid::INT AS physicalid,
+    genericid::INT AS genericid,
     legacy_segmentid,
     segment_type,
     segment_seqnum,
