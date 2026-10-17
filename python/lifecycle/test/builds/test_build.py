@@ -521,7 +521,8 @@ exports:
     format: csv
 """
     )
-    expected = get_build_dir("test", "24Q1") / "test_24Q1.duckdb"
+    # stage outputs live under <root>/build
+    expected = get_build_dir("test", "24Q1") / "build" / "test_24Q1.duckdb"
 
     build._set_duckdb_path(plan.recipe_from_yaml(recipe_path))
     assert os.environ["DUCKDB_PATH"] == str(expected)
@@ -747,7 +748,8 @@ exports:
     custom: {{ spatial: false }}
 """
     )
-    monkeypatch.setenv("PACKAGE_ENV_OUTPUT_DIR", str(tmp_path / "package"))
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)  # set by other tests' loads
     out = export(lock, duckdb_client=client)
     assert out is not None
     assert (out / "raw_exports" / "manifest.json").exists()
@@ -755,7 +757,7 @@ exports:
     assert not (out / "dataset_files").exists()  # deliverables are package's job
 
     packaged = package(lock)
-    assert packaged == tmp_path / "package"
+    assert packaged == tmp_path / "package"  # <root>/package
     gdb = f"zip://{packaged / 'dataset_files' / 'things.gdb.zip'}!things.gdb"
     boundaries = gpd.read_file(gdb, layer="boundaries")
     assert len(boundaries) == 1
@@ -801,7 +803,8 @@ exports:
     custom: {{ layout: layout.csv, where: "id < 3", order_by: id }}
 """
     )
-    monkeypatch.setenv("PACKAGE_ENV_OUTPUT_DIR", str(tmp_path / "package"))
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)  # set by other tests' loads
     out = export(lock, duckdb_client=client)
     assert out is not None
     assert (out / "raw_exports" / "flat_files" / "rows.parquet").exists()

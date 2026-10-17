@@ -2,8 +2,8 @@ from dcpy.lifecycle.builds.qa import run_qa
 
 
 def test_qa_commands_see_stage_dirs(tmp_path, monkeypatch):
-    for name in ("BUILD", "PACKAGE", "QA"):
-        monkeypatch.setenv(f"{name}_ENV_OUTPUT_DIR", str(tmp_path / name.lower()))
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)  # set by other tests' loads
     lock = tmp_path / "recipe.lock.yml"
     lock.write_text(
         """

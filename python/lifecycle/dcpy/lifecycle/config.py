@@ -120,18 +120,6 @@ def get_build_dir(product_name: str, version: str) -> Path:
     return local_data_path_for_stage("builds.build") / product_name / version
 
 
-def get_package_dir(product_name: str, version: str) -> Path:
-    """Where a build's packaged deliverables go:
-    {DCPY_LIFECYCLE_DATA_DIR}/package/{product_name}/{version}"""
-    return local_data_path_for_stage("package") / product_name / version
-
-
-def get_qa_dir(product_name: str, version: str) -> Path:
-    """Where a build's QA outputs go:
-    {DCPY_LIFECYCLE_DATA_DIR}/builds/qa/{product_name}/{version}"""
-    return local_data_path_for_stage("builds.qa") / product_name / version
-
-
 def get_plan_dir(product_name: str, version: str) -> Path:
     """Get the plan directory path for a product and version.
 

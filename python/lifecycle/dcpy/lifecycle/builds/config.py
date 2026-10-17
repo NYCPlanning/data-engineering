@@ -62,15 +62,24 @@ def get_build_metadata_path(product_path: Path) -> Path:
     return product_path / "build_metadata.json"
 
 
-def get_build_output_dir(product: str, version: str) -> Path:
-    """Directory a build's artifacts (duckdb file, exports) live in.
+def get_build_root(product: str, version: str) -> Path:
+    """One directory per product version holding every stage's outputs, so a build can
+    be cleared with one delete: {DCPY_LIFECYCLE_DATA_DIR}/builds/build/{product}/{version},
+    with build/, package/ and qa/ inside. BUILD_ENV_ROOT_DIR overrides it."""
+    if "BUILD_ENV_ROOT_DIR" in os.environ:
+        return Path(os.environ["BUILD_ENV_ROOT_DIR"])
+    return config.get_build_dir(product, version)
 
-    BUILD_ENV_OUTPUT_DIR overrides the standard {product}/{version} build dir. Load, build,
-    and export run as separate processes, so they all resolve it here to agree.
+
+def get_build_output_dir(product: str, version: str) -> Path:
+    """The build stage's directory (duckdb file, recipe lock, raw exports): <root>/build.
+
+    BUILD_ENV_OUTPUT_DIR overrides it. Load, build, and export run as separate
+    processes, so they all resolve it here to agree.
     """
     if "BUILD_ENV_OUTPUT_DIR" in os.environ:
         return Path(os.environ["BUILD_ENV_OUTPUT_DIR"])
-    return config.get_build_dir(product, version)
+    return get_build_root(product, version) / "build"
 
 
 def get_duckdb_path(product: str, version: str, filename: str | None = None) -> Path:
@@ -81,18 +90,13 @@ def get_duckdb_path(product: str, version: str, filename: str | None = None) -> 
 
 
 def get_package_output_dir(product: str, version: str) -> Path:
-    """Directory a build's packaged deliverables (dataset_files, attachments, zip) go in.
-    PACKAGE_ENV_OUTPUT_DIR overrides the standard {product}/{version} package dir."""
-    if "PACKAGE_ENV_OUTPUT_DIR" in os.environ:
-        return Path(os.environ["PACKAGE_ENV_OUTPUT_DIR"])
-    return config.get_package_dir(product, version)
+    """The package stage's directory (dataset_files, attachments, zip): <root>/package."""
+    return get_build_root(product, version) / "package"
 
 
 def get_qa_output_dir(product: str, version: str) -> Path:
-    """Directory a build's QA outputs go in. QA_ENV_OUTPUT_DIR overrides it."""
-    if "QA_ENV_OUTPUT_DIR" in os.environ:
-        return Path(os.environ["QA_ENV_OUTPUT_DIR"])
-    return config.get_qa_dir(product, version)
+    """The QA stage's directory: <root>/qa."""
+    return get_build_root(product, version) / "qa"
 
 
 def stage_dirs_env(product: str, version: str) -> dict[str, str]:
