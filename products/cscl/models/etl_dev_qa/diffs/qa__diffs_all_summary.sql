@@ -21,7 +21,7 @@ WITH from_diffs_all AS (
         COALESCE(SUM(
             CASE
                 WHEN NOT accounted_for AND changes IS NOT NULL
-                    THEN (SELECT COUNT(*) FROM JSONB_OBJECT_KEYS(changes))
+                    THEN len(json_keys(changes))
                 ELSE 0
             END
         ), 0) AS unaccounted_discrepant_fields

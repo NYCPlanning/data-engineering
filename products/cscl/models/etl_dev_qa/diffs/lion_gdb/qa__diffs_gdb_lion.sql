@@ -71,18 +71,18 @@ field_causes AS (
                 THEN 'CSCL-LION-05: nonstreet SeqNum'
             WHEN f.key = 'seqnum' THEN 'SeqNum on non-nonstreet feature'
             -- prod's legacy default pointer '1' for two-digit LGC codes
-            WHEN f.key = 'boe_lgc' AND w.changes -> 'boe_lgc' ->> 'old' = '1'
+            WHEN f.key = 'boe_lgc' AND w.(changes -> 'boe_lgc' ->> 'old') = '1'
                 THEN 'CSCL-LION-04: BOE_LGC'
             WHEN f.key = 'boe_lgc' THEN 'BOE_LGC other'
             WHEN
                 f.key = 'curveflag'
-                AND coalesce(trim(w.changes -> 'curveflag' ->> 'old'), '') = ''
-                AND w.changes -> 'curveflag' ->> 'new' = 'I'
+                AND coalesce(trim(w.(changes -> 'curveflag' ->> 'old')), '') = ''
+                AND w.(changes -> 'curveflag' ->> 'new') = 'I'
                 THEN 'CSCL-LION-03: CurveFlag I where prod blank'
             WHEN f.key = 'curveflag' THEN 'CurveFlag other'
             WHEN
                 (
-                    f.key ~ '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$'
+                    regexp_matches(f.key, '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$')
                     OR f.key IN (
                         'latomicpolygon', 'ratomicpolygon', 'l_cd', 'r_cd', 'lassmdist', 'rassmdist',
                         'lelectdist', 'relectdist', 'splitelect', 'lschldist', 'rschldist', 'splitschl',
@@ -92,7 +92,7 @@ field_causes AS (
                 AND w.is_topology_lr_segment
                 THEN 'CSCL-LION-16: topology left/right AP'
             WHEN
-                f.key ~ '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$'
+                regexp_matches(f.key, '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$')
                 OR f.key IN (
                     'latomicpolygon', 'ratomicpolygon', 'l_cd', 'r_cd', 'lassmdist', 'rassmdist',
                     'lelectdist', 'relectdist', 'splitelect', 'lschldist', 'rschldist', 'splitschl',
@@ -102,7 +102,7 @@ field_causes AS (
             ELSE f.key
         END AS cause
     FROM with_context AS w
-    CROSS JOIN LATERAL jsonb_object_keys(w.changes) AS f (key)
+    CROSS JOIN LATERAL (SELECT unnest(json_keys(w.changes)) AS key) AS f
     WHERE w.status = 'modified'
 ),
 cause_summary AS (

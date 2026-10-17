@@ -389,7 +389,7 @@ prod AS (
     SELECT
         p.{{ prod_key }} AS entity_id,
         {% if dissolve_prod %}st_union_agg(linearize(p.shape)){% else %}linearize(p.shape){% endif %} AS geom
-    FROM {{ adapter.get_relation(database="db-cscl", schema="production_outputs", identifier=prod_identifier) }} AS p
+    FROM {{ prod_fgdb_linear(prod_identifier) }} AS p
     INNER JOIN in_scope AS s ON p.{{ prod_key }} = s.entity_id
     {% if dissolve_prod %}GROUP BY p.{{ prod_key }}{% endif %}
 ),
@@ -468,7 +468,7 @@ built AS (
 
 prod AS (
     SELECT p.{{ prod_key }} AS entity_id, linearize(p.shape) AS geom
-    FROM {{ adapter.get_relation(database="db-cscl", schema="production_outputs", identifier=prod_identifier) }} AS p
+    FROM {{ prod_fgdb_linear(prod_identifier) }} AS p
     INNER JOIN outliers AS o ON p.{{ prod_key }} = o.entity_id
 ),
 

@@ -44,8 +44,8 @@ WITH build AS (
     SELECT
         {{ key_column }}::text AS key_value,
         CASE
-            WHEN count(*) = 1 THEN (array_agg({{ build_geom_column }}))[1]
-            ELSE st_union(st_makevalid(linearize({{ build_geom_column }})))
+            WHEN count(*) = 1 THEN any_value({{ build_geom_column }})
+            ELSE st_union_agg(st_makevalid(linearize({{ build_geom_column }})))
         END AS actual_geom
     FROM {{ build_relation }}
     GROUP BY 1
@@ -54,8 +54,8 @@ prod AS (
     SELECT
         {{ prod_key_column }}::text AS key_value,
         CASE
-            WHEN count(*) = 1 THEN (array_agg({{ prod_geom_column }}))[1]
-            ELSE st_union(st_makevalid(linearize({{ prod_geom_column }})))
+            WHEN count(*) = 1 THEN any_value({{ prod_geom_column }})
+            ELSE st_union_agg(st_makevalid(linearize({{ prod_geom_column }})))
         END AS expected_geom
     FROM {{ prod_relation }}
     GROUP BY 1
@@ -75,17 +75,24 @@ metrics AS (
         j.key_value,
         j.only_in_prod,
         j.only_in_build,
-        st_transform(linearize(j.actual_geom), 4326) AS actual_geom_4326,
-        st_transform(linearize(j.expected_geom), 4326) AS expected_geom_4326,
-        m.*
-    FROM joined AS j
-    LEFT JOIN LATERAL test_cases.geometry_diff_metrics(j.actual_geom, j.expected_geom) AS m
-        ON j.actual_geom IS NOT NULL
+        st_transform(linearize(j.actual_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS actual_geom_4326,
+        st_transform(linearize(j.expected_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS expected_geom_4326,
+        j.actual_area_sqft,
+        j.expected_area_sqft,
+        j.symdiff_area_pct,
+        j.hausdorff_ft,
+        j.symdiff_boundary_len_ft,
+        j.symdiff_fragment_count,
+        j.max_ring_eccentricity,
+        j.perimeter_pct_diff
+    FROM (
+        {{ geometry_diff_metrics('joined', 'actual_geom', 'expected_geom') }}
+    ) AS j
 ),
 flagged AS (
     SELECT
         *,
-        array_remove(ARRAY[
+        list_filter([
             CASE WHEN only_in_build THEN 'only_in_build' END,
             CASE WHEN only_in_prod THEN 'only_in_prod' END,
             CASE WHEN symdiff_area_pct > {{ var('geom_check_symdiff_area_pct', 1) }}
@@ -98,13 +105,13 @@ flagged AS (
                 THEN 'max_ring_eccentricity' END,
             CASE WHEN abs(perimeter_pct_diff) > {{ var('geom_check_perimeter_pct', 1) }}
                 THEN 'perimeter_pct_diff' END
-        ], NULL) AS failing_checks
+        ], x -> x IS NOT NULL) AS failing_checks
     FROM metrics
 )
 
 SELECT
     *,
-    (array_length(failing_checks, 1) IS NULL) AS passes
+    (len(failing_checks) = 0) AS passes
 FROM flagged
 {% endmacro %}
 
@@ -137,8 +144,8 @@ WITH build AS (
     SELECT
         {{ key_column }}::text AS key_value,
         CASE
-            WHEN count(*) = 1 THEN (array_agg(st_transform(linearize({{ build_geom_column }}), 2263)))[1]
-            ELSE st_union(st_makevalid(st_transform(linearize({{ build_geom_column }}), 2263)))
+            WHEN count(*) = 1 THEN any_value(linearize({{ build_geom_column }}))
+            ELSE st_union_agg(st_makevalid(linearize({{ build_geom_column }})))
         END AS actual_geom
     FROM {{ build_relation }}
     GROUP BY 1
@@ -147,8 +154,8 @@ prod AS (
     SELECT
         {{ prod_key_column }}::text AS key_value,
         CASE
-            WHEN count(*) = 1 THEN (array_agg(st_transform(linearize({{ prod_geom_column }}), 2263)))[1]
-            ELSE st_union(st_makevalid(st_transform(linearize({{ prod_geom_column }}), 2263)))
+            WHEN count(*) = 1 THEN any_value(linearize({{ prod_geom_column }}))
+            ELSE st_union_agg(st_makevalid(linearize({{ prod_geom_column }})))
         END AS expected_geom
     FROM {{ prod_relation }}
     GROUP BY 1
@@ -183,19 +190,109 @@ metrics AS (
 flagged AS (
     SELECT
         *,
-        array_remove(ARRAY[
+        list_filter([
             CASE WHEN only_in_build THEN 'only_in_build' END,
             CASE WHEN only_in_prod THEN 'only_in_prod' END,
             CASE WHEN abs(perimeter_pct_diff) > {{ var('geom_check_perimeter_pct', 1) }}
                 THEN 'perimeter_pct_diff' END,
             CASE WHEN abs(area_pct_diff) > {{ var('geom_check_area_pct_diff', 1) }}
                 THEN 'area_pct_diff' END
-        ], NULL) AS failing_checks
+        ], x -> x IS NOT NULL) AS failing_checks
     FROM metrics
 )
 
 SELECT
     *,
-    (array_length(failing_checks, 1) IS NULL) AS passes
+    (len(failing_checks) = 0) AS passes
 FROM flagged
+{% endmacro %}
+
+
+{% macro geometry_diff_metrics(input_relation, actual_col, expected_col, min_fragment_sqft=100) %}
+{#-
+  DuckDB port of Postgres test_cases.geometry_diff_metrics. Returns every column of
+  input_relation plus the eight metrics (actual_area_sqft, expected_area_sqft,
+  symdiff_area_pct, hausdorff_ft, symdiff_boundary_len_ft, symdiff_fragment_count,
+  max_ring_eccentricity, perimeter_pct_diff). See create_pg_functions.sql for what each
+  metric means and why. Differences from the Postgres function: inputs must already be
+  in the working SRID (EPSG:2263, no transform here), and it is a macro that emits SQL,
+  not a table function (DuckDB macros can't hold the subqueries it needs).
+  Fragments are kept as a list per row instead of a correlated subquery.
+-#}
+SELECT
+    f.* EXCLUDE (_a, _e, _frags, _rings),
+    st_area(_a) AS actual_area_sqft,
+    st_area(_e) AS expected_area_sqft,
+    CASE WHEN _e IS NOT NULL THEN
+        coalesce(list_sum(list_transform(_frags, g -> st_area(g))), 0)
+        / nullif(st_area(_a), 0) * 100
+    END AS symdiff_area_pct,
+    CASE WHEN _e IS NOT NULL THEN
+        hausdorff_distance(st_simplify(_a, 0.05), st_simplify(_e, 0.05))
+    END AS hausdorff_ft,
+    CASE WHEN _e IS NOT NULL THEN
+        coalesce(list_sum(list_transform(_frags, g -> st_perimeter(g))), 0)
+    END AS symdiff_boundary_len_ft,
+    CASE WHEN _e IS NOT NULL THEN len(_frags)::INTEGER END AS symdiff_fragment_count,
+    list_max(list_transform(
+        _rings,
+        r -> st_length(r) / greatest(sqrt(abs(st_area(st_makepolygon(r)))), 0.0001)
+    )) AS max_ring_eccentricity,
+    CASE WHEN _e IS NOT NULL THEN
+        (st_perimeter(_a) - st_perimeter(_e)) / nullif(st_perimeter(_e), 0) * 100
+    END AS perimeter_pct_diff
+FROM (
+    SELECT
+        *,
+        CASE WHEN _a IS NOT NULL AND _e IS NOT NULL THEN
+            list_filter(
+                list_transform(st_dump(st_symdifference(_a, _e)), d -> d.geom),
+                g -> st_area(g) >= {{ min_fragment_sqft }}
+            )
+        END AS _frags,
+        flatten(list_transform(
+            list_filter(list_transform(st_dump(_a), d -> d.geom), p -> st_geometrytype(p) = 'POLYGON'),
+            p -> list_prepend(
+                st_exteriorring(p),
+                list_transform(range(1, st_numinteriorrings(p) + 1), i -> st_interiorringn(p, i::INTEGER))
+            )
+        )) AS _rings
+    FROM (
+        SELECT
+            *,
+            linearize({{ actual_col }}) AS _a,
+            linearize({{ expected_col }}) AS _e
+        FROM {{ input_relation }}
+    )
+) AS f
+{% endmacro %}
+
+
+{% macro prod_fgdb_linear(identifier, geom_column='shape') %}
+{#-
+  Subquery over production_outputs.<identifier> (Postgres, attached as "db-cscl") with the
+  geometry column linearized on the Postgres side. Prod's FGDB load can hold curved
+  geometry, which DuckDB's postgres scanner can't read ("Unsupported geometry type in
+  WKB"), so the column list is looked up and the geometry fetched as WKB through
+  postgres_query + ST_CurveToLine. The tolerance matches the old linearize() (0.00025).
+-#}
+    {%- if execute -%}
+        {%- set cols = run_query(
+            "SELECT column_name FROM information_schema.columns WHERE table_catalog = 'db-cscl'"
+            ~ " AND table_schema = 'production_outputs' AND table_name = '" ~ identifier ~ "'"
+            ~ " ORDER BY ordinal_position"
+        ).columns[0].values() -%}
+        {%- set sel = [] -%}
+        {%- for c in cols -%}
+            {%- if c | lower == geom_column | lower -%}
+                {%- do sel.append("ST_AsBinary(ST_CurveToLine(\"" ~ c ~ "\", 0.00025, 1)) AS \"" ~ c ~ "\"") -%}
+            {%- else -%}
+                {%- do sel.append("\"" ~ c ~ "\"") -%}
+            {%- endif -%}
+        {%- endfor -%}
+(
+    SELECT * REPLACE (st_geomfromwkb("{{ geom_column }}") AS "{{ geom_column }}")
+    FROM postgres_query('db-cscl', 'SELECT {{ sel | join(", ") | replace("'", "''") }} FROM production_outputs.{{ identifier }}')
+)
+    {%- endif -%}
 {% endmacro %}

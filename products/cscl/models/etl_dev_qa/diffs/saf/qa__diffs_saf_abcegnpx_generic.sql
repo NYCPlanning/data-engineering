@@ -25,7 +25,7 @@ categorized AS (
         changes,
         output_file_id,
         -- Get the keys from the changes jsonb
-        (SELECT array_agg(key) FROM jsonb_object_keys(changes) AS key) AS change_keys,
+        json_keys(changes) AS change_keys,
         comparison_column,
         build_table_name,
         production_table_name
@@ -42,14 +42,11 @@ SELECT
         -- See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
         WHEN
             status = 'modified'
-            AND (
-                SELECT array_agg(key ORDER BY key)
-                FROM jsonb_object_keys(changes) AS key
-            ) <@ ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
-            ]::text[]
+            AND list_has_all(ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
+            ], json_keys(changes))
             THEN 'Bug 003: SAF GNX side-AP point mismatch'
         -- If only one field changed, use that as the group name
-        WHEN status = 'modified' AND array_length(change_keys, 1) = 1
+        WHEN status = 'modified' AND len(change_keys) = 1
             THEN change_keys[1]
         ELSE ''
     END AS diff_group,
@@ -62,11 +59,8 @@ SELECT
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
         -- See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
         status = 'modified'
-        AND (
-            SELECT array_agg(key ORDER BY key)
-            FROM jsonb_object_keys(changes) AS key
-        ) <@ ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
-        ]::text[],
+        AND list_has_all(ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
+        ], json_keys(changes)),
         FALSE
     ) AS accounted_for
 FROM categorized

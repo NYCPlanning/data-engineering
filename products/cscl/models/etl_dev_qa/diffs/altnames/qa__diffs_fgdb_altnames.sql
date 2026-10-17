@@ -48,7 +48,7 @@ categorized AS (
         changes,
         output_file_id,
         -- Get the keys from the changes jsonb
-        (SELECT array_agg(key) FROM jsonb_object_keys(changes) AS key) AS change_keys,
+        json_keys(changes) AS change_keys,
         comparison_column,
         build_table_name,
         production_table_name,
@@ -69,7 +69,7 @@ SELECT
         WHEN is_lion_join_id_gap
             THEN 'CSCL-LION-09: Join_ID only in one side''s LION'
         -- If only one field changed, use that as the group name
-        WHEN status = 'modified' AND array_length(change_keys, 1) = 1
+        WHEN status = 'modified' AND len(change_keys) = 1
             THEN change_keys[1]
         ELSE ''
     END AS diff_group,

@@ -41,15 +41,25 @@ WITH examples AS (
     ) }}
 ),
 
+-- stored examples are EPSG:4326 (lon/lat); metrics need feet
+examples_2263 AS (
+    SELECT
+        * REPLACE (
+            st_transform(actual_geom, 'EPSG:4326', 'EPSG:2263', always_xy := true) AS actual_geom,
+            st_transform(expected_geom, 'EPSG:4326', 'EPSG:2263', always_xy := true) AS expected_geom
+        )
+    FROM examples
+),
+
 metrics AS (
     SELECT
-        e.slug,
-        e.label,
-        e.category,
-        e.layer,
-        e.key_column,
-        e.key_value,
-        e.status,
+        m.slug,
+        m.label,
+        m.category,
+        m.layer,
+        m.key_column,
+        m.key_value,
+        m.status,
         m.actual_area_sqft,
         m.expected_area_sqft,
         m.symdiff_area_pct,
@@ -57,14 +67,15 @@ metrics AS (
         m.symdiff_boundary_len_ft,
         m.max_ring_eccentricity,
         m.perimeter_pct_diff
-    FROM examples AS e
-    CROSS JOIN LATERAL test_cases.geometry_diff_metrics(e.actual_geom, e.expected_geom) AS m
+    FROM (
+        {{ geometry_diff_metrics('examples_2263', 'actual_geom', 'expected_geom') }}
+    ) AS m
 ),
 
 flagged AS (
     SELECT
         *,
-        array_remove(ARRAY[
+        list_filter([
             CASE
                 WHEN symdiff_area_pct > {{ var('geom_check_symdiff_area_pct', 1) }}
                     THEN 'symdiff_area_pct'
@@ -85,11 +96,11 @@ flagged AS (
                 WHEN abs(perimeter_pct_diff) > {{ var('geom_check_perimeter_pct', 1) }}
                     THEN 'perimeter_pct_diff'
             END
-        ], NULL) AS failing_metrics
+        ], x -> x IS NOT NULL) AS failing_metrics
     FROM metrics
 )
 
 SELECT
     *,
-    (array_length(failing_metrics, 1) IS NULL) AS passes
+    (len(failing_metrics) = 0) AS passes
 FROM flagged

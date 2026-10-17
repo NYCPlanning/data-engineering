@@ -17,7 +17,7 @@ prod AS (
     SELECT
         p.bctcb2010,
         linearize(p.shape) AS geom
-    FROM {{ adapter.get_relation(database="db-cscl", schema="production_outputs", identifier="fgdb_nycb2010") }} AS p
+    FROM {{ prod_fgdb_linear("fgdb_nycb2010") }} AS p
     INNER JOIN pair ON p.bctcb2010 = pair.bctcb2010
 ),
 
@@ -63,7 +63,7 @@ SELECT
     atomicid,
     ap_cb,
     prod_cb,
-    round(st_area(geom)::numeric, 1) AS area_sqft,
-    st_multi(st_collectionextract(geom, 3))::GEOMETRY (MULTIPOLYGON, 2263) AS geom
+    round(st_area(geom)::DECIMAL(38, 12), 1) AS area_sqft,
+    st_multi(st_collectionextract(geom, 3)) AS geom
 FROM layers
 WHERE st_area(geom) > 1

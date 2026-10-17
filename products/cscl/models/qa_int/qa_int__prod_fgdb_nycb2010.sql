@@ -40,6 +40,6 @@ SELECT
     borocode,
     boroname,
     ct2010,
-    round(shape_length::numeric) AS shape_length,
-    round(shape_area::numeric, -1) AS shape_area
+    round(shape_length::DECIMAL(38, 12)) AS shape_length,
+    round(shape_area::DECIMAL(38, 12), -1) AS shape_area
 FROM {{ prod_relation }}
