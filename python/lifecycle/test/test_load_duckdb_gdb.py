@@ -185,3 +185,18 @@ def test_column_names_are_lowercased_like_ogr2ogr(gpkg, client, engine):
     data_loader.load_dataset_into_duckdb(_ds(engine), client, gpkg)
     cols = [r[0] for r in client.conn.execute("DESCRIBE s.tbl").fetchall()]
     assert cols == [c.lower() for c in cols] and "name" in cols
+
+
+def test_zipped_gdb_is_extracted_once(tmp_path, gpkg):
+    import zipfile
+
+    # stand-in .gdb directory; extraction doesn't look inside it
+    zpath = tmp_path / "x.gdb.zip"
+    with zipfile.ZipFile(zpath, "w") as zf:
+        zf.write(gpkg, "x.gdb/a")
+        zf.writestr("__MACOSX/x.gdb/._a", "")
+    gdb = data_loader._unzipped_gdb(zpath)
+    assert gdb.name == "x.gdb" and (gdb / "a").exists()
+    (gdb / "marker").write_text("")
+    assert data_loader._unzipped_gdb(zpath) == gdb
+    assert (gdb / "marker").exists(), "second call should reuse the extraction"
