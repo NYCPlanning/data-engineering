@@ -128,7 +128,9 @@ def load_source_data_from_resolved_recipe(
         pg_client = None
 
     if has_duckdb:
-        duckdb_path = build_config.get_duckdb_path(recipe.product, recipe.version)
+        duckdb_path = build_config.get_duckdb_path(
+            recipe.product, recipe.version, recipe.duckdb_filename
+        )
         duckdb_client = duckdb_utils.DuckDBClient(
             db_path=duckdb_path, schema=target_schema, clear_schema=clear_duckdb_schema
         )

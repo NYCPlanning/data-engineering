@@ -183,7 +183,9 @@ def _read_filtered_gdf(
 def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
     if not recipe.version:
         raise ValueError("Recipe version must be set for export")
-    duckdb_path = build_config.get_duckdb_path(recipe.product, recipe.version)
+    duckdb_path = build_config.get_duckdb_path(
+        recipe.product, recipe.version, recipe.duckdb_filename
+    )
     return duckdb_utils.DuckDBClient(db_path=duckdb_path, schema=metadata.build_name())
 
 

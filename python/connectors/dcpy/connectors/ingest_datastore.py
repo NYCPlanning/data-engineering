@@ -10,6 +10,7 @@ from dcpy.connectors.edm.models import DatasetType
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.lifecycle.ingest.models import SparseConfig
+from dcpy.utils.logging import logger
 
 config_filename = "config.json"
 
@@ -96,10 +97,16 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
             "filename",
             f"{key}.{DatasetType(kwargs.get('file_type', 'parquet')).to_extension()}",
         )
-        return self.storage.pull(
-            f"{key}/{version}/{filename}",
-            destination_path / filename,
-        )
+        # Versions are immutable, so a local copy from an earlier pull is reused. Pulls
+        # land under a temp name first, so an interrupted download is never mistaken for one.
+        local_path = destination_path / filename
+        if local_path.exists():
+            logger.info(f"Using cached {local_path}")
+            return {"path": local_path}
+        partial_path = local_path.with_name(f"{local_path.name}.partial")
+        self.storage.pull(f"{key}/{version}/{filename}", partial_path)
+        partial_path.replace(local_path)
+        return {"path": local_path}
 
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         """This is maybe a problem in my plan"""

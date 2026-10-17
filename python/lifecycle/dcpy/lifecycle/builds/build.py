@@ -62,7 +62,9 @@ def _set_duckdb_path(recipe: "plan.Recipe") -> None:
     destinations = {ds.destination for ds in recipe.inputs.datasets}
     if InputDatasetDestination.duckdb not in destinations or not recipe.version:
         return
-    duckdb_path = get_duckdb_path(recipe.product, recipe.version)
+    duckdb_path = get_duckdb_path(
+        recipe.product, recipe.version, recipe.duckdb_filename
+    )
     os.environ["DUCKDB_PATH"] = str(duckdb_path)
     logger.info(f"Set DUCKDB_PATH: {duckdb_path}")
 
@@ -699,6 +701,8 @@ def _get_build_path(
         raise typer.Exit(code=1)
 
     if duckdb:
-        typer.echo(str(get_duckdb_path(recipe.product, recipe.version)))
+        typer.echo(
+            str(get_duckdb_path(recipe.product, recipe.version, recipe.duckdb_filename))
+        )
     else:
         typer.echo(str(get_build_output_dir(recipe.product, recipe.version)))

@@ -64,3 +64,21 @@ def test_push_latest_is_independent_of_the_versioned_archive(
     assert not (tmp_path / ds.id / ds.version).exists(), (
         "refreshing latest should not create the versioned archive"
     )
+
+
+def test_pull_versioned_reuses_local_copy(
+    connector: IngestDatastoreConnector, tmp_path: Path
+):
+    src = tmp_path / "ds" / "v1" / "data.csv"
+    src.parent.mkdir(parents=True)
+    src.write_text("a\n1\n")
+    dest = tmp_path / "local"
+
+    first = connector.pull_versioned("ds", "v1", dest, filename="data.csv")
+    assert first["path"].read_text() == "a\n1\n"
+    assert not (dest / "data.csv.partial").exists()
+
+    src.write_text("changed\n")  # a second pull must not go back to storage
+    second = connector.pull_versioned("ds", "v1", dest, filename="data.csv")
+    assert second["path"] == first["path"]
+    assert second["path"].read_text() == "a\n1\n"
