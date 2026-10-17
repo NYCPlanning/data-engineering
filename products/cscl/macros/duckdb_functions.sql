@@ -215,4 +215,10 @@ CASE
         THEN st_reverse(_linearize_arc_fwd(x1, y1, xm, ym, x0, y0, tol))
     ELSE _linearize_arc_fwd(x0, y0, xm, ym, x1, y1, tol)
 END;
+-- hausdorff_distance: PostGIS st_hausdorffdistance(a, b), i.e. GEOS's discrete Hausdorff
+-- distance: the larger of (each vertex of a to the nearest point of b) and the reverse.
+CREATE OR REPLACE MACRO hausdorff_distance(a, b) AS greatest(
+    list_max(list_transform(st_dump(st_points(a)), p -> st_distance(p.geom, b))),
+    list_max(list_transform(st_dump(st_points(b)), p -> st_distance(p.geom, a)))
+);
 {% endmacro %}
