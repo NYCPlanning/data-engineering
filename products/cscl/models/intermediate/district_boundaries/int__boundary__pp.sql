@@ -31,11 +31,11 @@ cleaned AS (
             st_exteriorring(c.part),
             coalesce(
                 (
-                    SELECT list(st_interiorringn(c.part, g.n::INTEGER))
+                    SELECT list(st_interiorringn(c.part, g.n::integer))
                     FROM generate_series(1, st_numinteriorrings(c.part)) AS g (n)
-                    WHERE st_area(st_makepolygon(st_interiorringn(c.part, g.n::INTEGER))) >= 100
+                    WHERE st_area(st_makepolygon(st_interiorringn(c.part, g.n::integer))) >= 100
                 ),
-                []::GEOMETRY[]
+                []::geometry[]
             )
         ) AS geom
     FROM clipped AS c

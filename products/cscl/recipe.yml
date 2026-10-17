@@ -362,7 +362,18 @@ inputs:
     custom:
       filename: previous_ldf_header.csv
       all_varchar: true  # all text, as the files are fixed-width records
+
+  # QA: the legacy pipeline's outputs for this release, as parquet (one table per output,
+  # into schema production_outputs). Built by poc_validation/build_prod_snapshot.py.
+  - name: dcp_cscl_production_outputs
+    source: edm.private
+    version: 26c
+    file_type: parquet_bundle
+    import_as: production_outputs
+    custom:
+      filename: production_outputs.zip
   missing_versions_strategy: find_latest # TODO - they should all match
+
 
 exports:
   zip_name: output
@@ -928,11 +939,11 @@ stage_config:
       - name: dbt_test
         run: dbt test --selector duckdb_build
   # run by `builds qa run`; results go in $QA_DIR (see poc_validation/paths.py). The QA
-  # models need Postgres for production_outputs (--target duckdb_qa attaches it).
+  # models compare against production_outputs, loaded from the prod parquet bundle.
   builds.qa:
     commands:
       - name: qa_models
-        run: dbt run --target duckdb_qa --select path:models/qa_int path:models/etl_dev_qa
+        run: dbt run --select path:models/qa_int path:models/etl_dev_qa
       - name: pull_prod_files
         run: mkdir -p "$QA_DIR/prod" && python poc_validation/prod_data_loader.py pull
       - name: compare_flat_files

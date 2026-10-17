@@ -69,38 +69,38 @@ SELECT
     v._lion_gdb_key AS comparison_id,
     'modified' AS status,
     to_json(map_from_entries(list_filter([
-        {'k': 'llo_hyphen', 'v': CASE
+        { 'k': 'llo_hyphen', 'v': CASE
             WHEN nullif(v.llo_hyphen, '') IS NOT NULL
                 THEN json_object('old', v.llo_hyphen, 'new', d.llo_hyphen)
-        END::JSON},
-        {'k': 'lhi_hyphen', 'v': CASE
+        END::JSON },
+        { 'k': 'lhi_hyphen', 'v': CASE
             WHEN nullif(v.lhi_hyphen, '') IS NOT NULL
                 THEN json_object('old', v.lhi_hyphen, 'new', d.lhi_hyphen)
-        END::JSON},
-        {'k': 'rlo_hyphen', 'v': CASE
+        END::JSON },
+        { 'k': 'rlo_hyphen', 'v': CASE
             WHEN nullif(v.rlo_hyphen, '') IS NOT NULL
                 THEN json_object('old', v.rlo_hyphen, 'new', d.rlo_hyphen)
-        END::JSON},
-        {'k': 'rhi_hyphen', 'v': CASE
+        END::JSON },
+        { 'k': 'rhi_hyphen', 'v': CASE
             WHEN nullif(v.rhi_hyphen, '') IS NOT NULL
                 THEN json_object('old', v.rhi_hyphen, 'new', d.rhi_hyphen)
-        END::JSON},
-        {'k': 'fromleft', 'v': CASE
+        END::JSON },
+        { 'k': 'fromleft', 'v': CASE
             WHEN coalesce(v.fromleft, 0) != 0
                 THEN json_object('old', v.fromleft, 'new', d.fromleft)
-        END::JSON},
-        {'k': 'fromright', 'v': CASE
+        END::JSON },
+        { 'k': 'fromright', 'v': CASE
             WHEN coalesce(v.fromright, 0) != 0
                 THEN json_object('old', v.fromright, 'new', d.fromright)
-        END::JSON},
-        {'k': 'toleft', 'v': CASE
+        END::JSON },
+        { 'k': 'toleft', 'v': CASE
             WHEN coalesce(v.toleft, 0) != 0
                 THEN json_object('old', v.toleft, 'new', d.toleft)
-        END::JSON},
-        {'k': 'toright', 'v': CASE
+        END::JSON },
+        { 'k': 'toright', 'v': CASE
             WHEN coalesce(v.toright, 0) != 0
                 THEN json_object('old', v.toright, 'new', d.toright)
-        END::JSON}
+        END::JSON }
     ], e -> e.v IS NOT NULL))) AS changes,
     'lion_house_numbers' AS output_file_id,
     -- Bug 018: prod's gp.CalculateField house-number zeroing step for Generic

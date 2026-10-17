@@ -42,8 +42,10 @@ SELECT
         -- See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
         WHEN
             status = 'modified'
-            AND list_has_all(ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
-            ], json_keys(changes))
+            AND list_has_all(
+                ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
+                ], json_keys(changes)
+            )
             THEN 'Bug 003: SAF GNX side-AP point mismatch'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND len(change_keys) = 1
@@ -59,8 +61,10 @@ SELECT
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
         -- See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
         status = 'modified'
-        AND list_has_all(ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
-        ], json_keys(changes)),
+        AND list_has_all(
+            ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
+            ], json_keys(changes)
+        ),
         FALSE
     ) AS accounted_for
 FROM categorized

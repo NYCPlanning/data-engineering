@@ -287,29 +287,16 @@ FROM (
 
 {% macro prod_fgdb_linear(identifier, geom_column='shape') %}
 {#-
-  Subquery over production_outputs.<identifier> (Postgres, attached as "db-cscl") with the
-  geometry column linearized on the Postgres side. Prod's FGDB load can hold curved
-  geometry, which DuckDB's postgres scanner can't read ("Unsupported geometry type in
-  WKB"), so the column list is looked up and the geometry fetched as WKB through
-  postgres_query + ST_CurveToLine. The tolerance matches the old linearize() (0.00025).
+  production_outputs.<identifier>, loaded from the production_outputs parquet bundle
+  (poc_validation/build_prod_snapshot.py). Its geometry is already linear: prod's curves
+  were linearized by dcpy.geospatial.curves when the bundle was built, exactly as the
+  build's own sources are. Prod geometry isn't always valid (e.g. 3 of fgdb_nyhez's 8
+  features are invalid even when PostGIS linearizes them, 6 when we do, where rings nearly
+  touch), and the overlay metrics need valid input: st_makevalid repairs it here, at
+  comparison time. The snapshot itself keeps prod as it is.
 -#}
-    {%- if execute -%}
-        {%- set cols = run_query(
-            "SELECT column_name FROM information_schema.columns WHERE table_catalog = 'db-cscl'"
-            ~ " AND table_schema = 'production_outputs' AND table_name = '" ~ identifier ~ "'"
-            ~ " ORDER BY ordinal_position"
-        ).columns[0].values() -%}
-        {%- set sel = [] -%}
-        {%- for c in cols -%}
-            {%- if c | lower == geom_column | lower -%}
-                {%- do sel.append("ST_AsBinary(ST_CurveToLine(\"" ~ c ~ "\", 0.00025, 1)) AS \"" ~ c ~ "\"") -%}
-            {%- else -%}
-                {%- do sel.append("\"" ~ c ~ "\"") -%}
-            {%- endif -%}
-        {%- endfor -%}
 (
-    SELECT * REPLACE (st_geomfromwkb("{{ geom_column }}") AS "{{ geom_column }}")
-    FROM postgres_query('db-cscl', 'SELECT {{ sel | join(", ") | replace("'", "''") }} FROM production_outputs.{{ identifier }}')
+    SELECT * REPLACE (st_makevalid("{{ geom_column }}") AS "{{ geom_column }}")
+    FROM {{ adapter.get_relation(database=target.database, schema="production_outputs", identifier=identifier) }}
 )
-    {%- endif -%}
 {% endmacro %}

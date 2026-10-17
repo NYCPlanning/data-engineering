@@ -7,8 +7,8 @@ SELECT
     segmentid AS record_id,
     FORMAT(
         'Protosegment with globalid "{}" and segmentid "{}" has no corresponding geometry-modeled segment.',
-        coalesce(globalid::VARCHAR, ''),
-        coalesce(segmentid::INT::VARCHAR, '')
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(segmentid::INT::VARCHAR, '')
     ) AS message
 FROM {{ ref('int__protosegments') }}
 WHERE geom IS NULL

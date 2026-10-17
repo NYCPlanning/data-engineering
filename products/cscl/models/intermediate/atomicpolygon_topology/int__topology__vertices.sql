@@ -61,13 +61,14 @@ control_points AS (
         FALSE AS is_arc_mid,
         d.geom
     FROM dumped AS d
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM arcs AS x
-        WHERE
-            x.ogc_fid = d.ogc_fid AND x.part = d.part AND x.ring = d.ring
-            AND d.vertex_idx > x.v0 AND d.vertex_idx < x.v1
-    )
+    WHERE
+        NOT EXISTS (
+            SELECT 1
+            FROM arcs AS x
+            WHERE
+                x.ogc_fid = d.ogc_fid AND x.part = d.part AND x.ring = d.ring
+                AND d.vertex_idx > x.v0 AND d.vertex_idx < x.v1
+        )
     UNION ALL
     SELECT
         a.atomicid,

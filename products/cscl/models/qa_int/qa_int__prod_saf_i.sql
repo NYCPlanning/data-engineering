@@ -13,7 +13,7 @@
 -- SAF I uses nodeid as the key (not boroughcode/face_code/segment_seqnum)
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "saf_i"
 ) -%}

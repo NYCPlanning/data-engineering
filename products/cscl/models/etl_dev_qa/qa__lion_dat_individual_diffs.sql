@@ -18,7 +18,7 @@ matches_as_jsonb AS (
             WHEN dev.boroughcode IS NULL THEN '{"missing in dev": {}}'::JSON
             WHEN prod.boroughcode IS NULL THEN '{"missing in prod": {}}'::JSON
             ELSE
-                json_object(
+                JSON_OBJECT(
                     {%- for col in 
                         adapter.get_columns_in_relation(
                             source('production_outputs', 'citywide_lion_dat')
@@ -56,7 +56,7 @@ keyed AS (
         sequence_number,
         segmentid,
         columns_with_diffs,
-        unnest(json_keys(columns_with_diffs)) AS field
+        UNNEST(JSON_KEYS(columns_with_diffs)) AS field
     FROM matches_as_jsonb
 ),
 recast AS (
@@ -67,7 +67,7 @@ recast AS (
         sequence_number,
         segmentid,
         field,
-        json_extract(columns_with_diffs, '$."' || field || '"') AS jsonb_values
+        JSON_EXTRACT(columns_with_diffs, '$."' || field || '"') AS jsonb_values
     FROM keyed
 )
 SELECT

@@ -36,10 +36,10 @@ SELECT
     FORMAT(
         'The {} feature with an OID = {} has a SEGLOCSTATUS value that is different than '
         || 'what was found using the LION ETL rules.  Feature = ''{}'', ETL Rules = ''{}''.',
-        coalesce(source_table::VARCHAR, ''),
-        coalesce(globalid::VARCHAR, ''),
-        coalesce(source_segment_locational_status::VARCHAR, ''),
-        coalesce(segment_locational_status::VARCHAR, '')
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(source_segment_locational_status::VARCHAR, ''),
+        COALESCE(segment_locational_status::VARCHAR, '')
     ) AS message
 FROM joined
 WHERE segment_locational_status IS DISTINCT FROM source_segment_locational_status

@@ -39,10 +39,10 @@ SELECT
     FORMAT(
         'The borough for the {} feature with an OID = "{}" (Borough = {}) does not '
         || 'match the borough currently being extracted (Borough = {}).',
-        coalesce(source_table::VARCHAR, ''),
-        coalesce(globalid::VARCHAR, ''),
-        coalesce(source_boroughcode::VARCHAR, ''),
-        coalesce(lion_joined.boroughcode::VARCHAR, '')
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(source_boroughcode::VARCHAR, ''),
+        COALESCE(lion_joined.boroughcode::VARCHAR, '')
     ) AS message
 FROM lion_joined
 INNER JOIN centerline ON lion_joined.segmentid = centerline.segmentid

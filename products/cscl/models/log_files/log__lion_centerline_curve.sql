@@ -8,10 +8,10 @@ SELECT
     FORMAT(
         'An invalid center of curvature was calculated for the {} feature with an OID = {}. '
         || 'Calculated X = {}, Calculated Y = {}.',
-        coalesce(source_table::VARCHAR, ''),
-        coalesce(globalid::VARCHAR, ''),
-        coalesce(center_of_curvature_x::VARCHAR, ''),
-        coalesce(center_of_curvature_y::VARCHAR, '')
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(center_of_curvature_x::VARCHAR, ''),
+        COALESCE(center_of_curvature_y::VARCHAR, '')
     ) AS message
 FROM {{ ref('int__lion') }}
 WHERE

@@ -29,7 +29,7 @@
 -- tolerance; a layer with much larger or smaller areas may need a different value.
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "fgdb_nycb2010"
 ) -%}

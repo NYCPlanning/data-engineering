@@ -52,7 +52,7 @@ categorized AS (
             ELSE 'lion_dat_unknown'
         END AS output_file_id,
         -- Get the keys from the changes jsonb
-        json_keys(changes) AS change_keys,
+        JSON_KEYS(changes) AS change_keys,
         comparison_column,
         build_table_name,
         production_table_name,
@@ -61,10 +61,10 @@ categorized AS (
         -- and zip changes are left out on purpose: those rows need a look.
         (
             tlr.segmentid IS NOT NULL
-            AND coalesce(list_bool_and(list_transform(
-                json_keys(changes),
+            AND COALESCE(LIST_BOOL_AND(LIST_TRANSFORM(
+                JSON_KEYS(changes),
                 key -> (
-                    regexp_matches(key, '^(left|right)_')
+                    REGEXP_MATCHES(key, '^(left|right)_')
                     OR key IN ('segment_locational_status', 'segment_seqnum')
                     OR (key = 'boe_lgc_pointer' AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1')
                 )
@@ -94,7 +94,7 @@ SELECT
         -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
         WHEN
             status = 'modified'
-            AND list_has_all(change_keys, ARRAY['l_zip', 'r_zip'])
+            AND LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
             AND (changes -> 'l_zip' ->> 'new') = '10035'
             AND TRIM(changes ->> '$.l_zip.old') = ''
             AND (changes -> 'r_zip' ->> 'new') = '10035'
@@ -107,7 +107,7 @@ SELECT
         -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
         WHEN
             status = 'modified'
-            AND list_contains(ARRAY[
+            AND LIST_CONTAINS(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
             ], RIGHT(_lion_key, 7))
             THEN 'Bug 005: doubly-reversed protosegments'
@@ -118,7 +118,7 @@ SELECT
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         WHEN
             status = 'modified'
-            AND list_contains(ARRAY[
+            AND LIST_CONTAINS(ARRAY[
                 '101650330641', '116000297614', '125250032941', '130400327255',
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'
@@ -198,7 +198,7 @@ SELECT
             -- segmentid, since segmentids can be renumbered/reused across LION editions.
             -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
             OR (
-                list_has_all(change_keys, ARRAY['l_zip', 'r_zip'])
+                LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
                 AND (changes -> 'l_zip' ->> 'new') = '10035'
                 AND TRIM(changes ->> '$.l_zip.old') = ''
                 AND (changes -> 'r_zip' ->> 'new') = '10035'
@@ -206,12 +206,12 @@ SELECT
             )
             -- Bug 005: doubly-reversed protosegments not reversed in production.
             -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
-            OR list_contains(ARRAY[
+            OR LIST_CONTAINS(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
             ], RIGHT(_lion_key, 7))
             -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
             -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
-            OR list_contains(ARRAY[
+            OR LIST_CONTAINS(ARRAY[
                 '101650330641', '116000297614', '125250032941', '130400327255',
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'

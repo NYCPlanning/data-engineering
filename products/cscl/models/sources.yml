@@ -107,7 +107,7 @@ sources:
 
 # TODO - remove when pipeline is fully operationalized
 - name: production_outputs
-  database: db-cscl  # the Postgres database (attached under this name on --target duckdb_qa)
+  # loaded from the production_outputs parquet bundle (recipe input dcp_cscl_production_outputs)
   schema: production_outputs
   tables:
   - name: citywide_lion_dat

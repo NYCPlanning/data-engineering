@@ -49,7 +49,7 @@ segments AS (
         s.geom,
         st_npoints(s.geom) AS n_points,
         -- Postgres `s.geom @ e.geom`: bounding box contained by the extent's
-        NOT (
+        not(
             st_xmin(s.geom) >= st_xmin(e.geom) AND st_xmax(s.geom) <= st_xmax(e.geom)
             AND st_ymin(s.geom) >= st_ymin(e.geom) AND st_ymax(s.geom) <= st_ymax(e.geom)
         ) AS is_bad_geom

@@ -35,7 +35,7 @@ WITH vertex_nodes AS (
         lead(st_y(v.geom)) OVER w AS next_y
     FROM {{ ref('int__topology__vertices') }} AS v
     LEFT JOIN {{ ref('int__topology__exact_points') }} AS ec
-        -- arc mids never match: NULL key (a left-only predicate in the ON clause makes
+    -- arc mids never match: NULL key (a left-only predicate in the ON clause makes
         -- DuckDB fall back to a nested-loop join)
         ON (CASE WHEN v.is_arc_mid THEN NULL ELSE v.geom END) = ec.geom
     LEFT JOIN {{ ref('int__topology__point_to_node') }} AS ptn ON ec.point_id = ptn.exact_point_id

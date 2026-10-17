@@ -8,8 +8,8 @@ SELECT
     FORMAT(
         'LineType appears to be set incorrectly for NonStreetFeature with an OID = ''{}''. '
         || 'The line type value is ''{}''.',
-        coalesce(globalid::VARCHAR, ''),
-        coalesce(linetype::VARCHAR, '')
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(linetype::VARCHAR, '')
     ) AS message
 FROM {{ ref('stg__nonstreetfeatures') }}
 WHERE linetype NOT BETWEEN 1 AND 6

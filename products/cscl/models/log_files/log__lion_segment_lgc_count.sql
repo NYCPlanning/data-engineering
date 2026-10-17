@@ -23,10 +23,10 @@ SELECT
         '[LGC DATA ERROR] More than 9 LGC values were found for the "{}" '
         || 'feature with an OID = "{}" and segment id "{}". '
         || '"{}" values were found for the record.',
-        coalesce(source_table::VARCHAR, ''),
-        coalesce(globalid::VARCHAR, ''),
-        coalesce(max_lgc.segmentid::INT::VARCHAR, ''),
-        coalesce(lgc_count::VARCHAR, '')
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(max_lgc.segmentid::INT::VARCHAR, ''),
+        COALESCE(lgc_count::VARCHAR, '')
     ) AS message
 FROM max_lgc
 INNER JOIN segments ON max_lgc.segmentid = segments.segmentid

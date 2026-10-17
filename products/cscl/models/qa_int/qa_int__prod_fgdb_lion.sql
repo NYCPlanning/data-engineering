@@ -29,7 +29,7 @@
 -- correctly rather than masked by whitespace.
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "fgdb_lion"
 ) -%}

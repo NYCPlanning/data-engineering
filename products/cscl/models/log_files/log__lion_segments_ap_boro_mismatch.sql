@@ -16,13 +16,13 @@ SELECT
         || 'the {} feature with an OID = {}. Segment has boro ''{}'', '
         || 'left atomic polygon with atomicid ''{}'' has boro ''{}'', '
         || 'and right atomic polygon with atomicid ''{}'' has boro ''{}''.',
-        coalesce(segments.source_table::VARCHAR, ''),
-        coalesce(segments.globalid::VARCHAR, ''),
-        coalesce(aps.segment_borocode::VARCHAR, ''),
-        coalesce(aps.left_atomicid::VARCHAR, ''),
-        coalesce(aps.left_borocode::VARCHAR, ''),
-        coalesce(aps.right_atomicid::VARCHAR, ''),
-        coalesce(aps.right_borocode::VARCHAR, '')
+        COALESCE(segments.source_table::VARCHAR, ''),
+        COALESCE(segments.globalid::VARCHAR, ''),
+        COALESCE(aps.segment_borocode::VARCHAR, ''),
+        COALESCE(aps.left_atomicid::VARCHAR, ''),
+        COALESCE(aps.left_borocode::VARCHAR, ''),
+        COALESCE(aps.right_atomicid::VARCHAR, ''),
+        COALESCE(aps.right_borocode::VARCHAR, '')
     ) AS message
 FROM aps
 INNER JOIN segments ON aps.globalid = segments.globalid
