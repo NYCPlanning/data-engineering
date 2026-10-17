@@ -40,7 +40,7 @@ models:
         node_color: "#3e5c76"
 
 on-run-start:
-- '{{ create_pg_functions() }}'
+- "{{ create_pg_functions() if target.type == 'postgres' else create_duckdb_functions() }}"
 
 vars:
   # qa__context_geoms: buffer applied to the SUBTRACTED side before computing

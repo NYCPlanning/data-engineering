@@ -10,3 +10,11 @@ dcp-de-postgres:
       dbname: "{{ env_var('BUILD_ENGINE_DB') }}"
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
       threads: 4
+    # the DuckDB build (cut-over in progress): dbt --target duckdb
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '') }}"
+      schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
+      threads: 4
+      extensions:
+      - spatial

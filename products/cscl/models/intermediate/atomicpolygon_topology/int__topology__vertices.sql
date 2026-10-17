@@ -16,18 +16,27 @@
 -- topology nodes: an arc's mid can sit anywhere on the arc, so two AtomicPolygons tracing
 -- the same arc often disagree on it.
 
-WITH dumped AS (
+WITH dumped_raw AS (
+    -- select-list unnest: a lateral unnest would copy the (large) polygon per vertex
     SELECT
         a.ogc_fid,
         a.atomicid,
         a.water_flag,
-        d.path[1] AS part,
-        d.path[2] AS ring,
-        d.path[3] - 1 AS vertex_idx,
-        d.geom
+        unnest(dump_points(a.raw_geom)) AS d
     FROM {{ ref('int__topology__ap_entities') }} AS s
     INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON s.atomicid = a.atomicid
-    CROSS JOIN LATERAL st_dumppoints(a.raw_geom) AS d
+),
+
+dumped AS (
+    SELECT
+        ogc_fid,
+        atomicid,
+        water_flag,
+        d.part,
+        d.ring,
+        d.point - 1 AS vertex_idx,
+        d.geom
+    FROM dumped_raw
 ),
 
 arcs AS (
@@ -67,7 +76,7 @@ control_points AS (
         x.ring,
         x.v0 + 0.5 AS ord,
         TRUE AS is_arc_mid,
-        st_setsrid(st_makepoint(x.x1, x.y1), st_srid(a.raw_geom)) AS geom
+        st_point(x.x1, x.y1) AS geom
     FROM arcs AS x
     INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON x.ogc_fid = a.ogc_fid
     INNER JOIN {{ ref('int__topology__ap_entities') }} AS s ON a.atomicid = s.atomicid
