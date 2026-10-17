@@ -246,15 +246,17 @@ def _export_dat_source(
 
     custom: layout (the column layout CSV, relative to the product directory),
     layout_source (the unformatted model; default: the entry's name), where / order_by
-    (optional SQL for the rows and their order in the file).
+    (optional SQL for the rows and their order in the file; the order defaults to every
+    column in turn, so the file is deterministic).
     """
     custom = output.custom or {}
     source = custom.get("layout_source", output.name)
     query = f"SELECT * FROM {duckdb_client.schema}.{source}"
     if custom.get("where"):
         query += f" WHERE {custom['where']}"
-    if custom.get("order_by"):
-        query += f" ORDER BY {custom['order_by']}"
+    # Row order in the file: order_by if given, else every column in order, so the file
+    # is the same on every build (an unordered query's order isn't)
+    query += f" ORDER BY {custom.get('order_by') or 'ALL'}"
     target = Path(filename)
     parquet = output_folder / LAYERS_DIR / target.parent / f"{target.stem}.parquet"
     parquet.parent.mkdir(parents=True, exist_ok=True)
