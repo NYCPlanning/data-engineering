@@ -1,3 +1,4 @@
+import json
 import shutil
 import subprocess
 import tempfile
@@ -7,6 +8,7 @@ from typing import Literal
 
 import typer
 
+from dcpy.geospatial.gdb.write import ParquetLayer, write_gdb_from_parquet
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.models import (
@@ -180,6 +182,67 @@ def _read_filtered_gdf(
     return datastores.filter_geometry_type(gdf, geometry_type, table_name)
 
 
+LAYERS_DIR = "layers"
+LAYER_MANIFEST = "manifest.json"
+
+
+def _write_parquet_layers(
+    filename: str,
+    layers: list[tuple[str, "object"]],
+    allow_empty: set[str],
+    layer_options: dict[str, dict[str, str]],
+    output_folder: Path,
+    crs: str | None,
+) -> dict:
+    """Write each layer of one layered export to <output>/layers/<filename>/<layer>.parquet
+    and return its manifest entry. Same rules as datastores._write_layers: one geometry
+    type per layer, and an empty layer is an error unless allowed."""
+    import geopandas as gpd
+
+    folder = output_folder / LAYERS_DIR / filename
+    folder.mkdir(parents=True, exist_ok=True)
+    entries = []
+    for layer_name, frame in layers:
+        geometry_type = None
+        if frame.empty and layer_name not in allow_empty:  # type: ignore[attr-defined]
+            raise ValueError(f"No rows to export for layer '{layer_name}'")
+        if isinstance(frame, gpd.GeoDataFrame):
+            if frame.empty:
+                geometry_type = "MultiPolygon"  # nothing to infer from
+            else:
+                frame = datastores._normalize_to_single_geom_type(frame, layer_name)
+            if frame.crs is None and crs:
+                frame = frame.set_crs(crs)
+        path = folder / f"{layer_name}.parquet"
+        frame.to_parquet(path)  # type: ignore[attr-defined]
+        entries.append(
+            {
+                "name": layer_name,
+                "path": str(path.relative_to(output_folder)),
+                "geometry_type": geometry_type,
+                "layer_options": layer_options.get(layer_name, {}),
+            }
+        )
+    return {"filename": filename, "format": "gdb", "layers": entries}
+
+
+def _zip_outputs(output_folder: Path, zip_name: str) -> None:
+    # Resolve to absolute first: the zip subprocess below runs with cwd=output_folder,
+    # so a relative zip_path (output_folder is often just "output", per recipe.yml)
+    # would get re-resolved against that cwd by the zip command itself, landing at
+    # output_folder/output_folder/zip_name.zip instead of output_folder/zip_name.zip.
+    zip_path = (output_folder / f"{zip_name}.zip").resolve()
+    # Zip from within output_folder so entries are relative (e.g. "dataset_files/..."),
+    # not an absolute path chain -- and exclude the duckdb file itself, which can live
+    # alongside these artifacts (see build_config.get_duckdb_path) but isn't a
+    # deliverable, and the intermediate parquet layers.
+    subprocess.call(
+        ["zip", "-r", str(zip_path), ".", "-x", "*.duckdb", f"{LAYERS_DIR}/*"],
+        cwd=output_folder,
+    )
+    logger.info(f"Zipped export folder to {zip_path}")
+
+
 def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
     if not recipe.version:
         raise ValueError("Recipe version must be set for export")
@@ -313,10 +376,13 @@ def export(
             )
 
     geo_client = duckdb_client if duckdb_client is not None else pg_client
+    from_parquet = recipe.exports.package_from_parquet
+    manifest = []
     for (format, filename), entries in layered_groups.items():
         assert geo_client is not None
         layers = []
         allow_empty: set[str] = set()
+        layer_options: dict[str, dict[str, str]] = {}
         for output in entries:
             custom = output.custom or {}
             layer_name = output.layer_name
@@ -339,7 +405,20 @@ def export(
             layers.append((layer_name, gdf))
             if custom.get("allow_empty"):
                 allow_empty.add(layer_name)
-        if format == ExportFormat.geopackage:
+            if custom.get("layer_options"):
+                layer_options[layer_name] = custom["layer_options"]
+        if from_parquet and format == ExportFormat.gdb:
+            manifest.append(
+                _write_parquet_layers(
+                    filename,
+                    layers,
+                    allow_empty,
+                    layer_options,
+                    output_folder,
+                    recipe.exports.crs,
+                )
+            )
+        elif format == ExportFormat.geopackage:
             datastores.write_gpkg(layers, dataset_files_folder / filename, allow_empty)
         else:
             with tempfile.TemporaryDirectory() as tmp_str:
@@ -347,21 +426,49 @@ def export(
                     layers, dataset_files_folder / filename, Path(tmp_str), allow_empty
                 )
 
-    if recipe.exports.zip_name:
-        # Resolve to absolute first: the zip subprocess below runs with cwd=output_folder,
-        # so a relative zip_path (output_folder is often just "output", per recipe.yml)
-        # would get re-resolved against that cwd by the zip command itself, landing at
-        # output_folder/output_folder/zip_name.zip instead of output_folder/zip_name.zip.
-        zip_path = (output_folder / f"{recipe.exports.zip_name}.zip").resolve()
-        # Zip from within output_folder so entries are relative (e.g. "dataset_files/..."),
-        # not an absolute path chain -- and exclude the duckdb file itself, which can live
-        # alongside these artifacts (see build_config.get_duckdb_path) but isn't a deliverable.
-        subprocess.call(
-            ["zip", "-r", str(zip_path), ".", "-x", "*.duckdb"],
-            cwd=output_folder,
+    if from_parquet:
+        manifest_dir = output_folder / LAYERS_DIR
+        manifest_dir.mkdir(parents=True, exist_ok=True)
+        (manifest_dir / LAYER_MANIFEST).write_text(json.dumps(manifest, indent=2))
+        logger.info(
+            f"Wrote {sum(len(m['layers']) for m in manifest)} parquet layers; "
+            "`builds export package` folds them into their FGDBs (and zips the outputs)"
         )
-        logger.info(f"Zipped export folder to {zip_path}")
+    elif recipe.exports.zip_name:
+        _zip_outputs(output_folder, recipe.exports.zip_name)
 
+    return output_folder
+
+
+def package(recipe_lock_path: Path) -> Path:
+    """Fold the parquet layers from a `package_from_parquet` export into their FGDBs
+    (in dataset_files), then zip the outputs if the recipe names a zip."""
+    recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
+    assert recipe.exports, "No exports defined in recipe"
+    if recipe.exports.output_folder:
+        output_folder = recipe.exports.output_folder
+    else:
+        assert recipe.version, "Recipe version must be set for packaging"
+        output_folder = build_config.get_build_output_dir(
+            recipe.product, recipe.version
+        )
+    manifest = json.loads((output_folder / LAYERS_DIR / LAYER_MANIFEST).read_text())
+    for entry in manifest:
+        layers = [
+            ParquetLayer(
+                name=layer["name"],
+                path=output_folder / layer["path"],
+                geometry_type=layer["geometry_type"],
+                layer_options=layer["layer_options"],
+            )
+            for layer in entry["layers"]
+        ]
+        out = write_gdb_from_parquet(
+            layers, output_folder / "dataset_files" / entry["filename"]
+        )
+        logger.info(f"Packaged {len(layers)} layers into {out}")
+    if recipe.exports.zip_name:
+        _zip_outputs(output_folder, recipe.exports.zip_name)
     return output_folder
 
 
@@ -383,3 +490,19 @@ def _export(
     output_path = export(recipe_lock_path)
     if output_path:
         typer.echo(f"Export completed: {output_path}")
+
+
+@app.command("package")
+def _package(
+    recipe_lock_path: Path = typer.Option(
+        None,
+        "--recipe-path",
+        "-r",
+        help="Path of recipe lock file to use",
+    ),
+):
+    """Fold a parquet-first export's layers into its FGDBs."""
+    recipe_lock_path = recipe_lock_path or (
+        Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
+    )
+    typer.echo(f"Packaged: {package(recipe_lock_path)}")

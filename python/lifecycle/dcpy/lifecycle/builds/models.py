@@ -118,6 +118,12 @@ class BuildExports(BaseModel, extra="forbid"):
     output_folder: Path | None = None
     zip_name: str | None = None
     datasets: list[ExportDataset] = []
+    # Parquet-first: gdb entries are exported as one (Geo)Parquet file per layer (plus a
+    # manifest) instead of written straight to the FGDB; `builds export package` then
+    # folds them into the FGDBs the entries name.
+    package_from_parquet: bool = False
+    # CRS stamped on exported GeoParquet whose geometry carries none (e.g. "EPSG:2263")
+    crs: str | None = None
 
     @model_validator(mode="after")
     def _check_filename_collisions(self) -> Self:

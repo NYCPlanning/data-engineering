@@ -54,7 +54,14 @@ def write_parquet_layer(
     """Write one parquet file as a layer of ``gdb`` (created unless ``append``)."""
     parquet = pq.ParquetFile(str(layer.path))
     geo = _geo_metadata(parquet)
-    schema = pa.schema(f.remove_metadata() for f in parquet.schema_arrow)
+    # An all-null column has Arrow's null type, which GDAL can't make a field from;
+    # write it as a string field (what the old GeoDataFrame writer did).
+    schema = pa.schema(
+        pa.field(f.name, pa.string())
+        if pa.types.is_null(f.type)
+        else f.remove_metadata()
+        for f in parquet.schema_arrow
+    )
     kwargs: dict = {}
     if geo is not None:
         geom_col = geo["primary_column"]

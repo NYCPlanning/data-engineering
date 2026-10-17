@@ -9,6 +9,24 @@ duckdb_filename: cscl.duckdb
 
 base_recipe: recipe.yml
 
+# exports: the base recipe's list of datasets, packaged parquet-first. Each gdb entry is
+# exported as one GeoParquet per layer; `builds export package` folds them into the FGDBs.
+exports:
+  package_from_parquet: true
+  crs: EPSG:2263
+
+stage_config:
+  builds.build:
+    commands:
+      - name: dbt_deps
+        run: dbt deps
+      - name: dbt_seed
+        run: dbt seed --target duckdb
+      - name: dbt_run
+        run: dbt run --target duckdb --selector duckdb_build
+      - name: dbt_test
+        run: dbt test --target duckdb --selector duckdb_build
+
 inputs:
   dataset_defaults:
     destination: duckdb

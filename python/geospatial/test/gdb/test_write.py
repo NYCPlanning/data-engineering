@@ -15,7 +15,10 @@ def test_write_gdb_from_parquet(tmp_path: Path):
     gpd.GeoDataFrame({"code": ["a"]}, geometry=[square], crs="EPSG:2263").to_parquet(
         tmp_path / "districts.parquet"
     )
-    pd.DataFrame({"name": ["x", "y"]}).to_parquet(tmp_path / "names.parquet")
+    # "blank" is all-null, i.e. Arrow's null type in parquet
+    pd.DataFrame({"name": ["x", "y"], "blank": [None, None]}).to_parquet(
+        tmp_path / "names.parquet"
+    )
 
     out = write_gdb_from_parquet(
         [
