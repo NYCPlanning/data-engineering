@@ -23,7 +23,7 @@ mkdir -p output
         run_sql_command "ALTER TABLE review_project DROP COLUMN geom;" &
         run_sql_command "ALTER TABLE review_dob DROP COLUMN geometry;" &
         run_sql_command "ALTER TABLE combined DROP COLUMN geom;"
-        wait 
+        wait_for_jobs
         
         csv_export combined &
         csv_export review_project &
@@ -36,7 +36,7 @@ mkdir -p output
         csv_export zap_record_ids &
         csv_export review_zap_projects &
         csv_export corrections_main
-        wait
+        wait_for_jobs
     )
     echo "Compress review folder"
     zip -r review.zip review/
@@ -48,7 +48,7 @@ mkdir -p output
         csv_export longform_csd_output &
         csv_export longform_es_zone_output &
         csv_export longform_subdist_output_cp_assumptions
-        wait
+        wait_for_jobs
     )
     echo "Compress SCA aggregation folder"
     zip -r sca_aggregation.zip sca_aggregation/
@@ -78,7 +78,7 @@ mkdir -p output
         csv_export cpp_housing_growth_cd &
         csv_export cpp_housing_growth_boro &
         csv_export cpp_housing_growth_layers
-        wait
+        wait_for_jobs
     )
 
     echo "Export summary tables"

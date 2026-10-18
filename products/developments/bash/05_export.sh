@@ -35,7 +35,7 @@ mkdir -p output
     csv_export qaqc_field_distribution &
     csv_export qaqc_quarter_check &
 
-    wait
+    wait_for_jobs
     
     display "Export Corrections"
     csv_export hny_corrections &
@@ -47,7 +47,7 @@ mkdir -p output
     display "Export A2 units for review by housing"
     csv_export EXPORT_A2_devdb &
 
-    wait
+    wait_for_jobs
 
     display "Export unit change summary tables"
     columns_to_drop="'Shape_Area', 'Shape_Leng', 'wkb_geometry'"
@@ -66,7 +66,7 @@ mkdir -p output
         shp_export aggregate_councildst MULTIPOLYGON -f HousingDB_by_2024_CityCouncilDistrict -t_srs "EPSG:2263" &
         shp_export aggregate_commntydst MULTIPOLYGON -f HousingDB_by_CommunityDistrict -t_srs "EPSG:2263" &
         shp_export aggregate_cdta MULTIPOLYGON -f HousingDB_by_2020_CDTA -t_srs "EPSG:2263" &
-        wait
+        wait_for_jobs
     )
 
     display "Export project-level files"
@@ -78,7 +78,7 @@ mkdir -p output
             csv_export_drop_columns ${table}_internal "'geom'" $table &
             shp_export ${table}_internal POINT -f $table -t_srs "EPSG:2263" &
         done
-        wait
+        wait_for_jobs
     )
 
     mkdir -p project_level_external
@@ -89,7 +89,7 @@ mkdir -p output
             csv_export_drop_columns ${table}_external "'geom'" $table &
             shp_export ${table}_external POINT -f $table -t_srs "EPSG:2263" &
         done
-        wait
+        wait_for_jobs
     )
 
     display "Export source data versions and build metadata"
