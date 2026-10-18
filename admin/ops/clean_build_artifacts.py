@@ -24,10 +24,7 @@ def get_active_build_names(as_schema=False) -> list[str]:
     branches = github.get_branches(repo=BUILD_REPO)  # all remote branches
     branch_build_names = sorted(
         PROTECTED_BUILD_NAMES
-        + [
-            metadata.build_name(name=branch) if as_schema else branch
-            for branch in branches
-        ]
+        + [metadata.schema_name(branch) if as_schema else branch for branch in branches]
     )
     return branch_build_names
 
@@ -35,7 +32,7 @@ def get_active_build_names(as_schema=False) -> list[str]:
 def delete_stale_schemas(active_build_names: list[str]):
     logger.info(f"Potential active build schemas: {active_build_names}")
     active_build_test_names = [
-        metadata.build_tests_name(build_name=schema) for schema in active_build_names
+        metadata.tests_schema_name(schema) for schema in active_build_names
     ]
     logger.info(f"Potential active build test schemas: {active_build_test_names}")
     active_schemas = active_build_names + active_build_test_names
