@@ -21,7 +21,7 @@ mkdir -p output
         shp_export review_dob MULTIPOLYGON
 
         run_sql_command "ALTER TABLE review_project DROP COLUMN geom;" &
-        run_sql_command "ALTER TABLE review_dob DROP COLUMN geom;" &
+        run_sql_command "ALTER TABLE review_dob DROP COLUMN geometry;" &
         run_sql_command "ALTER TABLE combined DROP COLUMN geom;"
         wait 
         
