@@ -10,19 +10,27 @@ from dcpy.utils import git
 from dcpy.utils.logging import logger
 
 
-def build_name(name: str | None = None) -> str:
-    if os.environ.get("BUILD_ENGINE_SCHEMA"):
-        return os.environ["BUILD_ENGINE_SCHEMA"]
-
-    name = git.branch() if not name else name
+def schema_name(name: str) -> str:
     # DB schema names can't use dashes
     return name.lower().replace("-", "_")
+
+
+def tests_schema_name(build_schema: str) -> str:
+    return build_schema + "__tests"
+
+
+def build_name(name: str | None = None) -> str:
+    """The current build's schema. BUILD_ENGINE_SCHEMA wins over `name`, so use
+    `schema_name` for another build's schema."""
+    if os.environ.get("BUILD_ENGINE_SCHEMA"):
+        return os.environ["BUILD_ENGINE_SCHEMA"]
+    return schema_name(name or git.branch())
 
 
 def build_tests_name(build_name: str) -> str:
     if os.environ.get("BUILD_ENGINE_SCHEMA_TESTS"):
         return os.environ["BUILD_ENGINE_SCHEMA_TESTS"]
-    return build_name + "__tests"
+    return tests_schema_name(build_name)
 
 
 def write_build_metadata(
