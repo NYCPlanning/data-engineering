@@ -24,6 +24,35 @@
     ('New Construction ', 'Co-location' vs 'Co-Location'). Each is collapsed to its most
     common spelling so map widgets don't split one category into several bars. #}
 {%- set category_columns = ['redev_strategy', 'redev_priority'] %}
+{%- set priority = 'redev_priority_spellings.canonical' %}
+{#- Label for a LIFT-only category with no value. #}
+{%- set not_set = "CASE WHEN lift.zzz_lift_data_zzz IS NOT NULL THEN 'Not set' ELSE 'Not a LIFT site' END" %}
+{%- set horizon %}
+CASE REGEXP_EXTRACT(LOWER({{ priority }}), '^(near|medium|long)-term', 1)
+            WHEN 'near' THEN 'Near-Term'
+            WHEN 'medium' THEN 'Medium-Term'
+            WHEN 'long' THEN 'Long-Term'
+        END
+{%- endset %}
+{#- Each column the map shows gets a <column>_label twin: text, never null, and saying why a
+    value is missing. The map displays the labels, and the raw columns keep their nulls and
+    types for querying. ahft_label counts a lot in a district AHFT doesn't rank (a joint
+    interest area) as Non-AHFT, since it can't be in the bottom 12. #}
+{%- set labels = {
+    'is_lift_site': "CASE WHEN lift.zzz_lift_data_zzz IS NOT NULL THEN 'LIFT site' ELSE 'Not a LIFT site' END",
+    'ahft': "CASE WHEN lift.cd IS NULL THEN 'No community district' WHEN ahft_districts.borocd IS NOT NULL AND lift.ahft = 'Y' THEN 'AHFT district' ELSE 'Non-AHFT district' END",
+    'community_district': "COALESCE(districts.community_district, 'No community district')",
+    'council': "COALESCE(CAST(lift.council AS VARCHAR), 'No council district')",
+    'juris': "COALESCE(lift.juris, 'None listed')",
+    'primary_uses_text': "COALESCE(lift.primary_uses_text, 'None listed')",
+    'redev_strategy': "COALESCE(redev_strategy_spellings.canonical, " ~ not_set ~ ")",
+    'redev_horizon': "COALESCE(" ~ horizon ~ ", " ~ not_set ~ ")",
+    'laa': "CASE WHEN pluto.geom IS NULL THEN 'No lot geometry' WHEN lift.laa = 'Y' THEN 'Yes' ELSE 'No' END",
+    'pfirm15_flag': "CASE WHEN lift.pluto_bbl IS NULL THEN 'No PLUTO match' WHEN lift.pfirm15_flag = 1 THEN 'Yes' ELSE 'No' END",
+    'parcel_name': "COALESCE(lift.parcel_name, '')",
+    'parcel_address': "COALESCE(lift.parcel_address, 'None listed')",
+    'dcas_flags': "COALESCE(dcas_flags, 'No flags')",
+} %}
 {%- set squish = "REGEXP_REPLACE(TRIM({}), '\\s+', ' ', 'g')" %}
 WITH lift AS (
     SELECT * FROM {{ ref('lift_supplemented') }}
@@ -93,6 +122,23 @@ SELECT
     -- zzz_lift_data_zzz holds the Public Sites site name (see README Limitations).
     lift.zzz_lift_data_zzz IS NOT NULL AS is_lift_site,
     lift.zzz_lift_data_zzz AS site_name,
+    -- redev_priority mixes target quarters, time horizons, and statuses (LIFT-02), so each
+    -- kind gets its own column. "TDRs" only repeats the "Landmark TDR opportunity" strategy,
+    -- so it stays in redev_priority alone.
+    CASE WHEN REGEXP_FULL_MATCH({{ priority }}, 'Q[1-4] \d{4}')
+        THEN MAKE_DATE(
+            CAST(RIGHT({{ priority }}, 4) AS INTEGER),
+            CAST(SUBSTRING({{ priority }}, 2, 1) AS INTEGER) * 3 - 2,
+            1
+        )
+    END AS redev_target_quarter,
+    {{ horizon }} AS redev_horizon,
+    CASE
+        WHEN REGEXP_FULL_MATCH({{ priority }}, 'Q[1-4] \d{4}') THEN NULL
+        WHEN REGEXP_MATCHES(LOWER({{ priority }}), '^(near|medium|long)-term') THEN NULL
+        WHEN {{ priority }} = 'TDRs' THEN NULL
+        ELSE {{ priority }}
+    END AS redev_status,
     districts.community_district,
     tracts.cdta2020,
     tracts.cdtaname,
@@ -115,6 +161,9 @@ SELECT
         i -> TRIM(STRING_SPLIT(lift.agencys, ',')[i]) || ': '
             || CASE TRIM(STRING_SPLIT(lift.ownedleased, ',')[i]) WHEN 'O' THEN 'owned' WHEN 'L' THEN 'leased' END
     ), ', ') AS agency_owned_leased,
+    {%- for col, label in labels.items() %}
+    {{ label }} AS {{ col }}_label,
+    {%- endfor %}
     pluto.geom
 FROM lift
 LEFT JOIN pluto ON lift.bbl = pluto.bbl
