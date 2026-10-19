@@ -1,5 +1,4 @@
 id: foodbankny_foodbanks
-acl: public-read
 
 attributes:
   name: Food Bank NYC Locations

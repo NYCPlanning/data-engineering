@@ -1,5 +1,4 @@
 id: dcp_waterfront_access_map_pow
-acl: public-read
 
 attributes:
   name: Waterfront Access Map - Publicly Owned Waterfront

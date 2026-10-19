@@ -1,5 +1,4 @@
 id: dob_bis_cofos
-acl: public-read
 
 attributes:
   name: DOB BIS Certificate Of Occupancy

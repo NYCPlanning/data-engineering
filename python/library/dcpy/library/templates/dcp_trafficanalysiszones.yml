@@ -1,6 +1,6 @@
 dataset:
   name: dcp_trafficanalysiszones
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/dcp_trafficanalysiszones.csv

@@ -1,5 +1,4 @@
 id: dcp_healthcenters
-acl: public-read
 
 attributes:
   name: NYC Health Centers

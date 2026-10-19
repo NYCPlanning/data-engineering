@@ -1,5 +1,4 @@
 id: dcp_publicly_owned_waterfront
-acl: public-read
 
 attributes:
   name: Publicly Owned Waterfront

@@ -1,6 +1,6 @@
 dataset:
   name: dcp_beaches
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/dcp_beaches/nyc_beaches.zip

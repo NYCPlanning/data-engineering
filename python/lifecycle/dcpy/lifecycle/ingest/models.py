@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 import pandas as pd
 from pydantic import AliasChoices, AliasPath, BaseModel, Field, TypeAdapter
@@ -10,6 +10,10 @@ from dcpy.utils.metadata import RunDetails
 from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader
 from dcpy.utils.schema import COLUMN_TYPES
 from dcpy.utils.schema import Column as BaseColumn
+
+# Source data in edm-recipes is private, so templates can't ask for public-read.
+# Archived configs keep recipes.ValidAclValues because older ones say public-read.
+TemplateAcl = Literal["private"]
 
 
 class DatasetAttributes(SortedSerializedBase):
@@ -59,7 +63,7 @@ class DatasetDefinition(TemplatedYamlReader, extra="forbid"):
 
     id: str
     depends_on: list[str] = []
-    acl: recipes.ValidAclValues | None = None
+    acl: TemplateAcl | None = None
 
     attributes: DatasetAttributes
     ingestion: Ingestion
@@ -80,7 +84,7 @@ class DownstreamDatasetDefinition(BaseModel, extra="forbid"):
     """
 
     id: str
-    acl: recipes.ValidAclValues | None = None
+    acl: TemplateAcl | None = None
     attributes: DatasetAttributes
 
     target_crs: str | None = None
@@ -111,7 +115,7 @@ class DataSourceDefinition(TemplatedYamlReader, extra="forbid"):
 
     id: str
     depends_on: list[str] = []
-    acl: recipes.ValidAclValues | None = None
+    acl: TemplateAcl | None = None
     attributes: DatasetAttributes
     source: Source
     dataset_defaults: DatasetDefaults = DatasetDefaults()

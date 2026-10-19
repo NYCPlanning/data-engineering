@@ -1,5 +1,4 @@
 id: dcp_pop_acs2010_housing
-acl: public-read
 
 attributes:
   name: DCP Population 2010 ACS Housing Data

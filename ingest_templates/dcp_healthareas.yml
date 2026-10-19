@@ -1,5 +1,4 @@
 id: dcp_healthareas
-acl: public-read
 
 attributes:
   name: NYC Health Areas

@@ -1,5 +1,4 @@
 id: dcp_transit_zones
-acl: public-read
 
 attributes:
   name: Transit Zones

@@ -1,6 +1,6 @@
 dataset:
   name: usfws_nyc_wetlands 
-  acl: public-read
+  acl: private
   source:
     script: {}
     geometry:

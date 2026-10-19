@@ -1,5 +1,4 @@
 id: dcp_zoningmapamendments
-acl: public-read
 
 attributes:
   name: NYC Zoning Map Amendments

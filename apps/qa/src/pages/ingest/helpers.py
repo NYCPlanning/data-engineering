@@ -28,7 +28,7 @@ def archive_raw_data(
         file_obj,
         BUCKET,
         s3_path,
-        "public-read",
+        "private",
     )
 
 

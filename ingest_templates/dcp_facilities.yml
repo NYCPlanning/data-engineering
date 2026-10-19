@@ -1,5 +1,4 @@
 id: dcp_facilities
-acl: public-read
 
 attributes:
   name: Facilities Database (FacDB)

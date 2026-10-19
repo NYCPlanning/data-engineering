@@ -2,7 +2,6 @@ id: with_dependencies
 depends_on:
   - simple
   - one_to_many
-acl: public-read
 
 attributes:
   name: Dataset with Dependencies

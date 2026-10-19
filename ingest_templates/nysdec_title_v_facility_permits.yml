@@ -1,5 +1,4 @@
 id: nysdec_title_v_facility_permits
-acl: public-read
 
 attributes:
   name: NYSDEC Title V Facility Permits

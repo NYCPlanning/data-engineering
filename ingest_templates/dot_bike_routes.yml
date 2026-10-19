@@ -1,5 +1,4 @@
 id: dot_bike_routes
-acl: public-read
 
 attributes:
   name: New York City Bike Routes

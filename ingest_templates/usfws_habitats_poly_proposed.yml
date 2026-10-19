@@ -1,5 +1,4 @@
 id: usfws_habitats_poly_proposed
-acl: public-read
 
 attributes:
   name: USFWS Critical Habitat (Proposed Polygons)

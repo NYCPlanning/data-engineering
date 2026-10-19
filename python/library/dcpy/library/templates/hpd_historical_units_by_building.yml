@@ -1,6 +1,6 @@
 dataset:
   name: hpd_historical_units_by_building
-  acl: public-read
+  acl: private
   source:
     script:
       path: .library/upload/HPD_FROM_DCP_HOUSING/06_20_2023_Lookback Legislation.xlsx

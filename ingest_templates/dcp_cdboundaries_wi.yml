@@ -1,5 +1,4 @@
 id: dcp_cdboundaries_wi
-acl: public-read
 
 attributes:
   name: NYC Community Districts

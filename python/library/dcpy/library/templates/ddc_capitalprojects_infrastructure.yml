@@ -1,6 +1,6 @@
 dataset:
   name: ddc_capitalprojects_infrastructure
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/ddc_capitalprojects/DDCProjects_{{ version }}.zip

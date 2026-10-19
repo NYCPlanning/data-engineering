@@ -1,5 +1,4 @@
 id: fdny_firehouses
-acl: public-read
 
 attributes:
   name: FDNY Firehouse Listing

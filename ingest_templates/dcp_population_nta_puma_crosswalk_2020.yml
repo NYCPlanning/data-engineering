@@ -1,5 +1,4 @@
 id: dcp_population_nta_puma_crosswalk_2020
-acl: public-read
 
 attributes:
   name: DCP NTA to PUMA Crosswalk

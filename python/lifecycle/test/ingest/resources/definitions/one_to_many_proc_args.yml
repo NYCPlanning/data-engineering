@@ -1,5 +1,4 @@
 id: one_to_many
-acl: private
 
 attributes:
   name: Sample One-To-Many Definition

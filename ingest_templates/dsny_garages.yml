@@ -1,5 +1,4 @@
 id: dsny_garages
-acl: public-read
 
 attributes:
   name: DSNY Garages

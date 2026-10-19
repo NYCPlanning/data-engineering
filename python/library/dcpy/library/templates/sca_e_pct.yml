@@ -1,6 +1,6 @@
 dataset:
   name: sca_e_pct
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/sca/{{ version }}/sca_e_pct.csv

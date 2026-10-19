@@ -1,5 +1,4 @@
 id: bpl_libraries_inbox_test
-acl: private
 
 attributes:
   name: BPL Libraries (Inbox Test)

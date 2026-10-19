@@ -1,5 +1,4 @@
 id: dcp_stateassemblydistricts
-acl: public-read
 
 attributes:
   name: NYC State Assembly Districts (Clipped to shoreline)

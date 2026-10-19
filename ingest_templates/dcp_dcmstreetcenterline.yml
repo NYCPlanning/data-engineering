@@ -1,5 +1,4 @@
 id: dcp_dcmstreetcenterline
-acl: public-read
 
 attributes:
   name: DCM-Street Center Line

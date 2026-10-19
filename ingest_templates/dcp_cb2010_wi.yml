@@ -1,5 +1,4 @@
 id: dcp_cb2010_wi
-acl: public-read
 
 attributes:
   name: Census Blocks for the 2010 US Census (**Water included**)

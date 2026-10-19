@@ -1,5 +1,4 @@
 id: dof_air_rights_lots
-acl: public-read
 
 attributes:
   name: DOF's Air Rights Lots Table

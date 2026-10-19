@@ -1,6 +1,6 @@
 dataset:
   name: usdot_ports
-  acl: public-read
+  acl: private
   source:
     url:
       path: https://services7.arcgis.com/n1YM8pTrFmm7L4hs/ArcGIS/rest/services/ndc/FeatureServer/2/query?outFields=*&where=1%3D1&f=geojson

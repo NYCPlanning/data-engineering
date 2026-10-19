@@ -1,5 +1,4 @@
 id: nysed_activeinstitutions
-acl: public-read
 
 attributes:
   name: NYSED Active Institutions by County

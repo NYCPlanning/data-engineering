@@ -1,5 +1,4 @@
 id: dsny_fooddrop
-acl: public-read
 
 attributes:
   name: Food Scrap Drop-Off Locations in NYC

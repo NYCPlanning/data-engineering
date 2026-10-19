@@ -1,5 +1,4 @@
 id: dcp_pfirms
-acl: public-read
 
 attributes:
   name: Preliminary Flood Insurance Rate Maps 2015

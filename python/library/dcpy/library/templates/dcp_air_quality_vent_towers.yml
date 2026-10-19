@@ -1,6 +1,6 @@
 dataset:
   name: dcp_air_quality_vent_towers
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/dcp_air_quality_vent_towers/{{ version }}/vent_tower.zip

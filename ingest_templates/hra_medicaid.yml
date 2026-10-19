@@ -1,5 +1,4 @@
 id: hra_medicaid
-acl: public-read
 
 attributes:
   name: Medicaid Offices

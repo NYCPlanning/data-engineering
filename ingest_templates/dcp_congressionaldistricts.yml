@@ -1,5 +1,4 @@
 id: dcp_congressionaldistricts
-acl: public-read
 
 attributes:
   name: U.S. Congressional Districts (Clipped to Shoreline)

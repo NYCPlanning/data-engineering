@@ -1,5 +1,4 @@
 id: dep_cats_permits
-acl: public-read
 
 attributes:
   name: DEP Clean Air Tracking System (CATS) Permits

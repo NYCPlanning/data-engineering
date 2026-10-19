@@ -1,6 +1,6 @@
 dataset:
   name: dcp_pop_decennial_dhc
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/dhc_{{ version }}.xlsx

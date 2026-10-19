@@ -1,5 +1,4 @@
 id: dcp_cscl_gdb
-acl: private
 
 attributes:
   name: CSCL - gdb

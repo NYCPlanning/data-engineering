@@ -1,7 +1,6 @@
 id: datasource_with_dependencies
 depends_on:
   - simple
-acl: private
 
 attributes:
   name: DataSource with Dependencies

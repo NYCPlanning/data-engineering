@@ -1,5 +1,4 @@
 id: dcp_pluto
-acl: public-read
 attributes:
   name: DCP PLUTO
   description: PLUTO is the csv (non-spatial) version of MapPLUTO

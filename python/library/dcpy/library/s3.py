@@ -56,7 +56,7 @@ class S3:
             self.client.create_bucket(Bucket=self.bucket)
 
     def upload_file(
-        self, name: str, version: str, path: str, acl: ACL = "public-read"
+        self, name: str, version: str, path: str, acl: ACL = "private"
     ) -> None:
         """
         https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
@@ -69,7 +69,7 @@ class S3:
         self,
         path: str,
         key: str,
-        acl: ACL = "public-read",
+        acl: ACL = "private",
         metadata: dict | None = None,
     ) -> None:
         with Progress(
@@ -141,7 +141,7 @@ class S3:
         self,
         source_key: str,
         dest_key: str,
-        acl: ACL = "public-read",
+        acl: ACL = "private",
         metadata: dict = {},
         info: bool = False,
     ) -> dict | None:
@@ -188,7 +188,7 @@ class S3:
         self,
         source_key: str,
         dest_key: str,
-        acl: ACL = "public-read",
+        acl: ACL = "private",
         metadata: dict = {},
         info: bool = False,
     ) -> dict | None:

@@ -1,5 +1,4 @@
 id: doitt_buildingfootprints_historical
-acl: public-read
 
 attributes:
   name: Building Footprints Historical Shape

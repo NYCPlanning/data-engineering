@@ -1,5 +1,4 @@
 id: dcp_zoningdistricts
-acl: public-read
 
 attributes:
   name: NYC Zoning Districts

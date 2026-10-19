@@ -1,5 +1,4 @@
 id: dcp_electiondistricts
-acl: public-read
 
 attributes:
   name: NYC Election Districts (Clipped to shoreline)
