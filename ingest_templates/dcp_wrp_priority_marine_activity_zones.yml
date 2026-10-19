@@ -1,5 +1,4 @@
 id: dcp_wrp_priority_marine_activity_zones
-acl: public-read
 
 attributes:
   name: Waterfront Revitalization Program Priority Marine Activity Zone

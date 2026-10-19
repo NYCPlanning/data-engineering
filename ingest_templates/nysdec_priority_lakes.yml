@@ -1,5 +1,4 @@
 id: nysdec_priority_lakes
-acl: public-read
 
 attributes:
   name: DEC Waterbody Inventory List - Lakes

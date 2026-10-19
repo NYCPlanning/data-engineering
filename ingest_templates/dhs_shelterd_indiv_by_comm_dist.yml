@@ -1,5 +1,4 @@
 id: dhs_shelterd_indiv_by_comm_dist
-acl: public-read
 
 attributes:
   name: Department of Homeless Services - Sheltered Individuals by Community District

@@ -1,5 +1,4 @@
 id: dep_stormwater_limited_current
-acl: public-read
 
 attributes:
   name: NYC Stormwater Flood Maps - Limited Flood (1.77 inches/hr) with Current Sea Levels

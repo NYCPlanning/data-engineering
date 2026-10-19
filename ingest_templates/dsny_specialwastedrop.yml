@@ -1,5 +1,4 @@
 id: dsny_specialwastedrop
-acl: public-read
 
 attributes:
   name: DSNY Special Waste Drop-off Sites

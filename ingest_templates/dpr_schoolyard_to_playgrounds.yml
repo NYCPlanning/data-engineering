@@ -1,5 +1,4 @@
 id: dpr_schoolyard_to_playgrounds
-acl: public-read
 
 attributes:
   name: Schoolyard to Playgrounds

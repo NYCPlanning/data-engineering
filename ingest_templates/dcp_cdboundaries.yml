@@ -1,5 +1,4 @@
 id: dcp_cdboundaries
-acl: public-read
 
 attributes:
   name: NYC Community Districts (Clipped to shoreline)

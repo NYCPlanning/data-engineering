@@ -1,6 +1,6 @@
 dataset:
   name: sca_capacity_projects_current
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/sca/{{ version }}/sca_capacity_projects_current.csv

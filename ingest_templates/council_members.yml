@@ -1,5 +1,4 @@
 id: council_members
-acl: public-read
 
 attributes:
   name: Council Members

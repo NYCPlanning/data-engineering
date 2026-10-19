@@ -1,6 +1,6 @@
 dataset:
   name: dcp_pop_acs
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/acs_{{ version }}.xlsx

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from dcpy.lifecycle.ingest import plan
 from dcpy.lifecycle.ingest.models import (
@@ -56,6 +57,12 @@ class TestReadDefinition:
             match="'version' is only suppored jinja var. Vars in definition: ",
         ):
             plan.read_definition_file(_d_path("invalid_jinja"), version="dummy")
+
+    def test_public_acl_rejected(self, tmp_path):
+        definition = tmp_path / "public.yml"
+        definition.write_text("acl: public-read\n" + _d_path("simple").read_text())
+        with pytest.raises(ValidationError, match="acl"):
+            plan.read_definition_file(definition)
 
 
 class TestResolveDefinition:

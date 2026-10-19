@@ -1,5 +1,4 @@
 id: dot_truck_routes
-acl: public-read
 
 attributes:
   name: New York City Truck Routes

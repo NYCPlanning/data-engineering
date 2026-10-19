@@ -1,5 +1,4 @@
 id: dof_condo
-acl: public-read
 
 attributes:
   name: DOF Condo

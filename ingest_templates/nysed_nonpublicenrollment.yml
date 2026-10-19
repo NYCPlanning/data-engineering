@@ -1,6 +1,5 @@
 id: nysed_nonpublicenrollment
 
-acl: public-read
 
 attributes:
   name: NYSED Nonpublic Enrollment by Grade

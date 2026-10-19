@@ -1,5 +1,4 @@
 id: dot_pedplazas
-acl: public-read
 
 attributes:
   name: NYC DOT Pedestrian Plazas

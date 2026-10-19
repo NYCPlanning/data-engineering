@@ -1,5 +1,4 @@
 id: dot_mannedfacilities
-acl: public-read
 
 attributes:
   name: DOT Manned Facilities

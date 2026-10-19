@@ -1,6 +1,6 @@
 dataset:
   name: edc_capitalprojects
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/edc_capitalprojects/CCP_EDC_{{ version }}.zip

@@ -1,5 +1,4 @@
 id: sca_capital_projects
-acl: public-read
 
 attributes:
   name: SCA Capital Project Schedules and Budgets

@@ -1,5 +1,4 @@
 id: nysdec_lands
-acl: public-read
 
 attributes:
   name: DEC Lands and Campgrounds

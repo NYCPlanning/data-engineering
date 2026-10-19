@@ -1,5 +1,4 @@
 id: dcp_policeprecincts
-acl: public-read
 
 attributes:
   name: NYC Police Precincts

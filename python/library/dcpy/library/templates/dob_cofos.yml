@@ -1,6 +1,6 @@
 dataset:
   name: dob_cofos
-  acl: public-read
+  acl: private
   source:
     script:
       ## This field must be updated manually when archiving. Should eventually be refactored out of here

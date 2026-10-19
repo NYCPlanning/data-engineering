@@ -1,5 +1,4 @@
 id: dcp_cb2020_wi
-acl: public-read
 
 attributes:
   name: Census Blocks for the 2020 US Census (**Water included**)

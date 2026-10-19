@@ -1,5 +1,4 @@
 id: dcp_zoningtaxlots
-acl: public-read
 
 attributes:
   name: NYC Zoning Tax Lot Database

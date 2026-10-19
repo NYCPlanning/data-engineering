@@ -1,5 +1,4 @@
 id: dcp_limitedheight
-acl: public-read
 
 attributes:
   name: DCP NYC Limited Height Districts (Zoning)

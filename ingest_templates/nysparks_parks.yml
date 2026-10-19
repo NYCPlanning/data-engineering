@@ -1,5 +1,4 @@
 id: nysparks_parks
-acl: public-read
 
 attributes:
   name: NY State Parks Property

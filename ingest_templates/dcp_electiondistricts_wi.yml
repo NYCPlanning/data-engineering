@@ -1,5 +1,4 @@
 id: dcp_electiondistricts_wi
-acl: public-read
 
 attributes:
   name: NYC Election Districts (Water areas included)

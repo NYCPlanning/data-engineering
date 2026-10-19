@@ -1,5 +1,4 @@
 id: usps_locations_nyc
-acl: public-read
 
 attributes:
   name: USPS Post Office Locations - NYC

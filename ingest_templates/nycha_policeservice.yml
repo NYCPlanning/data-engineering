@@ -1,5 +1,4 @@
 id: nycha_policeservice
-acl: public-read
 
 attributes:
   name: NYCHA PSA (Police Service Areas)

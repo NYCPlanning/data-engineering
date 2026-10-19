@@ -1,6 +1,6 @@
 dataset:
   name: dcp_pop_decennial_ddhca
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/ForDelivery_DDHCA2020_ForPFF.xlsx

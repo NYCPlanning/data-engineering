@@ -1,5 +1,4 @@
 id: dcp_managing_agencies_lookup
-acl: public-read
 
 attributes:
   name: NYC Managing Agencies Lookup Table

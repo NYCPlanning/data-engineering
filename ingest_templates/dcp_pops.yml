@@ -1,5 +1,4 @@
 id: dcp_pops
-acl: public-read
 
 attributes:
   name: Privately Owned Public Spaces (POPS)

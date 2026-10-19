@@ -1,5 +1,4 @@
 id: dycd_service_sites
-acl: public-read
 
 attributes:
   name: DYCD DYCD Program Sites

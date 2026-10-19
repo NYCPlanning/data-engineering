@@ -1,5 +1,4 @@
 id: nycha_communitycenters
-acl: public-read
 
 attributes:
   name: NYCHA Community Facilities (Centers)

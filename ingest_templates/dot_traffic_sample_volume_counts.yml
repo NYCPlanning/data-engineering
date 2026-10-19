@@ -1,5 +1,4 @@
 id: dot_traffic_sample_volume_counts
-acl: public-read
 
 attributes:
   name: Traffic Volume Counts

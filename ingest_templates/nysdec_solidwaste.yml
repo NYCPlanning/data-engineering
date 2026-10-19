@@ -1,5 +1,4 @@
 id: nysdec_solidwaste
-acl: public-read
 
 attributes:
   name: Solid Waste Management Facilities

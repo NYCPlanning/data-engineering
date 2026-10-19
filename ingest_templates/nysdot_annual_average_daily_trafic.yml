@@ -1,5 +1,4 @@
 id: nysdot_annual_average_daily_trafic
-acl: public-read
 
 attributes:
   name: NYS DOT Traffic Data Viewer

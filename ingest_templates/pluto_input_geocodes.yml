@@ -1,5 +1,4 @@
 id: pluto_input_geocodes
-acl: private
 
 attributes:
   name: Geocoded PTS

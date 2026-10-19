@@ -1,5 +1,4 @@
 id: nysparks_historicplaces
-acl: public-read
 
 attributes:
   name: National Register Building Listings

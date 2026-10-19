@@ -1,5 +1,4 @@
 id: dcp_nta2010
-acl: public-read
 
 attributes:
   name: NYC 2010 NTAs
