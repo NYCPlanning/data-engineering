@@ -16,11 +16,10 @@ WITH priorities (candidate, method, priority) AS (
     ('dcp_json', 'dcp curated', 12),
     ('sprints', 'dcp curated', 13),
     ('dpr_park_id', 'string match', 14),
-    ('dpr_park_name_round1', 'string match', 15),
-    ('dpr_park_name_round2', 'string match', 16),
-    ('dpr_park_name_round3', 'string match', 17),
-    ('facility_name', 'string match', 18),
-    ('library_name', 'string match', 19)
+    ('dpr_park_name', 'string match', 15),
+    ('dpr_park_name_close_spelling', 'string match', 16),
+    ('facility_name', 'string match', 17),
+    ('library_name', 'string match', 18)
 ),
 
 candidates AS (

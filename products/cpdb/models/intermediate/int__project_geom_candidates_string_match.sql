@@ -26,27 +26,13 @@ dpr_park_id AS (
     ORDER BY p.maprojid ASC, b.gispropnum ASC
 ),
 
--- DPR park name in the description, in 3 rounds: round 1 excludes generic names including
--- 'BRIDGE PARK', round 2 allows 'BRIDGE PARK', round 3 excludes it again but matches by
--- levenshtein distance instead of LIKE. Several parks share a name, so gispropnum breaks ties.
-dpr_park_name_round1 AS (
+-- DPR park name in the description, longest name first. Generic names like PARK are skipped,
+-- and BRIDGE PARK only counts when nothing else matches. Several parks share a name, so
+-- gispropnum breaks ties.
+dpr_park_name_like AS (
     SELECT DISTINCT ON (p.magency, p.projectid)
         p.maprojid,
-        'dpr_park_name_round1'::text AS candidate,
-        b.wkb_geometry AS geom
-    FROM projects AS p
-    INNER JOIN {{ ref('stg__dpr_parksproperties') }} AS b
-        ON UPPER(p.description) LIKE UPPER('%' || b.signname || '%')
-    WHERE
-        p.magency = '846'
-        AND UPPER(b.signname) NOT IN ('PARK', 'LOT', 'GARDEN', 'TRIANGLE', 'SITTING AREA', 'BRIDGE PARK')
-    ORDER BY p.magency ASC, p.projectid ASC, LENGTH(b.signname) DESC, b.signname ASC, b.gispropnum ASC
-),
-
-dpr_park_name_round2 AS (
-    SELECT DISTINCT ON (p.magency, p.projectid)
-        p.maprojid,
-        'dpr_park_name_round2'::text AS candidate,
+        'dpr_park_name'::text AS candidate,
         b.wkb_geometry AS geom
     FROM projects AS p
     INNER JOIN {{ ref('stg__dpr_parksproperties') }} AS b
@@ -54,13 +40,17 @@ dpr_park_name_round2 AS (
     WHERE
         p.magency = '846'
         AND UPPER(b.signname) NOT IN ('PARK', 'LOT', 'GARDEN', 'TRIANGLE', 'SITTING AREA')
-    ORDER BY p.magency ASC, p.projectid ASC, LENGTH(b.signname) DESC, b.signname ASC, b.gispropnum ASC
+    ORDER BY
+        p.magency ASC, p.projectid ASC,
+        UPPER(b.signname) = 'BRIDGE PARK' ASC,
+        LENGTH(b.signname) DESC, b.signname ASC, b.gispropnum ASC
 ),
 
-dpr_park_name_round3 AS (
+-- a description within 3 edits of a park name, for close spellings
+dpr_park_name_close_spelling AS (
     SELECT DISTINCT ON (p.magency, p.projectid)
         p.maprojid,
-        'dpr_park_name_round3'::text AS candidate,
+        'dpr_park_name_close_spelling'::text AS candidate,
         b.wkb_geometry AS geom
     FROM projects AS p
     INNER JOIN {{ ref('stg__dpr_parksproperties') }} AS b
@@ -83,12 +73,10 @@ dpr_park_name AS (
         'dpr_parksproperties'::text AS dataname,
         geom
     FROM (
-        SELECT * FROM dpr_park_name_round1
+        SELECT * FROM dpr_park_name_like
         UNION ALL
-        SELECT * FROM dpr_park_name_round2
-        UNION ALL
-        SELECT * FROM dpr_park_name_round3
-    ) AS rounds
+        SELECT * FROM dpr_park_name_close_spelling
+    ) AS matches
 ),
 
 -- facility name in the description, limited to names that are unique citywide and have at
