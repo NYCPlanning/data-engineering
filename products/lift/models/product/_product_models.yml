@@ -21,7 +21,9 @@ models:
     for the geospatial export and map tools. geom is null for bbls with no PLUTO match.
     Columns are retyped for mapping rather than kept to DCAS's field spec: cd and council
     are text, unitpotential is an integer, rlv_amount and siteprep_costs are numeric, and
-    Y/NULL flags are booleans.
+    Y/NULL flags are booleans. Each column the map displays has a <column>_label twin: text
+    that's never null, saying why a value is missing (tests/assert_map_labels_not_null.sql).
+    The raw columns keep their nulls and types for querying.
   columns:
   - name: bbl
     tests:
@@ -38,6 +40,8 @@ models:
     - not_null
   - name: site_name
     description: Public Sites site name, copied from zzz_lift_data_zzz.
+  - name: parcel_name_label
+    description: parcel_name for map labels, empty instead of null so unnamed lots aren't labeled "null".
   - name: dcas_flags
     description: >
       Comma-separated labels for the DCAS flags (lur_* and no_street_frontage) that are
@@ -48,6 +52,23 @@ models:
     description: Null when the bbl has no PLUTO lot geometry to intersect.
   - name: ahft
     description: Null when the bbl's community district isn't one of the 59 that AHFT ranks.
+  - name: council
+    description: Council district as text.
+  - name: redev_strategy
+    description: Public Sites redevelopment strategy, with spelling variants collapsed.
+  - name: redev_target_quarter
+    description: >
+      First day of the target quarter when redev_priority is a quarter like "Q3 2027" (LIFT-02).
+  - name: redev_horizon
+    description: >
+      "Near-Term", "Medium-Term", or "Long-Term" when redev_priority is a time horizon (LIFT-02).
+    tests:
+    - accepted_values:
+        values: ['Near-Term', 'Medium-Term', 'Long-Term']
+  - name: redev_status
+    description: >
+      redev_priority when it's neither a quarter, a horizon, nor "TDRs", e.g. "Active" or
+      "Not Viable" (LIFT-02). "TDRs" only repeats the "Landmark TDR opportunity" strategy.
   - name: owned_leased
     description: >
       Whether the City owns or leases the lot, from the IPIS agency use records' ownedleased
@@ -68,6 +89,40 @@ models:
     description: Community district tabulation area the bbl's census tract falls in, from dcp_ct2020.
   - name: cdtaname
     description: Name of cdta2020, e.g. "BK01 Williamsburg-Greenpoint (CD 1 Equivalent)".
+  - name: is_lift_site_label
+    tests:
+    - accepted_values:
+        values: ['LIFT site', 'Not a LIFT site']
+  - name: ahft_label
+    description: >
+      Unlike ahft, a lot in a district AHFT doesn't rank (a joint interest area) is
+      "Non-AHFT district". "No community district" when cd is null.
+    tests:
+    - accepted_values:
+        values: ['AHFT district', 'Non-AHFT district', 'No community district']
+  - name: parcel_address_label
+    description: '"None listed" where DCAS gives no address.'
+  - name: dcas_flags_label
+    description: '"No flags" when dcas_flags is null.'
+  - name: juris_label
+    description: '"None listed" where DCAS leaves juris blank (see LIFT-03).'
+  - name: primary_uses_text_label
+    description: '"None listed" where DCAS gives no primary use.'
+  - name: council_label
+    description: '"No council district" when DCAS gives none.'
+  - name: community_district_label
+    description: '"No community district" when community_district is null.'
+  - name: redev_strategy_label
+    description: '"Not set" for LIFT sites without a strategy and "Not a LIFT site" for other lots.'
+  - name: redev_horizon_label
+    description: '"Not set" for LIFT sites without a horizon and "Not a LIFT site" for other lots.'
+    tests:
+    - accepted_values:
+        values: ['Near-Term', 'Medium-Term', 'Long-Term', 'Not set', 'Not a LIFT site']
+  - name: laa_label
+    description: '"Yes", "No", or "No lot geometry" when laa is null.'
+  - name: pfirm15_flag_label
+    description: '"Yes", "No", or "No PLUTO match" when pfirm15_flag is null.'
 
 - name: community_districts_map
   description: >
@@ -87,8 +142,11 @@ models:
     description: >
       True for the 12 lowest-ranked districts, same cutoff as lift_supplemented.ahft.
       Null for districts AHFT doesn't rank.
-  - name: ahft_group
+  - name: ahft_label
     description: >
-      ahft as a label for map legends: "AHFT bottom 12", "Other ranked district", or "Not ranked".
+      ahft as a label for map legends: "AHFT district" or "Non-AHFT district", same as
+      lift_supplemented_map.ahft_label. Districts AHFT doesn't rank are "Non-AHFT district".
     tests:
     - not_null
+    - accepted_values:
+        values: ['AHFT district', 'Non-AHFT district']

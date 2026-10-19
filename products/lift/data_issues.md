@@ -48,8 +48,13 @@ Both are already in the raw `dcas_lift.csv` (`edm-private`, version `20260804`),
 | Strategy or status | `TDRs`, `Active`, `Not Viable`, `Announced this Admin`, ... | 180 |
 
 That makes it unusable as a single category filter or widget.
-The planned fix is to split it into separate columns in `lift_supplemented` while keeping the original, batched with other higher-impact build changes.
+`lift_supplemented_map` splits it into `redev_target_quarter`, `redev_horizon`, and `redev_status`, and keeps `redev_priority` as is.
+`lift_supplemented` is left alone, since it follows DCAS's field spec.
+`TDRs` gets no column of its own: every row with it has the strategy "Landmark TDR opportunity", so it repeats `redev_strategy`.
+`tests/assert_redev_priority_split.sql` fails if a value looks like a quarter or horizon but doesn't parse, like `Q3-2027` or `Mid-Term`.
 The source field mapping is also unconfirmed (see README Limitations).
+
+**What would settle it:** City Hall entering target quarter, horizon, and status as separate fields, ideally with dropdowns.
 
 ## LIFT-03
 
