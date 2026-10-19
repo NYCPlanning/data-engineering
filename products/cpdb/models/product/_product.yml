@@ -4,11 +4,10 @@ models:
   - name: cpdb_dcpattributes
     description: >
       Master capital-projects attributes table -- one row per project (maprojid), with the
-      project's managing agency, description, type category, and a single best-guess geometry
-      assembled from a long priority chain of geometry sources (manual sprints/geojson data,
-      building/park/facility footprints, agency-verified geocoding, and fuzzy park-name matching
-      as a last resort). Ported from the legacy bash/SQL pipeline (bash/02_build.sh); replaces
-      the `cpdb_legacy_pipeline.cpdb_dcpattributes` source.
+      project's managing agency, description, type category, and a single best-guess geometry:
+      the top-ranked candidate in `int__project_geom_candidates`, dropped when
+      `int__project_geom.geom_removed_reason` is set. Lines are buffered 15 meters into
+      polygons.
     columns:
       - name: maprojid
         tests: [ unique, not_null ]

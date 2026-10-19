@@ -1,5 +1,5 @@
 -- Write geocode results (dcp_cpdb_agencyverified_geo) back into dcp_cpdb_agencyverified's geom
--- column. int__dcpattributes_geom_agencyverified.sql independently recomputes this same geom for
+-- column. int__project_geom_candidates_agency_verified.sql independently recomputes this same geom for
 -- cpdb_dcpattributes, so this is no longer needed for that -- but
 -- sql/analysis/agency_validated_geoms_summary_table.sql still reads dcp_cpdb_agencyverified.geom
 -- directly (filtering on IS NOT NULL), so it needs to reflect the geocode fill, not just the
