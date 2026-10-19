@@ -8,5 +8,5 @@ echo "BUILD_ENGINE_SCHEMA=$BUILD_ENGINE_SCHEMA" >> "$GITHUB_ENV"
 echo "BUILD_ENGINE_SCHEMA_TESTS=$BUILD_ENGINE_SCHEMA_TESTS" >> "$GITHUB_ENV"
 
 # set postgres schema search path to prioritize BUILD_ENGINE_SCHEMA
-export BUILD_ENGINE=${BUILD_ENGINE_SERVER}/${BUILD_ENGINE_DB}?options=--search_path%3D${BUILD_ENGINE_SCHEMA},public
+export BUILD_ENGINE=$(./bash/bin/echo_build_engine)
 echo "BUILD_ENGINE=$BUILD_ENGINE" >> "$GITHUB_ENV"
