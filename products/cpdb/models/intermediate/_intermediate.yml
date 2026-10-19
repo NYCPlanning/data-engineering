@@ -28,8 +28,8 @@ models:
   - name: int__project_geom_candidates_string_match
     description: |
       Geometries found by matching a project's description against DPR park IDs and names and
-      facility and library names. Each match is limited to some agencies and takes at most
-      one geometry per project.
+      facility names. Each match is limited to some agencies and takes at most one geometry
+      per project.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ maprojid, candidate ]

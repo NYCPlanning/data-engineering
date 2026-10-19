@@ -119,22 +119,6 @@ facility_name AS (
     ORDER BY p.maprojid ASC, LENGTH(b.facname) DESC, b.facname ASC
 ),
 
--- library name in the description, without the uniqueness limit
-library_name AS (
-    SELECT DISTINCT ON (p.maprojid)
-        p.maprojid,
-        'library_name'::text AS candidate,
-        b.wkb_geometry AS geom
-    FROM projects AS p
-    INNER JOIN {{ ref('stg__dcp_facilities') }} AS b
-        ON UPPER(p.description) LIKE '%' || UPPER(b.facname) || '%'
-    WHERE
-        p.magency::int IN (39, 37, 38, 35)
-        AND UPPER(p.description) NOT LIKE '%AND%'
-        AND b.facgroup = 'Libraries'
-    ORDER BY p.maprojid ASC, LENGTH(b.facname) DESC, b.facname ASC
-),
-
 facilities AS (
     SELECT
         maprojid,
@@ -143,11 +127,7 @@ facilities AS (
         NULL::text AS datasource,
         NULL::text AS dataname,
         geom
-    FROM (
-        SELECT * FROM facility_name
-        UNION ALL
-        SELECT * FROM library_name
-    ) AS matches
+    FROM facility_name
 )
 
 SELECT * FROM dpr_park_id
