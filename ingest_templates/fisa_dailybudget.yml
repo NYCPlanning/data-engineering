@@ -1,5 +1,4 @@
 id: fisa_dailybudget
-acl: private
 
 attributes:
   name: FISA Daily Budget
