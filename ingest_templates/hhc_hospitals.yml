@@ -1,5 +1,4 @@
 id: hhc_hospitals
-acl: private
 
 attributes:
   name: NYC Health + Hospitals patient care locations - 2011

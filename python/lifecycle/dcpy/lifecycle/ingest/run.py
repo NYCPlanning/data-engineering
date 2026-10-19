@@ -230,7 +230,6 @@ def archive_transformed_datasets(
             )
 
         if overwrite_okay or not version_exists:
-            assert dataset.source.acl
             logger.info(f"Archiving {dataset.filename} to {datastore}")
             datastore.push(
                 dataset.id,
