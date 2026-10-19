@@ -1,5 +1,5 @@
 id: pluto_input_cama_dof
-acl: public-read
+acl: private
 
 attributes:
   name: DOF CAMA

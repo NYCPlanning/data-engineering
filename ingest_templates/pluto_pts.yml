@@ -1,5 +1,5 @@
 id: pluto_pts
-acl: public-read
+acl: private
 
 attributes:
   name: PTS - DOF
