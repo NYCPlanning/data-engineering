@@ -9,6 +9,7 @@ from dcpy.geospatial.shapefile_metadata import (
     Scalerange,
     Udom,
 )
+from dcpy.product_metadata.models.metadata.org import EsriSystemField
 from dcpy.product_metadata.models.metadata.product import ColumnValue, DatasetColumn
 
 
@@ -81,6 +82,19 @@ def _create_attr_metadata(
     else:
         attr.attrdomv.udom = Udom(value=column.description)
         attr.attrdomv.edom = []
+    return attr
+
+
+def _create_system_attr_metadata(field: EsriSystemField) -> Attr:
+    """Create an Attr metadata object for an Esri-managed system field."""
+    attr = Attr()
+    attr.attrlabl.value = field.name
+    attr.attalias.value = field.alias
+    attr.attrtype.value = field.data_type
+    attr.attrdef.value = field.description
+    attr.attrdefs.value = field.data_source
+    attr.attrdomv.udom = Udom(value=field.description_of_values)
+    attr.attrdomv.edom = []
     return attr
 
 

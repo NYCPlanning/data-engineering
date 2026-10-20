@@ -22,6 +22,7 @@ files:
           dataset_overrides:
             omitted_columns:
               - category
+              - geom
             attributes:
               display_name: Test Esri Metadata Table Layer
     dataset_overrides:
@@ -51,6 +52,10 @@ columns:
     custom:
       fgdb_data_type: String
       shp_data_type: String
+  - id: geom
+    name: geom
+    data_type: geometry
+    description: Geometry column; replaced by the Esri Shape system field in Esri metadata
   - id: renamed_field
     name: renamed_field
     data_type: text

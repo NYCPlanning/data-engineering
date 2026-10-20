@@ -6,7 +6,10 @@ import yaml
 
 import dcpy.product_metadata.models.metadata.product as models
 from dcpy.geospatial import esri_metadata
-from dcpy.geospatial.esri_metadata import _create_attr_metadata
+from dcpy.geospatial.esri_metadata import (
+    _create_attr_metadata,
+    _create_system_attr_metadata,
+)
 from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile import Shapefile
 from dcpy.lifecycle import product_metadata
@@ -215,11 +218,32 @@ def write_metadata(
     )
     esri_md.eainfo.detailed.name = entity_name
 
-    # Build attribute metadata for each column
-    esri_md.eainfo.detailed.attr = [
-        _create_attr_metadata(column, custom_type_key=custom_type_key)
-        for column in file_metadata.columns
-    ]
+    system_fields_by_type = org_md.esri_system_fields
+    system_fields = (
+        system_fields_by_type.shapefile
+        if not is_gdb
+        else system_fields_by_type.table
+        if is_table
+        else system_fields_by_type.feature_class
+    )
+    replaced_column_ids = {c for f in system_fields for c in f.replaces_columns}
+    esri_md.eainfo.detailed.attr = (
+        [
+            _create_system_attr_metadata(f)
+            for f in system_fields
+            if f.position == "leading"
+        ]
+        + [
+            _create_attr_metadata(column, custom_type_key=custom_type_key)
+            for column in file_metadata.columns
+            if column.id not in replaced_column_ids
+        ]
+        + [
+            _create_system_attr_metadata(f)
+            for f in system_fields
+            if f.position == "trailing"
+        ]
+    )
 
     if is_gdb:
         fgdb.write_metadata(

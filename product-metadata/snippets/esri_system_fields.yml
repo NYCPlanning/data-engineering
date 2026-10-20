@@ -1,0 +1,49 @@
+# Esri system fields that write_metadata adds to every Esri metadata document,
+# chosen by output type. These match what ArcGIS Pro creates for a new dataset.
+#   position: leading (default) = before the product's columns; trailing = after
+#   replaces_columns: product column ids dropped from the Esri output because
+#     this system field already describes them
+feature_class:
+- &objectid
+  name: OBJECTID
+  alias: OBJECTID
+  data_type: OID
+  description: Internal feature number.
+  data_source: Esri
+  description_of_values: Sequential unique whole numbers that are automatically generated.
+- &shape
+  name: Shape
+  alias: SHAPE
+  data_type: Geometry
+  description: Feature geometry.
+  data_source: Esri
+  description_of_values: Coordinates defining the features.
+  replaces_columns:
+  - geom
+  - the_geom
+- name: Shape_Length
+  alias: Shape_Length
+  data_type: Double
+  description: Length of feature in internal units.
+  data_source: Esri
+  description_of_values: Positive real numbers that are automatically generated.
+  position: trailing
+- name: Shape_Area
+  alias: Shape_Area
+  data_type: Double
+  description: Area of feature in internal units squared.
+  data_source: Esri
+  description_of_values: Positive real numbers that are automatically generated.
+  position: trailing
+
+table:
+- *objectid
+
+shapefile:
+- name: FID
+  alias: FID
+  data_type: OID
+  description: Internal feature number.
+  data_source: Esri
+  description_of_values: Sequential unique whole numbers that are automatically generated.
+- *shape

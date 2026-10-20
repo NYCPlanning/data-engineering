@@ -434,11 +434,12 @@ def _assert_write_metadata_defaults_and_attributes(
     assert metadata.eainfo.detailed.enttyp.enttypl.value == entity_name
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
-    # column 0 (category) — full round-trip: label, type override, domain values
+    # category — full round-trip: label, type override, domain values
     col0 = file_metadata.columns[0]
     assert col0.id == "category"
-    attr0 = metadata.eainfo.detailed.attr[0]
-    assert attr0.attrlabl.value == col0.name
+    attr0 = next(
+        a for a in metadata.eainfo.detailed.attr if a.attrlabl.value == col0.name
+    )
     expected_type_0 = col0.custom.get(custom_type_key) or col0.data_type
     assert attr0.attrtype.value == expected_type_0
     assert col0.values is not None, "Column values must be defined"
@@ -492,6 +493,19 @@ def test_write_metadata_gdb_format_overrides(
 
     attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
 
+    # feature class system fields wrap the product's columns; Shape replaces geom
+    labels = [a.attrlabl.value for a in metadata.eainfo.detailed.attr]
+    assert labels[:2] == ["OBJECTID", "Shape"]
+    assert labels[-2:] == ["Shape_Length", "Shape_Area"]
+    assert "geom" not in labels
+    objectid = attrs_by_label["OBJECTID"]
+    assert objectid.attrtype.value == "OID"
+    assert objectid.attrdefs.value == "Esri"
+    assert objectid.attrdomv.udom is not None
+    assert objectid.attrdomv.udom.value == (
+        "Sequential unique whole numbers that are automatically generated."
+    )
+
     # renamed_field → GDB uses the full name (RENAMED_FIELD_FULL),
     # not the SHP-specific one (RENAMEDFLD)
     assert "RENAMED_FIELD_FULL" in attrs_by_label
@@ -527,7 +541,8 @@ def test_write_metadata_gdb_table_layer_overrides(
         metadata.data_id_info.id_citation.res_title == "Test Esri Metadata Table Layer"
     )
     labels = [a.attrlabl.value for a in metadata.eainfo.detailed.attr]
-    assert labels == ["RENAMED_FIELD_FULL"]  # category omitted; file rename kept
+    # table system fields only; category omitted, geom replaced, file rename kept
+    assert labels == ["OBJECTID", "RENAMED_FIELD_FULL"]
 
     # the spatial layer in the same GDB is unaffected
     esri.write_metadata(
@@ -601,6 +616,13 @@ def test_write_metadata_shp_format_overrides(
     )
 
     attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
+
+    # shapefile system fields: FID + Shape only, no length/area
+    labels = [a.attrlabl.value for a in metadata.eainfo.detailed.attr]
+    assert labels[:2] == ["FID", "Shape"]
+    assert "Shape_Length" not in labels
+    assert "Shape_Area" not in labels
+    assert "geom" not in labels
 
     # renamed_field → SHP uses RENAMEDFLD, unlike GDB
     assert "RENAMEDFLD" in attrs_by_label
