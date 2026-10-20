@@ -25,11 +25,13 @@ attributes:
     It is not expected to change often. A full review may occur annually, using updated information from Checkbook NYC and, 
     if available, refreshed data from OMB.
 
+    The table is maintained in this repo at ingest_templates/data/dcp_managing_agencies_lookup.csv. Edit it there and run 
+    ingest from the repo root.
+
 ingestion:
   source:
-    type: s3
-    bucket: edm-recipes
-    key: inbox/dcp/dcp_managing_agencies_lookup/{{ version }}/dcp_managing_agencies_lookup.csv
+    type: local_file
+    path: ingest_templates/data/dcp_managing_agencies_lookup.csv
   file_format:
     type: csv
     dtype: str
