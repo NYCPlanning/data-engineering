@@ -108,6 +108,12 @@ def test_layer_geometry_types(path_fixture):
     assert types[TABLE_LAYER] is None
 
 
+@gdb_paths
+def test_layer_field_names(path_fixture):
+    fields = fgdb.layer_field_names(path_fixture, TABLE_LAYER)
+    assert fields[:3] == ["borough", "block", "lot"]
+
+
 def test_layer_geometry_types_accepts_zip_path_directly(temp_gdb_zip_path):
     """No manual /vsizip/ resolution needed - pyogrio handles a zipped GDB
     natively, straight from the zip's own path."""

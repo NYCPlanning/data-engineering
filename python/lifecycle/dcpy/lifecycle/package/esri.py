@@ -128,6 +128,15 @@ def _write_metadata(
     )
 
 
+def _order_like_file(
+    columns: list[models.DatasetColumn], field_names: list[str]
+) -> list[models.DatasetColumn]:
+    """Sort columns into the file's field order, matching on written name.
+    Columns not found in the file keep their relative order, after the rest."""
+    position = {name: i for i, name in enumerate(field_names)}
+    return sorted(columns, key=lambda c: position.get(c.name or "", len(position)))
+
+
 def write_metadata(
     product_name: str,
     dataset_name: str,
@@ -226,6 +235,14 @@ def write_metadata(
         if is_table
         else system_fields_by_type.feature_class
     )
+    shp = (
+        None
+        if is_gdb
+        else Shapefile(path=path_to_file, shp_name=layer, zip_subdir=zip_subdir)
+    )
+    file_field_names = (
+        shp.field_names() if shp else fgdb.layer_field_names(path_to_file, layer)
+    )
     replaced_column_ids = {c for f in system_fields for c in f.replaces_columns}
     esri_md.eainfo.detailed.attr = (
         [
@@ -235,7 +252,7 @@ def write_metadata(
         ]
         + [
             _create_attr_metadata(column, custom_type_key=custom_type_key)
-            for column in file_metadata.columns
+            for column in _order_like_file(file_metadata.columns, file_field_names)
             if column.id not in replaced_column_ids
         ]
         + [
@@ -245,10 +262,9 @@ def write_metadata(
         ]
     )
 
-    if is_gdb:
+    if shp:
+        shp.write_metadata(esri_md, overwrite=True)
+    else:
         fgdb.write_metadata(
             gdb=path_to_file, layer=layer, metadata=esri_md, overwrite=True
         )
-    else:
-        shp = Shapefile(path=path_to_file, shp_name=layer, zip_subdir=zip_subdir)
-        shp.write_metadata(esri_md, overwrite=True)

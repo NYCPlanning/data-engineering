@@ -44,6 +44,13 @@ def layer_geometry_types(gdb: Path | str) -> dict[str, str | None]:
     return {str(row[0]): (str(row[1]) if row[1] else None) for row in rows}
 
 
+def layer_field_names(gdb: Path | str, layer: str) -> list[str]:
+    """Attribute field names of a GDB layer, in file order (FID and geometry
+    columns excluded)."""
+    info = pyogrio.read_info(resolve_gdb_path(gdb), layer=layer)
+    return [str(name) for name in info["fields"]]
+
+
 def _find_inner_gdb(zip_path: Path) -> str | None:
     """The /vsizip/<abs zip path>/<inner .gdb path> VSI path for the first
     *.gdb directory found anywhere in the zip (not just at its top level), or

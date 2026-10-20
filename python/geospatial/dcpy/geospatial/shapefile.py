@@ -2,6 +2,8 @@ import os
 import zipfile
 from pathlib import Path
 
+import pyogrio
+
 from dcpy.geospatial.esri_metadata import generate_metadata
 from dcpy.geospatial.shapefile_metadata import Metadata
 
@@ -153,6 +155,15 @@ class Shapefile:
     def generate_metadata(self) -> Metadata:
         """Generates a default Esri metadata object"""
         return generate_metadata()
+
+    def field_names(self) -> list[str]:
+        """Attribute field names, in file order (FID and geometry excluded)."""
+        if self.is_zipped:
+            inner = f"{self.zip_subdir}/{self.name}" if self.zip_subdir else self.name
+            source = f"/vsizip/{self.path.resolve()}/{inner}"
+        else:
+            source = str(self.path / self.name)
+        return [str(name) for name in pyogrio.read_info(source)["fields"]]
 
 
 def from_path(

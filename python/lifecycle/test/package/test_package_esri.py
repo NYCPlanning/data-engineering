@@ -263,38 +263,28 @@ def test_write_metadata(
     ].removesuffix(".shp")
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
+    # attrs follow the file's field order, so look columns up by label
+    attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
+
     # column 0 has no domain values: attrlabl, attrtype, and udom should all round-trip
     col0 = file_metadata.columns[0]
-    expected_label_0 = col0.name
-    assert metadata.eainfo.detailed.attr[0].attrlabl.value == expected_label_0
+    attr0 = attrs_by_label[col0.name]
     expected_type_0 = "OID" if col0.id == "uid" else col0.data_type
-    assert metadata.eainfo.detailed.attr[0].attrtype.value == expected_type_0
-    udom_0 = metadata.eainfo.detailed.attr[0].attrdomv.udom
+    assert attr0.attrtype.value == expected_type_0
+    udom_0 = attr0.attrdomv.udom
     assert udom_0 is not None
     assert udom_0.value == col0.description
 
-    assert file_metadata.columns[1].values is not None, "Column values must be defined"
+    col1 = file_metadata.columns[1]
+    assert col1.values is not None, "Column values must be defined"
 
     # column 1 is borough in the colp test fixture — has domain values
-    assert (
-        metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
-    )
-    assert (
-        metadata.eainfo.detailed.attr[1].attrtype.value
-        == file_metadata.columns[1].data_type
-    )
-    udom_1 = metadata.eainfo.detailed.attr[1].attrdomv.udom
+    attr1 = attrs_by_label[col1.name]
+    assert attr1.attrtype.value == col1.data_type
+    udom_1 = attr1.attrdomv.udom
     assert udom_1 is None or udom_1.value is None
-    assert (
-        metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
-        == file_metadata.columns[1].values[0].value  # "1", when org_md product is colp
-    )
-    assert (
-        metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
-        == file_metadata.columns[1]
-        .values[0]
-        .description  # "Manhattan", when org_md product is colp
-    )
+    assert attr1.attrdomv.edom[0].edomv == col1.values[0].value  # "1" for colp
+    assert attr1.attrdomv.edom[0].edomvd == col1.values[0].description  # "Manhattan"
 
 
 def _make_column(**kwargs) -> DatasetColumn:
@@ -516,6 +506,49 @@ def test_write_metadata_gdb_format_overrides(
     ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
     assert ref_sys_id.id_code_space.value == "EPSG"
     assert ref_sys_id.ident_code.code == 4326
+
+
+def _names(columns) -> list[str]:
+    return [c.name for c in columns]
+
+
+def test_order_like_file_sorts_matched_and_appends_unmatched():
+    cols = [_make_column(id=n, name=n) for n in ["A", "X", "B", "Y", "C"]]
+    ordered = esri._order_like_file(cols, ["C", "A", "B"])
+    assert _names(ordered) == ["C", "A", "B", "X", "Y"]
+
+
+def test_order_like_file_no_matches_keeps_order():
+    cols = [_make_column(id=n, name=n) for n in ["A", "B", "C"]]
+    assert _names(esri._order_like_file(cols, ["nope"])) == ["A", "B", "C"]
+
+
+def test_write_metadata_gdb_follows_file_field_order(
+    temp_gdb_zip_path, test_dcpy_org_metadata, monkeypatch
+):
+    monkeypatch.setattr(
+        fgdb, "layer_field_names", lambda *_: ["RENAMED_FIELD_FULL", "Category"]
+    )
+    esri.write_metadata(
+        product_name="test_dcpy",
+        dataset_name="esri",
+        path_to_file=temp_gdb_zip_path,
+        layer=SPATIAL_LAYER,
+        file_id="gdb",
+        zip_subdir=None,
+        org_md=test_dcpy_org_metadata,
+    )
+    metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
+    assert metadata is not None
+    labels = [a.attrlabl.value for a in metadata.eainfo.detailed.attr]
+    assert labels == [
+        "OBJECTID",
+        "Shape",
+        "RENAMED_FIELD_FULL",
+        "Category",
+        "Shape_Length",
+        "Shape_Area",
+    ]
 
 
 def test_write_metadata_gdb_table_layer_overrides(
