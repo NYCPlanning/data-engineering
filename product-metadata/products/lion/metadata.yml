@@ -28,6 +28,7 @@ datasets:
   - hurricane_evacuation_zones
   - lion
   - lion_differences_file
+  - lion_node
   - municipal_court_districts
   - police_precincts
   - property_address_directory
