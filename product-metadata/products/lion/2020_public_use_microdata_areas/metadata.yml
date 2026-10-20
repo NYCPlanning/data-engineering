@@ -62,6 +62,12 @@ files:
     id: shapefile
     filename: nypuma2020.zip
     type: shapefile
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: shape_leng
+      name: Shape_Leng
 - file:
     id: metadata_pdf
     filename: nypuma2020_metadata.pdf
@@ -102,6 +108,7 @@ columns:
   example: '4503'
   custom:
     fgdb_data_type: String
+    shp_data_type: String
 - id: shape_leng
   name: Shape_Length
   data_type: number
@@ -109,6 +116,7 @@ columns:
   example: '37550.8572191'
   custom:
     fgdb_data_type: Double
+    shp_data_type: Double
 - id: shape_area
   name: Shape_Area
   data_type: number
@@ -116,3 +124,4 @@ columns:
   example: '265852363.461'
   custom:
     fgdb_data_type: Double
+    shp_data_type: Double
