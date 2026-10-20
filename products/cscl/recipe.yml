@@ -898,6 +898,8 @@ exports:
 
   # District boundary geodatabase (ETL spec ch. 10, table 39)
   # filename must match prod's, which embeds the cycle from `version:` above
+  # custom.arcs: the arcs (x0..y2 control points) a layer's linear geometry is re-curved
+  # from in packaging, so its FGDB features carry true curves like prod's
   - name: gdb_nyad
     group: district_gdb
     filename: v26C_Districts.gdb.zip
@@ -912,7 +914,7 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyap, geometry_type: polygons }
+    custom: { layer: nyap, geometry_type: polygons, arcs: dcp_cscl_atomicpolygons_arcs }
   - name: gdb_nybb
     group: district_gdb
     filename: v26C_Districts.gdb.zip
@@ -927,7 +929,7 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nybid, geometry_type: polygons }
+    custom: { layer: nybid, geometry_type: polygons, arcs: dcp_cscl_businessimprovementdistrict_arcs }
   - name: gdb_nycb2010
     group: district_gdb
     filename: v26C_Districts.gdb.zip

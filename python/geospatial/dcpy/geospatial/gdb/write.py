@@ -48,6 +48,20 @@ def _geo_metadata(parquet: pq.ParquetFile) -> dict | None:
     return json.loads(raw) if raw else None
 
 
+def _layer_type(geo: dict) -> str:
+    col = geo["columns"][geo["primary_column"]]
+    types = col.get("geometry_types") or []
+    multi = [t for t in types if t.startswith("Multi")]
+    return (multi or types or ["Unknown"])[0]
+
+
+def layer_geometry_type(path: Path) -> str | None:
+    """The FGDB layer type a GeoParquet file defaults to: the Multi* type in its
+    metadata (None for an attribute table)."""
+    geo = _geo_metadata(pq.ParquetFile(str(path)))
+    return None if geo is None else _layer_type(geo)
+
+
 def write_parquet_layer(
     layer: ParquetLayer, gdb: Path, *, append: bool, batch_size: int = 10_000
 ) -> None:
@@ -65,13 +79,8 @@ def write_parquet_layer(
     kwargs: dict = {}
     if geo is not None:
         geom_col = geo["primary_column"]
-        col = geo["columns"][geom_col]
-        geometry_type = layer.geometry_type
-        if geometry_type is None:
-            types = col.get("geometry_types") or []
-            multi = [t for t in types if t.startswith("Multi")]
-            geometry_type = (multi or types or ["Unknown"])[0]
-        crs = col.get("crs")
+        geometry_type = layer.geometry_type or _layer_type(geo)
+        crs = geo["columns"][geom_col].get("crs")
         kwargs = {
             "geometry_name": geom_col,
             "geometry_type": geometry_type,
@@ -112,4 +121,9 @@ def write_gdb_from_parquet(layers: list[ParquetLayer], gdb_zip: Path) -> Path:
     return gdb_zip
 
 
-__all__ = ["ParquetLayer", "write_gdb_from_parquet", "write_parquet_layer"]
+__all__ = [
+    "ParquetLayer",
+    "layer_geometry_type",
+    "write_gdb_from_parquet",
+    "write_parquet_layer",
+]

@@ -7,7 +7,11 @@ import pandas as pd
 import pyogrio
 from shapely.geometry import MultiPolygon, Polygon
 
-from dcpy.geospatial.gdb.write import ParquetLayer, write_gdb_from_parquet
+from dcpy.geospatial.gdb.write import (
+    ParquetLayer,
+    layer_geometry_type,
+    write_gdb_from_parquet,
+)
 
 
 def test_write_gdb_from_parquet(tmp_path: Path):
@@ -37,6 +41,8 @@ def test_write_gdb_from_parquet(tmp_path: Path):
     # layer_options to round-trip exactly, as below)
     assert districts.geometry.iloc[0].hausdorff_distance(square) < 1e-4
     assert districts["code"].tolist() == ["a"]
+    assert layer_geometry_type(tmp_path / "districts.parquet") == "MultiPolygon"
+    assert layer_geometry_type(tmp_path / "names.parquet") is None
     info = pyogrio.read_info(gdb, layer="names")
     assert info["geometry_type"] is None
     assert info["features"] == 2

@@ -768,6 +768,67 @@ exports:
     client.close()
 
 
+def test_parquet_first_gdb_layer_recurved_from_arcs(tmp_path, monkeypatch):
+    """custom.arcs: the layer's arcs export alongside it, and `package` writes the FGDB
+    layer with true curves where its vertices match an arc."""
+    from pyogrio.raw import read_arrow
+
+    from dcpy.geospatial.curves import linearize_arc
+    from dcpy.lifecycle.builds.export import package
+
+    arc = [(10.0, 0.0), (7.0710678118654755, 7.0710678118654755), (0.0, 10.0)]
+    ring = linearize_arc(*arc) + [(0.0, 0.0), arc[0]]
+    wkt = "MULTIPOLYGON(((" + ", ".join(f"{x!r} {y!r}" for x, y in ring) + ")))"
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        f"CREATE TABLE s.quarter AS SELECT 1 AS id, ST_GeomFromText('{wkt}') AS geom"
+    )
+    client.conn.execute(
+        "CREATE TABLE s.quarter_arcs AS SELECT "
+        + ", ".join(
+            f"{v!r} AS {c}"
+            for c, v in zip(
+                ["x0", "y0", "x1", "y1", "x2", "y2"], sum(map(list, arc), [])
+            )
+        )
+    )
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  crs: EPSG:2263
+  datasets:
+  - name: quarter
+    filename: things.gdb.zip
+    format: gdb
+    custom: {{ arcs: [quarter_arcs] }}
+"""
+    )
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)
+    out = export(lock, duckdb_client=client)
+    assert out is not None
+    assert (out / "raw_exports" / "things" / "quarter.arcs.parquet").exists()
+    packaged = package(lock)
+    gdb = f"/vsizip/{packaged / 'dataset_files' / 'things.gdb.zip'}/things.gdb"
+    _, table = read_arrow(gdb, layer="quarter")
+    wkb = table.column(table.num_columns - 1)[0].as_py()
+    assert int.from_bytes(wkb[1:5], "little") == 12  # MultiSurface
+    client.close()
+
+
 def test_parquet_first_fixed_width(tmp_path, monkeypatch):
     """A dat entry with custom.layout exports its unformatted rows to parquet, and
     `package` formats them into the fixed-width file."""

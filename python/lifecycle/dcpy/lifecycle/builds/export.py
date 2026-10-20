@@ -9,7 +9,12 @@ from typing import Literal
 
 import typer
 
-from dcpy.geospatial.gdb.write import ParquetLayer, write_gdb_from_parquet
+from dcpy.geospatial.curves.match import ARC_COLUMNS, recurve_matched_parquet
+from dcpy.geospatial.gdb.write import (
+    ParquetLayer,
+    layer_geometry_type,
+    write_gdb_from_parquet,
+)
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.models import (
@@ -188,6 +193,34 @@ LAYERS_DIR = "raw_exports"
 LAYER_MANIFEST = "manifest.json"
 
 
+def _layers_folder(output_folder: Path, filename: str) -> Path:
+    """e.g. raw_exports/district_gdb/v26C_Districts/ for district_gdb/v26C_Districts.gdb.zip"""
+    target = Path(filename)
+    return (
+        output_folder
+        / LAYERS_DIR
+        / target.parent
+        / target.name.removesuffix(".zip").removesuffix(".gdb")
+    )
+
+
+def _export_arcs(
+    relations: str | list[str],
+    path: Path,
+    duckdb_client: duckdb_utils.DuckDBClient | None,
+) -> None:
+    """Write the arcs a layer is re-curved from (columns x0, y0, x1, y1, x2, y2: start,
+    interior and end control points) from one or more relations to ``path``."""
+    if duckdb_client is None:
+        raise NotImplementedError("custom.arcs is only supported for DuckDB builds")
+    relations = [relations] if isinstance(relations, str) else relations
+    columns = ", ".join(f"{c}::DOUBLE AS {c}" for c in ARC_COLUMNS)
+    query = " UNION ALL ".join(
+        f"SELECT {columns} FROM {duckdb_client.schema}.{r}" for r in relations
+    )
+    duckdb_client.export_to_parquet(table_name=path.stem, output_path=path, query=query)
+
+
 def _write_parquet_layers(
     filename: str,
     layers: list[tuple[str, "object"]],
@@ -195,20 +228,15 @@ def _write_parquet_layers(
     layer_options: dict[str, dict[str, str]],
     output_folder: Path,
     crs: str | None,
+    arcs: dict[str, str] | None = None,
 ) -> dict:
     """Write each layer of one layered export to <output>/raw_exports/<filename>/<layer>.parquet
     and return its manifest entry. Same rules as datastores._write_layers: one geometry
-    type per layer, and an empty layer is an error unless allowed."""
+    type per layer, and an empty layer is an error unless allowed. ``arcs`` maps a layer
+    to its arcs parquet (relative to the output folder), for `package` to re-curve it."""
     import geopandas as gpd
 
-    # e.g. raw_exports/district_gdb/v26C_Districts/ for district_gdb/v26C_Districts.gdb.zip
-    target = Path(filename)
-    folder = (
-        output_folder
-        / LAYERS_DIR
-        / target.parent
-        / target.name.removesuffix(".zip").removesuffix(".gdb")
-    )
+    folder = _layers_folder(output_folder, filename)
     folder.mkdir(parents=True, exist_ok=True)
     entries = []
     for layer_name, frame in layers:
@@ -230,6 +258,7 @@ def _write_parquet_layers(
                 "path": str(path.relative_to(output_folder)),
                 "geometry_type": geometry_type,
                 "layer_options": layer_options.get(layer_name, {}),
+                "arcs": (arcs or {}).get(layer_name),
             }
         )
     return {"filename": filename, "format": "gdb", "layers": entries}
@@ -458,6 +487,7 @@ def export(
         layers = []
         allow_empty: set[str] = set()
         layer_options: dict[str, dict[str, str]] = {}
+        arcs: dict[str, str] = {}
         for output in entries:
             custom = output.custom or {}
             layer_name = output.layer_name
@@ -484,6 +514,15 @@ def export(
                 **recipe.exports.gdb_layer_options,
                 **custom.get("layer_options", {}),
             }
+            if from_parquet and custom.get("arcs"):
+                # arcs to re-curve the layer from in `package` (curved FGDB features)
+                path = (
+                    _layers_folder(output_folder, filename)
+                    / f"{layer_name}.arcs.parquet"
+                )
+                path.parent.mkdir(parents=True, exist_ok=True)
+                _export_arcs(custom["arcs"], path, duckdb_client)
+                arcs[layer_name] = str(path.relative_to(output_folder))
         if from_parquet and format == ExportFormat.gdb:
             manifest.append(
                 _write_parquet_layers(
@@ -493,6 +532,7 @@ def export(
                     layer_options,
                     output_folder,
                     recipe.exports.crs,
+                    arcs,
                 )
             )
         elif format == ExportFormat.geopackage:
@@ -519,14 +559,29 @@ def export(
     return output_folder
 
 
+def _layer_parquet(build_folder: Path, layer: dict, tmp: Path) -> Path:
+    """The parquet to fold into the FGDB for a manifest layer: as exported, or re-curved
+    from its arcs (custom.arcs) into ``tmp``."""
+    path = build_folder / layer["path"]
+    if not layer.get("arcs"):
+        return path
+    curved = tmp / f"{layer['name']}.parquet"
+    stats = recurve_matched_parquet(path, build_folder / layer["arcs"], curved)
+    logger.info(
+        f"Re-curved layer {layer['name']}: {stats.curved} of {stats.geometries} "
+        f"features curved, {stats.arcs} arcs"
+    )
+    return curved
+
+
 def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     """Assemble a `package_from_parquet` export's deliverables in the package dir
     ({DCPY_LIFECYCLE_DATA_DIR}/package/<product>/<version>): copy the build artifacts
     into attachments/, then from the build dir's raw_exports/ (per its manifest) copy
-    files, format fixed-width files and fold parquet layers into FGDBs, all into
-    dataset_files/. Then run the recipe's packaging commands (stage_config
-    builds.package; they see BUILD_DIR / PACKAGE_DIR / QA_DIR) and zip the outputs if
-    the recipe names a zip."""
+    files, format fixed-width files and fold parquet layers into FGDBs (re-curving those
+    exported with arcs), all into dataset_files/. Then run the recipe's packaging
+    commands (stage_config builds.package; they see BUILD_DIR / PACKAGE_DIR / QA_DIR)
+    and zip the outputs if the recipe names a zip."""
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
     assert recipe.exports, "No exports defined in recipe"
     assert recipe.version, "Recipe version must be set for packaging"
@@ -555,16 +610,19 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
             n = fixed_width.parquet_to_dat(build_folder / entry["path"], layout, target)
             logger.info(f"Packaged {n} fixed-width lines into {entry['filename']}")
         else:
-            layers = [
-                ParquetLayer(
-                    name=layer["name"],
-                    path=build_folder / layer["path"],
-                    geometry_type=layer["geometry_type"],
-                    layer_options=layer["layer_options"],
-                )
-                for layer in entry["layers"]
-            ]
-            write_gdb_from_parquet(layers, target)
+            with tempfile.TemporaryDirectory() as tmp:
+                layers = [
+                    ParquetLayer(
+                        name=layer["name"],
+                        path=_layer_parquet(build_folder, layer, Path(tmp)),
+                        # a re-curved file declares no geometry type: take the linear one's
+                        geometry_type=layer["geometry_type"]
+                        or layer_geometry_type(build_folder / layer["path"]),
+                        layer_options=layer["layer_options"],
+                    )
+                    for layer in entry["layers"]
+                ]
+                write_gdb_from_parquet(layers, target)
             logger.info(f"Packaged {len(layers)} layers into {entry['filename']}")
 
     if build_config.PACKAGE_STAGE_KEY in recipe.stage_config:
