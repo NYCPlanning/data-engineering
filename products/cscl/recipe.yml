@@ -381,6 +381,14 @@ exports:
   # rows); `builds export package` formats and assembles the deliverables
   package_from_parquet: true
   crs: EPSG:2263
+  # every FGDB layer on one xy grid: the source ETL Working GDB's (prod mixes grids per
+  # layer). Source vertices round-trip exactly; computed ones (e.g. linearized arc points)
+  # snap to the 1e-4 ft grid, as FGDB coordinates are integers.
+  gdb_layer_options:
+    XORIGIN: "-450359962737.04999"
+    YORIGIN: "-450359962737.04999"
+    XYSCALE: "10000"
+    XYTOLERANCE: "0.00020000000000000001"
   datasets:
   # GeoSupport LION
   - name: manhattan_lion_dat

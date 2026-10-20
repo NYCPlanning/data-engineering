@@ -131,6 +131,9 @@ class BuildExports(BaseModel, extra="forbid"):
     package_from_parquet: bool = False
     # CRS stamped on exported GeoParquet whose geometry carries none (e.g. "EPSG:2263")
     crs: str | None = None
+    # OpenFileGDB layer creation options for every gdb layer (e.g. one xy grid: XORIGIN,
+    # YORIGIN, XYSCALE, XYTOLERANCE); an entry's custom.layer_options overrides per key
+    gdb_layer_options: dict[str, str] = {}
 
     @model_validator(mode="after")
     def _check_filename_collisions(self) -> Self:

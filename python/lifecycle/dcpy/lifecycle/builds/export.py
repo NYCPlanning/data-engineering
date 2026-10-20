@@ -480,8 +480,10 @@ def export(
             layers.append((layer_name, gdf))
             if custom.get("allow_empty"):
                 allow_empty.add(layer_name)
-            if custom.get("layer_options"):
-                layer_options[layer_name] = custom["layer_options"]
+            layer_options[layer_name] = {
+                **recipe.exports.gdb_layer_options,
+                **custom.get("layer_options", {}),
+            }
         if from_parquet and format == ExportFormat.gdb:
             manifest.append(
                 _write_parquet_layers(
