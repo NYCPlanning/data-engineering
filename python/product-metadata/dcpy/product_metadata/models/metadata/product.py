@@ -3,7 +3,7 @@ from __future__ import annotations
 import unicodedata
 from typing import Any, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from tabulate import tabulate  # type: ignore
 
 from dcpy.utils.collections import deep_merge_dict as merge
@@ -105,11 +105,14 @@ class FileOverrides(CustomizableBase):
 
 
 class GdbLayerOverrides(CustomizableBase):
-    """Per-layer column overrides for a geodatabase file. `layer` must match
-    an actual layer name in the GDB."""
+    """Per-layer overrides for a geodatabase file, applied on top of the file's
+    overrides. `layer` must match an actual layer name in the GDB."""
 
     layer: str
-    overridden_columns: list["DatasetColumn"] = []
+    # default_factory: DatasetOverrides is defined further down this module
+    dataset_overrides: DatasetOverrides = Field(
+        default_factory=lambda: DatasetOverrides()
+    )
 
 
 class File(CustomizableBase):
@@ -354,11 +357,7 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
         matching = [lo for lo in file.layers if lo.layer == layer]
         if not matching:
             return file_dataset
-        layer_overrides = matching[0]
-        overrides = DatasetOverrides(
-            overridden_columns=layer_overrides.overridden_columns
-        )
-        return file_dataset.override(overrides)
+        return file_dataset.override(matching[0].dataset_overrides)
 
     def calculate_destination_metadata(
         self, *, file_id: str, destination_id: str
@@ -410,6 +409,22 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
                     errors.append(
                         f"{ERROR_MISSING_COLUMN}: file override for {fo.file.id} references undefined column {c}"
                     )
+            layer_names = [lo.layer for lo in fo.file.layers or []]
+            for name in sorted({n for n in layer_names if layer_names.count(n) > 1}):
+                errors.append(
+                    f"DUPLICATE LAYER: file {fo.file.id} declares layer {name} more than once"
+                )
+            for lo in fo.file.layers or []:
+                for c in lo.dataset_overrides.overridden_columns:
+                    if c.id not in column_ids:
+                        errors.append(
+                            f"{ERROR_MISSING_COLUMN}: layer {lo.layer} of file {fo.file.id} references undefined column {c.id}"
+                        )
+                for c in lo.dataset_overrides.omitted_columns:
+                    if c not in column_ids:
+                        errors.append(
+                            f"{ERROR_MISSING_COLUMN}: layer {lo.layer} of file {fo.file.id} references undefined omitted column {c}"
+                        )
 
         # destinations
         for d in self.destinations:

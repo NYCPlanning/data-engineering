@@ -207,9 +207,12 @@ def write_metadata(
         ref_sys_id.id_code_space.value = authority
         # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
 
+    is_table = is_gdb and fgdb.layer_geometry_types(path_to_file)[layer] is None
     entity_name = layer.removesuffix(".shp")
     esri_md.eainfo.detailed.enttyp.enttypl.value = entity_name
-    esri_md.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
+    esri_md.eainfo.detailed.enttyp.enttypt.value = (
+        "Table" if is_table else "Feature Class"
+    )
     esri_md.eainfo.detailed.name = entity_name
 
     # Build attribute metadata for each column

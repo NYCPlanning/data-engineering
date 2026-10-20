@@ -18,6 +18,7 @@ SHP_ZIP_WITH_MD = "shapefile_single_pluto_feature_with_metadata.shp.zip"
 
 GDB_ZIP = "geodatabase.gdb.zip"
 SPATIAL_LAYER = "mappluto_one_row"
+TABLE_LAYER = "pluto_one_row"
 SHP_SUBDIR = "subdir"
 
 
@@ -501,6 +502,47 @@ def test_write_metadata_gdb_format_overrides(
     ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
     assert ref_sys_id.id_code_space.value == "EPSG"
     assert ref_sys_id.ident_code.code == 4326
+
+
+def test_write_metadata_gdb_table_layer_overrides(
+    temp_gdb_zip_path, test_dcpy_org_metadata
+):
+    """A non-spatial GDB layer gets its layer-level overrides (omitted columns,
+    own title) and is typed as a Table."""
+    esri.write_metadata(
+        product_name="test_dcpy",
+        dataset_name="esri",
+        path_to_file=temp_gdb_zip_path,
+        layer=TABLE_LAYER,
+        file_id="gdb",
+        zip_subdir=None,
+        org_md=test_dcpy_org_metadata,
+    )
+    metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=TABLE_LAYER)
+    if metadata is None:
+        pytest.fail("Expected metadata to exist after write")
+
+    assert metadata.eainfo.detailed.enttyp.enttypt.value == "Table"
+    assert (
+        metadata.data_id_info.id_citation.res_title == "Test Esri Metadata Table Layer"
+    )
+    labels = [a.attrlabl.value for a in metadata.eainfo.detailed.attr]
+    assert labels == ["RENAMED_FIELD_FULL"]  # category omitted; file rename kept
+
+    # the spatial layer in the same GDB is unaffected
+    esri.write_metadata(
+        product_name="test_dcpy",
+        dataset_name="esri",
+        path_to_file=temp_gdb_zip_path,
+        layer=SPATIAL_LAYER,
+        file_id="gdb",
+        zip_subdir=None,
+        org_md=test_dcpy_org_metadata,
+    )
+    spatial = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
+    assert spatial is not None
+    assert spatial.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
+    assert spatial.data_id_info.id_citation.res_title == "Test Esri Metadata Dataset"
 
 
 @pytest.mark.parametrize(

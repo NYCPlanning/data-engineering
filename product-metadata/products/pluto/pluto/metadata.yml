@@ -98,6 +98,17 @@ files:
     type: geodatabase
     layers:
     - layer: mappluto_unclipped_gdb
+    - &not_mapped_lots_layer
+      layer: NOT_MAPPED_LOTS
+      dataset_overrides:
+        omitted_columns:
+        - geom
+        attributes:
+          display_name: MapPLUTO {{ current_version_pluto }} - Not Mapped Lots
+          description: |-
+            Tax lots in PLUTO that have no corresponding geometry in the Department of Finance's Digital Tax Map (DTM), and so cannot be mapped. Each record carries the same attributes as MapPLUTO, without geometry.
+
+            Most of these are condominium unit lots that have not yet been aggregated to a billing lot because a condominium number has not been assigned in the Property Tax System (PTS). See the Lot field description for details.
   dataset_overrides:
     overridden_columns: &mappluto_gdb_column_renames
     - id: geom
@@ -306,6 +317,7 @@ files:
     type: geodatabase
     layers:
     - layer: mappluto_gdb
+    - *not_mapped_lots_layer
   dataset_overrides:
     overridden_columns: *mappluto_gdb_column_renames
 - file:

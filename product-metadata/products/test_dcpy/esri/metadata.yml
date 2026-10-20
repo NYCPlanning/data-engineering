@@ -16,6 +16,14 @@ files:
       id: gdb
       filename: test_esri.gdb.zip
       type: geodatabase
+      layers:
+        - layer: mappluto_one_row
+        - layer: pluto_one_row
+          dataset_overrides:
+            omitted_columns:
+              - category
+            attributes:
+              display_name: Test Esri Metadata Table Layer
     dataset_overrides:
       overridden_columns:
         - id: renamed_field
