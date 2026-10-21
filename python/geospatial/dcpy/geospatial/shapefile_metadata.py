@@ -467,7 +467,9 @@ class Attr(BaseXmlModel, tag="attr"):
     attscale: "Attscale" = element(tag="attscale", default_factory=lambda: Attscale())
     attrdef: "Attrdef" = element(tag="attrdef", default_factory=lambda: Attrdef())
     attrdefs: "Attrdefs" = element(tag="attrdefs", default_factory=lambda: Attrdefs())
-    attrdomv: "Attrdomv" = element(tag="attrdomv", default_factory=lambda: Attrdomv())
+    attrdomv: "Attrdomv | None" = element(
+        tag="attrdomv", default_factory=lambda: Attrdomv()
+    )
 
 
 class Detailed(BaseXmlModel, tag="detailed"):

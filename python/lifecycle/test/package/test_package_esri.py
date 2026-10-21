@@ -263,14 +263,12 @@ def test_write_metadata(
     ].removesuffix(".shp")
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
-    # column 0 has no domain values: attrlabl, attrtype, and udom should all round-trip
+    # column 0 has no domain values: label round-trips; no type, no domain written
     col0 = file_metadata.columns[0]
     expected_label_0 = col0.name
     assert metadata.eainfo.detailed.attr[0].attrlabl.value == expected_label_0
     assert _written_type(metadata.eainfo.detailed.attr[0]) is None  # types off
-    udom_0 = metadata.eainfo.detailed.attr[0].attrdomv.udom
-    assert udom_0 is not None
-    assert udom_0.value == col0.description
+    assert not _has_domain(metadata.eainfo.detailed.attr[0])
 
     assert file_metadata.columns[1].values is not None, "Column values must be defined"
 
@@ -296,6 +294,15 @@ def test_write_metadata(
 def _written_type(attr) -> str | None:
     """attrtype value as read back from XML (None when the element is omitted)."""
     return attr.attrtype.value if attr.attrtype else None
+
+
+def _has_domain(attr) -> bool:
+    """Whether an attr read back from XML carries any udom/edom content (reading
+    an attr with no <attrdomv> fills in empty defaults)."""
+    d = attr.attrdomv
+    if d is None:
+        return False
+    return bool((d.udom and d.udom.value) or any(e.edomv for e in d.edom))
 
 
 def _make_column(**kwargs) -> DatasetColumn:
@@ -356,7 +363,7 @@ def test_create_attr_metadata_with_values():
 def test_create_attr_metadata_no_values():
     col = _make_column()
     attr = esri._create_attr_metadata(col)
-    assert attr.attrdomv.edom == []
+    assert attr.attrdomv is None
 
 
 def test_create_attr_metadata_esri_type_passthrough():
@@ -385,11 +392,13 @@ def test_create_attr_metadata_omits_type_by_default():
     assert b"attrtype" not in attr.to_xml()
 
 
-def test_create_attr_metadata_udom_set_when_no_values():
+def test_create_attr_metadata_no_description_of_values_copy():
+    """An ordinary column without values gets no Description of values (udom),
+    rather than a copy of its field description."""
     col = _make_column(description="Free-form text field")
     attr = esri._create_attr_metadata(col)
-    assert attr.attrdomv.udom is not None
-    assert attr.attrdomv.udom.value == "Free-form text field"
+    assert attr.attrdomv is None
+    assert b"attrdomv" not in attr.to_xml()
 
 
 def test_create_attr_metadata_udom_none_when_values_present():

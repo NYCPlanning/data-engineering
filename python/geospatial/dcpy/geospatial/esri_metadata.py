@@ -2,6 +2,7 @@ from datetime import datetime
 
 from dcpy.geospatial.shapefile_metadata import (
     Attr,
+    Attrdomv,
     Attrtype,
     Edom,
     Esri,
@@ -54,9 +55,7 @@ def _get_esri_timestamp(dt_obj=None):
 
     # CreaTime: HHMMSSFF (hours, minutes, seconds, hundredths)
     hundredths = 0  # Esri appears to ignore the hundredths in practice
-    crea_time = (
-        f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
-    )
+    crea_time = f"{dt_obj.hour:02d}{dt_obj.minute:02d}{dt_obj.second:02d}{hundredths:02d}"
 
     return crea_date, crea_time
 
@@ -75,25 +74,18 @@ def _create_attr_metadata(
     attr.attrdef.value = column.description
     attr.attrdefs.value = column.data_source
     if include_type:
-        effective_type = (
-            column.custom.get(custom_type_key) if custom_type_key else None
-        ) or column.data_type
+        effective_type = (column.custom.get(custom_type_key) if custom_type_key else None) or column.data_type
         attr.attrtype = Attrtype(value="OID" if column.id == "uid" else effective_type)
     else:
         attr.attrtype = None
 
-    if column.values:
-        attr.attrdomv.udom = None
-        attr.attrdomv.edom = [_create_edom_metadata(value) for value in column.values]
-    else:
-        attr.attrdomv.udom = Udom(value=column.description)
-        attr.attrdomv.edom = []
+    attr.attrdomv = (
+        Attrdomv(udom=None, edom=[_create_edom_metadata(value) for value in column.values]) if column.values else None
+    )
     return attr
 
 
-def _create_system_attr_metadata(
-    field: EsriSystemField, include_type: bool = False
-) -> Attr:
+def _create_system_attr_metadata(field: EsriSystemField, include_type: bool = False) -> Attr:
     """Create an Attr metadata object for an Esri-managed system field. The
     field type (attrtype) is only written when include_type is set."""
     attr = Attr()
@@ -105,8 +97,7 @@ def _create_system_attr_metadata(
         attr.attrtype = None
     attr.attrdef.value = field.description
     attr.attrdefs.value = field.data_source
-    attr.attrdomv.udom = Udom(value=field.description_of_values)
-    attr.attrdomv.edom = []
+    attr.attrdomv = Attrdomv(udom=Udom(value=field.description_of_values), edom=[])
     return attr
 
 
