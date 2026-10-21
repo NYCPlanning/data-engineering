@@ -879,7 +879,16 @@ exports:
     group: lion_gdb
     filename: nyclion_26c.zip
     format: gdb
-    custom: { layer: lion, geometry_type: lines }
+    # re-curved in packaging from the arcs of the sources LION segments come from
+    custom:
+      layer: lion
+      geometry_type: lines
+      arcs:
+      - dcp_cscl_centerline_arcs
+      - dcp_cscl_shoreline_arcs
+      - dcp_cscl_rail_arcs
+      - dcp_cscl_subway_arcs
+      - dcp_cscl_nonstreetfeatures_arcs
   - name: gdb_node
     group: lion_gdb
     filename: nyclion_26c.zip

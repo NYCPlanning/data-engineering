@@ -168,11 +168,8 @@ class ArcIndex:
         """Control points for vertices i..j on arc ``ci``: the arc's own when the run
         spans it, else the run's endpoints and the point halfway along its sweep."""
         c = self.circles[ci]
-        if c.sign:
-            if self._same(pts[i], c.p0) and self._same(pts[j], c.p1):
-                return [pts[i], c.pm, pts[j]]
-            if self._same(pts[i], c.p1) and self._same(pts[j], c.p0):
-                return [pts[i], c.pm, pts[j]]
+        if c.sign and self._spans(pts[i], pts[j], ci):
+            return [pts[i], c.pm, pts[j]]
         angles = [math.atan2(y - c.cy, x - c.cx) for x, y in pts[i : j + 1]]
         sweep = sum(_angle_delta(a, b) for a, b in zip(angles, angles[1:]))
         am = angles[0] + sweep / 2
@@ -207,6 +204,12 @@ class ArcIndex:
         i = 0
         while i < len(pts) - 1:
             runs = [(self._run(pts, cands, i, ci), ci) for ci in cands[i]]
+            # a run that is a whole arc wins over a piece of another one (e.g. of a
+            # larger arc on nearly the same circle, from another feature)
+            whole = [
+                (j, ci) for j, ci in runs if j > i and self._spans(pts[i], pts[j], ci)
+            ]
+            runs = whole or runs
             best_j = max((j for j, _ in runs), default=i)
             longest = [ci for j, ci in runs if j == best_j > i]
             if len(longest) > 1:
@@ -226,14 +229,18 @@ class ArcIndex:
             i = best_j
         return pts, found
 
+    def _spans(self, p: Point, q: Point, ci: int) -> bool:
+        """p and q are the arc's two endpoints (either way round)."""
+        c = self.circles[ci]
+        return (self._same(p, c.p0) and self._same(q, c.p1)) or (
+            self._same(p, c.p1) and self._same(q, c.p0)
+        )
+
     def _accept(self, pts: list[Point], i: int, j: int, ci: int) -> bool:
         """At least two segments, or one that is the whole (flat) arc."""
         if j - i >= 2:
             return True
-        c = self.circles[ci]
-        return (self._same(pts[i], c.p0) and self._same(pts[j], c.p1)) or (
-            self._same(pts[i], c.p1) and self._same(pts[j], c.p0)
-        )
+        return self._spans(pts[i], pts[j], ci)
 
     def curve_wkb(self, linear_wkb: bytes, stats: CurveStats | None = None) -> bytes:
         """ISO curve WKB for ``linear_wkb`` with every matched arc re-curved; the input

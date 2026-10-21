@@ -73,8 +73,11 @@ def test_extra_vertex_on_the_arc_still_matches():
 
 def test_not_curved():
     index = ArcIndex([ARC])
-    # a chord between the arc's endpoints
+    # a chord between the arc's endpoints, and a segment shorter than the tolerance
+    # at one endpoint
     assert index.curve_wkb(line([P0, P1])) == line([P0, P1])
+    tiny = line([P1, (P1[0] + 0.0001, P1[1])])
+    assert index.curve_wkb(tiny) == tiny
     # vertices on the circle but outside the arc's sweep
     other = linearize_arc((900.0, 1000.0), (1000.0, 900.0), (1100.0, 1000.0))
     assert index.curve_wkb(line(other)) == line(other)
@@ -113,3 +116,14 @@ def test_recurve_matched_parquet(tmp_path):
     geoms = out.column("geometry").to_pylist()
     assert _arcs(geoms[0]) == [(P0, PM, P1)] and geoms[1] == polygon(rings[1])
     assert b'"curved": true' in out.schema.metadata[b"geo"]
+
+
+def test_whole_arcs_win_over_a_piece_of_another():
+    """Two consecutive short arcs on the quarter circle's circle, and the whole quarter
+    arc (from another feature) passing through: the short arcs are this line's own."""
+    pts = linearize_arc(P0, PM, P1)[10:-10]
+    k = len(pts) // 2
+    a = (*pts[0], *pts[k // 2], *pts[k])
+    b = (*pts[k], *pts[(k + len(pts)) // 2], *pts[-1])
+    arcs = _arcs(ArcIndex([ARC, a, b]).curve_wkb(line(pts)))
+    assert [(x[0], x[2]) for x in arcs] == [(pts[0], pts[k]), (pts[k], pts[-1])]
