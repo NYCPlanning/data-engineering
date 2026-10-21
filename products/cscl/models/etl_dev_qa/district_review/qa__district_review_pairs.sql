@@ -11,6 +11,6 @@
 {%- if only %}{% set layers = layers | selectattr('name', 'in', only) | list %}{% endif %}
 
 {% for layer in layers %}
-SELECT * FROM ({{ district_review_pair(layer) }}) AS {{ layer.name }}
-{{ "UNION ALL" if not loop.last else "" }}
+    SELECT * FROM ({{ district_review_pair(layer) }}) AS {{ layer.name }}
+    {{ "UNION ALL" if not loop.last else "" }}
 {% endfor %}

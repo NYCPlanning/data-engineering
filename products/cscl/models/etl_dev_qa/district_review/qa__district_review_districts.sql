@@ -67,7 +67,8 @@ measured AS (
         (st_area(p.geom_new) - st_area(p.geom_prior)) / nullif(st_area(p.geom_prior), 0) * 100 AS area_delta_pct,
         CASE WHEN p.geom_new IS NOT NULL AND p.geom_prior IS NOT NULL THEN coalesce(pc.symdiff_area, 0) END
             AS symdiff_area,
-        CASE WHEN p.geom_new IS NOT NULL AND p.geom_prior IS NOT NULL
+        CASE
+            WHEN p.geom_new IS NOT NULL AND p.geom_prior IS NOT NULL
                 THEN coalesce(pc.symdiff_area, 0) / nullif(st_area(p.geom_new), 0) * 100
         END AS symdiff_area_pct,
         CASE WHEN p.geom_new IS NOT NULL AND p.geom_prior IS NOT NULL THEN coalesce(hd.hausdorff_ft, 0) END

@@ -99,7 +99,7 @@ def _layer_queries(key_name: str) -> dict[str, str]:
 
 @app.command()
 def run(
-    output: Path = typer.Option(
+    output: Path | None = typer.Option(
         None, "--output", "-o", help="Default: <validation dir>/district_review.gdb.zip"
     ),
 ) -> None:
