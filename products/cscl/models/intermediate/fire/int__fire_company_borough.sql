@@ -37,7 +37,7 @@ SELECT
         -- kept anyway as an explicit backstop matching the spec's documented exceptions)
         -- and the full company roster: exactly those 12 change, zero regressions
         -- elsewhere. Same centroid/fallback pattern as the police precinct/sector/
-        -- patrol-borough joins - see docs/prod_bugs/002-police-geo-centroid-mismatch.md.
+        -- patrol-borough joins - see Bug 002 in data_issues.md.
         -- Boroughs come from the AP topology's water-included boundary (bbwi), not the
         -- land-only one (bb): bbwi covers the same area as the source borough polygons,
         -- so a centroid falling in water still lands in a borough. Same result as the

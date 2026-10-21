@@ -6,7 +6,7 @@
 }}
 
 -- Standard diff-summary shape over qa__geometry_fgdb_district_layers - see that model
--- and macros/geometry_diff_qa.sql for the pattern/caveats (chat log 2026-10-04/05).
+-- and macros/geometry_diff_qa.sql for the pattern/caveats.
 -- One model covering all 34 layers in qa__geometry_fgdb_district_layers, output_file_id/
 -- build_table_name/production_table_name derived from source_layer per row rather than
 -- one wrapper file per layer. Only non-passing rows are included.

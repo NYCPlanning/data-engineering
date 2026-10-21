@@ -39,7 +39,7 @@ SELECT
     -- Categorize based on which fields changed
     CASE
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
-        -- See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
+        -- See: Bug 003 in data_issues.md
         WHEN
             status = 'modified'
             AND list_has_all(
@@ -59,7 +59,7 @@ SELECT
     -- Mark as accounted for if it's a known bug/expected difference
     coalesce(
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
-        -- See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
+        -- See: Bug 003 in data_issues.md
         status = 'modified'
         AND list_has_all(
             ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'

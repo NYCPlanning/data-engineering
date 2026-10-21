@@ -40,7 +40,7 @@ SELECT
     CASE
         -- Bug 006: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
         -- and confirmed our new value is correct. Fingerprinted on _saf_key.
-        -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
+        -- See: Bug 006 in data_issues.md
         WHEN
             status = 'modified'
             AND list_contains(ARRAY['416070284412'], _saf_key)
@@ -66,7 +66,7 @@ SELECT
     -- Mark as accounted for if it's a known bug/expected difference
     coalesce(
         -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
-        -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
+        -- See: Bug 006 in data_issues.md
         status = 'modified'
         AND list_contains(ARRAY['416070284412'], _saf_key),
         FALSE

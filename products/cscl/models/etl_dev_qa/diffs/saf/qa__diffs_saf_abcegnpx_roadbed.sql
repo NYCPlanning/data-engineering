@@ -40,7 +40,7 @@ diff_grouped AS (
         -- Categorize based on which fields changed
         CASE
             -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP
-            -- fields. See: docs/prod_bugs/003-saf-gnx-side-ap-point-mismatch.md
+            -- fields. See: Bug 003 in data_issues.md
             WHEN
                 status = 'modified'
                 AND list_has_all(ARRAY[

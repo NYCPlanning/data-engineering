@@ -6,8 +6,8 @@
 }}
 
 -- Standard diff-summary shape over qa__geometry_fgdb_nypuma2010 - see that model,
--- macros/geometry_diff_qa.sql, and qa__diffs_fgdb_nyfb for the pattern/caveats
--- (chat log 2026-10-04/05). Only non-passing rows are included.
+-- macros/geometry_diff_qa.sql, and qa__diffs_fgdb_nyfb for the pattern/caveats.
+-- Only non-passing rows are included.
 SELECT
     key_value AS comparison_id,
     CASE

@@ -8,8 +8,8 @@
 -- columns directly on qa__geometry_fgdb_* - duplicated here too (not instead of) so a
 -- future map UI (or anything else consuming this) can query ONE table
 -- (layer, key_value, role) for everything about a flagged feature, rather than
--- switching schemas between "the row itself" and "things related to it"
--- (chat log 2026-10-06). NOT part of qa__diffs_all's lightweight summary rollup.
+-- switching schemas between "the row itself" and "things related to it".
+-- NOT part of qa__diffs_all's lightweight summary rollup.
 --
 -- role values so far: 'build' (our own output), 'legacy' (the prod/legacy geometry
 -- it's compared against), 'constituent_tract' (a PUMA's member tracts), and four
@@ -55,7 +55,7 @@
 -- (ST_Difference of the raw, unbuffered difference against the buffered one). Needed
 -- because almost every symdiff fragment between build and legacy is tract-dissolve-
 -- retrace needle noise that hugs the true boundary within a fraction of a foot NO
--- MATTER HOW LONG the needle is (confirmed on PUMA 3808, chat log 2026-10-06: max gap
+-- MATTER HOW LONG the needle is (confirmed on PUMA 3808: max gap
 -- 0.004 ft on a needle 2,838 ft long) - without the buffer, this table would be 99%+
 -- noise, defeating its purpose of helping a human spot the real defect. A genuine
 -- spur/gap (same PUMA has one - a self-touching-vertex artifact reaching 104.5 ft from

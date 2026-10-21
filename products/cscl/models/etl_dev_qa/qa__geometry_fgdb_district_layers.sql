@@ -6,13 +6,12 @@
 -- few thousand rows, not at nyap/nycb2010/nycb2010wi/nycb2020/nycb2020wi's 38k-70k rows,
 -- which get the cheaper geometry_diff_qa_cheap instead - see
 -- qa__geometry_fgdb_district_layers_cheap.sql). nycd/nyfb/nypuma2010/nypuma2020 already
--- had their own bespoke models before this one existed (chat log 2026-10-04/05) and are
+-- had their own bespoke models before this one existed and are
 -- left as-is rather than folded in here, to avoid touching working models without need.
 --
 -- One combined table with a source_layer column, not 34 separate model files - same
 -- underlying per-layer SQL (geometry_diff_qa expands to one full query per layer,
--- UNION ALL'd together), just far less file/boilerplate churn for a set this large
--- (chat log 2026-10-05).
+-- UNION ALL'd together), just far less file/boilerplate churn for a set this large.
 --
 -- key_column follows each layer's declared key in seeds/lion_outputs.csv. A composite
 -- (pipe-separated) declared key gets an explicit concat expression for both key_column
@@ -24,7 +23,7 @@
 -- structural diff, not a fixable key mismatch (compare_gdb.py's KNOWN_STRUCTURAL_DIFFS,
 -- Bug 013/inv-9k8). Prod's table is also empty (0 rows) - nothing meaningful to compare.
 --
--- DORMANT BY DEFAULT (chat log 2026-10-05): running the full catalog below took over
+-- DORMANT BY DEFAULT: running the full catalog below took over
 -- 10 minutes (33 layers, several thousand rows each at the slower mid-size layers -
 -- nyct2010/wi, nyct2020/wi, nyed/wi), too slow for a routine build. `enabled` controls
 -- which layers actually run - add a name to it to dive into that layer's geometry

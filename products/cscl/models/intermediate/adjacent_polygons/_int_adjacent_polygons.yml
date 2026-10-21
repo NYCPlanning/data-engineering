@@ -8,7 +8,7 @@ models:
   - name: segmentid
     tests: [ not_null ]
   - name: segment_borocode
-  # TODO disable test for now, got 2 results
+  # not_null disabled: 2 rows fail (inv-c73)
   # tests:
   # - not_null
   - name: left_atomicid
@@ -74,7 +74,8 @@ models:
   - name: topo_method
     description: int__segment_topology_sides.method for the topo pair.
   data_tests: [] #
-#- dbt_expectations.expect_table_row_count_to_equal_other_table: TODO: commented out while weird rows in source data are unresolved
+# disabled until source-data duplicates are resolved (inv-c73):
+#- dbt_expectations.expect_table_row_count_to_equal_other_table:
 #    compare_model: ref("int__segments")
 
 - name: int__segment_offsets

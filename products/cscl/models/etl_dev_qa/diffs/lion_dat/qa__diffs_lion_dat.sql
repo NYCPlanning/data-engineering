@@ -91,7 +91,7 @@ SELECT
         -- Bug 004: Randall's Island NSF segments missing zip code in production.
         -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
         -- segmentid, since segmentids can be renumbered/reused across LION editions.
-        -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
+        -- See: Bug 004 in data_issues.md
         WHEN
             status = 'modified'
             AND LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
@@ -104,7 +104,7 @@ SELECT
         -- segmentid (unlike Bug 004) since this list has been independently verified stable
         -- since 2026-03-02 (~6 months, unchanged across a file move) - see the bug doc for the
         -- source-data-derived query to re-verify/re-derive this list if it's ever in doubt.
-        -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
+        -- See: Bug 005 in data_issues.md
         WHEN
             status = 'modified'
             AND LIST_CONTAINS(ARRAY[
@@ -115,7 +115,7 @@ SELECT
         -- and confirmed our new value is correct. Fingerprinted on _lion_key since these are a
         -- one-off reviewed batch, not a general field-pattern rule - e.g. this does NOT mark
         -- every coincident_seg_count diff accounted for, only these specific records.
-        -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
+        -- See: Bug 006 in data_issues.md
         WHEN
             status = 'modified'
             AND LIST_CONTAINS(ARRAY[
@@ -127,7 +127,7 @@ SELECT
         -- CSCL-LION-06: coincident_seg_count. Segment 8101066 (Brooklyn) has a centerline and
         -- two distinct rail_and_subway segments (itself + 8105519) coincident at one point;
         -- our count of 3 (self + 2 others) vs prod's 2 doesn't settle the general open
-        -- question, just this record. See docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md
+        -- question, just this record. See Bug 007 in data_issues.md
         -- and data_issues.md CSCL-LION-06.
         WHEN
             status = 'modified'
@@ -136,7 +136,7 @@ SELECT
         -- Bug 008: special_address_flag leaks from a centerline record onto its sibling
         -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
         -- legacy ETL's own documented rule that ramps never carry a SAF flag. Ours is correct.
-        -- See: docs/prod_bugs/008-saf-flag-leaks-onto-ramp-protosegment.md
+        -- See: Bug 008 in data_issues.md
         WHEN
             status = 'modified'
             AND _lion_key = '493960174704'
@@ -146,7 +146,7 @@ SELECT
         -- data, not our SQL. Both offset points land wildly outside the city, so the
         -- atomicpolygon join returns NULL on both sides, blanking every left_/right_
         -- district/census field derived from it at once. See:
-        -- docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md #3
+        -- Bug 007 in data_issues.md #3
         WHEN
             status = 'modified'
             AND _lion_key = '527570358043'
@@ -154,7 +154,7 @@ SELECT
         -- Bug 016: prod's real, byte-verified BronxLION.dat has coincident_seg_count = 0 for
         -- this segment, which the ETL spec explicitly forbids (its own documented floor for
         -- "no coincidences" is '1', never '0') - our 1 is spec-correct, prod's 0 is the bug.
-        -- See: docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md
+        -- See: Bug 016 in data_issues.md
         WHEN
             status = 'modified'
             AND _lion_key = '211480359093'
@@ -178,7 +178,7 @@ SELECT
             -- Bug: segment_seqnum can differ (legacy issue)
             change_keys = ARRAY['segment_seqnum']
             -- Bug 001: BOE LGC pointer incorrect for two-digit LGC codes
-            -- See: docs/bugs/001-boe-lgc-pointer-two-digit-codes.md
+            -- See: Bug 001 in data_issues.md
             -- Only when old value was "1" (the legacy default)
             OR (
                 change_keys = ARRAY['boe_lgc_pointer']
@@ -196,7 +196,7 @@ SELECT
             -- Bug 004: Randall's Island NSF segments missing zip code in production.
             -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
             -- segmentid, since segmentids can be renumbered/reused across LION editions.
-            -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
+            -- See: Bug 004 in data_issues.md
             OR (
                 LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
                 AND (changes -> 'l_zip' ->> 'new') = '10035'
@@ -205,31 +205,31 @@ SELECT
                 AND TRIM(changes ->> '$.r_zip.old') = ''
             )
             -- Bug 005: doubly-reversed protosegments not reversed in production.
-            -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
+            -- See: Bug 005 in data_issues.md
             OR LIST_CONTAINS(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
             ], RIGHT(_lion_key, 7))
             -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
-            -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
+            -- See: Bug 006 in data_issues.md
             OR LIST_CONTAINS(ARRAY[
                 '101650330641', '116000297614', '125250032941', '130400327255',
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'
             ], _lion_key)
             -- CSCL-LION-06: coincident_seg_count, one specific record only (not a general rule).
-            -- See: docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md, data_issues.md
+            -- See: Bug 007 in data_issues.md
             OR _lion_key = '304118101066'
             -- Bug 008: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
-            -- in production. See: docs/prod_bugs/008-saf-flag-leaks-onto-ramp-protosegment.md
+            -- in production. See: Bug 008 in data_issues.md
             OR _lion_key = '493960174704'
             -- Bug 007 #3: corrupt centerline geometry (2*pi() control point) zeroes out every
             -- district/census field derived from segment 358043's location. Corrupt source
             -- data, reported to GR. See:
-            -- docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md #3
+            -- Bug 007 in data_issues.md #3
             OR _lion_key = '527570358043'
             -- Bug 016: prod's coincident_seg_count = 0 for this segment, which the spec
             -- forbids (documented floor is '1', never '0') - one specific record only.
-            -- See: docs/prod_bugs/016-coincident-seg-count-zero-in-prod.md
+            -- See: Bug 016 in data_issues.md
             OR _lion_key = '211480359093'
             -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.
             -- See data_issues.md CSCL-LION-16.

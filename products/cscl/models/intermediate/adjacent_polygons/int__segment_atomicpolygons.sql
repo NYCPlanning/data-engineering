@@ -29,7 +29,6 @@ probe AS (
         left_poly.atomicid AS probe_left_atomicid,
         right_poly.atomicid AS probe_right_atomicid
     FROM segment_offsets AS so
-    -- using a cte around atomicpolygons confused the postgres compiler to not use index
     LEFT JOIN
         {{ ref("stg__atomicpolygons") }} AS left_poly
         ON st_within(so.left_offset_point, left_poly.geom)

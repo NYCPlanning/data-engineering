@@ -4,7 +4,7 @@
 -- gdb layers too large for the full check's per-row ST_SymDifference/ST_HausdorffDistance
 -- cost (~0.5-1.2s/row empirically -> 5-20+ hours each at these row counts): nyap
 -- (69,786 rows), nycb2010/nycb2010wi (38,797/39,141), nycb2020/nycb2020wi
--- (37,588/37,984) - chat log 2026-10-05. See qa__geometry_fgdb_district_layers.sql for
+-- (37,588/37,984). See qa__geometry_fgdb_district_layers.sql for
 -- every other district_gdb layer (full check) and geometry_diff_qa_cheap's own
 -- docstring for exactly what this cheaper check does and doesn't catch.
 -- nycb2010 is not listed: it has its own dedicated model (qa__diffs_fgdb_nycb2010), and
