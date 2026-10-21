@@ -7,8 +7,29 @@ address_points AS (
 feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
 ),
+-- LGC1 is the preferred LGC, LGC2-4 the others in Segment_LGC row order (legacy
+-- GetSegmentLGC reads an unsorted cursor, i.e. ObjectID order; LION sorts by value instead).
+-- BOE_LGC points at the first of LGC1-4 that is BOE preferred.
+segment_lgc AS (
+    SELECT
+        segmentid,
+        lgc,
+        b7sc,
+        boe_preferred_lgc_flag,
+        ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY preferred_lgc_flag <> 'Y', ogc_fid) AS lgc_rank
+    FROM {{ source('recipe_sources', 'dcp_cscl_segment_lgc') }}
+),
 lgc AS (
-    SELECT * FROM {{ ref('int__streetcode_and_facecode') }}
+    SELECT
+        segmentid,
+        MAX(CASE WHEN lgc_rank = 1 THEN lgc END) AS lgc1,
+        MAX(CASE WHEN lgc_rank = 2 THEN lgc END) AS lgc2,
+        MAX(CASE WHEN lgc_rank = 3 THEN lgc END) AS lgc3,
+        MAX(CASE WHEN lgc_rank = 4 THEN lgc END) AS lgc4,
+        MIN(CASE WHEN lgc_rank <= 4 AND boe_preferred_lgc_flag = 'Y' THEN lgc_rank END) AS boe_lgc_pointer,
+        MAX(CASE WHEN lgc_rank = 1 THEN b7sc END) AS preferred_b7sc
+    FROM segment_lgc
+    GROUP BY segmentid
 ),
 segment_streets AS (
     SELECT DISTINCT
@@ -17,9 +38,18 @@ segment_streets AS (
     FROM {{ ref('int__lgc') }}
 )
 SELECT
-    feature_names.place_name_sort_order AS place_name,
+    -- An address point on a roadbed that reaches the generic file through the roadbed pointer
+    -- list takes the generic segment's street name and face code (legacy SAFExtractClass)
+    CASE
+        WHEN address_points.segmentid <> saf.segmentid THEN generic_names.place_name_sort_order
+        ELSE feature_names.place_name_sort_order
+    END AS place_name,
     saf.boroughcode,
-    COALESCE(feature_names.face_code, SUBSTRING(saf.segment_lionkey, 2, 4)) AS face_code,
+    CASE
+        WHEN address_points.segmentid <> saf.segmentid
+            THEN COALESCE(generic_names.face_code, SUBSTRING(saf.segment_lionkey, 2, 4))
+        ELSE COALESCE(feature_names.face_code, SUBSTRING(saf.segment_lionkey, 2, 4))
+    END AS face_code,
     SUBSTRING(saf.segment_lionkey, 6, 5) AS segment_seqnum,
     CASE
         WHEN address_points.sosindicator = '1' THEN 'L'
@@ -57,6 +87,8 @@ LEFT JOIN address_points ON saf.saf_globalid = address_points.globalid
 LEFT JOIN feature_names -- TODO error when not joined
     ON address_points.b7sc_actual = feature_names.b7sc AND feature_names.feature_type = 'street'
 LEFT JOIN lgc ON saf.segmentid = lgc.segmentid
+LEFT JOIN feature_names AS generic_names
+    ON lgc.preferred_b7sc = generic_names.b7sc AND generic_names.feature_type = 'street'
 LEFT JOIN segment_streets
     ON saf.segmentid = segment_streets.segmentid AND LEFT(address_points.b7sc_actual, 6) = segment_streets.b5sc
 WHERE saf.saftype = 'S'
