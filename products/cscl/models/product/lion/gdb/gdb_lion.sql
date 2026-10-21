@@ -25,8 +25,8 @@ saf_replicants AS (
 -- rail with rail, ...) with equal geometry; capped at 9 (a single character in prod).
 -- Legacy tests equality within the source feature classes' XY tolerance (0.0002 ft, on a
 -- 0.0001 ft resolution grid), so equal here means the same two nodes and each geometry
--- within 0.0003 ft of the other. Densified true curves differ by float noise, so an
--- exact geometry match misses some.
+-- within var segcount_coincident_tolerance_ft of the other. Densified true curves differ
+-- by float noise, so an exact geometry match misses some.
 segment_geoms AS (
     SELECT
         segmentid,
@@ -53,8 +53,8 @@ coincident_segment_counts AS (
             AND segment.node_b = other.node_b
             AND segment.segmentid <> other.segmentid
     WHERE
-        st_covers(st_buffer(other.geom, 0.0003), segment.geom)
-        AND st_covers(st_buffer(segment.geom, 0.0003), other.geom)
+        st_covers(st_buffer(other.geom, {{ var('segcount_coincident_tolerance_ft') }}), segment.geom)
+        AND st_covers(st_buffer(segment.geom, {{ var('segcount_coincident_tolerance_ft') }}), other.geom)
     GROUP BY segment.segmentid
 ),
 
