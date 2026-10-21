@@ -83,10 +83,10 @@ def get_layers(gdb: Path) -> list[str]:
     # GDAL's vector.info() algorithm directly - that API's Output()["rootGroup"]
     # only exists for geodatabases with a hierarchical group structure (modern/
     # 10.x+ FileGDBs). A "classic" pre-10.x FileGDB (e.g. CSCL's district gdb -
-    # see docs/prod_bugs/013-gdb-creadate-staleness-fossils.md) has no rootGroup
+    # see Bug 013 in data_issues.md) has no rootGroup
     # at all; vector.info() returns a flat "layers" list instead, and the old
     # info["rootGroup"]["layerNames"] lookup raised KeyError('rootGroup') for
-    # every such file (confirmed on v26C_Districts.gdb.zip, chat log 2026-10-05).
+    # every such file (confirmed on v26C_Districts.gdb.zip).
     return list(layer_geometry_types(gdb).keys())
 
 
