@@ -97,7 +97,7 @@ def parse_file(
             # iteration yields that as one more "row", producing a spurious all-blank
             # record with only the marker byte sliced into the first field (confirmed:
             # qa__diffs_thinlion_summary's thinlion_all "only_in_legacy" comparison_id
-            # \x1A000000 - see docs/prod_bugs/015-nyc-thinlion-eof-marker-row.md). Skip
+            # \x1A000000 - see Bug 015 in data_issues.md). Skip
             # any line that's empty once stripped of whitespace and that marker.
             if row.strip("\x1a\r\n ") == "":
                 continue
@@ -122,7 +122,7 @@ def load_datasets(
     already_loaded/record_load tracking at all, so a table loaded once could sit
     stale in the shared production_outputs schema indefinitely with no record of
     what version it actually holds - root-caused for SAF in
-    docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md (item 5&6),
+    Bug 007 in data_issues.md (item 5&6),
     and the likely explanation for a similar pattern seen on ThinFire.
     """
     for ds_name in datasets:
@@ -232,7 +232,7 @@ def _frozen_district_layers() -> set[str]:
     """District gdb layers flagged `status: blocked` in seeds/lion_outputs.csv.
 
     These haven't been genuinely rebuilt in prod since 2009-2015, only re-exported
-    (docs/prod_bugs/013-gdb-creadate-staleness-fossils.md) - still under separate
+    (Bug 013 in data_issues.md) - still under separate
     investigation with another team as of this writing. Skipped entirely rather than
     loaded-and-ignored: comparing our output against a FileGDB object prod hasn't
     touched in over a decade wouldn't tell us anything about our own pipeline.

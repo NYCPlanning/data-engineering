@@ -47,8 +47,8 @@ modified/dev-only/prod-only.
 <QA_DIR>/validation_output/<name>_flagged_rows.csv - one row per flagged FEATURE (not
 column): layer, status (only_in_dev/only_in_prod/modified), key_columns, key. Says
 WHICH rows those were, so a flagged layer can be chased down by key directly (e.g.
-SELECT ... WHERE "BoroCD" = '...') instead of re-deriving the affected rows by hand
-(chat log 2026-10-06). Only written when at least one layer in this gdb actually has
+SELECT ... WHERE "BoroCD" = '...') instead of re-deriving the affected rows by hand.
+Only written when at least one layer in this gdb actually has
 a declared/guessed key - a keyless layer's diffs only ever show up as the aggregate
 counts in the per-column CSV. Can be large for a layer with many real diffs - that's
 the point, it's meant to enumerate exactly what's flagged, not summarize it.
@@ -79,7 +79,7 @@ KNOWN_STRUCTURAL_DIFFS = {
     # structural diff on this layer is expected. See models/product/districts/gdb_nyura.sql.
     # Root cause confirmed via FileGDB item metadata: nyura and nybid share the same frozen
     # 2009-10-20 CopyFeatures batch (Windows XP/ArcGIS 9.3 era) - see
-    # docs/prod_bugs/013-gdb-creadate-staleness-fossils.md.
+    # Bug 013 in data_issues.md.
     "nyura",
 }
 
@@ -272,8 +272,8 @@ def _compare_layers(
 
     # Per-column CSV above says THAT a layer has N rows modified/dev-only/
     # prod-only; this says WHICH ones, so a flagged layer can be chased down
-    # directly instead of re-deriving the affected keys by hand (chat log
-    # 2026-10-05/06). One row per flagged feature, not per column - can be
+    # directly instead of re-deriving the affected keys by hand.
+    # One row per flagged feature, not per column - can be
     # large for a layer with many real diffs (that's the point: it's meant to
     # enumerate exactly what's flagged, not summarize it).
     flagged_rows = report.flagged_rows()
