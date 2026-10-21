@@ -42,6 +42,7 @@ authoritative where it disagrees with this table.
 | CSCL-DISTRICTS-01 | District gdb | GDAL `organizePolygons()` misreads high-ring-count polygons on export (`nypuma2010/2020`) - fixed by stripping sub-min_area holes in `clipped_geom`; `nymcea` fragmentation and `nynta2020`'s clip-fragmentation gap are separate, still-open mechanisms | Fixed (partial) | 26c | inv-8ju.1 |
 | CSCL-DISTRICTS-02 | District gdb | Sub-0.5% area deltas on unclipped layers | Open | 26b | inv-8ju.2 |
 | CSCL-DISTRICTS-03 | District gdb | Coastline-adjacent rows show inflated `SHAPE_Length` - root-caused to AtomicPolygon coverage gaps (hairline seams + genuine voids at jurisdictional edges); fixed for `nynta2010`/`nynta2020`, other `clip_to_shoreline` layers still open | Fixed (partial) | 26c | inv-8ju.3 |
+| CSCL-DISTRICTS-04 | District gdb | `nybid` BIDID 56 published made valid (prod publishes an invalid nested-shell polygon; geometry and `SHAPE_Area` now agree) | Accepted | 26c | inv-3vi.18 |
 | CSCL-LDF-01 | LDF | Transitory elimination leaves ~3% residual | Open | 26b | inv-pkr.1 |
 | CSCL-LDF-02 | LDF | `L` and `R` journal record types never published | Open | 26b | inv-pkr.2 |
 | CSCL-LDF-03 | LDF | Cumulative record number is transcribed, not chained | Open | 26b | inv-pkr.3 |
