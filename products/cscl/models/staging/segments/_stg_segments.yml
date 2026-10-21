@@ -2,6 +2,108 @@ version: 2
 
 models:
 - name: stg__centerline
+  description: >
+    The CSCL Centerline layer: one row per street, bridge, tunnel, ramp or generic segment,
+    with geometry. The base of the LION segment tables; adds the LION feature type code, the
+    traffic direction code, the two bike-lane codes and two include flags for the LION
+    outputs.
+  columns:
+  - name: segmentid
+  - name: physicalid
+    description: Id of the physical (roadbed) segment this segment belongs to.
+  - name: genericid
+    description: Id of the generic segment this segment belongs to.
+  - name: segment_type
+  - name: segment_seqnum
+    description: Sequence number of the segment within its face code.
+  - name: coincident_seg_count
+    description: Count of segments coincident with this one.
+  - name: fcc
+  - name: l_blockfaceid
+    description: Left blockface id; NULL when 0.
+  - name: r_blockfaceid
+    description: Right blockface id; NULL when 0.
+  - name: bike_lane_1
+    description: bike_lane with source codes 10 and 11 mapped to A and B.
+  - name: bike_lane_2
+    description: bike_lane as stored.
+  - name: sandist_ind
+    description: Sanitation district side indicator, L or R from source 1 or 2; blank otherwise.
+  - name: lsubsect
+    description: First two characters of the left sanitation subsection; NULL when 0.
+  - name: rsubsect
+    description: First two characters of the right sanitation subsection; NULL when 0.
+  - name: continuous_parity_flag
+    description: L or R from source 1 or 2; blank otherwise.
+  - name: traffic_direction
+    description: >
+      Traffic direction code from trafdir: FT is W (with), TF is A (against), NV is P
+      (non-vehicular), TW is T (two-way).
+  - name: streetwidth_min
+    description: Minimum street width, rounded half to even; NULL when 0.
+  - name: streetwidth_min_with_zeros
+    description: Minimum street width, rounded half to even, keeping a source 0.
+  - name: bike_traffic_direction
+    description: Renamed bike_trafdir.
+  - name: geom
+  - name: feature_type_code
+    description: >
+      LION feature type code: 5 paper street, 6 private street, 9 paper street on a
+      non-physical boundary, A alley, W addressable path, F ferry, C constructed. NULL for
+      an ordinary public street, bridge or tunnel and for generic segments.
+  - name: feature_type
+    description: Always 'centerline'.
+  - name: source_table
+    description: Always 'centerline'.
+  - name: include_in_geosupport_lion
+    description: Whether the segment belongs in the Geosupport LION file.
+  - name: include_in_bytes_lion
+    description: Whether the segment belongs in the BYTES LION file.
+
 - name: stg__nonstreetfeatures
+  description: >
+    The CSCL NonStreetFeatures layer, such as non-physical boundaries and cemetery walls,
+    with geometry. One row per segment. Adds the LION feature type code derived from linetype.
+  columns:
+  - name: segmentid
+  - name: feature_type_code
+    description: >
+      LION feature type code from linetype: 3 to '3' (census block boundary), 1, 2 and 6 to
+      '7' (other non-physical boundary), 4 and 5 to '8' (physical boundary), 7 to '4' (other
+      non-street feature).
+  - name: feature_type
+    description: Always 'nonstreetfeatures'.
+  - name: source_table
+    description: Always 'nonstreetfeatures'.
+
 - name: stg__rail_and_subway
+  description: >
+    The CSCL Rail and Subway layers unioned, with geometry. One row per segment. Both carry
+    LION feature type code 1; source_table says which layer a row came from.
+  columns:
+  - name: segmentid
+  - name: right_of_way_type
+    description: Renamed row_type.
+  - name: feature_type_code
+    description: Always '1'.
+  - name: feature_type
+    description: Always 'rail_and_subway'.
+  - name: source_table
+    description: "'rail' or 'subway'."
+  - name: include_in_geosupport_lion
+    description: Whether the segment belongs in the Geosupport LION file; false for right-of-way types 1 and 8.
+  - name: active_flag
+    description: Subway only; NULL for rail.
+
 - name: stg__shoreline
+  description: >
+    The CSCL Shoreline layer, with geometry. One row per shoreline segment. Adds LION feature
+    type code 2.
+  columns:
+  - name: segmentid
+  - name: feature_type_code
+    description: Always '2'.
+  - name: feature_type
+    description: Always 'shoreline'.
+  - name: source_table
+    description: Always 'shoreline'.
