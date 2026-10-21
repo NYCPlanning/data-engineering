@@ -521,8 +521,8 @@ exports:
     format: csv
 """
     )
-    # stage outputs live under <root>/build
-    expected = get_build_dir("test", "24Q1") / "build" / "test_24Q1.duckdb"
+    # no stage-dirs features: the duckdb file sits in the build root, as before
+    expected = get_build_dir("test", "24Q1") / "test_24Q1.duckdb"
 
     build._set_duckdb_path(plan.recipe_from_yaml(recipe_path))
     assert os.environ["DUCKDB_PATH"] == str(expected)

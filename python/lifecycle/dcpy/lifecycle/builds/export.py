@@ -323,7 +323,10 @@ def _default_duckdb_client(recipe) -> duckdb_utils.DuckDBClient:
     if not recipe.version:
         raise ValueError("Recipe version must be set for export")
     duckdb_path = build_config.get_duckdb_path(
-        recipe.product, recipe.version, recipe.duckdb_filename
+        recipe.product,
+        recipe.version,
+        recipe.duckdb_filename,
+        build_config.uses_stage_dirs(recipe),
     )
     return duckdb_utils.DuckDBClient(db_path=duckdb_path, schema=metadata.build_name())
 
@@ -413,7 +416,7 @@ def export(
         if not recipe.version:
             raise ValueError("Recipe version must be set for export")
         output_folder = build_config.get_build_output_dir(
-            recipe.product, recipe.version
+            recipe.product, recipe.version, build_config.uses_stage_dirs(recipe)
         )
 
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -586,7 +589,7 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     assert recipe.exports, "No exports defined in recipe"
     assert recipe.version, "Recipe version must be set for packaging"
     build_folder = recipe.exports.output_folder or build_config.get_build_output_dir(
-        recipe.product, recipe.version
+        recipe.product, recipe.version, staged=True
     )
     package_folder = build_config.get_package_output_dir(recipe.product, recipe.version)
     package_folder.mkdir(parents=True, exist_ok=True)

@@ -9,7 +9,11 @@ import typer
 
 from dcpy.configuration import PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
-from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY, get_duckdb_path
+from dcpy.lifecycle.builds.config import (
+    BUILD_STAGE_KEY,
+    get_duckdb_path,
+    uses_stage_dirs,
+)
 from dcpy.lifecycle.builds.models import InputDatasetDestination
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils.logging import logger
@@ -63,7 +67,7 @@ def _set_duckdb_path(recipe: "plan.Recipe") -> None:
     if InputDatasetDestination.duckdb not in destinations or not recipe.version:
         return
     duckdb_path = get_duckdb_path(
-        recipe.product, recipe.version, recipe.duckdb_filename
+        recipe.product, recipe.version, recipe.duckdb_filename, uses_stage_dirs(recipe)
     )
     os.environ["DUCKDB_PATH"] = str(duckdb_path)
     logger.info(f"Set DUCKDB_PATH: {duckdb_path}")
@@ -701,7 +705,20 @@ def _get_build_path(
 
     if duckdb:
         typer.echo(
-            str(get_duckdb_path(recipe.product, recipe.version, recipe.duckdb_filename))
+            str(
+                get_duckdb_path(
+                    recipe.product,
+                    recipe.version,
+                    recipe.duckdb_filename,
+                    uses_stage_dirs(recipe),
+                )
+            )
         )
     else:
-        typer.echo(str(get_build_output_dir(recipe.product, recipe.version)))
+        typer.echo(
+            str(
+                get_build_output_dir(
+                    recipe.product, recipe.version, uses_stage_dirs(recipe)
+                )
+            )
+        )
