@@ -1,4 +1,8 @@
-{{ config(materialized='table', tags=['qa']) }}
+{{ config(
+    materialized='table',
+    tags=['qa'],
+    post_hook=district_review_layer_hooks('district_review_layer_pieces')
+) }}
 
 -- The symmetric difference of each district present on both sides and not equal vertex
 -- for vertex, as single polygons. side: 'added' if the piece is in our district and not
@@ -10,48 +14,9 @@
 -- ap_topology_node_merge_tolerance_ft), so slivers between two copies of the same line
 -- are a few grid cells wide at most. 0.001 ft is about 16 cells, 3x that worst case, and
 -- still far below anything a reviewer could see.
+--
+-- Built one layer per statement, like qa__district_review_pairs: this body is the
+-- first layer, post-hooks insert the rest. The SQL is district_review_layer_pieces
+-- (macros/district_review.sql).
 
-WITH pairs AS (
-    SELECT
-        layer,
-        district_key,
-        st_makevalid(geom_new) AS a,
-        geom_prior AS e
-    FROM {{ ref('qa__district_review_pairs') }}
-    WHERE geom_new IS NOT NULL AND geom_prior IS NOT NULL AND NOT is_equal
-),
-
-pieces AS (
-    SELECT
-        layer,
-        district_key,
-        a,
-        unnest(st_dump(st_collectionextract(st_symdifference(a, e), 3))).geom AS geom
-    FROM pairs
-),
-
-measured AS (
-    SELECT
-        layer,
-        district_key,
-        CASE WHEN st_intersects(st_pointonsurface(geom), a) THEN 'added' ELSE 'removed' END AS side,
-        st_area(geom) AS area_sqft,
-        st_perimeter(geom) AS perimeter_ft,
-        2 * st_area(geom) / nullif(st_perimeter(geom), 0) AS mean_width_ft,
-        geom
-    FROM pieces
-    WHERE NOT st_isempty(geom)
-)
-
--- Noise pieces are kept (they tell identical from grid_noise) but without geometry:
--- there are tens of thousands per layer and nothing reads their shapes.
-SELECT
-    * EXCLUDE (geom, is_noise),
-    is_noise,
-    CASE WHEN NOT is_noise THEN geom END AS geom
-FROM (
-    SELECT
-        *,
-        coalesce(mean_width_ft < {{ var('district_review_noise_width_ft') }}, TRUE) AS is_noise
-    FROM measured
-) AS flagged
+{{ district_review_layer_pieces(district_review_selected_layers()[0]) }}

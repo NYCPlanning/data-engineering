@@ -1,16 +1,19 @@
-{{ config(materialized='table', tags=['qa']) }}
+{{ config(
+    materialized='table',
+    tags=['qa'],
+    post_hook=district_review_layer_hooks('district_review_pair')
+) }}
 
 -- Every district of every district_gdb layer, ours next to prod's (production_outputs,
 -- the previous release), one row per (layer, district key). See
 -- macros/district_review.sql. Feeds the district review FGDB
 -- (poc_validation/district_review_gdb.py) through the other qa__district_review_*
 -- models. var district_review_only (a list of layer names) narrows it for iterating.
+--
+-- Built one layer per statement: this body is the first layer, post-hooks insert the
+-- rest (district_review_layer_hooks says why).
+{%- for layer in district_review_selected_layers() %}
+-- depends_on: {{ ref('gdb_' ~ layer.name) }}
+{%- endfor %}
 
-{%- set only = var('district_review_only', []) %}
-{%- set layers = district_review_layers() %}
-{%- if only %}{% set layers = layers | selectattr('name', 'in', only) | list %}{% endif %}
-
-{% for layer in layers %}
-    SELECT * FROM ({{ district_review_pair(layer) }}) AS {{ layer.name }}
-    {{ "UNION ALL" if not loop.last else "" }}
-{% endfor %}
+{{ district_review_pair(district_review_selected_layers()[0]) }}

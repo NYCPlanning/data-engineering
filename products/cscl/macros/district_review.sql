@@ -112,3 +112,82 @@ SELECT
 FROM new AS n
 FULL OUTER JOIN prior AS p ON n.district_key = p.district_key
 {% endmacro %}
+
+
+{% macro district_review_selected_layers() %}
+{#- district_review_layers(), narrowed by var district_review_only (a list of names). -#}
+{%- set only = var('district_review_only', []) -%}
+{%- set layers = district_review_layers() -%}
+{%- if only %}{% set layers = layers | selectattr('name', 'in', only) | list %}{% endif -%}
+{%- do return(layers) -%}
+{% endmacro %}
+
+
+{% macro district_review_layer_hooks(statement_macro) %}
+{#-
+  Post-hooks that INSERT every selected layer after the first into the model's table,
+  one statement per layer: the model body builds the first layer only. One statement
+  for all 43 layers runs out of DuckDB's 3 GB limit when it shares the instance with
+  other QA models (dbt runs two at a time), and per layer it holds one layer at a time.
+  statement_macro: name of a macro taking a layer dict and returning its SELECT.
+-#}
+{%- set hooks = [] -%}
+{%- for layer in district_review_selected_layers()[1:] -%}
+    {%- do hooks.append(
+        "INSERT INTO {{ this }} BY NAME " ~
+        "{{ " ~ statement_macro ~ "(district_review_selected_layers()[" ~ loop.index ~ "]) }}"
+    ) -%}
+{%- endfor -%}
+{%- do return(hooks) -%}
+{% endmacro %}
+
+
+{% macro district_review_layer_pieces(layer) %}
+{#- One layer's rows of qa__district_review_pieces: see that model. -#}
+WITH pairs AS (
+    SELECT
+        layer,
+        district_key,
+        st_makevalid(geom_new) AS a,
+        geom_prior AS e
+    FROM {{ ref('qa__district_review_pairs') }}
+    WHERE
+        layer = '{{ layer.name }}'
+        AND geom_new IS NOT NULL AND geom_prior IS NOT NULL AND NOT is_equal
+),
+
+pieces AS (
+    SELECT
+        layer,
+        district_key,
+        a,
+        unnest(st_dump(st_collectionextract(st_symdifference(a, e), 3))).geom AS geom
+    FROM pairs
+),
+
+measured AS (
+    SELECT
+        layer,
+        district_key,
+        CASE WHEN st_intersects(st_pointonsurface(geom), a) THEN 'added' ELSE 'removed' END AS side,
+        st_area(geom) AS area_sqft,
+        st_perimeter(geom) AS perimeter_ft,
+        2 * st_area(geom) / nullif(st_perimeter(geom), 0) AS mean_width_ft,
+        geom
+    FROM pieces
+    WHERE NOT st_isempty(geom)
+)
+
+-- Noise pieces are kept (they tell identical from grid_noise) but without geometry:
+-- there are tens of thousands per layer and nothing reads their shapes.
+SELECT
+    * EXCLUDE (geom, is_noise),
+    is_noise,
+    CASE WHEN NOT is_noise THEN geom END AS geom
+FROM (
+    SELECT
+        *,
+        coalesce(mean_width_ft < {{ var('district_review_noise_width_ft') }}, TRUE) AS is_noise
+    FROM measured
+) AS flagged
+{% endmacro %}
