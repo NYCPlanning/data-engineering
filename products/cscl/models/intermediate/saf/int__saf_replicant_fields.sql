@@ -167,15 +167,20 @@ addresspoint_fields AS (
             WHEN 'V' THEN left(ap.b7sc_vanity, 6)
             ELSE left(ap.b7sc_actual, 6)
         END AS saf_street_code,
-        CASE WHEN ap.sosindicator = '1' THEN ap.house_number END AS l_low_hn,
+        -- House number '0' means none, as in the AltSegmentData branch above.
+        CASE WHEN ap.sosindicator = '1' THEN nullif(ap.house_number, '0') END AS l_low_hn,
         CASE
             WHEN ap.sosindicator = '1'
-                THEN CASE WHEN ap.hyphen_type IN ('R', 'X') THEN ap.house_number_range ELSE ap.house_number END
+                THEN nullif(
+                    CASE WHEN ap.hyphen_type IN ('R', 'X') THEN ap.house_number_range ELSE ap.house_number END, '0'
+                )
         END AS l_high_hn,
-        CASE WHEN ap.sosindicator = '2' THEN ap.house_number END AS r_low_hn,
+        CASE WHEN ap.sosindicator = '2' THEN nullif(ap.house_number, '0') END AS r_low_hn,
         CASE
             WHEN ap.sosindicator = '2'
-                THEN CASE WHEN ap.hyphen_type IN ('R', 'X') THEN ap.house_number_range ELSE ap.house_number END
+                THEN nullif(
+                    CASE WHEN ap.hyphen_type IN ('R', 'X') THEN ap.house_number_range ELSE ap.house_number END, '0'
+                )
         END AS r_high_hn,
         NULL::text AS l_zip,
         NULL::text AS r_zip,
