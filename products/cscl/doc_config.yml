@@ -164,9 +164,9 @@ items:
             filter on each output file keeps only the one that actually belongs there.
         - kind: text
           text: >-
-            See CSCL-SAF-01 in data_issues.md for a known, open [[lgc|LGC]]-mismatch
-            pattern affecting several of these outputs - traced to stale LGC
-            assignments in prod, not a bug in this pipeline.
+            See CSCL-SAF-01 in data_issues.md for the [[lgc|LGC]] and row-count
+            differences once attributed to stale prod data. All were traced to this
+            pipeline and fixed.
     entries:
       - name: saf_abcegnpx_generic_by_field
         custom:

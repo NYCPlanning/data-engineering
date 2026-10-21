@@ -46,7 +46,7 @@ authoritative where it disagrees with this table.
 | CSCL-LDF-02 | LDF | `L` and `R` journal record types never published | Open | 26b | inv-pkr.2 |
 | CSCL-LDF-03 | LDF | Cumulative record number is transcribed, not chained | Open | 26b | inv-pkr.3 |
 | CSCL-LDF-04 | LDF | One LION record carries `-1` as GENERICID | Open | 26b | inv-pkr.4 |
-| CSCL-SAF-01 | SAF | Type S `lgc1`-`lgc3` mismatches were ours, not stale prod: when an address point's street isn't on its segment's Segment_LGC list (e.g. JFK Airport 497540), prod takes LGC1 from the address point's B7SC with LGC2-4 blank (fixed in `int__saf_s`, 20 rows); the `saf_abcegnpx_*` row-count gaps are Bug 017 | Fixed | 26c | inv-ib0.1, inv-3vi.11.1.2 |
+| CSCL-SAF-01 | SAF | SAF diffs once filed as stale prod were all ours. Type S: when an address point's street isn't on its segment's Segment_LGC list (e.g. JFK Airport 497540), prod takes LGC1 from the address point's B7SC with LGC2-4 blank (20 rows); LGC2-4 follow Segment_LGC row order, not value order (0289932); an S record reaching the generic file through the RPL takes the generic segment's name (0170731). ABCEGNPX (Bug 017): first RPL row per roadbed, proto segment for RPL rows, no record for an unnamed CommonPlace. All fixed in `int__saf_*`. Open: duplicate `_saf_key` rows the keyed diff can't see (inv-3vi.11.2.2) | Fixed | 26c | inv-ib0.1, inv-3vi.11.1.2, inv-3vi.11.2 |
 | CSCL-THINED-01 | ThinED | Redistricted-field mismatch - resolved by GR's corrected 26c source | Watch | 26c | inv-1xu.1 |
 | CSCL-THINED-02 | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c | inv-1xu.2 |
 | CSCL-THINLION-01 | ThinLION | `nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed) | Accepted | 26c | inv-1xu.3 |
@@ -63,7 +63,7 @@ Some comments and seeds cite `Bug NNN`, from the bug write-ups that preceded thi
 | 003 | SAF GNX side-AP fields near AtomicPolygon boundaries (point-in-polygon method) | inv-8ju.5 |
 | 004 | CSCL-LION-02: Randall's Island segments missing zip 10035 in prod | inv-tz2.2 |
 | 005 | CSCL-LION-01: doubly-reversed protosegments | inv-tz2.1 |
-| 006 | 14 diffs reviewed by hand and confirmed correct by JR (Aug 2026) | inv-tz2.16 |
+| 006 | 14 diffs reviewed by hand and confirmed correct by JR (Aug 2026). The SAF S row (416070284412) is withdrawn: source says LGC 01, as prod has, and its rule is removed | inv-tz2.16, inv-3vi.11.2 |
 | 007 | Six diffs: 1 CSCL-LION-06; 2 Bug 008; 3 corrupt source geometry zeroes district fields; 4 RPL node swap (fixed); 5-6 CSCL-SAF-01 | inv-tz2.6, inv-tz2.20, inv-tz2.17, inv-tz2.18, inv-ib0.1 |
 | 008 | `special_address_flag` leaks onto an on/off-ramp protosegment in prod | inv-tz2.20 |
 | 009 | CSCL-THINED-01: ThinED redistricted fields | inv-1xu.1 |
@@ -74,5 +74,5 @@ Some comments and seeds cite `Bug NNN`, from the bug write-ups that preceded thi
 | 014 | CSCL-THINFIRE-01: ThinFire borough | inv-1xu.4 |
 | 015 | CSCL-THINLION-01: `nyc.thinlion` trailing EOF marker | inv-1xu.3 |
 | 016 | CSCL-LION-14: `coincident_seg_count` = 0 in prod | inv-tz2.14 |
-| 017 | CSCL-SAF-01: stale SAF ABCEGNPX prod source snapshot | inv-ib0.1 |
+| 017 | CSCL-SAF-01: SAF ABCEGNPX row-count gaps. Filed as a stale prod snapshot, but they were ours (fixed) | inv-ib0.1, inv-3vi.11.2 |
 | 018 | CSCL-LION-15: generic-segment house numbers not zeroed | inv-tz2.15 |
