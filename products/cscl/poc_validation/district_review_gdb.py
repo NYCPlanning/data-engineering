@@ -9,7 +9,8 @@ the QA stage's qa_models step):
 Writes <QA_DIR>/validation_output/district_review.gdb.zip. Per district layer <L>:
     <L>_new    our districts, with the discrepancy metrics and class
                (see models/etl_dev_qa/district_review/qa__district_review_districts.sql)
-    <L>_prior  prod's districts, same keys and fields
+    <L>_prior  prod's districts, same keys and fields, where they differ above grid
+               noise (minor, major, prior_only)
     <L>_diff   symmetric-difference pieces above grid noise: side (added | removed),
                area, district key
 plus two attribute tables: summary (every non-identical district, ranked) and
@@ -19,6 +20,7 @@ Each layer's key field is named after its declared key (seeds/lion_outputs.csv);
 composite key's columns are joined with '_' and its values with '|'.
 """
 
+import csv
 import json
 import os
 import tempfile
@@ -33,6 +35,7 @@ from dcpy.geospatial.gdb.write import ParquetLayer, write_gdb_from_parquet
 from dcpy.utils.logging import logger
 
 CRS = "EPSG:2263"
+LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
 METRIC_COLUMNS = [
     "area_new",
     "area_prior",
@@ -55,7 +58,7 @@ def _write_parquet(
 ) -> int:
     """Write a query's result to ``path``; a ``geom`` WKB column gets GeoParquet
     metadata (MultiPolygon, EPSG:2263) so it's written as a feature class."""
-    table = conn.execute(query, params).fetch_arrow_table()
+    table = conn.execute(query, params).to_arrow_table()
     if "geom" in table.column_names:
         geo = {
             "version": "1.0.0",
@@ -73,21 +76,37 @@ def _write_parquet(
     return table.num_rows
 
 
+def _district_layers(seed_path: Path) -> list[tuple[str, str]]:
+    """(layer, key field name) for every district_gdb layer in lion_outputs.csv, so a
+    layer with no districts on either side (nyura) is still written, empty."""
+    with seed_path.open(newline="") as f:
+        return [
+            (row["filename"], row["key_columns"].replace("|", "_"))
+            for row in csv.DictReader(f)
+            if row["output_group"] == "district_gdb" and row["type"] == "layer"
+        ]
+
+
 def _layer_queries(key_name: str) -> dict[str, str]:
-    metrics = ", ".join(METRIC_COLUMNS)
+    metrics = ", ".join(f"d.{c}" for c in METRIC_COLUMNS)
+
+    def side(geom_column: str, where: str = "") -> str:
+        return f"""
+            SELECT d.district_key AS "{key_name}", {metrics},
+                st_aswkb(st_multi(p.{geom_column})) AS geom
+            FROM qa__district_review_districts AS d
+            INNER JOIN qa__district_review_pairs AS p
+                ON d.layer = p.layer AND d.district_key = p.district_key
+            WHERE d.layer = ? AND p.{geom_column} IS NOT NULL {where}
+            ORDER BY d.district_key"""
+
     return {
-        "new": f"""
-            SELECT district_key AS "{key_name}", {metrics},
-                st_aswkb(st_multi(geom_new)) AS geom
-            FROM qa__district_review_districts
-            WHERE layer = ? AND geom_new IS NOT NULL
-            ORDER BY district_key""",
-        "prior": f"""
-            SELECT district_key AS "{key_name}", {metrics},
-                st_aswkb(st_multi(geom_prior)) AS geom
-            FROM qa__district_review_districts
-            WHERE layer = ? AND geom_prior IS NOT NULL
-            ORDER BY district_key""",
+        "new": side("geom_new"),
+        # Only districts that differ above grid noise: an identical or grid_noise
+        # district's prior geometry is within district_review_noise_width_ft of ours
+        # everywhere, and keeping them doubles the zip (20M of 26M prior vertices are
+        # grid_noise census blocks). _new keeps every district, with its class.
+        "prior": side("geom_prior", "AND d.class NOT IN ('identical', 'grid_noise')"),
         "diff": f"""
             SELECT district_key AS "{key_name}", side, area_sqft AS area,
                 mean_width_ft, st_aswkb(st_multi(geom)) AS geom
@@ -108,10 +127,7 @@ def run(
     conn.execute("LOAD spatial")
     conn.execute(f"SET schema = '{os.environ['BUILD_ENGINE_SCHEMA']}'")
 
-    layers = conn.execute(
-        "SELECT layer, any_value(key_name) FROM qa__district_review_districts "
-        "GROUP BY layer ORDER BY layer"
-    ).fetchall()
+    layers = _district_layers(LION_OUTPUTS_SEED_PATH)
 
     with tempfile.TemporaryDirectory() as tmp:
         parquet_layers: list[ParquetLayer] = []

@@ -100,12 +100,14 @@ prior AS (
 
 -- Untyped GEOMETRY: production_outputs types its columns by CRS, and the empty
 -- fgdb_nyura is typed OGC:CRS84, which won't UNION with the EPSG:2263 layers.
+-- Polygonal part only: st_makevalid can return a polygon-plus-line collection (prod's
+-- nynta2020 BK0505 and nypp 113), which no polygon layer accepts.
 SELECT
     '{{ layer.name }}' AS layer,
     '{{ key_name }}' AS key_name,
     coalesce(n.district_key, p.district_key) AS district_key,
-    n.geom::GEOMETRY AS geom_new,
-    p.geom::GEOMETRY AS geom_prior,
+    st_collectionextract(n.geom, 3)::GEOMETRY AS geom_new,
+    st_collectionextract(p.geom, 3)::GEOMETRY AS geom_prior,
     coalesce(st_aswkb(st_normalize(n.geom)) = st_aswkb(st_normalize(p.geom)), FALSE) AS is_equal
 FROM new AS n
 FULL OUTER JOIN prior AS p ON n.district_key = p.district_key

@@ -1,8 +1,9 @@
 {{ config(materialized='table', tags=['qa']) }}
 
--- One row per (layer, district): our geometry and prod's, with discrepancy metrics and a
--- class. The _new, _prior and summary layers of the district review FGDB are cuts of
--- this table.
+-- One row per (layer, district): discrepancy metrics and a class. The _new, _prior and
+-- summary layers of the district review FGDB are cuts of this table, joined to
+-- qa__district_review_pairs for the geometry (not copied here: both sides of every
+-- census block twice over is over a GB).
 --
 -- Metrics count only symmetric-difference pieces above grid noise (see
 -- qa__district_review_pieces). symdiff_area_pct is over our area, as in
@@ -30,7 +31,7 @@ pieces AS (
         layer,
         district_key,
         count(*) AS n_pieces,
-        count(*) FILTER (WHERE NOT is_noise) AS symdiff_fragment_count,
+        (count(*) FILTER (WHERE NOT is_noise))::INTEGER AS symdiff_fragment_count,
         coalesce(sum(area_sqft) FILTER (WHERE NOT is_noise), 0) AS symdiff_area,
         coalesce(sum(perimeter_ft) FILTER (WHERE NOT is_noise), 0) AS symdiff_boundary_len_ft
     FROM {{ ref('qa__district_review_pieces') }}
@@ -110,7 +111,5 @@ SELECT
             THEN 'major'
         ELSE 'minor'
     END AS class,
-    NULL::text AS known_difference_id,
-    geom_new,
-    geom_prior
+    NULL::text AS known_difference_id
 FROM measured

@@ -6,7 +6,7 @@
 SELECT
     row_number() OVER (
         ORDER BY symdiff_area_pct DESC NULLS FIRST, hausdorff_ft DESC, layer ASC, district_key ASC
-    ) AS rank,
-    * EXCLUDE (geom_new, geom_prior)
+    )::INTEGER AS rank,
+    *
 FROM {{ ref('qa__district_review_districts') }}
 WHERE class != 'identical'
