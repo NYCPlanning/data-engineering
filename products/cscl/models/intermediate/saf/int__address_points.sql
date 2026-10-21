@@ -19,7 +19,12 @@ SELECT
     address_points.b7sc_actual,
     address_points.sosindicator,
     CASE
-        WHEN street_names.snd_feature_type IN ('E', 'F') AND address_points.house_number_suffix IS NOT NULL
+        -- Section letter is only encoded into the house number when the suffix carries it after a
+        -- hyphen (e.g. '1/2-A'); a bare suffix like 'A' is left as-is, matching the legacy
+        -- ConvertToLIONAddressFormat.
+        WHEN
+            street_names.snd_feature_type IN ('E', 'F')
+            AND address_points.house_number_suffix LIKE '%-%'
             THEN
                 -- Last character is A, B, etc -> converted to 1, 2, etc
                 (

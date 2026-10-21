@@ -40,7 +40,17 @@ feature_names AS (
     WHERE principal_flag = 'Y'
 ),
 address_points AS (
-    SELECT * FROM {{ ref('int__address_points') }}
+    -- LION carries the plain house number for E/F (Edgewater Park style) addresses; the SAF
+    -- section-letter encoding in int__address_points.house_number applies to SAF only.
+    SELECT
+        * REPLACE (
+            CASE
+                WHEN snd_feature_type IN ('E', 'F') AND hyphen_type IS DISTINCT FROM 'R'
+                    THEN plain_house_number
+                ELSE house_number
+            END AS house_number
+        )
+    FROM {{ ref('int__address_points') }}
 ),
 altnames_join_ids AS (
     SELECT * FROM {{ ref('int__saf_altnames_join_ids') }}
