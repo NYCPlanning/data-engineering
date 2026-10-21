@@ -258,6 +258,9 @@ SELECT
         || lpad(coalesce(deduped.join_lgc3, '00'), 2, '0')
         || lpad(coalesce(deduped.join_lgc4, '00'), 2, '0')
         || deduped.specaddr
-    ) AS join_id
+    ) AS join_id,
+    -- Legacy writes no record for a CommonPlace with no name, but still counts it in
+    -- SegCount (as for the GNX records in int__saf_gnx)
+    deduped.saf_source_table <> 'commonplace' OR deduped.saf_street_name IS NOT NULL AS is_written
 FROM deduped
 INNER JOIN lion ON deduped.lionkey = lion.lionkey

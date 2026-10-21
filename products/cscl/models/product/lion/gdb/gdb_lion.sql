@@ -478,6 +478,8 @@ replicant_rows AS (
             "(lion.segment_type NOT IN ('G', 'F') AND coalesce(lion.feature_type_code, '0') IN ('0', '6', 'W'))"
         ) }}
     ) AS hn
+    -- a SAF record legacy doesn't write (still counted in SegCount above)
+    WHERE saf_replicants.is_written
 )
 
 SELECT * FROM base_rows
