@@ -101,7 +101,7 @@ flagged AS (
                 WHEN abs(perimeter_pct_diff) > {{ var('geom_check_perimeter_pct', 1) }}
                     THEN 'perimeter_pct_diff'
             END
-        ], x -> x IS NOT NULL) AS failing_metrics
+        ], x -> x IS NOT null) AS failing_metrics
     FROM metrics
 )
 
