@@ -69,11 +69,12 @@ SELECT
         OR (
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
         -- See: Bug 003 in data_issues.md
-        status = 'modified'
-        AND list_has_all(
-            ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
-            ], json_keys(changes)
-        )),
+            status = 'modified'
+            AND list_has_all(
+                ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
+                ], json_keys(changes)
+            )
+        ),
         FALSE
     ) AS accounted_for
 FROM categorized
