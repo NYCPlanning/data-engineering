@@ -818,23 +818,6 @@ columns:
 
     This field consists of three digits, the first of which is the borough code (see BORO CODE). The second and third digits are the community district or joint interest area number, whichever is applicable.
 
-    Joint interest areas:
-    BOROUGH JIA NAME
-    Manhattan 164 Central Park
-    Bronx
-    226 Van Cortlandt Park
-    227 Bronx Park
-    228 Pelham Bay Park
-    Brooklyn 355 Prospect Park
-    356 Gateway National Recreation Area
-    Queens
-    480 LaGuardia Airport
-    481 Flushing Meadow/Corona Park
-    482 Forest Park
-    483 JFK International Airport
-    484 Gateway National Recreation Area
-    Staten Island 595 Gateway National Recreation Area
-
     Two portions of the city, Marble Hill and Rikers Island, are legally located in one borough, but serviced by a different borough. The COMMUNITY DISTRICT associated with these areas is the community district by which they are serviced.
 
     Marble Hill is legally located in Manhattan, but is serviced by the Bronx and is divided between community districts 207 and 208. Rikers Island is legally located in the Bronx, but is serviced by Queens and is part of community district 401.
@@ -842,6 +825,51 @@ columns:
     COMMUNITY DISTRICT contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, COMMUNITY DISTRICT is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
   data_source: Department of City Planning
   example: '111'
+  values:
+  - value: 101-112
+    description: Manhattan Community Districts
+    custom:
+      descriptive: true
+  - value: '164'
+    description: Central Park (JIA)
+  - value: 201-212
+    description: Bronx Community Districts
+    custom:
+      descriptive: true
+  - value: '226'
+    description: Van Cortlandt Park (JIA)
+  - value: '227'
+    description: Bronx Park (JIA)
+  - value: '228'
+    description: Pelham Bay Park (JIA)
+  - value: 301-318
+    description: Brooklyn Community Districts
+    custom:
+      descriptive: true
+  - value: '355'
+    description: Prospect Park (JIA)
+  - value: '356'
+    description: Brooklyn Gateway National Recreation Area (JIA)
+  - value: 401-414
+    description: Queens Community Districts
+    custom:
+      descriptive: true
+  - value: '480'
+    description: LaGuardia Airport (JIA)
+  - value: '481'
+    description: Flushing Meadow / Corona Park (JIA)
+  - value: '482'
+    description: Forest Park (JIA)
+  - value: '483'
+    description: JFK International Airport (JIA)
+  - value: '484'
+    description: Queens Gateway National Recreation Area (JIA)
+  - value: 501-503
+    description: Staten Island Community Districts
+    custom:
+      descriptive: true
+  - value: '595'
+    description: Staten Island Gateway National Recreation Area (JIA)
   custom:
     fgdb_data_type: SmallInteger
     shp_data_type: Integer
@@ -960,6 +988,25 @@ columns:
     Department of City Planning - Geosupport System
     Department of City Planning - Administrative District Base Map files
   example: '31'
+  values:
+  - value: 1-6, 10
+    description: Manhattan School Districts
+    custom:
+      descriptive: true
+  - value: 7-12
+    description: Bronx School District
+    custom:
+      descriptive: true
+  - value: 13-23, 32
+    description: Brooklyn School District
+    custom:
+      descriptive: true
+  - value: 24-30
+    description: Queens School District
+    custom:
+      descriptive: true
+  - value: '31'
+    description: Staten Island School District
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1005,6 +1052,45 @@ columns:
 
     FIRE COMPANY contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, FIRE COMPANY is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files. data_type: text
   example: L170
+  values:
+  - value: 001, 003-010, 014-016, 021-024, 026, 028, 033-035, 037, 039, 040, 044, 047,053-055, 058, 059, 065, 067, 069, 074, 076, 080, 084, 091, 093, 095
+    description: Manhattan Fire Company District - Engine
+    custom:
+      descriptive: true
+  - value: 001-016, 018, 020-026, 028, 030, 034-036, 040, 043, 045
+    description: Manhattan Fire Company District - Ladder
+    custom:
+      descriptive: true
+  - value: 038, 042, 043, 045, 046, 048, 050, 052, 060, 062-064, 066, 068, 070-073, 075, 079, 081-083, 088, 089, 090, 092, 094, 096, 097
+    description: Bronx Fire Company Districts - Engine
+    custom:
+      descriptive: true
+  - value: 017, 019, 027, 029, 031-033, 037-039, 041, 042, 044, 046-056, 058, 059, 061
+    description: Bronx Fire Company Districts - Ladder
+    custom:
+      descriptive: true
+  - value: 201, 202, 205-207, 210, 211, 214, 216-222, 224-231, 233-243, 245-250, 253-255, 257, 271, 276, 277, 279-284, 290, 309, 310, 318, 321, 323, 330, 332
+    description: Brooklyn Fire Company Districts - Engine
+    custom:
+      descriptive: true
+  - value: 101-114, 118-120, 122-124, 131, 132, 146-149, 153, 156, 157, 159, 161, 166, 168-170, 172, 174-176
+    description: Brooklyn Fire Company District - Ladder
+    custom:
+      descriptive: true
+  - value: 251, 258-260, 262-266, 268, 273-275, 285-287, 289, 291-295, 297-299, 301-308, 311-317, 319, 320, 324-326, 328, 329, 331
+    description: Queens Fire Company Districts - Engine
+    custom:
+      descriptive: true
+  - value: 115-117, 121, 125-130, 133-138, 140, 142-144, 150-152, 154, 155, 158, 160, 162-165, 167, 173
+    description: Queens Fire Company Districts - Ladder
+    custom:
+      descriptive: true
+  - value: 151- 168
+    description: Staten Island Fire Company Districts - Engine
+  - value: 077-087
+    description: Staten Island Fire Company Districts - Ladder
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1026,6 +1112,43 @@ columns:
     Department of City Planning - Geosupport System
     Department of City Planning - Administrative District Base Map files
   example: '105'
+  values:
+  - value: 001, 005-007, 009, 010, 013, 014, 017, 018
+    description: Manhattan - South Police Precincts
+    custom:
+      descriptive: true
+  - value: 019, 020, 023-026, 028, 030, 032-034
+    description: Manhattan - North Police Precincts
+    custom:
+      descriptive: true
+  - value: 040-049, 052
+    description: Bronx - Police Precincts
+    custom:
+      descriptive: true
+  - value: '050'
+    description: Bronx - Marble Hill Police Precincts
+  - value: 060-063, 066-072, 078
+    description: Brooklyn - South Police Precincts
+    custom:
+      descriptive: true
+  - value: '076'
+    description: Brooklyn - South Piers Police Precincts
+  - value: 073, 075, 077, 079, 081, 083, 088, 090, 094
+    description: Brooklyn - North Police Precincts
+    custom:
+      descriptive: true
+  - value: 084
+    description: Brooklyn - North Piers Police Precincts
+  - value: 100-113, 115
+    description: Queens - Police Precincts
+    custom:
+      descriptive: true
+  - value: '1114'
+    description: Queens - Roosevelt Island Police Precincts
+  - value: 120, 122, 123
+    description: Staten Island - Police Precincts
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: SmallInteger
     shp_data_type: Integer
@@ -1062,6 +1185,27 @@ columns:
     Department of City Planning - Geosupport System
     Department of City Planning - Administrative District Base Map files
   example: '800'
+  values:
+  - value: 0110-2100, 2310-2600, 2810, 2820, 3110-5000, 5200,5300, 5500-6800, 7400, 7600-7800, 8000-9100
+    description: Manhattan
+    custom:
+      descriptive: true
+  - value: 0100-4500, 4700-4800
+    description: Bronx
+    custom:
+      descriptive: true
+  - value: 0110-3900
+    description: Queens
+    custom:
+      descriptive: true
+  - value: 0100-5020, 5200-9120, 9300
+    description: Brooklyn
+    custom:
+      descriptive: true
+  - value: 0100-0800, 0910, 0920
+    description: Staten Island
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: SmallInteger
     shp_data_type: Integer
@@ -1149,18 +1293,29 @@ columns:
     Tax lots that intersect with areas designated in NYC Zoning Districts as PARK, BALL FIELD, PLAYGROUND, and PUBLIC SPACE are assigned a single value of PARK in PLUTO. The NYC Zoning Districts do not constitute a definitive list of parks in the city. Lots designated as PARK should not be used to calculate the amount of open space in an area.
 
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
-
-    Abbreviation Description
-    R1-1 - R12 Residential Districts
-    C1-6 - C8-4 Commercial Districts
-    M1-1 - M3-2 Manufacturing Districts
-    M1-1/R5 - M1-6/R10 Mixed Manufacturing & Residential Districts
-    BPC Battery Park City
-    PARK Areas designated as PARK, BALL FIELD,
-    PLAYGROUND and PUBLIC SPACE in NYC
-    Zoning Districts
   data_source: Department of City Planning NYC GIS Zoning Features
   example: R5
+  values:
+  - value: R1-1 - R12
+    description: Residential Districts
+    custom:
+      descriptive: true
+  - value: C1-6 - C8-4
+    description: Commercial Districts
+    custom:
+      descriptive: true
+  - value: M1-1 - M3-2
+    description: Manufacturing Districts
+    custom:
+      descriptive: true
+  - value: M1-1/R5 - M1-6/R10
+    description: Mixed Manufacturing & Residential Districts
+    custom:
+      descriptive: true
+  - value: BPC
+    description: Battery Park City
+  - value: PARK
+    description: Areas designated as PARK, BALL FIELD, PLAYGROUND and PUBLIC SPACE in NYC Zoning Districts
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1178,6 +1333,10 @@ columns:
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
   data_source: Department of City Planning NYC GIS Zoning Features
   example: R6B
+  values:
+  - value: Same as ZoneDist1
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1195,6 +1354,10 @@ columns:
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
   data_source: Department of City Planning NYC GIS Zoning Features
   example: R5
+  values:
+  - value: Same as ZoneDist1
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1214,6 +1377,10 @@ columns:
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
   data_source: Department of City Planning NYC GIS Zoning Features
   example: PARK
+  values:
+  - value: Same as ZoneDist1
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1263,6 +1430,183 @@ columns:
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
   data_source: Department of City Planning NYC GIS Zoning Features
   example: SRD
+  values:
+  - value: 125th
+    description: Special 125th Street District
+  - value: 125th/TA
+    description: Special 125th Street District/Transit Land Use District
+  - value: BNY
+    description: Special Brooklyn Navy Yard
+  - value: BPC
+    description: Special Battery Park City District
+  - value: BR
+    description: Special Bay Ridge District
+  - value: C
+    description: Special Grand Concourse Preservation District
+  - value: CD
+    description: Special City Island District
+  - value: CI
+    description: Special Coney Island District
+  - value: CL
+    description: Special Clinton District
+  - value: CO
+    description: Special Coney Island Mixed Use District
+  - value: CP
+    description: Special College Point District
+  - value: CR
+    description: Special Coastal Risk District
+  - value: DB
+    description: Special Downtown Brooklyn District
+  - value: DFR
+    description: Special Downtown Far Rockaway District
+  - value: DJ
+    description: Special Downtown Jamaica District
+  - value: EC-1
+    description: Special Enhanced Commercial District 1 (Fourth Avenue, BK)
+  - value: EC-2
+    description: Special Enhanced Commercial District 2 (Columbus and Amsterdam Avenue)
+  - value: EC-3
+    description: Special Enhanced Commercial District 3 (Broadway, MN)
+  - value: EC-4
+    description: Special Enhanced Commercial District 4 (Bedford Stuyvesant)
+  - value: EC-5
+    description: Special Enhanced Commercial District 5 (BK)
+  - value: EC-6
+    description: Special Enhanced Commercial District 6 (BK)
+  - value: EHC
+    description: East Harlem Corridors
+  - value: EHC/TA
+    description: East Harlem Corridors/Transit Land Use District
+  - value: FH
+    description: Special Forest Hills District
+  - value: G
+    description: Special Gowanus Mixed-Use District
+  - value: GC
+    description: Special Garment Center District
+  - value: GI
+    description: Special Governors Island District
+  - value: HP
+    description: Special Hunts Point District
+  - value: HRP
+    description: Special Hudson River Park District
+  - value: HRW
+    description: Special Harlem River Waterfront District
+  - value: HS
+    description: Special Hillsides Preservation District
+  - value: HSQ
+    description: Special Hudson Square District
+  - value: HY
+    description: Special Hudson Yards District
+  - value: IN
+    description: Special Inwood District
+  - value: J
+    description: Jerome Corridor District
+  - value: L
+    description: Special Lincoln Square District
+  - value: LC
+    description: Special Limited Commercial District
+  - value: LI
+    description: Special Little Italy District
+  - value: LIC
+    description: Special Long Island City Mixed Use District
+  - value: LM
+    description: Special Lower Manhattan District
+  - value: MiD
+    description: Special Midtown District
+  - value: MMU
+    description: Special Manhattanville Mixed Use District
+  - value: MP
+    description: Special Madison Avenue Preservation District
+  - value: MX-1
+    description: Special Mixed Use District-1 Port Morris (BX)
+  - value: MX-2
+    description: Special Mixed Use District-2 Dumbo (BK)
+  - value: MX-4
+    description: Special Mixed Use District-4 Flushing/Bedford (BK)
+  - value: MX-5
+    description: Special Mixed Use District-5 Red Hook (BK)
+  - value: MX-6
+    description: Special Mixed Use District-6 Hudson Square (MN)
+  - value: MX-7
+    description: Special Mixed Use District-7 Morrisania (BX)
+  - value: MX-8
+    description: Special Mixed Use District-8 Greenpoint Williamsburg(BK)
+  - value: MX-9
+    description: Special Mixed Use District-9 Northern Hunters Point Waterfront (QN)
+  - value: MX-10
+    description: Special Mixed Use District-10 Atlantic and Howard Avenues (BK)
+  - value: MX-11
+    description: Special Mixed Use District - 11 Gowanus (BK)
+  - value: MX-12
+    description: Special Mixed Use District-12 Borough Park (BK)
+  - value: MX-13
+    description: Special Mixed Use District-13 Lower Concourse (BX)
+  - value: MX-14
+    description: Special Mixed Use District-14 Third Avenue /Tremont Avenue (BX)
+  - value: MX-15
+    description: Special Mixed Use District - 15 West Harlem (MN)
+  - value: MX-16
+    description: Special Mixed Use District - 16 Ocean Hill/East New York (BK)
+  - value: MX-17
+    description: Special Mixed Use District - 17 Hunts Point (BX)
+  - value: MX-18
+    description: Special Mixed Use District-18 Mott Haven (BX)
+  - value: MX-19
+    description: Special Mixed Use District-19 Brownsville (BK)
+  - value: MX-20
+    description: Special Mixed Use District-20 Crown Heights West (BK)
+  - value: MX-21
+    description: Special Mixed Use District-21 Arverne East (QN)
+  - value: MX-22
+    description: Special Mixed Use District-22 Bushwick (BK)
+  - value: MX-23
+    description: Special Mixed Use District-23 Ravenswood (QN)
+  - value: MX-24
+    description: Special Mixed Use District-24 Astoria (QN)
+  - value: MX-25
+    description: Special Mixed Use District-25 Gowanus (BK)
+  - value: NA-1
+    description: Special Natural Area District-1
+  - value: NA-2
+    description: Special Natural Area District-2
+  - value: NA-3
+    description: Special Natural Area District-3
+  - value: NA-4
+    description: Special Fort Totten Natural Area District-4
+  - value: OP
+    description: Special Ocean Parkway District
+  - value: PC
+    description: Special Planned Community Preservation District
+  - value: PI
+    description: Special Park Improvement District
+  - value: SB
+    description: Special Sheepshead Bay District
+  - value: SG
+    description: Special St. George District
+  - value: SHP
+    description: Special Southern Hunters Point District
+  - value: SNX
+    description: Special SoHo-NoHo Mixed Use District
+  - value: SRD
+    description: Special South Richmond Development District
+  - value: SRI
+    description: Special Southern Roosevelt Island District
+  - value: SV-1
+    description: Special Scenic View District
+  - value: SW
+    description: Special Stapleton Waterfront District
+  - value: TA
+    description: Special Transit Land Use District
+  - value: TMU
+    description: Special Tribeca Mixed Use District
+  - value: U
+    description: Special United Nations Development District
+  - value: US
+    description: Special Union Square District
+  - value: WCh
+    description: Special West Chelsea District
+  - value: WP
+    description: Special Willets Point District
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1282,6 +1626,10 @@ columns:
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
   data_source: Department of City Planning NYC GIS Zoning Features
   example: TA
+  values:
+  - value: Same as SPDist1
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1301,6 +1649,10 @@ columns:
     See SPLIT BOUNDARY INDICATOR to determine if the tax lot is divided.
   data_source: Department of City Planning NYC GIS Zoning Features
   example: TA
+  values:
+  - value: Same as SPDist1
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1316,7 +1668,13 @@ columns:
   example: LH-1
   values:
   - value: LH-1
+    description: Limited Height District No. 1 (Gramercy Park/Brooklyn Heights/Cobble Hill)
   - value: LH-1A
+    description: Limited Height District No. 1A (Upper East Side)
+  - value: LH-2
+    description: Limited Height District No. 2
+  - value: LH-3
+    description: Limited Height District No. 3
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1330,8 +1688,14 @@ columns:
   data_source: Department of City Planning NYC GIS Zoning Features
   example: 'Y'
   values:
-  - value: 'Y'
-  - value: 'N'
+  - value: Y
+    description: Lot is split.
+  - value: N
+    description: Lot is not split.
+  - value: (blank)
+    description: Unknown
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1371,6 +1735,511 @@ columns:
     Department of City Planning - based on data from:
     Department of Finance - Property Tax System (PTS)
   example: A1
+  values:
+  - value: A
+    description: One Family Dwellings
+  - value: A0
+    description: Cape Cod
+  - value: A1
+    description: Two Story Detatched (Small or Moderate Size, With or Without Attic)
+  - value: A2
+    description: One Story (Permanent Living Quaters)
+  - value: A3
+    description: Large Suburban Residence
+  - value: A4
+    description: City Residence
+  - value: A5
+    description: Attached or Semi-Detatched
+  - value: A6
+    description: Summer Cottages
+  - value: A7
+    description: Mansion Type or Town House
+  - value: A8
+    description: Bungalow Colony / Land Coop Owned
+  - value: A9
+    description: Miscellaneous
+  - value: B
+    description: Two Family Dwellings
+  - value: B1
+    description: Brick
+  - value: B2
+    description: Frame
+  - value: B3
+    description: Converted (From One Family)
+  - value: B9
+    description: Miscellaneous
+  - value: C
+    description: Walk Up Apartments
+  - value: C0
+    description: Three Families
+  - value: C1
+    description: Over Six Families Without Stores
+  - value: C2
+    description: Five to Six Families
+  - value: C3
+    description: Four Families
+  - value: C4
+    description: Old Law Tenements
+  - value: C5
+    description: Converted Dwelling or Rooming House
+  - value: C6
+    description: Cooperative
+  - value: C7
+    description: Over Six Families with Stores
+  - value: C8
+    description: Co-op Conversion from Loft / Warehouse
+  - value: C9
+    description: Garden Apartments
+  - value: CM
+    description: Mobile Homes/Trailer Parks
+  - value: D
+    description: Elevator Apartments
+  - value: D0
+    description: Co-op Conversion from Loft / Warehouse
+  - value: D1
+    description: Semi-fireproof (Without Stores)
+  - value: D2
+    description: Artists in Residence
+  - value: D3
+    description: Fireproof (Standard Construction Without Stores)
+  - value: D4
+    description: Cooperatives (Other Than Condominiums)
+  - value: D5
+    description: Converted
+  - value: D6
+    description: Fireproof - With Stores
+  - value: D7
+    description: Semi- Fireproof With Stores
+  - value: D8
+    description: Luxury Type
+  - value: D9
+    description: Miscellaneous
+  - value: E
+    description: Warehouses
+  - value: E1
+    description: Fireproof
+  - value: E2
+    description: Contractors Warehouse
+  - value: E3
+    description: Semi-Fireproof
+  - value: E4
+    description: Frame, Metal
+  - value: E6
+    description: Governmental Warehouses
+  - value: E7
+    description: Warehouse, Self Storage
+  - value: E9
+    description: Miscellaneous
+  - value: F
+    description: Factory and Industrial Buildings
+  - value: F1
+    description: Heavy Manufacturing (Fireproof)
+  - value: F2
+    description: Special Construction (Printing Plant, etc., Fireproof)
+  - value: F4
+    description: Semi-Fireproof
+  - value: F5
+    description: Light Manufacturing
+  - value: F8
+    description: Tank Farms
+  - value: F9
+    description: Miscellaneous
+  - value: G
+    description: Garages and Gasoline Stations
+  - value: G0
+    description: Residential Tax Class 1 Garage
+  - value: G1
+    description: All Parking Garages
+  - value: G2
+    description: Auto Body/Collision or Auto Repair
+  - value: G3
+    description: Gas Station with Retail Store
+  - value: G4
+    description: Gas Station with Service/Auto Repair
+  - value: G5
+    description: Gas Station only with/without Small Kiosk
+  - value: G6
+    description: Licensed Parking Lot
+  - value: G7
+    description: Unlicensed Parking Lot
+  - value: G8
+    description: Garage with Showroom
+  - value: G9
+    description: Miscellaneous
+  - value: GU
+    description: Car Sales/Rental without Showroom
+  - value: GW
+    description: Car Wash or Lubritorium Facility
+  - value: H
+    description: Hotels
+  - value: H1
+    description: Luxury Type
+  - value: H2
+    description: Full Service Hotel
+  - value: H3
+    description: Limited Service - Many Affiliated with National Chain
+  - value: H4
+    description: Motels
+  - value: H5
+    description: Private Club, Luxury Type
+  - value: H6
+    description: Apartment Hotels
+  - value: H7
+    description: Apartment Hotels- Co-Op Owned
+  - value: H8
+    description: Dormitories
+  - value: H9
+    description: Miscellaneous
+  - value: HB
+    description: Boutique 10-100 Rooms, with Luxury Facilities, Themed, Stylish, with Full Service Accommodations
+  - value: HH
+    description: Hostel-Bed Rental in Dorm Like Setting with Shared Rooms and Bathrooms
+  - value: HR
+    description: SRO-1 or 2 People Housed in Individual Rooms in Multiple Dwelling Affordable Housing
+  - value: HS
+    description: Extended Stay/Suite Amenities Similar to Apt., Typically Charge Weekly Rates and Less Expensive than Full Service Hotel
+  - value: I
+    description: Hospitals and Health
+  - value: I1
+    description: Hospitals, Sanitariums, Mental Institutions
+  - value: I2
+    description: Infirmary
+  - value: I3
+    description: Dispensary
+  - value: I4
+    description: Staff Facilities
+  - value: I5
+    description: Health Center, Child Center, Clinic
+  - value: I6
+    description: Nursing Homes
+  - value: I7
+    description: Adult Care Facilities
+  - value: I9
+    description: Miscellaneous
+  - value: J
+    description: Theaters
+  - value: J1
+    description: Art Type (Seating Capacity Under 400 Seats)
+  - value: J2
+    description: Art Type (Seating Capcity over 400 seats)
+  - value: J3
+    description: Motion Picture Theater with Balcony
+  - value: J4
+    description: Legitimate Theaters (Theater Sole Use of Building)
+  - value: J5
+    description: Theatre in Mixed Use Building
+  - value: J6
+    description: T.V. Studio
+  - value: J7
+    description: Off-Broadway Type
+  - value: J8
+    description: Multiplex Picture Theatre
+  - value: J9
+    description: Miscellaneous
+  - value: K
+    description: Store Buildings (Taxpayers Included)
+  - value: K1
+    description: One Story Retail Building
+  - value: K2
+    description: Multi-Story Retail Building
+  - value: K3
+    description: Department Stores, Multi - Story
+  - value: K4
+    description: Predominant Retail with Other Uses
+  - value: K5
+    description: Stand Alone Food Establishment
+  - value: K6
+    description: Shopping Centers With or Without Parking
+  - value: K7
+    description: Banking Facilities with or Without Parking
+  - value: K8
+    description: Big Box Retail Not Affixed and Standing On Own Lot with Parking
+  - value: K9
+    description: Miscellaneous
+  - value: L
+    description: Loft Buildings
+  - value: L1
+    description: Over Eight Stores (Mid-Manhattan Type)
+  - value: L2
+    description: Fireproof and Storage Type (Without Stores)
+  - value: L3
+    description: Semi-Fireproof
+  - value: L8
+    description: With Retail Stores (Other than Type 1)
+  - value: L9
+    description: Miscellaneous
+  - value: M
+    description: Churches, Synagogues, Etc.
+  - value: M1
+    description: Church, Synagogue, Chapel
+  - value: M2
+    description: Mission House (Non-Residential)
+  - value: M3
+    description: Parsonage, Rectory
+  - value: M4
+    description: Convents
+  - value: M9
+    description: Miscellaneous
+  - value: N
+    description: Asylums and Homes
+  - value: N1
+    description: Asylums
+  - value: N2
+    description: Homes for Indigent Children, Aged, Homelss
+  - value: N3
+    description: Orphanages
+  - value: N4
+    description: Detention House For Wayward Girls
+  - value: N9
+    description: Miscellaneous
+  - value: O
+    description: Office Buildings
+  - value: O1
+    description: Office Only - 1 Story
+  - value: O2
+    description: Office Only - 2 to 6 Stories
+  - value: O3
+    description: Office Only - 7 to 9 Stories
+  - value: O4
+    description: Office Only or Office with Comm - 20 Stories or More
+  - value: O5
+    description: Office with Comm - 1 to 6 Stories
+  - value: O6
+    description: Office with Comm - 7 to 19 Stories
+  - value: O7
+    description: Professional Buildings/Stand Alone Funeral Homes
+  - value: O8
+    description: Office with Apartments Only (No Comm)
+  - value: O9
+    description: Miscellaneous and Old Style Bank Bldgs
+  - value: P
+    description: Places of Public Assembly (Indoor) and Cultural
+  - value: P1
+    description: Concert Halls
+  - value: P2
+    description: Lodge Rooms
+  - value: P3
+    description: YWCA, YMCA, YWHA, YMHA, PAL
+  - value: P4
+    description: Beach Club
+  - value: P5
+    description: Community Center
+  - value: P6
+    description: Amusement Places, Bathhouses, Boat Houses
+  - value: P7
+    description: Museum
+  - value: P8
+    description: Library
+  - value: P9
+    description: Miscellaneous Including Riding Academies and Stables
+  - value: Q
+    description: Outdoor Recreation Facilities
+  - value: Q0
+    description: Open Space
+  - value: Q1
+    description: Parks/Recreation Facilities
+  - value: Q2
+    description: Playgrounds
+  - value: Q3
+    description: Outdoor Pools
+  - value: Q4
+    description: Beaches
+  - value: Q5
+    description: Golf Courses
+  - value: Q6
+    description: Stadium, Race Tracks, Baseball Fields
+  - value: Q7
+    description: Tennis Courts
+  - value: Q8
+    description: Marinas / Yacht Clubs
+  - value: Q9
+    description: Miscellaneous
+  - value: R
+    description: Condominiums
+  - value: R0
+    description: Condo Billing Lot
+  - value: R1
+    description: Residential Unit in 2-10 Unit Bldg
+  - value: R2
+    description: Residential Unit in Walk-Up Bldg
+  - value: R3
+    description: Residential Unit in 1-3 Story Bldg
+  - value: R4
+    description: Residential Unit in Elevator Bldg
+  - value: R5
+    description: Miscellaneous Commercial
+  - value: R6
+    description: Residential Unit of 1-3 Unit Bldg-Orig Class 1
+  - value: R7
+    description: Commercial Unit of 1-3 Units Bldg-Orig Class 1
+  - value: R8
+    description: Commercial Unit of 2-10 Unit Bldg
+  - value: R9
+    description: Co-op within a Condominium
+  - value: RA
+    description: Cultural, Medical, Educational, etc
+  - value: RB
+    description: Office Space
+  - value: RC
+    description: Commercial Building (Mixed Commercial Condo Building Classification Codes)
+  - value: RD
+    description: Residential Building (Mixed Residential Condo Building Classification Codes)
+  - value: RG
+    description: Indoor Parking
+  - value: RH
+    description: Hotel, Boatel
+  - value: RI
+    description: Mixed Warehouse, Factory, Inductrial, Commercial
+  - value: RK
+    description: Retail Space
+  - value: RM
+    description: Mixed Residential & Commercial Building (Mixed Residential & Commercial Condo Building Classification Codes)
+  - value: RP
+    description: Outdoor Parking
+  - value: RR
+    description: Condominium Rental
+  - value: RS
+    description: Non-Business Storage Space
+  - value: RT
+    description: Terraces/Gardens/Cabanas
+  - value: RW
+    description: Warehouse,Factory,Industrial
+  - value: RX
+    description: Mixed Residential, Commercial, Industrial
+  - value: RZ
+    description: Mixed Residential, Warehouse
+  - value: S
+    description: Residence -Multiple Use
+  - value: S0
+    description: Primarily One Family with Two Stores or Offices
+  - value: S1
+    description: Primarily One Family with One Store or Office
+  - value: S2
+    description: Primarily Two Family with One Store or Office
+  - value: S3
+    description: Primarily Three Family with One Store or Office
+  - value: S4
+    description: Primarily Four Family with One Store or Office
+  - value: S5
+    description: Primarily Five to Six Family with One Store or Office
+  - value: S9
+    description: Single or Multiple Dwelling with Stores or Offices
+  - value: T
+    description: Transportation Facilities (Assessed in ORE)
+  - value: T1
+    description: Airports, Air Fields, Terminals
+  - value: T2
+    description: Piers, Docks, Bulkheads
+  - value: T9
+    description: Miscellaneous
+  - value: U
+    description: Utility Bureau Properties
+  - value: U0
+    description: Utility Company Land and Buildings
+  - value: U1
+    description: Bridges, Tunnels, Highways
+  - value: U2
+    description: Electric Utilities, Gas
+  - value: U3
+    description: Ceiling R.R.
+  - value: U4
+    description: Telephone Utilities
+  - value: U5
+    description: Communications Facilities (Other than Telephone)
+  - value: U6
+    description: Railroad, Private Ownership
+  - value: U7
+    description: Transportation, Public Ownership
+  - value: U8
+    description: Revocable Consents
+  - value: U9
+    description: Miscellaneous
+  - value: V
+    description: Vacant Land
+  - value: V0
+    description: Zoned Residential; Not Manhattan
+  - value: V1
+    description: Zoned Commercial or Manhattan Residential
+  - value: V2
+    description: Zoned Commercial Adjacent to Class 1 Dwelling; Not Manhattan
+  - value: V3
+    description: Zoned Primarily Residential; Not Manhattan
+  - value: V4
+    description: Police or Fire Department
+  - value: V5
+    description: School Site or Yard
+  - value: V6
+    description: Library, Hospitals, or Museums
+  - value: V7
+    description: Port Authority of NY and NJ
+  - value: V8
+    description: State & US
+  - value: V9
+    description: Miscellaneous
+  - value: W
+    description: Educational Structures
+  - value: W1
+    description: Public Elementary Junior and Senior High Schools
+  - value: W2
+    description: Parochial Schools, Yeshivas
+  - value: W3
+    description: Schools or Academies
+  - value: W4
+    description: Training Schools
+  - value: W5
+    description: City University
+  - value: W6
+    description: Other Colleges and Universities
+  - value: W7
+    description: Theological Seminaries
+  - value: W8
+    description: Other Private Schools
+  - value: W9
+    description: Miscellaneous
+  - value: Y
+    description: Selected Government Installations (Excluding Office Buildings, Training Schools, Academic, Garages, Warehouses, Piers, Air Fields, Vacant Land, Vacant Sites, and Land Under Water and Easments)
+  - value: Y1
+    description: Fire Department
+  - value: Y2
+    description: Police Department
+  - value: Y3
+    description: Prisons, Jails, Houses of Detention
+  - value: Y4
+    description: Military and Naval
+  - value: Y5
+    description: Department of Real Estate
+  - value: Y6
+    description: Department of Sanitation
+  - value: Y7
+    description: Department of Ports and Terminals
+  - value: Y8
+    description: Department of Public Works
+  - value: Y9
+    description: Department of Environmental Protection
+  - value: Z
+    description: Miscelleneous
+  - value: Z0
+    description: Tennis Court, Pool, Shed, etc
+  - value: Z1
+    description: Court House
+  - value: Z2
+    description: Public Parking Areas
+  - value: Z3
+    description: Post Office
+  - value: Z4
+    description: Foreign Governments
+  - value: Z5
+    description: United Nations
+  - value: Z6
+    description: Land Under Water
+  - value: Z7
+    description: Easements
+  - value: Z8
+    description: Cemetaries
+  - value: Z9
+    description: Other
+  - value: QG
+    description: Community Gardens
   custom:
     fgdb_data_type: String
     shp_data_type: String
@@ -1449,14 +2318,17 @@ columns:
   - value: C
     description: City ownership
   - value: X
-    description: Fully tax-exempt property that may be owned by the city, state, or federal
-      government; a public authority; or a private institution
+    description: Fully tax-exempt property that may be owned by the city, state, or federal government; a public authority; or a private institution
   - value: O
     description: Other - owned by either a public authority or the state or federal government
   - value: P
     description: Private ownership
   - value: M
     description: Mixed city & private ownership
+  - value: blank
+    description: Unknown (Usually Private Ownership)
+    custom:
+      descriptive: true
   custom:
     fgdb_data_type: String
     shp_data_type: String
