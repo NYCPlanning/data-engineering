@@ -878,3 +878,54 @@ exports:
         b"001ab  \r\n002    \r\n"
     )
     client.close()
+
+
+_NO_EXPORTS_RECIPE = """\
+name: Test Product
+product: test
+version: 24Q1
+build_name: 24Q1
+inputs:
+  datasets: []
+"""
+_NO_EXPORTS_STAGED_RECIPE = (
+    _NO_EXPORTS_RECIPE
+    + """\
+stage_config:
+  builds.qa:
+    commands:
+    - name: noop
+      run: "true"
+"""
+)
+
+
+@pytest.mark.parametrize(
+    "recipe_text, subdir",
+    [(_NO_EXPORTS_RECIPE, ""), (_NO_EXPORTS_STAGED_RECIPE, "build")],
+    ids=["not_staged", "staged"],
+)
+def test_export_recipe_data_without_exports_uses_recipe_build_dir(
+    tmp_path, monkeypatch, recipe_text, subdir
+):
+    """With no exports, the metadata is written to the build dir: the root for a recipe
+    that doesn't use stage dirs, <root>/build for one that does."""
+    from dcpy.lifecycle.builds import build
+
+    for var in ("BUILD_ENV_OUTPUT_DIR", "BUILD_ENV_ROOT_DIR"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("DCPY_LIFECYCLE_DATA_DIR", str(tmp_path / "lifecycle_data"))
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(recipe_text)
+
+    from dcpy.lifecycle.config import get_build_dir
+
+    expected = get_build_dir("test", "24Q1") / subdir
+    with patch("dcpy.lifecycle.builds.metadata.write_build_metadata") as write_meta:
+        build.run_single_command(
+            product_path=tmp_path / "test",
+            recipe_lock_path=recipe_path,
+            command_name="export_recipe_data",
+        )
+    assert expected.is_dir()
+    assert write_meta.call_args.kwargs["output_folder"] == expected

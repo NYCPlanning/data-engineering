@@ -107,6 +107,12 @@ def get_build_output_dir(product: str, version: str, staged: bool = False) -> Pa
     return root / "build" if staged else root
 
 
+def get_recipe_build_dir(product: str, version: str, recipe: "Recipe") -> Path:
+    """The build stage's directory for `recipe`: <root>/build if it uses stage dirs, else
+    the build root. For callers that name the product and version themselves."""
+    return get_build_output_dir(product, version, uses_stage_dirs(recipe))
+
+
 def get_duckdb_path(
     product: str, version: str, filename: str | None = None, staged: bool = False
 ) -> Path:

@@ -157,7 +157,7 @@ def run_single_command(
         logger.info("Executing export_recipe_data step")
         from dcpy.lifecycle.builds import export as build_export
         from dcpy.lifecycle.builds import metadata as build_metadata
-        from dcpy.lifecycle.config import get_build_dir
+        from dcpy.lifecycle.builds.config import get_recipe_build_dir
 
         # If recipe has exports, run the export step
         if recipe.exports:
@@ -173,7 +173,7 @@ def run_single_command(
             assert recipe.build_name, (
                 "Recipe must have a build_name to determine build directory"
             )
-            output_path = get_build_dir(product_name, recipe.build_name)
+            output_path = get_recipe_build_dir(product_name, recipe.build_name, recipe)
             logger.info(f"Using build directory as output path: {output_path}")
             if not output_path.exists():
                 output_path.mkdir(parents=True, exist_ok=True)
@@ -537,7 +537,7 @@ def build(
     # Export datasets from PostgreSQL and write build_metadata.json
     from dcpy.lifecycle.builds import export as build_export
     from dcpy.lifecycle.builds import metadata as build_metadata
-    from dcpy.lifecycle.config import get_build_dir
+    from dcpy.lifecycle.builds.config import get_recipe_build_dir
 
     # If recipe has exports, run the export step
     if recipe.exports:
@@ -554,7 +554,7 @@ def build(
         assert recipe.build_name, (
             "Recipe must have a build_name to determine build directory"
         )
-        output_path = get_build_dir(product_name, recipe.build_name)
+        output_path = get_recipe_build_dir(product_name, recipe.build_name, recipe)
         logger.info(f"Using build directory as output path: {output_path}")
         if not output_path.exists():
             output_path.mkdir(parents=True, exist_ok=True)

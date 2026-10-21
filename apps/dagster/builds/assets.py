@@ -269,6 +269,7 @@ def make_build_asset(product: lifecycle.asset_models.Product):
         """Execute a single build command with proper marker file coordination."""
         import time
 
+        from dcpy.lifecycle.builds.config import get_recipe_build_dir
         from dcpy.lifecycle.config import get_build_dir
 
         command_name = command_info["command_name"]
@@ -287,10 +288,14 @@ def make_build_asset(product: lifecycle.asset_models.Product):
         context.log.info(f"  Run ID: {run_id}")
         context.log.info("=" * 80)
 
-        # Get build directory and marker directory
-        build_output_dir = get_build_dir(product.name, partition_key)
-        recipe_lock_path = build_output_dir / "recipe.lock.yml"
-        dagster_dir = build_output_dir / ".dagster"
+        # The root holds the recipe lock and markers; commands run against the build
+        # stage dir (the root itself unless the recipe uses stage dirs)
+        root_dir = get_build_dir(product.name, partition_key)
+        recipe_lock_path = root_dir / "recipe.lock.yml"
+        build_output_dir = get_recipe_build_dir(
+            product.name, partition_key, build_plan.recipe_from_yaml(recipe_lock_path)
+        )
+        dagster_dir = root_dir / ".dagster"
         dagster_dir.mkdir(exist_ok=True)
 
         # Marker file management with run ID for sequential execution and re-runs
@@ -366,16 +371,20 @@ def make_build_asset(product: lifecycle.asset_models.Product):
         """Upload build to storage after all commands complete."""
         import shutil
 
+        from dcpy.lifecycle.builds.config import get_recipe_build_dir
         from dcpy.lifecycle.config import get_build_dir
 
         partition_key = context.run.tags.get("dagster/partition")
         parse_build_partition(partition_key)
 
-        build_output_dir = get_build_dir(product.name, partition_key)
-        recipe_lock_path = build_output_dir / "recipe.lock.yml"
+        root_dir = get_build_dir(product.name, partition_key)
+        recipe_lock_path = root_dir / "recipe.lock.yml"
 
-        # Get recipe to extract version
-        build_plan.recipe_from_yaml(recipe_lock_path)
+        # Upload the build stage dir (the root itself unless the recipe uses stage dirs)
+        recipe = build_plan.recipe_from_yaml(recipe_lock_path)
+        build_output_dir = get_recipe_build_dir(product.name, partition_key, recipe)
+        if not (build_output_dir / "recipe.lock.yml").exists():
+            shutil.copy(recipe_lock_path, build_output_dir / "recipe.lock.yml")
 
         context.log.info(
             f"All {len(command_results)} commands completed: {command_results}"
@@ -394,7 +403,7 @@ def make_build_asset(product: lifecycle.asset_models.Product):
         context.log.info(f"Build uploaded: {build_key}")
 
         # Clean up marker directory
-        dagster_dir = build_output_dir / ".dagster"
+        dagster_dir = root_dir / ".dagster"
         if dagster_dir.exists():
             shutil.rmtree(dagster_dir)
             context.log.info(f"Cleaned up marker directory: {dagster_dir}")
