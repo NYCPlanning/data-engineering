@@ -879,11 +879,10 @@ exports:
     group: lion_gdb
     filename: nyclion_26c.zip
     format: gdb
-    # re-curved in packaging from the arcs of the sources LION segments come from
     custom:
       layer: lion
       geometry_type: lines
-      arcs:
+      arcs: # of the sources LION segments come from (see custom.arcs below the lion entries)
       - dcp_cscl_centerline_arcs
       - dcp_cscl_shoreline_arcs
       - dcp_cscl_rail_arcs
@@ -905,12 +904,12 @@ exports:
     format: gdb
     custom: { layer: altnames, spatial: false }
 
-  # District boundary geodatabase (ETL spec ch. 10, table 39)
-  # filename must match prod's, which embeds the cycle from `version:` above
   # custom.arcs: the arcs (x0..y2 control points) a layer's linear geometry is re-curved
   # from in packaging, so its FGDB features carry true curves like prod's. Topology-built
   # layers use the topology's arcs, pass-through layers their source's (nyhd, nyzip and
   # nyura sources have none).
+  # District boundary geodatabase (ETL spec ch. 10, table 39)
+  # filename must match prod's, which embeds the cycle from `version:` above
   - name: gdb_nyad
     group: district_gdb
     filename: v26C_Districts.gdb.zip
