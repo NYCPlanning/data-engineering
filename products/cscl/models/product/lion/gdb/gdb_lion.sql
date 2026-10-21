@@ -20,28 +20,48 @@ saf_replicants AS (
 
 -- SegCount (legacy GetCoincidentSegmentCount): the number of output records for the
 -- segment (SAF replicants and continuous-parity copies included), plus one for each
--- other segment of the same feature class with identical geometry (centerline with
--- centerline, rail with rail, ...); capped at 9 (a single character in prod).
-centerline_geom_counts AS (
+-- AltSegmentData SAF record that isn't written out as a replicant (e.g. type Z), plus
+-- one for each other segment of the same feature class (centerline with centerline,
+-- rail with rail, ...) with equal geometry; capped at 9 (a single character in prod).
+-- Legacy tests equality within the source feature classes' XY tolerance (0.0002 ft, on a
+-- 0.0001 ft resolution grid), so equal here means the same two nodes and each geometry
+-- within 0.0003 ft of the other. Densified true curves differ by float noise, so an
+-- exact geometry match misses some.
+segment_geoms AS (
     SELECT
         segmentid,
-        count(*) OVER (PARTITION BY source_table, geom_hash) AS n_same_geom
-    FROM (
-        SELECT DISTINCT
-            segmentid,
-            source_table,
-            md5(st_asbinary(st_normalize(geom))) AS geom_hash
-        FROM {{ ref('int__lion') }}
-        WHERE
-            source_table = 'centerline'
-            OR (include_in_bytes_lion AND source_table IN ('rail', 'subway', 'nonstreetfeatures'))
-    ) AS segment_geoms
+        source_table,
+        any_value(least(from_nodeid, to_nodeid)) AS node_a,
+        any_value(greatest(from_nodeid, to_nodeid)) AS node_b,
+        any_value(geom) AS geom
+    FROM {{ ref('int__lion') }}
+    WHERE
+        source_table = 'centerline'
+        OR (include_in_bytes_lion AND source_table IN ('rail', 'subway', 'nonstreetfeatures'))
+    GROUP BY segmentid, source_table
+),
+
+coincident_segment_counts AS (
+    SELECT
+        segment.segmentid,
+        count(DISTINCT other.segmentid) AS n_coincident
+    FROM segment_geoms AS segment
+    INNER JOIN segment_geoms AS other
+        ON
+            segment.source_table = other.source_table
+            AND segment.node_a = other.node_a
+            AND segment.node_b = other.node_b
+            AND segment.segmentid <> other.segmentid
+    WHERE
+        st_covers(st_buffer(other.geom, 0.0003), segment.geom)
+        AND st_covers(st_buffer(segment.geom, 0.0003), other.geom)
+    GROUP BY segment.segmentid
 ),
 
 segment_row_counts AS (
     SELECT
         per_record.segmentid,
-        least(9, sum(per_record.n_rows) + coalesce(max(centerline_geom_counts.n_same_geom), 1) - 1) AS n_rows
+        least(9, sum(per_record.n_rows) + coalesce(max(coincident_segment_counts.n_coincident), 0)) AS n_rows
     FROM (
         SELECT
             segmentid,
@@ -53,8 +73,23 @@ segment_row_counts AS (
             CASE WHEN saf_replicants.parity_side IS NOT NULL THEN 2 ELSE 1 END AS n_rows
         FROM lion
         INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey
+        UNION ALL
+        SELECT
+            lion.segmentid,
+            1 AS n_rows
+        FROM lion
+        INNER JOIN {{ ref('int__saf_segments') }} AS saf_segments
+            ON lion.lionkey = saf_segments.segment_lionkey
+        WHERE
+            saf_segments.saf_source_table = 'altsegmentdata'
+            AND NOT EXISTS (
+                SELECT 1 FROM saf_replicants
+                WHERE
+                    saf_replicants.saf_globalid = saf_segments.saf_globalid
+                    AND saf_replicants.lionkey = saf_segments.segment_lionkey
+            )
     ) AS per_record
-    LEFT JOIN centerline_geom_counts ON per_record.segmentid = centerline_geom_counts.segmentid
+    LEFT JOIN coincident_segment_counts ON per_record.segmentid = coincident_segment_counts.segmentid
     GROUP BY per_record.segmentid
 ),
 
