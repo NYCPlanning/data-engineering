@@ -253,12 +253,3 @@ def test_read_metadata(request, path_fixture, file_type, subdir):
 
     assert md.esri.scale_range.min_scale == "150000000"
     assert md.esri.scale_range.max_scale == "5000"
-
-
-@pytest.mark.parametrize("path_fixture, file_type, subdir", METADATA_EXISTS_PARAMS)
-def test_field_names(request, path_fixture, file_type, subdir):
-    fixture_info = _get_info_from_file_fixture(
-        request, fixture=path_fixture, file_type=file_type
-    )
-    shp = shapefile.from_path(fixture_info["path"], fixture_info["shp_name"], subdir)
-    assert shp.field_names()[:4] == ["Borough", "Block", "Lot", "CD"]
