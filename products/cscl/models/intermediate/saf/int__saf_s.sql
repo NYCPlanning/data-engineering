@@ -9,6 +9,12 @@ feature_names AS (
 ),
 lgc AS (
     SELECT * FROM {{ ref('int__streetcode_and_facecode') }}
+),
+segment_streets AS (
+    SELECT DISTINCT
+        segmentid,
+        b5sc
+    FROM {{ ref('int__lgc') }}
 )
 SELECT
     feature_names.place_name_sort_order AS place_name,
@@ -24,11 +30,19 @@ SELECT
     address_points.house_number_suffix AS hn_suffix,
     address_points.house_number_range_suffix AS high_alpha_hn_suffix,
     saf.saftype,
-    lgc.lgc1,
-    lgc.lgc2,
-    lgc.lgc3,
-    lgc.lgc4,
-    lgc.boe_lgc_pointer,
+    -- An address point whose street isn't on its segment (e.g. JFK Airport addresses on Queens
+    -- segments) takes LGC1 from its own B7SC, with LGC2-4 blank (CSCL-SAF-01)
+    CASE
+        WHEN segment_streets.b5sc IS NOT NULL OR address_points.b7sc_actual IS NULL THEN lgc.lgc1
+        ELSE RIGHT(address_points.b7sc_actual, 2)
+    END AS lgc1,
+    CASE WHEN segment_streets.b5sc IS NOT NULL OR address_points.b7sc_actual IS NULL THEN lgc.lgc2 END AS lgc2,
+    CASE WHEN segment_streets.b5sc IS NOT NULL OR address_points.b7sc_actual IS NULL THEN lgc.lgc3 END AS lgc3,
+    CASE WHEN segment_streets.b5sc IS NOT NULL OR address_points.b7sc_actual IS NULL THEN lgc.lgc4 END AS lgc4,
+    CASE
+        WHEN segment_streets.b5sc IS NOT NULL OR address_points.b7sc_actual IS NULL THEN lgc.boe_lgc_pointer
+        ELSE 1
+    END AS boe_lgc_pointer,
     saf.segment_type,
     saf.segmentid,
     saf.saf_globalid,
@@ -43,4 +57,6 @@ LEFT JOIN address_points ON saf.saf_globalid = address_points.globalid
 LEFT JOIN feature_names -- TODO error when not joined
     ON address_points.b7sc_actual = feature_names.b7sc AND feature_names.feature_type = 'street'
 LEFT JOIN lgc ON saf.segmentid = lgc.segmentid
+LEFT JOIN segment_streets
+    ON saf.segmentid = segment_streets.segmentid AND LEFT(address_points.b7sc_actual, 6) = segment_streets.b5sc
 WHERE saf.saftype = 'S'
