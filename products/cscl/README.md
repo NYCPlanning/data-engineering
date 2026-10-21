@@ -219,9 +219,9 @@ time, which is after the GDB snapshot we ingest is taken. Select on NULL — nev
 two releases. Our rule is an approximation of GR's, which lives in an assembly we don't
 have, so this output does not match prod exactly.
 
-**The dev/prod difference, why it exists, and what constrains fixing it are documented in
-[data_issues.md → CSCL-LDF-01](./data_issues.md#cscl-ldf-01)**, alongside the other open
-data questions for this output. Read that before changing the elimination logic; in
+**The dev/prod difference is CSCL-LDF-01 in [data_issues.md](./data_issues.md)**; its bead
+has why it exists and what constrains fixing it, alongside the other open data questions
+for this output (CSCL-LDF-*). Read that before changing the elimination logic; in
 particular, don't tune it to match prod's counts on the two editions we have.
 
 ### Cumulative record numbers
@@ -235,7 +235,7 @@ a value identifies one record in one edition forever. It chains exactly:
 
 GR's tool takes this number as operator input; ours derives it from the previous edition's
 header instead. That difference matters — see
-[data_issues.md → CSCL-LDF-03](./data_issues.md#cscl-ldf-03).
+CSCL-LDF-03 in [data_issues.md](./data_issues.md).
 
 ### Release inputs
 
