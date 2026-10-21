@@ -21,7 +21,7 @@ The [Geosupport System](https://www.nyc.gov/assets/planning/download/pdf/data-ma
 
 The files that underly GeoSupport are based on CSCL. This pipeline
 
-- extracts data from the OTI-maintained CSCL database and loads it into a DCP-maintained postgres database
+- extracts data from the OTI-maintained CSCL database and loads it into a DuckDB build database
 - transforms the data as specified by specific business rules
 - exports a variety of files, chiefly
   - the files that underly GeoSupport (LION, lookup tables, etc)
@@ -36,7 +36,7 @@ This project is in progress, and the architecture may change.
 
 The pipeline will broadly use Data Engineering's standard infrastructure, when possible. This includes:
 
-- Postgres database (hosted in Digital Ocean now, Azure in the future) where transformations occur
+- A DuckDB database file, local to the build, where transformations occur
 - On-demand compute to move/load files/data, trigger build on database (Github Actions now, Azure Container Apps in the future)
 - Blob storage (again, Digital Ocean now, Azure in the future) where output files are exported from the database to
 - Some sort of web dashboard like streamlit (hosted on some Digital Ocean or Azure compute) for users to interact with the pipeline, download exports, etc
@@ -580,7 +580,7 @@ The "ranking" of these in terms of which should be chosen for a given segment is
 When "first" is said above, this is in reference to the ordering of the source data. In the pipeline, the `ogc_fid` column is a proxy for this. This assumes that
 
 1. the extraction from CSCL database maintains record order
-2. the loading of source data into the build Postgres database maintains record order
+2. the loading of source data into the build database maintains record order
 
 The saftype of the highest "rank" SAF record for a given segment should be set as the SAF field, otherwise SAF is null. This ranking logic is performed in `int__segment_specialaddress`
 
@@ -632,7 +632,7 @@ For non-centerline records, these are easy. L50 and L51 are left blank/null. L49
 
 For centerline records, L49 is taken from the Centerline field CURVE. Center of curvature is calculated as follows
 - midpoint of line is calculated
-- using midpoint of line, start point and end point, center of curvature is calculated. This is done using a custom postgres function, taken (with citation) from an existing implementation. The code for this function (and other custom functions) can be found in marcos/create_pg_functions.sql.
+- using midpoint of line, start point and end point, center of curvature is calculated. This is done using the `find_circle` macro, taken (with citation) from an existing implementation. It and the other custom functions are in `macros/duckdb_functions.sql`.
 
 #### Protosegments
 Protosegments are defined in the AltSegmentData layer in CSCL. They are partial records - they do not have their own geometry, and so they must be "materialized" before they can be processed like other segments. They share a segment id with a geometry-modeled segment to which they must be joined so that they can be geometry-modeled as well.

@@ -18,7 +18,6 @@ FROM segment_offsets AS so
 -- Overlapping ZipCode polygons can contain the same offset point. Legacy takes the first
 -- intersecting ZipCode feature (ShorelineExtractFile.GetZipCode: ftrList[0]), i.e. lowest
 -- OBJECTID; ogc_fid is the equivalent here, so each side resolves to exactly one zip.
--- (using a cte around reference can confuse the postgres compiler to not use index)
 LEFT JOIN LATERAL (
     SELECT z.zip_code
     FROM {{ source("recipe_sources", "dcp_cscl_zipcode") }} AS z

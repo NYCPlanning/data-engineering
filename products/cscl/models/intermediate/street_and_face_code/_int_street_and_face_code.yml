@@ -37,13 +37,13 @@ models:
   - name: lgc8
   - name: lgc9
   - name: boe_lgc_pointer
-    # TODO disable test for now, failing for one record
+    # not_null disabled: one record fails (inv-c73)
     # tests:
     # - not_null
   - name: five_digit_street_code
     tests:
     - not_null
   - name: face_code
-    # TODO disable test for now, failing for one record
+    # not_null disabled: one record fails (inv-c73)
     # tests:
     # - not_null

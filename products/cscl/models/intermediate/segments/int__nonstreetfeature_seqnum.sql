@@ -1,13 +1,4 @@
-/*
-TODO - this logic is a little duplicated at the moment
-    with int__protosegments and int__segments. But it also seems
-    annoying to have multiple segment intermediate models as we
-    add face code, seqnum, etc one at a time.
-
-    For now, slightly duplicated logic. But we should revisit
-
-    Also TODO - get this actually matching prod
-*/
+-- Shares some logic with int__protosegments and int__segments (inv-c73).
 {{ config(
     materialized = 'table',
     indexes=[

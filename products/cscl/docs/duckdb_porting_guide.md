@@ -1,20 +1,20 @@
-# Porting CSCL models to DuckDB
+# Porting SQL to DuckDB
 
-Working notes for the Postgres to DuckDB cut-over (tracker epic inv-2cy). They cover the
-patterns found so far, not the full list of constructs, which lives in
-`duckdb_port_inventory.md`.
+The CSCL build runs on DuckDB. This guide lists the Postgres/PostGIS patterns that need
+rewriting when SQL is brought over from Postgres (legacy queries, other products), and the
+DuckDB traps that come with them.
 
 ## Running
 
 ```bash
 # load sources (about 1 minute, GDB downloads cached locally)
-python -m dcpy lifecycle builds plan recipe --recipe-path recipe_duckdb.yml --output-path X.lock.yml
+python -m dcpy lifecycle builds plan recipe --recipe-path recipe.yml --output-path X.lock.yml
 python -m dcpy lifecycle builds load load -r X.lock.yml
 # build
-dbt seed --target duckdb && dbt run --target duckdb -s <selector>
+dbt seed && dbt run -s <selector>
 ```
 
-The `duckdb` target is in `profiles.yml`. `DUCKDB_PATH` must point at the file the load
+`duckdb` is the default target in `profiles.yml`. `DUCKDB_PATH` must point at the file the load
 wrote (`<build output dir>/cscl.duckdb`). Tables go in `BUILD_ENGINE_SCHEMA`.
 
 The DuckDB versions of the plpgsql functions (`macros/duckdb_functions.sql`) are created
@@ -104,14 +104,3 @@ at run start on the duckdb target.
 ## Memory
 
 `qa__diffs_gdb_lion` (243k rows, ~90 columns through audit_helper) needs `DUCKDB_THREADS=1 DUCKDB_MEMORY_LIMIT=6GB` on an 8 GB machine. It is also disabled unless `--vars '{qa_gdb_lion_diffs: true}'`.
-
-## Validating against the Postgres build
-
-Attach the Postgres build from DuckDB and compare with `EXCEPT ALL` (`load postgres;
-attach '<BUILD_ENGINE_SERVER>/db-cscl' AS pg (TYPE postgres, READ_ONLY)`). Geometry comes
-back as EWKT text: `st_geomfromtext(regexp_replace(geom::varchar, '^SRID=[0-9]+;', ''))`.
-
-Compare by geometry and attributes, not generated IDs. Row-number IDs over sorted
-coordinates shift because of a source-loading difference that is not a porting issue:
-the 2 bezier AtomicPolygons near (913610, 124810) linearize with about 1e-10 ft float
-noise that differs between GDAL versions.

@@ -8,7 +8,7 @@ SELECT
     feature_names.lookup_key,
     words.word IS NOT NULL AS matched_word,
     feature_names.place_name_sort_order AS place_name,
-    -- Weird one - docs explicitly say this is needed but checking prod, this does not happen
+    -- The legacy doc requires this last-word deletion, but prod doesn't do it
     /*
     CASE
         WHEN words.word IS NOT NULL THEN REGEXP_REPLACE(feature_names.place_name_sort_order, '\s*' || words.word || '$', '')

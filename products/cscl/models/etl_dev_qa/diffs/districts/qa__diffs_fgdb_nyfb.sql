@@ -12,7 +12,7 @@
 -- convention of emitting discrepancies only, not full row-for-row parity.
 --
 -- Not a strict superset of the old SHAPE_Length/Area-tolerance check
--- (poc_validation/compare_gdb.py): confirmed on nyfb itself (chat log 2026-10-05) -
+-- (poc_validation/compare_gdb.py): confirmed on nyfb itself -
 -- 11 of compare_gdb.py's 12 flagged rows overlap with this model's 13, but
 -- FireBN 17 (28.2 ft off on a 44,599 ft perimeter - 0.063%, just past
 -- compare_gdb.py's 0.05% relative tolerance) doesn't trip any of this model's

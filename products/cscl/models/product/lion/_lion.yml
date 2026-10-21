@@ -25,7 +25,7 @@ models:
     data_type: string
     tests:
     - not_null
-    # TODO disable test for now
+    # accepted_values disabled (inv-c73)
     # - accepted_values:
     #     # this enforces length as well
     #     values: [ "1", "2", "3", "4", "5" ]

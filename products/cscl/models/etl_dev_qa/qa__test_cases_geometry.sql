@@ -3,16 +3,14 @@
 {{ config(materialized='table', tags=['qa'], enabled=false) }}
 
 -- Runs geometry_diff_metrics (macros/geometry_diff_qa.sql) against every
--- row in test_cases.examples - our TDD fixture table for known-weird geometries (see
--- products/cscl chat log, 2026-10-04). A row "passes" when none of its metrics exceed
+-- row in test_cases.examples - our TDD fixture table for known-weird geometries. A row "passes" when none of its metrics exceed
 -- their threshold; data_tests in _etl_dev_qa.yml asserts every row passes, same as any
 -- other test suite - this model is expected to go red when a new weird case is added
 -- (or an existing fix regresses) and green once the underlying geometry issue is
 -- actually fixed, not a one-time snapshot.
 --
 -- Thresholds are dbt vars (override with --vars rather than editing this file), picked
--- from exactly two data points so far (chat log 2026-10-04) - expect to retune as more
--- examples land across layers of different scale:
+-- from two examples - retune as examples land across layers of different scale:
 --   symdiff_area_pct        1%    - generous; real hairline/overlay noise should be
 --                                    far below this, a genuinely missing/extra chunk of
 --                                    land should be far above it.
@@ -31,7 +29,7 @@
 --                                    needle-sliver fragment found so far is under that -
 --                                    those two metrics are structurally blind to this
 --                                    defect class at production thresholds. Confirmed on
---                                    PUMA 3701 (chat log 2026-10-05): symdiff_area_pct=0,
+--                                    PUMA 3701: symdiff_area_pct=0,
 --                                    symdiff_fragment_count=0, but perimeter_pct_diff=22%
 --                                    (matches the real SHAPE_Length gap vs prod exactly).
 -- A metric that's NULL (no expected_geom to compare against) is never treated as a

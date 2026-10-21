@@ -39,7 +39,7 @@ categorized AS (
             -- Bug 002: ESRI vs PostGIS centroid-in-polygon disagreement for police geography
             -- joins. If changes are only police_precinct and/or police_sector and/or
             -- patrol_borough and/or police_patrol_borough_command.
-            -- See: docs/prod_bugs/002-police-geo-centroid-mismatch.md
+            -- See: Bug 002 in data_issues.md
             WHEN
                 status = 'modified'
                 AND list_has_all(ARRAY[
@@ -63,7 +63,7 @@ categorized AS (
                 AND (changes -> 'patrol_borough' ->> 'old') IN ('XN', 'XS')
             )
             -- Bug 002: ESRI vs PostGIS centroid-in-polygon disagreement for police geography
-            -- joins. See: docs/prod_bugs/002-police-geo-centroid-mismatch.md
+            -- joins. See: Bug 002 in data_issues.md
             OR (
                 status = 'modified'
                 AND list_has_all(ARRAY[

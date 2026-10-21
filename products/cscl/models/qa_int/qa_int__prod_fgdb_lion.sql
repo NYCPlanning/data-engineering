@@ -9,7 +9,7 @@
 
 -- QA-only projection of production fgdb_lion, scoped to the fields needed to
 -- investigate the Generic-segment house-number zeroing issue (see
--- docs/prod_bugs/018-generic-segment-house-numbers-not-zeroed.md).
+-- Bug 018 in data_issues.md).
 --
 -- _lion_gdb_key (SegmentID|Join_ID) isn't used for a dev/prod join here - this model
 -- is consumed standalone by qa__diffs_lion_house_numbers.sql as a prod

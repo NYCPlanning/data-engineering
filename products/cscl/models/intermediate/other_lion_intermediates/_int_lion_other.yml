@@ -12,7 +12,7 @@ models:
   - name: segmentid
     tests:
     - not_null
-  # TODO disable test for now, failing for one record
+  # unique disabled: one record fails (inv-c73)
   # - unique
   - name: borough_boundary_indicator
     tests:

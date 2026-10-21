@@ -127,7 +127,5 @@ seeds:
         description: >
           Brief explanation backing up `status` - what's actually going on
           and why, so a reader doesn't have to re-derive it. Blank when
-          status is blank. For anything substantial, write it up in
-          docs/prod_bugs/ (see that directory's README for the template) and
-          just point to it here rather than duplicating the write-up; move
-          the doc to a resolved/ subfolder once it's fixed.
+          status is blank. For anything substantial, cite its data_issues.md
+          ID here rather than duplicating the write-up.
