@@ -4,14 +4,14 @@
   geometry_diff_metrics (macros/geometry_diff_qa.sql) on each pair, and
   flags pass/fail against the same thresholds qa__test_cases_geometry uses. See that
   model and the function's own docstring for why area/perimeter diffing alone isn't
-  enough (products/cscl chat log, 2026-10-04/05).
+  enough.
 
   key_column: build-side key, as it appears in the build relation (quote if it's a
-    case-sensitive gdb-style column, e.g. '"FireBN"'). Single-column only for now -
+    case-sensitive gdb-style column, e.g. '"FireBN"'). Single-column only:
     a multi-column declared key (lion_outputs.csv's "FireCoType|FireCoNum" style)
     needs a concatenation expression passed as key_column instead.
   prod_key_column: defaults to key_column.lower() with quoting stripped, matching how
-    ogr2ogr lowercases every prod column on load - override if that guess is wrong.
+    the prod snapshot lowercases every prod column - override if that guess is wrong.
   build_geom_column/prod_geom_column: default to how gdb_* models and ogr2ogr-loaded
     fgdb_* tables name their geometry column respectively - override per layer if
     different.
@@ -30,9 +30,8 @@
   reprojecting display geometry to 4326 and reprojecting measurement geometry to 2263
   are two different concerns, and round-tripping the same geometry through both
   (native SRID -> 4326 -> back to 2263 inside the metrics function) would add its own
-  tiny reprojection noise on top of everything this investigation has already spent on
-  chasing sub-foot precision - chat log 2026-10-06. actual_geom/expected_geom (no
-  _4326 suffix, native SRID, unlinearized) still feed the metrics exactly as before.
+  reprojection noise to sub-foot metrics. actual_geom/expected_geom (no _4326 suffix,
+  native SRID, unlinearized) feed the metrics.
 -#}
     {%- set prod_key_column = prod_key_column or (key_column | replace('"', '') | lower) -%}
 
@@ -122,15 +121,15 @@ FROM flagged
   (test_cases.geometry_diff_metrics' ST_SymDifference + simplified ST_HausdorffDistance
   cost ~0.5-1.2s/row empirically - fine at dozens to low thousands of rows, not at
   nyap's 69,786 or nycb2010/2010wi/2020/2020wi's ~38-39k each, which would add 5-20+
-  hours per layer per build - chat log 2026-10-05).
+  hours per layer per build).
 
   Computes only perimeter_pct_diff and area_pct_diff - a direct ST_Perimeter/ST_Area
   comparison on each side independently, no overlay operation at all (no
   ST_SymDifference, no ST_HausdorffDistance) - cheap enough to run on every row of even
   the largest layers. Catches the exact class of bug that motivated adding
   perimeter_pct_diff to the full framework in the first place (nearest-N rounding-
-  boundary false positives in the older qa_int__prod_fgdb_*/​*_by_field comparisons,
-  chat log 2026-10-05), just without symdiff_area_pct/hausdorff_ft/symdiff_fragment_
+  boundary false positives in the older qa_int__prod_fgdb_*/​*_by_field comparisons),
+  just without symdiff_area_pct/hausdorff_ft/symdiff_fragment_
   count/max_ring_eccentricity's deeper (but expensive) shape-defect detection.
 
   Same key_column/prod_key_column/build_geom_column/prod_geom_column semantics as
