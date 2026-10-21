@@ -46,7 +46,7 @@ authoritative where it disagrees with this table.
 | CSCL-LDF-02 | LDF | `L` and `R` journal record types never published | Open | 26b | inv-pkr.2 |
 | CSCL-LDF-03 | LDF | Cumulative record number is transcribed, not chained | Open | 26b | inv-pkr.3 |
 | CSCL-LDF-04 | LDF | One LION record carries `-1` as GENERICID | Open | 26b | inv-pkr.4 |
-| CSCL-SAF-01 | SAF | `lgc1`/`lgc2`/`lgc3` mismatches trace to stale LGC assignments in prod, not a stale load; `saf_abcegnpx_*` row-count gaps are the same pattern, not SAF-replicant scope | Open | 26c | inv-ib0.1 |
+| CSCL-SAF-01 | SAF | Type S `lgc1`-`lgc3` mismatches were ours, not stale prod: when an address point's street isn't on its segment's Segment_LGC list (e.g. JFK Airport 497540), prod takes LGC1 from the address point's B7SC with LGC2-4 blank (fixed in `int__saf_s`, 20 rows); the `saf_abcegnpx_*` row-count gaps are Bug 017 | Fixed | 26c | inv-ib0.1, inv-3vi.11.1.2 |
 | CSCL-THINED-01 | ThinED | Redistricted-field mismatch - resolved by GR's corrected 26c source | Watch | 26c | inv-1xu.1 |
 | CSCL-THINED-02 | ThinED | `thined.txt` missing prod's 3-line file header | Watch | 26c | inv-1xu.2 |
 | CSCL-THINLION-01 | ThinLION | `nyc.thinlion`'s trailing DOS EOF marker read as a spurious data row (fixed) | Accepted | 26c | inv-1xu.3 |
