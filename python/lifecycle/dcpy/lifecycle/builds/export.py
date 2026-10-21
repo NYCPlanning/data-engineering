@@ -594,7 +594,7 @@ def _gdb_layer_documentation(exports: BuildExports) -> dict[tuple[str, str], str
     (filename, layer), for the OpenFileGDB DOCUMENTATION layer creation option.
     Entries without it get no metadata."""
     specs = {
-        (str(ds.output_path), ds.layer_name): ds.custom["product_metadata"]
+        (str(ds.output_path), ds.layer_name): (ds.custom or {})["product_metadata"]
         for ds in exports.datasets
         if ds.format == ExportFormat.gdb and (ds.custom or {}).get("product_metadata")
     }
