@@ -1,0 +1,44 @@
+version: 2
+
+models:
+- name: qa__district_review_pairs
+  description: >
+    Every district of every district_gdb layer, ours (gdb_<layer>) and prod's
+    (production_outputs.fgdb_<layer>), one row per (layer, district key), full outer
+    joined. See macros/district_review.sql for the layer catalog.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [layer, district_key]
+
+- name: qa__district_review_pieces
+  description: >
+    Symmetric-difference pieces of each district present on both sides, one polygon per
+    row, with side (added | removed) and is_noise (mean width under
+    district_review_noise_width_ft).
+
+- name: qa__district_review_districts
+  description: >
+    One row per (layer, district): both geometries, discrepancy metrics over pieces
+    above grid noise, and a class. Source of the review FGDB's _new and _prior layers.
+  columns:
+  - name: class
+    tests:
+    - accepted_values:
+        arguments:
+          values: [identical, grid_noise, minor, major, new_only, prior_only]
+  - name: symdiff_area_pct
+    description: Area of the pieces above noise, as a percent of our district's area.
+  - name: hausdorff_ft
+    description: >
+      geometry_diff_metrics' Hausdorff distance: exact above
+      geom_check_hausdorff_tolerance_ft, 0 below it and for districts without a piece
+      above noise.
+  - name: known_difference_id
+    description: The known difference that explains this district, when one does. Not filled yet.
+
+- name: qa__district_review_summary
+  description: Every non-identical district, ranked worst first (one-sided, then by symdiff_area_pct).
+
+- name: qa__district_review_layer_summary
+  description: Per district layer, district counts by class and the worst district.
