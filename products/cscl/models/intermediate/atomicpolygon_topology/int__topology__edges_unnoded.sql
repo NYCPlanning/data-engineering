@@ -85,16 +85,19 @@ raw_edges AS (
 -- through the canonical endpoint node coordinates, oriented lower -> higher node id,
 -- linearized with linearize_arc (the load-time linearizer: 0.00025 ft max deviation,
 -- symmetric), whose ends are exactly the node coordinates so ST_BuildArea sees them join. Every owner gets this
--- same geometry, bit for bit, regardless of winding or its own choice of mid.
+-- same geometry, bit for bit, regardless of winding or its own choice of mid. The mid is
+-- kept (arc_mid) so exports can re-curve the arc from exactly these control points.
 arc_geoms AS (
     SELECT
         node_lo,
         node_hi,
+        arc_mid,
         line AS geom
     FROM (
         SELECT DISTINCT ON (node_lo, node_hi)
             least(node_a, node_b) AS node_lo,
             greatest(node_a, node_b) AS node_hi,
+            arc_mid,
             linearize_arc(
                 st_x(CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END),
                 st_y(CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END),
@@ -120,7 +123,8 @@ edges AS (
         -- chord: what the orphan path search below measures (its triangle-inequality
         -- test is about straight-line distance between the two nodes)
         st_distance(r.geom_a, r.geom_b) AS chord_length,
-        coalesce(ag.geom, st_makeline(r.geom_a, r.geom_b)) AS geom
+        coalesce(ag.geom, st_makeline(r.geom_a, r.geom_b)) AS geom,
+        ag.arc_mid
     FROM raw_edges AS r
     LEFT JOIN arc_geoms AS ag
         ON r.is_arc AND least(r.node_a, r.node_b) = ag.node_lo AND greatest(r.node_a, r.node_b) = ag.node_hi
@@ -261,7 +265,8 @@ edges_densified AS (
         e.node_lo,
         e.node_hi,
         e.is_arc,
-        e.geom
+        e.geom,
+        e.arc_mid
     FROM edges AS e
     LEFT JOIN split_matches AS sm
         ON
@@ -275,7 +280,8 @@ edges_densified AS (
         node_lo,
         node_hi,
         is_arc,
-        geom
+        geom,
+        NULL::GEOMETRY AS arc_mid
     FROM split_sub_edges
 )
 
@@ -284,6 +290,7 @@ SELECT
     node_hi,
     is_arc,
     geom,
+    arc_mid,
     atomicid,
     water_flag
 FROM edges_densified

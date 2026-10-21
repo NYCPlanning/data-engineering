@@ -899,17 +899,19 @@ exports:
   # District boundary geodatabase (ETL spec ch. 10, table 39)
   # filename must match prod's, which embeds the cycle from `version:` above
   # custom.arcs: the arcs (x0..y2 control points) a layer's linear geometry is re-curved
-  # from in packaging, so its FGDB features carry true curves like prod's
+  # from in packaging, so its FGDB features carry true curves like prod's. Topology-built
+  # layers use the topology's arcs, pass-through layers their source's (nyhd, nyzip and
+  # nyura sources have none).
   - name: gdb_nyad
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyad, geometry_type: polygons }
+    custom: { layer: nyad, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyadwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyadwi, geometry_type: polygons }
+    custom: { layer: nyadwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyap
     group: district_gdb
     filename: v26C_Districts.gdb.zip
@@ -919,12 +921,12 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nybb, geometry_type: polygons }
+    custom: { layer: nybb, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nybbwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nybbwi, geometry_type: polygons }
+    custom: { layer: nybbwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nybid
     group: district_gdb
     filename: v26C_Districts.gdb.zip
@@ -934,112 +936,112 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycb2010, geometry_type: polygons }
+    custom: { layer: nycb2010, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycb2010wi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycb2010wi, geometry_type: polygons }
+    custom: { layer: nycb2010wi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycb2020
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycb2020, geometry_type: polygons }
+    custom: { layer: nycb2020, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycb2020wi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycb2020wi, geometry_type: polygons }
+    custom: { layer: nycb2020wi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycc
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycc, geometry_type: polygons }
+    custom: { layer: nycc, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyccwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyccwi, geometry_type: polygons }
+    custom: { layer: nyccwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycd
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycd, geometry_type: polygons }
+    custom: { layer: nycd, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycdta2020
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycdta2020, geometry_type: polygons }
+    custom: { layer: nycdta2020, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycdwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycdwi, geometry_type: polygons }
+    custom: { layer: nycdwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycg
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycg, geometry_type: polygons }
+    custom: { layer: nycg, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nycgwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nycgwi, geometry_type: polygons }
+    custom: { layer: nycgwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyct2010
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyct2010, geometry_type: polygons }
+    custom: { layer: nyct2010, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyct2010wi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyct2010wi, geometry_type: polygons }
+    custom: { layer: nyct2010wi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyct2020
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyct2020, geometry_type: polygons }
+    custom: { layer: nyct2020, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyct2020wi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyct2020wi, geometry_type: polygons }
+    custom: { layer: nyct2020wi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyed
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyed, geometry_type: polygons }
+    custom: { layer: nyed, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyedwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyedwi, geometry_type: polygons }
+    custom: { layer: nyedwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyfb
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyfb, geometry_type: polygons }
+    custom: { layer: nyfb, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyfc
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyfc, geometry_type: polygons }
+    custom: { layer: nyfc, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyfd
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyfd, geometry_type: polygons }
+    custom: { layer: nyfd, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyha
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyha, geometry_type: polygons }
+    custom: { layer: nyha, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyhc
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyhc, geometry_type: polygons }
+    custom: { layer: nyhc, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyhd
     group: district_gdb
     filename: v26C_Districts.gdb.zip
@@ -1049,62 +1051,62 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyhez, geometry_type: polygons }
+    custom: { layer: nyhez, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nymc
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nymc, geometry_type: polygons }
+    custom: { layer: nymc, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nymcea
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nymcea, geometry_type: polygons }
+    custom: { layer: nymcea, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nymcwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nymcwi, geometry_type: polygons }
+    custom: { layer: nymcwi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nynta2010
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nynta2010, geometry_type: polygons }
+    custom: { layer: nynta2010, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nynta2020
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nynta2020, geometry_type: polygons }
+    custom: { layer: nynta2020, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nypp
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nypp, geometry_type: polygons }
+    custom: { layer: nypp, geometry_type: polygons, arcs: [int__topology__arcs, dcp_cscl_nypdprecinct_arcs] }
   - name: gdb_nypuma2010
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nypuma2010, geometry_type: polygons }
+    custom: { layer: nypuma2010, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nypuma2020
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nypuma2020, geometry_type: polygons }
+    custom: { layer: nypuma2020, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nysd
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nysd, geometry_type: polygons }
+    custom: { layer: nysd, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyss
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nyss, geometry_type: polygons }
+    custom: { layer: nyss, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nysswi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { layer: nysswi, geometry_type: polygons }
+    custom: { layer: nysswi, geometry_type: polygons, arcs: int__topology__arcs }
   - name: gdb_nyura
     group: district_gdb
     filename: v26C_Districts.gdb.zip

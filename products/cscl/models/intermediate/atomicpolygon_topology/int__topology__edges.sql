@@ -14,7 +14,7 @@
 -- are new node ids that don't appear in int__topology__nodes.
 --
 -- Same shape as int__topology__edges_unnoded: one row per (edge, owning atomicid),
--- keyed by (node_lo, node_hi, is_arc).
+-- keyed by (node_lo, node_hi, is_arc); arc_mid is an arc's middle control point.
 
 WITH unnoded AS (
     SELECT * FROM {{ ref('int__topology__edges_unnoded') }}
@@ -76,6 +76,7 @@ SELECT
     node_hi,
     is_arc,
     geom,
+    arc_mid,
     atomicid,
     water_flag
 FROM unnoded AS e
@@ -90,6 +91,7 @@ SELECT
     greatest(p.node_a, p.node_b) AS node_hi,
     FALSE AS is_arc,
     p.geom,
+    NULL::GEOMETRY AS arc_mid,
     c.atomicid,
     c.water_flag
 FROM pieces AS p
