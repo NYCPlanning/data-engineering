@@ -20,7 +20,8 @@ saf_replicants AS (
 
 -- SegCount (legacy GetCoincidentSegmentCount): the number of output records for the
 -- segment (SAF replicants and continuous-parity copies included), plus one for each
--- AltSegmentData SAF record that isn't written out as a replicant (e.g. type Z), plus
+-- AltSegmentData SAF record that isn't written out as a replicant (e.g. type Z) and for
+-- each CommonPlace G/N/X record without a B7SC, plus
 -- one for each other segment of the same feature class (centerline with centerline,
 -- rail with rail, ...) with equal geometry; capped at 9 (a single character in prod).
 -- Legacy tests equality within the source feature classes' XY tolerance (0.0002 ft, on a
@@ -88,6 +89,20 @@ segment_row_counts AS (
                     saf_replicants.saf_globalid = saf_segments.saf_globalid
                     AND saf_replicants.lionkey = saf_segments.segment_lionkey
             )
+        UNION ALL
+        -- CommonPlace G/N/X records without a B7SC are never written (int__saf_segments
+        -- drops them), but legacy counts every SAF record, written or not
+        SELECT
+            lion.segmentid,
+            1 AS n_rows
+        FROM lion
+        INNER JOIN {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }} AS commonplace
+            ON lion.segmentid = commonplace.segmentid
+        WHERE
+            lion.source_table IN ('centerline', 'shoreline')
+            AND commonplace.saftype IN ('G', 'N', 'X')
+            AND commonplace.b7sc IS NULL
+            AND commonplace.security_level <> '3'
     ) AS per_record
     LEFT JOIN coincident_segment_counts ON per_record.segmentid = coincident_segment_counts.segmentid
     GROUP BY per_record.segmentid
