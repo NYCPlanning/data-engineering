@@ -38,30 +38,6 @@ SELECT
     output_file_id,
     -- Categorize based on which fields changed
     CASE
-        -- Bug 006: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
-        -- and confirmed our new value is correct. Fingerprinted on _saf_key.
-        -- See: Bug 006 in data_issues.md
-        WHEN
-            status = 'modified'
-            AND list_contains(ARRAY['416070284412'], _saf_key)
-            THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
-        -- CSCL-SAF-01: prod's lgc1 = '01' where current dcp_cscl_segment_lgc source no longer
-        -- supports that classification (stale prod, not a stale load - reload-verified 26c).
-        -- See: data_issues.md CSCL-SAF-01
-        WHEN
-            status = 'modified'
-            AND list_has_all(ARRAY['lgc1', 'lgc2', 'lgc3'], change_keys)
-            AND list_contains(change_keys, 'lgc1')
-            AND (changes -> 'lgc1' ->> 'old') = '01'
-            THEN 'CSCL-SAF-01: stale prod lgc1'
-        -- Non-preferred LGCs swapped (lgc2 and lgc3 trade values): prod orders them by
-        -- Segment_LGC row creation, we order by value (segment 0289932).
-        WHEN
-            status = 'modified'
-            AND list_sort(change_keys) = ['lgc2', 'lgc3']
-            AND (changes -> 'lgc2' ->> 'old') = (changes -> 'lgc3' ->> 'new')
-            AND (changes -> 'lgc3' ->> 'old') = (changes -> 'lgc2' ->> 'new')
-            THEN 'LGC2/LGC3 order swapped'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND len(change_keys) = 1
             THEN change_keys[1]
@@ -71,23 +47,6 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- Mark as accounted for if it's a known bug/expected difference
-    coalesce(
-        -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
-        -- See: Bug 006 in data_issues.md
-        status = 'modified'
-        AND list_contains(ARRAY['416070284412'], _saf_key),
-        FALSE
-    ) OR coalesce(
-        -- Non-preferred LGC2/LGC3 order: prod follows Segment_LGC row creation order.
-        status = 'modified'
-        AND list_sort(change_keys) = ['lgc2', 'lgc3']
-        AND (changes -> 'lgc2' ->> 'old') = (changes -> 'lgc3' ->> 'new')
-        AND (changes -> 'lgc3' ->> 'old') = (changes -> 'lgc2' ->> 'new'),
-        FALSE
-    ) AS accounted_for
-    -- NOTE: CSCL-SAF-01's lgc1='01' pattern is categorized above (diff_group) but deliberately
-    -- NOT marked accounted_for - traced to a plausible stale-source-snapshot explanation but not
-    -- GR-confirmed. Same convention as qa__diffs_exception.sql/qa__diffs_enders.sql/
-    -- qa__diffs_snd.sql for the sibling Bug 010 pattern. See: data_issues.md CSCL-SAF-01
+    -- No known bug/expected difference is accounted for in this file
+    FALSE AS accounted_for
 FROM categorized
