@@ -7,8 +7,8 @@
 
 -- Standard diff-summary shape over qa__geometry_fgdb_district_layers_cheap - see that
 -- model, qa__diffs_geometry_fgdb_district_layers.sql (the full-check equivalent), and
--- macros/geometry_diff_qa.sql's geometry_diff_qa_cheap for the pattern/caveats (chat
--- log 2026-10-05). Only non-passing rows are included.
+-- macros/geometry_diff_qa.sql's geometry_diff_qa_cheap for the pattern/caveats.
+-- Only non-passing rows are included.
 SELECT
     key_value AS comparison_id,
     CASE

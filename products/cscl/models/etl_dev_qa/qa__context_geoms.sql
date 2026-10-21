@@ -13,8 +13,8 @@
 --
 -- role values so far: 'build' (our own output), 'legacy' (the prod/legacy geometry
 -- it's compared against), 'constituent_tract' (a PUMA's member tracts), and four
--- roles splitting ST_Difference of build vs legacy into REAL defects vs noise (chat
--- log 2026-10-06, see below for why that split exists and how it's computed):
+-- roles splitting ST_Difference of build vs legacy into REAL defects vs noise (see
+-- below for why that split exists and how it's computed):
 --   'build_spur'    - real area in build, not in legacy (e.g. a self-touching-vertex
 --                     artifact exposed by clip_to_shoreline)
 --   'legacy_spur'   - real area in legacy, not in build
@@ -33,8 +33,8 @@
 -- One row per individual related geometry, not one row per role with everything
 -- collapsed into a single multi-geometry - keeps each feature individually
 -- addressable (its own label, its own style/color) for a future map UI. build_spur/
--- legacy_spur take this further and ST_Dump into one row per connected fragment (chat
--- log 2026-10-06 - "it's nice to know how many of them there are") rather than one
+-- legacy_spur take this further and ST_Dump into one row per connected fragment (so
+-- the fragment count is visible) rather than one
 -- multi-geometry row per PUMA; build_sliver/legacy_sliver stay as a single combined
 -- geometry per PUMA since there can be hundreds of noise fragments and the point of
 -- showing them is "here's where the noise lives", not enumerating each one.
