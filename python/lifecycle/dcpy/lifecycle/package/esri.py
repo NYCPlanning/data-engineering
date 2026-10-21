@@ -136,6 +136,9 @@ def write_metadata(
     layer: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
     zip_subdir: str | None,
+    # Off until there's a way to sync/validate declared types against the
+    # actual build output; deliberately not exposed on the CLI.
+    include_field_types: bool = False,
 ):
     """Write product metadata to an Esri metadata XML embedded in a shapefile or geodatabase.
     Generates a new XML with defaults and applies product-specific values.
@@ -152,6 +155,8 @@ def write_metadata(
         org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
         zip_subdir (str | None): Internal path if shp is nested within a zip file.
             Must be None when path is a file geodatabase.
+        include_field_types (bool): Write field types (attrtype) from
+            custom fgdb_data_type/shp_data_type. Off by default.
     """
     if isinstance(org_md, Path) or not org_md:
         org_md = product_metadata.load(org_md_path_override=org_md)
@@ -229,17 +234,21 @@ def write_metadata(
     replaced_column_ids = {c for f in system_fields for c in f.replaces_columns}
     esri_md.eainfo.detailed.attr = (
         [
-            _create_system_attr_metadata(f)
+            _create_system_attr_metadata(f, include_type=include_field_types)
             for f in system_fields
             if f.position == "leading"
         ]
         + [
-            _create_attr_metadata(column, custom_type_key=custom_type_key)
+            _create_attr_metadata(
+                column,
+                custom_type_key=custom_type_key,
+                include_type=include_field_types,
+            )
             for column in file_metadata.columns
             if column.id not in replaced_column_ids
         ]
         + [
-            _create_system_attr_metadata(f)
+            _create_system_attr_metadata(f, include_type=include_field_types)
             for f in system_fields
             if f.position == "trailing"
         ]

@@ -459,7 +459,9 @@ class Attrdomv(BaseXmlModel, tag="attrdomv"):
 class Attr(BaseXmlModel, tag="attr"):
     attrlabl: "Attrlabl" = element(tag="attrlabl", default_factory=lambda: Attrlabl())
     attalias: "Attalias" = element(tag="attalias", default_factory=lambda: Attalias())
-    attrtype: "Attrtype" = element(tag="attrtype", default_factory=lambda: Attrtype())
+    attrtype: "Attrtype | None" = element(
+        tag="attrtype", default_factory=lambda: Attrtype()
+    )
     attwidth: "Attwidth" = element(tag="attwidth", default_factory=lambda: Attwidth())
     atprecis: "Atprecis" = element(tag="atprecis", default_factory=lambda: Atprecis())
     attscale: "Attscale" = element(tag="attscale", default_factory=lambda: Attscale())

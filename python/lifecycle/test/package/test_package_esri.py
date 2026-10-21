@@ -267,8 +267,7 @@ def test_write_metadata(
     col0 = file_metadata.columns[0]
     expected_label_0 = col0.name
     assert metadata.eainfo.detailed.attr[0].attrlabl.value == expected_label_0
-    expected_type_0 = "OID" if col0.id == "uid" else col0.data_type
-    assert metadata.eainfo.detailed.attr[0].attrtype.value == expected_type_0
+    assert _written_type(metadata.eainfo.detailed.attr[0]) is None  # types off
     udom_0 = metadata.eainfo.detailed.attr[0].attrdomv.udom
     assert udom_0 is not None
     assert udom_0.value == col0.description
@@ -279,10 +278,7 @@ def test_write_metadata(
     assert (
         metadata.eainfo.detailed.attr[1].attrlabl.value == file_metadata.columns[1].name
     )
-    assert (
-        metadata.eainfo.detailed.attr[1].attrtype.value
-        == file_metadata.columns[1].data_type
-    )
+    assert _written_type(metadata.eainfo.detailed.attr[1]) is None  # types off
     udom_1 = metadata.eainfo.detailed.attr[1].attrdomv.udom
     assert udom_1 is None or udom_1.value is None
     assert (
@@ -295,6 +291,11 @@ def test_write_metadata(
         .values[0]
         .description  # "Manhattan", when org_md product is colp
     )
+
+
+def _written_type(attr) -> str | None:
+    """attrtype value as read back from XML (None when the element is omitted)."""
+    return attr.attrtype.value if attr.attrtype else None
 
 
 def _make_column(**kwargs) -> DatasetColumn:
@@ -360,18 +361,28 @@ def test_create_attr_metadata_no_values():
 
 def test_create_attr_metadata_esri_type_passthrough():
     col = _make_column(data_type="String")
-    assert esri._create_attr_metadata(col).attrtype.value == "String"
+    assert esri._create_attr_metadata(col, include_type=True).attrtype.value == "String"
 
     col = _make_column(data_type="SmallInteger")
-    assert esri._create_attr_metadata(col).attrtype.value == "SmallInteger"
+    assert (
+        esri._create_attr_metadata(col, include_type=True).attrtype.value
+        == "SmallInteger"
+    )
 
     col = _make_column(data_type=None)
-    assert esri._create_attr_metadata(col).attrtype.value is None
+    assert esri._create_attr_metadata(col, include_type=True).attrtype.value is None
 
 
 def test_create_attr_metadata_uid_attrtype_is_oid():
     col = _make_column(id="uid", name="uid", data_type="String")
-    assert esri._create_attr_metadata(col).attrtype.value == "OID"
+    assert esri._create_attr_metadata(col, include_type=True).attrtype.value == "OID"
+
+
+def test_create_attr_metadata_omits_type_by_default():
+    col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
+    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    assert attr.attrtype is None
+    assert b"attrtype" not in attr.to_xml()
 
 
 def test_create_attr_metadata_udom_set_when_no_values():
@@ -389,25 +400,27 @@ def test_create_attr_metadata_udom_none_when_values_present():
 
 def test_create_attr_metadata_uses_custom_type_key():
     col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
-    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    attr = esri._create_attr_metadata(
+        col, custom_type_key="fgdb_data_type", include_type=True
+    )
     assert attr.attrtype.value == "String"
 
 
 def test_create_attr_metadata_falls_back_to_data_type_when_custom_key_absent():
     col = _make_column(data_type="text")
-    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    attr = esri._create_attr_metadata(
+        col, custom_type_key="fgdb_data_type", include_type=True
+    )
     assert attr.attrtype.value == "text"
 
 
 def test_create_attr_metadata_no_custom_key_ignores_custom_dict():
     col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
-    attr = esri._create_attr_metadata(col)  # no custom_type_key
+    attr = esri._create_attr_metadata(col, include_type=True)  # no custom_type_key
     assert attr.attrtype.value == "text"
 
 
-def _assert_write_metadata_defaults_and_attributes(
-    metadata, file_metadata, layer, custom_type_key
-):
+def _assert_write_metadata_defaults_and_attributes(metadata, file_metadata, layer):
     """Shared assertions for the test_dcpy/esri write_metadata tests: defaults,
     product attributes, entity name/type, and column-0 (category) round-trip.
     """
@@ -434,14 +447,13 @@ def _assert_write_metadata_defaults_and_attributes(
     assert metadata.eainfo.detailed.enttyp.enttypl.value == entity_name
     assert metadata.eainfo.detailed.enttyp.enttypt.value == "Feature Class"
 
-    # category — full round-trip: label, type override, domain values
+    # category — full round-trip: label, no type (off by default), domain values
     col0 = file_metadata.columns[0]
     assert col0.id == "category"
     attr0 = next(
         a for a in metadata.eainfo.detailed.attr if a.attrlabl.value == col0.name
     )
-    expected_type_0 = col0.custom.get(custom_type_key) or col0.data_type
-    assert attr0.attrtype.value == expected_type_0
+    assert _written_type(attr0) is None
     assert col0.values is not None, "Column values must be defined"
     assert len(attr0.attrdomv.edom) == len(col0.values)
     assert attr0.attrdomv.edom[0].edomv == col0.values[0].value
@@ -463,7 +475,7 @@ def test_write_metadata_gdb_format_overrides(
 
     Checks:
     - eainfo.detailed.name is the layer name
-    - fgdb_data_type overrides pass through verbatim to attrtype
+    - no field types are written (include_field_types defaults off)
     - GDB and SHP outputs use different overridden column names for the same
       base column (renamed_field → RENAMED_FIELD_FULL in GDB, RENAMEDFLD in SHP)
     """
@@ -488,7 +500,7 @@ def test_write_metadata_gdb_format_overrides(
     file_metadata = esri_md.calculate_file_dataset_metadata(file_id="gdb")
 
     _assert_write_metadata_defaults_and_attributes(
-        metadata, file_metadata, fixture_info["layer"], "fgdb_data_type"
+        metadata, file_metadata, fixture_info["layer"]
     )
 
     attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}
@@ -499,7 +511,7 @@ def test_write_metadata_gdb_format_overrides(
     assert labels[-2:] == ["Shape_Length", "Shape_Area"]
     assert "geom" not in labels
     objectid = attrs_by_label["OBJECTID"]
-    assert objectid.attrtype.value == "OID"
+    assert _written_type(objectid) is None
     assert objectid.attrdefs.value == "Esri"
     assert objectid.attrdomv.udom is not None
     assert objectid.attrdomv.udom.value == (
@@ -510,12 +522,35 @@ def test_write_metadata_gdb_format_overrides(
     # not the SHP-specific one (RENAMEDFLD)
     assert "RENAMED_FIELD_FULL" in attrs_by_label
     assert "RENAMEDFLD" not in attrs_by_label
-    assert attrs_by_label["RENAMED_FIELD_FULL"].attrtype.value == "String"
+    assert _written_type(attrs_by_label["RENAMED_FIELD_FULL"]) is None
 
     # projection — EPSG:4326 maps to refSysInfo
     ref_sys_id = metadata.ref_sys_info.ref_system.ref_sys_id
     assert ref_sys_id.id_code_space.value == "EPSG"
     assert ref_sys_id.ident_code.code == 4326
+
+
+def test_write_metadata_include_field_types_writes_overrides(
+    temp_gdb_zip_path, test_dcpy_org_metadata
+):
+    """The types stub: with include_field_types on, fgdb_data_type overrides and
+    system-field types are written as attrtype."""
+    esri.write_metadata(
+        product_name="test_dcpy",
+        dataset_name="esri",
+        path_to_file=temp_gdb_zip_path,
+        layer=SPATIAL_LAYER,
+        file_id="gdb",
+        zip_subdir=None,
+        org_md=test_dcpy_org_metadata,
+        include_field_types=True,
+    )
+    metadata = fgdb.read_metadata(gdb=temp_gdb_zip_path, layer=SPATIAL_LAYER)
+    assert metadata is not None
+    types = {a.attrlabl.value: _written_type(a) for a in metadata.eainfo.detailed.attr}
+    assert types["OBJECTID"] == "OID"
+    assert types["Category"] == "String"
+    assert types["RENAMED_FIELD_FULL"] == "String"
 
 
 def test_write_metadata_gdb_table_layer_overrides(
@@ -584,7 +619,7 @@ def test_write_metadata_shp_format_overrides(
 
     Checks:
     - eainfo.detailed.name is the layer name
-    - shp_data_type overrides pass through verbatim to attrtype
+    - no field types are written (include_field_types defaults off)
     - GDB and SHP outputs use different overridden column names for the same
       base column (renamed_field → RENAMEDFLD in SHP, RENAMED_FIELD_FULL in GDB)
     """
@@ -612,7 +647,7 @@ def test_write_metadata_shp_format_overrides(
     file_metadata = esri_md.calculate_file_dataset_metadata(file_id="shapefile")
 
     _assert_write_metadata_defaults_and_attributes(
-        metadata, file_metadata, fixture_info["layer"], "shp_data_type"
+        metadata, file_metadata, fixture_info["layer"]
     )
 
     attrs_by_label = {a.attrlabl.value: a for a in metadata.eainfo.detailed.attr}

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from dcpy.geospatial.shapefile_metadata import (
     Attr,
+    Attrtype,
     Edom,
     Esri,
     Mddatest,
@@ -61,20 +62,25 @@ def _get_esri_timestamp(dt_obj=None):
 
 
 def _create_attr_metadata(
-    column: DatasetColumn, custom_type_key: str | None = None
+    column: DatasetColumn,
+    custom_type_key: str | None = None,
+    include_type: bool = False,
 ) -> Attr:
-    """Create an Attr metadata object from a column specification."""
+    """Create an Attr metadata object from a column specification. The field
+    type (attrtype) is only written when include_type is set."""
     attr = Attr()
 
-    is_uid = column.id == "uid"
     attr.attrlabl.value = column.name
     attr.attalias.value = column.name
     attr.attrdef.value = column.description
     attr.attrdefs.value = column.data_source
-    effective_type = (
-        column.custom.get(custom_type_key) if custom_type_key else None
-    ) or column.data_type
-    attr.attrtype.value = "OID" if is_uid else effective_type
+    if include_type:
+        effective_type = (
+            column.custom.get(custom_type_key) if custom_type_key else None
+        ) or column.data_type
+        attr.attrtype = Attrtype(value="OID" if column.id == "uid" else effective_type)
+    else:
+        attr.attrtype = None
 
     if column.values:
         attr.attrdomv.udom = None
@@ -85,12 +91,18 @@ def _create_attr_metadata(
     return attr
 
 
-def _create_system_attr_metadata(field: EsriSystemField) -> Attr:
-    """Create an Attr metadata object for an Esri-managed system field."""
+def _create_system_attr_metadata(
+    field: EsriSystemField, include_type: bool = False
+) -> Attr:
+    """Create an Attr metadata object for an Esri-managed system field. The
+    field type (attrtype) is only written when include_type is set."""
     attr = Attr()
     attr.attrlabl.value = field.name
     attr.attalias.value = field.alias
-    attr.attrtype.value = field.data_type
+    if include_type:
+        attr.attrtype = Attrtype(value=field.data_type)
+    else:
+        attr.attrtype = None
     attr.attrdef.value = field.description
     attr.attrdefs.value = field.data_source
     attr.attrdomv.udom = Udom(value=field.description_of_values)
