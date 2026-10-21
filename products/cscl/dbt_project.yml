@@ -57,6 +57,11 @@ vars:
   # former (needle max gap is two orders of magnitude under 1 ft) while only trimming the
   # base of the latter, leaving its real extent visible.
   context_geom_noise_buffer_ft: 1.0
+  # gdb_lion SegCount: two segments of the same class with the same two nodes are coincident
+  # if each lies within this distance (ft) of the other. Legacy compares within the source's
+  # XY tolerance (0.0002 ft) on a 0.0001 ft grid; 0.0003 is the smallest value that matches
+  # prod, not a number stated in the legacy code. Raise it if real coincident pairs are missed.
+  segcount_coincident_tolerance_ft: 0.0003
   # AtomicPolygon topology (models/intermediate/atomicpolygon_topology) and the district
   # boundaries built from it (macros/district_boundary.sql).
   #
