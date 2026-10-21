@@ -15,7 +15,7 @@
   Compares old (legacy) and new (build) relations and outputs:
   - One row per primary key
   - Status field: modified, only_in_legacy, only_in_build
-  - Changes field: jsonb with old/new values for modified fields
+  - Changes field: JSON with old/new values for modified fields
   - Metadata fields for tracking and categorization
 
   Parameters:
@@ -71,7 +71,7 @@
     SELECT
       {{ primary_key }},
       'only_in_legacy' as status,
-      NULL::jsonb as changes
+      NULL::JSON as changes
     FROM non_identical
     WHERE dbt_audit_row_status = 'removed'
   ),
@@ -79,7 +79,7 @@
     SELECT
       {{ primary_key }},
       'only_in_build' as status,
-      NULL::jsonb as changes
+      NULL::JSON as changes
     FROM non_identical
     WHERE dbt_audit_row_status = 'added'
   ),
@@ -101,11 +101,11 @@
       SELECT
         old.{{ primary_key }},
         '{{ field }}' as field_name,
-        to_jsonb(old.{{ field }}) as old_value,
-        to_jsonb(new.{{ field }}) as new_value
+        to_json(old.{{ field }}) as old_value,
+        to_json(new.{{ field }}) as new_value
       FROM old_values old
       INNER JOIN new_values new ON old.{{ primary_key }} = new.{{ primary_key }}
-      WHERE old.{{ field }}::text IS DISTINCT FROM new.{{ field }}::text
+      WHERE old.{{ field }}::VARCHAR IS DISTINCT FROM new.{{ field }}::VARCHAR
       {{ "UNION ALL" if not loop.last else "" }}
       {%- endfor %}
     {%- else %}
@@ -113,19 +113,19 @@
       SELECT
         NULL::text as {{ primary_key }},
         NULL::text as field_name,
-        NULL::jsonb as old_value,
-        NULL::jsonb as new_value
+        NULL::JSON as old_value,
+        NULL::JSON as new_value
       WHERE FALSE
     {%- endif %}
   ),
-  -- Aggregate changes into jsonb
+  -- Aggregate changes into JSON
   modified_rows AS (
     SELECT
       {{ primary_key }},
       'modified' as status,
-      jsonb_object_agg(
+      json_group_object(
         field_name,
-        jsonb_build_object('old', old_value, 'new', new_value)
+        json_object('old', old_value, 'new', new_value)
       ) as changes
     FROM field_diffs
     GROUP BY {{ primary_key }}

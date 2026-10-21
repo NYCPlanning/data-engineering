@@ -9,12 +9,12 @@ production_lion AS (
 )
 SELECT -- noqa: LT09
     dev._source_table,
-    ARRAY_REMOVE(ARRAY[
+    list_filter([
         {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
             CASE WHEN dev."{{ col.column }}" <> prod."{{ col.column }}" THEN '{{ col.column }}' END
             {%- if not loop.last -%},{% endif %}
         {%- endfor %}
-    ], NULL) AS columns_with_diffs
+    ], x -> x IS NOT NULL) AS columns_with_diffs
 {%- for col in adapter.get_columns_in_relation(source('production_outputs', 'citywide_lion_dat')) -%}
     {%- if loop.first -%},{% endif %}
     dev."{{ col.column }}" AS "{{ col.column }}_dev",

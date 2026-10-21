@@ -29,7 +29,7 @@
 -- tolerance; a layer with much larger or smaller areas may need a different value.
 
 {% set prod_relation = adapter.get_relation(
-    database = "db-cscl",
+    database = target.database,
     schema = "production_outputs",
     identifier = "fgdb_nycb2010"
 ) -%}
@@ -40,6 +40,6 @@ SELECT
     borocode,
     boroname,
     ct2010,
-    round(shape_length::numeric) AS shape_length,
-    round(shape_area::numeric, -1) AS shape_area
+    round(shape_length::DECIMAL(38, 12)) AS shape_length,
+    round(shape_area::DECIMAL(38, 12), -1) AS shape_area
 FROM {{ prod_relation }}

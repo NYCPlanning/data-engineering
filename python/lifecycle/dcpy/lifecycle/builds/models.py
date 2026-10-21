@@ -95,7 +95,14 @@ class ExportDataset(BaseModel, extra="forbid"):
     name: str
     filename: str | None = None
     format: ExportFormat
+    # Subfolder of dataset_files the file goes in (e.g. "district_gdb")
+    group: str | None = None
     custom: dict | None = None
+
+    @property
+    def output_path(self) -> Path:
+        """Path relative to dataset_files."""
+        return Path(self.group or "") / self.output_filename
 
     @property
     def output_filename(self) -> str:
@@ -118,6 +125,15 @@ class BuildExports(BaseModel, extra="forbid"):
     output_folder: Path | None = None
     zip_name: str | None = None
     datasets: list[ExportDataset] = []
+    # Parquet-first: gdb entries are exported as one (Geo)Parquet file per layer (plus a
+    # manifest) instead of written straight to the FGDB; `builds export package` then
+    # folds them into the FGDBs the entries name.
+    package_from_parquet: bool = False
+    # CRS stamped on exported GeoParquet whose geometry carries none (e.g. "EPSG:2263")
+    crs: str | None = None
+    # OpenFileGDB layer creation options for every gdb layer (e.g. one xy grid: XORIGIN,
+    # YORIGIN, XYSCALE, XYTOLERANCE); an entry's custom.layer_options overrides per key
+    gdb_layer_options: dict[str, str] = {}
 
     @model_validator(mode="after")
     def _check_filename_collisions(self) -> Self:
@@ -125,7 +141,7 @@ class BuildExports(BaseModel, extra="forbid"):
         same file. Only layers of one gdb or gpkg may share a filename."""
         by_filename: dict[str, list[ExportDataset]] = {}
         for ds in self.datasets:
-            by_filename.setdefault(ds.output_filename, []).append(ds)
+            by_filename.setdefault(str(ds.output_path), []).append(ds)
 
         errors = []
         for filename, entries in by_filename.items():

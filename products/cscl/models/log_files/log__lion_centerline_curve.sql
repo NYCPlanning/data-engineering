@@ -6,12 +6,12 @@ SELECT
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     FORMAT(
-        'An invalid center of curvature was calculated for the %s feature with an OID = %s. '
-        || 'Calculated X = %s, Calculated Y = %s.',
-        source_table,
-        globalid,
-        center_of_curvature_x,
-        center_of_curvature_y
+        'An invalid center of curvature was calculated for the {} feature with an OID = {}. '
+        || 'Calculated X = {}, Calculated Y = {}.',
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, ''),
+        COALESCE(center_of_curvature_x::VARCHAR, ''),
+        COALESCE(center_of_curvature_y::VARCHAR, '')
     ) AS message
 FROM {{ ref('int__lion') }}
 WHERE

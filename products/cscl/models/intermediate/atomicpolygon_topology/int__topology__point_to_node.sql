@@ -27,24 +27,30 @@ WITH RECURSIVE cell_ids AS (
 -- The 3x3 neighbourhood as 9 explicit (dx, dy) offsets joined by equality: a BETWEEN
 -- range join can't be hashed and plans as a nested loop over all pairs of cells.
 -- MATERIALIZED so the recursive step joins against a fixed table.
+-- the 8 neighbouring cells of each cell, as join keys: an equality join on these, with
+-- the distance check after it (with st_dwithin in the join DuckDB picks a far worse plan)
+neighbour_keys AS MATERIALIZED (
+    SELECT
+        a.cell_id,
+        a.x_cell + gx.dx AS x_cell,
+        a.y_cell + gy.dy AS y_cell
+    FROM cell_ids AS a
+    CROSS JOIN generate_series(-1, 1) AS gx (dx)
+    CROSS JOIN generate_series(-1, 1) AS gy (dy)
+),
+
 cell_merges AS MATERIALIZED (
     SELECT
         a.cell_id AS cell_a,
         b.cell_id AS cell_b
-    FROM cell_ids AS a
-    CROSS JOIN generate_series(-1, 1) AS dx
-    CROSS JOIN generate_series(-1, 1) AS dy
-    INNER JOIN cell_ids AS b
-        ON
-            b.x_cell = a.x_cell + dx
-            AND b.y_cell = a.y_cell + dy
+    FROM neighbour_keys AS nk
+    INNER JOIN cell_ids AS b ON nk.x_cell = b.x_cell AND nk.y_cell = b.y_cell
+    INNER JOIN cell_ids AS a ON nk.cell_id = a.cell_id
     WHERE
         a.cell_id != b.cell_id
         AND st_dwithin(a.geom, b.geom, {{ var('ap_topology_node_merge_tolerance_ft') }})
 ),
 
--- Only cells that merge with something need the recursive walk; every other cell is
--- its own component (the coalesce in `components`).
 reachable (start_cell, reached_cell) AS (
     SELECT DISTINCT
         cell_a,

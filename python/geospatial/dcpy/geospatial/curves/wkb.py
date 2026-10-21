@@ -41,6 +41,7 @@ class CurveStats:
     """Counters accumulated across calls, e.g. a whole layer."""
 
     geometries: int = 0
+    curved: int = 0  # geometries with at least one arc
     arcs: int = 0
     zm_stripped: int = 0  # geometries whose Z and/or M values were dropped
     closed_rings: int = 0  # unclosed polygon rings closed by repeating the first point
@@ -196,5 +197,6 @@ def split_curve_wkb(
     r = _Reader(wkb, stats, tolerance, min_segments)
     node = r.geometry()
     stats.geometries += 1
+    stats.curved += bool(r.arcs)
     stats.arcs += len(r.arcs)
     return _emit(node), r.arcs

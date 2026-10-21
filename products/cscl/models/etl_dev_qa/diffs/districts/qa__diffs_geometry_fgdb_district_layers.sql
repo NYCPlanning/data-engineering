@@ -17,7 +17,7 @@ SELECT
         WHEN only_in_prod THEN 'only_in_prod'
         ELSE 'modified'
     END AS status,
-    jsonb_build_object(
+    json_object(
         'symdiff_area_pct', symdiff_area_pct,
         'hausdorff_ft', hausdorff_ft,
         'symdiff_boundary_len_ft', symdiff_boundary_len_ft,
@@ -27,7 +27,7 @@ SELECT
     ) AS changes,
     'gdb_' || source_layer AS output_file_id,
     CASE
-        WHEN array_length(failing_checks, 1) = 1 THEN failing_checks[1]
+        WHEN len(failing_checks) = 1 THEN failing_checks[1]
         ELSE ''
     END AS diff_group,
     '' AS subgroup,

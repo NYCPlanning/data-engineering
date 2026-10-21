@@ -9,7 +9,11 @@ import typer
 
 from dcpy.configuration import PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
-from dcpy.lifecycle.builds.config import BUILD_STAGE_KEY, get_duckdb_path
+from dcpy.lifecycle.builds.config import (
+    BUILD_STAGE_KEY,
+    get_duckdb_path,
+    uses_stage_dirs,
+)
 from dcpy.lifecycle.builds.models import InputDatasetDestination
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils.logging import logger
@@ -63,7 +67,7 @@ def _set_duckdb_path(recipe: "plan.Recipe") -> None:
     if InputDatasetDestination.duckdb not in destinations or not recipe.version:
         return
     duckdb_path = get_duckdb_path(
-        recipe.product, recipe.version, recipe.duckdb_filename
+        recipe.product, recipe.version, recipe.duckdb_filename, uses_stage_dirs(recipe)
     )
     os.environ["DUCKDB_PATH"] = str(duckdb_path)
     logger.info(f"Set DUCKDB_PATH: {duckdb_path}")
@@ -74,6 +78,7 @@ def run_single_command(
     recipe_lock_path: Path,
     command_name: str,
     build_directory: Path | None = None,
+    stage_key: str = BUILD_STAGE_KEY,
 ) -> None:
     """Execute a single build command from the recipe.
 
@@ -182,13 +187,11 @@ def run_single_command(
         logger.info(f"Export and metadata write completed. Output: {output_path}")
         return
 
-    # Not a special command - execute a build command from recipe
-    if BUILD_STAGE_KEY not in recipe.stage_config:
-        raise ValueError(
-            f"Recipe does not contain '{BUILD_STAGE_KEY}' stage configuration"
-        )
+    # Not a special command - execute a command from the recipe's stage_config
+    if stage_key not in recipe.stage_config:
+        raise ValueError(f"Recipe does not contain '{stage_key}' stage configuration")
 
-    build_config = recipe.stage_config[BUILD_STAGE_KEY]
+    build_config = recipe.stage_config[stage_key]
 
     # 2. Stage-level env vars
     if build_config.env:
@@ -296,6 +299,7 @@ def run_build_commands(
     product_path: Path,
     recipe_lock_path: Path,
     build_directory: Path | None = None,
+    stage_key: str = BUILD_STAGE_KEY,
 ) -> None:
     """Execute just the build-stage commands from a recipe (stage_config.builds.build.commands).
 
@@ -305,17 +309,15 @@ def run_build_commands(
     """
     recipe = plan.recipe_from_yaml(recipe_lock_path)
 
-    if BUILD_STAGE_KEY not in recipe.stage_config:
+    if stage_key not in recipe.stage_config:
         raise ValueError(
-            f"Recipe does not contain '{BUILD_STAGE_KEY}' stage configuration. "
-            f"Add stage_config.{BUILD_STAGE_KEY}.commands to recipe.yml"
+            f"Recipe does not contain '{stage_key}' stage configuration. "
+            f"Add stage_config.{stage_key}.commands to recipe.yml"
         )
 
-    build_config = recipe.stage_config[BUILD_STAGE_KEY]
+    build_config = recipe.stage_config[stage_key]
     if not build_config.commands:
-        raise ValueError(
-            "No build commands specified in recipe stage_config.build.commands"
-        )
+        raise ValueError(f"No commands specified in recipe stage_config.{stage_key}")
 
     for cmd in build_config.commands:
         run_single_command(
@@ -323,6 +325,7 @@ def run_build_commands(
             recipe_lock_path=recipe_lock_path,
             command_name=cmd.name,
             build_directory=build_directory,
+            stage_key=stage_key,
         )
 
 
@@ -702,7 +705,20 @@ def _get_build_path(
 
     if duckdb:
         typer.echo(
-            str(get_duckdb_path(recipe.product, recipe.version, recipe.duckdb_filename))
+            str(
+                get_duckdb_path(
+                    recipe.product,
+                    recipe.version,
+                    recipe.duckdb_filename,
+                    uses_stage_dirs(recipe),
+                )
+            )
         )
     else:
-        typer.echo(str(get_build_output_dir(recipe.product, recipe.version)))
+        typer.echo(
+            str(
+                get_build_output_dir(
+                    recipe.product, recipe.version, uses_stage_dirs(recipe)
+                )
+            )
+        )

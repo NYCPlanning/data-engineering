@@ -6,8 +6,8 @@ Run from the products/cscl directory:
     python poc_validation/compare_gdb.py
 
 The GDB filename(s) and version are resolved from recipe.yml. By default:
-    dev:  output/dataset_files/<gdb filename>        (from the local/CI build)
-    prod: edm-private/cscl_etl/<version>/<filename>  (fetched to .data/prod/)
+    dev:  <PACKAGE_DIR>/dataset_files/<gdb filename>        (from the local/CI build)
+    prod: edm-private/cscl_etl/<version>/<filename>  (fetched to <QA_DIR>/prod/)
 
 For local iteration without S3 access, pass a local prod copy with --prod
 (e.g. --prod ../../.task-pipeline/nyclion_26a.zip).
@@ -37,14 +37,14 @@ dcpy.geospatial.gdb (compare.py / report.py) - this script only supplies
 CSCL's own inputs (declared keys, known/expected diffs) and CLI/S3 wiring.
 
 Report-only: writes two CSVs per gdb (per-column summary and per-row flagged-feature
-identifiers) to output/validation_output/, and logs a report. It never fails the
+identifiers) to <QA_DIR>/validation_output/, and logs a report. It never fails the
 build on a data mismatch.
 
-output/validation_output/<name>_comparison.csv - one row per (layer, column): null
+<QA_DIR>/validation_output/<name>_comparison.csv - one row per (layer, column): null
 rates, nunique, and the layer-level row counts/note. Says THAT a layer has N rows
 modified/dev-only/prod-only.
 
-output/validation_output/<name>_flagged_rows.csv - one row per flagged FEATURE (not
+<QA_DIR>/validation_output/<name>_flagged_rows.csv - one row per flagged FEATURE (not
 column): layer, status (only_in_dev/only_in_prod/modified), key_columns, key. Says
 WHICH rows those were, so a flagged layer can be chased down by key directly (e.g.
 SELECT ... WHERE "BoroCD" = '...') instead of re-deriving the affected rows by hand
@@ -59,6 +59,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import typer
+from paths import find_dataset_file, prod_files_dir, validation_dir
 
 from dcpy.geospatial.gdb import compare as gdb_compare
 from dcpy.geospatial.gdb import fgdb
@@ -67,7 +68,7 @@ from dcpy.lifecycle.builds import plan
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
-OUTPUT_DIR = Path("output/validation_output")
+OUTPUT_DIR = validation_dir()
 LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
 PROD_BUCKET = "edm-private"
 
@@ -337,13 +338,12 @@ def run(
 
     version = prod_version or recipe.version
     for filename in gdb_filenames:
-        dev_path = (
-            dev if dev is not None else Path("output") / "dataset_files" / filename
-        )
+        dev_path = dev if dev is not None else find_dataset_file(filename)
         if prod is not None:
             prod_path = prod
         else:
-            prod_path = Path(".data/prod") / filename
+            prod_path = prod_files_dir() / filename
+            prod_path.parent.mkdir(parents=True, exist_ok=True)
             key = f"cscl_etl/{version}/{filename}"
             logger.info(f"Fetching prod GDB s3://{PROD_BUCKET}/{key}")
             s3.download_file(PROD_BUCKET, key, prod_path)

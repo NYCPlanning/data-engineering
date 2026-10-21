@@ -1,0 +1,59 @@
+id: lion_node
+
+attributes:
+  display_name: LION - Node
+  description: |-
+    Nodes represent the locations of any combination or intersection of linear features in New York City (a topological junction). A node occurs wherever two or more linear features cross regardless of whether a physical intersection occurs at that point.
+  each_row_is_a: Node
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - lion
+  - nodes
+  - intersections
+  - streets
+  - transportation
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: lion_gdb
+    filename: nyclion.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: node
+
+columns:
+- id: nodeid
+  name: NODEID
+  data_type: integer
+  description: The NODEID of the node at which the segments intersect.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Integer
+- id: globalid
+  name: GLOBALID
+  data_type: text
+  description: Globally unique identifier of the node in CSCL.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: vintersect
+  name: VIntersect
+  data_type: text
+  description: The value of this field is labeled as "VirtualIntersection" if the node is listed in both the VirtualIntersection table and the StreetsHaveIntersection table in the CSCL database.
+  data_source: Department of City Planning, NYC
+  values:
+  - value: VirtualIntersection
+    description: The node is a virtual intersection.
+  custom:
+    fgdb_data_type: String

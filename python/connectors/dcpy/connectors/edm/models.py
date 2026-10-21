@@ -118,6 +118,8 @@ class DatasetType(StrEnum):
     json = "json"
     shapefile = "shapefile"
     geodatabase = "gdb"
+    # a zip of parquet files, loaded as one table per file in a schema named import_as
+    parquet_bundle = "parquet_bundle"
     other = "Other"
 
     def to_extension(self) -> str:
@@ -129,6 +131,7 @@ class DatasetType(StrEnum):
             "json": "json",
             "shapefile": "shp",
             "gdb": "gdb.zip",
+            "parquet_bundle": "zip",
             "other": "dat",
         }
         return mapping[self.value]

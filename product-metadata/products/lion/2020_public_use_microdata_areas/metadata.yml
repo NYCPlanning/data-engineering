@@ -62,6 +62,12 @@ files:
     id: shapefile
     filename: nypuma2020.zip
     type: shapefile
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: shape_leng
+      name: Shape_Leng
 - file:
     id: metadata_pdf
     filename: nypuma2020_metadata.pdf
@@ -71,6 +77,20 @@ files:
     type: oti_data_dictionary
     filename: puma2020_data_dictionary.xlsx
     is_metadata: true
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nypuma2020
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: shape_leng
+      name: SHAPE_Length
+    - id: shape_area
+      name: SHAPE_Area
 
 columns:
 - id: the_geom
@@ -86,13 +106,22 @@ columns:
     PUMAs are statistical geographic areas defined for the dissemination of Public
     Use Microdata Sample (PUMS) data.
   example: '4503'
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
 - id: shape_leng
   name: Shape_Length
   data_type: number
   description: Length of feature in internal units.
   example: '37550.8572191'
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
 - id: shape_area
   name: Shape_Area
   data_type: number
   description: Area of feature in internal units squared.
   example: '265852363.461'
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double

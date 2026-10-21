@@ -83,8 +83,8 @@ WITH flagged_2010 AS (
         key_value,
         actual_geom_4326,
         expected_geom_4326,
-        st_transform(actual_geom_4326, 2263) AS actual_geom_2263,
-        st_transform(expected_geom_4326, 2263) AS expected_geom_2263
+        st_transform(actual_geom_4326, 'EPSG:4326', 'EPSG:2263', always_xy := true) AS actual_geom_2263,
+        st_transform(expected_geom_4326, 'EPSG:4326', 'EPSG:2263', always_xy := true) AS expected_geom_2263
     FROM {{ ref('qa__geometry_fgdb_nypuma2010') }}
     WHERE NOT passes
 ),
@@ -117,8 +117,8 @@ flagged_2020 AS (
         key_value,
         actual_geom_4326,
         expected_geom_4326,
-        st_transform(actual_geom_4326, 2263) AS actual_geom_2263,
-        st_transform(expected_geom_4326, 2263) AS expected_geom_2263
+        st_transform(actual_geom_4326, 'EPSG:4326', 'EPSG:2263', always_xy := true) AS actual_geom_2263,
+        st_transform(expected_geom_4326, 'EPSG:4326', 'EPSG:2263', always_xy := true) AS expected_geom_2263
     FROM {{ ref('qa__geometry_fgdb_nypuma2020') }}
     WHERE NOT passes
 ),
@@ -146,28 +146,28 @@ diffs_2020 AS (
 build_spur_frags_2010 AS (
     SELECT
         key_value,
-        (st_dump(build_spur_geom)).geom AS fragment
+        unnest(st_dump(build_spur_geom)).geom AS fragment
     FROM diffs_2010
 ),
 
 legacy_spur_frags_2010 AS (
     SELECT
         key_value,
-        (st_dump(legacy_spur_geom)).geom AS fragment
+        unnest(st_dump(legacy_spur_geom)).geom AS fragment
     FROM diffs_2010
 ),
 
 build_spur_frags_2020 AS (
     SELECT
         key_value,
-        (st_dump(build_spur_geom)).geom AS fragment
+        unnest(st_dump(build_spur_geom)).geom AS fragment
     FROM diffs_2020
 ),
 
 legacy_spur_frags_2020 AS (
     SELECT
         key_value,
-        (st_dump(legacy_spur_geom)).geom AS fragment
+        unnest(st_dump(legacy_spur_geom)).geom AS fragment
     FROM diffs_2020
 )
 
@@ -196,7 +196,7 @@ SELECT
     key_value,
     'build_spur' AS role,
     key_value || '_' || row_number() OVER (PARTITION BY key_value ORDER BY st_area(fragment) DESC) AS label,
-    st_transform(fragment, 4326) AS geom
+    st_transform(fragment, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM build_spur_frags_2010
 
 UNION ALL
@@ -206,7 +206,7 @@ SELECT
     key_value,
     'legacy_spur' AS role,
     key_value || '_' || row_number() OVER (PARTITION BY key_value ORDER BY st_area(fragment) DESC) AS label,
-    st_transform(fragment, 4326) AS geom
+    st_transform(fragment, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM legacy_spur_frags_2010
 
 UNION ALL
@@ -216,7 +216,7 @@ SELECT
     key_value,
     'build_sliver' AS role,
     key_value AS label,
-    st_transform(st_difference(raw_build_diff, build_spur_geom), 4326) AS geom
+    st_transform(st_difference(raw_build_diff, build_spur_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM diffs_2010
 WHERE NOT st_isempty(st_difference(raw_build_diff, build_spur_geom))
 
@@ -227,7 +227,7 @@ SELECT
     key_value,
     'legacy_sliver' AS role,
     key_value AS label,
-    st_transform(st_difference(raw_legacy_diff, legacy_spur_geom), 4326) AS geom
+    st_transform(st_difference(raw_legacy_diff, legacy_spur_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM diffs_2010
 WHERE NOT st_isempty(st_difference(raw_legacy_diff, legacy_spur_geom))
 
@@ -258,7 +258,7 @@ SELECT
     key_value,
     'build_spur' AS role,
     key_value || '_' || row_number() OVER (PARTITION BY key_value ORDER BY st_area(fragment) DESC) AS label,
-    st_transform(fragment, 4326) AS geom
+    st_transform(fragment, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM build_spur_frags_2020
 
 UNION ALL
@@ -268,7 +268,7 @@ SELECT
     key_value,
     'legacy_spur' AS role,
     key_value || '_' || row_number() OVER (PARTITION BY key_value ORDER BY st_area(fragment) DESC) AS label,
-    st_transform(fragment, 4326) AS geom
+    st_transform(fragment, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM legacy_spur_frags_2020
 
 UNION ALL
@@ -278,7 +278,7 @@ SELECT
     key_value,
     'build_sliver' AS role,
     key_value AS label,
-    st_transform(st_difference(raw_build_diff, build_spur_geom), 4326) AS geom
+    st_transform(st_difference(raw_build_diff, build_spur_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM diffs_2020
 WHERE NOT st_isempty(st_difference(raw_build_diff, build_spur_geom))
 
@@ -289,7 +289,7 @@ SELECT
     key_value,
     'legacy_sliver' AS role,
     key_value AS label,
-    st_transform(st_difference(raw_legacy_diff, legacy_spur_geom), 4326) AS geom
+    st_transform(st_difference(raw_legacy_diff, legacy_spur_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM diffs_2020
 WHERE NOT st_isempty(st_difference(raw_legacy_diff, legacy_spur_geom))
 
@@ -300,7 +300,7 @@ SELECT
     t.puma AS key_value,
     'constituent_tract' AS role,
     t.boroct AS label,
-    st_transform(t.geom, 4326) AS geom
+    st_transform(t.geom, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM {{ ref('stg__censustract2010') }} AS t
 WHERE t.puma IN (SELECT key_value FROM flagged_2010)
 
@@ -311,6 +311,6 @@ SELECT
     t.puma AS key_value,
     'constituent_tract' AS role,
     t.boroct AS label,
-    st_transform(t.geom, 4326) AS geom
+    st_transform(t.geom, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom
 FROM {{ ref('stg__censustract2020') }} AS t
 WHERE t.puma IN (SELECT key_value FROM flagged_2020)

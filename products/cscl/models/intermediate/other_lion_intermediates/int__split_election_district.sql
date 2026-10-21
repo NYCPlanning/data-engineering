@@ -21,8 +21,8 @@ SELECT
     CASE
         -- staging table has validation that only valid values are '1' and '2'
         -- cases are then both, all 1, all 2, or none
-        WHEN '1' = any(sedat_sides) AND '2' = any(sedat_sides) THEN 'B'
-        WHEN '1' = any(sedat_sides) THEN 'L'
-        WHEN '2' = any(sedat_sides) THEN 'R'
+        WHEN list_contains(sedat_sides, '1') AND list_contains(sedat_sides, '2') THEN 'B'
+        WHEN list_contains(sedat_sides, '1') THEN 'L'
+        WHEN list_contains(sedat_sides, '2') THEN 'R'
     END AS split_election_district_flag
 FROM agg

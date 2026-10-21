@@ -17,7 +17,7 @@ focus_rpl_prod AS (
         ) AS rpl_id,
         prod_rpl.*
     FROM
-        production_outputs.rpl AS prod_rpl
+        {{ source('production_outputs', 'rpl') }} AS prod_rpl
     INNER JOIN diff_ids
         ON
             prod_rpl.generic_segmentid = diff_ids.generic_segmentid
@@ -47,8 +47,8 @@ all_segments AS (
         focus_rpl_prod.rpl_id AS rpl_id_prod,
         focus_rpl.roadbed_position_code,
         focus_rpl.generic_segmenttype,
-        ST_TRANSFORM(focus_rpl.midpoint, 4326) AS midpoint,
-        ST_TRANSFORM(focus_rpl.geom, 4326) AS geom,
+        ST_TRANSFORM(focus_rpl.midpoint, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS midpoint,
+        ST_TRANSFORM(focus_rpl.geom, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom,
         null AS midpoint_generic,
         null AS geom_generic
     FROM
@@ -67,8 +67,8 @@ all_segments AS (
         null AS generic_segmenttype,
         null AS midpoint,
         null AS geom,
-        ST_TRANSFORM(midpoint, 4326) AS midpoint_generic,
-        ST_TRANSFORM(geom, 4326) AS geom_generic
+        ST_TRANSFORM(midpoint, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS midpoint_generic,
+        ST_TRANSFORM(geom, 'EPSG:2263', 'EPSG:4326', always_xy := true) AS geom_generic
     FROM
         focus_lion
 ),

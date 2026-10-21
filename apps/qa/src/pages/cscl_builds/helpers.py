@@ -48,7 +48,7 @@ def slugify(text: str) -> str:
 
 
 def build_name_for(ingested_version: str, build_note: str) -> str:
-    """A build_name is used downstream (bash/build_env_setup.sh) as an unquoted Postgres
+    """A build_name is used downstream (bash/build_env_setup.sh) as an unquoted SQL
     schema name - valid identifiers can't start with a digit, which CSCL's own version
     strings ("26c", "26a", ...) always do. The "cscl" prefix isn't just descriptive, it's
     what keeps the derived schema name legal regardless of the version string's shape.

@@ -1,6 +1,6 @@
 name: "cscl"
 
-profile: "dcp-de-postgres"
+profile: "cscl"
 
 model-paths: [ "models" ]
 asset-paths: [ "assets" ]
@@ -39,8 +39,12 @@ models:
       +docs:
         node_color: "#3e5c76"
 
+dispatch:
+- macro_namespace: audit_helper
+  search_order: ['cscl', 'audit_helper']
+
 on-run-start:
-- '{{ create_pg_functions() }}'
+- "{{ create_duckdb_functions() }}"
 
 vars:
   # qa__context_geoms: buffer applied to the SUBTRACTED side before computing

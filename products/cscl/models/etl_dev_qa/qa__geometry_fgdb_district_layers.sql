@@ -83,7 +83,7 @@
         FROM (
     {{ geometry_diff_qa(
         build_relation=ref('gdb_' ~ l.name),
-        prod_relation=adapter.get_relation(database="db-cscl", schema="production_outputs", identifier="fgdb_" ~ l.name),
+        prod_relation=prod_fgdb_linear("fgdb_" ~ l.name),
         key_column=l.key,
         prod_key_column=l.get('prod_key')
     ) }}

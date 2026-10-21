@@ -142,43 +142,55 @@ SELECT * FROM shoreline_edges WHERE entity_id IS NOT NULL
   smaller built districts - an edge between two tracts in the same PUMA is 'interior'
   at PUMA level but 'exterior' at tract level.
 -#}
-WITH faces AS (
+WITH faces AS MATERIALIZED (
     SELECT
         entity_id,
-        (st_dump(st_polygonize(geom))).geom AS face
-    FROM {{ ref(edges_model) }}
-    WHERE edge_type = 'exterior'
-    GROUP BY entity_id
+        face,
+        st_pointonsurface(face) AS face_pt
+    FROM (
+        SELECT
+            entity_id,
+            unnest(st_dump(polygonized)).geom AS face
+        FROM (
+            SELECT
+                entity_id,
+                st_polygonize(list(geom)) AS polygonized
+            FROM {{ ref(edges_model) }}
+            WHERE edge_type = 'exterior'
+            GROUP BY entity_id
+        ) AS by_entity
+    ) AS dumped
 ),
 
-member_points AS (
-    SELECT
-        m.{{ entity_column }} AS entity_id,
-        st_pointonsurface(a.geom) AS pt
-    FROM {{ ref('int__topology__ap_entities') }} AS m
-    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON m.atomicid = a.atomicid
-    WHERE
-        m.{{ entity_column }} IS NOT NULL
-        {%- if not include_assigned_water %}
-        AND m.water_flag != '1'
-        {%- endif %}
+-- Which AP each face's interior point falls in. A face is bounded by the district's
+-- exterior edges, so it never holds both member and non-member APs: one point decides
+-- (st_contains of every member AP's point against large faces is far slower in DuckDB,
+-- which doesn't cache prepared geometries). Sliver faces fall in no AP and drop out.
+face_aps AS MATERIALIZED (
+    SELECT DISTINCT
+        f.entity_id,
+        f.face,
+        a.atomicid
+    FROM faces AS f
+    INNER JOIN {{ ref('stg__atomicpolygons') }} AS a ON st_intersects(a.geom, f.face_pt)
 ),
 
 kept AS (
-    SELECT
-        f.entity_id,
-        f.face
-    FROM faces AS f
-    WHERE EXISTS (
-        SELECT 1 FROM member_points AS mp
-        WHERE mp.entity_id = f.entity_id AND f.face && mp.pt AND st_contains(f.face, mp.pt)
-    )
+    SELECT DISTINCT
+        fa.entity_id,
+        fa.face
+    FROM face_aps AS fa
+    INNER JOIN {{ ref('int__topology__ap_entities') }} AS m
+        ON fa.atomicid = m.atomicid AND fa.entity_id = m.{{ entity_column }}
+    {%- if not include_assigned_water %}
+    WHERE m.water_flag != '1'
+    {%- endif %}
 )
 
 -- kept faces share exact, already-noded edges, so this union only dissolves them
 SELECT
     entity_id,
-    st_union(face) AS geom
+    st_union_agg(face) AS geom
 FROM kept
 GROUP BY entity_id
 {% endmacro %}
@@ -212,22 +224,26 @@ one_owner_edges AS (
 
 parts AS (
     SELECT
-        r.entity_id,
+        entity_id,
         -- ST_Dump of a single Polygon has an empty path - NULL would never join below
         coalesce(d.path[1], 1) AS part_n,
         d.geom AS part
-    FROM {{ ref(boundary_raw_model) }} AS r
-    CROSS JOIN LATERAL st_dump(r.geom) AS d
+    FROM (
+        SELECT
+            entity_id,
+            unnest(st_dump(geom)) AS d
+        FROM {{ ref(boundary_raw_model) }}
+    ) AS dumped
 ),
 
 interior_rings AS (
     SELECT
         p.entity_id,
         p.part_n,
-        n AS ring_n,
-        st_interiorringn(p.part, n) AS ring
+        g.n AS ring_n,
+        st_interiorringn(p.part, g.n::INTEGER) AS ring
     FROM parts AS p
-    CROSS JOIN LATERAL generate_series(1, st_numinteriorrings(p.part)) AS n
+    CROSS JOIN LATERAL generate_series(1, st_numinteriorrings(p.part)) AS g (n)
 ),
 
 kept_rings AS (
@@ -239,7 +255,7 @@ kept_rings AS (
     WHERE NOT EXISTS (
         SELECT 1
         FROM one_owner_edges AS e
-        WHERE e.entity_id = ir.entity_id AND e.geom && ir.ring AND st_covers(ir.ring, e.geom)
+        WHERE e.entity_id = ir.entity_id AND st_covers(ir.ring, e.geom)
     )
     GROUP BY ir.entity_id, ir.part_n
 ),
@@ -257,7 +273,7 @@ rebuilt AS (
 
 SELECT
     entity_id,
-    st_union(geom) AS geom
+    st_union_agg(geom) AS geom
 FROM rebuilt
 GROUP BY entity_id
 {% endmacro %}
@@ -285,7 +301,7 @@ WITH exterior AS (
 merged_check AS (
     SELECT
         entity_id,
-        st_issimple(st_linemerge(st_collect(geom))) AS is_simple_ok
+        st_issimple(st_linemerge(st_collect(list(geom)))) AS is_simple_ok
     FROM exterior
     GROUP BY entity_id
 ),
@@ -317,7 +333,7 @@ buildarea_check AS (
         entity_id,
         geom IS NOT NULL
         AND NOT st_isempty(geom)
-        AND st_geometrytype(geom) IN ('ST_Polygon', 'ST_MultiPolygon') AS buildarea_ok
+        AND st_geometrytype(geom) IN ('POLYGON', 'MULTIPOLYGON') AS buildarea_ok
     FROM {{ ref(boundary_raw_model) }}
 ),
 
@@ -372,8 +388,8 @@ WITH in_scope AS (
 prod AS (
     SELECT
         p.{{ prod_key }} AS entity_id,
-        {% if dissolve_prod %}st_union(linearize(p.shape)){% else %}linearize(p.shape){% endif %} AS geom
-    FROM {{ adapter.get_relation(database="db-cscl", schema="production_outputs", identifier=prod_identifier) }} AS p
+        {% if dissolve_prod %}st_union_agg(linearize(p.shape)){% else %}linearize(p.shape){% endif %} AS geom
+    FROM {{ prod_fgdb_linear(prod_identifier) }} AS p
     INNER JOIN in_scope AS s ON p.{{ prod_key }} = s.entity_id
     {% if dissolve_prod %}GROUP BY p.{{ prod_key }}{% endif %}
 ),
@@ -383,7 +399,7 @@ structure AS (
         entity_id,
         geom,
         st_numgeometries(geom) AS n_parts,
-        (SELECT sum(st_numinteriorrings(d.geom)) FROM st_dump(geom) AS d) AS n_holes
+        list_sum(list_transform(st_dump(geom), d -> st_numinteriorrings(d.geom))) AS n_holes
     FROM {{ ref(boundary_model) }}
 ),
 
@@ -392,7 +408,7 @@ prod_structure AS (
         entity_id,
         geom,
         st_numgeometries(geom) AS n_parts,
-        (SELECT sum(st_numinteriorrings(d.geom)) FROM st_dump(geom) AS d) AS n_holes
+        list_sum(list_transform(st_dump(geom), d -> st_numinteriorrings(d.geom))) AS n_holes
     FROM prod
 )
 
@@ -408,16 +424,16 @@ SELECT
     p.n_parts AS prod_parts,
     b.n_holes AS built_holes,
     p.n_holes AS prod_holes,
-    round((st_area(st_symdifference(b.geom, p.geom)) / nullif(st_area(p.geom), 0) * 100)::numeric, 6) AS symdiff_area_pct,
-    round(((st_perimeter(b.geom) - st_perimeter(p.geom)) / nullif(st_perimeter(p.geom), 0) * 100)::numeric, 4) AS perimeter_pct_diff,
+    round((st_area(st_symdifference(b.geom, p.geom)) / nullif(st_area(p.geom), 0) * 100)::DECIMAL(38, 12), 6) AS symdiff_area_pct,
+    round(((st_perimeter(b.geom) - st_perimeter(p.geom)) / nullif(st_perimeter(p.geom), 0) * 100)::DECIMAL(38, 12), 4) AS perimeter_pct_diff,
     CASE
         WHEN
             (b.n_holes > 0 OR p.n_holes > 0 OR b.n_parts != p.n_parts)
             AND st_npoints(b.geom)::bigint * st_npoints(p.geom) <= {{ var('boundary_qa_hausdorff_max_vertex_product') }}
-            THEN round(st_hausdorffdistance(b.geom, p.geom)::numeric, 3)
+            THEN round(hausdorff_distance(b.geom, p.geom)::DECIMAL(38, 12), 3)
     END AS hausdorff_ft,
-    round(st_area(b.geom)::numeric, 1) AS built_area_sqft,
-    round(st_area(p.geom)::numeric, 1) AS prod_area_sqft
+    round(st_area(b.geom)::DECIMAL(38, 12), 1) AS built_area_sqft,
+    round(st_area(p.geom)::DECIMAL(38, 12), 1) AS prod_area_sqft
 FROM prod_structure AS p
 FULL OUTER JOIN structure AS b ON p.entity_id = b.entity_id
 LEFT JOIN {{ ref(validity_model) }} AS v ON coalesce(p.entity_id, b.entity_id) = v.entity_id
@@ -452,7 +468,7 @@ built AS (
 
 prod AS (
     SELECT p.{{ prod_key }} AS entity_id, linearize(p.shape) AS geom
-    FROM {{ adapter.get_relation(database="db-cscl", schema="production_outputs", identifier=prod_identifier) }} AS p
+    FROM {{ prod_fgdb_linear(prod_identifier) }} AS p
     INNER JOIN outliers AS o ON p.{{ prod_key }} = o.entity_id
 ),
 
@@ -480,8 +496,8 @@ SELECT
     l.water_flag,
     o.hausdorff_ft,
     o.symdiff_area_pct,
-    round(st_area(l.geom)::numeric, 1) AS area_sqft,
-    st_multi(st_collectionextract(l.geom, 3))::geometry(MultiPolygon, 2263) AS geom
+    round(st_area(l.geom)::DECIMAL(38, 12), 1) AS area_sqft,
+    st_multi(st_collectionextract(l.geom, 3)) AS geom
 FROM layers AS l
 INNER JOIN outliers AS o ON l.entity_id = o.entity_id
 WHERE NOT st_isempty(l.geom)

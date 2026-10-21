@@ -39,6 +39,14 @@ models:
   columns:
   - name: atomicid
     tests: [ not_null ]
+- name: int__topology__arcs
+  description: >
+    One row per topology arc edge with the control points (x0, y0 start; x1, y1 mid;
+    x2, y2 end) its geometry was linearized from; topology-built district layers are
+    re-curved from these at export.
+  columns:
+  - name: x1
+    tests: [ not_null ]
 - name: int__topology__edge_sides
   description: >
     Which side of each topology edge each owner AtomicPolygon lies on, from ring orientation.

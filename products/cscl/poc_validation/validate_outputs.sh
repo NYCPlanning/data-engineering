@@ -2,14 +2,13 @@
 
 # Compares dev build output files against production files and writes per-file diff results.
 #
-# NOTE: This is what the build runs (see cscl_build.yml), and the QA app reads the
-# validation_output/ files it writes. It needs local copies of both output/ and
-# .data/prod/, so it only works during or just after a build.
+# NOTE: This runs as the build's QA stage (recipe.yml stage_config builds.qa), and the QA
+# app reads the validation_output/ files it writes.
 # poc_validation/run_validation.py runs the same comparison against a build that has
 # already been published, streaming both sides from S3.
 #
-# For each file in output/, performs a line-level comparison against the matching file in
-# .data/prod/ and writes the mismatched rows to output/validation_output/<filename> - dev-only
+# For each packaged file, performs a line-level comparison against the matching prod file
+# and writes the mismatched rows to <validation dir>/<filename> - dev-only
 # rows first, then (if any) a "--- ONLY IN PROD ---" section for rows prod has that dev is
 # missing. Also writes a summary CSV (validation_summary.csv) with per-file prod row counts,
 # dev-only/prod-only counts, and their total (mismatched_rows).
@@ -22,37 +21,42 @@
 # poc_validation/run_validation.py's _compute_file_diff, which is meant to compute the same
 # thing against a published build.
 #
-# Expects two folders in the current directory:
-#  output/dataset_files/  - contains outputs of the current dev build
-#  .data/prod/            - contains the production files to compare against
-mkdir -p output/validation_output
+# Paths: see poc_validation/paths.py (same rules). Runs as the QA stage
+# (dcpy lifecycle builds qa run), which sets PACKAGE_DIR and QA_DIR.
+: "${PACKAGE_DIR:?run as the QA stage (dcpy lifecycle builds qa run)}"
+: "${QA_DIR:?run as the QA stage (dcpy lifecycle builds qa run)}"
+DEV_DIR=${DATASET_FILES_DIR:-$PACKAGE_DIR/dataset_files}
+PROD_DIR=${PROD_FILES_DIR:-$QA_DIR/prod}
+OUT_DIR=${VALIDATION_DIR:-$QA_DIR/validation_output}
+mkdir -p "$OUT_DIR"
 
-csv_file="output/validation_output/validation_summary.csv"
+csv_file="$OUT_DIR/validation_summary.csv"
 echo "filename,prod_row_count,mismatched_rows,dev_only_rows,prod_only_rows" > "$csv_file"
 
 total_records=0
 total_mismatched=0
-for filepath in output/dataset_files/*; do
+# dataset_files may group files into subfolders (flat_files/, district_gdb/, ...)
+for filepath in $(find "$DEV_DIR" -type f | sort); do
     file=$(basename "$filepath")
     if [[ "$file" =~ "zip" ]] || [[ -d "$filepath" ]]; then
         continue
     fi
     # Outputs marked compare_file: false in recipe.yml are never pulled, so there is
     # nothing to compare against. The LDF is one: see qa__ldf_summary instead.
-    if [ ! -f ".data/prod/$file" ]; then
+    if [ ! -f "$PROD_DIR/$file" ]; then
         echo "Skipping $file, no production file to compare against"
         continue
     fi
 
     echo "Validating $file"
 
-    prod_row_count="$(cat .data/prod/$file | wc -l | awk '{print $1}')"
+    prod_row_count="$(cat "$PROD_DIR/$file" | wc -l | awk '{print $1}')"
     echo "Total records:      $prod_row_count"
     total_records=$(($total_records + $prod_row_count))
     dev_sorted=$(mktemp)
     prod_sorted=$(mktemp)
-    sort output/dataset_files/$file > "$dev_sorted"
-    sort .data/prod/$file > "$prod_sorted"
+    sort "$filepath" > "$dev_sorted"
+    sort "$PROD_DIR/$file" > "$prod_sorted"
     dev_only_rows=$(comm -23 "$dev_sorted" "$prod_sorted")
     prod_only_rows=$(comm -13 "$dev_sorted" "$prod_sorted")
     rm -f "$dev_sorted" "$prod_sorted"
@@ -77,7 +81,7 @@ for filepath in output/dataset_files/*; do
             echo "--- ONLY IN PROD (missing from dev) ---"
             echo -e "$prod_only_rows"
         fi
-    } > output/validation_output/$file
+    } > "$OUT_DIR/$file"
     echo "$file,$prod_row_count,$n_mismatched,$n_dev_only,$n_prod_only" >> "$csv_file"
     echo ""
 done

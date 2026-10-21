@@ -58,8 +58,8 @@ SELECT
     c.node_hi,
     o.n_owners,
     m.atomicid,
-    round(st_distance(m.mid_geom, c.geom)::numeric, 6) AS mid_offset_ft,
-    round(st_length(c.geom)::numeric, 3) AS arc_length_ft
+    round(st_distance(m.mid_geom, c.geom)::DECIMAL(38, 12), 6) AS mid_offset_ft,
+    round(st_length(c.geom)::DECIMAL(38, 12), 3) AS arc_length_ft
 FROM mids AS m
 INNER JOIN canonical AS c
     ON least(m.node_a, m.node_b) = c.node_lo AND greatest(m.node_a, m.node_b) = c.node_hi

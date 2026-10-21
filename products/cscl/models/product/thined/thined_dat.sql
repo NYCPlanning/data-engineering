@@ -18,9 +18,9 @@ WITH data AS (
 -- CSCL-THINED-02 in data_issues.md before assuming these are still correct
 -- on a future release.
 header AS (
-    SELECT '0000' || rpad({{ config_value('thined_file_tag') }}, 10) AS dat_column
+    SELECT '0000' || rpad({{ config_value('thined_file_tag') }}, 10, ' ') AS dat_column
     UNION ALL
-    SELECT '0001' || rpad({{ config_value('thined_version') }}, 10)
+    SELECT '0001' || rpad({{ config_value('thined_version') }}, 10, ' ')
     UNION ALL
     SELECT '0002' || lpad((count(*) + 3)::text, 8, '0') || '  '
     FROM data

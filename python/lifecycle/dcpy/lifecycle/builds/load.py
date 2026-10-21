@@ -99,7 +99,9 @@ def load_source_data_from_resolved_recipe(
         recipe_lock_path = None  # We don't have a path if Recipe was passed directly
 
     assert recipe.version is not None, "Recipe version must be resolved before loading"
-    build_dir = build_config.get_build_output_dir(recipe.product, recipe.version)
+    build_dir = build_config.get_build_output_dir(
+        recipe.product, recipe.version, build_config.uses_stage_dirs(recipe)
+    )
     build_dir.mkdir(parents=True, exist_ok=True)
     # Later steps in this process (e.g. get_build_metadata) read it from the environment.
     os.environ["BUILD_ENV_OUTPUT_DIR"] = str(build_dir)
@@ -129,7 +131,10 @@ def load_source_data_from_resolved_recipe(
 
     if has_duckdb:
         duckdb_path = build_config.get_duckdb_path(
-            recipe.product, recipe.version, recipe.duckdb_filename
+            recipe.product,
+            recipe.version,
+            recipe.duckdb_filename,
+            build_config.uses_stage_dirs(recipe),
         )
         duckdb_client = duckdb_utils.DuckDBClient(
             db_path=duckdb_path, schema=target_schema, clear_schema=clear_duckdb_schema

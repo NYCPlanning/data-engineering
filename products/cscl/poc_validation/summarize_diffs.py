@@ -4,15 +4,17 @@ Parses validation output text files and produces a CSV summary of diffs.
 Run from the products/cscl directory:
     python poc_validation/summarize_diffs.py
 
-Outputs: output/validation_output/diffs_summary.csv
+Outputs: <QA_DIR>/validation_output/diffs_summary.csv
 """
 
 import csv
 from pathlib import Path
 
+from paths import validation_dir
+
 from dcpy.lifecycle.builds import plan
 
-VALIDATION_DIR = Path("output/validation_output")
+VALIDATION_DIR = validation_dir()
 OUTPUT_PATH = VALIDATION_DIR / "diffs_summary.csv"
 VALIDATION_SUMMARY_PATH = VALIDATION_DIR / "validation_summary.csv"
 
@@ -27,26 +29,63 @@ EXCLUDE = {
 }
 
 
-def build_export_name_to_group() -> dict[str, str]:
-    """Scan the raw YAML to capture the comment-based group above each export entry."""
-    lines = Path("recipe.yml").read_text().splitlines()
+def export_name_to_group_from_text(text: str) -> dict[str, str]:
+    """Scan raw recipe YAML for the comment-based group above each export entry.
+
+    Only comments at the indentation of the export list items ("- name:" lines) count;
+    deeper comments sit inside an entry and are ignored. A block of consecutive item-level
+    comments may hold notes and continuation lines around the header, so the header is the
+    last line of the block that starts with a capital letter (continuations and notes
+    start lowercase).
+    """
+    lines = text.splitlines()
     in_exports = False
-    in_datasets = False
-    current_group = ""
-    result: dict[str, str] = {}
-    for line in lines:
-        stripped = line.strip()
-        if stripped == "exports:":
+    datasets_at: int | None = None
+    for i, line in enumerate(lines):
+        if line.strip() == "exports:":
             in_exports = True
-        elif in_exports and stripped == "datasets:":
-            in_datasets = True
-        elif in_datasets:
-            if stripped.startswith("# "):
-                current_group = stripped[2:].strip()
-            elif stripped.startswith("- name:"):
-                name = stripped[len("- name:") :].strip()
-                result[name] = current_group
+        elif in_exports and line.strip() == "datasets:":
+            datasets_at = i
+            break
+    if datasets_at is None:
+        return {}
+    item_indent = next(
+        (
+            len(line) - len(line.lstrip())
+            for line in lines[datasets_at + 1 :]
+            if line.lstrip().startswith("- name:")
+        ),
+        None,
+    )
+    if item_indent is None:
+        return {}
+
+    current_group = ""
+    block_header = ""
+    in_block = False
+    result: dict[str, str] = {}
+    for line in lines[datasets_at + 1 :]:
+        stripped = line.strip()
+        indent = len(line) - len(line.lstrip())
+        if stripped.startswith("# ") and indent == item_indent:
+            text = stripped[2:].strip()
+            if not in_block:
+                block_header = ""
+            in_block = True
+            if text[:1].isupper():
+                block_header = text
+            continue
+        if in_block:
+            if block_header:
+                current_group = block_header
+            in_block = False
+        if stripped.startswith("- name:") and indent == item_indent:
+            result[stripped[len("- name:") :].strip()] = current_group
     return result
+
+
+def build_export_name_to_group() -> dict[str, str]:
+    return export_name_to_group_from_text(Path("recipe.yml").read_text())
 
 
 def build_filename_to_table_name() -> dict[str, str]:

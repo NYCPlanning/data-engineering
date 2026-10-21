@@ -23,7 +23,7 @@
 -- value for that same field - plain NULL for FromLeft/FromRight/ToLeft/ToRight,
 -- since gdb_lion.sql has never implemented those (tracked separately in
 -- compare_gdb.py's KNOWN_NULL_COLUMNS) - that's honest, not a reason to hide them.
--- Only the fields that actually violate the rule appear as keys (jsonb_strip_nulls).
+-- Only the fields that actually violate the rule appear as keys (null keys are filtered out).
 
 WITH violations AS (
     SELECT *
@@ -68,48 +68,40 @@ dev AS (
 SELECT
     v._lion_gdb_key AS comparison_id,
     'modified' AS status,
-    jsonb_strip_nulls(jsonb_build_object(
-        'llo_hyphen',
-        CASE
+    to_json(map_from_entries(list_filter([
+        { 'k': 'llo_hyphen', 'v': CASE
             WHEN nullif(v.llo_hyphen, '') IS NOT NULL
-                THEN jsonb_build_object('old', v.llo_hyphen, 'new', d.llo_hyphen)
-        END,
-        'lhi_hyphen',
-        CASE
+                THEN json_object('old', v.llo_hyphen, 'new', d.llo_hyphen)
+        END::JSON },
+        { 'k': 'lhi_hyphen', 'v': CASE
             WHEN nullif(v.lhi_hyphen, '') IS NOT NULL
-                THEN jsonb_build_object('old', v.lhi_hyphen, 'new', d.lhi_hyphen)
-        END,
-        'rlo_hyphen',
-        CASE
+                THEN json_object('old', v.lhi_hyphen, 'new', d.lhi_hyphen)
+        END::JSON },
+        { 'k': 'rlo_hyphen', 'v': CASE
             WHEN nullif(v.rlo_hyphen, '') IS NOT NULL
-                THEN jsonb_build_object('old', v.rlo_hyphen, 'new', d.rlo_hyphen)
-        END,
-        'rhi_hyphen',
-        CASE
+                THEN json_object('old', v.rlo_hyphen, 'new', d.rlo_hyphen)
+        END::JSON },
+        { 'k': 'rhi_hyphen', 'v': CASE
             WHEN nullif(v.rhi_hyphen, '') IS NOT NULL
-                THEN jsonb_build_object('old', v.rhi_hyphen, 'new', d.rhi_hyphen)
-        END,
-        'fromleft',
-        CASE
+                THEN json_object('old', v.rhi_hyphen, 'new', d.rhi_hyphen)
+        END::JSON },
+        { 'k': 'fromleft', 'v': CASE
             WHEN coalesce(v.fromleft, 0) != 0
-                THEN jsonb_build_object('old', v.fromleft, 'new', d.fromleft)
-        END,
-        'fromright',
-        CASE
+                THEN json_object('old', v.fromleft, 'new', d.fromleft)
+        END::JSON },
+        { 'k': 'fromright', 'v': CASE
             WHEN coalesce(v.fromright, 0) != 0
-                THEN jsonb_build_object('old', v.fromright, 'new', d.fromright)
-        END,
-        'toleft',
-        CASE
+                THEN json_object('old', v.fromright, 'new', d.fromright)
+        END::JSON },
+        { 'k': 'toleft', 'v': CASE
             WHEN coalesce(v.toleft, 0) != 0
-                THEN jsonb_build_object('old', v.toleft, 'new', d.toleft)
-        END,
-        'toright',
-        CASE
+                THEN json_object('old', v.toleft, 'new', d.toleft)
+        END::JSON },
+        { 'k': 'toright', 'v': CASE
             WHEN coalesce(v.toright, 0) != 0
-                THEN jsonb_build_object('old', v.toright, 'new', d.toright)
-        END
-    )) AS changes,
+                THEN json_object('old', v.toright, 'new', d.toright)
+        END::JSON }
+    ], e -> e.v IS NOT NULL))) AS changes,
     'lion_house_numbers' AS output_file_id,
     -- Bug 018: prod's gp.CalculateField house-number zeroing step for Generic
     -- segments, inconsistently applied. See docs/prod_bugs/018-generic-segment-

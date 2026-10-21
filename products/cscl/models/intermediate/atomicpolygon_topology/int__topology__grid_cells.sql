@@ -16,11 +16,11 @@
 -- boundary.
 
 SELECT
-    round(st_x(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }})::bigint AS x_cell,
-    round(st_y(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }})::bigint AS y_cell,
+    round_even(st_x(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }}, 0)::bigint AS x_cell,
+    round_even(st_y(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }}, 0)::bigint AS y_cell,
     (array_agg(geom ORDER BY point_id))[1] AS geom,
     array_agg(point_id) AS exact_point_ids
 FROM {{ ref('int__topology__exact_points') }}
 GROUP BY
-    round(st_x(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }})::bigint,
-    round(st_y(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }})::bigint
+    round_even(st_x(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }}, 0)::bigint,
+    round_even(st_y(geom) / {{ var('ap_topology_node_merge_tolerance_ft') }}, 0)::bigint

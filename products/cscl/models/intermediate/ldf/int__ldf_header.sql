@@ -34,9 +34,9 @@ this_edition AS (
 SELECT
     'H' AS record_type,
     upper({{ config_value('ldf_previous_version') }}) AS old_lion_release,
-    to_char({{ config_value('ldf_old_release_date') }}::date, 'MMDDYYYY') AS old_lion_release_date,
+    strftime({{ config_value('ldf_old_release_date') }}::date, '%m%d%Y') AS old_lion_release_date,
     upper({{ config_value('ldf_new_release') }}) AS new_lion_release,
-    to_char({{ config_value('ldf_new_release_date') }}::date, 'MMDDYYYY') AS new_lion_release_date,
+    strftime({{ config_value('ldf_new_release_date') }}::date, '%m%d%Y') AS new_lion_release_date,
     this_edition.record_count,
     previous_edition.cumulative_record_number
     + previous_edition.record_count AS cumulative_record_number

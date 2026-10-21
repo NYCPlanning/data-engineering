@@ -236,6 +236,30 @@ def load_dataset_into_pg(
     return f"{pg_client.schema}.{ds_table_name}"
 
 
+def _load_parquet_bundle(
+    duckdb_client: duckdb_utils.DuckDBClient, zip_path: Path, schema: str
+) -> list[str]:
+    """Load a zip of parquet files into DuckDB: each <name>.parquet (at any depth in the
+    zip) becomes table <schema>.<name>, replaced if it exists. GeoParquet geometry comes in
+    as GEOMETRY. Returns the table names."""
+    duckdb_client.conn.execute(f'CREATE SCHEMA IF NOT EXISTS "{schema}"')
+    tables = []
+    with tempfile.TemporaryDirectory() as tmp:
+        with zipfile.ZipFile(zip_path) as zf:
+            zf.extractall(tmp)
+        for parquet in sorted(Path(tmp).rglob("*.parquet")):
+            table = parquet.stem
+            duckdb_client.conn.execute(
+                f'CREATE OR REPLACE TABLE "{schema}"."{table}" AS '
+                f"SELECT * FROM read_parquet('{parquet}')"
+            )
+            tables.append(table)
+    logger.info(
+        f"Loaded {len(tables)} tables from {zip_path.name} into schema {schema}"
+    )
+    return tables
+
+
 def _unzipped_gdb(path: Path) -> Path:
     """Extract a zipped GDB once, next to the zip, and return the .gdb directory.
 
@@ -354,6 +378,11 @@ def load_dataset_into_duckdb(
             _load_gdb_into_duckdb(
                 ds, duckdb_client, _unzipped_gdb(local_dataset_path), ds_table_name
             )
+        case DatasetType.parquet_bundle:
+            # its own schema, one table per file; the bundle is the versioned unit, so
+            # no per-table version column
+            _load_parquet_bundle(duckdb_client, local_dataset_path, ds_table_name)
+            return f"{ds_table_name}.*"
         case _:
             raise Exception(
                 f"Unsupported file type for DuckDB: {ds.file_type}. Only CSV, Parquet, shapefile, and gdb are currently supported."

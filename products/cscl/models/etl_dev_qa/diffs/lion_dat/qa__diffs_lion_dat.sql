@@ -52,7 +52,7 @@ categorized AS (
             ELSE 'lion_dat_unknown'
         END AS output_file_id,
         -- Get the keys from the changes jsonb
-        (SELECT ARRAY_AGG(key) FROM JSONB_OBJECT_KEYS(changes) AS key) AS change_keys,
+        JSON_KEYS(changes) AS change_keys,
         comparison_column,
         build_table_name,
         production_table_name,
@@ -61,15 +61,14 @@ categorized AS (
         -- and zip changes are left out on purpose: those rows need a look.
         (
             tlr.segmentid IS NOT NULL
-            AND NOT EXISTS (
-                SELECT 1
-                FROM JSONB_OBJECT_KEYS(changes) AS key
-                WHERE NOT (
-                    key ~ '^(left|right)_'
+            AND COALESCE(LIST_BOOL_AND(LIST_TRANSFORM(
+                JSON_KEYS(changes),
+                key -> (
+                    REGEXP_MATCHES(key, '^(left|right)_')
                     OR key IN ('segment_locational_status', 'segment_seqnum')
-                    OR (key = 'boe_lgc_pointer' AND changes -> 'boe_lgc_pointer' ->> 'old' = '1')
+                    OR (key = 'boe_lgc_pointer' AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1')
                 )
-            )
+            )), TRUE)
         ) AS is_topology_lr_change
     FROM with_borough
     LEFT JOIN topology_lr_segments AS tlr ON RIGHT(with_borough._lion_key, 7)::int = tlr.segmentid
@@ -87,7 +86,7 @@ SELECT
             status = 'modified'
             AND ARRAY_LENGTH(change_keys, 1) = 1
             AND change_keys[1] = 'boe_lgc_pointer'
-            AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
+            AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
             THEN 'Bug 001: boe_lgc_pointer two-digit codes'
         -- Bug 004: Randall's Island NSF segments missing zip code in production.
         -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
@@ -95,11 +94,11 @@ SELECT
         -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
         WHEN
             status = 'modified'
-            AND change_keys @> ARRAY['l_zip', 'r_zip']::text[]
-            AND changes -> 'l_zip' ->> 'new' = '10035'
-            AND TRIM(changes -> 'l_zip' ->> 'old') = ''
-            AND changes -> 'r_zip' ->> 'new' = '10035'
-            AND TRIM(changes -> 'r_zip' ->> 'old') = ''
+            AND LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
+            AND (changes -> 'l_zip' ->> 'new') = '10035'
+            AND TRIM(changes ->> '$.l_zip.old') = ''
+            AND (changes -> 'r_zip' ->> 'new') = '10035'
+            AND TRIM(changes ->> '$.r_zip.old') = ''
             THEN 'Bug 004: Randalls Island missing zip'
         -- Bug 005: doubly-reversed protosegments not reversed in production. Fingerprinted on
         -- segmentid (unlike Bug 004) since this list has been independently verified stable
@@ -108,9 +107,9 @@ SELECT
         -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
         WHEN
             status = 'modified'
-            AND RIGHT(_lion_key, 7) = ANY(ARRAY[
+            AND LIST_CONTAINS(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
-            ]::text[])
+            ], RIGHT(_lion_key, 7))
             THEN 'Bug 005: doubly-reversed protosegments'
         -- Bug 006: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
         -- and confirmed our new value is correct. Fingerprinted on _lion_key since these are a
@@ -119,11 +118,11 @@ SELECT
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         WHEN
             status = 'modified'
-            AND _lion_key = ANY(ARRAY[
+            AND LIST_CONTAINS(ARRAY[
                 '101650330641', '116000297614', '125250032941', '130400327255',
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'
-            ]::text[])
+            ], _lion_key)
             THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
         -- CSCL-LION-06: coincident_seg_count. Segment 8101066 (Brooklyn) has a centerline and
         -- two distinct rail_and_subway segments (itself + 8105519) coincident at one point;
@@ -177,21 +176,21 @@ SELECT
     COALESCE(
         status = 'modified' AND (
             -- Bug: segment_seqnum can differ (legacy issue)
-            change_keys = ARRAY['segment_seqnum']::text[]
+            change_keys = ARRAY['segment_seqnum']
             -- Bug 001: BOE LGC pointer incorrect for two-digit LGC codes
             -- See: docs/bugs/001-boe-lgc-pointer-two-digit-codes.md
             -- Only when old value was "1" (the legacy default)
             OR (
-                change_keys = ARRAY['boe_lgc_pointer']::text[]
-                AND changes -> 'boe_lgc_pointer' ->> 'old' = '1'
+                change_keys = ARRAY['boe_lgc_pointer']
+                AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
             )
             -- Curve flag: CompoundCurves in non-centerline features
             -- Legacy ETL doesn't detect irregular curves in shoreline/subway/rail
             -- New ETL correctly identifies them as 'I'
             OR (
-                change_keys = ARRAY['curve_flag']::text[]
-                AND changes -> 'curve_flag' ->> 'old' = ' '
-                AND changes -> 'curve_flag' ->> 'new' = 'I'
+                change_keys = ARRAY['curve_flag']
+                AND (changes -> 'curve_flag' ->> 'old') = ' '
+                AND (changes -> 'curve_flag' ->> 'new') = 'I'
                 AND _source_table IN ('shoreline', 'subway', 'rail')
             )
             -- Bug 004: Randall's Island NSF segments missing zip code in production.
@@ -199,24 +198,24 @@ SELECT
             -- segmentid, since segmentids can be renumbered/reused across LION editions.
             -- See: docs/prod_bugs/004-randalls-island-missing-zip.md
             OR (
-                change_keys @> ARRAY['l_zip', 'r_zip']::text[]
-                AND changes -> 'l_zip' ->> 'new' = '10035'
-                AND TRIM(changes -> 'l_zip' ->> 'old') = ''
-                AND changes -> 'r_zip' ->> 'new' = '10035'
-                AND TRIM(changes -> 'r_zip' ->> 'old') = ''
+                LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
+                AND (changes -> 'l_zip' ->> 'new') = '10035'
+                AND TRIM(changes ->> '$.l_zip.old') = ''
+                AND (changes -> 'r_zip' ->> 'new') = '10035'
+                AND TRIM(changes ->> '$.r_zip.old') = ''
             )
             -- Bug 005: doubly-reversed protosegments not reversed in production.
             -- See: docs/prod_bugs/005-doubly-reversed-protosegments.md
-            OR RIGHT(_lion_key, 7) = ANY(ARRAY[
+            OR LIST_CONTAINS(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
-            ]::text[])
+            ], RIGHT(_lion_key, 7))
             -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
             -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
-            OR _lion_key = ANY(ARRAY[
+            OR LIST_CONTAINS(ARRAY[
                 '101650330641', '116000297614', '125250032941', '130400327255',
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'
-            ]::text[])
+            ], _lion_key)
             -- CSCL-LION-06: coincident_seg_count, one specific record only (not a general rule).
             -- See: docs/prod_bugs/007-sept-2026-remaining-diffs-investigation.md, data_issues.md
             OR _lion_key = '304118101066'

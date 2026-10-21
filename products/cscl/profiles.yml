@@ -1,12 +1,15 @@
-dcp-de-postgres:
-  target: dev
+cscl:
+  target: duckdb
   outputs:
-    dev:
-      type: postgres
-      host: "{{ env_var('BUILD_ENGINE_HOST') }}"
-      user: "{{ env_var('BUILD_ENGINE_USER') }}"
-      password: "{{ env_var('BUILD_ENGINE_PASSWORD') }}"
-      port: "{{ env_var('BUILD_ENGINE_PORT') | as_number }}"
-      dbname: "{{ env_var('BUILD_ENGINE_DB') }}"
+    # the build: dbt run (duckdb is the default target)
+    duckdb: &duckdb
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '') }}"
       schema: "{{ env_var('BUILD_ENGINE_SCHEMA') }}"
-      threads: 4
+      # GEOS (spatial) allocates outside DuckDB's memory limit, so keep the limit well
+      # under RAM; override with DUCKDB_MEMORY_LIMIT / DUCKDB_THREADS on bigger machines
+      threads: "{{ env_var('DUCKDB_THREADS', '2') | as_number }}"
+      settings:
+        memory_limit: "{{ env_var('DUCKDB_MEMORY_LIMIT', '3GB') }}"
+      extensions:
+      - spatial

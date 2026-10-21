@@ -49,7 +49,9 @@ WITH RECURSIVE pts_with_nodes AS (
         n.geom AS node_geom
     FROM {{ ref('int__topology__vertices') }} AS p
     LEFT JOIN {{ ref('int__topology__exact_points') }} AS ec
-        ON p.geom = ec.geom AND NOT p.is_arc_mid
+    -- arc mids never match: NULL key (a left-only predicate in the ON clause makes
+        -- DuckDB fall back to a nested-loop join)
+        ON (CASE WHEN p.is_arc_mid THEN NULL ELSE p.geom END) = ec.geom
     LEFT JOIN {{ ref('int__topology__point_to_node') }} AS ptn ON ec.point_id = ptn.exact_point_id
     LEFT JOIN {{ ref('int__topology__nodes') }} AS n ON ptn.node_id = n.node_id
 ),
@@ -69,43 +71,39 @@ raw_edges AS (
         atomicid,
         water_flag,
         node_id AS node_a,
-        lead(node_id) OVER w AS node_b,
+        lead(node_id) OVER w2 AS node_b,
         node_geom AS geom_a,
-        lead(node_geom) OVER w AS geom_b,
+        lead(node_geom) OVER w2 AS geom_b,
         coalesce(next_is_mid, FALSE) AS is_arc,
         CASE WHEN next_is_mid THEN next_raw_geom END AS arc_mid
     FROM with_next
     WHERE NOT is_arc_mid
-    WINDOW w AS (PARTITION BY atomicid, part, ring ORDER BY seq)
+    WINDOW w2 AS (PARTITION BY atomicid, part, ring ORDER BY seq)
 ),
 
 -- One canonical curve per arc key: the lowest-atomicid owner's mid control point,
 -- through the canonical endpoint node coordinates, oriented lower -> higher node id,
--- linearized with the same parameters as public.linearize() (ST_CurveToLine, 0.00025 ft
--- max deviation) - i.e. the same way prod's layers are - with both ends snapped exactly
--- onto their node coordinates so ST_BuildArea sees them join. Every owner gets this
--- same geometry, bit for bit, regardless of winding or its own choice of mid.
+-- linearized with linearize_arc (the load-time linearizer: 0.00025 ft max deviation,
+-- symmetric), whose ends are exactly the node coordinates so ST_BuildArea sees them join. Every owner gets this
+-- same geometry, bit for bit, regardless of winding or its own choice of mid. The mid is
+-- kept (arc_mid) so exports can re-curve the arc from exactly these control points.
 arc_geoms AS (
     SELECT
         node_lo,
         node_hi,
-        st_setpoint(st_setpoint(line, 0, lo_geom), -1, hi_geom) AS geom
+        arc_mid,
+        line AS geom
     FROM (
         SELECT DISTINCT ON (node_lo, node_hi)
             least(node_a, node_b) AS node_lo,
             greatest(node_a, node_b) AS node_hi,
-            CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END AS lo_geom,
-            CASE WHEN node_a < node_b THEN geom_b ELSE geom_a END AS hi_geom,
-            st_curvetoline(
-                st_setsrid(st_geomfromtext(format(
-                    'CIRCULARSTRING(%s %s, %s %s, %s %s)',
-                    st_x(CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END),
-                    st_y(CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END),
-                    st_x(arc_mid), st_y(arc_mid),
-                    st_x(CASE WHEN node_a < node_b THEN geom_b ELSE geom_a END),
-                    st_y(CASE WHEN node_a < node_b THEN geom_b ELSE geom_a END)
-                )), st_srid(arc_mid)),
-                0.00025, 1
+            arc_mid,
+            linearize_arc(
+                st_x(CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END),
+                st_y(CASE WHEN node_a < node_b THEN geom_a ELSE geom_b END),
+                st_x(arc_mid), st_y(arc_mid),
+                st_x(CASE WHEN node_a < node_b THEN geom_b ELSE geom_a END),
+                st_y(CASE WHEN node_a < node_b THEN geom_b ELSE geom_a END)
             ) AS line
         FROM raw_edges
         WHERE is_arc AND node_b IS NOT NULL AND node_a != node_b
@@ -125,7 +123,8 @@ edges AS (
         -- chord: what the orphan path search below measures (its triangle-inequality
         -- test is about straight-line distance between the two nodes)
         st_distance(r.geom_a, r.geom_b) AS chord_length,
-        coalesce(ag.geom, st_makeline(r.geom_a, r.geom_b)) AS geom
+        coalesce(ag.geom, st_makeline(r.geom_a, r.geom_b)) AS geom,
+        ag.arc_mid
     FROM raw_edges AS r
     LEFT JOIN arc_geoms AS ag
         ON r.is_arc AND least(r.node_a, r.node_b) = ag.node_lo AND greatest(r.node_a, r.node_b) = ag.node_hi
@@ -196,9 +195,9 @@ path_search (
         water_flag,
         direct_length,
         node_lo AS cur_node,
-        ARRAY[node_lo] AS path_nodes,
-        ARRAY[]::geometry[] AS path_geoms,
-        0.0::double precision AS path_length,
+        [node_lo] AS path_nodes,
+        []::GEOMETRY[] AS path_geoms,
+        0.0::DOUBLE AS path_length,
         0 AS hops
     FROM orphan_edges
 
@@ -211,15 +210,15 @@ path_search (
         ps.water_flag,
         ps.direct_length,
         de.to_node,
-        ps.path_nodes || de.to_node,
-        ps.path_geoms || de.geom,
+        list_append(ps.path_nodes, de.to_node),
+        list_append(ps.path_geoms, de.geom),
         ps.path_length + de.len,
         ps.hops + 1
     FROM path_search AS ps
     INNER JOIN directed_edges AS de ON ps.cur_node = de.from_node
     WHERE
         ps.hops < {{ var('ap_topology_edge_split_max_hops') }}
-        AND NOT (de.to_node = any(ps.path_nodes))
+        AND NOT list_contains(ps.path_nodes, de.to_node)
         AND NOT (ps.hops = 0 AND de.to_node = ps.b)
         AND ps.path_length + de.len <= ps.direct_length + {{ var('ap_topology_edge_split_tolerance_ft') }}
 ),
@@ -249,12 +248,12 @@ split_sub_edges AS (
     SELECT
         sm.atomicid,
         sm.water_flag,
-        least(sm.path_nodes[i], sm.path_nodes[i + 1]) AS node_lo,
-        greatest(sm.path_nodes[i], sm.path_nodes[i + 1]) AS node_hi,
+        least(sm.path_nodes[g.i], sm.path_nodes[g.i + 1]) AS node_lo,
+        greatest(sm.path_nodes[g.i], sm.path_nodes[g.i + 1]) AS node_hi,
         FALSE AS is_arc,
-        sm.path_geoms[i] AS geom
+        sm.path_geoms[g.i] AS geom
     FROM split_matches AS sm
-    CROSS JOIN LATERAL generate_series(1, array_length(sm.path_nodes, 1) - 1) AS i
+    CROSS JOIN LATERAL generate_series(1, len(sm.path_nodes) - 1) AS g (i)
 ),
 
 -- The matched orphan's own direct edge is replaced by its split sub-edges (same
@@ -266,7 +265,8 @@ edges_densified AS (
         e.node_lo,
         e.node_hi,
         e.is_arc,
-        e.geom
+        e.geom,
+        e.arc_mid
     FROM edges AS e
     LEFT JOIN split_matches AS sm
         ON
@@ -280,7 +280,8 @@ edges_densified AS (
         node_lo,
         node_hi,
         is_arc,
-        geom
+        geom,
+        NULL::GEOMETRY AS arc_mid
     FROM split_sub_edges
 )
 
@@ -289,6 +290,7 @@ SELECT
     node_hi,
     is_arc,
     geom,
+    arc_mid,
     atomicid,
     water_flag
 FROM edges_densified

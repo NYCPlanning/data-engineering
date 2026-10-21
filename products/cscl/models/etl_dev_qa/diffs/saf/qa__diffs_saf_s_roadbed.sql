@@ -25,7 +25,7 @@ categorized AS (
         changes,
         output_file_id,
         -- Get the keys from the changes jsonb
-        (SELECT array_agg(key) FROM jsonb_object_keys(changes) AS key) AS change_keys,
+        json_keys(changes) AS change_keys,
         comparison_column,
         build_table_name,
         production_table_name
@@ -43,19 +43,19 @@ SELECT
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         WHEN
             status = 'modified'
-            AND _saf_key = any(ARRAY['416070284412']::text[])
+            AND list_contains(ARRAY['416070284412'], _saf_key)
             THEN 'Bug 006: JR-reviewed diffs (Aug 2026)'
         -- CSCL-SAF-01: prod's lgc1 = '01' where current dcp_cscl_segment_lgc source no longer
         -- supports that classification (stale prod, not a stale load - reload-verified 26c).
         -- See: data_issues.md CSCL-SAF-01
         WHEN
             status = 'modified'
-            AND change_keys <@ ARRAY['lgc1', 'lgc2', 'lgc3']::text[]
-            AND 'lgc1' = any(change_keys)
-            AND changes -> 'lgc1' ->> 'old' = '01'
+            AND list_has_all(ARRAY['lgc1', 'lgc2', 'lgc3'], change_keys)
+            AND list_contains(change_keys, 'lgc1')
+            AND (changes -> 'lgc1' ->> 'old') = '01'
             THEN 'CSCL-SAF-01: stale prod lgc1'
         -- If only one field changed, use that as the group name
-        WHEN status = 'modified' AND array_length(change_keys, 1) = 1
+        WHEN status = 'modified' AND len(change_keys) = 1
             THEN change_keys[1]
         ELSE ''
     END AS diff_group,
@@ -68,7 +68,7 @@ SELECT
         -- Bug 006: individually reviewed by JR (Aug 2026) and confirmed correct.
         -- See: docs/prod_bugs/006-jr-reviewed-manual-diffs-aug-2026.md
         status = 'modified'
-        AND _saf_key = any(ARRAY['416070284412']::text[]),
+        AND list_contains(ARRAY['416070284412'], _saf_key),
         FALSE
     ) AS accounted_for
     -- NOTE: CSCL-SAF-01's lgc1='01' pattern is categorized above (diff_group) but deliberately

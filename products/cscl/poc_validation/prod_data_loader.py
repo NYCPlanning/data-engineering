@@ -1,30 +1,28 @@
 """
-This script is for parsing a lion.dat file into its individual fields
-and loading the result into a postgres table
+The legacy pipeline's production outputs: pulling them from edm-private (`pull`, used by
+the QA stage's file comparisons) and parsing them into tables, which
+build_prod_snapshot.py writes into the production_outputs parquet bundle.
 
-This is done ad-hoc and not on an operational basis
-
-It assumes that production outputs are specified as exports in recipe.yml
+It assumes that production outputs are specified as exports in recipe.yml.
 """
 
 import csv
-import subprocess
-import tempfile
-import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import exports
 import pandas as pd
 import typer
+from paths import prod_files_dir
 
-from dcpy.geospatial.gdb import fgdb
 from dcpy.lifecycle.builds import plan
-from dcpy.utils import postgres, s3
+from dcpy.utils import s3
 
-CLIENT = postgres.PostgresClient(database="db-cscl", schema="production_outputs")
-LOAD_FOLDER = Path(".data/prod")
+# Where parsed tables go: set by poc_validation/build_prod_snapshot.py (a parquet sink).
+# Anything with insert_dataframe(df, table_name) and a .schema works.
+CLIENT: Any = None
+LOAD_FOLDER = prod_files_dir()
 CONFIG_PATH = Path("seeds/config.csv")
 
 version: str | None = None
@@ -83,6 +81,12 @@ def parse_file(
     file_path: Path, formatting_path: Path, max_records: int | None = None
 ) -> pd.DataFrame:
     formatting = pd.read_csv(formatting_path)
+    # (label, start, end) computed once: iterating the layout per row is far too slow
+    # for the citywide LION (214k rows x 114 fields)
+    slices = [
+        (field["field_name"], field["start_index"] - 1, field["end_index"])
+        for _, field in formatting.iterrows()
+    ]
 
     records = []
     with open(file_path) as f:
@@ -99,13 +103,7 @@ def parse_file(
                 continue
             if max_records and i > max_records:
                 break
-            record = {}
-            for _, field in formatting.iterrows():
-                label = field["field_name"]
-                start_index = field["start_index"] - 1
-                end_index = field["end_index"]
-                record[label] = row[start_index:end_index]
-            records.append(record)
+            records.append({label: row[start:end] for label, start, end in slices})
             i += 1
 
     return pd.DataFrame(records)
@@ -155,57 +153,13 @@ def load_datasets(
             record_load(dataset.name, version)
 
 
-LOAD_LOG = "load_log"
-
-
-def _ensure_load_log() -> None:
-    CLIENT.execute_query(
-        f"""
-            CREATE TABLE IF NOT EXISTS {LOAD_LOG} (
-                table_name text PRIMARY KEY,
-                version text NOT NULL,
-                loaded_at timestamptz NOT NULL
-            );
-        """
-    )
-
-
 def already_loaded(table_name: str, version: str) -> bool:
-    """
-    Whether table_name already holds this version of the legacy pipeline's output.
-
-    These loads run into the minutes and every build asks for the same version, so
-    without this each one repeats the last one's work. Keyed on version rather than on
-    the table existing, so a release bump still reloads rather than leaving stale data
-    behind.
-
-    production_outputs is shared across builds, so skipping also keeps concurrent builds
-    from blocking each other while they rewrite it with identical data.
-    """
-    _ensure_load_log()
-    logged = CLIENT.execute_select_query(
-        f"SELECT version FROM {LOAD_LOG} WHERE table_name = :table_name",
-        table_name=table_name,
-    )
-    return not logged.empty and logged["version"].iloc[0] == version
+    """Every snapshot is built from scratch; nothing is ever already loaded."""
+    return False
 
 
 def record_load(table_name: str, version: str) -> None:
-    """
-    Written after the data lands, so an interrupted load repeats rather than being
-    skipped as though it finished.
-    """
-    _ensure_load_log()
-    CLIENT.execute_query(
-        f"""
-            INSERT INTO {LOAD_LOG} (table_name, version, loaded_at)
-            VALUES (:table_name, :version, now())
-            ON CONFLICT (table_name) DO UPDATE
-            SET version = excluded.version, loaded_at = excluded.loaded_at;
-        """,
-        table_name=table_name,
-        version=version,
-    )
+    pass
 
 
 def load_citywide_lion(
@@ -263,87 +217,6 @@ def create_citywide_table(file: str):
     )
 
 
-def _pg_connection_string() -> str:
-    """ogr2ogr's `PG:...` connection string for CLIENT, shared by every fgdb loader."""
-    engine_url = CLIENT.engine.url
-    host = engine_url.host
-    port = engine_url.port or 5432
-    db_name = engine_url.database
-    user = engine_url.username
-    password = engine_url.password
-    return f"PG:host={host} port={port} dbname={db_name} user={user} password={password} active_schema={CLIENT.schema}"
-
-
-def _ogr2ogr_load_layer(gdb_path: Path, layer: str, table_name: str) -> None:
-    """Load one FGDB layer into CLIENT's schema as table_name, replacing it if present.
-
-    -nlt GEOMETRY handles layers of mixed/unknown geometry type; PG_USE_COPY=NO is
-    required for ogr2ogr to run its usual geometry conversions (COPY mode skips them).
-    """
-    subprocess.run(
-        [
-            "ogr2ogr",
-            "-f",
-            "PostgreSQL",
-            _pg_connection_string(),
-            str(gdb_path),
-            layer,
-            "-nln",
-            table_name,
-            "-nlt",
-            "GEOMETRY",
-            "-overwrite",
-            "-progress",
-            "--config",
-            "PG_USE_COPY",
-            "NO",
-        ],
-        check=True,
-    )
-
-
-def load_production_lion_fgdb_layers(version: str):
-    """
-    Downloads LION FGDB from DCP website and loads all layers into production_outputs schema.
-
-    Args:
-        version: Version string (e.g., "26b") to construct the download URL
-
-    The function will:
-    1. Download nyclion_{version}.zip from DCP website
-    2. Load all layers into db-cscl.production_outputs schema with "fgdb_" prefix
-    3. Does NOT drop the schema (appends/replaces tables only)
-    """
-    url = f"https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{version}.zip"
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        zip_path = Path(tmpdir) / f"nyclion_{version}.zip"
-
-        # Download the zip file
-        print(f"Downloading {url}...")
-        urllib.request.urlretrieve(url, zip_path)
-
-        # No extraction needed - GDAL/ogr2ogr resolve a zipped GDB natively,
-        # straight from the zip's own path (gdb_path below).
-        gdb_path = zip_path
-        layers = fgdb.get_layers(gdb_path)
-        print(f"Found {len(layers)} layers: {layers}")
-
-        # Verify we have the expected layers
-        expected_layers = ["node", "node_stname", "altnames", "lion"]
-        assert set(layers) == set(expected_layers), (
-            f"Expected layers {expected_layers} but found {layers}"
-        )
-
-        # Load each layer with fgdb_ prefix
-        for layer in layers:
-            table_name = f"fgdb_{layer.lower()}"
-            print(f"Loading {layer} -> {CLIENT.schema}.{table_name}")
-            _ogr2ogr_load_layer(gdb_path, layer, table_name)
-
-        print(f"Successfully loaded {len(layers)} layers from LION {version}")
-
-
 def _district_gdb_filename(version: str) -> str:
     """Prod's district gdb filename, e.g. "v26C_Districts.gdb.zip" for version "26c".
 
@@ -372,49 +245,6 @@ def _frozen_district_layers() -> set[str]:
         }
 
 
-def load_production_district_gdb(version: str, force: bool = False):
-    """
-    Downloads the district boundary FGDB from edm-private and loads every non-frozen
-    layer into production_outputs, same fgdb_ prefix convention as
-    load_production_lion_fgdb_layers - so gdb_nynta2010 compares against
-    production_outputs.fgdb_nynta2010, and so on.
-
-    Frozen layers (see _frozen_district_layers) are skipped, not loaded.
-    """
-    filename = _district_gdb_filename(version)
-    frozen = _frozen_district_layers()
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        gdb_path = Path(tmpdir) / filename
-        print(f"Downloading {filename} ({version}) from edm-private...")
-        s3.download_file("edm-private", f"cscl_etl/{version}/{filename}", gdb_path)
-
-        layers = fgdb.get_layers(gdb_path)
-        to_load = sorted(layer for layer in layers if layer not in frozen)
-        skipped = sorted(layer for layer in layers if layer in frozen)
-        print(
-            f"Found {len(layers)} layers; skipping {len(skipped)} frozen "
-            f"(docs/prod_bugs/013): {skipped}"
-        )
-
-        loaded = 0
-        for layer in to_load:
-            table_name = f"fgdb_{layer.lower()}"
-            if not force and already_loaded(table_name, version):
-                print(f"{table_name} already holds {version}, skipping")
-                continue
-
-            print(f"Loading {layer} -> {CLIENT.schema}.{table_name}")
-            _ogr2ogr_load_layer(gdb_path, layer, table_name)
-            record_load(table_name, version)
-            loaded += 1
-
-        print(
-            f"Successfully loaded {loaded} layers from district gdb {version} "
-            f"({len(to_load) - loaded} already up to date, {len(skipped)} frozen skipped)"
-        )
-
-
 app = typer.Typer()
 
 
@@ -429,17 +259,6 @@ def head(
     if save_to_csv:
         df.to_csv(Path(file_name).stem + ".csv")
     typer.echo(df.head())
-
-
-@app.command("load_single")
-def load_single(
-    file_name: str = typer.Argument(),
-    folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
-    table_name: str | None = typer.Option(None, "--table", "-t"),
-):
-    dataset = datasets_by_filename[file_name]
-    dat_df = parse_file(folder / file_name, dataset["formatting_path"])
-    CLIENT.insert_dataframe(dat_df, table_name or dataset["name"])
 
 
 @app.command("load")
@@ -514,24 +333,6 @@ def _pull(
             f"cscl_etl/{version}/{output.file_name}",
             local_folder / output.file_name,
         )
-
-
-@app.command("load_prod_lion")
-def _load_prod_lion(
-    version: str | None = typer.Option(version, "--version", "-v"),
-    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
-    table_name: str = typer.Option("citywide_lion_dat", "--table", "-t"),
-    force: bool = typer.Option(False, "--force", "-F"),
-):
-    """
-    Load this release's production LION into the build db, citywide.
-
-    The `qa__lion_dat_*` models compare our LION against this table.
-    """
-    if not version:
-        raise Exception("Specify version with '-v'")
-
-    load_citywide_lion(version, table_name, local_folder, force)
 
 
 @app.command("load_previous_lion")
@@ -637,30 +438,6 @@ def _load_prod_ldf(
         )
         CLIENT.insert_dataframe(df, table_name)
         record_load(table_name, version)
-
-
-@app.command("load_prod_district_gdb")
-def _load_prod_district_gdb(
-    version: str | None = typer.Option(version, "--version", "-v"),
-    force: bool = typer.Option(
-        False,
-        "--force",
-        "-F",
-        help="Reload every non-frozen layer even if this version is already logged as loaded",
-    ),
-):
-    """
-    Load this release's production district gdb into production_outputs, for
-    in-database comparison against our own gdb_* district models.
-
-    Skips layers frozen in prod (status=blocked in seeds/lion_outputs.csv, see
-    docs/prod_bugs/013-gdb-creadate-staleness-fossils.md) - still under separate
-    investigation with another team as of this writing.
-    """
-    if not version:
-        raise Exception("Specify version with '-v'")
-
-    load_production_district_gdb(version, force)
 
 
 if __name__ == "__main__":
