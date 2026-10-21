@@ -114,7 +114,8 @@ SELECT
         -- CSCL-LION-17: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
         -- and confirmed our new value is correct. Fingerprinted on _lion_key since these are a
         -- one-off reviewed batch, not a general field-pattern rule - e.g. this does NOT mark
-        -- every coincident_seg_count diff accounted for, only these specific records.
+        -- every coincident_seg_count diff accounted for, only these specific records. 11 still
+        -- differ on 26c; 101650330641 stops differing with lion_lr_from_topology on.
         -- See CSCL-LION-17
         WHEN
             status = 'modified'
@@ -124,14 +125,6 @@ SELECT
                 '335640188023', '416140101502', '104308103717', '104620245781'
             ], _lion_key)
             THEN 'CSCL-LION-17: JR-reviewed diffs (Aug 2026)'
-        -- CSCL-LION-06: coincident_seg_count. Segment 8101066 (Brooklyn) has a centerline and
-        -- two distinct rail_and_subway segments (itself + 8105519) coincident at one point;
-        -- our count of 3 (self + 2 others) vs prod's 2 doesn't settle the general open
-        -- question, just this record. See CSCL-LION-06 (Bug 007 #1).
-        WHEN
-            status = 'modified'
-            AND _lion_key = '304118101066'
-            THEN 'CSCL-LION-06: coincident segments'
         -- CSCL-LION-19: special_address_flag leaks from a centerline record onto its sibling
         -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
         -- legacy ETL's own documented rule that ramps never carry a SAF flag. Ours is correct.
@@ -140,16 +133,6 @@ SELECT
             status = 'modified'
             AND _lion_key = '493960174704'
             THEN 'CSCL-LION-19: SAF flag leaks onto ramp protosegment'
-        -- CSCL-LION-18 (Bug 007 #3): segmentid 358043's raw centerline geometry has a CIRCULARSTRING control
-        -- point of 2*pi() (6.283185307179586) sitting in a coordinate slot - corrupt source
-        -- data, not our SQL. Both offset points land wildly outside the city, so the
-        -- atomicpolygon join returns NULL on both sides, blanking every left_/right_
-        -- district/census field derived from it at once. See:
-        -- CSCL-LION-18
-        WHEN
-            status = 'modified'
-            AND _lion_key = '527570358043'
-            THEN 'CSCL-LION-18: corrupt centerline geometry (2*pi() artifact)'
         -- CSCL-LION-14: prod's real, byte-verified BronxLION.dat has coincident_seg_count = 0 for
         -- this segment, which the ETL spec explicitly forbids (its own documented floor for
         -- "no coincidences" is '1', never '0') - our 1 is spec-correct, prod's 0 is the bug.
@@ -215,17 +198,9 @@ SELECT
                 '236590241972', '333280149383', '333280149678', '335640029283',
                 '335640188023', '416140101502', '104308103717', '104620245781'
             ], _lion_key)
-            -- CSCL-LION-06: coincident_seg_count, one specific record only (not a general rule).
-            -- See CSCL-LION-06 (Bug 007 #1)
-            OR _lion_key = '304118101066'
             -- CSCL-LION-19: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
             -- in production. See CSCL-LION-19
             OR _lion_key = '493960174704'
-            -- CSCL-LION-18: corrupt centerline geometry (2*pi() control point) zeroes out every
-            -- district/census field derived from segment 358043's location. Corrupt source
-            -- data, reported to GR. See:
-            -- CSCL-LION-18
-            OR _lion_key = '527570358043'
             -- CSCL-LION-14: prod's coincident_seg_count = 0 for this segment, which the spec
             -- forbids (documented floor is '1', never '0') - one specific record only.
             -- See CSCL-LION-14

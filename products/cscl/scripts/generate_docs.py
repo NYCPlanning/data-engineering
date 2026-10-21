@@ -63,6 +63,7 @@ MANIFEST_PATH = PRODUCT_ROOT / "target" / "manifest.json"
 DOC_CONFIG_PATH = PRODUCT_ROOT / "doc_config.yml"
 GLOSSARY_PATH = PRODUCT_ROOT / "glossary.csv"
 SEEDS_DIR = PRODUCT_ROOT / "seeds" / "text_formatting"
+KNOWN_DIFFERENCES_PATH = PRODUCT_ROOT / "seeds" / "known_differences.csv"
 OUTPUT_PATH = PRODUCT_ROOT / "output" / "docs" / "cscl_exports.md"
 
 EXPORT_DOC_TAG = "export_doc"
@@ -243,7 +244,55 @@ def _build_section(
     return Section(title=f"{display_name} ({group_label})", elements=elements)
 
 
+def _read_known_differences() -> list[dict[str, str]]:
+    """known_differences.csv rows still worth telling a reader about (not fixed)."""
+    with open(KNOWN_DIFFERENCES_PATH, newline="") as f:
+        return [row for row in csv.DictReader(f) if row["status"] != "fixed"]
+
+
+def _outputs(row: dict[str, str]) -> set[str]:
+    return {output.strip() for output in row["output"].split(";")}
+
+
+def _known_differences_section(
+    known_differences: list[dict[str, str]], outputs: list[str], group_label: str
+) -> Section | None:
+    """A group's "Known differences from the previous release": every non-fixed
+    known_differences row for any of `outputs` (a model group's
+    custom.known_differences in doc_config.yml)."""
+    rows = [row for row in known_differences if _outputs(row) & set(outputs)]
+    if not rows:
+        return None
+    for row in rows:
+        _warn_on_internal_references(
+            row["description"], f"known difference {row['id']}"
+        )
+    return Section(
+        title=f"Known differences from the previous release ({group_label})",
+        elements=[
+            Text(
+                text="Where this output knowingly differs from the previous production "
+                "release, and why. Each difference keeps its ID across releases."
+            ),
+            Table(
+                headers=["ID", "Scope", "Difference", "Status"],
+                rows=[
+                    [
+                        row["id"],
+                        row["scope"],
+                        row["description"],
+                        row["status"].capitalize(),
+                    ]
+                    for row in rows
+                ],
+            ),
+        ],
+    )
+
+
 def _build_doc_from_config(project: DbtProject, config: DocConfig, title: str) -> Doc:
+    known_differences = _read_known_differences()
+    documented_outputs: set[str] = set()
     sections: list[Section] = []
     for item in config.items:
         if isinstance(item, ModelGroup):
@@ -254,20 +303,36 @@ def _build_doc_from_config(project: DbtProject, config: DocConfig, title: str) -
                     _warn_on_internal_references(
                         element.text, f"{item.title} (group intro)"
                     )
+            subsections = [
+                _build_section(project, entry, group_label) for entry in item.entries
+            ]
+            outputs = item.custom.get("known_differences", [])
+            documented_outputs.update(outputs)
+            known_differences_section = _known_differences_section(
+                known_differences, outputs, group_label
+            )
+            if known_differences_section is not None:
+                subsections.append(known_differences_section)
             sections.append(
                 Section(
                     title=item.title,
                     elements=group_elements,
-                    subsections=[
-                        _build_section(project, entry, group_label)
-                        for entry in item.entries
-                    ],
+                    subsections=subsections,
                 )
             )
         elif isinstance(item, BoilerplateInclude):
             sections.extend(load_sections(PRODUCT_ROOT / item.path))
         else:
             raise ValueError(f"Unknown doc_config item kind: {item!r}")
+
+    undocumented = sorted(
+        {output for row in known_differences for output in _outputs(row)}
+        - documented_outputs
+    )
+    if undocumented:
+        print(
+            f"  - known differences for outputs this doc doesn't cover: {undocumented}"
+        )
 
     return Doc(title=title, sections=sections)
 
