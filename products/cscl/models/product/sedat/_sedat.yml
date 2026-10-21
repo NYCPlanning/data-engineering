@@ -2,66 +2,79 @@ version: 2
 
 models:
 - name: sedat_by_field
+  description: "One row per address range that straddles an election district boundary on a segment, from the CSCL SEDAT layer. Each range is tied to a segment by its LION key."
   config:
     contract:
       enforced: true
   columns: &sedat_columns
   - name: lionkey
+    description: "Ten-character LION key of the segment: borough, face code and sequence number."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 10 }
   - name: parity
+    description: "Parity of the address range, from the source."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: street_name
+    description: "Principal name of the segment's street, in Geosupport sort format."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 32 }
   - name: side_of_street
+    description: "L or R: the side of the street the range is on."
     data_type: string
     tests:
     - accepted_values:
         arguments: { values: [ " ", "R", "L" ] }
   - name: lowaddress
+    description: "Lowest house number of the range."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: low_addr_suffix
+    description: "Suffix of the lowest house number."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 8 }
   - name: highaddress
+    description: "Highest house number of the range."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: high_addr_suffix
+    description: "Suffix of the highest house number."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 8 }
   - name: election_district
+    description: "Election district the range falls in."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: assembly_district
+    description: "Assembly district the range falls in."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: b7sc
+    description: "Borough, five-digit street code and LGC (B7SC) of the segment's preferred name."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 8 }
   - name: _sedat_key
+    description: "The record's LION key, used to match rows in QA. Not a SEDAT field."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -69,12 +82,14 @@ models:
 
 
 - name: special_sedat_by_field
+  description: "One row per split election district address range attached to a special address file record, from the CSCL SpecialSEDAT layer. Same fields as the SEDAT rows; rows without a street name are dropped."
   config:
     contract:
       enforced: true
   columns: *sedat_columns
   
 - name: sedat
+  description: "The SEDAT file as fixed-width lines: one per split election district address range on a street segment."
   columns:
   - name: dat_column
     tests:
@@ -82,6 +97,7 @@ models:
         arguments: { value: 87 }
 
 - name: special_sedat
+  description: "The Special SEDAT file as fixed-width lines, in the SEDAT layout: one per split election district address range on a special address (an address point or place name rather than a street segment)."
   columns:
   - name: dat_column
     tests:

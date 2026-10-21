@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: thined_by_field
+    description: >-
+      One row per election district: the assembly, congressional, state senate,
+      municipal court and city council districts it belongs to, and its borough (that
+      of its lowest-numbered atomic polygon), ordered by assembly and election
+      district. Differs from prod on districts redistricted since the last cycle
+      (CSCL-THINED-01).
+    columns:
+      - name: election_district
+        description: Election district number, unique within its assembly district.
+      - name: assembly_district
+        description: Assembly district the election district is in.
+      - name: congress_district
+        description: Congressional district the election district is in.
+      - name: state_sen_district
+        description: State senate district the election district is in.
+      - name: muni_court_district
+        description: Municipal court district the election district is in.
+      - name: city_council_district
+        description: City council district the election district is in.
+      - name: borough
+        description: Borough code of the election district (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island).
+  - name: thined_dat
+    description: >-
+      The ThinED file as text lines: a three-line header (file tag, version, line
+      count) followed by one fixed-width line per election district. The header's line
+      count is computed; its tag and version come from configuration (CSCL-THINED-02).

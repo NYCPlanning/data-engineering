@@ -2,8 +2,10 @@ version: 2
 
 models:
 - name: thinlion_by_field
+  description: "One row per atomic polygon: the district codes (census tracts and blocks, community district, police precinct and sector, fire company, school, election and assembly districts, NTA, CDTA and others) that apply to it, ordered by borough, 2020 census tract and dynamic block. Each value is read at the atomic polygon from the district layers. Differs from prod on police precinct, sector and patrol borough of 7 sliver atomic polygons (CSCL-THINLION-02) and on the Bronx patrol borough (CSCL-THINLION-03)."
   columns:
     - name: borough
+      description: "Borough code of the atomic polygon (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string
       tests:
       - not_null
@@ -11,10 +13,12 @@ models:
           arguments:
             values: [ "1", "2", "3", "4", "5" ]
     - name: censustract_2020_basic
+      description: "Basic (four-digit) part of the atomic polygon's 2020 census tract."
       data_type: string
       tests:
       - not_null
     - name: dynamic_block
+      description: "Dynamic block of the atomic polygon."
       data_type: string
       tests:
       - not_null
@@ -23,13 +27,19 @@ models:
 
 # Borough-specific filtered models
 - name: thinlion_manhattan_by_field
+  description: "The ThinLION atomic polygon records of Manhattan."
 - name: thinlion_bronx_by_field
+  description: "The ThinLION atomic polygon records of the Bronx."
 - name: thinlion_brooklyn_by_field
+  description: "The ThinLION atomic polygon records of Brooklyn."
 - name: thinlion_queens_by_field
+  description: "The ThinLION atomic polygon records of Queens."
 - name: thinlion_statenisland_by_field
+  description: "The ThinLION atomic polygon records of Staten Island."
 
 # Borough export models with text output
 - name: thinlion_all
+  description: "The ThinLION district equivalency file for the whole city as fixed-width lines, one per atomic polygon."
   columns: &dat_column_123
     - name: dat_column
       data_type: string
@@ -38,16 +48,21 @@ models:
           arguments: { value: 123 }
 
 - name: thinlion_manhattan
+  description: "The ThinLION file for Manhattan: one fixed-width line per atomic polygon."
   columns: *dat_column_123
 
 - name: thinlion_bronx
+  description: "The ThinLION file for the Bronx: one fixed-width line per atomic polygon."
   columns: *dat_column_123
 
 - name: thinlion_brooklyn
+  description: "The ThinLION file for Brooklyn: one fixed-width line per atomic polygon."
   columns: *dat_column_123
 
 - name: thinlion_queens
+  description: "The ThinLION file for Queens: one fixed-width line per atomic polygon."
   columns: *dat_column_123
 
 - name: thinlion_statenisland
+  description: "The ThinLION file for Staten Island: one fixed-width line per atomic polygon."
   columns: *dat_column_123

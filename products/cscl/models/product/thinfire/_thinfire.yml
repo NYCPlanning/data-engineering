@@ -2,20 +2,24 @@ version: 2
 
 models:
 - name: thinfire_by_field
+  description: "One row per fire company: its type, number, division, battalion and borough, ordered by company type and number. The borough is a point-in-polygon match on the company's centroid (a different borough from prod's on 12 companies before that fix, CSCL-THINFIRE-01)."
   columns:
     - name: fire_company_type
+      description: "Fire company type: the first character of the unit name."
       data_type: string
       tests:
       - not_null
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 1 }
     - name: fire_company_number
+      description: "Fire company number: the unit name without its type letter, zero-filled to three digits."
       data_type: string
       tests:
       - not_null
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 3 }
     - name: borough
+      description: "Borough code of the fire company (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string
       tests:
       - not_null
@@ -25,13 +29,19 @@ models:
 
 # Borough-specific filtered models
 - name: thinfire_manhattan_by_field
+  description: "The ThinFire fire company records of Manhattan."
 - name: thinfire_bronx_by_field
+  description: "The ThinFire fire company records of the Bronx."
 - name: thinfire_brooklyn_by_field
+  description: "The ThinFire fire company records of Brooklyn."
 - name: thinfire_queens_by_field
+  description: "The ThinFire fire company records of Queens."
 - name: thinfire_statenisland_by_field
+  description: "The ThinFire fire company records of Staten Island."
 
 # Borough export models with text output
 - name: thinfire_manhattan
+  description: "The ThinFire file for Manhattan: one fixed-width line per fire company."
   columns: &dat_column_9
     - name: dat_column
       data_type: string
@@ -40,13 +50,17 @@ models:
           arguments: { value: 9 }
 
 - name: thinfire_bronx
+  description: "The ThinFire file for the Bronx: one fixed-width line per fire company."
   columns: *dat_column_9
 
 - name: thinfire_brooklyn
+  description: "The ThinFire file for Brooklyn: one fixed-width line per fire company."
   columns: *dat_column_9
 
 - name: thinfire_queens
+  description: "The ThinFire file for Queens: one fixed-width line per fire company."
   columns: *dat_column_9
 
 - name: thinfire_statenisland
+  description: "The ThinFire file for Staten Island: one fixed-width line per fire company."
   columns: *dat_column_9

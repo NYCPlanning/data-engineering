@@ -5,6 +5,7 @@ models:
   description: Node change records, each field formatted to its fixed width.
   columns: &ldf_field_columns
   - name: cumulative_record_number
+    description: "Record number that runs on across LDF editions, so each record has a unique number over every edition published."
     tests:
     - not_null
     - unique
@@ -23,7 +24,9 @@ models:
 - name: ldf_base
   description: >
     LDFBASE.dat - every LDF data record as a 100-byte line, ordered N, S, G, P then by
-    action code then by ID.
+    action code then by ID. Differs from prod in the transitory record rule (an
+    approximation, CSCL-LDF-01), in dropping L and R journal records (CSCL-LDF-02), and
+    in carrying the record number on from the previous header (CSCL-LDF-03).
   columns:
   - name: dat_column
     tests:
