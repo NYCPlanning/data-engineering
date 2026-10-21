@@ -43,7 +43,15 @@ measured AS (
     WHERE NOT st_isempty(geom)
 )
 
+-- Noise pieces are kept (they tell identical from grid_noise) but without geometry:
+-- there are tens of thousands per layer and nothing reads their shapes.
 SELECT
-    *,
-    coalesce(mean_width_ft < {{ var('district_review_noise_width_ft') }}, TRUE) AS is_noise
-FROM measured
+    * EXCLUDE (geom, is_noise),
+    is_noise,
+    CASE WHEN NOT is_noise THEN geom END AS geom
+FROM (
+    SELECT
+        *,
+        coalesce(mean_width_ft < {{ var('district_review_noise_width_ft') }}, TRUE) AS is_noise
+    FROM measured
+) AS flagged

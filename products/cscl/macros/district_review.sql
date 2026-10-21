@@ -98,12 +98,14 @@ prior AS (
     GROUP BY 1
 )
 
+-- Untyped GEOMETRY: production_outputs types its columns by CRS, and the empty
+-- fgdb_nyura is typed OGC:CRS84, which won't UNION with the EPSG:2263 layers.
 SELECT
     '{{ layer.name }}' AS layer,
     '{{ key_name }}' AS key_name,
     coalesce(n.district_key, p.district_key) AS district_key,
-    n.geom AS geom_new,
-    p.geom AS geom_prior,
+    n.geom::GEOMETRY AS geom_new,
+    p.geom::GEOMETRY AS geom_prior,
     coalesce(st_aswkb(st_normalize(n.geom)) = st_aswkb(st_normalize(p.geom)), FALSE) AS is_equal
 FROM new AS n
 FULL OUTER JOIN prior AS p ON n.district_key = p.district_key
