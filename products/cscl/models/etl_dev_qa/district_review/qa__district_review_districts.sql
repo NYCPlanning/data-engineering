@@ -111,5 +111,5 @@ SELECT
             THEN 'major'
         ELSE 'minor'
     END AS class,
-    NULL::text AS known_difference_id
+    NULL::TEXT AS known_difference_id
 FROM measured
