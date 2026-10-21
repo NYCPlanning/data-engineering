@@ -2,6 +2,8 @@ version: 2
 
 models:
 - name: int__rpl
+  description: "Roadbed pointer list: one row per generic segment and roadbed segment it points to, with node correspondence and node level codes."
   columns:
   - name: rpl_id
+    description: "Unique record id."
     tests: [ unique, not_null ]

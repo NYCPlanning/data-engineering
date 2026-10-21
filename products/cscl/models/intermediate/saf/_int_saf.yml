@@ -1,0 +1,35 @@
+version: 2
+
+models:
+- name: int__address_points
+  description: "Address points with house numbers converted to the SAF format (section letter encoded for Edgewater Park style E and F street names), keyed by addresspointid."
+  columns:
+  - name: addresspointid
+    description: "Address point id."
+- name: int__saf_segments
+  description: "One row per SAF record that attaches to a segment, from altsegmentdata, address points (types S and V) and CommonPlace (G, N, X). Resolves each record to its host proto-segment and, for roadbed records, to the generic segment."
+  columns:
+  - name: saf_globalid
+    description: "GlobalID of the SAF source record."
+  - name: saftype
+    description: "SAF type."
+  - name: saf_source_table
+    description: "Source: altsegmentdata, addresspoints or commonplace."
+- name: int__saf_abcep
+  description: "SAF records of types A, B, C, E and P, from altsegmentdata."
+- name: int__saf_d
+  description: "SAF type D records (DAPS), from altsegmentdata."
+- name: int__saf_o
+  description: "SAF type O records, from altsegmentdata."
+- name: int__saf_gnx
+  description: "SAF records of types G, N and X, from CommonPlace points."
+- name: int__saf_i
+  description: "SAF type I records: named intersections."
+- name: int__saf_s
+  description: "SAF type S records, from address points."
+- name: int__saf_v
+  description: "SAF type V (vanity) records, from address points."
+- name: int__saf_altnames_join_ids
+  description: "SAF-replicant Join_IDs for CommonPlace (G, N, X) and address point (S, V) records, one per SAF record and host proto-segment."
+- name: int__saf_replicant_fields
+  description: "Every SAF source normalized to one shape for the LION SAF replicant rows: resolved lionkey, special address flag, house-number and ZIP overrides, SAF street name and code, and Join_ID. Address point S and V ZIP overrides are not implemented (CSCL-LION-20)."

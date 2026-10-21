@@ -1,20 +1,26 @@
 models:
 - name: int__segment_specialaddress
+  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). Differs from prod on segment 241972 (CSCL-LION-12) and on one ramp protosegment (CSCL-LION-19)."
   columns:
   - name: segmentid
+    description: "Segment id."
   - name: boroughcode
+    description: "Borough code."
   - name: special_address_flag
+    description: "Highest-priority SAF type on the segment (seed_saf_priority); SAF type F is reported as D."
 
 - name: int__segment_locational_status
   description: |
     Centerline segments with Locational Status & Borough Boundary Indicator columns.
   columns:
   - name: segmentid
+    description: "Segment id."
     tests:
     - not_null
   # unique disabled: one record fails (inv-c73)
   # - unique
   - name: borough_boundary_indicator
+    description: "R or L: the side of the segment that lies outside the borough or city, where it runs along a boundary."
     tests:
     - test_name: accepted_values
       arguments:
@@ -27,6 +33,7 @@ models:
       config:
         severity: warn
   - name: segment_locational_status
+    description: "LION segment locational status code. Uses 2010 census tracts, as prod does (CSCL-LION-11)."
     tests:
     - test_name: accepted_values
       arguments:
@@ -35,3 +42,20 @@ models:
   - test_name: dbt_expectations.expect_table_row_count_to_equal_other_table
     arguments:
       compare_model: ref("int__segment_atomicpolygons")
+
+- name: int__centerline_curve
+  description: "Curved centerline segments (curve flag L, R or I) with the center and radius of curvature, rounded the way prod rounds them (CSCL-LION-07)."
+  columns:
+  - name: curve_flag
+    description: "Curve flag from the centerline."
+  - name: center_of_curvature_x
+    description: "X of the center of curvature."
+  - name: center_of_curvature_y
+    description: "Y of the center of curvature."
+  - name: center_of_curvature_radius
+    description: "Radius: distance from the rounded center to the segment's start point."
+- name: int__split_election_district
+  description: "One row per segment and LION key that appears in the split election district (SEDAT) table, flagged L, R or B by the sides it covers."
+  columns:
+  - name: split_election_district_flag
+    description: "L, R or B (both): the sides of the segment that have SEDAT records."

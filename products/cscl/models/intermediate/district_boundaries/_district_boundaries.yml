@@ -1,314 +1,515 @@
 version: 2
 
+# Shared pattern. Each district type is the same three models, parameterized by the
+# int__topology__ap_entities column that holds its district id (macros/district_boundary.sql):
+#   int__boundary__<d>_edges  view: every int__topology__edges row classified interior or
+#                             exterior to the districts that own it
+#   int__boundary__<d>_raw    table: polygons built from the exterior edges
+#   int__boundary__<d>        table: raw with noise rings removed; entity_id is the key
+# <d>wi variants include water: water APs count as part of the district.
+# Every step outputs entity_id as its key. Models built from the topology are named for the
+# district; int__boundary__pp and int__boundary__mcea_rows are the exceptions.
+
 models:
 - name: int__boundary__ct2010_edges
+  description: "2010 census tract edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__ct2010_raw
+  description: "2010 census tract boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__ct2010
+  description: "2010 census tract boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cb2010_edges
+  description: "2010 census block edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__cb2010_raw
+  description: "2010 census block boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__cb2010
+  description: "2010 census block boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__puma2010_edges
+  description: "2010 PUMA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__puma2010_raw
+  description: "2010 PUMA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__puma2010
+  description: "2010 PUMA boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__fd_edges
+  description: "Fire division edges: every topology edge classified interior or exterior to its district. Water APs assigned to a district count as land."
 - name: int__boundary__fd_raw
+  description: "Fire division boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__fd
+  description: "Fire division boundaries, one row per district. Water APs assigned to a district count as land."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ct2020_edges
+  description: "2020 census tract edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__ct2020_raw
+  description: "2020 census tract boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__ct2020
+  description: "2020 census tract boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__nta2020_edges
+  description: "2020 NTA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__nta2020_raw
+  description: "2020 NTA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__nta2020
+  description: "2020 NTA boundaries, one row per district. Differs from prod in part counts and shoreline length (CSCL-DISTRICTS-01, CSCL-DISTRICTS-03)."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cdta2020_edges
+  description: "2020 CDTA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__cdta2020_raw
+  description: "2020 CDTA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__cdta2020
+  description: "2020 CDTA boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__fb_edges
+  description: "Fire battalion edges: every topology edge classified interior or exterior to its district. Water APs assigned to a district count as land."
 - name: int__boundary__fb_raw
+  description: "Fire battalion boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__fb
+  description: "Fire battalion boundaries, one row per district. Water APs assigned to a district count as land."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__fc_edges
+  description: "Fire company edges: every topology edge classified interior or exterior to its district. Water APs assigned to a district count as land."
 - name: int__boundary__fc_raw
+  description: "Fire company boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__fc
+  description: "Fire company boundaries, one row per district. Water APs assigned to a district count as land."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__puma2020_edges
+  description: "2020 PUMA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__puma2020_raw
+  description: "2020 PUMA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__puma2020
+  description: "2020 PUMA boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__nta2010_edges
+  description: "2010 NTA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__nta2010_raw
+  description: "2010 NTA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__nta2010
+  description: "2010 NTA boundaries, one row per district. Differs from prod in shoreline length (CSCL-DISTRICTS-03)."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__mcea_edges
+  description: "MCEA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__mcea_raw
+  description: "MCEA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__mcea
+  description: "MCEA boundaries, one row per district. Published layer differs from prod (CSCL-DISTRICTS-01, CSCL-DISTRICTS-05)."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ha_edges
+  description: "Health area edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__ha_raw
+  description: "Health area boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__ha
+  description: "Health area boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__hc_edges
+  description: "Health center district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__hc_raw
+  description: "Health center district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__hc
+  description: "Health center district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ad_edges
+  description: "Assembly district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__ad_raw
+  description: "Assembly district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__ad
+  description: "Assembly district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ed_edges
+  description: "Election district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__ed_raw
+  description: "Election district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__ed
+  description: "Election district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__sd_edges
+  description: "School district edges: every topology edge classified interior or exterior to its district. Water APs assigned to a district count as land."
 - name: int__boundary__sd_raw
+  description: "School district boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__sd
+  description: "School district boundaries, one row per district. Water APs assigned to a district count as land."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cd_edges
+  description: "Community district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__cd_raw
+  description: "Community district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__cd
+  description: "Community district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__bb_edges
+  description: "Borough edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__bb_raw
+  description: "Borough boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__bb
+  description: "Borough boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cb2020_edges
+  description: "2020 census block edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__cb2020_raw
+  description: "2020 census block boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__cb2020
+  description: "2020 census block boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__hez_edges
+  description: "Hurricane evacuation zone edges: every topology edge classified interior or exterior to its district. Water APs assigned to a district count as land."
 - name: int__boundary__hez_raw
+  description: "Hurricane evacuation zone boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__hez
+  description: "Hurricane evacuation zone boundaries, one row per district. Water APs assigned to a district count as land. Differs from prod in area under 0.5% (CSCL-DISTRICTS-02)."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cc_edges
+  description: "City Council district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__cc_raw
+  description: "City Council district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__cc
+  description: "City Council district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cg_edges
+  description: "Congressional district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__cg_raw
+  description: "Congressional district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__cg
+  description: "Congressional district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ss_edges
+  description: "State Senate district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__ss_raw
+  description: "State Senate district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__ss
+  description: "State Senate district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__mc_edges
+  description: "Municipal court district edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__mc_raw
+  description: "Municipal court district boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__mc
+  description: "Municipal court district boundaries, one row per district."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__sd_boro_edges
+  description: "School district split by borough (District 10 once per borough) edges: every topology edge classified interior or exterior to its district. Water APs assigned to a district count as land."
 - name: int__boundary__sd_boro_raw
+  description: "School district split by borough (District 10 once per borough) boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__sd_boro
+  description: "School district split by borough (District 10 once per borough) boundaries, one row per district. Water APs assigned to a district count as land."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ct2010wi_edges
+  description: "2010 census tract edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__ct2010wi_raw
+  description: "2010 census tract boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__ct2010wi
+  description: "2010 census tract boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ct2020wi_edges
+  description: "2020 census tract edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__ct2020wi_raw
+  description: "2020 census tract boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__ct2020wi
+  description: "2020 census tract boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cb2010wi_edges
+  description: "2010 census block edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__cb2010wi_raw
+  description: "2010 census block boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__cb2010wi
+  description: "2010 census block boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cb2020wi_edges
+  description: "2020 census block edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__cb2020wi_raw
+  description: "2020 census block boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__cb2020wi
+  description: "2020 census block boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__bbwi_edges
+  description: "Borough edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__bbwi_raw
+  description: "Borough boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__bbwi
+  description: "Borough boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cdwi_edges
+  description: "Community district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__cdwi_raw
+  description: "Community district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__cdwi
+  description: "Community district boundaries, one row per district. Water included. Differs from prod in area under 0.5% (CSCL-DISTRICTS-02)."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__adwi_edges
+  description: "Assembly district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__adwi_raw
+  description: "Assembly district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__adwi
+  description: "Assembly district boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__edwi_edges
+  description: "Election district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__edwi_raw
+  description: "Election district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__edwi
+  description: "Election district boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__ccwi_edges
+  description: "City Council district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__ccwi_raw
+  description: "City Council district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__ccwi
+  description: "City Council district boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__cgwi_edges
+  description: "Congressional district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__cgwi_raw
+  description: "Congressional district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__cgwi
+  description: "Congressional district boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__sswi_edges
+  description: "State Senate district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__sswi_raw
+  description: "State Senate district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__sswi
+  description: "State Senate district boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__mcwi_edges
+  description: "Municipal court district edges: every topology edge classified interior or exterior to its district. Water included."
 - name: int__boundary__mcwi_raw
+  description: "Municipal court district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__mcwi
+  description: "Municipal court district boundaries, one row per district. Water included."
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
   - name: geom
+    description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__pp
-  description: Police precincts - NYPD source polygons clipped to topology-built land (not topology-built).
+  description: Police precinct boundaries - NYPD source polygons clipped to topology-built land, not built from the AtomicPolygon topology. Area differs from prod by +0.34% (CSCL-DISTRICTS-02).
   columns:
   - name: entity_id
+    description: "District id, in the published layer's key format."
     tests: [ unique, not_null ]
 - name: int__boundary__mcea_rows
   description: MCEA boundaries grouped into the published layer's rows (connected pieces of the dissolved 2000 tracts).

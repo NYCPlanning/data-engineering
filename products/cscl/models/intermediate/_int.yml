@@ -2,10 +2,13 @@ version: 2
 
 models:
 - name: int__lion
+  description: "One row per LION record: every centerline, shoreline, rail, subway and non-street segment plus each altsegmentdata protosegment, with all derived LION fields. The backbone of the LION outputs."
   columns:
   - name: segmentid
+    description: "Source segment id. Repeats across a segment's protosegments."
     tests: [ not_null ]
   - name: globalid
+    description: "GlobalID of the source feature."
     tests:
     - not_null
     # this is warn while source data issues with sectionalmap and zip code are resolved
@@ -13,6 +16,7 @@ models:
         config:
           severity: warn
   - name: lionkey
+    description: "Borough code, face code and segment sequence number."
     tests:
     - not_null
     # this is warn while source data issues with sectionalmap and zip code are resolved

@@ -1,0 +1,33 @@
+version: 2
+
+models:
+- name: int__sedat
+  description: "Split election district (SEDAT) records: one row per segment side and address range that falls in a different election and assembly district, with the preferred street name."
+  columns:
+  - name: lionkey
+    description: "LION key of the segment."
+  - name: side_of_street
+    description: "L or R."
+  - name: lowaddress
+    description: "Low house number of the range."
+  - name: highaddress
+    description: "High house number of the range."
+  - name: election_district
+    description: "Election district for the range."
+  - name: assembly_district
+    description: "Assembly district for the range."
+- name: int__special_sedat
+  description: "Special SEDAT records, same shape as int__sedat, with the feature name from the special record's B7SC."
+  columns:
+  - name: lionkey
+    description: "LION key of the segment."
+  - name: side_of_street
+    description: "L or R."
+  - name: lowaddress
+    description: "Low house number of the range."
+  - name: highaddress
+    description: "High house number of the range."
+  - name: election_district
+    description: "Election district for the range."
+  - name: assembly_district
+    description: "Assembly district for the range."

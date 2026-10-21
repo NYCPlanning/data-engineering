@@ -2,11 +2,14 @@ version: 2
 
 models:
 - name: int__primary_segments
+  description: "One row per segment from the centerline, shoreline, rail/subway and non-street feature layers, with street code, face code and sequence number. Excludes protosegments."
   columns:
   - name: segmentid
+    description: "Segment id."
     tests: [ not_null, unique ]
 
 - name: int__protosegments
+  description: "One row per altsegmentdata protosegment, in the same shape as int__primary_segments, joined to its primary segment's geometry."
   columns:
   - name: segmentid
   tests:
@@ -19,13 +22,18 @@ models:
       - segment_seqnum
 
 - name: int__segments
+  description: "Primary segments and protosegments together, keyed by lionkey (borough, face code, segment sequence number). The segment backbone of int__lion."
   columns:
   - name: lionkey
+    description: "Borough code, face code and segment sequence number."
   - name: segmentid
+    description: "Segment id. Repeats across a segment's protosegments."
     tests: [ not_null ]
   - name: feature_type
+    description: "LION feature type. Subway and rail share rail_and_subway."
     tests: [ not_null ]
   - name: globalid
+    description: "GlobalID of the source feature."
     tests: [ unique ]
 
 - name: int__nonstreetfeature_seqnum

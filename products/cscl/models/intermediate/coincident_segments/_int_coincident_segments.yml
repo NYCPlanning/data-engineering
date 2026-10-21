@@ -1,0 +1,28 @@
+version: 2
+
+models:
+- name: int__underground_rail
+  description: "Subway and rail segments with right-of-way type 1 (underground), with geometry and midpoint."
+  columns:
+  - name: segmentid
+    description: "Segment id."
+  - name: rail_type
+    description: "Source layer: rail or subway."
+- name: int__centerline_coincident_subway_or_rail_matches
+  description: "Candidate matches between centerlines and underground rail or subway segments, exact (same geometry) or fuzzy (midpoints within 2.5 ft). Kept apart from the counts for diagnosis."
+- name: int__centerline_coincident_subway_or_rail
+  description: "Count of underground rail or subway segments coincident with each centerline that already has coincident segments (match within 1 ft)."
+  columns:
+  - name: segmentid
+    description: "Centerline segment id."
+  - name: subway_or_rail_count
+    description: "Number of coincident underground rail or subway segments."
+- name: int__noncenterline_coincident_segments
+  description: "Candidate coincident segments for each non-centerline segment: same-source segments and centerlines (not underground rail) whose midpoints are within 2.5 ft."
+- name: int__noncenterline_coincident_segment_count
+  description: "Coincident segment count per non-centerline segment: itself, spatial matches within 0.001 ft, and altsegmentdata protosegments. Differs from prod on segments 8101066 and 359093 (CSCL-LION-06, CSCL-LION-14)."
+  columns:
+  - name: segmentid
+    description: "Segment id."
+  - name: coincident_seg_count
+    description: "Number of coincident segments, counting the segment itself."
