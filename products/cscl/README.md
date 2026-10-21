@@ -10,23 +10,23 @@ See [Design Doc Appendix A](./design_doc.md#appendix-a-conceptsterminology)
 
 ## Source Data
 
-All source datasets (per version) come from the same gdb file. See any "dcp_cscl" ingest templates for an example of how to add additional layers - 25a and 25b raw files are currently archived, so you can create a new template and run it for 25b without issue.
+All source datasets (per version) come from the same gdb file. See any "dcp_cscl" ingest templates for an example of how to add additional layers.
 
 ## Organization of models
 
 As other dbt projects, we have:
 - `staging` models for minor tweaks to source data to "stage" them for transformation.
 - `intermediate` models for actual transformation logic.
-  - within, transformations are currently organized in subfolders by section of the ETL docs that define them.
+  - within, transformations are organized in subfolders by section of the ETL docs that define them.
   - any transformations that are more broad/foundational may live in the `intermediate` folder itself.
 - `product` tables that are more final product/output focused.
   - subfolders for specific output/category - LION dat files, LION gdb, SEDAT outputs, etc.
 
-There's also a `etl_dev_qa` folder. These maybe in a more formal approach would be run separately from the build step. They can be dropped after this pipeline is put into operation
+There's also an `etl_dev_qa` folder: QA models that compare the build against prod's outputs. They run in the QA stage (`builds.qa` in `recipe.yml`), not the build.
 
 ## Workflow - Adding a new output
 
-For now, this is a little all focused around densely-formatted text outputs (geosupport inputs). A slightly different workflow will be needed for gdb outputs. Have fun.
+This workflow is written for the fixed-width text outputs (Geosupport inputs). GDB outputs differ in the formatting and validation steps.
 
 Basically, for a new file output, you must
 - [setup](#setup):
@@ -35,7 +35,7 @@ Basically, for a new file output, you must
   - create a "dat" formatting csv in `./seeds/formatting`.
     - if this is not a "dat" file with formatting rules for fields, strict field lengths, etc, you might need to make a tweak to `./poc_validation/prod_data_loader.py`. Look at cases like "enders", "last_word" in both `recipe.yml` and how they're handled (based on file format, and formatting) in prod_data_loader.
   - add them as an export in `recipe.yml`. See others as examples. The custom formatting field should point to the formatting csv seed (and is not actually used by dcpy export utilities).
-  - load production data into `db-cscl.production_outputs` by running `python3 poc_validation/prod_data_loader.py load -v {version} -d {dataset_name}`. LION is the exception: its five borough files are loaded as one citywide table by `load_prod_lion`, which `load` doesn't do.
+  - rebuild the prod snapshot, `python poc_validation/build_prod_snapshot.py -v {version} --upload`. It parses every prod output into the `production_outputs.zip` parquet bundle that the build loads (recipe input `dcp_cscl_production_outputs`) into schema `production_outputs`.
 - [transform](#write-the-actual-transformations)
   - add any new source layers to `recipe.yml` if needed.
   - add staging and int tables as needed to actually perform transformations as required by the etl docs.
@@ -51,9 +51,7 @@ When GR has a new release, they will put files in a folder [here](https://nyco36
 
 **All files should be downloaded, ETL Working GDB should be zipped, then they should be uploaded to `edm-private/cscl_etl/{version}`. Norm for version here is lowercase letter.** This is where
 - ingest template looks for a working gdb to ingest
-- logic in `./poc_validation/prod_data_loader.py` looks for prod outputs to load into the build database for comparison. See 
-
-You could point `prod_data_loader` to look at a folder on your comp, but by default it will pull files locally from edm-private, then load them into the database.
+- `./poc_validation/build_prod_snapshot.py` (using `prod_data_loader.py`'s parsers) looks for prod outputs to turn into the prod snapshot used for comparison.
 
 Formatting csvs are then created. I've copied and pasted from the old etl design doc, then done some editing. When done, you should have these columns:
 | header | used in formatting macro | used in prod_data_loader |
@@ -72,7 +70,7 @@ As you can see, not all are critical, but all should be included - FIC links the
 - justify_and_fill - see our new [design doc](./design_doc.md#justification-and-fill). Default to RJSF
 - blank_if_none - not always specified in design doc. Default to FALSE. Basically, if you have a zero-filled field (as in, 5 character field where `1` becomes `"00001"` instead of `"    1"`), by default a null value would become zeroes. In some cases, they should be blank-filled instead despite it being a RJZF field. In those cases, set this to true.
 
-Some files will not need this csv at all - `last_word` for example is a csv output, but is still loaded into the db using `prod_data_loader` by how it handles files based on format in `recipe.yml`. gdbs are not yet supported. Again, have fun!
+Some files will not need this csv at all - `last_word` for example is a csv output, but is still parsed by `prod_data_loader` by how it handles files based on format in `recipe.yml`. GDBs are compared with `poc_validation/compare_gdb.py` instead (see [Validating the district gdb](#validating-the-district-gdb)).
 
 ### Write the actual transformations
 
@@ -118,20 +116,20 @@ WHERE dev_count <> prod_count
 order by ...
 ```
 
-With the concept of a "key" in the data though, we can make actual comparisons between specific fields of records in prod vs this pipeline. See logic in `./models/etl_qa_dev` for how this is done for LION. As a quick and dirty thing, you could edit these files to aim at your tables and run them, or compile the code and run manually.
+With the concept of a "key" in the data though, we can make actual comparisons between specific fields of records in prod vs this pipeline. See logic in `./models/etl_dev_qa` for how this is done for LION. As a quick and dirty thing, you could edit these files to aim at your tables and run them, or compile the code and run manually.
 
 For non-LION flat file outputs, it's fine to do this with queries as opposed to creating models like we do for LION - LION is just such a huge transformation that the ease of having these models is super useful. It would be great to have these queries in some sort of marimo notebook instead.
 
 #### Output file validation
 
-As a final check, you can also compare the actual output files. If you don't have the prod outputs on your computer, you can do this like it's done in the github action `cscl_build.yml`
+As a final check, you can also compare the actual output files. The QA stage (`builds qa run`, as in `cscl_build.yml`) does this: it pulls the prod files and runs `poc_validation/validate_outputs.sh`
 
 ```bash
 python3 poc_validation/prod_data_loader.py pull
 ./poc_validation/validate_outputs.sh
 ```
 
-This currently sorts the files before comparison, so this isn't quite valid for comparing outputs that actually have some sort of sorting requirement. However for LION and other unordered files, it currently works as a check of total records with issues in the actual output files.
+This sorts the files before comparison, so this isn't quite valid for comparing outputs that actually have some sort of sorting requirement. However for LION and other unordered files, it currently works as a check of total records with issues in the actual output files.
 
 ## District boundary gdb
 
@@ -144,13 +142,12 @@ Two places where the 2009 doc and the real product disagree, both settled empiri
 - **Land is `WATER_FLAG IN ('2', '3', '4')`**, not `('2', '3')` as the doc says. Flag `4` postdates the doc and is land for clipping purposes; including it reproduces the published clipped extent exactly, excluding it falls about 1% short.
 - **Table 39 understates which layers are clipped.** It says layers with no `wi` twin are "extracted exactly as stored", but `nyfb`, `nyfc`, `nyfd`, `nypp`, `nysd`, `nynta2010`, `nynta2020`, `nycdta2020` and `nypuma2010` are all shoreline-clipped in the published product. Only `nyap`, `nyhez` and the internal-only layers are genuinely unclipped.
 
-### How the shoreline clip works
+### How the boundaries are built
 
-Clipping is done by **subtracting water**, not by intersecting a dissolved land mask. The two are exact complements (4.632e9 + 8.423e9 = 13.055e9 sq ft), but water is 1,875 atomic polygons against land's 66,717, so it is far less geometry to touch.
-
-This matters a lot. Dissolving land into a single mask produced one **7.2M-vertex, 117 MB** geometry: it took ~86 minutes to build, and intersecting every district feature against it exhausted the build server's memory and put Postgres into recovery mode. The water mask builds in ~2 seconds and clips a 38k-feature layer in ~80.
-
-`int__water_mask` subdivides water to 256 vertices per row and GIST-indexes it. Clipped models pair `clip_to_shoreline` (a `LEFT JOIN LATERAL` that unions only the water each feature actually overlaps) with `clipped_geom` (the subtraction) in a `clipped` CTE, then drop rows the clip emptied — that is why e.g. `nycb2020` is shorter than `nycb2020wi`. Use those macros rather than open-coding the difference, and keep the geometry expression identical between the two calls.
+District polygons are assembled from the AtomicPolygon topology, not by overlaying source
+polygons: each AP edge is classified as interior or exterior to the district(s) that own
+it, and the exterior edges are polygonized. Shoreline comes for free, since a land-water
+edge is always exterior. See the header of `macros/district_boundary.sql` for the steps.
 
 ### Validating the district gdb
 
@@ -169,11 +166,10 @@ Prod quirks worth knowing before reading a diff:
 - **`nymc`/`nymcwi` exclude `MUNICOURT = '00'`**, an unassigned placeholder on 6 of the 34 source rows. That's what takes them to 28 features.
 - **`nypuma2020` ships in prod** even though table 39 predates it.
 
-### Open dev/prod diffs
+### Known dev/prod diffs
 
-Two district layers still differ from prod as of 26b: `nymcea` part counts and sub-0.5%
-area deltas on unclipped passthroughs. Both are recorded in
-[data_issues.md](./data_issues.md) as CSCL-DISTRICTS-01 and CSCL-DISTRICTS-02.
+Accounted-for district diffs are listed in [data_issues.md](./data_issues.md) under
+`CSCL-DISTRICTS-*`.
 
 ## LION Differences File (LDF)
 
@@ -221,7 +217,7 @@ time, which is after the GDB snapshot we ingest is taken. Select on NULL — nev
 
 `int__ldf_segments` drops the lineage of segments that were created *and* destroyed between
 two releases. Our rule is an approximation of GR's, which lives in an assembly we don't
-have, so this output does not yet match prod exactly — currently ~97% of records.
+have, so this output does not match prod exactly.
 
 **The dev/prod difference, why it exists, and what constrains fixing it are documented in
 [data_issues.md → CSCL-LDF-01](./data_issues.md#cscl-ldf-01)**, alongside the other open
@@ -276,15 +272,8 @@ recipe entry's comment) - bump them by hand alongside `seeds/config.csv`'s
 `ldf_previous_version` when the release this LDF documents moves on; nothing currently keeps
 the three in sync automatically.
 
-The build still loads prod's own LDF for this release itself, which `qa__ldf_diffs` and
-`qa__ldf_summary` compare against. The load records what it wrote in
-`production_outputs.load_log` and is skipped when that table already holds the version being
-asked for. A release bump reloads on its own; pass `--force` to reload anyway. To load it by
-hand:
-
-```bash
-python3 poc_validation/prod_data_loader.py load_prod_ldf -v 26b
-```
+Prod's own LDF for this release is part of the prod snapshot (see [Setup](#setup)), which
+`qa__ldf_diffs` and `qa__ldf_summary` compare against.
 
 ## LION - Known data issues
 
@@ -294,10 +283,10 @@ new build, not a list of issues.
 
 ### Common things to check for in new build
 
-As in, we're doing 26a for the first time. Some things that could go wrong. In general, most issues are discovered/handled by looking into `qa__lion_dat_individual_diffs`, but there are a few special things
+Things that have gone wrong on a new release before. In general, most issues are discovered/handled by looking into `qa__lion_dat_individual_diffs`, but there are a few special things
 
 - duplicate boro + face_code + segmentid in dev. This is diagnosed by looking at `qa__lion_dat_summary` and looking at "unique keys in dev". This is a source data issue to be reported to GR. GR's discrepancy log (linked from [data_issues.md](./data_issues.md)) has some info on when this happened before
-- duplicate boro + face_code + segment_seqnum in prod. This should only happen in cases of the above, though I'm not 100% sure. Needs a custom query. This has no impact on our pipeline but GR wants to know.
+- duplicate boro + face_code + segment_seqnum in prod. This should only happen in cases of the above. Needs a custom query. This has no impact on our pipeline but GR wants to know.
 - empty geoms. This has happened in the past. We probably want to add more data testing to `sources.yml`. But also a simple query of certain layers/tables where `ST_ISEMPTY(geom)` will work too.
-- sectionalmap issues. This would appear in `qa__lion_dat_summary` in terms of number of dev rows and `qa__lion_dat_individual_diffs` with `sectional_map` diffs (and other diffs as well due to duplicate rows). I think this is fully resolved but there were topology issues in the source data causing duplicate rows on joins.
+- sectionalmap issues. This would appear in `qa__lion_dat_summary` in terms of number of dev rows and `qa__lion_dat_individual_diffs` with `sectional_map` diffs (and other diffs as well due to duplicate rows). Topology issues in the source data have caused duplicate rows on joins.
 - giant circles. Open up int__primary_segments in qgis and see if we have a large hadron collider in nyc.

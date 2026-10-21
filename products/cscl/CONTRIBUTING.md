@@ -37,15 +37,14 @@ Each quarter, we receive a set of outputs from the legacy system that serve as o
 **When outputs don't match:**
 1. **If we find bugs in the legacy system** → Fix them in our code and **document the discrepant records**
 2. **If we can't reproduce legacy behavior** → Document why and note the differences
-3. **All known discrepancies must be tracked** - see [Known Data Issues](#known-data-issues) in [README.md](./README.md)
+3. **All known discrepancies must be tracked** - each gets a stable ID in [data_issues.md](./data_issues.md), cited from the `qa__diffs_*` model that accounts for it
 
 ### Project Status Tracking
 
 `seeds/lion_outputs.csv` is the backbone status record for every output file/gdb layer, not
 just comparison config - it's what the CI build's step summary reports from. Each row's
 `status` and one-sentence `status_summary` are the at-a-glance state; `notes` backs that up
-with the fuller explanation (pointing to a `docs/prod_bugs/` writeup or a `data_issues.md`
-entry for anything substantial). If an output is blocked on something outside this team - e.g.
+with the fuller explanation (citing a `data_issues.md` ID for anything substantial). If an output is blocked on something outside this team - e.g.
 needing NYC Planning's GR team's input on undocumented legacy behavior - record that there
 (`status: GR Review` while it's with them, `blocked` once it's a known dead end) rather than
 leaving it untracked.
@@ -130,7 +129,7 @@ artifact, not checked in.
 
 ### Prerequisites
 
-This product uses **direnv** for environment configuration. See [AGENTS.md](../../AGENTS.md#environment-setup) for setup instructions.
+This product uses **direnv** for environment configuration. See [docs/development.md](../../docs/development.md#loading-environment-variables-direnv).
 
 ### Key Files
 
@@ -143,7 +142,7 @@ This product uses **direnv** for environment configuration. See [AGENTS.md](../.
 
 See [README.md](./README.md) for the complete workflow. In brief:
 
-1. **Setup** - Download quarterly outputs from GR, load into comparison database
+1. **Setup** - Download quarterly outputs from GR, build the prod snapshot
 2. **Transform** - Implement business logic in DBT models (staging → intermediate → product)
 3. **Validate** - Compare outputs to production using SQL queries and file diffs
 4. **Document** - Add transformation details to design_doc.md
@@ -161,7 +160,7 @@ products/cscl/
 │   ├── staging/            # Minor source data tweaks
 │   ├── intermediate/       # Transformation logic (organized by ETL doc section)
 │   ├── product/            # Final outputs (LION, SEDAT, etc.)
-│   └── etl_dev_qa/         # Validation queries (temporary during development)
+│   └── etl_dev_qa/         # QA models comparing the build to prod (QA stage)
 ├── seeds/
 │   └── formatting/         # DAT file field specifications
 ├── poc_validation/         # Output comparison scripts
@@ -183,7 +182,7 @@ Located on SharePoint: [CSCL ETL Folder](https://nyco365.sharepoint.com/:f:/r/si
 ### Issue Tracking
 
 - **Data discrepancies**: [LION Data Discrepancy Tracking (Word)](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/DE%20Pipeline%20-%20Project%20Tracking/Data%20Discrepancy%20Tracking/LION%20Flat%20Files%20%E2%80%93%20Data%20DiscrepancyIssue%20Tracking.docx?d=w60907e50f8044bd9bffe2508a299035f&csf=1&web=1&e=aZ59n8)
-- **Known issues**: See [README.md - LION Known Data Issues](./README.md#lion---known-data-issues)
+- **Known issues**: [data_issues.md](./data_issues.md)
 
 ## Key Concepts
 
