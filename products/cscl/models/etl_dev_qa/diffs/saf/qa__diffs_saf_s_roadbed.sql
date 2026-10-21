@@ -54,6 +54,14 @@ SELECT
             AND list_contains(change_keys, 'lgc1')
             AND (changes -> 'lgc1' ->> 'old') = '01'
             THEN 'CSCL-SAF-01: stale prod lgc1'
+        -- Non-preferred LGCs swapped (lgc2 and lgc3 trade values): prod orders them by
+        -- Segment_LGC row creation, we order by value (segment 0289932).
+        WHEN
+            status = 'modified'
+            AND list_sort(change_keys) = ['lgc2', 'lgc3']
+            AND (changes -> 'lgc2' ->> 'old') = (changes -> 'lgc3' ->> 'new')
+            AND (changes -> 'lgc3' ->> 'old') = (changes -> 'lgc2' ->> 'new')
+            THEN 'LGC2/LGC3 order swapped'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND len(change_keys) = 1
             THEN change_keys[1]
@@ -69,6 +77,13 @@ SELECT
         -- See: Bug 006 in data_issues.md
         status = 'modified'
         AND list_contains(ARRAY['416070284412'], _saf_key),
+        FALSE
+    ) OR coalesce(
+        -- Non-preferred LGC2/LGC3 order: prod follows Segment_LGC row creation order.
+        status = 'modified'
+        AND list_sort(change_keys) = ['lgc2', 'lgc3']
+        AND (changes -> 'lgc2' ->> 'old') = (changes -> 'lgc3' ->> 'new')
+        AND (changes -> 'lgc3' ->> 'old') = (changes -> 'lgc2' ->> 'new'),
         FALSE
     ) AS accounted_for
     -- NOTE: CSCL-SAF-01's lgc1='01' pattern is categorized above (diff_group) but deliberately
