@@ -106,7 +106,7 @@ def run(
     output = output or validation_dir() / "district_review.gdb.zip"
     conn = duckdb.connect(os.environ["DUCKDB_PATH"], read_only=True)
     conn.execute("LOAD spatial")
-    conn.execute(f'SET schema = \'{os.environ["BUILD_ENGINE_SCHEMA"]}\'')
+    conn.execute(f"SET schema = '{os.environ['BUILD_ENGINE_SCHEMA']}'")
 
     layers = conn.execute(
         "SELECT layer, any_value(key_name) FROM qa__district_review_districts "
@@ -121,7 +121,9 @@ def run(
                 n = _write_parquet(conn, query, [layer], path)
                 logger.info(f"{layer}_{suffix}: {n:,} features")
                 parquet_layers.append(
-                    ParquetLayer(f"{layer}_{suffix}", path, geometry_type="MultiPolygon")
+                    ParquetLayer(
+                        f"{layer}_{suffix}", path, geometry_type="MultiPolygon"
+                    )
                 )
         for name, query in {
             "summary": "SELECT * FROM qa__district_review_summary ORDER BY rank",
