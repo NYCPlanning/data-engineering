@@ -2,121 +2,256 @@ version: 2
 
 # Feature classes of the district boundary geodatabase (ETL spec ch. 10, table 39).
 # Column names and row counts are matched against prod's v26B_Districts.gdb.zip.
+# Layers suffixed "wi" are the water-included (unclipped) variants of the shoreline-clipped layers.
 
 models:
 - name: gdb_nyad
   description: State assembly districts built from the AtomicPolygon topology.
   columns:
-  - name: "'AssemDist'"
+  - name: AssemDist
+    description: State assembly district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyadwi
   description: State assembly districts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'AssemDist'"
+  - name: AssemDist
+    description: State assembly district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyap
   description: Atomic polygons, the base geography of the ETL. Near-passthrough of the CSCL source layer.
   columns:
-  - name: "'ATOMICID'"
+  - name: ATOMICID
+    description: Atomic polygon identifier.
     data_tests: [ not_null ]
+  - name: BOROUGH
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: CENSUSTRACT_1990
+    description: 1990 census tract.
+  - name: CENSUSTRACT_2000
+    description: 2000 census tract.
+  - name: CENSUSBLOCK_2000
+    description: 2000 census block.
+  - name: CENSUSBLOCK_2000_SUFFIX
+    description: Suffix of the 2000 census block.
+  - name: CENSUSTRACT_2010
+    description: 2010 census tract.
+  - name: CENSUSBLOCK_2010
+    description: 2010 census block.
+  - name: CENSUSBLOCK_2010_SUFFIX
+    description: Suffix of the 2010 census block.
+  - name: CENSUSTRACT_2020
+    description: 2020 census tract.
+  - name: CENSUSBLOCK_2020
+    description: 2020 census block.
+  - name: CENSUSBLOCK_2020_SUFFIX
+    description: Suffix of the 2020 census block.
+  - name: WATER_FLAG
+    description: Flags atomic polygons that are water.
+  - name: ASSEMDIST
+    description: State assembly district; a single blank when none.
+  - name: ELECTDIST
+    description: Election district; a single blank when none.
+  - name: SCHOOLDIST
+    description: School district; '0' when none.
+  - name: COMMDIST
+    description: Community district.
+  - name: HURRICANE_EVACUATION_ZONE
+    description: Hurricane evacuation zone.
+  - name: COMMERCIAL_WASTE_ZONE
+    description: Commercial waste zone.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nybb
   description: Borough boundaries built from the AtomicPolygon topology.
   columns:
-  - name: "'BoroCode'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nybbwi
   description: Borough boundaries built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'BoroCode'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nybid
-  description: Business improvement districts.
+  description: >-
+    Business improvement districts. Differs from prod on BID 56 (CSCL-DISTRICTS-04) and is not
+    regenerated in prod's layer (CSCL-DISTRICTS-05).
   columns:
-  - name: "'BIDID'"
+  - name: BIDID
+    description: Business improvement district identifier.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycb2010
   description: 2010 census blocks built from the AtomicPolygon topology.
   columns:
-  - name: "'BCTCB2010'"
+  - name: CB2010
+    description: Census block number within the tract, four characters.
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2010
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BCTCB2010
+    description: Borough code, tract and block concatenated (1 + 6 + 4 characters).
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycb2010wi
   description: 2010 census blocks built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'BCTCB2010'"
+  - name: CB2010
+    description: Census block number within the tract, four characters.
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2010
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BCTCB2010
+    description: Borough code, tract and block concatenated (1 + 6 + 4 characters).
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycb2020
   description: 2020 census blocks built from the AtomicPolygon topology.
   columns:
-  - name: "'BCTCB2020'"
+  - name: CB2020
+    description: Census block number within the tract, four characters.
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2020
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BCTCB2020
+    description: Borough code, tract and block concatenated (1 + 6 + 4 characters).
     data_tests: [ not_null ]
+  - name: GEOID
+    description: "Census GEOID: state FIPS 36, county FIPS, then tract and block."
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycb2020wi
   description: 2020 census blocks built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'BCTCB2020'"
+  - name: CB2020
+    description: Census block number within the tract, four characters.
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2020
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BCTCB2020
+    description: Borough code, tract and block concatenated (1 + 6 + 4 characters).
     data_tests: [ not_null ]
+  - name: GEOID
+    description: "Census GEOID: state FIPS 36, county FIPS, then tract and block."
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycc
   description: City council districts built from the AtomicPolygon topology.
   columns:
-  - name: "'CounDist'"
+  - name: CounDist
+    description: City council district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyccwi
   description: City council districts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'CounDist'"
+  - name: CounDist
+    description: City council district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycd
   description: >-
-    Community districts built from the AtomicPolygon topology. One of ~43 layers bundled together
-    in a single citywide district-boundary geodatabase zip file, not its own
-    standalone file.
+    Community districts built from the AtomicPolygon topology. One of ~43 layers bundled
+    together in a single citywide district-boundary geodatabase zip file, not its own standalone
+    file.
   config:
     tags: [export_doc]
     meta:
@@ -127,276 +262,592 @@ models:
         than intersecting a land mask - subtracting is much cheaper, since the city's
         water area breaks into far fewer, smaller polygons than its land area does.
   columns:
-  - name: "'BoroCD'"
+  - name: BoroCD
+    description: Borough code followed by the two-digit community district number (e.g. 101 is Manhattan CD 1).
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycdta2020
   description: 2020 community district tabulation areas built from the AtomicPolygon topology.
   columns:
-  - name: "'CDTA2020'"
+  - name: BoroCode
+    description: "Borough holding most of the district's atomic polygon area. Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CountyFIPS
+    description: County FIPS code of the borough (three characters).
+  - name: CDTA2020
+    description: 2020 community district tabulation area code.
     data_tests: [ not_null ]
+  - name: CDTAName
+    description: Community district tabulation area name.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycdwi
-  description: Community districts built from the AtomicPolygon topology, water areas included.
+  description: >-
+    Community districts built from the AtomicPolygon topology, water areas included. Differs
+    from prod in area by under 0.5% (CSCL-DISTRICTS-02); prod's layer predates current source
+    (CSCL-DISTRICTS-05).
   columns:
-  - name: "'BoroCD'"
+  - name: BoroCD
+    description: Borough code followed by the two-digit community district number (e.g. 101 is Manhattan CD 1).
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycg
   description: Congressional districts built from the AtomicPolygon topology.
   columns:
-  - name: "'CongDist'"
+  - name: CongDist
+    description: Congressional district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nycgwi
   description: Congressional districts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'CongDist'"
+  - name: CongDist
+    description: Congressional district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyct2010
   description: 2010 census tracts built from the AtomicPolygon topology.
   columns:
-  - name: "'BoroCT2010'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2010
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BoroCT2010
+    description: Borough code followed by the six-character tract.
     data_tests: [ not_null ]
+  - name: NTACode
+    description: 2010 neighborhood tabulation area the tract belongs to.
+  - name: NTAName
+    description: Name of that NTA.
+  - name: PUMA
+    description: Public use microdata area code.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyct2010wi
   description: 2010 census tracts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'BoroCT2010'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2010
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BoroCT2010
+    description: Borough code followed by the six-character tract.
     data_tests: [ not_null ]
+  - name: NTACode
+    description: 2010 neighborhood tabulation area the tract belongs to.
+  - name: NTAName
+    description: Name of that NTA.
+  - name: PUMA
+    description: Public use microdata area code.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyct2020
   description: 2020 census tracts built from the AtomicPolygon topology.
   columns:
-  - name: "'BoroCT2020'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2020
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BoroCT2020
+    description: Borough code followed by the six-character tract.
     data_tests: [ not_null ]
+  - name: NTAName
+    description: Name of the 2020 NTA the tract belongs to.
+  - name: NTA2020
+    description: 2020 neighborhood tabulation area the tract belongs to.
+  - name: CDTA2020
+    description: 2020 community district tabulation area the tract belongs to.
+  - name: CDTANAME
+    description: Name of that CDTA.
+  - name: GEOID
+    description: "Census GEOID: state FIPS 36, county FIPS, then the tract."
+  - name: PUMA
+    description: Public use microdata area code.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyct2020wi
   description: 2020 census tracts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'BoroCT2020'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CT2020
+    description: "Census tract: four-digit basic number plus two-digit suffix."
+  - name: BoroCT2020
+    description: Borough code followed by the six-character tract.
     data_tests: [ not_null ]
+  - name: NTAName
+    description: Name of the 2020 NTA the tract belongs to.
+  - name: NTA2020
+    description: 2020 neighborhood tabulation area the tract belongs to.
+  - name: CDTA2020
+    description: 2020 community district tabulation area the tract belongs to.
+  - name: CDTANAME
+    description: Name of that CDTA.
+  - name: GEOID
+    description: "Census GEOID: state FIPS 36, county FIPS, then the tract."
+  - name: PUMA
+    description: Public use microdata area code.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyed
   description: Election districts built from the AtomicPolygon topology.
   columns:
-  - name: "'ElectDist'"
+  - name: ElectDist
+    description: Election district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyedwi
   description: Election districts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'ElectDist'"
+  - name: ElectDist
+    description: Election district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyfb
   description: Fire battalions built from the AtomicPolygon topology.
   columns:
-  - name: "'FireBN'"
+  - name: FireBN
+    description: Fire battalion number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyfc
   description: Fire companies built from the AtomicPolygon topology.
   columns:
-  - name: "'FireCoNum'"
+  - name: FireCoType
+    description: Company type letter from the unit's short name (the 'E' in 'E 14').
+  - name: FireCoNum
+    description: Company number from the unit's short name (the 14 in 'E 14').
     data_tests: [ not_null ]
+  - name: FireBN
+    description: Fire battalion the company belongs to.
+  - name: FireDiv
+    description: Fire division the company belongs to.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyfd
   description: Fire divisions built from the AtomicPolygon topology.
   columns:
-  - name: "'FireDiv'"
+  - name: FireDiv
+    description: Fire division number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyha
   description: Health areas built from the AtomicPolygon topology.
   columns:
-  - name: "'HealthArea'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: HealthArea
+    description: Health area number within the borough.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyhc
   description: Health center districts built from the AtomicPolygon topology.
   columns:
-  - name: "'HCentDist'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: HCentDist
+    description: Health center district number; the first digit is the borough.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyhd
-  description: Historic districts.
+  description: Historic districts. Prod's layer predates current source (CSCL-DISTRICTS-05).
   columns:
-  - name: "'LP_NUMBER'"
+  - name: NAME
+    description: Historic district name.
+  - name: LP_NUMBER
+    description: Landmarks Preservation Commission designation number.
     data_tests: [ not_null ]
+  - name: CREATED_BY
+    description: Editor who created the source record.
+  - name: CREATED_DATE
+    description: When the source record was created.
+  - name: MODIFIED_BY
+    description: Editor who last modified the source record.
+  - name: MODIFIED_DATE
+    description: When the source record was last modified.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyhez
-  description: Hurricane evacuation zones built from the AtomicPolygon topology, water areas assigned a zone included.
+  description: >-
+    Hurricane evacuation zones built from the AtomicPolygon topology, water areas assigned a
+    zone included. Differs from prod in area by under 0.5% (CSCL-DISTRICTS-02).
   columns:
-  - name: "'HURRICANE_EVACUATION_ZONE'"
+  - name: HURRICANE_EVACUATION_ZONE
+    description: Hurricane evacuation zone.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nymc
-  description: Municipal court districts built from the AtomicPolygon topology, excluding the '00' placeholder.
+  description: >-
+    Municipal court districts built from the AtomicPolygon topology, excluding the '00'
+    placeholder.
   columns:
-  - name: "'MuniCourt'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: MuniCourt
+    description: Municipal court district number within the borough, two characters.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nymcea
-  description: Minor census economic areas, built from the AtomicPolygon topology and split to singlepart.
+  description: >-
+    Minor census economic areas, built from the AtomicPolygon topology and split to singlepart.
+    Differs from prod in polygon part counts (CSCL-DISTRICTS-01); prod's layer predates current
+    source (CSCL-DISTRICTS-05).
   columns:
-  - name: "'MCEA'"
+  - name: BOROCODE
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: MCEA
+    description: Minor census economic area code.
     data_tests: [ not_null ]
+  - name: BoroName
+    description: Borough name.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: Shape_Length
+    description: Boundary length in feet.
+  - name: Shape_Area
+    description: Area in square feet.
 
 - name: gdb_nymcwi
-  description: Municipal court districts built from the AtomicPolygon topology, water areas included, excluding the '00' placeholder.
+  description: >-
+    Municipal court districts built from the AtomicPolygon topology, water areas included,
+    excluding the '00' placeholder.
   columns:
-  - name: "'MuniCourt'"
+  - name: BoroCode
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: MuniCourt
+    description: Municipal court district number within the borough, two characters.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nynta2010
   description: 2010 neighborhood tabulation areas built from the AtomicPolygon topology.
   columns:
-  - name: "'NTACode'"
+  - name: BoroCode
+    description: "Borough holding most of the district's atomic polygon area. Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CountyFIPS
+    description: County FIPS code of the borough (three characters).
+  - name: NTACode
+    description: 2010 neighborhood tabulation area code.
     data_tests: [ not_null ]
+  - name: NTAName
+    description: Neighborhood name.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nynta2020
-  description: 2020 neighborhood tabulation areas built from the AtomicPolygon topology.
+  description: >-
+    2020 neighborhood tabulation areas built from the AtomicPolygon topology. Differs from prod
+    in polygon part counts (CSCL-DISTRICTS-01).
   columns:
-  - name: "'NTA2020'"
+  - name: BoroCode
+    description: "Borough holding most of the district's atomic polygon area. Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: BoroName
+    description: Borough name.
+  - name: CountyFIPS
+    description: County FIPS code of the borough (three characters).
+  - name: NTA2020
+    description: 2020 neighborhood tabulation area code.
     data_tests: [ not_null ]
+  - name: NTAName
+    description: Neighborhood name.
+  - name: NTAAbbrev
+    description: Abbreviated neighborhood name.
+  - name: CDTA2020
+    description: Code of the community district tabulation area the NTA nests in.
+  - name: CDTAName
+    description: Name of that CDTA.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nypp
-  description: Police precincts, the NYPD source precinct polygons clipped to land (NYPD lines don't follow AtomicPolygon edges).
+  description: >-
+    Police precincts, the NYPD source precinct polygons clipped to land (NYPD lines don't follow
+    AtomicPolygon edges). Differs from prod in area by under 0.5% (CSCL-DISTRICTS-02).
   columns:
-  - name: "'Precinct'"
+  - name: Precinct
+    description: Police precinct number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nypuma2010
   description: 2010 public use microdata areas, built from the AtomicPolygon topology.
   columns:
-  - name: "'PUMA'"
+  - name: PUMA
+    description: Public use microdata area code.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nypuma2020
   description: 2020 public use microdata areas, built from the AtomicPolygon topology.
   columns:
-  - name: "'PUMA'"
+  - name: PUMA
+    description: Public use microdata area code.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nysd
-  description: School districts built from the AtomicPolygon topology. District 10 is split into one polygon per borough.
+  description: >-
+    School districts built from the AtomicPolygon topology. District 10 is split into one
+    polygon per borough.
   columns:
-  - name: "'SchoolDist'"
+  - name: SchoolDist
+    description: School district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyss
   description: State senate districts built from the AtomicPolygon topology.
   columns:
-  - name: "'StSenDist'"
+  - name: StSenDist
+    description: State senate district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nysswi
   description: State senate districts built from the AtomicPolygon topology, water areas included.
   columns:
-  - name: "'StSenDist'"
+  - name: StSenDist
+    description: State senate district number.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyura
-  description: Urban renewal areas. The CSCL source layer is currently empty.
+  description: >-
+    Urban renewal areas. The CSCL source layer is currently empty. Prod's layer predates current
+    source (CSCL-DISTRICTS-05).
   columns:
+  - name: URAID
+    description: Urban renewal area identifier.
+  - name: URANum
+    description: Urban renewal area number.
+  - name: SiteName
+    description: Urban renewal site name.
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.
 
 - name: gdb_nyzip
-  description: Zip code areas.
+  description: Zip code areas. Prod's layer predates current source (CSCL-DISTRICTS-05).
   columns:
-  - name: "'ZIP_CODE'"
+  - name: PO_NAME
+    description: Post office name.
+  - name: CREATED_BY
+    description: Editor who created the source record.
+  - name: CREATED_DATE
+    description: When the source record was created.
+  - name: MODIFIED_BY
+    description: Editor who last modified the source record.
+  - name: MODIFIED_DATE
+    description: When the source record was last modified.
+  - name: ZIP_CODE
+    description: ZIP code.
     data_tests: [ not_null ]
   - name: geom
     description: Polygon geometry (MultiPolygon, EPSG:2263)
     data_tests: [ not_null ]
+  - name: SHAPE_Length
+    description: Boundary length in feet.
+  - name: SHAPE_Area
+    description: Area in square feet.

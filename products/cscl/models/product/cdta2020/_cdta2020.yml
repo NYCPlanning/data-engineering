@@ -1,0 +1,41 @@
+version: 2
+
+# 2020 community district tabulation area lookup, from the CSCL CDTAEquiv2020 table. The
+# fixed-width layout is in seeds/text_formatting/text_formatting__cdta2020_dat.csv.
+
+models:
+- name: cdta2020_by_field
+  description: >-
+    One row per 2020 community district tabulation area (code, name, type), each value
+    formatted to its fixed width. Feeds the fixed-width text file.
+  columns: &cdta2020_cols
+  - name: cdta_code
+    description: 2020 CDTA code.
+  - name: cdta_name
+    description: CDTA name.
+  - name: cdta_type
+    description: CDTA type code.
+
+- name: cdta2020_fields
+  description: One column per field of the CDTA 2020 layout; supplies the packaged text file's column layout.
+  columns: *cdta2020_cols
+
+- name: cdta2020_dat
+  description: The fixed-width CDTA2020.txt file, one line per 2020 community district tabulation area.
+  columns:
+  - name: dat_column
+    description: One fixed-width record (CDTA code, name, type).
+
+- name: cdta2020_by_field_csv
+  description: One row per 2020 community district tabulation area, formatted for the CSV export.
+  columns: *cdta2020_cols
+
+- name: cdta2020_csv
+  description: The CDTA2020.csv export, one row per 2020 community district tabulation area.
+  columns:
+  - name: CDTA_CODE
+    description: 2020 CDTA code.
+  - name: CDTA_NAME
+    description: CDTA name.
+  - name: CDTA_TYPE
+    description: CDTA type code.
