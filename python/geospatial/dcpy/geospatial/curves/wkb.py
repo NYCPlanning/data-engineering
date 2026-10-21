@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import struct
 from dataclasses import dataclass
 from typing import NamedTuple
@@ -18,6 +19,22 @@ MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, COLLECTION = 4, 5, 6, 7
 CIRCULARSTRING, COMPOUNDCURVE, CURVEPOLYGON, MULTICURVE, MULTISURFACE = 8, 9, 10, 11, 12
 
 _EWKB_Z, _EWKB_M, _EWKB_SRID = 0x80000000, 0x40000000, 0x20000000
+_ANGLE_MAX = 2 * math.pi + 1e-9
+
+
+def _is_misread_point_arc(pts: list[Point]) -> bool:
+    """A zero-length FGDB arc that GDAL decoded as a full circle.
+
+    An FGDB arc flagged IsPoint stores (start angle, central angle) instead of
+    a point. GDAL (OpenFileGDB, through at least 3.12) reads them as the
+    interior point when the DefinedIP bit is also set, and returns a closed
+    circle start -> q -> (angle, angle) -> q' -> start. The true segment has
+    no length.
+    """
+    if len(pts) != 5 or pts[0] != pts[4]:
+        return False
+    angle_like = all(abs(c) <= _ANGLE_MAX for c in pts[2])
+    return angle_like and not all(abs(c) <= _ANGLE_MAX for c in pts[0])
 
 
 class Arc(NamedTuple):
@@ -45,6 +62,7 @@ class CurveStats:
     arcs: int = 0
     zm_stripped: int = 0  # geometries whose Z and/or M values were dropped
     closed_rings: int = 0  # unclosed polygon rings closed by repeating the first point
+    point_arcs: int = 0  # zero-length arcs GDAL decoded as full circles, dropped
 
 
 # linear geometry tree: ("Point", pt) | ("LineString", pts) | ("Polygon", [pts])
@@ -108,6 +126,9 @@ class _Reader:
             return self.points(endian, extra, self.count(endian))
         if code == CIRCULARSTRING:
             pts = self.points(endian, extra, self.count(endian))
+            if _is_misread_point_arc(pts):
+                self.stats.point_arcs += 1
+                return pts[:1]
             return self.arc_points(pts, part, ring) if len(pts) >= 3 else pts
         if code == COMPOUNDCURVE:
             out: list[Point] = []

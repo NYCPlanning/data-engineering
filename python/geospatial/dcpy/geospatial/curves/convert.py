@@ -38,7 +38,7 @@ def linearize_batch(
 ) -> pa.RecordBatch:
     """Replace ``geom_col`` with linear WKB and append an ``arcs`` column."""
     stats = stats if stats is not None else CurveStats()
-    zm_before = stats.zm_stripped
+    zm_before, point_arcs_before = stats.zm_stripped, stats.point_arcs
     geoms: list[bytes | None] = []
     arcs: list[list[dict]] = []
     for wkb in batch.column(geom_col).to_pylist():
@@ -52,6 +52,11 @@ def linearize_batch(
     if stats.zm_stripped > zm_before:
         logger.warning(
             "stripped Z/M from %d geometries in batch", stats.zm_stripped - zm_before
+        )
+    if stats.point_arcs > point_arcs_before:
+        logger.warning(
+            "dropped %d zero-length arcs misread as full circles in batch",
+            stats.point_arcs - point_arcs_before,
         )
     idx = batch.schema.get_field_index(geom_col)
     out = batch.set_column(

@@ -157,6 +157,36 @@ def test_compound_curve_mixes_lines_and_arcs():
     assert len(set(g.coords)) == len(g.coords)  # joints not duplicated
 
 
+def test_zero_length_arc_misread_as_circle_is_dropped():
+    # Centerline SegmentID 358043 as GDAL returns it: its last FGDB arc has no
+    # length, but its (start angle, central angle) = (0, 2pi) come back as the
+    # opposite point of a full circle (~2.98M ft once linearized).
+    a = (939246.346435547, 144568.58782959)
+    b = (939190.180236816, 144622.737609863)
+    c = (939189.24621582, 144622.686401367)
+    real_arc = circ([b, (939189.713294443, 144622.710763048), c])
+    misread = circ(
+        [c, (541902.82471594, 541909.107901247), (0.0, 2 * math.pi),
+         (397286.42149988, -397280.138314573), c]
+    )  # fmt: skip
+    wkb = multi(
+        11,
+        compound(line([a, (939224.034423828, 144601.90423584), b]), real_arc, misread),
+    )
+    stats = CurveStats()
+    linear, arcs = split_curve_wkb(wkb, TOL, stats=stats)
+    g = from_wkb(linear)
+    assert stats.point_arcs == 1
+    assert len(arcs) == 1 and (arcs[0].x2, arcs[0].y2) == c
+    assert g.geoms[0].coords[-1] == c
+    assert abs(g.length - 80.7838368475719) < 1e-3  # source Shape_Length
+
+    # a genuine closed circle near the origin is kept
+    ring = circ([(3, 4), (2, 5), (1, 4), (2, 3), (3, 4)])
+    _, arcs = split_curve_wkb(ring, TOL, stats=stats)
+    assert len(arcs) == 2 and stats.point_arcs == 1
+
+
 def test_curvepolygon_with_arc_in_hole():
     shell = line([(0, 0), (10, 0), (10, 10), (0, 10), (0, 0)])
     hole = compound(circ([(4, 5), (5, 6), (6, 5)]), line([(6, 5), (4, 5)]))
