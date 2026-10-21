@@ -1,5 +1,4 @@
 id: usdot_airports
-acl: public-read
 
 attributes:
   name: US DOT Airports

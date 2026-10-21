@@ -1,6 +1,6 @@
 dataset:
   name: dcm_arterial_highways
-  acl: public-read
+  acl: private
   source:
     url:
       path: https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/inbox/dcm_arterial_highways/{{ version }}/dcm_arterial_highways.zip

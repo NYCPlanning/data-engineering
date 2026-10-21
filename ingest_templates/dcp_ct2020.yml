@@ -1,5 +1,4 @@
 id: dcp_ct2020
-acl: public-read
 
 attributes:
   name: Census Tracts for the 2020 US Census (Clipped to shoreline)

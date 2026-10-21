@@ -1,5 +1,4 @@
 id: qpl_libraries
-acl: public-read
 
 attributes:
   name: Queens Library Branches

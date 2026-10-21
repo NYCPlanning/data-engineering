@@ -1,5 +1,4 @@
 id: moeo_socialservicesitelocations_contracts
-acl: public-read
 
 attributes:
   name: Verified Locations for NYC City-Funded Social Service Contracts - Contracts

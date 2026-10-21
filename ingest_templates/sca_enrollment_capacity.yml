@@ -1,5 +1,4 @@
 id: sca_enrollment_capacity
-acl: public-read
 
 attributes:
   name: Enrollment Capacity And Utilization Reports

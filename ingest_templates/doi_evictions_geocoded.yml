@@ -1,5 +1,4 @@
 id: doi_evictions_geocoded
-acl: public-read
 depends_on:
   - doi_evictions
 

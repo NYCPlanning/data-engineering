@@ -1,6 +1,6 @@
 dataset:
   name: dcp_dot_trafficinjuries
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/crash{{ version }}.csv

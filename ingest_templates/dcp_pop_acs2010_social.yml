@@ -1,5 +1,4 @@
 id: dcp_pop_acs2010_social
-acl: public-read
 
 attributes:
   name: DCP Population 2010 ACS Demographic Data

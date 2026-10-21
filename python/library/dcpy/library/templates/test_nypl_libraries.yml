@@ -1,7 +1,7 @@
 dataset:
   name: test_nypl_libraries
   version: "20210122"
-  acl: public-read
+  acl: private
   source:
     url:
       path: python/library/test/data/test_nypl_libraries.csv

@@ -1,6 +1,6 @@
 dataset:
   name: dcp_censusdata_blocks
-  acl: public-read
+  acl: private
   source:
     script:
       path: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc-decennialcensusdata_2010_2020_census-blocks.xlsx

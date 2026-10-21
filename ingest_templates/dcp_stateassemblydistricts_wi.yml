@@ -1,5 +1,4 @@
 id: dcp_stateassemblydistricts_wi
-acl: public-read
 
 attributes:
   name: NYC State Assembly Districts (Water Included)

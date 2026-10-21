@@ -1,6 +1,6 @@
 dataset:
   name: dob_now_permits
-  acl: public-read
+  acl: private
   source:
     script: {}
     options:

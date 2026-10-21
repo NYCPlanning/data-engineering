@@ -1,5 +1,4 @@
 id: dcp_mappluto_clipped
-acl: public-read
 
 attributes:
   name: MapPLUTO (shoreline clipped)

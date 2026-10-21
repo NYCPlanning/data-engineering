@@ -1,5 +1,4 @@
 id: doitt_zipcodeboundaries
-acl: public-read
 
 attributes:
   name: Zip Code Boundaries

@@ -1,5 +1,4 @@
 id: dcp_school_districts
-acl: public-read
 
 attributes:
   name: NYC School Districts

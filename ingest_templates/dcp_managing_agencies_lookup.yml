@@ -1,5 +1,4 @@
 id: dcp_managing_agencies_lookup
-acl: public-read
 
 attributes:
   name: NYC Managing Agencies Lookup Table
@@ -26,11 +25,17 @@ attributes:
     It is not expected to change often. A full review may occur annually, using updated information from Checkbook NYC and, 
     if available, refreshed data from OMB.
 
+    Some agencies hold more than one code. is_primary_code marks the one to use when assigning a code to an agency: 
+    the code the Comptroller's agency code list gives for that agency. It's empty on rows with no code and false on 
+    every "Unknown" row.
+
+    The table is maintained in this repo at ingest_templates/data/dcp_managing_agencies_lookup.csv. Edit it there and run 
+    ingest from the repo root.
+
 ingestion:
   source:
-    type: s3
-    bucket: edm-recipes
-    key: inbox/dcp/dcp_managing_agencies_lookup/{{ version }}/dcp_managing_agencies_lookup.csv
+    type: local_file
+    path: ingest_templates/data/dcp_managing_agencies_lookup.csv
   file_format:
     type: csv
     dtype: str
@@ -48,6 +53,8 @@ columns:
   data_type: text
 - id: agency_code
   data_type: text
+- id: is_primary_code
+  data_type: bool
 - id: overlevel
   data_type: text
 - id: optype

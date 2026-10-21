@@ -1,5 +1,4 @@
 id: dep_stormwater_moderate_current
-acl: public-read
 
 attributes:
   name: NYC Stormwater Flood Maps - Moderate Flood (2.13 inches/hr) with Current Sea Levels

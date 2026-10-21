@@ -1,5 +1,4 @@
 id: dcp_congressionaldistricts_wi
-acl: public-read
 
 attributes:
   name: U.S. Congressional Districts (Water Included)

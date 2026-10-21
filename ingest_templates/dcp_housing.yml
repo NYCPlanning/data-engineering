@@ -1,5 +1,4 @@
 id: dcp_housing
-acl: public-read
 
 attributes:
   name: DCP Housing Database

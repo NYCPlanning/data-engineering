@@ -35,7 +35,7 @@ shp_export_pluto mappluto_unclipped MULTIPOLYGON &
 
 # DEV section end: low disk space
 
-wait
+wait_for_jobs
 echo "Exporting pluto csv"
 
 # Pluto

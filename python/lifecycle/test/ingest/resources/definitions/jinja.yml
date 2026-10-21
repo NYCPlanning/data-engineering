@@ -1,5 +1,4 @@
 id: jinja
-acl: public-read
 
 attributes:
   name: Jinja with valid variables

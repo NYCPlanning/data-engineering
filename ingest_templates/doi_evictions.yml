@@ -1,5 +1,4 @@
 id: doi_evictions
-acl: public-read
 
 attributes:
   name: Department of Investigation - Evictions

@@ -1,5 +1,4 @@
 id: dob_bis_permits
-acl: public-read
 
 attributes:
   name: Department of Buildings (DOB) BIS Job Permits

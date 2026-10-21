@@ -1,5 +1,4 @@
 id: bpl_libraries_supplemented
-acl: public-read
 depends_on:
   - bpl_libraries_validation
 

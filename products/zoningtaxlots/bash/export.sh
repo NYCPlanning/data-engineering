@@ -21,7 +21,7 @@ rm -rf output && mkdir -p output
     shp_export qc_bbldiffs MULTIPOLYGON -t_srs "EPSG:2263"
 
     echo "${VERSION}" > version.txt
-    wait
+    wait_for_jobs
 )
 
 echo "Upload outputs ..."

@@ -1,6 +1,6 @@
 dataset:
   name: panynj_jfk_65db
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/panynj_jfk_65db/{{ version }}/jfk_65db.csv

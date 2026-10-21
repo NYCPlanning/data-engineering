@@ -35,6 +35,8 @@ jobs:
       RECIPES_BUCKET: ${{ inputs.dev_bucket || 'edm-recipes' }}
       PUBLISHING_BUCKET: ${{ inputs.dev_bucket || 'edm-publishing' }}
       DEV_FLAG: ${{ inputs.dev_bucket && 'true' || 'false' }}
+      # on Postgres 18, JIT turns several DevDB queries from minutes into hours
+      PGOPTIONS: -c jit=off
     steps:
       - uses: actions/checkout@v7
 

@@ -1,5 +1,4 @@
 id: dcp_colp
-acl: public-read
 
 attributes:
   name: City Owned and Leased Properties

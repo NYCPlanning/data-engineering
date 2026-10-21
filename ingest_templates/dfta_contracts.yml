@@ -1,5 +1,4 @@
 id: dfta_contracts
-acl: public-read
 
 attributes:
   name: Department for the Aging (DFTA) All Contracted Providers

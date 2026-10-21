@@ -1,6 +1,5 @@
 {
     "id": "one_to_many",
-    "acl": "private",
     "raw_filename": "test.gdb.zip",
     "run_details": {
         "type": "manual",

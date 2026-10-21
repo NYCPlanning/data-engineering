@@ -1,5 +1,4 @@
 id: dcp_municipalcourtdistricts_wi
-acl: public-read
 
 attributes:
   name: NYC Municipal Court Districts (Water Included)

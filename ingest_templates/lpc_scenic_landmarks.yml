@@ -1,5 +1,4 @@
 id: lpc_scenic_landmarks
-acl: public-read
 
 attributes:
   name: LPC Scenic Landmarks

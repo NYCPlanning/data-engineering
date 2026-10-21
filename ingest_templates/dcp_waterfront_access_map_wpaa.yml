@@ -1,5 +1,4 @@
 id: dcp_waterfront_access_map_wpaa
-acl: public-read
 
 attributes:
   name: Waterfront Public Access Areas (WPAAs)

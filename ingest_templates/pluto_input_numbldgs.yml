@@ -1,5 +1,4 @@
 id: pluto_input_numbldgs
-acl: public-read
 
 attributes:
   name: Number of Buildings by BBL

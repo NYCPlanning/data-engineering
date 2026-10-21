@@ -7,4 +7,10 @@
 #
 # This constructs BUILD_ENGINE from BUILD_ENGINE_SERVER, BUILD_ENGINE_DB, and BUILD_ENGINE_SCHEMA
 #
-echo ${BUILD_ENGINE_SERVER}/${BUILD_ENGINE_DB}?options=--search_path%3D${BUILD_ENGINE_SCHEMA},public
+options="--search_path%3D${BUILD_ENGINE_SCHEMA},public"
+# libpq ignores PGOPTIONS when the connection string sets options, so carry it over
+if [ -n "${PGOPTIONS}" ]; then
+    pgoptions=${PGOPTIONS// /%20}
+    options="${options}%20${pgoptions//=/%3D}"
+fi
+echo ${BUILD_ENGINE_SERVER}/${BUILD_ENGINE_DB}?options=${options}

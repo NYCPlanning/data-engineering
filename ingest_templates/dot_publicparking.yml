@@ -1,5 +1,4 @@
 id: dot_publicparking
-acl: public-read
 
 attributes:
   name: DOT Public/Municipal Parking

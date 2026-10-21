@@ -1,5 +1,4 @@
 id: hra_snapcenters
-acl: public-read
 
 attributes:
   name: Directory of SNAP Centers

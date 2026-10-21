@@ -1,5 +1,4 @@
 id: dot_open_streets
-acl: public-read
 
 attributes:
   name: New York City Open Streets Locations

@@ -1,5 +1,4 @@
 id: dcp_atomicpolygons
-acl: public-read
 
 attributes:
   name: Atomic Polygons

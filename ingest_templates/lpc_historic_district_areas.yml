@@ -1,5 +1,4 @@
 id: lpc_historic_district_areas
-acl: public-read
 
 attributes:
   name: Historic Districts

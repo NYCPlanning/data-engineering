@@ -1,5 +1,4 @@
 id: doitt_roadbed
-acl: public-read
 
 attributes:
   name: "NYC Planimetric Database: Roadbed"

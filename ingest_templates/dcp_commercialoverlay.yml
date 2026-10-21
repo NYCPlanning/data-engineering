@@ -1,5 +1,4 @@
 id: dcp_commercialoverlay
-acl: public-read
 
 attributes:
   name: DCP NYC Commercial Overlay Districts

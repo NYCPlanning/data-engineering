@@ -37,6 +37,15 @@ function set_error_traps {
 }
 
 
+# Wait for every background job, failing if any of them failed. A bare `wait` returns 0
+# even when a job failed, so set -e never sees the failure.
+function wait_for_jobs {
+    for job in $(jobs -p); do
+        wait "$job"
+    done
+}
+
+
 # Report the failing command and the call stack that reached it. $BASH_COMMAND is
 # intentionally unexpanded — expanding it would print BUILD_ENGINE, which carries the
 # database password.

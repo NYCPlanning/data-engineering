@@ -1,5 +1,4 @@
 id: moo_capital_projects_budget_schedule
-acl: public-read
 
 attributes:
   name: Capital Projects Dashboard - Citywide Budget and Schedule

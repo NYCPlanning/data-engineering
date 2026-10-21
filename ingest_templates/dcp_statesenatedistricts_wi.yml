@@ -1,5 +1,4 @@
 id: dcp_statesenatedistricts_wi
-acl: public-read
 
 attributes:
   name: NYC State Senate Districts (Water Included)

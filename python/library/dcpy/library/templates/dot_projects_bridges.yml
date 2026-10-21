@@ -1,6 +1,6 @@
 dataset:
   name: dot_projects_bridges
-  acl: public-read
+  acl: private
   source:
     url:
       path: s3://edm-recipes/inbox/dot_projects_bridges/{{ version }}.zip

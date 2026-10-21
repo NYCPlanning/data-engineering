@@ -1,0 +1,376 @@
+managing_agency_acronym,managing_agency,source,manages_capital_projects,operates_facilities,agency_code,is_primary_code,overlevel,optype
+ACS,Administration for Children's Services,checkbook NYC,TRUE,FALSE,130,FALSE,,
+ACS,Administration for Children's Services,checkbook NYC,TRUE,FALSE,068,TRUE,,
+Amtrak,Amtrak,facilities db,FALSE,TRUE,,,,Public
+BBPC,Brooklyn Bridge Park Corporation,facilities db,FALSE,TRUE,,,,Public
+BEBF,Board of Estimate Bureau of Franchises,omb,TRUE,FALSE,007,TRUE,,
+BEBS,Board of Estimate Bureau Secretary,omb,TRUE,FALSE,005,TRUE,,
+BIC,Business Integrity Commission,checkbook NYC,TRUE,FALSE,829,TRUE,,
+BOC,Board of Correction,checkbook NYC,TRUE,FALSE,073,TRUE,,
+BOE,Board of Elections,checkbook NYC,TRUE,FALSE,003,TRUE,,
+BOENY,NYC Board of Elections,facilities db,FALSE,TRUE,,,City,Public
+BP-BK,Borough President - Brooklyn,checkbook NYC,TRUE,FALSE,012,TRUE,,
+BP-BX,Borough President - Bronx,checkbook NYC,TRUE,FALSE,011,TRUE,,
+BP-MN,Borough President - Manhattan,checkbook NYC,TRUE,FALSE,010,TRUE,,
+BP-QN,Borough President - Queens,checkbook NYC,TRUE,FALSE,013,TRUE,,
+BP-SI,Borough President - Staten Island,checkbook NYC,TRUE,FALSE,014,TRUE,,
+BPL,Brooklyn Public Library,checkbook NYC,TRUE,TRUE,038,TRUE,City,Public
+BSA,Board of Standards & Appeals,omb,TRUE,FALSE,059,TRUE,,
+CB101,Manhattan Community Board # 1,checkbook NYC,TRUE,FALSE,341,TRUE,,
+CB102,Manhattan Community Board # 2,checkbook NYC,TRUE,FALSE,342,TRUE,,
+CB103,Manhattan Community Board # 3,checkbook NYC,TRUE,FALSE,343,TRUE,,
+CB104,Manhattan Community Board # 4,checkbook NYC,TRUE,FALSE,344,TRUE,,
+CB105,Manhattan Community Board # 5,checkbook NYC,TRUE,FALSE,345,TRUE,,
+CB106,Manhattan Community Board # 6,checkbook NYC,TRUE,FALSE,346,TRUE,,
+CB107,Manhattan Community Board # 7,checkbook NYC,TRUE,FALSE,347,TRUE,,
+CB108,Manhattan Community Board # 8,checkbook NYC,TRUE,FALSE,348,TRUE,,
+CB109,Manhattan Community Board # 9,checkbook NYC,TRUE,FALSE,349,TRUE,,
+CB110,Manhattan Community Board # 10,checkbook NYC,TRUE,FALSE,350,TRUE,,
+CB111,Manhattan Community Board # 11,checkbook NYC,TRUE,FALSE,351,TRUE,,
+CB112,Manhattan Community Board # 12,checkbook NYC,TRUE,FALSE,352,TRUE,,
+CB201,Bronx Community Board # 1,checkbook NYC,TRUE,FALSE,381,TRUE,,
+CB202,Bronx Community Board # 2,checkbook NYC,TRUE,FALSE,382,TRUE,,
+CB203,Bronx Community Board # 3,checkbook NYC,TRUE,FALSE,383,TRUE,,
+CB204,Bronx Community Board # 4,checkbook NYC,TRUE,FALSE,384,TRUE,,
+CB205,Bronx Community Board # 5,checkbook NYC,TRUE,FALSE,385,TRUE,,
+CB206,Bronx Community Board # 6,checkbook NYC,TRUE,FALSE,386,TRUE,,
+CB207,Bronx Community Board # 7,checkbook NYC,TRUE,FALSE,387,TRUE,,
+CB208,Bronx Community Board # 8,checkbook NYC,TRUE,FALSE,388,TRUE,,
+CB209,Bronx Community Board # 9,checkbook NYC,TRUE,FALSE,389,TRUE,,
+CB210,Bronx Community Board # 10,checkbook NYC,TRUE,FALSE,390,TRUE,,
+CB211,Bronx Community Board # 11,checkbook NYC,TRUE,FALSE,391,TRUE,,
+CB212,Bronx Community Board # 12,checkbook NYC,TRUE,FALSE,392,TRUE,,
+CB301,Brooklyn Community Board # 1,checkbook NYC,TRUE,FALSE,471,TRUE,,
+CB302,Brooklyn Community Board # 2,checkbook NYC,TRUE,FALSE,472,TRUE,,
+CB303,Brooklyn Community Board # 3,checkbook NYC,TRUE,FALSE,473,TRUE,,
+CB304,Brooklyn Community Board # 4,checkbook NYC,TRUE,FALSE,474,TRUE,,
+CB305,Brooklyn Community Board # 5,checkbook NYC,TRUE,FALSE,475,TRUE,,
+CB306,Brooklyn Community Board # 6,checkbook NYC,TRUE,FALSE,476,TRUE,,
+CB307,Brooklyn Community Board # 7,checkbook NYC,TRUE,FALSE,477,TRUE,,
+CB308,Brooklyn Community Board # 8,checkbook NYC,TRUE,FALSE,478,TRUE,,
+CB309,Brooklyn Community Board # 9,checkbook NYC,TRUE,FALSE,479,TRUE,,
+CB310,Brooklyn Community Board # 10,checkbook NYC,TRUE,FALSE,480,TRUE,,
+CB311,Brooklyn Community Board # 11,checkbook NYC,TRUE,FALSE,481,TRUE,,
+CB312,Brooklyn Community Board # 12,checkbook NYC,TRUE,FALSE,482,TRUE,,
+CB313,Brooklyn Community Board # 13,checkbook NYC,TRUE,FALSE,483,TRUE,,
+CB314,Brooklyn Community Board # 14,checkbook NYC,TRUE,FALSE,484,TRUE,,
+CB315,Brooklyn Community Board # 15,checkbook NYC,TRUE,FALSE,485,TRUE,,
+CB316,Brooklyn Community Board # 16,checkbook NYC,TRUE,FALSE,486,TRUE,,
+CB317,Brooklyn Community Board # 17,checkbook NYC,TRUE,FALSE,487,TRUE,,
+CB318,Brooklyn Community Board # 18,checkbook NYC,TRUE,FALSE,488,TRUE,,
+CB401,Queens Community Board # 1,checkbook NYC,TRUE,FALSE,431,TRUE,,
+CB402,Queens Community Board # 2,checkbook NYC,TRUE,FALSE,432,TRUE,,
+CB403,Queens Community Board # 3,checkbook NYC,TRUE,FALSE,433,TRUE,,
+CB404,Queens Community Board # 4,checkbook NYC,TRUE,FALSE,434,TRUE,,
+CB405,Queens Community Board # 5,checkbook NYC,TRUE,FALSE,435,TRUE,,
+CB406,Queens Community Board # 6,checkbook NYC,TRUE,FALSE,436,TRUE,,
+CB407,Queens Community Board # 7,checkbook NYC,TRUE,FALSE,437,TRUE,,
+CB408,Queens Community Board # 8,checkbook NYC,TRUE,FALSE,438,TRUE,,
+CB409,Queens Community Board # 9,checkbook NYC,TRUE,FALSE,439,TRUE,,
+CB410,Queens Community Board # 10,checkbook NYC,TRUE,FALSE,440,TRUE,,
+CB411,Queens Community Board # 11,checkbook NYC,TRUE,FALSE,441,TRUE,,
+CB412,Queens Community Board # 12,checkbook NYC,TRUE,FALSE,442,TRUE,,
+CB413,Queens Community Board # 13,checkbook NYC,TRUE,FALSE,443,TRUE,,
+CB414,Queens Community Board # 14,checkbook NYC,TRUE,FALSE,444,TRUE,,
+CB501,Staten Island Community Board # 1,checkbook NYC,TRUE,FALSE,491,TRUE,,
+CB502,Staten Island Community Board # 2,checkbook NYC,TRUE,FALSE,492,TRUE,,
+CB503,Staten Island Community Board # 3,checkbook NYC,TRUE,FALSE,493,TRUE,,
+CC-BK,County Clerk - Kings County,omb,TRUE,FALSE,913,TRUE,,
+CC-BX,County Clerk - Bronx County,omb,TRUE,FALSE,912,TRUE,,
+CC-MN,County Clerk - New York County,omb,TRUE,FALSE,911,TRUE,,
+CC-QN,County Clerk - Queens County,omb,TRUE,FALSE,914,TRUE,,
+CC-SI,County Clerk - Richmond County,omb,TRUE,FALSE,915,TRUE,,
+CCHR,Commission on Human Rights,checkbook NYC,TRUE,FALSE,226,TRUE,,
+CCRB,Civilian Complaint Review Board,checkbook NYC,TRUE,FALSE,054,TRUE,,
+CECM,Mayor's Office of Citywide Event Coordination and Management,,TRUE,FALSE,,,,
+CFB,Campaign Finance Board,checkbook NYC,TRUE,FALSE,004,TRUE,,
+Charter,,facilities db,FALSE,TRUE,,,,Non-public
+CLERK,City Clerk,checkbook NYC,TRUE,FALSE,103,TRUE,,
+CNTYC,County Clerk,facilities db,FALSE,TRUE,,,County,Public
+COIB,Conflicts of Interest Board,checkbook NYC,TRUE,FALSE,312,TRUE,,
+COMP,Office of the Comptroller,checkbook NYC,TRUE,FALSE,015,TRUE,,
+COPIC,Commission on Public Information and Communication,omb,TRUE,FALSE,135,TRUE,,
+COUNCIL,City Council,checkbook NYC,TRUE,FALSE,102,TRUE,,
+CSC,Civil Service Commission,checkbook NYC,TRUE,FALSE,134,TRUE,,
+CUCF,City University Construction Fund,checkbook NYC,TRUE,FALSE,043,TRUE,,
+CUNY,City University of New York,checkbook NYC,TRUE,TRUE,042,TRUE,City,Public
+DA-BK,District Attorney - Kings County,checkbook NYC,TRUE,FALSE,903,TRUE,,
+DA-BX,District Attorney - Bronx County,checkbook NYC,TRUE,FALSE,902,TRUE,,
+DA-MN,District Attorney - New York County,checkbook NYC,TRUE,FALSE,901,TRUE,,
+DA-QN,District Attorney - Queens County,checkbook NYC,TRUE,FALSE,904,TRUE,,
+DA-SI,District Attorney - Richmond County,checkbook NYC,TRUE,FALSE,905,TRUE,,
+DA-SNP,Office of Prosecution - Special Narcotics,checkbook NYC,TRUE,FALSE,906,TRUE,,
+DCAS,Department of Citywide Administrative Services,omb,TRUE,FALSE,031,FALSE,,
+DCAS,Department of Citywide Administrative Services,checkbook NYC,TRUE,FALSE,857,FALSE,,
+DCAS,Department of Citywide Administrative Services,checkbook NYC,TRUE,FALSE,856,TRUE,,
+DCLA,Department of Cultural Affairs,checkbook NYC,TRUE,FALSE,126,TRUE,,
+DCP,Department of City Planning,checkbook NYC,TRUE,FALSE,030,TRUE,,
+DCWP,Department of Consumer & Worker Protection,checkbook NYC,TRUE,FALSE,866,TRUE,,
+DDC,Department of Design and Construction,checkbook NYC,TRUE,FALSE,850,TRUE,,
+DEP,Department of Environmental Protection,checkbook NYC,TRUE,FALSE,085,FALSE,,
+DEP,Department of Environmental Protection,checkbook NYC,TRUE,FALSE,826,TRUE,,
+DFTA,Department for the Aging,checkbook NYC,TRUE,FALSE,125,TRUE,,
+DHS,Department of Homeless Services,checkbook NYC,TRUE,FALSE,071,TRUE,,
+DOB,Department of Buildings,checkbook NYC,TRUE,FALSE,810,TRUE,,
+DOC,Department of Correction,checkbook NYC,TRUE,FALSE,072,TRUE,,
+DOE,Department of Education,checkbook NYC,TRUE,FALSE,040,TRUE,,
+DOF,Department of Finance,checkbook NYC,TRUE,FALSE,836,TRUE,,
+DOHMH,Department of Health and Mental Hygiene,omb,TRUE,FALSE,672,FALSE,,
+DOHMH,Department of Health and Mental Hygiene,omb,TRUE,FALSE,817,FALSE,,
+DOHMH,Department of Health and Mental Hygiene,checkbook NYC,TRUE,FALSE,816,TRUE,,
+DOI,Department of Investigation,checkbook NYC,TRUE,FALSE,032,TRUE,,
+DOP,Department of Probation,checkbook NYC,TRUE,FALSE,781,TRUE,,
+DORIS,Department of Records and Information Services,checkbook NYC,TRUE,FALSE,860,TRUE,,
+DOT,Department of Transportation,checkbook NYC,TRUE,FALSE,841,TRUE,,
+DPR,Department of Parks and Recreation,omb,TRUE,FALSE,055,FALSE,,
+DPR,Department of Parks and Recreation,checkbook NYC,TRUE,FALSE,846,TRUE,,
+DPT,Department of Ports and Trade,omb,TRUE,FALSE,802,TRUE,,
+DSNY,Department of Sanitation,omb,TRUE,FALSE,066,FALSE,,
+DSNY,Department of Sanitation,checkbook NYC,TRUE,FALSE,827,TRUE,,
+DSS,Department of Social Services,checkbook NYC,TRUE,FALSE,069,TRUE,,
+DVS,Department of Veterans' Services,checkbook NYC,TRUE,FALSE,063,TRUE,,
+DYCD,Department of Youth and Community Development,checkbook NYC,TRUE,FALSE,260,TRUE,,
+EDC,Economic Development Corporation,,TRUE,FALSE,,,,
+EEPC,Equal Employment Practices Commission,checkbook NYC,TRUE,FALSE,133,TRUE,,
+FBOP,Federal Bureau of Prisons,facilities db,FALSE,TRUE,,,Federal,Public
+FDNY,Fire Department,checkbook NYC,TRUE,TRUE,057,TRUE,City,Public
+FISA,Financial Information Services Agency,checkbook NYC,TRUE,FALSE,127,TRUE,,
+GCC,Gambling Control Commission,omb,TRUE,FALSE,029,TRUE,,
+HHC,Health and Hospitals Corporation,checkbook NYC,TRUE,FALSE,819,TRUE,,
+HPD,Housing Preservation and Development,checkbook NYC,TRUE,FALSE,806,TRUE,,
+HRA,Human Resources Administration,omb,TRUE,FALSE,096,TRUE,,
+HRPT,Hudson River Park Trust,facilities db,FALSE,TRUE,,,,Public
+IBO,Independent Budget Office,checkbook NYC,TRUE,FALSE,132,TRUE,,
+LAW,Law Department,checkbook NYC,TRUE,FALSE,025,TRUE,,
+LPC,Landmarks Preservation Commission,checkbook NYC,TRUE,FALSE,136,TRUE,,
+MO,Mayoralty,checkbook NYC,TRUE,FALSE,002,TRUE,,
+MOCJ,Office of Criminal Justice,checkbook NYC,TRUE,FALSE,128,TRUE,,
+MOME,Mayor's Office of Media and Entertainment,,TRUE,FALSE,,,,
+MTA,Metropolitan Transportation Authority,facilities db,FALSE,TRUE,,,State,Public
+Non-public,Non-public,facilities db,FALSE,TRUE,,,,Non-public
+NYC-Unknown,NYC-Unknown,facilities db,FALSE,TRUE,,,,Public
+NYCACS,NYC Administration for Children's Services,facilities db,FALSE,TRUE,,,City,Public
+NYCACT,NYC Office of the Actuary,facilities db,FALSE,TRUE,,,City,Public
+NYCBIC,NYC Business Integrity Commission,facilities db,FALSE,TRUE,,,City,Public
+NYCBOC,NYC Board of Correction,facilities db,FALSE,TRUE,,,City,Public
+NYCBP-BK,NYC Borough President - Brooklyn,facilities db,FALSE,TRUE,,,City,Public
+NYCBP-BX,NYC Borough President - Bronx,facilities db,FALSE,TRUE,,,City,Public
+NYCBP-MN,NYC Borough President - Manhattan,facilities db,FALSE,TRUE,,,City,Public
+NYCBP-QN,NYC Borough President - Queens,facilities db,FALSE,TRUE,,,City,Public
+NYCBP-SI,NYC Borough President - Staten Island,facilities db,FALSE,TRUE,,,City,Public
+NYCBSA,NYC Board of Standards and Appeals,facilities db,FALSE,TRUE,,,City,Public
+NYCC,NYC City Council,facilities db,FALSE,TRUE,,,City,Public
+NYCCB101,NYC Manhattan Community Board 1,facilities db,FALSE,TRUE,,,City,Public
+NYCCB102,NYC Manhattan Community Board 2,facilities db,FALSE,TRUE,,,City,Public
+NYCCB103,NYC Manhattan Community Board 3,facilities db,FALSE,TRUE,,,City,Public
+NYCCB104,NYC Manhattan Community Board 4,facilities db,FALSE,TRUE,,,City,Public
+NYCCB105,NYC Manhattan Community Board 5,facilities db,FALSE,TRUE,,,City,Public
+NYCCB106,NYC Manhattan Community Board 6,facilities db,FALSE,TRUE,,,City,Public
+NYCCB107,NYC Manhattan Community Board 7,facilities db,FALSE,TRUE,,,City,Public
+NYCCB108,NYC Manhattan Community Board 8,facilities db,FALSE,TRUE,,,City,Public
+NYCCB109,NYC Manhattan Community Board 9,facilities db,FALSE,TRUE,,,City,Public
+NYCCB110,NYC Manhattan Community Board 10,facilities db,FALSE,TRUE,,,City,Public
+NYCCB111,NYC Manhattan Community Board 11,facilities db,FALSE,TRUE,,,City,Public
+NYCCB112,NYC Manhattan Community Board 12,facilities db,FALSE,TRUE,,,City,Public
+NYCCB201,NYC Bronx Community Board 1,facilities db,FALSE,TRUE,,,City,Public
+NYCCB202,NYC Bronx Community Board 2,facilities db,FALSE,TRUE,,,City,Public
+NYCCB203,NYC Bronx Community Board 3,facilities db,FALSE,TRUE,,,City,Public
+NYCCB204,NYC Bronx Community Board 4,facilities db,FALSE,TRUE,,,City,Public
+NYCCB205,NYC Bronx Community Board 5,facilities db,FALSE,TRUE,,,City,Public
+NYCCB206,NYC Bronx Community Board 6,facilities db,FALSE,TRUE,,,City,Public
+NYCCB207,NYC Bronx Community Board 7,facilities db,FALSE,TRUE,,,City,Public
+NYCCB208,NYC Bronx Community Board 8,facilities db,FALSE,TRUE,,,City,Public
+NYCCB209,NYC Bronx Community Board 9,facilities db,FALSE,TRUE,,,City,Public
+NYCCB210,NYC Bronx Community Board 10,facilities db,FALSE,TRUE,,,City,Public
+NYCCB211,NYC Bronx Community Board 11,facilities db,FALSE,TRUE,,,City,Public
+NYCCB212,NYC Bronx Community Board 12,facilities db,FALSE,TRUE,,,City,Public
+NYCCB301,NYC Brooklyn Community Board 1,facilities db,FALSE,TRUE,,,City,Public
+NYCCB303,NYC Brooklyn Community Board 3,facilities db,FALSE,TRUE,,,City,Public
+NYCCB304,NYC Brooklyn Community Board 4,facilities db,FALSE,TRUE,,,City,Public
+NYCCB305,NYC Brooklyn Community Board 5,facilities db,FALSE,TRUE,,,City,Public
+NYCCB306,NYC Brooklyn Community Board 6,facilities db,FALSE,TRUE,,,City,Public
+NYCCB307,NYC Brooklyn Community Board 7,facilities db,FALSE,TRUE,,,City,Public
+NYCCB308,NYC Brooklyn Community Board 8,facilities db,FALSE,TRUE,,,City,Public
+NYCCB309,NYC Brooklyn Community Board 9,facilities db,FALSE,TRUE,,,City,Public
+NYCCB310,NYC Brooklyn Community Board 10,facilities db,FALSE,TRUE,,,City,Public
+NYCCB311,NYC Brooklyn Community Board 11,facilities db,FALSE,TRUE,,,City,Public
+NYCCB312,NYC Brooklyn Community Board 12,facilities db,FALSE,TRUE,,,City,Public
+NYCCB313,NYC Brooklyn Community Board 13,facilities db,FALSE,TRUE,,,City,Public
+NYCCB314,NYC Brooklyn Community Board 14,facilities db,FALSE,TRUE,,,City,Public
+NYCCB315,NYC Brooklyn Community Board 15,facilities db,FALSE,TRUE,,,City,Public
+NYCCB316,NYC Brooklyn Community Board 16,facilities db,FALSE,TRUE,,,City,Public
+NYCCB317,NYC Brooklyn Community Board 17,facilities db,FALSE,TRUE,,,City,Public
+NYCCB318,NYC Brooklyn Community Board 18,facilities db,FALSE,TRUE,,,City,Public
+NYCCB402,NYC Queens Community Board 2,facilities db,FALSE,TRUE,,,City,Public
+NYCCB403,NYC Queens Community Board 3,facilities db,FALSE,TRUE,,,City,Public
+NYCCB404,NYC Queens Community Board 4,facilities db,FALSE,TRUE,,,City,Public
+NYCCB405,NYC Queens Community Board 5,facilities db,FALSE,TRUE,,,City,Public
+NYCCB406,NYC Queens Community Board 6,facilities db,FALSE,TRUE,,,City,Public
+NYCCB407,NYC Queens Community Board 7,facilities db,FALSE,TRUE,,,City,Public
+NYCCB408,NYC Queens Community Board 8,facilities db,FALSE,TRUE,,,City,Public
+NYCCB409,NYC Queens Community Board 9,facilities db,FALSE,TRUE,,,City,Public
+NYCCB410,NYC Queens Community Board 10,facilities db,FALSE,TRUE,,,City,Public
+NYCCB411,NYC Queens Community Board 11,facilities db,FALSE,TRUE,,,City,Public
+NYCCB412,NYC Queens Community Board 12,facilities db,FALSE,TRUE,,,City,Public
+NYCCB413,NYC Queens Community Board 13,facilities db,FALSE,TRUE,,,City,Public
+NYCCB414,NYC Queens Community Board 14,facilities db,FALSE,TRUE,,,City,Public
+NYCCB501,NYC Staten Island Community Board 1,facilities db,FALSE,TRUE,,,City,Public
+NYCCB502,NYC Staten Island Community Board 2,facilities db,FALSE,TRUE,,,City,Public
+NYCCB503,NYC Staten Island Community Board 3,facilities db,FALSE,TRUE,,,City,Public
+NYCCCHR,NYC Commission on Human Rights,facilities db,FALSE,TRUE,,,City,Public
+NYCCCRB,NYC Civilian Complaint Review Board,facilities db,FALSE,TRUE,,,City,Public
+NYCCCSC,NYC Civil Service Commission,facilities db,FALSE,TRUE,,,City,Public
+NYCCEO,NYC Center for Economic Opportunity,facilities db,FALSE,TRUE,,,City,Public
+NYCCFB,NYC Campaign Finance Board,facilities db,FALSE,TRUE,,,City,Public
+NYCCLERK,NYC Office of the City Clerk,facilities db,FALSE,TRUE,,,City,Public
+NYCCOIB,NYC Conflict of Interest Board,facilities db,FALSE,TRUE,,,City,Public
+NYCCOMP,NYC Office of the Comptroller,facilities db,FALSE,TRUE,,,City,Public
+NYCDA-BK,NYC District Attorney - Brooklyn,facilities db,FALSE,TRUE,,,City,Public
+NYCDA-BX,NYC District Attorney - Bronx ,facilities db,FALSE,TRUE,,,City,Public
+NYCDA-MN,NYC District Attorney - Manhattan,facilities db,FALSE,TRUE,,,City,Public
+NYCDA-QN,NYC District Attorney - Queens,facilities db,FALSE,TRUE,,,City,Public
+NYCDA-SI,NYC District Attorney - Staten Island,facilities db,FALSE,TRUE,,,City,Public
+NYCDA-SNP,NYC District Attorney - Office Special Narcotics,facilities db,FALSE,TRUE,,,City,Public
+NYCDCA,NYC Department of Consumer Affairs,facilities db,FALSE,TRUE,,,City,Public
+NYCDCAS,NYC Department of Citywide Administrative Services,facilities db,FALSE,TRUE,,,City,Public
+NYCDCLA,NYC Department of Cultural Affairs,facilities db,FALSE,TRUE,,,City,Public
+NYCDCP,NYC Department of City Planning,facilities db,FALSE,TRUE,,,City,Public
+NYCDDC,NYC Department of Design and Construction,facilities db,FALSE,TRUE,,,City,Public
+NYCDEP,NYC Department of Environmental Protection,facilities db,FALSE,TRUE,,,City,Public
+NYCDFTA,NYC Department for the Aging,facilities db,FALSE,TRUE,,,City,Public
+NYCDHS,NYC Department of Homeless Services,facilities db,FALSE,TRUE,,,City,Public
+NYCDOB,NYC Department of Buildings,facilities db,FALSE,TRUE,,,City,Public
+NYCDOC,NYC Department of Correction,facilities db,FALSE,TRUE,,,City,Public
+NYCDOE,NYC Department of Education,facilities db,FALSE,TRUE,,,City,Public
+NYCDOF,NYC Department of Finance,facilities db,FALSE,TRUE,,,City,Public
+NYCDOHMH,NYC Department of Health and Mental Hygiene,facilities db,FALSE,TRUE,,,City,Public
+NYCDOI,NYC Department of Investigation,facilities db,FALSE,TRUE,,,City,Public
+NYCDOITT,NYC Department of Information Technology and Telecommunications,facilities db,FALSE,TRUE,,,City,Public
+NYCDOP,NYC Department of Probation,facilities db,FALSE,TRUE,,,City,Public
+NYCDORIS,NYC Department of Records and Information Services,facilities db,FALSE,TRUE,,,City,Public
+NYCDOT,NYC Department of Transportation,facilities db,FALSE,TRUE,,,City,Public
+NYCDPR,NYC Department of Parks and Recreation,facilities db,FALSE,TRUE,,,City,Public
+NYCDSNY,NYC Department of Sanitation,facilities db,FALSE,TRUE,,,City,Public
+NYCDSS,NYC Department of Social Services,facilities db,FALSE,TRUE,,,City,Public
+NYCDYCD,NYC Department of Youth and Community Development,facilities db,FALSE,TRUE,,,City,Public
+NYCEDC,NYC Economic Development Corporation,facilities db,FALSE,TRUE,,,City,Public
+NYCEM,NYC Office of Emergency Management,facilities db,FALSE,TRUE,,,City,Public
+NYCERS,Employees Retirement System,omb,TRUE,FALSE,009,TRUE,,
+NYCHA,Housing Authority,omb,TRUE,TRUE,996,TRUE,City,Public
+NYCHHC,NYC Health and Hospitals Corporation,facilities db,FALSE,TRUE,,,City,Public
+NYCHPD,NYC Department of Housing Preservation and Development,facilities db,FALSE,TRUE,,,City,Public
+NYCHRA,NYC Human Resources Administration,facilities db,FALSE,TRUE,,,City,Public
+NYCIBO,NYC Independent Budget Office,facilities db,FALSE,TRUE,,,City,Public
+NYCLAW,NYC Law Department,facilities db,FALSE,TRUE,,,City,Public
+NYCLPC,NYC Landmarks Preservation Commission,facilities db,FALSE,TRUE,,,City,Public
+NYCMO,NYC Office of the Mayor,facilities db,FALSE,TRUE,,,City,Public
+NYCMOCJ,NYC Mayor's Office of Criminal Justice,facilities db,FALSE,TRUE,,,City,Public
+NYCOA,Office of the Actuary,checkbook NYC,TRUE,TRUE,008,TRUE,City,Public
+NYCOATH,NYC Office of Administrative Trials and Hearings,facilities db,FALSE,TRUE,,,City,Public
+NYCOCA,NYC Office of Court Administration,facilities db,FALSE,TRUE,,,City,Public
+NYCOCB,NYC Office of Collective Bargaining,facilities db,FALSE,TRUE,,,City,Public
+NYCOCME,NYC Office of the Medical Examiner,facilities db,FALSE,TRUE,,,City,Public
+NYCOLR,NYC Office of Labor Relations,facilities db,FALSE,TRUE,,,City,Public
+NYCOMB,NYC Office of Management and Budget,facilities db,FALSE,TRUE,,,City,Public
+NYCOOM,NYC Office of the Mayor,facilities db,FALSE,TRUE,,,City,Public
+NYCOPA,NYC Office of Payroll Administration,facilities db,FALSE,TRUE,,,City,Public
+NYCOURTS,NYS Unified Court System,facilities db,FALSE,TRUE,,,State,Public
+NYCPA,NYC Office of Public Advocate,facilities db,FALSE,TRUE,,,City,Public
+NYCPA-BK,NYC Public Administrators Office - Brooklyn,facilities db,FALSE,TRUE,,,City,Public
+NYCPA-BX,NYC Public Administrators Office - Bronx,facilities db,FALSE,TRUE,,,City,Public
+NYCPA-MN,NYC Public Administrators Office - Manhattan,facilities db,FALSE,TRUE,,,City,Public
+NYCPA-QN,NYC Public Administrators Office - Queens,facilities db,FALSE,TRUE,,,City,Public
+NYCPA-SI,NYC Public Administrators Office - Staten Island,facilities db,FALSE,TRUE,,,City,Public
+NYCRGB,,facilities db,FALSE,TRUE,,,City,Public
+NYCSBS,NYC Department of Small Business Services,facilities db,FALSE,TRUE,,,City,Public
+NYCSCA,NYC School Construction Authority,facilities db,FALSE,TRUE,,,City,Public
+NYCSO,City Sheriff,omb,TRUE,FALSE,062,TRUE,,
+NYCTA,Transit Authority,checkbook NYC,TRUE,FALSE,998,TRUE,,
+NYCTAXCM,NYC Tax Commission,facilities db,FALSE,TRUE,,,City,Public
+NYCTLC,NYC Taxi and Limousine Commission,facilities db,FALSE,TRUE,,,City,Public
+NYCUDC,NYC Urban Development Corporation,facilities db,FALSE,TRUE,,,City,Public
+NYPD,Police Department,checkbook NYC,TRUE,TRUE,056,TRUE,City,Public
+NYPL,New York Public Library,checkbook NYC,TRUE,TRUE,037,TRUE,City,Public
+NYRL,New York Research Libraries,checkbook NYC,TRUE,FALSE,035,TRUE,,
+NYSDEC,NYS Department of Environmental Conservation,facilities db,FALSE,TRUE,,,State,Public
+NYSDOCCS,NYS Department of Corrections and Community Supervision,facilities db,FALSE,TRUE,,,State,Public
+NYSDOH,NYS Department of Health,facilities db,FALSE,TRUE,,,State,Public
+NYSDOT,NYS Department of Transportation,facilities db,FALSE,TRUE,,,State,Public
+NYSOASAS,NYS Office of Addiction Services and Supports,facilities db,FALSE,TRUE,,,State,
+NYSOCA,NYS Office of Court Administration,facilities db,FALSE,TRUE,,,State,Public
+NYSOMH,NYS Office of Mental Health,facilities db,FALSE,TRUE,,,State,Public
+NYSOPRHP,"The New York State Office of Parks, Recreation and Historic Preservation",facilities db,FALSE,TRUE,,,State,
+NYSOPWDD,NYS Office for People With Developmental Disabilities,facilities db,FALSE,TRUE,,,State,
+OATA,Office of Administrative Tax Appeals,checkbook NYC,TRUE,FALSE,021,TRUE,,
+OATH,Office of Administrative Trials and Hearings,checkbook NYC,TRUE,FALSE,820,TRUE,,
+OCB,Office of Collective Bargaining,checkbook NYC,TRUE,FALSE,313,TRUE,,
+OEM,Office of Emergency Management,checkbook NYC,TRUE,FALSE,017,TRUE,,
+OMB,Office of Management and Budget,omb,TRUE,FALSE,019,TRUE,,
+OPA,Office of Payroll Administration,checkbook NYC,TRUE,FALSE,131,TRUE,,
+OTI,Office of Technology and Innovation,omb,TRUE,FALSE,137,FALSE,,
+OTI,Office of Technology and Innovation,checkbook NYC,TRUE,FALSE,858,TRUE,,
+PA,Public Advocate,checkbook NYC,TRUE,FALSE,101,TRUE,,
+PA-BK,Public Administrator - Kings County,checkbook NYC,TRUE,FALSE,943,TRUE,,
+PA-BX,Public Administrator - Bronx County,checkbook NYC,TRUE,FALSE,942,TRUE,,
+PA-MN,Public Administrator - New York County,checkbook NYC,TRUE,FALSE,941,TRUE,,
+PA-QN,Public Administrator - Queens County,checkbook NYC,TRUE,FALSE,944,TRUE,,
+PA-SI,Public Administrator - Richmond County,checkbook NYC,TRUE,FALSE,945,TRUE,,
+PANYNJ,Port Authority of New York and New Jersey,facilities db,FALSE,TRUE,,,State,Public
+PDC,Public Design Commission,omb,TRUE,FALSE,028,TRUE,,
+Public,,facilities db,FALSE,TRUE,,,,Public
+QPL,Queens Borough Public Library,checkbook NYC,TRUE,TRUE,039,TRUE,City,Public
+RIOC,Roosevelt Island Operating Corporation,facilities db,FALSE,TRUE,,,City,Public
+SBS,Department of Small Business Services,checkbook NYC,TRUE,FALSE,801,TRUE,,
+SC-11JD,Supreme Court - 11th Judicial District,omb,TRUE,FALSE,934,TRUE,,
+SC-1JD,Supreme Court - 1st Judicial District,omb,TRUE,FALSE,921,TRUE,,
+SC-2JD,Supreme Court - 2nd Judicial District,omb,TRUE,FALSE,931,TRUE,,
+SC-2JD-SI,Supreme Court - 2nd Judicial District - SI,omb,TRUE,FALSE,936,TRUE,,
+SC-AD,Supreme Court - Appellate Division,omb,TRUE,FALSE,938,TRUE,,
+SCA,School Construction Authority,checkbook NYC,TRUE,FALSE,044,TRUE,,
+SUNY,,facilities db,FALSE,TRUE,,,,Public
+TFA,Transitional Finance Authority,omb,TRUE,FALSE,105,TRUE,,
+TGI,Trust for Governors Island,facilities db,FALSE,TRUE,,,,Public
+TLC,Taxi and Limousine Commission,checkbook NYC,TRUE,FALSE,156,TRUE,,
+TRS,Teachers' Retirement System,omb,TRUE,FALSE,041,TRUE,,
+UK,Unknown,omb,TRUE,FALSE,111,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,033,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,070,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,077,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,078,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,079,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,081,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,094,FALSE,,
+UK,Unknown,checkbook NYC,TRUE,FALSE,095,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,097,FALSE,,
+UK,Unknown,checkbook NYC,TRUE,FALSE,098,FALSE,,
+UK,Unknown,checkbook NYC,TRUE,FALSE,099,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,100,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,104,FALSE,,
+NYCDC,Districting Commission,checkbook NYC,TRUE,FALSE,138,TRUE,,
+MOERJ,Mayor's Office of Equity and Racial Justice,checkbook NYC,TRUE,FALSE,213,TRUE,,
+UK,Unknown,checkbook NYC,TRUE,FALSE,214,FALSE,,
+CORE,Commission on Racial Equity,checkbook NYC,TRUE,FALSE,215,TRUE,,
+UK,Unknown,omb,TRUE,FALSE,400,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,402,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,403,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,406,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,408,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,409,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,412,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,415,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,418,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,421,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,511,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,951,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,953,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,955,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,956,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,957,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,997,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,999,FALSE,,
+UK,Unknown,omb,TRUE,FALSE,04A,FALSE,,
+UK,Unknown,,TRUE,FALSE,,,,
+Unknown,,facilities db,FALSE,TRUE,,,,Non-public
+USCOURTS,US Courts,facilities db,FALSE,TRUE,,,Federal,
+USDOT,US Department of Transportation,facilities db,FALSE,TRUE,,,Federal,
+USNPS,National Park Service,facilities db,FALSE,TRUE,,,Federal,Public

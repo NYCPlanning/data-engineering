@@ -1,5 +1,4 @@
 id: nysdoh_nursinghomes
-acl: public-read
 
 attributes:
   name: "Nursing Home Weekly Bed Census: Last Submission"

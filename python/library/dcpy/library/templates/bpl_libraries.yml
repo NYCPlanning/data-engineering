@@ -1,6 +1,6 @@
 dataset:
   name: bpl_libraries
-  acl: public-read
+  acl: private
   source:
     script: 
       path: "https://www.bklynlibrary.org/locations/json"

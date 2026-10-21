@@ -1,5 +1,4 @@
 id: dcp_specialpurposesubdistricts
-acl: public-read
 
 attributes:
   name: NYC Special Purpose Districts With Subdistricts (Zoning)

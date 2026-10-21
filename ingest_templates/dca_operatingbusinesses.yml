@@ -1,5 +1,4 @@
 id: dca_operatingbusinesses
-acl: public-read
 
 attributes:
   name: DCA Legally Operating Businesses
