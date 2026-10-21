@@ -1,6 +1,4 @@
--- TODO: disabled on the DuckDB build - test_cases.examples is a hand-curated table in the
--- old Postgres database. It needs a new home (e.g. a seed or a parquet fixture) first.
-{{ config(materialized='table', tags=['qa'], enabled=false) }}
+{{ config(materialized='table', tags=['qa']) }}
 
 -- Runs geometry_diff_metrics (macros/geometry_diff_qa.sql) against every
 -- row in test_cases.examples - our TDD fixture table for known-weird geometries. A row "passes" when none of its metrics exceed
@@ -35,10 +33,15 @@
 -- A metric that's NULL (no expected_geom to compare against) is never treated as a
 -- failure on its own - see geometry_diff_metrics' docstring for when that happens.
 
+-- Fixtures live in fixtures/test_cases_examples.parquet (a seed can't hold them: the
+-- geometries run to several MB of WKB per row, past dbt's CSV field limit). Geometry is
+-- stored as EPSG:4326 little-endian WKB; path is relative to the product dir, where dbt runs.
 WITH examples AS (
-    SELECT * FROM {{ adapter.get_relation(
-        database="db-cscl", schema="test_cases", identifier="examples"
-    ) }}
+    SELECT
+        * EXCLUDE (actual_wkb, expected_wkb),
+        st_geomfromwkb(actual_wkb) AS actual_geom,
+        st_geomfromwkb(expected_wkb) AS expected_geom
+    FROM read_parquet('fixtures/test_cases_examples.parquet')
 ),
 
 -- stored examples are EPSG:4326 (lon/lat); metrics need feet
@@ -96,7 +99,7 @@ flagged AS (
                 WHEN abs(perimeter_pct_diff) > {{ var('geom_check_perimeter_pct', 1) }}
                     THEN 'perimeter_pct_diff'
             END
-        ], x -> x IS NOT NULL) AS failing_metrics
+        ], x -> x IS NOT null) AS failing_metrics
     FROM metrics
 )
 
