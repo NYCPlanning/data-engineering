@@ -113,8 +113,10 @@ base_rows AS (
         -- side is populated with boroughcode instead of its own (out-of-borough) side.
         CASE WHEN borough_boundary_indicator = 'L' THEN NULL ELSE boroughcode::int END AS "LBoro",
         CASE WHEN borough_boundary_indicator = 'R' THEN NULL ELSE boroughcode::int END AS "RBoro",
-        left_community_district AS "L_CD",
-        right_community_district AS "R_CD",
+        -- Community district '0' (atomic polygons outside any district, e.g. water) is
+        -- written as blank in prod; prod never has a '0' L_CD/R_CD.
+        nullif(left_community_district, '0') AS "L_CD",
+        nullif(right_community_district, '0') AS "R_CD",
         left_dynamic_block AS "LATOMICPOLYGON",
         right_dynamic_block AS "RATOMICPOLYGON",
         lpad(left_2020_census_tract_basic::text, 4, ' ') AS "LCT2020",
@@ -312,8 +314,8 @@ replicant_rows AS (
         END AS "RZip",
         CASE WHEN lion.borough_boundary_indicator = 'L' THEN NULL ELSE lion.boroughcode::int END AS "LBoro",
         CASE WHEN lion.borough_boundary_indicator = 'R' THEN NULL ELSE lion.boroughcode::int END AS "RBoro",
-        lion.left_community_district AS "L_CD",
-        lion.right_community_district AS "R_CD",
+        nullif(lion.left_community_district, '0') AS "L_CD",
+        nullif(lion.right_community_district, '0') AS "R_CD",
         lion.left_dynamic_block AS "LATOMICPOLYGON",
         lion.right_dynamic_block AS "RATOMICPOLYGON",
         lpad(lion.left_2020_census_tract_basic::text, 4, ' ') AS "LCT2020",
