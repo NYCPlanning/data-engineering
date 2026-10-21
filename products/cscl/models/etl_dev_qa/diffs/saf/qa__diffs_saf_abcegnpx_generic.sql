@@ -38,6 +38,12 @@ SELECT
     output_file_id,
     -- Categorize based on which fields changed
     CASE
+        -- Spec Table 13: AltSegmentData rows with a blank alt_segdata_type are excluded from
+        -- SAF ABCEGNPX. Prod includes segment 9017010's (row created 2010, never modified).
+        WHEN
+            status = 'only_in_legacy'
+            AND split_part(_saf_key, '|', 3) = '9017010'
+            THEN 'Blank alt_segdata_type row in prod (spec Table 13)'
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
         -- See: Bug 003 in data_issues.md
         WHEN
@@ -58,13 +64,16 @@ SELECT
     production_table_name,
     -- Mark as accounted for if it's a known bug/expected difference
     coalesce(
+        -- Spec Table 13: blank alt_segdata_type row for segment 9017010, included by prod.
+        (status = 'only_in_legacy' AND split_part(_saf_key, '|', 3) = '9017010')
+        OR (
         -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP fields
         -- See: Bug 003 in data_issues.md
         status = 'modified'
         AND list_has_all(
             ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
             ], json_keys(changes)
-        ),
+        )),
         FALSE
     ) AS accounted_for
 FROM categorized
