@@ -26,6 +26,103 @@ seeds:
         - not_null
       - name: description
         description: "What this key means, where it's used, and any known caveats."
+  - name: known_differences
+    description: >
+      Every known difference between this pipeline's outputs and the previous production
+      release, one row per stable ID. This is the source of truth: data_issues.md is
+      generated from it (scripts/generate_data_issues.py), the export doc's "Known
+      differences from the previous release" sections list its non-fixed rows, and the
+      qa__diffs_* models cite its IDs in their diff_group labels (tested by
+      assert_known_difference_citations). An ID is never reused or renumbered; a resolved
+      difference stays, with status fixed. The analysis and evidence behind each row live
+      in the bead named in reference.
+    config:
+      column_types:
+        id: varchar
+        alias: varchar
+        output: varchar
+        scope: varchar
+        description: varchar
+        cause: varchar
+        decision: varchar
+        gr_status: varchar
+        first_seen: varchar
+        last_verified: varchar
+        status: varchar
+        reference: varchar
+    columns:
+      - name: id
+        description: >
+          Stable ID, CSCL-<OUTPUT>-NN (e.g. CSCL-LION-06, CSCL-SAF-01). Cited verbatim at
+          the start of a qa__diffs_* diff_group label ('CSCL-LION-16: topology left/right
+          AP').
+        tests:
+          - not_null
+          - unique
+      - name: alias
+        description: >
+          Older names for the same issue, semicolon-separated: the "Bug NNN" numbers from
+          the bug write-ups that preceded the IDs ("Bug 007 #3" for one item of a
+          multi-item write-up). Blank when there were none.
+      - name: output
+        description: >
+          The output(s) that differ, semicolon-separated, from: LION, LION gdb, RPL, SAF,
+          District gdb, LDF, Normalizing tables, ThinED, ThinLION, ThinFire. Matches a
+          model group's custom.known_differences in doc_config.yml.
+        tests:
+          - not_null
+      - name: scope
+        description: "Which rows or fields differ, briefly."
+        tests:
+          - not_null
+      - name: description
+        description: >
+          What differs and why, in one or two plain sentences. Rendered in the export doc,
+          so no model names.
+        tests:
+          - not_null
+      - name: cause
+        description: >
+          prod_bug (prod is wrong, ours is right), source_vintage (the two sides were built
+          from different source extracts), source_defect (bad source data both sides
+          see), ours_intentional (we deliberately differ from prod), ours_bug_fixed (was
+          ours, now fixed), ours_bug (ours, not yet fixed), gr_pending (waiting on GR to
+          say which side is right), unknown.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [prod_bug, source_vintage, source_defect, ours_intentional, ours_bug_fixed, ours_bug, gr_pending, unknown]
+      - name: decision
+        description: "What we do about it (keep ours, match prod, deferred, ...). Blank when undecided."
+      - name: gr_status
+        description: >
+          Where GR stands: confirmed (GR agreed), pending (asked, no answer yet). Blank
+          when GR hasn't been asked or it wasn't recorded.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [confirmed, pending]
+      - name: first_seen
+        description: >
+          Product version the difference was first recorded against. Blank where it
+          predates this table and the version wasn't kept.
+      - name: last_verified
+        description: "Product version the row was last checked against."
+        tests:
+          - not_null
+      - name: status
+        description: >
+          open (unexplained, or explained but undecided), accepted (understood and
+          deliberately not changing), watch (resolved, can recur: check each release),
+          fixed (no longer differs).
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [open, accepted, watch, fixed]
+      - name: reference
+        description: "Data-engineering tracker bead(s) holding the analysis and evidence, comma-separated."
   - name: lion_outputs
     description: "LION output file mappings by group, subgroup, and type"
     columns:

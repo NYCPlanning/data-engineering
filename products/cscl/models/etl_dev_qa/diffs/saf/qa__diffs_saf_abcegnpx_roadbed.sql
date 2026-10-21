@@ -44,16 +44,16 @@ diff_grouped AS (
             WHEN
                 status = 'only_in_legacy'
                 AND split_part(_saf_key, '|', 3) = '9017010'
-                THEN 'Blank alt_segdata_type row in prod (spec Table 13)'
-            -- Bug 003: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP
-            -- fields. See: Bug 003 in data_issues.md
+                THEN 'CSCL-SAF-03: blank alt_segdata_type row in prod (spec Table 13)'
+            -- CSCL-SAF-02: ESRI vs PostGIS point-in-polygon disagreement for SAF GNX side-AP
+            -- fields. See CSCL-SAF-02
             WHEN
                 status = 'modified'
                 AND list_has_all(ARRAY[
                     'side_ap', 'side_borough_code', 'side_ct2020_basic',
                     'side_ct2020_suffix'
                 ], json_keys(changes))
-                THEN 'Bug 003: SAF GNX side-AP point mismatch'
+                THEN 'CSCL-SAF-02: SAF GNX side-AP point mismatch'
             -- If only one field changed, use that as the group name
             WHEN status = 'modified' AND len(change_keys) = 1
                 THEN change_keys[1]
@@ -71,8 +71,8 @@ accounted AS (
         -- Mark as accounted for if it's a known bug/expected difference
         coalesce(
             diff_group IN (
-                'Bug 003: SAF GNX side-AP point mismatch',
-                'Blank alt_segdata_type row in prod (spec Table 13)'
+                'CSCL-SAF-02: SAF GNX side-AP point mismatch',
+                'CSCL-SAF-03: blank alt_segdata_type row in prod (spec Table 13)'
             ), FALSE
         ) AS accounted_for
     FROM diff_grouped
