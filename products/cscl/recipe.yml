@@ -940,7 +940,12 @@ exports:
     group: lion_gdb
     filename: nyclion_26c.zip
     format: gdb
-    custom: { qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file", layer: node, geometry_type: points }
+    custom:
+      qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
+      layer: node
+      geometry_type: points
+      # Esri layer metadata stamped at package time
+      product_metadata: { product: lion, dataset: lion_node, file_id: lion_gdb }
   - name: gdb_node_stname
     group: lion_gdb
     filename: nyclion_26c.zip
@@ -1147,7 +1152,12 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nypuma2020, geometry_type: polygons, arcs: int__topology__arcs }
+    custom:
+      qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)"
+      layer: nypuma2020
+      geometry_type: polygons
+      arcs: int__topology__arcs
+      product_metadata: { product: lion, dataset: 2020_public_use_microdata_areas, file_id: districts_gdb }
   - name: gdb_nysd
     group: district_gdb
     filename: v26C_Districts.gdb.zip
