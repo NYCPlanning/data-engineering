@@ -109,7 +109,7 @@ class ArcIndex:
         # vertex near the arc finds it in its own cell
         n = max(1, math.ceil(c.r * c.sweep / (self.cell / 2)))
         sign = c.sign or 1.0
-        cells = set()
+        cells: set[tuple[int, int]] = set()
         for k in range(n + 1):
             a = c.a0 + sign * c.sweep * k / n
             gx = math.floor((c.cx + c.r * math.cos(a)) / self.cell)
@@ -282,7 +282,9 @@ class ArcIndex:
 
 def read_arcs(path: str | Path, batch_size: int = 100_000) -> Iterator[tuple]:
     """Control points (x0, y0, x1, y1, x2, y2) from an arcs parquet file."""
-    for b in pq.ParquetFile(str(path)).iter_batches(batch_size, columns=ARC_COLUMNS):
+    for b in pq.ParquetFile(str(path)).iter_batches(
+        batch_size, columns=list(ARC_COLUMNS)
+    ):
         cols = [b.column(c).to_pylist() for c in ARC_COLUMNS]
         yield from zip(*cols)
 
