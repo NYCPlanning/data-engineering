@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from pytest import fixture
 
+from dcpy.geospatial import esri_metadata
 from dcpy.geospatial import shapefile as shp_utils
 from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile_metadata import Metadata
@@ -308,7 +309,7 @@ def _make_column(**kwargs) -> DatasetColumn:
 
 def test_create_attr_metadata_basic():
     col = _make_column(name="MyField", description="My desc", data_source="Agency X")
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrlabl.value == "MyField"
     assert attr.attalias.value == "MyField"
     assert attr.attrdef.value == "My desc"
@@ -320,19 +321,19 @@ def test_create_attr_metadata_uid_label_passthrough():
     set via per-format name overrides in product-metadata (FID for SHP, OBJECTID
     for GDB)."""
     col = _make_column(id="uid", name="FID")
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrlabl.value == "FID"
     assert attr.attalias.value == "FID"
 
     col = _make_column(id="uid", name="OBJECTID")
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrlabl.value == "OBJECTID"
     assert attr.attalias.value == "OBJECTID"
 
 
 def test_create_attr_metadata_no_data_source():
     col = _make_column()
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrdefs.value is None
 
 
@@ -343,7 +344,7 @@ def test_create_attr_metadata_with_values():
             ColumnValue(value="B", description="Beta"),
         ]
     )
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert len(attr.attrdomv.edom) == 2
     assert attr.attrdomv.edom[0].edomv == "A"
     assert attr.attrdomv.edom[0].edomvd == "Alpha"
@@ -353,54 +354,54 @@ def test_create_attr_metadata_with_values():
 
 def test_create_attr_metadata_no_values():
     col = _make_column()
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrdomv.edom == []
 
 
 def test_create_attr_metadata_esri_type_passthrough():
     col = _make_column(data_type="String")
-    assert esri._create_attr_metadata(col).attrtype.value == "String"
+    assert esri_metadata._create_attr_metadata(col).attrtype.value == "String"
 
     col = _make_column(data_type="SmallInteger")
-    assert esri._create_attr_metadata(col).attrtype.value == "SmallInteger"
+    assert esri_metadata._create_attr_metadata(col).attrtype.value == "SmallInteger"
 
     col = _make_column(data_type=None)
-    assert esri._create_attr_metadata(col).attrtype.value is None
+    assert esri_metadata._create_attr_metadata(col).attrtype.value is None
 
 
 def test_create_attr_metadata_uid_attrtype_is_oid():
     col = _make_column(id="uid", name="uid", data_type="String")
-    assert esri._create_attr_metadata(col).attrtype.value == "OID"
+    assert esri_metadata._create_attr_metadata(col).attrtype.value == "OID"
 
 
 def test_create_attr_metadata_udom_set_when_no_values():
     col = _make_column(description="Free-form text field")
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrdomv.udom is not None
     assert attr.attrdomv.udom.value == "Free-form text field"
 
 
 def test_create_attr_metadata_udom_none_when_values_present():
     col = _make_column(values=[ColumnValue(value="A", description="Alpha")])
-    attr = esri._create_attr_metadata(col)
+    attr = esri_metadata._create_attr_metadata(col)
     assert attr.attrdomv.udom is None
 
 
 def test_create_attr_metadata_uses_custom_type_key():
     col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
-    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    attr = esri_metadata._create_attr_metadata(col, custom_type_key="fgdb_data_type")
     assert attr.attrtype.value == "String"
 
 
 def test_create_attr_metadata_falls_back_to_data_type_when_custom_key_absent():
     col = _make_column(data_type="text")
-    attr = esri._create_attr_metadata(col, custom_type_key="fgdb_data_type")
+    attr = esri_metadata._create_attr_metadata(col, custom_type_key="fgdb_data_type")
     assert attr.attrtype.value == "text"
 
 
 def test_create_attr_metadata_no_custom_key_ignores_custom_dict():
     col = _make_column(data_type="text", custom={"fgdb_data_type": "String"})
-    attr = esri._create_attr_metadata(col)  # no custom_type_key
+    attr = esri_metadata._create_attr_metadata(col)  # no custom_type_key
     assert attr.attrtype.value == "text"
 
 

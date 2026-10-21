@@ -9,7 +9,11 @@ from dcpy.geospatial.shapefile_metadata import (
     Scalerange,
     Udom,
 )
-from dcpy.product_metadata.models.metadata.product import ColumnValue, DatasetColumn
+from dcpy.product_metadata.models.metadata.product import (
+    ColumnValue,
+    Dataset,
+    DatasetColumn,
+)
 
 
 def generate_metadata() -> Metadata:
@@ -32,6 +36,57 @@ def generate_metadata() -> Metadata:
         md_date_st=md_date_st,
     )
     return metadata
+
+
+def build_layer_metadata(
+    dataset_md: Dataset, layer_name: str, custom_type_key: str | None = None
+) -> Metadata:
+    """Esri metadata for one layer (FGDB feature class or shapefile) from its
+    product-metadata dataset, already resolved for the file/layer it's written into
+    (e.g. ``DatasetMetadata.calculate_layer_dataset_metadata``).
+
+    Args:
+        dataset_md: The layer's dataset metadata (attributes and columns).
+        layer_name: Feature class or shapefile name (a ``.shp`` suffix is dropped).
+        custom_type_key: Column ``custom`` key holding the format's field type
+            (e.g. ``fgdb_data_type``, ``shp_data_type``); falls back to ``data_type``.
+    """
+    esri_md = generate_metadata()
+    attributes = dataset_md.attributes
+
+    # TODO: define DCP organizationally required metadata fields
+    esri_md.md_hr_lv_name = "dataset"
+    esri_md.data_id_info.id_citation.res_title = attributes.display_name
+    esri_md.data_id_info.id_abs = attributes.description
+    # TODO: map idPurp to a product-metadata field
+    esri_md.data_id_info.id_credit = attributes.attribution
+    esri_md.data_id_info.res_const.consts.use_limit = attributes.disclaimer
+    esri_md.data_id_info.other_keys.keyword = attributes.tags
+    esri_md.data_id_info.search_keys.keyword = attributes.tags
+
+    if attributes.projection:
+        authority, code = attributes.projection.split(":")
+        ref_sys_id = esri_md.ref_sys_info.ref_system.ref_sys_id
+        ref_sys_id.ident_code.code = int(code)
+        ref_sys_id.id_code_space.value = authority
+        # idVersion omitted: ArcGIS Synchronize Metadata overwrites it from its EPSG data
+
+    entity_name = layer_name.removesuffix(".shp")
+    esri_md.eainfo.detailed.enttyp.enttypl.value = entity_name
+    esri_md.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
+    esri_md.eainfo.detailed.name = entity_name
+
+    esri_md.eainfo.detailed.attr = [
+        _create_attr_metadata(column, custom_type_key=custom_type_key)
+        for column in dataset_md.columns
+    ]
+    return esri_md
+
+
+def metadata_xml(metadata: Metadata) -> str:
+    """The metadata as an XML string (e.g. for the OpenFileGDB DOCUMENTATION option)."""
+    xml = metadata.to_xml()
+    return xml.decode("utf-8") if isinstance(xml, bytes) else xml
 
 
 def _get_esri_timestamp(dt_obj=None):

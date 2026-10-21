@@ -9,16 +9,19 @@ from typing import Literal
 
 import typer
 
+from dcpy.geospatial import esri_metadata
 from dcpy.geospatial.curves.match import ARC_COLUMNS, recurve_matched_parquet
 from dcpy.geospatial.gdb.write import (
     ParquetLayer,
     layer_geometry_type,
     write_gdb_from_parquet,
 )
+from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
 from dcpy.lifecycle.builds.models import (
     LAYERED_EXPORT_FORMATS,
+    BuildExports,
     ExportDataset,
     ExportFormat,
     InputDatasetDestination,
@@ -577,12 +580,47 @@ def _layer_parquet(build_folder: Path, layer: dict, tmp: Path) -> Path:
     return curved
 
 
+def _with_documentation(
+    layer_options: dict[str, str], documentation: str | None
+) -> dict[str, str]:
+    if documentation is None:
+        return layer_options
+    return {**layer_options, "DOCUMENTATION": documentation}
+
+
+def _gdb_layer_documentation(exports: BuildExports) -> dict[tuple[str, str], str]:
+    """Esri metadata XML for each gdb layer whose entry names its product-metadata
+    dataset (custom.product_metadata: {product, dataset, file_id}), keyed by
+    (filename, layer), for the OpenFileGDB DOCUMENTATION layer creation option.
+    Entries without it get no metadata."""
+    specs = {
+        (str(ds.output_path), ds.layer_name): (ds.custom or {})["product_metadata"]
+        for ds in exports.datasets
+        if ds.format == ExportFormat.gdb and (ds.custom or {}).get("product_metadata")
+    }
+    if not specs:
+        return {}
+    org_md = product_metadata.load()
+    documentation = {}
+    for (filename, layer), spec in specs.items():
+        dataset_md = (
+            org_md.product(spec["product"])
+            .dataset(spec["dataset"])
+            .calculate_layer_dataset_metadata(file_id=spec["file_id"], layer=layer)
+        )
+        documentation[(filename, layer)] = esri_metadata.metadata_xml(
+            esri_metadata.build_layer_metadata(dataset_md, layer, "fgdb_data_type")
+        )
+    return documentation
+
+
 def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     """Assemble a `package_from_parquet` export's deliverables in the package dir
     ({DCPY_LIFECYCLE_DATA_DIR}/package/<product>/<version>): copy the build artifacts
     into attachments/, then from the build dir's raw_exports/ (per its manifest) copy
     files, format fixed-width files and fold parquet layers into FGDBs (re-curving those
-    exported with arcs), all into dataset_files/. Then run the recipe's packaging
+    exported with arcs, and stamping Esri metadata on those whose entry names a
+    product-metadata dataset), all into dataset_files/. Then run the recipe's packaging
     commands (stage_config builds.package; they see BUILD_DIR / PACKAGE_DIR / QA_DIR)
     and zip the outputs if the recipe names a zip."""
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
@@ -601,6 +639,7 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
 
     manifest_path = build_folder / LAYERS_DIR / LAYER_MANIFEST
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else []
+    documentation = _gdb_layer_documentation(recipe.exports)
     for entry in manifest:
         target = dataset_files / entry["filename"]
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -621,7 +660,10 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
                         # a re-curved file declares no geometry type: take the linear one's
                         geometry_type=layer["geometry_type"]
                         or layer_geometry_type(build_folder / layer["path"]),
-                        layer_options=layer["layer_options"],
+                        layer_options=_with_documentation(
+                            layer["layer_options"],
+                            documentation.get((entry["filename"], layer["name"])),
+                        ),
                     )
                     for layer in entry["layers"]
                 ]

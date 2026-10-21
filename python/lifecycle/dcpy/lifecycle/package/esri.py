@@ -6,7 +6,6 @@ import yaml
 
 import dcpy.product_metadata.models.metadata.product as models
 from dcpy.geospatial import esri_metadata
-from dcpy.geospatial.esri_metadata import _create_attr_metadata
 from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile import Shapefile
 from dcpy.lifecycle import product_metadata
@@ -183,40 +182,7 @@ def write_metadata(
         layer is not None
     )  # guaranteed: GDB branch resolved it, SHP branch required it
 
-    logger.info(f"Wrote metadata to layer '{layer}' in {path_to_file}")
-
-    esri_md = esri_metadata.generate_metadata()
-
-    # Set dataset-level values
-    # TODO: define DCP organizationally required metadata fields
-    esri_md.md_hr_lv_name = "dataset"
-    esri_md.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
-    esri_md.data_id_info.id_abs = file_metadata.attributes.description
-    # TODO: map idPurp to a product-metadata field
-    esri_md.data_id_info.id_credit = file_metadata.attributes.attribution
-    esri_md.data_id_info.res_const.consts.use_limit = (
-        file_metadata.attributes.disclaimer
-    )
-    esri_md.data_id_info.other_keys.keyword = file_metadata.attributes.tags
-    esri_md.data_id_info.search_keys.keyword = file_metadata.attributes.tags
-
-    if file_metadata.attributes.projection:
-        authority, code = file_metadata.attributes.projection.split(":")
-        ref_sys_id = esri_md.ref_sys_info.ref_system.ref_sys_id
-        ref_sys_id.ident_code.code = int(code)
-        ref_sys_id.id_code_space.value = authority
-        # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
-
-    entity_name = layer.removesuffix(".shp")
-    esri_md.eainfo.detailed.enttyp.enttypl.value = entity_name
-    esri_md.eainfo.detailed.enttyp.enttypt.value = "Feature Class"
-    esri_md.eainfo.detailed.name = entity_name
-
-    # Build attribute metadata for each column
-    esri_md.eainfo.detailed.attr = [
-        _create_attr_metadata(column, custom_type_key=custom_type_key)
-        for column in file_metadata.columns
-    ]
+    esri_md = esri_metadata.build_layer_metadata(file_metadata, layer, custom_type_key)
 
     if is_gdb:
         fgdb.write_metadata(
@@ -225,3 +191,4 @@ def write_metadata(
     else:
         shp = Shapefile(path=path_to_file, shp_name=layer, zip_subdir=zip_subdir)
         shp.write_metadata(esri_md, overwrite=True)
+    logger.info(f"Wrote metadata to layer '{layer}' in {path_to_file}")

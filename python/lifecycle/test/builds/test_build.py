@@ -768,6 +768,104 @@ exports:
     client.close()
 
 
+def test_package_stamps_layer_metadata(tmp_path, monkeypatch):
+    """custom.product_metadata: `package` writes the layer with Esri metadata built from
+    its product-metadata dataset (OpenFileGDB DOCUMENTATION); other layers get none."""
+    import shutil
+    from unittest.mock import MagicMock
+
+    import pyogrio
+
+    from dcpy.geospatial.shapefile_metadata import Metadata
+    from dcpy.lifecycle.builds import export as export_module
+    from dcpy.lifecycle.builds.export import package
+    from dcpy.product_metadata.models.metadata.product import (
+        Dataset,
+        DatasetAttributes,
+        DatasetColumn,
+    )
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.boundaries AS SELECT 1 AS id, "
+        "ST_GeomFromText('MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))') AS geom"
+    )
+    client.conn.execute("CREATE TABLE s.names AS SELECT 'x' AS name")
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  crs: EPSG:2263
+  datasets:
+  - name: boundaries
+    filename: things.gdb.zip
+    format: gdb
+    custom:
+      product_metadata: {{ product: p, dataset: d, file_id: things_gdb }}
+  - name: names
+    filename: things.gdb.zip
+    format: gdb
+    custom: {{ spatial: false }}
+"""
+    )
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)
+    export(lock, duckdb_client=client)
+    client.close()
+
+    org_md = MagicMock()
+    dataset_md = org_md.product.return_value.dataset.return_value
+    dataset_md.calculate_layer_dataset_metadata.return_value = Dataset(
+        attributes=DatasetAttributes(
+            display_name="Boundaries", description="d", each_row_is_a="Boundary"
+        ),
+        columns=[
+            DatasetColumn(
+                id="id",
+                name="id",
+                data_type="integer",
+                description="Id.",
+                custom={"fgdb_data_type": "Integer"},
+            )
+        ],
+    )
+    monkeypatch.setattr(export_module.product_metadata, "load", lambda: org_md)
+
+    packaged = package(lock)
+
+    org_md.product.assert_called_once_with("p")
+    org_md.product.return_value.dataset.assert_called_once_with("d")
+    dataset_md.calculate_layer_dataset_metadata.assert_called_once_with(
+        file_id="things_gdb", layer="boundaries"
+    )
+    shutil.unpack_archive(packaged / "dataset_files" / "things.gdb.zip", tmp_path)
+
+    def layer_xml(layer: str) -> str:
+        # via pyogrio, not dcpy.geospatial.gdb.fgdb: importing osgeo here breaks later
+        # tests' parquet reads (the gdal/pyarrow clash)
+        frame = pyogrio.read_dataframe(
+            tmp_path / "things.gdb", sql=f"GetLayerMetadata {layer}"
+        )
+        return frame.iloc[0, 0] or ""
+
+    md = Metadata.from_xml(layer_xml("boundaries"))
+    assert md.data_id_info.id_citation.res_title == "Boundaries"
+    assert [a.attrlabl.value for a in md.eainfo.detailed.attr] == ["id"]
+    assert layer_xml("names") == ""
+
+
 def test_parquet_first_gdb_layer_recurved_from_arcs(tmp_path, monkeypatch):
     """custom.arcs: the layer's arcs export alongside it, and `package` writes the FGDB
     layer with true curves where its vertices match an arc."""
