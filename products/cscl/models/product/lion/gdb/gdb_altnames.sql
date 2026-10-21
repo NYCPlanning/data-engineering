@@ -69,6 +69,7 @@ lion_records AS (
         lion.lgc4
     FROM {{ ref('int__saf_replicant_fields') }} AS saf
     INNER JOIN lion ON saf.lionkey = lion.lionkey
+    WHERE saf.is_written
 ),
 
 record_b7scs AS (

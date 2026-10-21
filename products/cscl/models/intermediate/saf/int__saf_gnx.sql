@@ -21,7 +21,6 @@ feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
 )
 SELECT
-    -- TODO error when null
     feature_names.place_name_sort_order AS place_name,
     saf.boroughcode,
     SUBSTRING(saf.segment_lionkey, 2, 4) AS face_code,
@@ -60,4 +59,7 @@ LEFT JOIN commonplace ON saf.saf_globalid = commonplace.globalid
 LEFT JOIN address_points ON commonplace.primaryaddresspointid = address_points.addresspointid
 LEFT JOIN feature_names ON commonplace.b7sc = feature_names.b7sc
 LEFT JOIN atomic_polygons ON ST_CONTAINS(atomic_polygons.geom, commonplace.geom)
-WHERE saf.saftype IN ('G', 'N', 'X')
+WHERE
+    saf.saftype IN ('G', 'N', 'X')
+    -- legacy drops a record with no place name
+    AND feature_names.place_name_sort_order IS NOT NULL

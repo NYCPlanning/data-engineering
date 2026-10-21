@@ -482,7 +482,8 @@ replicant_rows AS (
         st_length(lion.geom)::float AS "SHAPE_Length",
         lion.geom
     FROM lion
-    INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey
+    -- skip a SAF record legacy doesn't write (still counted in SegCount above)
+    INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey AND saf_replicants.is_written
     INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
     CROSS JOIN LATERAL generate_series(1, CASE WHEN saf_replicants.parity_side IS NOT NULL THEN 2 ELSE 1 END) AS rng (n)
     CROSS JOIN LATERAL (

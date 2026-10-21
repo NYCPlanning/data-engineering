@@ -32,8 +32,10 @@ WITH saf_segment_records AS (
     FROM {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }}
     WHERE saftype IN ('G', 'N', 'X') AND b7sc IS NOT NULL AND security_level <> '3' -- TODO staging table
 ),
+-- A roadbed with several RPL rows takes only the first (lowest ogc_fid), as legacy GetRow does
 roadbed_pointer_list AS (
     SELECT * FROM {{ source("recipe_sources", "dcp_cscl_roadbed_pointer_list") }}
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY roadbed_segmentid ORDER BY ogc_fid) = 1
 ),
 with_roadbed_to_generic AS (
     SELECT
@@ -86,7 +88,6 @@ resolved_segment AS (
             AND proto.source_table = 'altsegmentdata'
             AND saf.boroughcode = proto.boroughcode
             AND primary_segment.boroughcode <> proto.boroughcode
-            AND NOT saf.rpl_flag
 )
 SELECT
     *,
