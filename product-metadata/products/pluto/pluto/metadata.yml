@@ -846,6 +846,56 @@ columns:
     fgdb_data_type: SmallInteger
     shp_data_type: Integer
     readme_data_type: Numeric - 3 digits (999)
+- id: bct2020
+  name: bct2020
+  data_type: text
+  description: |-
+    The 2020 census tract in which the tax lot is located.
+
+    This field contains a seven-digit code representing the one-digit borough code followed by the six-digit census tract number.
+
+    2020 census tracts are geographic areas defined by the U.S. Census Bureau for the 2020 Census. Census tracts are comprised of census blocks.
+
+    Each census tract is unique within a borough (see BOROUGH).
+
+    Examples:
+    Census Tract 4062600
+    Census Tract 4063200
+
+    CENSUS TRACT 2020 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS TRACT 2020 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
+  data_source: |-
+    Department of City Planning - Geosupport System
+    Department of City Planning - Administrative District Base Map files
+  example: '4089201'
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
+    readme_data_type: Alphanumeric - 7 characters
+- id: bctcb2020
+  name: bctcb2020
+  data_type: text
+  description: |-
+    The 2020 census block in which the tax lot is located.
+
+    This field contains an eleven-digit code representing the one-digit borough code followed by the six-digit census tract number and then the four-digit census block number.
+
+    2020 census blocks are the smallest geographic areas defined by the U.S. Census Bureau.
+
+    Each census block number is unique within a census tract (see CENSUS TRACT).
+
+    Examples:
+    Census Block 20350001000
+    Census Block 30403001002
+
+    CENSUS BLOCK 2020 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS BLOCK 2020 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
+  data_source: |-
+    Department of City Planning - Geosupport System
+    Department of City Planning - Administrative District Base Map files
+  example: '50170071000'
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
+    readme_data_type: Alphanumeric - 11 characters
 - id: ct2010
   name: census tract 2010
   data_type: text
@@ -980,6 +1030,23 @@ columns:
     fgdb_data_type: SmallInteger
     shp_data_type: Integer
     readme_data_type: Numeric - 3 digits
+- id: healthcenterdistrict
+  name: healthcenterdistrict
+  data_type: integer
+  description: |-
+    The health center district in which the tax lot is located. Thirty health center districts were created by the City in 1930 to conduct neighborhood focused health interventions.
+
+    This field contains a two-digit health district number.
+
+    HEALTH CENTER DISTRICT contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, HEALTH CENTER DISTRICT is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
+  data_source: |-
+    Department of City Planning - Geosupport System
+    Department of City Planning - Administrative District Base Map files
+  example: '51'
+  custom:
+    fgdb_data_type: SmallInteger
+    shp_data_type: Integer
+    readme_data_type: Numeric - 2 digits (99)
 - id: healtharea
   name: healtharea
   data_type: integer
@@ -1022,6 +1089,21 @@ columns:
     fgdb_data_type: String
     shp_data_type: String
     readme_data_type: Numeric - 1 digit
+- id: sanitdistrict
+  name: sanitdistrict
+  data_type: integer
+  description: |-
+    The sanitation district that services the tax lot.
+
+    SANITATION DISTRICT NUMBER contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, SANITATION DISTRICT NUMBER is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
+  data_source: |-
+    Department of City Planning - Geosupport System
+    Department of City Planning - Administrative District Base Map files
+  example: '3'
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
+    readme_data_type: Numeric - 2 digits
 - id: sanitsub
   name: sanitsub
   data_type: text
@@ -2106,40 +2188,6 @@ columns:
     shp_data_type: Double
     readme_data_type: Numeric - 5 digits (99.99)
     human_readable_name: Maximum Allowable Affordable Residential FAR
-- id: affresfar
-  name: affresfar
-  data_type: decimal
-  description: |-
-    The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE AFFORDABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
-
-    The maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
-
-    Users should consult Section 23-20 of the Zoning Resolution for more information.
-  data_source: |-
-    Department of City Planning Zoning Division
-  example: 0.50
-  custom:
-    fgdb_data_type: Double
-    shp_data_type: Double
-    readme_data_type: Numeric - 5 digits (99.99)
-    human_readable_name: Maximum Allowable Affordable Residential FAR
-- id: mnffar
-  name: mnffar
-  data_type: decimal
-  description: |-
-    The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow manufacturing uses, MAXIMUM ALLOWABLE MANUFACTURING FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
-
-    The maximum allowable manufacturing floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
-
-    Users should consult Section 43-12 of the Zoning Resolution for more information.
-  data_source: |-
-    Department of City Planning Zoning Division
-  example: 0.50
-  custom:
-    fgdb_data_type: Double
-    shp_data_type: Double
-    readme_data_type: Numeric - 5 digits (99.99)
-    human_readable_name: Maximum Allowable Manufacturing FAR (ManuFAR)
 - id: borocode
   name: borocode
   data_type: integer
@@ -2255,28 +2303,6 @@ columns:
     fgdb_data_type: Integer
     shp_data_type: Integer
     readme_data_type: Numeric - 7 digits (9999999)
-- id: latitude
-  name: latitude
-  data_type: decimal
-  description: The WGS 84 latitude of the latitude/longitude coordinate pair for the
-    approximate location of the tax lot.
-  data_source: Department of City Planning
-  example: '40.7142067'
-  custom:
-    fgdb_data_type: Double
-    shp_data_type: Double
-    readme_data_type: Numeric
-- id: longitude
-  name: longitude
-  data_type: decimal
-  description: The WGS 84 longitude of the latitude/longitude coordinate pair for the
-    approximate location of the tax lot
-  data_source: Department of City Planning
-  example: '-73.9452063'
-  custom:
-    fgdb_data_type: Double
-    shp_data_type: Double
-    readme_data_type: Numeric
 - id: zonemap
   name: zonemap
   data_type: text
@@ -2409,56 +2435,6 @@ columns:
     fgdb_data_type: String
     shp_data_type: String
     readme_data_type: Numeric - 1 digit
-- id: version
-  name: version
-  data_type: text
-  description: |-
-    The version number for this release of PLUTO.
-
-    The Version Number is in the format YYv#.# where:
-      YY is the last two digits of the year;
-      v stands for version;
-      \# is the release number for that year; and .# indicates an amendment to the original release, if applicable.
-  data_source: Department of City Planning
-  checks:
-    non_nullable: true
-  example: 24v1.1
-  custom:
-    fgdb_data_type: String
-    shp_data_type: String
-    readme_data_type: Alphanumeric - 6 characters
-- id: sanitdistrict
-  name: sanitdistrict
-  data_type: integer
-  description: |-
-    The sanitation district that services the tax lot.
-
-    SANITATION DISTRICT NUMBER contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, SANITATION DISTRICT NUMBER is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
-  data_source: |-
-    Department of City Planning - Geosupport System
-    Department of City Planning - Administrative District Base Map files
-  example: '3'
-  custom:
-    fgdb_data_type: String
-    shp_data_type: String
-    readme_data_type: Numeric - 2 digits
-- id: healthcenterdistrict
-  name: healthcenterdistrict
-  data_type: integer
-  description: |-
-    The health center district in which the tax lot is located. Thirty health center districts were created by the City in 1930 to conduct neighborhood focused health interventions.
-
-    This field contains a two-digit health district number.
-
-    HEALTH CENTER DISTRICT contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, HEALTH CENTER DISTRICT is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
-  data_source: |-
-    Department of City Planning - Geosupport System
-    Department of City Planning - Administrative District Base Map files
-  example: '51'
-  custom:
-    fgdb_data_type: SmallInteger
-    shp_data_type: Integer
-    readme_data_type: Numeric - 2 digits (99)
 - id: firm07_flag
   name: firm07_flag
   data_type: integer
@@ -2497,6 +2473,24 @@ columns:
     fgdb_data_type: String
     shp_data_type: String
     readme_data_type: Alphanumeric - 1 character
+- id: version
+  name: version
+  data_type: text
+  description: |-
+    The version number for this release of PLUTO.
+
+    The Version Number is in the format YYv#.# where:
+      YY is the last two digits of the year;
+      v stands for version;
+      \# is the release number for that year; and .# indicates an amendment to the original release, if applicable.
+  data_source: Department of City Planning
+  checks:
+    non_nullable: true
+  example: 24v1.1
+  custom:
+    fgdb_data_type: String
+    shp_data_type: String
+    readme_data_type: Alphanumeric - 6 characters
 - id: dcpedited
   name: dcpedited
   data_type: text
@@ -2513,6 +2507,28 @@ columns:
     fgdb_data_type: String
     shp_data_type: String
     readme_data_type: Alphanumeric - 3 characters
+- id: latitude
+  name: latitude
+  data_type: decimal
+  description: The WGS 84 latitude of the latitude/longitude coordinate pair for the
+    approximate location of the tax lot.
+  data_source: Department of City Planning
+  example: '40.7142067'
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
+    readme_data_type: Numeric
+- id: longitude
+  name: longitude
+  data_type: decimal
+  description: The WGS 84 longitude of the latitude/longitude coordinate pair for the
+    approximate location of the tax lot
+  data_source: Department of City Planning
+  example: '-73.9452063'
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
+    readme_data_type: Numeric
 - id: notes
   name: notes
   data_type: text
@@ -2523,56 +2539,6 @@ columns:
     fgdb_data_type: String
     shp_data_type: String
     readme_data_type: Alphanumeric - 20 characters
-- id: bct2020
-  name: bct2020
-  data_type: text
-  description: |-
-    The 2020 census tract in which the tax lot is located.
-
-    This field contains a seven-digit code representing the one-digit borough code followed by the six-digit census tract number.
-
-    2020 census tracts are geographic areas defined by the U.S. Census Bureau for the 2020 Census. Census tracts are comprised of census blocks.
-
-    Each census tract is unique within a borough (see BOROUGH).
-
-    Examples:
-    Census Tract 4062600
-    Census Tract 4063200
-
-    CENSUS TRACT 2020 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS TRACT 2020 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
-  data_source: |-
-    Department of City Planning - Geosupport System
-    Department of City Planning - Administrative District Base Map files
-  example: '4089201'
-  custom:
-    fgdb_data_type: String
-    shp_data_type: String
-    readme_data_type: Alphanumeric - 7 characters
-- id: bctcb2020
-  name: bctcb2020
-  data_type: text
-  description: |-
-    The 2020 census block in which the tax lot is located.
-
-    This field contains an eleven-digit code representing the one-digit borough code followed by the six-digit census tract number and then the four-digit census block number.
-
-    2020 census blocks are the smallest geographic areas defined by the U.S. Census Bureau.
-
-    Each census block number is unique within a census tract (see CENSUS TRACT).
-
-    Examples:
-    Census Block 20350001000
-    Census Block 30403001002
-
-    CENSUS BLOCK 2020 contains the value returned by Geosupport for one of the addresses assigned to the lot. If Geosupport does not return a value, CENSUS BLOCK 2020 is calculated spatially using the tax lot's XY COORDINATES and DCP's Administrative District Base Map files.
-  data_source: |-
-    Department of City Planning - Geosupport System
-    Department of City Planning - Administrative District Base Map files
-  example: '50170071000'
-  custom:
-    fgdb_data_type: String
-    shp_data_type: String
-    readme_data_type: Alphanumeric - 11 characters
 - id: mih_opt1
   name: mihopt1
   data_type: integer
@@ -2654,6 +2620,40 @@ columns:
     fgdb_data_type: String
     shp_data_type: String
     readme_data_type: Alphanumeric - 50 characters
+- id: affresfar
+  name: affresfar
+  data_type: decimal
+  description: |-
+    The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE AFFORDABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+
+    The maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
+
+    Users should consult Section 23-20 of the Zoning Resolution for more information.
+  data_source: |-
+    Department of City Planning Zoning Division
+  example: 0.50
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
+    readme_data_type: Numeric - 5 digits (99.99)
+    human_readable_name: Maximum Allowable Affordable Residential FAR
+- id: mnffar
+  name: mnffar
+  data_type: decimal
+  description: |-
+    The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow manufacturing uses, MAXIMUM ALLOWABLE MANUFACTURING FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+
+    The maximum allowable manufacturing floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
+
+    Users should consult Section 43-12 of the Zoning Resolution for more information.
+  data_source: |-
+    Department of City Planning Zoning Division
+  example: 0.50
+  custom:
+    fgdb_data_type: Double
+    shp_data_type: Double
+    readme_data_type: Numeric - 5 digits (99.99)
+    human_readable_name: Maximum Allowable Manufacturing FAR (ManuFAR)
 - id: geom
   name: geom
   data_type: text
