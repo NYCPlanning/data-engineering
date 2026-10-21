@@ -20,13 +20,22 @@ saf_replicants AS (
 
 -- SegCount (legacy GetCoincidentSegmentCount): the number of output records for the
 -- segment (SAF replicants and continuous-parity copies included), plus one for each
--- other centerline with identical geometry; capped at 9 (a single character in prod).
+-- other segment of the same feature class with identical geometry (centerline with
+-- centerline, rail with rail, ...); capped at 9 (a single character in prod).
 centerline_geom_counts AS (
     SELECT
         segmentid,
-        count(*) OVER (PARTITION BY md5(st_asbinary(st_normalize(geom)))) AS n_same_geom
-    FROM {{ ref('int__lion') }}
-    WHERE source_table = 'centerline'
+        count(*) OVER (PARTITION BY source_table, geom_hash) AS n_same_geom
+    FROM (
+        SELECT DISTINCT
+            segmentid,
+            source_table,
+            md5(st_asbinary(st_normalize(geom))) AS geom_hash
+        FROM {{ ref('int__lion') }}
+        WHERE
+            source_table = 'centerline'
+            OR (include_in_bytes_lion AND source_table IN ('rail', 'subway', 'nonstreetfeatures'))
+    ) AS segment_geoms
 ),
 
 segment_row_counts AS (
