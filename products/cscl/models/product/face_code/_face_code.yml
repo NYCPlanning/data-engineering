@@ -23,6 +23,7 @@ models:
           The 4-digit code this record defines, right-justified zero-filled. Copied
           from the name table's FACECODE field.
       - name: filler_fc2
+        description: Filler. Always blank.
         data_type: string
       - name: b10sc
         data_type: string
@@ -31,6 +32,7 @@ models:
           pulled from - which row produced the record, not a property of the face
           code itself.
       - name: filler_fc3
+        description: Filler. Always blank.
         data_type: string
       - name: lookup_key
         data_type: string

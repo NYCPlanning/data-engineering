@@ -8,11 +8,13 @@ models:
     SAF outputs. Rows with a blank alt_segdata_type are excluded (CSCL-SAF-03).
   columns:
   - name: ogc_fid
+    description: Row identifier assigned when the source layer was loaded.
   - name: lionkey
     description: >
       Key tying the record to its segment: a borough digit, the 4-digit face code and the
       5-digit segment sequence number.
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
     tests: [ not_null ]
   - name: face_code
     description: Characters 2-5 of lionkey.
@@ -40,6 +42,7 @@ models:
   - name: alt_segdata_type
     description: Always 'S' in this model.
   - name: borough
+    description: Borough code of the segment.
     tests: [ not_null ]
 
 - name: stg__altsegmentdata_proto
@@ -52,6 +55,7 @@ models:
   - name: source_table
     description: Always 'altsegmentdata'.
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
     tests: [ not_null ]
   - name: lionkey
     description: >
@@ -114,6 +118,7 @@ models:
     names and codes.
   columns:
   - name: globalid
+    description: Globally unique identifier assigned by the source geodatabase.
   - name: borocode
     description: Borough code (1 to 5).
   - name: boroname
@@ -133,6 +138,7 @@ models:
     layer. Source BID 56 is invalid and is made valid here (CSCL-DISTRICTS-04).
   columns:
   - name: globalid
+    description: Globally unique identifier assigned by the source geodatabase.
   - name: bidid
     description: Identifier of the BID.
   - name: bid
@@ -150,8 +156,11 @@ models:
     per CDTA.
   columns:
   - name: cdta_code
+    description: Community district tabulation area (CDTA) code.
   - name: cdta_name
+    description: CDTA name.
   - name: cdta_type
+    description: CDTA type code, published as CDTAType on the CDTA 2020 layer and files.
 
 - name: stg__censustract2000
   description: >
@@ -159,6 +168,7 @@ models:
     assignments.
   columns:
   - name: globalid
+    description: Globally unique identifier assigned by the source geodatabase.
   - name: ctlabel
     description: Tract label as displayed.
   - name: borocode
@@ -263,6 +273,7 @@ models:
     the election district layer.
   columns:
   - name: globalid
+    description: Globally unique identifier assigned by the source geodatabase.
   - name: electdist
     description: Election district number.
   - name: assembly_district
@@ -301,6 +312,7 @@ models:
       lookup_key_trimmed with each run of digits left-padded to four characters, so names
       sort the way people read them (2 before 10).
   - name: face_code
+    description: Four-digit face code of the name entry.
   - name: feature_type
     description: "'street' for StreetName rows, 'feature' for FeatureName rows."
   - name: principal_flag
@@ -310,6 +322,7 @@ models:
   - name: horizontal_topo_type
     description: Only present on street rows; NULL for features.
   - name: globalid
+    description: Globally unique identifier assigned by the source geodatabase.
 
 - name: stg__facecode_and_featurename_principal
   description: >
@@ -318,13 +331,16 @@ models:
     segment's preferred B7SC.
   columns:
   - name: b7sc
+    description: Borough, five-digit street code and two-digit local group code (B7SC) of the name.
     tests:
     - unique:
         arguments:
           config: { where: "b7sc IS NOT NULL" }
           error_if: "> 1"
   - name: lookup_key
+    description: Street or feature name, in the form stored in the CSCL name tables.
   - name: face_code
+    description: Four-digit face code of the name entry.
 
 - name: stg__firecompany
   description: >
@@ -332,6 +348,7 @@ models:
     Source for the fire company layer.
   columns:
   - name: globalid
+    description: Globally unique identifier assigned by the source geodatabase.
     tests: [ unique, not_null ]
   - name: unit_short
     description: Short fire company name, for example 'E 212'.
@@ -352,7 +369,9 @@ models:
   - name: healtharea
     description: Health area code.
   - name: health_ct_district
+    description: Health center district of the health area, published as the health center district in the district text files.
   - name: borough
+    description: Borough of the health area.
   - name: geom
     description: Polygon with curves linearized.
   - name: raw_geom
@@ -371,6 +390,7 @@ models:
     description: Designation date.
   - name: extension
   - name: borough
+    description: Borough of the district.
   - name: geom
     description: Polygon made valid (st_makevalid).
   - name: raw_geom
@@ -382,10 +402,13 @@ models:
     per borough and tract.
   columns:
   - name: borough
+    description: Borough of the census tract.
   - name: censustract
     description: Census tract as an integer.
   - name: neighborhood_code
+    description: 2010 neighborhood tabulation area (NTA) code.
   - name: neighborhood_name
+    description: 2010 neighborhood tabulation area (NTA) name.
   - name: puma
     description: PUMA code as an integer.
 
@@ -400,9 +423,13 @@ models:
     One row per NTA.
   columns:
   - name: nta_code
+    description: Neighborhood tabulation area (NTA) code; matches the neighborhood code on the NTA 2020 layer.
   - name: nta_name
+    description: NTA name.
   - name: nta_abbrev
+    description: Abbreviated NTA name.
   - name: nta_type
+    description: NTA type code, published as NTAType on the NTA 2020 layer and files.
 
 - name: stg__nypdbeat
   description: >
@@ -410,8 +437,11 @@ models:
     assignments.
   columns:
   - name: precinct
+    description: NYPD precinct number of the beat, published as the police precinct in the district text files.
   - name: sector
+    description: NYPD sector within the precinct.
   - name: patrol_borough
+    description: NYPD patrol borough that contains the beat, published as the police patrol borough command in the district text files.
   - name: geom
     description: Polygon with curves linearized.
   - name: raw_geom
@@ -424,6 +454,7 @@ models:
     (CSCL-THINLION-03).
   columns:
   - name: patrol_borough
+    description: NYPD patrol borough.
   - name: geom
     description: Polygon with curves linearized.
   - name: raw_geom
@@ -448,6 +479,7 @@ models:
     district flag.
   columns:
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
   - name: lionkey
     description: >
       Key tying the record to its segment: a borough digit, the 4-digit face code and the
@@ -471,8 +503,11 @@ models:
   - name: uranum
   - name: uraid
   - name: boro_name
+    description: Borough name.
   - name: boro_num
+    description: Borough code.
   - name: site_name
+    description: Name of the urban renewal site.
   - name: urp
   - name: geom
     description: Polygon made valid (st_makevalid).
@@ -489,9 +524,11 @@ models:
     segment ZIP code fallbacks.
   columns:
   - name: zip_code
+    description: ZIP code.
   - name: po_name
     description: Post office name.
   - name: county
+    description: County the ZIP code area lies in.
   - name: geom
     description: Polygon made valid (st_makevalid).
   - name: raw_geom

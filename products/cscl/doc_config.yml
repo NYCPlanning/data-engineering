@@ -74,6 +74,18 @@ items:
   - kind: model_group
     title: LION
     custom:
+      elements:
+        - kind: text
+          text: >-
+            The LION files are Geosupport's street-segment file, one per
+            borough: every street, shoreline, rail and non-street segment with
+            its nodes, name codes, census and district geography, curve data and
+            locational status. Geosupport (and, through it, most city address
+            and geocoding tools) reads them, and the GR and GSS teams own and
+            review them. They are produced by the build from CSCL source layers
+            and the atomic polygon topology, then written as fixed-width text.
+            See the [architecture overview](../../docs/architecture.md) for how the
+            pipeline fits together.
       known_differences: [LION]
     entries:
       - name: lion_dat_by_field
@@ -84,6 +96,16 @@ items:
   - kind: model_group
     title: Roadbed Pointer List
     custom:
+      elements:
+        - kind: text
+          text: >-
+            The Roadbed Pointer List maps each roadbed segment of a divided
+            street to its generic segment. Geosupport uses it to find the
+            generic segment when an address or place name refers to a roadbed.
+            It is produced by the build from CSCL's roadbed pointer table, with
+            roadbeds ordered by position, and written as one citywide fixed-
+            width file. See the [architecture overview](../../docs/architecture.md)
+            for how the pipeline fits together.
       known_differences: [RPL]
       short_title: RPL
     entries:
@@ -97,6 +119,16 @@ items:
 
   - kind: model_group
     title: Face Code File
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            The Face Code File lets Geosupport turn a four-digit face code back
+            into a street or non-street feature name. There is one file per
+            borough. It is produced by the build from the CSCL street and
+            feature name tables and written as fixed-width text. See the
+            [architecture overview](../../docs/architecture.md) for how the pipeline
+            fits together.
     entries:
       - name: face_code_by_field
         custom:
@@ -106,6 +138,15 @@ items:
   - kind: model_group
     title: Geosupport System Normalizing Tables
     custom:
+      elements:
+        - kind: text
+          text: >-
+            The normalizing tables tell Geosupport how to normalize street
+            names, including names it would otherwise expand wrongly. Geosupport
+            reads them. They are produced by the build from the CSCL street and
+            feature name tables and written as citywide text files. See the
+            [architecture overview](../../docs/architecture.md) for how the pipeline
+            fits together.
       known_differences: [Normalizing tables]
     entries:
       - name: enders_by_field
@@ -116,6 +157,17 @@ items:
   - kind: model_group
     title: District Boundary Geodatabase
     custom:
+      elements:
+        - kind: text
+          text: >-
+            The district boundary geodatabase bundles about 43 polygon layers
+            (community districts, council districts, census tracts, NTAs, ZIP
+            codes and others), all built from the same atomic polygon topology
+            so the layers share edges. It is published for public use and
+            internal mapping. The build assembles each layer from atomic
+            polygons, clips water where needed, and exports a single file
+            geodatabase. See the [architecture overview](../../docs/architecture.md)
+            for how the pipeline fits together.
       known_differences: [District gdb]
     entries:
       - name: gdb_nycd
@@ -131,17 +183,25 @@ items:
       elements:
         - kind: text
           text: >-
+            The Special Address File (SAF) holds addresses, place names and
+            named intersections that Geosupport matches input against, one
+            record per address range, place name, address point or intersection.
+            Geosupport reads it, and GR and GSS review it. The build combines
+            CSCL's alternate segment data, place name and address point tables
+            into shared candidate rows and writes nine fixed-width files. See
+            the [architecture overview](../../docs/architecture.md) for how the
+            pipeline fits together.
+        - kind: text
+          text: >-
             13 [[saf|SAF]] record types (A, B, C, [[saf_type_d|D]], E, G, [[saf_type_i|I]],
             N, O, P, [[saf_type_s|S]], [[saf_type_v|V]], X - CSCL also has a source type
             'F', always relabeled to 'D' on output) collapse into 5 distinct record
             layouts, and so into 9 output files: one for Type I (intersections), and a
             generic + roadbed pair for each of the other four layout families -
             "abcegnpx" (A, B, C, E, G, N, P, X), "d" (D, F), "ov" (O, V), and "s" (S) -
-            the nine sections below follow that same grouping. (We only have solid
-            definitions for I/D/S/V above - the individual A/B/C/E/G/N/O/P/X
-            distinctions live in Geosupport's own SAFTYPE domain, not in anything we
-            have on hand; happy to fill those glossary entries in once we have a
-            source for them.)
+            the nine sections below follow that same grouping. (The individual
+            A/B/C/E/G/N/O/P/X distinctions are defined by Geosupport's own SAFTYPE
+            domain, not by CSCL.)
         - kind: text
           text: >-
             Every SAF record traces back to one of three CSCL tables, by record type:
@@ -154,7 +214,7 @@ items:
             intersection name), pulled from StreetName/FeatureName's LOOKUP_KEY and
             normalized into Geosupport's Sort Format.
         - kind: heading
-          text: Implementation Details
+          text: How the SAF files are produced
           level: 3
         - kind: text
           text: >-
@@ -175,9 +235,9 @@ items:
             filter on each output file keeps only the one that actually belongs there.
         - kind: text
           text: >-
-            See CSCL-SAF-01 in data_issues.md for the [[lgc|LGC]] and row-count
-            differences once attributed to stale prod data. All were traced to this
-            pipeline and fixed.
+            Earlier releases showed [[lgc|LGC]] and row-count differences from the
+            previous production release that were once attributed to stale production
+            data. All were traced to this pipeline and fixed (CSCL-SAF-01).
     entries:
       - name: saf_abcegnpx_generic_by_field
         custom:

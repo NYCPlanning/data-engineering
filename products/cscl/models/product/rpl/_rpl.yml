@@ -43,6 +43,7 @@ models:
     description: "Segment ID of the roadbed segment."
     data_type: string
   - name: filler_rpl3
+    description: Filler. Always blank.
     data_type: string
   - name: roadbed_position_code
     data_type: string
@@ -56,6 +57,7 @@ models:
         R: right outermost roadbed
         I: inner roadbed segment
   - name: filler_rpl4
+    description: Filler. Always blank.
     data_type: string
   - name: node_correspondence_indicator
     data_type: string
@@ -64,31 +66,37 @@ models:
       RoadbedPointerList table has its own NODE_CORRESPONDENCE_IND field, but it isn't
       read.
   - name: filler_rpl5
+    description: Filler. Always blank.
     data_type: string
   - name: from_node_level_code_of_coincident_roadbed_segment
     description: "Level code of the from node of the coincident roadbed segment, if any."
     data_type: string
   - name: filler_rpl6
+    description: Filler. Always blank.
     data_type: string
   - name: to_node_level_code_of_coincident_roadbed_segment
     description: "Level code of the to node of the coincident roadbed segment, if any."
     data_type: string
   - name: filler_rpl7
+    description: Filler. Always blank.
     data_type: string
   - name: from_nodeid_of_roadbed_segment
     data_type: string
     description: NODEID of the roadbed segment's from-endpoint.
   - name: filler_rpl8
+    description: Filler. Always blank.
     data_type: string
   - name: from_nodeid_of_generic_segment
     data_type: string
     description: NODEID of the generic segment's from-endpoint.
   - name: filler_rpl9
+    description: Filler. Always blank.
     data_type: string
   - name: to_nodeid_of_roadbed_segment
     data_type: string
     description: NODEID of the roadbed segment's to-endpoint.
   - name: filler_rpl10
+    description: Filler. Always blank.
     data_type: string
   - name: to_nodeid_of_generic_segment
     data_type: string
@@ -110,6 +118,7 @@ models:
       enforced: true
   columns:
   - name: dat_column
+    description: The record as one fixed-width line, as written to the text file.
     data_type: string
     tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:

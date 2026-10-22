@@ -82,6 +82,20 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: ADMIN_FIRE_COMPANY
+    description: "Administrative fire company of the atomic polygon: the first character is the company type, the last three the company number."
+  - name: SB1_VOLUME
+    description: Volume of the first Sanborn map covering the atomic polygon.
+  - name: SB1_PAGE
+    description: Page of the first Sanborn map covering the atomic polygon.
+  - name: SB2_VOLUME
+    description: Volume of the second Sanborn map covering the atomic polygon, if any.
+  - name: SB2_PAGE
+    description: Page of the second Sanborn map covering the atomic polygon, if any.
+  - name: SB3_VOLUME
+    description: Volume of the third Sanborn map covering the atomic polygon, if any.
+  - name: SB3_PAGE
+    description: Page of the third Sanborn map covering the atomic polygon, if any.
 
 - name: gdb_nybb
   description: Borough boundaries built from the AtomicPolygon topology.
@@ -96,6 +110,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: BoroName
+    description: Borough name.
 
 - name: gdb_nybbwi
   description: Borough boundaries built from the AtomicPolygon topology, water areas included.
@@ -110,6 +126,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: BoroName
+    description: Borough name.
 
 - name: gdb_nybid
   description: >-
@@ -126,6 +144,10 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: BID
+    description: Name of the BID.
+  - name: BOROUGH
+    description: Borough of the BID.
 
 - name: gdb_nycb2010
   description: 2010 census blocks built from the AtomicPolygon topology.
@@ -294,6 +316,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: CDTAType
+    description: CDTA type code.
 
 - name: gdb_nycdwi
   description: >-
@@ -365,6 +389,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: CDEligibil
+    description: Community development eligibility code, copied from the source census tract layer.
 
 - name: gdb_nyct2010wi
   description: 2010 census tracts built from the AtomicPolygon topology, water areas included.
@@ -391,6 +417,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: CDEligibil
+    description: Community development eligibility code, copied from the source census tract layer.
 
 - name: gdb_nyct2020
   description: 2020 census tracts built from the AtomicPolygon topology.
@@ -423,6 +451,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: CDEligibil
+    description: Community development eligibility code, copied from the source census tract layer.
 
 - name: gdb_nyct2020wi
   description: 2020 census tracts built from the AtomicPolygon topology, water areas included.
@@ -455,6 +485,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: CDEligibil
+    description: Community development eligibility code, copied from the source census tract layer.
 
 - name: gdb_nyed
   description: Election districts built from the AtomicPolygon topology.
@@ -591,6 +623,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: BOROUGH
+    description: Borough of the district.
 
 - name: gdb_nyhez
   description: >-
@@ -720,6 +754,8 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: NTAType
+    description: NTA type code.
 
 - name: gdb_nypp
   description: >-
@@ -851,3 +887,5 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
+  - name: COUNTY
+    description: County the ZIP code area lies in.

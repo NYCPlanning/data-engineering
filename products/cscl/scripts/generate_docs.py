@@ -34,7 +34,6 @@ from dcpy.utils.dbt_project import (
     DbtModelDoc,
     DbtProject,
     documented_columns_table,
-    each_row_is_a_text,
     geospatial_badge_text,
     implementation_details_elements,
     load_dbt_project_from_manifest,
@@ -175,6 +174,19 @@ def _dat_fields_table(model: DbtModelDoc) -> Table:
     )
 
 
+def _each_row_is_text(model: DbtModelDoc) -> Text | None:
+    """The "Each row is a ..." lead-in. The yml phrase starts with its own article
+    ("A LION segment", "An enders name entry"), so the bold label stops before it
+    rather than doubling it."""
+    phrase = model.each_row_is_a
+    if not phrase:
+        return None
+    article, _, rest = phrase.partition(" ")
+    if article.lower() in ("a", "an") and rest:
+        return Text(text=f"**Each row is {article.lower()}** {rest}")
+    return Text(text=f"**Each row is** {phrase}")
+
+
 def _build_section(
     project: DbtProject, entry: DocConfigEntry, group_label: str
 ) -> Section:
@@ -191,7 +203,7 @@ def _build_section(
             _warn_on_internal_references(text, f"{entry.name}.{field}")
 
     elements: list[Heading | Text | Table | Image] = []
-    each_row_is_a = each_row_is_a_text(model)
+    each_row_is_a = _each_row_is_text(model)
     if each_row_is_a is not None:
         elements.append(each_row_is_a)
 
@@ -254,6 +266,23 @@ def _outputs(row: dict[str, str]) -> set[str]:
     return {output.strip() for output in row["output"].split(";")}
 
 
+_STATUS_MEANINGS = {
+    "open": "unexplained, or explained but not yet decided",
+    "accepted": "understood and deliberately left as is",
+    "watch": "resolved, but can recur, so it is checked each release",
+}
+
+
+def _status_cell(row: dict[str, str]) -> str:
+    """Status, plus which side the build follows when the difference is deliberate."""
+    status = row["status"].capitalize()
+    decision = row["decision"].strip()
+    if decision in ("keep ours", "match prod"):
+        follows = "this build" if decision == "keep ours" else "previous release"
+        return f"{status} (follows {follows})"
+    return status
+
+
 def _known_differences_section(
     known_differences: list[dict[str, str]], outputs: list[str], group_label: str
 ) -> Section | None:
@@ -263,6 +292,12 @@ def _known_differences_section(
     rows = [row for row in known_differences if _outputs(row) & set(outputs)]
     if not rows:
         return None
+    present = {row["status"] for row in rows}
+    legend = " ".join(
+        f"**{status.capitalize()}**: {meaning}."
+        for status, meaning in _STATUS_MEANINGS.items()
+        if status in present
+    )
     for row in rows:
         _warn_on_internal_references(
             row["description"], f"known difference {row['id']}"
@@ -272,7 +307,8 @@ def _known_differences_section(
         elements=[
             Text(
                 text="Where this output knowingly differs from the previous production "
-                "release, and why. Each difference keeps its ID across releases."
+                "release, and why. Each difference keeps its ID across releases. "
+                + legend
             ),
             Table(
                 headers=["ID", "Scope", "Difference", "Status"],
@@ -281,7 +317,7 @@ def _known_differences_section(
                         row["id"],
                         row["scope"],
                         row["description"],
-                        row["status"].capitalize(),
+                        _status_cell(row),
                     ]
                     for row in rows
                 ],
