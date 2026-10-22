@@ -101,7 +101,6 @@ segment_row_counts AS (
             lion.source_table IN ('centerline', 'shoreline')
             AND commonplace.saftype IN ('G', 'N', 'X')
             AND commonplace.b7sc IS NULL
-            AND commonplace.security_level <> '3'
     ) AS per_record
     LEFT JOIN coincident_segment_counts ON per_record.segmentid = coincident_segment_counts.segmentid
     GROUP BY per_record.segmentid

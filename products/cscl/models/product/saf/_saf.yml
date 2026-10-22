@@ -9,7 +9,7 @@ models:
     record layout despite two different source tables, since a
     street segment's address data and a place name attached to that segment need the
     same shape. This is the generic-file version. Differs from prod in one
-    row for segment 9017010 and in two duplicate-key groups per file (CSCL-SAF-03,
+    row for segment 9017010 and in one duplicate-key group per file (CSCL-SAF-03,
     CSCL-SAF-04).
   config:
     tags: [export_doc]
@@ -131,7 +131,7 @@ models:
       meta:
         is_geospatial: true
     - name: side_ct2020_basic
-      description: "G/N/X only: basic part of the 2020 census tract of the atomic polygon the place point falls in; blank otherwise. Differs from prod on about 65 rows per file, on atomic polygon boundaries (CSCL-SAF-02)."
+      description: "G/N/X only: basic part of the 2020 census tract of the atomic polygon the place point falls in; blank otherwise. A point within 0.0002 ft (the source XY tolerance) of an atomic polygon boundary takes the first atomic polygon in source order within that tolerance, as prod does; differs from prod on 2 rows per file (CSCL-SAF-02)."
       data_type: string
       meta:
         is_geospatial: true
