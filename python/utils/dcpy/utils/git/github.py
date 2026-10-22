@@ -9,7 +9,6 @@ from typing import Any, Dict, List
 
 import requests
 from dateutil.parser import parse as datetime_parse
-from git import Repo
 
 ORG = "NYCPlanning"
 PERSONAL_TOKEN = os.environ["GHP_TOKEN"]
@@ -59,6 +58,10 @@ def clone_repo(repo: str, output_directory: Path, *, branch: str | None = None) 
     url = f"https://github.com/NYCPlanning/{repo}"
     if output_path.exists():
         shutil.rmtree(output_path)
+    # GitPython runs `git version` when imported; importing it here keeps every caller
+    # of the API helpers below from depending on a working local git executable
+    from git import Repo
+
     Repo.clone_from(url, output_path)
     return output_path
 
