@@ -364,10 +364,13 @@ inputs:
       all_varchar: true  # all text, as the files are fixed-width records
 
   # QA: the legacy pipeline's outputs for this release, as parquet (one table per output,
-  # into schema production_outputs). Built by poc_validation/build_prod_snapshot.py.
+  # into schema production_outputs). Built by poc_validation/build_prod_snapshot.py (the
+  # "CSCL - Prod snapshot" workflow). Its version is the build's own (VERSION, set by the
+  # planner from `version` above): QA compares against the legacy release of the same
+  # version, never an older one, so a missing snapshot fails instead of falling back.
   - name: dcp_cscl_production_outputs
     source: edm.private
-    version: 26c
+    version_env_var: VERSION
     file_type: parquet_bundle
     import_as: production_outputs
     custom:
