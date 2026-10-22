@@ -120,6 +120,11 @@ vars:
   boundary_qa_outlier_min_hausdorff_ft: 5
   boundary_qa_outlier_min_symdiff_pct: 0.01
   boundary_qa_hausdorff_max_vertex_product: 50000000
+  # QA (models/etl_dev_qa/district_review): symmetric-difference pieces narrower than
+  # this on average (2 * area / perimeter) are grid noise - about 16 cells of the
+  # source's 2^-14 ft grid, 3x the 0.0003 ft worst-case corner disagreement above. See
+  # qa__district_review_pieces.
+  district_review_noise_width_ft: 0.001
 
 flags:
   fail-fast: true
