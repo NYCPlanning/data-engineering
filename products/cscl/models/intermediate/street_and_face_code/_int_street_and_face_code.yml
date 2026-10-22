@@ -3,12 +3,15 @@ models:
   description: All local group codes ranked for segments
   columns:
   - name: segmentid
+    description: "Segment id."
     tests:
     - not_null
   - name: lgc
+    description: "Local group code."
     tests:
     - not_null
   - name: lgc_rank
+    description: "Rank on the segment: preferred LGC first, then ascending LGC."
     tests:
     - dbt_utils.accepted_range:
         arguments:
@@ -21,11 +24,14 @@ models:
   description: Street codes and face code-related data for all segments
   columns:
   - name: boroughcode
+    description: "Borough code."
   - name: segmentid
+    description: "Segment id."
     tests:
     - not_null
     - unique
   - name: lgc1
+    description: "Preferred local group code."
     tests:
     - not_null
   - name: lgc2
@@ -37,13 +43,24 @@ models:
   - name: lgc8
   - name: lgc9
   - name: boe_lgc_pointer
+    description: "Rank (1 to 9) of the LGC flagged BOE preferred."
     # not_null disabled: one record fails (inv-c73)
     # tests:
     # - not_null
   - name: five_digit_street_code
+    description: "Five-digit street code of the preferred LGC."
     tests:
     - not_null
   - name: face_code
+    description: "Four-digit face code of the segment."
     # not_null disabled: one record fails (inv-c73)
     # tests:
     # - not_null
+
+- name: int__lgc_address_point
+  description: "Local group codes 2 to 4 of each address point (its primary LGC is on the address point itself), with the BOE preferred pointer."
+  columns:
+  - name: addresspointid
+    description: "Address point id."
+  - name: boe_lgc_pointer
+    description: "Position (1 to 4) of the BOE preferred LGC."

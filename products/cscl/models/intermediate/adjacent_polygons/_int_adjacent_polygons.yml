@@ -6,63 +6,93 @@ models:
     lion_lr_from_topology is on; both pairs are always output.
   columns:
   - name: segmentid
+    description: "Segment id."
     tests: [ not_null ]
   - name: segment_borocode
+    description: "Borough code of the segment."
   # not_null disabled: 2 rows fail (inv-c73)
   # tests:
   # - not_null
   - name: left_atomicid
+    description: "AtomicPolygon on the left of the segment."
   - name: left_borocode
+    description: "Borough code of the left AtomicPolygon."
   - name: left_2000_census_tract
+    description: "2000 census tract on the left side (6 characters)."
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments:
           value: 6
   - name: left_2000_census_tract_basic
+    description: "Basic (4-digit) part of the 2000 census tract on the left side."
   - name: left_2000_census_tract_suffix
+    description: "Suffix (2-digit) part of the 2000 census tract on the left side."
   - name: left_2010_census_tract
+    description: "2010 census tract on the left side (6 characters)."
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments:
           value: 6
   - name: left_2010_census_tract_basic
+    description: "Basic (4-digit) part of the 2010 census tract on the left side."
   - name: left_2010_census_tract_suffix
+    description: "Suffix (2-digit) part of the 2010 census tract on the left side."
   - name: left_2020_census_tract
+    description: "2020 census tract on the left side (6 characters)."
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments:
           value: 6
   - name: left_2020_census_tract_basic
+    description: "Basic (4-digit) part of the 2020 census tract on the left side."
   - name: left_2020_census_tract_suffix
+    description: "Suffix (2-digit) part of the 2020 census tract on the left side."
   - name: left_assembly_district
+    description: "Assembly district on the left side."
   - name: left_election_district
+    description: "Election district on the left side."
   - name: left_school_district
+    description: "School district on the left side."
   - name: right_atomicid
+    description: "AtomicPolygon on the right of the segment."
   - name: right_borocode
+    description: "Borough code of the right AtomicPolygon."
   - name: right_2000_census_tract
+    description: "2000 census tract on the right side (6 characters)."
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments:
           value: 6
   - name: right_2000_census_tract_basic
+    description: "Basic (4-digit) part of the 2000 census tract on the right side."
   - name: right_2000_census_tract_suffix
+    description: "Suffix (2-digit) part of the 2000 census tract on the right side."
   - name: right_2010_census_tract
+    description: "2010 census tract on the right side (6 characters)."
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments:
           value: 6
   - name: right_2010_census_tract_basic
+    description: "Basic (4-digit) part of the 2010 census tract on the right side."
   - name: right_2010_census_tract_suffix
+    description: "Suffix (2-digit) part of the 2010 census tract on the right side."
   - name: right_2020_census_tract
+    description: "2020 census tract on the right side (6 characters)."
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments:
           value: 6
   - name: right_2020_census_tract_basic
+    description: "Basic (4-digit) part of the 2020 census tract on the right side."
   - name: right_2020_census_tract_suffix
+    description: "Suffix (2-digit) part of the 2020 census tract on the right side."
   - name: right_assembly_district
+    description: "Assembly district on the right side."
   - name: right_election_district
+    description: "Election district on the right side."
   - name: right_school_district
+    description: "School district on the right side."
   - name: probe_left_atomicid
     description: Left AP from the 2 ft offset probe (int__segment_offsets).
   - name: probe_right_atomicid
@@ -79,24 +109,31 @@ models:
 #    compare_model: ref("int__segments")
 
 - name: int__segment_offsets
+  description: "One row per segment with a probe point 2 ft off each side of its midpoint, used to look up the polygon on each side."
   columns:
   - name: segmentid
+    description: "Segment id."
   - name: boroughcode
+    description: "Borough code."
   - name: left_line
   - name: right_line
   - name: left_offset_point
+    description: "Point 2 ft to the left of the segment's midpoint."
   - name: right_offset_point
+    description: "Point 2 ft to the right of the segment's midpoint."
 
 - name: int__segment_topology_vertices
   description: Segment vertices that sit on an AP topology node, with their position along the segment.
   columns:
   - name: globalid
+    description: "GlobalID of the segment."
     tests: [ not_null ]
   - name: idx
     description: Vertex index in the segment's linearized geometry (1-based).
   - name: along_ft
     description: Distance along the segment to this vertex.
   - name: node_id
+    description: "Topology node the vertex sits on."
     tests: [ not_null ]
   data_tests:
   - dbt_utils.unique_combination_of_columns:
@@ -111,8 +148,10 @@ models:
     snapped vertices, and one row per edge for a step matched to a path.
   columns:
   - name: globalid
+    description: "GlobalID of the segment."
     tests: [ not_null ]
   - name: match_type
+    description: "How the step was matched: edge, path, same_node or none."
     tests:
     - not_null
     - accepted_values:
@@ -132,14 +171,18 @@ models:
   description: Left/right AtomicPolygon of every segment from the AP topology, with the probe as fallback.
   columns:
   - name: globalid
+    description: "GlobalID of the segment."
     tests: [ unique, not_null ]
   - name: method
+    description: "How the sides were found: edges, probe_fallback, out_of_scope or bad_geom."
     tests:
     - not_null
     - accepted_values:
         arguments: { values: [ "edges", "probe_fallback", "out_of_scope", "bad_geom" ] }
   - name: topo_left_atomicid
+    description: "Left AtomicPolygon from the topology edges the segment runs along."
   - name: topo_right_atomicid
+    description: "Right AtomicPolygon from the topology edges the segment runs along."
   - name: topo_left_source
     description: "'edge', 'probe' (lion_lr_fallback_probe_offset_ft) or 'probe_2ft' (out_of_scope / bad_geom)."
     tests:
@@ -165,3 +208,24 @@ models:
   - name: n_left_aps
     description: Distinct APs on the left along all matched edges (more than 1 where the segment crosses an AP corner).
   - name: n_right_aps
+
+- name: int__segment_zipcodes
+  description: "Left and right ZIP code of each segment, from the ZIP polygon containing each offset point (lowest ogc_fid where polygons overlap)."
+  columns:
+  - name: globalid
+    description: "GlobalID of the segment."
+  - name: l_zip
+    description: "ZIP code on the left side."
+  - name: r_zip
+    description: "ZIP code on the right side."
+- name: int__segment_nypdbeat
+  description: "NYPD sector and service area on each side of each segment, from the beat polygon containing each offset point."
+  columns:
+  - name: left_nypd_sector
+    description: "NYPD sector on the left side."
+  - name: right_nypd_sector
+    description: "NYPD sector on the right side."
+  - name: left_nypd_service_area
+    description: "NYPD service area on the left side. Set for housing police (HP) beats only."
+  - name: right_nypd_service_area
+    description: "NYPD service area on the right side. Set for housing police (HP) beats only."

@@ -1,0 +1,21 @@
+version: 2
+
+models:
+- name: int__snd
+  description: "Street name dictionary (SND) records: one row per street or feature name with a B10SC, excluding enders. Differs from prod on rows only one side has (CSCL-NORM-01)."
+  columns:
+  - name: b10sc
+    description: "Ten-character street code."
+  - name: full_name
+    description: "Trimmed lookup key of the name."
+  - name: primary_flag
+    description: "P for a primary name, V for a variant."
+  - name: principal_flag
+    description: "F for the principal name, S otherwise."
+- name: int__exception
+  description: "Exception-flagged names that are not enders, with whether the name ends in a last or universal word."
+- name: int__words
+  description: "Distinct last words and universal words, across their full names and every abbreviation."
+  columns:
+  - name: word
+    description: "Word or abbreviation."

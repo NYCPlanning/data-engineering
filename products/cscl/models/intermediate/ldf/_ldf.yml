@@ -27,10 +27,12 @@ models:
     description: New location on adds, old location on deletes and moves.
     tests: [ not_null ]
   - name: y_coord
+    description: "Y of the location described by x_coord."
     tests: [ not_null ]
   - name: destination_x_coord
     description: New location. Populated on moves only, blank on adds and deletes.
   - name: destination_y_coord
+    description: "New Y location. Populated on moves only."
 
 - name: int__ldf_header
   description: >
@@ -90,6 +92,13 @@ models:
   - name: new_id
     description: Blank on deletes.
   - name: old_from_nodeid
+    description: "From node of the segment before the change. Blank on adds."
   - name: old_to_nodeid
+    description: "To node of the segment before the change. Blank on adds."
   - name: new_from_nodeid
+    description: "From node of the segment after the change. Blank on deletes."
   - name: new_to_nodeid
+    description: "To node of the segment after the change. Blank on deletes."
+
+- name: int__ldf_records
+  description: "Every LION Differences File data record (nodes, then S, G and P segment records) in publication order, with its cumulative record number. Differs from prod on transitory eliminations and on L and R journal records (CSCL-LDF-01, CSCL-LDF-02)."

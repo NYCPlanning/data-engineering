@@ -6,28 +6,42 @@ models:
   description: Lookup table from all segments to joined nodes
   columns:
   - name: segmentid
+    description: "Segment id."
   - name: nodeid
+    description: "Node at the segment endpoint."
   - name: direction
+    description: "'from' for the segment's start point, 'to' for its end point."
 
 - name: int__segments_with_nodes
   description: segment-based table with to and from nodes
   columns:
   - name: segmentid
+    description: "Segment id."
     tests:
     #  - unique # see note in tests
     - not_null
   - name: from_x
+    description: "X of the segment start."
   - name: from_y
+    description: "Y of the segment start."
   - name: to_x
+    description: "X of the segment end."
   - name: to_y
+    description: "Y of the segment end."
   - name: from_nodeid
+    description: "Node at the segment start."
   # tests: [ not_null ] # currently doesn't pass due to 7 proto-segments
   - name: to_nodeid
+    description: "Node at the segment end."
   # tests: [ not_null ] # currently doesn't pass due to 7 proto-segments
   - name: from_sectionalmap
+    description: "Sectional map containing the segment start."
   - name: to_sectionalmap
+    description: "Sectional map containing the segment end."
   - name: from_quarter_sectionalmap
+    description: "Quarter sectional map of the segment start (LION MapFrom)."
   - name: to_quarter_sectionalmap
+    description: "Quarter sectional map of the segment end (LION MapTo)."
   data_tests: [] # currently doesn't pass due to duplicate rows from sectionalmap join
 #- dbt_expectations.expect_table_row_count_to_equal_other_table:
 #    compare_model: ref("stg__centerline")
