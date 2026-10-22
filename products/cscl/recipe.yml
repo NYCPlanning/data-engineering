@@ -389,6 +389,10 @@ exports:
     YORIGIN: "-450359962737.04999"
     XYSCALE: "10000"
     XYTOLERANCE: "0.00020000000000000001"
+  groups:
+    # shipped as dataset_files/flat_files.zip (output.zip already holds the loose files)
+    flat_files:
+      zip: true
   datasets:
   # GeoSupport LION
   - name: manhattan_lion_dat
@@ -1215,6 +1219,9 @@ stage_config:
         run: python poc_validation/district_review_gdb.py
       - name: diffs_report
         run: python poc_validation/build_diffs_report.py
+      - name: zip_diff_rows
+        # per-file diff rows -> validation_output/diff_rows.zip (the QA app reads it)
+        run: python poc_validation/zip_diff_rows.py
   # run by `builds export package`, after it folds the parquet layers into the FGDBs
   builds.package:
     commands:

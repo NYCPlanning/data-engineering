@@ -109,7 +109,7 @@ jobs:
 
     - name: Upload
       # same layout as before the DuckDB cut-over: the package (dataset_files/, attachments/,
-      # the zip) plus QA's validation_output/ (read by the QA app), to
+      # the zip, with zip-marked dataset_files groups zipped) plus QA's validation_output/ (read by the QA app), to
       # edm-publishing db-cscl/build/<build name>/. qa/prod/ (private prod files) stays put.
       run: |
         ROOT=$(dirname "$(uv run python3 -m dcpy lifecycle builds build path --recipe-path $LOCK_FILE)")
@@ -117,6 +117,8 @@ jobs:
         rm -rf "$STAGE" && mkdir -p "$STAGE"
         cp -R "$ROOT/package/." "$STAGE/"
         cp -R "$ROOT/qa/validation_output" "$STAGE/validation_output"
+        # recipe exports.groups with zip: true ship as <group>.zip
+        uv run python3 -m dcpy lifecycle builds export zip-groups "$STAGE" --recipe-path $LOCK_FILE
         uv run python3 -m dcpy.connectors.edm.publishing upload -o "$STAGE" --product db-cscl --acl public-read --max_files 1000
 
     - name: Summary

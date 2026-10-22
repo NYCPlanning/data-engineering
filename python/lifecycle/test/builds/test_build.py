@@ -11,6 +11,7 @@ from dcpy.lifecycle.builds.export import (
     export,
     export_dataset_from_duckdb,
     export_geodataset_from_postgres,
+    zip_groups,
 )
 from dcpy.lifecycle.builds.models import ExportFormat
 from dcpy.utils import duckdb as duckdb_utils
@@ -1027,3 +1028,40 @@ def test_export_recipe_data_without_exports_uses_recipe_build_dir(
         )
     assert expected.is_dir()
     assert write_meta.call_args.kwargs["output_folder"] == expected
+
+
+def test_zip_groups_zips_only_marked_groups(tmp_path):
+    recipe_path = tmp_path / "recipe.lock.yml"
+    recipe_path.write_text(
+        """\
+name: Test Product
+product: test
+version: 24Q1
+inputs:
+  datasets:
+  - name: mytable
+    destination: duckdb
+exports:
+  groups:
+    flat_files:
+      zip: true
+    other:
+      zip: false
+  datasets:
+  - name: mytable
+    group: flat_files
+    format: csv
+"""
+    )
+    stage = tmp_path / "stage"
+    for group in ("flat_files", "other"):
+        (stage / "dataset_files" / group).mkdir(parents=True)
+        (stage / "dataset_files" / group / "a.txt").write_text("a")
+
+    zipped = zip_groups(recipe_path, stage)
+
+    assert zipped == [stage / "dataset_files" / "flat_files.zip"]
+    assert not (stage / "dataset_files" / "flat_files").exists()
+    assert (stage / "dataset_files" / "other" / "a.txt").exists()
+    with zipfile.ZipFile(zipped[0]) as zf:
+        assert zf.namelist() == ["a.txt"]
