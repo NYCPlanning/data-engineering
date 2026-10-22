@@ -217,16 +217,20 @@ LION releases cannot recover (a split looks like one delete plus two adds).
 time, which is after the GDB snapshot we ingest is taken. Select on NULL — never on
 `release_num = '<this release>'`, which matches nothing.
 
-### Transitory record elimination — the open gap
+### Transitory record elimination
 
-`int__ldf_segments` drops the lineage of segments that were created *and* destroyed between
-two releases. Our rule is an approximation of GR's, which lives in an assembly we don't
-have, so this output does not match prod exactly.
+`int__ldf_segments` drops journal records that were undone or superseded before the
+release. It is a port of prod's rule, `CSCL_Editor.LDFExtractHelper` in `CSCLEditor.dll`
+(shipped in the prod ETL archive in edm-private), written as a dbt Python model because the
+rule is sequential: rows are flagged in journal order and later decisions read earlier
+flags. Method names in the model follow prod's.
 
-**The dev/prod difference is CSCL-LDF-01 in [seeds/known_differences.csv](./seeds/known_differences.csv)**; its bead
-has why it exists and what constrains fixing it, alongside the other open data questions
-for this output (CSCL-LDF-*). Read that before changing the elimination logic; in
-particular, don't tune it to match prod's counts on the two editions we have.
+It deviates from prod in one place, **CSCL-LDF-01 in [seeds/known_differences.csv](./seeds/known_differences.csv)**:
+prod drops a G or P record when its generic or physical ID is deleted anywhere in the
+journal, even on another segment, which loses reassignments LION shows took effect. Ours
+only counts a delete on the same node pair. Everything else should match prod record for
+record; a new difference is a porting bug, so compare against the decompiled source before
+changing the logic.
 
 ### Cumulative record numbers
 

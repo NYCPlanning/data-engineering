@@ -71,8 +71,9 @@ models:
   description: >
     Segment change records for the LION Differences File - 'S' (base centerline), 'P'
     (physical) and 'G' (generic) - taken from CSCL's edit journal for the release being
-    cut, with transitory lineages removed. Reproduces roughly 97% of GR's published
-    records - see CSCL-LDF-01 for the residual and why.
+    cut, with transitory records removed by a port of prod's rule
+    (CSCL_Editor.LDFExtractHelper). Matches prod except for G and P records whose ID is
+    deleted on another segment - see CSCL-LDF-01.
   columns:
   - name: record_type
     tests:

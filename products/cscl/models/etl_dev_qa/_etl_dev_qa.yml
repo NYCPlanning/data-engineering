@@ -90,16 +90,15 @@ models:
   - name: matched
     description: Records present the same number of times on both sides.
   - name: dev_only
-    description: Surplus copies in dev. Usually transitory records we failed to eliminate.
+    description: Surplus copies in dev. Expected only for the G and P records in CSCL-LDF-01.
   - name: prod_only
     description: Records prod publishes that we dropped or never generated.
 
 - name: qa__ldf_diffs
   description: >
     The individual LDF records dev and prod disagree on, with node and segment
-    identifiers extracted from the fixed-width record. Expect most rows here to be
-    transitory-elimination differences - see design_doc.md "Known dev/prod
-    differences" before treating one as a new defect.
+    identifiers extracted from the fixed-width record. The only expected rows are the G
+    and P records in CSCL-LDF-01; anything else is a new difference.
   columns:
   - name: missing_from
     description: Which side lacks the record - dev_only or prod_only.

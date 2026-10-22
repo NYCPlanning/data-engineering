@@ -2,9 +2,9 @@
 The individual LDF records that dev and prod disagree on, with their identifiers pulled
 out so they can be chased without decoding fixed-width text by hand.
 
-See qa__ldf_summary for why comparison is on positions 1-90 only. Most of what shows up
-here should be transitory-elimination differences - see design_doc.md, "Known dev/prod
-differences" - so check that before treating a row as a new defect.
+See qa__ldf_summary for why comparison is on positions 1-90 only. The transitory rule is a
+port of prod's, so the only expected rows are the G and P records in CSCL-LDF-01; anything
+else is a new difference.
 */
 
 WITH bodies AS (
