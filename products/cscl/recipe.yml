@@ -1033,12 +1033,12 @@ exports:
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycc, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycc, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: city_council_districts, file_id: districts_gdb } }
   - name: gdb_nyccwi
     group: district_gdb
     filename: v26C_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyccwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyccwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: city_council_districts, file_id: districts_gdb } }
   - name: gdb_nycd
     group: district_gdb
     filename: v26C_Districts.gdb.zip

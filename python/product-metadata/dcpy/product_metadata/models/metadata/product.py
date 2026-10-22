@@ -3,7 +3,7 @@ from __future__ import annotations
 import unicodedata
 from typing import Any, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from tabulate import tabulate  # type: ignore
 
 from dcpy.utils.collections import deep_merge_dict as merge
@@ -105,11 +105,14 @@ class FileOverrides(CustomizableBase):
 
 
 class GdbLayerOverrides(CustomizableBase):
-    """Per-layer column overrides for a geodatabase file. `layer` must match
-    an actual layer name in the GDB."""
+    """Per-layer column and attribute overrides for a geodatabase file. `layer`
+    must match an actual layer name in the GDB."""
 
     layer: str
     overridden_columns: list["DatasetColumn"] = []
+    attributes: "DatasetAttributesOverride" = Field(
+        default_factory=lambda: DatasetAttributesOverride()
+    )
 
 
 class File(CustomizableBase):
@@ -356,7 +359,8 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             return file_dataset
         layer_overrides = matching[0]
         overrides = DatasetOverrides(
-            overridden_columns=layer_overrides.overridden_columns
+            overridden_columns=layer_overrides.overridden_columns,
+            attributes=layer_overrides.attributes,
         )
         return file_dataset.override(overrides)
 
