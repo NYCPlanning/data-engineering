@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: gdb_lion
-    description: "LION segment line layer for the published ESRI geodatabase (nyclion_*.zip). Columns match the prod GDB field names. Fields not yet available from int__lion are NULL."
+    description: "LION segment line layer of the published ESRI geodatabase: one row per LION record, with extra rows for SAF replicants and continuous-parity segments. Columns match the prod GDB field names. Differs from prod on the curve flag, the BOE LGC pointer, the zip codes on Randall's Island, and SAF rows of types A, B, E and P (CSCL-LION-02 to CSCL-LION-04, CSCL-LION-20)."
     columns:
       - name: "'SegmentID'"
         description: "7-character segment identifier"
@@ -12,7 +12,7 @@ models:
         data_tests:
           - not_null
   - name: gdb_node
-    description: "LION node point layer for the published ESRI geodatabase (nyclion_*.zip). Mostly a passthrough of the source Node layer (dcp_cscl_nodes, via stg__nodes), except floating virtual-intersection nodes (see VIntersect) are dropped; columns match the prod GDB field names."
+    description: "LION node point layer of the published ESRI geodatabase. The source node layer with floating virtual-intersection nodes dropped; columns match the prod GDB field names."
     columns:
       - name: "'NODEID'"
         description: "Node identifier"
@@ -46,7 +46,7 @@ models:
       Join_ID: one set per LION record, segments and SAF replicants alike. A SAF
       replicant's names come from its host segment's B7SCs (with the AltSegmentData
       street code for types B-F/O/P), not from the B7SC encoded in its Join_ID - see
-      CSCL-LION-09 in data_issues.md.
+      CSCL-LION-09.
     columns:
       - name: "'Join_ID'"
         description: "15-char link to the lion layer's Join_ID (ETL spec §2.7.3)"

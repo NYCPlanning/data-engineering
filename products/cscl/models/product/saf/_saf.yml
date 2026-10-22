@@ -8,7 +8,9 @@ models:
     non-addressable place name (NAP) of type G, N or X - these eight types share one
     record layout (Legacy Table 28) despite two different source tables, since a
     street segment's address data and a place name attached to that segment need the
-    same shape. This is the generic-file version.
+    same shape. This is the generic-file version. Differs from prod in one
+    row for segment 9017010 and in two duplicate-key groups per file (CSCL-SAF-03,
+    CSCL-SAF-04).
   config:
     tags: [export_doc]
     meta:
@@ -31,6 +33,7 @@ models:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 32 }
     - name: boroughcode
+      description: "Borough code of the segment the record is attached to (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string
       tests:
       - not_null
@@ -38,11 +41,13 @@ models:
           arguments:
             values: [ "1", "2", "3", "4", "5" ]
     - name: face_code
+      description: "Face code of the segment the record is attached to."
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 4 }
     - name: segment_seqnum
+      description: "Sequence number of the segment the record is attached to, ordering segments that share a face code."
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -53,20 +58,25 @@ models:
         'L'/'R' translated from AltSegmentData's SOSINDICATOR (1/2) for A/B/C/E/P, or
         CommonPlace's for G/N/X; blank otherwise.
     - name: b5sc
+      description: "Six-character borough and five-digit street code (B5SC) of the record's street."
       data_type: string
     - name: l_low_hn
+      description: "Lowest house number on the left side of the street."
       data_type: string
     - name: filler_safa7
       data_type: string
     - name: l_high_hn
+      description: "Highest house number on the left side of the street."
       data_type: string
     - name: filler_safa8
       data_type: string
     - name: r_low_hn
+      description: "Lowest house number on the right side of the street."
       data_type: string
     - name: filler_safa9
       data_type: string
     - name: r_high_hn
+      description: "Highest house number on the right side of the street."
       data_type: string
     - name: filler_safa10
       data_type: string
@@ -79,18 +89,25 @@ models:
     - name: filler_safa11
       data_type: string
     - name: lgc1
+      description: "Local group code (LGC) of the record's preferred name on the segment."
       data_type: string
     - name: lgc2
+      description: "Second LGC of the segment, blank if none."
       data_type: string
     - name: lgc3
+      description: "Third LGC of the segment, blank if none."
       data_type: string
     - name: lgc4
+      description: "Fourth LGC of the segment, blank if none."
       data_type: string
     - name: boe_lgc_pointer
+      description: "Position in the segment's LGC list of the Board of Elections preferred LGC."
       data_type: string
     - name: segment_type
+      description: "Segment type code of the segment the record is attached to."
       data_type: string
     - name: segmentid
+      description: "Seven-digit segment ID of the segment the record is attached to."
       data_type: string
     - name: x_coord
       data_type: string
@@ -109,14 +126,17 @@ models:
       meta:
         is_geospatial: true
     - name: side_ct2020_basic
+      description: "G/N/X only: basic part of the 2020 census tract of the atomic polygon the place point falls in; blank otherwise. Differs from prod on about 65 rows per file, on atomic polygon boundaries (CSCL-SAF-02)."
       data_type: string
       meta:
         is_geospatial: true
     - name: side_ct2020_suffix
+      description: "G/N/X only: suffix of the 2020 census tract of the atomic polygon the place point falls in; blank otherwise (CSCL-SAF-02)."
       data_type: string
       meta:
         is_geospatial: true
     - name: side_ap
+      description: "G/N/X only: atomic polygon the place point falls in; blank otherwise (CSCL-SAF-02)."
       data_type: string
       meta:
         is_geospatial: true
@@ -154,10 +174,13 @@ models:
         'Y'), normalized to Sort Format - not the regular street name (see
         regular_b5sc).
     - name: boroughcode
+      description: "Borough code of the segment the record is attached to (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string
     - name: face_code
+      description: "Face code of the segment the record is attached to."
       data_type: string
     - name: segment_seqnum
+      description: "Sequence number of the segment the record is attached to, ordering segments that share a face code."
       data_type: string
     - name: sos_indicator
       data_type: string
@@ -190,6 +213,7 @@ models:
       data_type: string
       description: Always 'D' in the output, even for a row whose source SAFTYPE was 'F'.
     - name: zipcode
+      description: "Zip code of the duplicate address pseudo-street (DAPS) record."
       data_type: string
     - name: daps_type
       data_type: string
@@ -199,8 +223,10 @@ models:
     - name: filler_safa12
       data_type: string
     - name: segment_type
+      description: "Segment type code of the segment the record is attached to."
       data_type: string
     - name: segmentid
+      description: "Seven-digit segment ID of the segment the record is attached to."
       data_type: string
 
 - name: saf_d_roadbed_by_field
@@ -236,6 +262,7 @@ models:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 32 }
     - name: nodeid
+      description: "Node ID of the named intersection."
       data_type: string
     - name: filler_safi2
       data_type: string
@@ -248,8 +275,10 @@ models:
       data_type: string
       description: The intersection's own B7SC - distinct from the two cross-street B5SCs below.
     - name: b5sc_cross1
+      description: "B5SC of one of the two streets that cross at the intersection."
       data_type: string
     - name: b5sc_cross2
+      description: "B5SC of the other cross street."
       data_type: string
     - name: filler_safi6
       data_type: string
@@ -282,6 +311,7 @@ models:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 32 }
     - name: boroughcode
+      description: "Borough code of the segment the record is attached to (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string
     - name: face_code
       data_type: string
@@ -293,6 +323,7 @@ models:
       data_type: string
       description: For V, describes the actual physical segment, not the vanity street.
     - name: sos_indicator
+      description: "L or R: the side of the street the record sits on, from the source's SOS indicator; blank if none."
       data_type: string
     - name: b5sc
       data_type: string
@@ -300,8 +331,10 @@ models:
         For O: AltSegmentData's B5SC directly. For V: first 6 bytes of the address
         point's B7SC_VANITY - the vanity street's own code.
     - name: low_hn
+      description: "Basic part of the lowest house number of the range."
       data_type: string
     - name: low_hn_suffix
+      description: "Suffix of the lowest house number of the range."
       data_type: string
     - name: filler_safv8
       data_type: string
@@ -313,6 +346,7 @@ models:
         range splits low/high across the two fields. See legacy Table 35 Note 5 for
         the full HYPHEN_TYPE-by-HYPHEN_TYPE breakdown.
     - name: high_hn_suffix
+      description: "Suffix of the highest house number of the range."
       data_type: string
     - name: filler_safv10
       data_type: string
@@ -328,12 +362,16 @@ models:
         street's own LGC) - additional vanity LGCs (lgc2-4 below) come from a separate
         AddressPointLGCs join, not from B7SC_VANITY.
     - name: lgc2
+      description: "Second LGC of the segment, blank if none."
       data_type: string
     - name: lgc3
+      description: "Third LGC of the segment, blank if none."
       data_type: string
     - name: lgc4
+      description: "Fourth LGC of the segment, blank if none."
       data_type: string
     - name: boe_lgc_pointer
+      description: "Position in the segment's LGC list of the Board of Elections preferred LGC."
       data_type: string
     - name: segment_type
       data_type: string
@@ -373,11 +411,13 @@ models:
       each_row_is_a: A SAF address point
   columns: &safs_columns
     - name: place_name
+      description: "Name of the street the address point is on, in Geosupport sort format."
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 32 }
     - name: boroughcode
+      description: "Borough code of the segment the record is attached to (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string
     - name: face_code
       data_type: string
@@ -386,10 +426,13 @@ models:
         back to the segment's own LION-key-derived face code if that lookup comes up
         empty - see doc_reconciliation_log.md (DOC-005) for why this fallback exists.
     - name: segment_seqnum
+      description: "Sequence number of the segment the record is attached to, ordering segments that share a face code."
       data_type: string
     - name: sos_indicator
+      description: "L or R: the side of the street the record sits on, from the source's SOS indicator; blank if none."
       data_type: string
     - name: b5sc
+      description: "Borough and five-digit street code (B5SC) of the address point's street."
       data_type: string
     - name: hn
       data_type: string
@@ -417,18 +460,25 @@ models:
     - name: filler_safs9
       data_type: string
     - name: lgc1
+      description: "Local group code (LGC) of the record's preferred name on the segment."
       data_type: string
     - name: lgc2
+      description: "Second LGC of the segment, blank if none."
       data_type: string
     - name: lgc3
+      description: "Third LGC of the segment, blank if none."
       data_type: string
     - name: lgc4
+      description: "Fourth LGC of the segment, blank if none."
       data_type: string
     - name: boe_lgc_pointer
+      description: "Position in the segment's LGC list of the Board of Elections preferred LGC."
       data_type: string
     - name: segment_type
+      description: "Segment type code of the segment the record is attached to."
       data_type: string
     - name: segmentid
+      description: "Seven-digit segment ID of the segment the record is attached to."
       data_type: string
 
 - name: saf_s_roadbed_by_field
@@ -448,6 +498,7 @@ models:
 # models with one text column per row
 
 - name: saf_abcegnpx_generic
+  description: "Generic-segment records of types A, B, C, E, G, N, P and X as fixed-width lines."
   columns: &dat_column_129
     - name: dat_column
       data_type: string
@@ -456,9 +507,11 @@ models:
           arguments: { value: 129 }
 
 - name: saf_abcegnpx_roadbed
+  description: "Roadbed-segment records of types A, B, C, E, G, N, P and X as fixed-width lines."
   columns: *dat_column_129
 
 - name: saf_d_generic
+  description: "Generic-segment duplicate address pseudo-street (type D) records as fixed-width lines."
   columns: &dat_column_105
     - name: dat_column
       data_type: string
@@ -467,9 +520,11 @@ models:
           arguments: { value: 105 }
 
 - name: saf_d_roadbed
+  description: "Roadbed-segment duplicate address pseudo-street (type D) records as fixed-width lines."
   columns: *dat_column_105
 
 - name: saf_i
+  description: "Named intersection (type I) records as fixed-width lines."
   columns:
   - name: dat_column
     data_type: string
@@ -478,6 +533,7 @@ models:
         arguments: { value: 98 }
 
 - name: saf_ov_generic
+  description: "Generic-segment type O and V records as fixed-width lines."
   columns: &dat_column_119
     - name: dat_column
       data_type: string
@@ -486,10 +542,13 @@ models:
           arguments: { value: 119 }
 
 - name: saf_ov_roadbed
+  description: "Roadbed-segment type O and V records as fixed-width lines."
   columns: *dat_column_119
 
 - name: saf_s_generic
+  description: "Generic-segment address point (type S) records as fixed-width lines."
   columns: *dat_column_105
 
 - name: saf_s_roadbed
+  description: "Roadbed-segment address point (type S) records as fixed-width lines."
   columns: *dat_column_105

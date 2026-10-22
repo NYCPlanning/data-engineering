@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: snd_by_field
+    description: >-
+      One row per street or feature name in the Street Name Dictionary: a name with a
+      B10SC, excluding names flagged as enders. Names come from the street name and
+      feature name tables. Rows only one side has differ from prod, which was built
+      from a newer extract (CSCL-NORM-01).
+  - name: snd
+    description: The Street Name Dictionary as fixed-width lines, one per name.
+  - name: exception_by_field
+    description: >-
+      One row per distinct name flagged as an exception, with a trailing space. These
+      are names the Geosupport normalizer must keep as they are. Rows only one side has
+      differ from prod (CSCL-NORM-01).
+  - name: exception
+    description: The Exception Table as lines of text, one per exception name.
+  - name: universal_word
+    description: >-
+      Words Geosupport recognizes anywhere in a name, with their standard and shortest
+      abbreviations, numbered within each first letter.
+    columns:
+      - name: variable_name
+        description: First letter of the word plus its three-digit rank among words with that first letter, in alphabetical order (A001, A002, B001).
+      - name: directional_indicator
+        description: Y if the word is a direction (north, east and so on, with their bound forms), N otherwise.
+      - name: full_name
+        description: The word in full.
+      - name: standard_abbreviation
+        description: The word's standard abbreviation.
+      - name: shortest_abbreviation
+        description: The word's shortest abbreviation.
+  - name: last_word
+    description: >-
+      Words Geosupport recognizes at the end of a name, with their standard and
+      shortest abbreviations, numbered within each first letter.
+    columns:
+      - name: variable_name
+        description: First letter of the word plus its three-digit rank among words with that first letter, in alphabetical order.
+      - name: directional_indicator
+        description: Y if the word is a direction (north, east and so on, with their bound forms), N otherwise.
+      - name: full_name
+        description: The word in full.
+      - name: standard_abbreviation
+        description: The word's standard abbreviation.
+      - name: shortest_abbreviation
+        description: The word's shortest abbreviation.

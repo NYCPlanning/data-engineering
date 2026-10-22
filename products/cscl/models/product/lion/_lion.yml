@@ -22,6 +22,7 @@ models:
       is_geospatial: true
   columns:
   - name: boroughcode
+    description: "Borough code (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island). The segment's borough from CSCL, or from the street code lookup for non-centerline segments."
     data_type: string
     tests:
     - not_null
@@ -30,191 +31,229 @@ models:
     #     # this enforces length as well
     #     values: [ "1", "2", "3", "4", "5" ]
   - name: face_code
+    description: "Four-digit face code of the segment's preferred name, which Geosupport uses to identify the street or non-street feature. Looked up from the street and feature name tables by the segment's preferred B7SC."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: segment_seqnum
+    description: "Five-digit sequence number that orders the segments sharing a face code. Generated for non-street features, so those values need only be unique within LION (CSCL-LION-05)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
   - name: segmentid
+    description: "Seven-digit CSCL segment ID. Protosegments carry the ID of the geometry-modeled segment they refine."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: five_digit_street_code
+    description: "Five-digit street code (B5SC without the borough) of the segment's street or feature name."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
   - name: lgc1
+    description: "First local group code (LGC): a two-digit code ranking the names a street goes by. LGC1 is the segment's preferred LGC."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc2
+    description: "Second local group code, blank if the segment has only one."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc3
+    description: "Third local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc4
+    description: "Fourth local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: boe_lgc_pointer
+    description: "Position (1-9) in the segment's LGC list of the Board of Elections preferred LGC. Differs from prod on segments with two-digit LGC codes (CSCL-LION-04)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: from_sectionalmap
+    description: "Sectional map number of the node at the segment's from end."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: from_nodeid
+    description: "Node ID of the segment's from end, found by joining the segment's start point to the node layer."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: from_x
+    description: "X coordinate of the from end, in State Plane feet (EPSG:2263), rounded to whole feet."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: from_y
+    description: "Y coordinate of the from end, in State Plane feet (EPSG:2263), rounded to whole feet."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: to_sectionalmap
+    description: "Sectional map number of the node at the segment's to end."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: to_nodeid
+    description: "Node ID of the segment's to end, found by joining the segment's end point to the node layer."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: to_x
+    description: "X coordinate of the to end, in State Plane feet (EPSG:2263), rounded to whole feet."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: to_y
+    description: "Y coordinate of the to end, in State Plane feet (EPSG:2263), rounded to whole feet."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: left_2000_census_tract_basic
+    description: "Basic (four-digit) part of the 2000 census tract on the segment's left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: left_2000_census_tract_suffix
+    description: "Two-digit suffix of the 2000 census tract on the left."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: left_dynamic_block
+    description: "Dynamic block on the segment's left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: l_low_hn
+    description: "Lowest house number on the left side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: l_high_hn
+    description: "Highest house number on the left side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: lsubsect
+    description: "Department of Sanitation subsection on the left: the first two characters of the centerline's LSUBSECT. Centerline segments only."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: l_zip
+    description: "Zip code on the left. From the centerline for centerline segments, otherwise from a spatial join to the zip layer (blank on Randall's Island in prod, CSCL-LION-02)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
   - name: left_assembly_district
+    description: "Assembly district on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: left_election_district
+    description: "Election district on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: left_school_district
+    description: "Community school district on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: right_2000_census_tract_basic
+    description: "Basic (four-digit) part of the 2000 census tract on the segment's right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: right_2000_census_tract_suffix
+    description: "Two-digit suffix of the 2000 census tract on the right."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: right_dynamic_block
+    description: "Dynamic block on the segment's right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: r_low_hn
+    description: "Lowest house number on the right side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: r_high_hn
+    description: "Highest house number on the right side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: rsubsect
+    description: "Department of Sanitation subsection on the right: the first two characters of the centerline's RSUBSECT. Centerline segments only."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: r_zip
+    description: "Zip code on the right. From the centerline for centerline segments, otherwise from a spatial join to the zip layer."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
   - name: right_assembly_district
+    description: "Assembly district on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: right_election_district
+    description: "Election district on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: right_school_district
+    description: "Community school district on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: split_election_district_flag
+    description: "Whether the segment has split election district records: L (left side only), R (right side only), B (both), blank if none. Taken from the SEDAT and Special SEDAT layers."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -227,6 +266,7 @@ models:
         arguments:
           values: [ " " ]
   - name: sandist_ind
+    description: "Sanitation district boundary indicator, from the centerline's SANDIST_IND."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -262,7 +302,7 @@ models:
       to at least one other segment, 'I' if either endpoint is dangling); the
       neighboring borough code (1-5) if left and right APs are in different boroughs;
       'X' if same borough but different census tract; blank otherwise. Compares 2010
-      census tracts specifically, not 2020 - see CSCL-LION-11 in data_issues.md.
+      census tracts specifically, not 2020 (CSCL-LION-11).
     meta:
       is_geospatial: true
       value_labels:
@@ -278,6 +318,7 @@ models:
           # this enforces length as well
           values: [ " ", "9", "H", "I", "1", "2", "3", "4", "5", "X" ]
   - name: feature_type_code
+    description: "LION feature type code: blank for an ordinary street; 1 rail or subway, 2 shoreline, 3 non-physical census block boundary, 4 other non-street feature, 5 paper street, 6 private street, 7 non-physical boundary other than census, 8 physical boundary, 9 paper street on a non-physical boundary, A alley, C constructed, F ferry, W addressable path."
     data_type: string
     tests:
     - not_null
@@ -286,11 +327,13 @@ models:
           # this enforces length as well
           values: [ " ", "1", "2", "3", "5", "6", "7", "8", "9", "A", "W", "F", "C" ]
   - name: nonped
+    description: "Non-pedestrian flag, from the centerline's NONPED."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: continuous_parity_flag
+    description: "L or R for a segment with continuous parity (house numbers run on across the intersection), from the centerline's CONTINUOUS_PARITY_FLAG; blank otherwise."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -303,6 +346,7 @@ models:
         arguments:
           values: [ " " ]
   - name: borough_boundary_indicator
+    description: "L or R for the side of the segment that lies outside its borough (or outside the city); blank for a segment inside one borough."
     data_type: string
     tests:
     - not_null
@@ -310,6 +354,7 @@ models:
         arguments:
           values: [ " ", "R", "L" ]
   - name: twisted_parity_flag
+    description: "Twisted parity flag, from the source's TWISTED_PARITY_FLAG."
     data_type: string
     tests:
     - not_null
@@ -317,31 +362,37 @@ models:
         arguments:
           values: [ " ", "T" ]
   - name: special_address_flag
+    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none. Differs from prod on segments 174704 and 241972 (CSCL-LION-19, CSCL-LION-12)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: curve_flag
+    description: "I if the segment is curved: the centerline's CURVE value, or for other segments a compound curve or a line with more than two points. Differs from prod on compound curves (CSCL-LION-03)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: center_of_curvature_x
+    description: "X coordinate of the center of the segment's curve, in State Plane feet. Centerline segments only; zero on non-curved segments (CSCL-LION-07)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: center_of_curvature_y
+    description: "Y coordinate of the center of the segment's curve, in State Plane feet. Centerline segments only; zero on non-curved segments (CSCL-LION-07)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: segment_length_ft
+    description: "Length of the segment geometry in feet, rounded to the nearest foot."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 5 }
   - name: from_level_code
+    description: "Level of the from end as a letter (CSCL 01-26 become A-Z); * for non-physical features."
     data_type: string
     tests:
     - not_null
@@ -379,6 +430,7 @@ models:
               $
             ]
   - name: to_level_code
+    description: "Level of the to end as a letter (CSCL 01-26 become A-Z); * for non-physical features."
     data_type: string
     tests:
     - not_null
@@ -416,46 +468,55 @@ models:
               $
             ]
   - name: trafdir_ver_flag
+    description: "Traffic direction verification flag, from the centerline's TRAFDIR_VER_FLAG."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: segment_type
+    description: "Segment type code, from the centerline's SEGMENT_TYPE; U for segments from other layers."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: coincident_seg_count
+    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments. Differs from prod on segments 8101066 and 359093 (CSCL-LION-06, CSCL-LION-14)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: incex_flag
+    description: "Include/exclude flag, from the centerline's INCEX_FLAG."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: rw_type
+    description: "Roadway type, from the centerline's RW_TYPE."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: physicalid
+    description: "Physical ID, from the centerline's PHYSICALID."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: genericid
+    description: "Generic ID, from the centerline's GENERICID."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: nypdid
+    description: "NYPD ID, from the centerline's NYPDID."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: fdnyid
+    description: "FDNY ID, from the centerline's FDNYID."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -471,136 +532,163 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: status
+    description: "Status of the street, from the centerline's STATUS."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: streetwidth_min
+    description: "Minimum street width, from the centerline's STREETWIDTH_MIN."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: streetwidth_irr
+    description: "Irregular street width flag, from the centerline's STREETWIDTH_IRR."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: bike_lane_1
+    description: "Bike lane indicator, from the centerline's BIKE_LANE (10 becomes A, 11 becomes B)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: fcc
+    description: "Feature class code, from the centerline's FCC."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: right_of_way_type
+    description: "Right-of-way type of a rail or subway segment, from ROW_TYPE."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: left_2010_census_tract_basic
+    description: "Basic part of the 2010 census tract on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: left_2010_census_tract_suffix
+    description: "Suffix of the 2010 census tract on the left."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: right_2010_census_tract_basic
+    description: "Basic part of the 2010 census tract on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: right_2010_census_tract_suffix
+    description: "Suffix of the 2010 census tract on the right."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc5
+    description: "Fifth local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc6
+    description: "Sixth local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc7
+    description: "Seventh local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc8
+    description: "Eighth local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: lgc9
+    description: "Ninth local group code, blank if none."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: legacy_segmentid
+    description: "Segment ID from the legacy system, where the source layer carries one."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: left_2000_census_block_basic
+    description: "Basic part of the 2000 census block on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: left_2000_census_block_suffix
+    description: "Suffix of the 2000 census block on the left."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: right_2000_census_block_basic
+    description: "Basic part of the 2000 census block on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: right_2000_census_block_suffix
+    description: "Suffix of the 2000 census block on the right."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: left_2010_census_block_basic
+    description: "Basic part of the 2010 census block on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: left_2010_census_block_suffix
+    description: "Suffix of the 2010 census block on the left."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: right_2010_census_block_basic
+    description: "Basic part of the 2010 census block on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: right_2010_census_block_suffix
+    description: "Suffix of the 2010 census block on the right."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: snow_priority
+    description: "Snow removal priority, from the centerline's SNOW_PRIORITY."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: bike_lane_2
+    description: "Second bike lane indicator, from the centerline's BIKE_LANE (10 becomes A, 11 becomes B)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: streetwidth_max
+    description: "Maximum street width, from the centerline's STREETWIDTH_MAX."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -611,91 +699,109 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: l_blockfaceid
+    description: "Block face ID of the left side, from the centerline's L_BLOCKFACEID."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 10 }
   - name: r_blockfaceid
+    description: "Block face ID of the right side, from the centerline's R_BLOCKFACEID."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 10 }
   - name: number_travel_lanes
+    description: "Number of travel lanes, from the centerline."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: number_park_lanes
+    description: "Number of parking lanes, from the centerline."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: number_total_lanes
+    description: "Total number of lanes, from the centerline."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: bike_traffic_direction
+    description: "Direction of bike traffic, from the centerline's BIKE_TRAFDIR."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: posted_speed
+    description: "Posted speed limit, from the centerline."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: left_nypd_service_area
+    description: "NYPD service area on the left, from a join of the left offset point to the NYPD beat layer."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: right_nypd_service_area
+    description: "NYPD service area on the right, from a join of the right offset point to the NYPD beat layer."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: truck_route_type
+    description: "Truck route type, from the centerline's TRUCK_ROUTE_TYPE."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: left_2020_census_tract_basic
+    description: "Basic part of the 2020 census tract on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: left_2020_census_tract_suffix
+    description: "Suffix of the 2020 census tract on the left."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: right_2020_census_tract_basic
+    description: "Basic part of the 2020 census tract on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: right_2020_census_tract_suffix
+    description: "Suffix of the 2020 census tract on the right."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: left_2020_census_block_basic
+    description: "Basic part of the 2020 census block on the left, from the left atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: left_2020_census_block_suffix
+    description: "Suffix of the 2020 census block on the left."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: right_2020_census_block_basic
+    description: "Basic part of the 2020 census block on the right, from the right atomic polygon."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: right_2020_census_block_suffix
+    description: "Suffix of the 2020 census block on the right."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -708,9 +814,11 @@ models:
   - name: _source_table # TODO remove - see note in model sql file
     data_type: string
   - name: _lion_key
+    description: "Borough, face code and zero-padded segment ID joined together; a join key for QA. Not a LION field."
     data_type: string
 
 - name: lion_dat
+  description: "The LION segment records of all boroughs as fixed-width lines; each borough's LION file is the subset for that borough."
   columns:
   - name: dat_column
     tests:
@@ -718,5 +826,6 @@ models:
         arguments: { value: 400 }
 
 - name: manhattan_lion_dat
+  description: "Manhattan's LION file: one fixed-width line per Manhattan segment record."
   columns:
   - name: dat_column

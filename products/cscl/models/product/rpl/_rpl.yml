@@ -32,6 +32,7 @@ models:
       for that generic segment (1-based) - not a CSCL field, just the sort/join key
       this model builds.
   - name: generic_segmentid
+    description: "Segment ID of the generic segment the roadbeds belong to."
     data_type: string
   - name: generic_segmenttype
     data_type: string
@@ -39,6 +40,7 @@ models:
       SEGMENT_TYPE ('B' or 'G') of the generic segment's own LION record, looked up
       rather than copied directly from CSCL's RoadbedPointerList table.
   - name: roadbed_segmentid
+    description: "Segment ID of the roadbed segment."
     data_type: string
   - name: filler_rpl3
     data_type: string
@@ -64,10 +66,12 @@ models:
   - name: filler_rpl5
     data_type: string
   - name: from_node_level_code_of_coincident_roadbed_segment
+    description: "Level code of the from node of the coincident roadbed segment, if any."
     data_type: string
   - name: filler_rpl6
     data_type: string
   - name: to_node_level_code_of_coincident_roadbed_segment
+    description: "Level code of the to node of the coincident roadbed segment, if any."
     data_type: string
   - name: filler_rpl7
     data_type: string
@@ -90,6 +94,7 @@ models:
     data_type: string
     description: NODEID of the generic segment's to-endpoint.
   - name: _rpl_key
+    description: "Generic and roadbed segment IDs joined with an underscore; unique per row. Not a CSCL field."
     data_type: string
   data_tests:
   - test_name: dbt_utils.unique_combination_of_columns
@@ -99,6 +104,7 @@ models:
       - roadbed_segmentid
 
 - name: rpl
+  description: "The Roadbed Pointer List as fixed-width lines: one per roadbed segment."
   config:
     contract:
       enforced: true
