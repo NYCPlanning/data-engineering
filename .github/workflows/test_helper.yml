@@ -179,7 +179,8 @@ jobs:
     - name: known differences
       # the seed's tests, including that every ID a qa__diffs_* label cites is in it (the
       # var enables the one var-gated diff model so its labels are checked too)
-      run: dbt test --select known_differences --vars '{qa_gdb_lion_diffs: true}'
+      run: |
+        dbt test --select known_differences --vars '{qa_gdb_lion_diffs: true}'
     - name: sqlfluff models
       run: sqlfluff lint models --templater=dbt
     - name: sqlfluff tests
