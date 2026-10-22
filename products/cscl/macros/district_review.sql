@@ -123,19 +123,21 @@ FULL OUTER JOIN prior AS p ON n.district_key = p.district_key
 {% endmacro %}
 
 
-{% macro district_review_layer_hooks(statement_macro) %}
+{% macro district_review_layer_hooks(statement_macro, layers_macro='district_review_selected_layers') %}
 {#-
   Post-hooks that INSERT every selected layer after the first into the model's table,
   one statement per layer: the model body builds the first layer only. One statement
   for all 43 layers runs out of DuckDB's 3 GB limit when it shares the instance with
   other QA models (dbt runs two at a time), and per layer it holds one layer at a time.
   statement_macro: name of a macro taking a layer dict and returning its SELECT.
+  layers_macro: name of a macro returning the layer dicts, the first of which the
+  model body builds.
 -#}
 {%- set hooks = [] -%}
-{%- for layer in district_review_selected_layers()[1:] -%}
+{%- for layer in context[layers_macro]()[1:] -%}
     {%- do hooks.append(
         "INSERT INTO {{ this }} BY NAME " ~
-        "{{ " ~ statement_macro ~ "(district_review_selected_layers()[" ~ loop.index ~ "]) }}"
+        "{{ " ~ statement_macro ~ "(" ~ layers_macro ~ "()[" ~ loop.index ~ "]) }}"
     ) -%}
 {%- endfor -%}
 {%- do return(hooks) -%}

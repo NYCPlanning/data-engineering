@@ -296,3 +296,39 @@ FROM (
     FROM {{ adapter.get_relation(database=target.database, schema="production_outputs", identifier=identifier) }}
 )
 {% endmacro %}
+
+
+{% macro geometry_diff_qa_district_layers() %}
+{#-
+  The district_gdb layers qa__geometry_fgdb_district_layers checks: every layer in
+  district_review_layers() except those checked elsewhere. nyap and the census block
+  layers are too large for the full check (qa__geometry_fgdb_district_layers_cheap,
+  qa__diffs_fgdb_nycb2010); nycd, nyfb, nypuma2010 and nypuma2020 have their own models.
+  nyura is left out: prod's fgdb_nyura is empty and carries nybid's schema, so there is
+  nothing to compare. Narrowed by var district_geometry_qa_only (a list of names).
+-#}
+{%- set elsewhere = [
+    'nyap', 'nycb2010', 'nycb2010wi', 'nycb2020', 'nycb2020wi',
+    'nycd', 'nyfb', 'nypuma2010', 'nypuma2020', 'nyura',
+] -%}
+{%- set only = var('district_geometry_qa_only', []) -%}
+{%- set layers = district_review_layers() | rejectattr('name', 'in', elsewhere) | list -%}
+{%- if only %}{% set layers = layers | selectattr('name', 'in', only) | list %}{% endif -%}
+{%- do return(layers) -%}
+{% endmacro %}
+
+
+{% macro geometry_diff_qa_district_layer(layer) %}
+{#- One layer's rows of qa__geometry_fgdb_district_layers: geometry_diff_qa on it. -#}
+SELECT
+    '{{ layer.name }}' AS source_layer,
+    *
+FROM (
+    {{ geometry_diff_qa(
+        build_relation=ref('gdb_' ~ layer.name),
+        prod_relation=prod_fgdb_linear('fgdb_' ~ layer.name),
+        key_column=layer.key,
+        prod_key_column=layer.get('prod_key')
+    ) }}
+) AS t
+{% endmacro %}
