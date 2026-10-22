@@ -42,6 +42,7 @@ models:
   description: "The ThinLION district equivalency file for the whole city as fixed-width lines, one per atomic polygon."
   columns: &dat_column_123
     - name: dat_column
+      description: The record as one fixed-width line, as written to the text file.
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:

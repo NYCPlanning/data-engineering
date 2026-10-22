@@ -64,21 +64,25 @@ models:
       description: "Lowest house number on the left side of the street."
       data_type: string
     - name: filler_safa7
+      description: Filler. Always blank.
       data_type: string
     - name: l_high_hn
       description: "Highest house number on the left side of the street."
       data_type: string
     - name: filler_safa8
+      description: Filler. Always blank.
       data_type: string
     - name: r_low_hn
       description: "Lowest house number on the right side of the street."
       data_type: string
     - name: filler_safa9
+      description: Filler. Always blank.
       data_type: string
     - name: r_high_hn
       description: "Highest house number on the right side of the street."
       data_type: string
     - name: filler_safa10
+      description: Filler. Always blank.
       data_type: string
     - name: saftype
       data_type: string
@@ -87,6 +91,7 @@ models:
         CommonPlace). This is what actually varies row to row despite the shared file
         and layout.
     - name: filler_safa11
+      description: Filler. Always blank.
       data_type: string
     - name: lgc1
       description: "Local group code (LGC) of the record's preferred name on the segment."
@@ -194,11 +199,13 @@ models:
         Whichever of AltSegmentData's l_low_hn/r_low_hn is non-null - a type D record
         represents one side only, the side named by sos_indicator.
     - name: filler_safd7
+      description: Filler. Always blank.
       data_type: string
     - name: high_hn
       data_type: string
       description: Same side-selection as low_hn.
     - name: filler_safd8
+      description: Filler. Always blank.
       data_type: string
     - name: regular_b5sc
       data_type: string
@@ -208,6 +215,7 @@ models:
         not derived from any CSCL table. A street can have more than one valid regular
         name, so there's no reliable automatic way to pick one (legacy Table 30 Note 4).
     - name: filler_safd9
+      description: Filler. Always blank.
       data_type: string
     - name: saftype
       data_type: string
@@ -221,6 +229,7 @@ models:
         '1' if this row's source AltSegmentData entry was actually type 'F' (a
         "pseudo-DAPS"); blank for a true 'D'.
     - name: filler_safa12
+      description: Filler. Always blank.
       data_type: string
     - name: segment_type
       description: "Segment type code of the segment the record is attached to."
@@ -265,6 +274,7 @@ models:
       description: "Node ID of the named intersection."
       data_type: string
     - name: filler_safi2
+      description: Filler. Always blank.
       data_type: string
     - name: multiplefield
       data_type: string
@@ -281,11 +291,13 @@ models:
       description: "B5SC of the other cross street."
       data_type: string
     - name: filler_safi6
+      description: Filler. Always blank.
       data_type: string
     - name: saftype
       data_type: string
       description: Always 'I'.
     - name: filler_safi7
+      description: Filler. Always blank.
       data_type: string
 
 - name: saf_ov_generic_by_field
@@ -337,6 +349,7 @@ models:
       description: "Suffix of the lowest house number of the range."
       data_type: string
     - name: filler_safv8
+      description: Filler. Always blank.
       data_type: string
     - name: high_hn
       data_type: string
@@ -349,11 +362,13 @@ models:
       description: "Suffix of the highest house number of the range."
       data_type: string
     - name: filler_safv10
+      description: Filler. Always blank.
       data_type: string
     - name: saftype
       data_type: string
       description: "'O' or 'V'."
     - name: filler_safv11
+      description: Filler. Always blank.
       data_type: string
     - name: lgc1
       data_type: string
@@ -441,11 +456,13 @@ models:
         already reformatted upstream into the special multiple-of-10,000 format by
         the time they reach this table.
     - name: filler_safs7
+      description: Filler. Always blank.
       data_type: string
     - name: hn_suffix
       data_type: string
       description: The low/basic house-number suffix - distinct from high_alpha_hn_suffix below.
     - name: filler_safs8
+      description: Filler. Always blank.
       data_type: string
     - name: high_alpha_hn_suffix
       data_type: string
@@ -453,11 +470,13 @@ models:
         A second, high-end suffix (the address point's HOUSE_NUMBER_RANGE_SUFFIX) -
         distinct from hn_suffix.
     - name: filler_saf85
+      description: Filler. Always blank.
       data_type: string
     - name: saftype
       data_type: string
       description: Always 'S'.
     - name: filler_safs9
+      description: Filler. Always blank.
       data_type: string
     - name: lgc1
       description: "Local group code (LGC) of the record's preferred name on the segment."
@@ -501,6 +520,7 @@ models:
   description: "Generic-segment records of types A, B, C, E, G, N, P and X as fixed-width lines."
   columns: &dat_column_129
     - name: dat_column
+      description: The record as one fixed-width line, as written to the text file.
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -514,6 +534,7 @@ models:
   description: "Generic-segment duplicate address pseudo-street (type D) records as fixed-width lines."
   columns: &dat_column_105
     - name: dat_column
+      description: The record as one fixed-width line, as written to the text file.
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -527,6 +548,7 @@ models:
   description: "Named intersection (type I) records as fixed-width lines."
   columns:
   - name: dat_column
+    description: The record as one fixed-width line, as written to the text file.
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -536,6 +558,7 @@ models:
   description: "Generic-segment type O and V records as fixed-width lines."
   columns: &dat_column_119
     - name: dat_column
+      description: The record as one fixed-width line, as written to the text file.
       data_type: string
       tests:
       - dbt_expectations.expect_column_value_lengths_to_equal:
