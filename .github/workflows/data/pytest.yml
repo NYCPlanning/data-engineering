@@ -12,3 +12,6 @@
 - name: qa
   working-directory: apps/qa
   calls: [ "." ]
+- name: cscl
+  working-directory: products/cscl
+  calls: [ "tests -s --verbose" ]
