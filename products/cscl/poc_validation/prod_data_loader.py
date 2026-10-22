@@ -95,7 +95,7 @@ def parse_file(
             # any line that's empty once stripped of whitespace and that marker.
             if row.strip("\x1a\r\n ") == "":
                 continue
-            if max_records and i > max_records:
+            if max_records and i >= max_records:
                 break
             records.append({label: row[start:end] for label, start, end in slices})
             i += 1
@@ -240,7 +240,10 @@ def head(
     folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
 ):
     """Just useful to make sure that the formatting is being parsed correctly"""
-    df = parse_file(folder / file_name, 10)
+    dataset = datasets_by_filename.get(file_name)
+    if not dataset or not dataset.formatting_path:
+        raise typer.BadParameter(f"{file_name} has no formatting csv in recipe.yml")
+    df = parse_file(folder / file_name, dataset.formatting_path, max_records=10)
     if save_to_csv:
         df.to_csv(Path(file_name).stem + ".csv")
     typer.echo(df.head())
