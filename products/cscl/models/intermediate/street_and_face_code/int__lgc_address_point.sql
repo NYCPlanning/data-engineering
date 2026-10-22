@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['addresspointid']},
-    ]
+    materialized = 'table'
 ) }}
 WITH ap_lgcs AS (
     SELECT * FROM {{ source("recipe_sources", "dcp_cscl_addresspoint_lgcs") }}

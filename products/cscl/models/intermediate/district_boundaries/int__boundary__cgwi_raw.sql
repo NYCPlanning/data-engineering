@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- One row per congressional district (water included), before noise-ring removal.

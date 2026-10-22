@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- Police precincts: the NYPD source precinct polygons clipped to land (int__boundary__pp;

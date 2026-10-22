@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- State assembly districts, water included (the *wi variant). Boundaries come from the

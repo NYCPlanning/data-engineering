@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['entity_id'], 'unique': True}, {'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- Borough boundaries, water included, built from the AtomicPolygon topology.

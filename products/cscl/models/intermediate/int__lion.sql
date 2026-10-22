@@ -1,9 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['lionkey']},
-      {'columns': ['boroughcode', 'segment_seqnum', 'segmentid']}
-    ]
+    materialized = 'table'
 ) }}
 
 -- backbone

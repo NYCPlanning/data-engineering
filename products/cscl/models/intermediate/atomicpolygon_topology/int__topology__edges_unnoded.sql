@@ -1,10 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['node_lo', 'node_hi', 'is_arc']},
-        {'columns': ['atomicid']},
-        {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized='table'
 ) }}
 
 -- Before noding (int__topology__edges splits edges that cross - see that model).

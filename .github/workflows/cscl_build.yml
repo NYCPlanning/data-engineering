@@ -61,7 +61,8 @@ jobs:
       working-directory: ./
       run: |
         ./bash/docker_container_setup.sh
-        ./bash/build_env_setup.sh
+        # the DuckDB schema: the build name, as a valid identifier
+        echo "BUILD_ENGINE_SCHEMA=$(echo "$BUILD_NAME" | tr - _ | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
     - name: Runner resources
       run: |

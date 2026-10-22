@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- Community districts. Boundaries come from the AtomicPolygon topology

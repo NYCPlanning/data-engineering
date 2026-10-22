@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- One row per 2010 census block, from its exterior edges, before noise-ring removal.

@@ -1,8 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['globalid']},
-    ]
+    materialized='table'
 ) }}
 
 -- Every segment vertex (of the linearized geometry) that sits on an AP topology node,

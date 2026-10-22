@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized = 'table'
 ) }}
 
 SELECT

@@ -1,10 +1,6 @@
 {{
   config(
-    materialized='table',
-    indexes=[
-      {'columns': ['_enders_key']},
-      {'columns': ['lookup_key']}
-    ]
+    materialized='table'
   )
 }}
 

@@ -1,9 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['x_cell', 'y_cell']},
-        {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized='table'
 ) }}
 
 -- One row per occupied grid cell, keyed by integer cell coordinates, with grid size =

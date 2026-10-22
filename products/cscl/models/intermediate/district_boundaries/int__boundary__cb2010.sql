@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['entity_id'], 'unique': True}, {'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- 2010 census block boundaries built from the AtomicPolygon topology (macros/district_boundary.sql).

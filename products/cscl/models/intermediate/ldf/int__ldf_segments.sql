@@ -1,10 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['record_type']},
-      {'columns': ['old_id']},
-      {'columns': ['new_id']},
-    ]
+    materialized = 'table'
 ) }}
 
 /*

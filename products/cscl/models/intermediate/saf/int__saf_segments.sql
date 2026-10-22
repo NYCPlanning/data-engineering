@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['saf_globalid']}
-    ]
+    materialized = 'table'
 ) }}
 
 WITH saf_segment_records AS (

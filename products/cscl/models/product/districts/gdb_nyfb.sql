@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- Fire battalions. Boundaries come from the AtomicPolygon topology (int__boundary__fb);

@@ -1,10 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['geom'], 'type': 'gist'},
-      {'columns': ['midpoint'], 'type': 'gist'},
-      {'columns': ['segmentid']}
-    ]
+    materialized = 'table'
 ) }}
 
 WITH seqnum AS (

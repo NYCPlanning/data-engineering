@@ -1,10 +1,6 @@
 {{
   config(
-    materialized='table',
-    indexes=[
-      {'columns': ['_thinfire_key']},
-      {'columns': ['globalid']}
-    ]
+    materialized='table'
   )
 }}
 

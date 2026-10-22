@@ -1,10 +1,6 @@
 {{
   config(
-    materialized='table',
-    indexes=[
-      {'columns': ['_rpl_key']},
-      {'columns': ['generic_segmentid', 'roadbed_segmentid']}
-    ]
+    materialized='table'
   )
 }}
 

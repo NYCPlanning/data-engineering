@@ -1,10 +1,7 @@
 {{
   config(
     materialized='table',
-    tags=['qa', 'qa_prod'],
-    indexes=[
-      {'columns': ['bctcb2010']}
-    ]
+    tags=['qa', 'qa_prod']
   )
 }}
 

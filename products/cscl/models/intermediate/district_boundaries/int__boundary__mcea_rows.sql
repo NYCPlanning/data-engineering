@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['entity_id']}, {'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- MCEA boundaries grouped into the published layer's rows: one row per connected piece of

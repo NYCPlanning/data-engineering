@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['atomicid'], 'unique': True}]
+    materialized='table'
 ) }}
 
 -- Police geography of every AtomicPolygon - precinct, patrol borough and sector (NYPD
@@ -13,7 +12,7 @@
 --      the centroid - an exact match with prod for every one of them.
 --   2. Otherwise - crescent, concave or multipart APs whose centroid falls outside them
 --      (1,582 APs) - use the value holding the largest share of the AP's area (summed per
---      value: the beat layer has several polygons per sector). Here PostGIS's and the
+--      value: the beat layer has several polygons per sector). Here GEOS's and the
 --      legacy ETL's fallback points disagree, and majority area is what matches prod.
 -- The 4 remaining mismatches are near-ties or slivers (e.g. 1024000006: 51% / 49%).
 --

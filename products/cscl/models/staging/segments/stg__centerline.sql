@@ -1,6 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[ {'columns': ['segmentid']} ]
+    materialized = 'table'
 ) }}
 
 SELECT

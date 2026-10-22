@@ -1,6 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[ {'columns': ['nodeid']} ]
+    materialized = 'table'
 ) }}
 
 /*
