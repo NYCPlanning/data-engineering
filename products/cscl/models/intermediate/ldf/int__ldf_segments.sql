@@ -175,3 +175,9 @@ WHERE
     -- Some records carry only a node pair and no IDs at all. There is no lineage to
     -- judge them by, so they pass through untouched.
     OR (pending.old_id IS NULL AND pending.new_id IS NULL)
+    -- Generic and physical ID reassignments (G and P records with action code G or P)
+    -- are always published, even when the ID is reassigned again before the release and
+    -- never appears in LION. That is prod's rule: LDFExtractHelper.
+    -- ProcessGenPhyTransitoryRecords (CSCLEditor.dll, shipped in the prod ETL archive)
+    -- marks every such record for extraction.
+    OR pending.action_code IN ('G', 'P')
