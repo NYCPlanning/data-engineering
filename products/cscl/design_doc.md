@@ -1656,12 +1656,25 @@ types, 6-character dates and populated LION-key fields.
 A segment created *and* destroyed between two releases was never visible to LION users, so
 its whole lineage is suppressed rather than published. The Phase III document calls this
 eliminating transitory records, but gives only pseudocode that does not match the observed
-behaviour of the published files; production's real rule lives in
-`CSCL_Editor.LDFExtractHelper`, part of the CSCL Maintenance System.
+behaviour of the published files. Production's real rule is
+`CSCL_Editor.LDFExtractHelper`, part of the CSCL Maintenance System; its assembly
+(`CSCLEditor.dll`) ships in the prod ETL archive and decompiles to readable C#.
 
-Our approximation of that rule, how closely it matches, and the other open data questions
-for this output are recorded in [seeds/known_differences.csv](./seeds/known_differences.csv) under `CSCL-LDF-*`.
-Until the suppression rule is settled the LDF is validating, not releasable.
+The rule works on the journal alone, in change order:
+
+- **S records.** A delete takes the records that created the deleted segment with it (and,
+  when a split's other child was deleted too, the records that created the parent). A chain
+  of splits and merges that returns to one segment publishes only its last step, with the
+  original ID in the old-ID position. Any other record whose old or new ID is deleted
+  anywhere in the journal is dropped.
+- **G and P records.** A plain ID reassignment (action G or P) is always published. An add
+  whose ID is carried forward on the same node pair to a delete is dropped with everything
+  in between; split/merge chains collapse as for S. Records whose ID is deleted are dropped
+  as for S.
+
+Ours ports this rule (`int__ldf_segments`) with one deviation, recorded as `CSCL-LDF-01` in
+[seeds/known_differences.csv](./seeds/known_differences.csv): a G or P ID spans many segments, so ours only counts a
+delete of that ID on the same node pair.
 
 ## Log
 

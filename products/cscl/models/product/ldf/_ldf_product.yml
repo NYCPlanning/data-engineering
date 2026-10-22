@@ -24,8 +24,9 @@ models:
 - name: ldf_base
   description: >
     LDFBASE.dat - every LDF data record as a 100-byte line, ordered N, S, G, P then by
-    action code then by ID. Differs from prod in the transitory record rule (an
-    approximation, CSCL-LDF-01) and in carrying the record number on from the previous header (CSCL-LDF-03).
+    action code then by ID. Differs from prod in the transitory record rule (G and P
+    records whose ID is deleted on another segment, CSCL-LDF-01) and in carrying the
+    record number on from the previous header (CSCL-LDF-03).
   columns:
   - name: dat_column
     description: The record as one fixed-width line, as written to the text file.
