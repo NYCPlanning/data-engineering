@@ -87,7 +87,7 @@ files:
     filename: nyct2010wi.zip
     type: shapefile
   dataset_overrides:
-    attributes:
+    attributes: &wi_attributes
       description: |
         Census Tracts from the 2010 US Census for New York City including portions under water. These boundary files are derived from the US Census Bureau's TIGER project and have been geographically modified to fit the New York City base map.
 
@@ -121,6 +121,53 @@ files:
       assembly:
         with_metadata_from:
           file_id: shapefile_water_included
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyct2010
+    - layer: nyct2010wi
+      attributes: *wi_attributes
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: ctlabel
+      custom:
+        fgdb_data_type: String
+    - id: borocode
+      custom:
+        fgdb_data_type: String
+    - id: boroname
+      custom:
+        fgdb_data_type: String
+    - id: ct2010
+      custom:
+        fgdb_data_type: String
+    - id: boroct2010
+      custom:
+        fgdb_data_type: String
+    - id: cdeligibil
+      custom:
+        fgdb_data_type: String
+    - id: ntacode
+      custom:
+        fgdb_data_type: String
+    - id: ntaname
+      custom:
+        fgdb_data_type: String
+    - id: puma
+      custom:
+        fgdb_data_type: String
+    - id: shape_leng
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: the_geom

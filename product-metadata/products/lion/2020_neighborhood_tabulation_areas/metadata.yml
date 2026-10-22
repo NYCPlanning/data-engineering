@@ -68,6 +68,51 @@ files:
     filename: data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nynta2020
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: borocode
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: boroname
+      custom:
+        fgdb_data_type: String
+    - id: countyfips
+      custom:
+        fgdb_data_type: String
+    - id: nta2020
+      custom:
+        fgdb_data_type: String
+    - id: ntaname
+      custom:
+        fgdb_data_type: String
+    - id: ntaabbrev
+      custom:
+        fgdb_data_type: String
+    - id: ntatype
+      custom:
+        fgdb_data_type: String
+    - id: cdta2020
+      custom:
+        fgdb_data_type: String
+    - id: cdtaname
+      custom:
+        fgdb_data_type: String
+    - id: shape_leng
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: borocode

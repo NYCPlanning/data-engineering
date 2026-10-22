@@ -1,0 +1,95 @@
+id: zip_code_areas
+
+attributes:
+  display_name: ZIP Code Areas
+  description: |-
+    ZIP Code areas for New York City, published from the CSCL ZipCode feature class.
+  each_row_is_a: ZIP Code area
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - zip codes
+  - postal
+  - boundaries
+  - lion
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyzip
+
+columns:
+- id: po_name
+  name: PO_NAME
+  data_type: text
+  description: Post office name.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: county
+  name: COUNTY
+  data_type: text
+  description: "County the ZIP Code area is in: New York, Bronx, Kings, Queens or Richmond."
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: created_by
+  name: CREATED_BY
+  data_type: text
+  description: Editor who created the source record.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: created_date
+  name: CREATED_DATE
+  data_type: datetime
+  description: When the source record was created.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Date
+- id: modified_by
+  name: MODIFIED_BY
+  data_type: text
+  description: Editor who last modified the source record.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: modified_date
+  name: MODIFIED_DATE
+  data_type: datetime
+  description: When the source record was last modified.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Date
+- id: zip_code
+  name: ZIP_CODE
+  data_type: text
+  description: ZIP Code.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: shape_length
+  name: SHAPE_Length
+  data_type: number
+  description: Boundary length in feet.
+  custom:
+    fgdb_data_type: Double
+- id: shape_area
+  name: SHAPE_Area
+  data_type: number
+  description: Area in square feet.
+  custom:
+    fgdb_data_type: Double

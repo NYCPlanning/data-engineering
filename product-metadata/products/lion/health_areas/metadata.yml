@@ -80,6 +80,36 @@ files:
     filename: data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyha
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: boro_code
+      name: BoroCode
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: boro_name
+      name: BoroName
+      custom:
+        fgdb_data_type: String
+    - id: health_area
+      name: HealthArea
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: boro_code

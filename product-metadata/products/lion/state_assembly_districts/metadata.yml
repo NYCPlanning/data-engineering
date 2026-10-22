@@ -92,7 +92,7 @@ files:
     filename: nyadwi.zip
     type: shapefile
   dataset_overrides:
-    attributes:
+    attributes: &wi_attributes
       description: |-
         New York State Assembly District boundaries for New York City including portions under water.
 
@@ -146,6 +146,30 @@ files:
       assembly:
         with_metadata_from:
           file_id: shapefile_wi
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyad
+    - layer: nyadwi
+      attributes: *wi_attributes
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: assembly_district
+      name: AssemDist
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: assembly_district

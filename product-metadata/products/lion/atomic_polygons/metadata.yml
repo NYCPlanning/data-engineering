@@ -127,6 +127,106 @@ files:
     filename: data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyap
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
+    - id: borough
+      custom:
+        fgdb_data_type: String
+    - id: censusblock_2000
+      custom:
+        fgdb_data_type: String
+    - id: censusblock_2000_suffix
+      custom:
+        fgdb_data_type: String
+    - id: censustract_2000
+      custom:
+        fgdb_data_type: String
+    - id: censusblock_2010
+      custom:
+        fgdb_data_type: String
+    - id: censusblock_2010_suffix
+      custom:
+        fgdb_data_type: String
+    - id: censustract_2010
+      custom:
+        fgdb_data_type: String
+    - id: censustract_1990
+      custom:
+        fgdb_data_type: String
+    - id: admin_fire_company
+      custom:
+        fgdb_data_type: String
+    - id: water_flag
+      custom:
+        fgdb_data_type: String
+    - id: assemdist
+      custom:
+        fgdb_data_type: String
+    - id: electdist
+      custom:
+        fgdb_data_type: String
+    - id: schooldist
+      custom:
+        fgdb_data_type: String
+    - id: commdist
+      custom:
+        fgdb_data_type: String
+    - id: sb1_volume
+      custom:
+        fgdb_data_type: String
+    - id: sb1_page
+      custom:
+        fgdb_data_type: String
+    - id: sb2_volume
+      custom:
+        fgdb_data_type: String
+    - id: sb2_page
+      custom:
+        fgdb_data_type: String
+    - id: sb3_volume
+      custom:
+        fgdb_data_type: String
+    - id: sb3_page
+      custom:
+        fgdb_data_type: String
+    - id: atomicid
+      custom:
+        fgdb_data_type: String
+    - id: atomic_num
+      custom:
+        fgdb_data_type: String
+    - id: hurricane_evacuation_zone
+      custom:
+        fgdb_data_type: String
+    - id: censustract_2020
+      custom:
+        fgdb_data_type: String
+    - id: censusblock_2020
+      custom:
+        fgdb_data_type: String
+    - id: censusblock_2020_suffix
+      custom:
+        fgdb_data_type: String
+    - id: commercial_waste_zone
+      name: COMMERCIAL_WASTE_ZONE
+      custom:
+        fgdb_data_type: String
 
 columns:
 - id: borough

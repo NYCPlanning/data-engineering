@@ -1,0 +1,109 @@
+id: historic_districts
+
+attributes:
+  display_name: Historic Districts
+  description: |-
+    Boundaries of New York City historic districts designated by the Landmarks Preservation Commission, published from the CSCL HistoricDistrict feature class.
+  each_row_is_a: Historic district
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - historic districts
+  - landmarks
+  - boundaries
+  - lion
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyhd
+
+columns:
+- id: name
+  name: NAME
+  data_type: text
+  description: Historic district name.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: lp_number
+  name: LP_NUMBER
+  data_type: text
+  description: Landmarks Preservation Commission designation number.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: designated
+  name: DESIGNATED
+  data_type: datetime
+  description: Date the historic district was designated.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Date
+- id: borough
+  name: BOROUGH
+  data_type: text
+  description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: extension
+  name: EXTENSION
+  data_type: text
+  description: Yes if the district is an extension of an earlier historic district, otherwise No.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: created_by
+  name: CREATED_BY
+  data_type: text
+  description: Editor who created the source record.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: created_date
+  name: CREATED_DATE
+  data_type: datetime
+  description: When the source record was created.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Date
+- id: modified_by
+  name: MODIFIED_BY
+  data_type: text
+  description: Editor who last modified the source record.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: modified_date
+  name: MODIFIED_DATE
+  data_type: datetime
+  description: When the source record was last modified.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Date
+- id: shape_length
+  name: SHAPE_Length
+  data_type: number
+  description: Boundary length in feet.
+  custom:
+    fgdb_data_type: Double
+- id: shape_area
+  name: SHAPE_Area
+  data_type: number
+  description: Area in square feet.
+  custom:
+    fgdb_data_type: Double
