@@ -81,7 +81,7 @@ models:
 - name: int__boundary__nta2020_raw
   description: "2020 NTA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__nta2020
-  description: "2020 NTA boundaries, one row per district. Differs from prod in part counts and shoreline length (CSCL-DISTRICTS-01, CSCL-DISTRICTS-03)."
+  description: "2020 NTA boundaries, one row per district. Prod's layer has hairline sliver parts this one doesn't (CSCL-DISTRICTS-01)."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -146,7 +146,7 @@ models:
 - name: int__boundary__nta2010_raw
   description: "2010 NTA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__nta2010
-  description: "2010 NTA boundaries, one row per district. Differs from prod in shoreline length (CSCL-DISTRICTS-03)."
+  description: "2010 NTA boundaries, one row per district."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -159,7 +159,7 @@ models:
 - name: int__boundary__mcea_raw
   description: "MCEA boundaries as polygonized from exterior edges, before noise-ring removal."
 - name: int__boundary__mcea
-  description: "MCEA boundaries, one row per district. Published layer differs from prod (CSCL-DISTRICTS-01, CSCL-DISTRICTS-05)."
+  description: "MCEA boundaries, one row per district."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -276,7 +276,7 @@ models:
 - name: int__boundary__hez_raw
   description: "Hurricane evacuation zone boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__hez
-  description: "Hurricane evacuation zone boundaries, one row per district. Water APs assigned to a district count as land. Differs from prod in area under 0.5% (CSCL-DISTRICTS-02)."
+  description: "Hurricane evacuation zone boundaries, one row per district. Water APs assigned to a district count as land. Differs from prod in geometry on six zones, where prod publishes invalid polygons (CSCL-DISTRICTS-04)."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -419,7 +419,7 @@ models:
 - name: int__boundary__cdwi_raw
   description: "Community district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__cdwi
-  description: "Community district boundaries, one row per district. Water included. Differs from prod in area under 0.5% (CSCL-DISTRICTS-02)."
+  description: "Community district boundaries, one row per district. Water included. Differs from prod in geometry on two districts, where prod publishes invalid polygons (CSCL-DISTRICTS-04)."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -506,7 +506,7 @@ models:
     description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__pp
-  description: Police precinct boundaries - NYPD source polygons clipped to topology-built land, not built from the AtomicPolygon topology. Area differs from prod by +0.34% (CSCL-DISTRICTS-02).
+  description: Police precinct boundaries - NYPD source polygons clipped to topology-built land, not built from the AtomicPolygon topology. Prod's layer has hairline sliver parts this one doesn't (CSCL-DISTRICTS-01).
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."

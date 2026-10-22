@@ -1,7 +1,7 @@
 # Green Fast Track — DuckDB Port Issues
 
 Bugs and gaps found while porting `green_fast_track`'s build (and, more recently, export) from
-Postgres to DuckDB. This is a working list, not the formal `data_issues.md` format cscl uses —
+Postgres to DuckDB. This is a working list, not a formal record like cscl's `seeds/known_differences.csv` —
 just enough to not lose track of what's fixed, what's fixed-but-elsewhere, and what's still open.
 
 ## Fixed on `ar-gft-duckdb-2026`

@@ -303,7 +303,7 @@ models:
       to at least one other segment, 'I' if either endpoint is dangling); the
       neighboring borough code (1-5) if left and right APs are in different boroughs;
       'X' if same borough but different census tract; blank otherwise. Compares 2010
-      census tracts specifically, not 2020 (CSCL-LION-11).
+      census tracts specifically, not 2020, as prod does (issue #2193).
     meta:
       is_geospatial: true
       value_labels:
@@ -364,7 +364,7 @@ models:
         arguments:
           values: [ " ", "T" ]
   - name: special_address_flag
-    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none. Differs from prod on segments 174704 and 241972 (CSCL-LION-19, CSCL-LION-12)."
+    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none. Differs from prod on segments 174704 and 241972 (CSCL-LION-19, CSCL-LION-17)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -376,13 +376,13 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: center_of_curvature_x
-    description: "X coordinate of the center of the segment's curve, in State Plane feet. Centerline segments only; zero on non-curved segments (CSCL-LION-07)."
+    description: "X coordinate of the center of the segment's curve, in State Plane feet. Centerline segments only; zero on non-curved segments."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: center_of_curvature_y
-    description: "Y coordinate of the center of the segment's curve, in State Plane feet. Centerline segments only; zero on non-curved segments (CSCL-LION-07)."
+    description: "Y coordinate of the center of the segment's curve, in State Plane feet. Centerline segments only; zero on non-curved segments."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -482,7 +482,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: coincident_seg_count
-    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments. Differs from prod on segments 8101066 and 359093 (CSCL-LION-06, CSCL-LION-14)."
+    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments. Differs from prod on segment 359093 (CSCL-LION-14)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

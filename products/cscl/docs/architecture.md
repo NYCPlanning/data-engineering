@@ -283,10 +283,10 @@ FGDB file comparisons.
 
 **Known differences are a seed.** [`seeds/known_differences.csv`](../seeds/known_differences.csv)
 is the reviewed list of accepted and open differences from prod, each with a stable ID
-(`CSCL-LION-06`, ...). The `qa__diffs_*` models cite those IDs to mark a diff as accounted
-for; `tests/assert_known_difference_citations.sql` fails if a cited ID is missing or
-fixed; [data_issues.md](../data_issues.md) and the export doc's known-differences sections
-are generated from it. Why a seed: the record lives next to the code that cites it,
+(`CSCL-LION-04`, ...). The `qa__diffs_*` models cite those IDs to mark a diff as accounted
+for; `tests/assert_known_difference_citations.sql` fails if a cited ID is missing. A
+difference that's gone from the `qa__diffs_*` models loses its row, and its ID is retired.
+The export doc's known-differences sections are generated from it. Why a seed: the record lives next to the code that cites it,
 reviewed in PRs, and dbt can test it.
 
 ### Upload

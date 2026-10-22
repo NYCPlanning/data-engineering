@@ -8,7 +8,7 @@
 -- (street code) + each of L6-L9 (LGC1-4), keyed by that record's own Join_ID. On a SAF
 -- replicant those fields are mostly the host segment's, not the SAF datum's
 -- (CenterlineExtractFile.cs GetValue), so the spec's "B7SCs implicit in the
--- Join_ID" doesn't hold for SAF Join_IDs - see data_issues.md CSCL-LION-09:
+-- Join_ID" doesn't hold for SAF Join_IDs:
 --   - L6-L9: always the host segment's LGC1-4.
 --   - L5: the AltSegmentData row's street code for types B/C/D/E/F/O/P
 --     (GetStreetCodeFromSAF); the host segment's own street code otherwise (A, the

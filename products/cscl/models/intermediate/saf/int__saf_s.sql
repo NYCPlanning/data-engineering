@@ -61,7 +61,7 @@ SELECT
     address_points.house_number_range_suffix AS high_alpha_hn_suffix,
     saf.saftype,
     -- An address point whose street isn't on its segment (e.g. JFK Airport addresses on Queens
-    -- segments) takes LGC1 from its own B7SC, with LGC2-4 blank (CSCL-SAF-01)
+    -- segments) takes LGC1 from its own B7SC, with LGC2-4 blank, as prod does
     CASE
         WHEN segment_streets.b5sc IS NOT NULL OR address_points.b7sc_actual IS NULL THEN lgc.lgc1
         ELSE RIGHT(address_points.b7sc_actual, 2)

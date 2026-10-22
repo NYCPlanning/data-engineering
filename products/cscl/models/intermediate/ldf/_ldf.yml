@@ -72,7 +72,7 @@ models:
     Segment change records for the LION Differences File - 'S' (base centerline), 'P'
     (physical) and 'G' (generic) - taken from CSCL's edit journal for the release being
     cut, with transitory lineages removed. Reproduces roughly 97% of GR's published
-    records - see data_issues.md CSCL-LDF-01 for the residual and why.
+    records - see CSCL-LDF-01 for the residual and why.
   columns:
   - name: record_type
     tests:
@@ -101,4 +101,4 @@ models:
     description: "To node of the segment after the change. Blank on deletes."
 
 - name: int__ldf_records
-  description: "Every LION Differences File data record (nodes, then S, G and P segment records) in publication order, with its cumulative record number. Differs from prod on transitory eliminations and on L and R journal records (CSCL-LDF-01, CSCL-LDF-02)."
+  description: "Every LION Differences File data record (nodes, then S, G and P segment records) in publication order, with its cumulative record number. Differs from prod on transitory eliminations (CSCL-LDF-01). L and R journal records are dropped; no published edition has them."

@@ -9,8 +9,8 @@
   name the key gets in the review FGDB (composite keys joined with '_', their values
   with '|').
 
-  nyura: prod's fgdb_nyura carries a stale copy of nybid's schema (no uraid column,
-  Bug 013) and has no rows, so it has no prod key; every built URA is new_only.
+  nyura: prod's fgdb_nyura carries a stale copy of nybid's schema (no uraid column)
+  and has no rows, so it has no prod key; every built URA is new_only.
 -#}
 {%- do return([
     {'name': 'nyad', 'key': '"AssemDist"'},

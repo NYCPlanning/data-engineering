@@ -131,8 +131,8 @@ models:
 
 - name: gdb_nybid
   description: >-
-    Business improvement districts. Differs from prod on BID 56 (CSCL-DISTRICTS-04) and is not
-    regenerated in prod's layer (CSCL-DISTRICTS-05).
+    Business improvement districts. Differs from prod on BIDs 44 and 56, which prod publishes
+    as invalid polygons (CSCL-DISTRICTS-04).
   columns:
   - name: BIDID
     description: Business improvement district identifier.
@@ -322,8 +322,7 @@ models:
 - name: gdb_nycdwi
   description: >-
     Community districts built from the AtomicPolygon topology, water areas included. Differs
-    from prod in area by under 0.5% (CSCL-DISTRICTS-02); prod's layer predates current source
-    (CSCL-DISTRICTS-05).
+    from prod on two districts, which prod publishes as invalid polygons (CSCL-DISTRICTS-04).
   columns:
   - name: BoroCD
     description: Borough code followed by the two-digit community district number (e.g. 101 is Manhattan CD 1).
@@ -601,7 +600,7 @@ models:
     description: Area in square feet.
 
 - name: gdb_nyhd
-  description: Historic districts. Prod's layer predates current source (CSCL-DISTRICTS-05).
+  description: Historic districts.
   columns:
   - name: NAME
     description: Historic district name.
@@ -629,7 +628,8 @@ models:
 - name: gdb_nyhez
   description: >-
     Hurricane evacuation zones built from the AtomicPolygon topology, water areas assigned a
-    zone included. Differs from prod in area by under 0.5% (CSCL-DISTRICTS-02).
+    zone included. Differs from prod on six zones, which prod publishes as invalid polygons
+    (CSCL-DISTRICTS-04).
   columns:
   - name: HURRICANE_EVACUATION_ZONE
     description: Hurricane evacuation zone.
@@ -665,8 +665,6 @@ models:
 - name: gdb_nymcea
   description: >-
     Minor census economic areas, built from the AtomicPolygon topology and split to singlepart.
-    Differs from prod in polygon part counts (CSCL-DISTRICTS-01); prod's layer predates current
-    source (CSCL-DISTRICTS-05).
   columns:
   - name: BOROCODE
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -760,7 +758,8 @@ models:
 - name: gdb_nypp
   description: >-
     Police precincts, the NYPD source precinct polygons clipped to land (NYPD lines don't follow
-    AtomicPolygon edges). Differs from prod in area by under 0.5% (CSCL-DISTRICTS-02).
+    AtomicPolygon edges). Prod's layer has hairline sliver parts this one doesn't
+    (CSCL-DISTRICTS-01).
   columns:
   - name: Precinct
     description: Police precinct number.
@@ -847,8 +846,8 @@ models:
 
 - name: gdb_nyura
   description: >-
-    Urban renewal areas. The CSCL source layer is currently empty. Prod's layer predates current
-    source (CSCL-DISTRICTS-05).
+    Urban renewal areas. The CSCL source layer is currently empty, and so is prod's, which
+    carries the business improvement district schema instead of its own.
   columns:
   - name: URAID
     description: Urban renewal area identifier.
@@ -865,7 +864,7 @@ models:
     description: Area in square feet.
 
 - name: gdb_nyzip
-  description: Zip code areas. Prod's layer predates current source (CSCL-DISTRICTS-05).
+  description: Zip code areas.
   columns:
   - name: PO_NAME
     description: Post office name.

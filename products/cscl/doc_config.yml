@@ -33,7 +33,7 @@
 #              instead of "Special Address File". Falls back to the full title if
 #              omitted.
 #   known_differences - output names (seeds/known_differences.csv's `output` values,
-#              e.g. [LION]) whose non-fixed known differences close the group, in a
+#              e.g. [LION]) whose known differences close the group, in a
 #              "Known differences from the previous release" section.
 #   elements - raw Doc elements (dcpy.utils.doc.parse_elements), the group's own intro
 #              prose - not specific to any one model. Split overview from mechanism
@@ -233,11 +233,6 @@ items:
             both interpretations (the record's own segment, and its RPL-redirected
             generic counterpart) are computed as separate candidate rows, and a final
             filter on each output file keeps only the one that actually belongs there.
-        - kind: text
-          text: >-
-            Earlier releases showed [[lgc|LGC]] and row-count differences from the
-            previous production release that were once attributed to stale production
-            data. All were traced to this pipeline and fixed (CSCL-SAF-01).
     entries:
       - name: saf_abcegnpx_generic_by_field
         custom:

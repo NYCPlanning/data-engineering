@@ -20,8 +20,8 @@
 --
 -- nyura deliberately excluded from the catalog below: prod's fgdb_nyura carries a
 -- stale copy of nybid's schema (bidid/bid/borough, no uraid column at all) - a known
--- structural diff, not a fixable key mismatch (compare_gdb.py's KNOWN_STRUCTURAL_DIFFS,
--- Bug 013/inv-9k8). Prod's table is also empty (0 rows) - nothing meaningful to compare.
+-- structural diff, not a fixable key mismatch (compare_gdb.py's KNOWN_STRUCTURAL_DIFFS).
+-- Prod's table is also empty (0 rows) - nothing meaningful to compare.
 --
 -- DORMANT BY DEFAULT: running the full catalog below took over
 -- 10 minutes (33 layers, several thousand rows each at the slower mid-size layers -

@@ -10,7 +10,7 @@ WITH atomicpolygons AS (
         segment_borocode,
         left_atomicid,
         left_borocode,
-        left_2010_census_tract, -- CSCL-LION-11 (data_issues.md): legacy uses 2010 not 2020 here - matched deliberately
+        left_2010_census_tract, -- legacy uses 2010 not 2020 here - matched deliberately (issue #2193)
         right_atomicid,
         right_borocode,
         right_2010_census_tract

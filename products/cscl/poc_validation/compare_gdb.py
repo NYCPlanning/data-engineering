@@ -78,8 +78,7 @@ KNOWN_STRUCTURAL_DIFFS = {
     # Prod's nyura carries a stale copy of nybid's schema; both are empty, so the
     # structural diff on this layer is expected. See models/product/districts/gdb_nyura.sql.
     # Root cause confirmed via FileGDB item metadata: nyura and nybid share the same frozen
-    # 2009-10-20 CopyFeatures batch (Windows XP/ArcGIS 9.3 era) - see
-    # Bug 013 in data_issues.md.
+    # 2009-10-20 CopyFeatures batch (Windows XP/ArcGIS 9.3 era).
     "nyura",
 }
 
@@ -94,8 +93,6 @@ KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
     #   this isn't a gap, just a field with no real content to derive.
     # - FromLeft/ToLeft/FromRight/ToRight: real prod data contradicts a literal reading
     #   of the spec's zero-out rule - needs dedicated investigation (see gdb_lion.sql).
-    # (Radius was here too, tied to CSCL-LION-07 - implemented 2026-10-01, see
-    # data_issues.md.)
     # See models/product/lion/gdb/gdb_lion.sql for the NULL::text/NULL::int literals.
     "lion": {
         "SplitSchl",

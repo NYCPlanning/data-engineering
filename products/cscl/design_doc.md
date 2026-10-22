@@ -1660,7 +1660,7 @@ behaviour of the published files; production's real rule lives in
 `CSCL_Editor.LDFExtractHelper`, part of the CSCL Maintenance System.
 
 Our approximation of that rule, how closely it matches, and the other open data questions
-for this output are recorded in [data_issues.md](./data_issues.md) under `CSCL-LDF-*`.
+for this output are recorded in [seeds/known_differences.csv](./seeds/known_differences.csv) under `CSCL-LDF-*`.
 Until the suppression rule is settled the LDF is validating, not releasable.
 
 ## Log

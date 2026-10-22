@@ -1,6 +1,6 @@
 models:
 - name: int__segment_specialaddress
-  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). Differs from prod on segment 241972 (CSCL-LION-12) and on one ramp protosegment (CSCL-LION-19)."
+  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). Differs from prod on segment 241972 (CSCL-LION-17) and on one ramp protosegment (CSCL-LION-19)."
   columns:
   - name: segmentid
     description: "Segment id."
@@ -33,7 +33,7 @@ models:
       config:
         severity: warn
   - name: segment_locational_status
-    description: "LION segment locational status code. Uses 2010 census tracts, as prod does (CSCL-LION-11)."
+    description: "LION segment locational status code. Uses 2010 census tracts, as prod does (issue #2193)."
     tests:
     - test_name: accepted_values
       arguments:
@@ -44,7 +44,7 @@ models:
       compare_model: ref("int__segment_atomicpolygons")
 
 - name: int__centerline_curve
-  description: "Curved centerline segments (curve flag L, R or I) with the center and radius of curvature, rounded the way prod rounds them (CSCL-LION-07)."
+  description: "Curved centerline segments (curve flag L, R or I) with the center and radius of curvature, rounded the way prod rounds them."
   columns:
   - name: curve_flag
     description: "Curve flag from the centerline."

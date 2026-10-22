@@ -238,7 +238,7 @@ base_rows AS (
         -- Prod's literal value for a non-curved segment is 0, not blank (confirmed
         -- against production_outputs.fgdb_lion: ArcCenterX/Y/Radius are 0 for every
         -- blank/'I'-CurveFlag row, never null) - coalesced at this output boundary
-        -- only, same convention as FeatureTyp above (see CSCL-LION-07, data_issues.md).
+        -- only, same convention as FeatureTyp above.
         coalesce(center_of_curvature_x::int, 0) AS "ArcCenterX",
         coalesce(center_of_curvature_y::int, 0) AS "ArcCenterY",
         curve_flag AS "CurveFlag",

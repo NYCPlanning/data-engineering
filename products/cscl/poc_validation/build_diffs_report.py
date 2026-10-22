@@ -180,7 +180,7 @@ def load_seed_column(column: str) -> dict[str, str]:
 def load_seed_notes() -> dict[str, str]:
     """file_id -> a human-curated note, from lion_outputs.csv's own status/notes
     columns - the durable, manually-maintained source of truth for known/blocked
-    issues (e.g. "BLOCKED: Layer frozen since 2009 - see Bug 013...").
+    issues (e.g. "BLOCKED: See CSCL-NORM-01").
     Takes priority over any auto-generated note in build_step_summary/the report
     below - see main()."""
     with LION_OUTPUTS_SEED_PATH.open(newline="") as f:
@@ -308,10 +308,10 @@ def gap(row: dict) -> int:
     """How far the line-level file comparison and the field-level QA models
     disagree about how many rows actually differ.
 
-    A large gap means one of the two systems is blind to something - see
-    data_issues.md for examples (a too-broad diff key silently
+    A large gap means one of the two systems is blind to something - for
+    example, a too-broad diff key silently
     hiding real per-field diffs, or an export bug corrupting every line of a
-    file that field-level QA says is clean). Sorting on this surfaces exactly
+    file that field-level QA says is clean. Sorting on this surfaces exactly
     the kind of file worth a closer look, ahead of files with a merely large
     but well-understood diff count.
     """

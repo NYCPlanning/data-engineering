@@ -43,8 +43,7 @@ WITH violations AS (
 ),
 -- Dev's own values for the same fields, for context only - not what defines which
 -- rows get flagged (see header comment). DISTINCT ON: SegmentID|Join_ID isn't
--- unique for ~0.7% of gdb_lion (SAF-replicant multiplicity - CSCL-LION-10 in
--- data_issues.md); picking one arbitrarily here is fine since this is read-only
+-- unique for ~0.7% of gdb_lion (SAF-replicant multiplicity); picking one arbitrarily here is fine since this is read-only
 -- display context, not row identity.
 dev AS (
     SELECT DISTINCT ON (_lion_gdb_key)
@@ -104,7 +103,7 @@ SELECT
     ], e -> e.v IS NOT NULL))) AS changes,
     'lion_house_numbers' AS output_file_id,
     -- CSCL-LION-15: prod's gp.CalculateField house-number zeroing step for Generic
-    -- segments, inconsistently applied. See CSCL-LION-15 in data_issues.md.
+    -- segments, inconsistently applied. See CSCL-LION-15.
     'CSCL-LION-15: Generic-segment house numbers not consistently zeroed in prod' AS diff_group,
     '' AS subgroup,
     '_lion_gdb_key' AS comparison_column,

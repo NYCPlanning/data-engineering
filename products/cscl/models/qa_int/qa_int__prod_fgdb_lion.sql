@@ -6,7 +6,7 @@
 
 -- QA-only projection of production fgdb_lion, scoped to the fields needed to
 -- investigate the Generic-segment house-number zeroing issue (see
--- Bug 018 in data_issues.md).
+-- CSCL-LION-15).
 --
 -- _lion_gdb_key (SegmentID|Join_ID) isn't used for a dev/prod join here - this model
 -- is consumed standalone by qa__diffs_lion_house_numbers.sql as a prod
@@ -16,7 +16,7 @@
 -- against this table later. rtrim(join_id): prod's real fgdb_lion.join_id is
 -- missing the spec-mandated trailing padding our own gdb_lion.sql correctly
 -- includes (see compare_gdb.py's PADDED_COLUMNS and
--- CSCL-LION-10 in data_issues.md) - a no-op here since prod's copy is already
+-- CSCL-LION-10) - a no-op here since prod's copy is already
 -- unpadded, kept so this key is built the same way regardless of which side a
 -- future join compares against.
 --

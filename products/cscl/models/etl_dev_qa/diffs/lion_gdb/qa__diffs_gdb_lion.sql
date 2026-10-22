@@ -65,7 +65,7 @@ field_causes AS (
                 AND (w.changes -> f.key ->> 'new') = '10035'
                 THEN 'CSCL-LION-02: Randall''s Island zip'
             WHEN f.key IN ('lzip', 'rzip') THEN 'Zip'
-            -- not attributed to a known difference: CSCL-LION-06 covers one dat record only
+            -- not attributed to a known difference
             WHEN f.key = 'segcount' THEN 'SegCount'
             WHEN f.key = 'street' THEN 'Street'
             WHEN f.key = 'seqnum' AND w._feature_type = 'nonstreetfeatures'
@@ -161,6 +161,6 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- every changed field has a verified, accepted cause (data_issues.md CSCL-LION-02/03/04/05/16)
+    -- every changed field has a verified, accepted cause (CSCL-LION-02/03/04/05/16)
     coalesce(status = 'modified' AND open_causes IS NULL, FALSE) AS accounted_for
 FROM categorized

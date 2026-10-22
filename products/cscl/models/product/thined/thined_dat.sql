@@ -14,9 +14,9 @@ WITH data AS (
 -- here, not guessed. Records 0000/0001's payloads (thined_file_tag,
 -- thined_version in seeds/config.csv) have no available source explaining
 -- what, if anything, should change about them release to release - copied
--- verbatim from 26c's real prod file rather than guessed at. See
--- CSCL-THINED-02 in data_issues.md before assuming these are still correct
--- on a future release.
+-- verbatim from 26c's real prod file rather than guessed at. Check them
+-- against the new prod file before assuming they are still correct on a
+-- future release.
 header AS (
     SELECT '0000' || rpad({{ config_value('thined_file_tag') }}, 10, ' ') AS dat_column
     UNION ALL
