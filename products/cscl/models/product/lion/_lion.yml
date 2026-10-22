@@ -482,7 +482,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: coincident_seg_count
-    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments. Differs from prod on segment 359093 (CSCL-LION-14)."
+    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments. Differs from prod by one on about 10 segments where a subway or rail segment nearly coincides with a centerline (CSCL-LION-14)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

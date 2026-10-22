@@ -45,7 +45,7 @@ diff_grouped AS (
                 status = 'only_in_legacy'
                 AND split_part(_saf_key, '|', 3) = '9017010'
                 THEN 'CSCL-SAF-03: blank alt_segdata_type row in prod (spec Table 13)'
-            -- CSCL-SAF-02: GNX points within FGDB resolution of an AP boundary, side-AP
+            -- CSCL-SAF-02: GNX points in the AP-boundary tolerance where prod took another AP, side-AP
             -- fields differ. See CSCL-SAF-02
             WHEN
                 status = 'modified'

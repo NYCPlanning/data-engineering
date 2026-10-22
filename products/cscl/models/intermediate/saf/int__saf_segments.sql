@@ -8,7 +8,8 @@ WITH saf_segment_records AS (
         borough AS boroughcode,
         saftype,
         segmentid,
-        'altsegmentdata' AS saf_source_table
+        'altsegmentdata' AS saf_source_table,
+        NULL::int AS security_level
     FROM {{ ref('stg__altsegmentdata_saf') }}
     UNION ALL
     SELECT
@@ -16,7 +17,8 @@ WITH saf_segment_records AS (
         boroughcode,
         special_condition AS saftype,
         segmentid,
-        'addresspoints' AS saf_source_table
+        'addresspoints' AS saf_source_table,
+        NULL::int AS security_level
     FROM {{ source('recipe_sources', 'dcp_cscl_addresspoints') }}
     WHERE special_condition IN ('S', 'V') -- TODO staging table maybe - these two handled differently though
     UNION ALL
@@ -25,9 +27,12 @@ WITH saf_segment_records AS (
         boroughcode,
         saftype,
         segmentid,
-        'commonplace' AS saf_source_table
+        'commonplace' AS saf_source_table,
+        -- Prod's SAF dat drops SECURITY_LEVEL 3 CommonPlaces but its LION gdb keeps their
+        -- replicant rows, so the filter is in int__saf_gnx, not here (CSCL-LION-21)
+        security_level::int AS security_level
     FROM {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }}
-    WHERE saftype IN ('G', 'N', 'X') AND b7sc IS NOT NULL AND security_level <> '3' -- TODO staging table
+    WHERE saftype IN ('G', 'N', 'X') AND b7sc IS NOT NULL -- TODO staging table
 ),
 -- A roadbed with several RPL rows takes only the first (lowest ogc_fid), as legacy GetRow does
 roadbed_pointer_list AS (
@@ -42,6 +47,7 @@ with_roadbed_to_generic AS (
         segmentid,
         segmentid AS base_segmentid,
         saf_source_table,
+        security_level,
         FALSE AS rpl_flag
     FROM saf_segment_records
     UNION ALL
@@ -52,6 +58,7 @@ with_roadbed_to_generic AS (
         rpl.generic_segmentid AS segmentid,
         rpl.roadbed_segmentid AS base_segmentid,
         saf.saf_source_table,
+        saf.security_level,
         TRUE AS rpl_flag
     FROM saf_segment_records AS saf
     INNER JOIN roadbed_pointer_list AS rpl ON saf.segmentid = rpl.roadbed_segmentid
@@ -69,7 +76,8 @@ resolved_segment AS (
         COALESCE(proto.lionkey, primary_segment.lionkey) AS segment_lionkey,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_type,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_incex_flag,
-        saf.saf_source_table
+        saf.saf_source_table,
+        saf.security_level
     FROM with_roadbed_to_generic AS saf
     LEFT JOIN lion AS primary_segment -- TODO error report when none joined?
         ON

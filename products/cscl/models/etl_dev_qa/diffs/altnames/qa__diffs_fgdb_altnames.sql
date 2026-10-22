@@ -21,9 +21,7 @@ WITH base_diffs AS (
 ),
 -- CSCL-LION-09: AltNames lists names for each Join_ID in the LION feature class, so a
 -- Join_ID that only one side's LION carries is a LION difference, not an AltNames one.
--- In 26c these are CommonPlaces we drop for SECURITY_LEVEL 3 that prod's LION still
--- replicates (prod-only), and CommonPlaces edited in source after prod's extract
--- (build-only).
+-- In 26c these are CommonPlaces edited in source after prod's extract (build-only).
 build_lion_join_ids AS (
     SELECT DISTINCT trim("Join_ID") AS join_id FROM {{ ref('gdb_lion') }}
 ),

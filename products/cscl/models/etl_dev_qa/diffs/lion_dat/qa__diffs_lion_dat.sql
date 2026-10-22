@@ -29,12 +29,35 @@ with_borough AS (
 ),
 -- CSCL-LION-16: segments whose left or right AP comes from the topology and differs from
 -- the 2 ft probe's (prod's method). Empty when lion_lr_from_topology is off.
+-- probe_in_other_borough: the probe's AP is in another borough than the topology's on
+-- some side (the AtomicPolygon ID starts with the borough code).
 topology_lr_segments AS (
-    SELECT DISTINCT segmentid
+    SELECT
+        segmentid,
+        BOOL_OR(
+            LEFT(left_atomicid, 1) IS DISTINCT FROM LEFT(probe_left_atomicid, 1)
+            OR LEFT(right_atomicid, 1) IS DISTINCT FROM LEFT(probe_right_atomicid, 1)
+        ) AS probe_in_other_borough
     FROM {{ ref('int__segment_atomicpolygons') }}
     WHERE
         left_atomicid IS DISTINCT FROM probe_left_atomicid
         OR right_atomicid IS DISTINCT FROM probe_right_atomicid
+    GROUP BY segmentid
+),
+-- CSCL-LION-14: segments with a subway/rail-centerline coincidence candidate, from either
+-- side (centerline matched to a subway/rail, or a subway/rail matched to a centerline)
+coincident_rail_segments AS (
+    SELECT all_segments_id AS segmentid
+    FROM {{ ref('int__centerline_coincident_subway_or_rail_matches') }}
+    WHERE distance < 1
+    UNION
+    SELECT trains_segment_id AS segmentid
+    FROM {{ ref('int__centerline_coincident_subway_or_rail_matches') }}
+    WHERE distance < 1
+    UNION
+    SELECT segmentid
+    FROM {{ ref('int__noncenterline_coincident_segments') }}
+    WHERE coinc_segment_feature_type = 'centerline' AND distance < 1
 ),
 categorized AS (
     SELECT
@@ -58,7 +81,9 @@ categorized AS (
         production_table_name,
         -- CSCL-LION-16: every changed field is one the side AP determines (plus the
         -- already-accepted segment_seqnum / CSCL-LION-04 boe_lgc_pointer). Borough boundary
-        -- and zip changes are left out on purpose: those rows need a look.
+        -- and zip changes count only where the probe's AP is in another borough (prod then
+        -- marks a borough boundary, takes that side's zip and blanks the other side);
+        -- elsewhere those rows need a look.
         (
             tlr.segmentid IS NOT NULL
             AND COALESCE(LIST_BOOL_AND(LIST_TRANSFORM(
@@ -67,11 +92,36 @@ categorized AS (
                     REGEXP_MATCHES(key, '^(left|right)_')
                     OR key IN ('segment_locational_status', 'segment_seqnum')
                     OR (key = 'boe_lgc_pointer' AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1')
+                    OR (key IN ('borough_boundary_indicator', 'l_zip', 'r_zip') AND tlr.probe_in_other_borough)
                 )
             )), TRUE)
-        ) AS is_topology_lr_change
+        ) AS is_topology_lr_change,
+        -- CSCL-LION-14: coincident_seg_count is off by one on a segment with a subway/rail-
+        -- centerline candidate, and nothing else changed but CSCL-LION-03's curve flag on
+        -- subway/rail.
+        (
+            crs.segmentid IS NOT NULL
+            AND LIST_CONTAINS(JSON_KEYS(changes), 'coincident_seg_count')
+            AND ABS(
+                TRY_CAST(TRIM(changes ->> '$.coincident_seg_count.old') AS INT)
+                - TRY_CAST(TRIM(changes ->> '$.coincident_seg_count.new') AS INT)
+            ) = 1
+            AND LIST_BOOL_AND(LIST_TRANSFORM(
+                JSON_KEYS(changes),
+                key -> (
+                    key = 'coincident_seg_count'
+                    OR (
+                        key = 'curve_flag'
+                        AND (changes ->> '$.curve_flag.old') = ' '
+                        AND (changes ->> '$.curve_flag.new') = 'I'
+                        AND with_borough._source_table IN ('subway', 'rail')
+                    )
+                )
+            ))
+        ) AS is_coincident_rail_change
     FROM with_borough
-    LEFT JOIN topology_lr_segments AS tlr ON RIGHT(with_borough._lion_key, 7)::int = tlr.segmentid
+    LEFT JOIN topology_lr_segments AS tlr ON RIGHT(with_borough._lion_key, 7)::INT = tlr.segmentid
+    LEFT JOIN coincident_rail_segments AS crs ON RIGHT(with_borough._lion_key, 7)::INT = crs.segmentid
 )
 SELECT
     _lion_key AS comparison_id,
@@ -113,17 +163,12 @@ SELECT
             THEN 'CSCL-LION-01: doubly-reversed protosegments'
         -- CSCL-LION-17: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
         -- and confirmed our new value is correct. Fingerprinted on _lion_key since these are a
-        -- one-off reviewed batch, not a general field-pattern rule - e.g. this does NOT mark
-        -- every coincident_seg_count diff accounted for, only these specific records. 11 still
-        -- differ on 26c; 101650330641 stops differing with lion_lr_from_topology on.
+        -- one-off reviewed batch, not a general field-pattern rule. The batch's coincident_seg_count
+        -- records are covered by the CSCL-LION-14 rule instead.
         -- See CSCL-LION-17
         WHEN
             status = 'modified'
-            AND LIST_CONTAINS(ARRAY[
-                '101650330641', '116000297614', '125250032941', '130400327255',
-                '236590241972', '333280149383', '333280149678', '335640029283',
-                '335640188023', '416140101502', '104308103717', '104620245781'
-            ], _lion_key)
+            AND LIST_CONTAINS(ARRAY['236590241972', '416140101502'], _lion_key)
             THEN 'CSCL-LION-17: JR-reviewed diffs (Aug 2026)'
         -- CSCL-LION-19: special_address_flag leaks from a centerline record onto its sibling
         -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
@@ -133,14 +178,11 @@ SELECT
             status = 'modified'
             AND _lion_key = '493960174704'
             THEN 'CSCL-LION-19: SAF flag leaks onto ramp protosegment'
-        -- CSCL-LION-14: prod's real, byte-verified BronxLION.dat has coincident_seg_count = 0 for
-        -- this segment, which the ETL spec explicitly forbids (its own documented floor for
-        -- "no coincidences" is '1', never '0') - our 1 is spec-correct, prod's 0 is the bug.
-        -- See CSCL-LION-14
-        WHEN
-            status = 'modified'
-            AND _lion_key = '211480359093'
-            THEN 'CSCL-LION-14: prod coincident_seg_count = 0'
+        -- CSCL-LION-14: prod's Esri shape-equality test and our geometric match disagree on a
+        -- near-identical subway/rail and centerline (prod also writes 0 where the spec floors
+        -- the count at 1). See CSCL-LION-14
+        WHEN status = 'modified' AND is_coincident_rail_change
+            THEN 'CSCL-LION-14: subway/rail coincident_seg_count'
         -- CSCL-LION-16: left/right AP from the AP topology, where prod's 2 ft probe
         -- overshoots the adjacent AP. See CSCL-LION-16.
         WHEN status = 'modified' AND is_topology_lr_change
@@ -193,18 +235,12 @@ SELECT
             ], RIGHT(_lion_key, 7))
             -- CSCL-LION-17: individually reviewed by JR (Aug 2026) and confirmed correct.
             -- See CSCL-LION-17
-            OR LIST_CONTAINS(ARRAY[
-                '101650330641', '116000297614', '125250032941', '130400327255',
-                '236590241972', '333280149383', '333280149678', '335640029283',
-                '335640188023', '416140101502', '104308103717', '104620245781'
-            ], _lion_key)
+            OR LIST_CONTAINS(ARRAY['236590241972', '416140101502'], _lion_key)
             -- CSCL-LION-19: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
             -- in production. See CSCL-LION-19
             OR _lion_key = '493960174704'
-            -- CSCL-LION-14: prod's coincident_seg_count = 0 for this segment, which the spec
-            -- forbids (documented floor is '1', never '0') - one specific record only.
-            -- See CSCL-LION-14
-            OR _lion_key = '211480359093'
+            -- CSCL-LION-14: subway/rail coincident_seg_count off by one. See CSCL-LION-14
+            OR is_coincident_rail_change
             -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.
             -- See CSCL-LION-16.
             OR is_topology_lr_change

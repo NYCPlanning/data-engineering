@@ -4,6 +4,8 @@
 
 WITH saf AS (
     SELECT * FROM {{ ref('int__saf_segments') }}
+    -- prod's SAF dat drops SECURITY_LEVEL 3 CommonPlaces (its LION gdb keeps them)
+    WHERE security_level <> 3
 ),
 commonplace AS (
     SELECT * FROM {{ source("recipe_sources", "dcp_cscl_commonplace_gdb") }}
@@ -13,6 +15,32 @@ address_points AS (
 ),
 atomic_polygons AS (
     SELECT * FROM {{ ref('stg__atomicpolygons') }}
+),
+-- The AtomicPolygon each place point falls in, using the source FGDB's XY tolerance
+-- (0.0002 ft) as prod's Esri spatial filter does: a point within the tolerance of an AP
+-- boundary is on that boundary, so prod's Within finds nothing, its Intersects fallback
+-- returns every AP within the tolerance, and it takes the first (lowest OBJECTID). So:
+-- the AP containing the point farther than the tolerance from its boundary, else the
+-- lowest ogc_fid among APs within the tolerance (CSCL-SAF-02). ogc_fid is used only for
+-- this ordering: its order follows the source FGDB's OBJECTID order because GDAL reads
+-- OpenFileGDB layers in FID order.
+point_atomic_polygon AS (
+    SELECT
+        commonplace.globalid,
+        atomic_polygons.atomicid,
+        atomic_polygons.borocode,
+        atomic_polygons.censustract_2020_basic,
+        atomic_polygons.censustract_2020_suffix
+    FROM commonplace
+    INNER JOIN atomic_polygons ON ST_DWITHIN(atomic_polygons.geom, commonplace.geom, 0.0002)
+    WHERE commonplace.globalid IN (SELECT saf_globalid FROM saf)
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY commonplace.globalid
+        ORDER BY
+            ST_CONTAINS(atomic_polygons.geom, commonplace.geom)
+            AND ST_DISTANCE(ST_BOUNDARY(atomic_polygons.geom), commonplace.geom) > 0.0002 DESC,
+            atomic_polygons.ogc_fid
+    ) = 1
 ),
 feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
@@ -41,10 +69,10 @@ SELECT
     saf.segmentid,
     ROUND_EVEN(ST_X(commonplace.geom), 0)::INT AS x_coord,
     ROUND_EVEN(ST_Y(commonplace.geom), 0)::INT AS y_coord,
-    atomic_polygons.borocode AS side_borough_code,
-    atomic_polygons.censustract_2020_basic AS side_ct2020_basic,
-    atomic_polygons.censustract_2020_suffix AS side_ct2020_suffix,
-    RIGHT(atomic_polygons.atomicid, 3) AS side_ap,
+    point_atomic_polygon.borocode AS side_borough_code,
+    point_atomic_polygon.censustract_2020_basic AS side_ct2020_basic,
+    point_atomic_polygon.censustract_2020_suffix AS side_ct2020_suffix,
+    RIGHT(point_atomic_polygon.atomicid, 3) AS side_ap,
     saf.saf_globalid,
     saf.saf_source_table,
     commonplace.placeid,
@@ -55,7 +83,7 @@ FROM saf
 LEFT JOIN commonplace ON saf.saf_globalid = commonplace.globalid
 LEFT JOIN address_points ON commonplace.primaryaddresspointid = address_points.addresspointid
 LEFT JOIN feature_names ON commonplace.b7sc = feature_names.b7sc
-LEFT JOIN atomic_polygons ON ST_CONTAINS(atomic_polygons.geom, commonplace.geom)
+LEFT JOIN point_atomic_polygon ON commonplace.globalid = point_atomic_polygon.globalid
 WHERE
     saf.saftype IN ('G', 'N', 'X')
     -- legacy drops a record with no place name
