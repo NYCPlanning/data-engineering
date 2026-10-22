@@ -6,7 +6,7 @@ models:
   description: >-
     One row per AltSegmentData SAF entry of type A, B, C, E or P, or CommonPlace
     non-addressable place name (NAP) of type G, N or X - these eight types share one
-    record layout (Legacy Table 28) despite two different source tables, since a
+    record layout despite two different source tables, since a
     street segment's address data and a place name attached to that segment need the
     same shape. This is the generic-file version. Differs from prod in one
     row for segment 9017010 and in two duplicate-key groups per file (CSCL-SAF-03,
@@ -119,7 +119,7 @@ models:
       description: >-
         Only populated for G/N/X (the CommonPlace point's own coordinates, rounded to
         the nearest integer); always blank for A/B/C/E/P. This field only exists in
-        the shared layout because G/N/X need it - see legacy Table 29 Note 4.
+        the shared layout because G/N/X need it.
     - name: y_coord
       data_type: string
       description: Same as x_coord - GNX only, always blank for A/B/C/E/P.
@@ -210,10 +210,9 @@ models:
     - name: regular_b5sc
       data_type: string
       description: >-
-        The "real" street's B5SC for this DAPS name, from a hardcoded lookup
-        (saf_d_hardcoded_regular_b5sc seed) matching the legacy spec's fixed list -
+        The "real" street's B5SC for this DAPS name, from a hardcoded lookup matching the specification's fixed list -
         not derived from any CSCL table. A street can have more than one valid regular
-        name, so there's no reliable automatic way to pick one (legacy Table 30 Note 4).
+        name, so there's no reliable automatic way to pick one.
     - name: filler_safd9
       description: Filler. Always blank.
       data_type: string
@@ -305,7 +304,7 @@ models:
     One row per AltSegmentData SAF entry of type O, or AddressPoint of type V (a
     vanity address - e.g. a building's alternate/promotional address on a different
     street than the one it physically sits on) - these two types share one record
-    layout (Legacy Table 33/35) with different populating rules. x_coord/y_coord are
+    layout with different populating rules. x_coord/y_coord are
     only ever populated for V.
   config:
     tags: [export_doc]
@@ -356,8 +355,7 @@ models:
       description: >-
         For O: whichever side AltSegmentData populates. For V: depends on the address
         point's HYPHEN_TYPE - a single house number repeats low_hn here; a hyphenated
-        range splits low/high across the two fields. See legacy Table 35 Note 5 for
-        the full HYPHEN_TYPE-by-HYPHEN_TYPE breakdown.
+        range splits low/high across the two fields.
     - name: high_hn_suffix
       description: "Suffix of the highest house number of the range."
       data_type: string
@@ -439,7 +437,7 @@ models:
       description: >-
         Principal StreetName's FACECODE for the address point's B7SC_ACTUAL, falling
         back to the segment's own LION-key-derived face code if that lookup comes up
-        empty - see doc_reconciliation_log.md (DOC-005) for why this fallback exists.
+        empty.
     - name: segment_seqnum
       description: "Sequence number of the segment the record is attached to, ordering segments that share a face code."
       data_type: string
