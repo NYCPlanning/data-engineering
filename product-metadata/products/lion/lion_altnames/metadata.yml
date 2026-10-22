@@ -1,0 +1,80 @@
+id: lion_altnames
+
+attributes:
+  display_name: LION - Altnames
+  description: |-
+    Alternate Names Table: Some streets may have multiple street names, valid for the full length or a portion of the street. The LION file accounts for most of these cases through the use of Street Codes and Local Group Codes (LGCs) which establish the valid names for each particular segment. The Alternate Names Table (altnames) is built using all the street names that correspond to the street code and lgc values.
+  each_row_is_a: Alternate street name
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - lion
+  - alternate names
+  - alias names
+  - street names
+  - streets
+  - roads
+  - transportation
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: lion_gdb
+    filename: nyclion.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: altnames
+
+columns:
+- id: pdir
+  name: PDir
+  data_type: text
+  description: Pre-Directional disaggregated component of street name.
+  custom:
+    fgdb_data_type: String
+- id: ptype
+  name: PType
+  data_type: text
+  description: Pre Type disaggregated component of street name.
+  custom:
+    fgdb_data_type: String
+- id: sname
+  name: SName
+  data_type: text
+  description: '''Root'' street name, disaggregated component of street name.'
+  custom:
+    fgdb_data_type: String
+- id: stype
+  name: SType
+  data_type: text
+  description: Street Type; disaggregated component of street name.
+  custom:
+    fgdb_data_type: String
+- id: sdir
+  name: SDir
+  data_type: text
+  description: Street Directional; disaggregated component of street name.
+  custom:
+    fgdb_data_type: String
+- id: street
+  name: Street
+  data_type: text
+  description: Concatenated street name.
+  custom:
+    fgdb_data_type: String
+- id: join_id
+  name: Join_ID
+  data_type: text
+  description: This is an identification field used to link LION features to the Alternate Names table during a geocoding operation. For a fuller explanation, consult the Readme.txt included with the LION file download.
+  custom:
+    fgdb_data_type: String
+

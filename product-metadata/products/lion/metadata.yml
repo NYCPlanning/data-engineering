@@ -27,8 +27,10 @@ datasets:
   - health_center_districts
   - hurricane_evacuation_zones
   - lion
+  - lion_altnames
   - lion_differences_file
   - lion_node
+  - lion_node_stname
   - municipal_court_districts
   - police_precincts
   - property_address_directory
