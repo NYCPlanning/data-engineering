@@ -82,8 +82,8 @@ def get_layers(gdb: Path) -> list[str]:
     # both classic and modern FileGDB formats via compare_gdb.py) rather than
     # GDAL's vector.info() algorithm directly - that API's Output()["rootGroup"]
     # only exists for geodatabases with a hierarchical group structure (modern/
-    # 10.x+ FileGDBs). A "classic" pre-10.x FileGDB (e.g. CSCL's district gdb,
-    # Bug 013 in products/cscl/data_issues.md) has no rootGroup at all;
+    # 10.x+ FileGDBs). A "classic" pre-10.x FileGDB (e.g. CSCL's district gdb)
+    # has no rootGroup at all;
     # vector.info() returns a flat "layers" list instead, so an
     # info["rootGroup"]["layerNames"] lookup raises KeyError('rootGroup') for
     # every such file (e.g. v26C_Districts.gdb.zip).

@@ -2,7 +2,7 @@ version: 2
 
 models:
 - name: thinlion_by_field
-  description: "One row per atomic polygon: the district codes (census tracts and blocks, community district, police precinct and sector, fire company, school, election and assembly districts, NTA, CDTA and others) that apply to it, ordered by borough, 2020 census tract and dynamic block. Each value is read at the atomic polygon from the district layers. Differs from prod on police precinct, sector and patrol borough of 7 sliver atomic polygons (CSCL-THINLION-02) and on the Bronx patrol borough (CSCL-THINLION-03)."
+  description: "One row per atomic polygon: the district codes (census tracts and blocks, community district, police precinct and sector, fire company, school, election and assembly districts, NTA, CDTA and others) that apply to it, ordered by borough, 2020 census tract and dynamic block. Each value is read at the atomic polygon from the district layers. Differs from prod on police precinct, sector and patrol borough of 4 atomic polygons (CSCL-THINLION-02)."
   columns:
     - name: borough
       description: "Borough code of the atomic polygon (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."

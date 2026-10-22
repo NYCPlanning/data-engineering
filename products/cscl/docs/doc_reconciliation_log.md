@@ -5,10 +5,10 @@ descriptions) against the legacy ETL doc (`docs/ETL_V8_02012024.md`) - the "reco
 step of the doc-generation process (see [CONTRIBUTING.md](../CONTRIBUTING.md)). One
 entry per finding, in the order found.
 
-This is **not** `data_issues.md`. A finding here that turns out to be a real behavioral
-discrepancy (our pipeline actually does something different from prod or the legacy
-spec, not just documented differently) belongs in `data_issues.md` instead - open an
-entry there and link to it from here rather than duplicating the analysis.
+This is **not** the known-differences record. A finding here that turns out to be a real
+behavioral discrepancy (our pipeline actually does something different from prod or the
+legacy spec, not just documented differently) belongs in `seeds/known_differences.csv`
+instead - add a row there and link to it from here rather than duplicating the analysis.
 
 ## DOC-001: RPL2 (`generic_segmenttype`) is an unvalidated assumption
 
@@ -52,7 +52,7 @@ This might be handled at the dcpy export layer (outside this repo/my visibility)
 might be a real gap. **Needs a decision before `face_code_by_field` can be marked
 `reconciled`** in `doc_generation_plan.csv` - if it turns out to be a genuine
 pipeline gap (not just an unsorted-but-still-correct output), it belongs in
-`data_issues.md`, not here.
+`seeds/known_differences.csv`, not here.
 
 ## DOC-005: SAFS3 (`face_code`) has a fallback the legacy doc's own text contradicts itself about
 

@@ -12,7 +12,7 @@
 -- the CommonPlace/AddressPoint ones; computed here for AltSegmentData). gdb_altnames
 -- reads its SAF Join_IDs from this model too, so AltNames and LION agree.
 --
--- Known gaps (see Bug 012 in data_issues.md):
+-- Known gaps:
 -- - AddressPoint type S/V zip-code override isn't implemented (left as the base
 --   segment's own zip).
 -- - LGC1-4/StreetCode/BOE_LGC (the *non*-SAF fields) are never overridden on replicant

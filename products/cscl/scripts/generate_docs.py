@@ -257,9 +257,9 @@ def _build_section(
 
 
 def _read_known_differences() -> list[dict[str, str]]:
-    """known_differences.csv rows still worth telling a reader about (not fixed)."""
+    """Every known_differences.csv row."""
     with open(KNOWN_DIFFERENCES_PATH, newline="") as f:
-        return [row for row in csv.DictReader(f) if row["status"] != "fixed"]
+        return list(csv.DictReader(f))
 
 
 def _outputs(row: dict[str, str]) -> set[str]:
@@ -286,7 +286,7 @@ def _status_cell(row: dict[str, str]) -> str:
 def _known_differences_section(
     known_differences: list[dict[str, str]], outputs: list[str], group_label: str
 ) -> Section | None:
-    """A group's "Known differences from the previous release": every non-fixed
+    """A group's "Known differences from the previous release": every
     known_differences row for any of `outputs` (a model group's
     custom.known_differences in doc_config.yml)."""
     rows = [row for row in known_differences if _outputs(row) & set(outputs)]

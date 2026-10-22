@@ -6,8 +6,7 @@ models:
       One row per election district: the assembly, congressional, state senate,
       municipal court and city council districts it belongs to, and its borough (that
       of its lowest-numbered atomic polygon), ordered by assembly and election
-      district. Differs from prod on districts redistricted since the last cycle
-      (CSCL-THINED-01).
+      district.
     columns:
       - name: election_district
         description: Election district number, unique within its assembly district.
@@ -27,4 +26,4 @@ models:
     description: >-
       The ThinED file as text lines: a three-line header (file tag, version, line
       count) followed by one fixed-width line per election district. The header's line
-      count is computed; its tag and version come from configuration (CSCL-THINED-02).
+      count is computed; its tag and version come from configuration.

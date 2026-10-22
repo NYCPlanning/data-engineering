@@ -2,7 +2,7 @@ version: 2
 
 models:
 - name: thinfire_by_field
-  description: "One row per fire company: its type, number, division, battalion and borough, ordered by company type and number. The borough is a point-in-polygon match on the company's centroid (a different borough from prod's on 12 companies before that fix, CSCL-THINFIRE-01)."
+  description: "One row per fire company: its type, number, division, battalion and borough, ordered by company type and number. The borough is a point-in-polygon match on the company's centroid."
   columns:
     - name: fire_company_type
       description: "Fire company type: the first character of the unit name."

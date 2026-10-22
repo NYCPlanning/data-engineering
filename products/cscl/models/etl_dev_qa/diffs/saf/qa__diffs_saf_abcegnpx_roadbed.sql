@@ -45,8 +45,8 @@ diff_grouped AS (
                 status = 'only_in_legacy'
                 AND split_part(_saf_key, '|', 3) = '9017010'
                 THEN 'CSCL-SAF-03: blank alt_segdata_type row in prod (spec Table 13)'
-            -- CSCL-SAF-02: ESRI vs GEOS point-in-polygon disagreement for SAF GNX side-AP
-            -- fields. See CSCL-SAF-02
+            -- CSCL-SAF-02: GNX points within FGDB resolution of an AP boundary, side-AP
+            -- fields differ. See CSCL-SAF-02
             WHEN
                 status = 'modified'
                 AND list_has_all(ARRAY[

@@ -142,7 +142,7 @@ SELECT
             AND _lion_key = '211480359093'
             THEN 'CSCL-LION-14: prod coincident_seg_count = 0'
         -- CSCL-LION-16: left/right AP from the AP topology, where prod's 2 ft probe
-        -- overshoots the adjacent AP. See data_issues.md CSCL-LION-16.
+        -- overshoots the adjacent AP. See CSCL-LION-16.
         WHEN status = 'modified' AND is_topology_lr_change
             THEN 'CSCL-LION-16: topology left/right AP'
         -- If only one field changed, use that as the group name
@@ -206,7 +206,7 @@ SELECT
             -- See CSCL-LION-14
             OR _lion_key = '211480359093'
             -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.
-            -- See data_issues.md CSCL-LION-16.
+            -- See CSCL-LION-16.
             OR is_topology_lr_change
         ),
         FALSE

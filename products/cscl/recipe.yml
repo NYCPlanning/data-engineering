@@ -461,7 +461,7 @@ exports:
 
   # LDF - formatting is applied inside the models, since the record file mixes layouts.
   # compare_file is off because positions 91-100 carry a cumulative record number that
-  # diverges from prod's (data_issues.md CSCL-LDF-03), so a whole-line file diff reports
+  # diverges from prod's (CSCL-LDF-03), so a whole-line file diff reports
   # every record after the first divergence. qa__ldf_summary compares positions 1-90.
   - name: ldf_base
     group: flat_files

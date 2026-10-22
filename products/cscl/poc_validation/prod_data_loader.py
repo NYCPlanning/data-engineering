@@ -91,7 +91,7 @@ def parse_file(
             # iteration yields that as one more "row", producing a spurious all-blank
             # record with only the marker byte sliced into the first field (confirmed:
             # qa__diffs_thinlion_summary's thinlion_all "only_in_legacy" comparison_id
-            # \x1A000000 - see Bug 015 in data_issues.md). Skip
+            # \x1A000000). Skip
             # any line that's empty once stripped of whitespace and that marker.
             if row.strip("\x1a\r\n ") == "":
                 continue
@@ -217,7 +217,7 @@ def _frozen_district_layers() -> set[str]:
     """District gdb layers flagged `status: blocked` in seeds/lion_outputs.csv.
 
     These haven't been genuinely rebuilt in prod since 2009-2015, only re-exported
-    (Bug 013 in data_issues.md) - still under separate
+    (per their FileGDB item metadata) - still under separate
     investigation with another team as of this writing. Skipped entirely rather than
     loaded-and-ignored: comparing our output against a FileGDB object prod hasn't
     touched in over a decade wouldn't tell us anything about our own pipeline.

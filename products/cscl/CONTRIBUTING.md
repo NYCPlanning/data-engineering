@@ -37,14 +37,14 @@ Each quarter, we receive a set of outputs from the legacy system that serve as o
 **When outputs don't match:**
 1. **If we find bugs in the legacy system** → Fix them in our code and **document the discrepant records**
 2. **If we can't reproduce legacy behavior** → Document why and note the differences
-3. **All known discrepancies must be tracked** - each gets a stable ID, as a row in [seeds/known_differences.csv](./seeds/known_differences.csv), cited from the `qa__diffs_*` model that accounts for it. [data_issues.md](./data_issues.md) is generated from the seed (`python scripts/generate_data_issues.py`; CI fails if it's stale), and the export doc lists each output's non-fixed rows
+3. **All known discrepancies must be tracked** - each gets a stable ID, as a row in [seeds/known_differences.csv](./seeds/known_differences.csv), cited from the `qa__diffs_*` model that accounts for it. The export doc lists each output's rows. When a difference no longer shows up in the `qa__diffs_*` models, remove its row and retire the ID (see the seed's description in [seeds/seeds.yml](./seeds/seeds.yml))
 
 ### Project Status Tracking
 
 `seeds/lion_outputs.csv` is the backbone status record for every output file/gdb layer, not
 just comparison config - it's what the CI build's step summary reports from. Each row's
 `status` and one-sentence `status_summary` are the at-a-glance state; `notes` backs that up
-with the fuller explanation (citing a `data_issues.md` ID for anything substantial). If an output is blocked on something outside this team - e.g.
+with the fuller explanation (citing a known-difference ID for anything substantial). If an output is blocked on something outside this team - e.g.
 needing NYC Planning's GR team's input on undocumented legacy behavior - record that there
 (`status: GR Review` while it's with them, `blocked` once it's a known dead end) rather than
 leaving it untracked.
@@ -107,7 +107,7 @@ covering every section of the legacy ETL doc. Columns: `id`, `dbt_model`,
 ### The process, per row
 
 1. **Generate fresh.** Write the model's `description` and column `description`s from
-   your own understanding of the code (the SQL, any comments, `data_issues.md`) - not
+   your own understanding of the code (the SQL, any comments, `seeds/known_differences.csv`) - not
    copied from the legacy doc's prose. Match its level of detail (methodology, edge
    cases, value meanings), not its wording or tone.
 2. **Reconcile against the legacy doc.** Read the corresponding legacy section
@@ -115,7 +115,7 @@ covering every section of the legacy ETL doc. Columns: `id`, `dbt_model`,
    you wrote, a rule the legacy doc states more precisely, a discrepancy between the
    two - goes in [`docs/doc_reconciliation_log.md`](./docs/doc_reconciliation_log.md).
    If a finding turns out to be a real *behavioral* discrepancy (not just a wording
-   gap), it belongs in `data_issues.md` instead - link to it from the reconciliation
+   gap), it belongs in `seeds/known_differences.csv` instead - link to it from the reconciliation
    log rather than duplicating the analysis there.
 3. **Review.** Flag the row for review (PR, or however you're tracking it day to day).
    Only mark `reviewed` in the CSV once you've actually looked at it - that status is
@@ -182,7 +182,7 @@ Located on SharePoint: [CSCL ETL Folder](https://nyco365.sharepoint.com/:f:/r/si
 ### Issue Tracking
 
 - **Data discrepancies**: [LION Data Discrepancy Tracking (Word)](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/DE%20Pipeline%20-%20Project%20Tracking/Data%20Discrepancy%20Tracking/LION%20Flat%20Files%20%E2%80%93%20Data%20DiscrepancyIssue%20Tracking.docx?d=w60907e50f8044bd9bffe2508a299035f&csf=1&web=1&e=aZ59n8)
-- **Known issues**: [data_issues.md](./data_issues.md)
+- **Known differences**: [seeds/known_differences.csv](./seeds/known_differences.csv)
 
 ## Key Concepts
 

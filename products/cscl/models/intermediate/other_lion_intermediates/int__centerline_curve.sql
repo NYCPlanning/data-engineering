@@ -42,7 +42,7 @@ SELECT
     -- segment's start point, not the fitted circle's own radius (the Z coordinate
     -- find_circle() returns). The two round to different integers whenever the fitted
     -- radius is near .5 - about 25% of curved segments. This reproduces prod on every
-    -- curved segment (CSCL-LION-07, data_issues.md).
+    -- curved segment.
     st_distance(
         st_point(round_even(st_x(center_of_curvature), 0), round_even(st_y(center_of_curvature), 0)),
         start_point

@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: gdb_lion
-    description: "LION segment line layer of the published ESRI geodatabase: one row per LION record, with extra rows for SAF replicants and continuous-parity segments. Columns match the prod GDB field names. Differs from prod on the curve flag, the BOE LGC pointer, the zip codes on Randall's Island, and SAF rows of types A, B, E and P (CSCL-LION-02 to CSCL-LION-04, CSCL-LION-20)."
+    description: "LION segment line layer of the published ESRI geodatabase: one row per LION record, with extra rows for SAF replicants and continuous-parity segments. Columns match the prod GDB field names. Differs from prod on the curve flag, the BOE LGC pointer, the zip codes on Randall's Island, non-street sequence numbers and Join_ID padding (CSCL-LION-02 to CSCL-LION-05, CSCL-LION-10)."
     columns:
       - name: "'SegmentID'"
         description: "7-character segment identifier"

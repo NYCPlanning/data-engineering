@@ -172,8 +172,8 @@ Prod quirks worth knowing before reading a diff:
 
 ### Known dev/prod diffs
 
-Accounted-for district diffs are listed in [data_issues.md](./data_issues.md) under
-`CSCL-DISTRICTS-*`.
+Accounted-for district diffs are the `CSCL-DISTRICTS-*` rows of
+[seeds/known_differences.csv](./seeds/known_differences.csv).
 
 ## LION Differences File (LDF)
 
@@ -223,7 +223,7 @@ time, which is after the GDB snapshot we ingest is taken. Select on NULL — nev
 two releases. Our rule is an approximation of GR's, which lives in an assembly we don't
 have, so this output does not match prod exactly.
 
-**The dev/prod difference is CSCL-LDF-01 in [data_issues.md](./data_issues.md)**; its bead
+**The dev/prod difference is CSCL-LDF-01 in [seeds/known_differences.csv](./seeds/known_differences.csv)**; its bead
 has why it exists and what constrains fixing it, alongside the other open data questions
 for this output (CSCL-LDF-*). Read that before changing the elimination logic; in
 particular, don't tune it to match prod's counts on the two editions we have.
@@ -239,7 +239,7 @@ a value identifies one record in one edition forever. It chains exactly:
 
 GR's tool takes this number as operator input; ours derives it from the previous edition's
 header instead. That difference matters — see
-CSCL-LDF-03 in [data_issues.md](./data_issues.md).
+CSCL-LDF-03 in [seeds/known_differences.csv](./seeds/known_differences.csv).
 
 ### Release inputs
 
@@ -282,14 +282,14 @@ Prod's own LDF for this release is part of the prod snapshot (see [Setup](#setup
 ## LION - Known data issues
 
 Individual LION discrepancies — what's accepted, what's still open — live in
-[data_issues.md](./data_issues.md) under `CSCL-LION-*`. What follows is the runbook for a
+[seeds/known_differences.csv](./seeds/known_differences.csv) under `CSCL-LION-*`. What follows is the runbook for a
 new build, not a list of issues.
 
 ### Common things to check for in new build
 
 Things that have gone wrong on a new release before. In general, most issues are discovered/handled by looking into `qa__lion_dat_individual_diffs`, but there are a few special things
 
-- duplicate boro + face_code + segmentid in dev. This is diagnosed by looking at `qa__lion_dat_summary` and looking at "unique keys in dev". This is a source data issue to be reported to GR. GR's discrepancy log (linked from [data_issues.md](./data_issues.md)) has some info on when this happened before
+- duplicate boro + face_code + segmentid in dev. This is diagnosed by looking at `qa__lion_dat_summary` and looking at "unique keys in dev". This is a source data issue to be reported to GR. GR's [discrepancy log](https://nyco365.sharepoint.com/:w:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL/DE%20Pipeline%20-%20Project%20Tracking/Data%20Discrepancy%20Tracking/LION%20Flat%20Files%20%E2%80%93%20Data%20DiscrepancyIssue%20Tracking.docx?d=w60907e50f8044bd9bffe2508a299035f&csf=1&web=1&e=aZ59n8) has some info on when this happened before
 - duplicate boro + face_code + segment_seqnum in prod. This should only happen in cases of the above. Needs a custom query. This has no impact on our pipeline but GR wants to know.
 - empty geoms. This has happened in the past. We probably want to add more data testing to `sources.yml`. But also a simple query of certain layers/tables where `ST_ISEMPTY(geom)` will work too.
 - sectionalmap issues. This would appear in `qa__lion_dat_summary` in terms of number of dev rows and `qa__lion_dat_individual_diffs` with `sectional_map` diffs (and other diffs as well due to duplicate rows). Topology issues in the source data have caused duplicate rows on joins.
@@ -356,19 +356,11 @@ checks that it exists.
 
 Make a branch and edit `recipe.yml`:
 
-- **The top-level `version:`** (`26c` -> `26d`). Two inputs follow it: the prod snapshot
-  input (`dcp_cscl_production_outputs`, `version_env_var: VERSION`), and, once
-  [#2793](https://github.com/NYCPlanning/data-engineering/pull/2793) is merged, every export
-  filename that embeds the release (`nyclion_{{ version }}.zip` x4,
+- **The top-level `version:`** (`26c` -> `26d`). Everything else follows it: the prod
+  snapshot input (`dcp_cscl_production_outputs`, `version_env_var: VERSION`) and every
+  export filename that embeds the release (`nyclion_{{ version }}.zip` x4,
   `v{{ version | upper }}_Districts.gdb.zip` x43). Those names have to match prod's for the
-  QA comparisons to line up.
-- **If #2793 hasn't merged**, the filenames are still hardcoded, so bump them by hand:
-  ```bash
-  sed -i.bak -e 's/nyclion_26c\.zip/nyclion_26d.zip/g' -e 's/v26C_Districts/v26D_Districts/g' recipe.yml && rm recipe.yml.bak
-  grep -c -e nyclion_26d.zip -e v26D_Districts recipe.yml   # 47
-  ```
-  Before #2793, `build.yml`'s `version` input is also ignored for CSCL (`cscl_build.yml`
-  plans from `recipe.yml`), so the recipe edit is the only way to set the version.
+  QA comparisons to line up. `build.yml`'s `version` input overrides it for a one-off build.
 
 Nothing ties the LDF inputs to the version, so update these by hand too (see
 [Release inputs](#release-inputs)):
@@ -456,10 +448,10 @@ QA** page reads it, including the per-file diff rows.
   reports a phantom discrepancy (nyct2010wi 4990100 read 80.7%: three water tracts share
   that key). Check `major` rows for duplicate keys in prod before reporting them.
 - **Known differences**: [`seeds/known_differences.csv`](./seeds/known_differences.csv) is
-  the record of accepted and open diffs vs prod (stable IDs like `CSCL-LION-06`), cited by
-  the `qa__diffs_*` models that account for them. [data_issues.md](./data_issues.md) is
-  generated from it (`python scripts/generate_data_issues.py`; `--check` in CI). After a
-  release, update `last_verified` on the rows you re-checked and add rows for anything new
+  the record of accepted and open diffs vs prod (stable IDs like `CSCL-LION-04`), cited by
+  the `qa__diffs_*` models that account for them. After a release, update `last_verified`
+  on the rows you re-checked, remove rows whose difference is gone (retire the ID), and
+  add rows for anything new
   (see [CONTRIBUTING.md](./CONTRIBUTING.md#handling-discrepancies)).
 
 ### 6. When something is off
@@ -487,7 +479,7 @@ QA** page reads it, including the per-file diff rows.
 - **Asking GR.** Collect the questions, each with the specific keys/rows and what you
   checked, and send them as a batch. Record the answer in the seed's `gr_status`/
   `decision`. Data errors in CSCL itself (e.g. duplicate segment keys) go to GR as well
-  (see GR's discrepancy log, linked from data_issues.md).
+  (see GR's discrepancy log, linked under "Common things to check for in new build").
 
 ### 7. Publishing and distribution
 
@@ -521,6 +513,6 @@ Open questions (not answered by anything in the repo):
 - `dcp_cscl_temp_mock_previous_release`: how were the `26B` CSVs
   (`citywide_lion_dat.csv`, `previous_ldf_header.csv`) made, and who makes `26C`'s for 26d?
 - `seeds/config.csv`'s `thined_version`/`thined_file_tag`: what's the update rule per
-  release (CSCL-THINED-02)?
+  release?
 - Release dates for the LDF header (`ldf_new_release_date`): GR gives us these, but at what
   point in the release?

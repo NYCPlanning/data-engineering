@@ -32,4 +32,4 @@ models:
 - name: int__saf_altnames_join_ids
   description: "SAF-replicant Join_IDs for CommonPlace (G, N, X) and address point (S, V) records, one per SAF record and host proto-segment."
 - name: int__saf_replicant_fields
-  description: "Every SAF source normalized to one shape for the LION SAF replicant rows: resolved lionkey, special address flag, house-number and ZIP overrides, SAF street name and code, and Join_ID. Address point S and V ZIP overrides are not implemented (CSCL-LION-20)."
+  description: "Every SAF source normalized to one shape for the LION SAF replicant rows: resolved lionkey, special address flag, house-number and ZIP overrides, SAF street name and code, and Join_ID. Address point S and V ZIP overrides are not implemented."

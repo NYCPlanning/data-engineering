@@ -243,7 +243,7 @@ models:
   - name: ldf_num
     description: >
       Auto-numbered primary key of the journal. A handful of historical rows carry the
-      sentinel `-1` instead of a real number (see data_issues.md CSCL-LDF-05); uniqueness
+      sentinel `-1` instead of a real number; uniqueness
       is only meaningful for real values.
     tests:
     - not_null
@@ -450,8 +450,7 @@ models:
 - name: stg__nypdpatrolborough
   description: >
     NYPD patrol borough boundaries. One row per patrol borough. Source for the patrol
-    borough assignments. Its Bronx patrol borough is BX where prod has XN and XS
-    (CSCL-THINLION-03).
+    borough assignments.
   columns:
   - name: patrol_borough
     description: NYPD patrol borough.
