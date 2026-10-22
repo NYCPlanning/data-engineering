@@ -42,6 +42,7 @@ os.environ.setdefault(
 sys.path.insert(0, str(Path(__file__).parent))
 import prod_data_loader as pdl  # noqa: E402
 
+from dcpy import configuration  # noqa: E402
 from dcpy.geospatial.curves.layer import layer_to_parquet  # noqa: E402
 from dcpy.geospatial.gdb import fgdb  # noqa: E402
 from dcpy.utils import s3  # noqa: E402
@@ -50,7 +51,10 @@ from dcpy.utils.logging import logger  # noqa: E402
 DATASET = "dcp_cscl_production_outputs"
 BUNDLE_NAME = "production_outputs.zip"
 LION_GDB_URL = "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{version}.zip"
-PRIVATE_BUCKET = "edm-private"
+# the legacy outputs live in edm-private/cscl_etl/ (as prod_data_loader reads them); the
+# snapshot goes where the recipe input's edm.private connector looks for it
+LEGACY_BUCKET = "edm-private"
+SNAPSHOT_BUCKET = configuration.PRIVATE_BUCKET
 WORKFLOW = "CSCL - Prod snapshot"
 
 
@@ -68,7 +72,7 @@ def expected_files(version: str) -> list[str]:
 def found_files(version: str) -> set[str]:
     """Files directly under edm-private/cscl_etl/<version>/ (not inside a .gdb folder)."""
     prefix = f"cscl_etl/{version}/"
-    keys = [o["Key"] for o in s3.list_objects(PRIVATE_BUCKET, prefix)]
+    keys = [o["Key"] for o in s3.list_objects(LEGACY_BUCKET, prefix)]
     return {k[len(prefix) :] for k in keys if "/" not in k[len(prefix) :]} - {""}
 
 
@@ -288,14 +292,14 @@ def _check_inputs(version: str = typer.Option(pdl.version, "--version", "-v")):
 def _check_snapshot(version: str = typer.Option(pdl.version, "--version", "-v")):
     """Fail unless the snapshot for this release has been uploaded."""
     key = snapshot_key(version)
-    if not s3.object_exists(PRIVATE_BUCKET, key):
+    if not s3.object_exists(SNAPSHOT_BUCKET, key):
         logger.error(
-            f"No prod snapshot for {version} (s3://{PRIVATE_BUCKET}/{key}): QA compares "
+            f"No prod snapshot for {version} (s3://{SNAPSHOT_BUCKET}/{key}): QA compares "
             f'the build against it. Run the "{WORKFLOW}" workflow with version {version} '
             f"(or poc_validation/build_prod_snapshot.py build -v {version} --upload)."
         )
         raise typer.Exit(1)
-    logger.info(f"Prod snapshot for {version}: s3://{PRIVATE_BUCKET}/{key}")
+    logger.info(f"Prod snapshot for {version}: s3://{SNAPSHOT_BUCKET}/{key}")
 
 
 @app.command("build")
@@ -310,16 +314,16 @@ def _build(
     ),
 ):
     key = snapshot_key(version)
-    if upload and not overwrite and s3.object_exists(PRIVATE_BUCKET, key):
+    if upload and not overwrite and s3.object_exists(SNAPSHOT_BUCKET, key):
         logger.error(
-            f"s3://{PRIVATE_BUCKET}/{key} exists; pass --overwrite to replace it"
+            f"s3://{SNAPSHOT_BUCKET}/{key} exists; pass --overwrite to replace it"
         )
         raise typer.Exit(1)
     _check_inputs(version)
     bundle = build(version, out_dir)
     if upload:
-        s3.upload_file(PRIVATE_BUCKET, bundle, key, "private")
-        logger.info(f"Uploaded to s3://{PRIVATE_BUCKET}/{key}")
+        s3.upload_file(SNAPSHOT_BUCKET, bundle, key, "private")
+        logger.info(f"Uploaded to s3://{SNAPSHOT_BUCKET}/{key}")
 
 
 if __name__ == "__main__":

@@ -1203,6 +1203,10 @@ stage_config:
   # models compare against production_outputs, loaded from the prod parquet bundle.
   builds.qa:
     commands:
+      - name: source_freshness
+        # a report, never a failure: source layer dates, and signs prod's release was
+        # built from a newer or older extract (validation_output/source_freshness.csv)
+        run: python poc_validation/source_freshness.py
       - name: qa_models
         run: dbt run --select path:models/qa_int path:models/etl_dev_qa
       - name: pull_prod_files
