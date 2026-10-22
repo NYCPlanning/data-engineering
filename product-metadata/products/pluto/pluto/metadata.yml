@@ -309,7 +309,7 @@ files:
         To report problems, please open a GitHub issue or email DCPOpendata@planning.nyc.gov.
     overridden_columns: *mappluto_gdb_column_renames
 - file:
-    id: shapefile_water_incl
+    id: mappluto_unclipped_shp
     filename: mappluto_unclipped.shp.zip
     type: shapefile
   dataset_overrides:
