@@ -1,11 +1,9 @@
 -- DuckDB functions used by the models, created at run start (dbt_project.yml on-run-start).
 -- Requires the spatial extension (INSTALL spatial; LOAD spatial;).
--- Created at run start on the duckdb target (dbt_project.yml on-run-start). Geometry carries no SRID in DuckDB, so the
--- ST_SetSRID calls of the Postgres originals have no counterpart here.
--- Not ported: geometry_diff_metrics (QA only; needs ST_HausdorffDistance, which DuckDB
--- lacks). linearize(): see the stand-in at the bottom.
+-- Geometry carries no SRID in DuckDB. geometry_diff_metrics (QA only) is a dbt macro in
+-- macros/geometry_diff_qa.sql. linearize(): see the stand-in at the bottom.
 
--- format_lion_text: lpad/rpad to n characters (truncates on the right, like Postgres).
+-- format_lion_text: lpad/rpad to n characters (truncates on the right).
 -- A NULL value becomes '' and, if blank_if_none, the fill becomes a space.
 {% macro create_duckdb_functions() %}
 CREATE OR REPLACE MACRO format_lion_text(value, n, fill := '0', blank_if_none := FALSE, left_ := FALSE) AS
@@ -76,9 +74,8 @@ CREATE OR REPLACE MACRO find_circle(p1, p2, p3) AS (
 );
 
 -- offset_points: STRUCT(left_offset_point, right_offset_point), points offset_length from
--- midpoint along the normal of the line segment the midpoint sits on. Mirrors the
--- Postgres logic: first segment intersecting midpoint, else the nearest segment.
--- NULL if line is not a LineString. (Postgres raises if >2 segments match; this takes the first.)
+-- midpoint along the normal of the line segment the midpoint sits on: the first segment
+-- intersecting midpoint, else the nearest segment. NULL if line is not a LineString.
 -- (Pure expressions, no subqueries: a macro whose subqueries reference its arguments
 -- can't be called on table columns. [x] + list_transform binds an intermediate once.)
 CREATE OR REPLACE MACRO _offset_segment(line, midpoint) AS (
@@ -117,8 +114,8 @@ CASE
     )[1]
 END;
 
--- linearize stand-in: curves are linearized at load time (dcpy.geospatial.curves), so only
--- the ST_LineMerge branch of the Postgres function remains meaningful.
+-- linearize stand-in: curves are linearized at load time (dcpy.geospatial.curves), so all
+-- that's left is merging MultiLineStrings.
 CREATE OR REPLACE MACRO linearize(geom) AS
 CASE WHEN st_geometrytype(geom) = 'MULTILINESTRING' THEN st_linemerge(geom) ELSE geom END;
 -- dump_points: PostGIS st_dumppoints for (multi)polygons, as a list to UNNEST - one struct

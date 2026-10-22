@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['b7sc']},
-    ]
+    materialized = 'table'
 ) }}
 
 SELECT

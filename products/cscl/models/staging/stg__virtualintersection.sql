@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['nodeid']},
-    ]
+    materialized = 'table'
 ) }}
 
 SELECT * FROM {{ source("recipe_sources", "dcp_cscl_virtualintersection") }}

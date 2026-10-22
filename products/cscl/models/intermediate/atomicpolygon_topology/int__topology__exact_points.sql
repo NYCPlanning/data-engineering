@@ -1,8 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized='table'
 ) }}
 
 -- Every distinct vertex coordinate (arc mids excluded), grouped by exact equality - the

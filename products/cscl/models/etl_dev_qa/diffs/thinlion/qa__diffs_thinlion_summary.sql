@@ -36,7 +36,7 @@ categorized AS (
                 AND (changes -> 'patrol_borough' ->> 'new') = 'BX'
                 AND (changes -> 'patrol_borough' ->> 'old') IN ('XN', 'XS')
                 THEN 'CSCL-THINLION-03: Bronx patrol borough XN/XS'
-            -- CSCL-THINLION-02: ESRI vs PostGIS centroid-in-polygon disagreement for police geography
+            -- CSCL-THINLION-02: ESRI vs GEOS centroid-in-polygon disagreement for police geography
             -- joins. If changes are only police_precinct and/or police_sector and/or
             -- patrol_borough and/or police_patrol_borough_command.
             -- See CSCL-THINLION-02
@@ -62,7 +62,7 @@ categorized AS (
                 AND (changes -> 'patrol_borough' ->> 'new') = 'BX'
                 AND (changes -> 'patrol_borough' ->> 'old') IN ('XN', 'XS')
             )
-            -- CSCL-THINLION-02: ESRI vs PostGIS centroid-in-polygon disagreement for police geography
+            -- CSCL-THINLION-02: ESRI vs GEOS centroid-in-polygon disagreement for police geography
             -- joins. See CSCL-THINLION-02
             OR (
                 status = 'modified'

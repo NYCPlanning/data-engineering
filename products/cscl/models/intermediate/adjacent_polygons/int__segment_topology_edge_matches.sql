@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['globalid']},
-    ]
+    materialized = 'table'
 ) }}
 
 -- The AP topology edges each segment runs along. One row per step - a pair of

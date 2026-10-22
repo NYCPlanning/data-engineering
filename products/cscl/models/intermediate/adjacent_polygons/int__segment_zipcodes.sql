@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['globalid']},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH segment_offsets AS (

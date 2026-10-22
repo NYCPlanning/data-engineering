@@ -1,9 +1,6 @@
 {{
   config(
-    materialized='table',
-    indexes=[
-      {'columns': ['_lion_gdb_key']}
-    ]
+    materialized='table'
   )
 }}
 

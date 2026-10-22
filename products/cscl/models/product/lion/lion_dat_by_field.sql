@@ -1,10 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid']},
-      {'columns': ['boroughcode', 'face_code', 'segment_seqnum']},
-      {'columns': ['_lion_key']}
-    ]
+    materialized = 'table'
 ) }}
 
 SELECT

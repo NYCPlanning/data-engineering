@@ -9,7 +9,7 @@ It assumes that production outputs are specified as exports in recipe.yml.
 import csv
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal, Protocol
 
 import exports
 import pandas as pd
@@ -19,22 +19,17 @@ from paths import prod_files_dir
 from dcpy.lifecycle.builds import plan
 from dcpy.utils import s3
 
-# Where parsed tables go: set by poc_validation/build_prod_snapshot.py (a parquet sink).
-# Anything with insert_dataframe(df, table_name) and a .schema works.
-CLIENT: Any = None
 LOAD_FOLDER = prod_files_dir()
-CONFIG_PATH = Path("seeds/config.csv")
 
 version: str | None = None
 datasets_by_name = {}
 datasets_by_filename = {}
 
 
-def read_config(path: Path = CONFIG_PATH) -> dict[str, str]:
-    """seeds/config.csv's key/value rows, as a dict - see that seed's
-    description in seeds.yml for what belongs there and why."""
-    with path.open(newline="") as f:
-        return {row["key"]: row["value"] for row in csv.DictReader(f)}
+class Sink(Protocol):
+    """Where parsed tables go (build_prod_snapshot.py's ParquetSink)."""
+
+    def insert_dataframe(self, df: pd.DataFrame, table_name: str) -> None: ...
 
 
 @dataclass
@@ -49,7 +44,6 @@ class OutputDataset:
 try:
     recipe = plan.recipe_from_yaml(Path("./recipe.yml"))
     version = recipe.version
-    previous_version = read_config().get("ldf_previous_version")
     assert recipe.exports
 
     for export in recipe.exports.datasets:
@@ -109,28 +103,9 @@ def parse_file(
     return pd.DataFrame(records)
 
 
-def load_datasets(
-    datasets: list[str],
-    folder: Path,
-    version: str | None = None,
-    force: bool = False,
-):
-    """
-    version is optional (a `-l/--local` load has none) - staleness tracking only
-    applies when it's given, same as load_citywide_lion/load_previous_ldf_header/
-    load_prod_ldf already do. Before this, `load` was the one loader with no
-    already_loaded/record_load tracking at all, so a table loaded once could sit
-    stale in the shared production_outputs schema indefinitely with no record of
-    what version it actually holds - root-caused for SAF in
-    Bug 007 in data_issues.md (item 5&6),
-    and the likely explanation for a similar pattern seen on ThinFire.
-    """
+def load_datasets(sink: Sink, datasets: list[str], folder: Path):
     for ds_name in datasets:
         dataset = datasets_by_name[ds_name]
-
-        if version and not force and already_loaded(dataset.name, version):
-            print(f"{dataset.name} already holds {version}, skipping")
-            continue
 
         match dataset.file_format, dataset.formatting_path:
             case "csv", _:
@@ -146,35 +121,41 @@ def load_datasets(
             case _:
                 raise Exception(f"unsupported file format {dataset.file_format}")
 
-        print(f"loading {folder / dataset.file_name} to {CLIENT.schema}.{dataset.name}")
-        CLIENT.insert_dataframe(dat_df, dataset.name)
-
-        if version:
-            record_load(dataset.name, version)
+        print(f"loading {folder / dataset.file_name} to {dataset.name}")
+        sink.insert_dataframe(dat_df, dataset.name)
 
 
-def already_loaded(table_name: str, version: str) -> bool:
-    """Every snapshot is built from scratch; nothing is ever already loaded."""
-    return False
+def load_flat_files(sink: Sink, version: str, local_folder: Path) -> list[str]:
+    """Download this release's flat files from edm-private and load each one; returns
+    the datasets loaded."""
+    # compare_file: false datasets (e.g. ldf_base/ldf_header) have no prod file to load -
+    # their `filename` is dev's own export name, not something GR archives. `_pull`
+    # skips these too.
+    datasets = [d for d in datasets_by_name if datasets_by_name[d].compare_file]
+    for dataset in set(datasets_by_name) - set(datasets):
+        print(
+            f"skipping {datasets_by_name[dataset].file_name}: compare_file is off in recipe.yml"
+        )
+
+    for dataset in datasets:
+        file_name = datasets_by_name[dataset].file_name
+        s3.download_file(
+            "edm-private",
+            f"cscl_etl/{version}/{file_name}",
+            local_folder / file_name,
+        )
+
+    load_datasets(sink, datasets, local_folder)
+    return datasets
 
 
-def record_load(table_name: str, version: str) -> None:
-    pass
-
-
-def load_citywide_lion(
-    version: str, table_name: str, local_folder: Path, force: bool = False
-):
+def load_citywide_lion(sink: Sink, version: str, table_name: str, local_folder: Path):
     """
     Load one release's five borough LION .dat files as a single citywide table.
 
     The .dat files are parsed and concatenated here rather than unioned from the
-    per-borough tables, so this works without `load` having run first.
+    per-borough tables, so this works without `load_flat_files` having run first.
     """
-    if not force and already_loaded(table_name, version):
-        print(f"{table_name} already holds LION {version}, skipping")
-        return
-
     lion_datasets = [
         d for d in datasets_by_name.values() if d.name.endswith("_lion_dat")
     ]
@@ -194,27 +175,31 @@ def load_citywide_lion(
         frames.append(parse_file(local_path, formatting_path=dataset.formatting_path))
 
     df = pd.concat(frames, ignore_index=True)
-    print(f"loading {len(df)} rows from LION {version} to {CLIENT.schema}.{table_name}")
-    CLIENT.insert_dataframe(df, table_name)
-    record_load(table_name, version)
+    print(f"loading {len(df)} rows from LION {version} to {table_name}")
+    sink.insert_dataframe(df, table_name)
 
 
-def create_citywide_table(file: str):
-    CLIENT.execute_query(
-        f"""
-            DROP TABLE IF EXISTS citywide_{file};
-            CREATE TABLE citywide_{file} AS
-            SELECT * FROM bronx_{file}
-            UNION ALL
-            SELECT * FROM brooklyn_{file}
-            UNION ALL
-            SELECT * FROM manhattan_{file}
-            UNION ALL
-            SELECT * FROM queens_{file}
-            UNION ALL
-            SELECT * FROM staten_island_{file};
-        """
-    )
+def load_prod_ldf(sink: Sink, version: str, local_folder: Path):
+    """
+    Load the production LDF for this release, for dev/prod comparison.
+
+    Records are kept as raw 100-character lines rather than parsed into fields: the LDF
+    mixes record layouts in one file, and the QA models compare whole records anyway.
+    """
+    for file_name, table_name in [
+        ("LDF.dat", "ldf_base"),
+        ("LDF.header", "ldf_header"),
+    ]:
+        local_path = local_folder / version / file_name
+        s3.download_file("edm-private", f"cscl_etl/{version}/{file_name}", local_path)
+        with open(local_path) as f:
+            rows = [line.rstrip("\n") for line in f if line.strip()]
+        bad = {len(r) for r in rows} - {100}
+        assert not bad, f"{file_name} has records of length {sorted(bad)}, expected 100"
+
+        df = pd.DataFrame({"dat_column": rows})
+        print(f"loading {len(df)} rows from {file_name} to {table_name}")
+        sink.insert_dataframe(df, table_name)
 
 
 def _district_gdb_filename(version: str) -> str:
@@ -261,53 +246,6 @@ def head(
     typer.echo(df.head())
 
 
-@app.command("load")
-def _load(
-    datasets: list[str] = typer.Option(datasets_by_name.keys(), "--datasets", "-d"),
-    version: str | None = typer.Option(version, "--version", "-v"),
-    local: bool = typer.Option(False, "--local", "-l"),
-    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
-    force: bool = typer.Option(
-        False,
-        "--force",
-        help="Reload even if this version is already logged as loaded",
-    ),
-):
-    """
-    Primary purpose is to load production outputs for comparison to outputs of this pipeline.
-    """
-    if not (version or local):
-        raise Exception(
-            "Either specify loading locally with '-l' flag or specify version to pull from s3 with '-v' flag"
-        )
-
-    # compare_file: false datasets (e.g. ldf_base/ldf_header) have no prod file to load -
-    # their `filename` is dev's own export name, not something GR archives. `_pull` already
-    # skips these; mirror that here rather than 404ing on s3.
-    comparable_datasets = [d for d in datasets if datasets_by_name[d].compare_file]
-    for dataset in set(datasets) - set(comparable_datasets):
-        print(
-            f"skipping {datasets_by_name[dataset].file_name}: compare_file is off in recipe.yml"
-        )
-
-    if not local:
-        for dataset in comparable_datasets:
-            file_name = datasets_by_name[dataset].file_name
-            s3.download_file(
-                "edm-private",
-                f"cscl_etl/{version}/{file_name}",
-                local_folder / file_name,
-            )
-
-    load_datasets(comparable_datasets, local_folder, version=version, force=force)
-
-    # Citywide LION is `load_prod_lion`, which parses the .dat files directly. A union of
-    # the per-borough tables written above can't build it: they're named for their recipe
-    # exports (bronx_lion_dat), not the bronx_lion that create_citywide_table expects.
-    if any(dataset.endswith("_face_code") for dataset in comparable_datasets):
-        create_citywide_table("face_code")
-
-
 @app.command("pull")
 def _pull(
     datasets: list[str] = typer.Option(datasets_by_name.keys(), "--datasets", "-d"),
@@ -333,111 +271,6 @@ def _pull(
             f"cscl_etl/{version}/{output.file_name}",
             local_folder / output.file_name,
         )
-
-
-@app.command("load_previous_lion")
-def _load_previous_lion(
-    previous_version: str | None = typer.Option(
-        previous_version, "--previous-version", "-p"
-    ),
-    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
-    table_name: str = typer.Option("previous_citywide_lion_dat", "--table", "-t"),
-    force: bool = typer.Option(False, "--force", "-F"),
-):
-    """
-    Load the *prior* release's production LION into the build db.
-
-    The LDF documents changes between two LION releases, so unlike the rest of this
-    script - which loads the current release for dev/prod comparison - this pulls the
-    release before it. Boroughs are concatenated because the LDF is citywide.
-    """
-    if not previous_version:
-        raise Exception(
-            "Specify the previous release with '-p'. "
-            "If running in CI, this defaults to seeds/config.csv's ldf_previous_version"
-        )
-
-    load_citywide_lion(previous_version, table_name, local_folder, force)
-
-
-@app.command("load_previous_ldf_header")
-def _load_previous_ldf_header(
-    previous_version: str | None = typer.Option(
-        previous_version, "--previous-version", "-p"
-    ),
-    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
-    table_name: str = typer.Option("previous_ldf_header", "--table", "-t"),
-    force: bool = typer.Option(False, "--force", "-F"),
-):
-    """
-    Load the *prior* LDF edition's header record.
-
-    LDF record numbers are cumulative across editions forever, so a new edition has to
-    start where the last one stopped. The prior header carries both numbers we need:
-    its own cumulative number and its record count.
-    """
-    if not previous_version:
-        raise Exception(
-            "Specify the previous release with '-p'. "
-            "If running in CI, this defaults to seeds/config.csv's ldf_previous_version"
-        )
-
-    if not force and already_loaded(table_name, previous_version):
-        print(f"{table_name} already holds LDF {previous_version}, skipping")
-        return
-
-    file_name = "LDF.header"
-    local_path = local_folder / previous_version / file_name
-    s3.download_file(
-        "edm-private", f"cscl_etl/{previous_version}/{file_name}", local_path
-    )
-    df = parse_file(
-        local_path,
-        formatting_path=Path("seeds/text_formatting/text_formatting__ldf_h.csv"),
-    )
-    assert len(df) == 1, f"expected exactly 1 LDF header record, found {len(df)}"
-
-    print(f"loading LDF {previous_version} header to {CLIENT.schema}.{table_name}")
-    CLIENT.insert_dataframe(df, table_name)
-    record_load(table_name, previous_version)
-
-
-@app.command("load_prod_ldf")
-def _load_prod_ldf(
-    version: str | None = typer.Option(version, "--version", "-v"),
-    local_folder: Path = typer.Option(LOAD_FOLDER, "--folder", "-f"),
-    force: bool = typer.Option(False, "--force", "-F"),
-):
-    """
-    Load the production LDF for this release, for dev/prod comparison.
-
-    Records are kept as raw 100-character lines rather than parsed into fields: the LDF
-    mixes record layouts in one file, and the QA models compare whole records anyway.
-    """
-    if not version:
-        raise Exception("Specify version with '-v'")
-
-    for file_name, table_name in [
-        ("LDF.dat", "ldf_base"),
-        ("LDF.header", "ldf_header"),
-    ]:
-        if not force and already_loaded(table_name, version):
-            print(f"{table_name} already holds LDF {version}, skipping")
-            continue
-
-        local_path = local_folder / version / file_name
-        s3.download_file("edm-private", f"cscl_etl/{version}/{file_name}", local_path)
-        with open(local_path) as f:
-            rows = [line.rstrip("\n") for line in f if line.strip()]
-        bad = {len(r) for r in rows} - {100}
-        assert not bad, f"{file_name} has records of length {sorted(bad)}, expected 100"
-
-        df = pd.DataFrame({"dat_column": rows})
-        print(
-            f"loading {len(df)} rows from {file_name} to {CLIENT.schema}.{table_name}"
-        )
-        CLIENT.insert_dataframe(df, table_name)
-        record_load(table_name, version)
 
 
 if __name__ == "__main__":

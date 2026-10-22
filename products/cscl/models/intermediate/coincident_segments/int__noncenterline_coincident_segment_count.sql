@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid']},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH spatial_matches AS (

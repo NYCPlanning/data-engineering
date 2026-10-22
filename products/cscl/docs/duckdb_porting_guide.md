@@ -17,8 +17,8 @@ dbt seed && dbt run -s <selector>
 `duckdb` is the default target in `profiles.yml`. `DUCKDB_PATH` must point at the file the load
 wrote (`<build output dir>/cscl.duckdb`). Tables go in `BUILD_ENGINE_SCHEMA`.
 
-The DuckDB versions of the plpgsql functions (`macros/duckdb_functions.sql`) are created
-at run start on the duckdb target.
+The SQL functions the models call (`macros/duckdb_functions.sql`) are DuckDB macros, created
+at run start.
 
 ## Patterns
 
@@ -68,7 +68,7 @@ at run start on the duckdb target.
 | `st_transform(g, 2263)` / `, 4326)` | drop (already 2263); for real 4326 use `st_transform(g, 'EPSG:2263', 'EPSG:4326', always_xy := true)` | `always_xy` keeps lon/lat order. A bare integer SRID fails on CRS-typed geometry. |
 | `::geometry(MultiPolygon, 2263)` | drop the cast | "Expected a constant as type modifier". |
 | `round(x::numeric, n)` | `round(x::DECIMAL(38, 12), n)` | Same trap as `::numeric` above. |
-| `SELECT * FROM prod.shape` where Postgres holds curves | `prod_fgdb_linear('fgdb_x')` macro | The scanner fails with "Unsupported geometry type in WKB". The macro reads through `postgres_query` with `ST_CurveToLine` and rebuilds the geometry. |
+| `SELECT * FROM prod.shape` on curved prod layers | `prod_fgdb_linear('fgdb_x')` macro | DuckDB has no curve types: the prod snapshot's layers are linearized when it is built, and the macro repairs invalid prod geometry at comparison time. |
 | `test_cases.geometry_diff_metrics(a, e)` | `geometry_diff_metrics('rel', 'a_col', 'e_col')` dbt macro | See below. |
 | `st_makevalid(g)` inside a CASE'd aggregate | `try(st_makevalid(g))` | The aggregate is evaluated for every group, so one bad geometry fails all. |
 | `indexes=[...]` config | leave it | Skipped on DuckDB by `macros/duckdb_adapter_overrides.sql`. |

@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['entity_id'], 'unique': True}, {'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- School district boundaries split by borough, built from the AtomicPolygon topology

@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- 2010 census blocks (entity_id is BCTCB2010: borocode(1) || tract(6) || block(4)).

@@ -1,10 +1,6 @@
 {{
   config(
-    materialized='table',
-    indexes=[
-      {'columns': ['_altnames_key']},
-      {'columns': ['join_id']}
-    ]
+    materialized='table'
   )
 }}
 

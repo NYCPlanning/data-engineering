@@ -1,6 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[ {'columns': ['cumulative_record_number']} ]
+    materialized = 'table'
 ) }}
 
 /*

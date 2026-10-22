@@ -1,9 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['node_lo', 'node_hi', 'is_arc']},
-        {'columns': ['atomicid']},
-    ]
+    materialized='table'
 ) }}
 
 -- The topology's edges, fully noded: int__topology__edges_unnoded with every straight

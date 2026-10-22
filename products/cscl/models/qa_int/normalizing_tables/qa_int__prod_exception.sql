@@ -1,10 +1,6 @@
 {{
   config(
-    materialized='table',
-    indexes=[
-      {'columns': ['_exception_key']},
-      {'columns': ['place_name']}
-    ]
+    materialized='table'
   )
 }}
 

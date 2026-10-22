@@ -5,7 +5,8 @@ Given a seed file with fields
 - justify_and_fill
 - blank_if_none
 
-Applies text formatting using pg function FORMAT_LION_TEXT to each field in the seed file.
+Applies text formatting using the format_lion_text macro (macros/duckdb_functions.sql) to each
+field in the seed file.
 */
 
 {% macro apply_text_formatting_from_seed(formatting_seed) -%}

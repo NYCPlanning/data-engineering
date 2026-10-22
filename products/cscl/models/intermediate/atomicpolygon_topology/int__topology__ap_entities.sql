@@ -1,8 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['atomicid'], 'unique': True},
-    ]
+    materialized='table'
 ) }}
 
 -- One row per in-scope AtomicPolygon, with one column per district type it belongs to.

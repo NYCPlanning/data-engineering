@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['globalid']},
-    ]
+    materialized = 'table'
 ) }}
 WITH segment_offsets AS (
     SELECT * FROM {{ ref("int__segment_offsets") }}

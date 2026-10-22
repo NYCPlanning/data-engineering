@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['entity_id'], 'unique': True}, {'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- Police precinct boundaries: the NYPD source precinct polygons clipped to land - not
