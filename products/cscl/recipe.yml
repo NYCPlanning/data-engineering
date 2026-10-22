@@ -1210,6 +1210,8 @@ stage_config:
         run: dbt test --selector duckdb_build
   # run by `builds qa run`; results go in $QA_DIR (see poc_validation/paths.py). The QA
   # models compare against production_outputs, loaded from the prod parquet bundle.
+  # Before these, `builds qa run` checks every gdb layer stamped via custom.product_metadata:
+  # its metadata attrs must equal the packaged layer's fields.
   builds.qa:
     commands:
       - name: qa_models
