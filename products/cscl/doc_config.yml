@@ -32,6 +32,9 @@
 #              model's own heading (see entries[].display_name below) - e.g. "SAF"
 #              instead of "Special Address File". Falls back to the full title if
 #              omitted.
+#   known_differences - output names (seeds/known_differences.csv's `output` values,
+#              e.g. [LION]) whose non-fixed known differences close the group, in a
+#              "Known differences from the previous release" section.
 #   elements - raw Doc elements (dcpy.utils.doc.parse_elements), the group's own intro
 #              prose - not specific to any one model. Split overview from mechanism
 #              the same way a model's description/implementation_notes are: a
@@ -70,6 +73,8 @@ items:
 
   - kind: model_group
     title: LION
+    custom:
+      known_differences: [LION]
     entries:
       - name: lion_dat_by_field
         custom:
@@ -79,6 +84,7 @@ items:
   - kind: model_group
     title: Roadbed Pointer List
     custom:
+      known_differences: [RPL]
       short_title: RPL
     entries:
       - name: rpl_by_field
@@ -99,6 +105,8 @@ items:
 
   - kind: model_group
     title: Geosupport System Normalizing Tables
+    custom:
+      known_differences: [Normalizing tables]
     entries:
       - name: enders_by_field
         custom:
@@ -107,6 +115,8 @@ items:
 
   - kind: model_group
     title: District Boundary Geodatabase
+    custom:
+      known_differences: [District gdb]
     entries:
       - name: gdb_nycd
         custom:
@@ -116,6 +126,7 @@ items:
   - kind: model_group
     title: Special Address File
     custom:
+      known_differences: [SAF]
       short_title: SAF
       elements:
         - kind: text

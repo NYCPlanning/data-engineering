@@ -65,7 +65,8 @@ field_causes AS (
                 AND (w.changes -> f.key ->> 'new') = '10035'
                 THEN 'CSCL-LION-02: Randall''s Island zip'
             WHEN f.key IN ('lzip', 'rzip') THEN 'Zip'
-            WHEN f.key = 'segcount' THEN 'CSCL-LION-06?: SegCount'
+            -- not attributed to a known difference: CSCL-LION-06 covers one dat record only
+            WHEN f.key = 'segcount' THEN 'SegCount'
             WHEN f.key = 'street' THEN 'Street'
             WHEN f.key = 'seqnum' AND w._feature_type = 'nonstreetfeatures'
                 THEN 'CSCL-LION-05: nonstreet SeqNum'
@@ -105,14 +106,19 @@ field_causes AS (
     CROSS JOIN LATERAL (SELECT unnest(json_keys(w.changes)) AS key) AS f
     WHERE w.status = 'modified'
 ),
+-- a cause is explained when its label starts with one of these known-difference IDs
 cause_summary AS (
     SELECT
         _gdb_lion_key,
         array_agg(DISTINCT cause) FILTER (
-            WHERE cause LIKE 'CSCL-LION-0_:%' OR cause LIKE 'CSCL-LION-16:%'
+            WHERE split_part(cause, ':', 1) IN (
+                'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-16'
+            )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
-            WHERE NOT (cause LIKE 'CSCL-LION-0_:%' OR cause LIKE 'CSCL-LION-16:%')
+            WHERE split_part(cause, ':', 1) NOT IN (
+                'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-16'
+            )
         ) AS open_causes
     FROM field_causes
     GROUP BY _gdb_lion_key

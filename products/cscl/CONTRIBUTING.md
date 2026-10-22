@@ -37,7 +37,7 @@ Each quarter, we receive a set of outputs from the legacy system that serve as o
 **When outputs don't match:**
 1. **If we find bugs in the legacy system** → Fix them in our code and **document the discrepant records**
 2. **If we can't reproduce legacy behavior** → Document why and note the differences
-3. **All known discrepancies must be tracked** - each gets a stable ID in [data_issues.md](./data_issues.md), cited from the `qa__diffs_*` model that accounts for it
+3. **All known discrepancies must be tracked** - each gets a stable ID, as a row in [seeds/known_differences.csv](./seeds/known_differences.csv), cited from the `qa__diffs_*` model that accounts for it. [data_issues.md](./data_issues.md) is generated from the seed (`python scripts/generate_data_issues.py`; CI fails if it's stale), and the export doc lists each output's non-fixed rows
 
 ### Project Status Tracking
 

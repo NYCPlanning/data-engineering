@@ -16,7 +16,7 @@
 -- FromLeft/FromRight/ToLeft/ToRight zeroed - unconditionally, no exceptions in the
 -- rule itself. This flags prod rows that match the selection but don't match the
 -- all-blank/all-zero outcome. See
--- Bug 018 in data_issues.md.
+-- CSCL-LION-15.
 --
 -- "changes" itself DOES follow the usual convention (old=prod, new=dev): for each
 -- violating field, old is prod's real (buggy) value, new is our dev build's actual
@@ -103,9 +103,9 @@ SELECT
         END::JSON }
     ], e -> e.v IS NOT NULL))) AS changes,
     'lion_house_numbers' AS output_file_id,
-    -- Bug 018: prod's gp.CalculateField house-number zeroing step for Generic
+    -- CSCL-LION-15: prod's gp.CalculateField house-number zeroing step for Generic
     -- segments, inconsistently applied. See CSCL-LION-15 in data_issues.md.
-    'Bug 018: Generic-segment house numbers not consistently zeroed in prod' AS diff_group,
+    'CSCL-LION-15: Generic-segment house numbers not consistently zeroed in prod' AS diff_group,
     '' AS subgroup,
     '_lion_gdb_key' AS comparison_column,
     'gdb_lion' AS build_table_name,
