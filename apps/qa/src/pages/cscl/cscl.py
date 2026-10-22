@@ -1,7 +1,7 @@
 def cscl():
     import streamlit as st
 
-    from . import helpers
+    from . import district_review, field_diffs, helpers
 
     st.title("CSCL QA")
     st.markdown(
@@ -94,7 +94,10 @@ def cscl():
             )
             st.dataframe(layer_df, width="stretch", hide_index=True)
 
-    # TODO: field-level diffs and build table browsing were removed with the DB; rebuild on DuckDB/validation_output.
+    field_diffs.render(selected_build)
+    district_review.render(selected_build)
+
+    # TODO: build table browsing was removed with the DB; rebuild on DuckDB/validation_output.
 
     st.subheader("Diff Row Viewer")
     files_with_diffs = diffs_summary[diffs_summary["Has diffs"]]["File name"].tolist()

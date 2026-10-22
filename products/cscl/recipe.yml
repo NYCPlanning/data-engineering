@@ -1240,6 +1240,10 @@ stage_config:
         run: python poc_validation/district_review_gdb.py
       - name: diffs_report
         run: python poc_validation/build_diffs_report.py
+      - name: export_field_diffs
+        # qa__diffs_all, one row per changed field -> validation_output/field_diffs.parquet
+        # (the QA app's Field-Level Diffs view reads it)
+        run: python poc_validation/export_field_diffs.py
       - name: zip_diff_rows
         # per-file diff rows -> validation_output/diff_rows.zip (the QA app reads it)
         run: python poc_validation/zip_diff_rows.py
