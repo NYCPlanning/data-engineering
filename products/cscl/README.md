@@ -4,7 +4,7 @@ Source of truth documentation can be found [here](https://nyco365.sharepoint.com
 
 This has been converted to a README in this private repo: github.com/NYCPlanning/cscl_etl_archive
 
-How the build works end to end, with diagrams: [docs/architecture.md](./docs/architecture.md).
+Running a release? See the [Release runbook](#release-runbook) at the end of this file. For how the build works end to end, see [docs/architecture.md](./docs/architecture.md).
 
 ## Concepts/Terminology
 
@@ -294,3 +294,233 @@ Things that have gone wrong on a new release before. In general, most issues are
 - empty geoms. This has happened in the past. We probably want to add more data testing to `sources.yml`. But also a simple query of certain layers/tables where `ST_ISEMPTY(geom)` will work too.
 - sectionalmap issues. This would appear in `qa__lion_dat_summary` in terms of number of dev rows and `qa__lion_dat_individual_diffs` with `sectional_map` diffs (and other diffs as well due to duplicate rows). Topology issues in the source data have caused duplicate rows on joins.
 - giant circles. Open up int__primary_segments in qgis and see if we have a large hadron collider in nyc.
+
+## Release runbook
+
+How to run a CSCL release (next up: 26D) from GR's delivery to a reviewed build. It's
+written for someone who hasn't done one before, and it'll change over the next few
+releases. `<v>` is the release in lowercase (`26d`), `<V>` the same in uppercase (`26D`).
+Run local commands from `products/cscl` with direnv loaded (see
+[docs/development.md](../../docs/development.md)).
+
+A release has two inputs, and both have to be in place before you build:
+
+- **The source**: CSCL's ETL Working GDB for this release, ingested into `edm-recipes`.
+- **Prod**: GR's legacy-pipeline outputs for the same release, which QA compares against.
+
+### 1. Preconditions
+
+1. **GR delivers the legacy outputs** (see [Setup](#setup)). Everything for the release goes
+   in `edm-private/cscl_etl/<v>/`: the flat files, the LDF, and the zipped ETL Working
+   GDB. The prod snapshot also downloads `nyclion_<v>.zip` from the DCP website, so that
+   has to be published too.
+2. **Ingest the source GDB** (`ingest_templates/dcp_cscl_gdb.yml`). The template reads
+   `edm-private/qa_app/inbox/dcp_cscl_gdb/<v>/ETL Working GDB.gdb.zip`. That's the QA
+   app's inbox, not `cscl_etl/<v>/`, so upload the zip there too. Then either:
+   - use the QA app's **Inbox Ingest** page (`dcp_cscl_gdb`, version `<v>`), **checking
+     "Tag as latest"**, which is off by default; or
+   - run the **Ingest Single Dataset** workflow (`ingest_single.yml`) with dataset
+     `dcp_cscl_gdb`, version `<v>`, and `latest` left checked.
+
+   The tag matters because the recipe doesn't pin the GDB: it loads whatever
+   `edm-recipes/raw/dcp_cscl_gdb/latest/` points to. Raw versions are named by ingest
+   timestamp (the latest so far is `2026-09-17T14:26:25...`). The per-layer datasets
+   (`edm-recipes/datasets/dcp_cscl_centerline/<v>/` etc.) carry the clean version. The QA
+   app's **CSCL Builds** page lists `<v>` once those exist.
+3. **Product metadata**: bump `current_version_lion` in
+   [`product-metadata/snippets/strings.yml`](../../product-metadata/snippets/strings.yml)
+   (it's `26c` today). The lion datasets' `current_version` and their BYTES links and
+   descriptions read it. The build itself doesn't read it.
+
+### 2. Prod snapshot
+
+Run the **"CSCL - Prod snapshot"** workflow
+([`cscl_prod_snapshot.yml`](../../.github/workflows/cscl_prod_snapshot.yml)) with `version`
+set to `<v>`:
+
+- `version`: lowercase, as in `edm-private/cscl_etl/`.
+- `overwrite`: leave it off. It refuses to replace an existing snapshot unless this is
+  checked. Turn it on only to rebuild a snapshot on purpose (e.g. after adding a new output).
+- `dev_image`: off, unless you're testing a branch image.
+
+"Check legacy outputs" (`build_prod_snapshot.py check-inputs`) lists what's expected in
+`cscl_etl/<v>/` (plus the nyclion web zip) next to what it found, and fails if anything is
+missing. "Build and upload" then parses every output into parquet (~96 tables) and uploads
+`edm-private/datasets/dcp_cscl_production_outputs/<v>/production_outputs.zip`.
+
+**Good**: the run is green, and the summary shows `production_outputs.zip` and its table
+count. Locally, `python poc_validation/build_prod_snapshot.py check-snapshot -v <v>`
+checks that it exists.
+
+### 3. Version bump
+
+Make a branch and edit `recipe.yml`:
+
+- **The top-level `version:`** (`26c` -> `26d`). Two inputs follow it: the prod snapshot
+  input (`dcp_cscl_production_outputs`, `version_env_var: VERSION`), and, once
+  [#2793](https://github.com/NYCPlanning/data-engineering/pull/2793) is merged, every export
+  filename that embeds the release (`nyclion_{{ version }}.zip` x4,
+  `v{{ version | upper }}_Districts.gdb.zip` x43). Those names have to match prod's for the
+  QA comparisons to line up.
+- **If #2793 hasn't merged**, the filenames are still hardcoded, so bump them by hand:
+  ```bash
+  sed -i.bak -e 's/nyclion_26c\.zip/nyclion_26d.zip/g' -e 's/v26C_Districts/v26D_Districts/g' recipe.yml && rm recipe.yml.bak
+  grep -c -e nyclion_26d.zip -e v26D_Districts recipe.yml   # 47
+  ```
+  Before #2793, `build.yml`'s `version` input is also ignored for CSCL (`cscl_build.yml`
+  plans from `recipe.yml`), so the recipe edit is the only way to set the version.
+
+Nothing ties the LDF inputs to the version, so update these by hand too (see
+[Release inputs](#release-inputs)):
+
+- `seeds/config.csv`: `ldf_previous_version` (-> the release before, `26c`),
+  `ldf_old_release_date` (its deploy date), `ldf_new_release` (`26d`, must equal `version`),
+  `ldf_new_release_date` (this release's deploy date, from GR).
+- `recipe.yml`'s two `dcp_cscl_temp_mock_previous_release` inputs (`version: 26B` today),
+  which should become the previous release's. Only `26B/` exists in
+  `edm-private/datasets/dcp_cscl_temp_mock_previous_release/` right now (see the open
+  questions below).
+
+### 4. Build
+
+Run the **"🏗️ Build a Dataset"** workflow
+([`build.yml`](../../.github/workflows/build.yml)) on your branch with `dataset_name: cscl`.
+It calls [`cscl_build.yml`](../../.github/workflows/cscl_build.yml). You can also use the
+QA app's **CSCL Builds** page, which dispatches the same workflow with a generated name.
+
+```bash
+gh workflow run build.yml --ref <branch> -f dataset_name=cscl \
+  -f build_name=cscl_26d_first_build -f build_note="26d first build"
+```
+
+- **`build_name`** becomes the upload folder `db-cscl/build/<build_name>/`. It defaults to
+  the branch name, and `db-cscl/build/main/` is the baseline every branch build's summary is
+  compared against, so give a release build its own name. Start it with a letter and use
+  only letters, digits and `_`. The CSCL Builds page uses
+  `cscl_<v>_<note-slug>_<YYYYMMDDTHHMM>`.
+- **`build_note`**: plain words only. A `#`, `:` or parentheses breaks the Health Check job's
+  input parsing, and the run fails within seconds.
+
+The stages, with times from a recent run (about 27 min in total):
+
+| Step | What it does | Time |
+|-|-|-|
+| Plan build | `builds plan` -> `recipe.lock.yml` (resolves `latest` input versions) | <1 min |
+| Check prod snapshot | fails here, with instructions, if step 2 wasn't run for this version | <1 min |
+| Dataloading | sources into DuckDB (curved layers as linear tables + `<table>_arcs`) | ~2 min |
+| Build | the recipe's `builds.build` commands: dbt deps, seed, run, test | ~3 min |
+| Export | parquet-first: flat files plus one GeoParquet per FGDB layer | <1 min |
+| Package | FGDBs (re-curved, metadata stamped), zips, generated docs | ~4 min |
+| QA | the recipe's `builds.qa` commands (see step 5) | ~15 min |
+| Upload | package + `validation_output/` to `edm-publishing` `db-cscl/build/<build_name>/` | ~1 min |
+
+**Good**: every step is green. The step summary has the timings,
+`validation_summary.csv`, the diffs report table (with deltas against main) and the
+source freshness report. Check `attachments/source_data_versions.csv` in the build
+folder: `dcp_cscl_gdb` should be the timestamp of your step 1 ingest, and
+`dcp_cscl_production_outputs` should be `<v>`.
+
+### 5. Reading QA
+
+Everything lands in `edm-publishing` under `db-cscl/build/<build_name>/validation_output/`
+(also attached to the run as the `cscl-duckdb-logs-and-qa` artifact). The QA app's **CSCL
+QA** page reads it, including the per-file diff rows.
+
+- **`diffs_report.csv`**: one row per output in `seeds/lion_outputs.csv`. Read
+  `unaccounted_discrepant_rows` first: those diffs aren't explained by a known difference.
+  `accounted_for_discrepant_rows` are explained ones, and
+  `discrepant_rows_from_file_comparison` is the whole-line file diff (sorted lines, so it
+  ignores row order). `status`/`status_summary` are the curated state from
+  `lion_outputs.csv`. For scale, the 26c build on main on 2026-10-21 had 29,685 diff rows,
+  571 unaccounted, and 62 of 99 files exact. A new release should land near that; a big
+  jump in unaccounted rows for one file is what to chase.
+- **`qa__diffs_all_summary.csv`**: the field-level counts behind the report, by
+  `output_file_id`. The rows themselves are in `qa__diffs_*` models in the build DuckDB.
+- **`source_freshness.csv`** (and `source_freshness.md` in the step summary): the max
+  created/modified dates of the main source layers, and evidence that prod was built from a
+  newer or older extract than ours (e.g. prod street codes we don't have, above our highest
+  code in their block of 100). It never fails the build. A warning means some diffs are
+  probably source vintage, not our bugs; prod 26c mixed vintages. If it warns, ask GR which
+  extract they used before chasing those diffs.
+- **FGDB metadata drift check**: runs first in `builds qa run` (also
+  `python -m dcpy lifecycle builds qa gdb-metadata -r recipe.lock.yml`). For every gdb
+  export with `custom.product_metadata`, the layer's stamped Esri metadata attrs must equal
+  its fields, and it **fails the QA step** if they don't. Fix it in `product-metadata/` or
+  the model, whichever is wrong.
+- **`district_review.gdb.zip`**: every district layer next to prod's, for review by another
+  team. For each layer `<L>` there's `<L>_new` (ours, with metrics and `class`: `identical`,
+  `grid_noise`, `minor`, `major`, `new_only`, `prior_only`), `<L>_prior` (prod's, for the
+  non-identical ones), `<L>_diff` (the symmetric-difference pieces above grid noise), plus
+  the `summary` and `summary_by_layer` tables. The 26c baseline had 56 major and 29 minor out
+  of ~243k districts (26c, 2026-10-21). Caveat: when prod has duplicate keys, the review unions them and
+  reports a phantom discrepancy (nyct2010wi 4990100 read 80.7%: three water tracts share
+  that key). Check `major` rows for duplicate keys in prod before reporting them.
+- **Known differences**: [`seeds/known_differences.csv`](./seeds/known_differences.csv) is
+  the record of accepted and open diffs vs prod (stable IDs like `CSCL-LION-06`), cited by
+  the `qa__diffs_*` models that account for them. [data_issues.md](./data_issues.md) is
+  generated from it (`python scripts/generate_data_issues.py`; `--check` in CI). After a
+  release, update `last_verified` on the rows you re-checked and add rows for anything new
+  (see [CONTRIBUTING.md](./CONTRIBUTING.md#handling-discrepancies)).
+
+### 6. When something is off
+
+- **Reproduce locally.** It's the same commands as CI, so it's the same stages:
+  ```bash
+  python3 -m dcpy lifecycle builds plan recipe --recipe-path ./recipe.yml --output-path recipe.lock.yml
+  python3 -m dcpy lifecycle builds load load --recipe-path recipe.lock.yml
+  python3 -m dcpy lifecycle builds build run --recipe-path recipe.lock.yml
+  python3 -m dcpy lifecycle builds export export --recipe-path recipe.lock.yml
+  python3 -m dcpy lifecycle builds export package --recipe-path recipe.lock.yml
+  python3 -m dcpy lifecycle builds qa run --recipe-path recipe.lock.yml
+  ```
+  To iterate on single models afterwards, point dbt at the build's DuckDB
+  (`export DUCKDB_PATH=$(python3 -m dcpy lifecycle builds build path --recipe-path recipe.lock.yml --duckdb)`,
+  plus `BUILD_ENGINE_SCHEMA` from direnv) and run e.g.
+  `dbt run --select qa__diffs_lion_dat+`. Set `DUCKDB_MEMORY_LIMIT`/`DUCKDB_THREADS` for
+  your machine (see `profiles.yml`).
+- **Find the rows.** Start from the file's `qa__diffs_*` model, or its member in
+  `diff_rows.zip`. [Common things to check for in new build](#common-things-to-check-for-in-new-build)
+  lists past failure modes (duplicate keys, empty geometries, sectional map, giant circles).
+- **Decide whose it is.** If it's ours, fix it. If it's prod's, or source vintage, add a
+  `known_differences.csv` row and cite it from the `qa__diffs_*` model. If it's legacy
+  behaviour we can't infer from the code or the docs, ask GR.
+- **Asking GR.** Collect the questions, each with the specific keys/rows and what you
+  checked, and send them as a batch. Record the answer in the seed's `gr_status`/
+  `decision`. Data errors in CSCL itself (e.g. duplicate segment keys) go to GR as well
+  (see GR's discrepancy log, linked from data_issues.md).
+
+### 7. Publishing and distribution
+
+What exists today:
+
+- **Drafts**: `db-cscl/draft/26B/` and `db-cscl/draft/26C/` exist in `edm-publishing`,
+  promoted from builds by hand. `db-cscl` isn't an option in the **Promote a Dataset to
+  Draft** workflow (`promote_to_draft.yml`), so it's done with the CLI:
+  `python3 -m dcpy.connectors.edm.publishing promote_to_draft --product db-cscl --build <build_name> --draft-summary <note>`.
+  The CSCL Builds page says a successful build is promoted to draft automatically, but
+  `cscl_build.yml` has no promote step: it only uploads to `build/`.
+- **`db-cscl/draft_for_gss/26C/`** holds two hand-made zips (`26C_0923_flatfiles.zip`,
+  `26C_0923_full.zip`, 2026-09-23). They look like a hand-off, but nothing in the repo
+  writes them.
+- **Publish/package**: `db-cscl` isn't an option in `publish.yml` or `package.yml`.
+  Nothing publishes our CSCL build today.
+- **Open Data**: LION datasets (`product-metadata/products/lion/*`, `socrata` destinations)
+  are distributed from **BYTES**, i.e. GR's legacy release on the DCP website, via the
+  **Distribute Datasets** workflow (`distribute_socrata_from_bytes.yml`, `source: bytes`).
+  The **Bytes Quarterly Updates** ingest (`ingest_bytes_quarterly.yml`) archives the BYTES
+  release into `edm-recipes`. Neither touches our build.
+
+Open questions (not answered by anything in the repo):
+
+- When our build replaces GR's release, where do the outputs go? Geosupport inputs, BYTES,
+  Open Data? And who promotes and publishes: GR or us?
+- What is `draft_for_gss` (who's GSS, and what do they expect in those two zips)? Is it a
+  per-release step?
+- Should `db-cscl` be added to `promote_to_draft.yml` (and `publish.yml`), or should
+  `cscl_build.yml` promote to draft itself, as the CSCL Builds page assumes?
+- `dcp_cscl_temp_mock_previous_release`: how were the `26B` CSVs
+  (`citywide_lion_dat.csv`, `previous_ldf_header.csv`) made, and who makes `26C`'s for 26d?
+- `seeds/config.csv`'s `thined_version`/`thined_file_tag`: what's the update rule per
+  release (CSCL-THINED-02)?
+- Release dates for the LDF header (`ldf_new_release_date`): GR gives us these, but at what
+  point in the release?
