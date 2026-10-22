@@ -35,7 +35,7 @@ Basically, for a new file output, you must
   - create a "dat" formatting csv in `./seeds/formatting`.
     - if this is not a "dat" file with formatting rules for fields, strict field lengths, etc, you might need to make a tweak to `./poc_validation/prod_data_loader.py`. Look at cases like "enders", "last_word" in both `recipe.yml` and how they're handled (based on file format, and formatting) in prod_data_loader.
   - add them as an export in `recipe.yml`. See others as examples. The custom formatting field should point to the formatting csv seed (and is not actually used by dcpy export utilities).
-  - rebuild the prod snapshot, `python poc_validation/build_prod_snapshot.py -v {version} --upload`. It parses every prod output into the `production_outputs.zip` parquet bundle that the build loads (recipe input `dcp_cscl_production_outputs`) into schema `production_outputs`.
+  - rebuild the prod snapshot: run the "CSCL - Prod snapshot" workflow for `{version}` with `overwrite` checked (or `python poc_validation/build_prod_snapshot.py build -v {version} --upload --overwrite`). It parses every prod output into the `production_outputs.zip` parquet bundle that the build loads (recipe input `dcp_cscl_production_outputs`) into schema `production_outputs`.
 - [transform](#write-the-actual-transformations)
   - add any new source layers to `recipe.yml` if needed.
   - add staging and int tables as needed to actually perform transformations as required by the etl docs.
@@ -52,6 +52,8 @@ When GR has a new release, they will put files in a folder [here](https://nyco36
 **All files should be downloaded, ETL Working GDB should be zipped, then they should be uploaded to `edm-private/cscl_etl/{version}`. Norm for version here is lowercase letter.** This is where
 - ingest template looks for a working gdb to ingest
 - `./poc_validation/build_prod_snapshot.py` (using `prod_data_loader.py`'s parsers) looks for prod outputs to turn into the prod snapshot used for comparison.
+
+Then build the release's prod snapshot: run the "CSCL - Prod snapshot" workflow (`cscl_prod_snapshot.yml`) with the version. It lists what it expects in `edm-private/cscl_etl/{version}/` (plus `nyclion_{version}.zip` on the DCP website) and fails if anything is missing, and it refuses to replace an existing snapshot unless `overwrite` is checked. The recipe input `dcp_cscl_production_outputs` takes the build's own version, so bumping `version` in `recipe.yml` is the only edit; a CI build for a version with no snapshot fails right after planning and says to run the workflow (`python poc_validation/build_prod_snapshot.py check-snapshot -v {version}` checks it locally).
 
 Formatting csvs are then created. I've copied and pasted from the old etl design doc, then done some editing. When done, you should have these columns:
 | header | used in formatting macro | used in prod_data_loader |

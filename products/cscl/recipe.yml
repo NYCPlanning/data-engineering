@@ -364,10 +364,13 @@ inputs:
       all_varchar: true  # all text, as the files are fixed-width records
 
   # QA: the legacy pipeline's outputs for this release, as parquet (one table per output,
-  # into schema production_outputs). Built by poc_validation/build_prod_snapshot.py.
+  # into schema production_outputs). Built by poc_validation/build_prod_snapshot.py (the
+  # "CSCL - Prod snapshot" workflow). Its version is the build's own (VERSION, set by the
+  # planner from `version` above): QA compares against the legacy release of the same
+  # version, never an older one, so a missing snapshot fails instead of falling back.
   - name: dcp_cscl_production_outputs
     source: edm.private
-    version: 26c
+    version_env_var: VERSION
     file_type: parquet_bundle
     import_as: production_outputs
     custom:
@@ -1218,6 +1221,10 @@ stage_config:
   # its metadata attrs must equal the packaged layer's fields.
   builds.qa:
     commands:
+      - name: source_freshness
+        # a report, never a failure: source layer dates, and signs prod's release was
+        # built from a newer or older extract (validation_output/source_freshness.csv)
+        run: python poc_validation/source_freshness.py
       - name: qa_models
         run: dbt run --select path:models/qa_int path:models/etl_dev_qa
       - name: pull_prod_files

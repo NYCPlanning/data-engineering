@@ -12,8 +12,10 @@ models read, zipped into a single bundle. The build loads the bundle as a recipe
   linearized exactly as the build's is; columns lowercased and the geometry named
   `shape`, as the ogr2ogr loads into Postgres had them.
 
-Usage (from products/cscl):
-    python poc_validation/build_prod_snapshot.py -v 26c [--upload]
+Usage (from products/cscl), or run the "CSCL - Prod snapshot" workflow:
+    python poc_validation/build_prod_snapshot.py check-inputs -v 26d
+    python poc_validation/build_prod_snapshot.py build -v 26d [--upload [--overwrite]]
+    python poc_validation/build_prod_snapshot.py check-snapshot -v 26d
 """
 
 import json
@@ -21,6 +23,7 @@ import os
 import shutil
 import sys
 import tempfile
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -39,6 +42,7 @@ os.environ.setdefault(
 sys.path.insert(0, str(Path(__file__).parent))
 import prod_data_loader as pdl  # noqa: E402
 
+from dcpy import configuration  # noqa: E402
 from dcpy.geospatial.curves.layer import layer_to_parquet  # noqa: E402
 from dcpy.geospatial.gdb import fgdb  # noqa: E402
 from dcpy.utils import s3  # noqa: E402
@@ -47,6 +51,58 @@ from dcpy.utils.logging import logger  # noqa: E402
 DATASET = "dcp_cscl_production_outputs"
 BUNDLE_NAME = "production_outputs.zip"
 LION_GDB_URL = "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/lion/nyclion_{version}.zip"
+# the legacy outputs live in edm-private/cscl_etl/ (as prod_data_loader reads them); the
+# snapshot goes where the recipe input's edm.private connector looks for it
+LEGACY_BUCKET = "edm-private"
+SNAPSHOT_BUCKET = configuration.PRIVATE_BUCKET
+WORKFLOW = "CSCL - Prod snapshot"
+
+
+def snapshot_key(version: str) -> str:
+    return f"datasets/{DATASET}/{version}/{BUNDLE_NAME}"
+
+
+def expected_files(version: str) -> list[str]:
+    """What build() reads from edm-private/cscl_etl/<version>/: the flat files QA
+    compares, the LDF, and the district FGDB."""
+    flat = {d.file_name for d in pdl.datasets_by_name.values() if d.compare_file}
+    return sorted(flat | {"LDF.dat", "LDF.header", pdl._district_gdb_filename(version)})
+
+
+def found_files(version: str) -> set[str]:
+    """Files directly under edm-private/cscl_etl/<version>/ (not inside a .gdb folder)."""
+    prefix = f"cscl_etl/{version}/"
+    keys = [o["Key"] for o in s3.list_objects(LEGACY_BUCKET, prefix)]
+    return {k[len(prefix) :] for k in keys if "/" not in k[len(prefix) :]} - {""}
+
+
+def url_exists(url: str) -> bool:
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, method="HEAD")):
+            return True
+    except urllib.error.HTTPError:
+        return False
+
+
+def missing_inputs(version: str) -> list[str]:
+    """Inputs build() needs for this release that aren't there yet, logging expected
+    vs found."""
+    expected = expected_files(version)
+    found = found_files(version)
+    missing = [f"cscl_etl/{version}/{f}" for f in expected if f not in found]
+    lion_url = LION_GDB_URL.format(version=version)
+    if not url_exists(lion_url):
+        missing.append(lion_url)
+    if not found:
+        logger.warning(f"edm-private/cscl_etl/{version}/ is missing or empty")
+    logger.info(
+        f"edm-private/cscl_etl/{version}/: expected {len(expected)} files, "
+        f"found {len(set(expected) & found)} of them ({len(found)} files in all)"
+    )
+    for f in expected:
+        logger.info(f"  {'found  ' if f in found else 'MISSING'} {f}")
+    logger.info(f"  {'MISSING' if lion_url in missing else 'found  '} {lion_url}")
+    return missing
 
 
 class ParquetSink:
@@ -220,6 +276,32 @@ def build(version: str, out_dir: Path) -> Path:
 app = typer.Typer(add_completion=False)
 
 
+@app.command("check-inputs")
+def _check_inputs(version: str = typer.Option(pdl.version, "--version", "-v")):
+    """Fail unless every legacy output build() reads for this release exists."""
+    missing = missing_inputs(version)
+    if missing:
+        logger.error(
+            f"{version}: {len(missing)} of the legacy outputs the snapshot needs are "
+            "missing (MISSING above); the legacy release isn't complete yet"
+        )
+        raise typer.Exit(1)
+
+
+@app.command("check-snapshot")
+def _check_snapshot(version: str = typer.Option(pdl.version, "--version", "-v")):
+    """Fail unless the snapshot for this release has been uploaded."""
+    key = snapshot_key(version)
+    if not s3.object_exists(SNAPSHOT_BUCKET, key):
+        logger.error(
+            f"No prod snapshot for {version} (s3://{SNAPSHOT_BUCKET}/{key}): QA compares "
+            f'the build against it. Run the "{WORKFLOW}" workflow with version {version} '
+            f"(or poc_validation/build_prod_snapshot.py build -v {version} --upload)."
+        )
+        raise typer.Exit(1)
+    logger.info(f"Prod snapshot for {version}: s3://{SNAPSHOT_BUCKET}/{key}")
+
+
 @app.command("build")
 def _build(
     version: str = typer.Option(pdl.version, "--version", "-v"),
@@ -227,12 +309,21 @@ def _build(
     upload: bool = typer.Option(
         False, "--upload", help=f"Upload to edm-private/datasets/{DATASET}/<version>/"
     ),
+    overwrite: bool = typer.Option(
+        False, "--overwrite", help="With --upload: replace an existing snapshot"
+    ),
 ):
+    key = snapshot_key(version)
+    if upload and not overwrite and s3.object_exists(SNAPSHOT_BUCKET, key):
+        logger.error(
+            f"s3://{SNAPSHOT_BUCKET}/{key} exists; pass --overwrite to replace it"
+        )
+        raise typer.Exit(1)
+    _check_inputs(version)
     bundle = build(version, out_dir)
     if upload:
-        key = f"datasets/{DATASET}/{version}/{BUNDLE_NAME}"
-        s3.upload_file("edm-private", bundle, key, "private")
-        logger.info(f"Uploaded to s3://edm-private/{key}")
+        s3.upload_file(SNAPSHOT_BUCKET, bundle, key, "private")
+        logger.info(f"Uploaded to s3://{SNAPSHOT_BUCKET}/{key}")
 
 
 if __name__ == "__main__":

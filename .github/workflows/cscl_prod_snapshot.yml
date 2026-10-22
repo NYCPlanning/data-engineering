@@ -1,0 +1,76 @@
+name: CSCL - Prod snapshot
+run-name: "CSCL - Prod snapshot: ${{ inputs.version }}${{ inputs.overwrite && ' (overwrite)' || '' }}"
+# Builds one legacy release's prod snapshot (production_outputs.zip: every legacy output as
+# parquet) from edm-private/cscl_etl/<version>/ and the published nyclion_<version>.zip, and
+# uploads it to edm-private/datasets/dcp_cscl_production_outputs/<version>/, where the CSCL
+# build's QA reads it (recipe input dcp_cscl_production_outputs, same version as the build).
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Legacy release, lowercase as in edm-private/cscl_etl/ (e.g. 26d)"
+        type: string
+        required: true
+      overwrite:
+        description: "Replace the snapshot if this version already has one"
+        type: boolean
+        required: true
+        default: false
+      dev_image:
+        description: "Use dev image specific to this branch (if exists)"
+        type: boolean
+        required: true
+        default: false
+
+jobs:
+  snapshot:
+    name: Build and upload the prod snapshot
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: products/cscl
+    container:
+      image: nycplanning/dev:${{ inputs.dev_image && format('dev-{0}', github.ref_name) || 'latest' }}
+    env:
+      VERSION: ${{ inputs.version }}
+      OVERWRITE: ${{ inputs.overwrite && '--overwrite' || '' }}
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Install dcpy workspace
+      run: uv sync --all-packages
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v5
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+    - name: Setup build environment
+      working-directory: ./
+      run: |
+        ./bash/docker_container_setup.sh
+        ./bash/build_env_setup.sh
+
+    - name: Check legacy outputs
+      # lists what the snapshot needs (expected vs found) and fails if anything is missing
+      run: uv run python3 poc_validation/build_prod_snapshot.py check-inputs -v "$VERSION"
+
+    - name: Build and upload
+      # refuses to replace an existing snapshot unless overwrite is checked
+      run: uv run python3 poc_validation/build_prod_snapshot.py build -v "$VERSION" --upload $OVERWRITE
+
+    - name: Summary
+      if: always()
+      run: |
+        {
+          echo "### CSCL prod snapshot ${VERSION}"
+          echo '```'
+          ls -l .data/prod_snapshot/production_outputs.zip 2>/dev/null
+          ls .data/prod_snapshot/tables 2>/dev/null | wc -l | xargs echo "tables:"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"

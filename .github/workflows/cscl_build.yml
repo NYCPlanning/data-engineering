@@ -72,6 +72,13 @@ jobs:
     - name: Plan build
       run: uv run python3 -m dcpy lifecycle builds plan recipe --recipe-path ./recipe.yml --output-path $LOCK_FILE
 
+    - name: Check prod snapshot
+      # QA compares against the legacy release of the same version (the
+      # dcp_cscl_production_outputs input): fail early, saying how to build it, if it's missing
+      run: |
+        VERSION=$(uv run python3 -c "import yaml; print(yaml.safe_load(open('$LOCK_FILE'))['version'])")
+        uv run python3 poc_validation/build_prod_snapshot.py check-snapshot -v "$VERSION"
+
     - name: Dataloading
       run: |
         start=$(date +%s)
@@ -135,6 +142,8 @@ jobs:
           true
           free -h
           echo '```'
+          [ -n "$ROOT" ] && cat "$ROOT/qa/source_freshness.md" 2>/dev/null
+          true
         } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Upload dbt logs
