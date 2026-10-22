@@ -104,12 +104,20 @@ files:
         omitted_columns:
         - geom
         attributes:
-          display_name: MapPLUTO {{ current_version_pluto }} - Not Mapped Lots
+          display_name: NOT_MAPPED_LOTS
           description: |-
             Tax lots in PLUTO that have no corresponding geometry in the Department of Finance's Digital Tax Map (DTM), and so cannot be mapped. Each record carries the same attributes as MapPLUTO, without geometry.
 
             Most of these are condominium unit lots that have not yet been aggregated to a billing lot because a condominium number has not been assigned in the Property Tax System (PTS). See the Lot field description for details.
   dataset_overrides:
+    attributes:
+      display_name: mappluto_unclipped_gdb
+      description: &mappluto_unclipped_description |-
+        This dataset represents a compilation of data from various government agencies throughout the City of New York. The underlying geography is derived from the Tax Lot Polygon feature class that is part of the Department of Finance's Digital Tax Map (DTM). The tax lots have not been clipped to the shoreline and include lots completely or partially underwater. The attribute information is from the Department of City Planning's PLUTO data. The attribute data pertains to tax lot and building characteristics and geographic, political and administrative information for each tax lot in New York City.
+
+        The Tax Lot Polygon feature class and PLUTO are derived from different sources. As a result, some PLUTO records do not have a corresponding tax lot in the Tax Lot polygon feature class at the time of release. These records are included in a separate non-geographic PLUTO Only table. There are a number of reasons why there can be a tax lot in PLUTO that does not match the DTM; the most common reason is that the various source files are maintained by different departments and divisions with varying update cycles and criteria for adding and removing records. The attribute definitions for the PLUTO Only table are the same as those for MapPLUTO. DCP Mapping Lots includes some features that are not on the tax maps. They have been added by DCP for cartographic purposes. They include street center 'malls', traffic islands and some built streets through parks. These features have very few associated attributes.
+
+        To report problems, please open a GitHub issue or email DCPOpendata@planning.nyc.gov.
     overridden_columns: &mappluto_gdb_column_renames
     - id: geom
       name: geometry
@@ -319,12 +327,23 @@ files:
     - layer: mappluto_gdb
     - *not_mapped_lots_layer
   dataset_overrides:
+    attributes:
+      display_name: mappluto_gdb
+      description: &mappluto_clipped_description |-
+        This dataset represents a compilation of data from various government agencies throughout the City of New York. The underlying geography is derived from the Tax Lot Polygon feature class that is part of the Department of Finance's Digital Tax Map (DTM). The tax lots have been clipped to the shoreline, as defined by NYCMap planimetric features. The attribute information is from the Department of City Planning's PLUTO data. The attribute data pertains to tax lot and building characteristics and geographic, political and administrative information for each tax lot in New York City.
+
+        The Tax Lot Polygon feature class and PLUTO are derived from different sources. As a result, some PLUTO records do not have a corresponding tax lot in the Tax Lot polygon feature class at the time of release. These records are included in a separate non-geographic PLUTO Only table. There are a number of reasons why there can be a tax lot in PLUTO that does not match the DTM; the most common reason is that the various source files are maintained by different departments and divisions with varying update cycles and criteria for adding and removing records. The attribute definitions for the PLUTO Only table are the same as those for MapPLUTO. DCP Mapping Lots includes some features that are not on the tax maps. They have been added by DCP for cartographic purposes. They include street center 'malls', traffic islands and some built streets through parks. These features have very few associated attributes.
+
+        To report problems, please open a GitHub issue or email DCPOpendata@planning.nyc.gov.
     overridden_columns: *mappluto_gdb_column_renames
 - file:
     id: shapefile_water_incl
     filename: mappluto_wi_shp.zip
     type: shapefile
   dataset_overrides:
+    attributes:
+      display_name: mappluto_unclipped
+      description: *mappluto_unclipped_description
     overridden_columns:
     - id: geom
       name: geometry
