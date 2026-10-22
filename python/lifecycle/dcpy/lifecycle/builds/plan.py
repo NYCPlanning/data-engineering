@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -202,7 +203,7 @@ def plan_recipe(
         env_vars: Optional dict of environment variables to add to recipe.env
                  (e.g., BUILD_ENGINE_SCHEMA, BUILD_ENGINE_DB).
     """
-    recipe: Recipe = recipe_from_yaml(recipe_path, vars=vars)
+    recipe: Recipe = recipe_from_yaml(recipe_path, vars=vars, version=version)
 
     # Determine the recipe version
     if version:
@@ -348,11 +349,18 @@ def _apply_recipe_defaults(recipe: Recipe):
         ds.load_engine = ds.load_engine or recipe.inputs.dataset_defaults.load_engine
 
 
+def _top_level_version(raw_content: str) -> str | None:
+    """The recipe's top-level literal `version:` (None if absent or templated)."""
+    m = re.search(r"^version:[ \t]*['\"]?([^\s'\"#{]+)", raw_content, re.MULTILINE)
+    return m.group(1) if m else None
+
+
 def recipe_from_yaml(
     path: Path,
     render_templates: bool = True,
     vars: dict[str, str] | None = None,
     apply_defaults: bool = True,
+    version: str | None = None,
 ) -> Recipe:
     """Import a recipe file from yaml, and validate schema.
 
@@ -368,6 +376,9 @@ def recipe_from_yaml(
                          If False, preserve templates as strings (for DAG generation).
         vars: Optional dict of template variables. If provided, these are used instead
               of BUILD_ENV_*/BUILD_ENGINE_* environment variables. All vars or none approach.
+        version: Optional version override. Either this or the recipe's own top-level
+                 literal `version:` is exposed to templates as `{{ version }}`, so
+                 version-bearing values (e.g. export filenames) are set once.
 
     Returns:
         Recipe object with schema validated
@@ -389,6 +400,10 @@ def recipe_from_yaml(
                 for key, value in os.environ.items()
                 if key.startswith("BUILD_ENV_") or key.startswith("BUILD_ENGINE_")
             }
+
+        template_version = version or _top_level_version(raw_content)
+        if template_version and "version" not in build_env_vars:
+            build_env_vars = {**build_env_vars, "version": template_version}
 
         # Use StrictUndefined to catch missing variables
         try:
