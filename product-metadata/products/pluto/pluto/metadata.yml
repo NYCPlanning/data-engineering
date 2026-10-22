@@ -50,34 +50,6 @@ destinations:
       destination_use: dataset_file
   custom:
     four_four: 64uk-42ks
-- id: test_socrata_water_incl
-  type: open_data_test
-  files:
-  - id: pluto_datadictionary.pdf
-    custom:
-      destination_use: attachment
-  - id: pluto_readme.pdf
-    custom:
-      destination_use: attachment
-  - id: shapefile_water_incl_test
-    dataset_overrides:
-      overridden_columns:
-      - id: pfirm15_flag
-        custom:
-          api_name: pfirm15_fla
-      - id: firm07_flag
-        custom:
-          api_name: firm07_fla
-      - id: healthcenterdistrict
-        custom:
-          api_name: healthcent
-      - id: sanitdistrict
-        custom:
-          api_name: sanitdistr
-    custom:
-      destination_use: dataset_file
-  custom:
-    four_four: 4g5k-ab5u
 - id: bytes
   type: bytes
   files:
@@ -338,13 +310,13 @@ files:
     overridden_columns: *mappluto_gdb_column_renames
 - file:
     id: shapefile_water_incl
-    filename: mappluto_wi_shp.zip
+    filename: mappluto_unclipped.shp.zip
     type: shapefile
   dataset_overrides:
     attributes:
       display_name: mappluto_unclipped
       description: *mappluto_unclipped_description
-    overridden_columns:
+    overridden_columns: &mappluto_shp_column_renames
     - id: geom
       name: geometry
     - id: firm07_flag
@@ -546,197 +518,14 @@ files:
     - id: zonemap
       name: ZoneMap
 - file:
-    id: shapefile_water_incl_test
-    filename: MapPLUTO_WI_truncated.zip
+    id: mappluto_shp
+    filename: mappluto.shp.zip
     type: shapefile
   dataset_overrides:
-    overridden_columns:
-    - id: geom
-      name: geometry
-    - id: firm07_flag
-      name: FIRM07_FLA
-    - id: healthcenterdistrict
-      name: HealthCent
-    - id: pfirm15_flag
-      name: PFIRM15_FL
-    - id: sanitdistrict
-      name: SanitDistr
-    - id: address
-      name: Address
-    - id: appbbl
-      name: APPBBL
-    - id: appdate
-      name: APPDate
-    - id: areasource
-      name: AreaSource
-    - id: assessland
-      name: AssessLand
-    - id: assesstot
-      name: AssessTot
-    - id: bbl
-      name: BBL
-    - id: bct2020
-      name: BCT2020
-    - id: bctcb2020
-      name: BCTCB2020
-    - id: bldgarea
-      name: BldgArea
-    - id: bldgclass
-      name: BldgClass
-    - id: bldgdepth
-      name: BldgDepth
-    - id: bldgfront
-      name: BldgFront
-    - id: block
-      name: Block
-    - id: borocode
-      name: BoroCode
-    - id: borough
-      name: Borough
-    - id: bsmtcode
-      name: BsmtCode
-    - id: builtfar
-      name: BuiltFAR
-    - id: cb2010
-      name: CB2010
-    - id: cd
-      name: CD
-    - id: comarea
-      name: ComArea
-    - id: commfar
-      name: CommFAR
-    - id: condono
-      name: CondoNo
-    - id: council
-      name: Council
-    - id: ct2010
-      name: CT2010
-    - id: dcpedited
-      name: DCPEdited
-    - id: easements
-      name: Easements
-    - id: edesignum
-      name: EDesigNum
-    - id: exempttot
-      name: ExemptTot
-    - id: ext
-      name: Ext
-    - id: facilfar
-      name: FacilFAR
-    - id: factryarea
-      name: FactryArea
-    - id: firecomp
-      name: FireComp
-    - id: garagearea
-      name: GarageArea
-    - id: healtharea
-      name: HealthArea
-    - id: histdist
-      name: HistDist
-    - id: irrlotcode
-      name: IrrLotCode
-    - id: landmark
-      name: Landmark
-    - id: landuse
-      name: LandUse
-    - id: latitude
-      name: Latitude
-    - id: longitude
-      name: Longitude
-    - id: lot
-      name: Lot
-    - id: lotarea
-      name: LotArea
-    - id: lotdepth
-      name: LotDepth
-    - id: lotfront
-      name: LotFront
-    - id: lottype
-      name: LotType
-    - id: ltdheight
-      name: LtdHeight
-    - id: notes
-      name: Notes
-    - id: numbldgs
-      name: NumBldgs
-    - id: numfloors
-      name: NumFloors
-    - id: officearea
-      name: OfficeArea
-    - id: otherarea
-      name: OtherArea
-    - id: overlay1
-      name: Overlay1
-    - id: overlay2
-      name: Overlay2
-    - id: ownername
-      name: OwnerName
-    - id: ownertype
-      name: OwnerType
-    - id: plutomapid
-      name: PLUTOMapID
-    - id: policeprct
-      name: PolicePrct
-    - id: proxcode
-      name: ProxCode
-    - id: resarea
-      name: ResArea
-    - id: residfar
-      name: ResidFAR
-    - id: retailarea
-      name: RetailArea
-    - id: sanborn
-      name: Sanborn
-    - id: sanitboro
-      name: Sanitboro
-    - id: sanitsub
-      name: SanitSub
-    - id: schooldist
-      name: SchoolDist
-    - id: spdist1
-      name: SPDist1
-    - id: spdist2
-      name: SPDist2
-    - id: spdist3
-      name: SPDist3
-    - id: splitzone
-      name: SplitZone
-    - id: strgearea
-      name: StrgeArea
-    - id: taxmap
-      name: TaxMap
-    - id: tract2010
-      name: Tract2010
-    - id: unitsres
-      name: UnitsRes
-    - id: unitstotal
-      name: UnitsTotal
-    - id: version
-      name: Version
-    - id: xcoord
-      name: XCoord
-    - id: ycoord
-      name: YCoord
-    - id: yearalter1
-      name: YearAlter1
-    - id: yearalter2
-      name: YearAlter2
-    - id: yearbuilt
-      name: YearBuilt
-    - id: zipcode
-      name: ZipCode
-    - id: zmcode
-      name: ZMCode
-    - id: zonedist1
-      name: ZoneDist1
-    - id: zonedist2
-      name: ZoneDist2
-    - id: zonedist3
-      name: ZoneDist3
-    - id: zonedist4
-      name: ZoneDist4
-    - id: zonemap
-      name: ZoneMap
+    attributes:
+      display_name: mappluto
+      description: *mappluto_clipped_description
+    overridden_columns: *mappluto_shp_column_renames
 - file:
     id: pluto_datadictionary.pdf
     filename: pluto_datadictionary.pdf
