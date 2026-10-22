@@ -866,6 +866,85 @@ exports:
     assert layer_xml("names") == ""
 
 
+def test_qa_gdb_metadata_drift(tmp_path, monkeypatch):
+    """The QA check compares each stamped layer's metadata attrs with its fields."""
+    from unittest.mock import MagicMock
+
+    from dcpy.lifecycle.builds import export as export_module
+    from dcpy.lifecycle.builds import plan
+    from dcpy.lifecycle.builds.export import package
+    from dcpy.lifecycle.builds.qa import check_gdb_metadata, gdb_metadata_drift
+    from dcpy.product_metadata.models.metadata.product import (
+        Dataset,
+        DatasetAttributes,
+        DatasetColumn,
+    )
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.boundaries AS SELECT 1 AS id, 'a' AS code, "
+        "ST_GeomFromText('MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))') AS geom"
+    )
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: v1
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  crs: EPSG:2263
+  datasets:
+  - name: boundaries
+    filename: things.zip
+    format: gdb
+    custom:
+      product_metadata: {{ product: p, dataset: d, file_id: things_gdb }}
+"""
+    )
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)
+    export(lock, duckdb_client=client)
+    client.close()
+    recipe = plan.recipe_from_yaml(lock)
+
+    assert gdb_metadata_drift(recipe) == [
+        f"things.zip:boundaries: packaged file "
+        f"{tmp_path / 'package' / 'dataset_files' / 'things.zip'} not found"
+    ]
+
+    def package_with_columns(*names: str) -> None:
+        org_md = MagicMock()
+        org_md.product.return_value.dataset.return_value.calculate_layer_dataset_metadata.return_value = Dataset(
+            attributes=DatasetAttributes(
+                display_name="Boundaries", description="d", each_row_is_a="Boundary"
+            ),
+            columns=[DatasetColumn(id=n.lower(), name=n) for n in names],
+        )
+        monkeypatch.setattr(export_module.product_metadata, "load", lambda: org_md)
+        package(lock)
+
+    package_with_columns("id", "code")
+    assert gdb_metadata_drift(recipe) == []
+    check_gdb_metadata(recipe)
+
+    package_with_columns("id", "gone")
+    assert gdb_metadata_drift(recipe) == [
+        "things.zip:boundaries: fields without metadata: ['code']",
+        "things.zip:boundaries: metadata attrs that aren't fields: ['gone']",
+    ]
+    with pytest.raises(ValueError, match="fields without metadata"):
+        check_gdb_metadata(recipe)
+
+
 def test_parquet_first_gdb_layer_recurved_from_arcs(tmp_path, monkeypatch):
     """custom.arcs: the layer's arcs export alongside it, and `package` writes the FGDB
     layer with true curves where its vertices match an arc."""
