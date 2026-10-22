@@ -4,6 +4,8 @@ Source of truth documentation can be found [here](https://nyco365.sharepoint.com
 
 This has been converted to a README in this private repo: github.com/NYCPlanning/cscl_etl_archive
 
+How the build works end to end, with diagrams: [docs/architecture.md](./docs/architecture.md).
+
 ## Concepts/Terminology
 
 See [Design Doc Appendix A](./design_doc.md#appendix-a-conceptsterminology)
