@@ -2,25 +2,227 @@ version: 2
 
 models:
 - name: stg__altsegmentdata_saf
+  description: >
+    AltSegmentData rows with alt_segdata_type 'S': the Special Address File (SAF) records
+    attached to a segment (SAF types A, B, C, D, E, F, O, P). One row per record. Feeds the
+    SAF outputs. Rows with a blank alt_segdata_type are excluded (CSCL-SAF-03).
   columns:
   - name: ogc_fid
+  - name: lionkey
+    description: >
+      Key tying the record to its segment: a borough digit, the 4-digit face code and the
+      5-digit segment sequence number.
   - name: segmentid
     tests: [ not_null ]
+  - name: face_code
+    description: Characters 2-5 of lionkey.
+  - name: segment_seqnum
+    description: Characters 6-10 of lionkey.
   - name: saftype
+    description: SAF record type code (A, B, C, D, E, F, O or P).
     tests: [ not_null ]
+  - name: l_low_hn
+    description: Low house number on the left side of the segment.
+  - name: l_high_hn
+    description: High house number on the left side of the segment.
+  - name: r_low_hn
+    description: Low house number on the right side of the segment.
+  - name: r_high_hn
+    description: High house number on the right side of the segment.
+  - name: b5sc
+    description: Borough plus 4-digit street code (5 characters).
+  - name: lgc1
+    description: Local group code ranked first; lgc2 to lgc9 follow in rank order.
+  - name: boe_preferred_lgc_flag
+    description: Pointer to the LGC the Board of Elections prefers for the record.
+  - name: sosindicator
+    description: Side-of-street indicator; 1 is left and 2 is right.
   - name: alt_segdata_type
+    description: Always 'S' in this model.
   - name: borough
     tests: [ not_null ]
 
 - name: stg__altsegmentdata_proto
+  description: >
+    AltSegmentData rows that are not SAF records (alt_segdata_type other than 'S') and
+    have a segmentid: the street-name and address attributes of protosegments, which have no
+    centerline geometry of their own. One row per record. Feeds the protosegment part of
+    LION.
   columns:
+  - name: source_table
+    description: Always 'altsegmentdata'.
   - name: segmentid
     tests: [ not_null ]
+  - name: lionkey
+    description: >
+      Key tying the record to its segment: a borough digit, the 4-digit face code and the
+      5-digit segment sequence number.
+  - name: five_digit_street_code
+    description: Last five characters of b5sc.
+  - name: b7sc
+    description: b5sc followed by lgc1.
+  - name: alt_segment_seqnum
+    description: Sequence number zero-padded to five digits.
+  - name: boe_lgc_pointer
+    description: Renamed boe_preferred_lgc_flag; the LGC the Board of Elections prefers.
+  - name: b5sc
+    description: Borough plus 4-digit street code (5 characters).
+  - name: feature_type_code
+    description: Renamed feature_type; the LION feature type code.
+  - name: from_to_indicator
+    description: R when the protosegment runs opposite to the centerline it was derived from.
+  - name: reversed
+    description: True when from_to_indicator is R.
+  - name: lgc1
+    description: Local group code ranked first; lgc2 to lgc9 follow in rank order.
 
 - name: stg__atomicpolygons
+  description: >
+    The CSCL AtomicPolygon layer, the smallest areas the city is divided into. One row per
+    atomic polygon. Every district and census assignment in LION and the district layers is
+    derived from these polygons. Census tract and block codes are split into a numeric basic
+    part and a suffix, and the tract and block codes of 1990, 2000, 2010 and 2020 are carried
+    side by side.
   columns:
   - name: atomicid
+    description: Identifier of the atomic polygon; its last three digits are the dynamic block.
     tests: [ unique, not_null ]
+  - name: borocode
+    description: Borough code (1 to 5).
+  - name: dynamic_block
+    description: Last three characters of atomicid.
+  - name: admin_fire_company
+    description: Fire company type and number as stored, for example 'E 212'.
+  - name: fire_company_type
+    description: First character of admin_fire_company.
+  - name: fire_company_number
+    description: Part of admin_fire_company after the first space; NULL when there is none.
+  - name: assemdist
+    description: Assembly district; NULL when blank.
+  - name: electdist
+    description: Election district; NULL when blank.
+  - name: schooldist
+    description: School district; NULL when 0.
+  - name: geom
+    description: Polygon made valid (st_makevalid).
+  - name: raw_geom
+    description: Polygon exactly as stored in the source.
+
+- name: stg__borough
+  description: >
+    Borough boundaries. One row per borough. Source for the borough layer and borough
+    names and codes.
+  columns:
+  - name: globalid
+  - name: borocode
+    description: Borough code (1 to 5).
+  - name: boroname
+    description: Borough name.
+  - name: county
+    description: County name.
+  - name: fips
+    description: FIPS county code.
+  - name: geom
+    description: Polygon with curves linearized and made valid.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__businessimprovementdistrict
+  description: >
+    Business Improvement District boundaries. One row per district. Source for the BID
+    layer. Source BID 56 is invalid and is made valid here (CSCL-DISTRICTS-04).
+  columns:
+  - name: globalid
+  - name: bidid
+    description: Identifier of the BID.
+  - name: bid
+    description: Name of the BID.
+  - name: borough
+    description: Borough of the BID.
+  - name: geom
+    description: Polygon made valid (st_makevalid).
+  - name: raw_geom
+    description: Polygon exactly as stored in the source.
+
+- name: stg__cdtaequiv2020
+  description: >
+    Lookup of 2020 Community District Tabulation Areas (CDTAs): code, name and type. One row
+    per CDTA.
+  columns:
+  - name: cdta_code
+  - name: cdta_name
+  - name: cdta_type
+
+- name: stg__censustract2000
+  description: >
+    2000 census tract boundaries. One row per tract. Source for the 2000 census tract
+    assignments.
+  columns:
+  - name: globalid
+  - name: ctlabel
+    description: Tract label as displayed.
+  - name: borocode
+    description: Borough code (1 to 5).
+  - name: ct
+    description: Tract number within the borough,.
+  - name: boroct
+    description: Borough code followed by ct.
+  - name: puma
+    description: Public Use Microdata Area containing the tract.
+  - name: health_area
+    description: Health area containing the tract.
+  - name: geom
+    description: Polygon with curves linearized and made valid.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__censustract2010
+  description: >
+    2010 census tract boundaries. One row per tract. Source for the 2010 census tract
+    assignments.
+  columns:
+  - name: ctlabel
+    description: Tract label as displayed.
+  - name: borocode
+    description: Borough code (1 to 5).
+  - name: ct
+    description: Tract number within the borough,.
+  - name: boroct
+    description: >
+      Borough code followed by ct. Built here because the source boroct has a few wrong
+      values that create duplicates.
+  - name: puma
+    description: Public Use Microdata Area containing the tract.
+  - name: health_area
+    description: Health area containing the tract.
+  - name: geom
+    description: Polygon with curves linearized.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__censustract2020
+  description: >
+    2020 census tract boundaries. One row per tract. Source for the 2020 census tract
+    assignments.
+  columns:
+  - name: ctlabel
+    description: Tract label as displayed.
+  - name: borocode
+    description: Borough code (1 to 5).
+  - name: ct
+    description: Tract number within the borough,.
+  - name: boroct
+    description: Borough code followed by ct.
+  - name: cdta_code
+    description: 2020 Community District Tabulation Area containing the tract.
+  - name: puma
+    description: Public Use Microdata Area containing the tract.
+  - name: health_area
+    description: Health area containing the tract.
+  - name: geom
+    description: Polygon with curves linearized.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
 
 - name: stg__centerlinehistory
   description: >
@@ -54,13 +256,66 @@ models:
   - name: new_segment_id
     description: NULL on deletes.
 
-- name: stg__facecode_and_featurename
+- name: stg__electiondistrict
+  description: >
+    Election district boundaries with the assembly, congressional, state senate, municipal
+    court and city council districts each covers. One row per election district. Source for
+    the election district layer.
   columns:
+  - name: globalid
+  - name: electdist
+    description: Election district number.
+  - name: assembly_district
+    description: State assembly district.
+  - name: congress_district
+    description: Congressional district.
+  - name: state_sen_district
+    description: State senate district.
+  - name: muni_court_district
+    description: Municipal court district.
+  - name: city_council_district
+    description: City council district.
+  - name: geom
+    description: Polygon with curves linearized and made valid.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__facecode_and_featurename
+  description: >
+    The StreetName and FeatureName layers unioned: every street and feature name with its
+    B7SC, face code and flags. One row per name. Adds the borough code, a trimmed lookup key
+    and a sort key for alphabetical ordering.
+  columns:
+  - name: boroughcode
+    description: First character of b10sc.
+  - name: b10sc
+    description: Borough plus 4-digit street code plus LGC (10 characters).
   - name: b7sc
+    description: Borough, street code and LGC (7 characters); the key to a name.
   - name: lookup_key
+    description: The name as stored.
+  - name: lookup_key_trimmed
+    description: lookup_key with the whitespace around '/' and '-' removed.
+  - name: place_name_sort_order
+    description: >
+      lookup_key_trimmed with each run of digits left-padded to four characters, so names
+      sort the way people read them (2 before 10).
   - name: face_code
+  - name: feature_type
+    description: "'street' for StreetName rows, 'feature' for FeatureName rows."
+  - name: principal_flag
+    description: "'Y' on the name that is the principal one for its B7SC."
+  - name: snd_feature_type
+    description: Street Name Dictionary feature type.
+  - name: horizontal_topo_type
+    description: Only present on street rows; NULL for features.
+  - name: globalid
 
 - name: stg__facecode_and_featurename_principal
+  description: >
+    The principal name of each B7SC: rows of stg__facecode_and_featurename with
+    principal_flag 'Y'. Used to look up the street or feature name and face code of a
+    segment's preferred B7SC.
   columns:
   - name: b7sc
     tests:
@@ -72,20 +327,175 @@ models:
   - name: face_code
 
 - name: stg__firecompany
+  description: >
+    Fire company boundaries with their division and battalion. One row per fire company.
+    Source for the fire company layer.
   columns:
   - name: globalid
     tests: [ unique, not_null ]
   - name: unit_short
+    description: Short fire company name, for example 'E 212'.
     tests: [ not_null ]
+  - name: fire_division
+    description: Division (borough command) of the company.
+  - name: fire_battalion
+    description: Battalion of the company.
+  - name: geom
+    description: Polygon with curves linearized and made valid.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__healtharea
+  description: >
+    Health area boundaries. One row per health area. Source for the health area layer.
+  columns:
+  - name: healtharea
+    description: Health area code.
+  - name: health_ct_district
+  - name: borough
+  - name: geom
+    description: Polygon with curves linearized.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__historicdistrict
+  description: >
+    Landmarks Preservation Commission historic district boundaries. One row per district.
+    Source for the historic district layer.
+  columns:
+  - name: name
+    description: Name of the district.
+  - name: lp_number
+    description: Landmarks Preservation Commission designation number.
+  - name: designated
+    description: Designation date.
+  - name: extension
+  - name: borough
+  - name: geom
+    description: Polygon made valid (st_makevalid).
+  - name: raw_geom
+    description: Polygon exactly as stored in the source.
+
+- name: stg__neighborhoodpumacodes
+  description: >
+    Lookup from census tract to neighborhood and Public Use Microdata Area (PUMA). One row
+    per borough and tract.
+  columns:
+  - name: borough
+  - name: censustract
+    description: Census tract as an integer.
+  - name: neighborhood_code
+  - name: neighborhood_name
+  - name: puma
+    description: PUMA code as an integer.
+
+- name: stg__nodes
+  description: >
+    The CSCL Node layer, unchanged. One row per node (street intersection or segment end).
+    Source for the node layer and for the from/to nodes of segments.
+
+- name: stg__ntaequiv2020
+  description: >
+    Lookup of 2020 Neighborhood Tabulation Areas (NTAs): code, name, abbreviation and type.
+    One row per NTA.
+  columns:
+  - name: nta_code
+  - name: nta_name
+  - name: nta_abbrev
+  - name: nta_type
+
+- name: stg__nypdbeat
+  description: >
+    NYPD beat, sector and post boundaries. One row per beat. Source for the police sector
+    assignments.
+  columns:
+  - name: precinct
+  - name: sector
+  - name: patrol_borough
+  - name: geom
+    description: Polygon with curves linearized.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__nypdpatrolborough
+  description: >
+    NYPD patrol borough boundaries. One row per patrol borough. Source for the patrol
+    borough assignments. Its Bronx patrol borough is BX where prod has XN and XS
+    (CSCL-THINLION-03).
+  columns:
+  - name: patrol_borough
+  - name: geom
+    description: Polygon with curves linearized.
+  - name: raw_geom
+    description: Geometry exactly as stored in the source, curves included.
+
+- name: stg__nypdprecinct
+  description: >
+    NYPD precinct boundaries. One row per precinct. Source for the police precinct
+    assignments.
+  columns:
+  - name: precinct
+    description: Precinct number.
+  - name: geom
+    description: Polygon as stored in the source (not linearized).
+  - name: raw_geom
+    description: Polygon exactly as stored in the source.
 
 - name: stg__segment_sedat
+  description: >
+    Split Election District (SEDAT) records: the SEDAT and SpecialSEDAT layers unioned. One
+    row per segment side that borders a split election district. Feeds the split election
+    district flag.
   columns:
   - name: segmentid
   - name: lionkey
+    description: >
+      Key tying the record to its segment: a borough digit, the 4-digit face code and the
+      5-digit segment sequence number.
   - name: side
+    description: Side of the segment the record applies to; 1 is left and 2 is right.
     tests:
     - accepted_values:
         arguments: { values: [ "1", "2" ] }
+
+- name: stg__streetshaveintersections
+  description: >
+    The CSCL StreetsHaveIntersections table, unchanged. Links segments to the nodes they
+    meet at.
+
+- name: stg__urbanrenewalarea
+  description: >
+    Urban renewal area boundaries. One row per area. Source for the urban renewal area
+    layer.
+  columns:
+  - name: uranum
+  - name: uraid
+  - name: boro_name
+  - name: boro_num
+  - name: site_name
+  - name: urp
+  - name: geom
+    description: Polygon made valid (st_makevalid).
+  - name: raw_geom
+    description: Polygon exactly as stored in the source.
+
+- name: stg__virtualintersection
+  description: >
+    The CSCL VirtualIntersection table, unchanged. Nodes designated virtual intersections.
+
+- name: stg__zipcode
+  description: >
+    ZIP code boundaries. One row per ZIP code area. Source for the ZIP code layer and for
+    segment ZIP code fallbacks.
+  columns:
+  - name: zip_code
+  - name: po_name
+    description: Post office name.
+  - name: county
+  - name: geom
+    description: Polygon made valid (st_makevalid).
+  - name: raw_geom
+    description: Polygon exactly as stored in the source.
 
 unit_tests:
 - name: test__stg__facecode_and_featurename_sortname
