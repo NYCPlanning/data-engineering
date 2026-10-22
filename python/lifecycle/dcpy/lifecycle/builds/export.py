@@ -684,6 +684,23 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     return package_folder
 
 
+def zip_groups(recipe_lock_path: Path, root: Path) -> list[Path]:
+    """Replace each recipe group marked `zip: true` under root/dataset_files with
+    <group>.zip (members relative to the group folder). Run on a copy being uploaded."""
+    recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
+    assert recipe.exports, "No exports defined in recipe"
+    zipped = []
+    for group, options in recipe.exports.groups.items():
+        folder = Path(root) / "dataset_files" / group
+        if not options.zip or not folder.is_dir():
+            continue
+        zip_path = shutil.make_archive(str(folder), "zip", folder)
+        shutil.rmtree(folder)
+        zipped.append(Path(zip_path))
+        logger.info(f"Zipped group {group} to {zip_path}")
+    return zipped
+
+
 app = typer.Typer(add_completion=False)
 
 
@@ -718,3 +735,23 @@ def _package(
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
     typer.echo(f"Packaged: {package(recipe_lock_path)}")
+
+
+@app.command("zip-groups")
+def _zip_groups(
+    root: Path = typer.Argument(
+        ..., help="Folder holding dataset_files/ (e.g. an upload staging dir)"
+    ),
+    recipe_lock_path: Path = typer.Option(
+        None,
+        "--recipe-path",
+        "-r",
+        help="Path of recipe lock file to use",
+    ),
+):
+    """Zip the dataset_files groups the recipe marks `zip: true`."""
+    recipe_lock_path = recipe_lock_path or (
+        Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
+    )
+    for path in zip_groups(recipe_lock_path, root):
+        typer.echo(f"Zipped: {path}")

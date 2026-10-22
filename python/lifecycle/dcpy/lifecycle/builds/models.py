@@ -121,7 +121,16 @@ class ExportDataset(BaseModel, extra="forbid"):
         return (self.custom or {}).get("layer", self.name)
 
 
+class ExportGroup(BaseModel, extra="forbid"):
+    """Options for a dataset_files subfolder named by ExportDataset.group."""
+
+    # Ship the folder as <group>.zip instead of loose files (applied at upload, so QA
+    # and the packaged output.zip still see the individual files)
+    zip: bool = False
+
+
 class BuildExports(BaseModel, extra="forbid"):
+    groups: dict[str, ExportGroup] = {}
     output_folder: Path | None = None
     zip_name: str | None = None
     datasets: list[ExportDataset] = []

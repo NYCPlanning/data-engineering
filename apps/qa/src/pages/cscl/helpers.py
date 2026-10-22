@@ -1,3 +1,6 @@
+import io
+import zipfile
+
 import pandas as pd
 import streamlit as st
 
@@ -51,10 +54,16 @@ def _lines(data: bytes) -> list[str]:
 def get_diff_rows(build: str, filename: str) -> list[str]:
     """Return rows present in dev but not prod for a build file.
 
-    Uses the precomputed validation_output/<filename> when the build has one.
-    Otherwise finds the file under dataset_files/<group>/ and diffs it against
+    Reads <filename> from the precomputed validation_output/diff_rows.zip. Older
+    builds have validation_output/<filename> loose; failing that, finds the file under dataset_files/<group>/ and diffs it against
     the prod copy (equivalent to comm -23 <(sort dev) <(sort prod)).
     """
+    try:
+        zip_bytes = builds.get_file(PRODUCT, build, "validation_output/diff_rows.zip")
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+            return _lines(zf.read(filename))
+    except Exception:
+        pass
     try:
         return _lines(builds.get_file(PRODUCT, build, f"validation_output/{filename}"))
     except Exception:
