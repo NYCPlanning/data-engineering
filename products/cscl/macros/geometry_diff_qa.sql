@@ -319,16 +319,69 @@ FROM (
 
 
 {% macro geometry_diff_qa_district_layer(layer) %}
-{#- One layer's rows of qa__geometry_fgdb_district_layers: geometry_diff_qa on it. -#}
-SELECT
-    '{{ layer.name }}' AS source_layer,
-    *
-FROM (
+{#-
+  One layer's rows of qa__geometry_fgdb_district_layers: geometry_diff_qa on it, plus
+  passes_without_prod_hairlines, the same check against prod with its hairlines removed
+  (prod_fgdb_linear_without_hairlines), run on the failing keys only. A row that fails
+  but passes without them differs from prod only by prod's hairline slivers
+  (CSCL-DISTRICTS-01).
+-#}
+{%- set prod_key = layer.get('prod_key') or (layer.key | replace('"', '') | lower) -%}
+-- Wrapped in a subquery so the post-hooks can INSERT it.
+SELECT * FROM (
+WITH t AS (
     {{ geometry_diff_qa(
         build_relation=ref('gdb_' ~ layer.name),
         prod_relation=prod_fgdb_linear('fgdb_' ~ layer.name),
         key_column=layer.key,
         prod_key_column=layer.get('prod_key')
     ) }}
-) AS t
+),
+
+failing AS (
+    SELECT key_value FROM t WHERE NOT passes
+),
+
+h AS (
+    {{ geometry_diff_qa(
+        build_relation='(SELECT * FROM ' ~ ref('gdb_' ~ layer.name) ~ ' WHERE ('
+            ~ layer.key ~ ')::text IN (SELECT key_value FROM failing))',
+        prod_relation=prod_fgdb_linear_without_hairlines(
+            'fgdb_' ~ layer.name,
+            where='(' ~ prod_key ~ ')::text IN (SELECT key_value FROM failing)'
+        ),
+        key_column=layer.key,
+        prod_key_column=layer.get('prod_key')
+    ) }}
+)
+
+SELECT
+    '{{ layer.name }}' AS source_layer,
+    t.*,
+    coalesce(h.passes, t.passes) AS passes_without_prod_hairlines
+FROM t
+LEFT JOIN h ON t.key_value = h.key_value
+) AS layer_rows
+{% endmacro %}
+
+
+{% macro prod_fgdb_linear_without_hairlines(identifier, geom_column='shape', where='TRUE') %}
+{#-
+  prod_fgdb_linear without prod's hairlines: anything narrower than var
+  district_hairline_width_ft, removed by a morphological opening (shrink by half the
+  width, grow back). Prod's district polygons carry hundreds of these along their
+  outlines, about 0.0001 ft wide, as separate parts and as spikes off a ring; they add
+  parts and length but no area (CSCL-DISTRICTS-01). The opening moves the rest of the
+  boundary by far less than the width. where: a filter on the prod rows, since the
+  opening is slow on the large layers.
+-#}
+{%- set half_width = var('district_hairline_width_ft') / 2 -%}
+(
+    SELECT * REPLACE (
+        st_buffer(st_buffer(st_makevalid("{{ geom_column }}"), -{{ half_width }}), {{ half_width }})
+            AS "{{ geom_column }}"
+    )
+    FROM {{ adapter.get_relation(database=target.database, schema="production_outputs", identifier=identifier) }}
+    WHERE {{ where }}
+)
 {% endmacro %}

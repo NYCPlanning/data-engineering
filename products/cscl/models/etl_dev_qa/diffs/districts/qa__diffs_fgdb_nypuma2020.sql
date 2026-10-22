@@ -7,7 +7,8 @@
 
 -- Standard diff-summary shape over qa__geometry_fgdb_nypuma2020 - see that model,
 -- macros/geometry_diff_qa.sql, and qa__diffs_fgdb_nyfb for the pattern/caveats.
--- Only non-passing rows are included.
+-- Only non-passing rows are included. A row that passes once prod's hairline slivers
+-- are removed is CSCL-DISTRICTS-01.
 SELECT
     key_value AS comparison_id,
     CASE
@@ -25,6 +26,7 @@ SELECT
     ) AS changes,
     'gdb_nypuma2020' AS output_file_id,
     CASE
+        WHEN passes_without_prod_hairlines THEN 'CSCL-DISTRICTS-01: prod hairline slivers'
         WHEN len(failing_checks) = 1 THEN failing_checks[1]
         ELSE ''
     END AS diff_group,
@@ -32,6 +34,6 @@ SELECT
     'key_value' AS comparison_column,
     'gdb_nypuma2020' AS build_table_name,
     'fgdb_nypuma2020' AS production_table_name,
-    false AS accounted_for
+    passes_without_prod_hairlines AS accounted_for
 FROM {{ ref('qa__geometry_fgdb_nypuma2020') }}
 WHERE NOT passes
