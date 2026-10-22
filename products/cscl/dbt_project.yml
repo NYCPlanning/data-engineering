@@ -47,6 +47,9 @@ on-run-start:
 - "{{ create_duckdb_functions() }}"
 
 vars:
+  # qa_int__prod_etl_log: the schema holding the prod snapshot's etl_log table. Override to
+  # test against a snapshot loaded somewhere else.
+  production_outputs_schema: production_outputs
   # qa__context_geoms: buffer applied to the SUBTRACTED side before computing
   # build_minus_legacy/legacy_minus_build, to separate real spurs/gaps from needle-sliver
   # noise - NOT a proxy for perimeter/length. Confirmed on PUMA 3808:

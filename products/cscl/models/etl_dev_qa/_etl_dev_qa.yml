@@ -189,3 +189,79 @@ models:
     Same audit_helper row comparison as qa__thinlion_all_comparison, scoped
     to Staten Island (borough 5). Compares thinlion_statenisland_by_field
     against the production thinlion_statenisland table.
+
+# ── Logs QA ──────────────────────────────────────────────────────────────────
+
+- name: qa_int__prod_etl_log
+  description: >
+    Prod's ETL log entries (production_outputs.etl_log, from the prod snapshot), each
+    parsed with the prod_log_templates pattern it matches into feature_class, record_id
+    and record_key. template_id is blank for a message no template matches. Empty when
+    the snapshot has no etl_log (built before it existed, or no logs were supplied).
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [log_file, line_number]
+  columns:
+  - name: log_file
+    description: The prod log file (one per ETL session).
+  - name: line_number
+    description: Line the entry starts on.
+  - name: template_id
+    description: The prod_log_templates row whose pattern matches the message.
+  - name: our_error_category
+    description: log.csv's error_category for the same event; blank if we don't log it.
+  - name: record_id
+    description: >
+      The record's id as prod gives it: an OBJECTID in prod's source FGDB, or a source
+      id (STREETNAMEID, SEGMENTID, ...).
+
+- name: qa__log_compare
+  description: >
+    Our log.csv vs prod's ETL logs, one row per kind of logged event: counts on both
+    sides, and which side logs it. Prod's counts cover only the ETL sessions whose logs
+    are in the snapshot (prod_log_files); ours cover the whole build. Records are
+    matched one to one only for output file summaries (see qa__log_file_counts): prod
+    names every other record by its source OBJECTID, which the build doesn't keep.
+  columns:
+  - name: category
+    tests: [not_null, unique]
+    description: Our error_category, or the prod template_id for an event we don't log.
+  - name: logged_by
+    description: "`both`, `prod only` or `ours only`."
+    tests:
+    - accepted_values:
+        arguments:
+          values: [both, prod only, ours only]
+  - name: prod_lines
+    description: Prod log lines in this category.
+  - name: prod_records
+    description: Distinct records prod's lines name (prod can log one record more than once).
+  - name: our_rows
+    description: log.csv rows in this category.
+  - name: compared_on
+    description: Whether records are matched one to one, or only counted.
+  - name: records_matched
+    description: Output files whose record count matches prod's log (summary row only).
+  - name: records_prod_only
+    description: Output files whose count prod logs differently or we don't write.
+  - name: records_ours_only
+    description: Output files we write with a count prod's log doesn't have.
+
+- name: qa__log_file_counts
+  description: >
+    Record counts per output file, from prod's "Total <name> output records: N" log
+    lines, from prod's file itself, and from our log__export_file_summary. One row per
+    file prod's logs report on.
+  columns:
+  - name: prod_name
+    description: Prod's name for the file in its log (e.g. SAFA_Generic).
+  - name: output_filename
+    description: The file; blank for a prod name this model doesn't map yet.
+  - name: counts_match
+    description: True when our record count equals prod's logged count.
+  - name: our_minus_prod_file
+    description: >
+      Our record count minus the record count of prod's file. Prod's logged count can
+      differ from its own file (26c GenericABCEGNPX.txt: 19,149 logged, 19,151 written).
+

@@ -317,7 +317,9 @@ A release has two inputs, and both have to be in place before you build:
 1. **GR delivers the legacy outputs** (see [Setup](#setup)). Everything for the release goes
    in `edm-private/cscl_etl/<v>/`: the flat files, the LDF, and the zipped ETL Working
    GDB. The prod snapshot also downloads `nyclion_<v>.zip` from the DCP website, so that
-   has to be published too.
+   has to be published too. GR's ETL logs (the `cscl_etl_*.log` files ExtractorUI writes
+   to `ETL\Reports`, one per session) go in `edm-private/cscl_etl/<v>/logs/`. They're
+   optional: without them `qa__log_compare` has nothing from prod to compare.
 2. **Ingest the source GDB** (`ingest_templates/dcp_cscl_gdb.yml`). The template reads
    `edm-private/qa_app/inbox/dcp_cscl_gdb/<v>/ETL Working GDB.gdb.zip`. That's the QA
    app's inbox, not `cscl_etl/<v>/`, so upload the zip there too. Then either:

@@ -181,6 +181,9 @@ jobs:
       # var enables the one var-gated diff model so its labels are checked too)
       run: |
         dbt test --select known_differences --vars '{qa_gdb_lion_diffs: true}'
+    - name: prod log templates
+      # each prod log message template's example matches its own pattern and no other
+      run: dbt test --select prod_log_templates
     - name: sqlfluff models
       run: sqlfluff lint models --templater=dbt
     - name: sqlfluff tests

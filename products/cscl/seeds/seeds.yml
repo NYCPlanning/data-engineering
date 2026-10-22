@@ -124,6 +124,47 @@ seeds:
                 values: [open, accepted, watch]
       - name: reference
         description: "Data-engineering tracker bead(s) holding the analysis and evidence, comma-separated."
+  - name: prod_log_templates
+    description: >
+      One row per message prod's ETL code (CSCL.ETL.Extractor, compiled files only) writes
+      to its log at warn or error level, with a regex that parses it and the
+      error_category our log.csv uses for the same event (blank where we don't log it).
+      qa_int__prod_etl_log parses prod's logs with it; qa__log_compare compares by
+      category. assert_prod_log_template_examples checks each example matches its own
+      pattern and no other.
+    config:
+      column_types:
+        template_id: varchar
+        prod_output: varchar
+        prod_log_level: varchar
+        pattern: varchar
+        example: varchar
+        our_error_category: varchar
+        note: varchar
+    columns:
+      - name: template_id
+        description: Stable name for the prod message.
+        tests: [not_null, unique]
+      - name: prod_output
+        description: The output prod writes the message while extracting (LION, SAF, ...).
+      - name: prod_log_level
+        description: "`error` or `warn`, as prod logs it."
+      - name: pattern
+        description: >
+          RE2 regex that matches the whole message, with exactly three capture groups:
+          the feature class or table, the record's id (an OBJECTID, or a source id like
+          STREETNAMEID), and any other key (a lookup query, a place name). A group the
+          message has no value for is written `()`.
+        tests: [not_null]
+      - name: example
+        description: A message prod's code writes from this template.
+        tests: [not_null]
+      - name: our_error_category
+        description: >
+          The log.csv error_category for the same event; blank if we don't log it (note
+          says why).
+      - name: note
+        description: Where prod logs it, and why we don't, if we don't.
   - name: lion_outputs
     description: "LION output file mappings by group, subgroup, and type"
     columns:
