@@ -84,7 +84,7 @@ files:
     filename: nycdwi.zip
     type: shapefile
   dataset_overrides:
-    attributes:
+    attributes: &wi_attributes
       description: |-
         Community District boundaries for New York City including portions under water.
 
@@ -138,6 +138,30 @@ files:
       assembly:
         with_metadata_from:
           file_id: shapefile_wi
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nycd
+    - layer: nycdwi
+      attributes: *wi_attributes
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: borocd
+      name: BoroCD
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: borocd

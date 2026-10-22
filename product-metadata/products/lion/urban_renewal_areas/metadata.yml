@@ -1,0 +1,66 @@
+id: urban_renewal_areas
+
+attributes:
+  display_name: Urban Renewal Areas
+  description: |-
+    Boundaries of New York City Urban Renewal Areas, published from the CSCL UrbanRenewalArea feature class.
+  each_row_is_a: Urban renewal area
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - urban renewal areas
+  - boundaries
+  - lion
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyura
+
+columns:
+- id: uraid
+  name: URAID
+  data_type: integer
+  description: Urban renewal area identifier.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Integer
+- id: uranum
+  name: URANum
+  data_type: integer
+  description: Urban renewal area number.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Integer
+- id: sitename
+  name: SiteName
+  data_type: text
+  description: Urban renewal site name.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: shape_length
+  name: SHAPE_Length
+  data_type: number
+  description: Boundary length in feet.
+  custom:
+    fgdb_data_type: Double
+- id: shape_area
+  name: SHAPE_Area
+  data_type: number
+  description: Area in square feet.
+  custom:
+    fgdb_data_type: Double

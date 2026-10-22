@@ -16,6 +16,7 @@ datasets:
   - 2020_public_use_microdata_areas
   - atomic_polygons
   - borough_boundaries
+  - business_improvement_districts
   - city_council_districts
   - community_districts
   - congressional_districts
@@ -25,12 +26,14 @@ datasets:
   - fire_divisions
   - health_areas
   - health_center_districts
+  - historic_districts
   - hurricane_evacuation_zones
   - lion
   - lion_altnames
   - lion_differences_file
   - lion_node
   - lion_node_stname
+  - minor_census_economic_areas
   - municipal_court_districts
   - police_precincts
   - property_address_directory
@@ -40,3 +43,5 @@ datasets:
   - state_assembly_districts
   - state_senate_districts
   - street_name_dictionary
+  - urban_renewal_areas
+  - zip_code_areas

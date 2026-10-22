@@ -1,5 +1,6 @@
 from dcpy.product_metadata.models.metadata.product import (
     DatasetAttributes,
+    DatasetAttributesOverride,
     DatasetColumn,
     DatasetOverrides,
     File,
@@ -71,3 +72,21 @@ def test_calculate_layer_dataset_metadata_no_layers_declared_returns_file_level(
     md = _make_metadata(layers=None)
     result = md.calculate_layer_dataset_metadata(file_id="my_gdb", layer="any_layer")
     assert result.columns[0].data_type == "String"
+
+
+def test_calculate_layer_dataset_metadata_layer_attributes():
+    """Layer-level attributes override the file-level ones (e.g. a water-included
+    layer's title in a shared geodatabase)."""
+    md = _make_metadata(
+        layers=[
+            GdbLayerOverrides(
+                layer="my_layer_wi",
+                attributes=DatasetAttributesOverride(display_name="Test (wi)"),
+            )
+        ]
+    )
+    wi = md.calculate_layer_dataset_metadata(file_id="my_gdb", layer="my_layer_wi")
+    assert wi.attributes.display_name == "Test (wi)"
+    assert wi.columns[0].data_type == "String"
+    other = md.calculate_layer_dataset_metadata(file_id="my_gdb", layer="my_layer")
+    assert other.attributes.display_name == "Test"
