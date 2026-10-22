@@ -70,7 +70,7 @@ jobs:
         df -h .
 
     - name: Plan build
-      run: uv run python3 -m dcpy lifecycle builds plan recipe --recipe-path ./recipe.yml --output-path $LOCK_FILE
+      run: uv run python3 -m dcpy lifecycle builds plan ${{ inputs.plan_command }} --output-path $LOCK_FILE
 
     - name: Check prod snapshot
       # QA compares against the legacy release of the same version (the

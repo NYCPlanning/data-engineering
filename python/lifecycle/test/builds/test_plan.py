@@ -650,3 +650,41 @@ def test_export_filenames_without_collisions_are_valid(datasets):
 def test_export_filename_collisions_raise(datasets, match):
     with pytest.raises(ValueError, match=match):
         BuildExports(datasets=datasets)
+
+
+TEMPLATED_VERSION_RECIPE = """
+name: t
+product: t
+version: 26c
+inputs:
+  datasets: []
+exports:
+  datasets:
+    - name: a
+      format: gdb
+      filename: nyclion_{{ version }}.zip
+    - name: b
+      format: gdb
+      filename: v{{ version | upper }}_Districts.gdb.zip
+"""
+
+
+def _templated_filenames(tmp_path, **kwargs):
+    path = tmp_path / "recipe.yml"
+    path.write_text(TEMPLATED_VERSION_RECIPE)
+    recipe = plan.recipe_from_yaml(path, vars={}, **kwargs)
+    return [d.filename for d in recipe.exports.datasets]
+
+
+def test_recipe_template_uses_top_level_version(tmp_path):
+    assert _templated_filenames(tmp_path) == [
+        "nyclion_26c.zip",
+        "v26C_Districts.gdb.zip",
+    ]
+
+
+def test_recipe_template_version_override(tmp_path):
+    assert _templated_filenames(tmp_path, version="26d") == [
+        "nyclion_26d.zip",
+        "v26D_Districts.gdb.zip",
+    ]
