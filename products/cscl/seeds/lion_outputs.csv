@@ -5,9 +5,9 @@ flat_files,Census,Census,file,NTA2020.csv,nta2020_csv,false,true,,,done,Matches 
 flat_files,Census,Census,file,NTA2020.txt,nta2020_dat,false,true,,,done,Matches prod exactly,
 flat_files,Census,Census,file,CDTA2020.csv,cdta2020_csv,false,true,,,done,Matches prod exactly,
 flat_files,Census,Census,file,CDTA2020.txt,cdta2020_dat,false,true,,,done,Matches prod exactly,
-flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,false,false,,,n/a,"Build log, not compared to prod",
-flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,false,false,,,n/a,"Build log, not compared to prod",
-flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,false,false,,,n/a,"Build log, not compared to prod",
+flat_files,Census,Census,file,Generate_CDTA2020_Log.txt,cdta2020_dat_log,false,false,,,skip,Prod ETL tool run summary (row counts only); not reproduced,"Prod's ProcessCsv run summary: input/output/duplicate row counts and elapsed time, no per-record content. The NTA/CDTA file diffs already cover those counts."
+flat_files,Census,Census,file,Generate_Neighbor_Tabulation_Area_Log.txt,nta_log,false,false,,,skip,Prod ETL tool run summary (row counts only); not reproduced,"Prod's ProcessCsv run summary: input/output/duplicate row counts and elapsed time, no per-record content. The NTA/CDTA file diffs already cover those counts."
+flat_files,Census,Census,file,Generate_NTA2020_Log.txt,nta2020_log,false,false,,,skip,Prod ETL tool run summary (row counts only); not reproduced,"Prod's ProcessCsv run summary: input/output/duplicate row counts and elapsed time, no per-record content. The NTA/CDTA file diffs already cover those counts."
 flat_files,District Equivalency,ThinFire,file,BronxThinFire.txt,thinfire_bronx,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
 flat_files,District Equivalency,ThinFire,file,BrooklynThinFire.txt,thinfire_brooklyn,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md
 flat_files,District Equivalency,ThinFire,file,ManhattanThinFire.txt,thinfire_manhattan,true,true,,,done,Matches prod exactly,See CSCL-THINFIRE-01 in data_issues.md

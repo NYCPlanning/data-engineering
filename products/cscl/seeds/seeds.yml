@@ -210,7 +210,9 @@ seeds:
           nothing conclusive or found something genuinely confusing - a
           deliberate flag to come back to, not a placeholder for "never
           looked"), "n/a" (not comparable to prod at all - a build log or
-          input-only artifact, see the diffable column).
+          input-only artifact, see the diffable column), "skip" (a prod output
+          we deliberately don't reproduce - recorded so it reads as a decision,
+          not an oversight; see notes for why).
       - name: status_summary
         description: >
           One short, plain-English sentence on where this output stands right

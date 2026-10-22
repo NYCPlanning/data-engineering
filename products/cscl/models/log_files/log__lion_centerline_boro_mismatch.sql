@@ -1,3 +1,9 @@
+-- Prod (LIONExtractorClass.PreExportCheckFeature) compares a feature's own borough (the
+-- centerline's BoroughCode, or the proto segment's BOROUGH; blank falls back to a derived
+-- borough) to the borough of the LION file it's being written to. Here: the source row's borough vs the borough of the LION
+-- row built from it. Coincident borough-boundary protos (ALT_SEGDATA_TYPE 'B') carry the
+-- other borough from their centerline by design, so comparing a proto to its centerline
+-- would flag every one of them.
 WITH lion AS (
     SELECT * FROM {{ ref("int__lion") }}
 ),
@@ -35,15 +41,17 @@ SELECT
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
-    lion_joined.segmentid AS record_id,
+    segmentid AS record_id,
     FORMAT(
         'The borough for the {} feature with an OID = "{}" (Borough = {}) does not '
         || 'match the borough currently being extracted (Borough = {}).',
         COALESCE(source_table::VARCHAR, ''),
         COALESCE(globalid::VARCHAR, ''),
         COALESCE(source_boroughcode::VARCHAR, ''),
-        COALESCE(lion_joined.boroughcode::VARCHAR, '')
+        COALESCE(boroughcode::VARCHAR, '')
     ) AS message
 FROM lion_joined
-INNER JOIN centerline ON lion_joined.segmentid = centerline.segmentid
-WHERE centerline.boroughcode IS DISTINCT FROM lion_joined.boroughcode
+-- a blank source borough is derived downstream (prod falls back the same way), not a mismatch
+WHERE
+    TRY_CAST(source_boroughcode AS INT) IS NOT NULL
+    AND TRY_CAST(source_boroughcode AS INT) IS DISTINCT FROM TRY_CAST(boroughcode AS INT)
