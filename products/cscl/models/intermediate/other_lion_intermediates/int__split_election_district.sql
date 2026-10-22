@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid', 'boroughcode']},
-    ]
+    materialized = 'table'
 ) }}
 WITH sedat AS (
     SELECT * FROM {{ ref("stg__segment_sedat") }}

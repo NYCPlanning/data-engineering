@@ -1,9 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['globalid']},
-      {'columns': ['nodeid']},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH segments AS (

@@ -1,8 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-      {'columns': ['word']}
-    ]
+    materialized='table'
 ) }}
 
 /*

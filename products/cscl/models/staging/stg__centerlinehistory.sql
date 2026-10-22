@@ -1,10 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['release_num']},
-      {'columns': ['old_segment_id']},
-      {'columns': ['new_segment_id']},
-    ]
+    materialized = 'table'
 ) }}
 
 -- CSCL's edit journal, and the source of every LDF record type except 'N'. Despite the

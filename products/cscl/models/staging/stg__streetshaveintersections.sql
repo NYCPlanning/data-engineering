@@ -1,9 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['nodeid']},
-      {'columns': ['segmentid']},
-    ]
+    materialized = 'table'
 ) }}
 
 SELECT * FROM {{ source("recipe_sources", "dcp_cscl_streetshaveintersections") }}

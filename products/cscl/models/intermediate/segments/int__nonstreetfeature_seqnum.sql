@@ -1,9 +1,6 @@
 -- Shares some logic with int__protosegments and int__segments (inv-c73).
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['globalid']},
-    ]
+    materialized = 'table'
 ) }}
 WITH nsf AS (
     SELECT * FROM {{ ref('stg__nonstreetfeatures') }}

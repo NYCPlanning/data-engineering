@@ -1,6 +1,6 @@
 name: CSCL
 product: cscl
-version: 26c
+version: 26c  # set once: export filenames derive from it ({{ version }})
 duckdb_filename: cscl.duckdb
 
 # The LDF documents the change between two LION releases, and its header also needs
@@ -931,7 +931,7 @@ exports:
   # ESRI / published LION geodatabase — filename must match `version:` at top of this file
   - name: gdb_lion
     group: lion_gdb
-    filename: nyclion_26c.zip
+    filename: nyclion_{{ version }}.zip
     format: gdb
     custom:
       qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
@@ -947,7 +947,7 @@ exports:
       product_metadata: { product: lion, dataset: lion, file_id: lion_gdb }
   - name: gdb_node
     group: lion_gdb
-    filename: nyclion_26c.zip
+    filename: nyclion_{{ version }}.zip
     format: gdb
     custom:
       qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
@@ -957,7 +957,7 @@ exports:
       product_metadata: { product: lion, dataset: lion_node, file_id: lion_gdb }
   - name: gdb_node_stname
     group: lion_gdb
-    filename: nyclion_26c.zip
+    filename: nyclion_{{ version }}.zip
     format: gdb
     custom:
       qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
@@ -967,7 +967,7 @@ exports:
       product_metadata: { product: lion, dataset: lion_node_stname, file_id: lion_gdb }
   - name: gdb_altnames
     group: lion_gdb
-    filename: nyclion_26c.zip
+    filename: nyclion_{{ version }}.zip
     format: gdb
     custom:
       qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
@@ -984,192 +984,192 @@ exports:
   # filename must match prod's, which embeds the cycle from `version:` above
   - name: gdb_nyad
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyad, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyad, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: state_assembly_districts, file_id: districts_gdb } }
   - name: gdb_nyadwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyadwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyadwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: state_assembly_districts, file_id: districts_gdb } }
   - name: gdb_nyap
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyap, geometry_type: polygons, arcs: dcp_cscl_atomicpolygons_arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyap, geometry_type: polygons, arcs: dcp_cscl_atomicpolygons_arcs, product_metadata: { product: lion, dataset: atomic_polygons, file_id: districts_gdb } }
   - name: gdb_nybb
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nybb, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nybb, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: borough_boundaries, file_id: districts_gdb } }
   - name: gdb_nybbwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nybbwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nybbwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: borough_boundaries, file_id: districts_gdb } }
   - name: gdb_nybid
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nybid, geometry_type: polygons, arcs: dcp_cscl_businessimprovementdistrict_arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nybid, geometry_type: polygons, arcs: dcp_cscl_businessimprovementdistrict_arcs, product_metadata: { product: lion, dataset: business_improvement_districts, file_id: districts_gdb } }
   - name: gdb_nycb2010
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2010, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2010, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2010_census_blocks, file_id: districts_gdb } }
   - name: gdb_nycb2010wi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2010wi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2010wi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2010_census_blocks, file_id: districts_gdb } }
   - name: gdb_nycb2020
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2020, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2020, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2020_census_blocks, file_id: districts_gdb } }
   - name: gdb_nycb2020wi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2020wi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycb2020wi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2020_census_blocks, file_id: districts_gdb } }
   - name: gdb_nycc
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycc, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycc, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: city_council_districts, file_id: districts_gdb } }
   - name: gdb_nyccwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyccwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyccwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: city_council_districts, file_id: districts_gdb } }
   - name: gdb_nycd
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycd, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycd, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: community_districts, file_id: districts_gdb } }
   - name: gdb_nycdta2020
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycdta2020, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycdta2020, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2020_community_district_tabulation_areas, file_id: districts_gdb } }
   - name: gdb_nycdwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycdwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycdwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: community_districts, file_id: districts_gdb } }
   - name: gdb_nycg
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycg, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycg, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: congressional_districts, file_id: districts_gdb } }
   - name: gdb_nycgwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycgwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nycgwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: congressional_districts, file_id: districts_gdb } }
   - name: gdb_nyct2010
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2010, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2010, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2010_census_tracts, file_id: districts_gdb } }
   - name: gdb_nyct2010wi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2010wi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2010wi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2010_census_tracts, file_id: districts_gdb } }
   - name: gdb_nyct2020
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2020, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2020, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2020_census_tracts, file_id: districts_gdb } }
   - name: gdb_nyct2020wi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2020wi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyct2020wi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2020_census_tracts, file_id: districts_gdb } }
   - name: gdb_nyed
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyed, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyed, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: election_districts, file_id: districts_gdb } }
   - name: gdb_nyedwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyedwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyedwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: election_districts, file_id: districts_gdb } }
   - name: gdb_nyfb
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyfb, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyfb, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: fire_battalions, file_id: districts_gdb } }
   - name: gdb_nyfc
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyfc, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyfc, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: fire_companies, file_id: districts_gdb } }
   - name: gdb_nyfd
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyfd, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyfd, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: fire_divisions, file_id: districts_gdb } }
   - name: gdb_nyha
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyha, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyha, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: health_areas, file_id: districts_gdb } }
   - name: gdb_nyhc
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyhc, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyhc, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: health_center_districts, file_id: districts_gdb } }
   - name: gdb_nyhd
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyhd, geometry_type: polygons }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyhd, geometry_type: polygons, product_metadata: { product: lion, dataset: historic_districts, file_id: districts_gdb } }
   - name: gdb_nyhez
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyhez, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyhez, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: hurricane_evacuation_zones, file_id: districts_gdb } }
   - name: gdb_nymc
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nymc, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nymc, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: municipal_court_districts, file_id: districts_gdb } }
   - name: gdb_nymcea
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nymcea, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nymcea, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: minor_census_economic_areas, file_id: districts_gdb } }
   - name: gdb_nymcwi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nymcwi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nymcwi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: municipal_court_districts, file_id: districts_gdb } }
   - name: gdb_nynta2010
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nynta2010, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nynta2010, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2010_neighborhood_tabulation_areas, file_id: districts_gdb } }
   - name: gdb_nynta2020
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nynta2020, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nynta2020, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2020_neighborhood_tabulation_areas, file_id: districts_gdb } }
   - name: gdb_nypp
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nypp, geometry_type: polygons, arcs: [int__topology__arcs, dcp_cscl_nypdprecinct_arcs] }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nypp, geometry_type: polygons, arcs: [int__topology__arcs, dcp_cscl_nypdprecinct_arcs], product_metadata: { product: lion, dataset: police_precincts, file_id: districts_gdb } }
   - name: gdb_nypuma2010
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nypuma2010, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nypuma2010, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: 2010_public_use_microdata_areas, file_id: districts_gdb } }
   - name: gdb_nypuma2020
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
     custom:
       qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)"
@@ -1179,30 +1179,30 @@ exports:
       product_metadata: { product: lion, dataset: 2020_public_use_microdata_areas, file_id: districts_gdb }
   - name: gdb_nysd
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nysd, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nysd, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: school_districts, file_id: districts_gdb } }
   - name: gdb_nyss
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyss, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyss, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: state_senate_districts, file_id: districts_gdb } }
   - name: gdb_nysswi
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nysswi, geometry_type: polygons, arcs: int__topology__arcs }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nysswi, geometry_type: polygons, arcs: int__topology__arcs, product_metadata: { product: lion, dataset: state_senate_districts, file_id: districts_gdb } }
   - name: gdb_nyura
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
     # the CSCL source layer is empty, but prod still ships the feature class
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyura, geometry_type: polygons, allow_empty: true }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyura, geometry_type: polygons, allow_empty: true, product_metadata: { product: lion, dataset: urban_renewal_areas, file_id: districts_gdb } }
   - name: gdb_nyzip
     group: district_gdb
-    filename: v26C_Districts.gdb.zip
+    filename: v{{ version | upper }}_Districts.gdb.zip
     format: gdb
-    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyzip, geometry_type: polygons }
+    custom: { qa_group: "District boundary geodatabase (ETL spec ch. 10, table 39)", layer: nyzip, geometry_type: polygons, product_metadata: { product: lion, dataset: zip_code_areas, file_id: districts_gdb } }
 
 stage_config:
   builds.build:
@@ -1240,6 +1240,10 @@ stage_config:
         run: python poc_validation/district_review_gdb.py
       - name: diffs_report
         run: python poc_validation/build_diffs_report.py
+      - name: export_field_diffs
+        # qa__diffs_all, one row per changed field -> validation_output/field_diffs.parquet
+        # (the QA app's Field-Level Diffs view reads it)
+        run: python poc_validation/export_field_diffs.py
       - name: zip_diff_rows
         # per-file diff rows -> validation_output/diff_rows.zip (the QA app reads it)
         run: python poc_validation/zip_diff_rows.py

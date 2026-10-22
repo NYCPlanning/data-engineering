@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid']},
-    ]
+    materialized = 'table'
 ) }}
 SELECT
     LEFT(b5sc, 1) AS borough_code,

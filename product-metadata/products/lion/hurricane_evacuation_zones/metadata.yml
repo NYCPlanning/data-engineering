@@ -88,6 +88,28 @@ files:
     filename: data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyhez
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: hurricane_evacuation_zone
+      name: HURRICANE_EVACUATION_ZONE
+      custom:
+        fgdb_data_type: String
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: hurricane_evacuation_zone

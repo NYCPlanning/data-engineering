@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['globalid']},
-    ]
+    materialized = 'table'
 ) }}
 -- Left/right AtomicPolygons and their attributes per segment. Two answers are computed,
 -- each in its own pair of columns: probe_* (points 2 ft either side of the midpoint,

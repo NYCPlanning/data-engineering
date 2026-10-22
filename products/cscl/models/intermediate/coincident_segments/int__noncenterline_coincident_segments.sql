@@ -11,10 +11,7 @@
 -- https://github.com/NYCPlanning/data-engineering/issues/2616.
 
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid']},
-    ]
+    materialized = 'table'
 ) }}
 
 --

@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid', 'boroughcode']},
-    ]
+    materialized = 'table'
 ) }}
 WITH altsegment_saf_records AS (
     SELECT * FROM {{ ref("stg__altsegmentdata_saf") }}

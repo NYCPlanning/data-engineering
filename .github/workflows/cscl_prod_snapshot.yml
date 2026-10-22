@@ -52,9 +52,7 @@ jobs:
 
     - name: Setup build environment
       working-directory: ./
-      run: |
-        ./bash/docker_container_setup.sh
-        ./bash/build_env_setup.sh
+      run: ./bash/docker_container_setup.sh
 
     - name: Check legacy outputs
       # lists what the snapshot needs (expected vs found) and fails if anything is missing

@@ -1,0 +1,67 @@
+id: business_improvement_districts
+
+attributes:
+  display_name: Business Improvement Districts
+  description: |-
+    Boundaries of New York City's Business Improvement Districts (BIDs), published from the CSCL BusinessImprovementDistrict feature class.
+  each_row_is_a: Business Improvement District
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - business improvement districts
+  - bid
+  - boundaries
+  - lion
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nybid
+
+columns:
+- id: bidid
+  name: BIDID
+  data_type: integer
+  description: Business improvement district identifier.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: Integer
+- id: bid
+  name: BID
+  data_type: text
+  description: Business improvement district name.
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: borough
+  name: BOROUGH
+  data_type: text
+  description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  data_source: CSCL database of DOITT
+  custom:
+    fgdb_data_type: String
+- id: shape_length
+  name: SHAPE_Length
+  data_type: number
+  description: Boundary length in feet.
+  custom:
+    fgdb_data_type: Double
+- id: shape_area
+  name: SHAPE_Area
+  data_type: number
+  description: Area in square feet.
+  custom:
+    fgdb_data_type: Double

@@ -1,11 +1,7 @@
 {{
   config(
     enabled=false,
-    materialized='table',
-    indexes=[
-      {'columns': ['_sedat_key']},
-      {'columns': ['lionkey']}
-    ]
+    materialized='table'
   )
 }}
 

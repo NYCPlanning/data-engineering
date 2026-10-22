@@ -12,7 +12,7 @@
     needs a concatenation expression passed as key_column instead.
   prod_key_column: defaults to key_column.lower() with quoting stripped, matching how
     the prod snapshot lowercases every prod column - override if that guess is wrong.
-  build_geom_column/prod_geom_column: default to how gdb_* models and ogr2ogr-loaded
+  build_geom_column/prod_geom_column: default to how gdb_* models and the prod snapshot's
     fgdb_* tables name their geometry column respectively - override per layer if
     different.
 
@@ -210,12 +210,10 @@ FROM flagged
 {% macro geometry_diff_metrics(input_relation, actual_col, expected_col, min_fragment_sqft=100) %}
 {%- set hd_tol = var('geom_check_hausdorff_tolerance_ft', 1.0) -%}
 {#-
-  DuckDB port of Postgres test_cases.geometry_diff_metrics. Returns every column of
-  input_relation plus the eight metrics (actual_area_sqft, expected_area_sqft,
-  symdiff_area_pct, hausdorff_ft, symdiff_boundary_len_ft, symdiff_fragment_count,
-  max_ring_eccentricity, perimeter_pct_diff). See geometry_diff_metrics for what each
-  metric means and why. Differences from the Postgres function: inputs must already be
-  in the working SRID (EPSG:2263, no transform here), and it is a macro that emits SQL,
+  Returns every column of input_relation plus the eight metrics (actual_area_sqft,
+  expected_area_sqft, symdiff_area_pct, hausdorff_ft, symdiff_boundary_len_ft,
+  symdiff_fragment_count, max_ring_eccentricity, perimeter_pct_diff). Inputs must already
+  be in the working SRID (EPSG:2263, no transform here). It is a macro that emits SQL,
   not a table function (DuckDB macros can't hold the subqueries it needs).
   Fragments are kept as a list per row instead of a correlated subquery.
   hausdorff_ft is not the exact discrete Hausdorff distance: DuckDB has none, and a
@@ -289,9 +287,8 @@ FROM (
   production_outputs.<identifier>, loaded from the production_outputs parquet bundle
   (poc_validation/build_prod_snapshot.py). Its geometry is already linear: prod's curves
   were linearized by dcpy.geospatial.curves when the bundle was built, exactly as the
-  build's own sources are. Prod geometry isn't always valid (e.g. 3 of fgdb_nyhez's 8
-  features are invalid even when PostGIS linearizes them, 6 when we do, where rings nearly
-  touch), and the overlay metrics need valid input: st_makevalid repairs it here, at
+  build's own sources are. Prod geometry isn't always valid (e.g. 6 of fgdb_nyhez's 8
+  features are invalid once linearized, where rings nearly touch), and the overlay metrics need valid input: st_makevalid repairs it here, at
   comparison time. The snapshot itself keeps prod as it is.
 -#}
 (

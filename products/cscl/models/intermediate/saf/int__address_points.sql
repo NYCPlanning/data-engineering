@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['addresspointid']},
-    ]
+    materialized = 'table'
 ) }}
 
 WITH address_points AS (

@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['globalid'], 'unique': True}]
+    materialized='table'
 ) }}
 
 -- Borough of each fire company: the company polygon's centroid (falling back to a point

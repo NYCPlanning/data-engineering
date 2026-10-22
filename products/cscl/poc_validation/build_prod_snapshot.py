@@ -6,11 +6,10 @@ website) into one parquet file per table, named as the production_outputs tables
 models read, zipped into a single bundle. The build loads the bundle as a recipe input
 (file_type parquet_bundle) into its production_outputs schema.
 
-- Flat files are parsed exactly as prod_data_loader always has (its parsers, with a
-  parquet sink in place of Postgres).
+- Flat files are parsed with prod_data_loader's parsers.
 - FGDB layers go through dcpy.geospatial.curves, so prod's curved geometry is
-  linearized exactly as the build's is; columns lowercased and the geometry named
-  `shape`, as the ogr2ogr loads into Postgres had them.
+  linearized exactly as the build's is; columns lowercased, the geometry named
+  `shape` and the FIDs kept as `objectid`, as the QA models read them.
 
 Usage (from products/cscl), or run the "CSCL - Prod snapshot" workflow:
     python poc_validation/build_prod_snapshot.py check-inputs -v 26d
@@ -106,7 +105,7 @@ def missing_inputs(version: str) -> list[str]:
 
 
 class ParquetSink:
-    """Stands in for prod_data_loader's Postgres client: tables become parquet files."""
+    """prod_data_loader's sink: tables become parquet files."""
 
     schema = "production_outputs"
 
@@ -118,7 +117,7 @@ class ParquetSink:
         df = df.rename(columns=str)
         if df.columns.empty:
             # an empty prod file parses to no columns (parquet needs at least one): take
-            # them from the file's layout, as the Postgres table had them
+            # them from the file's layout
             dataset = pdl.datasets_by_name.get(table_name)
             layout = dataset.formatting_path if dataset else None
             names = (
@@ -138,8 +137,8 @@ def _lowercase(path: Path) -> None:
 
 
 def _objectid(gdb: Path, layer: str, table: pa.Table) -> pa.Table:
-    """Replace the 1..N ogc_fid with the layer's real FIDs (OBJECTID), as the Postgres
-    loads kept them. Both are in FID order."""
+    """Replace the 1..N ogc_fid with the layer's real FIDs (OBJECTID). Both are in FID
+    order."""
     _, fids = read_arrow(
         str(gdb), layer=layer, read_geometry=False, columns=[], return_fids=True
     )
@@ -189,7 +188,7 @@ def _write_gdb_layer(gdb: Path, layer: str, out: Path) -> None:
         geo = json.loads(pq.ParquetFile(out).metadata.metadata[b"geo"])
         geom = geo["primary_column"]
         table = _objectid(gdb, layer, pq.read_table(out))
-        # geometry as `shape`, as the ogr2ogr loads into Postgres named it
+        # geometry as `shape`
         geo["columns"]["shape"] = geo["columns"].pop(geom)
         geo["primary_column"] = "shape"
         table = table.rename_columns(
@@ -228,31 +227,19 @@ def build(version: str, out_dir: Path) -> Path:
         d.mkdir(parents=True)
 
     sink = ParquetSink(tables)
-    pdl.CLIENT = sink
-    pdl.already_loaded = lambda *args, **kwargs: False
-    pdl.record_load = lambda *args, **kwargs: None
 
-    def citywide(file: str) -> None:
+    # flat files (downloaded, parsed with their layouts) and the citywide tables
+    loaded = pdl.load_flat_files(sink, version, files)
+    if any(dataset.endswith("_face_code") for dataset in loaded):
         boroughs = ["bronx", "brooklyn", "manhattan", "queens", "staten_island"]
         sink.insert_dataframe(
             pd.concat(
-                [sink.frames[f"{b}_{file}"] for b in boroughs], ignore_index=True
+                [sink.frames[f"{b}_face_code"] for b in boroughs], ignore_index=True
             ),
-            f"citywide_{file}",
+            "citywide_face_code",
         )
-
-    pdl.create_citywide_table = citywide
-
-    # flat files (downloaded, parsed with their layouts) and the citywide tables
-    pdl._load(
-        datasets=list(pdl.datasets_by_name),
-        version=version,
-        local=False,
-        local_folder=files,
-        force=True,
-    )
-    pdl.load_citywide_lion(version, "citywide_lion_dat", files, force=True)
-    pdl._load_prod_ldf(version=version, local_folder=files, force=True)
+    pdl.load_citywide_lion(sink, version, "citywide_lion_dat", files)
+    pdl.load_prod_ldf(sink, version, files)
 
     # the two FGDBs
     lion_zip = files / f"nyclion_{version}.zip"

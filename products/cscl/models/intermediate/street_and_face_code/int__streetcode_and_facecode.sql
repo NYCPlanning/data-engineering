@@ -1,8 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['segmentid']},
-    ]
+    materialized = 'table'
 ) }}
 WITH lgcs_by_segment AS (
     SELECT

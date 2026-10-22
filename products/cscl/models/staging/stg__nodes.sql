@@ -1,9 +1,5 @@
 {{ config(
-    materialized = 'table',
-    indexes=[
-      {'columns': ['nodeid']},
-      {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized = 'table'
 ) }}
 
 SELECT * FROM {{ source("recipe_sources", "dcp_cscl_nodes") }}

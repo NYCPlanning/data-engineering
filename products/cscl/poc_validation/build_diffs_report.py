@@ -28,7 +28,7 @@ Outputs:
     file. On a branch build (BUILD_NAME other than main), each numeric cell also
     shows its change vs main's latest diffs_report.csv (MAIN_REPORT_URL).
 
-To render the step summary from existing report CSVs, without Postgres:
+To render the step summary from existing report CSVs, without a build:
     python poc_validation/build_diffs_report.py --summary-only <diffs_report.csv> \
         [--main-csv <main's diffs_report.csv>]
 Report-only: never fails the build.
@@ -137,7 +137,7 @@ def load_backbone() -> list[dict]:
 def load_field_level_counts() -> dict[str, dict[str, int | None]]:
     """output_file_id -> field-level count columns, from qa__diffs_all_summary.
 
-    Postgres COPY renders SQL NULL as an empty string - the LDF rows leave
+    The CSV export renders SQL NULL as an empty string - the LDF rows leave
     unaccounted_discrepant_fields null (no per-field concept for a count-based
     comparison), so that has to map back to None rather than fail int().
     """
@@ -453,7 +453,7 @@ def is_branch_build() -> bool:
 
 
 def print_summary_from_csv(current_csv: Path, main_csv: Path | None) -> None:
-    """Render the step summary from report CSVs, without Postgres or a build."""
+    """Render the step summary from report CSVs, without a build."""
     rows = read_report_csv(current_csv)
     main_rows = (
         {row["file_id"]: row for row in read_report_csv(main_csv)}

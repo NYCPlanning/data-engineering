@@ -1,8 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['node_lo', 'node_hi', 'is_arc']},
-    ]
+    materialized='table'
 ) }}
 
 -- Which side of each topology edge each owner AtomicPolygon lies on: one row per

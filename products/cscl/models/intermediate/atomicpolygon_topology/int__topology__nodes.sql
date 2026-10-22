@@ -1,9 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[
-        {'columns': ['node_id'], 'unique': True},
-        {'columns': ['geom'], 'type': 'gist'},
-    ]
+    materialized='table'
 ) }}
 
 -- Canonical topology nodes, one per int__topology__point_to_node cluster. The

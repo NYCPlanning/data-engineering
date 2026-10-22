@@ -9,16 +9,19 @@ models:
     outputs.
   columns:
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
   - name: physicalid
     description: Id of the physical (roadbed) segment this segment belongs to.
   - name: genericid
     description: Id of the generic segment this segment belongs to.
   - name: segment_type
+    description: Segment type code. B, E, U and blank segments serve as both generic and roadbed; G and F are generic; C, R, S and T are roadbed.
   - name: segment_seqnum
     description: Sequence number of the segment within its face code.
   - name: coincident_seg_count
     description: Count of segments coincident with this one.
   - name: fcc
+    description: Feature class code of the segment, published as FCC in LION.
   - name: l_blockfaceid
     description: Left blockface id; NULL when 0.
   - name: r_blockfaceid
@@ -46,6 +49,7 @@ models:
   - name: bike_traffic_direction
     description: Renamed bike_trafdir.
   - name: geom
+    description: Line geometry of the segment.
   - name: feature_type_code
     description: >
       LION feature type code: 5 paper street, 6 private street, 9 paper street on a
@@ -66,6 +70,7 @@ models:
     with geometry. One row per segment. Adds the LION feature type code derived from linetype.
   columns:
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
   - name: feature_type_code
     description: >
       LION feature type code from linetype: 3 to '3' (census block boundary), 1, 2 and 6 to
@@ -82,6 +87,7 @@ models:
     LION feature type code 1; source_table says which layer a row came from.
   columns:
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
   - name: right_of_way_type
     description: Renamed row_type.
   - name: feature_type_code
@@ -101,6 +107,7 @@ models:
     type code 2.
   columns:
   - name: segmentid
+    description: Seven-digit CSCL segment ID.
   - name: feature_type_code
     description: Always '2'.
   - name: feature_type

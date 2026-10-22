@@ -88,6 +88,36 @@ files:
     filename: data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nyfc
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: fire_company_type
+      custom:
+        fgdb_data_type: String
+    - id: fire_company_number
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: fire_battalion
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: fire_division
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: fire_company_type

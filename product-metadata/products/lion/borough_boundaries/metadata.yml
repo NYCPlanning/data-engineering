@@ -76,7 +76,7 @@ files:
     filename: nybbwi.zip
     type: shapefile
   dataset_overrides:
-    attributes:
+    attributes: &wi_attributes
       description: |-
         Boundaries of boroughs (water areas included).
 
@@ -127,6 +127,32 @@ files:
       assembly:
         with_metadata_from:
           file_id: shapefile_wi
+- file:
+    id: districts_gdb
+    filename: Districts.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: nybb
+    - layer: nybbwi
+      attributes: *wi_attributes
+  dataset_overrides:
+    omitted_columns:
+    - the_geom
+    overridden_columns:
+    - id: borocode
+      custom:
+        fgdb_data_type: SmallInteger
+    - id: boroname
+      custom:
+        fgdb_data_type: String
+    - id: shape_length
+      name: SHAPE_Length
+      custom:
+        fgdb_data_type: Double
+    - id: shape_area
+      name: SHAPE_Area
+      custom:
+        fgdb_data_type: Double
 
 columns:
 - id: borocode

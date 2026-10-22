@@ -1,6 +1,5 @@
 {{ config(
-    materialized='table',
-    indexes=[{'columns': ['geom'], 'type': 'gist'}]
+    materialized='table'
 ) }}
 
 -- Fire companies (entity_id is the company's UNIT_SHORT, e.g. 'E 14'). Boundaries come
