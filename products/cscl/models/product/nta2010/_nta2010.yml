@@ -1,0 +1,49 @@
+version: 2
+
+# 2010 neighborhood tabulation area lookup: one row per census tract with its NTA and PUMA,
+# from the CSCL NeighborhoodPUMACodes table.
+
+models:
+- name: nta2010_by_field
+  description: >-
+    One row per 2010 census tract: its borough, tract, NTA code and name, and PUMA, with
+    each value padded to the fixed width of the NTA.txt layout. Feeds the fixed-width text file.
+  columns: &nta2010_cols
+  - name: borough
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: censustract
+    description: Census tract, six characters. Four-character basic number right-justified with blanks, then a two-character suffix (blank when none).
+  - name: neighborhood_code
+    description: 2010 neighborhood tabulation area code.
+  - name: neighborhood_name
+    description: Neighborhood name, blank-padded to 75 characters.
+  - name: puma
+    description: Public use microdata area code, zero-padded to five characters.
+
+- name: nta2010_fields
+  description: Same rows and values as the fixed-width NTA 2010 table, one column per field; supplies the packaged text file's column layout.
+  columns: *nta2010_cols
+
+- name: nta2010_txt
+  description: The fixed-width NTA.txt file, one line per 2010 census tract.
+  columns:
+  - name: dat_column
+    description: One fixed-width record (borough, census tract, NTA code, NTA name, PUMA).
+
+- name: nta2010_by_field_csv
+  description: The fixed-width NTA 2010 table with upper-case column names, as the CSV export reads it.
+  columns: &nta2010_csv_cols
+  - name: BOROUGH
+    description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
+  - name: CENSUSTRACT
+    description: Census tract, six characters. Four-character basic number right-justified with blanks, then a two-character suffix (blank when none).
+  - name: NEIGHBORHOOD_CODE
+    description: 2010 neighborhood tabulation area code.
+  - name: NEIGHBORHOOD_NAME
+    description: Neighborhood name, blank-padded to 75 characters.
+  - name: PUMA
+    description: Public use microdata area code, zero-padded to five characters.
+
+- name: nta2010_csv
+  description: The NTA 2010 CSV export, one row per 2010 census tract.
+  columns: *nta2010_csv_cols

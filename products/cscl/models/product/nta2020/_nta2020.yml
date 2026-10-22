@@ -1,0 +1,45 @@
+version: 2
+
+# 2020 neighborhood tabulation area lookup, from the CSCL NTAEquiv2020 table. The fixed-width
+# layout is in seeds/text_formatting/text_formatting__nta2020_dat.csv.
+
+models:
+- name: nta2020_by_field
+  description: >-
+    One row per 2020 neighborhood tabulation area (code, name, abbreviation, type), each value
+    formatted to its fixed width. Feeds the fixed-width text file.
+  columns: &nta2020_cols
+  - name: nta_code
+    description: 2020 NTA code.
+  - name: nta_name
+    description: NTA name.
+  - name: nta_abbrev
+    description: Abbreviated NTA name.
+  - name: nta_type
+    description: NTA type code.
+
+- name: nta2020_fields
+  description: One column per field of the NTA 2020 layout; supplies the packaged text file's column layout.
+  columns: *nta2020_cols
+
+- name: nta2020_dat
+  description: The fixed-width NTA2020.txt file, one line per 2020 neighborhood tabulation area.
+  columns:
+  - name: dat_column
+    description: One fixed-width record (NTA code, name, abbreviation, type).
+
+- name: nta2020_by_field_csv
+  description: One row per 2020 neighborhood tabulation area, formatted for the CSV export.
+  columns: *nta2020_cols
+
+- name: nta2020_csv
+  description: The NTA2020.csv export, one row per 2020 neighborhood tabulation area.
+  columns:
+  - name: NTA_CODE
+    description: 2020 NTA code.
+  - name: NTA_NAME
+    description: NTA name.
+  - name: NTA_ABBREV
+    description: Abbreviated NTA name.
+  - name: NTA_TYPE
+    description: NTA type code.
