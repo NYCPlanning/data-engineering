@@ -940,6 +940,8 @@ exports:
       - dcp_cscl_rail_arcs
       - dcp_cscl_subway_arcs
       - dcp_cscl_nonstreetfeatures_arcs
+      # Esri layer metadata stamped at package time
+      product_metadata: { product: lion, dataset: lion, file_id: lion_gdb }
   - name: gdb_node
     group: lion_gdb
     filename: nyclion_26c.zip
@@ -954,12 +956,22 @@ exports:
     group: lion_gdb
     filename: nyclion_26c.zip
     format: gdb
-    custom: { qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file", layer: node_stname, spatial: false }
+    custom:
+      qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
+      layer: node_stname
+      spatial: false
+      # Esri layer metadata stamped at package time
+      product_metadata: { product: lion, dataset: lion_node_stname, file_id: lion_gdb }
   - name: gdb_altnames
     group: lion_gdb
     filename: nyclion_26c.zip
     format: gdb
-    custom: { qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file", layer: altnames, spatial: false }
+    custom:
+      qa_group: "ESRI / published LION geodatabase \u2014 filename must match `version:` at top of this file"
+      layer: altnames
+      spatial: false
+      # Esri layer metadata stamped at package time
+      product_metadata: { product: lion, dataset: lion_altnames, file_id: lion_gdb }
 
   # custom.arcs: the arcs (x0..y2 control points) a layer's linear geometry is re-curved
   # from in packaging, so its FGDB features carry true curves like prod's. Topology-built
@@ -1202,6 +1214,8 @@ stage_config:
         run: dbt test --selector duckdb_build
   # run by `builds qa run`; results go in $QA_DIR (see poc_validation/paths.py). The QA
   # models compare against production_outputs, loaded from the prod parquet bundle.
+  # Before these, `builds qa run` checks every gdb layer stamped via custom.product_metadata:
+  # its metadata attrs must equal the packaged layer's fields.
   builds.qa:
     commands:
       - name: qa_models

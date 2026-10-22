@@ -1,0 +1,51 @@
+id: lion_node_stname
+
+attributes:
+  display_name: LION - Node_stname
+  description: |-
+    The Table lists the Node Id and the Street names of segments that intersect at the node. Usually a node has more than one segments to be converged at the node location, therefore a Node Id will have one to many street names associated with the node.
+  each_row_is_a: Street name of a segment that meets at a node
+  attribution: Department of City Planning (DCP)
+  disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+  projection: "EPSG:2263"
+  tags:
+  - lion
+  - nodes
+  - intersections
+  - streets
+  - roads
+  - transportation
+  - dcp
+  - department of city planning (dcp)
+  - new york city
+
+assembly: []
+
+custom: {}
+
+destinations: []
+
+files:
+- file:
+    id: lion_gdb
+    filename: nyclion.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: node_stname
+
+columns:
+- id: nodeid
+  name: NODEID
+  data_type: integer
+  description: Unique Identification Number of a node
+  data_source: CSCL database in DOITT, NYC
+  custom:
+    fgdb_data_type: Integer
+- id: stname
+  name: STNAME
+  data_type: text
+  description: Street Name of one of the intersected segments.
+  data_source: Department of City Planning, NYC
+  custom:
+    fgdb_data_type: String
+

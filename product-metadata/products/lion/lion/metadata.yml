@@ -95,5 +95,1133 @@ files:
     filename: data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
+- file:
+    id: lion_gdb
+    filename: nyclion.gdb.zip
+    type: geodatabase
+    layers:
+    - layer: lion
+  dataset_overrides:
+    attributes:
+      description: LION is a single line representation of New York City streets containing address ranges and other information.
+      disclaimer: The Department of City Planning make no representation as to the accuracy of the information or its suitability for any purposes. The Department and the City disclaim any liability for errors that may be contained herein.
+      tags:
+      - lion
+      - streets
+      - roads
+      - roadbeds
+      - transportation
+      - dcp
+      - department of city planning (dcp)
+      - new york city
+    overridden_columns:
+    - id: shape_length
+      name: SHAPE_Length
 
-columns: []
+columns:
+- id: street
+  name: Street
+  data_type: text
+  description: Street or non-street feature name used for labeling.
+  data_source: DCP
+  custom:
+    fgdb_data_type: String
+- id: safstreetname
+  name: SAFStreetName
+  data_type: text
+  description: Special Address Place name
+  custom:
+    fgdb_data_type: String
+- id: featuretyp
+  name: FeatureTyp
+  data_type: text
+  description: Feature Type Code
+  values:
+  - value: '0'
+    description: Street other than vehicle only street.
+  - value: '1'
+    description: Railroad
+  - value: '2'
+    description: Water Edge / Shoreline
+  - value: '3'
+    description: Census Block Boundary
+  - value: '5'
+    description: 'Paper Street: This is a legally mapped, but unbuilt street. Such streets are common in areas of Staten Island anticipating development. May exist in all boroughs.'
+  - value: '6'
+    description: 'Private Street: This is a physically existing street which is not owned by the City and is not officially mapped. For example, streets in the Fort Totten and Breezy Point sections of Queens.'
+  - value: '7'
+    description: 'District Boundary: Physically non-existent boundary for a community district, a police precinct, or a fire company.'
+  - value: '8'
+    description: 'Physical Non-Street Boundary: Physically existing un-addressable boundary (such as a rock wall cemetery edge).'
+  - value: '9'
+    description: 'Paper Street and Census/District Boundary: A legally mapped, but unbuilt street that also acts as a census block or district boundary.'
+  - value: A
+    description: 'Alley: a narrow street or passageway between and behind city buildings.'
+  - value: W
+    description: 'Path, Non-Vehicular, Addressable: This is a walking path that contains addresses. For example, some boardwalks and some walking paths in housing projects.'
+  - value: C
+    description: CCO (Corporation Counsel Opinion). A CCO is an opinion by the City's Law Department that a street area, not owned by the City, has been dedicated for public use, consistent with the requirements of General City Law, Section 36(2). That allows the City to use public funds for various improvements and services, including paving of the roadway and installing sewers. The request usually relates to planned work by the City's Department of Transportation, Department of Design and Construction, and Department of Environmental Protection.
+  - value: F
+    description: 'Ferry Route: A schematic representation of a ferry’s passage through a water body. Please note that only selected ferry routes required for the bicycle routing within NYC are included.'
+  custom:
+    fgdb_data_type: String
+- id: segmenttyp
+  name: SegmentTyp
+  data_type: text
+  description: 'Segment Type: This field is used to define the segment''s status in relation to the horizontal topology enhancements first introduced with LION 06A.'
+  values:
+  - value: B
+    description: 'Both: Segment is both generic and roadbed; the center roadbed segment of a divided roadway containing an odd number of roadbeds.'
+  - value: C
+    description: 'Connector: Segments used to connect adjacent roadbeds of a divided street. Typically these exist to allow traffic flow from one roadbed to another.'
+  - value: E
+    description: 'Entrance/Exit Ramp: Connects a highway to a different street or highway.'
+  - value: F
+    description: 'Faux Segment: These are used when a street or ramp physically ends at a roadbed, but connectivity needs to be maintained with the generic segment.'
+  - value: G
+    description: 'Generic Segment: An imaginary single line representation of a physically divided street.'
+  - value: R
+    description: 'Roadbed Segment: Depicts physically separated carriageway segments of a particular street.'
+  - value: T
+    description: 'Terminator: Used to model situations where a divided section of a street terminates, but the street itself continues.'
+  - value: U
+    description: 'Undivided Street: All other LION segments that do not fall into any of the above categories.'
+  - value: S
+    description: 'Suppressed: Undivided segment to be suppressed in a generic view of LION'
+  custom:
+    fgdb_data_type: String
+- id: incexflag
+  name: IncExFlag
+  data_type: text
+  description: 'Inclusion/Exclusion Flag: Field formerly used by DCP to identify pre-horizontal topology roadbeds in LION. This field is now used to flag selected pedestrian walkways and greenways for exclusion in the NYPD''s ETL process from CSCL.'
+  values:
+  - value: E
+    description: Segment should be excluded from the NYPD's ETL and from Geosupport cross street generation.
+  custom:
+    fgdb_data_type: String
+- id: rb_layer
+  name: RB_Layer
+  data_type: text
+  description: For cartographic purposes, indicates whether segment is present in the "Roadbed" layer and/or the "Generic" layer. This field is generated by a definition query of Segment Types.
+  values:
+  - value: R
+    description: Segment is unique to the Roadbed layer. Comprised of Segment Types R, C, T and S.
+  - value: G
+    description: Segment unique to the Generic layer. Comprised of Segment Types G and F.
+  - value: B
+    description: Segment belongs in Both the generic and roadbed layers. Comprised of Segment types U, B and E.
+  - value: N
+    description: Segment is neither in the generic or roadbed layer. These are exception cases where divided roadbeds existed in the LION file prior to release 06A.
+  custom:
+    fgdb_data_type: String
+- id: nonped
+  name: NonPed
+  data_type: text
+  description: Non-Pedestrian Indicator.
+  values:
+  - value: D
+    description: Pedestrian accessible, but are excluded by the Department of Education in determining walking routes from a pupil's home to their school.
+  - value: V
+    description: 'Vehicle-only: primarily roadways, inaccessible to pedestrian usage'
+  custom:
+    fgdb_data_type: String
+- id: trafdir
+  name: TrafDir
+  data_type: text
+  description: Traffic Direction. Code indicating the flow of traffic relative to the street segment's directionality.
+  values:
+  - value: W
+    description: 'With: One-way street, traffic flows with the segment''s directionality, i.e., from the segment''s FROM node to the TO node..'
+  - value: A
+    description: 'Against: One-way street, traffic flows from against the segment''s directionality, i.e., from the segment''s TO node to the FROM node.'
+  - value: T
+    description: 'Two-Way: Traffic flows in both directions.'
+  - value: P
+    description: 'Pedestrian path: Non-vehicular.'
+  - value: blank
+    description: Non-street feature.
+  custom:
+    fgdb_data_type: String
+- id: trafsrc
+  name: TrafSrc
+  data_type: text
+  description: Indicates the source of information in the Traffic Direction (TrafDir) field.
+  values:
+  - value: DCP
+    description: NYC Department of City Planning
+  - value: DOT
+    description: NYC Department of Transportation
+  custom:
+    fgdb_data_type: String
+- id: specaddr
+  name: SpecAddr
+  data_type: text
+  description: Special Address Type Code. These represent special addressing situations. Please note that alternative street names and street codes for Special Addresses other than TYPE = 'A' can be found in the fields "SAFStreetName" and "SAFStreetCode" respectively.
+  values:
+  - value: A
+    description: 'Alternate Address Range: Alternative address ranges for the same street name. This can occur where buildings have been renumbered; old numbers will sometimes remain in use. For example, such usage is common in some Queens neighborhoods, including Far Rockaway, Douglaston, Forest Hills and Ridgewood, where non-hyphenated addresses have been replaced by hyphenated addresses.'
+  - value: B
+    description: 'Alternative Street Names: Alternative street names that cannot be handled in the usual way.'
+  - value: C
+    description: Handles a unique situation along the Brooklyn-Queens border, where Ruby Street on the Brooklyn side of the street is known as 75 Street in Queens. Some Brooklyn residents use 75 Street in their address; however there is another 75 Street in the Bay Ridge section of Brooklyn, far from the Queens border.
+  - value: D
+    description: 'Duplicate Addresses: Duplicate addresses for the same street name within the same borough. Currently, there are three New York City streets that have some duplicate addresses: Hillside Avenue and Center Drive in Queens, and Martin Luther King Junior Boulevard in Manhattan. The portion of Hillside Avenue in the Far Rockaway neighborhood has some addresses that are identicdal to addresses in the portion of Hillside Avenue in the Douglaston neighborhood. Hillside Avenue also has some addresses that are duplicated between the Douglaston and Bellerose neighborhoods. Center Drive has some addresses that are duplicated between the Douglaston and Malba neighborhoods. Martin Luther King Junior Boulevard is an alternative name for both East 125 Street and West 125 Street, and therefore has many duplicate addresses.'
+  - value: E
+    description: 'Refers to situations in which the name of a neighborhood can serve as an alternate name for all streets in that neighborhood. The two neighborhoods for which this applies are both in the Bronx: Edgewater Park and Harding Park.'
+  - value: G
+    description: This is used for names of complexes (e.g., Lincoln Center). Complexes are non-addressable, and are composed of a number of non-addressable place names. Complexes can include individual buildings or parks that are recognized as a grouped entity (e.g., Lincoln Center, Jefferson Houses, City College). "G" records refer to the complex names (Lincoln Center), while the entities within the complex (Alice Tully Hall, Metropolitan Opera, etc.) are flagged as type "x" records.
+  - value: N
+    description: 'Non-Addressable Place Name: This is used for non-addressable place names. These are place names that cannot be combined with a house number to form an address. Such place names can include individual buildings (e.g., City Hall, Alice Tully Hall), building complexes (e.g., Columbia University, New York Hospital) and large facilities (e.g., Penn Station, LaGuardia Airport).'
+  - value: O
+    description: This is used for out-of-sequence addresses. Such addresses do not follow the logical addressing sequence of the immediately adjacent buildings. For example, address number 62 of a street may exist between addresses 80 and 82, not between 60 and 64 on that blockface (it may also appear on a blockface other than that which contains 60 and 64). Also, the address may be an opposite-parity address, in that its parity (odd/even) is the opposite of the predominant parity on the blockface. For example, address number 62 may appear on the odd side of the street between 63 and 65.
+  - value: S
+    description: 'Suffix: This refers to situations in which the break in addresses from one block face to the next along a street involves house number suffixes. The "s" flag appears with such records to denote that a suffix exists at either the low or high end of the segment''s address range. For example, if the address range on one block is 1 - 13A, and the next block is 15 - 25, the address range on the first block will be shown in LION as 1 - 13, and 13A will be an SAF type "S" record.'
+  - value: V
+    description: This is used for "vanity addresses" (i.e. addresses in which the street name refers to a different street than the one on which the referenced building entrance is actually located). For example, 1049 5th Avenue in Manhattan, a vanity address, is actually located on East 86th Street, between 5th Avenue and Madison Avenue.
+  - value: X
+    description: This is used for names of non-addressable, consituent entities of complexes (not the entire complex name itself, which is flagged as type "G"). These are non-addressable place names grouped with other non-addressable place names to form a larger, non-addressable complex. Such non-addressable place name parts of complexes can include individual buildings or parks (e.g., Alice Tully Hall of Lincoln Center, Damrosch Park of Lincoln Center, Jefferson Houses Building 2 of Jefferson Houses, Shepard Hall of City College). To ensure that non-addressable place names are geocoded to the correct side of a street segment, the address range fields of the incorrect side of the street will contain a value of "-99999."
+  - value: P
+    description: 'Addressable Place Names: An addressable place name is usually the name of an individual building or building complex that can serve the role of a street name in an address, even though there is no actual street with that name. Each of these can combine with address numbers to form addresses, such as 5 Penn Plaza or 13 Confucius Plaza.'
+  custom:
+    fgdb_data_type: String
+- id: facecode
+  name: FaceCode
+  data_type: text
+  description: 'Face Code: A four digit number assigned to any linear geographic feature in LION. This can be either a street or non-street feature (e.g., shoreline, railroad tracks). Also a component field of a unique identifier in LION known as the LIONkey (comprised of Boro, FaceCode and SeqNum.'
+  custom:
+    fgdb_data_type: String
+- id: seqnum
+  name: SeqNum
+  data_type: text
+  description: 'Sequence Number: A five digit number assigned sequentially to the street segments within a given face code. The sequence number generally increases with the directionality of the street. Also a component field of a unique identifier in LION known as the LIONkey (comprised of Boro, FaceCode and SeqNum.'
+  custom:
+    fgdb_data_type: String
+- id: streetcode
+  name: StreetCode
+  data_type: text
+  description: Street Code is a numeric code that represents the names of New York city streets. The first digit is a borough code; the subsequent five digits are the 5-digit street code.
+  custom:
+    fgdb_data_type: String
+- id: safstreetcode
+  name: SAFStreetCode
+  data_type: text
+  custom:
+    fgdb_data_type: String
+- id: lgc1
+  name: LGC1
+  data_type: text
+  description: 'Local Group Code 1: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc2
+  name: LGC2
+  data_type: text
+  description: 'Local Group Code 2: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc3
+  name: LGC3
+  data_type: text
+  description: 'Local Group Code 3: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc4
+  name: LGC4
+  data_type: text
+  description: 'Local Group Code 4: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc5
+  name: LGC5
+  data_type: text
+  description: 'Local Group Code 5: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc6
+  name: LGC6
+  data_type: text
+  description: 'Local Group Code 6: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc7
+  name: LGC7
+  data_type: text
+  description: 'Local Group Code 7: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc8
+  name: LGC8
+  data_type: text
+  description: 'Local Group Code 8: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: lgc9
+  name: LGC9
+  data_type: text
+  description: 'Local Group Code 9: A Local Group Code (LGC) is a qualifier for DCP''s 5 digit street code. Each LGC value represents a group of names for the given street that are valid for that segment.'
+  custom:
+    fgdb_data_type: String
+- id: boe_lgc
+  name: BOE_LGC
+  data_type: text
+  description: Board of Elections LGC Pointer (Domain values = 1, 2, 3, 4) indicates which LGC field (LGC1, LGC2, LGC3 or LGC4 respectively) corresponds to the name for this segment that is used for Board of Elections applications.
+  custom:
+    fgdb_data_type: String
+- id: segmentid
+  name: SegmentID
+  data_type: text
+  description: 'Segment ID: A seven digit number (right justified, zero filled) that identifies each segment of a street or a non-street feature represented in the LION file. Segment ID differs from the LIONKey (see FaceCode and SeqNum definitions) in that the former identifies a geographic entity, whereas the latter identifies a record in the LION file. In the case of a segment lying along a borough boundary (for example, the Brooklyn-Queens border), there will be two distinct LIONKeys (one for each borough), but the Segment ID in each LION record will be identical since it refers to the same physical geometry.'
+  custom:
+    fgdb_data_type: String
+- id: segcount
+  name: SegCount
+  data_type: text
+  description: 'Coincident Segment Count: Indicates situations where there are double-decker roads and therefore more than one segment for the same geography in LION (as it is maintained in CSCL). An example would be the upper and lower roadways of the George Washington Bridge. In this case, the SegCount would be equal to 2. Most LION segments will have a SegCount of 1. However there will appear to be some anomalies because of the difference in the way LION is maintained, and the way it must be exported. For example, the Department of City Planning maintains an associated Special Address file that links various types of special address records (described further down in this document) to the LION file. In the BYTES version of LION, the only way to include these special address records is by replicating the segment with alternate address information. The result can be multiple records with the same Segment ID while the coincident segment count remains ''1''.'
+  custom:
+    fgdb_data_type: String
+- id: locstatus
+  name: LocStatus
+  data_type: text
+  description: Segment Locational Status.
+  values:
+  - value: H
+    description: Land-hooked segment, i.e. a segment internal to a Dynamic Block but not a dead end.
+  - value: I
+    description: Dead end segment
+  - value: X
+    description: Tract Boundary segment other than a borough boundary
+  - value: '1'
+    description: Segment bordering Manhattan
+  - value: '2'
+    description: Segment bordering The Bronx
+  - value: '3'
+    description: Segment bordering Brooklyn
+  - value: '4'
+    description: Segment bordering Queens
+  - value: '5'
+    description: Segment bordering Staten Island
+  - value: '9'
+    description: Segment on the New York City Boundary
+  custom:
+    fgdb_data_type: String
+- id: lzip
+  name: LZip
+  data_type: text
+  description: Contains the five digit postal zip code for the left side of the street segment.
+  custom:
+    fgdb_data_type: String
+- id: rzip
+  name: RZip
+  data_type: text
+  description: Contains the five digit postal zip code for the right side of the street segment.
+  custom:
+    fgdb_data_type: String
+- id: lboro
+  name: LBoro
+  data_type: integer
+  description: This is a 1-digit code identifying the borough in which the left side of the street segment is located.
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: The Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+  custom:
+    fgdb_data_type: Integer
+- id: rboro
+  name: RBoro
+  data_type: integer
+  description: This is a 1-digit code identifying the borough in which the right side of the street segment is located.
+  values:
+  - value: '1'
+    description: Manhattan
+  - value: '2'
+    description: The Bronx
+  - value: '3'
+    description: Brooklyn
+  - value: '4'
+    description: Queens
+  - value: '5'
+    description: Staten Island
+  custom:
+    fgdb_data_type: Integer
+- id: l_cd
+  name: L_CD
+  data_type: text
+  description: Three-digit Community District code for the left side of the street. The first byte is the Borough Code and the second and third bytes are the Dommunity District Number (right justified, zero filled). For example, Community District 6 in Brooklyn would be represented as 306. There are 59 community districts in the City of New York, as well as 12 Joint Interest Areas (JIAs). The JIAs are major parks and airports that are not contained within any CD. For a full listing, please refer to the 'readme.txt' that is included as part of the LION file download.
+  custom:
+    fgdb_data_type: String
+- id: r_cd
+  name: R_CD
+  data_type: text
+  description: Three-digit Community District code for the left side of the street. The first byte is the Borough Code and the second and third bytes are the Dommunity District Number (right justified, zero filled). For example, Community District 6 in Brooklyn would be represented as 306. There are 59 community districts in the City of New York, as well as 12 Joint Interest Areas (JIAs). The JIAs are major parks and airports that are not contained within any CD. For a full listing, please refer to the 'readme.txt' that is included as part of the LION file download.
+  custom:
+    fgdb_data_type: String
+- id: latomicpolygon
+  name: LATOMICPOLYGON
+  data_type: text
+  description: 'Left Atomic Polygon: An atomic polygon is a minimal polgon formed by most LION segments (exceptions include paper streets and alleys). "Minimal" means the polygon is not subdivided by LION segments (other than the noted exceptions) into smaller polygons. An atomic polygon can contain segments of various types in its interior: paper street segments (Feature Type = 5), dead end segments (LocStatus = I), land-hooked segments (LocStatus = H) and alley segments (Feature Type = A). Atomic Polygons numbers are unique within 2010 Census Tracts and are used as building blocks for many higher geographies.'
+  custom:
+    fgdb_data_type: String
+- id: ratomicpolygon
+  name: RATOMICPOLYGON
+  data_type: text
+  description: 'Right Atomic Polygon: An atomic polygon is a minimal polgon formed by most LION segments (exceptions include paper streets and alleys). "Minimal" means the polygon is not subdivided by LION segments (other than the noted exceptions) into smaller polygons. An atomic polygon can contain segments of various types in its interior: paper street segments (Feature Type = 5), dead end segments (LocStatus = I), land-hooked segments (LocStatus = H) and alley segments (Feature Type = A). Atomic Polygons numbers are unique within 2010 Census Tracts and are used as building blocks for many higher geographies.'
+  custom:
+    fgdb_data_type: String
+- id: lct2020
+  name: LCT2020
+  data_type: text
+  description: Left 2020 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: lct2020suf
+  name: LCT2020Suf
+  data_type: text
+  description: Left 2020 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rct2020
+  name: RCT2020
+  data_type: text
+  description: Right 2010 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: rct2020suf
+  name: RCT2020Suf
+  data_type: text
+  description: Right 2010 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lcb2020
+  name: LCB2020
+  data_type: text
+  description: Left 2020 Census Block.
+  custom:
+    fgdb_data_type: String
+- id: lcb2020suf
+  name: LCB2020Suf
+  data_type: text
+  description: Left 2020 Census Block Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rcb2020
+  name: RCB2020
+  data_type: text
+  description: Right 2020 Census Block.
+  custom:
+    fgdb_data_type: String
+- id: rcb2020suf
+  name: RCB2020Suf
+  data_type: text
+  description: Right 2020 Census Block Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lct2010
+  name: LCT2010
+  data_type: text
+  description: Left 2010 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: lct2010suf
+  name: LCT2010Suf
+  data_type: text
+  description: Left 2010 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rct2010
+  name: RCT2010
+  data_type: text
+  description: Right 2010 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: rct2010suf
+  name: RCT2010Suf
+  data_type: text
+  description: Right 2010 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lcb2010
+  name: LCB2010
+  data_type: text
+  description: Left 2010 Census Block.
+  custom:
+    fgdb_data_type: String
+- id: lcb2010suf
+  name: LCB2010Suf
+  data_type: text
+  description: Left 2010 Census Block Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rcb2010
+  name: RCB2010
+  data_type: text
+  description: Right 2010 Census Block.
+  custom:
+    fgdb_data_type: String
+- id: rcb2010suf
+  name: RCB2010Suf
+  data_type: text
+  description: Right 2010 Census Block Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lct2000
+  name: LCT2000
+  data_type: text
+  description: Left 2000 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: lct2000suf
+  name: LCT2000Suf
+  data_type: text
+  description: Left 2000 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rct2000
+  name: RCT2000
+  data_type: text
+  description: Right 2000 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: rct2000suf
+  name: RCT2000Suf
+  data_type: text
+  description: Right 2000 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lcb2000
+  name: LCB2000
+  data_type: text
+  description: Left 2000 Census Block.
+  custom:
+    fgdb_data_type: String
+- id: lcb2000suf
+  name: LCB2000Suf
+  data_type: text
+  description: Left 2000 Census Block Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rcb2000
+  name: RCB2000
+  data_type: text
+  description: Right 2000 Census Block.
+  custom:
+    fgdb_data_type: String
+- id: rcb2000suf
+  name: RCB2000Suf
+  data_type: text
+  description: Right 2000 Census Block Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lct1990
+  name: LCT1990
+  data_type: text
+  description: Left 1990 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: lct1990suf
+  name: LCT1990Suf
+  data_type: text
+  description: Left 1990 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: rct1990
+  name: RCT1990
+  data_type: text
+  description: Right 1990 Census Tract.
+  custom:
+    fgdb_data_type: String
+- id: rct1990suf
+  name: RCT1990Suf
+  data_type: text
+  description: Right 1990 Census Tract Suffix.
+  custom:
+    fgdb_data_type: String
+- id: lassmdist
+  name: LAssmDist
+  data_type: text
+  description: Assembly District for the left side of the street.
+  custom:
+    fgdb_data_type: String
+- id: lelectdist
+  name: LElectDist
+  data_type: text
+  description: Election District for the left side of the street. Election Districts are unique within an Assembly District.
+  custom:
+    fgdb_data_type: String
+- id: rassmdist
+  name: RAssmDist
+  data_type: text
+  description: Assembly District for the right side of the street.
+  custom:
+    fgdb_data_type: String
+- id: relectdist
+  name: RElectDist
+  data_type: text
+  description: Election District for the right side of the street. Election Districts are unique within an Assembly District.
+  custom:
+    fgdb_data_type: String
+- id: splitelect
+  name: SplitElect
+  data_type: text
+  description: Split Election District Flag. Indicates when a LION segment is split by more than one Election District.
+  values:
+  - value: blank
+    description: Neither side of segment is split among two or more election districts
+  - value: B
+    description: Both sides of segment are split among two or more election districts
+  - value: L
+    description: Left side of segment is split
+  - value: R
+    description: Right side of segment is split.
+  custom:
+    fgdb_data_type: String
+- id: lschldist
+  name: LSchlDist
+  data_type: text
+  description: School District for the left side of the street.
+  custom:
+    fgdb_data_type: String
+- id: rschldist
+  name: RSchlDist
+  data_type: text
+  description: School District for the right side of the street.
+  custom:
+    fgdb_data_type: String
+- id: splitschl
+  name: SplitSchl
+  data_type: text
+  description: Split School Flag. Indicates when a LION segment is split by more than one School District.
+  values:
+  - value: blank
+    description: Neither side of segment is split among two or more election districts
+  - value: B
+    description: Both sides of segment are split among two or more election districts
+  - value: L
+    description: Left side of segment is split
+  - value: R
+    description: Right side of segment is split
+  custom:
+    fgdb_data_type: String
+- id: lsubsect
+  name: LSubSect
+  data_type: text
+  description: Sanitation District Subsection for the left side of the street. These are subareas of Sanitation Districts, which in general coincide with Community Districts, except possibly on a CD boundary (see SanDistInd).
+  custom:
+    fgdb_data_type: String
+- id: rsubsect
+  name: RSubSect
+  data_type: text
+  description: Sanitation District Subsection for the right side of the street. These are subareas of Sanitation Districts, which in general coincide with Community Districts, except possibly on a CD boundary (see SanDistInd).
+  custom:
+    fgdb_data_type: String
+- id: sandistind
+  name: SanDistInd
+  data_type: text
+  description: Sanitation District Boundary Indicator. Normally, sanitation routes are defined by the community district (CD) and sanitation district subsection. For some streets that divide a CD, the same route will service both sides. This indicator defines which CD will service the entire street. The Subsection (LSubSect and RSubSect) is NOT affected by the sanitation district boundary indicator.
+  values:
+  - value: L
+    description: 'Left: For both sides of the street, the sanitation district is defined using the CD on the left side of the street.'
+  - value: R
+    description: 'Right: For both sides of the street, the sanitation district is defined using the CD on the right side of the street.'
+  - value: blank
+    description: The sanitation district route for each side of the street is correctly identified using the CD and subsection fields for the corresponding side of the street.
+  custom:
+    fgdb_data_type: String
+- id: mapfrom
+  name: MapFrom
+  data_type: text
+  description: DCP Sectional / Zoning Map at the beginning of the segment.
+  custom:
+    fgdb_data_type: String
+- id: mapto
+  name: MapTo
+  data_type: text
+  description: DCP Sectional / Zoning Map at the end of the segment.
+  custom:
+    fgdb_data_type: String
+- id: borobndry
+  name: BoroBndry
+  data_type: text
+  description: Borough Boundary Indicator. When a segment lies along a boundary of two boroughs, it is represented by two separate LION records, one for each borough. The flag indicates which side of the segment is out of the borough.
+  custom:
+    fgdb_data_type: String
+- id: mh_ri_flag
+  name: MH_RI_Flag
+  data_type: text
+  description: Marble Hill/Rikers Island Flag. These are two areas of the city that legally are part of one borough, but serviced by another. In each case, these records are flagged to be generated by the alternative borough for Geosupport purposes.
+  custom:
+    fgdb_data_type: String
+- id: xfrom
+  name: XFrom
+  data_type: integer
+  description: X (Spatial) coordinate at the 'From' end of a segment.
+  custom:
+    fgdb_data_type: Integer
+- id: yfrom
+  name: YFrom
+  data_type: integer
+  description: Y (Spatial) coordinate at the 'From' end of a segment.
+  custom:
+    fgdb_data_type: Integer
+- id: xto
+  name: XTo
+  data_type: integer
+  description: X (Spatial) coordinate at the 'To' end of a segment.
+  custom:
+    fgdb_data_type: Integer
+- id: yto
+  name: YTo
+  data_type: integer
+  description: Y (Spatial) coordinate at the 'To' end of a segment.
+  custom:
+    fgdb_data_type: Integer
+- id: arccenterx
+  name: ArcCenterX
+  data_type: integer
+  description: X (Spatial) coordinate at the center of the curve.
+  custom:
+    fgdb_data_type: Integer
+- id: arccentery
+  name: ArcCenterY
+  data_type: integer
+  description: Y (Spatial) coordinate at the center of the curve.
+  custom:
+    fgdb_data_type: Integer
+- id: curveflag
+  name: CurveFlag
+  data_type: text
+  description: Indicates whether a LION record represents a straight segment, irregular curve (not a circular arc) or a regular curve (circular arc) segment. If a regular curve segment, indicates which side of the segment the curve is on.
+  values:
+  - value: blank
+    description: LION record represents a straight line segment
+  - value: I
+    description: LION record represent an irregularly curved segment (not a circular arc)
+  - value: L
+    description: LION record represents a curved segment consisting of a circular arc lying on the left side of the segment's directed chord.
+  - value: R
+    description: LION record represents a curved segment consisting of a circular arc lying on the right side of the segment's directed chord.
+  custom:
+    fgdb_data_type: String
+- id: radius
+  name: Radius
+  data_type: integer
+  description: This field contains a value only if the segment is a circular arc (i.e. regular curve), as indicated by an 'L' or an 'R' in the CurveFlag field. The value is the radius of the arc in feet, rounded to the nearest foot.
+  custom:
+    fgdb_data_type: Integer
+- id: nodeidfrom
+  name: NodeIDFrom
+  data_type: text
+  description: Node identifier at the low address end, or beginning of the segment.
+  custom:
+    fgdb_data_type: String
+- id: nodeidto
+  name: NodeIDTo
+  data_type: text
+  description: Node identifier at the high address end, or end of the segment.
+  custom:
+    fgdb_data_type: String
+- id: nodelevelf
+  name: NodeLevelF
+  data_type: text
+  description: Level code indicator vertical topology at the start of the street segment.
+  values:
+  - value: A-Z
+    description: Relative level code on a scale where A is the lowest level of subterranean, M is ground level and Z is highest elevated level.
+  - value: '*'
+    description: Level-less feature associated with node. The asterisk is used to indicate the level-code on non-physical geometry, such as generic roadbed segments. Since these are non-physical, there is no 'real' level code that can be associated.
+  - value: $
+    description: Shoreline / water level.
+  custom:
+    fgdb_data_type: String
+- id: nodelevelt
+  name: NodeLevelT
+  data_type: text
+  description: Level code indicator vertical topology at the end of the street segment.
+  values:
+  - value: A-Z
+    description: Relative level code on a scale where A is the lowest level of subterranean, M is ground level and Z is highest elevated level.
+  - value: '*'
+    description: Level-less feature associated with node. The asterisk is used to indicate the level-code on non-physical geometry, such as generic roadbed segments. Since these are non-physical, there is no 'real' level code that can be associated.
+  - value: $
+    description: Shoreline / water level.
+  custom:
+    fgdb_data_type: String
+- id: conparity
+  name: ConParity
+  data_type: text
+  description: Continuous Parity Indicator (Domain Values = L, R). A continuous parity segment has both odd and even addresses on the same side of the segment, and no addresses on the other side. In a LION record that represents a continous parity segment, the odd and even address ranges are stored separately and the 1-byte code indicates on which side of the street the addresses physically exist.
+  data_source: ESRI
+  values:
+  - value: L
+    description: Odd and Even house number are bothe on the left side of the segment.
+  - value: R
+    description: Odd and Even house number are bothe on the right side of the segment.
+  custom:
+    fgdb_data_type: String
+- id: twisted
+  name: Twisted
+  data_type: text
+  description: 'Twisted Parity: Occasionally, the address parities along a street switch. If a ''T'' value exists in this field, it indicates that the parities have changed since the immediately preceding segment of the same street (i.e., if odd addresses were on the left, now they are on the right).'
+  data_source: ESRI
+  values:
+  - value: T
+    description: Indicates that the address parities along a street have switched since the immediately preceding segment of the same street (i.e., if odd addresses were on the left, they are now on the right).
+  custom:
+    fgdb_data_type: String
+- id: rw_type
+  name: RW_TYPE
+  data_type: text
+  description: Roadway Type
+  values:
+  - value: '1'
+    description: Street
+  - value: '2'
+    description: Highway
+  - value: '3'
+    description: Bridge
+  - value: '4'
+    description: Tunnel
+  - value: '5'
+    description: Boardwalk
+  - value: '6'
+    description: Path/Trail
+  - value: '7'
+    description: Step Street
+  - value: '8'
+    description: Driveway
+  - value: '9'
+    description: Ramp
+  - value: '10'
+    description: Alley
+  - value: '11'
+    description: Unknown
+  - value: '12'
+    description: Non-Physical Street Segment
+  - value: '13'
+    description: U-Turn
+  - value: '14'
+    description: Ferry Route
+  custom:
+    fgdb_data_type: String
+- id: physicalid
+  name: PhysicalID
+  data_type: integer
+  description: A unique ID assigned in order to aggregate granular geometry to represent a Physical View of the city's street network. In CSCL, segmentation is very granular in order to accommodate many types of physical and non-physical geometry. The Physical ID is a unique number used to identify a physically existing piece of geometry that may or may not be comprised of several Segment IDs. For example, E 28 Street between 2nd Ave and 3rd Ave in Manhattan would have 1 Physical ID although there are 3 segments defining that block face, with 3 separate Segment IDs.
+  custom:
+    fgdb_data_type: Integer
+- id: genericid
+  name: GenericID
+  data_type: integer
+  description: A unique ID assigned in order to aggregate granular geometry to represent a Generic View of the city's street network. Streets that contain multiple carriageways or roadbeds (such as Queens Boulevard in Queens and Park Ave in Manhattan) are represented by multiple centerlines corresponding to each roadbed as well as an imaginary 'single' generic centerline.
+  custom:
+    fgdb_data_type: Integer
+- id: nypdid
+  name: NYPDID
+  data_type: text
+  description: A unique ID assigned for NYPD's use in order to aggregate granular geometry for administrative purposes.
+  custom:
+    fgdb_data_type: String
+- id: fdnyid
+  name: FDNYID
+  data_type: integer
+  description: Not currently implemented. A unique ID assigned for FDNY's use in order to aggregate granular geometry for their administrative purposes.
+  custom:
+    fgdb_data_type: Integer
+- id: lblockfaceid
+  name: LBlockFaceID
+  data_type: text
+  description: A ten digit number (right justified, zero filled) identifying the block face on the left hand side of a segment. Block Face is defined as one continuous side of a physical block that is intersected on that side by two other physical through streets. Blockface IDs were established by DoITT’s consultants working on the planimetric feature classes for NYC and are not maintained by the Department of City Planning.
+  custom:
+    fgdb_data_type: String
+- id: rblockfaceid
+  name: RBlockFaceID
+  data_type: text
+  description: A ten digit number (right justified, zero filled) identifying the block face on the right hand side of a segment. Block Face is defined as one continuous side of a physical block that is intersected on that side by two other physical through streets. Blockface IDs were established by DoITT’s consultants working on the planimetric feature classes for NYC and are not maintained by the Department of City Planning.
+  custom:
+    fgdb_data_type: String
+- id: legacyid
+  name: LegacyID
+  data_type: text
+  description: LION 09C Segment IDs which were migrated for the initial population of the CSCL. This data is captured in order to help users migrate legacy data. New geometry in the CSCL/LION will not have this field populated, however existing CSCL/LION segments will retain the legacy ID when split.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: String
+- id: status
+  name: Status
+  data_type: text
+  description: Refers to the construction status of a street segment.
+  values:
+  - value: '1'
+    description: Planned Private
+  - value: '2'
+    description: Constructed
+  - value: '3'
+    description: Paper
+  - value: '4'
+    description: Under Construction
+  - value: '5'
+    description: Demapped
+  - value: '9'
+    description: Paper Street Coincident with Boundary
+  custom:
+    fgdb_data_type: String
+- id: streetwidth_min
+  name: StreetWidth_Min
+  data_type: decimal
+  description: Formerly known as StreetWidth, this represents the narrowest width, in feet, of the paved area of the street. These values correspond to the StreetWidth field in Geosupport.
+  custom:
+    fgdb_data_type: Single
+- id: streetwidth_max
+  name: StreetWidth_Max
+  data_type: decimal
+  description: The maximum width, in feet, of the paved area of the street.
+  custom:
+    fgdb_data_type: Single
+- id: streetwidth_irr
+  name: StreetWidth_Irr
+  data_type: text
+  description: Not currently implemented. Flag indicating whether the street width is consistent along a street segment.
+  custom:
+    fgdb_data_type: String
+- id: bikelane
+  name: BikeLane
+  data_type: text
+  description: 'Bike Lane: Defines which segments are part of the bicycle network as defined by the Department of Transportation. These values correspond to Bike Lane 2 in Geosupport.'
+  values:
+  - value: '1'
+    description: 'Class 1: Separated Greenway'
+  - value: '2'
+    description: 'Class II: Striped Bike Lane'
+  - value: '3'
+    description: 'Class III: Signed Bicycle Route'
+  - value: '4'
+    description: 'Links: Connecting segments.'
+  - value: '5'
+    description: 'Class I, II: Combination of Class I and II'
+  - value: '6'
+    description: 'Class II, III: Combination of Class II and III'
+  - value: '7'
+    description: 'Stairs: Includes step streets, bridge stairs, etc.'
+  - value: '8'
+    description: 'Class I, III: Combination of Class I and III'
+  - value: '9'
+    description: 'Class II, I: Combination of Class II and I'
+  - value: '10'
+    description: 'Class III, I: Combination of Class III and I'
+  - value: '11'
+    description: 'Class III, II: Combination of Class III and II'
+  custom:
+    fgdb_data_type: String
+- id: bike_trafdir
+  name: BIKE_TRAFDIR
+  data_type: text
+  description: BIKE_TRAFDIR (Bike Traffic Direction) defines bicycle traffic direction on segments that are part of the bicycle network as defined by the Department of Transportation.
+  values:
+  - value: blank
+    description: This segment is not part of the bicycle network as defined by the Department of Transportation.
+  - value: FT
+    description: Bike traffic is one way. The bike traffic flow is with the direction of increasing addresses, if any. This direction is also known as ‘with’ the segment’s logical direction, i.e. from the FROM node to the TO node.
+  - value: TF
+    description: Bike traffic is one way. The bike traffic flow is against the direction of increasing addresses, if any. This direction is also known as ‘against’ the segment’s logical direction, i.e. from the TO node to the FROM node.
+  - value: TW
+    description: Bike traffic is two way. Bicycles travel in both directions.
+  custom:
+    fgdb_data_type: String
+- id: active_flag
+  name: ACTIVE_FLAG
+  data_type: text
+  description: ACTIVE_FLAG only applies to LION segments representing subway features. This field is being introduced with the digitization of the 2nd Avenue subway to indicate which portions are open versus under construction or proposed.
+  values:
+  - value: Y
+    description: This portion of the subway is active and open.
+  - value: N
+    description: This portion of the subway is inactive, i.e. either under construction or proposed.
+  - value: 'NULL'
+    description: This segment does not represent a subway feature.
+  custom:
+    fgdb_data_type: String
+- id: posted_speed
+  name: POSTED_SPEED
+  data_type: text
+  description: POSTED_SPEED contains the speed limit, in miles per hour, of the paved area.
+  custom:
+    fgdb_data_type: String
+- id: snow_priority
+  name: Snow_Priority
+  data_type: text
+  description: DSNY snow removal priority designation.
+  values:
+  - value: blank
+    description: unknown
+  - value: C
+    description: 'Critical: These routes are comprised of highways (main beds, entrances, exits, interchanges), arterial roadways, main travel thoroughfares (single land and multi-lane), bus routes, that contain emergency services and first responder facilities (Hospitals, EMS, FDNY, NYPD) and schools.'
+  - value: S
+    description: 'Sector: Designed to encompass all streets that are not classified as Critical Streets and are awide enough to accommodate a full size DSNY collection truck with a plow attached.'
+  - value: H
+    description: 'Haulster: Designed to service dead ends and streets that cannot be serviced with a collection truck or salt spreader with a plow attached due to narrow street width or tight turning radius (either entering or exiting the street).'
+  - value: V
+    description: Non-DSNY
+  custom:
+    fgdb_data_type: String
+- id: number_travel_lanes
+  name: Number_Travel_Lanes
+  data_type: text
+  description: The number of lanes in a carriageway (roadway) that are designated for the movement of vehicles traveling from one destination to another. The number of travel lanes were determined by DoITT’s consultants working on the planimetric feature classes for NYC.
+  custom:
+    fgdb_data_type: String
+- id: number_park_lanes
+  name: Number_Park_Lanes
+  data_type: text
+  description: The number of lanes in a carriageway (roadway) that are reserved for parallel parking of vehicles. The number of parking lanes were determined by DoITT’s consultants working on the planimetric feature classes for NYC.
+  custom:
+    fgdb_data_type: String
+- id: number_total_lanes
+  name: Number_Total_Lanes
+  data_type: text
+  description: The total number of lanes in a carriageway (roadway) including travel lanes and parking lanes. The total number of lanes were determined by DoITT’s consultants working on the planimetric feature classes for NYC.
+  custom:
+    fgdb_data_type: String
+- id: carto_display_level
+  name: Carto_Display_Level
+  data_type: text
+  description: 'Cartographic Display Level: Select LION segments are flagged as a way to designate major roads for cartographic purposes at various scales.'
+  values:
+  - value: '10'
+    description: City
+  - value: '20'
+    description: Borough
+  - value: '30'
+    description: Neighborhood
+  custom:
+    fgdb_data_type: String
+- id: fcc
+  name: FCC
+  data_type: text
+  description: Not currently implemented. Federal Classification Code
+  custom:
+    fgdb_data_type: String
+- id: row_type
+  name: ROW_Type
+  data_type: text
+  description: 'Right-of-Way Type: These refer only to subway and rail segments.'
+  values:
+  - value: '1'
+    description: Subterranean
+  - value: '2'
+    description: Elevated
+  - value: '3'
+    description: Surface
+  - value: '4'
+    description: Hidden
+  - value: '5'
+    description: Open Cut Depression
+  - value: '6'
+    description: Embankment
+  - value: '7'
+    description: Viaduct
+  - value: '8'
+    description: Subterranean Coincident with Boundary
+  custom:
+    fgdb_data_type: String
+- id: llo_hyphen
+  name: LLo_Hyphen
+  data_type: text
+  description: Low Value for the hyphenated address range beginning on the left side of the street segment. Left and right are defined relative to a street segment's direction. For streets that have addresses, the direction of a DCPLION streeet segment is determined by the direction of increasing address numbers. Note that this direction is unrelated to the street's traffic direction or its orientation relative to the points of the compass. The direction of streets with out address numbers, as well as non-street features, is assigned arbitrarily, but is consistent within the street feature. Direction can usually be determined by observing which way the SeqNum increases. Includes hyphenated addresses.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: String
+- id: lhi_hyphen
+  name: LHi_Hyphen
+  data_type: text
+  description: High Value for the hyphenated address range beginning on the left side of the street segment.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: String
+- id: rlo_hyphen
+  name: RLo_Hyphen
+  data_type: text
+  description: Low Value for the hyphenated address range beginning on the right side of the street segment.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: String
+- id: rhi_hyphen
+  name: RHi_Hyphen
+  data_type: text
+  description: High Value for the hyphenated address range beginning on the right side of the street segment.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: String
+- id: fromleft
+  name: FromLeft
+  data_type: integer
+  description: Low Value for the numeric address range beginning on the left side of the street segment. For all hyphanated addresses, the hyphen has been removed. To convert the before hyphen portion of the house number is multiplied by 1000 and then added to the after hyphen portion of the house number (e.g. 101-40 would be converted to 101040).
+  data_source: ESRI
+  custom:
+    fgdb_data_type: Integer
+- id: toleft
+  name: ToLeft
+  data_type: integer
+  description: High Value for the numeric address range beginning on the left side of the street segment.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: Integer
+- id: fromright
+  name: FromRight
+  data_type: integer
+  description: Low Value for the numeric address range beginning on the right side of the street segment.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: Integer
+- id: toright
+  name: ToRight
+  data_type: integer
+  description: High Value for the numeric address range beginning on the right side of the street segment.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: Integer
+- id: join_id
+  name: Join_ID
+  data_type: text
+  description: Identification field used to link LION feature class with Alternative Names table during a geocoding operation.
+  data_source: ESRI
+  custom:
+    fgdb_data_type: String
+- id: l_pd_service_area
+  name: L_PD_Service_Area
+  data_type: text
+  description: Left side Police Service Areas (PSAs), which provides the Housing Bureau Police services to a set of housing developments.
+  custom:
+    fgdb_data_type: String
+- id: r_pd_service_area
+  name: R_PD_Service_Area
+  data_type: text
+  description: Right side Police Service Areas (PSAs), which provides the Housing Bureau Police services to a set of housing developments.
+  custom:
+    fgdb_data_type: String
+- id: truck_route_type
+  name: TRUCK_ROUTE_TYPE
+  data_type: text
+  description: Segments that are part of the New York City truck route network designated by Department of Transportation for use by trucks and other commercial vehicles.
+  values:
+  - value: '1'
+    description: Limited Local
+  - value: '2'
+    description: Local
+  - value: '3'
+    description: Through
+  custom:
+    fgdb_data_type: String
+- id: shape_length
+  name: Shape_Length
+  data_type: decimal
+  description: Length of feature in internal units.
+  data_source: Esri
+  custom:
+    fgdb_data_type: Single
+
