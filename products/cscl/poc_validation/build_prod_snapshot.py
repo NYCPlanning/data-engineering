@@ -10,6 +10,9 @@ models read, zipped into a single bundle. The build loads the bundle as a recipe
 - FGDB layers go through dcpy.geospatial.curves, so prod's curved geometry is
   linearized exactly as the build's is; columns lowercased, the geometry named
   `shape` and the FIDs kept as `objectid`, as the QA models read them.
+- Prod's ETL logs (log4net, one file per ExtractorUI session), when someone has put
+  them in edm-private/cscl_etl/<version>/logs/, become the `etl_log` table: one row per
+  log entry. They're optional: without them `etl_log` is empty.
 
 Usage (from products/cscl), or run the "CSCL - Prod snapshot" workflow:
     python poc_validation/build_prod_snapshot.py check-inputs -v 26d
@@ -19,6 +22,7 @@ Usage (from products/cscl), or run the "CSCL - Prod snapshot" workflow:
 
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -55,6 +59,13 @@ LION_GDB_URL = "https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools
 LEGACY_BUCKET = "edm-private"
 SNAPSHOT_BUCKET = configuration.PRIVATE_BUCKET
 WORKFLOW = "CSCL - Prod snapshot"
+
+
+# log4net's layout in prod's ETL: `<date time,ms> [thread] LEVEL logger [ndc] - message`
+ETL_LOG_ENTRY = re.compile(
+    r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) \[[^\]]*\] (\w+)\s+\S+ \[[^\]]*\] - (.*)$"
+)
+ETL_LOG_COLUMNS = ["log_file", "line_number", "logged_at", "log_level", "message"]
 
 
 def snapshot_key(version: str) -> str:
@@ -102,6 +113,72 @@ def missing_inputs(version: str) -> list[str]:
         logger.info(f"  {'found  ' if f in found else 'MISSING'} {f}")
     logger.info(f"  {'MISSING' if lion_url in missing else 'found  '} {lion_url}")
     return missing
+
+
+def etl_logs_prefix(version: str) -> str:
+    return f"cscl_etl/{version}/logs/"
+
+
+def parse_etl_log(text: str, log_file: str) -> list[dict]:
+    """One row per log4net entry. A line that doesn't start an entry (a message with a
+    line break in it) is appended to the entry before it."""
+    rows: list[dict] = []
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        match = ETL_LOG_ENTRY.match(line)
+        if match:
+            logged_at, level, message = match.groups()
+            rows.append(
+                {
+                    "log_file": log_file,
+                    "line_number": line_number,
+                    "logged_at": logged_at,
+                    "log_level": level.lower(),
+                    "message": message.rstrip(),
+                }
+            )
+        elif rows and line.strip():
+            rows[-1]["message"] += "\n" + line.rstrip()
+        elif line.strip():
+            raise ValueError(
+                f"{log_file}:{line_number} isn't a log4net entry: {line!r}"
+            )
+    return rows
+
+
+def etl_log_frame(log_files: list[Path]) -> pd.DataFrame:
+    """Prod's ETL log entries, all files together (empty, with the columns, if none)."""
+    rows = [
+        row
+        for f in sorted(log_files)
+        for row in parse_etl_log(f.read_text(encoding="utf-8-sig"), f.name)
+    ]
+    frame = pd.DataFrame(rows, columns=ETL_LOG_COLUMNS)
+    return frame.astype(
+        {"line_number": "int64"}
+        | {c: "string" for c in ETL_LOG_COLUMNS if c != "line_number"}
+    )
+
+
+def download_etl_logs(version: str, folder: Path) -> list[Path]:
+    """Prod's ETL logs for this release from edm-private, if anyone has put them there."""
+    prefix = etl_logs_prefix(version)
+    keys = [
+        o["Key"]
+        for o in s3.list_objects(LEGACY_BUCKET, prefix)
+        if o["Key"].lower().endswith(".log")
+    ]
+    if not keys:
+        logger.warning(
+            f"No ETL logs in {LEGACY_BUCKET}/{prefix}: etl_log will be empty, and "
+            "qa__log_compare has nothing from prod to compare"
+        )
+    folder.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for key in keys:
+        path = folder / Path(key).name
+        s3.download_file(LEGACY_BUCKET, key, path)
+        paths.append(path)
+    return paths
 
 
 class ParquetSink:
@@ -219,7 +296,7 @@ def _gdb_layers(gdb_zip: Path, skip: set[str], folder: Path) -> None:
         logger.info(f"fgdb_{layer.lower()} written")
 
 
-def build(version: str, out_dir: Path) -> Path:
+def build(version: str, out_dir: Path, logs_dir: Path | None = None) -> Path:
     tables = out_dir / "tables"
     files = out_dir / "files"
     for d in (tables, files):
@@ -240,6 +317,14 @@ def build(version: str, out_dir: Path) -> Path:
         )
     pdl.load_citywide_lion(sink, version, "citywide_lion_dat", files)
     pdl.load_prod_ldf(sink, version, files)
+
+    # prod's ETL logs (optional)
+    log_files = (
+        sorted(logs_dir.glob("*.log"))
+        if logs_dir
+        else download_etl_logs(version, files / "logs")
+    )
+    sink.insert_dataframe(etl_log_frame(log_files), "etl_log")
 
     # the two FGDBs
     lion_zip = files / f"nyclion_{version}.zip"
@@ -299,6 +384,12 @@ def _build(
     overwrite: bool = typer.Option(
         False, "--overwrite", help="With --upload: replace an existing snapshot"
     ),
+    logs_dir: Path | None = typer.Option(
+        None,
+        "--logs-dir",
+        help="Read prod's ETL logs (*.log) from this folder instead of "
+        "edm-private/cscl_etl/<version>/logs/",
+    ),
 ):
     key = snapshot_key(version)
     if upload and not overwrite and s3.object_exists(SNAPSHOT_BUCKET, key):
@@ -307,7 +398,7 @@ def _build(
         )
         raise typer.Exit(1)
     _check_inputs(version)
-    bundle = build(version, out_dir)
+    bundle = build(version, out_dir, logs_dir)
     if upload:
         s3.upload_file(SNAPSHOT_BUCKET, bundle, key, "private")
         logger.info(f"Uploaded to s3://{SNAPSHOT_BUCKET}/{key}")

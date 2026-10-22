@@ -55,3 +55,40 @@ def test_check_snapshot_fails_when_missing(monkeypatch):
         bps._check_snapshot("26d")
     monkeypatch.setattr(bps.s3, "object_exists", lambda bucket, key: True)
     bps._check_snapshot("26d")
+
+
+ETL_LOG = (
+    "2026-07-24 15:25:40,797 [1] ERROR CSCL.ETL.LoggerClass [(null)] - Both offset points "
+    "for the Rail feature with an OID = 6118 failed to find AtomicPolygons.\r\n"
+    "2026-07-24 11:22:16,764 [1] WARN  CSCL.ETL.LoggerClass [(null)] - Could not find a "
+    "HealthArea feature using query 'HEALTHAREA='' AND BOROUGH = '5''.\r\n"
+    "  a second line of the same message\r\n"
+    "\r\n"
+)
+
+
+def test_parse_etl_log_splits_log4net_entries():
+    rows = bps.parse_etl_log(ETL_LOG, "BX.log")
+    assert [(r["line_number"], r["log_level"]) for r in rows] == [
+        (1, "error"),
+        (2, "warn"),
+    ]
+    assert rows[0]["logged_at"] == "2026-07-24 15:25:40,797"
+    assert rows[0]["message"].startswith("Both offset points for the Rail feature")
+    # a continuation line belongs to the entry before it
+    assert rows[1]["message"].endswith(
+        "BOROUGH = '5''.\n  a second line of the same message"
+    )
+
+
+def test_parse_etl_log_rejects_a_file_that_isnt_log4net():
+    with pytest.raises(ValueError):
+        bps.parse_etl_log("not a log line\n", "x.log")
+
+
+def test_etl_log_frame_keeps_columns_when_there_are_no_logs(tmp_path):
+    assert list(bps.etl_log_frame([]).columns) == bps.ETL_LOG_COLUMNS
+    (tmp_path / "BX.log").write_text(ETL_LOG)
+    frame = bps.etl_log_frame([tmp_path / "BX.log"])
+    assert len(frame) == 2
+    assert set(frame["log_file"]) == {"BX.log"}
