@@ -7,7 +7,7 @@ dependencies = [
     # A general-purpose notebook server for ad hoc data exploration - keep full
     # geospatial/geosupport capability available, unlike apps/dagster.
     "dcpy-lifecycle[geo]",
-    "marimo>=0.8.0",
+    "marimo>=0.25.2",
     "uvicorn>=0.20.0",
 ]
 
