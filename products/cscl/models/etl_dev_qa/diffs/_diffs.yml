@@ -87,8 +87,9 @@ models:
     inconsistent house-number zeroing (CSCL-LION-15) shows as modified rows
     rather than only_in pairs. diff_group names the cause of each modified row;
     accounted_for is true when every changed field has a verified, accepted
-    cause (CSCL-LION-03, 04, 05, 16). House numbers, zips, SegCount and Street
-    are categorized but left unaccounted.
+    cause (CSCL-LION-03, 04, 05, 14, 16). CSCL-LION-14 covers SegCount only on a
+    centerline with another centerline on the same nodes within 0.0005 ft. House
+    numbers, zips, other SegCount and Street are categorized but left unaccounted.
 
 - name: qa__diffs_all_summary
   description: >
