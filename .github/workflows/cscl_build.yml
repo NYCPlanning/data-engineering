@@ -149,7 +149,7 @@ jobs:
 
     - name: Upload dbt logs
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: cscl-duckdb-logs-and-qa
         path: |
