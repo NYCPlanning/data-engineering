@@ -3,9 +3,10 @@ version: 2
 models:
 - name: log
   description: >-
-    The build log, exported as log.csv: one row per record a LION check flagged
-    (error or warning), plus one summary row per exported flat file with its record
-    count. Each row comes from one log__* model, named in _dbt_source_relation.
+    The build log, exported as log.csv: one row per record a LION or SAF check flagged
+    (error or warning), one row per ThinLION lookup that found nothing, plus one summary
+    row per exported flat file with its record count. Each row comes from one log__*
+    model, named in _dbt_source_relation.
   columns:
   - name: _dbt_source_relation
     description: The log__* model the row came from.
@@ -16,13 +17,17 @@ models:
       The check that produced the row, e.g. `borough mismatch`, or `output file
       summary` for a file summary row.
   - name: globalid
-    description: GlobalID of the flagged source feature. Blank on file summary rows.
+    description: >-
+      GlobalID of the flagged source feature. Blank on file summary and ThinLION lookup
+      rows.
   - name: source_feature_layer
     description: >-
-      Source layer of the flagged feature (centerline, altsegmentdata, ...). Blank on
-      file summary rows.
+      Source layer of the flagged feature (centerline, altsegmentdata, commonplace,
+      ...); atomicpolygons on ThinLION lookup rows. Blank on file summary rows.
   - name: record_id_type
-    description: What record_id holds (currently always `segmentid`). Blank on file summary rows.
+    description: >-
+      What record_id holds: `segmentid`, or `placeid` for SAF CommonPlace rows. Blank on
+      file summary and ThinLION lookup rows.
   - name: record_id
     description: The flagged record's id, per record_id_type. Blank on file summary rows.
   - name: message
@@ -32,7 +37,9 @@ models:
   - name: output_filename
     description: Exported file name. File summary rows only.
   - name: record_count
-    description: Number of records written to output_filename. File summary rows only.
+    description: >-
+      Number of records written to output_filename on file summary rows; the number of
+      atomic polygons the lookup left blank on ThinLION lookup rows.
 
 - name: log__export_file_summary
   description: >-
@@ -45,3 +52,20 @@ models:
     centerline's boroughcode, or the proto segment's borough), matching prod's
     "does not match the borough currently being extracted" check. A blank source
     borough is derived downstream, as in prod, and isn't flagged.
+
+- name: log__saf_invalid_b7sc
+  description: >-
+    G/N/X CommonPlaces with a B7SC shorter than 8 characters (blank included), which SAF
+    leaves out. Prod's "[DATA ERROR] The B7SC value of '' is not valid" check.
+
+- name: log__saf_name_missing
+  description: >-
+    G/N/X CommonPlaces SAF leaves out because their B7SC has no principal name in the
+    FeatureName or StreetName table. Prod's "[NAME MISSING]" check.
+
+- name: log__thinlion_lookup_not_found
+  description: >-
+    ThinLION's CensusTract2020, CensusTract2010 and HealthArea lookups that find nothing,
+    one row per distinct lookup with the number of atomic polygons it leaves blank in
+    record_count. Prod logs the same message ("Could not find a <feature class> feature
+    using query '<query>'.") once per atomic polygon.
