@@ -94,7 +94,7 @@ models:
   description: >
     One row per output_file_id, aggregating qa__diffs_all's row-level diffs,
     plus two rows (ldf_dat, ldf_header) folded in from the LDF's separate
-    count-based QA models (qa__ldf_summary, qa__ldf_header_diffs), since the
+    count-based QA models (qa__ldf_diffs, qa__ldf_header_diffs), since the
     LDF isn't keyed/row-diffed the way everything else in qa__diffs_all is.
     Exported to CSV during the build and joined against the lion_outputs seed
     and the line-level file comparison to produce the CSCL diff report (see
@@ -105,13 +105,15 @@ models:
   - name: accounted_for_discrepant_rows
     description: >
       Count of qa__diffs_all rows for this output_file_id where accounted_for
-      is true (known/legacy bugs or deliberate behavior changes). Always 0 for
-      the two LDF rows - the LDF's QA models don't track accounted_for.
+      is true (known/legacy bugs or deliberate behavior changes). For ldf_dat,
+      the surplus records qa__ldf_diffs accounts for; for ldf_header, 1 when the
+      header differs and qa__ldf_header_diffs accounts for it.
   - name: unaccounted_discrepant_rows
     description: >
       Count of qa__diffs_all rows for this output_file_id where accounted_for
-      is false. For the two LDF rows, this is dev_only + prod_only from the
-      LDF's own count-based comparison instead.
+      is false. For ldf_dat, the surplus records qa__ldf_diffs doesn't account
+      for; for ldf_header, 1 when the header differs and isn't accounted for (one
+      line, counted once).
   - name: unaccounted_discrepant_fields
     description: >
       Count of individual changed fields (not rows) across unaccounted,
