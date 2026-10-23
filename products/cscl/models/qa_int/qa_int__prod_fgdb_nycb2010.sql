@@ -14,16 +14,9 @@
 -- it. shape_length/shape_area stand in for geometry instead, same as
 -- poc_validation/compare_gdb.py's own approach for file-based comparison.
 --
--- shape_length is rounded to the nearest whole ft, shape_area to the nearest 10 sq ft,
--- before comparing - GDAL recomputes both from scratch on every read, so small
--- disagreement is expected read-to-read noise, not a real difference (see
--- dcpy.geospatial.gdb.compare.DEFAULT_GEOMETRY_DERIVED_FLOAT_COLUMNS, which uses a
--- relative 5e-4 tolerance for the same reason). These are fixed, not relative, so
--- confirmed empirically rather than derived: on a random sample, every nycb2010
--- shape_area "diff" at nearest-whole-sqft rounding was exactly +-1 sqft (a rounding-
--- boundary coincidence, areas here run tens of thousands to low hundreds of
--- thousands sqft) - nearest-10 clears that noise. Not a general-purpose relative
--- tolerance; a layer with much larger or smaller areas may need a different value.
+-- shape_length/shape_area are compared with a relative tolerance in
+-- qa__diffs_fgdb_nycb2010, not exactly: GDAL recomputes both on every read, so small
+-- disagreement is read-to-read noise, not a real difference.
 
 {% set prod_relation = adapter.get_relation(
     database = target.database,
@@ -37,6 +30,6 @@ SELECT
     borocode,
     boroname,
     ct2010,
-    round(shape_length::DECIMAL(38, 12)) AS shape_length,
-    round(shape_area::DECIMAL(38, 12), -1) AS shape_area
+    shape_length,
+    shape_area
 FROM {{ prod_relation }}

@@ -125,6 +125,10 @@ vars:
   # source's 2^-14 ft grid, 3x the 0.0003 ft worst-case corner disagreement above. See
   # qa__district_review_pieces.
   district_review_noise_width_ft: 0.001
+  # QA (qa__geometry_fgdb_district_layers): prod's hairline slivers (CSCL-DISTRICTS-01),
+  # about 0.0001 ft wide, are anything narrower than this; see
+  # prod_fgdb_linear_without_hairlines.
+  district_hairline_width_ft: 0.01
 
 flags:
   fail-fast: true

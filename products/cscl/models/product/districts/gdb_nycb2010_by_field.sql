@@ -1,9 +1,8 @@
 {{ config(materialized='table') }}
 
 -- Our own gdb_nycb2010, narrowed/renamed to match qa_int__prod_fgdb_nycb2010's column
--- set exactly (lowercase, same rounding) so generate_diff_summary compares like for
--- like. See that model for why geometry itself is dropped in favor of rounded
--- shape_length/shape_area, and why they're rounded at all.
+-- set exactly (lowercase) so generate_diff_summary compares like for like. See that
+-- model for why geometry itself is dropped in favor of shape_length/shape_area.
 
 SELECT
     "BCTCB2010" AS bctcb2010,
@@ -11,6 +10,6 @@ SELECT
     "BoroCode" AS borocode,
     "BoroName" AS boroname,
     "CT2010" AS ct2010,
-    round("SHAPE_Length"::DECIMAL(38, 12)) AS shape_length,
-    round("SHAPE_Area"::DECIMAL(38, 12), -1) AS shape_area
+    "SHAPE_Length" AS shape_length,
+    "SHAPE_Area" AS shape_area
 FROM {{ ref('gdb_nycb2010') }}
