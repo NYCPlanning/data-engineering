@@ -325,8 +325,14 @@ FROM (
   (prod_fgdb_linear_without_hairlines), run on the failing keys only. A row that fails
   but passes without them differs from prod only by prod's hairline slivers
   (CSCL-DISTRICTS-01).
+
+  passes_without_prod_small_parts, on layers whose build drops small parts (nypp:
+  int__boundary__pp drops parts and holes under 100 sq ft), is the same check again with
+  prod's hairlines and its parts and holes under that size removed
+  (prod_fgdb_linear_without_small_parts). Null on other layers.
 -#}
 {%- set prod_key = layer.get('prod_key') or (layer.key | replace('"', '') | lower) -%}
+{%- set min_part_sqft = {'nypp': 100}.get(layer.name) -%}
 -- Wrapped in a subquery so the post-hooks can INSERT it.
 SELECT * FROM (
 WITH t AS (
@@ -354,13 +360,37 @@ h AS (
         prod_key_column=layer.get('prod_key')
     ) }}
 )
+{%- if min_part_sqft %},
+
+s AS (
+    {{ geometry_diff_qa(
+        build_relation='(SELECT * FROM ' ~ ref('gdb_' ~ layer.name) ~ ' WHERE ('
+            ~ layer.key ~ ')::text IN (SELECT key_value FROM failing))',
+        prod_relation=prod_fgdb_linear_without_small_parts(
+            'fgdb_' ~ layer.name,
+            min_part_sqft,
+            where='(' ~ prod_key ~ ')::text IN (SELECT key_value FROM failing)'
+        ),
+        key_column=layer.key,
+        prod_key_column=layer.get('prod_key')
+    ) }}
+)
+{%- endif %}
 
 SELECT
     '{{ layer.name }}' AS source_layer,
     t.*,
-    coalesce(h.passes, t.passes) AS passes_without_prod_hairlines
+    coalesce(h.passes, t.passes) AS passes_without_prod_hairlines,
+    {% if min_part_sqft -%}
+        coalesce(s.passes, t.passes)
+    {%- else -%}
+        NULL::boolean
+    {%- endif %} AS passes_without_prod_small_parts
 FROM t
 LEFT JOIN h ON t.key_value = h.key_value
+{%- if min_part_sqft %}
+LEFT JOIN s ON t.key_value = s.key_value
+{%- endif %}
 ) AS layer_rows
 {% endmacro %}
 
@@ -383,5 +413,29 @@ LEFT JOIN h ON t.key_value = h.key_value
     )
     FROM {{ adapter.get_relation(database=target.database, schema="production_outputs", identifier=identifier) }}
     WHERE {{ where }}
+)
+{% endmacro %}
+
+
+{% macro prod_fgdb_linear_without_small_parts(identifier, min_part_sqft, geom_column='shape', where='TRUE') %}
+{#-
+  prod_fgdb_linear_without_hairlines, then without the parts and holes smaller than
+  min_part_sqft: what prod looks like once it has been through the same small-part cut
+  as the build's layer (int__boundary__pp for nypp).
+-#}
+(
+    SELECT * REPLACE (
+        st_collect(list_transform(
+            list_filter(list_transform(st_dump("{{ geom_column }}"), d -> d.geom), p -> st_area(p) >= {{ min_part_sqft }}),
+            p -> st_makepolygon(
+                st_exteriorring(p),
+                list_filter(
+                    list_transform(range(1, st_numinteriorrings(p) + 1), i -> st_interiorringn(p, i::INTEGER)),
+                    r -> st_area(st_makepolygon(r)) >= {{ min_part_sqft }}
+                )
+            )
+        )) AS "{{ geom_column }}"
+    )
+    FROM {{ prod_fgdb_linear_without_hairlines(identifier, geom_column, where) }}
 )
 {% endmacro %}
