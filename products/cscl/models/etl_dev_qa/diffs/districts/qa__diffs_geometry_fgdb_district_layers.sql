@@ -18,6 +18,8 @@
 --     AtomicPolygons (keys from inv-2cy.48; tract 1000100 is block 10001001000's
 --     1,417 sq ft past every AtomicPolygon, inv-2cy.55).
 --   CSCL-DISTRICTS-04: districts whose source polygon is invalid.
+--   CSCL-DISTRICTS-07: nypp precincts that pass once prod's parts and holes under 100 sq
+--     ft are removed, as ours drops them (passes_without_prod_small_parts).
 WITH labeled AS (
     SELECT
         *,
@@ -34,6 +36,8 @@ WITH labeled AS (
                 OR (source_layer = 'nyhez' AND key_value IN ('1', '2', '4', '5', '6', 'X'))
                 OR (source_layer = 'nycdwi' AND key_value IN ('484', '502'))
                 THEN 'CSCL-DISTRICTS-04: invalid source polygon'
+            WHEN source_layer = 'nypp' AND passes_without_prod_small_parts
+                THEN 'CSCL-DISTRICTS-07: ours drops parts under 100 sq ft'
         END AS known_difference
     FROM {{ ref('qa__geometry_fgdb_district_layers') }}
     WHERE NOT passes

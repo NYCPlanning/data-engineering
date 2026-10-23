@@ -29,27 +29,27 @@ WITH from_diffs_all AS (
     GROUP BY output_file_id
 ),
 
--- The LDF is compared by record count, not by keyed row (see qa__ldf_summary /
--- qa__ldf_header_diffs) - there's no per-row "modified" concept, no accounted_for
--- tracking, and no per-field breakdown, so dev_only + prod_only is folded straight
--- into unaccounted_discrepant_rows and the other two columns are left null.
+-- The LDF is compared by record count, not by keyed row (see qa__ldf_diffs /
+-- qa__ldf_header_diffs) - there's no per-row "modified" concept and no per-field
+-- breakdown, so each surplus record counts as one row and the field column is left null.
+-- The header is one line per side: a differing header counts once, not as dev_only plus
+-- prod_only.
 from_ldf AS (
     SELECT
         'ldf_dat' AS output_file_id,
-        0 AS accounted_for_discrepant_rows,
-        COALESCE((
-            SELECT SUM(dev_only) + SUM(prod_only)
-            FROM {{ ref('qa__ldf_summary') }}
-        ), 0) AS unaccounted_discrepant_rows,
+        COALESCE(SUM(records) FILTER (WHERE accounted_for), 0) AS accounted_for_discrepant_rows,
+        COALESCE(SUM(records) FILTER (WHERE NOT accounted_for), 0) AS unaccounted_discrepant_rows,
         NULL::bigint AS unaccounted_discrepant_fields
+    FROM {{ ref('qa__ldf_diffs') }}
     UNION ALL
     SELECT
         'ldf_header' AS output_file_id,
-        0 AS accounted_for_discrepant_rows,
-        COALESCE(
-            (SELECT dev_only + prod_only FROM {{ ref('qa__ldf_header_diffs') }}), 0
-        ) AS unaccounted_discrepant_rows,
+        COALESCE(SUM(CASE WHEN differs AND accounted_for THEN 1 ELSE 0 END), 0)
+            AS accounted_for_discrepant_rows,
+        COALESCE(SUM(CASE WHEN differs AND NOT accounted_for THEN 1 ELSE 0 END), 0)
+            AS unaccounted_discrepant_rows,
         NULL::bigint AS unaccounted_discrepant_fields
+    FROM {{ ref('qa__ldf_header_diffs') }}
 )
 
 SELECT * FROM from_diffs_all

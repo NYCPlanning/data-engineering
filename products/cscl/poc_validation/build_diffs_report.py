@@ -7,7 +7,7 @@ Marries three systems that otherwise don't talk to each other:
   - qa__diffs_all_summary: a dbt view aggregating qa__diffs_all's field-level diffs
     (row + changed-field granularity, with an accounted_for flag for known/legacy
     bugs) by output_file_id, plus the LDF's separate count-based QA models
-    (qa__ldf_summary, qa__ldf_header_diffs). Exported to CSV here.
+    (qa__ldf_diffs, qa__ldf_header_diffs). Exported to CSV here.
   - validation_summary.csv: whole-line file diffs from validate_outputs.sh, keyed by
     filename. Covers every flat-file export (including the ones with no dbt QA
     model yet).

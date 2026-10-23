@@ -110,6 +110,12 @@ models:
       segment/physical/generic ID on the others.
   - name: record_body
     description: The raw record, positions 1-90.
+  - name: known_difference
+    description: >
+      The CSCL-LDF-01 label when the row is a dev-only G or P record whose ID prod's
+      IsSegmentdeleted would find deleted elsewhere in the journal, else null.
+  - name: accounted_for
+    description: True when known_difference is set.
 
 - name: qa__ldf_header_diffs
   description: >
@@ -123,6 +129,14 @@ models:
     description: 1 if dev's header doesn't match prod's, else 0.
   - name: prod_only
     description: 1 if prod's header doesn't match dev's, else 0.
+  - name: differs
+    description: True when the two header records disagree on positions 1-90.
+  - name: record_count_delta
+    description: Dev's header record count minus prod's.
+  - name: accounted_for
+    description: >
+      True when the headers differ only in the record count, by exactly the net of the
+      CSCL-LDF-01 records in qa__ldf_diffs.
 
 # ── RPL QA ───────────────────────────────────────────────────────────────────
 
