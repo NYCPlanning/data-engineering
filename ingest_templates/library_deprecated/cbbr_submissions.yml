@@ -1,6 +1,6 @@
 dataset:
   name: cbbr_submissions
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/cbbr_submissions.csv

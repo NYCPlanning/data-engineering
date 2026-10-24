@@ -1,6 +1,6 @@
 dataset:
   name: dycd_afterschoolprograms
-  acl: public-read
+  acl: private
   source:
     socrata:
       uid: mbd7-jfnc
