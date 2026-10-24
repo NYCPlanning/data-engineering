@@ -1,6 +1,6 @@
 dataset:
   name: dcp_access_subway_sbs
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/dcp_access_subway_SBS.csv

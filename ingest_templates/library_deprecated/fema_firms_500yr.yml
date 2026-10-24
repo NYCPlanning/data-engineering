@@ -1,7 +1,7 @@
 dataset:
   name: fema_firms_500yr
   version: "20181219"
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/fema_firms_500yr.zip

@@ -1,6 +1,6 @@
 dataset:
   name: pluto_corrections
-  acl: public-read
+  acl: private
   source:
     url:
       path: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/PLUTOChangeFile{{ version }}.zip
