@@ -8,6 +8,7 @@ dependencies = [
     # geospatial/geosupport capability available, unlike apps/dagster.
     "dcpy-lifecycle[geo]",
     "marimo>=0.8.0",
+    "marimo-lens",
     "uvicorn>=0.20.0",
 ]
 
