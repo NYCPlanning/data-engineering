@@ -69,7 +69,7 @@ mkdir -p output && (
     mv ../projects_in_geographies ./
 
     echo $VERSION > version.txt
-    wait 
+    wait_for_jobs
 
     echo 
     echo "export complete"
