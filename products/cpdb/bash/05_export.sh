@@ -57,6 +57,7 @@ mkdir -p output && (
             int__project_geom_candidates \
             int__project_mapping_outcomes \
             int__project_boundaries \
+            int__project_asset_categories \
             cpdb_mapping_summary_by_source \
             cpdb_mapping_summary_by_source_and_agency
         do
