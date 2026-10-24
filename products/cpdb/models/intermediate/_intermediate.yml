@@ -3,12 +3,96 @@ version: 2
 models:
   - name: int__ccp_commitments
   - name: int__ccp_projects
-  - name: int__dcpattributes_base
   - name: int__dcpattributes_typecategory
-  - name: int__dcpattributes_geom_unconditional
-  - name: int__dcpattributes_geom_agencyverified
-  - name: int__dcpattributes_geom_stringmatch
-  - name: int__dcpattributes_geom_facilities
+  - name: int__project_geom_candidates_agency_verified
+    description: |
+      One geometry per project in `dcp_cpdb_agencyverified`: the union of what each of the
+      project's rows resolves to, from a geocoded address or else its bridge, park, bin, or bbl.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates_agency_datasets
+    description: |
+      Geometries from agency project datasets (DDC, EDC, DPR, DOT) that carry the project's
+      FMS ID. One row per project per dataset.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates_dcp_curated
+    description: |
+      Geometries DCP assigned to projects, from seeds and the `sprints` dump. One row per
+      project per source.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates_string_match
+    description: |
+      Geometries found by matching a project's description against DPR park IDs and names and
+      facility names. Each match is limited to some agencies and takes at most one geometry
+      per project.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates
+    description: |
+      Every geometry found for a project in the Capital Commitment Plan, from every source,
+      ranked by `priority`. A source that matched nothing for a project has no row.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+    columns:
+      - name: candidate
+        description: The source table or matching rule the geometry came from.
+        tests: [ not_null ]
+      - name: method
+        description: |
+          How the source links to the project: `agency verified` (the agency's answer in
+          `dcp_cpdb_agencyverified`), `agency dataset` (an agency dataset with the project's
+          FMS ID), `dcp curated` (DCP assigned it), or `string match` (the project's
+          description names a park or facility).
+        tests:
+          - accepted_values:
+              values: [ agency verified, agency dataset, dcp curated, string match ]
+      - name: priority
+        description: Rank among a project's candidates. 1 wins.
+        tests: [ not_null ]
+      - name: geomsource
+        description: The `geomsource` this candidate gives `cpdb_dcpattributes` when it wins.
+      - name: datasource
+        description: The `datasource` this candidate gives `cpdb_dcpattributes` when it wins.
+      - name: dataname
+        description: The `dataname` this candidate gives `cpdb_dcpattributes` when it wins.
+  - name: int__project_geom
+    description: |
+      One row per project in the Capital Commitment Plan, with its top-ranked geometry
+      candidate, a list of all its candidates, and why `cpdb_dcpattributes` drops the
+      geometry, if it does. `geom` is the candidate's geometry before that product's cleanup.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: candidate
+        description: The winning candidate. Null when no source has a geometry for the project.
+      - name: method
+        description: The winning candidate's `method`.
+      - name: candidate_count
+        description: Number of sources with a geometry for the project.
+      - name: candidates
+        description: All candidates for the project, in priority order.
+      - name: candidate_methods
+        description: Distinct methods among the project's candidates.
+      - name: geom_removed_reason
+        description: |
+          Why `cpdb_dcpattributes` has no geometry for a project that has one here:
+          `flagged bad geometry` (listed in `cpdb_badgeoms`, from a source other than DPR, DOT,
+          or DDC), `agency: can never be mapped`, or `agency: can be mapped in future` (from a
+          source other than DPR, DOT, DDC, or EDC). Null when the geometry is kept or there is
+          none.
+        tests:
+          - accepted_values:
+              values:
+                - flagged bad geometry
+                - 'agency: can never be mapped'
+                - 'agency: can be mapped in future'
   - name: int__fisa_budget_data
   - name: int__budget_data
   - name: int__budget_data_wide
