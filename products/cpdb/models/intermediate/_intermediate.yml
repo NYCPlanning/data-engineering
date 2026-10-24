@@ -164,6 +164,32 @@ models:
           `points` or `polygons`, the shapefile the project is in. Null when it isn't mapped.
       - name: planned_commitment_records
         description: Rows the project has in the Capital Commitment Plan (`int__ccp_commitments`).
+  - name: int__project_asset_categories
+    description: |
+      OMB's asset category and climate vulnerability flags for each project in OMB's climate
+      budgeting data, from the latest release published on or before the FISA extract the
+      build's Capital Commitment Plan comes from. Projects that aren't in that release have no
+      row.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: financial_plan
+        description: The climate budgeting release used, like `Fiscal Year 2027 Executive Budget`.
+        tests: [ not_null ]
+      - name: asset_category
+        description: |
+          OMB's asset category for the project's budget lines with the most planned dollars.
+          Ties go to the category that sorts first.
+      - name: asset_category_share
+        description: Share of the project's planned dollars in `asset_category`.
+      - name: asset_category_count
+        description: Number of asset categories across the project's budget lines.
+      - name: asset_categories
+        description: All of the project's asset categories, most planned dollars first.
+      - name: heat_vulnerability_index
+        description: Whether OMB says any of the project's budget lines is in a high heat area.
+      - name: flood_vulnerability_index
+        description: Whether OMB says any of the project's budget lines is in a high flood zone.
   - name: int__fisa_budget_data
   - name: int__budget_data
   - name: int__budget_data_wide
