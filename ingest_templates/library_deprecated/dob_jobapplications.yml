@@ -1,7 +1,7 @@
 # migrated to ingest as dob_now_applications
 dataset:
   name: dob_jobapplications
-  acl: public-read
+  acl: private
   source:
     socrata:
       uid: ic3t-wcy2

@@ -1,6 +1,6 @@
 dataset:
   name: dcp_proximity_establishments
-  acl: public-read
+  acl: private
   source:
     url:
       path: .library/upload/AUE_Data_20230425.zip

@@ -1,7 +1,7 @@
 # migrated to ingest as dob_bis_permits
 dataset:
   name: dob_permitissuance
-  acl: public-read
+  acl: private
   source:
     socrata:
       uid: ipu4-2q9a

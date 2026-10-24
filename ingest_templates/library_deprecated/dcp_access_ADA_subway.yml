@@ -1,6 +1,6 @@
 dataset:
   name: dcp_access_ada_subway
-  acl: public-read
+  acl: private
   source:
     url:
       path: library/tmp/dcp_access_ADA_subway.csv
