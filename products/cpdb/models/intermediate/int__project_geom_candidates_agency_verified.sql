@@ -1,8 +1,5 @@
-WITH base AS (
-    SELECT * FROM {{ ref('int__dcpattributes_geom_unconditional') }}
-),
-
-agencyverified_base AS (
+-- agency-verified locations: the agency's bin, bbl, bridge, or park ID, or a geocoded address
+WITH agencyverified_base AS (
     SELECT
         ROW_NUMBER() OVER () AS row_id,
         *
@@ -130,17 +127,10 @@ agencyverified AS (
 )
 
 SELECT
-    base.ccpversion,
-    base.maprojid,
-    base.magency,
-    base.magencyacro,
-    base.projectid,
-    base.description,
-    base.typecategory,
-    COALESCE(agencyverified.geomsource, base.geomsource) AS geomsource,
-    COALESCE(agencyverified.dataname, base.dataname) AS dataname,
-    COALESCE(agencyverified.datasource, base.datasource) AS datasource,
-    base.datadate,
-    COALESCE(agencyverified.geom, base.geom) AS geom
-FROM base
-LEFT JOIN agencyverified ON base.maprojid = agencyverified.maprojid
+    maprojid,
+    'dcp_cpdb_agencyverified'::text AS candidate,
+    geomsource,
+    datasource,
+    dataname,
+    geom
+FROM agencyverified

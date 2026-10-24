@@ -1,5 +1,5 @@
-WITH base AS (
-    SELECT * FROM {{ ref('int__dcpattributes_geom_facilities') }}
+WITH geoms AS (
+    SELECT * FROM {{ ref('int__project_geom') }}
 ),
 
 geomclean_step1 AS (
@@ -9,7 +9,8 @@ geomclean_step1 AS (
             WHEN ST_GEOMETRYTYPE(geom) = 'ST_MultiLineString' THEN ST_SNAPTOGRID(geom, .00001)
             ELSE geom
         END AS geom
-    FROM base
+    FROM geoms
+    WHERE geom_removed_reason IS NULL
 ),
 
 geomclean_step2 AS (
@@ -32,50 +33,12 @@ geomclean AS (
     FROM geomclean_step2
 ),
 
-badgeoms_flagged AS (
-    SELECT DISTINCT maprojid FROM {{ ref('cpdb_badgeoms') }}
-),
-
-agencyverified_never_mappable AS (
-    SELECT DISTINCT maprojid FROM {{ ref('dcp_cpdb_agencyverified') }}
-    WHERE mappable = 'No - Can never be mapped'
-),
-
-agencyverified_maybe_mappable AS (
-    SELECT DISTINCT maprojid FROM {{ ref('dcp_cpdb_agencyverified') }}
-    WHERE mappable = 'No - Can be in future'
-),
-
--- legacy's own trusted-source exception here -- `geomsource != 'dpr' OR geomsource != 'dot' OR
--- geomsource != 'ddc'` -- is a tautology (always true for any single value), so the "don't null
--- out trusted-agency geoms" protection never actually fires. Fixed here per an earlier decision
--- to not replicate the bug: `NOT IN` instead of chained `OR !=`.
-badgeoms AS (
-    SELECT
-        base.maprojid,
-        CASE
-            WHEN
-                base.maprojid IN (SELECT maprojid FROM badgeoms_flagged)
-                AND base.geomsource NOT IN ('dpr', 'dot', 'ddc')
-                THEN NULL
-            WHEN base.maprojid IN (SELECT maprojid FROM agencyverified_never_mappable)
-                THEN NULL
-            WHEN
-                base.maprojid IN (SELECT maprojid FROM agencyverified_maybe_mappable)
-                AND base.geomsource NOT IN ('dpr', 'dot', 'ddc', 'edc')
-                THEN NULL
-            ELSE geomclean.geom
-        END AS geom
-    FROM base
-    INNER JOIN geomclean ON base.maprojid = geomclean.maprojid
-),
-
 -- fix inverted longitude for point projects with at least one point outside NYC
 lon_fix_candidates AS (
     SELECT
         maprojid,
         geom
-    FROM badgeoms
+    FROM geomclean
     WHERE ST_GEOMETRYTYPE(geom) = 'ST_MultiPoint' AND ST_XMAX(geom) > 0
 ),
 
@@ -102,11 +65,12 @@ SELECT
     base.projectid,
     base.description,
     base.typecategory,
-    base.geomsource,
-    base.dataname,
-    base.datasource,
-    base.datadate,
-    COALESCE(lon_fixed_points.geom, badgeoms.geom) AS geom
-FROM base
-INNER JOIN badgeoms ON base.maprojid = badgeoms.maprojid
+    geoms.geomsource,
+    geoms.dataname,
+    geoms.datasource,
+    NULL::timestamp AS datadate,
+    COALESCE(lon_fixed_points.geom, geomclean.geom) AS geom
+FROM {{ ref('int__dcpattributes_typecategory') }} AS base
+INNER JOIN geoms ON base.maprojid = geoms.maprojid
+LEFT JOIN geomclean ON base.maprojid = geomclean.maprojid
 LEFT JOIN lon_fixed_points ON base.maprojid = lon_fixed_points.maprojid
