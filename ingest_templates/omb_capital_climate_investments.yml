@@ -1,0 +1,85 @@
+id: omb_capital_climate_investments
+
+attributes:
+  name: "NYC Climate Budgeting Report: Climate Alignment Assessment and Capital Climate Investments"
+  description: >-
+    Every project in the capital budget, by budget line and fiscal year, with OMB's asset
+    category and climate alignment ratings. Released once a year with the Executive Budget,
+    and every release is identified by published_date. Amounts are in thousands.
+  url: https://data.cityofnewyork.us/d/c99a-c5ux
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: c99a-c5ux
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+    # Socrata API field names, which the Open Data data dictionary uses
+    - name: rename_columns
+      args:
+        map:
+          {
+            "Published Date": "published_date",
+            "Project Id": "project_id",
+            "Project Description": "project_description",
+            "Budget Line": "budget_line",
+            "Budget Line Title": "budget_line_title",
+            "Asset Category": "asset_category",
+            "Greenhouse Gas (GHG) Mitigation Tracking Category": "ghg_mitigation_tracking_category",
+            "Flood Resiliency Tracking Category": "flood_resiliency_tracking_category",
+            "Heat Resiliency Tracking Category": "heat_resiliency_tracking_category",
+            "Heat Vulnerability Index": "heat_vulnerability_index",
+            "Flood Vulnerability Index": "flood_vulnerability_index",
+            "Greenhouse Gas (GHG) Mitigation": "ghg_mitigation",
+            "Flood Resiliency": "flood_resiliency",
+            "Heat Resiliency": "heat_resiliency",
+            "Environmental and Social Benefits": "environmental_and_social_benefits",
+            "Financial Plan": "financial_plan",
+            "Fiscal Year": "first_fiscal_year",
+            "Fiscal Year Amount": "fiscal_year_amount",
+            "Remarks": "remarks",
+          }
+
+columns:
+  - id: published_date
+    data_type: text
+  - id: project_id
+    data_type: text
+  - id: project_description
+    data_type: text
+  - id: budget_line
+    data_type: text
+  - id: budget_line_title
+    data_type: text
+  - id: asset_category
+    data_type: text
+  - id: ghg_mitigation_tracking_category
+    data_type: text
+  - id: flood_resiliency_tracking_category
+    data_type: text
+  - id: heat_resiliency_tracking_category
+    data_type: text
+  - id: heat_vulnerability_index
+    data_type: text
+  - id: flood_vulnerability_index
+    data_type: text
+  - id: ghg_mitigation
+    data_type: text
+  - id: flood_resiliency
+    data_type: text
+  - id: heat_resiliency
+    data_type: text
+  - id: environmental_and_social_benefits
+    data_type: text
+  - id: financial_plan
+    data_type: text
+  - id: first_fiscal_year
+    data_type: text
+  - id: fiscal_year_amount
+    data_type: text
+  - id: remarks
+    data_type: text

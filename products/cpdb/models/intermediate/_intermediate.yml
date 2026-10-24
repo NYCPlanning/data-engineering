@@ -3,12 +3,193 @@ version: 2
 models:
   - name: int__ccp_commitments
   - name: int__ccp_projects
-  - name: int__dcpattributes_base
   - name: int__dcpattributes_typecategory
-  - name: int__dcpattributes_geom_unconditional
-  - name: int__dcpattributes_geom_agencyverified
-  - name: int__dcpattributes_geom_stringmatch
-  - name: int__dcpattributes_geom_facilities
+  - name: int__project_geom_candidates_agency_verified
+    description: |
+      One geometry per project in `dcp_cpdb_agencyverified`: the union of what each of the
+      project's rows resolves to, from a geocoded address or else its bridge, park, bin, or bbl.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates_agency_datasets
+    description: |
+      Geometries from agency project datasets (DDC, EDC, DPR, DOT) that carry the project's
+      FMS ID. One row per project per dataset.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates_dcp_curated
+    description: |
+      Geometries DCP assigned to projects, from seeds and the `sprints` dump. One row per
+      project per source.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates_string_match
+    description: |
+      Geometries found by matching a project's description against DPR park IDs and names and
+      facility names. Each match is limited to some agencies and takes at most one geometry
+      per project.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+  - name: int__project_geom_candidates
+    description: |
+      Every geometry found for a project in the Capital Commitment Plan, from every source,
+      ranked by `priority`. A source that matched nothing for a project has no row.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, candidate ]
+    columns:
+      - name: candidate
+        description: The source table or matching rule the geometry came from.
+        tests: [ not_null ]
+      - name: method
+        description: |
+          How the source links to the project: `agency verified` (the agency's answer in
+          `dcp_cpdb_agencyverified`), `agency dataset` (an agency dataset with the project's
+          FMS ID), `dcp curated` (DCP assigned it), or `string match` (the project's
+          description names a park or facility).
+        tests:
+          - accepted_values:
+              values: [ agency verified, agency dataset, dcp curated, string match ]
+      - name: priority
+        description: Rank among a project's candidates. 1 wins.
+        tests: [ not_null ]
+      - name: geomsource
+        description: The `geomsource` this candidate gives `cpdb_dcpattributes` when it wins.
+      - name: datasource
+        description: The `datasource` this candidate gives `cpdb_dcpattributes` when it wins.
+      - name: dataname
+        description: The `dataname` this candidate gives `cpdb_dcpattributes` when it wins.
+  - name: int__project_geom
+    description: |
+      One row per project in the Capital Commitment Plan, with its top-ranked geometry
+      candidate, a list of all its candidates, and why `cpdb_dcpattributes` drops the
+      geometry, if it does. `geom` is the candidate's geometry before that product's cleanup.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: candidate
+        description: The winning candidate. Null when no source has a geometry for the project.
+      - name: method
+        description: The winning candidate's `method`.
+      - name: candidate_count
+        description: Number of sources with a geometry for the project.
+      - name: candidates
+        description: All candidates for the project, in priority order.
+      - name: candidate_methods
+        description: Distinct methods among the project's candidates.
+      - name: geom_removed_reason
+        description: |
+          Why `cpdb_dcpattributes` has no geometry for a project that has one here:
+          `flagged bad geometry` (listed in `cpdb_badgeoms`, from a source other than DPR, DOT,
+          or DDC), `agency: can never be mapped`, or `agency: can be mapped in future` (from a
+          source other than DPR, DOT, DDC, or EDC). Null when the geometry is kept or there is
+          none.
+        tests:
+          - accepted_values:
+              values:
+                - flagged bad geometry
+                - 'agency: can never be mapped'
+                - 'agency: can be mapped in future'
+  - name: int__project_dashboard_areas
+    description: |
+      The boroughs and community districts the Capital Projects Dashboard gives each project
+      that matches one of its projects, in its latest reporting period. A dashboard project
+      can have several agency projects (`pid`), each listing one or more areas.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: dashboard_rows
+        description: Number of dashboard agency projects matched to the project.
+      - name: every_row_has_community_district
+        description: Whether every matched agency project names at least one community district.
+      - name: is_citywide
+        description: Whether any matched agency project says `Citywide`.
+      - name: boroughs
+        description: Distinct boroughs named, including those of named community districts.
+      - name: community_districts
+        description: Distinct community districts named, as `borocd` (like `407` for Queens 07).
+  - name: int__project_boundaries
+    description: |
+      Each project's borough and community district. They come from the project's geometry in
+      `cpdb_dcpattributes` when it intersects at least one, and otherwise from the Capital
+      Projects Dashboard (`int__project_dashboard_areas`).
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: borough
+        description: |
+          Borough name, or `multiple` when the project is in more than one. Null when neither
+          source places the project.
+      - name: borough_source
+        tests:
+          - accepted_values:
+              values: [ geometry, dashboard ]
+      - name: community_district
+        description: |
+          Community district as `borocd`, or `multiple` when the project is in more than one.
+          From the dashboard, a single community district only counts when every matched agency
+          project names it.
+      - name: community_district_source
+        tests:
+          - accepted_values:
+              values: [ geometry, dashboard ]
+      - name: boroughs
+        description: All of the project's boroughs from the same source as `borough`.
+      - name: community_districts
+        description: All of the project's community districts from the same source as `community_district`.
+      - name: dashboard_citywide
+        description: |
+          Whether the dashboard calls any of the project's agency projects `Citywide`. Set
+          regardless of `borough_source`.
+      - name: dashboard_location
+        description: |
+          The dashboard's most specific location for the project, whether or not it has a
+          geometry: `community district`, `borough`, or `citywide`. Null when the dashboard
+          doesn't place it.
+        tests:
+          - accepted_values:
+              values: [ community district, borough, citywide ]
+  - name: int__project_mapping_outcomes
+    description: |
+      One row per project: the geometry source that won, whether the geometry was removed or
+      mapped, and whether a source using another method also had a geometry.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: mapped_as
+        description: |
+          `points` or `polygons`, the shapefile the project is in. Null when it isn't mapped.
+      - name: planned_commitment_records
+        description: Rows the project has in the Capital Commitment Plan (`int__ccp_commitments`).
+  - name: int__project_asset_categories
+    description: |
+      OMB's asset category and climate vulnerability flags for each project in OMB's climate
+      budgeting data, from the latest release published on or before the FISA extract the
+      build's Capital Commitment Plan comes from. Projects that aren't in that release have no
+      row.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: financial_plan
+        description: The climate budgeting release used, like `Fiscal Year 2027 Executive Budget`.
+        tests: [ not_null ]
+      - name: asset_category
+        description: |
+          OMB's asset category for the project's budget lines with the most planned dollars.
+          Ties go to the category that sorts first.
+      - name: asset_category_share
+        description: Share of the project's planned dollars in `asset_category`.
+      - name: asset_category_count
+        description: Number of asset categories across the project's budget lines.
+      - name: asset_categories
+        description: All of the project's asset categories, most planned dollars first.
+      - name: heat_vulnerability_index
+        description: Whether OMB says any of the project's budget lines is in a high heat area.
+      - name: flood_vulnerability_index
+        description: Whether OMB says any of the project's budget lines is in a high flood zone.
   - name: int__fisa_budget_data
   - name: int__budget_data
   - name: int__budget_data_wide

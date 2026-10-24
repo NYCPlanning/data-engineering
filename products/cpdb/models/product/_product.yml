@@ -4,14 +4,69 @@ models:
   - name: cpdb_dcpattributes
     description: >
       Master capital-projects attributes table -- one row per project (maprojid), with the
-      project's managing agency, description, type category, and a single best-guess geometry
-      assembled from a long priority chain of geometry sources (manual sprints/geojson data,
-      building/park/facility footprints, agency-verified geocoding, and fuzzy park-name matching
-      as a last resort). Ported from the legacy bash/SQL pipeline (bash/02_build.sh); replaces
-      the `cpdb_legacy_pipeline.cpdb_dcpattributes` source.
+      project's managing agency, description, type category, and a single best-guess geometry:
+      the top-ranked candidate in `int__project_geom_candidates`, dropped when
+      `int__project_geom.geom_removed_reason` is set. Lines are buffered 15 meters into
+      polygons.
     columns:
       - name: maprojid
         tests: [ unique, not_null ]
+
+  - name: cpdb_mapping_summary_by_source
+    description: |
+      Projects in the Capital Commitment Plan by how CPDB mapped them, with a final
+      `total` row. A project counts under the geometry source that won
+      (`int__project_geom`), or `none` when no source had a geometry. The project counts from
+      `projects_mapped_as_points` through `projects_no_geometry_found` split each row's
+      projects and add up to `projects_total`. The columns before them are subtotals.
+      `projects_also_found_by_another_method` counts projects where a source using a
+      different method also had a geometry.
+      `planned_commitments_*` sum planned commitment dollars and `planned_commitment_records_*`
+      count the projects' rows in the Capital Commitment Plan.
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: >-
+            projects_mapped_as_points + projects_mapped_as_polygons
+            + projects_geometry_removed_flagged_bad
+            + projects_geometry_removed_agency_never_mappable
+            + projects_geometry_removed_agency_mappable_in_future
+            + projects_no_geometry_found = projects_total
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped_as_points + projects_mapped_as_polygons = projects_mapped
+      - dbt_utils.expression_is_true:
+          expression: >-
+            planned_commitment_records_mapped + planned_commitment_records_not_mapped
+            = planned_commitment_records_total
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped + projects_geometry_removed = projects_geometry_found
+
+  - name: cpdb_mapping_summary_by_source_and_agency
+    description: |
+      Projects in the Capital Commitment Plan by how CPDB mapped them, per managing agency,
+      with a final `total` row. A project counts under the geometry source that won
+      (`int__project_geom`), or `none` when no source had a geometry. The project counts from
+      `projects_mapped_as_points` through `projects_no_geometry_found` split each row's
+      projects and add up to `projects_total`. The columns before them are subtotals.
+      `projects_also_found_by_another_method` counts projects where a source using a
+      different method also had a geometry.
+      `planned_commitments_*` sum planned commitment dollars and `planned_commitment_records_*`
+      count the projects' rows in the Capital Commitment Plan.
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: >-
+            projects_mapped_as_points + projects_mapped_as_polygons
+            + projects_geometry_removed_flagged_bad
+            + projects_geometry_removed_agency_never_mappable
+            + projects_geometry_removed_agency_mappable_in_future
+            + projects_no_geometry_found = projects_total
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped_as_points + projects_mapped_as_polygons = projects_mapped
+      - dbt_utils.expression_is_true:
+          expression: >-
+            planned_commitment_records_mapped + planned_commitment_records_not_mapped
+            = planned_commitment_records_total
+      - dbt_utils.expression_is_true:
+          expression: projects_mapped + projects_geometry_removed = projects_geometry_found
 
   - name: cpdb_projects_geom
     description: >
@@ -48,6 +103,51 @@ models:
 
   - name: cpdb_projects_poly
     description: cpdb_projects_shp filtered to polygon geometries, for shapefile export.
+
+  - name: cpdb_projects_boundaries
+    description: |
+      Every project in `cpdb_projects_shp`, mapped or not, with its borough and community
+      district from `int__project_boundaries`. For files shared outside the published CPDB
+      outputs, which don't change.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: mapped_as
+        description: |
+          `points` or `polygons`, the shapefile the project is in. Null when it isn't mapped.
+        tests:
+          - accepted_values:
+              values: [ points, polygons ]
+      - name: borough
+        description: Borough name, or `multiple`. Null when neither the geometry nor the dashboard places the project.
+      - name: multi_boro
+        description: Whether the project is in more than one borough. Null when `borough` is.
+      - name: boros
+        description: All of the project's boroughs, from the same source as `borough`.
+      - name: boro_src
+        description: Where `borough` comes from, `geometry` or `dashboard`.
+      - name: cd
+        description: Community district as `borocd`, or `multiple`.
+      - name: multi_cd
+        description: Whether the project is in more than one community district. Null when `cd` is.
+      - name: cds
+        description: All of the project's community districts, from the same source as `cd`.
+      - name: cd_src
+        description: Where `cd` comes from, `geometry` or `dashboard`.
+      - name: citywide
+        description: Whether the Capital Projects Dashboard calls the project citywide, whatever its geometry.
+
+  - name: cpdb_projects_boundaries_csv
+    description: |
+      cpdb_projects_boundaries without geometry, for CSV export, with `multi_boro`, `multi_cd`,
+      and `citywide` as `true` or `false` text since Postgres writes booleans to CSV as `t` and
+      `f`.
+
+  - name: cpdb_projects_boundaries_pts
+    description: cpdb_projects_boundaries filtered to point geometries, for shapefile export.
+
+  - name: cpdb_projects_boundaries_poly
+    description: cpdb_projects_boundaries filtered to polygon geometries, for shapefile export.
 
   - name: cpdb_budgets
     description: >

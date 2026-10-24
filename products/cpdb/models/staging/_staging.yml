@@ -99,6 +99,37 @@ models:
       - name: cptl_proj_id
         tests: [ not_null ]
 
+  - name: stg__omb_capital_climate_investments
+    description: |
+      OMB's climate budgeting data: every project in the capital budget by budget line and
+      fiscal year, with an asset category and climate ratings, for every Executive Budget
+      release. Amounts are in thousands.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ published_date, project_id, budget_line, fiscal_year ]
+    columns:
+      - name: published_date
+        tests: [ not_null ]
+      - name: financial_plan
+        description: The release, like `Fiscal Year 2027 Executive Budget`.
+        tests: [ not_null ]
+      - name: maprojid
+        description: |
+          `project_id` without the space after the agency code, to match CPDB's `maprojid`.
+        tests: [ not_null ]
+      - name: asset_category
+        description: |
+          OMB's type of capital project, set per budget line, so one project can have several.
+          `It & Technology` is folded into `IT & Technology`. Null for every row of the FY2025
+          Executive Budget release.
+      - name: heat_vulnerability_index
+        description: Whether OMB says the project is in a high heat area.
+      - name: flood_vulnerability_index
+        description: Whether OMB says the project is in a high flood zone.
+      - name: fiscal_year
+        description: Fiscal year of `fiscal_year_amount`. Named `first_fiscal_year` in the source.
+        tests: [ not_null ]
+
   - name: stg__omb_tycs
     description: |
       Ten-Year Capital Strategy, every release since 2019, realigned to the published column

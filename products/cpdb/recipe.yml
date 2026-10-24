@@ -5,37 +5,69 @@ inputs:
   missing_versions_strategy: find_latest
   datasets:
     - name: dcp_boroboundaries_wi
+      version: "26b"
     - name: dcp_stateassemblydistricts
+      version: "26b"
     - name: dcp_ct2020
+      version: "26b"
     - name: dcp_congressionaldistricts
+      version: "26b"
     - name: dcp_cdboundaries
+      version: "26b"
     - name: dcp_statesenatedistricts
+      version: "26b"
     - name: dcp_municipalcourtdistricts
+      version: "26b"
     - name: dcp_school_districts
+      version: "26b"
     - name: dcp_trafficanalysiszones
+      version: "20210609"
     - name: dcp_councildistricts
+      version: "26b"
     - name: dcp_policeprecincts
+      version: "26b"
     - name: dcp_firecompanies
+      version: "26b"
 
     # Building and lot-level info
     - name: dcp_mappluto_wi
+      version: "26v1"
       file_type: parquet
     - name: dcp_facilities
+      version: "25v1"
     - name: doitt_buildingfootprints
+      version: "20260707"
 
     # Projects
     - name: dcp_managing_agencies_lookup
+      version: "20260222"
     - name: nycoc_checkbook
+      version: "20260626"
     - name: fisa_capitalcommitments
+      version: "20260625"
     - name: fisa_dailybudget
+      version: "20260625"
     - name: omb_tycs
+      version: "20250506"
+    - name: omb_capital_climate_investments
+      version: "20260811"
     - name: moo_capital_projects_budget_schedule
+      version: "20260715"
     - name: dot_projects_intersections
+      version: "20260701"
     - name: dot_projects_streets
+      version: "20260612"
     - name: dot_projects_bridges
+      version: "20260626"
     - name: dpr_capitalprojects
+      version: "20260625"
     - name: dpr_parksproperties
+      version: "20260617"
     - name: edc_capitalprojects_ferry
+      version: "20210610"
     - name: edc_capitalprojects
+      version: "20260708"
     - name: ddc_capitalprojects_infrastructure
+      version: "20260701"
     - name: ddc_capitalprojects_publicbuildings
+      version: "20260701"
