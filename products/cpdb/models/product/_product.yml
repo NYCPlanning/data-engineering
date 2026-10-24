@@ -104,6 +104,51 @@ models:
   - name: cpdb_projects_poly
     description: cpdb_projects_shp filtered to polygon geometries, for shapefile export.
 
+  - name: cpdb_projects_boundaries
+    description: |
+      Every project in `cpdb_projects_shp`, mapped or not, with its borough and community
+      district from `int__project_boundaries`. For files shared outside the published CPDB
+      outputs, which don't change.
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: mapped_as
+        description: |
+          `points` or `polygons`, the shapefile the project is in. Null when it isn't mapped.
+        tests:
+          - accepted_values:
+              values: [ points, polygons ]
+      - name: borough
+        description: Borough name, or `multiple`. Null when neither the geometry nor the dashboard places the project.
+      - name: multi_boro
+        description: Whether the project is in more than one borough. Null when `borough` is.
+      - name: boros
+        description: All of the project's boroughs, from the same source as `borough`.
+      - name: boro_src
+        description: Where `borough` comes from, `geometry` or `dashboard`.
+      - name: cd
+        description: Community district as `borocd`, or `multiple`.
+      - name: multi_cd
+        description: Whether the project is in more than one community district. Null when `cd` is.
+      - name: cds
+        description: All of the project's community districts, from the same source as `cd`.
+      - name: cd_src
+        description: Where `cd` comes from, `geometry` or `dashboard`.
+      - name: citywide
+        description: Whether the Capital Projects Dashboard calls the project citywide, whatever its geometry.
+
+  - name: cpdb_projects_boundaries_csv
+    description: |
+      cpdb_projects_boundaries without geometry, for CSV export, with `multi_boro`, `multi_cd`,
+      and `citywide` as `true` or `false` text since Postgres writes booleans to CSV as `t` and
+      `f`.
+
+  - name: cpdb_projects_boundaries_pts
+    description: cpdb_projects_boundaries filtered to point geometries, for shapefile export.
+
+  - name: cpdb_projects_boundaries_poly
+    description: cpdb_projects_boundaries filtered to polygon geometries, for shapefile export.
+
   - name: cpdb_budgets
     description: >
       ccp_commitments aggregated by (ccpversion, magency, projectid, maprojid, budgetline,

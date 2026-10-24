@@ -29,6 +29,24 @@ mkdir -p output && (
     shp_export cpdb_projects_pts MULTIPOINT &
     shp_export cpdb_projects_poly MULTIPOLYGON &
 
+    # projects with borough and community district, for sharing without changing the
+    # published files: points and polygons shapefiles and a CSV of every project, mapped or
+    # not. The GeoPackage has the same three as layers.
+    shp_export cpdb_projects_boundaries_pts MULTIPOINT &
+    shp_export cpdb_projects_boundaries_poly MULTIPOLYGON &
+    csv_export cpdb_projects_boundaries_csv cpdb_projects_boundaries &
+    (
+        ogr2ogr -f GPKG cpdb_projects_boundaries.gpkg PG:${BUILD_ENGINE} \
+            ${BUILD_ENGINE_SCHEMA:-public}.cpdb_projects_boundaries_pts \
+            -nln cpdb_projects_boundaries_pts -nlt MULTIPOINT
+        ogr2ogr -f GPKG -update cpdb_projects_boundaries.gpkg PG:${BUILD_ENGINE} \
+            ${BUILD_ENGINE_SCHEMA:-public}.cpdb_projects_boundaries_poly \
+            -nln cpdb_projects_boundaries_poly -nlt MULTIPOLYGON
+        ogr2ogr -f GPKG -update cpdb_projects_boundaries.gpkg PG:${BUILD_ENGINE} \
+            ${BUILD_ENGINE_SCHEMA:-public}.cpdb_projects_boundaries \
+            -nln cpdb_projects_boundaries -nlt GEOMETRY
+    ) &
+
     # one GeoPackage for reviewing how projects were mapped. Layers are written one at a time
     # since a GeoPackage can't take concurrent writes.
     (
