@@ -104,6 +104,39 @@ models:
     columns:
       - name: reporting_period
         tests: [ not_null ]
+  - name: int__project_dashboard_matches
+    description: |
+      Each project that matches a Capital Projects Dashboard project (an FMS ID and managing
+      agency) in `int__dashboard_agency_projects`. A project matches on FMS ID and managing
+      agency, or on FMS ID alone when each side has one project.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ fms_id, managing_agency ]
+    columns:
+      - name: maprojid
+        tests: [ unique, not_null ]
+      - name: same_agency
+        description: |
+          Whether the managing agencies match, after `dashboard_managing_agencies`. False
+          means the project matched on FMS ID alone.
+  - name: int__project_dashboard_schedules
+    description: |
+      Each project's Capital Projects Dashboard agency projects (`pid`), with their phase and
+      schedule, from `int__dashboard_agency_projects`. One row per project and agency
+      project. Projects that don't match a dashboard project have no rows. Rows without a
+      `pid` have no agency schedule, only a `current_phase` in parentheses.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ maprojid, pid ]
+    columns:
+      - name: maprojid
+        tests: [ not_null ]
+      - name: pid
+        description: |
+          The managing agency's ID for a set of schedules. One `pid` can be funded by several
+          FMS IDs, and so belong to several projects.
+      - name: agency_data_date
+        description: When the agency updated this row's schedule. Null without a `pid`.
   - name: int__project_dashboard_areas
     description: |
       The boroughs and community districts the Capital Projects Dashboard gives each project
