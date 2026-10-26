@@ -215,8 +215,8 @@ models:
           What set `mappability` and `geographic_scope`, in order of precedence: `geometry`
           (CPDB's), `agency verified` (the agency's answer in `dcp_cpdb_agencyverified`,
           through `agency_verified_mappability`), `dashboard` (the Capital Projects
-          Dashboard's `community_board` in its latest reporting period, used only when it
-          names one community district or borough), or `category` (the `place_link` of the
+          Dashboard's `community_board` in `int__dashboard_agency_projects`, used only when
+          it names one community district or borough), or `category` (the `place_link` of the
           ten-year plan category with most of the project's planned dollars). From a
           category, `fleet` and `system` projects are `not place-specific` and `citywide`.
           That's our reading, not the agency's.

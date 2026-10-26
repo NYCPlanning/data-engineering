@@ -166,6 +166,9 @@ models:
       - name: fms_id
         description: FMS project ID, without the managing agency code that starts `maprojid`.
         tests: [ not_null ]
+      - name: fms_data_date
+        description: When the FMS data in the reporting period was updated. One per period.
+        tests: [ not_null ]
 
   - name: stg__dot_projects_intersections
     columns:

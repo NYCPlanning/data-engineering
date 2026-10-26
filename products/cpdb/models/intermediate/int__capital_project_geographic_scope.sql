@@ -40,10 +40,7 @@ dashboard_areas AS (
             WHEN community_board ~ '^(Manhattan|Bronx|Brooklyn|Queens|Staten Island) \d{2}$'
                 THEN REGEXP_REPLACE(community_board, ' \d{2}$', '')
         END AS borough
-    FROM {{ ref('stg__moo_capital_projects_budget_schedule') }}
-    WHERE
-        reporting_period
-        = (SELECT MAX(reporting_period) FROM {{ ref('stg__moo_capital_projects_budget_schedule') }})
+    FROM {{ ref('int__dashboard_agency_projects') }}
 ),
 
 -- a dashboard project is an FMS ID and managing agency, and its agency projects can be in
