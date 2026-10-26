@@ -50,7 +50,6 @@ dashboard_scopes AS (
     SELECT
         fms_id,
         managing_agency,
-        COUNT(*) OVER (PARTITION BY fms_id) AS agencies,
         CASE
             WHEN COUNT(*) = COUNT(community_district) AND COUNT(DISTINCT community_district) = 1
                 THEN 'community district'
@@ -61,30 +60,13 @@ dashboard_scopes AS (
     GROUP BY fms_id, managing_agency
 ),
 
-fisa_projects AS (
-    SELECT
-        projects.maprojid,
-        COALESCE(agencies.dashboard_managing_agency, projects.magencyacro) AS managing_agency,
-        TRIM(projects.projectid) AS fms_id,
-        COUNT(*) OVER (PARTITION BY TRIM(projects.projectid)) AS candidates
-    FROM {{ ref('int__ccp_projects') }} AS projects
-    LEFT JOIN {{ ref('dashboard_managing_agencies') }} AS agencies
-        ON projects.magency = agencies.magency::text
-),
-
--- the dashboard's FMS ID has no agency code, so a project matches on FMS ID and managing
--- agency. Both sources name the agency from the same three-digit code, sometimes with
--- different acronyms (see dashboard_managing_agencies), so a project ID with one project on
--- each side also matches when the acronyms differ
 dashboard_matches AS (
     SELECT
-        f.maprojid,
+        m.maprojid,
         d.geographic_scope
-    FROM fisa_projects AS f
+    FROM {{ ref('int__project_dashboard_matches') }} AS m
     INNER JOIN dashboard_scopes AS d
-        ON
-            f.fms_id = d.fms_id
-            AND (f.managing_agency = d.managing_agency OR (f.candidates = 1 AND d.agencies = 1))
+        ON m.fms_id = d.fms_id AND m.managing_agency = d.managing_agency
 ),
 
 place_link_totals AS (

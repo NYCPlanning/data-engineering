@@ -55,49 +55,13 @@ dashboard_rows AS (
     GROUP BY fms_id, managing_agency, pid
 ),
 
-dashboard_projects AS (
-    SELECT
-        fms_id,
-        managing_agency,
-        COUNT(*) OVER (PARTITION BY fms_id) AS agencies
-    FROM dashboard_rows
-    GROUP BY fms_id, managing_agency
-),
-
-fisa_projects AS (
-    SELECT
-        projects.maprojid,
-        COALESCE(agencies.dashboard_managing_agency, projects.magencyacro) AS managing_agency,
-        TRIM(projects.projectid) AS fms_id,
-        COUNT(*) OVER (PARTITION BY TRIM(projects.projectid)) AS candidates
-    FROM {{ ref('int__ccp_projects') }} AS projects
-    LEFT JOIN {{ ref('dashboard_managing_agencies') }} AS agencies
-        ON projects.magency = agencies.magency::text
-),
-
--- the dashboard's FMS ID has no agency code, so a project matches on FMS ID and managing
--- agency. Both sources name the agency from the same three-digit code, sometimes with
--- different acronyms (see dashboard_managing_agencies), so a project ID with one project on
--- each side also matches when the acronyms differ
-matches AS (
-    SELECT
-        f.maprojid,
-        d.fms_id,
-        d.managing_agency
-    FROM fisa_projects AS f
-    INNER JOIN dashboard_projects AS d
-        ON
-            f.fms_id = d.fms_id
-            AND (f.managing_agency = d.managing_agency OR (f.candidates = 1 AND d.agencies = 1))
-),
-
 row_summary AS (
     SELECT
         m.maprojid,
         COUNT(*) AS dashboard_rows,
         BOOL_AND(r.has_community_district) AS every_row_has_community_district,
         BOOL_OR(r.is_citywide) AS is_citywide
-    FROM matches AS m
+    FROM {{ ref('int__project_dashboard_matches') }} AS m
     INNER JOIN dashboard_rows AS r
         ON m.fms_id = r.fms_id AND m.managing_agency = r.managing_agency
     GROUP BY m.maprojid
@@ -109,7 +73,7 @@ area_summary AS (
         ARRAY_AGG(DISTINCT p.borough) FILTER (WHERE p.borough IS NOT NULL) AS boroughs,
         ARRAY_AGG(DISTINCT p.community_district)
         FILTER (WHERE p.community_district IS NOT NULL) AS community_districts
-    FROM matches AS m
+    FROM {{ ref('int__project_dashboard_matches') }} AS m
     INNER JOIN parsed AS p
         ON m.fms_id = p.fms_id AND m.managing_agency = p.managing_agency
     GROUP BY m.maprojid
