@@ -34,6 +34,32 @@ topology_lr_segments AS (
         left_atomicid IS DISTINCT FROM probe_left_atomicid
         OR right_atomicid IS DISTINCT FROM probe_right_atomicid
 ),
+-- CSCL-LION-14 (gdb SegCount): centerlines with another centerline on the same two nodes
+-- whose geometry is within 0.0005 ft of theirs. gdb_lion counts a pair as coincident within
+-- var segcount_coincident_tolerance_ft (0.0003 ft); prod's Esri shape-equality test counts
+-- some pairs just past that and not others, so no tolerance reproduces it (inv-2cy.55).
+centerline_geoms AS (
+    SELECT
+        lpad(segmentid::text, 7, '0') AS segmentid,
+        any_value(least(from_nodeid, to_nodeid)) AS node_a,
+        any_value(greatest(from_nodeid, to_nodeid)) AS node_b,
+        any_value(geom) AS geom
+    FROM {{ ref('int__lion') }}
+    WHERE source_table = 'centerline'
+    GROUP BY segmentid
+),
+near_coincident_centerlines AS (
+    SELECT DISTINCT segment.segmentid
+    FROM centerline_geoms AS segment
+    INNER JOIN centerline_geoms AS other
+        ON
+            segment.node_a = other.node_a
+            AND segment.node_b = other.node_b
+            AND segment.segmentid <> other.segmentid
+    WHERE
+        st_covers(st_buffer(other.geom, 0.0005), segment.geom)
+        AND st_covers(st_buffer(segment.geom, 0.0005), other.geom)
+),
 with_context AS (
     SELECT
         d.*,
@@ -41,10 +67,12 @@ with_context AS (
         b._source_table,
         b.featuretyp,
         split_part(d._gdb_lion_key, '|', 1) AS segmentid,
-        tlr.segmentid IS NOT NULL AS is_topology_lr_segment
+        tlr.segmentid IS NOT NULL AS is_topology_lr_segment,
+        ncc.segmentid IS NOT NULL AS has_near_coincident_centerline
     FROM base_diffs AS d
     LEFT JOIN {{ ref('qa_int__build_gdb_lion_keyed') }} AS b ON d._gdb_lion_key = b._gdb_lion_key
     LEFT JOIN topology_lr_segments AS tlr ON split_part(d._gdb_lion_key, '|', 1) = tlr.segmentid
+    LEFT JOIN near_coincident_centerlines AS ncc ON split_part(d._gdb_lion_key, '|', 1) = ncc.segmentid
 ),
 -- one row per changed field: cause label + whether the cause is verified/accepted
 field_causes AS (
@@ -65,6 +93,14 @@ field_causes AS (
                 AND (w.changes -> f.key ->> 'new') = '10035'
                 THEN 'CSCL-LION-02: Randall''s Island zip'
             WHEN f.key IN ('lzip', 'rzip') THEN 'Zip'
+            WHEN
+                f.key = 'segcount'
+                AND w.has_near_coincident_centerline
+                AND abs(
+                    try_cast(w.changes ->> '$.segcount.old' AS int)
+                    - try_cast(w.changes ->> '$.segcount.new' AS int)
+                ) = 1
+                THEN 'CSCL-LION-14: SegCount near-coincident centerline'
             -- not attributed to a known difference
             WHEN f.key = 'segcount' THEN 'SegCount'
             WHEN f.key = 'street' THEN 'Street'
@@ -112,12 +148,14 @@ cause_summary AS (
         _gdb_lion_key,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) IN (
-                'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-16'
+                'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-14',
+                'CSCL-LION-16'
             )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) NOT IN (
-                'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-16'
+                'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-14',
+                'CSCL-LION-16'
             )
         ) AS open_causes
     FROM field_causes
@@ -161,6 +199,6 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- every changed field has a verified, accepted cause (CSCL-LION-02/03/04/05/16)
+    -- every changed field has a verified, accepted cause (CSCL-LION-02/03/04/05/14/16)
     coalesce(status = 'modified' AND open_causes IS NULL, FALSE) AS accounted_for
 FROM categorized
