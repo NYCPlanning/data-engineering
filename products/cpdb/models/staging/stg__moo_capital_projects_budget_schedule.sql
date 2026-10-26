@@ -11,5 +11,6 @@ SELECT
     borough,
     community_board,
     budget_line,
-    ten_year_plan_category
+    ten_year_plan_category,
+    to_date(fms_data_date, 'MM/DD/YYYY') AS fms_data_date
 FROM {{ source('recipe_sources', 'moo_capital_projects_budget_schedule') }}

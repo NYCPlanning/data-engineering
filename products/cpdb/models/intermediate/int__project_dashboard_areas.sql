@@ -1,15 +1,12 @@
 -- the boroughs and community districts the Capital Projects Dashboard gives each project, in
--- its latest reporting period
+-- the reporting period paired with the build's FISA extract
 WITH dashboard AS (
     SELECT
         fms_id,
         managing_agency,
         pid,
         community_board
-    FROM {{ ref('stg__moo_capital_projects_budget_schedule') }}
-    WHERE
-        reporting_period
-        = (SELECT MAX(reporting_period) FROM {{ ref('stg__moo_capital_projects_budget_schedule') }})
+    FROM {{ ref('int__dashboard_agency_projects') }}
 ),
 
 -- community_board can list several areas, like "Queens, Queens 07": a community district, a

@@ -93,11 +93,22 @@ models:
                 - flagged bad geometry
                 - 'agency: can never be mapped'
                 - 'agency: can be mapped in future'
+  - name: int__dashboard_agency_projects
+    description: |
+      Capital Projects Dashboard rows from one reporting period: the latest whose FMS data
+      (`fms_data_date`) is on or before the FISA extract the build's Capital Commitment Plan
+      comes from. One row per FMS ID, managing agency, and agency project (`pid`).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ fms_id, managing_agency, pid ]
+    columns:
+      - name: reporting_period
+        tests: [ not_null ]
   - name: int__project_dashboard_areas
     description: |
       The boroughs and community districts the Capital Projects Dashboard gives each project
-      that matches one of its projects, in its latest reporting period. A dashboard project
-      can have several agency projects (`pid`), each listing one or more areas.
+      that matches one of its projects, in `int__dashboard_agency_projects`. A dashboard
+      project can have several agency projects (`pid`), each listing one or more areas.
     columns:
       - name: maprojid
         tests: [ unique, not_null ]
