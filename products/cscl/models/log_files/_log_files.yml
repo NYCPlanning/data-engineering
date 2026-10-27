@@ -3,12 +3,13 @@ version: 2
 models:
 - name: log
   description: >-
-    The build log, exported as log.csv: one row per record a LION or SAF check flagged
-    (error or warning), one row per ThinLION lookup that found nothing, plus one summary
-    row per exported flat file with its record count. Each row comes from one log__*
-    model, named in _dbt_source_relation, and carries the id of its message in the
-    log_messages seed (see seeds.yml). The models emit the id and the message body;
-    this model takes effect from the seed and prefixes the message with the id.
+    The build log, exported as log.csv: one row per record a LION, SAF, Face, SND, Enders,
+    Exception or RPL check flagged (error or warning), one row per ThinLION lookup that
+    found nothing, plus one summary row per exported flat file with its record count.
+    Each row comes from one log__* model, named in _dbt_source_relation, and carries the
+    id of its message in the log_messages seed (see seeds.yml). The models emit the id
+    and the message body; this model takes effect from the seed and prefixes the message
+    with the id.
   columns:
   - name: _dbt_source_relation
     description: The log__* model the row came from.
@@ -47,7 +48,8 @@ models:
       ...); atomicpolygons on ThinLION lookup rows. Blank on file summary rows.
   - name: record_id_type
     description: >-
-      What record_id holds: `segmentid`, or `placeid` for SAF CommonPlace rows. Blank on
+      What record_id holds: `segmentid`, `placeid` for SAF CommonPlace rows,
+      `streetnameid` for StreetName rows, `roadbed_segmentid` for RPL rows. Blank on
       file summary and ThinLION lookup rows.
   - name: record_id
     description: The flagged record's id, per record_id_type. Blank on file summary rows.
@@ -106,3 +108,10 @@ models:
   description: >-
     LION segments with no NYPD beat on either side. Logged as CSCL-LOG-OURS-03: prod has
     a message for this (CSCL-LOG-LION-06) but never calls the check.
+
+- name: log__lion_centerline_curve
+  description: >-
+    Curved (CURVE L or R) centerlines whose center of curvature can't be used: one so far
+    off it won't fit the field ("[INVALID ANGLE & RADIUS FOUND]", CSCL-LOG-LION-07), or
+    none at all because the start, middle and end points are collinear ("[NO CENTER POINT
+    FOUND]", CSCL-LOG-LION-08). Prod falls back to the segment midpoint in both cases.
