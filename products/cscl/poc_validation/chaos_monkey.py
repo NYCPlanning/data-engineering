@@ -124,6 +124,21 @@ class MessageKey(Mutation):
         return inj
 
 
+class RetractAtomicPolygons(MessageKey):
+    """Move every AtomicPolygon of one tract (candidate borough, old) to a tract that doesn't exist."""
+
+    def apply(self, conn, schema, cand, n):
+        new = self.value_for(cand, n)
+        conn.execute(
+            f"""UPDATE "{schema}"."{self.table}" SET "{self.column}" = ?
+            WHERE borough = ? AND "{self.column}" = ?""",
+            [new, cand["borough"], cand["old"]],
+        )
+        inj = self._injection(cand, str(new))
+        inj.log_match_value = str(new)
+        return inj
+
+
 class AddLgcs(Mutation):
     """Add ten extra non-preferred LGC rows to a segment (more than 9 LGCs)."""
 
@@ -444,17 +459,25 @@ MUTATIONS: list[Mutation] = [
         """,
         log_match_column="message",
     ),
-    MessageKey(
-        name="atomicpolygon_missing_tract_2010",
+    RetractAtomicPolygons(
+        name="atomicpolygons_missing_tract_2010",
+        # every AP of one tract, so no segment gains a tract line between its two sides (the
+        # LION rules give 'X' there, CSCL-LOG-LION-01)
         log_message_ids=["CSCL-LOG-THIN-02"],
         table="dcp_cscl_atomicpolygons",
         column="censustract_2010",
         new_value=lambda _cand, n: f"99{n % 10000:04d}",
         candidates_sql="""
-            SELECT globalid AS key, [globalid] AS claims, globalid AS log_key,
-                censustract_2010 AS old
-            FROM {s}.dcp_cscl_atomicpolygons ORDER BY globalid
+            SELECT borough || ':' || censustract_2010 AS key, borough, censustract_2010 AS old,
+                LIST(globalid ORDER BY globalid) || [borough || censustract_2010] AS claims,
+                borough || censustract_2010 AS log_key
+            FROM {s}.dcp_cscl_atomicpolygons
+            WHERE censustract_2010 IS NOT NULL
+            GROUP BY borough, censustract_2010
+            HAVING COUNT(*) <= 20
+            ORDER BY key
         """,
+        key_column="borough:censustract_2010",
         log_match_column="message",
     ),
     MessageKey(
@@ -477,7 +500,8 @@ MUTATIONS: list[Mutation] = [
     ),
     DeleteNode(
         name="dead_end_node_deleted",
-        log_message_ids=["CSCL-LOG-OURS-01"],
+        # the segment no longer reads as a dead end, so the LION rules' SEGLOCSTATUS changes
+        log_message_ids=["CSCL-LOG-OURS-01", "CSCL-LOG-LION-01"],
         table="dcp_cscl_nodes",
         column="(row deleted)",
         candidates_sql="WITH "
