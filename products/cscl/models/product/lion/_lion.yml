@@ -79,7 +79,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: boe_lgc_pointer
-    description: "Position (1-9) in the segment's LGC list of the Board of Elections preferred LGC. Differs from prod on segments with two-digit LGC codes (CSCL-LION-04)."
+    description: "Position (1-9) in the segment's LGC list of the Board of Elections preferred LGC; two-digit LGC codes are matched in full (CSCL-LION-04)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -151,13 +151,13 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: l_low_hn
-    description: "Lowest house number on the left side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
+    description: "Lowest house number on the left side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: l_high_hn
-    description: "Highest house number on the left side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
+    description: "Highest house number on the left side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -169,7 +169,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: l_zip
-    description: "Zip code on the left. From the centerline for centerline segments, otherwise from a spatial join to the zip layer (blank on Randall's Island in prod, CSCL-LION-02)."
+    description: "Zip code on the left. From the centerline for centerline segments, otherwise from a spatial join to the zip layer (CSCL-LION-02)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -211,13 +211,13 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: r_low_hn
-    description: "Lowest house number on the right side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
+    description: "Lowest house number on the right side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: r_high_hn
-    description: "Highest house number on the right side. Centerline segments only; zero on generic segments by spec (differs from prod, CSCL-LION-15)."
+    description: "Highest house number on the right side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -303,7 +303,7 @@ models:
       to at least one other segment, 'I' if either endpoint is dangling); the
       neighboring borough code (1-5) if left and right APs are in different boroughs;
       'X' if same borough but different census tract; blank otherwise. Compares 2010
-      census tracts specifically, not 2020, as prod does (issue #2193).
+      census tracts, not 2020.
     meta:
       is_geospatial: true
       value_labels:
@@ -364,13 +364,13 @@ models:
         arguments:
           values: [ " ", "T" ]
   - name: special_address_flag
-    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none. Differs from prod on segments 174704 and 241972 (CSCL-LION-19, CSCL-LION-17)."
+    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none; always blank on a ramp protosegment (CSCL-LION-17, CSCL-LION-19)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: curve_flag
-    description: "I if the segment is curved: the centerline's CURVE value, or for other segments a compound curve or a line with more than two points. Differs from prod on compound curves (CSCL-LION-03)."
+    description: "I if the segment is curved: the centerline's CURVE value, or for other segments a compound curve or a line with more than two points, so compound-curve shoreline, subway and rail segments are flagged (CSCL-LION-03)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -482,7 +482,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: coincident_seg_count
-    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments. Differs from prod by one on about 10 segments where a subway or rail segment nearly coincides with a centerline (CSCL-LION-14)."
+    description: "Count of segments coincident with this one, plus the segment's protosegments. For centerlines, the CSCL count less coincident subterranean rail and subway segments, where a subway or rail segment counts as coincident with a centerline when the two geometries match within a small tolerance (CSCL-LION-14)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

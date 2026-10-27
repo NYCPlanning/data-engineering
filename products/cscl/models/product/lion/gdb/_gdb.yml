@@ -1,58 +1,183 @@
 version: 2
+
+# Layers of the published LION geodatabase (nyclion_*.zip; ETL spec §2.7).
+# Column names are the geodatabase's own field names.
+
 models:
   - name: gdb_lion
-    description: "LION segment line layer of the published ESRI geodatabase: one row per LION record, with extra rows for SAF replicants and continuous-parity segments. Columns match the prod GDB field names. Differs from prod on the curve flag, the BOE LGC pointer, the zip codes on Randall's Island, non-street sequence numbers and Join_ID padding (CSCL-LION-02 to CSCL-LION-05, CSCL-LION-10)."
+    description: >-
+      LION segments as lines: one feature per LION record, with the same segments, attributes
+      and districts as the LION files, plus segments the LION files leave out (rail and subway
+      segments of right-of-way type 1 or 8, centerlines of roadway type 8). A segment can have several features with the same geometry: a
+      continuous-parity segment has one for its odd and one for its even house numbers, and a
+      segment with special address file (SAF) data has one more for each SAF record, carrying
+      that record's name, type, house numbers and Join_ID. A segment whose street name is
+      blank is not written.
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: A LION segment record, continuous-parity copy or SAF record on a segment
+        is_geospatial: true
     columns:
-      - name: "'SegmentID'"
-        description: "7-character segment identifier"
+      - name: SegmentID
+        description: 7-digit segment ID, zero-filled. Repeats across the features of one segment.
         data_tests:
           - not_null
+      - name: Street
+        description: The segment's principal street or feature name.
+      - name: SAFStreetName
+        description: The SAF record's street or place name on a SAF feature, padded to 32 characters; blank otherwise.
+      - name: SAFStreetCode
+        description: The SAF record's street code on a SAF feature; null otherwise.
+      - name: SpecAddr
+        description: The SAF record type (A, B, C, D, E, G, N, O, P, S, V or X) on a SAF feature; null otherwise.
+      - name: StreetCode
+        description: Borough code followed by the segment's 5-digit street code.
+      - name: RB_Layer
+        description: >-
+          Which map layer the segment belongs to: N for segments excluded from the Geosupport
+          street network (IncExFlag E), R for roadbeds (segment types C, R, S, T), G for generic
+          segments (types G, F), B otherwise.
+      - name: TrafSrc
+        description: "Who verified the traffic direction: FLD, DCP or DOT."
+      - name: SegCount
+        description: >-
+          Number of records on this segment: its own features (SAF and continuous-parity
+          features included), plus one for each SAF record of the segment that isn't written
+          as a feature, plus one for each other segment of the same feature class (centerline
+          with centerline, rail with rail) on the same two nodes with the same geometry.
+          Capped at 9.
+      - name: LBoro
+        description: Borough code on the left; null when the left side is in another borough (BoroBndry L).
+      - name: RBoro
+        description: Borough code on the right; null when the right side is in another borough (BoroBndry R).
+      - name: LZip
+        description: >-
+          Zip code on the left. On a SAF feature, the SAF record's zip code where it has one;
+          for SAF types D and F, only on the side with the SAF record's house numbers.
+      - name: RZip
+        description: >-
+          Zip code on the right. On a SAF feature, the SAF record's zip code where it has one;
+          for SAF types D and F, only on the side with the SAF record's house numbers.
+      - name: MH_RI_Flag
+        description: >-
+          M for a Manhattan segment beside 2000 census tract 309 (Marble Hill), R for a Bronx
+          segment beside 2000 census tract 1 (Rikers Island); null otherwise.
+      - name: SplitSchl
+        description: Always null (a one-character filler in the LION files).
+      - name: ArcCenterX
+        description: X coordinate of the center of curvature for a curved segment; 0 otherwise.
+      - name: ArcCenterY
+        description: Y coordinate of the center of curvature for a curved segment; 0 otherwise.
+      - name: Radius
+        description: Radius of curvature for a curved segment; 0 otherwise.
+      - name: LLo_Hyphen
+        description: >-
+          Lowest house number on the left, as written (hyphenated for Queens-style numbers).
+          On a continuous-parity segment, one feature carries the odd range and the other the
+          even range, both on the side where the addresses are, with the other side empty. On
+          a SAF feature, the SAF record's house numbers. Empty on generic segments and on
+          features other than ordinary streets, private streets and addressable paths.
+      - name: LHi_Hyphen
+        description: Highest house number on the left, as written. Same rules as LLo_Hyphen.
+      - name: RLo_Hyphen
+        description: Lowest house number on the right, as written. Same rules as LLo_Hyphen.
+      - name: RHi_Hyphen
+        description: Highest house number on the right, as written. Same rules as LLo_Hyphen.
+      - name: FromLeft
+        description: >-
+          LLo_Hyphen as an integer: the hyphen is dropped and the digits after it are
+          zero-filled to three (so 37-05 is 37005). 0 when empty.
+      - name: ToLeft
+        description: LHi_Hyphen as an integer, formed the same way as FromLeft.
+      - name: FromRight
+        description: RLo_Hyphen as an integer, formed the same way as FromLeft.
+      - name: ToRight
+        description: RHi_Hyphen as an integer, formed the same way as FromLeft.
+      - name: Join_ID
+        description: >-
+          Links the feature to its alternate names in the altnames table. 15 characters. On a
+          segment feature: borough, face code and LGC1 to LGC4 (two digits each, 00 if none),
+          then two spaces. On a SAF feature: borough, the SAF record's street code, LGC1 to
+          LGC4, then the SAF type.
+      - name: LegacyID
+        description: The segment's legacy segment ID, 7 digits zero-filled; 0000000 if it has none.
+      - name: SHAPE_Length
+        description: Segment length in feet.
       - name: geom
-        description: "Segment line geometry (MultiLineString, EPSG:2263)"
+        description: Segment line geometry (MultiLineString, EPSG:2263), with arcs where CSCL has them.
         data_tests:
           - not_null
+
   - name: gdb_node
-    description: "LION node point layer of the published ESRI geodatabase. The source node layer with floating virtual-intersection nodes dropped; columns match the prod GDB field names."
+    description: >-
+      LION nodes as points: every CSCL node, except a virtual-intersection node that no
+      segment meets.
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: A LION node
     columns:
-      - name: "'NODEID'"
-        description: "Node identifier"
+      - name: NODEID
+        description: Node ID, matching NodeIDFrom and NodeIDTo on the lion layer.
         data_tests:
           - not_null
+      - name: GLOBALID
+        description: Globally unique identifier of the node in CSCL.
+      - name: VIntersect
+        description: VirtualIntersection if the node is a virtual intersection that at least one segment meets; null otherwise.
       - name: geom
-        description: "Node point geometry (Point, EPSG:2263)"
+        description: Node point geometry (Point, EPSG:2263)
         data_tests:
           - not_null
+
   - name: gdb_node_stname
-    description: >
-      Node-to-street-name crosswalk (non-spatial) for the published LION GDB: for each
-      node, the principal names of the segments meeting at it (via STREETSHAVEINTERSECTIONS).
-      Implements the real legacy algorithm (Report_NY_Nodestr(12B).py) - StreetName's
-      structured pre/post fields concatenated directly (already abbreviated at the source,
-      e.g. pre_directional "W"/post_type "ST"), overridden by FeatureName when both exist
-      for a segment's preferred B7SC, with a segmentid-keyed fallback (Subway/Rail/
-      Shoreline/NonStreetFeature/Centerline) when neither name table has an entry.
+    description: >-
+      Street names at each node, as a table without geometry: for each node, the principal
+      name of each segment that meets it, once per distinct name. A street name is built from
+      CSCL's parsed name parts, which are already abbreviated (W 174 ST); a feature name, where
+      the street code has one, replaces it. A segment with neither, such as a subway, rail,
+      shoreline or non-street boundary, takes its own label.
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: A street name at a node
     columns:
-      - name: "'NODEID'"
-        description: "Node identifier"
+      - name: NODEID
+        description: Node ID, matching NODEID on the node layer.
         data_tests:
           - not_null
-      - name: "'STNAME'"
-        description: "Principal street/feature name at the node (leading-space padded)"
+      - name: STNAME
+        description: Principal street or feature name of a segment that meets the node.
         data_tests:
           - not_null
+
   - name: gdb_altnames
-    description: >
-      Alternate street/feature names (non-spatial) for the published LION GDB, keyed by
-      Join_ID: one set per LION record, segments and SAF replicants alike. A SAF
-      replicant's names come from its host segment's B7SCs (with the AltSegmentData
-      street code for types B-F/O/P), not from the B7SC encoded in its Join_ID - see
-      CSCL-LION-09.
+    description: >-
+      Alternate street and feature names, as a table without geometry, keyed by the lion
+      layer's Join_ID: for each Join_ID, every name of the street codes it covers, from CSCL's
+      StreetName (names flagged for DCP use) and FeatureName tables, once per distinct name. A
+      SAF feature's names are those of its host segment's street codes (with the SAF record's
+      own street code for types B, C, D, E, O and P), not the names of the SAF record itself
+      (CSCL-LION-09).
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: An alternate name for a Join_ID
     columns:
-      - name: "'Join_ID'"
-        description: "15-char link to the lion layer's Join_ID (ETL spec §2.7.3)"
-        data_tests:
-          - not_null
-      - name: "'SName'"
-        description: "Basic street name (or whole name for feature names)"
+      - name: PDir
+        description: Pre-directional part of a street name (for example W); null for feature names.
+      - name: PType
+        description: Pre-type part of a street name; null for feature names.
+      - name: SName
+        description: Basic street name, or the whole name for a feature name. At most 30 characters.
+      - name: SType
+        description: Street type part of a street name (for example ST); null for feature names.
+      - name: SDir
+        description: Post-directional part of a street name; null for feature names.
+      - name: Street
+        description: The whole name as one string.
+      - name: Join_ID
+        description: Links the name to the lion layer's features with the same Join_ID.
         data_tests:
           - not_null

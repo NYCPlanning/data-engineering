@@ -94,6 +94,56 @@ items:
           table: dat_fields
 
   - kind: model_group
+    title: LION Geodatabase
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            The LION geodatabase publishes LION citywide as one file geodatabase
+            (nyclion_{version}.zip) for mapping and GIS use, as part of BYTES of the BIG
+            APPLE. It has four layers: lion, the street segments as lines; node, their
+            nodes as points; and two tables without geometry, node_stname (the street
+            names at each node) and altnames (the alternate names of each segment's
+            street codes). The lion layer's Join_ID links a segment to its alternate
+            names. Each section below is one layer, named as in the geodatabase. See the
+            [architecture overview](../../docs/architecture.md) for how the pipeline fits
+            together.
+        - kind: text
+          text: >-
+            The lion layer is built from the same segment records as the
+            [LION files](#boroughliondat-lion), and a field it shares with them has the same
+            meaning; its section describes the fields particular to the geodatabase, or
+            filled differently there. Unlike the LION files, it writes a continuous-parity segment as two
+            features and each of a segment's SAF records as a feature of its own. The layer
+            metadata published with the geodatabase defines every field.
+        - kind: heading
+          text: Implementation Details
+          level: 4
+        - kind: text
+          text: >-
+            Geometry is written on the source geodatabase's coordinate grid, with arcs
+            restored where CSCL has them.
+      known_differences: [LION gdb]
+      short_title: LION gdb
+    entries:
+      - name: gdb_lion
+        custom:
+          display_name: lion
+          table: columns
+      - name: gdb_node
+        custom:
+          display_name: node
+          table: columns
+      - name: gdb_node_stname
+        custom:
+          display_name: node_stname
+          table: columns
+      - name: gdb_altnames
+        custom:
+          display_name: altnames
+          table: columns
+
+  - kind: model_group
     title: Roadbed Pointer List
     custom:
       elements:
