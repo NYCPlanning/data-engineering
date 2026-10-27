@@ -8,7 +8,8 @@ preferred_lgc AS (
     SELECT
         segmentid,
         CONCAT(b5sc, lgc) AS b7sc,
-        LEFT(b5sc, 1) AS borough_code
+        LEFT(b5sc, 1) AS borough_code,
+        COUNT(*) OVER (PARTITION BY segmentid) AS n_preferred
     FROM {{ source("recipe_sources", "dcp_cscl_segment_lgc") }}
     WHERE preferred_lgc_flag = 'Y'
 ),
@@ -32,9 +33,11 @@ SELECT
     sedat.assembly_district,
     preferred_lgc.b7sc
 FROM sedat
+-- like prod (SEDATExtractFile.cs GetSpecialRowValues): a segment's lone preferred street
+-- code whatever its borough, else the one in the LIONKEY's borough
 LEFT JOIN preferred_lgc
     ON
         sedat.segmentid = preferred_lgc.segmentid
-        AND sedat.borough_code = preferred_lgc.borough_code
+        AND (preferred_lgc.n_preferred = 1 OR sedat.borough_code = preferred_lgc.borough_code)
 LEFT JOIN streetname
     ON preferred_lgc.b7sc = streetname.b7sc
