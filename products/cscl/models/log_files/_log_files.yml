@@ -3,12 +3,15 @@ version: 2
 models:
 - name: log
   description: >-
-    The build log, exported as log.csv: one row per record a LION or SAF check flagged
-    (error or warning), one row per ThinLION lookup that found nothing, plus one summary
-    row per exported flat file with its record count. Each row comes from one log__*
-    model, named in _dbt_source_relation, and carries the id of its message in the
-    log_messages seed (see seeds.yml). The models emit the id and the message body;
-    this model takes effect from the seed and prefixes the message with the id.
+    The build log, exported as log.csv: one row per record a LION, SAF, Face, SND, Enders,
+    Exception or RPL check flagged (error or warning), one row per ThinLION lookup that
+    found nothing, one row per borough counting the StreetName rows left out of its Face
+    file (the records are in log_face_code_missing.csv), plus one summary row per
+    exported flat file with its record count.
+    Each row comes from one log__* model, named in _dbt_source_relation, and carries the
+    id of its message in the log_messages seed (see seeds.yml). The models emit the id
+    and the message body; this model takes effect from the seed and prefixes the message
+    with the id.
   columns:
   - name: _dbt_source_relation
     description: The log__* model the row came from.
@@ -47,7 +50,8 @@ models:
       ...); atomicpolygons on ThinLION lookup rows. Blank on file summary rows.
   - name: record_id_type
     description: >-
-      What record_id holds: `segmentid`, or `placeid` for SAF CommonPlace rows. Blank on
+      What record_id holds: `segmentid`, `placeid` for SAF CommonPlace rows,
+      `streetnameid` for StreetName rows, `roadbed_segmentid` for RPL rows. Blank on
       file summary and ThinLION lookup rows.
   - name: record_id
     description: The flagged record's id, per record_id_type. Blank on file summary rows.
@@ -61,7 +65,8 @@ models:
   - name: record_count
     description: >-
       Number of records written to output_filename on file summary rows; the number of
-      atomic polygons the lookup left blank on ThinLION lookup rows.
+      atomic polygons the lookup left blank on ThinLION lookup rows; the number of
+      StreetName rows left out of output_filename on CSCL-LOG-FC-01 rows.
 
 - name: log__export_file_summary
   description: >-
@@ -106,3 +111,47 @@ models:
   description: >-
     LION segments with no NYPD beat on either side. Logged as CSCL-LOG-OURS-03: prod has
     a message for this (CSCL-LOG-LION-06) but never calls the check.
+
+- name: log__lion_centerline_curve
+  description: >-
+    Curved (CURVE L or R) centerlines whose center of curvature can't be used: one so far
+    off it won't fit the field ("[INVALID ANGLE & RADIUS FOUND]", CSCL-LOG-LION-07), or
+    none at all because the start, middle and end points are collinear ("[NO CENTER POINT
+    FOUND]", CSCL-LOG-LION-08). Prod falls back to the segment midpoint in both cases.
+
+- name: log__lion_level_codes
+  description: >-
+    Centerline, rail and subway FROM_/TO_LEVEL_CODE values that make no LION level code,
+    one row per feature and field: blank ("[EMPTY LEVEL CODE]", CSCL-LOG-LION-10) or a
+    number other than 1-26 or 99 ("[NO MATCHING LEVEL CODE]", CSCL-LOG-LION-12). The
+    level code is left blank.
+
+- name: log__face_code_missing
+  description: >-
+    Principal StreetName rows with a blank FACECODE, which the Face files leave out
+    (CSCL-LOG-FC-01): one row per borough with the count in record_count, since there
+    are thousands; the records are in log_face_code_missing.csv. A row whose B7SC is a
+    segment's preferred LGC is logged on its own as CSCL-LOG-FC-02.
+
+- name: log_face_code_missing
+  description: >-
+    Attachment to log.csv, exported as log_face_code_missing.csv: every principal
+    StreetName row with a blank FACECODE (CSCL-LOG-FC-01), one row each in prod's
+    wording, with log.csv's columns plus the borough, B10SC, B7SC and lookup key.
+
+- name: log_records
+  description: >-
+    Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 counts
+    swapped for the records in log_face_code_missing. What the chaos QA models
+    (qa__chaos_injections, qa__chaos_summary) check.
+
+- name: log__street_name_blank_lookup_key
+  description: >-
+    StreetName rows with a blank LOOKUP_KEY, which SND (CSCL-LOG-SND-01), Enders
+    (CSCL-LOG-END-01) or the Exception file (CSCL-LOG-EXC-02) leave out. Each follows
+    prod's own row filter and blank test for that file.
+
+- name: log__rpl_missing_roadbed
+  description: >-
+    RoadbedPointerList rows whose roadbed segment matches no centerline, which prod
+    leaves out of RPL (CSCL-LOG-RPL-05).

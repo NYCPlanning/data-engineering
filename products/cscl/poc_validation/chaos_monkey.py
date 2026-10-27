@@ -366,6 +366,11 @@ MUTATIONS: list[Mutation] = [
         name="streetname_blank_facecode",
         # LION-18 for the one centerline named from this B7SC; FC-01/02 are the face file's
         log_message_ids=["CSCL-LOG-LION-18", "CSCL-LOG-FC-01", "CSCL-LOG-FC-02"],
+        # the face file's rows carry the StreetName row, not the centerline
+        message_matches={
+            "CSCL-LOG-FC-01": lambda cand: f"STREETNAMEID = [{cand['streetnameid']}]",
+            "CSCL-LOG-FC-02": lambda cand: f"STREETNAMEID = [{cand['streetnameid']}]",
+        },
         table="dcp_cscl_streetname",
         column="facecode",
         new_value=None,
@@ -382,7 +387,8 @@ MUTATIONS: list[Mutation] = [
             )
             SELECT sn.globalid AS key,
                 [sn.globalid, sn.b7sc, cl.globalid, cl.segmentid::VARCHAR] AS claims,
-                cl.globalid AS log_key, sn.facecode AS old, cl.globalid AS dropped_globalid
+                cl.globalid AS log_key, sn.facecode AS old, cl.globalid AS dropped_globalid,
+                sn.streetnameid
             FROM {s}.dcp_cscl_streetname AS sn
             INNER JOIN single_principal USING (b7sc)
             INNER JOIN pref USING (b7sc)
@@ -498,8 +504,9 @@ MUTATIONS: list[Mutation] = [
     ),
     MessageKey(
         name="censustract2010_missing_health_area",
-        # one ThinLION row for the whole tract; TT-02 is the tract file's
-        log_message_ids=["CSCL-LOG-THIN-03", "CSCL-LOG-TT-02"],
+        # one ThinLION row for the whole tract (prod's ThinTract file would log TT-02 too,
+        # but we don't build it)
+        log_message_ids=["CSCL-LOG-THIN-03"],
         table="dcp_cscl_censustract2010",
         column="health_area",
         new_value=lambda _cand, n: f"99{n % 100:02d}",
@@ -640,17 +647,49 @@ MUTATIONS: list[Mutation] = [
         """,
         dropped_from="saf",
     ),
+    # prod's SND query skips NULL lookup keys (LOOKUP_KEY IS NOT NULL) and only logs blank
+    # ones; Enders and Exception read ENDERS_FLAG = 'Y' and EXCEPTION_FLAG = 'Y' rows only
     Mutation(
         name="streetname_blank_lookup_key",
-        # the same row is left out of SND, Enders and the Exception file
-        log_message_ids=["CSCL-LOG-SND-01", "CSCL-LOG-END-01", "CSCL-LOG-EXC-02"],
+        log_message_ids=["CSCL-LOG-SND-01"],
+        table="dcp_cscl_streetname",
+        column="lookup_key",
+        new_value="",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_streetname
+            WHERE principal_flag <> 'Y' AND lookup_key IS NOT NULL AND b10sc IS NOT NULL
+                AND enders_flag IS DISTINCT FROM 'Y' AND exception_flag IS DISTINCT FROM 'Y'
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="enders_null_lookup_key",
+        log_message_ids=["CSCL-LOG-END-01"],
         table="dcp_cscl_streetname",
         column="lookup_key",
         new_value=None,
         candidates_sql="""
             SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
                 lookup_key AS old
-            FROM {s}.dcp_cscl_streetname WHERE principal_flag <> 'Y' ORDER BY globalid
+            FROM {s}.dcp_cscl_streetname
+            WHERE enders_flag = 'Y' AND principal_flag <> 'Y' ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="exception_null_lookup_key",
+        log_message_ids=["CSCL-LOG-EXC-02"],
+        table="dcp_cscl_streetname",
+        column="lookup_key",
+        new_value=None,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_streetname
+            WHERE exception_flag = 'Y' AND enders_flag IS DISTINCT FROM 'Y'
+                AND principal_flag <> 'Y'
+            ORDER BY globalid
         """,
     ),
     Mutation(
@@ -678,7 +717,7 @@ def _exists(conn: duckdb.DuckDBPyConnection, schema: str, table: str) -> bool:
 
 
 def logged_keys(conn: duckdb.DuckDBPyConnection, schema: str) -> set[str]:
-    """globalids and record ids already in a baseline log.csv, to keep injections clean."""
+    """globalids and record ids already in a baseline log, to keep injections clean."""
     if not _exists(conn, schema, BASELINE_LOG):
         return set()
     rows = conn.execute(
@@ -767,9 +806,13 @@ def inject(
         raise SystemExit(
             f"{schema}.{MANIFEST} exists: start again from a fresh inputs copy"
         )
-    if _exists(conn, schema, "log"):
+    # log_records: log.csv plus its attachments' records (log.csv alone on older builds)
+    log_table = next(
+        (t for t in ("log_records", "log") if _exists(conn, schema, t)), None
+    )
+    if log_table:
         conn.execute(
-            f'CREATE OR REPLACE TABLE "{schema}".{BASELINE_LOG} AS SELECT * FROM "{schema}".log'
+            f'CREATE OR REPLACE TABLE "{schema}".{BASELINE_LOG} AS SELECT * FROM "{schema}".{log_table}'
         )
     logged = logged_keys(conn, schema)
     rng = random.Random(seed)

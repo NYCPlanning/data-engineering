@@ -1,8 +1,9 @@
 -- Chaos run result per log id. recall: injections logged under the id. precision: log rows
--- with the id that are new since the baseline run (chaos_baseline_log, the log table
--- chaos_monkey.py found before it injected) and match no injection; NULL without a
--- baseline. effect: dropped records still in their output. Summary rows are left out of
--- precision, since dropping records changes their counts.
+-- (log_records: log.csv plus its attachments' records) with the id that are new since the
+-- baseline run (chaos_baseline_log, the log_records table chaos_monkey.py found before it
+-- injected) and match no injection; NULL without a baseline. effect: dropped records still
+-- in their output. Summary rows are left out of precision, since dropping records changes
+-- their counts.
 {% set baseline = adapter.get_relation(
     database = target.database,
     schema = target.schema,
@@ -13,7 +14,7 @@ WITH injections AS (
     SELECT * FROM {{ ref('qa__chaos_injections') }}
 ),
 log AS (
-    SELECT * FROM {{ ref('log') }}
+    SELECT * FROM {{ ref('log_records') }}
     WHERE effect <> 'summary'
 ),
 {% if baseline %}

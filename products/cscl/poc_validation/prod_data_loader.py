@@ -47,7 +47,7 @@ try:
     assert recipe.exports
 
     for export in recipe.exports.datasets:
-        if export.name == "log":
+        if export.name in ("log", "log_face_code_missing"):
             continue
         if export.format.value not in ["dat", "csv"]:
             continue
