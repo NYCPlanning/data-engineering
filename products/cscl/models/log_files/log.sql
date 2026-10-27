@@ -22,6 +22,7 @@ WITH log_rows AS (
         ref("log__saf_invalid_b7sc"),
         ref("log__saf_name_missing"),
         ref("log__saf_segment_not_found"),
+        ref("log__lion_level_codes"),
         ref("log__export_file_summary"),
     ]) }}
 )

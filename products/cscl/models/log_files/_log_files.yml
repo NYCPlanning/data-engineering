@@ -115,3 +115,10 @@ models:
     off it won't fit the field ("[INVALID ANGLE & RADIUS FOUND]", CSCL-LOG-LION-07), or
     none at all because the start, middle and end points are collinear ("[NO CENTER POINT
     FOUND]", CSCL-LOG-LION-08). Prod falls back to the segment midpoint in both cases.
+
+- name: log__lion_level_codes
+  description: >-
+    Centerline, rail and subway FROM_/TO_LEVEL_CODE values that make no LION level code,
+    one row per feature and field: blank ("[EMPTY LEVEL CODE]", CSCL-LOG-LION-10) or a
+    number other than 1-26 or 99 ("[NO MATCHING LEVEL CODE]", CSCL-LOG-LION-12). The
+    level code is left blank.
