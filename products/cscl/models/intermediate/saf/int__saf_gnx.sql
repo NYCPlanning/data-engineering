@@ -44,6 +44,10 @@ point_atomic_polygon AS (
 ),
 feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
+),
+-- prod leaves out a place whose SEGMENTID matches no segment, and logs it (CSCL-LOG-SAF-25)
+orphans AS (
+    SELECT globalid FROM {{ ref('int__saf_orphan_segmentids') }}
 )
 SELECT
     feature_names.place_name_sort_order AS place_name,
@@ -84,6 +88,7 @@ LEFT JOIN commonplace ON saf.saf_globalid = commonplace.globalid
 LEFT JOIN address_points ON commonplace.primaryaddresspointid = address_points.addresspointid
 LEFT JOIN feature_names ON commonplace.b7sc = feature_names.b7sc
 LEFT JOIN point_atomic_polygon ON commonplace.globalid = point_atomic_polygon.globalid
+ANTI JOIN orphans ON saf.saf_globalid = orphans.globalid
 WHERE
     saf.saftype IN ('G', 'N', 'X')
     -- legacy drops a record with no place name

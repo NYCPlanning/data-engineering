@@ -6,6 +6,10 @@ altsegdata AS (
 ),
 feature_names AS (
     SELECT * FROM {{ ref('stg__facecode_and_featurename_principal') }}
+),
+-- prod leaves out a record whose SEGMENTID matches no centerline, and logs it (CSCL-LOG-SAF-21)
+orphans AS (
+    SELECT globalid FROM {{ ref('int__saf_orphan_segmentids') }}
 )
 SELECT
     -- TODO "warning" issued if featurename instead of streetname
@@ -48,4 +52,5 @@ FROM saf
 INNER JOIN altsegdata ON saf.saf_globalid = altsegdata.globalid
 LEFT JOIN feature_names
     ON (altsegdata.b5sc || altsegdata.lgc1) = feature_names.b7sc
+ANTI JOIN orphans ON saf.saf_globalid = orphans.globalid
 WHERE saf.saftype IN ('A', 'B', 'C', 'E', 'P')
