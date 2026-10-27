@@ -187,7 +187,7 @@ This product uses **direnv** for environment configuration. See [docs/developmen
 - **[README.md](./README.md)** - Detailed operational guide for adding outputs, validation workflows, and known issues
 - **[design_doc.md](./design_doc.md)** - Technical specifications and business rules
 - **[recipe.yml](./recipe.yml)** - Product configuration defining sources and outputs
-- **seeds/formatting/** - DAT file formatting specifications (field lengths, justification, etc.)
+- **seeds/text_formatting/** - DAT file formatting specifications (field lengths, justification, etc.)
 
 ### Workflow Overview
 
@@ -196,7 +196,7 @@ See [README.md](./README.md) for the complete workflow. In brief:
 1. **Setup** - Download quarterly outputs from GR, build the prod snapshot
 2. **Transform** - Implement business logic in DBT models (staging → intermediate → product)
 3. **Validate** - Compare outputs to production using SQL queries and file diffs
-4. **Document** - Add transformation details to design_doc.md
+4. **Document** - Describe the models and columns in their yml (they generate the export doc; see [Documentation Generation](#documentation-generation))
 
 ## Project Structure
 
@@ -207,15 +207,23 @@ products/cscl/
 ├── design_doc.md            # Technical specifications
 ├── recipe.yml               # Product configuration
 ├── dbt_project.yml          # DBT configuration
+├── doc_config.yml          # What the generated export doc contains
 ├── models/
 │   ├── staging/            # Minor source data tweaks
 │   ├── intermediate/       # Transformation logic (organized by ETL doc section)
 │   ├── product/            # Final outputs (LION, SEDAT, etc.)
+│   ├── log_files/          # log.csv and its attachment
+│   ├── qa_int/             # QA helpers (QA stage)
 │   └── etl_dev_qa/         # QA models comparing the build to prod (QA stage)
+├── macros/                 # Formatting, district boundaries, DuckDB functions
 ├── seeds/
-│   └── formatting/         # DAT file field specifications
-├── poc_validation/         # Output comparison scripts
-└── docs/                   # Images and reference materials
+│   ├── text_formatting/    # DAT file field specifications
+│   ├── known_differences.csv
+│   └── log_messages.csv
+├── poc_validation/         # Prod snapshot, output comparisons, chaos monkey
+├── scripts/                # Doc generation and seed helpers
+├── tests/                  # dbt data tests and Python tests
+└── docs/                   # Architecture, images and reference materials
 ```
 
 ## Resources
@@ -252,4 +260,4 @@ See [design_doc.md Appendix A](./design_doc.md#appendix-a-conceptsterminology) f
 - **Operational workflows**: See [README.md](./README.md)
 - **Business rules**: See [design_doc.md](./design_doc.md)
 - **Legacy behavior**: Check [cscl_etl_archive](https://github.com/NYCPlanning/cscl_etl_archive)
-- **Architecture**: See [design_doc.md - Architecture](./design_doc.md#architecture)
+- **Architecture**: See [docs/architecture.md](./docs/architecture.md)

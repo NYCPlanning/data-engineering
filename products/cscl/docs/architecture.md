@@ -159,11 +159,20 @@ Which arcs each layer is re-curved from (`custom.arcs` in `recipe.yml`):
 | staging | `models/staging/` | `stg__atomicpolygons`, `segments/stg__centerline`, `stg__nodes`, one per district source |
 | intermediate | `models/intermediate/` | `atomicpolygon_topology/int__topology__*`, `district_boundaries/int__boundary__*`, `segments/int__primary_segments`, `int__lion`, `saf/`, `ldf/`, `snd_and_normalizing_tables/` |
 | product | `models/product/` | `lion/lion_dat`, `lion/gdb/gdb_lion`, `districts/gdb_ny*`, `saf/`, `thinlion/`, `ldf/`, ... |
-| logs | `models/log_files/` | `log` (the `log.csv` export) |
+| logs | `models/log_files/` | `log` (the `log.csv` export), `log_face_code_missing` (its attachment), `log_records` (both, record by record) |
 
-DuckDB stand-ins for the PostGIS functions the models call are macros in
-[`macros/duckdb_functions.sql`](../macros/duckdb_functions.sql); see
-[duckdb_porting_guide.md](./duckdb_porting_guide.md).
+SQL functions the models call beyond DuckDB's spatial extension are macros in
+[`macros/duckdb_functions.sql`](../macros/duckdb_functions.sql), created at run start.
+Memory is capped in [`profiles.yml`](../profiles.yml) (`DUCKDB_MEMORY_LIMIT`,
+`DUCKDB_THREADS`), since GEOS allocates outside DuckDB's limit.
+
+**The log.** Every message the build logs has an id in
+[`seeds/log_messages.csv`](../seeds/log_messages.csv) (`CSCL-LOG-SAF-25`, ...), which lists
+every message prod's ETL logs plus the checks only we log. Each `log__*` model emits rows
+under its ids; `log` unions them into `log.csv`, prefixing each message with its id. A check
+that fires thousands of times on clean data puts a count per borough in `log.csv` and its
+records in an attachment (`log_face_code_missing.csv`). `log_records` puts the records back
+together for QA.
 
 **District boundaries come from the AtomicPolygon topology.** `int__topology__*` nodes
 every AtomicPolygon ring into shared edges; each district type then classifies edges as
@@ -268,7 +277,7 @@ flowchart TD
 |---|---|---|
 | (built in) `gdb_metadata_drift` | product-metadata attrs vs packaged layer fields; fails on drift | the QA stage's exit code |
 | `source_freshness` | our source layers' dates vs signs of prod's extract date; a report, never a failure | `source_freshness.csv` |
-| `qa_models` | field-level diffs vs `production_outputs` (`models/etl_dev_qa/diffs/qa__diffs_*`), district geometry vs prod, district review tables | tables in `cscl.duckdb` |
+| `qa_models` | field-level diffs vs `production_outputs` (`models/etl_dev_qa/diffs/qa__diffs_*`), district geometry vs prod for every layer, district review tables, log message counts | tables in `cscl.duckdb` |
 | `pull_prod_files`, `compare_flat_files`, `summarize_diffs` | line-level diff of every packaged flat file vs prod's (`poc_validation/validate_outputs.sh`) | one file per output, `validation_summary.csv`, `diffs_summary.csv` |
 | `compare_gdbs` | FGDB columns, row counts, areas, keyed rows vs prod (`poc_validation/compare_gdb.py`) | `<gdb>_comparison.csv` |
 | `district_review_gdb` | each district layer next to prod's, with symmetric-difference pieces and metrics | `district_review.gdb.zip` |
