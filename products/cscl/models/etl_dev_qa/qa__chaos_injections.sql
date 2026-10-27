@@ -1,4 +1,4 @@
--- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('log_messages') }}
+-- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('int__snd') }}, {{ ref('enders_by_field') }}, {{ ref('int__rpl') }}, {{ ref('log_messages') }}
 -- One row per chaos injection and expected log id (poc_validation/chaos_monkey.py writes
 -- the chaos_injections manifest): was the injected record logged under that id, and is a
 -- record the message says is dropped really missing from its output. Empty unless the
@@ -24,6 +24,18 @@
         UNION
         SELECT saf_globalid AS globalid FROM {{ ref('int__saf_abcep') }}
     ),
+    snd AS (
+        SELECT DISTINCT globalid FROM {{ ref('int__snd') }}
+    ),
+    rpl AS (
+        SELECT DISTINCT globalid FROM {{ ref('int__rpl') }}
+    ),
+    -- the Enders file carries no record key: a blanked lookup key still written shows up
+    -- as a blank line
+    enders_blank_lines AS (
+        SELECT COUNT(*) AS n FROM {{ ref('enders_by_field') }}
+        WHERE COALESCE(TRIM(lookup_key), '') = ''
+    ),
     found AS (
         SELECT DISTINCT
             injections.injection_id,
@@ -44,6 +56,9 @@
         CASE injections.dropped_from
             WHEN 'lion' THEN lion.globalid IS NULL
             WHEN 'saf' THEN saf.globalid IS NULL
+            WHEN 'snd' THEN snd.globalid IS NULL
+            WHEN 'rpl' THEN rpl.globalid IS NULL
+            WHEN 'enders' THEN (SELECT n FROM enders_blank_lines) = 0
         END AS dropped
     FROM injections
     LEFT JOIN {{ ref('log_messages') }} AS log_messages ON injections.log_message_id = log_messages.id
@@ -51,6 +66,8 @@
         ON injections.injection_id = found.injection_id AND injections.log_message_id = found.log_message_id
     LEFT JOIN lion ON injections.dropped_from = 'lion' AND injections.dropped_globalid = lion.globalid
     LEFT JOIN saf ON injections.dropped_from = 'saf' AND injections.dropped_globalid = saf.globalid
+    LEFT JOIN snd ON injections.dropped_from = 'snd' AND injections.dropped_globalid = snd.globalid
+    LEFT JOIN rpl ON injections.dropped_from = 'rpl' AND injections.dropped_globalid = rpl.globalid
 {% else %}
     SELECT
         NULL::INT AS injection_id,

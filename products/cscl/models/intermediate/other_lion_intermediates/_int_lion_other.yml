@@ -48,6 +48,8 @@ models:
   columns:
   - name: curve_flag
     description: "Curve flag from the centerline."
+  - name: center_is_midpoint
+    description: "True for an L or R curve whose start, middle and end points are collinear: no circle fits, so the center is the segment midpoint (as in prod, CSCL-LOG-LION-08)."
   - name: center_of_curvature_x
     description: "X of the center of curvature."
   - name: center_of_curvature_y

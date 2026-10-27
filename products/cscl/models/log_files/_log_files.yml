@@ -117,7 +117,8 @@ models:
     Curved (CURVE L or R) centerlines whose center of curvature can't be used: one so far
     off it won't fit the field ("[INVALID ANGLE & RADIUS FOUND]", CSCL-LOG-LION-07), or
     none at all because the start, middle and end points are collinear ("[NO CENTER POINT
-    FOUND]", CSCL-LOG-LION-08). Prod falls back to the segment midpoint in both cases.
+    FOUND]", CSCL-LOG-LION-08). Prod falls back to the segment midpoint in both cases; we
+    do for LION-08 only.
 
 - name: log__lion_level_codes
   description: >-
@@ -154,4 +155,4 @@ models:
 - name: log__rpl_missing_roadbed
   description: >-
     RoadbedPointerList rows whose roadbed segment matches no centerline, which prod
-    leaves out of RPL (CSCL-LOG-RPL-05).
+    leaves out of RPL (CSCL-LOG-RPL-05); int__rpl drops them too.
