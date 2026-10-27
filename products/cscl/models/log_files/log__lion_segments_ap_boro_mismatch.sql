@@ -7,22 +7,24 @@ aps AS (
 SELECT
     'error' AS log_level,
     'neither joined atomic polygon matches segment''s borocode' AS error_category,
+    -- prod checks centerlines (LION-03) and shorelines (LION-04); we check every segment
+    CASE WHEN segments.source_table = 'shoreline' THEN 'CSCL-LOG-LION-04' ELSE 'CSCL-LOG-LION-03' END
+        AS log_message_id,
+    'warned' AS effect,
     segments.globalid,
     segments.source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segments.segmentid AS record_id,
     FORMAT(
-        'Neither of the AtomicPolygon borough matches the segment borough for '
-        || 'the {} feature with an OID = {}. Segment has boro ''{}'', '
-        || 'left atomic polygon with atomicid ''{}'' has boro ''{}'', '
-        || 'and right atomic polygon with atomicid ''{}'' has boro ''{}''.',
+        '[{}] Neither of the AtomicPolygon borough matches the segment borough for '
+        || 'the {} feature with a GlobalID = {}. Left Borough = ''{}'', '
+        || 'Right Borough = ''{}'' and Segment Borough = ''{}''.',
+        CASE WHEN segments.source_table = 'shoreline' THEN 'CSCL-LOG-LION-04' ELSE 'CSCL-LOG-LION-03' END,
         COALESCE(segments.source_table::VARCHAR, ''),
         COALESCE(segments.globalid::VARCHAR, ''),
-        COALESCE(aps.segment_borocode::VARCHAR, ''),
-        COALESCE(aps.left_atomicid::VARCHAR, ''),
         COALESCE(aps.left_borocode::VARCHAR, ''),
-        COALESCE(aps.right_atomicid::VARCHAR, ''),
-        COALESCE(aps.right_borocode::VARCHAR, '')
+        COALESCE(aps.right_borocode::VARCHAR, ''),
+        COALESCE(aps.segment_borocode::VARCHAR, '')
     ) AS message
 FROM aps
 INNER JOIN segments ON aps.globalid = segments.globalid

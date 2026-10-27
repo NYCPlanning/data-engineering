@@ -1,9 +1,9 @@
--- Prod (LIONExtractorClass.PreExportCheckFeature) compares a feature's own borough (the
--- centerline's BoroughCode, or the proto segment's BOROUGH; blank falls back to a derived
--- borough) to the borough of the LION file it's being written to. Here: the source row's borough vs the borough of the LION
--- row built from it. Coincident borough-boundary protos (ALT_SEGDATA_TYPE 'B') carry the
--- other borough from their centerline by design, so comparing a proto to its centerline
--- would flag every one of them.
+-- LION rows whose borough differs from their source feature's own borough (the
+-- centerline's boroughcode, or the proto segment's borough). Prod has a message for a
+-- similar check (CSCL-LOG-LION-20) but never reaches it, so this logs under its own id.
+-- Coincident borough-boundary protos (ALT_SEGDATA_TYPE 'B') carry the other borough from
+-- their centerline by design, so comparing a proto to its centerline would flag every one
+-- of them.
 WITH lion AS (
     SELECT * FROM {{ ref("int__lion") }}
 ),
@@ -38,17 +38,19 @@ lion_joined AS (
 SELECT
     'error' AS log_level,
     'borough mismatch' AS error_category,
+    'CSCL-LOG-OURS-04' AS log_message_id,
+    'warned' AS effect,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     FORMAT(
-        'The borough for the {} feature with an OID = "{}" (Borough = {}) does not '
-        || 'match the borough currently being extracted (Borough = {}).',
+        '[CSCL-LOG-OURS-04] The LION record built from the {} feature with a GlobalID = {} has '
+        || 'Borough = {}, but the feature''s own borough is {}.',
         COALESCE(source_table::VARCHAR, ''),
         COALESCE(globalid::VARCHAR, ''),
-        COALESCE(source_boroughcode::VARCHAR, ''),
-        COALESCE(boroughcode::VARCHAR, '')
+        COALESCE(boroughcode::VARCHAR, ''),
+        COALESCE(source_boroughcode::VARCHAR, '')
     ) AS message
 FROM lion_joined
 -- a blank source borough is derived downstream (prod falls back the same way), not a mismatch

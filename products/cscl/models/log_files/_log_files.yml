@@ -6,12 +6,32 @@ models:
     The build log, exported as log.csv: one row per record a LION or SAF check flagged
     (error or warning), one row per ThinLION lookup that found nothing, plus one summary
     row per exported flat file with its record count. Each row comes from one log__*
-    model, named in _dbt_source_relation.
+    model, named in _dbt_source_relation, and carries the id of its message in the
+    log_messages seed (see seeds.yml).
   columns:
   - name: _dbt_source_relation
     description: The log__* model the row came from.
   - name: log_level
     description: "`error`, `warning`, or `info` (file summary rows)."
+  - name: log_message_id
+    description: >-
+      The row's message in the log_messages seed: prod's message (CSCL-LOG-LION-05) or
+      one only we log (CSCL-LOG-OURS-NN).
+    tests:
+    - not_null
+    - relationships:
+        arguments:
+          to: ref('log_messages')
+          field: id
+  - name: effect
+    description: >-
+      What happens to the record, from log_messages: `dropped`, `warned`, `summary` or
+      `run_level`.
+    tests:
+    - not_null
+    - accepted_values:
+        arguments:
+          values: [dropped, warned, summary, run_level]
   - name: error_category
     description: >-
       The check that produced the row, e.g. `borough mismatch`, or `output file
@@ -32,8 +52,9 @@ models:
     description: The flagged record's id, per record_id_type. Blank on file summary rows.
   - name: message
     description: >-
-      Human-readable message, worded after prod's ETL report where prod logs the same
-      condition. Blank for checks with no prod equivalent message.
+      "[<log_message_id>] " then prod's wording for that message, filled with our values.
+      Prod prints OIDs, which we don't carry, so where prod says OID we print the
+      GlobalID (PlaceID on SAF CommonPlace rows). OURS rows have wording of their own.
   - name: output_filename
     description: Exported file name. File summary rows only.
   - name: record_count
@@ -44,28 +65,37 @@ models:
 - name: log__export_file_summary
   description: >-
     One row per exported flat file (log.csv excluded) with its record count, like
-    prod's "Total <file> output records: N" report lines.
+    prod's "Total <file> output records: N" report lines. Files prod writes such a line
+    for carry that line's id (CSCL-LOG-SAF-01 for Intersection.txt); the rest share
+    CSCL-LOG-OURS-05.
 
 - name: log__lion_centerline_boro_mismatch
   description: >-
     LION rows whose borough differs from their source feature's own borough (the
-    centerline's boroughcode, or the proto segment's borough), matching prod's
-    "does not match the borough currently being extracted" check. A blank source
-    borough is derived downstream, as in prod, and isn't flagged.
+    centerline's boroughcode, or the proto segment's borough). A blank source borough is
+    derived downstream, as in prod, and isn't flagged. Logged as CSCL-LOG-OURS-04: prod's
+    similar "does not match the borough currently being extracted" message
+    (CSCL-LOG-LION-20) is unreachable.
 
 - name: log__saf_invalid_b7sc
   description: >-
     G/N/X CommonPlaces with a B7SC shorter than 8 characters (blank included), which SAF
-    leaves out. Prod's "[DATA ERROR] The B7SC value of '' is not valid" check.
+    leaves out. Prod's "[DATA ERROR] The B7SC value of '' is not valid" check
+    (CSCL-LOG-SAF-22).
 
 - name: log__saf_name_missing
   description: >-
     G/N/X CommonPlaces SAF leaves out because their B7SC has no principal name in the
-    FeatureName or StreetName table. Prod's "[NAME MISSING]" check.
+    FeatureName or StreetName table. Prod's "[NAME MISSING]" check (CSCL-LOG-SAF-23).
 
 - name: log__thinlion_lookup_not_found
   description: >-
     ThinLION's CensusTract2020, CensusTract2010 and HealthArea lookups that find nothing,
     one row per distinct lookup with the number of atomic polygons it leaves blank in
     record_count. Prod logs the same message ("Could not find a <feature class> feature
-    using query '<query>'.") once per atomic polygon.
+    using query '<query>'.", CSCL-LOG-THIN-01..03) once per atomic polygon.
+
+- name: log__lion_segments_missing_nypd
+  description: >-
+    LION segments with no NYPD beat on either side. Logged as CSCL-LOG-OURS-03: prod has
+    a message for this (CSCL-LOG-LION-06) but never calls the check.

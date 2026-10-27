@@ -36,8 +36,23 @@ misses AS (
 SELECT
     'warning' AS log_level,
     'thinlion lookup not found' AS error_category,
+    CASE feature_class
+        WHEN 'CensusTract2020' THEN 'CSCL-LOG-THIN-01'
+        WHEN 'CensusTract2010' THEN 'CSCL-LOG-THIN-02'
+        WHEN 'HealthArea' THEN 'CSCL-LOG-THIN-03'
+    END AS log_message_id,
+    'warned' AS effect,
     'atomicpolygons' AS source_feature_layer,
-    FORMAT('Could not find a {} feature using query ''{}''.', feature_class, query) AS message,
+    FORMAT(
+        '[{}] Could not find a {} feature using query ''{}''.',
+        CASE feature_class
+            WHEN 'CensusTract2020' THEN 'CSCL-LOG-THIN-01'
+            WHEN 'CensusTract2010' THEN 'CSCL-LOG-THIN-02'
+            WHEN 'HealthArea' THEN 'CSCL-LOG-THIN-03'
+        END,
+        feature_class,
+        query
+    ) AS message,
     COUNT(*) AS record_count
 FROM misses
 GROUP BY feature_class, query

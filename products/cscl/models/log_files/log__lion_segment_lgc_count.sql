@@ -15,17 +15,17 @@ max_lgc AS (
 SELECT
     'error' AS log_level,
     'more than 9 lgcs for a given segmentid' AS error_category,
+    'CSCL-LOG-LION-17' AS log_message_id,
+    'warned' AS effect,
     segments.globalid,
     segments.source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     max_lgc.segmentid AS record_id,
     FORMAT(
-        '[LGC DATA ERROR] More than 9 LGC values were found for the "{}" '
-        || 'feature with an OID = "{}" and segment id "{}". '
-        || '"{}" values were found for the record.',
+        '[CSCL-LOG-LION-17] [LGC DATA ERROR] More than 9 LGC values were found for the {} '
+        || 'feature with a GlobalID = {}.  {} values were found for the record.',
         COALESCE(source_table::VARCHAR, ''),
         COALESCE(globalid::VARCHAR, ''),
-        COALESCE(max_lgc.segmentid::INT::VARCHAR, ''),
         COALESCE(lgc_count::VARCHAR, '')
     ) AS message
 FROM max_lgc

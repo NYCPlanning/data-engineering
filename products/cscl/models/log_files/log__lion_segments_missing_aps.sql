@@ -1,10 +1,17 @@
 SELECT
     'error' AS log_level,
     'segment joined to no atomic polygon' AS error_category,
+    'CSCL-LOG-LION-05' AS log_message_id,
+    'warned' AS effect,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
-    '' AS message
+    FORMAT(
+        '[CSCL-LOG-LION-05] Both offset points for the {} feature with a GlobalID = {} '
+        || 'failed to find AtomicPolygons.',
+        COALESCE(source_table::VARCHAR, ''),
+        COALESCE(globalid::VARCHAR, '')
+    ) AS message
 FROM {{ ref('int__lion') }}
 WHERE left_atomicid IS NULL AND right_atomicid IS NULL
