@@ -31,11 +31,22 @@ center_calculated AS (
         CASE
             WHEN curve_flag IN ('L', 'R') THEN
                 find_circle(start_point, midpoint, end_point)
-        END AS center_of_curvature
+        END AS fitted_center
     FROM points
+),
+center_or_midpoint AS (
+    -- Collinear start, middle and end points have no circle: prod falls back to the
+    -- segment midpoint and logs CSCL-LOG-LION-08.
+    SELECT
+        *,
+        curve_flag IN ('L', 'R') AND fitted_center IS NULL AS center_is_midpoint,
+        CASE
+            WHEN curve_flag IN ('L', 'R') THEN coalesce(fitted_center, midpoint)
+        END AS center_of_curvature
+    FROM center_calculated
 )
 SELECT
-    *,
+    * EXCLUDE (fitted_center),
     st_x(center_of_curvature) AS center_of_curvature_x,
     st_y(center_of_curvature) AS center_of_curvature_y,
     -- Prod's radius is the distance from the rounded (integer-foot) center to the
@@ -47,4 +58,4 @@ SELECT
         st_point(round_even(st_x(center_of_curvature), 0), round_even(st_y(center_of_curvature), 0)),
         start_point
     ) AS center_of_curvature_radius
-FROM center_calculated
+FROM center_or_midpoint

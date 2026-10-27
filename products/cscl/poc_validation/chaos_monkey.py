@@ -46,7 +46,8 @@ class Injection:
     # string in its message (ThinLION lookups carry no key)
     log_match_column: str
     log_match_value: str
-    # 'lion' or 'saf': the output the record must be missing from (dropped messages)
+    # 'lion', 'saf', 'snd', 'enders' or 'rpl': the output the record must be missing from
+    # (dropped messages)
     dropped_from: str | None = None
     dropped_globalid: str | None = None
     # ids the edit can fire on the same record, depending on its surroundings: not
@@ -243,6 +244,52 @@ _LONE_CENTERLINE = """
     )
 """
 
+# How many line ends (centerline, shoreline, rail, subway, non-street feature) meet at each
+# point, rounded to the hundredth of a foot.
+_LINE_ENDS = """
+    all_lines AS (
+        SELECT geom FROM {s}.dcp_cscl_centerline
+        UNION ALL SELECT geom FROM {s}.dcp_cscl_shoreline
+        UNION ALL SELECT geom FROM {s}.dcp_cscl_rail
+        UNION ALL SELECT geom FROM {s}.dcp_cscl_subway
+        UNION ALL SELECT geom FROM {s}.dcp_cscl_nonstreetfeatures
+    ),
+    line_ends AS (
+        SELECT x, y, COUNT(*) AS n
+        FROM (
+            SELECT ROUND(ST_X(ST_StartPoint(ST_LineMerge(geom))), 2) AS x,
+                ROUND(ST_Y(ST_StartPoint(ST_LineMerge(geom))), 2) AS y
+            FROM all_lines
+            UNION ALL
+            SELECT ROUND(ST_X(ST_EndPoint(ST_LineMerge(geom))), 2),
+                ROUND(ST_Y(ST_EndPoint(ST_LineMerge(geom))), 2)
+            FROM all_lines
+        )
+        GROUP BY ALL
+    )
+"""
+
+# Centerlines that can leave LION (dropped, or moved away from their nodes) without changing
+# a neighbour's output: neither end meets exactly one other line. There, the neighbour
+# would become a dead end and its SEGLOCSTATUS rule change (H to I), logging
+# CSCL-LOG-LION-01 on a record nobody injected.
+_DETACHABLE_CENTERLINE = (
+    _LINE_ENDS
+    + """,
+    detachable AS (
+        SELECT cl.globalid
+        FROM {s}.dcp_cscl_centerline AS cl
+        INNER JOIN line_ends AS s
+            ON s.x = ROUND(ST_X(ST_StartPoint(ST_LineMerge(cl.geom))), 2)
+            AND s.y = ROUND(ST_Y(ST_StartPoint(ST_LineMerge(cl.geom))), 2)
+        INNER JOIN line_ends AS e
+            ON e.x = ROUND(ST_X(ST_EndPoint(ST_LineMerge(cl.geom))), 2)
+            AND e.y = ROUND(ST_Y(ST_EndPoint(ST_LineMerge(cl.geom))), 2)
+        WHERE s.n <> 2 AND e.n <> 2
+    )
+"""
+)
+
 MUTATIONS: list[Mutation] = [
     Mutation(
         name="centerline_seglocstatus",
@@ -323,10 +370,14 @@ MUTATIONS: list[Mutation] = [
         column="geom",
         candidates_sql="WITH "
         + _LONE_CENTERLINE
+        + ","
+        + _DETACHABLE_CENTERLINE
         + """
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
                 globalid AS log_key, sx || ' ' || sy AS old, sx, sy
-            FROM lone WHERE ST_Length(geom) < 200 ORDER BY globalid
+            FROM lone WHERE ST_Length(geom) < 200
+                AND globalid IN (SELECT globalid FROM detachable)
+            ORDER BY globalid
         """,
     ),
     FlattenCurve(
@@ -374,8 +425,10 @@ MUTATIONS: list[Mutation] = [
         table="dcp_cscl_streetname",
         column="facecode",
         new_value=None,
-        candidates_sql="""
-            WITH principal AS (
+        candidates_sql="WITH "
+        + _DETACHABLE_CENTERLINE
+        + """,
+            principal AS (
                 SELECT b7sc FROM {s}.dcp_cscl_streetname WHERE principal_flag = 'Y'
                 UNION ALL
                 SELECT b7sc FROM {s}.dcp_cscl_featurename WHERE principal_flag = 'Y'
@@ -398,6 +451,7 @@ MUTATIONS: list[Mutation] = [
                     SELECT b5sc || lgc1 FROM {s}.dcp_cscl_altsegmentdata WHERE b5sc IS NOT NULL
                 )
                 AND cl.segmentid NOT IN (SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
+                AND cl.globalid IN (SELECT globalid FROM detachable)
             ORDER BY sn.globalid
         """,
         dropped_from="lion",
@@ -531,29 +585,15 @@ MUTATIONS: list[Mutation] = [
         column="(row deleted)",
         candidates_sql="WITH "
         + _LONE_CENTERLINE
+        + ","
+        + _LINE_ENDS
         + """,
             ends AS (
                 SELECT globalid, segmentid, ROUND(sx, 2) AS x, ROUND(sy, 2) AS y FROM lone
                 UNION ALL
                 SELECT globalid, segmentid, ROUND(ex, 2), ROUND(ey, 2) FROM lone
             ),
-            all_lines AS (
-                SELECT geom FROM {s}.dcp_cscl_centerline
-                UNION ALL SELECT geom FROM {s}.dcp_cscl_shoreline
-                UNION ALL SELECT geom FROM {s}.dcp_cscl_rail
-                UNION ALL SELECT geom FROM {s}.dcp_cscl_subway
-                UNION ALL SELECT geom FROM {s}.dcp_cscl_nonstreetfeatures
-            ),
-            all_ends AS (
-                SELECT ROUND(ST_X(ST_StartPoint(ST_LineMerge(geom))), 2) AS x,
-                    ROUND(ST_Y(ST_StartPoint(ST_LineMerge(geom))), 2) AS y
-                FROM all_lines
-                UNION ALL
-                SELECT ROUND(ST_X(ST_EndPoint(ST_LineMerge(geom))), 2),
-                    ROUND(ST_Y(ST_EndPoint(ST_LineMerge(geom))), 2)
-                FROM all_lines
-            ),
-            dead_ends AS (SELECT x, y FROM all_ends GROUP BY ALL HAVING COUNT(*) = 1)
+            dead_ends AS (SELECT x, y FROM line_ends WHERE n = 1)
             SELECT n.globalid AS key, [n.globalid, ends.globalid, ends.segmentid::VARCHAR] AS claims,
                 ends.globalid AS log_key, n.nodeid::VARCHAR AS old
             FROM ends
@@ -657,12 +697,13 @@ MUTATIONS: list[Mutation] = [
         new_value="",
         candidates_sql="""
             SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
-                lookup_key AS old
+                globalid AS dropped_globalid, lookup_key AS old
             FROM {s}.dcp_cscl_streetname
             WHERE principal_flag <> 'Y' AND lookup_key IS NOT NULL AND b10sc IS NOT NULL
                 AND enders_flag IS DISTINCT FROM 'Y' AND exception_flag IS DISTINCT FROM 'Y'
             ORDER BY globalid
         """,
+        dropped_from="snd",
     ),
     Mutation(
         name="enders_null_lookup_key",
@@ -672,10 +713,11 @@ MUTATIONS: list[Mutation] = [
         new_value=None,
         candidates_sql="""
             SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
-                lookup_key AS old
+                globalid AS dropped_globalid, lookup_key AS old
             FROM {s}.dcp_cscl_streetname
             WHERE enders_flag = 'Y' AND principal_flag <> 'Y' ORDER BY globalid
         """,
+        dropped_from="enders",
     ),
     Mutation(
         name="exception_null_lookup_key",
@@ -700,9 +742,10 @@ MUTATIONS: list[Mutation] = [
         new_value=_fake_segmentid,
         candidates_sql="""
             SELECT globalid AS key, [globalid, roadbed_segmentid::VARCHAR] AS claims,
-                globalid AS log_key, roadbed_segmentid AS old
+                globalid AS log_key, globalid AS dropped_globalid, roadbed_segmentid AS old
             FROM {s}.dcp_cscl_roadbed_pointer_list ORDER BY globalid
         """,
+        dropped_from="rpl",
     ),
 ]
 

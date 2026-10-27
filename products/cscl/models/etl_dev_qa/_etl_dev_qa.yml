@@ -211,7 +211,7 @@ models:
     One row per poc_validation/chaos_monkey.py injection and expected log id (the
     chaos_injections manifest, plus its seed status): whether log.csv, or an attachment
     to it (log_records), logged the injected record under that id, and for dropped messages whether the record is really gone from
-    its output (int__lion, or int__saf_gnx and int__saf_abcep). Empty unless the manifest table exists,
+    its output (int__lion; int__saf_gnx and int__saf_abcep; int__snd; int__rpl; or, for Enders, which has no record key, no blank lines in enders_by_field). Empty unless the manifest table exists,
     so normal builds skip it. See CONTRIBUTING.md, "Adding a log check".
   columns:
   - name: logged
