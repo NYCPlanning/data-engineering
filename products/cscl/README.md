@@ -141,6 +141,8 @@ This sorts the files before comparison, so this isn't quite valid for comparing 
 
 Feature class and field names follow **appendix D**, which is stale in places but was confirmed against the shapefiles DCP publishes on BYTES — those use appendix D's names exactly (`AssemDist`, `BoroCD`, `HCentDist`, `SchoolDist`, `StSenDist`). The `name` values in `product-metadata/products/lion/*` are friendly display names, not field names; don't build from them.
 
+38 of the layers also ship as shapefiles (`dataset_files/shapefiles/<layer>.zip`, BYTES and Open Data), written by packaging from the same linear parquet layers. Each gdb entry names its shapefile file in `custom.product_metadata.shapefile`. Field names are the layer's, cut to 10 characters the way ArcGIS exports an FGDB layer (`CENSUSBLOCK_2000_SUFFIX` -> `CENSUSBL_1`, `SHAPE_Length` -> `Shape_Leng`, shape fields last). That matches every prod 26c shapefile's names and order. Field widths don't match prod: ours are GDAL's defaults (String 80, Integer 9, Real 24.15), prod's are String(gdb width), Integer(5) and Real(19.11).
+
 Two places where the 2009 doc and the real product disagree, both settled empirically against the published shapefiles:
 
 - **Land is `WATER_FLAG IN ('2', '3', '4')`**, not `('2', '3')` as the doc says. Flag `4` postdates the doc and is land for clipping purposes; including it reproduces the published clipped extent exactly, excluding it falls about 1% short.
