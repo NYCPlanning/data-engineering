@@ -124,6 +124,80 @@ seeds:
                 values: [open, accepted, watch]
       - name: reference
         description: "Data-engineering tracker bead(s) holding the analysis and evidence, comma-separated."
+  - name: log_messages
+    description: >
+      Every message prod's ETL logs, one row per distinct message, plus the checks only we
+      log (CSCL-LOG-OURS-NN). Built from the audit of every logger call in prod's compiled
+      ETL source (tracker bead inv-2cy.60). Each log.csv row carries one of these ids in
+      log_message_id and starts its message with it ('[CSCL-LOG-LION-05] ...'); the
+      assert_log_message_citations test keeps the log__* models and this seed in step, and
+      qa__log_message_counts counts log rows per id. An id is never reused or renumbered.
+    config:
+      column_types:
+        id: varchar
+        prod_source: varchar
+        level: varchar
+        effect: varchar
+        prod_message: varchar
+        trigger: varchar
+        status: varchar
+        status_reason: varchar
+        model: varchar
+    columns:
+      - name: id
+        description: >
+          Stable id, CSCL-LOG-<OUTPUT>-NN after the audit's own ids (CSCL-LOG-SAF-25), or
+          CSCL-LOG-OURS-NN for a check prod doesn't log. The CSCL-LOG- prefix keeps these
+          apart from known_differences ids.
+        tests:
+          - not_null
+          - unique
+      - name: prod_source
+        description: >
+          Where prod logs it, file:line in prod's ETL source (call sites in parentheses).
+          Blank on OURS rows.
+      - name: level
+        description: >
+          Prod's log level. Prod's log threshold is WARN, so INFO and DEBUG rows never reach
+          its log. Blank on OURS rows.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [ERROR, WARN, INFO, DEBUG]
+      - name: effect
+        description: >
+          What happens to the record: dropped (left out of the output), warned (written,
+          possibly with a changed value; trigger says which), summary (an every-run count or
+          progress line) or run_level (the run or a whole file fails). For an OURS row, the
+          effect in our build.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [dropped, warned, summary, run_level]
+      - name: prod_message
+        description: >
+          Prod's message template, verbatim from the source, with its format arguments
+          named in braces ({oid}, {fc}). Blank on OURS rows.
+      - name: trigger
+        description: "When it fires, in plain words, and prod's effect on the record."
+        tests:
+          - not_null
+      - name: status
+        description: >
+          implemented (a log__* model emits it), planned (a live check we don't log yet),
+          wont_log (exception, run-level, config-only or debug noise), dead_in_prod (prod
+          can't reach it) or below_threshold (prod logs it below WARN, so it never shows).
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [implemented, planned, wont_log, dead_in_prod, below_threshold]
+      - name: status_reason
+        description: >
+          Why the row has its status, and how ours differs from prod's on implemented rows.
+      - name: model
+        description: The log__* model that emits it. Implemented rows only.
   - name: lion_outputs
     description: "LION output file mappings by group, subgroup, and type"
     columns:

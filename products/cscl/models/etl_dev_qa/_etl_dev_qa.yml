@@ -203,3 +203,19 @@ models:
     Same audit_helper row comparison as qa__thinlion_all_comparison, scoped
     to Staten Island (borough 5). Compares thinlion_statenisland_by_field
     against the production thinlion_statenisland table.
+
+# ── Log QA ───────────────────────────────────────────────────────────────────
+
+- name: qa__log_message_counts
+  description: >
+    How often each log_messages id shows up in log.csv, one row per seed row (0 when the
+    build logs none of it). Compare against the same ids in a prod log.
+  columns:
+  - name: log_message_id
+    tests: [ not_null, unique ]
+  - name: log_rows
+    description: log.csv rows with this id.
+  - name: records
+    description: >
+      Records behind those rows: the atomic-polygon count on ThinLION lookup rows (prod
+      logs those once per atomic polygon), one per row elsewhere.

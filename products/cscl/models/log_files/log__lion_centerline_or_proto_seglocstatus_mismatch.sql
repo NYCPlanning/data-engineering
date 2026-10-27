@@ -29,17 +29,28 @@ joined AS (
 SELECT
     'error' AS log_level,
     'seglocstatus mismatch' AS error_category,
+    CASE source_table
+        WHEN 'centerline' THEN 'CSCL-LOG-LION-01'
+        WHEN 'altsegmentdata' THEN 'CSCL-LOG-LION-02'
+    END AS log_message_id,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
-    FORMAT(
-        'The {} feature with an OID = {} has a SEGLOCSTATUS value that is different than '
-        || 'what was found using the LION ETL rules.  Feature = ''{}'', ETL Rules = ''{}''.',
-        COALESCE(source_table::VARCHAR, ''),
-        COALESCE(globalid::VARCHAR, ''),
-        COALESCE(source_segment_locational_status::VARCHAR, ''),
-        COALESCE(segment_locational_status::VARCHAR, '')
-    ) AS message
+    -- prod's LION-01 wording ends with start/end node counts and OIDs, which we don't compute
+    CASE source_table
+        WHEN 'centerline'
+            THEN {{ log_message(
+                "The {} feature with a GlobalID = {} has a SEGLOCSTATUS value that is different "
+                "than what was found using the LION ETL rules.  Feature = '{}', ETL Rules = '{}'.",
+                ["source_table", "globalid", "source_segment_locational_status", "segment_locational_status"]
+            ) }}
+        WHEN 'altsegmentdata'
+            THEN {{ log_message(
+                "The proto segment record a GlobalID = {} has a SEGLOCSTATUS value that is different "
+                "than what was found using the LION ETL rules.  Proto Segment Row = '{}', ETL Rules = '{}'.",
+                ["globalid", "source_segment_locational_status", "segment_locational_status"]
+            ) }}
+    END AS message
 FROM joined
 WHERE segment_locational_status IS DISTINCT FROM source_segment_locational_status

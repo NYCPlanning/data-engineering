@@ -12,18 +12,21 @@ censustract2010 AS (
 misses AS (
     SELECT
         'CensusTract2020' AS feature_class,
+        'CSCL-LOG-THIN-01' AS log_message_id,
         FORMAT('BOROCT=''{}{}''', borough, censustract_2020) AS query
     FROM thinlion
     WHERE ct2020_globalid IS NULL
     UNION ALL
     SELECT
         'CensusTract2010' AS feature_class,
+        'CSCL-LOG-THIN-02' AS log_message_id,
         FORMAT('BOROCT=''{}{}''', borough, censustract_2010) AS query
     FROM thinlion
     WHERE ct2010_globalid IS NULL
     UNION ALL
     SELECT
         'HealthArea' AS feature_class,
+        'CSCL-LOG-THIN-03' AS log_message_id,
         FORMAT(
             'HEALTHAREA=''{}'' AND BOROUGH = ''{}''',
             COALESCE(censustract2010.health_area, ''),
@@ -36,8 +39,9 @@ misses AS (
 SELECT
     'warning' AS log_level,
     'thinlion lookup not found' AS error_category,
+    log_message_id,
     'atomicpolygons' AS source_feature_layer,
-    FORMAT('Could not find a {} feature using query ''{}''.', feature_class, query) AS message,
+    {{ log_message("Could not find a {} feature using query '{}'.", ["feature_class", "query"]) }} AS message,
     COUNT(*) AS record_count
 FROM misses
-GROUP BY feature_class, query
+GROUP BY feature_class, log_message_id, query
