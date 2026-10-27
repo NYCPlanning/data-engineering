@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import duckdb
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "poc_validation"))
 
@@ -93,3 +94,45 @@ def test_inject_writes_manifest_and_edits_records():
         "from s.chaos_injections order by log_match_value"
     ).fetchall() == [("CSCL-LOG-LION-23", g, str(old[g]), "7") for g in sorted(picked)]
     assert conn.execute("select count(*) from s.chaos_baseline_log").fetchone() == (1,)
+
+
+def test_rebuild_selection_covers_edited_tables_and_chaos_models():
+    sel = cm.rebuild_selection({"dcp_cscl_nodes", "dcp_cscl_centerline"})
+    assert sel == [
+        "source:recipe_sources.dcp_cscl_centerline+,+qa__chaos_summary",
+        "source:recipe_sources.dcp_cscl_nodes+,+qa__chaos_summary",
+        "qa__chaos_injections",
+        "qa__chaos_summary",
+    ]
+
+
+def test_every_mutation_edits_a_declared_source():
+    sources_yml = Path(__file__).parent.parent / "models" / "sources.yml"
+    sources = yaml.safe_load(sources_yml.read_text())["sources"]
+    (source,) = [s for s in sources if s["name"] == cm.SOURCE]
+    tables = {t["name"] for t in source["tables"]}
+    for m in cm.MUTATIONS:
+        assert m.table in tables, m.name
+
+
+def test_edited_tables_include_every_table_an_edit_touches():
+    conn = duckdb.connect()
+    conn.execute("CREATE SCHEMA s")
+    conn.execute("CREATE TABLE s.a (globalid VARCHAR, x VARCHAR)")
+    conn.execute("CREATE TABLE s.b (globalid VARCHAR, y VARCHAR)")
+    conn.execute(
+        "INSERT INTO s.a VALUES ('g1', 'old'); INSERT INTO s.b VALUES ('g2', 'old')"
+    )
+    m = cm.Edits(name="m", log_message_ids=[], table="a", column="x", candidates_sql="")
+    cand = {
+        "key": "g1",
+        "old": "old",
+        "log_key": "g1",
+        "edits": [
+            {"t": "a", "k": "globalid", "kv": "g1", "c": "x", "v": "new"},
+            {"t": "b", "k": "globalid", "kv": "g2", "c": "y", "v": "new"},
+        ],
+    }
+    inj = m.apply(conn, "s", cand, 1)
+    assert cm.edited_tables([inj]) == {"a", "b"}
+    assert conn.execute("SELECT y FROM s.b").fetchone() == ("new",)
