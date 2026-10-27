@@ -143,6 +143,7 @@ seeds:
         status: varchar
         status_reason: varchar
         model: varchar
+        chaos_mutations: varchar
     columns:
       - name: id
         description: >
@@ -198,6 +199,11 @@ seeds:
           Why the row has its status, and how ours differs from prod's on implemented rows.
       - name: model
         description: The log__* model that emits it. Implemented rows only.
+      - name: chaos_mutations
+        description: >
+          The poc_validation/chaos_monkey.py mutations that should make this message fire,
+          space-separated; blank when none does. Kept equal to the script's registry by
+          tests/test_chaos_monkey.py.
   - name: lion_outputs
     description: "LION output file mappings by group, subgroup, and type"
     columns:

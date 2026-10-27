@@ -206,6 +206,29 @@ models:
 
 # ── Log QA ───────────────────────────────────────────────────────────────────
 
+- name: qa__chaos_injections
+  description: >
+    One row per poc_validation/chaos_monkey.py injection and expected log id (the
+    chaos_injections manifest, plus its seed status): whether log.csv logged the injected
+    record under that id, and for dropped messages whether the record is really gone from
+    its output (int__lion, or int__saf_gnx and int__saf_abcep). Empty unless the manifest table exists,
+    so normal builds skip it. See CONTRIBUTING.md, "Adding a log check".
+  columns:
+  - name: logged
+    description: A log row with this id matches the injected record.
+  - name: dropped
+    description: The record is missing from dropped_from's output. Null when not a dropped message.
+
+- name: qa__chaos_summary
+  description: >
+    Chaos run result per log id: injected and logged counts (recall), dropped records still
+    in their output, and unexpected_rows, log rows with the id that are new since the
+    baseline log (chaos_baseline_log) and match no injection (precision; null without a
+    baseline). result is pass, fail, or expected fail for a planned id with no log model yet.
+  columns:
+  - name: log_message_id
+    tests: [ unique ]
+
 - name: qa__log_message_counts
   description: >
     How often each log_messages id shows up in log.csv, one row per seed row (0 when the

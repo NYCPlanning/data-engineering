@@ -49,6 +49,35 @@ needing NYC Planning's GR team's input on undocumented legacy behavior - record 
 (`status: GR Review` while it's with them, `blocked` once it's a known dead end) rather than
 leaving it untracked.
 
+### Adding a log check (chaos first)
+
+Every log.csv message has an id in [seeds/log_messages.csv](./seeds/log_messages.csv). A new
+log check starts as a test that fails:
+
+1. Add a mutation for its id to `MUTATIONS` in
+   [poc_validation/chaos_monkey.py](./poc_validation/chaos_monkey.py): an edit to the loaded
+   inputs that should make the message fire, listing every id it should trigger. Update the
+   seed's `chaos_mutations` column to match (`tests/test_chaos_monkey.py` checks it).
+2. Run the loop below and watch the id show `expected fail` in `qa__chaos_summary`.
+3. Write the `log__*` model, set the seed row to `implemented`, and rerun until the id
+   shows `pass`: every injected record logged under the id (`logged = injected`), dropped
+   records really gone from their output (`not_dropped = 0`), and no new log rows beyond
+   the injected records (`unexpected_rows = 0`).
+
+The loop runs on a throwaway copy of an inputs-loaded DuckDB (`DUCKDB_PATH`,
+`BUILD_ENGINE_SCHEMA`); keep a pristine copy and copy it back before each run, since the
+script edits the inputs and refuses to run twice:
+
+```bash
+dbt seed && dbt run                                 # baseline: lets precision ignore rows already logged
+python poc_validation/chaos_monkey.py --seed 1      # --ids CSCL-LOG-X-NN to restrict, --max-per-check k
+dbt run
+python poc_validation/chaos_monkey.py --report      # prints qa__chaos_summary
+```
+
+`qa__chaos_injections` has one row per injected record and expected id, with the old and
+new values, for working out why one wasn't logged.
+
 ## Documentation Generation
 
 We're replacing `docs/ETL_V8_02012024.md` (a static, hand-maintained Word-doc export)
