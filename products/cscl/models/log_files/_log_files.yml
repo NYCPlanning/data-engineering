@@ -128,3 +128,9 @@ models:
     Principal StreetName rows with a blank FACECODE, which the Face files leave out
     (CSCL-LOG-FC-01), logged again when the row's B7SC is a segment's preferred LGC
     (CSCL-LOG-FC-02).
+
+- name: log__street_name_blank_lookup_key
+  description: >-
+    StreetName rows with a blank LOOKUP_KEY, which SND (CSCL-LOG-SND-01), Enders
+    (CSCL-LOG-END-01) or the Exception file (CSCL-LOG-EXC-02) leave out. Each follows
+    prod's own row filter and blank test for that file.
