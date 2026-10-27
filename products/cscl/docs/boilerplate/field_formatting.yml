@@ -11,15 +11,13 @@
         field's own description says otherwise.
     - kind: text
       text: >-
-        Every [[dat_file|text-formatted]] export field's justification and fill are
-        set by a 4-letter code (e.g. `RJZF`) in that export's `text_formatting__*`
-        seed -
-        `apply_text_formatting_from_seed` only checks the code's first two characters
-        for justification and its last two for fill:
+        Every [[dat_file|text-formatted]] field's justification and fill are given by
+        a four-letter code in its layout's Format column (e.g. `RJZF`): the first two
+        letters set the justification and the last two the fill.
     - kind: table
       headers: ["Code", "Meaning"]
       rows:
         - ["LJ", "Left-justified"]
-        - ["RJ", "Right-justified - the default if a code doesn't start with LJ, including a few seeds that use RF for the same thing"]
-        - ["SF", "Space-filled - the default if a code doesn't end in ZF"]
+        - ["RJ", "Right-justified - also any code that doesn't start with LJ, such as RF"]
+        - ["SF", "Space-filled - also any code that doesn't end in ZF"]
         - ["ZF", "Zero-filled"]
