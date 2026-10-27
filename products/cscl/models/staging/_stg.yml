@@ -323,12 +323,18 @@ models:
     description: Only present on street rows; NULL for features.
   - name: globalid
     description: Globally unique identifier assigned by the source geodatabase.
+  - name: ogc_fid
+    description: >
+      Row identifier assigned when the source layer was loaded; unique within StreetName
+      or FeatureName, not across the two. Follows the source's OBJECTID order.
 
 - name: stg__facecode_and_featurename_principal
   description: >
     The principal name of each B7SC: rows of stg__facecode_and_featurename with
     principal_flag 'Y'. Used to look up the street or feature name and face code of a
-    segment's preferred B7SC.
+    segment's preferred B7SC. Where a B7SC has more than one principal name in the same
+    table, only the first in source order (lowest OBJECTID) is kept, as prod's lookups
+    take the first row.
   columns:
   - name: b7sc
     description: Borough, five-digit street code and two-digit local group code (B7SC) of the name.
@@ -336,7 +342,6 @@ models:
     - unique:
         arguments:
           config: { where: "b7sc IS NOT NULL" }
-          error_if: "> 1"
   - name: lookup_key
     description: Street or feature name, in the form stored in the CSCL name tables.
   - name: face_code
@@ -566,7 +571,8 @@ unit_tests:
         NULL AS exception_flag,
         NULL AS snd_feature_type,
         NULL AS horizontal_topo_type,
-        globalid
+        globalid,
+        globalid::INT AS ogc_fid
       FROM input
   - input: source("recipe_sources", "dcp_cscl_featurename")
     format: sql
@@ -581,7 +587,8 @@ unit_tests:
         NULL::text AS enders_flag,
         NULL::text AS exception_flag,
         NULL::text AS snd_feature_type,
-        NULL::text AS globalid
+        NULL::text AS globalid,
+        NULL::INT AS ogc_fid
       WHERE FALSE
   expect:
     format: sql
@@ -611,5 +618,6 @@ unit_tests:
         NULL AS exception_flag,
         NULL AS snd_feature_type,
         NULL AS horizontal_topo_type,
-        globalid
+        globalid,
+        globalid::INT AS ogc_fid
       FROM input

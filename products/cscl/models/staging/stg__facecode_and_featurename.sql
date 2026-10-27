@@ -13,7 +13,8 @@ WITH all_features AS (
         exception_flag,
         snd_feature_type,
         horizontal_topo_type,
-        globalid
+        globalid,
+        ogc_fid
     FROM {{ source("recipe_sources", "dcp_cscl_streetname") }}
     UNION ALL
     SELECT
@@ -28,7 +29,8 @@ WITH all_features AS (
         exception_flag,
         snd_feature_type,
         NULL AS horizontal_topo_type,
-        globalid
+        globalid,
+        ogc_fid
     FROM {{ source("recipe_sources", "dcp_cscl_featurename") }}
 ),
 trimmed_key AS (
@@ -68,6 +70,7 @@ SELECT
     exception_flag,
     snd_feature_type,
     horizontal_topo_type,
-    trimmed_key.globalid
+    trimmed_key.globalid,
+    trimmed_key.ogc_fid
 FROM trimmed_key
 LEFT JOIN sort_order ON trimmed_key.globalid = sort_order.globalid

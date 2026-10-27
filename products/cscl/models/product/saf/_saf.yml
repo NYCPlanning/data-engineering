@@ -9,8 +9,8 @@ models:
     record layout despite two different source tables, since a
     street segment's address data and a place name attached to that segment need the
     same shape. This is the generic-file version. An AltSegmentData row with a blank SAF
-    type is left out (CSCL-SAF-03), and a place whose street code has two principal names
-    is written once per name (CSCL-SAF-04).
+    type is left out (CSCL-SAF-03). A place whose street code has more than one principal
+    name is written once, with the first name in source order.
   config:
     tags: [export_doc]
     meta:
