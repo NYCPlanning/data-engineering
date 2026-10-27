@@ -68,7 +68,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: b7sc
-    description: "Borough, five-digit street code and LGC (B7SC) of the segment's preferred name."
+    description: "Borough, five-digit street code and LGC (B7SC) of the segment's preferred name: its one preferred Segment_LGC row, whatever the borough, else the one in the LION key's borough."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

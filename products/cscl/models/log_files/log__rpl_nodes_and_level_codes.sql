@@ -4,8 +4,7 @@
 --     (RPL9), the roadbed's to point (RPL10) or the generic's to point (RPL11). int__rpl
 --     leaves the node id blank too.
 --   RPL-08: FROM_/TO_NODE_LEVEL_COINCIDENT_RB is a number other than 1-26 or 99
---     (GetLevelCode, :370). Prod leaves the level code blank; int__rpl doesn't (it writes
---     chr(64 + n), e.g. '^' for 30), and writes no '*' for 99.
+--     (GetLevelCode, :370). Prod leaves the level code blank, and so does int__rpl.
 WITH source_rpl AS (
     SELECT * FROM {{ source('recipe_sources', 'dcp_cscl_roadbed_pointer_list') }}
 ),

@@ -5,8 +5,7 @@
 --   SEDAT-03: the B7SC prod picks has no principal StreetName row, so the name is blank.
 --     With several preferred rows prod picks the one in the LIONKEY's borough, and
 --     looks up B7SC = '' when none is.
--- int__sedat blanks the same fields, except that it only takes a preferred row in the
--- LIONKEY's borough, where prod takes a lone preferred row whatever its borough.
+-- int__sedat picks the same preferred row and blanks the same fields.
 WITH sedat AS (
     SELECT * FROM {{ source('recipe_sources', 'dcp_cscl_sedat') }}
 ),

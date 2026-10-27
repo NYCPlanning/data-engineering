@@ -1779,6 +1779,38 @@ MUTATIONS: list[Mutation] = [
             ORDER BY sedat.globalid
         """,
     ),
+    Mutation(
+        # onto a segment of another borough whose one preferred street code has no
+        # StreetName name: prod takes a lone preferred street code whatever its borough,
+        # so it still fills SEDAT11 (and would fill the name, had the code one)
+        name="sedat_on_other_borough_unnamed_street",
+        log_message_ids=["CSCL-LOG-SEDAT-03"],
+        table="dcp_cscl_sedat",
+        column="segmentid",
+        new_value=lambda cand, _n: cand["target"],
+        candidates_sql="""
+            WITH one_preferred AS (
+                SELECT segmentid, ANY_VALUE(b5sc || lgc) AS b7sc
+                FROM {s}.dcp_cscl_segment_lgc WHERE preferred_lgc_flag = 'Y'
+                GROUP BY segmentid HAVING COUNT(*) = 1
+            ),
+            targets AS (
+                SELECT segmentid, LEFT(b7sc, 1) AS boro,
+                    ROW_NUMBER() OVER (PARTITION BY LEFT(b7sc, 1) ORDER BY segmentid) AS rn
+                FROM one_preferred
+                WHERE b7sc NOT IN (
+                    SELECT b7sc FROM {s}.dcp_cscl_streetname WHERE principal_flag = 'Y' AND b7sc IS NOT NULL
+                )
+            )
+            SELECT sedat.globalid AS key, [sedat.globalid] AS claims, sedat.globalid AS log_key,
+                sedat.segmentid AS old, targets.segmentid AS target
+            FROM {s}.dcp_cscl_sedat AS sedat
+            INNER JOIN targets
+                ON targets.boro = (LEFT(sedat.lionkey, 1)::INT % 5 + 1)::VARCHAR
+                AND targets.rn = 1
+            ORDER BY sedat.globalid
+        """,
+    ),
     # district lookups: a code's lookup row renamed, so every district carrying the code
     # misses it (log rows found by the code in their message)
     Mutation(

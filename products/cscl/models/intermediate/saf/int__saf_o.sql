@@ -17,9 +17,17 @@ SELECT
         WHEN altsegdata.sosindicator = '2' THEN 'R'
     END AS sos_indicator,
     altsegdata.b5sc,
-    COALESCE(NULLIF(altsegdata.l_low_hn, '0'), altsegdata.r_low_hn) AS low_hn,
+    -- the house numbers of the row's side; blank when the side is neither left nor right,
+    -- like prod (SAFExtractClass.cs:1375, CSCL-LOG-SAF-17)
+    CASE altsegdata.sosindicator
+        WHEN '1' THEN altsegdata.l_low_hn
+        WHEN '2' THEN altsegdata.r_low_hn
+    END AS low_hn,
     altsegdata.low_hn_suffix,
-    COALESCE(NULLIF(altsegdata.l_high_hn, '0'), altsegdata.r_high_hn) AS high_hn,
+    CASE altsegdata.sosindicator
+        WHEN '1' THEN altsegdata.l_high_hn
+        WHEN '2' THEN altsegdata.r_high_hn
+    END AS high_hn,
     altsegdata.high_hn_suffix,
     saf.saftype,
     altsegdata.lgc1,

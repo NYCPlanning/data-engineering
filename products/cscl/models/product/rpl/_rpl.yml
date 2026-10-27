@@ -72,13 +72,13 @@ models:
     description: Filler. Always blank.
     data_type: string
   - name: from_node_level_code_of_coincident_roadbed_segment
-    description: "Level code of the from node of the coincident roadbed segment, if any."
+    description: "Level code of the from node of the coincident roadbed segment, if any: A-Z for levels 1-26, * for 99, blank otherwise."
     data_type: string
   - name: filler_rpl6
     description: Filler. Always blank.
     data_type: string
   - name: to_node_level_code_of_coincident_roadbed_segment
-    description: "Level code of the to node of the coincident roadbed segment, if any."
+    description: "Level code of the to node of the coincident roadbed segment, if any: A-Z for levels 1-26, * for 99, blank otherwise."
     data_type: string
   - name: filler_rpl7
     description: Filler. Always blank.

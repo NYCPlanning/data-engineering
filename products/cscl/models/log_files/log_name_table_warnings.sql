@@ -10,7 +10,7 @@
 --     (:3480-3520). Prod never logs LION-15: it compares the un-lowercased table name to a
 --     lowercased one (:3501), so a centerline proto re-checks StreetName, finds nothing,
 --     and is dropped (CSCL-LOG-LION-19). We log the check it means; int__protosegments
---     takes the face code from either table, so the proto stays in LION.
+--     takes the face code from either table, so the proto stays in LION (CSCL-LION-22).
 --   BYTES-05: a centerline record in the LION gdb (base or proto) one of whose AltNames
 --     B7SCs (borough + street code + LGC1-4) has no StreetName row but has FeatureName
 --     rows (ExtractorClass.cs:2139, :3491). Once per record; prod repeats it per lookup.
