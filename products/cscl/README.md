@@ -457,6 +457,13 @@ QA** page reads it, including the per-file diff rows.
   on the rows you re-checked, remove rows whose difference is gone (retire the ID), and
   add rows for anything new
   (see [CONTRIBUTING.md](./CONTRIBUTING.md#handling-discrepancies)).
+- **Build log (`log.csv`)**: [`seeds/log_messages.csv`](./seeds/log_messages.csv) lists
+  every message prod's ETL logs (ids like `CSCL-LOG-SAF-25`), plus the checks only we log
+  (`CSCL-LOG-OURS-NN`), with whether we log it yet (`status`) and which `log__*` model
+  does. Each `log.csv` row carries its id in `log_message_id` and at the start of its
+  message, so it lines up with prod's log; `qa__log_message_counts` counts rows per id.
+  When you add a check, give it a seed row (or flip a `planned` one to `implemented`) and
+  cite the id in the model; `assert_log_message_citations` keeps the two in step.
 
 ### 6. When something is off
 
