@@ -35,15 +35,16 @@ log AS (
             new_rows.log_message_id,
             COUNT(*) AS unexpected_rows
         FROM new_rows
-        WHERE NOT EXISTS (
-            SELECT 1 FROM injections
-            WHERE
-                injections.log_message_id = new_rows.log_message_id
-                AND CASE injections.log_match_column
-                    WHEN 'globalid' THEN new_rows.globalid = injections.log_match_value
-                    WHEN 'message' THEN CONTAINS(new_rows.message, injections.log_match_value)
-                END
-        )
+        WHERE
+            NOT EXISTS (
+                SELECT 1 FROM injections
+                WHERE
+                    injections.log_message_id = new_rows.log_message_id
+                    AND CASE injections.log_match_column
+                        WHEN 'globalid' THEN new_rows.globalid = injections.log_match_value
+                        WHEN 'message' THEN CONTAINS(new_rows.message, injections.log_match_value)
+                    END
+            )
         GROUP BY new_rows.log_message_id
     ),
 {% else %}

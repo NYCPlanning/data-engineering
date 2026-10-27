@@ -33,7 +33,7 @@
             ON
                 injections.log_message_id = log.log_message_id
                 AND CASE injections.log_match_column
-                    WHEN 'globalid' THEN log.globalid = injections.log_match_value
+                    WHEN 'globalid' THEN injections.log_match_value = log.globalid
                     WHEN 'message' THEN CONTAINS(log.message, injections.log_match_value)
                 END
     )
