@@ -1,7 +1,7 @@
 -- DuckDB functions used by the models, created at run start (dbt_project.yml on-run-start).
 -- Requires the spatial extension (INSTALL spatial; LOAD spatial;).
 -- Geometry carries no SRID in DuckDB. geometry_diff_metrics (QA only) is a dbt macro in
--- macros/geometry_diff_qa.sql. linearize(): see the stand-in at the bottom.
+-- macros/geometry_diff_qa.sql.
 
 -- format_lion_text: lpad/rpad to n characters (truncates on the right).
 -- A NULL value becomes '' and, if blank_if_none, the fill becomes a space.
@@ -114,12 +114,12 @@ CASE
     )[1]
 END;
 
--- linearize stand-in: curves are linearized at load time (dcpy.geospatial.curves), so all
--- that's left is merging MultiLineStrings.
+-- linearize: curves are linearized at load time (dcpy.geospatial.curves), so all that's
+-- left is merging MultiLineStrings.
 CREATE OR REPLACE MACRO linearize(geom) AS
 CASE WHEN st_geometrytype(geom) = 'MULTILINESTRING' THEN st_linemerge(geom) ELSE geom END;
--- dump_points: PostGIS st_dumppoints for (multi)polygons, as a list to UNNEST - one struct
--- per vertex with the PostGIS path: part (1-based member), ring (1 = exterior), point
+-- dump_points: every vertex of a (multi)polygon, as a list to UNNEST - one struct per
+-- vertex with its path: part (1-based member), ring (1 = exterior), point
 -- (1-based, closing point included). Unnest it in the select list (SELECT ...,
 -- unnest(dump_points(g)) AS d); a lateral unnest copies the whole input row per vertex.
 CREATE OR REPLACE MACRO ring_n(p, r) AS
@@ -212,8 +212,8 @@ CASE
         THEN st_reverse(_linearize_arc_fwd(x1, y1, xm, ym, x0, y0, tol))
     ELSE _linearize_arc_fwd(x0, y0, xm, ym, x1, y1, tol)
 END;
--- hausdorff_distance: PostGIS st_hausdorffdistance(a, b), i.e. GEOS's discrete Hausdorff
--- distance: the larger of (each vertex of a to the nearest point of b) and the reverse.
+-- hausdorff_distance: GEOS's discrete Hausdorff distance between a and b: the larger of
+-- (each vertex of a to the nearest point of b) and the reverse.
 CREATE OR REPLACE MACRO hausdorff_distance(a, b) AS greatest(
     list_max(list_transform(st_dump(st_points(a)), p -> st_distance(p.geom, b))),
     list_max(list_transform(st_dump(st_points(b)), p -> st_distance(p.geom, a)))

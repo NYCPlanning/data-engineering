@@ -2,7 +2,26 @@ version: 2
 
 models:
 - name: thinlion_by_field
-  description: "One row per atomic polygon: the district codes (census tracts and blocks, community district, police precinct and sector, fire company, school, election and assembly districts, NTA, CDTA and others) that apply to it, ordered by borough, 2020 census tract and dynamic block. Each value is read at the atomic polygon from the district layers. Differs from prod on police precinct, sector and patrol borough of 4 atomic polygons (CSCL-THINLION-02)."
+  description: >-
+    One row per atomic polygon: the census, community, health, police, fire, Sanborn map,
+    election and other district codes that apply to it. Most are attributes CSCL stores on
+    the atomic polygon; the rest are looked up from its 2010 or 2020 census tract or, for
+    police geography, from the NYPD layers. Ordered by borough, 2020 census tract and
+    dynamic block. Police precinct, sector and patrol borough differ from the previous
+    release on 4 atomic polygons (CSCL-THINLION-02).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: An atomic polygon
+      is_geospatial: true
+      implementation_notes: >-
+        Census tract and block fields are copied from the atomic polygon. Community
+        development eligibility, NTA, CDTA and PUMA come from the 2020 census tract with
+        the atomic polygon's borough and 2020 tract; minor census economic area and health
+        area from the 2010 tract; health center district from the health area. Police
+        precinct, sector and patrol borough are those of the NYPD polygon containing the
+        atomic polygon's centroid or, when the centroid falls outside the atomic polygon,
+        the one covering most of its area.
   columns:
     - name: borough
       description: "Borough code of the atomic polygon (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
@@ -17,13 +36,106 @@ models:
       data_type: string
       tests:
       - not_null
+    - name: censustract_2020_suffix
+      description: "Two-digit suffix of the 2020 census tract, blank if none."
     - name: dynamic_block
-      description: "Dynamic block of the atomic polygon."
+      description: "Dynamic block of the atomic polygon: the last three digits of its atomic polygon ID."
       data_type: string
       tests:
       - not_null
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 3 }
+    - name: censusblock_2020_basic
+      description: "Basic (four-digit) part of the 2020 census block."
+    - name: censusblock_2020_suffix
+      description: "2020 census block suffix, blank if none."
+    - name: censustract_1990_basic
+      description: "Basic part of the 1990 census tract."
+    - name: censustract_1990_suffix
+      description: "Two-digit suffix of the 1990 census tract, blank if none."
+    - name: community_development_eligibility
+      description: "Community development eligibility flag of the 2020 census tract."
+    - name: community_district
+      description: "Community district: borough code followed by the two-digit district number."
+    - name: minor_census_economic_area
+      description: "Minor census economic area of the 2010 census tract."
+    - name: health_area
+      description: "Health area of the 2010 census tract, zero-filled to four digits."
+    - name: health_center_district
+      description: "Health center district of the health area."
+    - name: police_patrol_borough_command
+      description: "One-digit code for the NYPD patrol borough, from CSCL's two-letter code."
+      meta:
+        value_labels:
+          "1": Manhattan South (MS)
+          "2": Manhattan North (MN)
+          "3": Bronx (BX or XS)
+          "4": Brooklyn South (BS)
+          "5": Brooklyn North (BN)
+          "6": Queens North (QN)
+          "7": Staten Island (SI)
+          "8": Queens South (QS)
+          "9": XN
+    - name: police_precinct
+      description: "NYPD police precinct."
+    - name: water_block_mapping_suppression_flag
+      description: "The atomic polygon's water flag, as stored in CSCL."
+    - name: fire_company_type
+      description: "Type of the administering fire company: the first character of its ID (E for an engine company, L for a ladder company). Blank if none."
+    - name: fire_company_number
+      description: "Number of the administering fire company, zero-filled to three digits. Blank if none."
+    - name: sanborn_borough_1
+      description: "Borough of the first Sanborn map reference. Blank, with its volume and page, unless both volume and page are present."
+    - name: sanborn_volume_1
+      description: "Volume of the first Sanborn map reference."
+    - name: sanborn_page_1
+      description: "Page of the first Sanborn map reference."
+    - name: sanborn_borough_2
+      description: "Borough of the second Sanborn map reference, if any. Blank unless both its volume and page are present."
+    - name: sanborn_volume_2
+      description: "Volume of the second Sanborn map reference, if any."
+    - name: sanborn_page_2
+      description: "Page of the second Sanborn map reference, if any."
+    - name: sanborn_borough_3
+      description: "Borough of the third Sanborn map reference, if any. Blank unless both its volume and page are present."
+    - name: sanborn_volume_3
+      description: "Volume of the third Sanborn map reference, if any."
+    - name: sanborn_page_3
+      description: "Page of the third Sanborn map reference, if any."
+    - name: censustract_2000_basic
+      description: "Basic part of the 2000 census tract."
+    - name: censustract_2000_suffix
+      description: "Two-digit suffix of the 2000 census tract, blank if none."
+    - name: censusblock_2000_basic
+      description: "Basic part of the 2000 census block."
+    - name: censusblock_2000_suffix
+      description: "2000 census block suffix, blank if none."
+    - name: assembly_district
+      description: "State assembly district."
+    - name: election_district
+      description: "Election district, unique within its assembly district."
+    - name: hurricane_evacuation_zone
+      description: "Hurricane evacuation zone. CSCL's zone 7 is written as 0."
+    - name: patrol_borough
+      description: "NYPD patrol borough, CSCL's two-letter code."
+    - name: police_sector
+      description: "NYPD police sector."
+    - name: censustract_2010_basic
+      description: "Basic part of the 2010 census tract."
+    - name: censustract_2010_suffix
+      description: "Two-digit suffix of the 2010 census tract, blank if none."
+    - name: censusblock_2010_basic
+      description: "Basic part of the 2010 census block."
+    - name: censusblock_2010_suffix
+      description: "2010 census block suffix, blank if none."
+    - name: nta2020
+      description: "2020 neighborhood tabulation area of the 2020 census tract."
+    - name: cdta
+      description: "2020 community district tabulation area of the 2020 census tract."
+    - name: cwz
+      description: "Commercial waste zone of the atomic polygon."
+    - name: puma2020
+      description: "2020 public use microdata area of the 2020 census tract."
 
 # Borough-specific filtered models
 - name: thinlion_manhattan_by_field

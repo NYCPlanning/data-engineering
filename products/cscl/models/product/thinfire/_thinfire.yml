@@ -2,7 +2,12 @@ version: 2
 
 models:
 - name: thinfire_by_field
-  description: "One row per fire company: its type, number, division, battalion and borough, ordered by company type and number. The borough is a point-in-polygon match on the company's centroid."
+  description: "One row per fire company: its type, number, division, battalion and borough, ordered by company type and number. The borough is the one containing the centroid of the company's area (water included), except for three companies the spec assigns by hand: E81 to the Bronx, and E260 and E263 to Queens. A company with no borough is left out."
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A fire company
+      is_geospatial: true
   columns:
     - name: fire_company_type
       description: "Fire company type: the first character of the unit name."
@@ -18,6 +23,10 @@ models:
       - not_null
       - dbt_expectations.expect_column_value_lengths_to_equal:
           arguments: { value: 3 }
+    - name: fire_division
+      description: "Fire division the company belongs to, zero-filled to two digits."
+    - name: fire_battalion
+      description: "Fire battalion the company belongs to, zero-filled to two digits."
     - name: borough
       description: "Borough code of the fire company (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island)."
       data_type: string

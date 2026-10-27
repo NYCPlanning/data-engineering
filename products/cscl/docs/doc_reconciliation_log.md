@@ -40,19 +40,14 @@ own borough code*, not just "a neighboring code." Tightened the description to m
 
 **Resolution:** documentation-only - wording fix, no behavior question.
 
-## DOC-004: OPEN — Face Code File's per-borough sort order isn't visible anywhere in the pipeline
+## DOC-004: Face Code File's per-borough sort order comes from packaging
 
 Legacy (Face Code File section): each borough's output file must be **sorted on bytes
-2-5** (the face code field). Traced the whole pipeline -
-`face_code_by_field.sql` → `face_code.sql` → every `by_borough/*.sql` file - and found
-no `ORDER BY` anywhere. The per-borough split itself is real (`WHERE dat_column LIKE
-'1%'` etc.), just not the sort.
+2-5** (the face code field). No model sorts the rows. Packaging does: a fixed-width file
+with no `order_by` in its recipe entry is written `ORDER BY ALL`, every column in layout
+order, so each borough's file is sorted by borough, then face code.
 
-This might be handled at the dcpy export layer (outside this repo/my visibility), or it
-might be a real gap. **Needs a decision before `face_code_by_field` can be marked
-`reconciled`** in `doc_generation_plan.csv` - if it turns out to be a genuine
-pipeline gap (not just an unsorted-but-still-correct output), it belongs in
-`seeds/known_differences.csv`, not here.
+**Resolution:** documentation-only - the output is sorted as the legacy doc requires.
 
 ## DOC-005: SAFS3 (`face_code`) has a fallback the legacy doc's own text contradicts itself about
 

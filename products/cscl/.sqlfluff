@@ -1,6 +1,5 @@
 [sqlfluff]
-# Overrides the repo-wide postgres default (pyproject.toml) - this product's dbt build
-# targets DuckDB, not postgres.
+# Overrides the repo-wide dialect (pyproject.toml): this product's dbt build targets DuckDB.
 dialect = duckdb
 # The repo-wide exclusions (pyproject.toml), which this setting replaces, plus RF06:
 # it flags quoted identifiers DuckDB doesn't strictly need (it's case-insensitive), but

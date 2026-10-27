@@ -174,7 +174,7 @@ models:
   - name: borocode
     description: Borough code (1 to 5).
   - name: ct
-    description: Tract number within the borough,.
+    description: Tract number within the borough.
   - name: boroct
     description: Borough code followed by ct.
   - name: puma
@@ -196,7 +196,7 @@ models:
   - name: borocode
     description: Borough code (1 to 5).
   - name: ct
-    description: Tract number within the borough,.
+    description: Tract number within the borough.
   - name: boroct
     description: >
       Borough code followed by ct. Built here because the source boroct has a few wrong
@@ -220,7 +220,7 @@ models:
   - name: borocode
     description: Borough code (1 to 5).
   - name: ct
-    description: Tract number within the borough,.
+    description: Tract number within the borough.
   - name: boroct
     description: Borough code followed by ct.
   - name: cdta_code
@@ -389,6 +389,7 @@ models:
   - name: designated
     description: Designation date.
   - name: extension
+    description: Whether the district extends an earlier historic district (Yes or No).
   - name: borough
     description: Borough of the district.
   - name: geom
@@ -500,7 +501,9 @@ models:
     layer.
   columns:
   - name: uranum
+    description: Urban renewal area number, published as URANum.
   - name: uraid
+    description: Urban renewal area identifier, published as URAID.
   - name: boro_name
     description: Borough name.
   - name: boro_num
@@ -508,6 +511,7 @@ models:
   - name: site_name
     description: Name of the urban renewal site.
   - name: urp
+    description: CSCL's URP attribute, not published. Its meaning is unconfirmed; the source layer is empty.
   - name: geom
     description: Polygon made valid (st_makevalid).
   - name: raw_geom

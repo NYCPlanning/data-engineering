@@ -817,7 +817,8 @@ models:
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 45 }
-  - name: _source_table # TODO remove - see note in model sql file
+  - name: _source_table
+    description: "CSCL layer the record comes from (centerline, altsegmentdata for protosegments, shoreline, rail, subway, ...); QA uses it to group diffs. Not a LION field, and not written to the file."
     data_type: string
   - name: _lion_key
     description: "Borough, face code and zero-padded segment ID joined together; a join key for QA. Not a LION field."

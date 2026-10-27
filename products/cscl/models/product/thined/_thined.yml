@@ -6,7 +6,11 @@ models:
       One row per election district: the assembly, congressional, state senate,
       municipal court and city council districts it belongs to, and its borough (that
       of its lowest-numbered atomic polygon), ordered by assembly and election
-      district.
+      district. An election district with no atomic polygon has no borough and is left out.
+    config:
+      tags: [export_doc]
+      meta:
+        each_row_is_a: An election district
     columns:
       - name: election_district
         description: Election district number, unique within its assembly district.

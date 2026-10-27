@@ -51,7 +51,7 @@ There will also be a web interface for GR users to interact with the pipeline fr
 
 Beyond that, things largely follow DE's standard - on-demand compute (in this case triggered from GR's web UI) which runs an ELT process and exports files to blob storage.
 
-Currently, the in-progress pipeline (as of Feb 27, 2026) looks more like this:
+Currently, the pipeline looks more like this:
 
 ![Current Architecture](docs/architecture_current.drawio.png)
 
@@ -59,7 +59,7 @@ With 3 key differences:
 
 - The extraction from the CSCL database is not performed by DE infrastructure/tooling yet
 - There is no UI for GR to interact with the pipeline
-- DE infrastructure is still in Azure and orchestrated by Github Actions
+- DE infrastructure is still on Digital Ocean and orchestrated by Github Actions
 
 # User Interface
 As mentioned, while Data Engineering is the maintainer of this pipeline, its architecture, and its transformations, we are not the primary users of this pipeline. To that end, a user interface ~~has been~~ will be designed so that users in GR/GSS can:
@@ -73,53 +73,23 @@ Requirements for this interface are not fully flushed out, nor is the design. Th
 
 ## Interim workflow
 
-Until the pipeline can pull from the CSCL database itself, GR exports the ETL Working GDB and hands it to the pipeline through a CSCL Build page in DE's QA app.
+Until the pipeline can pull from the CSCL database itself, GR exports the ETL Working GDB and hands it to the pipeline through DE's QA app.
 
 ![GR launcher workflow](docs/workflow_gr_launcher.drawio.png)
 
 1. GR exports the ETL Working GDB from CSCL and zips it.
-2. GR uploads the zip to `edm-private/inbox/` with an S3 client. At ~800 MB it's too big to upload through the app.
-3. On the CSCL Build page, GR picks the inbox file and enters the version and release params (the LDF header dates).
-4. **Ingest**: the app copies the file to `edm-private/cscl_etl/{version}/ETL Working GDB.gdb.zip`, the key the ingest template reads, and dispatches ingest for `dcp_cscl_gdb`. The copy happens within S3, so the file never passes through the app.
-5. Ingest archives the GDB to `edm-recipes`.
-6. **Build**: the app dispatches the CSCL build with the version and release params.
-7. The build loads the GDB into the build database and runs dbt.
-8. Outputs are exported to the `edm-publishing` draft.
-9. GR reviews run status and outputs on the page, and diffs on the CSCL QA page.
+2. The zip goes to `edm-private/qa_app/inbox/dcp_cscl_gdb/{version}/ETL Working GDB.gdb.zip`, uploaded with an S3 client. At ~800 MB it's too big to upload through the app.
+3. **Ingest**: the QA app's Inbox Ingest page (or the Ingest Single Dataset workflow) ingests `dcp_cscl_gdb` from that key and archives it to `edm-recipes`, tagged `latest`.
+4. **Build**: the QA app's CSCL Builds page dispatches the CSCL build for the version. The build loads the GDB into its DuckDB database, runs dbt, packages the outputs and uploads them to `edm-publishing` under `db-cscl/build/{build name}/`.
+5. GR reviews run status and outputs on the CSCL Builds page, and diffs on the CSCL QA page.
 
-### Build inputs
+### Release inputs
 
-Release params are required build inputs with no committed defaults. They resolve into the build's `recipe.lock.yml`, which is the record of what each build ran with.
-
-| Value | Source |
-|---|---|
-| `ldf_new_release` | the build's `version` |
-| `ldf_previous_version` | `VERSION_PREV`, a GR input for now. Once CSCL is published and its versions parse ([#2702](https://github.com/NYCPlanning/data-engineering/issues/2702)), plan looks it up. |
-| `ldf_old_release_date` | GR input. Once published, it can come from the previous build's lock file. |
-| `ldf_new_release_date` | GR input |
-| `thined_version`, `thined_file_tag` | stay in the `config` seed until GR confirms what they mean |
-
-How they get from the page to dbt:
-
-1. `build.yml` gets one general input, `build_env`: space-separated `KEY=value` pairs. The workflow exports each as `BUILD_ENV_<KEY>` before planning, so it can't set anything outside that namespace. Values can't contain spaces.
-2. `recipe.yml` declares each param under `env:` as a template, e.g. `LDF_NEW_RELEASE_DATE: "{{ BUILD_ENV_LDF_NEW_RELEASE_DATE }}"`. Plan renders with `StrictUndefined`, so a missing param fails the build at plan time.
-3. `cscl_build.yml` sources `export_recipe_env.sh` on the lock file, and dbt reads the values with `env_var()`.
-
-The page builds the `build_env` string, so GR never types it.
+The LDF header needs four values nothing in the source data records: the previous and new release IDs and the date each was deployed. GR's tool asks an operator for them. Here they are rows of `seeds/config.csv` (`ldf_previous_version`, `ldf_old_release_date`, `ldf_new_release`, `ldf_new_release_date`), updated by hand each release alongside `recipe.yml`'s `version`. The same seed holds `thined_version` and `thined_file_tag`, the ThinED header values. The README's release runbook lists every per-release edit.
 
 ### Validating against prod outputs
 
-`cscl_build.yml`'s "Validate against production outputs" step compares the build's outputs to GR's prod outputs in `edm-private/cscl_etl/{version}/`. Those only exist while GR still runs their legacy tool, so the step runs only when they're there. A step before it checks for the prod output files of every export with `compare_file` on:
-
-| Prod files found | Result |
-|---|---|
-| all | validation runs |
-| none | validation is skipped, with a notice in the run summary saying so |
-| some | the build fails, since a partial upload or a renamed file would otherwise be skipped silently |
-
-It checks for the files, not the folder, because the folder also holds the uploaded GDB.
-
-`prod_data_loader.py` has to take the build's version (and previous version) from the lock file instead of `recipe.yml` and the `config` seed. Otherwise a build of a new version compares against the version committed in `recipe.yml`.
+While GR still runs the legacy tool, each release's legacy outputs are the reference. The "CSCL - Prod snapshot" workflow parses them once into a parquet bundle, which the build loads like any other input; the build's "Check prod snapshot" step fails right after planning if the snapshot for its version is missing. The QA stage then compares every output against it, and against the raw prod files. See [docs/architecture.md](./docs/architecture.md#qa).
 
 # Transformation
 
@@ -647,14 +617,7 @@ See model `int__protosegments` for implementation.
 
 #### Error reports
 
-Errors are logged for the following conditions
-- If a preferred B7SC is not found in StreetName or in FeatureName. This is reflected/measured by segments missing face codes (`log__lion_segments_missing_facecode`)
-- If a segment has an endpoint that is not joined to a Node (`log__lion_segments_missing_nodes`)
-- If a segment does not join to an Atomic Polygon on either side (`log__lion_segments_missing_aps`)
-- If a centerline or protosegment has a SEGLOCSTATUS in its source table that differs from its calculated Segment Locational Status (`log__lion_centerline_or_proto_seglocstatus_mismatch`)
-- If a segment does not have a joined Atomic Polygon sharing the same borough code as the segment (`log__lion_segments_ap_boro_mismatch`)
-- If a segment does not join to a NYPD BEAT polygon (`log__lion_segments_missing_nypd`)
-- If a protosegment does not share a Segment ID with a geometry-modeled segment (`log__lion_protosegment_orphans`)
+LION's checks (missing face codes, nodes or atomic polygons, borough and locational status mismatches, protosegment orphans, and others) are logged to `log.csv` under `CSCL-LOG-LION-*` ids. See [Log](#log).
 
 
 ## Special Address Files (SAF)
@@ -1680,9 +1643,11 @@ delete of that ID on the same node pair.
 
 ### Description
 
-Every row is a: pipeline event (file completion or error)
+Every row is a: logged record (an error, a warning, or a file summary)
 
-A CSV log of pipeline activity. As each output file is completed, a summary record is written with the file name, borough (if applicable), record count, and error counts by type. Error records identify the type of problem and the relevant data (e.g., SEGMENTID, NODEID, house number) that triggered it. The log allows users to re-run only the files that failed without regenerating successfully completed outputs.
+`log.csv` records what the build found wrong in the source data and what it did about it. Each row names the record that triggered it (layer, global ID, record ID) and carries a message id, also at the start of the message, so it lines up with prod's log. The ids are listed in `seeds/log_messages.csv`: every message prod's ETL logs (`CSCL-LOG-SAF-25`, ...), plus the checks only this pipeline logs (`CSCL-LOG-OURS-NN`), with each one's effect on the output (e.g. the record is dropped) and whether it is implemented yet. A summary row per output file gives its record count.
+
+A check that fires thousands of times on clean data writes one count per borough to `log.csv` and its records to an attachment, `log_face_code_missing.csv`.
 
 # Appendices
 

@@ -34,7 +34,7 @@ Basically, for a new file output, you must
 - [setup](#setup):
   - make sure we have "prod" files from GR. Prod outputs live [here](https://nyco365.sharepoint.com/:f:/r/sites/NYCPLANNING/itd/edm/Shared%20Documents/DOCUMENTATION/GRU/CSCL/ETL?csf=1&web=1&e=XfVWF2).
   - put said "prod" files in `edm-private/cscl-etl/{version}/`.
-  - create a "dat" formatting csv in `./seeds/formatting`.
+  - create a "dat" formatting csv in `./seeds/text_formatting`.
     - if this is not a "dat" file with formatting rules for fields, strict field lengths, etc, you might need to make a tweak to `./poc_validation/prod_data_loader.py`. Look at cases like "enders", "last_word" in both `recipe.yml` and how they're handled (based on file format, and formatting) in prod_data_loader.
   - add them as an export in `recipe.yml`. See others as examples. The custom formatting field should point to the formatting csv seed (and is not actually used by dcpy export utilities).
   - rebuild the prod snapshot: run the "CSCL - Prod snapshot" workflow for `{version}` with `overwrite` checked (or `python poc_validation/build_prod_snapshot.py build -v {version} --upload --overwrite`). It parses every prod output into the `production_outputs.zip` parquet bundle that the build loads (recipe input `dcp_cscl_production_outputs`) into schema `production_outputs`.
@@ -45,7 +45,7 @@ Basically, for a new file output, you must
     - `{file}_by_field` model which calls the `apply_text_formatting_from_seed` macro to format individual fields.
     - `{file}` which calls the `select_rows_as_text` macro to create a densely-formatted text column to export.
 - [validate](#validate-new-outputs): compare outputs to production. See section for more details.
-- document: add sections to [design_doc.md](./design_doc.md) to summarize formatting, sources of fields, and transformation details.
+- document: describe the model and its columns in its yml and add it to `doc_config.yml`, so it appears in the generated export doc (see [CONTRIBUTING.md](./CONTRIBUTING.md#documentation-generation)).
 
 ### Setup
 
@@ -91,20 +91,20 @@ Main requirements outside of the actual business logic are
 
 #### Data/field validation
 
-If theres no great unique key for an output table, or if you just want a quick pass, the following query is great
+If there's no good unique key for an output table, or you just want a quick pass, this query compares whole rows of the build's table and prod's (from the prod snapshot, schema `production_outputs`). The two must have the same columns in the same order.
 ```sql
 WITH combined AS (
-    SELECT 
-    	'dev' as source,
+    SELECT
+        'dev' AS source,
         *,
-        md5(CAST(dev AS text)) AS row_hash
-    FROM {my_schema}.{table}_by_field as dev
+        md5(CAST(dev AS VARCHAR)) AS row_hash
+    FROM {my_schema}.{table}_by_field AS dev
     UNION ALL
-    SELECT 
-    	'prod' as source,
+    SELECT
+        'prod' AS source,
         *,
-        md5(CAST(prod AS text)) AS row_hash
-    FROM {my_schema}.{table}_by_field as prod
+        md5(CAST(prod AS VARCHAR)) AS row_hash
+    FROM production_outputs.{prod_table} AS prod
 ),
 counts AS (
     SELECT 
@@ -137,14 +137,14 @@ This sorts the files before comparison, so this isn't quite valid for comparing 
 
 ## District boundary gdb
 
-`v26B_Districts.gdb.zip` holds the 43 district polygon feature classes defined by chapter 10 / table 39 of the ETL doc. Models live in `models/product/districts/`, one per feature class, named `gdb_<feature class>`.
+`v<V>_Districts.gdb.zip` holds the 43 district polygon feature classes defined by chapter 10 / table 39 of the ETL doc. Models live in `models/product/districts/`, one per feature class, named `gdb_<feature class>`.
 
 Feature class and field names follow **appendix D**, which is stale in places but was confirmed against the shapefiles DCP publishes on BYTES — those use appendix D's names exactly (`AssemDist`, `BoroCD`, `HCentDist`, `SchoolDist`, `StSenDist`). The `name` values in `product-metadata/products/lion/*` are friendly display names, not field names; don't build from them.
 
 Two places where the 2009 doc and the real product disagree, both settled empirically against the published shapefiles:
 
 - **Land is `WATER_FLAG IN ('2', '3', '4')`**, not `('2', '3')` as the doc says. Flag `4` postdates the doc and is land for clipping purposes; including it reproduces the published clipped extent exactly, excluding it falls about 1% short.
-- **Table 39 understates which layers are clipped.** It says layers with no `wi` twin are "extracted exactly as stored", but `nyfb`, `nyfc`, `nyfd`, `nypp`, `nysd`, `nynta2010`, `nynta2020`, `nycdta2020` and `nypuma2010` are all shoreline-clipped in the published product. Only `nyap`, `nyhez` and the internal-only layers are genuinely unclipped.
+- **Table 39 understates which layers are clipped.** It says layers with no `wi` twin are "extracted exactly as stored", but `nyfb`, `nyfc`, `nyfd`, `nypp`, `nysd`, `nynta2010`, `nynta2020`, `nycdta2020` and `nypuma2010` are all shoreline-clipped in the published product. Only `nyap`, `nyhez` and the layers published as stored (`nybid`, `nyhd`, `nyura`, `nyzip`) are unclipped.
 
 ### How the boundaries are built
 
@@ -253,11 +253,13 @@ deployed. GR's tool prompts an operator for all four. We record them as plain ro
 
 ```
 key,value
-ldf_previous_version,26a
-ldf_old_release_date,2026-02-09
-ldf_new_release,26b
-ldf_new_release_date,2026-04-22
+ldf_previous_version,26b
+ldf_old_release_date,2026-04-22
+ldf_new_release,26c
+ldf_new_release_date,2026-07-27
 ```
+
+(The seed's `description` column is left out here.)
 
 `int__ldf_header.sql` reads them straight from the seed (`config_value('ldf_previous_version')`
 etc., no dbt `--vars` flag needed) and errors at build time if any of the four rows is missing,
