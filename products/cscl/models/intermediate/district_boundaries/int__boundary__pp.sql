@@ -20,7 +20,8 @@
 -- vertices more than spike_vertex_ft from the result; they sit on something narrower than
 -- twice spike_open_ft, or at a sharp corner. Take each run of them with the vertices either
 -- side of it: the longest stretch that, closed back to its start, encloses less than
--- spike_half_width_ft of area per foot of length is a spike, and its inner vertices go.
+-- spike_half_width_ft of area per foot of length (the first such, on a tie) is a spike,
+-- and its inner vertices go.
 -- Spikes measure under 0.0003 ft on that test, the nearest real corner 0.005 ft.
 {%- set spike_open_ft = 0.001 %}
 {%- set spike_vertex_ft = 0.002 %}
@@ -83,7 +84,7 @@ vertices AS (
             *,
             list_transform(st_dump(st_points(ring)), d -> d.geom)[1:-2] AS pts
         FROM rings
-    )
+    ) AS ring_points
 ),
 
 -- renumbered (j, from 0) to start at a vertex near the opened part, so no run wraps
@@ -140,16 +141,31 @@ run_paths AS (
         ON e.part_id = nxt.part_id AND e.ring_n = nxt.ring_n AND e.next_j = nxt.j
 ),
 
+-- every stretch a..b of a run's path with at least one vertex inside it
+span_starts AS (
+    SELECT
+        *,
+        unnest(range(1, len(pts) - 1)) AS a
+    FROM run_paths
+),
+
+spans AS (
+    SELECT
+        *,
+        unnest(range(a + 2, len(pts) + 1)) AS b
+    FROM span_starts
+),
+
 spikes AS (
     SELECT DISTINCT ON (part_id, ring_n, run)
         part_id,
         ring_n,
         js[a + 1:b - 1] AS spike_js
-    FROM run_paths, range(1, len(pts) - 1) AS t1 (a), range(a + 2, len(pts) + 1) AS t2 (b)
+    FROM spans
     WHERE
         st_area(st_makepolygon(st_makeline(list_append(pts[a:b], pts[a]))))
         < {{ spike_half_width_ft }} * st_length(st_makeline(pts[a:b]))
-    ORDER BY part_id, ring_n, run, b - a DESC
+    ORDER BY part_id ASC, ring_n ASC, run ASC, b - a DESC, a ASC
 ),
 
 spike_vertices AS (

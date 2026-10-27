@@ -20,6 +20,8 @@
 --   CSCL-DISTRICTS-04: districts whose source polygon is invalid.
 --   CSCL-DISTRICTS-07: nypp precincts that pass once prod's parts and holes under 100 sq
 --     ft are removed, as ours drops them (passes_without_prod_small_parts).
+--   CSCL-DISTRICTS-08: nypp precinct 113, which prod clipped to a different Jamaica Bay
+--     shoreline than its own nybb.
 WITH labeled AS (
     SELECT
         *,
@@ -38,6 +40,8 @@ WITH labeled AS (
                 THEN 'CSCL-DISTRICTS-04: invalid source polygon'
             WHEN source_layer = 'nypp' AND passes_without_prod_small_parts
                 THEN 'CSCL-DISTRICTS-07: ours drops parts under 100 sq ft'
+            WHEN source_layer = 'nypp' AND key_value = '113'
+                THEN 'CSCL-DISTRICTS-08: prod nypp 113 shoreline'
         END AS known_difference
     FROM {{ ref('qa__geometry_fgdb_district_layers') }}
     WHERE NOT passes
