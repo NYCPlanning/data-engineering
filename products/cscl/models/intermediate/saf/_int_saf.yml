@@ -23,6 +23,8 @@ models:
   description: "SAF type O records, from altsegmentdata."
 - name: int__saf_gnx
   description: "SAF records of types G, N and X, from CommonPlace points."
+- name: int__saf_orphan_segmentids
+  description: "SAF records whose SEGMENTID matches no segment, which prod logs and leaves out of SAF: A/B/C/E/P altsegmentdata rows with no centerline, G/N/X CommonPlaces (with a valid B7SC) with no centerline, shoreline, rail or subway feature."
 - name: int__saf_i
   description: "SAF type I records: named intersections."
 - name: int__saf_s

@@ -89,6 +89,12 @@ models:
     G/N/X CommonPlaces SAF leaves out because their B7SC has no principal name in the
     FeatureName or StreetName table. Prod's "[NAME MISSING]" check (CSCL-LOG-SAF-23).
 
+- name: log__saf_segment_not_found
+  description: >-
+    SAF records SAF leaves out because their SEGMENTID matches no segment: A/B/C/E/P
+    AltSegmentData rows with no Centerline (CSCL-LOG-SAF-21), G/N/X CommonPlaces with no
+    Centerline, Shoreline, Rail or Subway feature (CSCL-LOG-SAF-25).
+
 - name: log__thinlion_lookup_not_found
   description: >-
     ThinLION's CensusTract2020, CensusTract2010 and HealthArea lookups that find nothing,
