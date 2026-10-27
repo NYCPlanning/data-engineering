@@ -554,9 +554,12 @@ _NAME_MOVES = """
         SELECT movable.*, ROW_NUMBER() OVER (PARTITION BY movable.t ORDER BY movable.globalid) AS rn
         FROM movable
         WHERE movable.b7sc NOT IN (SELECT b7sc FROM used_b7sc)
-            -- fits AltNames' SName (CSCL-LOG-BYTES-06)
+            -- its only name row, and one that fits AltNames' SName (CSCL-LOG-BYTES-06)
+            AND movable.b7sc IN (SELECT b7sc FROM lone_b7sc)
             AND movable.globalid IN (
-                SELECT globalid FROM {s}.dcp_cscl_streetname WHERE LENGTH(lookup_key) <= 30
+                SELECT globalid FROM {s}.dcp_cscl_streetname
+                WHERE LENGTH(lookup_key) <= 30 AND LENGTH(street_name) <= 30
+                    AND NULLIF(pre_modifier, '') IS NULL AND NULLIF(post_modifier, '') IS NULL
                 UNION ALL
                 SELECT globalid FROM {s}.dcp_cscl_featurename WHERE LENGTH(lookup_key) <= 30
             )
