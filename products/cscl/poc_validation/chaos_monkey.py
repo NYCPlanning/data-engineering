@@ -726,6 +726,9 @@ MUTATIONS: list[Mutation] = [
         name="segment_offshore",
         # off in the water: no AtomicPolygon either side, no NYPD beat, no node at either end
         log_message_ids=["CSCL-LOG-LION-05", "CSCL-LOG-OURS-01", "CSCL-LOG-OURS-03"],
+        # with no AtomicPolygon, the LION rules find no SEGLOCSTATUS (a feature's 'X' or
+        # 'Z' then disagrees)
+        may_log_ids=["CSCL-LOG-LION-01"],
         table="dcp_cscl_centerline",
         column="geom",
         candidates_sql="WITH "
