@@ -240,7 +240,14 @@ models:
 - name: log__gdb_lion_value_changed
   description: >-
     LION gdb values cut to fit, as prod does: AltNames SNames over 30 characters
-    (CSCL-LOG-BYTES-06) and SegCount over 9 (CSCL-LOG-BYTES-12).
+    (CSCL-LOG-BYTES-06; one count row per borough, the rows are in
+    log_altnames_sname_cut.csv) and SegCount over 9 (CSCL-LOG-BYTES-12).
+
+- name: log_altnames_sname_cut
+  description: >-
+    Attachment to log.csv, exported as log_altnames_sname_cut.csv: one row per LION gdb
+    AltNames row whose SName is over 30 characters and cut to 30 (CSCL-LOG-BYTES-06), in
+    prod's wording, with log.csv's columns plus the borough, Street and the uncut SName.
 
 - name: log__name_table_warnings
   description: >-
