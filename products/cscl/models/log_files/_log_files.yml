@@ -122,3 +122,9 @@ models:
     one row per feature and field: blank ("[EMPTY LEVEL CODE]", CSCL-LOG-LION-10) or a
     number other than 1-26 or 99 ("[NO MATCHING LEVEL CODE]", CSCL-LOG-LION-12). The
     level code is left blank.
+
+- name: log__face_code_missing
+  description: >-
+    Principal StreetName rows with a blank FACECODE, which the Face files leave out
+    (CSCL-LOG-FC-01), logged again when the row's B7SC is a segment's preferred LGC
+    (CSCL-LOG-FC-02).
