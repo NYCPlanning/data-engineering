@@ -33,6 +33,13 @@ WITH log_rows AS (
         ref("log__rpl_missing_roadbed"),
         ref("log__street_name_blank_lookup_key"),
         ref("log__export_file_summary"),
+        ref("log__rpl_nodes_and_level_codes"),
+        ref("log__saf_sos_indicator"),
+        ref("log__sedat_name_missing"),
+        ref("log__district_lookup_missing"),
+        ref("log__lion_record_length"),
+        ref("log__gdb_lion_value_changed"),
+        ref("log__name_table_warnings"),
     ], column_override={"record_id": "varchar"}) }}
 )
 

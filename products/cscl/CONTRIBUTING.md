@@ -98,7 +98,9 @@ Without `--run`, `chaos_monkey.py --seed 1` injects into `DUCKDB_PATH` and print
 values, for working out why one wasn't logged. Both QA models read `log_records`: log.csv
 plus the records of its attachments. A check that fires thousands of times on clean data
 (CSCL-LOG-FC-01, -03) puts one count row per borough in log.csv and its records in an
-attachment export (`log_face_code_missing.csv`); add such an attachment to `log_records`.
+attachment export (`log_face_code_missing.csv`); the name-table warnings
+(CSCL-LOG-SAF-19, -24 and the like) put one count row per name in log.csv and their
+records in `log_name_table_warnings.csv`. Add such an attachment to `log_records`.
 
 ## Documentation Generation
 

@@ -1,6 +1,9 @@
 -- LION rows whose borough differs from their source feature's own borough (the
--- centerline's boroughcode, or the proto segment's borough). Prod has a message for a
--- similar check (CSCL-LOG-LION-20) but never reaches it, so this logs under its own id.
+-- centerline's boroughcode, or the proto segment's borough): the record goes to another
+-- borough's LION file than the feature's (the files are split on the record's borough).
+-- That is the check prod means by CSCL-LOG-LION-20 (LIONExtractorClass.cs:461-471), but
+-- prod's version never fires: it compares the record's borough to the file's, and the
+-- check before it (:436-439) has already skipped every record of another borough.
 -- Coincident borough-boundary protos (ALT_SEGDATA_TYPE 'B') carry the other borough from
 -- their centerline by design, so comparing a proto to its centerline would flag every one
 -- of them.
@@ -38,15 +41,15 @@ lion_joined AS (
 SELECT
     'error' AS log_level,
     'borough mismatch' AS error_category,
-    'CSCL-LOG-OURS-04' AS log_message_id,
+    'CSCL-LOG-LION-20' AS log_message_id,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     {{ log_message(
-        "The LION record built from the {} feature with a GlobalID = {} has "
-        "Borough = {}, but the feature's own borough is {}.",
-        ["source_table", "globalid", "boroughcode", "source_boroughcode"]
+        "The borough for the {} feature with a GlobalID = {} (Borough = {}) does not match "
+        "the borough of the LION file it is written to (Borough = {}).",
+        ["source_table", "globalid", "source_boroughcode", "boroughcode"]
     ) }} AS message
 FROM lion_joined
 -- a blank source borough is derived downstream (prod falls back the same way), not a mismatch

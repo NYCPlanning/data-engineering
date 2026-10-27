@@ -267,6 +267,41 @@ class Edits(Mutation):
         return inj
 
 
+class ShiftEndpoint(Mutation):
+    """Move a single-part line's start (extra['end'] = 'start') or end vertex 1 ft east, off
+    the node there, leaving its other vertices and every other line in place."""
+
+    def apply(self, conn, schema, cand, n):
+        wkt = conn.execute(
+            f'SELECT ST_AsText(ST_LineMerge(geom)) FROM "{schema}"."{self.table}" WHERE globalid = ?',
+            [cand["key"]],
+        ).fetchone()[0]  # type: ignore[index]
+        coords = [c.strip().split(" ") for c in wkt[wkt.index("(") + 1 : -1].split(",")]
+        i = 0 if self.extra["end"] == "start" else -1
+        coords[i][0] = str(float(coords[i][0]) + 1)
+        line = ", ".join(" ".join(c) for c in coords)
+        conn.execute(
+            f"""UPDATE "{schema}"."{self.table}"
+            SET geom = ST_GeomFromText(?) WHERE globalid = ?""",
+            [f"MULTILINESTRING (({line}))", cand["key"]],
+        )
+        return self._injection(cand, f"{self.extra['end']} moved 1 ft east", "geom")
+
+
+class InsertCopy(Mutation):
+    """Insert a copy of the candidate row with `column` set to new_value and a new globalid."""
+
+    def apply(self, conn, schema, cand, n):
+        new = self.value_for(cand, n)
+        conn.execute(
+            f"""INSERT INTO "{schema}"."{self.table}"
+            SELECT * REPLACE (?::VARCHAR AS "{self.column}", 'chaos-' || globalid AS globalid)
+            FROM "{schema}"."{self.table}" WHERE "{self.key_column}" = ?""",
+            [new, cand["key"]],
+        )
+        return self._injection(cand, None if new is None else str(new), self.column)
+
+
 def _fake_segmentid(_cand: dict, n: int) -> int:
     return FAKE_SEGMENTID_BASE + n
 
@@ -449,6 +484,157 @@ _FEATURENAME_FACE = """
     )
 """
 
+# Centerlines in RoadbedPointerList, in one role only (roadbed or generic), whose ends can
+# move off their nodes without changing a neighbour (_DETACHABLE_CENTERLINE): single-part,
+# no arcs. One row per centerline, with its role.
+_RPL_SEGMENTS = (
+    _DETACHABLE_CENTERLINE
+    + """,
+    roles AS (
+        SELECT roadbed_segmentid AS segmentid, 'roadbed' AS rpl_role FROM {s}.dcp_cscl_roadbed_pointer_list
+        UNION
+        SELECT generic_segmentid, 'generic' FROM {s}.dcp_cscl_roadbed_pointer_list
+    ),
+    rpl_segments AS (
+        SELECT cl.globalid, cl.segmentid, ANY_VALUE(roles.rpl_role) AS rpl_role
+        FROM {s}.dcp_cscl_centerline AS cl
+        INNER JOIN roles ON cl.segmentid = roles.segmentid
+        WHERE cl.globalid IN (SELECT globalid FROM detachable)
+            AND cl.ogc_fid NOT IN (SELECT ogc_fid FROM {s}.dcp_cscl_centerline_arcs)
+            AND ST_GeometryType(ST_LineMerge(cl.geom)) = 'LINESTRING'
+        GROUP BY cl.globalid, cl.segmentid
+        HAVING COUNT(DISTINCT roles.rpl_role) = 1
+    )
+"""
+)
+
+# Name rows that can trade B7SCs: principal, named, with a face code, the only principal
+# row of their B7SC in either name table, and no Enders/Exception flag. A donor is one whose
+# B7SC no segment, SAF row, place or address point uses. To move a name from one table to
+# the other, the row naming the target B7SC gets a B7SC nothing uses, and a donor from the
+# other table takes the target B7SC.
+_NAME_MOVES = """
+    used_b7sc AS (
+        SELECT b7sc FROM {s}.dcp_cscl_segment_lgc WHERE b7sc IS NOT NULL
+        UNION ALL SELECT b5sc || lgc1 FROM {s}.dcp_cscl_altsegmentdata WHERE b5sc IS NOT NULL AND lgc1 IS NOT NULL
+        UNION ALL SELECT b7sc FROM {s}.dcp_cscl_commonplace_gdb WHERE b7sc IS NOT NULL
+        UNION ALL SELECT b7sc_actual FROM {s}.dcp_cscl_addresspoints WHERE b7sc_actual IS NOT NULL
+        UNION ALL SELECT b7sc_vanity FROM {s}.dcp_cscl_addresspoints WHERE b7sc_vanity IS NOT NULL
+    ),
+    b7sc_uses AS (
+        SELECT b7sc, COUNT(*) AS n FROM used_b7sc GROUP BY b7sc
+    ),
+    lone_b7sc AS (
+        SELECT b7sc FROM (
+            SELECT b7sc FROM {s}.dcp_cscl_streetname
+            UNION ALL SELECT b7sc FROM {s}.dcp_cscl_featurename
+        ) GROUP BY b7sc HAVING COUNT(*) = 1
+    ),
+    one_principal AS (
+        SELECT b7sc FROM (
+            SELECT b7sc FROM {s}.dcp_cscl_streetname WHERE principal_flag = 'Y'
+            UNION ALL SELECT b7sc FROM {s}.dcp_cscl_featurename WHERE principal_flag = 'Y'
+        ) GROUP BY b7sc HAVING COUNT(*) = 1
+    ),
+    lone_names AS (
+        SELECT 'dcp_cscl_streetname' AS t, globalid, b7sc FROM {s}.dcp_cscl_streetname
+        WHERE principal_flag = 'Y' AND NULLIF(TRIM(facecode), '') IS NOT NULL
+            AND NULLIF(TRIM(lookup_key), '') IS NOT NULL
+            AND enders_flag IS DISTINCT FROM 'Y' AND exception_flag IS DISTINCT FROM 'Y'
+        UNION ALL
+        SELECT 'dcp_cscl_featurename', globalid, b7sc FROM {s}.dcp_cscl_featurename
+        WHERE principal_flag = 'Y' AND NULLIF(TRIM(facecode), '') IS NOT NULL
+            AND NULLIF(TRIM(lookup_key), '') IS NOT NULL
+            AND enders_flag IS DISTINCT FROM 'Y' AND exception_flag IS DISTINCT FROM 'Y'
+    ),
+    movable AS (
+        SELECT lone_names.* FROM lone_names WHERE b7sc IN (SELECT b7sc FROM one_principal)
+    ),
+    donors AS (
+        SELECT movable.*, ROW_NUMBER() OVER (PARTITION BY movable.t ORDER BY movable.globalid) AS rn
+        FROM movable
+        WHERE movable.b7sc NOT IN (SELECT b7sc FROM used_b7sc)
+            -- fits AltNames' SName (CSCL-LOG-BYTES-06)
+            AND movable.globalid IN (
+                SELECT globalid FROM {s}.dcp_cscl_streetname WHERE LENGTH(lookup_key) <= 30
+                UNION ALL
+                SELECT globalid FROM {s}.dcp_cscl_featurename WHERE LENGTH(lookup_key) <= 30
+            )
+    ),
+    proto_classes AS (
+        SELECT alt.*,
+            COALESCE(alt.feature_type, '') IN ('', '5', '6', '9', 'A', 'W', 'F', 'C') AS centerline_class
+        FROM {s}.dcp_cscl_altsegmentdata AS alt
+        WHERE alt.alt_segdata_type IS DISTINCT FROM 'S' AND alt.segmentid IS NOT NULL
+    )
+"""
+
+
+def _move_name(target_sql: str, from_table: str, offset: int) -> str:
+    """Candidates that move the name of each target (target_sql's columns: key, claims,
+    log_key, b7sc, rn) out of `from_table` into the other name table."""
+    to_table = (
+        "dcp_cscl_featurename"
+        if from_table == "dcp_cscl_streetname"
+        else "dcp_cscl_streetname"
+    )
+    return (
+        "WITH "
+        + _NAME_MOVES
+        + f""",
+        targets AS ({target_sql})
+        SELECT targets.key, list_concat(targets.claims, [named.globalid, donors.globalid]) AS claims,
+            targets.log_key, targets.b7sc AS old,
+            [
+                struct_pack(t := '{from_table}', k := 'globalid', kv := named.globalid, c := 'b7sc',
+                    v := '9' || LPAD((targets.rn + {offset})::VARCHAR, 7, '0')),
+                struct_pack(t := '{to_table}', k := 'globalid', kv := donors.globalid, c := 'b7sc', v := targets.b7sc)
+            ] AS edits
+        FROM targets
+        INNER JOIN movable AS named ON targets.b7sc = named.b7sc AND named.t = '{from_table}'
+        INNER JOIN donors
+            ON donors.t = '{to_table}'
+            AND donors.rn = (targets.rn + {offset} - 1)
+            % (SELECT COUNT(*) FROM donors WHERE t = '{to_table}') + 1
+        ORDER BY targets.key
+        """
+    )
+
+
+def _lone_feature_targets(table: str) -> str:
+    """Features of `table` with no proto, SAF row, place or address point, whose single
+    preferred B7SC names nothing else, numbered."""
+    return f"""
+            SELECT f.globalid AS key, [f.globalid, f.segmentid::VARCHAR, lgc.b7sc] AS claims,
+                f.globalid AS log_key, lgc.b7sc, ROW_NUMBER() OVER (ORDER BY f.globalid) AS rn
+            FROM {{s}}.{table} AS f
+            INNER JOIN {{s}}.dcp_cscl_segment_lgc AS lgc
+                ON f.segmentid = lgc.segmentid AND lgc.preferred_lgc_flag = 'Y'
+            INNER JOIN b7sc_uses ON lgc.b7sc = b7sc_uses.b7sc AND b7sc_uses.n = 1
+            WHERE lgc.b7sc IN (SELECT b7sc FROM lone_b7sc)
+                AND f.segmentid NOT IN (SELECT segmentid FROM {{s}}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
+                AND f.segmentid NOT IN (SELECT segmentid FROM {{s}}.dcp_cscl_commonplace_gdb WHERE segmentid IS NOT NULL)
+                AND f.segmentid NOT IN (SELECT segmentid FROM {{s}}.dcp_cscl_addresspoints WHERE segmentid IS NOT NULL)
+                AND f.segmentid IN (
+                    SELECT segmentid FROM {{s}}.dcp_cscl_segment_lgc WHERE preferred_lgc_flag = 'Y'
+                    GROUP BY segmentid HAVING COUNT(*) = 1
+                )
+    """
+
+
+def _proto_targets(centerline_class: bool) -> str:
+    """Proto segments of (or not of) the centerline class whose B5SC + LGC1 names nothing
+    else, numbered."""
+    return f"""
+            SELECT p.globalid AS key, [p.globalid, p.segmentid::VARCHAR, p.b5sc || p.lgc1] AS claims,
+                p.globalid AS log_key, p.b5sc || p.lgc1 AS b7sc,
+                ROW_NUMBER() OVER (ORDER BY p.globalid) AS rn
+            FROM proto_classes AS p
+            INNER JOIN b7sc_uses ON p.b5sc || p.lgc1 = b7sc_uses.b7sc AND b7sc_uses.n = 1
+            WHERE p.centerline_class = {str(centerline_class).upper()}
+    """
+
+
 MUTATIONS: list[Mutation] = [
     Mutation(
         name="centerline_seglocstatus",
@@ -510,9 +696,18 @@ MUTATIONS: list[Mutation] = [
             one_lgc AS (
                 SELECT segmentid FROM {s}.dcp_cscl_segment_lgc GROUP BY segmentid HAVING COUNT(*) = 1
             ),
+            -- a street whose names all fit AltNames' SName (CSCL-LOG-BYTES-06)
             donor AS (
                 SELECT LEFT(b5sc, 1) AS boro, MIN(b5sc) AS b5sc, MIN(b7sc) AS b7sc
-                FROM pref WHERE LEFT(b7sc, 6) = b5sc GROUP BY 1
+                FROM pref WHERE LEFT(b7sc, 6) = b5sc
+                    AND b7sc NOT IN (
+                        SELECT b7sc FROM {s}.dcp_cscl_streetname
+                        WHERE b7sc IS NOT NULL AND (LENGTH(lookup_key) > 28 OR LENGTH(street_name) > 28)
+                        UNION ALL
+                        SELECT b7sc FROM {s}.dcp_cscl_featurename
+                        WHERE b7sc IS NOT NULL AND LENGTH(lookup_key) > 30
+                    )
+                GROUP BY 1
             )
             SELECT pref.globalid AS key, [pref.sh_globalid, pref.segmentid::VARCHAR] AS claims,
                 pref.sh_globalid AS log_key, pref.b7sc AS old,
@@ -544,6 +739,9 @@ MUTATIONS: list[Mutation] = [
     FlattenCurve(
         name="centerline_hairline_curve",
         log_message_ids=["CSCL-LOG-LION-07"],
+        # the far-off center may land on the chord's other side; its coordinates don't fit
+        # LION's 7-character slots (prod uses the midpoint instead)
+        may_log_ids=["CSCL-LOG-LION-09", "CSCL-LOG-LION-21"],
         table="dcp_cscl_centerline",
         column="curve",
         extra={"sagitta": 0.0001},
@@ -666,7 +864,7 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         name="commonplace_unnamed_b7sc",
         # its LION replicant has no SAFStreetName either
-        log_message_ids=["CSCL-LOG-SAF-23", "CSCL-LOG-BYTES-02"],
+        log_message_ids=["CSCL-LOG-SAF-23", "CSCL-LOG-BYTES-02", "CSCL-LOG-BYTES-11"],
         table="dcp_cscl_commonplace_gdb",
         column="b7sc",
         new_value=lambda cand, n: f"{cand['old'][0]}99{n % 1000:03d}01",
@@ -810,6 +1008,9 @@ MUTATIONS: list[Mutation] = [
     FlattenCurve(
         name="centerline_straight_curve",
         log_message_ids=["CSCL-LOG-LION-08"],
+        # the midpoint center is on the chord, but rounded to whole feet it may fall on
+        # either side (prod rounds the same way)
+        may_log_ids=["CSCL-LOG-LION-09"],
         table="dcp_cscl_centerline",
         column="curve",
         extra={"sagitta": 0},
@@ -930,7 +1131,7 @@ MUTATIONS: list[Mutation] = [
         # as missing ('0000'), and no other SAF S/V point on that street
         name="saf_s_no_face_code",
         # the point's LION replicant has no SAFStreetName either
-        log_message_ids=["CSCL-LOG-SAF-06", "CSCL-LOG-BYTES-02"],
+        log_message_ids=["CSCL-LOG-SAF-06", "CSCL-LOG-BYTES-02", "CSCL-LOG-BYTES-10"],
         table="dcp_cscl_addresspoints",
         column="b7sc_actual",
         candidates_sql="""
@@ -1030,7 +1231,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Edits(
         name="saf_s_proto_wrong_b7sc",
-        log_message_ids=["CSCL-LOG-SAF-10", "CSCL-LOG-BYTES-02"],
+        log_message_ids=["CSCL-LOG-SAF-10", "CSCL-LOG-BYTES-02", "CSCL-LOG-BYTES-10"],
         table="dcp_cscl_addresspoints",
         column="segmentid",
         candidates_sql="WITH "
@@ -1123,7 +1324,7 @@ MUTATIONS: list[Mutation] = [
         # a DAPS street code prod has no regular street for; nor a name, so its LION
         # replicant has no SAFStreetName either
         name="saf_d_unknown_daps_b5sc",
-        log_message_ids=["CSCL-LOG-SAF-14", "CSCL-LOG-BYTES-02"],
+        log_message_ids=["CSCL-LOG-SAF-14", "CSCL-LOG-BYTES-02", "CSCL-LOG-BYTES-10"],
         table="dcp_cscl_altsegmentdata",
         column="b5sc",
         new_value=lambda cand, n: f"{cand['old'][0]}99{n % 1000:03d}",
@@ -1140,7 +1341,7 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         name="saf_abcep_unnamed_lgc",
-        log_message_ids=["CSCL-LOG-SAF-20", "CSCL-LOG-BYTES-02"],
+        log_message_ids=["CSCL-LOG-SAF-20", "CSCL-LOG-BYTES-02", "CSCL-LOG-BYTES-10"],
         table="dcp_cscl_altsegmentdata",
         column="lgc1",
         new_value="ZZ",
@@ -1348,7 +1549,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         # LION replicant of an O entry with no street code
         name="saf_o_blank_street_code",
-        log_message_ids=["CSCL-LOG-BYTES-01"],
+        # prod looks up its B7SC ('' + LGC1) and finds no name either
+        log_message_ids=["CSCL-LOG-BYTES-01", "CSCL-LOG-BYTES-10"],
         table="dcp_cscl_altsegmentdata",
         column="b5sc",
         new_value="",
@@ -1390,6 +1592,415 @@ MUTATIONS: list[Mutation] = [
             ORDER BY sn.globalid
         """,
         dropped_from="gdb_lion",
+    ),
+    # batch 3: values prod blanks or changes in a written record, and name-table warnings.
+    # RPL: a roadbed's or generic's end moved off its node (RPL-01..04); the centerline has
+    # no node there either (OURS-01). All of a generic's RPL rows log.
+    ShiftEndpoint(
+        name="rpl_roadbed_start_off_node",
+        log_message_ids=["CSCL-LOG-RPL-01", "CSCL-LOG-OURS-01"],
+        may_log_ids=["CSCL-LOG-LION-01"],
+        table="dcp_cscl_centerline",
+        column="geom",
+        extra={"end": "start"},
+        log_match_column="message",
+        message_matches={
+            "CSCL-LOG-OURS-01": lambda c: c["globalid"],
+            "CSCL-LOG-LION-01": lambda c: c["globalid"],
+        },
+        candidates_sql="WITH "
+        + _RPL_SEGMENTS
+        + """
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims, globalid,
+                'ROADBED_SEGMENTID = [' || segmentid || ']' AS log_key, NULL AS old
+            FROM rpl_segments WHERE rpl_role = 'roadbed' ORDER BY globalid
+        """,
+    ),
+    ShiftEndpoint(
+        name="rpl_generic_start_off_node",
+        log_message_ids=["CSCL-LOG-RPL-02", "CSCL-LOG-OURS-01"],
+        may_log_ids=["CSCL-LOG-LION-01"],
+        table="dcp_cscl_centerline",
+        column="geom",
+        extra={"end": "start"},
+        log_match_column="message",
+        message_matches={
+            "CSCL-LOG-OURS-01": lambda c: c["globalid"],
+            "CSCL-LOG-LION-01": lambda c: c["globalid"],
+        },
+        candidates_sql="WITH "
+        + _RPL_SEGMENTS
+        + """
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims, globalid,
+                'GENERIC_SEGMENTID = [' || segmentid || ']' AS log_key, NULL AS old
+            FROM rpl_segments WHERE rpl_role = 'generic' ORDER BY globalid
+        """,
+    ),
+    ShiftEndpoint(
+        name="rpl_roadbed_end_off_node",
+        log_message_ids=["CSCL-LOG-RPL-03", "CSCL-LOG-OURS-01"],
+        may_log_ids=["CSCL-LOG-LION-01"],
+        table="dcp_cscl_centerline",
+        column="geom",
+        extra={"end": "end"},
+        log_match_column="message",
+        message_matches={
+            "CSCL-LOG-OURS-01": lambda c: c["globalid"],
+            "CSCL-LOG-LION-01": lambda c: c["globalid"],
+        },
+        candidates_sql="WITH "
+        + _RPL_SEGMENTS
+        + """
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims, globalid,
+                'ROADBED_SEGMENTID = [' || segmentid || ']' AS log_key, NULL AS old
+            FROM rpl_segments WHERE rpl_role = 'roadbed' ORDER BY globalid
+        """,
+    ),
+    ShiftEndpoint(
+        name="rpl_generic_end_off_node",
+        log_message_ids=["CSCL-LOG-RPL-04", "CSCL-LOG-OURS-01"],
+        may_log_ids=["CSCL-LOG-LION-01"],
+        table="dcp_cscl_centerline",
+        column="geom",
+        extra={"end": "end"},
+        log_match_column="message",
+        message_matches={
+            "CSCL-LOG-OURS-01": lambda c: c["globalid"],
+            "CSCL-LOG-LION-01": lambda c: c["globalid"],
+        },
+        candidates_sql="WITH "
+        + _RPL_SEGMENTS
+        + """
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims, globalid,
+                'GENERIC_SEGMENTID = [' || segmentid || ']' AS log_key, NULL AS old
+            FROM rpl_segments WHERE rpl_role = 'generic' ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="rpl_level_code_30",
+        log_message_ids=["CSCL-LOG-RPL-08"],
+        table="dcp_cscl_roadbed_pointer_list",
+        column="from_node_level_coincident_rb",
+        new_value=30,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, roadbed_segmentid::VARCHAR] AS claims,
+                globalid AS log_key, from_node_level_coincident_rb AS old
+            FROM {s}.dcp_cscl_roadbed_pointer_list
+            WHERE generic_segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+                AND roadbed_segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="saf_d_blank_sos_indicator",
+        log_message_ids=["CSCL-LOG-SAF-13"],
+        table="dcp_cscl_altsegmentdata",
+        column="sosindicator",
+        new_value=None,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, sosindicator AS old
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype IN ('D', 'F')
+                AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="saf_o_blank_sos_indicator",
+        log_message_ids=["CSCL-LOG-SAF-17"],
+        table="dcp_cscl_altsegmentdata",
+        column="sosindicator",
+        new_value=None,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, sosindicator AS old
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype = 'O'
+                AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="sedat_null_segmentid",
+        log_message_ids=["CSCL-LOG-SEDAT-01"],
+        table="dcp_cscl_sedat",
+        column="segmentid",
+        new_value=None,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid] AS claims, globalid AS log_key, segmentid AS old
+            FROM {s}.dcp_cscl_sedat WHERE segmentid IS NOT NULL ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="sedat_orphan_segmentid",
+        log_message_ids=["CSCL-LOG-SEDAT-02"],
+        table="dcp_cscl_sedat",
+        column="segmentid",
+        new_value=_fake_segmentid,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid] AS claims, globalid AS log_key, segmentid AS old
+            FROM {s}.dcp_cscl_sedat WHERE segmentid IS NOT NULL ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        # onto a segment of the same borough whose one preferred street code has no
+        # StreetName name (a shoreline or other feature named in FeatureName)
+        name="sedat_on_unnamed_street",
+        log_message_ids=["CSCL-LOG-SEDAT-03"],
+        table="dcp_cscl_sedat",
+        column="segmentid",
+        new_value=lambda cand, _n: cand["target"],
+        candidates_sql="""
+            WITH one_preferred AS (
+                SELECT segmentid, ANY_VALUE(b5sc || lgc) AS b7sc
+                FROM {s}.dcp_cscl_segment_lgc WHERE preferred_lgc_flag = 'Y'
+                GROUP BY segmentid HAVING COUNT(*) = 1
+            ),
+            targets AS (
+                SELECT segmentid, LEFT(b7sc, 1) AS boro,
+                    ROW_NUMBER() OVER (PARTITION BY LEFT(b7sc, 1) ORDER BY segmentid) AS rn
+                FROM one_preferred
+                WHERE b7sc NOT IN (
+                    SELECT b7sc FROM {s}.dcp_cscl_streetname WHERE principal_flag = 'Y' AND b7sc IS NOT NULL
+                )
+            )
+            SELECT sedat.globalid AS key, [sedat.globalid] AS claims, sedat.globalid AS log_key,
+                sedat.segmentid AS old, targets.segmentid AS target
+            FROM {s}.dcp_cscl_sedat AS sedat
+            INNER JOIN targets ON LEFT(sedat.lionkey, 1) = targets.boro AND targets.rn = 1
+            ORDER BY sedat.globalid
+        """,
+    ),
+    # district lookups: a code's lookup row renamed, so every district carrying the code
+    # misses it (log rows found by the code in their message)
+    Mutation(
+        name="cdtaequiv_code_renamed",
+        # nyct2020/nyct2020wi tracts and nycdta2020 (GDB-07); nynta2020's NTAs (GDB-03)
+        log_message_ids=["CSCL-LOG-GDB-07", "CSCL-LOG-GDB-03"],
+        table="dcp_cscl_cdtaequiv2020",
+        column="cdta_code",
+        key_column="cdta_code",
+        log_match_column="message",
+        new_value=lambda _cand, n: f"Z{n % 1000:03d}",
+        candidates_sql="""
+            SELECT cdta_code AS key, ['cdta ' || cdta_code] AS claims,
+                'CDTA_CODE = ''' || cdta_code AS log_key, cdta_code AS old
+            FROM {s}.dcp_cscl_cdtaequiv2020 ORDER BY cdta_code
+        """,
+    ),
+    Mutation(
+        name="ntaequiv_code_renamed",
+        # nyct2020/nyct2020wi tracts and nynta2020
+        log_message_ids=["CSCL-LOG-GDB-06"],
+        table="dcp_cscl_ntaequiv2020",
+        column="nta_code",
+        key_column="nta_code",
+        log_match_column="message",
+        new_value=lambda _cand, n: f"ZZ{n % 10000:04d}",
+        candidates_sql="""
+            SELECT nta_code AS key, ['nta ' || nta_code] AS claims,
+                'NTA_CODE = ''' || nta_code AS log_key, nta_code AS old
+            FROM {s}.dcp_cscl_ntaequiv2020 ORDER BY nta_code
+        """,
+    ),
+    Mutation(
+        # every NeighborhoodPUMACodes row of an NTA: nynta2010 finds no name (gdb_nyct2010
+        # matches on borough and tract, so its tracts still find theirs)
+        name="neighborhoodpumacodes_code_renamed",
+        log_message_ids=["CSCL-LOG-GDB-04"],
+        table="dcp_cscl_neighborhoodpumacodes",
+        column="neighborhood_code",
+        key_column="neighborhood_code",
+        log_match_column="message",
+        new_value=lambda _cand, n: f"Z{n % 1000:03d}",
+        candidates_sql="""
+            SELECT DISTINCT neighborhood_code AS key, ['npc ' || neighborhood_code] AS claims,
+                'NEIGHBORHOOD_CODE = ''' || neighborhood_code AS log_key, neighborhood_code AS old
+            FROM {s}.dcp_cscl_neighborhoodpumacodes WHERE neighborhood_code IS NOT NULL
+            ORDER BY neighborhood_code
+        """,
+    ),
+    Mutation(
+        name="neighborhoodpumacodes_blank_fips",
+        log_message_ids=["CSCL-LOG-GDB-05"],
+        table="dcp_cscl_neighborhoodpumacodes",
+        column="fips_code",
+        key_column="neighborhood_code",
+        log_match_column="message",
+        new_value="",
+        candidates_sql="""
+            SELECT DISTINCT neighborhood_code AS key, ['npc ' || neighborhood_code] AS claims,
+                'NEIGHBORHOOD_CODE = ''' || neighborhood_code AS log_key, NULL AS old
+            FROM {s}.dcp_cscl_neighborhoodpumacodes WHERE neighborhood_code IS NOT NULL
+            ORDER BY neighborhood_code
+        """,
+    ),
+    Mutation(
+        # the computed center of curvature stays on the left
+        name="centerline_curve_flipped",
+        log_message_ids=["CSCL-LOG-LION-09"],
+        table="dcp_cscl_centerline",
+        column="curve",
+        new_value="R",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, curve AS old
+            FROM {s}.dcp_cscl_centerline
+            WHERE curve = 'L'
+                AND segmentid NOT IN (SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        # 3 digits in LION's 2-character POSTED SPEED
+        name="centerline_posted_speed_100",
+        log_message_ids=["CSCL-LOG-LION-21"],
+        table="dcp_cscl_centerline",
+        column="posted_speed",
+        new_value=100,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, posted_speed AS old
+            FROM {s}.dcp_cscl_centerline
+            WHERE segmentid NOT IN (SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
+            ORDER BY globalid
+        """,
+    ),
+    MessageKey(
+        # a street name too long for AltNames' 30-character SName, on a street in AltNames
+        name="streetname_long_street_name",
+        log_message_ids=["CSCL-LOG-BYTES-06"],
+        table="dcp_cscl_streetname",
+        column="street_name",
+        log_match_column="message",
+        new_value=lambda _cand, n: f"CHAOS STREET NAME LONGER THAN THIRTY {n:04d}",
+        candidates_sql="""
+            SELECT sn.globalid AS key, [sn.globalid, sn.b7sc] AS claims, sn.globalid AS log_key,
+                sn.street_name AS old
+            FROM {s}.dcp_cscl_streetname AS sn
+            WHERE NULLIF(sn.pre_modifier, '') IS NULL AND NULLIF(sn.post_modifier, '') IS NULL
+                AND UPPER(TRIM(sn.dcp_flag)) IS DISTINCT FROM 'N'
+                AND sn.lookup_key IN (SELECT "Street" FROM {s}.gdb_altnames)
+            ORDER BY sn.globalid
+        """,
+    ),
+    InsertCopy(
+        # one more (unwritten, type Z) SAF record on a segment already at 9 records
+        name="segment_tenth_record",
+        log_message_ids=["CSCL-LOG-BYTES-12"],
+        table="dcp_cscl_altsegmentdata",
+        column="saftype",
+        new_value="Z",
+        log_match_column="message",
+        candidates_sql="""
+            SELECT alt.globalid AS key, [alt.globalid, alt.segmentid::VARCHAR] AS claims,
+                'SEGMENTID = ' || alt.segmentid || ', ' AS log_key, alt.saftype AS old
+            FROM {s}.dcp_cscl_altsegmentdata AS alt
+            INNER JOIN {s}.int__lion_segcount AS segcount ON alt.segmentid = segcount.segmentid
+            WHERE alt.alt_segdata_type = 'S' AND segcount.n_records = 9
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY alt.segmentid ORDER BY alt.globalid) = 1
+            ORDER BY alt.globalid
+        """,
+    ),
+    # names moved to the other name table
+    Edits(
+        name="centerline_name_to_featurename",
+        log_message_ids=["CSCL-LOG-LION-13", "CSCL-LOG-BYTES-05"],
+        table="dcp_cscl_streetname",
+        column="b7sc",
+        candidates_sql=_move_name(
+            _lone_feature_targets("dcp_cscl_centerline"), "dcp_cscl_streetname", 0
+        ),
+    ),
+    Edits(
+        name="nonstreetfeature_name_to_streetname",
+        log_message_ids=["CSCL-LOG-LION-14"],
+        table="dcp_cscl_featurename",
+        column="b7sc",
+        candidates_sql=_move_name(
+            _lone_feature_targets("dcp_cscl_nonstreetfeatures"),
+            "dcp_cscl_featurename",
+            0,
+        ),
+    ),
+    Edits(
+        name="centerline_proto_name_to_featurename",
+        log_message_ids=["CSCL-LOG-LION-15"],
+        may_log_ids=["CSCL-LOG-BYTES-05"],
+        table="dcp_cscl_streetname",
+        column="b7sc",
+        candidates_sql=_move_name(_proto_targets(True), "dcp_cscl_streetname", 100),
+    ),
+    Edits(
+        # non-street feature protos share their names with their features, so the proto
+        # is pointed at an unused street of its borough instead
+        name="nonstreetfeature_proto_on_street_name",
+        log_message_ids=["CSCL-LOG-LION-16"],
+        table="dcp_cscl_altsegmentdata",
+        column="b5sc",
+        candidates_sql="WITH "
+        + _NAME_MOVES
+        + """,
+            targets AS (
+                SELECT p.*, ROW_NUMBER() OVER (PARTITION BY LEFT(p.b5sc, 1) ORDER BY p.globalid) AS rn
+                FROM proto_classes AS p
+                -- one LGC: other LGCs on the new street code would name other streets
+                WHERE NOT p.centerline_class AND LENGTH(p.b5sc) = 6 AND p.lgc2 IS NULL
+            ),
+            street_donors AS (
+                SELECT *, ROW_NUMBER() OVER (PARTITION BY LEFT(b7sc, 1) ORDER BY globalid) AS rn
+                FROM donors WHERE t = 'dcp_cscl_streetname' AND LENGTH(b7sc) = 8
+            )
+            SELECT targets.globalid AS key,
+                [targets.globalid, targets.segmentid::VARCHAR, street_donors.globalid, street_donors.b7sc] AS claims,
+                targets.globalid AS log_key, targets.b5sc || targets.lgc1 AS old,
+                [
+                    struct_pack(t := 'dcp_cscl_altsegmentdata', k := 'globalid', kv := targets.globalid, c := 'b5sc', v := LEFT(street_donors.b7sc, 6)),
+                    struct_pack(t := 'dcp_cscl_altsegmentdata', k := 'globalid', kv := targets.globalid, c := 'lgc1', v := RIGHT(street_donors.b7sc, 2))
+                ] AS edits
+            FROM targets
+            INNER JOIN street_donors
+                ON LEFT(targets.b5sc, 1) = LEFT(street_donors.b7sc, 1) AND targets.rn = street_donors.rn
+            ORDER BY targets.globalid
+        """,
+    ),
+    Edits(
+        name="saf_b_name_to_featurename",
+        log_message_ids=["CSCL-LOG-SAF-19", "CSCL-LOG-BYTES-08"],
+        table="dcp_cscl_streetname",
+        column="b7sc",
+        candidates_sql=_move_name(
+            """
+            SELECT alt.globalid AS key, [alt.globalid, alt.segmentid::VARCHAR, alt.b5sc || alt.lgc1] AS claims,
+                alt.globalid AS log_key, alt.b5sc || alt.lgc1 AS b7sc,
+                ROW_NUMBER() OVER (ORDER BY alt.globalid) AS rn
+            FROM {s}.dcp_cscl_altsegmentdata AS alt
+            INNER JOIN b7sc_uses ON alt.b5sc || alt.lgc1 = b7sc_uses.b7sc AND b7sc_uses.n = 1
+            WHERE alt.alt_segdata_type = 'S' AND alt.saftype = 'B'
+                AND alt.segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            """,
+            "dcp_cscl_streetname",
+            200,
+        ),
+    ),
+    Edits(
+        name="commonplace_name_to_streetname",
+        log_message_ids=["CSCL-LOG-SAF-24", "CSCL-LOG-BYTES-09"],
+        table="dcp_cscl_featurename",
+        column="b7sc",
+        candidates_sql=_move_name(
+            """
+            SELECT p.globalid AS key, [p.globalid, p.placeid::VARCHAR, p.b7sc] AS claims,
+                p.globalid AS log_key, p.b7sc, ROW_NUMBER() OVER (ORDER BY p.globalid) AS rn
+            FROM {s}.dcp_cscl_commonplace_gdb AS p
+            INNER JOIN b7sc_uses ON p.b7sc = b7sc_uses.b7sc AND b7sc_uses.n = 1
+            WHERE p.saftype IN ('G', 'N', 'X') AND p.security_level IS DISTINCT FROM 3
+                AND LENGTH(TRIM(p.b7sc)) >= 8
+            """,
+            "dcp_cscl_featurename",
+            200,
+        ),
     ),
 ]
 
