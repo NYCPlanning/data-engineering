@@ -58,10 +58,9 @@
         'info' AS log_level,
         'output file summary' AS error_category,
         '{{ log_message_id }}' AS log_message_id,
-        'summary' AS effect,
         '{{ filename }}' AS output_filename,
         COUNT(*) AS record_count,
-        FORMAT('[{{ log_message_id }}] Total {} output records: {}', '{{ filename }}', COUNT(*)) AS message
+        FORMAT('Total {} output records: {}', '{{ filename }}', COUNT(*)) AS message
     FROM {{ ref(model) }}
     {{ "UNION ALL" if not loop.last else "" }}
 {% endfor %}

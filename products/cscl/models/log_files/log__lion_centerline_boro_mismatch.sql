@@ -39,19 +39,15 @@ SELECT
     'error' AS log_level,
     'borough mismatch' AS error_category,
     'CSCL-LOG-OURS-04' AS log_message_id,
-    'warned' AS effect,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
-    FORMAT(
-        '[CSCL-LOG-OURS-04] The LION record built from the {} feature with a GlobalID = {} has '
-        || 'Borough = {}, but the feature''s own borough is {}.',
-        COALESCE(source_table::VARCHAR, ''),
-        COALESCE(globalid::VARCHAR, ''),
-        COALESCE(boroughcode::VARCHAR, ''),
-        COALESCE(source_boroughcode::VARCHAR, '')
-    ) AS message
+    {{ log_message(
+        "The LION record built from the {} feature with a GlobalID = {} has "
+        "Borough = {}, but the feature's own borough is {}.",
+        ["source_table", "globalid", "boroughcode", "source_boroughcode"]
+    ) }} AS message
 FROM lion_joined
 -- a blank source borough is derived downstream (prod falls back the same way), not a mismatch
 WHERE

@@ -12,24 +12,22 @@ SELECT DISTINCT
     'segment missing facecode' AS error_category,
     CASE WHEN source_table = 'altsegmentdata' THEN 'CSCL-LOG-LION-19' ELSE 'CSCL-LOG-LION-18' END
         AS log_message_id,
-    'dropped' AS effect,
     globalid,
     source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segmentid AS record_id,
     CASE
         WHEN source_table = 'altsegmentdata'
-            THEN FORMAT(
-                '[CSCL-LOG-LION-19] Unable to obtain a FaceCode value for the proto segment with a '
-                || 'GlobalID = {}.  The proto segment record will not be included in the LION extract file.',
-                COALESCE(globalid::VARCHAR, '')
-            )
-        ELSE FORMAT(
-            '[CSCL-LOG-LION-18] Unable to obtain a FaceCode value for the {} feature a GlobalID = {}.  '
-            || 'The feature record will not be included in the LION extract file.',
-            COALESCE(source_table::VARCHAR, ''),
-            COALESCE(globalid::VARCHAR, '')
-        )
+            THEN {{ log_message(
+                "Unable to obtain a FaceCode value for the proto segment with a GlobalID = {}.  "
+                "The proto segment record will not be included in the LION extract file.",
+                ["globalid"]
+            ) }}
+        ELSE {{ log_message(
+            "Unable to obtain a FaceCode value for the {} feature a GlobalID = {}.  "
+            "The feature record will not be included in the LION extract file.",
+            ["source_table", "globalid"]
+        ) }}
     END AS message
 FROM segments
 WHERE face_code IS NULL

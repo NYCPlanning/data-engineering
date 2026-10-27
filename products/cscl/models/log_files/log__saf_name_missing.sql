@@ -18,16 +18,15 @@ SELECT
     'error' AS log_level,
     'saf record missing name' AS error_category,
     'CSCL-LOG-SAF-23' AS log_message_id,
-    'dropped' AS effect,
     commonplace.globalid,
     'commonplace' AS source_feature_layer,
     'placeid' AS record_id_type,
     commonplace.placeid AS record_id,
-    FORMAT(
-        '[CSCL-LOG-SAF-23] [NAME MISSING] The SAF record with a PlaceID = {} is missing a name.  '
-        || 'The SAF record will not be included in the output file.',
-        COALESCE(commonplace.placeid::VARCHAR, '')
-    ) AS message
+    {{ log_message(
+        "[NAME MISSING] The SAF record with a PlaceID = {} is missing a name.  "
+        "The SAF record will not be included in the output file.",
+        ["commonplace.placeid"]
+    ) }} AS message
 FROM saf
 INNER JOIN commonplace ON saf.saf_globalid = commonplace.globalid
 LEFT JOIN names ON commonplace.b7sc = names.b7sc

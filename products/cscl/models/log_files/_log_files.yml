@@ -7,7 +7,8 @@ models:
     (error or warning), one row per ThinLION lookup that found nothing, plus one summary
     row per exported flat file with its record count. Each row comes from one log__*
     model, named in _dbt_source_relation, and carries the id of its message in the
-    log_messages seed (see seeds.yml).
+    log_messages seed (see seeds.yml). The models emit the id and the message body;
+    this model takes effect from the seed and prefixes the message with the id.
   columns:
   - name: _dbt_source_relation
     description: The log__* model the row came from.

@@ -10,22 +10,15 @@ SELECT
     -- prod checks centerlines (LION-03) and shorelines (LION-04); we check every segment
     CASE WHEN segments.source_table = 'shoreline' THEN 'CSCL-LOG-LION-04' ELSE 'CSCL-LOG-LION-03' END
         AS log_message_id,
-    'warned' AS effect,
     segments.globalid,
     segments.source_table AS source_feature_layer,
     'segmentid' AS record_id_type,
     segments.segmentid AS record_id,
-    FORMAT(
-        '[{}] Neither of the AtomicPolygon borough matches the segment borough for '
-        || 'the {} feature with a GlobalID = {}. Left Borough = ''{}'', '
-        || 'Right Borough = ''{}'' and Segment Borough = ''{}''.',
-        CASE WHEN segments.source_table = 'shoreline' THEN 'CSCL-LOG-LION-04' ELSE 'CSCL-LOG-LION-03' END,
-        COALESCE(segments.source_table::VARCHAR, ''),
-        COALESCE(segments.globalid::VARCHAR, ''),
-        COALESCE(aps.left_borocode::VARCHAR, ''),
-        COALESCE(aps.right_borocode::VARCHAR, ''),
-        COALESCE(aps.segment_borocode::VARCHAR, '')
-    ) AS message
+    {{ log_message(
+        "Neither of the AtomicPolygon borough matches the segment borough for the {} feature "
+        "with a GlobalID = {}. Left Borough = '{}', Right Borough = '{}' and Segment Borough = '{}'.",
+        ["segments.source_table", "segments.globalid", "aps.left_borocode", "aps.right_borocode", "aps.segment_borocode"]
+    ) }} AS message
 FROM aps
 INNER JOIN segments ON aps.globalid = segments.globalid
 WHERE

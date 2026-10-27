@@ -3,20 +3,40 @@
 -- if we either remove dash from db names
 -- or if dbt fixes a bug
 
-{{ dbt_utils.union_relations(relations=[
-    ref("log__lion_centerline_boro_mismatch"),
-    ref("log__lion_centerline_curve"),
-    ref("log__lion_centerline_or_proto_seglocstatus_mismatch"),
-    ref("log__lion_protosegment_orphans"),
-    ref("log__lion_segment_lgc_count"),
-    ref("log__lion_segments_ap_boro_mismatch"),
-    ref("log__lion_segments_missing_nypd"),
-    ref("log__lion_segments_missing_aps"),
-    ref("log__lion_segments_missing_facecode"),
-    ref("log__lion_segments_missing_nodes"),
-    ref("log__lion_nonstreetfeature_linetype"),
-    ref("log__thinlion_lookup_not_found"),
-    ref("log__saf_invalid_b7sc"),
-    ref("log__saf_name_missing"),
-    ref("log__export_file_summary"),
-]) }}
+-- Each log__* model emits its detection rows with a log_message_id and the message body;
+-- the effect comes from the log_messages seed and the "[<id>] " prefix is added here.
+WITH log_rows AS (
+    {{ dbt_utils.union_relations(relations=[
+        ref("log__lion_centerline_boro_mismatch"),
+        ref("log__lion_centerline_curve"),
+        ref("log__lion_centerline_or_proto_seglocstatus_mismatch"),
+        ref("log__lion_protosegment_orphans"),
+        ref("log__lion_segment_lgc_count"),
+        ref("log__lion_segments_ap_boro_mismatch"),
+        ref("log__lion_segments_missing_nypd"),
+        ref("log__lion_segments_missing_aps"),
+        ref("log__lion_segments_missing_facecode"),
+        ref("log__lion_segments_missing_nodes"),
+        ref("log__lion_nonstreetfeature_linetype"),
+        ref("log__thinlion_lookup_not_found"),
+        ref("log__saf_invalid_b7sc"),
+        ref("log__saf_name_missing"),
+        ref("log__export_file_summary"),
+    ]) }}
+)
+
+SELECT
+    log_rows._dbt_source_relation,
+    log_rows.log_level,
+    log_rows.error_category,
+    log_rows.log_message_id,
+    log_messages.effect,
+    log_rows.globalid,
+    log_rows.source_feature_layer,
+    log_rows.record_id_type,
+    log_rows.record_id,
+    FORMAT('[{}] {}', log_rows.log_message_id, log_rows.message) AS message,
+    log_rows.record_count,
+    log_rows.output_filename
+FROM log_rows
+LEFT JOIN {{ ref('log_messages') }} AS log_messages ON log_rows.log_message_id = log_messages.id

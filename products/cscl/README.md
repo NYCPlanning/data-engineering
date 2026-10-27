@@ -463,7 +463,9 @@ QA** page reads it, including the per-file diff rows.
   does. Each `log.csv` row carries its id in `log_message_id` and at the start of its
   message, so it lines up with prod's log; `qa__log_message_counts` counts rows per id.
   When you add a check, give it a seed row (or flip a `planned` one to `implemented`) and
-  cite the id in the model; `assert_log_message_citations` keeps the two in step.
+  emit the id as the model's `log_message_id`, with the wording from the `log_message`
+  macro; `log.sql` adds the seed's `effect` and the `[id] ` prefix, and
+  `assert_log_message_citations` keeps the models and the seed in step.
 
 ### 6. When something is off
 
