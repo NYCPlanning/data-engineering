@@ -2,12 +2,13 @@
 -- known_differences seed. A cite is a string literal starting with an ID
 -- ('CSCL-LION-16: topology left/right AP') or an old bug number ('Bug 003: ...'). An old
 -- bug number, or anything that isn't an exact ID ('CSCL-LION-0_:%'), fails: cite the
--- seed's id instead. Reads the models' SQL, not their output, so it needs only the seed.
+-- seed's id instead. A log_messages id ('CSCL-LOG-LION-15') isn't a cite. Reads the models'
+-- SQL, not their output, so it needs only the seed.
 {%- set cites = [] %}
 {%- if execute %}
     {%- for node in graph.nodes.values() %}
         {%- if node.resource_type == 'model' and node.name.startswith('qa__diffs_') %}
-            {%- for cited in modules.re.findall("'((?:CSCL-|Bug )[^':]*)", node.raw_code) %}
+            {%- for cited in modules.re.findall("'((?:CSCL-(?!LOG-)|Bug )[^':]*)", node.raw_code) %}
                 {%- do cites.append({'model': node.name, 'cited': cited}) %}
             {%- endfor %}
         {%- endif %}

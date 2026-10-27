@@ -1,7 +1,7 @@
 -- LION .dat records with a field value longer than its slot (CSCL-LOG-LION-21,
 -- ExtractorClass.cs:2026-2029). Prod writes the record anyway, longer than the 400
 -- characters Geosupport reads, and logs its length. We always write 400 characters:
--- format_lion_text cuts the value to its slot (lion_dat_by_field), so this logs the length
+-- format_lion_text cuts the value to its slot (lion_dat_by_field; CSCL-LION-23), so this logs the length
 -- prod would have written and the fields we cut.
 {%- set fields_query -%}
     SELECT field_name, field_length

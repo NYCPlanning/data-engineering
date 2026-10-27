@@ -59,6 +59,31 @@ coincident_rail_segments AS (
     FROM {{ ref('int__noncenterline_coincident_segments') }}
     WHERE coinc_segment_feature_type = 'centerline' AND distance < 1
 ),
+-- CSCL-LION-22: centerline protos named only in FeatureName, which prod drops
+-- (CSCL-LOG-LION-15); CSCL-LION-23: records with a value cut to fit its slot, which prod
+-- writes over-length (CSCL-LOG-LION-21). Both keyed like lion_dat_by_field.
+logged_lion_globalids AS (
+    SELECT
+        globalid,
+        log_message_id
+    FROM {{ ref('log_name_table_warnings') }}
+    WHERE log_message_id = 'CSCL-LOG-LION-15'
+    UNION ALL
+    SELECT
+        globalid,
+        log_message_id
+    FROM {{ ref('log__lion_record_length') }}
+),
+logged_lion_records AS (
+    SELECT
+        lion.boroughcode || lion.face_code || LPAD(lion.segmentid::TEXT, 7, '0') AS lion_key,
+        BOOL_OR(logged.log_message_id = 'CSCL-LOG-LION-15') AS is_featurename_proto,
+        BOOL_OR(logged.log_message_id = 'CSCL-LOG-LION-21') AS is_cut_to_fit
+    FROM logged_lion_globalids AS logged
+    INNER JOIN {{ ref('int__lion') }} AS lion ON logged.globalid = lion.globalid
+    WHERE lion.include_in_geosupport_lion
+    GROUP BY lion.boroughcode || lion.face_code || LPAD(lion.segmentid::TEXT, 7, '0')
+),
 categorized AS (
     SELECT
         _lion_key,
@@ -79,6 +104,10 @@ categorized AS (
         comparison_column,
         build_table_name,
         production_table_name,
+        COALESCE(
+            with_borough.status = 'only_in_build' AND llr.is_featurename_proto, FALSE
+        ) AS is_featurename_proto,
+        COALESCE(llr.is_cut_to_fit, FALSE) AS is_cut_to_fit,
         -- CSCL-LION-16: every changed field is one the side AP determines (plus the
         -- already-accepted segment_seqnum / CSCL-LION-04 boe_lgc_pointer). Borough boundary
         -- and zip changes count only where the probe's AP is in another borough (prod then
@@ -122,6 +151,7 @@ categorized AS (
     FROM with_borough
     LEFT JOIN topology_lr_segments AS tlr ON RIGHT(with_borough._lion_key, 7)::INT = tlr.segmentid
     LEFT JOIN coincident_rail_segments AS crs ON RIGHT(with_borough._lion_key, 7)::INT = crs.segmentid
+    LEFT JOIN logged_lion_records AS llr ON with_borough._lion_key = llr.lion_key
 )
 SELECT
     _lion_key AS comparison_id,
@@ -130,6 +160,14 @@ SELECT
     output_file_id,
     -- Categorize based on which fields changed
     CASE
+        -- CSCL-LION-22: a centerline proto named only in FeatureName; prod drops it.
+        -- See CSCL-LION-22
+        WHEN is_featurename_proto
+            THEN 'CSCL-LION-22: centerline proto named only in FeatureName'
+        -- CSCL-LION-23: a value cut to fit its slot; prod writes the record over-length.
+        -- See CSCL-LION-23
+        WHEN is_cut_to_fit
+            THEN 'CSCL-LION-23: value cut to fit 400-character record'
         -- CSCL-LION-04: BOE LGC pointer incorrect for two-digit LGC codes
         -- Old value was always "1" due to legacy bug
         WHEN
@@ -197,7 +235,8 @@ SELECT
     build_table_name,
     production_table_name,
     -- Mark as accounted for if it's a known bug/expected difference
-    COALESCE(
+    -- CSCL-LION-22 and CSCL-LION-23: see diff_group
+    is_featurename_proto OR is_cut_to_fit OR COALESCE(
         status = 'modified' AND (
             -- Bug: segment_seqnum can differ (legacy issue)
             change_keys = ARRAY['segment_seqnum']
