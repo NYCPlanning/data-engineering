@@ -20,6 +20,10 @@ models:
         Rows are filtered to segments whose SEGMENT_TYPE puts them in the generic
         file - see the Special Address File section's own implementation notes for
         the full generic/roadbed routing rule.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: &safa_columns
     - name: place_name
       data_type: string
@@ -159,6 +163,10 @@ models:
         Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
         file - see the Special Address File section's own implementation notes for
         the full generic/roadbed routing rule.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: *safa_columns
 
 - name: saf_d_generic_by_field
@@ -171,6 +179,10 @@ models:
     tags: [export_doc]
     meta:
       each_row_is_a: A duplicate address pseudo-street (DAPS) record
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: &safd_columns
     - name: place_name
       data_type: string
@@ -250,6 +262,10 @@ models:
         Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
         file - see the Special Address File section's own implementation notes for
         the full generic/roadbed routing rule.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: *safd_columns
 
 - name: saf_i_by_field
@@ -311,6 +327,10 @@ models:
     tags: [export_doc]
     meta:
       each_row_is_a: A SAF 'other' address or vanity address record
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: &safov_columns
     - name: place_name
       data_type: string
@@ -414,6 +434,10 @@ models:
         Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
         file - see the Special Address File section's own implementation notes for
         the full generic/roadbed routing rule.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: *safov_columns
 
 - name: saf_s_generic_by_field
@@ -425,6 +449,10 @@ models:
     tags: [export_doc]
     meta:
       each_row_is_a: A SAF address point
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: &safs_columns
     - name: place_name
       description: "Name of the street the address point is on, in Geosupport sort format."
@@ -513,6 +541,10 @@ models:
         Rows are filtered to segments whose SEGMENT_TYPE puts them in the roadbed
         file - see the Special Address File section's own implementation notes for
         the full generic/roadbed routing rule.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns: [_saf_key]
   columns: *safs_columns
 
 # models with one text column per row
