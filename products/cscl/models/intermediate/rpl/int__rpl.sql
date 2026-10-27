@@ -41,6 +41,7 @@ cscl_rpl AS (
 generic_attributes AS (
     SELECT
         cscl_rpl.globalid,
+        cscl_rpl.ogc_fid,
         cscl_rpl.generic_segmentid,
         lion.segment_type AS generic_segmenttype,
         cscl_rpl.roadbed_segmentid,
@@ -69,11 +70,10 @@ roadbed_attributes AS (
         ON generic_attributes.roadbed_segmentid = lion.segmentid
 ),
 
--- Compute the cross product for every row and attach the R outermost's cross product
--- as a per-group sign reference. Comparing signs (rather than using the raw sign of
--- the cross product alone) means side determination is correct regardless of the
--- direction of the generic segment geometry.
-side_reference AS (
+-- Cross product of the generic segment's direction with the roadbed's midpoint: negative
+-- when the roadbed lies to the right of the generic as digitized (prod's
+-- IsPointOnRightOfLine).
+cross_products AS (
     SELECT
         *,
         (
@@ -81,18 +81,25 @@ side_reference AS (
             * (st_y(midpoint) - st_y(st_startpoint(generic_geom)))
             - (st_y(st_endpoint(generic_geom)) - st_y(st_startpoint(generic_geom)))
             * (st_x(midpoint) - st_x(st_startpoint(generic_geom)))
-        ) AS cross_product,
-        first_value(
-            (st_x(st_endpoint(generic_geom)) - st_x(st_startpoint(generic_geom)))
-            * (st_y(midpoint) - st_y(st_startpoint(generic_geom)))
-            - (st_y(st_endpoint(generic_geom)) - st_y(st_startpoint(generic_geom)))
-            * (st_x(midpoint) - st_x(st_startpoint(generic_geom)))
-        ) OVER (
-            PARTITION BY generic_segmentid
-            ORDER BY (roadbed_position_code = 'R') DESC
-            ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-        ) AS r_cross_product
+        ) AS cross_product
     FROM roadbed_attributes
+),
+
+-- Attach the R outermost's cross product as a per-group sign reference. Comparing signs
+-- (rather than using the raw sign of the cross product alone) means side determination is
+-- correct regardless of the direction of the generic segment geometry. A generic with no
+-- R roadbed falls back to -1, prod's "right of the generic as digitized": prod lists
+-- right-side roadbeds first, then left-side ones.
+side_reference AS (
+    SELECT
+        *,
+        coalesce(
+            max(cross_product) FILTER (WHERE roadbed_position_code = 'R') OVER (
+                PARTITION BY generic_segmentid
+            ),
+            -1
+        ) AS r_cross_product
+    FROM cross_products
 ),
 
 -- Ordering:
@@ -104,7 +111,9 @@ side_reference AS (
 -- For 'I' segments, side is determined by whether the row's cross product has the
 -- same sign as the R outermost's cross product for that generic segment.
 -- Within a side, rows are ordered by descending perpendicular distance from the
--- generic segment (outermost first).
+-- generic segment (outermost first). Ties (e.g. stacked roadbeds with the same midpoint)
+-- go by ogc_fid, the source table's OBJECTID: prod's stable sort keeps them in cursor
+-- order.
 add_group_order_id AS (
     SELECT
         *,
@@ -124,7 +133,8 @@ add_group_order_id AS (
                     WHEN roadbed_position_code = 'I'
                         THEN -st_distance(midpoint, generic_geom)
                     ELSE 0
-                END
+                END,
+                ogc_fid
         ) AS group_order_id
     FROM side_reference
 ),
