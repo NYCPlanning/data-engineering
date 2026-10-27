@@ -31,6 +31,10 @@ lgc AS (
     FROM segment_lgc
     GROUP BY segmentid
 ),
+-- prod leaves out a point that fails its S checks, and logs it (CSCL-LOG-SAF-06..11)
+dropped AS (
+    SELECT globalid FROM {{ ref('int__saf_s_checks') }}
+),
 segment_streets AS (
     SELECT DISTINCT
         segmentid,
@@ -91,4 +95,5 @@ LEFT JOIN feature_names AS generic_names
     ON lgc.preferred_b7sc = generic_names.b7sc AND generic_names.feature_type = 'street'
 LEFT JOIN segment_streets
     ON saf.segmentid = segment_streets.segmentid AND LEFT(address_points.b7sc_actual, 6) = segment_streets.b5sc
+ANTI JOIN dropped ON saf.saf_globalid = dropped.globalid
 WHERE saf.saftype = 'S'

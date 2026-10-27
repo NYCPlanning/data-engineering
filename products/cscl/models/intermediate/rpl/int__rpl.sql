@@ -16,8 +16,8 @@ WITH lion AS (
     ORDER BY segmentid, (source_table = 'centerline') DESC
 ),
 
--- Prod drops a row whose roadbed segment matches no centerline (CSCL-LOG-RPL-05, logged in
--- log__rpl_missing_roadbed under the same conditions).
+-- Prod drops a row whose generic or roadbed segment matches no centerline
+-- (CSCL-LOG-RPL-06, -05, logged in log__rpl_missing_roadbed under the same conditions).
 centerline AS (
     SELECT DISTINCT segmentid
     FROM {{ source("recipe_sources", "dcp_cscl_centerline") }}
@@ -27,16 +27,15 @@ centerline AS (
 cscl_rpl AS (
     SELECT rpl.*
     FROM {{ source("recipe_sources", "dcp_cscl_roadbed_pointer_list") }} AS rpl
-    WHERE NOT (
+    WHERE
         EXISTS (
             SELECT 1 FROM centerline
             WHERE centerline.segmentid = rpl.generic_segmentid
         )
-        AND NOT EXISTS (
+        AND EXISTS (
             SELECT 1 FROM centerline
             WHERE centerline.segmentid = rpl.roadbed_segmentid
         )
-    )
 ),
 
 generic_attributes AS (

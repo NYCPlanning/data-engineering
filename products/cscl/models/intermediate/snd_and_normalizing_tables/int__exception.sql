@@ -21,6 +21,7 @@ FROM feature_names
 LEFT JOIN words ON feature_names.lookup_key LIKE '% ' || words.word --TODO recursive?
 WHERE
     feature_names.exception_flag = 'Y'
-    AND feature_names.enders_flag = 'N'
+    -- prod's query reads ENDERS_FLAG 'N' or NULL (none of the latter on 26c)
+    AND (feature_names.enders_flag = 'N' OR feature_names.enders_flag IS NULL)
     -- Prod (ExceptionExtractClass) skips names shorter than 2 characters, e.g. 'E'
     AND length(trim(feature_names.place_name_sort_order)) > 1

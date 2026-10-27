@@ -61,10 +61,13 @@ class Injection:
     # string in its message (ThinLION lookups carry no key)
     log_match_column: str
     log_match_value: str
-    # 'lion', 'saf', 'snd', 'enders' or 'rpl': the output the record must be missing from
-    # (dropped messages)
+    # the output the record must be missing from (dropped messages): 'lion' (int__lion),
+    # 'saf' (SAF files), 'lion_saf' (the record's LION SAF replicant), 'gdb_lion' (the LION
+    # gdb rows of the record's segment), 'snd', 'enders' or 'rpl'
     dropped_from: str | None = None
     dropped_globalid: str | None = None
+    # per-id dropped_from, where an id drops the record from another output
+    dropped_from_by_id: dict[str, str] = field(default_factory=dict)
     # ids the edit can fire on the same record, depending on its surroundings: not
     # required, but their rows don't count against precision
     may_log_ids: list[str] = field(default_factory=list)
@@ -93,6 +96,7 @@ class Mutation:
     key_column: str = "globalid"
     log_match_column: str = "globalid"
     dropped_from: str | None = None
+    dropped_from_by_id: dict[str, str] = field(default_factory=dict)
     may_log_ids: list[str] = field(default_factory=list)
     # log id -> f(candidate) giving a string its message contains
     message_matches: dict = field(default_factory=dict)
@@ -127,6 +131,7 @@ class Mutation:
             log_match_value=str(cand["log_key"]),
             dropped_from=self.dropped_from,
             dropped_globalid=cand.get("dropped_globalid"),
+            dropped_from_by_id=self.dropped_from_by_id,
             may_log_ids=self.may_log_ids,
             message_matches={i: f(cand) for i, f in self.message_matches.items()},
         )
@@ -958,6 +963,8 @@ MUTATIONS: list[Mutation] = [
                 ] AS edits
             FROM ap ORDER BY globalid
         """,
+        dropped_from="saf",
+        dropped_from_by_id={"CSCL-LOG-BYTES-02": "lion_saf"},
     ),
     Edits(
         name="saf_s_other_borough_no_proto",
@@ -968,13 +975,14 @@ MUTATIONS: list[Mutation] = [
         + _S_POINTS
         + """
             SELECT p.globalid AS key, [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR] AS claims,
-                p.globalid AS log_key, p.b7sc_actual AS old,
+                p.globalid AS log_key, p.globalid AS dropped_globalid, p.b7sc_actual AS old,
                 [struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := donor.b7sc)] AS edits
             FROM s_points AS p
             INNER JOIN donor ON donor.boro = (p.segment_borough::INT % 5 + 1)::VARCHAR
             WHERE p.first_alt_type IS NULL
             ORDER BY p.globalid
         """,
+        dropped_from="saf",
     ),
     Edits(
         name="saf_s_other_borough_proto_not_b",
@@ -985,13 +993,14 @@ MUTATIONS: list[Mutation] = [
         + _S_POINTS
         + """
             SELECT p.globalid AS key, [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR] AS claims,
-                p.globalid AS log_key, p.b7sc_actual AS old,
+                p.globalid AS log_key, p.globalid AS dropped_globalid, p.b7sc_actual AS old,
                 [struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := donor.b7sc)] AS edits
             FROM s_points AS p
             INNER JOIN donor ON donor.boro = (p.segment_borough::INT % 5 + 1)::VARCHAR
             WHERE p.first_alt_type <> 'B'
             ORDER BY p.globalid
         """,
+        dropped_from="saf",
     ),
     Edits(
         # move the point onto a boundary segment and name it from the proto, but in
@@ -1007,7 +1016,7 @@ MUTATIONS: list[Mutation] = [
         + """
             SELECT p.globalid AS key,
                 [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR, b.segmentid::VARCHAR] AS claims,
-                p.globalid AS log_key, p.segmentid AS old,
+                p.globalid AS log_key, p.globalid AS dropped_globalid, p.segmentid AS old,
                 [
                     struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'segmentid', v := b.segmentid::VARCHAR),
                     struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := b.b5sc || b.lgc1),
@@ -1017,6 +1026,7 @@ MUTATIONS: list[Mutation] = [
             INNER JOIN b_proto AS b ON p.rn = b.rn
             ORDER BY p.globalid
         """,
+        dropped_from="saf",
     ),
     Edits(
         name="saf_s_proto_wrong_b7sc",
@@ -1030,7 +1040,7 @@ MUTATIONS: list[Mutation] = [
         + """
             SELECT p.globalid AS key,
                 [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR, b.segmentid::VARCHAR] AS claims,
-                p.globalid AS log_key, p.segmentid AS old,
+                p.globalid AS log_key, p.globalid AS dropped_globalid, p.segmentid AS old,
                 [
                     struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'segmentid', v := b.segmentid::VARCHAR),
                     struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := b.b5sc || 'ZZ'),
@@ -1040,6 +1050,8 @@ MUTATIONS: list[Mutation] = [
             INNER JOIN b_proto AS b ON p.rn = b.rn
             ORDER BY p.globalid
         """,
+        dropped_from="saf",
+        dropped_from_by_id={"CSCL-LOG-BYTES-02": "lion_saf"},
     ),
     Mutation(
         # an Edgewater Park style (SND feature type E) address whose suffix carries no
@@ -1051,7 +1063,7 @@ MUTATIONS: list[Mutation] = [
         new_value="Q",
         candidates_sql="""
             SELECT ap.globalid AS key, [ap.globalid, ap.addresspointid::VARCHAR, ap.segmentid::VARCHAR] AS claims,
-                ap.globalid AS log_key, ap.house_number_suffix AS old
+                ap.globalid AS log_key, ap.globalid AS dropped_globalid, ap.house_number_suffix AS old
             FROM {s}.dcp_cscl_addresspoints AS ap
             INNER JOIN {s}.dcp_cscl_streetname AS sn
                 ON ap.b7sc_actual = sn.b7sc AND sn.principal_flag = 'Y'
@@ -1060,6 +1072,7 @@ MUTATIONS: list[Mutation] = [
                 AND LOWER(RIGHT(TRIM(ap.house_number), 1)) NOT IN ('a', 'b', 'c', 'd', 'e')
             ORDER BY ap.globalid
         """,
+        dropped_from="saf",
     ),
     Mutation(
         name="saf_v_orphan_segmentid",
@@ -1116,12 +1129,14 @@ MUTATIONS: list[Mutation] = [
         new_value=lambda cand, n: f"{cand['old'][0]}99{n % 1000:03d}",
         candidates_sql="""
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
-                globalid AS log_key, b5sc AS old
+                globalid AS log_key, globalid AS dropped_globalid, b5sc AS old
             FROM {s}.dcp_cscl_altsegmentdata
             WHERE alt_segdata_type = 'S' AND saftype IN ('D', 'F') AND LENGTH(b5sc) = 6
                 AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
             ORDER BY globalid
         """,
+        dropped_from="saf",
+        dropped_from_by_id={"CSCL-LOG-BYTES-02": "lion_saf"},
     ),
     Mutation(
         name="saf_abcep_unnamed_lgc",
@@ -1131,12 +1146,14 @@ MUTATIONS: list[Mutation] = [
         new_value="ZZ",
         candidates_sql="""
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
-                globalid AS log_key, lgc1 AS old
+                globalid AS log_key, globalid AS dropped_globalid, lgc1 AS old
             FROM {s}.dcp_cscl_altsegmentdata
             WHERE alt_segdata_type = 'S' AND saftype IN ('B', 'E', 'P') AND LENGTH(b5sc) = 6
                 AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
             ORDER BY globalid
         """,
+        dropped_from="saf",
+        dropped_from_by_id={"CSCL-LOG-BYTES-02": "lion_saf"},
     ),
     Mutation(
         # a place on a boundary segment, in neither the centerline's nor the proto's borough
@@ -1149,7 +1166,7 @@ MUTATIONS: list[Mutation] = [
         + _COMMONPLACE_OK
         + """
             SELECT p.globalid AS key, [p.globalid, p.placeid::VARCHAR] AS claims,
-                p.globalid AS log_key, p.boroughcode AS old,
+                p.globalid AS log_key, p.globalid AS dropped_globalid, p.boroughcode AS old,
                 (SELECT MIN(b) FROM (VALUES ('1'), ('2'), ('3'), ('4'), ('5')) AS t(b)
                     WHERE b <> TRIM(f.cl_borough) AND b <> f.proto_borough) AS new_borough
             FROM places AS p
@@ -1157,6 +1174,7 @@ MUTATIONS: list[Mutation] = [
             WHERE f.proto_type = 'B'
             ORDER BY p.globalid
         """,
+        dropped_from="saf",
     ),
     Mutation(
         # move a place onto a segment whose first proto is a type C
@@ -1177,10 +1195,11 @@ MUTATIONS: list[Mutation] = [
                 WHERE segmentid NOT IN (SELECT segmentid FROM first_proto)
             )
             SELECT m.globalid AS key, [m.globalid, m.placeid::VARCHAR, t.segmentid::VARCHAR] AS claims,
-                m.globalid AS log_key, m.segmentid AS old, t.segmentid AS target
+                m.globalid AS log_key, m.globalid AS dropped_globalid, m.segmentid AS old, t.segmentid AS target
             FROM movable AS m INNER JOIN targets AS t ON m.rn = t.rn
             ORDER BY m.globalid
         """,
+        dropped_from="saf",
     ),
     # FeatureName rows in SND, Enders and the Exception file (each extract's own query)
     Mutation(
@@ -1190,13 +1209,14 @@ MUTATIONS: list[Mutation] = [
         column="lookup_key",
         new_value="",
         candidates_sql="""
-            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key, globalid AS dropped_globalid,
                 lookup_key AS old
             FROM {s}.dcp_cscl_featurename
             WHERE principal_flag <> 'Y' AND lookup_key IS NOT NULL AND b10sc IS NOT NULL
                 AND enders_flag IS DISTINCT FROM 'Y' AND exception_flag IS DISTINCT FROM 'Y'
             ORDER BY globalid
         """,
+        dropped_from="snd",
     ),
     Mutation(
         name="featurename_enders_null_lookup_key",
@@ -1205,11 +1225,12 @@ MUTATIONS: list[Mutation] = [
         column="lookup_key",
         new_value=None,
         candidates_sql="""
-            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key, globalid AS dropped_globalid,
                 lookup_key AS old
             FROM {s}.dcp_cscl_featurename
             WHERE enders_flag = 'Y' AND principal_flag <> 'Y' ORDER BY globalid
         """,
+        dropped_from="enders",
     ),
     Mutation(
         name="featurename_exception_null_lookup_key",
@@ -1313,7 +1334,7 @@ MUTATIONS: list[Mutation] = [
         candidates_sql="""
             SELECT globalid AS key,
                 [globalid, roadbed_segmentid::VARCHAR, generic_segmentid::VARCHAR] AS claims,
-                globalid AS log_key, generic_segmentid AS old
+                globalid AS log_key, globalid AS dropped_globalid, generic_segmentid AS old
             FROM {s}.dcp_cscl_roadbed_pointer_list
             WHERE roadbed_segmentid NOT IN (
                     SELECT segmentid FROM {s}.dcp_cscl_addresspoints WHERE segmentid IS NOT NULL
@@ -1322,6 +1343,7 @@ MUTATIONS: list[Mutation] = [
                 )
             ORDER BY globalid
         """,
+        dropped_from="rpl",
     ),
     Mutation(
         # LION replicant of an O entry with no street code
@@ -1332,12 +1354,13 @@ MUTATIONS: list[Mutation] = [
         new_value="",
         candidates_sql="""
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
-                globalid AS log_key, b5sc AS old
+                globalid AS log_key, globalid AS dropped_globalid, b5sc AS old
             FROM {s}.dcp_cscl_altsegmentdata
             WHERE alt_segdata_type = 'S' AND saftype = 'O'
                 AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
             ORDER BY globalid
         """,
+        dropped_from="lion_saf",
     ),
     Mutation(
         # the street of one centerline loses its name (not its face code); the street
@@ -1354,7 +1377,7 @@ MUTATIONS: list[Mutation] = [
                 SELECT b7sc, COUNT(*) AS n FROM {s}.dcp_cscl_segment_lgc GROUP BY b7sc
             )
             SELECT sn.globalid AS key, [sn.globalid, sn.b7sc, cl.globalid, cl.segmentid::VARCHAR] AS claims,
-                cl.globalid AS log_key, sn.lookup_key AS old
+                cl.globalid AS log_key, cl.globalid AS dropped_globalid, sn.lookup_key AS old
             FROM {s}.dcp_cscl_streetname AS sn
             INNER JOIN single_principal USING (b7sc)
             INNER JOIN pref USING (b7sc)
@@ -1366,6 +1389,7 @@ MUTATIONS: list[Mutation] = [
                 AND cl.segmentid NOT IN (SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
             ORDER BY sn.globalid
         """,
+        dropped_from="gdb_lion",
     ),
 ]
 
@@ -1445,7 +1469,7 @@ def write_manifest(
             inj.new_value,
             "message" if log_id in inj.message_matches else inj.log_match_column,
             inj.message_matches.get(log_id, inj.log_match_value),
-            inj.dropped_from,
+            inj.dropped_from_by_id.get(log_id, inj.dropped_from),
             inj.dropped_globalid,
             required,
         )

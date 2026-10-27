@@ -34,19 +34,39 @@ center_calculated AS (
         END AS fitted_center
     FROM points
 ),
-center_or_midpoint AS (
-    -- Collinear start, middle and end points have no circle: prod falls back to the
-    -- segment midpoint and logs CSCL-LOG-LION-08.
+fit_checked AS (
     SELECT
         *,
-        curve_flag IN ('L', 'R') AND fitted_center IS NULL AS center_is_midpoint,
-        CASE
-            WHEN curve_flag IN ('L', 'R') THEN coalesce(fitted_center, midpoint)
-        END AS center_of_curvature
+        curve_flag IN ('L', 'R') AND fitted_center IS NULL AS no_center_found,
+        -- prod writes the rounded center into 7-character fields: a longer one (a center
+        -- 10,000,000 ft or more east or north, 1,000,000 ft or more west or south of the
+        -- origin, from a nearly straight arc) is invalid
+        fitted_center IS NOT NULL
+        AND (
+            NOT isfinite(st_x(fitted_center))
+            OR NOT isfinite(st_y(fitted_center))
+            OR round_even(st_x(fitted_center), 0) NOT BETWEEN -999999 AND 9999999
+            OR round_even(st_y(fitted_center), 0) NOT BETWEEN -999999 AND 9999999
+        ) AS center_out_of_range
     FROM center_calculated
+),
+center_or_midpoint AS (
+    -- With no circle (collinear start, middle and end points, CSCL-LOG-LION-08) or an
+    -- invalid center (CSCL-LOG-LION-07), prod falls back to the segment midpoint.
+    SELECT
+        *,
+        CASE
+            WHEN curve_flag IN ('L', 'R')
+                THEN CASE WHEN no_center_found OR center_out_of_range THEN midpoint ELSE fitted_center END
+        END AS center_of_curvature
+    FROM fit_checked
 )
 SELECT
     * EXCLUDE (fitted_center),
+    -- the fitted circle, for CSCL-LOG-LION-07's message
+    st_x(fitted_center) AS fitted_center_x,
+    st_y(fitted_center) AS fitted_center_y,
+    st_z(fitted_center) AS fitted_radius,
     st_x(center_of_curvature) AS center_of_curvature_x,
     st_y(center_of_curvature) AS center_of_curvature_y,
     -- Prod's radius is the distance from the rounded (integer-foot) center to the

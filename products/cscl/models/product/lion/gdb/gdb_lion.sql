@@ -106,6 +106,13 @@ segment_row_counts AS (
     GROUP BY per_record.segmentid
 ),
 
+-- legacy writes no record of a feature whose Street is blank, SAF replicants included
+-- (CSCL-LOG-BYTES-03, log__gdb_lion_name_missing), but still counts it in SegCount
+written_lion AS (
+    SELECT * FROM lion
+    WHERE trim(coalesce(street, '')) <> ''
+),
+
 base_rows AS (
     SELECT
         street AS "Street",
@@ -294,7 +301,7 @@ base_rows AS (
         truck_route_type AS "TRUCK_ROUTE_TYPE",
         st_length(geom)::float AS "SHAPE_Length",
         geom
-    FROM lion
+    FROM written_lion AS lion
     INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
     CROSS JOIN
         LATERAL generate_series(
@@ -479,7 +486,7 @@ replicant_rows AS (
         lion.truck_route_type AS "TRUCK_ROUTE_TYPE",
         st_length(lion.geom)::float AS "SHAPE_Length",
         lion.geom
-    FROM lion
+    FROM written_lion AS lion
     -- skip a SAF record legacy doesn't write (still counted in SegCount above)
     INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey AND saf_replicants.is_written
     INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid

@@ -5,7 +5,8 @@
 --     or FeatureName table (SetSAFStreetNameAndCode, :4970-5215), so SAFStreetName is blank.
 --   BYTES-03: a feature whose Street is blank (its B7SC has no principal name). Logged once
 --     per feature; prod logs it again for each of the feature's SAF replicants.
--- gdb_lion writes all of them except G/N/X CommonPlace replicants with no name. Prod names
+-- gdb_lion and gdb_altnames leave all of them out (int__saf_replicant_fields.is_written for
+-- the replicants). Prod names
 -- the replicated feature by its OBJECTID; we log the SAF record's GlobalID and the
 -- replicant's LIONKEY, or the feature's GlobalID and SEGMENTID.
 WITH lion AS (

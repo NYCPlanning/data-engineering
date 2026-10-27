@@ -6,7 +6,7 @@
 --     3 places are left out of SAF regardless.
 --   SAF-20: A/B/E/P AltSegmentData rows on a centerline whose B5SC + LGC1 has no name
 --     (SAFExtractClass.cs:1462-1495; type C rows are always named 75 STREET). int__saf_abcep
---     keeps them with a blank name.
+--     drops them.
 WITH saf AS (
     SELECT DISTINCT saf_globalid
     FROM {{ ref('int__saf_segments') }}

@@ -39,7 +39,9 @@ WITH lion AS (
         lgc4,
         {{ lion_join_id() }} AS join_id
     FROM {{ ref('int__lion') }}
-    WHERE include_in_bytes_lion
+    -- legacy adds AltNames only for the records it writes: none for a feature with a blank
+    -- Street (CSCL-LOG-BYTES-03)
+    WHERE include_in_bytes_lion AND trim(coalesce(street, '')) <> ''
 ),
 
 -- One row per LION output record: base segments, plus the SAF replicants exactly as
