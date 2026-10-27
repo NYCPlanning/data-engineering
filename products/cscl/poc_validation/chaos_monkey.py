@@ -9,20 +9,31 @@ qa__chaos_summary then check recall (every injected record logged under each exp
 precision (no new log rows beyond the injected records) and effect (records the message
 says are dropped really are gone).
 
-Run on a throwaway copy of an inputs-loaded DuckDB (DUCKDB_PATH, BUILD_ENGINE_SCHEMA):
+The fast loop builds a baseline once and rebuilds only what each chaos run touches:
 
-    dbt seed && dbt run                    # optional baseline: lets precision ignore old rows
-    python poc_validation/chaos_monkey.py --seed 1
-    dbt run
-    python poc_validation/chaos_monkey.py --report
+    # once, on a copy of an inputs-loaded DuckDB: dbt seed + dbt run, and keeps the dbt
+    # manifest next to it (<path>.state/) for comparing later code against
+    DUCKDB_PATH=built.duckdb python poc_validation/chaos_monkey.py --build-baseline
+    # each run: copy the baseline, catch up models changed since it was built, inject,
+    # rebuild what reads the edited tables, print qa__chaos_summary
+    python poc_validation/chaos_monkey.py --run --baseline built.duckdb --seed 1
+
+Without --run, the script injects into DUCKDB_PATH and prints the dbt command that
+rebuilds what the injections touch; --report prints qa__chaos_summary.
 
 Mutations for planned ids are expected to fail recall until their log model lands.
 """
 
 import argparse
+import json
 import os
 import random
+import shutil
+import subprocess
+import time
 from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
 
 import duckdb
 
@@ -30,6 +41,13 @@ MANIFEST = "chaos_injections"
 BASELINE_LOG = "chaos_baseline_log"
 # segment ids no source table uses
 FAKE_SEGMENTID_BASE = 990_000_000
+
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+SOURCE = "recipe_sources"
+# the layers a chaos run rebuilds; the comparison QA layers (qa_int, etl_dev_qa) only
+# matter to the chaos QA models, which are selected on their own
+BUILD_LAYERS = ("staging", "intermediate", "product", "log_files")
+CHAOS_MODELS = ("qa__chaos_injections", "qa__chaos_summary")
 
 
 @dataclass
@@ -1491,6 +1509,92 @@ def report(conn: duckdb.DuckDBPyConnection, schema: str) -> None:
         print("\t".join("" if v is None else str(v) for v in r))
 
 
+def downstream(selectors: list[str]) -> list[str]:
+    """dbt --select terms for the build-layer models at or downstream of `selectors`."""
+    return [
+        f"{sel}+,path:models/{layer}" for sel in selectors for layer in BUILD_LAYERS
+    ]
+
+
+def rebuild_selection(tables: set[str]) -> list[str]:
+    """What a chaos run needs rebuilt after editing `tables`: everything that reads them,
+    plus the chaos QA models."""
+    return downstream([f"source:{SOURCE}.{t}" for t in sorted(tables)]) + list(
+        CHAOS_MODELS
+    )
+
+
+def state_dir(db_path: Path) -> Path:
+    """Where a baseline keeps the manifest of the code it was built from."""
+    return db_path.with_name(db_path.name + ".state")
+
+
+def dbt(args: list[str], db_path: Path) -> None:
+    env = {**os.environ, "DUCKDB_PATH": str(db_path)}
+    print(f"$ dbt {' '.join(args)}", flush=True)
+    start = time.monotonic()
+    subprocess.run(["dbt", *args], cwd=PROJECT_DIR, env=env, check=True)
+    print(f"  ({time.monotonic() - start:.0f}s)", flush=True)
+
+
+def git_commit() -> str:
+    def git(*args: str) -> str:
+        return subprocess.run(
+            ["git", *args], cwd=PROJECT_DIR, capture_output=True, text=True, check=True
+        ).stdout.strip()
+
+    dirty = git("status", "--porcelain", "--", ".")
+    return git("rev-parse", "HEAD") + (" (uncommitted changes)" if dirty else "")
+
+
+def build_baseline(db_path: Path) -> None:
+    """Full dbt seed + run on an inputs-loaded DuckDB, keeping the manifest to compare
+    later code against."""
+    dbt(["seed", "-q"], db_path)
+    dbt(["run", "-q", "--selector", "duckdb_build"], db_path)
+    state = state_dir(db_path)
+    state.mkdir(exist_ok=True)
+    shutil.copy(PROJECT_DIR / "target" / "manifest.json", state / "manifest.json")
+    (state / "baseline.json").write_text(
+        json.dumps({"commit": git_commit(), "built_at": datetime.now().isoformat()})
+    )
+    print(f"baseline {db_path}, code state in {state}")
+
+
+def chaos_run(
+    baseline: Path,
+    work: Path,
+    seed: int,
+    max_per_check: int,
+    ids: set[str] | None,
+    schema: str,
+) -> None:
+    """Copy the baseline, catch up changed code, inject, rebuild what the edits touch, report."""
+    state = state_dir(baseline)
+    if not (state / "manifest.json").exists():
+        raise SystemExit(f"no {state}/manifest.json: build it with --build-baseline")
+    built = json.loads((state / "baseline.json").read_text())
+    print(f"baseline built {built['built_at']} from {built['commit']}")
+    shutil.copy(baseline, work)
+    # models (and seeds) that differ from the baseline's code: rebuilt before injecting, so
+    # the precision snapshot of the log is the current code's. This is also how a fail run
+    # on main's models works off a baseline built from a branch.
+    state_args = ["--state", str(state)]
+    dbt(["seed", "-q", "-s", "state:modified", *state_args], work)
+    dbt(["run", "-q", "-s", *downstream(["state:modified"]), *state_args], work)
+
+    conn = duckdb.connect(str(work))
+    conn.execute("LOAD spatial")
+    injections = inject(conn, schema, seed, max_per_check, ids)
+    conn.close()
+    print(f"{len(injections)} injections")
+    tables = {inj.table_name for inj in injections}
+    dbt(["run", "-q", "-s", *rebuild_selection(tables)], work)
+
+    conn = duckdb.connect(str(work), read_only=True)
+    report(conn, schema)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Break loaded CSCL inputs so log.csv should catch each one."
@@ -1501,15 +1605,46 @@ def main() -> None:
     )
     parser.add_argument("--ids", help="comma-separated log_message_ids to restrict to")
     parser.add_argument("--report", action="store_true", help="print qa__chaos_summary")
+    parser.add_argument(
+        "--build-baseline",
+        action="store_true",
+        help="dbt seed + run on DUCKDB_PATH and keep its manifest, for --run",
+    )
+    parser.add_argument(
+        "--run",
+        action="store_true",
+        help="copy --baseline, inject, rebuild what the injections touch, report",
+    )
+    parser.add_argument(
+        "--baseline", type=Path, help="a DuckDB built by --build-baseline"
+    )
+    parser.add_argument(
+        "--work",
+        type=Path,
+        help="where --run copies the baseline to (default: <baseline>.chaos.duckdb)",
+    )
     args = parser.parse_args()
 
     schema = os.environ["BUILD_ENGINE_SCHEMA"]
+    ids = set(args.ids.split(",")) if args.ids else None
+    if args.build_baseline:
+        build_baseline(Path(os.environ["DUCKDB_PATH"]).resolve())
+        return
+    if args.run:
+        if not args.baseline:
+            parser.error("--run needs --baseline")
+        baseline = args.baseline.resolve()
+        work = (args.work or baseline.with_suffix(".chaos.duckdb")).resolve()
+        if work == baseline:
+            parser.error("--work must differ from --baseline")
+        chaos_run(baseline, work, args.seed, args.max_per_check, ids, schema)
+        return
+
     conn = duckdb.connect(os.environ["DUCKDB_PATH"])
     conn.execute("LOAD spatial")
     if args.report:
         report(conn, schema)
         return
-    ids = set(args.ids.split(",")) if args.ids else None
     injections = inject(conn, schema, args.seed, args.max_per_check, ids)
     for inj in injections:
         print(
@@ -1517,6 +1652,9 @@ def main() -> None:
             f"{inj.key_column}={inj.key_value}\t{inj.old_value!r} -> {inj.new_value!r}"
         )
     print(f"{len(injections)} injections written to {schema}.{MANIFEST}")
+    tables = {inj.table_name for inj in injections}
+    print("rebuild what they touch:")
+    print(f"dbt run -s {' '.join(rebuild_selection(tables))}")
 
 
 if __name__ == "__main__":

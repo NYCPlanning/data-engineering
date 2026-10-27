@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import duckdb
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "poc_validation"))
 
@@ -93,3 +94,20 @@ def test_inject_writes_manifest_and_edits_records():
         "from s.chaos_injections order by log_match_value"
     ).fetchall() == [("CSCL-LOG-LION-23", g, str(old[g]), "7") for g in sorted(picked)]
     assert conn.execute("select count(*) from s.chaos_baseline_log").fetchone() == (1,)
+
+
+def test_rebuild_selection_covers_edited_tables_and_chaos_models():
+    sel = cm.rebuild_selection({"dcp_cscl_nodes", "dcp_cscl_centerline"})
+    assert "source:recipe_sources.dcp_cscl_centerline+,path:models/log_files" in sel
+    assert "source:recipe_sources.dcp_cscl_nodes+,path:models/product" in sel
+    assert not any("qa_int" in s or "etl_dev_qa" in s for s in sel)
+    assert sel[-2:] == ["qa__chaos_injections", "qa__chaos_summary"]
+
+
+def test_every_mutation_edits_a_declared_source():
+    sources_yml = Path(__file__).parent.parent / "models" / "sources.yml"
+    sources = yaml.safe_load(sources_yml.read_text())["sources"]
+    (source,) = [s for s in sources if s["name"] == cm.SOURCE]
+    tables = {t["name"] for t in source["tables"]}
+    for m in cm.MUTATIONS:
+        assert m.table in tables, m.name
