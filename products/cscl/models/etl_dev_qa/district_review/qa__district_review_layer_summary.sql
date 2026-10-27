@@ -13,6 +13,7 @@ SELECT
     count(*) FILTER (WHERE class = 'major')::INTEGER AS n_major,
     count(*) FILTER (WHERE class = 'new_only')::INTEGER AS n_new_only,
     count(*) FILTER (WHERE class = 'prior_only')::INTEGER AS n_prior_only,
+    count(*) FILTER (WHERE class = 'duplicate_key')::INTEGER AS n_duplicate_key,
     coalesce(sum(symdiff_area), 0) AS symdiff_area,
     max(symdiff_area_pct) AS max_symdiff_area_pct,
     arg_max(district_key, symdiff_area_pct) AS max_symdiff_area_pct_district,

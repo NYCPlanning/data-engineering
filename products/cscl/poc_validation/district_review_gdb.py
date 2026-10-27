@@ -37,6 +37,8 @@ from dcpy.utils.logging import logger
 CRS = "EPSG:2263"
 LION_OUTPUTS_SEED_PATH = Path("seeds/lion_outputs.csv")
 METRIC_COLUMNS = [
+    "n_features_new",
+    "n_features_prior",
     "area_new",
     "area_prior",
     "area_delta",

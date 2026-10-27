@@ -1,7 +1,8 @@
 {{ config(materialized='table', tags=['qa']) }}
 
--- Every district that isn't identical to prod's, worst first: one-sided districts, then
--- by symdiff_area_pct. The district review FGDB's summary table.
+-- Every district that isn't identical to prod's, worst first: one-sided and
+-- duplicate_key districts (no symdiff_area_pct), then by symdiff_area_pct. The district
+-- review FGDB's summary table.
 
 SELECT
     row_number() OVER (

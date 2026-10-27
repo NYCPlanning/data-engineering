@@ -449,12 +449,13 @@ QA** page reads it, including the per-file diff rows.
   the model, whichever is wrong.
 - **`district_review.gdb.zip`**: every district layer next to prod's, for review by another
   team. For each layer `<L>` there's `<L>_new` (ours, with metrics and `class`: `identical`,
-  `grid_noise`, `minor`, `major`, `new_only`, `prior_only`), `<L>_prior` (prod's, for the
-  non-identical ones), `<L>_diff` (the symmetric-difference pieces above grid noise), plus
-  the `summary` and `summary_by_layer` tables. The 26c baseline had 56 major and 29 minor out
-  of ~243k districts (26c, 2026-10-21). Caveat: when prod has duplicate keys, the review unions them and
-  reports a phantom discrepancy (nyct2010wi 4990100 read 80.7%: three water tracts share
-  that key). Check `major` rows for duplicate keys in prod before reporting them.
+  `grid_noise`, `minor`, `major`, `new_only`, `prior_only`, `duplicate_key`), `<L>_prior`
+  (prod's, for the non-identical ones), `<L>_diff` (the symmetric-difference pieces above
+  grid noise), plus the `summary` and `summary_by_layer` tables. The 26c baseline had 55
+  major, 29 minor and 1 duplicate_key out of ~243k districts (26c, 2026-10-27).
+  `duplicate_key`: the key is on a different number of features on each side
+  (`n_features_new`, `n_features_prior`), so the review doesn't compare them (nyct2010wi
+  4990100: prod has three water tracts on that key, we have one).
 - **Known differences**: [`seeds/known_differences.csv`](./seeds/known_differences.csv) is
   the record of accepted and open diffs vs prod (stable IDs like `CSCL-LION-04`), cited by
   the `qa__diffs_*` models that account for them. After a release, update `last_verified`
