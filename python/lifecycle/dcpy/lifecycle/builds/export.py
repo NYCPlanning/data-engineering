@@ -16,6 +16,10 @@ from dcpy.geospatial.gdb.write import (
     layer_geometry_type,
     write_gdb_from_parquet,
 )
+from dcpy.geospatial.shapefile_write import (
+    fgdb_field_names,
+    write_shapefile_from_parquet,
+)
 from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
@@ -614,13 +618,103 @@ def _gdb_layer_documentation(exports: BuildExports) -> dict[tuple[str, str], str
     return documentation
 
 
+# dataset_files subfolder for shapefiles written from gdb layers (custom.product_metadata.shapefile)
+SHAPEFILE_GROUP = "shapefiles"
+
+
+def _layer_shapefile_specs(exports: BuildExports) -> dict[tuple[str, str], dict]:
+    """The product-metadata spec of each gdb layer that also ships as a shapefile
+    (custom.product_metadata.shapefile: the dataset's shapefile file id), keyed by
+    (filename, layer)."""
+    return {
+        (str(ds.output_path), ds.layer_name): (ds.custom or {})["product_metadata"]
+        for ds in exports.datasets
+        if ds.format == ExportFormat.gdb
+        and ((ds.custom or {}).get("product_metadata") or {}).get("shapefile")
+    }
+
+
+def _write_layer_shapefile(
+    parquet: Path, layer: str, spec: dict, dataset_files: Path, version: str, org_md
+) -> Path:
+    """Write a gdb layer's parquet as the shapefile its product-metadata dataset ships
+    (file ``spec["shapefile"]``): named by that file's filename, under
+    dataset_files/shapefiles/, as <stem>_<version>/<stem>.shp + .shp.xml in the zip.
+
+    Field names are the layer's own, cut to 10 characters as ArcGIS exports an FGDB
+    layer (``fgdb_field_names``), not the shapefile file's column ``name``s: those are
+    also its Socrata display names (lowercased, or longer than a shapefile allows).
+    Columns the shapefile file omits (matched by id through the gdb layer's metadata)
+    are dropped. The .shp.xml is the shapefile file's metadata, with its attrs named
+    and ordered as the fields written."""
+    import pyarrow.parquet as pq
+
+    ds_md = org_md.product(spec["product"]).dataset(spec["dataset"])
+    shp_file_id = spec["shapefile"]
+    filename = ds_md.get_file_and_overrides(shp_file_id).file.filename
+    stem = filename.removesuffix(".zip")
+    layer_ids = {
+        c.name.lower(): c.id
+        for c in ds_md.calculate_layer_dataset_metadata(
+            file_id=spec["file_id"], layer=layer
+        ).columns
+    }
+    shp_md = ds_md.calculate_file_dataset_metadata(file_id=shp_file_id)
+    shp_columns = {c.id: c for c in shp_md.columns}
+
+    parquet_file = pq.ParquetFile(str(parquet))
+    geo = (parquet_file.metadata.metadata or {})[b"geo"]
+    geom_col = json.loads(geo)["primary_column"]
+    columns = [f.name for f in parquet_file.schema_arrow if f.name != geom_col]
+    field_names: dict[str, str] = {}
+    md_columns = []
+    for column, field_name in fgdb_field_names(columns).items():
+        column_id = layer_ids.get(column.lower())
+        if column_id is None:
+            logger.warning(f"{filename}: field {column} has no product-metadata column")
+        elif column_id not in shp_columns:
+            logger.info(f"{filename}: {column} omitted by product-metadata")
+            continue
+        else:
+            md_name = shp_columns[column_id].name
+            if md_name.lower() != field_name.lower():
+                logger.info(
+                    f"{filename}: field {field_name} (from {column}); "
+                    f"product-metadata names it {md_name}"
+                )
+            md_columns.append(
+                shp_columns[column_id].model_copy(update={"name": field_name})
+            )
+        field_names[column] = field_name
+
+    xml = esri_metadata.metadata_xml(
+        esri_metadata.build_layer_metadata(
+            shp_md.model_copy(update={"columns": md_columns}),
+            f"{stem}.shp",
+            "shp_data_type",
+        )
+    )
+    target = dataset_files / SHAPEFILE_GROUP / filename
+    n = write_shapefile_from_parquet(
+        parquet,
+        target,
+        name=stem,
+        field_names=field_names,
+        zip_folder=f"{stem}_{version.lower()}",
+        metadata_xml=xml,
+    )
+    logger.info(f"Packaged {n} features from layer {layer} into {target.name}")
+    return target
+
+
 def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     """Assemble a `package_from_parquet` export's deliverables in the package dir
     ({DCPY_LIFECYCLE_DATA_DIR}/package/<product>/<version>): copy the build artifacts
     into attachments/, then from the build dir's raw_exports/ (per its manifest) copy
     files, format fixed-width files and fold parquet layers into FGDBs (re-curving those
     exported with arcs, and stamping Esri metadata on those whose entry names a
-    product-metadata dataset), all into dataset_files/. Then run the recipe's packaging
+    product-metadata dataset), all into dataset_files/, plus a shapefile of each layer
+    whose entry names one (custom.product_metadata.shapefile). Then run the recipe's packaging
     commands (stage_config builds.package; they see BUILD_DIR / PACKAGE_DIR / QA_DIR)
     and zip the outputs if the recipe names a zip."""
     recipe = plan.recipe_from_yaml(Path(recipe_lock_path))
@@ -640,6 +734,8 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
     manifest_path = build_folder / LAYERS_DIR / LAYER_MANIFEST
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else []
     documentation = _gdb_layer_documentation(recipe.exports)
+    shapefiles = _layer_shapefile_specs(recipe.exports)
+    org_md = product_metadata.load() if shapefiles else None
     for entry in manifest:
         target = dataset_files / entry["filename"]
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -669,6 +765,18 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
                 ]
                 write_gdb_from_parquet(layers, target)
             logger.info(f"Packaged {len(layers)} layers into {entry['filename']}")
+            for layer in entry["layers"]:
+                spec = shapefiles.get((entry["filename"], layer["name"]))
+                if spec:
+                    # the exported (linear) parquet: shapefiles can't hold curves
+                    _write_layer_shapefile(
+                        build_folder / layer["path"],
+                        layer["name"],
+                        spec,
+                        dataset_files,
+                        recipe.version,
+                        org_md,
+                    )
 
     if build_config.PACKAGE_STAGE_KEY in recipe.stage_config:
         from dcpy.lifecycle.builds.build import run_build_commands

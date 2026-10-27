@@ -867,6 +867,106 @@ exports:
     assert layer_xml("names") == ""
 
 
+def test_package_writes_layer_shapefiles(tmp_path, monkeypatch):
+    """custom.product_metadata.shapefile: `package` also writes the layer as that
+    shapefile file: its filename, the layer's field names cut as ArcGIS cuts them
+    (shape fields last), omitted columns dropped, and its metadata as .shp.xml."""
+    import zipfile
+    from unittest.mock import MagicMock
+
+    import pyogrio
+
+    from dcpy.geospatial.shapefile_metadata import Metadata
+    from dcpy.lifecycle.builds import export as export_module
+    from dcpy.lifecycle.builds.export import package
+    from dcpy.product_metadata.models.metadata.product import (
+        Dataset,
+        DatasetAttributes,
+        DatasetColumn,
+    )
+
+    client = duckdb_utils.DuckDBClient(tmp_path / "t.duckdb", "s")
+    client.conn.execute(
+        "CREATE TABLE s.boundaries AS SELECT 4.0 AS SHAPE_Length, "
+        "2::SMALLINT AS SchoolDist, 'x' AS Internal, 'Bronx' AS BOROUGHNAME_LONG, "
+        "ST_GeomFromText('MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))') AS geom"
+    )
+    lock = tmp_path / "recipe.lock.yml"
+    lock.write_text(
+        f"""
+name: t
+product: t
+version: 26C
+inputs:
+  datasets:
+  - name: src
+    version: v1
+    file_type: csv
+    destination: duckdb
+    source: edm.recipes.datasets
+exports:
+  output_folder: {tmp_path / "output"}
+  package_from_parquet: true
+  crs: EPSG:2263
+  datasets:
+  - name: boundaries
+    filename: things.gdb.zip
+    format: gdb
+    custom:
+      layer: nysd
+      product_metadata: {{ product: p, dataset: d, file_id: things_gdb, shapefile: shp }}
+"""
+    )
+    monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
+    monkeypatch.delenv("BUILD_ENV_OUTPUT_DIR", raising=False)
+    export(lock, duckdb_client=client)
+    client.close()
+
+    attributes = DatasetAttributes(
+        display_name="School Districts", description="d", each_row_is_a="District"
+    )
+    gdb_columns = [
+        DatasetColumn(id="shape_length", name="SHAPE_Length"),
+        DatasetColumn(id="schooldist", name="SchoolDist"),
+        DatasetColumn(id="internal", name="Internal"),
+        DatasetColumn(id="boro", name="BOROUGHNAME_LONG"),
+    ]
+    shp_columns = [
+        # names as Socrata shows them, not the field names
+        DatasetColumn(id="schooldist", name="schooldist", description="District."),
+        DatasetColumn(id="boro", name="boroname"),
+        DatasetColumn(id="shape_length", name="Shape_Length"),
+    ]
+    org_md = MagicMock()
+    dataset_md = org_md.product.return_value.dataset.return_value
+    dataset_md.calculate_layer_dataset_metadata.return_value = Dataset(
+        attributes=attributes, columns=gdb_columns
+    )
+    dataset_md.calculate_file_dataset_metadata.return_value = Dataset(
+        attributes=attributes, columns=shp_columns
+    )
+    dataset_md.get_file_and_overrides.return_value.file.filename = "nysd.zip"
+    monkeypatch.setattr(export_module.product_metadata, "load", lambda: org_md)
+
+    packaged = package(lock)
+
+    dataset_md.calculate_file_dataset_metadata.assert_called_with(file_id="shp")
+    shp_zip = packaged / "dataset_files" / "shapefiles" / "nysd.zip"
+    shp = f"/vsizip/{shp_zip}/nysd_26c/nysd.shp"
+    info = pyogrio.read_info(shp)
+    assert list(info["fields"]) == ["SchoolDist", "BOROUGHNAM", "Shape_Leng"]
+    assert info["features"] == 1
+    assert pyogrio.read_dataframe(shp).crs.to_epsg() == 2263
+    with zipfile.ZipFile(shp_zip) as zf:
+        md = Metadata.from_xml(zf.read("nysd_26c/nysd.shp.xml").decode())
+    assert md.data_id_info.id_citation.res_title == "School Districts"
+    assert [a.attrlabl.value for a in md.eainfo.detailed.attr] == [
+        "SchoolDist",
+        "BOROUGHNAM",
+        "Shape_Leng",
+    ]
+
+
 def test_qa_gdb_metadata_drift(tmp_path, monkeypatch):
     """The QA check compares each stamped layer's metadata attrs with its fields."""
     from unittest.mock import MagicMock
