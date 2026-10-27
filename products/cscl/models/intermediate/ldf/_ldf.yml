@@ -36,9 +36,9 @@ models:
 
 - name: int__ldf_header
   description: >
-    The LDF's single header record. Release IDs and dates come from vars (nothing in the
-    source data identifies them); the cumulative record number is chained from the
-    previous edition's header rather than entered by hand.
+    The LDF's single header record. Release IDs and dates come from the config seed
+    (nothing in the source data identifies them); the cumulative record number is chained
+    from the previous edition's header rather than entered by hand.
   columns:
   - name: record_type
     description: Always 'H'.
@@ -54,7 +54,7 @@ models:
   - name: old_lion_release
     tests: [ not_null ]
   - name: old_lion_release_date
-    description: MMDDYYYY, converted from the ISO date passed in.
+    description: MMDDYYYY, converted from the config seed's ISO date.
     tests: [ not_null ]
   - name: new_lion_release
     tests: [ not_null ]

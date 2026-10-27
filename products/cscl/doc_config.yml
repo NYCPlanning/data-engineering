@@ -160,19 +160,206 @@ items:
       elements:
         - kind: text
           text: >-
-            The district boundary geodatabase bundles about 43 polygon layers
-            (community districts, council districts, census tracts, NTAs, ZIP
-            codes and others), all built from the same atomic polygon topology
-            so the layers share edges. It is published for public use and
-            internal mapping. The build assembles each layer from atomic
-            polygons, clips water where needed, and exports a single file
-            geodatabase. See the [architecture overview](../../docs/architecture.md)
-            for how the pipeline fits together.
+            The district boundary geodatabase holds 43 polygon layers in one file
+            geodatabase: community, city council, state assembly and senate,
+            congressional, election, school, municipal court, health and fire districts,
+            police precincts, census blocks and tracts, NTAs, CDTAs, PUMAs, ZIP codes and
+            others. It is published for public use and internal mapping. Each section
+            below is one layer, named as in the geodatabase. See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
+        - kind: text
+          text: >-
+            Most layers are built from atomic polygons, so neighboring districts, and
+            different layers, share exactly the same edges. A layer whose name ends in
+            "wi" includes water; its counterpart without the suffix, like most other
+            built layers, is clipped to the shoreline. The hurricane evacuation zone layer
+            is not clipped. Police precincts are NYPD's polygons clipped to the same land.
+            Atomic polygons, business improvement districts, historic districts, urban
+            renewal areas and ZIP code areas are CSCL's own polygons, published as stored
+            (made valid where needed) and not clipped.
+        - kind: heading
+          text: Implementation Details
+          level: 4
+        - kind: text
+          text: >-
+            A built layer starts from the atomic polygon edges. An edge between two atomic
+            polygons of the same district is interior to it; every other edge, including
+            every edge between land and water, is exterior. The exterior edges are joined
+            into polygons. Water belongs to no district, so the shoreline comes from the
+            edges themselves rather than from a separate clip. Geometry is written on the
+            source geodatabase's coordinate grid, with arcs restored where CSCL has them.
       known_differences: [District gdb]
     entries:
+      - name: gdb_nyad
+        custom:
+          display_name: nyad
+          table: columns
+      - name: gdb_nyadwi
+        custom:
+          display_name: nyadwi
+          table: columns
+      - name: gdb_nyap
+        custom:
+          display_name: nyap
+          table: columns
+      - name: gdb_nybb
+        custom:
+          display_name: nybb
+          table: columns
+      - name: gdb_nybbwi
+        custom:
+          display_name: nybbwi
+          table: columns
+      - name: gdb_nybid
+        custom:
+          display_name: nybid
+          table: columns
+      - name: gdb_nycb2010
+        custom:
+          display_name: nycb2010
+          table: columns
+      - name: gdb_nycb2010wi
+        custom:
+          display_name: nycb2010wi
+          table: columns
+      - name: gdb_nycb2020
+        custom:
+          display_name: nycb2020
+          table: columns
+      - name: gdb_nycb2020wi
+        custom:
+          display_name: nycb2020wi
+          table: columns
+      - name: gdb_nycc
+        custom:
+          display_name: nycc
+          table: columns
+      - name: gdb_nyccwi
+        custom:
+          display_name: nyccwi
+          table: columns
       - name: gdb_nycd
         custom:
           display_name: nycd
+          table: columns
+      - name: gdb_nycdta2020
+        custom:
+          display_name: nycdta2020
+          table: columns
+      - name: gdb_nycdwi
+        custom:
+          display_name: nycdwi
+          table: columns
+      - name: gdb_nycg
+        custom:
+          display_name: nycg
+          table: columns
+      - name: gdb_nycgwi
+        custom:
+          display_name: nycgwi
+          table: columns
+      - name: gdb_nyct2010
+        custom:
+          display_name: nyct2010
+          table: columns
+      - name: gdb_nyct2010wi
+        custom:
+          display_name: nyct2010wi
+          table: columns
+      - name: gdb_nyct2020
+        custom:
+          display_name: nyct2020
+          table: columns
+      - name: gdb_nyct2020wi
+        custom:
+          display_name: nyct2020wi
+          table: columns
+      - name: gdb_nyed
+        custom:
+          display_name: nyed
+          table: columns
+      - name: gdb_nyedwi
+        custom:
+          display_name: nyedwi
+          table: columns
+      - name: gdb_nyfb
+        custom:
+          display_name: nyfb
+          table: columns
+      - name: gdb_nyfc
+        custom:
+          display_name: nyfc
+          table: columns
+      - name: gdb_nyfd
+        custom:
+          display_name: nyfd
+          table: columns
+      - name: gdb_nyha
+        custom:
+          display_name: nyha
+          table: columns
+      - name: gdb_nyhc
+        custom:
+          display_name: nyhc
+          table: columns
+      - name: gdb_nyhd
+        custom:
+          display_name: nyhd
+          table: columns
+      - name: gdb_nyhez
+        custom:
+          display_name: nyhez
+          table: columns
+      - name: gdb_nymc
+        custom:
+          display_name: nymc
+          table: columns
+      - name: gdb_nymcea
+        custom:
+          display_name: nymcea
+          table: columns
+      - name: gdb_nymcwi
+        custom:
+          display_name: nymcwi
+          table: columns
+      - name: gdb_nynta2010
+        custom:
+          display_name: nynta2010
+          table: columns
+      - name: gdb_nynta2020
+        custom:
+          display_name: nynta2020
+          table: columns
+      - name: gdb_nypp
+        custom:
+          display_name: nypp
+          table: columns
+      - name: gdb_nypuma2010
+        custom:
+          display_name: nypuma2010
+          table: columns
+      - name: gdb_nypuma2020
+        custom:
+          display_name: nypuma2020
+          table: columns
+      - name: gdb_nysd
+        custom:
+          display_name: nysd
+          table: columns
+      - name: gdb_nyss
+        custom:
+          display_name: nyss
+          table: columns
+      - name: gdb_nysswi
+        custom:
+          display_name: nysswi
+          table: columns
+      - name: gdb_nyura
+        custom:
+          display_name: nyura
+          table: columns
+      - name: gdb_nyzip
+        custom:
+          display_name: nyzip
           table: columns
 
   - kind: model_group
@@ -269,4 +456,118 @@ items:
       - name: saf_s_roadbed_by_field
         custom:
           display_name: RoadbedS.txt
+          table: dat_fields
+
+  - kind: model_group
+    title: ThinLION
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            ThinLION is a district equivalency file: one record per atomic polygon, with
+            every district, census and administrative code that applies to it. Geosupport
+            reads it to answer district questions for a location once it knows the atomic
+            polygon. It is written as one fixed-width file per borough, plus a citywide
+            file. See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
+      known_differences: [ThinLION]
+    entries:
+      - name: thinlion_by_field
+        custom:
+          display_name: "{Borough}ThinLION.txt"
+          table: dat_fields
+
+  - kind: model_group
+    title: ThinFire
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            ThinFire is a district equivalency file for fire companies: one record per
+            fire company, with its division, battalion and borough. Geosupport reads it
+            alongside the fire company codes in ThinLION. It is written as one
+            fixed-width file per borough. See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
+      known_differences: [ThinFire]
+    entries:
+      - name: thinfire_by_field
+        custom:
+          display_name: "{Borough}ThinFire.txt"
+          table: dat_fields
+
+  - kind: model_group
+    title: ThinED
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            ThinED is a district equivalency file for election districts: one record per
+            election district, with the assembly, congressional, state senate, municipal
+            court and city council districts it lies in. It is one citywide fixed-width
+            file, preceded by a three-line header holding a file tag, a version and the
+            line count. See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
+      known_differences: [ThinED]
+    entries:
+      - name: thined_by_field
+        custom:
+          display_name: thined.txt
+          table: dat_fields
+
+  - kind: model_group
+    title: NTA and CDTA Files
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            Lookup files for the city's statistical geographies: 2020 neighborhood
+            tabulation areas (NTAs), 2020 community district tabulation areas (CDTAs),
+            and the 2010 census tract to NTA and PUMA equivalency. Each is copied from a
+            CSCL table and written both as fixed-width text and as CSV. The polygons of
+            these geographies are layers of the
+            [district boundary geodatabase](#district-boundary-geodatabase). See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
+      short_title: NTA/CDTA
+    entries:
+      - name: nta2020_by_field
+        custom:
+          display_name: NTA2020.txt and NTA2020.csv
+          table: dat_fields
+      - name: cdta2020_by_field
+        custom:
+          display_name: CDTA2020.txt and CDTA2020.csv
+          table: dat_fields
+      - name: nta2010_by_field
+        custom:
+          display_name: NTA.txt and NTA.csv
+          table: columns
+
+  - kind: model_group
+    title: LION Differences File
+    custom:
+      elements:
+        - kind: text
+          text: >-
+            The LION Differences File (LDF) lists what changed between the previous LION
+            release and this one: nodes added, deleted or moved, and segments, physical
+            segments and generic segments added, deleted, split, merged or renumbered.
+            Users whose own files are keyed to LION geography read it to bring them up to
+            date. It is two citywide 100-byte fixed-width files: LDFHEADER.dat holds one
+            header record, and LDFBASE.dat holds the change records, grouped by record
+            type in the order N, S, G, P. See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
+        - kind: text
+          text: >-
+            Unlike the other outputs, the LDF takes two LION releases as input, and it
+            carries state across releases: every record has a cumulative number, so a
+            number identifies one record in one edition for good.
+      known_differences: [LDF]
+      short_title: LDF
+    entries:
+      - name: ldf_header_by_field
+        custom:
+          display_name: LDFHEADER.dat
+          table: dat_fields
+      - name: ldf_n_by_field
+        custom:
+          display_name: LDFBASE.dat node records
+          table: dat_fields
+      - name: ldf_segment_by_field
+        custom:
+          display_name: LDFBASE.dat segment records
           table: dat_fields

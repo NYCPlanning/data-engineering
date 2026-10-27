@@ -7,14 +7,22 @@ models:
 - name: cdta2020_by_field
   description: >-
     One row per 2020 community district tabulation area (code, name, type), each value
-    formatted to its fixed width. Feeds the fixed-width text file.
+    formatted to its fixed width. Copied from CSCL's 2020 CDTA equivalency table.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 community district tabulation area
   columns: &cdta2020_cols
   - name: cdta_code
-    description: 2020 CDTA code.
+    description: 2020 CDTA code, e.g. QN07.
   - name: cdta_name
     description: CDTA name.
   - name: cdta_type
-    description: CDTA type code.
+    description: CDTA type, telling community districts from joint interest areas (large parks and airports outside any community district).
+    meta:
+      value_labels:
+        "0": Community district
+        "1": Joint interest area
 
 - name: cdta2020_fields
   description: One column per field of the CDTA 2020 layout; supplies the packaged text file's column layout.
@@ -34,7 +42,7 @@ models:
   description: The CDTA2020.csv export, one row per 2020 community district tabulation area.
   columns:
   - name: CDTA_CODE
-    description: 2020 CDTA code.
+    description: 2020 CDTA code, e.g. QN07.
   - name: CDTA_NAME
     description: CDTA name.
   - name: CDTA_TYPE

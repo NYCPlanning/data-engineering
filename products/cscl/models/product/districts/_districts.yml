@@ -1,12 +1,17 @@
 version: 2
 
 # Feature classes of the district boundary geodatabase (ETL spec ch. 10, table 39).
-# Column names and row counts are matched against prod's v26B_Districts.gdb.zip.
+# Column names and row counts are matched against prod's Districts.gdb.zip.
 # Layers suffixed "wi" are the water-included (unclipped) variants of the shoreline-clipped layers.
 
 models:
 - name: gdb_nyad
   description: State assembly districts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A state assembly district
+      is_geospatial: true
   columns:
   - name: AssemDist
     description: State assembly district number.
@@ -21,6 +26,11 @@ models:
 
 - name: gdb_nyadwi
   description: State assembly districts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A state assembly district
+      is_geospatial: true
   columns:
   - name: AssemDist
     description: State assembly district number.
@@ -34,11 +44,19 @@ models:
     description: Area in square feet.
 
 - name: gdb_nyap
-  description: Atomic polygons, the base geography of the ETL. Near-passthrough of the CSCL source layer.
+  description: >-
+    Atomic polygons, the smallest areas every other district layer is built from, with the
+    district codes CSCL stores on each. Published as stored in CSCL, not clipped.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: An atomic polygon
   columns:
   - name: ATOMICID
     description: Atomic polygon identifier.
     data_tests: [ not_null ]
+  - name: ATOMIC_NUM
+    description: Last three digits of the atomic polygon ID. Deprecated in CSCL and no longer maintained, so blank.
   - name: BOROUGH
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
   - name: CENSUSTRACT_1990
@@ -99,6 +117,11 @@ models:
 
 - name: gdb_nybb
   description: Borough boundaries built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A borough
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -115,6 +138,11 @@ models:
 
 - name: gdb_nybbwi
   description: Borough boundaries built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A borough
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -131,8 +159,13 @@ models:
 
 - name: gdb_nybid
   description: >-
-    Business improvement districts. Differs from prod on BIDs 44 and 56, which prod publishes
-    as invalid polygons (CSCL-DISTRICTS-04).
+    Business improvement districts, as stored in CSCL and made valid, not clipped. BIDs 44 and
+    56 differ from the previous release, which publishes them as invalid polygons
+    (CSCL-DISTRICTS-04).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A business improvement district
   columns:
   - name: BIDID
     description: Business improvement district identifier.
@@ -151,6 +184,11 @@ models:
 
 - name: gdb_nycb2010
   description: 2010 census blocks built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 census block
+      is_geospatial: true
   columns:
   - name: CB2010
     description: Census block number within the tract, four characters.
@@ -173,6 +211,11 @@ models:
 
 - name: gdb_nycb2010wi
   description: 2010 census blocks built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 census block
+      is_geospatial: true
   columns:
   - name: CB2010
     description: Census block number within the tract, four characters.
@@ -195,6 +238,11 @@ models:
 
 - name: gdb_nycb2020
   description: 2020 census blocks built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 census block
+      is_geospatial: true
   columns:
   - name: CB2020
     description: Census block number within the tract, four characters.
@@ -219,6 +267,11 @@ models:
 
 - name: gdb_nycb2020wi
   description: 2020 census blocks built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 census block
+      is_geospatial: true
   columns:
   - name: CB2020
     description: Census block number within the tract, four characters.
@@ -243,6 +296,11 @@ models:
 
 - name: gdb_nycc
   description: City council districts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A city council district
+      is_geospatial: true
   columns:
   - name: CounDist
     description: City council district number.
@@ -257,6 +315,11 @@ models:
 
 - name: gdb_nyccwi
   description: City council districts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A city council district
+      is_geospatial: true
   columns:
   - name: CounDist
     description: City council district number.
@@ -271,18 +334,12 @@ models:
 
 - name: gdb_nycd
   description: >-
-    Community districts built from the AtomicPolygon topology. One of ~43 layers bundled
-    together in a single citywide district-boundary geodatabase zip file, not its own standalone
-    file.
+    Community districts built from the AtomicPolygon topology.
   config:
     tags: [export_doc]
     meta:
       each_row_is_a: A community district
       is_geospatial: true
-      implementation_notes: >-
-        Clipped by subtracting a water mask (Atomic Polygons flagged as water) rather
-        than intersecting a land mask - subtracting is much cheaper, since the city's
-        water area breaks into far fewer, smaller polygons than its land area does.
   columns:
   - name: BoroCD
     description: Borough code followed by the two-digit community district number (e.g. 101 is Manhattan CD 1).
@@ -297,6 +354,11 @@ models:
 
 - name: gdb_nycdta2020
   description: 2020 community district tabulation areas built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 community district tabulation area
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough holding most of the district's atomic polygon area. Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -321,8 +383,14 @@ models:
 
 - name: gdb_nycdwi
   description: >-
-    Community districts built from the AtomicPolygon topology, water areas included. Differs
-    from prod on two districts, which prod publishes as invalid polygons (CSCL-DISTRICTS-04).
+    Community districts built from the AtomicPolygon topology, water areas included. Two
+    districts differ from the previous release, which publishes them as invalid polygons
+    (CSCL-DISTRICTS-04).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A community district
+      is_geospatial: true
   columns:
   - name: BoroCD
     description: Borough code followed by the two-digit community district number (e.g. 101 is Manhattan CD 1).
@@ -337,6 +405,11 @@ models:
 
 - name: gdb_nycg
   description: Congressional districts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A congressional district
+      is_geospatial: true
   columns:
   - name: CongDist
     description: Congressional district number.
@@ -351,6 +424,11 @@ models:
 
 - name: gdb_nycgwi
   description: Congressional districts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A congressional district
+      is_geospatial: true
   columns:
   - name: CongDist
     description: Congressional district number.
@@ -365,7 +443,14 @@ models:
 
 - name: gdb_nyct2010
   description: 2010 census tracts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 census tract
+      is_geospatial: true
   columns:
+  - name: CTLabel
+    description: Census tract label for maps and publications, the tract number with the fewest digits. Unique within its borough.
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
   - name: BoroName
@@ -393,7 +478,14 @@ models:
 
 - name: gdb_nyct2010wi
   description: 2010 census tracts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 census tract
+      is_geospatial: true
   columns:
+  - name: CTLabel
+    description: Census tract label for maps and publications, the tract number with the fewest digits. Unique within its borough.
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
   - name: BoroName
@@ -421,7 +513,14 @@ models:
 
 - name: gdb_nyct2020
   description: 2020 census tracts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 census tract
+      is_geospatial: true
   columns:
+  - name: CTLabel
+    description: Census tract label for maps and publications, the tract number with the fewest digits. Unique within its borough.
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
   - name: BoroName
@@ -455,7 +554,14 @@ models:
 
 - name: gdb_nyct2020wi
   description: 2020 census tracts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 census tract
+      is_geospatial: true
   columns:
+  - name: CTLabel
+    description: Census tract label for maps and publications, the tract number with the fewest digits. Unique within its borough.
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
   - name: BoroName
@@ -489,6 +595,11 @@ models:
 
 - name: gdb_nyed
   description: Election districts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: An election district
+      is_geospatial: true
   columns:
   - name: ElectDist
     description: Election district number.
@@ -503,6 +614,11 @@ models:
 
 - name: gdb_nyedwi
   description: Election districts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: An election district
+      is_geospatial: true
   columns:
   - name: ElectDist
     description: Election district number.
@@ -517,6 +633,11 @@ models:
 
 - name: gdb_nyfb
   description: Fire battalions built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A fire battalion
+      is_geospatial: true
   columns:
   - name: FireBN
     description: Fire battalion number.
@@ -531,6 +652,11 @@ models:
 
 - name: gdb_nyfc
   description: Fire companies built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A fire company
+      is_geospatial: true
   columns:
   - name: FireCoType
     description: Company type letter from the unit's short name (the 'E' in 'E 14').
@@ -551,6 +677,11 @@ models:
 
 - name: gdb_nyfd
   description: Fire divisions built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A fire division
+      is_geospatial: true
   columns:
   - name: FireDiv
     description: Fire division number.
@@ -565,6 +696,11 @@ models:
 
 - name: gdb_nyha
   description: Health areas built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A health area
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -583,6 +719,11 @@ models:
 
 - name: gdb_nyhc
   description: Health center districts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A health center district
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -600,13 +741,23 @@ models:
     description: Area in square feet.
 
 - name: gdb_nyhd
-  description: Historic districts.
+  description: Landmarks Preservation Commission historic districts, as stored in CSCL, not clipped.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A historic district
   columns:
   - name: NAME
     description: Historic district name.
   - name: LP_NUMBER
     description: Landmarks Preservation Commission designation number.
     data_tests: [ not_null ]
+  - name: DESIGNATED
+    description: Date the Landmarks Preservation Commission designated the district.
+  - name: BOROUGH
+    description: Borough of the district.
+  - name: EXTENSION
+    description: Whether the district extends an earlier historic district (Yes or No).
   - name: CREATED_BY
     description: Editor who created the source record.
   - name: CREATED_DATE
@@ -622,14 +773,17 @@ models:
     description: Boundary length in feet.
   - name: SHAPE_Area
     description: Area in square feet.
-  - name: BOROUGH
-    description: Borough of the district.
 
 - name: gdb_nyhez
   description: >-
-    Hurricane evacuation zones built from the AtomicPolygon topology, water areas assigned a
-    zone included. Differs from prod on six zones, which prod publishes as invalid polygons
-    (CSCL-DISTRICTS-04).
+    Hurricane evacuation zones built from the AtomicPolygon topology, not clipped: water
+    assigned a zone is included. Six zones differ from the previous release, which publishes
+    them as invalid polygons (CSCL-DISTRICTS-04).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A hurricane evacuation zone
+      is_geospatial: true
   columns:
   - name: HURRICANE_EVACUATION_ZONE
     description: Hurricane evacuation zone.
@@ -646,6 +800,11 @@ models:
   description: >-
     Municipal court districts built from the AtomicPolygon topology, excluding the '00'
     placeholder.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A municipal court district
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -665,6 +824,11 @@ models:
 - name: gdb_nymcea
   description: >-
     Minor census economic areas, built from the AtomicPolygon topology and split to singlepart.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A connected piece of a minor census economic area
+      is_geospatial: true
   columns:
   - name: BOROCODE
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -685,6 +849,11 @@ models:
   description: >-
     Municipal court districts built from the AtomicPolygon topology, water areas included,
     excluding the '00' placeholder.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A municipal court district
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -703,6 +872,11 @@ models:
 
 - name: gdb_nynta2010
   description: 2010 neighborhood tabulation areas built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 neighborhood tabulation area
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough holding most of the district's atomic polygon area. Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -725,8 +899,13 @@ models:
 
 - name: gdb_nynta2020
   description: >-
-    2020 neighborhood tabulation areas built from the AtomicPolygon topology. Differs from prod
-    in polygon part counts (CSCL-DISTRICTS-01).
+    2020 neighborhood tabulation areas built from the AtomicPolygon topology. Part counts differ
+    from the previous release, whose polygons carry hairline slivers (CSCL-DISTRICTS-01).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 neighborhood tabulation area
+      is_geospatial: true
   columns:
   - name: BoroCode
     description: "Borough holding most of the district's atomic polygon area. Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."
@@ -757,9 +936,14 @@ models:
 
 - name: gdb_nypp
   description: >-
-    Police precincts, the NYPD source precinct polygons clipped to land (NYPD lines don't follow
-    AtomicPolygon edges). Prod's layer has hairline sliver parts this one doesn't
-    (CSCL-DISTRICTS-01).
+    Police precincts: CSCL's NYPD precinct polygons clipped to land, since NYPD's lines don't
+    follow atomic polygon edges. The zero-width spikes and the parts and holes under 100 sq ft
+    that clipping leaves along the shoreline are removed (CSCL-DISTRICTS-01, CSCL-DISTRICTS-07).
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A police precinct
+      is_geospatial: true
   columns:
   - name: Precinct
     description: Police precinct number.
@@ -774,6 +958,11 @@ models:
 
 - name: gdb_nypuma2010
   description: 2010 public use microdata areas, built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 public use microdata area
+      is_geospatial: true
   columns:
   - name: PUMA
     description: Public use microdata area code.
@@ -788,6 +977,11 @@ models:
 
 - name: gdb_nypuma2020
   description: 2020 public use microdata areas, built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2020 public use microdata area
+      is_geospatial: true
   columns:
   - name: PUMA
     description: Public use microdata area code.
@@ -804,6 +998,11 @@ models:
   description: >-
     School districts built from the AtomicPolygon topology. District 10 is split into one
     polygon per borough.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A school district (district 10 once per borough)
+      is_geospatial: true
   columns:
   - name: SchoolDist
     description: School district number.
@@ -818,6 +1017,11 @@ models:
 
 - name: gdb_nyss
   description: State senate districts built from the AtomicPolygon topology.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A state senate district
+      is_geospatial: true
   columns:
   - name: StSenDist
     description: State senate district number.
@@ -832,6 +1036,11 @@ models:
 
 - name: gdb_nysswi
   description: State senate districts built from the AtomicPolygon topology, water areas included.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A state senate district
+      is_geospatial: true
   columns:
   - name: StSenDist
     description: State senate district number.
@@ -846,8 +1055,13 @@ models:
 
 - name: gdb_nyura
   description: >-
-    Urban renewal areas. The CSCL source layer is currently empty, and so is prod's, which
-    carries the business improvement district schema instead of its own.
+    Urban renewal areas, as stored in CSCL. The CSCL layer is currently empty, so the layer
+    has no rows. The previous release's layer is empty too, and carries the business
+    improvement district columns instead of these.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: An urban renewal area
   columns:
   - name: URAID
     description: Urban renewal area identifier.
@@ -864,7 +1078,11 @@ models:
     description: Area in square feet.
 
 - name: gdb_nyzip
-  description: Zip code areas.
+  description: ZIP code areas, as stored in CSCL, not clipped.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A ZIP code area
   columns:
   - name: PO_NAME
     description: Post office name.

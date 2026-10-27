@@ -7,7 +7,12 @@ models:
 - name: nta2010_by_field
   description: >-
     One row per 2010 census tract: its borough, tract, NTA code and name, and PUMA, with
-    each value padded to the fixed width of the NTA.txt layout. Feeds the fixed-width text file.
+    each value padded to the fixed width of the NTA.txt layout. Copied from CSCL's
+    neighborhood and PUMA code table, ordered by borough and tract.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A 2010 census tract
   columns: &nta2010_cols
   - name: borough
     description: "Borough code: 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island."

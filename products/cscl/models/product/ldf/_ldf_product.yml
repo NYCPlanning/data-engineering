@@ -1,9 +1,64 @@
 version: 2
 
 models:
+- name: ldf_header_by_field
+  description: >-
+    The single header record of LDFHEADER.dat: the release this edition documents changes
+    from and the release it documents changes to, the date each was deployed, the number of
+    records, and the cumulative record number this edition continues from.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: An LDF edition (one record)
+      implementation_notes: >-
+        The release IDs and deployment dates appear nowhere in the source data, so they are
+        entered for each release, as GR's tool asks an operator for them. The cumulative
+        record number is derived from the previous edition's header rather than entered by
+        hand (CSCL-LDF-03).
+  columns:
+  - name: record_type
+    description: Always H.
+  - name: old_lion_release
+    description: The LION release this edition documents changes from, e.g. 26B.
+  - name: old_lion_release_date
+    description: Date the old release was deployed, MMDDYYYY.
+  - name: new_lion_release
+    description: The LION release this edition documents changes to, e.g. 26C.
+  - name: new_lion_release_date
+    description: Date the new release was deployed, MMDDYYYY.
+  - name: record_count
+    description: Records in this edition, including the header itself.
+  - name: cumulative_record_number
+    description: >-
+      The previous edition's cumulative record number plus its record count. This edition's
+      data records are numbered on from it.
+
 - name: ldf_n_by_field
-  description: Node change records, each field formatted to its fixed width.
-  columns: &ldf_field_columns
+  description: >-
+    Node change records in LDFBASE.dat: a node added, deleted or moved between the two LION
+    releases, found by comparing the nodes of the previous LION release with this one. A
+    node whose ID changed without moving appears as a delete of the old ID and an add of the
+    new one.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A node added, deleted or moved
+      is_geospatial: true
+  columns:
+  - name: record_type
+    description: Always N.
+  - name: action_code
+    description: A node added, D node deleted, M node moved (same ID, new location).
+  - name: x_coord
+    description: X coordinate of the node in feet (NY State Plane, Long Island); its old location on moves.
+  - name: y_coord
+    description: Y coordinate of the node; its old location on moves.
+  - name: nodeid
+    description: Node ID. A node appears at most once per edition.
+  - name: destination_x_coord
+    description: X coordinate the node moved to. Blank unless the action is M.
+  - name: destination_y_coord
+    description: Y coordinate the node moved to. Blank unless the action is M.
   - name: cumulative_record_number
     description: "Record number that runs on across LDF editions, so each record has a unique number over every edition published."
     tests:
@@ -13,13 +68,50 @@ models:
         arguments: { value: 10 }
 
 - name: ldf_segment_by_field
-  description: >
-    Segment change records (S, P and G) formatted to fixed width. All three share one
-    byte-identical layout, so they share one formatting seed.
-  columns: *ldf_field_columns
-
-- name: ldf_header_by_field
-  description: The header record, formatted to fixed width.
+  description: >-
+    Segment change records in LDFBASE.dat, one layout for three record types: S for a
+    base centerline segment, P for a physical segment and G for a generic segment. Each
+    comes from CSCL's centerline edit journal for this release, which records the splits
+    and merges that a comparison of the two LION releases can't recover.
+  config:
+    tags: [export_doc]
+    meta:
+      each_row_is_a: A segment, physical segment or generic segment change
+      implementation_notes: >-
+        Changes that were undone or superseded before the release are left out, following
+        the rule in production's LDF tool. A delete removes the records that created the
+        deleted segment; a chain of splits and merges that returns to one segment publishes
+        only its last step, with the original ID as the old ID; and any other record whose
+        old or new ID is deleted in the journal is dropped. A plain P or G ID reassignment is
+        always published. One deliberate difference: a generic or physical ID spans many
+        segments, so a delete of that ID only drops records on the same pair of nodes
+        (CSCL-LDF-01).
+  columns:
+  - name: record_type
+    description: S (base centerline segment), P (physical segment) or G (generic segment).
+  - name: action_code
+    description: >-
+      A add, C change of node(s), D delete, M merge, S split. On P and G records, P or G
+      means the ID changed with no change in topology.
+  - name: old_id
+    description: Segment, physical or generic ID before the change, by record type. Blank on adds.
+  - name: old_from_nodeid
+    description: From node of the segment before the change. Blank on adds.
+  - name: old_to_nodeid
+    description: To node of the segment before the change. Blank on adds.
+  - name: new_id
+    description: Segment, physical or generic ID after the change. Blank on deletes.
+  - name: new_from_nodeid
+    description: From node of the segment after the change. Blank on deletes.
+  - name: new_to_nodeid
+    description: To node of the segment after the change. Blank on deletes.
+  - name: cumulative_record_number
+    description: "Record number that runs on across LDF editions, so each record has a unique number over every edition published."
+    tests:
+    - not_null
+    - unique
+    - dbt_expectations.expect_column_value_lengths_to_equal:
+        arguments: { value: 10 }
 
 - name: ldf_base
   description: >
