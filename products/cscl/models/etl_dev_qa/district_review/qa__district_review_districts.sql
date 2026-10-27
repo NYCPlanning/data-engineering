@@ -13,6 +13,9 @@
 --
 -- class:
 --   new_only / prior_only - the key is on one side only
+--   duplicate_key - the key is on both sides, as a different number of features
+--                (district_review_is_duplicate_key): no metrics, n_features_new and
+--                n_features_prior say how many
 --   identical  - no symmetric difference at all
 --   grid_noise - every piece is under district_review_noise_width_ft wide
 --   major      - symdiff_area_pct > geom_check_symdiff_area_pct or
@@ -22,8 +25,16 @@
 --
 -- known_difference_id: NULL until the known-differences seed exists to map from.
 
-WITH pairs AS (
-    SELECT * FROM {{ ref('qa__district_review_pairs') }}
+WITH all_pairs AS (
+    SELECT
+        *,
+        {{ district_review_is_duplicate_key() }} AS is_duplicate_key
+    FROM {{ ref('qa__district_review_pairs') }}
+),
+
+pairs AS (
+    SELECT * FROM all_pairs
+    WHERE NOT is_duplicate_key
 ),
 
 pieces AS (
@@ -62,6 +73,8 @@ measured AS (
         p.layer,
         p.key_name,
         p.district_key,
+        p.n_features_new,
+        p.n_features_prior,
         st_area(p.geom_new) AS area_new,
         st_area(p.geom_prior) AS area_prior,
         st_area(p.geom_new) - st_area(p.geom_prior) AS area_delta,
@@ -91,6 +104,8 @@ SELECT
     layer,
     key_name,
     district_key,
+    n_features_new,
+    n_features_prior,
     area_new,
     area_prior,
     area_delta,
@@ -113,3 +128,16 @@ SELECT
     END AS class,
     NULL::TEXT AS known_difference_id
 FROM measured
+
+UNION ALL BY NAME
+
+SELECT
+    layer,
+    key_name,
+    district_key,
+    n_features_new,
+    n_features_prior,
+    'duplicate_key' AS class,
+    NULL::TEXT AS known_difference_id
+FROM all_pairs
+WHERE is_duplicate_key

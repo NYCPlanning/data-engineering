@@ -71,14 +71,17 @@
   (production_outputs.fgdb_<name>, via prod_fgdb_linear), both linear EPSG:2263, full
   outer joined on the key. A key stored as several features (e.g. nysd's SD 10, once
   per borough) is dissolved first, as in geometry_diff_qa, so whole districts are
-  compared. is_equal: the two are the same geometry vertex for vertex (normalized WKB),
-  the cheap test that lets identical districts skip the overlay.
+  compared. n_features_new / n_features_prior: how many features carry the key on each
+  side (NULL when the key is absent), which district_review_is_duplicate_key reads.
+  is_equal: the two are the same geometry vertex for vertex (normalized WKB), the cheap
+  test that lets identical districts skip the overlay.
 -#}
 {%- set key_name = layer.get('key_name') or (layer.key | replace('"', '')) -%}
 {%- set prod_key = layer.get('prod_key') or (layer.key | replace('"', '') | lower) -%}
 WITH new AS (
     SELECT
         {{ layer.key }}::text AS district_key,
+        count(*) AS n_features,
         CASE
             WHEN count(*) = 1 THEN any_value(linearize(geom))
             ELSE st_union_agg(try(st_makevalid(linearize(geom))))
@@ -90,6 +93,7 @@ WITH new AS (
 prior AS (
     SELECT
         {{ prod_key }}::text AS district_key,
+        count(*) AS n_features,
         CASE
             WHEN count(*) = 1 THEN any_value(linearize(shape))
             ELSE st_union_agg(try(st_makevalid(linearize(shape))))
@@ -106,12 +110,27 @@ SELECT
     '{{ layer.name }}' AS layer,
     '{{ key_name }}' AS key_name,
     coalesce(n.district_key, p.district_key) AS district_key,
+    n.n_features AS n_features_new,
+    p.n_features AS n_features_prior,
     st_collectionextract(n.geom, 3)::GEOMETRY AS geom_new,
     st_collectionextract(p.geom, 3)::GEOMETRY AS geom_prior,
     coalesce(st_aswkb(st_normalize(n.geom)) = st_aswkb(st_normalize(p.geom)), FALSE) AS is_equal
 FROM new AS n
 FULL OUTER JOIN prior AS p ON n.district_key = p.district_key
 {% endmacro %}
+
+
+{% macro district_review_is_duplicate_key(n_features_new='n_features_new', n_features_prior='n_features_prior') %}
+{#-
+  A key on both sides whose feature count differs: e.g. prod's nyct2010wi has three
+  features keyed 4990100 (the Brooklyn, Queens and Staten Island water tracts) where we
+  have one. Dissolving them would compare different districts, so the review classes
+  these duplicate_key and computes no metrics or pieces for them. A key stored as the
+  same number of features on both sides (nysd's SD 10, once per borough) is a district
+  in several parts and is still dissolved and compared.
+-#}
+({{ n_features_new }} IS NOT NULL AND {{ n_features_prior }} IS NOT NULL AND {{ n_features_new }} != {{ n_features_prior }})
+{%- endmacro %}
 
 
 {% macro district_review_selected_layers() %}
@@ -156,6 +175,7 @@ WITH pairs AS (
     WHERE
         layer = '{{ layer.name }}'
         AND geom_new IS NOT NULL AND geom_prior IS NOT NULL AND NOT is_equal
+        AND NOT {{ district_review_is_duplicate_key() }}
 ),
 
 pieces AS (

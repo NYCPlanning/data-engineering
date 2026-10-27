@@ -6,6 +6,11 @@ models:
     Every district of every district_gdb layer, ours (gdb_<layer>) and prod's
     (production_outputs.fgdb_<layer>), one row per (layer, district key), full outer
     joined. See macros/district_review.sql for the layer catalog.
+  columns:
+  - name: n_features_new
+    description: Features carrying the key in gdb_<layer>, dissolved into geom_new. NULL when we have none.
+  - name: n_features_prior
+    description: Features carrying the key in prod's fgdb_<layer>, dissolved into geom_prior. NULL when prod has none.
   data_tests:
   - dbt_utils.unique_combination_of_columns:
       arguments:
@@ -15,7 +20,7 @@ models:
   description: >
     Symmetric-difference pieces of each district present on both sides, one polygon per
     row, with side (added | removed) and is_noise (mean width under
-    district_review_noise_width_ft).
+    district_review_noise_width_ft). None for duplicate_key districts.
 
 - name: qa__district_review_districts
   description: >
@@ -26,7 +31,7 @@ models:
     tests:
     - accepted_values:
         arguments:
-          values: [identical, grid_noise, minor, major, new_only, prior_only]
+          values: [identical, grid_noise, minor, major, new_only, prior_only, duplicate_key]
   - name: symdiff_area_pct
     description: Area of the pieces above noise, as a percent of our district's area.
   - name: hausdorff_ft
@@ -42,3 +47,51 @@ models:
 
 - name: qa__district_review_layer_summary
   description: Per district layer, district counts by class and the worst district.
+
+unit_tests:
+- name: test__qa__district_review_districts__duplicate_key
+  description: >
+    A key with a different number of features on each side (three prior, one new; two
+    new, one prior) is duplicate_key with no metrics. A key in two features on both
+    sides is still compared, and a one-sided key stays new_only.
+  model: qa__district_review_districts
+  given:
+  - input: ref('qa__district_review_pairs')
+    format: sql
+    rows: |
+      SELECT
+        'nyct2010wi' AS layer,
+        'BoroCT2010' AS key_name,
+        district_key,
+        n_features_new::BIGINT AS n_features_new,
+        n_features_prior::BIGINT AS n_features_prior,
+        CASE WHEN n_features_new IS NOT NULL THEN st_geomfromtext('POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))') END
+          AS geom_new,
+        CASE WHEN n_features_prior IS NOT NULL THEN st_geomfromtext(prior_wkt) END AS geom_prior,
+        is_equal
+      FROM (
+        VALUES
+          ('dup_prior', 1, 3, 'MULTIPOLYGON(((0 0, 10 0, 10 10, 0 10, 0 0)), ((20 0, 30 0, 30 10, 20 10, 20 0)))', FALSE),
+          ('dup_new', 2, 1, 'POLYGON((0 0, 5 0, 5 10, 0 10, 0 0))', FALSE),
+          ('multipart', 2, 2, 'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))', TRUE),
+          ('new_only', 2, NULL, NULL, FALSE)
+      ) AS t(district_key, n_features_new, n_features_prior, prior_wkt, is_equal)
+  - input: ref('qa__district_review_pieces')
+    format: sql
+    rows: |
+      SELECT
+        NULL::TEXT AS layer,
+        NULL::TEXT AS district_key,
+        NULL::TEXT AS side,
+        NULL::DOUBLE AS area_sqft,
+        NULL::DOUBLE AS perimeter_ft,
+        NULL::DOUBLE AS mean_width_ft,
+        NULL::BOOLEAN AS is_noise,
+        NULL::GEOMETRY AS geom
+      WHERE FALSE
+  expect:
+    rows:
+    - {district_key: dup_prior, n_features_new: 1, n_features_prior: 3, class: duplicate_key, area_new: null, symdiff_area_pct: null}
+    - {district_key: dup_new, n_features_new: 2, n_features_prior: 1, class: duplicate_key, area_new: null, symdiff_area_pct: null}
+    - {district_key: multipart, n_features_new: 2, n_features_prior: 2, class: identical, area_new: 100.0, symdiff_area_pct: 0.0}
+    - {district_key: new_only, n_features_new: 2, n_features_prior: null, class: new_only, area_new: 100.0, symdiff_area_pct: null}
