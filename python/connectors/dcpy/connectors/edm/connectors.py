@@ -115,6 +115,9 @@ class EdmConnectorConfig:
     list_versions_impl: Callable[["EdmConnector", str, dict], list[str]] | None = None
     supports_latest: bool = True
     metadata_generator: Callable[[], dict] | None = None
+    # Reuse a complete local copy of a whole-version directory pull. Only safe where a
+    # version's contents never change once pushed.
+    cache_directory_pulls: bool = False
 
 
 class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
@@ -181,6 +184,19 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
                 output_dir / Path(filepath).name if not is_file_path else output_dir
             )
 
+        # A marker beside the directory is written only after the whole download
+        # succeeds, so an interrupted pull is downloaded again rather than reused.
+        use_cache = (
+            is_directory_download
+            and self._config.cache_directory_pulls
+            and getattr(product_key, "version", None) != "latest"
+        )
+        abs_output = output_filepath.absolute()
+        complete_marker = abs_output.with_name(f"{abs_output.name}.pull_complete")
+        if use_cache and output_filepath.is_dir() and complete_marker.exists():
+            logger.info(f"Using cached {output_filepath}")
+            return output_filepath
+
         logger.info(
             f"Downloading {product_key}, {filepath or '(entire directory)'} -> {output_filepath}"
         )
@@ -227,6 +243,8 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
             raise FileNotFoundError(error_msg)
 
         self.storage.pull(key=source_key, destination_path=output_filepath)
+        if use_cache:
+            complete_marker.touch()
         return output_filepath
 
     def pull_versioned(
@@ -524,6 +542,7 @@ def create_private_connector(
         folder_name="",  # No folder hierarchy for private datasets
         key_factory=_create_private_key,
         supports_latest=True,
+        cache_directory_pulls=True,
     )
     return EdmConnector(config=config, storage=storage)
 
