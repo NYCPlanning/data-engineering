@@ -1,0 +1,102 @@
+<mxfile>
+  <diagram id="gr-launcher" name="GR launcher">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="do" value="Digital Ocean&lt;br&gt;(DE infrastructure)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C6E5F6;strokeColor=#7EB0D5;dashed=1;verticalAlign=top;align=left;spacingLeft=20;spacingTop=10;fontStyle=1;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="270" y="20" width="900" height="640" as="geometry"/>
+        </mxCell>
+        <mxCell id="grbox" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C6E5F6;strokeColor=#7EB0D5;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="160" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="gr" value="GR user" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="450" width="40" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="cscl" value="&lt;b&gt;CSCL DB&lt;/b&gt;&lt;br&gt;OTI Oracle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="160" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="private" value="&lt;b&gt;edm-private&lt;/b&gt;&lt;br&gt;&lt;br&gt;qa_app/inbox/dcp_cscl_gdb/{version}/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="200" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="recipes" value="&lt;b&gt;edm-recipes&lt;/b&gt;&lt;br&gt;&lt;br&gt;dcp_cscl_* layers, {version}&lt;br&gt;(tagged latest)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="640" y="80" width="200" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="pg" value="&lt;b&gt;CSCL build&lt;/b&gt;&lt;br&gt;DuckDB build database + dbt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="940" y="80" width="200" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="app" value="&lt;b&gt;QA app&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;div style=&quot;text-align:left&quot;&gt;- Inbox Ingest: ingest a version&lt;br&gt;- CSCL Builds: run build,&lt;br&gt;&amp;nbsp; run status + drafts&lt;br&gt;- CSCL QA: diffs&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="320" y="420" width="200" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="gha" value="&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;&lt;br&gt;ingest_single (dcp_cscl_gdb)&lt;br&gt;build.yml (cscl)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="640" y="420" width="200" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="pub" value="&lt;b&gt;edm-publishing&lt;/b&gt;&lt;br&gt;&lt;br&gt;db-cscl/build/{build name}/&lt;br&gt;promoted to draft" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="940" y="420" width="200" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="1 · export + zip&lt;br&gt;Working GDB" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="cscl" target="grbox">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="2 · upload zip to inbox/&lt;br&gt;(S3 client)" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;entryX=0.25;entryY=1;" edge="1" parent="1" source="grbox" target="private">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="230" y="460"/>
+              <mxPoint x="230" y="260"/>
+              <mxPoint x="370" y="260"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="3, 4 · pick version,&lt;br&gt;run ingest, then build" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="grbox" target="app">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="540"/>
+              <mxPoint x="260" y="540"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="3, 4 · dispatch" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="app" target="gha">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="3 · ingest" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="private" target="recipes">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-12" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="4 · load + dbt" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="recipes" target="pg">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-12" as="offset"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="4 · package + upload" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="pg" target="pub">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="5 · review" style="edgeStyle=orthogonalEdgeStyle;html=1;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="pub" target="app">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1040" y="630"/>
+              <mxPoint x="420" y="630"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;labelBackgroundColor=#ffffff;exitX=0.25;exitY=0;" edge="1" parent="1" source="gha">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="141" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="690" y="300"/>
+              <mxPoint x="580" y="300"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;labelBackgroundColor=#ffffff;exitX=0.75;exitY=0;" edge="1" parent="1" source="gha">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="890" y="141" as="targetPoint"/>
+            <Array as="points">
+              <mxPoint x="790" y="300"/>
+              <mxPoint x="890" y="300"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
