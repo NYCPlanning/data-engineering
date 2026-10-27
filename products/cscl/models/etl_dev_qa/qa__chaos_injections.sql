@@ -67,6 +67,7 @@
         NULL::VARCHAR AS log_match_value,
         NULL::VARCHAR AS dropped_from,
         NULL::VARCHAR AS dropped_globalid,
+        NULL::BOOLEAN AS required,
         NULL::VARCHAR AS log_message_status,
         NULL::BOOLEAN AS logged,
         NULL::BOOLEAN AS dropped

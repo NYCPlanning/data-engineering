@@ -49,6 +49,11 @@ class Injection:
     # 'lion' or 'saf': the output the record must be missing from (dropped messages)
     dropped_from: str | None = None
     dropped_globalid: str | None = None
+    # ids the edit can fire on the same record, depending on its surroundings: not
+    # required, but their rows don't count against precision
+    may_log_ids: list[str] = field(default_factory=list)
+    # per-id message match, where an id's row carries a different key
+    message_matches: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -70,6 +75,9 @@ class Mutation:
     key_column: str = "globalid"
     log_match_column: str = "globalid"
     dropped_from: str | None = None
+    may_log_ids: list[str] = field(default_factory=list)
+    # log id -> f(candidate) giving a string its message contains
+    message_matches: dict = field(default_factory=dict)
     extra: dict = field(default_factory=dict)
 
     def value_for(self, cand: dict, n: int) -> object:
@@ -101,6 +109,8 @@ class Mutation:
             log_match_value=str(cand["log_key"]),
             dropped_from=self.dropped_from,
             dropped_globalid=cand.get("dropped_globalid"),
+            may_log_ids=self.may_log_ids,
+            message_matches={i: f(cand) for i, f in self.message_matches.items()},
         )
 
 
@@ -463,7 +473,13 @@ MUTATIONS: list[Mutation] = [
         name="atomicpolygons_missing_tract_2010",
         # every AP of one tract, so no segment gains a tract line between its two sides (the
         # LION rules give 'X' there, CSCL-LOG-LION-01)
-        log_message_ids=["CSCL-LOG-THIN-02"],
+        # its APs lose their health area too (looked up through the 2010 tract)
+        log_message_ids=["CSCL-LOG-THIN-02", "CSCL-LOG-THIN-03"],
+        message_matches={
+            "CSCL-LOG-THIN-03": lambda cand: (
+                f"HEALTHAREA='' AND BOROUGH = '{cand['borough']}'"
+            )
+        },
         table="dcp_cscl_atomicpolygons",
         column="censustract_2010",
         new_value=lambda _cand, n: f"99{n % 10000:04d}",
@@ -500,8 +516,10 @@ MUTATIONS: list[Mutation] = [
     ),
     DeleteNode(
         name="dead_end_node_deleted",
-        # the segment no longer reads as a dead end, so the LION rules' SEGLOCSTATUS changes
-        log_message_ids=["CSCL-LOG-OURS-01", "CSCL-LOG-LION-01"],
+        log_message_ids=["CSCL-LOG-OURS-01"],
+        # the segment no longer reads as a dead end, which changes the LION rules'
+        # SEGLOCSTATUS when both its sides are the same AtomicPolygon
+        may_log_ids=["CSCL-LOG-LION-01"],
         table="dcp_cscl_nodes",
         column="(row deleted)",
         candidates_sql="WITH "
@@ -512,14 +530,21 @@ MUTATIONS: list[Mutation] = [
                 UNION ALL
                 SELECT globalid, segmentid, ROUND(ex, 2), ROUND(ey, 2) FROM lone
             ),
+            all_lines AS (
+                SELECT geom FROM {s}.dcp_cscl_centerline
+                UNION ALL SELECT geom FROM {s}.dcp_cscl_shoreline
+                UNION ALL SELECT geom FROM {s}.dcp_cscl_rail
+                UNION ALL SELECT geom FROM {s}.dcp_cscl_subway
+                UNION ALL SELECT geom FROM {s}.dcp_cscl_nonstreetfeatures
+            ),
             all_ends AS (
                 SELECT ROUND(ST_X(ST_StartPoint(ST_LineMerge(geom))), 2) AS x,
                     ROUND(ST_Y(ST_StartPoint(ST_LineMerge(geom))), 2) AS y
-                FROM {s}.dcp_cscl_centerline
+                FROM all_lines
                 UNION ALL
                 SELECT ROUND(ST_X(ST_EndPoint(ST_LineMerge(geom))), 2),
                     ROUND(ST_Y(ST_EndPoint(ST_LineMerge(geom))), 2)
-                FROM {s}.dcp_cscl_centerline
+                FROM all_lines
             ),
             dead_ends AS (SELECT x, y FROM all_ends GROUP BY ALL HAVING COUNT(*) = 1)
             SELECT n.globalid AS key, [n.globalid, ends.globalid, ends.segmentid::VARCHAR] AS claims,
@@ -700,7 +725,8 @@ def write_manifest(
             injection_id INT, mutation VARCHAR, log_message_id VARCHAR, expected_ids VARCHAR,
             table_name VARCHAR, key_column VARCHAR, key_value VARCHAR, column_name VARCHAR,
             old_value VARCHAR, new_value VARCHAR, log_match_column VARCHAR,
-            log_match_value VARCHAR, dropped_from VARCHAR, dropped_globalid VARCHAR
+            log_match_value VARCHAR, dropped_from VARCHAR, dropped_globalid VARCHAR,
+            required BOOLEAN
         )"""
     )
     rows = [
@@ -715,16 +741,18 @@ def write_manifest(
             inj.column_name,
             inj.old_value,
             inj.new_value,
-            inj.log_match_column,
-            inj.log_match_value,
+            "message" if log_id in inj.message_matches else inj.log_match_column,
+            inj.message_matches.get(log_id, inj.log_match_value),
             inj.dropped_from,
             inj.dropped_globalid,
+            required,
         )
         for i, inj in enumerate(injections, start=1)
-        for log_id in inj.log_message_ids
+        for log_id, required in [(x, True) for x in inj.log_message_ids]
+        + [(x, False) for x in inj.may_log_ids]
     ]
     conn.executemany(
-        f'INSERT INTO "{schema}".{MANIFEST} VALUES ({", ".join("?" * 14)})', rows
+        f'INSERT INTO "{schema}".{MANIFEST} VALUES ({", ".join("?" * 15)})', rows
     )
 
 

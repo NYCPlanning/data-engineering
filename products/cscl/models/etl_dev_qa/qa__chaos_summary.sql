@@ -64,6 +64,8 @@ by_id AS (
         COUNT(*) FILTER (WHERE NOT dropped) AS not_dropped,
         STRING_AGG(DISTINCT mutation, ', ') AS mutations
     FROM injections
+    -- a may-log id's rows only excuse precision
+    WHERE required
     GROUP BY log_message_id
 )
 SELECT
