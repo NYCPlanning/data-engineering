@@ -19,12 +19,15 @@ models:
         and relative position are determined by comparing each roadbed's perpendicular
         offset from the generic segment's midpoint against the right outermost
         roadbed's offset, using the sign of a cross product to tell which side a given
-        roadbed falls on. generic_segmenttype assumes generic_segmentid is already a
+        roadbed falls on. A generic segment with no right outermost roadbed takes the
+        right side to be the right of the generic segment as digitized, as prod does.
+        Roadbeds tied on side and offset (e.g. stacked roadbeds) keep the source table's
+        OBJECTID order, as prod does. generic_segmenttype assumes generic_segmentid is already a
         valid generic segment and doesn't re-validate it. The four NODEID fields are
         blank when a segment endpoint has no node in the underlying segment data; this
-        is flagged separately as a build-time error. roadbed_position_code is always
-        exactly one `R` and exactly one `L` per generic segment; `I` can occur any
-        number of times, including zero.
+        is flagged separately as a build-time error. roadbed_position_code is at most
+        one `R` and at most one `L` per generic segment (some have no `R`, or only `I`
+        roadbeds); `I` can occur any number of times, including zero.
   columns:
   - name: rpl_id
     data_type: string
