@@ -6,10 +6,10 @@ fics,,boilerplate,(front matter),Field Identification Codes (FICs),724,not_start
 field_formatting,,boilerplate,(front matter),Field Formatting,784,drafted,Done this session - docs/boilerplate/field_formatting.yml. Needs your review.
 lion_group_intro,,group_intro,LION,Geosupport LION Output Record Layout,909,not_started,"Group-level intro prose (ModelGroup.custom.elements, proved out this session) - general LION record-layout overview."
 lion_dat_by_field,lion_dat_by_field,model_dat_fields,LION,Generating Records from Centerline/Shoreline/Rail&Subway/NonStreetFeature Segments; Coincident Segments,1261-4210,drafted,"2/116 columns done (traffic_direction, segment_locational_status), reconciled against legacy this session. The 4 'Generating Records from...' + Coincident Segments legacy sections all describe how per-field values are derived depending on segment source - fold into this model's own column descriptions rather than separate rows/sections."
-gdb_lion,gdb_lion,model_columns,LION - ESRI LION,ESRI LION,4210,drafted,Model + both columns already described. Not yet tagged export_doc or in doc_config.yml.
-gdb_node,gdb_node,model_columns,LION - ESRI LION,ESRI LION,4210,drafted,Model + both columns already described. Not yet tagged export_doc or in doc_config.yml.
-gdb_node_stname,gdb_node_stname,model_columns,LION - ESRI LION,ESRI LION,4210,drafted,Model + both columns already described. Not yet tagged export_doc or in doc_config.yml.
-gdb_altnames_by_field,gdb_altnames_by_field,model_columns,LION - ESRI LION,ESRI LION (Generating the AltNames Table),5111,not_started,No yml entry yet.
+gdb_lion,gdb_lion,model_columns,LION Geodatabase,ESRI LION,4210,drafted,"Tagged export_doc, in doc_config.yml. Fields particular to the gdb described; fields shared with LION.dat point there."
+gdb_node,gdb_node,model_columns,LION Geodatabase,ESRI LION,4210,drafted,Every column described; in doc_config.yml.
+gdb_node_stname,gdb_node_stname,model_columns,LION Geodatabase,ESRI LION,4210,drafted,Every column described; in doc_config.yml.
+gdb_altnames,gdb_altnames,model_columns,LION Geodatabase,ESRI LION (Generating the AltNames Table),5111,drafted,Every column described; in doc_config.yml.
 mapinfo_lion,,boilerplate,LION,~~MapInfo LION~~ (struck through in source),5190,skip,Deprecated output in the legacy doc itself - deliberately not carried forward.
 snd_by_field,snd_by_field,model_columns,Street Name Dictionary,Street Name Dictionary,5267,not_started,No yml entry yet.
 normalizing_tables_group_intro,,group_intro,Geosupport System Normalizing Tables,Geosupport System Normalizing Tables,5529,not_started,"Short group intro, optional."
