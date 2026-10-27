@@ -75,7 +75,9 @@ class Mutation:
     def value_for(self, cand: dict, n: int) -> object:
         return self.new_value(cand, n) if callable(self.new_value) else self.new_value
 
-    def apply(self, conn: duckdb.DuckDBPyConnection, schema: str, cand: dict, n: int) -> Injection:
+    def apply(
+        self, conn: duckdb.DuckDBPyConnection, schema: str, cand: dict, n: int
+    ) -> Injection:
         new = self.value_for(cand, n)
         conn.execute(
             f'UPDATE "{schema}"."{self.table}" SET "{self.column}" = ? WHERE "{self.key_column}" = ?',
@@ -83,7 +85,9 @@ class Mutation:
         )
         return self._injection(cand, None if new is None else str(new))
 
-    def _injection(self, cand: dict, new: str | None, column: str | None = None) -> Injection:
+    def _injection(
+        self, cand: dict, new: str | None, column: str | None = None
+    ) -> Injection:
         return Injection(
             mutation=self.name,
             log_message_ids=self.log_message_ids,
@@ -184,11 +188,13 @@ class DeleteNode(Mutation):
     """Delete the node at a dead end, so the one segment ending there has no node."""
 
     def apply(self, conn, schema, cand, n):
-        conn.execute(f'DELETE FROM "{schema}".dcp_cscl_nodes WHERE globalid = ?', [cand["key"]])
+        conn.execute(
+            f'DELETE FROM "{schema}".dcp_cscl_nodes WHERE globalid = ?', [cand["key"]]
+        )
         return self._injection(cand, None, "(row deleted)")
 
 
-def _fake_segmentid(cand: dict, n: int) -> int:
+def _fake_segmentid(_cand: dict, n: int) -> int:
     return FAKE_SEGMENTID_BASE + n
 
 
@@ -244,7 +250,7 @@ MUTATIONS: list[Mutation] = [
         log_message_ids=["CSCL-LOG-LION-03"],
         table="dcp_cscl_centerline",
         column="boroughcode",
-        new_value=lambda cand, n: str(int(cand["old"]) % 5 + 1),
+        new_value=lambda cand, _n: str(int(cand["old"]) % 5 + 1),
         candidates_sql="""
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
                 globalid AS log_key, boroughcode AS old
@@ -290,7 +296,9 @@ MUTATIONS: list[Mutation] = [
         log_message_ids=["CSCL-LOG-LION-05", "CSCL-LOG-OURS-01", "CSCL-LOG-OURS-03"],
         table="dcp_cscl_centerline",
         column="geom",
-        candidates_sql="WITH " + _LONE_CENTERLINE + """
+        candidates_sql="WITH "
+        + _LONE_CENTERLINE
+        + """
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
                 globalid AS log_key, sx || ' ' || sy AS old, sx, sy
             FROM lone WHERE ST_Length(geom) < 200 ORDER BY globalid
@@ -302,7 +310,9 @@ MUTATIONS: list[Mutation] = [
         table="dcp_cscl_centerline",
         column="curve",
         extra={"sagitta": 0.0001},
-        candidates_sql="WITH " + _LONE_CENTERLINE + """
+        candidates_sql="WITH "
+        + _LONE_CENTERLINE
+        + """
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
                 globalid AS log_key, curve AS old, sx, sy, ex, ey
             FROM lone WHERE ST_Length(geom) > 300 ORDER BY globalid
@@ -426,7 +436,7 @@ MUTATIONS: list[Mutation] = [
         log_message_ids=["CSCL-LOG-THIN-01"],
         table="dcp_cscl_atomicpolygons",
         column="censustract_2020",
-        new_value=lambda cand, n: f"99{n % 10000:04d}",
+        new_value=lambda _cand, n: f"99{n % 10000:04d}",
         candidates_sql="""
             SELECT globalid AS key, [globalid] AS claims, globalid AS log_key,
                 censustract_2020 AS old
@@ -439,7 +449,7 @@ MUTATIONS: list[Mutation] = [
         log_message_ids=["CSCL-LOG-THIN-02"],
         table="dcp_cscl_atomicpolygons",
         column="censustract_2010",
-        new_value=lambda cand, n: f"99{n % 10000:04d}",
+        new_value=lambda _cand, n: f"99{n % 10000:04d}",
         candidates_sql="""
             SELECT globalid AS key, [globalid] AS claims, globalid AS log_key,
                 censustract_2010 AS old
@@ -453,7 +463,7 @@ MUTATIONS: list[Mutation] = [
         log_message_ids=["CSCL-LOG-THIN-03", "CSCL-LOG-TT-02"],
         table="dcp_cscl_censustract2010",
         column="health_area",
-        new_value=lambda cand, n: f"99{n % 100:02d}",
+        new_value=lambda _cand, n: f"99{n % 100:02d}",
         candidates_sql="""
             SELECT globalid AS key, [globalid, boroct] AS claims, globalid AS log_key,
                 health_area AS old
@@ -470,7 +480,9 @@ MUTATIONS: list[Mutation] = [
         log_message_ids=["CSCL-LOG-OURS-01"],
         table="dcp_cscl_nodes",
         column="(row deleted)",
-        candidates_sql="WITH " + _LONE_CENTERLINE + """,
+        candidates_sql="WITH "
+        + _LONE_CENTERLINE
+        + """,
             ends AS (
                 SELECT globalid, segmentid, ROUND(sx, 2) AS x, ROUND(sy, 2) AS y FROM lone
                 UNION ALL
@@ -541,7 +553,9 @@ MUTATIONS: list[Mutation] = [
         table="dcp_cscl_centerline",
         column="curve",
         extra={"sagitta": 0},
-        candidates_sql="WITH " + _LONE_CENTERLINE + """
+        candidates_sql="WITH "
+        + _LONE_CENTERLINE
+        + """
             SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
                 globalid AS log_key, curve AS old, sx, sy, ex, ey
             FROM lone WHERE ST_Length(geom) > 300 ORDER BY globalid
@@ -646,13 +660,17 @@ def pick(
     return picked
 
 
-def fetch_candidates(conn: duckdb.DuckDBPyConnection, schema: str, m: Mutation) -> list[dict]:
+def fetch_candidates(
+    conn: duckdb.DuckDBPyConnection, schema: str, m: Mutation
+) -> list[dict]:
     cur = conn.execute(m.candidates_sql.format(s=f'"{schema}"'))
     cols = [d[0] for d in cur.description]
     return [dict(zip(cols, row)) for row in cur.fetchall()]
 
 
-def write_manifest(conn: duckdb.DuckDBPyConnection, schema: str, injections: list[Injection]):
+def write_manifest(
+    conn: duckdb.DuckDBPyConnection, schema: str, injections: list[Injection]
+):
     conn.execute(
         f"""CREATE TABLE "{schema}".{MANIFEST} (
             injection_id INT, mutation VARCHAR, log_message_id VARCHAR, expected_ids VARCHAR,
@@ -681,7 +699,9 @@ def write_manifest(conn: duckdb.DuckDBPyConnection, schema: str, injections: lis
         for i, inj in enumerate(injections, start=1)
         for log_id in inj.log_message_ids
     ]
-    conn.executemany(f'INSERT INTO "{schema}".{MANIFEST} VALUES ({", ".join("?" * 14)})', rows)
+    conn.executemany(
+        f'INSERT INTO "{schema}".{MANIFEST} VALUES ({", ".join("?" * 14)})', rows
+    )
 
 
 def inject(
@@ -692,9 +712,13 @@ def inject(
     ids: set[str] | None = None,
 ) -> list[Injection]:
     if _exists(conn, schema, MANIFEST):
-        raise SystemExit(f"{schema}.{MANIFEST} exists: start again from a fresh inputs copy")
+        raise SystemExit(
+            f"{schema}.{MANIFEST} exists: start again from a fresh inputs copy"
+        )
     if _exists(conn, schema, "log"):
-        conn.execute(f'CREATE OR REPLACE TABLE "{schema}".{BASELINE_LOG} AS SELECT * FROM "{schema}".log')
+        conn.execute(
+            f'CREATE OR REPLACE TABLE "{schema}".{BASELINE_LOG} AS SELECT * FROM "{schema}".log'
+        )
     logged = logged_keys(conn, schema)
     rng = random.Random(seed)
     used: set[str] = set()
@@ -714,10 +738,14 @@ def inject(
 
 
 def report(conn: duckdb.DuckDBPyConnection, schema: str) -> None:
-    rows = conn.execute(f'SELECT * FROM "{schema}".qa__chaos_summary ORDER BY 1').fetchall()
+    rows = conn.execute(
+        f'SELECT * FROM "{schema}".qa__chaos_summary ORDER BY 1'
+    ).fetchall()
     cols = [
         d[0]
-        for d in conn.execute(f'SELECT * FROM "{schema}".qa__chaos_summary LIMIT 0').description
+        for d in conn.execute(
+            f'SELECT * FROM "{schema}".qa__chaos_summary LIMIT 0'
+        ).description
     ]
     print("\t".join(cols))
     for r in rows:
@@ -725,9 +753,13 @@ def report(conn: duckdb.DuckDBPyConnection, schema: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser = argparse.ArgumentParser(
+        description="Break loaded CSCL inputs so log.csv should catch each one."
+    )
     parser.add_argument("--seed", type=int, default=1)
-    parser.add_argument("--max-per-check", type=int, default=2, help="1..k records per mutation")
+    parser.add_argument(
+        "--max-per-check", type=int, default=2, help="1..k records per mutation"
+    )
     parser.add_argument("--ids", help="comma-separated log_message_ids to restrict to")
     parser.add_argument("--report", action="store_true", help="print qa__chaos_summary")
     args = parser.parse_args()
