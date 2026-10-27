@@ -44,9 +44,6 @@ FAKE_SEGMENTID_BASE = 990_000_000
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 SOURCE = "recipe_sources"
-# the layers a chaos run rebuilds; the comparison QA layers (qa_int, etl_dev_qa) only
-# matter to the chaos QA models, which are selected on their own
-BUILD_LAYERS = ("staging", "intermediate", "product", "log_files")
 CHAOS_MODELS = ("qa__chaos_injections", "qa__chaos_summary")
 
 
@@ -1509,17 +1506,15 @@ def report(conn: duckdb.DuckDBPyConnection, schema: str) -> None:
         print("\t".join("" if v is None else str(v) for v in r))
 
 
-def downstream(selectors: list[str]) -> list[str]:
-    """dbt --select terms for the build-layer models at or downstream of `selectors`."""
-    return [
-        f"{sel}+,path:models/{layer}" for sel in selectors for layer in BUILD_LAYERS
-    ]
+def feeding_chaos_qa(selectors: list[str]) -> list[str]:
+    """dbt --select terms for the models at or downstream of `selectors` that the chaos QA
+    models read (or are): nothing else bears on qa__chaos_summary."""
+    return [f"{sel}+,+{CHAOS_MODELS[-1]}" for sel in selectors]
 
 
 def rebuild_selection(tables: set[str]) -> list[str]:
-    """What a chaos run needs rebuilt after editing `tables`: everything that reads them,
-    plus the chaos QA models."""
-    return downstream([f"source:{SOURCE}.{t}" for t in sorted(tables)]) + list(
+    """What a chaos run needs rebuilt after editing `tables`."""
+    return feeding_chaos_qa([f"source:{SOURCE}.{t}" for t in sorted(tables)]) + list(
         CHAOS_MODELS
     )
 
@@ -1581,7 +1576,7 @@ def chaos_run(
     # on main's models works off a baseline built from a branch.
     state_args = ["--state", str(state)]
     dbt(["seed", "-q", "-s", "state:modified", *state_args], work)
-    dbt(["run", "-q", "-s", *downstream(["state:modified"]), *state_args], work)
+    dbt(["run", "-q", "-s", *feeding_chaos_qa(["state:modified"]), *state_args], work)
 
     conn = duckdb.connect(str(work))
     conn.execute("LOAD spatial")
@@ -1621,7 +1616,7 @@ def main() -> None:
     parser.add_argument(
         "--work",
         type=Path,
-        help="where --run copies the baseline to (default: <baseline>.chaos.duckdb)",
+        help="directory --run copies the baseline into (default: chaos/ next to it)",
     )
     args = parser.parse_args()
 
@@ -1634,9 +1629,13 @@ def main() -> None:
         if not args.baseline:
             parser.error("--run needs --baseline")
         baseline = args.baseline.resolve()
-        work = (args.work or baseline.with_suffix(".chaos.duckdb")).resolve()
-        if work == baseline:
-            parser.error("--work must differ from --baseline")
+        # same file name: DuckDB names the catalog after it, and the baseline's views
+        # refer to their tables through it
+        work_dir = (args.work or baseline.parent / "chaos").resolve()
+        if work_dir == baseline.parent:
+            parser.error("--work must be another directory than the baseline's")
+        work_dir.mkdir(exist_ok=True)
+        work = work_dir / baseline.name
         chaos_run(baseline, work, args.seed, args.max_per_check, ids, schema)
         return
 

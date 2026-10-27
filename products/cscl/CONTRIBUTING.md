@@ -64,16 +64,34 @@ log check starts as a test that fails:
    records really gone from their output (`not_dropped = 0`), and no new log rows beyond
    the injected records (`unexpected_rows = 0`).
 
-The loop runs on a throwaway copy of an inputs-loaded DuckDB (`DUCKDB_PATH`,
-`BUILD_ENGINE_SCHEMA`); keep a pristine copy and copy it back before each run, since the
-script edits the inputs and refuses to run twice:
+The loop works off a baseline: a copy of an inputs-loaded DuckDB with a full build on it,
+made once (~7 minutes). Each run (~1 minute) copies it, rebuilds the models
+that differ from the code the baseline was built from (`state:modified+`, so the log it
+compares against is the current code's), injects, rebuilds the models between the edited
+input tables and the chaos QA models (`source:<table>+,+qa__chaos_summary`), and prints
+`qa__chaos_summary`. The rest of the copy stays as the baseline built it:
 
 ```bash
-dbt seed && dbt run                                 # baseline: lets precision ignore rows already logged
-python poc_validation/chaos_monkey.py --seed 1      # --ids CSCL-LOG-X-NN to restrict, --max-per-check k
-dbt run
-python poc_validation/chaos_monkey.py --report      # prints qa__chaos_summary
+cp inputs.duckdb built.duckdb
+DUCKDB_PATH=built.duckdb python poc_validation/chaos_monkey.py --build-baseline   # once
+python poc_validation/chaos_monkey.py --run --baseline built.duckdb --seed 1
+# --ids CSCL-LOG-X-NN to restrict, --max-per-check k, --work <dir> for the copy
 ```
+
+The copy goes to `chaos/` next to the baseline, under the same file name: DuckDB names the
+catalog after the file, and the built views refer to their tables through it, so don't
+rename a built baseline either.
+
+The baseline keeps the dbt manifest it was built from in `built.duckdb.state/`, so code
+changes don't make it stale; rebuild it when the inputs change, or when the branch has moved
+far enough that the catch-up step rebuilds most of the project. The fail run works off the
+same baseline: check out main's models (`git checkout main -- models seeds macros`), rerun
+with the same seed, then `git checkout HEAD -- models seeds macros`. Edits to
+`create_duckdb_functions` aren't caught by the state comparison: rebuild the baseline after
+those.
+
+Without `--run`, `chaos_monkey.py --seed 1` injects into `DUCKDB_PATH` and prints the
+`dbt run -s ...` command that rebuilds what it touched; `--report` prints `qa__chaos_summary`.
 
 `qa__chaos_injections` has one row per injected record and expected id, with the old and new
 values, for working out why one wasn't logged. Both QA models read `log_records`: log.csv

@@ -98,10 +98,12 @@ def test_inject_writes_manifest_and_edits_records():
 
 def test_rebuild_selection_covers_edited_tables_and_chaos_models():
     sel = cm.rebuild_selection({"dcp_cscl_nodes", "dcp_cscl_centerline"})
-    assert "source:recipe_sources.dcp_cscl_centerline+,path:models/log_files" in sel
-    assert "source:recipe_sources.dcp_cscl_nodes+,path:models/product" in sel
-    assert not any("qa_int" in s or "etl_dev_qa" in s for s in sel)
-    assert sel[-2:] == ["qa__chaos_injections", "qa__chaos_summary"]
+    assert sel == [
+        "source:recipe_sources.dcp_cscl_centerline+,+qa__chaos_summary",
+        "source:recipe_sources.dcp_cscl_nodes+,+qa__chaos_summary",
+        "qa__chaos_injections",
+        "qa__chaos_summary",
+    ]
 
 
 def test_every_mutation_edits_a_declared_source():
