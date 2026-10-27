@@ -699,15 +699,16 @@ MUTATIONS: list[Mutation] = [
             one_lgc AS (
                 SELECT segmentid FROM {s}.dcp_cscl_segment_lgc GROUP BY segmentid HAVING COUNT(*) = 1
             ),
-            -- a street whose names all fit AltNames' SName (CSCL-LOG-BYTES-06)
+            -- a street code whose names all fit AltNames' SName (CSCL-LOG-BYTES-06): the
+            -- shoreline keeps its own LGC, so any B7SC of the street code may name it
             donor AS (
                 SELECT LEFT(b5sc, 1) AS boro, MIN(b5sc) AS b5sc, MIN(b7sc) AS b7sc
                 FROM pref WHERE LEFT(b7sc, 6) = b5sc
-                    AND b7sc NOT IN (
-                        SELECT b7sc FROM {s}.dcp_cscl_streetname
+                    AND b5sc NOT IN (
+                        SELECT LEFT(b7sc, 6) FROM {s}.dcp_cscl_streetname
                         WHERE b7sc IS NOT NULL AND (LENGTH(lookup_key) > 28 OR LENGTH(street_name) > 28)
                         UNION ALL
-                        SELECT b7sc FROM {s}.dcp_cscl_featurename
+                        SELECT LEFT(b7sc, 6) FROM {s}.dcp_cscl_featurename
                         WHERE b7sc IS NOT NULL AND LENGTH(lookup_key) > 30
                     )
                 GROUP BY 1
