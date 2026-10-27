@@ -1,6 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
@@ -101,3 +101,66 @@ def test_load_df_drops_loader_owned_columns():
     inserted = pg_client.insert_dataframe.call_args.args[0]
     assert list(inserted.columns) == ["version"]
     pg_client.add_pk.assert_called_once_with("my_table", "ogc_fid")
+
+
+def test_pull_dataset_downloads_a_shared_directory_once(
+    create_buckets, tmp_path, monkeypatch
+):
+    """Two recipe inputs reading different files from one edm.private version share a
+    single download, and a later load reuses it."""
+    from dcpy.connectors.edm.connectors import PrivateConnector
+    from dcpy.connectors.hybrid_pathed_storage import (
+        PathedStorageConnector,
+        StorageType,
+    )
+    from dcpy.lifecycle import config, connector_registry
+    from dcpy.utils import s3
+
+    from .conftest import TEST_BUCKET
+
+    for name in ["a.csv", "b.csv"]:
+        s3.client().put_object(
+            Bucket=TEST_BUCKET, Key=f"datasets/shared_dir/26B/{name}", Body=b"x\n1\n"
+        )
+    private = PrivateConnector.create(
+        storage=PathedStorageConnector.from_storage_kwargs(
+            conn_type="edm.private",
+            storage_backend=StorageType.S3,
+            s3_bucket=TEST_BUCKET,
+            s3_endpoint_url="https://s3.amazonaws.com",  # where moto intercepts
+            root_folder="datasets",
+            _validate_root_path=False,
+        )
+    )
+    original = connector_registry.connectors.pull["edm.private"]
+    connector_registry.connectors.register(private, conn_type="edm.private")
+    monkeypatch.setattr(config, "local_data_path_for_stage", lambda _: tmp_path)
+
+    inputs = [
+        InputDataset(
+            id="shared_dir",
+            version="26B",
+            source="edm.private",
+            file_type="csv",
+            import_as=f"ds_{name}",
+            custom={"filename": f"{name}.csv"},
+        )
+        for name in ["a", "b"]
+    ]
+    try:
+        with patch.object(
+            PathedStorageConnector,
+            "pull",
+            autospec=True,
+            side_effect=PathedStorageConnector.pull,
+        ) as pull:
+            paths = {
+                data_loader.pull_dataset(ds, stage="builds.load")
+                for _ in range(2)  # two loads
+                for ds in inputs
+            }
+    finally:
+        connector_registry.connectors.register(original, conn_type="edm.private")
+
+    assert pull.call_count == 1
+    assert paths == {tmp_path / "shared_dir" / "26B"}
