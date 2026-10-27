@@ -70,6 +70,8 @@ class Injection:
     may_log_ids: list[str] = field(default_factory=list)
     # per-id message match, where an id's row carries a different key
     message_matches: dict[str, str] = field(default_factory=dict)
+    # every input table the injection edited, when that's more than table_name
+    other_tables: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -255,7 +257,9 @@ class Edits(Mutation):
                 [e["v"], e["kv"]],
             )
         first = cand["edits"][0]
-        return self._injection(cand, first["v"], first["c"])
+        inj = self._injection(cand, first["v"], first["c"])
+        inj.other_tables = sorted({e["t"] for e in cand["edits"]} - {self.table})
+        return inj
 
 
 def _fake_segmentid(_cand: dict, n: int) -> int:
@@ -1506,6 +1510,10 @@ def report(conn: duckdb.DuckDBPyConnection, schema: str) -> None:
         print("\t".join("" if v is None else str(v) for v in r))
 
 
+def edited_tables(injections: list[Injection]) -> set[str]:
+    return {t for inj in injections for t in [inj.table_name, *inj.other_tables]}
+
+
 def feeding_chaos_qa(selectors: list[str]) -> list[str]:
     """dbt --select terms for the models at or downstream of `selectors` that the chaos QA
     models read (or are): nothing else bears on qa__chaos_summary."""
@@ -1583,7 +1591,7 @@ def chaos_run(
     injections = inject(conn, schema, seed, max_per_check, ids)
     conn.close()
     print(f"{len(injections)} injections")
-    tables = {inj.table_name for inj in injections}
+    tables = edited_tables(injections)
     dbt(["run", "-q", "-s", *rebuild_selection(tables)], work)
 
     conn = duckdb.connect(str(work), read_only=True)
@@ -1651,7 +1659,7 @@ def main() -> None:
             f"{inj.key_column}={inj.key_value}\t{inj.old_value!r} -> {inj.new_value!r}"
         )
     print(f"{len(injections)} injections written to {schema}.{MANIFEST}")
-    tables = {inj.table_name for inj in injections}
+    tables = edited_tables(injections)
     print("rebuild what they touch:")
     print(f"dbt run -s {' '.join(rebuild_selection(tables))}")
 
