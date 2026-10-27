@@ -69,3 +69,9 @@ models:
   columns:
   - name: split_election_district_flag
     description: "L, R or B (both): the sides of the segment that have SEDAT records."
+
+- name: int__lion_segcount
+  description: >-
+    One row per LION gdb segment with its record count (n_records): its own records, SAF
+    replicants and records not written, plus coincident segments of the same feature
+    class. gdb_lion writes it as SegCount, capped at 9 (CSCL-LOG-BYTES-12 logs the cap).

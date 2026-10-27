@@ -7,8 +7,10 @@ models:
     SND, Enders, Exception, RPL or Special SEDAT check flagged (error, warning, or info
     for prod's INFO-level SAF-11), one row per ThinLION lookup that found nothing, one
     row per borough and name table counting the rows left out of its Face file (the
-    records are in log_face_code_missing.csv), plus one summary row per
-    exported flat file with its record count.
+    records are in log_face_code_missing.csv), one row per name for records whose name
+    is in the other name table than the one prod looks in (the records are in
+    log_name_table_warnings.csv), plus one summary row per exported flat file with its
+    record count.
     Each row comes from one log__* model, named in _dbt_source_relation, and carries the
     id of its message in the log_messages seed (see seeds.yml). The models emit the id
     and the message body; this model takes effect from the seed and prefixes the message
@@ -68,7 +70,8 @@ models:
     description: >-
       Number of records written to output_filename on file summary rows; the number of
       atomic polygons the lookup left blank on ThinLION lookup rows; the number of
-      StreetName rows left out of output_filename on CSCL-LOG-FC-01 rows.
+      StreetName rows left out of output_filename on CSCL-LOG-FC-01 rows; the number of
+      records with that name on name-table warning rows (log__name_table_warnings).
 
 - name: log__export_file_summary
   description: >-
@@ -81,9 +84,9 @@ models:
   description: >-
     LION rows whose borough differs from their source feature's own borough (the
     centerline's boroughcode, or the proto segment's borough). A blank source borough is
-    derived downstream, as in prod, and isn't flagged. Logged as CSCL-LOG-OURS-04: prod's
-    similar "does not match the borough currently being extracted" message
-    (CSCL-LOG-LION-20) is unreachable.
+    derived downstream, as in prod, and isn't flagged. Such a record lands in another
+    borough's LION file than its feature: the check prod's CSCL-LOG-LION-20 means, which
+    prod never reaches.
 
 - name: log__saf_invalid_b7sc
   description: >-
@@ -150,7 +153,8 @@ models:
 - name: log_records
   description: >-
     Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 and -03
-    counts swapped for the records in log_face_code_missing. What the chaos QA models
+    counts swapped for the records in log_face_code_missing, and the per-name name-table
+    warning counts for the records in log_name_table_warnings. What the chaos QA models
     (qa__chaos_injections, qa__chaos_summary) check.
 
 - name: log__street_name_blank_lookup_key
@@ -199,3 +203,60 @@ models:
     blank SAFStreetCode (CSCL-LOG-BYTES-01) or SAFStreetName (CSCL-LOG-BYTES-02), and
     features with a blank Street (CSCL-LOG-BYTES-03). gdb_lion and gdb_altnames leave
     them out too.
+    Also SAF replicants whose B7SC has no principal name in either table
+    (CSCL-LOG-BYTES-10, -11), which is why their SAFStreetName is blank.
+
+- name: log__rpl_nodes_and_level_codes
+  description: >-
+    RPL records prod writes with a field blank: no Node at an end of the roadbed or generic
+    segment (CSCL-LOG-RPL-01..04; int__rpl leaves the node id blank too), or a coincident
+    roadbed level code other than 1-26 or 99 (CSCL-LOG-RPL-08; int__rpl doesn't blank it).
+
+- name: log__saf_sos_indicator
+  description: >-
+    SAF D/F (CSCL-LOG-SAF-13) and O (CSCL-LOG-SAF-17) AltSegmentData rows whose
+    SOSINDICATOR is neither left nor right. Prod writes them with blank house numbers;
+    int__saf_d and int__saf_o keep a range.
+
+- name: log__sedat_name_missing
+  description: >-
+    SEDAT rows prod writes with a blank B7SC and street name: no SEGMENTID
+    (CSCL-LOG-SEDAT-01), no preferred Segment_LGC row (CSCL-LOG-SEDAT-02), or a B7SC with
+    no principal StreetName row (CSCL-LOG-SEDAT-03).
+
+- name: log__district_lookup_missing
+  description: >-
+    District GDB features whose code has no row in a lookup table, so a name field is
+    blank: CDTAEquiv2020 (CSCL-LOG-GDB-03, -07), NeighborhoodPUMACodes (CSCL-LOG-GDB-04,
+    and a blank FIPS_CODE, CSCL-LOG-GDB-05), NTAEquiv2020 (CSCL-LOG-GDB-06). Read off our
+    district layers.
+
+- name: log__lion_record_length
+  description: >-
+    LION .dat records with a field value longer than its slot (CSCL-LOG-LION-21). Prod
+    writes the longer record; lion_dat_by_field cuts the value to fit, and the message
+    names the fields cut.
+
+- name: log__gdb_lion_value_changed
+  description: >-
+    LION gdb values cut to fit, as prod does: AltNames SNames over 30 characters
+    (CSCL-LOG-BYTES-06; one count row per borough, the rows are in
+    log_altnames_sname_cut.csv) and SegCount over 9 (CSCL-LOG-BYTES-12).
+
+- name: log_altnames_sname_cut
+  description: >-
+    Attachment to log.csv, exported as log_altnames_sname_cut.csv: one row per LION gdb
+    AltNames row whose SName is over 30 characters and cut to 30 (CSCL-LOG-BYTES-06), in
+    prod's wording, with log.csv's columns plus the borough, Street and the uncut SName.
+
+- name: log__name_table_warnings
+  description: >-
+    One row per id and name, with the count in record_count, for records whose name prod
+    finds only in the other name table (CSCL-LOG-LION-13..16, BYTES-05, -08, -09, SAF-19,
+    -24). The records are in log_name_table_warnings.csv.
+
+- name: log_name_table_warnings
+  description: >-
+    Attachment to log.csv, exported as log_name_table_warnings.csv: one row per record
+    whose name prod finds only in the other name table, in prod's wording, with log.csv's
+    columns plus the B7SC and the name found.

@@ -2,7 +2,8 @@
 -- Files prod writes such a line for carry that line's log_messages id; the rest share
 -- CSCL-LOG-OURS-05. The (export model, filename, id) triples mirror the flat_files group
 -- of recipe.yml's exports; keep them in step when an export is added or renamed. log.csv
--- and its attachment (log_face_code_missing.csv) are left out.
+-- and its attachments (log_face_code_missing.csv, log_altnames_sname_cut.csv,
+-- log_name_table_warnings.csv) are left out.
 {%- set export_files = [
     ('manhattan_lion_dat', 'ManhattanLION.dat', 'CSCL-LOG-OURS-05'),
     ('bronx_lion_dat', 'BronxLION.dat', 'CSCL-LOG-OURS-05'),

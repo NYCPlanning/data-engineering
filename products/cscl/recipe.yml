@@ -734,6 +734,22 @@ exports:
     group: flat_files
     filename: log_face_code_missing.csv
     format: csv
+  # log.csv's attachment: the per-record list behind its per-borough BYTES-06 counts
+  - name: log_altnames_sname_cut
+    custom:
+      qa_group: "Log file"
+      compare_file: false  # prod logs these records in its log, not a file of their own
+    group: flat_files
+    filename: log_altnames_sname_cut.csv
+    format: csv
+  # log.csv's attachment: the per-record list behind its per-name name-table warning counts
+  - name: log_name_table_warnings
+    custom:
+      qa_group: "Log file"
+      compare_file: false  # prod logs these records in its log, not a file of their own
+    group: flat_files
+    filename: log_name_table_warnings.csv
+    format: csv
 
   # Thin LION
   - name: thinlion_all
