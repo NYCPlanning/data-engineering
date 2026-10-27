@@ -196,8 +196,9 @@ models:
     - name: low_hn
       data_type: string
       description: >-
-        Whichever of AltSegmentData's l_low_hn/r_low_hn is non-null - a type D record
-        represents one side only, the side named by sos_indicator.
+        AltSegmentData's l_low_hn or r_low_hn, for the side named by sos_indicator - a
+        type D record represents one side only. Blank when sos_indicator is blank
+        (CSCL-LOG-SAF-13).
     - name: filler_safd7
       description: Filler. Always blank.
       data_type: string
@@ -353,7 +354,9 @@ models:
     - name: high_hn
       data_type: string
       description: >-
-        For O: whichever side AltSegmentData populates. For V: depends on the address
+        For O: AltSegmentData's l_high_hn or r_high_hn, for the side named by
+        sos_indicator; blank when sos_indicator is blank (CSCL-LOG-SAF-17), as is
+        low_hn. For V: depends on the address
         point's HYPHEN_TYPE - a single house number repeats low_hn here; a hyphenated
         range splits low/high across the two fields.
     - name: high_hn_suffix

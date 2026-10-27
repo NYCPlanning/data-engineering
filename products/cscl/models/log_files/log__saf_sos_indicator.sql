@@ -1,8 +1,7 @@
 -- SAF D/F (CSCL-LOG-SAF-13, SAFExtractClass.cs:751) and O (CSCL-LOG-SAF-17, :1375)
 -- AltSegmentData rows on a centerline whose SOSINDICATOR is neither left nor right ('1' or
 -- '2' in our inputs; prod reads them as 'L' and 'R'). Prod still writes the record, with
--- blank house numbers. int__saf_d and int__saf_o don't blank them: they take the left
--- range, else the right one, whatever the side.
+-- blank house numbers, and so do int__saf_d and int__saf_o.
 WITH altsegdata AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
     WHERE saftype IN ('D', 'F', 'O')
