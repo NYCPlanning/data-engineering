@@ -220,6 +220,29 @@ class DeleteNode(Mutation):
         return self._injection(cand, None, "(row deleted)")
 
 
+class Edits(Mutation):
+    """Several column edits per record, possibly across tables.
+
+    Candidates carry `edits`: a list of structs (t: table, k: key column, kv: key value,
+    c: column, v: new value, all text). The first edit is the one the manifest shows.
+    """
+
+    def apply(self, conn, schema, cand, n):
+        for e in cand["edits"]:
+            col_type = conn.execute(
+                """SELECT data_type FROM information_schema.columns
+                WHERE table_schema = ? AND table_name = ? AND column_name = ?""",
+                [schema, e["t"], e["c"]],
+            ).fetchone()[0]  # type: ignore[index]
+            conn.execute(
+                f'UPDATE "{schema}"."{e["t"]}" SET "{e["c"]}" = ?::{col_type} '
+                f'WHERE "{e["k"]}" = ?',
+                [e["v"], e["kv"]],
+            )
+        first = cand["edits"][0]
+        return self._injection(cand, first["v"], first["c"])
+
+
 def _fake_segmentid(_cand: dict, n: int) -> int:
     return FAKE_SEGMENTID_BASE + n
 
@@ -290,6 +313,118 @@ _DETACHABLE_CENTERLINE = (
 """
 )
 
+# SAF S address points (AddressPoint, SPECIAL_CONDITION 'S') on a centerline, with the
+# borough of their segment's first Segment_LGC row (prod's GetB5SC) and their segment's
+# first AltSegmentData row (prod's GetRow, any ALT_SEGDATA_TYPE).
+_S_POINTS = """
+    s_points AS (
+        SELECT ap.*, LEFT(TRIM(lgc.b5sc), 1) AS segment_borough,
+            UPPER(TRIM(alt.alt_segdata_type)) AS first_alt_type
+        FROM {s}.dcp_cscl_addresspoints AS ap
+        INNER JOIN {s}.dcp_cscl_centerline AS cl ON ap.segmentid = cl.segmentid
+        LEFT JOIN (
+            SELECT * FROM {s}.dcp_cscl_segment_lgc
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY ogc_fid) = 1
+        ) AS lgc ON ap.segmentid = lgc.segmentid
+        LEFT JOIN (
+            SELECT * FROM {s}.dcp_cscl_altsegmentdata
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY ogc_fid) = 1
+        ) AS alt ON ap.segmentid = alt.segmentid
+        WHERE ap.special_condition = 'S'
+    ),
+    -- one named street per borough with a face code, to move a point's street across
+    donor AS (
+        SELECT LEFT(b7sc, 1) AS boro, MIN(b7sc) AS b7sc
+        FROM {s}.dcp_cscl_streetname
+        WHERE principal_flag = 'Y' AND facecode IS NOT NULL AND LENGTH(b7sc) = 8
+        GROUP BY 1
+    )
+"""
+
+# Centerline segments whose first AltSegmentData row is a type B proto in another borough
+# than the segment's first Segment_LGC row: a SAF S point there applies to the proto
+_B_PROTO_SEGMENTS = """
+    b_proto AS (
+        SELECT alt.segmentid, TRIM(alt.borough) AS borough, TRIM(alt.b5sc) AS b5sc,
+            TRIM(alt.lgc1) AS lgc1,
+            ROW_NUMBER() OVER (ORDER BY alt.segmentid) AS rn
+        FROM (
+            SELECT * FROM {s}.dcp_cscl_altsegmentdata
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY ogc_fid) = 1
+        ) AS alt
+        INNER JOIN (
+            SELECT * FROM {s}.dcp_cscl_segment_lgc
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY ogc_fid) = 1
+        ) AS lgc ON alt.segmentid = lgc.segmentid
+        WHERE UPPER(TRIM(alt.alt_segdata_type)) = 'B'
+            AND alt.segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            AND LEFT(TRIM(alt.b5sc), 1) <> LEFT(TRIM(lgc.b5sc), 1)
+            AND alt.segmentid NOT IN (
+                SELECT segmentid FROM {s}.dcp_cscl_addresspoints WHERE segmentid IS NOT NULL
+            )
+    ),
+    s_numbered AS (
+        SELECT *, ROW_NUMBER() OVER (ORDER BY globalid) AS rn FROM s_points
+        WHERE first_alt_type IS NULL
+    )
+"""
+
+# CommonPlace G/N/X places prod reaches the proto check for: a valid B7SC, not SECURITY_LEVEL 3
+_COMMONPLACE_OK = """
+    places AS (
+        SELECT * FROM {s}.dcp_cscl_commonplace_gdb
+        WHERE saftype IN ('G', 'N', 'X') AND security_level IS DISTINCT FROM 3
+            AND LENGTH(TRIM(b7sc)) >= 8 AND SUBSTRING(b7sc, 2, 7) <> '0000000'
+    ),
+    -- each centerline with more than one coincident segment, with its first proto
+    -- (AltSegmentData row of a type other than S)
+    first_proto AS (
+        SELECT cl.segmentid, cl.boroughcode AS cl_borough,
+            UPPER(TRIM(alt.alt_segdata_type)) AS proto_type, TRIM(alt.borough) AS proto_borough
+        FROM {s}.dcp_cscl_centerline AS cl
+        INNER JOIN (
+            SELECT * FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type <> 'S'
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY ogc_fid) = 1
+        ) AS alt ON cl.segmentid = alt.segmentid
+        WHERE cl.coincident_seg_count::INT > 1
+    )
+"""
+
+# Principal FeatureName rows with a face code, borough 1-5, and the segments (any LION
+# feature class) whose preferred LGC names them
+_FEATURENAME_FACE = """
+    fn AS (
+        SELECT * FROM {s}.dcp_cscl_featurename
+        WHERE principal_flag = 'Y' AND facecode IS NOT NULL
+            AND LEFT(b10sc, 1) IN ('1', '2', '3', '4', '5')
+    ),
+    single_principal AS (
+        SELECT b7sc FROM (
+            SELECT b7sc FROM {s}.dcp_cscl_streetname WHERE principal_flag = 'Y'
+            UNION ALL
+            SELECT b7sc FROM {s}.dcp_cscl_featurename WHERE principal_flag = 'Y'
+        ) GROUP BY b7sc HAVING COUNT(*) = 1
+    ),
+    pref AS (
+        SELECT b7sc, MIN(segmentid) AS segmentid, COUNT(*) AS n
+        FROM {s}.dcp_cscl_segment_lgc WHERE preferred_lgc_flag = 'Y' GROUP BY b7sc
+    ),
+    lion_features AS (
+        SELECT globalid, segmentid FROM {s}.dcp_cscl_centerline
+        UNION ALL SELECT globalid, segmentid FROM {s}.dcp_cscl_shoreline
+        UNION ALL SELECT globalid, segmentid FROM {s}.dcp_cscl_rail
+        UNION ALL SELECT globalid, segmentid FROM {s}.dcp_cscl_subway
+        UNION ALL SELECT globalid, segmentid FROM {s}.dcp_cscl_nonstreetfeatures
+    ),
+    saf_b7sc AS (
+        SELECT b5sc || lgc1 AS b7sc FROM {s}.dcp_cscl_altsegmentdata WHERE b5sc IS NOT NULL
+        UNION ALL SELECT b7sc FROM {s}.dcp_cscl_commonplace_gdb WHERE b7sc IS NOT NULL
+        UNION ALL SELECT b7sc_actual FROM {s}.dcp_cscl_addresspoints WHERE b7sc_actual IS NOT NULL
+        UNION ALL SELECT b7sc_vanity FROM {s}.dcp_cscl_addresspoints WHERE b7sc_vanity IS NOT NULL
+    )
+"""
+
 MUTATIONS: list[Mutation] = [
     Mutation(
         name="centerline_seglocstatus",
@@ -320,6 +455,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         name="centerline_other_borough",
         log_message_ids=["CSCL-LOG-LION-03"],
+        # Street is named from the borough + street code, which may then name nothing
+        may_log_ids=["CSCL-LOG-BYTES-03"],
         table="dcp_cscl_centerline",
         column="boroughcode",
         new_value=lambda cand, _n: str(int(cand["old"]) % 5 + 1),
@@ -488,6 +625,8 @@ MUTATIONS: list[Mutation] = [
     Mutation(
         name="commonplace_blank_b7sc",
         log_message_ids=["CSCL-LOG-SAF-22"],
+        # its LION replicant has no SAFStreetCode
+        may_log_ids=["CSCL-LOG-BYTES-01"],
         table="dcp_cscl_commonplace_gdb",
         column="b7sc",
         new_value="",
@@ -502,7 +641,8 @@ MUTATIONS: list[Mutation] = [
     ),
     Mutation(
         name="commonplace_unnamed_b7sc",
-        log_message_ids=["CSCL-LOG-SAF-23"],
+        # its LION replicant has no SAFStreetName either
+        log_message_ids=["CSCL-LOG-SAF-23", "CSCL-LOG-BYTES-02"],
         table="dcp_cscl_commonplace_gdb",
         column="b7sc",
         new_value=lambda cand, n: f"{cand['old'][0]}99{n % 1000:03d}01",
@@ -746,6 +886,467 @@ MUTATIONS: list[Mutation] = [
             FROM {s}.dcp_cscl_roadbed_pointer_list ORDER BY globalid
         """,
         dropped_from="rpl",
+    ),
+    # SAF S (AddressPoint): prod's checks, in its order (SAFExtractClass.cs:313-463)
+    Mutation(
+        name="saf_s_orphan_segmentid",
+        log_message_ids=["CSCL-LOG-SAF-12"],
+        table="dcp_cscl_addresspoints",
+        column="segmentid",
+        new_value=_fake_segmentid,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, addresspointid::VARCHAR, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, segmentid AS old, globalid AS dropped_globalid
+            FROM {s}.dcp_cscl_addresspoints WHERE special_condition = 'S' ORDER BY globalid
+        """,
+        dropped_from="saf",
+    ),
+    Edits(
+        # a street code with no StreetName row, on a segment whose street's face code reads
+        # as missing ('0000'), and no other SAF S/V point on that street
+        name="saf_s_no_face_code",
+        # the point's LION replicant has no SAFStreetName either
+        log_message_ids=["CSCL-LOG-SAF-06", "CSCL-LOG-BYTES-02"],
+        table="dcp_cscl_addresspoints",
+        column="b7sc_actual",
+        candidates_sql="""
+            WITH pref AS (
+                SELECT segmentid, b7sc FROM {s}.dcp_cscl_segment_lgc WHERE preferred_lgc_flag = 'Y'
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY ogc_fid) = 1
+            ),
+            one_principal AS (
+                SELECT b7sc, ANY_VALUE(globalid) AS globalid FROM {s}.dcp_cscl_streetname
+                WHERE principal_flag = 'Y' GROUP BY b7sc HAVING COUNT(*) = 1
+            ),
+            ap AS (
+                SELECT ap.*, pref.b7sc AS pref_b7sc, sn.globalid AS sn_globalid,
+                    ROW_NUMBER() OVER (ORDER BY ap.globalid) AS rn
+                FROM {s}.dcp_cscl_addresspoints AS ap
+                INNER JOIN pref ON ap.segmentid = pref.segmentid
+                INNER JOIN one_principal AS sn ON pref.b7sc = sn.b7sc
+                WHERE ap.special_condition = 'S'
+                    AND (SELECT COUNT(*) FROM {s}.dcp_cscl_addresspoints AS other
+                        WHERE other.special_condition IN ('S', 'V')
+                            AND (other.b7sc_actual = pref.b7sc OR other.b7sc_vanity = pref.b7sc)
+                            AND other.globalid <> ap.globalid) = 0
+            )
+            SELECT globalid AS key,
+                [globalid, addresspointid::VARCHAR, segmentid::VARCHAR, pref_b7sc] AS claims,
+                globalid AS log_key, b7sc_actual AS old, globalid AS dropped_globalid,
+                [
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := globalid, c := 'b7sc_actual', v := LEFT(b7sc_actual, 1) || '99' || LPAD((rn % 1000)::VARCHAR, 3, '0') || '01'),
+                    struct_pack(t := 'dcp_cscl_streetname', k := 'globalid', kv := sn_globalid, c := 'facecode', v := '0000')
+                ] AS edits
+            FROM ap ORDER BY globalid
+        """,
+    ),
+    Edits(
+        name="saf_s_other_borough_no_proto",
+        log_message_ids=["CSCL-LOG-SAF-07"],
+        table="dcp_cscl_addresspoints",
+        column="b7sc_actual",
+        candidates_sql="WITH "
+        + _S_POINTS
+        + """
+            SELECT p.globalid AS key, [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR] AS claims,
+                p.globalid AS log_key, p.b7sc_actual AS old,
+                [struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := donor.b7sc)] AS edits
+            FROM s_points AS p
+            INNER JOIN donor ON donor.boro = (p.segment_borough::INT % 5 + 1)::VARCHAR
+            WHERE p.first_alt_type IS NULL
+            ORDER BY p.globalid
+        """,
+    ),
+    Edits(
+        name="saf_s_other_borough_proto_not_b",
+        log_message_ids=["CSCL-LOG-SAF-08"],
+        table="dcp_cscl_addresspoints",
+        column="b7sc_actual",
+        candidates_sql="WITH "
+        + _S_POINTS
+        + """
+            SELECT p.globalid AS key, [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR] AS claims,
+                p.globalid AS log_key, p.b7sc_actual AS old,
+                [struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := donor.b7sc)] AS edits
+            FROM s_points AS p
+            INNER JOIN donor ON donor.boro = (p.segment_borough::INT % 5 + 1)::VARCHAR
+            WHERE p.first_alt_type <> 'B'
+            ORDER BY p.globalid
+        """,
+    ),
+    Edits(
+        # move the point onto a boundary segment and name it from the proto, but in
+        # another borough than the proto's
+        name="saf_s_proto_wrong_borough",
+        log_message_ids=["CSCL-LOG-SAF-09"],
+        table="dcp_cscl_addresspoints",
+        column="segmentid",
+        candidates_sql="WITH "
+        + _S_POINTS
+        + ","
+        + _B_PROTO_SEGMENTS
+        + """
+            SELECT p.globalid AS key,
+                [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR, b.segmentid::VARCHAR] AS claims,
+                p.globalid AS log_key, p.segmentid AS old,
+                [
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'segmentid', v := b.segmentid::VARCHAR),
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := b.b5sc || b.lgc1),
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'boroughcode', v := (b.borough::INT % 5 + 1)::VARCHAR)
+                ] AS edits
+            FROM s_numbered AS p
+            INNER JOIN b_proto AS b ON p.rn = b.rn
+            ORDER BY p.globalid
+        """,
+    ),
+    Edits(
+        name="saf_s_proto_wrong_b7sc",
+        log_message_ids=["CSCL-LOG-SAF-10", "CSCL-LOG-BYTES-02"],
+        table="dcp_cscl_addresspoints",
+        column="segmentid",
+        candidates_sql="WITH "
+        + _S_POINTS
+        + ","
+        + _B_PROTO_SEGMENTS
+        + """
+            SELECT p.globalid AS key,
+                [p.globalid, p.addresspointid::VARCHAR, p.segmentid::VARCHAR, b.segmentid::VARCHAR] AS claims,
+                p.globalid AS log_key, p.segmentid AS old,
+                [
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'segmentid', v := b.segmentid::VARCHAR),
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'b7sc_actual', v := b.b5sc || 'ZZ'),
+                    struct_pack(t := 'dcp_cscl_addresspoints', k := 'globalid', kv := p.globalid, c := 'boroughcode', v := b.borough)
+                ] AS edits
+            FROM s_numbered AS p
+            INNER JOIN b_proto AS b ON p.rn = b.rn
+            ORDER BY p.globalid
+        """,
+    ),
+    Mutation(
+        # an Edgewater Park style (SND feature type E) address whose suffix carries no
+        # section letter
+        name="saf_s_no_section_letter",
+        log_message_ids=["CSCL-LOG-SAF-11"],
+        table="dcp_cscl_addresspoints",
+        column="house_number_suffix",
+        new_value="Q",
+        candidates_sql="""
+            SELECT ap.globalid AS key, [ap.globalid, ap.addresspointid::VARCHAR, ap.segmentid::VARCHAR] AS claims,
+                ap.globalid AS log_key, ap.house_number_suffix AS old
+            FROM {s}.dcp_cscl_addresspoints AS ap
+            INNER JOIN {s}.dcp_cscl_streetname AS sn
+                ON ap.b7sc_actual = sn.b7sc AND sn.principal_flag = 'Y'
+            WHERE ap.special_condition = 'S' AND UPPER(TRIM(sn.snd_feature_type)) = 'E'
+                AND TRIM(COALESCE(ap.house_number, '')) <> ''
+                AND LOWER(RIGHT(TRIM(ap.house_number), 1)) NOT IN ('a', 'b', 'c', 'd', 'e')
+            ORDER BY ap.globalid
+        """,
+    ),
+    Mutation(
+        name="saf_v_orphan_segmentid",
+        log_message_ids=["CSCL-LOG-SAF-16"],
+        table="dcp_cscl_addresspoints",
+        column="segmentid",
+        new_value=_fake_segmentid,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, addresspointid::VARCHAR, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, segmentid AS old, globalid AS dropped_globalid
+            FROM {s}.dcp_cscl_addresspoints
+            WHERE special_condition = 'V' AND hyphen_type <> 'U'
+            ORDER BY globalid
+        """,
+        dropped_from="saf",
+    ),
+    Mutation(
+        name="saf_d_orphan_segmentid",
+        log_message_ids=["CSCL-LOG-SAF-15"],
+        table="dcp_cscl_altsegmentdata",
+        column="segmentid",
+        new_value=_fake_segmentid,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, segmentid AS old, globalid AS dropped_globalid
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype IN ('D', 'F')
+            ORDER BY globalid
+        """,
+        dropped_from="saf",
+    ),
+    Mutation(
+        name="saf_o_orphan_segmentid",
+        log_message_ids=["CSCL-LOG-SAF-18"],
+        table="dcp_cscl_altsegmentdata",
+        column="segmentid",
+        new_value=_fake_segmentid,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, segmentid AS old, globalid AS dropped_globalid
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype = 'O'
+            ORDER BY globalid
+        """,
+        dropped_from="saf",
+    ),
+    Mutation(
+        # a DAPS street code prod has no regular street for; nor a name, so its LION
+        # replicant has no SAFStreetName either
+        name="saf_d_unknown_daps_b5sc",
+        log_message_ids=["CSCL-LOG-SAF-14", "CSCL-LOG-BYTES-02"],
+        table="dcp_cscl_altsegmentdata",
+        column="b5sc",
+        new_value=lambda cand, n: f"{cand['old'][0]}99{n % 1000:03d}",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, b5sc AS old
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype IN ('D', 'F') AND LENGTH(b5sc) = 6
+                AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="saf_abcep_unnamed_lgc",
+        log_message_ids=["CSCL-LOG-SAF-20", "CSCL-LOG-BYTES-02"],
+        table="dcp_cscl_altsegmentdata",
+        column="lgc1",
+        new_value="ZZ",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, lgc1 AS old
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype IN ('B', 'E', 'P') AND LENGTH(b5sc) = 6
+                AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        # a place on a boundary segment, in neither the centerline's nor the proto's borough
+        name="commonplace_proto_wrong_borough",
+        log_message_ids=["CSCL-LOG-SAF-26"],
+        table="dcp_cscl_commonplace_gdb",
+        column="boroughcode",
+        new_value=lambda cand, _n: cand["new_borough"],
+        candidates_sql="WITH "
+        + _COMMONPLACE_OK
+        + """
+            SELECT p.globalid AS key, [p.globalid, p.placeid::VARCHAR] AS claims,
+                p.globalid AS log_key, p.boroughcode AS old,
+                (SELECT MIN(b) FROM (VALUES ('1'), ('2'), ('3'), ('4'), ('5')) AS t(b)
+                    WHERE b <> TRIM(f.cl_borough) AND b <> f.proto_borough) AS new_borough
+            FROM places AS p
+            INNER JOIN first_proto AS f ON p.segmentid = f.segmentid
+            WHERE f.proto_type = 'B'
+            ORDER BY p.globalid
+        """,
+    ),
+    Mutation(
+        # move a place onto a segment whose first proto is a type C
+        name="commonplace_on_type_c_proto",
+        log_message_ids=["CSCL-LOG-SAF-27"],
+        table="dcp_cscl_commonplace_gdb",
+        column="segmentid",
+        new_value=lambda cand, _n: cand["target"],
+        candidates_sql="WITH "
+        + _COMMONPLACE_OK
+        + """,
+            targets AS (
+                SELECT segmentid, ROW_NUMBER() OVER (ORDER BY segmentid) AS rn
+                FROM first_proto WHERE proto_type NOT IN ('B', 'R')
+            ),
+            movable AS (
+                SELECT *, ROW_NUMBER() OVER (ORDER BY globalid) AS rn FROM places
+                WHERE segmentid NOT IN (SELECT segmentid FROM first_proto)
+            )
+            SELECT m.globalid AS key, [m.globalid, m.placeid::VARCHAR, t.segmentid::VARCHAR] AS claims,
+                m.globalid AS log_key, m.segmentid AS old, t.segmentid AS target
+            FROM movable AS m INNER JOIN targets AS t ON m.rn = t.rn
+            ORDER BY m.globalid
+        """,
+    ),
+    # FeatureName rows in SND, Enders and the Exception file (each extract's own query)
+    Mutation(
+        name="featurename_blank_lookup_key",
+        log_message_ids=["CSCL-LOG-SND-02"],
+        table="dcp_cscl_featurename",
+        column="lookup_key",
+        new_value="",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_featurename
+            WHERE principal_flag <> 'Y' AND lookup_key IS NOT NULL AND b10sc IS NOT NULL
+                AND enders_flag IS DISTINCT FROM 'Y' AND exception_flag IS DISTINCT FROM 'Y'
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="featurename_enders_null_lookup_key",
+        log_message_ids=["CSCL-LOG-END-02"],
+        table="dcp_cscl_featurename",
+        column="lookup_key",
+        new_value=None,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_featurename
+            WHERE enders_flag = 'Y' AND principal_flag <> 'Y' ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="featurename_exception_null_lookup_key",
+        log_message_ids=["CSCL-LOG-EXC-04"],
+        table="dcp_cscl_featurename",
+        column="lookup_key",
+        new_value=None,
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_featurename
+            WHERE exception_flag = 'Y' AND enders_flag IS DISTINCT FROM 'Y'
+                AND principal_flag <> 'Y'
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="streetname_exception_one_letter",
+        log_message_ids=["CSCL-LOG-EXC-01"],
+        table="dcp_cscl_streetname",
+        column="lookup_key",
+        new_value="Q",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_streetname
+            WHERE exception_flag = 'Y' AND enders_flag = 'N' AND principal_flag <> 'Y'
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        name="featurename_exception_one_letter",
+        log_message_ids=["CSCL-LOG-EXC-03"],
+        table="dcp_cscl_featurename",
+        column="lookup_key",
+        new_value="Q",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, b7sc] AS claims, globalid AS log_key,
+                lookup_key AS old
+            FROM {s}.dcp_cscl_featurename
+            WHERE exception_flag = 'Y' AND enders_flag = 'N' AND principal_flag <> 'Y'
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        # a feature name no segment is named from
+        name="featurename_blank_facecode",
+        log_message_ids=["CSCL-LOG-FC-03"],
+        table="dcp_cscl_featurename",
+        column="facecode",
+        new_value=None,
+        candidates_sql="WITH "
+        + _FEATURENAME_FACE
+        + """
+            SELECT fn.globalid AS key, [fn.globalid, fn.b7sc] AS claims, fn.globalid AS log_key,
+                fn.facecode AS old
+            FROM fn
+            WHERE fn.b7sc NOT IN (SELECT b7sc FROM {s}.dcp_cscl_segment_lgc WHERE b7sc IS NOT NULL)
+                AND fn.b7sc NOT IN (SELECT b7sc FROM saf_b7sc)
+            ORDER BY fn.globalid
+        """,
+    ),
+    Mutation(
+        # a feature name one segment is named from: that segment loses its face code too
+        name="featurename_blank_facecode_preferred",
+        log_message_ids=["CSCL-LOG-FC-03", "CSCL-LOG-FC-04", "CSCL-LOG-LION-18"],
+        # the face code rows carry the FeatureName row, LION-18 the segment
+        message_matches={
+            "CSCL-LOG-FC-03": lambda cand: f"FEATURENAMEID = [{cand['featurenameid']}]",
+            "CSCL-LOG-FC-04": lambda cand: f"FEATURENAMEID = [{cand['featurenameid']}]",
+        },
+        table="dcp_cscl_featurename",
+        column="facecode",
+        new_value=None,
+        candidates_sql="WITH "
+        + _FEATURENAME_FACE
+        + """
+            SELECT fn.globalid AS key,
+                [fn.globalid, fn.b7sc, f.globalid, f.segmentid::VARCHAR] AS claims,
+                f.globalid AS log_key, fn.facecode AS old, f.globalid AS dropped_globalid,
+                fn.featurenameid
+            FROM fn
+            INNER JOIN single_principal USING (b7sc)
+            INNER JOIN pref USING (b7sc)
+            INNER JOIN lion_features AS f ON pref.segmentid = f.segmentid
+            WHERE pref.n = 1
+                AND fn.b7sc NOT IN (SELECT b7sc FROM saf_b7sc)
+                AND f.segmentid NOT IN (SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
+            ORDER BY fn.globalid
+        """,
+        dropped_from="lion",
+    ),
+    Mutation(
+        # a roadbed pointer to a generic segment that doesn't exist, on a roadbed no SAF
+        # point or place sits on
+        name="roadbed_pointer_orphan_generic",
+        log_message_ids=["CSCL-LOG-RPL-06"],
+        table="dcp_cscl_roadbed_pointer_list",
+        column="generic_segmentid",
+        new_value=_fake_segmentid,
+        candidates_sql="""
+            SELECT globalid AS key,
+                [globalid, roadbed_segmentid::VARCHAR, generic_segmentid::VARCHAR] AS claims,
+                globalid AS log_key, generic_segmentid AS old
+            FROM {s}.dcp_cscl_roadbed_pointer_list
+            WHERE roadbed_segmentid NOT IN (
+                    SELECT segmentid FROM {s}.dcp_cscl_addresspoints WHERE segmentid IS NOT NULL
+                    UNION ALL
+                    SELECT segmentid FROM {s}.dcp_cscl_commonplace_gdb WHERE segmentid IS NOT NULL
+                )
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        # LION replicant of an O entry with no street code
+        name="saf_o_blank_street_code",
+        log_message_ids=["CSCL-LOG-BYTES-01"],
+        table="dcp_cscl_altsegmentdata",
+        column="b5sc",
+        new_value="",
+        candidates_sql="""
+            SELECT globalid AS key, [globalid, segmentid::VARCHAR] AS claims,
+                globalid AS log_key, b5sc AS old
+            FROM {s}.dcp_cscl_altsegmentdata
+            WHERE alt_segdata_type = 'S' AND saftype = 'O'
+                AND segmentid IN (SELECT segmentid FROM {s}.dcp_cscl_centerline)
+            ORDER BY globalid
+        """,
+    ),
+    Mutation(
+        # the street of one centerline loses its name (not its face code); the street
+        # names nothing else
+        name="streetname_null_lookup_key_centerline",
+        log_message_ids=["CSCL-LOG-BYTES-03"],
+        table="dcp_cscl_streetname",
+        column="lookup_key",
+        new_value=None,
+        candidates_sql="WITH "
+        + _FEATURENAME_FACE
+        + """,
+            lgc_use AS (
+                SELECT b7sc, COUNT(*) AS n FROM {s}.dcp_cscl_segment_lgc GROUP BY b7sc
+            )
+            SELECT sn.globalid AS key, [sn.globalid, sn.b7sc, cl.globalid, cl.segmentid::VARCHAR] AS claims,
+                cl.globalid AS log_key, sn.lookup_key AS old
+            FROM {s}.dcp_cscl_streetname AS sn
+            INNER JOIN single_principal USING (b7sc)
+            INNER JOIN pref USING (b7sc)
+            INNER JOIN lgc_use USING (b7sc)
+            INNER JOIN {s}.dcp_cscl_centerline AS cl ON pref.segmentid = cl.segmentid
+            WHERE sn.principal_flag = 'Y' AND sn.facecode IS NOT NULL AND pref.n = 1 AND lgc_use.n = 1
+                AND sn.enders_flag IS DISTINCT FROM 'Y' AND sn.exception_flag IS DISTINCT FROM 'Y'
+                AND sn.b7sc NOT IN (SELECT b7sc FROM saf_b7sc)
+                AND cl.segmentid NOT IN (SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL)
+            ORDER BY sn.globalid
+        """,
     ),
 ]
 

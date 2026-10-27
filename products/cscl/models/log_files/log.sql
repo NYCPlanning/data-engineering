@@ -5,6 +5,7 @@
 
 -- Each log__* model emits its detection rows with a log_message_id and the message body;
 -- the effect comes from the log_messages seed and the "[<id>] " prefix is added here.
+-- record_id is text: union_relations would otherwise take the first model's type.
 WITH log_rows AS (
     {{ dbt_utils.union_relations(relations=[
         ref("log__lion_centerline_boro_mismatch"),
@@ -22,12 +23,17 @@ WITH log_rows AS (
         ref("log__saf_invalid_b7sc"),
         ref("log__saf_name_missing"),
         ref("log__saf_segment_not_found"),
+        ref("log__saf_s_checks"),
+        ref("log__saf_d_daps_b5sc"),
+        ref("log__saf_commonplace_proto"),
+        ref("log__special_sedat_name_missing"),
+        ref("log__gdb_lion_name_missing"),
         ref("log__face_code_missing"),
         ref("log__lion_level_codes"),
         ref("log__rpl_missing_roadbed"),
         ref("log__street_name_blank_lookup_key"),
         ref("log__export_file_summary"),
-    ]) }}
+    ], column_override={"record_id": "varchar"}) }}
 )
 
 SELECT

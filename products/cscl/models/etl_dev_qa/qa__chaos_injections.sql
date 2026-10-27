@@ -1,4 +1,4 @@
--- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('int__snd') }}, {{ ref('enders_by_field') }}, {{ ref('int__rpl') }}, {{ ref('log_messages') }}
+-- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('int__snd') }}, {{ ref('enders_by_field') }}, {{ ref('int__rpl') }}, {{ ref('int__saf_s') }}, {{ ref('int__saf_v') }}, {{ ref('int__saf_d') }}, {{ ref('int__saf_o') }}, {{ ref('log_messages') }}
 -- One row per chaos injection and expected log id (poc_validation/chaos_monkey.py writes
 -- the chaos_injections manifest): was the injected record logged under that id, and is a
 -- record the message says is dropped really missing from its output. Empty unless the
@@ -23,6 +23,20 @@
         SELECT saf_globalid AS globalid FROM {{ ref('int__saf_gnx') }}
         UNION
         SELECT saf_globalid AS globalid FROM {{ ref('int__saf_abcep') }}
+        -- S, V, D and O records with no segment type stay in their models but reach
+        -- neither the generic nor the roadbed file
+        UNION
+        SELECT saf_globalid AS globalid FROM {{ ref('int__saf_s') }}
+        WHERE generic OR roadbed
+        UNION
+        SELECT saf_globalid AS globalid FROM {{ ref('int__saf_v') }}
+        WHERE generic OR roadbed
+        UNION
+        SELECT saf_globalid AS globalid FROM {{ ref('int__saf_d') }}
+        WHERE generic OR roadbed
+        UNION
+        SELECT saf_globalid AS globalid FROM {{ ref('int__saf_o') }}
+        WHERE generic OR roadbed
     ),
     snd AS (
         SELECT DISTINCT globalid FROM {{ ref('int__snd') }}
