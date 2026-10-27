@@ -3,10 +3,11 @@ version: 2
 models:
 - name: log
   description: >-
-    The build log, exported as log.csv: one row per record a LION, SAF, Face, SND, Enders,
-    Exception or RPL check flagged (error or warning), one row per ThinLION lookup that
-    found nothing, one row per borough counting the StreetName rows left out of its Face
-    file (the records are in log_face_code_missing.csv), plus one summary row per
+    The build log, exported as log.csv: one row per record a LION, LION gdb, SAF, Face,
+    SND, Enders, Exception, RPL or Special SEDAT check flagged (error, warning, or info
+    for prod's INFO-level SAF-11), one row per ThinLION lookup that found nothing, one
+    row per borough and name table counting the rows left out of its Face file (the
+    records are in log_face_code_missing.csv), plus one summary row per
     exported flat file with its record count.
     Each row comes from one log__* model, named in _dbt_source_relation, and carries the
     id of its message in the log_messages seed (see seeds.yml). The models emit the id
@@ -16,7 +17,7 @@ models:
   - name: _dbt_source_relation
     description: The log__* model the row came from.
   - name: log_level
-    description: "`error`, `warning`, or `info` (file summary rows)."
+    description: "`error`, `warning`, or `info` (file summary rows, CSCL-LOG-SAF-11)."
   - name: log_message_id
     description: >-
       The row's message in the log_messages seed: prod's message (CSCL-LOG-LION-05) or
@@ -51,8 +52,9 @@ models:
   - name: record_id_type
     description: >-
       What record_id holds: `segmentid`, `placeid` for SAF CommonPlace rows,
-      `streetnameid` for StreetName rows, `roadbed_segmentid` for RPL rows. Blank on
-      file summary and ThinLION lookup rows.
+      `addresspointid` for SAF S points, `streetnameid` / `featurenameid` for StreetName
+      / FeatureName rows, `roadbed_segmentid` for RPL rows, `lionkey` for LION gdb SAF
+      replicants. Blank on file summary and ThinLION lookup rows.
   - name: record_id
     description: The flagged record's id, per record_id_type. Blank on file summary rows.
   - name: message
@@ -91,14 +93,18 @@ models:
 
 - name: log__saf_name_missing
   description: >-
-    G/N/X CommonPlaces SAF leaves out because their B7SC has no principal name in the
-    FeatureName or StreetName table. Prod's "[NAME MISSING]" check (CSCL-LOG-SAF-23).
+    SAF records with no principal name in the FeatureName or StreetName table, prod's
+    "[NAME MISSING]" check: G/N/X CommonPlaces by B7SC, which SAF leaves out
+    (CSCL-LOG-SAF-23), and A/B/E/P AltSegmentData rows by B5SC + LGC1 (CSCL-LOG-SAF-20),
+    which prod leaves out and we still write with a blank name.
 
 - name: log__saf_segment_not_found
   description: >-
     SAF records SAF leaves out because their SEGMENTID matches no segment: A/B/C/E/P
     AltSegmentData rows with no Centerline (CSCL-LOG-SAF-21), G/N/X CommonPlaces with no
-    Centerline, Shoreline, Rail or Subway feature (CSCL-LOG-SAF-25).
+    Centerline, Shoreline, Rail or Subway feature (CSCL-LOG-SAF-25), S and V address
+    points (CSCL-LOG-SAF-12, -16) and D/F and O AltSegmentData rows (CSCL-LOG-SAF-15,
+    -18) with no Centerline.
 
 - name: log__thinlion_lookup_not_found
   description: >-
@@ -129,30 +135,67 @@ models:
 
 - name: log__face_code_missing
   description: >-
-    Principal StreetName rows with a blank FACECODE, which the Face files leave out
-    (CSCL-LOG-FC-01): one row per borough with the count in record_count, since there
-    are thousands; the records are in log_face_code_missing.csv. A row whose B7SC is a
-    segment's preferred LGC is logged on its own as CSCL-LOG-FC-02.
+    Principal StreetName (CSCL-LOG-FC-01) and FeatureName (CSCL-LOG-FC-03) rows with a
+    blank FACECODE, which the Face files leave out: one row per borough and table with
+    the count in record_count, since there are thousands; the records are in
+    log_face_code_missing.csv. A row whose B7SC is a segment's preferred LGC is logged on
+    its own as CSCL-LOG-FC-02 (StreetName) or CSCL-LOG-FC-04 (FeatureName).
 
 - name: log_face_code_missing
   description: >-
     Attachment to log.csv, exported as log_face_code_missing.csv: every principal
-    StreetName row with a blank FACECODE (CSCL-LOG-FC-01), one row each in prod's
-    wording, with log.csv's columns plus the borough, B10SC, B7SC and lookup key.
+    StreetName (CSCL-LOG-FC-01) or FeatureName (CSCL-LOG-FC-03) row with a blank
+    FACECODE, one row each in prod's wording, with log.csv's columns plus the borough,
+    B10SC, B7SC and lookup key.
 
 - name: log_records
   description: >-
-    Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 counts
-    swapped for the records in log_face_code_missing. What the chaos QA models
+    Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 and -03
+    counts swapped for the records in log_face_code_missing. What the chaos QA models
     (qa__chaos_injections, qa__chaos_summary) check.
 
 - name: log__street_name_blank_lookup_key
   description: >-
-    StreetName rows with a blank LOOKUP_KEY, which SND (CSCL-LOG-SND-01), Enders
-    (CSCL-LOG-END-01) or the Exception file (CSCL-LOG-EXC-02) leave out. Each follows
-    prod's own row filter and blank test for that file.
+    StreetName and FeatureName rows with a blank LOOKUP_KEY, which SND (CSCL-LOG-SND-01,
+    -02), Enders (CSCL-LOG-END-01, -02) or the Exception file (CSCL-LOG-EXC-02, -04) leave
+    out, and Exception rows whose name is shorter than 2 characters (CSCL-LOG-EXC-01,
+    -03). Each follows prod's own row filter and blank test for that file.
 
 - name: log__rpl_missing_roadbed
   description: >-
-    RoadbedPointerList rows whose roadbed segment matches no centerline, which prod
-    leaves out of RPL (CSCL-LOG-RPL-05); int__rpl drops them too.
+    RoadbedPointerList rows whose generic (CSCL-LOG-RPL-06) or else roadbed
+    (CSCL-LOG-RPL-05) segment matches no centerline, which prod leaves out of RPL;
+    int__rpl drops the RPL-05 rows too.
+
+- name: log__saf_s_checks
+  description: >-
+    SAF S address points prod leaves out after finding their centerline, logged for the
+    first check they fail in prod's order: no face code for B7SC_ACTUAL or the segment's
+    street (CSCL-LOG-SAF-06); in another borough than the segment's street, but no proto
+    (-07), a first proto that isn't type B (-08), in another borough (-09) or with another
+    B7SC (-10); an SND feature type E address with no section letter (-11, INFO in prod).
+    int__saf_s still writes them.
+
+- name: log__saf_d_daps_b5sc
+  description: >-
+    SAF D/F AltSegmentData rows whose DAPS B5SC isn't one of prod's hard-coded street
+    codes (CSCL-LOG-SAF-14), which prod leaves out of SAF and int__saf_d still writes.
+
+- name: log__saf_commonplace_proto
+  description: >-
+    G/N/X CommonPlaces on a centerline with coincident segments and a proto: the first
+    proto is type B but neither it nor the centerline is in the place's borough
+    (CSCL-LOG-SAF-26), or it is of a type other than B or R (CSCL-LOG-SAF-27). Prod
+    leaves them out of SAF; int__saf_gnx still writes them.
+
+- name: log__special_sedat_name_missing
+  description: >-
+    Special SEDAT rows whose B7SC has no principal name in the StreetName or FeatureName
+    table (CSCL-LOG-SSEDAT-01), which prod and special_sedat_fields leave out.
+
+- name: log__gdb_lion_name_missing
+  description: >-
+    LION gdb rows prod (ESRI LION) leaves out for a missing name: SAF replicants with a
+    blank SAFStreetCode (CSCL-LOG-BYTES-01) or SAFStreetName (CSCL-LOG-BYTES-02), and
+    features with a blank Street (CSCL-LOG-BYTES-03). gdb_lion writes them, except
+    unnamed G/N/X CommonPlace replicants.
