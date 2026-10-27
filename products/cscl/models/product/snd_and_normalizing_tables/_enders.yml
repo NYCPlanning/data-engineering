@@ -26,3 +26,7 @@ models:
         data_type: string
         description: Identical to lookup_key - not a CSCL field, just the key this
           model builds.
+      - name: _globalid
+        data_type: string
+        description: GlobalID of the StreetName or FeatureName row - not a CSCL field, left
+          out of the Enders file; keys the row for QA.

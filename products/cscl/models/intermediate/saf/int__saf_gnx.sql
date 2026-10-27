@@ -48,6 +48,10 @@ feature_names AS (
 -- prod leaves out a place whose SEGMENTID matches no segment, and logs it (CSCL-LOG-SAF-25)
 orphans AS (
     SELECT globalid FROM {{ ref('int__saf_orphan_segmentids') }}
+),
+-- nor a place on a segment whose proto doesn't match it (CSCL-LOG-SAF-26, -27)
+proto_mismatch AS (
+    SELECT globalid FROM {{ ref('int__saf_commonplace_proto') }}
 )
 SELECT
     feature_names.place_name_sort_order AS place_name,
@@ -89,6 +93,7 @@ LEFT JOIN address_points ON commonplace.primaryaddresspointid = address_points.a
 LEFT JOIN feature_names ON commonplace.b7sc = feature_names.b7sc
 LEFT JOIN point_atomic_polygon ON commonplace.globalid = point_atomic_polygon.globalid
 ANTI JOIN orphans ON saf.saf_globalid = orphans.globalid
+ANTI JOIN proto_mismatch ON saf.saf_globalid = proto_mismatch.globalid
 WHERE
     saf.saftype IN ('G', 'N', 'X')
     -- legacy drops a record with no place name

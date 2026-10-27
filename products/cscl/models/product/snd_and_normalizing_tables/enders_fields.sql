@@ -3,5 +3,6 @@ SELECT LEFT(lookup_key, 32) AS lookup_key
 FROM {{ ref('stg__facecode_and_featurename') }}
 WHERE
     enders_flag = 'Y'
-    -- prod drops StreetName rows with a NULL or empty key (CSCL-LOG-END-01)
-    AND NOT (feature_type = 'street' AND COALESCE(lookup_key, '') = '')
+    -- prod drops StreetName and FeatureName rows with a NULL or empty key
+    -- (CSCL-LOG-END-01, -02)
+    AND COALESCE(lookup_key, '') <> ''

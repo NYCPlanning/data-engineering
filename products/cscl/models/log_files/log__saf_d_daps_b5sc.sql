@@ -1,7 +1,8 @@
 -- SAF D/F AltSegmentData rows (DAPS) whose B5SC isn't one of prod's hard-coded DAPS street
 -- codes (seed saf_d_hardcoded_regular_b5sc, the cases of SAFExtractClass.cs:773-833).
 -- Prod's switch runs for type F rows too, so an F row with another street code is left
--- out as well. Rows with no centerline are logged as CSCL-LOG-SAF-15 instead.
+-- out as well; int__saf_d drops them. Rows with no centerline are logged as CSCL-LOG-SAF-15
+-- instead.
 WITH altsegdata AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
     WHERE saftype IN ('D', 'F')

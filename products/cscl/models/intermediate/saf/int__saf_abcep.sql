@@ -10,6 +10,12 @@ feature_names AS (
 -- prod leaves out a record whose SEGMENTID matches no centerline, and logs it (CSCL-LOG-SAF-21)
 orphans AS (
     SELECT globalid FROM {{ ref('int__saf_orphan_segmentids') }}
+),
+-- nor an A/B/E/P row whose B5SC + LGC1 has no principal name (CSCL-LOG-SAF-20, logged in
+-- log__saf_name_missing under the same condition); type C rows are always 75 STREET
+named AS (
+    SELECT DISTINCT b7sc FROM feature_names
+    WHERE TRIM(COALESCE(lookup_key, '')) <> ''
 )
 SELECT
     -- TODO "warning" issued if featurename instead of streetname
@@ -53,4 +59,9 @@ INNER JOIN altsegdata ON saf.saf_globalid = altsegdata.globalid
 LEFT JOIN feature_names
     ON (altsegdata.b5sc || altsegdata.lgc1) = feature_names.b7sc
 ANTI JOIN orphans ON saf.saf_globalid = orphans.globalid
-WHERE saf.saftype IN ('A', 'B', 'C', 'E', 'P')
+WHERE
+    saf.saftype IN ('A', 'B', 'C', 'E', 'P')
+    AND (
+        saf.saftype = 'C'
+        OR (COALESCE(altsegdata.b5sc, '') || COALESCE(altsegdata.lgc1, '')) IN (SELECT b7sc FROM named)
+    )

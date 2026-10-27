@@ -96,7 +96,7 @@ models:
     SAF records with no principal name in the FeatureName or StreetName table, prod's
     "[NAME MISSING]" check: G/N/X CommonPlaces by B7SC, which SAF leaves out
     (CSCL-LOG-SAF-23), and A/B/E/P AltSegmentData rows by B5SC + LGC1 (CSCL-LOG-SAF-20),
-    which prod leaves out and we still write with a blank name.
+    which prod and int__saf_abcep leave out.
 
 - name: log__saf_segment_not_found
   description: >-
@@ -123,8 +123,7 @@ models:
     Curved (CURVE L or R) centerlines whose center of curvature can't be used: one so far
     off it won't fit the field ("[INVALID ANGLE & RADIUS FOUND]", CSCL-LOG-LION-07), or
     none at all because the start, middle and end points are collinear ("[NO CENTER POINT
-    FOUND]", CSCL-LOG-LION-08). Prod falls back to the segment midpoint in both cases; we
-    do for LION-08 only.
+    FOUND]", CSCL-LOG-LION-08). Both fall back to the segment midpoint, as in prod.
 
 - name: log__lion_level_codes
   description: >-
@@ -164,8 +163,8 @@ models:
 - name: log__rpl_missing_roadbed
   description: >-
     RoadbedPointerList rows whose generic (CSCL-LOG-RPL-06) or else roadbed
-    (CSCL-LOG-RPL-05) segment matches no centerline, which prod leaves out of RPL;
-    int__rpl drops the RPL-05 rows too.
+    (CSCL-LOG-RPL-05) segment matches no centerline, which prod and int__rpl leave out of
+    RPL.
 
 - name: log__saf_s_checks
   description: >-
@@ -174,19 +173,20 @@ models:
     street (CSCL-LOG-SAF-06); in another borough than the segment's street, but no proto
     (-07), a first proto that isn't type B (-08), in another borough (-09) or with another
     B7SC (-10); an SND feature type E address with no section letter (-11, INFO in prod).
-    int__saf_s still writes them.
+    The checks are in int__saf_s_checks; int__saf_s drops these points too.
 
 - name: log__saf_d_daps_b5sc
   description: >-
     SAF D/F AltSegmentData rows whose DAPS B5SC isn't one of prod's hard-coded street
-    codes (CSCL-LOG-SAF-14), which prod leaves out of SAF and int__saf_d still writes.
+    codes (CSCL-LOG-SAF-14), which prod and int__saf_d leave out of SAF.
 
 - name: log__saf_commonplace_proto
   description: >-
     G/N/X CommonPlaces on a centerline with coincident segments and a proto: the first
     proto is type B but neither it nor the centerline is in the place's borough
-    (CSCL-LOG-SAF-26), or it is of a type other than B or R (CSCL-LOG-SAF-27). Prod
-    leaves them out of SAF; int__saf_gnx still writes them.
+    (CSCL-LOG-SAF-26), or it is of a type other than B or R (CSCL-LOG-SAF-27). The checks
+    are in int__saf_commonplace_proto; prod and int__saf_gnx leave these places out of
+    SAF.
 
 - name: log__special_sedat_name_missing
   description: >-
@@ -197,5 +197,5 @@ models:
   description: >-
     LION gdb rows prod (ESRI LION) leaves out for a missing name: SAF replicants with a
     blank SAFStreetCode (CSCL-LOG-BYTES-01) or SAFStreetName (CSCL-LOG-BYTES-02), and
-    features with a blank Street (CSCL-LOG-BYTES-03). gdb_lion writes them, except
-    unnamed G/N/X CommonPlace replicants.
+    features with a blank Street (CSCL-LOG-BYTES-03). gdb_lion and gdb_altnames leave
+    them out too.

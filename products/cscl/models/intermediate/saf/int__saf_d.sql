@@ -44,4 +44,8 @@ LEFT JOIN feature_names
 --   note that says "tool has no means", but its a very joinable thing I think?
 --   SEE 7.3 note 4
 LEFT JOIN saf_d_regular_b5sc ON altsegdata.b5sc::INT = saf_d_regular_b5sc.daps_b5sc
-WHERE saf.saftype IN ('D', 'F')
+WHERE
+    saf.saftype IN ('D', 'F')
+    -- prod leaves out a row whose DAPS street code isn't one of its hard-coded ones, and
+    -- logs it (CSCL-LOG-SAF-14, log__saf_d_daps_b5sc)
+    AND saf_d_regular_b5sc.daps_b5sc IS NOT NULL

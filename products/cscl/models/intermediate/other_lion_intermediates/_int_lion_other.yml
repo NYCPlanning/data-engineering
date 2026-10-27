@@ -48,8 +48,16 @@ models:
   columns:
   - name: curve_flag
     description: "Curve flag from the centerline."
-  - name: center_is_midpoint
+  - name: no_center_found
     description: "True for an L or R curve whose start, middle and end points are collinear: no circle fits, so the center is the segment midpoint (as in prod, CSCL-LOG-LION-08)."
+  - name: center_out_of_range
+    description: "True for an L or R curve whose fitted center, rounded, doesn't fit prod's 7-character fields: the center is the segment midpoint (as in prod, CSCL-LOG-LION-07)."
+  - name: fitted_center_x
+    description: "X of the circle through the start, middle and end points, before any midpoint fallback."
+  - name: fitted_center_y
+    description: "Y of that circle's center."
+  - name: fitted_radius
+    description: "That circle's radius."
   - name: center_of_curvature_x
     description: "X of the center of curvature."
   - name: center_of_curvature_y

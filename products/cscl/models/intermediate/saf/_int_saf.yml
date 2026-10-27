@@ -25,6 +25,10 @@ models:
   description: "SAF records of types G, N and X, from CommonPlace points."
 - name: int__saf_orphan_segmentids
   description: "SAF records whose SEGMENTID matches no segment, which prod logs and leaves out of SAF: A/B/C/E/P, D/F and O altsegmentdata rows and S/V address points with no centerline, G/N/X CommonPlaces (with a valid B7SC) with no centerline, shoreline, rail or subway feature."
+- name: int__saf_s_checks
+  description: "SAF S address points on a centerline that fail one of prod's S checks (CSCL-LOG-SAF-06..11), with the id of the first one they fail. int__saf_s drops them; log__saf_s_checks logs them."
+- name: int__saf_commonplace_proto
+  description: "G/N/X CommonPlaces whose segment's first proto doesn't match them (CSCL-LOG-SAF-26, -27). int__saf_gnx drops them; log__saf_commonplace_proto logs them."
 - name: int__saf_i
   description: "SAF type I records: named intersections."
 - name: int__saf_s

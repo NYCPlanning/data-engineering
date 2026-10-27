@@ -23,5 +23,5 @@ WHERE
     lookup_key IS NOT NULL
     AND enders_flag IS DISTINCT FROM 'Y'
     AND b10sc IS NOT NULL
-    -- prod drops StreetName rows with a blank key (CSCL-LOG-SND-01)
-    AND NOT (feature_type = 'street' AND TRIM(lookup_key) = '')
+    -- prod drops StreetName and FeatureName rows with a blank key (CSCL-LOG-SND-01, -02)
+    AND TRIM(lookup_key) <> ''

@@ -1,4 +1,4 @@
--- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('int__snd') }}, {{ ref('enders_by_field') }}, {{ ref('int__rpl') }}, {{ ref('int__saf_s') }}, {{ ref('int__saf_v') }}, {{ ref('int__saf_d') }}, {{ ref('int__saf_o') }}, {{ ref('log_messages') }}
+-- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('int__snd') }}, {{ ref('enders_by_field') }}, {{ ref('int__rpl') }}, {{ ref('int__saf_s') }}, {{ ref('int__saf_v') }}, {{ ref('int__saf_d') }}, {{ ref('int__saf_o') }}, {{ ref('int__saf_replicant_fields') }}, {{ ref('gdb_lion') }}, {{ ref('log_messages') }}
 -- One row per chaos injection and expected log id (poc_validation/chaos_monkey.py writes
 -- the chaos_injections manifest): was the injected record logged under that id, and is a
 -- record the message says is dropped really missing from its output. Empty unless the
@@ -44,11 +44,22 @@
     rpl AS (
         SELECT DISTINCT globalid FROM {{ ref('int__rpl') }}
     ),
-    -- the Enders file carries no record key: a blanked lookup key still written shows up
-    -- as a blank line
-    enders_blank_lines AS (
-        SELECT COUNT(*) AS n FROM {{ ref('enders_by_field') }}
-        WHERE COALESCE(TRIM(lookup_key), '') = ''
+    enders AS (
+        SELECT DISTINCT _globalid AS globalid FROM {{ ref('enders_by_field') }}
+    ),
+    lion_saf AS (
+        SELECT DISTINCT saf_globalid AS globalid FROM {{ ref('int__saf_replicant_fields') }}
+        WHERE is_written
+    ),
+    -- a feature with any LION gdb row on its segment
+    gdb_lion AS (
+        SELECT DISTINCT int__lion.globalid
+        FROM {{ ref('int__lion') }} AS int__lion
+        INNER JOIN {{ ref('gdb_lion') }} AS gdb_lion
+            ON LPAD(int__lion.segmentid::VARCHAR, 7, '0') = gdb_lion."SegmentID"
+        WHERE int__lion.globalid IN (
+            SELECT dropped_globalid FROM injections WHERE dropped_from = 'gdb_lion'
+        )
     ),
     found AS (
         SELECT DISTINCT
@@ -72,7 +83,9 @@
             WHEN 'saf' THEN saf.globalid IS NULL
             WHEN 'snd' THEN snd.globalid IS NULL
             WHEN 'rpl' THEN rpl.globalid IS NULL
-            WHEN 'enders' THEN (SELECT n FROM enders_blank_lines) = 0
+            WHEN 'enders' THEN enders.globalid IS NULL
+            WHEN 'lion_saf' THEN lion_saf.globalid IS NULL
+            WHEN 'gdb_lion' THEN gdb_lion.globalid IS NULL
         END AS dropped
     FROM injections
     LEFT JOIN {{ ref('log_messages') }} AS log_messages ON injections.log_message_id = log_messages.id
@@ -82,6 +95,9 @@
     LEFT JOIN saf ON injections.dropped_from = 'saf' AND injections.dropped_globalid = saf.globalid
     LEFT JOIN snd ON injections.dropped_from = 'snd' AND injections.dropped_globalid = snd.globalid
     LEFT JOIN rpl ON injections.dropped_from = 'rpl' AND injections.dropped_globalid = rpl.globalid
+    LEFT JOIN enders ON injections.dropped_from = 'enders' AND injections.dropped_globalid = enders.globalid
+    LEFT JOIN lion_saf ON injections.dropped_from = 'lion_saf' AND injections.dropped_globalid = lion_saf.globalid
+    LEFT JOIN gdb_lion ON injections.dropped_from = 'gdb_lion' AND injections.dropped_globalid = gdb_lion.globalid
 {% else %}
     SELECT
         NULL::INT AS injection_id,
