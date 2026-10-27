@@ -506,7 +506,7 @@ models:
     description: "District boundary (multi)polygon."
     tests: [ not_null ]
 - name: int__boundary__pp
-  description: Police precinct boundaries - NYPD source polygons clipped to topology-built land, not built from the AtomicPolygon topology. Prod's layer has hairline sliver parts this one doesn't (CSCL-DISTRICTS-01).
+  description: Police precinct boundaries - NYPD source polygons clipped to topology-built land, not built from the AtomicPolygon topology, with the clip's zero-width spikes removed and its parts and holes under 100 sq ft dropped. Prod's layer has hairline sliver parts this one doesn't (CSCL-DISTRICTS-01).
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
