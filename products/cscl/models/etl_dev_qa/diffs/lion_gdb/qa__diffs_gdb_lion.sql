@@ -60,6 +60,26 @@ near_coincident_centerlines AS (
         st_covers(st_buffer(other.geom, 0.0005), segment.geom)
         AND st_covers(st_buffer(segment.geom, 0.0005), other.geom)
 ),
+-- CSCL-SAF-03 (gdb SegCount): prod counts AltSegmentData rows with a blank alt_segdata_type
+-- in the segment's SegCount, as it writes them to the SAF; ours leaves them out (spec Table 13).
+blank_type_altsegmentdata AS (
+    SELECT
+        lpad(segmentid::text, 7, '0') AS segmentid,
+        count(*) AS n_rows
+    FROM {{ source('recipe_sources', 'dcp_cscl_altsegmentdata') }}
+    WHERE nullif(trim(alt_segdata_type), '') IS NULL
+    GROUP BY 1
+),
+-- CSCL-SAF-06 (gdb SegCount): CommonPlaces in our extract that prod's isn't built with. Ours
+-- writes their SAF rows and counts them in the segment's SegCount.
+vintage_commonplaces AS (
+    SELECT
+        lpad(segmentid::text, 7, '0') AS segmentid,
+        count(*) AS n_rows
+    FROM {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }}
+    WHERE placeid IN (1042178)
+    GROUP BY 1
+),
 with_context AS (
     SELECT
         d.*,
@@ -68,11 +88,15 @@ with_context AS (
         b.featuretyp,
         split_part(d._gdb_lion_key, '|', 1) AS segmentid,
         tlr.segmentid IS NOT NULL AS is_topology_lr_segment,
-        ncc.segmentid IS NOT NULL AS has_near_coincident_centerline
+        ncc.segmentid IS NOT NULL AS has_near_coincident_centerline,
+        coalesce(bta.n_rows, 0) AS n_blank_type_altsegmentdata,
+        coalesce(vcp.n_rows, 0) AS n_vintage_commonplaces
     FROM base_diffs AS d
     LEFT JOIN {{ ref('qa_int__build_gdb_lion_keyed') }} AS b ON d._gdb_lion_key = b._gdb_lion_key
     LEFT JOIN topology_lr_segments AS tlr ON split_part(d._gdb_lion_key, '|', 1) = tlr.segmentid
     LEFT JOIN near_coincident_centerlines AS ncc ON split_part(d._gdb_lion_key, '|', 1) = ncc.segmentid
+    LEFT JOIN blank_type_altsegmentdata AS bta ON split_part(d._gdb_lion_key, '|', 1) = bta.segmentid
+    LEFT JOIN vintage_commonplaces AS vcp ON split_part(d._gdb_lion_key, '|', 1) = vcp.segmentid
 ),
 -- one row per changed field: cause label + whether the cause is verified/accepted
 field_causes AS (
@@ -101,6 +125,18 @@ field_causes AS (
                     - try_cast(w.changes ->> '$.segcount.new' AS int)
                 ) = 1
                 THEN 'CSCL-LION-14: SegCount near-coincident centerline'
+            WHEN
+                f.key = 'segcount'
+                AND w.n_blank_type_altsegmentdata > 0
+                AND try_cast(w.changes ->> '$.segcount.old' AS int)
+                - try_cast(w.changes ->> '$.segcount.new' AS int) = w.n_blank_type_altsegmentdata
+                THEN 'CSCL-SAF-03: SegCount counts blank alt_segdata_type row'
+            WHEN
+                f.key = 'segcount'
+                AND w.n_vintage_commonplaces > 0
+                AND try_cast(w.changes ->> '$.segcount.new' AS int)
+                - try_cast(w.changes ->> '$.segcount.old' AS int) = w.n_vintage_commonplaces
+                THEN 'CSCL-SAF-06: SegCount counts CommonPlace prod lacks'
             -- not attributed to a known difference
             WHEN f.key = 'segcount' THEN 'SegCount'
             WHEN f.key = 'street' THEN 'Street'
@@ -149,13 +185,13 @@ cause_summary AS (
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) IN (
                 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-14',
-                'CSCL-LION-16'
+                'CSCL-LION-16', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) NOT IN (
                 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-14',
-                'CSCL-LION-16'
+                'CSCL-LION-16', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS open_causes
     FROM field_causes
@@ -199,6 +235,6 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- every changed field has a verified, accepted cause (CSCL-LION-02/03/04/05/14/16)
+    -- every changed field has a known cause (CSCL-LION-02/03/04/05/14/16, CSCL-SAF-03/06)
     coalesce(status = 'modified' AND open_causes IS NULL, FALSE) AS accounted_for
 FROM categorized
