@@ -717,7 +717,7 @@ def _exists(conn: duckdb.DuckDBPyConnection, schema: str, table: str) -> bool:
 
 
 def logged_keys(conn: duckdb.DuckDBPyConnection, schema: str) -> set[str]:
-    """globalids and record ids already in a baseline log.csv, to keep injections clean."""
+    """globalids and record ids already in a baseline log, to keep injections clean."""
     if not _exists(conn, schema, BASELINE_LOG):
         return set()
     rows = conn.execute(
@@ -806,9 +806,13 @@ def inject(
         raise SystemExit(
             f"{schema}.{MANIFEST} exists: start again from a fresh inputs copy"
         )
-    if _exists(conn, schema, "log"):
+    # log_records: log.csv plus its attachments' records (log.csv alone on older builds)
+    log_table = next(
+        (t for t in ("log_records", "log") if _exists(conn, schema, t)), None
+    )
+    if log_table:
         conn.execute(
-            f'CREATE OR REPLACE TABLE "{schema}".{BASELINE_LOG} AS SELECT * FROM "{schema}".log'
+            f'CREATE OR REPLACE TABLE "{schema}".{BASELINE_LOG} AS SELECT * FROM "{schema}".{log_table}'
         )
     logged = logged_keys(conn, schema)
     rng = random.Random(seed)

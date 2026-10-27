@@ -76,7 +76,10 @@ python poc_validation/chaos_monkey.py --report      # prints qa__chaos_summary
 ```
 
 `qa__chaos_injections` has one row per injected record and expected id, with the old and
-new values, for working out why one wasn't logged.
+new values, for working out why one wasn't logged. Both QA models read `log_records`:
+log.csv plus the records of its attachments. A check that fires thousands of times on
+clean data (CSCL-LOG-FC-01) puts one count row per borough in log.csv and its records in an
+attachment export (`log_face_code_missing.csv`); add such an attachment to `log_records`.
 
 ## Documentation Generation
 

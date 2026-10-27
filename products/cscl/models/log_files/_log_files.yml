@@ -5,7 +5,9 @@ models:
   description: >-
     The build log, exported as log.csv: one row per record a LION, SAF, Face, SND, Enders,
     Exception or RPL check flagged (error or warning), one row per ThinLION lookup that
-    found nothing, plus one summary row per exported flat file with its record count.
+    found nothing, one row per borough counting the StreetName rows left out of its Face
+    file (the records are in log_face_code_missing.csv), plus one summary row per
+    exported flat file with its record count.
     Each row comes from one log__* model, named in _dbt_source_relation, and carries the
     id of its message in the log_messages seed (see seeds.yml). The models emit the id
     and the message body; this model takes effect from the seed and prefixes the message
@@ -63,7 +65,8 @@ models:
   - name: record_count
     description: >-
       Number of records written to output_filename on file summary rows; the number of
-      atomic polygons the lookup left blank on ThinLION lookup rows.
+      atomic polygons the lookup left blank on ThinLION lookup rows; the number of
+      StreetName rows left out of output_filename on CSCL-LOG-FC-01 rows.
 
 - name: log__export_file_summary
   description: >-
@@ -126,8 +129,21 @@ models:
 - name: log__face_code_missing
   description: >-
     Principal StreetName rows with a blank FACECODE, which the Face files leave out
-    (CSCL-LOG-FC-01), logged again when the row's B7SC is a segment's preferred LGC
-    (CSCL-LOG-FC-02).
+    (CSCL-LOG-FC-01): one row per borough with the count in record_count, since there
+    are thousands; the records are in log_face_code_missing.csv. A row whose B7SC is a
+    segment's preferred LGC is logged on its own as CSCL-LOG-FC-02.
+
+- name: log_face_code_missing
+  description: >-
+    Attachment to log.csv, exported as log_face_code_missing.csv: every principal
+    StreetName row with a blank FACECODE (CSCL-LOG-FC-01), one row each in prod's
+    wording, with log.csv's columns plus the borough, B10SC, B7SC and lookup key.
+
+- name: log_records
+  description: >-
+    Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 counts
+    swapped for the records in log_face_code_missing. What the chaos QA models
+    (qa__chaos_injections, qa__chaos_summary) check.
 
 - name: log__street_name_blank_lookup_key
   description: >-

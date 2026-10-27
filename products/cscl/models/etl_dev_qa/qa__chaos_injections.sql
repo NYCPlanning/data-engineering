@@ -1,4 +1,4 @@
--- depends_on: {{ ref('log') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('log_messages') }}
+-- depends_on: {{ ref('log_records') }}, {{ ref('int__lion') }}, {{ ref('int__saf_gnx') }}, {{ ref('int__saf_abcep') }}, {{ ref('log_messages') }}
 -- One row per chaos injection and expected log id (poc_validation/chaos_monkey.py writes
 -- the chaos_injections manifest): was the injected record logged under that id, and is a
 -- record the message says is dropped really missing from its output. Empty unless the
@@ -14,7 +14,7 @@
         SELECT * FROM {{ manifest }}
     ),
     log AS (
-        SELECT * FROM {{ ref('log') }}
+        SELECT * FROM {{ ref('log_records') }}
     ),
     lion AS (
         SELECT DISTINCT globalid FROM {{ ref('int__lion') }}
