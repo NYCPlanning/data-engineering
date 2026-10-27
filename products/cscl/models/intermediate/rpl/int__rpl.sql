@@ -47,8 +47,11 @@ generic_attributes AS (
         cscl_rpl.roadbed_position_code,
         'B' AS node_correspondence_indicator, -- all records are 'B' in production, but the docs say it should be node_correspondence_ind
         -- cscl_rpl.node_correspondence_ind AS node_correspondence_indicator,
-        chr(64 + cscl_rpl.from_node_level_coincident_rb) AS from_node_level_code_of_coincident_roadbed_segment,
-        chr(64 + cscl_rpl.to_node_level_coincident_rb) AS to_node_level_code_of_coincident_roadbed_segment,
+        -- 1-26 is A-Z and 99 is '*'; any other number is blank, like prod (CSCL-LOG-RPL-08)
+        convert_level_code(cscl_rpl.from_node_level_coincident_rb, 'centerline')
+            AS from_node_level_code_of_coincident_roadbed_segment,
+        convert_level_code(cscl_rpl.to_node_level_coincident_rb, 'centerline')
+            AS to_node_level_code_of_coincident_roadbed_segment,
         lion.from_nodeid AS from_nodeid_of_generic_segment,
         lion.to_nodeid AS to_nodeid_of_generic_segment,
         lion.geom AS generic_geom
