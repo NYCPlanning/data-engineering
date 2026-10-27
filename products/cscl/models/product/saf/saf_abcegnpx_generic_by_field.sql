@@ -17,8 +17,7 @@ SELECT
     -- deliberately excluded - they're computed side-of-street geo joins that can
     -- legitimately differ from prod (e.g. an atomic-polygon boundary call), so
     -- putting them in the key would hide real diffs instead of catching them.
-    -- Verified unique (bar one known place_name-spelling-variant pair) against a
-    -- real build's output.
+    -- Unique per row (tested in _saf.yml).
     boroughcode || '|' || face_code || '|' || segmentid || '|' || segment_seqnum
     || '|' || sos_indicator || '|' || b5sc || '|' || l_low_hn || '|' || l_high_hn
     || '|' || r_low_hn || '|' || r_high_hn || '|' || x_coord || '|' || y_coord
