@@ -1553,6 +1553,9 @@ def git_commit() -> str:
 def build_baseline(db_path: Path) -> None:
     """Full dbt seed + run on an inputs-loaded DuckDB, keeping the manifest to compare
     later code against."""
+    if db_path.stem in ("main", "memory", "system", "temp"):
+        # DuckDB names the catalog after the file, and these are taken
+        raise SystemExit(f"{db_path.name}: pick another file name")
     dbt(["seed", "-q"], db_path)
     dbt(["run", "-q", "--selector", "duckdb_build"], db_path)
     state = state_dir(db_path)

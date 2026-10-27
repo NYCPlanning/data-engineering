@@ -64,11 +64,12 @@ log check starts as a test that fails:
    records really gone from their output (`not_dropped = 0`), and no new log rows beyond
    the injected records (`unexpected_rows = 0`).
 
-The loop works off a baseline: a copy of an inputs-loaded DuckDB with a full build on it,
-made once (~7 minutes). Each run (~1 minute) copies it, rebuilds the models
-that differ from the code the baseline was built from (`state:modified+`, so the log it
-compares against is the current code's), injects, rebuilds the models between the edited
-input tables and the chaos QA models (`source:<table>+,+qa__chaos_summary`), and prints
+The loop works off a baseline: a copy of an inputs-loaded DuckDB with a full build on it
+(the `duckdb_build` selector, ~2 minutes), made once. Each run (~1 minute) copies it,
+rebuilds the models that differ from the code the baseline was built from
+(`state:modified+`, so the log it compares against is the current code's), injects,
+rebuilds the models between the edited input tables and the chaos QA models
+(`source:<table>+,+qa__chaos_summary`), and prints
 `qa__chaos_summary`. The rest of the copy stays as the baseline built it:
 
 ```bash
