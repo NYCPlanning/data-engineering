@@ -48,19 +48,34 @@ preferred AS (
     ORDER BY segmentid, ogc_fid
 ),
 features AS (
-    SELECT 'centerline' AS source_table, globalid, segmentid
+    SELECT
+        'centerline' AS source_table,
+        globalid,
+        segmentid
     FROM {{ source('recipe_sources', 'dcp_cscl_centerline') }}
     UNION ALL
-    SELECT 'shoreline', globalid, segmentid
+    SELECT
+        'shoreline' AS source_table,
+        globalid,
+        segmentid
     FROM {{ source('recipe_sources', 'dcp_cscl_shoreline') }}
     UNION ALL
-    SELECT 'rail', globalid, segmentid
+    SELECT
+        'rail' AS source_table,
+        globalid,
+        segmentid
     FROM {{ source('recipe_sources', 'dcp_cscl_rail') }}
     UNION ALL
-    SELECT 'subway', globalid, segmentid
+    SELECT
+        'subway' AS source_table,
+        globalid,
+        segmentid
     FROM {{ source('recipe_sources', 'dcp_cscl_subway') }}
     UNION ALL
-    SELECT 'nonstreetfeatures', globalid, segmentid
+    SELECT
+        'nonstreetfeatures' AS source_table,
+        globalid,
+        segmentid
     FROM {{ source('recipe_sources', 'dcp_cscl_nonstreetfeatures') }}
 ),
 protos AS (
@@ -155,13 +170,13 @@ found AS (
         END
     UNION ALL
     SELECT
-        CASE WHEN protos.is_centerline THEN 'CSCL-LOG-LION-15' ELSE 'CSCL-LOG-LION-16' END,
+        CASE WHEN protos.is_centerline THEN 'CSCL-LOG-LION-15' ELSE 'CSCL-LOG-LION-16' END AS log_message_id,
         protos.globalid,
-        'altsegmentdata',
-        'segmentid',
-        protos.segmentid::VARCHAR,
+        'altsegmentdata' AS source_feature_layer,
+        'segmentid' AS record_id_type,
+        protos.segmentid::VARCHAR AS record_id,
         protos.b7sc,
-        CASE WHEN protos.is_centerline THEN featurename.lookup_key ELSE streetname.lookup_key END
+        CASE WHEN protos.is_centerline THEN featurename.lookup_key ELSE streetname.lookup_key END AS name
     FROM protos
     LEFT JOIN streetname ON protos.b7sc = streetname.b7sc
     LEFT JOIN featurename ON protos.b7sc = featurename.b7sc
@@ -172,23 +187,27 @@ found AS (
         END
     UNION ALL
     SELECT
-        'CSCL-LOG-BYTES-05',
+        'CSCL-LOG-BYTES-05' AS log_message_id,
         globalid,
-        source_table,
-        'lionkey',
-        lionkey,
+        source_table AS source_feature_layer,
+        'lionkey' AS record_id_type,
+        lionkey AS record_id,
         b7sc,
         name
     FROM altname_b7sc_in_featurename
     UNION ALL
     SELECT
-        CASE WHEN replicants.specaddr IN ('G', 'N', 'X') THEN 'CSCL-LOG-BYTES-09' ELSE 'CSCL-LOG-BYTES-08' END,
-        replicants.saf_globalid,
-        replicants.saf_source_table,
-        'lionkey',
-        replicants.lionkey,
+        CASE
+            WHEN replicants.specaddr IN ('G', 'N', 'X') THEN 'CSCL-LOG-BYTES-09' ELSE 'CSCL-LOG-BYTES-08'
+        END AS log_message_id,
+        replicants.saf_globalid AS globalid,
+        replicants.saf_source_table AS source_feature_layer,
+        'lionkey' AS record_id_type,
+        replicants.lionkey AS record_id,
         replicants.b7sc,
-        CASE WHEN replicants.specaddr IN ('G', 'N', 'X') THEN streetname.lookup_key ELSE featurename.lookup_key END
+        CASE
+            WHEN replicants.specaddr IN ('G', 'N', 'X') THEN streetname.lookup_key ELSE featurename.lookup_key
+        END AS name
     FROM {{ ref('int__saf_replicant_b7sc') }} AS replicants
     LEFT JOIN streetname ON replicants.b7sc = streetname.b7sc
     LEFT JOIN featurename ON replicants.b7sc = featurename.b7sc
@@ -199,13 +218,13 @@ found AS (
         END
     UNION ALL
     SELECT
-        'CSCL-LOG-SAF-19',
+        'CSCL-LOG-SAF-19' AS log_message_id,
         alt.globalid,
-        'altsegmentdata',
-        'segmentid',
-        alt.segmentid::VARCHAR,
-        COALESCE(alt.b5sc, '') || COALESCE(alt.lgc1, ''),
-        featurename.lookup_key
+        'altsegmentdata' AS source_feature_layer,
+        'segmentid' AS record_id_type,
+        alt.segmentid::VARCHAR AS record_id,
+        COALESCE(alt.b5sc, '') || COALESCE(alt.lgc1, '') AS b7sc,
+        featurename.lookup_key AS name
     FROM {{ ref('stg__altsegmentdata_saf') }} AS alt
     LEFT JOIN streetname ON (COALESCE(alt.b5sc, '') || COALESCE(alt.lgc1, '')) = streetname.b7sc
     LEFT JOIN featurename ON (COALESCE(alt.b5sc, '') || COALESCE(alt.lgc1, '')) = featurename.b7sc
@@ -216,13 +235,13 @@ found AS (
         AND featurename.lookup_key IS NOT NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-SAF-24',
-        gnx.saf_globalid,
-        'commonplace',
-        'placeid',
-        place.placeid::VARCHAR,
+        'CSCL-LOG-SAF-24' AS log_message_id,
+        gnx.saf_globalid AS globalid,
+        'commonplace' AS source_feature_layer,
+        'placeid' AS record_id_type,
+        place.placeid::VARCHAR AS record_id,
         place.b7sc,
-        streetname.lookup_key
+        streetname.lookup_key AS name
     FROM (SELECT DISTINCT saf_globalid FROM {{ ref('int__saf_gnx') }}) AS gnx
     INNER JOIN {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }} AS place
         ON gnx.saf_globalid = place.globalid

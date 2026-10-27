@@ -31,59 +31,105 @@ missing AS (
     WHERE "CDTA2020" IS NOT NULL AND "CDTAName" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-04', 'nyct2010', ct."BoroCT2010", 'NeighborhoodPUMACodes',
-        'NEIGHBORHOOD_CODE', tract.neighborhood_code
+        'CSCL-LOG-GDB-04' AS log_message_id,
+        'nyct2010' AS layer,
+        ct."BoroCT2010" AS feature_code,
+        'NeighborhoodPUMACodes' AS lookup_table,
+        'NEIGHBORHOOD_CODE' AS lookup_field,
+        tract.neighborhood_code AS lookup_code
     FROM {{ ref('gdb_nyct2010') }} AS ct
     LEFT JOIN tract2010 AS tract ON ct."BoroCT2010" = tract.boroct
     WHERE ct."NTAName" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-04', 'nyct2010wi', ct."BoroCT2010", 'NeighborhoodPUMACodes',
-        'NEIGHBORHOOD_CODE', tract.neighborhood_code
+        'CSCL-LOG-GDB-04' AS log_message_id,
+        'nyct2010wi' AS layer,
+        ct."BoroCT2010" AS feature_code,
+        'NeighborhoodPUMACodes' AS lookup_table,
+        'NEIGHBORHOOD_CODE' AS lookup_field,
+        tract.neighborhood_code AS lookup_code
     FROM {{ ref('gdb_nyct2010wi') }} AS ct
     LEFT JOIN tract2010 AS tract ON ct."BoroCT2010" = tract.boroct
     WHERE ct."NTAName" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-04', 'nynta2010', "NTACode", 'NeighborhoodPUMACodes',
-        'NEIGHBORHOOD_CODE', "NTACode"
+        'CSCL-LOG-GDB-04' AS log_message_id,
+        'nynta2010' AS layer,
+        "NTACode" AS feature_code,
+        'NeighborhoodPUMACodes' AS lookup_table,
+        'NEIGHBORHOOD_CODE' AS lookup_field,
+        "NTACode" AS lookup_code
     FROM {{ ref('gdb_nynta2010') }}
     WHERE "NTAName" IS NULL
     UNION ALL
     SELECT DISTINCT
-        'CSCL-LOG-GDB-05', 'nynta2010', nta."NTACode", 'NeighborhoodPUMACodes',
-        'NEIGHBORHOOD_CODE', nta."NTACode"
+        'CSCL-LOG-GDB-05' AS log_message_id,
+        'nynta2010' AS layer,
+        nta."NTACode" AS feature_code,
+        'NeighborhoodPUMACodes' AS lookup_table,
+        'NEIGHBORHOOD_CODE' AS lookup_field,
+        nta."NTACode" AS lookup_code
     FROM {{ ref('gdb_nynta2010') }} AS nta
     INNER JOIN npc ON nta."NTACode" = npc.neighborhood_code
     WHERE TRIM(COALESCE(npc.fips_code, '')) = ''
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-06', 'nyct2020', "BoroCT2020", 'NTAEquiv2020', 'NTA_CODE', "NTA2020"
+        'CSCL-LOG-GDB-06' AS log_message_id,
+        'nyct2020' AS layer,
+        "BoroCT2020" AS feature_code,
+        'NTAEquiv2020' AS lookup_table,
+        'NTA_CODE' AS lookup_field,
+        "NTA2020" AS lookup_code
     FROM {{ ref('gdb_nyct2020') }}
     WHERE "NTAName" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-06', 'nyct2020wi', "BoroCT2020", 'NTAEquiv2020', 'NTA_CODE', "NTA2020"
+        'CSCL-LOG-GDB-06' AS log_message_id,
+        'nyct2020wi' AS layer,
+        "BoroCT2020" AS feature_code,
+        'NTAEquiv2020' AS lookup_table,
+        'NTA_CODE' AS lookup_field,
+        "NTA2020" AS lookup_code
     FROM {{ ref('gdb_nyct2020wi') }}
     WHERE "NTAName" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-06', 'nynta2020', "NTA2020", 'NTAEquiv2020', 'NTA_CODE', "NTA2020"
+        'CSCL-LOG-GDB-06' AS log_message_id,
+        'nynta2020' AS layer,
+        "NTA2020" AS feature_code,
+        'NTAEquiv2020' AS lookup_table,
+        'NTA_CODE' AS lookup_field,
+        "NTA2020" AS lookup_code
     FROM {{ ref('gdb_nynta2020') }}
     WHERE "NTAName" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-07', 'nyct2020', "BoroCT2020", 'CDTAEquiv2020', 'CDTA_CODE', "CDTA2020"
+        'CSCL-LOG-GDB-07' AS log_message_id,
+        'nyct2020' AS layer,
+        "BoroCT2020" AS feature_code,
+        'CDTAEquiv2020' AS lookup_table,
+        'CDTA_CODE' AS lookup_field,
+        "CDTA2020" AS lookup_code
     FROM {{ ref('gdb_nyct2020') }}
     WHERE "CDTA2020" IS NOT NULL AND "CDTANAME" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-07', 'nyct2020wi', "BoroCT2020", 'CDTAEquiv2020', 'CDTA_CODE', "CDTA2020"
+        'CSCL-LOG-GDB-07' AS log_message_id,
+        'nyct2020wi' AS layer,
+        "BoroCT2020" AS feature_code,
+        'CDTAEquiv2020' AS lookup_table,
+        'CDTA_CODE' AS lookup_field,
+        "CDTA2020" AS lookup_code
     FROM {{ ref('gdb_nyct2020wi') }}
     WHERE "CDTA2020" IS NOT NULL AND "CDTANAME" IS NULL
     UNION ALL
     SELECT
-        'CSCL-LOG-GDB-07', 'nycdta2020', "CDTA2020", 'CDTAEquiv2020', 'CDTA_CODE', "CDTA2020"
+        'CSCL-LOG-GDB-07' AS log_message_id,
+        'nycdta2020' AS layer,
+        "CDTA2020" AS feature_code,
+        'CDTAEquiv2020' AS lookup_table,
+        'CDTA_CODE' AS lookup_field,
+        "CDTA2020" AS lookup_code
     FROM {{ ref('gdb_nycdta2020') }}
     WHERE "CDTAName" IS NULL
 )

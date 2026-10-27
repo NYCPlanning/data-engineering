@@ -21,13 +21,14 @@ overflows AS (
         boroughcode || face_code || segment_seqnum AS lionkey,
         0
         {%- for f in fields %}
-        + GREATEST(LENGTH(COALESCE({{ f['field_name'] }}::TEXT, '')) - {{ f['field_length'] }}, 0)
+            + GREATEST(LENGTH(COALESCE({{ f['field_name'] }}::TEXT, '')) - {{ f['field_length'] }}, 0)
         {%- endfor %}
             AS overflow,
         CONCAT_WS(
-            ', '
-            {%- for f in fields %},
-            CASE WHEN LENGTH({{ f['field_name'] }}::TEXT) > {{ f['field_length'] }} THEN '{{ f['field_name'] }}' END
+            ', ',
+            {%- for f in fields %}
+                CASE WHEN LENGTH({{ f['field_name'] }}::TEXT) > {{ f['field_length'] }} THEN '{{ f['field_name'] }}' END
+                {{- "," if not loop.last }}
             {%- endfor %}
         ) AS fields_cut
     FROM lion
