@@ -134,3 +134,8 @@ models:
     StreetName rows with a blank LOOKUP_KEY, which SND (CSCL-LOG-SND-01), Enders
     (CSCL-LOG-END-01) or the Exception file (CSCL-LOG-EXC-02) leave out. Each follows
     prod's own row filter and blank test for that file.
+
+- name: log__rpl_missing_roadbed
+  description: >-
+    RoadbedPointerList rows whose roadbed segment matches no centerline, which prod
+    leaves out of RPL (CSCL-LOG-RPL-05).

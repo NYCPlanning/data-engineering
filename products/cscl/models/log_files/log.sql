@@ -24,6 +24,7 @@ WITH log_rows AS (
         ref("log__saf_segment_not_found"),
         ref("log__face_code_missing"),
         ref("log__lion_level_codes"),
+        ref("log__rpl_missing_roadbed"),
         ref("log__street_name_blank_lookup_key"),
         ref("log__export_file_summary"),
     ]) }}
