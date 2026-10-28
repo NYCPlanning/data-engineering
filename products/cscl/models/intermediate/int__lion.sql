@@ -205,6 +205,14 @@ SELECT
         ) THEN saf.special_address_flag
     END AS special_address_flag,
     CASE
+        -- ETL spec 2.6.4: a reversed proto takes the opposite of its centerline's L/R
+        WHEN
+            segments.source_table = 'altsegmentdata' AND proto.reversed AND segments.feature_type = 'centerline'
+            THEN CASE centerline_curve.curve_flag
+                WHEN 'L' THEN 'R'
+                WHEN 'R' THEN 'L'
+                ELSE centerline_curve.curve_flag
+            END
         WHEN segments.feature_type = 'centerline' THEN centerline_curve.curve_flag
         WHEN st_numpoints(segments.geom) > 2 THEN 'I'
     END AS curve_flag,

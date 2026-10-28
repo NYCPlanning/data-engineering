@@ -206,7 +206,7 @@ SELECT
         -- See CSCL-LION-17
         WHEN
             status = 'modified'
-            AND LIST_CONTAINS(ARRAY['236590241972', '416140101502'], _lion_key)
+            AND LIST_CONTAINS(ARRAY['236590241972'], _lion_key)
             THEN 'CSCL-LION-17: JR-reviewed diffs (Aug 2026)'
         -- CSCL-LION-19: special_address_flag leaks from a centerline record onto its sibling
         -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
@@ -290,7 +290,7 @@ SELECT
             ], RIGHT(_lion_key, 7))
             -- CSCL-LION-17: individually reviewed by JR (Aug 2026) and confirmed correct.
             -- See CSCL-LION-17
-            OR LIST_CONTAINS(ARRAY['236590241972', '416140101502'], _lion_key)
+            OR LIST_CONTAINS(ARRAY['236590241972'], _lion_key)
             -- CSCL-LION-19: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
             -- in production. See CSCL-LION-19
             OR _lion_key = '493960174704'
