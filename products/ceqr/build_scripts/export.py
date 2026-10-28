@@ -31,7 +31,14 @@ def _export_dataset_from_db(
             bash_args = ["csv_export", table_name]
         case "shapefile":
             file_suffix = "shp.zip"
-            bash_args = ["shp_export", table_name, geometry_type]
+            # shapefiles have no Time field type, so ogr2ogr fails on time columns
+            bash_args = [
+                "shp_export",
+                table_name,
+                geometry_type,
+                "-fieldTypeToString",
+                "Time",
+            ]
         case _:
             raise Exception(f"Cannot export a table to {file_type}")
 
