@@ -37,9 +37,6 @@ stage_config:
       run: build_scripts.export:generate_socrata_package
       command_type: python
     destination: edm.publishing.builds
-    connector_args:
-      - name: acl
-        value: public-read
 
 exports:
   zip_name: output

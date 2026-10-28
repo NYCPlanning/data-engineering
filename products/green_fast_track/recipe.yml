@@ -261,11 +261,9 @@ stage_config:
         command_type: shell
     destination: edm.publishing.builds
     connector_args:
-      - name: acl
-        value: public-read
       # BuildsConnector.push requires build_note; BUILD_NAME is already how the recipe's own
       # build_name gets set at plan time (see products/edde/recipe.yml for the same pattern,
-      # though its own connector_args is missing this key)
+      # though edde doesn't set it)
       - name: build_note
         value_from:
           env: BUILD_NAME

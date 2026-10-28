@@ -22,6 +22,3 @@ inputs:
 stage_config:
   builds.build:
     destination: edm.publishing.builds
-    connector_args:
-      - name: acl
-        value: public-read

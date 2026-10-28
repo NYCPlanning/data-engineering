@@ -1287,6 +1287,44 @@ def test_export_recipe_data_without_exports_uses_recipe_build_dir(
     assert write_meta.call_args.kwargs["output_folder"] == expected
 
 
+def _write_recipe(path: Path, product: str, acl: str | None = None) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    acl_line = f"acl: {acl}\n" if acl else ""
+    path.write_text(f"name: x\nproduct: {product}\n{acl_line}inputs:\n  datasets: []\n")
+
+
+@pytest.mark.parametrize(
+    "product, expected",
+    [("db-public", "public-read"), ("db-default", "private"), ("db-none", "private")],
+)
+def test_product_acl(tmp_path, monkeypatch, product, expected):
+    from dcpy.lifecycle.builds import build
+
+    _write_recipe(tmp_path / "public" / "recipe.yml", "db-public", "public-read")
+    _write_recipe(tmp_path / "public" / "recipe-minor.yml", "db-public", "public-read")
+    _write_recipe(tmp_path / "default" / "recipe.yml", "db-default")
+    monkeypatch.setattr(build, "PRODUCTS_DIR", tmp_path)
+    assert build.product_acl(product) == expected
+
+
+def test_product_acl_recipes_disagree(tmp_path, monkeypatch):
+    from dcpy.lifecycle.builds import build
+
+    _write_recipe(tmp_path / "p" / "recipe.yml", "db-p", "public-read")
+    _write_recipe(tmp_path / "p" / "recipe-minor.yml", "db-p")
+    monkeypatch.setattr(build, "PRODUCTS_DIR", tmp_path)
+    with pytest.raises(ValueError, match="disagree"):
+        build.product_acl("db-p")
+
+
+def test_product_acl_no_recipes(tmp_path, monkeypatch):
+    from dcpy.lifecycle.builds import build
+
+    monkeypatch.setattr(build, "PRODUCTS_DIR", tmp_path)
+    with pytest.raises(FileNotFoundError):
+        build.product_acl("db-p")
+
+
 def test_zip_groups_zips_only_marked_groups(tmp_path):
     recipe_path = tmp_path / "recipe.lock.yml"
     recipe_path.write_text(

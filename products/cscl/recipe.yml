@@ -1,5 +1,6 @@
 name: CSCL
 product: db-cscl
+acl: public-read
 version: 26c  # set once: export filenames derive from it ({{ version }})
 duckdb_filename: cscl.duckdb
 
