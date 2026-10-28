@@ -382,6 +382,13 @@ _ORDER_DIFFERS_LABELS = {
     "spec_silent": "The spec gives no order",
 }
 
+# What this build follows, per lion_outputs.csv order_rule
+_BUILD_ORDER_LABELS = {
+    "prod": "The previous release's",
+    "spec": "The ETL spec's: the previous release's is the legacy database's physical order, which can't be reproduced",
+    "own": "Sorted on the whole record: the previous release's is the legacy database's physical order, which can't be reproduced, and the spec gives none",
+}
+
 _SPEC_LINE_PATTERN = re.compile(r"\bL(\d+)\b")
 
 
@@ -400,27 +407,36 @@ def _file_names_cell(filenames: list[str]) -> str:
 
 
 def _record_order_table() -> Table:
-    """Every flat file that has to be in prod's record order (lion_outputs.csv's
-    order_rule), with prod's order, the ETL spec's and whether they differ; files where
-    they differ first. Files with the same three values are one row."""
+    """Every flat file with a record order to follow (lion_outputs.csv's order_rule
+    prod, spec or own), with prod's order, the ETL spec's, whether they differ and which
+    one this build follows; files where they differ first. Files with the same four
+    values are one row."""
     with open(LION_OUTPUTS_PATH, newline="") as f:
-        rows = [row for row in csv.DictReader(f) if row["order_rule"] == "prod"]
+        rows = [
+            row for row in csv.DictReader(f) if row["order_rule"] in _BUILD_ORDER_LABELS
+        ]
     # where prod departs from the spec first
     rows.sort(
         key=lambda row: list(_ORDER_DIFFERS_LABELS).index(
             row["order_differs_from_spec"]
         )
     )
-    grouped: dict[tuple[str, str, str], list[str]] = {}
+    grouped: dict[tuple[str, str, str, str], list[str]] = {}
     for row in rows:
-        key = (row["prod_order"], row["spec_order"], row["order_differs_from_spec"])
+        key = (
+            row["prod_order"],
+            row["spec_order"],
+            row["order_differs_from_spec"],
+            row["order_rule"],
+        )
         grouped.setdefault(key, []).append(row["filename"])
     return Table(
         headers=[
             "File",
-            "Record order (previous release, which this build follows)",
+            "Record order (previous release)",
             "ETL spec",
             "Differs from the spec",
+            "This build follows",
         ],
         rows=[
             [
@@ -428,8 +444,14 @@ def _record_order_table() -> Table:
                 prod_order,
                 _SPEC_LINE_PATTERN.sub(r"line \1", spec_order),
                 _ORDER_DIFFERS_LABELS[differs],
+                _BUILD_ORDER_LABELS[order_rule],
             ]
-            for (prod_order, spec_order, differs), filenames in grouped.items()
+            for (
+                prod_order,
+                spec_order,
+                differs,
+                order_rule,
+            ), filenames in grouped.items()
         ],
     )
 

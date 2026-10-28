@@ -634,7 +634,9 @@ items:
           text: >-
             Every flat file is written in the record order of the previous production
             release, including where the legacy ETL specification gives a different
-            order or none. GSS's Geosupport loader reads the files record by record and
+            order or none, except where that order is the legacy database's physical
+            order, which can't be reproduced: those follow the specification's order,
+            or a sort on the whole record where it gives none. GSS's Geosupport loader reads the files record by record and
             picks some values by record position (in its GRID build, whichever record
             of a street at a node comes first or last), so a file with every record
             right but in another order can still change what Geosupport returns.
@@ -642,5 +644,6 @@ items:
           text: >-
             The table lists each file's order in the previous release, the order the
             [legacy ETL specification](../../docs/ETL_V8_02012024.md) gives (with the
-            line that says so), and whether the two differ. Each build checks its files'
-            order against the previous release's, on the records both have.
+            line that says so), whether the two differ, and which one this build follows.
+            Each build checks the order of the files that follow the previous release
+            against it, on the records both have.
