@@ -114,6 +114,35 @@ def test_default_field_names_and_null_columns(tmp_path: Path):
     assert list(info["fields"]) == ["SchoolDist", "BoroName", "blank", "SHAPE_Leng"]
 
 
+def test_no_cpg_and_zero_ldid(tmp_path: Path):
+    # as prod's shapefiles: no codepage declared anywhere
+    out = tmp_path / "nysd.zip"
+    write_shapefile_from_parquet(_districts(tmp_path / "nysd.parquet"), out)
+    with zipfile.ZipFile(out) as zf:
+        assert not [n for n in zf.namelist() if n.lower().endswith(".cpg")]
+        dbf = zf.read("nysd.dbf")
+    assert dbf[29] == 0  # language driver ID
+    gdf = pyogrio.read_dataframe(f"/vsizip/{out}/nysd.shp")
+    assert gdf["BoroName"].tolist() == ["Bronx", "Queens"]
+
+
+def test_rejects_non_ascii_text(tmp_path: Path):
+    src = tmp_path / "nysd.parquet"
+    gpd.GeoDataFrame(
+        {"BoroName": ["Bronx", "Queéns", "Ñ"], "Code": ["a", "b", "c"]},
+        geometry=[SQUARE] * 3,
+        crs="EPSG:2263",
+    ).to_parquet(src)
+    out = tmp_path / "nysd.zip"
+    with pytest.raises(
+        ValueError, match=r"nysd.*BoroName: 2 row\(s\), e\.g\. 'Queéns'"
+    ):
+        write_shapefile_from_parquet(src, out)
+    assert not out.exists()
+    # a column that isn't written isn't checked
+    write_shapefile_from_parquet(src, out, field_names={"Code": "Code"})
+
+
 def test_rejects_bad_field_names(tmp_path: Path):
     src = _districts(tmp_path / "nysd.parquet")
     with pytest.raises(ValueError, match="longer than 10"):
