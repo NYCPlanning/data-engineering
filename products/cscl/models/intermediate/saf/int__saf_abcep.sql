@@ -52,6 +52,8 @@ SELECT
     NULL AS side_ap,
     saf.saf_globalid,
     saf.saf_source_table,
+    saf.saf_source_objectid,
+    saf.rpl_flag,
     saf.generic,
     saf.roadbed
 FROM saf

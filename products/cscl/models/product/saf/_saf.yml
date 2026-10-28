@@ -608,3 +608,95 @@ models:
 - name: saf_s_roadbed
   description: "Roadbed-segment address point (type S) records as fixed-width lines."
   columns: *dat_column_105
+
+# unformatted rows, as the SAF files are written from (packaging formats them). The file's
+# record order is saf_block, saf_source_objectid, rpl_flag: each must be unique per row.
+
+- name: saf_abcegnpx_generic_fields
+  description: "saf_abcegnpx_generic records unformatted, one column per field, plus the record-order keys."
+  columns: &saf_order_columns
+  - name: saf_block
+    description: "Which source table's block of the file the record is in, in prod's order (ABCEGNPX: 1 A/B/C/E/P from AltSegmentData, 2 G/N/X from CommonPlace; OV: 1 V from AddressPoint, 2 O from AltSegmentData; one block otherwise). Not a SAF field."
+  - name: saf_source_objectid
+    description: "OBJECTID of the record's source row (AltSegmentData, AddressPoint, CommonPlace or NamedIntersection). Not a SAF field."
+    tests: [ not_null ]
+  - name: rpl_flag
+    description: "True for a roadbed record's copy on its generic segment (via the roadbed pointer list), written right after the record itself. Not a SAF field."
+
+  data_tests:
+  - name: saf_abcegnpx_generic_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_abcegnpx_roadbed_fields
+  description: "saf_abcegnpx_roadbed records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_abcegnpx_roadbed_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_d_generic_fields
+  description: "saf_d_generic records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_d_generic_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_d_roadbed_fields
+  description: "saf_d_roadbed records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_d_roadbed_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_i_fields
+  description: "saf_i records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_i_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_ov_generic_fields
+  description: "saf_ov_generic records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_ov_generic_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_ov_roadbed_fields
+  description: "saf_ov_roadbed records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_ov_roadbed_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_s_generic_fields
+  description: "saf_s_generic records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_s_generic_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]
+
+- name: saf_s_roadbed_fields
+  description: "saf_s_roadbed records unformatted, one column per field, plus the record-order keys."
+  columns: *saf_order_columns
+  data_tests:
+  - name: saf_s_roadbed_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ saf_block, saf_source_objectid, rpl_flag ]

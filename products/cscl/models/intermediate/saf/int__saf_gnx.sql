@@ -83,6 +83,8 @@ SELECT
     RIGHT(point_atomic_polygon.atomicid, 3) AS side_ap,
     saf.saf_globalid,
     saf.saf_source_table,
+    saf.saf_source_objectid,
+    saf.rpl_flag,
     commonplace.placeid,
     commonplace.primaryaddresspointid,
     saf.generic,

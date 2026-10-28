@@ -44,6 +44,8 @@ SELECT
     ROUND_EVEN(ST_Y(address_points.geom), 0)::INT AS y_coord,
     saf.saf_globalid,
     saf.saf_source_table,
+    saf.saf_source_objectid,
+    saf.rpl_flag,
     address_points.addresspointid,
     saf.generic,
     saf.roadbed

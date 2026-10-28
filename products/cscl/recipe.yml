@@ -501,6 +501,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_a.csv
       layout_source: saf_abcegnpx_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_abcegnpx_roadbed
     group: flat_files
     filename: RoadbedABCEGNPX.txt
@@ -512,6 +515,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_a.csv
       layout_source: saf_abcegnpx_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_d_generic
     group: flat_files
     filename: GenericD.txt
@@ -523,6 +529,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_d.csv
       layout_source: saf_d_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_d_roadbed
     group: flat_files
     filename: RoadbedD.txt
@@ -534,6 +543,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_d.csv
       layout_source: saf_d_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_i
     group: flat_files
     filename: Intersection.txt
@@ -545,6 +557,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_i.csv
       layout_source: saf_i_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_ov_generic
     group: flat_files
     filename: GenericOV.txt
@@ -556,6 +571,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_v.csv
       layout_source: saf_ov_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_ov_roadbed
     group: flat_files
     filename: RoadbedOV.txt
@@ -567,6 +585,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_v.csv
       layout_source: saf_ov_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_s_generic
     group: flat_files
     filename: GenericS.txt
@@ -578,6 +599,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_s.csv
       layout_source: saf_s_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_s_roadbed
     group: flat_files
     filename: RoadbedS.txt
@@ -589,6 +613,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_s.csv
       layout_source: saf_s_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
 
   # SEDAT
   - name: sedat

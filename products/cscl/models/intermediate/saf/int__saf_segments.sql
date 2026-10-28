@@ -9,6 +9,7 @@ WITH saf_segment_records AS (
         saftype,
         segmentid,
         'altsegmentdata' AS saf_source_table,
+        ogc_fid AS saf_source_objectid,
         NULL::int AS security_level
     FROM {{ ref('stg__altsegmentdata_saf') }}
     UNION ALL
@@ -18,6 +19,7 @@ WITH saf_segment_records AS (
         special_condition AS saftype,
         segmentid,
         'addresspoints' AS saf_source_table,
+        ogc_fid AS saf_source_objectid,
         NULL::int AS security_level
     FROM {{ source('recipe_sources', 'dcp_cscl_addresspoints') }}
     WHERE special_condition IN ('S', 'V') -- TODO staging table maybe - these two handled differently though
@@ -28,6 +30,7 @@ WITH saf_segment_records AS (
         saftype,
         segmentid,
         'commonplace' AS saf_source_table,
+        ogc_fid AS saf_source_objectid,
         -- Prod's SAF dat drops SECURITY_LEVEL 3 CommonPlaces but its LION gdb keeps their
         -- replicant rows, so the filter is in int__saf_gnx, not here (CSCL-LION-21)
         security_level::int AS security_level
@@ -47,6 +50,7 @@ with_roadbed_to_generic AS (
         segmentid,
         segmentid AS base_segmentid,
         saf_source_table,
+        saf_source_objectid,
         security_level,
         FALSE AS rpl_flag
     FROM saf_segment_records
@@ -58,6 +62,7 @@ with_roadbed_to_generic AS (
         rpl.generic_segmentid AS segmentid,
         rpl.roadbed_segmentid AS base_segmentid,
         saf.saf_source_table,
+        saf.saf_source_objectid,
         saf.security_level,
         TRUE AS rpl_flag
     FROM saf_segment_records AS saf
@@ -77,6 +82,10 @@ resolved_segment AS (
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_type,
         COALESCE(proto.segment_type, primary_segment.segment_type) AS segment_incex_flag,
         saf.saf_source_table,
+        -- SAF file order (prod's): the extractor reads each source table in OBJECTID
+        -- order and writes a record's RPL generic copy right after the record itself
+        saf.saf_source_objectid,
+        saf.rpl_flag,
         saf.security_level
     FROM with_roadbed_to_generic AS saf
     LEFT JOIN lion AS primary_segment -- TODO error report when none joined?
