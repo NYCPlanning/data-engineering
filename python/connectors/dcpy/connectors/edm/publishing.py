@@ -316,7 +316,7 @@ def legacy_upload(
                 max_files=max_files,
             )
     else:
-        s3.upload_file(bucket, output, str(key), "public-read", metadata=meta)
+        s3.upload_file(bucket, output, str(key), acl, metadata=meta)
         if latest:
             ## much faster than uploading again
             s3.copy_file(bucket, str(key), str(prefix / "latest" / output.name), acl)
