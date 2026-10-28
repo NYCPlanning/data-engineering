@@ -41,15 +41,12 @@ destinations:
   type: open_data
   tags: [socrata_unpublished]
   files:
-  - id: metadata_pdf
+  - id: oti_data_dictionary
     custom:
       destination_use: attachment
   - id: shapefile
     custom:
       destination_use: dataset_file
-  # - id: oti_data_dictionary
-  #   custom:
-  #     destination_use: attachment
   custom:
     four_four: frkw-si7h
 - id: bytes
@@ -58,7 +55,7 @@ destinations:
   - id: dcm_multilayer
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
-  - id: metadata_xlsx
+  - id: oti_data_dictionary
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/zoning_districts_data_dictionary.xlsx
 
