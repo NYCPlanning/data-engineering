@@ -37,7 +37,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 4 }
   - name: segment_seqnum
-    description: "Five-digit sequence number that orders the segments sharing a face code. Generated for non-street features, so those values need only be unique within LION (CSCL-LION-05)."
+    description: "Five-digit sequence number that orders the segments sharing a face code. Copied from the source, except for non-street features and proto-segments of feature type 3, 4, 7 or 8, which are numbered the way prod numbers them: one counter per borough and face code, run through the borough extracts in prod's order, so the numbers depend on which boroughs prod extracted together (CSCL-LION-05)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
