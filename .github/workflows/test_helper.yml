@@ -552,7 +552,7 @@ jobs:
         done
 
   validate_product_metadata:
-    if: contains(inputs.path_filter, 'dcpy')
+    if: contains(inputs.path_filter, 'dcpy') || contains(inputs.path_filter, 'product_metadata')
     name: Validate Product Metadata
     # This used to be invoked via `dcpy lifecycle scripts product_metadata validate_repo`,
     # which needed dcpy-lifecycle's full GDAL/geopandas closure installed just to build the

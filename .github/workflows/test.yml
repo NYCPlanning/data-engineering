@@ -40,6 +40,8 @@ jobs:
               - admin/run_environment/**
               - .github/workflows/test.yml
               - .github/workflows/test_helper.yml
+            product_metadata:
+              - product-metadata/**
             template:
               - uv.lock
               - .github/workflows/test.yml
