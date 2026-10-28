@@ -15,6 +15,10 @@ models:
   tests:
   - name: int__protosegments__key_ideal
     test_name: dbt_utils.unique_combination_of_columns
+    # an orphan NSF-type proto-segment (no feature with its segment id) is never read, so
+    # legacy never numbers it; it isn't written to LION either
+    config:
+      where: "segment_seqnum IS NOT NULL"
     arguments:
       combination_of_columns:
       - boroughcode
@@ -36,12 +40,41 @@ models:
     description: "GlobalID of the source feature."
     tests: [ unique ]
 
+- name: int__lion_extract_borough_runs
+  description: >-
+    Which legacy per-borough LION extract runs read each source feature: one row per feature
+    and borough whose polygon, buffered by lion_extract_borough_buffer_ft (legacy
+    BoroughBufferDistance, 2 ft), it intersects. A feature on a borough boundary is read by
+    both runs. Limited to the features the non-street-feature sequence counter needs: every
+    NonStreetFeature, and every feature with a proto-segment of FEATURE_TYPE 3/4/7/8.
+  columns:
+  - name: class_rank
+    description: "Order legacy extracts the feature classes in: 1 Centerline, 2 NonStreetFeature, 3 Rail, 4 Shoreline, 5 Subway."
+  - name: source_table
+  - name: segmentid
+  - name: ogc_fid
+    description: "Source OBJECTID; the order a run reads features of one class in."
+  - name: globalid
+  - name: run_borocode
+    description: "Borough of the extract run that reads the feature."
+    tests: [ not_null ]
+  data_tests:
+  - name: lion_extract_borough_runs_unique
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ globalid, run_borocode ]
+
 - name: int__nonstreetfeature_seqnum
-  description: Non-streetfeature segments (and protosegments) with segment seqnum assigned
+  description: >-
+    Segment sequence numbers (L3) for NonStreetFeature records and for proto-segments of
+    FEATURE_TYPE 3/4/7/8, numbered like legacy: a counter per (borough, face code) over
+    legacy's processing order (extract session and borough run, feature class, OBJECTID,
+    proto-segments after their feature), counting every call legacy makes, including the ones
+    whose number isn't written. See the model's header for the calls.
   columns:
   - name: source_table
   - name: globalid
-    tests: [ unique ]
+    tests: [ unique, not_null ]
   - name: segmentid
   - name: ogc_fid
   - name: boroughcode
@@ -52,3 +85,60 @@ models:
     test_name: dbt_utils.unique_combination_of_columns
     arguments:
       combination_of_columns: [ boroughcode, face_code, segment_seqnum ]
+
+unit_tests:
+# Face 9901 straddles boroughs 1 and 4. NonStreetFeature A (borough 1) is on the boundary, so
+# both runs read it. Its proto-segment pA1 (FEATURE_TYPE 3, borough 4) takes a number at
+# initialization in both runs, on borough 1 (the parent's, a stale field), and its written
+# number in run 4. pA2 (no FEATURE_TYPE, borough 1) takes a number in run 1 and keeps its own.
+# Shoreline S's proto-segment pS1 (borough 4) takes a number in both runs, on borough 4.
+- name: test__int__nonstreetfeature_seqnum__counter_one_session
+  description: "Run 1 then run 4 in one session: numbers the unwritten calls consume leave gaps (B is 4, pS1 is 4)."
+  model: int__nonstreetfeature_seqnum
+  overrides:
+    vars:
+      lion_seqnum_extract_sessions: [['1', '4']]
+  given: &seqnum_given
+  - input: ref('int__lion_extract_borough_runs')
+    rows:
+    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '10', ogc_fid: 1, globalid: A, run_borocode: '1'}
+    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '10', ogc_fid: 1, globalid: A, run_borocode: '4'}
+    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '11', ogc_fid: 2, globalid: B, run_borocode: '1'}
+    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '12', ogc_fid: 3, globalid: C, run_borocode: '4'}
+    - {class_rank: 4, source_table: shoreline, segmentid: '20', ogc_fid: 1, globalid: S, run_borocode: '1'}
+    - {class_rank: 4, source_table: shoreline, segmentid: '20', ogc_fid: 1, globalid: S, run_borocode: '4'}
+  - input: ref('int__streetcode_and_facecode')
+    rows:
+    - {segmentid: '10', boroughcode: '1', face_code: '9901'}
+    - {segmentid: '11', boroughcode: '1', face_code: '9901'}
+    - {segmentid: '12', boroughcode: '4', face_code: '9901'}
+  - input: ref('stg__facecode_and_featurename_principal')
+    rows:
+    - {b7sc: '19990101', face_code: '9901'}
+    - {b7sc: '49990101', face_code: '9901'}
+  - input: ref('stg__altsegmentdata_proto')
+    rows:
+    - {globalid: pA1, segmentid: '10', ogc_fid: 100, borough: '4', b7sc: '49990101', feature_type_code: '3', saftype: null}
+    - {globalid: pA2, segmentid: '10', ogc_fid: 101, borough: '1', b7sc: '19990101', feature_type_code: null, saftype: null}
+    - {globalid: pS1, segmentid: '20', ogc_fid: 200, borough: '4', b7sc: '49990101', feature_type_code: '3', saftype: null}
+  expect:
+    rows:
+    - {globalid: A, boroughcode: '1', face_code: '9901', segment_seqnum: '00001'}
+    - {globalid: B, boroughcode: '1', face_code: '9901', segment_seqnum: '00004'}
+    - {globalid: pA1, boroughcode: '4', face_code: '9901', segment_seqnum: '00002'}
+    - {globalid: C, boroughcode: '4', face_code: '9901', segment_seqnum: '00003'}
+    - {globalid: pS1, boroughcode: '4', face_code: '9901', segment_seqnum: '00004'}
+- name: test__int__nonstreetfeature_seqnum__counter_two_sessions
+  description: "Run 4 in a fresh session: run 1's calls on borough 4 (pS1's) no longer count."
+  model: int__nonstreetfeature_seqnum
+  overrides:
+    vars:
+      lion_seqnum_extract_sessions: [['1'], ['4']]
+  given: *seqnum_given
+  expect:
+    rows:
+    - {globalid: A, boroughcode: '1', face_code: '9901', segment_seqnum: '00001'}
+    - {globalid: B, boroughcode: '1', face_code: '9901', segment_seqnum: '00004'}
+    - {globalid: pA1, boroughcode: '4', face_code: '9901', segment_seqnum: '00001'}
+    - {globalid: C, boroughcode: '4', face_code: '9901', segment_seqnum: '00002'}
+    - {globalid: pS1, boroughcode: '4', face_code: '9901', segment_seqnum: '00003'}
