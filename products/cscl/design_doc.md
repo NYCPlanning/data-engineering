@@ -333,7 +333,7 @@ The below table has a summary of the sources of each field in Geosupport LION. W
 |-----|-------|-------------------|
 | L1 | Borough | Centerline attribute BOROUGHCODE, otherwise from [LGC lookup](#street-code-and-face-code) |
 | L2 | Face Code | See [Street Code and Face Code](#street-code-and-face-code) |
-| L3 | Sequence Number |  |
+| L3 | Sequence Number | Source layer field SEGMENT_SEQNUM (AltSegmentData ALT_SEGMENT_SEQNUM for proto-segments). Non-street features and proto-segments of feature type 3, 4, 7 or 8: see [Non-street feature sequence numbers](#non-street-feature-sequence-numbers) |
 | L4 | Segment ID | Source layer field SEGMENTID |
 | L5 | 5-Digit Street Code (5SC) | See [Street Code and Face Code](#street-code-and-face-code) |
 | L6 | LGC1 | See [Street Code and Face Code](#street-code-and-face-code) |
@@ -603,6 +603,19 @@ For non-centerline records, these are easy. L50 and L51 are left blank/null. L49
 For centerline records, L49 is taken from the Centerline field CURVE. Center of curvature is calculated as follows
 - midpoint of line is calculated
 - using midpoint of line, start point and end point, center of curvature is calculated. This is done using the `find_circle` macro, taken (with citation) from an existing implementation. It and the other custom functions are in `macros/duckdb_functions.sql`.
+
+#### Non-street feature sequence numbers
+Non-street features, and proto-segments whose feature type (3, 4, 7, 8) makes them non-street features, have no sequence number in CSCL; the legacy ETL numbers them as it extracts (spec 2.5.1). It keeps one counter per borough and face code. Each call adds one and returns the new value, and the counter is carried through every borough extracted in one session (one press of OK in the extractor). We reproduce the calls in the legacy processing order:
+
+- Order: borough extract runs in session order, then feature class (Centerline, NonStreetFeature, Rail, Shoreline, Subway), then source OBJECTID, then each feature's proto-segments in OBJECTID order.
+- A borough run reads every feature that intersects the borough polygon buffered by 2 ft, so a feature on a borough boundary is read by both runs, though it's written only to its own borough's file.
+- A non-street feature takes a number when it's written.
+- An NSF-type proto-segment takes a number each time its parent feature is read, whether or not the proto-segment is written in that run. Under a non-street feature parent, that number is counted on the parent's borough (a field the legacy code hasn't updated yet); under other parents, on the proto-segment's own borough. Outside the non-street feature extractor this is the number written.
+- Under a non-street feature parent, every proto-segment written in a run takes another number when its sequence number field is written. A proto-segment that isn't NSF-type keeps its own ALT_SEGMENT_SEQNUM.
+
+Numbers taken but not written leave gaps. The numbers depend on which boroughs were extracted together and in what order, and that's up to whoever runs the extract. The `lion_seqnum_extract_sessions` var in `dbt_project.yml` records it per release. On 26c, prod's LION .dat files match Bronx, Brooklyn and Manhattan in one session and Queens and Staten Island in another (all 17,975 records). Prod's LION gdb matches all five in one session, so prod's gdb and Queens .dat file disagree on 1,968 records (CSCL-LION-05).
+
+See models `int__lion_extract_borough_runs` and `int__nonstreetfeature_seqnum`.
 
 #### Protosegments
 Protosegments are defined in the AltSegmentData layer in CSCL. They are partial records - they do not have their own geometry, and so they must be "materialized" before they can be processed like other segments. They share a segment id with a geometry-modeled segment to which they must be joined so that they can be geometry-modeled as well.
