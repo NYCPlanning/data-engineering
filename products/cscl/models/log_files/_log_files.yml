@@ -165,12 +165,27 @@ models:
     with its BOE-preferred LGC, prod's pointer, the fixed pointer and the one this build
     writes.
 
+- name: log__lion_lr_topology
+  description: >-
+    CSCL-LOG-OURS-08, every build: one row with the number of LION records (and segments)
+    whose left or right AtomicPolygon differs between the AP topology and prod's 2 ft
+    offset probe, i.e. what the var fix_lion_lr_from_topology changes (CSCL-LION-16), and
+    whether it is on in this build. The records are in log_lion_lr_topology.csv.
+
+- name: log_lion_lr_topology
+  description: >-
+    Attachment to log.csv, exported as log_lion_lr_topology.csv: one row per LION record
+    (LION .dat or LION gdb) whose segment's side AtomicPolygons differ between the AP
+    topology and prod's 2 ft probe (CSCL-LOG-OURS-08), with both pairs, the topology's
+    method and the pair this build writes.
+
 - name: log_records
   description: >-
     Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 and -03
     counts swapped for the records in log_face_code_missing, and the per-name name-table
     warning counts for the records in log_name_table_warnings (and the CSCL-LOG-OURS-06
-    count for those in log_boe_lgc_pointer). What the chaos QA models
+    count for those in log_boe_lgc_pointer, the CSCL-LOG-OURS-08 count for those in
+    log_lion_lr_topology). What the chaos QA models
     (qa__chaos_injections, qa__chaos_summary) check.
 
 - name: log__street_name_blank_lookup_key

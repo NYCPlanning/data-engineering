@@ -825,6 +825,15 @@ exports:
     group: flat_files
     filename: log_boe_lgc_pointer.csv
     format: csv
+  # log.csv's attachment: the per-record list behind its CSCL-LOG-OURS-08 count (the LION
+  # records whose side AtomicPolygon differs between the AP topology and prod's 2 ft probe)
+  - name: log_lion_lr_topology
+    custom:
+      qa_group: "Log file"
+      compare_file: false  # prod has no such log
+    group: flat_files
+    filename: log_lion_lr_topology.csv
+    format: csv
   # log.csv's attachment: the per-record list behind its per-name name-table warning counts
   - name: log_name_table_warnings
     custom:
