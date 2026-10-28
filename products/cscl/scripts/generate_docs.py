@@ -63,6 +63,7 @@ DOC_CONFIG_PATH = PRODUCT_ROOT / "doc_config.yml"
 GLOSSARY_PATH = PRODUCT_ROOT / "glossary.csv"
 SEEDS_DIR = PRODUCT_ROOT / "seeds" / "text_formatting"
 KNOWN_DIFFERENCES_PATH = PRODUCT_ROOT / "seeds" / "known_differences.csv"
+SIGNOFF_MATRIX_PATH = PRODUCT_ROOT / "seeds" / "signoff_matrix.csv"
 OUTPUT_PATH = PRODUCT_ROOT / "output" / "docs" / "cscl_exports.md"
 
 EXPORT_DOC_TAG = "export_doc"
@@ -283,6 +284,41 @@ def _status_cell(row: dict[str, str]) -> str:
     return status
 
 
+# Outside reviewers who sign off on known differences (seeds/signoff_matrix.csv), as
+# (reviewer, known_differences status column, column header)
+_REVIEWERS = [
+    ("gr", "gr_status", "Geographic Research"),
+    ("gss", "gss_status", "GeoSupport Services"),
+    ("gis", "gis_status", "GIS"),
+]
+
+
+def _required_reviewers(outputs: list[str]) -> set[str]:
+    """The reviewers signoff_matrix.csv requires for any of these known_differences
+    outputs."""
+    with open(SIGNOFF_MATRIX_PATH, newline="") as f:
+        matrix = list(csv.DictReader(f))
+    required: set[str] = set()
+    for row in matrix:
+        group_outputs = {o.strip() for o in row["known_difference_outputs"].split(";")}
+        if group_outputs & set(outputs):
+            required |= {
+                reviewer
+                for reviewer, _, _ in _REVIEWERS
+                if row[f"requires_{reviewer}"] == "true"
+            }
+    return required
+
+
+_REVIEW_STATUS_LABELS = {
+    "not_reviewed": "Not reviewed",
+    "presented": "Presented",
+    "agreed": "Agreed",
+    "disputed": "Disputed",
+    "n_a": "–",
+}
+
+
 def _known_differences_section(
     known_differences: list[dict[str, str]], outputs: list[str], group_label: str
 ) -> Section | None:
@@ -302,6 +338,13 @@ def _known_differences_section(
         _warn_on_internal_references(
             row["description"], f"known difference {row['id']}"
         )
+    # the reviewers who sign off on this group's outputs
+    required = _required_reviewers(outputs)
+    reviewers = [
+        (column, header)
+        for reviewer, column, header in _REVIEWERS
+        if reviewer in required
+    ]
     return Section(
         title=f"Known differences from the previous release ({group_label})",
         elements=[
@@ -309,9 +352,12 @@ def _known_differences_section(
                 text="Where this output knowingly differs from the previous production "
                 "release, and why. Each difference keeps its ID across releases. "
                 + legend
+                + " The reviewer columns show where each team that signs off on this "
+                "output stands on the difference."
             ),
             Table(
-                headers=["ID", "Scope", "Difference", "Status"],
+                headers=["ID", "Scope", "Difference", "Status"]
+                + [header for _, header in reviewers],
                 rows=[
                     [
                         row["id"],
@@ -319,6 +365,7 @@ def _known_differences_section(
                         row["description"],
                         _status_cell(row),
                     ]
+                    + [_REVIEW_STATUS_LABELS[row[column]] for column, _ in reviewers]
                     for row in rows
                 ],
             ),
