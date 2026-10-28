@@ -824,6 +824,23 @@ models:
     description: "Borough, face code and zero-padded segment ID joined together; a join key for QA. Not a LION field."
     data_type: string
 
+- name: lion_dat_fields
+  description: "The LION segment records unformatted, one column per field, as the borough files are written from (packaging formats them). Same rows as lion_dat_by_field."
+  columns:
+  - name: source_class_rank
+    description: "Rank of the feature class the record comes from, in the order prod's extractor reads them: 1 Centerline, 2 NonStreetFeature, 3 Rail, 4 Shoreline, 5 Subway. A protosegment takes its segment's. First key of the file's record order. Not a LION field."
+    tests: [ not_null ]
+  - name: source_objectid
+    description: "OBJECTID of the segment in its feature class (a protosegment's is its segment's). Second key of the file's record order. Not a LION field."
+    tests: [ not_null ]
+  - name: proto_objectid
+    description: "AltSegmentData OBJECTID of a protosegment record, NULL for the segment's own record; orders a segment's protosegments right after it. Not a LION field."
+  data_tests:
+  - name: lion_dat_fields__record_order_total
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ source_class_rank, source_objectid, proto_objectid ]
+
 - name: lion_dat
   description: "The LION segment records of all boroughs as fixed-width lines; each borough's LION file is the subset for that borough."
   columns:

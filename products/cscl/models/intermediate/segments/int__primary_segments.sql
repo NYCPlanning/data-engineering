@@ -54,6 +54,7 @@ primary_segments AS (
             source.shape_length,
             source.feature_type,
             source.source_table,
+            source.ogc_fid AS source_objectid,
             source.globalid
         FROM {{ ref(source_layer) }} AS source
         {% if source_layer == 'stg__nonstreetfeatures' -%} 
@@ -99,6 +100,18 @@ segment_attributes AS (
         primary_segments.feature_type AS primary_feature_type,
         feature_type_codes.description AS feature_type_description,
         primary_segments.source_table,
+        -- LION .dat record order (prod's): the extractor reads the feature classes one
+        -- after another (LIONExtractorClass.cs:57-81), each in OBJECTID order, and
+        -- writes a segment's protosegments right after it (see int__protosegments)
+        CASE primary_segments.source_table
+            WHEN 'centerline' THEN 1
+            WHEN 'nonstreetfeatures' THEN 2
+            WHEN 'rail' THEN 3
+            WHEN 'shoreline' THEN 4
+            WHEN 'subway' THEN 5
+        END AS source_class_rank,
+        primary_segments.source_objectid,
+        NULL::BIGINT AS proto_objectid,
         primary_segments.globalid
     FROM primary_segments
     LEFT JOIN street_and_facecode ON primary_segments.segmentid = street_and_facecode.segmentid

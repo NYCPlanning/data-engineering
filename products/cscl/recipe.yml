@@ -410,6 +410,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '1'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: bronx_lion_dat
     group: flat_files
     filename: BronxLION.dat
@@ -422,6 +425,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '2'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: brooklyn_lion_dat
     group: flat_files
     filename: BrooklynLION.dat
@@ -434,6 +440,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '3'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: queens_lion_dat
     group: flat_files
     filename: QueensLION.dat
@@ -446,6 +455,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '4'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: staten_island_lion_dat
     group: flat_files
     filename: StatenIslandLION.dat
@@ -458,6 +470,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '5'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
 
   # LDF - formatting is applied inside the models, since the record file mixes layouts.
   # compare_file is off because positions 91-100 carry a cumulative record number that
