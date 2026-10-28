@@ -14,24 +14,25 @@ attributes:
   each_row_is_a: Zoning district
   publishing_frequency: Monthly
   tags:
-  - zoning districts
-  - nyzd
-  - residential
-  - commercial
-  - manufacturing
+  - Zoning
   - New York City
   - NYC
   - Department of City Planning
   - DCP
+  - Zoning Districts
+  - nyzd
+  - Residential
+  - Commercial
+  - Manufacturing
 
 assembly:
 - id: dcm_multilayer
-  filename: nycgiszoningfeatures_shp.zip
+  filename: nyc_zoning_features_shp.zip
   type: multilayer_shapefile
   contents:
   - id: shapefile
     custom:
-      layer_name: nyzd
+      layer_name: nyc_zoning_features
 
 custom: {}
 
@@ -56,20 +57,16 @@ destinations:
   files:
   - id: dcm_multilayer
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
-  - id: metadata_pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
+  - id: metadata_xlsx
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyzd_metadata.pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/zoning_districts_data_dictionary.xlsx
 
 files:
 - file:
     id: shapefile
-    filename: nyzd.shp.zip
+    filename: nyc_zoning_features.shp.zip
     type: shapefile
-- file:
-    id: metadata_pdf
-    filename: nyzd_metadata.pdf
-    is_metadata: true
 - file:
     id: oti_data_dictionary
     filename: zoning_districts_data_dictionary.xlsx

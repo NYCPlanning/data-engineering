@@ -9,15 +9,15 @@ attributes:
   display_name: "Zoning GIS Data: Geodatabase"
   each_row_is_a: "NA"
   tags:
-  - zoning
-  - geographic
-  - location
-  - map
-  - cartography
-  - zone
-  - district
-  - commercial
-  - dcp
+  - Zoning
+  - Geographic
+  - Location
+  - Map
+  - Cartography
+  - Zone
+  - District
+  - Commercial
+  - DCP
   date_made_public: "9/13/2021"
 
 assembly: []
@@ -34,22 +34,22 @@ destinations:
   - id: fgdb
     custom:
       destination_use: dataset_file
-  - id: nyco_metadata
+  - id: zoning_commercial_overlay_data_dictionary
     custom:
       destination_use: attachment
-  - id: nylh_metadata
+  - id: zoning_limited_height_data_dictionary
     custom:
       destination_use: attachment
-  - id: nysp_metadata
+  - id: zoning_special_purpose_data_dictionary
     custom:
       destination_use: attachment
-  - id: nysp_sd_metadata
+  - id: zoning_special_subdistricts_data_dictionary
     custom:
       destination_use: attachment
-  - id: nyzd_metadata
+  - id: zoning_districts_data_dictionary
     custom:
       destination_use: attachment
-  - id: nyzma_metadata
+  - id: zoning_map_amendments_data_dictionary
     custom:
       destination_use: attachment
 
@@ -58,54 +58,54 @@ destinations:
   files:
   - id: fgdb
     custom:
-      url: "{{ bytes_zip_prefix_url }}/gis-zoning-features/nycgiszoningfeatures_{{ current_version_zoning }}fgdb.zip"
-  - id: nyco_metadata
+      url: "{{ bytes_zip_prefix_url }}/gis-zoning-features/nyc_zoning_features_gdb.zip"
+  - id: zoning_commercial_overlay_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/nyco_metadata.pdf"
-  - id: nylh_metadata
+      url: "{{ bytes_pdf_prefix_url }}/zoning_commercial_overlay_data_dictionary.xlsx"
+  - id: zoning_limited_height_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/nylh_metadata.pdf"
-  - id: nysp_metadata
+      url: "{{ bytes_pdf_prefix_url }}/zoning_limited_height_data_dictionary.xlsx"
+  - id: zoning_special_purpose_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/nysp_metadata.pdf"
-  - id: nysp_sd_metadata
+      url: "{{ bytes_pdf_prefix_url }}/zoning_special_purpose_data_dictionary.xlsx"
+  - id: zoning_special_subdistricts_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/nysp_sd_metadata.pdf"
-  - id: nyzd_metadata
+      url: "{{ bytes_pdf_prefix_url }}/zoning_special_subdistricts_data_dictionary.xlsx"
+  - id: zoning_districts_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/nyzd_metadata.pdf"
-  - id: nyzma_metadata
+      url: "{{ bytes_pdf_prefix_url }}/zoning_districts_data_dictionary.xlsx"
+  - id: zoning_map_amendments_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/nyzma_metadata.pdf"
+      url: "{{ bytes_pdf_prefix_url }}/zoning_map_amendments_data_dictionary.xlsx"
 
 files:
 - file:
     id: fgdb
-    filename: nycgiszoningfeatures_fgdb.zip
+    filename: nyc_zoning_features_gdb.zip
     type: fgdb
 - file:
-    id: nyco_metadata
-    filename: nyco_metadata.pdf
+    id: zoning_commercial_overlay_data_dictionary
+    filename: zoning_commercial_overlay_data_dictionary.xlsx
     is_metadata: true
 - file:
-    id: nylh_metadata
-    filename: nylh_metadata.pdf
+    id: zoning_limited_height_data_dictionary
+    filename: zoning_limited_height_data_dictionary.xlsx
     is_metadata: true
 - file:
-    id: nysp_metadata
-    filename: nysp_metadata.pdf
+    id: zoning_special_purpose_data_dictionary
+    filename: zoning_special_purpose_data_dictionary.xlsx
     is_metadata: true
 - file:
-    id: nysp_sd_metadata
-    filename: nysp_sd_metadata.pdf
+    id: zoning_special_subdistricts_data_dictionary
+    filename: zoning_special_subdistricts_data_dictionary.xlsx
     is_metadata: true
 - file:
-    id: nyzd_metadata
-    filename: nyzd_metadata.pdf
+    id: zoning_districts_data_dictionary
+    filename: zoning_districts_data_dictionary.xlsx
     is_metadata: true
 - file:
-    id: nyzma_metadata
-    filename: nyzma_metadata.pdf
+    id: zoning_map_amendments_data_dictionary
+    filename: zoning_map_amendments_data_dictionary.xlsx
     is_metadata: true
 
 columns: []

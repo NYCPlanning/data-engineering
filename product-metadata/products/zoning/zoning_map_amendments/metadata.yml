@@ -12,23 +12,24 @@ attributes:
   each_row_is_a: Zoning Map Amendment
   publishing_frequency: Monthly
   tags:
-  - zoning map amendment
-  - nyzma
-  - zoning change index
-  - rezoning
+  - Zoning
   - New York City
   - NYC
   - Department of City Planning
   - DCP
+  - Zoning map Amendment
+  - nyzma
+  - Zoning Change Index
+  - Rezoning
 
 assembly:
 - id: dcm_multilayer
-  filename: nycgiszoningfeatures_shp.zip
+  filename: nyc_zoning_features_shp.zip
   type: multilayer_shapefile
   contents:
   - id: shapefile
     custom:
-      layer_name: nyzma
+      layer_name: zoning_map_amendments
 
 custom: {}
 
@@ -37,7 +38,7 @@ destinations:
   tags: [socrata_unpublished]
   type: open_data
   files:
-  - id: metadata_pdf
+  - id: metadata_xlsx
     custom:
       destination_use: attachment
   - id: shapefile
@@ -53,20 +54,16 @@ destinations:
   files:
   - id: dcm_multilayer
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
   - id: metadata_pdf
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyzma_metadata.pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_map_amendments.xlsx
 
 files:
 - file:
     id: shapefile
-    filename: nyzma.shp.zip
+    filename: zoning_map_amendments.shp.zip
     type: shapefile
-- file:
-    id: metadata_pdf
-    filename: nyzma_metadata.pdf
-    is_metadata: true
 - file:
     id: oti_data_dictionary
     filename: zoning_map_amendments_data_dictionary.xlsx

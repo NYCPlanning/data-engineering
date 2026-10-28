@@ -21,13 +21,13 @@ attributes:
 
 assembly:
 - id: csv_package
-  filename: nyczoningtaxlotdb.zip
+  filename: nyc_zoning_tax_lot_database_csv.zip
   type: zip
   contents:
-  - id: zoningtaxlotdatabase_datadictionary.pdf
-    filename: zoningtaxlotdatabase_datadictionary.pdf
+  - id: zoning_tax_lot_database_readme.pdf
+    filename: zoning_tax_lot_database_readme.pdf
   - id: primary_csv
-    filename: NY_ZoningTaxLotDB{{ current_version_zoning }}.csv
+    filename: zoning_tax_lot_database.csv
 
 custom: {}
 
@@ -35,7 +35,7 @@ destinations:
 - id: socrata
   type: open_data
   files:
-  - id: zoningtaxlotdatabase_datadictionary.pdf
+  - id: zoning_tax_lot_database_readme.pdf
     custom:
       destination_use: attachment
   - id: primary_csv
@@ -48,13 +48,12 @@ destinations:
   files:
   - id: csv_package
     custom:
-      url: "{{ bytes_zip_prefix_url }}/zoning-tax-lot-database/nyczoningtaxlotdb_{{ current_version_zoning
-        }}.zip"
+      url: "{{ bytes_zip_prefix_url }}/zoning-tax-lot-database/nyc_zoning_tax_lot_database_csv.zip"
 
 files:
 - file:
     id: primary_csv
-    filename: NY_ZoningTaxLotDB.csv
+    filename: zoning_tax_lot_database.csv
     type: csv
   dataset_overrides:
     overridden_columns:
@@ -91,8 +90,8 @@ files:
     - id: zoning_map_code
       name: Zoning Map Code
 - file:
-    id: zoningtaxlotdatabase_datadictionary.pdf
-    filename: zoningtaxlotdatabase_datadictionary.pdf
+    id: zoning_tax_lot_database_readme.pdf
+    filename: zoning_tax_lot_database_readme.pdf
     is_metadata: true
     type: None
 
