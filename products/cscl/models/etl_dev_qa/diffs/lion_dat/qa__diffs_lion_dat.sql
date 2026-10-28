@@ -8,6 +8,11 @@
 -- Compressed diff view showing one row per _lion_key with changes in jsonb
 -- Includes status: modified, only_in_legacy, only_in_build
 
+-- CSCL-LION-04 (BOE LGC pointer) is a difference only when its fix is on: with
+-- fix_boe_lgc_pointer false (the default) the build writes prod's pointer, so a
+-- boe_lgc_pointer diff is unaccounted.
+{%- set boe_fix_on = 'TRUE' if var('fix_boe_lgc_pointer') else 'FALSE' %}
+
 WITH base_diffs AS (
   {{ generate_diff_summary(
       old_relation=ref('qa_int__prod_citywide_lion_dat'),
@@ -122,7 +127,7 @@ categorized AS (
             FALSE
         ) AS is_lion_01_change,
         -- CSCL-LION-16: every changed field is one the side AP determines (plus the
-        -- already-accepted CSCL-LION-04 boe_lgc_pointer). Borough boundary
+        -- CSCL-LION-04 boe_lgc_pointer, when its fix is on). Borough boundary
         -- and zip changes count only where the probe's AP is in another borough (prod then
         -- marks a borough boundary, takes that side's zip and blanks the other side);
         -- elsewhere those rows need a look.
@@ -133,7 +138,11 @@ categorized AS (
                 key -> (
                     REGEXP_MATCHES(key, '^(left|right)_')
                     OR key = 'segment_locational_status'
-                    OR (key = 'boe_lgc_pointer' AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1')
+                    OR (
+                        {{ boe_fix_on }}
+                        AND key = 'boe_lgc_pointer'
+                        AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
+                    )
                     OR (key IN ('borough_boundary_indicator', 'l_zip', 'r_zip') AND tlr.probe_in_other_borough)
                 )
             )), TRUE)
@@ -182,9 +191,10 @@ SELECT
         WHEN is_cut_to_fit
             THEN 'CSCL-LION-23: value cut to fit 400-character record'
         -- CSCL-LION-04: prod returns pointer 1 whenever the BOE-preferred LGC value is
-        -- above 9
+        -- above 9; a difference only with fix_boe_lgc_pointer on
         WHEN
-            status = 'modified'
+            {{ boe_fix_on }}
+            AND status = 'modified'
             AND ARRAY_LENGTH(change_keys, 1) = 1
             AND change_keys[1] = 'boe_lgc_pointer'
             AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
@@ -261,10 +271,11 @@ SELECT
     -- CSCL-LION-22 and CSCL-LION-23: see diff_group
     is_featurename_proto OR is_cut_to_fit OR COALESCE(
         status = 'modified' AND (
-            -- CSCL-LION-04: prod's pointer is 1 when the BOE-preferred LGC is above 9.
-            -- See CSCL-LION-04
+            -- CSCL-LION-04: prod's pointer is 1 when the BOE-preferred LGC is above 9,
+            -- with fix_boe_lgc_pointer on. See CSCL-LION-04
             (
-                change_keys = ARRAY['boe_lgc_pointer']
+                {{ boe_fix_on }}
+                AND change_keys = ARRAY['boe_lgc_pointer']
                 AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
             )
             -- CSCL-LION-03: curve flag on single-arc shoreline/subway/rail. See CSCL-LION-03

@@ -143,8 +143,12 @@ field_causes AS (
             WHEN f.key = 'seqnum' AND w._feature_type = 'nonstreetfeatures'
                 THEN 'CSCL-LION-05: nonstreet SeqNum'
             WHEN f.key = 'seqnum' THEN 'SeqNum on non-nonstreet feature'
-            -- prod's legacy default pointer '1' for two-digit LGC codes
-            WHEN f.key = 'boe_lgc' AND (w.changes -> 'boe_lgc' ->> 'old') = '1'
+            -- prod's pointer 1 when the BOE-preferred LGC value is above 9: a difference
+            -- only with fix_boe_lgc_pointer on (off, the default, writes prod's pointer)
+            WHEN
+                {{ 'TRUE' if var('fix_boe_lgc_pointer') else 'FALSE' }}
+                AND f.key = 'boe_lgc'
+                AND (w.changes -> 'boe_lgc' ->> 'old') = '1'
                 THEN 'CSCL-LION-04: BOE_LGC'
             WHEN f.key = 'boe_lgc' THEN 'BOE_LGC other'
             WHEN

@@ -348,6 +348,29 @@ All statuses were reset to `not_reviewed`/`pending` on 2026-10-28, when review w
 and GSS started fresh; the earlier `gr_status` values (`confirmed`/`pending`) are in git
 history.
 
+## Legacy bug fixes behind flags
+
+When we find a prod bug that downstream teams (GR, GSS) read through, the fix goes behind a
+dbt var in `dbt_project.yml`, off by default, so the build reproduces prod until they agree
+to roll it out. Each such var has a comment there: what it fixes, the prod code, and its
+known-difference id. The known difference stays in
+[`seeds/known_differences.csv`](./seeds/known_differences.csv), and its `qa__diffs_*` rule
+accounts for the difference only with the fix on: with it off, a diff on that field is
+unaccounted, since the build should match prod. Every build logs what the fix would change,
+whether it is on or not, so it isn't lost.
+
+| var | default | fixes | logged as |
+|---|---|---|---|
+| `fix_boe_lgc_pointer` | `false` | CSCL-LION-04: prod writes BOE LGC pointer 1 whenever the BOE-preferred LGC is above 9 (LION L10, LION gdb `BOE_LGC`) | CSCL-LOG-OURS-06: a count in `log.csv` (saying whether the fix is on), records in `log_boe_lgc_pointer.csv` |
+
+Turn one on for a build with `--vars`, e.g. `dbt run --selector duckdb_build --vars
+'{fix_boe_lgc_pointer: true}'` (pass the same `--vars` to the QA models' run, or their rules
+won't match the build), or set it in `dbt_project.yml` once the reviewers have agreed
+(record that on the known difference, see [QA sign-off](#qa-sign-off)). A new flag follows
+the same pattern: the var with its comment, the correct and prod values side by side in the
+model and a unit test for each setting, a `CSCL-LOG-OURS-*` log row, and the QA rule gated on
+the var.
+
 ## Release runbook
 
 How to run a CSCL release (next up: 26D) from GR's delivery to a reviewed build. It's
