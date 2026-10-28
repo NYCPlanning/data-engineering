@@ -64,6 +64,7 @@ GLOSSARY_PATH = PRODUCT_ROOT / "glossary.csv"
 SEEDS_DIR = PRODUCT_ROOT / "seeds" / "text_formatting"
 KNOWN_DIFFERENCES_PATH = PRODUCT_ROOT / "seeds" / "known_differences.csv"
 SIGNOFF_MATRIX_PATH = PRODUCT_ROOT / "seeds" / "signoff_matrix.csv"
+LION_OUTPUTS_PATH = PRODUCT_ROOT / "seeds" / "lion_outputs.csv"
 OUTPUT_PATH = PRODUCT_ROOT / "output" / "docs" / "cscl_exports.md"
 
 EXPORT_DOC_TAG = "export_doc"
@@ -373,6 +374,66 @@ def _known_differences_section(
     )
 
 
+_BOROUGH_FILE_PREFIXES = ("Bronx", "Brooklyn", "Manhattan", "Queens", "StatenIsland")
+
+_ORDER_DIFFERS_LABELS = {
+    "true": "Yes",
+    "false": "No",
+    "spec_silent": "The spec gives no order",
+}
+
+_SPEC_LINE_PATTERN = re.compile(r"\bL(\d+)\b")
+
+
+def _file_names_cell(filenames: list[str]) -> str:
+    """One borough file pattern ("{Borough}LION.dat") for the five borough files of a
+    kind, else the names in seed order."""
+    suffixes = {
+        name[len(prefix) :]
+        for name in filenames
+        for prefix in _BOROUGH_FILE_PREFIXES
+        if name.startswith(prefix)
+    }
+    if len(filenames) == len(_BOROUGH_FILE_PREFIXES) and len(suffixes) == 1:
+        return "{Borough}" + suffixes.pop()
+    return ", ".join(filenames)
+
+
+def _record_order_table() -> Table:
+    """Every flat file that has to be in prod's record order (lion_outputs.csv's
+    order_rule), with prod's order, the ETL spec's and whether they differ; files where
+    they differ first. Files with the same three values are one row."""
+    with open(LION_OUTPUTS_PATH, newline="") as f:
+        rows = [row for row in csv.DictReader(f) if row["order_rule"] == "prod"]
+    # where prod departs from the spec first
+    rows.sort(
+        key=lambda row: list(_ORDER_DIFFERS_LABELS).index(
+            row["order_differs_from_spec"]
+        )
+    )
+    grouped: dict[tuple[str, str, str], list[str]] = {}
+    for row in rows:
+        key = (row["prod_order"], row["spec_order"], row["order_differs_from_spec"])
+        grouped.setdefault(key, []).append(row["filename"])
+    return Table(
+        headers=[
+            "File",
+            "Record order (previous release, which this build follows)",
+            "ETL spec",
+            "Differs from the spec",
+        ],
+        rows=[
+            [
+                _file_names_cell(filenames),
+                prod_order,
+                _SPEC_LINE_PATTERN.sub(r"line \1", spec_order),
+                _ORDER_DIFFERS_LABELS[differs],
+            ]
+            for (prod_order, spec_order, differs), filenames in grouped.items()
+        ],
+    )
+
+
 def _build_doc_from_config(project: DbtProject, config: DocConfig, title: str) -> Doc:
     known_differences = _read_known_differences()
     documented_outputs: set[str] = set()
@@ -381,6 +442,8 @@ def _build_doc_from_config(project: DbtProject, config: DocConfig, title: str) -
         if isinstance(item, ModelGroup):
             group_label = item.custom.get("short_title", item.title)
             group_elements = parse_elements(item.custom.get("elements", []))
+            if item.custom.get("record_order"):
+                group_elements.append(_record_order_table())
             for element in group_elements:
                 if isinstance(element, Text):
                     _warn_on_internal_references(

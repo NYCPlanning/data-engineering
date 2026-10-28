@@ -35,6 +35,9 @@
 #   known_differences - output names (seeds/known_differences.csv's `output` values,
 #              e.g. [LION]) whose known differences close the group, in a
 #              "Known differences from the previous release" section.
+#   record_order - true: after the group's elements, a table of every flat file's
+#              record order (prod's, the ETL spec's, whether they differ), generated
+#              from seeds/lion_outputs.csv's order columns. The group needs no entries.
 #   elements - raw Doc elements (dcpy.utils.doc.parse_elements), the group's own intro
 #              prose - not specific to any one model. Split overview from mechanism
 #              the same way a model's description/implementation_notes are: a
@@ -621,3 +624,23 @@ items:
         custom:
           display_name: LDFBASE.dat segment records
           table: dat_fields
+
+  - kind: model_group
+    title: Record order
+    custom:
+      record_order: true
+      elements:
+        - kind: text
+          text: >-
+            Every flat file is written in the record order of the previous production
+            release, including where the legacy ETL specification gives a different
+            order or none. GSS's Geosupport loader reads the files record by record and
+            picks some values by record position (in its GRID build, whichever record
+            of a street at a node comes first or last), so a file with every record
+            right but in another order can still change what Geosupport returns.
+        - kind: text
+          text: >-
+            The table lists each file's order in the previous release, the order the
+            [legacy ETL specification](../../docs/ETL_V8_02012024.md) gives (with the
+            line that says so), and whether the two differ. Each build checks its files'
+            order against the previous release's, on the records both have.

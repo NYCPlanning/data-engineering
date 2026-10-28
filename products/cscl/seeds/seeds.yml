@@ -280,6 +280,10 @@ seeds:
         gis_signoff: varchar
         signoff_date: date
         signoff_ref: varchar
+        order_rule: varchar
+        prod_order: varchar
+        spec_order: varchar
+        order_differs_from_spec: varchar
     columns:
       - name: output_group
         description: >
@@ -416,3 +420,39 @@ seeds:
         description: >
           Where the sign-off happened: meeting date and attendees, or a link. Required
           with signoff_date.
+      - name: order_rule
+        description: >
+          The record order the file must have. `prod`: the previous production
+          release's order, record for record (every flat file Geosupport reads: GSS's
+          loader picks values by record position). `none`: no order to match (build
+          logs and other files with no prod counterpart). `n_a`: not a flat file. The
+          QA stage's file order check (poc_validation/file_order.py) reports every
+          compared file's order against prod's, and diffs_report.csv flags a `prod`
+          file that's out of it. assert_flatfile_order_documented checks the four
+          order columns together.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [prod, none, n_a]
+      - name: prod_order
+        description: >
+          The order of the previous production release's file, as derived from the
+          26c files (the investigation is inv-cze.1.3 in the team's tracker). Short,
+          for the export doc's Record order section, which is generated from this and
+          the next two columns. Blank unless order_rule is prod.
+      - name: spec_order
+        description: >
+          What the legacy ETL spec (docs/ETL_V8_02012024.md) says the order is, with
+          the line it says it on ("L5752"), or "Not in the spec". Blank unless
+          order_rule is prod.
+      - name: order_differs_from_spec
+        description: >
+          Whether prod_order departs from spec_order: true, false, spec_silent (the
+          spec gives no order, so prod's is the only one), or n_a (order_rule isn't
+          prod).
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["true", "false", spec_silent, n_a]

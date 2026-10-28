@@ -25,6 +25,7 @@ EXCLUDE = {
     "build_metadata.json",
     "diffs_summary.csv",
     "validation_summary.csv",
+    "file_order.csv",
     "source_freshness.csv",
     "log.csv",
 }
