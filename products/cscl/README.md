@@ -190,8 +190,9 @@ fit the "adding a new output" workflow above, for three reasons: it takes **two*
 releases as input, it's the only output carrying **state across releases**, and it's the
 only one GR builds with a separate tool rather than the ETL tool.
 
-Two files, both 100-byte fixed width: `LDFBASE.dat` (records) and `LDFHEADER.dat` (one
-header record).
+Two files, both 100-byte fixed width: `LDF.dat` (records) and `LDF.header` (one header
+record). These are the names prod's files have; the ETL spec calls them `LDFBASE.dat` and
+`LDFHEADER.dat`.
 
 ### Record types and where each comes from
 

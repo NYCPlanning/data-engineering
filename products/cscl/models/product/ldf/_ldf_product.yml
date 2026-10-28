@@ -3,7 +3,7 @@ version: 2
 models:
 - name: ldf_header_by_field
   description: >-
-    The single header record of LDFHEADER.dat: the release this edition documents changes
+    The single header record of LDF.header: the release this edition documents changes
     from and the release it documents changes to, the date each was deployed, the number of
     records, and the cumulative record number this edition continues from.
   config:
@@ -35,7 +35,7 @@ models:
 
 - name: ldf_n_by_field
   description: >-
-    Node change records in LDFBASE.dat: a node added, deleted or moved between the two LION
+    Node change records in LDF.dat: a node added, deleted or moved between the two LION
     releases, found by comparing the nodes of the previous LION release with this one. A
     node whose ID changed without moving appears as a delete of the old ID and an add of the
     new one.
@@ -69,7 +69,7 @@ models:
 
 - name: ldf_segment_by_field
   description: >-
-    Segment change records in LDFBASE.dat, one layout for three record types: S for a
+    Segment change records in LDF.dat, one layout for three record types: S for a
     base centerline segment, P for a physical segment and G for a generic segment. Each
     comes from CSCL's centerline edit journal for this release, which records the splits
     and merges that a comparison of the two LION releases can't recover.
@@ -115,7 +115,7 @@ models:
 
 - name: ldf_base
   description: >
-    LDFBASE.dat - every LDF data record as a 100-byte line, ordered N, S, G, P then by
+    LDF.dat - every LDF data record as a 100-byte line, ordered N, S, G, P then by
     action code then by ID. Differs from prod in the transitory record rule (G and P
     records whose ID is deleted on another segment, CSCL-LDF-01) and in carrying the
     record number on from the previous header (CSCL-LDF-03).
@@ -127,7 +127,7 @@ models:
         arguments: { value: 100 }
 
 - name: ldf_header
-  description: LDFHEADER.dat - the single 100-byte header record.
+  description: LDF.header - the single 100-byte header record.
   columns:
   - name: dat_column
     description: The record as one fixed-width line, as written to the text file.

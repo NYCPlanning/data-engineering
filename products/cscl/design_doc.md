@@ -1518,8 +1518,8 @@ Every row is a: change to a node or segment since the previous LION release
 
 The LDF documents what changed between the previous LION release and this one, so that
 users whose application files are keyed to LION geography can resynchronise. A single
-citywide edition is published per LION release, as two files: `LDFBASE.dat` holding the
-records and `LDFHEADER.dat` holding a single header record.
+citywide edition is published per LION release, as two files: `LDF.dat` holding the
+records and `LDF.header` holding a single header record.
 
 It differs from every other output here in three ways. It takes **two** LION releases as
 input rather than one; it carries **state across releases**, since record numbers run
