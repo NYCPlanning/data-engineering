@@ -81,7 +81,7 @@ edge_entity_counts AS (
         count(DISTINCT atomicid) AS owners_in_entity,
         -- each owner carries the edge in its own ring's direction; take the lowest
         -- atomicid's so the orientation doesn't depend on aggregation order
-        (array_agg(geom ORDER BY atomicid))[1] AS geom
+        arg_min(geom, atomicid) AS geom
     FROM land_land_edges
     GROUP BY node_lo, node_hi, is_arc, entity_id
 ),
