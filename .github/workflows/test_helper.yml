@@ -176,11 +176,13 @@ jobs:
       run: |
         dbt deps
         dbt seed
-    - name: known differences
-      # the seed's tests, including that every ID a qa__diffs_* label cites is in it (the
-      # var enables the one var-gated diff model so its labels are checked too)
+    - name: seed tests
+      # every test that reads only seeds (cautious: not the model tests that also ref one),
+      # including the tests in tests/ that check model SQL against a seed: qa__diffs_* labels
+      # cite known_differences ids, log__* models cite log_messages ids (the var enables the
+      # one var-gated diff model so its labels are checked too)
       run: |
-        dbt test --select known_differences --vars '{qa_gdb_lion_diffs: true}'
+        dbt test --select resource_type:seed --indirect-selection=cautious --vars '{qa_gdb_lion_diffs: true}'
     - name: sqlfluff models
       run: sqlfluff lint models --templater=dbt
     - name: sqlfluff tests
