@@ -47,6 +47,20 @@ on-run-start:
 - "{{ create_duckdb_functions() }}"
 
 vars:
+  # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
+  # numbers them with a per-(borough, face code) counter that carries across the borough
+  # extract runs of one extract session (ETLExtractorForm resets it on each OK click).
+  # A run reads every feature within this distance of its borough polygon
+  # (BoroughBufferDistance, legacy default 2 ft), so boundary features count in both runs.
+  lion_extract_borough_buffer_ft: 2
+  # The extract sessions, each a list of borough codes in run order. This is the legacy
+  # OPERATOR'S HISTORY for one release, not a rule of the ETL: the numbers depend on which
+  # boroughs GR extracted together and in what order. A single click extracting every
+  # borough runs Bronx, Brooklyn, Manhattan, Queens, Staten Island ([['2', '3', '1', '4', '5']];
+  # ETLExtractorForm.DoLIONExtract). 26c matches only with Bronx/Brooklyn/Manhattan in one
+  # session and Queens and Staten Island in a fresh one: 17,975 of 17,975 non-street-feature
+  # sequence numbers with that split, 16,007 (89%) as one session. Re-check it each release.
+  lion_seqnum_extract_sessions: [['2', '3', '1'], ['4', '5']]
   # qa__context_geoms: buffer applied to the SUBTRACTED side before computing
   # build_minus_legacy/legacy_minus_build, to separate real spurs/gaps from needle-sliver
   # noise - NOT a proxy for perimeter/length. Confirmed on PUMA 3808:
