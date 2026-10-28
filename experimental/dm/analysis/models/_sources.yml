@@ -1,0 +1,59 @@
+sources:
+  - name: sources
+    description: Files downloaded into data/sources/ by scripts/download.py, which pins each one's version.
+    tables:
+      - name: pff_decennial_2010
+        description: >
+          Population FactFinder decennial census 2010 counts, from db-factfinder/publish/decennial/2010/2026.
+          Long format, one row per geography and variable. It has the same geoids as the 2020 file, including
+          2020 tracts, so it appears to be tabulated to 2020 geographies.
+        config:
+          external_location: "read_csv('./data/sources/pff_decennial_2010.csv', types = {'geoid': 'VARCHAR'})"
+
+      - name: pff_decennial_2020
+        description: Population FactFinder decennial census 2020 counts, from db-factfinder/publish/decennial/2020/2026.
+        config:
+          external_location: "read_csv('./data/sources/pff_decennial_2020.csv', types = {'geoid': 'VARCHAR'})"
+
+      - name: pff_acs_2024
+        description: >
+          Population FactFinder ACS 2020-2024 5-year estimates, from db-factfinder/publish/acs/2024/2026.
+          Smallest district-level geography is CDTA2020. There is no community district geography.
+        config:
+          external_location: "read_csv('./data/sources/pff_acs_2024.csv', all_varchar = true)"
+
+      - name: kpdb_cpp_housing_growth_cd
+        description: >
+          KPDB 2026-10-01 housing growth by community district, built for the Capital Projects Portal.
+          Its completions come from dcp_housing 24Q4.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_cpp_housing_growth_cd.csv')"
+
+      - name: kpdb_longform_cd_output
+        description: KPDB 2026-10-01 records split by community district, one row per record and district it falls in.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_longform_cd_output.csv', all_varchar = true)"
+
+      - name: dcp_housing
+        description: >
+          Housing Database 24Q4 from edm-recipes, one row per DOB job. The same version KPDB 2026-10-01
+          used for its completions.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_housing.parquet')"
+
+      - name: dcp_cdboundaries
+        description: Community district boundaries, clipped to shoreline, version 26c from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_cdboundaries.parquet')"
+
+      - name: dcp_cdta2020
+        description: Community district tabulation areas (2020), version 26c from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_cdta2020.parquet')"
+
+      - name: dcp_housing_ahft
+        description: >
+          DCP's Affordable Housing Fair Share tracker (AHFT), 20261002 from edm-private. One row per
+          ranked community district (59, no joint interest areas).
+        config:
+          external_location: "read_csv('./data/sources/dcp_housing_ahft.csv', all_varchar = true)"

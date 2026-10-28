@@ -1,0 +1,61 @@
+SELECT
+    spine.borocd,
+    spine.boro_code,
+    spine.boro_name,
+    spine.cd_number,
+    spine.cdta2020,
+    spine.cdta_name,
+    spine.is_joint_interest_area,
+    ahft.ahft_rank,
+    ahft.is_ahft_district,
+    ahft.ahft_housing_units_start_of_cycle,
+    ahft.ahft_new_affordable_units,
+    fhgs.growth_cohort AS fhgs_growth_cohort,
+    fhgs.annual_growth_rate_2016_2025_pct AS fhgs_annual_growth_rate_2016_2025_pct,
+    fhgs.baseline_target_growth_rate_pct AS fhgs_baseline_target_growth_rate_pct,
+    fhgs.laa_adjustment_pct AS fhgs_laa_adjustment_pct,
+    fhgs.transit_access_adjustment_pct AS fhgs_transit_access_adjustment_pct,
+    fhgs.tidal_flooding_adjustment_pct AS fhgs_tidal_flooding_adjustment_pct,
+    fhgs.target_growth_rate_pct AS fhgs_target_growth_rate_pct,
+    fhgs.total_homes_2025 AS fhgs_total_homes_2025,
+    fhgs.homes_added_2021_2025 AS fhgs_homes_added_2021_2025,
+    fhgs.target_new_homes_2030 AS fhgs_target_new_homes_2030,
+    fhgs.target_affordable_homes_2030 AS fhgs_target_affordable_homes_2030,
+    fhgs.target_deeply_affordable_homes_2030 AS fhgs_target_deeply_affordable_homes_2030,
+    fhgs.target_homes_for_homeless_households_2030 AS fhgs_target_homes_for_homeless_households_2030,
+    fhgs.target_pct_of_homes_added_2021_2025 AS fhgs_target_pct_of_homes_added_2021_2025,
+    census.population_2010_census,
+    census.population_2020_census,
+    acs.population_acs_2020_2024,
+    acs.population_acs_2020_2024_moe,
+    census.housing_units_2010_census,
+    census.housing_units_2020_census,
+    acs.housing_units_acs_2020_2024,
+    acs.housing_units_acs_2020_2024_moe,
+    acs.occupied_housing_units_acs_2020_2024,
+    acs.occupied_housing_units_acs_2020_2024_moe,
+    housing.housing_units_2020_end,
+    housing.net_completed_units_2015_2024,
+    housing.net_completed_units_2021_2024,
+    housing.housing_units_2024_end,
+    housing.projected_net_units_2025_2034,
+    housing.projected_housing_units_2034_end,
+    growth.population_change_2010_2020_pct,
+    hdb.hdb_net_completed_units_2010q2_2020q1,
+    growth.hdb_housing_growth_2010_2020_pct,
+    growth.population_minus_hdb_growth_2010_2020_pts,
+    growth.housing_change_2010_2020_pct,
+    growth.population_minus_housing_change_2010_2020_pts,
+    growth.census_minus_hdb_housing_change_2010_2020,
+    growth.housing_change_2010_2024_pct,
+    growth.projected_housing_growth_2024_2034_pct,
+    spine.geom
+FROM {{ ref('int_cd_spine') }} AS spine
+LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd
+LEFT JOIN {{ ref('int_cd_fhgs_features') }} AS fhgs ON spine.borocd = fhgs.borocd
+LEFT JOIN {{ ref('int_cd_census_metrics') }} AS census ON spine.borocd = census.borocd
+LEFT JOIN {{ ref('int_cd_acs_metrics') }} AS acs ON spine.borocd = acs.borocd
+LEFT JOIN {{ ref('int_cd_housing_metrics') }} AS housing ON spine.borocd = housing.borocd
+LEFT JOIN {{ ref('int_cd_growth_metrics') }} AS growth ON spine.borocd = growth.borocd
+LEFT JOIN {{ ref('int_cd_hdb_completion_metrics') }} AS hdb ON spine.borocd = hdb.borocd
+ORDER BY spine.borocd

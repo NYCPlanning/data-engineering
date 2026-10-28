@@ -1,0 +1,23 @@
+SELECT
+    record_id,
+    cd::integer AS borocd,
+    project_id,
+    source,
+    record_name,
+    status,
+    type,
+    date AS record_date,
+    date_type,
+    classb::integer = 1 AS is_classb,
+    nycha::integer = 1 AS is_nycha,
+    senior_housing::integer = 1 AS is_senior_housing,
+    inactive::integer = 1 AS is_inactive,
+    proportion_in_cd::double AS proportion_in_cd,
+    units_net_in_cd::double AS units_net_in_cd,
+    completed_units_in_cd::double AS completed_units_in_cd,
+    future_phased_units_total_in_cd::double AS future_phased_units_total_in_cd,
+    future_units_without_phasing_in_cd::double AS future_units_without_phasing_in_cd,
+    within_5_years_in_cd::double AS within_5_years_in_cd,
+    from_5_to_10_years_in_cd::double AS from_5_to_10_years_in_cd,
+    after_10_years_in_cd::double AS after_10_years_in_cd
+FROM {{ source('sources', 'kpdb_longform_cd_output') }}

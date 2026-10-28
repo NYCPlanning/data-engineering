@@ -1,0 +1,216 @@
+models:
+  - name: dim_community_district
+    description: >
+      One row per community district (borocd), including the 12 joint interest areas (parks,
+      airports, and other non-residential areas). Holds population and housing counts for the past
+      (2010 and 2020 censuses), present (ACS 2020-2024 and KPDB's 2024 estimate), and future (KPDB
+      projections through 2034), plus the district's AHFT rank. Each measure keeps its source in its
+      name, so census, ACS, and KPDB figures for the same year aren't interchangeable.
+    columns:
+      - name: borocd
+        description: Borough code (1-5) times 100 plus the district number, e.g. 310 for Brooklyn CD 10.
+        data_tests: [unique, not_null]
+      - name: boro_code
+        description: Borough code, 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island.
+        data_tests: [not_null]
+      - name: boro_name
+        description: Borough name.
+      - name: cd_number
+        description: District number within the borough. 50 and up are joint interest areas.
+      - name: cdta2020
+        description: >
+          The 2020 community district tabulation area for this district, e.g. BK10. CDTAs are built from
+          census tracts, so their boundaries approximate the district's. The ACS columns come from it.
+        data_tests: [unique, not_null]
+      - name: cdta_name
+        description: CDTA name from dcp_cdta2020, with its code and whether it's an equivalent or approximation of the district.
+      - name: is_joint_interest_area
+        description: True for the 12 joint interest areas, which AHFT doesn't rank.
+        data_tests: [not_null]
+      - name: ahft_rank
+        description: >
+          AHFT rank, 1 (lowest rate of affordable housing development) to 59 (highest). Null for joint
+          interest areas.
+      - name: is_ahft_district
+        description: >
+          True if ahft_rank is in the bottom 12 of 59, the cutoff LIFT uses. Null for joint interest areas,
+          since they aren't ranked.
+      - name: ahft_housing_units_start_of_cycle
+        description: AHFT's housing unit count at the start of its cycle, the denominator of its rate. SSOT is the AHFT tracker.
+      - name: ahft_new_affordable_units
+        description: AHFT's new affordable dwelling units in the cycle, the numerator of its rate. SSOT is the AHFT tracker.
+      - name: fhgs_growth_cohort
+        description: >
+          Fair Housing Growth Strategy growth cohort (Low, Medium, High): the district's third of the 59 by
+          its 2016-2025 housing growth rate. FHGS columns come from the final report (October 2026), Appendix B
+          and Figure 3.2, and are null for joint interest areas. SSOT is the report.
+      - name: fhgs_annual_growth_rate_2016_2025_pct
+        description: >
+          FHGS annual rate of new homes added 2016-2025, from the Housing Database, 0-100 scale. The report
+          computes it from the change in total housing between 2016 and 2025, converted to an annual rate.
+      - name: fhgs_baseline_target_growth_rate_pct
+        description: FHGS 5-year baseline target growth rate from the district's cohort, 0-100 scale.
+      - name: fhgs_laa_adjustment_pct
+        description: FHGS Limited Affordability Area adjustment (x 1.25), as a percent increase. Null where it doesn't apply.
+      - name: fhgs_transit_access_adjustment_pct
+        description: FHGS transit access adjustment (x 1.01-1.1), as a percent increase.
+      - name: fhgs_tidal_flooding_adjustment_pct
+        description: FHGS tidal flooding adjustment (x 0.8-0.95), as a percent reduction. Null where it doesn't apply.
+      - name: fhgs_target_growth_rate_pct
+        description: FHGS 5-year target growth rate, the baseline times each adjustment, 0-100 scale.
+      - name: fhgs_total_homes_2025
+        description: FHGS total homes in the district in 2025, the base its 2030 target multiplies. SSOT is the report.
+      - name: fhgs_homes_added_2021_2025
+        description: FHGS homes added 2021-2025, from its 2030 targets tables. SSOT is the report.
+      - name: fhgs_target_new_homes_2030
+        description: >
+          FHGS five-year target for all new homes, 2026-2030, from its 2030 targets tables. It's the target growth
+          rate times total homes in 2025, rounded to the nearest 5. Homes count when they get a certificate of
+          occupancy, net of units lost to demolition or consolidation. Includes the affordable target. SSOT is
+          the report.
+      - name: fhgs_target_affordable_homes_2030
+        description: FHGS affordable target, 25% of the five-year target. Includes the deeply affordable target.
+      - name: fhgs_target_deeply_affordable_homes_2030
+        description: FHGS deeply affordable target, 30% of the affordable target. Includes the target for households experiencing homelessness.
+      - name: fhgs_target_homes_for_homeless_households_2030
+        description: FHGS target for households experiencing homelessness, 50% of the deeply affordable target.
+      - name: fhgs_target_pct_of_homes_added_2021_2025
+        description: >
+          fhgs_target_new_homes_2030 as a percent of fhgs_homes_added_2021_2025, 0-100 scale rounded to 2 decimals.
+          How the target pace compares with the last five years: 200.00 means twice as many homes.
+      - name: population_2010_census
+        description: Total population, 2010 decennial census (PFF pop1). SSOT is PFF decennial.
+      - name: population_2020_census
+        description: Total population, 2020 decennial census (PFF pop1). SSOT is PFF decennial.
+      - name: population_acs_2020_2024
+        description: Total population, ACS 2020-2024 5-year estimate for the district's CDTA (PFF pop_1). SSOT is PFF ACS.
+      - name: population_acs_2020_2024_moe
+        description: 90% margin of error of population_acs_2020_2024.
+      - name: housing_units_2010_census
+        description: Housing units, 2010 decennial census (PFF hunits). SSOT is PFF decennial.
+      - name: housing_units_2020_census
+        description: Housing units as of April 1 2020, 2020 decennial census (PFF hunits). SSOT is PFF decennial. KPDB uses the same figure as its baseline.
+      - name: housing_units_acs_2020_2024
+        description: Housing units, ACS 2020-2024 5-year estimate for the district's CDTA (PFF hu1). SSOT is PFF ACS.
+      - name: housing_units_acs_2020_2024_moe
+        description: 90% margin of error of housing_units_acs_2020_2024.
+      - name: occupied_housing_units_acs_2020_2024
+        description: Occupied housing units, ACS 2020-2024 5-year estimate for the district's CDTA (PFF ochu1). SSOT is PFF ACS.
+      - name: occupied_housing_units_acs_2020_2024_moe
+        description: 90% margin of error of occupied_housing_units_acs_2020_2024.
+      - name: housing_units_2020_end
+        description: >
+          Housing units at the end of 2020: the census count plus net completions from April through
+          December 2020. SSOT is KPDB's cpp_housing_growth_cd (its units_2020).
+      - name: net_completed_units_2015_2024
+        description: >
+          Net housing units completed 2015-2024, from the Housing Database (classa_net), so demolitions and
+          unit losses are subtracted. SSOT is KPDB's cpp_housing_growth_cd.
+      - name: net_completed_units_2021_2024
+        description: Net housing units completed 2021-2024, same definition. SSOT is KPDB's cpp_housing_growth_cd.
+      - name: housing_units_2024_end
+        description: housing_units_2020_end plus net_completed_units_2021_2024. SSOT is KPDB's cpp_housing_growth_cd (its units_2024).
+      - name: projected_net_units_2025_2034
+        description: >
+          Units KPDB phases within 5 years plus within 5 to 10 years. KPDB phases by project status, not
+          date, so the years are a labeling convention. SSOT is KPDB's cpp_housing_growth_cd; per-record
+          values are in dim_kpdb_record_community_district.
+      - name: projected_housing_units_2034_end
+        description: housing_units_2024_end plus projected_net_units_2025_2034. SSOT is KPDB's cpp_housing_growth_cd.
+      - name: population_change_2010_2020_pct
+        description: >
+          Percent change from population_2010_census to population_2020_census, 0-100 scale rounded to
+          2 decimals. Null where the 2010 count is 0.
+      - name: hdb_net_completed_units_2010q2_2020q1
+        description: >
+          Net housing units completed from 2010Q2 through 2020Q1, from the Housing Database (classa_net,
+          dcp_housing 24Q4), the quarters between the two April 1 censuses. Units built, net of demolitions,
+          as opposed to the census change in units counted. SSOT is dcp_housing.
+      - name: hdb_housing_growth_2010_2020_pct
+        description: hdb_net_completed_units_2010q2_2020q1 as a percent of housing_units_2010_census, same scale.
+      - name: population_minus_hdb_growth_2010_2020_pts
+        description: >
+          population_change_2010_2020_pct minus hdb_housing_growth_2010_2020_pct, in percentage points.
+          Positive where population grew faster than the housing units built. Both come from the same April
+          2010 to April 2020 window.
+      - name: housing_change_2010_2020_pct
+        description: Percent change from housing_units_2010_census to housing_units_2020_census, same scale.
+      - name: population_minus_housing_change_2010_2020_pts
+        description: >
+          population_change_2010_2020_pct minus housing_change_2010_2020_pct, in percentage points. Positive
+          where population grew faster than the housing units the censuses counted.
+      - name: census_minus_hdb_housing_change_2010_2020
+        description: >
+          The census change in housing units, 2010 to 2020, minus hdb_net_completed_units_2010q2_2020q1.
+          Near 0 where the census change is explained by construction. Large values flag districts where the
+          two censuses counted units differently, or units were added or lost without a DOB job.
+      - name: housing_change_2010_2024_pct
+        description: >
+          Percent change from housing_units_2010_census (April 1 2010) to housing_units_2024_end, same
+          scale.
+      - name: projected_housing_growth_2024_2034_pct
+        description: projected_net_units_2025_2034 as a percent of housing_units_2024_end, same scale.
+      - name: geom
+        description: Community district boundary clipped to the shoreline (dcp_cdboundaries 26c), EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_kpdb_record_community_district
+    description: >
+      One row per KPDB record and community district it falls in (record_id x borocd), from KPDB
+      2026-10-01. A record that spans districts has a row for each, with its units split by
+      proportion_in_cd. Summing within_5_years_in_cd + from_5_to_10_years_in_cd by district gives
+      dim_community_district.projected_net_units_2025_2034.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "record_id || '-' || borocd"
+    columns:
+      - name: record_id
+        description: KPDB record id. A ZAP project id, DOB job number, or another source's id.
+        data_tests: [not_null]
+      - name: borocd
+        description: Community district the record piece falls in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: project_id
+        description: KPDB project id. Records judged to be the same development share one.
+      - name: source
+        description: Where the record comes from, e.g. DOB, DCP Application, HPD RFPs.
+      - name: record_name
+        description: Record name or address.
+      - name: status
+        description: Source-specific status, e.g. "DOB 3. Permitted for Construction".
+      - name: type
+        description: Source-specific record type.
+      - name: record_date
+        description: Date of the record, as text in KPDB's YYYY/MM/DD format. Its meaning is in date_type.
+      - name: date_type
+        description: What record_date marks, e.g. "Certified Referred".
+      - name: is_classb
+        description: KPDB classb flag.
+      - name: is_nycha
+        description: KPDB nycha flag.
+      - name: is_senior_housing
+        description: KPDB senior_housing flag.
+      - name: is_inactive
+        description: KPDB inactive flag. Null where KPDB leaves it blank.
+      - name: proportion_in_cd
+        description: Share of the record's units assigned to this district, 0 to 1.
+      - name: units_net_in_cd
+        description: Net units in this district (units_net times proportion_in_cd). SSOT is KPDB longform_cd_output.
+      - name: completed_units_in_cd
+        description: Units already completed, in this district. SSOT is KPDB longform_cd_output.
+      - name: future_phased_units_total_in_cd
+        description: Future units with phasing, in this district. SSOT is KPDB longform_cd_output.
+      - name: future_units_without_phasing_in_cd
+        description: Future units without phasing, in this district. SSOT is KPDB longform_cd_output.
+      - name: within_5_years_in_cd
+        description: Units KPDB phases within 5 years, in this district. SSOT is KPDB longform_cd_output.
+      - name: from_5_to_10_years_in_cd
+        description: Units KPDB phases within 5 to 10 years, in this district. SSOT is KPDB longform_cd_output.
+      - name: after_10_years_in_cd
+        description: Units KPDB phases after 10 years, in this district. SSOT is KPDB longform_cd_output.

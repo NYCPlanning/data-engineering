@@ -1,0 +1,65 @@
+seeds:
+  - name: fhgs_2030_target_inputs
+    description: >
+      Appendix B of the Fair Housing Growth Strategy final report (October 2026), "2030 Housing Production
+      Target Inputs", one row per community district (59, no joint interest areas). Extracted from the PDF by
+      scripts/extract_fhgs.py. Percentages are on a 0-100 scale. Empty adjustments are N/A in the report.
+    config:
+      column_types:
+        community_district: varchar
+        community_district_name: varchar
+        growth_cohort: varchar
+        baseline_target_growth_rate_pct: double
+        laa_adjustment_pct: double
+        transit_access_adjustment_pct: double
+        tidal_flooding_adjustment_pct: double
+        target_growth_rate_pct: double
+        total_homes_2025: integer
+    columns:
+      - name: community_district
+        description: The report's district code, e.g. BK 10.
+        data_tests: [unique, not_null]
+      - name: target_growth_rate_pct
+        data_tests: [not_null]
+      - name: total_homes_2025
+        data_tests: [not_null]
+
+  - name: fhgs_growth_rates_2016_2025
+    description: >
+      Figure 3.2 of the same report, "Recent housing growth rates: rate of new homes added 2016-2025", one row
+      per community district. The report computes it from the Housing Database as the change in total housing
+      between 2016 and 2025, converted to an annual rate. 0-100 scale.
+    config:
+      column_types:
+        community_district: varchar
+        annual_growth_rate_2016_2025_pct: double
+    columns:
+      - name: community_district
+        data_tests: [unique, not_null]
+
+  - name: fhgs_2030_targets
+    description: >
+      2030 targets by community district from the same report (pages 52-57), one row per community district.
+      The five-year target includes the affordable target, which includes the deeply affordable target, which
+      includes the target for households experiencing homelessness.
+    config:
+      column_types:
+        community_district: varchar
+        homes_added_2021_2025: integer
+        target_new_homes: integer
+        target_affordable_homes: integer
+        target_deeply_affordable_homes: integer
+        target_homes_for_homeless_households: integer
+    columns:
+      - name: community_district
+        data_tests: [unique, not_null]
+
+  - name: fhgs_2030_borough_totals
+    description: The borough total rows of the 2030 targets tables, kept to check the district rows against.
+    config:
+      column_types:
+        borough: varchar
+        target_new_homes: integer
+        target_affordable_homes: integer
+        target_deeply_affordable_homes: integer
+        target_homes_for_homeless_households: integer

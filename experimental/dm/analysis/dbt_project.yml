@@ -1,0 +1,24 @@
+name: "analysis_growth"
+
+profile: "analysis_growth"
+
+model-paths: ["models"]
+
+models:
+  analysis_growth:
+    staging:
+      # tables, not views: the decennial files are ~450 MB each and every downstream read
+      # would otherwise rescan them
+      +materialized: table
+    intermediate:
+      +materialized: view
+    core:
+      +materialized: table
+
+data_tests:
+  +store_failures: true
+  +schema: "_tests"
+
+flags:
+  fail-fast: true
+  send_anonymous_usage_stats: false
