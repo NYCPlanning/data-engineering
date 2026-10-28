@@ -370,7 +370,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 1 }
   - name: curve_flag
-    description: "I if the segment is curved: the centerline's CURVE value, or for other segments a compound curve or a line with more than two points, so compound-curve shoreline, subway and rail segments are flagged (CSCL-LION-03)."
+    description: "I if the segment is curved: the centerline's CURVE value (L and R swapped on a reversed proto-segment), or for other segments a curve or a line with more than two points. A shoreline, subway or rail segment that is a single arc is flagged too, where prod leaves it blank (CSCL-LION-03)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

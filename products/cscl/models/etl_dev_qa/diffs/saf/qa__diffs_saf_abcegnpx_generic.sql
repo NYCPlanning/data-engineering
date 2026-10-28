@@ -53,6 +53,8 @@ SELECT
                 ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
                 ], json_keys(changes)
             )
+            -- placeids 1031192 and 1041121, on segments 0300499 and 0112435
+            AND split_part(_saf_key, '|', 3) IN ('0300499', '0112435')
             THEN 'CSCL-SAF-02: SAF GNX side-AP point mismatch'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND len(change_keys) = 1
@@ -76,6 +78,8 @@ SELECT
                 ARRAY['side_ap', 'side_borough_code', 'side_ct2020_basic', 'side_ct2020_suffix'
                 ], json_keys(changes)
             )
+            -- placeids 1031192 and 1041121, on segments 0300499 and 0112435
+            AND split_part(_saf_key, '|', 3) IN ('0300499', '0112435')
         ),
         FALSE
     ) AS accounted_for

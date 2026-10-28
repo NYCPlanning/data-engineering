@@ -424,7 +424,10 @@ seeds:
         description: >
           The record order the file must have. `prod`: the previous production
           release's order, record for record (every flat file Geosupport reads: GSS's
-          loader picks values by record position). `none`: no order to match (build
+          loader picks values by record position). `spec`: the ETL spec's order,
+          where prod's is the legacy database's physical order and can't be
+          reproduced. `own`: our own deterministic sort, where prod's order can't be
+          reproduced and the spec gives none. `none`: no order to match (build
           logs and other files with no prod counterpart). `n_a`: not a flat file. The
           QA stage's file order check (poc_validation/file_order.py) reports every
           compared file's order against prod's, and diffs_report.csv flags a `prod`
@@ -434,23 +437,23 @@ seeds:
           - not_null
           - accepted_values:
               arguments:
-                values: [prod, none, n_a]
+                values: [prod, spec, own, none, n_a]
       - name: prod_order
         description: >
           The order of the previous production release's file, as derived from the
           26c files (the investigation is inv-cze.1.3 in the team's tracker). Short,
           for the export doc's Record order section, which is generated from this and
-          the next two columns. Blank unless order_rule is prod.
+          the next two columns. Blank unless order_rule is prod, spec or own.
       - name: spec_order
         description: >
           What the legacy ETL spec (docs/ETL_V8_02012024.md) says the order is, with
           the line it says it on ("L5752"), or "Not in the spec". Blank unless
-          order_rule is prod.
+          order_rule is prod, spec or own.
       - name: order_differs_from_spec
         description: >
           Whether prod_order departs from spec_order: true, false, spec_silent (the
           spec gives no order, so prod's is the only one), or n_a (order_rule isn't
-          prod).
+          prod, spec or own).
         tests:
           - not_null
           - accepted_values:

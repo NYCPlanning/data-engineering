@@ -70,8 +70,8 @@ blank_type_altsegmentdata AS (
     WHERE nullif(trim(alt_segdata_type), '') IS NULL
     GROUP BY 1
 ),
--- CSCL-SAF-06 (gdb SegCount): CommonPlaces in our extract that prod's isn't built with. Ours
--- writes their SAF rows and counts them in the segment's SegCount.
+-- CSCL-SAF-06 (gdb SegCount): CommonPlaces both sides' SAF has but prod's LION gdb leaves
+-- out. Ours writes their gdb N rows and counts them in the segment's SegCount.
 vintage_commonplaces AS (
     SELECT
         lpad(segmentid::text, 7, '0') AS segmentid,

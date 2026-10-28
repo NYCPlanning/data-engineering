@@ -50,7 +50,7 @@ models:
       For lion_dat, rpl, and saf, single-field changes are categorized by the
       changed column name; a known difference gets a label starting with its
       seeds/known_differences.csv ID (e.g. 'CSCL-LION-04: boe_lgc_pointer
-      two-digit codes' in lion_dat; assert_known_difference_citations checks
+      BOE LGC above 9' in lion_dat; assert_known_difference_citations checks
       every such ID). For thinlion, only the CSCL-THINLION-02/03 labels are
       assigned; field names are never used. Empty string when no categorization
       applies.
