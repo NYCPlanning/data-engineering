@@ -121,16 +121,8 @@ categorized AS (
             )),
             FALSE
         ) AS is_lion_01_change,
-        -- CSCL-LION-05: records whose sequence number is numbered on the fly (spec 2.5.1):
-        -- non-street features, and proto-segments whose FEATURE_TYPE makes them non-street
-        -- features. Everything else copies its source's, so a change there is a real diff.
-        COALESCE(
-            _source_table = 'nonstreetfeatures'
-            OR (_source_table = 'altsegmentdata' AND feature_type_code IN ('3', '4', '7', '8')),
-            FALSE
-        ) AS is_numbered_on_the_fly,
         -- CSCL-LION-16: every changed field is one the side AP determines (plus the
-        -- already-accepted segment_seqnum / CSCL-LION-04 boe_lgc_pointer). Borough boundary
+        -- already-accepted CSCL-LION-04 boe_lgc_pointer). Borough boundary
         -- and zip changes count only where the probe's AP is in another borough (prod then
         -- marks a borough boundary, takes that side's zip and blanks the other side);
         -- elsewhere those rows need a look.
@@ -140,7 +132,7 @@ categorized AS (
                 JSON_KEYS(changes),
                 key -> (
                     REGEXP_MATCHES(key, '^(left|right)_')
-                    OR key IN ('segment_locational_status', 'segment_seqnum')
+                    OR key = 'segment_locational_status'
                     OR (key = 'boe_lgc_pointer' AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1')
                     OR (key IN ('borough_boundary_indicator', 'l_zip', 'r_zip') AND tlr.probe_in_other_borough)
                 )
@@ -246,13 +238,6 @@ SELECT
         -- overshoots the adjacent AP. See CSCL-LION-16.
         WHEN status = 'modified' AND is_topology_lr_change
             THEN 'CSCL-LION-16: topology left/right AP'
-        -- CSCL-LION-05: sequence numbers numbered on the fly (non-street features and
-        -- non-street-feature protos) differ from prod's. See CSCL-LION-05
-        WHEN
-            status = 'modified'
-            AND change_keys = ARRAY['segment_seqnum']
-            AND is_numbered_on_the_fly
-            THEN 'CSCL-LION-05: nonstreet segment_seqnum'
         -- CSCL-LION-03: prod leaves a single-arc shoreline/subway/rail segment blank (its
         -- source shape has two points); ours writes I. Same rule as accounted_for below.
         -- See CSCL-LION-03
@@ -276,11 +261,9 @@ SELECT
     -- CSCL-LION-22 and CSCL-LION-23: see diff_group
     is_featurename_proto OR is_cut_to_fit OR COALESCE(
         status = 'modified' AND (
-            -- CSCL-LION-05: see diff_group
-            (change_keys = ARRAY['segment_seqnum'] AND is_numbered_on_the_fly)
             -- CSCL-LION-04: prod's pointer is 1 when the BOE-preferred LGC is above 9.
             -- See CSCL-LION-04
-            OR (
+            (
                 change_keys = ARRAY['boe_lgc_pointer']
                 AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
             )
