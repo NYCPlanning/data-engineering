@@ -47,6 +47,16 @@ on-run-start:
 - "{{ create_duckdb_functions() }}"
 
 vars:
+  # Legacy bug fixes behind flags (README "Legacy bug fixes behind flags"). Each is off by
+  # default, so the build reproduces prod, until the downstream reviewers (GR, GSS) agree
+  # to roll the fix out. The log reports every build what turning it on would change.
+  #
+  # BOE LGC pointer (LION L10, LION gdb BOE_LGC), CSCL-LION-04: prod writes 1 whenever the
+  # segment's BOE-preferred LGC value is above 9, instead of that LGC's position among the
+  # segment's LGCs (CenterlineExtractFile.cs:1321, GetBOEPreferredLGCCode). true writes the
+  # position (ETL spec 2.2.1). Logged every build as CSCL-LOG-OURS-06 (568 Queens records
+  # on 26c). Proto segments aren't affected: prod reads their BOE_PREFERRED_LGC_FLAG as is.
+  fix_boe_lgc_pointer: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

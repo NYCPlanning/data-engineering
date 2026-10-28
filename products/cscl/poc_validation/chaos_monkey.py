@@ -760,6 +760,47 @@ MUTATIONS: list[Mutation] = [
             FROM lone WHERE ST_Length(geom) > 300 ORDER BY globalid
         """,
     ),
+    Edits(
+        name="segment_boe_lgc_above_9",
+        # move a centerline's BOE-preferred flag from its first LGC to a later one whose
+        # value is above 9: prod's pointer is 1, the fixed one that LGC's position
+        # (CSCL-LION-04), logged whether or not the fix is on
+        log_message_ids=["CSCL-LOG-OURS-06"],
+        table="dcp_cscl_segment_lgc",
+        column="boe_preferred_lgc_flag",
+        candidates_sql="""
+            WITH lone AS (
+                SELECT segmentid, ANY_VALUE(globalid) AS globalid FROM {s}.dcp_cscl_centerline
+                WHERE (rwjurisdiction IS DISTINCT FROM '3' OR status = '2')
+                    AND segmentid NOT IN (
+                        SELECT segmentid FROM {s}.dcp_cscl_altsegmentdata WHERE segmentid IS NOT NULL
+                    )
+                GROUP BY segmentid HAVING COUNT(*) = 1
+            ),
+            boe AS (
+                SELECT segmentid, ANY_VALUE(globalid) AS globalid FROM {s}.dcp_cscl_segment_lgc
+                WHERE boe_preferred_lgc_flag = 'Y'
+                GROUP BY segmentid
+                HAVING COUNT(*) = 1 AND BOOL_AND(preferred_lgc_flag = 'Y')
+            ),
+            above_9 AS (
+                SELECT segmentid, globalid,
+                    ROW_NUMBER() OVER (PARTITION BY segmentid ORDER BY lgc, globalid) AS rn
+                FROM {s}.dcp_cscl_segment_lgc
+                WHERE preferred_lgc_flag <> 'Y' AND TRY_CAST(lgc AS INT) > 9
+            )
+            SELECT above_9.globalid AS key, [lone.globalid, lone.segmentid::VARCHAR] AS claims,
+                lone.globalid AS log_key, 'N' AS old,
+                [
+                    struct_pack(t := 'dcp_cscl_segment_lgc', k := 'globalid', kv := above_9.globalid, c := 'boe_preferred_lgc_flag', v := 'Y'),
+                    struct_pack(t := 'dcp_cscl_segment_lgc', k := 'globalid', kv := boe.globalid, c := 'boe_preferred_lgc_flag', v := 'N')
+                ] AS edits
+            FROM lone
+            INNER JOIN boe USING (segmentid)
+            INNER JOIN above_9 ON lone.segmentid = above_9.segmentid AND above_9.rn = 1
+            ORDER BY lone.globalid
+        """,
+    ),
     AddLgcs(
         name="segment_ten_more_lgcs",
         log_message_ids=["CSCL-LOG-LION-17"],

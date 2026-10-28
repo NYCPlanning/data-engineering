@@ -150,11 +150,27 @@ models:
     FACECODE, one row each in prod's wording, with log.csv's columns plus the borough,
     B10SC, B7SC and lookup key.
 
+- name: log__boe_lgc_pointer
+  description: >-
+    CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
+    pointer differs between prod's rule (1 when the BOE-preferred LGC is above 9) and the
+    fixed one (that LGC's position), i.e. what the var fix_boe_lgc_pointer changes
+    (CSCL-LION-04), and whether it is on in this build. The records are in
+    log_boe_lgc_pointer.csv.
+
+- name: log_boe_lgc_pointer
+  description: >-
+    Attachment to log.csv, exported as log_boe_lgc_pointer.csv: one row per LION record
+    (LION .dat or LION gdb centerline) the BOE LGC pointer fix changes (CSCL-LOG-OURS-06),
+    with its BOE-preferred LGC, prod's pointer, the fixed pointer and the one this build
+    writes.
+
 - name: log_records
   description: >-
     Every logged record: log.csv's rows, with the per-borough CSCL-LOG-FC-01 and -03
     counts swapped for the records in log_face_code_missing, and the per-name name-table
-    warning counts for the records in log_name_table_warnings. What the chaos QA models
+    warning counts for the records in log_name_table_warnings (and the CSCL-LOG-OURS-06
+    count for those in log_boe_lgc_pointer). What the chaos QA models
     (qa__chaos_injections, qa__chaos_summary) check.
 
 - name: log__street_name_blank_lookup_key

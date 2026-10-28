@@ -816,6 +816,15 @@ exports:
     group: flat_files
     filename: log_altnames_sname_cut.csv
     format: csv
+  # log.csv's attachment: the per-record list behind its CSCL-LOG-OURS-06 count (the LION
+  # records the BOE LGC pointer fix changes)
+  - name: log_boe_lgc_pointer
+    custom:
+      qa_group: "Log file"
+      compare_file: false  # prod has no such log
+    group: flat_files
+    filename: log_boe_lgc_pointer.csv
+    format: csv
   # log.csv's attachment: the per-record list behind its per-name name-table warning counts
   - name: log_name_table_warnings
     custom:

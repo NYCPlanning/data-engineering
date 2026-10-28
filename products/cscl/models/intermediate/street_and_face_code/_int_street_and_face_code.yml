@@ -42,8 +42,14 @@ models:
   - name: lgc7
   - name: lgc8
   - name: lgc9
+  - name: boe_preferred_lgc
+    description: "The LGC flagged BOE preferred (the last by rank if more than one is)."
+  - name: boe_lgc_pointer_fixed
+    description: "Rank (1 to 9) of the LGC flagged BOE preferred: the correct BOE LGC pointer (ETL spec 2.2.1)."
+  - name: boe_lgc_pointer_prod
+    description: "Prod's BOE LGC pointer: 1 when the BOE-preferred LGC value is above 9 (CenterlineExtractFile.cs:1321, CSCL-LION-04), else the rank."
   - name: boe_lgc_pointer
-    description: "Rank (1 to 9) of the LGC flagged BOE preferred."
+    description: "The BOE LGC pointer LION and the LION gdb get: boe_lgc_pointer_fixed when the var fix_boe_lgc_pointer is true, else boe_lgc_pointer_prod (the default)."
     # not_null disabled: one record fails (inv-c73)
     # tests:
     # - not_null
@@ -64,3 +70,55 @@ models:
     description: "Address point id."
   - name: boe_lgc_pointer
     description: "Position (1 to 4) of the BOE preferred LGC."
+
+unit_tests:
+# CSCL-LION-04. Segment 1's BOE-preferred LGC is 11, at position 2: prod writes 1, the fix
+# writes 2. Segment 2's is 03 at position 2 and segment 3's is 12 at position 1: both rules
+# agree. Segment 4 has no BOE-preferred LGC (int__lion writes 1). Proto segments don't come
+# through here: they take BOE_PREFERRED_LGC_FLAG as is, under either setting.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__streetcode_and_facecode__boe_lgc_pointer_prod_rule
+  description: "Default (fix_boe_lgc_pointer false): pointer 1 when the BOE-preferred LGC is above 9, as prod."
+  model: int__streetcode_and_facecode
+  overrides:
+    vars:
+      fix_boe_lgc_pointer: false
+  given: &boe_given
+  - input: ref('int__lgc')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('4', 1, '01', 1::BIGINT, 'N', '412345', '41234501'),
+        ('4', 1, '11', 2::BIGINT, 'Y', '412345', '41234511'),
+        ('4', 2, '01', 1::BIGINT, 'N', '412346', '41234601'),
+        ('4', 2, '03', 2::BIGINT, 'Y', '412346', '41234603'),
+        ('4', 3, '12', 1::BIGINT, 'Y', '412347', '41234712'),
+        ('4', 3, '15', 2::BIGINT, 'N', '412347', '41234715'),
+        ('4', 4, '01', 1::BIGINT, 'N', '412348', '41234801')
+      ) AS t (borough_code, segmentid, lgc, lgc_rank, boe_preferred_lgc_flag, b5sc, b7sc)
+  - input: ref('stg__facecode_and_featurename_principal')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('41234501', '0010')
+      ) AS t (b7sc, face_code)
+  expect:
+    rows:
+    - {segmentid: 1, boe_lgc_pointer_fixed: 2, boe_lgc_pointer_prod: 1, boe_lgc_pointer: 1}
+    - {segmentid: 2, boe_lgc_pointer_fixed: 2, boe_lgc_pointer_prod: 2, boe_lgc_pointer: 2}
+    - {segmentid: 3, boe_lgc_pointer_fixed: 1, boe_lgc_pointer_prod: 1, boe_lgc_pointer: 1}
+    - {segmentid: 4, boe_lgc_pointer_fixed: null, boe_lgc_pointer_prod: null, boe_lgc_pointer: null}
+- name: test__int__streetcode_and_facecode__boe_lgc_pointer_fixed
+  description: "fix_boe_lgc_pointer true: the BOE-preferred LGC's position, also when its value is above 9."
+  model: int__streetcode_and_facecode
+  overrides:
+    vars:
+      fix_boe_lgc_pointer: true
+  given: *boe_given
+  expect:
+    rows:
+    - {segmentid: 1, boe_lgc_pointer_fixed: 2, boe_lgc_pointer_prod: 1, boe_lgc_pointer: 2}
+    - {segmentid: 2, boe_lgc_pointer_fixed: 2, boe_lgc_pointer_prod: 2, boe_lgc_pointer: 2}
+    - {segmentid: 3, boe_lgc_pointer_fixed: 1, boe_lgc_pointer_prod: 1, boe_lgc_pointer: 1}
+    - {segmentid: 4, boe_lgc_pointer_fixed: null, boe_lgc_pointer_prod: null, boe_lgc_pointer: null}
