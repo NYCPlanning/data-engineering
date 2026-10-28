@@ -1,6 +1,7 @@
 WITH fire_companies_normalized AS (
     SELECT
         fc.globalid,
+        fc.ogc_fid,
         fc.unit_short,
         fc.fire_division,
         fc.fire_battalion,
@@ -15,6 +16,7 @@ WITH fire_companies_normalized AS (
 fire_companies_with_borough AS (
     SELECT
         fc.globalid,
+        fc.ogc_fid,
         fc.unit_short,
         fc.fire_division,
         fc.fire_battalion,
@@ -27,6 +29,8 @@ fire_companies_with_borough AS (
 
 SELECT
     globalid,
+    -- ThinFire file order (prod's): the FireCompany cursor, in OBJECTID order
+    ogc_fid AS source_objectid,
     unit_short,
     fire_company_type,
     fire_company_number,

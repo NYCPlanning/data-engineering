@@ -629,6 +629,8 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__sedat.csv
       layout_source: sedat_fields
+      # prod's record order: source OBJECTID
+      order_by: source_objectid
   - name: special_sedat
     group: flat_files
     filename: SpecialSEDAT.txt
@@ -640,6 +642,8 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__sedat.csv
       layout_source: special_sedat_fields
+      # prod's record order: source OBJECTID
+      order_by: source_objectid
 
   # SND, Geosupport Normalizing Tables
   - name: snd
@@ -894,6 +898,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '2'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_brooklyn
     group: flat_files
     filename: BrooklynThinFire.txt
@@ -906,6 +912,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '3'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_manhattan
     group: flat_files
     filename: ManhattanThinFire.txt
@@ -918,6 +926,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '1'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_queens
     group: flat_files
     filename: QueensThinFire.txt
@@ -930,6 +940,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '4'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_statenisland
     group: flat_files
     filename: StatenIslandThinFire.txt
@@ -942,6 +954,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '5'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
 
   # Thin Election District
   - name: thined_dat

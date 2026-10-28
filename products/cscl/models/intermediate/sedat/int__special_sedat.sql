@@ -18,6 +18,8 @@ SELECT
     special_sedat.high_addr_suffix,
     special_sedat.election_district,
     special_sedat.assembly_district,
-    special_sedat.b7sc
+    special_sedat.b7sc,
+    -- SpecialSEDAT file order (prod's): the SpecialSEDAT cursor, in OBJECTID order
+    special_sedat.ogc_fid AS source_objectid
 FROM special_sedat
 LEFT JOIN feature_name ON special_sedat.b7sc = feature_name.b7sc

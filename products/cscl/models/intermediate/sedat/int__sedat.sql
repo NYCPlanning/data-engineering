@@ -31,7 +31,9 @@ SELECT
     sedat.high_addr_suffix,
     sedat.election_district,
     sedat.assembly_district,
-    preferred_lgc.b7sc
+    preferred_lgc.b7sc,
+    -- SEDAT file order (prod's): the SEDAT cursor, in OBJECTID order
+    sedat.ogc_fid AS source_objectid
 FROM sedat
 -- like prod (SEDATExtractFile.cs GetSpecialRowValues): a segment's lone preferred street
 -- code whatever its borough, else the one in the LIONKEY's borough

@@ -7,6 +7,7 @@ SELECT
     unit_short,
     boroughcommand AS fire_division,
     battalion AS fire_battalion,
+    ogc_fid,
     -- over half the source rows are MultiSurface; curved geometry silently drops
     -- parts in overlay operations, so linearize as the other polygon staging models do
     st_makevalid(linearize(geom)) AS geom,

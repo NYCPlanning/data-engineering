@@ -1,3 +1,5 @@
 SELECT
-    {{ select_fields_from_seed('text_formatting__sedat') }}
+    {{ select_fields_from_seed('text_formatting__sedat') }},
+    -- the file's record order (recipe.yml order_by); the layout ignores it
+    source_objectid
 FROM {{ ref("int__sedat") }}
