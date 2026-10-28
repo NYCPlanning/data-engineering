@@ -6027,15 +6027,15 @@ wheels = [
 
 [[package]]
 name = "pydantic-xml"
-version = "2.21.1"
+version = "2.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "pydantic-core" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2c/33/5a24758a8fdf2b3ed09799fd426681eb2ff3a3a2d21ab08697c54730935e/pydantic_xml-2.21.1.tar.gz", hash = "sha256:43488d244375d9fbaa593d8c0435f8b0a940d7e594fded647383ff223af2baac", size = 26916, upload-time = "2026-08-08T08:55:56.442Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/b5/eb7a11ba976a6f7f5b49fc41affbc3139999f0e8d7100579e33a607e97b5/pydantic_xml-2.22.0.tar.gz", hash = "sha256:3f3382a0aaa5117e117541cdb4e5b6ceeaa7d9ffeea7b30e742a8b221589bca8", size = 26863, upload-time = "2026-10-18T14:44:06.164Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/39/59/a3b3c08b6755d46d38a3f499dbc525a0eedcf575a6e2cc0dbad3d4755bb1/pydantic_xml-2.21.1-py3-none-any.whl", hash = "sha256:c0469622c344485c328213fa18ff49542b814a9770afcfc6810e9771401d9236", size = 43539, upload-time = "2026-08-08T08:55:57.346Z" },
+    { url = "https://files.pythonhosted.org/packages/39/f5/0996ae493cbfac75053996058fd7c08455d1aa9419bd6613323814126b14/pydantic_xml-2.22.0-py3-none-any.whl", hash = "sha256:ba457056a6e8fa94bd7d9da0441480127740cf03ed59cf4e60abc0390512ab27", size = 43467, upload-time = "2026-10-18T14:44:07.565Z" },
 ]
 
 [[package]]
