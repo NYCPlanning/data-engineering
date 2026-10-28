@@ -22,7 +22,8 @@ with_borough AS (
     SELECT
         d.*,
         COALESCE(b.boroughcode, p.boroughcode) AS boroughcode,
-        b._source_table
+        b._source_table,
+        b.feature_type_code
     FROM base_diffs AS d
     LEFT JOIN {{ ref('lion_dat_by_field') }} AS b ON d._lion_key = b._lion_key
     LEFT JOIN {{ ref('qa_int__prod_citywide_lion_dat') }} AS p ON d._lion_key = p._lion_key
@@ -108,6 +109,26 @@ categorized AS (
             with_borough.status = 'only_in_build' AND llr.is_featurename_proto, FALSE
         ) AS is_featurename_proto,
         COALESCE(llr.is_cut_to_fit, FALSE) AS is_cut_to_fit,
+        -- CSCL-LION-01: a reversal swaps the nodes, their XY and the left/right fields
+        COALESCE(
+            _source_table = 'altsegmentdata'
+            AND LIST_CONTAINS(ARRAY[
+                '0016558', '0343093', '0343094', '0343095', '0343096'
+            ], RIGHT(with_borough._lion_key, 7))
+            AND LIST_BOOL_AND(LIST_TRANSFORM(
+                JSON_KEYS(changes),
+                key -> REGEXP_MATCHES(key, '^((from|to)_(nodeid|x|y)|(left|right)_.*)$')
+            )),
+            FALSE
+        ) AS is_lion_01_change,
+        -- CSCL-LION-05: records whose sequence number is numbered on the fly (spec 2.5.1):
+        -- non-street features, and proto-segments whose FEATURE_TYPE makes them non-street
+        -- features. Everything else copies its source's, so a change there is a real diff.
+        COALESCE(
+            _source_table = 'nonstreetfeatures'
+            OR (_source_table = 'altsegmentdata' AND feature_type_code IN ('3', '4', '7', '8')),
+            FALSE
+        ) AS is_numbered_on_the_fly,
         -- CSCL-LION-16: every changed field is one the side AP determines (plus the
         -- already-accepted segment_seqnum / CSCL-LION-04 boe_lgc_pointer). Borough boundary
         -- and zip changes count only where the probe's AP is in another borough (prod then
@@ -168,14 +189,14 @@ SELECT
         -- See CSCL-LION-23
         WHEN is_cut_to_fit
             THEN 'CSCL-LION-23: value cut to fit 400-character record'
-        -- CSCL-LION-04: BOE LGC pointer incorrect for two-digit LGC codes
-        -- Old value was always "1" due to legacy bug
+        -- CSCL-LION-04: prod returns pointer 1 whenever the BOE-preferred LGC value is
+        -- above 9
         WHEN
             status = 'modified'
             AND ARRAY_LENGTH(change_keys, 1) = 1
             AND change_keys[1] = 'boe_lgc_pointer'
             AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
-            THEN 'CSCL-LION-04: boe_lgc_pointer two-digit codes'
+            THEN 'CSCL-LION-04: boe_lgc_pointer BOE LGC above 9'
         -- CSCL-LION-02: Randall's Island NSF segments missing zip code in production.
         -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
         -- segmentid, since segmentids can be renumbered/reused across LION editions.
@@ -195,9 +216,7 @@ SELECT
         -- See CSCL-LION-01
         WHEN
             status = 'modified'
-            AND LIST_CONTAINS(ARRAY[
-                '0016558', '0343093', '0343094', '0343095', '0343096'
-            ], RIGHT(_lion_key, 7))
+            AND is_lion_01_change
             THEN 'CSCL-LION-01: doubly-reversed protosegments'
         -- CSCL-LION-17: individually reviewed by JR (Aug 2026) against source data in a spreadsheet
         -- and confirmed our new value is correct. Fingerprinted on _lion_key since these are a
@@ -206,7 +225,8 @@ SELECT
         -- See CSCL-LION-17
         WHEN
             status = 'modified'
-            AND LIST_CONTAINS(ARRAY['236590241972'], _lion_key)
+            AND _lion_key = '236590241972'
+            AND change_keys = ARRAY['special_address_flag']
             THEN 'CSCL-LION-17: JR-reviewed diffs (Aug 2026)'
         -- CSCL-LION-19: special_address_flag leaks from a centerline record onto its sibling
         -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
@@ -215,6 +235,7 @@ SELECT
         WHEN
             status = 'modified'
             AND _lion_key = '493960174704'
+            AND change_keys = ARRAY['special_address_flag']
             THEN 'CSCL-LION-19: SAF flag leaks onto ramp protosegment'
         -- CSCL-LION-14: prod's Esri shape-equality test and our geometric match disagree on a
         -- near-identical subway/rail and centerline (prod also writes 0 where the spec floors
@@ -225,22 +246,23 @@ SELECT
         -- overshoots the adjacent AP. See CSCL-LION-16.
         WHEN status = 'modified' AND is_topology_lr_change
             THEN 'CSCL-LION-16: topology left/right AP'
-        -- CSCL-LION-05: sequence numbers on non-street features are regenerated each build.
-        -- See CSCL-LION-05
+        -- CSCL-LION-05: sequence numbers numbered on the fly (non-street features and
+        -- non-street-feature protos) differ from prod's. See CSCL-LION-05
         WHEN
             status = 'modified'
             AND change_keys = ARRAY['segment_seqnum']
-            AND _source_table = 'nonstreetfeatures'
+            AND is_numbered_on_the_fly
             THEN 'CSCL-LION-05: nonstreet segment_seqnum'
-        -- CSCL-LION-03: prod doesn't flag compound curves on shoreline/subway/rail as
-        -- irregular. Same rule as accounted_for below. See CSCL-LION-03
+        -- CSCL-LION-03: prod leaves a single-arc shoreline/subway/rail segment blank (its
+        -- source shape has two points); ours writes I. Same rule as accounted_for below.
+        -- See CSCL-LION-03
         WHEN
             status = 'modified'
             AND change_keys = ARRAY['curve_flag']
             AND (changes -> 'curve_flag' ->> 'old') = ' '
             AND (changes -> 'curve_flag' ->> 'new') = 'I'
             AND _source_table IN ('shoreline', 'subway', 'rail')
-            THEN 'CSCL-LION-03: curve flag I on compound curves'
+            THEN 'CSCL-LION-03: curve flag I on single-arc curves'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
@@ -254,18 +276,15 @@ SELECT
     -- CSCL-LION-22 and CSCL-LION-23: see diff_group
     is_featurename_proto OR is_cut_to_fit OR COALESCE(
         status = 'modified' AND (
-            -- Bug: segment_seqnum can differ (legacy issue)
-            change_keys = ARRAY['segment_seqnum']
-            -- CSCL-LION-04: BOE LGC pointer incorrect for two-digit LGC codes
+            -- CSCL-LION-05: see diff_group
+            (change_keys = ARRAY['segment_seqnum'] AND is_numbered_on_the_fly)
+            -- CSCL-LION-04: prod's pointer is 1 when the BOE-preferred LGC is above 9.
             -- See CSCL-LION-04
-            -- Only when old value was "1" (the legacy default)
             OR (
                 change_keys = ARRAY['boe_lgc_pointer']
                 AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
             )
-            -- Curve flag: CompoundCurves in non-centerline features
-            -- Legacy ETL doesn't detect irregular curves in shoreline/subway/rail
-            -- New ETL correctly identifies them as 'I'
+            -- CSCL-LION-03: curve flag on single-arc shoreline/subway/rail. See CSCL-LION-03
             OR (
                 change_keys = ARRAY['curve_flag']
                 AND (changes -> 'curve_flag' ->> 'old') = ' '
@@ -285,15 +304,14 @@ SELECT
             )
             -- CSCL-LION-01: doubly-reversed protosegments not reversed in production.
             -- See CSCL-LION-01
-            OR LIST_CONTAINS(ARRAY[
-                '0016558', '0343093', '0343094', '0343095', '0343096'
-            ], RIGHT(_lion_key, 7))
+            -- Only the fields a reversal changes.
+            OR is_lion_01_change
             -- CSCL-LION-17: individually reviewed by JR (Aug 2026) and confirmed correct.
             -- See CSCL-LION-17
-            OR LIST_CONTAINS(ARRAY['236590241972'], _lion_key)
+            OR (_lion_key = '236590241972' AND change_keys = ARRAY['special_address_flag'])
             -- CSCL-LION-19: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
             -- in production. See CSCL-LION-19
-            OR _lion_key = '493960174704'
+            OR (_lion_key = '493960174704' AND change_keys = ARRAY['special_address_flag'])
             -- CSCL-LION-14: subway/rail coincident_seg_count off by one. See CSCL-LION-14
             OR is_coincident_rail_change
             -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.
