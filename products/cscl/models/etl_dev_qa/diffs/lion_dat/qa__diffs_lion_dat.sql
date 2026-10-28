@@ -225,6 +225,22 @@ SELECT
         -- overshoots the adjacent AP. See CSCL-LION-16.
         WHEN status = 'modified' AND is_topology_lr_change
             THEN 'CSCL-LION-16: topology left/right AP'
+        -- CSCL-LION-05: sequence numbers on non-street features are regenerated each build.
+        -- See CSCL-LION-05
+        WHEN
+            status = 'modified'
+            AND change_keys = ARRAY['segment_seqnum']
+            AND _source_table = 'nonstreetfeatures'
+            THEN 'CSCL-LION-05: nonstreet segment_seqnum'
+        -- CSCL-LION-03: prod doesn't flag compound curves on shoreline/subway/rail as
+        -- irregular. Same rule as accounted_for below. See CSCL-LION-03
+        WHEN
+            status = 'modified'
+            AND change_keys = ARRAY['curve_flag']
+            AND (changes -> 'curve_flag' ->> 'old') = ' '
+            AND (changes -> 'curve_flag' ->> 'new') = 'I'
+            AND _source_table IN ('shoreline', 'subway', 'rail')
+            THEN 'CSCL-LION-03: curve flag I on compound curves'
         -- If only one field changed, use that as the group name
         WHEN status = 'modified' AND ARRAY_LENGTH(change_keys, 1) = 1
             THEN change_keys[1]
