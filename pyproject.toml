@@ -218,6 +218,7 @@ dependencies = []
 products = [
     "cached-property",
     "contextily",
+    "lonboard",
     "msal>=1.23.0",
     "openlayers",
     "simplejson",
