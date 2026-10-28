@@ -2,6 +2,10 @@
 source ./bash/config.sh
 set_error_traps
 
+echo "Building block models"
+# needs pluto_geom, so runs after 02_build's shoreline clip
+(cd .. && dbt build --select tag:blocks --warn-error-options '{"error": ["NoNodesForSelectionCriteria"]}')
+
 mkdir -p output
 
 cd output
@@ -32,6 +36,13 @@ shp_export_pluto mappluto MULTIPOLYGON &
 
 # mappluto_unclipped
 shp_export_pluto mappluto_unclipped MULTIPOLYGON &
+
+# tax sub-blocks and city blocks
+for table in tax_sub_blocks city_blocks; do
+    ogr2ogr -f Parquet ${table}.parquet \
+        PG:${BUILD_ENGINE} ${BUILD_ENGINE_SCHEMA}.${table} \
+        -t_srs ${default_srs} &
+done
 
 # DEV section end: low disk space
 
