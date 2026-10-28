@@ -16,6 +16,7 @@ WITH log_rows AS (
         ref("log__lion_segment_lgc_count"),
         ref("log__lion_segments_ap_boro_mismatch"),
         ref("log__lion_segments_missing_nypd"),
+        ref("log__nonstreet_proto_zip"),
         ref("log__lion_segments_missing_aps"),
         ref("log__lion_segments_missing_facecode"),
         ref("log__lion_segments_missing_nodes"),

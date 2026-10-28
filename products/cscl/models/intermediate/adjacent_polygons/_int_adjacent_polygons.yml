@@ -214,10 +214,20 @@ models:
   columns:
   - name: globalid
     description: "GlobalID of the segment."
+  - name: is_proto
+    description: "True for a proto-segment."
+  - name: l_zip_fixed
+    description: "ZIP code containing the left offset point."
+  - name: r_zip_fixed
+    description: "ZIP code containing the right offset point."
+  - name: l_zip_prod
+    description: "Prod's left ZIP: l_zip_fixed, but blank on a proto-segment, which in prod takes its parent's stored zip and a shoreline or non-street feature parent stores none (CSCL-LION-02). int__lion takes a centerline parent's zip from the centerline."
+  - name: r_zip_prod
+    description: "Prod's right ZIP, as l_zip_prod."
   - name: l_zip
-    description: "ZIP code on the left side."
+    description: "ZIP code on the left side: l_zip_fixed when the var fix_nonstreet_proto_zip is true, else l_zip_prod (the default)."
   - name: r_zip
-    description: "ZIP code on the right side."
+    description: "ZIP code on the right side: r_zip_fixed or r_zip_prod, as l_zip."
 - name: int__segment_nypdbeat
   description: "NYPD sector and service area on each side of each segment, from the beat polygon containing each offset point."
   columns:
@@ -296,3 +306,57 @@ unit_tests:
     rows:
     - {segmentid: 1, left_atomicid: '1000001', right_atomicid: '1000002', right_community_district: '102', probe_left_atomicid: '1000001', probe_right_atomicid: '1000003', topo_left_atomicid: '1000001', topo_right_atomicid: '1000002'}
     - {segmentid: 2, left_atomicid: '1000001', right_atomicid: '1000003', right_community_district: '103', probe_left_atomicid: '1000001', probe_right_atomicid: '1000003', topo_left_atomicid: '1000001', topo_right_atomicid: '1000003'}
+# CSCL-LION-02. Non-street feature N1 and its proto-segment P1 both lie in zip 10035 (the
+# lower ogc_fid of two overlapping zips). Prod writes the feature's zip and leaves the
+# proto's blank; the fix gives the proto the zip too. N2's right side is outside every zip.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__segment_zipcodes__nonstreet_proto_prod_rule
+  description: "Default (fix_nonstreet_proto_zip false): a proto-segment's zip is blank, as prod."
+  model: int__segment_zipcodes
+  overrides:
+    vars:
+      fix_nonstreet_proto_zip: false
+  given: &zip_given
+  - input: ref('int__segment_offsets')
+    format: sql
+    rows: |
+      SELECT globalid, lionkey, segmentid,
+        ST_POINT(lx, ly) AS left_offset_point, ST_POINT(rx, ry) AS right_offset_point
+      FROM (VALUES
+        ('N1', '1006300001', 1, 1.0, 1.0, 2.0, 2.0),
+        ('P1', '1006400001', 1, 1.0, 1.0, 2.0, 2.0),
+        ('N2', '1006300002', 2, 1.0, 1.0, 50.0, 50.0)
+      ) AS t (globalid, lionkey, segmentid, lx, ly, rx, ry)
+  - input: ref('int__segments')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('N1', 'nonstreetfeatures'),
+        ('P1', 'altsegmentdata'),
+        ('N2', 'nonstreetfeatures')
+      ) AS t (globalid, source_table)
+  - input: source('recipe_sources', 'dcp_cscl_zipcode')
+    format: sql
+    rows: |
+      SELECT ogc_fid, zip_code, ST_GEOMFROMTEXT(wkt) AS geom FROM (VALUES
+        (1, '10035', 'POLYGON ((0 0, 10 0, 10 10, 0 10, 0 0))'),
+        (2, '10029', 'POLYGON ((0 0, 5 0, 5 5, 0 5, 0 0))')
+      ) AS t (ogc_fid, zip_code, wkt)
+  expect:
+    rows:
+    - {globalid: N1, is_proto: false, l_zip_fixed: '10035', l_zip_prod: '10035', l_zip: '10035', r_zip: '10035'}
+    - {globalid: P1, is_proto: true, l_zip_fixed: '10035', l_zip_prod: null, l_zip: null, r_zip: null}
+    - {globalid: N2, is_proto: false, l_zip_fixed: '10035', l_zip_prod: '10035', l_zip: '10035', r_zip: null}
+- name: test__int__segment_zipcodes__nonstreet_proto_fixed
+  description: "fix_nonstreet_proto_zip true: a proto-segment gets the zip on each side."
+  model: int__segment_zipcodes
+  overrides:
+    vars:
+      fix_nonstreet_proto_zip: true
+  given: *zip_given
+  expect:
+    rows:
+    - {globalid: N1, is_proto: false, l_zip_fixed: '10035', l_zip_prod: '10035', l_zip: '10035', r_zip: '10035'}
+    - {globalid: P1, is_proto: true, l_zip_fixed: '10035', l_zip_prod: null, l_zip: '10035', r_zip: '10035'}
+    - {globalid: N2, is_proto: false, l_zip_fixed: '10035', l_zip_prod: '10035', l_zip: '10035', r_zip: null}

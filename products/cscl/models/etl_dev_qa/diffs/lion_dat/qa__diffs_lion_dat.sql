@@ -12,8 +12,10 @@
 -- fix_boe_lgc_pointer false (the default) the build writes prod's pointer, so a
 -- boe_lgc_pointer diff is unaccounted.
 {%- set boe_fix_on = 'TRUE' if var('fix_boe_lgc_pointer') else 'FALSE' %}
--- CSCL-LION-03 (single-arc curve flag) likewise, with fix_single_arc_curve_flag.
+-- CSCL-LION-03 (single-arc curve flag) and CSCL-LION-02 (non-street proto zip) likewise,
+-- with fix_single_arc_curve_flag and fix_nonstreet_proto_zip.
 {%- set curve_fix_on = 'TRUE' if var('fix_single_arc_curve_flag') else 'FALSE' %}
+{%- set zip_fix_on = 'TRUE' if var('fix_nonstreet_proto_zip') else 'FALSE' %}
 
 WITH base_diffs AS (
   {{ generate_diff_summary(
@@ -210,9 +212,10 @@ SELECT
         -- CSCL-LION-02: Randall's Island NSF segments missing zip code in production.
         -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
         -- segmentid, since segmentids can be renumbered/reused across LION editions.
-        -- See CSCL-LION-02
+        -- A difference only with fix_nonstreet_proto_zip on. See CSCL-LION-02
         WHEN
-            status = 'modified'
+            {{ zip_fix_on }}
+            AND status = 'modified'
             AND LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
             AND (changes -> 'l_zip' ->> 'new') = '10035'
             AND TRIM(changes ->> '$.l_zip.old') = ''
@@ -299,9 +302,10 @@ SELECT
             -- CSCL-LION-02: Randall's Island NSF segments missing zip code in production.
             -- Fingerprinted on the value transition (both sides blank -> 10035) rather than
             -- segmentid, since segmentids can be renumbered/reused across LION editions.
-            -- See CSCL-LION-02
+            -- With fix_nonstreet_proto_zip on. See CSCL-LION-02
             OR (
-                LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
+                {{ zip_fix_on }}
+                AND LIST_HAS_ALL(change_keys, ARRAY['l_zip', 'r_zip'])
                 AND (changes -> 'l_zip' ->> 'new') = '10035'
                 AND TRIM(changes ->> '$.l_zip.old') = ''
                 AND (changes -> 'r_zip' ->> 'new') = '10035'

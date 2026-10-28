@@ -114,9 +114,11 @@ field_causes AS (
                     'fromleft', 'toleft', 'fromright', 'toright'
                 )
                 THEN 'CSCL-LION-15: house numbers'
-            -- prod has no zip for the Randall's Island segments; ours is 10035
+            -- prod has no zip for the Randall's Island proto-segments; ours is 10035: a
+            -- difference only with fix_nonstreet_proto_zip on (off, the default, writes blank)
             WHEN
-                f.key IN ('lzip', 'rzip')
+                {{ 'TRUE' if var('fix_nonstreet_proto_zip') else 'FALSE' }}
+                AND f.key IN ('lzip', 'rzip')
                 AND (w.changes -> f.key ->> 'old') IS NULL
                 AND (w.changes -> f.key ->> 'new') = '10035'
                 THEN 'CSCL-LION-02: Randall''s Island zip'

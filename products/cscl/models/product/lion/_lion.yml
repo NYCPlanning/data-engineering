@@ -169,7 +169,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: l_zip
-    description: "Zip code on the left. From the centerline for centerline segments, otherwise from a spatial join to the zip layer (CSCL-LION-02)."
+    description: "Zip code on the left. From the centerline for centerline segments, otherwise from a spatial join to the zip layer. By default, as in prod, blank on a proto-segment of a shoreline or non-street feature off the borough boundary; with the fix_nonstreet_proto_zip setting on, from the zip layer (CSCL-LION-02)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -229,7 +229,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: r_zip
-    description: "Zip code on the right. From the centerline for centerline segments, otherwise from a spatial join to the zip layer."
+    description: "Zip code on the right. From the centerline for centerline segments, otherwise from a spatial join to the zip layer; blank by default on a proto-segment of a shoreline or non-street feature off the borough boundary, as for l_zip (CSCL-LION-02)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
