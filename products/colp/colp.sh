@@ -12,7 +12,7 @@ case $1 in
     sql_build ) ./bash/02c_sql_build.sh ;;
     qaqc ) ./bash/03_qaqc.sh ;;
     export ) ./bash/04_export.sh ;;
-    upload ) python3 -m dcpy.connectors.edm.publishing upload -p db-colp -a public-read ;;
+    upload ) python3 -m dcpy.connectors.edm.publishing upload -p db-colp -a "$(python3 -m dcpy lifecycle builds build acl db-colp)" ;;
     sql) sql $@ ;;
     * ) echo "COMMAND \"$1\" is not found. (valid commands: dataloading|build|load_data|python|sql_build|qaqc|export|upload)" ;;
 esac

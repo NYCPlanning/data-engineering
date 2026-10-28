@@ -118,7 +118,6 @@ jobs:
     with:
       product: db-zoningtaxlots
       build: ${{ github.head_ref || github.ref_name }}
-      product_acl: public-read
       dev_bucket: ${{ inputs.dev_bucket }}
 
   promote_pluto_to_draft:
@@ -130,6 +129,5 @@ jobs:
     with:
       product: db-pluto
       build: ${{ github.head_ref || github.ref_name }}
-      product_acl: public-read
       dev_bucket: ${{ inputs.dev_bucket }}
       create_qa_github_issue: true

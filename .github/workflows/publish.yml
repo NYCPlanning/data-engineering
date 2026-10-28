@@ -40,12 +40,13 @@ on:
         default: false
         required: true
       product_acl:
-        description: "Set access control list for output in DO"
+        description: "ACL for output in DO. 'recipe' uses the acl in the product's recipe"
         type: choice
         required: true
-        default: public-read
+        default: recipe
         options:
-          - public-read 
+          - recipe
+          - public-read
           - private
       dev_bucket:
         description: "dev bucket to use in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'"
@@ -76,6 +77,7 @@ jobs:
             python
             bash
             admin/run_environment
+            products
 
       - name: Install dcpy workspace
         run: uv sync --all-packages
@@ -122,11 +124,15 @@ jobs:
 
       - name: Publish
         run: |
+          ACL="${{ inputs.product_acl }}"
+          if [ "$ACL" = recipe ]; then
+            ACL=$(uv run python3 -m dcpy lifecycle builds build acl ${{ inputs.product }})
+          fi
           uv run python3 -m dcpy.connectors.edm.publishing publish \
             --product ${{ inputs.product }} \
             --version ${{ inputs.version }} \
             ${{ (inputs.draft_revision_num != '' && format('--draft-number {0}', inputs.draft_revision_num)) || ''}} \
-            --acl ${{ inputs.product_acl }} \
+            --acl "$ACL" \
             ${{ github.event.inputs.is_patch == 'true' && '--is-patch' || '' }} \
             ${{ github.event.inputs.latest == 'true' && '--latest' || '' }} \
             --download-metadata

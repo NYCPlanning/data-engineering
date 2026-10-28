@@ -99,4 +99,4 @@ jobs:
       - name: Upload
         run: |
           uv run python3 -m dcpy.connectors.edm.publishing upload \
-            --product db-kpdb --acl private
+            --product db-kpdb --acl "$(uv run python3 -m dcpy lifecycle builds build acl db-kpdb)"

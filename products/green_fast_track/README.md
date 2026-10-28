@@ -106,5 +106,5 @@ Then run the export script
 ### Upload
 
 ```bash
-python3 -m dcpy.connectors.edm.publishing upload --product db-green-fast-track --acl public-read
+python3 -m dcpy.connectors.edm.publishing upload --product db-green-fast-track --acl "$(python3 -m dcpy lifecycle builds build acl db-green-fast-track)"
 ```

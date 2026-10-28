@@ -98,4 +98,4 @@ jobs:
         run: python -m facdb.cli export
 
       - name: Upload Artifacts
-        run: uv run python3 -m dcpy.connectors.edm.publishing upload --product db-facilities --acl public-read
+        run: uv run python3 -m dcpy.connectors.edm.publishing upload --product db-facilities --acl "$(uv run python3 -m dcpy lifecycle builds build acl db-facilities)"

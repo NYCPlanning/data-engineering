@@ -52,7 +52,7 @@ def draft(datasource: str, vintage: str, version: str) -> None:
         _bucket(),
         OUTPUT_FOLDER / datasource / vintage,
         Path(target),
-        acl="public-read",
+        acl="private",
         contents_only=True,
     )
 
@@ -64,7 +64,7 @@ def publish(datasource: str, vintage: str, draft_version: str) -> None:
     assert match, f"draft version must look like '2026_3', got '{draft_version}'"
     source = s3_folder("draft", datasource, vintage, draft_version)
     target = s3_folder("publish", datasource, vintage, match["version"])
-    s3.copy_folder(_bucket(), source, target, acl="public-read")
+    s3.copy_folder(_bucket(), source, target, acl="private")
 
 
 if __name__ == "__main__":

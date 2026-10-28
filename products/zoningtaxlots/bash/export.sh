@@ -25,4 +25,4 @@ rm -rf output && mkdir -p output
 )
 
 echo "Upload outputs ..."
-python3 -m dcpy.connectors.edm.publishing upload -p db-zoningtaxlots -a public-read
+python3 -m dcpy.connectors.edm.publishing upload -p db-zoningtaxlots -a "$(python3 -m dcpy lifecycle builds build acl db-zoningtaxlots)"

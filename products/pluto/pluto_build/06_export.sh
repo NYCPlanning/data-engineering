@@ -77,4 +77,4 @@ mkdir -p qaqc && (
 wait 
 cd ..
 
-python3 -m dcpy.connectors.edm.publishing upload -p db-pluto -a public-read
+python3 -m dcpy.connectors.edm.publishing upload -p db-pluto -a "$(python3 -m dcpy lifecycle builds build acl db-pluto)"
