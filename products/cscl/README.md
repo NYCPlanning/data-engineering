@@ -133,7 +133,13 @@ python3 poc_validation/prod_data_loader.py pull
 ./poc_validation/validate_outputs.sh
 ```
 
-This sorts the files before comparison, so this isn't quite valid for comparing outputs that actually have some sort of sorting requirement. However for LION and other unordered files, it currently works as a check of total records with issues in the actual output files.
+The line comparison sorts both files first, so it counts records that differ but can't see order. Record order is checked separately, per file, by `poc_validation/file_order.py`: every flat file has to be in prod's record order (`order_rule` in [`seeds/lion_outputs.csv`](./seeds/lion_outputs.csv); GSS's loader picks values by record position). It matches the two files' records by full line and reports:
+
+- `order_rows_compared`: records both files have (the rest are the line diff's business),
+- `rows_out_of_order`: the fewest of those that would have to move to put ours in prod's order (the common records minus the longest run of them already in prod's order: the longest increasing subsequence), 0 when the order matches,
+- `order_matches_prod`, and the first departure: the first place, walking both files' common records in step, where the next record differs, as a line number on each side (`first_order_departure_prod_line`, `_dev_line`).
+
+The numbers go into `validation_summary.csv`, the lines themselves into `file_order.csv`. A LION borough file takes under a second. The export doc's Record order section, generated from `lion_outputs.csv`'s `prod_order`, `spec_order` and `order_differs_from_spec`, says where prod's order departs from the ETL spec.
 
 ## District boundary gdb
 

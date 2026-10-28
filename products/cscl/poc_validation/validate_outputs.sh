@@ -13,6 +13,11 @@
 # missing. Also writes a summary CSV (validation_summary.csv) with per-file prod row counts,
 # dev-only/prod-only counts, and their total (mismatched_rows).
 #
+# The line comparison sorts both files, so it can't see record order. Each file's order
+# is checked separately against prod's by poc_validation/file_order.py, which adds its
+# order_* columns to validation_summary.csv and writes the first departure, both lines
+# included, to file_order.csv.
+#
 # mismatched_rows is a two-directional set difference (dev-only + prod-only), not just
 # dev-only - comm -23 alone can't see rows prod has that dev is missing, which silently
 # undercounts any file where dev is missing real content rather than producing spurious extra
@@ -31,7 +36,9 @@ OUT_DIR=${VALIDATION_DIR:-$QA_DIR/validation_output}
 mkdir -p "$OUT_DIR"
 
 csv_file="$OUT_DIR/validation_summary.csv"
-echo "filename,prod_row_count,mismatched_rows,dev_only_rows,prod_only_rows" > "$csv_file"
+order_csv="$OUT_DIR/file_order.csv"
+echo "filename,prod_row_count,mismatched_rows,dev_only_rows,prod_only_rows,order_rows_compared,rows_out_of_order,order_matches_prod,first_order_departure_prod_line,first_order_departure_dev_line" > "$csv_file"
+rm -f "$order_csv"
 
 total_records=0
 total_mismatched=0
@@ -82,7 +89,10 @@ for filepath in $(find "$DEV_DIR" -type f | sort); do
             echo -e "$prod_only_rows"
         fi
     } > "$OUT_DIR/$file"
-    echo "$file,$prod_row_count,$n_mismatched,$n_dev_only,$n_prod_only" >> "$csv_file"
+    order_cols=$(python poc_validation/file_order.py "$filepath" "$PROD_DIR/$file" --details "$order_csv") ||
+        order_cols=",,,,"
+    echo "Record order:       $order_cols (rows compared, out of order, matches prod, first departure prod/dev line)"
+    echo "$file,$prod_row_count,$n_mismatched,$n_dev_only,$n_prod_only,$order_cols" >> "$csv_file"
     echo ""
 done
 

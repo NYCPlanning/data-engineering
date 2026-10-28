@@ -6,7 +6,8 @@ Run from the products/cscl directory:
     python poc_validation/run_validation.py --build <build_name>
 
 Diff results are written to output/validation_output/ (one file per CSCL output file)
-along with a validation_summary.csv. No input files are written to disk.
+along with a validation_summary.csv (with each file's record order against prod's, from
+file_order.py) and file_order.csv. No input files are written to disk.
 
 The prod version is read from the build metadata by default; override with --prod-version.
 """
@@ -15,6 +16,7 @@ import csv
 from pathlib import Path
 
 import exports
+import file_order
 import typer
 
 # TODO: publishing connector refactor - replace with: from dcpy.lifecycle.builds import builds
@@ -40,8 +42,9 @@ app = typer.Typer(add_completion=False)
 
 def _compute_file_diff(
     build_key: BuildKey, filename: str, prod_version: str
-) -> tuple[list[str], list[str], int]:
-    """Stream both files from S3 and return (dev_only_rows, prod_only_rows, prod_row_count).
+) -> tuple[list[str], list[str], int, file_order.OrderComparison]:
+    """Stream both files from S3 and return (dev_only_rows, prod_only_rows,
+    prod_row_count, record order against prod's).
 
     Two-directional: dev_only is dev_lines - prod_lines (comm -23), prod_only is
     prod_lines - dev_lines (comm -13). A dev-only-only diff can't see rows prod has that dev
@@ -51,26 +54,26 @@ def _compute_file_diff(
     poc_validation/validate_outputs.sh, which computes the same thing during a build.
     """
     # TODO: publishing connector refactor - replace with: builds.get_file(build_key.product, build_key.build, filename)
-    dev_buffer = publishing.get_file(build_key, filename)
+    dev_bytes = publishing.get_file(build_key, filename).read()
     dev_lines = {
-        line
-        for line in dev_buffer.read().decode("latin-1").splitlines()
-        if line.strip()
+        line for line in dev_bytes.decode("latin-1").splitlines() if line.strip()
     }
 
-    prod_buffer = s3.get_file_as_stream(
+    prod_bytes = s3.get_file_as_stream(
         PROD_BUCKET, f"cscl_etl/{prod_version}/{filename}"
-    )
+    ).read()
     prod_lines = {
-        line
-        for line in prod_buffer.read().decode("latin-1").splitlines()
-        if line.strip()
+        line for line in prod_bytes.decode("latin-1").splitlines() if line.strip()
     }
 
+    order = file_order.compare(
+        file_order.lines_from_bytes(prod_bytes), file_order.lines_from_bytes(dev_bytes)
+    )
     return (
         sorted(dev_lines - prod_lines),
         sorted(prod_lines - dev_lines),
         len(prod_lines),
+        order,
     )
 
 
@@ -106,15 +109,18 @@ def run(
     print(f"\nValidating {len(cscl_output_filenames)} files...")
 
     VALIDATION_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    order_details_path = VALIDATION_OUTPUT_DIR / "file_order.csv"
+    order_details_path.unlink(missing_ok=True)
     summary_rows = []
     total_records = 0
     total_mismatched = 0
 
     for filename in cscl_output_filenames:
         print(f"Validating {filename}")
-        dev_only_rows, prod_only_rows, prod_row_count = _compute_file_diff(
+        dev_only_rows, prod_only_rows, prod_row_count, order = _compute_file_diff(
             build_key, filename, prod_version
         )
+        file_order.append_details(order_details_path, filename, order)
         n_dev_only = len(dev_only_rows)
         n_prod_only = len(prod_only_rows)
         n_mismatched = n_dev_only + n_prod_only
@@ -122,6 +128,10 @@ def run(
         print(
             f"  Mismatched records: {n_mismatched} "
             f"(dev-only: {n_dev_only}, prod-only: {n_prod_only})"
+        )
+        print(
+            f"  Record order:       {order.rows_out_of_order} of "
+            f"{order.order_rows_compared} rows out of prod's order"
         )
 
         total_records += prod_row_count
@@ -134,7 +144,14 @@ def run(
             "\n".join(output_lines), encoding="latin-1"
         )
         summary_rows.append(
-            (filename, prod_row_count, n_mismatched, n_dev_only, n_prod_only)
+            (
+                filename,
+                prod_row_count,
+                n_mismatched,
+                n_dev_only,
+                n_prod_only,
+                *file_order.summary_values(order),
+            )
         )
 
     summary_path = VALIDATION_OUTPUT_DIR / "validation_summary.csv"
@@ -147,6 +164,7 @@ def run(
                 "mismatched_rows",
                 "dev_only_rows",
                 "prod_only_rows",
+                *file_order.SUMMARY_COLUMNS,
             ]
         )
         writer.writerows(summary_rows)
