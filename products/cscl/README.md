@@ -331,8 +331,7 @@ Sign-off is tracked at three levels:
    known difference the row cites. `diffs_report.csv` counts unexplained
    (`unaccounted_discrepant_rows`), explained but awaiting approval, and approved rows per
    file. A row that's accounted for but cites no known difference can't be approved
-   (`qa__diffs_all` warns on these): today that's the LION .dat `segment_seqnum` diffs on
-   protosegments (683 rows on 26c), which no known difference covers yet.
+   (`qa__diffs_all` warns on these).
 3. **Output file**, in [`seeds/lion_outputs.csv`](./seeds/lion_outputs.csv):
    `gr_signoff`, `gss_signoff`, `gis_signoff` (`pending`, `approved`, `rejected` or
    `n_a`), plus `signoff_date` and `signoff_ref`. This is the reviewer signing off on the
