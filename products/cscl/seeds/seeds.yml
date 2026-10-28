@@ -48,6 +48,10 @@ seeds:
         cause: varchar
         decision: varchar
         gr_status: varchar
+        gss_status: varchar
+        gis_status: varchar
+        reviewed_on: date
+        review_ref: varchar
         first_seen: varchar
         last_verified: varchar
         status: varchar
@@ -99,12 +103,35 @@ seeds:
         description: "What we do about it (keep ours, match prod, deferred, ...). Blank when undecided."
       - name: gr_status
         description: >
-          Where GR stands: confirmed (GR agreed), pending (asked, no answer yet). Blank
-          when GR hasn't been asked or it wasn't recorded.
-        tests:
+          Where GR (Geographic Research) stands on this difference: not_reviewed,
+          presented (shown to them, no answer yet), agreed, disputed, or n_a (the
+          signoff_matrix doesn't require GR for any output this difference touches). An
+          external sign-off, separate from `status`, which is our own call. Reset to
+          not_reviewed for every row on 2026-10-28, when review with GR and GSS started
+          fresh; earlier values are in git history.
+        tests: &reviewer_status_tests
+          - not_null
           - accepted_values:
               arguments:
-                values: [confirmed, pending]
+                values: [not_reviewed, presented, agreed, disputed, n_a]
+      - name: gss_status
+        description: >
+          Where GSS (GeoSupport Services) stands, with gr_status's values. n_a unless the
+          difference touches a flat file.
+        tests: *reviewer_status_tests
+      - name: gis_status
+        description: >
+          Where DCP's GIS team stands, with gr_status's values. n_a unless the difference
+          touches the District gdb.
+        tests: *reviewer_status_tests
+      - name: reviewed_on
+        description: >
+          Date of the last change to any reviewer status. Required once any status is
+          past not_reviewed (assert_signoff_recorded).
+      - name: review_ref
+        description: >
+          Where that change happened: the meeting date and who was there, a link to the
+          email or issue, or a short note. Required with reviewed_on.
       - name: first_seen
         description: >
           Product version the difference was first recorded against. Blank where it
@@ -115,8 +142,11 @@ seeds:
           - not_null
       - name: status
         description: >
-          open (unexplained, or explained but undecided), accepted (understood and
-          deliberately not changing), watch (resolved, can recur: check each release).
+          Our own decision, before any outside review: open (unexplained, or explained
+          but undecided), accepted (understood and deliberately not changing), watch
+          (resolved, can recur: check each release). Accepted doesn't mean approved: a
+          row is approved only once every reviewer the signoff_matrix requires has
+          agreed (gr_status, gss_status, gis_status).
         tests:
           - not_null
           - accepted_values:
@@ -204,8 +234,52 @@ seeds:
           The poc_validation/chaos_monkey.py mutations that should make this message fire,
           space-separated; blank when none does. Kept equal to the script's registry by
           tests/test_chaos_monkey.py.
+  - name: signoff_matrix
+    description: >
+      Which outside reviewers have to sign off on each deliverable (lion_outputs'
+      output_group), as agreed at the 2026-10-27 stakeholder meeting. GR (Geographic
+      Research) is upstream, the source of the CSCL data; GSS (GeoSupport Services) is
+      downstream, Geosupport consumes the flat files; GIS (DCP's GIS team) checks the Esri
+      deliverables. Drives which reviewer statuses are required (not n_a) in
+      known_differences and lion_outputs.
+    columns:
+      - name: output_group
+        description: Matches lion_outputs.output_group. One row per group.
+        tests:
+          - not_null
+          - unique
+      - name: deliverable
+        description: What the group ships, in words.
+        tests:
+          - not_null
+      - name: known_difference_outputs
+        description: >
+          The known_differences `output` values that belong to this group,
+          semicolon-separated. A difference whose outputs span groups (LION; LION gdb)
+          needs the reviewers of each.
+        tests:
+          - not_null
+      - name: requires_gr
+        description: GR has to sign off.
+        tests:
+          - not_null
+      - name: requires_gss
+        description: GSS has to sign off.
+        tests:
+          - not_null
+      - name: requires_gis
+        description: DCP's GIS team has to sign off.
+        tests:
+          - not_null
   - name: lion_outputs
     description: "LION output file mappings by group, subgroup, and type"
+    config:
+      column_types:
+        gr_signoff: varchar
+        gss_signoff: varchar
+        gis_signoff: varchar
+        signoff_date: date
+        signoff_ref: varchar
     columns:
       - name: output_group
         description: >
@@ -216,6 +290,13 @@ seeds:
           issue's sub-issue tree for the derivation, and treat it as a lead,
           not fact). Coarser than file_group/subgroup, which distinguish
           categories *within* a deliverable (e.g. SAF vs SND, both flat_files).
+          signoff_matrix says which reviewers each group needs.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('signoff_matrix')
+                field: output_group
       - name: file_group
         description: "Primary grouping category"
       - name: subgroup
@@ -309,3 +390,29 @@ seeds:
           and why, so a reader doesn't have to re-derive it. Blank when
           status is blank. For anything substantial, cite its known-difference
           ID here rather than duplicating the write-up.
+      - name: gr_signoff
+        description: >
+          GR's sign-off on this output file as a whole: pending, approved, rejected, or
+          n_a (signoff_matrix doesn't require GR for this output_group). Separate from
+          the per-difference reviewer statuses in known_differences: a file is ready for
+          sign-off once its unexplained rows are gone and its known differences are
+          agreed, but the file sign-off itself is recorded here.
+        tests: &signoff_tests
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [pending, approved, rejected, n_a]
+      - name: gss_signoff
+        description: GSS's sign-off, with gr_signoff's values.
+        tests: *signoff_tests
+      - name: gis_signoff
+        description: DCP's GIS team's sign-off, with gr_signoff's values.
+        tests: *signoff_tests
+      - name: signoff_date
+        description: >
+          Date of the last change to any of this file's sign-offs. Required once any is
+          approved or rejected (assert_signoff_recorded).
+      - name: signoff_ref
+        description: >
+          Where the sign-off happened: meeting date and attendees, or a link. Required
+          with signoff_date.
