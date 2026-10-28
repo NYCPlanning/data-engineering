@@ -96,6 +96,8 @@ sources:
 
   - name: previous_pluto
   - name: pluto
+  - name: pluto_geom
+    description: Lot geometries, unclipped and shoreline-clipped (from shorelineclip.sql)
   - name: export_pluto
     description: final PLUTO table
   - name: transit_zones_block_to_tz_ranked

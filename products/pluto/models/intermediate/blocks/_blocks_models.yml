@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: int_blocks__lot_water_share
+    description: >-
+      Share of each lot's area that the shoreline clip removes. One row per lot with
+      a geometry. Lots over 90% water are flagged is_mostly_water.
+    columns:
+      - name: bbl
+        tests:
+          - unique
+          - not_null
+
+  - name: int_blocks__land_parts
+    description: >-
+      Tax sub-blocks without their mostly-water lots. One row per contiguous part,
+      since removing a lot can split a sub-block (part 1 is the largest). A sliver
+      of a lot whose main piece is in another part has no bbls.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: ['block_id', 'part']
+
+  - name: int_blocks__city_blocks
+    description: >-
+      City blocks: land parts of tax sub-blocks merged wherever they share a boundary
+      edge, across tax blocks and boroughs. Parts that touch only at a point stay
+      separate. Each mostly-water lot is its own row (is_mostly_water), not merged.
+    columns:
+      - name: city_block_id
+        tests:
+          - unique
+          - not_null
+      - name: bbls
+        tests:
+          - not_null

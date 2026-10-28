@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: city_blocks
+    description: >-
+      One row per city block: contiguous tax lots, merged across tax blocks wherever
+      tax sub-blocks share a boundary edge. Built from unclipped lot geometries.
+      Lots over 90% water (by the shoreline clip) don't join other lots, so they
+      can't link land across the water. Each is its own row instead (is_mostly_water),
+      so every lot is in exactly one row. Large lots like parks and rail yards can
+      still join neighboring blocks across streets, so a few city blocks cover many
+      tax blocks.
+    columns:
+      - name: city_block_id
+        description: The lowest BBL in the city block
+        tests:
+          - unique
+          - not_null
+      - name: is_mostly_water
+        description: >-
+          Whether the row is a single lot that's over 90% water. Filter these out for
+          blocks of land.
+      - name: tax_block_count
+        description: Number of distinct tax blocks (borough and block) with lots in the city block
+      - name: has_multiple_tax_blocks
+        description: Whether the city block has lots from more than one tax block
+      - name: water_share
+        description: >-
+          Share of the city block's lot area that the shoreline clip removes (0 to 1).
+          The geometry isn't clipped.
+      - name: bbls
+        description: BBLs of the lots in the city block (list)
+      - name: geom
+        description: City block polygon. EPSG:4326 in the build, exported as EPSG:2263.
+
+  - name: tax_sub_blocks
+    description: >-
+      One row per tax sub-block: the lots of one tax block (borough and block) split
+      into physically contiguous parts. Built from unclipped lot geometries.
+    columns:
+      - name: tax_sub_block_id
+        description: "`<borough>-<block>-<sub_block>`"
+        tests:
+          - unique
+          - not_null
+      - name: borough
+        description: Borough code
+      - name: block
+        description: Tax block number
+      - name: sub_block
+        description: Contiguous part of the tax block, numbered by area (1 is the largest)
+      - name: bbls
+        description: BBLs of the lots in the sub-block (list)
+      - name: geom
+        description: Sub-block polygon. EPSG:4326 in the build, exported as EPSG:2263.
