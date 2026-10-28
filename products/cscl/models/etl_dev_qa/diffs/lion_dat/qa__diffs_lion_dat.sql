@@ -34,7 +34,9 @@ with_borough AS (
     LEFT JOIN {{ ref('qa_int__prod_citywide_lion_dat') }} AS p ON d._lion_key = p._lion_key
 ),
 -- CSCL-LION-16: segments whose left or right AP comes from the topology and differs from
--- the 2 ft probe's (prod's method). Empty when lion_lr_from_topology is off.
+-- the 2 ft probe's (prod's method). A difference only with fix_lion_lr_from_topology on:
+-- off (the default) the build takes the probe's, as prod, so this is empty and a side-AP
+-- diff is unaccounted.
 -- probe_in_other_borough: the probe's AP is in another borough than the topology's on
 -- some side (the AtomicPolygon ID starts with the borough code).
 topology_lr_segments AS (
@@ -46,8 +48,11 @@ topology_lr_segments AS (
         ) AS probe_in_other_borough
     FROM {{ ref('int__segment_atomicpolygons') }}
     WHERE
-        left_atomicid IS DISTINCT FROM probe_left_atomicid
-        OR right_atomicid IS DISTINCT FROM probe_right_atomicid
+        {{ 'TRUE' if var('fix_lion_lr_from_topology') else 'FALSE' }}
+        AND (
+            left_atomicid IS DISTINCT FROM probe_left_atomicid
+            OR right_atomicid IS DISTINCT FROM probe_right_atomicid
+        )
     GROUP BY segmentid
 ),
 -- CSCL-LION-14: segments with a subway/rail-centerline coincidence candidate, from either

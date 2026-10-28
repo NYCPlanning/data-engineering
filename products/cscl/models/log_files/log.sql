@@ -41,6 +41,7 @@ WITH log_rows AS (
         ref("log__gdb_lion_value_changed"),
         ref("log__name_table_warnings"),
         ref("log__boe_lgc_pointer"),
+        ref("log__lion_lr_topology"),
     ], column_override={"record_id": "varchar"}) }}
 )
 

@@ -53,6 +53,7 @@ try:
             "log_altnames_sname_cut",
             "log_name_table_warnings",
             "log_boe_lgc_pointer",
+            "log_lion_lr_topology",
         ):
             continue
         if export.format.value not in ["dat", "csv"]:

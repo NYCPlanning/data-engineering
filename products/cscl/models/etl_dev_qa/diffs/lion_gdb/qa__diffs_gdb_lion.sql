@@ -26,13 +26,17 @@ WITH base_diffs AS (
   ) }}
 ),
 -- CSCL-LION-16: segments whose left or right AP comes from the topology and differs from
--- the 2 ft probe's (prod's method).
+-- the 2 ft probe's (prod's method). A difference only with fix_lion_lr_from_topology on:
+-- off (the default) this is empty, so a side-AP diff is unaccounted.
 topology_lr_segments AS (
     SELECT DISTINCT lpad(segmentid::text, 7, '0') AS segmentid
     FROM {{ ref('int__segment_atomicpolygons') }}
     WHERE
-        left_atomicid IS DISTINCT FROM probe_left_atomicid
-        OR right_atomicid IS DISTINCT FROM probe_right_atomicid
+        {{ 'TRUE' if var('fix_lion_lr_from_topology') else 'FALSE' }}
+        AND (
+            left_atomicid IS DISTINCT FROM probe_left_atomicid
+            OR right_atomicid IS DISTINCT FROM probe_right_atomicid
+        )
 ),
 -- CSCL-LION-14 (gdb SegCount): centerlines with another centerline on the same two nodes
 -- whose geometry is within 0.0005 ft of theirs. gdb_lion counts a pair as coincident within

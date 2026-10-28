@@ -362,6 +362,7 @@ whether it is on or not, so it isn't lost.
 | var | default | fixes | logged as |
 |---|---|---|---|
 | `fix_boe_lgc_pointer` | `false` | CSCL-LION-04: prod writes BOE LGC pointer 1 whenever the BOE-preferred LGC is above 9 (LION L10, LION gdb `BOE_LGC`) | CSCL-LOG-OURS-06: a count in `log.csv` (saying whether the fix is on), records in `log_boe_lgc_pointer.csv` |
+| `fix_lion_lr_from_topology` | `false` | CSCL-LION-16: prod takes a segment's left/right AtomicPolygon from a probe 2 ft either side of its midpoint, which overshoots into the AtomicPolygon behind where the adjacent one is shallow; on, they come from the AtomicPolygon topology edges the segment runs along (LION .dat and gdb: AtomicPolygon, census, districts, zip, locational status, ...) | CSCL-LOG-OURS-08: a count of LION records and segments in `log.csv` (saying whether it is on), records in `log_lion_lr_topology.csv` |
 
 Turn one on for a build with `--vars`, e.g. `dbt run --selector duckdb_build --vars
 '{fix_boe_lgc_pointer: true}'` (pass the same `--vars` to the QA models' run, or their rules

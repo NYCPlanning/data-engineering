@@ -4,10 +4,10 @@
 -- Left/right AtomicPolygons and their attributes per segment. Two answers are computed,
 -- each in its own pair of columns: probe_* (points 2 ft either side of the midpoint,
 -- int__segment_offsets) and topo_* (the AP topology edges the segment runs along,
--- int__segment_topology_sides). lion_lr_from_topology picks which pair fills
+-- int__segment_topology_sides). fix_lion_lr_from_topology picks which pair fills
 -- left_atomicid/right_atomicid and every left_*/right_* attribute (see dbt_project.yml).
 
-{% if var('lion_lr_from_topology') %}
+{% if var('fix_lion_lr_from_topology') %}
     {% set chosen, chosen_prefix = 'ts', 'topo' %}
 {% else %}
     {% set chosen, chosen_prefix = 'p', 'probe' %}

@@ -1,7 +1,7 @@
 -- Every logged record: log.csv's rows, with the per-borough FC-01, FC-03 and BYTES-06
--- counts, the per-name name-table warning counts and the OURS-06 count swapped for the
--- records behind them (log_face_code_missing.csv, log_altnames_sname_cut.csv,
--- log_name_table_warnings.csv, log_boe_lgc_pointer.csv).
+-- counts, the per-name name-table warning counts and the OURS-06 and OURS-08 counts swapped
+-- for the records behind them (log_face_code_missing.csv, log_altnames_sname_cut.csv,
+-- log_name_table_warnings.csv, log_boe_lgc_pointer.csv, log_lion_lr_topology.csv).
 -- What the chaos QA models check.
 SELECT
     log_level,
@@ -21,7 +21,9 @@ WHERE
         'CSCL-LOG-LION-13', 'CSCL-LOG-LION-14', 'CSCL-LOG-LION-15', 'CSCL-LOG-LION-16',
         'CSCL-LOG-BYTES-05', 'CSCL-LOG-BYTES-08', 'CSCL-LOG-BYTES-09', 'CSCL-LOG-SAF-19', 'CSCL-LOG-SAF-24',
         -- log__boe_lgc_pointer's count
-        'CSCL-LOG-OURS-06'
+        'CSCL-LOG-OURS-06',
+        -- log__lion_lr_topology's count
+        'CSCL-LOG-OURS-08'
     )
 UNION ALL
 SELECT
@@ -71,3 +73,15 @@ SELECT
     record_id,
     message
 FROM {{ ref('log_boe_lgc_pointer') }}
+UNION ALL
+SELECT
+    log_level,
+    error_category,
+    log_message_id,
+    effect,
+    globalid,
+    source_feature_layer,
+    record_id_type,
+    record_id,
+    message
+FROM {{ ref('log_lion_lr_topology') }}
