@@ -653,9 +653,20 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__snd.csv
       layout_source: snd_fields
+      # prod's record order: borough, then the 32-character (blank-padded) name as .NET's
+      # culture-aware compare sorts it: apostrophes and hyphens ignored, and of names
+      # equal without them, the higher one in byte order first
+      order_by: >-
+        boroughcode,
+        replace(replace(rpad(place_name, 32, ' '), '''', ''), '-', ''),
+        rpad(place_name, 32, ' ') DESC,
+        place_name
   - name: exception
     custom:
       qa_group: "SND, Geosupport Normalizing Tables"
+      # prod's record order: the name as .NET's culture-aware compare sorts it (see snd;
+      # here the name isn't padded)
+      order_by: replace(replace(dat_column, '''', ''), '-', ''), dat_column DESC
     group: flat_files
     filename: Exception.txt
     format: dat
