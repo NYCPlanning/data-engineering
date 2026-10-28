@@ -64,6 +64,28 @@ models:
     description: "Y of the center of curvature."
   - name: center_of_curvature_radius
     description: "Radius: distance from the rounded center to the segment's start point."
+- name: int__noncenterline_curve_flag
+  description: >-
+    Curve flag (LION L49) of each segment that isn't a centerline (shoreline, subway, rail,
+    non-street feature and their proto-segments): I if the shape has more than two points.
+    Prod counts the source shape, where a circular arc is two points, so a segment that is
+    one arc end to end is blank (CSCL-LION-03); the fix counts the densified line.
+  columns:
+  - name: globalid
+    description: "GlobalID of the segment (of the proto-segment for a proto)."
+  - name: source_table
+    description: "The segment's source table."
+  - name: source_point_count
+    description: "Points of the source shape (of the parent, for a proto-segment), as Esri counts them: an arc's ends, not the vertices it is densified to."
+  - name: densified_point_count
+    description: "Points of the densified line."
+  - name: curve_flag_prod
+    description: "Prod's curve flag: I if source_point_count is above 2 (ShorelineExtractFile.cs:422, GetHasShapePoints)."
+  - name: curve_flag_fixed
+    description: "The fixed curve flag: I if densified_point_count is above 2, so a single arc is I too."
+  - name: curve_flag
+    description: "The curve flag LION and the LION gdb get: curve_flag_fixed when the var fix_single_arc_curve_flag is true, else curve_flag_prod (the default)."
+
 - name: int__split_election_district
   description: "One row per segment and LION key that appears in the split election district (SEDAT) table, flagged L, R or B by the sides it covers."
   columns:
@@ -75,3 +97,72 @@ models:
     One row per LION gdb segment with its record count (n_records): its own records, SAF
     replicants and records not written, plus coincident segments of the same feature
     class. gdb_lion writes it as SegCount, capped at 9 (CSCL-LOG-BYTES-12 logs the cap).
+
+unit_tests:
+# CSCL-LION-03. Shoreline S1 is one arc end to end, densified to 5 points: 2 source points,
+# so prod writes blank and the fix I. S2 is two arcs (3 source points) and S3 a 2-point
+# line: both rules agree. P1 is S1's proto-segment and counts S1's shape. Rail R1 has the
+# same ogc_fid as S1 but no arcs (a 3-point line). Centerline C1 isn't flagged here.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__noncenterline_curve_flag__prod_rule
+  description: "Default (fix_single_arc_curve_flag false): a single arc is blank, as prod."
+  model: int__noncenterline_curve_flag
+  overrides:
+    vars:
+      fix_single_arc_curve_flag: false
+  given: &curve_given
+  - input: ref('int__segments')
+    format: sql
+    rows: |
+      SELECT globalid, feature_type, source_table, source_class_rank, source_objectid,
+        ST_GEOMFROMTEXT(wkt) AS geom, ST_GEOMFROMTEXT(wkt) AS raw_geom
+      FROM (VALUES
+        ('S1', 'shoreline', 'shoreline', 4, 10, 'LINESTRING (0 0, 1 1, 2 1.4, 3 1, 4 0)'),
+        ('S2', 'shoreline', 'shoreline', 4, 11, 'LINESTRING (0 0, 1 1, 2 1.4, 3 1, 4 0, 5 -1, 6 -1.4, 7 -1, 8 0)'),
+        ('S3', 'shoreline', 'shoreline', 4, 12, 'LINESTRING (0 0, 4 0)'),
+        ('P1', 'nonstreetfeatures', 'altsegmentdata', 4, 10, 'LINESTRING (0 0, 1 1, 2 1.4, 3 1, 4 0)'),
+        ('R1', 'rail_and_subway', 'rail', 3, 10, 'LINESTRING (0 0, 1 1, 4 0)'),
+        ('C1', 'centerline', 'centerline', 1, 10, 'LINESTRING (0 0, 1 1, 2 1.4, 3 1, 4 0)')
+      ) AS t (globalid, feature_type, source_table, source_class_rank, source_objectid, wkt)
+  - input: source('recipe_sources', 'dcp_cscl_shoreline_arcs')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES (10, 0, 4), (11, 0, 4), (11, 4, 8)) AS t (ogc_fid, v0, v1)
+  - input: source('recipe_sources', 'dcp_cscl_centerline_arcs')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES (10, 0, 4)) AS t (ogc_fid, v0, v1)
+  - input: source('recipe_sources', 'dcp_cscl_nonstreetfeatures_arcs')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES (0, 0, 0)) AS t (ogc_fid, v0, v1) WHERE FALSE
+  - input: source('recipe_sources', 'dcp_cscl_rail_arcs')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES (0, 0, 0)) AS t (ogc_fid, v0, v1) WHERE FALSE
+  - input: source('recipe_sources', 'dcp_cscl_subway_arcs')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES (0, 0, 0)) AS t (ogc_fid, v0, v1) WHERE FALSE
+  expect:
+    rows:
+    - {globalid: S1, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: I, curve_flag: null}
+    - {globalid: S2, source_point_count: 3, curve_flag_prod: I, curve_flag_fixed: I, curve_flag: I}
+    - {globalid: S3, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: null, curve_flag: null}
+    - {globalid: P1, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: I, curve_flag: null}
+    - {globalid: R1, source_point_count: 3, curve_flag_prod: I, curve_flag_fixed: I, curve_flag: I}
+- name: test__int__noncenterline_curve_flag__fixed
+  description: "fix_single_arc_curve_flag true: a single arc is I."
+  model: int__noncenterline_curve_flag
+  overrides:
+    vars:
+      fix_single_arc_curve_flag: true
+  given: *curve_given
+  expect:
+    rows:
+    - {globalid: S1, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: I, curve_flag: I}
+    - {globalid: S2, source_point_count: 3, curve_flag_prod: I, curve_flag_fixed: I, curve_flag: I}
+    - {globalid: S3, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: null, curve_flag: null}
+    - {globalid: P1, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: I, curve_flag: I}
+    - {globalid: R1, source_point_count: 3, curve_flag_prod: I, curve_flag_fixed: I, curve_flag: I}

@@ -37,6 +37,9 @@ saf AS (
 centerline_curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
 ),
+noncenterline_curve_flag AS (
+    SELECT * FROM {{ ref("int__noncenterline_curve_flag") }}
+),
 sedat AS (
     SELECT * FROM {{ ref("int__split_election_district") }}
 ),
@@ -214,7 +217,9 @@ SELECT
                 ELSE centerline_curve.curve_flag
             END
         WHEN segments.feature_type = 'centerline' THEN centerline_curve.curve_flag
-        WHEN st_numpoints(segments.geom) > 2 THEN 'I'
+        -- other segments: I if curved; a single arc only with fix_single_arc_curve_flag on
+        -- (CSCL-LION-03, see int__noncenterline_curve_flag)
+        ELSE noncenterline_curve_flag.curve_flag
     END AS curve_flag,
     round_even(centerline_curve.center_of_curvature_x, 0)::BIGINT AS center_of_curvature_x,
     round_even(centerline_curve.center_of_curvature_y, 0)::BIGINT AS center_of_curvature_y,
@@ -348,4 +353,5 @@ LEFT JOIN rail ON segments.segmentid = rail.segmentid
 LEFT JOIN noncl_coincident_segment ON segments.segmentid = noncl_coincident_segment.segmentid
 LEFT JOIN zips
     ON (CASE WHEN segments.feature_type <> 'centerline' THEN segments.globalid END) = zips.globalid
+LEFT JOIN noncenterline_curve_flag ON segments.globalid = noncenterline_curve_flag.globalid
 LEFT JOIN proto ON segments.globalid = proto.globalid

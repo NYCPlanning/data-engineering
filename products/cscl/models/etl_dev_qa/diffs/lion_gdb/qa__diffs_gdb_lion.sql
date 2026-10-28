@@ -155,8 +155,11 @@ field_causes AS (
                 AND (w.changes -> 'boe_lgc' ->> 'old') = '1'
                 THEN 'CSCL-LION-04: BOE_LGC'
             WHEN f.key = 'boe_lgc' THEN 'BOE_LGC other'
+            -- prod leaves a single-arc non-centerline segment blank: a difference only with
+            -- fix_single_arc_curve_flag on (off, the default, writes prod's blank)
             WHEN
-                f.key = 'curveflag'
+                {{ 'TRUE' if var('fix_single_arc_curve_flag') else 'FALSE' }}
+                AND f.key = 'curveflag'
                 AND coalesce(trim((w.changes -> 'curveflag' ->> 'old')), '') = ''
                 AND (w.changes -> 'curveflag' ->> 'new') = 'I'
                 THEN 'CSCL-LION-03: CurveFlag I where prod blank'

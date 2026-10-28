@@ -57,6 +57,13 @@ vars:
   # position (ETL spec 2.2.1). Logged every build as CSCL-LOG-OURS-06 (568 Queens records
   # on 26c). Proto segments aren't affected: prod reads their BOE_PREFERRED_LGC_FLAG as is.
   fix_boe_lgc_pointer: false
+  # Curve flag on a single-arc non-centerline segment (LION L49, LION gdb CurveFlag),
+  # CSCL-LION-03: prod writes I only when the source shape has more than two points
+  # (ShorelineExtractFile.cs:422, GetHasShapePoints; ETL spec 2.3.3 "shape points"), so a
+  # shoreline, subway, rail or non-street segment that is one circular arc end to end stays
+  # blank. true writes I for it too (it is curved). Logged every build as CSCL-LOG-OURS-07
+  # (on 26c: 253 LION .dat records, 410 counting LION gdb-only records).
+  fix_single_arc_curve_flag: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

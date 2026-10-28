@@ -10,6 +10,7 @@ WITH log_rows AS (
     {{ dbt_utils.union_relations(relations=[
         ref("log__lion_centerline_boro_mismatch"),
         ref("log__lion_centerline_curve"),
+        ref("log__single_arc_curve_flag"),
         ref("log__lion_centerline_or_proto_seglocstatus_mismatch"),
         ref("log__lion_protosegment_orphans"),
         ref("log__lion_segment_lgc_count"),

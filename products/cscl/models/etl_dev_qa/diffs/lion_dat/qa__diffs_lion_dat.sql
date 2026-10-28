@@ -12,6 +12,8 @@
 -- fix_boe_lgc_pointer false (the default) the build writes prod's pointer, so a
 -- boe_lgc_pointer diff is unaccounted.
 {%- set boe_fix_on = 'TRUE' if var('fix_boe_lgc_pointer') else 'FALSE' %}
+-- CSCL-LION-03 (single-arc curve flag) likewise, with fix_single_arc_curve_flag.
+{%- set curve_fix_on = 'TRUE' if var('fix_single_arc_curve_flag') else 'FALSE' %}
 
 WITH base_diffs AS (
   {{ generate_diff_summary(
@@ -154,7 +156,7 @@ categorized AS (
         ) AS is_topology_lr_change,
         -- CSCL-LION-14: coincident_seg_count is off by one on a segment with a subway/rail-
         -- centerline candidate, and nothing else changed but CSCL-LION-03's curve flag on
-        -- subway/rail.
+        -- subway/rail (with fix_single_arc_curve_flag on).
         (
             crs.segmentid IS NOT NULL
             AND LIST_CONTAINS(JSON_KEYS(changes), 'coincident_seg_count')
@@ -167,7 +169,8 @@ categorized AS (
                 key -> (
                     key = 'coincident_seg_count'
                     OR (
-                        key = 'curve_flag'
+                        {{ curve_fix_on }}
+                        AND key = 'curve_flag'
                         AND (changes ->> '$.curve_flag.old') = ' '
                         AND (changes ->> '$.curve_flag.new') = 'I'
                         AND with_borough._source_table IN ('subway', 'rail')
@@ -254,10 +257,11 @@ SELECT
         WHEN status = 'modified' AND is_topology_lr_change
             THEN 'CSCL-LION-16: topology left/right AP'
         -- CSCL-LION-03: prod leaves a single-arc shoreline/subway/rail segment blank (its
-        -- source shape has two points); ours writes I. Same rule as accounted_for below.
-        -- See CSCL-LION-03
+        -- source shape has two points); ours writes I with fix_single_arc_curve_flag on.
+        -- Same rule as accounted_for below. See CSCL-LION-03
         WHEN
-            status = 'modified'
+            {{ curve_fix_on }}
+            AND status = 'modified'
             AND change_keys = ARRAY['curve_flag']
             AND (changes -> 'curve_flag' ->> 'old') = ' '
             AND (changes -> 'curve_flag' ->> 'new') = 'I'
@@ -283,9 +287,11 @@ SELECT
                 AND change_keys = ARRAY['boe_lgc_pointer']
                 AND (changes -> 'boe_lgc_pointer' ->> 'old') = '1'
             )
-            -- CSCL-LION-03: curve flag on single-arc shoreline/subway/rail. See CSCL-LION-03
+            -- CSCL-LION-03: curve flag on single-arc shoreline/subway/rail, with
+            -- fix_single_arc_curve_flag on. See CSCL-LION-03
             OR (
-                change_keys = ARRAY['curve_flag']
+                {{ curve_fix_on }}
+                AND change_keys = ARRAY['curve_flag']
                 AND (changes -> 'curve_flag' ->> 'old') = ' '
                 AND (changes -> 'curve_flag' ->> 'new') = 'I'
                 AND _source_table IN ('shoreline', 'subway', 'rail')
