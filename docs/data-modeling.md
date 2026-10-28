@@ -132,9 +132,10 @@ For dbt projects, see [dbt project conventions](./dbt-project-conventions.md).
 
 ### Exposed tables
 
-Exposed tables are read by ArcGIS Pro, QGIS, Power BI, Python, R, and notebooks, so they have to work in the least capable of them:
+Exposed tables are read by ArcGIS Pro, QGIS, Power BI, Python, R, and notebooks, and not every format they read can hold every column type:
 
-- **Flat column types.** No structs, lists, maps, or JSON columns.
+- **Flat column types in flat formats.** CSV, shapefile, and file geodatabase exports have no structs, lists, maps, or JSON columns. Formats with nested types, like Parquet, can keep a list column. The `product` table for a flat format drops it or joins it into a delimited string.
+- **A list is a convenience, not the relationship.** A list column repeats a relationship that's also modeled at the finer grain. For example, a city block's `bbls` list needs a city block ID on the lot as well.
 - **Stated CRS.** Every geometry column's description gives its CRS. A table that needs both EPSG:2263 and EPSG:4326 has two explicitly named geometry columns.
 - **Portable column names.** Lowercase snake_case. `core` names don't have to fit a format's limits (like shapefile's 10 characters). The `product` table for that format renames them.
 
