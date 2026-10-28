@@ -20,8 +20,9 @@ ingestion:
   target_crs: EPSG:4326
   source:
     type: file_download
-    url: https://www.dot.ny.gov/divisions/engineering/technical-services/hds-respository/Tab/NYSDOT_GDB_AADT_{{ version }}.zip
+    url: https://www.dot.ny.gov/divisions/engineering/technical-services/hds-respository/Tab/GDB_Shapefile_AADT_2024-2025.gdb.zip
   file_format:
     type: geodatabase
-    unzipped_filename: AADT_{{ version }}.gdb
+    unzipped_filename: AADT_2024-2025.gdb
+    layer: AADT_{{ version }}
     crs: EPSG:26918
