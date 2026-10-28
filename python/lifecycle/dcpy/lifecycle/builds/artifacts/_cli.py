@@ -22,7 +22,7 @@ def builds_upload(
     product: str = typer.Option(..., "-p", "--product", help="Name of data product"),
     build_note: str = typer.Option(None, "-b", "--build", help="Build note"),
     acl: str = typer.Option(
-        "public-read",
+        "private",
         "-a",
         "--acl",
         help="Access control level for uploaded files. S3 only",
@@ -40,7 +40,7 @@ def builds_promote_to_draft(
         "", "-ds", "--draft-summary", help="Draft description"
     ),
     acl: str = typer.Option(
-        "public-read",
+        "private",
         "-a",
         "--acl",
         help="Access control level for uploaded files. S3 only.",
@@ -72,7 +72,7 @@ def drafts_publish(
         help="Draft revision number to publish. If blank, will use latest draft",
     ),
     acl: str = typer.Option(
-        "public-read", "-a", "--acl", help="Access control level for uploaded files"
+        "private", "-a", "--acl", help="Access control level for uploaded files"
     ),
     latest: bool = typer.Option(
         False, "-l", "--latest", help="Publish to latest folder as well"

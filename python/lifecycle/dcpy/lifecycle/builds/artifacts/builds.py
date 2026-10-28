@@ -71,7 +71,7 @@ def get_build_metadata(product: str, build: str) -> BuildMetadata:
 
 
 def _copy_to_draft(
-    product: str, build: str, draft_version: str, acl: str = "public-read"
+    product: str, build: str, draft_version: str, acl: str = "private"
 ) -> None:
     """Copy all files from build to draft using connectors.
 

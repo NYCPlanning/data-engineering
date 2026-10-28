@@ -233,6 +233,8 @@ class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
     # Also the product's folder in edm-publishing: plan looks up published versions by it.
     product: str
+    # Applies to everything this product writes to edm-publishing: builds, drafts, publishes.
+    acl: recipes.ValidAclValues = "private"
     base_recipe: str | None = None
     version_type: versions.VersionSubType | None = None
     version_strategy: versions.VersionStrategy | None = None

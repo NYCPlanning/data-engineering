@@ -226,6 +226,3 @@ stage_config:
         run: packager
         command_type: python
     destination: edm.publishing.builds
-    connector_args:
-      - name: acl
-        value: public-read

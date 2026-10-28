@@ -1,6 +1,7 @@
 name: Facilities
 version_strategy: bump_latest_release
 product: db-facilities
+acl: public-read
 inputs:
   dataset_defaults:
     file_type: parquet

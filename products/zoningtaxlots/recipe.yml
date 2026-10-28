@@ -1,5 +1,6 @@
 name: Zoning Tax Lots
 product: db-zoningtaxlots
+acl: public-read
 version_strategy: first_of_month
 inputs:
   missing_versions_strategy: find_latest

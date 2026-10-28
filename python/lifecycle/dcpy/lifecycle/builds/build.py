@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import typer
+import yaml
 
 from dcpy.configuration import PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
@@ -50,6 +51,7 @@ def upload_build(
         )
 
     connector_args = stage_config.get_connector_args_dict()
+    connector_args["acl"] = recipe.acl
     connector_args["merge"] = merge
     result = connectors[stage_config.destination].push(
         version=recipe.build_name,
@@ -638,6 +640,39 @@ def _upload_build(
     """Upload a build to the destination configured in the recipe."""
     result = upload_build(build_path, recipe_lock_path, merge=merge)
     typer.echo(result)
+
+
+def product_acl(product: str) -> str:
+    """The edm-publishing ACL a product's recipes set; private if no recipe names it."""
+    # Every recipe-shaped file, not just recipe.yml: a product can have several (pluto's
+    # minor recipe, factfinder's per-source ones), and they have to agree.
+    recipes = []
+    for path in PRODUCTS_DIR.rglob("*.yml"):
+        if {"dbt_packages", "target"} & set(path.parts):
+            continue
+        try:
+            recipe = yaml.safe_load(path.read_text())
+        except yaml.YAMLError:
+            continue
+        if isinstance(recipe, dict) and "product" in recipe and "inputs" in recipe:
+            recipes.append(recipe)
+    if not recipes:
+        # Otherwise a wrong PRODUCTS_DIR would quietly make every product private.
+        raise FileNotFoundError(f"No recipes under PRODUCTS_DIR={PRODUCTS_DIR}")
+    acls = {r.get("acl", "private") for r in recipes if r["product"] == product}
+    if len(acls) > 1:
+        raise ValueError(f"Recipes for {product} disagree on acl: {sorted(acls)}")
+    return acls.pop() if acls else "private"
+
+
+@app.command("acl")
+def _product_acl(
+    product: str = typer.Argument(
+        help="Product folder in edm-publishing, e.g. db-pluto"
+    ),
+):
+    """Print the edm-publishing ACL for a product, from its recipe."""
+    typer.echo(product_acl(product))
 
 
 @app.command("path")
