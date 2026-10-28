@@ -302,7 +302,8 @@ def _export_dat_source(
     custom: layout (the column layout CSV, relative to the product directory),
     layout_source (the unformatted model; default: the entry's name), where / order_by
     (optional SQL for the rows and their order in the file; the order defaults to every
-    column in turn, so the file is deterministic).
+    column in turn, so the file is deterministic), eof_marker (true to end the file
+    with a DOS end-of-file byte, 0x1A, after the last line).
     """
     custom = output.custom or {}
     source = custom.get("layout_source", output.name)
@@ -321,6 +322,7 @@ def _export_dat_source(
         "format": "dat",
         "path": str(parquet.relative_to(output_folder)),
         "layout": custom["layout"],
+        "eof_marker": bool(custom.get("eof_marker", False)),
     }
 
 
@@ -765,6 +767,9 @@ def package(recipe_lock_path: Path, product_path: Path | None = None) -> Path:
                 (product_path or Path.cwd()) / entry["layout"]
             )
             n = fixed_width.parquet_to_dat(build_folder / entry["path"], layout, target)
+            if entry.get("eof_marker"):
+                with open(target, "ab") as f:
+                    f.write(b"\x1a")
             logger.info(f"Packaged {n} fixed-width lines into {entry['filename']}")
         else:
             with tempfile.TemporaryDirectory() as tmp:
