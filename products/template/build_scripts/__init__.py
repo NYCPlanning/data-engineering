@@ -6,7 +6,6 @@ from dcpy.lifecycle.builds import get_recipe_lock, metadata
 from dcpy.utils import postgres
 
 PRODUCT_PATH = Path(__file__).resolve().parent.parent
-PRODUCT_NAME = "template"
 
 RECIPE_PATH = PRODUCT_PATH / "recipe.yml"
 
@@ -19,12 +18,12 @@ def get_output_dir() -> Path:
     """Get the build output directory path from dcpy.
 
     Returns:
-        Path to DCPY_LIFECYCLE_DATA_DIR/builds/build/template/{version}
+        Path to DCPY_LIFECYCLE_DATA_DIR/builds/build/{product}/{version}
     """
     recipe = get_recipe_lock(PRODUCT_PATH)
     if not recipe.version:
         raise ValueError("Recipe version not set")
-    return lifecycle_config.get_build_dir(PRODUCT_NAME, recipe.version)
+    return lifecycle_config.get_build_dir(recipe.product, recipe.version)
 
 
 # For backwards compatibility, try to get OUTPUT_DIR

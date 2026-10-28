@@ -226,7 +226,6 @@ stage_config:
         run: packager
         command_type: python
     destination: edm.publishing.builds
-    destination_key: db-eddt
     connector_args:
       - name: acl
         value: public-read

@@ -137,7 +137,7 @@ jobs:
           echo '```'
           cat timings.txt 2>/dev/null
           # one root per build: <root>/{build,package,qa}
-          ROOT=$(ls -d "$DCPY_LIFECYCLE_DATA_DIR"/builds/build/cscl/*/ 2>/dev/null | head -1)
+          ROOT=$(ls -d "$DCPY_LIFECYCLE_DATA_DIR"/builds/build/db-cscl/*/ 2>/dev/null | head -1)
           [ -n "$ROOT" ] && (cd "$ROOT" && du -sh build package qa 2>/dev/null; find package/dataset_files -type f | sort | head -60)
           [ -n "$ROOT" ] && cat "$ROOT/qa/validation_output/validation_summary.csv" 2>/dev/null
           true
@@ -155,5 +155,5 @@ jobs:
         path: |
           products/cscl/logs/
           products/cscl/target/run_results.json
-          ${{ env.DCPY_LIFECYCLE_DATA_DIR }}/builds/build/cscl/*/qa/validation_output/
+          ${{ env.DCPY_LIFECYCLE_DATA_DIR }}/builds/build/db-cscl/*/qa/validation_output/
         if-no-files-found: ignore
