@@ -410,6 +410,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '1'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: bronx_lion_dat
     group: flat_files
     filename: BronxLION.dat
@@ -422,6 +425,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '2'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: brooklyn_lion_dat
     group: flat_files
     filename: BrooklynLION.dat
@@ -434,6 +440,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '3'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: queens_lion_dat
     group: flat_files
     filename: QueensLION.dat
@@ -446,6 +455,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '4'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
   - name: staten_island_lion_dat
     group: flat_files
     filename: StatenIslandLION.dat
@@ -458,6 +470,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__lion_dat.csv
       layout_source: lion_dat_fields
       where: "boroughcode = '5'"
+      # prod's record order: feature class (Centerline, NonStreetFeature, Rail, Shoreline,
+      # Subway), then source OBJECTID; protosegments right after their segment
+      order_by: source_class_rank, source_objectid, proto_objectid NULLS FIRST
 
   # LDF - formatting is applied inside the models, since the record file mixes layouts.
   # compare_file is off because positions 91-100 carry a cumulative record number that
@@ -467,7 +482,12 @@ exports:
     group: flat_files
     filename: LDFBASE.dat
     format: dat
-    custom: { qa_group: "LDF - formatting is applied inside the models, since the record file mixes layouts.", compare_file: false }
+    custom:
+      qa_group: "LDF - formatting is applied inside the models, since the record file mixes layouts."
+      compare_file: false
+      # the cumulative record number (positions 91-100), so the file's order and its
+      # numbering can't disagree
+      order_by: substring(dat_column, 91, 10)
   - name: ldf_header
     group: flat_files
     filename: LDFHEADER.dat
@@ -486,6 +506,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_a.csv
       layout_source: saf_abcegnpx_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_abcegnpx_roadbed
     group: flat_files
     filename: RoadbedABCEGNPX.txt
@@ -497,6 +520,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_a.csv
       layout_source: saf_abcegnpx_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_d_generic
     group: flat_files
     filename: GenericD.txt
@@ -508,6 +534,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_d.csv
       layout_source: saf_d_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_d_roadbed
     group: flat_files
     filename: RoadbedD.txt
@@ -519,6 +548,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_d.csv
       layout_source: saf_d_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_i
     group: flat_files
     filename: Intersection.txt
@@ -530,6 +562,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_i.csv
       layout_source: saf_i_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_ov_generic
     group: flat_files
     filename: GenericOV.txt
@@ -541,6 +576,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_v.csv
       layout_source: saf_ov_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_ov_roadbed
     group: flat_files
     filename: RoadbedOV.txt
@@ -552,6 +590,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_v.csv
       layout_source: saf_ov_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_s_generic
     group: flat_files
     filename: GenericS.txt
@@ -563,6 +604,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_s.csv
       layout_source: saf_s_generic_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
   - name: saf_s_roadbed
     group: flat_files
     filename: RoadbedS.txt
@@ -574,6 +618,9 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__saf_s.csv
       layout_source: saf_s_roadbed_fields
+      # prod's record order: each source table in OBJECTID order, block by block; a
+      # record's RPL generic copy right after it
+      order_by: saf_block, saf_source_objectid, rpl_flag
 
   # SEDAT
   - name: sedat
@@ -587,6 +634,8 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__sedat.csv
       layout_source: sedat_fields
+      # prod's record order: source OBJECTID
+      order_by: source_objectid
   - name: special_sedat
     group: flat_files
     filename: SpecialSEDAT.txt
@@ -598,6 +647,8 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__sedat.csv
       layout_source: special_sedat_fields
+      # prod's record order: source OBJECTID
+      order_by: source_objectid
 
   # SND, Geosupport Normalizing Tables
   - name: snd
@@ -611,9 +662,20 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__snd.csv
       layout_source: snd_fields
+      # prod's record order: borough, then the 32-character (blank-padded) name as .NET's
+      # culture-aware compare sorts it: apostrophes and hyphens ignored, and of names
+      # equal without them, the higher one in byte order first
+      order_by: >-
+        boroughcode,
+        replace(replace(rpad(place_name, 32, ' '), '''', ''), '-', ''),
+        rpad(place_name, 32, ' ') DESC,
+        place_name
   - name: exception
     custom:
       qa_group: "SND, Geosupport Normalizing Tables"
+      # prod's record order: the name as .NET's culture-aware compare sorts it (see snd;
+      # here the name isn't padded)
+      order_by: replace(replace(dat_column, '''', ''), '-', ''), dat_column DESC
     group: flat_files
     filename: Exception.txt
     format: dat
@@ -625,6 +687,7 @@ exports:
       qa_group: "SND, Geosupport Normalizing Tables"
       header: False
       line_endings: crlf
+      order_by: full_name
   - name: last_word
     group: flat_files
     filename: LastWord.txt
@@ -633,6 +696,7 @@ exports:
       qa_group: "SND, Geosupport Normalizing Tables"
       header: False
       line_endings: crlf
+      order_by: full_name
   - name: enders
     group: flat_files
     filename: Enders.txt
@@ -657,6 +721,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '1'"
+      order_by: face_code
   - name: bronx_face_code
     group: flat_files
     filename: BronxFace.txt
@@ -669,6 +734,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '2'"
+      order_by: face_code
   - name: brooklyn_face_code
     group: flat_files
     filename: BrooklynFace.txt
@@ -681,6 +747,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '3'"
+      order_by: face_code
   - name: queens_face_code
     group: flat_files
     filename: QueensFace.txt
@@ -693,6 +760,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '4'"
+      order_by: face_code
   - name: staten_island_face_code
     group: flat_files
     filename: StatenIslandFace.txt
@@ -705,6 +773,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '5'"
+      order_by: face_code
 
   # Other
   - name: rpl
@@ -767,6 +836,11 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
+      # prod's record order: the borough files one after another in file-name order
+      # (Bronx, Brooklyn, Manhattan, Queens, Staten Island), each in its own order
+      order_by: >-
+        CASE borough WHEN '2' THEN 1 WHEN '3' THEN 2 WHEN '1' THEN 3 WHEN '4' THEN 4 WHEN '5' THEN 5 END,
+        censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_bronx
     group: flat_files
     filename: BronxThinLION.txt
@@ -779,6 +853,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '2'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_brooklyn
     group: flat_files
     filename: BrooklynThinLION.txt
@@ -791,6 +868,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '3'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_manhattan
     group: flat_files
     filename: ManhattanThinLION.txt
@@ -803,6 +883,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '1'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_queens
     group: flat_files
     filename: QueensThinLION.txt
@@ -815,6 +898,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '4'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_statenisland
     group: flat_files
     filename: StatenIslandThinLION.txt
@@ -827,6 +913,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '5'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
 
   # Thin Fire
   - name: thinfire_bronx
@@ -841,6 +930,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '2'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_brooklyn
     group: flat_files
     filename: BrooklynThinFire.txt
@@ -853,6 +944,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '3'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_manhattan
     group: flat_files
     filename: ManhattanThinFire.txt
@@ -865,6 +958,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '1'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_queens
     group: flat_files
     filename: QueensThinFire.txt
@@ -877,6 +972,8 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '4'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
   - name: thinfire_statenisland
     group: flat_files
     filename: StatenIslandThinFire.txt
@@ -889,13 +986,19 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinfire_dat.csv
       layout_source: thinfire_fields
       where: "borough = '5'"
+      # prod's record order: FireCompany OBJECTID
+      order_by: source_objectid
 
   # Thin Election District
   - name: thined_dat
     group: flat_files
     filename: thined.txt
     format: dat
-    custom: { qa_group: "Thin Election District", formatting: thined_dat }
+    custom:
+      qa_group: "Thin Election District"
+      formatting: thined_dat
+      # prod's record order: the whole record, byte order (the header records sort first)
+      order_by: dat_column
 
   # CDTA 2020
   - name: cdta2020_dat
@@ -909,6 +1012,7 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__cdta2020_dat.csv
       layout_source: cdta2020_fields
+      order_by: cdta_code
   - name: cdta2020_csv
     group: flat_files
     filename: CDTA2020.csv
@@ -916,6 +1020,7 @@ exports:
     custom:
       qa_group: "CDTA 2020"
       line_endings: crlf
+      order_by: cdta_code
 
   # NTA 2020
   - name: nta2020_dat
@@ -929,6 +1034,7 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__nta2020_dat.csv
       layout_source: nta2020_fields
+      order_by: nta_code
   - name: nta2020_csv
     group: flat_files
     filename: NTA2020.csv
@@ -936,6 +1042,7 @@ exports:
     custom:
       qa_group: "NTA 2020"
       line_endings: crlf
+      order_by: nta_code
 
   # NTA 2010
   - name: nta2010_csv
@@ -945,6 +1052,7 @@ exports:
     custom:
       qa_group: "NTA 2010"
       line_endings: crlf
+      order_by: borough, censustract
   - name: nta2010_txt
     group: flat_files
     filename: NTA.txt
@@ -955,6 +1063,7 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__nta2010_csv.csv
       layout_source: nta2010_fields
+      order_by: borough, censustract
 
   # ESRI / published LION geodatabase — filename must match `version:` at top of this file
   - name: gdb_lion

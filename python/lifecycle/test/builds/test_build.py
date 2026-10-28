@@ -411,6 +411,75 @@ def test_dat_export_from_duckdb_uses_crlf_no_header(tmp_path):
     client.close()
 
 
+@pytest.mark.parametrize(
+    "format, expected",
+    [
+        (ExportFormat.csv, b"a,b\n1,z\n2,y\n3,x\n"),
+        (ExportFormat.dat, b"1,z\r\n2,y\r\n3,x\r\n"),
+    ],
+)
+def test_no_layout_export_from_duckdb_honors_order_by(tmp_path, format, expected):
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute(
+        "CREATE TABLE test_schema.mytable AS "
+        "SELECT * FROM (VALUES (3, 'x'), (1, 'z'), (2, 'y')) t(a, b)"
+    )
+
+    out = tmp_path / "mytable.out"
+    export_dataset_from_duckdb(
+        table_name="mytable",
+        file_path=out,
+        format=format,
+        duckdb_client=client,
+        order_by="b DESC",
+    )
+
+    assert out.read_bytes() == expected
+    client.close()
+
+
+def test_parquet_export_from_duckdb_honors_order_by(tmp_path):
+    import pandas as pd
+
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute(
+        "CREATE TABLE test_schema.mytable AS SELECT * FROM (VALUES (2), (3), (1)) t(a)"
+    )
+
+    out = tmp_path / "mytable.parquet"
+    export_dataset_from_duckdb(
+        table_name="mytable",
+        file_path=out,
+        format=ExportFormat.parquet,
+        duckdb_client=client,
+        order_by="a",
+    )
+
+    assert pd.read_parquet(out).a.tolist() == [1, 2, 3]
+    client.close()
+
+
+def test_geo_export_from_duckdb_rejects_order_by(tmp_path):
+    client = duckdb_utils.DuckDBClient(
+        db_path=tmp_path / "test.duckdb", schema="test_schema"
+    )
+    client.conn.execute("CREATE TABLE test_schema.mytable AS SELECT 1 AS a")
+
+    with pytest.raises(ValueError, match="order_by"):
+        export_dataset_from_duckdb(
+            table_name="mytable",
+            file_path=tmp_path / "out.gpkg",
+            format=ExportFormat.geopackage,
+            duckdb_client=client,
+            order_by="a",
+        )
+    client.close()
+
+
 def test_unsupported_format_from_duckdb_raises(tmp_path):
     client = duckdb_utils.DuckDBClient(
         db_path=tmp_path / "test.duckdb", schema="test_schema"

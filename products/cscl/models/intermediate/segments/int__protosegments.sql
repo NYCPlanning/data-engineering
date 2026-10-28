@@ -67,6 +67,10 @@ SELECT
     feature_type_codes.description AS feature_type_description,
     proto.alt_segdata_type,
     proto.source_table,
+    -- file order: right after the parent segment, in AltSegmentData OBJECTID order
+    primary_segments.source_class_rank,
+    primary_segments.source_objectid,
+    proto.ogc_fid AS proto_objectid,
     proto.globalid
 FROM proto
 LEFT JOIN primary_segments ON proto.segmentid = primary_segments.segmentid

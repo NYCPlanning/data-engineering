@@ -71,7 +71,19 @@ SELECT
             all_records._block,
             all_records.action_code,
             all_records._sort_primary,
-            all_records._sort_secondary
+            all_records._sort_secondary,
+            -- records the keys above tie on (same IDs, different nodes or coordinates) in a
+            -- fixed order, so the numbering is the same on every build. GR's order among
+            -- them isn't known.
+            all_records.nodeid,
+            all_records.x_coord,
+            all_records.y_coord,
+            all_records.destination_x_coord,
+            all_records.destination_y_coord,
+            all_records.old_from_nodeid,
+            all_records.old_to_nodeid,
+            all_records.new_from_nodeid,
+            all_records.new_to_nodeid
     ) AS cumulative_record_number
 FROM all_records
 CROSS JOIN {{ ref('int__ldf_header') }} AS header

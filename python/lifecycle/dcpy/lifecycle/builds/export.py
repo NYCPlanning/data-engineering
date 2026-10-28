@@ -107,27 +107,44 @@ def export_dataset_from_duckdb(
     *,
     header: bool = True,
     line_endings: Literal["lf", "crlf"] = "lf",
+    order_by: str | None = None,
     **kwargs,  # ignore other custom things like 'formatting', matching the postgres path
 ) -> None:
-    """Export a table from DuckDB in the specified format."""
+    """Export a table from DuckDB in the specified format.
+
+    order_by: optional SQL ORDER BY clause (without the keywords) for the row order of a
+    csv, dat or parquet file. Without it, rows come out in whatever order DuckDB scans
+    the table, which isn't guaranteed to be the same from one build to the next.
+    """
     logger.info(
         f"Exporting table {table_name} from DuckDB to {file_path} in format {format}"
     )
     if file_path.exists():
         file_path.unlink()
+    query = (
+        f"SELECT * FROM {duckdb_client.schema}.{table_name} ORDER BY {order_by}"
+        if order_by
+        else None
+    )
     match format:
         case ExportFormat.csv:
             duckdb_client.export_to_csv(
-                table_name=table_name, output_path=file_path, include_header=header
+                table_name=table_name,
+                output_path=file_path,
+                query=query,
+                include_header=header,
             )
         case ExportFormat.dat:
             duckdb_client.export_to_csv(
-                table_name=table_name, output_path=file_path, include_header=False
+                table_name=table_name,
+                output_path=file_path,
+                query=query,
+                include_header=False,
             )
             line_endings = "crlf"
         case ExportFormat.parquet:
             duckdb_client.export_to_parquet(
-                table_name=table_name, output_path=file_path
+                table_name=table_name, output_path=file_path, query=query
             )
         case (
             ExportFormat.shapefile
@@ -135,6 +152,8 @@ def export_dataset_from_duckdb(
             | ExportFormat.geopackage
             | ExportFormat.geoparquet
         ):
+            if order_by:
+                raise ValueError(f"order_by isn't supported for {format} exports")
             duckdb_utils.export_geodataset_from_duckdb(
                 table_name=table_name,
                 file_path=file_path,

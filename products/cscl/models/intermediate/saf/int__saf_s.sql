@@ -81,6 +81,8 @@ SELECT
     saf.segmentid,
     saf.saf_globalid,
     saf.saf_source_table,
+    saf.saf_source_objectid,
+    saf.rpl_flag,
     address_points.addresspointid,
     feature_names.b7sc IS NOT NULL AS _joined_to_feature_name, -- for error report
     address_points.snd_feature_type,
