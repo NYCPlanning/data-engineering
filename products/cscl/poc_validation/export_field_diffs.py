@@ -10,7 +10,8 @@ comparison_id, changed field), with the prod and dev values. Rows that exist on 
 side (only_in_build / only_in_legacy) have no per-field changes and get one row with a
 null field. Each row carries the known difference its diff_group cites, if any: the
 seeds/known_differences.csv ID at the start of the label ('CSCL-LION-04: ...'), or its
-older alias ('Bug 001: ...').
+older alias ('Bug 001: ...'), and whether it's approved: accounted for, and agreed by every
+reviewer its output needs (see the signoff_matrix seed).
 """
 
 import os
@@ -57,6 +58,7 @@ SELECT
     (d.changes -> d.field) ->> 'new' AS dev_value,
     d.diff_group,
     d.accounted_for,
+    d.approved,
     k.id AS known_difference_id,
     k.description AS known_difference_description
 FROM by_field AS d

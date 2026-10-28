@@ -80,22 +80,41 @@ SEED_COLUMNS = [
     "has_db_qa",
     "diffable",
 ]
-REPORT_COLUMNS = SEED_COLUMNS + [
-    "prod_row_count",
-    "accounted_for_discrepant_rows",
-    "unaccounted_discrepant_fields",
-    "unaccounted_discrepant_rows",
-    "discrepant_rows_from_file_comparison",
-    "pct_diff",
-    "unaccounted_pct_diff",
-    "status",
-    "status_summary",
-    "notes",
+# Reviewer sign-off on the file as a whole (see the signoff_matrix seed), carried from
+# lion_outputs.csv to the end of the report.
+SIGNOFF_COLUMNS = [
+    "gr_signoff",
+    "gss_signoff",
+    "gis_signoff",
+    "signoff_date",
+    "signoff_ref",
 ]
+REPORT_COLUMNS = (
+    SEED_COLUMNS
+    + [
+        "prod_row_count",
+        "accounted_for_discrepant_rows",
+        "awaiting_approval_discrepant_rows",
+        "approved_discrepant_rows",
+        "unaccounted_discrepant_fields",
+        "unaccounted_discrepant_rows",
+        "discrepant_rows_from_file_comparison",
+        "pct_diff",
+        "unaccounted_pct_diff",
+        "status",
+        "status_summary",
+        "notes",
+    ]
+    + SIGNOFF_COLUMNS
+)
+# accounted_for = awaiting_approval + approved: explained rows, split by whether every
+# reviewer the file needs has agreed to the explanation
 FIELD_LEVEL_COUNT_COLUMNS = [
     "accounted_for_discrepant_rows",
     "unaccounted_discrepant_rows",
     "unaccounted_discrepant_fields",
+    "awaiting_approval_discrepant_rows",
+    "approved_discrepant_rows",
 ]
 # Columns shown in the step summary table (narrower than REPORT_COLUMNS - drops
 # subgroup/filename/type/has_db_qa, plus the field count and raw % diff, which
@@ -108,6 +127,7 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("file_id", "File ID"),
     ("prod_row_count", "Prod rows"),
     ("accounted_for_discrepant_rows", "Accounted-for rows"),
+    ("approved_discrepant_rows", "Approved rows"),
     ("unaccounted_discrepant_rows", "Unaccounted rows"),
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
     ("unaccounted_pct_diff", "% diff (unaccounted)"),
@@ -120,6 +140,8 @@ SUMMARY_DISPLAY_COLUMNS = [
 INT_REPORT_COLUMNS = [
     "prod_row_count",
     "accounted_for_discrepant_rows",
+    "awaiting_approval_discrepant_rows",
+    "approved_discrepant_rows",
     "unaccounted_discrepant_fields",
     "unaccounted_discrepant_rows",
     "discrepant_rows_from_file_comparison",
@@ -131,7 +153,10 @@ DELTA_COLUMNS = INT_REPORT_COLUMNS + PCT_COLUMNS + ["_gap"]
 
 def load_backbone() -> list[dict]:
     with LION_OUTPUTS_SEED_PATH.open(newline="") as f:
-        return [{col: row[col] for col in SEED_COLUMNS} for row in csv.DictReader(f)]
+        return [
+            {col: row[col] for col in SEED_COLUMNS + SIGNOFF_COLUMNS}
+            for row in csv.DictReader(f)
+        ]
 
 
 def load_field_level_counts() -> dict[str, dict[str, int | None]]:
@@ -323,14 +348,17 @@ def gap(row: dict) -> int:
 
 def read_report_csv(source: Path | str) -> list[dict]:
     """Rows of a diffs_report.csv (a path, or the CSV text itself), with the numeric
-    columns converted back from strings - the inverse of what main() writes."""
+    columns converted back from strings - the inverse of what main() writes. A column
+    the report predates (main's, before it was added) reads as None."""
     text = source.read_text() if isinstance(source, Path) else source
     rows = []
     for row in csv.DictReader(io.StringIO(text)):
         for col in INT_REPORT_COLUMNS:
-            row[col] = int(row[col]) if row[col] != "" else None
+            value = row.get(col) or ""
+            row[col] = int(value) if value != "" else None
         for col in PCT_COLUMNS:
-            row[col] = float(row[col]) if row[col] != "" else None
+            value = row.get(col) or ""
+            row[col] = float(value) if value != "" else None
         rows.append(row)
     return rows
 

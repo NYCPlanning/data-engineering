@@ -1,0 +1,4 @@
+output_group,deliverable,known_difference_outputs,requires_gr,requires_gss,requires_gis
+flat_files,"Flat files: LION .dat, SAF, SEDAT, SND, RPL, LDF, ThinLION, ThinFire, ThinED, normalizing tables, face code and census files",LION; RPL; SAF; LDF; Normalizing tables; ThinED; ThinLION; ThinFire,true,true,false
+lion_gdb,LION FGDB,LION gdb,true,false,false
+district_gdb,"Districts FGDB, and the shapefiles made from it",District gdb,true,false,true

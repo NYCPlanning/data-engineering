@@ -32,12 +32,17 @@ def get_field_diffs(build: str) -> pd.DataFrame | None:
 
 
 def summarize_outputs(df: pd.DataFrame) -> pd.DataFrame:
-    """One row per output: discrepant rows (accounted/unaccounted) and changed fields."""
+    """One row per output: discrepant rows (accounted/unaccounted, and how many of the
+    accounted ones reviewers have approved) and changed fields."""
     rows = df.drop_duplicates(["output_file_id", "comparison_id"])
-    by_output = rows.groupby("output_file_id").agg(
-        discrepant_rows=("comparison_id", "size"),
-        accounted_rows=("accounted_for", "sum"),
-    )
+    aggs = {
+        "discrepant_rows": ("comparison_id", "size"),
+        "accounted_rows": ("accounted_for", "sum"),
+    }
+    # builds from before reviewer sign-off was tracked have no approved column
+    if "approved" in rows.columns:
+        aggs["approved_rows"] = ("approved", "sum")
+    by_output = rows.groupby("output_file_id").agg(**aggs)
     by_output["unaccounted_rows"] = (
         by_output["discrepant_rows"] - by_output["accounted_rows"]
     )
@@ -79,6 +84,8 @@ def render(build: str) -> None:
         Keyed, field-by-field comparison of each output against prod, from the `qa__diffs_*`
         models. A difference is **accounted for** when it's a known or expected one; where it
         cites an entry in `seeds/known_differences.csv`, its ID and description are shown.
+        It's **approved** once every reviewer its output needs (GR, GSS, GIS; see
+        `seeds/signoff_matrix.csv`) has agreed to that known difference.
         """
     )
     with st.spinner("Loading field-level diffs..."):

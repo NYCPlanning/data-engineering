@@ -137,6 +137,32 @@ models:
     description: >
       True when the headers differ only in the record count, by exactly the net of the
       CSCL-LDF-01 records in qa__ldf_diffs.
+  - name: known_difference
+    description: The CSCL-LDF-01 label when accounted_for, else null.
+
+- name: qa__known_difference_signoff
+  description: >
+    One row per (known difference, output_group its outputs belong to), from the
+    known_differences and signoff_matrix seeds: the reviewers that group requires, the
+    difference's status from each, and approved, true once every required reviewer
+    has agreed. A difference touching LION and LION gdb has a flat_files row (GR and
+    GSS) and a lion_gdb row (GR only), so the same difference can be approved for one
+    file and not another.
+  data_tests:
+  - dbt_utils.unique_combination_of_columns:
+      arguments:
+        combination_of_columns:
+        - id
+        - output_group
+  columns:
+  - name: id
+    description: known_differences.id.
+  - name: output_group
+    description: signoff_matrix.output_group.
+    tests:
+    - not_null
+  - name: approved
+    description: Every reviewer the output_group requires has agreed.
 
 # ── RPL QA ───────────────────────────────────────────────────────────────────
 

@@ -303,6 +303,45 @@ Things that have gone wrong on a new release before. In general, most issues are
 - sectionalmap issues. This would appear in `qa__lion_dat_summary` in terms of number of dev rows and `qa__lion_dat_individual_diffs` with `sectional_map` diffs (and other diffs as well due to duplicate rows). Topology issues in the source data have caused duplicate rows on joins.
 - giant circles. Open up int__primary_segments in qgis and see if we have a large hadron collider in nyc.
 
+## QA sign-off
+
+Three outside teams sign off on the outputs before the new ETL replaces the old one:
+GR (Geographic Research, upstream: the source of the CSCL data), GSS (GeoSupport
+Services, downstream: Geosupport reads the flat files) and GIS (DCP's GIS team, Esri
+tooling). [`seeds/signoff_matrix.csv`](./seeds/signoff_matrix.csv) says who signs off on
+what: flat files GR + GSS, the District gdb (and the shapefiles made from it) GR + GIS,
+the LION gdb GR. A reviewer the matrix doesn't require for an output is `n_a` everywhere
+for it, and the seed tests enforce that.
+
+Sign-off is tracked at three levels:
+
+1. **Known difference**, in [`seeds/known_differences.csv`](./seeds/known_differences.csv):
+   `gr_status`, `gss_status`, `gis_status`, each `not_reviewed`, `presented`, `agreed`,
+   `disputed` or `n_a`, plus `reviewed_on` and `review_ref`. These are the reviewers'
+   positions. `status` and `decision` stay our own call: `accepted` means we're not
+   changing it, not that anyone outside agreed.
+2. **Row**, in `qa__diffs_all`: `accounted_for` means a known difference explains the
+   row; `approved` means every reviewer the file's output group needs has agreed to every
+   known difference the row cites. `diffs_report.csv` counts unexplained
+   (`unaccounted_discrepant_rows`), explained but awaiting approval, and approved rows per
+   file. A row that's accounted for but cites no known difference can't be approved
+   (`qa__diffs_all` warns on these): today that's the LION .dat `segment_seqnum` diffs on
+   protosegments (683 rows on 26c), which no known difference covers yet.
+3. **Output file**, in [`seeds/lion_outputs.csv`](./seeds/lion_outputs.csv):
+   `gr_signoff`, `gss_signoff`, `gis_signoff` (`pending`, `approved`, `rejected` or
+   `n_a`), plus `signoff_date` and `signoff_ref`. This is the reviewer signing off on the
+   file as a whole, once its rows are explained and its known differences agreed.
+
+To record a review, edit the seed in a PR: set the status, set `reviewed_on` (or
+`signoff_date`) to the date it changed and `review_ref` (or `signoff_ref`) to the meeting
+(date and who was there) or a link to the email or issue. `assert_signoff_recorded` fails
+on a status past `not_reviewed`/`pending` without both. The export doc's known-differences
+tables show each reviewer's status.
+
+All statuses were reset to `not_reviewed`/`pending` on 2026-10-28, when review with GR
+and GSS started fresh; the earlier `gr_status` values (`confirmed`/`pending`) are in git
+history.
+
 ## Release runbook
 
 How to run a CSCL release (next up: 26D) from GR's delivery to a reviewed build. It's
@@ -428,10 +467,12 @@ QA** page reads it, including the per-file diff rows.
 
 - **`diffs_report.csv`**: one row per output in `seeds/lion_outputs.csv`. Read
   `unaccounted_discrepant_rows` first: those diffs aren't explained by a known difference.
-  `accounted_for_discrepant_rows` are explained ones, and
+  `accounted_for_discrepant_rows` are explained ones, split into
+  `awaiting_approval_discrepant_rows` and `approved_discrepant_rows` (see
+  [QA sign-off](#qa-sign-off)), and
   `discrepant_rows_from_file_comparison` is the whole-line file diff (sorted lines, so it
   ignores row order). `status`/`status_summary` are the curated state from
-  `lion_outputs.csv`. For scale, the 26c build on main on 2026-10-21 had 29,685 diff rows,
+  `lion_outputs.csv`, and the `*_signoff` columns the file's reviewer sign-offs. For scale, the 26c build on main on 2026-10-21 had 29,685 diff rows,
   571 unaccounted, and 62 of 99 files exact. A new release should land near that; a big
   jump in unaccounted rows for one file is what to chase.
 - **`qa__diffs_all_summary.csv`**: the field-level counts behind the report, by
@@ -495,8 +536,8 @@ QA** page reads it, including the per-file diff rows.
   `known_differences.csv` row and cite it from the `qa__diffs_*` model. If it's legacy
   behaviour we can't infer from the code or the docs, ask GR.
 - **Asking GR.** Collect the questions, each with the specific keys/rows and what you
-  checked, and send them as a batch. Record the answer in the seed's `gr_status`/
-  `decision`. Data errors in CSCL itself (e.g. duplicate segment keys) go to GR as well
+  checked, and send them as a batch. Record the answer in the seed's `gr_status` (see
+  [QA sign-off](#qa-sign-off)) and `decision`. Data errors in CSCL itself (e.g. duplicate segment keys) go to GR as well
   (see GR's discrepancy log, linked under "Common things to check for in new build").
 
 ### 7. Publishing and distribution

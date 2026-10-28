@@ -67,18 +67,27 @@ summary AS (
         sum(greatest(dev_count - prod_count, 0)) AS dev_only,
         sum(greatest(prod_count - dev_count, 0)) AS prod_only
     FROM counted
+),
+
+accounted AS (
+    SELECT
+        summary.*,
+        summary.matched = 0 AS differs,
+        record_counts.record_count_delta,
+        coalesce(
+            summary.matched = 0
+            AND record_counts.same_except_record_count
+            AND record_counts.record_count_delta = ldf_01_net.records,
+            FALSE
+        ) AS accounted_for
+    FROM summary
+    CROSS JOIN record_counts
+    CROSS JOIN ldf_01_net
 )
 
 SELECT
-    summary.*,
-    summary.matched = 0 AS differs,
-    record_counts.record_count_delta,
-    coalesce(
-        summary.matched = 0
-        AND record_counts.same_except_record_count
-        AND record_counts.record_count_delta = ldf_01_net.records,
-        FALSE
-    ) AS accounted_for
-FROM summary
-CROSS JOIN record_counts
-CROSS JOIN ldf_01_net
+    *,
+    CASE
+        WHEN accounted_for THEN 'CSCL-LDF-01: record count follows the CSCL-LDF-01 records'
+    END AS known_difference
+FROM accounted
