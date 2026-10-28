@@ -3,7 +3,7 @@ models:
   description: >
     segment segments joined to left and right atomic polygons. left_atomicid/right_atomicid
     and every left_*/right_* attribute come from the probe pair, or the topo pair when
-    lion_lr_from_topology is on; both pairs are always output.
+    fix_lion_lr_from_topology is on; both pairs are always output.
   columns:
   - name: segmentid
     description: "Segment id."
@@ -229,3 +229,70 @@ models:
     description: "NYPD service area on the left side. Set for housing police (HP) beats only."
   - name: right_nypd_service_area
     description: "NYPD service area on the right side. Set for housing police (HP) beats only."
+
+unit_tests:
+# CSCL-LION-16. Three APs side by side: A (x 0-10), B (x 10-10.5, a sliver) and C (x 10.5-20).
+# Segment 1 runs along A|B: the 2 ft probe overshoots B into C on the right, the topology
+# says B. Segment 2 matches no edge: the topology falls back to the probe, so both agree. The
+# var fix_lion_lr_from_topology picks which pair fills left_/right_atomicid and the
+# attributes; both pairs are output either way.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__segment_atomicpolygons__probe_by_default
+  description: "Default (fix_lion_lr_from_topology false): side APs from prod's 2 ft probe."
+  model: int__segment_atomicpolygons
+  overrides:
+    vars:
+      fix_lion_lr_from_topology: false
+  given: &side_ap_given
+  - input: ref('int__segment_offsets')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('{g1}', 'k1', 1, '1', ST_Point(8, 5), ST_Point(12, 5)),
+        ('{g2}', 'k2', 2, '1', ST_Point(8, 7), ST_Point(12, 7))
+      ) AS t (globalid, lionkey, segmentid, boroughcode, left_offset_point, right_offset_point)
+  - input: ref('int__segment_topology_sides')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('{g1}', '1000001', '1000002', 'edges'),
+        ('{g2}', '1000001', '1000003', 'probe_fallback')
+      ) AS t (globalid, topo_left_atomicid, topo_right_atomicid, method)
+  - input: ref('stg__atomicpolygons')
+    format: sql
+    rows: |
+      SELECT
+        atomicid, '1' AS borocode, cd AS commdist,
+        NULL::INT AS censustract_1990_basic, NULL::INT AS censustract_1990_suffix,
+        NULL::INT AS censustract_2000_basic, NULL::INT AS censustract_2000_suffix,
+        NULL AS censustract_2000,
+        NULL::INT AS censustract_2010_basic, NULL::INT AS censustract_2010_suffix,
+        NULL AS censustract_2010,
+        NULL::INT AS censustract_2020_basic, NULL::INT AS censustract_2020_suffix,
+        NULL AS censustract_2020,
+        NULL::INT AS censusblock_2000_basic, NULL AS censusblock_2000_suffix,
+        NULL::INT AS censusblock_2010_basic, NULL::INT AS censusblock_2010_suffix,
+        NULL::INT AS censusblock_2020_basic, NULL::INT AS censusblock_2020_suffix,
+        NULL AS assemdist, NULL AS electdist, NULL AS schooldist,
+        ST_GeomFromText(wkt) AS geom
+      FROM (VALUES
+        ('1000001', '101', 'POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))'),
+        ('1000002', '102', 'POLYGON((10 0, 10.5 0, 10.5 10, 10 10, 10 0))'),
+        ('1000003', '103', 'POLYGON((10.5 0, 20 0, 20 10, 10.5 10, 10.5 0))')
+      ) AS t (atomicid, cd, wkt)
+  expect:
+    rows:
+    - {segmentid: 1, left_atomicid: '1000001', right_atomicid: '1000003', right_community_district: '103', probe_left_atomicid: '1000001', probe_right_atomicid: '1000003', topo_left_atomicid: '1000001', topo_right_atomicid: '1000002'}
+    - {segmentid: 2, left_atomicid: '1000001', right_atomicid: '1000003', right_community_district: '103', probe_left_atomicid: '1000001', probe_right_atomicid: '1000003', topo_left_atomicid: '1000001', topo_right_atomicid: '1000003'}
+- name: test__int__segment_atomicpolygons__topology_behind_flag
+  description: "fix_lion_lr_from_topology true: side APs from the AP topology, the probe where it has none."
+  model: int__segment_atomicpolygons
+  overrides:
+    vars:
+      fix_lion_lr_from_topology: true
+  given: *side_ap_given
+  expect:
+    rows:
+    - {segmentid: 1, left_atomicid: '1000001', right_atomicid: '1000002', right_community_district: '102', probe_left_atomicid: '1000001', probe_right_atomicid: '1000003', topo_left_atomicid: '1000001', topo_right_atomicid: '1000002'}
+    - {segmentid: 2, left_atomicid: '1000001', right_atomicid: '1000003', right_community_district: '103', probe_left_atomicid: '1000001', probe_right_atomicid: '1000003', topo_left_atomicid: '1000001', topo_right_atomicid: '1000003'}

@@ -5,7 +5,7 @@
 -- Left/right AtomicPolygon of every segment from the AP topology: the owners of the
 -- topology edge the segment runs along at its midpoint, falling back to the offset probe
 -- where it runs along none. int__segment_atomicpolygons uses this pair when
--- lion_lr_from_topology is on (see dbt_project.yml).
+-- fix_lion_lr_from_topology is on (see dbt_project.yml).
 --
 -- Why: the 2 ft probe (int__segment_offsets) lands in the AP behind the adjacent one
 -- wherever that AP is under 2 ft deep at the segment's midpoint (corners, node pinches,
