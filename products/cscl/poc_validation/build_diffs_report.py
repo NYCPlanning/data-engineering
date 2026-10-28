@@ -10,7 +10,8 @@ Marries three systems that otherwise don't talk to each other:
     (qa__ldf_diffs, qa__ldf_header_diffs). Exported to CSV here.
   - validation_summary.csv: whole-line file diffs from validate_outputs.sh, keyed by
     filename. Covers every flat-file export (including the ones with no dbt QA
-    model yet).
+    model yet). Also each file's record order against prod's (file_order.py),
+    checked against the file's order_rule in lion_outputs.csv.
   - compare_gdb.py's per-gdb-export <name>_comparison.csv files: row-count deltas
     for gdb layers (there's no line-level analog for a gdb), plus its consolidated
     layer_note (structure/row/area) surfaced in the notes column. Keyed by layer
@@ -79,6 +80,15 @@ SEED_COLUMNS = [
     "file_id",
     "has_db_qa",
     "diffable",
+    "order_rule",
+]
+# Record order against prod's, from validation_summary.csv (see file_order.py)
+ORDER_COLUMNS = [
+    "order_rows_compared",
+    "rows_out_of_order",
+    "order_matches_prod",
+    "first_order_departure_prod_line",
+    "first_order_departure_dev_line",
 ]
 # Reviewer sign-off on the file as a whole (see the signoff_matrix seed), carried from
 # lion_outputs.csv to the end of the report.
@@ -101,6 +111,11 @@ REPORT_COLUMNS = (
         "discrepant_rows_from_file_comparison",
         "pct_diff",
         "unaccounted_pct_diff",
+    ]
+    + ORDER_COLUMNS
+    + [
+        # order_rule is prod and the file is out of prod's order
+        "out_of_prod_order",
         "status",
         "status_summary",
         "notes",
@@ -132,6 +147,7 @@ SUMMARY_DISPLAY_COLUMNS = [
     ("discrepant_rows_from_file_comparison", "File-diff rows"),
     ("unaccounted_pct_diff", "% diff (unaccounted)"),
     ("_gap", "Gap"),
+    ("rows_out_of_order", "Rows out of prod order"),
     ("status", "Status"),
     ("status_summary", "Status summary"),
 ]
@@ -145,10 +161,18 @@ INT_REPORT_COLUMNS = [
     "unaccounted_discrepant_fields",
     "unaccounted_discrepant_rows",
     "discrepant_rows_from_file_comparison",
+    "order_rows_compared",
+    "rows_out_of_order",
+    "first_order_departure_prod_line",
+    "first_order_departure_dev_line",
 ]
 PCT_COLUMNS = ["pct_diff", "unaccounted_pct_diff"]
-# Summary columns that show their change vs main
-DELTA_COLUMNS = INT_REPORT_COLUMNS + PCT_COLUMNS + ["_gap"]
+# Summary columns that show their change vs main (not line numbers)
+DELTA_COLUMNS = (
+    [c for c in INT_REPORT_COLUMNS if not c.startswith("first_order_departure")]
+    + PCT_COLUMNS
+    + ["_gap"]
+)
 
 
 def load_backbone() -> list[dict]:
@@ -176,10 +200,15 @@ def load_field_level_counts() -> dict[str, dict[str, int | None]]:
         }
 
 
-def load_file_comparison_counts() -> dict[str, dict[str, int]]:
-    """filename -> {mismatched_rows, prod_row_count}, from the line-level file
-    comparison (validate_outputs.sh already computes prod_row_count per file -
-    this just carries it through instead of dropping it)."""
+def _int_or_none(value: str | None) -> int | None:
+    return int(value) if value else None
+
+
+def load_file_comparison_counts() -> dict[str, dict]:
+    """filename -> {mismatched_rows, prod_row_count, and the ORDER_COLUMNS}, from the
+    line-level file comparison (validate_outputs.sh already computes prod_row_count
+    per file - this just carries it through instead of dropping it). An order column
+    the summary doesn't have (the check failed, or an older summary) is None."""
     if not VALIDATION_SUMMARY_PATH.exists():
         return {}
     with VALIDATION_SUMMARY_PATH.open(newline="") as f:
@@ -187,9 +216,25 @@ def load_file_comparison_counts() -> dict[str, dict[str, int]]:
             row["filename"]: {
                 "mismatched_rows": int(row["mismatched_rows"]),
                 "prod_row_count": int(row["prod_row_count"]),
+                **{
+                    col: (
+                        row.get(col) or None
+                        if col == "order_matches_prod"
+                        else _int_or_none(row.get(col))
+                    )
+                    for col in ORDER_COLUMNS
+                },
             }
             for row in csv.DictReader(f)
         }
+
+
+def out_of_prod_order(row: dict) -> bool | None:
+    """Whether a file that has to be in prod's record order (order_rule prod) isn't.
+    None when there's no order to check: another order_rule, or no comparison."""
+    if row["order_rule"] != "prod" or row["rows_out_of_order"] is None:
+        return None
+    return row["rows_out_of_order"] > 0
 
 
 def load_seed_column(column: str) -> dict[str, str]:
@@ -443,6 +488,10 @@ def build_step_summary(
     flagged = [r for r in diffable_rows if has_diffs(r)]
     uncovered = [r for r in diffable_rows if not has_coverage(r)]
 
+    prod_order_rows = [r for r in rows if r.get("order_rule") == "prod"]
+    out_of_order = [r for r in prod_order_rows if (r["rows_out_of_order"] or 0) > 0]
+    order_unchecked = [r for r in prod_order_rows if r["rows_out_of_order"] is None]
+
     flagged_by_group = Counter(r["output_group"] for r in flagged)
     diffable_by_group = Counter(r["output_group"] for r in diffable_rows)
     group_breakdown = ", ".join(
@@ -458,6 +507,10 @@ def build_step_summary(
         f"- **{len(flagged)} have diffs to review** ({group_breakdown})",
         f"- {len(uncovered)} are diffable but have no comparison at all "
         "(no field-level QA model, no matching prod file to diff)",
+        f"- **{len(out_of_order)} of {len(prod_order_rows)} flat files that must be in "
+        "prod's record order aren't** (rows out of prod order > 0: the fewest rows "
+        "to move to get prod's order, on rows both files have); "
+        f"{len(order_unchecked)} have no order check (no prod file compared)",
     ]
     if main_rows is not None:
         lines.append(
@@ -528,6 +581,7 @@ def main() -> None:
             note = note if note != "OK" else ""
             note = note or KNOWN_NOTES.get(record["file_id"], "")
         discrepant_rows = row_comparison_counts.get(record["filename"])
+        file_counts = file_comparison_counts.get(record["filename"])
         prod_row_count = prod_row_counts.get(record["filename"])
         row = {
             **record,
@@ -542,11 +596,14 @@ def main() -> None:
                 if discrepant_rows is not None and prod_row_count
                 else None
             ),
+            **{col: (file_counts or {}).get(col) for col in ORDER_COLUMNS},
             "status": seed_status.get(record["file_id"], ""),
             "status_summary": seed_status_summary.get(record["file_id"], ""),
             "notes": note,
         }
         row["unaccounted_pct_diff"] = unaccounted_pct_diff(row)
+        flag = out_of_prod_order(row)
+        row["out_of_prod_order"] = None if flag is None else str(flag).lower()
         rows.append(row)
 
     with OUTPUT_PATH.open("w", newline="") as f:

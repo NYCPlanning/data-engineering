@@ -477,7 +477,9 @@ QA** page reads it, including the per-file diff rows.
   `awaiting_approval_discrepant_rows` and `approved_discrepant_rows` (see
   [QA sign-off](#qa-sign-off)), and
   `discrepant_rows_from_file_comparison` is the whole-line file diff (sorted lines, so it
-  ignores row order). `status`/`status_summary` are the curated state from
+  ignores row order). Order is in `rows_out_of_order` and the other order columns (see
+  [Output file validation](#output-file-validation)); `out_of_prod_order` is true for a
+  file that has to be in prod's order and isn't, and the step summary counts those. `status`/`status_summary` are the curated state from
   `lion_outputs.csv`, and the `*_signoff` columns the file's reviewer sign-offs. For scale, the 26c build on main on 2026-10-21 had 29,685 diff rows,
   571 unaccounted, and 62 of 99 files exact. A new release should land near that; a big
   jump in unaccounted rows for one file is what to chase.
