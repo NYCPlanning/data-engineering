@@ -37,7 +37,7 @@ from dcpy.utils.logging import logger
 
 BUCKET = "edm-recipes"
 # matches what these datasets are archived with
-ARCHIVE_ACL: s3.ACL = "public-read"
+ARCHIVE_ACL: s3.ACL = "private"
 REPO_ROOT = Path(__file__).parent.parent.parent
 INGEST_TEMPLATES = REPO_ROOT / "ingest_templates"
 
