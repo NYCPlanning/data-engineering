@@ -14,6 +14,6 @@ ingestion:
     type: arcgis_feature_server
     server: us_fws
     dataset: USFWS_Critical_Habitat
-    layer_name: Critical Habitat - Polygon Features - Proposed
+    layer_name: Proposed Critical Habitat Features
   file_format:
     type: geojson
