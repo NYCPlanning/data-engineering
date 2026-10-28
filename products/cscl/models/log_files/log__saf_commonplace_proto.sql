@@ -18,10 +18,11 @@ SELECT
                 "and PLACEID = [{}] as it is neither Geometry based nor Proto based",
                 ["segmentid", "placeid"]
             ) }}
-        ELSE {{ log_message(
-            "Failed to add [SAFA] record from [CommonPlace] featureclass with SEGMENTID = [{}] "
-            "and PLACEID = [{}] as ALT_SEGDATA_TYPE = '{}'",
-            ["segmentid", "placeid", "alt_segdata_type"]
-        ) }}
+        WHEN 'CSCL-LOG-SAF-27'
+            THEN {{ log_message(
+                "Failed to add [SAFA] record from [CommonPlace] featureclass with SEGMENTID = [{}] "
+                "and PLACEID = [{}] as ALT_SEGDATA_TYPE = '{}'",
+                ["segmentid", "placeid", "alt_segdata_type"]
+            ) }}
     END AS message
 FROM failed
