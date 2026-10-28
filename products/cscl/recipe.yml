@@ -718,6 +718,10 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__rpl.csv
       layout_source: rpl_fields
+      # spec roadbed order within each generic (R, right inners, L, left inners), not
+      # the default ORDER BY ALL, which would sort roadbeds by SEGMENTID. qa__rpl_order
+      # checks rpl_fields in this same order.
+      order_by: generic_segmentid, group_order_id
 
   # Log file
   - name: log

@@ -171,7 +171,10 @@ models:
     Compares the row ordering of RPL records between production and dev using
     audit_helper.compare_and_classify_query_results. Rows are keyed by rpl_id
     (generic_segmentid + within-group row number) to catch ordering differences
-    within each generic_segmentid grouping.
+    within each generic_segmentid grouping. Dev's order is RPL.txt's: rpl_fields
+    sorted by the export's order_by (var rpl_file_order_by, which
+    tests/test_export_order.py keeps equal to recipe.yml's), not the model's own
+    ORDER BY, which the export doesn't use.
 
 - name: qa__rpl_order_diffs
   description: >

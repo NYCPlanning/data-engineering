@@ -129,6 +129,9 @@ vars:
   # about 0.0001 ft wide, are anything narrower than this; see
   # prod_fgdb_linear_without_hairlines.
   district_hairline_width_ft: 0.01
+  # QA (qa__rpl_order): RPL.txt's row order - recipe.yml's rpl export `order_by`, over
+  # rpl_fields. Kept equal to it by tests/test_export_order.py.
+  rpl_file_order_by: generic_segmentid, group_order_id
 
 flags:
   fail-fast: true
