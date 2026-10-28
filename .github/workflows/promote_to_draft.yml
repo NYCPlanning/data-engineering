@@ -32,12 +32,13 @@ on:
         required: false
         default: ''
       product_acl:
-        description: "Set access control list for output in DO"
+        description: "ACL for output in DO. 'recipe' uses the acl in the product's recipe"
         type: choice
         required: true
-        default: public-read
+        default: recipe
         options:
-          - public-read 
+          - recipe
+          - public-read
           - private
       dev_bucket:
         description: "dev bucket to use in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'"
@@ -62,7 +63,8 @@ on:
         default: ''
       product_acl:
         type: string
-        required: true
+        required: false
+        default: recipe
       dev_bucket:
         type: string
         default: false
@@ -89,6 +91,7 @@ jobs:
             python
             bash
             admin/run_environment
+            products
             .github
 
       - name: Install dcpy workspace
@@ -110,11 +113,15 @@ jobs:
 
       - name: Promote Build to Draft
         run: |
+          ACL="${{ inputs.product_acl }}"
+          if [ "$ACL" = recipe ]; then
+            ACL=$(uv run python3 -m dcpy lifecycle builds build acl ${{ inputs.product }})
+          fi
           uv run python3 -m dcpy.connectors.edm.publishing promote_to_draft \
             --product ${{ inputs.product }} \
             --build ${{ inputs.build }} \
             ${{ (inputs.draft_summary != '' && format('--draft-summary {0}', inputs.draft_summary)) || ''}} \
-            --acl ${{ inputs.product_acl }} \
+            --acl "$ACL" \
             --download-metadata
   
       - name: Set version and draft number 

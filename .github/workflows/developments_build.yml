@@ -89,4 +89,4 @@ jobs:
         run: ./bash/05_export.sh
 
       - name: Upload
-        run: uv run python -m dcpy.connectors.edm.publishing upload --product db-developments --acl public-read
+        run: uv run python -m dcpy.connectors.edm.publishing upload --product db-developments --acl "$(uv run python3 -m dcpy lifecycle builds build acl db-developments)"

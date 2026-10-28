@@ -1,6 +1,6 @@
 dataset:
   name: hny_geocode_results
-  acl: public-read
+  acl: private
   source:
     url:
       path: hny_geocode_results.csv

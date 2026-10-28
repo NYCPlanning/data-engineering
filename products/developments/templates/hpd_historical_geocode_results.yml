@@ -1,6 +1,6 @@
 dataset:
   name: hpd_historical_geocode_results
-  acl: public-read
+  acl: private
   source:
     url:
       path: hpd_historical_geocode_results.csv

@@ -581,7 +581,7 @@ What exists today:
 - **Drafts**: `db-cscl/draft/26B/` and `db-cscl/draft/26C/` exist in `edm-publishing`,
   promoted from builds by hand. `db-cscl` isn't an option in the **Promote a Dataset to
   Draft** workflow (`promote_to_draft.yml`), so it's done with the CLI:
-  `python3 -m dcpy.connectors.edm.publishing promote_to_draft --product db-cscl --build <build_name> --draft-summary <note>`.
+  `python3 -m dcpy.connectors.edm.publishing promote_to_draft --product db-cscl --build <build_name> --draft-summary <note> --acl "$(python3 -m dcpy lifecycle builds build acl db-cscl)"`.
   The CSCL Builds page says a successful build is promoted to draft automatically, but
   `cscl_build.yml` has no promote step: it only uploads to `build/`.
 - **`db-cscl/draft_for_gss/26C/`** holds two hand-made zips (`26C_0923_flatfiles.zip`,
