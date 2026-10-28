@@ -98,36 +98,53 @@ unit_tests:
   overrides:
     vars:
       lion_seqnum_extract_sessions: [['1', '4']]
+  # sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+  # their column types
   given: &seqnum_given
   - input: ref('int__lion_extract_borough_runs')
-    rows:
-    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '10', ogc_fid: 1, globalid: A, run_borocode: '1'}
-    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '10', ogc_fid: 1, globalid: A, run_borocode: '4'}
-    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '11', ogc_fid: 2, globalid: B, run_borocode: '1'}
-    - {class_rank: 2, source_table: nonstreetfeatures, segmentid: '12', ogc_fid: 3, globalid: C, run_borocode: '4'}
-    - {class_rank: 4, source_table: shoreline, segmentid: '20', ogc_fid: 1, globalid: S, run_borocode: '1'}
-    - {class_rank: 4, source_table: shoreline, segmentid: '20', ogc_fid: 1, globalid: S, run_borocode: '4'}
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (2, 'nonstreetfeatures', 10, 1, 'A', '1'),
+        (2, 'nonstreetfeatures', 10, 1, 'A', '4'),
+        (2, 'nonstreetfeatures', 11, 2, 'B', '1'),
+        (2, 'nonstreetfeatures', 12, 3, 'C', '4'),
+        (4, 'shoreline', 20, 1, 'S', '1'),
+        (4, 'shoreline', 20, 1, 'S', '4')
+      ) AS t (class_rank, source_table, segmentid, ogc_fid, globalid, run_borocode)
   - input: ref('int__streetcode_and_facecode')
-    rows:
-    - {segmentid: '10', boroughcode: '1', face_code: '9901'}
-    - {segmentid: '11', boroughcode: '1', face_code: '9901'}
-    - {segmentid: '12', boroughcode: '4', face_code: '9901'}
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (10, '1', '9901'),
+        (11, '1', '9901'),
+        (12, '4', '9901')
+      ) AS t (segmentid, boroughcode, face_code)
   - input: ref('stg__facecode_and_featurename_principal')
-    rows:
-    - {b7sc: '19990101', face_code: '9901'}
-    - {b7sc: '49990101', face_code: '9901'}
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('19990101', '9901'),
+        ('49990101', '9901')
+      ) AS t (b7sc, face_code)
   - input: ref('stg__altsegmentdata_proto')
-    rows:
-    - {globalid: pA1, segmentid: '10', ogc_fid: 100, borough: '4', b7sc: '49990101', feature_type_code: '3', saftype: null}
-    - {globalid: pA2, segmentid: '10', ogc_fid: 101, borough: '1', b7sc: '19990101', feature_type_code: null, saftype: null}
-    - {globalid: pS1, segmentid: '20', ogc_fid: 200, borough: '4', b7sc: '49990101', feature_type_code: '3', saftype: null}
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('pA1', 10, 100, '4', '49990101', '3', NULL::TEXT),
+        ('pA2', 10, 101, '1', '19990101', NULL, NULL::TEXT),
+        ('pS1', 20, 200, '4', '49990101', '3', NULL::TEXT)
+      ) AS t (globalid, segmentid, ogc_fid, borough, b7sc, feature_type_code, saftype)
   expect:
-    rows:
-    - {globalid: A, boroughcode: '1', face_code: '9901', segment_seqnum: '00001'}
-    - {globalid: B, boroughcode: '1', face_code: '9901', segment_seqnum: '00004'}
-    - {globalid: pA1, boroughcode: '4', face_code: '9901', segment_seqnum: '00002'}
-    - {globalid: C, boroughcode: '4', face_code: '9901', segment_seqnum: '00003'}
-    - {globalid: pS1, boroughcode: '4', face_code: '9901', segment_seqnum: '00004'}
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001'),
+        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004'),
+        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00002'),
+        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00003'),
+        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00004')
+      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum)
 - name: test__int__nonstreetfeature_seqnum__counter_two_sessions
   description: "Run 4 in a fresh session: run 1's calls on borough 4 (pS1's) no longer count."
   model: int__nonstreetfeature_seqnum
@@ -136,9 +153,12 @@ unit_tests:
       lion_seqnum_extract_sessions: [['1'], ['4']]
   given: *seqnum_given
   expect:
-    rows:
-    - {globalid: A, boroughcode: '1', face_code: '9901', segment_seqnum: '00001'}
-    - {globalid: B, boroughcode: '1', face_code: '9901', segment_seqnum: '00004'}
-    - {globalid: pA1, boroughcode: '4', face_code: '9901', segment_seqnum: '00001'}
-    - {globalid: C, boroughcode: '4', face_code: '9901', segment_seqnum: '00002'}
-    - {globalid: pS1, boroughcode: '4', face_code: '9901', segment_seqnum: '00003'}
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001'),
+        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004'),
+        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00001'),
+        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00002'),
+        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00003')
+      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum)
