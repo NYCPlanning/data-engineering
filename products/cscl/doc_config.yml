@@ -601,8 +601,8 @@ items:
             release and this one: nodes added, deleted or moved, and segments, physical
             segments and generic segments added, deleted, split, merged or renumbered.
             Users whose own files are keyed to LION geography read it to bring them up to
-            date. It is two citywide 100-byte fixed-width files: LDFHEADER.dat holds one
-            header record, and LDFBASE.dat holds the change records, grouped by record
+            date. It is two citywide 100-byte fixed-width files: LDF.header holds one
+            header record, and LDF.dat holds the change records, grouped by record
             type in the order N, S, G, P. See the [architecture overview](../../docs/architecture.md) for how the pipeline fits together.
         - kind: text
           text: >-
@@ -614,15 +614,15 @@ items:
     entries:
       - name: ldf_header_by_field
         custom:
-          display_name: LDFHEADER.dat
+          display_name: LDF.header
           table: dat_fields
       - name: ldf_n_by_field
         custom:
-          display_name: LDFBASE.dat node records
+          display_name: LDF.dat node records
           table: dat_fields
       - name: ldf_segment_by_field
         custom:
-          display_name: LDFBASE.dat segment records
+          display_name: LDF.dat segment records
           table: dat_fields
 
   - kind: model_group
