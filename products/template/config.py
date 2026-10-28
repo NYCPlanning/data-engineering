@@ -10,7 +10,6 @@ from dcpy.lifecycle.config import get_build_dir
 from dcpy.utils.logging import logger
 
 PRODUCT_PATH = Path(__file__).parent
-PRODUCT_NAME = "template"
 
 
 class BuildNotPlannedError(Exception):
@@ -29,8 +28,7 @@ def get_build_output_dir() -> Path:
     """
     Get the build output directory path for build data.
 
-    Returns DCPY_LIFECYCLE_DATA_DIR/build/template/{version} where version is
-    retrieved from recipe.lock.yml version field.
+    Returns DCPY_LIFECYCLE_DATA_DIR/build/{product}/{version}, both from recipe.lock.yml.
 
     Returns:
         Path to the build output directory
@@ -64,7 +62,7 @@ def get_build_output_dir() -> Path:
         )
     version = recipe_lock.version
 
-    build_output_dir = get_build_dir(PRODUCT_NAME, version)
+    build_output_dir = get_build_dir(recipe_lock.product, version)
     logger.info(f"Build output directory: {build_output_dir}")
     return build_output_dir
 

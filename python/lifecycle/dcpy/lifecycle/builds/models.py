@@ -231,6 +231,7 @@ class StageConfig(BaseModel, extra="forbid", arbitrary_types_allowed=True):
 
 class Recipe(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     name: str
+    # Also the product's folder in edm-publishing: plan looks up published versions by it.
     product: str
     base_recipe: str | None = None
     version_type: versions.VersionSubType | None = None

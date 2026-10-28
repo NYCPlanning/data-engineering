@@ -1,5 +1,5 @@
 name: Template DB
-product: template
+product: db-template
 version: 24Q3
 env:
   BUILD_ENGINE_DB: db-template
@@ -37,7 +37,6 @@ stage_config:
       run: build_scripts.export:generate_socrata_package
       command_type: python
     destination: edm.publishing.builds
-    destination_key: db-template
     connector_args:
       - name: acl
         value: public-read
