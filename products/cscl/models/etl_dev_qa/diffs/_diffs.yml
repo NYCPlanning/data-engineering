@@ -14,6 +14,14 @@ models:
       combination_of_columns:
       - comparison_id
       - output_file_id
+  # an accounted-for row should cite the known difference that explains it, or its
+  # approval can't be derived
+  - dbt_utils.expression_is_true:
+      arguments:
+        expression: "len(known_difference_ids) > 0"
+      config:
+        where: "accounted_for"
+        severity: warn
   columns:
   - name: comparison_id
     description: >
@@ -77,6 +85,18 @@ models:
     description: >
       Date this table was last materialized, stamped once via CURRENT_DATE at
       build time. All rows in a given materialization share the same value.
+  - name: known_difference_ids
+    description: >
+      The seeds/known_differences.csv IDs the row's diff_group and subgroup cite
+      (subgroup lists every cause when a row has several, as in
+      qa__diffs_gdb_lion). Empty when the row cites none.
+  - name: approved
+    description: >
+      True when the row is accounted for, cites at least one known difference, and
+      every cited difference is agreed by every reviewer the signoff_matrix requires
+      for the file's output_group (qa__known_difference_signoff). accounted_for
+      means explained; approved means the outside reviewers agree with the
+      explanation. False for an accounted-for row that cites no known difference.
 
 - name: qa__diffs_gdb_lion
   description: >
@@ -92,6 +112,12 @@ models:
     numbers, zips, other SegCount and Street are categorized but left unaccounted.
 
 - name: qa__diffs_all_summary
+  data_tests:
+  - dbt_utils.expression_is_true:
+      arguments:
+        expression: >
+          accounted_for_discrepant_rows
+          = awaiting_approval_discrepant_rows + approved_discrepant_rows
   description: >
     One row per output_file_id, aggregating qa__diffs_all's row-level diffs,
     plus two rows (ldf_dat, ldf_header) folded in from the LDF's separate
@@ -121,3 +147,20 @@ models:
       modified records for this output_file_id. only_in_build /
       only_in_legacy rows have no changes jsonb and so don't contribute here.
       Null for the two LDF rows - that comparison has no per-field concept.
+  - name: awaiting_approval_discrepant_rows
+    description: >
+      Accounted-for rows not yet approved: explained, but not every reviewer the
+      file needs has agreed. accounted_for_discrepant_rows =
+      awaiting_approval_discrepant_rows + approved_discrepant_rows.
+  - name: approved_discrepant_rows
+    description: Accounted-for rows every required reviewer has agreed to (qa__diffs_all.approved).
+  - name: gr_signoff
+    description: The file's GR sign-off, from lion_outputs.
+  - name: gss_signoff
+    description: The file's GSS sign-off, from lion_outputs.
+  - name: gis_signoff
+    description: The file's GIS sign-off, from lion_outputs.
+  - name: signoff_date
+    description: From lion_outputs.
+  - name: signoff_ref
+    description: From lion_outputs.
