@@ -28,7 +28,7 @@
 {%- set spike_half_width_ft = 0.001 %}
 
 WITH land AS (
-    SELECT st_union_agg(geom) AS geom
+    SELECT st_union_agg(geom ORDER BY entity_id) AS geom
     FROM {{ ref('int__boundary__bb') }}
 ),
 
@@ -253,6 +253,6 @@ cleaned AS (
 
 SELECT
     precinct AS entity_id,
-    st_multi(st_union_agg(geom)) AS geom
+    st_multi(st_union_agg(geom ORDER BY st_aswkb(geom))) AS geom
 FROM cleaned
 GROUP BY precinct

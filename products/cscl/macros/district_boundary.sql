@@ -79,7 +79,9 @@ edge_entity_counts AS (
     SELECT
         node_lo, node_hi, is_arc, entity_id,
         count(DISTINCT atomicid) AS owners_in_entity,
-        (array_agg(geom))[1] AS geom
+        -- each owner carries the edge in its own ring's direction; take the lowest
+        -- atomicid's so the orientation doesn't depend on aggregation order
+        arg_min(geom, atomicid) AS geom
     FROM land_land_edges
     GROUP BY node_lo, node_hi, is_arc, entity_id
 ),
@@ -154,7 +156,9 @@ WITH faces AS MATERIALIZED (
         FROM (
             SELECT
                 entity_id,
-                st_polygonize(list(geom)) AS polygonized
+                -- ordered input: GEOS builds face rings starting from the first edge it
+                -- sees, so an unordered list gives equal faces with different vertex orders
+                st_polygonize(list(geom ORDER BY node_lo, node_hi, is_arc, st_aswkb(geom))) AS polygonized
             FROM {{ ref(edges_model) }}
             WHERE edge_type = 'exterior'
             GROUP BY entity_id
@@ -187,10 +191,11 @@ kept AS (
     {%- endif %}
 )
 
--- kept faces share exact, already-noded edges, so this union only dissolves them
+-- kept faces share exact, already-noded edges, so this union only dissolves them;
+-- ordered, so the dissolved rings' vertex order is the same on every build
 SELECT
     entity_id,
-    st_union_agg(face) AS geom
+    st_union_agg(face ORDER BY st_aswkb(face)) AS geom
 FROM kept
 GROUP BY entity_id
 {% endmacro %}
@@ -263,6 +268,7 @@ kept_rings AS (
 rebuilt AS (
     SELECT
         p.entity_id,
+        p.part_n,
         CASE
             WHEN k.rings IS NULL THEN st_makepolygon(st_exteriorring(p.part))
             ELSE st_makepolygon(st_exteriorring(p.part), k.rings)
@@ -273,7 +279,7 @@ rebuilt AS (
 
 SELECT
     entity_id,
-    st_union_agg(geom) AS geom
+    st_union_agg(geom ORDER BY part_n) AS geom
 FROM rebuilt
 GROUP BY entity_id
 {% endmacro %}

@@ -24,14 +24,21 @@ WITH tract_components AS (
 
 parts AS (
     SELECT
-        b.entity_id,
-        unnest(st_dump(b.geom)).geom AS geom
-    FROM {{ ref('int__boundary__mcea') }} AS b
+        entity_id,
+        -- ST_Dump of a single Polygon has an empty path
+        coalesce(d.path[1], 1) AS part_n,
+        d.geom
+    FROM (
+        SELECT
+            b.entity_id,
+            unnest(st_dump(b.geom)) AS d
+        FROM {{ ref('int__boundary__mcea') }} AS b
+    ) AS dumped
 )
 
 SELECT
     c.mcea AS entity_id,
-    st_multi(st_collect(list(p.geom))) AS geom
+    st_multi(st_collect(list(p.geom ORDER BY p.part_n))) AS geom
 FROM tract_components AS c
 INNER JOIN parts AS p
     ON c.mcea = p.entity_id AND st_intersects(c.geom, st_pointonsurface(p.geom))
