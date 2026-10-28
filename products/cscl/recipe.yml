@@ -842,6 +842,9 @@ exports:
       order_by: >-
         CASE borough WHEN '2' THEN 1 WHEN '3' THEN 2 WHEN '1' THEN 3 WHEN '4' THEN 4 WHEN '5' THEN 5 END,
         censustract_2020_basic, censustract_2020_suffix, dynamic_block
+      # prod's nyc.thinlion ends with a DOS end-of-file byte (0x1A) after the last line;
+      # no other prod flat file does
+      eof_marker: true
   - name: thinlion_bronx
     group: flat_files
     filename: BronxThinLION.txt

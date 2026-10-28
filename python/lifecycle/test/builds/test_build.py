@@ -1211,6 +1211,11 @@ exports:
     filename: rows.dat
     format: dat
     custom: {{ layout: layout.csv, where: "id < 3", order_by: id }}
+  - name: rows
+    group: flat_files
+    filename: rows_eof.dat
+    format: dat
+    custom: {{ layout: layout.csv, where: "id < 3", order_by: id, eof_marker: true }}
 """
     )
     monkeypatch.setenv("BUILD_ENV_ROOT_DIR", str(tmp_path))
@@ -1224,6 +1229,10 @@ exports:
     assert (packaged / "dataset_files" / "flat_files" / "rows.dat").read_bytes() == (
         b"001ab  \r\n002    \r\n"
     )
+    # eof_marker: a DOS end-of-file byte after the last line
+    assert (
+        packaged / "dataset_files" / "flat_files" / "rows_eof.dat"
+    ).read_bytes() == b"001ab  \r\n002    \r\n\x1a"
     client.close()
 
 
