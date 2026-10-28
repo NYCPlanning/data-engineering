@@ -687,6 +687,7 @@ exports:
       qa_group: "SND, Geosupport Normalizing Tables"
       header: False
       line_endings: crlf
+      order_by: full_name
   - name: last_word
     group: flat_files
     filename: LastWord.txt
@@ -695,6 +696,7 @@ exports:
       qa_group: "SND, Geosupport Normalizing Tables"
       header: False
       line_endings: crlf
+      order_by: full_name
   - name: enders
     group: flat_files
     filename: Enders.txt
@@ -719,6 +721,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '1'"
+      order_by: face_code
   - name: bronx_face_code
     group: flat_files
     filename: BronxFace.txt
@@ -731,6 +734,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '2'"
+      order_by: face_code
   - name: brooklyn_face_code
     group: flat_files
     filename: BrooklynFace.txt
@@ -743,6 +747,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '3'"
+      order_by: face_code
   - name: queens_face_code
     group: flat_files
     filename: QueensFace.txt
@@ -755,6 +760,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '4'"
+      order_by: face_code
   - name: staten_island_face_code
     group: flat_files
     filename: StatenIslandFace.txt
@@ -767,6 +773,7 @@ exports:
       layout: seeds/text_formatting/text_formatting__face_code.csv
       layout_source: face_code_fields
       where: "boroughcode = '5'"
+      order_by: face_code
 
   # Other
   - name: rpl
@@ -829,6 +836,11 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
+      # prod's record order: the borough files one after another in file-name order
+      # (Bronx, Brooklyn, Manhattan, Queens, Staten Island), each in its own order
+      order_by: >-
+        CASE borough WHEN '2' THEN 1 WHEN '3' THEN 2 WHEN '1' THEN 3 WHEN '4' THEN 4 WHEN '5' THEN 5 END,
+        censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_bronx
     group: flat_files
     filename: BronxThinLION.txt
@@ -841,6 +853,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '2'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_brooklyn
     group: flat_files
     filename: BrooklynThinLION.txt
@@ -853,6 +868,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '3'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_manhattan
     group: flat_files
     filename: ManhattanThinLION.txt
@@ -865,6 +883,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '1'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_queens
     group: flat_files
     filename: QueensThinLION.txt
@@ -877,6 +898,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '4'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
   - name: thinlion_statenisland
     group: flat_files
     filename: StatenIslandThinLION.txt
@@ -889,6 +913,9 @@ exports:
       layout: seeds/text_formatting/text_formatting__thinlion_dat.csv
       layout_source: thinlion_fields
       where: "borough = '5'"
+      # the spec's order (TL2, TL3), then dynamic block. Prod's isn't reproducible: it
+      # reads AtomicPolygons through an unsorted spatial query on the source database
+      order_by: censustract_2020_basic, censustract_2020_suffix, dynamic_block
 
   # Thin Fire
   - name: thinfire_bronx
@@ -967,7 +994,11 @@ exports:
     group: flat_files
     filename: thined.txt
     format: dat
-    custom: { qa_group: "Thin Election District", formatting: thined_dat }
+    custom:
+      qa_group: "Thin Election District"
+      formatting: thined_dat
+      # prod's record order: the whole record, byte order (the header records sort first)
+      order_by: dat_column
 
   # CDTA 2020
   - name: cdta2020_dat
@@ -981,6 +1012,7 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__cdta2020_dat.csv
       layout_source: cdta2020_fields
+      order_by: cdta_code
   - name: cdta2020_csv
     group: flat_files
     filename: CDTA2020.csv
@@ -988,6 +1020,7 @@ exports:
     custom:
       qa_group: "CDTA 2020"
       line_endings: crlf
+      order_by: cdta_code
 
   # NTA 2020
   - name: nta2020_dat
@@ -1001,6 +1034,7 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__nta2020_dat.csv
       layout_source: nta2020_fields
+      order_by: nta_code
   - name: nta2020_csv
     group: flat_files
     filename: NTA2020.csv
@@ -1008,6 +1042,7 @@ exports:
     custom:
       qa_group: "NTA 2020"
       line_endings: crlf
+      order_by: nta_code
 
   # NTA 2010
   - name: nta2010_csv
@@ -1017,6 +1052,7 @@ exports:
     custom:
       qa_group: "NTA 2010"
       line_endings: crlf
+      order_by: borough, censustract
   - name: nta2010_txt
     group: flat_files
     filename: NTA.txt
@@ -1027,6 +1063,7 @@ exports:
       # unformatted rows outside the database
       layout: seeds/text_formatting/text_formatting__nta2010_csv.csv
       layout_source: nta2010_fields
+      order_by: borough, censustract
 
   # ESRI / published LION geodatabase — filename must match `version:` at top of this file
   - name: gdb_lion
