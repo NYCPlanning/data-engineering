@@ -54,14 +54,39 @@ services:
       timeout: 3s
       retries: 30
 
+  # Self-signed cert for Azurite. HTTPS is needed for real server-side copy: versitygw
+  # signs copy-source SAS URLs as https-only, and over plain HTTP its CopyObject quietly
+  # falls back to streaming through the gateway and UploadPartCopy fails outright.
+  # Written to ./.certs (gitignored) so host clients (bench.py) can trust it too.
+  certs:
+    image: alpine/openssl:3.5.9
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -e
+        [ -f /certs/trust.p12 ] && exit 0
+        openssl req -x509 -newkey rsa:2048 -nodes -days 825 -subj /CN=azurite \
+          -addext subjectAltName=DNS:azurite,DNS:localhost,IP:127.0.0.1 \
+          -keyout /certs/azurite-key.pem -out /certs/azurite.pem
+        openssl pkcs12 -export -nokeys -in /certs/azurite.pem -jdktrust anyExtendedKeyUsage \
+          -passout pass:changeit -out /certs/trust.p12
+        chmod 644 /certs/*
+    volumes:
+      - ./.certs:/certs
+
   # Blob emulator. Well-known dev account devstoreaccount1 (key is public, Azurite docs).
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.37.0
     command: >
       azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --location /data
+      --cert /certs/azurite.pem --key /certs/azurite-key.pem
       --skipApiVersionCheck --loose
+    environment:
+      # Azurite fetches copy sources from its own https endpoint.
+      NODE_EXTRA_CA_CERTS: /certs/azurite.pem
     volumes:
       - azurite-data:/data
+      - ./.certs:/certs:ro
     ports:
       - "127.0.0.1:10000:10000"
     healthcheck:
@@ -69,6 +94,9 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+    depends_on:
+      certs:
+        condition: service_completed_successfully
 
   # Default artifact gateway: S3 API -> Azure Blob (Azurite here, managed identity in Azure:
   # leave AZ_ACCESS_KEY unset and versitygw falls back to DefaultAzureCredential).
@@ -80,10 +108,13 @@ services:
       ROOT_SECRET_ACCESS_KEY: devstack-secret
       AZ_ACCOUNT_NAME: devstoreaccount1
       AZ_ACCESS_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
-      AZ_ENDPOINT: http://azurite:10000/devstoreaccount1
+      AZ_ENDPOINT: https://azurite:10000/devstoreaccount1
+      SSL_CERT_FILE: /certs/azurite.pem
       # Azurite lags the SDK's SAS version (versitygw's own azurite CI pins this).
       AZ_COPY_SAS_VERSION: "2025-11-05"
     command: ["--port", ":7070", "azure"]
+    volumes:
+      - ./.certs:/certs:ro
     ports:
       - "127.0.0.1:7070:7070"
     depends_on:
@@ -103,7 +134,12 @@ services:
       JCLOUDS_PROVIDER: azureblob-sdk
       JCLOUDS_IDENTITY: devstoreaccount1
       JCLOUDS_CREDENTIAL: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
-      JCLOUDS_ENDPOINT: http://azurite:10000/devstoreaccount1
+      JCLOUDS_ENDPOINT: https://azurite:10000/devstoreaccount1
+      S3PROXY_JAVA_OPTS: >-
+        -Djavax.net.ssl.trustStore=/certs/trust.p12 -Djavax.net.ssl.trustStoreType=PKCS12
+        -Djavax.net.ssl.trustStorePassword=changeit
+    volumes:
+      - ./.certs:/certs:ro
     ports:
       - "127.0.0.1:7071:80"
     depends_on:
