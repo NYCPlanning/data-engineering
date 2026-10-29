@@ -79,7 +79,7 @@ def get_settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
-def get_conn(request: Request) -> Iterator[psycopg.Connection]:
+def get_conn(request: Request) -> Iterator[queue.Conn]:
     with request.app.state.pool.connection() as conn:
         yield conn
 
@@ -96,7 +96,7 @@ def require_key(
         raise HTTPException(status_code=401, detail="bad or missing X-Dispatch-Key")
 
 
-def _stale(conn: psycopg.Connection, item_id: int) -> HTTPException:
+def _stale(conn: queue.Conn, item_id: int) -> HTTPException:
     if queue.get_item(conn, item_id) is None:
         return HTTPException(status_code=404, detail="no such item")
     return HTTPException(
@@ -118,7 +118,7 @@ router = APIRouter(dependencies=[Depends(require_key)])
 def enqueue_item(
     body: EnqueueRequest,
     response: Response,
-    conn: psycopg.Connection = Depends(get_conn),
+    conn: queue.Conn = Depends(get_conn),
 ) -> dict:
     row = queue.enqueue(conn, **body.model_dump())
     if not row["inserted"]:
@@ -127,7 +127,7 @@ def enqueue_item(
 
 
 @router.get("/items/{item_id}")
-def get_item(item_id: int, conn: psycopg.Connection = Depends(get_conn)) -> dict:
+def get_item(item_id: int, conn: queue.Conn = Depends(get_conn)) -> dict:
     row = queue.get_item(conn, item_id)
     if row is None:
         raise HTTPException(status_code=404, detail="no such item")
@@ -135,12 +135,12 @@ def get_item(item_id: int, conn: psycopg.Connection = Depends(get_conn)) -> dict
 
 
 @router.get("/items/{item_id}/events")
-def get_events(item_id: int, conn: psycopg.Connection = Depends(get_conn)) -> list:
+def get_events(item_id: int, conn: queue.Conn = Depends(get_conn)) -> list:
     return queue.list_events(conn, item_id)
 
 
 @router.post("/items/{item_id}/cancel")
-def cancel_item(item_id: int, conn: psycopg.Connection = Depends(get_conn)) -> dict:
+def cancel_item(item_id: int, conn: queue.Conn = Depends(get_conn)) -> dict:
     row = queue.cancel(conn, item_id)
     if row is None:
         current = queue.get_item(conn, item_id)
@@ -153,7 +153,7 @@ def cancel_item(item_id: int, conn: psycopg.Connection = Depends(get_conn)) -> d
 @router.post("/work/claim", responses={204: {"description": "nothing to claim"}})
 def claim(
     body: ClaimRequest,
-    conn: psycopg.Connection = Depends(get_conn),
+    conn: queue.Conn = Depends(get_conn),
     settings: Settings = Depends(get_settings),
 ) -> Any:
     row = queue.claim(
@@ -172,7 +172,7 @@ def claim(
 def heartbeat(
     item_id: int,
     body: Fenced,
-    conn: psycopg.Connection = Depends(get_conn),
+    conn: queue.Conn = Depends(get_conn),
     settings: Settings = Depends(get_settings),
 ) -> dict:
     try:
@@ -190,7 +190,7 @@ def heartbeat(
 
 @router.post("/work/{item_id}/events", status_code=201)
 def add_event(
-    item_id: int, body: EventRequest, conn: psycopg.Connection = Depends(get_conn)
+    item_id: int, body: EventRequest, conn: queue.Conn = Depends(get_conn)
 ) -> dict:
     try:
         return queue.add_event(conn, item_id, **body.model_dump())
@@ -200,7 +200,7 @@ def add_event(
 
 @router.post("/work/{item_id}/complete")
 def complete(
-    item_id: int, body: CompleteRequest, conn: psycopg.Connection = Depends(get_conn)
+    item_id: int, body: CompleteRequest, conn: queue.Conn = Depends(get_conn)
 ) -> dict:
     try:
         return queue.complete(conn, item_id, **body.model_dump())
@@ -209,9 +209,7 @@ def complete(
 
 
 @router.post("/work/{item_id}/fail")
-def fail(
-    item_id: int, body: FailRequest, conn: psycopg.Connection = Depends(get_conn)
-) -> dict:
+def fail(item_id: int, body: FailRequest, conn: queue.Conn = Depends(get_conn)) -> dict:
     try:
         return queue.fail(conn, item_id, **body.model_dump())
     except queue.StaleLease:

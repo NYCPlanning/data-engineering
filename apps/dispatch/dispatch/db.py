@@ -11,7 +11,7 @@ import psycopg
 from alembic import command
 from alembic.config import Config
 from alembic.script import ScriptDirectory
-from psycopg.rows import dict_row
+from psycopg.rows import DictRow, dict_row
 from psycopg_pool import ConnectionPool
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
@@ -46,26 +46,29 @@ def head_revision() -> str | None:
     return ScriptDirectory(str(MIGRATIONS_DIR)).get_current_head()
 
 
-def current_revision(conn: psycopg.Connection) -> str | None:
+def current_revision(conn: psycopg.Connection[DictRow]) -> str | None:
     row = conn.execute(
         "SELECT version_num FROM alembic_version LIMIT 1", prepare=False
     ).fetchone()
     if row is None:
         return None
-    return row["version_num"] if isinstance(row, dict) else row[0]
+    return row["version_num"]
 
 
-def connect(url: str) -> psycopg.Connection:
+def connect(url: str) -> psycopg.Connection[DictRow]:
     # prepare_threshold=None: no server-side prepared statements, so this works behind
     # a transaction-mode PgBouncer (Azure Flexible Server's built-in one).
-    return psycopg.connect(
+    return psycopg.Connection.connect(
         libpq_url(url), autocommit=True, row_factory=dict_row, prepare_threshold=None
     )
 
 
-def make_pool(url: str, min_size: int = 1, max_size: int = 10) -> ConnectionPool:
+def make_pool(
+    url: str, min_size: int = 1, max_size: int = 10
+) -> ConnectionPool[psycopg.Connection[DictRow]]:
     return ConnectionPool(
         libpq_url(url),
+        connection_class=psycopg.Connection[DictRow],
         min_size=min_size,
         max_size=max_size,
         kwargs={"autocommit": True, "row_factory": dict_row, "prepare_threshold": None},

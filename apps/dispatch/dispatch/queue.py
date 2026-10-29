@@ -30,7 +30,10 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 import psycopg
+from psycopg.rows import DictRow
 from psycopg.types.json import Jsonb
+
+Conn = psycopg.Connection[DictRow]
 
 TERMINAL_STATUSES = frozenset({"done", "failed", "dead", "cancelled"})
 DEFAULT_LEASE_SECONDS = 60.0
@@ -240,7 +243,7 @@ RETURNING *
 
 
 def enqueue(
-    conn: psycopg.Connection,
+    conn: Conn,
     *,
     run_id: str | None = None,
     asset_key: str | None = None,
@@ -253,7 +256,7 @@ def enqueue(
 ) -> dict:
     """Add an item. With an ``idempotency_key`` already in use, returns the existing item
     (``inserted`` is False) instead of adding a second one."""
-    return conn.execute(
+    row = conn.execute(
         ENQUEUE_SQL,
         {
             "run_id": run_id,
@@ -266,10 +269,12 @@ def enqueue(
             "payload": Jsonb(payload or {}),
         },
     ).fetchone()
+    assert row is not None  # ON CONFLICT DO UPDATE always returns the row
+    return row
 
 
 def claim(
-    conn: psycopg.Connection,
+    conn: Conn,
     *,
     worker_id: str,
     caps: Sequence[str],
@@ -293,7 +298,7 @@ def claim(
 
 
 def heartbeat(
-    conn: psycopg.Connection,
+    conn: Conn,
     item_id: int,
     *,
     attempt: int,
@@ -315,7 +320,7 @@ def heartbeat(
 
 
 def complete(
-    conn: psycopg.Connection,
+    conn: Conn,
     item_id: int,
     *,
     attempt: int,
@@ -337,7 +342,7 @@ def complete(
 
 
 def fail(
-    conn: psycopg.Connection,
+    conn: Conn,
     item_id: int,
     *,
     attempt: int,
@@ -362,20 +367,20 @@ def fail(
     return row
 
 
-def reap(conn: psycopg.Connection, *, limit: int = 1000) -> list[dict]:
+def reap(conn: Conn, *, limit: int = 1000) -> list[dict]:
     """Requeue (or kill, or cancel) items whose lease has expired. Safe to run from any
     number of processes at once."""
     return conn.execute(REAP_SQL, {"limit": limit}).fetchall()
 
 
-def cancel(conn: psycopg.Connection, item_id: int) -> dict | None:
+def cancel(conn: Conn, item_id: int) -> dict | None:
     """Cancel a queued item now, or ask the worker holding a claimed one to stop (it sees
     ``cancel`` on its next heartbeat). Returns None if the item is missing or terminal."""
     return conn.execute(CANCEL_SQL, {"id": item_id}).fetchone()
 
 
 def add_event(
-    conn: psycopg.Connection,
+    conn: Conn,
     item_id: int,
     *,
     attempt: int,
@@ -398,11 +403,11 @@ def add_event(
     return row
 
 
-def get_item(conn: psycopg.Connection, item_id: int) -> dict | None:
+def get_item(conn: Conn, item_id: int) -> dict | None:
     return conn.execute("SELECT * FROM work_items WHERE id = %s", (item_id,)).fetchone()
 
 
-def list_events(conn: psycopg.Connection, item_id: int) -> list[dict]:
+def list_events(conn: Conn, item_id: int) -> list[dict]:
     return conn.execute(
         "SELECT * FROM events WHERE item_id = %s ORDER BY id", (item_id,)
     ).fetchall()
