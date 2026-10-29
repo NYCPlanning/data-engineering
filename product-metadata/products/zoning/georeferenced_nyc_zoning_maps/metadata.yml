@@ -3,17 +3,20 @@ id: georeferenced_nyc_zoning_maps
 attributes:
   attribution_link: {{ bytes_url__zoning_features }}
   description: |-
-    The Georeferenced NYC Zoning Maps raster dataset is intended to be a spatial representation of the entire zoning map catalog for the City of New York as one seamless citywide raster zoning map sans title blocks. These maps are normally maintained as 126 individual quarter sections and printed periodically for inclusion in Vol III of the City's 2019 Zoning Resolution. This dataset encompasses recent changes to mapped zoning districts or zoning text amendments as they are adopted by the City Council as well as filed City Map changes.
+    Georeferenced Zoning Maps of New York City. The Georeferenced NYC Zoning Maps raster dataset is intended to be a spatial representation of the entire zoning map catalog for the City of New York as one seamless citywide raster zoning map sans title blocks. These maps are normally maintained as 126 individual quarter sections and printed periodically for inclusion in Vol III of the City's 2019 Zoning Resolution. This dataset encompasses recent changes to mapped zoning districts or zoning text amendments as they are adopted by the City Council as well as filed City Map changes.
 
     All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_features }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zoning }}
   display_name: Georeferenced NYC Zoning Maps
   each_row_is_a: Row
   tags:
-  - zoning
-  - raster
-  - city planning
-  - dcp
-  - maps
+  - Zoning
+  - New York City
+  - NYC
+  - Department of City Planning
+  - DCP
+  - Georeferenced
+  - Raster
+  - Maps
   date_made_public: "9/13/2021"
 
 assembly: []
@@ -24,7 +27,7 @@ destinations:
 - id: socrata
   type: open_data
   files:
-  - id: georeferencedzoningmaps_metadata
+  - id: zoning_georeferenced_maps_data_dictionary
     custom:
       destination_use: attachment
   - id: fgdb
@@ -38,19 +41,19 @@ destinations:
   files:
   - id: fgdb
     custom:
-      url: "{{ bytes_zip_prefix_url }}/georeferenced-zoning-maps/georeferencedzoningmaps_{{ current_version_zoning }}.zip"
-  - id: georeferencedzoningmaps_metadata
+      url: "{{ bytes_zip_prefix_url }}/georeferenced-zoning-maps/nyc_zoning_georeferenced_maps_gdb.zip"
+  - id: zoning_georeferenced_maps_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/georeferencedzoningmaps_metadata.pdf"
+      url: "{{ bytes_pdf_prefix_url }}/zoning_georeferenced_maps_data_dictionary.xlsx"
 
 files:
 - file:
     id: fgdb
-    filename: georeferencedzoningmaps.zip
+    filename: nyc_zoning_georeferenced_maps_gdb.zip
     type: fgdb
 - file:
-    id: georeferencedzoningmaps_metadata
-    filename: georeferencedzoningmaps_metadata.pdf
+    id: zoning_georeferenced_maps_data_dictionary
+    filename: zoning_georeferenced_maps_data_dictionary.xlsx
     is_metadata: true
     type: None
 

@@ -12,26 +12,24 @@ attributes:
   each_row_is_a: Special Purpose subdistrict
   publishing_frequency: Monthly
   tags:
-  - zoning
-  - special purpose districts
-  - nysp_sd
-  - subdistrict
-  - subarea
-  - sub-district
-  - sub-area
+  - Zoning
   - New York City
   - NYC
   - Department of City Planning
   - DCP
+  - Special Purpose Districts
+  - nysp_sd
+  - Sub-district
+  - Sub-area
 
 assembly:
 - id: dcm_multilayer
-  filename: nycgiszoningfeatures_shp.zip
+  filename: nyc_zoning_features_shp.zip
   type: multilayer_shapefile
   contents:
   - id: shapefile
     custom:
-      layer_name: nysp_sd
+      layer_name: zoning_special_subdistricts
 
 custom: {}
 
@@ -40,7 +38,7 @@ destinations:
   type: open_data
   tags: [socrata_unpublished]
   files:
-  - id: metadata_pdf
+  - id: data_dictionary
     custom:
       destination_use: attachment
   - id: shapefile
@@ -56,23 +54,19 @@ destinations:
   files:
   - id: dcm_multilayer
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
-  - id: metadata_pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
+  - id: metadata_xlsx
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nysp_sd_metadata.pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_special_subdistricts_data_dictionary.xlsx
 
 files:
 - file:
     id: shapefile
-    filename: nysp_sd.shp.zip
+    filename: zoning_special_subdistricts.shp.zip
     type: shapefile
 - file:
-    id: metadata_pdf
-    filename: nysp_sd_metadata.pdf
-    is_metadata: true
-- file:
     id: oti_data_dictionary
-    filename: special_subdistricts_data_dictionary.xlsx
+    filename: zoning_special_subdistricts_data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
 
@@ -81,12 +75,12 @@ columns:
   name: the_geom
   data_type: geometry
   description: Feature geometry.
-- id: spname
-  name: SPNAME
+- id: sdname
+  name: SDNAME
   data_type: text
   description: Special Purpose district name.
-- id: splbl
-  name: SPLBL
+- id: sdlbl
+  name: SDLBL
   data_type: text
   description: Special Purpose district label, it appears on the Zoning Map of New York City.
 - id: subdist

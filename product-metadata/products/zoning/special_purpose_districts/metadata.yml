@@ -18,22 +18,22 @@ attributes:
   each_row_is_a: Special Purpose district
   publishing_frequency: Monthly
   tags:
-  - zoning
-  - special purpose districts
-  - nysp
+  - Zoning
   - New York City
   - NYC
   - Department of City Planning
   - DCP
+  - Special Purpose Districts
+  - nysp
 
 assembly:
 - id: dcm_multilayer
-  filename: nycgiszoningfeatures_shp.zip
+  filename: nyc_zoning_features_shp.zip
   type: multilayer_shapefile
   contents:
   - id: shapefile
     custom:
-      layer_name: nysp
+      layer_name: zoning_special_purpose
 
 custom: {}
 
@@ -42,7 +42,7 @@ destinations:
   type: open_data
   tags: [socrata_unpublished]
   files:
-  - id: metadata_pdf
+  - id: data_dictionary
     custom:
       destination_use: attachment
   - id: shapefile
@@ -58,23 +58,19 @@ destinations:
   files:
   - id: dcm_multilayer
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
-  - id: metadata_pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
+  - id: data_dictionary
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nysp_metadata.pdf
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_special_purpose_data_dictionary.xlsx
 
 files:
 - file:
     id: shapefile
-    filename: nysp.shp.zip
+    filename: zoning_special_purpose.shp.zip
     type: shapefile
 - file:
-    id: metadata_pdf
-    filename: nysp_metadata.pdf
-    is_metadata: true
-- file:
     id: oti_data_dictionary
-    filename: special_districts_data_dictionary.xlsx
+    filename: zoning_special_purpose_data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
 

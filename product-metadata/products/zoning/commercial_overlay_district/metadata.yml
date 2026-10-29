@@ -12,22 +12,22 @@ attributes:
   each_row_is_a: Commercial Overlay district
   publishing_frequency: Monthly
   tags:
-  - zoning
-  - commercial overlays
-  - nyco
+  - Zoning
   - New York City
   - NYC
   - Department of City Planning
   - DCP
+  - Commercial Overlay Districts
+  - nyco
 
 assembly:
 - id: dcm_multilayer
-  filename: nycgiszoningfeatures_shp.zip
+  filename: nyc_zoning_features_shp.zip
   type: multilayer_shapefile
   contents:
   - id: shapefile
     custom:
-      layer_name: nyco
+      layer_name: zoning_commercial_overlays
 
 custom: {}
 
@@ -36,7 +36,7 @@ destinations:
     type: open_data
     tags: [socrata_unpublished]
     files:
-      - id: metadata_pdf
+      - id: metadata_xlsx
         custom:
           destination_use: attachment
       - id: shapefile
@@ -52,23 +52,19 @@ destinations:
     files:
       - id: dcm_multilayer
         custom:
-          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nycgiszoningfeatures_{{ current_version_zoning }}shp.zip
-      - id: metadata_pdf
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
+      - id: metadata_xlsx
         custom:
-          url: https://s-media.nyc.gov/agencies/dcp/assets/files/pdf/data-tools/bytes/nyco_metadata.pdf
+          url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_commercial_overlays_data_dictionary.xlsx
 
 files:
   - file:
       id: shapefile
-      filename: nyco.shp.zip
+      filename: zoning_commercial_overlays.shp.zip
       type: shapefile
   - file:
-      id: metadata_pdf
-      filename: nyco_metadata.pdf
-      is_metadata: true
-  - file:
       id: oti_data_dictionary
-      filename: commercial_overlays_data_dictionary.xlsx
+      filename: zoning_commercial_overlays_data_dictionary.xlsx
       is_metadata: true
       type: oti_data_dictionary
 
