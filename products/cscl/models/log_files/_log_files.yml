@@ -150,6 +150,20 @@ models:
     FACECODE, one row each in prod's wording, with log.csv's columns plus the borough,
     B10SC, B7SC and lookup key.
 
+- name: log__single_arc_curve_flag
+  description: >-
+    CSCL-LOG-OURS-07, every build: one row with the number of LION records that aren't
+    centerlines and are one circular arc end to end, so prod's curve flag (blank) and the
+    fixed one (I) differ, i.e. what the var fix_single_arc_curve_flag changes
+    (CSCL-LION-03), and whether it is on in this build.
+
+- name: log__nonstreet_proto_zip
+  description: >-
+    CSCL-LOG-OURS-09, every build: one row with the number of LION proto-segment records of
+    a shoreline or non-street feature, off the borough boundary, that have a zip prod leaves
+    blank, i.e. what the var fix_nonstreet_proto_zip changes (CSCL-LION-02), and whether it
+    is on in this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC

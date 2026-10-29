@@ -363,6 +363,8 @@ whether it is on or not, so it isn't lost.
 |---|---|---|---|
 | `fix_boe_lgc_pointer` | `false` | CSCL-LION-04: prod writes BOE LGC pointer 1 whenever the BOE-preferred LGC is above 9 (LION L10, LION gdb `BOE_LGC`) | CSCL-LOG-OURS-06: a count in `log.csv` (saying whether the fix is on), records in `log_boe_lgc_pointer.csv` |
 | `fix_lion_lr_from_topology` | `false` | CSCL-LION-16: prod takes a segment's left/right AtomicPolygon from a probe 2 ft either side of its midpoint, which overshoots into the AtomicPolygon behind where the adjacent one is shallow; on, they come from the AtomicPolygon topology edges the segment runs along (LION .dat and gdb: AtomicPolygon, census, districts, zip, locational status, ...) | CSCL-LOG-OURS-08: a count of LION records and segments in `log.csv` (saying whether it is on), records in `log_lion_lr_topology.csv` |
+| `fix_single_arc_curve_flag` | `false` | CSCL-LION-03: prod leaves the curve flag blank on a non-centerline segment that is one circular arc end to end (LION L49, LION gdb `CurveFlag`) | CSCL-LOG-OURS-07: a count in `log.csv` (saying whether the fix is on) |
+| `fix_nonstreet_proto_zip` | `false` | CSCL-LION-02: prod leaves both zips blank on a proto-segment of a shoreline or non-street feature off the borough boundary (LION L24/L33, LION gdb `LZip`/`RZip`) | CSCL-LOG-OURS-09: a count in `log.csv` (saying whether the fix is on) |
 
 Turn one on for a build with `--vars`, e.g. `dbt run --selector duckdb_build --vars
 '{fix_boe_lgc_pointer: true}'` (pass the same `--vars` to the QA models' run, or their rules
