@@ -20,6 +20,8 @@ x-dagster: &dagster
     DCPY_LIFECYCLE_DATA_DIR: /opt/dagster/lifecycle
     # Keep the venv out of the repo mount (see apps/docker-compose.yml).
     UV_PROJECT_ENVIRONMENT: /opt/venv
+    # No separate uv cache volume: halves the disk the venv takes on a small Docker VM.
+    UV_NO_CACHE: "1"
     # Artifact gateway (S3 API in front of Azurite). dcpy's s3 storage type takes
     # endpoint_url, so this is what off-VPC code would point at.
     AWS_S3_ENDPOINT: http://versitygw:7070
@@ -30,7 +32,6 @@ x-dagster: &dagster
     - ${DATA_ENGINEERING_PATH:-../..}/apps/dagster:/app/dagster
     - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
     - dagster-venv:/opt/venv
-    - dagster-uv-cache:/root/.cache/uv
     - dagster-lifecycle:/opt/dagster/lifecycle
   depends_on:
     postgres:
@@ -154,7 +155,7 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:3000/server_info || exit 1"]
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info')"]
       interval: 10s
       timeout: 5s
       retries: 60
@@ -185,5 +186,4 @@ volumes:
   pg-data:
   azurite-data:
   dagster-venv:
-  dagster-uv-cache:
   dagster-lifecycle:
