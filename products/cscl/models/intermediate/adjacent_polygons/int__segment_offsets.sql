@@ -18,6 +18,6 @@ SELECT
 FROM (
     SELECT
         s.*,
-        offset_points(s.geom, s.midpoint, offset_length := 2) AS offsets
+        offset_points(s.geom, offset_length := 2) AS offsets
     FROM segments AS s
 ) AS segments_with_offsets
