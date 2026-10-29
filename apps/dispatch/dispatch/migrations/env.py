@@ -7,7 +7,9 @@ from dispatch.db import sqlalchemy_url
 
 url = context.config.get_main_option("sqlalchemy.url")
 if not url:
-    raise RuntimeError("dispatch migrations need sqlalchemy.url (see dispatch.db.migrate)")
+    raise RuntimeError(
+        "dispatch migrations need sqlalchemy.url (see dispatch.db.migrate)"
+    )
 
 engine = create_engine(sqlalchemy_url(url), poolclass=pool.NullPool)
 with engine.connect() as connection:

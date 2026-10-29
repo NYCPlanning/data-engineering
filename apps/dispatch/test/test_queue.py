@@ -198,7 +198,9 @@ def test_cancel_queued_and_claimed(conn, expire):
 def test_events_are_fenced_and_listed(conn):
     item = queue.enqueue(conn)
     queue.claim(conn, worker_id="w", caps=[])
-    queue.add_event(conn, item["id"], attempt=1, worker_id="w", kind="log", data={"m": 1})
+    queue.add_event(
+        conn, item["id"], attempt=1, worker_id="w", kind="log", data={"m": 1}
+    )
     queue.add_event(conn, item["id"], attempt=1, worker_id="w", kind="progress")
     events = queue.list_events(conn, item["id"])
     assert [(e["kind"], e["attempt"]) for e in events] == [("log", 1), ("progress", 1)]

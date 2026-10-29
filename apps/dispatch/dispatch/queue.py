@@ -399,9 +399,7 @@ def add_event(
 
 
 def get_item(conn: psycopg.Connection, item_id: int) -> dict | None:
-    return conn.execute(
-        "SELECT * FROM work_items WHERE id = %s", (item_id,)
-    ).fetchone()
+    return conn.execute("SELECT * FROM work_items WHERE id = %s", (item_id,)).fetchone()
 
 
 def list_events(conn: psycopg.Connection, item_id: int) -> list[dict]:

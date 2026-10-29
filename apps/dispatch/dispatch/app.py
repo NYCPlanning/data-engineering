@@ -14,7 +14,15 @@ from contextlib import asynccontextmanager
 from typing import Any, Iterator
 
 import psycopg
-from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    FastAPI,
+    Header,
+    HTTPException,
+    Request,
+    Response,
+)
 from pydantic import BaseModel, Field
 
 from dispatch import db, queue

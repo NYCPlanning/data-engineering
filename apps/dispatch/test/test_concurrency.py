@@ -49,7 +49,9 @@ def test_pure_claim_race_each_item_claimed_once(conn, clean_db):
         with db.connect(clean_db) as c:
             while (item := queue.claim(c, worker_id=f"w{i}", caps=[])) is not None:
                 claims[i].append((item["id"], item["attempt"]))
-                queue.complete(c, item["id"], attempt=item["attempt"], worker_id=f"w{i}")
+                queue.complete(
+                    c, item["id"], attempt=item["attempt"], worker_id=f"w{i}"
+                )
 
     started = time.monotonic()
     run_threads(N_WORKERS, worker)
@@ -209,6 +211,7 @@ def test_reaper_vs_late_heartbeat_vs_late_complete(conn, clean_db, expire, rival
     the reaper runs (and, with a rival, while another worker tries to claim). Exactly one
     of {reaped, completed} happens, and the state agrees with whichever it was."""
     seen = Counter()
+    jitter = random.Random(42)
     conns = [db.connect(clean_db) for _ in range(4)]
     try:
         for _ in range(RACE_ROUNDS):
@@ -220,6 +223,8 @@ def test_reaper_vs_late_heartbeat_vs_late_complete(conn, clean_db, expire, rival
 
             def act(i):
                 c = conns[i]
+                # jitter the start so every ordering of the racers actually occurs
+                time.sleep(jitter.uniform(0, 0.004))
                 try:
                     if i == 0:
                         res["reaped"] = bool(queue.reap(c))
