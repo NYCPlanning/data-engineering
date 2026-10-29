@@ -933,70 +933,121 @@ class Doctor:
         return "\n".join(lines)
 
 
+def env_flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+
+
 def build_parser() -> argparse.ArgumentParser:
+    """Every option also reads an env var, so the ACA Job is configured with env vars only
+    (az CLI mangles --args values that start with '--')."""
     env = os.environ.get
     p = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    p.add_argument(
-        "--endpoint", default=env("GATEWAY_URL"), help="gateway URL (env GATEWAY_URL)"
+    add = p.add_argument
+    add("--endpoint", default=env("GATEWAY_URL"), help="gateway URL [GATEWAY_URL]")
+    add(
+        "--access-key",
+        default=env("GATEWAY_ACCESS_KEY") or env("AWS_ACCESS_KEY_ID"),
+        help="[GATEWAY_ACCESS_KEY]",
     )
-    p.add_argument(
-        "--access-key", default=env("GATEWAY_ACCESS_KEY") or env("AWS_ACCESS_KEY_ID")
-    )
-    p.add_argument(
+    add(
         "--secret-key",
         default=env("GATEWAY_SECRET_KEY") or env("AWS_SECRET_ACCESS_KEY"),
+        help="[GATEWAY_SECRET_KEY]",
     )
-    p.add_argument("--bucket", default=env("GATEWAY_BUCKET", "gateway-doctor"),
-                   help="bucket (= Azure container) to test in; created and removed if missing")  # fmt: skip
-    p.add_argument("--region", default=env("GATEWAY_REGION", "us-east-1"))
-    p.add_argument("--health-path", default="/health")
-    p.add_argument(
-        "--ca-bundle", default=env("AWS_CA_BUNDLE"), help="PEM CA bundle for TLS"
+    add(
+        "--bucket",
+        default=env("GATEWAY_BUCKET", "gateway-doctor"),
+        help="bucket (= Azure container) to test in; created and removed if missing "
+        "[GATEWAY_BUCKET]",
     )
-    p.add_argument(
-        "--insecure", action="store_true", help="don't verify TLS (diagnosis only)"
+    add("--region", default=env("GATEWAY_REGION", "us-east-1"))
+    add("--health-path", default=env("GATEWAY_HEALTH_PATH", "/health"))
+    add(
+        "--ca-bundle",
+        default=env("AWS_CA_BUNDLE"),
+        help="PEM CA bundle [AWS_CA_BUNDLE]",
     )
-    p.add_argument("--expect-private", action="store_true",
-                   help="warn if the gateway host resolves to a public IP")  # fmt: skip
-    p.add_argument("--size", type=parse_size, default=env("DOCTOR_SIZE", "100MiB"),
-                   help="large-object size (default 100MiB; use 5G on Azure)")  # fmt: skip
-    p.add_argument("--part-size", type=parse_size, default=env("DOCTOR_PART_SIZE", "32MiB"),
-                   help="multipart part size (default 32MiB: each part must finish well inside the "
-                   "240 s ACA ingress timeout; the gateway also holds whole parts in memory)")  # fmt: skip
-    p.add_argument(
-        "--concurrency", type=int, default=4, help="parts in flight (default 4)"
+    add("--insecure", action="store_true", help="don't verify TLS (diagnosis only)")
+    add(
+        "--expect-private",
+        action="store_true",
+        default=env_flag("DOCTOR_EXPECT_PRIVATE"),
+        help="warn if the gateway resolves to a public IP [DOCTOR_EXPECT_PRIVATE]",
     )
-    p.add_argument("--small-count", type=int, default=200)
-    p.add_argument("--small-size", type=parse_size, default="16KiB")
-    p.add_argument("--small-threads", type=int, default=16)
-    p.add_argument("--copy-verify-max", type=parse_size, default="256MiB",
-                   help="re-download and sha256 the copy only if the source is at most this big")  # fmt: skip
-    p.add_argument("--retries", type=int, default=3, help="botocore max_attempts")
-    p.add_argument("--inside", action="store_true",
-                   help="also check the gateway's backend path from inside the VNet: blob private "
-                   "DNS, managed identity token, direct blob access + user delegation key")  # fmt: skip
-    p.add_argument("--storage-account", default=env("AZ_ACCOUNT_NAME"))
-    p.add_argument("--blob-endpoint", default=env("DOCTOR_BLOB_ENDPOINT"),
-                   help="override https://<account>.blob.core.windows.net (e.g. Azurite)")  # fmt: skip
-    p.add_argument(
-        "--client-id", default=env("AZURE_CLIENT_ID"), help="user-assigned MI client id"
+    add(
+        "--size",
+        type=parse_size,
+        default=env("DOCTOR_SIZE", "100MiB"),
+        help="large-object size, default 100MiB; use 5G on Azure [DOCTOR_SIZE]",
     )
-    p.add_argument("--skip", action="append", default=[], choices=LAYERS, metavar="LAYER",
-                   help=f"skip a layer (repeatable): {', '.join(LAYERS)}")  # fmt: skip
-    p.add_argument(
-        "--keep-going", action="store_true", help="run every layer even after a failure"
+    add(
+        "--part-size",
+        type=parse_size,
+        default=env("DOCTOR_PART_SIZE", "32MiB"),
+        help="multipart part size, default 32MiB: each part must finish well inside the "
+        "240 s ACA ingress timeout, and the gateway holds whole parts in memory "
+        "[DOCTOR_PART_SIZE]",
     )
-    p.add_argument(
-        "--keep", action="store_true", help="don't delete what the doctor wrote"
+    add(
+        "--concurrency",
+        type=int,
+        default=int(env("DOCTOR_CONCURRENCY", "4")),
+        help="parts in flight, default 4 [DOCTOR_CONCURRENCY]",
     )
-    p.add_argument(
-        "--json", action="store_true", help="print the full JSON report on stdout"
+    add("--small-count", type=int, default=int(env("DOCTOR_SMALL_COUNT", "200")))
+    add("--small-size", type=parse_size, default=env("DOCTOR_SMALL_SIZE", "16KiB"))
+    add("--small-threads", type=int, default=16)
+    add(
+        "--copy-verify-max",
+        type=parse_size,
+        default="256MiB",
+        help="re-download and sha256 the copy only if the source is at most this big",
     )
-    p.add_argument(
-        "-v", "--verbose", action="store_true", help="tracebacks for failures"
+    add("--retries", type=int, default=3, help="botocore max_attempts")
+    add(
+        "--inside",
+        action="store_true",
+        default=env_flag("DOCTOR_INSIDE"),
+        help="also check the gateway's backend path from inside the VNet: blob private "
+        "DNS, managed identity token, direct blob access + user delegation key "
+        "[DOCTOR_INSIDE]",
     )
+    add("--storage-account", default=env("AZ_ACCOUNT_NAME"), help="[AZ_ACCOUNT_NAME]")
+    add(
+        "--blob-endpoint",
+        default=env("DOCTOR_BLOB_ENDPOINT"),
+        help="override https://<account>.blob.core.windows.net, e.g. Azurite "
+        "[DOCTOR_BLOB_ENDPOINT]",
+    )
+    add(
+        "--client-id",
+        default=env("AZURE_CLIENT_ID"),
+        help="user-assigned managed identity client id [AZURE_CLIENT_ID]",
+    )
+    add(
+        "--skip",
+        action="append",
+        default=[x for x in env("DOCTOR_SKIP", "").replace(",", " ").split() if x],
+        choices=LAYERS,
+        metavar="LAYER",
+        help=f"skip a layer, repeatable [DOCTOR_SKIP, comma list]: {', '.join(LAYERS)}",
+    )
+    add(
+        "--keep-going",
+        action="store_true",
+        default=env_flag("DOCTOR_KEEP_GOING"),
+        help="run every layer even after a failure [DOCTOR_KEEP_GOING]",
+    )
+    add("--keep", action="store_true", help="don't delete what the doctor wrote")
+    add(
+        "--json",
+        action="store_true",
+        default=env_flag("DOCTOR_JSON"),
+        help="print the full JSON report on stdout, one line [DOCTOR_JSON]",
+    )
+    add("-v", "--verbose", action="store_true", help="tracebacks for failures")
     return p
 
 
@@ -1009,6 +1060,9 @@ def main(argv: list[str] | None = None) -> int:
         p.error(
             "--access-key/--secret-key (or GATEWAY_ACCESS_KEY/GATEWAY_SECRET_KEY) are required"
         )
+    bad_skip = set(args.skip) - set(LAYERS)
+    if bad_skip:
+        p.error(f"unknown layer(s) in DOCTOR_SKIP: {sorted(bad_skip)}")
     if args.part_size < 5 * MiB:
         p.error("--part-size must be at least 5MiB (S3 minimum)")
     doc = Doctor(args)
