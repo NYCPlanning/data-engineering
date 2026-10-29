@@ -88,7 +88,8 @@ HINTS = {
     "delegation key = server-side copy will silently stream through the gateway (needs "
     "Contributor at account scope or Storage Blob Delegator). Timeouts = network path to blob.",
     "s3_auth": "Gateway reachable but S3 auth or bucket setup failed. InvalidAccessKeyId / "
-    "SignatureDoesNotMatch = wrong keys, or a proxy rewrote the path/host (SigV4 signs both). "
+    "SignatureDoesNotMatch = wrong keys, or a proxy rewrote the path/host (SigV4 signs both); "
+    "if HTTPS_PROXY is set, add the gateway domain to NO_PROXY. "
     "500s here usually mean the gateway can't reach or authenticate to Blob.",
     "small_rw": "Basic PUT/GET/DELETE failed. Look at the error code; InvalidMetadata means a "
     "metadata key isn't a valid C# identifier (no hyphens) for Azure.",
@@ -904,6 +905,13 @@ class Doctor:
                 "hostname": socket.gethostname(),
                 "python": platform.python_version(),
                 "boto3": __import__("boto3").__version__,
+                # boto3 honours these; the raw socket layers (dns..health) don't.
+                "proxy_env": {
+                    k: v
+                    for k, v in os.environ.items()
+                    if k.lower()
+                    in ("https_proxy", "http_proxy", "no_proxy", "all_proxy")
+                },
             },
             "settings": {
                 "size": self.args.size,
