@@ -38,15 +38,12 @@ destinations:
   tags: [socrata_unpublished]
   type: open_data
   files:
-  - id: metadata_xlsx
+  - id: oti_data_dictionary
     custom:
       destination_use: attachment
   - id: shapefile
     custom:
       destination_use: dataset_file
-  # - id: oti_data_dictionary
-  #   custom:
-  #     destination_use: attachment
   custom:
     four_four: k5u6-psh6
 - id: bytes
@@ -55,7 +52,7 @@ destinations:
   - id: dcm_multilayer
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
-  - id: metadata_pdf
+  - id: oti_data_dictionary
     custom:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_map_amendments.xlsx
 
