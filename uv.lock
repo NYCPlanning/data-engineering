@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform == 'win32'",
@@ -1604,7 +1604,7 @@ source = { virtual = "apps/dagster" }
 dependencies = [
     { name = "dagster" },
     { name = "dagster-webserver" },
-    { name = "dcpy-lifecycle" },
+    { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "dcpy-product-metadata" },
     { name = "pyyaml" },
 ]
@@ -1613,7 +1613,7 @@ dependencies = [
 requires-dist = [
     { name = "dagster" },
     { name = "dagster-webserver" },
-    { name = "dcpy-lifecycle", editable = "python/lifecycle" },
+    { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "pyyaml" },
 ]

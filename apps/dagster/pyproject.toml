@@ -4,7 +4,8 @@ version = "0.0.1"
 description = "DCP Data Engineering - Dagster orchestration app"
 requires-python = ">=3.11"
 dependencies = [
-    "dcpy-lifecycle",
+    # ingest assets run dcpy.lifecycle.ingest.transform, which needs the GDAL/geo stack
+    "dcpy-lifecycle[geo]",
     "dcpy-product-metadata",
     "dagster",
     "dagster-webserver",
