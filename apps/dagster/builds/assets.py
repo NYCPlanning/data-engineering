@@ -397,7 +397,7 @@ def make_build_asset(product: lifecycle.asset_models.Product):
             output_path=build_output_dir,
             product=product.name,
             build=partition_key,
-            acl="private",
+            acl=recipe.acl,
         )
 
         context.log.info(f"Build uploaded: {build_key}")
