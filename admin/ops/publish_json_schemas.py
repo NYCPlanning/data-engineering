@@ -45,5 +45,5 @@ for schema in schemas:
             bucket="edm-publishing",
             path=p,
             key=DO_SCHEMA_FOLDER + schema["folder"] + schema["name"],  # type: ignore
-            acl="private",
+            acl="public-read",
         )
