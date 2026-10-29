@@ -169,6 +169,7 @@ class Doctor:
         self.prefix = f"doctor/{self.run_id}/"
         self.results: list[dict] = []
         self.created_bucket = False
+        self.s3_ready = False  # set once auth + bucket work; gates cleanup
         self.big_key: str | None = None
         self.big_size = 0
         self.big_sha: str | None = None
@@ -549,6 +550,7 @@ class Doctor:
             except Exception:  # noqa: BLE001 - absent or not listed: try to create it
                 self.s3.create_bucket(Bucket=bucket)
                 self.created_bucket = True
+        self.s3_ready = True
         out["created_bucket"] = self.created_bucket
         out["detail"] = f"ListBuckets ok ({len(names)}), bucket {bucket} " + (
             "created" if self.created_bucket else "exists"
@@ -793,10 +795,12 @@ class Doctor:
                 )
             elif status == 200:
                 out["server_side"] = False
-                out["_status"] = "warn"
-                out["detail"] += (
-                    ", NOT server-side: bytes streamed through the gateway (no user delegation key: "
-                    "check Storage Blob Delegator / Contributor scope)"
+                raise LayerFail(
+                    "CopyObject worked but was NOT server-side: the bytes streamed through the "
+                    "gateway (destination blob has no x-ms-copy-id). Usually the gateway identity "
+                    "can't get a user delegation key: Storage Blob Data Contributor must be at "
+                    "account scope, or add Storage Blob Delegator on the account.",
+                    **out,
                 )
         else:
             out["detail"] += " (server-side vs streamed only checked with --inside)"
@@ -848,7 +852,7 @@ class Doctor:
     # ------------------------------------------------------------------ cleanup / report
 
     def cleanup(self):
-        if self.args.keep or self._s3 is None:
+        if self.args.keep or not self.s3_ready:
             if self.args.keep:
                 self.log(f"--keep: leaving s3://{self.args.bucket}/{self.prefix}")
             return

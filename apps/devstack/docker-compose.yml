@@ -130,6 +130,28 @@ services:
       azurite:
         condition: service_healthy
 
+  # Gateway doctor (apps/blob-gateway/doctor, inv-k0d.14) on the compose network, the same
+  # image the Azure 'gateway-doctor' job runs:
+  #   docker compose -f apps/devstack/docker-compose.yml --profile doctor run --rm doctor
+  # --inside adds the backend-path layers; here they run against Azurite, and mi_token fails
+  # (no managed identity outside Azure).
+  doctor:
+    image: gateway-doctor:local
+    build: ../blob-gateway/doctor
+    profiles: ["doctor"]
+    environment:
+      GATEWAY_URL: http://versitygw:7070
+      GATEWAY_ACCESS_KEY: devstack
+      GATEWAY_SECRET_KEY: devstack-secret
+      AZ_ACCOUNT_NAME: devstoreaccount1
+      DOCTOR_BLOB_ENDPOINT: https://azurite:10000/devstoreaccount1
+      SSL_CERT_FILE: /certs/azurite.pem
+    volumes:
+      - ./.certs:/certs:ro
+    depends_on:
+      versitygw:
+        condition: service_healthy
+
   # Runner-up gateway, kept for comparison: docker compose --profile s3proxy up -d
   # Env vars: s3proxy 4.1.1 src/main/config/run-docker-container.sh.
   s3proxy:
