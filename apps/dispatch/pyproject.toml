@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+# Dispatch: the Postgres lease queue that routes Dagster work to HTTP-only workers
+# (tracker epic inv-k0d, this package is inv-k0d.3). A standalone ASGI app, deployed as a
+# sidecar next to Dagster. Deliberately has no dcpy dependency: it is a small service with
+# its own schema (alembic), and keeping it light keeps its container and CI job light.
+[project]
+name = "dcpy-app-dispatch"
+version = "0.0.1"
+description = "DCP Data Engineering - dispatch queue API (Postgres lease queue for workers)"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic",
+    "fastapi",
+    "psycopg[binary]",
+    "psycopg-pool",
+    "pydantic",
+    "sqlalchemy<2.1",  # only alembic uses it; same pin as dcpy-utils
+    "uvicorn",
+]
+
+[dependency-groups]
+dev = [
+    "httpx",  # fastapi.testclient
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]
+include = ["dispatch*"]
+
+[tool.setuptools.package-data]
+dispatch = ["migrations/*.py", "migrations/*.mako", "migrations/versions/*.py"]
