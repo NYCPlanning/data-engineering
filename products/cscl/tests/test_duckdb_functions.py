@@ -156,13 +156,13 @@ def test_find_circle_matches_prod(duck, start, mid, end, prod):
         assert math.dist((cx, cy), p) == pytest.approx(r, abs=1e-6)
 
 
-def _offsets(duck, line_wkt, midpoint, offset_length=None):
+def _offsets(duck, line_wkt, offset_length=None):
     arg = "" if offset_length is None else f", offset_length := {offset_length}"
     return duck.execute(
         "SELECT st_x(o.left_offset_point), st_y(o.left_offset_point), "
         "st_x(o.right_offset_point), st_y(o.right_offset_point) "
-        f"FROM (SELECT offset_points(st_geomfromtext(?), st_point(?, ?){arg}) AS o)",
-        [line_wkt, *midpoint],
+        f"FROM (SELECT offset_points(st_geomfromtext(?){arg}) AS o)",
+        [line_wkt],
     ).fetchone()
 
 
@@ -170,37 +170,41 @@ L_SHAPE = "LINESTRING (0 0, 10 0, 10 10)"
 
 
 @pytest.mark.parametrize(
-    "line, midpoint, offset_length, expected",
+    "line, offset_length, expected",
     [
         # eastbound: left is north
-        ("LINESTRING (0 0, 10 0)", (5, 0), 2, (5, 2, 5, -2)),
+        ("LINESTRING (0 0, 10 0)", 2, (5, 2, 5, -2)),
         # westbound: left is south
-        ("LINESTRING (10 0, 0 0)", (5, 0), 2, (5, -2, 5, 2)),
+        ("LINESTRING (10 0, 0 0)", 2, (5, -2, 5, 2)),
         # default offset_length is 1
-        ("LINESTRING (0 0, 10 0)", (5, 0), None, (5, 1, 5, -1)),
-        # midpoint on the second (northbound) segment: left is west
-        (L_SHAPE, (10, 5), 2, (8, 5, 12, 5)),
-        # midpoint on the shared vertex: the first segment it intersects
-        (L_SHAPE, (10, 0), 2, (10, 2, 10, -2)),
-        # midpoint off the line: the nearest segment, offset from the midpoint itself
-        (L_SHAPE, (3, 0.5), 2, (3, 2.5, 3, -1.5)),
-        (L_SHAPE, (9.5, 7), 1, (8.5, 7, 10.5, 7)),
+        ("LINESTRING (0 0, 10 0)", None, (5, 1, 5, -1)),
+        # half point on the second (northbound) piece: left is west
+        ("LINESTRING (0 0, 10 0, 10 30)", 2, (8, 10, 12, 10)),
+        # half point on the shared vertex: the piece ending there
+        (L_SHAPE, 2, (10, 2, 10, -2)),
+        # doubled back (east, west, east, north): half of 35 is on the westbound leg,
+        # though the eastbound legs pass through the same point
+        ("LINESTRING (0 0, 10 0, 0 0, 10 0, 10 5)", 2, (2.5, -2, 2.5, 2)),
+        # same shape, longer last leg: half of 50 is on the third (eastbound) leg
+        ("LINESTRING (0 0, 10 0, 0 0, 10 0, 10 20)", 2, (5, 2, 5, -2)),
+        # half point a rounding error past a vertex: still the piece ending there, not
+        # the direction of the 1e-10 ft sliver after it
+        ("LINESTRING (0 0, 10 0, 10 10.0000000002)", 2, (10, 2, 10, -2)),
+        # a repeated vertex at the half point: the last distinct vertex before it
+        ("LINESTRING (0 0, 10 0, 10 0, 10 10)", 2, (10, 2, 10, -2)),
         # diagonal: offsets along the unit normal
-        ("LINESTRING (0 0, 3 4)", (1.5, 2), 5, (-2.5, 5, 5.5, -1)),
+        ("LINESTRING (0 0, 3 4)", 5, (-2.5, 5, 5.5, -1)),
     ],
 )
-def test_offset_points(duck, line, midpoint, offset_length, expected):
-    assert _offsets(duck, line, midpoint, offset_length) == pytest.approx(
-        expected, abs=1e-9
-    )
+def test_offset_points(duck, line, offset_length, expected):
+    assert _offsets(duck, line, offset_length) == pytest.approx(expected, abs=1e-9)
 
 
 def test_offset_points_not_a_linestring_is_null(duck):
     assert (
         _one(
             duck,
-            "SELECT offset_points(st_geomfromtext('MULTILINESTRING ((0 0, 1 0))'), "
-            "st_point(0.5, 0))",
+            "SELECT offset_points(st_geomfromtext('MULTILINESTRING ((0 0, 1 0))'))",
         )
         is None
     )
@@ -212,18 +216,18 @@ def test_offset_points_on_table_columns(duck):
         """
         SELECT id, st_astext(o.left_offset_point), st_astext(o.right_offset_point)
         FROM (
-            SELECT id, offset_points(st_geomfromtext(wkt), st_point(mx, my), offset_length := 2) AS o
+            SELECT id, offset_points(st_geomfromtext(wkt), offset_length := 2) AS o
             FROM (VALUES
-                (1, 'LINESTRING (0 0, 10 0)', 5, 0),
-                (2, 'LINESTRING (0 0, 10 0, 10 10)', 10, 5)
-            ) AS t (id, wkt, mx, my)
+                (1, 'LINESTRING (0 0, 10 0)'),
+                (2, 'LINESTRING (0 0, 10 0, 10 30)')
+            ) AS t (id, wkt)
         )
         ORDER BY id
         """
     ).fetchall()
     assert rows == [
         (1, "POINT (5 2)", "POINT (5 -2)"),
-        (2, "POINT (8 5)", "POINT (12 5)"),
+        (2, "POINT (8 10)", "POINT (12 10)"),
     ]
 
 

@@ -145,11 +145,7 @@ probe_points AS (
     FROM (
         SELECT
             pl.globalid,
-            offset_points(
-                pl.line,
-                st_lineinterpolatepoint(pl.line, 0.5),
-                offset_length := {{ probe_offset }}
-            ) AS o
+            offset_points(pl.line, offset_length := {{ probe_offset }}) AS o
         FROM probe_lines AS pl
     ) AS offsets
 ),

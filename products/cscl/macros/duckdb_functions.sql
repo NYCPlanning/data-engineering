@@ -73,41 +73,48 @@ CREATE OR REPLACE MACRO find_circle(p1, p2, p3) AS (
     )
 );
 
--- offset_points: STRUCT(left_offset_point, right_offset_point), points offset_length from
--- midpoint along the normal of the line segment the midpoint sits on: the first segment
--- intersecting midpoint, else the nearest segment. NULL if line is not a LineString.
+-- offset_points: STRUCT(left_offset_point, right_offset_point), points offset_length either
+-- side of the point at half the line's length, along the normal of the vertex-to-vertex
+-- piece of the line that point is on (prod: IConstructPoint.ConstructOffset at ratio 0.5).
+-- Found by walking the line by length (its first half, st_linesubstring), not by nearness to
+-- the midpoint: a line that doubles back passes through its midpoint more than once. A half
+-- point on a vertex takes the piece ending there. NULL if line is not a LineString.
 -- (Pure expressions, no subqueries: a macro whose subqueries reference its arguments
 -- can't be called on table columns. [x] + list_transform binds an intermediate once.)
-CREATE OR REPLACE MACRO _offset_segment(line, midpoint) AS (
+CREATE OR REPLACE MACRO _half_length_piece(line) AS (
     list_transform(
-        [list_transform(
-            range(1, st_npoints(line)),
-            i -> struct_pack(
-                d := st_distance(st_makeline(st_pointn(line, i::INTEGER), st_pointn(line, (i + 1)::INTEGER)), midpoint),
-                hit := st_intersects(st_makeline(st_pointn(line, i::INTEGER), st_pointn(line, (i + 1)::INTEGER)), midpoint),
-                p1 := st_pointn(line, i::INTEGER),
-                p2 := st_pointn(line, (i + 1)::INTEGER)
+        [st_linesubstring(line, 0, 0.5)],
+        h -> list_transform(
+            [st_endpoint(h)],
+            -- the last vertex before the half point that isn't (to 1e-6 ft) the half point
+            -- itself: a half point a rounding error past a vertex (an arc's middle vertex)
+            -- would otherwise leave a piece too short to give a direction
+            e -> struct_pack(
+                p1 := st_pointn(h, list_max(list_filter(
+                    range(1, st_npoints(h)),
+                    i -> st_distance(st_pointn(h, i::INTEGER), e) > 1e-6
+                ))::INTEGER),
+                p2 := e
             )
-        )],
-        cands -> coalesce(list_filter(cands, c -> c.hit)[1], list_sort(cands)[1])
+        )[1]
     )[1]
 );
 
-CREATE OR REPLACE MACRO offset_points(line, midpoint, offset_length := 1.0) AS
+CREATE OR REPLACE MACRO offset_points(line, offset_length := 1.0) AS
 CASE
     WHEN st_geometrytype(line) <> 'LINESTRING' THEN NULL
     ELSE list_transform(
-        [_offset_segment(line, midpoint)],
+        [_half_length_piece(line)],
         seg -> list_transform(
             [struct_pack(dx := st_y(seg.p2) - st_y(seg.p1), dy := st_x(seg.p1) - st_x(seg.p2))],
             n -> struct_pack(
                 left_offset_point := st_point(
-                    st_x(midpoint) - n.dx * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy),
-                    st_y(midpoint) - n.dy * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy)
+                    st_x(seg.p2) - n.dx * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy),
+                    st_y(seg.p2) - n.dy * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy)
                 ),
                 right_offset_point := st_point(
-                    st_x(midpoint) + n.dx * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy),
-                    st_y(midpoint) + n.dy * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy)
+                    st_x(seg.p2) + n.dx * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy),
+                    st_y(seg.p2) + n.dy * offset_length / sqrt(n.dx * n.dx + n.dy * n.dy)
                 )
             )
         )[1]

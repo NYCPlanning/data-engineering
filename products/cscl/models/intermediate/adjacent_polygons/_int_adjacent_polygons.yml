@@ -109,7 +109,7 @@ models:
 #    compare_model: ref("int__segments")
 
 - name: int__segment_offsets
-  description: "One row per segment with a probe point 2 ft off each side of its midpoint, used to look up the polygon on each side."
+  description: "One row per segment with a probe point 2 ft off each side of the point at half its length (square to the piece of the line that point is on), used to look up the polygon on each side."
   columns:
   - name: segmentid
     description: "Segment id."
@@ -118,9 +118,9 @@ models:
   - name: left_line
   - name: right_line
   - name: left_offset_point
-    description: "Point 2 ft to the left of the segment's midpoint."
+    description: "Point 2 ft to the left of the point at half the segment's length."
   - name: right_offset_point
-    description: "Point 2 ft to the right of the segment's midpoint."
+    description: "Point 2 ft to the right of the point at half the segment's length."
 
 - name: int__segment_topology_vertices
   description: Segment vertices that sit on an AP topology node, with their position along the segment.
@@ -360,3 +360,47 @@ unit_tests:
     - {globalid: N1, is_proto: false, l_zip_fixed: '10035', l_zip_prod: '10035', l_zip: '10035', r_zip: '10035'}
     - {globalid: P1, is_proto: true, l_zip_fixed: '10035', l_zip_prod: null, l_zip: '10035', r_zip: '10035'}
     - {globalid: N2, is_proto: false, l_zip_fixed: '10035', l_zip_prod: '10035', l_zip: '10035', r_zip: null}
+# The 2 ft probe sits 2 ft either side of the point at half the line's length, square to the
+# vertex-to-vertex piece of the line that point is on (prod's ConstructOffset at ratio 0.5,
+# CenterlineExtractFile.GetAtomicPolygons). doubled_back runs A->B->A->B->C, (0 0)->(10 0)
+# ->(0 0)->(10 0)->(10 5): half its 35 ft is (2.5 0), on the westbound A<-B leg, so left
+# is south, though the eastbound legs pass through the same point (segment 0330641 runs
+# A->B->A->B->C->D). triple_forward is the same shape with a 20 ft last leg: half of 50 ft
+# is (5 0), on the third, eastbound, leg. on_vertex: half its length is the corner, and the
+# piece ending there gives the direction. The rest are simple lines.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__segment_offsets__direction_at_half_length
+  description: "The probe's direction is that of the piece of the line at half its length, not the piece nearest the midpoint."
+  model: int__segment_offsets
+  given:
+  - input: ref('int__segments')
+    format: sql
+    rows: |
+      SELECT
+        globalid, globalid AS lionkey, 1 AS segmentid, '1' AS boroughcode,
+        'nonstreetfeatures' AS feature_type, ST_GeomFromText(wkt) AS geom,
+        ST_LineInterpolatePoint(ST_GeomFromText(wkt), 0.5) AS midpoint
+      FROM (VALUES
+        ('doubled_back', 'LINESTRING (0 0, 10 0, 0 0, 10 0, 10 5)'),
+        ('triple_forward', 'LINESTRING (0 0, 10 0, 0 0, 10 0, 10 20)'),
+        ('on_vertex', 'LINESTRING (0 0, 10 0, 10 10)'),
+        ('eastbound', 'LINESTRING (0 0, 10 0)'),
+        ('westbound', 'LINESTRING (10 0, 0 0)'),
+        ('l_shape', 'LINESTRING (0 0, 10 0, 10 30)')
+      ) AS t (globalid, wkt)
+  expect:
+    format: sql
+    rows: |
+      SELECT
+        globalid, globalid AS lionkey, 1 AS segmentid, '1' AS boroughcode,
+        'nonstreetfeatures' AS feature_type, ST_GeomFromText(wkt) AS geom,
+        ST_Point(lx, ly) AS left_offset_point, ST_Point(rx, ry) AS right_offset_point
+      FROM (VALUES
+        ('doubled_back', 'LINESTRING (0 0, 10 0, 0 0, 10 0, 10 5)', 2.5, -2.0, 2.5, 2.0),
+        ('triple_forward', 'LINESTRING (0 0, 10 0, 0 0, 10 0, 10 20)', 5.0, 2.0, 5.0, -2.0),
+        ('on_vertex', 'LINESTRING (0 0, 10 0, 10 10)', 10.0, 2.0, 10.0, -2.0),
+        ('eastbound', 'LINESTRING (0 0, 10 0)', 5.0, 2.0, 5.0, -2.0),
+        ('westbound', 'LINESTRING (10 0, 0 0)', 5.0, -2.0, 5.0, 2.0),
+        ('l_shape', 'LINESTRING (0 0, 10 0, 10 30)', 8.0, 10.0, 12.0, 10.0)
+      ) AS t (globalid, wkt, lx, ly, rx, ry)
