@@ -2,22 +2,18 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# Dispatch: the Postgres lease queue that routes Dagster work to HTTP-only workers
-# (tracker epic inv-k0d, this package is inv-k0d.3). A standalone ASGI app, deployed as a
-# sidecar next to Dagster. Deliberately has no dcpy dependency: it is a small service with
-# its own schema (alembic), and keeping it light keeps its container and CI job light.
+# Dispatch: the in-memory Valkey work queue that routes Dagster work to HTTP-only workers
+# (tracker epic inv-k0d, this package is inv-k0d.3). A standalone ASGI app with Valkey as a
+# localhost-only sidecar. Deliberately has no dcpy dependency and holds no credentials.
 [project]
 name = "dcpy-app-dispatch"
 version = "0.0.1"
-description = "DCP Data Engineering - dispatch queue API (Postgres lease queue for workers)"
+description = "DCP Data Engineering - dispatch queue API (Valkey lease queue for workers)"
 requires-python = ">=3.11"
 dependencies = [
-    "alembic",
     "fastapi",
-    "psycopg[binary]",
-    "psycopg-pool",
     "pydantic",
-    "sqlalchemy<2.1",  # only alembic uses it; same pin as dcpy-utils
+    "redis>=5",  # redis-py; speaks RESP to Valkey
     "uvicorn",
 ]
 
@@ -32,4 +28,4 @@ dev = [
 include = ["dispatch*"]
 
 [tool.setuptools.package-data]
-dispatch = ["migrations/*.py", "migrations/*.mako", "migrations/versions/*.py"]
+dispatch = ["lua/*.lua"]
