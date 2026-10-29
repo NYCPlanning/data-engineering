@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 dependencies = [
     "boto3",
     "dbt-artifacts-parser",
-    "duckdb",
+    "duckdb<2",  # 2.0 drops the x -> ... lambda syntax cscl still uses
     "GitPython",
     "Jinja2",
     "openpyxl",
