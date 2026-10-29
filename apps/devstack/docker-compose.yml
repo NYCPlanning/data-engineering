@@ -8,6 +8,7 @@
 # See apps/devstack/README.md.
 
 x-dagster: &dagster
+  image: devstack-dagster:local
   build:
     context: ../dagster
     dockerfile: Dockerfile
@@ -18,6 +19,8 @@ x-dagster: &dagster
     DAGSTER_PG_PASSWORD: devstack
     DAGSTER_PG_DB: dagster
     DCPY_LIFECYCLE_DATA_DIR: /opt/dagster/lifecycle
+    # dcpy's default is relative to cwd (/app/dagster); point it at the mounted repo.
+    TEMPLATE_DIR: /app/repos/data-engineering/ingest_templates
     # Keep the venv out of the repo mount (see apps/docker-compose.yml).
     UV_PROJECT_ENVIRONMENT: /opt/venv
     # No separate uv cache volume: halves the disk the venv takes on a small Docker VM.
@@ -113,7 +116,12 @@ services:
       SSL_CERT_FILE: /certs/azurite.pem
       # Azurite lags the SDK's SAS version (versitygw's own azurite CI pins this).
       AZ_COPY_SAS_VERSION: "2025-11-05"
-    command: ["--port", ":7070", "azure"]
+    command: ["--port", ":7070", "--health", "/health", "azure"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7070/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     volumes:
       - ./.certs:/certs:ro
     ports:

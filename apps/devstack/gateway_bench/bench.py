@@ -34,7 +34,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 TARGETS = {
-    "versitygw": {"endpoint": "http://127.0.0.1:7070", "container": "devstack-versitygw-1"},
+    "versitygw": {
+        "endpoint": "http://127.0.0.1:7070",
+        "container": "devstack-versitygw-1",
+    },
     "s3proxy": {"endpoint": "http://127.0.0.1:7071", "container": "devstack-s3proxy-1"},
     "azurite": {"endpoint": None, "container": "devstack-azurite-1"},
 }
@@ -71,7 +74,15 @@ def sha256_file(path):
     return h.hexdigest()
 
 
-_UNITS = {"b": 1, "kb": 1e3, "kib": 1024, "mb": 1e6, "mib": MB, "gb": 1e9, "gib": 1024**3}
+_UNITS = {
+    "b": 1,
+    "kb": 1e3,
+    "kib": 1024,
+    "mb": 1e6,
+    "mib": MB,
+    "gb": 1e9,
+    "gib": 1024**3,
+}
 
 
 def _bytes(s):
@@ -81,7 +92,14 @@ def _bytes(s):
 
 def docker_stats(container):
     out = subprocess.run(
-        ["docker", "stats", "--no-stream", "--format", "{{.MemUsage}}|{{.NetIO}}", container],
+        [
+            "docker",
+            "stats",
+            "--no-stream",
+            "--format",
+            "{{.MemUsage}}|{{.NetIO}}",
+            container,
+        ],
         capture_output=True,
         text=True,
     ).stdout.strip()
@@ -133,7 +151,9 @@ def child_upload(endpoint, bucket, key, path, upload_id_file):
     with open(path, "rb") as f:
         n = 1
         while chunk := f.read(PART):
-            s3.upload_part(Bucket=bucket, Key=key, UploadId=uid, PartNumber=n, Body=chunk)
+            s3.upload_part(
+                Bucket=bucket, Key=key, UploadId=uid, PartNumber=n, Body=chunk
+            )
             n += 1
     time.sleep(3600)  # parent kills us before completing
 
@@ -164,7 +184,9 @@ def resume_upload(s3, bucket, key, path):
         Bucket=bucket,
         Key=key,
         UploadId=uid,
-        MultipartUpload={"Parts": [{"PartNumber": k, "ETag": v} for k, v in sorted(have.items())]},
+        MultipartUpload={
+            "Parts": [{"PartNumber": k, "ETag": v} for k, v in sorted(have.items())]
+        },
     )
     return found, len(have)
 
@@ -205,7 +227,16 @@ def run_s3(target, endpoint, container, size_mb, n_small, small_kb, tmp):
         # (a) kill mid-upload, resume from another process
         uid_file = tmp / "uid"
         child = subprocess.Popen(
-            [sys.executable, __file__, "--child", endpoint, bucket, "resume.bin", str(big), str(uid_file)]
+            [
+                sys.executable,
+                __file__,
+                "--child",
+                endpoint,
+                bucket,
+                "resume.bin",
+                str(big),
+                str(uid_file),
+            ]
         )
         try:
             target_parts = (size_mb * MB // PART) // 2
@@ -214,7 +245,9 @@ def run_s3(target, endpoint, container, size_mb, n_small, small_kb, tmp):
                 if child.poll() is not None:
                     raise RuntimeError("child exited early")
                 if uid_file.exists():
-                    r = s3.list_parts(Bucket=bucket, Key="resume.bin", UploadId=uid_file.read_text())
+                    r = s3.list_parts(
+                        Bucket=bucket, Key="resume.bin", UploadId=uid_file.read_text()
+                    )
                     # list_parts pages at 1000; we only need "about half"
                     if len(r.get("Parts", [])) >= target_parts:
                         break
@@ -231,7 +264,11 @@ def run_s3(target, endpoint, container, size_mb, n_small, small_kb, tmp):
         # (g) server-side copy: single CopyObject, then managed multipart copy
         with MemSampler(container) as m:
             t = time.time()
-            s3.copy_object(Bucket=bucket, Key="_staging/a1/big.bin", CopySource={"Bucket": bucket, "Key": "big.bin"})
+            s3.copy_object(
+                Bucket=bucket,
+                Key="_staging/a1/big.bin",
+                CopySource={"Bucket": bucket, "Key": "big.bin"},
+            )
             res["copy_object_s"] = round(time.time() - t, 1)
         res["copy_object_gw_net_MB"] = round(m.net_mb)
         res["copy_object_peak_mem_MB"] = round(m.peak / MB)
@@ -244,7 +281,12 @@ def run_s3(target, endpoint, container, size_mb, n_small, small_kb, tmp):
         try:
             with MemSampler(container) as m:
                 t = time.time()
-                s3.copy({"Bucket": bucket, "Key": "big.bin"}, bucket, "promoted/big.bin", Config=cfg)
+                s3.copy(
+                    {"Bucket": bucket, "Key": "big.bin"},
+                    bucket,
+                    "promoted/big.bin",
+                    Config=cfg,
+                )
                 res["multipart_copy_s"] = round(time.time() - t, 1)
             res["multipart_copy_gw_net_MB"] = round(m.net_mb)
             h = s3.head_object(Bucket=bucket, Key="promoted/big.bin")
@@ -256,24 +298,41 @@ def run_s3(target, endpoint, container, size_mb, n_small, small_kb, tmp):
         big.unlink()
 
         # (b)+(c) small objects
-        bodies = {f"small/{i:05d}.bin": os.urandom(small_kb * 1024) for i in range(n_small)}
+        bodies = {
+            f"small/{i:05d}.bin": os.urandom(small_kb * 1024) for i in range(n_small)
+        }
         shas = {k: hashlib.sha256(v).hexdigest() for k, v in bodies.items()}
         with ThreadPoolExecutor(16) as ex:
             t = time.time()
-            list(ex.map(lambda kv: s3.put_object(Bucket=bucket, Key=kv[0], Body=kv[1]), bodies.items()))
+            list(
+                ex.map(
+                    lambda kv: s3.put_object(Bucket=bucket, Key=kv[0], Body=kv[1]),
+                    bodies.items(),
+                )
+            )
             res["small_up_s"] = round(time.time() - t, 1)
-            pages = s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix="small/")
+            pages = s3.get_paginator("list_objects_v2").paginate(
+                Bucket=bucket, Prefix="small/"
+            )
             listed = sum(len(p.get("Contents", [])) for p in pages)
             res["small_listed_ok"] = listed == n_small
             t = time.time()
             got = dict(
-                ex.map(lambda k: (k, s3.get_object(Bucket=bucket, Key=k)["Body"].read()), bodies)
+                ex.map(
+                    lambda k: (k, s3.get_object(Bucket=bucket, Key=k)["Body"].read()),
+                    bodies,
+                )
             )
             res["small_down_s"] = round(time.time() - t, 1)
-        res["small_sha_ok"] = all(hashlib.sha256(got[k]).hexdigest() == shas[k] for k in bodies)
+        res["small_sha_ok"] = all(
+            hashlib.sha256(got[k]).hexdigest() == shas[k] for k in bodies
+        )
         keys = list(bodies)
         for i in range(0, len(keys), 1000):
-            s3.delete_objects(Bucket=bucket, Delete={"Objects": [{"Key": k} for k in keys[i : i + 1000]]})
+            s3.delete_objects(
+                Bucket=bucket,
+                Delete={"Objects": [{"Key": k} for k in keys[i : i + 1000]]},
+            )
 
         # (f) dcpy connector, s3 type, endpoint = gateway
         res.update(check_dcpy(endpoint, bucket, tmp))
@@ -287,7 +346,10 @@ def check_dcpy(endpoint, bucket, tmp):
     os.environ["AWS_ACCESS_KEY_ID"] = S3_KEY
     os.environ["AWS_SECRET_ACCESS_KEY"] = S3_SECRET
     os.environ.setdefault("AWS_DEFAULT_REGION", "us-east-1")
-    from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
+    from dcpy.connectors.hybrid_pathed_storage import (
+        PathedStorageConnector,
+        StorageType,
+    )
 
     out = {}
     try:
@@ -310,11 +372,15 @@ def check_dcpy(endpoint, bucket, tmp):
         conn.push("one/a.csv", filepath=src / "a.csv", metadata=simple)
         conn.push("tree", filepath=src)
         got = conn.get_metadata("one/a.csv")
-        out["dcpy_meta_simple"] = "exact" if got == simple else json.dumps(got, sort_keys=True)
+        out["dcpy_meta_simple"] = (
+            "exact" if got == simple else json.dumps(got, sort_keys=True)
+        )
         try:
             conn.push("one/h.csv", filepath=src / "a.csv", metadata=hyphen)
             got = conn.get_metadata("one/h.csv")
-            out["dcpy_meta_hyphen"] = "exact" if got == hyphen else json.dumps(got, sort_keys=True)
+            out["dcpy_meta_hyphen"] = (
+                "exact" if got == hyphen else json.dumps(got, sort_keys=True)
+            )
         except Exception as e:  # noqa: BLE001
             out["dcpy_meta_hyphen"] = "error: " + repr(e)[:160]
         out["dcpy_exists"] = conn.exists("one/a.csv") and not conn.exists("nope.csv")
@@ -344,7 +410,9 @@ def cleanup_bucket(s3, bucket):
 def run_azurite(container, size_mb, n_small, small_kb, tmp):
     from azure.storage.blob import BlobServiceClient
 
-    svc = BlobServiceClient.from_connection_string(AZ_CONN, connection_verify=AZURITE_CA)
+    svc = BlobServiceClient.from_connection_string(
+        AZ_CONN, connection_verify=AZURITE_CA
+    )
     cont = svc.create_container("bench-azurite")
     res = {"target": "azurite (direct SDK)"}
     big = tmp / "big.bin"
@@ -366,7 +434,9 @@ def run_azurite(container, size_mb, n_small, small_kb, tmp):
         dl.unlink()
         big.unlink()
 
-        bodies = {f"small/{i:05d}.bin": os.urandom(small_kb * 1024) for i in range(n_small)}
+        bodies = {
+            f"small/{i:05d}.bin": os.urandom(small_kb * 1024) for i in range(n_small)
+        }
         with ThreadPoolExecutor(16) as ex:
             t = time.time()
             list(ex.map(lambda kv: cont.upload_blob(kv[0], kv[1]), bodies.items()))
@@ -397,7 +467,15 @@ def main():
         if a.target == "azurite":
             res = run_azurite(t["container"], a.size_mb, a.small, a.small_kb, tmp)
         else:
-            res = run_s3(a.target, t["endpoint"], t["container"], a.size_mb, a.small, a.small_kb, tmp)
+            res = run_s3(
+                a.target,
+                t["endpoint"],
+                t["container"],
+                a.size_mb,
+                a.small,
+                a.small_kb,
+                tmp,
+            )
     print(json.dumps(res, indent=1))
 
 
