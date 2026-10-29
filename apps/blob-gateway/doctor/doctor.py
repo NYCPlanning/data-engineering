@@ -804,7 +804,9 @@ class Doctor:
                     **out,
                 )
         else:
-            out["detail"] += " (server-side vs streamed only checked with --inside)"
+            out["detail"] += (
+                " (server-side vs streamed not checked: needs --inside + managed identity)"
+            )
         return out
 
     def layer_many_small(self):
