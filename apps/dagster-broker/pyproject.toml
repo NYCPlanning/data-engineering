@@ -17,9 +17,9 @@ dependencies = [
 
 [project.optional-dependencies]
 worker = [
-    "boto3",  # promotion
+    "boto3",  # promotion and test_steps
     "dagster-pipes",
-    "dcpy-infra",  # the broker client; also the runner_tests steps
+    "dcpy-infra",  # the broker client
 ]
 
 [tool.uv.sources]

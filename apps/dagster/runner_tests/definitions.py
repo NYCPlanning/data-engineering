@@ -1,5 +1,5 @@
 """Runner smoke tests: one job per routing case, each running
-dcpy.infra.runner_tests.work on a dagster-broker worker via Pipes. No worker has
+dagster_broker.test_steps.work on a dagster-broker worker via Pipes. No worker has
 'gpu', so the gpu job stays queued until its run is terminated."""
 
 import os
@@ -36,7 +36,7 @@ def case(name: str, caps: list[str]):
     ):
         return broker.run(
             context=context,
-            function="dcpy.infra.runner_tests.work",
+            function="dagster_broker.test_steps.work",
             args=config.model_dump(),
             required_caps=caps,
             outputs_prefix=f"runner_tests/{name}/{context.run.run_id}/",

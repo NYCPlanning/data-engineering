@@ -1955,12 +1955,6 @@ dev = [
 name = "dcpy-infra"
 version = "0.0.1"
 source = { editable = "python/infra" }
-dependencies = [
-    { name = "dcpy-utils" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "dcpy-utils", editable = "python/utils" }]
 
 [[package]]
 name = "dcpy-integration-tests"

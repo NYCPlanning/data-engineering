@@ -1,6 +1,6 @@
 """A Dagster asset run through Pipes on a worker thread, via a live broker (uvicorn):
 apps/dagster's PipesBrokerClient -> broker -> worker -> dagster_broker.pipes_worker ->
-dcpy.infra.runner_tests.work."""
+dagster_broker.test_steps.work."""
 
 import sys
 import threading
@@ -46,7 +46,7 @@ def test_pipes_round_trip(broker):
     def thing(context, pipes: PipesBrokerClient):
         args = {"seconds": 0, "parts": 2}
         res = pipes.run(
-            context=context, function="dcpy.infra.runner_tests.work", args=args
+            context=context, function="dagster_broker.test_steps.work", args=args
         )
         return res.get_materialize_result()
 

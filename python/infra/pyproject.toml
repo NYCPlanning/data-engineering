@@ -5,14 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dcpy-infra"
 version = "0.0.1"
-description = "DCP Data Engineering - deployment support: the dagster-broker HTTP client and runner test steps"
+description = "DCP Data Engineering - deployment support: the dagster-broker HTTP client"
 requires-python = ">=3.11"
-dependencies = [
-    "dcpy-utils",  # runner_tests writes through dcpy.utils.s3
-]
-
-[tool.uv.sources]
-dcpy-utils = { workspace = true }
+dependencies = []
 
 [tool.setuptools.packages.find]
 include = ["dcpy*"]
