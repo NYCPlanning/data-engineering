@@ -681,3 +681,128 @@ models:
         description: average_household_size_built_2010_or_later_hvs minus average_household_size_built_before_2010_hvs, before rounding. Negative means households in newer buildings are smaller.
       - name: household_size_gap_built_2010_or_later_hvs_se
         description: Standard error of household_size_gap_built_2010_or_later_hvs, from the replicate estimates of the gap itself.
+
+  - name: dim_census_tract
+    description: >
+      One row per 2020 census tract (boroct2020), with decennial census counts for 2010 and 2020.
+      PFF tabulates 2010 to 2020 tracts, so the two years compare directly. Tracts nest in NTAs,
+      CDTAs, and PUMAs but not in community districts, so summing tracts by cdta2020 gives CDTA
+      totals, which differ from dim_community_district's counts where the CDTA only approximates
+      the district (cdta_boundary_match). Tracts and districts add up to the same citywide totals.
+    columns:
+      - name: boroct2020
+        description: Borough code and 6-digit tract number, e.g. 1000100. Same as PFF's tract geoid.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "BoroCT2020"
+      - name: ct2020
+        description: 6-digit tract number within the borough.
+        config:
+          meta:
+            display_name: "Census tract"
+      - name: tract_label
+        description: Tract number as the Census Bureau labels it, e.g. 22.01.
+        config:
+          meta:
+            display_name: "Tract label"
+      - name: boro_code
+        description: Borough code, same as dim_community_district.boro_code.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Borough code"
+      - name: boro_name
+        description: Borough name.
+        config:
+          meta:
+            display_name: "Borough"
+      - name: nta2020
+        description: 2020 neighborhood tabulation area the tract is in.
+        config:
+          meta:
+            display_name: "NTA code"
+      - name: nta_name
+        description: Name of nta2020.
+        config:
+          meta:
+            display_name: "NTA"
+      - name: cdta2020
+        description: 2020 community district tabulation area the tract is in. Joins to dim_community_district.cdta2020.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: cdta2020
+        config:
+          meta:
+            display_name: "CDTA code"
+      - name: puma
+        description: 2020 public use microdata area the tract is in.
+        config:
+          meta:
+            display_name: "PUMA"
+      - name: population_2010_census
+        description: Total population, 2010 decennial census (PFF pop1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population 2010 (census)"
+      - name: population_2020_census
+        description: Total population, 2020 decennial census (PFF pop1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population 2020 (census)"
+      - name: population_in_households_2010_census
+        description: Population living in households, 2010 decennial census (PFF popinhh_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population in households 2010 (census)"
+      - name: population_in_households_2020_census
+        description: Population living in households, 2020 decennial census (PFF popinhh_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population in households 2020 (census)"
+      - name: housing_units_2010_census
+        description: Housing units, 2010 decennial census (PFF hunits). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Housing units 2010 (census)"
+      - name: housing_units_2020_census
+        description: Housing units, 2020 decennial census (PFF hunits). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Housing units 2020 (census)"
+      - name: occupied_housing_units_2010_census
+        description: Occupied housing units, 2010 decennial census (PFF ochu_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Occupied housing units 2010 (census)"
+      - name: occupied_housing_units_2020_census
+        description: Occupied housing units, 2020 decennial census (PFF ochu_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Occupied housing units 2020 (census)"
+      - name: vacant_housing_units_2010_census
+        description: Vacant housing units, 2010 decennial census (PFF vachus). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Vacant housing units 2010 (census)"
+      - name: vacant_housing_units_2020_census
+        description: Vacant housing units, 2020 decennial census (PFF vachus). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Vacant housing units 2020 (census)"
+      - name: group_quarters_population_2010_census
+        description: population_2010_census minus population_in_households_2010_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2010 (census)"
+      - name: group_quarters_population_2020_census
+        description: population_2020_census minus population_in_households_2020_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2020 (census)"
+      - name: geom
+        description: Tract boundary clipped to the shoreline (dcp_ct2020 26c), EPSG:4326.
+        data_tests: [not_null]

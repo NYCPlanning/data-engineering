@@ -44,6 +44,13 @@ sources:
         config:
           external_location: "read_parquet('./data/sources/dcp_cdta2020.parquet')"
 
+      - name: dcp_ct2020
+        description: >
+          2020 census tracts, clipped to shoreline, version 26c from edm-recipes. EPSG:4326. Leaves out
+          two all-water tracts (3990100, 4990100) that PFF has, both with no population or housing.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_ct2020.parquet')"
+
       - name: dcp_housing_ahft
         description: >
           DCP's Affordable Housing Fair Share tracker (AHFT), 20261002 from edm-private. One row per

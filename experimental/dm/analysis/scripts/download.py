@@ -46,6 +46,10 @@ SOURCES = {
         "edm-recipes",
         "datasets/dcp_cdta2020/26c/dcp_cdta2020.parquet",
     ),
+    "dcp_ct2020.parquet": (
+        "edm-recipes",
+        "datasets/dcp_ct2020/26c/dcp_ct2020.parquet",
+    ),
     "dcp_housing_ahft.csv": (
         "edm-private",
         "datasets/dcp_housing_ahft/20261002/dcp_housing_ahft.csv",
