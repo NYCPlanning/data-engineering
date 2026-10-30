@@ -1,0 +1,219 @@
+# Local dev stack for the hybrid-runner / dispatch work (tracker epic inv-k0d).
+# Separate from apps/docker-compose*.yml (the prod compose); doesn't replace it.
+#
+#   docker compose -f apps/devstack/docker-compose.yml up -d          # default stack
+#   docker compose -f apps/devstack/docker-compose.yml --profile s3proxy up -d   # + s3proxy
+#   docker compose -f apps/devstack/docker-compose.yml down -v        # stop + wipe volumes
+#
+# See apps/devstack/README.md.
+
+x-dagster: &dagster
+  image: devstack-dagster:local
+  build:
+    context: ../dagster
+    dockerfile: Dockerfile
+  environment: &dagster-env
+    DAGSTER_HOME: /opt/dagster/dagster_home
+    DAGSTER_PG_HOST: postgres
+    DAGSTER_PG_USER: devstack
+    DAGSTER_PG_PASSWORD: devstack
+    DAGSTER_PG_DB: dagster
+    DCPY_LIFECYCLE_DATA_DIR: /opt/dagster/lifecycle
+    # dcpy's default is relative to cwd (/app/dagster); point it at the mounted repo.
+    TEMPLATE_DIR: /app/repos/data-engineering/ingest_templates
+    # Keep the venv out of the repo mount (see apps/docker-compose.yml).
+    UV_PROJECT_ENVIRONMENT: /opt/venv
+    # No separate uv cache volume: halves the disk the venv takes on a small Docker VM.
+    UV_NO_CACHE: "1"
+    # Artifact gateway (S3 API in front of Azurite). dcpy's s3 storage type takes
+    # endpoint_url, so this is what off-VPC code would point at.
+    AWS_S3_ENDPOINT: http://versitygw:7070
+    AWS_ACCESS_KEY_ID: devstack
+    AWS_SECRET_ACCESS_KEY: devstack-secret
+  volumes:
+    - ${DATA_ENGINEERING_PATH:-../..}:/app/repos/data-engineering
+    - ${DATA_ENGINEERING_PATH:-../..}/apps/dagster:/app/dagster
+    - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+    - dagster-venv:/opt/venv
+    - dagster-lifecycle:/opt/dagster/lifecycle
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16.15
+    environment:
+      POSTGRES_USER: devstack
+      POSTGRES_PASSWORD: devstack
+      POSTGRES_DB: postgres
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devstack -d dagster && pg_isready -U devstack -d dispatch"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Self-signed cert for Azurite. HTTPS is needed for real server-side copy: versitygw
+  # signs copy-source SAS URLs as https-only, and over plain HTTP its CopyObject quietly
+  # falls back to streaming through the gateway and UploadPartCopy fails outright.
+  # Written to ./.certs (gitignored) so host clients (bench.py) can trust it too.
+  certs:
+    image: alpine/openssl:3.5.9
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -e
+        [ -f /certs/trust.p12 ] && exit 0
+        openssl req -x509 -newkey rsa:2048 -nodes -days 825 -subj /CN=azurite \
+          -addext subjectAltName=DNS:azurite,DNS:localhost,IP:127.0.0.1 \
+          -keyout /certs/azurite-key.pem -out /certs/azurite.pem
+        openssl pkcs12 -export -nokeys -in /certs/azurite.pem -jdktrust anyExtendedKeyUsage \
+          -passout pass:changeit -out /certs/trust.p12
+        chmod 644 /certs/*
+    volumes:
+      - ./.certs:/certs
+
+  # Blob emulator. Well-known dev account devstoreaccount1 (key is public, Azurite docs).
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.37.0
+    command: >
+      azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --location /data
+      --cert /certs/azurite.pem --key /certs/azurite-key.pem
+      --skipApiVersionCheck --loose
+    environment:
+      # Azurite fetches copy sources from its own https endpoint.
+      NODE_EXTRA_CA_CERTS: /certs/azurite.pem
+    volumes:
+      - azurite-data:/data
+      - ./.certs:/certs:ro
+    ports:
+      - "127.0.0.1:10000:10000"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 10000"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+
+  # Default artifact gateway: S3 API -> Azure Blob (Azurite here, managed identity in Azure:
+  # leave AZ_ACCESS_KEY unset and versitygw falls back to DefaultAzureCredential).
+  # Flags: versitygw v1.10.0 cmd/internal/gwcli/azure.go.
+  versitygw:
+    image: versity/versitygw:v1.10.0
+    environment:
+      ROOT_ACCESS_KEY_ID: devstack
+      ROOT_SECRET_ACCESS_KEY: devstack-secret
+      AZ_ACCOUNT_NAME: devstoreaccount1
+      AZ_ACCESS_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZ_ENDPOINT: https://azurite:10000/devstoreaccount1
+      SSL_CERT_FILE: /certs/azurite.pem
+      # Azurite lags the SDK's SAS version (versitygw's own azurite CI pins this).
+      AZ_COPY_SAS_VERSION: "2025-11-05"
+    command: ["--port", ":7070", "--health", "/health", "azure"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7070/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - ./.certs:/certs:ro
+    ports:
+      - "127.0.0.1:7070:7070"
+    depends_on:
+      azurite:
+        condition: service_healthy
+
+  # Gateway doctor (apps/blob-gateway/doctor, inv-k0d.14) on the compose network, the same
+  # image the Azure 'gateway-doctor' job runs:
+  #   docker compose -f apps/devstack/docker-compose.yml --profile doctor run --rm doctor
+  # --inside adds the backend-path layers; here they run against Azurite, and mi_token fails
+  # (no managed identity outside Azure).
+  doctor:
+    image: gateway-doctor:local
+    build: ../blob-gateway/doctor
+    profiles: ["doctor"]
+    environment:
+      GATEWAY_URL: http://versitygw:7070
+      GATEWAY_ACCESS_KEY: devstack
+      GATEWAY_SECRET_KEY: devstack-secret
+      AZ_ACCOUNT_NAME: devstoreaccount1
+      DOCTOR_BLOB_ENDPOINT: https://azurite:10000/devstoreaccount1
+      SSL_CERT_FILE: /certs/azurite.pem
+    volumes:
+      - ./.certs:/certs:ro
+    depends_on:
+      versitygw:
+        condition: service_healthy
+
+  # Runner-up gateway, kept for comparison: docker compose --profile s3proxy up -d
+  # Env vars: s3proxy 4.1.1 src/main/config/run-docker-container.sh.
+  s3proxy:
+    image: andrewgaul/s3proxy:s3proxy-4.1.1
+    profiles: ["s3proxy"]
+    environment:
+      S3PROXY_ENDPOINT: http://0.0.0.0:80
+      S3PROXY_AUTHORIZATION: aws-v2-or-v4
+      S3PROXY_IDENTITY: devstack
+      S3PROXY_CREDENTIAL: devstack-secret
+      JCLOUDS_PROVIDER: azureblob-sdk
+      JCLOUDS_IDENTITY: devstoreaccount1
+      JCLOUDS_CREDENTIAL: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      JCLOUDS_ENDPOINT: https://azurite:10000/devstoreaccount1
+      S3PROXY_JAVA_OPTS: >-
+        -Djavax.net.ssl.trustStore=/certs/trust.p12 -Djavax.net.ssl.trustStoreType=PKCS12
+        -Djavax.net.ssl.trustStorePassword=changeit
+    volumes:
+      - ./.certs:/certs:ro
+    ports:
+      - "127.0.0.1:7071:80"
+    depends_on:
+      azurite:
+        condition: service_healthy
+
+  dagster-webserver:
+    <<: *dagster
+    command: >
+      sh -c "uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster instance migrate
+      && uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml"
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info')"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 60s
+
+  dagster-daemon:
+    <<: *dagster
+    command: ["sh", "-c", "uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster-daemon run"]
+    depends_on:
+      dagster-webserver:
+        condition: service_healthy
+
+  # --- placeholders (not built yet) -------------------------------------------------
+  # dispatch:        # inv-k0d.3: Postgres lease queue API, DB 'dispatch' on the postgres service
+  #   build: ...
+  #   environment:
+  #     DISPATCH_DB_URL: postgresql://devstack:devstack@postgres:5432/dispatch
+  #   depends_on: { postgres: { condition: service_healthy } }
+  #
+  # mock-worker:     # inv-k0d.10 slice 2: replicas with different advertised caps
+  #   build: ...
+  #   deploy: { replicas: 2 }
+  #   environment:
+  #     WORKER_CAPS: std
+  #     DISPATCH_URL: http://dispatch:8000
+
+volumes:
+  pg-data:
+  azurite-data:
+  dagster-venv:
+  dagster-lifecycle:
