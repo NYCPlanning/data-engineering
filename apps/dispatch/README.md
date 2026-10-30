@@ -93,6 +93,20 @@ comma-separated; omitted, it means a worker with no caps. In KEDA's `metrics-api
 trigger use `valueLocation: demand`, and pass the shared key with a TriggerAuthentication
 of `authMode: apiKey`, `method: header`, `keyParamName: X-Dispatch-Key`.
 
+## Client, worker and Dagster Pipes
+
+| module | needs | |
+| --- | --- | --- |
+| `dispatch.client` | stdlib | `DispatchClient`: one method per route; 404 -> `NotFound`, 409 -> `Stale`, 503/507/connection refused -> `Unavailable` (retried with backoff for calls safe to repeat) |
+| `dispatch.worker` | stdlib | `python -m dispatch.worker`: claim (caps + recent-run affinity), run `payload.command` as a subprocess in its own process group, heartbeat (kills the step on cancel / 404 / 409), forward stdout as `stdio` events, complete or fail. Env: `DISPATCH_URL`, `DISPATCH_SHARED_KEY`, `WORKER_CAPS`, `WORKER_ID`, `WORKER_IDLE_EXIT_SECONDS` (0 = never, for desktops), `WORKER_HEARTBEAT_SECONDS`, `WORKER_POLL_SECONDS`, `WORKER_KILL_GRACE_SECONDS`, `WORKER_WORKDIR` |
+| `dispatch.pipes_worker` | extra `worker` (dagster-pipes) | inside the step: `open_dispatch_pipes()` posts Pipes messages as `pipes` events with the attempt's fencing token; `staging_prefix()` is where outputs go |
+| `dispatch.pipes_dagster` | extra `dagster` | `PipesDispatchClient`, a Pipes client (and resource): enqueue, follow status + events, re-enqueue on 404, cancel on run termination, promote staging -> final through the S3 gateway, return the results of the attempt that finished |
+
+The item payload the worker understands: `command` (argv), `env`, `pipes` (Pipes bootstrap
+env vars), `staging_prefix` (the worker appends `/<attempt>/` and passes it as
+`DISPATCH_STAGING_PREFIX`), `retry_on_failure` (default true). See
+[`apps/devstack`](../devstack/README.md) for the whole flow running in compose.
+
 ## How it stays correct
 
 Every state transition (enqueue, claim, heartbeat, complete, fail, events, reap, cancel)

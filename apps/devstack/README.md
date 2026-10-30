@@ -24,16 +24,65 @@ mounted at `/repo` and is on `PYTHONPATH`, so code changes need only a restart.
 From the repo root:
 
 ```sh
-docker compose -f apps/devstack/docker-compose.yml up -d            # everything except s3proxy
+docker compose -f apps/devstack/docker-compose.yml up -d            # default stack
 docker compose -f apps/devstack/docker-compose.yml up -d postgres azurite versitygw   # storage only
 docker compose -f apps/devstack/docker-compose.yml --profile s3proxy up -d s3proxy
-docker compose -f apps/devstack/docker-compose.yml --profile s3proxy down -v          # stop, wipe volumes
+docker compose -f apps/devstack/docker-compose.yml down -v          # stop, wipe volumes
 ```
 
-First start builds the `apps/dagster` image and `uv` syncs the dagster venv into a volume
-(a few minutes); later starts reuse it. The repo is mounted, so code changes need only a restart
-of the dagster services. In a git worktree the container can't see the git dir, so dcpy logs a
-harmless `not a git repository` warning.
+First start builds the slim python image (about 400 MB, a minute or two); later starts reuse
+it. Dagster's UI is at http://127.0.0.1:3000. The opt-in `--profile dcpy-dagster` pair builds
+`apps/dagster`'s image and `uv` syncs its venv into a volume (amd64, several GB); in a git
+worktree it logs a harmless `not a git repository` warning.
+
+## Running Dagster assets on workers (Pipes over dispatch)
+
+The default Dagster here loads one code location,
+[`demo_location/devstack_demo`](demo_location/devstack_demo/), served by the `dagster-code`
+gRPC container (shared by webserver and daemon, so the UI can terminate runs the daemon
+launched). Its assets `plan -> build -> publish` (partitioned by borough) and `gpu_train` don't
+compute anything in Dagster: each calls `PipesDispatchClient.run` from
+[`apps/dispatch`](../dispatch/README.md), which
+
+1. enqueues a dispatch item whose payload carries the step command and the Pipes context
+   (inline, as the bootstrap env vars), with idempotency key `run:step:partition:retry`;
+2. a worker whose caps cover the item's `required_caps` claims it and runs the command as a
+   subprocess; the step opens Pipes with `dispatch.pipes_worker.open_dispatch_pipes()` and its
+   messages (logs, materializations) go back as dispatch events, fenced by `(item, attempt,
+   worker)`; stdout/stderr are forwarded too;
+3. the step reads upstream outputs from the gateway and writes its own under
+   `_staging/<run>/<step>/<nonce>/<attempt>/`;
+4. the Dagster side polls status + events, logs live, and once dispatch says `done` it
+   promotes that attempt's staging to `demo/<asset>/<partition>/` (server-side copies through
+   versitygw), deletes the step's staging, and returns the step's `MaterializeResult` plus
+   dispatch metadata (`dispatch_item`, `dispatch_attempt`, `worker_id`, `outputs_uri`).
+
+Workers: `worker-std` (2 replicas, no caps) and `worker-esri` (caps `esri`; `publish` needs
+it). Nobody has `gpu`, so `gpu_train` stays queued and shows up in
+`curl -H 'X-Dispatch-Key: devstack-dispatch-key' 'localhost:8000/metrics/demand?caps=gpu'`.
+Workers run the code in the mounted repo (no per-SHA checkout yet, inv-k0d.9).
+
+Failure handling, all exercised by the e2e:
+
+| what happens | what recovers it |
+|---|---|
+| worker dies mid-step | its lease (15 s here) expires, the reaper requeues the item, another worker runs attempt 2; attempt 1's results are dropped, only the finishing attempt's are reported |
+| Valkey restarts (queue lost) | the worker's heartbeat gets 404 and it kills the step; the Dagster side gets 404, re-enqueues with the same idempotency key and a new staging nonce |
+| run terminated in Dagster | the client cancels the item; the worker sees `cancel` on its next heartbeat and kills the step's process group |
+
+## End-to-end check
+
+```sh
+apps/devstack/e2e/e2e.sh                    # up --build, then every check (~5 min)
+apps/devstack/e2e/e2e.sh happy cancel       # some checks: happy gpu kill valkey cancel
+E2E_DOWN=1 apps/devstack/e2e/e2e.sh         # and down -v afterwards
+```
+
+[`e2e/e2e.sh`](e2e/e2e.sh) drives the chaos from the host (`docker kill` a worker,
+`docker compose restart valkey`) and runs [`e2e/e2e.py`](e2e/e2e.py) inside the webserver
+container to launch runs over GraphQL and assert on Dagster's records (run status,
+per-partition materialization metadata, which attempt/worker produced it) and on the gateway
+(promoted objects present, no staging left). Each check uses its own partition.
 
 ## Gateway bench
 
