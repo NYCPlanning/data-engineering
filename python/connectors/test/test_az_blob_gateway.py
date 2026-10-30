@@ -1,14 +1,18 @@
-import boto3
 from moto import mock_aws
 
 from dcpy.connectors.az_blob_gateway import AzBlobGateway
 
 
-def test_copy_and_delete_prefix(aws_credentials, monkeypatch):
-    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://s3.amazonaws.com")
+def test_copy_and_delete_prefix(monkeypatch):
+    monkeypatch.setenv("AZ_BLOB_GATEWAY_ENDPOINT", "https://s3.amazonaws.com")
+    monkeypatch.setenv("AZ_BLOB_GATEWAY_ACCESS_KEY_ID", "gateway-key")
+    monkeypatch.setenv("AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY", "gateway-secret")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "do-key")
     with mock_aws():
-        boto3.client("s3", region_name="us-east-1").create_bucket(Bucket="gateway-test")
         gw = AzBlobGateway("gateway-test")
+        client = gw.root.client
+        assert client.sess.get_credentials().access_key == "gateway-key"  # type: ignore[attr-defined]
+        client.client.create_bucket(Bucket="gateway-test")  # type: ignore[attr-defined]
         big = b"x" * (9 * 2**20)  # above boto3's default 8 MB multipart threshold
         (gw.root / "staging/a/1/big.bin").write_bytes(big)
         (gw.root / "staging/a/1/sub/small.txt").write_text("hi")

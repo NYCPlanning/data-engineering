@@ -9,9 +9,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 dc() { docker compose -f docker-compose.yml "$@"; }
 # The dagster service holds no gateway credentials; the checks get them for this exec only.
-aws=(-e AWS_S3_ENDPOINT=http://az-blob-gateway:7070 -e AWS_ACCESS_KEY_ID=local
-     -e AWS_SECRET_ACCESS_KEY=local-secret -e AWS_DEFAULT_REGION=us-east-1)
-e2e() { dc exec -T "${aws[@]}" dagster python /app/repos/data-engineering/apps/local/e2e/e2e.py "$@"; }
+gateway=(-e AZ_BLOB_GATEWAY_ENDPOINT=http://az-blob-gateway:7070
+         -e AZ_BLOB_GATEWAY_ACCESS_KEY_ID=local -e AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY=local-secret)
+e2e() { dc exec -T "${gateway[@]}" dagster python /app/repos/data-engineering/apps/local/e2e/e2e.py "$@"; }
 broker() { curl -fsS -H "X-Dagster-Broker-Key: local-dagster-broker-key" "http://127.0.0.1:8000$1"; }
 log() { printf '\n== %s\n' "$*"; }
 die() { echo "FAIL: $*"; exit 1; }

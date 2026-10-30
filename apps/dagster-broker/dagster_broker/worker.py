@@ -9,7 +9,8 @@ subprocess while heartbeating, promote the step's staged outputs, then complete.
     DAGSTER_BROKER_WORKER_STEP_MEMORY_MB     soft address-space cap per step (0 = off)
     DAGSTER_BROKER_WORKER_MIN_FREE_DISK_GB   don't claim with less free disk than this
 
-Promotion goes through the S3 gateway: AWS_S3_ENDPOINT plus the usual AWS_* variables.
+Promotion goes through the S3 gateway: AZ_BLOB_GATEWAY_ENDPOINT, AZ_BLOB_GATEWAY_ACCESS_KEY_ID,
+AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY.
 """
 
 import collections

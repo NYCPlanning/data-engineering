@@ -29,12 +29,11 @@ x-env: &env
   DAGSTER_BROKER_BUCKET: local
 
 # Gateway credentials: workers and the bucket setup only, never the Dagster services.
-x-aws-env: &aws-env
+x-gateway-env: &gateway-env
   <<: *env
-  AWS_S3_ENDPOINT: http://az-blob-gateway:7070
-  AWS_ACCESS_KEY_ID: local
-  AWS_SECRET_ACCESS_KEY: local-secret
-  AWS_DEFAULT_REGION: us-east-1
+  AZ_BLOB_GATEWAY_ENDPOINT: http://az-blob-gateway:7070
+  AZ_BLOB_GATEWAY_ACCESS_KEY_ID: local
+  AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY: local-secret
 
 x-py-deps: &py-deps
   venv:
@@ -112,8 +111,8 @@ services:
     <<: *app
     entrypoint: ["/app/docker/entrypoints/az-blob-gateway.sh"]
     environment:
-      ROOT_ACCESS_KEY_ID: local
-      ROOT_SECRET_ACCESS_KEY: local-secret
+      AZ_BLOB_GATEWAY_ACCESS_KEY_ID: local
+      AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY: local-secret
       AZ_ACCOUNT_NAME: devstoreaccount1
       AZ_ACCESS_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
       AZ_ENDPOINT: https://azurite:10000/devstoreaccount1
@@ -151,14 +150,15 @@ services:
   # Creates the bucket (an Azure container behind the gateway) runner_tests uses.
   gateway-init:
     <<: *app
-    environment: *aws-env
+    environment: *gateway-env
     command:
       - python
       - -c
       - |
-        import boto3, os
-        s3 = boto3.client("s3", endpoint_url=os.environ["AWS_S3_ENDPOINT"])
+        import os
+        from dcpy.connectors.az_blob_gateway import AzBlobGateway
         b = os.environ["DAGSTER_BROKER_BUCKET"]
+        s3 = AzBlobGateway(b).root.client.client
         if b not in [x["Name"] for x in s3.list_buckets()["Buckets"]]:
             s3.create_bucket(Bucket=b)
         print("bucket", b, "ready")
@@ -170,7 +170,7 @@ services:
   # One-shot gateway check: docker compose run --rm check
   check:
     <<: *app
-    environment: *aws-env
+    environment: *gateway-env
     profiles: ["check"]
     command: ["python", "apps/az-blob-gateway/check.py", "--bucket", "local"]
     depends_on:
@@ -212,7 +212,7 @@ services:
   worker-resident:
     <<: *worker
     environment:
-      <<: *aws-env
+      <<: *gateway-env
       DAGSTER_BROKER_WORKER_CAPS: small
       DAGSTER_BROKER_WORKER_SLOTS: "4"
       DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS: "0"
@@ -226,14 +226,14 @@ services:
     deploy:
       replicas: 2
     environment:
-      <<: *aws-env
+      <<: *gateway-env
       DAGSTER_BROKER_WORKER_CAPS: small,standard
       DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS: "60"
 
   worker-esri:
     <<: *worker
     environment:
-      <<: *aws-env
+      <<: *gateway-env
       DAGSTER_BROKER_WORKER_CAPS: esri
 
   # Valkey runs as a sidecar in dagster-broker's network namespace (as in a container app),

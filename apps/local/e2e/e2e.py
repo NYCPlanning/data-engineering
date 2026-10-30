@@ -13,9 +13,10 @@ import re
 import sys
 import time
 
-import boto3
 from dagster import DagsterEventType, DagsterInstance, DagsterRunStatus
 from dagster_graphql import DagsterGraphQLClient
+
+from dcpy.connectors.az_blob_gateway import AzBlobGateway
 
 TERMINAL = {
     DagsterRunStatus.SUCCESS,
@@ -115,8 +116,7 @@ def assert_run(a) -> None:
     run = inst.get_run_by_id(a.run_id)
     if run.status != DagsterRunStatus.SUCCESS:
         fail(f"run {a.run_id} is {run.status.value}")
-    s3 = boto3.client("s3", endpoint_url=os.environ["AWS_S3_ENDPOINT"])
-    bucket = os.environ["DAGSTER_BROKER_BUCKET"]
+    gw = AzBlobGateway(os.environ["DAGSTER_BROKER_BUCKET"])
     report = {}
     events = inst.all_logs(a.run_id, of_type=DagsterEventType.ASSET_MATERIALIZATION)
     for e in events:
@@ -133,25 +133,23 @@ def assert_run(a) -> None:
             if md.get(k) in (None, ""):
                 fail(f"{name} metadata lacks {k}: {md}")
         prefix = md["outputs_uri"].split("/", 3)[3]
-        listed = s3.list_objects_v2(Bucket=bucket, Prefix=prefix).get("Contents", [])
-        if not listed or len(listed) != md["promoted_objects"]:
-            fail(
-                f"{name}: promoted {md['promoted_objects']}, gateway has {len(listed)}"
-            )
-        if sum(o["Size"] for o in listed) != md["bytes"]:
-            fail(f"{name}: wrote {md['bytes']} bytes, gateway has {listed}")
+        sizes = [p.stat().st_size for p in (gw.root / prefix).rglob("*") if p.is_file()]
+        if not sizes or len(sizes) != md["promoted_objects"]:
+            fail(f"{name}: promoted {md['promoted_objects']}, gateway has {len(sizes)}")
+        if sum(sizes) != md["bytes"]:
+            fail(f"{name}: wrote {md['bytes']} bytes, gateway has {sizes}")
         report[name] = {
             "item": md["broker_item"],
             "attempt": md["broker_attempt"],
             "worker": md["worker_id"],
-            "objects": len(listed),
+            "objects": len(sizes),
             "bytes": md["bytes"],
         }
     if not report:
         fail(f"run {a.run_id} materialized nothing")
-    staged = s3.list_objects_v2(Bucket=bucket, Prefix=f"_staging/{a.run_id}/")
-    if staged.get("KeyCount"):
-        fail(f"{staged['KeyCount']} staging objects left for run {a.run_id}")
+    staged = list((gw.root / f"_staging/{a.run_id}/").rglob("*"))
+    if staged:
+        fail(f"{len(staged)} staging objects left for run {a.run_id}")
     print(json.dumps(report))
 
 

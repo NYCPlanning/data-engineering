@@ -1,5 +1,6 @@
 import os
 
+from boto3 import Session
 from boto3.s3.transfer import TransferConfig
 from cloudpathlib import CloudPath
 
@@ -7,10 +8,17 @@ from dcpy.connectors.hybrid_pathed_storage import HybridPathedStorage
 
 
 def _root(bucket: str, transfer_config: TransferConfig | None = None) -> CloudPath:
+    # Explicit credentials and region, so ambient AWS_* env can't leak in.
+    session = Session(
+        aws_access_key_id=os.environ["AZ_BLOB_GATEWAY_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY"],
+        region_name="us-east-1",
+    )
     root = HybridPathedStorage.Factory.s3(
         s3_bucket=bucket,
-        s3_endpoint_url=os.environ["AWS_S3_ENDPOINT"],
+        s3_endpoint_url=os.environ["AZ_BLOB_GATEWAY_ENDPOINT"],
         boto3_transfer_config=transfer_config,
+        boto3_session=session,
     ).root_path
     assert isinstance(root, CloudPath)
     return root
@@ -18,7 +26,8 @@ def _root(bucket: str, transfer_config: TransferConfig | None = None) -> CloudPa
 
 class AzBlobGateway:
     """A bucket behind the S3 gateway in front of Azure Blob (versitygw), configured by
-    AWS_S3_ENDPOINT and the usual AWS_* credentials."""
+    AZ_BLOB_GATEWAY_ENDPOINT, AZ_BLOB_GATEWAY_ACCESS_KEY_ID and
+    AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY."""
 
     def __init__(self, bucket: str):
         self.root = _root(bucket)

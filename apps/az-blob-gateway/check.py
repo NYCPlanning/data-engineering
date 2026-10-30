@@ -27,15 +27,19 @@ class Sha256Writer:
 
 def main() -> int:
     p = argparse.ArgumentParser()
-    p.add_argument("--endpoint", default=os.environ.get("AWS_S3_ENDPOINT"))
-    p.add_argument("--access-key", default=os.environ.get("AWS_ACCESS_KEY_ID"))
-    p.add_argument("--secret-key", default=os.environ.get("AWS_SECRET_ACCESS_KEY"))
-    p.add_argument("--bucket", default=os.environ.get("GATEWAY_BUCKET"))
+    p.add_argument("--endpoint", default=os.environ.get("AZ_BLOB_GATEWAY_ENDPOINT"))
+    p.add_argument(
+        "--access-key", default=os.environ.get("AZ_BLOB_GATEWAY_ACCESS_KEY_ID")
+    )
+    p.add_argument(
+        "--secret-key", default=os.environ.get("AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY")
+    )
+    p.add_argument("--bucket", default=os.environ.get("AZ_BLOB_GATEWAY_BUCKET"))
     p.add_argument("--size", type=int, default=100, help="multipart upload size, MB")
     a = p.parse_args()
     if not (a.endpoint and a.bucket):
         p.error(
-            "--endpoint and --bucket (or AWS_S3_ENDPOINT, GATEWAY_BUCKET) are required"
+            "--endpoint and --bucket (or AZ_BLOB_GATEWAY_ENDPOINT, AZ_BLOB_GATEWAY_BUCKET) are required"
         )
 
     s3 = boto3.client(
@@ -43,7 +47,7 @@ def main() -> int:
         endpoint_url=a.endpoint,
         aws_access_key_id=a.access_key,
         aws_secret_access_key=a.secret_key,
-        region_name=os.environ.get("AWS_DEFAULT_REGION", "us-east-1"),
+        region_name="us-east-1",
     )
     prefix = f"_check/{uuid.uuid4().hex}"
     big, small, copy = f"{prefix}/big", f"{prefix}/small", f"{prefix}/copy"
