@@ -15,6 +15,7 @@ SELECT
     NULL AS bbl,
     (CASE
         WHEN program_type ~* 'pantry' OR program_type = 'MP' THEN 'Food Pantry'
+        WHEN program_type = 'Healthcare Partner' AND meal_type ~* 'pantry' THEN 'Food Pantry'
         WHEN program_type ~* 'Soup Kitchen' OR program_type IN ('SOUP KITCH', 'SKM') THEN 'Soup Kitchen'
         ELSE NULL
     END) AS factype,
