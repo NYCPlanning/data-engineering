@@ -7,6 +7,8 @@ import os
 import dagster as dg
 from dagster_utils.pipes_broker import PipesBrokerClient
 
+BUCKET = os.environ.get("DAGSTER_BROKER_BUCKET", "dagster-broker")
+
 
 class StepConfig(dg.Config):
     seconds: float = 1.0
@@ -37,9 +39,12 @@ def case(name: str, caps: list[str]):
         return broker.run(
             context=context,
             function="dagster_broker.test_steps.work",
-            args=config.model_dump(),
+            args={
+                **config.model_dump(),
+                "bucket": BUCKET,
+                "prefix": f"runner_tests/{name}/{context.run.run_id}/",
+            },
             required_caps=caps,
-            outputs_prefix=f"runner_tests/{name}/{context.run.run_id}/",
             retry_on_failure=not config.fail,
         ).get_materialize_result()
 
@@ -57,9 +62,5 @@ jobs = [
 defs = dg.Definitions(
     assets=assets,
     jobs=jobs,
-    resources={
-        "broker": PipesBrokerClient(
-            bucket=os.environ.get("DAGSTER_BROKER_BUCKET", "dagster-broker")
-        )
-    },
+    resources={"broker": PipesBrokerClient()},
 )

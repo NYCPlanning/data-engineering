@@ -19,7 +19,7 @@ jget() { python3 -c "import json,sys; print(json.load(sys.stdin)$1)"; }
 
 up() {
   log "stack up"
-  dc up -d
+  dc up -d --build
   for _ in $(seq 300); do
     if dc ps --format '{{.Service}} {{.Health}}' | grep -q '^dagster healthy'; then
       dc ps --format '{{.Service}} {{.State}} {{.Health}}'
@@ -37,7 +37,7 @@ worker_logs() { local l; l=$(dc logs --since 5m worker-resident worker-burst wor
 container_of() { echo "${1%%-*}"; }
 on() { local ids; ids=$(dc ps -q "$1" | cut -c1-12); grep -qx "$(container_of "$2")" <<<"$ids"; }
 
-# run_ok <run> <service>: the run succeeded, outputs promoted, its step ran on <service>
+# run_ok <run> <service>: the run succeeded, outputs written, its step ran on <service>
 run_ok() {
   [ "$(e2e wait "$1" --timeout 300)" = SUCCESS ] || die "run $1 did not succeed"
   report=$(e2e assert-run "$1")
@@ -61,7 +61,7 @@ check_happy() {
   run_ok "$standard" worker-burst
   run_ok "$write" worker-burst
   run_ok "$esri" worker-esri
-  echo "OK each case ran on its worker, outputs promoted, staging clean"
+  echo "OK each case ran on its worker, outputs where the step wrote them"
 }
 
 check_fail() {

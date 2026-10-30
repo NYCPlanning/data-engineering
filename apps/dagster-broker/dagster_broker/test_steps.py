@@ -16,13 +16,13 @@ def work(
     mb: int = 0,
     parts: int = 1,
     fail: bool = False,
-    output_bucket: str = "",
-    output_prefix: str = "",
+    bucket: str = "",
+    prefix: str = "",
 ) -> dict:
-    """Works for ``seconds`` in ``parts``, writing ``mb`` MB in total under
-    ``output_prefix``, then raises if ``fail``."""
+    """Works for ``seconds`` in ``parts``, writing ``mb`` MB in total under ``prefix`` in
+    ``bucket`` through the S3 gateway, then raises if ``fail``."""
     size = mb * 2**20 // parts
-    out = AzBlobGateway(output_bucket).root / output_prefix if size else None
+    out = AzBlobGateway(bucket).root / prefix if size else None
     for i in range(parts):
         time.sleep(seconds / parts)
         if out:
@@ -30,4 +30,7 @@ def work(
         logger.info(f"wrote part {i + 1}/{parts}")
     if fail:
         raise RuntimeError("failing, as asked")
-    return {"bytes": parts * size, "step_host": socket.gethostname()}
+    metadata = {"bytes": parts * size, "step_host": socket.gethostname()}
+    if out:
+        metadata |= {"outputs_uri": f"s3://{bucket}/{prefix}", "objects": parts}
+    return metadata

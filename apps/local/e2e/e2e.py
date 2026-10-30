@@ -3,7 +3,7 @@
 Runs inside the dagster container (DAGSTER_HOME, the GraphQL API on :3000 and the gateway
 are all there): ``python /app/repos/data-engineering/apps/local/e2e/e2e.py <command> ...``.
 Launches runner_tests jobs over GraphQL, reads results from the Dagster instance and checks
-promoted outputs through the S3 gateway. Each command prints one line, or fails with exit 1.
+the steps' outputs through the S3 gateway. Each command prints one line, or fails with exit 1.
 """
 
 import argparse
@@ -110,8 +110,8 @@ def terminate(a) -> None:
 
 
 def assert_run(a) -> None:
-    """The run succeeded, each materialization says where it ran, its outputs were
-    promoted, and no staging objects are left."""
+    """The run succeeded, each materialization says where it ran, and its outputs are
+    where the step wrote them."""
     inst = DagsterInstance.get()
     run = inst.get_run_by_id(a.run_id)
     if run.status != DagsterRunStatus.SUCCESS:
@@ -126,7 +126,7 @@ def assert_run(a) -> None:
         for k in (
             "broker_item",
             "worker_id",
-            "promoted_objects",
+            "objects",
             "outputs_uri",
             "bytes",
         ):
@@ -134,8 +134,8 @@ def assert_run(a) -> None:
                 fail(f"{name} metadata lacks {k}: {md}")
         prefix = md["outputs_uri"].split("/", 3)[3]
         sizes = [p.stat().st_size for p in (gw.root / prefix).rglob("*") if p.is_file()]
-        if not sizes or len(sizes) != md["promoted_objects"]:
-            fail(f"{name}: promoted {md['promoted_objects']}, gateway has {len(sizes)}")
+        if not sizes or len(sizes) != md["objects"]:
+            fail(f"{name}: wrote {md['objects']} objects, gateway has {len(sizes)}")
         if sum(sizes) != md["bytes"]:
             fail(f"{name}: wrote {md['bytes']} bytes, gateway has {sizes}")
         report[name] = {
@@ -147,9 +147,6 @@ def assert_run(a) -> None:
         }
     if not report:
         fail(f"run {a.run_id} materialized nothing")
-    staged = list((gw.root / f"_staging/{a.run_id}/").rglob("*"))
-    if staged:
-        fail(f"{len(staged)} staging objects left for run {a.run_id}")
     print(json.dumps(report))
 
 

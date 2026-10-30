@@ -54,7 +54,7 @@ def test_pipes_round_trip(broker):
     t = threading.Thread(target=w.run)
     t.start()
     try:
-        pipes = PipesBrokerClient(bucket="b", broker=broker, poll=0.2)
+        pipes = PipesBrokerClient(broker=broker, poll=0.2)
         res = dg.materialize([thing], partition_key="a", resources={"pipes": pipes})
     finally:
         w.stop()

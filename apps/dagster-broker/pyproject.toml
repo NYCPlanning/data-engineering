@@ -18,7 +18,7 @@ dependencies = [
 [project.optional-dependencies]
 worker = [
     "dagster-pipes",
-    "dcpy-connectors",  # the S3 gateway, for promotion and test_steps
+    "dcpy-connectors",  # the S3 gateway, for test_steps
     "dcpy-infra",  # the broker client
 ]
 

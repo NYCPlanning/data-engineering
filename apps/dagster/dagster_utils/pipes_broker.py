@@ -1,6 +1,5 @@
 """Dagster side of Pipes over dagster-broker: a PipesClient whose launch is "enqueue an
-item and wait for a worker to finish it". It holds no storage credentials: the worker
-promotes the step's outputs before it completes the item.
+item and wait for a worker to finish it". It holds no storage credentials.
 
 The Pipes context travels inline in the item payload (bootstrap env vars). The client
 polls the item and its events: ``pipes`` events are Pipes messages, ``stdio`` events are
@@ -65,8 +64,7 @@ class BrokerMessageReader(PipesMessageReader):
 
 
 class PipesBrokerClient(PipesClient, TreatAsResourceParam):
-    def __init__(self, *, bucket: str, broker: BrokerClient | None = None, poll=1.0):
-        self.bucket = bucket
+    def __init__(self, *, broker: BrokerClient | None = None, poll=1.0):
         self._broker = broker
         self.poll = poll
 
@@ -83,21 +81,15 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
         function: str,
         args: dict | None = None,
         required_caps=(),
-        outputs_prefix=None,
         env=None,
         retry_on_failure=True,
     ) -> PipesClientCompletedInvocation:
         """Enqueue a call of ``function`` (a dotted path to a plain function) with
-        ``args`` and block until a worker finishes it. ``outputs_prefix``: where the worker
-        promotes the step's staged outputs in ``bucket``."""
+        ``args`` and block until a worker finishes it."""
         run_id, step = context.run.run_id, context.get_step_execution_context().step.key
         partition = context.partition_key if context.has_partition_key else ""
         reader = BrokerMessageReader()
-        extras = {
-            "args": args or {},
-            "bucket": self.bucket,
-            "outputs_prefix": outputs_prefix,
-        }
+        extras = {"args": args or {}}
         with open_pipes_session(
             context=context,
             context_injector=PipesEnvContextInjector(),
@@ -113,9 +105,6 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
                     "function": function,
                     "env": dict(env or {}),
                     "pipes": session.get_bootstrap_env_vars(),
-                    "bucket": self.bucket,
-                    "staging_prefix": f"_staging/{run_id}/{step}/",
-                    "outputs_prefix": outputs_prefix,
                     "retry_on_failure": retry_on_failure,
                 },
             }
@@ -131,8 +120,6 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
             "broker_attempt": item["attempt"],
             **item.get("result", {}),
         }
-        if outputs_prefix:
-            metadata["outputs_uri"] = f"s3://{self.bucket}/{outputs_prefix}"
         return PipesClientCompletedInvocation(session, metadata=metadata)
 
     def wait(self, context, reader, item: dict, body: dict) -> dict:

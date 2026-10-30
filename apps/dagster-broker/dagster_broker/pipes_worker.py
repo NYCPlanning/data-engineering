@@ -1,9 +1,7 @@
 """Runs a plain step function under Dagster Pipes, on a dagster-broker worker:
 ``python -m dagster_broker.pipes_worker <module.function>``.
 
-The function gets the Pipes extra ``args`` as keyword arguments, plus ``output_bucket`` and
-``output_prefix`` (this attempt's staging prefix, which the worker promotes) when the asset
-has outputs. Its std logging goes to Dagster as Pipes logs, and the dict it returns becomes
+The function gets the Pipes extra ``args`` as keyword arguments. Its std logging goes to Dagster as Pipes logs, and the dict it returns becomes
 the materialization's metadata.
 
 The context arrives as env vars (the worker sets the bootstrap vars from the item payload).
@@ -70,10 +68,7 @@ def main() -> None:
     with open_dagster_pipes(message_writer=BrokerMessageWriter(interval=1)) as pipes:
         logging.getLogger().addHandler(ToPipes(pipes))
         logging.getLogger().setLevel(logging.INFO)
-        kwargs = dict(pipes.extras.get("args") or {})
-        if pipes.extras.get("outputs_prefix"):
-            kwargs["output_bucket"] = pipes.extras["bucket"]
-            kwargs["output_prefix"] = os.environ["DAGSTER_BROKER_STAGING_PREFIX"]
+        kwargs = pipes.extras.get("args") or {}
         metadata = getattr(importlib.import_module(module), name)(**kwargs)
         pipes.report_asset_materialization(metadata=metadata)
 

@@ -1,5 +1,5 @@
 """The worker: claim an item, run its step function in a ``dagster_broker.pipes_worker``
-subprocess while heartbeating, promote the step's staged outputs, then complete.
+subprocess while heartbeating, then complete or fail it.
 ``python -m dagster_broker.worker``, configured by env:
 
     DAGSTER_BROKER_URL, DAGSTER_BROKER_SHARED_KEY
@@ -8,9 +8,6 @@ subprocess while heartbeating, promote the step's staged outputs, then complete.
     DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS  exit a slot after this long idle (0 = never)
     DAGSTER_BROKER_WORKER_STEP_MEMORY_MB     soft address-space cap per step (0 = off)
     DAGSTER_BROKER_WORKER_MIN_FREE_DISK_GB   don't claim with less free disk than this
-
-Promotion goes through the S3 gateway: AZ_BLOB_GATEWAY_ENDPOINT, AZ_BLOB_GATEWAY_ACCESS_KEY_ID,
-AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY.
 """
 
 import collections
@@ -134,17 +131,6 @@ class Attempt:
             )
 
 
-def promote(bucket: str, staging: str, final: str, cleanup: str) -> int:
-    """Copy every object under ``staging`` to ``final``, then delete everything under
-    ``cleanup``."""
-    from dcpy.connectors.az_blob_gateway import AzBlobGateway
-
-    gateway = AzBlobGateway(bucket)
-    copied = gateway.copy_prefix(staging, final)
-    gateway.delete_prefix(cleanup)
-    return copied
-
-
 class Worker:
     def __init__(
         self,
@@ -232,9 +218,6 @@ class Worker:
         p = item["payload"]
         if item.get("run_id"):
             self.recent_runs.append(item["run_id"])
-        staging = (
-            f"{p.get('staging_prefix', '_staging/')}{item['id']}/{item['attempt']}/"
-        )
         env = {
             **os.environ,
             **p.get("env", {}),
@@ -244,7 +227,6 @@ class Worker:
             "DAGSTER_BROKER_ITEM_ID": item["id"],
             "DAGSTER_BROKER_ATTEMPT": str(item["attempt"]),
             "DAGSTER_BROKER_WORKER_ID": worker_id,
-            "DAGSTER_BROKER_STAGING_PREFIX": staging,
         }
         att = Attempt(self.client, item, worker_id)
         logger.info("%s claimed: %s", att.label, p.get("function"))
@@ -269,13 +251,13 @@ class Worker:
                 att.stop("worker shutdown")
             att.forward_output()
             rc = att.proc.wait()  # type: ignore[union-attr]
-            self.finish(att, rc, p, staging, time.monotonic() - started)
+            self.finish(att, rc, p, time.monotonic() - started)
         finally:
             att.done.set()
             self.running.discard(att)
             shutil.rmtree(workdir, ignore_errors=True)
 
-    def finish(self, att: Attempt, rc: int, p: dict, staging: str, took: float) -> None:
+    def finish(self, att: Attempt, rc: int, p: dict, took: float) -> None:
         if att.stopped in ("lost", "stale"):
             logger.warning("%s abandoned (%s)", att.label, att.stopped)
         elif att.stopped == "cancelled":
@@ -287,26 +269,9 @@ class Worker:
             retry = p.get("retry_on_failure", True)
             att.report("fail", error=error, retryable=retry)
         else:
-            try:
-                # Fence check, then promote, then complete. If the lease expires between
-                # this heartbeat and complete (a narrow window), a newer attempt may
-                # promote the same outputs too; complete then 409s and the last copy wins.
-                att.post("heartbeat")
-                promoted = 0
-                if p.get("outputs_prefix"):
-                    promoted = promote(
-                        p["bucket"], staging, p["outputs_prefix"], p["staging_prefix"]
-                    )
-            except (NotFound, Stale) as e:
-                logger.warning("%s abandoned before promotion (%s)", att.label, e)
-                return
-            except Exception as e:
-                logger.exception("%s: promotion failed", att.label)
-                att.report("fail", error=f"promotion failed: {e!r}", retryable=True)
-                return
-            logger.info("%s done in %.1fs, promoted %d", att.label, took, promoted)
+            logger.info("%s done in %.1fs", att.label, took)
             result = {"seconds": round(took, 1), "worker_id": att.token["worker_id"]}
-            att.report("complete", result={**result, "promoted_objects": promoted})
+            att.report("complete", result=result)
 
 
 def main() -> None:
