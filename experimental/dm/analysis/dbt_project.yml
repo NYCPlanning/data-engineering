@@ -14,6 +14,8 @@ models:
       +materialized: view
     core:
       +materialized: table
+    product:
+      +materialized: table
 
 data_tests:
   +store_failures: true
