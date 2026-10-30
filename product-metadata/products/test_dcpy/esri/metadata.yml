@@ -2,6 +2,7 @@ id: esri
 
 attributes:
   display_name: Test Esri Metadata Dataset
+  summary: Summary for testing write_metadata
   description: Dataset for testing write_metadata packaging (GDB vs. SHP overrides)
   each_row_is_a: Test Record
   attribution: Department of City Planning
@@ -16,6 +17,16 @@ files:
       id: gdb
       filename: test_esri.gdb.zip
       type: geodatabase
+      layers:
+        - layer: mappluto_one_row
+        - layer: pluto_one_row
+          dataset_overrides:
+            omitted_columns:
+              - category
+              - geom
+            attributes:
+              display_name: Test Esri Metadata Table Layer
+              summary: Table layer summary
     dataset_overrides:
       overridden_columns:
         - id: renamed_field
@@ -43,6 +54,10 @@ columns:
     custom:
       fgdb_data_type: String
       shp_data_type: String
+  - id: geom
+    name: geom
+    data_type: geometry
+    description: Geometry column; replaced by the Esri Shape system field in Esri metadata
   - id: renamed_field
     name: renamed_field
     data_type: text

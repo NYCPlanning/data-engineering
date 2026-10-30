@@ -6,6 +6,10 @@ import yaml
 
 import dcpy.product_metadata.models.metadata.product as models
 from dcpy.geospatial import esri_metadata
+from dcpy.geospatial.esri_metadata import (
+    _create_iso_attr_metadata,
+    _create_system_attr_metadata,
+)
 from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile import Shapefile
 from dcpy.lifecycle import product_metadata
@@ -132,6 +136,8 @@ def write_metadata(
     layer: str | None,
     org_md: Path | OrgMetadata | None,  # Allow passing OrgMetadata for testing purposes
     zip_subdir: str | None,
+    # Types come from the declared fgdb_/shp_data_type; not exposed on the CLI.
+    include_field_types: bool = True,
 ):
     """Write product metadata to an Esri metadata XML embedded in a shapefile or geodatabase.
     Generates a new XML with defaults and applies product-specific values.
@@ -148,6 +154,11 @@ def write_metadata(
         org_md (Path | OrgMetadata | None): Metadata reference used to populate the embedded XML.
         zip_subdir (str | None): Internal path if shp is nested within a zip file.
             Must be None when path is a file geodatabase.
+        include_field_types (bool): Write field types (attrtype) from
+            custom fgdb_data_type/shp_data_type. On by default.
+
+    Builds the XML itself in ArcGIS's ISO 19115-3 structure (used for PLUTO);
+    CSCL's build-time stamping uses esri_metadata.build_layer_metadata instead.
     """
     if isinstance(org_md, Path) or not org_md:
         org_md = product_metadata.load(org_md_path_override=org_md)
@@ -182,7 +193,70 @@ def write_metadata(
         layer is not None
     )  # guaranteed: GDB branch resolved it, SHP branch required it
 
-    esri_md = esri_metadata.build_layer_metadata(file_metadata, layer, custom_type_key)
+    esri_md = esri_metadata.generate_iso_metadata()
+
+    # Set dataset-level values
+    # TODO: define DCP organizationally required metadata fields
+    esri_md.md_hr_lv_name = "dataset"
+    esri_md.data_id_info.id_citation.res_title = file_metadata.attributes.display_name
+    # Description and Use Limitations are rich text (HTML) in Pro; Summary and
+    # Credits are plain text
+    esri_md.data_id_info.id_abs = esri_metadata.to_esri_rich_text(
+        file_metadata.attributes.description
+    )
+    esri_md.data_id_info.id_purp = file_metadata.attributes.summary
+    esri_md.data_id_info.id_credit = file_metadata.attributes.attribution
+    esri_md.data_id_info.res_const.consts.use_limit = esri_metadata.to_esri_rich_text(
+        file_metadata.attributes.disclaimer
+    )
+    # Tags only: otherKeys is Pro's separate "Topics and Keywords" section
+    esri_md.data_id_info.search_keys.keyword = file_metadata.attributes.tags
+
+    if file_metadata.attributes.projection:
+        authority, code = file_metadata.attributes.projection.split(":")
+        ref_sys_id = esri_md.ref_sys_info.ref_system.ref_sys_id
+        ref_sys_id.ident_code.code = int(code)
+        ref_sys_id.id_code_space.value = authority
+        # idVersion intentionally omitted: ArcGIS Synchronize Metadata overwrites it from its bundled EPSG dataset
+
+    is_table = is_gdb and fgdb.layer_geometry_types(path_to_file)[layer] is None
+    entity_name = layer.removesuffix(".shp")
+    esri_md.eainfo.detailed.enttyp.enttypl.value = entity_name
+    esri_md.eainfo.detailed.enttyp.enttypt.value = (
+        "Table" if is_table else "Feature Class"
+    )
+    esri_md.eainfo.detailed.name = entity_name
+
+    system_fields_by_type = org_md.esri_system_fields
+    system_fields = (
+        system_fields_by_type.shapefile
+        if not is_gdb
+        else system_fields_by_type.table
+        if is_table
+        else system_fields_by_type.feature_class
+    )
+    replaced_column_ids = {c for f in system_fields for c in f.replaces_columns}
+    esri_md.eainfo.detailed.attr = (
+        [
+            _create_system_attr_metadata(f, include_type=include_field_types)
+            for f in system_fields
+            if f.position == "leading"
+        ]
+        + [
+            _create_iso_attr_metadata(
+                column,
+                custom_type_key=custom_type_key,
+                include_type=include_field_types,
+            )
+            for column in file_metadata.columns
+            if column.id not in replaced_column_ids
+        ]
+        + [
+            _create_system_attr_metadata(f, include_type=include_field_types)
+            for f in system_fields
+            if f.position == "trailing"
+        ]
+    )
 
     if is_gdb:
         fgdb.write_metadata(

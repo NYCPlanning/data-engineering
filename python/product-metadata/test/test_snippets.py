@@ -28,6 +28,29 @@ def test_org_get_column_defaults():
     assert isinstance(column_defaults, dict)
 
 
+def test_org_get_esri_system_fields():
+    repo_path = Path(configuration.PRODUCT_METADATA_REPO_PATH)
+    fields = md.OrgMetadata.get_esri_system_fields(repo_path)
+
+    fc = [(f.name, f.position) for f in fields.feature_class]
+    assert fc == [
+        ("OBJECTID", "leading"),
+        ("Shape", "leading"),
+        ("Shape_Length", "trailing"),
+        ("Shape_Area", "trailing"),
+    ]
+    assert [f.name for f in fields.table] == ["OBJECTID"]
+    assert [f.name for f in fields.shapefile] == ["FID", "Shape"]
+    shape = fields.feature_class[1]
+    assert {"geom", "the_geom"} <= set(shape.replaces_columns)
+    assert shape.description_of_values == "Coordinates defining the features."
+
+
+def test_org_get_esri_system_fields_missing_file(tmp_path):
+    fields = md.OrgMetadata.get_esri_system_fields(tmp_path)
+    assert fields == md.EsriSystemFields()
+
+
 def test_product_snippets_applied(test_dcpy_product):
     """Test that snippets are applied at product level."""
     # Check that template variable was substituted

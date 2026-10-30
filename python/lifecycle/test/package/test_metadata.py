@@ -14,7 +14,10 @@ def _make_metadata(layers: list[GdbLayerOverrides] | None = None) -> Metadata:
     return Metadata(
         id="test",
         attributes=DatasetAttributes(display_name="Test", each_row_is_a="row"),
-        columns=[DatasetColumn(id="borough", name="Borough", data_type="text")],
+        columns=[
+            DatasetColumn(id="borough", name="Borough", data_type="text"),
+            DatasetColumn(id="geom", name="geometry", data_type="geometry"),
+        ],
         files=[
             FileAndOverrides(
                 file=File(
@@ -31,15 +34,20 @@ def _make_metadata(layers: list[GdbLayerOverrides] | None = None) -> Metadata:
     )
 
 
+def _layer(**overrides) -> GdbLayerOverrides:
+    return GdbLayerOverrides(
+        layer="my_layer", dataset_overrides=DatasetOverrides(**overrides)
+    )
+
+
 def test_calculate_layer_dataset_metadata_three_level_merge():
     """base → file-level → layer-level: all three levels are applied."""
     md = _make_metadata(
         layers=[
-            GdbLayerOverrides(
-                layer="my_layer",
+            _layer(
                 overridden_columns=[
                     DatasetColumn(id="borough", description="Layer desc")
-                ],
+                ]
             )
         ]
     )
@@ -49,15 +57,55 @@ def test_calculate_layer_dataset_metadata_three_level_merge():
     assert col.description == "Layer desc"  # from layer-level override
 
 
+def test_calculate_layer_dataset_metadata_layer_omits_columns():
+    md = _make_metadata(layers=[_layer(omitted_columns=["geom"])])
+    result = md.calculate_layer_dataset_metadata(file_id="my_gdb", layer="my_layer")
+    assert [c.id for c in result.columns] == ["borough"]
+
+
+def test_calculate_layer_dataset_metadata_layer_overrides_attributes():
+    md = _make_metadata(
+        layers=[
+            _layer(
+                attributes=DatasetAttributesOverride(
+                    display_name="Layer title", description="Layer abstract"
+                )
+            )
+        ]
+    )
+    result = md.calculate_layer_dataset_metadata(file_id="my_gdb", layer="my_layer")
+    assert result.attributes.display_name == "Layer title"
+    assert result.attributes.description == "Layer abstract"
+    assert result.attributes.each_row_is_a == "row"  # base attribute kept
+
+
+def test_validate_consistency_flags_layer_undefined_columns():
+    md = _make_metadata(
+        layers=[
+            _layer(
+                overridden_columns=[DatasetColumn(id="nope")],
+                omitted_columns=["also_nope"],
+            )
+        ]
+    )
+    errors = md.validate_consistency()
+    assert any("layer my_layer" in e and "nope" in e for e in errors)
+    assert any("layer my_layer" in e and "also_nope" in e for e in errors)
+
+
+def test_validate_consistency_flags_duplicate_layers():
+    md = _make_metadata(layers=[_layer(), _layer()])
+    assert any("DUPLICATE LAYER" in e for e in md.validate_consistency())
+
+
 def test_calculate_layer_dataset_metadata_unmatched_layer_returns_file_level():
     """Layer name not in file.layers → layer-level overrides not applied."""
     md = _make_metadata(
         layers=[
-            GdbLayerOverrides(
-                layer="my_layer",
+            _layer(
                 overridden_columns=[
                     DatasetColumn(id="borough", description="Layer desc")
-                ],
+                ]
             )
         ]
     )
