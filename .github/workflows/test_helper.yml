@@ -180,7 +180,7 @@ jobs:
       with:
         enable-cache: true
         python-version: "3.13"
-    - run: uv sync --package dcpy-app-dispatch
+    - run: uv sync --package dcpy-app-dispatch --extra worker --extra dagster
     - name: dispatch pytests
       run: uv run --no-sync python -m pytest apps/dispatch/test -v -s
 
