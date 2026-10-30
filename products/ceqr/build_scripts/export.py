@@ -14,7 +14,7 @@ from .constants import BASH_UTILS_PATH, DATA_DIR, DATASETS_DIR, OUTPUT_DIR
 
 def _call_bash_function(function_name, *args) -> None:
     command = f"source {BASH_UTILS_PATH} && set_error_traps && {function_name} {' '.join(map(str, args))}"
-    subprocess.run(command, shell=True, executable="/bin/bash")
+    subprocess.run(command, shell=True, executable="/bin/bash", check=True)
 
 
 def _export_dataset_from_db(
