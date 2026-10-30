@@ -1,5 +1,6 @@
 """The queue, kept in Valkey. Every state transition runs under :data:`LOCK`, so
-transitions can't interleave. ``(id, attempt, worker_id)`` is the fencing token:
+transitions can't interleave, and does its writes in one MULTI/EXEC, so a crash can't
+leave one half done. ``(id, attempt, worker_id)`` is the fencing token:
 heartbeat, complete, fail and events change nothing unless the item is still claimed
 with exactly that token (:class:`Stale`). Valkey keeps nothing on disk, so after a
 Valkey restart every item is :class:`NoSuchItem`.
@@ -67,14 +68,14 @@ class Store:
         self.r = r
         self.ttl = int(terminal_ttl_seconds)
 
-    # ---- helpers; call with LOCK held ----
+    # ---- helpers; call with LOCK held. ``p`` is the transition's MULTI pipeline ----
 
     def get(self, item_id) -> dict | None:
         raw = self.r.hgetall(f"{P}item:{item_id}")
         return item(raw) if raw else None
 
-    def _set(self, it: dict, **fields) -> None:
-        self.r.hset(f"{P}item:{it['id']}", mapping=fields)
+    def _set(self, p, it: dict, **fields) -> None:
+        p.hset(f"{P}item:{it['id']}", mapping=fields)
 
     def _fenced(self, item_id, attempt, worker_id) -> dict:
         it = self.get(item_id)
@@ -85,37 +86,37 @@ class Store:
             raise Stale()
         return it
 
-    def _index(self, it: dict) -> None:
+    def _index(self, p, it: dict) -> None:
         sig = caps_json(it["caps"])
-        self.r.zadd(f"{P}q:{sig}", {member(it): -it["priority"]})
-        self.r.sadd(f"{P}sigs", sig)
+        p.zadd(f"{P}q:{sig}", {member(it): -it["priority"]})
+        p.sadd(f"{P}sigs", sig)
         if it.get("run_id"):
-            self.r.zadd(f"{P}qr:{it['run_id']}", {member(it): -it["priority"]})
+            p.zadd(f"{P}qr:{it['run_id']}", {member(it): -it["priority"]})
 
-    def _unindex(self, it: dict) -> None:
+    def _unindex(self, p, it: dict) -> None:
         sig = caps_json(it["caps"])
-        self.r.zrem(f"{P}q:{sig}", member(it))
+        if self.r.zcard(f"{P}q:{sig}") <= 1:  # only this item
+            p.srem(f"{P}sigs", sig)
+        p.zrem(f"{P}q:{sig}", member(it))
         if it.get("run_id"):
-            self.r.zrem(f"{P}qr:{it['run_id']}", member(it))
-        if not self.r.zcard(f"{P}q:{sig}"):
-            self.r.srem(f"{P}sigs", sig)
+            p.zrem(f"{P}qr:{it['run_id']}", member(it))
 
-    def _release(self, it: dict) -> None:
-        self.r.zrem(f"{P}leases", it["id"])
-        self.r.hdel(f"{P}item:{it['id']}", "worker_id", "lease_until")
+    def _release(self, p, it: dict) -> None:
+        p.zrem(f"{P}leases", it["id"])
+        p.hdel(f"{P}item:{it['id']}", "worker_id", "lease_until")
 
-    def _finish(self, it: dict, status: str) -> None:
-        self._set(it, status=status, finished_at=now_ms())
+    def _finish(self, p, it: dict, status: str) -> None:
+        self._set(p, it, status=status, finished_at=now_ms())
         keys = [f"item:{it['id']}", f"ev:{it['id']}"]
         if it.get("idempotency_key"):
             keys.append(f"idem:{it['idempotency_key']}")
         for key in keys:
-            self.r.expire(P + key, self.ttl)
+            p.expire(P + key, self.ttl)
 
-    def _end_attempt(self, it: dict, error: str, retryable=True) -> str:
+    def _end_attempt(self, p, it: dict, error: str, retryable=True) -> str:
         """After an attempt fails or expires: requeue it, or end it dead/failed/cancelled."""
-        self._release(it)
-        self._set(it, error=error)
+        self._release(p, it)
+        self._set(p, it, error=error)
         if it["cancel_requested"]:
             status = "cancelled"
         elif it["attempt"] >= it["max_attempts"]:
@@ -123,10 +124,10 @@ class Store:
         else:
             status = "queued" if retryable else "failed"
         if status == "queued":
-            self._set(it, status="queued")
-            self._index(it)  # same member, so it keeps its place
+            self._set(p, it, status="queued")
+            self._index(p, it)  # same member, so it keeps its place
         else:
-            self._finish(it, status)
+            self._finish(p, it, status)
         return status
 
     # ---- transitions ----
@@ -166,11 +167,13 @@ class Store:
                 "partition_key": partition_key,
             }
             fields.update({k: v for k, v in optional.items() if v is not None})
-            self.r.hset(f"{P}item:{fields['id']}", mapping=fields)
+            it = item(fields)
+            p = self.r.pipeline()
+            p.hset(f"{P}item:{it['id']}", mapping=fields)
             if idempotency_key:
-                self.r.set(f"{P}idem:{idempotency_key}", fields["id"])
-            it = self.get(fields["id"])
-            self._index(it)
+                p.set(f"{P}idem:{idempotency_key}", it["id"])
+            self._index(p, it)
+            p.execute()
             return it, True
 
     def claim(self, worker_id, caps, affinity_run_ids=(), lease_seconds=60.0):
@@ -194,16 +197,19 @@ class Store:
             if best is None:
                 return None
             it = self.get(best[1].split(":")[1])
-            self._unindex(it)
+            p = self.r.pipeline()
+            self._unindex(p, it)
             lease_until = now_ms() + int(lease_seconds * 1000)
             self._set(
+                p,
                 it,
                 status="claimed",
                 attempt=it["attempt"] + 1,
                 worker_id=worker_id,
                 lease_until=lease_until,
             )
-            self.r.zadd(f"{P}leases", {it["id"]: lease_until})
+            p.zadd(f"{P}leases", {it["id"]: lease_until})
+            p.execute()
             return self.get(it["id"])
 
     def heartbeat(self, item_id, attempt, worker_id, lease_seconds=60.0) -> dict:
@@ -212,30 +218,37 @@ class Store:
         with LOCK:
             it = self._fenced(item_id, attempt, worker_id)
             lease_until = now_ms() + int(lease_seconds * 1000)
-            self._set(it, lease_until=lease_until)
-            self.r.zadd(f"{P}leases", {item_id: lease_until})
+            p = self.r.pipeline()
+            self._set(p, it, lease_until=lease_until)
+            p.zadd(f"{P}leases", {item_id: lease_until})
+            p.execute()
             return {"lease_until": lease_until, "cancel": it["cancel_requested"]}
 
     def complete(self, item_id, attempt, worker_id, result=None) -> dict:
         with LOCK:
             it = self._fenced(item_id, attempt, worker_id)
-            self._release(it)
-            self._set(it, result=json.dumps(result or {}))
-            self._finish(it, "done")
+            p = self.r.pipeline()
+            self._release(p, it)
+            self._set(p, it, result=json.dumps(result or {}))
+            self._finish(p, it, "done")
+            p.execute()
             return self.get(item_id)
 
     def fail(self, item_id, attempt, worker_id, error=None, retryable=True) -> dict:
         """Retryable failures requeue until max_attempts (then dead), others are failed."""
         with LOCK:
             it = self._fenced(item_id, attempt, worker_id)
-            self._end_attempt(it, error or "", retryable)
+            p = self.r.pipeline()
+            self._end_attempt(p, it, error or "", retryable)
+            p.execute()
             return self.get(item_id)
 
     def add_events(self, item_id, attempt, worker_id, events) -> list:
         with LOCK:
             self._fenced(item_id, attempt, worker_id)
-            return [
-                self.r.xadd(
+            p = self.r.pipeline()
+            for e in events:
+                p.xadd(
                     f"{P}ev:{item_id}",
                     {
                         "attempt": attempt,
@@ -244,8 +257,7 @@ class Store:
                         "data": json.dumps(e.get("data") or {}),
                     },
                 )
-                for e in events
-            ]
+            return p.execute()
 
     def cancel(self, item_id) -> dict:
         """Cancel a queued item; flag a claimed one (its worker sees it on heartbeat)."""
@@ -253,11 +265,13 @@ class Store:
             it = self.get(item_id)
             if it is None:
                 raise NoSuchItem()
+            p = self.r.pipeline()
             if it["status"] in ("queued", "claimed"):
-                self._set(it, cancel_requested=1)
+                self._set(p, it, cancel_requested=1)
             if it["status"] == "queued":
-                self._unindex(it)
-                self._finish(it, "cancelled")
+                self._unindex(p, it)
+                self._finish(p, it, "cancelled")
+            p.execute()
             return self.get(item_id)
 
     def reap(self, limit=1000) -> list:
@@ -265,13 +279,15 @@ class Store:
         out = []
         with LOCK:
             expired = self.r.zrangebyscore(f"{P}leases", "-inf", now_ms(), 0, limit)
+            p = self.r.pipeline()
             for item_id in expired:
                 it = self.get(item_id)
                 if it is None or it["status"] != "claimed":
-                    self.r.zrem(f"{P}leases", item_id)
+                    p.zrem(f"{P}leases", item_id)
                     continue
                 error = f"lease expired (attempt {it['attempt']}, {it['worker_id']})"
-                out.append((item_id, it["attempt"], self._end_attempt(it, error)))
+                out.append((item_id, it["attempt"], self._end_attempt(p, it, error)))
+            p.execute()
         return out
 
     def events(self, item_id, after=None, limit=1000) -> tuple[list, str | None]:

@@ -23,7 +23,7 @@ from dagster import (
 from dagster._core.definitions.resource_annotation import TreatAsResourceParam
 from dagster._core.errors import DagsterPipesExecutionError
 
-from dagster_broker.client import BrokerClient, NotFound
+from dcpy.infra.dagster_runners.client import BrokerClient, NotFound
 
 LIVE = {"opened", "log", "log_external_stream"}
 TERMINAL = {"done", "failed", "dead", "cancelled"}
@@ -66,7 +66,7 @@ class BrokerMessageReader(PipesMessageReader):
 class PipesBrokerClient(PipesClient, TreatAsResourceParam):
     def __init__(self, *, bucket: str, broker: BrokerClient | None = None, poll=1.0):
         self.bucket = bucket
-        self.broker = broker or BrokerClient()
+        self.broker = broker
         self.poll = poll
 
     def run(  # type: ignore[override]
@@ -82,6 +82,7 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
     ) -> PipesClientCompletedInvocation:
         """Enqueue ``command`` and block until a worker finishes it. ``outputs_prefix``:
         where the worker promotes the step's staged outputs in ``bucket``."""
+        self.broker = self.broker or BrokerClient()  # here, so loading needs no env
         run_id, step = context.run.run_id, context.get_step_execution_context().step.key
         partition = context.partition_key if context.has_partition_key else ""
         reader = BrokerMessageReader()

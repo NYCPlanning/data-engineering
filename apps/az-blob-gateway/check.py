@@ -1,6 +1,6 @@
 """Smoke check for the az-blob-gateway S3 API. One PASS/FAIL line per step; exits 1 on failure.
 
-python apps/az-blob-gateway/check.py --endpoint http://localhost:7070 --bucket devstack
+python apps/az-blob-gateway/check.py --endpoint http://localhost:7070 --bucket local
 """
 
 import argparse

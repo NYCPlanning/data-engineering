@@ -1,21 +1,22 @@
-"""A Dagster asset run through Pipes on a worker thread, via a live broker (uvicorn)."""
+"""A Dagster asset run through Pipes on a worker thread, via a live broker server. Needs
+DAGSTER_BROKER_TEST_VALKEY_URL (a throwaway Valkey; it gets flushed), as CI sets."""
 
+import os
+import socket
+import subprocess
 import sys
 import threading
 import time
 
 import pytest
-import uvicorn
+import redis
 
-from dagster_broker import worker
-from dagster_broker.app import create_app
-from dagster_broker.client import BrokerClient
-
-from .test_broker import valkey_url  # noqa: F401 (fixture)
+from dcpy.infra.dagster_runners import worker
+from dcpy.infra.dagster_runners.client import BrokerClient, Unavailable
 
 STEP = """
 import os
-from dagster_broker.pipes_worker import open_broker_pipes
+from dcpy.infra.dagster_runners.pipes_worker import open_broker_pipes
 with open_broker_pipes() as pipes:
     print("stdout line", flush=True)
     pipes.log.info(f"partition {pipes.partition_key} on {os.environ['FOO']}")
@@ -24,26 +25,41 @@ with open_broker_pipes() as pipes:
 
 
 @pytest.fixture
-def broker(valkey_url, monkeypatch):  # noqa: F811
-    monkeypatch.setenv("DAGSTER_BROKER_VALKEY_URL", valkey_url)
-    monkeypatch.setenv("DAGSTER_BROKER_SHARED_KEY", "k")
+def broker(monkeypatch):
+    url = os.environ.get("DAGSTER_BROKER_TEST_VALKEY_URL")
+    if not url:
+        pytest.skip("DAGSTER_BROKER_TEST_VALKEY_URL not set")
+    redis.Redis.from_url(url).flushdb()
     monkeypatch.setattr(worker, "HEARTBEAT_SECONDS", 0.3)
     monkeypatch.setattr(worker, "POLL_SECONDS", 0.1)
-    config = uvicorn.Config(create_app(), port=0, log_level="warning")
-    server = uvicorn.Server(config)
-    t = threading.Thread(target=server.run, daemon=True)
-    t.start()
-    while not server.started:
-        time.sleep(0.05)
-    port = server.servers[0].sockets[0].getsockname()[1]
-    yield BrokerClient(f"http://127.0.0.1:{port}", "k", retries=0)
-    server.should_exit = True
-    t.join(timeout=10)
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    env = {
+        **os.environ,
+        "DAGSTER_BROKER_VALKEY_URL": url,
+        "DAGSTER_BROKER_SHARED_KEY": "k",
+    }
+    server = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "dagster_broker.app:create_app", "--factory"]
+        + ["--port", str(port), "--log-level", "warning"],
+        env=env,
+    )
+    client = BrokerClient(f"http://127.0.0.1:{port}", "k", retries=0)
+    for _ in range(100):
+        try:
+            client.get("/readyz")
+            break
+        except Unavailable:
+            time.sleep(0.1)
+    yield client
+    server.terminate()
+    server.wait(10)
 
 
 def test_pipes_round_trip(broker):
     dg = pytest.importorskip("dagster")
-    from dagster_broker.pipes_dagster import PipesBrokerClient
+    from dcpy.infra.dagster_runners.pipes_dagster import PipesBrokerClient
 
     @dg.asset(partitions_def=dg.StaticPartitionsDefinition(["a"]))
     def thing(context, pipes: PipesBrokerClient):
@@ -74,7 +90,7 @@ def test_pipes_round_trip(broker):
 
 def test_reader_reports_only_the_finishing_attempt():
     pytest.importorskip("dagster")
-    from dagster_broker.pipes_dagster import BrokerMessageReader
+    from dcpy.infra.dagster_runners.pipes_dagster import BrokerMessageReader
 
     handled = []
     reader = BrokerMessageReader()

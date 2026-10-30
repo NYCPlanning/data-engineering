@@ -2,7 +2,7 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# The base install is the server; dagster_broker.client and dagster_broker.worker are stdlib.
+# The server only; the client, worker and Pipes adapters are dcpy.infra.dagster_runners.
 [project]
 name = "dcpy-app-dagster-broker"
 version = "0.0.1"
@@ -14,12 +14,6 @@ dependencies = [
     "redis>=5",  # redis-py; speaks RESP to Valkey
     "uvicorn",
 ]
-
-[project.optional-dependencies]
-# the worker (promotion) and pipes_worker (inside the step)
-worker = ["boto3", "dagster-pipes"]
-# pipes_dagster, the Dagster-side Pipes client
-dagster = ["dagster", "dagster-pipes"]
 
 [dependency-groups]
 dev = [

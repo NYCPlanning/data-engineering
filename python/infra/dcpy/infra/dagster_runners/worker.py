@@ -1,5 +1,6 @@
 """The worker: claim an item, run its step as a subprocess while heartbeating, promote the
-step's staged outputs, then complete. ``python -m dagster_broker.worker``, configured by env:
+step's staged outputs, then complete. ``python -m dcpy.infra.dagster_runners.worker``,
+configured by env:
 
     DAGSTER_BROKER_URL, DAGSTER_BROKER_SHARED_KEY
     DAGSTER_BROKER_WORKER_CAPS               comma-separated, e.g. small,standard
@@ -22,9 +23,9 @@ import tempfile
 import threading
 import time
 
-from dagster_broker.client import BrokerClient, BrokerError, NotFound, Stale
+from dcpy.infra.dagster_runners.client import BrokerClient, BrokerError, NotFound, Stale
 
-logger = logging.getLogger("dagster_broker.worker")
+logger = logging.getLogger(__name__)
 
 HEARTBEAT_SECONDS = 5
 POLL_SECONDS = 2

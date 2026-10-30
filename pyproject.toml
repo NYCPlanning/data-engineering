@@ -135,6 +135,7 @@ known-first-party = [
     "dagster_utils",  # apps/dagster
     "ingest",         # apps/dagster
     "builds",         # apps/dagster
+    "runner_tests",   # apps/dagster
     "dagster_broker", # apps/dagster-broker
 ]
 
@@ -153,6 +154,7 @@ mypy_path = [
     "python/library",
     "python/lifecycle",
     "python/product-metadata",
+    "python/infra",
 ]
 
 [[tool.mypy.overrides]]

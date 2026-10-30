@@ -18,7 +18,7 @@ from dagster_pipes import (
     open_dagster_pipes,
 )
 
-from dagster_broker.client import BrokerClient, BrokerError, NotFound, Stale
+from dcpy.infra.dagster_runners.client import BrokerClient, BrokerError, NotFound, Stale
 
 
 class BrokerChannel(PipesBlobStoreMessageWriterChannel):

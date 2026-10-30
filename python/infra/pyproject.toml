@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-infra"
+version = "0.0.1"
+description = "DCP Data Engineering - deployment support: dagster-broker client, worker and Pipes adapters"
+requires-python = ">=3.11"
+dependencies = [
+    "boto3",  # the worker promotes staged outputs
+    "dagster-pipes",
+]
+
+[project.optional-dependencies]
+# pipes_dagster, the Dagster-side Pipes client
+dagster = ["dagster"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "dcpy-app-dagster-broker",  # the tests start the broker server
+]
+
+[tool.uv.sources]
+dcpy-app-dagster-broker = { workspace = true }
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true

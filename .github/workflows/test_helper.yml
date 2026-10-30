@@ -151,15 +151,14 @@ jobs:
       run: |
         dbt test --resource-type unit_test
 
-  pytest_dagster_broker:
-    name: Pytest - dagster-broker
-    # apps/dagster-broker (the in-memory Valkey work queue, tracker inv-k0d.3) has no dcpy or GDAL
-    # dependency, so it runs on a bare runner with its own isolated sync. Valkey is started
-    # with `docker run` rather than as a service so it can load the repo's valkey.conf
-    # (services can't take a command). No secrets needed, so Dependabot PRs run it too.
-    # Its Valkey tests (including the concurrency stress tests) skip if
-    # DAGSTER_BROKER_TEST_VALKEY_URL is unset.
-    if: inputs.path_filter == '' || contains(inputs.path_filter, '"dagster-broker"')
+  pytest_dagster_runners:
+    name: Pytest - dagster runners
+    # apps/dagster-broker (the server) and python/infra (dcpy.infra.dagster_runners: client,
+    # worker, Pipes) need no GDAL, so they run on a bare runner, each with its own isolated
+    # sync: the broker's proves it doesn't need dcpy.infra. Valkey is started with
+    # `docker run` rather than as a service so it can load the repo's valkey.conf.
+    # Tests that need Valkey skip if DAGSTER_BROKER_TEST_VALKEY_URL is unset.
+    if: inputs.path_filter == '' || contains(inputs.path_filter, '"dagster-runners"')
     runs-on: ubuntu-22.04
     env:
       DAGSTER_BROKER_TEST_VALKEY_URL: redis://localhost:6379/0
@@ -180,9 +179,15 @@ jobs:
       with:
         enable-cache: true
         python-version: "3.13"
-    - run: uv sync --package dcpy-app-dagster-broker --extra worker --extra dagster
     - name: dagster-broker pytests
-      run: uv run --no-sync python -m pytest apps/dagster-broker/test -v -s
+      run: |
+        uv sync --package dcpy-app-dagster-broker
+        uv run --no-sync python -m pytest apps/dagster-broker/test -v -s
+    - name: dcpy-infra pytests
+      # its dev group brings in the broker, which the tests start with uvicorn
+      run: |
+        uv sync --package dcpy-infra --extra dagster
+        uv run --no-sync python -m pytest python/infra/test -v -s
 
   dbt_cscl:
     name: dbt tests (cscl, DuckDB)

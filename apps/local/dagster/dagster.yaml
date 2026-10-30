@@ -1,5 +1,5 @@
-# Dagster instance for the devstack: Postgres storage + queued runs.
-# Mounted at $DAGSTER_HOME/dagster.yaml by apps/devstack/docker-compose.yml.
+# Dagster instance for the local stack: Postgres storage + queued runs.
+# Mounted at $DAGSTER_HOME/dagster.yaml by apps/local/docker-compose.yml.
 storage:
   postgres:
     postgres_db:

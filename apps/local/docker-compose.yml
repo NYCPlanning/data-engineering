@@ -1,13 +1,14 @@
-# Local dev stack for the hybrid-runner / dagster-broker work (tracker epic inv-k0d).
+# Local stack: the apps/dagster deployment (ingest, builds, runner_tests) with
+# dagster-broker, workers and an S3 gateway over Azurite (tracker epic inv-k0d).
 #
-#   docker compose -f apps/devstack/docker-compose.yml up -d
-#   docker compose -f apps/devstack/docker-compose.yml run --rm check
-#   docker compose -f apps/devstack/docker-compose.yml down -v
+#   docker compose -f apps/local/docker-compose.yml up -d
+#   docker compose -f apps/local/docker-compose.yml run --rm check
+#   docker compose -f apps/local/docker-compose.yml down -v
 
 # Every python and gateway service runs the de-apps image (apps/docker/Dockerfile) with the
 # local repo mounted where prod clones it. Python deps live in one venv volume, synced by 'venv'.
 x-app: &app
-  image: de-apps:devstack
+  image: de-apps:local
   platform: linux/amd64
   build:
     context: ..
@@ -23,34 +24,25 @@ x-app: &app
 x-env: &env
   PATH: /opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   PYTHONUNBUFFERED: "1"
-  PYTHONPATH: /app/repos/data-engineering/apps/devstack/demo_location
-  DAGSTER_BROKER_SHARED_KEY: devstack-dagster-broker-key
+  DAGSTER_BROKER_SHARED_KEY: local-dagster-broker-key
   DAGSTER_BROKER_URL: http://dagster-broker:8000
-  DEVSTACK_BUCKET: devstack
+  DAGSTER_BROKER_BUCKET: local
 
 # Gateway credentials: workers and the bucket setup only, never the Dagster services.
 x-aws-env: &aws-env
   <<: *env
   AWS_S3_ENDPOINT: http://az-blob-gateway:7070
-  AWS_ACCESS_KEY_ID: devstack
-  AWS_SECRET_ACCESS_KEY: devstack-secret
+  AWS_ACCESS_KEY_ID: local
+  AWS_SECRET_ACCESS_KEY: local-secret
   AWS_DEFAULT_REGION: us-east-1
 
-x-dagster: &dagster
-  <<: *app
-  environment:
-    <<: *env
-    DAGSTER_PG_HOST: postgres
-    DAGSTER_PG_USER: devstack
-    DAGSTER_PG_PASSWORD: devstack
-    DAGSTER_PG_DB: dagster
-  depends_on: &py-deps
-    venv:
-      condition: service_completed_successfully
+x-py-deps: &py-deps
+  venv:
+    condition: service_completed_successfully
 
 x-worker: &worker
   <<: *app
-  command: ["python", "-m", "dagster_broker.worker"]
+  command: ["python", "-m", "dcpy.infra.dagster_runners.worker"]
   stop_grace_period: 20s
   depends_on:
     dagster-broker:
@@ -62,16 +54,15 @@ services:
   postgres:
     image: postgres:16.15
     environment:
-      POSTGRES_USER: devstack
-      POSTGRES_PASSWORD: devstack
-      POSTGRES_DB: postgres
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: dagster
     volumes:
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - pg-data:/var/lib/postgresql/data
     ports:
       - "127.0.0.1:15432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U devstack -d dagster"]
+      test: ["CMD-SHELL", "pg_isready -U local -d dagster"]
       interval: 2s
       timeout: 3s
       retries: 30
@@ -121,8 +112,8 @@ services:
     <<: *app
     entrypoint: ["/app/docker/entrypoints/az-blob-gateway.sh"]
     environment:
-      ROOT_ACCESS_KEY_ID: devstack
-      ROOT_SECRET_ACCESS_KEY: devstack-secret
+      ROOT_ACCESS_KEY_ID: local
+      ROOT_SECRET_ACCESS_KEY: local-secret
       AZ_ACCOUNT_NAME: devstoreaccount1
       AZ_ACCESS_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
       AZ_ENDPOINT: https://azurite:10000/devstoreaccount1
@@ -155,10 +146,8 @@ services:
       - --no-dev
       - --package=dcpy-app-dagster
       - --package=dcpy-app-dagster-broker
-      - --extra=worker
-      - --extra=dagster
 
-  # Creates the bucket (an Azure container behind the gateway) the demo uses.
+  # Creates the bucket (an Azure container behind the gateway) runner_tests uses.
   gateway-init:
     <<: *app
     environment: *aws-env
@@ -168,7 +157,7 @@ services:
       - |
         import boto3, os
         s3 = boto3.client("s3", endpoint_url=os.environ["AWS_S3_ENDPOINT"])
-        b = os.environ["DEVSTACK_BUCKET"]
+        b = os.environ["DAGSTER_BROKER_BUCKET"]
         if b not in [x["Name"] for x in s3.list_buckets()["Buckets"]]:
             s3.create_bucket(Bucket=b)
         print("bucket", b, "ready")
@@ -182,50 +171,38 @@ services:
     <<: *app
     environment: *aws-env
     profiles: ["check"]
-    command: ["python", "apps/az-blob-gateway/check.py", "--bucket", "devstack"]
+    command: ["python", "apps/az-blob-gateway/check.py", "--bucket", "local"]
     depends_on:
       gateway-init:
         condition: service_completed_successfully
 
-  # Shared gRPC code server: runs launched by the daemon execute here, so the webserver
-  # can terminate them (DefaultRunLauncher talks to the server that launched the run).
-  dagster-code:
-    <<: *dagster
-    command: ["dagster", "api", "grpc", "-m", "devstack_demo.definitions", "-h", "0.0.0.0", "-p", "4000"]
-    healthcheck:
-      test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
-      interval: 3s
-      timeout: 10s
-      retries: 60
-    depends_on:
-      <<: *py-deps
-      postgres:
-        condition: service_healthy
-
-  dagster-webserver:
-    <<: *dagster
+  # Webserver and daemon in one process tree, sharing code servers (as prod's supervisord
+  # does), so runs can be terminated from the UI.
+  dagster:
+    <<: *app
+    working_dir: /app/repos/data-engineering/apps/dagster
+    environment:
+      <<: *env
+      DAGSTER_PG_HOST: postgres
+      DAGSTER_PG_USER: local
+      DAGSTER_PG_PASSWORD: local
+      DAGSTER_PG_DB: dagster
     command:
       - sh
       - -c
-      - dagster instance migrate && exec dagster-webserver -h 0.0.0.0 -p 3000 -w apps/devstack/demo_location/workspace.yaml
+      - dagster instance migrate && exec dagster dev -w workspace.yaml -h 0.0.0.0 -p 3000
     ports:
       - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:3000/server_info"]
       interval: 3s
       timeout: 5s
-      retries: 100
+      retries: 200
     depends_on:
-      dagster-code:
+      <<: *py-deps
+      postgres:
         condition: service_healthy
       dagster-broker:
-        condition: service_healthy
-
-  dagster-daemon:
-    <<: *dagster
-    command: ["dagster-daemon", "run", "-w", "apps/devstack/demo_location/workspace.yaml"]
-    depends_on:
-      dagster-webserver:
         condition: service_healthy
 
   # Always on, small items only, several at a time (an ACA Container App in Azure).

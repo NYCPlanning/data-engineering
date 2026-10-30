@@ -32,6 +32,7 @@ members = [
     "dcpy-data",
     "dcpy-geospatial",
     "dcpy-geosupport",
+    "dcpy-infra",
     "dcpy-integration-tests",
     "dcpy-library",
     "dcpy-lifecycle",
@@ -1635,6 +1636,7 @@ dependencies = [
     { name = "dagster" },
     { name = "dagster-postgres" },
     { name = "dagster-webserver" },
+    { name = "dcpy-infra", extra = ["dagster"] },
     { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "dcpy-product-metadata" },
     { name = "pyyaml" },
@@ -1645,6 +1647,7 @@ requires-dist = [
     { name = "dagster" },
     { name = "dagster-postgres" },
     { name = "dagster-webserver" },
+    { name = "dcpy-infra", extras = ["dagster"], editable = "python/infra" },
     { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "pyyaml" },
@@ -1661,16 +1664,6 @@ dependencies = [
     { name = "uvicorn" },
 ]
 
-[package.optional-dependencies]
-dagster = [
-    { name = "dagster" },
-    { name = "dagster-pipes" },
-]
-worker = [
-    { name = "boto3" },
-    { name = "dagster-pipes" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
@@ -1679,16 +1672,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "boto3", marker = "extra == 'worker'" },
-    { name = "dagster", marker = "extra == 'dagster'" },
-    { name = "dagster-pipes", marker = "extra == 'dagster'" },
-    { name = "dagster-pipes", marker = "extra == 'worker'" },
     { name = "fastapi" },
     { name = "pydantic" },
     { name = "redis", specifier = ">=5" },
     { name = "uvicorn" },
 ]
-provides-extras = ["worker", "dagster"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1947,6 +1935,40 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "pandas-stubs" },
+    { name = "pytest" },
+]
+
+[[package]]
+name = "dcpy-infra"
+version = "0.0.1"
+source = { editable = "python/infra" }
+dependencies = [
+    { name = "boto3" },
+    { name = "dagster-pipes" },
+]
+
+[package.optional-dependencies]
+dagster = [
+    { name = "dagster" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "dcpy-app-dagster-broker" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "boto3" },
+    { name = "dagster", marker = "extra == 'dagster'" },
+    { name = "dagster-pipes" },
+]
+provides-extras = ["dagster"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "dcpy-app-dagster-broker", editable = "apps/dagster-broker" },
     { name = "pytest" },
 ]
 
