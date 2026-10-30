@@ -6,7 +6,7 @@ import os
 import socket
 import time
 
-import boto3
+from dcpy.connectors.az_blob_gateway import AzBlobGateway
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +22,11 @@ def work(
     """Works for ``seconds`` in ``parts``, writing ``mb`` MB in total under
     ``output_prefix``, then raises if ``fail``."""
     size = mb * 2**20 // parts
-    s3 = boto3.client("s3", endpoint_url=os.environ.get("AWS_S3_ENDPOINT"))
+    out = AzBlobGateway(output_bucket).root / output_prefix if size else None
     for i in range(parts):
         time.sleep(seconds / parts)
-        if size:
-            key = f"{output_prefix}part-{i:03d}.bin"
-            s3.put_object(Bucket=output_bucket, Key=key, Body=os.urandom(size))
+        if out:
+            (out / f"part-{i:03d}.bin").write_bytes(os.urandom(size))
         logger.info(f"wrote part {i + 1}/{parts}")
     if fail:
         raise RuntimeError("failing, as asked")

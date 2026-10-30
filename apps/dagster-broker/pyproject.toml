@@ -17,12 +17,13 @@ dependencies = [
 
 [project.optional-dependencies]
 worker = [
-    "boto3",  # promotion and test_steps
     "dagster-pipes",
+    "dcpy-connectors",  # the S3 gateway, for promotion and test_steps
     "dcpy-infra",  # the broker client
 ]
 
 [tool.uv.sources]
+dcpy-connectors = { workspace = true }
 dcpy-infra = { workspace = true }
 
 [dependency-groups]

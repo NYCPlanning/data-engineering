@@ -1666,8 +1666,8 @@ dependencies = [
 
 [package.optional-dependencies]
 worker = [
-    { name = "boto3" },
     { name = "dagster-pipes" },
+    { name = "dcpy-connectors" },
     { name = "dcpy-infra" },
 ]
 
@@ -1680,8 +1680,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "boto3", marker = "extra == 'worker'" },
     { name = "dagster-pipes", marker = "extra == 'worker'" },
+    { name = "dcpy-connectors", marker = "extra == 'worker'", editable = "python/connectors" },
     { name = "dcpy-infra", marker = "extra == 'worker'", editable = "python/infra" },
     { name = "fastapi" },
     { name = "pydantic" },

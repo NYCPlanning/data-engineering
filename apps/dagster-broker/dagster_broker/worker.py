@@ -9,7 +9,7 @@ subprocess while heartbeating, promote the step's staged outputs, then complete.
     DAGSTER_BROKER_WORKER_STEP_MEMORY_MB     soft address-space cap per step (0 = off)
     DAGSTER_BROKER_WORKER_MIN_FREE_DISK_GB   don't claim with less free disk than this
 
-Promotion uses boto3 with the usual AWS_* variables, plus AWS_S3_ENDPOINT for the gateway.
+Promotion goes through the S3 gateway: AWS_S3_ENDPOINT plus the usual AWS_* variables.
 """
 
 import collections
@@ -23,7 +23,6 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Any
 
 from dcpy.infra.dagster_broker_client import BrokerClient, BrokerError, NotFound, Stale
 
@@ -135,27 +134,14 @@ class Attempt:
 
 
 def promote(bucket: str, staging: str, final: str, cleanup: str) -> int:
-    """Copy every object under ``staging`` to ``final`` (one server-side copy_object each,
-    so objects up to 5 GiB), then delete everything under ``cleanup``."""
-    import boto3
+    """Copy every object under ``staging`` to ``final``, then delete everything under
+    ``cleanup``."""
+    from dcpy.connectors.az_blob_gateway import AzBlobGateway
 
-    s3 = boto3.client("s3", endpoint_url=os.environ.get("AWS_S3_ENDPOINT"))
-
-    def keys(prefix):
-        pages = s3.get_paginator("list_objects_v2").paginate(
-            Bucket=bucket, Prefix=prefix
-        )
-        return [o["Key"] for page in pages for o in page.get("Contents", [])]
-
-    copied = keys(staging)
-    for key in copied:
-        src = f"{bucket}/{key}"
-        s3.copy_object(Bucket=bucket, Key=final + key[len(staging) :], CopySource=src)
-    old = keys(cleanup)
-    for i in range(0, len(old), 1000):
-        objects: list[Any] = [{"Key": k} for k in old[i : i + 1000]]
-        s3.delete_objects(Bucket=bucket, Delete={"Objects": objects, "Quiet": True})
-    return len(copied)
+    gateway = AzBlobGateway(bucket)
+    copied = gateway.copy_prefix(staging, final)
+    gateway.delete_prefix(cleanup)
+    return copied
 
 
 class Worker:
