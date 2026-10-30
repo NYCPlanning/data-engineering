@@ -35,6 +35,7 @@ WORKSPACE_PACKAGES=(
     python/library
     python/lifecycle
     python/product-metadata
+    python/infra
 )
 
 FAILED=()

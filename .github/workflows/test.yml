@@ -56,6 +56,13 @@ jobs:
               - apps/qa/**
               - python/**
               - admin/run_environment/**
+            dagster-runners:
+              - uv.lock
+              - apps/dagster-broker/**
+              - python/infra/**
+              - apps/dagster/dagster_utils/pipes_broker.py
+              - .github/workflows/test.yml
+              - .github/workflows/test_helper.yml
             notebook:
               - uv.lock
               - apps/notebook-server/**

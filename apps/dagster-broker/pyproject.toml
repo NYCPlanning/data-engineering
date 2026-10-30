@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+# The base install is the server; the worker program (worker, pipes_worker) needs [worker].
+[project]
+name = "dcpy-app-dagster-broker"
+version = "0.0.1"
+description = "DCP Data Engineering - dagster-broker queue API (Valkey lease queue for workers)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "redis>=5",  # redis-py; speaks RESP to Valkey
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+worker = [
+    "dagster-pipes",
+    "dcpy-connectors",  # the S3 gateway, for test_steps
+    "dcpy-infra",  # the broker client
+]
+
+[tool.uv.sources]
+dcpy-connectors = { workspace = true }
+dcpy-infra = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "dagster",  # test_pipes runs apps/dagster's PipesBrokerClient
+    "httpx",  # fastapi.testclient
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+include = ["dagster_broker*"]

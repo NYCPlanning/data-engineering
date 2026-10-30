@@ -1,3 +1,4 @@
 load_from:
   - python_module: ingest.definitions
   - python_module: builds.definitions
+  - python_module: runner_tests.definitions
