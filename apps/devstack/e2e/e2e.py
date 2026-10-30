@@ -23,7 +23,9 @@ TERMINAL = {
     DagsterRunStatus.FAILURE,
     DagsterRunStatus.CANCELED,
 }
-CLAIMED = re.compile(r"\[dagster-broker\] item ([0-9a-f]+) attempt (\d+) on worker (\S+)")
+CLAIMED = re.compile(
+    r"\[dagster-broker\] item ([0-9a-f]+) attempt (\d+) on worker (\S+)"
+)
 BUCKET = os.environ.get("DEVSTACK_BUCKET", "devstack")
 
 
@@ -69,7 +71,7 @@ def wait(a) -> None:
     )
 
 
-def claims(inst: DagsterInstance, run_id: str, step: str) -> list[tuple[int, int, str]]:
+def claims(inst: DagsterInstance, run_id: str, step: str) -> list[tuple[str, int, str]]:
     out = []
     for e in inst.all_logs(run_id):
         if e.step_key == step and (m := CLAIMED.search(e.user_message or "")):
@@ -194,7 +196,9 @@ def assert_chain(a) -> None:
 def broker_get(path: str) -> dict:
     req = urllib.request.Request(
         os.environ["DAGSTER_BROKER_URL"] + path,
-        headers={"X-Dagster-Broker-Key": os.environ.get("DAGSTER_BROKER_SHARED_KEY", "")},
+        headers={
+            "X-Dagster-Broker-Key": os.environ.get("DAGSTER_BROKER_SHARED_KEY", "")
+        },
     )
     with urllib.request.urlopen(req, timeout=10) as r:
         return json.loads(r.read())
@@ -220,9 +224,7 @@ def main() -> None:
     s = sub.add_parser("wait-claimed")
     s.add_argument("run_id")
     s.add_argument("step")
-    s.add_argument(
-        "--item", type=int, help="with --after: wait for a claim other than this one"
-    )
+    s.add_argument("--item", help="with --after: wait for a claim other than this one")
     s.add_argument("--after", type=int, default=0)
     s.add_argument("--timeout", type=float, default=120)
     s.set_defaults(fn=wait_claimed)

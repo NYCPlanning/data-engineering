@@ -84,7 +84,8 @@ class BrokerMessageWriterChannel(PipesBlobStoreMessageWriterChannel):
         except (BrokerError, OSError) as e:
             # Don't let the upload thread die: later chunks may still get through.
             print(
-                f"[dagster-broker pipes] dropped {len(events)} messages: {e}", file=sys.stderr
+                f"[dagster-broker pipes] dropped {len(events)} messages: {e}",
+                file=sys.stderr,
             )
 
 
@@ -101,7 +102,9 @@ class BrokerMessageWriter(PipesBlobStoreMessageWriter[BrokerMessageWriterChannel
             raise ValueError(f"expected dagster-broker message params, got {params!r}")
         env = os.environ
         return BrokerMessageWriterChannel(
-            BrokerClient(env["DAGSTER_BROKER_URL"], env.get("DAGSTER_BROKER_SHARED_KEY")),
+            BrokerClient(
+                env["DAGSTER_BROKER_URL"], env.get("DAGSTER_BROKER_SHARED_KEY")
+            ),
             item_id=env["DAGSTER_BROKER_ITEM_ID"],
             attempt=int(env["DAGSTER_BROKER_ATTEMPT"]),
             worker_id=env["DAGSTER_BROKER_WORKER_ID"],

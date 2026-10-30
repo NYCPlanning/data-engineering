@@ -305,7 +305,9 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
             cursor = new_cursor
 
     def _cancel(self, context, item_id: str) -> None:
-        context.log.warning(f"[dagster-broker] run terminated: cancelling item {item_id}")
+        context.log.warning(
+            f"[dagster-broker] run terminated: cancelling item {item_id}"
+        )
         try:
             self.broker.cancel(item_id)
             deadline = time.monotonic() + self.cancel_wait
@@ -318,7 +320,9 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
                 f"[dagster-broker] item {item_id} not confirmed cancelled yet"
             )
         except Exception as e:  # never mask the interrupt
-            context.log.warning(f"[dagster-broker] cancel of item {item_id} failed: {e}")
+            context.log.warning(
+                f"[dagster-broker] cancel of item {item_id} failed: {e}"
+            )
 
     # ---- promotion ------------------------------------------------------------------
 

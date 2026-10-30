@@ -54,7 +54,10 @@ def build(
 
 
 @dg.asset(
-    partitions_def=PARTITIONS, deps=[build], kinds={"dagster-broker"}, tags={"caps": "esri"}
+    partitions_def=PARTITIONS,
+    deps=[build],
+    kinds={"dagster-broker"},
+    tags={"caps": "esri"},
 )
 def publish(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
     p = context.partition_key
@@ -68,7 +71,10 @@ def publish(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
 
 
 @dg.asset(
-    partitions_def=PARTITIONS, deps=[build], kinds={"dagster-broker"}, tags={"caps": "gpu"}
+    partitions_def=PARTITIONS,
+    deps=[build],
+    kinds={"dagster-broker"},
+    tags={"caps": "gpu"},
 )
 def gpu_train(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
     p = context.partition_key

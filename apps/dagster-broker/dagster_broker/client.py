@@ -82,7 +82,9 @@ class BrokerClient:
     def from_env(cls, **kwargs: Any) -> BrokerClient:
         """``DAGSTER_BROKER_URL`` (required) and ``DAGSTER_BROKER_SHARED_KEY`` (optional)."""
         return cls(
-            os.environ["DAGSTER_BROKER_URL"], os.environ.get("DAGSTER_BROKER_SHARED_KEY"), **kwargs
+            os.environ["DAGSTER_BROKER_URL"],
+            os.environ.get("DAGSTER_BROKER_SHARED_KEY"),
+            **kwargs,
         )
 
     # ---- transport ------------------------------------------------------------------

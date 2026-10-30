@@ -117,7 +117,9 @@ def require_key(
     if x_dagster_broker_key is None or not hmac.compare_digest(
         x_dagster_broker_key.encode(), expected.encode()
     ):
-        raise HTTPException(status_code=401, detail="bad or missing X-Dagster-Broker-Key")
+        raise HTTPException(
+            status_code=401, detail="bad or missing X-Dagster-Broker-Key"
+        )
 
 
 def not_found() -> HTTPException:
