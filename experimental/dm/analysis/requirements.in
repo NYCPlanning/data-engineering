@@ -4,4 +4,5 @@ boto3
 dbt-oss<2.0.6
 duckdb
 marimo
+openpyxl
 pandas

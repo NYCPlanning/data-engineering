@@ -24,6 +24,8 @@ docutils==0.23
     # via marimo
 duckdb==2.0.0
     # via -r requirements.in
+et-xmlfile==2.0.0
+    # via openpyxl
 h11==0.16.0
     # via uvicorn
 idna==3.20
@@ -64,6 +66,8 @@ narwhals==2.28.0
     #   marimo
 numpy==2.5.4
     # via pandas
+openpyxl==3.1.5
+    # via -r requirements.in
 packaging==26.3
     # via
     #   altair
