@@ -34,7 +34,9 @@ def main() -> int:
     p.add_argument("--size", type=int, default=100, help="multipart upload size, MB")
     a = p.parse_args()
     if not (a.endpoint and a.bucket):
-        p.error("--endpoint and --bucket (or AWS_S3_ENDPOINT, GATEWAY_BUCKET) are required")
+        p.error(
+            "--endpoint and --bucket (or AWS_S3_ENDPOINT, GATEWAY_BUCKET) are required"
+        )
 
     s3 = boto3.client(
         "s3",
@@ -58,7 +60,9 @@ def main() -> int:
     def put_get_delete():
         body = os.urandom(1024)
         s3.put_object(Bucket=a.bucket, Key=small, Body=body)
-        assert s3.get_object(Bucket=a.bucket, Key=small)["Body"].read() == body, "body differs"
+        assert s3.get_object(Bucket=a.bucket, Key=small)["Body"].read() == body, (
+            "body differs"
+        )
         s3.delete_object(Bucket=a.bucket, Key=small)
         return "1 KB"
 
@@ -77,7 +81,9 @@ def main() -> int:
         return f"{a.size} MB, sha256 {h.hexdigest()[:12]}"
 
     def copy_object():
-        s3.copy_object(Bucket=a.bucket, Key=copy, CopySource={"Bucket": a.bucket, "Key": big})
+        s3.copy_object(
+            Bucket=a.bucket, Key=copy, CopySource={"Bucket": a.bucket, "Key": big}
+        )
         size = s3.head_object(Bucket=a.bucket, Key=copy)["ContentLength"]
         assert size == a.size * MB, f"copy is {size} bytes"
         return f"{size} bytes"
