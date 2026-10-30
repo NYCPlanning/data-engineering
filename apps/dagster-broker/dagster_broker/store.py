@@ -106,11 +106,10 @@ class Store:
 
     def _finish(self, it: dict, status: str) -> None:
         self._set(it, status=status, finished_at=now_ms())
-        for key in (
-            f"item:{it['id']}",
-            f"ev:{it['id']}",
-            f"idem:{it.get('idempotency_key')}",
-        ):
+        keys = [f"item:{it['id']}", f"ev:{it['id']}"]
+        if it.get("idempotency_key"):
+            keys.append(f"idem:{it['idempotency_key']}")
+        for key in keys:
             self.r.expire(P + key, self.ttl)
 
     def _end_attempt(self, it: dict, error: str, retryable=True) -> str:
