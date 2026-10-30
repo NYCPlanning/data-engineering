@@ -1,10 +1,9 @@
-"""plan -> build -> publish, per borough, each step run on a dagster-broker worker via Pipes.
-Plus gpu_train, which needs a 'gpu' worker that the devstack doesn't have: it stays queued
-and shows up in dagster-broker's /metrics/demand?caps=gpu.
+"""plan (small) -> build (standard) -> publish (esri), per borough, each run on a
+dagster-broker worker via Pipes. gpu_train needs a 'gpu' worker the devstack doesn't have,
+so it stays queued and shows up in /metrics/demand?caps=gpu.
 
-The Dagster side never touches the step's data: steps read upstream outputs from, and write
-their own to, the S3 gateway; PipesBrokerClient promotes staged outputs to
-``demo/<asset>/<partition>/`` once dagster-broker reports the item done.
+Dagster never touches the data or holds gateway credentials: steps write to a staging
+prefix and the worker promotes it to ``demo/<asset>/<partition>/``.
 """
 
 import os
@@ -34,6 +33,7 @@ def plan(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
     return broker.run(
         context=context,
         command=[*STEP, "plan"],
+        required_caps=["small"],
         outputs_prefix=prefix("plan", p),
     ).get_materialize_result()
 
@@ -48,6 +48,7 @@ def build(
     return broker.run(
         context=context,
         command=[*STEP, "build"],
+        required_caps=["standard"],
         extras={"inputs": {"plan": prefix("plan", p)}, **config.model_dump()},
         outputs_prefix=prefix("build", p),
     ).get_materialize_result()
@@ -57,7 +58,6 @@ def build(
     partitions_def=PARTITIONS,
     deps=[build],
     kinds={"dagster-broker"},
-    tags={"caps": "esri"},
 )
 def publish(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
     p = context.partition_key
@@ -74,7 +74,6 @@ def publish(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
     partitions_def=PARTITIONS,
     deps=[build],
     kinds={"dagster-broker"},
-    tags={"caps": "gpu"},
 )
 def gpu_train(context: dg.AssetExecutionContext, broker: PipesBrokerClient):
     p = context.partition_key
@@ -96,5 +95,5 @@ gpu_job = dg.define_asset_job(
 defs = dg.Definitions(
     assets=[plan, build, publish, gpu_train],
     jobs=[demo_chain, gpu_job],
-    resources={"broker": PipesBrokerClient(bucket=BUCKET, poll_interval=1.0)},
+    resources={"broker": PipesBrokerClient(bucket=BUCKET)},
 )

@@ -1,9 +1,7 @@
 """Demo step entrypoints, run on a dagster-broker worker: ``python -m devstack_demo.steps <name>``.
 
-Each opens Dagster Pipes over dagster-broker (context from the env the worker set, messages
-posted to dagster-broker), reads upstream outputs from the S3 gateway, writes its own outputs to
-this attempt's staging prefix, and reports materialization metadata. Needs dagster-pipes,
-boto3 and dagster-broker only.
+Each opens Pipes over dagster-broker, reads upstream outputs from the S3 gateway, writes its
+own to this attempt's staging prefix (the worker promotes them) and reports metadata.
 """
 
 from __future__ import annotations

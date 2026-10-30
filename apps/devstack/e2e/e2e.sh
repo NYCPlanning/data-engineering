@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Devstack end-to-end check (tracker inv-k0d.10): Dagster -> dagster-broker -> mock workers ->
+# Devstack end-to-end check (tracker inv-k0d.10): Dagster -> dagster-broker -> workers ->
 # S3 gateway, via Dagster Pipes, plus chaos checks.
 #
 #   apps/devstack/e2e/e2e.sh            # bring the stack up, run every check
@@ -11,7 +11,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 dc() { docker compose -f docker-compose.yml "$@"; }
-e2e() { dc exec -T dagster-webserver python apps/devstack/e2e/e2e.py "$@"; }
+# Dagster services hold no gateway credentials; the checks get them for this exec only.
+aws=(-e AWS_S3_ENDPOINT=http://az-blob-gateway:7070 -e AWS_ACCESS_KEY_ID=devstack
+     -e AWS_SECRET_ACCESS_KEY=devstack-secret -e AWS_DEFAULT_REGION=us-east-1)
+e2e() { dc exec -T "${aws[@]}" dagster-webserver python apps/devstack/e2e/e2e.py "$@"; }
 broker() { curl -fsS -H "X-Dagster-Broker-Key: devstack-dagster-broker-key" "http://127.0.0.1:8000$1"; }
 log() { printf '\n== %s\n' "$*"; }
 die() { echo "FAIL: $*"; exit 1; }
@@ -31,21 +34,28 @@ up() {
 }
 
 # buffered, so grep -q closing the pipe early can't fail the pipeline under pipefail
-worker_logs() { local l; l=$(dc logs --since 5m worker-std worker-esri); printf '%s\n' "$l"; }
+worker_logs() { local l; l=$(dc logs --since 5m worker-resident worker-burst worker-esri); printf '%s\n' "$l"; }
 
-# container id of a worker from its worker id (<hostname>-<pid>; hostname = container id)
-container_of() { echo "${1%-*}"; }
+# container id of a worker from its worker id (<hostname>-<pid>-<slot>; hostname = container id)
+container_of() { echo "${1%%-*}"; }
+on() { local ids; ids=$(dc ps -q "$1" | cut -c1-12); grep -qx "$(container_of "$2")" <<<"$ids"; }
 
 check_happy() {
   log "happy path: demo_chain[bk]"
+  # Burst workers also take small items; keep them off until build is queued (as KEDA
+  # would start them on standard demand), so plan must run on the resident worker.
+  dc stop worker-burst >/dev/null
   run=$(e2e launch demo_chain bk)
+  e2e wait-log "$run" "[dagster-broker] enqueued item" --step build >/dev/null
+  dc start worker-burst >/dev/null
   [ "$(e2e wait "$run" --timeout 180)" = SUCCESS ] || die "run $run did not succeed"
   report=$(e2e assert-chain "$run" bk --expect-clean-staging)
   echo "$report"
-  esri=$(dc ps -q worker-esri | cut -c1-12)
-  pub=$(echo "$report" | jget '["publish"]["worker"]')
-  [ "$(container_of "$pub")" = "$esri" ] || die "publish ran on $pub, not worker-esri ($esri)"
-  echo "OK happy: publish (caps esri) ran on worker-esri"
+  for want in plan:worker-resident build:worker-burst publish:worker-esri; do
+    w=$(echo "$report" | jget "[\"${want%%:*}\"][\"worker\"]")
+    on "${want#*:}" "$w" || die "${want%%:*} ran on $w, not ${want#*:}"
+    echo "OK ${want%%:*} ran on ${want#*:} ($w)"
+  done
 }
 
 check_gpu() {
@@ -76,7 +86,7 @@ check_kill() {
   read -r item2 attempt2 worker2 < <(e2e wait-claimed "$run" build --item "$item" --after "$attempt" --timeout 90)
   echo "requeued: item $item2 attempt $attempt2 on $worker2 after $(( $(date +%s) - t0 ))s"
   [ "$item2" = "$item" ] && [ "$attempt2" -gt "$attempt" ] || die "expected a new attempt of item $item"
-  docker start "$c" >/dev/null  # it may be the only esri worker, which publish needs
+  docker start "$c" >/dev/null
   [ "$(e2e wait "$run" --timeout 180)" = SUCCESS ] || die "run $run did not succeed"
   report=$(e2e assert-chain "$run" bx --expect-clean-staging)
   echo "$report"

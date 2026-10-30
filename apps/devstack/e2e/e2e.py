@@ -12,7 +12,6 @@ import os
 import re
 import sys
 import time
-import urllib.request
 
 import boto3
 from dagster import AssetKey, AssetRecordsFilter, DagsterInstance, DagsterRunStatus
@@ -108,16 +107,6 @@ def wait_log(a) -> None:
     fail(f"log line {a.text!r} not seen in run {a.run_id}")
 
 
-def logs(a) -> None:
-    for e in DagsterInstance.get().all_logs(a.run_id):
-        if a.grep is None or a.grep in (e.user_message or ""):
-            print(
-                e.step_key,
-                "|",
-                (e.user_message or "").splitlines()[0][:200] if e.user_message else "",
-            )
-
-
 def terminate(a) -> None:
     gql().terminate_run(a.run_id)
     print("terminated")
@@ -186,26 +175,8 @@ def assert_chain(a) -> None:
     )
     if a.expect_clean_staging and staged:
         fail(f"{staged} staging objects left for run {a.run_id}")
-    # publish ran on the esri worker (caps routing)
-    if not report["publish"]["worker"]:
-        fail("publish has no worker id")
     report["staging_left"] = staged
     print(json.dumps(report))
-
-
-def broker_get(path: str) -> dict:
-    req = urllib.request.Request(
-        os.environ["DAGSTER_BROKER_URL"] + path,
-        headers={
-            "X-Dagster-Broker-Key": os.environ.get("DAGSTER_BROKER_SHARED_KEY", "")
-        },
-    )
-    with urllib.request.urlopen(req, timeout=10) as r:
-        return json.loads(r.read())
-
-
-def item(a) -> None:
-    print(json.dumps(broker_get(f"/items/{a.item_id}")))
 
 
 def main() -> None:
@@ -234,10 +205,6 @@ def main() -> None:
     s.add_argument("--step")
     s.add_argument("--timeout", type=float, default=120)
     s.set_defaults(fn=wait_log)
-    s = sub.add_parser("logs")
-    s.add_argument("run_id")
-    s.add_argument("--grep")
-    s.set_defaults(fn=logs)
     s = sub.add_parser("terminate")
     s.add_argument("run_id")
     s.set_defaults(fn=terminate)
@@ -247,9 +214,6 @@ def main() -> None:
     s.add_argument("--build-files", type=int, default=3)
     s.add_argument("--expect-clean-staging", action="store_true")
     s.set_defaults(fn=assert_chain)
-    s = sub.add_parser("item")
-    s.add_argument("item_id")
-    s.set_defaults(fn=item)
     a = p.parse_args()
     a.fn(a)
 
