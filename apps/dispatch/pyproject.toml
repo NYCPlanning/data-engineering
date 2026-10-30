@@ -17,6 +17,13 @@ dependencies = [
     "uvicorn",
 ]
 
+# The base install is the dispatch server. dispatch.client and dispatch.worker are stdlib-only.
+[project.optional-dependencies]
+# dispatch.pipes_worker, imported inside the step subprocess on a worker
+worker = ["dagster-pipes"]
+# dispatch.pipes_dagster, the Dagster-side Pipes client (promotes outputs via the S3 gateway)
+dagster = ["dagster", "dagster-pipes", "boto3"]
+
 [dependency-groups]
 dev = [
     "httpx",  # fastapi.testclient

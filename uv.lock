@@ -1661,6 +1661,16 @@ dependencies = [
     { name = "uvicorn" },
 ]
 
+[package.optional-dependencies]
+dagster = [
+    { name = "boto3" },
+    { name = "dagster" },
+    { name = "dagster-pipes" },
+]
+worker = [
+    { name = "dagster-pipes" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
@@ -1670,11 +1680,16 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "boto3", marker = "extra == 'dagster'" },
+    { name = "dagster", marker = "extra == 'dagster'" },
+    { name = "dagster-pipes", marker = "extra == 'dagster'" },
+    { name = "dagster-pipes", marker = "extra == 'worker'" },
     { name = "fastapi" },
     { name = "pydantic" },
     { name = "redis", specifier = ">=5" },
     { name = "uvicorn" },
 ]
+provides-extras = ["worker", "dagster"]
 
 [package.metadata.requires-dev]
 dev = [
