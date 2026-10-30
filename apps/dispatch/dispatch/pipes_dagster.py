@@ -16,8 +16,8 @@ Flow (tracker inv-k0d.4):
    idempotency key and a new staging nonce. A zombie attempt can't write into the new
    item's staging prefix, and its messages are refused by dispatch's fencing.
 5. On ``done``, promote ``<staging>/<attempt>/*`` to ``outputs_prefix`` through the S3
-   gateway (one server-side CopyObject per object), delete the staging copies, then
-   return. ``failed``/``dead``/``cancelled`` raise.
+   gateway (one server-side CopyObject per object), delete the step's whole staging
+   tree (including leftovers of killed attempts), then return. ``failed``/``dead``/``cancelled`` raise.
 6. If Dagster terminates the run, cancel the item (the worker kills the step on its next
    heartbeat) and wait briefly for dispatch to confirm.
 """
@@ -226,6 +226,9 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
                 promoted = self._promote(
                     context, f"{staging}/{item['attempt']}/", outputs_prefix
                 )
+                # Every attempt's (and re-enqueue's) staging for this step goes: the
+                # winner was copied out, the rest are leftovers of killed attempts.
+                self._delete_prefix(f"_staging/{run_id}/{step_key}/")
             metadata = {
                 "dispatch_item": item["id"],
                 "dispatch_attempt": item["attempt"],
@@ -247,6 +250,9 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
         while True:
             try:
                 current = self.dispatch.get_item(item["id"])
+                if current.get("idempotency_key") != item.get("idempotency_key"):
+                    # ids restart with Valkey: this id now belongs to someone else's item
+                    raise NotFound(404, "id reused", "GET", f"/items/{item['id']}")
                 cursor = self._drain(context, reader, item["id"], cursor)
             except NotFound:
                 context.log.warning(
@@ -316,28 +322,16 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
 
     # ---- promotion ------------------------------------------------------------------
 
-    def _promote(self, context, staging: str, final: str) -> int:
-        """Copy every object under ``staging`` to ``final`` (server-side), then delete the
-        staged copies. Returns the number of objects promoted."""
-        from boto3.s3.transfer import TransferConfig
-
-        # one CopyObject per object up to S3's 5 GiB single-copy limit
-        single = TransferConfig(
-            multipart_threshold=5 * 1024**3, multipart_chunksize=512 * 1024**2
-        )
+    def _list(self, prefix: str) -> list[str]:
         keys: list[str] = []
         for page in self.s3.get_paginator("list_objects_v2").paginate(
-            Bucket=self.bucket, Prefix=staging
+            Bucket=self.bucket, Prefix=prefix
         ):
             keys += [o["Key"] for o in page.get("Contents", [])]
-        final = final.rstrip("/") + "/"
-        for key in keys:
-            self.s3.copy(
-                {"Bucket": self.bucket, "Key": key},
-                self.bucket,
-                final + key[len(staging) :],
-                Config=single,
-            )
+        return keys
+
+    def _delete_prefix(self, prefix: str) -> None:
+        keys = self._list(prefix)
         for i in range(0, len(keys), 1000):
             self.s3.delete_objects(
                 Bucket=self.bucket,
@@ -345,6 +339,25 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
                     "Objects": [{"Key": k} for k in keys[i : i + 1000]],
                     "Quiet": True,
                 },
+            )
+
+    def _promote(self, context, staging: str, final: str) -> int:
+        """Copy every object under ``staging`` to ``final`` (server-side). Returns the
+        number of objects promoted."""
+        from boto3.s3.transfer import TransferConfig
+
+        # one CopyObject per object up to S3's 5 GiB single-copy limit
+        single = TransferConfig(
+            multipart_threshold=5 * 1024**3, multipart_chunksize=512 * 1024**2
+        )
+        keys = self._list(staging)
+        final = final.rstrip("/") + "/"
+        for key in keys:
+            self.s3.copy(
+                {"Bucket": self.bucket, "Key": key},
+                self.bucket,
+                final + key[len(staging) :],
+                Config=single,
             )
         context.log.info(
             f"[dispatch] promoted {len(keys)} object(s) {staging} -> {final}"
