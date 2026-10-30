@@ -45,7 +45,7 @@ class BrokerMessageWriterChannel(PipesBlobStoreMessageWriterChannel):
         self,
         client: BrokerClient,
         *,
-        item_id: int,
+        item_id: str,
         attempt: int,
         worker_id: str,
         interval: float,
@@ -102,7 +102,7 @@ class BrokerMessageWriter(PipesBlobStoreMessageWriter[BrokerMessageWriterChannel
         env = os.environ
         return BrokerMessageWriterChannel(
             BrokerClient(env["DAGSTER_BROKER_URL"], env.get("DAGSTER_BROKER_SHARED_KEY")),
-            item_id=int(env["DAGSTER_BROKER_ITEM_ID"]),
+            item_id=env["DAGSTER_BROKER_ITEM_ID"],
             attempt=int(env["DAGSTER_BROKER_ATTEMPT"]),
             worker_id=env["DAGSTER_BROKER_WORKER_ID"],
             interval=self.interval,

@@ -6,7 +6,7 @@ import redis
 from dagster_broker import store
 from dagster_broker.store import NoSuchItem, StaleLease
 
-from .conftest import PREFIX, all_items, attempts_log
+from .conftest import PREFIX, all_items, attempts_log, next_ms
 
 
 def test_claim_complete_happy_path(q, r):
@@ -58,6 +58,7 @@ def test_caps_subset_matching(q):
 def test_priority_then_fifo(q):
     low, _ = q.enqueue(priority=0)
     high, _ = q.enqueue(priority=5)
+    next_ms()
     low2, _ = q.enqueue(priority=0)
     neg, _ = q.enqueue(priority=-3)
     order = [q.claim(worker_id="w", caps=[])["id"] for _ in range(4)]
@@ -66,8 +67,10 @@ def test_priority_then_fifo(q):
 
 def test_priority_and_fifo_across_caps_signatures(q):
     a, _ = q.enqueue(required_caps=["a"], priority=1)
+    next_ms()
     b, _ = q.enqueue(required_caps=["b"], priority=1)
     c, _ = q.enqueue(required_caps=[], priority=2)
+    next_ms()
     d, _ = q.enqueue(required_caps=["a", "b"], priority=1)
     order = [q.claim(worker_id="w", caps=["a", "b"])["id"] for _ in range(4)]
     assert order == [c["id"], a["id"], b["id"], d["id"]]
@@ -75,11 +78,34 @@ def test_priority_and_fifo_across_caps_signatures(q):
 
 def test_requeued_item_keeps_its_place(q):
     first, _ = q.enqueue()
+    next_ms()
     second, _ = q.enqueue()
     q.claim(worker_id="w", caps=[])
     q.fail(first["id"], attempt=1, worker_id="w")
     assert q.claim(worker_id="w", caps=[])["id"] == first["id"]
     assert q.claim(worker_id="w", caps=[])["id"] == second["id"]
+
+
+def test_equal_enqueue_time_breaks_ties_by_id(q, r):
+    """Same priority and the same enqueue millisecond: the lower id goes first."""
+    items = [q.enqueue()[0] for _ in range(3)]
+    sig = store.caps_signature([])
+    for it in items:  # pin all three to one enqueue time
+        m = r.zrange(f"{PREFIX}q:{sig}", 0, -1)
+        old = next(x for x in m if x.endswith(":" + it["id"]))
+        r.zrem(f"{PREFIX}q:{sig}", old)
+        r.zadd(f"{PREFIX}q:{sig}", {f"{1:016d}:{it['id']}": 0})
+    order = [q.claim(worker_id="w", caps=[])["id"] for _ in range(3)]
+    assert order == sorted(i["id"] for i in items)
+
+
+def test_ids_are_random_and_not_reused_after_restart(q, r):
+    first, _ = q.enqueue(idempotency_key="k")
+    assert len(first["id"]) == 32 and int(first["id"], 16) >= 0
+    r.flushdb()  # what a Valkey restart does to the queue
+    again, created = q.enqueue(idempotency_key="k")
+    assert created and again["id"] != first["id"]
+    assert not r.exists(f"{PREFIX}seq")
 
 
 def test_affinity_beats_priority(q):
@@ -312,7 +338,7 @@ def test_claim_backstop_fails_loudly(q, r):
 
 def test_demand_counts(q, r):
     q.enqueue(required_caps=[])
-    q.enqueue(required_caps=["gdal"])
+    gdal, _ = q.enqueue(required_caps=["gdal"])
     q.enqueue(required_caps=["gdal", "big"])
     q.enqueue(required_caps=["gpu"])
     assert q.stats(caps=[]).demand == 1
@@ -322,9 +348,11 @@ def test_demand_counts(q, r):
     assert q.stats(caps=["gdal"], min_age_seconds=3600).demand == 0
     # backdate one item's queued time: only it counts at min-age
     old = int(r.time()[0]) * 1000 - 120_000
-    r.zadd(f"{PREFIX}qt:" + store.caps_signature(["gdal"]), {f"{2:016d}": old})
+    enq = int(r.hget(f"{PREFIX}item:{gdal['id']}", "enqueued_at"))
+    member = f"{enq:016d}:{gdal['id']}"
+    r.zadd(f"{PREFIX}qt:" + store.caps_signature(["gdal"]), {member: old})
     assert q.stats(caps=["gdal"], min_age_seconds=60).demand == 1
     q.claim(worker_id="w", caps=["gdal"])
     st = q.stats(caps=["gdal"])
     assert (st.queued, st.claimed, st.demand) == (3, 1, 1)
-    assert set(all_items(r)) == {1, 2, 3, 4}
+    assert len(all_items(r)) == 4

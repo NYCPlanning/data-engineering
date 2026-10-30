@@ -16,7 +16,7 @@ for _, sig in ipairs(redis.call('SMEMBERS', SIGS)) do
   if ok then eligible[#eligible + 1] = sig end
 end
 
--- best = lowest (score, member): highest priority, then oldest id
+-- best = lowest (score, member): highest priority, then oldest enqueue, then id
 local best_m, best_s
 local function consider(key)
   local r = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
@@ -37,7 +37,7 @@ end
 touch_worker(worker, caps_json, t, wttl)
 if not best_m then return false end
 
-local id = tonumber(best_m)
+local id = member_id(best_m)
 local k = ikey(id)
 local v = redis.call('HMGET', k, 'status', 'attempt', 'sig', 'run_id')
 if v[1] ~= 'queued' then
@@ -50,10 +50,10 @@ if redis.call('HEXISTS', attkey(id), attempt) == 1 then
   return redis.error_reply('dagster-broker invariant: attempt ' .. attempt .. ' of item ' ..
     id .. ' already claimed')
 end
-unindex_queued(id, v[3], v[4])
+unindex_queued(best_m, v[3], v[4])
 local lease_until = t + lease_ms
 redis.call('HSET', k, 'status', 'claimed', 'attempt', attempt, 'worker_id', worker,
   'lease_until', lease_until, 'claimed_at', t, 'updated_at', t)
-redis.call('ZADD', LEASES, lease_until, best_m)
+redis.call('ZADD', LEASES, lease_until, id)
 redis.call('HSET', attkey(id), attempt, worker)
 return redis.call('HGETALL', k)

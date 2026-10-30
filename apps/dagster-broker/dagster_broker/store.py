@@ -23,13 +23,15 @@ Durable truth lives in Dagster (runs, Pipes messages it has read) and blob stora
 Clients treat 404 as "the queue forgot this item": the producer re-enqueues with the same
 idempotency key, a worker abandons the attempt.
 
-Key layout (``P`` = key prefix, default ``dagster-broker:``; ids padded to 16 digits in zsets):
+Item ids are random (uuid4 hex), so an id never comes back after a Valkey restart.
 
-- ``P seq``: id counter
+Key layout (``P`` = key prefix, default ``dagster-broker:``):
+
 - ``P item:{id}``: hash with the item's fields; JSON for caps, payload, result
 - ``P sigs``: set of caps signatures (sorted caps as JSON) that have queued items
-- ``P q:{sig}``: zset of queued ids needing exactly those caps, score ``-priority``
-  (equal scores sort by member, so FIFO by id)
+- ``P q:{sig}``: zset of queued items needing exactly those caps, score ``-priority``,
+  member ``{enqueued_at ms, zero-padded}:{id}`` (equal scores sort by member, so oldest
+  enqueue first, then id; a requeued item keeps its place)
 - ``P qr:{sha1(sig, run_id)}``: same, per run_id, for affinity
 - ``P qt:{sig}``: zset of queued ids scored by queued_at (ms), for demand min-age
 - ``P leases``: zset of claimed ids scored by lease_until (ms), for the reaper
@@ -45,6 +47,7 @@ events and idempotency key get a TTL (``terminal_ttl_seconds``).
 from __future__ import annotations
 
 import json
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from importlib import resources
@@ -55,6 +58,12 @@ import redis
 TERMINAL_STATUSES = frozenset({"done", "failed", "dead", "cancelled"})
 DEFAULT_LEASE_SECONDS = 60.0
 WORKER_TTL_SECONDS = 24 * 3600
+
+
+def new_item_id() -> str:
+    """A random item id. Never a counter: Valkey is ephemeral, and a counter would hand
+    out the same ids again after a restart."""
+    return uuid.uuid4().hex
 
 
 class StaleLease(Exception):
@@ -96,14 +105,14 @@ class QueueStore(Protocol):
         lease_seconds: float = DEFAULT_LEASE_SECONDS,
     ) -> dict | None: ...
     def heartbeat(
-        self, item_id: int, *, attempt: int, worker_id: str, lease_seconds: float
+        self, item_id: str, *, attempt: int, worker_id: str, lease_seconds: float
     ) -> Heartbeat: ...
     def complete(
-        self, item_id: int, *, attempt: int, worker_id: str, result: dict | None = None
+        self, item_id: str, *, attempt: int, worker_id: str, result: dict | None = None
     ) -> dict: ...
     def fail(
         self,
-        item_id: int,
+        item_id: str,
         *,
         attempt: int,
         worker_id: str,
@@ -112,7 +121,7 @@ class QueueStore(Protocol):
     ) -> dict: ...
     def add_events(
         self,
-        item_id: int,
+        item_id: str,
         *,
         attempt: int,
         worker_id: str,
@@ -120,15 +129,15 @@ class QueueStore(Protocol):
     ) -> list[str]: ...
     def list_events(
         self,
-        item_id: int,
+        item_id: str,
         *,
         after: str | None = None,
         attempt: int | None = None,
         limit: int = 1000,
     ) -> tuple[list[dict], str | None]: ...
-    def cancel(self, item_id: int) -> tuple[dict, bool]: ...
+    def cancel(self, item_id: str) -> tuple[dict, bool]: ...
     def reap(self, *, limit: int = 1000) -> list[dict]: ...
-    def get_item(self, item_id: int) -> dict | None: ...
+    def get_item(self, item_id: str) -> dict | None: ...
     def stats(
         self, *, caps: Sequence[str] | None = None, min_age_seconds: float = 0
     ) -> Stats: ...
@@ -165,7 +174,7 @@ def _ts(ms: str | int | None) -> datetime | None:
     return datetime.fromtimestamp(int(ms) / 1000, tz=timezone.utc)
 
 
-_INT_FIELDS = ("id", "attempt", "max_attempts", "priority")
+_INT_FIELDS = ("attempt", "max_attempts", "priority")
 _TS_FIELDS = (
     "enqueued_at",
     "queued_at",
@@ -248,7 +257,7 @@ class ValkeyStore:
         return self._scripts[name](keys=[], args=[self.prefix, *args], client=self.r)
 
     @staticmethod
-    def _check(reply: list, item_id: int) -> list:
+    def _check(reply: list, item_id: str) -> list:
         code = reply[0]
         if code == "noitem":
             raise NoSuchItem(item_id)
@@ -294,7 +303,13 @@ class ValkeyStore:
             if value is not None:
                 fields += [name, value]
         inserted, flat = self._run(
-            "enqueue", idempotency_key or "", sig, run_id or "", int(priority), *fields
+            "enqueue",
+            idempotency_key or "",
+            sig,
+            run_id or "",
+            int(priority),
+            new_item_id(),
+            *fields,
         )
         return _item(_pairs(flat)), bool(inserted)
 
@@ -323,7 +338,7 @@ class ValkeyStore:
 
     def heartbeat(
         self,
-        item_id: int,
+        item_id: str,
         *,
         attempt: int,
         worker_id: str,
@@ -345,7 +360,7 @@ class ValkeyStore:
         return Heartbeat(lease_until=lease_until, cancel=reply[2] == "1")
 
     def complete(
-        self, item_id: int, *, attempt: int, worker_id: str, result: dict | None = None
+        self, item_id: str, *, attempt: int, worker_id: str, result: dict | None = None
     ) -> dict:
         reply = self._check(
             self._run(
@@ -362,7 +377,7 @@ class ValkeyStore:
 
     def fail(
         self,
-        item_id: int,
+        item_id: str,
         *,
         attempt: int,
         worker_id: str,
@@ -387,7 +402,7 @@ class ValkeyStore:
 
     def add_events(
         self,
-        item_id: int,
+        item_id: str,
         *,
         attempt: int,
         worker_id: str,
@@ -405,7 +420,7 @@ class ValkeyStore:
 
     def list_events(
         self,
-        item_id: int,
+        item_id: str,
         *,
         after: str | None = None,
         attempt: int | None = None,
@@ -433,7 +448,7 @@ class ValkeyStore:
         cursor = rows[-1][0] if rows else after
         return events, cursor
 
-    def cancel(self, item_id: int) -> tuple[dict, bool]:
+    def cancel(self, item_id: str) -> tuple[dict, bool]:
         """Cancel a queued item now, or flag a claimed one (its worker sees ``cancel`` on
         the next heartbeat). Returns (item, changed); changed is False if it was already
         terminal."""
@@ -443,11 +458,11 @@ class ValkeyStore:
     def reap(self, *, limit: int = 1000) -> list[dict]:
         """Requeue (or kill, or cancel) items whose lease has expired."""
         return [
-            {"id": int(i), "attempt": int(a), "status": s}
+            {"id": i, "attempt": int(a), "status": s}
             for i, a, s in self._run("reap", limit, self.ttl)
         ]
 
-    def get_item(self, item_id: int) -> dict | None:
+    def get_item(self, item_id: str) -> dict | None:
         raw = self.r.hgetall(f"{self.prefix}item:{item_id}")
         return _item(raw) if raw else None
 

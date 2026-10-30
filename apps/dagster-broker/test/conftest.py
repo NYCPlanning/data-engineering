@@ -13,6 +13,7 @@ Without the variable, every test that needs Valkey is skipped.
 """
 
 import os
+import time
 
 import pytest
 import redis
@@ -57,14 +58,20 @@ def q(r):
     return store.ValkeyStore(r, prefix=PREFIX)
 
 
-def all_items(r: redis.Redis) -> dict[int, dict]:
+def all_items(r: redis.Redis) -> dict[str, dict]:
     out = {}
     for key in r.scan_iter(f"{PREFIX}item:*", count=1000):
-        out[int(key.rsplit(":", 1)[1])] = store._item(r.hgetall(key))
+        out[key.rsplit(":", 1)[1]] = store._item(r.hgetall(key))
     return out
 
 
-def attempts_log(r: redis.Redis, item_id: int) -> dict[str, str]:
+def next_ms() -> None:
+    """Sleep past the current millisecond, so the next enqueue has a later enqueue time.
+    Equal-priority items are ordered by enqueue time, then by their (random) id."""
+    time.sleep(0.002)
+
+
+def attempts_log(r: redis.Redis, item_id: str) -> dict[str, str]:
     return r.hgetall(f"{PREFIX}att:{item_id}")
 
 
@@ -72,9 +79,9 @@ def attempts_log(r: redis.Redis, item_id: int) -> dict[str, str]:
 def expire(r):
     """Push an item's lease into the past, as if the worker went quiet."""
 
-    def _expire(item_id: int) -> None:
+    def _expire(item_id: str) -> None:
         past = int(r.time()[0]) * 1000 - 1000
         r.hset(f"{PREFIX}item:{item_id}", "lease_until", past)
-        r.zadd(f"{PREFIX}leases", {f"{item_id:016d}": past})
+        r.zadd(f"{PREFIX}leases", {item_id: past})
 
     return _expire

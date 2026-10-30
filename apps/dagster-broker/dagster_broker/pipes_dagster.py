@@ -251,7 +251,7 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
             try:
                 current = self.broker.get_item(item["id"])
                 if current.get("idempotency_key") != item.get("idempotency_key"):
-                    # ids restart with Valkey: this id now belongs to someone else's item
+                    # ids are random and never reused, but guard anyway: only follow our own item
                     raise NotFound(404, "id reused", "GET", f"/items/{item['id']}")
                 cursor = self._drain(context, reader, item["id"], cursor)
             except NotFound:
@@ -288,7 +288,7 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
             time.sleep(self.poll_interval)
 
     def _drain(
-        self, context, reader: BrokerMessageReader, item_id: int, cursor: str | None
+        self, context, reader: BrokerMessageReader, item_id: str, cursor: str | None
     ) -> str | None:
         while True:
             events, new_cursor = self.broker.events(item_id, after=cursor, limit=1000)
@@ -304,7 +304,7 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
                 return new_cursor
             cursor = new_cursor
 
-    def _cancel(self, context, item_id: int) -> None:
+    def _cancel(self, context, item_id: str) -> None:
         context.log.warning(f"[dagster-broker] run terminated: cancelling item {item_id}")
         try:
             self.broker.cancel(item_id)

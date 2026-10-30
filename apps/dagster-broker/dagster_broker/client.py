@@ -174,12 +174,12 @@ class BrokerClient:
         )
         return item, status == 201
 
-    def get_item(self, item_id: int) -> dict:
+    def get_item(self, item_id: str) -> dict:
         return self._call("GET", f"/items/{item_id}")[1]
 
     def events(
         self,
-        item_id: int,
+        item_id: str,
         *,
         after: str | None = None,
         attempt: int | None = None,
@@ -193,7 +193,7 @@ class BrokerClient:
         )[1]
         return body["events"], body["cursor"]
 
-    def cancel(self, item_id: int) -> dict:
+    def cancel(self, item_id: str) -> dict:
         return self._call("POST", f"/items/{item_id}/cancel")[1]
 
     def demand(self, caps: Iterable[str] = (), min_age_seconds: float = 0) -> dict:
@@ -226,7 +226,7 @@ class BrokerClient:
         )
         return None if status == 204 else item
 
-    def heartbeat(self, item_id: int, *, worker_id: str, attempt: int) -> dict:
+    def heartbeat(self, item_id: str, *, worker_id: str, attempt: int) -> dict:
         """``{lease_until, cancel}``."""
         return self._call(
             "POST",
@@ -235,7 +235,7 @@ class BrokerClient:
         )[1]
 
     def add_events(
-        self, item_id: int, *, worker_id: str, attempt: int, events: Sequence[dict]
+        self, item_id: str, *, worker_id: str, attempt: int, events: Sequence[dict]
     ) -> list[str]:
         """Append ``[{kind, data}, ...]`` all or nothing."""
         return self._call(
@@ -245,7 +245,7 @@ class BrokerClient:
         )[1]["ids"]
 
     def complete(
-        self, item_id: int, *, worker_id: str, attempt: int, result: dict | None = None
+        self, item_id: str, *, worker_id: str, attempt: int, result: dict | None = None
     ) -> dict:
         return self._call(
             "POST",
@@ -255,7 +255,7 @@ class BrokerClient:
 
     def fail(
         self,
-        item_id: int,
+        item_id: str,
         *,
         worker_id: str,
         attempt: int,

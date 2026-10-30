@@ -93,7 +93,7 @@ class _Attempt:
     """One claimed (item, attempt): the step process and why it was stopped, if it was."""
 
     def __init__(self, item: dict, proc: subprocess.Popen, grace: float):
-        self.item_id: int = item["id"]
+        self.item_id: str = item["id"]
         self.attempt: int = item["attempt"]
         self.proc = proc
         self.grace = grace
@@ -199,7 +199,7 @@ class Worker:
         env.update(payload.get("pipes") or {})
         env.update(
             DAGSTER_BROKER_URL=self.cfg.broker_url,
-            DAGSTER_BROKER_ITEM_ID=str(item["id"]),
+            DAGSTER_BROKER_ITEM_ID=item["id"],
             DAGSTER_BROKER_ATTEMPT=str(item["attempt"]),
             DAGSTER_BROKER_WORKER_ID=self.cfg.worker_id,
         )
@@ -324,7 +324,7 @@ class Worker:
                 **token,
             )
 
-    def _report(self, fn, item_id: int, **kwargs) -> None:
+    def _report(self, fn, item_id: str, **kwargs) -> None:
         """complete/fail; 404/409 just mean someone else owns the outcome now."""
         try:
             fn(item_id, **kwargs)

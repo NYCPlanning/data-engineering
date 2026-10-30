@@ -8,8 +8,9 @@ is a control plane only: it holds no credentials, and artifacts never pass throu
 
 Valkey runs with no persistence, so a restart (or a redeploy) loses every item. That is
 fine because the durable truth lives elsewhere: Dagster has the runs and the Pipes
-messages it has already read, and blob storage has the artifacts. Clients must treat
-**404 as "the queue forgot this item"**, never as an error to crash on:
+messages it has already read, and blob storage has the artifacts. Item ids are random
+(uuid4 hex), so an id from before a restart never names a different item after it.
+Clients must treat **404 as "the queue forgot this item"**, never as an error to crash on:
 
 - the producer (the Dagster-side Pipes client) re-enqueues with the **same idempotency
   key**;
@@ -76,7 +77,8 @@ All routes except `/healthz` and `/readyz` need `X-Dagster-Broker-Key` when a ke
 `(id, attempt, worker_id)` is the fencing token: a heartbeat, event, complete or fail
 from anyone but the current holder of that attempt gets **409**. A claim matches an item
 when the item's `required_caps` are a subset of the worker's `caps`, and picks items whose
-`run_id` is in `affinity_run_ids` first, then higher `priority`, then oldest. Lease expiry
+`run_id` is in `affinity_run_ids` first, then higher `priority`, then oldest enqueue (ties
+by id; a requeued item keeps its place). Lease expiry
 is the reaper's call: a heartbeat or complete after `lease_until` but before the reaper
 has run still succeeds.
 

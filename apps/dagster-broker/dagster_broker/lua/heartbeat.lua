@@ -7,6 +7,6 @@ if bad then return {bad} end
 local t = now_ms()
 local lease_until = t + tonumber(ARGV[5])
 redis.call('HSET', k, 'lease_until', lease_until, 'updated_at', t)
-redis.call('ZADD', LEASES, lease_until, pad(id))
+redis.call('ZADD', LEASES, lease_until, id)
 touch_worker(worker, nil, t, tonumber(ARGV[6]))
 return {'ok', lease_until, redis.call('HGET', k, 'cancel_requested')}

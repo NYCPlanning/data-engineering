@@ -301,7 +301,7 @@ def split_claim(s: store.ValkeyStore, worker_id: str) -> dict | None:
     head = s.r.zrange(f"{PREFIX}q:{sig}", 0, 0)
     if not head:
         return None
-    item_id = int(head[0])
+    item_id = head[0].split(":", 1)[1]
     k = f"{PREFIX}item:{item_id}"
     attempt = s.r.hincrby(k, "attempt", 1)
     s.r.zrem(f"{PREFIX}q:{sig}", head[0])

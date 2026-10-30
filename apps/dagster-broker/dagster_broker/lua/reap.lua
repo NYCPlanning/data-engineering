@@ -6,7 +6,7 @@ local t = now_ms()
 local out = {}
 local expired = redis.call('ZRANGE', LEASES, '-inf', '(' .. t, 'BYSCORE', 'LIMIT', 0, tonumber(ARGV[2]))
 for _, m in ipairs(expired) do
-  local id = tonumber(m)
+  local id = m
   local k = ikey(id)
   local v = redis.call('HMGET', k, 'status', 'lease_until', 'attempt', 'worker_id')
   if v[1] ~= 'claimed' then

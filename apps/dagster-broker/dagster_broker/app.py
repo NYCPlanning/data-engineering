@@ -160,7 +160,7 @@ def enqueue_item(
 
 
 @router.get("/items/{item_id}")
-def get_item(item_id: int, s: store.ValkeyStore = Depends(get_store)) -> dict:
+def get_item(item_id: str, s: store.ValkeyStore = Depends(get_store)) -> dict:
     item = s.get_item(item_id)
     if item is None:
         raise not_found()
@@ -169,7 +169,7 @@ def get_item(item_id: int, s: store.ValkeyStore = Depends(get_store)) -> dict:
 
 @router.get("/items/{item_id}/events")
 def get_events(
-    item_id: int,
+    item_id: str,
     after: str | None = Query(default=None, pattern=r"^\d+-\d+$"),
     attempt: int | None = Query(default=None, ge=1),
     limit: int = Query(default=1000, ge=1, le=10_000),
@@ -184,7 +184,7 @@ def get_events(
 
 
 @router.post("/items/{item_id}/cancel")
-def cancel_item(item_id: int, s: store.ValkeyStore = Depends(get_store)) -> dict:
+def cancel_item(item_id: str, s: store.ValkeyStore = Depends(get_store)) -> dict:
     item, _ = fenced(s.cancel, item_id)
     return item  # an already-terminal item is returned unchanged
 
@@ -208,7 +208,7 @@ def claim(
 
 @router.post("/work/{item_id}/heartbeat")
 def heartbeat(
-    item_id: int,
+    item_id: str,
     body: Fenced,
     s: store.ValkeyStore = Depends(get_store),
     settings: Settings = Depends(get_settings),
@@ -225,7 +225,7 @@ def heartbeat(
 
 @router.post("/work/{item_id}/events", status_code=201)
 def add_events(
-    item_id: int, body: EventRequest, s: store.ValkeyStore = Depends(get_store)
+    item_id: str, body: EventRequest, s: store.ValkeyStore = Depends(get_store)
 ) -> dict:
     ids = fenced(
         s.add_events,
@@ -239,14 +239,14 @@ def add_events(
 
 @router.post("/work/{item_id}/complete")
 def complete(
-    item_id: int, body: CompleteRequest, s: store.ValkeyStore = Depends(get_store)
+    item_id: str, body: CompleteRequest, s: store.ValkeyStore = Depends(get_store)
 ) -> dict:
     return fenced(s.complete, item_id, **body.model_dump())
 
 
 @router.post("/work/{item_id}/fail")
 def fail(
-    item_id: int, body: FailRequest, s: store.ValkeyStore = Depends(get_store)
+    item_id: str, body: FailRequest, s: store.ValkeyStore = Depends(get_store)
 ) -> dict:
     return fenced(s.fail, item_id, **body.model_dump())
 

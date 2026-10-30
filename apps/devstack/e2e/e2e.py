@@ -23,7 +23,7 @@ TERMINAL = {
     DagsterRunStatus.FAILURE,
     DagsterRunStatus.CANCELED,
 }
-CLAIMED = re.compile(r"\[dagster-broker\] item (\d+) attempt (\d+) on worker (\S+)")
+CLAIMED = re.compile(r"\[dagster-broker\] item ([0-9a-f]+) attempt (\d+) on worker (\S+)")
 BUCKET = os.environ.get("DEVSTACK_BUCKET", "devstack")
 
 
@@ -73,7 +73,7 @@ def claims(inst: DagsterInstance, run_id: str, step: str) -> list[tuple[int, int
     out = []
     for e in inst.all_logs(run_id):
         if e.step_key == step and (m := CLAIMED.search(e.user_message or "")):
-            out.append((int(m[1]), int(m[2]), m[3]))
+            out.append((m[1], int(m[2]), m[3]))
     return out
 
 
@@ -246,7 +246,7 @@ def main() -> None:
     s.add_argument("--expect-clean-staging", action="store_true")
     s.set_defaults(fn=assert_chain)
     s = sub.add_parser("item")
-    s.add_argument("item_id", type=int)
+    s.add_argument("item_id")
     s.set_defaults(fn=item)
     a = p.parse_args()
     a.fn(a)

@@ -8,8 +8,11 @@ local function now_ms()
   return tonumber(t[1]) * 1000 + math.floor(tonumber(t[2]) / 1000)
 end
 
--- zset members are zero-padded ids, so equal scores (same priority) sort FIFO
-local function pad(id) return string.format('%016d', tonumber(id)) end
+-- Ids are random (uuid4 hex), so they never repeat across Valkey restarts. Queue zset
+-- members are '<enqueued_at ms, zero-padded>:<id>', so equal scores (same priority) sort by
+-- enqueue time, then id. The leases zset uses bare ids.
+local function qmember(id, enq) return string.format('%016d', tonumber(enq)) .. ':' .. id end
+local function member_id(m) return string.match(m, ':(.*)$') end
 local function ikey(id) return P .. 'item:' .. id end
 local function attkey(id) return P .. 'att:' .. id end
 local function evkey(id) return P .. 'ev:' .. id end
@@ -19,16 +22,15 @@ local function qrkey(sig, run) return P .. 'qr:' .. redis.sha1hex(sig .. '\0' ..
 local LEASES = P .. 'leases'
 local SIGS = P .. 'sigs'
 
-local function index_queued(id, sig, run, prio, t)
-  local m = pad(id)
+local function index_queued(id, sig, run, prio, t, enq)
+  local m = qmember(id, enq)
   redis.call('ZADD', qkey(sig), -prio, m)
   redis.call('ZADD', qtkey(sig), t, m)
   if run then redis.call('ZADD', qrkey(sig, run), -prio, m) end
   redis.call('SADD', SIGS, sig)
 end
 
-local function unindex_queued(id, sig, run)
-  local m = pad(id)
+local function unindex_queued(m, sig, run)
   redis.call('ZREM', qkey(sig), m)
   redis.call('ZREM', qtkey(sig), m)
   if run then redis.call('ZREM', qrkey(sig, run), m) end
@@ -53,7 +55,7 @@ end
 
 -- leave the claimed state: drop the lease and the holder
 local function release(id, k)
-  redis.call('ZREM', LEASES, pad(id))
+  redis.call('ZREM', LEASES, id)
   redis.call('HDEL', k, 'worker_id', 'lease_until')
 end
 
@@ -69,9 +71,9 @@ end
 
 -- back to queued after a failed or expired attempt (keeps its original FIFO position)
 local function requeue(id, k, t)
-  local v = redis.call('HMGET', k, 'sig', 'run_id', 'priority')
+  local v = redis.call('HMGET', k, 'sig', 'run_id', 'priority', 'enqueued_at')
   redis.call('HSET', k, 'status', 'queued', 'queued_at', t, 'updated_at', t)
-  index_queued(id, v[1], v[2], tonumber(v[3]), t)
+  index_queued(id, v[1], v[2], tonumber(v[3]), t, v[4])
 end
 
 -- after attempt n ends without success: queued, dead, or cancelled
