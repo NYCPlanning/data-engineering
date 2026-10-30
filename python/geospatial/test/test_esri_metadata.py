@@ -2,7 +2,11 @@ from datetime import datetime
 
 from pytest import fixture
 
-from dcpy.geospatial.esri_metadata import generate_metadata
+from dcpy.geospatial.esri_metadata import (
+    generate_iso_metadata,
+    generate_metadata,
+    to_esri_rich_text,
+)
 
 
 @fixture
@@ -113,3 +117,45 @@ def test_build_layer_metadata_drops_shp_suffix():
 
     md = build_layer_metadata(_dataset(), "nypuma2020.shp", "shp_data_type")
     assert md.eainfo.detailed.enttyp.enttypl.value == "nypuma2020"
+
+
+def test_generate_iso_metadata_matches_iso_19115_3_structure():
+    """Follows a Pro-synced ISO 19115-3 reference: utf8 char sets, no
+    scaleRange or mdStanName/mdStanVer."""
+    md = generate_iso_metadata()
+    assert md.esri.arc_gis_profile == "ISO19115_3"
+    assert md.esri.scale_range is None
+    assert md.md_stan_name is None
+    assert md.md_stan_ver is None
+    assert md.md_char.char_set_cd.value == "004"
+    assert md.data_id_info.data_char.char_set_cd.value == "004"
+
+    xml = md.to_xml().decode()
+    for absent in ("scaleRange", "mdStanName", "mdStanVer", "otherKeys"):
+        assert absent not in xml
+
+
+def test_to_esri_rich_text_paragraphs():
+    text = "First paragraph,\nwrapped.\n\nSecond paragraph.\n\n\nThird."
+    assert to_esri_rich_text(text) == (
+        "<p>First paragraph, wrapped.</p><p>Second paragraph.</p><p>Third.</p>"
+    )
+
+
+def test_to_esri_rich_text_escapes_markup():
+    assert to_esri_rich_text("Tax & lots <b>") == "<p>Tax &amp; lots &lt;b&gt;</p>"
+
+
+def test_to_esri_rich_text_empty():
+    assert to_esri_rich_text(None) is None
+    assert to_esri_rich_text("  \n ") is None
+
+
+def test_generate_metadata_defaults_unchanged():
+    """generate_metadata() (CSCL's build_layer_metadata) keeps its original
+    defaults; only generate_iso_metadata() applies the ISO 19115-3 structure."""
+    md = generate_metadata()
+    assert md.esri.arc_gis_profile == "ISO19139"
+    assert md.esri.scale_range is not None
+    assert md.md_stan_name == "ArcGIS Metadata"
+    assert md.md_stan_ver == 1.0
