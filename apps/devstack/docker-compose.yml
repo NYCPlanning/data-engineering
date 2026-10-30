@@ -1,96 +1,59 @@
 # Local dev stack for the hybrid-runner / dagster-broker work (tracker epic inv-k0d).
-# Separate from apps/docker-compose*.yml (the prod compose); doesn't replace it.
 #
-#   docker compose -f apps/devstack/docker-compose.yml up -d          # default stack
-#   docker compose -f apps/devstack/docker-compose.yml --profile s3proxy up -d   # + s3proxy
-#   docker compose -f apps/devstack/docker-compose.yml down -v        # stop + wipe volumes
-#
-# See apps/devstack/README.md.
+#   docker compose -f apps/devstack/docker-compose.yml up -d
+#   docker compose -f apps/devstack/docker-compose.yml run --rm check
+#   docker compose -f apps/devstack/docker-compose.yml down -v
 
-# One slim arch-native python image (./python) runs every python service here: dagster,
-# dagster-broker and the workers. The repo is mounted at /repo and is on PYTHONPATH.
-x-py: &py
-  image: devstack-python:local
-  build: ./python
-  volumes:
-    - ${DATA_ENGINEERING_PATH:-../..}:/repo
+# Every python and gateway service runs the de-apps image (apps/docker/Dockerfile) with the
+# local repo mounted where prod clones it. Python deps live in one venv volume, synced by 'venv'.
+x-app: &app
+  image: de-apps:devstack
+  platform: linux/amd64
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  entrypoint: ["/usr/bin/env"]
+  working_dir: /app/repos/data-engineering
   init: true
+  volumes:
+    - ${DATA_ENGINEERING_PATH:-../..}:/app/repos/data-engineering
+    - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+    - venv:/opt/venv
 
-x-dagster-broker-env: &dagster-broker-env
+x-env: &env
+  PATH: /opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PYTHONUNBUFFERED: "1"
+  PYTHONPATH: /app/repos/data-engineering/apps/devstack/demo_location
   DAGSTER_BROKER_SHARED_KEY: devstack-dagster-broker-key
-
-# Credentials for the S3 gateway (versitygw), for the Dagster side (promotion) and steps.
-x-gateway-env: &gateway-env
-  AWS_S3_ENDPOINT: http://versitygw:7070
+  DAGSTER_BROKER_URL: http://dagster-broker:8000
+  DAGSTER_PG_HOST: postgres
+  DAGSTER_PG_USER: devstack
+  DAGSTER_PG_PASSWORD: devstack
+  DAGSTER_PG_DB: dagster
+  AWS_S3_ENDPOINT: http://az-blob-gateway:7070
   AWS_ACCESS_KEY_ID: devstack
   AWS_SECRET_ACCESS_KEY: devstack-secret
   AWS_DEFAULT_REGION: us-east-1
   DEVSTACK_BUCKET: devstack
 
-# The devstack's own Dagster: demo code location (demo_location/), Postgres storage.
-x-slim-dagster: &slim-dagster
-  <<: *py
-  environment: &slim-dagster-env
-    <<: [*dagster-broker-env, *gateway-env]
-    DAGSTER_HOME: /opt/dagster/dagster_home
-    DAGSTER_PG_HOST: postgres
-    DAGSTER_PG_USER: devstack
-    DAGSTER_PG_PASSWORD: devstack
-    DAGSTER_PG_DB: dagster
-    DAGSTER_BROKER_URL: http://dagster-broker:8000
-  volumes:
-    - ${DATA_ENGINEERING_PATH:-../..}:/repo
-    - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+x-py: &py
+  <<: *app
+  environment: *env
+  depends_on: &py-deps
+    venv:
+      condition: service_completed_successfully
 
-# Mock workers: the real dagster_broker.worker loop; steps come from the mounted repo.
 x-worker: &worker
   <<: *py
   command: ["python", "-m", "dagster_broker.worker"]
   environment: &worker-env
-    <<: [*dagster-broker-env, *gateway-env]
-    DAGSTER_BROKER_URL: http://dagster-broker:8000
+    <<: *env
     WORKER_CAPS: ""
     WORKER_HEARTBEAT_SECONDS: "3"
     WORKER_IDLE_EXIT_SECONDS: "0"
   stop_grace_period: 20s
   depends_on:
     dagster-broker:
-      condition: service_healthy
-
-# apps/dagster's own image and code location (dcpy). amd64-only and ~5GB, so it's opt-in:
-#   docker compose -f apps/devstack/docker-compose.yml --profile dcpy-dagster up -d
-x-dagster: &dagster
-  profiles: ["dcpy-dagster"]
-  image: devstack-dagster:local
-  build:
-    context: ../dagster
-    dockerfile: Dockerfile
-  environment: &dagster-env
-    DAGSTER_HOME: /opt/dagster/dagster_home
-    DAGSTER_PG_HOST: postgres
-    DAGSTER_PG_USER: devstack
-    DAGSTER_PG_PASSWORD: devstack
-    DAGSTER_PG_DB: dagster_dcpy
-    DCPY_LIFECYCLE_DATA_DIR: /opt/dagster/lifecycle
-    # dcpy's default is relative to cwd (/app/dagster); point it at the mounted repo.
-    TEMPLATE_DIR: /app/repos/data-engineering/ingest_templates
-    # Keep the venv out of the repo mount (see apps/docker-compose.yml).
-    UV_PROJECT_ENVIRONMENT: /opt/venv
-    # No separate uv cache volume: halves the disk the venv takes on a small Docker VM.
-    UV_NO_CACHE: "1"
-    # Artifact gateway (S3 API in front of Azurite). dcpy's s3 storage type takes
-    # endpoint_url, so this is what off-VPC code would point at.
-    AWS_S3_ENDPOINT: http://versitygw:7070
-    AWS_ACCESS_KEY_ID: devstack
-    AWS_SECRET_ACCESS_KEY: devstack-secret
-  volumes:
-    - ${DATA_ENGINEERING_PATH:-../..}:/app/repos/data-engineering
-    - ${DATA_ENGINEERING_PATH:-../..}/apps/dagster:/app/dagster
-    - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
-    - dagster-venv:/opt/venv
-    - dagster-lifecycle:/opt/dagster/lifecycle
-  depends_on:
-    postgres:
       condition: service_healthy
 
 services:
@@ -113,20 +76,17 @@ services:
 
   # Self-signed cert for Azurite. HTTPS is needed for real server-side copy: versitygw
   # signs copy-source SAS URLs as https-only, and over plain HTTP its CopyObject quietly
-  # falls back to streaming through the gateway and UploadPartCopy fails outright.
-  # Written to ./.certs (gitignored) so host clients (bench.py) can trust it too.
+  # falls back to streaming through the gateway.
   certs:
     image: alpine/openssl:3.5.9
     entrypoint: ["sh", "-c"]
     command:
       - |
         set -e
-        [ -f /certs/trust.p12 ] && exit 0
+        [ -f /certs/azurite.pem ] && exit 0
         openssl req -x509 -newkey rsa:2048 -nodes -days 825 -subj /CN=azurite \
           -addext subjectAltName=DNS:azurite,DNS:localhost,IP:127.0.0.1 \
           -keyout /certs/azurite-key.pem -out /certs/azurite.pem
-        openssl pkcs12 -export -nokeys -in /certs/azurite.pem -jdktrust anyExtendedKeyUsage \
-          -passout pass:changeit -out /certs/trust.p12
         chmod 644 /certs/*
     volumes:
       - ./.certs:/certs
@@ -155,11 +115,9 @@ services:
       certs:
         condition: service_completed_successfully
 
-  # Default artifact gateway: S3 API -> Azure Blob (Azurite here, managed identity in Azure:
-  # leave AZ_ACCESS_KEY unset and versitygw falls back to DefaultAzureCredential).
-  # Flags: versitygw v1.10.0 cmd/internal/gwcli/azure.go.
-  versitygw:
-    image: versity/versitygw:v1.10.0
+  az-blob-gateway:
+    <<: *app
+    entrypoint: ["/app/docker/entrypoints/az-blob-gateway.sh"]
     environment:
       ROOT_ACCESS_KEY_ID: devstack
       ROOT_SECRET_ACCESS_KEY: devstack-secret
@@ -169,72 +127,38 @@ services:
       SSL_CERT_FILE: /certs/azurite.pem
       # Azurite lags the SDK's SAS version (versitygw's own azurite CI pins this).
       AZ_COPY_SAS_VERSION: "2025-11-05"
-    command: ["--port", ":7070", "--health", "/health", "azure"]
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:7070/health"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
     volumes:
       - ./.certs:/certs:ro
     ports:
       - "127.0.0.1:7070:7070"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:7070/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     depends_on:
       azurite:
         condition: service_healthy
 
-  # Gateway doctor (apps/az-blob-gateway/doctor, inv-k0d.14) on the compose network, the same
-  # image the Azure 'az-blob-gateway-doctor' job runs:
-  #   docker compose -f apps/devstack/docker-compose.yml --profile doctor run --rm doctor
-  # --inside adds the backend-path layers; here they run against Azurite, and mi_token fails
-  # (no managed identity outside Azure).
-  doctor:
-    image: az-blob-gateway-doctor:local
-    build: ../az-blob-gateway/doctor
-    profiles: ["doctor"]
+  # Syncs the workspace deps every python service needs into the venv volume.
+  venv:
+    <<: *app
     environment:
-      GATEWAY_URL: http://versitygw:7070
-      GATEWAY_ACCESS_KEY: devstack
-      GATEWAY_SECRET_KEY: devstack-secret
-      AZ_ACCOUNT_NAME: devstoreaccount1
-      DOCTOR_BLOB_ENDPOINT: https://azurite:10000/devstoreaccount1
-      SSL_CERT_FILE: /certs/azurite.pem
-    volumes:
-      - ./.certs:/certs:ro
-    depends_on:
-      versitygw:
-        condition: service_healthy
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+      UV_LINK_MODE: copy
+    command:
+      - uv
+      - sync
+      - --frozen
+      - --no-dev
+      - --package=dcpy-app-dagster
+      - --package=dcpy-app-dagster-broker
+      - --extra=worker
+      - --extra=dagster
 
-  # Runner-up gateway, kept for comparison: docker compose --profile s3proxy up -d
-  # Env vars: s3proxy 4.1.1 src/main/config/run-docker-container.sh.
-  s3proxy:
-    image: andrewgaul/s3proxy:s3proxy-4.1.1
-    profiles: ["s3proxy"]
-    environment:
-      S3PROXY_ENDPOINT: http://0.0.0.0:80
-      S3PROXY_AUTHORIZATION: aws-v2-or-v4
-      S3PROXY_IDENTITY: devstack
-      S3PROXY_CREDENTIAL: devstack-secret
-      JCLOUDS_PROVIDER: azureblob-sdk
-      JCLOUDS_IDENTITY: devstoreaccount1
-      JCLOUDS_CREDENTIAL: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
-      JCLOUDS_ENDPOINT: https://azurite:10000/devstoreaccount1
-      S3PROXY_JAVA_OPTS: >-
-        -Djavax.net.ssl.trustStore=/certs/trust.p12 -Djavax.net.ssl.trustStoreType=PKCS12
-        -Djavax.net.ssl.trustStorePassword=changeit
-    volumes:
-      - ./.certs:/certs:ro
-    ports:
-      - "127.0.0.1:7071:80"
-    depends_on:
-      azurite:
-        condition: service_healthy
-
-  # Creates the gateway bucket the demo uses (an Azure container behind versitygw).
+  # Creates the bucket (an Azure container behind the gateway) the demo uses.
   gateway-init:
     <<: *py
-    environment:
-      <<: *gateway-env
     command:
       - python
       - -c
@@ -246,35 +170,47 @@ services:
             s3.create_bucket(Bucket=b)
         print("bucket", b, "ready")
     depends_on:
-      versitygw:
+      <<: *py-deps
+      az-blob-gateway:
         condition: service_healthy
+
+  # One-shot gateway check: docker compose run --rm check
+  check:
+    <<: *py
+    profiles: ["check"]
+    command: ["python", "apps/az-blob-gateway/check.py", "--bucket", "devstack"]
+    depends_on:
+      gateway-init:
+        condition: service_completed_successfully
 
   # Shared gRPC code server: runs launched by the daemon execute here, so the webserver
   # can terminate them (DefaultRunLauncher talks to the server that launched the run).
   dagster-code:
-    <<: *slim-dagster
+    <<: *py
     command: ["dagster", "api", "grpc", "-m", "devstack_demo.definitions", "-h", "0.0.0.0", "-p", "4000"]
     healthcheck:
       test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
       interval: 3s
       timeout: 10s
-      retries: 40
+      retries: 60
     depends_on:
+      <<: *py-deps
       postgres:
         condition: service_healthy
 
   dagster-webserver:
-    <<: *slim-dagster
-    command: >
-      sh -c "dagster instance migrate
-      && dagster-webserver -h 0.0.0.0 -p 3000 -w /repo/apps/devstack/demo_location/workspace.yaml"
+    <<: *py
+    command:
+      - sh
+      - -c
+      - dagster instance migrate && exec dagster-webserver -h 0.0.0.0 -p 3000 -w apps/devstack/demo_location/workspace.yaml
     ports:
       - "127.0.0.1:3000:3000"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info')"]
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:3000/server_info"]
       interval: 3s
       timeout: 5s
-      retries: 60
+      retries: 100
     depends_on:
       dagster-code:
         condition: service_healthy
@@ -284,8 +220,8 @@ services:
         condition: service_healthy
 
   dagster-daemon:
-    <<: *slim-dagster
-    command: ["dagster-daemon", "run", "-w", "/repo/apps/devstack/demo_location/workspace.yaml"]
+    <<: *py
+    command: ["dagster-daemon", "run", "-w", "apps/devstack/demo_location/workspace.yaml"]
     depends_on:
       dagster-webserver:
         condition: service_healthy
@@ -301,35 +237,13 @@ services:
       <<: *worker-env
       WORKER_CAPS: esri
 
-  dcpy-dagster-webserver:
-    <<: *dagster
-    command: >
-      sh -c "uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster instance migrate
-      && uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml"
-    ports:
-      - "127.0.0.1:3001:3000"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info')"]
-      interval: 10s
-      timeout: 5s
-      retries: 60
-      start_period: 60s
-
-  dcpy-dagster-daemon:
-    <<: *dagster
-    command: ["sh", "-c", "uv run --project /app/repos/data-engineering --package dcpy-app-dagster -- dagster-daemon run"]
-    depends_on:
-      dcpy-dagster-webserver:
-        condition: service_healthy
-
-  # --- dagster-broker (inv-k0d.3): queue API + in-memory Valkey sidecar ---------------------
-  # Valkey shares dagster-broker's network namespace (as a sidecar container does in a container
-  # app), so it is reachable only on dagster-broker's localhost and has no port of its own.
+  # Valkey runs as a sidecar in dagster-broker's network namespace (as in a container app),
+  # so it is reachable only on dagster-broker's localhost.
   dagster-broker:
     <<: *py
     command: ["uvicorn", "dagster_broker.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
     environment:
-      <<: *dagster-broker-env
+      <<: *env
       DAGSTER_BROKER_VALKEY_URL: redis://127.0.0.1:6379/0
       # Short lease + frequent reaping so the chaos checks (kill a worker) finish quickly.
       DAGSTER_BROKER_LEASE_SECONDS: "15"
@@ -338,22 +252,15 @@ services:
       - "127.0.0.1:8000:8000"
     healthcheck:
       # readyz = Valkey PING + maxmemory set + noeviction
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz')"]
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8000/readyz"]
       interval: 2s
       timeout: 3s
-      retries: 30
+      retries: 60
 
   valkey:
-    image: valkey/valkey:9.1.3-alpine
+    <<: *app
     network_mode: service:dagster-broker
-    command: ["valkey-server", "/etc/valkey/valkey.conf", "--maxmemory", "64mb"]
-    volumes:
-      - ../dagster-broker/valkey.conf:/etc/valkey/valkey.conf:ro
-    healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
-      interval: 2s
-      timeout: 3s
-      retries: 30
+    command: ["valkey-server", "apps/dagster-broker/valkey.conf", "--maxmemory", "64mb"]
     depends_on:
       dagster-broker:
         condition: service_started
@@ -361,5 +268,4 @@ services:
 volumes:
   pg-data:
   azurite-data:
-  dagster-venv:
-  dagster-lifecycle:
+  venv:

@@ -12,6 +12,10 @@ RUN apt-get update && \
     apt-get install -y git && \
     rm -rf /var/lib/apt/lists/*
 
+# S3 gateway in front of Azure Blob (az-blob-gateway.sh) and dagster-broker's queue store
+COPY --from=versity/versitygw:v1.10.0 /usr/local/bin/versitygw /usr/local/bin/versitygw
+COPY --from=valkey/valkey:9.1.3 /usr/local/bin/valkey-server /usr/local/bin/valkey-server
+
 # Copy shared docker scripts and configs
 COPY docker/scripts /app/docker/scripts
 COPY docker/supervisord /app/docker/supervisord

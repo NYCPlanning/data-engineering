@@ -11,7 +11,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 dc() { docker compose -f docker-compose.yml "$@"; }
-e2e() { dc exec -T dagster-webserver python /repo/apps/devstack/e2e/e2e.py "$@"; }
+e2e() { dc exec -T dagster-webserver python apps/devstack/e2e/e2e.py "$@"; }
 broker() { curl -fsS -H "X-Dagster-Broker-Key: devstack-dagster-broker-key" "http://127.0.0.1:8000$1"; }
 log() { printf '\n== %s\n' "$*"; }
 die() { echo "FAIL: $*"; exit 1; }

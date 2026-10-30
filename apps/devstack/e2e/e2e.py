@@ -1,7 +1,7 @@
 """Dagster-side half of the devstack e2e (apps/devstack/e2e/e2e.sh drives it).
 
 Runs inside the dagster-webserver container (DAGSTER_HOME, the GraphQL API on :3000 and
-the gateway are all there): ``python /repo/apps/devstack/e2e/e2e.py <command> ...``.
+the gateway are all there): ``python apps/devstack/e2e/e2e.py <command> ...``.
 Launches runs over GraphQL, reads results from the Dagster instance and checks promoted
 outputs through the S3 gateway. Each command prints one line and exits non-zero on failure.
 """
