@@ -187,6 +187,8 @@ services:
       DAGSTER_PG_USER: local
       DAGSTER_PG_PASSWORD: local
       DAGSTER_PG_DB: dagster
+      TEMPLATE_DIR: /app/repos/data-engineering/ingest_templates
+      DCPY_LIFECYCLE_DATA_DIR: /tmp/dcpy-lifecycle
     command:
       - sh
       - -c

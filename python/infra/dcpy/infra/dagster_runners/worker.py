@@ -273,7 +273,7 @@ class Worker:
             if self.shutdown.is_set():
                 att.stop("worker shutdown")
             att.forward_output()
-            rc = att.proc.wait()
+            rc = att.proc.wait()  # type: ignore[union-attr]
             self.finish(att, rc, p, staging, time.monotonic() - started)
         finally:
             att.done.set()

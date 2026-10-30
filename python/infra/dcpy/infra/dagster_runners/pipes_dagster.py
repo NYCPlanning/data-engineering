@@ -11,6 +11,7 @@ item and the worker kills the step on its next heartbeat.
 
 import time
 from contextlib import contextmanager
+from typing import Any
 
 from dagster import (
     DagsterExecutionInterruptedError,
@@ -35,8 +36,8 @@ class BrokerMessageReader(PipesMessageReader):
     reported, so a crashed attempt can't report twice."""
 
     def __init__(self) -> None:
-        self.handler = None
-        self.attempt = None
+        self.handler: Any = None
+        self.attempt: int | None = None
         self.held: list[dict] = []
         self.opened = False
 
@@ -59,15 +60,22 @@ class BrokerMessageReader(PipesMessageReader):
             self.handler.handle_message(message)
 
     def flush(self, attempt: int) -> None:
-        for message in self.held if attempt == self.attempt else []:
-            self.handler.handle_message(message)
+        if attempt == self.attempt:
+            for message in self.held:
+                self.handler.handle_message(message)
 
 
 class PipesBrokerClient(PipesClient, TreatAsResourceParam):
     def __init__(self, *, bucket: str, broker: BrokerClient | None = None, poll=1.0):
         self.bucket = bucket
-        self.broker = broker
+        self._broker = broker
         self.poll = poll
+
+    @property
+    def broker(self) -> BrokerClient:
+        # made on first use, so loading the definitions needs no broker env vars
+        self._broker = self._broker or BrokerClient()
+        return self._broker
 
     def run(  # type: ignore[override]
         self,
@@ -82,7 +90,6 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
     ) -> PipesClientCompletedInvocation:
         """Enqueue ``command`` and block until a worker finishes it. ``outputs_prefix``:
         where the worker promotes the step's staged outputs in ``bucket``."""
-        self.broker = self.broker or BrokerClient()  # here, so loading needs no env
         run_id, step = context.run.run_id, context.get_step_execution_context().step.key
         partition = context.partition_key if context.has_partition_key else ""
         reader = BrokerMessageReader()

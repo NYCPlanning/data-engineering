@@ -60,7 +60,7 @@ def launch(a) -> None:
     if a.seconds is not None:
         config = {"seconds": a.seconds, "parts": 3}
         run_config = {"ops": {a.job: {"config": config}}}
-    print(gql().submit_job_execution(a.job, run_config=run_config))
+    print(gql().submit_job_execution(f"{a.job}_job", run_config=run_config))
 
 
 def wait(a) -> None:
@@ -160,7 +160,7 @@ def main() -> None:
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("locations").set_defaults(fn=locations)
     s = sub.add_parser("launch")
-    s.add_argument("job")
+    s.add_argument("job", help="a runner_tests case: small, slow, ...")
     s.add_argument("--seconds", type=float)
     s.set_defaults(fn=launch)
     s = sub.add_parser("wait")

@@ -50,7 +50,9 @@ def case(name: str, caps: list[str]):
 
 assets = [case(name, caps) for name, (caps, _) in CASES.items()]
 jobs = [
-    dg.define_asset_job(name, [name], config={"ops": {name: {"config": config}}})
+    dg.define_asset_job(
+        f"{name}_job", [name], config={"ops": {name: {"config": config}}}
+    )
     for name, (_, config) in CASES.items()
 ]
 
