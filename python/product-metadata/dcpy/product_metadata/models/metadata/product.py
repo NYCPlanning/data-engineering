@@ -105,13 +105,21 @@ class FileOverrides(CustomizableBase):
 
 
 class GdbLayerOverrides(CustomizableBase):
-    """Per-layer column and attribute overrides for a geodatabase file. `layer`
-    must match an actual layer name in the GDB."""
+    """Per-layer overrides for a geodatabase file, applied on top of the file's
+    overrides. `layer` must match an actual layer name in the GDB.
+
+    Two equivalent shapes are accepted: flat `overridden_columns`/`attributes`
+    (as CSCL's YAMLs use), and a nested `dataset_overrides` block, which can
+    also omit columns (as PLUTO's YAML uses). Flat overrides apply first."""
 
     layer: str
     overridden_columns: list["DatasetColumn"] = []
     attributes: "DatasetAttributesOverride" = Field(
         default_factory=lambda: DatasetAttributesOverride()
+    )
+    # default_factory: DatasetOverrides is defined further down this module
+    dataset_overrides: DatasetOverrides = Field(
+        default_factory=lambda: DatasetOverrides()
     )
 
 
@@ -184,12 +192,14 @@ class DatasetAttributesOverride(DatasetOrgProductAttributesOverride):
     description: str | None = None
     display_name: str | None = None
     each_row_is_a: str | None = None
+    summary: str | None = None
 
 
 class DatasetAttributes(DatasetOrgProductAttributesOverride):
     display_name: str
     description: str = ""
     each_row_is_a: str
+    summary: str | None = None
 
     def override(self, overrides: DatasetAttributesOverride) -> DatasetAttributes:
         return DatasetAttributes(**merge(self.model_dump(), overrides.model_dump()))
@@ -362,7 +372,9 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
             overridden_columns=layer_overrides.overridden_columns,
             attributes=layer_overrides.attributes,
         )
-        return file_dataset.override(overrides)
+        return file_dataset.override(overrides).override(
+            layer_overrides.dataset_overrides
+        )
 
     def calculate_destination_metadata(
         self, *, file_id: str, destination_id: str
@@ -414,6 +426,22 @@ class Metadata(CustomizableBase, YamlWriter, TemplatedYamlReader):
                     errors.append(
                         f"{ERROR_MISSING_COLUMN}: file override for {fo.file.id} references undefined column {c}"
                     )
+            layer_names = [lo.layer for lo in fo.file.layers or []]
+            for name in sorted({n for n in layer_names if layer_names.count(n) > 1}):
+                errors.append(
+                    f"DUPLICATE LAYER: file {fo.file.id} declares layer {name} more than once"
+                )
+            for lo in fo.file.layers or []:
+                for c in lo.dataset_overrides.overridden_columns:
+                    if c.id not in column_ids:
+                        errors.append(
+                            f"{ERROR_MISSING_COLUMN}: layer {lo.layer} of file {fo.file.id} references undefined column {c.id}"
+                        )
+                for c in lo.dataset_overrides.omitted_columns:
+                    if c not in column_ids:
+                        errors.append(
+                            f"{ERROR_MISSING_COLUMN}: layer {lo.layer} of file {fo.file.id} references undefined omitted column {c}"
+                        )
 
         # destinations
         for d in self.destinations:

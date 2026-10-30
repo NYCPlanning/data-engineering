@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Literal
 
 import pandas as pd
 import yaml
@@ -23,6 +23,26 @@ ERROR_PRODUCT_DATASET_METADATA_INSTANTIATION = (
     "Error instantiating dataset metadata for"
 )
 ERROR_PRODUCT_METADATA_INSTANTIATION = "Error instantiating product metadata"
+
+
+class EsriSystemField(SortedSerializedBase, extra="forbid"):
+    """An Esri-managed field (e.g. OBJECTID, Shape) documented in Esri metadata."""
+
+    name: str
+    data_type: str | None = None
+    description: str | None = None
+    data_source: str | None = None
+    description_of_values: str | None = None
+    position: Literal["leading", "trailing"] = "leading"
+    replaces_columns: list[str] = []
+
+
+class EsriSystemFields(SortedSerializedBase, extra="forbid"):
+    """System fields to document, per Esri output type."""
+
+    feature_class: list[EsriSystemField] = []
+    table: list[EsriSystemField] = []
+    shapefile: list[EsriSystemField] = []
 
 
 class ProductAttributes(SortedSerializedBase, extra="forbid"):
@@ -187,6 +207,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
     template_vars: dict = Field(default_factory=dict)
     metadata: OrgMetadataFile
     column_defaults: dict[tuple[str, str], DatasetColumn]
+    esri_system_fields: EsriSystemFields = Field(default_factory=EsriSystemFields)
     data_dictionary: DataDictionary = DataDictionary()
 
     @classmethod
@@ -212,6 +233,15 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
         return {(c.id, c.data_type): c for c in columns if c.data_type}
 
     @classmethod
+    def get_esri_system_fields(cls, path: Path) -> EsriSystemFields:
+        e_path = path / "snippets" / "esri_system_fields.yml"
+        if not e_path.exists():
+            return EsriSystemFields()
+        with open(e_path, "r", encoding="utf-8") as raw:
+            yml = yaml.safe_load(raw) or {}
+        return EsriSystemFields.model_validate(yml)
+
+    @classmethod
     def from_path(cls, path: Path, template_vars: dict | None = None):
         template_vars = merge(cls.get_string_snippets(path), template_vars or {}) or {}
         dd_default_path = path / "data_dictionary.yml"
@@ -222,6 +252,7 @@ class OrgMetadata(SortedSerializedBase, extra="forbid"):
             ),
             template_vars=template_vars,
             column_defaults=cls.get_column_defaults(path),
+            esri_system_fields=cls.get_esri_system_fields(path),
             data_dictionary=DataDictionary.from_path(dd_default_path)
             if dd_default_path.exists()
             else DataDictionary(),

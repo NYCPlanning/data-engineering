@@ -143,6 +143,26 @@ def test_invalid_standardized_values():
     )
 
 
+def test_descriptive_values_skip_enum_check():
+    """A value list with a descriptive entry (e.g. a range) documents the domain
+    but can't enumerate it, so real values outside the list aren't flagged."""
+    column = md.DatasetColumn(
+        id="cd",
+        name="CD",
+        data_type="text",
+        values=[
+            md.ColumnValue(
+                value="101-112",
+                description="Manhattan Community Districts",
+                custom={"descriptive": True},
+            ),
+            md.ColumnValue(value="164", description="Central Park (JIA)"),
+        ],
+    )
+    errors = validate.validate_df(df({"CD": ["105", "164", "999"]}), [column])
+    assert not errors
+
+
 def test_standardized_values_with_nulls():
     ROW_COUNT = 100
     fake_ds = generate_fake_dataset(ROW_COUNT, columns=metadata.columns)

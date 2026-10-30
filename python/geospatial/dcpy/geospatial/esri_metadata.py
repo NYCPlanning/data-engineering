@@ -1,19 +1,30 @@
+import html
+import re
 from datetime import datetime
 
 from dcpy.geospatial.shapefile_metadata import (
     Attr,
+    Attrdomv,
+    Attrtype,
+    Charsetcd,
+    Datachar,
     Edom,
     Esri,
+    Mdchar,
     Mddatest,
     Metadata,
     Scalerange,
     Udom,
 )
+from dcpy.product_metadata.models.metadata.org import EsriSystemField
 from dcpy.product_metadata.models.metadata.product import (
     ColumnValue,
     Dataset,
     DatasetColumn,
 )
+
+# ISO MD_CharacterSetCode for utf8, as Pro writes it
+UTF8_CHAR_SET_CODE = "004"
 
 
 def generate_metadata() -> Metadata:
@@ -36,6 +47,35 @@ def generate_metadata() -> Metadata:
         md_date_st=md_date_st,
     )
     return metadata
+
+
+def generate_iso_metadata() -> Metadata:
+    """generate_metadata() adjusted to the ArcGIS ISO 19115-3 structure Pro writes:
+    ISO19115_3 profile, utf8 character sets, and no scaleRange or
+    mdStanName/mdStanVer. Used by lifecycle.package.esri.write_metadata (PLUTO);
+    CSCL's build_layer_metadata still uses generate_metadata()."""
+    metadata = generate_metadata()
+    metadata.esri.arc_gis_profile = "ISO19115_3"
+    metadata.esri.scale_range = None
+    metadata.md_stan_name = None
+    metadata.md_stan_ver = None
+    metadata.md_char = Mdchar(char_set_cd=Charsetcd(value=UTF8_CHAR_SET_CODE))
+    metadata.data_id_info.data_char = Datachar(
+        char_set_cd=Charsetcd(value=UTF8_CHAR_SET_CODE)
+    )
+    return metadata
+
+
+def to_esri_rich_text(text: str | None) -> str | None:
+    """Convert plain text to the HTML Pro stores for rich-text elements
+    (e.g. Description/idAbs, Use Limitations/useLimit): one <p> per
+    blank-line-separated paragraph, single line breaks joined with spaces."""
+    if not text or not text.strip():
+        return None
+    paragraphs = re.split(r"\n\s*\n", text.strip())
+    return "".join(
+        f"<p>{html.escape(' '.join(p.split()), quote=False)}</p>" for p in paragraphs
+    )
 
 
 def build_layer_metadata(
@@ -119,6 +159,11 @@ def _create_attr_metadata(
 ) -> Attr:
     """Create an Attr metadata object from a column specification."""
     attr = Attr()
+    # Attr's default factories fill these (they're optional only so the ISO
+    # path can omit them); narrowed for the type checker
+    assert attr.attalias is not None
+    assert attr.attrtype is not None
+    assert attr.attrdomv is not None
 
     is_uid = column.id == "uid"
     attr.attrlabl.value = column.name
@@ -136,6 +181,59 @@ def _create_attr_metadata(
     else:
         attr.attrdomv.udom = Udom(value=column.description)
         attr.attrdomv.edom = []
+    return attr
+
+
+def _create_iso_attr_metadata(
+    column: DatasetColumn,
+    custom_type_key: str | None = None,
+    include_type: bool = False,
+) -> Attr:
+    """Create an Attr metadata object from a column specification, for
+    write_metadata's ISO 19115-3 output (PLUTO). Unlike _create_attr_metadata
+    (CSCL's build_layer_metadata): no alias (attalias), no description copied
+    into udom, attrdomv only for a value list, and the field type (attrtype)
+    only when include_type is set."""
+    attr = Attr()
+
+    attr.attrlabl.value = column.name
+    attr.attalias = None
+    attr.attrdef.value = column.description
+    attr.attrdefs.value = column.data_source
+    if include_type:
+        effective_type = (
+            column.custom.get(custom_type_key) if custom_type_key else None
+        ) or column.data_type
+        attr.attrtype = Attrtype(value="OID" if column.id == "uid" else effective_type)
+    else:
+        attr.attrtype = None
+
+    attr.attrdomv = (
+        Attrdomv(
+            udom=None, edom=[_create_edom_metadata(value) for value in column.values]
+        )
+        if column.values
+        else None
+    )
+    return attr
+
+
+def _create_system_attr_metadata(
+    field: EsriSystemField, include_type: bool = False
+) -> Attr:
+    """Create an Attr metadata object for an Esri-managed system field. The
+    field type (attrtype) is only written when include_type is set. No alias
+    (attalias) is written, matching product columns."""
+    attr = Attr()
+    attr.attrlabl.value = field.name
+    attr.attalias = None
+    if include_type:
+        attr.attrtype = Attrtype(value=field.data_type)
+    else:
+        attr.attrtype = None
+    attr.attrdef.value = field.description
+    attr.attrdefs.value = field.data_source
+    attr.attrdomv = Attrdomv(udom=Udom(value=field.description_of_values), edom=[])
     return attr
 
 

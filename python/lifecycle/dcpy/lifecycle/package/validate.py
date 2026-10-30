@@ -231,8 +231,10 @@ def validate_df(
                 )
             )
 
-        # Validate standardized/enum values
-        if col.values:
+        # Validate standardized/enum values. A list with any descriptive entry
+        # (e.g. a range like "101-112") documents the domain but can't enumerate it.
+        is_enumerable = not any(v.custom.get("descriptive") for v in col.values or [])
+        if col.values and is_enumerable:
             accepted_values = {str(v.value) for v in col.values} | {""}
             invalids = df_no_col_nulls[~df_no_col_nulls[col.name].isin(accepted_values)]
             if not invalids.empty:
