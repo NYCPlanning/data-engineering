@@ -14,7 +14,7 @@ Runs anywhere with `uv run doctor.py ...` (boto3 + stdlib only). Stops at the fi
 failing layer unless --keep-going. Everything it writes lives under doctor/<run-id>/ in
 the bucket and is deleted at the end (the bucket too, if the doctor created it).
 
-  uv run doctor.py --endpoint https://blob-gateway.<env-domain> --access-key ... --secret-key ...
+  uv run doctor.py --endpoint https://az-blob-gateway.<env-domain> --access-key ... --secret-key ...
   uv run doctor.py --endpoint http://127.0.0.1:7070 --access-key devstack --secret-key devstack-secret
   uv run doctor.py ... --size 5G --json > doctor.json
 
@@ -968,7 +968,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     add(
         "--bucket",
-        default=env("GATEWAY_BUCKET", "gateway-doctor"),
+        default=env("GATEWAY_BUCKET", "az-blob-gateway-doctor"),
         help="bucket (= Azure container) to test in; created and removed if missing "
         "[GATEWAY_BUCKET]",
     )

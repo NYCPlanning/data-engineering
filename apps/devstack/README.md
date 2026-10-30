@@ -1,6 +1,6 @@
 # devstack
 
-Local stack for the hybrid-runner / dispatch work (tracker epic `inv-k0d`). It sits beside
+Local stack for the hybrid-runner / dagster-broker work (tracker epic `inv-k0d`). It sits beside
 `apps/docker-compose*.yml` and doesn't replace the prod compose.
 
 | service | host port | what |
@@ -9,8 +9,8 @@ Local stack for the hybrid-runner / dispatch work (tracker epic `inv-k0d`). It s
 | azurite (3.37.0) | https://127.0.0.1:10000 | Blob emulator, account `devstoreaccount1`, self-signed cert in `./.certs` |
 | versitygw (v1.10.0) | http://127.0.0.1:7070 | default S3 gateway in front of Azurite (key `devstack` / `devstack-secret`) |
 | s3proxy (4.1.1) | http://127.0.0.1:7071 | runner-up gateway, only with `--profile s3proxy` |
-| dispatch | http://127.0.0.1:8000 | queue API (`apps/dispatch`), key `devstack-dispatch-key`, lease 15s, reaper every 2s |
-| valkey (9.1.3) | | sidecar: shares dispatch's network namespace, so only dispatch's localhost reaches it |
+| dagster-broker | http://127.0.0.1:8000 | queue API (`apps/dagster-broker`), key `devstack-dagster-broker-key`, lease 15s, reaper every 2s |
+| valkey (9.1.3) | | sidecar: shares dagster-broker's network namespace, so only dagster-broker's localhost reaches it |
 | dcpy-dagster-webserver | http://127.0.0.1:3001 | opt-in (`--profile dcpy-dagster`): `apps/dagster`'s amd64 image and code location |
 | dcpy-dagster-daemon | | opt-in, as above |
 
@@ -35,31 +35,31 @@ it. Dagster's UI is at http://127.0.0.1:3000. The opt-in `--profile dcpy-dagster
 `apps/dagster`'s image and `uv` syncs its venv into a volume (amd64, several GB); in a git
 worktree it logs a harmless `not a git repository` warning.
 
-## Running Dagster assets on workers (Pipes over dispatch)
+## Running Dagster assets on workers (Pipes over dagster-broker)
 
 The default Dagster here loads one code location,
 [`demo_location/devstack_demo`](demo_location/devstack_demo/), served by the `dagster-code`
 gRPC container (shared by webserver and daemon, so the UI can terminate runs the daemon
 launched). Its assets `plan -> build -> publish` (partitioned by borough) and `gpu_train` don't
-compute anything in Dagster: each calls `PipesDispatchClient.run` from
-[`apps/dispatch`](../dispatch/README.md), which
+compute anything in Dagster: each calls `PipesBrokerClient.run` from
+[`apps/dagster-broker`](../dagster-broker/README.md), which
 
-1. enqueues a dispatch item whose payload carries the step command and the Pipes context
+1. enqueues a dagster-broker item whose payload carries the step command and the Pipes context
    (inline, as the bootstrap env vars), with idempotency key `run:step:partition:retry`;
 2. a worker whose caps cover the item's `required_caps` claims it and runs the command as a
-   subprocess; the step opens Pipes with `dispatch.pipes_worker.open_dispatch_pipes()` and its
-   messages (logs, materializations) go back as dispatch events, fenced by `(item, attempt,
+   subprocess; the step opens Pipes with `dagster_broker.pipes_worker.open_broker_pipes()` and its
+   messages (logs, materializations) go back as dagster-broker events, fenced by `(item, attempt,
    worker)`; stdout/stderr are forwarded too;
 3. the step reads upstream outputs from the gateway and writes its own under
    `_staging/<run>/<step>/<nonce>/<attempt>/`;
-4. the Dagster side polls status + events, logs live, and once dispatch says `done` it
+4. the Dagster side polls status + events, logs live, and once dagster-broker says `done` it
    promotes that attempt's staging to `demo/<asset>/<partition>/` (server-side copies through
    versitygw), deletes the step's staging, and returns the step's `MaterializeResult` plus
-   dispatch metadata (`dispatch_item`, `dispatch_attempt`, `worker_id`, `outputs_uri`).
+   dagster-broker metadata (`broker_item`, `broker_attempt`, `worker_id`, `outputs_uri`).
 
 Workers: `worker-std` (2 replicas, no caps) and `worker-esri` (caps `esri`; `publish` needs
 it). Nobody has `gpu`, so `gpu_train` stays queued and shows up in
-`curl -H 'X-Dispatch-Key: devstack-dispatch-key' 'localhost:8000/metrics/demand?caps=gpu'`.
+`curl -H 'X-Dagster-Broker-Key: devstack-dagster-broker-key' 'localhost:8000/metrics/demand?caps=gpu'`.
 Workers run the code in the mounted repo (no per-SHA checkout yet, inv-k0d.9).
 
 Failure handling, all exercised by the e2e:

@@ -1,13 +1,13 @@
 """Fixtures for tests against a real Valkey.
 
-Set DISPATCH_TEST_VALKEY_URL to a THROWAWAY Valkey (tests FLUSHDB it), run with the
+Set DAGSTER_BROKER_TEST_VALKEY_URL to a THROWAWAY Valkey (tests FLUSHDB it), run with the
 repo's valkey.conf so it has maxmemory + noeviction like production:
 
-    docker run --rm -d --name dispatch-test-valkey -p 56379:6379 \\
-        -v "$PWD/apps/dispatch/valkey.conf:/etc/valkey/valkey.conf:ro" \\
+    docker run --rm -d --name dagster-broker-test-valkey -p 56379:6379 \\
+        -v "$PWD/apps/dagster-broker/valkey.conf:/etc/valkey/valkey.conf:ro" \\
         valkey/valkey:9.1.3-alpine valkey-server /etc/valkey/valkey.conf \\
         --bind 0.0.0.0 --protected-mode no --maxmemory 64mb
-    export DISPATCH_TEST_VALKEY_URL=redis://localhost:56379/0
+    export DAGSTER_BROKER_TEST_VALKEY_URL=redis://localhost:56379/0
 
 Without the variable, every test that needs Valkey is skipped.
 """
@@ -17,10 +17,10 @@ import os
 import pytest
 import redis
 
-from dispatch import store
+from dagster_broker import store
 
-VALKEY_URL = os.environ.get("DISPATCH_TEST_VALKEY_URL")
-PREFIX = "dispatch:"
+VALKEY_URL = os.environ.get("DAGSTER_BROKER_TEST_VALKEY_URL")
+PREFIX = "dagster-broker:"
 
 
 def new_client() -> redis.Redis:
@@ -38,7 +38,7 @@ def new_store(**kwargs) -> store.ValkeyStore:
 @pytest.fixture
 def valkey_url():
     if not VALKEY_URL:
-        pytest.skip("DISPATCH_TEST_VALKEY_URL not set")
+        pytest.skip("DAGSTER_BROKER_TEST_VALKEY_URL not set")
     r = redis.Redis.from_url(VALKEY_URL, decode_responses=True)
     r.flushdb()
     r.close()

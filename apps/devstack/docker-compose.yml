@@ -1,4 +1,4 @@
-# Local dev stack for the hybrid-runner / dispatch work (tracker epic inv-k0d).
+# Local dev stack for the hybrid-runner / dagster-broker work (tracker epic inv-k0d).
 # Separate from apps/docker-compose*.yml (the prod compose); doesn't replace it.
 #
 #   docker compose -f apps/devstack/docker-compose.yml up -d          # default stack
@@ -8,7 +8,7 @@
 # See apps/devstack/README.md.
 
 # One slim arch-native python image (./python) runs every python service here: dagster,
-# dispatch and the workers. The repo is mounted at /repo and is on PYTHONPATH.
+# dagster-broker and the workers. The repo is mounted at /repo and is on PYTHONPATH.
 x-py: &py
   image: devstack-python:local
   build: ./python
@@ -16,8 +16,8 @@ x-py: &py
     - ${DATA_ENGINEERING_PATH:-../..}:/repo
   init: true
 
-x-dispatch-env: &dispatch-env
-  DISPATCH_SHARED_KEY: devstack-dispatch-key
+x-dagster-broker-env: &dagster-broker-env
+  DAGSTER_BROKER_SHARED_KEY: devstack-dagster-broker-key
 
 # Credentials for the S3 gateway (versitygw), for the Dagster side (promotion) and steps.
 x-gateway-env: &gateway-env
@@ -31,30 +31,30 @@ x-gateway-env: &gateway-env
 x-slim-dagster: &slim-dagster
   <<: *py
   environment: &slim-dagster-env
-    <<: [*dispatch-env, *gateway-env]
+    <<: [*dagster-broker-env, *gateway-env]
     DAGSTER_HOME: /opt/dagster/dagster_home
     DAGSTER_PG_HOST: postgres
     DAGSTER_PG_USER: devstack
     DAGSTER_PG_PASSWORD: devstack
     DAGSTER_PG_DB: dagster
-    DISPATCH_URL: http://dispatch:8000
+    DAGSTER_BROKER_URL: http://dagster-broker:8000
   volumes:
     - ${DATA_ENGINEERING_PATH:-../..}:/repo
     - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
 
-# Mock workers: the real dispatch.worker loop; steps come from the mounted repo.
+# Mock workers: the real dagster_broker.worker loop; steps come from the mounted repo.
 x-worker: &worker
   <<: *py
-  command: ["python", "-m", "dispatch.worker"]
+  command: ["python", "-m", "dagster_broker.worker"]
   environment: &worker-env
-    <<: [*dispatch-env, *gateway-env]
-    DISPATCH_URL: http://dispatch:8000
+    <<: [*dagster-broker-env, *gateway-env]
+    DAGSTER_BROKER_URL: http://dagster-broker:8000
     WORKER_CAPS: ""
     WORKER_HEARTBEAT_SECONDS: "3"
     WORKER_IDLE_EXIT_SECONDS: "0"
   stop_grace_period: 20s
   depends_on:
-    dispatch:
+    dagster-broker:
       condition: service_healthy
 
 # apps/dagster's own image and code location (dcpy). amd64-only and ~5GB, so it's opt-in:
@@ -183,14 +183,14 @@ services:
       azurite:
         condition: service_healthy
 
-  # Gateway doctor (apps/blob-gateway/doctor, inv-k0d.14) on the compose network, the same
-  # image the Azure 'gateway-doctor' job runs:
+  # Gateway doctor (apps/az-blob-gateway/doctor, inv-k0d.14) on the compose network, the same
+  # image the Azure 'az-blob-gateway-doctor' job runs:
   #   docker compose -f apps/devstack/docker-compose.yml --profile doctor run --rm doctor
   # --inside adds the backend-path layers; here they run against Azurite, and mi_token fails
   # (no managed identity outside Azure).
   doctor:
-    image: gateway-doctor:local
-    build: ../blob-gateway/doctor
+    image: az-blob-gateway-doctor:local
+    build: ../az-blob-gateway/doctor
     profiles: ["doctor"]
     environment:
       GATEWAY_URL: http://versitygw:7070
@@ -280,7 +280,7 @@ services:
         condition: service_healthy
       gateway-init:
         condition: service_completed_successfully
-      dispatch:
+      dagster-broker:
         condition: service_healthy
 
   dagster-daemon:
@@ -322,18 +322,18 @@ services:
       dcpy-dagster-webserver:
         condition: service_healthy
 
-  # --- dispatch (inv-k0d.3): queue API + in-memory Valkey sidecar ---------------------
-  # Valkey shares dispatch's network namespace (as a sidecar container does in a container
-  # app), so it is reachable only on dispatch's localhost and has no port of its own.
-  dispatch:
+  # --- dagster-broker (inv-k0d.3): queue API + in-memory Valkey sidecar ---------------------
+  # Valkey shares dagster-broker's network namespace (as a sidecar container does in a container
+  # app), so it is reachable only on dagster-broker's localhost and has no port of its own.
+  dagster-broker:
     <<: *py
-    command: ["uvicorn", "dispatch.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uvicorn", "dagster_broker.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
     environment:
-      <<: *dispatch-env
-      DISPATCH_VALKEY_URL: redis://127.0.0.1:6379/0
+      <<: *dagster-broker-env
+      DAGSTER_BROKER_VALKEY_URL: redis://127.0.0.1:6379/0
       # Short lease + frequent reaping so the chaos checks (kill a worker) finish quickly.
-      DISPATCH_LEASE_SECONDS: "15"
-      DISPATCH_REAP_INTERVAL_SECONDS: "2"
+      DAGSTER_BROKER_LEASE_SECONDS: "15"
+      DAGSTER_BROKER_REAP_INTERVAL_SECONDS: "2"
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
@@ -345,17 +345,17 @@ services:
 
   valkey:
     image: valkey/valkey:9.1.3-alpine
-    network_mode: service:dispatch
+    network_mode: service:dagster-broker
     command: ["valkey-server", "/etc/valkey/valkey.conf", "--maxmemory", "64mb"]
     volumes:
-      - ../dispatch/valkey.conf:/etc/valkey/valkey.conf:ro
+      - ../dagster-broker/valkey.conf:/etc/valkey/valkey.conf:ro
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 2s
       timeout: 3s
       retries: 30
     depends_on:
-      dispatch:
+      dagster-broker:
         condition: service_started
 
 volumes:

@@ -2,9 +2,9 @@
 
 from fastapi.testclient import TestClient
 
-from dispatch import store
-from dispatch.app import create_app
-from dispatch.config import Settings
+from dagster_broker import store
+from dagster_broker.app import create_app
+from dagster_broker.config import Settings
 
 
 def test_scripts_have_shebangs_and_drain_scripts_allow_oom():
@@ -23,10 +23,10 @@ def test_caps_signature_is_canonical():
 
 
 def test_settings_from_env(monkeypatch):
-    monkeypatch.setenv("DISPATCH_VALKEY_URL", "redis://x:1/0")
-    monkeypatch.setenv("DISPATCH_SHARED_KEY", "")
-    monkeypatch.setenv("DISPATCH_LEASE_SECONDS", "30")
-    monkeypatch.setenv("DISPATCH_TERMINAL_TTL_SECONDS", "60")
+    monkeypatch.setenv("DAGSTER_BROKER_VALKEY_URL", "redis://x:1/0")
+    monkeypatch.setenv("DAGSTER_BROKER_SHARED_KEY", "")
+    monkeypatch.setenv("DAGSTER_BROKER_LEASE_SECONDS", "30")
+    monkeypatch.setenv("DAGSTER_BROKER_TERMINAL_TTL_SECONDS", "60")
     s = Settings.from_env()
     assert s.shared_key is None and s.lease_seconds == 30.0
     assert s.valkey_url == "redis://x:1/0" and s.terminal_ttl_seconds == 60

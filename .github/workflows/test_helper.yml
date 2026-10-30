@@ -151,24 +151,24 @@ jobs:
       run: |
         dbt test --resource-type unit_test
 
-  pytest_dispatch:
-    name: Pytest - dispatch
-    # apps/dispatch (the in-memory Valkey work queue, tracker inv-k0d.3) has no dcpy or GDAL
+  pytest_dagster_broker:
+    name: Pytest - dagster-broker
+    # apps/dagster-broker (the in-memory Valkey work queue, tracker inv-k0d.3) has no dcpy or GDAL
     # dependency, so it runs on a bare runner with its own isolated sync. Valkey is started
     # with `docker run` rather than as a service so it can load the repo's valkey.conf
     # (services can't take a command). No secrets needed, so Dependabot PRs run it too.
     # Its Valkey tests (including the concurrency stress tests) skip if
-    # DISPATCH_TEST_VALKEY_URL is unset.
-    if: inputs.path_filter == '' || contains(inputs.path_filter, '"dispatch"')
+    # DAGSTER_BROKER_TEST_VALKEY_URL is unset.
+    if: inputs.path_filter == '' || contains(inputs.path_filter, '"dagster-broker"')
     runs-on: ubuntu-22.04
     env:
-      DISPATCH_TEST_VALKEY_URL: redis://localhost:6379/0
+      DAGSTER_BROKER_TEST_VALKEY_URL: redis://localhost:6379/0
     steps:
     - uses: actions/checkout@v7
     - name: start valkey
       run: |
         docker run -d --name valkey -p 6379:6379 \
-          -v "$PWD/apps/dispatch/valkey.conf:/etc/valkey/valkey.conf:ro" \
+          -v "$PWD/apps/dagster-broker/valkey.conf:/etc/valkey/valkey.conf:ro" \
           valkey/valkey:9.1.3-alpine valkey-server /etc/valkey/valkey.conf \
           --bind 0.0.0.0 --protected-mode no --maxmemory 64mb
         for i in $(seq 30); do
@@ -180,9 +180,9 @@ jobs:
       with:
         enable-cache: true
         python-version: "3.13"
-    - run: uv sync --package dcpy-app-dispatch --extra worker --extra dagster
-    - name: dispatch pytests
-      run: uv run --no-sync python -m pytest apps/dispatch/test -v -s
+    - run: uv sync --package dcpy-app-dagster-broker --extra worker --extra dagster
+    - name: dagster-broker pytests
+      run: uv run --no-sync python -m pytest apps/dagster-broker/test -v -s
 
   dbt_cscl:
     name: dbt tests (cscl, DuckDB)

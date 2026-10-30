@@ -25,7 +25,7 @@ resolution-markers = [
 [manifest]
 members = [
     "dcpy-app-dagster",
-    "dcpy-app-dispatch",
+    "dcpy-app-dagster-broker",
     "dcpy-app-notebook-server",
     "dcpy-app-qa",
     "dcpy-connectors",
@@ -1651,9 +1651,9 @@ requires-dist = [
 ]
 
 [[package]]
-name = "dcpy-app-dispatch"
+name = "dcpy-app-dagster-broker"
 version = "0.0.1"
-source = { editable = "apps/dispatch" }
+source = { editable = "apps/dagster-broker" }
 dependencies = [
     { name = "fastapi" },
     { name = "pydantic" },

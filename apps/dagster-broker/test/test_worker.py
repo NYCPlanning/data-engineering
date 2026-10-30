@@ -1,4 +1,4 @@
-"""The HTTP client, the worker loop and the Pipes pieces against a live dispatch server
+"""The HTTP client, the worker loop and the Pipes pieces against a live dagster-broker server
 (uvicorn in a thread) on the test Valkey. Steps are small python subprocesses."""
 
 import sys
@@ -9,10 +9,10 @@ import pytest
 import redis
 import uvicorn
 
-from dispatch.app import create_app
-from dispatch.client import DispatchClient, DispatchError, NotFound
-from dispatch.config import Settings
-from dispatch.worker import Worker, WorkerConfig
+from dagster_broker.app import create_app
+from dagster_broker.client import BrokerClient, BrokerError, NotFound
+from dagster_broker.config import Settings
+from dagster_broker.worker import Worker, WorkerConfig
 
 KEY = "sekrit"
 
@@ -44,12 +44,12 @@ def server(valkey_url):
 
 @pytest.fixture
 def api(server):
-    return DispatchClient(server, KEY, retries=0)
+    return BrokerClient(server, KEY, retries=0)
 
 
 def make_worker(server, **kw) -> Worker:
     cfg = WorkerConfig(
-        dispatch_url=server,
+        broker_url=server,
         shared_key=KEY,
         worker_id=kw.pop("worker_id", "w1"),
         heartbeat_seconds=0.3,
@@ -64,7 +64,7 @@ def py(code: str) -> list[str]:
     return [sys.executable, "-c", code]
 
 
-def run_one(worker: Worker, api: DispatchClient) -> dict:
+def run_one(worker: Worker, api: BrokerClient) -> dict:
     item = api.claim(worker_id=worker.cfg.worker_id, caps=worker.cfg.caps)
     assert item is not None
     worker.run_item(item)
@@ -77,8 +77,8 @@ def stdio(api, item_id) -> str:
 
 
 def test_client_errors_and_idempotency(server, api):
-    with pytest.raises(DispatchError) as e:
-        DispatchClient(server, "wrong", retries=0).get_item(1)
+    with pytest.raises(BrokerError) as e:
+        BrokerClient(server, "wrong", retries=0).get_item(1)
     assert e.value.status == 401
     with pytest.raises(NotFound):
         api.get_item(12345)
@@ -94,8 +94,8 @@ def test_worker_runs_step_and_forwards_output(server, api):
         run_id="r1",
         payload={
             "command": py(
-                "import os; print('hello from', os.environ['DISPATCH_WORKER_ID']);"
-                "print('staging', os.environ['DISPATCH_STAGING_PREFIX']);"
+                "import os; print('hello from', os.environ['DAGSTER_BROKER_WORKER_ID']);"
+                "print('staging', os.environ['DAGSTER_BROKER_STAGING_PREFIX']);"
                 "print('custom', os.environ['FOO'])"
             ),
             "env": {"FOO": "bar"},
@@ -177,8 +177,8 @@ def test_worker_loop_caps_affinity_and_idle_exit(server, api):
 # ---- Pipes ------------------------------------------------------------------------
 
 STEP = """
-from dispatch.pipes_worker import open_dispatch_pipes, staging_prefix
-with open_dispatch_pipes() as pipes:
+from dagster_broker.pipes_worker import open_broker_pipes, staging_prefix
+with open_broker_pipes() as pipes:
     pipes.log.info(f"partition {pipes.partition_key} staging {staging_prefix()}")
     pipes.report_asset_materialization(metadata={"rows": 3})
 """
@@ -186,12 +186,12 @@ with open_dispatch_pipes() as pipes:
 
 def test_pipes_end_to_end_through_dagster(server, api, monkeypatch):
     dagster = pytest.importorskip("dagster")
-    from dispatch.pipes_dagster import PipesDispatchClient
+    from dagster_broker.pipes_dagster import PipesBrokerClient
 
     parts = dagster.StaticPartitionsDefinition(["a"])
 
     @dagster.asset(partitions_def=parts)
-    def thing(context, pipes: PipesDispatchClient):
+    def thing(context, pipes: PipesBrokerClient):
         return pipes.run(
             context=context, command=py(STEP), extras={"hello": "world"}
         ).get_materialize_result()
@@ -204,8 +204,8 @@ def test_pipes_end_to_end_through_dagster(server, api, monkeypatch):
             [thing],
             partition_key="a",
             resources={
-                "pipes": PipesDispatchClient(
-                    bucket="unused", dispatch=api, poll_interval=0.2, s3=object()
+                "pipes": PipesBrokerClient(
+                    bucket="unused", broker=api, poll_interval=0.2, s3=object()
                 )
             },
         )
@@ -217,9 +217,9 @@ def test_pipes_end_to_end_through_dagster(server, api, monkeypatch):
     assert len(mats) == 1
     md = mats[0].metadata
     assert md["rows"].value == 3
-    assert md["dispatch_attempt"].value == 1
+    assert md["broker_attempt"].value == 1
     assert md["worker_id"].value == "w1"
-    item = api.get_item(md["dispatch_item"].value)
+    item = api.get_item(md["broker_item"].value)
     events, _ = api.events(item["id"])
     pipes_msgs = [e["data"] for e in events if e["kind"] == "pipes"]
     methods = [m["method"] for m in pipes_msgs]
@@ -231,7 +231,7 @@ def test_pipes_end_to_end_through_dagster(server, api, monkeypatch):
 
 def test_reader_only_reports_results_of_the_finishing_attempt():
     pytest.importorskip("dagster")
-    from dispatch.pipes_dagster import DispatchMessageReader
+    from dagster_broker.pipes_dagster import BrokerMessageReader
 
     handled = []
 
@@ -246,7 +246,7 @@ def test_reader_only_reports_results_of_the_finishing_attempt():
     class Ctx:
         log = Log()
 
-    reader = DispatchMessageReader()
+    reader = BrokerMessageReader()
     reader.handler = Handler()
     reader.start_attempt(1, Ctx())
     for m in ("opened", "log", "report_asset_materialization"):

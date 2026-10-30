@@ -1,4 +1,4 @@
-"""HTTP API. Run with ``uvicorn dispatch.app:create_app --factory``.
+"""HTTP API. Run with ``uvicorn dagster_broker.app:create_app --factory``.
 
 The routes are on an APIRouter, so the queue can be mounted into another ASGI app later
 without changes. Endpoints are sync ``def``s: FastAPI runs them in its threadpool, each
@@ -31,8 +31,8 @@ from fastapi import (
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 
-from dispatch import store
-from dispatch.config import Settings
+from dagster_broker import store
+from dagster_broker.config import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -109,15 +109,15 @@ def get_store(request: Request) -> store.ValkeyStore:
 
 
 def require_key(
-    request: Request, x_dispatch_key: str | None = Header(default=None)
+    request: Request, x_dagster_broker_key: str | None = Header(default=None)
 ) -> None:
     expected = request.app.state.settings.shared_key
     if expected is None:
         return
-    if x_dispatch_key is None or not hmac.compare_digest(
-        x_dispatch_key.encode(), expected.encode()
+    if x_dagster_broker_key is None or not hmac.compare_digest(
+        x_dagster_broker_key.encode(), expected.encode()
     ):
-        raise HTTPException(status_code=401, detail="bad or missing X-Dispatch-Key")
+        raise HTTPException(status_code=401, detail="bad or missing X-Dagster-Broker-Key")
 
 
 def not_found() -> HTTPException:
@@ -342,7 +342,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 reaper.stop()
             app.state.client.close()
 
-    app = FastAPI(title="dispatch", lifespan=lifespan)
+    app = FastAPI(title="dagster-broker", lifespan=lifespan)
     app.state.settings = settings
 
     @app.exception_handler(redis.exceptions.OutOfMemoryError)
@@ -352,7 +352,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(
             status_code=507,
             content={
-                "detail": "dispatch store is full (Valkey maxmemory); retry later"
+                "detail": "dagster-broker store is full (Valkey maxmemory); retry later"
             },
             headers={"Retry-After": "30"},
         )
@@ -361,7 +361,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def _down(request: Request, exc: Exception) -> JSONResponse:
         return JSONResponse(
             status_code=503,
-            content={"detail": "dispatch store unreachable"},
+            content={"detail": "dagster-broker store unreachable"},
             headers={"Retry-After": "5"},
         )
 

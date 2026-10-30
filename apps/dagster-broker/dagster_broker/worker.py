@@ -1,7 +1,7 @@
 """The worker loop: claim an item, run its step as a subprocess, heartbeat, report back.
 
 Standard library only (the step subprocess brings its own dagster-pipes). Run with
-``python -m dispatch.worker``; configured from the environment (:meth:`WorkerConfig.from_env`).
+``python -m dagster_broker.worker``; configured from the environment (:meth:`WorkerConfig.from_env`).
 
 One item at a time:
 
@@ -9,15 +9,15 @@ One item at a time:
 2. Run ``payload.command`` in a fresh working directory as a subprocess in its own
    process group, so an OOM or crash in the step can't take down the loop or heartbeats.
    The step's environment gets the Pipes bootstrap variables (``payload.pipes``), the
-   fencing token (``DISPATCH_ITEM_ID`` / ``DISPATCH_ATTEMPT`` / ``DISPATCH_WORKER_ID``,
-   used by :mod:`dispatch.pipes_worker` to post Pipes messages) and
-   ``DISPATCH_STAGING_PREFIX`` (``payload.staging_prefix/<attempt>/``), where the step
+   fencing token (``DAGSTER_BROKER_ITEM_ID`` / ``DAGSTER_BROKER_ATTEMPT`` / ``DAGSTER_BROKER_WORKER_ID``,
+   used by :mod:`dagster_broker.pipes_worker` to post Pipes messages) and
+   ``DAGSTER_BROKER_STAGING_PREFIX`` (``payload.staging_prefix/<attempt>/``), where the step
    writes outputs for the Dagster side to promote.
-3. A heartbeat thread extends the lease. It kills the step when dispatch says ``cancel``,
+3. A heartbeat thread extends the lease. It kills the step when dagster-broker says ``cancel``,
    answers 404 (the queue restarted or forgot the item) or 409 (the lease was lost).
 4. Step stdout/stderr are forwarded as ``stdio`` events in batches.
 5. Exit 0 -> ``complete``. Non-zero -> ``fail`` (retryable unless
-   ``payload.retry_on_failure`` is false). Cancelled -> ``fail`` (dispatch records it as
+   ``payload.retry_on_failure`` is false). Cancelled -> ``fail`` (dagster-broker records it as
    cancelled). Lost lease -> nothing: the attempt is abandoned.
 
 On SIGTERM the worker kills its step, fails the attempt as retryable (so it's requeued
@@ -41,15 +41,15 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from dispatch.client import (
-    DispatchClient,
-    DispatchError,
+from dagster_broker.client import (
+    BrokerClient,
+    BrokerError,
     NotFound,
     Stale,
     Unavailable,
 )
 
-logger = logging.getLogger("dispatch.worker")
+logger = logging.getLogger("dagster_broker.worker")
 
 MAX_LINE = 4000
 STDIO_FLUSH_SECONDS = 1.0
@@ -58,7 +58,7 @@ STDIO_BATCH = 200
 
 @dataclass
 class WorkerConfig:
-    dispatch_url: str
+    broker_url: str
     shared_key: str | None = None
     worker_id: str = field(
         default_factory=lambda: f"{socket.gethostname()}-{os.getpid()}"
@@ -66,7 +66,7 @@ class WorkerConfig:
     caps: list[str] = field(default_factory=list)
     idle_exit_seconds: float = 0  # 0: never exit when idle
     poll_seconds: float = 2
-    heartbeat_seconds: float = 5  # keep well under a third of the dispatch lease
+    heartbeat_seconds: float = 5  # keep well under a third of the dagster-broker lease
     kill_grace_seconds: float = 10
     workdir: str | None = None  # parent dir for per-item working dirs (default: tmp)
     affinity_size: int = 5
@@ -75,8 +75,8 @@ class WorkerConfig:
     def from_env(cls) -> WorkerConfig:
         env = os.environ.get
         cfg = cls(
-            dispatch_url=os.environ["DISPATCH_URL"],
-            shared_key=env("DISPATCH_SHARED_KEY") or None,
+            broker_url=os.environ["DAGSTER_BROKER_URL"],
+            shared_key=env("DAGSTER_BROKER_SHARED_KEY") or None,
             caps=[c.strip() for c in env("WORKER_CAPS", "").split(",") if c.strip()],
             idle_exit_seconds=float(env("WORKER_IDLE_EXIT_SECONDS", 0)),
             poll_seconds=float(env("WORKER_POLL_SECONDS", 2)),
@@ -135,9 +135,9 @@ def _signal_group(proc: subprocess.Popen, sig: int) -> None:
 
 
 class Worker:
-    def __init__(self, config: WorkerConfig, client: DispatchClient | None = None):
+    def __init__(self, config: WorkerConfig, client: BrokerClient | None = None):
         self.cfg = config
-        self.client = client or DispatchClient(config.dispatch_url, config.shared_key)
+        self.client = client or BrokerClient(config.broker_url, config.shared_key)
         self.recent_runs: collections.deque[str] = collections.deque(
             maxlen=config.affinity_size
         )
@@ -148,10 +148,10 @@ class Worker:
 
     def run_forever(self) -> None:
         logger.info(
-            "worker %s caps=%s dispatch=%s idle_exit=%ss",
+            "worker %s caps=%s broker=%s idle_exit=%ss",
             self.cfg.worker_id,
             self.cfg.caps,
-            self.cfg.dispatch_url,
+            self.cfg.broker_url,
             self.cfg.idle_exit_seconds or "never",
         )
         last_work = time.monotonic()
@@ -162,7 +162,7 @@ class Worker:
                     caps=self.cfg.caps,
                     affinity_run_ids=list(self.recent_runs),
                 )
-            except (DispatchError, OSError) as e:
+            except (BrokerError, OSError) as e:
                 logger.warning("claim failed (%s); retrying", e)
                 item = None
             if item is None:
@@ -198,15 +198,15 @@ class Worker:
         }
         env.update(payload.get("pipes") or {})
         env.update(
-            DISPATCH_URL=self.cfg.dispatch_url,
-            DISPATCH_ITEM_ID=str(item["id"]),
-            DISPATCH_ATTEMPT=str(item["attempt"]),
-            DISPATCH_WORKER_ID=self.cfg.worker_id,
+            DAGSTER_BROKER_URL=self.cfg.broker_url,
+            DAGSTER_BROKER_ITEM_ID=str(item["id"]),
+            DAGSTER_BROKER_ATTEMPT=str(item["attempt"]),
+            DAGSTER_BROKER_WORKER_ID=self.cfg.worker_id,
         )
         if self.cfg.shared_key:
-            env["DISPATCH_SHARED_KEY"] = self.cfg.shared_key
+            env["DAGSTER_BROKER_SHARED_KEY"] = self.cfg.shared_key
         if payload.get("staging_prefix"):
-            env["DISPATCH_STAGING_PREFIX"] = (
+            env["DAGSTER_BROKER_STAGING_PREFIX"] = (
                 f"{payload['staging_prefix'].rstrip('/')}/{item['attempt']}/"
             )
         return env
@@ -343,7 +343,7 @@ class Worker:
             except Stale:
                 att.stop("stale")  # reaped and maybe claimed by someone else
                 return
-            except (Unavailable, DispatchError, OSError) as e:
+            except (Unavailable, BrokerError, OSError) as e:
                 logger.warning(
                     "heartbeat for item %s failed (%s); still running", att.item_id, e
                 )
@@ -396,7 +396,7 @@ class Worker:
                         posting = (
                             False  # the attempt is over; the heartbeat stops the step
                         )
-                    except (DispatchError, OSError) as e:
+                    except (BrokerError, OSError) as e:
                         logger.warning("dropping %d stdio lines (%s)", len(batch), e)
                 batch = []
                 last = time.monotonic()

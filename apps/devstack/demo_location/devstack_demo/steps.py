@@ -1,9 +1,9 @@
-"""Demo step entrypoints, run on a dispatch worker: ``python -m devstack_demo.steps <name>``.
+"""Demo step entrypoints, run on a dagster-broker worker: ``python -m devstack_demo.steps <name>``.
 
-Each opens Dagster Pipes over dispatch (context from the env the worker set, messages
-posted to dispatch), reads upstream outputs from the S3 gateway, writes its own outputs to
+Each opens Dagster Pipes over dagster-broker (context from the env the worker set, messages
+posted to dagster-broker), reads upstream outputs from the S3 gateway, writes its own outputs to
 this attempt's staging prefix, and reports materialization metadata. Needs dagster-pipes,
-boto3 and dispatch only.
+boto3 and dagster-broker only.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import time
 
 import boto3
 
-from dispatch.pipes_worker import open_dispatch_pipes, staging_prefix
+from dagster_broker.pipes_worker import open_broker_pipes, staging_prefix
 
 
 def s3():
@@ -91,7 +91,7 @@ STEPS = {"plan": plan, "build": build, "publish": publish}
 
 def main() -> None:
     name = sys.argv[1]
-    with open_dispatch_pipes() as pipes:
+    with open_broker_pipes() as pipes:
         bucket = pipes.extras["bucket"]
         metadata = STEPS[name](pipes, s3(), bucket)
         metadata["step_host"] = socket.gethostname()

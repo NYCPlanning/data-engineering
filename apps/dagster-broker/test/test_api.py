@@ -3,12 +3,12 @@ import time
 import pytest
 from fastapi.testclient import TestClient
 
-from dispatch.app import create_app
-from dispatch.config import Settings
+from dagster_broker.app import create_app
+from dagster_broker.config import Settings
 
 from .conftest import all_items
 
-KEY = {"X-Dispatch-Key": "sekrit"}
+KEY = {"X-Dagster-Broker-Key": "sekrit"}
 
 
 @pytest.fixture
@@ -46,7 +46,7 @@ def test_readyz_fails_on_evicting_policy_or_no_maxmemory(client, r):
 
 def test_auth_required(client):
     assert client.post("/work/claim", json={"worker_id": "w"}).status_code == 401
-    bad = {"X-Dispatch-Key": "nope"}
+    bad = {"X-Dagster-Broker-Key": "nope"}
     assert client.get("/items/1", headers=bad).status_code == 401
     assert client.get("/metrics/demand", headers=bad).status_code == 401
 
@@ -205,7 +205,7 @@ def test_full_store_refuses_new_work_cleanly(client, r):
                 ).json()
         else:
             pytest.fail("store never filled up")
-        assert res.json()["detail"].startswith("dispatch store is full")
+        assert res.json()["detail"].startswith("dagster-broker store is full")
         assert res.headers["Retry-After"]
 
         # pin it well over the limit, so used_memory jitter can't let writes back in
@@ -234,7 +234,7 @@ def test_full_store_refuses_new_work_cleanly(client, r):
     # every accepted item is there and intact, and no refused enqueue left anything behind
     items = all_items(r)
     assert sorted(items) == accepted and len(accepted) > 5
-    assert int(r.get("dispatch:seq")) == len(accepted)
+    assert int(r.get("dagster-broker:seq")) == len(accepted)
     assert all(i["payload"] == blob for i in items.values())
     print(f"\nfull store: {len(accepted)} items accepted before 507")
 

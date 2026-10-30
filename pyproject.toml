@@ -135,7 +135,7 @@ known-first-party = [
     "dagster_utils",  # apps/dagster
     "ingest",         # apps/dagster
     "builds",         # apps/dagster
-    "dispatch",       # apps/dispatch
+    "dagster_broker", # apps/dagster-broker
 ]
 
 [tool.mypy]
@@ -199,7 +199,7 @@ members = [
     "apps/dagster",
     "apps/notebook-server",
     "apps/dcpy_integration_tests",
-    "apps/dispatch",
+    "apps/dagster-broker",
 ]
 
 # The root pyproject.toml is a virtual workspace container: every dcpy-* package under

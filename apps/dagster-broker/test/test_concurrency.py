@@ -12,8 +12,8 @@ from collections import Counter, defaultdict
 
 import pytest
 
-from dispatch import store
-from dispatch.store import StaleLease
+from dagster_broker import store
+from dagster_broker.store import StaleLease
 
 from .conftest import PREFIX, all_items, attempts_log, new_store
 

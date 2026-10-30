@@ -41,13 +41,13 @@ local id = tonumber(best_m)
 local k = ikey(id)
 local v = redis.call('HMGET', k, 'status', 'attempt', 'sig', 'run_id')
 if v[1] ~= 'queued' then
-  return redis.error_reply('dispatch invariant: queued index holds item ' .. id ..
+  return redis.error_reply('dagster-broker invariant: queued index holds item ' .. id ..
     ' with status ' .. tostring(v[1]))
 end
 local attempt = tonumber(v[2]) + 1
 -- backstop: an (item, attempt) is logged once; a second claim of it fails loudly
 if redis.call('HEXISTS', attkey(id), attempt) == 1 then
-  return redis.error_reply('dispatch invariant: attempt ' .. attempt .. ' of item ' ..
+  return redis.error_reply('dagster-broker invariant: attempt ' .. attempt .. ' of item ' ..
     id .. ' already claimed')
 end
 unindex_queued(id, v[3], v[4])

@@ -2,13 +2,13 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# Dispatch: the in-memory Valkey work queue that routes Dagster work to HTTP-only workers
+# dagster-broker: the in-memory Valkey work queue that routes Dagster work to HTTP-only workers
 # (tracker epic inv-k0d, this package is inv-k0d.3). A standalone ASGI app with Valkey as a
 # localhost-only sidecar. Deliberately has no dcpy dependency and holds no credentials.
 [project]
-name = "dcpy-app-dispatch"
+name = "dcpy-app-dagster-broker"
 version = "0.0.1"
-description = "DCP Data Engineering - dispatch queue API (Valkey lease queue for workers)"
+description = "DCP Data Engineering - dagster-broker queue API (Valkey lease queue for workers)"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi",
@@ -17,11 +17,11 @@ dependencies = [
     "uvicorn",
 ]
 
-# The base install is the dispatch server. dispatch.client and dispatch.worker are stdlib-only.
+# The base install is the dagster-broker server. dagster_broker.client and dagster_broker.worker are stdlib-only.
 [project.optional-dependencies]
-# dispatch.pipes_worker, imported inside the step subprocess on a worker
+# dagster_broker.pipes_worker, imported inside the step subprocess on a worker
 worker = ["dagster-pipes"]
-# dispatch.pipes_dagster, the Dagster-side Pipes client (promotes outputs via the S3 gateway)
+# dagster_broker.pipes_dagster, the Dagster-side Pipes client (promotes outputs via the S3 gateway)
 dagster = ["dagster", "dagster-pipes", "boto3"]
 
 [dependency-groups]
@@ -32,7 +32,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["dispatch*"]
+include = ["dagster_broker*"]
 
 [tool.setuptools.package-data]
-dispatch = ["lua/*.lua"]
+dagster_broker = ["lua/*.lua"]

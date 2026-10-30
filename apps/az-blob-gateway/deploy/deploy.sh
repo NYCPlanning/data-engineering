@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Deploy the S3 gateway (versitygw, inv-k0d.12) in front of Azure Blob into an existing
-# Container Apps environment, plus the 'gateway-doctor' ACA Job. Tracker: inv-k0d.14.
+# Container Apps environment, plus the 'az-blob-gateway-doctor' ACA Job. Tracker: inv-k0d.14.
 #
-#   apps/blob-gateway/deploy/deploy.sh --dry-run          # print every az command, change nothing
-#   apps/blob-gateway/deploy/deploy.sh                    # deploy / update (idempotent)
-#   apps/blob-gateway/deploy/deploy.sh --checks-only      # only the role + network checks
-#   apps/blob-gateway/deploy/deploy.sh --assign-roles     # also create missing role assignments
+#   apps/az-blob-gateway/deploy/deploy.sh --dry-run          # print every az command, change nothing
+#   apps/az-blob-gateway/deploy/deploy.sh                    # deploy / update (idempotent)
+#   apps/az-blob-gateway/deploy/deploy.sh --checks-only      # only the role + network checks
+#   apps/az-blob-gateway/deploy/deploy.sh --assign-roles     # also create missing role assignments
 #
 # Settings come from env vars, normally via an env file (default: deploy/.env next to this
 # script; see .env.example). Role assignments and private endpoint / DNS are CHECK-ONLY by
@@ -34,7 +34,7 @@ Options:
   --dry-run         print the az commands instead of running them (reads are faked too)
   --checks-only     skip image import and app/job create; run the role + network checks
   --assign-roles    create missing role assignments instead of only reporting them
-  --skip-doctor     don't build or deploy the gateway-doctor job
+  --skip-doctor     don't build or deploy the az-blob-gateway-doctor job
   -h, --help
 EOF
 }
@@ -66,8 +66,8 @@ fi
 : "${ACR_NAME:=dcpdecontainers-c8eze3cfayagfcaq}"
 : "${GW_IMAGE_SOURCE:=docker.io/versity/versitygw:v1.10.0}"
 : "${GW_IMAGE:=versity/versitygw:v1.10.0}"
-: "${GW_APP_NAME:=blob-gateway}"
-: "${GW_IDENTITY_NAME:=blob-gateway-id}"
+: "${GW_APP_NAME:=az-blob-gateway}"
+: "${GW_IDENTITY_NAME:=az-blob-gateway-id}"
 : "${GW_INGRESS:=external}"
 : "${GW_CPU:=1.0}"
 : "${GW_MEMORY:=2Gi}"
@@ -86,10 +86,10 @@ fi
 : "${PRIVATE_DNS_SUBSCRIPTION:=}"
 : "${DOCKERHUB_USERNAME:=}"
 : "${DOCKERHUB_TOKEN:=}"
-: "${DOCTOR_JOB_NAME:=gateway-doctor}"
+: "${DOCTOR_JOB_NAME:=az-blob-gateway-doctor}"
 : "${DOCTOR_IMAGE_TAG:=$(git -C "$SCRIPT_DIR" rev-parse --short HEAD 2>/dev/null || echo latest)}"
-: "${DOCTOR_IMAGE:=gateway-doctor:$DOCTOR_IMAGE_TAG}"
-: "${DOCTOR_BUCKET:=gateway-doctor}"
+: "${DOCTOR_IMAGE:=az-blob-gateway-doctor:$DOCTOR_IMAGE_TAG}"
+: "${DOCTOR_BUCKET:=az-blob-gateway-doctor}"
 : "${DOCTOR_SIZE:=1G}"
 : "${DOCTOR_PART_SIZE:=32MiB}"
 : "${DOCTOR_CPU:=1.0}"
@@ -518,7 +518,7 @@ fi
 log "summary"
 if [ -n "$GW_FQDN" ]; then
     note "gateway:   https://$GW_FQDN   (S3 access key $GW_ACCESS_KEY_ID, secret in $GW_SECRET_NAME)"
-    note "doctor from citynet:  uv run apps/blob-gateway/doctor/doctor.py --endpoint https://$GW_FQDN --access-key $GW_ACCESS_KEY_ID --secret-key ... --json > doctor-citynet.json"
+    note "doctor from citynet:  uv run apps/az-blob-gateway/doctor/doctor.py --endpoint https://$GW_FQDN --access-key $GW_ACCESS_KEY_ID --secret-key ... --json > doctor-citynet.json"
     note "doctor in the VNet:   az containerapp job start ${S[*]} -g $AZ_RESOURCE_GROUP -n $DOCTOR_JOB_NAME"
 fi
 if [ "${#MISSING[@]}" -gt 0 ]; then

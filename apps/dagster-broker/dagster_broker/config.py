@@ -8,8 +8,8 @@ from dataclasses import dataclass
 class Settings:
     valkey_url: str = "redis://localhost:6379/0"
     # Every key this service writes starts with this, so one Valkey can be shared by tests.
-    key_prefix: str = "dispatch:"
-    # Shared key for the X-Dispatch-Key header. None disables auth (local dev only).
+    key_prefix: str = "dagster-broker:"
+    # Shared key for the X-Dagster-Broker-Key header. None disables auth (local dev only).
     shared_key: str | None = None
     lease_seconds: float = 60.0
     # How often the in-process reaper runs. 0 disables it (e.g. if it runs elsewhere).
@@ -24,18 +24,18 @@ class Settings:
     def from_env(cls) -> Settings:
         env = os.environ.get
         return cls(
-            valkey_url=env("DISPATCH_VALKEY_URL", cls.valkey_url),
-            key_prefix=env("DISPATCH_KEY_PREFIX", cls.key_prefix),
-            shared_key=env("DISPATCH_SHARED_KEY") or None,
-            lease_seconds=float(env("DISPATCH_LEASE_SECONDS", cls.lease_seconds)),
+            valkey_url=env("DAGSTER_BROKER_VALKEY_URL", cls.valkey_url),
+            key_prefix=env("DAGSTER_BROKER_KEY_PREFIX", cls.key_prefix),
+            shared_key=env("DAGSTER_BROKER_SHARED_KEY") or None,
+            lease_seconds=float(env("DAGSTER_BROKER_LEASE_SECONDS", cls.lease_seconds)),
             reap_interval_seconds=float(
-                env("DISPATCH_REAP_INTERVAL_SECONDS", cls.reap_interval_seconds)
+                env("DAGSTER_BROKER_REAP_INTERVAL_SECONDS", cls.reap_interval_seconds)
             ),
             terminal_ttl_seconds=int(
-                env("DISPATCH_TERMINAL_TTL_SECONDS", cls.terminal_ttl_seconds)
+                env("DAGSTER_BROKER_TERMINAL_TTL_SECONDS", cls.terminal_ttl_seconds)
             ),
             max_events_per_item=int(
-                env("DISPATCH_MAX_EVENTS_PER_ITEM", cls.max_events_per_item)
+                env("DAGSTER_BROKER_MAX_EVENTS_PER_ITEM", cls.max_events_per_item)
             ),
-            pool_max_size=int(env("DISPATCH_POOL_MAX_SIZE", cls.pool_max_size)),
+            pool_max_size=int(env("DAGSTER_BROKER_POOL_MAX_SIZE", cls.pool_max_size)),
         )

@@ -1,4 +1,4 @@
-"""HTTP client for the dispatch API. Standard library only, so it runs anywhere a worker
+"""HTTP client for the dagster-broker API. Standard library only, so it runs anywhere a worker
 does (Linux containers, Windows desktops) without extra installs.
 
 Errors map onto the API's contract:
@@ -6,7 +6,7 @@ Errors map onto the API's contract:
 - :class:`NotFound` (404): the queue forgot the item (expired, or Valkey restarted). A
   producer re-enqueues with the same idempotency key; a worker abandons the attempt.
 - :class:`Stale` (409): this (item, attempt, worker) no longer holds the lease.
-- :class:`Unavailable` (503, 507, connection refused/reset): dispatch or its Valkey is
+- :class:`Unavailable` (503, 507, connection refused/reset): dagster-broker or its Valkey is
   down or full. Calls in :data:`RETRY_SAFE` are retried with backoff first.
 """
 
@@ -21,29 +21,29 @@ import urllib.parse
 import urllib.request
 from typing import Any, Iterable, Sequence
 
-KEY_HEADER = "X-Dispatch-Key"
+KEY_HEADER = "X-Dagster-Broker-Key"
 
 
-class DispatchError(Exception):
+class BrokerError(Exception):
     def __init__(self, status: int | None, detail: Any, method: str, path: str):
         self.status = status
         self.detail = detail
         super().__init__(f"{method} {path} -> {status}: {detail}")
 
 
-class NotFound(DispatchError):
+class NotFound(BrokerError):
     """404: the queue doesn't know this item (never existed, expired, or restarted)."""
 
 
-class Stale(DispatchError):
+class Stale(BrokerError):
     """409: the fencing token (item, attempt, worker) no longer holds the item."""
 
 
-class Unavailable(DispatchError):
+class Unavailable(BrokerError):
     """503 / 507 / connection error: try again later."""
 
 
-class TooManyEvents(DispatchError):
+class TooManyEvents(BrokerError):
     """429: the item hit its event cap."""
 
 
@@ -56,7 +56,7 @@ _BY_STATUS = {
 }
 
 
-class DispatchClient:
+class BrokerClient:
     """One method per endpoint. Thread-safe (no shared connection state).
 
     ``retries``: how many times calls that are safe to repeat are retried on
@@ -79,10 +79,10 @@ class DispatchClient:
         self.max_backoff = max_backoff
 
     @classmethod
-    def from_env(cls, **kwargs: Any) -> DispatchClient:
-        """``DISPATCH_URL`` (required) and ``DISPATCH_SHARED_KEY`` (optional)."""
+    def from_env(cls, **kwargs: Any) -> BrokerClient:
+        """``DAGSTER_BROKER_URL`` (required) and ``DAGSTER_BROKER_SHARED_KEY`` (optional)."""
         return cls(
-            os.environ["DISPATCH_URL"], os.environ.get("DISPATCH_SHARED_KEY"), **kwargs
+            os.environ["DAGSTER_BROKER_URL"], os.environ.get("DAGSTER_BROKER_SHARED_KEY"), **kwargs
         )
 
     # ---- transport ------------------------------------------------------------------
@@ -111,10 +111,10 @@ class DispatchClient:
                 detail = json.loads(raw).get("detail", raw.decode(errors="replace"))
             except Exception:
                 detail = raw.decode(errors="replace")
-            raise _BY_STATUS.get(e.code, DispatchError)(e.code, detail, method, path)
+            raise _BY_STATUS.get(e.code, BrokerError)(e.code, detail, method, path)
         except (urllib.error.URLError, ConnectionError) as e:
             reason = getattr(e, "reason", e)
-            # Refused, reset, DNS failure while dispatch restarts: unavailable. A timeout
+            # Refused, reset, DNS failure while dagster-broker restarts: unavailable. A timeout
             # is ambiguous (the request may have been processed), so it's raised as is.
             if isinstance(reason, TimeoutError):
                 raise

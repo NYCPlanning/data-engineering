@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Devstack end-to-end check (tracker inv-k0d.10): Dagster -> dispatch -> mock workers ->
+# Devstack end-to-end check (tracker inv-k0d.10): Dagster -> dagster-broker -> mock workers ->
 # S3 gateway, via Dagster Pipes, plus chaos checks.
 #
 #   apps/devstack/e2e/e2e.sh            # bring the stack up, run every check
@@ -7,12 +7,12 @@
 #   E2E_DOWN=1 apps/devstack/e2e/e2e.sh # docker compose down -v at the end
 #
 # Each check launches a run of the demo location's 'demo_chain' (plan -> build -> publish)
-# for its own partition and asserts on Dagster's records, dispatch and the gateway.
+# for its own partition and asserts on Dagster's records, dagster-broker and the gateway.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 dc() { docker compose -f docker-compose.yml "$@"; }
 e2e() { dc exec -T dagster-webserver python /repo/apps/devstack/e2e/e2e.py "$@"; }
-dispatch() { curl -fsS -H "X-Dispatch-Key: devstack-dispatch-key" "http://127.0.0.1:8000$1"; }
+broker() { curl -fsS -H "X-Dagster-Broker-Key: devstack-dagster-broker-key" "http://127.0.0.1:8000$1"; }
 log() { printf '\n== %s\n' "$*"; }
 die() { echo "FAIL: $*"; exit 1; }
 jget() { python3 -c "import json,sys; print(json.load(sys.stdin)$1)"; }
@@ -51,16 +51,16 @@ check_happy() {
 check_gpu() {
   log "starvation: gpu_train[bk] needs caps gpu, which no worker has"
   run=$(e2e launch gpu_job bk)
-  e2e wait-log "$run" "[dispatch] enqueued item" --step gpu_train >/dev/null
+  e2e wait-log "$run" "[dagster-broker] enqueued item" --step gpu_train >/dev/null
   sleep 3
-  gpu=$(dispatch "/metrics/demand?caps=gpu" | jget '["demand"]')
-  std=$(dispatch "/metrics/demand" | jget '["demand"]')
+  gpu=$(broker "/metrics/demand?caps=gpu" | jget '["demand"]')
+  std=$(broker "/metrics/demand" | jget '["demand"]')
   echo "demand caps=gpu: $gpu, caps=(none): $std"
   [ "$gpu" -ge 1 ] || die "gpu demand is $gpu"
   [ "$std" -eq 0 ] || die "a caps-less worker sees demand $std"
   e2e terminate "$run" >/dev/null
   [ "$(e2e wait "$run" --timeout 60)" = CANCELED ] || die "gpu run not cancelled"
-  [ "$(dispatch "/metrics/demand?caps=gpu" | jget '["demand"]')" -eq 0 ] || die "gpu item still queued"
+  [ "$(broker "/metrics/demand?caps=gpu" | jget '["demand"]')" -eq 0 ] || die "gpu item still queued"
   echo "OK gpu: stayed queued with demand, cancelled with the run"
 }
 
@@ -109,7 +109,7 @@ check_cancel() {
   e2e terminate "$run" >/dev/null
   [ "$(e2e wait "$run" --timeout 90)" = CANCELED ] || die "run $run not cancelled"
   for _ in $(seq 30); do
-    status=$(dispatch "/items/$item" | jget '["status"]')
+    status=$(broker "/items/$item" | jget '["status"]')
     [ "$status" = cancelled ] && break
     sleep 1
   done

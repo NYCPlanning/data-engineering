@@ -1,4 +1,4 @@
--- Shared helpers, spliced into every script after its shebang line (see dispatch/store.py).
+-- Shared helpers, spliced into every script after its shebang line (see dagster_broker/store.py).
 -- ARGV[1] is always the key prefix. Time is always the server's TIME, never the app's.
 -- Standalone Valkey only: scripts compute key names, which cluster mode would forbid.
 local P = ARGV[1]

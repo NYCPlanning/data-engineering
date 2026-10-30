@@ -4,7 +4,7 @@ Deploys the S3 gateway (versitygw v1.10.0, chosen in tracker bead `inv-k0d.12`) 
 Azure Blob into our Container Apps environment, then tests two paths with the gateway doctor:
 
 - **citynet -> gateway**: the path desktops take. Run the doctor on your citynet machine.
-- **ACA job -> gateway -> blob**: the path Azure runners take. Run the `gateway-doctor` ACA Job.
+- **ACA job -> gateway -> blob**: the path Azure runners take. Run the `az-blob-gateway-doctor` ACA Job.
 
 Tracker: `inv-k0d.14`. **Paste every doctor `--json` output onto that bead.**
 
@@ -15,7 +15,7 @@ Files:
 | `deploy/deploy.sh` | idempotent az CLI deploy; `--dry-run`, `--checks-only`, `--assign-roles` |
 | `deploy/.env.example` | every setting, with defaults; copy to `deploy/.env` (gitignored) |
 | `doctor/doctor.py` | single-file doctor (boto3 + stdlib), `uv run doctor.py` anywhere |
-| `doctor/Dockerfile` | image for the `gateway-doctor` ACA Job |
+| `doctor/Dockerfile` | image for the `az-blob-gateway-doctor` ACA Job |
 
 Locally, the same doctor runs against the devstack compose (Azurite + versitygw); see the end.
 
@@ -36,8 +36,8 @@ Run from the repo root.
 ### 1. Settings
 
 ```sh
-cp apps/blob-gateway/deploy/.env.example apps/blob-gateway/deploy/.env
-$EDITOR apps/blob-gateway/deploy/.env
+cp apps/az-blob-gateway/deploy/.env.example apps/az-blob-gateway/deploy/.env
+$EDITOR apps/az-blob-gateway/deploy/.env
 ```
 
 Required: `AZ_RESOURCE_GROUP`, `ACA_ENVIRONMENT`, `STORAGE_ACCOUNT`, and either
@@ -48,20 +48,20 @@ checks them as well.
 ### 2. Dry run, then check-only
 
 ```sh
-apps/blob-gateway/deploy/deploy.sh --dry-run        # prints every az command, touches nothing
+apps/az-blob-gateway/deploy/deploy.sh --dry-run        # prints every az command, touches nothing
 ```
 
 Read it over. Then, once the identity exists (step 3 creates it), this runs only the role and
 network checks and exits 3 if anything is missing:
 
 ```sh
-apps/blob-gateway/deploy/deploy.sh --checks-only
+apps/az-blob-gateway/deploy/deploy.sh --checks-only
 ```
 
 ### 3. Deploy
 
 ```sh
-apps/blob-gateway/deploy/deploy.sh
+apps/az-blob-gateway/deploy/deploy.sh
 ```
 
 What it does, in order:
@@ -69,7 +69,7 @@ What it does, in order:
 1. Reads the environment and refuses external ingress unless the environment is internal-only.
 2. `az acr import`s `docker.io/versity/versitygw:v1.10.0` into our ACR, since the VNet may not
    reach Docker Hub. Then `az acr build`s the doctor image (ACR Tasks, so no local docker).
-3. Creates the user-assigned identity `blob-gateway-id`, if it doesn't exist yet.
+3. Creates the user-assigned identity `az-blob-gateway-id`, if it doesn't exist yet.
 4. Checks the identity's roles: **Storage Blob Data Contributor** on the account (or on
    `STORAGE_DATA_ROLE_SCOPE`), **Storage Blob Delegator** on the account when Contributor isn't
    at account scope, **AcrPull** on the ACR, and **Key Vault Secrets User** when the secret
@@ -79,11 +79,11 @@ What it does, in order:
    endpoint, and with `PRIVATE_DNS_RESOURCE_GROUP` set, is there an
    `<account>.privatelink.blob.core.windows.net` A record, is that zone linked to the env VNet,
    and is there a `*.<env default domain>` wildcard pointing at the env's static IP?
-6. Creates or updates the container app `blob-gateway`. Ingress is HTTP on target port 7070,
+6. Creates or updates the container app `az-blob-gateway`. Ingress is HTTP on target port 7070,
    on its own FQDN, `allowInsecure=false`, min/max replicas 1. versitygw is configured with
    env vars only (`VGW_BACKEND=azure`, `AZ_ACCOUNT_NAME`, `AZURE_CLIENT_ID`). There's no
    `AZ_ACCESS_KEY`, so it authenticates to blob as the managed identity.
-7. Creates or updates the manual-trigger job `gateway-doctor`, with `DOCTOR_INSIDE=1`,
+7. Creates or updates the manual-trigger job `az-blob-gateway-doctor`, with `DOCTOR_INSIDE=1`,
    `DOCTOR_JSON=1` and `DOCTOR_SIZE=1G`.
 
 It prints the gateway URL at the end, along with a **MISSING** list to send to IT. If the
@@ -94,8 +94,8 @@ because managed-identity tokens are cached for a while.
 ### 4. Doctor from citynet (desktops' path)
 
 ```sh
-uv run apps/blob-gateway/doctor/doctor.py \
-  --endpoint https://blob-gateway.<env default domain> \
+uv run apps/az-blob-gateway/doctor/doctor.py \
+  --endpoint https://az-blob-gateway.<env default domain> \
   --access-key gateway --secret-key "$GW_SECRET_ACCESS_KEY" \
   --expect-private --json > doctor-citynet.json
 ```
@@ -109,18 +109,18 @@ the JSON.
 ### 5. Doctor inside the VNet (Azure runners' path)
 
 ```sh
-az containerapp job start -g <rg> -n gateway-doctor
-az containerapp job execution list -g <rg> -n gateway-doctor -o table   # wait for Succeeded/Failed
+az containerapp job start -g <rg> -n az-blob-gateway-doctor
+az containerapp job execution list -g <rg> -n az-blob-gateway-doctor -o table   # wait for Succeeded/Failed
 az extension add -n containerapp      # once; 'job logs show' is extension-only
-az containerapp job logs show -g <rg> -n gateway-doctor --container gateway-doctor --format text --tail 300
+az containerapp job logs show -g <rg> -n az-blob-gateway-doctor --container az-blob-gateway-doctor --format text --tail 300
 ```
 
 The report is the one log line that starts with `{"doctor"`. The lines just above it are the
 readable summary. For a 5 GB run:
 
 ```sh
-az containerapp job update -g <rg> -n gateway-doctor --set-env-vars DOCTOR_SIZE=5G
-az containerapp job start  -g <rg> -n gateway-doctor
+az containerapp job update -g <rg> -n az-blob-gateway-doctor --set-env-vars DOCTOR_SIZE=5G
+az containerapp job start  -g <rg> -n az-blob-gateway-doctor
 ```
 
 Other knobs (env vars on the job): `DOCTOR_PART_SIZE`, `DOCTOR_CONCURRENCY`,
@@ -149,7 +149,7 @@ a hint. Here's what a failure at each layer usually means, from most to least li
 | `dns` | citynet DNS can't see the env's private zone: `*.<env default domain>` -> env static IP. IT has to add it, or conditionally forward it to Azure DNS. |
 | `tcp` | Firewall, NSG or routing between citynet and the env's internal load balancer. Or the wrong port: ingress serves 443, not 7070. |
 | `tls` | The hostname doesn't match `*.<env domain>`, or something on the path intercepts TLS (use `--ca-bundle`). |
-| `health` | **404**: the app's ingress is `internal` (env-only) or the FQDN is wrong. **301/308**: you used `http://`; S3 clients don't follow the redirect, so use `https://`. **503**: no healthy replica (check `az containerapp logs show -g <rg> -n blob-gateway`). |
+| `health` | **404**: the app's ingress is `internal` (env-only) or the FQDN is wrong. **301/308**: you used `http://`; S3 clients don't follow the redirect, so use `https://`. **503**: no healthy replica (check `az containerapp logs show -g <rg> -n az-blob-gateway`). |
 | `blob_dns` | `<account>.blob.core.windows.net` resolves to a public IP inside the env: there's no private endpoint, or `privatelink.blob.core.windows.net` isn't linked to the env VNet. |
 | `mi_token` | The identity isn't on the job, or `AZURE_CLIENT_ID` is wrong. |
 | `blob_direct` | **403 on the container**: no Storage Blob Data Contributor. **Fails on the user delegation key**: there's no Delegator (or Contributor at account scope), so server-side copy will fall back to streaming. **Timeouts**: the network path to blob. |
@@ -219,14 +219,14 @@ Only verifiable on Azure:
 - Real throughput, 5 GB multipart, and the gateway's memory under real load.
 
 If ACR Tasks are blocked, build and push the doctor image by hand:
-`docker build -t <acr>.azurecr.io/gateway-doctor:<tag> apps/blob-gateway/doctor && az acr login -n <acr> && docker push ...`,
-then run with `DOCTOR_IMAGE=gateway-doctor:<tag>`.
+`docker build -t <acr>.azurecr.io/az-blob-gateway-doctor:<tag> apps/az-blob-gateway/doctor && az acr login -n <acr> && docker push ...`,
+then run with `DOCTOR_IMAGE=az-blob-gateway-doctor:<tag>`.
 
 ## Local (devstack)
 
 ```sh
 docker compose -f apps/devstack/docker-compose.yml up -d --wait azurite versitygw
-uv run apps/blob-gateway/doctor/doctor.py --endpoint http://127.0.0.1:7070 --access-key devstack --secret-key devstack-secret
+uv run apps/az-blob-gateway/doctor/doctor.py --endpoint http://127.0.0.1:7070 --access-key devstack --secret-key devstack-secret
 docker compose -f apps/devstack/docker-compose.yml --profile doctor run --rm doctor          # same, as the container
 docker compose -f apps/devstack/docker-compose.yml --profile doctor down -v                  # Azurite keeps the disk until -v
 ```

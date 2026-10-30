@@ -23,7 +23,7 @@ TERMINAL = {
     DagsterRunStatus.FAILURE,
     DagsterRunStatus.CANCELED,
 }
-CLAIMED = re.compile(r"\[dispatch\] item (\d+) attempt (\d+) on worker (\S+)")
+CLAIMED = re.compile(r"\[dagster-broker\] item (\d+) attempt (\d+) on worker (\S+)")
 BUCKET = os.environ.get("DEVSTACK_BUCKET", "devstack")
 
 
@@ -155,8 +155,8 @@ def assert_chain(a) -> None:
                     f"{asset}[{a.partition}] metadata {k}={md.get(k)!r}, want {v!r}: {md}"
                 )
         for k in (
-            "dispatch_item",
-            "dispatch_attempt",
+            "broker_item",
+            "broker_attempt",
             "worker_id",
             "promoted_objects",
             "outputs_uri",
@@ -174,8 +174,8 @@ def assert_chain(a) -> None:
         if md["promoted_objects"] < 1 or len(keys) < md["promoted_objects"]:
             fail(f"{asset}: promoted {md['promoted_objects']} but gateway has {keys}")
         report[asset] = {
-            "item": md["dispatch_item"],
-            "attempt": md["dispatch_attempt"],
+            "item": md["broker_item"],
+            "attempt": md["broker_attempt"],
             "worker": md["worker_id"],
             "objects": len(keys),
         }
@@ -191,17 +191,17 @@ def assert_chain(a) -> None:
     print(json.dumps(report))
 
 
-def dispatch_get(path: str) -> dict:
+def broker_get(path: str) -> dict:
     req = urllib.request.Request(
-        os.environ["DISPATCH_URL"] + path,
-        headers={"X-Dispatch-Key": os.environ.get("DISPATCH_SHARED_KEY", "")},
+        os.environ["DAGSTER_BROKER_URL"] + path,
+        headers={"X-Dagster-Broker-Key": os.environ.get("DAGSTER_BROKER_SHARED_KEY", "")},
     )
     with urllib.request.urlopen(req, timeout=10) as r:
         return json.loads(r.read())
 
 
 def item(a) -> None:
-    print(json.dumps(dispatch_get(f"/items/{a.item_id}")))
+    print(json.dumps(broker_get(f"/items/{a.item_id}")))
 
 
 def main() -> None:

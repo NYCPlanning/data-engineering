@@ -23,7 +23,7 @@ Durable truth lives in Dagster (runs, Pipes messages it has read) and blob stora
 Clients treat 404 as "the queue forgot this item": the producer re-enqueues with the same
 idempotency key, a worker abandons the attempt.
 
-Key layout (``P`` = key prefix, default ``dispatch:``; ids padded to 16 digits in zsets):
+Key layout (``P`` = key prefix, default ``dagster-broker:``; ids padded to 16 digits in zsets):
 
 - ``P seq``: id counter
 - ``P item:{id}``: hash with the item's fields; JSON for caps, payload, result
@@ -135,7 +135,7 @@ class QueueStore(Protocol):
 
 
 def _load_script(name: str) -> str:
-    lua = resources.files("dispatch") / "lua"
+    lua = resources.files("dagster_broker") / "lua"
     body = (lua / f"{name}.lua").read_text()
     shebang, rest = body.split("\n", 1)
     assert shebang.startswith("#!lua"), f"{name}.lua must start with a #!lua shebang"
@@ -230,7 +230,7 @@ class ValkeyStore:
         self,
         client: redis.Redis,
         *,
-        prefix: str = "dispatch:",
+        prefix: str = "dagster-broker:",
         terminal_ttl_seconds: int = 24 * 3600,
         max_events_per_item: int = 100_000,
     ):

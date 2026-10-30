@@ -3,8 +3,8 @@
 import pytest
 import redis
 
-from dispatch import store
-from dispatch.store import NoSuchItem, StaleLease
+from dagster_broker import store
+from dagster_broker.store import NoSuchItem, StaleLease
 
 from .conftest import PREFIX, all_items, attempts_log
 

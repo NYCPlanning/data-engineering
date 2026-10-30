@@ -1,5 +1,5 @@
-"""Dagster side of Pipes over dispatch: a ``PipesClient`` whose launch is "enqueue a
-dispatch item and wait for a worker to run it".
+"""Dagster side of Pipes over dagster-broker: a ``PipesClient`` whose launch is "enqueue a
+dagster-broker item and wait for a worker to run it".
 
 Flow (tracker inv-k0d.4):
 
@@ -14,12 +14,12 @@ Flow (tracker inv-k0d.4):
    ``stdio`` events (the step's stdout/stderr, posted by the worker) go to the run log.
 4. 404 means the queue forgot the item (Valkey restarted): re-enqueue with the same
    idempotency key and a new staging nonce. A zombie attempt can't write into the new
-   item's staging prefix, and its messages are refused by dispatch's fencing.
+   item's staging prefix, and its messages are refused by dagster-broker's fencing.
 5. On ``done``, promote ``<staging>/<attempt>/*`` to ``outputs_prefix`` through the S3
    gateway (one server-side CopyObject per object), delete the step's whole staging
    tree (including leftovers of killed attempts), then return. ``failed``/``dead``/``cancelled`` raise.
 6. If Dagster terminates the run, cancel the item (the worker kills the step on its next
-   heartbeat) and wait briefly for dispatch to confirm.
+   heartbeat) and wait briefly for dagster-broker to confirm.
 """
 
 from __future__ import annotations
@@ -45,15 +45,15 @@ from dagster._core.errors import DagsterPipesExecutionError
 from dagster._core.pipes.context import PipesMessageHandler
 from dagster_pipes import PipesExtras, PipesParams
 
-from dispatch.client import DispatchClient, NotFound
-from dispatch.pipes_worker import PIPES_EVENT_KIND, TRANSPORT
+from dagster_broker.client import BrokerClient, NotFound
+from dagster_broker.pipes_worker import PIPES_EVENT_KIND, TRANSPORT
 
 LIVE_METHODS = frozenset({"opened", "log", "log_external_stream"})
 TERMINAL = frozenset({"done", "failed", "dead", "cancelled"})
 
 
-class DispatchMessageReader(PipesMessageReader):
-    """Routes dispatch events to the Pipes handler. It doesn't poll on its own: the client
+class BrokerMessageReader(PipesMessageReader):
+    """Routes dagster-broker events to the Pipes handler. It doesn't poll on its own: the client
     feeds it from its wait loop, which also tracks the item's status and attempt."""
 
     def __init__(self) -> None:
@@ -69,14 +69,14 @@ class DispatchMessageReader(PipesMessageReader):
 
     def no_messages_debug_text(self) -> str:
         return (
-            "Messages are read from the dispatch item's events (kind 'pipes'); check the "
-            "worker's logs and that the step uses dispatch.pipes_worker.open_dispatch_pipes."
+            "Messages are read from the dagster-broker item's events (kind 'pipes'); check the "
+            "worker's logs and that the step uses dagster_broker.pipes_worker.open_broker_pipes."
         )
 
     def start_attempt(self, attempt: int, context: Any) -> None:
         if self.attempt is not None and self.buffered:
             context.log.warning(
-                f"[dispatch] discarding {len(self.buffered)} unreported result message(s) "
+                f"[dagster-broker] discarding {len(self.buffered)} unreported result message(s) "
                 f"from attempt {self.attempt}"
             )
         self.attempt = attempt
@@ -101,17 +101,17 @@ class DispatchMessageReader(PipesMessageReader):
         self.buffered = []
 
 
-class PipesDispatchClient(PipesClient, TreatAsResourceParam):
-    """Run a Pipes step on a dispatch worker. Usable directly as a resource (like
+class PipesBrokerClient(PipesClient, TreatAsResourceParam):
+    """Run a Pipes step on a dagster-broker worker. Usable directly as a resource (like
     ``PipesSubprocessClient``).
 
     Args:
-        dispatch: the dispatch API client (default: from ``DISPATCH_URL`` /
-            ``DISPATCH_SHARED_KEY``).
+        broker: the dagster-broker API client (default: from ``DAGSTER_BROKER_URL`` /
+            ``DAGSTER_BROKER_SHARED_KEY``).
         s3: a boto3 S3 client for the artifact gateway, used to promote outputs.
         bucket: the gateway bucket for staging and final outputs.
         poll_interval: seconds between status/event polls.
-        cancel_wait: after a Dagster termination, how long to wait for dispatch to
+        cancel_wait: after a Dagster termination, how long to wait for dagster-broker to
             confirm the cancel before giving up.
     """
 
@@ -120,13 +120,13 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
         *,
         bucket: str,
         s3: Any = None,
-        dispatch: DispatchClient | None = None,
+        broker: BrokerClient | None = None,
         poll_interval: float = 1.0,
         cancel_wait: float = 20.0,
     ):
         self.bucket = bucket
         self._s3 = s3
-        self.dispatch = dispatch or DispatchClient.from_env()
+        self.broker = broker or BrokerClient.from_env()
         self.poll_interval = poll_interval
         self.cancel_wait = cancel_wait
 
@@ -173,7 +173,7 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
         )
         idem = f"{run_id}:{step_key}:{partition or ''}:{retry}"
 
-        reader = DispatchMessageReader()
+        reader = BrokerMessageReader()
         with open_pipes_session(
             context=context,
             context_injector=PipesEnvContextInjector(),
@@ -188,7 +188,7 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
 
             def enqueue() -> tuple[dict, str]:
                 staging = f"_staging/{run_id}/{step_key}/{uuid.uuid4().hex[:12]}"
-                item, created = self.dispatch.enqueue(
+                item, created = self.broker.enqueue(
                     idempotency_key=idem,
                     run_id=run_id,
                     asset_key=asset_key,
@@ -208,7 +208,7 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
                 # an existing item (Dagster retried this call) keeps its own staging
                 staging = item["payload"].get("staging_prefix", staging)
                 context.log.info(
-                    f"[dispatch] {'enqueued' if created else 'reattached to'} item "
+                    f"[dagster-broker] {'enqueued' if created else 'reattached to'} item "
                     f"{item['id']} caps={list(required_caps)} key={idem}"
                 )
                 return item, staging
@@ -230,8 +230,8 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
                 # winner was copied out, the rest are leftovers of killed attempts.
                 self._delete_prefix(f"_staging/{run_id}/{step_key}/")
             metadata = {
-                "dispatch_item": item["id"],
-                "dispatch_attempt": item["attempt"],
+                "broker_item": item["id"],
+                "broker_attempt": item["attempt"],
                 "worker_id": item.get("worker_id")
                 or (item.get("result") or {}).get("worker_id"),
                 "promoted_objects": promoted,
@@ -243,20 +243,20 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
     # ---- waiting --------------------------------------------------------------------
 
     def _wait(
-        self, context, reader: DispatchMessageReader, item: dict, enqueue_again
+        self, context, reader: BrokerMessageReader, item: dict, enqueue_again
     ) -> dict:
         cursor: str | None = None
         claimed_seen: set[int] = set()
         while True:
             try:
-                current = self.dispatch.get_item(item["id"])
+                current = self.broker.get_item(item["id"])
                 if current.get("idempotency_key") != item.get("idempotency_key"):
                     # ids restart with Valkey: this id now belongs to someone else's item
                     raise NotFound(404, "id reused", "GET", f"/items/{item['id']}")
                 cursor = self._drain(context, reader, item["id"], cursor)
             except NotFound:
                 context.log.warning(
-                    f"[dispatch] item {item['id']} is gone (dispatch restarted?); "
+                    f"[dagster-broker] item {item['id']} is gone (dagster-broker restarted?); "
                     "re-enqueueing with the same idempotency key"
                 )
                 reader.start_attempt(0, context)
@@ -271,7 +271,7 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
             ):
                 claimed_seen.add(item["attempt"])
                 context.log.info(
-                    f"[dispatch] item {item['id']} attempt {item['attempt']} on worker "
+                    f"[dagster-broker] item {item['id']} attempt {item['attempt']} on worker "
                     f"{item.get('worker_id')}"
                 )
             status = item["status"]
@@ -282,16 +282,16 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
                 return item
             if status in TERMINAL:
                 raise DagsterPipesExecutionError(
-                    f"dispatch item {item['id']} ended {status} after attempt "
+                    f"dagster-broker item {item['id']} ended {status} after attempt "
                     f"{item['attempt']}/{item['max_attempts']}: {item.get('error')}"
                 )
             time.sleep(self.poll_interval)
 
     def _drain(
-        self, context, reader: DispatchMessageReader, item_id: int, cursor: str | None
+        self, context, reader: BrokerMessageReader, item_id: int, cursor: str | None
     ) -> str | None:
         while True:
-            events, new_cursor = self.dispatch.events(item_id, after=cursor, limit=1000)
+            events, new_cursor = self.broker.events(item_id, after=cursor, limit=1000)
             for ev in events:
                 if ev["attempt"] != reader.attempt:
                     reader.start_attempt(ev["attempt"], context)
@@ -305,20 +305,20 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
             cursor = new_cursor
 
     def _cancel(self, context, item_id: int) -> None:
-        context.log.warning(f"[dispatch] run terminated: cancelling item {item_id}")
+        context.log.warning(f"[dagster-broker] run terminated: cancelling item {item_id}")
         try:
-            self.dispatch.cancel(item_id)
+            self.broker.cancel(item_id)
             deadline = time.monotonic() + self.cancel_wait
             while time.monotonic() < deadline:
-                if self.dispatch.get_item(item_id)["status"] in TERMINAL:
-                    context.log.info(f"[dispatch] item {item_id} cancelled")
+                if self.broker.get_item(item_id)["status"] in TERMINAL:
+                    context.log.info(f"[dagster-broker] item {item_id} cancelled")
                     return
                 time.sleep(0.5)
             context.log.warning(
-                f"[dispatch] item {item_id} not confirmed cancelled yet"
+                f"[dagster-broker] item {item_id} not confirmed cancelled yet"
             )
         except Exception as e:  # never mask the interrupt
-            context.log.warning(f"[dispatch] cancel of item {item_id} failed: {e}")
+            context.log.warning(f"[dagster-broker] cancel of item {item_id} failed: {e}")
 
     # ---- promotion ------------------------------------------------------------------
 
@@ -360,6 +360,6 @@ class PipesDispatchClient(PipesClient, TreatAsResourceParam):
                 Config=single,
             )
         context.log.info(
-            f"[dispatch] promoted {len(keys)} object(s) {staging} -> {final}"
+            f"[dagster-broker] promoted {len(keys)} object(s) {staging} -> {final}"
         )
         return len(keys)

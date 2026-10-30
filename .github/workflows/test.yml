@@ -56,9 +56,9 @@ jobs:
               - apps/qa/**
               - python/**
               - admin/run_environment/**
-            dispatch:
+            dagster-broker:
               - uv.lock
-              - apps/dispatch/**
+              - apps/dagster-broker/**
               - .github/workflows/test.yml
               - .github/workflows/test_helper.yml
             notebook:
