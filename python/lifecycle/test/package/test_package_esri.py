@@ -283,14 +283,16 @@ def test_write_metadata(
     assert _written_type(metadata.eainfo.detailed.attr[1]) == _expected_type(
         file_metadata.columns[1], fixture_info["layer"]
     )
-    udom_1 = metadata.eainfo.detailed.attr[1].attrdomv.udom
+    attrdomv_1 = metadata.eainfo.detailed.attr[1].attrdomv
+    assert attrdomv_1 is not None
+    udom_1 = attrdomv_1.udom
     assert udom_1 is None or udom_1.value is None
     assert (
-        metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomv
+        attrdomv_1.edom[0].edomv
         == file_metadata.columns[1].values[0].value  # "1", when org_md product is colp
     )
     assert (
-        metadata.eainfo.detailed.attr[1].attrdomv.edom[0].edomvd
+        attrdomv_1.edom[0].edomvd
         == file_metadata.columns[1]
         .values[0]
         .description  # "Manhattan", when org_md product is colp
