@@ -31,7 +31,7 @@ ingestion:
     type: arcgis_feature_server
     server: nps
     dataset: NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service
-    layer_name: NPS Boundary
+    layer_name: nps_boundary
   file_format:
     type: geojson
   processing_steps:
