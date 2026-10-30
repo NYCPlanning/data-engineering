@@ -76,11 +76,11 @@ check_kill() {
   read -r item2 attempt2 worker2 < <(e2e wait-claimed "$run" build --item "$item" --after "$attempt" --timeout 90)
   echo "requeued: item $item2 attempt $attempt2 on $worker2 after $(( $(date +%s) - t0 ))s"
   [ "$item2" = "$item" ] && [ "$attempt2" -gt "$attempt" ] || die "expected a new attempt of item $item"
+  docker start "$c" >/dev/null  # it may be the only esri worker, which publish needs
   [ "$(e2e wait "$run" --timeout 180)" = SUCCESS ] || die "run $run did not succeed"
   report=$(e2e assert-chain "$run" bx --expect-clean-staging)
   echo "$report"
   [ "$(echo "$report" | jget '["build"]["attempt"]')" = "$attempt2" ] || die "build result not from attempt $attempt2"
-  docker start "$c" >/dev/null
   echo "OK kill: lease expired, item requeued, attempt $attempt2 finished the run"
 }
 
