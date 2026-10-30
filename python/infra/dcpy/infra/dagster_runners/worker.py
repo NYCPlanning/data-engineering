@@ -22,6 +22,7 @@ import subprocess
 import tempfile
 import threading
 import time
+from typing import Any
 
 from dcpy.infra.dagster_runners.client import BrokerClient, BrokerError, NotFound, Stale
 
@@ -147,11 +148,11 @@ def promote(bucket: str, staging: str, final: str, cleanup: str) -> int:
 
     copied = keys(staging)
     for key in copied:
-        src = {"Bucket": bucket, "Key": key}
+        src = f"{bucket}/{key}"
         s3.copy_object(Bucket=bucket, Key=final + key[len(staging) :], CopySource=src)
     old = keys(cleanup)
     for i in range(0, len(old), 1000):
-        objects = [{"Key": k} for k in old[i : i + 1000]]
+        objects: list[Any] = [{"Key": k} for k in old[i : i + 1000]]
         s3.delete_objects(Bucket=bucket, Delete={"Objects": objects, "Quiet": True})
     return len(copied)
 
