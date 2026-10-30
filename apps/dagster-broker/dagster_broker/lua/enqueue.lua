@@ -1,6 +1,5 @@
 #!lua
--- No allow-oom flag: when Valkey is at maxmemory this is refused with an OOM error before
--- it runs, so a full store rejects new work cleanly instead of half-writing it.
+-- No allow-oom: a full Valkey refuses this before it runs, so nothing is half-written.
 -- ARGV: prefix, idempotency_key ('' = none), sig, run_id ('' = none), priority,
 --       new item id (random, used only if inserted), then field/value pairs for the hash.
 local idem, sig, run, prio = ARGV[2], ARGV[3], ARGV[4], tonumber(ARGV[5])

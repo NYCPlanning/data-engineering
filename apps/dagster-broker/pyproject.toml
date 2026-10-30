@@ -2,9 +2,7 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# dagster-broker: the in-memory Valkey work queue that routes Dagster work to HTTP-only workers
-# (tracker epic inv-k0d, this package is inv-k0d.3). A standalone ASGI app with Valkey as a
-# localhost-only sidecar. Deliberately has no dcpy dependency and holds no credentials.
+# The base install is the server; dagster_broker.client and dagster_broker.worker are stdlib.
 [project]
 name = "dcpy-app-dagster-broker"
 version = "0.0.1"
@@ -17,18 +15,16 @@ dependencies = [
     "uvicorn",
 ]
 
-# The base install is the dagster-broker server. dagster_broker.client and dagster_broker.worker are stdlib-only.
 [project.optional-dependencies]
-# dagster_broker.pipes_worker, imported inside the step subprocess on a worker
-worker = ["dagster-pipes"]
-# dagster_broker.pipes_dagster, the Dagster-side Pipes client (promotes outputs via the S3 gateway)
-dagster = ["dagster", "dagster-pipes", "boto3"]
+# the worker (promotion) and pipes_worker (inside the step)
+worker = ["boto3", "dagster-pipes"]
+# pipes_dagster, the Dagster-side Pipes client
+dagster = ["dagster", "dagster-pipes"]
 
 [dependency-groups]
 dev = [
     "httpx",  # fastapi.testclient
     "pytest",
-    "pytest-cov",
 ]
 
 [tool.setuptools.packages.find]

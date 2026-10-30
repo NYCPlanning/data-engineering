@@ -1,6 +1,6 @@
 #!lua flags=allow-oom
--- The claim: match + pick + take + lease in one script, so it is atomic by construction.
--- allow-oom: claiming doesn't grow memory, and workers must be able to drain a full store.
+-- Match + pick + take + lease in one script, so a claim is atomic by construction.
+-- allow-oom (here and in every other draining script): workers can drain a full store.
 -- ARGV: prefix, worker_id, caps (JSON list), affinity run_ids (JSON list), lease_ms, worker_ttl
 local worker, caps_json, lease_ms, wttl = ARGV[2], ARGV[3], tonumber(ARGV[5]), tonumber(ARGV[6])
 local t = now_ms()

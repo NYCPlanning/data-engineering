@@ -1,419 +1,326 @@
-"""The worker loop: claim an item, run its step as a subprocess, heartbeat, report back.
+"""The worker: claim an item, run its step as a subprocess while heartbeating, promote the
+step's staged outputs, then complete. ``python -m dagster_broker.worker``, configured by env:
 
-Standard library only (the step subprocess brings its own dagster-pipes). Run with
-``python -m dagster_broker.worker``; configured from the environment (:meth:`WorkerConfig.from_env`).
+    DAGSTER_BROKER_URL, DAGSTER_BROKER_SHARED_KEY
+    DAGSTER_BROKER_WORKER_CAPS               comma-separated, e.g. small,standard
+    DAGSTER_BROKER_WORKER_SLOTS              items run at once, one thread each (default 1)
+    DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS  exit a slot after this long idle (0 = never)
+    DAGSTER_BROKER_WORKER_STEP_MEMORY_MB     soft address-space cap per step (0 = off)
+    DAGSTER_BROKER_WORKER_MIN_FREE_DISK_GB   don't claim with less free disk than this
 
-One item at a time:
-
-1. ``claim`` with this worker's caps, preferring run_ids it ran recently (affinity).
-2. Run ``payload.command`` in a fresh working directory as a subprocess in its own
-   process group, so an OOM or crash in the step can't take down the loop or heartbeats.
-   The step's environment gets the Pipes bootstrap variables (``payload.pipes``), the
-   fencing token (``DAGSTER_BROKER_ITEM_ID`` / ``DAGSTER_BROKER_ATTEMPT`` / ``DAGSTER_BROKER_WORKER_ID``,
-   used by :mod:`dagster_broker.pipes_worker` to post Pipes messages) and
-   ``DAGSTER_BROKER_STAGING_PREFIX`` (``payload.staging_prefix/<attempt>/``), where the step
-   writes outputs for the Dagster side to promote.
-3. A heartbeat thread extends the lease. It kills the step when dagster-broker says ``cancel``,
-   answers 404 (the queue restarted or forgot the item) or 409 (the lease was lost).
-4. Step stdout/stderr are forwarded as ``stdio`` events in batches.
-5. Exit 0 -> ``complete``. Non-zero -> ``fail`` (retryable unless
-   ``payload.retry_on_failure`` is false). Cancelled -> ``fail`` (dagster-broker records it as
-   cancelled). Lost lease -> nothing: the attempt is abandoned.
-
-On SIGTERM the worker kills its step, fails the attempt as retryable (so it's requeued
-now rather than after the lease) and exits. With ``WORKER_IDLE_EXIT_SECONDS`` > 0 it
-exits after that long without work (scale-to-zero jobs); 0 means never (desktops).
+Promotion uses boto3 with the usual AWS_* variables, plus AWS_S3_ENDPOINT for the gateway.
 """
-
-from __future__ import annotations
 
 import collections
 import logging
 import os
-import queue
 import shutil
 import signal
 import socket
 import subprocess
-import sys
 import tempfile
 import threading
 import time
-from dataclasses import dataclass, field
 
-from dagster_broker.client import (
-    BrokerClient,
-    BrokerError,
-    NotFound,
-    Stale,
-    Unavailable,
-)
+from dagster_broker.client import BrokerClient, BrokerError, NotFound, Stale
 
 logger = logging.getLogger("dagster_broker.worker")
 
-MAX_LINE = 4000
-STDIO_FLUSH_SECONDS = 1.0
-STDIO_BATCH = 200
+HEARTBEAT_SECONDS = 5
+POLL_SECONDS = 2
+KILL_GRACE_SECONDS = 10
 
 
-@dataclass
-class WorkerConfig:
-    broker_url: str
-    shared_key: str | None = None
-    worker_id: str = field(
-        default_factory=lambda: f"{socket.gethostname()}-{os.getpid()}"
-    )
-    caps: list[str] = field(default_factory=list)
-    idle_exit_seconds: float = 0  # 0: never exit when idle
-    poll_seconds: float = 2
-    heartbeat_seconds: float = 5  # keep well under a third of the dagster-broker lease
-    kill_grace_seconds: float = 10
-    workdir: str | None = None  # parent dir for per-item working dirs (default: tmp)
-    affinity_size: int = 5
-
-    @classmethod
-    def from_env(cls) -> WorkerConfig:
-        env = os.environ.get
-        cfg = cls(
-            broker_url=os.environ["DAGSTER_BROKER_URL"],
-            shared_key=env("DAGSTER_BROKER_SHARED_KEY") or None,
-            caps=[c.strip() for c in env("WORKER_CAPS", "").split(",") if c.strip()],
-            idle_exit_seconds=float(env("WORKER_IDLE_EXIT_SECONDS", 0)),
-            poll_seconds=float(env("WORKER_POLL_SECONDS", 2)),
-            heartbeat_seconds=float(env("WORKER_HEARTBEAT_SECONDS", 5)),
-            kill_grace_seconds=float(env("WORKER_KILL_GRACE_SECONDS", 10)),
-            workdir=env("WORKER_WORKDIR") or None,
-        )
-        if env("WORKER_ID"):
-            cfg.worker_id = os.environ["WORKER_ID"]
-        return cfg
+def _kill(proc: subprocess.Popen) -> None:
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(proc.pid, sig)
+            proc.wait(KILL_GRACE_SECONDS)
+            return
+        except ProcessLookupError:
+            return
+        except subprocess.TimeoutExpired:
+            pass
 
 
-class _Attempt:
-    """One claimed (item, attempt): the step process and why it was stopped, if it was."""
+class Attempt:
+    """One claimed (item, attempt): its step process, and why it was stopped, if it was."""
 
-    def __init__(self, item: dict, proc: subprocess.Popen, grace: float):
-        self.item_id: str = item["id"]
-        self.attempt: int = item["attempt"]
-        self.proc = proc
-        self.grace = grace
-        self.stop_reason: str | None = None
-        self.finished = threading.Event()
-        self._lock = threading.Lock()
+    def __init__(self, client: BrokerClient, item: dict, worker_id: str):
+        self.client = client
+        self.path = f"/work/{item['id']}"
+        self.token = {"worker_id": worker_id, "attempt": item["attempt"]}
+        self.label = f"item {item['id']} attempt {item['attempt']}"
+        self.stopped: str | None = None
+        self.done = threading.Event()
+        self.proc: subprocess.Popen | None = None
+        self.tail: collections.deque[str] = collections.deque(maxlen=20)
+
+    def post(self, action: str, **body):
+        return self.client.post(f"{self.path}/{action}", {**self.token, **body})
+
+    def report(self, action: str, **body) -> None:
+        try:
+            self.post(action, **body)
+        except (NotFound, Stale) as e:
+            logger.warning("%s: %s ignored (%s)", self.label, action, e)
 
     def stop(self, reason: str) -> None:
-        """Kill the step's process group (TERM, then KILL after the grace period)."""
-        with self._lock:
-            if self.stop_reason is not None:
-                return
-            self.stop_reason = reason
-        logger.warning(
-            "item %s attempt %s: stopping step (%s)", self.item_id, self.attempt, reason
-        )
-        threading.Thread(target=self._kill, daemon=True).start()
+        if self.stopped:
+            return
+        self.stopped = reason
+        logger.warning("%s: stopping step (%s)", self.label, reason)
+        if self.proc:
+            threading.Thread(target=_kill, args=(self.proc,), daemon=True).start()
 
-    def _kill(self) -> None:
-        _signal_group(self.proc, signal.SIGTERM)
+    def start(self, command, env, cwd, memory_mb: int) -> None:
+        self.proc = subprocess.Popen(
+            command,
+            cwd=cwd,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+            text=True,
+            errors="replace",
+            start_new_session=True,
+        )
+        if memory_mb:
+            import resource  # Linux; set as the step starts, before it does real work
+
+            limit = memory_mb * 2**20
+            resource.prlimit(self.proc.pid, resource.RLIMIT_AS, (limit, limit))
+        threading.Thread(target=self.heartbeat_loop, daemon=True).start()
+
+    def heartbeat_loop(self) -> None:
+        while not self.stopped and not self.done.wait(HEARTBEAT_SECONDS):
+            try:
+                if self.post("heartbeat")["cancel"]:
+                    self.stop("cancelled")
+            except NotFound:
+                self.stop("lost")  # the queue forgot the item; the producer re-enqueues
+            except Stale:
+                self.stop("stale")  # reaped, maybe claimed by someone else
+            except (BrokerError, OSError) as e:
+                logger.warning("%s: heartbeat failed (%s)", self.label, e)
+
+    def forward_output(self) -> None:
+        """Echo the step's output, keep a tail, and post it as ``stdio`` events."""
+        assert self.proc and self.proc.stdout
+        batch, last = [], time.monotonic()
+        for line in self.proc.stdout:
+            line = line.rstrip("\n")[:4000]
+            print(f"[{self.label}] {line}", flush=True)
+            self.tail.append(line)
+            batch.append(line)
+            if time.monotonic() - last >= 1 or len(batch) >= 200:
+                self.post_output(batch)
+                batch, last = [], time.monotonic()
+        self.post_output(batch)
+
+    def post_output(self, lines: list[str]) -> None:
+        if not lines or self.stopped:
+            return
         try:
-            self.proc.wait(self.grace)
-        except subprocess.TimeoutExpired:
-            _signal_group(
-                self.proc, signal.SIGKILL if os.name != "nt" else signal.SIGTERM
+            self.post(
+                "events", events=[{"kind": "stdio", "data": {"text": "\n".join(lines)}}]
+            )
+        except (BrokerError, OSError) as e:
+            logger.warning(
+                "%s: dropped %d output lines (%s)", self.label, len(lines), e
             )
 
 
-def _signal_group(proc: subprocess.Popen, sig: int) -> None:
-    if proc.poll() is not None:
-        return
-    try:
-        if os.name == "nt":
-            proc.kill() if sig != signal.SIGTERM else proc.terminate()
-        else:
-            os.killpg(proc.pid, sig)
-    except (ProcessLookupError, PermissionError):
-        pass
+def promote(bucket: str, staging: str, final: str, cleanup: str) -> int:
+    """Copy every object under ``staging`` to ``final`` (one server-side copy_object each,
+    so objects up to 5 GiB), then delete everything under ``cleanup``."""
+    import boto3
+
+    s3 = boto3.client("s3", endpoint_url=os.environ.get("AWS_S3_ENDPOINT"))
+
+    def keys(prefix):
+        pages = s3.get_paginator("list_objects_v2").paginate(
+            Bucket=bucket, Prefix=prefix
+        )
+        return [o["Key"] for page in pages for o in page.get("Contents", [])]
+
+    copied = keys(staging)
+    for key in copied:
+        src = {"Bucket": bucket, "Key": key}
+        s3.copy_object(Bucket=bucket, Key=final + key[len(staging) :], CopySource=src)
+    old = keys(cleanup)
+    for i in range(0, len(old), 1000):
+        objects = [{"Key": k} for k in old[i : i + 1000]]
+        s3.delete_objects(Bucket=bucket, Delete={"Objects": objects, "Quiet": True})
+    return len(copied)
 
 
 class Worker:
-    def __init__(self, config: WorkerConfig, client: BrokerClient | None = None):
-        self.cfg = config
-        self.client = client or BrokerClient(config.broker_url, config.shared_key)
-        self.recent_runs: collections.deque[str] = collections.deque(
-            maxlen=config.affinity_size
-        )
+    def __init__(
+        self,
+        caps=(),
+        slots=1,
+        idle_exit_seconds=0.0,
+        step_memory_mb=0,
+        min_free_disk_gb=0.0,
+        client: BrokerClient | None = None,
+    ):
+        self.caps = list(caps)
+        self.slots = slots
+        self.idle_exit_seconds = idle_exit_seconds
+        self.step_memory_mb = step_memory_mb
+        self.min_free_disk_gb = min_free_disk_gb
+        self.client = client or BrokerClient()
+        self.recent_runs: collections.deque[str] = collections.deque(maxlen=5)
+        self.running: set[Attempt] = set()
         self.shutdown = threading.Event()
-        self.current: _Attempt | None = None
 
-    # ---- main loop ------------------------------------------------------------------
+    @classmethod
+    def from_env(cls) -> "Worker":
+        def env(name, default="0"):
+            return os.environ.get(f"DAGSTER_BROKER_WORKER_{name}") or default
 
-    def run_forever(self) -> None:
-        logger.info(
-            "worker %s caps=%s broker=%s idle_exit=%ss",
-            self.cfg.worker_id,
-            self.cfg.caps,
-            self.cfg.broker_url,
-            self.cfg.idle_exit_seconds or "never",
+        return cls(
+            caps=[c.strip() for c in env("CAPS", "").split(",") if c.strip()],
+            slots=int(env("SLOTS", "1")),
+            idle_exit_seconds=float(env("IDLE_EXIT_SECONDS")),
+            step_memory_mb=int(env("STEP_MEMORY_MB")),
+            min_free_disk_gb=float(env("MIN_FREE_DISK_GB")),
         )
-        last_work = time.monotonic()
-        while not self.shutdown.is_set():
-            try:
-                item = self.client.claim(
-                    worker_id=self.cfg.worker_id,
-                    caps=self.cfg.caps,
-                    affinity_run_ids=list(self.recent_runs),
-                )
-            except (BrokerError, OSError) as e:
-                logger.warning("claim failed (%s); retrying", e)
-                item = None
-            if item is None:
-                if (
-                    self.cfg.idle_exit_seconds
-                    and time.monotonic() - last_work > self.cfg.idle_exit_seconds
-                ):
-                    logger.info("idle for %ss, exiting", self.cfg.idle_exit_seconds)
-                    return
-                self.shutdown.wait(self.cfg.poll_seconds)
-                continue
-            if item.get("run_id"):
-                self.recent_runs.append(item["run_id"])
-            try:
-                self.run_item(item)
-            except Exception:
-                logger.exception("item %s: worker error", item["id"])
-            last_work = time.monotonic()
 
-    def request_shutdown(self, *_: object) -> None:
+    def run(self) -> None:
+        host = f"{socket.gethostname()}-{os.getpid()}"
+        logger.info("worker %s caps=%s slots=%s", host, self.caps, self.slots)
+        ids = [f"{host}-{i}" for i in range(self.slots)]
+        threads = [threading.Thread(target=self.slot, args=(i,)) for i in ids]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+    def stop(self, *_) -> None:
         logger.warning("shutdown requested")
         self.shutdown.set()
-        if self.current:
-            self.current.stop("worker shutdown")
+        for att in list(self.running):
+            att.stop("worker shutdown")
 
-    # ---- one item -------------------------------------------------------------------
+    def slot(self, worker_id: str) -> None:
+        last_work = time.monotonic()
+        while not self.shutdown.is_set():
+            item = self.claim(worker_id)
+            if item:
+                try:
+                    self.run_item(item, worker_id)
+                except Exception:
+                    logger.exception("item %s: worker error", item["id"])
+                last_work = time.monotonic()
+            elif self.idle_exit_seconds and (
+                time.monotonic() - last_work > self.idle_exit_seconds
+            ):
+                logger.info(
+                    "%s idle for %ss, exiting", worker_id, self.idle_exit_seconds
+                )
+                return
+            else:
+                self.shutdown.wait(POLL_SECONDS)
 
-    def step_env(self, item: dict) -> dict[str, str]:
-        payload = item.get("payload") or {}
+    def claim(self, worker_id: str) -> dict | None:
+        free_gb = shutil.disk_usage(tempfile.gettempdir()).free / 1e9
+        if free_gb < self.min_free_disk_gb:
+            logger.warning("only %.1f GB free disk, not claiming", free_gb)
+            return None
+        body = {"worker_id": worker_id, "caps": self.caps}
+        body["affinity_run_ids"] = list(self.recent_runs)
+        try:
+            # never retried: a lost response would hold an item nobody runs until reaped
+            return self.client.post("/work/claim", body, retry=False)
+        except (BrokerError, OSError) as e:
+            logger.warning("claim failed (%s)", e)
+            return None
+
+    def run_item(self, item: dict, worker_id: str) -> None:
+        p = item["payload"]
+        if item.get("run_id"):
+            self.recent_runs.append(item["run_id"])
+        staging = (
+            f"{p.get('staging_prefix', '_staging/')}{item['id']}/{item['attempt']}/"
+        )
         env = {
             **os.environ,
-            **{k: str(v) for k, v in (payload.get("env") or {}).items()},
+            **p.get("env", {}),
+            **p.get("pipes", {}),
+            "DAGSTER_BROKER_URL": self.client.url,
+            "DAGSTER_BROKER_SHARED_KEY": self.client.key or "",
+            "DAGSTER_BROKER_ITEM_ID": item["id"],
+            "DAGSTER_BROKER_ATTEMPT": str(item["attempt"]),
+            "DAGSTER_BROKER_WORKER_ID": worker_id,
+            "DAGSTER_BROKER_STAGING_PREFIX": staging,
         }
-        env.update(payload.get("pipes") or {})
-        env.update(
-            DAGSTER_BROKER_URL=self.cfg.broker_url,
-            DAGSTER_BROKER_ITEM_ID=item["id"],
-            DAGSTER_BROKER_ATTEMPT=str(item["attempt"]),
-            DAGSTER_BROKER_WORKER_ID=self.cfg.worker_id,
-        )
-        if self.cfg.shared_key:
-            env["DAGSTER_BROKER_SHARED_KEY"] = self.cfg.shared_key
-        if payload.get("staging_prefix"):
-            env["DAGSTER_BROKER_STAGING_PREFIX"] = (
-                f"{payload['staging_prefix'].rstrip('/')}/{item['attempt']}/"
-            )
-        return env
-
-    def run_item(self, item: dict) -> None:
-        item_id, attempt = item["id"], item["attempt"]
-        payload = item.get("payload") or {}
-        command = payload.get("command")
-        token = {"worker_id": self.cfg.worker_id, "attempt": attempt}
-        logger.info(
-            "claimed item %s attempt %s (%s %s): %s",
-            item_id,
-            attempt,
-            item.get("asset_key"),
-            item.get("partition_key"),
-            command,
-        )
-        if not command:
-            self._report(
-                self.client.fail,
-                item_id,
-                error="payload has no command",
-                retryable=False,
-                **token,
-            )
-            return
-
-        workdir = tempfile.mkdtemp(
-            prefix=f"item-{item_id}-{attempt}-", dir=self.cfg.workdir
-        )
+        att = Attempt(self.client, item, worker_id)
+        logger.info("%s claimed: %s", att.label, p.get("command"))
+        workdir = tempfile.mkdtemp(prefix=f"item-{item['id']}-")
+        self.running.add(att)
         started = time.monotonic()
         try:
-            proc = subprocess.Popen(
-                command,
-                cwd=workdir,
-                env=self.step_env(item),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                stdin=subprocess.DEVNULL,
-                text=True,
-                errors="replace",
-                bufsize=1,
-                **(
-                    {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}  # type: ignore[attr-defined]
-                    if os.name == "nt"
-                    else {"start_new_session": True}
-                ),
-            )
-        except OSError as e:
+            try:
+                att.start(p["command"], env, workdir, self.step_memory_mb)
+            except (KeyError, OSError) as e:
+                att.report(
+                    "fail", error=f"could not start step: {e!r}", retryable=False
+                )
+                return
+            if self.shutdown.is_set():
+                att.stop("worker shutdown")
+            att.forward_output()
+            rc = att.proc.wait()
+            self.finish(att, rc, p, staging, time.monotonic() - started)
+        finally:
+            att.done.set()
+            self.running.discard(att)
             shutil.rmtree(workdir, ignore_errors=True)
-            self._report(
-                self.client.fail,
-                item_id,
-                error=f"could not start step: {e}",
-                retryable=False,
-                **token,
-            )
-            return
 
-        att = _Attempt(item, proc, self.cfg.kill_grace_seconds)
-        self.current = att
-        tail: collections.deque[str] = collections.deque(maxlen=20)
-        hb = threading.Thread(target=self._heartbeat_loop, args=(att,), daemon=True)
-        fwd = threading.Thread(
-            target=self._forward_stdio, args=(att, tail), daemon=True
-        )
-        hb.start()
-        fwd.start()
-        if self.shutdown.is_set():
-            att.stop("worker shutdown")
-        rc = proc.wait()
-        fwd.join()  # stdout closed: every line has been posted (or dropped on 404/409)
-        att.finished.set()
-        hb.join(timeout=5)
-        self.current = None
-        shutil.rmtree(workdir, ignore_errors=True)
-        took = round(time.monotonic() - started, 1)
-
-        reason = att.stop_reason
-        if reason in ("lost", "stale"):
-            logger.warning(
-                "item %s attempt %s abandoned (%s)", item_id, attempt, reason
-            )
-        elif reason == "cancelled":
-            self._report(
-                self.client.fail, item_id, error="cancelled", retryable=False, **token
-            )
-        elif reason == "worker shutdown":
-            self._report(
-                self.client.fail,
-                item_id,
-                error="worker shut down mid-step",
-                retryable=True,
-                **token,
-            )
-        elif rc == 0:
-            logger.info("item %s attempt %s done in %ss", item_id, attempt, took)
-            self._report(
-                self.client.complete,
-                item_id,
-                result={
-                    "exit_code": 0,
-                    "seconds": took,
-                    "worker_id": self.cfg.worker_id,
-                },
-                **token,
-            )
+    def finish(self, att: Attempt, rc: int, p: dict, staging: str, took: float) -> None:
+        if att.stopped in ("lost", "stale"):
+            logger.warning("%s abandoned (%s)", att.label, att.stopped)
+        elif att.stopped == "cancelled":
+            att.report("fail", error="cancelled", retryable=False)
+        elif att.stopped:
+            att.report("fail", error="worker shut down mid-step", retryable=True)
+        elif rc != 0:
+            error = f"step exited with code {rc}; last output:\n" + "\n".join(att.tail)
+            retry = p.get("retry_on_failure", True)
+            att.report("fail", error=error, retryable=retry)
         else:
-            logger.warning("item %s attempt %s exited %s", item_id, attempt, rc)
-            self._report(
-                self.client.fail,
-                item_id,
-                error=f"step exited with code {rc}; last output:\n" + "\n".join(tail),
-                retryable=bool(payload.get("retry_on_failure", True)),
-                **token,
-            )
-
-    def _report(self, fn, item_id: str, **kwargs) -> None:
-        """complete/fail; 404/409 just mean someone else owns the outcome now."""
-        try:
-            fn(item_id, **kwargs)
-        except (NotFound, Stale) as e:
-            logger.warning("item %s: %s ignored (%s)", item_id, fn.__name__, e)
-
-    def _heartbeat_loop(self, att: _Attempt) -> None:
-        while not att.finished.wait(self.cfg.heartbeat_seconds):
             try:
-                hb = self.client.heartbeat(
-                    att.item_id, worker_id=self.cfg.worker_id, attempt=att.attempt
-                )
-            except NotFound:
-                att.stop("lost")  # the queue forgot the item: the producer re-enqueues
+                # Fence check, then promote, then complete. If the lease expires between
+                # this heartbeat and complete (a narrow window), a newer attempt may
+                # promote the same outputs too; complete then 409s and the last copy wins.
+                att.post("heartbeat")
+                promoted = 0
+                if p.get("outputs_prefix"):
+                    promoted = promote(
+                        p["bucket"], staging, p["outputs_prefix"], p["staging_prefix"]
+                    )
+            except (NotFound, Stale) as e:
+                logger.warning("%s abandoned before promotion (%s)", att.label, e)
                 return
-            except Stale:
-                att.stop("stale")  # reaped and maybe claimed by someone else
+            except Exception as e:
+                logger.exception("%s: promotion failed", att.label)
+                att.report("fail", error=f"promotion failed: {e!r}", retryable=True)
                 return
-            except (Unavailable, BrokerError, OSError) as e:
-                logger.warning(
-                    "heartbeat for item %s failed (%s); still running", att.item_id, e
-                )
-                continue
-            if hb.get("cancel"):
-                att.stop("cancelled")
-                return
-
-    def _forward_stdio(self, att: _Attempt, tail: collections.deque) -> None:
-        """Pump the step's merged stdout/stderr: echo it, keep a tail for errors, and post
-        it as ``stdio`` events in batches."""
-        lines: queue.Queue[str | None] = queue.Queue()
-
-        def pump() -> None:
-            assert att.proc.stdout is not None
-            for line in att.proc.stdout:
-                lines.put(line.rstrip("\n")[:MAX_LINE])
-            lines.put(None)
-
-        threading.Thread(target=pump, daemon=True).start()
-        batch: list[str] = []
-        posting = True
-        last = time.monotonic()
-        while True:
-            try:
-                line = lines.get(timeout=STDIO_FLUSH_SECONDS)
-            except queue.Empty:
-                line = ""  # timer tick
-            eof = line is None
-            if line:
-                print(f"[item {att.item_id}#{att.attempt}] {line}", flush=True)
-                tail.append(line)
-                batch.append(line)
-            due = (
-                time.monotonic() - last >= STDIO_FLUSH_SECONDS
-                or len(batch) >= STDIO_BATCH
-            )
-            if batch and (due or eof):
-                if posting:
-                    try:
-                        self.client.add_events(
-                            att.item_id,
-                            worker_id=self.cfg.worker_id,
-                            attempt=att.attempt,
-                            events=[
-                                {"kind": "stdio", "data": {"text": "\n".join(batch)}}
-                            ],
-                        )
-                    except (NotFound, Stale):
-                        posting = (
-                            False  # the attempt is over; the heartbeat stops the step
-                        )
-                    except (BrokerError, OSError) as e:
-                        logger.warning("dropping %d stdio lines (%s)", len(batch), e)
-                batch = []
-                last = time.monotonic()
-            if eof:
-                return
+            logger.info("%s done in %.1fs, promoted %d", att.label, took, promoted)
+            result = {"seconds": round(took, 1), "worker_id": att.token["worker_id"]}
+            att.report("complete", result={**result, "promoted_objects": promoted})
 
 
 def main() -> None:
     logging.basicConfig(
-        level=os.environ.get("WORKER_LOG_LEVEL", "INFO"),
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-        stream=sys.stderr,
+        level="INFO", format="%(asctime)s %(levelname)s %(name)s: %(message)s"
     )
-    worker = Worker(WorkerConfig.from_env())
-    signal.signal(signal.SIGTERM, worker.request_shutdown)
-    signal.signal(signal.SIGINT, worker.request_shutdown)
-    worker.run_forever()
+    worker = Worker.from_env()
+    signal.signal(signal.SIGTERM, worker.stop)
+    signal.signal(signal.SIGINT, worker.stop)
+    worker.run()
 
 
 if __name__ == "__main__":
