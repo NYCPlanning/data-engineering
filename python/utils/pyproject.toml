@@ -24,7 +24,7 @@ dependencies = [
     "PyYAML",
     "requests",
     "rich",
-    "sqlalchemy<2.1",  # 2.1 defaults postgresql:// to psycopg 3, we use psycopg2
+    "sqlalchemy<2.2",  # 2.1 defaults postgresql:// to psycopg 3, we use psycopg2
     "typer",
     "typing_extensions",
     "xlrd",
