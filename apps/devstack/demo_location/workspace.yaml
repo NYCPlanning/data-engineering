@@ -1,0 +1,7 @@
+# The devstack's Dagster loads one code location, served by the dagster-code container
+# (a shared gRPC server, so the webserver can terminate runs the daemon launched).
+load_from:
+  - grpc_server:
+      host: dagster-code
+      port: 4000
+      location_name: devstack_demo

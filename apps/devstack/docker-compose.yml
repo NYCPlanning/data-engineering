@@ -19,6 +19,44 @@ x-py: &py
 x-dispatch-env: &dispatch-env
   DISPATCH_SHARED_KEY: devstack-dispatch-key
 
+# Credentials for the S3 gateway (versitygw), for the Dagster side (promotion) and steps.
+x-gateway-env: &gateway-env
+  AWS_S3_ENDPOINT: http://versitygw:7070
+  AWS_ACCESS_KEY_ID: devstack
+  AWS_SECRET_ACCESS_KEY: devstack-secret
+  AWS_DEFAULT_REGION: us-east-1
+  DEVSTACK_BUCKET: devstack
+
+# The devstack's own Dagster: demo code location (demo_location/), Postgres storage.
+x-slim-dagster: &slim-dagster
+  <<: *py
+  environment: &slim-dagster-env
+    <<: [*dispatch-env, *gateway-env]
+    DAGSTER_HOME: /opt/dagster/dagster_home
+    DAGSTER_PG_HOST: postgres
+    DAGSTER_PG_USER: devstack
+    DAGSTER_PG_PASSWORD: devstack
+    DAGSTER_PG_DB: dagster
+    DISPATCH_URL: http://dispatch:8000
+  volumes:
+    - ${DATA_ENGINEERING_PATH:-../..}:/repo
+    - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+
+# Mock workers: the real dispatch.worker loop; steps come from the mounted repo.
+x-worker: &worker
+  <<: *py
+  command: ["python", "-m", "dispatch.worker"]
+  environment: &worker-env
+    <<: [*dispatch-env, *gateway-env]
+    DISPATCH_URL: http://dispatch:8000
+    WORKER_CAPS: ""
+    WORKER_HEARTBEAT_SECONDS: "3"
+    WORKER_IDLE_EXIT_SECONDS: "0"
+  stop_grace_period: 20s
+  depends_on:
+    dispatch:
+      condition: service_healthy
+
 # apps/dagster's own image and code location (dcpy). amd64-only and ~5GB, so it's opt-in:
 #   docker compose -f apps/devstack/docker-compose.yml --profile dcpy-dagster up -d
 x-dagster: &dagster
@@ -191,6 +229,77 @@ services:
     depends_on:
       azurite:
         condition: service_healthy
+
+  # Creates the gateway bucket the demo uses (an Azure container behind versitygw).
+  gateway-init:
+    <<: *py
+    environment:
+      <<: *gateway-env
+    command:
+      - python
+      - -c
+      - |
+        import boto3, os
+        s3 = boto3.client("s3", endpoint_url=os.environ["AWS_S3_ENDPOINT"])
+        b = os.environ["DEVSTACK_BUCKET"]
+        if b not in [x["Name"] for x in s3.list_buckets()["Buckets"]]:
+            s3.create_bucket(Bucket=b)
+        print("bucket", b, "ready")
+    depends_on:
+      versitygw:
+        condition: service_healthy
+
+  # Shared gRPC code server: runs launched by the daemon execute here, so the webserver
+  # can terminate them (DefaultRunLauncher talks to the server that launched the run).
+  dagster-code:
+    <<: *slim-dagster
+    command: ["dagster", "api", "grpc", "-m", "devstack_demo.definitions", "-h", "0.0.0.0", "-p", "4000"]
+    healthcheck:
+      test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
+      interval: 3s
+      timeout: 10s
+      retries: 40
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  dagster-webserver:
+    <<: *slim-dagster
+    command: >
+      sh -c "dagster instance migrate
+      && dagster-webserver -h 0.0.0.0 -p 3000 -w /repo/apps/devstack/demo_location/workspace.yaml"
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info')"]
+      interval: 3s
+      timeout: 5s
+      retries: 60
+    depends_on:
+      dagster-code:
+        condition: service_healthy
+      gateway-init:
+        condition: service_completed_successfully
+      dispatch:
+        condition: service_healthy
+
+  dagster-daemon:
+    <<: *slim-dagster
+    command: ["dagster-daemon", "run", "-w", "/repo/apps/devstack/demo_location/workspace.yaml"]
+    depends_on:
+      dagster-webserver:
+        condition: service_healthy
+
+  worker-std:
+    <<: *worker
+    deploy:
+      replicas: 2
+
+  worker-esri:
+    <<: *worker
+    environment:
+      <<: *worker-env
+      WORKER_CAPS: esri
 
   dcpy-dagster-webserver:
     <<: *dagster
