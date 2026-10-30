@@ -26,35 +26,37 @@ x-env: &env
   PYTHONPATH: /app/repos/data-engineering/apps/devstack/demo_location
   DAGSTER_BROKER_SHARED_KEY: devstack-dagster-broker-key
   DAGSTER_BROKER_URL: http://dagster-broker:8000
-  DAGSTER_PG_HOST: postgres
-  DAGSTER_PG_USER: devstack
-  DAGSTER_PG_PASSWORD: devstack
-  DAGSTER_PG_DB: dagster
+  DEVSTACK_BUCKET: devstack
+
+# Gateway credentials: workers and the bucket setup only, never the Dagster services.
+x-aws-env: &aws-env
+  <<: *env
   AWS_S3_ENDPOINT: http://az-blob-gateway:7070
   AWS_ACCESS_KEY_ID: devstack
   AWS_SECRET_ACCESS_KEY: devstack-secret
   AWS_DEFAULT_REGION: us-east-1
-  DEVSTACK_BUCKET: devstack
 
-x-py: &py
+x-dagster: &dagster
   <<: *app
-  environment: *env
+  environment:
+    <<: *env
+    DAGSTER_PG_HOST: postgres
+    DAGSTER_PG_USER: devstack
+    DAGSTER_PG_PASSWORD: devstack
+    DAGSTER_PG_DB: dagster
   depends_on: &py-deps
     venv:
       condition: service_completed_successfully
 
 x-worker: &worker
-  <<: *py
+  <<: *app
   command: ["python", "-m", "dagster_broker.worker"]
-  environment: &worker-env
-    <<: *env
-    WORKER_CAPS: ""
-    WORKER_HEARTBEAT_SECONDS: "3"
-    WORKER_IDLE_EXIT_SECONDS: "0"
   stop_grace_period: 20s
   depends_on:
     dagster-broker:
       condition: service_healthy
+    gateway-init:
+      condition: service_completed_successfully
 
 services:
   postgres:
@@ -158,7 +160,8 @@ services:
 
   # Creates the bucket (an Azure container behind the gateway) the demo uses.
   gateway-init:
-    <<: *py
+    <<: *app
+    environment: *aws-env
     command:
       - python
       - -c
@@ -176,7 +179,8 @@ services:
 
   # One-shot gateway check: docker compose run --rm check
   check:
-    <<: *py
+    <<: *app
+    environment: *aws-env
     profiles: ["check"]
     command: ["python", "apps/az-blob-gateway/check.py", "--bucket", "devstack"]
     depends_on:
@@ -186,7 +190,7 @@ services:
   # Shared gRPC code server: runs launched by the daemon execute here, so the webserver
   # can terminate them (DefaultRunLauncher talks to the server that launched the run).
   dagster-code:
-    <<: *py
+    <<: *dagster
     command: ["dagster", "api", "grpc", "-m", "devstack_demo.definitions", "-h", "0.0.0.0", "-p", "4000"]
     healthcheck:
       test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
@@ -199,7 +203,7 @@ services:
         condition: service_healthy
 
   dagster-webserver:
-    <<: *py
+    <<: *dagster
     command:
       - sh
       - -c
@@ -214,44 +218,59 @@ services:
     depends_on:
       dagster-code:
         condition: service_healthy
-      gateway-init:
-        condition: service_completed_successfully
       dagster-broker:
         condition: service_healthy
 
   dagster-daemon:
-    <<: *py
+    <<: *dagster
     command: ["dagster-daemon", "run", "-w", "apps/devstack/demo_location/workspace.yaml"]
     depends_on:
       dagster-webserver:
         condition: service_healthy
 
-  worker-std:
+  # Always on, small items only, several at a time (an ACA Container App in Azure).
+  worker-resident:
     <<: *worker
+    environment:
+      <<: *aws-env
+      DAGSTER_BROKER_WORKER_CAPS: small
+      DAGSTER_BROKER_WORKER_SLOTS: "4"
+      DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS: "0"
+      DAGSTER_BROKER_WORKER_STEP_MEMORY_MB: "2048"
+
+  # One item at a time, exits when idle (an ACA Job started by KEDA in Azure; here
+  # restart: always stands in for KEDA starting a new one).
+  worker-burst:
+    <<: *worker
+    restart: always
     deploy:
       replicas: 2
+    environment:
+      <<: *aws-env
+      DAGSTER_BROKER_WORKER_CAPS: small,standard
+      DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS: "60"
 
   worker-esri:
     <<: *worker
     environment:
-      <<: *worker-env
-      WORKER_CAPS: esri
+      <<: *aws-env
+      DAGSTER_BROKER_WORKER_CAPS: esri
 
   # Valkey runs as a sidecar in dagster-broker's network namespace (as in a container app),
   # so it is reachable only on dagster-broker's localhost.
   dagster-broker:
-    <<: *py
-    command: ["uvicorn", "dagster_broker.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+    <<: *app
+    depends_on: *py-deps
+    command: ["uvicorn", "dagster_broker.app:create_app", "--factory", "--workers", "1", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       <<: *env
       DAGSTER_BROKER_VALKEY_URL: redis://127.0.0.1:6379/0
       # Short lease + frequent reaping so the chaos checks (kill a worker) finish quickly.
       DAGSTER_BROKER_LEASE_SECONDS: "15"
-      DAGSTER_BROKER_REAP_INTERVAL_SECONDS: "2"
+      DAGSTER_BROKER_REAP_SECONDS: "2"
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
-      # readyz = Valkey PING + maxmemory set + noeviction
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8000/readyz"]
       interval: 2s
       timeout: 3s

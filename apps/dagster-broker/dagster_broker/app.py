@@ -6,6 +6,7 @@ a producer re-enqueues with the same idempotency key, a worker abandons the atte
 """
 
 import hmac
+import json
 import logging
 import os
 import threading
@@ -20,6 +21,7 @@ from pydantic import BaseModel, Field
 from dagster_broker.store import NoSuchItem, Stale, Store
 
 logger = logging.getLogger(__name__)
+MAX_EVENT_BYTES = 1_000_000
 
 
 class Enqueue(BaseModel):
@@ -146,6 +148,12 @@ def create_app() -> FastAPI:
     @api.post("/work/{item_id}/events", status_code=201)
     def add_events(item_id: str, body: Events):
         events = [e.model_dump() for e in body.events]
+        if (
+            len(json.dumps(events)) > MAX_EVENT_BYTES
+        ):  # don't hold the lock for big writes
+            raise HTTPException(
+                413, "event batch over 1 MB; put large data in the gateway"
+            )
         return {"ids": store.add_events(item_id, body.attempt, body.worker_id, events)}
 
     @api.post("/work/{item_id}/complete")

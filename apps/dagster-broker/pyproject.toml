@@ -29,6 +29,3 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["dagster_broker*"]
-
-[tool.setuptools.package-data]
-dagster_broker = ["lua/*.lua"]
