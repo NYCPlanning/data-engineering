@@ -1,9 +1,7 @@
 #!/bin/bash
 
 DATE=$(date "+%Y-%m-%d")
-recipes_bucket=edm-recipes
 publishing_bucket=edm-publishing
-recipes_url=${AWS_S3_ENDPOINT}/${recipes_bucket}
 default_srs=EPSG:2263
 UTILS_DIR=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 ROOT_DIR=$(dirname ${UTILS_DIR})
@@ -59,15 +57,6 @@ function display_error_trace {
 }
 
 
-function install_minio {
-    # Use -o to force the downloaded binary filename
-    curl -fL https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2020-04-19T19-17-53Z -o mc
-    chmod +x mc
-    sudo mv ./mc /usr/bin
-    mc config host add spaces $AWS_S3_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
-}
-
-
 function run_sql_file {
     psql ${BUILD_ENGINE} --set ON_ERROR_STOP=1 --single-transaction --quiet --file "$@"
 }
@@ -119,73 +108,6 @@ function parse_connection_string {
     BUILD_HOST="$(echo ${hostport} | sed -e 's,:.*,,g')"
     BUILD_PORT="$(echo ${hostport} | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
     BUILD_DB="$(echo ${url} | grep / | cut -d/ -f2-)"
-}
-
-
-function get_acl {
-    local name=${1}
-    local version=${2:-latest} #default version to latest
-    local config_curl=${recipes_url}/datasets/${name}/${version}/config.json
-    local statuscode=$(curl --write-out '%{http_code}' --silent --output /dev/null ${config_curl})
-    if [[ "${statuscode}" -ne 200 ]] ; then
-        echo "private"
-    else
-        echo "public-read"
-    fi
-}
-
-
-function get_version {
-    local name=${1}
-    local version=${2:-latest}
-    local acl=${3:-public-read}
-    local config_curl=${recipes_url}/datasets/${name}/${version}/config.json
-    local config_mc=spaces/edm-recipes/datasets/${name}/${version}/config.json
-    if [ "${acl}" != "public-read" ] ; then
-        local version=$(mc cat ${config_mc} | jq -r '.dataset.version')
-    else
-        local version=$(curl -sS ${config_curl} | jq -r '.dataset.version')
-    fi
-    echo "${version}"
-}
-
-
-function import_recipe {
-    local name=${1}
-    local version=${2:-latest}
-    local set_version_option=${3:-true}
-    local acl=$(get_acl ${name} ${version})
-    local version=$(get_version ${name} ${version} ${acl})
-    target_dir=./.library/datasets/${name}/${version}
-
-    # Download sql dump for the datasets from data library
-    if [ -f ${target_dir}/${name}.sql ]; then
-        echo "✅ ${name}.sql exists in cache"
-    else
-        echo "🛠 ${name}.sql doesn't exists in cache, downloading ..."
-        mkdir -p ${target_dir} && (
-            cd ${target_dir}
-            if [ "${acl}" != "public-read" ] ; then
-                mc cp spaces/${recipes_bucket}/datasets/${name}/${version}/${name}.sql $name.sql
-            else
-                curl -ss -O ${recipes_url}/datasets/${name}/${version}/${name}.sql
-            fi
-        )
-    fi
-
-    # Loading into Database
-    run_sql_file ${target_dir}/${name}.sql
-    if [ -n "${BUILD_ENGINE_SCHEMA}" ]; then
-        # pgdumb files always create a table in the default "public" schema
-        echo "Setting schema of recipe table ${1} to be ${BUILD_ENGINE_SCHEMA}"
-        run_sql_command "ALTER TABLE $1 SET SCHEMA ${BUILD_ENGINE_SCHEMA};";
-    fi
-    run_sql_command \
-        "ALTER TABLE ${name} ADD COLUMN data_library_version text; \
-        UPDATE ${name} SET data_library_version = '${version}';"
-    if [ "${set_version_option}" = true ]; then
-        run_sql_command "INSERT INTO source_data_versions VALUES ('$name','$version');";
-    fi
 }
 
 

@@ -77,7 +77,6 @@ env:
 [Run Data Sync action](https://github.com/NYCPlanning/data-engineering/actions/workflows/developments_datasync.yml) to update these. It runs weekly, so it's enough to see that the latest ran successfully
 
 - [ ] `hpd_hny_units_by_building`
-- [ ] `hny_geocode_results`
 - [ ]  `dob_bis_permits`
 - [ ]  `dob_bis_applications`
 

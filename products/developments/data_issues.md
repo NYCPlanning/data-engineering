@@ -40,7 +40,7 @@ intermediate output, not yet confirmed directly).
 | [DEVDB-HNY-06](#devdb-hny-06) | HNY | Many-to-one leaves units NULL on all but one job | Open | 26Q2 |
 | [DEVDB-HNY-07](#devdb-hny-07) | HNY | Duplicate HPD project_ids double unit counts | Open | 26Q2 |
 | [DEVDB-HNY-08](#devdb-hny-08) | HNY | Many-to-many collapse is order-dependent | Open | 26Q2 |
-| [DEVDB-HNY-09](#devdb-hny-09) | HNY | Geocodes from different runs drop matches | Open | 26Q2.1 |
+| [DEVDB-HNY-09](#devdb-hny-09) | HNY | Geocodes from different runs drop matches | Watch | 26Q2.1 |
 | [DEVDB-SRC-01](#devdb-src-01) | Source data | `20260812_internal` HNY archive is Open Data | Open | 26Q2 |
 
 ---
@@ -399,21 +399,21 @@ together, and replace array equality with an explicit cluster identity if so.
 
 ### DEVDB-HNY-09
 
-**HNY and DOB geocodes come from different runs, so lot changes drop matches** · Open ·
+**HNY and DOB geocodes came from different runs, so lot changes dropped matches** · Watch ·
 Last verified 26Q2.1 · Evidence: measured
 
 `_hny_match.sql` joins the two sides on `h.geo_bbl = d.geo_bbl`, plus `geo_bin` for the
-strictest rule. Those columns come from two geocoding runs that happen at different times:
+strictest rule. Those columns used to come from two geocoding runs at different times:
 
 | side | produced by | when |
 |---|---|---|
 | HNY | `python/geocode_hpd_hny.py` | `developments_datasync.yml`, archived under the HPD extract's version |
 | DOB | `python/geocode_dob.py` | inside `02_build_devdb.sh`, during the build |
 
-Both run in `nycplanning/build-geosupport:latest`, but not at the same time, and `latest`
+Both ran in `nycplanning/build-geosupport:latest`, but not at the same time, and `latest`
 moves. `GEOSUPPORT_VERSION` in `recipe.yml` pins the DCP boundary datasets, not the geocoder.
-So when geosupport reassigns a lot between the two runs, the two sides disagree and every BBL
-rule stops matching. The job loses its affordable units with no error and no failing test, and
+So when geosupport reassigned a lot between the two runs, the two sides disagreed and every BBL
+rule stopped matching. The job loses its affordable units with no error and no failing test, and
 the spatial fallback did not rescue the cases seen so far.
 
 Measured across the two HNY geocode versions behind 26Q2 and 26Q2.1, over the 3,506 addresses
@@ -427,9 +427,11 @@ untouched: same address, same borough, same unit counts in both extracts.
 A row in `hny_corrections.csv` repairs it, since the `hny_id` is still present in `hny_geo`,
 but only once somebody notices the units are missing.
 
-**What is still open:** whether to pin the geocoder image for the length of a release,
-geocode both sides in one run, or add a check that flags HNY records whose `geo_bbl` moved
-since the previous version.
+HNY and historical HPD records now geocode inside `02_build_devdb.sh`, in the same image as
+DOB.
+
+A build on 26Q2.1's source versions matched 26Q2.1 on the HNY lookup, `classa_hnyaff`, `hny_id`
+and `hny_jobrelate`.
 
 ---
 
@@ -447,10 +449,8 @@ and three steps on `20260721_internal`. Both came from `ingest_single.yml`, but 
 was dispatched from `main`, where the template still points at Open Data
 ([run 31697178251](https://github.com/NYCPlanning/data-engineering/actions/runs/31697178251)).
 
-The run tagged `latest`, so `get_latest_version` resolves to it. That matters because the
-datasync geocode job resolves `latest` rather than taking a version, so
-`hny_geocode_results/20260812_internal` is geocoded Open Data too. Builds are unaffected only
-because `recipe.yml` pins both datasets explicitly.
+The run tagged `latest`, and the datasync geocode job used `latest`, so
+`hny_geocode_results/20260812_internal` is geocoded Open Data too.
 
 **What is still open:** whether to delete or relabel the mislabeled version. While the
 template carries a branch-local source, dispatch `ingest_single.yml` from the product branch,

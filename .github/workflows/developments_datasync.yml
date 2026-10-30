@@ -1,24 +1,13 @@
-name: DevDB - Data Sync and Geocoding of HPD and DOB Data
+name: DevDB - Data Sync of HPD and DOB Data
 
 on:
   schedule:
     - cron: "0 0 * * MON"
   workflow_dispatch:
-    inputs:
-      geosupport_docker_version:
-        description: "Geosupport docker version"
-        required: true
-        default: latest
-      skip_sync:
-        description: "Skip the sync job and run geocoding only"
-        type: boolean
-        required: false
-        default: false
 
 jobs:
   sync:
     name: Sync DOB BIS and HPD HNY
-    if: ${{ !inputs.skip_sync }}
     runs-on: ubuntu-22.04
     container:
       image: nycplanning/build-geosupport:latest
@@ -52,81 +41,8 @@ jobs:
       - name: Ingest dataset
         run: uv run python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
 
-  geocode:
-    name: Geocode HPD Data
-    needs: sync
-    # Geocoding reads the HPD datasets straight from edm-recipes, so it doesn't depend on
-    # what `sync` ingests. `always()` lets it run when sync is skipped; on a schedule
-    # `inputs.skip_sync` is empty, so a real sync failure still blocks it.
-    if: ${{ always() && (inputs.skip_sync || needs.sync.result == 'success') }}
-    runs-on: ubuntu-22.04
-    container:
-      image: nycplanning/build-geosupport:${{ inputs.geosupport_docker_version || 'latest' }}
-    defaults:
-      run:
-        shell: bash
-        working-directory: products/developments
-    env:
-      RECIPES_BUCKET: edm-recipes
-      BUILD_ENGINE: postgresql://postgres:postgres@postgis:5432/postgres
-    services:
-      postgis:
-        image: postgis/postgis:15-3.3-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Load Secrets
-        uses: 1password/load-secrets-action@v5
-        with:
-          export-env: true
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
-          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
-          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
-          BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
-
-      - name: Finish container setup ...
-        working-directory: ./
-        run: ./bash/docker_container_setup.sh
-
-      - name: Load to Database
-        env:
-          BUILD_ENGINE_SERVER: postgresql://postgres:postgres@postgis:5432
-        run: |
-          ./devdb_datasync.sh import_ingest hpd_hny_units_by_building
-          ./devdb_datasync.sh import hpd_historical_units_by_building
-
-      - name: Geocode
-        # Also combines the imported DOB datasets
-        run: |
-          python3 python/geocode_hpd_hny.py
-          python3 python/geocode_hpd_historical.py
-
-      - name: Export to csv
-        run: |
-          ./devdb_datasync.sh output hny_geocode_results csv
-          ./devdb_datasync.sh output hpd_historical_geocode_results csv
-
-      - name: Check file existence
-        run: ls *.csv
-
-      - name: Archive to Data Library
-        run: |
-          ./devdb_datasync.sh library_archive hny_geocode_results hpd_hny_units_by_building
-          ./devdb_datasync.sh library_archive hpd_historical_geocode_results hpd_historical_units_by_building
-
   create_issue_on_failure:
-    needs: geocode
+    needs: sync
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
     steps:

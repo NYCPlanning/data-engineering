@@ -19,9 +19,7 @@ sources:
       - name: doe_mszones
       - name: doe_school_subdistricts
       - name: hpd_hny_units_by_building
-      - name: hny_geocode_results
       - name: hpd_historical_units_by_building
-      - name: hpd_historical_geocode_results
       - name: dob_now_applications
       - name: dob_now_permits
       - name: dob_cofos

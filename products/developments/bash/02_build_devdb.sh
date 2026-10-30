@@ -102,6 +102,9 @@ display "Creating HNY fields:
       classa_hnyaff,
       all_hny_units,
       hny_jobrelate"
+# Before _hny_union.sql, which rewrites the ogc_fid these record as uid
+python3 python/geocode_hpd_hny.py
+python3 python/geocode_hpd_historical.py
 run_sql_file sql/_hny_union.sql
 run_sql_file sql/_hny_match.sql
 
