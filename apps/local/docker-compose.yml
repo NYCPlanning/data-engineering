@@ -42,7 +42,7 @@ x-py-deps: &py-deps
 
 x-worker: &worker
   <<: *app
-  command: ["python", "-m", "dcpy.infra.dagster_runners.worker"]
+  command: ["python", "-m", "dagster_broker.worker"]
   stop_grace_period: 20s
   depends_on:
     dagster-broker:
@@ -146,6 +146,7 @@ services:
       - --no-dev
       - --package=dcpy-app-dagster
       - --package=dcpy-app-dagster-broker
+      - --extra=worker
 
   # Creates the bucket (an Azure container behind the gateway) runner_tests uses.
   gateway-init:

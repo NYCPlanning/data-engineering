@@ -2,7 +2,7 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-# The server only; the client, worker and Pipes adapters are dcpy.infra.dagster_runners.
+# The base install is the server; the worker program (worker, pipes_worker) needs [worker].
 [project]
 name = "dcpy-app-dagster-broker"
 version = "0.0.1"
@@ -15,8 +15,19 @@ dependencies = [
     "uvicorn",
 ]
 
+[project.optional-dependencies]
+worker = [
+    "boto3",  # promotion
+    "dagster-pipes",
+    "dcpy-infra",  # the broker client; also the runner_tests steps
+]
+
+[tool.uv.sources]
+dcpy-infra = { workspace = true }
+
 [dependency-groups]
 dev = [
+    "dagster",  # test_pipes runs apps/dagster's PipesBrokerClient
     "httpx",  # fastapi.testclient
     "pytest",
 ]

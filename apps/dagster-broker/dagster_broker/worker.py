@@ -1,6 +1,6 @@
-"""The worker: claim an item, run its step as a subprocess while heartbeating, promote the
-step's staged outputs, then complete. ``python -m dcpy.infra.dagster_runners.worker``,
-configured by env:
+"""The worker: claim an item, run its step function in a ``dagster_broker.pipes_worker``
+subprocess while heartbeating, promote the step's staged outputs, then complete.
+``python -m dagster_broker.worker``, configured by env:
 
     DAGSTER_BROKER_URL, DAGSTER_BROKER_SHARED_KEY
     DAGSTER_BROKER_WORKER_CAPS               comma-separated, e.g. small,standard
@@ -19,12 +19,13 @@ import shutil
 import signal
 import socket
 import subprocess
+import sys
 import tempfile
 import threading
 import time
 from typing import Any
 
-from dcpy.infra.dagster_runners.client import BrokerClient, BrokerError, NotFound, Stale
+from dcpy.infra.dagster_broker_client import BrokerClient, BrokerError, NotFound, Stale
 
 logger = logging.getLogger(__name__)
 
@@ -259,13 +260,19 @@ class Worker:
             "DAGSTER_BROKER_STAGING_PREFIX": staging,
         }
         att = Attempt(self.client, item, worker_id)
-        logger.info("%s claimed: %s", att.label, p.get("command"))
+        logger.info("%s claimed: %s", att.label, p.get("function"))
         workdir = tempfile.mkdtemp(prefix=f"item-{item['id']}-")
         self.running.add(att)
         started = time.monotonic()
         try:
             try:
-                att.start(p["command"], env, workdir, self.step_memory_mb)
+                command = [
+                    sys.executable,
+                    "-m",
+                    "dagster_broker.pipes_worker",
+                    p["function"],
+                ]
+                att.start(command, env, workdir, self.step_memory_mb)
             except (KeyError, OSError) as e:
                 att.report(
                     "fail", error=f"could not start step: {e!r}", retryable=False

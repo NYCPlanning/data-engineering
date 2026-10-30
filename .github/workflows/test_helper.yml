@@ -153,11 +153,11 @@ jobs:
 
   pytest_dagster_runners:
     name: Pytest - dagster runners
-    # apps/dagster-broker (the server) and python/infra (dcpy.infra.dagster_runners: client,
-    # worker, Pipes) need no GDAL, so they run on a bare runner, each with its own isolated
-    # sync: the broker's proves it doesn't need dcpy.infra. Valkey is started with
-    # `docker run` rather than as a service so it can load the repo's valkey.conf.
-    # Tests that need Valkey skip if DAGSTER_BROKER_TEST_VALKEY_URL is unset.
+    # apps/dagster-broker (server, worker, pipes_worker), apps/dagster's PipesBrokerClient
+    # and dcpy.infra need no GDAL, so they run on a bare runner. The server's tests run
+    # first in a sync without the [worker] extra, which proves the server needs no dcpy.
+    # Valkey is started with `docker run` rather than as a service so it can load the
+    # repo's valkey.conf. Tests that need Valkey skip if DAGSTER_BROKER_TEST_VALKEY_URL is unset.
     if: inputs.path_filter == '' || contains(inputs.path_filter, '"dagster-runners"')
     runs-on: ubuntu-22.04
     env:
@@ -179,15 +179,14 @@ jobs:
       with:
         enable-cache: true
         python-version: "3.13"
-    - name: dagster-broker pytests
+    - name: server pytests
       run: |
         uv sync --package dcpy-app-dagster-broker
-        uv run --no-sync python -m pytest apps/dagster-broker/test -v -s
-    - name: dcpy-infra pytests
-      # its dev group brings in the broker, which the tests start with uvicorn
+        uv run --no-sync python -m pytest apps/dagster-broker/test/test_broker.py -v -s
+    - name: worker + Pipes pytests
       run: |
-        uv sync --package dcpy-infra --extra dagster
-        uv run --no-sync python -m pytest python/infra/test -v -s
+        uv sync --package dcpy-app-dagster-broker --extra worker
+        uv run --no-sync python -m pytest apps/dagster-broker/test -v -s
 
   dbt_cscl:
     name: dbt tests (cscl, DuckDB)

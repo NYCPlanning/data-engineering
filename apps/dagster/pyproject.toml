@@ -7,7 +7,7 @@ dependencies = [
     # ingest assets run dcpy.lifecycle.ingest.transform, which needs the GDAL/geo stack
     "dcpy-lifecycle[geo]",
     "dcpy-product-metadata",
-    "dcpy-infra[dagster]",  # runner_tests
+    "dcpy-infra",  # the dagster-broker client (dagster_utils.pipes_broker)
     "dagster",
     # Postgres run/event/schedule storage (apps/local/dagster/dagster.yaml)
     "dagster-postgres",

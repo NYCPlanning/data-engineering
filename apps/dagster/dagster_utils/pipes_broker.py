@@ -23,8 +23,7 @@ from dagster import (
 )
 from dagster._core.definitions.resource_annotation import TreatAsResourceParam
 from dagster._core.errors import DagsterPipesExecutionError
-
-from dcpy.infra.dagster_runners.client import BrokerClient, NotFound
+from dcpy.infra.dagster_broker_client import BrokerClient, NotFound
 
 LIVE = {"opened", "log", "log_external_stream"}
 TERMINAL = {"done", "failed", "dead", "cancelled"}
@@ -81,20 +80,21 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
         self,
         *,
         context,
-        command,
-        extras=None,
+        function: str,
+        args: dict | None = None,
         required_caps=(),
         outputs_prefix=None,
         env=None,
         retry_on_failure=True,
     ) -> PipesClientCompletedInvocation:
-        """Enqueue ``command`` and block until a worker finishes it. ``outputs_prefix``:
-        where the worker promotes the step's staged outputs in ``bucket``."""
+        """Enqueue a call of ``function`` (a dotted path to a plain function) with
+        ``args`` and block until a worker finishes it. ``outputs_prefix``: where the worker
+        promotes the step's staged outputs in ``bucket``."""
         run_id, step = context.run.run_id, context.get_step_execution_context().step.key
         partition = context.partition_key if context.has_partition_key else ""
         reader = BrokerMessageReader()
         extras = {
-            **(extras or {}),
+            "args": args or {},
             "bucket": self.bucket,
             "outputs_prefix": outputs_prefix,
         }
@@ -110,7 +110,7 @@ class PipesBrokerClient(PipesClient, TreatAsResourceParam):
                 "partition_key": partition or None,
                 "required_caps": list(required_caps),
                 "payload": {
-                    "command": list(command),
+                    "function": function,
                     "env": dict(env or {}),
                     "pipes": session.get_bootstrap_env_vars(),
                     "bucket": self.bucket,

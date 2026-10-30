@@ -1,14 +1,19 @@
-"""Dagster Pipes inside a step that a dagster-broker worker runs.
+"""Runs a plain step function under Dagster Pipes, on a dagster-broker worker:
+``python -m dagster_broker.pipes_worker <module.function>``.
+
+The function gets the Pipes extra ``args`` as keyword arguments, plus ``output_bucket`` and
+``output_prefix`` (this attempt's staging prefix, which the worker promotes) when the asset
+has outputs. Its std logging goes to Dagster as Pipes logs, and the dict it returns becomes
+the materialization's metadata.
 
 The context arrives as env vars (the worker sets the bootstrap vars from the item payload).
 Messages are POSTed in batches to /work/{item}/events with this attempt's fencing token,
 so a stale attempt's messages are refused rather than mixed into the live one.
-
-    with open_broker_pipes() as pipes:
-        pipes.report_asset_materialization(metadata={"rows": 3})
 """
 
+import importlib
 import json
+import logging
 import os
 import sys
 
@@ -18,7 +23,7 @@ from dagster_pipes import (
     open_dagster_pipes,
 )
 
-from dcpy.infra.dagster_runners.client import BrokerClient, BrokerError, NotFound, Stale
+from dcpy.infra.dagster_broker_client import BrokerClient, BrokerError, NotFound, Stale
 
 
 class BrokerChannel(PipesBlobStoreMessageWriterChannel):
@@ -51,10 +56,27 @@ class BrokerMessageWriter(PipesBlobStoreMessageWriter):
         return BrokerChannel(self.interval)
 
 
-def open_broker_pipes():
-    return open_dagster_pipes(message_writer=BrokerMessageWriter(interval=1))
+class ToPipes(logging.Handler):
+    def __init__(self, pipes):
+        super().__init__()
+        self.pipes = pipes
+
+    def emit(self, record) -> None:
+        self.pipes.log.handle(record)
 
 
-def staging_prefix() -> str:
-    """Where this attempt writes outputs; the worker promotes them after the step."""
-    return os.environ["DAGSTER_BROKER_STAGING_PREFIX"]
+def main() -> None:
+    module, _, name = sys.argv[1].rpartition(".")
+    with open_dagster_pipes(message_writer=BrokerMessageWriter(interval=1)) as pipes:
+        logging.getLogger().addHandler(ToPipes(pipes))
+        logging.getLogger().setLevel(logging.INFO)
+        kwargs = dict(pipes.extras.get("args") or {})
+        if pipes.extras.get("outputs_prefix"):
+            kwargs["output_bucket"] = pipes.extras["bucket"]
+            kwargs["output_prefix"] = os.environ["DAGSTER_BROKER_STAGING_PREFIX"]
+        metadata = getattr(importlib.import_module(module), name)(**kwargs)
+        pipes.report_asset_materialization(metadata=metadata)
+
+
+if __name__ == "__main__":
+    main()
