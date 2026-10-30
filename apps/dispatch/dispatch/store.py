@@ -231,7 +231,7 @@ class ValkeyStore:
         client: redis.Redis,
         *,
         prefix: str = "dispatch:",
-        terminal_ttl_seconds: int = 7 * 24 * 3600,
+        terminal_ttl_seconds: int = 24 * 3600,
         max_events_per_item: int = 100_000,
     ):
         self.r = client

@@ -15,7 +15,7 @@ class Settings:
     # How often the in-process reaper runs. 0 disables it (e.g. if it runs elsewhere).
     reap_interval_seconds: float = 15.0
     # How long a finished item (and its events, attempts and idempotency key) is kept.
-    terminal_ttl_seconds: int = 7 * 24 * 3600
+    terminal_ttl_seconds: int = 24 * 3600
     # Most events one attempt may append; more are refused (429), never silently trimmed.
     max_events_per_item: int = 100_000
     pool_max_size: int = 32

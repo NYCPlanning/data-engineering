@@ -16,7 +16,8 @@ messages it has already read, and blob storage has the artifacts. Clients must t
 - a worker abandons the attempt (heartbeat, events, complete and fail all answer 404).
 
 Finished items, with their events, attempt log and idempotency key, expire after
-`DISPATCH_TERMINAL_TTL_SECONDS` (7 days). Live items never expire.
+`DISPATCH_TERMINAL_TTL_SECONDS` (1 day). Live items never expire; idle workers drop out
+of the registry after 1 day too.
 
 ## Running it
 
@@ -30,7 +31,7 @@ uvicorn dispatch.app:create_app --factory
 | `DISPATCH_SHARED_KEY` | unset (no auth) | required in the `X-Dispatch-Key` header when set |
 | `DISPATCH_LEASE_SECONDS` | 60 | heartbeat at least every third of this |
 | `DISPATCH_REAP_INTERVAL_SECONDS` | 15 | 0 disables the in-process reaper |
-| `DISPATCH_TERMINAL_TTL_SECONDS` | 604800 | |
+| `DISPATCH_TERMINAL_TTL_SECONDS` | 86400 | finished items, their events, attempts and idempotency key |
 | `DISPATCH_MAX_EVENTS_PER_ITEM` | 100000 | more are refused (429), never trimmed |
 | `DISPATCH_KEY_PREFIX` | `dispatch:` | |
 | `DISPATCH_POOL_MAX_SIZE` | 32 | Valkey connections |
