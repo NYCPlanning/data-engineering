@@ -351,7 +351,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         logger.error("valkey is full: %s", exc)
         return JSONResponse(
             status_code=507,
-            content={"detail": "dispatch store is full (Valkey maxmemory); retry later"},
+            content={
+                "detail": "dispatch store is full (Valkey maxmemory); retry later"
+            },
             headers={"Retry-After": "30"},
         )
 

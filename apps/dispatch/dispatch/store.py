@@ -240,7 +240,9 @@ class ValkeyStore:
         self.max_events = int(max_events_per_item)
         # register_script runs EVALSHA and falls back to SCRIPT LOAD on NOSCRIPT, so a
         # Valkey restart (which empties its script cache) is handled transparently.
-        self._scripts = {n: client.register_script(_load_script(n)) for n in SCRIPT_NAMES}
+        self._scripts = {
+            n: client.register_script(_load_script(n)) for n in SCRIPT_NAMES
+        }
 
     def _run(self, name: str, *args: Any) -> Any:
         return self._scripts[name](keys=[], args=[self.prefix, *args], client=self.r)
@@ -347,7 +349,12 @@ class ValkeyStore:
     ) -> dict:
         reply = self._check(
             self._run(
-                "complete", item_id, attempt, worker_id, json.dumps(result or {}), self.ttl
+                "complete",
+                item_id,
+                attempt,
+                worker_id,
+                json.dumps(result or {}),
+                self.ttl,
             ),
             item_id,
         )

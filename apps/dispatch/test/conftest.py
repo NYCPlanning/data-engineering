@@ -1,72 +1,80 @@
-"""Fixtures for tests against a real Postgres.
+"""Fixtures for tests against a real Valkey.
 
-Set DISPATCH_TEST_DATABASE_URL to a server where the user may CREATE DATABASE, e.g.
+Set DISPATCH_TEST_VALKEY_URL to a THROWAWAY Valkey (tests FLUSHDB it), run with the
+repo's valkey.conf so it has maxmemory + noeviction like production:
 
-    docker run --rm -d --name dispatch-test-pg -p 55432:5432 \\
-        -e POSTGRES_PASSWORD=postgres postgres:16-alpine -c max_connections=200
-    export DISPATCH_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:55432/postgres
+    docker run --rm -d --name dispatch-test-valkey -p 56379:6379 \\
+        -v "$PWD/apps/dispatch/valkey.conf:/etc/valkey/valkey.conf:ro" \\
+        valkey/valkey:9.1.3-alpine valkey-server /etc/valkey/valkey.conf \\
+        --bind 0.0.0.0 --protected-mode no --maxmemory 64mb
+    export DISPATCH_TEST_VALKEY_URL=redis://localhost:56379/0
 
-Each test session creates its own throwaway database there and drops it afterwards.
-Without the variable, every test that needs the database is skipped.
+Without the variable, every test that needs Valkey is skipped.
 """
 
 import os
-import uuid
-from urllib.parse import urlsplit, urlunsplit
 
-import psycopg
 import pytest
+import redis
 
-from dispatch import db
+from dispatch import store
 
-ADMIN_URL = os.environ.get("DISPATCH_TEST_DATABASE_URL")
-
-
-def _with_dbname(url: str, dbname: str) -> str:
-    parts = urlsplit(url)
-    return urlunsplit(parts._replace(path="/" + dbname))
+VALKEY_URL = os.environ.get("DISPATCH_TEST_VALKEY_URL")
+PREFIX = "dispatch:"
 
 
-@pytest.fixture(scope="session")
-def db_url():
-    if not ADMIN_URL:
-        pytest.skip("DISPATCH_TEST_DATABASE_URL not set")
-    name = f"dispatch_test_{uuid.uuid4().hex[:10]}"
-    with psycopg.connect(ADMIN_URL, autocommit=True) as admin:
-        admin.execute(f'CREATE DATABASE "{name}"')
-    url = _with_dbname(ADMIN_URL, name)
-    try:
-        db.migrate(url)
-        yield url
-    finally:
-        with psycopg.connect(ADMIN_URL, autocommit=True) as admin:
-            admin.execute(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
+def new_client() -> redis.Redis:
+    """A client with exactly one connection of its own (one per stress-test thread)."""
+    assert VALKEY_URL
+    return redis.Redis.from_url(
+        VALKEY_URL, decode_responses=True, single_connection_client=True
+    )
+
+
+def new_store(**kwargs) -> store.ValkeyStore:
+    return store.ValkeyStore(new_client(), prefix=PREFIX, **kwargs)
 
 
 @pytest.fixture
-def clean_db(db_url):
-    with db.connect(db_url) as conn:
-        conn.execute(
-            "TRUNCATE events, work_attempts, work_items, workers RESTART IDENTITY"
-        )
-    return db_url
+def valkey_url():
+    if not VALKEY_URL:
+        pytest.skip("DISPATCH_TEST_VALKEY_URL not set")
+    r = redis.Redis.from_url(VALKEY_URL, decode_responses=True)
+    r.flushdb()
+    r.close()
+    return VALKEY_URL
 
 
 @pytest.fixture
-def conn(clean_db):
-    with db.connect(clean_db) as c:
-        yield c
+def r(valkey_url):
+    c = new_client()
+    yield c
+    c.close()
 
 
 @pytest.fixture
-def expire(conn):
+def q(r):
+    return store.ValkeyStore(r, prefix=PREFIX)
+
+
+def all_items(r: redis.Redis) -> dict[int, dict]:
+    out = {}
+    for key in r.scan_iter(f"{PREFIX}item:*", count=1000):
+        out[int(key.rsplit(":", 1)[1])] = store._item(r.hgetall(key))
+    return out
+
+
+def attempts_log(r: redis.Redis, item_id: int) -> dict[str, str]:
+    return r.hgetall(f"{PREFIX}att:{item_id}")
+
+
+@pytest.fixture
+def expire(r):
     """Push an item's lease into the past, as if the worker went quiet."""
 
     def _expire(item_id: int) -> None:
-        conn.execute(
-            "UPDATE work_items SET lease_until = now() - interval '1 second' "
-            "WHERE id = %s",
-            (item_id,),
-        )
+        past = int(r.time()[0]) * 1000 - 1000
+        r.hset(f"{PREFIX}item:{item_id}", "lease_until", past)
+        r.zadd(f"{PREFIX}leases", {f"{item_id:016d}": past})
 
     return _expire
