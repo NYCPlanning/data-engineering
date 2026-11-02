@@ -10,7 +10,8 @@ WITH f_segments AS (
     INNER JOIN {{ ref('int__lion_house_number_zeroing') }} AS zeroing
         ON lion.globalid = zeroing.globalid
     WHERE
-        zeroing.zero_house_numbers_g_only IS DISTINCT FROM zeroing.zero_house_numbers_g_and_f
+        zeroing.segment_type = 'F'
+        AND NOT zeroing.zero_for_feature_type
         -- gdb_lion writes no record of a segment whose Street is blank
         AND trim(coalesce(lion.street, '')) <> ''
 ),

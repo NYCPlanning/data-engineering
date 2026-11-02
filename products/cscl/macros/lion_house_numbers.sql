@@ -10,8 +10,9 @@
   - otherwise both sides pass through as given (n is always 1).
   - not addressable: everything is empty. Which segments that is comes from
     int__lion_house_number_zeroing: the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py),
-    SegmentTyp IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W'), except that F is zeroed
-    only with zero_f_segment_house_numbers on, as prod's LION gdb (CSCL-LION-24).
+    SegmentTyp IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W'), except that G is zeroed
+    only with zero_generic_house_numbers on (CSCL-LION-15) and F only with
+    zero_f_segment_house_numbers on (CSCL-LION-24), as prod's LION gdb.
 
   lion_normalized_house_number: FromLeft/ToLeft/FromRight/ToRight form (ETL spec §2.7.3): the
   hyphen is dropped and the digits after it are zero-filled to three; non-hyphenated numbers

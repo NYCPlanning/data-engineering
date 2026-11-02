@@ -208,6 +208,14 @@ models:
     fill_nta_county_fips_from_borough changes (CSCL-DISTRICTS-09), the NTA codes, and
     whether it is on in this build.
 
+- name: log__generic_house_numbers
+  description: >-
+    CSCL-LOG-OURS-15, every build: one row with the number of LION gdb records of a
+    generic segment (SegmentTyp G; its own records and its SAF replicants) that have house
+    numbers, which the spec and the legacy tool's rule zero and prod's LION gdb keeps, i.e.
+    what the var zero_generic_house_numbers changes (CSCL-LION-15), and whether it is on in
+    this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
@@ -349,3 +357,65 @@ models:
     Attachment to log.csv, exported as log_name_table_warnings.csv: one row per record
     whose name prod finds only in the other name table, in prod's wording, with log.csv's
     columns plus the B7SC and the name found.
+
+unit_tests:
+# CSCL-LOG-OURS-15. G1 is generic with house numbers and a written SAF replicant with house
+# numbers (plus one unwritten and one without house numbers); G3 a continuous-parity (L)
+# generic with a two-range SAF replicant (parity_side R), two records each; G2 a generic
+# without house numbers, G4 one with a blank Street (not written), G5 a generic of
+# FeatureTyp 5 (zeroed either way); F1 and U1 aren't generic. 6 records, 3 of them SAF
+# replicants. sql fixtures: CI runs unit tests without building the upstream models
+- name: test__log__generic_house_numbers__off
+  description: "Default (zero_generic_house_numbers false): counts the generic records with house numbers, OFF."
+  model: log__generic_house_numbers
+  overrides:
+    vars:
+      zero_generic_house_numbers: false
+  given: &generic_hn_log_given
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', 'G1', 'MAIN STREET', NULL, '1', '99', '2', '98'),
+        ('K2', 'G2', 'MAIN STREET', NULL, '0', '0', '0', '0'),
+        ('K3', 'G3', 'MAIN STREET', 'L', '1', '99', '2', '98'),
+        ('K4', 'G4', '  ', NULL, '1', '99', '2', '98'),
+        ('K5', 'G5', 'MAIN STREET', NULL, '1', '99', '2', '98'),
+        ('K6', 'F1', 'MAIN STREET', NULL, '1', '99', '2', '98'),
+        ('K7', 'U1', 'MAIN STREET', NULL, '1', '99', '2', '98')
+      ) AS t (lionkey, globalid, street, continuous_parity_flag, l_low_hn, l_high_hn, r_low_hn, r_high_hn)
+  - input: ref('int__lion_house_number_zeroing')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('G1', 'G', FALSE), ('G2', 'G', FALSE), ('G3', 'G', FALSE), ('G4', 'G', FALSE),
+        ('G5', 'G', TRUE), ('F1', 'F', FALSE), ('U1', 'U', FALSE)
+      ) AS t (globalid, segment_type, zero_for_feature_type)
+  - input: ref('int__saf_replicant_fields')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', TRUE, '1', '9', NULL, NULL, NULL),
+        ('K1', FALSE, '11', '19', NULL, NULL, NULL),
+        ('K1', TRUE, NULL, NULL, NULL, NULL, NULL),
+        ('K3', TRUE, '1', '9', '2', '8', 'R'),
+        ('K6', TRUE, '1', '9', NULL, NULL, NULL),
+        ('K7', TRUE, '1', '9', NULL, NULL, NULL)
+      ) AS t (lionkey, is_written, l_low_hn, l_high_hn, r_low_hn, r_high_hn, parity_side)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-15
+      record_count: 6
+      message: "6 LION gdb records of generic segments (3 SAF replicants) have house numbers. Zeroing generic segments' house numbers is OFF in this build (zero_generic_house_numbers = false): they keep them, as prod's LION gdb does, where the spec and the legacy tool's rule zero them (CSCL-LION-15)"
+- name: test__log__generic_house_numbers__on
+  description: "zero_generic_house_numbers true: the same count, ON."
+  model: log__generic_house_numbers
+  overrides:
+    vars:
+      zero_generic_house_numbers: true
+  given: *generic_hn_log_given
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-15
+      record_count: 6
+      message: "6 LION gdb records of generic segments (3 SAF replicants) have house numbers. Zeroing generic segments' house numbers is ON in this build (zero_generic_house_numbers = true): they are zeroed, as the spec and the legacy tool's rule do, where prod's LION gdb keeps them (CSCL-LION-15)"

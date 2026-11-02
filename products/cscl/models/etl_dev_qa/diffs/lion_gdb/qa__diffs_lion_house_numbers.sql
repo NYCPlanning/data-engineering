@@ -15,8 +15,10 @@
 -- should have LLo_Hyphen/LHi_Hyphen/RLo_Hyphen/RHi_Hyphen blanked and
 -- FromLeft/FromRight/ToLeft/ToRight zeroed - unconditionally, no exceptions in the
 -- rule itself. This flags prod rows that match the selection but don't match the
--- all-blank/all-zero outcome. See
--- CSCL-LION-15.
+-- all-blank/all-zero outcome. Prod's ETL doesn't apply the rule to G or F (it copies the
+-- source's house numbers, ExtractorClass.cs:2993-3072), and neither do we by default, so
+-- G rows are checked only with zero_generic_house_numbers on (CSCL-LION-15) and F rows
+-- only with zero_f_segment_house_numbers on (CSCL-LION-24).
 --
 -- "changes" itself DOES follow the usual convention (old=prod, new=dev): for each
 -- violating field, old is prod's real (buggy) value, new is our dev build's actual
@@ -29,11 +31,13 @@ WITH violations AS (
     SELECT *
     FROM {{ ref('qa_int__prod_fgdb_lion') }}
     WHERE
-        -- F only with zero_f_segment_house_numbers on: prod's LION gdb keeps F's house
-        -- numbers, and so do we by default (CSCL-LION-24)
+        -- G only with zero_generic_house_numbers on, F only with zero_f_segment_house_numbers
+        -- on: prod's LION gdb keeps their house numbers, and so do we by default
+        -- (CSCL-LION-15, CSCL-LION-24)
         (
-            segmenttyp IN ({{ "'G', 'F'" if var('zero_f_segment_house_numbers') else "'G'" }})
-            OR featuretyp NOT IN ('0', '6', 'W')
+            {% if var('zero_generic_house_numbers') %}segmenttyp = 'G' OR {% endif -%}
+            {% if var('zero_f_segment_house_numbers') %}segmenttyp = 'F' OR {% endif -%}
+            featuretyp NOT IN ('0', '6', 'W')
         )
         AND (
             nullif(llo_hyphen, '') IS NOT NULL
@@ -107,16 +111,20 @@ SELECT
         END::JSON }
     ], e -> e.v IS NOT NULL))) AS changes,
     'lion_house_numbers' AS output_file_id,
-    -- CSCL-LION-15: prod's gp.CalculateField house-number zeroing step for Generic
-    -- segments, inconsistently applied. See CSCL-LION-15.
-    'CSCL-LION-15: Generic-segment house numbers not consistently zeroed in prod' AS diff_group,
+    -- G and F rows are here only with their var on: we zero them, as the spec (G) and the
+    -- legacy tool's rule (G, F) do, where prod's LION gdb keeps the source's house numbers
+    -- (CSCL-LION-15, CSCL-LION-24). The FeatureTyp rows are a question for GR.
+    CASE
+        WHEN v.segmenttyp = 'G' THEN 'CSCL-LION-15: house numbers kept on generic segments in prod'
+        WHEN v.segmenttyp = 'F' THEN 'CSCL-LION-24: house numbers kept on SegmentTyp F in prod'
+        ELSE 'House numbers kept in prod on a FeatureTyp other than 0, 6 or W'
+    END AS diff_group,
     '' AS subgroup,
     '_lion_gdb_key' AS comparison_column,
     'gdb_lion' AS build_table_name,
     'qa_int__prod_fgdb_lion' AS production_table_name,
-    -- Deliberately FALSE always - the root cause (a manual, inconsistently-applied
-    -- prod cleanup step) is a strong hypothesis, not GR-confirmed. Flip once
-    -- confirmed - see the bug doc.
-    FALSE AS accounted_for
+    -- the G rows are the known difference zero_generic_house_numbers turns on; the F and
+    -- FeatureTyp rows are left unaccounted, as before
+    coalesce(v.segmenttyp = 'G', FALSE) AS accounted_for
 FROM violations AS v
 LEFT JOIN dev AS d ON v._lion_gdb_key = d._lion_gdb_key

@@ -130,6 +130,16 @@ vars:
   # from the NTA's borough instead, which maps to exactly one county. Logged every build
   # as CSCL-LOG-OURS-16 (0 NTAs on 26c).
   fill_nta_county_fips_from_borough: false
+  # House numbers on generic segments, SegmentTyp G (LION gdb LLo/LHi/RLo/RHi_Hyphen and
+  # FromLeft/ToLeft/FromRight/ToRight, on their SAF replicants too), CSCL-LION-15. Not a
+  # prod bug fix: false (the default) is prod's LION gdb output. Prod's ETL zeroes a
+  # generic segment's house numbers and then overwrites the zeros with the source's
+  # (ExtractorClass.cs:2993-3072; the return at 3070 was commented out in 2012 so generics
+  # keep their addresses), and on 26c every G record matches the source's values: 5,743
+  # have house numbers, 7,849 have none in the source either. The spec (ETL spec 2.7.3)
+  # and the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353) zero them; true
+  # does too. Logged every build as CSCL-LOG-OURS-15 (5,743 LION gdb records on 26c).
+  zero_generic_house_numbers: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).
