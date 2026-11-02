@@ -123,6 +123,13 @@ vars:
   # CSCL-LOG-LION-19). true writes it with the FeatureName face code and logs LION-15.
   # Logged every build as CSCL-LOG-OURS-14 (none on 26c).
   fix_featurename_face_code_protos: false
+  # nynta2010 CountyFIPS, CSCL-DISTRICTS-09. Not a prod bug fix: false (the default) is
+  # prod's output. Prod looks CountyFIPS up in the NTA's NeighborhoodPUMACodes row and, where
+  # its FIPS_CODE is blank (or there is no row), leaves CountyFIPS blank and logs it
+  # (GDBExtractorClass.cs:1051-1059, 1597-1621; CSCL-LOG-GDB-05). true fills CountyFIPS
+  # from the NTA's borough instead, which maps to exactly one county. Logged every build
+  # as CSCL-LOG-OURS-16 (0 NTAs on 26c).
+  fill_nta_county_fips_from_borough: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

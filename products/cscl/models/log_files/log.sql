@@ -49,6 +49,7 @@ WITH log_rows AS (
         ref("log__reversed_proto_pairs"),
         ref("log__ramp_proto_special_address"),
         ref("log__featurename_face_code_protos"),
+        ref("log__nta_county_fips"),
     ], column_override={"record_id": "varchar"}) }}
 )
 

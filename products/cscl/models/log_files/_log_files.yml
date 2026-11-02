@@ -200,6 +200,14 @@ models:
     fix_featurename_face_code_protos changes (CSCL-LION-22), and whether it is on in this
     build.
 
+- name: log__nta_county_fips
+  description: >-
+    CSCL-LOG-OURS-16, every build: one row with the number of nynta2010 NTAs whose
+    NeighborhoodPUMACodes FIPS code is blank or missing, or isn't their borough's, so
+    prod's CountyFIPS and the borough's differ, i.e. what the var
+    fill_nta_county_fips_from_borough changes (CSCL-DISTRICTS-09), the NTA codes, and
+    whether it is on in this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
