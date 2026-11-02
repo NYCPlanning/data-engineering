@@ -160,6 +160,7 @@ transportation,Safety,Vision Zero Corridors and Intersections,Identify Locations
 transportation,Traffic,NYS Traffic Data Viewer,State ATR data plus projections
 transportation,Traffic,Automated Traffic Recorder Sample Counts,Existing Traffic Counts
 transportation,Traffic,Truck Route Map,Traffic Assessment
+transportation,Traffic,Traffic Zones,Identify zone to determine whether numerical analysis is needed
 transportation,Parking,Parking Regulations Map,Parking Assessment
 transportation,Transit,Hourly Subway Ridership 2020-2024,Transit Assessment
 transportation,Transit,Hourly Bus Ridership 2020-2024,Transit Assessment
