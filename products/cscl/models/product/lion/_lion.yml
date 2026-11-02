@@ -91,7 +91,7 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 2 }
   - name: from_nodeid
-    description: "Node ID of the segment's from end, found by joining the segment's start point to the node layer."
+    description: "Node ID of the segment's from end, found by joining the segment's start point to the node layer. A reversed protosegment's runs the other way; by default, as in prod, the second of two reversed protosegments on one centerline comes out unreversed (with the fix_reversed_proto_pairs setting on, it is reversed too; CSCL-LION-01)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -364,7 +364,7 @@ models:
         arguments:
           values: [ " ", "T" ]
   - name: special_address_flag
-    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none; always blank on a ramp protosegment (CSCL-LION-17, CSCL-LION-19)."
+    description: "Highest-ranked special address file (SAF) type attached to the segment, blank if none (CSCL-LION-17). On a ramp protosegment, by default, as in prod, the flag of the SAF records prod attributes to the centerline's protosegments; with the fix_ramp_proto_special_address setting on, always blank, as the legacy rule says (CSCL-LION-19)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:

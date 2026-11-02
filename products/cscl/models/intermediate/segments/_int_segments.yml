@@ -12,6 +12,24 @@ models:
   description: "One row per altsegmentdata protosegment, in the same shape as int__primary_segments, joined to its primary segment's geometry."
   columns:
   - name: segmentid
+  - name: reversed
+    description: "The proto's own FROM_TO_INDICATOR is R. Its level codes, traffic direction and curve flag follow this, in prod too."
+  - name: flips_before
+    description: "Reversed proto-segments off the borough boundary before this one on the same segment, in AltSegmentData order: each reverses the parent's shape in prod (CSCL-LION-01)."
+  - name: geometry_reversed_fixed
+    description: "The proto's geometry runs against its parent's: reversed."
+  - name: geometry_reversed_prod
+    description: "Prod's orientation: reversed, flipped the other way on a centerline's proto after an odd number of flips_before (CSCL-LION-01)."
+  - name: geometry_reversed
+    description: "The orientation geom, raw_geom, start_point and end_point (and so the nodes, XY and left/right fields) follow: geometry_reversed_fixed when the var fix_reversed_proto_pairs is true, else geometry_reversed_prod (the default)."
+  - name: face_code_fixed
+    description: "Face code of the proto's B5SC + LGC1, from StreetName or FeatureName."
+  - name: face_code_prod
+    description: "Prod's face code: face_code_fixed, but none for a centerline proto whose face code is only in FeatureName, which prod drops (CSCL-LION-22)."
+  - name: is_featurename_face_code
+    description: "A centerline proto whose face code is only in FeatureName (CSCL-LION-22)."
+  - name: face_code
+    description: "face_code_fixed when the var fix_featurename_face_code_protos is true, else face_code_prod (the default). A proto without one isn't written (CSCL-LOG-LION-19)."
   tests:
   - name: int__protosegments__key_ideal
     test_name: dbt_utils.unique_combination_of_columns
@@ -162,3 +180,102 @@ unit_tests:
         ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00002'),
         ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00003')
       ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum)
+# CSCL-LION-01. Centerline 10 has reversed protos P1 and P2 (and P0, reversed on the borough
+# boundary, which prod doesn't flip) and P3, not reversed: P2 follows one flip, so prod
+# writes it unreversed; P3 follows two. Centerline 11's Q2 isn't reversed but follows Q1's
+# flip, so prod writes it reversed. Shoreline 20's protos are never flipped (only the
+# centerline extract reverses its shape). Levels follow each proto's own flag.
+# CSCL-LION-22. F1 is a centerline proto whose face code is only in FeatureName: prod drops
+# it (no face code), the fix takes 0200. N1 (a non-street proto) is named in FeatureName as
+# it should be; P0-P3 in StreetName.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__protosegments__prod_rules
+  description: "Defaults: prod's proto orientation (CSCL-LION-01) and FeatureName-only centerline protos dropped (CSCL-LION-22)."
+  model: int__protosegments
+  overrides:
+    vars:
+      fix_reversed_proto_pairs: false
+      fix_featurename_face_code_protos: false
+  given: &protos_given
+  - input: ref('stg__altsegmentdata_proto')
+    format: sql
+    rows: |
+      SELECT globalid, segmentid, ogc_fid, reversed, alt_segdata_type, feature_type_code, b7sc,
+        LEFT(b7sc, 1) AS borough, SUBSTR(b7sc, 2, 5) AS five_digit_street_code, '00001' AS alt_segment_seqnum,
+        RIGHT(b7sc, 2) AS lgc1, NULL AS lgc2, NULL AS lgc3, NULL AS lgc4, NULL AS lgc5, NULL AS lgc6,
+        NULL AS lgc7, NULL AS lgc8, NULL AS lgc9, NULL AS boe_lgc_pointer, 'altsegmentdata' AS source_table
+      FROM (VALUES
+        ('P0', 10, 1, TRUE, 'B', NULL, '11000101'),
+        ('P1', 10, 2, TRUE, 'R', NULL, '11000101'),
+        ('P2', 10, 3, TRUE, 'C', NULL, '11000101'),
+        ('P3', 10, 4, FALSE, 'C', NULL, '11000101'),
+        ('Q1', 11, 5, TRUE, 'C', NULL, '11000101'),
+        ('Q2', 11, 6, FALSE, 'C', NULL, '11000101'),
+        ('S1', 20, 7, TRUE, 'C', '2', '11000301'),
+        ('S2', 20, 8, TRUE, 'C', '2', '11000301'),
+        ('F1', 12, 9, FALSE, 'C', NULL, '11000201'),
+        ('N1', 12, 10, FALSE, 'C', '4', '11000301')
+      ) AS t (globalid, segmentid, ogc_fid, reversed, alt_segdata_type, feature_type_code, b7sc)
+  - input: ref('int__primary_segments')
+    format: sql
+    rows: |
+      SELECT segmentid, segmentid AS legacy_segmentid, 1 AS from_level_code, 2 AS to_level_code,
+        ST_GEOMFROMTEXT('LINESTRING (0 0, 10 0)') AS geom, ST_GEOMFROMTEXT('LINESTRING (0 0, 10 0)') AS raw_geom,
+        ST_POINT(5, 0) AS midpoint, ST_POINT(0, 0) AS start_point, ST_POINT(10, 0) AS end_point,
+        10.0 AS shape_length, feature_type, source_class_rank, segmentid AS source_objectid
+      FROM (VALUES
+        (10, 'centerline', 1), (11, 'centerline', 1), (12, 'centerline', 1), (20, 'shoreline', 4)
+      ) AS t (segmentid, feature_type, source_class_rank)
+  - input: ref('stg__facecode_and_featurename_principal')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('11000101', '0100', 'street'),
+        ('11000201', '0200', 'feature'),
+        ('11000301', '0300', 'feature')
+      ) AS t (b7sc, face_code, feature_type)
+  - input: ref('int__nonstreetfeature_seqnum')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES ('N1', '00009')) AS t (globalid, segment_seqnum)
+  - input: ref('feature_type_codes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('centerline', NULL, 'Public street'),
+        ('shoreline', '2', 'Shoreline'),
+        ('nonstreetfeatures', '4', 'Other non-street feature')
+      ) AS t (source_feature_class, code, description)
+  expect:
+    rows:
+    - {globalid: P0, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100'}
+    - {globalid: P1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100'}
+    - {globalid: P2, flips_before: 1, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 2, face_code: '0100'}
+    - {globalid: P3, flips_before: 2, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: '0100'}
+    - {globalid: Q1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100'}
+    - {globalid: Q2, flips_before: 1, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 1, face_code: '0100'}
+    - {globalid: S1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0300'}
+    - {globalid: S2, flips_before: 1, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0300'}
+    - {globalid: F1, flips_before: 0, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: null}
+    - {globalid: N1, flips_before: 0, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: '0300'}
+- name: test__int__protosegments__fixed
+  description: "fix_reversed_proto_pairs and fix_featurename_face_code_protos true: each proto oriented by its own flag; F1 keeps its FeatureName face code."
+  model: int__protosegments
+  overrides:
+    vars:
+      fix_reversed_proto_pairs: true
+      fix_featurename_face_code_protos: true
+  given: *protos_given
+  expect:
+    rows:
+    - {globalid: P0, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
+    - {globalid: P1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
+    - {globalid: P2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
+    - {globalid: P3, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', is_featurename_face_code: false}
+    - {globalid: Q1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
+    - {globalid: Q2, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', is_featurename_face_code: false}
+    - {globalid: S1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false}
+    - {globalid: S2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false}
+    - {globalid: F1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0200', is_featurename_face_code: true}
+    - {globalid: N1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0300', is_featurename_face_code: false}

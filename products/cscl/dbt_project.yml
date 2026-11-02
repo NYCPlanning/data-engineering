@@ -93,6 +93,36 @@ vars:
   # Logged every build as CSCL-LOG-OURS-11 (12 records on 26c, which also renumber 1,267
   # later records, CSCL-LDF-03).
   fix_ldf_journal_delete_scope: false
+  # Orientation of a centerline's proto-segments after a reversed one (LION nodes, XY,
+  # sectional maps and every left/right field; LION gdb the same), CSCL-LION-01: prod
+  # writes a centerline's proto-segments one after another from one feature object, and
+  # each reversed proto off the borough boundary reverses that object's shape in place
+  # once its values are set (CenterlineExtractFile.cs:3801-3842, SwapFeatureGeometry
+  # :4953; LIONExtractorClass.cs:159-176). The next proto starts from the reversed shape,
+  # so after an odd number of reversed protos its values come out the other way round:
+  # the second of two reversed protos on one segment isn't reversed. true reverses each
+  # proto by its own FROM_TO_INDICATOR, as the spec says. Logged every build as
+  # CSCL-LOG-OURS-12 (5 LION .dat records on 26c, and their LION gdb rows, whose census
+  # fields then differ from prod's as CSCL-LION-26 says).
+  fix_reversed_proto_pairs: false
+  # Special address flag on a ramp proto-segment (LION L48),
+  # CSCL-LION-19: prod gives a ramp proto (ALT_SEGDATA_TYPE R) the SAF records it
+  # attributes to its centerline's proto-segments: AltSegmentData SAF rows with the
+  # proto's LIONKEY and address points whose B7SC_ACTUAL starts with the proto's B5SC
+  # (CenterlineExtractFile.cs:2716-2737 and 2748-2762, GetSpecialAddressFlag), so a ramp
+  # on its centerline's street code carries the centerline's flag. true leaves it blank,
+  # as the legacy rule (a ramp never carries one) says. Logged every build as
+  # CSCL-LOG-OURS-13 (1 Queens record on 26c, segment 174704). LION gdb isn't affected:
+  # its base rows' SpecAddr is always blank.
+  fix_ramp_proto_special_address: false
+  # Centerline proto-segments whose B5SC + LGC1 has a face code only in FeatureName,
+  # CSCL-LION-22: prod means to take the FeatureName face code and log a warning
+  # (CSCL-LOG-LION-15), but compares the table name as stored with a lowercased one
+  # (CenterlineExtractFile.cs:3487 vs :3501), looks in StreetName again, finds nothing and
+  # drops the proto from the LION .dat and the LION gdb (LIONExtractorClass.cs:443-458,
+  # CSCL-LOG-LION-19). true writes it with the FeatureName face code and logs LION-15.
+  # Logged every build as CSCL-LOG-OURS-14 (none on 26c).
+  fix_featurename_face_code_protos: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

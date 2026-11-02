@@ -178,6 +178,28 @@ models:
     prod drops and the fix keeps, i.e. what the var fix_ldf_journal_delete_scope changes
     (CSCL-LDF-01), and whether it is on in this build.
 
+- name: log__reversed_proto_pairs
+  description: >-
+    CSCL-LOG-OURS-12, every build: one row with the number of LION records of a
+    centerline's proto-segments that follow an odd number of reversed proto-segments of the
+    same centerline, so prod writes their nodes, XY and left/right fields the other way
+    round, i.e. what the var fix_reversed_proto_pairs changes (CSCL-LION-01), and whether
+    it is on in this build.
+
+- name: log__ramp_proto_special_address
+  description: >-
+    CSCL-LOG-OURS-13, every build: one row with the number of LION records of a ramp
+    (ALT_SEGDATA_TYPE R) proto-segment that prod gives a special address flag, i.e. what
+    the var fix_ramp_proto_special_address changes (CSCL-LION-19), and whether it is on in
+    this build.
+
+- name: log__featurename_face_code_protos
+  description: >-
+    CSCL-LOG-OURS-14, every build: one row with the number of centerline proto-segments
+    whose face code is only in FeatureName, which prod drops, i.e. what the var
+    fix_featurename_face_code_protos changes (CSCL-LION-22), and whether it is on in this
+    build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC

@@ -46,6 +46,9 @@ WITH log_rows AS (
         ref("log__lion_lr_topology"),
         ref("log__f_segment_house_numbers"),
         ref("log__ldf_journal_delete_scope"),
+        ref("log__reversed_proto_pairs"),
+        ref("log__ramp_proto_special_address"),
+        ref("log__featurename_face_code_protos"),
     ], column_override={"record_id": "varchar"}) }}
 )
 
