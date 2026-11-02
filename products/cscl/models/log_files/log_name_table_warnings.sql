@@ -9,8 +9,9 @@
 --   LION-15/16: the same for a proto segment's B5SC + LGC1, by its implicit feature class
 --     (:3480-3520). Prod never logs LION-15: it compares the un-lowercased table name to a
 --     lowercased one (:3501), so a centerline proto re-checks StreetName, finds nothing,
---     and is dropped (CSCL-LOG-LION-19). We log the check it means; int__protosegments
---     takes the face code from either table, so the proto stays in LION (CSCL-LION-22).
+--     and is dropped (CSCL-LOG-LION-19). So do we by default (CSCL-LION-22); with the var
+--     fix_featurename_face_code_protos on, int__protosegments takes the FeatureName face
+--     code, the proto stays in LION, and we log the check prod means (LION-15).
 --   BYTES-05: a centerline record in the LION gdb (base or proto) one of whose AltNames
 --     B7SCs (borough + street code + LGC1-4) has no StreetName row but has FeatureName
 --     rows (ExtractorClass.cs:2139, :3491). Once per record; prod repeats it per lookup.
@@ -182,7 +183,11 @@ found AS (
     LEFT JOIN featurename ON protos.b7sc = featurename.b7sc
     WHERE
         CASE
-            WHEN protos.is_centerline THEN streetname.face_code IS NULL AND featurename.face_code IS NOT NULL
+            WHEN protos.is_centerline
+                THEN
+                    {{ 'TRUE' if var('fix_featurename_face_code_protos') else 'FALSE' }}
+                    AND streetname.face_code IS NULL
+                    AND featurename.face_code IS NOT NULL
             ELSE featurename.face_code IS NULL AND streetname.face_code IS NOT NULL
         END
     UNION ALL

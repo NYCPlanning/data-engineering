@@ -587,7 +587,7 @@ def _move_name(target_sql: str, from_table: str, offset: int) -> str:
         + f""",
         targets AS ({target_sql})
         SELECT targets.key, list_concat(targets.claims, [named.globalid, donors.globalid]) AS claims,
-            targets.log_key, targets.b7sc AS old,
+            targets.log_key, targets.b7sc AS old, targets.key AS dropped_globalid,
             [
                 struct_pack(t := '{from_table}', k := 'globalid', kv := named.globalid, c := 'b7sc',
                     v := '9' || LPAD((targets.rn + {offset})::VARCHAR, 7, '0')),
@@ -2005,12 +2005,15 @@ MUTATIONS: list[Mutation] = [
         ),
     ),
     Edits(
+        # a centerline proto named only in FeatureName: dropped, as prod (CSCL-LION-22);
+        # with fix_featurename_face_code_protos on it stays and logs CSCL-LOG-LION-15
         name="centerline_proto_name_to_featurename",
-        log_message_ids=["CSCL-LOG-LION-15"],
+        log_message_ids=["CSCL-LOG-LION-19"],
         may_log_ids=["CSCL-LOG-BYTES-05"],
         table="dcp_cscl_streetname",
         column="b7sc",
         candidates_sql=_move_name(_proto_targets(True), "dcp_cscl_streetname", 100),
+        dropped_from="lion",
     ),
     Edits(
         # non-street feature protos share their names with their features, so the proto
