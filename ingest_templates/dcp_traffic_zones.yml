@@ -1,0 +1,32 @@
+id: dcp_traffic_zones
+
+attributes:
+  name: CEQR Traffic Zones
+  description: CEQR Traffic Zones, provided by the DCP Transportation team.
+  url: https://www.nyc.gov/assets/oec/technical-manual/2025/ceqr_tm/2025_ceqr_tm_ch16_transportation_traffic_citywide.pdf
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcp/dcp_traffic_zones/{{ version }}/CEQR Traffic Zones Shapefiles.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: CEQR Traffic Zones Shapefile/ceqr_data_traffic_zones_2019.shp
+    crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+  - name: drop_columns
+    args:
+      columns: ["cartodb_id"]
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+
+columns:
+  - id: zone
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry

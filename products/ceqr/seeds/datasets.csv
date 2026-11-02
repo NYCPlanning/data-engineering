@@ -118,6 +118,7 @@ Vision Zero Corridors and Intersections,,webpage,,,https://vzv.nyc/
 NYS Traffic Data Viewer,nysdot_annual_average_daily_trafic,download,shapefile,MULTILINESTRING,https://www.dot.ny.gov/tdv
 Automated Traffic Recorder Sample Counts,dot_traffic_sample_volume_counts,download,csv,,https://data.cityofnewyork.us/Transportation/Traffic-Volume-Counts/btm5-ppia/about_data
 Truck Route Map,dot_truck_routes,download,shapefile,MULTILINESTRING,https://data.cityofnewyork.us/Transportation/New-York-City-Truck-Routes/jjja-shxy/about_data
+Traffic Zones,dcp_traffic_zones,download,shapefile,MULTIPOLYGON,https://www.nyc.gov/assets/oec/technical-manual/2025/ceqr_tm/2025_ceqr_tm_ch16_transportation_traffic_citywide.pdf
 Parking Regulations Map,,webpage,,,https://nycdotsigns.net/
 Hourly Subway Ridership 2020-2024,,webpage,,,https://data.ny.gov/Transportation/MTA-Subway-Hourly-Ridership-2020-2024/wujg-7c2s/about_data
 Hourly Bus Ridership 2020-2024,,webpage,,,https://data.ny.gov/Transportation/MTA-Bus-Hourly-Ridership-2020-2024/kv7t-n8in/about_data
