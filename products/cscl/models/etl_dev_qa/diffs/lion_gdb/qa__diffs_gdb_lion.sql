@@ -148,6 +148,18 @@ prod_dat_values AS (
             ]) AS value
     ) AS field
 ),
+-- CSCL-LION-28 (gdb L/R_PD_Service_Area): prod's .dat L97/L98 per segment, which ours
+-- matches; prod's gdb contradicts it on segments where an NYPD beat boundary moved in the
+-- source before 26c (inv-cze.3.1).
+prod_dat_pd_service_area AS (
+    SELECT
+        segmentid,
+        coalesce(trim(any_value(left_nypd_service_area)), '') AS l_pd_service_area,
+        coalesce(trim(any_value(right_nypd_service_area)), '') AS r_pd_service_area
+    FROM {{ source('production_outputs', 'citywide_lion_dat') }}
+    GROUP BY segmentid
+    HAVING count(DISTINCT concat_ws('|', left_nypd_service_area, right_nypd_service_area)) = 1
+),
 with_context AS (
     SELECT
         d.*,
@@ -192,7 +204,9 @@ with_context AS (
                         AND psc.lgc1 = substr(b.join_id, 7, 2)
                 )
                 THEN 'CSCL-SAF-06: CommonPlace replicant prod''s gdb lacks'
-        END AS one_sided_cause
+        END AS one_sided_cause,
+        pdsa.l_pd_service_area AS prod_dat_l_pd_service_area,
+        pdsa.r_pd_service_area AS prod_dat_r_pd_service_area
     FROM base_diffs AS d
     LEFT JOIN {{ ref('qa_int__build_gdb_lion_keyed') }} AS b ON d._gdb_lion_key = b._gdb_lion_key
     LEFT JOIN {{ ref('qa_int__prod_gdb_lion_keyed') }} AS p ON d._gdb_lion_key = p._gdb_lion_key
@@ -205,6 +219,7 @@ with_context AS (
     LEFT JOIN near_coincident_centerlines AS ncc ON split_part(d._gdb_lion_key, '|', 1) = ncc.segmentid
     LEFT JOIN blank_type_altsegmentdata AS bta ON split_part(d._gdb_lion_key, '|', 1) = bta.segmentid
     LEFT JOIN vintage_commonplaces AS vcp ON split_part(d._gdb_lion_key, '|', 1) = vcp.segmentid
+    LEFT JOIN prod_dat_pd_service_area AS pdsa ON split_part(d._gdb_lion_key, '|', 1) = pdsa.segmentid
 ),
 -- one row per changed field: cause label + whether the cause is verified/accepted
 field_causes AS (
@@ -324,6 +339,16 @@ field_causes AS (
                 AND (w.changes -> 'curveflag' ->> 'new') = 'I'
                 THEN 'CSCL-LION-03: CurveFlag I where prod blank'
             WHEN f.key = 'curveflag' THEN 'CurveFlag other'
+            -- ours equals prod's .dat L97/L98 and prod's gdb differs from both
+            WHEN
+                f.key IN ('l_pd_service_area', 'r_pd_service_area')
+                AND coalesce(trim(w.changes -> f.key ->> 'new'), '')
+                != coalesce(trim(w.changes -> f.key ->> 'old'), '')
+                AND coalesce(trim(w.changes -> f.key ->> 'new'), '') = CASE f.key
+                    WHEN 'l_pd_service_area' THEN w.prod_dat_l_pd_service_area
+                    ELSE w.prod_dat_r_pd_service_area
+                END
+                THEN 'CSCL-LION-28: PD service area, prod gdb contradicts prod .dat'
             WHEN
                 (
                     regexp_matches(f.key, '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$')
@@ -375,14 +400,14 @@ cause_summary AS (
             WHERE split_part(cause, ':', 1) IN (
                 'CSCL-LION-01', 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05',
                 'CSCL-LION-14', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25', 'CSCL-LION-26',
-                'CSCL-LION-27', 'CSCL-SAF-03', 'CSCL-SAF-06'
+                'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) NOT IN (
                 'CSCL-LION-01', 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05',
                 'CSCL-LION-14', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25', 'CSCL-LION-26',
-                'CSCL-LION-27', 'CSCL-SAF-03', 'CSCL-SAF-06'
+                'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS open_causes
     FROM field_causes

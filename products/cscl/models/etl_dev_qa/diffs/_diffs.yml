@@ -107,7 +107,7 @@ models:
     inconsistent house-number zeroing (CSCL-LION-15) shows as modified rows
     rather than only_in pairs. diff_group names the cause of each modified row;
     accounted_for is true when every changed field has a known cause (CSCL-LION-01
-    to 05, 14, 16, 24 to 27, CSCL-SAF-03, 06). CSCL-LION-14 covers SegCount only on
+    to 05, 14, 16, 24 to 28, CSCL-SAF-03, 06). CSCL-LION-14 covers SegCount only on
     a centerline with another centerline on the same nodes within 0.0005 ft. A
     one-sided row is accounted for when one_sided_cause names a known difference
     for it (CSCL-SAF-03's B replicant, CSCL-SAF-06's CommonPlace replicants). House
