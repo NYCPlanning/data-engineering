@@ -30,6 +30,9 @@ SELECT
     census.population_2020_census,
     census.housing_units_2010_census,
     census.housing_units_2020_census,
+    acs.cdta_median_household_income_acs,
+    acs.cdta_median_household_income_acs_moe,
+    acs.citywide_median_household_income_acs,
     growth.housing_units_2010_backcast,
     housing.housing_units_2024_end,
     kpdb.projected_net_units_2025_2034,
@@ -79,6 +82,7 @@ FROM {{ ref('int_cd_spine') }} AS spine
 LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd
 LEFT JOIN {{ ref('int_cd_fhgs_features') }} AS fhgs ON spine.borocd = fhgs.borocd
 LEFT JOIN {{ ref('int_cd_census_metrics') }} AS census ON spine.borocd = census.borocd
+LEFT JOIN {{ ref('int_cd_acs_metrics') }} AS acs ON spine.borocd = acs.borocd
 LEFT JOIN {{ ref('int_cd_housing_metrics') }} AS housing ON spine.borocd = housing.borocd
 LEFT JOIN {{ ref('int_cd_growth_metrics') }} AS growth ON spine.borocd = growth.borocd
 LEFT JOIN {{ ref('int_cd_unit_completion_metrics') }} AS built ON spine.borocd = built.borocd

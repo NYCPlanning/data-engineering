@@ -15,6 +15,14 @@ sources:
         config:
           external_location: "read_csv('./data/sources/pff_decennial_2020.csv', types = {'geoid': 'VARCHAR'})"
 
+      - name: pff_acs_2024
+        description: >
+          Population FactFinder American Community Survey 2020-2024 estimates, from db-factfinder/publish/acs/2024/2026.
+          Long format, one row per geography and variable. e is the estimate, m its 90% margin of error,
+          and c its coefficient of variation.
+        config:
+          external_location: "read_csv('./data/sources/pff_acs_2024.csv', types = {'labs_geoid': 'VARCHAR', 'census_geoid': 'VARCHAR', 'c': 'DOUBLE', 'e': 'DOUBLE', 'm': 'DOUBLE'})"
+
       - name: kpdb_cpp_housing_growth_cd
         description: >
           KPDB 2026-10-01 housing growth by community district, built for the Capital Projects Portal.

@@ -26,6 +26,10 @@ SOURCES = {
         "edm-publishing",
         "db-factfinder/publish/decennial/2020/2026/decennial.csv",
     ),
+    "pff_acs_2024.csv": (
+        "edm-publishing",
+        "db-factfinder/publish/acs/2024/2026/acs.csv",
+    ),
     "kpdb_cpp_housing_growth_cd.csv": (
         "edm-publishing",
         "db-kpdb/publish/2026-10-01/cpp_housing_growth/cpp_housing_growth_cd.csv",

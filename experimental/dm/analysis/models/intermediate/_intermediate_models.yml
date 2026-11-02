@@ -10,6 +10,29 @@ models:
       - name: cdta_name
         data_tests: [unique, not_null]
 
+  - name: int_cd_acs_metrics
+    columns:
+      - name: borocd
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('int_cd_spine')
+                field: borocd
+      - name: citywide_median_household_income_acs
+        data_tests: [not_null]
+
+  - name: int_census_tract_acs_metrics
+    columns:
+      - name: boroct2020
+        data_tests: [unique, not_null]
+
+  - name: int_census_tract_density_metrics
+    columns:
+      - name: boroct2020
+        data_tests: [unique, not_null]
+
   - name: int_cd_census_metrics
     columns:
       - name: borocd

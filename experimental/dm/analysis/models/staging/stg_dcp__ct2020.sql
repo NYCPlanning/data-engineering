@@ -8,5 +8,6 @@ SELECT
     ntaname AS nta_name,
     cdta2020,
     puma,
+    shape_area AS shape_area_sqft,
     wkb_geometry AS geom
 FROM {{ source('sources', 'dcp_ct2020') }}

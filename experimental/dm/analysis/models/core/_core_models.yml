@@ -198,6 +198,23 @@ models:
           meta:
             display_name: "Housing units 2020 (census)"
         description: Housing units as of April 1 2020, 2020 decennial census (PFF hunits). SSOT is PFF decennial. KPDB uses the same figure as its baseline.
+      - name: cdta_median_household_income_acs
+        config:
+          meta:
+            display_name: "CDTA median household income (ACS)"
+        description: >
+          Median household income of the district's CDTA, 2020-2024 ACS (PFF mdhhinc). PFF doesn't tabulate ACS
+          to community districts, so this is for the CDTA, which may only approximate the district (cdta_boundary_match).
+      - name: cdta_median_household_income_acs_moe
+        config:
+          meta:
+            display_name: "CDTA median household income margin of error (ACS)"
+        description: 90% margin of error of cdta_median_household_income_acs.
+      - name: citywide_median_household_income_acs
+        config:
+          meta:
+            display_name: "Citywide median household income (ACS)"
+        description: Median household income of the whole city, 2020-2024 ACS (PFF mdhhinc). The same on every row.
       - name: housing_units_2010_backcast
         config:
           meta:
@@ -803,6 +820,84 @@ models:
         config:
           meta:
             display_name: "Group quarters population 2020 (census)"
+      - name: population_age_under_18_2020_census
+        description: Population under 18 (PFF popu18), 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age under 18 2020 (census)"
+      - name: population_age_18_24_2020_census
+        description: Population 18 to 24, 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 18-24 2020 (census)"
+      - name: population_age_25_44_2020_census
+        description: Population 25 to 44, 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 25-44 2020 (census)"
+      - name: population_age_45_64_2020_census
+        description: Population 45 to 64, 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 45-64 2020 (census)"
+      - name: population_age_65_plus_2020_census
+        description: Population 65 and over (PFF pop65pl), 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 65+ 2020 (census)"
+      - name: median_household_income_acs
+        description: >
+          Median household income, 2020-2024 ACS (PFF mdhhinc). Null where the tract has too few households for
+          an estimate, top-coded at 250,001, and medians can't be summed to larger geographies. Read it with its margin of error.
+        config:
+          meta:
+            display_name: "Median household income (ACS)"
+      - name: median_household_income_acs_moe
+        description: 90% margin of error of median_household_income_acs.
+        config:
+          meta:
+            display_name: "Median household income margin of error (ACS)"
+      - name: households_acs
+        description: Households, 2020-2024 ACS (PFF hh2).
+        config:
+          meta:
+            display_name: "Households (ACS)"
+      - name: households_income_under_25k_acs
+        description: Households with income under $25,000, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households under $25k (ACS)"
+      - name: households_income_25k_50k_acs
+        description: Households with income $25,000 to $49,999, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $25k-$50k (ACS)"
+      - name: households_income_50k_100k_acs
+        description: Households with income $50,000 to $99,999, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $50k-$100k (ACS)"
+      - name: households_income_100k_200k_acs
+        description: Households with income $100,000 to $199,999, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $100k-$200k (ACS)"
+      - name: households_income_200k_plus_acs
+        description: Households with income $200,000 and over, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $200k+ (ACS)"
+      - name: land_acres
+        description: Tract area in acres, from dcp_ct2020's shape_area in square feet (EPSG:2263). Tracts are clipped to the shoreline, so this is land only.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Land area (acres)"
+      - name: people_per_acre
+        description: population_2020_census / land_acres, residents per acre of land in 2020.
+        config:
+          meta:
+            display_name: "People per acre"
       - name: geom
         description: Tract boundary clipped to the shoreline (dcp_ct2020 26c), EPSG:4326.
         data_tests: [not_null]
