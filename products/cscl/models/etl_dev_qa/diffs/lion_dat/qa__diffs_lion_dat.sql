@@ -16,6 +16,12 @@
 -- with fix_single_arc_curve_flag and fix_nonstreet_proto_zip.
 {%- set curve_fix_on = 'TRUE' if var('fix_single_arc_curve_flag') else 'FALSE' %}
 {%- set zip_fix_on = 'TRUE' if var('fix_nonstreet_proto_zip') else 'FALSE' %}
+-- CSCL-LION-01 (reversed proto pairs), CSCL-LION-19 (ramp special address flag) and
+-- CSCL-LION-22 (FeatureName face code protos) likewise, with fix_reversed_proto_pairs,
+-- fix_ramp_proto_special_address and fix_featurename_face_code_protos.
+{%- set reversed_fix_on = 'TRUE' if var('fix_reversed_proto_pairs') else 'FALSE' %}
+{%- set ramp_fix_on = 'TRUE' if var('fix_ramp_proto_special_address') else 'FALSE' %}
+{%- set featurename_fix_on = 'TRUE' if var('fix_featurename_face_code_protos') else 'FALSE' %}
 
 WITH base_diffs AS (
   {{ generate_diff_summary(
@@ -119,13 +125,16 @@ categorized AS (
         comparison_column,
         build_table_name,
         production_table_name,
+        -- with fix_featurename_face_code_protos off the build drops these, as prod
         COALESCE(
-            with_borough.status = 'only_in_build' AND llr.is_featurename_proto, FALSE
+            {{ featurename_fix_on }} AND with_borough.status = 'only_in_build' AND llr.is_featurename_proto, FALSE
         ) AS is_featurename_proto,
         COALESCE(llr.is_cut_to_fit, FALSE) AS is_cut_to_fit,
-        -- CSCL-LION-01: a reversal swaps the nodes, their XY and the left/right fields
+        -- CSCL-LION-01: a reversal swaps the nodes, their XY and the left/right fields; a
+        -- difference only with fix_reversed_proto_pairs on
         COALESCE(
-            _source_table = 'altsegmentdata'
+            {{ reversed_fix_on }}
+            AND _source_table = 'altsegmentdata'
             AND LIST_CONTAINS(ARRAY[
                 '0016558', '0343093', '0343094', '0343095', '0343096'
             ], RIGHT(with_borough._lion_key, 7))
@@ -244,9 +253,10 @@ SELECT
         -- CSCL-LION-19: special_address_flag leaks from a centerline record onto its sibling
         -- ALT_SEGDATA_TYPE = R (on/off-ramp) protosegment in production, contradicting the
         -- legacy ETL's own documented rule that ramps never carry a SAF flag. Ours is correct.
-        -- See CSCL-LION-19
+        -- A difference only with fix_ramp_proto_special_address on. See CSCL-LION-19
         WHEN
-            status = 'modified'
+            {{ ramp_fix_on }}
+            AND status = 'modified'
             AND _lion_key = '493960174704'
             AND change_keys = ARRAY['special_address_flag']
             THEN 'CSCL-LION-19: SAF flag leaks onto ramp protosegment'
@@ -313,14 +323,14 @@ SELECT
             )
             -- CSCL-LION-01: doubly-reversed protosegments not reversed in production.
             -- See CSCL-LION-01
-            -- Only the fields a reversal changes.
+            -- Only the fields a reversal changes, with fix_reversed_proto_pairs on.
             OR is_lion_01_change
             -- CSCL-LION-17: individually reviewed by JR (Aug 2026) and confirmed correct.
             -- See CSCL-LION-17
             OR (_lion_key = '236590241972' AND change_keys = ARRAY['special_address_flag'])
             -- CSCL-LION-19: special_address_flag leaks onto an ALT_SEGDATA_TYPE = R protosegment
-            -- in production. See CSCL-LION-19
-            OR (_lion_key = '493960174704' AND change_keys = ARRAY['special_address_flag'])
+            -- in production, with fix_ramp_proto_special_address on. See CSCL-LION-19
+            OR ({{ ramp_fix_on }} AND _lion_key = '493960174704' AND change_keys = ARRAY['special_address_flag'])
             -- CSCL-LION-14: subway/rail coincident_seg_count off by one. See CSCL-LION-14
             OR is_coincident_rail_change
             -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.

@@ -257,9 +257,12 @@ field_causes AS (
                 AND coalesce(w.changes -> f.key ->> 'old', '') = coalesce(w.changes -> f.lr_partner ->> 'new', '')
                 AND coalesce(w.changes -> f.key ->> 'new', '') = coalesce(w.changes -> f.lr_partner ->> 'old', '')
                 THEN 'CSCL-LION-26: reversed proto-segment census and CD fields'
-            -- CSCL-LION-01: prod doesn't reverse the doubly-reversed protosegments
+            -- CSCL-LION-01: prod doesn't reverse the doubly-reversed protosegments: a
+            -- difference only with fix_reversed_proto_pairs on (off, the default, writes
+            -- prod's orientation)
             WHEN
-                w.is_lion_01_segment
+                {{ 'TRUE' if var('fix_reversed_proto_pairs') else 'FALSE' }}
+                AND w.is_lion_01_segment
                 AND w._source_table = 'altsegmentdata'
                 AND regexp_matches(f.key, '^(nodeid(from|to)|[xy](from|to)|[lr]atomicpolygon)$')
                 THEN 'CSCL-LION-01: doubly-reversed protosegments'
