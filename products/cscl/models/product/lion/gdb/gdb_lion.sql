@@ -197,7 +197,8 @@ base_rows AS (
         lpad(coalesce(legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
         status AS "Status",
         streetwidth_min_with_zeros::float AS "StreetWidth_Min",
-        streetwidth_max::float AS "StreetWidth_Max",
+        -- a source 0 is kept here, as prod's gdb does; the LION file blanks it
+        streetwidth_max_with_zeros::float AS "StreetWidth_Max",
         streetwidth_irr AS "StreetWidth_Irr",
         lpad(coalesce(bike_lane_2, ''), 2, ' ') AS "BikeLane",
         bike_traffic_direction AS "BIKE_TRAFDIR",
@@ -386,7 +387,7 @@ replicant_rows AS (
         lpad(coalesce(lion.legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
         lion.status AS "Status",
         lion.streetwidth_min_with_zeros::float AS "StreetWidth_Min",
-        lion.streetwidth_max::float AS "StreetWidth_Max",
+        lion.streetwidth_max_with_zeros::float AS "StreetWidth_Max",
         lion.streetwidth_irr AS "StreetWidth_Irr",
         lpad(coalesce(lion.bike_lane_2, ''), 2, ' ') AS "BikeLane",
         lion.bike_traffic_direction AS "BIKE_TRAFDIR",

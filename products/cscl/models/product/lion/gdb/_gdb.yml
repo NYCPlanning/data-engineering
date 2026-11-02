@@ -249,6 +249,7 @@ unit_tests:
             10 AS to_x, 0 AS to_y, NULL::TEXT AS trafdir_ver_flag, NULL::TEXT AS traffic_direction,
             NULL::TEXT AS truck_route_type, NULL::TEXT AS twisted_parity_flag
           FROM (VALUES
+            -- staging blanks a 0 width in streetwidth_max (for the LION file); _with_zeros keeps it
             (1, 'g1', 'C', '840', NULL::INT, 0),
             (2, 'g2', 'T', NULL, NULL::INT, NULL::INT),
             (3, 'g3', 'U', '00123', 60, 60)
@@ -276,3 +277,13 @@ unit_tests:
         - {SegmentID: '0000001', SpecAddr: 'B', SeqNum: '00840'}
         - {SegmentID: '0000002', SpecAddr: null, SeqNum: '00000'}
         - {SegmentID: '0000003', SpecAddr: null, SeqNum: '00123'}
+  - name: test__gdb_lion__streetwidth_max_keeps_zero
+    description: "StreetWidth_Max keeps a source 0 (prod writes 0.0); only a NULL source width is NULL."
+    model: gdb_lion
+    given: *gdb_lion_given
+    expect:
+      rows:
+        - {SegmentID: '0000001', SpecAddr: null, StreetWidth_Max: 0.0}
+        - {SegmentID: '0000001', SpecAddr: 'B', StreetWidth_Max: 0.0}
+        - {SegmentID: '0000002', SpecAddr: null, StreetWidth_Max: null}
+        - {SegmentID: '0000003', SpecAddr: null, StreetWidth_Max: 60.0}

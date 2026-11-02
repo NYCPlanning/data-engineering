@@ -285,6 +285,7 @@ SELECT
     primary_centerline.snow_priority,
     centerline.bike_lane_2,
     centerline.streetwidth_max,
+    centerline.streetwidth_max_with_zeros,
     centerline.l_blockfaceid,
     centerline.r_blockfaceid,
     primary_centerline.number_travel_lanes,
