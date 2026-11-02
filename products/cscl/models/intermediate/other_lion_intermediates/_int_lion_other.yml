@@ -1,6 +1,6 @@
 models:
 - name: int__segment_specialaddress
-  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). Differs from prod on segment 241972 (CSCL-LION-17) and on one ramp protosegment (CSCL-LION-19)."
+  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). Differs from prod on segment 241972 (CSCL-LION-17). int__lion takes a ramp protosegment's flag from int__ramp_proto_special_address instead (CSCL-LION-19)."
   columns:
   - name: segmentid
     description: "Segment id."
@@ -111,6 +111,26 @@ models:
     description: "SegmentTyp G or F, or FeatureTyp not 0, 6 or W: the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353)."
   - name: zero_house_numbers
     description: "What gdb_lion uses: zero_house_numbers_g_and_f when the var zero_f_segment_house_numbers is true, else zero_house_numbers_g_only (the default)."
+
+- name: int__ramp_proto_special_address
+  description: >-
+    Special address flag (LION L48) of each ramp proto-segment (ALT_SEGDATA_TYPE R). Prod
+    gives it the first of S, N, G (else the first record) among the SAF records it
+    attributes to the centerline's proto-segments: AltSegmentData SAF rows with a ramp's
+    LIONKEY, address points whose B7SC_ACTUAL starts with a ramp's B5SC, and a borough
+    boundary proto's records of its own borough (CSCL-LION-19); the legacy rule leaves a ramp
+    blank.
+  columns:
+  - name: globalid
+    description: "GlobalID of the ramp proto-segment."
+  - name: segmentid
+    description: "Segment id."
+  - name: special_address_flag_prod
+    description: "Prod's flag (CenterlineExtractFile.cs:2665, GetSpecialAddressFlag)."
+  - name: special_address_flag_fixed
+    description: "The legacy rule's flag: always blank."
+  - name: special_address_flag
+    description: "The flag LION gets: special_address_flag_fixed when the var fix_ramp_proto_special_address is true, else special_address_flag_prod (the default)."
 
 - name: int__split_election_district
   description: "One row per segment and LION key that appears in the split election district (SEDAT) table, flagged L, R or B by the sides it covers."
@@ -237,3 +257,72 @@ unit_tests:
     - {globalid: U1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: false, zero_house_numbers: false}
     - {globalid: S1, feature_type_code: '2', has_house_numbers: true, zero_house_numbers_g_only: true, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
     - {globalid: W1, feature_type_code: 'W', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: false, zero_house_numbers: false}
+# CSCL-LION-19. Ramp R1 on segment 1 shares its street code (450290) with two B address
+# points and an S one on another street code: prod gives it B. Ramp R2 on segment 2 has an
+# AltSegmentData SAF row with its LIONKEY (type F, read as D) and one with the
+# centerline's: D. Ramp R3's only address point is on another street code: blank. R4 and
+# R5 on segment 4 both get R4's address point N (prod collects over all the protos). C1
+# isn't a ramp.
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types
+- name: test__int__ramp_proto_special_address__prod_rule
+  description: "Default (fix_ramp_proto_special_address false): a ramp gets prod's flag."
+  model: int__ramp_proto_special_address
+  overrides:
+    vars:
+      fix_ramp_proto_special_address: false
+  given: &ramp_given
+  - input: ref('stg__altsegmentdata_proto')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('R1', 1, 10, 'R', '4939600450', '450290', '4'),
+        ('R2', 2, 11, 'R', '4939600460', '450300', '4'),
+        ('R3', 3, 12, 'R', '4939600470', '450310', '4'),
+        ('R4', 4, 13, 'R', '4939600480', '450320', '4'),
+        ('R5', 4, 14, 'R', '4939600490', '450330', '4'),
+        ('C1', 5, 15, 'C', '4939600500', '450340', '4')
+      ) AS t (globalid, segmentid, ogc_fid, alt_segdata_type, lionkey, b5sc, borough)
+  - input: source('recipe_sources', 'dcp_cscl_centerline')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES (1, '4'), (2, '4'), (3, '4'), (4, '4'), (5, '4')) AS t (segmentid, boroughcode)
+  - input: ref('stg__altsegmentdata_saf')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (2, 20, 'F', '4', '4939600460'),
+        (2, 21, 'B', '4', '4560207075'),
+        (5, 22, 'B', '4', '4939600500')
+      ) AS t (segmentid, ogc_fid, saftype, borough, lionkey)
+  - input: source('recipe_sources', 'dcp_cscl_addresspoints')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (1, 30, 'B', '4', '45029011'),
+        (1, 31, 'B', '4', '45029011'),
+        (1, 32, 'S', '4', '45099911'),
+        (3, 33, 'S', '4', '45099911'),
+        (4, 34, 'N', '4', '45032011')
+      ) AS t (segmentid, ogc_fid, special_condition, boroughcode, b7sc_actual)
+  expect:
+    rows:
+    - {globalid: R1, special_address_flag_prod: B, special_address_flag: B}
+    - {globalid: R2, special_address_flag_prod: D, special_address_flag: D}
+    - {globalid: R3, special_address_flag_prod: null, special_address_flag: null}
+    - {globalid: R4, special_address_flag_prod: N, special_address_flag: N}
+    - {globalid: R5, special_address_flag_prod: N, special_address_flag: N}
+- name: test__int__ramp_proto_special_address__fixed
+  description: "fix_ramp_proto_special_address true: a ramp is blank."
+  model: int__ramp_proto_special_address
+  overrides:
+    vars:
+      fix_ramp_proto_special_address: true
+  given: *ramp_given
+  expect:
+    rows:
+    - {globalid: R1, special_address_flag_prod: B, special_address_flag: null}
+    - {globalid: R2, special_address_flag_prod: D, special_address_flag: null}
+    - {globalid: R3, special_address_flag_prod: null, special_address_flag: null}
+    - {globalid: R4, special_address_flag_prod: N, special_address_flag: null}
+    - {globalid: R5, special_address_flag_prod: N, special_address_flag: null}

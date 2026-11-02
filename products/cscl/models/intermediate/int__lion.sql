@@ -34,6 +34,9 @@ nodes AS (
 saf AS (
     SELECT * FROM {{ ref("int__segment_specialaddress") }}
 ),
+ramp_proto_special_address AS (
+    SELECT * FROM {{ ref("int__ramp_proto_special_address") }}
+),
 centerline_curve AS (
     SELECT * FROM {{ ref("int__centerline_curve") }}
 ),
@@ -201,6 +204,10 @@ SELECT
             THEN 'T'
     END AS twisted_parity_flag,
     CASE
+        -- a ramp proto: blank, or prod's flag by default (CSCL-LION-19, see
+        -- int__ramp_proto_special_address)
+        WHEN segments.source_table = 'altsegmentdata' AND proto.alt_segdata_type = 'R'
+            THEN ramp_proto_special_address.special_address_flag
         WHEN NOT (
             segments.source_table = 'altsegmentdata'
             AND proto.alt_segdata_type <> 'B'
@@ -355,3 +362,4 @@ LEFT JOIN zips
     ON (CASE WHEN segments.feature_type <> 'centerline' THEN segments.globalid END) = zips.globalid
 LEFT JOIN noncenterline_curve_flag ON segments.globalid = noncenterline_curve_flag.globalid
 LEFT JOIN proto ON segments.globalid = proto.globalid
+LEFT JOIN ramp_proto_special_address ON segments.globalid = ramp_proto_special_address.globalid
