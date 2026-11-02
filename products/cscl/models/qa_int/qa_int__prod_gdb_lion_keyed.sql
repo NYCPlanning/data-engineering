@@ -13,7 +13,7 @@
 -- SegmentID|Join_ID|#n, n = rank among that segment's unmatched rows ordered by house
 -- numbers, so they pair up as "modified" instead of an only_in_build/only_in_legacy pair.
 -- Exact-duplicate full keys (e.g. blank house numbers) get a |n ordinal so keys are unique.
--- This absorbs prod's inconsistent house-number zeroing (CSCL-LION-15).
+-- This absorbs house-number differences (e.g. CSCL-LION-15, CSCL-LION-24 with their vars on).
 
 {% set prod_relation = adapter.get_relation(
     database = target.database,

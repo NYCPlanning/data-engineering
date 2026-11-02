@@ -237,6 +237,17 @@ field_causes AS (
                     'fromleft', 'toleft', 'fromright', 'toright'
                 )
                 THEN 'CSCL-LION-24: house numbers zeroed on SegmentTyp F'
+            -- prod keeps a generic segment's house numbers: a difference only with
+            -- zero_generic_house_numbers on (off, the default, keeps them too)
+            WHEN
+                {{ 'TRUE' if var('zero_generic_house_numbers') else 'FALSE' }}
+                AND w.segmenttyp = 'G'
+                AND f.key IN (
+                    'llo_hyphen', 'lhi_hyphen', 'rlo_hyphen', 'rhi_hyphen',
+                    'fromleft', 'toleft', 'fromright', 'toright'
+                )
+                AND coalesce(nullif(trim(w.changes -> f.key ->> 'new'), ''), '0') = '0'
+                THEN 'CSCL-LION-15: house numbers zeroed on generic segments'
             -- CSCL-LION-25: prod writes no high house number on an S/V replicant of a
             -- HYPHEN_TYPE R address point; ours writes the range's HOUSE_NUMBER_RANGE
             WHEN
@@ -289,7 +300,7 @@ field_causes AS (
                     'llo_hyphen', 'lhi_hyphen', 'rlo_hyphen', 'rhi_hyphen',
                     'fromleft', 'toleft', 'fromright', 'toright'
                 )
-                THEN 'CSCL-LION-15: house numbers'
+                THEN 'House numbers'
             -- prod has no zip for the Randall's Island proto-segments; ours is 10035: a
             -- difference only with fix_nonstreet_proto_zip on (off, the default, writes blank)
             WHEN
@@ -402,15 +413,15 @@ cause_summary AS (
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) IN (
                 'CSCL-LION-01', 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05',
-                'CSCL-LION-14', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25', 'CSCL-LION-26',
-                'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-SAF-03', 'CSCL-SAF-06'
+                'CSCL-LION-14', 'CSCL-LION-15', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25',
+                'CSCL-LION-26', 'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) NOT IN (
                 'CSCL-LION-01', 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05',
-                'CSCL-LION-14', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25', 'CSCL-LION-26',
-                'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-SAF-03', 'CSCL-SAF-06'
+                'CSCL-LION-14', 'CSCL-LION-15', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25',
+                'CSCL-LION-26', 'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS open_causes
     FROM field_causes

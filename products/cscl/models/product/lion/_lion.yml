@@ -151,13 +151,13 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: l_low_hn
-    description: "Lowest house number on the left side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
+    description: "Lowest house number on the left side. Centerline segments only. Copied from the source on generic segments too, as prod does (the LION gdb zeroing of CSCL-LION-15 is not applied here)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: l_high_hn
-    description: "Highest house number on the left side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
+    description: "Highest house number on the left side. Centerline segments only. Copied from the source on generic segments too, as prod does (the LION gdb zeroing of CSCL-LION-15 is not applied here)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
@@ -211,13 +211,13 @@ models:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 3 }
   - name: r_low_hn
-    description: "Lowest house number on the right side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
+    description: "Lowest house number on the right side. Centerline segments only. Copied from the source on generic segments too, as prod does (the LION gdb zeroing of CSCL-LION-15 is not applied here)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
         arguments: { value: 7 }
   - name: r_high_hn
-    description: "Highest house number on the right side. Centerline segments only; zero on generic segments (CSCL-LION-15)."
+    description: "Highest house number on the right side. Centerline segments only. Copied from the source on generic segments too, as prod does (the LION gdb zeroing of CSCL-LION-15 is not applied here)."
     data_type: string
     tests:
     - dbt_expectations.expect_column_value_lengths_to_equal:
