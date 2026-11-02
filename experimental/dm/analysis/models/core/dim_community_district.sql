@@ -77,11 +77,14 @@ SELECT
     components.population_change_from_occupied_units_not_built_2010_2020_pts,
     components.population_change_from_household_size_2010_2020_pts,
     components.population_change_from_group_quarters_2010_2020_pts,
+    density.land_acres,
+    density.people_per_acre,
     spine.geom
 FROM {{ ref('int_cd_spine') }} AS spine
 LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd
 LEFT JOIN {{ ref('int_cd_fhgs_features') }} AS fhgs ON spine.borocd = fhgs.borocd
 LEFT JOIN {{ ref('int_cd_census_metrics') }} AS census ON spine.borocd = census.borocd
+LEFT JOIN {{ ref('int_cd_density_metrics') }} AS density ON spine.borocd = density.borocd
 LEFT JOIN {{ ref('int_cd_acs_metrics') }} AS acs ON spine.borocd = acs.borocd
 LEFT JOIN {{ ref('int_cd_housing_metrics') }} AS housing ON spine.borocd = housing.borocd
 LEFT JOIN {{ ref('int_cd_growth_metrics') }} AS growth ON spine.borocd = growth.borocd

@@ -487,6 +487,17 @@ models:
         config:
           meta:
             display_name: "Population change from group quarters 2010-2020 (pts)"
+      - name: land_acres
+        description: District area in acres, from dcp_cdboundaries' shape_area in square feet (EPSG:2263). Districts are clipped to the shoreline, so this is land only.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Land area (acres)"
+      - name: people_per_acre
+        description: population_2020_census / land_acres, residents per acre of land in 2020.
+        config:
+          meta:
+            display_name: "People per acre"
       - name: geom
         description: Community district boundary clipped to the shoreline (dcp_cdboundaries 26c), EPSG:4326.
         data_tests: [not_null]
@@ -588,6 +599,42 @@ models:
           dim_community_district.housing_units_2010_backcast.
         data_tests: [not_null]
 
+  - name: mart_nta_date
+    description: >
+      One row per NTA and date (nta2020 x as_of_date): April 1 2010, December 31 of 2010 through 2025, and April 1 2020.
+      The same series as mart_community_district_date, at the NTA grain. Past units only. KPDB's NTA projections are on dim_nta.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "nta2020 || '-' || as_of_date"
+    columns:
+      - name: nta2020
+        description: NTA code.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: nta_name
+        description: Same as dim_nta.nta_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: nta_type_name
+        description: Same as dim_nta.nta_type_name. Repeated here so non-residential NTAs can be left out without a join.
+        data_tests: [not_null]
+      - name: cdta2020
+        description: Same as dim_nta.cdta2020. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: as_of_date
+        description: Date the housing unit count is as of, at the end of the day.
+        data_tests: [not_null]
+      - name: housing_units_from_2020_census
+        description: >
+          Housing units as of as_of_date: dim_nta.housing_units_2020_census, minus net units completed after as_of_date
+          through April 1 2020, or plus net units completed after April 1 2020 through as_of_date
+          (fact_unit_completion.classa_net, active jobs only). Semi-additive: sums across NTAs, not across dates.
+        data_tests: [not_null]
+
   - name: fact_unit_completion
     description: >
       One row per completed DOB job (job_number) from the Housing Database (dcp_housing 26Q2).
@@ -613,6 +660,14 @@ models:
               arguments:
                 to: ref('dim_community_district')
                 field: borocd
+      - name: nta2020
+        description: NTA the job is in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
       - name: date_complete
         description: >
           Completion date. For new buildings and alterations it comes from the job's certificate of
@@ -903,6 +958,13 @@ models:
         config:
           meta:
             display_name: "People per acre"
+      - name: average_household_size_2020_census
+        description: >
+          population_in_households_2020_census per occupied housing unit, rounded to 2 decimals. Same as
+          dim_community_district.average_household_size_2020_census. Leaves out people in group quarters. Null where there are no occupied units.
+        config:
+          meta:
+            display_name: "Average household size 2020 (census)"
       - name: geom
         description: Tract boundary clipped to the shoreline (dcp_ct2020 26c), EPSG:4326.
         data_tests: [not_null]
@@ -1105,6 +1167,41 @@ models:
         config:
           meta:
             display_name: "People per acre"
+      - name: average_household_size_2020_census
+        description: >
+          population_in_households_2020_census per occupied housing unit, rounded to 2 decimals. Same as
+          dim_community_district.average_household_size_2020_census. Leaves out people in group quarters. Null where there are no occupied units.
+        config:
+          meta:
+            display_name: "Average household size 2020 (census)"
+      - name: housing_units_2024_end
+        description: housing_units_2020_census plus net units built from April 2 2020 through December 31 2024. Same as mart_nta_date.housing_units_from_2020_census on that date.
+        config:
+          meta:
+            display_name: "Housing units end of 2024"
+      - name: projected_net_units_2025_2034
+        description: >
+          Units KPDB phases within 5 years plus within 5 to 10 years. KPDB phases by project status, not date, so the years are
+          a labeling convention. A project spanning NTAs is split by the share of its area in each, so a single NTA's number can
+          lean on how one large project happens to be drawn. SSOT is KPDB's cpp_housing_growth_nta.
+        config:
+          meta:
+            display_name: "Projected net units 2025-2034 (KPDB)"
+      - name: projected_net_units_2025_2029
+        description: Units KPDB phases within 5 years, summed from its records (within_5_years_in_nta in longform_nta_output).
+        config:
+          meta:
+            display_name: "Projected net units 2025-2029 (KPDB)"
+      - name: projected_net_units_2030_2034
+        description: Units KPDB phases within 5 to 10 years, summed from its records (from_5_to_10_years_in_nta in longform_nta_output).
+        config:
+          meta:
+            display_name: "Projected net units 2030-2034 (KPDB)"
+      - name: projected_housing_units_2034_end
+        description: housing_units_2024_end plus projected_net_units_2025_2034.
+        config:
+          meta:
+            display_name: "Projected housing units end of 2034"
       - name: geom
         description: NTA boundary clipped to the shoreline (dcp_nta2020 26c), EPSG:4326.
         data_tests: [not_null]

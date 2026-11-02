@@ -17,6 +17,11 @@
 {%- for year in [2010, 2020] %}
     max(value) FILTER (WHERE census_year = {{ year }} AND pff_variable = 'pop1')
     - max(value) FILTER (WHERE census_year = {{ year }} AND pff_variable = 'popinhh_1')
-        AS group_quarters_population_{{ year }}_census{{ "," if not loop.last }}
+        AS group_quarters_population_{{ year }}_census,
 {%- endfor %}
+    round(
+        max(value) FILTER (WHERE census_year = 2020 AND pff_variable = 'popinhh_1')
+        / nullif(max(value) FILTER (WHERE census_year = 2020 AND pff_variable = 'ochu_1'), 0),
+        2
+    ) AS average_household_size_2020_census
 {%- endmacro %}

@@ -30,6 +30,16 @@ sources:
         config:
           external_location: "read_csv('./data/sources/kpdb_cpp_housing_growth_cd.csv')"
 
+      - name: kpdb_cpp_housing_growth_nta
+        description: KPDB's housing growth summary by NTA, 2026-10-01 from edm-publishing.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_cpp_housing_growth_nta.csv')"
+
+      - name: kpdb_longform_nta_output
+        description: KPDB records split by NTA, one row per record and NTA, 2026-10-01 from edm-publishing.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_longform_nta_output.csv', all_varchar = true)"
+
       - name: kpdb_longform_cd_output
         description: KPDB 2026-10-01 records split by community district, one row per record and district it falls in.
         config:

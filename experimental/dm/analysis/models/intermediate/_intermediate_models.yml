@@ -33,6 +33,27 @@ models:
       - name: boroct2020
         data_tests: [unique, not_null]
 
+  - name: int_cd_density_metrics
+    columns:
+      - name: borocd
+        data_tests: [unique, not_null]
+
+  - name: int_nta_kpdb_projection_metrics
+    columns:
+      - name: nta2020
+        data_tests: [unique, not_null]
+
+  - name: int_nta_housing_metrics
+    columns:
+      - name: nta2020
+        data_tests: [unique, not_null]
+
+  - name: int_nta_date_housing_metrics
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "nta2020 || '-' || as_of_date"
+
   - name: int_nta_type_features
     columns:
       - name: nta2020

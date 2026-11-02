@@ -38,6 +38,14 @@ SOURCES = {
         "edm-publishing",
         "db-kpdb/publish/2026-10-01/aggregation/longform_cd_output.csv",
     ),
+    "kpdb_cpp_housing_growth_nta.csv": (
+        "edm-publishing",
+        "db-kpdb/publish/2026-10-01/cpp_housing_growth/cpp_housing_growth_nta.csv",
+    ),
+    "kpdb_longform_nta_output.csv": (
+        "edm-publishing",
+        "db-kpdb/publish/2026-10-01/aggregation/longform_nta_output.csv",
+    ),
     "dcp_housing.parquet": (
         "edm-recipes",
         "datasets/dcp_housing/26Q2/dcp_housing.parquet",
