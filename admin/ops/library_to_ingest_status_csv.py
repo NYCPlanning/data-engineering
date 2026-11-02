@@ -24,7 +24,9 @@ from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
 REPO_ROOT = Path(__file__).parent.parent.parent
-LIBRARY_TEMPLATES_DIR = REPO_ROOT / "dcpy" / "library" / "templates"
+LIBRARY_TEMPLATES_DIR = (
+    REPO_ROOT / "python" / "library" / "dcpy" / "library" / "templates"
+)
 INGEST_TEMPLATES_DIR = REPO_ROOT / "ingest_templates"
 OUTPUT_CSV = REPO_ROOT / "docs" / "dcpy" / "library-to-ingest-status.csv"
 
