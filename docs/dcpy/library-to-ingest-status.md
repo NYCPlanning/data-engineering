@@ -1,90 +1,98 @@
 # Library → Ingest: remaining work
 
-Status snapshot as of 2026-09-06, built by diffing `dcpy/library/templates/*.yml` against
-`ingest_templates/*.yml` directly — **not** from [tracking issue #1255](https://github.com/NYCPlanning/data-engineering/issues/1255)
-or its sub-issues, which have drifted out of sync with the actual file state (see
-[Known false positives](#known-false-positives-when-re-running-this-diff) below if you re-derive this list).
+Status snapshot as of 2026-10-30, built by diffing `python/library/dcpy/library/templates/*.yml`
+against `ingest_templates/*.yml` and searching for direct `library archive` calls. It isn't built
+from [tracking issue #1255](https://github.com/NYCPlanning/data-engineering/issues/1255) or its
+sub-issues, which have drifted out of sync with the actual file state (see
+[Known false positives](#known-false-positives-when-re-running-this-diff) below if you re-derive
+this list).
 
 See [library-to-ingest-migration.md](./library-to-ingest-migration.md) for the how-to on migrating
 a dataset. This doc only tracks *what's* left, not *how*.
+[library-to-ingest-status.csv](./library-to-ingest-status.csv) has per-dataset archive state, from
+`admin/ops/library_to_ingest_status_csv.py`.
 
 ## How this list was built
 
 ```bash
-comm -23 <(ls dcpy/library/templates | sed 's/\.yml$//' | sort) \
+comm -23 <(ls python/library/dcpy/library/templates | sed 's/\.yml$//' | sort) \
          <(ls ingest_templates | sed 's/\.yml$//' | sort)
+git grep -n 'library archive\|library_archive' -- .github products
 ```
 
-A dataset counts as migrated once `ingest_templates/{dataset_id}.yml` exists — that's the literal
-fallback check in `dcpy/lifecycle/scripts/ingest_or_library_archive.py`. Filename diffs alone
-overcount "remaining," because several datasets were renamed during migration; those are excluded
-below (see [Known false positives](#known-false-positives-when-re-running-this-diff)).
+A dataset counts as migrated once `ingest_templates/{dataset_id}.yml` exists. That's the literal
+fallback check in `python/lifecycle/dcpy/lifecycle/scripts/ingest_or_library_archive.py`. Filename
+diffs alone overcount "remaining," because several datasets were renamed during migration. Those
+are excluded below (see [Known false positives](#known-false-positives-when-re-running-this-diff)).
 
-`test_nypl_libraries` is a unit-test fixture (`dcpy/test/library/data/`), not a production
-dataset, and isn't counted.
+Two templates aren't counted because they're test fixtures. `test_nypl_libraries` is read by
+`apps/dcpy_integration_tests/library/test_archive.py`. `bpl_libraries` is already migrated, but
+library's own tests load its template, so it stays until the package is removed.
 
-## Remaining: tracked in an open GitHub issue
+## Remaining: templates
 
-| Dataset(s) | Issue |
-|---|---|
-| `dcp_censusdata`, `dob_now_applications`, `dob_now_permits`, `hpd_historical_units_by_building` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) — DevDB script sources |
-| `usfws_nyc_wetlands` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) — custom scripts. `nycdoc_corrections`, `nycourts_courts`, and `nycoc_checkbook` are done; `uscourts_courts` in that issue is a separate dataset, not a typo for `nycourts_courts` — facilities consumes both |
-| `usdot_ports` | [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326) — source now requires a token, so there is nothing to migrate to yet |
+21 datasets. Consumers come from grepping each name across `products/`, excluding
+`products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
+`acs.yml` and `decennial.yml`.
 
-## Remaining: untracked (no GitHub issue at all)
+### Custom scripts (7)
 
-30 datasets that were never triaged into a sub-issue:
+| Dataset | Consumers | Issue |
+|---|---|---|
+| `dcp_censusdata` | `developments`, `knownprojects` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
+| `dcp_censusdata_blocks` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
+| `dob_cofos` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336), see [`dob_cofos` is not a rename](#dob_cofos-is-not-a-rename) |
+| `dob_now_applications` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
+| `dob_now_permits` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
+| `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
+| `usfws_nyc_wetlands` | `ceqr`, `green_fast_track` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) |
 
-`cbbr_submissions`, `dcp_access_ADA_subway`, `dcp_access_subway_SBS`,
-`dcp_beaches`, `dcp_censusdata_blocks`, `dcp_dot_trafficinjuries`,
-`dcp_mappluto_clipped`, `dcp_mappluto_historical`, `dcp_mappluto_wi`, `dcp_pop_acs`,
-`dcp_pop_decennial_ddhca`, `dcp_pop_decennial_dhc`, `dcp_pops`, `dcp_proximity_establishments`,
-`dcp_trafficanalysiszones`, `ddc_capitalprojects_infrastructure`, `ddc_capitalprojects_publicbuildings`,
-`dob_jobapplications_parkingspaces`, `dob_natural_resource_check_flags`,
-`doitt_zipcodeboundaries`, `dot_projects_bridges`,
-`edc_capitalprojects`, `edc_capitalprojects_ferry`,
-`fema_firms_500yr`, `fema_firms2007_100yr`,
-`pluto_corrections`, `sca_bluebook`, `sca_capacity_projects_current`, `sca_e_pct`,
-`sca_e_projections`
-
-### Triage: which of those are still consumed
-
-Consumers were found by grepping each dataset name across `products/*/*.yml`, `*.sql`, and `*.py`.
-Note that a `recipe.yml`-only scan is not enough: factfinder loads its inputs from `acs.yml` and
-`decennial.yml` instead, so the three `dcp_pop_*` datasets look dead to a recipe scan and aren't.
-
-**Dead — delete rather than migrate (7).** No build, workflow, or query reads these.
-
-| Dataset | Evidence |
-|---|---|
-| `cbbr_submissions` | CBBR's recipe reads `dcp_cbbr_requests` and `omb_cbbr_agency_responses`. The `_cbbr_submissions` hits under `products/cbbr/` are an internal build table, not this dataset. |
-| `dcp_access_ADA_subway` | No reference outside its own template. |
-| `dcp_access_subway_SBS` | No reference outside its own template. |
-| `dcp_proximity_establishments` | No reference outside its own template. |
-| `fema_firms_500yr` | No reference outside its own template. Its siblings `fema_firms2007_100yr` and `dcp_pfirms` are both live in PLUTO; this one isn't. |
-| `dcp_mappluto_historical` | Only `.github/workflows/archive/pluto_publish_historical.yml`, an archived workflow. |
-| `pluto_corrections` | Every reference is commented out (`corr_lotarea.sql:28`, `archive/pluto_publish.yml:45,60,70`). |
-
-**Dormant (4).** `sca_bluebook`, `sca_capacity_projects_current`, `sca_e_pct`, `sca_e_projections`
-are read only by `products/ceqr/ceqr_app/recipes/`. No workflow runs those recipes:
-`ceqr_dep_monthly.yml` is the only one pointing at `ceqr_app`, and it runs `dep_cats_permits` alone.
-Same shape as the `doe_pepmeetingurls` deletion above, so confirm with the CEQR owner before
-choosing delete over migrate.
-
-**Live (19).** Grouped by consuming product, most-shared first.
+### Url or file sources (14)
 
 | Consumers | Datasets |
 |---|---|
-| 6 (`cpdb`, `developments`, `facilities`, `green_fast_track`, `knownprojects`, `lift`) | `dcp_mappluto_wi` |
-| 3 (`developments`, `facilities`, `pluto`) | `doitt_zipcodeboundaries` |
-| 3 (`ceqr`, `facilities`, `green_fast_track`) | `dcp_pops` |
-| 2 (`ceqr`, `green_fast_track`) | `dcp_beaches`, `dob_natural_resource_check_flags` |
-| 2 (`cdbg`, `ceqr`) | `dcp_mappluto_clipped` |
-| 1 (`cpdb`) | `dcp_trafficanalysiszones`, `ddc_capitalprojects_infrastructure`, `ddc_capitalprojects_publicbuildings`, `dot_projects_bridges`, `edc_capitalprojects`, `edc_capitalprojects_ferry` |
-| 1 (`factfinder`, via `acs.yml` / `decennial.yml`) | `dcp_pop_acs`, `dcp_pop_decennial_ddhca`, `dcp_pop_decennial_dhc` |
-| 1 (`developments`) | `dcp_censusdata_blocks`, `dob_jobapplications_parkingspaces` |
-| 1 (`pluto`) | `fema_firms2007_100yr` |
-| 1 (`edde`) | `dcp_dot_trafficinjuries` |
+| `ceqr`, `green_fast_track` | `dcp_beaches`, `dob_natural_resource_check_flags` |
+| `cpdb` | `dcp_trafficanalysiszones`, `ddc_capitalprojects_infrastructure`, `ddc_capitalprojects_publicbuildings`, `dot_projects_bridges`, `edc_capitalprojects`, `edc_capitalprojects_ferry` |
+| `developments` | `dob_jobapplications_parkingspaces` |
+| `edde` | `dcp_dot_trafficinjuries` |
+| `facilities` | `usdot_ports` (blocked: the source now requires a token, see [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)) |
+| `factfinder` | `dcp_pop_acs`, `dcp_pop_decennial_ddhca`, `dcp_pop_decennial_dhc` |
+
+## Remaining: direct `library archive` calls
+
+These call the `library` CLI against templates that live outside `python/library`, so a template
+diff doesn't find them. Both archive a file the pipeline just produced instead of fetching a source.
+
+| Workflow | Templates | Schedule |
+|---|---|---|
+| `zap_export.yml`, `zap_single_visible.yml` | 7 in `products/zap-opendata/templates/` | `zap_export` weekly |
+| `developments_datasync.yml` (through `devdb_datasync.sh`) | 2 in `products/developments/templates/` | weekly |
+
+## Remaining: code that imports `dcpy.library`
+
+- `apps/qa/src/pages/ingest/` and `apps/qa/src/pages/source_data/`
+- `python/connectors/test/edm/test_recipes.py`
+- `apps/dcpy_integration_tests/library/`
+- the fallback in `ingest_or_library_archive.py`
+
+`dcpy-library` also holds the only declared `GDAL` dependency, while
+`python/geospatial/dcpy/geospatial/gdb/fgdb.py` and `transform.py` import `osgeo`. Those need a new
+home for that dependency before the package can go.
+
+Library-era archives stay in `edm-recipes`, so read-side checks like `_is_library` in
+`ingest_datastore.py` outlive the package.
+
+## Migrated, but `latest` is still a library archive
+
+25 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false). If
+the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
+replacing the archive takes `--overwrite --version <version>`.
+
+## Deleted without migrating
+
+`sca_bluebook`, `sca_capacity_projects_current`, `sca_e_pct`, and `sca_e_projections`. Only
+`products/ceqr/ceqr_app/recipes/` reads them, no product recipe lists them, and no workflow runs
+those recipes. Their archives are still in `edm-recipes`.
 
 ## Migrated: facilities cluster
 
@@ -168,16 +176,6 @@ messages have the details.
   highways, where `name` is legitimately non-unique — multiple segments share a route name), and
   `wkb_geometry` unique+not-null (both panynj contours) all pass.
 
-## Deletion candidates (not migration candidates)
-
-- `dycd_afterschoolprograms` — a comment on [#1267](https://github.com/NYCPlanning/data-engineering/issues/1267)
-  says it looks unused, likely superseded by `dycd_service_sites`. Confirm it's actually dead (no
-  build references it) before deleting the library template outright.
-- ~~`doe_pepmeetingurls`~~ — deleted (template, dev_templates stub, and script). Only used to
-  refresh the source for CEQR's `doe_significant_utilization_changes` recipe, which is
-  pretty-much-deprecated and reads already-archived data, not a live template — so deleting the
-  refresh path doesn't break it.
-
 ## Known false positives when re-running this diff
 
 These library templates were actually migrated, just under a new `ingest_templates` filename, so a
@@ -223,7 +221,7 @@ That's a DevDB data question, not a template port.
 ### `dcp_pfirms` — done
 
 PLUTO and factfinder both read `dcp_pfirms` now, and
-`dcpy/library/templates/fema_pfirms2015_100yr.yml` is deleted.
+`python/library/dcpy/library/templates/fema_pfirms2015_100yr.yml` is deleted.
 
 The two snapshots agree on every attribute: 4,914 rows each, identical `fld_zone` distribution,
 identical 3,984 distinct `fld_ar_id`, total `area` matching to the unit. Neither consumer pinned a
