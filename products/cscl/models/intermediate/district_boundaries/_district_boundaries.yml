@@ -154,6 +154,27 @@ models:
   - name: geom
     description: "District boundary (multi)polygon."
     tests: [ not_null ]
+- name: int__nta2010_county_fips
+  description: >-
+    One row per 2010 NTA: the borough holding most of its AtomicPolygon area and the
+    CountyFIPS nynta2010 gets. Prod looks CountyFIPS up in the NTA's first
+    NeighborhoodPUMACodes row and leaves it blank where that row's FIPS code is blank, or
+    there is no row; ours takes the borough's (CSCL-DISTRICTS-09). Which one nynta2010 gets
+    is the var fill_nta_county_fips_from_borough (default false, prod's).
+  columns:
+  - name: nta2010
+    description: "2010 NTA code."
+    tests: [ unique, not_null ]
+  - name: borocode
+    description: "Borough holding most of the NTA's AtomicPolygon area."
+  - name: npc_fips_code
+    description: "FIPS_CODE of the NTA's first NeighborhoodPUMACodes row (by ogc_fid), null when blank or when there is no row."
+  - name: county_fips_prod
+    description: "npc_fips_code padded to three, as prod writes it: null (blank) when npc_fips_code is."
+  - name: county_fips_borough
+    description: "The borough's FIPS code (stg__borough.fips)."
+  - name: county_fips
+    description: "What nynta2010 uses: county_fips_borough when the var fill_nta_county_fips_from_borough is true, else county_fips_prod (the default)."
 - name: int__boundary__mcea_edges
   description: "MCEA edges: every topology edge classified interior or exterior to its district."
 - name: int__boundary__mcea_raw
@@ -513,3 +534,71 @@ models:
     tests: [ unique, not_null ]
 - name: int__boundary__mcea_rows
   description: MCEA boundaries grouped into the published layer's rows (connected pieces of the dissolved 2000 tracts).
+
+# CSCL-DISTRICTS-09. MN01 and QN99 (mostly Queens APs, a few Brooklyn) have a FIPS code;
+# BK02's first NeighborhoodPUMACodes row has a blank one (its second doesn't), SI01's a
+# null one, and BX99 has no row; BK05's first row has one and a later row is blank. sql
+# fixtures: CI runs unit tests without building the upstream models
+unit_tests:
+- name: test__int__nta2010_county_fips__prod
+  description: "Default (fill_nta_county_fips_from_borough false): CountyFIPS is blank where the NTA's FIPS code is blank or missing, as prod's."
+  model: int__nta2010_county_fips
+  overrides:
+    vars:
+      fill_nta_county_fips_from_borough: false
+  given: &nta_county_fips_given
+  - input: ref('int__topology__ap_entities')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('MN01', '1', 100.0),
+        ('QN99', '4', 100.0),
+        ('QN99', '3', 10.0),
+        ('BK02', '3', 100.0),
+        ('SI01', '5', 100.0),
+        ('BX99', '2', 100.0),
+        ('BK05', '3', 100.0),
+        (NULL, '1', 100.0)
+      ) AS t (nta2010, borocode, area_sqft)
+  - input: source('recipe_sources', 'dcp_cscl_neighborhoodpumacodes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (1, 'MN01', '61'),
+        (2, 'MN01', '61'),
+        (3, 'QN99', '81'),
+        (5, 'BK02', '47'),
+        (4, 'BK02', ' '),
+        (6, 'SI01', NULL),
+        (7, 'BK05', '47'),
+        (8, 'BK05', '')
+      ) AS t (ogc_fid, neighborhood_code, fips_code)
+  - input: ref('stg__borough')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('1', '061'), ('2', '005'), ('3', '047'), ('4', '081'), ('5', '085')
+      ) AS t (borocode, fips)
+  expect:
+    rows:
+    - {nta2010: MN01, borocode: '1', npc_fips_code: '61', county_fips_prod: '061', county_fips_borough: '061', county_fips: '061'}
+    - {nta2010: QN99, borocode: '4', npc_fips_code: '81', county_fips_prod: '081', county_fips_borough: '081', county_fips: '081'}
+    - {nta2010: BK02, borocode: '3', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '047', county_fips: null}
+    - {nta2010: SI01, borocode: '5', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '085', county_fips: null}
+    - {nta2010: BX99, borocode: '2', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '005', county_fips: null}
+    - {nta2010: BK05, borocode: '3', npc_fips_code: '47', county_fips_prod: '047', county_fips_borough: '047', county_fips: '047'}
+- name: test__int__nta2010_county_fips__borough
+  description: "fill_nta_county_fips_from_borough true: every NTA gets its borough's FIPS code."
+  model: int__nta2010_county_fips
+  overrides:
+    vars:
+      fill_nta_county_fips_from_borough: true
+  given: *nta_county_fips_given
+  expect:
+    rows:
+    - {nta2010: MN01, borocode: '1', npc_fips_code: '61', county_fips_prod: '061', county_fips_borough: '061', county_fips: '061'}
+    - {nta2010: QN99, borocode: '4', npc_fips_code: '81', county_fips_prod: '081', county_fips_borough: '081', county_fips: '081'}
+    - {nta2010: BK02, borocode: '3', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '047', county_fips: '047'}
+    - {nta2010: SI01, borocode: '5', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '085', county_fips: '085'}
+    - {nta2010: BX99, borocode: '2', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '005', county_fips: '005'}
+    - {nta2010: BK05, borocode: '3', npc_fips_code: '47', county_fips_prod: '047', county_fips_borough: '047', county_fips: '047'}

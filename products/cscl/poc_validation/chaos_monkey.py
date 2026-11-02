@@ -1902,12 +1902,16 @@ MUTATIONS: list[Mutation] = [
         """,
     ),
     Mutation(
+        # every NeighborhoodPUMACodes row of an NTA: prod's CountyFIPS is blank and the
+        # borough's isn't, so CSCL-LOG-OURS-16's count row lists the NTA, whichever one the
+        # build writes (fill_nta_county_fips_from_borough)
         name="neighborhoodpumacodes_blank_fips",
-        log_message_ids=["CSCL-LOG-GDB-05"],
+        log_message_ids=["CSCL-LOG-GDB-05", "CSCL-LOG-OURS-16"],
         table="dcp_cscl_neighborhoodpumacodes",
         column="fips_code",
         key_column="neighborhood_code",
         log_match_column="message",
+        message_matches={"CSCL-LOG-OURS-16": lambda cand: cand["key"]},
         new_value="",
         candidates_sql="""
             SELECT DISTINCT neighborhood_code AS key, ['npc ' || neighborhood_code] AS claims,

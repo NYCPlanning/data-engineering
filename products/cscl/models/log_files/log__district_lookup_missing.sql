@@ -8,7 +8,8 @@
 --     nynta2010). Prod looks up the tract's NEIGHBORHOOD_CODE; gdb_nyct2010 matches on
 --     borough and tract.
 --   GDB-05: the NeighborhoodPUMACodes row has a blank FIPS_CODE. Prod blanks nynta2010's
---     CountyFIPS; ours comes from the borough, so it isn't blank.
+--     CountyFIPS, and so do we unless fill_nta_county_fips_from_borough is on
+--     (int__nta2010_county_fips, CSCL-DISTRICTS-09).
 --   GDB-06: the NTA code has no NTAEquiv2020 row, so NTAName (and nynta2020's NTAAbbrev and
 --     NTAType) are blank (nyct2020, nyct2020wi, nynta2020).
 --   GDB-07: the CDTA code has no CDTAEquiv2020 row, so CDTAName (and nycdta2020's

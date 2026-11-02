@@ -883,7 +883,11 @@ models:
   - name: BoroName
     description: Borough name.
   - name: CountyFIPS
-    description: County FIPS code of the borough (three characters).
+    description: >-
+      County FIPS code (three characters), from the neighborhood's Neighborhood PUMA Codes
+      row. Blank, as in prod, where that row's FIPS code is blank or there is no row, unless
+      the fill_nta_county_fips_from_borough setting is on, which takes the borough's
+      (CSCL-DISTRICTS-09).
   - name: NTACode
     description: 2010 neighborhood tabulation area code.
     data_tests: [ not_null ]
