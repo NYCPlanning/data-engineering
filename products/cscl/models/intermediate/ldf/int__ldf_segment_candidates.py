@@ -33,6 +33,8 @@ COLUMNS = [
     "new_from_nodeid",
     "new_to_nodeid",
     "journal_old_id",
+    "change_datetime",
+    "ldf_num",
 ]
 
 
@@ -68,6 +70,7 @@ class TransitoryFilter:
                 continue
             row = {
                 "ldf_num": r["ldf_num"],
+                "change_datetime": r["change_datetime"],
                 "action": (r["action_code"] or "").strip(),
                 "old": r["old_id"],
                 "new": r["new_id"] if r["new_id"] is not None else 0,
@@ -421,6 +424,10 @@ class TransitoryFilter:
                     # the old ID as journalled, before any chain collapse or swap:
                     # what IsSegmentdeleted checks
                     "journal_old_id": row["old"] or None,
+                    # the journal row, whose order the writer keeps among records
+                    # that tie on its sort keys (int__ldf_records)
+                    "change_datetime": row["change_datetime"],
+                    "ldf_num": row["ldf_num"],
                 }
             )
         return out
@@ -454,5 +461,6 @@ def model(dbt, session):
 
     df = pd.DataFrame(records, columns=COLUMNS)
     for col in COLUMNS[2:]:
-        df[col] = df[col].astype("Int64")
+        if col != "change_datetime":
+            df[col] = df[col].astype("Int64")
     return df
