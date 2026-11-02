@@ -90,6 +90,7 @@ with_context AS (
         b._feature_type,
         b._source_table,
         b.featuretyp,
+        b.segmenttyp,
         split_part(d._gdb_lion_key, '|', 1) AS segmentid,
         tlr.segmentid IS NOT NULL AS is_topology_lr_segment,
         ncc.segmentid IS NOT NULL AS has_near_coincident_centerline,
@@ -108,6 +109,16 @@ field_causes AS (
         w._gdb_lion_key,
         f.key,
         CASE
+            -- prod keeps an F segment's house numbers: a difference only with
+            -- zero_f_segment_house_numbers on (off, the default, keeps them too)
+            WHEN
+                {{ 'TRUE' if var('zero_f_segment_house_numbers') else 'FALSE' }}
+                AND w.segmenttyp = 'F'
+                AND f.key IN (
+                    'llo_hyphen', 'lhi_hyphen', 'rlo_hyphen', 'rhi_hyphen',
+                    'fromleft', 'toleft', 'fromright', 'toright'
+                )
+                THEN 'CSCL-LION-24: house numbers zeroed on SegmentTyp F'
             WHEN
                 f.key IN (
                     'llo_hyphen', 'lhi_hyphen', 'rlo_hyphen', 'rhi_hyphen',
@@ -198,13 +209,13 @@ cause_summary AS (
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) IN (
                 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-14',
-                'CSCL-LION-16', 'CSCL-SAF-03', 'CSCL-SAF-06'
+                'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) NOT IN (
                 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05', 'CSCL-LION-14',
-                'CSCL-LION-16', 'CSCL-SAF-03', 'CSCL-SAF-06'
+                'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS open_causes
     FROM field_causes
@@ -248,6 +259,6 @@ SELECT
     comparison_column,
     build_table_name,
     production_table_name,
-    -- every changed field has a known cause (CSCL-LION-02/03/04/05/14/16, CSCL-SAF-03/06)
+    -- every changed field has a known cause (CSCL-LION-02/03/04/05/14/16/24, CSCL-SAF-03/06)
     coalesce(status = 'modified' AND open_causes IS NULL, FALSE) AS accounted_for
 FROM categorized

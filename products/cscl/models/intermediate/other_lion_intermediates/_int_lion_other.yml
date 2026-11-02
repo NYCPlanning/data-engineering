@@ -86,6 +86,32 @@ models:
   - name: curve_flag
     description: "The curve flag LION and the LION gdb get: curve_flag_fixed when the var fix_single_arc_curve_flag is true, else curve_flag_prod (the default)."
 
+- name: int__lion_house_number_zeroing
+  description: >-
+    One row per LION gdb segment (int__lion, include_in_bytes_lion): whether the LION gdb
+    zeroes its house numbers (all eight fields, on its own records and its SAF replicants).
+    Zeroed when SegmentTyp is G, or FeatureTyp isn't 0, 6 or W. The legacy tool's rule
+    zeroes SegmentTyp F too, but prod's LION gdb doesn't on 26c (CSCL-LION-24), so F is
+    zeroed only with the var zero_f_segment_house_numbers on.
+  columns:
+  - name: globalid
+    description: "GlobalID of the segment (of the proto-segment for a proto)."
+    tests:
+    - unique
+    - not_null
+  - name: segment_type
+    description: "The segment's SEGMENT_TYPE (int__lion.segment_type)."
+  - name: feature_type_code
+    description: "The LION gdb FeatureTyp: the feature type code, 0 when blank."
+  - name: has_house_numbers
+    description: "True if any of the segment's own four house numbers is nonblank and not 0."
+  - name: zero_house_numbers_g_only
+    description: "SegmentTyp G or FeatureTyp not 0, 6 or W: matches prod's LION gdb, and the spec, which zeroes generic segments and doesn't name F (ETL spec 2.7.3)."
+  - name: zero_house_numbers_g_and_f
+    description: "SegmentTyp G or F, or FeatureTyp not 0, 6 or W: the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353)."
+  - name: zero_house_numbers
+    description: "What gdb_lion uses: zero_house_numbers_g_and_f when the var zero_f_segment_house_numbers is true, else zero_house_numbers_g_only (the default)."
+
 - name: int__split_election_district
   description: "One row per segment and LION key that appears in the split election district (SEDAT) table, flagged L, R or B by the sides it covers."
   columns:
@@ -166,3 +192,48 @@ unit_tests:
     - {globalid: S3, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: null, curve_flag: null}
     - {globalid: P1, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: I, curve_flag: I}
     - {globalid: R1, source_point_count: 3, curve_flag_prod: I, curve_flag_fixed: I, curve_flag: I}
+# CSCL-LION-24. G1 is generic, F1 type F, U1 an ordinary segment, S1 a shoreline (FeatureTyp
+# 2) and W1 an addressable path, all with house numbers; F2 is type F without any. X1 isn't
+# in the LION gdb. sql fixtures: CI runs unit tests without building the upstream models
+- name: test__int__lion_house_number_zeroing__g_only
+  description: "Default (zero_f_segment_house_numbers false): an F segment keeps its house numbers, as prod's LION gdb."
+  model: int__lion_house_number_zeroing
+  overrides:
+    vars:
+      zero_f_segment_house_numbers: false
+  given: &hn_zeroing_given
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('G1', 'G', NULL, '1', '99', '2', '98', TRUE),
+        ('F1', 'F', NULL, '93-001', '93-099', '93-000', '93-098', TRUE),
+        ('F2', 'F', NULL, '0', '0', '0', '0', TRUE),
+        ('U1', 'U', NULL, '1', '99', '2', '98', TRUE),
+        ('S1', 'U', '2', '1', '99', '2', '98', TRUE),
+        ('W1', 'U', 'W', '1', '99', '2', '98', TRUE),
+        ('X1', 'F', NULL, '1', '99', '2', '98', FALSE)
+      ) AS t (globalid, segment_type, feature_type_code, l_low_hn, l_high_hn, r_low_hn, r_high_hn, include_in_bytes_lion)
+  expect:
+    rows:
+    - {globalid: G1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: true, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
+    - {globalid: F1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: true, zero_house_numbers: false}
+    - {globalid: F2, feature_type_code: '0', has_house_numbers: false, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: true, zero_house_numbers: false}
+    - {globalid: U1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: false, zero_house_numbers: false}
+    - {globalid: S1, feature_type_code: '2', has_house_numbers: true, zero_house_numbers_g_only: true, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
+    - {globalid: W1, feature_type_code: 'W', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: false, zero_house_numbers: false}
+- name: test__int__lion_house_number_zeroing__g_and_f
+  description: "zero_f_segment_house_numbers true: an F segment is zeroed too, as the legacy tool's rule."
+  model: int__lion_house_number_zeroing
+  overrides:
+    vars:
+      zero_f_segment_house_numbers: true
+  given: *hn_zeroing_given
+  expect:
+    rows:
+    - {globalid: G1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: true, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
+    - {globalid: F1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
+    - {globalid: F2, feature_type_code: '0', has_house_numbers: false, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
+    - {globalid: U1, feature_type_code: '0', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: false, zero_house_numbers: false}
+    - {globalid: S1, feature_type_code: '2', has_house_numbers: true, zero_house_numbers_g_only: true, zero_house_numbers_g_and_f: true, zero_house_numbers: true}
+    - {globalid: W1, feature_type_code: 'W', has_house_numbers: true, zero_house_numbers_g_only: false, zero_house_numbers_g_and_f: false, zero_house_numbers: false}

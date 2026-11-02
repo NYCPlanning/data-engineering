@@ -44,6 +44,7 @@ WITH log_rows AS (
         ref("log__name_table_warnings"),
         ref("log__boe_lgc_pointer"),
         ref("log__lion_lr_topology"),
+        ref("log__f_segment_house_numbers"),
     ], column_override={"record_id": "varchar"}) }}
 )
 
