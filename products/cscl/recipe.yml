@@ -18,9 +18,12 @@ inputs:
     source: edm.recipes.raw_datasets
     load_engine: gdal
   missing_versions_strategy: find_latest # TODO - they should all match
+  # dcp_cscl_gdb is pinned to the 26c ETL Working GDB on every entry below: `latest` is a
+  # 26D test archive. Move the pin when the real 26D GDB is archived.
   datasets:
   # segment source layers - backbone
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_centerline
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -28,6 +31,7 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: Centerline
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_shoreline
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -35,6 +39,7 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: Shoreline
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_rail
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -42,6 +47,7 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: Rail
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_subway
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -49,6 +55,7 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: Subway
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_nonstreetfeatures
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -58,6 +65,7 @@ inputs:
 
   # other more "primary" layers
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_atomicpolygons
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -65,6 +73,7 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: AtomicPolygon
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_nodes
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -73,11 +82,13 @@ inputs:
   # derive gdb_node's VIntersect (see the legacy Create_Node_Shape script). No 26c archive
   # yet (last archived 26a) - missing_versions_strategy: find_latest picks that up instead.
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_streetshaveintersections
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: STREETSHAVEINTERSECTIONS
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_virtualintersection
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -85,51 +96,61 @@ inputs:
 
   # all other tables
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_addresspoints
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: AddressPoint
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_addresspoint_lgcs
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ADDRESSPOINTLGCS
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_altsegmentdata
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ALTSEGMENTDATA
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_centerlinehistory
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CENTERLINEHISTORY
   - name: dcp_cscl_gdb # TODO - we archive commonplace from AGOL as well, at some point this duplication should be resolved
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_commonplace_gdb
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CommonPlace
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_featurename
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: FEATURENAME
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_lastword
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: LASTWORD
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_namedintersection
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NAMEDINTERSECTION
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_nypdbeat
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDBeat
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_nypdprecinct
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -137,91 +158,109 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDPrecinct
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_nypdpatrolborough
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NYPDPatrolBorough
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_censustract2010
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CensusTract2010
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_censustract2020
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CensusTract2020
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_cdta2020
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CDTA2020
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_cdtaequiv2020
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CDTAEquiv2020
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_nta2020
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NTA2020
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_ntaequiv2020
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: NTAEquiv2020
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_healtharea
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: HealthArea
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_firecompany
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: FireCompany
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_roadbed_pointer_list
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: RoadbedPointerList
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_sectionalmap
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: SectionalMap
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_quartersectionalmap
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: QuarterSectionalMap
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_sedat
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: SEDAT
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_segment_lgc
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: SEGMENT_LGC
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_specialsedat
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: SPECIALSEDAT
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_streetname
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: STREETNAME
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_universalword
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: UNIVERSALWORD
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_zipcode
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -229,11 +268,13 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: ZipCode
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_electiondistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: ElectionDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_neighborhoodpumacodes
     custom:
       filename: ETL Working GDB.gdb.zip
@@ -241,16 +282,19 @@ inputs:
 
   # district boundary gdb source layers (ETL spec ch. 10, table 39)
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_assemblydistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: AssemblyDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_borough
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Borough
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_businessimprovementdistrict
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -258,51 +302,61 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: BusinessImprovementDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_censusblock2010
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CensusBlock2010
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_censusblock2020
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CensusBlock2020
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_censustract2000
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CensusTract2000
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_citycouncildistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CityCouncilDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_communitydistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CommunityDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_congressionaldistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: CongressionalDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_firebattalion
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: FireBattalion
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_firedivision
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: FireDivision
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_healthcenterdistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: HealthCenterDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_historicdistrict
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
@@ -310,31 +364,37 @@ inputs:
       filename: ETL Working GDB.gdb.zip
       layer_name: HistoricDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_hurricaneevacuationzone
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: HurricaneEvacuationZone
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_municourtdistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: MunicipalCourtDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_neighborhood
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: Neighborhood
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_schooldistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: SchoolDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_statesenatedistrict
     custom:
       filename: ETL Working GDB.gdb.zip
       layer_name: StateSenateDistrict
   - name: dcp_cscl_gdb
+    version: "2026-09-17T14:26:25.600024-04:00"
     import_as: dcp_cscl_urbanrenewalarea
     # curved geometry: linear table + <table>_arcs via dcpy.geospatial.curves
     load_engine: curves
