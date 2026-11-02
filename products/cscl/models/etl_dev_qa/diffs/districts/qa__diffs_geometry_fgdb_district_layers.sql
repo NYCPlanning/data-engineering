@@ -22,6 +22,9 @@
 --     ft are removed, as ours drops them (passes_without_prod_small_parts).
 --   CSCL-DISTRICTS-08: nypp precinct 113, which prod clipped to a different Jamaica Bay
 --     shoreline than its own nybb.
+--   CSCL-DISTRICTS-10: water tract 990100, which prod keys 4990100 in Brooklyn and
+--     Staten Island too (the source tract layer's BOROCT), so its pieces show as
+--     ours-only (3990100, 5990100) and prod-only or dissolved into prod's 4990100.
 WITH labeled AS (
     SELECT
         *,
@@ -42,6 +45,16 @@ WITH labeled AS (
                 THEN 'CSCL-DISTRICTS-07: ours drops parts under 100 sq ft'
             WHEN source_layer = 'nypp' AND key_value = '113'
                 THEN 'CSCL-DISTRICTS-08: prod nypp 113 shoreline'
+            WHEN
+                (source_layer = 'nyct2010' AND (
+                    (key_value = '4990100' AND only_in_prod)
+                    OR (key_value = '5990100' AND only_in_build)
+                ))
+                OR (source_layer = 'nyct2010wi' AND (
+                    (key_value IN ('3990100', '5990100') AND only_in_build)
+                    OR (key_value = '4990100' AND NOT only_in_build AND NOT only_in_prod)
+                ))
+                THEN 'CSCL-DISTRICTS-10: prod tract 990100 keyed 4990100'
         END AS known_difference
     FROM {{ ref('qa__geometry_fgdb_district_layers') }}
     WHERE NOT passes
