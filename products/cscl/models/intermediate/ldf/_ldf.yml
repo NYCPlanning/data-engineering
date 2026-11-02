@@ -61,6 +61,19 @@ models:
   - name: new_lion_release_date
     tests: [ not_null ]
 
+- name: int__ldf_segment_candidates
+  description: >
+    Segment change records for the LION Differences File - 'S' (base centerline), 'P'
+    (physical) and 'G' (generic) - taken from CSCL's edit journal for the release being
+    cut, with transitory records removed by a port of prod's rule
+    (CSCL_Editor.LDFExtractHelper). Prod's last check, which drops records whose ID is
+    deleted in the journal, is applied in int__ldf_segments.
+  columns:
+  - name: journal_old_id
+    description: >
+      The old ID as journalled. old_id is what the LDF writes, which differs where a
+      chain of splits and merges was collapsed; prod's deleted-ID check reads this one.
+
 - name: int__ldf_segments
   tests:
   # 'P'/'G' mean "ID changed, topology didn't" and are only meaningful on their own
@@ -70,10 +83,11 @@ models:
         expression: "action_code NOT IN ('P', 'G') OR action_code = record_type"
   description: >
     Segment change records for the LION Differences File - 'S' (base centerline), 'P'
-    (physical) and 'G' (generic) - taken from CSCL's edit journal for the release being
-    cut, with transitory records removed by a port of prod's rule
-    (CSCL_Editor.LDFExtractHelper). Matches prod except for G and P records whose ID is
-    deleted on another segment - see CSCL-LDF-01.
+    (physical) and 'G' (generic): every record of int__ldf_segment_candidates, with prod's
+    deleted-ID check (IsSegmentdeleted) and whether the LDF writes it. Prod drops a
+    record, other than a delete, whose ID is deleted anywhere in the journal; with the var
+    fix_ldf_journal_delete_scope on, a G or P record is dropped only when its ID is
+    deleted on the same node pair (CSCL-LDF-01).
   columns:
   - name: record_type
     tests:
@@ -100,6 +114,155 @@ models:
     description: "From node of the segment after the change. Blank on deletes."
   - name: new_to_nodeid
     description: "To node of the segment after the change. Blank on deletes."
+  - name: journal_old_id
+    description: "The old ID as journalled (see int__ldf_segment_candidates)."
+  - name: id_deleted_in_journal
+    description: >
+      Prod's rule: not a delete, and the new ID or journal_old_id is deleted somewhere in
+      this release's journal, by a delete of this record type or of a type written before
+      it (S, then G, then P).
+    tests: [ not_null ]
+  - name: id_deleted_on_node_pair
+    description: >
+      The fix's rule: as id_deleted_in_journal for S; for G and P, the ID is the old ID of
+      a delete of the same record type on the same node pair (either way round).
+    tests: [ not_null ]
+  - name: is_published
+    description: >
+      Whether the LDF writes the record: NOT id_deleted_on_node_pair when the var
+      fix_ldf_journal_delete_scope is true, else NOT id_deleted_in_journal (the default,
+      prod).
+    tests: [ not_null ]
 
 - name: int__ldf_records
-  description: "Every LION Differences File data record (nodes, then S, G and P segment records) in publication order, with its cumulative record number. Differs from prod on transitory eliminations (CSCL-LDF-01). L and R journal records are dropped; no published edition has them."
+  description: "Every LION Differences File data record (nodes, then S, G and P segment records) in publication order, with its cumulative record number. Only the segment records int__ldf_segments publishes are numbered. L and R journal records are dropped; no published edition has them."
+
+unit_tests:
+# CSCL-LDF-01. The journal deletes S 100, G 500 on nodes 10-11, and P 700 on nodes 20-21
+# with new ID 701; G 900 was deleted in an earlier release. Candidates:
+# - S1 adds S 100 (deleted): dropped either way. S2 is unrelated. SD is the delete itself.
+# - G1 merges G 500 on nodes 11-10, the delete's pair the other way round: dropped either way.
+# - G2 reassigns G 500 elsewhere (nodes 30-31). Its written old ID is 555 (a collapsed
+#   chain), its journalled one 500: prod drops it, the fix keeps it.
+# - G3 writes old ID 500 but journalled 556, so neither rule sees a delete.
+# - G4 adds G 500 as its new ID elsewhere: prod drops it, the fix keeps it.
+# - G5 carries ID 100, an S ID prod's single set also holds: prod drops it, the fix keeps it.
+# - G6 carries ID 700, a P delete: P is written after G, so prod keeps it too.
+# - G7 is G 900, deleted only in an earlier release; G8 is unrelated.
+# - P1 has old ID 701, the P delete's new ID: prod drops it; the fix counts old IDs only.
+# - P2 splits P 700 on its delete's node pair: dropped either way.
+# sql fixtures: CI runs unit tests without building the upstream models
+- name: test__int__ldf_segments__prod_rule
+  description: "Default (fix_ldf_journal_delete_scope false): a G or P record whose ID is deleted anywhere in the journal is dropped, as prod."
+  model: int__ldf_segments
+  overrides:
+    vars:
+      fix_ldf_journal_delete_scope: false
+  given: &ldf_segments_given
+  - input: ref('int__ldf_segment_candidates')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('S', 'A', NULL, NULL, NULL, 100, 1, 2, NULL),
+        ('S', 'C', 101, 3, 4, 101, 3, 5, 101),
+        ('S', 'D', 100, 1, 2, NULL, NULL, NULL, 100),
+        ('G', 'M', 500, 11, 10, 510, 11, 12, 500),
+        ('G', 'G', 555, 30, 31, 501, 30, 31, 500),
+        ('G', 'G', 500, 32, 33, 502, 32, 33, 556),
+        ('G', 'A', NULL, NULL, NULL, 500, 40, 41, NULL),
+        ('G', 'G', 100, 1, 2, 503, 1, 2, 100),
+        ('G', 'G', 700, 20, 21, 504, 20, 21, 700),
+        ('G', 'G', 900, 50, 51, 505, 50, 51, 900),
+        ('G', 'G', 600, 60, 61, 601, 60, 61, 600),
+        ('P', 'P', 701, 20, 21, 702, 20, 21, 701),
+        ('P', 'S', 700, 20, 21, 703, 20, 22, 700)
+      ) AS t (record_type, action_code, old_id, old_from_nodeid, old_to_nodeid, new_id,
+        new_from_nodeid, new_to_nodeid, journal_old_id)
+  - input: ref('stg__centerlinehistory')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (NULL, 'S', 'D', 100, NULL, 1, 2),
+        (NULL, 'G', 'D', 500, NULL, 10, 11),
+        (NULL, 'P', 'D', 700, 701, 20, 21),
+        ('26B', 'G', 'D', 900, NULL, 50, 51),
+        (NULL, 'G', 'G', 600, 601, 60, 61)
+      ) AS t (release_num, record_type, action_code, old_segment_id, new_segment_id,
+        old_from_nodeid, old_to_nodeid)
+  expect:
+    rows:
+    - {record_type: S, action_code: A, new_id: 100, id_deleted_in_journal: true, id_deleted_on_node_pair: true, is_published: false}
+    - {record_type: S, action_code: C, new_id: 101, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: S, action_code: D, new_id: null, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: M, new_id: 510, id_deleted_in_journal: true, id_deleted_on_node_pair: true, is_published: false}
+    - {record_type: G, action_code: G, new_id: 501, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: false}
+    - {record_type: G, action_code: G, new_id: 502, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: A, new_id: 500, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: false}
+    - {record_type: G, action_code: G, new_id: 503, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: false}
+    - {record_type: G, action_code: G, new_id: 504, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 505, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 601, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: P, action_code: P, new_id: 702, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: false}
+    - {record_type: P, action_code: S, new_id: 703, id_deleted_in_journal: true, id_deleted_on_node_pair: true, is_published: false}
+- name: test__int__ldf_segments__fixed
+  description: "fix_ldf_journal_delete_scope true: a G or P record is dropped only when its ID is deleted on its node pair."
+  model: int__ldf_segments
+  overrides:
+    vars:
+      fix_ldf_journal_delete_scope: true
+  given: *ldf_segments_given
+  expect:
+    rows:
+    - {record_type: S, action_code: A, new_id: 100, id_deleted_in_journal: true, id_deleted_on_node_pair: true, is_published: false}
+    - {record_type: S, action_code: C, new_id: 101, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: S, action_code: D, new_id: null, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: M, new_id: 510, id_deleted_in_journal: true, id_deleted_on_node_pair: true, is_published: false}
+    - {record_type: G, action_code: G, new_id: 501, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 502, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: A, new_id: 500, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 503, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 504, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 505, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: G, action_code: G, new_id: 601, id_deleted_in_journal: false, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: P, action_code: P, new_id: 702, id_deleted_in_journal: true, id_deleted_on_node_pair: false, is_published: true}
+    - {record_type: P, action_code: S, new_id: 703, id_deleted_in_journal: true, id_deleted_on_node_pair: true, is_published: false}
+# Record numbers continue from the header's, in block order N, S, G, P, then action code and
+# (new ID, old ID), blanks first. A record int__ldf_segments doesn't publish (G 500, the
+# CSCL-LDF-01 case with the fix off) takes no number, so the records after it close up.
+- name: test__int__ldf_records__numbering
+  description: "Published records are numbered consecutively from the header's cumulative record number; unpublished ones are skipped."
+  model: int__ldf_records
+  given:
+  - input: ref('int__ldf_nodes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('N', 'D', 200, 300, 9000002, NULL, NULL),
+        ('N', 'A', 100, 300, 9000001, NULL, NULL)
+      ) AS t (record_type, action_code, x_coord, y_coord, nodeid, destination_x_coord,
+        destination_y_coord)
+  - input: ref('int__ldf_segments')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('P', 'P', 700, 1, 2, 701, 1, 2, TRUE),
+        ('G', 'G', 600, 1, 2, 601, 1, 2, TRUE),
+        ('G', 'G', 500, 1, 2, 501, 1, 2, FALSE),
+        ('G', 'A', NULL, NULL, NULL, 400, 1, 2, TRUE),
+        ('S', 'C', 101, 3, 4, 101, 3, 5, TRUE),
+        ('S', 'A', NULL, NULL, NULL, 100, 1, 2, TRUE)
+      ) AS t (record_type, action_code, old_id, old_from_nodeid, old_to_nodeid, new_id,
+        new_from_nodeid, new_to_nodeid, is_published)
+  - input: ref('int__ldf_header')
+    format: sql
+    rows: |
+      SELECT 1000::bigint AS cumulative_record_number
+  expect:
+    rows:
+    - {record_type: N, action_code: A, nodeid: 9000001, new_id: null, cumulative_record_number: 1001}
+    - {record_type: N, action_code: D, nodeid: 9000002, new_id: null, cumulative_record_number: 1002}
+    - {record_type: S, action_code: A, nodeid: null, new_id: 100, cumulative_record_number: 1003}
+    - {record_type: S, action_code: C, nodeid: null, new_id: 101, cumulative_record_number: 1004}
+    - {record_type: G, action_code: A, nodeid: null, new_id: 400, cumulative_record_number: 1005}
+    - {record_type: G, action_code: G, nodeid: null, new_id: 601, cumulative_record_number: 1006}
+    - {record_type: P, action_code: P, nodeid: null, new_id: 701, cumulative_record_number: 1007}

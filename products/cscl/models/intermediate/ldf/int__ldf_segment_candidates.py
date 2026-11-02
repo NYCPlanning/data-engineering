@@ -14,10 +14,11 @@ in the prod ETL archive). It is sequential: rows are visited in journal order an
 as they go, and later decisions read earlier flags, so it is written as Python rather
 than SQL. Method names below follow prod's so the two can be read side by side.
 
-One deliberate deviation (CSCL-LDF-01): prod drops any G or P record whose generic or
-physical ID is deleted anywhere in the journal, even on a different segment. A generic or
-physical ID spans many segments, so that drops reassignments LION shows took effect. Here
-a G or P record is dropped only when its ID is deleted on the same node pair.
+Prod's writer then drops every record, other than a delete, whose old or new ID is
+deleted in the journal (IsSegmentdeleted). That check isn't sequential, and it is where
+we keep a fix behind a flag (CSCL-LDF-01), so it is applied in SQL, in int__ldf_segments:
+this model emits every record that survives step 2, with the journal's own old ID
+(journal_old_id) that the check reads.
 """
 
 import pandas as pd
@@ -31,6 +32,7 @@ COLUMNS = [
     "new_id",
     "new_from_nodeid",
     "new_to_nodeid",
+    "journal_old_id",
 ]
 
 
@@ -53,10 +55,6 @@ class TransitoryFilter:
 
     def __init__(self, journal):
         self.journal = journal
-        # IDs deleted anywhere in the journal. Prod keeps one set for the whole run, so
-        # it accumulates S, then G, then P deletes.
-        self.deleted_ids = set()
-        self.deleted_on_pair = set()
         self.rows = []
         self.removed = set()
         self.record_type = None
@@ -81,14 +79,6 @@ class TransitoryFilter:
                 "ntn": r["new_to_nodeid"],
             }
             self.rows.append(row)
-            old = _text(row["old"])
-            if row["action"].upper() == "D" and old not in ("", "0"):
-                self.deleted_ids.add(old)
-                self.deleted_on_pair.add(
-                    (record_type, old, frozenset((row["ofn"], row["otn"])))
-                )
-                if _text(row["new"]) != "0":
-                    self.deleted_ids.add(_text(row["new"]))
 
     def _select(self, predicate, by_ldf_num=False):
         found = [r for r in self.rows if predicate(r)]
@@ -404,25 +394,6 @@ class TransitoryFilter:
                 self._set_transitory(row, related)
 
     # -- WriteToLDFExtractFile / WriteToExtractFileFromCursor ---------------------------
-    def _is_deleted(self, row):
-        """IsSegmentdeleted, except that G and P deletes only count on the same node pair."""
-        if row["action"].strip().upper() == "D":
-            return False
-        new, old = _text(row["new"]).strip(), _text(row["old"]).strip()
-        if self.record_type == "S":
-            return (new not in ("", "0") and new in self.deleted_ids) or (
-                old not in ("", "0") and old in self.deleted_ids
-            )
-        return (
-            new not in ("", "0")
-            and (self.record_type, new, frozenset((row["nfn"], row["ntn"])))
-            in self.deleted_on_pair
-        ) or (
-            old not in ("", "0")
-            and (self.record_type, old, frozenset((row["ofn"], row["otn"])))
-            in self.deleted_on_pair
-        )
-
     def published(self, swap_collapsed_ids):
         out = []
         for row in self.rows:
@@ -433,7 +404,8 @@ class TransitoryFilter:
                 old, new_old = _text(row["old"]), _text(row["new_old"])
                 if old and new_old and old != new_old:
                     row["new"], row["new_old"] = row["new_old"], int(old)
-            if self._is_deleted(row) or row["ldf_num"] in self.removed:
+            # IsSegmentdeleted, prod's last check, is applied in int__ldf_segments
+            if row["ldf_num"] in self.removed:
                 continue
             out.append(
                 {
@@ -446,6 +418,9 @@ class TransitoryFilter:
                     "new_id": row["new"] or None,
                     "new_from_nodeid": row["nfn"] or None,
                     "new_to_nodeid": row["ntn"] or None,
+                    # the old ID as journalled, before any chain collapse or swap:
+                    # what IsSegmentdeleted checks
+                    "journal_old_id": row["old"] or None,
                 }
             )
         return out
@@ -467,7 +442,7 @@ def model(dbt, session):
     names = journal.columns
     rows = [dict(zip(names, values)) for values in journal.fetchall()]
 
-    # Prod processes S, then G, then P; the set of deleted IDs carries across them
+    # Prod processes S, then G, then P
     f = TransitoryFilter(rows)
     f.load("S")
     f.process_segments()

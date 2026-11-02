@@ -90,15 +90,16 @@ models:
   - name: matched
     description: Records present the same number of times on both sides.
   - name: dev_only
-    description: Surplus copies in dev. Expected only for the G and P records in CSCL-LDF-01.
+    description: Surplus copies in dev. None by default; with fix_ldf_journal_delete_scope on, the G and P records in CSCL-LDF-01.
   - name: prod_only
     description: Records prod publishes that we dropped or never generated.
 
 - name: qa__ldf_diffs
   description: >
     The individual LDF records dev and prod disagree on, with node and segment
-    identifiers extracted from the fixed-width record. The only expected rows are the G
-    and P records in CSCL-LDF-01; anything else is a new difference.
+    identifiers extracted from the fixed-width record. None are expected by default;
+    with fix_ldf_journal_delete_scope on, the G and P records in CSCL-LDF-01. Anything
+    else is a new difference.
   columns:
   - name: missing_from
     description: Which side lacks the record - dev_only or prod_only.
@@ -112,8 +113,9 @@ models:
     description: The raw record, positions 1-90.
   - name: known_difference
     description: >
-      The CSCL-LDF-01 label when the row is a dev-only G or P record whose ID prod's
-      IsSegmentdeleted would find deleted elsewhere in the journal, else null.
+      The CSCL-LDF-01 label when fix_ldf_journal_delete_scope is on and the row is a
+      dev-only G or P record whose ID prod's IsSegmentdeleted would find deleted elsewhere
+      in the journal, else null.
   - name: accounted_for
     description: True when known_difference is set.
 

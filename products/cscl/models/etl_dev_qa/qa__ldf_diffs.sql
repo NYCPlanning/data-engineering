@@ -2,15 +2,17 @@
 The individual LDF records that dev and prod disagree on, with their identifiers pulled
 out so they can be chased without decoding fixed-width text by hand.
 
-See qa__ldf_summary for why comparison is on positions 1-90 only. The transitory rule is a
-port of prod's, so the only expected rows are the G and P records in CSCL-LDF-01; anything
-else is a new difference.
+See qa__ldf_summary for why comparison is on positions 1-90 only. The transitory rule and
+the deleted-ID check are ports of prod's, so by default there should be no rows; anything
+is a new difference.
 
-CSCL-LDF-01 is matched by rule: a dev-only G or P record, other than a delete, whose old
+With fix_ldf_journal_delete_scope on, the build writes G and P records prod drops
+(CSCL-LDF-01), matched by rule: a dev-only G or P record, other than a delete, whose old
 or new ID is deleted anywhere in the journal, which is prod's IsSegmentdeleted. On 26c that
-rule hits exactly the 12 dev-only records and no record both sides publish. Prod keeps one set of deleted IDs
-for the whole run and processes S, then G, then P, so a G record sees S and G deletes and a
-P record sees all three.
+rule hits exactly the 12 dev-only records and no record both sides publish. Prod keeps one
+set of deleted IDs for the whole run and processes S, then G, then P, so a G record sees S
+and G deletes and a P record sees all three. With the fix off, such a record is unaccounted:
+the build should have dropped it, as prod.
 */
 
 WITH bodies AS (
@@ -81,7 +83,8 @@ labeled AS (
         diffs.*,
         CASE
             WHEN
-                diffs.missing_from = 'dev_only'
+                {{ 'TRUE' if var('fix_ldf_journal_delete_scope') else 'FALSE' }}
+                AND diffs.missing_from = 'dev_only'
                 AND diffs.record_type IN ('G', 'P')
                 AND diffs.action_code <> 'D'
                 AND EXISTS (

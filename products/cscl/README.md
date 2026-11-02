@@ -228,15 +228,17 @@ time, which is after the GDB snapshot we ingest is taken. Select on NULL — nev
 
 ### Transitory record elimination
 
-`int__ldf_segments` drops journal records that were undone or superseded before the
-release. It is a port of prod's rule, `CSCL_Editor.LDFExtractHelper` in `CSCLEditor.dll`
+`int__ldf_segment_candidates` drops journal records that were undone or superseded before
+the release. It is a port of prod's rule, `CSCL_Editor.LDFExtractHelper` in `CSCLEditor.dll`
 (shipped in the prod ETL archive in edm-private), written as a dbt Python model because the
 rule is sequential: rows are flagged in journal order and later decisions read earlier
-flags. Method names in the model follow prod's.
+flags. Method names in the model follow prod's. `int__ldf_segments` then applies prod's last
+check, `IsSegmentdeleted`: a record whose ID is deleted anywhere in the journal is dropped.
 
-It deviates from prod in one place, **CSCL-LDF-01 in [seeds/known_differences.csv](./seeds/known_differences.csv)**:
-prod drops a G or P record when its generic or physical ID is deleted anywhere in the
-journal, even on another segment, which loses reassignments LION shows took effect. Ours
+For G and P records that check is a prod bug, **CSCL-LDF-01 in [seeds/known_differences.csv](./seeds/known_differences.csv)**:
+a generic or physical ID spans many segments, so a delete on another segment drops
+reassignments LION shows took effect. The build reproduces prod by default; the fix, behind
+`fix_ldf_journal_delete_scope` (see [Legacy bug fixes behind flags](#legacy-bug-fixes-behind-flags)),
 only counts a delete on the same node pair. Everything else should match prod record for
 record; a new difference is a porting bug, so compare against the decompiled source before
 changing the logic.
@@ -283,7 +285,7 @@ GR archives their own `LDF.dat` and `LDF.header` in `edm-private/cscl_etl/<versi
 this output has direct ground truth — unlike most others, no separate prod pull is needed.
 
 The prior release's citywide LION and LDF header - what `int__ldf_nodes.sql`/
-`int__ldf_segments.sql` diff against, and where `int__ldf_header.sql` gets the cumulative
+`int__ldf_segment_candidates.py` diff against, and where `int__ldf_header.sql` gets the cumulative
 record number this edition continues from - both come in as normal recipe sources now
 (`recipe.yml`'s `dcp_cscl_temp_mock_previous_release`, imported as `previous_citywide_lion`
 and `previous_ldf_header`), not ad-hoc loads. Both are pinned, hand-parsed CSVs (see that
@@ -365,6 +367,7 @@ whether it is on or not, so it isn't lost.
 | `fix_lion_lr_from_topology` | `false` | CSCL-LION-16: prod takes a segment's left/right AtomicPolygon from a probe 2 ft either side of its midpoint, which overshoots into the AtomicPolygon behind where the adjacent one is shallow; on, they come from the AtomicPolygon topology edges the segment runs along (LION .dat and gdb: AtomicPolygon, census, districts, zip, locational status, ...) | CSCL-LOG-OURS-08: a count of LION records and segments in `log.csv` (saying whether it is on), records in `log_lion_lr_topology.csv` |
 | `fix_single_arc_curve_flag` | `false` | CSCL-LION-03: prod leaves the curve flag blank on a non-centerline segment that is one circular arc end to end (LION L49, LION gdb `CurveFlag`) | CSCL-LOG-OURS-07: a count in `log.csv` (saying whether the fix is on) |
 | `fix_nonstreet_proto_zip` | `false` | CSCL-LION-02: prod leaves both zips blank on a proto-segment of a shoreline or non-street feature off the borough boundary (LION L24/L33, LION gdb `LZip`/`RZip`) | CSCL-LOG-OURS-09: a count in `log.csv` (saying whether the fix is on) |
+| `fix_ldf_journal_delete_scope` | `false` | CSCL-LDF-01: prod drops an LDF record whose generic or physical ID is deleted anywhere in the journal, on any segment, which drops G and P reassignments LION shows took effect; on, only a delete on the same node pair counts (LDF.dat G/P records, and the LDF.header record count) | CSCL-LOG-OURS-11: a count in `log.csv` (saying whether the fix is on) |
 | `zero_f_segment_house_numbers` | `false` | CSCL-LION-24, not a prod bug: the legacy tool's rule zeroes the house numbers of SegmentTyp F segments as well as G, but prod's LION gdb keeps them and the spec only names G (LION gdb `LLo_Hyphen` to `RHi_Hyphen`, `FromLeft` to `ToRight`). Off, the default, matches prod; on applies the legacy rule | CSCL-LOG-OURS-10: a count in `log.csv` (saying whether it is on) |
 
 Turn one on for a build with `--vars`, e.g. `dbt run --selector duckdb_build --vars
