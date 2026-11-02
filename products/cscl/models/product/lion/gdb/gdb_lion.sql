@@ -74,7 +74,9 @@ base_rows AS (
         -- used pre-replication) would double-count the same SAF association.
         NULL::text AS "SpecAddr",
         face_code AS "FaceCode",
-        segment_seqnum AS "SeqNum",
+        -- prod writes SeqNum 5 wide, zero-filled, and 00000 when the source has none
+        -- (ESRIBytesConfiguration.xml L3); a few source seqnums are shorter, rail has none
+        lpad(coalesce(segment_seqnum, ''), 5, '0') AS "SeqNum",
         boroughcode::text || five_digit_street_code AS "StreetCode",
         NULL::text AS "SAFStreetCode",
         lgc1 AS "LGC1",
@@ -196,7 +198,8 @@ base_rows AS (
         lpad(coalesce(legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
         status AS "Status",
         streetwidth_min_with_zeros::float AS "StreetWidth_Min",
-        streetwidth_max::float AS "StreetWidth_Max",
+        -- a source 0 is kept here, as prod's gdb does; the LION file blanks it
+        streetwidth_max_with_zeros::float AS "StreetWidth_Max",
         streetwidth_irr AS "StreetWidth_Irr",
         lpad(coalesce(bike_lane_2, ''), 2, ' ') AS "BikeLane",
         bike_traffic_direction AS "BIKE_TRAFDIR",
@@ -271,7 +274,7 @@ replicant_rows AS (
         -- segment's (ETL spec §2.7.3).
         saf_replicants.specaddr AS "SpecAddr",
         lion.face_code AS "FaceCode",
-        lion.segment_seqnum AS "SeqNum",
+        lpad(coalesce(lion.segment_seqnum, ''), 5, '0') AS "SeqNum",
         lion.boroughcode::text || lion.five_digit_street_code AS "StreetCode",
         saf_replicants.saf_street_code AS "SAFStreetCode",
         lion.lgc1 AS "LGC1",
@@ -385,7 +388,7 @@ replicant_rows AS (
         lpad(coalesce(lion.legacy_segmentid, 0)::text, 7, '0') AS "LegacyID",
         lion.status AS "Status",
         lion.streetwidth_min_with_zeros::float AS "StreetWidth_Min",
-        lion.streetwidth_max::float AS "StreetWidth_Max",
+        lion.streetwidth_max_with_zeros::float AS "StreetWidth_Max",
         lion.streetwidth_irr AS "StreetWidth_Irr",
         lpad(coalesce(lion.bike_lane_2, ''), 2, ' ') AS "BikeLane",
         lion.bike_traffic_direction AS "BIKE_TRAFDIR",

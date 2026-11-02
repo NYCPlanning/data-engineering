@@ -46,6 +46,10 @@ models:
     description: Minimum street width, rounded half to even; NULL when 0.
   - name: streetwidth_min_with_zeros
     description: Minimum street width, rounded half to even, keeping a source 0.
+  - name: streetwidth_max
+    description: Maximum street width; NULL when 0.
+  - name: streetwidth_max_with_zeros
+    description: Maximum street width, keeping a source 0.
   - name: bike_traffic_direction
     description: Renamed bike_trafdir.
   - name: geom

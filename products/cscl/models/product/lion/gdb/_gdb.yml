@@ -184,3 +184,107 @@ models:
         description: Links the name to the lion layer's features with the same Join_ID.
         data_tests:
           - not_null
+
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types. Columns gdb_lion doesn't test are NULL.
+# Segment 1 is a centerline whose source seqnum isn't 5 wide and whose STREETWIDTH_MAX is 0,
+# with one SAF record; 2 is a rail segment with no seqnum or width; 3 is an ordinary centerline.
+unit_tests:
+  - name: test__gdb_lion__seqnum_zero_filled
+    description: "SeqNum is 5 wide, zero-filled, and 00000 when the source has none (as prod), on base and SAF rows."
+    model: gdb_lion
+    given: &gdb_lion_given
+      - input: ref('int__lion')
+        format: sql
+        rows: |
+          SELECT
+            t.*,
+            '1' || '0100' || coalesce(t.segment_seqnum, '') AS lionkey,
+            TRUE AS include_in_bytes_lion,
+            'TEST STREET' AS street,
+            '1' AS boroughcode,
+            '0100' AS face_code,
+            '10001' AS five_digit_street_code,
+            '01' AS lgc1, NULL::TEXT AS lgc2, NULL::TEXT AS lgc3, NULL::TEXT AS lgc4, NULL::TEXT AS lgc5,
+            NULL::TEXT AS lgc6, NULL::TEXT AS lgc7, NULL::TEXT AS lgc8, NULL::TEXT AS lgc9,
+            '1' AS boe_lgc_pointer,
+            ST_GEOMFROMTEXT('LINESTRING (0 0, 10 0)') AS geom,
+            NULL::TEXT AS active_flag, NULL::TEXT AS bike_lane_2, NULL::TEXT AS bike_traffic_direction,
+            NULL::TEXT AS borough_boundary_indicator, NULL::TEXT AS carto_display_level,
+            NULL::DOUBLE AS center_of_curvature_radius, NULL::DOUBLE AS center_of_curvature_x,
+            NULL::DOUBLE AS center_of_curvature_y, ' ' AS continuous_parity_flag, NULL::TEXT AS curve_flag,
+            NULL::TEXT AS fcc, NULL::INT AS fdnyid, NULL::TEXT AS feature_type_code, NULL::TEXT AS from_level_code,
+            1 AS from_nodeid, NULL::TEXT AS from_quarter_sectionalmap, 0 AS from_x, 0 AS from_y,
+            NULL::INT AS genericid, NULL::TEXT AS incex_flag, NULL::INT AS l_blockfaceid,
+            NULL::TEXT AS l_high_hn, NULL::TEXT AS l_low_hn, NULL::TEXT AS l_zip,
+            NULL::INT AS left_1990_census_tract_basic, NULL::TEXT AS left_1990_census_tract_suffix,
+            NULL::INT AS left_2000_census_block_basic, NULL::TEXT AS left_2000_census_block_suffix,
+            NULL::INT AS left_2000_census_tract_basic, NULL::TEXT AS left_2000_census_tract_suffix,
+            NULL::INT AS left_2010_census_block_basic, NULL::TEXT AS left_2010_census_block_suffix,
+            NULL::INT AS left_2010_census_tract_basic, NULL::TEXT AS left_2010_census_tract_suffix,
+            NULL::INT AS left_2020_census_block_basic, NULL::TEXT AS left_2020_census_block_suffix,
+            NULL::INT AS left_2020_census_tract_basic, NULL::TEXT AS left_2020_census_tract_suffix,
+            NULL::TEXT AS left_assembly_district, NULL::TEXT AS left_borocode,
+            NULL::TEXT AS left_community_district, NULL::TEXT AS left_dynamic_block,
+            NULL::TEXT AS left_election_district, NULL::TEXT AS left_nypd_service_area,
+            NULL::TEXT AS left_school_district, NULL::INT AS legacy_segmentid, NULL::TEXT AS lsubsect,
+            NULL::TEXT AS nonped, NULL::INT AS number_park_lanes, NULL::INT AS number_total_lanes,
+            NULL::INT AS number_travel_lanes, NULL::INT AS nypdid, NULL::INT AS physicalid,
+            NULL::INT AS posted_speed, NULL::INT AS r_blockfaceid, NULL::TEXT AS r_high_hn,
+            NULL::TEXT AS r_low_hn, NULL::TEXT AS r_zip,
+            NULL::INT AS right_1990_census_tract_basic, NULL::TEXT AS right_1990_census_tract_suffix,
+            NULL::INT AS right_2000_census_block_basic, NULL::TEXT AS right_2000_census_block_suffix,
+            NULL::INT AS right_2000_census_tract_basic, NULL::TEXT AS right_2000_census_tract_suffix,
+            NULL::INT AS right_2010_census_block_basic, NULL::TEXT AS right_2010_census_block_suffix,
+            NULL::INT AS right_2010_census_tract_basic, NULL::TEXT AS right_2010_census_tract_suffix,
+            NULL::INT AS right_2020_census_block_basic, NULL::TEXT AS right_2020_census_block_suffix,
+            NULL::INT AS right_2020_census_tract_basic, NULL::TEXT AS right_2020_census_tract_suffix,
+            NULL::TEXT AS right_assembly_district, NULL::TEXT AS right_borocode,
+            NULL::TEXT AS right_community_district, NULL::TEXT AS right_dynamic_block,
+            NULL::TEXT AS right_election_district, NULL::TEXT AS right_nypd_service_area,
+            NULL::TEXT AS right_of_way_type, NULL::TEXT AS right_school_district, NULL::TEXT AS rsubsect,
+            NULL::TEXT AS rw_type, NULL::TEXT AS sandist_ind, NULL::TEXT AS segment_locational_status,
+            NULL::TEXT AS snow_priority, NULL::TEXT AS split_election_district_flag, NULL::TEXT AS status,
+            NULL::TEXT AS streetwidth_irr, NULL::INT AS streetwidth_min_with_zeros,
+            NULL::TEXT AS to_level_code, 2 AS to_nodeid, NULL::TEXT AS to_quarter_sectionalmap,
+            10 AS to_x, 0 AS to_y, NULL::TEXT AS trafdir_ver_flag, NULL::TEXT AS traffic_direction,
+            NULL::TEXT AS truck_route_type, NULL::TEXT AS twisted_parity_flag
+          FROM (VALUES
+            -- staging blanks a 0 width in streetwidth_max (for the LION file); _with_zeros keeps it
+            (1, 'g1', 'C', '840', NULL::INT, 0),
+            (2, 'g2', 'T', NULL, NULL::INT, NULL::INT),
+            (3, 'g3', 'U', '00123', 60, 60)
+          ) AS t (segmentid, globalid, segment_type, segment_seqnum, streetwidth_max, streetwidth_max_with_zeros)
+      - input: ref('int__saf_replicant_fields')
+        format: sql
+        rows: |
+          SELECT
+            '10100840' AS lionkey, TRUE AS is_written, 'SAF STREET' AS saf_street_name, 'B' AS specaddr,
+            '110002' AS saf_street_code, NULL::TEXT AS l_zip, NULL::TEXT AS r_zip, NULL::TEXT AS parity_side,
+            NULL::TEXT AS l_low_hn, NULL::TEXT AS l_high_hn, NULL::TEXT AS r_low_hn, NULL::TEXT AS r_high_hn,
+            '11000201000000B' AS join_id
+      - input: ref('int__lion_house_number_zeroing')
+        format: sql
+        rows: |
+          SELECT * FROM (VALUES ('g1', FALSE), ('g2', TRUE), ('g3', FALSE)) AS t (globalid, zero_house_numbers)
+      - input: ref('int__lion_segcount')
+        format: sql
+        rows: |
+          SELECT * FROM (VALUES (1, 2), (2, 1), (3, 1)) AS t (segmentid, n_records)
+    # dict expect: only the tested columns (dbt reads their types from the model's output)
+    expect:
+      rows:
+        - {SegmentID: '0000001', SpecAddr: null, SeqNum: '00840'}
+        - {SegmentID: '0000001', SpecAddr: 'B', SeqNum: '00840'}
+        - {SegmentID: '0000002', SpecAddr: null, SeqNum: '00000'}
+        - {SegmentID: '0000003', SpecAddr: null, SeqNum: '00123'}
+  - name: test__gdb_lion__streetwidth_max_keeps_zero
+    description: "StreetWidth_Max keeps a source 0 (prod writes 0.0); only a NULL source width is NULL."
+    model: gdb_lion
+    given: *gdb_lion_given
+    expect:
+      rows:
+        - {SegmentID: '0000001', SpecAddr: null, StreetWidth_Max: 0.0}
+        - {SegmentID: '0000001', SpecAddr: 'B', StreetWidth_Max: 0.0}
+        - {SegmentID: '0000002', SpecAddr: null, StreetWidth_Max: null}
+        - {SegmentID: '0000003', SpecAddr: null, StreetWidth_Max: 60.0}
