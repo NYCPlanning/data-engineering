@@ -26,7 +26,10 @@ WITH previous_edition AS (
 this_edition AS (
     SELECT
         (SELECT count(*) FROM {{ ref('int__ldf_nodes') }})
-        + (SELECT count(*) FROM {{ ref('int__ldf_segments') }})
+        + (
+            SELECT count(*) FROM {{ ref('int__ldf_segments') }}
+            WHERE is_published
+        )
         + 1 AS record_count
 )
 

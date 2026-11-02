@@ -55,6 +55,7 @@ segments AS (
         coalesce(lpad(new_id::text, 7, '0'), '       ') AS _sort_primary,
         coalesce(lpad(old_id::text, 7, '0'), '       ') AS _sort_secondary
     FROM {{ ref('int__ldf_segments') }}
+    WHERE is_published
 ),
 
 all_records AS (

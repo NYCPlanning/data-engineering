@@ -82,6 +82,17 @@ vars:
   # true zeroes F too, as the legacy rule does. Logged every build as CSCL-LOG-OURS-10
   # (1 LION gdb record on 26c).
   zero_f_segment_house_numbers: false
+  # Deleted-ID check on LDF G and P records (LDF.dat, and the record count in LDF.header),
+  # CSCL-LDF-01: prod drops any record, other than a delete, whose new or journalled old
+  # ID is deleted anywhere in this release's journal, on any segment, at any time, among
+  # deletes of its own record type and of the types written before it (S, then G, then P;
+  # IsSegmentdeleted in CSCLEditor.dll's LDFExtractHelper, decompiled line 1420, fed by
+  # CreateTransitoryDataTable, line 1318). A generic or physical ID spans many segments,
+  # so this drops G and P reassignments LION shows took effect. true drops a G or P record only when its ID is deleted on the same
+  # node pair, among deletes of its own type. S records are checked prod's way either way.
+  # Logged every build as CSCL-LOG-OURS-11 (12 records on 26c, which also renumber 1,267
+  # later records, CSCL-LDF-03).
+  fix_ldf_journal_delete_scope: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

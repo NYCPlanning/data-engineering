@@ -171,6 +171,13 @@ models:
     which the legacy tool's rule zeroes and prod's LION gdb keeps, i.e. what the var
     zero_f_segment_house_numbers changes (CSCL-LION-24), and whether it is on in this build.
 
+- name: log__ldf_journal_delete_scope
+  description: >-
+    CSCL-LOG-OURS-11, every build: one row with the number of LDF G and P records whose
+    generic or physical ID is deleted in the journal but not on their node pair, which
+    prod drops and the fix keeps, i.e. what the var fix_ldf_journal_delete_scope changes
+    (CSCL-LDF-01), and whether it is on in this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC

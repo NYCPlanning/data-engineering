@@ -1648,9 +1648,12 @@ The rule works on the journal alone, in change order:
   in between; split/merge chains collapse as for S. Records whose ID is deleted are dropped
   as for S.
 
-Ours ports this rule (`int__ldf_segments`) with one deviation, recorded as `CSCL-LDF-01` in
-[seeds/known_differences.csv](./seeds/known_differences.csv): a G or P ID spans many segments, so ours only counts a
-delete of that ID on the same node pair.
+Ours ports this rule (`int__ldf_segment_candidates`, then `int__ldf_segments` for the
+deleted-ID check). For G and P the deleted-ID check is a prod bug, recorded as
+`CSCL-LDF-01` in [seeds/known_differences.csv](./seeds/known_differences.csv): a G or P ID spans many segments, so a
+delete elsewhere drops reassignments that took effect. We reproduce prod by default; with
+the setting `fix_ldf_journal_delete_scope` on, only a delete of that ID on the same node
+pair counts.
 
 ## Log
 
