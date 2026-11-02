@@ -13,6 +13,12 @@ splits, which the document says sort old-then-new. Verified against 26a and 26b.
 Sort keys are built as the fixed-width text the record will hold, with absent IDs as
 spaces. That makes a plain text sort reproduce GR's order for free: a space (0x20) sorts
 below '0' (0x30), which is exactly how blank IDs come first in their files.
+
+Segment records that tie on those keys (one ID's reassignment along several segments)
+keep journal order, as prod's do: its writer sorts a DataTable whose rows were added in
+CHANGE_DATETIME order (LDFExtractHelper.cs, CreateTransitoryDataTable and
+WriteToLDFExtractFile), and a DataTable sort breaks ties by row order. CHANGE_DATETIME is
+to the second and prod's order within a second isn't recorded; ours takes ldf_num there.
 */
 
 WITH nodes AS (
@@ -31,6 +37,8 @@ WITH nodes AS (
         NULL::int AS new_id,
         NULL::int AS new_from_nodeid,
         NULL::int AS new_to_nodeid,
+        NULL::timestamp AS change_datetime,
+        NULL::bigint AS ldf_num,
         x_coord AS _sort_primary,
         y_coord AS _sort_secondary
     FROM {{ ref('int__ldf_nodes') }}
@@ -52,6 +60,8 @@ segments AS (
         new_id,
         new_from_nodeid,
         new_to_nodeid,
+        change_datetime,
+        ldf_num,
         coalesce(lpad(new_id::text, 7, '0'), '       ') AS _sort_primary,
         coalesce(lpad(old_id::text, 7, '0'), '       ') AS _sort_secondary
     FROM {{ ref('int__ldf_segments') }}
@@ -73,9 +83,11 @@ SELECT
             all_records.action_code,
             all_records._sort_primary,
             all_records._sort_secondary,
-            -- records the keys above tie on (same IDs, different nodes or coordinates) in a
-            -- fixed order, so the numbering is the same on every build. GR's order among
-            -- them isn't known.
+            -- segment records the keys above tie on: journal order, as prod
+            all_records.change_datetime,
+            all_records.ldf_num,
+            -- node records the keys above tie on (same coordinates) in a fixed order, so
+            -- the numbering is the same on every build. GR's order among them isn't known.
             all_records.nodeid,
             all_records.x_coord,
             all_records.y_coord,

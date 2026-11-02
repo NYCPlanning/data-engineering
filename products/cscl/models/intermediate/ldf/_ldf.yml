@@ -73,6 +73,12 @@ models:
     description: >
       The old ID as journalled. old_id is what the LDF writes, which differs where a
       chain of splits and merges was collapsed; prod's deleted-ID check reads this one.
+  - name: change_datetime
+    description: >
+      When the journal row was written, to the second. With ldf_num, the record's journal
+      order, which the LDF keeps among records that tie on its sort keys.
+  - name: ldf_num
+    description: "The journal row's number (CENTERLINEHISTORY.LDF_NUM)."
 
 - name: int__ldf_segments
   tests:
@@ -116,6 +122,10 @@ models:
     description: "To node of the segment after the change. Blank on deletes."
   - name: journal_old_id
     description: "The old ID as journalled (see int__ldf_segment_candidates)."
+  - name: change_datetime
+    description: "When the journal row was written (see int__ldf_segment_candidates)."
+  - name: ldf_num
+    description: "The journal row's number (see int__ldf_segment_candidates)."
   - name: id_deleted_in_journal
     description: >
       Prod's rule: not a delete, and the new ID or journal_old_id is deleted somewhere in
@@ -163,21 +173,21 @@ unit_tests:
     format: sql
     rows: |
       SELECT * FROM (VALUES
-        ('S', 'A', NULL, NULL, NULL, 100, 1, 2, NULL),
-        ('S', 'C', 101, 3, 4, 101, 3, 5, 101),
-        ('S', 'D', 100, 1, 2, NULL, NULL, NULL, 100),
-        ('G', 'M', 500, 11, 10, 510, 11, 12, 500),
-        ('G', 'G', 555, 30, 31, 501, 30, 31, 500),
-        ('G', 'G', 500, 32, 33, 502, 32, 33, 556),
-        ('G', 'A', NULL, NULL, NULL, 500, 40, 41, NULL),
-        ('G', 'G', 100, 1, 2, 503, 1, 2, 100),
-        ('G', 'G', 700, 20, 21, 504, 20, 21, 700),
-        ('G', 'G', 900, 50, 51, 505, 50, 51, 900),
-        ('G', 'G', 600, 60, 61, 601, 60, 61, 600),
-        ('P', 'P', 701, 20, 21, 702, 20, 21, 701),
-        ('P', 'S', 700, 20, 21, 703, 20, 22, 700)
+        ('S', 'A', NULL, NULL, NULL, 100, 1, 2, NULL, NULL::timestamp, 1),
+        ('S', 'C', 101, 3, 4, 101, 3, 5, 101, NULL::timestamp, 2),
+        ('S', 'D', 100, 1, 2, NULL, NULL, NULL, 100, NULL::timestamp, 3),
+        ('G', 'M', 500, 11, 10, 510, 11, 12, 500, NULL::timestamp, 4),
+        ('G', 'G', 555, 30, 31, 501, 30, 31, 500, NULL::timestamp, 5),
+        ('G', 'G', 500, 32, 33, 502, 32, 33, 556, NULL::timestamp, 6),
+        ('G', 'A', NULL, NULL, NULL, 500, 40, 41, NULL, NULL::timestamp, 7),
+        ('G', 'G', 100, 1, 2, 503, 1, 2, 100, NULL::timestamp, 8),
+        ('G', 'G', 700, 20, 21, 504, 20, 21, 700, NULL::timestamp, 9),
+        ('G', 'G', 900, 50, 51, 505, 50, 51, 900, NULL::timestamp, 10),
+        ('G', 'G', 600, 60, 61, 601, 60, 61, 600, NULL::timestamp, 11),
+        ('P', 'P', 701, 20, 21, 702, 20, 21, 701, NULL::timestamp, 12),
+        ('P', 'S', 700, 20, 21, 703, 20, 22, 700, NULL::timestamp, 13)
       ) AS t (record_type, action_code, old_id, old_from_nodeid, old_to_nodeid, new_id,
-        new_from_nodeid, new_to_nodeid, journal_old_id)
+        new_from_nodeid, new_to_nodeid, journal_old_id, change_datetime, ldf_num)
   - input: ref('stg__centerlinehistory')
     format: sql
     rows: |
@@ -245,14 +255,14 @@ unit_tests:
     format: sql
     rows: |
       SELECT * FROM (VALUES
-        ('P', 'P', 700, 1, 2, 701, 1, 2, TRUE),
-        ('G', 'G', 600, 1, 2, 601, 1, 2, TRUE),
-        ('G', 'G', 500, 1, 2, 501, 1, 2, FALSE),
-        ('G', 'A', NULL, NULL, NULL, 400, 1, 2, TRUE),
-        ('S', 'C', 101, 3, 4, 101, 3, 5, TRUE),
-        ('S', 'A', NULL, NULL, NULL, 100, 1, 2, TRUE)
+        ('P', 'P', 700, 1, 2, 701, 1, 2, TRUE, NULL::timestamp, 1),
+        ('G', 'G', 600, 1, 2, 601, 1, 2, TRUE, NULL::timestamp, 2),
+        ('G', 'G', 500, 1, 2, 501, 1, 2, FALSE, NULL::timestamp, 3),
+        ('G', 'A', NULL, NULL, NULL, 400, 1, 2, TRUE, NULL::timestamp, 4),
+        ('S', 'C', 101, 3, 4, 101, 3, 5, TRUE, NULL::timestamp, 5),
+        ('S', 'A', NULL, NULL, NULL, 100, 1, 2, TRUE, NULL::timestamp, 6)
       ) AS t (record_type, action_code, old_id, old_from_nodeid, old_to_nodeid, new_id,
-        new_from_nodeid, new_to_nodeid, is_published)
+        new_from_nodeid, new_to_nodeid, is_published, change_datetime, ldf_num)
   - input: ref('int__ldf_header')
     format: sql
     rows: |
@@ -266,3 +276,39 @@ unit_tests:
     - {record_type: G, action_code: A, nodeid: null, new_id: 400, cumulative_record_number: 1005}
     - {record_type: G, action_code: G, nodeid: null, new_id: 601, cumulative_record_number: 1006}
     - {record_type: P, action_code: P, nodeid: null, new_id: 701, cumulative_record_number: 1007}
+# Records that tie on block, action code and (new ID, old ID) - one generic ID's
+# reassignment along several segments - come out in journal order, as prod's: by
+# change_datetime, then ldf_num. Here journal order (nodes 5-6, 3-4, 1-2) is the reverse
+# of node-ID order; 5-6 and 3-4 were journalled in the same second.
+- name: test__int__ldf_records__journal_order
+  description: "Records tied on action code, new ID and old ID are numbered in journal order, not by node IDs."
+  model: int__ldf_records
+  given:
+  - input: ref('int__ldf_nodes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('N', 'A', 100, 300, 9000001, NULL, NULL)
+      ) AS t (record_type, action_code, x_coord, y_coord, nodeid, destination_x_coord,
+        destination_y_coord)
+  - input: ref('int__ldf_segments')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('G', 'G', 800, 1, 2, 801, 1, 2, TRUE, TIMESTAMP '2026-08-01 10:00:05', 10),
+        ('G', 'G', 800, 5, 6, 801, 5, 6, TRUE, TIMESTAMP '2026-08-01 10:00:00', 20),
+        ('G', 'G', 800, 3, 4, 801, 3, 4, TRUE, TIMESTAMP '2026-08-01 10:00:00', 21),
+        ('G', 'A', NULL, NULL, NULL, 400, 7, 8, TRUE, TIMESTAMP '2026-08-01 11:00:00', 30)
+      ) AS t (record_type, action_code, old_id, old_from_nodeid, old_to_nodeid, new_id,
+        new_from_nodeid, new_to_nodeid, is_published, change_datetime, ldf_num)
+  - input: ref('int__ldf_header')
+    format: sql
+    rows: |
+      SELECT 1000::bigint AS cumulative_record_number
+  expect:
+    rows:
+    - {record_type: N, action_code: A, new_from_nodeid: null, cumulative_record_number: 1001}
+    - {record_type: G, action_code: A, new_from_nodeid: 7, cumulative_record_number: 1002}
+    - {record_type: G, action_code: G, new_from_nodeid: 5, cumulative_record_number: 1003}
+    - {record_type: G, action_code: G, new_from_nodeid: 3, cumulative_record_number: 1004}
+    - {record_type: G, action_code: G, new_from_nodeid: 1, cumulative_record_number: 1005}

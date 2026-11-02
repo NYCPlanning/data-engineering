@@ -121,6 +121,8 @@ SELECT
     new_from_nodeid,
     new_to_nodeid,
     journal_old_id,
+    change_datetime,
+    ldf_num,
     id_deleted_in_journal,
     id_deleted_on_node_pair,
     NOT {% if var('fix_ldf_journal_delete_scope') -%}
