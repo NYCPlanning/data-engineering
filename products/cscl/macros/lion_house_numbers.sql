@@ -8,9 +8,10 @@
     second (nominally right) range, each stored in the house-number fields of the side named
     by `parity`, with the other side empty.
   - otherwise both sides pass through as given (n is always 1).
-  - not addressable: everything is empty. Legacy rule (BytesLION_CSCL_workflow_tool_PUB.py):
-    SegmentTyp IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W'). The ETL spec's version of
-    this rule differs; we follow the legacy tool.
+  - not addressable: everything is empty. Which segments that is comes from
+    int__lion_house_number_zeroing: the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py),
+    SegmentTyp IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W'), except that F is zeroed
+    only with zero_f_segment_house_numbers on, as prod's LION gdb (CSCL-LION-24).
 
   lion_normalized_house_number: FromLeft/ToLeft/FromRight/ToRight form (ETL spec §2.7.3): the
   hyphen is dropped and the digits after it are zero-filled to three; non-hyphenated numbers

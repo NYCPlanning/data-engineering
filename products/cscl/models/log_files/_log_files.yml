@@ -164,6 +164,13 @@ models:
     blank, i.e. what the var fix_nonstreet_proto_zip changes (CSCL-LION-02), and whether it
     is on in this build.
 
+- name: log__f_segment_house_numbers
+  description: >-
+    CSCL-LOG-OURS-10, every build: one row with the number of LION gdb records of a
+    SegmentTyp F segment (its own records and its SAF replicants) that have house numbers,
+    which the legacy tool's rule zeroes and prod's LION gdb keeps, i.e. what the var
+    zero_f_segment_house_numbers changes (CSCL-LION-24), and whether it is on in this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC

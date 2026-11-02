@@ -72,6 +72,16 @@ vars:
   # proto-segment rule (copy the parent's) does. Logged every build as CSCL-LOG-OURS-09 (10
   # Randall's Island records on 26c).
   fix_nonstreet_proto_zip: false
+  # House numbers on SegmentTyp F segments (LION gdb LLo/LHi/RLo/RHi_Hyphen and
+  # FromLeft/ToLeft/FromRight/ToRight, on their SAF replicants too), CSCL-LION-24. Not a
+  # prod bug fix: false (the default) is prod's LION gdb output. The legacy tool's rule
+  # zeroes SegmentTyp IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W')
+  # (BytesLION_CSCL_workflow_tool_PUB.py:353), but prod's 26c LION gdb keeps the house
+  # numbers of the one F record that has any (the SAF A replicant of 0346291, ELIOT AVENUE).
+  # The spec zeroes generic segments (SEGMENT_TYPE G) and never names F (ETL spec 2.7.3).
+  # true zeroes F too, as the legacy rule does. Logged every build as CSCL-LOG-OURS-10
+  # (1 LION gdb record on 26c).
+  zero_f_segment_house_numbers: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

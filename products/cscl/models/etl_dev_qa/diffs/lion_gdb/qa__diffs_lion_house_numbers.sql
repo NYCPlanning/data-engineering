@@ -29,7 +29,12 @@ WITH violations AS (
     SELECT *
     FROM {{ ref('qa_int__prod_fgdb_lion') }}
     WHERE
-        (segmenttyp IN ('G', 'F') OR featuretyp NOT IN ('0', '6', 'W'))
+        -- F only with zero_f_segment_house_numbers on: prod's LION gdb keeps F's house
+        -- numbers, and so do we by default (CSCL-LION-24)
+        (
+            segmenttyp IN ({{ "'G', 'F'" if var('zero_f_segment_house_numbers') else "'G'" }})
+            OR featuretyp NOT IN ('0', '6', 'W')
+        )
         AND (
             nullif(llo_hyphen, '') IS NOT NULL
             OR nullif(lhi_hyphen, '') IS NOT NULL

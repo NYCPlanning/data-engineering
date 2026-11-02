@@ -16,6 +16,14 @@ WITH lion AS (
 saf_replicants AS (
     SELECT * FROM {{ ref('int__saf_replicant_fields') }}
 ),
+-- whether a segment's house numbers are zeroed (generic, non-street; F only with
+-- zero_f_segment_house_numbers on, CSCL-LION-24)
+hn_zeroing AS (
+    SELECT
+        globalid,
+        zero_house_numbers
+    FROM {{ ref('int__lion_house_number_zeroing') }}
+),
 
 -- SegCount: int__lion_segcount's count, capped at 9 (a single character in prod, which
 -- logs the cap as CSCL-LOG-BYTES-12)
@@ -203,8 +211,8 @@ base_rows AS (
         fcc AS "FCC",
         right_of_way_type AS "ROW_Type",
         -- ETL spec §2.7.3 (BL101-104), House numbers: see lion_house_numbers.sql. Continuous
-        -- parity segments (ETL spec §2.7.1) come out as two rows (hn.n = 1, 2); segments the
-        -- legacy tool zeroes (generic/non-physical) come out empty.
+        -- parity segments (ETL spec §2.7.1) come out as two rows (hn.n = 1, 2); zeroed segments
+        -- (generic, non-street; see int__lion_house_number_zeroing) come out empty.
         lpad(hn.l_low, 7, ' ') AS "LLo_Hyphen",
         lpad(hn.l_high, 7, ' ') AS "LHi_Hyphen",
         lpad(hn.r_low, 7, ' ') AS "RLo_Hyphen",
@@ -223,6 +231,7 @@ base_rows AS (
         geom
     FROM written_lion AS lion
     INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
+    INNER JOIN hn_zeroing ON lion.globalid = hn_zeroing.globalid
     CROSS JOIN
         LATERAL generate_series(
             1, CASE WHEN lion.continuous_parity_flag IN ('L', 'R') THEN 2 ELSE 1 END
@@ -232,7 +241,7 @@ base_rows AS (
             "nullif(lion.l_low_hn, '0')", "nullif(lion.l_high_hn, '0')",
             "nullif(lion.r_low_hn, '0')", "nullif(lion.r_high_hn, '0')",
             'lion.continuous_parity_flag', 'rng.n',
-            "(lion.segment_type NOT IN ('G', 'F') AND coalesce(lion.feature_type_code, '0') IN ('0', '6', 'W'))"
+            'NOT hn_zeroing.zero_house_numbers'
         ) }}
     ) AS hn
 ),
@@ -410,13 +419,14 @@ replicant_rows AS (
     -- skip a SAF record legacy doesn't write (still counted in SegCount above)
     INNER JOIN saf_replicants ON lion.lionkey = saf_replicants.lionkey AND saf_replicants.is_written
     INNER JOIN segment_row_counts ON lion.segmentid = segment_row_counts.segmentid
+    INNER JOIN hn_zeroing ON lion.globalid = hn_zeroing.globalid
     CROSS JOIN LATERAL generate_series(1, CASE WHEN saf_replicants.parity_side IS NOT NULL THEN 2 ELSE 1 END) AS rng (n)
     CROSS JOIN LATERAL (
         {{ lion_house_number_split(
             'saf_replicants.l_low_hn', 'saf_replicants.l_high_hn',
             'saf_replicants.r_low_hn', 'saf_replicants.r_high_hn',
             'saf_replicants.parity_side', 'rng.n',
-            "(lion.segment_type NOT IN ('G', 'F') AND coalesce(lion.feature_type_code, '0') IN ('0', '6', 'W'))"
+            'NOT hn_zeroing.zero_house_numbers'
         ) }}
     ) AS hn
 )
