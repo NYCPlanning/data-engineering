@@ -3,7 +3,9 @@ boto3
 # 2.0.6 panics building contracted models with geometry columns on DuckDB.
 dbt-oss<2.0.6
 duckdb
+folium
 marimo
 marimo-lens
+numpy
 openpyxl
 pandas

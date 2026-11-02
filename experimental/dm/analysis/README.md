@@ -56,8 +56,11 @@ uv pip install --python .venv/bin/python --requirement requirements.txt
 
 python scripts/download.py
 dbt build
-marimo edit notebooks/explore.py
+marimo edit notebooks/explore_growth.py
 ```
+
+`notebooks/explore_demographics.py` zooms into one community district's census tracts.
+A district's tracts are the tracts in its CDTA, since tracts don't nest in districts.
 
 To share the results, `python scripts/export_excel.py` writes a charts sheet, population vs housing growth, where population change went, the community district table, housing units by year (wide and long), and their column descriptions to `data/exports/Community District Growth YYYYMMDD.xlsx`, dated by the day it runs.
 
