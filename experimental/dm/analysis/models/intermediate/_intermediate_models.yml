@@ -33,6 +33,26 @@ models:
       - name: boroct2020
         data_tests: [unique, not_null]
 
+  - name: int_nta_type_features
+    columns:
+      - name: nta2020
+        data_tests: [unique, not_null]
+
+  - name: int_nta_census_metrics
+    columns:
+      - name: nta2020
+        data_tests: [unique, not_null]
+
+  - name: int_nta_acs_metrics
+    columns:
+      - name: nta2020
+        data_tests: [unique, not_null]
+
+  - name: int_nta_density_metrics
+    columns:
+      - name: nta2020
+        data_tests: [unique, not_null]
+
   - name: int_cd_census_metrics
     columns:
       - name: borocd

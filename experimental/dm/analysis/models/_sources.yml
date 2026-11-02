@@ -52,6 +52,11 @@ sources:
         config:
           external_location: "read_parquet('./data/sources/dcp_cdta2020.parquet')"
 
+      - name: dcp_nta2020
+        description: 2020 neighborhood tabulation areas, clipped to shoreline, version 26c from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_nta2020.parquet')"
+
       - name: dcp_ct2020
         description: >
           2020 census tracts, clipped to shoreline, version 26c from edm-recipes. EPSG:4326. Leaves out

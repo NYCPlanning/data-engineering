@@ -736,6 +736,11 @@ models:
             display_name: "Borough"
       - name: nta2020
         description: 2020 neighborhood tabulation area the tract is in.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
         config:
           meta:
             display_name: "NTA code"
@@ -900,4 +905,206 @@ models:
             display_name: "People per acre"
       - name: geom
         description: Tract boundary clipped to the shoreline (dcp_ct2020 26c), EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_nta
+    description: >
+      One row per 2020 neighborhood tabulation area (nta2020), with decennial census counts for 2010 and 2020
+      and 2020-2024 ACS household income. NTAs are built from census tracts and nest in CDTAs, so dim_census_tract
+      adds up to this table exactly (assert_ntas_add_up_to_tracts) and summing by cdta2020 gives CDTA totals. Includes
+      65 non-residential NTAs such as parks, cemeteries, and airports (see nta_type_name).
+    columns:
+      - name: nta2020
+        description: NTA code, e.g. BK0101. Same as PFF's NTA geoid and dim_census_tract.nta2020.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "NTA code"
+      - name: nta_name
+        description: NTA name.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "NTA"
+      - name: nta_abbreviation
+        description: Short NTA name from the source, e.g. Grnpt.
+        config:
+          meta:
+            display_name: "NTA abbreviation"
+      - name: nta_type
+        description: Source type code, as text. See nta_type_name for its label.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "NTA type code"
+      - name: nta_type_name
+        description: >
+          Label for nta_type: Residential (197 NTAs, 99.9% of 2020 population), Rikers Island, Other Special Areas, Cemetery,
+          Airport, or Park. A null here means the source has a code missing from the nta_types seed, so it's tested.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "NTA type"
+      - name: boro_code
+        description: Borough code, same as dim_community_district.boro_code.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Borough code"
+      - name: boro_name
+        description: Borough name.
+        config:
+          meta:
+            display_name: "Borough"
+      - name: cdta2020
+        description: 2020 community district tabulation area the NTA is in. Joins to dim_community_district.cdta2020.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: cdta2020
+        config:
+          meta:
+            display_name: "CDTA code"
+      - name: population_2010_census
+        description: Total population, 2010 decennial census (PFF pop1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population 2010 (census)"
+      - name: population_2020_census
+        description: Total population, 2020 decennial census (PFF pop1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population 2020 (census)"
+      - name: population_in_households_2010_census
+        description: Population living in households, 2010 decennial census (PFF popinhh_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population in households 2010 (census)"
+      - name: population_in_households_2020_census
+        description: Population living in households, 2020 decennial census (PFF popinhh_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population in households 2020 (census)"
+      - name: housing_units_2010_census
+        description: Housing units, 2010 decennial census (PFF hunits). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Housing units 2010 (census)"
+      - name: housing_units_2020_census
+        description: Housing units, 2020 decennial census (PFF hunits). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Housing units 2020 (census)"
+      - name: occupied_housing_units_2010_census
+        description: Occupied housing units, 2010 decennial census (PFF ochu_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Occupied housing units 2010 (census)"
+      - name: occupied_housing_units_2020_census
+        description: Occupied housing units, 2020 decennial census (PFF ochu_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Occupied housing units 2020 (census)"
+      - name: vacant_housing_units_2010_census
+        description: Vacant housing units, 2010 decennial census (PFF vachus). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Vacant housing units 2010 (census)"
+      - name: vacant_housing_units_2020_census
+        description: Vacant housing units, 2020 decennial census (PFF vachus). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Vacant housing units 2020 (census)"
+      - name: group_quarters_population_2010_census
+        description: population_2010_census minus population_in_households_2010_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2010 (census)"
+      - name: group_quarters_population_2020_census
+        description: population_2020_census minus population_in_households_2020_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2020 (census)"
+      - name: population_age_under_18_2020_census
+        description: Population under 18 (PFF popu18), 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age under 18 2020 (census)"
+      - name: population_age_18_24_2020_census
+        description: Population 18 to 24, 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 18-24 2020 (census)"
+      - name: population_age_25_44_2020_census
+        description: Population 25 to 44, 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 25-44 2020 (census)"
+      - name: population_age_45_64_2020_census
+        description: Population 45 to 64, 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 45-64 2020 (census)"
+      - name: population_age_65_plus_2020_census
+        description: Population 65 and over (PFF pop65pl), 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 65+ 2020 (census)"
+      - name: median_household_income_acs
+        description: >
+          Median household income, 2020-2024 ACS (PFF's NTA mdhhinc). Null for 54 NTAs, all non-residential. Top-coded at 200,000, not the 250,001 of dim_census_tract, so don't compare the two at the
+          top. Comes from PFF at this grain because medians can't be summed from tracts. Read it with its margin of error.
+        config:
+          meta:
+            display_name: "Median household income (ACS)"
+      - name: median_household_income_acs_moe
+        description: 90% margin of error of median_household_income_acs. Also null for NTAs at the top code and for 6 non-residential NTAs with under 30 households.
+        config:
+          meta:
+            display_name: "Median household income margin of error (ACS)"
+      - name: households_acs
+        description: Households, 2020-2024 ACS (PFF hh2). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households (ACS)"
+      - name: households_income_under_25k_acs
+        description: Households with income under $25,000, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households under $25k (ACS)"
+      - name: households_income_25k_50k_acs
+        description: Households with income $25,000 to $49,999, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $25k-$50k (ACS)"
+      - name: households_income_50k_100k_acs
+        description: Households with income $50,000 to $99,999, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $50k-$100k (ACS)"
+      - name: households_income_100k_200k_acs
+        description: Households with income $100,000 to $199,999, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $100k-$200k (ACS)"
+      - name: households_income_200k_plus_acs
+        description: Households with income $200,000 and over, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $200k+ (ACS)"
+      - name: land_acres
+        description: NTA area in acres, from dcp_nta2020's shape_area in square feet (EPSG:2263). NTAs are clipped to the shoreline, so this is land only. Matches the sum of its tracts' land_acres.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Land area (acres)"
+      - name: people_per_acre
+        description: population_2020_census / land_acres, residents per acre of land in 2020.
+        config:
+          meta:
+            display_name: "People per acre"
+      - name: geom
+        description: NTA boundary clipped to the shoreline (dcp_nta2020 26c), EPSG:4326.
         data_tests: [not_null]

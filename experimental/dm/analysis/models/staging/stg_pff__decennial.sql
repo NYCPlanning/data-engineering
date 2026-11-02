@@ -1,5 +1,6 @@
--- Only the community district (3-digit geoid, the borocd) and census tract (7-digit geoid, the
--- boroct2020) rows. The files also carry city, borough, CDTA, council district, NTA, and block rows.
+-- Only the community district (3-digit geoid, the borocd), NTA (6-character geoid, the nta2020), and
+-- census tract (7-digit geoid, the boroct2020) rows. The files also carry city, borough, CDTA, council
+-- district, and block rows.
 WITH unioned AS (
     SELECT * FROM {{ source('sources', 'pff_decennial_2010') }}
     UNION ALL
@@ -8,9 +9,9 @@ WITH unioned AS (
 
 SELECT
     year::integer AS census_year,
-    CASE length(geoid) WHEN 3 THEN 'community_district' WHEN 7 THEN 'census_tract' END AS geography,
+    CASE length(geoid) WHEN 3 THEN 'community_district' WHEN 6 THEN 'nta' WHEN 7 THEN 'census_tract' END AS geography,
     geoid,
     variable AS pff_variable,
     value
 FROM unioned
-WHERE length(geoid) IN (3, 7)
+WHERE length(geoid) IN (3, 6, 7)

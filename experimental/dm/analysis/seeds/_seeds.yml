@@ -63,3 +63,15 @@ seeds:
         target_affordable_homes: integer
         target_deeply_affordable_homes: integer
         target_homes_for_homeless_households: integer
+
+  - name: nta_types
+    description: NTA type codes and labels, from the NTAType values in product-metadata/products/lion/2020_neighborhood_tabulation_areas/metadata.yml.
+    config:
+      column_types:
+        nta_type: varchar
+        nta_type_name: varchar
+    columns:
+      - name: nta_type
+        data_tests: [unique, not_null]
+      - name: nta_type_name
+        data_tests: [not_null]
