@@ -46,3 +46,65 @@ models:
     for AltSegmentData, B7SC_ACTUAL or B7SC_VANITY for AddressPoint S/V, the CommonPlace
     B7SC for G/N/X. For the name checks in log__gdb_lion_name_missing and
     log_name_table_warnings.
+
+# sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
+# their column types. B7SC 41356009 has two principal FeatureName rows and 11000201 two
+# principal StreetName rows (source defects).
+unit_tests:
+- name: test__int__saf_replicant_fields__duplicate_principal_lowest_objectid
+  description: "A B7SC with two principal names takes the lowest OBJECTID's, as prod's first-row lookup does."
+  model: int__saf_replicant_fields
+  given:
+  - input: ref('int__saf_segments')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('10100001', 'cp1', 'commonplace', 'X', FALSE, FALSE),
+        ('10100001', 'asd1', 'altsegmentdata', 'B', FALSE, FALSE)
+      ) AS t (segment_lionkey, saf_globalid, saf_source_table, saftype, roadbed, generic)
+  - input: ref('stg__altsegmentdata_saf')
+    format: sql
+    rows: |
+      SELECT
+        'asd1' AS globalid, 'B' AS saftype, '110002' AS b5sc, '01' AS lgc1, NULL::TEXT AS lgc2,
+        NULL::TEXT AS lgc3, NULL::TEXT AS lgc4, NULL::TEXT AS sosindicator, NULL::TEXT AS l_low_hn,
+        NULL::TEXT AS l_high_hn, NULL::TEXT AS r_low_hn, NULL::TEXT AS r_high_hn, NULL::TEXT AS zipcode
+  - input: source('recipe_sources', 'dcp_cscl_streetname')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('11000201', 'FIRST NAME', 'Y', 20),
+        ('11000201', 'SECOND NAME', 'Y', 21),
+        ('11000201', 'NOT PRINCIPAL', 'N', 19)
+      ) AS t (b7sc, lookup_key, principal_flag, ogc_fid)
+  - input: source('recipe_sources', 'dcp_cscl_featurename')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('41356009', 'TRIBOROUGH BRIDGE PLAYGROUND E', 'Y', 67841),
+        ('41356009', 'TRIBOROUGH BR PLAYGROUND E', 'Y', 67842)
+      ) AS t (b7sc, lookup_key, principal_flag, ogc_fid)
+  - input: ref('int__address_points')
+    format: sql
+    rows: |
+      SELECT
+        NULL::TEXT AS globalid, NULL::TEXT AS b7sc_actual, NULL::TEXT AS b7sc_vanity,
+        NULL::TEXT AS sosindicator, NULL::TEXT AS hyphen_type, NULL::TEXT AS house_number,
+        NULL::TEXT AS plain_house_number, NULL::TEXT AS house_number_range, NULL::TEXT AS snd_feature_type
+      WHERE FALSE
+  - input: ref('int__saf_altnames_join_ids')
+    format: sql
+    rows: |
+      SELECT '10100001' AS lionkey, 'cp1' AS saf_globalid, '41356009000000X' AS join_id
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT '10100001' AS lionkey, '1' AS boroughcode, '01' AS lgc1, TRUE AS include_in_bytes_lion
+  - input: source('recipe_sources', 'dcp_cscl_commonplace_gdb')
+    format: sql
+    rows: |
+      SELECT 'cp1' AS globalid, '41356009' AS b7sc
+  expect:
+    rows:
+    - {saf_globalid: asd1, saf_street_name: FIRST NAME}
+    - {saf_globalid: cp1, saf_street_name: TRIBOROUGH BRIDGE PLAYGROUND E}

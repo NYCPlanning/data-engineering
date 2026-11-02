@@ -25,12 +25,16 @@ WITH saf_segments AS (
 altsegdata AS (
     SELECT * FROM {{ ref('stg__altsegmentdata_saf') }}
 ),
+-- A B7SC can have two principal names in one table (a source defect). Prod looks the name
+-- up with an unordered query and takes the first row (ArcObjectsHelpersClass.GetRow), the
+-- lowest OBJECTID; ogc_fid follows OBJECTID order.
 street_names AS (
     SELECT
         b7sc,
         lookup_key
     FROM {{ source('recipe_sources', 'dcp_cscl_streetname') }}
     WHERE principal_flag = 'Y'
+    QUALIFY row_number() OVER (PARTITION BY b7sc ORDER BY ogc_fid) = 1
 ),
 feature_names AS (
     SELECT
@@ -38,6 +42,7 @@ feature_names AS (
         lookup_key
     FROM {{ source('recipe_sources', 'dcp_cscl_featurename') }}
     WHERE principal_flag = 'Y'
+    QUALIFY row_number() OVER (PARTITION BY b7sc ORDER BY ogc_fid) = 1
 ),
 address_points AS (
     -- LION carries the plain house number for E/F (Edgewater Park style) addresses; the SAF
