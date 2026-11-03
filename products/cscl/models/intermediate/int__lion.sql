@@ -85,6 +85,7 @@ SELECT
     segments.boroughcode,
     segments.face_code,
     segments.segment_seqnum,
+    segments.gdb_segment_seqnum,
     segments.segmentid,
     segments.five_digit_street_code,
     segments.lgc1,
@@ -243,6 +244,10 @@ SELECT
     centerline.trafdir_ver_flag,
     centerline.carto_display_level,
     coalesce(centerline.segment_type, 'U') AS segment_type,
+    -- L57. A centerline's: the source count less the underground subway/rail segments with
+    -- its shape, by prod's rule or (fix_coincident_seg_count) ours, CSCL-LION-14; see
+    -- int__centerline_coincident_subway_or_rail. The _prod/_fixed values are for its log
+    -- (CSCL-LOG-OURS-23).
     CASE
         WHEN segments.feature_type = 'centerline'
             THEN
@@ -250,6 +255,18 @@ SELECT
         ELSE
             coalesce(noncl_coincident_segment.coincident_seg_count, 1)
     END AS coincident_seg_count,
+    CASE
+        WHEN segments.feature_type = 'centerline'
+            THEN
+                centerline.coincident_seg_count
+                - coalesce(centerline_coincident_subway_or_rail.subway_or_rail_count_prod, 0)
+    END AS coincident_seg_count_prod,
+    CASE
+        WHEN segments.feature_type = 'centerline'
+            THEN
+                centerline.coincident_seg_count
+                - coalesce(centerline_coincident_subway_or_rail.subway_or_rail_count_fixed, 0)
+    END AS coincident_seg_count_fixed,
     centerline.incex_flag,
     centerline.rw_type,
     centerline.physicalid,

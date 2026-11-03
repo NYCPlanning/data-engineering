@@ -154,6 +154,14 @@ vars:
   # session and Queens and Staten Island in a fresh one: 17,975 of 17,975 non-street-feature
   # sequence numbers with that split, 16,007 (89%) as one session. Re-check it each release.
   lion_seqnum_extract_sessions: [['2', '3', '1'], ['4', '5']]
+  # The same, for the LION gdb's SeqNum (CSCL-LION-05). Prod's LION gdb and LION .dat
+  # files disagree on these numbers: its gdb matches all five boroughs extracted in one
+  # session (17,975 of 17,975 on 26c), its .dat files the split above, so prod's two outputs
+  # differ on 1,968 LION gdb records (every one on a face numbered in the Queens extract).
+  # The default reproduces prod's gdb; set it equal to lion_seqnum_extract_sessions to
+  # number the gdb like the .dat files. List the same boroughs in both. Logged every build
+  # as CSCL-LOG-OURS-22 (1,968 LION gdb records on 26c).
+  lion_gdb_seqnum_extract_sessions: [['2', '3', '1', '4', '5']]
   # qa__context_geoms: buffer applied to the SUBTRACTED side before computing
   # build_minus_legacy/legacy_minus_build, to separate real spurs/gaps from needle-sliver
   # noise - NOT a proxy for perimeter/length. Confirmed on PUMA 3808:
@@ -164,11 +172,28 @@ vars:
   # former (needle max gap is two orders of magnitude under 1 ft) while only trimming the
   # base of the latter, leaving its real extent visible.
   context_geom_noise_buffer_ft: 1.0
-  # gdb_lion SegCount: two segments of the same class with the same two nodes are coincident
-  # if each lies within this distance (ft) of the other. Legacy compares within the source's
-  # XY tolerance (0.0002 ft) on a 0.0001 ft grid; 0.0003 is the smallest value that matches
-  # prod, not a number stated in the legacy code. Raise it if real coincident pairs are missed.
+  # Esri's shape equality (IRelationalOperator.Equals), which legacy uses to find coincident
+  # segments, for gdb_lion SegCount (two segments of the same class with the same two nodes)
+  # and a centerline's L57 (an underground subway or rail segment with its shape,
+  # CSCL-LION-14): two shapes are equal if each lies within this distance (ft) of the
+  # other. Legacy compares within the source's XY tolerance (0.0002 ft) on a 0.0001 ft grid,
+  # on true curves where ours are densified within 0.00025 ft; 0.0003 is the smallest value
+  # that matches prod, not a number stated in the legacy code. On 26c it separates all 3,126
+  # centerlines with one underground subway/rail candidate the way prod's L57 does (equal at
+  # 0.000215 ft and closer, not equal from 0.00039 ft). Raise it if real coincident pairs are
+  # missed.
   segcount_coincident_tolerance_ft: 0.0003
+  # LION L57, coincident segment count, on centerlines (CSCL-LION-14). Prod subtracts each
+  # ROW_TYPE 1 subway or rail feature at the centerline's midpoint that Esri's Equals finds
+  # equal to it (CenterlineExtractFile.cs:2528-2610, GetCoincidentCLSegmentCount), with no
+  # floor: 4 centerlines come out 0 on 26c, where the spec's L57 is an integer above 0.
+  # false (the default) reproduces that, matching shapes with segcount_coincident_tolerance_ft.
+  # true is ours before: a subway or rail segment within 1 ft of the centerline's midpoint,
+  # subtracted only when the source count is above 1, so the count stays at least 1. Logged
+  # every build as CSCL-LOG-OURS-23 (8 LION .dat records on 26c: 4 centerlines prod writes 0
+  # where ours wrote 1, and 4 where an arc-chain subway lies within 1 ft but not within the
+  # tolerance, which prod doesn't subtract).
+  fix_coincident_seg_count: false
   # AtomicPolygon topology (models/intermediate/atomicpolygon_topology) and the district
   # boundaries built from it (macros/district_boundary.sql).
   #

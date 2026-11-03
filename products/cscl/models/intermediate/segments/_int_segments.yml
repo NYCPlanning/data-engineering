@@ -98,11 +98,18 @@ models:
   - name: boroughcode
   - name: face_code
   - name: segment_seqnum
+    description: "The number in the LION .dat files' extract sessions (var lion_seqnum_extract_sessions)."
+  - name: gdb_segment_seqnum
+    description: "The number in the LION gdb's extract sessions (var lion_gdb_seqnum_extract_sessions), which prod's LION gdb numbers differently from its .dat files (CSCL-LION-05)."
   data_tests:
   - name: nsf_seqnum_unique_lionkey
     test_name: dbt_utils.unique_combination_of_columns
     arguments:
       combination_of_columns: [ boroughcode, face_code, segment_seqnum ]
+  - name: nsf_gdb_seqnum_unique_lionkey
+    test_name: dbt_utils.unique_combination_of_columns
+    arguments:
+      combination_of_columns: [ boroughcode, face_code, gdb_segment_seqnum ]
 
 unit_tests:
 # Face 9901 straddles boroughs 1 and 4. NonStreetFeature A (borough 1) is on the boundary, so
@@ -111,11 +118,12 @@ unit_tests:
 # number in run 4. pA2 (no FEATURE_TYPE, borough 1) takes a number in run 1 and keeps its own.
 # Shoreline S's proto-segment pS1 (borough 4) takes a number in both runs, on borough 4.
 - name: test__int__nonstreetfeature_seqnum__counter_one_session
-  description: "Run 1 then run 4 in one session: numbers the unwritten calls consume leave gaps (B is 4, pS1 is 4)."
+  description: "Run 1 then run 4 in one session: numbers the unwritten calls consume leave gaps (B is 4, pS1 is 4). The LION gdb in the same session numbers them the same."
   model: int__nonstreetfeature_seqnum
   overrides:
     vars:
       lion_seqnum_extract_sessions: [['1', '4']]
+      lion_gdb_seqnum_extract_sessions: [['1', '4']]
   # sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
   # their column types
   given: &seqnum_given
@@ -157,29 +165,49 @@ unit_tests:
     format: sql
     rows: |
       SELECT * FROM (VALUES
-        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001'),
-        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004'),
-        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00002'),
-        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00003'),
-        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00004')
-      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum)
+        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001', '00001'),
+        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004', '00004'),
+        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00002', '00002'),
+        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00003', '00003'),
+        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00004', '00004')
+      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum, gdb_segment_seqnum)
 - name: test__int__nonstreetfeature_seqnum__counter_two_sessions
-  description: "Run 4 in a fresh session: run 1's calls on borough 4 (pS1's) no longer count."
+  description: "Run 4 in a fresh session for both outputs: run 1's calls on borough 4 (pS1's) no longer count."
   model: int__nonstreetfeature_seqnum
   overrides:
     vars:
       lion_seqnum_extract_sessions: [['1'], ['4']]
+      lion_gdb_seqnum_extract_sessions: [['1'], ['4']]
   given: *seqnum_given
   expect:
     format: sql
     rows: |
       SELECT * FROM (VALUES
-        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001'),
-        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004'),
-        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00001'),
-        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00002'),
-        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00003')
-      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum)
+        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001', '00001'),
+        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004', '00004'),
+        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00001', '00001'),
+        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00002', '00002'),
+        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00003', '00003')
+      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum, gdb_segment_seqnum)
+# CSCL-LION-05: prod's LION .dat files and LION gdb were numbered in different sessions.
+- name: test__int__nonstreetfeature_seqnum__gdb_sessions_differ
+  description: "The .dat files with a fresh session for run 4, the LION gdb with runs 1 and 4 in one session (the defaults' shape): borough 4's numbers differ, borough 1's don't."
+  model: int__nonstreetfeature_seqnum
+  overrides:
+    vars:
+      lion_seqnum_extract_sessions: [['1'], ['4']]
+      lion_gdb_seqnum_extract_sessions: [['1', '4']]
+  given: *seqnum_given
+  expect:
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('nonstreetfeatures', 'A', 10, 1, '1', '9901', '00001', '00001'),
+        ('nonstreetfeatures', 'B', 11, 2, '1', '9901', '00004', '00004'),
+        ('altsegmentdata', 'pA1', 10, 100, '4', '9901', '00001', '00002'),
+        ('nonstreetfeatures', 'C', 12, 3, '4', '9901', '00002', '00003'),
+        ('altsegmentdata', 'pS1', 20, 200, '4', '9901', '00003', '00004')
+      ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum, gdb_segment_seqnum)
 # CSCL-LION-01. Centerline 10 has reversed protos P1 and P2 (and P0, reversed on the borough
 # boundary, which prod doesn't flip) and P3, not reversed: P2 follows one flip, so prod
 # writes it unreversed; P3 follows two. Centerline 11's Q2 isn't reversed but follows Q1's
@@ -187,7 +215,8 @@ unit_tests:
 # centerline extract reverses its shape). Levels follow each proto's own flag.
 # CSCL-LION-22. F1 is a centerline proto whose face code is only in FeatureName: prod drops
 # it (no face code), the fix takes 0200. N1 (a non-street proto) is named in FeatureName as
-# it should be; P0-P3 in StreetName.
+# it should be; P0-P3 in StreetName. N1 takes its LION .dat and LION gdb sequence numbers
+# from int__nonstreetfeature_seqnum (CSCL-LION-05).
 # sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
 # their column types
 - name: test__int__protosegments__prod_rules
@@ -238,7 +267,7 @@ unit_tests:
   - input: ref('int__nonstreetfeature_seqnum')
     format: sql
     rows: |
-      SELECT * FROM (VALUES ('N1', '00009')) AS t (globalid, segment_seqnum)
+      SELECT * FROM (VALUES ('N1', '00009', '00011')) AS t (globalid, segment_seqnum, gdb_segment_seqnum)
   - input: ref('feature_type_codes')
     format: sql
     rows: |
@@ -249,16 +278,16 @@ unit_tests:
       ) AS t (source_feature_class, code, description)
   expect:
     rows:
-    - {globalid: P0, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100'}
-    - {globalid: P1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100'}
-    - {globalid: P2, flips_before: 1, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 2, face_code: '0100'}
-    - {globalid: P3, flips_before: 2, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: '0100'}
-    - {globalid: Q1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100'}
-    - {globalid: Q2, flips_before: 1, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 1, face_code: '0100'}
-    - {globalid: S1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0300'}
-    - {globalid: S2, flips_before: 1, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0300'}
-    - {globalid: F1, flips_before: 0, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: null}
-    - {globalid: N1, flips_before: 0, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: '0300'}
+    - {globalid: P0, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: P1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: P2, flips_before: 1, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 2, face_code: '0100', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: P3, flips_before: 2, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: Q1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: Q2, flips_before: 1, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 1, face_code: '0100', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: S1, flips_before: 0, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: S2, flips_before: 1, geometry_reversed_prod: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: F1, flips_before: 0, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: null, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: N1, flips_before: 0, geometry_reversed_prod: false, geometry_reversed: false, from_level_code: 1, face_code: '0300', segment_seqnum: '00009', gdb_segment_seqnum: '00011'}
 - name: test__int__protosegments__fixed
   description: "fix_reversed_proto_pairs and fix_featurename_face_code_protos true: each proto oriented by its own flag; F1 keeps its FeatureName face code."
   model: int__protosegments
@@ -269,13 +298,13 @@ unit_tests:
   given: *protos_given
   expect:
     rows:
-    - {globalid: P0, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
-    - {globalid: P1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
-    - {globalid: P2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
-    - {globalid: P3, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', is_featurename_face_code: false}
-    - {globalid: Q1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false}
-    - {globalid: Q2, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', is_featurename_face_code: false}
-    - {globalid: S1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false}
-    - {globalid: S2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false}
-    - {globalid: F1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0200', is_featurename_face_code: true}
-    - {globalid: N1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0300', is_featurename_face_code: false}
+    - {globalid: P0, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: P1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: P2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: P3, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: Q1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0100', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: Q2, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0100', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: S1, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: S2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: F1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0200', is_featurename_face_code: true, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
+    - {globalid: N1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0300', is_featurename_face_code: false, segment_seqnum: '00009', gdb_segment_seqnum: '00011'}

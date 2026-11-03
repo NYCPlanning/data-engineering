@@ -8,7 +8,7 @@
 -- own ALT_SEGMENT_SEQNUM. The counter is kept across the borough runs of one extract session.
 -- So a number is the count of calls on its key, in processing order, up to and including its own.
 --
--- Processing order: borough runs (var lion_seqnum_extract_sessions), then feature class
+-- Processing order: borough runs (the extract sessions), then feature class
 -- (class_rank), then source OBJECTID, then each feature's proto-segments in OBJECTID order.
 -- A run reads every feature within 2 ft of its borough (int__lion_extract_borough_runs).
 -- The calls, per run and feature:
@@ -22,23 +22,42 @@
 --   3. Under a NonStreetFeature parent, each proto-segment written in this run (any implicit
 --      class): a second call when its L3 field is written (NonStreetFeatureExtractFile.cs:108).
 --      This is the number written for an NSF-implicit one.
+--
+-- The numbers depend on which boroughs GR extracted together, and prod's two outputs were
+-- numbered in different sessions: segment_seqnum follows var lion_seqnum_extract_sessions
+-- (the LION .dat files), gdb_segment_seqnum var lion_gdb_seqnum_extract_sessions (the
+-- LION gdb, CSCL-LION-05).
 {{ config(
     materialized = 'table'
 ) }}
-{%- set runs = [] -%}
-{%- for session in var('lion_seqnum_extract_sessions') -%}
-    {%- set session_number = loop.index -%}
-    {%- for borocode in session -%}
-        {%- do runs.append((session_number, loop.index, borocode)) -%}
-    {%- endfor -%}
+{%- set numberings = [
+    ('segment_seqnum', var('lion_seqnum_extract_sessions')),
+    ('gdb_segment_seqnum', var('lion_gdb_seqnum_extract_sessions')),
+] -%}
+WITH
+{%- for column, sessions in numberings %}
+    {%- set runs = [] -%}
+    {%- for session in sessions -%}
+        {%- set session_number = loop.index -%}
+        {%- for borocode in session -%}
+            {%- do runs.append((session_number, loop.index, borocode)) -%}
+        {%- endfor -%}
+    {%- endfor %}
+    {{ column }}_runs AS (
+        SELECT run_values.* FROM (
+            VALUES
+            {%- for session_number, run_order, borocode in runs %}
+                ({{ session_number }}, {{ run_order }}, '{{ borocode }}'){{ "," if not loop.last }}
+            {%- endfor %}
+        ) AS run_values (session_number, run_order, borocode)
+    ),
 {%- endfor %}
-WITH runs AS (
-    SELECT run_values.* FROM (
-        VALUES
-        {%- for session_number, run_order, borocode in runs %}
-            ({{ session_number }}, {{ run_order }}, '{{ borocode }}'){{ "," if not loop.last }}
-        {%- endfor %}
-    ) AS run_values (session_number, run_order, borocode)
+-- every borough either numbering extracts
+runs AS (
+    {%- for column, sessions in numberings %}
+        SELECT borocode FROM {{ column }}_runs
+        {{ "UNION" if not loop.last }}
+    {%- endfor %}
 ),
 features AS (
     SELECT * FROM {{ ref('int__lion_extract_borough_runs') }}
@@ -71,8 +90,6 @@ protos AS (
 ),
 feature_runs AS (
     SELECT
-        runs.session_number,
-        runs.run_order,
         runs.borocode AS run_borocode,
         features.class_rank,
         features.source_table,
@@ -88,8 +105,7 @@ feature_runs AS (
 calls AS (
     -- 1. NonStreetFeature written in this run
     SELECT
-        session_number,
-        run_order,
+        run_borocode,
         class_rank,
         ogc_fid AS feature_ogc_fid,
         0 AS proto_ogc_fid,
@@ -105,8 +121,7 @@ calls AS (
     UNION ALL
     -- 2. NSF-implicit proto-segment initialization, written or not
     SELECT
-        feature_runs.session_number,
-        feature_runs.run_order,
+        feature_runs.run_borocode,
         feature_runs.class_rank,
         feature_runs.ogc_fid AS feature_ogc_fid,
         protos.ogc_fid AS proto_ogc_fid,
@@ -130,8 +145,7 @@ calls AS (
     UNION ALL
     -- 3. proto-segment of a NonStreetFeature written in this run
     SELECT
-        feature_runs.session_number,
-        feature_runs.run_order,
+        feature_runs.run_borocode,
         feature_runs.class_rank,
         feature_runs.ogc_fid AS feature_ogc_fid,
         protos.ogc_fid AS proto_ogc_fid,
@@ -146,22 +160,32 @@ calls AS (
     INNER JOIN protos ON feature_runs.segmentid = protos.segmentid
     WHERE feature_runs.source_table = 'nonstreetfeatures' AND protos.borough = feature_runs.run_borocode
 ),
-numbered AS (
+{%- for column, sessions in numberings %}
+    {{ column }}_numbered AS (
+        SELECT
+            calls.*,
+            ROW_NUMBER() OVER (
+                PARTITION BY runs.session_number, calls.key_borough, calls.key_face_code
+                ORDER BY runs.run_order, calls.class_rank, calls.feature_ogc_fid, calls.proto_ogc_fid, calls.step
+            ) AS seqnum
+        FROM calls
+        INNER JOIN {{ column }}_runs AS runs ON calls.run_borocode = runs.borocode
+    ),
+{%- endfor %}
+-- the numbers written are the same calls in either numbering: a feature or proto-segment
+-- is written in the run of its own borough
+written AS (
     SELECT
-        *,
-        ROW_NUMBER() OVER (
-            PARTITION BY session_number, key_borough, key_face_code
-            ORDER BY run_order, class_rank, feature_ogc_fid, proto_ogc_fid, step
-        ) AS seqnum
-    FROM calls
+        dat.source_table,
+        dat.globalid,
+        dat.segmentid,
+        dat.ogc_fid,
+        dat.key_borough AS boroughcode,
+        dat.key_face_code AS face_code,
+        LPAD(dat.seqnum::TEXT, 5, '0') AS segment_seqnum,
+        LPAD(gdb.seqnum::TEXT, 5, '0') AS gdb_segment_seqnum
+    FROM segment_seqnum_numbered AS dat
+    LEFT JOIN gdb_segment_seqnum_numbered AS gdb ON dat.globalid = gdb.globalid
+    WHERE dat.globalid IS NOT NULL
 )
-SELECT
-    source_table,
-    globalid,
-    segmentid,
-    ogc_fid,
-    key_borough AS boroughcode,
-    key_face_code AS face_code,
-    LPAD(seqnum::TEXT, 5, '0') AS segment_seqnum
-FROM numbered
-WHERE globalid IS NOT NULL
+SELECT * FROM written

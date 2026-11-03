@@ -73,6 +73,11 @@ SELECT
         WHEN feature_type_codes.source_feature_class <> 'nonstreetfeatures' THEN proto.alt_segment_seqnum
         ELSE seqnum.segment_seqnum
     END AS segment_seqnum,
+    -- the LION gdb's numbering can differ from the .dat files' (CSCL-LION-05)
+    CASE
+        WHEN feature_type_codes.source_feature_class <> 'nonstreetfeatures' THEN proto.alt_segment_seqnum
+        ELSE seqnum.gdb_segment_seqnum
+    END AS gdb_segment_seqnum,
     proto.segmentid,
     proto.five_digit_street_code,
     proto.lgc1,

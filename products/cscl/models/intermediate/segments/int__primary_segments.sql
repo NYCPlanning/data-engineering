@@ -37,16 +37,20 @@ primary_segments AS (
                 NULL AS from_level_code,
                 NULL AS to_level_code,
                 source.segment_seqnum,
+                source.segment_seqnum AS gdb_segment_seqnum,
             {% elif source_layer == 'stg__nonstreetfeatures' -%}
                 source.legacy_segmentid::INT AS legacy_segmentid,
                 NULL AS from_level_code,
                 NULL AS to_level_code,
                 seqnum.segment_seqnum,
+                -- the LION gdb's numbering can differ from the .dat files' (CSCL-LION-05)
+                seqnum.gdb_segment_seqnum,
             {% else -%}
                 source.legacy_segmentid,
                 source.from_level_code,
                 source.to_level_code,
                 source.segment_seqnum,
+                source.segment_seqnum AS gdb_segment_seqnum,
             {% endif -%}
             source.feature_type_code,
             ST_LINEMERGE(source.geom) AS geom, -- already linear; merge as linearize() did
@@ -74,6 +78,7 @@ segment_attributes AS (
         COALESCE(primary_segments.boroughcode, street_and_facecode.boroughcode) AS boroughcode,
         street_and_facecode.face_code,
         primary_segments.segment_seqnum,
+        primary_segments.gdb_segment_seqnum,
         primary_segments.segmentid,
         primary_segments.from_level_code,
         primary_segments.to_level_code,

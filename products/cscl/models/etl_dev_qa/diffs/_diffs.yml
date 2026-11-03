@@ -108,7 +108,9 @@ models:
     diff_group names the cause of each modified row; accounted_for is true when
     every changed field has a known cause (CSCL-LION-01 to 05, 14 to 16, 24 to 28,
     CSCL-SAF-03, 06). CSCL-LION-14 covers SegCount only on a centerline with another
-    centerline on the same nodes within 0.0005 ft; CSCL-LION-15 and 24 cover house
+    centerline on the same nodes within 0.0005 ft; CSCL-LION-05 covers a non-street
+    SeqNum only with lion_gdb_seqnum_extract_sessions set to the LION .dat files' sessions
+    (the default numbers the gdb like prod's); CSCL-LION-15 and 24 cover house
     numbers zeroed on G and F segments, only with zero_generic_house_numbers or
     zero_f_segment_house_numbers on. A one-sided row is accounted for when
     one_sided_cause names a known difference for it (CSCL-SAF-03's B replicant,
