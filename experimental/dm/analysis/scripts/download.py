@@ -1,6 +1,7 @@
 """Download the pinned source files into data/sources/.
 
-Most come from S3, and the HPD Housing and Vacancy Survey public use files from nyc.gov. Reads S3 credentials from the same env vars as dcpy (AWS_S3_ENDPOINT, AWS_ACCESS_KEY_ID,
+Most come from S3, the HPD Housing and Vacancy Survey public use files from nyc.gov, and DEP's MS4 map and
+wastewater facility performance reports from NYC Open Data. Reads S3 credentials from the same env vars as dcpy (AWS_S3_ENDPOINT, AWS_ACCESS_KEY_ID,
 AWS_SECRET_ACCESS_KEY), which the repo's root .env provides through direnv.
 
     python scripts/download.py          # skip files already downloaded
@@ -8,11 +9,18 @@ AWS_SECRET_ACCESS_KEY), which the repo's root .env provides through direnv.
 """
 
 import argparse
+import io
 import os
+import ssl
 import urllib.request
+import zipfile
 from pathlib import Path
 
 import boto3
+import certifi
+import duckdb
+import pandas as pd
+from pyogrio import raw
 
 SOURCES_DIR = Path(__file__).parent.parent / "data" / "sources"
 
@@ -82,7 +90,157 @@ URL_SOURCES = {
     f"hvs_{dataset}_{year}.csv": f"{HVS_URL}/{dataset}_puf_{year % 100}.csv"
     for dataset in ["allunits", "occupied"]
     for year in [2021, 2023]
+} | {
+    # read by scripts/extract_dep_wastewater_map.py into seeds/, not by dbt
+    "dep_wastewater_system_map.pdf": "https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf",
 }
+
+# DEP publishes the MS4 map as a geodatabase attached to its Open Data page (j57c-rqtq) rather than as a
+# queryable dataset, so this is the attachment's file URL. Its map is as of August 1, 2020.
+MS4_URL = (
+    "https://data.cityofnewyork.us/api/views/j57c-rqtq/files/"
+    "1f13a1e9-fc70-4cbc-87db-2884b0d4378a?download=true&filename=MS4OpenData.gdb.zip"
+)
+# local filename -> geodatabase layer
+MS4_LAYERS = {
+    "ms4_drainage_areas.parquet": "MS4DRAINAGEAREAS",
+    "ms4_outfalls.parquet": "MS4OUTFALLS",
+    "ms4_waste_facilities.parquet": "MSWFACILITIES",
+    "ms4_spdes_permits.parquet": "SPDESPERMITS",
+    "ms4_bluebelt_bmps.parquet": "BLUEBELTBMP",
+}
+
+
+# DEP's "Wastewater Treatment Plant Performance Data" (hgue-hj96) is a set of Excel files attached to its Open Data
+# page, each with one formatted report sheet per month. The main file is replaced as months are added.
+WASTEWATER_PERFORMANCE_URL = "https://data.cityofnewyork.us/api/views/hgue-hj96/files"
+WASTEWATER_PERFORMANCE_FILES = {
+    "dep_wastewater_performance_2025.xlsx": "098480f1-11a3-436d-bfa4-fb4ab480280d",
+    "dep_wastewater_performance_2024.xlsx": "80d475a5-61ad-4a6d-9433-f92a6f1b086f",
+    "dep_wastewater_performance_2023.xlsx": "3ff0ddfb-d4bb-4600-a259-f1eaf1b5a79a",
+    "dep_wastewater_performance_2017_2022.zip": "429825b2-d61b-4cf1-be89-864dc4d62ef4",
+}
+# Each sheet's report columns, by offset from its PLANT column, which sits 0 to 2 columns in depending on the
+# sheet. Each concentration and removal has a column before it for a < or > qualifier. TSS is total suspended
+# solids, CBOD carbonaceous biochemical oxygen demand.
+WASTEWATER_PERFORMANCE_COLUMNS = {
+    1: "flow_mgd",
+    2: "flow_12_month_average_mgd",
+    3: "flow_permit_mgd",
+    4: "tss_influent_qualifier",
+    5: "tss_influent_mg_l",
+    6: "tss_effluent_qualifier",
+    7: "tss_effluent_mg_l",
+    8: "tss_effluent_permit_mg_l",
+    9: "tss_removal_qualifier",
+    10: "tss_removal",
+    11: "tss_removal_permit",
+    12: "cbod_influent_qualifier",
+    13: "cbod_influent_mg_l",
+    14: "cbod_effluent_qualifier",
+    15: "cbod_effluent_mg_l",
+    16: "cbod_effluent_permit_mg_l",
+    17: "cbod_removal_qualifier",
+    18: "cbod_removal",
+    19: "cbod_removal_permit",
+}
+
+
+def fetch(url: str, path: Path) -> None:
+    print(f"get     {url}")
+    # uv's Python doesn't use the system's certificates, so pass certifi's
+    context = ssl.create_default_context(cafile=certifi.where())
+    with urllib.request.urlopen(url, context=context) as response:
+        path.write_bytes(response.read())
+
+
+def read_wastewater_performance_sheet(sheet: pd.DataFrame) -> pd.DataFrame:
+    """One row per facility from one month's report, every value kept as text."""
+    header_row, plant_column = next(
+        (row, column)
+        for row in range(min(len(sheet), 20))
+        for column in range(min(sheet.shape[1], 5))
+        if str(sheet.iat[row, column]).strip() == "PLANT"
+    )
+    header = [
+        str(sheet.iat[header_row, plant_column + offset]).strip()
+        for offset in (1, 2, 3)
+    ]
+    assert header == ["ACTUAL", "12-M RA", "PERMIT"], header
+    rows = []
+    for row in range(header_row + 1, len(sheet)):
+        plant = sheet.iat[row, plant_column]
+        if pd.isna(plant) or not str(plant).strip():
+            continue
+        if str(plant).strip().upper() == "TOTAL":
+            break
+        values = {
+            name: None
+            if pd.isna(value := sheet.iat[row, plant_column + offset])
+            else str(value).strip()
+            for offset, name in WASTEWATER_PERFORMANCE_COLUMNS.items()
+        }
+        rows.append({"plant": str(plant).strip(), **values})
+    return pd.DataFrame(rows)
+
+
+def download_wastewater_performance(force: bool) -> None:
+    """Download DEP's monthly wastewater facility reports and write every sheet's rows to one Parquet file."""
+    path = SOURCES_DIR / "dep_wastewater_performance.parquet"
+    for filename, file_id in WASTEWATER_PERFORMANCE_FILES.items():
+        if force or not (SOURCES_DIR / filename).exists():
+            fetch(
+                f"{WASTEWATER_PERFORMANCE_URL}/{file_id}?download=true",
+                SOURCES_DIR / filename,
+            )
+    if path.exists() and not force:
+        print(f"exists  {path.name}")
+        return
+    print(f"convert {path.name}")
+    workbooks = []
+    for filename in WASTEWATER_PERFORMANCE_FILES:
+        if filename.endswith(".zip"):
+            with zipfile.ZipFile(SOURCES_DIR / filename) as archive:
+                workbooks += [
+                    (f"{filename}/{Path(name).name}", archive.open(name).read())
+                    for name in archive.namelist()
+                    if name.endswith(".xlsx")
+                ]
+        else:
+            workbooks.append((filename, (SOURCES_DIR / filename).read_bytes()))
+    sheets = []
+    for source_file, content in workbooks:
+        for sheet_name, sheet in pd.read_excel(
+            io.BytesIO(content), sheet_name=None, header=None
+        ).items():
+            rows = read_wastewater_performance_sheet(sheet)
+            rows.insert(0, "sheet_name", sheet_name)
+            rows.insert(0, "source_file", source_file)
+            sheets.append(rows)
+    performance = pd.concat(sheets, ignore_index=True)  # noqa: F841 (read by DuckDB)
+    duckdb.sql("SELECT * FROM performance").write_parquet(str(path))
+
+
+def download_ms4(force: bool) -> None:
+    """Download DEP's MS4 geodatabase and write its layers to Parquet, geometry as WKB in EPSG:2263.
+
+    Read through GDAL (pyogrio) and flattened to 2D, since DuckDB can't parse the layers' measured (XYZM) geometries.
+    """
+    zip_path = SOURCES_DIR / "ms4_open_data.gdb.zip"
+    if force or not zip_path.exists():
+        fetch(MS4_URL, zip_path)
+    for filename, layer in MS4_LAYERS.items():
+        path = SOURCES_DIR / filename
+        if path.exists() and not force:
+            print(f"exists  {filename}")
+            continue
+        print(f"convert {layer} -> {filename}")
+        meta, _, geometry, fields = raw.read(
+            f"/vsizip/{zip_path}/MS4OpenData.gdb", layer=layer, force_2d=True
+        )
+        layer_df = pd.DataFrame(dict(zip(meta["fields"], fields)))
+        layer_df["geometry"] = geometry
+        duckdb.sql("SELECT * FROM layer_df").write_parquet(str(path))
 
 
 def main(force: bool) -> None:
@@ -110,6 +268,8 @@ def main(force: bool) -> None:
         request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(request) as response:
             path.write_bytes(response.read())
+    download_ms4(force)
+    download_wastewater_performance(force)
 
 
 if __name__ == "__main__":

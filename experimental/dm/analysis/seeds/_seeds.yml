@@ -75,3 +75,57 @@ seeds:
         data_tests: [unique, not_null]
       - name: nta_type_name
         data_tests: [not_null]
+
+  - name: dep_wastewater_facilities
+    description: >
+      The table of Wastewater Resource Recovery Facilities (WRRFs) on DEP's Map of the New York City Wastewater
+      System (2025), one row per facility. Extracted from the PDF by scripts/extract_dep_wastewater_map.py. The
+      map doesn't say what year population served is for.
+    config:
+      column_types:
+        wastewater_facility_id: varchar
+        map_code: varchar
+        wastewater_facility_name: varchar
+        year: integer
+        capacity_mgd: integer
+        wet_weather_flow_mgd: integer
+        borough: varchar
+        population_served: integer
+        drainage_area_acres: integer
+    columns:
+      - name: wastewater_facility_id
+        description: The facility name in lowercase with underscores, e.g. 26th_ward.
+        data_tests: [unique, not_null]
+      - name: map_code
+        description: The facility's code on the map, e.g. 26W.
+        data_tests: [unique, not_null]
+      - name: year
+        description: The table's Year column, which the map doesn't label further.
+      - name: drainage_area_acres
+        description: As printed. Wards Island's 2,056 acres is small for a facility serving about a million people.
+
+  - name: dep_wastewater_facility_functions
+    description: >
+      The functions table on the same map, one row per facility and function it has a dot for. Function names and
+      groups are the table's column headers.
+    config:
+      column_types:
+        wastewater_facility_id: varchar
+        function_group: varchar
+        function: varchar
+        is_emergency_only: boolean
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "wastewater_facility_id || '-' || function"
+    columns:
+      - name: wastewater_facility_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dep_wastewater_facilities')
+                field: wastewater_facility_id
+      - name: is_emergency_only
+        description: True for a hollow dot, Emergency Only in the map's legend.
+        data_tests: [not_null]

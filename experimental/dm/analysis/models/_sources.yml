@@ -81,6 +81,48 @@ sources:
         config:
           external_location: "read_parquet('./data/sources/dcp_transit_zones.parquet')"
 
+      # DEP's MS4 map as of August 1, 2020, from the geodatabase on NYC Open Data (j57c-rqtq). scripts/download.py
+      # writes each layer to Parquet, flattened to 2D, with geometry as WKB in EPSG:2263.
+      - name: ms4_drainage_areas
+        description: >
+          DEP MS4 drainage areas, one row per source polygon. ID is the outfall or wastewater facility the area
+          drains to, or OVERLAND FLOW. The map leaves out areas served by combined and sanitary sewers.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_drainage_areas.parquet')"
+
+      - name: ms4_outfalls
+        description: DEP MS4 outfalls, one row per outfall (ID).
+        config:
+          external_location: "read_parquet('./data/sources/ms4_outfalls.parquet')"
+
+      - name: ms4_waste_facilities
+        description: Waste facilities on DEP's MS4 map (MSWFACILITIES). Staged but not used yet.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_waste_facilities.parquet')"
+
+      - name: ms4_spdes_permits
+        description: SPDES stormwater permits on DEP's MS4 map (SPDESPERMITS). Staged but not used yet.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_spdes_permits.parquet')"
+
+      - name: ms4_bluebelt_bmps
+        description: >
+          Bluebelt best management practices on DEP's MS4 map (BLUEBELTBMP). Staged but not used yet. BMPType is
+          a numeric code the file doesn't label.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_bluebelt_bmps.parquet')"
+
+      # DEP's Wastewater Treatment Plant Performance Data on NYC Open Data (hgue-hj96): monthly report sheets in
+      # Excel files for 2023, 2024, and 2025, plus a zip of older ones. scripts/download.py reads every sheet's
+      # facility rows into one Parquet file, values as text.
+      - name: dep_wastewater_performance
+        description: >
+          One row per facility per report sheet, January 2015 to July 2025 with March to December 2017 missing.
+          Some months are in more than one report. source_file and sheet_name say which report a row is from.
+          A sheet's name is its month, though some 2025 sheets still have 2024 in their header.
+        config:
+          external_location: "read_parquet('./data/sources/dep_wastewater_performance.parquet')"
+
       - name: dcp_housing_ahft
         description: >
           DCP's Affordable Housing Fair Share tracker (AHFT), 20261002 from edm-private. One row per

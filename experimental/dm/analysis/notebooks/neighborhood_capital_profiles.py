@@ -30,6 +30,10 @@ def _(duckdb, mo):
         "dim_transit_zone",
         "dim_nta_neighbor",
         "dim_community_district_transit_zone",
+        "dim_ms4_drainage_area",
+        "dim_ms4_outfall",
+        "dim_community_district_ms4_drainage",
+        "dim_wastewater_facility",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -53,6 +57,8 @@ def _(duckdb, mo):
 def _(mo):
     mo.md("""
     # Neighborhood Capital Profiles
+
+    For each AHFT neighborhood, a capital planning snapshot to reflect critical infrastructure conditions
     """)
     return
 
@@ -1419,6 +1425,12 @@ def _(mo):
 
     ### Transportation
 
+    #### TODO Transit Access
+
+    ...
+
+    #### Transit Zones
+
     Transit zones set parking requirements for new buildings. Manhattan Core, Long Island City, and the Inner Transit Zone
     have none, and the Outer Transit Zone has lower ones. The 25-241 areas use the rules for beyond the Greater Transit
     Zone, except for affordable and senior housing. See [DCP's Greater Transit Zone page](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-greater-transit-zones.page).
@@ -1532,19 +1544,307 @@ def _(mo):
     mo.md("""
     ### Wastewater
 
-    TODO
+    #### Wastewater Systems
 
+    DEP's 14 Wastewater Resource Recovery Facilities (WRRFs) and what each one does, from the table on DEP's
+    [Map of the New York City Wastewater System](https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf)
+    (2025). Flow is the 12-month running average from DEP's
+    [monthly performance reports](https://data.cityofnewyork.us/d/hgue-hj96), with the label giving it as a share of
+    capacity. A hollow dot is a function the map marks Emergency Only.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(alt, con):
+    # the map table's function columns, in its order and with its names
+    wastewater_function_labels = {
+        "has_preliminary_treatment": "Preliminary Treatment",
+        "has_secondary_treatment": "Secondary Treatment",
+        "has_biological_nutrient_removal": "Biological Nutrient Removal (BNR)",
+        "has_chlorination": "Chlorination",
+        "has_dechlorination": "Dechlorination",
+        "has_sludge_dewatering": "Sludge Dewatering",
+        "has_sludge_pumping": "Sludge Pumping",
+        "has_docks": "Docks",
+        "has_gas_to_grid_food_waste": "Gas to Grid / Food Waste",
+        "has_cogen_engines": "Cogen Engines",
+        "has_title_v_facility": "Title V Facility",
+        "has_cso_facilities": "CSO Facilities",
+    }
+    wastewater_facilities = con.sql(
+        "SELECT * FROM dim_wastewater_facility ORDER BY capacity_mgd DESC"
+    ).df()
+    wastewater_facilities["share_label"] = wastewater_facilities[
+        "latest_flow_12_month_average_share_of_capacity"
+    ].map("{:.0%}".format)
+    _flow_month = wastewater_facilities["latest_report_month"].max().strftime("%B %Y")
+
+    def _facility_y(show_names):
+        return alt.Y(
+            "wastewater_facility_name:N",
+            title=None,
+            sort=wastewater_facilities["wastewater_facility_name"].tolist(),
+            axis=alt.Axis(labels=show_names, ticks=False, domain=False),
+        )
+
+    _tooltip = [
+        alt.Tooltip("wastewater_facility_name:N", title="WRRF"),
+        alt.Tooltip("borough:N", title="Borough"),
+        alt.Tooltip("capacity_mgd:Q", title="Capacity (MGD)"),
+        alt.Tooltip("wet_weather_flow_mgd:Q", title="Wet weather flow (MGD)"),
+        alt.Tooltip(
+            "latest_flow_12_month_average_mgd:Q",
+            title=f"12-month average flow, {_flow_month} (MGD)",
+        ),
+        alt.Tooltip("population_served:Q", title="Population served", format=","),
+        alt.Tooltip("drainage_area_acres:Q", title="Drainage area (acres)", format=","),
+    ]
+    _base = alt.Chart(wastewater_facilities).encode(
+        y=_facility_y(True), tooltip=_tooltip
+    )
+    _flow_chart = alt.layer(
+        _base.mark_bar(color="#e3e3df", height=16).encode(
+            x=alt.X("capacity_mgd:Q", title="Million gallons per day (MGD)")
+        ),
+        _base.mark_bar(color="#3182bd", height=8).encode(
+            x="latest_flow_12_month_average_mgd:Q"
+        ),
+        _base.mark_text(align="left", dx=4, fontSize=11, color="#55554f").encode(
+            x="capacity_mgd:Q", text="share_label:N"
+        ),
+    ).properties(width=320, title=f"Capacity and 12-month average flow, {_flow_month}")
+
+    _functions = wastewater_facilities.fillna({"emergency_only_functions": ""}).melt(
+        id_vars=["wastewater_facility_name", "emergency_only_functions"],
+        value_vars=list(wastewater_function_labels),
+        var_name="column",
+        value_name="has_function",
+    )
+    _functions = _functions[_functions["has_function"]].assign(
+        function=lambda df: df["column"].map(wastewater_function_labels)
+    )
+    _functions["emergency_only"] = [
+        row.function in row.emergency_only_functions.split(", ")
+        for row in _functions.itertuples()
+    ]
+    _function_chart = (
+        alt.Chart(_functions)
+        .mark_circle(size=70, stroke="#3182bd", strokeWidth=1.5, opacity=1)
+        .encode(
+            x=alt.X(
+                "function:N",
+                title=None,
+                sort=list(wastewater_function_labels.values()),
+                scale=alt.Scale(domain=list(wastewater_function_labels.values())),
+                axis=alt.Axis(
+                    orient="top",
+                    labelAngle=-45,
+                    ticks=False,
+                    domain=False,
+                    labelLimit=200,
+                ),
+            ),
+            y=_facility_y(False),
+            fill=alt.condition(
+                "datum.emergency_only", alt.value("white"), alt.value("#3182bd")
+            ),
+            tooltip=[
+                alt.Tooltip("wastewater_facility_name:N", title="WRRF"),
+                alt.Tooltip("function:N", title="Function"),
+                alt.Tooltip("emergency_only:N", title="Emergency only"),
+            ],
+        )
+        .properties(width=260)
+    )
+    # one chart rather than two side by side, so the rows line up even though the axes are on different sides
+    alt.hconcat(_flow_chart, _function_chart, spacing=8).configure_view(stroke=None)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    #### MS4 Drainage Areas
+
+    DEP's [MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq), as of August 2020, shows land that drains to the separate
+    storm sewer system (MS4) and the outfalls where it discharges. Each drainage area drains to an MS4 outfall, to a
+    WRRF, or by overland flow straight to the water. The map leaves out areas served by combined and sanitary sewers,
+    which is most of the city.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(con):
+    # whole layers, simplified to about 10 m like the transit zones, so the map can pan anywhere
+    ms4_drainage_geojson = con.sql("""
+        SELECT drains_to, drains_to_type, waterbody,
+            ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.0001)) AS geojson
+        FROM dim_ms4_drainage_area
+    """).df()
+    ms4_outfalls = con.sql("""
+        SELECT outfall_id, outfall_type, waterbody, ST_X(geom) AS lon, ST_Y(geom) AS lat
+        FROM dim_ms4_outfall
+    """).df()
+    return ms4_drainage_geojson, ms4_outfalls
+
+
+@app.cell(hide_code=True)
+def _(
+    con,
+    focus_outline,
+    folium,
+    json,
+    mo,
+    ms4_drainage_geojson,
+    ms4_outfalls,
+    selected_district,
+):
+    ms4_drainage_colors = {
+        "MS4 outfall": "#3182bd",
+        "Overland flow": "#9ecae1",
+        "Wastewater facility": "#31a354",
+    }
+    ms4_drainage_labels = {"Wastewater facility": "WRRF"}
+    ms4_outfall_colors = {
+        "MS4 OUTFALL": "#08306b",
+        "CSO WITH MS4 CONNECTION": "#d95f0e",
+    }
+    ms4_outfall_labels = {
+        "MS4 OUTFALL": "MS4 outfall",
+        "CSO WITH MS4 CONNECTION": "Combined sewer outfall with MS4 connection",
+    }
+    ms4_drainage_shares = dict(
+        con.execute(
+            """
+            SELECT drains_to_type, share_of_district
+            FROM dim_community_district_ms4_drainage
+            WHERE borocd = ?
+            """,
+            [selected_district],
+        ).fetchall()
+    )
+
+    ms4_map = folium.Map(tiles="Esri.WorldGrayCanvas", zoom_snap=0.25)
+    folium.GeoJson(
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": json.loads(row.geojson),
+                    "properties": {
+                        "drains_to": row.drains_to,
+                        "drains_to_type": row.drains_to_type,
+                        "waterbody": row.waterbody,
+                    },
+                }
+                for row in ms4_drainage_geojson.itertuples()
+            ],
+        },
+        name="Drainage areas",
+        style_function=lambda feature: {
+            "fillColor": ms4_drainage_colors[feature["properties"]["drains_to_type"]],
+            "fillOpacity": 0.5,
+            "color": "white",
+            "weight": 0.5,
+        },
+        tooltip=folium.GeoJsonTooltip(
+            fields=["drains_to", "waterbody"], aliases=["Drains to", "Waterbody"]
+        ),
+    ).add_to(ms4_map)
+    for row in ms4_outfalls.itertuples():
+        folium.CircleMarker(
+            [row.lat, row.lon],
+            radius=3,
+            color="white",
+            weight=0.5,
+            fill_color=ms4_outfall_colors[row.outfall_type],
+            fill_opacity=1,
+            tooltip=f"{row.outfall_id}: {ms4_outfall_labels[row.outfall_type]}, {row.waterbody}",
+        ).add_to(ms4_map)
+    ms4_district_layer = folium.GeoJson(
+        json.loads(focus_outline),
+        name="District boundary",
+        interactive=False,
+        style_function=lambda _feature: {
+            "fill": False,
+            "color": "#222222",
+            "weight": 3,
+        },
+    ).add_to(ms4_map)
+    ms4_drainage_rows = "".join(
+        f"""<tr>
+          <td><span style="display:inline-block;width:14px;height:10px;background:{color};opacity:0.8;
+            outline:1px solid #d8d8d4"></span></td>
+          <td style="padding:0 12px 0 4px">{ms4_drainage_labels.get(drainage_type, drainage_type)}</td>
+          <td style="text-align:right;font-weight:700">{ms4_drainage_shares.get(drainage_type, 0):.0%}</td>
+        </tr>"""
+        for drainage_type, color in ms4_drainage_colors.items()
+    )
+    ms4_outfall_rows = "".join(
+        f"""<tr>
+          <td style="text-align:center"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;
+            background:{ms4_outfall_colors[outfall_type]}"></span></td>
+          <td colspan="2" style="padding:0 0 0 4px">{label}</td>
+        </tr>"""
+        for outfall_type, label in ms4_outfall_labels.items()
+    )
+    ms4_map.get_root().html.add_child(
+        folium.Element(f"""
+    <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
+      padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
+      <table style="border-collapse:collapse">
+        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Drains to</td>
+          <td style="padding-bottom:4px">Of district</td></tr>
+        {ms4_drainage_rows}
+        <tr>
+          <td><span style="display:inline-block;width:14px;height:10px;background:white;outline:1px solid #d8d8d4"></span></td>
+          <td style="padding:0 12px 0 4px">Not in MS4 map</td>
+          <td style="text-align:right;font-weight:700">{max(0, 1 - sum(ms4_drainage_shares.values())):.0%}</td>
+        </tr>
+        <tr><td colspan="3" style="padding-top:6px;font-weight:600">Outfalls</td></tr>
+        {ms4_outfall_rows}
+      </table>
+    </div>
+    """)
+    )
+    ms4_map.fit_bounds(ms4_district_layer.get_bounds())
+    mo.iframe(ms4_map.get_root().render(), height="500px")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
     ### Flooding
 
-    TODO
+    #### TODO Coastal Flooding
+
+    ...
+
+
+    #### TODO Storwater Flooding
+
+    ...
+
 
     ### Open Space
 
-    TODO
+    TODO Access to Vital Parks
+
+    (https://www.nycgovparks.org/about/vital-parks/explorer) (This map reflects the percentage of people in each Community Board who live within a 10-minute walk to a chosen element of a vital parks system.)
+
+    ...
 
     ### Schools
 
-    TODO
+    TODO Public School Utilization
+
+    (Current utilization of individual schools and Known Capital Projects in all overlapping subdistrict)
+
+    ...
     """)
     return
 
