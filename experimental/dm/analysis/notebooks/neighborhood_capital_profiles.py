@@ -18,6 +18,15 @@ def _():
     return alt, branca, duckdb, folium, json, mo, pd
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    def source_note(text):
+        """A small source line under a chart or map, which stays visible in a printout."""
+        return mo.md(text).style({"font-size": "0.75rem", "color": "#55554f"})
+
+    return (source_note,)
+
+
 @app.cell
 def _(duckdb, mo):
     db_path = mo.notebook_dir().parent / "data" / "analysis_growth.duckdb"
@@ -58,7 +67,7 @@ def _(mo):
     mo.md("""
     # Neighborhood Capital Profiles
 
-    For each AHFT neighborhood, a capital planning snapshot to reflect critical infrastructure conditions
+    Infrastructure conditions in each AHFT neighborhood, for capital planning.
     """)
     return
 
@@ -235,6 +244,7 @@ def _(
     mo,
     selected_district,
     set_selected_district,
+    source_note,
     timeline_ntas,
 ):
     # simplified so the map stays light, same tolerance as the growth notebook
@@ -387,15 +397,24 @@ def _(
     # fixed widths, so the maps don't shift when the district name or NTA labels change length
     mo.vstack(
         [
-            mo.vstack([district_picker]).style({"width": "360px"}),
-            mo.hstack(
+            mo.vstack(
                 [
-                    mo.as_html(city_map).style({"flex": "0 0 400px"}),
-                    mo.as_html(nta_map).style({"flex": "1 1 0", "min-width": "0"}),
-                ],
-                justify="start",
-                align="start",
-                gap=1,
+                    mo.vstack([district_picker]).style({"width": "360px"}),
+                    mo.hstack(
+                        [
+                            mo.as_html(city_map).style({"flex": "0 0 400px"}),
+                            mo.as_html(nta_map).style(
+                                {"flex": "1 1 0", "min-width": "0"}
+                            ),
+                        ],
+                        justify="start",
+                        align="start",
+                        gap=1,
+                    ),
+                ]
+            ),
+            source_note(
+                "Sources: DCP community district, CDTA, and NTA boundaries (26c); DCP AHFT ranks (October 2026)"
             ),
         ]
     )
@@ -404,25 +423,30 @@ def _(
 
 @app.cell
 def _(mo):
-    mo.md("""
-    ## Residents
-
-    Age and density come from the 2020 census, and income from the 2020-2024 ACS. Tracts and NTAs are the ones in the
-    district's CDTA, which can differ a little from the district itself.
-
-    On the map:
-
-    - **Citywide** colors a tract by its rank among all NYC tracts, so a color means the same thing in every district.
-    - **District** colors run from the district's lowest tract to its highest, so colors can't be compared between districts.
-    - **Nearby** adds the NTAs touching this district's, with a white halo around the district. It always uses citywide colors.
-    - A gray tract has no value for that measure: no residents, no households, or no estimate.
-    - Percentages can look extreme where only a few people live, since each person counts for a lot.
-    - People per household doesn't count people in group housing, like dorms and nursing homes.
-    - Income for a single tract is a rough estimate. Hover to see the median's margin of error, and use the bars for a steadier picture of each neighborhood.
-    - Black lines are NTAs and the gray line is the district.
-
-    In the bar charts, taller NTA bars have more people.
-    """)
+    mo.vstack(
+        [
+            mo.md("## Residents"),
+            mo.accordion(
+                {
+                    "Map colors": mo.md("""
+    - **Citywide:** a tract's rank among all NYC tracts. Colors compare across districts.
+    - **District:** the district's lowest tract to its highest. Colors don't compare across districts.
+    - **Nearby:** adds the NTAs touching the district's, with a halo around the district. Always citywide colors.
+    - **Gray:** no value (no residents, no households, or no estimate).
+    - **Lines:** black for NTAs, gray for the district.
+    """),
+                    "Data notes": mo.md("""
+    - Age and density: 2020 census. Income: 2020-2024 ACS.
+    - Tracts and NTAs are the ones in the district's CDTA, which can differ a little from the district.
+    - Percentages swing where few people live.
+    - People per household leaves out group housing, like dorms and nursing homes.
+    - Tract income is rough. Hover for the median's margin of error, or use the NTA bars.
+    - Taller NTA bars have more people.
+    """),
+                }
+            ),
+        ]
+    )
     return
 
 
@@ -537,6 +561,7 @@ def _(
     overall_value,
     pd,
     selected_district,
+    source_note,
     tracts,
 ):
     map_column = map_measure.value
@@ -861,7 +886,20 @@ def _(
     focus_map.fit_bounds(tract_layer.get_bounds())
 
     # folium's own output is sized by aspect ratio and cuts off the legend, so fix the height
-    mo.iframe(focus_map.get_root().render(), height="600px")
+    mo.vstack(
+        [
+            mo.iframe(focus_map.get_root().render(), height="600px"),
+            source_note(
+                (
+                    "Sources: 2020-2024 ACS"
+                    if map_column == "median_household_income_acs"
+                    or map_column in income_groups
+                    else "Sources: 2020 Census"
+                )
+                + ", via DCP Population FactFinder; DCP census tract and NTA boundaries (26c)"
+            ),
+        ]
+    )
     return (focus_outline,)
 
 
@@ -1050,55 +1088,71 @@ def _(all_ntas, alt, city_totals, pd, tracts):
 
 
 @app.cell
-def _(age_groups, income_groups, mo, place_mix_chart):
+def _(age_groups, income_groups, mo, place_mix_chart, source_note):
     # side by side, with the same rows in the same order, so only the left chart needs the place names
-    mo.hstack(
+    mo.vstack(
         [
-            place_mix_chart(
-                age_groups,
-                "population_2020_census",
-                ["#f5a06c", "#e8793f", "#c95f24", "#9e4818", "#6b2f0e"],
-                "Age",
-                "residents",
-                "Residents by age",
+            mo.hstack(
+                [
+                    place_mix_chart(
+                        age_groups,
+                        "population_2020_census",
+                        ["#f5a06c", "#e8793f", "#c95f24", "#9e4818", "#6b2f0e"],
+                        "Age",
+                        "residents",
+                        "Residents by age",
+                    ),
+                    place_mix_chart(
+                        income_groups,
+                        "households_acs",
+                        ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#0d366b"],
+                        "Household income",
+                        "households",
+                        "Households by income",
+                        show_places=False,
+                    ),
+                ],
+                justify="start",
+                align="start",
+                gap=1,
             ),
-            place_mix_chart(
-                income_groups,
-                "households_acs",
-                ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#0d366b"],
-                "Household income",
-                "households",
-                "Households by income",
-                show_places=False,
+            source_note(
+                "Sources: 2020 Census (age) and 2020-2024 ACS (income), via DCP Population FactFinder"
             ),
-        ],
-        justify="start",
-        align="start",
-        gap=1,
+        ]
     )
     return
 
 
 @app.cell
 def _(focus, mo):
-    mo.md(f"""
+    mo.vstack(
+        [
+            mo.md(f"""
     ## Growth
 
-    From 2010 to 2020, population changed **{focus["population_change_2010_2020_pct"]:+.1f}%**, and housing built in those years added
-    **{focus["units_built_2010_2020_pct"]:.1f}%** to the housing stock.
-
-    - **Solid lines** start from the 2020 census count, adding units built after it and subtracting units built before it, from the Housing Database.
-    - **Hollow dots** are the 2010 census counts. A dot away from its line means the 2010 count doesn't match what construction would predict.
-    - **Net units added** are new units minus units removed.
-    - **Dashed lines** add KPDB's projected units to the end-of-2024 count. KPDB groups projects by status rather than date, so 2029 and 2034 are rough labels, not forecast dates.
-    - The **NTAs** tab shows a non-residential NTA only if it has projected units.
+    - Population change, 2010-2020: **{focus["population_change_2010_2020_pct"]:+.1f}%**
+    - Housing built 2010-2020, added to the stock: **{focus["units_built_2010_2020_pct"]:.1f}%**
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - **Solid lines:** the 2020 census count, plus units built after it and minus units built before it (Housing Database).
+    - **Hollow dots:** 2010 census counts. A dot off its line means the 2010 count doesn't match construction.
+    - **Net units added:** new units minus units removed.
+    - **Dashed lines:** KPDB's projected units added to the end-of-2024 count. KPDB groups projects by status, not date, so 2029 and 2034 are rough labels.
     - An NTA's dashed line is often mostly one project.
-    """)
+    - The NTAs tab shows a non-residential NTA only if it has projected units.
+    """),
+                }
+            ),
+        ]
+    )
     return
 
 
 @app.cell
-def _(alt, con, focus, mo, pd, selected_district, timeline_ntas):
+def _(alt, con, focus, mo, pd, selected_district, source_note, timeline_ntas):
     import warnings
 
     # a hover selection shared by the three panels is the intended use, not a mistake
@@ -1387,40 +1441,49 @@ def _(alt, con, focus, mo, pd, selected_district, timeline_ntas):
             spacing=10,
         )
 
-    mo.ui.tabs(
-        {
-            "District": housing_timeline(
-                district_housing,
-                pd.DataFrame(
-                    {
-                        "date": ["2010-04-01"],
-                        "units": [focus["housing_units_2010_census"]],
-                        "series": [focus["cdta_name"]],
-                    }
-                ),
-                [focus["cdta_name"]],
-                2035,
+    mo.vstack(
+        [
+            mo.ui.tabs(
+                {
+                    "District": housing_timeline(
+                        district_housing,
+                        pd.DataFrame(
+                            {
+                                "date": ["2010-04-01"],
+                                "units": [focus["housing_units_2010_census"]],
+                                "series": [focus["cdta_name"]],
+                            }
+                        ),
+                        [focus["cdta_name"]],
+                        2035,
+                    ),
+                    "NTAs": housing_timeline(
+                        nta_housing,
+                        pd.DataFrame(
+                            {
+                                "date": "2010-04-01",
+                                "units": timeline_ntas["housing_units_2010_census"],
+                                "series": timeline_ntas["nta_name"],
+                            }
+                        ),
+                        timeline_ntas["nta_name"].tolist(),
+                        2035,
+                    ),
+                }
             ),
-            "NTAs": housing_timeline(
-                nta_housing,
-                pd.DataFrame(
-                    {
-                        "date": "2010-04-01",
-                        "units": timeline_ntas["housing_units_2010_census"],
-                        "series": timeline_ntas["nta_name"],
-                    }
-                ),
-                timeline_ntas["nta_name"].tolist(),
-                2035,
+            source_note(
+                "Sources: DCP Housing Database (26Q2); 2010 and 2020 Census, via DCP Population FactFinder; DCP Known Projects Database (October 2026)"
             ),
-        }
+        ]
     )
     return
 
 
 @app.cell
 def _(mo):
-    mo.md("""
+    mo.vstack(
+        [
+            mo.md("""
     ## Infrastructure
 
     ### Transportation
@@ -1430,11 +1493,19 @@ def _(mo):
     ...
 
     #### Transit Zones
-
-    Transit zones set parking requirements for new buildings. Manhattan Core, Long Island City, and the Inner Transit Zone
-    have none, and the Outer Transit Zone has lower ones. The 25-241 areas use the rules for beyond the Greater Transit
-    Zone, except for affordable and senior housing. See [DCP's Greater Transit Zone page](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-greater-transit-zones.page).
-    """)
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - Zones set parking requirements for new buildings.
+    - None in Manhattan Core, Long Island City, and the Inner Transit Zone. Lower in the Outer Transit Zone.
+    - 25-241 areas use the rules for beyond the Greater Transit Zone, except for affordable and senior housing.
+    - Source: [DCP's Greater Transit Zone page](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-greater-transit-zones.page).
+    """),
+                }
+            ),
+        ]
+    )
     return
 
 
@@ -1457,6 +1528,7 @@ def _(
     json,
     mo,
     selected_district,
+    source_note,
     transit_zone_geojson,
 ):
     # fewest parking requirements first, following the Zoning Resolution
@@ -1535,28 +1607,40 @@ def _(
     """)
     )
     transit_zone_map.fit_bounds(district_layer.get_bounds())
-    mo.iframe(transit_zone_map.get_root().render(), height="500px")
+    mo.vstack(
+        [
+            mo.iframe(transit_zone_map.get_root().render(), height="500px"),
+            source_note("Source: DCP Greater Transit Zones (December 2025)"),
+        ]
+    )
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
+    mo.vstack(
+        [
+            mo.md("""
     ### Wastewater
 
     #### Wastewater Systems
-
-    DEP's 14 Wastewater Resource Recovery Facilities (WRRFs) and what each one does, from the table on DEP's
-    [Map of the New York City Wastewater System](https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf)
-    (2025). Flow is the 12-month running average from DEP's
-    [monthly performance reports](https://data.cityofnewyork.us/d/hgue-hj96), with the label giving it as a share of
-    capacity. A hollow dot is a function the map marks Emergency Only.
-    """)
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - DEP's 14 Wastewater Resource Recovery Facilities (WRRFs).
+    - Capacity and functions: DEP's [Map of the New York City Wastewater System](https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf) (2025).
+    - Flow: the 12-month running average in DEP's [monthly performance reports](https://data.cityofnewyork.us/d/hgue-hj96).
+    """),
+                }
+            ),
+        ]
+    )
     return
 
 
 @app.cell(hide_code=True)
-def _(alt, con):
+def _(alt, con, mo, source_note):
     # the map table's function columns, in its order and with its names
     wastewater_function_labels = {
         "has_preliminary_treatment": "Preliminary Treatment",
@@ -1613,7 +1697,13 @@ def _(alt, con):
         _base.mark_text(align="left", dx=4, fontSize=11, color="#55554f").encode(
             x="capacity_mgd:Q", text="share_label:N"
         ),
-    ).properties(width=320, title=f"Capacity and 12-month average flow, {_flow_month}")
+    ).properties(
+        width=320,
+        title=alt.Title(
+            f"Capacity and 12-month average flow, {_flow_month}",
+            subtitle="Gray: capacity · Blue: flow · Label: flow as a share of capacity",
+        ),
+    )
 
     _functions = wastewater_facilities.fillna({"emergency_only_functions": ""}).melt(
         id_vars=["wastewater_facility_name", "emergency_only_functions"],
@@ -1655,23 +1745,44 @@ def _(alt, con):
                 alt.Tooltip("emergency_only:N", title="Emergency only"),
             ],
         )
-        .properties(width=260)
+        .properties(
+            width=260, title=alt.Title("Functions", subtitle="Hollow: emergency only")
+        )
     )
     # one chart rather than two side by side, so the rows line up even though the axes are on different sides
-    alt.hconcat(_flow_chart, _function_chart, spacing=8).configure_view(stroke=None)
+    mo.vstack(
+        [
+            alt.hconcat(_flow_chart, _function_chart, spacing=8).configure_view(
+                stroke=None
+            ),
+            source_note(
+                "Sources: DEP Map of the New York City Wastewater System (2025); DEP Wastewater Treatment Plant Performance Data, NYC Open Data (through July 2025)"
+            ),
+        ]
+    )
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
+    mo.vstack(
+        [
+            mo.md("""
     #### MS4 Drainage Areas
 
-    DEP's [MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq), as of August 2020, shows land that drains to the separate
-    storm sewer system (MS4) and the outfalls where it discharges. Each drainage area drains to an MS4 outfall, to a
-    WRRF, or by overland flow straight to the water. The map leaves out areas served by combined and sanitary sewers,
-    which is most of the city.
-    """)
+    Land that drains to the separate storm sewer system (MS4), and where it discharges.
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - Each area drains to an MS4 outfall, to a WRRF, or by overland flow straight to the water.
+    - Areas with combined or sanitary sewers, most of the city, aren't on the map.
+    - Source: DEP's [MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq), as of August 2020.
+    """),
+                }
+            ),
+        ]
+    )
     return
 
 
@@ -1700,6 +1811,7 @@ def _(
     ms4_drainage_geojson,
     ms4_outfalls,
     selected_district,
+    source_note,
 ):
     ms4_drainage_colors = {
         "MS4 outfall": "#3182bd",
@@ -1811,7 +1923,12 @@ def _(
     """)
     )
     ms4_map.fit_bounds(ms4_district_layer.get_bounds())
-    mo.iframe(ms4_map.get_root().render(), height="500px")
+    mo.vstack(
+        [
+            mo.iframe(ms4_map.get_root().render(), height="500px"),
+            source_note("Source: DEP MS4 map, NYC Open Data (August 2020)"),
+        ]
+    )
     return
 
 
@@ -1825,7 +1942,7 @@ def _(mo):
     ...
 
 
-    #### TODO Storwater Flooding
+    #### TODO Stormwater Flooding
 
     ...
 
