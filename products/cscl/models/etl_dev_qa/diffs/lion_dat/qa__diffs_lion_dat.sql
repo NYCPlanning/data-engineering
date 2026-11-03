@@ -22,6 +22,10 @@
 {%- set reversed_fix_on = 'TRUE' if var('fix_reversed_proto_pairs') else 'FALSE' %}
 {%- set ramp_fix_on = 'TRUE' if var('fix_ramp_proto_special_address') else 'FALSE' %}
 {%- set featurename_fix_on = 'TRUE' if var('fix_featurename_face_code_protos') else 'FALSE' %}
+-- CSCL-LION-14 (coincident segment count): a centerline's count differs only with
+-- fix_coincident_seg_count on; a subway or rail segment's (prod's shape-equality test against
+-- centerlines, which no rule of ours reproduces on 2 segments on 26c) either way.
+{%- set coincident_fix_on = 'TRUE' if var('fix_coincident_seg_count') else 'FALSE' %}
 
 WITH base_diffs AS (
   {{ generate_diff_summary(
@@ -167,9 +171,11 @@ categorized AS (
         ) AS is_topology_lr_change,
         -- CSCL-LION-14: coincident_seg_count is off by one on a segment with a subway/rail-
         -- centerline candidate, and nothing else changed but CSCL-LION-03's curve flag on
-        -- subway/rail (with fix_single_arc_curve_flag on).
+        -- subway/rail (with fix_single_arc_curve_flag on). On a centerline (or its protos)
+        -- only with fix_coincident_seg_count on.
         (
             crs.segmentid IS NOT NULL
+            AND ({{ coincident_fix_on }} OR with_borough._source_table IN ('subway', 'rail'))
             AND LIST_CONTAINS(JSON_KEYS(changes), 'coincident_seg_count')
             AND ABS(
                 TRY_CAST(TRIM(changes ->> '$.coincident_seg_count.old') AS INT)
@@ -262,7 +268,8 @@ SELECT
             THEN 'CSCL-LION-19: SAF flag leaks onto ramp protosegment'
         -- CSCL-LION-14: prod's Esri shape-equality test and our geometric match disagree on a
         -- near-identical subway/rail and centerline (prod also writes 0 where the spec floors
-        -- the count at 1). See CSCL-LION-14
+        -- the count at 1; on a centerline, only with fix_coincident_seg_count on). See
+        -- CSCL-LION-14
         WHEN status = 'modified' AND is_coincident_rail_change
             THEN 'CSCL-LION-14: subway/rail coincident_seg_count'
         -- CSCL-LION-16: left/right AP from the AP topology, where prod's 2 ft probe

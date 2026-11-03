@@ -11,12 +11,21 @@ models:
 - name: int__centerline_coincident_subway_or_rail_matches
   description: "Candidate matches between centerlines and underground rail or subway segments, exact (same geometry) or fuzzy (midpoints within 2.5 ft). Kept apart from the counts for diagnosis."
 - name: int__centerline_coincident_subway_or_rail
-  description: "Count of underground rail or subway segments coincident with each centerline that already has coincident segments (match within 1 ft)."
+  description: >-
+    Underground (ROW_TYPE 1) subway and rail segments a centerline's coincident segment count
+    (LION L57) leaves out, by prod's rule and by ours (CSCL-LION-14). Prod subtracts each one
+    at the centerline's midpoint that Esri's shape-equality test finds equal to the
+    centerline, with no floor; ours, with the var fix_coincident_seg_count on, those within
+    1 ft of its midpoint, only when the source count is above 1.
   columns:
   - name: segmentid
     description: "Centerline segment id."
+  - name: subway_or_rail_count_prod
+    description: "Prod's rule: underground subway/rail segments at the centerline's midpoint whose shape and the centerline's are each within var segcount_coincident_tolerance_ft of the other."
+  - name: subway_or_rail_count_fixed
+    description: "Ours: underground subway/rail segments whose midpoint is within 1 ft of the centerline's, on a centerline whose source count is above 1 (0 otherwise), so the count stays at least 1."
   - name: subway_or_rail_count
-    description: "Number of coincident underground rail or subway segments."
+    description: "The number int__lion subtracts: subway_or_rail_count_fixed with fix_coincident_seg_count on, else subway_or_rail_count_prod (the default)."
 - name: int__noncenterline_coincident_segments
   description: "Candidate coincident segments for each non-centerline segment: same-source segments and centerlines (not underground rail) whose midpoints are within 2.5 ft."
 - name: int__noncenterline_coincident_segment_count
@@ -26,3 +35,62 @@ models:
     description: "Segment id."
   - name: coincident_seg_count
     description: "Number of coincident segments, counting the segment itself."
+
+unit_tests:
+# CSCL-LION-14. C1 (source count 1) has an underground rail R1 with its shape: prod subtracts
+# it and writes 0, ours keeps the floor. C2 (count 2) has a subway R2 0.5 ft beside it: ours
+# subtracts it (midpoints within 1 ft), prod doesn't (not the same shape). C3 (count 2) has
+# R3, the same shape with an extra vertex and 0.0001 ft off: both subtract it. sql fixtures:
+# CI runs unit tests without building the upstream models
+- name: test__int__centerline_coincident_subway_or_rail__prod
+  description: "Default (fix_coincident_seg_count false): prod's rule, shape equality with no floor."
+  model: int__centerline_coincident_subway_or_rail
+  overrides:
+    vars:
+      fix_coincident_seg_count: false
+  given: &coincident_rail_given
+  - input: ref('int__primary_segments')
+    format: sql
+    rows: |
+      SELECT segmentid, 'centerline' AS source_table, ST_GEOMFROMTEXT(wkt) AS geom,
+        ST_LINEINTERPOLATEPOINT(ST_GEOMFROMTEXT(wkt), 0.5) AS midpoint
+      FROM (VALUES
+        (1, 'LINESTRING (0 0, 100 0)'),
+        (2, 'LINESTRING (0 10, 100 10)'),
+        (3, 'LINESTRING (0 20, 100 20)')
+      ) AS t (segmentid, wkt)
+  - input: ref('int__underground_rail')
+    format: sql
+    rows: |
+      SELECT segmentid, ST_GEOMFROMTEXT(wkt) AS geom,
+        ST_LINEINTERPOLATEPOINT(ST_GEOMFROMTEXT(wkt), 0.5) AS midpoint, rail_type
+      FROM (VALUES
+        (101, 'LINESTRING (0 0, 100 0)', 'rail'),
+        (102, 'LINESTRING (0 10.5, 100 10.5)', 'subway'),
+        (103, 'LINESTRING (100 20.0001, 50 20, 0 20.0001)', 'subway')
+      ) AS t (segmentid, wkt, rail_type)
+  - input: ref('int__centerline_coincident_subway_or_rail_matches')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (101, 1, 1, 0.0),
+        (102, 2, 2, 0.5),
+        (103, 3, 2, 0.0001)
+      ) AS t (trains_segment_id, all_segments_id, starting_coincident_seg_count, distance)
+  expect:
+    rows:
+    - {segmentid: 1, subway_or_rail_count_prod: 1, subway_or_rail_count_fixed: 0, subway_or_rail_count: 1}
+    - {segmentid: 2, subway_or_rail_count_prod: 0, subway_or_rail_count_fixed: 1, subway_or_rail_count: 0}
+    - {segmentid: 3, subway_or_rail_count_prod: 1, subway_or_rail_count_fixed: 1, subway_or_rail_count: 1}
+- name: test__int__centerline_coincident_subway_or_rail__fixed
+  description: "fix_coincident_seg_count true: ours, midpoints within 1 ft and only on a source count above 1."
+  model: int__centerline_coincident_subway_or_rail
+  overrides:
+    vars:
+      fix_coincident_seg_count: true
+  given: *coincident_rail_given
+  expect:
+    rows:
+    - {segmentid: 1, subway_or_rail_count: 0}
+    - {segmentid: 2, subway_or_rail_count: 1}
+    - {segmentid: 3, subway_or_rail_count: 1}

@@ -188,10 +188,12 @@ models:
 # sql fixtures: CI runs unit tests without building the upstream models, so dbt can't read
 # their column types. Columns gdb_lion doesn't test are NULL.
 # Segment 1 is a centerline whose source seqnum isn't 5 wide and whose STREETWIDTH_MAX is 0,
-# with one SAF record; 2 is a rail segment with no seqnum or width; 3 is an ordinary centerline.
+# with one SAF record; 2 is a rail segment with no seqnum or width; 3 is an ordinary centerline;
+# 4 a non-street feature numbered 2 in the LION .dat files' extract sessions and 5 in the LION
+# gdb's (CSCL-LION-05).
 unit_tests:
   - name: test__gdb_lion__seqnum_zero_filled
-    description: "SeqNum is 5 wide, zero-filled, and 00000 when the source has none (as prod), on base and SAF rows."
+    description: "SeqNum is 5 wide, zero-filled, and 00000 when the source has none (as prod), on base and SAF rows; it is the LION gdb's numbering (gdb_segment_seqnum), not the .dat files'."
     model: gdb_lion
     given: &gdb_lion_given
       - input: ref('int__lion')
@@ -251,10 +253,11 @@ unit_tests:
             NULL::TEXT AS truck_route_type, NULL::TEXT AS twisted_parity_flag
           FROM (VALUES
             -- staging blanks a 0 width in streetwidth_max (for the LION file); _with_zeros keeps it
-            (1, 'g1', 'C', '840', NULL::INT, 0),
-            (2, 'g2', 'T', NULL, NULL::INT, NULL::INT),
-            (3, 'g3', 'U', '00123', 60, 60)
-          ) AS t (segmentid, globalid, segment_type, segment_seqnum, streetwidth_max, streetwidth_max_with_zeros)
+            (1, 'g1', 'C', '840', '840', NULL::INT, 0),
+            (2, 'g2', 'T', NULL, NULL, NULL::INT, NULL::INT),
+            (3, 'g3', 'U', '00123', '00123', 60, 60),
+            (4, 'g4', 'U', '00002', '00005', NULL::INT, NULL::INT)
+          ) AS t (segmentid, globalid, segment_type, segment_seqnum, gdb_segment_seqnum, streetwidth_max, streetwidth_max_with_zeros)
       - input: ref('int__saf_replicant_fields')
         format: sql
         rows: |
@@ -266,11 +269,11 @@ unit_tests:
       - input: ref('int__lion_house_number_zeroing')
         format: sql
         rows: |
-          SELECT * FROM (VALUES ('g1', FALSE), ('g2', TRUE), ('g3', FALSE)) AS t (globalid, zero_house_numbers)
+          SELECT * FROM (VALUES ('g1', FALSE), ('g2', TRUE), ('g3', FALSE), ('g4', TRUE)) AS t (globalid, zero_house_numbers)
       - input: ref('int__lion_segcount')
         format: sql
         rows: |
-          SELECT * FROM (VALUES (1, 2), (2, 1), (3, 1)) AS t (segmentid, n_records)
+          SELECT * FROM (VALUES (1, 2), (2, 1), (3, 1), (4, 1)) AS t (segmentid, n_records)
     # dict expect: only the tested columns (dbt reads their types from the model's output)
     expect:
       rows:
@@ -278,6 +281,7 @@ unit_tests:
         - {SegmentID: '0000001', SpecAddr: 'B', SeqNum: '00840'}
         - {SegmentID: '0000002', SpecAddr: null, SeqNum: '00000'}
         - {SegmentID: '0000003', SpecAddr: null, SeqNum: '00123'}
+        - {SegmentID: '0000004', SpecAddr: null, SeqNum: '00005'}
   - name: test__gdb_lion__streetwidth_max_keeps_zero
     description: "StreetWidth_Max keeps a source 0 (prod writes 0.0); only a NULL source width is NULL."
     model: gdb_lion
@@ -288,3 +292,4 @@ unit_tests:
         - {SegmentID: '0000001', SpecAddr: 'B', StreetWidth_Max: 0.0}
         - {SegmentID: '0000002', SpecAddr: null, StreetWidth_Max: null}
         - {SegmentID: '0000003', SpecAddr: null, StreetWidth_Max: 60.0}
+        - {SegmentID: '0000004', SpecAddr: null, StreetWidth_Max: null}

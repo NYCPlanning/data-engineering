@@ -333,8 +333,16 @@ field_causes AS (
             -- not attributed to a known difference
             WHEN f.key = 'segcount' THEN 'SegCount'
             WHEN f.key = 'street' THEN 'Street'
-            WHEN f.key = 'seqnum' AND w._feature_type = 'nonstreetfeatures'
+            -- prod's LION gdb numbers non-street features in one extract session, its .dat
+            -- files in the sessions of var lion_seqnum_extract_sessions: a difference only
+            -- with the gdb numbered like the .dat files (lion_gdb_seqnum_extract_sessions set
+            -- to them; the default numbers it like prod's gdb)
+            WHEN
+                {{ 'TRUE' if var('lion_gdb_seqnum_extract_sessions') == var('lion_seqnum_extract_sessions') else 'FALSE' }}
+                AND f.key = 'seqnum'
+                AND w._feature_type = 'nonstreetfeatures'
                 THEN 'CSCL-LION-05: nonstreet SeqNum'
+            WHEN f.key = 'seqnum' AND w._feature_type = 'nonstreetfeatures' THEN 'Nonstreet SeqNum'
             WHEN f.key = 'seqnum' THEN 'SeqNum on non-nonstreet feature'
             -- prod's pointer 1 when the BOE-preferred LGC value is above 9: a difference
             -- only with fix_boe_lgc_pointer on (off, the default, writes prod's pointer)

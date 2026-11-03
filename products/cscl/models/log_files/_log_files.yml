@@ -216,6 +216,21 @@ models:
     what the var zero_generic_house_numbers changes (CSCL-LION-15), and whether it is on in
     this build.
 
+- name: log__gdb_seqnum_sessions
+  description: >-
+    CSCL-LOG-OURS-22, every build: one row giving the extract sessions the LION gdb and the
+    LION .dat files number non-street features' sequence numbers in (vars
+    lion_gdb_seqnum_extract_sessions and lion_seqnum_extract_sessions, CSCL-LION-05), with
+    the number of LION gdb records (its own records and its SAF replicants) whose SeqNum
+    differs from the .dat files' numbering.
+
+- name: log__coincident_seg_count
+  description: >-
+    CSCL-LOG-OURS-23, every build: one row with the number of LION .dat records of a
+    centerline whose coincident segment count (L57) differs between prod's rule and ours
+    (CSCL-LION-14), how many of them prod's rule writes 0, i.e. what the var
+    fix_coincident_seg_count changes, and whether it is on in this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
@@ -419,3 +434,98 @@ unit_tests:
     - log_message_id: CSCL-LOG-OURS-15
       record_count: 6
       message: "6 LION gdb records of generic segments (3 SAF replicants) have house numbers. Zeroing generic segments' house numbers is ON in this build (zero_generic_house_numbers = true): they are zeroed, as the spec and the legacy tool's rule do, where prod's LION gdb keeps them (CSCL-LION-15)"
+# CSCL-LOG-OURS-22. K1 (continuous parity) and K5 get a different SeqNum in the LION gdb's
+# sessions: K1 is two records plus a two-record SAF replicant, K5 one record (its SAF
+# replicant isn't written). K2 has a blank Street (not written), K3 the same number in both
+# and K4 isn't in the LION gdb. 5 records. sql fixtures: CI runs unit tests without building
+# the upstream models
+- name: test__log__gdb_seqnum_sessions__defaults
+  description: "The defaults' sessions: the LION gdb in one session, the .dat files with Queens and Staten Island in a fresh one; counts the LION gdb records numbered differently."
+  model: log__gdb_seqnum_sessions
+  overrides:
+    vars:
+      lion_seqnum_extract_sessions: [['2', '3', '1'], ['4', '5']]
+      lion_gdb_seqnum_extract_sessions: [['2', '3', '1', '4', '5']]
+  given:
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', TRUE, 'MAIN STREET', 'L', '00001', '00003'),
+        ('K2', TRUE, '  ', NULL, '00001', '00003'),
+        ('K3', TRUE, 'MAIN STREET', NULL, '00002', '00002'),
+        ('K4', FALSE, 'MAIN STREET', NULL, '00001', '00003'),
+        ('K5', TRUE, 'MAIN STREET', NULL, '00004', '00006')
+      ) AS t (lionkey, include_in_bytes_lion, street, continuous_parity_flag, segment_seqnum, gdb_segment_seqnum)
+  - input: ref('int__saf_replicant_fields')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', TRUE, 'R'),
+        ('K3', TRUE, NULL),
+        ('K5', FALSE, NULL)
+      ) AS t (lionkey, is_written, parity_side)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-22
+      record_count: 5
+      message: "5 LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. This build numbers the LION gdb in the extract sessions [2, 3, 1, 4, 5] (lion_gdb_seqnum_extract_sessions) and the LION .dat files in [2, 3, 1] [4, 5] (lion_seqnum_extract_sessions); prod's LION gdb matches one session for all five boroughs and its .dat files a fresh session for Queens and Staten Island (CSCL-LION-05)"
+- name: test__log__gdb_seqnum_sessions__same_sessions
+  description: "Both outputs in the .dat files' sessions: every record has the same number, 0 records, still one row."
+  model: log__gdb_seqnum_sessions
+  overrides:
+    vars:
+      lion_seqnum_extract_sessions: [['2', '3', '1'], ['4', '5']]
+      lion_gdb_seqnum_extract_sessions: [['2', '3', '1'], ['4', '5']]
+  given:
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', TRUE, 'MAIN STREET', 'L', '00001', '00001')
+      ) AS t (lionkey, include_in_bytes_lion, street, continuous_parity_flag, segment_seqnum, gdb_segment_seqnum)
+  - input: ref('int__saf_replicant_fields')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES ('K1', TRUE, 'R')) AS t (lionkey, is_written, parity_side)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-22
+      record_count: 0
+      message: "0 LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. This build numbers the LION gdb in the extract sessions [2, 3, 1] [4, 5] (lion_gdb_seqnum_extract_sessions) and the LION .dat files in [2, 3, 1] [4, 5] (lion_seqnum_extract_sessions); prod's LION gdb matches one session for all five boroughs and its .dat files a fresh session for Queens and Staten Island (CSCL-LION-05)"
+# CSCL-LOG-OURS-23. The first two records differ (prod's rule writes 0 on the first); the
+# third agrees, the fourth isn't in the LION .dat files and the fifth isn't a centerline.
+- name: test__log__coincident_seg_count__off
+  description: "Default (fix_coincident_seg_count false): counts the centerline records whose two counts differ, OFF."
+  model: log__coincident_seg_count
+  overrides:
+    vars:
+      fix_coincident_seg_count: false
+  given: &coincident_log_given
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (TRUE, 0, 1),
+        (TRUE, 2, 1),
+        (TRUE, 1, 1),
+        (FALSE, 0, 1),
+        (TRUE, NULL::INT, NULL::INT)
+      ) AS t (include_in_geosupport_lion, coincident_seg_count_prod, coincident_seg_count_fixed)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-23
+      record_count: 2
+      message: "2 LION .dat records of centerlines (1 of them 0 by prod's rule) get a different coincident segment count by prod's rule (underground subway/rail segments with the centerline's shape, no floor) than by ours. Our coincident segment count is OFF in this build (fix_coincident_seg_count = false): they get prod's, where ours subtracts the underground subway/rail segments within 1 ft of the centerline's midpoint and stays at least 1 (CSCL-LION-14)"
+- name: test__log__coincident_seg_count__on
+  description: "fix_coincident_seg_count true: the same count, ON."
+  model: log__coincident_seg_count
+  overrides:
+    vars:
+      fix_coincident_seg_count: true
+  given: *coincident_log_given
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-23
+      record_count: 2
+      message: "2 LION .dat records of centerlines (1 of them 0 by prod's rule) get a different coincident segment count by prod's rule (underground subway/rail segments with the centerline's shape, no floor) than by ours. Our coincident segment count is ON in this build (fix_coincident_seg_count = true): they subtract the underground subway/rail segments within 1 ft of the centerline's midpoint and stay at least 1 (CSCL-LION-14)"

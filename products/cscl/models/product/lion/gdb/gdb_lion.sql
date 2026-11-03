@@ -75,8 +75,10 @@ base_rows AS (
         NULL::text AS "SpecAddr",
         face_code AS "FaceCode",
         -- prod writes SeqNum 5 wide, zero-filled, and 00000 when the source has none
-        -- (ESRIBytesConfiguration.xml L3); a few source seqnums are shorter, rail has none
-        lpad(coalesce(segment_seqnum, ''), 5, '0') AS "SeqNum",
+        -- (ESRIBytesConfiguration.xml L3); a few source seqnums are shorter, rail has none.
+        -- A non-street feature's is numbered in the LION gdb's extract sessions, which can
+        -- differ from the .dat files' (var lion_gdb_seqnum_extract_sessions, CSCL-LION-05)
+        lpad(coalesce(gdb_segment_seqnum, ''), 5, '0') AS "SeqNum",
         boroughcode::text || five_digit_street_code AS "StreetCode",
         NULL::text AS "SAFStreetCode",
         lgc1 AS "LGC1",
@@ -274,7 +276,7 @@ replicant_rows AS (
         -- segment's (ETL spec §2.7.3).
         saf_replicants.specaddr AS "SpecAddr",
         lion.face_code AS "FaceCode",
-        lpad(coalesce(lion.segment_seqnum, ''), 5, '0') AS "SeqNum",
+        lpad(coalesce(lion.gdb_segment_seqnum, ''), 5, '0') AS "SeqNum",
         lion.boroughcode::text || lion.five_digit_street_code AS "StreetCode",
         saf_replicants.saf_street_code AS "SAFStreetCode",
         lion.lgc1 AS "LGC1",
