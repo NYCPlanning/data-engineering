@@ -40,9 +40,11 @@ diff_grouped AS (
         -- Categorize based on which fields changed
         CASE
             -- Spec Table 13: AltSegmentData rows with a blank alt_segdata_type are excluded from
-            -- SAF ABCEGNPX. Prod includes segment 9017010's (row created 2010, never modified).
+            -- SAF ABCEGNPX. Prod includes segment 9017010's (row created 2010, never modified),
+            -- and so do we, unless fix_blank_type_altsegmentdata is on: only then a difference.
             WHEN
-                status = 'only_in_legacy'
+                {{ 'TRUE' if var('fix_blank_type_altsegmentdata') else 'FALSE' }}
+                AND status = 'only_in_legacy'
                 AND split_part(_saf_key, '|', 3) = '9017010'
                 THEN 'CSCL-SAF-03: blank alt_segdata_type row in prod (spec Table 13)'
             -- CSCL-SAF-02: GNX points in the AP-boundary tolerance where prod took another AP, side-AP

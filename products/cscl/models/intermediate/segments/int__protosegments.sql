@@ -42,6 +42,25 @@ oriented AS (
         {%- else -%}
             geometry_reversed_prod
         {%- endif %} AS geometry_reversed,
+        -- CSCL-LION-26: prod's LION gdb reads a proto's census and community district fields
+        -- from the AtomicPolygons it found on the shape as it held it (flipped by the reversed
+        -- protos before this one), before the proto's own reversal swaps its LION record's
+        -- left/right values (ExtractorClass.cs:3934, SetBytesCensusTract;
+        -- CenterlineExtractFile.cs:3801-3842). Where the proto's orientation differs from that
+        -- shape's, the gdb's are the other way round from its LION record's. Not on the
+        -- borough boundary, where prod doesn't swap.
+        COALESCE(
+            primary_segments.feature_type = 'centerline'
+            AND proto.alt_segdata_type IS DISTINCT FROM 'B'
+            AND geometry_reversed <> COALESCE(is_flipped_by_prod, FALSE),
+            FALSE
+        ) AS gdb_census_sides_swapped_prod,
+        FALSE AS gdb_census_sides_swapped_fixed,
+        {% if var('fix_reversed_proto_census_fields') -%}
+            gdb_census_sides_swapped_fixed
+        {%- else -%}
+            gdb_census_sides_swapped_prod
+        {%- endif %} AS gdb_census_sides_swapped,
         -- CSCL-LION-22: a centerline proto's face code comes from StreetName. Where its B5SC +
         -- LGC1 has one only in FeatureName, prod means to take that one and log a warning,
         -- but compares the table name as stored with a lowercased one
@@ -135,6 +154,9 @@ SELECT
     proto.geometry_reversed_fixed,
     proto.geometry_reversed_prod,
     proto.geometry_reversed,
+    proto.gdb_census_sides_swapped_prod,
+    proto.gdb_census_sides_swapped_fixed,
+    proto.gdb_census_sides_swapped,
     proto.face_code_fixed,
     proto.face_code_prod,
     proto.is_featurename_face_code

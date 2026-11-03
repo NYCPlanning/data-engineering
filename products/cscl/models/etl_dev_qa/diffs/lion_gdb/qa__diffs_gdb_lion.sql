@@ -66,13 +66,17 @@ near_coincident_centerlines AS (
         AND st_covers(st_buffer(segment.geom, 0.0005), other.geom)
 ),
 -- CSCL-SAF-03 (gdb SegCount): prod counts AltSegmentData rows with a blank alt_segdata_type
--- in the segment's SegCount, as it writes them to the SAF; ours leaves them out (spec Table 13).
+-- in the segment's SegCount, as it writes them to the SAF. A difference only with
+-- fix_blank_type_altsegmentdata on, which leaves them out (spec Table 13): off (the
+-- default) this is empty, so a SegCount diff is unaccounted.
 blank_type_altsegmentdata AS (
     SELECT
         lpad(segmentid::text, 7, '0') AS segmentid,
         count(*) AS n_rows
     FROM {{ source('recipe_sources', 'dcp_cscl_altsegmentdata') }}
-    WHERE nullif(trim(alt_segdata_type), '') IS NULL
+    WHERE
+        {{ 'TRUE' if var('fix_blank_type_altsegmentdata') else 'FALSE' }}
+        AND nullif(trim(alt_segdata_type), '') IS NULL
     GROUP BY 1
 ),
 -- CSCL-SAF-06 (gdb SegCount): CommonPlaces both sides' SAF has but prod's LION gdb leaves
@@ -86,14 +90,17 @@ vintage_commonplaces AS (
     GROUP BY 1
 ),
 -- CSCL-SAF-03 (gdb row): the blank-type AltSegmentData rows, which prod writes as a B
--- replicant and ours leaves out
+-- replicant and ours leaves out with fix_blank_type_altsegmentdata on (off, the default,
+-- writes them too, so this is empty)
 blank_type_altsegmentdata_rows AS (
     SELECT
         lpad(segmentid::text, 7, '0') AS segmentid,
         nullif(trim(l_low_hn), '') AS l_low_hn,
         nullif(trim(r_low_hn), '') AS r_low_hn
     FROM {{ source('recipe_sources', 'dcp_cscl_altsegmentdata') }}
-    WHERE nullif(trim(alt_segdata_type), '') IS NULL
+    WHERE
+        {{ 'TRUE' if var('fix_blank_type_altsegmentdata') else 'FALSE' }}
+        AND nullif(trim(alt_segdata_type), '') IS NULL
 ),
 -- CSCL-SAF-06 (gdb row): CommonPlace SAF records prod's SAF ABCEGNPX files carry, keyed
 -- the way a G/N/X replicant's Join_ID starts (B5SC, LGC1) and ends (SAF type)
@@ -111,7 +118,9 @@ prod_saf_commonplaces AS (
     WHERE saftype IN ('G', 'N', 'X')
 ),
 -- CSCL-LION-25: S/V replicants of HYPHEN_TYPE R address points, with the high house
--- number of their range (HOUSE_NUMBER_RANGE), which prod's gdb leaves blank
+-- number of their range (HOUSE_NUMBER_RANGE), which prod's gdb leaves blank. A difference
+-- only with fix_hyphen_r_high_house_number on: off (the default) this is empty, so a high
+-- house number diff is unaccounted.
 hyphen_r_replicants AS (
     SELECT
         lpad(lion.segmentid::text, 7, '0') AS segmentid,
@@ -120,14 +129,19 @@ hyphen_r_replicants AS (
     FROM {{ ref('int__saf_replicant_fields') }} AS replicant
     INNER JOIN {{ ref('int__address_points') }} AS ap ON replicant.saf_globalid = ap.globalid
     INNER JOIN {{ ref('int__lion') }} AS lion ON replicant.lionkey = lion.lionkey
-    WHERE replicant.saf_source_table = 'addresspoints' AND ap.hyphen_type = 'R'
+    WHERE
+        {{ 'TRUE' if var('fix_hyphen_r_high_house_number') else 'FALSE' }}
+        AND replicant.saf_source_table = 'addresspoints'
+        AND ap.hyphen_type = 'R'
     GROUP BY lion.segmentid, replicant.join_id
 ),
--- CSCL-LION-26: segments with a reversed proto-segment
+-- CSCL-LION-26: segments with a reversed proto-segment. A difference only with
+-- fix_reversed_proto_census_fields on: off (the default) this is empty, so a census or
+-- community district diff there is unaccounted.
 reversed_proto_segments AS (
     SELECT DISTINCT lpad(segmentid::text, 7, '0') AS segmentid
     FROM {{ ref('stg__altsegmentdata_proto') }}
-    WHERE reversed
+    WHERE {{ 'TRUE' if var('fix_reversed_proto_census_fields') else 'FALSE' }} AND reversed
 ),
 -- CSCL-LION-27: prod's own LION .dat values for the fields its gdb carries from an older
 -- extract, one row per (segment, field, value)
@@ -249,15 +263,17 @@ field_causes AS (
                 AND coalesce(nullif(trim(w.changes -> f.key ->> 'new'), ''), '0') = '0'
                 THEN 'CSCL-LION-15: house numbers zeroed on generic segments'
             -- CSCL-LION-25: prod writes no high house number on an S/V replicant of a
-            -- HYPHEN_TYPE R address point; ours writes the range's HOUSE_NUMBER_RANGE
+            -- HYPHEN_TYPE R address point; ours writes the range's HOUSE_NUMBER_RANGE with
+            -- fix_hyphen_r_high_house_number on (hyphen_r_high_hns is empty with it off)
             WHEN
                 f.key IN ('lhi_hyphen', 'rhi_hyphen', 'toleft', 'toright')
                 AND coalesce(w.changes -> f.key ->> 'old', '0') = '0'
                 AND list_contains(w.hyphen_r_high_hns, w.changes -> f.key ->> 'new')
                 THEN 'CSCL-LION-25: high house number of a HYPHEN_TYPE R address point'
             -- CSCL-LION-26: on a reversed proto-segment prod swaps the AtomicPolygons but
-            -- not the census and community district fields; ours swaps both, so each value
-            -- is the other side's
+            -- not the census and community district fields; ours swaps both with
+            -- fix_reversed_proto_census_fields on, so each value is the other side's
+            -- (has_reversed_proto is false with it off)
             WHEN
                 (
                     regexp_matches(f.key, '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$')

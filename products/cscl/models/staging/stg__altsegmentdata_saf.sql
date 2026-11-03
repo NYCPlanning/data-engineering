@@ -20,6 +20,7 @@ SELECT
     b5sc,
     sosindicator,
     alt_segdata_type,
+    NULLIF(TRIM(alt_segdata_type), '') IS NULL AS is_blank_alt_segdata_type,
     lgc5,
     lgc6,
     lgc7,
@@ -28,4 +29,13 @@ SELECT
     globalid,
     ogc_fid
 FROM {{ source("recipe_sources", "dcp_cscl_altsegmentdata") }}
-WHERE alt_segdata_type = 'S'
+-- CSCL-SAF-03: spec Table 13 makes only ALT_SEGDATA_TYPE S rows SAF records, but prod
+-- selects them by SAFTYPE alone (SAFExtractClass.cs:1448, SAFTYPE IN ('A', 'B', 'C', 'E',
+-- 'P'); CSCLDataHelpersClass.cs:1215-1300, GetSAFTData, for the LION gdb), so it reads a
+-- row with a blank ALT_SEGDATA_TYPE and a SAF type as one too. Kept unless the var
+-- fix_blank_type_altsegmentdata is on.
+WHERE
+    alt_segdata_type = 'S'
+    {%- if not var('fix_blank_type_altsegmentdata') %}
+        OR (NULLIF(TRIM(alt_segdata_type), '') IS NULL AND NULLIF(TRIM(saftype), '') IS NOT NULL)
+    {%- endif %}

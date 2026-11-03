@@ -8,8 +8,9 @@ models:
     non-addressable place name (NAP) of type G, N or X - these eight types share one
     record layout despite two different source tables, since a
     street segment's address data and a place name attached to that segment need the
-    same shape. This is the generic-file version. An AltSegmentData row with a blank SAF
-    type is left out (CSCL-SAF-03). A place whose street code has more than one principal
+    same shape. This is the generic-file version. An AltSegmentData row with a SAF type and a
+    blank ALT_SEGDATA_TYPE is written, as prod does, unless the var
+    fix_blank_type_altsegmentdata leaves it out, as spec Table 13 says (CSCL-SAF-03). A place whose street code has more than one principal
     name is written once, with the first name in source order.
   config:
     tags: [export_doc]

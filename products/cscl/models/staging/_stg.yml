@@ -5,7 +5,9 @@ models:
   description: >
     AltSegmentData rows with alt_segdata_type 'S': the Special Address File (SAF) records
     attached to a segment (SAF types A, B, C, D, E, F, O, P). One row per record. Feeds the
-    SAF outputs. Rows with a blank alt_segdata_type are excluded (CSCL-SAF-03).
+    SAF outputs. A row with a blank alt_segdata_type and a SAF type is a SAF record too, as
+    prod reads it (CSCL-SAF-03); with the var fix_blank_type_altsegmentdata on it is left
+    out, as spec Table 13 says.
   columns:
   - name: ogc_fid
     description: Row identifier assigned when the source layer was loaded.
@@ -40,7 +42,14 @@ models:
   - name: sosindicator
     description: Side-of-street indicator; 1 is left and 2 is right.
   - name: alt_segdata_type
-    description: Always 'S' in this model.
+    description: >
+      'S', or blank on a row prod's SAF and LION gdb read as a SAF record anyway (it has a
+      SAF type), kept unless the var fix_blank_type_altsegmentdata is true (CSCL-SAF-03).
+  - name: is_blank_alt_segdata_type
+    description: >
+      The row's alt_segdata_type is blank (CSCL-SAF-03): spec Table 13 leaves it out of SAF,
+      prod reads it by its SAF type. Only in this model with fix_blank_type_altsegmentdata
+      false, the default.
   - name: borough
     description: Borough code of the segment.
     tests: [ not_null ]
@@ -626,3 +635,44 @@ unit_tests:
         globalid,
         globalid::INT AS ogc_fid
       FROM input
+# CSCL-SAF-03. a1 is a SAF row; b1 has a SAF type and a blank alt_segdata_type, which prod reads
+# as a SAF record (its SAF and LION gdb queries don't test alt_segdata_type); p1 is a proto
+# (no SAF type) and n1 has neither
+- name: test__stg__altsegmentdata_saf__blank_type_prod
+  description: "Default (fix_blank_type_altsegmentdata false): a blank-type row with a SAF type is kept, as prod."
+  model: stg__altsegmentdata_saf
+  overrides:
+    vars:
+      fix_blank_type_altsegmentdata: false
+  given: &blank_type_given
+  - input: source("recipe_sources", "dcp_cscl_altsegmentdata")
+    format: sql
+    rows: |
+      SELECT
+        globalid, alt_segdata_type, saftype, '1549502019' AS lionkey, '1' AS borough, 9017010 AS segmentid,
+        '101' AS l_low_hn, '199' AS l_high_hn, '100' AS r_low_hn, '198' AS r_high_hn, NULL::TEXT AS low_hn_suffix,
+        NULL::TEXT AS high_hn_suffix, '01' AS lgc1, NULL::TEXT AS lgc2, NULL::TEXT AS lgc3, NULL::TEXT AS lgc4,
+        NULL::TEXT AS lgc5, NULL::TEXT AS lgc6, NULL::TEXT AS lgc7, NULL::TEXT AS lgc8, NULL::TEXT AS lgc9,
+        NULL::TEXT AS zipcode, '1' AS boe_preferred_lgc_flag, '126294' AS b5sc, NULL::TEXT AS sosindicator, ogc_fid
+      FROM (VALUES
+        ('a1', 'S', 'B', 1),
+        ('b1', NULL, 'B', 2),
+        ('b2', ' ', 'A', 3),
+        ('p1', 'C', NULL, 4),
+        ('n1', NULL, NULL, 5)
+      ) AS t (globalid, alt_segdata_type, saftype, ogc_fid)
+  expect:
+    rows:
+    - {globalid: a1, saftype: B, is_blank_alt_segdata_type: false}
+    - {globalid: b1, saftype: B, is_blank_alt_segdata_type: true}
+    - {globalid: b2, saftype: A, is_blank_alt_segdata_type: true}
+- name: test__stg__altsegmentdata_saf__blank_type_fixed
+  description: "fix_blank_type_altsegmentdata true: only alt_segdata_type S rows, as spec Table 13."
+  model: stg__altsegmentdata_saf
+  overrides:
+    vars:
+      fix_blank_type_altsegmentdata: true
+  given: *blank_type_given
+  expect:
+    rows:
+    - {globalid: a1, saftype: B, is_blank_alt_segdata_type: false}

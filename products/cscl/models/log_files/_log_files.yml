@@ -230,6 +230,28 @@ models:
     what the var zero_generic_house_numbers changes (CSCL-LION-15), and whether it is on in
     this build.
 
+- name: log__reversed_proto_census_fields
+  description: >-
+    CSCL-LOG-OURS-17, every build: one row with the number of LION gdb records of a
+    centerline's proto-segments (their own records and their SAF replicants) whose census
+    tract, block or community district fields prod's gdb writes from the other side, i.e.
+    what the var fix_reversed_proto_census_fields changes (CSCL-LION-26), and whether it is
+    on in this build.
+
+- name: log__hyphen_r_high_house_number
+  description: >-
+    CSCL-LOG-OURS-18, every build: one row with the number of LION gdb S and V replicants
+    of HYPHEN_TYPE R address points that prod's gdb writes without a high house number,
+    i.e. what the var fix_hyphen_r_high_house_number changes (CSCL-LION-25), and whether it
+    is on in this build.
+
+- name: log__blank_type_altsegmentdata
+  description: >-
+    CSCL-LOG-OURS-19, every build: one row with the number of AltSegmentData rows that have
+    a SAF type and a blank ALT_SEGDATA_TYPE, and their segments, which prod writes as SAF
+    records and spec Table 13 leaves out, i.e. what the var fix_blank_type_altsegmentdata
+    changes (CSCL-SAF-03), and whether it is on in this build.
+
 - name: log__gdb_seqnum_sessions
   description: >-
     CSCL-LOG-OURS-22, every build: one row giving the extract sessions the LION gdb and the
