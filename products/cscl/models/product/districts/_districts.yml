@@ -159,9 +159,10 @@ models:
 
 - name: gdb_nybid
   description: >-
-    Business improvement districts, as stored in CSCL and made valid, not clipped. BIDs 44 and
-    56 differ from the previous release, which publishes them as invalid polygons
-    (CSCL-DISTRICTS-04).
+    Business improvement districts, as stored in CSCL, not clipped. BIDs 44 and 56 are
+    invalid polygons in the source and are published as stored, as in the previous release,
+    unless the make_valid_district_polygons setting is on, which publishes them made valid
+    (CSCL-DISTRICTS-04). Their area and length are the valid polygon's either way.
   config:
     tags: [export_doc]
     meta:
@@ -383,9 +384,11 @@ models:
 
 - name: gdb_nycdwi
   description: >-
-    Community districts built from the AtomicPolygon topology, water areas included. Two
-    districts differ from the previous release, which publishes them as invalid polygons
-    (CSCL-DISTRICTS-04).
+    Community districts built from the AtomicPolygon topology, water areas included.
+    Districts 484 and 502 are invalid polygons in the source community district layer; they
+    are published as the source stores them, as in the previous release, unless the
+    make_valid_district_polygons setting is on, which publishes the topology's
+    (CSCL-DISTRICTS-04). Their area and length are the topology polygon's either way.
   config:
     tags: [export_doc]
     meta:
@@ -458,12 +461,20 @@ models:
   - name: CT2010
     description: "Census tract: four-digit basic number plus two-digit suffix."
   - name: BoroCT2010
-    description: Borough code followed by the six-character tract.
+    description: >-
+      Borough code followed by the six-character tract, as the source census tract layer
+      stores it (BOROCT). The source gives water tract 990100 4990100 on its Brooklyn and
+      Staten Island pieces too, and so does this layer, as in prod, unless the
+      key_tracts_by_borough setting is on, which keys them 3990100 and 5990100
+      (CSCL-DISTRICTS-10).
     data_tests: [ not_null ]
   - name: NTACode
-    description: 2010 neighborhood tabulation area the tract belongs to.
+    description: >-
+      2010 neighborhood tabulation area the tract belongs to, as the source tract stores it
+      (QN99 on all three pieces of tract 990100), unless key_tracts_by_borough is on, which
+      takes it from the Neighborhood PUMA Codes row of the tract's borough and tract.
   - name: NTAName
-    description: Name of that NTA.
+    description: Name of that NTA, from the Neighborhood PUMA Codes table.
   - name: PUMA
     description: Public use microdata area code.
   - name: geom
@@ -493,12 +504,20 @@ models:
   - name: CT2010
     description: "Census tract: four-digit basic number plus two-digit suffix."
   - name: BoroCT2010
-    description: Borough code followed by the six-character tract.
+    description: >-
+      Borough code followed by the six-character tract, as the source census tract layer
+      stores it (BOROCT). The source gives water tract 990100 4990100 on its Brooklyn and
+      Staten Island pieces too, and so does this layer, as in prod, unless the
+      key_tracts_by_borough setting is on, which keys them 3990100 and 5990100
+      (CSCL-DISTRICTS-10).
     data_tests: [ not_null ]
   - name: NTACode
-    description: 2010 neighborhood tabulation area the tract belongs to.
+    description: >-
+      2010 neighborhood tabulation area the tract belongs to, as the source tract stores it
+      (QN99 on all three pieces of tract 990100), unless key_tracts_by_borough is on, which
+      takes it from the Neighborhood PUMA Codes row of the tract's borough and tract.
   - name: NTAName
-    description: Name of that NTA.
+    description: Name of that NTA, from the Neighborhood PUMA Codes table.
   - name: PUMA
     description: Public use microdata area code.
   - name: geom
@@ -777,8 +796,11 @@ models:
 - name: gdb_nyhez
   description: >-
     Hurricane evacuation zones built from the AtomicPolygon topology, not clipped: water
-    assigned a zone is included. Six zones differ from the previous release, which publishes
-    them as invalid polygons (CSCL-DISTRICTS-04).
+    assigned a zone is included. Six zones (1, 2, 4, 5, 6 and X) are invalid polygons in the
+    source zone layer; they are published as the source stores them, as in the previous
+    release, unless the make_valid_district_polygons setting is on, which publishes the
+    topology's (CSCL-DISTRICTS-04). Their area and length are the topology polygon's either
+    way.
   config:
     tags: [export_doc]
     meta:
@@ -1110,3 +1132,90 @@ models:
     description: Area in square feet.
   - name: COUNTY
     description: County the ZIP code area lies in.
+
+# CSCL-DISTRICTS-04. BID 56's source polygon has a shell inside another shell; BID 1's is
+# valid. HEZ X's source polygon is invalid, HEZ 3's isn't listed. sql fixtures: CI runs
+# unit tests without building the upstream models
+unit_tests:
+- name: test__gdb_nybid__prod
+  description: "Default (make_valid_district_polygons false): an invalid BID is published as stored, as prod; SHAPE_Area is the valid polygon's."
+  model: gdb_nybid
+  overrides:
+    vars:
+      make_valid_district_polygons: false
+  given: &nybid_given
+  - input: ref('stg__businessimprovementdistrict')
+    format: sql
+    rows: |
+      SELECT bidid, bid, borough, ST_GeomFromText(wkt) AS geom FROM (VALUES
+        (56, 'South Shore', 'Staten Island', 'MULTIPOLYGON(((0 0, 10 0, 10 10, 0 10, 0 0), (2 2, 2 4, 4 4, 4 2, 2 2)))'),
+        (1, 'Valid', 'Manhattan', 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))')
+      ) AS t (bidid, bid, borough, wkt)
+  - input: ref('int__district_invalid_source_polygons')
+    format: sql
+    rows: |
+      SELECT 'nybid' AS source_layer, '56' AS key_value,
+        ST_GeomFromText('MULTIPOLYGON(((0 0, 10 0, 10 10, 0 10, 0 0)), ((2 2, 4 2, 4 4, 2 4, 2 2)))') AS source_geom
+  expect:
+    format: sql
+    rows: |
+      SELECT 56 AS "BIDID", 'South Shore' AS "BID", 'Staten Island' AS "BOROUGH", ST_GeomFromText('MULTIPOLYGON (((0 0, 10 0, 10 10, 0 10, 0 0)), ((2 2, 4 2, 4 4, 2 4, 2 2)))') AS geom, 48.0 AS "SHAPE_Length", 96.0 AS "SHAPE_Area"
+      UNION ALL
+      SELECT 1, 'Valid', 'Manhattan', ST_GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))'), 4.0, 1.0
+- name: test__gdb_nybid__make_valid
+  description: "make_valid_district_polygons true: every BID is published made valid."
+  model: gdb_nybid
+  overrides:
+    vars:
+      make_valid_district_polygons: true
+  given: *nybid_given
+  expect:
+    format: sql
+    rows: |
+      SELECT 56 AS "BIDID", 'South Shore' AS "BID", 'Staten Island' AS "BOROUGH", ST_GeomFromText('MULTIPOLYGON (((0 0, 10 0, 10 10, 0 10, 0 0), (2 2, 2 4, 4 4, 4 2, 2 2)))') AS geom, 48.0 AS "SHAPE_Length", 96.0 AS "SHAPE_Area"
+      UNION ALL
+      SELECT 1, 'Valid', 'Manhattan', ST_GeomFromText('POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))'), 4.0, 1.0
+- name: test__gdb_nyhez__prod
+  description: "Default (make_valid_district_polygons false): a zone whose source polygon is invalid is published as stored, as prod; one whose isn't is the topology's. SHAPE_Area is the topology polygon's."
+  model: gdb_nyhez
+  overrides:
+    vars:
+      make_valid_district_polygons: false
+  given: &nyhez_given
+  - input: ref('int__boundary__hez')
+    format: sql
+    rows: |
+      SELECT entity_id, ST_GeomFromText(wkt) AS geom FROM (VALUES
+        ('X', 'POLYGON((0 0, 10 0, 10 5, 0 5, 0 0))'),
+        ('3', 'POLYGON((20 0, 21 0, 21 1, 20 1, 20 0))')
+      ) AS t (entity_id, wkt)
+  - input: ref('int__district_invalid_source_polygons')
+    format: sql
+    rows: |
+      SELECT 'nyhez' AS source_layer, 'X' AS key_value,
+        ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0 0), (0 0, 10 0, 10 5, 0 5, 0 0))') AS source_geom
+      UNION ALL
+      SELECT 'nybid', '3', ST_GeomFromText('POLYGON((0 0, 1 0, 0 1, 1 1, 0 0))')
+  expect:
+    format: sql
+    rows: |
+      SELECT 'X' AS "HURRICANE_EVACUATION_ZONE",
+        ST_GeomFromText('MULTIPOLYGON(((0 0, 10 0, 10 5, 0 5, 0 0), (0 0, 10 0, 10 5, 0 5, 0 0)))') AS geom,
+        30.0 AS "SHAPE_Length", 50.0 AS "SHAPE_Area"
+      UNION ALL
+      SELECT '3', ST_GeomFromText('MULTIPOLYGON(((20 0, 21 0, 21 1, 20 1, 20 0)))'), 4.0, 1.0
+- name: test__gdb_nyhez__make_valid
+  description: "make_valid_district_polygons true: every zone is the topology's polygon."
+  model: gdb_nyhez
+  overrides:
+    vars:
+      make_valid_district_polygons: true
+  given: *nyhez_given
+  expect:
+    format: sql
+    rows: |
+      SELECT 'X' AS "HURRICANE_EVACUATION_ZONE",
+        ST_GeomFromText('MULTIPOLYGON(((0 0, 10 0, 10 5, 0 5, 0 0)))') AS geom,
+        30.0 AS "SHAPE_Length", 50.0 AS "SHAPE_Area"
+      UNION ALL
+      SELECT '3', ST_GeomFromText('MULTIPOLYGON(((20 0, 21 0, 21 1, 20 1, 20 0)))'), 4.0, 1.0

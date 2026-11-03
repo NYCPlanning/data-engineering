@@ -154,6 +154,54 @@ models:
   - name: geom
     description: "District boundary (multi)polygon."
     tests: [ not_null ]
+- name: int__ct2010_keys
+  description: >-
+    One row per 2010 census tract (borough and tract): the BoroCT2010, NTACode and NTAName
+    nyct2010 and nyct2010wi write. Prod copies the source tract's BOROCT and
+    NEIGHBORHOOD_CODE and looks NTAName up by that code; ours keys the tract by its borough
+    and tract and takes the NTA from NeighborhoodPUMACodes by borough and tract
+    (CSCL-DISTRICTS-10). Which one the layers get is the var key_tracts_by_borough (default
+    false, prod's).
+  columns:
+  - name: boroct
+    description: "Borough code followed by tract, as the AtomicPolygons key the tract (stg__censustract2010.boroct)."
+    tests: [ unique, not_null ]
+  - name: source_boroct
+    description: "The source tract's BOROCT, unchanged."
+  - name: nta_code_prod
+    description: "The source tract's NEIGHBORHOOD_CODE, which prod writes as NTACode."
+  - name: nta_name_prod
+    description: "NEIGHBORHOOD_NAME of the first NeighborhoodPUMACodes row (by ogc_fid) with nta_code_prod, as prod looks it up."
+  - name: nta_code_borough
+    description: "NEIGHBORHOOD_CODE of the tract's NeighborhoodPUMACodes row by borough and tract."
+  - name: nta_name_borough
+    description: "NEIGHBORHOOD_NAME of that row."
+  - name: boroct2010
+    description: "What nyct2010(wi) write as BoroCT2010: boroct when the var key_tracts_by_borough is true, else source_boroct (the default)."
+  - name: nta_code
+    description: "What they write as NTACode: nta_code_borough when key_tracts_by_borough is true, else nta_code_prod."
+  - name: nta_name
+    description: "What they write as NTAName: nta_name_borough when key_tracts_by_borough is true, else nta_name_prod."
+- name: int__district_invalid_source_polygons
+  description: >-
+    One row per feature of nybid, nyhez or nycdwi (the layers prod copies unclipped from a
+    source feature class) whose source polygon is invalid: rings that cross, or a shell
+    inside another shell (CSCL-DISTRICTS-04). The layers publish source_geom, as prod,
+    unless the var make_valid_district_polygons is true; their SHAPE_Area and SHAPE_Length
+    come from the valid polygon either way.
+  columns:
+  - name: source_layer
+    description: "The published layer: nybid, nyhez or nycdwi."
+    tests: [ not_null ]
+  - name: key_value
+    description: "The feature's key in that layer: BIDID, HURRICANE_EVACUATION_ZONE or BoroCD."
+    tests: [ not_null ]
+  - name: source_geom
+    description: "The source polygon as stored (linear), invalid."
+  - name: source_area_sqft
+    description: "Area of source_geom as GEOS computes it on the invalid rings (a shell inside a shell counts twice)."
+  - name: valid_area_sqft
+    description: "Area of source_geom made valid (st_makevalid), which is what prod's SHAPE_Area is."
 - name: int__nta2010_county_fips
   description: >-
     One row per 2010 NTA: the borough holding most of its AtomicPolygon area and the
@@ -297,7 +345,7 @@ models:
 - name: int__boundary__hez_raw
   description: "Hurricane evacuation zone boundaries as polygonized from exterior edges, before noise-ring removal. Water APs assigned to a district count as land."
 - name: int__boundary__hez
-  description: "Hurricane evacuation zone boundaries, one row per district. Water APs assigned to a district count as land. Differs from prod in geometry on six zones, where prod publishes invalid polygons (CSCL-DISTRICTS-04)."
+  description: "Hurricane evacuation zone boundaries, one row per district. Water APs assigned to a district count as land. Six zones are invalid in the source; gdb_nyhez publishes those as stored, as prod, unless make_valid_district_polygons is on (CSCL-DISTRICTS-04)."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -440,7 +488,7 @@ models:
 - name: int__boundary__cdwi_raw
   description: "Community district boundaries as polygonized from exterior edges, before noise-ring removal. Water included."
 - name: int__boundary__cdwi
-  description: "Community district boundaries, one row per district. Water included. Differs from prod in geometry on two districts, where prod publishes invalid polygons (CSCL-DISTRICTS-04)."
+  description: "Community district boundaries, one row per district. Water included. Two districts are invalid in the source; gdb_nycdwi publishes those as stored, as prod, unless make_valid_district_polygons is on (CSCL-DISTRICTS-04)."
   columns:
   - name: entity_id
     description: "District id, in the published layer's key format."
@@ -602,3 +650,94 @@ unit_tests:
     - {nta2010: SI01, borocode: '5', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '085', county_fips: '085'}
     - {nta2010: BX99, borocode: '2', npc_fips_code: null, county_fips_prod: null, county_fips_borough: '005', county_fips: '005'}
     - {nta2010: BK05, borocode: '3', npc_fips_code: '47', county_fips_prod: '047', county_fips_borough: '047', county_fips: '047'}
+
+# CSCL-DISTRICTS-10. 3990100 and 5990100 carry the source BOROCT 4990100 and QN99, as the
+# Brooklyn and Staten Island pieces of tract 990100 do on 26c; 4990100 is the Queens
+# piece; 1000100 is an ordinary tract. QN99 has two NeighborhoodPUMACodes rows: prod's
+# lookup takes the first (by ogc_fid). sql fixtures: CI runs unit tests without building
+# the upstream models
+- name: test__int__ct2010_keys__prod
+  description: "Default (key_tracts_by_borough false): BoroCT2010 and NTACode are the source tract's, NTAName looked up by that code, as prod's."
+  model: int__ct2010_keys
+  overrides:
+    vars:
+      key_tracts_by_borough: false
+  given: &ct2010_keys_given
+  - input: ref('stg__censustract2010')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('3', '990100', '3990100', '4990100', 'QN99'),
+        ('4', '990100', '4990100', '4990100', 'QN99'),
+        ('5', '990100', '5990100', '4990100', 'QN99'),
+        ('1', '000100', '1000100', '1000100', 'MN25')
+      ) AS t (borocode, ct, boroct, source_boroct, neighborhood_code)
+  - input: source('recipe_sources', 'dcp_cscl_neighborhoodpumacodes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (1, 'QN99', 'park-cemetery-etc-Queens'),
+        (2, 'QN99', 'park-cemetery-etc-Queens (later row)'),
+        (3, 'BK99', 'park-cemetery-etc-Brooklyn'),
+        (4, 'SI99', 'park-cemetery-etc-Staten Island'),
+        (5, 'MN25', 'Battery Park City-Lower Manhattan')
+      ) AS t (ogc_fid, neighborhood_code, neighborhood_name)
+  - input: ref('stg__neighborhoodpumacodes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('3', 990100, 'BK99', 'park-cemetery-etc-Brooklyn'),
+        ('4', 990100, 'QN99', 'park-cemetery-etc-Queens'),
+        ('5', 990100, 'SI99', 'park-cemetery-etc-Staten Island'),
+        ('1', 100, 'MN25', 'Battery Park City-Lower Manhattan')
+      ) AS t (borough, censustract, neighborhood_code, neighborhood_name)
+  expect:
+    rows:
+    - {boroct: '3990100', boroct2010: '4990100', nta_code: QN99, nta_name: park-cemetery-etc-Queens, nta_code_borough: BK99}
+    - {boroct: '4990100', boroct2010: '4990100', nta_code: QN99, nta_name: park-cemetery-etc-Queens, nta_code_borough: QN99}
+    - {boroct: '5990100', boroct2010: '4990100', nta_code: QN99, nta_name: park-cemetery-etc-Queens, nta_code_borough: SI99}
+    - {boroct: '1000100', boroct2010: '1000100', nta_code: MN25, nta_name: Battery Park City-Lower Manhattan, nta_code_borough: MN25}
+- name: test__int__ct2010_keys__borough
+  description: "key_tracts_by_borough true: every tract is keyed by its borough and tract, its NTA looked up by borough and tract."
+  model: int__ct2010_keys
+  overrides:
+    vars:
+      key_tracts_by_borough: true
+  given: *ct2010_keys_given
+  expect:
+    rows:
+    - {boroct: '3990100', boroct2010: '3990100', nta_code: BK99, nta_name: park-cemetery-etc-Brooklyn, nta_code_prod: QN99}
+    - {boroct: '4990100', boroct2010: '4990100', nta_code: QN99, nta_name: park-cemetery-etc-Queens, nta_code_prod: QN99}
+    - {boroct: '5990100', boroct2010: '5990100', nta_code: SI99, nta_name: park-cemetery-etc-Staten Island, nta_code_prod: QN99}
+    - {boroct: '1000100', boroct2010: '1000100', nta_code: MN25, nta_name: Battery Park City-Lower Manhattan, nta_code_prod: MN25}
+
+# CSCL-DISTRICTS-04. BID 56 has a shell inside another shell (its raw area counts the
+# inner one twice), HEZ X is a bowtie, CD 484 is valid, and BID 1 is valid. Only the
+# invalid ones are listed
+- name: test__int__district_invalid_source_polygons
+  description: "Lists only the source polygons that are invalid, with the raw and the made-valid area."
+  model: int__district_invalid_source_polygons
+  given:
+  - input: source('recipe_sources', 'dcp_cscl_businessimprovementdistrict')
+    format: sql
+    rows: |
+      SELECT bidid, ST_GeomFromText(wkt) AS geom FROM (VALUES
+        (56, 'MULTIPOLYGON(((0 0, 10 0, 10 10, 0 10, 0 0)), ((2 2, 4 2, 4 4, 2 4, 2 2)))'),
+        (1, 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))')
+      ) AS t (bidid, wkt)
+  - input: source('recipe_sources', 'dcp_cscl_hurricaneevacuationzone')
+    format: sql
+    rows: |
+      SELECT hurricane_evacuation_zone, ST_GeomFromText(wkt) AS geom FROM (VALUES
+        ('X', 'POLYGON((0 0, 10 10, 10 0, 0 10, 0 0))')
+      ) AS t (hurricane_evacuation_zone, wkt)
+  - input: source('recipe_sources', 'dcp_cscl_communitydistrict')
+    format: sql
+    rows: |
+      SELECT commdist, ST_GeomFromText(wkt) AS geom FROM (VALUES
+        ('484', 'POLYGON((0 0, 5 0, 5 5, 0 5, 0 0))')
+      ) AS t (commdist, wkt)
+  expect:
+    rows:
+    - {source_layer: nybid, key_value: '56', source_area_sqft: 104.0, valid_area_sqft: 96.0}
+    - {source_layer: nyhez, key_value: X, source_area_sqft: 0.0, valid_area_sqft: 50.0}

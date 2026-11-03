@@ -135,7 +135,8 @@ models:
 - name: stg__businessimprovementdistrict
   description: >
     Business Improvement District boundaries. One row per district. Source for the BID
-    layer. Source BID 56 is invalid and is made valid here (CSCL-DISTRICTS-04).
+    layer. Source BIDs 44 and 56 are invalid: geom is made valid, and gdb_nybid publishes
+    raw_geom for them by default, as prod (CSCL-DISTRICTS-04).
   columns:
   - name: globalid
     description: Globally unique identifier assigned by the source geodatabase.
@@ -201,6 +202,10 @@ models:
     description: >
       Borough code followed by ct. Built here because the source boroct has a few wrong
       values that create duplicates.
+  - name: source_boroct
+    description: >
+      The source's BOROCT, unchanged: 4990100 on all three pieces of water tract 990100 on
+      26c. Prod's nyct2010 and nyct2010wi copy it (int__ct2010_keys, CSCL-DISTRICTS-10).
   - name: puma
     description: Public Use Microdata Area containing the tract.
   - name: health_area

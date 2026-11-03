@@ -17,14 +17,16 @@
 --   CSCL-DISTRICTS-06: districts whose prod polygon is stale against the current
 --     AtomicPolygons (keys from inv-2cy.48; tract 1000100 is block 10001001000's
 --     1,417 sq ft past every AtomicPolygon, inv-2cy.55).
---   CSCL-DISTRICTS-04: districts whose source polygon is invalid.
+--   CSCL-DISTRICTS-04: districts whose source polygon is invalid, only with
+--     make_valid_district_polygons on: off, the default, publishes them as stored, as prod.
 --   CSCL-DISTRICTS-07: nypp precincts that pass once prod's parts and holes under 100 sq
 --     ft are removed, as ours drops them (passes_without_prod_small_parts).
 --   CSCL-DISTRICTS-08: nypp precinct 113, which prod clipped to a different Jamaica Bay
 --     shoreline than its own nybb.
 --   CSCL-DISTRICTS-10: water tract 990100, which prod keys 4990100 in Brooklyn and
 --     Staten Island too (the source tract layer's BOROCT), so its pieces show as
---     ours-only (3990100, 5990100) and prod-only or dissolved into prod's 4990100.
+--     ours-only (3990100, 5990100) and prod-only or dissolved into prod's 4990100. Only
+--     with key_tracts_by_borough on: off, the default, copies the source's BOROCT, as prod.
 WITH labeled AS (
     SELECT
         *,
@@ -37,23 +39,29 @@ WITH labeled AS (
                 OR (source_layer IN ('nyct2010wi', 'nyct2020wi') AND key_value = '1000100')
                 THEN 'CSCL-DISTRICTS-06: stale prod layer'
             WHEN
-                (source_layer = 'nybid' AND key_value IN ('44', '56'))
-                OR (source_layer = 'nyhez' AND key_value IN ('1', '2', '4', '5', '6', 'X'))
-                OR (source_layer = 'nycdwi' AND key_value IN ('484', '502'))
+                {{ 'TRUE' if var('make_valid_district_polygons') else 'FALSE' }}
+                AND (
+                    (source_layer = 'nybid' AND key_value IN ('44', '56'))
+                    OR (source_layer = 'nyhez' AND key_value IN ('1', '2', '4', '5', '6', 'X'))
+                    OR (source_layer = 'nycdwi' AND key_value IN ('484', '502'))
+                )
                 THEN 'CSCL-DISTRICTS-04: invalid source polygon'
             WHEN source_layer = 'nypp' AND passes_without_prod_small_parts
                 THEN 'CSCL-DISTRICTS-07: ours drops parts under 100 sq ft'
             WHEN source_layer = 'nypp' AND key_value = '113'
                 THEN 'CSCL-DISTRICTS-08: prod nypp 113 shoreline'
             WHEN
-                (source_layer = 'nyct2010' AND (
-                    (key_value = '4990100' AND only_in_prod)
-                    OR (key_value = '5990100' AND only_in_build)
-                ))
-                OR (source_layer = 'nyct2010wi' AND (
-                    (key_value IN ('3990100', '5990100') AND only_in_build)
-                    OR (key_value = '4990100' AND NOT only_in_build AND NOT only_in_prod)
-                ))
+                {{ 'TRUE' if var('key_tracts_by_borough') else 'FALSE' }}
+                AND (
+                    (source_layer = 'nyct2010' AND (
+                        (key_value = '4990100' AND only_in_prod)
+                        OR (key_value = '5990100' AND only_in_build)
+                    ))
+                    OR (source_layer = 'nyct2010wi' AND (
+                        (key_value IN ('3990100', '5990100') AND only_in_build)
+                        OR (key_value = '4990100' AND NOT only_in_build AND NOT only_in_prod)
+                    ))
+                )
                 THEN 'CSCL-DISTRICTS-10: prod tract 990100 keyed 4990100'
         END AS known_difference
     FROM {{ ref('qa__geometry_fgdb_district_layers') }}
