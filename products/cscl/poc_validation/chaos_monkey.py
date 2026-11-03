@@ -1885,8 +1885,10 @@ MUTATIONS: list[Mutation] = [
         """,
     ),
     Mutation(
-        # every NeighborhoodPUMACodes row of an NTA: nynta2010 finds no name (gdb_nyct2010
-        # matches on borough and tract, so its tracts still find theirs)
+        # every NeighborhoodPUMACodes row of an NTA: nynta2010 finds no name, and nor do
+        # its tracts in nyct2010/nyct2010wi, which look it up by the tract's
+        # NEIGHBORHOOD_CODE as prod does (unless key_tracts_by_borough, CSCL-DISTRICTS-10);
+        # their log rows carry the same NEIGHBORHOOD_CODE
         name="neighborhoodpumacodes_code_renamed",
         log_message_ids=["CSCL-LOG-GDB-04"],
         table="dcp_cscl_neighborhoodpumacodes",

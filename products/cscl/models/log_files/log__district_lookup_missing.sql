@@ -5,8 +5,9 @@
 --   GDB-03: nynta2020's CDTA (prod finds it spatially, $cdtacode2020) has no CDTAEquiv2020
 --     row, so CDTAName is blank.
 --   GDB-04: no NeighborhoodPUMACodes row, so NTAName is blank (nyct2010, nyct2010wi,
---     nynta2010). Prod looks up the tract's NEIGHBORHOOD_CODE; gdb_nyct2010 matches on
---     borough and tract.
+--     nynta2010). Prod looks up the tract's NEIGHBORHOOD_CODE, and so does gdb_nyct2010
+--     unless key_tracts_by_borough is on, which matches on borough and tract
+--     (int__ct2010_keys, CSCL-DISTRICTS-10).
 --   GDB-05: the NeighborhoodPUMACodes row has a blank FIPS_CODE. Prod blanks nynta2010's
 --     CountyFIPS, and so do we unless fill_nta_county_fips_from_borough is on
 --     (int__nta2010_county_fips, CSCL-DISTRICTS-09).

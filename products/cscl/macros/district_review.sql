@@ -124,7 +124,8 @@ FULL OUTER JOIN prior AS p ON n.district_key = p.district_key
 {#-
   A key on both sides whose feature count differs: e.g. prod's nyct2010wi has three
   features keyed 4990100 (the Brooklyn, Queens and Staten Island water tracts) where we
-  have one. Dissolving them would compare different districts, so the review classes
+  have one with key_tracts_by_borough on (CSCL-DISTRICTS-10; off, the default, has three
+  too). Dissolving them would compare different districts, so the review classes
   these duplicate_key and computes no metrics or pieces for them. A key stored as the
   same number of features on both sides (nysd's SD 10, once per borough) is a district
   in several parts and is still dissolved and compared.

@@ -53,6 +53,8 @@ WITH log_rows AS (
         ref("log__generic_house_numbers"),
         ref("log__gdb_seqnum_sessions"),
         ref("log__coincident_seg_count"),
+        ref("log__district_invalid_polygons"),
+        ref("log__tract_source_keys"),
     ], column_override={"record_id": "varchar"}) }}
 )
 

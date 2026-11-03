@@ -140,6 +140,33 @@ vars:
   # and the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353) zero them; true
   # does too. Logged every build as CSCL-LOG-OURS-15 (5,743 LION gdb records on 26c).
   zero_generic_house_numbers: false
+  # District features whose source polygon is invalid (rings that cross, or a shell inside
+  # another shell), CSCL-DISTRICTS-04: nybid BIDs 44 and 56, nyhez zones 1, 2, 4, 5, 6 and
+  # X, nycdwi districts 484 and 502 on 26c. Not a prod bug fix: false (the default) is
+  # prod's output. Prod copies these layers' source feature classes feature by feature,
+  # unclipped (DistrictBoundaryGDBExtractorConfiguration.xml: nybid <-
+  # BusinessImprovementDistrict, nyhez <- HurricaneEvacuationZone, nycdwi <-
+  # CommunityDistrict; GDBExtractorClass.cs:952-957 sets the shape to the source's
+  # ShapeCopy), so it publishes the invalid polygons as stored, and false does too, for
+  # those features only. SHAPE_Area and SHAPE_Length come from the valid polygon either
+  # way, which is what prod's are (Esri's area counts a shell inside a shell as a hole).
+  # true publishes the valid polygon (st_makevalid for nybid, the AtomicPolygon topology
+  # for nyhez and nycdwi). Nothing downstream reads the published geometry. Logged every
+  # build as CSCL-LOG-OURS-20 (10 features on 26c).
+  make_valid_district_polygons: false
+  # nyct2010 and nyct2010wi BoroCT2010, NTACode and NTAName, CSCL-DISTRICTS-10. Not a prod
+  # bug fix: false (the default) is prod's output. Prod copies BoroCT2010 from the source
+  # tract's BOROCT and NTACode from its NEIGHBORHOOD_CODE, and looks NTAName up by that
+  # code (DistrictBoundaryGDBExtractorConfiguration.xml nyct2010/nyct2010wi: BoroCT2010 <-
+  # BoroCT, NTACode <- Neighborhood_Code, NTAName <- $pjareaname; GDBExtractorClass.cs:
+  # 960-1000, 1051-1059, 1597-1621). On 26c the source has BOROCT 4990100 and
+  # NEIGHBORHOOD_CODE QN99 on the Brooklyn and Staten Island pieces of water tract 990100
+  # too, so prod writes 4990100 on all three pieces in nyct2010wi and on the Staten Island
+  # land piece in nyct2010. true keys each tract by its borough and tract (3990100,
+  # 4990100, 5990100), as the AtomicPolygons, the census block layers, LION and ThinLION
+  # do, and takes the NTA from NeighborhoodPUMACodes by borough and tract. Only these two
+  # layers read it. Logged every build as CSCL-LOG-OURS-21 (2 source tracts on 26c).
+  key_tracts_by_borough: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

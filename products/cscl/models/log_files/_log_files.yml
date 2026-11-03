@@ -208,6 +208,20 @@ models:
     fill_nta_county_fips_from_borough changes (CSCL-DISTRICTS-09), the NTA codes, and
     whether it is on in this build.
 
+- name: log__district_invalid_polygons
+  description: >-
+    CSCL-LOG-OURS-20, every build: one row with the number of nybid, nyhez and nycdwi
+    features whose source polygon is invalid, which prod publishes as stored, i.e. what the
+    var make_valid_district_polygons changes (CSCL-DISTRICTS-04), the features, and whether
+    it is on in this build.
+
+- name: log__tract_source_keys
+  description: >-
+    CSCL-LOG-OURS-21, every build: one row with the number of 2010 census tracts whose
+    source BOROCT or NEIGHBORHOOD_CODE isn't their borough and tract's, which prod's
+    nyct2010 and nyct2010wi copy, i.e. what the var key_tracts_by_borough changes
+    (CSCL-DISTRICTS-10), the tracts, and whether it is on in this build.
+
 - name: log__generic_house_numbers
   description: >-
     CSCL-LOG-OURS-15, every build: one row with the number of LION gdb records of a

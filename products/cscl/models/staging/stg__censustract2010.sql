@@ -8,6 +8,8 @@ SELECT
     neighborhood_code,
     ct,
     borocode || ct AS boroct, -- BUG! There's a boroct field, but has a few incorrect values, causing dupes
+    -- the source's own BOROCT, which prod's nyct2010(wi) copy (CSCL-DISTRICTS-10)
+    boroct AS source_boroct,
     cd_eligibility,
     puma,
     empowerment_zone,

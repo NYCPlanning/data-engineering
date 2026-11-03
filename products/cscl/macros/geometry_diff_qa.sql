@@ -64,6 +64,13 @@ joined AS (
         coalesce(b.key_value, p.key_value) AS key_value,
         b.actual_geom,
         p.expected_geom,
+        -- the same geometry vertex for vertex: max_ring_eccentricity looks at the build's
+        -- rings only, so it doesn't fail a feature that is prod's own shape (nybid BID 56,
+        -- published as stored by default, CSCL-DISTRICTS-04, carries a 0.008 sq ft sliver
+        -- part, as prod's does)
+        coalesce(
+            st_aswkb(st_normalize(b.actual_geom)) = st_aswkb(st_normalize(p.expected_geom)), FALSE
+        ) AS identical_to_prod,
         (b.key_value IS NULL) AS only_in_prod,
         (p.key_value IS NULL) AS only_in_build
     FROM build AS b
@@ -74,6 +81,7 @@ metrics AS (
         j.key_value,
         j.only_in_prod,
         j.only_in_build,
+        j.identical_to_prod,
         st_transform(linearize(j.actual_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS actual_geom_4326,
         st_transform(linearize(j.expected_geom), 'EPSG:2263', 'EPSG:4326', always_xy := true) AS expected_geom_4326,
         j.actual_area_sqft,
@@ -100,8 +108,12 @@ flagged AS (
                 THEN 'hausdorff_ft' END,
             CASE WHEN symdiff_boundary_len_ft > {{ var('geom_check_symdiff_boundary_len_ft', 100) }}
                 THEN 'symdiff_boundary_len_ft' END,
-            CASE WHEN max_ring_eccentricity > {{ var('geom_check_max_ring_eccentricity', 50) }}
-                THEN 'max_ring_eccentricity' END,
+            CASE
+                WHEN
+                    max_ring_eccentricity > {{ var('geom_check_max_ring_eccentricity', 50) }}
+                    AND NOT identical_to_prod
+                    THEN 'max_ring_eccentricity'
+            END,
             CASE WHEN abs(perimeter_pct_diff) > {{ var('geom_check_perimeter_pct', 1) }}
                 THEN 'perimeter_pct_diff' END
         ], x -> x IS NOT NULL) AS failing_checks
@@ -109,7 +121,7 @@ flagged AS (
 )
 
 SELECT
-    *,
+    * EXCLUDE (identical_to_prod),
     (len(failing_checks) = 0) AS passes
 FROM flagged
 {% endmacro %}
@@ -337,7 +349,7 @@ FROM (
 SELECT * FROM (
 WITH t AS (
     {{ geometry_diff_qa(
-        build_relation=ref('gdb_' ~ layer.name),
+        build_relation=build_gdb_valid(layer.name),
         prod_relation=prod_fgdb_linear('fgdb_' ~ layer.name),
         key_column=layer.key,
         prod_key_column=layer.get('prod_key')
@@ -350,8 +362,9 @@ failing AS (
 
 h AS (
     {{ geometry_diff_qa(
-        build_relation='(SELECT * FROM ' ~ ref('gdb_' ~ layer.name) ~ ' WHERE ('
-            ~ layer.key ~ ')::text IN (SELECT key_value FROM failing))',
+        build_relation=build_gdb_valid(
+            layer.name, where='(' ~ layer.key ~ ')::text IN (SELECT key_value FROM failing)'
+        ),
         prod_relation=prod_fgdb_linear_without_hairlines(
             'fgdb_' ~ layer.name,
             where='(' ~ prod_key ~ ')::text IN (SELECT key_value FROM failing)'
@@ -364,8 +377,9 @@ h AS (
 
 s AS (
     {{ geometry_diff_qa(
-        build_relation='(SELECT * FROM ' ~ ref('gdb_' ~ layer.name) ~ ' WHERE ('
-            ~ layer.key ~ ')::text IN (SELECT key_value FROM failing))',
+        build_relation=build_gdb_valid(
+            layer.name, where='(' ~ layer.key ~ ')::text IN (SELECT key_value FROM failing)'
+        ),
         prod_relation=prod_fgdb_linear_without_small_parts(
             'fgdb_' ~ layer.name,
             min_part_sqft,
@@ -392,6 +406,22 @@ LEFT JOIN h ON t.key_value = h.key_value
 LEFT JOIN s ON t.key_value = s.key_value
 {%- endif %}
 ) AS layer_rows
+{% endmacro %}
+
+
+{% macro build_gdb_valid(layer_name, where='TRUE') %}
+{#-
+  gdb_<layer_name> with its geometry made valid, the build-side counterpart of
+  prod_fgdb_linear: by default nybid, nyhez and nycdwi publish invalid source polygons
+  as stored, as prod does (CSCL-DISTRICTS-04, var make_valid_district_polygons), and the
+  overlay metrics need valid input. st_makevalid leaves a valid geometry unchanged, so
+  every other feature is compared as published.
+-#}
+(
+    SELECT * REPLACE (st_makevalid(geom) AS geom)
+    FROM {{ ref('gdb_' ~ layer_name) }}
+    WHERE {{ where }}
+)
 {% endmacro %}
 
 
