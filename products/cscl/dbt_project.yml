@@ -199,6 +199,15 @@ vars:
   # leaves them out, as the spec says. Logged every build as CSCL-LOG-OURS-19 (1 row on 26c, segment 9017010: one record in each SAF ABCEGNPX
   # file, one LION gdb row, and SegCount on the segment's 7 other rows).
   fix_blank_type_altsegmentdata: false
+  # Trailing padding on the LION gdb lion layer's non-SAF Join_ID, CSCL-LION-10. Not a prod
+  # bug fix: false (the default) is prod's lion layer. The spec (ETL spec 2.7.3) and prod's
+  # ETL make a non-SAF Join_ID 15 characters, ending in two spaces (ExtractorClass.cs:3781,
+  # GetBytesJoinID), but prod's distribution tool strips it on the lion layer
+  # (BytesLION_CSCL_workflow_tool_PUB.py:127-141, RemoveTrailingSpaces, called at :615);
+  # its altnames strip (ImportLION2_ToGDB, :326-336) is commented out (:621), so altnames
+  # keeps the padding, ours and prod's, either way. true keeps it on the lion layer too, as
+  # the spec says. Logged every build as CSCL-LOG-OURS-24 (221,078 lion layer rows on 26c).
+  pad_lion_join_id: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

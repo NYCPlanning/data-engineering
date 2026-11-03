@@ -99,10 +99,13 @@ models:
         description: RHi_Hyphen as an integer, formed the same way as FromLeft.
       - name: Join_ID
         description: >-
-          Links the feature to its alternate names in the altnames table. 15 characters. On a
-          segment feature: borough, face code and LGC1 to LGC4 (two digits each, 00 if none),
-          then two spaces. On a SAF feature: borough, the SAF record's street code, LGC1 to
-          LGC4, then the SAF type.
+          Links the feature to its alternate names in the altnames table. On a segment
+          feature: borough, face code and LGC1 to LGC4 (two digits each, 00 if none), 13
+          characters. The spec ends it in two spaces, as the altnames table's Join_ID does, but
+          the lion layer leaves them off, as prod's (CSCL-LION-10; the var pad_lion_join_id
+          keeps them), so match it to altnames with trailing spaces trimmed. On a SAF feature,
+          15 characters: borough, the SAF record's street code, LGC1 to LGC4, then the SAF
+          type.
       - name: LegacyID
         description: The segment's legacy segment ID, 7 digits zero-filled; 0000000 if it has none.
       - name: SHAPE_Length
@@ -299,3 +302,34 @@ unit_tests:
         - {SegmentID: '0000002', SpecAddr: null, StreetWidth_Max: null}
         - {SegmentID: '0000003', SpecAddr: null, StreetWidth_Max: 60.0}
         - {SegmentID: '0000004', SpecAddr: null, StreetWidth_Max: null}
+  # CSCL-LION-10: the non-SAF Join_ID is boro, face code and LGC1-4 ('1' '0100' '01' '00' '00'
+  # '00'); the spec ends it in two spaces, prod's lion layer strips them. The SAF replicant's
+  # Join_ID has no padding either way.
+  - name: test__gdb_lion__join_id_unpadded_prod
+    description: "Default (pad_lion_join_id false): a non-SAF Join_ID has no trailing spaces, as prod's lion layer; the SAF replicant's is unchanged."
+    model: gdb_lion
+    overrides:
+      vars:
+        pad_lion_join_id: false
+    given: *gdb_lion_given
+    expect:
+      rows:
+        - {SegmentID: '0000001', SpecAddr: null, Join_ID: '1010001000000'}
+        - {SegmentID: '0000001', SpecAddr: 'B', Join_ID: '11000201000000B'}
+        - {SegmentID: '0000002', SpecAddr: null, Join_ID: '1010001000000'}
+        - {SegmentID: '0000003', SpecAddr: null, Join_ID: '1010001000000'}
+        - {SegmentID: '0000004', SpecAddr: null, Join_ID: '1010001000000'}
+  - name: test__gdb_lion__join_id_padded_spec
+    description: "pad_lion_join_id true: a non-SAF Join_ID is 15 characters, ending in two spaces, as the spec; the SAF replicant's is unchanged."
+    model: gdb_lion
+    overrides:
+      vars:
+        pad_lion_join_id: true
+    given: *gdb_lion_given
+    expect:
+      rows:
+        - {SegmentID: '0000001', SpecAddr: null, Join_ID: '1010001000000  '}
+        - {SegmentID: '0000001', SpecAddr: 'B', Join_ID: '11000201000000B'}
+        - {SegmentID: '0000002', SpecAddr: null, Join_ID: '1010001000000  '}
+        - {SegmentID: '0000003', SpecAddr: null, Join_ID: '1010001000000  '}
+        - {SegmentID: '0000004', SpecAddr: null, Join_ID: '1010001000000  '}
