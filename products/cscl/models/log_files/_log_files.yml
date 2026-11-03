@@ -230,6 +230,15 @@ models:
     what the var zero_generic_house_numbers changes (CSCL-LION-15), and whether it is on in
     this build.
 
+- name: log__feature_type_house_numbers
+  description: >-
+    CSCL-LOG-OURS-25, every build: one row with the number of LION gdb records of a segment
+    of FeatureTyp other than 0, 6 or W (its own records and its SAF replicants, of any
+    SegmentTyp) that have house numbers, which the legacy tool's rule zeroes and prod's LION
+    gdb keeps, i.e. what the var zero_feature_type_house_numbers changes (CSCL-LION-29), and
+    whether it is on in this build. A G or F segment of such a FeatureTyp is counted here,
+    not under CSCL-LOG-OURS-15 or CSCL-LOG-OURS-10.
+
 - name: log__reversed_proto_census_fields
   description: >-
     CSCL-LOG-OURS-17, every build: one row with the number of LION gdb records of a
@@ -477,6 +486,66 @@ unit_tests:
     - log_message_id: CSCL-LOG-OURS-15
       record_count: 6
       message: "6 LION gdb records of generic segments (3 SAF replicants) have house numbers. Zeroing generic segments' house numbers is ON in this build (zero_generic_house_numbers = true): they are zeroed, as the spec and the legacy tool's rule do, where prod's LION gdb keeps them (CSCL-LION-15)"
+# CSCL-LOG-OURS-25. N5 is a FeatureTyp 5 centerline with house numbers and a written SAF
+# replicant with house numbers (plus one unwritten and one without house numbers); C9 a
+# continuous-parity (L) FeatureTyp 9 segment, two records; G5 a generic of FeatureTyp 5
+# (counted here, not under CSCL-LOG-OURS-15); N0 a FeatureTyp 5 segment without house
+# numbers, NB one with a blank Street (not written); U1 (FeatureTyp 0) and G1 (generic,
+# FeatureTyp 0) aren't counted. 5 records, 1 of them a SAF replicant. sql fixtures: CI runs
+# unit tests without building the upstream models
+- name: test__log__feature_type_house_numbers__off
+  description: "Default (zero_feature_type_house_numbers false): counts the records of FeatureTyp other than 0, 6 or W with house numbers, OFF."
+  model: log__feature_type_house_numbers
+  overrides:
+    vars:
+      zero_feature_type_house_numbers: false
+  given: &feature_type_hn_log_given
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', 'N5', 'MAIN STREET', NULL, '1', '99', '2', '98'),
+        ('K2', 'N0', 'MAIN STREET', NULL, '0', '0', NULL, NULL),
+        ('K3', 'C9', 'MAIN STREET', 'L', '1', '99', '2', '98'),
+        ('K4', 'NB', '  ', NULL, '1', '99', '2', '98'),
+        ('K5', 'G5', 'MAIN STREET', NULL, '1', '99', '2', '98'),
+        ('K6', 'U1', 'MAIN STREET', NULL, '1', '99', '2', '98'),
+        ('K7', 'G1', 'MAIN STREET', NULL, '1', '99', '2', '98')
+      ) AS t (lionkey, globalid, street, continuous_parity_flag, l_low_hn, l_high_hn, r_low_hn, r_high_hn)
+  - input: ref('int__lion_house_number_zeroing')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('N5', 'U', TRUE), ('N0', 'U', TRUE), ('C9', 'U', TRUE), ('NB', 'U', TRUE),
+        ('G5', 'G', TRUE), ('U1', 'U', FALSE), ('G1', 'G', FALSE)
+      ) AS t (globalid, segment_type, zero_for_feature_type)
+  - input: ref('int__saf_replicant_fields')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('K1', TRUE, '1', '9', NULL, NULL, NULL),
+        ('K1', FALSE, '11', '19', NULL, NULL, NULL),
+        ('K1', TRUE, NULL, NULL, NULL, NULL, NULL),
+        ('K4', TRUE, '1', '9', NULL, NULL, NULL),
+        ('K6', TRUE, '1', '9', NULL, NULL, NULL)
+      ) AS t (lionkey, is_written, l_low_hn, l_high_hn, r_low_hn, r_high_hn, parity_side)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-25
+      record_count: 5
+      message: "5 LION gdb records of a FeatureTyp other than 0, 6 or W (1 SAF replicants) have house numbers. Zeroing them is OFF in this build (zero_feature_type_house_numbers = false): they keep them, as prod's LION gdb does, where the legacy tool's rule zeroes them (CSCL-LION-29)"
+- name: test__log__feature_type_house_numbers__on
+  description: "zero_feature_type_house_numbers true: the same count, ON."
+  model: log__feature_type_house_numbers
+  overrides:
+    vars:
+      zero_feature_type_house_numbers: true
+  given: *feature_type_hn_log_given
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-25
+      record_count: 5
+      message: "5 LION gdb records of a FeatureTyp other than 0, 6 or W (1 SAF replicants) have house numbers. Zeroing them is ON in this build (zero_feature_type_house_numbers = true): they are zeroed, as the legacy tool's rule does, where prod's LION gdb keeps them (CSCL-LION-29)"
 # CSCL-LOG-OURS-22. K1 (continuous parity) and K5 get a different SeqNum in the LION gdb's
 # sessions: K1 is two records plus a two-record SAF replicant, K5 one record (its SAF
 # replicant isn't written). K2 has a blank Street (not written), K3 the same number in both

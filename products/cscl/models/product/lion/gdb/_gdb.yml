@@ -76,11 +76,12 @@ models:
           Lowest house number on the left, as written (hyphenated for Queens-style numbers).
           On a continuous-parity segment, one feature carries the odd range and the other the
           even range, both on the side where the addresses are, with the other side empty. On
-          a SAF feature, the SAF record's house numbers. Empty on features other than
-          ordinary streets, private streets and addressable paths. Generic segments
-          (SegmentTyp G) and SegmentTyp F keep their house numbers, as in prod, unless the
-          zero_generic_house_numbers (CSCL-LION-15) or zero_f_segment_house_numbers
-          (CSCL-LION-24) setting is on.
+          a SAF feature, the SAF record's house numbers. Every feature keeps the source's
+          house numbers, as in prod: generic segments (SegmentTyp G), SegmentTyp F and
+          features other than ordinary streets, private streets and addressable paths
+          (FeatureTyp other than 0, 6 or W) are empty only with the
+          zero_generic_house_numbers (CSCL-LION-15), zero_f_segment_house_numbers
+          (CSCL-LION-24) or zero_feature_type_house_numbers (CSCL-LION-29) setting on.
       - name: LHi_Hyphen
         description: Highest house number on the left, as written. Same rules as LLo_Hyphen.
       - name: RLo_Hyphen

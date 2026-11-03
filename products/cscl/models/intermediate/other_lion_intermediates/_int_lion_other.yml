@@ -90,10 +90,12 @@ models:
   description: >-
     One row per LION gdb segment (int__lion, include_in_bytes_lion): whether the LION gdb
     zeroes its house numbers (all eight fields, on its own records and its SAF replicants).
-    Zeroed when FeatureTyp isn't 0, 6 or W. The legacy tool's rule zeroes SegmentTyp G and
-    F too, but prod's LION gdb keeps their house numbers on 26c, so G is zeroed only with
-    the var zero_generic_house_numbers on (CSCL-LION-15) and F only with
-    zero_f_segment_house_numbers on (CSCL-LION-24).
+    Prod's LION gdb copies the source's house numbers on every row (the legacy tool's
+    zeroing, SegmentTyp G or F or FeatureTyp not 0, 6 or W, is never called), so by default
+    nothing is zeroed. Each part of the legacy rule is behind its own var: G with
+    zero_generic_house_numbers (CSCL-LION-15), F with zero_f_segment_house_numbers
+    (CSCL-LION-24), FeatureTyp not 0, 6 or W with zero_feature_type_house_numbers
+    (CSCL-LION-29).
   columns:
   - name: globalid
     description: "GlobalID of the segment (of the proto-segment for a proto)."
@@ -107,11 +109,11 @@ models:
   - name: has_house_numbers
     description: "True if any of the segment's own four house numbers is nonblank and not 0."
   - name: zero_for_feature_type
-    description: "FeatureTyp not 0, 6 or W: zeroed whatever the vars say."
+    description: "FeatureTyp not 0, 6 or W: the FeatureTyp part of the legacy tool's rule, zeroed only with the var zero_feature_type_house_numbers true (CSCL-LION-29)."
   - name: zero_house_numbers_legacy
-    description: "SegmentTyp G or F, or FeatureTyp not 0, 6 or W: the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353)."
+    description: "SegmentTyp G or F, or FeatureTyp not 0, 6 or W: the legacy tool's rule (ImportLION2_ToGDB, BytesLION_CSCL_workflow_tool_PUB.py:326-361, which the tool's main flow never calls)."
   - name: zero_house_numbers
-    description: "What gdb_lion uses: zero_for_feature_type, or SegmentTyp G with the var zero_generic_house_numbers true, or SegmentTyp F with zero_f_segment_house_numbers true. With both false (the default) G and F keep their house numbers, as prod's LION gdb; with both true it is zero_house_numbers_legacy."
+    description: "What gdb_lion uses: zero_for_feature_type with the var zero_feature_type_house_numbers true, or SegmentTyp G with zero_generic_house_numbers true, or SegmentTyp F with zero_f_segment_house_numbers true. With all three false (the default) nothing is zeroed, as prod's LION gdb; with all three true it is zero_house_numbers_legacy."
 
 - name: int__ramp_proto_special_address
   description: >-
@@ -213,18 +215,20 @@ unit_tests:
     - {globalid: S3, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: null, curve_flag: null}
     - {globalid: P1, source_point_count: 2, curve_flag_prod: null, curve_flag_fixed: I, curve_flag: I}
     - {globalid: R1, source_point_count: 3, curve_flag_prod: I, curve_flag_fixed: I, curve_flag: I}
-# CSCL-LION-15 and CSCL-LION-24. G1 is generic with house numbers, G2 generic without, G5 a
-# generic of FeatureTyp 5; F1 is type F with house numbers, F2 type F without; U1 an ordinary
-# segment, S1 a shoreline (FeatureTyp 2) and W1 an addressable path, all with house numbers.
-# X1 isn't in the LION gdb. sql fixtures: CI runs unit tests without building the upstream
-# models
+# CSCL-LION-15, CSCL-LION-24 and CSCL-LION-29. G1 is generic with house numbers, G2 generic
+# without, G5 a generic of FeatureTyp 5; F1 is type F with house numbers, F2 type F without,
+# F9 type F of FeatureTyp 9; U1 an ordinary segment (FeatureTyp 0), S1 a shoreline
+# (FeatureTyp 2), W1 an addressable path, N5 a centerline of FeatureTyp 5, all with house
+# numbers; N0 a FeatureTyp 5 centerline without. X1 isn't in the LION gdb. sql fixtures: CI
+# runs unit tests without building the upstream models
 - name: test__int__lion_house_number_zeroing__default
-  description: "Default (zero_generic_house_numbers and zero_f_segment_house_numbers false): G and F segments keep their house numbers, as prod's LION gdb; only the FeatureTyp rule zeroes."
+  description: "Default (zero_generic_house_numbers, zero_f_segment_house_numbers and zero_feature_type_house_numbers false): nothing is zeroed, as prod's LION gdb, which copies the source's house numbers."
   model: int__lion_house_number_zeroing
   overrides:
     vars:
       zero_generic_house_numbers: false
       zero_f_segment_house_numbers: false
+      zero_feature_type_house_numbers: false
   given: &hn_zeroing_given
   - input: ref('int__lion')
     format: sql
@@ -235,28 +239,35 @@ unit_tests:
         ('G5', 'G', '5', '1', '99', '2', '98', TRUE),
         ('F1', 'F', NULL, '93-001', '93-099', '93-000', '93-098', TRUE),
         ('F2', 'F', NULL, '0', '0', '0', '0', TRUE),
+        ('F9', 'F', '9', '1', '99', '2', '98', TRUE),
         ('U1', 'U', NULL, '1', '99', '2', '98', TRUE),
         ('S1', 'U', '2', '1', '99', '2', '98', TRUE),
         ('W1', 'U', 'W', '1', '99', '2', '98', TRUE),
+        ('N5', 'U', '5', '1', '99', '2', '98', TRUE),
+        ('N0', 'U', '5', '0', NULL, '0', NULL, TRUE),
         ('X1', 'G', NULL, '1', '99', '2', '98', FALSE)
       ) AS t (globalid, segment_type, feature_type_code, l_low_hn, l_high_hn, r_low_hn, r_high_hn, include_in_bytes_lion)
   expect:
     rows:
     - {globalid: G1, feature_type_code: '0', has_house_numbers: true, zero_for_feature_type: false, zero_house_numbers_legacy: true, zero_house_numbers: false}
     - {globalid: G2, feature_type_code: '0', has_house_numbers: false, zero_for_feature_type: false, zero_house_numbers_legacy: true, zero_house_numbers: false}
-    - {globalid: G5, feature_type_code: '5', has_house_numbers: true, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: G5, feature_type_code: '5', has_house_numbers: true, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: false}
     - {globalid: F1, feature_type_code: '0', has_house_numbers: true, zero_for_feature_type: false, zero_house_numbers_legacy: true, zero_house_numbers: false}
     - {globalid: F2, feature_type_code: '0', has_house_numbers: false, zero_for_feature_type: false, zero_house_numbers_legacy: true, zero_house_numbers: false}
+    - {globalid: F9, feature_type_code: '9', has_house_numbers: true, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: false}
     - {globalid: U1, feature_type_code: '0', has_house_numbers: true, zero_for_feature_type: false, zero_house_numbers_legacy: false, zero_house_numbers: false}
-    - {globalid: S1, feature_type_code: '2', has_house_numbers: true, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: S1, feature_type_code: '2', has_house_numbers: true, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: false}
     - {globalid: W1, feature_type_code: 'W', has_house_numbers: true, zero_for_feature_type: false, zero_house_numbers_legacy: false, zero_house_numbers: false}
+    - {globalid: N5, feature_type_code: '5', has_house_numbers: true, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: false}
+    - {globalid: N0, feature_type_code: '5', has_house_numbers: false, zero_for_feature_type: true, zero_house_numbers_legacy: true, zero_house_numbers: false}
 - name: test__int__lion_house_number_zeroing__generic
-  description: "zero_generic_house_numbers true: a G segment is zeroed, as the spec (2.7.3) and the legacy tool's rule; F still keeps its house numbers."
+  description: "zero_generic_house_numbers true: a G segment is zeroed, as the spec (2.7.3) and the legacy tool's rule; F and the FeatureTyp rows still keep their house numbers."
   model: int__lion_house_number_zeroing
   overrides:
     vars:
       zero_generic_house_numbers: true
       zero_f_segment_house_numbers: false
+      zero_feature_type_house_numbers: false
   given: *hn_zeroing_given
   expect:
     rows:
@@ -265,45 +276,78 @@ unit_tests:
     - {globalid: G5, zero_house_numbers: true}
     - {globalid: F1, zero_house_numbers: false}
     - {globalid: F2, zero_house_numbers: false}
+    - {globalid: F9, zero_house_numbers: false}
     - {globalid: U1, zero_house_numbers: false}
-    - {globalid: S1, zero_house_numbers: true}
+    - {globalid: S1, zero_house_numbers: false}
     - {globalid: W1, zero_house_numbers: false}
+    - {globalid: N5, zero_house_numbers: false}
+    - {globalid: N0, zero_house_numbers: false}
 - name: test__int__lion_house_number_zeroing__f
-  description: "zero_f_segment_house_numbers true: an F segment is zeroed; G still keeps its house numbers."
+  description: "zero_f_segment_house_numbers true: an F segment is zeroed; G and the FeatureTyp rows still keep their house numbers."
   model: int__lion_house_number_zeroing
   overrides:
     vars:
       zero_generic_house_numbers: false
       zero_f_segment_house_numbers: true
+      zero_feature_type_house_numbers: false
+  given: *hn_zeroing_given
+  expect:
+    rows:
+    - {globalid: G1, zero_house_numbers: false}
+    - {globalid: G2, zero_house_numbers: false}
+    - {globalid: G5, zero_house_numbers: false}
+    - {globalid: F1, zero_house_numbers: true}
+    - {globalid: F2, zero_house_numbers: true}
+    - {globalid: F9, zero_house_numbers: true}
+    - {globalid: U1, zero_house_numbers: false}
+    - {globalid: S1, zero_house_numbers: false}
+    - {globalid: W1, zero_house_numbers: false}
+    - {globalid: N5, zero_house_numbers: false}
+    - {globalid: N0, zero_house_numbers: false}
+- name: test__int__lion_house_number_zeroing__feature_type
+  description: "zero_feature_type_house_numbers true: a segment of FeatureTyp other than 0, 6 or W is zeroed, whatever its SegmentTyp; G and F of FeatureTyp 0 still keep their house numbers."
+  model: int__lion_house_number_zeroing
+  overrides:
+    vars:
+      zero_generic_house_numbers: false
+      zero_f_segment_house_numbers: false
+      zero_feature_type_house_numbers: true
   given: *hn_zeroing_given
   expect:
     rows:
     - {globalid: G1, zero_house_numbers: false}
     - {globalid: G2, zero_house_numbers: false}
     - {globalid: G5, zero_house_numbers: true}
-    - {globalid: F1, zero_house_numbers: true}
-    - {globalid: F2, zero_house_numbers: true}
+    - {globalid: F1, zero_house_numbers: false}
+    - {globalid: F2, zero_house_numbers: false}
+    - {globalid: F9, zero_house_numbers: true}
     - {globalid: U1, zero_house_numbers: false}
     - {globalid: S1, zero_house_numbers: true}
     - {globalid: W1, zero_house_numbers: false}
+    - {globalid: N5, zero_house_numbers: true}
+    - {globalid: N0, zero_house_numbers: true}
 - name: test__int__lion_house_number_zeroing__legacy
-  description: "Both vars true: the legacy tool's rule, G and F zeroed (zero_house_numbers = zero_house_numbers_legacy)."
+  description: "All three vars true: the legacy tool's rule, G, F and FeatureTyp other than 0, 6 or W zeroed (zero_house_numbers = zero_house_numbers_legacy)."
   model: int__lion_house_number_zeroing
   overrides:
     vars:
       zero_generic_house_numbers: true
       zero_f_segment_house_numbers: true
+      zero_feature_type_house_numbers: true
   given: *hn_zeroing_given
   expect:
     rows:
-    - {globalid: G1, zero_house_numbers: true}
-    - {globalid: G2, zero_house_numbers: true}
-    - {globalid: G5, zero_house_numbers: true}
-    - {globalid: F1, zero_house_numbers: true}
-    - {globalid: F2, zero_house_numbers: true}
-    - {globalid: U1, zero_house_numbers: false}
-    - {globalid: S1, zero_house_numbers: true}
-    - {globalid: W1, zero_house_numbers: false}
+    - {globalid: G1, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: G2, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: G5, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: F1, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: F2, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: F9, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: U1, zero_house_numbers_legacy: false, zero_house_numbers: false}
+    - {globalid: S1, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: W1, zero_house_numbers_legacy: false, zero_house_numbers: false}
+    - {globalid: N5, zero_house_numbers_legacy: true, zero_house_numbers: true}
+    - {globalid: N0, zero_house_numbers_legacy: true, zero_house_numbers: true}
 # CSCL-LION-19. Ramp R1 on segment 1 shares its street code (450290) with two B address
 # points and an S one on another street code: prod gives it B. Ramp R2 on segment 2 has an
 # AltSegmentData SAF row with its LIONKEY (type F, read as D) and one with the

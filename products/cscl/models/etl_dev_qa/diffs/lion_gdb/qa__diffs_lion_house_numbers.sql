@@ -15,10 +15,14 @@
 -- should have LLo_Hyphen/LHi_Hyphen/RLo_Hyphen/RHi_Hyphen blanked and
 -- FromLeft/FromRight/ToLeft/ToRight zeroed - unconditionally, no exceptions in the
 -- rule itself. This flags prod rows that match the selection but don't match the
--- all-blank/all-zero outcome. Prod's ETL doesn't apply the rule to G or F (it copies the
--- source's house numbers, ExtractorClass.cs:2993-3072), and neither do we by default, so
--- G rows are checked only with zero_generic_house_numbers on (CSCL-LION-15) and F rows
--- only with zero_f_segment_house_numbers on (CSCL-LION-24).
+-- all-blank/all-zero outcome. Prod never applies the rule: the tool's main flow never calls
+-- ImportLION2_ToGDB, where it lives (BytesLION_CSCL_workflow_tool_PUB.py:326, the call at
+-- :621 commented out), and the ETL copies the source's house numbers
+-- (ExtractorClass.cs:2993-3072). Neither do we by default, so G rows are checked only with
+-- zero_generic_house_numbers on (CSCL-LION-15), F rows only with
+-- zero_f_segment_house_numbers on (CSCL-LION-24), and rows of FeatureTyp other than 0, 6
+-- or W only with zero_feature_type_house_numbers on (CSCL-LION-29). With all three off
+-- (the default) this is empty.
 --
 -- "changes" itself DOES follow the usual convention (old=prod, new=dev): for each
 -- violating field, old is prod's real (buggy) value, new is our dev build's actual
@@ -32,12 +36,14 @@ WITH violations AS (
     FROM {{ ref('qa_int__prod_fgdb_lion') }}
     WHERE
         -- G only with zero_generic_house_numbers on, F only with zero_f_segment_house_numbers
-        -- on: prod's LION gdb keeps their house numbers, and so do we by default
-        -- (CSCL-LION-15, CSCL-LION-24)
+        -- on, FeatureTyp other than 0, 6 or W only with zero_feature_type_house_numbers on:
+        -- prod's LION gdb keeps their house numbers, and so do we by default
+        -- (CSCL-LION-15, CSCL-LION-24, CSCL-LION-29)
         (
             {% if var('zero_generic_house_numbers') %}segmenttyp = 'G' OR {% endif -%}
             {% if var('zero_f_segment_house_numbers') %}segmenttyp = 'F' OR {% endif -%}
-            featuretyp NOT IN ('0', '6', 'W')
+            {% if var('zero_feature_type_house_numbers') %}featuretyp NOT IN ('0', '6', 'W') OR {% endif -%}
+            FALSE
         )
         AND (
             nullif(llo_hyphen, '') IS NOT NULL
@@ -111,20 +117,35 @@ SELECT
         END::JSON }
     ], e -> e.v IS NOT NULL))) AS changes,
     'lion_house_numbers' AS output_file_id,
-    -- G and F rows are here only with their var on: we zero them, as the spec (G) and the
-    -- legacy tool's rule (G, F) do, where prod's LION gdb keeps the source's house numbers
-    -- (CSCL-LION-15, CSCL-LION-24). The FeatureTyp rows are a question for GR.
+    -- G, F and FeatureTyp rows are here only with their var on: we zero them, as the spec
+    -- (G) and the legacy tool's rule (G, F, FeatureTyp) do, where prod's LION gdb keeps the
+    -- source's house numbers (CSCL-LION-15, CSCL-LION-24, CSCL-LION-29). A G or F row of
+    -- such a FeatureTyp is labelled by its SegmentTyp when that var is on.
     CASE
-        WHEN v.segmenttyp = 'G' THEN 'CSCL-LION-15: house numbers kept on generic segments in prod'
-        WHEN v.segmenttyp = 'F' THEN 'CSCL-LION-24: house numbers kept on SegmentTyp F in prod'
-        ELSE 'House numbers kept in prod on a FeatureTyp other than 0, 6 or W'
+        WHEN
+            {{ 'TRUE' if var('zero_generic_house_numbers') else 'FALSE' }} AND v.segmenttyp = 'G'
+            THEN 'CSCL-LION-15: house numbers kept on generic segments in prod'
+        WHEN
+            {{ 'TRUE' if var('zero_f_segment_house_numbers') else 'FALSE' }} AND v.segmenttyp = 'F'
+            THEN 'CSCL-LION-24: house numbers kept on SegmentTyp F in prod'
+        WHEN
+            v.featuretyp NOT IN ('0', '6', 'W')
+            THEN 'CSCL-LION-29: house numbers kept in prod on a FeatureTyp other than 0, 6 or W'
+        ELSE 'House numbers kept in prod'
     END AS diff_group,
     '' AS subgroup,
     '_lion_gdb_key' AS comparison_column,
     'gdb_lion' AS build_table_name,
     'qa_int__prod_fgdb_lion' AS production_table_name,
-    -- the G rows are the known difference zero_generic_house_numbers turns on; the F and
-    -- FeatureTyp rows are left unaccounted, as before
-    coalesce(v.segmenttyp = 'G', FALSE) AS accounted_for
+    -- the G and FeatureTyp rows are the known differences zero_generic_house_numbers and
+    -- zero_feature_type_house_numbers turn on; the F rows are left unaccounted, as before
+    coalesce(
+        ({{ 'TRUE' if var('zero_generic_house_numbers') else 'FALSE' }} AND v.segmenttyp = 'G')
+        OR (
+            {{ 'TRUE' if var('zero_feature_type_house_numbers') else 'FALSE' }}
+            AND v.featuretyp NOT IN ('0', '6', 'W')
+        ),
+        FALSE
+    ) AS accounted_for
 FROM violations AS v
 LEFT JOIN dev AS d ON v._lion_gdb_key = d._lion_gdb_key

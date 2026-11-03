@@ -51,6 +51,7 @@ WITH log_rows AS (
         ref("log__featurename_face_code_protos"),
         ref("log__nta_county_fips"),
         ref("log__generic_house_numbers"),
+        ref("log__feature_type_house_numbers"),
         ref("log__reversed_proto_census_fields"),
         ref("log__hyphen_r_high_house_number"),
         ref("log__blank_type_altsegmentdata"),

@@ -24,9 +24,10 @@ WITH lion AS (
 saf_replicants AS (
     SELECT * FROM {{ ref('int__saf_replicant_fields') }}
 ),
--- whether a segment's house numbers are zeroed (non-street; G only with
--- zero_generic_house_numbers on, CSCL-LION-15; F only with zero_f_segment_house_numbers on,
--- CSCL-LION-24)
+-- whether a segment's house numbers are zeroed: none by default, as prod; FeatureTyp other
+-- than 0, 6 or W with zero_feature_type_house_numbers on, CSCL-LION-29; G with
+-- zero_generic_house_numbers on, CSCL-LION-15; F with zero_f_segment_house_numbers on,
+-- CSCL-LION-24
 hn_zeroing AS (
     SELECT
         globalid,
@@ -226,7 +227,7 @@ base_rows AS (
         right_of_way_type AS "ROW_Type",
         -- ETL spec §2.7.3 (BL101-104), House numbers: see lion_house_numbers.sql. Continuous
         -- parity segments (ETL spec §2.7.1) come out as two rows (hn.n = 1, 2); zeroed segments
-        -- (non-street; see int__lion_house_number_zeroing) come out empty.
+        -- (none by default; see int__lion_house_number_zeroing) come out empty.
         lpad(hn.l_low, 7, ' ') AS "LLo_Hyphen",
         lpad(hn.l_high, 7, ' ') AS "LHi_Hyphen",
         lpad(hn.r_low, 7, ' ') AS "RLo_Hyphen",
