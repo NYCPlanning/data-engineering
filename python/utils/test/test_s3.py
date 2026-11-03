@@ -195,6 +195,23 @@ def test_copy_folder_across_regions(bucket_region, create_buckets, put_test_obje
     assert s3.get_filenames(PUBLISHING_BUCKET, "") == set(TEST_OBJECTS[:2])
 
 
+@patch("dcpy.utils.s3.get_bucket_region", side_effect=lambda b: mock_regions[b])
+def test_copy_folder_across_regions_keep_existing(
+    bucket_region, create_buckets, put_test_objects
+):
+    existing = f"{TEST_DIR_NAME_1}/existing-file"
+    s3.client().put_object(Bucket=PUBLISHING_BUCKET, Key=existing)
+    s3.copy_folder(
+        TEST_BUCKET,
+        TEST_DIR_NAME_1,
+        TEST_DIR_NAME_1,
+        acl="public-read",
+        target_bucket=PUBLISHING_BUCKET,
+        keep_existing=True,
+    )
+    assert s3.get_filenames(PUBLISHING_BUCKET, "") == set(TEST_OBJECTS[:2]) | {existing}
+
+
 MISSING_KEY = "no-such-folder/no-such-file"
 
 

@@ -381,20 +381,27 @@ def upload_folder(
 
 
 def copy_folder_via_download(
-    source_bucket: str, target_bucket: str, source_path: str, target_path: str, acl: ACL
+    source_bucket: str,
+    target_bucket: str,
+    source_path: str,
+    target_path: str,
+    acl: ACL,
+    *,
+    keep_existing: bool = False,
 ) -> None:
     """If cross-bucket copying is not possible, this utility downloads and then uploads a folder"""
     with TemporaryDirectory() as _dir:
         dir = Path(_dir)
         logger.info(f"Copying {source_bucket}/{source_path} to temporary directory")
         download_folder(source_bucket, prefix=source_path, export_path=dir)
-        logger.info(f"Copying temporary directory to {target_bucket}/{source_path}")
+        logger.info(f"Copying temporary directory to {target_bucket}/{target_path}")
         upload_folder(
             target_bucket,
             dir / source_path,
             Path(target_path),
             acl,
             contents_only=True,
+            keep_existing=keep_existing,
         )
 
 
@@ -428,7 +435,12 @@ def copy_folder(
     if target_bucket and get_bucket_region(bucket) != get_bucket_region(target_bucket):
         if get_bucket_region(bucket) != get_bucket_region(target_bucket):
             copy_folder_via_download(
-                bucket, target_bucket, source_path, target_path, acl
+                bucket,
+                target_bucket,
+                source_path,
+                target_path,
+                acl,
+                keep_existing=keep_existing,
             )
             return
     else:
