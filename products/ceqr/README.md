@@ -12,13 +12,13 @@ Each dataset in this CEQR data product falls into one of the following categorie
 
 The DCP SharePoint folder [CEQR Data Hub Final Uploads](https://nyco365.sharepoint.com/sites/NYCPLANNING/cp/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FNYCPLANNING%2Fcp%2FShared%20Documents%2F03%2E%20Process%20Improvement%2F06%2E%20Environmental%20Review%20Reform%2FCEQR%20Methodologies%20Update%2FCEQR%20Hub%2F1%20Data%2FCEQR%20Data%20Hub%20Final%20Uploads) is the source for the Excel workbooks in `/datasets/`.
 
-The distribution point for this data product is the `latest` folder in our Digital Ocean S3 bucket `ceqr-data-hub`.
+The distribution point for this data product is the `latest` folder in our Digital Ocean S3 bucket `ceqr-data-hub`. To update it, promote a build to draft, then run the "📬 Distribute CEQR Data Hub" GitHub Action with the draft's version and revision number. It copies the draft to `ceqr-data-hub/<version>/` and then to `latest/`.
 
 When there are changes to the seed files in `/seeds/`, the markdown tables in the [CEQR Data Hub repo](https://github.com/NYCPlanning/ceqr-data-hub) must be updated as well using the relevant markdown build files.
 
 ## Important files
 
-[recipe](https://github.com/NYCPlanning/data-engineering/blob/main/products/green_fast_track/recipe.yml)
+[recipe](https://github.com/NYCPlanning/data-engineering/blob/main/products/ceqr/recipe.yml)
 
 ## Links
 

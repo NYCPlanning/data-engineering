@@ -1,0 +1,114 @@
+name: 📬 Distribute CEQR Data Hub
+run-name: "📬 Distribute CEQR Data Hub: ${{ inputs.version }} draft ${{ inputs.draft }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Draft version in edm-publishing/db-ceqr/draft/ (e.g. 2026-11-02)"
+        type: string
+        required: true
+      draft:
+        description: "Draft revision folder within that version (e.g. 1)"
+        type: string
+        required: true
+
+jobs:
+  distribute:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-base:latest
+    env:
+      DRAFT_PATH: db-ceqr/draft/${{ inputs.version }}/${{ inputs.draft }}/
+      VERSION_PATH: ${{ inputs.version }}/
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            dcpy
+            python
+            bash
+            admin/run_environment
+            products
+            .github
+
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v5
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+      # The buckets are in different regions, so this downloads and re-uploads. Nothing
+      # links to the version folder yet, so it's fine for it to be partial if this fails.
+      - name: Copy draft to version folder
+        run: |
+          uv run python3 - <<'EOF'
+          import os
+          from dcpy.utils import s3
+
+          draft = os.environ["DRAFT_PATH"]
+          if not s3.folder_exists("edm-publishing", draft):
+              raise SystemExit(f"edm-publishing/{draft} doesn't exist")
+          s3.copy_folder(
+              "edm-publishing",
+              draft,
+              os.environ["VERSION_PATH"],
+              acl="public-read",
+              target_bucket="ceqr-data-hub",
+          )
+          EOF
+
+      # Same bucket, so these are server-side copies. keep_existing so the public download
+      # links never point at a deleted file mid-copy.
+      - name: Copy version folder to latest
+        run: |
+          uv run python3 - <<'EOF'
+          import os
+          from dcpy.utils import s3
+
+          version = os.environ["VERSION_PATH"]
+          s3.copy_folder("ceqr-data-hub", version, "latest/", acl="public-read", keep_existing=True)
+
+          stale = s3.get_filenames("ceqr-data-hub", "latest/") - s3.get_filenames("ceqr-data-hub", version)
+          if stale:
+              print(f"::warning::files in latest/ that aren't in {version}: {sorted(stale)}")
+          EOF
+
+      - name: Check public downloads
+        run: |
+          uv run python3 - <<'EOF'
+          import os
+          import urllib.error
+          import urllib.request
+
+          from dcpy.utils import s3
+
+          draft = os.environ["DRAFT_PATH"]
+          bad = []
+          for obj in s3.list_objects("edm-publishing", draft):
+              name = obj["Key"].removeprefix(draft)
+              if not name or name.endswith("/"):
+                  continue
+              for folder in [os.environ["VERSION_PATH"], "latest/"]:
+                  url = f"https://nyc3.digitaloceanspaces.com/ceqr-data-hub/{folder}{name}"
+                  try:
+                      with urllib.request.urlopen(urllib.request.Request(url, method="HEAD")) as r:
+                          size = int(r.headers["Content-Length"])
+                  except urllib.error.HTTPError as e:
+                      bad.append(f"{folder}{name}: HTTP {e.code}")
+                      continue
+                  if size != obj["Size"]:
+                      bad.append(f"{folder}{name}: {size} bytes public, {obj['Size']} in draft")
+          if bad:
+              raise SystemExit("\n".join(bad))
+          print("all public downloads match the draft")
+          EOF
