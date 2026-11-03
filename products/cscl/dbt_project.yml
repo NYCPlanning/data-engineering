@@ -102,8 +102,8 @@ vars:
   # so after an odd number of reversed protos its values come out the other way round:
   # the second of two reversed protos on one segment isn't reversed. true reverses each
   # proto by its own FROM_TO_INDICATOR, as the spec says. Logged every build as
-  # CSCL-LOG-OURS-12 (5 LION .dat records on 26c, and their LION gdb rows, whose census
-  # fields then differ from prod's as CSCL-LION-26 says).
+  # CSCL-LOG-OURS-12 (5 LION .dat records on 26c, and their LION gdb rows; their census
+  # fields match prod's either way, see fix_reversed_proto_census_fields).
   fix_reversed_proto_pairs: false
   # Special address flag on a ramp proto-segment (LION L48),
   # CSCL-LION-19: prod gives a ramp proto (ALT_SEGDATA_TYPE R) the SAF records it
@@ -167,6 +167,38 @@ vars:
   # do, and takes the NTA from NeighborhoodPUMACodes by borough and tract. Only these two
   # layers read it. Logged every build as CSCL-LOG-OURS-21 (2 source tracts on 26c).
   key_tracts_by_borough: false
+  # Census tract and block (1990-2020) and community district fields on a centerline's
+  # reversed proto-segments (LION gdb LCT/RCT, LCB/RCB and their suffixes, L_CD/R_CD),
+  # CSCL-LION-26: prod's LION record swaps a reversed proto's left/right values
+  # (CenterlineExtractFile.cs:3801-3842), but its gdb writer reads the census and community
+  # district fields straight from the AtomicPolygons it found on the shape before that swap
+  # (ExtractorClass.cs:2390-2412 and 3934-4338, SetBytesCensusTract, reading
+  # LeftAtomicPolygon/RightAtomicPolygon from GetAtomicPolygons, CenterlineExtractFile.cs:
+  # 2901 and 4406-4452), so they belong to the other side's AtomicPolygon and contradict
+  # prod's own LION .dat. On the second reversed proto of a CSCL-LION-01 segment the shape
+  # was already reversed by the first, so prod's census fields come out the right way round
+  # there. true writes them with the record's own sides, as the .dat. Logged every build as
+  # CSCL-LOG-OURS-17 (29 LION gdb records on 26c, 24 with fix_reversed_proto_pairs on).
+  fix_reversed_proto_census_fields: false
+  # High house number on the LION gdb S and V replicants of a HYPHEN_TYPE R address point
+  # (LHi_Hyphen/RHi_Hyphen, ToLeft/ToRight), CSCL-LION-25: prod's gdb writer takes an R
+  # range's high end from a dash in HOUSE_NUMBER (ExtractorClass.cs:5128-5132,
+  # SetSAFStreetNameAndCode: parts = houseNumber.Split('-'), high = parts[1] only if there
+  # are two parts, else its initial "0" at :5116), the encoding the spec describes, but
+  # CSCL stores the high end in HOUSE_NUMBER_RANGE, so prod writes the low house number and
+  # no high one. true writes HOUSE_NUMBER_RANGE as the high house number. Logged every
+  # build as CSCL-LOG-OURS-18 (9 LION gdb records on 26c).
+  fix_hyphen_r_high_house_number: false
+  # AltSegmentData rows with a blank ALT_SEGDATA_TYPE that have a SAF type (SAF ABCEGNPX,
+  # LION gdb SAF replicants and SegCount, and everything else that reads the SAF rows),
+  # CSCL-SAF-03: spec Table 13 makes only ALT_SEGDATA_TYPE S rows SAF records, but prod
+  # selects them by SAFTYPE alone: its SAF A/B/C/E/P extract by SAFTYPE IN ('A', 'B', 'C',
+  # 'E', 'P') (SAFExtractClass.cs:1448, ConstantClass.cs:43), its LION gdb SAF replicants,
+  # SegCount and special address flag by SEGMENTID (CSCLDataHelpersClass.cs:1215-1300,
+  # GetSAFTData, used at ExtractorClass.cs:2789 and CenterlineExtractFile.cs:2700). true
+  # leaves them out, as the spec says. Logged every build as CSCL-LOG-OURS-19 (1 row on 26c, segment 9017010: one record in each SAF ABCEGNPX
+  # file, one LION gdb row, and SegCount on the segment's 7 other rows).
+  fix_blank_type_altsegmentdata: false
   # LION sequence numbers for non-street features (int__nonstreetfeature_seqnum). Legacy
   # numbers them with a per-(borough, face code) counter that carries across the borough
   # extract runs of one extract session (ETLExtractorForm resets it on each OK click).

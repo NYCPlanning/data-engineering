@@ -39,6 +39,11 @@ models:
   description: "SAF-replicant Join_IDs for CommonPlace (G, N, X) and address point (S, V) records, one per SAF record and host proto-segment."
 - name: int__saf_replicant_fields
   description: "Every SAF source normalized to one shape for the LION SAF replicant rows: resolved lionkey, special address flag, house-number and ZIP overrides, SAF street name and code, and Join_ID. Address point S and V ZIP overrides are not implemented."
+  columns:
+  - name: ap_high_hn_prod
+    description: "An address point's (S, V) high house number as prod's LION gdb writes it: for HYPHEN_TYPE R, the part after a dash in HOUSE_NUMBER, none without one (CSCL-LION-25). Null for other sources."
+  - name: ap_high_hn_fixed
+    description: "An address point's high house number from HOUSE_NUMBER_RANGE for HYPHEN_TYPE R and X, else its house number. l_high_hn/r_high_hn take this when the var fix_hyphen_r_high_house_number is true, else ap_high_hn_prod (the default)."
 
 - name: int__saf_replicant_b7sc
   description: >-
@@ -108,3 +113,86 @@ unit_tests:
     rows:
     - {saf_globalid: asd1, saf_street_name: FIRST NAME}
     - {saf_globalid: cp1, saf_street_name: TRIBOROUGH BRIDGE PLAYGROUND E}
+# CSCL-LION-25. Address points on lionkey 10100001: R1 (left) and R2 (right) are HYPHEN_TYPE R
+# ranges with the high end in HOUSE_NUMBER_RANGE, as CSCL stores them; R3 is an R range written
+# into HOUSE_NUMBER with a dash, the encoding prod's gdb writer reads; X1 is type X, N1 a single
+# house number. sql fixtures: CI runs unit tests without building the upstream models
+- name: test__int__saf_replicant_fields__hyphen_r_high_prod
+  description: "Default (fix_hyphen_r_high_house_number false): an R address point's replicant has a high house number only from a dash in HOUSE_NUMBER, as prod's gdb."
+  model: int__saf_replicant_fields
+  overrides:
+    vars:
+      fix_hyphen_r_high_house_number: false
+  given: &hyphen_r_given
+  - input: ref('int__saf_segments')
+    format: sql
+    rows: |
+      SELECT segment_lionkey, saf_globalid, 'addresspoints' AS saf_source_table, saftype, FALSE AS roadbed, FALSE AS generic
+      FROM (VALUES
+        ('10100001', 'R1', 'V'), ('10100001', 'R2', 'S'), ('10100001', 'R3', 'S'),
+        ('10100001', 'X1', 'S'), ('10100001', 'N1', 'V')
+      ) AS t (segment_lionkey, saf_globalid, saftype)
+  - input: ref('stg__altsegmentdata_saf')
+    format: sql
+    rows: |
+      SELECT
+        NULL::TEXT AS globalid, NULL::TEXT AS saftype, NULL::TEXT AS b5sc, NULL::TEXT AS lgc1, NULL::TEXT AS lgc2,
+        NULL::TEXT AS lgc3, NULL::TEXT AS lgc4, NULL::TEXT AS sosindicator, NULL::TEXT AS l_low_hn,
+        NULL::TEXT AS l_high_hn, NULL::TEXT AS r_low_hn, NULL::TEXT AS r_high_hn, NULL::TEXT AS zipcode
+      WHERE FALSE
+  - input: source('recipe_sources', 'dcp_cscl_streetname')
+    format: sql
+    rows: |
+      SELECT '11000201' AS b7sc, 'FIRST AVENUE' AS lookup_key, 'Y' AS principal_flag, 1 AS ogc_fid
+  - input: source('recipe_sources', 'dcp_cscl_featurename')
+    format: sql
+    rows: |
+      SELECT NULL::TEXT AS b7sc, NULL::TEXT AS lookup_key, NULL::TEXT AS principal_flag, NULL::INT AS ogc_fid
+      WHERE FALSE
+  - input: ref('int__address_points')
+    format: sql
+    rows: |
+      SELECT globalid, '11000201' AS b7sc_actual, '11000201' AS b7sc_vanity, sosindicator, hyphen_type,
+        house_number, plain_house_number, house_number_range, NULL::TEXT AS snd_feature_type
+      FROM (VALUES
+        ('R1', '1', 'R', '430', '430', '432'),
+        ('R2', '2', 'R', '177', '177', '185'),
+        ('R3', '1', 'R', '12', '12-14', NULL),
+        ('X1', '2', 'X', '20', '20', '24'),
+        ('N1', '1', 'N', '7', '7', NULL)
+      ) AS t (globalid, sosindicator, hyphen_type, house_number, plain_house_number, house_number_range)
+  - input: ref('int__saf_altnames_join_ids')
+    format: sql
+    rows: |
+      SELECT '10100001' AS lionkey, saf_globalid, '11000201000000' || saftype AS join_id
+      FROM (VALUES ('R1', 'V'), ('R2', 'S'), ('R3', 'S'), ('X1', 'S'), ('N1', 'V')) AS t (saf_globalid, saftype)
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT '10100001' AS lionkey, '1' AS boroughcode, '01' AS lgc1, TRUE AS include_in_bytes_lion
+  - input: source('recipe_sources', 'dcp_cscl_commonplace_gdb')
+    format: sql
+    rows: |
+      SELECT NULL::TEXT AS globalid, NULL::TEXT AS b7sc
+      WHERE FALSE
+  expect:
+    rows:
+    - {saf_globalid: R1, l_low_hn: '430', l_high_hn: null, r_low_hn: null, r_high_hn: null, ap_high_hn_prod: null, ap_high_hn_fixed: '432'}
+    - {saf_globalid: R2, l_low_hn: null, l_high_hn: null, r_low_hn: '177', r_high_hn: null, ap_high_hn_prod: null, ap_high_hn_fixed: '185'}
+    - {saf_globalid: R3, l_low_hn: '12', l_high_hn: '14', r_low_hn: null, r_high_hn: null, ap_high_hn_prod: '14', ap_high_hn_fixed: null}
+    - {saf_globalid: X1, l_low_hn: null, l_high_hn: null, r_low_hn: '20', r_high_hn: '24', ap_high_hn_prod: '24', ap_high_hn_fixed: '24'}
+    - {saf_globalid: N1, l_low_hn: '7', l_high_hn: '7', r_low_hn: null, r_high_hn: null, ap_high_hn_prod: '7', ap_high_hn_fixed: '7'}
+- name: test__int__saf_replicant_fields__hyphen_r_high_fixed
+  description: "fix_hyphen_r_high_house_number true: an R address point's replicant takes its high house number from HOUSE_NUMBER_RANGE."
+  model: int__saf_replicant_fields
+  overrides:
+    vars:
+      fix_hyphen_r_high_house_number: true
+  given: *hyphen_r_given
+  expect:
+    rows:
+    - {saf_globalid: R1, l_low_hn: '430', l_high_hn: '432', r_low_hn: null, r_high_hn: null}
+    - {saf_globalid: R2, l_low_hn: null, l_high_hn: null, r_low_hn: '177', r_high_hn: '185'}
+    - {saf_globalid: R3, l_low_hn: '12', l_high_hn: null, r_low_hn: null, r_high_hn: null}
+    - {saf_globalid: X1, l_low_hn: null, l_high_hn: null, r_low_hn: '20', r_high_hn: '24'}
+    - {saf_globalid: N1, l_low_hn: '7', l_high_hn: '7', r_low_hn: null, r_high_hn: null}

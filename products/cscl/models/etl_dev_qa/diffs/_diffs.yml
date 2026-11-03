@@ -112,7 +112,9 @@ models:
     SeqNum only with lion_gdb_seqnum_extract_sessions set to the LION .dat files' sessions
     (the default numbers the gdb like prod's); CSCL-LION-15 and 24 cover house
     numbers zeroed on G and F segments, only with zero_generic_house_numbers or
-    zero_f_segment_house_numbers on. A one-sided row is accounted for when
+    zero_f_segment_house_numbers on; CSCL-LION-25, 26 and CSCL-SAF-03 only with
+    fix_hyphen_r_high_house_number, fix_reversed_proto_census_fields and
+    fix_blank_type_altsegmentdata on. A one-sided row is accounted for when
     one_sided_cause names a known difference for it (CSCL-SAF-03's B replicant,
     CSCL-SAF-06's CommonPlace replicants). Other house numbers, zips, other SegCount
     and Street are categorized but left unaccounted.

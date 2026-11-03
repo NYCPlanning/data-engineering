@@ -57,6 +57,27 @@ address_points AS (
         )
     FROM {{ ref('int__address_points') }}
 ),
+-- The high house number of an address point's S/V replicant. CSCL-LION-25: for a
+-- HYPHEN_TYPE R range prod's gdb writer splits HOUSE_NUMBER on its dashes and takes the
+-- second part as the high end, only if there are exactly two parts, else "0", i.e. none
+-- (ExtractorClass.cs:5116 and 5128-5132, SetSAFStreetNameAndCode); CSCL stores the high
+-- end in HOUSE_NUMBER_RANGE, so prod writes none. The fix takes HOUSE_NUMBER_RANGE, as for
+-- type X. Other types: the house number itself (X: HOUSE_NUMBER_RANGE), the same either way.
+address_point_high_hns AS (
+    SELECT
+        *,
+        CASE
+            WHEN hyphen_type = 'R'
+                THEN CASE
+                    WHEN len(string_split(plain_house_number, '-')) = 2
+                        THEN trim(split_part(plain_house_number, '-', 2))
+                END
+            WHEN hyphen_type = 'X' THEN house_number_range
+            ELSE house_number
+        END AS high_hn_prod,
+        CASE WHEN hyphen_type IN ('R', 'X') THEN house_number_range ELSE house_number END AS high_hn_fixed
+    FROM address_points
+),
 altnames_join_ids AS (
     SELECT * FROM {{ ref('int__saf_altnames_join_ids') }}
 ),
@@ -116,7 +137,9 @@ altsegmentdata_fields AS (
         CASE
             WHEN altsegdata.saftype IN ('A', 'B', 'C', 'E', 'P') AND altsegdata.sosindicator = '1' THEN 'L'
             WHEN altsegdata.saftype IN ('A', 'B', 'C', 'E', 'P') AND altsegdata.sosindicator = '2' THEN 'R'
-        END AS parity_side
+        END AS parity_side,
+        NULL::text AS ap_high_hn_prod,
+        NULL::text AS ap_high_hn_fixed
     FROM saf_segments AS saf
     INNER JOIN altsegdata ON saf.saf_globalid = altsegdata.globalid
     INNER JOIN lion AS seg ON saf.segment_lionkey = seg.lionkey
@@ -155,7 +178,9 @@ commonplace_fields AS (
         aj.join_id AS precomputed_join_id,
         saf.roadbed,
         saf.generic,
-        NULL::text AS parity_side
+        NULL::text AS parity_side,
+        NULL::text AS ap_high_hn_prod,
+        NULL::text AS ap_high_hn_fixed
     FROM saf_segments AS saf
     INNER JOIN {{ source('recipe_sources', 'dcp_cscl_commonplace_gdb') }} AS cp ON saf.saf_globalid = cp.globalid
     LEFT JOIN street_names ON cp.b7sc = street_names.b7sc
@@ -183,19 +208,17 @@ addresspoint_fields AS (
             ELSE left(ap.b7sc_actual, 6)
         END AS saf_street_code,
         -- House number '0' means none, as in the AltSegmentData branch above.
+        -- the high house number: high_hn_fixed with the var fix_hyphen_r_high_house_number
+        -- on, else high_hn_prod (the default, CSCL-LION-25)
         CASE WHEN ap.sosindicator = '1' THEN nullif(ap.house_number, '0') END AS l_low_hn,
         CASE
             WHEN ap.sosindicator = '1'
-                THEN nullif(
-                    CASE WHEN ap.hyphen_type IN ('R', 'X') THEN ap.house_number_range ELSE ap.house_number END, '0'
-                )
+                THEN nullif(ap.{{ 'high_hn_fixed' if var('fix_hyphen_r_high_house_number') else 'high_hn_prod' }}, '0')
         END AS l_high_hn,
         CASE WHEN ap.sosindicator = '2' THEN nullif(ap.house_number, '0') END AS r_low_hn,
         CASE
             WHEN ap.sosindicator = '2'
-                THEN nullif(
-                    CASE WHEN ap.hyphen_type IN ('R', 'X') THEN ap.house_number_range ELSE ap.house_number END, '0'
-                )
+                THEN nullif(ap.{{ 'high_hn_fixed' if var('fix_hyphen_r_high_house_number') else 'high_hn_prod' }}, '0')
         END AS r_high_hn,
         NULL::text AS l_zip,
         NULL::text AS r_zip,
@@ -207,9 +230,11 @@ addresspoint_fields AS (
         aj.join_id AS precomputed_join_id,
         saf.roadbed,
         saf.generic,
-        NULL::text AS parity_side
+        NULL::text AS parity_side,
+        nullif(ap.high_hn_prod, '0') AS ap_high_hn_prod,
+        nullif(ap.high_hn_fixed, '0') AS ap_high_hn_fixed
     FROM saf_segments AS saf
-    INNER JOIN address_points AS ap ON saf.saf_globalid = ap.globalid
+    INNER JOIN address_point_high_hns AS ap ON saf.saf_globalid = ap.globalid
     LEFT JOIN street_names AS street_names_vanity ON ap.b7sc_vanity = street_names_vanity.b7sc
     LEFT JOIN feature_names AS feature_names_vanity ON ap.b7sc_vanity = feature_names_vanity.b7sc
     LEFT JOIN street_names AS street_names_actual ON ap.b7sc_actual = street_names_actual.b7sc
@@ -254,6 +279,9 @@ SELECT
     deduped.l_zip,
     deduped.r_zip,
     deduped.parity_side,
+    -- an address point's high house number, prod's and the fix's (CSCL-LION-25)
+    deduped.ap_high_hn_prod,
+    deduped.ap_high_hn_fixed,
     coalesce(
         deduped.precomputed_join_id,
         lion.boroughcode

@@ -30,6 +30,12 @@ models:
     description: "A centerline proto whose face code is only in FeatureName (CSCL-LION-22)."
   - name: face_code
     description: "face_code_fixed when the var fix_featurename_face_code_protos is true, else face_code_prod (the default). A proto without one isn't written (CSCL-LOG-LION-19)."
+  - name: gdb_census_sides_swapped_prod
+    description: "Prod's LION gdb writes the proto's census tract and block (1990-2020) and community district fields the other way round from its LION record (CSCL-LION-26): a centerline's proto off the borough boundary whose orientation (geometry_reversed) differs from the shape prod held when writing it (flipped by flips_before). Prod's gdb reads them from the AtomicPolygons it found on that shape, before the proto's own reversal swaps its LION record's sides."
+  - name: gdb_census_sides_swapped_fixed
+    description: "Always false: the LION gdb's census and community district fields follow the record's own left and right sides, as its LION record and AtomicPolygons do."
+  - name: gdb_census_sides_swapped
+    description: "What gdb_lion uses: gdb_census_sides_swapped_fixed when the var fix_reversed_proto_census_fields is true, else gdb_census_sides_swapped_prod (the default)."
   tests:
   - name: int__protosegments__key_ideal
     test_name: dbt_utils.unique_combination_of_columns
@@ -308,3 +314,68 @@ unit_tests:
     - {globalid: S2, geometry_reversed_fixed: true, geometry_reversed: true, from_level_code: 2, face_code: '0300', is_featurename_face_code: false, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
     - {globalid: F1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0200', is_featurename_face_code: true, segment_seqnum: '00001', gdb_segment_seqnum: '00001'}
     - {globalid: N1, geometry_reversed_fixed: false, geometry_reversed: false, from_level_code: 1, face_code: '0300', is_featurename_face_code: false, segment_seqnum: '00009', gdb_segment_seqnum: '00011'}
+# CSCL-LION-26, same protos. Prod's gdb census sides follow the shape prod held when it wrote
+# the proto (flipped by the reversed protos before it, CSCL-LION-01), where its LION record's
+# follow the proto's own orientation too: they differ on P1, P2 and Q1 by default (each reversed
+# once more than the shape), on P1, Q1 and Q2 with fix_reversed_proto_pairs on. P0 is on the
+# borough boundary (no swap in prod) and S1/S2 are a shoreline's protos (not flipped)
+- name: test__int__protosegments__gdb_census_prod
+  description: "Defaults: prod's gdb census sides on reversed protos (CSCL-LION-26), with prod's proto orientation (CSCL-LION-01)."
+  model: int__protosegments
+  overrides:
+    vars:
+      fix_reversed_proto_pairs: false
+      fix_reversed_proto_census_fields: false
+  given: *protos_given
+  expect:
+    rows:
+    - {globalid: P0, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+    - {globalid: P1, gdb_census_sides_swapped_prod: true, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: true}
+    - {globalid: P2, gdb_census_sides_swapped_prod: true, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: true}
+    - {globalid: P3, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+    - {globalid: Q1, gdb_census_sides_swapped_prod: true, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: true}
+    - {globalid: Q2, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+    - {globalid: S1, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+    - {globalid: S2, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+    - {globalid: F1, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+    - {globalid: N1, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped_fixed: false, gdb_census_sides_swapped: false}
+- name: test__int__protosegments__gdb_census_prod_reversed_pairs_fixed
+  description: "fix_reversed_proto_pairs on, census fix off: prod's gdb census sides still follow prod's shape, so P2 (now reversed) matches it and Q2 (now not) doesn't."
+  model: int__protosegments
+  overrides:
+    vars:
+      fix_reversed_proto_pairs: true
+      fix_reversed_proto_census_fields: false
+  given: *protos_given
+  expect:
+    rows:
+    - {globalid: P0, gdb_census_sides_swapped: false}
+    - {globalid: P1, gdb_census_sides_swapped: true}
+    - {globalid: P2, gdb_census_sides_swapped: false}
+    - {globalid: P3, gdb_census_sides_swapped: false}
+    - {globalid: Q1, gdb_census_sides_swapped: true}
+    - {globalid: Q2, gdb_census_sides_swapped: true}
+    - {globalid: S1, gdb_census_sides_swapped: false}
+    - {globalid: S2, gdb_census_sides_swapped: false}
+    - {globalid: F1, gdb_census_sides_swapped: false}
+    - {globalid: N1, gdb_census_sides_swapped: false}
+- name: test__int__protosegments__gdb_census_fixed
+  description: "fix_reversed_proto_census_fields true: the gdb's census sides follow each record's own sides."
+  model: int__protosegments
+  overrides:
+    vars:
+      fix_reversed_proto_pairs: false
+      fix_reversed_proto_census_fields: true
+  given: *protos_given
+  expect:
+    rows:
+    - {globalid: P0, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}
+    - {globalid: P1, gdb_census_sides_swapped_prod: true, gdb_census_sides_swapped: false}
+    - {globalid: P2, gdb_census_sides_swapped_prod: true, gdb_census_sides_swapped: false}
+    - {globalid: P3, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}
+    - {globalid: Q1, gdb_census_sides_swapped_prod: true, gdb_census_sides_swapped: false}
+    - {globalid: Q2, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}
+    - {globalid: S1, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}
+    - {globalid: S2, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}
+    - {globalid: F1, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}
+    - {globalid: N1, gdb_census_sides_swapped_prod: false, gdb_census_sides_swapped: false}

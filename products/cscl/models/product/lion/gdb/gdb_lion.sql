@@ -9,9 +9,17 @@
 -- numbers/zip, and Join_ID - see int__saf_replicant_fields.sql for the override values.
 -- Continuous-parity segments and SAF entries are written as two rows (ETL spec §2.7.1).
 
+-- CSCL-LION-26: on a reversed proto-segment prod's gdb writes the census tract and block and
+-- community district fields the other way round from the LION record (see
+-- int__protosegments.gdb_census_sides_swapped and macros/lion_gdb_census_sides.sql; off
+-- with the var fix_reversed_proto_census_fields). Everything else keeps the record's sides.
 WITH lion AS (
-    SELECT * FROM {{ ref('int__lion') }}
-    WHERE include_in_bytes_lion
+    SELECT
+        lion.* REPLACE ({{ swap_lion_gdb_census_sides('lion', 'protos.gdb_census_sides_swapped') }})
+    FROM {{ ref('int__lion') }} AS lion
+    -- a proto-segment's own globalid (unique across int__segments)
+    LEFT JOIN {{ ref('int__protosegments') }} AS protos ON lion.globalid = protos.globalid
+    WHERE lion.include_in_bytes_lion
 ),
 saf_replicants AS (
     SELECT * FROM {{ ref('int__saf_replicant_fields') }}

@@ -274,6 +274,12 @@ unit_tests:
         format: sql
         rows: |
           SELECT * FROM (VALUES (1, 2), (2, 1), (3, 1), (4, 1)) AS t (segmentid, n_records)
+      # no proto-segments here, so no census sides swapped (CSCL-LION-26)
+      - input: ref('int__protosegments')
+        format: sql
+        rows: |
+          SELECT NULL::TEXT AS globalid, NULL::BOOLEAN AS gdb_census_sides_swapped
+          WHERE FALSE
     # dict expect: only the tested columns (dbt reads their types from the model's output)
     expect:
       rows:
