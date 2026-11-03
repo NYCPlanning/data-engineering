@@ -11,8 +11,8 @@ It reads published PFF and KPDB files and has its own venv.
 |---|---|---|
 | PFF decennial | 2010, 2020 | population and housing units by community district, NTA, and census tract |
 | PFF ACS | 2020-2024 | household income by census tract, NTA, CDTA, and citywide |
-| KPDB `cpp_housing_growth_cd` | 2026-10-01 | projected net units 2025-2034 |
-| KPDB `longform_cd_output` | 2026-10-01 | per-record units by community district |
+| KPDB `cpp_housing_growth_cd`, `cpp_housing_growth_nta` | 2026-10-01 | projected net units 2025-2034 |
+| KPDB `longform_cd_output`, `longform_nta_output` | 2026-10-01 | per-record units by community district and NTA |
 | `dcp_housing` (edm-recipes) | 26Q2 | units built, and housing units by year from the 2020 census through 2025. Newer than the 24Q4 version KPDB 2026-10-01 used, and checked against FHGS homes added 2021-2025 instead |
 | `dcp_cdboundaries`, `dcp_cdta2020`, `dcp_nta2020`, `dcp_ct2020` | 26c | geometry, names, CD to CDTA crosswalk, NTAs, census tracts |
 | `dcp_housing_ahft` (edm-private) | 20261002 | AHFT rank. AHFT district means the bottom 12 of 59, the same cutoff as LIFT |
@@ -40,6 +40,7 @@ python scripts/extract_fhgs.py data/sources/fhgs.pdf
 | `fact_unit_completion` | completed DOB job (job_number) |
 | `fact_housing_survey_household` | HVS survey year x household (control) |
 | `mart_community_district_date` | borocd x date, 2010-2025 |
+| `mart_nta_date` | nta2020 x date, 2010-2025 |
 | `mart_borough_survey_year` | borough x HVS survey year |
 | `population_vs_housing_growth` (product, Excel) | borocd, the 59 community districts |
 | `population_change_components` (product, Excel) | borocd, the 59 community districts |
@@ -61,6 +62,8 @@ marimo edit notebooks/explore_growth.py
 
 `notebooks/explore_demographics.py` zooms into one community district's census tracts.
 A district's tracts are the tracts in its CDTA, since tracts don't nest in districts.
+
+`notebooks/neighborhood_capital_profiles.py` has one section each for a district's residents, growth, and infrastructure. Infrastructure is only a list of TODO subsections for now.
 
 To share the results, `python scripts/export_excel.py` writes a charts sheet, population vs housing growth, where population change went, the community district table, housing units by year (wide and long), and their column descriptions to `data/exports/Community District Growth YYYYMMDD.xlsx`, dated by the day it runs.
 

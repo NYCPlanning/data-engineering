@@ -9,3 +9,4 @@ marimo-lens
 numpy
 openpyxl
 pandas
+ruff

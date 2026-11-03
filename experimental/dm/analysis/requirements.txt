@@ -167,6 +167,8 @@ rpds-py==2026.9.1
     # via
     #   jsonschema
     #   referencing
+ruff==0.17.3
+    # via -r requirements.in
 s3transfer==0.19.3
     # via boto3
 six==1.17.0
