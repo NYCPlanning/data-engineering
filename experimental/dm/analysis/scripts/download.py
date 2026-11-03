@@ -66,6 +66,10 @@ SOURCES = {
         "edm-recipes",
         "datasets/dcp_nta2020/26c/dcp_nta2020.parquet",
     ),
+    "dcp_transit_zones.parquet": (
+        "edm-recipes",
+        "datasets/dcp_transit_zones/20251209/dcp_transit_zones.parquet",
+    ),
     "dcp_housing_ahft.csv": (
         "edm-private",
         "datasets/dcp_housing_ahft/20261002/dcp_housing_ahft.csv",

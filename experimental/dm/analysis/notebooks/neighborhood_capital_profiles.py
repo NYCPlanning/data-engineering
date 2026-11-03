@@ -27,6 +27,9 @@ def _(duckdb, mo):
         "dim_census_tract",
         "mart_community_district_date",
         "mart_nta_date",
+        "dim_transit_zone",
+        "dim_nta_neighbor",
+        "dim_community_district_transit_zone",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -110,23 +113,23 @@ def _(district_options, mo, selected_district, set_selected_district):
 @app.cell
 def _(con, districts, selected_district):
     focus = districts[districts["borocd"] == selected_district].iloc[0]
-    # NTAs touching the district's NTAs, even at a corner, since they're nearby to someone living there
+    # NTAs touching the district's NTAs, corners included, since they're nearby to someone living there
     nearby_nta_codes = [
         code
         for (code,) in con.execute(
             """
             WITH district_ntas AS (
-                SELECT nta.nta2020, nta.geom
+                SELECT nta.nta2020
                 FROM dim_nta AS nta
                 INNER JOIN dim_community_district AS district ON nta.cdta2020 = district.cdta2020
                 WHERE district.borocd = ?
             )
 
-            SELECT DISTINCT nta.nta2020
-            FROM dim_nta AS nta
-            INNER JOIN district_ntas ON ST_Intersects(nta.geom, district_ntas.geom)
-            WHERE nta.nta2020 NOT IN (SELECT nta2020 FROM district_ntas)
-            ORDER BY nta.nta2020
+            SELECT DISTINCT neighbor.neighbor_nta2020
+            FROM dim_nta_neighbor AS neighbor
+            INNER JOIN district_ntas ON neighbor.nta2020 = district_ntas.nta2020
+            WHERE neighbor.neighbor_nta2020 NOT IN (SELECT nta2020 FROM district_ntas)
+            ORDER BY neighbor.neighbor_nta2020
             """,
             [selected_district],
         ).fetchall()
@@ -853,7 +856,7 @@ def _(
 
     # folium's own output is sized by aspect ratio and cuts off the legend, so fix the height
     mo.iframe(focus_map.get_root().render(), height="600px")
-    return
+    return (focus_outline,)
 
 
 @app.cell
@@ -1416,8 +1419,117 @@ def _(mo):
 
     ### Transportation
 
-    TODO
+    Transit zones set parking requirements for new buildings. Manhattan Core, Long Island City, and the Inner Transit Zone
+    have none, and the Outer Transit Zone has lower ones. The 25-241 areas use the rules for beyond the Greater Transit
+    Zone, except for affordable and senior housing. See [DCP's Greater Transit Zone page](https://www.nyc.gov/site/planning/data-maps/open-data/dwn-greater-transit-zones.page).
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(con):
+    # whole zones, simplified to about 10 m (a pixel or so at district zoom), so the map can pan anywhere.
+    # Built once rather than for each district.
+    transit_zone_geojson = con.sql("""
+        SELECT transit_zone, ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.0001)) AS geojson
+        FROM dim_transit_zone
+    """).df()
+    return (transit_zone_geojson,)
+
+
+@app.cell(hide_code=True)
+def _(
+    con,
+    focus_outline,
+    folium,
+    json,
+    mo,
+    selected_district,
+    transit_zone_geojson,
+):
+    # fewest parking requirements first, following the Zoning Resolution
+    transit_zone_order = [
+        "Manhattan Core and Long Island City Parking Areas",
+        "Inner Transit Zone",
+        "Outer Transit Zone",
+        "Special 25-241 Parking Provisions",
+        "Beyond the Greater Transit Zone",
+    ]
+    transit_zone_colors = dict(
+        zip(transit_zone_order, ["#3f007d", "#6a51a3", "#9e9ac8", "#cbc9e2", "#f2f0f7"])
+    )
+    transit_zone_shares = dict(
+        con.execute(
+            """
+            SELECT transit_zone, share_of_district
+            FROM dim_community_district_transit_zone
+            WHERE borocd = ?
+            """,
+            [selected_district],
+        ).fetchall()
+    )
+
+    transit_zone_map = folium.Map(tiles="Esri.WorldGrayCanvas", zoom_snap=0.25)
+    folium.GeoJson(
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": json.loads(row.geojson),
+                    "properties": {"transit_zone": row.transit_zone},
+                }
+                for row in transit_zone_geojson.itertuples()
+            ],
+        },
+        name="Transit zones",
+        style_function=lambda feature: {
+            "fillColor": transit_zone_colors[feature["properties"]["transit_zone"]],
+            "fillOpacity": 0.4,
+            "color": "white",
+            "weight": 1,
+        },
+        tooltip=folium.GeoJsonTooltip(fields=["transit_zone"], labels=False),
+    ).add_to(transit_zone_map)
+    district_layer = folium.GeoJson(
+        json.loads(focus_outline),
+        name="District boundary",
+        interactive=False,
+        style_function=lambda _feature: {
+            "fill": False,
+            "color": "#222222",
+            "weight": 3,
+        },
+    ).add_to(transit_zone_map)
+    transit_zone_rows = "".join(
+        f"""<tr>
+          <td><span style="display:inline-block;width:14px;height:10px;background:{color};opacity:0.8;
+            outline:1px solid #d8d8d4"></span></td>
+          <td style="padding:0 12px 0 4px">{zone}</td>
+          <td style="text-align:right;font-weight:700">{transit_zone_shares.get(zone, 0):.0%}</td>
+        </tr>"""
+        for zone, color in transit_zone_colors.items()
+    )
+    transit_zone_map.get_root().html.add_child(
+        folium.Element(f"""
+    <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
+      padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
+      <table style="border-collapse:collapse">
+        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Transit zone</td>
+          <td style="padding-bottom:4px">Of district</td></tr>
+        {transit_zone_rows}
+      </table>
+    </div>
+    """)
+    )
+    transit_zone_map.fit_bounds(district_layer.get_bounds())
+    mo.iframe(transit_zone_map.get_root().render(), height="500px")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
     ### Wastewater
 
     TODO

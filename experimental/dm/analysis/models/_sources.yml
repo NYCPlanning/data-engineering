@@ -74,6 +74,13 @@ sources:
         config:
           external_location: "read_parquet('./data/sources/dcp_ct2020.parquet')"
 
+      - name: dcp_transit_zones
+        description: >
+          DCP's Transit Zones, version 20251209 from edm-recipes. EPSG:4326. One multipolygon per zone, and the
+          zones don't overlap. The Zoning Resolution uses them for parking requirements.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_transit_zones.parquet')"
+
       - name: dcp_housing_ahft
         description: >
           DCP's Affordable Housing Fair Share tracker (AHFT), 20261002 from edm-private. One row per

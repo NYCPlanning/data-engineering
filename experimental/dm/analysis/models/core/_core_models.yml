@@ -1205,3 +1205,88 @@ models:
       - name: geom
         description: NTA boundary clipped to the shoreline (dcp_nta2020 26c), EPSG:4326.
         data_tests: [not_null]
+
+  - name: dim_transit_zone
+    description: >
+      One row per transit zone from DCP's Transit Zones (dcp_transit_zones 20251209). The zones don't overlap.
+      The Zoning Resolution uses them for parking requirements.
+    columns:
+      - name: transit_zone
+        description: Zone name, e.g. Inner Transit Zone.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "Transit zone"
+      - name: geom
+        description: Zone boundary, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_nta_neighbor
+    description: >
+      One row per NTA and each NTA that touches it, even at a single point, from dim_nta's boundaries. Each pair
+      appears in both directions, so filtering on nta2020 lists an NTA's neighbors. Boundaries stop at the
+      shoreline, so NTAs across water aren't neighbors, and Hart Island and Hoffman & Swinburne Islands have none.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "nta2020 || '-' || neighbor_nta2020"
+    columns:
+      - name: nta2020
+        description: NTA code.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: neighbor_nta2020
+        description: Code of an NTA that touches it.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: shared_boundary_feet
+        description: >
+          Length of the boundary the two NTAs share, in feet. 0 means they touch only at a corner. A few
+          pairs share only a few feet, where boundaries nearly meet at a corner.
+        data_tests: [not_null]
+
+  - name: dim_community_district_transit_zone
+    description: >
+      One row per piece of a community district in a transit zone (borocd x transit_zone), from the overlay of
+      dim_community_district and dim_transit_zone. Only pieces with some area. Areas are measured from the
+      boundaries in EPSG:2263, so district_acres can differ a little from dim_community_district.land_acres.
+      A district's shares can add up to less than 1 where no zone covers part of it: BX12 adds up to 0.88, and
+      the Central Park, Van Cortlandt Park, and Prospect Park joint interest areas are almost entirely uncovered.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || transit_zone"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: transit_zone
+        description: Transit zone.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_transit_zone')
+                field: transit_zone
+      - name: overlap_acres
+        description: Acres of the district in the zone.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
