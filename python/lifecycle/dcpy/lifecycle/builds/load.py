@@ -122,12 +122,18 @@ def load_source_data_from_resolved_recipe(
         dataset.destination for dataset in recipe.inputs.datasets
     ]
 
+    # Postgres is only connected to (and its build schema only cleared) when some input
+    # loads into it; `clear_pg_schema` is ignored otherwise.
     if has_postgres:
         pg_client = postgres.PostgresClient(schema=target_schema)
         if clear_pg_schema:
+            logger.info(f"Clearing Postgres schema {target_schema}")
             setup_build_pg_schema(pg_client)
+        else:
+            logger.info(f"Keeping existing Postgres schema {target_schema}")
     else:
         pg_client = None
+        logger.info("Not connecting to Postgres: no inputs load into Postgres")
 
     if has_duckdb:
         duckdb_path = build_config.get_duckdb_path(
@@ -372,7 +378,7 @@ def _cli_wrapper_load(
         True,
         "--clear-schema",
         "-x",
-        help="Clear the build schema? (postgres only)",
+        help="Clear the Postgres build schema? Only applies when some input loads into Postgres",
     ),
     clear_duckdb_schema: bool = typer.Option(
         False,
@@ -395,8 +401,6 @@ def _cli_wrapper_load(
         help="How to cache datasets: 'view' creates views (read-only), 'copy' creates table copies (modifiable)",
     ),
 ):
-    print(f"clearing pg schema? {clear_pg_schema}")
-    print(f"clearing duckdb schema? {clear_duckdb_schema}")
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
