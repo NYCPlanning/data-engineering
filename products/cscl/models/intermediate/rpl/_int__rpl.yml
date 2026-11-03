@@ -7,3 +7,109 @@ models:
   - name: rpl_id
     description: "Unique record id."
     tests: [ unique, not_null ]
+  - name: group_order_id
+    description: >-
+      The roadbed's position in RPL.txt within its generic (1-based):
+      prod_group_order_id, or spec_group_order_id with the var fix_rpl_roadbed_order on.
+  - name: prod_group_order_id
+    description: >-
+      Prod's order: right side's roadbeds first, then the left side's, each outermost
+      first, an R on the right or an L on the left at the head of its side.
+  - name: spec_group_order_id
+    description: "The spec's order: R, the inner roadbeds on its side, L, the other inner roadbeds."
+  - name: right_side
+    description: "Whether the roadbed's midpoint lies on the right of the generic, as digitized (prod's side test)."
+  - name: distance_to_generic
+    description: >-
+      Length (ft) of the perpendicular from the generic's midpoint to the roadbed, as prod
+      sorts by it; 0.1 where the perpendicular misses the roadbed.
+
+unit_tests:
+- name: test__int__rpl__roadbed_order__prod
+  description: >-
+    Default (fix_rpl_roadbed_order false): prod's order. Generic 1 runs east, so its right
+    side is south. Each roadbed goes to the side its midpoint is on, whatever its code:
+    the right list (B, C) comes first, then the left list (A, D, K), each outermost first
+    by the distance along the perpendicular through the generic's midpoint. A is coded R
+    but lies on the left, so it isn't moved to the head of the right list. K's
+    perpendicular misses it, so it sorts last on its side. Generic 2 has no R: its L (E)
+    lies on the right, so it sorts there by distance, and the left list is H alone.
+  model: int__rpl
+  overrides:
+    vars:
+      fix_rpl_roadbed_order: false
+  given: &rpl_order_given
+  - input: source('recipe_sources', 'dcp_cscl_roadbed_pointer_list')
+    format: sql
+    rows: |
+      SELECT *, NULL::SMALLINT AS from_node_level_coincident_rb,
+        NULL::SMALLINT AS to_node_level_coincident_rb
+      FROM (VALUES
+        (1, 'gA', 1, 11, 'R'),
+        (2, 'gB', 1, 12, 'L'),
+        (3, 'gC', 1, 13, 'I'),
+        (4, 'gD', 1, 14, 'I'),
+        (5, 'gK', 1, 15, 'I'),
+        (6, 'gE', 2, 21, 'L'),
+        (7, 'gF', 2, 22, 'I'),
+        (8, 'gH', 2, 23, 'I'),
+        (9, 'gJ', 2, 24, 'I')
+      ) AS t (ogc_fid, globalid, generic_segmentid, roadbed_segmentid, roadbed_position_code)
+  - input: source('recipe_sources', 'dcp_cscl_centerline')
+    format: sql
+    rows: |
+      SELECT segmentid, ST_GEOMFROMTEXT('LINESTRING (0 0, 1 0)') AS geom
+      FROM (VALUES (1), (11), (12), (13), (14), (15), (2), (21), (22), (23), (24)) AS t (segmentid)
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT segmentid, segment_type, 1 AS from_nodeid, 2 AS to_nodeid,
+        ST_GEOMFROMTEXT(wkt) AS geom, ST_LINEINTERPOLATEPOINT(ST_GEOMFROMTEXT(wkt), 0.5) AS midpoint,
+        'centerline' AS source_table
+      FROM (VALUES
+        (1, 'G', 'LINESTRING (0 0, 100 0)'),
+        (11, 'R', 'LINESTRING (0 30, 100 30)'),
+        (12, 'R', 'LINESTRING (0 -20, 100 -20)'),
+        (13, 'R', 'LINESTRING (0 -10, 100 -10)'),
+        (14, 'R', 'LINESTRING (0 15, 100 15)'),
+        (15, 'R', 'LINESTRING (90 5, 99 5)'),
+        (2, 'G', 'LINESTRING (0 100, 100 100)'),
+        (21, 'R', 'LINESTRING (0 70, 100 70)'),
+        (22, 'R', 'LINESTRING (0 90, 100 90)'),
+        (23, 'R', 'LINESTRING (0 110, 100 110)'),
+        (24, 'R', 'LINESTRING (0 80, 100 80)')
+      ) AS t (segmentid, segment_type, wkt)
+  expect:
+    rows:
+    - {rpl_id: '1_1', roadbed_segmentid: 12, roadbed_position_code: L}
+    - {rpl_id: '1_2', roadbed_segmentid: 13, roadbed_position_code: I}
+    - {rpl_id: '1_3', roadbed_segmentid: 11, roadbed_position_code: R}
+    - {rpl_id: '1_4', roadbed_segmentid: 14, roadbed_position_code: I}
+    - {rpl_id: '1_5', roadbed_segmentid: 15, roadbed_position_code: I}
+    - {rpl_id: '2_1', roadbed_segmentid: 21, roadbed_position_code: L}
+    - {rpl_id: '2_2', roadbed_segmentid: 24, roadbed_position_code: I}
+    - {rpl_id: '2_3', roadbed_segmentid: 22, roadbed_position_code: I}
+    - {rpl_id: '2_4', roadbed_segmentid: 23, roadbed_position_code: I}
+
+- name: test__int__rpl__roadbed_order__spec
+  description: >-
+    fix_rpl_roadbed_order true: the spec's order, by position code. R first (A), then the
+    inner roadbeds on its side (D, then K, nearer the generic), then L (B), then the inner
+    roadbeds on the other side (C). Generic 2 has no R, so the right of the generic as
+    digitized (south) is the R side: its inner roadbeds there (J, F), then L (E), then H.
+  model: int__rpl
+  overrides:
+    vars:
+      fix_rpl_roadbed_order: true
+  given: *rpl_order_given
+  expect:
+    rows:
+    - {rpl_id: '1_1', roadbed_segmentid: 11, roadbed_position_code: R}
+    - {rpl_id: '1_2', roadbed_segmentid: 14, roadbed_position_code: I}
+    - {rpl_id: '1_3', roadbed_segmentid: 15, roadbed_position_code: I}
+    - {rpl_id: '1_4', roadbed_segmentid: 12, roadbed_position_code: L}
+    - {rpl_id: '1_5', roadbed_segmentid: 13, roadbed_position_code: I}
+    - {rpl_id: '2_1', roadbed_segmentid: 24, roadbed_position_code: I}
+    - {rpl_id: '2_2', roadbed_segmentid: 22, roadbed_position_code: I}
+    - {rpl_id: '2_3', roadbed_segmentid: 21, roadbed_position_code: L}
+    - {rpl_id: '2_4', roadbed_segmentid: 23, roadbed_position_code: I}

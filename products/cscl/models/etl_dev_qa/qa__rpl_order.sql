@@ -1,6 +1,8 @@
 -- especially concerned about diffs in the order of rows within each generic_segmentid grouping.
 -- Dev's order is RPL.txt's: rpl_fields (the export's layout_source) in the export's
 -- order_by (var rpl_file_order_by, equal to recipe.yml's), not the model's own order.
+-- With fix_rpl_roadbed_order on, the generics whose roadbed order is the spec's and not
+-- prod's show up here as modified (CSCL-RPL-02, 67 generics on 26c).
 {% set old_query %}
   select
     ROW_NUMBER() OVER () as row_number,
