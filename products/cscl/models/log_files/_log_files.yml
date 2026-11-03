@@ -267,6 +267,13 @@ models:
     (CSCL-LION-14), how many of them prod's rule writes 0, i.e. what the var
     fix_coincident_seg_count changes, and whether it is on in this build.
 
+- name: log__lion_join_id_padding
+  description: >-
+    CSCL-LOG-OURS-24, every build: one row with the number of LION gdb lion layer rows with a
+    non-SAF Join_ID, whose two trailing spaces (ETL spec 2.7.3) prod's lion layer strips,
+    i.e. what the var pad_lion_join_id changes (CSCL-LION-10), and whether it is on in this
+    build. The altnames layer keeps the padding either way.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
@@ -565,3 +572,36 @@ unit_tests:
     - log_message_id: CSCL-LOG-OURS-23
       record_count: 2
       message: "2 LION .dat records of centerlines (1 of them 0 by prod's rule) get a different coincident segment count by prod's rule (underground subway/rail segments with the centerline's shape, no floor) than by ours. Our coincident segment count is ON in this build (fix_coincident_seg_count = true): they subtract the underground subway/rail segments within 1 ft of the centerline's midpoint and stay at least 1 (CSCL-LION-14)"
+# CSCL-LOG-OURS-24. Two non-SAF rows (no SpecAddr) and one SAF replicant.
+- name: test__log__lion_join_id_padding__off
+  description: "Default (pad_lion_join_id false): counts the non-SAF lion layer rows, OFF."
+  model: log__lion_join_id_padding
+  overrides:
+    vars:
+      pad_lion_join_id: false
+  given: &join_id_padding_log_given
+  - input: ref('gdb_lion')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('0000001', NULL::TEXT),
+        ('0000002', NULL::TEXT),
+        ('0000001', 'B')
+      ) AS t ("SegmentID", "SpecAddr")
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-24
+      record_count: 2
+      message: "2 LION gdb lion layer rows have a non-SAF Join_ID, which the spec ends in two spaces. Join_ID padding on the lion layer is OFF in this build (pad_lion_join_id = false): they have none, as prod's lion layer, where the spec pads them; the altnames layer keeps the padding either way (CSCL-LION-10)"
+- name: test__log__lion_join_id_padding__on
+  description: "pad_lion_join_id true: the same count, ON."
+  model: log__lion_join_id_padding
+  overrides:
+    vars:
+      pad_lion_join_id: true
+  given: *join_id_padding_log_given
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-24
+      record_count: 2
+      message: "2 LION gdb lion layer rows have a non-SAF Join_ID, which the spec ends in two spaces. Join_ID padding on the lion layer is ON in this build (pad_lion_join_id = true): they end in two spaces, as the spec says, where prod's lion layer strips them; the altnames layer keeps the padding either way (CSCL-LION-10)"

@@ -14,8 +14,8 @@
 -- identifier (comparison_id) and for parity with compare_gdb.py's own declared key
 -- for this layer (lion_outputs.csv), should a real dev/prod join ever be built
 -- against this table later. rtrim(join_id): prod's real fgdb_lion.join_id is
--- missing the spec-mandated trailing padding our own gdb_lion.sql correctly
--- includes (see compare_gdb.py's PADDED_COLUMNS and
+-- missing the spec-mandated trailing padding, as is our gdb_lion.sql's unless
+-- pad_lion_join_id is on (see compare_gdb.py's PADDED_COLUMNS and
 -- CSCL-LION-10) - a no-op here since prod's copy is already
 -- unpadded, kept so this key is built the same way regardless of which side a
 -- future join compares against.

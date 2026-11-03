@@ -236,8 +236,14 @@ base_rows AS (
         {{ lion_normalized_house_number('hn.r_low') }} AS "FromRight",
         {{ lion_normalized_house_number('hn.r_high') }} AS "ToRight",
         -- Join_ID links each segment to its AltNames entries (ETL spec §2.7.3). Non-SAF
-        -- form; SAF replicants (below) use a different encoding.
-        {{ lion_join_id() }} AS "Join_ID",
+        -- form; SAF replicants (below) use a different encoding. The spec ends it in two
+        -- spaces; prod's lion layer strips them (CSCL-LION-10), and so do we unless
+        -- pad_lion_join_id is on. gdb_altnames keeps them either way, as prod's.
+        {% if var('pad_lion_join_id') -%}
+            {{ lion_join_id() }}
+        {%- else -%}
+            rtrim({{ lion_join_id() }})
+        {%- endif %} AS "Join_ID",
         left_nypd_service_area AS "L_PD_Service_Area",
         right_nypd_service_area AS "R_PD_Service_Area",
         truck_route_type AS "TRUCK_ROUTE_TYPE",

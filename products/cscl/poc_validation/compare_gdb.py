@@ -110,10 +110,10 @@ KNOWN_NULL_COLUMNS: dict[str, set[str]] = {
 #
 # lion:
 # - Join_ID: the ETL spec (~line 5006) mandates a 15-char string, non-SAF form
-#   ending in two literal spaces, and gdb_lion.sql's lion_join_id() macro follows
-#   it. Prod's lion layer drops that padding (0/243,706 non-SAF Join_IDs padded)
-#   while its altnames layer keeps it (78,540/129,740 rows) - a prod-side
-#   inconsistency, not fixed in our output (altnames needs the padding).
+#   ending in two literal spaces. Prod's lion layer drops that padding (its
+#   distribution tool strips it) while its altnames layer keeps it; gdb_lion.sql
+#   does the same by default and keeps the padding with the dbt var
+#   pad_lion_join_id on (CSCL-LION-10), so it's stripped here for that setting.
 # - LLo_Hyphen/LHi_Hyphen/RLo_Hyphen/RHi_Hyphen: prod right-justifies house
 #   numbers to the 7-byte field width (" 64-099"); ours are unpadded. LLo/RLo are
 #   part of the lion key (see lion_outputs.csv).
