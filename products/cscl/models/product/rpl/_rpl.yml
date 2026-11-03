@@ -13,16 +13,17 @@ models:
       each_row_is_a: A roadbed segment
       is_geospatial: true
       implementation_notes: >-
-        Ordering is computed spatially: the right outermost roadbed is placed first,
-        then right-side inner roadbeds from outermost to innermost, then the left
-        outermost roadbed, then left-side inner roadbeds outermost to innermost. Side
-        and relative position are determined by comparing each roadbed's perpendicular
-        offset from the generic segment's midpoint against the right outermost
-        roadbed's offset, using the sign of a cross product to tell which side a given
-        roadbed falls on. A generic segment with no right outermost roadbed takes the
-        right side to be the right of the generic segment as digitized, as prod does.
-        Roadbeds tied on side and offset (e.g. stacked roadbeds) keep the source table's
-        OBJECTID order, as prod does. generic_segmenttype assumes generic_segmentid is already a
+        Roadbed order within a generic is prod's by default: each roadbed goes on the
+        side of the generic (as digitized) that its midpoint lies on, whatever its
+        position code; the right side's roadbeds come first, then the left side's, each
+        outermost first by the length of the perpendicular from the generic's midpoint
+        to the roadbed (one the perpendicular misses sorts last on its side), with an R
+        on the right side or an L on the left side moved to the head of its side. With
+        the var fix_rpl_roadbed_order on, the spec's order instead: the right outermost
+        roadbed, the inner roadbeds on its side outermost first, the left outermost
+        roadbed, then the other inner roadbeds; a generic with no R takes the right of
+        the generic as digitized as the R side. Roadbeds tied on side and distance keep
+        the source table's OBJECTID order, as prod does. generic_segmenttype assumes generic_segmentid is already a
         valid generic segment and doesn't re-validate it. The four NODEID fields are
         blank when a segment endpoint has no node in the underlying segment data; this
         is flagged separately as a build-time error. roadbed_position_code is at most

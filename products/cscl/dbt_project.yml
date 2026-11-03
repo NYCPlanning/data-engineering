@@ -276,6 +276,17 @@ vars:
   # where ours wrote 1, and 4 where an arc-chain subway lies within 1 ft but not within the
   # tolerance, which prod doesn't subtract).
   fix_coincident_seg_count: false
+  # Roadbed order within a generic in RPL.txt, CSCL-RPL-02: prod puts each roadbed in a
+  # right or a left list by the side of the generic its midpoint lies on, whatever its
+  # ROADBED_POSITION_CODE, sorts each list outermost first by the length of the
+  # perpendicular from the generic's midpoint to it, moves an R in the right list and an L
+  # in the left list to the head of their list, and writes the right list, then the left
+  # (RPLExtractClass.cs:172-190 and 390-436, RPLRecordOrderUpdate;
+  # CSCLArcObjectslHelperMethods.cs:84-163, GetDistanceBetweenLines). true writes the
+  # spec's order (ETL spec L8146-8193): R, the inner roadbeds on its side outermost first,
+  # L, the inner roadbeds on the other side. Logged every build as CSCL-LOG-OURS-26
+  # (67 of 13,658 generics, 154 rows, on 26c).
+  fix_rpl_roadbed_order: false
   # AtomicPolygon topology (models/intermediate/atomicpolygon_topology) and the district
   # boundaries built from it (macros/district_boundary.sql).
   #

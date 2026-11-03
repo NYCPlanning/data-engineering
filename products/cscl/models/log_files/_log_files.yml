@@ -283,6 +283,14 @@ models:
     i.e. what the var pad_lion_join_id changes (CSCL-LION-10), and whether it is on in this
     build. The altnames layer keeps the padding either way.
 
+- name: log__rpl_roadbed_order
+  description: >-
+    CSCL-LOG-OURS-26, every build: one row with the number of RPL.txt generics whose
+    roadbeds come out in a different order by prod's rule (each roadbed on the side its
+    midpoint lies on, sorted by distance) than by the spec's (by ROADBED_POSITION_CODE),
+    i.e. what the var fix_rpl_roadbed_order changes (CSCL-RPL-02), and whether it is on in
+    this build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
@@ -641,6 +649,41 @@ unit_tests:
     - log_message_id: CSCL-LOG-OURS-23
       record_count: 2
       message: "2 LION .dat records of centerlines (1 of them 0 by prod's rule) get a different coincident segment count by prod's rule (underground subway/rail segments with the centerline's shape, no floor) than by ours. Our coincident segment count is ON in this build (fix_coincident_seg_count = true): they subtract the underground subway/rail segments within 1 ft of the centerline's midpoint and stay at least 1 (CSCL-LION-14)"
+# CSCL-LOG-OURS-26. Generic 1's two rules disagree on two of its roadbeds; generic 2's agree.
+- name: test__log__rpl_roadbed_order__off
+  description: "Default (fix_rpl_roadbed_order false): counts the generics whose order differs, OFF."
+  model: log__rpl_roadbed_order
+  overrides:
+    vars:
+      fix_rpl_roadbed_order: false
+  given: &rpl_roadbed_order_log_given
+  - input: ref('int__rpl')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (1, 11, 1, 2),
+        (1, 12, 2, 1),
+        (1, 13, 3, 3),
+        (2, 21, 1, 1),
+        (2, 22, 2, 2)
+      ) AS t (generic_segmentid, roadbed_segmentid, prod_group_order_id, spec_group_order_id)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-26
+      record_count: 1
+      message: "1 RPL generics (2 roadbed rows) have their roadbeds in a different order by prod's rule (each roadbed on the side of the generic its midpoint lies on, outermost first) than by the spec's (R, inner roadbeds on its side, L, the other inner roadbeds, by ROADBED_POSITION_CODE). The spec's roadbed order is OFF in this build (fix_rpl_roadbed_order = false): RPL.txt has prod's order (CSCL-RPL-02)"
+- name: test__log__rpl_roadbed_order__on
+  description: "fix_rpl_roadbed_order true: the same count, ON."
+  model: log__rpl_roadbed_order
+  overrides:
+    vars:
+      fix_rpl_roadbed_order: true
+  given: *rpl_roadbed_order_log_given
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-26
+      record_count: 1
+      message: "1 RPL generics (2 roadbed rows) have their roadbeds in a different order by prod's rule (each roadbed on the side of the generic its midpoint lies on, outermost first) than by the spec's (R, inner roadbeds on its side, L, the other inner roadbeds, by ROADBED_POSITION_CODE). The spec's roadbed order is ON in this build (fix_rpl_roadbed_order = true): RPL.txt has the spec's order (CSCL-RPL-02)"
 # CSCL-LOG-OURS-24. Two non-SAF rows (no SpecAddr) and one SAF replicant.
 - name: test__log__lion_join_id_padding__off
   description: "Default (pad_lion_join_id false): counts the non-SAF lion layer rows, OFF."
