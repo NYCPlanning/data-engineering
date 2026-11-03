@@ -140,6 +140,20 @@ vars:
   # and the legacy tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353) zero them; true
   # does too. Logged every build as CSCL-LOG-OURS-15 (5,743 LION gdb records on 26c).
   zero_generic_house_numbers: false
+  # House numbers on segments of a FeatureTyp other than 0, 6 or W (LION gdb
+  # LLo/LHi/RLo/RHi_Hyphen and FromLeft/ToLeft/FromRight/ToRight, on their SAF replicants
+  # too), CSCL-LION-29. Not a prod bug fix: false (the default) is prod's LION gdb output,
+  # which copies the source's house numbers on every row. The legacy tool's rule zeroes
+  # SegmentTyp IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W') (ImportLION2_ToGDB,
+  # BytesLION_CSCL_workflow_tool_PUB.py:326-361), but its main flow never calls it (the
+  # call at :621 is commented out), and prod's ETL zeroes and then overwrites with the
+  # source's values (ExtractorClass.cs SetBytesNormalizedHouseNumbers, from :2988). The
+  # spec (ETL spec 2.7.3) applies the FeatureTyp test to proto-segments. true zeroes them,
+  # as the legacy rule does; with zero_generic_house_numbers and
+  # zero_f_segment_house_numbers true too, the build applies the legacy tool's whole rule.
+  # Logged every build as CSCL-LOG-OURS-25 (184 LION gdb records on 26c: FeatureTyp 5 32,
+  # 9 97, A 1, C 54).
+  zero_feature_type_house_numbers: false
   # District features whose source polygon is invalid (rings that cross, or a shell inside
   # another shell), CSCL-DISTRICTS-04: nybid BIDs 44 and 56, nyhez zones 1, 2, 4, 5, 6 and
   # X, nycdwi districts 484 and 502 on 26c. Not a prod bug fix: false (the default) is

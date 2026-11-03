@@ -4,13 +4,15 @@
 
 -- Whether the LION gdb zeroes a segment's house numbers: all eight house-number fields, on
 -- the segment's own records and its SAF replicants (ETL spec 2.7.3, BL97-104). The legacy
--- tool's rule (BytesLION_CSCL_workflow_tool_PUB.py:353) is SegmentTyp IN ('G', 'F') OR
--- FeatureTyp NOT IN ('0', '6', 'W'). Prod's LION gdb keeps the house numbers of G and F
--- segments: its ETL zeroes G, then overwrites the zeros with the source's values
--- (ExtractorClass.cs:2993-3072, the return at 3070 commented out), so by default both keep
--- them. zero_generic_house_numbers on zeroes G, as the spec and the legacy tool's rule do
--- (CSCL-LION-15); zero_f_segment_house_numbers on zeroes F, as the legacy tool's rule does
--- (CSCL-LION-24). The FeatureTyp part is the same either way.
+-- tool's rule (ImportLION2_ToGDB, BytesLION_CSCL_workflow_tool_PUB.py:326-361) is SegmentTyp
+-- IN ('G', 'F') OR FeatureTyp NOT IN ('0', '6', 'W'), but the tool's main flow never calls it
+-- (the call at :621 is commented out), and prod's ETL zeroes and then overwrites the zeros
+-- with the source's values (ExtractorClass.cs SetBytesNormalizedHouseNumbers, from :2988;
+-- the return at 3070 commented out), so prod's LION gdb carries the source's house numbers
+-- on every row, and by default so do we. Each part of the legacy rule is behind its own var:
+-- zero_generic_house_numbers zeroes G, as the spec and the legacy rule do (CSCL-LION-15);
+-- zero_f_segment_house_numbers zeroes F (CSCL-LION-24); zero_feature_type_house_numbers
+-- zeroes FeatureTyp other than 0, 6 or W (CSCL-LION-29). All three on is the legacy rule.
 WITH lion AS (
     SELECT
         globalid,
@@ -31,7 +33,7 @@ rules AS (
 )
 SELECT
     *,
-    zero_for_feature_type
+    ({{ 'TRUE' if var('zero_feature_type_house_numbers') else 'FALSE' }} AND zero_for_feature_type)
     OR ({{ 'TRUE' if var('zero_generic_house_numbers') else 'FALSE' }} AND segment_type = 'G')
     OR ({{ 'TRUE' if var('zero_f_segment_house_numbers') else 'FALSE' }} AND segment_type = 'F')
         AS zero_house_numbers
