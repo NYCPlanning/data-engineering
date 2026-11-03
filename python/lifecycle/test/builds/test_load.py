@@ -304,3 +304,91 @@ class TestLoadSingleDataset:
             load.load_single_dataset_from_resolved_recipe(
                 self._recipe(), "multi", import_as="layer_c"
             )
+
+
+class TestPostgresSetup:
+    """Postgres is connected to, and its build schema cleared, only when at least one
+    input loads into Postgres - `clear_pg_schema` defaults to True, so an all-DuckDB
+    recipe must not touch Postgres despite it."""
+
+    @staticmethod
+    def _recipe(*destinations: InputDatasetDestination):
+        recipe = MagicMock()
+        recipe.name = "Tester"
+        recipe.inputs.datasets = [
+            InputDataset(
+                id=f"ds_{i}",
+                version="v1",
+                file_type=recipes.DatasetType.parquet,
+                destination=destination,
+            )
+            for i, destination in enumerate(destinations)
+        ]
+        return recipe
+
+    def _load(self, recipe, tmp_path, **kwargs):
+        with (
+            patch.object(
+                load.build_config, "get_build_output_dir", return_value=tmp_path
+            ),
+            patch.object(
+                load.build_config, "get_duckdb_path", return_value=tmp_path / "x.duckdb"
+            ),
+            patch.object(load.postgres, "PostgresClient") as pg_client_cls,
+            patch.object(load.duckdb_utils, "DuckDBClient") as duckdb_client_cls,
+            patch.object(load, "setup_build_pg_schema") as setup_pg,
+            patch.object(load.data_loader, "pull_dataset", return_value=PARQUET),
+            patch.object(
+                load,
+                "import_dataset",
+                side_effect=lambda ds, *_: ImportedDataset.from_input(ds, ds.id),
+            ) as import_dataset,
+        ):
+            load.load_source_data_from_resolved_recipe(
+                recipe,
+                target_schema="build_schema",
+                _write_metadata_file=False,
+                **kwargs,
+            )
+        return pg_client_cls, duckdb_client_cls, setup_pg, import_dataset
+
+    def test_duckdb_only_recipe_never_touches_postgres(self, tmp_path):
+        recipe = self._recipe(
+            InputDatasetDestination.duckdb, InputDatasetDestination.duckdb
+        )
+        pg_client_cls, duckdb_client_cls, setup_pg, import_dataset = self._load(
+            recipe, tmp_path, clear_pg_schema=True
+        )
+        pg_client_cls.assert_not_called()
+        setup_pg.assert_not_called()
+        duckdb_client_cls.assert_called_once()
+        assert all(call.args[2] is None for call in import_dataset.call_args_list)
+
+    def test_postgres_recipe_clears_schema(self, tmp_path):
+        recipe = self._recipe(
+            InputDatasetDestination.postgres, InputDatasetDestination.duckdb
+        )
+        pg_client_cls, _, setup_pg, _ = self._load(recipe, tmp_path)
+        pg_client_cls.assert_called_once_with(schema="build_schema")
+        setup_pg.assert_called_once_with(pg_client_cls.return_value)
+
+    def test_postgres_recipe_keeps_schema_when_asked(self, tmp_path):
+        recipe = self._recipe(InputDatasetDestination.postgres)
+        pg_client_cls, _, setup_pg, _ = self._load(
+            recipe, tmp_path, clear_pg_schema=False
+        )
+        pg_client_cls.assert_called_once_with(schema="build_schema")
+        setup_pg.assert_not_called()
+
+    def test_logs_skipped_postgres_for_duckdb_only_recipe(self, tmp_path, caplog):
+        recipe = self._recipe(InputDatasetDestination.duckdb)
+        with caplog.at_level("INFO", logger="dcpy"):
+            self._load(recipe, tmp_path, clear_pg_schema=True)
+        assert "no inputs load into Postgres" in caplog.text
+        assert "Clearing Postgres schema" not in caplog.text
+
+    def test_logs_cleared_schema_for_postgres_recipe(self, tmp_path, caplog):
+        recipe = self._recipe(InputDatasetDestination.postgres)
+        with caplog.at_level("INFO", logger="dcpy"):
+            self._load(recipe, tmp_path)
+        assert "Clearing Postgres schema build_schema" in caplog.text

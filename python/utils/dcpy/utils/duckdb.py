@@ -55,6 +55,12 @@ class DuckDBClient:
         config: dict[str, str | bool | int | float | list[str]] = {
             "storage_compatibility_version": "v1.5.0"
         }
+        # Same env vars a product's dbt-duckdb profile reads, so loading is capped like
+        # the build is. Unset means DuckDB's own defaults.
+        if memory_limit := os.environ.get("DUCKDB_MEMORY_LIMIT"):
+            config["memory_limit"] = memory_limit
+        if threads := os.environ.get("DUCKDB_THREADS"):
+            config["threads"] = int(threads)
         self.conn = duckdb.connect(str(db_path), config=config)
 
         # Install and load spatial extension for geometry support
