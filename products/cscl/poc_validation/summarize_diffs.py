@@ -52,23 +52,30 @@ def build_filename_to_table_name() -> dict[str, str]:
     }
 
 
+# validate_outputs.sh writes this line between a file's dev-only and prod-only rows
+PROD_ONLY_SEPARATOR = "--- ONLY IN PROD (missing from dev) ---"
+
+
 def count_diff_rows(path: Path) -> int:
-    """Count non-empty lines in a validation output file."""
+    """Count the mismatched rows in a validation output file: its non-empty lines,
+    less the separator line before the prod-only rows."""
     text = path.read_text(errors="replace")
-    return sum(1 for line in text.splitlines() if line.strip())
+    return sum(
+        1
+        for line in text.splitlines()
+        if line.strip() and line.strip() != PROD_ONLY_SEPARATOR
+    )
 
 
-def load_prod_row_counts() -> dict[str, int]:
+def load_validation_summary() -> dict[str, dict[str, str]]:
     with VALIDATION_SUMMARY_PATH.open(newline="") as f:
-        return {
-            row["filename"]: int(row["prod_row_count"]) for row in csv.DictReader(f)
-        }
+        return {row["filename"]: row for row in csv.DictReader(f)}
 
 
 def main() -> None:
     filename_to_table = build_filename_to_table_name()
     export_name_to_group = build_export_name_to_group()
-    prod_row_counts = load_prod_row_counts()
+    validation_summary = load_validation_summary()
 
     files = sorted(
         p for p in VALIDATION_DIR.iterdir() if p.is_file() and p.name not in EXCLUDE
@@ -76,8 +83,12 @@ def main() -> None:
 
     rows = []
     for path in files:
-        prod_row_count = prod_row_counts.get(path.name)
-        diff_count = count_diff_rows(path)
+        summary = validation_summary.get(path.name)
+        prod_row_count = int(summary["prod_row_count"]) if summary else None
+        # validate_outputs.sh's own count (dev-only + prod-only rows) when it has one
+        diff_count = (
+            int(summary["mismatched_rows"]) if summary else count_diff_rows(path)
+        )
         percennt_of_rows_with_diffs = (
             (diff_count / prod_row_count) if prod_row_count else None
         )
