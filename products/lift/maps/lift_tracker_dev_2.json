@@ -76,8 +76,8 @@
       "name": null,
       "prepareLabels": true,
       "queryParameters": null,
-      "queryTemplate": "SELECT lots_row.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lots_row",
-      "source": "SELECT lots_row.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lots_row",
+      "queryTemplate": "SELECT lift_lot.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_lot",
+      "source": "SELECT lift_lot.*\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_lot",
       "spatialIndex": null,
       "type": "query",
       "uniqueIdProperty": null
@@ -104,8 +104,8 @@
       "name": null,
       "prepareLabels": false,
       "queryParameters": null,
-      "queryTemplate": "SELECT lots_row.* EXCEPT (geom), ST_CENTROID(lots_row.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lots_row\n-- lift sites sort last, so they draw on top\nORDER BY is_lift_site",
-      "source": "SELECT lots_row.* EXCEPT (geom), ST_CENTROID(lots_row.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lots_row\n-- lift sites sort last, so they draw on top\nORDER BY is_lift_site",
+      "queryTemplate": "SELECT lift_lot.* EXCEPT (geom), ST_CENTROID(lift_lot.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_lot\n-- lift sites sort last, so they draw on top\nORDER BY is_lift_site",
+      "source": "SELECT lift_lot.* EXCEPT (geom), ST_CENTROID(lift_lot.geom) AS geom_point\nFROM `carto-dw-ac-xh9k79q8.shared.lift_dev_lots` AS lift_lot\n-- lift sites sort last, so they draw on top\nORDER BY is_lift_site",
       "spatialIndex": null,
       "type": "query",
       "uniqueIdProperty": null
@@ -966,7 +966,7 @@
                 "lineStyle": "solid",
                 "lineStyleRange": null,
                 "opacity": 0.8,
-                "radius": 1.5,
+                "radius": 2,
                 "radiusAggregation": null,
                 "radiusAggregationDomain": null,
                 "radiusAggregationExp": null,
@@ -1167,7 +1167,7 @@
               },
               "visibilityByZoom": {
                 "max": 24,
-                "min": 11
+                "min": 12
               }
             },
             "id": "ku187bs",
@@ -1768,7 +1768,7 @@
         },
         {
           "collapsible": true,
-          "column": "lotarea",
+          "column": "lotarea_capped",
           "crossFilteringDataSourceIds": [
             "5f3c290d-46fb-467b-8e14-b36e789a2fe9",
             "ead87f5b-01d7-4445-8850-108e0d36e7f1"
@@ -1776,8 +1776,12 @@
           "dataSource": "5f3c290d-46fb-467b-8e14-b36e789a2fe9",
           "formatter": "DECIMAL_ZERO",
           "global": true,
-          "id": "w-lots-lotarea",
+          "id": "w-lots-lotarea-capped",
           "isValid": true,
+          "min": 0,
+          "note": "150,000 at the top includes every larger lot, so dragging only the minimum keeps them.",
+          "noteExpanded": true,
+          "noteFormat": "markdown",
           "operation": "count",
           "title": "Lot area (sq ft)",
           "type": "range",
