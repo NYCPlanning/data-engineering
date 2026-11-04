@@ -192,7 +192,8 @@ Move it into the project in CARTO's UI.
   "(none)" matches no flag, so it hides nothing.
   Builder saves have stored every flag as selected, in the control (`sqlParameters`) and in the lot datasets' `queryParameters`. Pull after a Builder save and reset both to "(none)".
 - **Opening a map in Builder can change it, even without edits.** Builder saves what the tab is showing as everyone's starting state.
-  Opening DEV 2 and only looking saved a lot area filter over the slider's full range and dropped a column from a dataset's `columns`.
+  Opening DEV 2 and only looking dropped `ahft_rank` from a dataset's `columns` twice. Its only use was a field in a hover pop-up that was turned off, so leave fields out of pop-ups that are off.
+  The first open after a query change also saved a lot area filter over the slider's full range.
   After anyone opens a map in Builder, pull it and run [`check_start_state.py`](./check_start_state.py).
   It checks the view, filters, boundary layers, SQL parameter defaults, and widget order and open state against the committed file.
   Read `git diff` too, for changes it doesn't check, like dropped columns.

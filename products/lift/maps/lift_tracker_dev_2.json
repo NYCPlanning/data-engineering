@@ -35,7 +35,6 @@
       "columns": [
         "_carto_feature_id",
         "ahft_label",
-        "ahft_rank",
         "community_district",
         "geom"
       ],
@@ -457,10 +456,6 @@
                 {
                   "customName": "Community district",
                   "name": "community_district"
-                },
-                {
-                  "customName": "AHFT rank (1 = lowest)",
-                  "name": "ahft_rank"
                 },
                 {
                   "customName": "AHFT group",
