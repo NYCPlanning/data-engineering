@@ -1626,7 +1626,7 @@
         "commentsVisible": true,
         "controlsPaneOpen": true,
         "controlsPaneTab": "widgets",
-        "descriptionOpen": false,
+        "descriptionOpen": true,
         "descriptionPreview": true
       },
       "visState": {
@@ -3099,16 +3099,6 @@
     },
     "version": "v1"
   },
-  "privacy": {
-    "policies": [
-      {
-        "type": "organization"
-      },
-      {
-        "type": "public"
-      }
-    ]
-  },
   "tags": [],
-  "title": "LIFT Tracker Map - DEV"
+  "title": "LIFT Tracker Map - DEV 1"
 }

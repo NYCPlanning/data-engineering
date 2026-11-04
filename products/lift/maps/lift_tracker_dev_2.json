@@ -1968,16 +1968,6 @@
     },
     "version": "v1"
   },
-  "privacy": {
-    "policies": [
-      {
-        "type": "organization"
-      },
-      {
-        "type": "public"
-      }
-    ]
-  },
   "tags": [],
   "title": "LIFT Tracker Map - DEV 2"
 }

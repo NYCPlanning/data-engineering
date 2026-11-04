@@ -19,7 +19,8 @@ DEV 1 and DEV 2 read the same lots and council district tables, so a new upload 
 DEV 2 has its own community districts table, since it groups districts differently from DEV 1.
 Check both maps' queries still run after an upload that adds or renames columns.
 
-The JSON is a snapshot of what `carto maps get` returns, minus fields the server adds on read and the map's password (`publicMapPassword`).
+The JSON is a snapshot of what `carto maps get` returns, minus fields the server adds on read, the map's password (`publicMapPassword`), and its sharing (`privacy`).
+A push that includes `privacy` replaces the map's sharing, so leaving it out keeps the sharing and password set in CARTO.
 Builder saves to the same map, so the file goes stale whenever someone edits in Builder.
 Pull before editing it, and commit it after changing the map.
 
@@ -136,10 +137,12 @@ Shown for DEV 1. For DEV 2, use its map id and `lift_tracker_dev_2.json`.
 ```bash
 # pull
 carto maps get 8735d5c1-94eb-472f-a2b8-fb8106c54e9b --json \
-  | jq -S 'del(.publicMapPassword) | .datasets |= map(del(.mapId, .connectionName, .connectionViewerCredentials,
+  | jq -S 'del(.publicMapPassword, .privacy) | .datasets |= map(del(.mapId, .connectionName, .connectionViewerCredentials,
       .connectionViewerCredentialsAttached, .providerId, .sourceWorkflowId,
-      .sourceWorkflowNodeId, .createdAt, .updatedAt))' \
+      .sourceWorkflowNodeId, .createdAt, .updatedAt, .editing))' \
   > lift_tracker_dev.json
+python check_start_state.py lift_tracker_dev.json
+git diff lift_tracker_dev.json
 
 # check, then push
 carto maps validate lift_tracker_dev.json
@@ -153,7 +156,7 @@ A push changes the saved map but not what viewers see. See [Publish](#publish).
 
 Anyone opening a map's link sees its last published snapshot, not the saved map.
 Builder saves and CLI pushes only change the saved map, so publish after either one when viewers should see the change.
-Publishing freezes the saved starting state too, so pull first and check it against the save checklist under [Gotchas](#gotchas).
+Publishing freezes the saved starting state too, so pull first and run `check_start_state.py` (see [Gotchas](#gotchas)).
 
 ```bash
 carto maps publish efd89914-af02-47b1-b772-9505946fe34d
@@ -188,12 +191,10 @@ Move it into the project in CARTO's UI.
   Builder won't save an empty selection, and the CLI turns an empty default into "all selected", which would hide every flagged lot.
   "(none)" matches no flag, so it hides nothing.
   Builder saves have stored every flag as selected, in the control (`sqlParameters`) and in the lot datasets' `queryParameters`. Pull after a Builder save and reset both to "(none)".
-- **A Builder save stores what the tab is showing as everyone's starting state.** Before saving, check:
-  - the view is zoomed out to the whole city
-  - in DEV 1, every top-bar control is at its default: all boroughs, all community districts, "All districts", and "(none)" for flags
-  - no widget filters are selected and no area selection is drawn
-  - the two district boundary layers are off and the layer list is collapsed
-  - only the two count widgets are expanded, plus the table in DEV 2
-  - the widget panel is open, not hidden
-  - in DEV 2, the widgets are in their committed order, since a stale tab can save an older order
+- **Opening a map in Builder can change it, even without edits.** Builder saves what the tab is showing as everyone's starting state.
+  Opening DEV 2 and only looking saved a lot area filter over the slider's full range and dropped a column from a dataset's `columns`.
+  After anyone opens a map in Builder, pull it and run [`check_start_state.py`](./check_start_state.py).
+  It checks the view, filters, boundary layers, SQL parameter defaults, and widget order and open state against the committed file.
+  Read `git diff` too, for changes it doesn't check, like dropped columns.
+  If either shows something unintended, push the committed file back.
 - **`agent` is stripped on update** while CARTO AI is disabled for the organization. The CLI warns about it, and the map's setting is left as is.
