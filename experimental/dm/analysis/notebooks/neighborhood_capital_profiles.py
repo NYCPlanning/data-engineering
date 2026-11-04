@@ -137,6 +137,8 @@ def _(district_options, mo, selected_district, set_selected_district):
 @app.cell
 def _(con, districts, selected_district):
     focus = districts[districts["borocd"] == selected_district].iloc[0]
+    # the CDTA name starts with the district's code, e.g. BK18 Canarsie-Flatlands
+    district_code = focus["cdta_name"].split(" ", 1)[0]
     # NTAs touching the district's NTAs, corners included, since they're nearby to someone living there
     nearby_nta_codes = [
         code
@@ -203,6 +205,7 @@ def _(con, districts, selected_district):
     ]
     return (
         all_ntas,
+        district_code,
         focus,
         map_area_tracts,
         nearby_nta_codes,
@@ -554,6 +557,7 @@ def _(
     branca,
     citywide_tracts,
     con,
+    district_code,
     focus,
     folium,
     income_groups,
@@ -699,7 +703,7 @@ def _(
     <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
       padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
       <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:4px">
-        <span style="font-weight:600;white-space:nowrap">{map_measure.selected_key}</span>
+        <span style="font-weight:600;white-space:nowrap">{map_measure.selected_key} · {district_code}</span>
         <div style="display:flex;gap:10px">{legend_symbols}</div>
       </div>
       <div style="width:280px;margin:0 26px 0 74px">
@@ -1532,6 +1536,7 @@ def _(con):
 @app.cell(hide_code=True)
 def _(
     con,
+    district_code,
     focus_outline,
     folium,
     json,
@@ -1608,7 +1613,7 @@ def _(
     <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
       padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
       <table style="border-collapse:collapse">
-        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Transit zone</td>
+        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Transit zone, {district_code}</td>
           <td style="padding-bottom:4px">Of district</td></tr>
         {transit_zone_rows}
       </table>
@@ -1820,6 +1825,7 @@ def _(con):
 @app.cell(hide_code=True)
 def _(
     con,
+    district_code,
     focus_outline,
     folium,
     json,
@@ -1924,7 +1930,7 @@ def _(
     <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
       padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
       <table style="border-collapse:collapse">
-        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Drains to</td>
+        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Drains to, {district_code}</td>
           <td style="padding-bottom:4px">Of district</td></tr>
         {ms4_drainage_rows}
         <tr>
@@ -1973,7 +1979,16 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(con, focus_outline, folium, json, mo, selected_district, source_note):
+def _(
+    con,
+    district_code,
+    focus_outline,
+    folium,
+    json,
+    mo,
+    selected_district,
+    source_note,
+):
     floodplain_color = "#6a51a3"
     stormwater_colors = {
         "Nuisance Flooding": "#6baed6",
@@ -2100,7 +2115,7 @@ def _(con, focus_outline, folium, json, mo, selected_district, source_note):
     <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
       padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
       <table style="border-collapse:collapse">
-        <tr style="color:#55554f"><td></td><td></td>
+        <tr style="color:#55554f"><td></td><td style="font-weight:600;color:#222222">Flooding, {district_code}</td>
           <td style="padding:0 10px 0 0;text-align:right">Acres</td><td>Of district</td></tr>
         {_rows}
       </table>
