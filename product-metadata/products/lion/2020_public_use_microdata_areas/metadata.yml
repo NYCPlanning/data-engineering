@@ -63,8 +63,6 @@ files:
     filename: nypuma2020.zip
     type: shapefile
   dataset_overrides:
-    omitted_columns:
-    - the_geom
     overridden_columns:
     - id: shape_leng
       name: Shape_Leng
