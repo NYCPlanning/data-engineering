@@ -115,6 +115,26 @@ sources:
       # DEP's Wastewater Treatment Plant Performance Data on NYC Open Data (hgue-hj96): monthly report sheets in
       # Excel files for 2023, 2024, and 2025, plus a zip of older ones. scripts/download.py reads every sheet's
       # facility rows into one Parquet file, values as text.
+      # DEP's NYC Stormwater Flood Maps on NYC Open Data (9i7c-xyvv), four geodatabases in one zip. scripts/download.py
+      # writes the Moderate Flood (2.13 inches per hour) with 2050 Sea Level Rise layer to Parquet, flattened to 2D,
+      # with geometry as WKB in EPSG:2263.
+      - name: dep_stormwater_flooding_2050
+        description: >
+          One multipolygon per Flooding_Category: 1 Nuisance Flooding (4 inches to 1 foot of ponding), 2 Deep and
+          Contiguous Flooding (1 foot or more), and 3 Future High Tides 2050, which DEP took from DCP's Flood Hazard
+          Mapper (2050s high estimate of 30 inches of sea level rise).
+        config:
+          external_location: "read_parquet('./data/sources/dep_stormwater_flooding_2050.parquet')"
+
+      # Sea Level Rise Maps (2080s 100-year Floodplain) on NYC Open Data (ek8y-fsqz), as GeoJSON in EPSG:4326.
+      - name: npcc_floodplain_2080_100yr
+        description: >
+          The 100-year floodplain for the 2080s, one multipolygon. FEMA's Preliminary Work Map data with the New York
+          City Panel on Climate Change's 90th percentile projection of sea level rise (58 inches), from the Mayor's
+          Office of Long-Term Planning and Sustainability.
+        config:
+          external_location: "ST_Read('./data/sources/npcc_floodplain_2080_100yr.geojson')"
+
       - name: dep_wastewater_performance
         description: >
           One row per facility per report sheet, January 2015 to July 2025 with March to December 2017 missing.

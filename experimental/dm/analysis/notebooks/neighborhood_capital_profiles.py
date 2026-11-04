@@ -43,6 +43,9 @@ def _(duckdb, mo):
         "dim_ms4_outfall",
         "dim_community_district_ms4_drainage",
         "dim_wastewater_facility",
+        "dim_community_district_stormwater_flooding",
+        "dim_community_district_stormwater_flooding_frame",
+        "dim_community_district_floodplain_2080",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -59,6 +62,12 @@ def _(duckdb, mo):
         "DETACH build",
     ]:
         con.execute(_statement)
+    # every map's GeoJSON: simplified to the given tolerance (degrees), then coordinates rounded to 6 decimals (about
+    # 10 cm), which cuts the size by about a third with no visible change
+    con.execute("""
+        CREATE MACRO map_geojson(geom, tolerance) AS
+            ST_AsGeoJSON(ST_ReducePrecision(ST_SimplifyPreserveTopology(geom, tolerance), 0.000001))
+    """)
     return (con,)
 
 
@@ -168,7 +177,7 @@ def _(con, districts, selected_district):
             COLUMNS('^(population_age_|households_|median_household_income_)'),
             tract.people_per_acre,
             tract.average_household_size_2020_census,
-            ST_AsGeoJSON(ST_SimplifyPreserveTopology(tract.geom, 0.00005)) AS geojson
+            map_geojson(tract.geom, 0.00005) AS geojson
         FROM dim_census_tract AS tract
         CROSS JOIN district
         WHERE tract.cdta2020 = district.cdta2020 OR list_contains(?, tract.nta2020)
@@ -253,7 +262,7 @@ def _(
             borocd,
             cdta_name,
             coalesce(is_ahft_district, false) AS is_ahft_district,
-            ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.0002)) AS geojson
+            map_geojson(geom, 0.0002) AS geojson
         FROM dim_community_district
     """).fetchall()
     city_features = [
@@ -309,7 +318,7 @@ def _(
         SELECT
             nta.nta_name,
             nta.nta_type_name,
-            ST_AsGeoJSON(ST_SimplifyPreserveTopology(nta.geom, 0.00005)) AS geojson,
+            map_geojson(nta.geom, 0.00005) AS geojson,
             ST_X(ST_PointOnSurface(nta.geom)) AS point_lon,
             ST_Y(ST_PointOnSurface(nta.geom)) AS point_lat,
             ST_XMin(nta.geom) AS min_lon,
@@ -766,7 +775,7 @@ def _(
     # same tolerance as the tracts, so the two line up where they share a boundary
     focus_outline = con.execute(
         """
-        SELECT ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.00005))
+        SELECT map_geojson(geom, 0.00005)
         FROM dim_community_district
         WHERE borocd = ?
         """,
@@ -775,7 +784,7 @@ def _(
     # the edge of the tracts being profiled, which can differ a little from the district's
     cdta_outline = con.execute(
         """
-        SELECT ST_AsGeoJSON(ST_SimplifyPreserveTopology(ST_Union_Agg(nta.geom), 0.00005))
+        SELECT map_geojson(ST_Union_Agg(nta.geom), 0.00005)
         FROM dim_nta AS nta
         INNER JOIN dim_community_district AS district ON nta.cdta2020 = district.cdta2020
         WHERE district.borocd = ?
@@ -784,7 +793,7 @@ def _(
     ).fetchall()[0][0]
     nta_outlines = con.execute(
         """
-        SELECT ST_AsGeoJSON(ST_SimplifyPreserveTopology(nta.geom, 0.00005))
+        SELECT map_geojson(nta.geom, 0.00005)
         FROM dim_nta AS nta
         INNER JOIN dim_community_district AS district ON district.borocd = ?
         WHERE nta.cdta2020 = district.cdta2020 OR list_contains(?, nta.nta2020)
@@ -1514,7 +1523,7 @@ def _(con):
     # whole zones, simplified to about 10 m (a pixel or so at district zoom), so the map can pan anywhere.
     # Built once rather than for each district.
     transit_zone_geojson = con.sql("""
-        SELECT transit_zone, ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.0001)) AS geojson
+        SELECT transit_zone, map_geojson(geom, 0.0001) AS geojson
         FROM dim_transit_zone
     """).df()
     return (transit_zone_geojson,)
@@ -1624,6 +1633,7 @@ def _(mo):
     ### Wastewater
 
     #### Wastewater Systems
+
     """),
             mo.accordion(
                 {
@@ -1701,7 +1711,7 @@ def _(alt, con, mo, source_note):
         width=320,
         title=alt.Title(
             f"Capacity and 12-month average flow, {_flow_month}",
-            subtitle="Gray: capacity · Blue: flow · Label: flow as a share of capacity",
+            subtitle="Gray: capacity · Blue: flow",
         ),
     )
 
@@ -1718,37 +1728,43 @@ def _(alt, con, mo, source_note):
         row.function in row.emergency_only_functions.split(", ")
         for row in _functions.itertuples()
     ]
-    _function_chart = (
-        alt.Chart(_functions)
-        .mark_circle(size=70, stroke="#3182bd", strokeWidth=1.5, opacity=1)
-        .encode(
-            x=alt.X(
-                "function:N",
-                title=None,
-                sort=list(wastewater_function_labels.values()),
-                scale=alt.Scale(domain=list(wastewater_function_labels.values())),
-                axis=alt.Axis(
-                    orient="top",
-                    labelAngle=-45,
-                    ticks=False,
-                    domain=False,
-                    labelLimit=200,
-                ),
+    _functions["emergency_only_label"] = "Yes"
+    _function_base = alt.Chart(_functions).encode(
+        x=alt.X(
+            "function:N",
+            title=None,
+            sort=list(wastewater_function_labels.values()),
+            scale=alt.Scale(domain=list(wastewater_function_labels.values())),
+            axis=alt.Axis(
+                orient="top",
+                labelAngle=-45,
+                ticks=False,
+                domain=False,
+                labelLimit=200,
             ),
-            y=_facility_y(False),
-            fill=alt.condition(
-                "datum.emergency_only", alt.value("white"), alt.value("#3182bd")
-            ),
-            tooltip=[
-                alt.Tooltip("wastewater_facility_name:N", title="WRRF"),
-                alt.Tooltip("function:N", title="Function"),
-                alt.Tooltip("emergency_only:N", title="Emergency only"),
-            ],
-        )
-        .properties(
-            width=260, title=alt.Title("Functions", subtitle="Hollow: emergency only")
-        )
+        ),
+        y=_facility_y(False),
     )
+    _function_tooltip = [
+        alt.Tooltip("wastewater_facility_name:N", title="WRRF"),
+        alt.Tooltip("function:N", title="Function"),
+    ]
+    # filled and hollow dots as separate layers, so only the hollow ones say emergency only on hover
+    _function_chart = alt.layer(
+        _function_base.transform_filter("!datum.emergency_only")
+        .mark_circle(size=70, color="#3182bd", opacity=1)
+        .encode(tooltip=_function_tooltip),
+        _function_base.transform_filter("datum.emergency_only")
+        .mark_circle(
+            size=70, stroke="#3182bd", strokeWidth=1.5, fill="white", opacity=1
+        )
+        .encode(
+            tooltip=[
+                *_function_tooltip,
+                alt.Tooltip("emergency_only_label:N", title="Emergency only"),
+            ]
+        ),
+    ).properties(width=260, title="Functions")
     # one chart rather than two side by side, so the rows line up even though the axes are on different sides
     mo.vstack(
         [
@@ -1791,7 +1807,7 @@ def _(con):
     # whole layers, simplified to about 10 m like the transit zones, so the map can pan anywhere
     ms4_drainage_geojson = con.sql("""
         SELECT drains_to, drains_to_type, waterbody,
-            ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.0001)) AS geojson
+            map_geojson(geom, 0.0001) AS geojson
         FROM dim_ms4_drainage_area
     """).df()
     ms4_outfalls = con.sql("""
@@ -1934,22 +1950,182 @@ def _(
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
+    mo.vstack(
+        [
+            mo.md("""
     ### Flooding
 
-    #### TODO Coastal Flooding
+    The 2080s 100-year coastal floodplain, and flooding from a moderate rainstorm with 2050 sea levels.
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - **100-year floodplain:** land with a 1% chance of flooding in any year, with 58 inches of sea level rise. FEMA's Preliminary Work Map data with the New York City Panel on Climate Change's 90th percentile projection.
+    - **Rainstorm:** 2.13 inches per hour. Nuisance is 4 inches to 1 foot of ponding, deep and contiguous 1 foot or more.
+    - **High tides 2050:** tidal flooding, not rain. DEP took it from DCP's Flood Hazard Mapper (2050s high estimate, 30 inches of sea level rise).
+    - Sources: [Sea Level Rise Maps (2080s 100-year Floodplain)](https://data.cityofnewyork.us/d/ek8y-fsqz) and DEP's [NYC Stormwater Flood Maps](https://data.cityofnewyork.us/d/9i7c-xyvv), NYC Open Data.
+    """),
+                }
+            ),
+        ]
+    )
+    return
 
-    ...
+
+@app.cell(hide_code=True)
+def _(con, focus_outline, folium, json, mo, selected_district, source_note):
+    floodplain_color = "#6a51a3"
+    stormwater_colors = {
+        "Nuisance Flooding": "#6baed6",
+        "Deep and Contiguous Flooding": "#08306b",
+        "Future High Tides 2050": "#41ab5d",
+    }
+    stormwater_labels = {
+        "Nuisance Flooding": "Nuisance (4 in. to 1 ft.)",
+        "Deep and Contiguous Flooding": "Deep and contiguous (1 ft.+)",
+        "Future High Tides 2050": "High tides, 2050",
+    }
+    # shapes in the map's frame, since the citywide layers are too heavy to draw, and acres in the district itself.
+    # Simplified to about 1 m, which keeps small ponds visible.
+    floodplain = (
+        con.execute(
+            """
+        SELECT floodplain_acres, floodplain_share_of_district, map_geojson(frame_geom, 0.00001) AS geojson,
+            map_geojson(frame_edge_geom, 0.00001) AS edge_geojson
+        FROM dim_community_district_floodplain_2080
+        WHERE borocd = ?
+        """,
+            [selected_district],
+        )
+        .df()
+        .iloc[0]
+    )
+    stormwater_flooding = con.execute(
+        """
+        SELECT frame.flooding_category,
+            coalesce(district.overlap_acres, 0) AS overlap_acres,
+            coalesce(district.share_of_district, 0) AS share_of_district,
+            map_geojson(frame.geom, 0.00001) AS geojson
+        FROM dim_community_district_stormwater_flooding_frame AS frame
+        LEFT JOIN dim_community_district_stormwater_flooding AS district
+            USING (borocd, flooding_category)
+        WHERE frame.borocd = ?
+        """,
+        [selected_district],
+    ).df()
+
+    flooding_map = folium.Map(tiles="Esri.WorldGrayCanvas", zoom_snap=0.25)
+    # the floodplain underneath as a light fill, since it can cover most of a district and a strong one would hide the
+    # rainstorm flooding on top. Its outer edge is drawn as a separate line, so the edges of its dry holes aren't
+    # outlined like flooded areas. A frame with no floodplain has nothing to draw.
+    if floodplain["geojson"] is not None:
+        folium.GeoJson(
+            json.loads(floodplain["geojson"]),
+            name="2080s 100-year floodplain",
+            style_function=lambda _feature: {
+                "fillColor": floodplain_color,
+                "fillOpacity": 0.12,
+                "weight": 0,
+            },
+            tooltip="2080s 100-year floodplain",
+        ).add_to(flooding_map)
+        folium.GeoJson(
+            json.loads(floodplain["edge_geojson"]),
+            name="2080s 100-year floodplain edge",
+            interactive=False,
+            style_function=lambda _feature: {"color": floodplain_color, "weight": 1.5},
+        ).add_to(flooding_map)
+    for _row in stormwater_flooding.itertuples():
+        folium.GeoJson(
+            json.loads(_row.geojson),
+            name=stormwater_labels[_row.flooding_category],
+            style_function=lambda _feature, color=stormwater_colors[_row.flooding_category]: {
+                "fillColor": color,
+                "fillOpacity": 0.7,
+                "color": color,
+                "weight": 0.5,
+            },
+            tooltip=stormwater_labels[_row.flooding_category],
+        ).add_to(flooding_map)
+    flooding_district_layer = folium.GeoJson(
+        json.loads(focus_outline),
+        name="District boundary",
+        interactive=False,
+        style_function=lambda _feature: {
+            "fill": False,
+            "color": "#222222",
+            "weight": 3,
+        },
+    ).add_to(flooding_map)
+
+    def _legend_row(swatch, label, acres, share):
+        return f"""<tr>
+          <td>{swatch}</td>
+          <td style="padding:0 12px 0 4px">{label}</td>
+          <td style="text-align:right;font-weight:700;padding-right:10px">{acres:,.0f}</td>
+          <td style="text-align:right;font-weight:700">{share:.1%}</td>
+        </tr>"""
+
+    def _legend_group(title):
+        return f"""<tr><td colspan="4" style="padding-top:6px;font-weight:600">{title}</td></tr>"""
+
+    _stormwater_by_category = stormwater_flooding.set_index("flooding_category")
+
+    def _stormwater_row(category):
+        return _legend_row(
+            f"""<span style="display:inline-block;width:14px;height:10px;background:{stormwater_colors[category]};
+              opacity:0.8;outline:1px solid #d8d8d4"></span>""",
+            stormwater_labels[category],
+            _stormwater_by_category["overlap_acres"].get(category, 0),
+            _stormwater_by_category["share_of_district"].get(category, 0),
+        )
+
+    # high tides comes with the stormwater map but is tidal, so it's listed with the floodplain
+    _rows = (
+        _legend_group("Coastal")
+        + _legend_row(
+            f"""<span style="display:inline-block;width:12px;height:8px;background:{floodplain_color}1f;
+              outline:1.5px solid {floodplain_color}"></span>""",
+            "100-year floodplain, 2080s",
+            floodplain["floodplain_acres"],
+            floodplain["floodplain_share_of_district"],
+        )
+        + _stormwater_row("Future High Tides 2050")
+        + _legend_group("Rainstorm, 2050")
+        + _stormwater_row("Nuisance Flooding")
+        + _stormwater_row("Deep and Contiguous Flooding")
+    )
+    flooding_map.get_root().html.add_child(
+        folium.Element(f"""
+    <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
+      padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
+      <table style="border-collapse:collapse">
+        <tr style="color:#55554f"><td></td><td></td>
+          <td style="padding:0 10px 0 0;text-align:right">Acres</td><td>Of district</td></tr>
+        {_rows}
+      </table>
+    </div>
+    """)
+    )
+    flooding_map.fit_bounds(flooding_district_layer.get_bounds())
+    mo.vstack(
+        [
+            mo.iframe(flooding_map.get_root().render(), height="500px"),
+            source_note(
+                "Sources: Sea Level Rise Maps (2080s 100-year Floodplain) and DEP NYC Stormwater Flood Map "
+                "(moderate flood with 2050 sea level rise), NYC Open Data"
+            ),
+        ]
+    )
+    return
 
 
-    #### TODO Stormwater Flooding
-
-    ...
-
-
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
     ### Open Space
 
-    TODO Access to Vital Parks
+    #### TODO Access to Vital Parks
 
     (https://www.nycgovparks.org/about/vital-parks/explorer) (This map reflects the percentage of people in each Community Board who live within a 10-minute walk to a chosen element of a vital parks system.)
 
@@ -1957,9 +2133,9 @@ def _(mo):
 
     ### Schools
 
-    TODO Public School Utilization
+    #### TODO Public School Utilization
 
-    (Current utilization of individual schools and Known Capital Projects in all overlapping subdistrict)
+    (Current utilization of individual schools and known Capital Projects in all overlapping subdistrict)
 
     ...
     """)

@@ -93,6 +93,9 @@ URL_SOURCES = {
 } | {
     # read by scripts/extract_dep_wastewater_map.py into seeds/, not by dbt
     "dep_wastewater_system_map.pdf": "https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf",
+    # Sea Level Rise Maps (2080s 100-year Floodplain) on NYC Open Data. The same shape as DCP GIS's
+    # FutureFloodplains_2080_100yr_NPCC2014 layer in edm-private.
+    "npcc_floodplain_2080_100yr.geojson": "https://data.cityofnewyork.us/api/geospatial/ek8y-fsqz?method=export&format=GeoJSON",
 }
 
 # DEP publishes the MS4 map as a geodatabase attached to its Open Data page (j57c-rqtq) rather than as a
@@ -150,7 +153,9 @@ def fetch(url: str, path: Path) -> None:
     print(f"get     {url}")
     # uv's Python doesn't use the system's certificates, so pass certifi's
     context = ssl.create_default_context(cafile=certifi.where())
-    with urllib.request.urlopen(url, context=context) as response:
+    # nyc.gov rejects urllib's default user agent
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, context=context) as response:
         path.write_bytes(response.read())
 
 
@@ -221,6 +226,38 @@ def download_wastewater_performance(force: bool) -> None:
     duckdb.sql("SELECT * FROM performance").write_parquet(str(path))
 
 
+# DEP's NYC Stormwater Flood Maps (9i7c-xyvv) are four geodatabases in one zip attached to the Open Data page.
+# Only the Moderate Flood (2.13 inches per hour) with 2050 Sea Level Rise map is used.
+STORMWATER_URL = (
+    "https://data.cityofnewyork.us/api/views/9i7c-xyvv/files/"
+    "6ce7b252-a38c-47ae-a823-680f443227e5?download=true&filename=NYCFloodStormwaterFloodMaps.zip"
+)
+STORMWATER_2050_GDB = (
+    "NYCFloodStormwaterFloodMaps/"
+    "NYC Stormwater Flood Map - Moderate Flood (2.13 inches per hr) with 2050 Sea Level Rise/"
+    "NYC_Stormwater_Flood_Map_Moderate_Flood_2_13_per_hr_with_2050_Sea_Level_Rise.gdb"
+)
+
+
+def download_stormwater(force: bool) -> None:
+    """Download DEP's stormwater flood maps and write the 2050 moderate flood layer to Parquet, geometry as WKB in
+    EPSG:2263, flattened to 2D like the MS4 layers."""
+    zip_path = SOURCES_DIR / "dep_stormwater_flood_maps.zip"
+    path = SOURCES_DIR / "dep_stormwater_flooding_2050.parquet"
+    if force or not zip_path.exists():
+        fetch(STORMWATER_URL, zip_path)
+    if path.exists() and not force:
+        print(f"exists  {path.name}")
+        return
+    print(f"convert {path.name}")
+    meta, _, geometry, fields = raw.read(
+        f"/vsizip/{zip_path}/{STORMWATER_2050_GDB}", force_2d=True
+    )
+    layer_df = pd.DataFrame(dict(zip(meta["fields"], fields)))
+    layer_df["geometry"] = geometry
+    duckdb.sql("SELECT * FROM layer_df").write_parquet(str(path))
+
+
 def download_ms4(force: bool) -> None:
     """Download DEP's MS4 geodatabase and write its layers to Parquet, geometry as WKB in EPSG:2263.
 
@@ -263,13 +300,10 @@ def main(force: bool) -> None:
         if path.exists() and not force:
             print(f"exists  {filename}")
             continue
-        print(f"get     {url}")
-        # nyc.gov rejects urllib's default user agent
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(request) as response:
-            path.write_bytes(response.read())
+        fetch(url, path)
     download_ms4(force)
     download_wastewater_performance(force)
+    download_stormwater(force)
 
 
 if __name__ == "__main__":

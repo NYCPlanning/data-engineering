@@ -1506,3 +1506,102 @@ models:
         description: Share of CBOD removed, rescaled like tss_removal.
       - name: reports_with_month
         description: How many reports have this facility and month. 2 for August 2024, 2016, and July 2020.
+
+  - name: dim_community_district_stormwater_flooding
+    description: >
+      One row per community district and flooding category in DEP's NYC Stormwater Flood Map for a moderate flood
+      (2.13 inches of rain per hour) with 2050 sea level rise (NYC Open Data 9i7c-xyvv), from the overlay of
+      dim_community_district and the map. Only categories with some area in the district.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || flooding_category"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: flooding_category
+        description: >
+          Nuisance Flooding (4 inches to 1 foot of ponding), Deep and Contiguous Flooding (1 foot or more), or Future
+          High Tides 2050. The last is tidal flooding, which DEP took from DCP's Flood Hazard Mapper (2050s high
+          estimate of 30 inches of sea level rise), not stormwater.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Nuisance Flooding, Deep and Contiguous Flooding, Future High Tides 2050]
+      - name: overlap_acres
+        description: Acres of the district in this category.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district, measured the same way as dim_community_district_transit_zone.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
+      - name: geom
+        description: The district's flooding in this category, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_stormwater_flooding_frame
+    description: >
+      One row per community district and flooding category, with the flooding in the district's map frame rather
+      than the district itself, so a map doesn't stop at the district line. The frame is the district's bounding
+      box widened to at least 2.5:1 plus 10%. For acres and shares, use dim_community_district_stormwater_flooding.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || flooding_category"
+    columns:
+      - name: borocd
+        description: Community district whose map frame this is.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: flooding_category
+        description: As in dim_community_district_stormwater_flooding.
+        data_tests: [not_null]
+      - name: geom
+        description: Flooding in the frame, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_floodplain_2080
+    description: >
+      One row per community district (and joint interest area), with how much of it is in the 2080s 100-year
+      floodplain from NYC Open Data's Sea Level Rise Maps (ek8y-fsqz): FEMA's Preliminary Work Map data with the New
+      York City Panel on Climate Change's 90th percentile sea level rise (58 inches).
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: floodplain_acres
+        description: Acres of the district in the floodplain. 0 where none of it is.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district, measured the same way as dim_community_district_transit_zone.
+        data_tests: [not_null]
+      - name: floodplain_share_of_district
+        description: floodplain_acres / district_acres.
+        data_tests: [not_null]
+      - name: frame_geom
+        description: >
+          The floodplain in the district's map frame (see int_cd_map_frame_spine), EPSG:4326, for drawing it beyond
+          the district line. Null where none of the frame is in the floodplain.
+      - name: frame_edge_geom
+        description: >
+          The floodplain's outer edges in the same frame, EPSG:4326 lines, without the edges of the dry holes inside
+          it, for outlining it on a map. Null where none of the frame is in the floodplain.

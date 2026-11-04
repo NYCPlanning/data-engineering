@@ -19,6 +19,8 @@ It reads published PFF and KPDB files and has its own venv.
 | [DEP MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq) (NYC Open Data) | August 1, 2020 | storm sewer drainage areas and outfalls. Its waste facility, stormwater permit, and Bluebelt layers stop at staging for now |
 | [DEP Map of the New York City Wastewater System](https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf) | 2025 | the table of Wastewater Resource Recovery Facilities (WRRFs) and their functions. Extracted to `seeds/` by `scripts/extract_dep_wastewater_map.py` |
 | [DEP Wastewater Treatment Plant Performance Data](https://data.cityofnewyork.us/d/hgue-hj96) (NYC Open Data) | 2015 to July 2025 | monthly flow and effluent by WRRF, from every report file on the page |
+| [DEP NYC Stormwater Flood Maps](https://data.cityofnewyork.us/d/9i7c-xyvv) (NYC Open Data) | Moderate Flood (2.13 inches per hour) with 2050 Sea Level Rise | stormwater and 2050 high tide flooding by community district |
+| [Sea Level Rise Maps (2080s 100-year Floodplain)](https://data.cityofnewyork.us/d/ek8y-fsqz) (NYC Open Data) | 2080s, 58 inches of sea level rise | coastal floodplain by community district |
 | `dcp_housing_ahft` (edm-private) | 20261002 | AHFT rank. AHFT district means the bottom 12 of 59, the same cutoff as LIFT |
 | [HPD Housing and Vacancy Survey](https://www.nyc.gov/site/hpd/about/research.page) public use files | 2021, 2023 | household size in buildings built before and after 2010, by borough. Downloaded from nyc.gov |
 | [Fair Housing Growth Strategy](https://wherewelive.cityofnewyork.us/wp-content/uploads/2026/10/Fair-Housing-Growth-Strategy-Final-Report.pdf) final report | October 2026 | growth cohorts, 2016-2025 growth rates, homes in 2025, homes added 2021-2025, and 2030 targets, from the 2030 targets tables, Appendix B, and Figure 3.2. Extracted to `seeds/` |
@@ -49,6 +51,9 @@ python scripts/extract_fhgs.py data/sources/fhgs.pdf
 | `dim_community_district_ms4_drainage` | borocd x drains_to_type, the piece of a district in each type of MS4 drainage |
 | `dim_wastewater_facility` | wastewater facility (WRRF), with its functions and latest flow |
 | `fact_wastewater_facility_month` | wastewater facility x month of DEP's performance reports |
+| `dim_community_district_stormwater_flooding` | borocd x flooding_category, with the district's flooding geometry |
+| `dim_community_district_stormwater_flooding_frame` | borocd x flooding_category, the flooding in the district's map frame |
+| `dim_community_district_floodplain_2080` | borocd, with its share in the 2080s 100-year floodplain and the floodplain in its map frame |
 | `fact_unit_completion` | completed DOB job (job_number) |
 | `fact_housing_survey_household` | HVS survey year x household (control) |
 | `mart_community_district_date` | borocd x date, 2010-2025 |
