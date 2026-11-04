@@ -1,0 +1,25 @@
+borough,race_ethnicity,pct_not_meeting
+Bronx,Hispanic,81.8
+Bronx,Black,69.7
+Bronx,Asian/PI,72.0
+Bronx,White,46.5
+Brooklyn,Hispanic,75.1
+Brooklyn,Black,64.8
+Brooklyn,Asian/PI,64.7
+Brooklyn,White,50.3
+Manhattan,Hispanic,85.3
+Manhattan,Black,79.7
+Manhattan,Asian/PI,54.5
+Manhattan,White,32.9
+Queens,Hispanic,71.1
+Queens,Black,56.2
+Queens,Asian/PI,65.3
+Queens,White,48.4
+Staten Island,Hispanic,63.9
+Staten Island,Black,62.8
+Staten Island,Asian/PI,55.2
+Staten Island,White,39.6
+NYC Overall,Hispanic,77.6
+NYC Overall,Black,65.6
+NYC Overall,Asian/PI,63.3
+NYC Overall,White,43.7

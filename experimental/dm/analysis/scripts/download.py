@@ -96,6 +96,8 @@ URL_SOURCES = {
     # Sea Level Rise Maps (2080s 100-year Floodplain) on NYC Open Data. The same shape as DCP GIS's
     # FutureFloodplains_2080_100yr_NPCC2014 layer in edm-private.
     "npcc_floodplain_2080_100yr.geojson": "https://data.cityofnewyork.us/api/geospatial/ek8y-fsqz?method=export&format=GeoJSON",
+    # read by scripts/extract_tcol.py into seeds/, not by dbt
+    "tcol_report_2026.pdf": "https://www.nyc.gov/assets/equity/downloads/pdf/2026-NYC-TCOL-Report.pdf",
 }
 
 # DEP publishes the MS4 map as a geodatabase attached to its Open Data page (j57c-rqtq) rather than as a

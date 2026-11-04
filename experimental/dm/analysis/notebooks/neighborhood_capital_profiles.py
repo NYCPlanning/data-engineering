@@ -46,6 +46,8 @@ def _(duckdb, mo):
         "dim_community_district_stormwater_flooding",
         "dim_community_district_stormwater_flooding_frame",
         "dim_community_district_floodplain_2080",
+        "dim_borough",
+        "dim_tcol_family_type",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -176,7 +178,7 @@ def _(con, districts, selected_district):
             tract.population_in_households_2020_census,
             tract.occupied_housing_units_2020_census,
             tract.land_acres,
-            COLUMNS('^(population_age_|households_|median_household_income_)'),
+            COLUMNS('^(population_age_|households_|median_household_income_|people_below_poverty_|people_poverty_status_|families_)'),
             tract.people_per_acre,
             tract.average_household_size_2020_census,
             map_geojson(tract.geom, 0.00005) AS geojson
@@ -444,11 +446,12 @@ def _(mo):
     - **Citywide:** a tract's rank among all NYC tracts. Colors compare across districts.
     - **District:** the district's lowest tract to its highest. Colors don't compare across districts.
     - **Nearby:** adds the NTAs touching the district's, with a halo around the district. Always citywide colors.
-    - **Gray:** no value (no residents, no households, or no estimate).
+    - **Gray:** no value (no residents, households, or families, or no estimate).
     - **Lines:** black for NTAs, gray for the district.
     """),
                     "Data notes": mo.md("""
-    - Age and density: 2020 census. Income: 2020-2024 ACS.
+    - Age and density: 2020 census. Income and poverty: 2020-2024 ACS.
+    - Poverty rate uses the federal poverty line, the same everywhere in the country.
     - Tracts and NTAs are the ones in the district's CDTA, which can differ a little from the district.
     - Percentages swing where few people live.
     - People per household leaves out group housing, like dorms and nursing homes.
@@ -469,6 +472,8 @@ def _(age_groups, income_groups, mo):
         "People per household, 2020": "average_household_size_2020_census",
         "Population, 2020": "population_2020_census",
         "Median household income": "median_household_income_acs",
+        "Poverty rate (% of people)": "people_below_poverty_acs",
+        "Families earning under $159,197 (%)": "families_income_under_tcol_acs",
         **{
             f"Age {label} (% of residents)": column
             for column, label in age_groups.items()
@@ -478,12 +483,25 @@ def _(age_groups, income_groups, mo):
             for column, label in income_groups.items()
         },
     }
+    # each percent measure's base
+    rate_denominators = {
+        **{column: "population_2020_census" for column in age_groups},
+        **{column: "households_acs" for column in income_groups},
+        "people_below_poverty_acs": "people_poverty_status_determined_acs",
+        "families_income_under_tcol_acs": "families_acs",
+    }
     map_measure = mo.ui.dropdown(
         options=map_measures, value="People per acre, 2020", label="Map"
     )
     map_extent = mo.ui.tabs({"District": "", "Nearby": ""})
     map_scale_basis = mo.ui.tabs({"Citywide": "", "District": ""})
-    return map_extent, map_measure, map_measures, map_scale_basis
+    return (
+        map_extent,
+        map_measure,
+        map_measures,
+        map_scale_basis,
+        rate_denominators,
+    )
 
 
 @app.cell(hide_code=True)
@@ -504,22 +522,18 @@ def _(map_extent, map_measure, map_scale_basis, mo):
 
 
 @app.cell
-def _(age_groups, con, income_groups, map_measures):
+def _(con, map_measures, rate_denominators):
     def map_values_for(df, column):
+        if column in rate_denominators:
+            base = df[rate_denominators[column]]
+            return 100 * df[column] / base.where(base > 0)
         population = df["population_2020_census"]
-        if column in age_groups:
-            return 100 * df[column] / population.where(population > 0)
-        if column in income_groups:
-            households = df["households_acs"]
-            return 100 * df[column] / households.where(households > 0)
         return df[column].where(population > 0)
 
     def overall_value(df, column):
         """A place's own figure from its tract totals, so every person counts once however its tracts are drawn."""
-        if column in age_groups:
-            return 100 * df[column].sum() / df["population_2020_census"].sum()
-        if column in income_groups:
-            return 100 * df[column].sum() / df["households_acs"].sum()
+        if column in rate_denominators:
+            return 100 * df[column].sum() / df[rate_denominators[column]].sum()
         if column == "people_per_acre":
             return df["population_2020_census"].sum() / df["land_acres"].sum()
         if column == "average_household_size_2020_census":
@@ -573,6 +587,7 @@ def _(
     nearby_nta_codes,
     overall_value,
     pd,
+    rate_denominators,
     selected_district,
     source_note,
     tracts,
@@ -593,7 +608,7 @@ def _(
     map_ranks = citywide_rank(map_values)
     shown_tracts = map_area_tracts if is_nearby else tracts
     shown_values = map_values_for(shown_tracts, map_column)
-    if map_column in age_groups or map_column in income_groups:
+    if map_column in rate_denominators:
         map_format = "{:.1f}%"
     elif map_column == "median_household_income_acs":
         map_format = "${:,.0f}"
@@ -898,19 +913,43 @@ def _(
     folium.LayerControl().add_to(focus_map)
     focus_map.fit_bounds(tract_layer.get_bounds())
 
+    is_acs_measure = map_column.endswith("_acs") or map_column in income_groups
+    is_tcol_measure = map_column == "families_income_under_tcol_acs"
+    map_notes = []
+    if is_tcol_measure:
+        tcol_borough = con.execute(
+            "SELECT boro_name, tcol_pct_not_meeting FROM dim_borough WHERE boro_code = ?",
+            [selected_district // 100],
+        ).fetchone()
+        tcol_lowest, tcol_highest = con.execute(
+            "SELECT min(median_cost), max(median_cost) FROM dim_tcol_family_type"
+        ).fetchone()
+        map_notes = [
+            mo.accordion(
+                {
+                    "True Cost of Living": mo.md(f"""
+    - $159,197 is NYC's TCOL threshold for families with children and adults under 65 (2022 dollars).
+    - Used here for every family. Thresholds by family type run from ${tcol_lowest:,} to ${tcol_highest:,}.
+    - Families only: people living alone or with non-relatives aren't counted.
+    - ACS income is before taxes. TCOL compares resources after taxes, including benefits.
+    - ACS income is in 2024 dollars and the threshold in 2022 dollars, so this share runs a little low.
+    - {tcol_borough[0]}: {tcol_borough[1]:.1f}% of residents fall short of their TCOL threshold. The report stops at boroughs.
+    """)
+                }
+            )
+        ]
+
     # folium's own output is sized by aspect ratio and cuts off the legend, so fix the height
     mo.vstack(
         [
             mo.iframe(focus_map.get_root().render(), height="600px"),
             source_note(
-                (
-                    "Sources: 2020-2024 ACS"
-                    if map_column == "median_household_income_acs"
-                    or map_column in income_groups
-                    else "Sources: 2020 Census"
-                )
-                + ", via DCP Population FactFinder; DCP census tract and NTA boundaries (26c)"
+                ("Sources: 2020-2024 ACS" if is_acs_measure else "Sources: 2020 Census")
+                + ", via DCP Population FactFinder; "
+                + ("NYC True Cost of Living report (2026); " if is_tcol_measure else "")
+                + "DCP census tract and NTA boundaries (26c)"
             ),
+            *map_notes,
         ]
     )
     return (focus_outline,)
@@ -1501,9 +1540,13 @@ def _(mo):
 
     ### Transportation
 
+    #### TODO Transit services
+
+    W drive, CAPS Basemaps, ...
+
     #### TODO Transit Access
 
-    ...
+    W drive, CAPS Basemaps, ...
 
     #### Transit Zones
     """),
@@ -2150,10 +2193,17 @@ def _(mo):
 
     #### TODO Public School Utilization
 
-    (Current utilization of individual schools and known Capital Projects in all overlapping subdistrict)
+    (School subdistricts layer) (Current utilization of individual schools and known Capital Projects in all overlapping subdistrict)
+
+    options: AHFT schools model excel in SharePoint is probably 10-year projection, W drive/CAPS Basemaps, ...
 
     ...
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 

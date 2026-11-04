@@ -947,6 +947,35 @@ models:
         config:
           meta:
             display_name: "Households $200k+ (ACS)"
+      - name: people_below_poverty_acs
+        description: People below the federal poverty level, 2020-2024 ACS (PFF pbwpv). Noisy for a single tract.
+        config:
+          meta:
+            display_name: "People below poverty (ACS)"
+      - name: people_below_poverty_acs_moe
+        description: 90% margin of error of people_below_poverty_acs.
+      - name: people_poverty_status_determined_acs
+        description: >
+          People whose poverty status is determined (PFF poppvu1), the base for a poverty rate. Leaves out people in
+          institutions, college dorms, and military quarters, and unrelated children under 15.
+        config:
+          meta:
+            display_name: "People with poverty status (ACS)"
+      - name: families_acs
+        description: Family households, 2020-2024 ACS (PFF fam2). Leaves out people living alone or with only nonrelatives.
+        config:
+          meta:
+            display_name: "Families (ACS)"
+      - name: families_income_under_tcol_acs
+        description: >
+          Families with income under NYC's True Cost of Living threshold for families with children and adults under
+          65 ($159,197 in 2022 dollars, from stg_tcol__budget_components), from PFF's family income brackets, with
+          the share of the $150,000-$199,999 bracket under it assuming even spread. Pre-tax ACS income against a
+          threshold TCOL compares with after-tax resources including benefits, and one family type's threshold for
+          every family, so it isn't the TCOL rate. Noisy for a single tract.
+        config:
+          meta:
+            display_name: "Families under TCOL threshold (ACS)"
       - name: land_acres
         description: Tract area in acres, from dcp_ct2020's shape_area in square feet (EPSG:2263). Tracts are clipped to the shoreline, so this is land only.
         data_tests: [not_null]
@@ -1156,6 +1185,35 @@ models:
         config:
           meta:
             display_name: "Households $200k+ (ACS)"
+      - name: people_below_poverty_acs
+        description: People below the federal poverty level, 2020-2024 ACS (PFF pbwpv).
+        config:
+          meta:
+            display_name: "People below poverty (ACS)"
+      - name: people_below_poverty_acs_moe
+        description: 90% margin of error of people_below_poverty_acs.
+      - name: people_poverty_status_determined_acs
+        description: >
+          People whose poverty status is determined (PFF poppvu1), the base for a poverty rate. Leaves out people in
+          institutions, college dorms, and military quarters, and unrelated children under 15.
+        config:
+          meta:
+            display_name: "People with poverty status (ACS)"
+      - name: families_acs
+        description: Family households, 2020-2024 ACS (PFF fam2). Leaves out people living alone or with only nonrelatives.
+        config:
+          meta:
+            display_name: "Families (ACS)"
+      - name: families_income_under_tcol_acs
+        description: >
+          Families with income under NYC's True Cost of Living threshold for families with children and adults under
+          65 ($159,197 in 2022 dollars, from stg_tcol__budget_components), from PFF's family income brackets, with
+          the share of the $150,000-$199,999 bracket under it assuming even spread. Pre-tax ACS income against a
+          threshold TCOL compares with after-tax resources including benefits, and one family type's threshold for
+          every family, so it isn't the TCOL rate.
+        config:
+          meta:
+            display_name: "Families under TCOL threshold (ACS)"
       - name: land_acres
         description: NTA area in acres, from dcp_nta2020's shape_area in square feet (EPSG:2263). NTAs are clipped to the shoreline, so this is land only. Matches the sum of its tracts' land_acres.
         data_tests: [not_null]
@@ -1605,3 +1663,76 @@ models:
         description: >
           The floodplain's outer edges in the same frame, EPSG:4326 lines, without the edges of the dry holes inside
           it, for outlining it on a map. Null where none of the frame is in the floodplain.
+
+  - name: dim_borough
+    description: >
+      One row per borough, with rates from NYC's 2026 True Cost of Living (TCOL) report (2022 data): the share of
+      residents whose resources, including benefits, don't meet their family's TCOL threshold. The report's geography
+      stops at boroughs.
+    columns:
+      - name: boro_code
+        description: Borough code, 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "Borough code"
+      - name: boro_name
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "Borough"
+      - name: tcol_pct_not_meeting
+        description: Percent of residents not meeting their TCOL threshold (Table 9).
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Not meeting TCOL (%)"
+      - name: tcol_pct_adults_no_children_not_meeting
+        description: Percent of people in families of adults with no children not meeting their threshold (Table 9).
+      - name: tcol_pct_families_with_children_not_meeting
+        description: Percent of people in families with children not meeting their threshold (Table 9).
+      - name: tcol_avg_resource_gap
+        description: Average shortfall below the threshold, in 2022 dollars, among families with one (Table 9).
+      - name: tcol_pct_not_meeting_hispanic
+        description: Percent of Hispanic residents not meeting their threshold (Table 10, typed from the report's image).
+      - name: tcol_pct_not_meeting_black
+        description: Percent of Black residents not meeting their threshold (Table 10).
+      - name: tcol_pct_not_meeting_asian_pi
+        description: Percent of Asian and Pacific Islander residents not meeting their threshold (Table 10).
+      - name: tcol_pct_not_meeting_white
+        description: Percent of white residents not meeting their threshold (Table 10).
+
+  - name: dim_tcol_family_type
+    description: >
+      One row per family type in NYC's 2026 True Cost of Living report (Tables 2 and 6, 2022 dollars): the TCOL
+      threshold (median cost), median resources, and the share of people not meeting the threshold. There's no single
+      threshold. It depends on family type, and each row's is a median across families of that type.
+    columns:
+      - name: tcol_family_type_id
+        description: Adult age group and family type in lowercase with underscores, e.g. under_65_one_adult_no_children.
+        data_tests: [unique, not_null]
+      - name: adult_age_group
+        description: Under 65 or 65 and older.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Under 65, 65 and older]
+      - name: family_type
+        description: The report's label, e.g. Two+ Adults, 1 Child.
+      - name: adults
+        description: Number of adults, 1, 2, 2+, or 3+.
+      - name: children
+        description: Number of children, 0, 1, 2, 3+, or 1+. Empty for Three+ Adults, which doesn't say.
+      - name: is_rollup
+        description: >
+          True for the under-65 1+ children rows, which total the 1, 2, and 3+ children rows, so don't sum both.
+        data_tests: [not_null]
+      - name: median_cost
+        description: Median TCOL threshold, in 2022 dollars. Empty where the report suppresses it for sample size.
+      - name: median_resources
+        description: Median total resources (earnings, investment income, and benefits after taxes), in 2022 dollars.
+      - name: pct_not_meeting
+        description: Percent of people in this family type not meeting their threshold.
+      - name: avg_resource_gap
+        description: Average shortfall below the threshold, in 2022 dollars, among families with one.
