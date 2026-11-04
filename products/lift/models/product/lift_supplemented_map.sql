@@ -119,6 +119,10 @@ SELECT
         WHEN 4 THEN 'Queens'
         WHEN 5 THEN 'Staten Island'
     END AS borough,
+    -- For a map lot area slider: lots run up to 214M sq ft (JFK), which makes a full-extent
+    -- slider too coarse, so the top value stands in for every larger lot. Not LEAST, which
+    -- skips nulls and would cap a lot with no area at the top.
+    CASE WHEN lift.lotarea > 150000 THEN 150000 ELSE lift.lotarea END AS lotarea_capped,
     -- zzz_lift_data_zzz holds the Public Sites site name (see README Limitations).
     lift.zzz_lift_data_zzz IS NOT NULL AS is_lift_site,
     lift.zzz_lift_data_zzz AS site_name,

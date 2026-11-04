@@ -33,6 +33,8 @@ models:
     description: Borough name decoded from boro.
     tests:
     - not_null
+  - name: lotarea_capped
+    description: lotarea capped at 150,000 sq ft, for a map slider where the top means no max.
   - name: is_lift_site
     description: >
       True if the bbl matched a row in City Hall's Public Sites for Housing tracker.

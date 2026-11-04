@@ -43,7 +43,8 @@ SQL in the map has to be repeated in every dataset that reads the table, and oth
 
 ### Layers
 
-- The lots are two layers on the same table: points (`ST_CENTROID`) below zoom 11 and lot shapes from zoom 11. Both are colored by `is_lift_site_label`.
+- The lots are two layers on the same table: points (`ST_CENTROID`) through zoom 11 and lot shapes from zoom 12. Both are colored by `is_lift_site_label`.
+  A layer's max zoom includes that whole zoom level, so the points' max is one less than the shapes' min, or both layers draw at the same zoom.
 - The points query sorts LIFT sites last (`ORDER BY is_lift_site`), so they're drawn on top of other lots instead of hidden under them.
 - Boundary layers start off. Clicking a community district filters to it ("Filter by feature" set to all layers, on the layer's Click tab).
   A layer needs a fill for clicks to land on it, so the council layer has a near-white one. Both boundary layers have hover pop-ups off.
@@ -70,7 +71,8 @@ Colors come from the reviewers' design standards.
 ### Filters
 
 - Every filter is a widget, so filters and summary numbers sit together in one panel. Category widgets have search and multi-select, show counts, and filter each other. Selecting "AHFT district" narrows the community district widget to the AHFT districts.
-- Lot area is a range widget over the data's full extent, up to 214M sq ft (JFK Airport). The slider is too coarse at that scale, so type numbers in its boxes. Setting the widget's max to 100,000 dropped the lots above it.
+- Lot area is a range widget on `lotarea_capped`, which caps lot area at 150,000 sq ft. Lot area runs up to 214M sq ft (JFK Airport), so a slider over the full extent is too coarse to drag. Capped lots sit at the top value, so they stay in unless the max handle moves down. 150k keeps most of the slider for lots under 100k, where most LIFT sites are, and still spreads out the 100k to 150k band.
+  Don't cap with the widget's own max instead. That drops every lot above it.
 - A widget can only show the values picked, not hide them. The DCAS flags widget's bars are combinations of flags, like "Underwater, Waterfront", so it shows which flags lots carry but can't hide flagged lots. DEV 1 hides them with a SQL parameter in the bar above the map ("Hide lots flagged as"), for comparison.
 - A SQL parameter changes every lot query, so it has to be added to both the points and the lot shapes datasets. Write its SQL so its default filters nothing, including rows with no value.
 - In the description, put how-to-use text under a "Map notes" heading and data caveats under "Data notes".
@@ -122,8 +124,9 @@ carto import --file lift_dev_2_community_districts.parquet --connection carto_dw
 
 The 45 lots without PLUTO geometry are imported without a location. They're counted by widgets but not drawn.
 
-If the upload adds columns, change the wording of each dataset's query (not its result) before using the new columns, e.g. alias the table or qualify a column.
-Builder caches each dataset's columns by query text, so re-sending the same query isn't enough.
+After an upload that adds columns or changes their values, change the wording of each dataset's query (not its result), e.g. rename the table alias.
+Builder caches each dataset's columns and widget stats by query text, so a range widget keeps its old min and max and filters out rows past them.
+Re-sending the same query isn't enough.
 Otherwise Builder drops popup fields that reference the new columns the next time anyone saves in Builder.
 
 ## Pull and push the config
