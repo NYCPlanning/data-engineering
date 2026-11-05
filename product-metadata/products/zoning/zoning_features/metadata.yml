@@ -34,22 +34,22 @@ destinations:
   - id: fgdb
     custom:
       destination_use: dataset_file
-  - id: zoning_commercial_overlay_data_dictionary
+  - id: nyco_metadata
     custom:
       destination_use: attachment
-  - id: zoning_limited_height_data_dictionary
+  - id: nylh_metadata
     custom:
       destination_use: attachment
-  - id: zoning_special_purpose_data_dictionary
+  - id: nysp_metadata
     custom:
       destination_use: attachment
-  - id: zoning_special_subdistricts_data_dictionary
+  - id: nysp_sd_metadata
     custom:
       destination_use: attachment
-  - id: zoning_districts_data_dictionary
+  - id: nyzd_metadata
     custom:
       destination_use: attachment
-  - id: zoning_map_amendments_data_dictionary
+  - id: nyzma_metadata
     custom:
       destination_use: attachment
 
@@ -58,54 +58,54 @@ destinations:
   files:
   - id: fgdb
     custom:
-      url: "{{ bytes_zip_prefix_url }}/gis-zoning-features/nyc_zoning_features_gdb.zip"
-  - id: zoning_commercial_overlay_data_dictionary
+      url: "{{ bytes_zip_prefix_url }}/gis-zoning-features/nycgiszoningfeatures_{{ current_version_zoning }}fgdb.zip"
+  - id: nyco_metadata
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_commercial_overlay_data_dictionary.xlsx"
-  - id: zoning_limited_height_data_dictionary
+      url: "{{ bytes_pdf_prefix_url }}/nyco_metadata.pdf"
+  - id: nylh_metadata
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_limited_height_data_dictionary.xlsx"
-  - id: zoning_special_purpose_data_dictionary
+      url: "{{ bytes_pdf_prefix_url }}/nylh_metadata.pdf"
+  - id: nysp_metadata
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_special_purpose_data_dictionary.xlsx"
-  - id: zoning_special_subdistricts_data_dictionary
+      url: "{{ bytes_pdf_prefix_url }}/nysp_metadata.pdf"
+  - id: nysp_sd_metadata
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_special_subdistricts_data_dictionary.xlsx"
-  - id: zoning_districts_data_dictionary
+      url: "{{ bytes_pdf_prefix_url }}/nysp_sd_metadata.pdf"
+  - id: nyzd_metadata
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_districts_data_dictionary.xlsx"
-  - id: zoning_map_amendments_data_dictionary
+      url: "{{ bytes_pdf_prefix_url }}/nyzd_metadata.pdf"
+  - id: nyzma_metadata
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_map_amendments_data_dictionary.xlsx"
+      url: "{{ bytes_pdf_prefix_url }}/nyzma_metadata.pdf"
 
 files:
 - file:
     id: fgdb
-    filename: nyc_zoning_features_gdb.zip
+    filename: nycgiszoningfeatures_fgdb.zip
     type: fgdb
 - file:
-    id: zoning_commercial_overlay_data_dictionary
-    filename: zoning_commercial_overlay_data_dictionary.xlsx
+    id: nyco_metadata
+    filename: nyco_metadata.pdf
     is_metadata: true
 - file:
-    id: zoning_limited_height_data_dictionary
-    filename: zoning_limited_height_data_dictionary.xlsx
+    id: nylh_metadata
+    filename: nylh_metadata.pdf
     is_metadata: true
 - file:
-    id: zoning_special_purpose_data_dictionary
-    filename: zoning_special_purpose_data_dictionary.xlsx
+    id: nysp_metadata
+    filename: nysp_metadata.pdf
     is_metadata: true
 - file:
-    id: zoning_special_subdistricts_data_dictionary
-    filename: zoning_special_subdistricts_data_dictionary.xlsx
+    id: nysp_sd_metadata
+    filename: nysp_sd_metadata.pdf
     is_metadata: true
 - file:
-    id: zoning_districts_data_dictionary
-    filename: zoning_districts_data_dictionary.xlsx
+    id: nyzd_metadata
+    filename: nyzd_metadata.pdf
     is_metadata: true
 - file:
-    id: zoning_map_amendments_data_dictionary
-    filename: zoning_map_amendments_data_dictionary.xlsx
+    id: nyzma_metadata
+    filename: nyzma_metadata.pdf
     is_metadata: true
 
 columns: []
