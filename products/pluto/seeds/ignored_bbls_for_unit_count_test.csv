@@ -79,3 +79,15 @@ bbl,pluto_version,units_res,comment
 3001497501,26v2,-1,Carrying this forward
 3021347504,26v2,-1,Carrying this forward
 3038627501,26v2,-1,Carrying this forward
+4155377501,26v3,,DevDB includes 1523 Village Lane (133 units) completed 2026-04 and not yet in PTS
+1000397502,26v3,,DevDB only has the floors 1-17 conversion job; PLUTO matches PTS
+2024887501,26v3,,PTS rental lots 1009-1011 (340 units) did not geocode so they miss PLUTO
+3001497501,26v3,690,matches the two NB COs (251 + 439); DevDB summary reads 0
+1010257502,26v3,394,matches the NB CO (393); DevDB summary picks a later alteration
+1009287502,26v3,134,DevDB only has 312 E 23 St; 310 E 23 St has no job
+2027137501,26v3,268,DevDB missing 970 Kelly St; manual research adds up to ~260
+2027247502,26v3,376,DevDB missing 975 Simpson St; 1000 Fox M-2 lot (60) did not geocode
+3038627501,26v3,469,PTS and COs and billing lot all disagree
+1008077501,26v3,458,PTS 80/20 rental split is self-consistent; CO says 554
+3021347504,26v3,487,part of a project including BBL 3021340150; sources disagree by building
+1010507501,26v3,9,DevDB includes shelter units in the total of 105
