@@ -1349,6 +1349,94 @@ models:
         description: overlap_acres / district_acres.
         data_tests: [not_null]
 
+  - name: dim_school_subdistrict
+    description: >
+      One row per school subdistrict (SCA's 96, version 20250901), with geometry. The 2036 columns are the No
+      Action projections from the AHFT schools workbook, only for the 30 subdistricts related to AHFT districts.
+    columns:
+      - name: school_subdistrict_id
+        description: Community school district and subdistrict, such as 20-1.
+        data_tests: [unique, not_null]
+      - name: school_district
+        description: Community school district.
+        data_tests: [not_null]
+      - name: subdistrict
+        description: Subdistrict within the school district.
+        data_tests: [not_null]
+      - name: subdistrict_name
+        config:
+          meta:
+            display_name: "Subdistrict"
+      - name: ahft_community_districts
+        description: The workbook's CD column as printed, such as "QN 4 + 5". Not a key.
+      - name: ahft_priority
+        description: The workbook's AHFT priority as printed (A, B, C, or A/C).
+      - name: ahft_barely_intersects_cd
+        description: Starred in the workbook, "Subdistrict barely intersects with CD".
+      - name: ps_students_2036
+        description: Primary school students (total enrollment), No Action.
+        config:
+          meta:
+            display_name: "Primary students, 2036"
+      - name: ps_seats_2036
+        description: Primary school seats (projected capacity), No Action.
+        config:
+          meta:
+            display_name: "Primary seats, 2036"
+      - name: ps_utilization_2036
+        description: Primary school students over seats, as a fraction, as printed.
+        config:
+          meta:
+            display_name: "Primary utilization, 2036"
+      - name: is_students_2036
+        description: Intermediate school students (total enrollment), No Action.
+        config:
+          meta:
+            display_name: "Intermediate students, 2036"
+      - name: is_seats_2036
+        description: Intermediate school seats (projected capacity), No Action.
+        config:
+          meta:
+            display_name: "Intermediate seats, 2036"
+      - name: is_utilization_2036
+        description: Intermediate school students over seats, as a fraction, as printed.
+        config:
+          meta:
+            display_name: "Intermediate utilization, 2036"
+      - name: geom
+        data_tests: [not_null]
+
+  - name: dim_community_district_school_subdistrict
+    description: >
+      One row per piece of a community district in a school subdistrict (borocd x school_subdistrict_id), from the
+      overlay of dim_community_district and dim_school_subdistrict. Only pieces with some area, which includes
+      slivers where the two sources' boundaries don't quite line up. Areas are measured in EPSG:2263.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || school_subdistrict_id"
+    columns:
+      - name: borocd
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: school_subdistrict_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_school_subdistrict')
+                field: school_subdistrict_id
+      - name: overlap_acres
+        description: Acres of the district in the subdistrict.
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+      - name: share_of_subdistrict
+        description: overlap_acres / subdistrict_acres.
+
   - name: dim_ms4_drainage_area
     description: >
       One row per MS4 drainage area from DEP's MS4 map as of August 1, 2020 (NYC Open Data j57c-rqtq): land that

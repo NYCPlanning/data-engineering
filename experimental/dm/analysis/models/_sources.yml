@@ -81,6 +81,13 @@ sources:
         config:
           external_location: "read_parquet('./data/sources/dcp_transit_zones.parquet')"
 
+      - name: doe_school_subdistricts
+        description: >
+          SCA's school subdistricts, version 20250901 from edm-recipes. EPSG:4326. One polygon per community school
+          district and subdistrict, 96 in all.
+        config:
+          external_location: "read_parquet('./data/sources/doe_school_subdistricts.parquet')"
+
       # DEP's MS4 map as of August 1, 2020, from the geodatabase on NYC Open Data (j57c-rqtq). scripts/download.py
       # writes each layer to Parquet, flattened to 2D, with geometry as WKB in EPSG:2263.
       - name: ms4_drainage_areas

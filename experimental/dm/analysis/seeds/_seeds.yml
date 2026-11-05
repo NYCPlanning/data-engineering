@@ -230,3 +230,37 @@ seeds:
         avg_resource_gap: integer
         median_cost: integer
         median_resources: integer
+
+  - name: ahft_school_subdistricts
+    description: >
+      The AHFT_ONLY sheet of the AHFT schools workbook, extracted by scripts/extract_ahft_schools.py: the school
+      subdistricts related to AHFT districts, with No Action primary (PS) and intermediate (IS) school enrollment,
+      seats, and utilization, taken to be projections for 2036. The With Action columns are left out.
+    config:
+      column_types:
+        school_district: integer
+        subdistrict: integer
+        community_districts: varchar
+        ahft_priority: varchar
+        barely_intersects_cd: boolean
+        ps_students: double
+        ps_seats: double
+        ps_utilization: double
+        is_students: double
+        is_seats: double
+        is_utilization: double
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "school_district || '-' || subdistrict"
+    columns:
+      - name: community_districts
+        description: The sheet's CD column as printed, such as "QN 4 + 5".
+      - name: ahft_priority
+        description: The sheet's AHFT priority as printed (A, B, C, or A/C).
+      - name: barely_intersects_cd
+        description: Starred in the sheet, "Subdistrict barely intersects with CD".
+      - name: ps_utilization
+        description: Students over seats, as a fraction, as printed. Some are rounded to 0.001.
+      - name: is_utilization
+        description: Students over seats, as a fraction, as printed. Some are rounded to 0.001.

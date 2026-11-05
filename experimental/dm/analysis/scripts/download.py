@@ -78,6 +78,10 @@ SOURCES = {
         "edm-recipes",
         "datasets/dcp_transit_zones/20251209/dcp_transit_zones.parquet",
     ),
+    "doe_school_subdistricts.parquet": (
+        "edm-recipes",
+        "datasets/doe_school_subdistricts/20250901/doe_school_subdistricts.parquet",
+    ),
     "dcp_housing_ahft.csv": (
         "edm-private",
         "datasets/dcp_housing_ahft/20261002/dcp_housing_ahft.csv",

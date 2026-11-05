@@ -48,6 +48,8 @@ def _(duckdb, mo):
         "dim_community_district_floodplain_2080",
         "dim_borough",
         "dim_tcol_family_type",
+        "dim_school_subdistrict",
+        "dim_community_district_school_subdistrict",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -2188,17 +2190,196 @@ def _(mo):
     (https://www.nycgovparks.org/about/vital-parks/explorer) (This map reflects the percentage of people in each Community Board who live within a 10-minute walk to a chosen element of a vital parks system.)
 
     ...
+    """)
+    return
 
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.vstack(
+        [
+            mo.md("""
     ### Schools
 
-    #### TODO Public School Utilization
+    #### Public School Utilization
 
-    (School subdistricts layer) (Current utilization of individual schools and known Capital Projects in all overlapping subdistrict)
-
-    options: AHFT schools model excel in SharePoint is probably 10-year projection, W drive/CAPS Basemaps, ...
-
-    ...
+    """),
+            mo.accordion(
+                {
+                    "Data notes": mo.md("""
+    - No Action projections from the AHFT schools workbook, taken to be 10 years out.
+    - Only the subdistricts related to AHFT districts have projections. The rest are gray.
+    - Labels mark the subdistricts in the district.
     """)
+                }
+            ),
+        ]
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(con):
+    # whole subdistricts, simplified to about 10 m like the transit zones. Built once rather than for each district.
+    school_subdistrict_geojson = con.sql("""
+        SELECT
+            school_subdistrict_id,
+            subdistrict_name,
+            ps_utilization_2036,
+            is_utilization_2036,
+            map_geojson(geom, 0.0001) AS geojson
+        FROM dim_school_subdistrict
+    """).df()
+    return (school_subdistrict_geojson,)
+
+
+@app.cell(hide_code=True)
+def _(
+    con,
+    district_code,
+    focus_outline,
+    folium,
+    json,
+    mo,
+    school_subdistrict_geojson,
+    selected_district,
+    source_note,
+):
+    # the workbook's own bands
+    utilization_bands = {
+        "Under 90%, low concern": "#1a9850",
+        "90% to 100%, caution": "#fee08b",
+        "Over 100%, alert": "#d73027",
+    }
+
+    def utilization_band(utilization):
+        if utilization != utilization:
+            return None
+        if utilization < 0.9:
+            return "Under 90%, low concern"
+        if utilization <= 1:
+            return "90% to 100%, caution"
+        return "Over 100%, alert"
+
+    # labeled where the subdistrict is more than a sliver of the district
+    school_subdistrict_labels = con.execute(
+        """
+        SELECT
+            overlap.school_subdistrict_id,
+            ST_X(ST_PointOnSurface(subdistrict.geom)) AS lon,
+            ST_Y(ST_PointOnSurface(subdistrict.geom)) AS lat
+        FROM dim_community_district_school_subdistrict AS overlap
+        INNER JOIN dim_school_subdistrict AS subdistrict
+            ON overlap.school_subdistrict_id = subdistrict.school_subdistrict_id
+        WHERE overlap.borocd = ? AND overlap.share_of_district > 0.02
+        """,
+        [selected_district],
+    ).df()
+
+    def school_utilization_map(column, title):
+        utilization = dict(
+            zip(
+                school_subdistrict_geojson["school_subdistrict_id"],
+                school_subdistrict_geojson[column],
+            )
+        )
+        school_map = folium.Map(tiles="Esri.WorldGrayCanvas", zoom_snap=0.25)
+        folium.GeoJson(
+            {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": json.loads(row.geojson),
+                        "properties": {
+                            "band": utilization_band(getattr(row, column)),
+                            "label": f"{row.school_subdistrict_id} {row.subdistrict_name}: "
+                            + (
+                                "no projection"
+                                if getattr(row, column) != getattr(row, column)
+                                else f"{getattr(row, column):.0%}"
+                            ),
+                        },
+                    }
+                    for row in school_subdistrict_geojson.itertuples()
+                ],
+            },
+            name="School subdistricts",
+            style_function=lambda feature: {
+                "fillColor": utilization_bands.get(
+                    feature["properties"]["band"], "#8c8c88"
+                ),
+                "fillOpacity": 0.15 if feature["properties"]["band"] is None else 0.55,
+                "color": "white",
+                "weight": 1.5,
+            },
+            tooltip=folium.GeoJsonTooltip(fields=["label"], labels=False),
+        ).add_to(school_map)
+        district_layer = folium.GeoJson(
+            json.loads(focus_outline),
+            name="District boundary",
+            interactive=False,
+            style_function=lambda _feature: {
+                "fill": False,
+                "color": "#222222",
+                "weight": 3,
+            },
+        ).add_to(school_map)
+        for row in school_subdistrict_labels.itertuples():
+            value = utilization[row.school_subdistrict_id]
+            folium.Marker(
+                [row.lat, row.lon],
+                icon=folium.DivIcon(
+                    icon_size=(0, 0),
+                    html=f"""<div style="transform:translate(-50%,-50%);text-align:center;white-space:nowrap;
+                      font:11px sans-serif;color:#222222;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff">
+                      {row.school_subdistrict_id}<br><b>{"n/a" if value != value else f"{value:.0%}"}</b></div>""",
+                ),
+            ).add_to(school_map)
+        band_rows = "".join(
+            f"""<tr>
+              <td><span style="display:inline-block;width:14px;height:10px;background:{color};opacity:0.8;
+                outline:1px solid #d8d8d4"></span></td>
+              <td style="padding:0 4px">{band}</td>
+            </tr>"""
+            for band, color in [
+                *utilization_bands.items(),
+                ("No projection", "#d8d8d4"),
+            ]
+        )
+        school_map.get_root().html.add_child(
+            folium.Element(f"""
+    <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
+      padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
+      <table style="border-collapse:collapse">
+        <tr><td></td><td style="padding:0 4px 4px 4px;font-weight:600">{title}, {district_code}</td></tr>
+        {band_rows}
+      </table>
+    </div>
+    """)
+        )
+        school_map.fit_bounds(district_layer.get_bounds())
+        return mo.iframe(school_map.get_root().render(), height="500px")
+
+    mo.vstack(
+        [
+            mo.hstack(
+                [
+                    school_utilization_map(
+                        "ps_utilization_2036", "Primary schools, 2036"
+                    ),
+                    school_utilization_map(
+                        "is_utilization_2036", "Intermediate schools, 2036"
+                    ),
+                ],
+                widths="equal",
+                gap=0.5,
+            ),
+            source_note(
+                "Sources: AHFT schools workbook (No Action); SCA school subdistricts (September 2025)"
+            ),
+        ]
+    )
     return
 
 

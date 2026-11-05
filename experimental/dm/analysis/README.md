@@ -16,6 +16,7 @@ It reads published PFF and KPDB files and has its own venv.
 | `dcp_housing` (edm-recipes) | 26Q2 | units built, and housing units by year from the 2020 census through 2025. Newer than the 24Q4 version KPDB 2026-10-01 used, and checked against FHGS homes added 2021-2025 instead |
 | `dcp_cdboundaries`, `dcp_cdta2020`, `dcp_nta2020`, `dcp_ct2020` | 26c | geometry, names, CD to CDTA crosswalk, NTAs, census tracts |
 | `dcp_transit_zones` | 20251209 | transit zones, which set parking requirements |
+| `doe_school_subdistricts` | 20250901 | SCA's school subdistricts |
 | [DEP MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq) (NYC Open Data) | August 1, 2020 | storm sewer drainage areas and outfalls. Its waste facility, stormwater permit, and Bluebelt layers stop at staging for now |
 | [DEP Map of the New York City Wastewater System](https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf) | 2025 | the table of Wastewater Resource Recovery Facilities (WRRFs) and their functions. Extracted to `seeds/` by `scripts/extract_dep_wastewater_map.py` |
 | [DEP Wastewater Treatment Plant Performance Data](https://data.cityofnewyork.us/d/hgue-hj96) (NYC Open Data) | 2015 to July 2025 | monthly flow and effluent by WRRF, from every report file on the page |
@@ -25,6 +26,7 @@ It reads published PFF and KPDB files and has its own venv.
 | [HPD Housing and Vacancy Survey](https://www.nyc.gov/site/hpd/about/research.page) public use files | 2021, 2023 | household size in buildings built before and after 2010, by borough. Downloaded from nyc.gov |
 | [Fair Housing Growth Strategy](https://wherewelive.cityofnewyork.us/wp-content/uploads/2026/10/Fair-Housing-Growth-Strategy-Final-Report.pdf) final report | October 2026 | growth cohorts, 2016-2025 growth rates, homes in 2025, homes added 2021-2025, and 2030 targets, from the 2030 targets tables, Appendix B, and Figure 3.2. Extracted to `seeds/` |
 | [NYC True Cost of Living report](https://www.nyc.gov/assets/equity/downloads/pdf/2026-NYC-TCOL-Report.pdf) | 2026 (2022 data) | TCOL thresholds by family type, and the share of residents not meeting them by group and borough. Extracted to `seeds/` by `scripts/extract_tcol.py` |
+| AHFT schools workbook (`AHFT Schools Analysis.xlsx`, not public) | No Action, taken to be 2036 | primary and intermediate school enrollment, seats, and utilization for the 30 subdistricts related to AHFT districts, from its AHFT_ONLY sheet. Extracted to `seeds/` by `scripts/extract_ahft_schools.py` |
 
 Housing units through 2025 come from `dcp_housing` 26Q2. KPDB 2026-10-01 was built on 24Q4, so only its projection is used, added to the end of 2024 from 26Q2.
 Neither source projects population.
@@ -47,6 +49,8 @@ python scripts/extract_fhgs.py data/sources/fhgs.pdf
 | `dim_borough` | borough, with TCOL rates |
 | `dim_tcol_family_type` | TCOL family type, with its median threshold and rates |
 | `dim_transit_zone` | transit zone, with geometry |
+| `dim_school_subdistrict` | school subdistrict (school_subdistrict_id), with 2036 utilization and geometry |
+| `dim_community_district_school_subdistrict` | borocd x school_subdistrict_id, the piece of a district in each subdistrict |
 | `dim_nta_neighbor` | nta2020 x neighbor_nta2020, every pair of NTAs that touch |
 | `dim_community_district_transit_zone` | borocd x transit_zone, the piece of a district in each zone |
 | `dim_ms4_drainage_area` | MS4 drainage area, every column but geometry, with geometry |
