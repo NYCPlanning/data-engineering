@@ -11,7 +11,9 @@ models:
 
 - name: int__segment_locational_status
   description: |
-    Centerline segments with Locational Status & Borough Boundary Indicator columns.
+    Centerline segments with Locational Status & Borough Boundary Indicator columns. The
+    locational status comes two ways, prod's (2010 census tracts) and the spec's (2020
+    census tracts); var fix_seg_loc_status_2020_tract picks one (CSCL-LION-11).
   columns:
   - name: segmentid
     description: "Segment id."
@@ -32,8 +34,12 @@ models:
         values: [ false ]
       config:
         severity: warn
+  - name: prod_segment_locational_status
+    description: "Prod's segment locational status: X where the left and right AtomicPolygons, in the same borough, have different 2010 census tracts (CenterlineExtractFile.cs:1447-1452, issue #2193)."
+  - name: spec_segment_locational_status
+    description: "The spec's segment locational status: as prod_segment_locational_status, but X where their 2020 census tracts differ (CSCL-LION-11)."
   - name: segment_locational_status
-    description: "LION segment locational status code. Uses 2010 census tracts, as prod does (issue #2193)."
+    description: "LION segment locational status code (L41): prod_segment_locational_status, or spec_segment_locational_status with the var fix_seg_loc_status_2020_tract on."
     tests:
     - test_name: accepted_values
       arguments:
@@ -148,6 +154,53 @@ models:
     class. gdb_lion writes it as SegCount, capped at 9 (CSCL-LOG-BYTES-12 logs the cap).
 
 unit_tests:
+- name: test__int__segment_locational_status__tract__prod
+  description: >-
+    Default (fix_seg_loc_status_2020_tract false): prod's 2010 tracts. Each segment has two
+    AtomicPolygons in the same borough. Segment 1's 2010 tracts differ and its 2020 tracts
+    don't; segment 2's the other way round; segment 3's both differ; segment 4's neither.
+  model: int__segment_locational_status
+  overrides:
+    vars:
+      fix_seg_loc_status_2020_tract: false
+  given: &seg_loc_status_tract_given
+  - input: ref('int__segment_atomicpolygons')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('g1', 'k1', 1, 1, 'a1', 1, '000100', '000100', 'b1', 1, '000200', '000100'),
+        ('g2', 'k2', 2, 1, 'a2', 1, '000100', '000100', 'b2', 1, '000100', '000201'),
+        ('g3', 'k3', 3, 1, 'a3', 1, '000100', '000100', 'b3', 1, '000200', '000200'),
+        ('g4', 'k4', 4, 1, 'a4', 1, '000100', '000100', 'b4', 1, '000100', '000100')
+      ) AS t (
+        globalid, lionkey, segmentid, segment_borocode,
+        left_atomicid, left_borocode, left_2010_census_tract, left_2020_census_tract,
+        right_atomicid, right_borocode, right_2010_census_tract, right_2020_census_tract
+      )
+  - input: ref('int__segments_to_nodes')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES ('g1', 1)) AS t (globalid, nodeid)
+  expect:
+    rows:
+    - {segmentid: 1, prod_segment_locational_status: X, spec_segment_locational_status: null, segment_locational_status: X}
+    - {segmentid: 2, prod_segment_locational_status: null, spec_segment_locational_status: X, segment_locational_status: null}
+    - {segmentid: 3, prod_segment_locational_status: X, spec_segment_locational_status: X, segment_locational_status: X}
+    - {segmentid: 4, prod_segment_locational_status: null, spec_segment_locational_status: null, segment_locational_status: null}
+- name: test__int__segment_locational_status__tract__spec
+  description: >-
+    fix_seg_loc_status_2020_tract true: the same segments, by the spec's 2020 tracts.
+  model: int__segment_locational_status
+  overrides:
+    vars:
+      fix_seg_loc_status_2020_tract: true
+  given: *seg_loc_status_tract_given
+  expect:
+    rows:
+    - {segmentid: 1, prod_segment_locational_status: X, spec_segment_locational_status: null, segment_locational_status: null}
+    - {segmentid: 2, prod_segment_locational_status: null, spec_segment_locational_status: X, segment_locational_status: X}
+    - {segmentid: 3, prod_segment_locational_status: X, spec_segment_locational_status: X, segment_locational_status: X}
+    - {segmentid: 4, prod_segment_locational_status: null, spec_segment_locational_status: null, segment_locational_status: null}
 # CSCL-LION-03. Shoreline S1 is one arc end to end, densified to 5 points: 2 source points,
 # so prod writes blank and the fix I. S2 is two arcs (3 source points) and S3 a 2-point
 # line: both rules agree. P1 is S1's proto-segment and counts S1's shape. Rail R1 has the

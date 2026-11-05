@@ -61,6 +61,7 @@ WITH log_rows AS (
         ref("log__district_invalid_polygons"),
         ref("log__tract_source_keys"),
         ref("log__rpl_roadbed_order"),
+        ref("log__seg_loc_status_tract"),
     ], column_override={"record_id": "varchar"}) }}
 )
 

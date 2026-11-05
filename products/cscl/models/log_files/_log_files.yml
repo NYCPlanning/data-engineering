@@ -291,6 +291,15 @@ models:
     i.e. what the var fix_rpl_roadbed_order changes (CSCL-RPL-02), and whether it is on in
     this build.
 
+- name: log__seg_loc_status_tract
+  description: >-
+    CSCL-LOG-OURS-27, every build: one row with the number of segment records whose segment
+    locational status (LION L41, LION gdb LocStatus) differs between prod's rule ('X' where
+    the left and right AtomicPolygons, in the same borough, have different 2010 census
+    tracts) and the spec's (their 2020 tracts), i.e. what the var
+    fix_seg_loc_status_2020_tract changes (CSCL-LION-11), and whether it is on in this
+    build.
+
 - name: log__boe_lgc_pointer
   description: >-
     CSCL-LOG-OURS-06, every build: one row with the number of LION records whose BOE LGC
@@ -684,6 +693,40 @@ unit_tests:
     - log_message_id: CSCL-LOG-OURS-26
       record_count: 1
       message: "1 RPL generics (2 roadbed rows) have their roadbeds in a different order by prod's rule (each roadbed on the side of the generic its midpoint lies on, outermost first) than by the spec's (R, inner roadbeds on its side, L, the other inner roadbeds, by ROADBED_POSITION_CODE). The spec's roadbed order is ON in this build (fix_rpl_roadbed_order = true): RPL.txt has the spec's order (CSCL-RPL-02)"
+# CSCL-LOG-OURS-27. Segment 1 is X by the 2010 tracts only, segment 2 by the 2020 tracts
+# only; segment 3's rules agree.
+- name: test__log__seg_loc_status_tract__off
+  description: "Default (fix_seg_loc_status_2020_tract false): counts the segments whose status differs, OFF."
+  model: log__seg_loc_status_tract
+  overrides:
+    vars:
+      fix_seg_loc_status_2020_tract: false
+  given: &seg_loc_status_tract_log_given
+  - input: ref('int__segment_locational_status')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        (1, 'X', NULL),
+        (2, NULL, 'X'),
+        (3, 'X', 'X')
+      ) AS t (segmentid, prod_segment_locational_status, spec_segment_locational_status)
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-27
+      record_count: 2
+      message: "2 segment records (1 X by the 2010 tracts only, 1 by the 2020 tracts only) get a different segment locational status by prod's rule (X where the left and right AtomicPolygons' 2010 census tracts differ) than by the spec's (their 2020 tracts). The spec's 2020 tracts are OFF in this build (fix_seg_loc_status_2020_tract = false): L41 and LocStatus compare the 2010 tracts, as prod (CSCL-LION-11)"
+- name: test__log__seg_loc_status_tract__on
+  description: "fix_seg_loc_status_2020_tract true: the same count, ON."
+  model: log__seg_loc_status_tract
+  overrides:
+    vars:
+      fix_seg_loc_status_2020_tract: true
+  given: *seg_loc_status_tract_log_given
+  expect:
+    rows:
+    - log_message_id: CSCL-LOG-OURS-27
+      record_count: 2
+      message: "2 segment records (1 X by the 2010 tracts only, 1 by the 2020 tracts only) get a different segment locational status by prod's rule (X where the left and right AtomicPolygons' 2010 census tracts differ) than by the spec's (their 2020 tracts). The spec's 2020 tracts are ON in this build (fix_seg_loc_status_2020_tract = true): L41 and LocStatus compare the 2020 tracts (CSCL-LION-11)"
 # CSCL-LOG-OURS-24. Two non-SAF rows (no SpecAddr) and one SAF replicant.
 - name: test__log__lion_join_id_padding__off
   description: "Default (pad_lion_join_id false): counts the non-SAF lion layer rows, OFF."

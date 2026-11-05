@@ -523,7 +523,7 @@ Segment Locational Status (L41) is largely based on joined atomic polygons and r
   - Otherwise, SegLocStatus = 'H'
 - If the left and right AP’s belong to two different boroughs, SegLocStatus should be set as the borough code that differs from that of the segment itself. For example, if the segment contains a Borough Code of ‘3’ (= Brooklyn), and the Borough Code of the left AP is ‘3’, and the Borough Code of the right AP is ‘4’ (= Queens), then the segment is a Brooklyn segment lying along the border with Queens; the ETL tool will populate L41 with the value ‘4’. 
 - If the left and right AP’s belong to the same borough, but the CENSUSTRACT2020 attributes of the left and right AP’s differ, SegLocStatus = ‘X’.
-  - NOTE as a bug in the prod tool, censustract2010 is currently used. This should be resolved at some point
+  - NOTE prod compares CENSUSTRACT_2010 instead (CenterlineExtractFile.cs:1447-1452), and so do we by default: `prod_segment_locational_status`. The spec's 2020 comparison is `spec_segment_locational_status`, used with the dbt var `fix_seg_loc_status_2020_tract` on (CSCL-LION-11). Every build logs how many segments the var would change (CSCL-LOG-OURS-27).
 - Otherwise, it is null
 
 #### Special Address Flag

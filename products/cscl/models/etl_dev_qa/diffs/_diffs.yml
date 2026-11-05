@@ -106,7 +106,7 @@ models:
     match on the other side are re-paired on SegmentID|Join_ID|#rank so a
     house-number difference shows as modified rows rather than only_in pairs.
     diff_group names the cause of each modified row; accounted_for is true when
-    every changed field has a known cause (CSCL-LION-01 to 05, 14 to 16, 24 to 29,
+    every changed field has a known cause (CSCL-LION-01 to 05, 11, 14 to 16, 24 to 29,
     CSCL-SAF-03, 06). CSCL-LION-14 covers SegCount only on a centerline with another
     centerline on the same nodes within 0.0005 ft; CSCL-LION-05 covers a non-street
     SeqNum only with lion_gdb_seqnum_extract_sessions set to the LION .dat files' sessions
@@ -115,7 +115,8 @@ models:
     zero_generic_house_numbers, zero_f_segment_house_numbers or
     zero_feature_type_house_numbers on; CSCL-LION-25, 26 and CSCL-SAF-03 only with
     fix_hyphen_r_high_house_number, fix_reversed_proto_census_fields and
-    fix_blank_type_altsegmentdata on. A one-sided row is accounted for when
+    fix_blank_type_altsegmentdata on; CSCL-LION-11 covers LocStatus only with
+    fix_seg_loc_status_2020_tract on. A one-sided row is accounted for when
     one_sided_cause names a known difference for it (CSCL-SAF-03's B replicant,
     CSCL-SAF-06's CommonPlace replicants). Other house numbers, zips, other SegCount
     and Street are categorized but left unaccounted.
