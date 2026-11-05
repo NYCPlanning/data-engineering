@@ -109,13 +109,3 @@ columns:
   name: Shape_Area
   data_type: decimal
   description: ""
-- id: shape_starea
-  name: Shape_STArea
-  data_type: decimal
-  description: ""
-- id: shape_stleng
-  name: Shape_STLength
-  data_type: decimal
-  description: ""
-  custom:
-    api_name: shape_stlength
