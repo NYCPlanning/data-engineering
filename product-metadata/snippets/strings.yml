@@ -86,6 +86,7 @@ current_version_waterfront_revitalization_program: 2016.1
 current_version_zap: 20260706
 current_version_zoning: 202607
 current_version_zoning_map_index:
+current_version_ztl: 20260930
 
 # Test variables for dcpy test suite
 test_product_freq: Test Product Frequency
