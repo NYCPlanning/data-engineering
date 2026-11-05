@@ -6,48 +6,85 @@ inputs:
   missing_versions_strategy: find_latest
   datasets:
     - name: dcp_councildistricts_wi
+      version: 26c
     - name: dcp_cb2010_wi
+      version: 26c
     - name: dcp_cb2020_wi
+      version: 26c
     - name: dcp_cdboundaries_wi
+      version: 26c
     - name: dcp_colp
+      version: 20260430
     - name: dcp_commercialoverlay
+      version: 20260930
     - name: dcp_ct2010_wi
+      version: 26c
     - name: dcp_ct2020_wi
+      version: 26c
     - name: dcp_developments # only used for data tests
+      version: 26Q2.1
     - name: dcp_edesignation
+      version: 20261014
     - name: dcp_firecompanies
+      version: 26c
     - name: dcp_gis_mandatory_inclusionary_housing
+      version: 20260930
     - name: dcp_transit_zones
+      version: 20251209
     - name: dcp_healthareas
+      version: 26c
     - name: dcp_healthcenters
+      version: 26c
     - name: dcp_limitedheight
+      version: 20260930
     - name: dcp_pluto
       # this env var is set in dcpy/builds/plan.py in a slightly hacky way for now
       version_env_var: VERSION_PREV
       import_as: previous_pluto
     - name: dcp_pfirms
+      version: 20260316
     - name: dcp_policeprecincts
+      version: 26c
     - name: dcp_school_districts
+      version: 26c
     - name: dcp_specialpurpose
+      version: 20260930
     - name: dcp_specialpurposesubdistricts
+      version: 20260930
     - name: dcp_zoningdistricts
+      version: 20260930
     - name: dcp_zoningmapamendments
+      version: 20260930
     - name: dcp_zoningmapindex
+      version: 20190701
     - name: dof_condo
+      version: 20261002
     - name: dof_dtm
+      version: 20261002
     - name: dof_shoreline
+      version: 20220429
     - name: doitt_zipcodeboundaries
+      version: 20140401
       file_type: parquet
     - name: dpr_greenthumb
+      version: 20261021
     - name: dsny_frequencies
+      version: 20260922
     - name: fema_firms2007_100yr
+      version: 20260316
       file_type: parquet
     - name: lpc_historic_districts
+      version: 20260203
     - name: lpc_landmarks
+      version: 20260618
     - name: pluto_input_cama_dof
+      version: 20261026
     - name: pluto_input_geocodes
+      version: 20261026
     - name: pluto_input_numbldgs
+      version: 20261025
     - name: pluto_pts
+      version: 20261026
 
 stage_config:
   builds.build:
