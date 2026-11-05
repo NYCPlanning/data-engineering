@@ -25,9 +25,9 @@ assembly:
   type: zip
   contents:
   - id: zoning_tax_lot_database_readme.pdf
-    filename: zoning_tax_lot_database_readme.pdf
+    filename: zoningtaxlotdatabase_datadictionary.pdf
   - id: primary_csv
-    filename: zoning_tax_lot_database.csv
+    filename: NY_ZoningTaxLotDB{{ current_version_ztl }}.csv
 
 custom: {}
 
