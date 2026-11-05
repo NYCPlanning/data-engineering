@@ -287,6 +287,14 @@ vars:
   # L, the inner roadbeds on the other side. Logged every build as CSCL-LOG-OURS-26
   # (67 of 13,658 generics, 154 rows, on 26c).
   fix_rpl_roadbed_order: false
+  # Segment locational status 'X' (LION L41, LION gdb LocStatus), CSCL-LION-11: where a
+  # segment's left and right AtomicPolygons differ and are in the same borough, prod writes
+  # 'X' when their CENSUSTRACT_2010 differs (CenterlineExtractFile.cs:1447-1452,
+  # GetSegmentLocationalStatus; issue #2193), where the spec (ETL spec L1942-1945) says
+  # CENSUSTRACT2020. true compares the 2020 tracts. Logged every build as
+  # CSCL-LOG-OURS-27 (8,215 segment records on 26c; with it on, 8,026 LION .dat records
+  # and 8,705 LION gdb rows change).
+  fix_seg_loc_status_2020_tract: false
   # AtomicPolygon topology (models/intermediate/atomicpolygon_topology) and the district
   # boundaries built from it (macros/district_boundary.sql).
   #

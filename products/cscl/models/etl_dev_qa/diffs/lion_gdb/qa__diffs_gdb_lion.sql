@@ -39,6 +39,16 @@ topology_lr_segments AS (
             OR right_atomicid IS DISTINCT FROM probe_right_atomicid
         )
 ),
+-- CSCL-LION-11: segments whose LocStatus is the spec's (2020 tracts) and not prod's (2010
+-- tracts). A difference only with fix_seg_loc_status_2020_tract on: off (the default)
+-- this is empty, so a LocStatus diff is unaccounted.
+seg_loc_tract_segments AS (
+    SELECT DISTINCT lpad(segmentid::text, 7, '0') AS segmentid
+    FROM {{ ref('int__segment_locational_status') }}
+    WHERE
+        {{ 'TRUE' if var('fix_seg_loc_status_2020_tract') else 'FALSE' }}
+        AND prod_segment_locational_status IS DISTINCT FROM spec_segment_locational_status
+),
 -- CSCL-LION-14 (gdb SegCount): centerlines with another centerline on the same two nodes
 -- whose geometry is within 0.0005 ft of theirs. gdb_lion counts a pair as coincident within
 -- var segcount_coincident_tolerance_ft (0.0003 ft); prod's Esri shape-equality test counts
@@ -183,6 +193,7 @@ with_context AS (
         b.segmenttyp,
         split_part(d._gdb_lion_key, '|', 1) AS segmentid,
         tlr.segmentid IS NOT NULL AS is_topology_lr_segment,
+        sls.segmentid IS NOT NULL AS is_seg_loc_tract_segment,
         ncc.segmentid IS NOT NULL AS has_near_coincident_centerline,
         coalesce(bta.n_rows, 0) AS n_blank_type_altsegmentdata,
         coalesce(vcp.n_rows, 0) AS n_vintage_commonplaces,
@@ -230,6 +241,7 @@ with_context AS (
             split_part(d._gdb_lion_key, '|', 1) = hrr.segmentid
             AND split_part(d._gdb_lion_key, '|', 2) = hrr.join_id
     LEFT JOIN topology_lr_segments AS tlr ON split_part(d._gdb_lion_key, '|', 1) = tlr.segmentid
+    LEFT JOIN seg_loc_tract_segments AS sls ON split_part(d._gdb_lion_key, '|', 1) = sls.segmentid
     LEFT JOIN near_coincident_centerlines AS ncc ON split_part(d._gdb_lion_key, '|', 1) = ncc.segmentid
     LEFT JOIN blank_type_altsegmentdata AS bta ON split_part(d._gdb_lion_key, '|', 1) = bta.segmentid
     LEFT JOIN vintage_commonplaces AS vcp ON split_part(d._gdb_lion_key, '|', 1) = vcp.segmentid
@@ -398,6 +410,10 @@ field_causes AS (
                     ELSE w.prod_dat_r_pd_service_area
                 END
                 THEN 'CSCL-LION-28: PD service area, prod gdb contradicts prod .dat'
+            -- CSCL-LION-11: LocStatus X by the 2020 census tracts, not prod's 2010, with
+            -- fix_seg_loc_status_2020_tract on (is_seg_loc_tract_segment is false with it off)
+            WHEN f.key = 'locstatus' AND w.is_seg_loc_tract_segment
+                THEN 'CSCL-LION-11: LocStatus by 2020 tracts'
             WHEN
                 (
                     regexp_matches(f.key, '^[lr](ct|cb)(2020|2010|2000|1990)(suf)?$')
@@ -448,17 +464,17 @@ cause_summary AS (
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) IN (
                 'CSCL-LION-01', 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05',
-                'CSCL-LION-14', 'CSCL-LION-15', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25',
-                'CSCL-LION-26', 'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-LION-29', 'CSCL-SAF-03',
-                'CSCL-SAF-06'
+                'CSCL-LION-11', 'CSCL-LION-14', 'CSCL-LION-15', 'CSCL-LION-16', 'CSCL-LION-24',
+                'CSCL-LION-25', 'CSCL-LION-26', 'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-LION-29',
+                'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS explained_causes,
         array_agg(DISTINCT cause) FILTER (
             WHERE split_part(cause, ':', 1) NOT IN (
                 'CSCL-LION-01', 'CSCL-LION-02', 'CSCL-LION-03', 'CSCL-LION-04', 'CSCL-LION-05',
-                'CSCL-LION-14', 'CSCL-LION-15', 'CSCL-LION-16', 'CSCL-LION-24', 'CSCL-LION-25',
-                'CSCL-LION-26', 'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-LION-29', 'CSCL-SAF-03',
-                'CSCL-SAF-06'
+                'CSCL-LION-11', 'CSCL-LION-14', 'CSCL-LION-15', 'CSCL-LION-16', 'CSCL-LION-24',
+                'CSCL-LION-25', 'CSCL-LION-26', 'CSCL-LION-27', 'CSCL-LION-28', 'CSCL-LION-29',
+                'CSCL-SAF-03', 'CSCL-SAF-06'
             )
         ) AS open_causes
     FROM field_causes

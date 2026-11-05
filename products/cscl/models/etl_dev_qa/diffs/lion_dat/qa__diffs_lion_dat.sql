@@ -26,6 +26,9 @@
 -- fix_coincident_seg_count on; a subway or rail segment's (prod's shape-equality test against
 -- centerlines, which no rule of ours reproduces on 2 segments on 26c) either way.
 {%- set coincident_fix_on = 'TRUE' if var('fix_coincident_seg_count') else 'FALSE' %}
+-- CSCL-LION-11 (segment locational status 'X' by 2020 census tracts) likewise, with
+-- fix_seg_loc_status_2020_tract.
+{%- set seg_loc_tract_fix_on = 'TRUE' if var('fix_seg_loc_status_2020_tract') else 'FALSE' %}
 
 WITH base_diffs AS (
   {{ generate_diff_summary(
@@ -68,6 +71,16 @@ topology_lr_segments AS (
             OR right_atomicid IS DISTINCT FROM probe_right_atomicid
         )
     GROUP BY segmentid
+),
+-- CSCL-LION-11: segments whose locational status is the spec's (2020 tracts) and not
+-- prod's (2010 tracts). Empty with fix_seg_loc_status_2020_tract off, so a
+-- segment_locational_status diff is unaccounted.
+seg_loc_tract_segments AS (
+    SELECT DISTINCT segmentid
+    FROM {{ ref('int__segment_locational_status') }}
+    WHERE
+        {{ seg_loc_tract_fix_on }}
+        AND prod_segment_locational_status IS DISTINCT FROM spec_segment_locational_status
 ),
 -- CSCL-LION-14: segments with a subway/rail-centerline coincidence candidate, from either
 -- side (centerline matched to a subway/rail, or a subway/rail matched to a centerline)
@@ -194,10 +207,17 @@ categorized AS (
                     )
                 )
             ))
-        ) AS is_coincident_rail_change
+        ) AS is_coincident_rail_change,
+        -- CSCL-LION-11: only segment_locational_status changed, on a segment whose status is
+        -- the spec's (2020 tracts), with fix_seg_loc_status_2020_tract on
+        (
+            sls.segmentid IS NOT NULL
+            AND JSON_KEYS(changes) = ARRAY['segment_locational_status']
+        ) AS is_seg_loc_tract_change
     FROM with_borough
     LEFT JOIN topology_lr_segments AS tlr ON RIGHT(with_borough._lion_key, 7)::INT = tlr.segmentid
     LEFT JOIN coincident_rail_segments AS crs ON RIGHT(with_borough._lion_key, 7)::INT = crs.segmentid
+    LEFT JOIN seg_loc_tract_segments AS sls ON RIGHT(with_borough._lion_key, 7)::INT = sls.segmentid
     LEFT JOIN logged_lion_records AS llr ON with_borough._lion_key = llr.lion_key
 )
 SELECT
@@ -272,6 +292,10 @@ SELECT
         -- CSCL-LION-14
         WHEN status = 'modified' AND is_coincident_rail_change
             THEN 'CSCL-LION-14: subway/rail coincident_seg_count'
+        -- CSCL-LION-11: X by the 2020 census tracts, not prod's 2010, with
+        -- fix_seg_loc_status_2020_tract on. See CSCL-LION-11
+        WHEN status = 'modified' AND is_seg_loc_tract_change
+            THEN 'CSCL-LION-11: segment_locational_status by 2020 tracts'
         -- CSCL-LION-16: left/right AP from the AP topology, where prod's 2 ft probe
         -- overshoots the adjacent AP. See CSCL-LION-16.
         WHEN status = 'modified' AND is_topology_lr_change
@@ -343,6 +367,9 @@ SELECT
             -- CSCL-LION-16: left/right AP from the AP topology instead of the 2 ft probe.
             -- See CSCL-LION-16.
             OR is_topology_lr_change
+            -- CSCL-LION-11: X by the 2020 census tracts, with fix_seg_loc_status_2020_tract
+            -- on. See CSCL-LION-11
+            OR is_seg_loc_tract_change
         ),
         FALSE
     ) AS accounted_for
