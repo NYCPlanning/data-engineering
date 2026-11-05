@@ -142,6 +142,37 @@ sources:
         config:
           external_location: "ST_Read('./data/sources/npcc_floodplain_2080_100yr.geojson')"
 
+      # DOT's Vision Zero View layers on NYC Open Data, as GeoJSON in EPSG:4326, downloaded as of their November 2026
+      # update. Open Data keeps no versions, so a fresh download can differ.
+      - name: vzv_priority_corridors
+        description: >
+          Pedestrian priority corridors (36nr-7fbp) from the Borough Pedestrian Safety Action Plans: each borough's
+          corridors ranked by pedestrian killed and severely injured (KSI) per mile, taken from the top until they
+          held half the borough's pedestrian KSI. No names or IDs.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_priority_corridors.geojson')"
+
+      - name: vzv_priority_intersections
+        description: >
+          Pedestrian priority intersections (tmt9-43em): the intersections with the most pedestrian KSI, together
+          holding 15% of each borough's pedestrian KSI. Broadway and West 230 Street is in it twice.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_priority_intersections.geojson')"
+
+      - name: vzv_sip_corridors
+        description: >
+          Street Improvement Projects on corridors (if4c-w48d): DOT's operational (non-capital) safety projects
+          since 2009. One row per project name and year.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_sip_corridors.geojson')"
+
+      - name: vzv_sip_intersections
+        description: >
+          Street Improvement Projects at intersections (shr7-eqdc), as multipoints. One row per project name and
+          year, and no project name is also in vzv_sip_corridors.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_sip_intersections.geojson')"
+
       - name: dep_wastewater_performance
         description: >
           One row per facility per report sheet, January 2015 to July 2025 with March to December 2017 missing.

@@ -498,6 +498,42 @@ models:
         config:
           meta:
             display_name: "People per acre"
+      - name: priority_corridor_miles
+        description: >
+          Miles of Vision Zero pedestrian priority corridor within 50 feet of the district, so a corridor along the
+          district's edge counts for the districts on both sides.
+        config:
+          meta:
+            display_name: "Priority corridor miles"
+      - name: priority_corridor_miles_with_project
+        description: >
+          The part of priority_corridor_miles within 50 feet of a Street Improvement Project corridor, any year. 50
+          feet because projects on wide boulevards are often drawn on a different carriageway than the corridor.
+        config:
+          meta:
+            display_name: "Priority corridor miles with a project"
+      - name: priority_intersections
+        description: Vision Zero pedestrian priority intersections within 50 feet of the district.
+        config:
+          meta:
+            display_name: "Priority intersections"
+      - name: priority_intersections_with_project
+        description: Of priority_intersections, those within 50 feet of a Street Improvement Project (corridor or intersection), any year.
+        config:
+          meta:
+            display_name: "Priority intersections with a project"
+      - name: street_improvement_projects_2009_2026
+        description: >
+          DOT Street Improvement Projects (corridors and intersections) within 50 feet of the district, 2009 through
+          the 2026 projects published so far.
+        config:
+          meta:
+            display_name: "Street improvement projects, 2009-2026"
+      - name: street_improvement_projects_2021_2026
+        description: The same, for projects with a sip_year of 2021 or later.
+        config:
+          meta:
+            display_name: "Street improvement projects, 2021-2026"
       - name: geom
         description: Community district boundary clipped to the shoreline (dcp_cdboundaries 26c), EPSG:4326.
         data_tests: [not_null]
@@ -1436,6 +1472,53 @@ models:
         description: overlap_acres / district_acres.
       - name: share_of_subdistrict
         description: overlap_acres / subdistrict_acres.
+
+  - name: dim_vision_zero_priority_corridor
+    description: >
+      One row per Vision Zero pedestrian priority corridor (NYC Open Data 36nr-7fbp): each borough's streets ranked by
+      pedestrian killed and severely injured (KSI) per mile, from the top until they held half the borough's
+      pedestrian KSI. From the Borough Pedestrian Safety Action Plans.
+    columns:
+      - name: priority_corridor_id
+        description: An MD5 hash of the geometry, since the source has no IDs or names.
+        data_tests: [unique, not_null]
+      - name: miles
+        description: Length in miles, measured in EPSG:2263.
+      - name: geom
+        data_tests: [not_null]
+
+  - name: dim_vision_zero_priority_intersection
+    description: >
+      One row per Vision Zero pedestrian priority intersection (NYC Open Data tmt9-43em): the intersections with the
+      most pedestrian KSI, together holding 15% of each borough's pedestrian KSI.
+    columns:
+      - name: priority_intersection_id
+        description: street_1 and street_2.
+        data_tests: [unique, not_null]
+      - name: geom
+        data_tests: [not_null]
+
+  - name: dim_street_improvement_project
+    description: >
+      One row per DOT Street Improvement Project (SIP), corridors (NYC Open Data if4c-w48d) and intersections
+      (shr7-eqdc): operational (non-capital) safety projects from 2009 on, such as signals, markings, and concrete.
+    columns:
+      - name: street_improvement_project_id
+        description: Project name and SIP year.
+        data_tests: [unique, not_null]
+      - name: project_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Corridor", "Intersection"]
+      - name: sip_year
+        description: The project's year in the source. end_date is often in the year after.
+        data_tests: [not_null]
+      - name: end_date
+        description: Missing for one project.
+      - name: geom
+        description: Multilines for corridors, multipoints for intersections.
+        data_tests: [not_null]
 
   - name: dim_ms4_drainage_area
     description: >

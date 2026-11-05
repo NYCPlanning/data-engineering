@@ -79,6 +79,12 @@ SELECT
     components.population_change_from_group_quarters_2010_2020_pts,
     density.land_acres,
     density.people_per_acre,
+    vision_zero.priority_corridor_miles,
+    vision_zero.priority_corridor_miles_with_project,
+    vision_zero.priority_intersections,
+    vision_zero.priority_intersections_with_project,
+    vision_zero.street_improvement_projects_2009_2026,
+    vision_zero.street_improvement_projects_2021_2026,
     spine.geom
 FROM {{ ref('int_cd_spine') }} AS spine
 LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd
@@ -91,4 +97,5 @@ LEFT JOIN {{ ref('int_cd_growth_metrics') }} AS growth ON spine.borocd = growth.
 LEFT JOIN {{ ref('int_cd_unit_completion_metrics') }} AS built ON spine.borocd = built.borocd
 LEFT JOIN {{ ref('int_cd_kpdb_projection_metrics') }} AS kpdb ON spine.borocd = kpdb.borocd
 LEFT JOIN {{ ref('int_cd_population_change_components') }} AS components ON spine.borocd = components.borocd
+LEFT JOIN {{ ref('int_cd_vision_zero_metrics') }} AS vision_zero ON spine.borocd = vision_zero.borocd
 ORDER BY spine.borocd

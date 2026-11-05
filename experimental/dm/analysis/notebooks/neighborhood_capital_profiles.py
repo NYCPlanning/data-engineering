@@ -50,6 +50,9 @@ def _(duckdb, mo):
         "dim_tcol_family_type",
         "dim_school_subdistrict",
         "dim_community_district_school_subdistrict",
+        "dim_vision_zero_priority_corridor",
+        "dim_vision_zero_priority_intersection",
+        "dim_street_improvement_project",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -922,10 +925,10 @@ def _(
         tcol_borough = con.execute(
             "SELECT boro_name, tcol_pct_not_meeting FROM dim_borough WHERE boro_code = ?",
             [selected_district // 100],
-        ).fetchone()
+        ).fetchall()[0]
         tcol_lowest, tcol_highest = con.execute(
             "SELECT min(median_cost), max(median_cost) FROM dim_tcol_family_type"
-        ).fetchone()
+        ).fetchall()[0]
         map_notes = [
             mo.accordion(
                 {
@@ -1680,6 +1683,258 @@ def _(mo):
     mo.vstack(
         [
             mo.md("""
+    #### Streets
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - Priority corridors: streets in each borough where the most pedestrians were killed or severely injured (KSI) per mile.
+    - Priority intersections: intersections in each borough with the highest number of pedestrian KSI.
+    - Street Improvement Projects: DOT's operational (non-capital) safety projects, such as signals, markings, and concrete, 2009 to 2026.
+    - Legend counts include streets within 50 feet of the district, so streets along its edge count.
+    - A priority street has a project when one is within 50 feet, since projects on wide boulevards are often drawn on the other side.
+    """),
+                }
+            ),
+        ]
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(con):
+    # simplified to about 10 m like the transit zones, with bounding boxes so each map takes only what's near its
+    # district. Built once rather than for each district.
+    priority_corridor_geojson = con.sql("""
+        SELECT ST_XMin(geom) AS xmin, ST_XMax(geom) AS xmax, ST_YMin(geom) AS ymin, ST_YMax(geom) AS ymax,
+            map_geojson(geom, 0.0001) AS geojson
+        FROM dim_vision_zero_priority_corridor
+    """).df()
+    priority_intersection_points = con.sql("""
+        SELECT priority_intersection_id, ST_X(geom) AS lon, ST_Y(geom) AS lat FROM dim_vision_zero_priority_intersection
+    """).df()
+    street_project_geojson = con.sql("""
+        SELECT street_improvement_project_id, sip_year,
+            ST_XMin(geom) AS xmin, ST_XMax(geom) AS xmax, ST_YMin(geom) AS ymin, ST_YMax(geom) AS ymax,
+            map_geojson(geom, 0.0001) AS geojson
+        FROM dim_street_improvement_project
+        WHERE project_type = 'Corridor'
+    """).df()
+    # one row per point, since folium's GeoJson markers fail on multipoints
+    street_project_points = con.sql("""
+        SELECT street_improvement_project_id, sip_year, ST_X(point) AS lon, ST_Y(point) AS lat
+        FROM (
+            SELECT street_improvement_project_id, sip_year, unnest(ST_Dump(geom)).geom AS point
+            FROM dim_street_improvement_project
+            WHERE project_type = 'Intersection'
+        )
+    """).df()
+    return (
+        priority_corridor_geojson,
+        priority_intersection_points,
+        street_project_geojson,
+        street_project_points,
+    )
+
+
+@app.cell(hide_code=True)
+def _(
+    con,
+    district_code,
+    focus_outline,
+    folium,
+    json,
+    mo,
+    priority_corridor_geojson,
+    priority_intersection_points,
+    selected_district,
+    source_note,
+    street_project_geojson,
+    street_project_points,
+):
+    # Vision Zero View's colors: red for priority streets, green for safety projects
+    street_colors = {
+        "Priority corridor": "#a51c1c",
+        "Priority intersection": "#a51c1c",
+        "Project, 2021-2026": "#3d8b2f",
+        "Project, 2009-2020": "#9ccc84",
+    }
+    street_counts = con.execute(
+        """
+        SELECT priority_corridor_miles, priority_intersections, street_improvement_projects_2009_2026,
+            street_improvement_projects_2021_2026, priority_corridor_miles_with_project,
+            priority_intersections_with_project
+        FROM dim_community_district
+        WHERE borocd = ?
+        """,
+        [selected_district],
+    ).fetchall()[0]
+
+    # the district's box with half its size again on each side, about what the map shows
+    street_box = con.execute(
+        """
+        SELECT ST_XMin(geom), ST_XMax(geom), ST_YMin(geom), ST_YMax(geom)
+        FROM dim_community_district
+        WHERE borocd = ?
+        """,
+        [selected_district],
+    ).fetchall()[0]
+    _pad = max(street_box[1] - street_box[0], street_box[3] - street_box[2]) / 2
+
+    def near_district(df, x="xmin", x2="xmax", y="ymin", y2="ymax"):
+        return df[
+            (df[x2] >= street_box[0] - _pad)
+            & (df[x] <= street_box[1] + _pad)
+            & (df[y2] >= street_box[2] - _pad)
+            & (df[y] <= street_box[3] + _pad)
+        ]
+
+    def street_project_color(sip_year):
+        return street_colors[
+            "Project, 2021-2026" if sip_year >= 2021 else "Project, 2009-2020"
+        ]
+
+    street_map = folium.Map(tiles="Esri.WorldGrayCanvas", zoom_snap=0.25)
+    # priority streets wide underneath, so the projects on them show on top
+    folium.GeoJson(
+        {
+            "type": "GeometryCollection",
+            "geometries": [
+                json.loads(geojson)
+                for geojson in near_district(priority_corridor_geojson)["geojson"]
+            ],
+        },
+        name="Priority corridors",
+        interactive=False,
+        style_function=lambda _feature: {
+            "color": street_colors["Priority corridor"],
+            "weight": 6,
+            "opacity": 0.8,
+        },
+    ).add_to(street_map)
+    _intersection_layer = folium.FeatureGroup(name="Priority intersections").add_to(
+        street_map
+    )
+    for _row in near_district(
+        priority_intersection_points, "lon", "lon", "lat", "lat"
+    ).itertuples():
+        folium.CircleMarker(
+            [_row.lat, _row.lon],
+            radius=7,
+            color=street_colors["Priority intersection"],
+            weight=0,
+            fill=True,
+            fill_opacity=0.85,
+            tooltip=_row.priority_intersection_id.title(),
+        ).add_to(_intersection_layer)
+    folium.GeoJson(
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": json.loads(project.geojson),
+                    "properties": {
+                        "project": project.street_improvement_project_id,
+                        "color": street_project_color(project.sip_year),
+                    },
+                }
+                for project in near_district(street_project_geojson).itertuples()
+            ],
+        },
+        name="Street Improvement Projects",
+        style_function=lambda feature: {
+            "color": feature["properties"]["color"],
+            "weight": 2.5,
+            "opacity": 0.9,
+        },
+        tooltip=folium.GeoJsonTooltip(fields=["project"], labels=False),
+    ).add_to(street_map)
+    _project_point_layer = folium.FeatureGroup(
+        name="Street Improvement Project intersections"
+    ).add_to(street_map)
+    for _point in near_district(
+        street_project_points, "lon", "lon", "lat", "lat"
+    ).itertuples():
+        folium.CircleMarker(
+            [_point.lat, _point.lon],
+            radius=3.5,
+            color=street_project_color(_point.sip_year),
+            weight=0,
+            fill=True,
+            fill_opacity=0.9,
+            tooltip=_point.street_improvement_project_id,
+        ).add_to(_project_point_layer)
+    _district_layer = folium.GeoJson(
+        json.loads(focus_outline),
+        name="District boundary",
+        interactive=False,
+        style_function=lambda _feature: {
+            "fill": False,
+            "color": "#222222",
+            "weight": 3,
+        },
+    ).add_to(street_map)
+
+    def street_symbol(label):
+        color = street_colors[label]
+        if label == "Priority corridor":
+            return f'<span style="display:inline-block;width:16px;height:5px;background:{color};opacity:0.8"></span>'
+        if label == "Priority intersection":
+            return (
+                f'<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:{color};'
+                'opacity:0.85"></span>'
+            )
+        return f'<span style="display:inline-block;width:16px;height:3px;background:{color}"></span>'
+
+    # in district, and with a project
+    street_legend_counts = {
+        "Priority corridor": (
+            f"{street_counts[0]:.1f} mi",
+            f"{street_counts[4]:.1f} mi",
+        ),
+        "Priority intersection": (f"{street_counts[1]:,}", f"{street_counts[5]:,}"),
+        "Project, 2021-2026": (f"{street_counts[3]:,}", ""),
+        "Project, 2009-2020": (f"{street_counts[2] - street_counts[3]:,}", ""),
+    }
+    street_rows = "".join(
+        f"""<tr>
+          <td style="text-align:center">{street_symbol(label)}</td>
+          <td style="padding:0 12px 0 4px">{label}</td>
+          <td style="text-align:right;font-weight:700">{count}</td>
+          <td style="text-align:right;font-weight:700;padding-left:12px">{with_project}</td>
+        </tr>"""
+        for label, (count, with_project) in street_legend_counts.items()
+    )
+    street_map.get_root().html.add_child(
+        folium.Element(f"""
+    <div style="position:fixed;bottom:10px;left:10px;z-index:1000;pointer-events:none;background:rgba(255,255,255,0.92);
+      padding:6px 10px;border-radius:4px;font:11px sans-serif;color:#222222;box-shadow:0 1px 4px rgba(0,0,0,0.3)">
+      <table style="border-collapse:collapse">
+        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">Street safety, {district_code}</td>
+          <td style="padding-bottom:4px">In district</td><td style="padding:0 0 4px 12px">With a project</td></tr>
+        {street_rows}
+      </table>
+    </div>
+    """)
+    )
+    street_map.fit_bounds(_district_layer.get_bounds())
+    mo.vstack(
+        [
+            mo.iframe(street_map.get_root().render(), height="500px"),
+            source_note(
+                "Source: DOT Vision Zero View, via NYC Open Data (November 2026)"
+            ),
+        ]
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.vstack(
+        [
+            mo.md("""
     ### Wastewater
 
     #### Wastewater Systems
@@ -2247,19 +2502,19 @@ def _(
 ):
     # the workbook's own bands
     utilization_bands = {
-        "Under 90%, low concern": "#1a9850",
-        "90% to 100%, caution": "#fee08b",
-        "Over 100%, alert": "#d73027",
+        "Under 90%": "#1a9850",
+        "90% to 100%": "#fee08b",
+        "Over 100%": "#d73027",
     }
 
     def utilization_band(utilization):
         if utilization != utilization:
             return None
         if utilization < 0.9:
-            return "Under 90%, low concern"
+            return "Under 90%"
         if utilization <= 1:
-            return "90% to 100%, caution"
-        return "Over 100%, alert"
+            return "90% to 100%"
+        return "Over 100%"
 
     # labeled where the subdistrict is more than a sliver of the district
     school_subdistrict_labels = con.execute(
@@ -2366,17 +2621,17 @@ def _(
             mo.hstack(
                 [
                     school_utilization_map(
-                        "ps_utilization_2036", "Primary schools, 2036"
+                        "ps_utilization_2036", "Primary school utilization, 2036"
                     ),
                     school_utilization_map(
-                        "is_utilization_2036", "Intermediate schools, 2036"
+                        "is_utilization_2036", "Intermediate school utilization, 2036"
                     ),
                 ],
                 widths="equal",
                 gap=0.5,
             ),
             source_note(
-                "Sources: AHFT schools workbook (No Action); SCA school subdistricts (September 2025)"
+                "Sources: AHFT schools workbook; SCA school subdistricts (September 2025)"
             ),
         ]
     )

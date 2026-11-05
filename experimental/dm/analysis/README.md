@@ -17,6 +17,7 @@ It reads published PFF and KPDB files and has its own venv.
 | `dcp_cdboundaries`, `dcp_cdta2020`, `dcp_nta2020`, `dcp_ct2020` | 26c | geometry, names, CD to CDTA crosswalk, NTAs, census tracts |
 | `dcp_transit_zones` | 20251209 | transit zones, which set parking requirements |
 | `doe_school_subdistricts` | 20250901 | SCA's school subdistricts |
+| DOT Vision Zero View on NYC Open Data: [priority corridors](https://data.cityofnewyork.us/d/36nr-7fbp), [priority intersections](https://data.cityofnewyork.us/d/tmt9-43em), Street Improvement Project [corridors](https://data.cityofnewyork.us/d/if4c-w48d) and [intersections](https://data.cityofnewyork.us/d/shr7-eqdc) | downloaded November 2026, not versioned | pedestrian safety priority streets and DOT safety projects by community district |
 | [DEP MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq) (NYC Open Data) | August 1, 2020 | storm sewer drainage areas and outfalls. Its waste facility, stormwater permit, and Bluebelt layers stop at staging for now |
 | [DEP Map of the New York City Wastewater System](https://www.nyc.gov/assets/dep/downloads/pdf/water/wastewater/nyc-wastewater-system-map.pdf) | 2025 | the table of Wastewater Resource Recovery Facilities (WRRFs) and their functions. Extracted to `seeds/` by `scripts/extract_dep_wastewater_map.py` |
 | [DEP Wastewater Treatment Plant Performance Data](https://data.cityofnewyork.us/d/hgue-hj96) (NYC Open Data) | 2015 to July 2025 | monthly flow and effluent by WRRF, from every report file on the page |
@@ -49,6 +50,9 @@ python scripts/extract_fhgs.py data/sources/fhgs.pdf
 | `dim_borough` | borough, with TCOL rates |
 | `dim_tcol_family_type` | TCOL family type, with its median threshold and rates |
 | `dim_transit_zone` | transit zone, with geometry |
+| `dim_vision_zero_priority_corridor` | Vision Zero pedestrian priority corridor, with geometry |
+| `dim_vision_zero_priority_intersection` | Vision Zero pedestrian priority intersection, with geometry |
+| `dim_street_improvement_project` | DOT Street Improvement Project (corridor or intersection), with geometry |
 | `dim_school_subdistrict` | school subdistrict (school_subdistrict_id), with 2036 utilization and geometry |
 | `dim_community_district_school_subdistrict` | borocd x school_subdistrict_id, the piece of a district in each subdistrict |
 | `dim_nta_neighbor` | nta2020 x neighbor_nta2020, every pair of NTAs that touch |

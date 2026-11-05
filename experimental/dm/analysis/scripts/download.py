@@ -102,6 +102,15 @@ URL_SOURCES = {
     "npcc_floodplain_2080_100yr.geojson": "https://data.cityofnewyork.us/api/geospatial/ek8y-fsqz?method=export&format=GeoJSON",
     # read by scripts/extract_tcol.py into seeds/, not by dbt
     "tcol_report_2026.pdf": "https://www.nyc.gov/assets/equity/downloads/pdf/2026-NYC-TCOL-Report.pdf",
+} | {
+    # DOT's Vision Zero View layers on NYC Open Data, as GeoJSON in EPSG:4326
+    f"vzv_{name}.geojson": f"https://data.cityofnewyork.us/api/geospatial/{uid}?method=export&format=GeoJSON"
+    for name, uid in {
+        "priority_corridors": "36nr-7fbp",
+        "priority_intersections": "tmt9-43em",
+        "sip_corridors": "if4c-w48d",
+        "sip_intersections": "shr7-eqdc",
+    }.items()
 }
 
 # DEP publishes the MS4 map as a geodatabase attached to its Open Data page (j57c-rqtq) rather than as a
