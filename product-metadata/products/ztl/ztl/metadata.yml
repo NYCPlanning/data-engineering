@@ -7,7 +7,7 @@ attributes:
     zoning map associated with a specific tax block and lot. The Database is updated on
     a monthly basis to reflect rezoning and corrections to the file.
     
-    All previously released versions of this data are available on the <a href="{{ bytes_url__ztl }}">DCP Website: BYTES of the BIG APPLE</a>.
+    All previously released versions of this data are available on the <a href="{{ bytes_url__ztl }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_ztl }}
   display_name: NYC Zoning Tax Lot Database
   publishing_frequency: Monthly
   each_row_is_a: Tax Lot
