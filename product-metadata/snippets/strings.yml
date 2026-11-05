@@ -60,7 +60,7 @@ bytes_url__ztl: https://www.nyc.gov/content/planning/pages/resources/datasets/zo
 
 # Versions
 current_version_lion: 26c
-current_version_pluto: 26v2
+current_version_pluto: 26v3
 current_version_facilities: 26v1
 current_version_building_elevation_and_subgrade: 202510
 current_version_cdbg: 202503
