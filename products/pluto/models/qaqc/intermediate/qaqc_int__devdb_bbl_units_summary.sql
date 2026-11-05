@@ -2,7 +2,15 @@
     materialized = 'table'
 ) }}
 
-WITH completed_construction_records AS (
+WITH completed_jobs AS (
+    SELECT
+        *,
+        bool_or(classa_prop IS NOT null) OVER (PARTITION BY bbl, bin) AS bin_has_unit_count
+    FROM {{ ref("stg__dcp_developments") }}
+    WHERE job_status IN ('5. Completed Construction', '4. Partially Completed Construction')
+),
+
+completed_construction_records AS (
     SELECT
         bbl,
         bin,
@@ -18,8 +26,9 @@ WITH completed_construction_records AS (
             PARTITION BY bbl, bin
             ORDER BY date_complete DESC
         ) AS order_num
-    FROM {{ ref("stg__dcp_developments") }}
-    WHERE job_status IN ('5. Completed Construction', '4. Partially Completed Construction')
+    FROM completed_jobs
+    -- an alteration without a unit count would otherwise read as 0 units and hide the BIN's real count
+    WHERE NOT (job_type = 'Alteration' AND classa_prop IS null AND bin_has_unit_count)
 ),
 
 most_recent_construction_by_bin AS (
