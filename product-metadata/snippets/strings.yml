@@ -84,7 +84,7 @@ current_version_transit_zones: 202410
 current_version_waterfront_public_access_areas: 202309
 current_version_waterfront_revitalization_program: 2016.1
 current_version_zap: 20260706
-current_version_zoning: 202607
+current_version_zoning: 202609
 current_version_zoning_map_index:
 
 # Test variables for dcpy test suite
