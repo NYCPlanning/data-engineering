@@ -1,0 +1,270 @@
+# Local stack: the apps/dagster deployment (ingest, builds, runner_tests) with
+# dagster-broker, workers and an S3 gateway over Azurite (tracker epic inv-k0d).
+#
+#   docker compose -f apps/local/docker-compose.yml up -d
+#   docker compose -f apps/local/docker-compose.yml run --rm check
+#   docker compose -f apps/local/docker-compose.yml down -v
+
+# Every python and gateway service runs the de-apps image (apps/docker/Dockerfile) with the
+# local repo mounted where prod clones it. Python deps live in one venv volume, synced by 'venv'.
+x-app: &app
+  image: de-apps:local
+  platform: linux/amd64
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  entrypoint: ["/usr/bin/env"]
+  working_dir: /app/repos/data-engineering
+  init: true
+  volumes:
+    - ${DATA_ENGINEERING_PATH:-../..}:/app/repos/data-engineering
+    - ./dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+    - venv:/opt/venv
+
+x-env: &env
+  PATH: /opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PYTHONUNBUFFERED: "1"
+  DAGSTER_BROKER_SHARED_KEY: local-dagster-broker-key
+  DAGSTER_BROKER_URL: http://dagster-broker:8000
+  DAGSTER_BROKER_BUCKET: local
+
+# Gateway credentials: workers and the bucket setup only, never the Dagster services.
+x-gateway-env: &gateway-env
+  <<: *env
+  AZ_BLOB_GATEWAY_ENDPOINT: http://az-blob-gateway:7070
+  AZ_BLOB_GATEWAY_ACCESS_KEY_ID: local
+  AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY: local-secret
+
+x-py-deps: &py-deps
+  venv:
+    condition: service_completed_successfully
+
+x-worker: &worker
+  <<: *app
+  command: ["python", "-m", "dagster_broker.worker"]
+  stop_grace_period: 20s
+  depends_on:
+    dagster-broker:
+      condition: service_healthy
+    gateway-init:
+      condition: service_completed_successfully
+
+services:
+  postgres:
+    image: postgres:16.15
+    environment:
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: dagster
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U local -d dagster"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Self-signed cert for Azurite. HTTPS is needed for real server-side copy: versitygw
+  # signs copy-source SAS URLs as https-only, and over plain HTTP its CopyObject quietly
+  # falls back to streaming through the gateway.
+  certs:
+    image: alpine/openssl:3.5.9
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -e
+        [ -f /certs/azurite.pem ] && exit 0
+        openssl req -x509 -newkey rsa:2048 -nodes -days 825 -subj /CN=azurite \
+          -addext subjectAltName=DNS:azurite,DNS:localhost,IP:127.0.0.1 \
+          -keyout /certs/azurite-key.pem -out /certs/azurite.pem
+        chmod 644 /certs/*
+    volumes:
+      - ./.certs:/certs
+
+  # Blob emulator. Well-known dev account devstoreaccount1 (key is public, Azurite docs).
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.37.0
+    command: >
+      azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --location /data
+      --cert /certs/azurite.pem --key /certs/azurite-key.pem
+      --skipApiVersionCheck --loose
+    environment:
+      # Azurite fetches copy sources from its own https endpoint.
+      NODE_EXTRA_CA_CERTS: /certs/azurite.pem
+    volumes:
+      - azurite-data:/data
+      - ./.certs:/certs:ro
+    ports:
+      - "127.0.0.1:10000:10000"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 10000"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+
+  az-blob-gateway:
+    <<: *app
+    entrypoint: ["/app/docker/entrypoints/az-blob-gateway.sh"]
+    environment:
+      AZ_BLOB_GATEWAY_ACCESS_KEY_ID: local
+      AZ_BLOB_GATEWAY_SECRET_ACCESS_KEY: local-secret
+      AZ_ACCOUNT_NAME: devstoreaccount1
+      AZ_ACCESS_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZ_ENDPOINT: https://azurite:10000/devstoreaccount1
+      SSL_CERT_FILE: /certs/azurite.pem
+      # Azurite lags the SDK's SAS version (versitygw's own azurite CI pins this).
+      AZ_COPY_SAS_VERSION: "2025-11-05"
+    volumes:
+      - ./.certs:/certs:ro
+    ports:
+      - "127.0.0.1:7070:7070"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:7070/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      azurite:
+        condition: service_healthy
+
+  # Syncs the workspace deps every python service needs into the venv volume.
+  venv:
+    <<: *app
+    environment:
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+      UV_LINK_MODE: copy
+    command:
+      - uv
+      - sync
+      - --frozen
+      - --no-dev
+      - --package=dcpy-app-dagster
+      - --package=dcpy-app-dagster-broker
+      - --extra=worker
+
+  # Creates the bucket (an Azure container behind the gateway) runner_tests uses.
+  gateway-init:
+    <<: *app
+    environment: *gateway-env
+    command:
+      - python
+      - -c
+      - |
+        import os
+        from dcpy.connectors.az_blob_gateway import AzBlobGateway
+        b = os.environ["DAGSTER_BROKER_BUCKET"]
+        s3 = AzBlobGateway(b).root.client.client
+        if b not in [x["Name"] for x in s3.list_buckets()["Buckets"]]:
+            s3.create_bucket(Bucket=b)
+        print("bucket", b, "ready")
+    depends_on:
+      <<: *py-deps
+      az-blob-gateway:
+        condition: service_healthy
+
+  # One-shot gateway check: docker compose run --rm check
+  check:
+    <<: *app
+    environment: *gateway-env
+    profiles: ["check"]
+    command: ["python", "apps/az-blob-gateway/check.py", "--bucket", "local"]
+    depends_on:
+      gateway-init:
+        condition: service_completed_successfully
+
+  # Webserver and daemon in one process tree, sharing code servers (as prod's supervisord
+  # does), so runs can be terminated from the UI.
+  dagster:
+    <<: *app
+    working_dir: /app/repos/data-engineering/apps/dagster
+    environment:
+      <<: *env
+      DAGSTER_PG_HOST: postgres
+      DAGSTER_PG_USER: local
+      DAGSTER_PG_PASSWORD: local
+      DAGSTER_PG_DB: dagster
+      TEMPLATE_DIR: /app/repos/data-engineering/ingest_templates
+      DCPY_LIFECYCLE_DATA_DIR: /tmp/dcpy-lifecycle
+    command:
+      - sh
+      - -c
+      - dagster instance migrate && exec dagster dev -w workspace.yaml -h 0.0.0.0 -p 3000
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:3000/server_info"]
+      interval: 3s
+      timeout: 5s
+      retries: 200
+    depends_on:
+      <<: *py-deps
+      postgres:
+        condition: service_healthy
+      dagster-broker:
+        condition: service_healthy
+
+  # Always on, small items only, several at a time (an ACA Container App in Azure).
+  worker-resident:
+    <<: *worker
+    environment:
+      <<: *gateway-env
+      DAGSTER_BROKER_WORKER_CAPS: small
+      DAGSTER_BROKER_WORKER_SLOTS: "4"
+      DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS: "0"
+      DAGSTER_BROKER_WORKER_STEP_MEMORY_MB: "2048"
+
+  # One item at a time, exits when idle (an ACA Job started by KEDA in Azure; here
+  # restart: always stands in for KEDA starting a new one).
+  worker-burst:
+    <<: *worker
+    restart: always
+    deploy:
+      replicas: 2
+    environment:
+      <<: *gateway-env
+      DAGSTER_BROKER_WORKER_CAPS: small,standard
+      DAGSTER_BROKER_WORKER_IDLE_EXIT_SECONDS: "60"
+
+  worker-esri:
+    <<: *worker
+    environment:
+      <<: *gateway-env
+      DAGSTER_BROKER_WORKER_CAPS: esri
+
+  # Valkey runs as a sidecar in dagster-broker's network namespace (as in a container app),
+  # so it is reachable only on dagster-broker's localhost.
+  dagster-broker:
+    <<: *app
+    depends_on: *py-deps
+    command: ["uvicorn", "dagster_broker.app:create_app", "--factory", "--workers", "1", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *env
+      DAGSTER_BROKER_VALKEY_URL: redis://127.0.0.1:6379/0
+      # Short lease + frequent reaping so the chaos checks (kill a worker) finish quickly.
+      DAGSTER_BROKER_LEASE_SECONDS: "15"
+      DAGSTER_BROKER_REAP_SECONDS: "2"
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8000/readyz"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+
+  valkey:
+    <<: *app
+    network_mode: service:dagster-broker
+    command: ["valkey-server", "apps/dagster-broker/valkey.conf", "--maxmemory", "64mb"]
+    depends_on:
+      dagster-broker:
+        condition: service_started
+
+volumes:
+  pg-data:
+  azurite-data:
+  venv:
