@@ -228,21 +228,28 @@ vars:
   # A run reads every feature within this distance of its borough polygon
   # (BoroughBufferDistance, legacy default 2 ft), so boundary features count in both runs.
   lion_extract_borough_buffer_ft: 2
+  # PER-RELEASE OPERATOR INPUT, like seeds/config.csv's LDF rows: re-derive both session vars
+  # below for every new ETL Working GDB (README, Release runbook, "Version bump"). They stay
+  # dbt vars rather than config.csv rows because they shape the SQL at compile time and the
+  # unit tests override them.
   # The extract sessions, each a list of borough codes in run order. This is the legacy
   # OPERATOR'S HISTORY for one release, not a rule of the ETL: the numbers depend on which
   # boroughs GR extracted together and in what order. A single click extracting every
   # borough runs Bronx, Brooklyn, Manhattan, Queens, Staten Island ([['2', '3', '1', '4', '5']];
-  # ETLExtractorForm.DoLIONExtract). 26c matches only with Bronx/Brooklyn/Manhattan in one
-  # session and Queens and Staten Island in a fresh one: 17,975 of 17,975 non-street-feature
-  # sequence numbers with that split, 16,007 (89%) as one session. Re-check it each release.
-  lion_seqnum_extract_sessions: [['2', '3', '1'], ['4', '5']]
-  # The same, for the LION gdb's SeqNum (CSCL-LION-05). Prod's LION gdb and LION .dat
-  # files disagree on these numbers: its gdb matches all five boroughs extracted in one
-  # session (17,975 of 17,975 on 26c), its .dat files the split above, so prod's two outputs
-  # differ on 1,968 LION gdb records (every one on a face numbered in the Queens extract).
-  # The default reproduces prod's gdb; set it equal to lion_seqnum_extract_sessions to
-  # number the gdb like the .dat files. List the same boroughs in both. Logged every build
-  # as CSCL-LOG-OURS-22 (1,968 LION gdb records on 26c).
+  # ETLExtractorForm.DoLIONExtract).
+  # 26d: one session. Prod 26D's LION .dat files match it on all 214,802 records (and equal
+  # prod 26D's LION gdb SeqNum); the 26c split below gives 1,970 Queens differences.
+  # 26c: Bronx/Brooklyn/Manhattan in one session and Queens and Staten Island in a fresh one
+  # ([['2', '3', '1'], ['4', '5']]): 17,975 of 17,975 non-street-feature sequence numbers
+  # with that split, 16,007 (89%) as one session.
+  lion_seqnum_extract_sessions: [['2', '3', '1', '4', '5']]
+  # The same, for the LION gdb's SeqNum (CSCL-LION-05). Prod's LION gdb has matched all five
+  # boroughs extracted in one session on 26c and 26d. On 26c prod's .dat files were numbered
+  # in the split above, so prod's two outputs differed on 1,968 LION gdb records (every one
+  # on a face numbered in the Queens extract); on 26d both are one session and agree.
+  # Set it equal to lion_seqnum_extract_sessions to number the gdb like the .dat files. List
+  # the same boroughs in both. Logged every build as CSCL-LOG-OURS-22 (1,968 LION gdb records
+  # on 26c, 0 on 26d).
   lion_gdb_seqnum_extract_sessions: [['2', '3', '1', '4', '5']]
   # qa__context_geoms: buffer applied to the SUBTRACTED side before computing
   # build_minus_legacy/legacy_minus_build, to separate real spurs/gaps from needle-sliver
