@@ -98,6 +98,7 @@ altsegmentdata_fields AS (
         saf.segment_lionkey AS lionkey,
         saf.saf_globalid,
         saf.saf_source_table,
+        saf.boroughcode::text AS saf_boroughcode,
         CASE WHEN altsegdata.saftype = 'F' THEN 'D' ELSE altsegdata.saftype END AS specaddr,
         coalesce(feature_names.lookup_key, street_names.lookup_key) AS saf_street_name,
         altsegdata.b5sc AS saf_street_code,
@@ -161,6 +162,7 @@ commonplace_fields AS (
         saf.segment_lionkey AS lionkey,
         saf.saf_globalid,
         saf.saf_source_table,
+        saf.boroughcode::text AS saf_boroughcode,
         saf.saftype AS specaddr,
         coalesce(feature_names.lookup_key, street_names.lookup_key) AS saf_street_name,
         left(cp.b7sc, 6) AS saf_street_code,
@@ -198,6 +200,7 @@ addresspoint_fields AS (
         saf.segment_lionkey AS lionkey,
         saf.saf_globalid,
         saf.saf_source_table,
+        saf.boroughcode::text AS saf_boroughcode,
         saf.saftype AS specaddr,
         CASE saf.saftype
             WHEN 'V' THEN coalesce(feature_names_vanity.lookup_key, street_names_vanity.lookup_key)
@@ -282,9 +285,12 @@ SELECT
     -- an address point's high house number, prod's and the fix's (CSCL-LION-25)
     deduped.ap_high_hn_prod,
     deduped.ap_high_hn_fixed,
+    -- the SAF record's own borough, which legacy writes to the replicant's LBoro/RBoro and
+    -- its Join_ID, not the host segment's (see int__saf_altnames_join_ids)
+    deduped.saf_boroughcode,
     coalesce(
         deduped.precomputed_join_id,
-        lion.boroughcode
+        deduped.saf_boroughcode
         || substring(deduped.join_b5sc, 2, 5)
         || lpad(coalesce(deduped.join_lgc1, '00'), 2, '0')
         || lpad(coalesce(deduped.join_lgc2, '00'), 2, '0')

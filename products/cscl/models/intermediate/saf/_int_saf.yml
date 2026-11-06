@@ -64,9 +64,9 @@ unit_tests:
     format: sql
     rows: |
       SELECT * FROM (VALUES
-        ('10100001', 'cp1', 'commonplace', 'X', FALSE, FALSE),
-        ('10100001', 'asd1', 'altsegmentdata', 'B', FALSE, FALSE)
-      ) AS t (segment_lionkey, saf_globalid, saf_source_table, saftype, roadbed, generic)
+        ('10100001', 'cp1', 'commonplace', 'X', '1', FALSE, FALSE),
+        ('10100001', 'asd1', 'altsegmentdata', 'B', '1', FALSE, FALSE)
+      ) AS t (segment_lionkey, saf_globalid, saf_source_table, saftype, boroughcode, roadbed, generic)
   - input: ref('stg__altsegmentdata_saf')
     format: sql
     rows: |
@@ -127,7 +127,7 @@ unit_tests:
   - input: ref('int__saf_segments')
     format: sql
     rows: |
-      SELECT segment_lionkey, saf_globalid, 'addresspoints' AS saf_source_table, saftype, FALSE AS roadbed, FALSE AS generic
+      SELECT segment_lionkey, saf_globalid, 'addresspoints' AS saf_source_table, saftype, '1' AS boroughcode, FALSE AS roadbed, FALSE AS generic
       FROM (VALUES
         ('10100001', 'R1', 'V'), ('10100001', 'R2', 'S'), ('10100001', 'R3', 'S'),
         ('10100001', 'X1', 'S'), ('10100001', 'N1', 'V')
@@ -196,3 +196,44 @@ unit_tests:
     - {saf_globalid: R3, l_low_hn: '12', l_high_hn: null, r_low_hn: null, r_high_hn: null}
     - {saf_globalid: X1, l_low_hn: null, l_high_hn: null, r_low_hn: '20', r_high_hn: '24'}
     - {saf_globalid: N1, l_low_hn: '7', l_high_hn: '7', r_low_hn: null, r_high_hn: null}
+# A SAF replicant's Join_ID takes the SAF record's borough, not its host segment's: legacy
+# writes the replicant's LBoro/RBoro from the SAF row's BOROUGHCODE and builds the Join_ID
+# from them (ETL spec 2.7.3; 26D: Brooklyn CommonPlaces on Queens segment 0052212, prod
+# 30158204000000X). cp1 is that case, cp2 an ordinary same-borough one, ap1 an address point
+# whose borough differs from its host's.
+- name: test__int__saf_altnames_join_ids__saf_record_borough
+  description: "The Join_ID's borough is the SAF record's own (CommonPlace or address point BOROUGHCODE), also on a host segment in another borough."
+  model: int__saf_altnames_join_ids
+  given:
+  - input: ref('int__saf_segments')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES
+        ('0052212', '40052212', 'cp1', 'commonplace', 'X', '3'),
+        ('0052213', '40052213', 'cp2', 'commonplace', 'G', '4'),
+        ('0052214', '40052214', 'ap1', 'addresspoints', 'V', '3')
+      ) AS t (segmentid, segment_lionkey, saf_globalid, saf_source_table, saftype, boroughcode)
+  - input: ref('int__lion')
+    format: sql
+    rows: |
+      SELECT lionkey, '4' AS boroughcode, TRUE AS include_in_bytes_lion
+      FROM (VALUES ('40052212'), ('40052213'), ('40052214')) AS t (lionkey)
+  - input: source('recipe_sources', 'dcp_cscl_commonplace_gdb')
+    format: sql
+    rows: |
+      SELECT * FROM (VALUES ('cp1', '30158204'), ('cp2', '41920001')) AS t (globalid, b7sc)
+  - input: source('recipe_sources', 'dcp_cscl_addresspoint_lgcs')
+    format: sql
+    rows: |
+      SELECT NULL::TEXT AS addresspointid, NULL::TEXT AS lgc, NULL::TEXT AS boe_lgc, NULL::INT AS ogc_fid
+      WHERE FALSE
+  - input: source('recipe_sources', 'dcp_cscl_addresspoints')
+    format: sql
+    rows: |
+      SELECT 'ap1' AS globalid, '9' AS addresspointid, 'V' AS special_condition,
+        '30158201' AS b7sc_vanity, NULL::TEXT AS b7sc_actual
+  expect:
+    rows:
+    - {saf_globalid: cp1, join_id: '30158204000000X'}
+    - {saf_globalid: cp2, join_id: '41920001000000G'}
+    - {saf_globalid: ap1, join_id: '30158201000000V'}

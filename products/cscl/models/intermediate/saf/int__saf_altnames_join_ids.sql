@@ -15,11 +15,16 @@
 -- AddressPoint fills it from B7SC_VANITY/B7SC_ACTUAL, then up to 3 more from
 -- ADDRESSPOINTLGCS (ordered by ogc_fid - the legacy code has no explicit order).
 --
--- Borough: legacy uses the LION record's LBoro (RBoro if blank), which gdb_lion derives
--- from the host proto-segment's boroughcode - so join int__lion on the specific
--- segment_lionkey, not segmentid. A segmentid can have proto-segments in two boroughs;
--- joining on it gave 3 CommonPlace Join_IDs the wrong borough digit (e.g.
--- 10050302000000N vs prod's 20050302000000N, segment 241972). See CSCL-LION-09.
+-- Borough: legacy uses the replicant's LBoro (RBoro if blank), the spec's "Borough
+-- (populated as described above)" (ETL spec 2.7.3, Join_ID). On a SAF replicant that is
+-- the SAF record's own borough, not its host segment's: SetBytesBoundary writes LBoro/RBoro
+-- from L1, and for a SAF feature L1 is the SAF row's BOROUGHCODE (AltSegmentData: BOROUGH;
+-- CenterlineExtractFile.GetValue "L1"; ExtractorClass.GetSAFBytesJoinID). So a Brooklyn
+-- CommonPlace on a Queens centerline gets a Brooklyn Join_ID (26D: CommonPlaces 1014244-7
+-- and 1025373, B7SC 301582xx on segments 0052212/0052215: 30158204000000X, where the
+-- segment's borough gave 40158204000000X, a Queens street code's Join_ID). gdb_lion's
+-- replicant LBoro/RBoro take the same borough (int__saf_replicant_fields.saf_boroughcode).
+-- The host is still the specific segment_lionkey, not the segmentid (CSCL-LION-09).
 --
 -- ADDRESSPOINTLGCS: legacy selects BOE_LGC <> 'Y', which also drops rows where BOE_LGC is
 -- null (e.g. address point 5146023: prod 12469002000000V, not 12469002040000V).
@@ -42,7 +47,7 @@ commonplace_join_ids AS (
         saf.segmentid,
         saf.segment_lionkey AS lionkey,
         saf.saf_globalid,
-        lion.boroughcode
+        saf.boroughcode::text
         || substring(cp.b7sc, 2, 5)
         || lpad(right(cp.b7sc, 2), 2, '0')
         || '000000'
@@ -80,7 +85,7 @@ addresspoint_join_ids AS (
         saf.segmentid,
         saf.segment_lionkey AS lionkey,
         saf.saf_globalid,
-        lion.boroughcode
+        saf.boroughcode::text
         || substring(ab.b7sc, 2, 5)
         || lpad(right(ab.b7sc, 2), 2, '0')
         || lpad(coalesce(l1.lgc, '00'), 2, '0')

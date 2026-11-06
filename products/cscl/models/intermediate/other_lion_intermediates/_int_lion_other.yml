@@ -1,6 +1,6 @@
 models:
 - name: int__segment_specialaddress
-  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). Differs from prod on segment 241972 (CSCL-LION-17). int__lion takes a ramp protosegment's flag from int__ramp_proto_special_address instead (CSCL-LION-19)."
+  description: "Special address flag per segment and borough, from the SAF records on the segment (altsegmentdata first, then address points and CommonPlace). A record counts for its own borough's LION record, except on a centerline with no borough boundary proto-segment, which takes every record on it, as legacy. Differs from prod on segment 241972 (CSCL-LION-17). int__lion takes a ramp protosegment's flag from int__ramp_proto_special_address instead (CSCL-LION-19)."
   columns:
   - name: segmentid
     description: "Segment id."
