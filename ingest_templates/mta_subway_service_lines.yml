@@ -1,0 +1,16 @@
+id: mta_subway_service_lines
+
+attributes:
+  name: MTA Subway Service Lines
+  description: >-
+    This dataset provides the spatial geometries for NYCT Subway and Staten Island Railway service lines.
+  url: https://data.ny.gov/d/s692-irgq
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: s692-irgq
+    format: geojson
+  file_format:
+    type: geojson

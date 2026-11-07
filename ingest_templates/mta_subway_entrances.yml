@@ -1,0 +1,21 @@
+id: mta_subway_entrances
+
+attributes:
+  name: "MTA Subway Entrances and Exits: 2024"
+  description: >-
+    This is a dataset containing the entrances and exits at New York City Subway and Staten Island Railway
+    stations. Information is provided on the entrance or exit, including their coordinates, the borough they
+    are in, whether it allows entries and exits, and the type of entrance. The dataset also includes the name
+    of the station complex, the complex ID number, the name of the specific station in the complex the entrance
+    is for (constituent station), the station ID number, the GTFS Stop ID, the daytime routes that stop at the
+    station complex, and the line and division the constituent station is on.
+  url: https://data.ny.gov/d/i9wp-a4ja
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: i9wp-a4ja
+    format: geojson
+  file_format:
+    type: geojson
