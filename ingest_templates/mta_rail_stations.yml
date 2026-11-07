@@ -1,0 +1,17 @@
+id: mta_rail_stations
+
+attributes:
+  name: MTA Rail Stations
+  description: >-
+    This dataset shows the geographic locations of the stations on the Long Island Rail Road and Metro-North
+    Railroad.
+  url: https://data.ny.gov/d/wxmd-5cpm
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: wxmd-5cpm
+    format: geojson
+  file_format:
+    type: geojson
