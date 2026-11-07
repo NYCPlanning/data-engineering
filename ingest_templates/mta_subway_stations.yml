@@ -1,0 +1,19 @@
+id: mta_subway_stations
+
+attributes:
+  name: MTA Subway Stations
+  description: >-
+    A dataset listing all subway and Staten Island Railway stations, with information on their locations,
+    Station Master Reference Number (MRN), Complex MRN, GTFS Stop ID, the services that stop there, the type of
+    structure the station is on or in, whether the station is in Manhattan's Central Business District (CBD),
+    and their ADA-accessibility status.
+  url: https://data.ny.gov/d/39hk-dx4f
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: 39hk-dx4f
+    format: geojson
+  file_format:
+    type: geojson
