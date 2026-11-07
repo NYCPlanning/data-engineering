@@ -1,0 +1,18 @@
+id: mta_ibx_stations
+
+attributes:
+  name: Proposed IBX Station Centroids
+  description: >-
+    Proposed Interborough Express (IBX) station locations, from the public-facing view of the Proposed IBX Design
+    Features published by HDR, the MTA's engineering consultant on the project. Station locations are subject to
+    change as planning progresses.
+  url: https://www.arcgis.com/home/item.html?id=f605c0be149648b0a07a7872f312d73b
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: hdr
+    dataset: Service_View_Proposed_IBX_Design_Features_Public_Facing
+    layer_name: Design_Points
+  file_format:
+    type: geojson
