@@ -39,6 +39,10 @@ jobs:
         lpc_historic_district_areas
         lpc_landmarks
         lpc_scenic_landmarks
+        mta_rail_stations
+        mta_subway_entrances
+        mta_subway_service_lines
+        mta_subway_stations
       dev_bucket: ${{ inputs.dev_bucket }}
       dev_image: ${{ inputs.dev_image }}
       latest: true
