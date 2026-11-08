@@ -31,6 +31,23 @@ def get_download_url(org: Org, uid: str, format: ValidFormat) -> str:
     return url
 
 
+def get_query_url(org: Org, uid: str, format: ValidFormat) -> str:
+    """For a given dataset, get the url to query it in a specific format. Query results name
+    columns by their API field names (route_id rather than the export's "Route ID")."""
+    match format:
+        case "csv" | "geojson":
+            return f"https://{server_url(org)}/resource/{uid}.{format}"
+        case format:
+            raise Exception(f"Unsupported socrata query format: '{format}'")
+
+
+def count_rows(org: Org, uid: str, where: str) -> int:
+    """Number of rows matching a SoQL where clause."""
+    url = f"https://{server_url(org)}/resource/{uid}.json"
+    resp = _socrata_request(url, "GET", params={"$select": "count(*)", "$where": where})
+    return int(resp.json()[0]["count"])
+
+
 def get_version(org: Org, uid: str) -> str:
     """For given socrata dataset, get date last updated formatted as a string.
     This is used as a proxy for a 'version' of the dataset."""
@@ -39,8 +56,18 @@ def get_version(org: Org, uid: str) -> str:
     return datetime.fromtimestamp(resp.json()["rowsUpdatedAt"]).strftime("%Y%m%d")
 
 
-def download(org: Org, uid: str, format: ValidFormat, path: Path) -> None:
+def download(
+    org: Org, uid: str, format: ValidFormat, path: Path, where: str | None = None
+) -> None:
+    """Download a dataset, or with `where`, only the rows matching that SoQL where clause.
+    The query endpoint returns 1,000 rows unless asked for more, so it asks for every match."""
     path.parent.mkdir(exist_ok=True, parents=True)
-    response = _socrata_request(get_download_url(org, uid, format), "GET")
+    if where:
+        params = {"$where": where, "$limit": max(count_rows(org, uid, where), 1)}
+        response = _socrata_request(
+            get_query_url(org, uid, format), "GET", params=params
+        )
+    else:
+        response = _socrata_request(get_download_url(org, uid, format), "GET")
     with open(path, "wb") as f:
         f.write(response.content)

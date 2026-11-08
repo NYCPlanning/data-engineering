@@ -33,3 +33,27 @@ class TestConnector:
     def test_push(self):
         with pytest.raises(NotImplementedError):
             self.connector.push(UID, version="asfd")
+
+
+@mock.patch("dcpy.connectors.socrata.extract._socrata_request")
+def test_download_with_where_queries_every_matching_row(socrata_request, tmp_path):
+    count = mock.Mock()
+    count.json.return_value = [{"count": "23218"}]
+    rows = mock.Mock(content=b"route_id\nB1\n")
+    socrata_request.side_effect = [count, rows]
+
+    path = tmp_path / "stops.csv"
+    extract.download(ORG, UID, "csv", path, where="in_effect='true'")
+
+    assert path.read_bytes() == b"route_id\nB1\n"
+    query_call = socrata_request.call_args_list[1]
+    assert query_call.args[0] == f"https://data.cityofnewyork.us/resource/{UID}.csv"
+    assert query_call.kwargs["params"] == {
+        "$where": "in_effect='true'",
+        "$limit": 23218,
+    }
+
+
+def test_query_url_rejects_shapefile():
+    with pytest.raises(Exception, match="Unsupported socrata query format"):
+        extract.get_query_url(ORG, UID, "shapefile")
