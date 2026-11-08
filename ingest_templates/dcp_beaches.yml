@@ -1,0 +1,38 @@
+id: dcp_beaches
+
+attributes:
+  name: DCP NYC Beaches
+  description: >-
+    Produced by the DCP GIS team by merging DPR's NYC beaches with features drawn by hand from
+    NPS national beaches. Delivered as a zipped shapefile and manually uploaded to the inbox.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dcp/dcp_beaches/nyc_beaches_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: nyc_beaches_{{ version }}.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  # The shapefile is PolygonZ with every z at 0. Mixed 2D/3D rows fail to load into postgis.
+  - name: pd_series_func
+    args:
+      column_name: geom
+      function_name: force_2d
+      geo: True
+  - name: multi
+  - name: rename_columns
+    args:
+      map: { "geom": "geometry" }
+
+columns:
+- id: name
+  data_type: text
+- id: agency
+  data_type: text
+- id: geometry
+  data_type: geometry

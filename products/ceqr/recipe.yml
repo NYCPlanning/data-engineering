@@ -63,7 +63,6 @@ inputs:
     - name: nysdec_priority_streams
     - name: nysdec_natural_heritage_communities
     - name: dcp_beaches
-      file_type: pg_dump  # parquet fails at df.to_postgis with "InvalidParameterValue: Column has Z dimension but geometry does not"
     - name: usfws_nyc_wetlands
     - name: dpr_forever_wild
     - name: dpr_schoolyard_to_playgrounds
