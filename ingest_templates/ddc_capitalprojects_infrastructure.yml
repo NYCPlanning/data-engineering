@@ -1,0 +1,32 @@
+id: ddc_capitalprojects_infrastructure
+
+attributes:
+  name: DDC Capital Projects - Infrastructure
+  description: >-
+    NYC Department of Design and Construction infrastructure capital projects.
+    Received from DDC as a zip of shapefiles (shared with
+    ddc_capitalprojects_publicbuildings) and manually uploaded to the inbox.
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/ddc_capitalprojects/DDCProjects_{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: IFRProjects.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: multi
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+
+columns:
+- id: projectid
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry

@@ -32,8 +32,6 @@ with engine.begin() as conn:
     # fms_id cleaning
     bridges_cleaned = bridges.explode("fms_id")
 
-    bridges_cleaned["ogc_fid"] = bridges_cleaned["ogc_fid"].astype("str")
-
     # write new table to postgres
     bridges_cleaned.to_sql(
         "dot_projects_bridges_byfms",
