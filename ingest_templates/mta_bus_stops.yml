@@ -1,0 +1,31 @@
+id: mta_bus_stops
+
+attributes:
+  name: MTA Bus Stops
+  description: >-
+    This dataset contains point features for bus stops used on each route and direction within a bundle, including
+    stop usage flags (revenue, timepoint, boarding, alighting, is in CBD) and basic route descriptors for mapping and
+    stop-level analyses. Only the schedule bundle in effect is ingested.
+  url: https://data.ny.gov/d/2ucp-7wg5
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: 2ucp-7wg5
+    format: csv
+    # The dataset keeps every schedule bundle since 2020, about 3.2 million rows, so every archive would store the
+    # whole history again. Only the bundle in effect is archived, and data.ny.gov keeps the history.
+    where: in_effect='true'
+  file_format:
+    type: csv
+    dtype: str
+    geometry:
+      geom_column:
+        x: longitude
+        y: latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: drop_columns
+    args:
+      columns: ["georeference"]
