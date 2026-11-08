@@ -1,0 +1,28 @@
+id: edc_capitalprojects_ferry
+
+attributes:
+  name: EDC Ferry Capital Projects
+  description: >-
+    NYC Economic Development Corporation ferry capital projects. Rarely changes. The original
+    upload wasn't kept, so the inbox copy of version 20210610 is library's shapefile export of it.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/edc/edc_capitalprojects_ferry/{{ version }}/edc_capitalprojects_ferry.shp.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: edc_capitalprojects_ferry.shp
+    crs: EPSG:4326
+  processing_steps:
+  - name: multi
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+
+columns:
+- id: fmsid
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry

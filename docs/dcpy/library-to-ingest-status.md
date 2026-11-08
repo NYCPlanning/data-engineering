@@ -1,6 +1,6 @@
 # Library → Ingest: remaining work
 
-Status snapshot as of 2026-10-30, built by diffing `python/library/dcpy/library/templates/*.yml`
+Status snapshot as of 2026-11-08, built by diffing `python/library/dcpy/library/templates/*.yml`
 against `ingest_templates/*.yml` and searching for direct `library archive` calls. It isn't built
 from [tracking issue #1255](https://github.com/NYCPlanning/data-engineering/issues/1255) or its
 sub-issues, which have drifted out of sync with the actual file state (see
@@ -31,7 +31,7 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-21 datasets. Consumers come from grepping each name across `products/`, excluding
+15 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
@@ -47,12 +47,11 @@ library's own tests load its template, so it stays until the package is removed.
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `usfws_nyc_wetlands` | `ceqr`, `green_fast_track` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) |
 
-### Url or file sources (14)
+### Url or file sources (8)
 
 | Consumers | Datasets |
 |---|---|
 | `ceqr`, `green_fast_track` | `dcp_beaches`, `dob_natural_resource_check_flags` |
-| `cpdb` | `dcp_trafficanalysiszones`, `ddc_capitalprojects_infrastructure`, `ddc_capitalprojects_publicbuildings`, `dot_projects_bridges`, `edc_capitalprojects`, `edc_capitalprojects_ferry` |
 | `developments` | `dob_jobapplications_parkingspaces` |
 | `edde` | `dcp_dot_trafficinjuries` |
 | `facilities` | `usdot_ports` (blocked: the source now requires a token, see [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)) |
@@ -61,12 +60,11 @@ library's own tests load its template, so it stays until the package is removed.
 ## Remaining: direct `library archive` calls
 
 These call the `library` CLI against templates that live outside `python/library`, so a template
-diff doesn't find them. Both archive a file the pipeline just produced instead of fetching a source.
+diff doesn't find them. They archive a file the pipeline just produced instead of fetching a source.
 
 | Workflow | Templates | Schedule |
 |---|---|---|
 | `zap_export.yml`, `zap_single_visible.yml` | 7 in `products/zap-opendata/templates/` | `zap_export` weekly |
-| `developments_datasync.yml` (through `devdb_datasync.sh`) | 2 in `products/developments/templates/` | weekly |
 
 ## Remaining: code that imports `dcpy.library`
 
@@ -84,7 +82,7 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 
 ## Migrated, but `latest` is still a library archive
 
-25 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false). If
+31 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false). If
 the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
 replacing the archive takes `--overwrite --version <version>`.
 
@@ -123,6 +121,35 @@ Three things worth carrying forward:
 - **A hand-maintained source needs a guard.** `nycdoc_corrections` matches facility names against a
   hardcoded list; six had silently stopped matching as facilities closed. It now raises instead of
   returning fewer rows.
+
+## Migrated: cpdb cluster
+
+Six datasets, all read only by cpdb. Each new template was run locally against the version in
+`latest` and diffed against that library archive:
+
+| Dataset | Source | Result |
+|---|---|---|
+| `ddc_capitalprojects_infrastructure` | s3 inbox shapefile | 70,652 rows, attributes identical, geometry within 2e-8 ft |
+| `ddc_capitalprojects_publicbuildings` | s3 inbox shapefile | 6,860 rows, attributes identical, geometry within 2e-8 ft |
+| `dot_projects_bridges` | s3 inbox shapefile | 127 rows, attributes identical, geometry within 1e-8 ft |
+| `edc_capitalprojects` | s3 inbox shapefile | 19 rows, attributes identical, geometry within 1e-8 ft |
+| `edc_capitalprojects_ferry` | library's own shapefile export | 1 row, identical to the pg_dump |
+| `dcp_trafficanalysiszones` | library's own shapefile export | 2,243 rows, identical to the pg_dump |
+
+Things worth carrying forward:
+
+- **Library forced multi-part geometry, and cpdb depends on it.** Its product models filter on
+  `ST_GeometryType(geom) = 'ST_MultiPolygon'`, so these templates use the `multi` step. Shapefiles
+  read through ingest otherwise come out as a mix of single and multi.
+- **`ogc_fid` only exists in library's pg_dump.** Ogr2ogr adds it as a serial key on load.
+  `products/cpdb/python/dot_bridges.py` was recasting it but nothing read it, so that line is gone.
+- **Two sources had no raw file.** `edc_capitalprojects_ferry` and `dcp_trafficanalysiszones` were
+  ingested by library from a local `.library/upload/*.csv` that was never kept. Their inbox copies
+  are library's `.shp.zip` export with the `geom` column dropped. That column was the csv's
+  geometry as hex EWKB text, cut off at the shapefile's 254 character limit, and it collides with
+  ingest's own `geom`.
+- **Date columns change type.** The DDC shapefiles have seven date fields that library loaded as
+  `date` and ingest reads as timestamps. cpdb doesn't read any of them.
 
 ## Migrated but not yet empirically validated
 

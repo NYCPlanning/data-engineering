@@ -1,0 +1,33 @@
+id: dot_projects_bridges
+
+attributes:
+  name: DOT Bridge Capital Projects
+  description: >-
+    NYC Department of Transportation bridge capital projects. Received from DOT by email as a
+    zipped shapefile and manually uploaded to the inbox.
+
+ingestion:
+  target_crs: EPSG:4326
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/dot_projects_bridges/{{ version }}.zip
+  file_format:
+    type: shapefile
+    unzipped_filename: BridgeProjects_{{ version }}.shp
+    crs: EPSG:2263
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: multi
+  - name: rename_columns
+    args:
+      map: { "geom": "wkb_geometry" }
+
+columns:
+- id: fmsid
+  data_type: text
+- id: bin
+  data_type: text
+- id: wkb_geometry
+  data_type: geometry
