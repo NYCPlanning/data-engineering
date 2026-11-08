@@ -31,7 +31,7 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-12 datasets. Consumers come from grepping each name across `products/`, excluding
+10 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
@@ -47,11 +47,10 @@ library's own tests load its template, so it stays until the package is removed.
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `usfws_nyc_wetlands` | `ceqr`, `green_fast_track` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) |
 
-### Url or file sources (5)
+### Url or file sources (3)
 
 | Consumers | Datasets |
 |---|---|
-| `ceqr`, `green_fast_track` | `dcp_beaches`, `dob_natural_resource_check_flags` |
 | `developments` | `dob_jobapplications_parkingspaces` |
 | `edde` | `dcp_dot_trafficinjuries` |
 | `facilities` | `usdot_ports` (blocked: the source now requires a token, see [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)) |
@@ -156,6 +155,20 @@ Things worth carrying forward:
   ingest's own `geom`.
 - **Date columns change type.** The DDC shapefiles have seven date fields that library loaded as
   `date` and ingest reads as timestamps. cpdb doesn't read any of them.
+
+## Migrated: ceqr and green_fast_track pair
+
+| Dataset | Source | Result |
+|---|---|---|
+| `dcp_beaches` | s3 inbox shapefile | 50 rows, attributes identical, geometry identical in 2D |
+| `dob_natural_resource_check_flags` | library's own csv export | 42,851 rows, every cell identical |
+
+- **`dcp_beaches` drops its z.** The shapefile is PolygonZ with every z at 0, and library's parquet
+  mixed 3D and 2D rows, which is why ceqr pinned it to `pg_dump`. The template applies
+  `force_2d`, matching the 2D pg_dump, and the pin is gone. Its geometry column stays `geometry`
+  because green_fast_track reads the parquet directly and already expects that name.
+- **`dob_natural_resource_check_flags` reads every column as text.** Boro, block, lot, and bbl
+  are zero-padded codes, and library's ogr2ogr csv read kept them as strings too.
 
 ## Migrated but not yet empirically validated
 
