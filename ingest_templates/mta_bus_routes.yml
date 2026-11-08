@@ -1,0 +1,22 @@
+id: mta_bus_routes
+
+attributes:
+  name: MTA Bus Routes
+  description: >-
+    This dataset contains polyline geometries and metadata for distinct bus route shapes by route and direction
+    across schedule bundles. Only the schedule bundle in effect is ingested.
+  url: https://data.ny.gov/d/bzwk-3hb4
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: bzwk-3hb4
+    format: geojson
+    # The dataset keeps every schedule bundle since 2020, about 210,000 shapes and 1.8 GB, so every archive would
+    # store the whole history again. Only the bundle in effect is archived, and data.ny.gov keeps the history.
+    where: in_effect='true'
+  file_format:
+    type: geojson
+    # the query endpoint's GeoJSON doesn't name its CRS, which GeoJSON defines as EPSG:4326
+    crs: EPSG:4326
