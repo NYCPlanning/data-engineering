@@ -31,7 +31,7 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-15 datasets. Consumers come from grepping each name across `products/`, excluding
+12 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
@@ -47,7 +47,7 @@ library's own tests load its template, so it stays until the package is removed.
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `usfws_nyc_wetlands` | `ceqr`, `green_fast_track` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) |
 
-### Url or file sources (8)
+### Url or file sources (5)
 
 | Consumers | Datasets |
 |---|---|
@@ -55,7 +55,6 @@ library's own tests load its template, so it stays until the package is removed.
 | `developments` | `dob_jobapplications_parkingspaces` |
 | `edde` | `dcp_dot_trafficinjuries` |
 | `facilities` | `usdot_ports` (blocked: the source now requires a token, see [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)) |
-| `factfinder` | `dcp_pop_acs`, `dcp_pop_decennial_ddhca`, `dcp_pop_decennial_dhc` |
 
 ## Remaining: direct `library archive` calls
 
@@ -86,11 +85,18 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
 replacing the archive takes `--overwrite --version <version>`.
 
-## Deleted without migrating
+## Retired without migrating
 
 `sca_bluebook`, `sca_capacity_projects_current`, `sca_e_pct`, and `sca_e_projections`. Only
 `products/ceqr/ceqr_app/recipes/` reads them, no product recipe lists them, and no workflow runs
 those recipes. Their archives are still in `edm-recipes`.
+
+`dcp_pop_acs`, `dcp_pop_decennial_dhc`, and `dcp_pop_decennial_ddhca` moved to
+`ingest_templates/library_deprecated/`. factfinder still reads them, but as whole Excel workbooks
+it parses sheet by sheet, and library only archived them as-is. Their sheet layouts change between
+deliveries, and the plan is to stop relying on these files, so per-sheet ingest templates weren't
+worth building. A new delivery is uploaded straight to `edm-recipes` (`dcp_pop_acs/2024` already
+was: it has no `config.yml`). See `products/factfinder/README.md`.
 
 ## Migrated: facilities cluster
 

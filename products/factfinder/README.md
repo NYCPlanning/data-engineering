@@ -17,6 +17,11 @@ We need to ingest a few data sources for this dataset, for both ACS and Census. 
 product in that Population will hand us corrections to datasets from previous years, and those changes 
 are integrated into recipes. There are two types of dataset that might require new ingested versions:
 
+The Population files for the current window (`dcp_pop_acs`, `dcp_pop_decennial_dhc`, `dcp_pop_decennial_ddhca`) have no ingest template.
+Their sheet layouts change between deliveries, and we plan to stop relying on hand-made Excel files from Population.
+Until then, archive a delivery by uploading the workbook as-is to `s3://edm-recipes/datasets/<dataset>/<version>/<dataset>.xlsx`, then pin that version in `acs.yml` or `decennial.yml`.
+That's all library did for these files. Its old templates, with notes on each file, are in `ingest_templates/library_deprecated/`.
+
 #### Census
 Unless you're reading this in the year 2031, you probably don't need to create an entirely new census dataset to ingest. 
 You'll need to ingest updated 2020 Census data though.
