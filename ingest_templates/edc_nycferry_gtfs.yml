@@ -1,0 +1,62 @@
+id: edc_nycferry_gtfs
+
+attributes:
+  name: NYC Ferry GTFS
+  description: >-
+    NYC Ferry's General Transit Feed Specification (GTFS) feed, published for NYC Ferry (operated for NYC EDC) by its
+    vendor Connexionz and linked from ferry.nyc. Each file in the feed becomes a dataset. Landings are the stops on
+    ferry routes (route_type 4); the Rockaway shuttle bus routes (route_type 3) and their stops are in the feed too.
+  url: https://www.ferry.nyc/developer-tools/
+
+source:
+  type: file_download
+  url: https://nycferry.connexionz.net/rtt/public/utility/gtfs.aspx
+  filename: edc_nycferry_gtfs.zip
+
+dataset_defaults:
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps: []
+
+datasets:
+- id: edc_nycferry_stops
+  attributes:
+    name: NYC Ferry Stops
+  file_format:
+    unzipped_filename: stops.txt
+    geometry:
+      geom_column:
+        x: stop_lon
+        y: stop_lat
+      crs: EPSG:4326
+
+- id: edc_nycferry_routes
+  attributes:
+    name: NYC Ferry Routes
+  file_format:
+    unzipped_filename: routes.txt
+
+- id: edc_nycferry_trips
+  attributes:
+    name: NYC Ferry Trips
+  file_format:
+    unzipped_filename: trips.txt
+
+- id: edc_nycferry_stop_times
+  attributes:
+    name: NYC Ferry Stop Times
+  file_format:
+    unzipped_filename: stop_times.txt
+
+- id: edc_nycferry_shapes
+  attributes:
+    name: NYC Ferry Route Shapes
+    description: One row per point of each route shape, in order by shape_pt_sequence.
+  file_format:
+    unzipped_filename: shapes.txt
+    geometry:
+      geom_column:
+        x: shape_pt_lon
+        y: shape_pt_lat
+      crs: EPSG:4326
