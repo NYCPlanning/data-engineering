@@ -1,0 +1,17 @@
+id: dep_wwtp_drainage_areas
+
+attributes:
+  name: Citywide WWTP Drainage Areas
+  description: >-
+    The drainage area (sewershed) of each of New York City's 14 wastewater treatment plants, with each plant's
+    capacity, drainage area, and combined sewer acres, from DEP's public ArcGIS Online layer.
+  url: https://services.arcgis.com/at3rDjch5X7i9Bag/arcgis/rest/services/Drainage_areas/FeatureServer/0
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nyc_dep
+    dataset: Drainage_areas
+    layer_name: Citywide WWTP Drainage Areas
+  file_format:
+    type: geojson

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class Server(StrEnum):
     dcp = "dcp"
     hdr = "hdr"
+    nyc_dep = "nyc_dep"
     nps = "nps"
     nyc_maphub = "nyc_maphub"
     nys_clearinghouse = "nys_clearinghouse"
@@ -18,6 +19,7 @@ servers = {
     # HDR, the MTA's engineering consultant, publishes the Interborough Express (IBX) design layers
     "hdr": {"id": "04HiymDgLlsbhaV4"},
     "nps": {"id": "fBc8EJBxQRMcHlei", "subdomain": "services1"},
+    "nyc_dep": {"id": "at3rDjch5X7i9Bag"},
     "nyc_maphub": {"id": "yG5s3afENB5iO9fj", "subdomain": "services6"},
     "nys_clearinghouse": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
     "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
