@@ -1,0 +1,18 @@
+id: dep_bluebelt_bmps
+
+attributes:
+  name: Bluebelt BMPs (Complete and In Construction)
+  description: >-
+    DEP's Bluebelt best management practices (BMPs), the ponds, wetlands, and other features of its Bluebelt
+    stormwater program, complete or in construction, with when each was built, from DEP's public ArcGIS Online
+    layer.
+  url: https://www.nyc.gov/site/dep/water/the-bluebelt-program.page
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nyc_dep
+    dataset: Bluebelt_BMPs
+    layer_id: 0
+  file_format:
+    type: geojson
