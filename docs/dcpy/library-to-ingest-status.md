@@ -84,6 +84,15 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
 replacing the archive takes `--overwrite --version <version>`.
 
+`--overwrite` moves the library archive at that version to `<version>_library/` before writing.
+It used to replace only the parquet and `config.json`, leaving library's `.sql` beside the new
+parquet. Builds resolve `latest` to a version and pick a file type from that version's folder, so
+anything that doesn't pin `file_type` kept loading library's pg_dump. Twelve datasets were left
+that way and moved with `admin/ops/clear_library_files_from_latest.py --apply`: the cpdb six,
+`dcp_beaches`, `dob_natural_resource_check_flags`, `dcp_waterfront_access_map_pow`,
+`dcp_waterfront_access_map_wpaa`, `dcp_wrp_recognized_ecological_complexes`, and
+`dcp_wrp_special_natural_waterfront_areas`.
+
 ## Retired without migrating
 
 `sca_bluebook`, `sca_capacity_projects_current`, `sca_e_pct`, and `sca_e_projections`. Only
@@ -155,6 +164,12 @@ Things worth carrying forward:
   ingest's own `geom`.
 - **Date columns change type.** The DDC shapefiles have seven date fields that library loaded as
   `date` and ingest reads as timestamps. cpdb doesn't read any of them.
+
+After re-ingesting all six, a cpdb build on main loaded their parquets and matched the
+2026-11-08 `nightly_qa` build, which had the same source versions but loaded these six from
+library's pg_dumps. `cpdb_projects`, `cpdb_projects_boundaries` (12,344 rows), `cpdb_adminbounds`
+(98,834 rows), and both mapping summaries are identical. `cpdb_dcpattributes_poly` and
+`_pts` match on every attribute, with geometry within 1e-8 ft.
 
 ## Migrated: ceqr and green_fast_track pair
 
