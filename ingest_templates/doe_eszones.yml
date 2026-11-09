@@ -17,3 +17,4 @@ ingestion:
   processing_steps:
     - name: clean_column_names
       args: { "replace": { " ": "_" }, "strip": True, "lower": True }
+    - name: multi

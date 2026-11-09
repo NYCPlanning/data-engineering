@@ -226,7 +226,7 @@ CREATE OR REPLACE FUNCTION get_schoolelmntry(
 RETURNS varchar AS $$
       SELECT b.esid_no::varchar
       FROM doe_eszones b
-      WHERE ST_Within(_geom, b.wkb_geometry)
+      WHERE ST_Within(_geom, b.geom)
       LIMIT 1
   $$ LANGUAGE sql;
 
@@ -237,7 +237,7 @@ CREATE OR REPLACE FUNCTION get_schoolmiddle(
 RETURNS varchar AS $$
       SELECT b.msid_no::varchar
       FROM doe_mszones b
-      WHERE ST_Within(_geom, b.wkb_geometry)
+      WHERE ST_Within(_geom, b.geom)
       LIMIT 1
   $$ LANGUAGE sql;
 
