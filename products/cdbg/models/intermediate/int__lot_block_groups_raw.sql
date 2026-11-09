@@ -1,7 +1,7 @@
 WITH pluto AS (
     SELECT
         bbl,
-        wkb_geometry
+        geom
     FROM {{ source("recipe_sources", "dcp_mappluto_clipped") }}
 ),
 
@@ -15,13 +15,13 @@ block_groups AS (
 lot_block_group_intersections AS (
     SELECT
         pluto.bbl,
-        pluto.wkb_geometry AS lot_geometry,
-        ST_AREA(pluto.wkb_geometry) AS lot_area_sqft,
+        pluto.geom AS lot_geometry,
+        ST_AREA(pluto.geom) AS lot_area_sqft,
         block_groups.geoid AS block_group_geoid,
         block_groups.geom AS block_group_geometry
     FROM pluto
     LEFT JOIN block_groups
-        ON ST_INTERSECTS(pluto.wkb_geometry, block_groups.geom)
+        ON ST_INTERSECTS(pluto.geom, block_groups.geom)
 ),
 
 intersection_calculations AS (
