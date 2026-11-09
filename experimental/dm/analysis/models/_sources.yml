@@ -1,0 +1,107 @@
+sources:
+  - name: sources
+    description: Files downloaded into data/sources/ by scripts/download.py, which pins each one's version.
+    tables:
+      - name: pff_decennial_2010
+        description: >
+          Population FactFinder decennial census 2010 counts, from db-factfinder/publish/decennial/2010/2026.
+          Long format, one row per geography and variable. It has the same geoids as the 2020 file, including
+          2020 tracts, so it appears to be tabulated to 2020 geographies.
+        config:
+          external_location: "read_csv('./data/sources/pff_decennial_2010.csv', types = {'geoid': 'VARCHAR'})"
+
+      - name: pff_decennial_2020
+        description: Population FactFinder decennial census 2020 counts, from db-factfinder/publish/decennial/2020/2026.
+        config:
+          external_location: "read_csv('./data/sources/pff_decennial_2020.csv', types = {'geoid': 'VARCHAR'})"
+
+      - name: pff_acs_2024
+        description: >
+          Population FactFinder American Community Survey 2020-2024 estimates, from db-factfinder/publish/acs/2024/2026.
+          Long format, one row per geography and variable. e is the estimate, m its 90% margin of error,
+          and c its coefficient of variation.
+        config:
+          external_location: "read_csv('./data/sources/pff_acs_2024.csv', types = {'labs_geoid': 'VARCHAR', 'census_geoid': 'VARCHAR', 'c': 'DOUBLE', 'e': 'DOUBLE', 'm': 'DOUBLE'})"
+
+      - name: kpdb_cpp_housing_growth_cd
+        description: >
+          KPDB 2026-10-01 housing growth by community district, built for the Capital Projects Portal.
+          Its completions come from dcp_housing 24Q4.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_cpp_housing_growth_cd.csv')"
+
+      - name: kpdb_cpp_housing_growth_nta
+        description: KPDB's housing growth summary by NTA, 2026-10-01 from edm-publishing.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_cpp_housing_growth_nta.csv')"
+
+      - name: kpdb_longform_nta_output
+        description: KPDB records split by NTA, one row per record and NTA, 2026-10-01 from edm-publishing.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_longform_nta_output.csv', all_varchar = true)"
+
+      - name: kpdb_longform_cd_output
+        description: KPDB 2026-10-01 records split by community district, one row per record and district it falls in.
+        config:
+          external_location: "read_csv('./data/sources/kpdb_longform_cd_output.csv', all_varchar = true)"
+
+      - name: dcp_housing
+        description: >
+          Housing Database 26Q2 from edm-recipes, one row per DOB job. Newer than the 24Q4 version KPDB
+          2026-10-01 used, so its completions won't match KPDB's.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_housing.parquet')"
+
+      - name: dcp_cdboundaries
+        description: Community district boundaries, clipped to shoreline, version 26c from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_cdboundaries.parquet')"
+
+      - name: dcp_cdta2020
+        description: Community district tabulation areas (2020), version 26c from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_cdta2020.parquet')"
+
+      - name: dcp_nta2020
+        description: 2020 neighborhood tabulation areas, clipped to shoreline, version 26c from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_nta2020.parquet')"
+
+      - name: dcp_ct2020
+        description: >
+          2020 census tracts, clipped to shoreline, version 26c from edm-recipes. EPSG:4326. Leaves out
+          two all-water tracts (3990100, 4990100) that PFF has, both with no population or housing.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_ct2020.parquet')"
+
+      - name: dcp_housing_ahft
+        description: >
+          DCP's Affordable Housing Fair Share tracker (AHFT), 20261002 from edm-private. One row per
+          ranked community district (59, no joint interest areas).
+        config:
+          external_location: "read_csv('./data/sources/dcp_housing_ahft.csv', all_varchar = true)"
+
+      - name: hvs_allunits_2021
+        description: >
+          HPD New York City Housing and Vacancy Survey 2021 public use file, all units: one row per
+          sampled housing unit, occupied or vacant. The only geography is borough.
+        config:
+          external_location: "read_csv('./data/sources/hvs_allunits_2021.csv')"
+
+      - name: hvs_allunits_2023
+        description: HPD Housing and Vacancy Survey 2023 public use file, all units. Same layout as 2021.
+        config:
+          external_location: "read_csv('./data/sources/hvs_allunits_2023.csv')"
+
+      - name: hvs_occupied_2021
+        description: >
+          HPD Housing and Vacancy Survey 2021 public use file, occupied units: one row per household,
+          joined to the all units file on CONTROL. FW is the household weight and FW1-FW80 the
+          replicate weights for standard errors.
+        config:
+          external_location: "read_csv('./data/sources/hvs_occupied_2021.csv')"
+
+      - name: hvs_occupied_2023
+        description: HPD Housing and Vacancy Survey 2023 public use file, occupied units. Same layout as 2021.
+        config:
+          external_location: "read_csv('./data/sources/hvs_occupied_2023.csv')"

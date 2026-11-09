@@ -1,0 +1,60 @@
+community_district,growth_cohort,baseline_target_growth_rate_pct,laa_adjustment_pct,transit_access_adjustment_pct,tidal_flooding_adjustment_pct,target_growth_rate_pct,total_homes_2025,community_district_name
+BX 1,High,9,,10,,9.9,44145,"Melrose, Mott Haven, Port Morris"
+BX 2,High,9,,10,,9.9,21045,"Longwood, Hunts Point"
+BX 3,High,9,,9,,9.81,37315,Morrisania
+BX 4,High,9,,10,,9.9,58965,"Highbridge, Concourse"
+BX 5,High,9,,10,,9.9,51310,"Morris Heights, Mount Hope"
+BX 6,High,9,,10,,9.9,36680,"Tremont, Belmont, West Farms"
+BX 7,High,9,,10,,9.9,57530,"Fordham, Bedford Park, Norwood"
+BX 8,Medium,8,,7,,8.56,46585,"Riverdale, Kingsbridge, Marble Hill"
+BX 9,Medium,8,,6,,8.48,70650,"Soundview, Parkchester"
+BX 10,Low,6.93,,3,,7.14,55290,"Co-op City, Throgs Neck"
+BX 11,Low,7.47,,8,,8.06,45650,"Pelham Parkway, Morris Park"
+BX 12,Medium,8,,8,,8.64,63565,"Wakefield, Williamsbridge, Eastchester"
+BK 1,High,9,,10,,9.9,102700,"Williamsburg, Greenpoint"
+BK 2,High,9,,10,,9.9,80595,"Downtown Brooklyn, Fort Greene"
+BK 3,High,9,,10,,9.9,79730,Bedford-Stuyvesant
+BK 4,High,9,,10,,9.9,50535,Bushwick
+BK 5,High,9,,7,,9.63,80245,"East New York, Cypress Hills"
+BK 6,Medium,8,25,10,,11.00,56530,"Park Slope, Carroll Gardens"
+BK 7,Medium,8,25,10,,11.00,47585,"Sunset Park, Windsor Terrace"
+BK 8,High,9,,10,,9.9,53250,Crown Heights (North)
+BK 9,High,9,,10,,9.9,44515,Crown Heights (South)
+BK 10,Low,6.64,,9,,7.24,56110,"Bay Ridge, Dyker Heights"
+BK 11,Low,7.37,,9,,8.03,72195,"Bensonhurst, Bath Beach"
+BK 12,Low,7.81,,10,,8.59,64110,"Borough Park, Kensington"
+BK 13,Medium,8,,8,6,8.12,48910,"Coney Island, Brighton Beach"
+BK 14,Medium,8,,10,,8.80,65320,"Flatbush, Midwood"
+BK 15,Low,7.47,,6,,7.91,68020,"Sheepshead Bay, Gravesend (East)"
+BK 16,High,9,,10,,9.9,40740,"Ocean Hill, Brownsville"
+BK 17,Medium,8,,7,,8.56,66740,East Flatbush
+BK 18,Low,6.58,25,2,,8.39,72555,"Canarsie, Flatlands"
+MN 1,High,9,25,8,,12.15,46080,Financial District
+MN 2,Low,7.81,25,10,,10.74,59245,"Greenwich Village, Tribeca"
+MN 3,Medium,8,,10,,8.8,84645,"Lower East Side, Chinatown"
+MN 4,High,9,,10,,9.9,89555,"Chelsea, Hell’s Kitchen"
+MN 5,High,9,,10,,9.9,44325,"Midtown, Flatiron"
+MN 6,Medium,8,,10,,8.8,101175,East Midtown
+MN 7,Low,7.67,,10,,8.44,127215,Upper West Side
+MN 8,Low,6.99,25,10,,9.62,140545,"Upper East Side, Roosevelt Island"
+MN 9,Medium,8,,10,,8.8,46600,"Morningside Heights, Hamilton Heights"
+MN 10,Medium,8,,10,,8.8,63920,Harlem
+MN 11,Medium,8,,6,,8.48,57925,East Harlem
+MN 12,Medium,8,,10,,8.8,77305,"Washington Heights, Inwood"
+QN 1,High,9,,7,,9.63,98880,"Astoria, Queensbridge"
+QN 2,High,9,25,7,,12.04,73150,"Long Island City, Sunnyside, Woodside"
+QN 3,Low,7.5,,5,,7.88,60140,"Jackson Heights, East Elmhurst"
+QN 4,Low,7.9,,9,,8.61,58820,"Elmhurst, Corona"
+QN 5,Low,7.25,,5,,7.61,70180,"Ridgewood, Maspeth, Middle Village"
+QN 6,Medium,8,25,8,,10.80,58555,"Forest Hills, Rego Park"
+QN 7,Medium,8,,2,,8.16,105980,"Flushing, Murray Hill, Whitestone"
+QN 8,Low,7.64,25,2,,9.74,60510,"Fresh Meadows, Hillcrest, Briarwood"
+QN 9,Low,7.05,25,10,,9.70,51415,"Kew Gardens, Richmond Hill, Woodhaven"
+QN 10,Low,6.67,25,5,5,8.32,43490,South Ozone Park & Howard Beach
+QN 11,Low,6.99,25,3,,9,47830,"Auburndale, Bayside, Douglaston"
+QN 12,Medium,8,,3,,8.24,91285,"Jamaica, St. Albans, Hollis"
+QN 13,Low,6.66,25,1,,8.41,66590,"Queens Village, Bellerose, Rosedale"
+QN 14,Medium,8,,7,20,6.85,51670,The Rockaways
+SI 1,Medium,8,,1,,8.08,70155,North Shore
+SI 2,Low,7.45,25,2,7,8.84,52095,Mid-Island
+SI 3,Low,7.91,25,4,,10.28,63910,South Shore

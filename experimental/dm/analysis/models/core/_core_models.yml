@@ -1,0 +1,1207 @@
+models:
+  - name: dim_community_district
+    description: >
+      One row per community district (borocd), including the 12 joint interest areas (parks,
+      airports, and other non-residential areas). Holds population and housing counts for the past
+      (2010 and 2020 censuses), present (Housing Database units built through 2025), and future (KPDB
+      projections through 2034), plus the district's AHFT rank. Each measure keeps its source or
+      method in its name, so census, units built, and KPDB figures for the same year aren't interchangeable.
+    columns:
+      - name: borocd
+        config:
+          meta:
+            display_name: "BoroCD"
+        description: Borough code (1-5) times 100 plus the district number, e.g. 310 for Brooklyn CD 10.
+        data_tests: [unique, not_null]
+      - name: boro_code
+        config:
+          meta:
+            display_name: "Borough code"
+        description: Borough code, 1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island.
+        data_tests: [not_null]
+      - name: boro_name
+        config:
+          meta:
+            display_name: "Borough"
+        description: Borough name.
+      - name: cd_number
+        config:
+          meta:
+            display_name: "District number"
+        description: District number within the borough. 50 and up are joint interest areas.
+      - name: community_district_name
+        config:
+          meta:
+            display_name: "Community district"
+        description: >
+          Borough, district type, and number, e.g. "Brooklyn Community District 10" or "Brooklyn Joint
+          Interest Area 56". Community districts are numbered, not named. Neighborhood names belong to
+          the CDTA (cdta_name).
+        data_tests: [unique, not_null]
+      - name: cdta2020
+        config:
+          meta:
+            display_name: "CDTA code"
+        description: >
+          The 2020 community district tabulation area for this district, e.g. BK10. CDTAs are built from
+          census tracts, so their boundaries approximate the district's.
+        data_tests: [unique, not_null]
+      - name: cdta_name
+        config:
+          meta:
+            display_name: "CDTA name"
+        description: >
+          CDTA code and name from dcp_cdta2020, e.g. "BK10 Bay Ridge-Dyker Heights", without the note
+          on boundary match the source ends it with. Names the CDTA, not the community district, though
+          it's the most recognizable label for one.
+        data_tests: [unique, not_null]
+      - name: cdta_boundary_match
+        config:
+          meta:
+            display_name: "CDTA boundary match"
+        description: >
+          How closely the CDTA's boundary matches the district's: Equivalent (the same area) or
+          Approximation. Parsed from the end of the source CDTA name.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Equivalent, Approximation]
+      - name: is_joint_interest_area
+        config:
+          meta:
+            display_name: "Joint interest area"
+        description: True for the 12 joint interest areas, which AHFT doesn't rank.
+        data_tests: [not_null]
+      - name: ahft_rank
+        config:
+          meta:
+            display_name: "AHFT rank"
+        description: >
+          AHFT rank, 1 (lowest rate of affordable housing development) to 59 (highest). Null for joint
+          interest areas.
+      - name: is_ahft_district
+        config:
+          meta:
+            display_name: "AHFT district"
+        description: >
+          True if ahft_rank is in the bottom 12 of 59, the cutoff LIFT uses. Null for joint interest areas,
+          since they aren't ranked.
+      - name: ahft_housing_units_start_of_cycle
+        config:
+          meta:
+            display_name: "AHFT housing units, start of cycle"
+        description: AHFT's housing unit count at the start of its cycle, the denominator of its rate. SSOT is the AHFT tracker.
+      - name: ahft_new_affordable_units
+        config:
+          meta:
+            display_name: "AHFT new affordable units"
+        description: AHFT's new affordable dwelling units in the cycle, the numerator of its rate. SSOT is the AHFT tracker.
+      - name: fhgs_growth_cohort
+        config:
+          meta:
+            display_name: "FHGS growth cohort"
+        description: >
+          Fair Housing Growth Strategy growth cohort (Low, Medium, High): the district's third of the 59 by
+          its 2016-2025 housing growth rate. FHGS columns come from the final report (October 2026), Appendix B
+          and Figure 3.2, and are null for joint interest areas. SSOT is the report.
+      - name: fhgs_annual_growth_rate_2016_2025_pct
+        config:
+          meta:
+            display_name: "FHGS annual growth rate 2016-2025 (%)"
+        description: >
+          FHGS annual rate of new homes added 2016-2025, from the Housing Database, 0-100 scale. The report
+          computes it from the change in total housing between 2016 and 2025, converted to an annual rate.
+      - name: fhgs_baseline_target_growth_rate_pct
+        config:
+          meta:
+            display_name: "FHGS baseline target growth rate (%)"
+        description: FHGS 5-year baseline target growth rate from the district's cohort, 0-100 scale.
+      - name: fhgs_laa_adjustment_pct
+        config:
+          meta:
+            display_name: "FHGS limited affordability area adjustment (%)"
+        description: FHGS Limited Affordability Area adjustment (x 1.25), as a percent increase. Null where it doesn't apply.
+      - name: fhgs_transit_access_adjustment_pct
+        config:
+          meta:
+            display_name: "FHGS transit access adjustment (%)"
+        description: FHGS transit access adjustment (x 1.01-1.1), as a percent increase.
+      - name: fhgs_tidal_flooding_adjustment_pct
+        config:
+          meta:
+            display_name: "FHGS tidal flooding adjustment (%)"
+        description: FHGS tidal flooding adjustment (x 0.8-0.95), as a percent reduction. Null where it doesn't apply.
+      - name: fhgs_target_growth_rate_pct
+        config:
+          meta:
+            display_name: "FHGS 2030 target growth rate (%)"
+        description: FHGS 5-year target growth rate, the baseline times each adjustment, 0-100 scale.
+      - name: fhgs_total_homes_2025
+        config:
+          meta:
+            display_name: "FHGS total homes 2025"
+        description: FHGS total homes in the district in 2025, the base its 2030 target multiplies. SSOT is the report.
+      - name: fhgs_homes_added_2021_2025
+        config:
+          meta:
+            display_name: "FHGS homes added 2021-2025"
+        description: FHGS homes added 2021-2025, from its 2030 targets tables. SSOT is the report.
+      - name: fhgs_target_new_homes_2030
+        config:
+          meta:
+            display_name: "FHGS 2030 target new homes"
+        description: >
+          FHGS five-year target for all new homes, 2026-2030, from its 2030 targets tables. It's the target growth
+          rate times total homes in 2025, rounded to the nearest 5. Homes count when they get a certificate of
+          occupancy, net of units lost to demolition or consolidation. Includes the affordable target. SSOT is
+          the report.
+      - name: fhgs_target_affordable_homes_2030
+        config:
+          meta:
+            display_name: "FHGS 2030 target affordable homes"
+        description: FHGS affordable target, 25% of the five-year target. Includes the deeply affordable target.
+      - name: fhgs_target_deeply_affordable_homes_2030
+        config:
+          meta:
+            display_name: "FHGS 2030 target deeply affordable homes"
+        description: FHGS deeply affordable target, 30% of the affordable target. Includes the target for households experiencing homelessness.
+      - name: fhgs_target_homes_for_homeless_households_2030
+        config:
+          meta:
+            display_name: "FHGS 2030 target homes for homeless households"
+        description: FHGS target for households experiencing homelessness, 50% of the deeply affordable target.
+      - name: fhgs_target_pct_of_homes_added_2021_2025
+        config:
+          meta:
+            display_name: "FHGS 2030 target vs homes added 2021-2025 (%)"
+        description: >
+          fhgs_target_new_homes_2030 as a percent of fhgs_homes_added_2021_2025, 0-100 scale rounded to 2 decimals.
+          How the target pace compares with the last five years: 200.00 means twice as many homes.
+      - name: population_2010_census
+        config:
+          meta:
+            display_name: "Population 2010 (census)"
+        description: Total population, 2010 decennial census (PFF pop1). SSOT is PFF decennial.
+      - name: population_2020_census
+        config:
+          meta:
+            display_name: "Population 2020 (census)"
+        description: Total population, 2020 decennial census (PFF pop1). SSOT is PFF decennial.
+      - name: housing_units_2010_census
+        config:
+          meta:
+            display_name: "Housing units 2010 (census)"
+        description: Housing units, 2010 decennial census (PFF hunits). SSOT is PFF decennial.
+      - name: housing_units_2020_census
+        config:
+          meta:
+            display_name: "Housing units 2020 (census)"
+        description: Housing units as of April 1 2020, 2020 decennial census (PFF hunits). SSOT is PFF decennial. KPDB uses the same figure as its baseline.
+      - name: cdta_median_household_income_acs
+        config:
+          meta:
+            display_name: "CDTA median household income (ACS)"
+        description: >
+          Median household income of the district's CDTA, 2020-2024 ACS (PFF mdhhinc). PFF doesn't tabulate ACS
+          to community districts, so this is for the CDTA, which may only approximate the district (cdta_boundary_match).
+      - name: cdta_median_household_income_acs_moe
+        config:
+          meta:
+            display_name: "CDTA median household income margin of error (ACS)"
+        description: 90% margin of error of cdta_median_household_income_acs.
+      - name: citywide_median_household_income_acs
+        config:
+          meta:
+            display_name: "Citywide median household income (ACS)"
+        description: Median household income of the whole city, 2020-2024 ACS (PFF mdhhinc). The same on every row.
+      - name: housing_units_2010_backcast
+        config:
+          meta:
+            display_name: "Housing units 2010 (2020 census minus units built)"
+        description: >
+          Housing units as of April 1 2010, worked back from the 2020 census: housing_units_2020_census minus units_built_2010_2020. Unlike housing_units_2010_census, the change from it to 2020 is only units built, so it doesn't pick up differences in how the two censuses counted.
+      - name: housing_units_2024_end
+        config:
+          meta:
+            display_name: "Housing units end of 2024"
+        description: >
+          housing_units_2020_census plus net units built from April 2 2020 through December 31 2024. Same as mart_community_district_date.housing_units_from_2020_census on 2024-12-31. SSOT is fact_unit_completion (dcp_housing 26Q2), not KPDB, whose own 2024 count uses an older Housing Database version.
+      - name: projected_net_units_2025_2034
+        config:
+          meta:
+            display_name: "Projected net units 2025-2034 (KPDB)"
+        description: >
+          Units KPDB phases within 5 years plus within 5 to 10 years. KPDB phases by project status, not
+          date, so the years are a labeling convention. SSOT is KPDB's cpp_housing_growth_cd; per-record
+          values are in dim_kpdb_record_community_district.
+      - name: projected_net_units_2025_2029
+        config:
+          meta:
+            display_name: "Projected net units 2025-2029 (KPDB)"
+        description: >
+          Units KPDB phases within 5 years, summed from its records (within_5_years_in_cd in
+          dim_kpdb_record_community_district) and rounded. The years are the same labeling convention as
+          projected_net_units_2025_2034. 0 where KPDB has no records in the district.
+      - name: projected_net_units_2030_2034
+        config:
+          meta:
+            display_name: "Projected net units 2030-2034 (KPDB)"
+        description: >
+          Units KPDB phases within 5 to 10 years, summed from its records (from_5_to_10_years_in_cd) and
+          rounded. With projected_net_units_2025_2029 it adds up to projected_net_units_2025_2034, give or
+          take 1 from rounding.
+      - name: projected_housing_units_2034_end
+        config:
+          meta:
+            display_name: "Projected housing units end of 2034"
+        description: >
+          housing_units_2024_end plus projected_net_units_2025_2034.
+      - name: projected_net_units_2025_2034_pct
+        config:
+          meta:
+            display_name: "Projected net units 2025-2034 (%)"
+        description: >
+          projected_net_units_2025_2034 as a percent of housing_units_2024_end, 0-100 scale rounded to 2 decimals.
+      - name: population_change_2010_2020_pct
+        config:
+          meta:
+            display_name: "Population change 2010-2020 (%)"
+        description: >
+          Percent change from population_2010_census to population_2020_census, 0-100 scale rounded to
+          2 decimals. Null where the 2010 count is 0.
+      - name: population_change_2010_2020_rank
+        config:
+          meta:
+            display_name: "Population change 2010-2020 rank"
+        description: >
+          Rank of population_change_2010_2020_pct among the 59 community districts, 1 for the fastest
+          growth. Ties share a rank. Null for joint interest areas.
+      - name: units_built_2010_2020
+        config:
+          meta:
+            display_name: "Units built 2010-2020"
+        description: >
+          Net housing units completed after April 1 2010 through April 1 2020, the two census dates, from the Housing Database (classa_net, dcp_housing 26Q2, active jobs only, as in DevDB's unit change summary). Net of demolitions. SSOT is fact_unit_completion.
+      - name: units_built_2010_2020_pct
+        config:
+          meta:
+            display_name: "Units built 2010-2020 (%)"
+        description: >
+          units_built_2010_2020 as a percent of housing_units_2010_backcast, 0-100 scale rounded to 2 decimals.
+      - name: units_built_2010_2020_rank
+        config:
+          meta:
+            display_name: "Units built 2010-2020 rank"
+        description: >
+          Rank of units_built_2010_2020_pct among the 59 community districts, 1 for the fastest growth. Ties share a rank. Null for joint interest areas.
+      - name: population_vs_housing_growth_gap_2010_2020_pts
+        config:
+          meta:
+            display_name: "Population vs housing growth gap 2010-2020 (pts)"
+        description: >
+          population_change_2010_2020_pct minus units_built_2010_2020_pct, in percentage points. Positive where population grew faster than the housing units built. Both cover the same April 2010 to April 2020 window.
+      - name: units_counted_change_2010_2020
+        config:
+          meta:
+            display_name: "Units counted 2010-2020"
+        description: >
+          housing_units_2020_census minus housing_units_2010_census: the change in units the two censuses counted. Unlike units_built_2010_2020, it also picks up differences in how the censuses counted.
+      - name: units_counted_change_2010_2020_pct
+        config:
+          meta:
+            display_name: "Units counted 2010-2020 (%)"
+        description: >
+          units_counted_change_2010_2020 as a percent of housing_units_2010_census, same scale.
+      - name: units_counted_minus_built_2010_2020
+        config:
+          meta:
+            display_name: "Units counted minus units built 2010-2020"
+        description: >
+          units_counted_change_2010_2020 minus units_built_2010_2020. Near 0 where construction explains the census change. Large values flag districts where the two censuses counted units differently, or units were added or lost without a DOB job.
+      - name: units_built_2015_2024
+        config:
+          meta:
+            display_name: "Units built 2015-2024"
+        description: >
+          Net housing units completed in calendar years 2015 through 2024, same Housing Database filters as units_built_2010_2020. SSOT is fact_unit_completion.
+      - name: population_in_households_2010_census
+        description: >
+          Population living in households, 2010 decennial census (PFF popinhh_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population in households 2010 (census)"
+      - name: population_in_households_2020_census
+        description: >
+          Population living in households, 2020 decennial census (PFF popinhh_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population in households 2020 (census)"
+      - name: group_quarters_population_2010_census
+        description: >
+          population_2010_census minus population_in_households_2010_census: people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2010 (census)"
+      - name: group_quarters_population_2020_census
+        description: >
+          population_2020_census minus population_in_households_2020_census.
+        config:
+          meta:
+            display_name: "Group quarters population 2020 (census)"
+      - name: occupied_housing_units_2010_census
+        description: >
+          Occupied housing units, which equal households, 2010 decennial census (PFF ochu_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Occupied housing units 2010 (census)"
+      - name: occupied_housing_units_2020_census
+        description: >
+          Occupied housing units, which equal households, 2020 decennial census (PFF ochu_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Occupied housing units 2020 (census)"
+      - name: vacant_housing_units_2010_census
+        description: >
+          Vacant housing units, 2010 decennial census (PFF vachus). Equals housing_units_2010_census minus occupied_housing_units_2010_census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Vacant housing units 2010 (census)"
+      - name: vacant_housing_units_2020_census
+        description: >
+          Vacant housing units, 2020 decennial census (PFF vachus). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Vacant housing units 2020 (census)"
+      - name: occupancy_rate_2010_census_pct
+        description: >
+          occupied_housing_units_2010_census as a percent of housing_units_2010_census, 0-100 scale rounded to 2 decimals.
+        config:
+          meta:
+            display_name: "Occupancy rate 2010 (census, %)"
+      - name: occupancy_rate_2020_census_pct
+        description: >
+          occupied_housing_units_2020_census as a percent of housing_units_2020_census, same scale.
+        config:
+          meta:
+            display_name: "Occupancy rate 2020 (census, %)"
+      - name: average_household_size_2010_census
+        description: >
+          population_in_households_2010_census per occupied housing unit, rounded to 2 decimals. Computed from the counts rather than taken from PFF's rounded avghhsz.
+        config:
+          meta:
+            display_name: "Average household size 2010 (census)"
+      - name: average_household_size_2020_census
+        description: >
+          population_in_households_2020_census per occupied housing unit, rounded to 2 decimals.
+        config:
+          meta:
+            display_name: "Average household size 2020 (census)"
+      - name: people_per_housing_unit_2010_census
+        description: >
+          population_in_households_2010_census per housing unit, vacant units included, rounded to 2 decimals. Rises when more units are occupied or households get bigger.
+        config:
+          meta:
+            display_name: "People per housing unit 2010 (census)"
+      - name: people_per_housing_unit_2020_census
+        description: >
+          population_in_households_2020_census per housing unit, vacant units included, rounded to 2 decimals.
+        config:
+          meta:
+            display_name: "People per housing unit 2020 (census)"
+      - name: population_change_2010_2020
+        description: >
+          population_2020_census minus population_2010_census. The units_built, occupied_units_not_built, household_size, and group_quarters population_change_from_* columns add up to it, give or take 3 from rounding. So do units_built, unit_count_difference, occupancy, household_size, and group_quarters. The parts are accounting, not causes: each says how much the population would have changed if only that one thing had.
+        config:
+          meta:
+            display_name: "Population change 2010-2020"
+      - name: population_change_from_units_built_2010_2020
+        description: >
+          People housed by the units built: units_built_2010_2020 times people per occupied unit, averaged across 2010 and 2020 occupancy and household size. Assumes new units filled like the district's existing units. Where new units hold smaller households than that, this part is too high and population_change_from_household_size_2010_2020 too low by the same amount. Each part is the average over all six orders of changing units, occupancy rate, and household size (a Shapley decomposition), so no order is favored. Rounded.
+        config:
+          meta:
+            display_name: "Population change from units built 2010-2020"
+      - name: population_change_from_unit_count_difference_2010_2020
+        description: >
+          units_counted_minus_built_2010_2020 times the same people per unit as population_change_from_units_built_2010_2020: the part of the census change in units that construction doesn't explain. Often offsets population_change_from_occupancy_2010_2020, since a unit one census counted and the other didn't moves both. Read the two together as population_change_from_occupied_units_not_built_2010_2020. Rounded.
+        config:
+          meta:
+            display_name: "Population change from unit count difference 2010-2020"
+      - name: population_change_from_occupancy_2010_2020
+        description: >
+          People added or lost as more or fewer of the units were occupied: the change in occupancy rate times units and household size, averaged across 2010 and 2020. Often offsets population_change_from_unit_count_difference_2010_2020. Each part is the average over all six orders of changing units, occupancy rate, and household size (a Shapley decomposition), so no order is favored. Rounded.
+        config:
+          meta:
+            display_name: "Population change from occupancy 2010-2020"
+      - name: population_change_from_occupied_units_not_built_2010_2020
+        description: >
+          population_change_from_unit_count_difference_2010_2020 plus population_change_from_occupancy_2010_2020: people added or lost as the census count of occupied units changed by more or less than construction explains. Rounded.
+        config:
+          meta:
+            display_name: "Population change from occupied units not built 2010-2020"
+      - name: population_change_from_household_size_2010_2020
+        description: >
+          People added or lost as average household size changed: the change in average household size times occupied units, averaged across 2010 and 2020. Also takes up any difference between the household sizes of new units and of existing ones (see population_change_from_units_built_2010_2020), so a negative value doesn't by itself mean existing households shrank. Not a measure of crowding: the decennial census doesn't count rooms. Each part is the average over all six orders of changing units, occupancy rate, and household size (a Shapley decomposition), so no order is favored. Rounded.
+        config:
+          meta:
+            display_name: "Population change from household size 2010-2020"
+      - name: population_change_from_group_quarters_2010_2020
+        description: >
+          group_quarters_population_2020_census minus group_quarters_population_2010_census.
+        config:
+          meta:
+            display_name: "Population change from group quarters 2010-2020"
+      - name: population_change_from_units_built_2010_2020_pts
+        description: >
+          population_change_from_units_built_2010_2020 in percentage points of population_2010_census, rounded to 2 decimals. Add up to population_change_2010_2020_pct the same way the people columns add up to population_change_2010_2020, give or take 0.05.
+        config:
+          meta:
+            display_name: "Population change from units built 2010-2020 (pts)"
+      - name: population_change_from_unit_count_difference_2010_2020_pts
+        description: >
+          population_change_from_unit_count_difference_2010_2020 in percentage points of population_2010_census, rounded to 2 decimals. Add up to population_change_2010_2020_pct the same way the people columns add up to population_change_2010_2020, give or take 0.05.
+        config:
+          meta:
+            display_name: "Population change from unit count difference 2010-2020 (pts)"
+      - name: population_change_from_occupancy_2010_2020_pts
+        description: >
+          population_change_from_occupancy_2010_2020 in percentage points of population_2010_census, rounded to 2 decimals. Add up to population_change_2010_2020_pct the same way the people columns add up to population_change_2010_2020, give or take 0.05.
+        config:
+          meta:
+            display_name: "Population change from occupancy 2010-2020 (pts)"
+      - name: population_change_from_occupied_units_not_built_2010_2020_pts
+        description: >
+          population_change_from_occupied_units_not_built_2010_2020 in percentage points of population_2010_census, rounded to 2 decimals. Add up to population_change_2010_2020_pct the same way the people columns add up to population_change_2010_2020, give or take 0.05.
+        config:
+          meta:
+            display_name: "Population change from occupied units not built 2010-2020 (pts)"
+      - name: population_change_from_household_size_2010_2020_pts
+        description: >
+          population_change_from_household_size_2010_2020 in percentage points of population_2010_census, rounded to 2 decimals. Add up to population_change_2010_2020_pct the same way the people columns add up to population_change_2010_2020, give or take 0.05.
+        config:
+          meta:
+            display_name: "Population change from household size 2010-2020 (pts)"
+      - name: population_change_from_group_quarters_2010_2020_pts
+        description: >
+          population_change_from_group_quarters_2010_2020 in percentage points of population_2010_census, rounded to 2 decimals. Add up to population_change_2010_2020_pct the same way the people columns add up to population_change_2010_2020, give or take 0.05.
+        config:
+          meta:
+            display_name: "Population change from group quarters 2010-2020 (pts)"
+      - name: land_acres
+        description: District area in acres, from dcp_cdboundaries' shape_area in square feet (EPSG:2263). Districts are clipped to the shoreline, so this is land only.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Land area (acres)"
+      - name: people_per_acre
+        description: population_2020_census / land_acres, residents per acre of land in 2020.
+        config:
+          meta:
+            display_name: "People per acre"
+      - name: geom
+        description: Community district boundary clipped to the shoreline (dcp_cdboundaries 26c), EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_kpdb_record_community_district
+    description: >
+      One row per KPDB record and community district it falls in (record_id x borocd), from KPDB
+      2026-10-01. A record that spans districts has a row for each, with its units split by
+      proportion_in_cd. Summing within_5_years_in_cd + from_5_to_10_years_in_cd by district gives
+      dim_community_district.projected_net_units_2025_2034.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "record_id || '-' || borocd"
+    columns:
+      - name: record_id
+        description: KPDB record id. A ZAP project id, DOB job number, or another source's id.
+        data_tests: [not_null]
+      - name: borocd
+        description: Community district the record piece falls in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: project_id
+        description: KPDB project id. Records judged to be the same development share one.
+      - name: source
+        description: Where the record comes from, e.g. DOB, DCP Application, HPD RFPs.
+      - name: record_name
+        description: Record name or address.
+      - name: status
+        description: Source-specific status, e.g. "DOB 3. Permitted for Construction".
+      - name: type
+        description: Source-specific record type.
+      - name: record_date
+        description: Date of the record, as text in KPDB's YYYY/MM/DD format. Its meaning is in date_type.
+      - name: date_type
+        description: What record_date marks, e.g. "Certified Referred".
+      - name: is_classb
+        description: KPDB classb flag.
+      - name: is_nycha
+        description: KPDB nycha flag.
+      - name: is_senior_housing
+        description: KPDB senior_housing flag.
+      - name: is_inactive
+        description: KPDB inactive flag. Null where KPDB leaves it blank.
+      - name: proportion_in_cd
+        description: Share of the record's units assigned to this district, 0 to 1.
+      - name: units_net_in_cd
+        description: Net units in this district (units_net times proportion_in_cd). SSOT is KPDB longform_cd_output.
+      - name: completed_units_in_cd
+        description: Units already completed, in this district. SSOT is KPDB longform_cd_output.
+      - name: future_phased_units_total_in_cd
+        description: Future units with phasing, in this district. SSOT is KPDB longform_cd_output.
+      - name: future_units_without_phasing_in_cd
+        description: Future units without phasing, in this district. SSOT is KPDB longform_cd_output.
+      - name: within_5_years_in_cd
+        description: Units KPDB phases within 5 years, in this district. SSOT is KPDB longform_cd_output.
+      - name: from_5_to_10_years_in_cd
+        description: Units KPDB phases within 5 to 10 years, in this district. SSOT is KPDB longform_cd_output.
+      - name: after_10_years_in_cd
+        description: Units KPDB phases after 10 years, in this district. SSOT is KPDB longform_cd_output.
+
+  - name: mart_community_district_date
+    description: >
+      One row per community district and date (borocd x as_of_date): April 1 2010, December 31 of
+      2010 through 2025, and April 1 2020. Housing units counted from the 2020 census, so the series
+      only changes by units built, from fact_unit_completion.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || as_of_date"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: community_district_name
+        description: Same as dim_community_district.community_district_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: cdta_name
+        description: Same as dim_community_district.cdta_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: as_of_date
+        description: Date the housing unit count is as of, at the end of the day.
+        data_tests: [not_null]
+      - name: housing_units_from_2020_census
+        description: >
+          Housing units as of as_of_date: housing_units_2020_census, minus net units completed after
+          as_of_date through April 1 2020, or plus net units completed after April 1 2020 through
+          as_of_date (fact_unit_completion.classa_net, active jobs only). Semi-additive: sums across
+          districts, not across dates. On April 1 2010 it equals
+          dim_community_district.housing_units_2010_backcast.
+        data_tests: [not_null]
+
+  - name: mart_nta_date
+    description: >
+      One row per NTA and date (nta2020 x as_of_date): April 1 2010, December 31 of 2010 through 2025, and April 1 2020.
+      The same series as mart_community_district_date, at the NTA grain. Past units only. KPDB's NTA projections are on dim_nta.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "nta2020 || '-' || as_of_date"
+    columns:
+      - name: nta2020
+        description: NTA code.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: nta_name
+        description: Same as dim_nta.nta_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: nta_type_name
+        description: Same as dim_nta.nta_type_name. Repeated here so non-residential NTAs can be left out without a join.
+        data_tests: [not_null]
+      - name: cdta2020
+        description: Same as dim_nta.cdta2020. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: as_of_date
+        description: Date the housing unit count is as of, at the end of the day.
+        data_tests: [not_null]
+      - name: housing_units_from_2020_census
+        description: >
+          Housing units as of as_of_date: dim_nta.housing_units_2020_census, minus net units completed after as_of_date
+          through April 1 2020, or plus net units completed after April 1 2020 through as_of_date
+          (fact_unit_completion.classa_net, active jobs only). Semi-additive: sums across NTAs, not across dates.
+        data_tests: [not_null]
+
+  - name: fact_unit_completion
+    description: >
+      One row per completed DOB job (job_number) from the Housing Database (dcp_housing 26Q2).
+      A job counts as completed once DevDB sets its date_complete.
+      Includes demolitions and alterations, whose net units can be negative, and inactive jobs, which
+      the district metrics leave out.
+    columns:
+      - name: job_number
+        description: DOB job number.
+        data_tests: [unique, not_null]
+      - name: job_type
+        description: New Building, Alteration, or Demolition.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [New Building, Alteration, Demolition]
+      - name: borocd
+        description: Community district the job is in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: nta2020
+        description: NTA the job is in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: date_complete
+        description: >
+          Completion date. For new buildings and alterations it comes from the job's certificate of
+          occupancy. For demolitions it's the permit date, set once DOB signs the job off.
+        data_tests: [not_null]
+      - name: complete_year
+        description: Year of date_complete.
+      - name: classa_net
+        description: >
+          Net Class A (permanent residential) units the job adds, negative where it removes them.
+          Additive. SSOT is dcp_housing.
+      - name: is_inactive
+        description: >
+          True if the Housing Database flags the job inactive. DevDB's unit change summary leaves these
+          out, and so do the district metrics here.
+        data_tests: [not_null]
+
+  - name: fact_housing_survey_household
+    description: >
+      One row per household in HPD's Housing and Vacancy Survey (HVS) public use files, 2021 and
+      2023 (survey_year x control). A sample, not a count: weight each row by household_weight to
+      estimate totals, and use the 80 replicate weights for standard errors (see
+      int_borough_survey_year_household_size_metrics). The only geography in the public files is
+      borough. HPD cautions that differences between survey cycles may not reflect real change.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "survey_year || '-' || control"
+    columns:
+      - name: survey_year
+        description: HVS survey cycle, 2021 or 2023.
+        data_tests: [not_null]
+      - name: control
+        description: HVS record id (CONTROL), unique within a survey year.
+        data_tests: [not_null]
+      - name: boro_code
+        description: Borough, recoded from HVS's BORO to DCP's codes (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island).
+        data_tests: [not_null]
+      - name: is_built_2010_or_later
+        description: Whether the building was built in 2010 or later (YEARBUILT's last bin). Year built is the building's, not the unit's.
+        data_tests: [not_null]
+      - name: household_size
+        description: People in the household (HHSIZE).
+        data_tests: [not_null]
+      - name: household_weight
+        description: Household survey weight (FW).
+        data_tests: [not_null]
+
+  - name: mart_borough_survey_year
+    description: >
+      One row per borough and HVS survey year (boro_code x survey_year): average household size in
+      buildings built before 2010 and 2010 or later, from fact_housing_survey_household, each with a
+      standard error from HPD's replicate weights. Shows whether households in new buildings are
+      smaller, which the units built part of the population change decomposition assumes they aren't.
+      Averages, so don't sum or average them across rows.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "boro_code || '-' || survey_year"
+    columns:
+      - name: boro_code
+        description: Borough code, same as dim_community_district.boro_code.
+        data_tests: [not_null]
+      - name: boro_name
+        description: Borough name, same as dim_community_district.boro_name.
+        data_tests: [not_null]
+      - name: survey_year
+        description: HVS survey cycle, 2021 or 2023.
+        data_tests: [not_null]
+      - name: hvs_records_built_before_2010
+        description: Sampled households in buildings built before 2010. Not an estimate of households.
+      - name: hvs_records_built_2010_or_later
+        description: Sampled households in buildings built 2010 or later. Under 10 on Staten Island, too few to read.
+      - name: average_household_size_built_before_2010_hvs
+        description: Weighted average people per household in buildings built before 2010, rounded to 2 decimals.
+      - name: average_household_size_built_before_2010_hvs_se
+        description: Standard error of average_household_size_built_before_2010_hvs, rounded to 3 decimals.
+      - name: average_household_size_built_2010_or_later_hvs
+        description: Weighted average people per household in buildings built 2010 or later, rounded to 2 decimals.
+      - name: average_household_size_built_2010_or_later_hvs_se
+        description: Standard error of average_household_size_built_2010_or_later_hvs, rounded to 3 decimals.
+      - name: household_size_gap_built_2010_or_later_hvs
+        description: average_household_size_built_2010_or_later_hvs minus average_household_size_built_before_2010_hvs, before rounding. Negative means households in newer buildings are smaller.
+      - name: household_size_gap_built_2010_or_later_hvs_se
+        description: Standard error of household_size_gap_built_2010_or_later_hvs, from the replicate estimates of the gap itself.
+
+  - name: dim_census_tract
+    description: >
+      One row per 2020 census tract (boroct2020), with decennial census counts for 2010 and 2020.
+      PFF tabulates 2010 to 2020 tracts, so the two years compare directly. Tracts nest in NTAs,
+      CDTAs, and PUMAs but not in community districts, so summing tracts by cdta2020 gives CDTA
+      totals, which differ from dim_community_district's counts where the CDTA only approximates
+      the district (cdta_boundary_match). Tracts and districts add up to the same citywide totals.
+    columns:
+      - name: boroct2020
+        description: Borough code and 6-digit tract number, e.g. 1000100. Same as PFF's tract geoid.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "BoroCT2020"
+      - name: ct2020
+        description: 6-digit tract number within the borough.
+        config:
+          meta:
+            display_name: "Census tract"
+      - name: tract_label
+        description: Tract number as the Census Bureau labels it, e.g. 22.01.
+        config:
+          meta:
+            display_name: "Tract label"
+      - name: boro_code
+        description: Borough code, same as dim_community_district.boro_code.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Borough code"
+      - name: boro_name
+        description: Borough name.
+        config:
+          meta:
+            display_name: "Borough"
+      - name: nta2020
+        description: 2020 neighborhood tabulation area the tract is in.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+        config:
+          meta:
+            display_name: "NTA code"
+      - name: nta_name
+        description: Name of nta2020.
+        config:
+          meta:
+            display_name: "NTA"
+      - name: cdta2020
+        description: 2020 community district tabulation area the tract is in. Joins to dim_community_district.cdta2020.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: cdta2020
+        config:
+          meta:
+            display_name: "CDTA code"
+      - name: puma
+        description: 2020 public use microdata area the tract is in.
+        config:
+          meta:
+            display_name: "PUMA"
+      - name: population_2010_census
+        description: Total population, 2010 decennial census (PFF pop1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population 2010 (census)"
+      - name: population_2020_census
+        description: Total population, 2020 decennial census (PFF pop1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population 2020 (census)"
+      - name: population_in_households_2010_census
+        description: Population living in households, 2010 decennial census (PFF popinhh_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population in households 2010 (census)"
+      - name: population_in_households_2020_census
+        description: Population living in households, 2020 decennial census (PFF popinhh_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population in households 2020 (census)"
+      - name: housing_units_2010_census
+        description: Housing units, 2010 decennial census (PFF hunits). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Housing units 2010 (census)"
+      - name: housing_units_2020_census
+        description: Housing units, 2020 decennial census (PFF hunits). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Housing units 2020 (census)"
+      - name: occupied_housing_units_2010_census
+        description: Occupied housing units, 2010 decennial census (PFF ochu_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Occupied housing units 2010 (census)"
+      - name: occupied_housing_units_2020_census
+        description: Occupied housing units, 2020 decennial census (PFF ochu_1). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Occupied housing units 2020 (census)"
+      - name: vacant_housing_units_2010_census
+        description: Vacant housing units, 2010 decennial census (PFF vachus). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Vacant housing units 2010 (census)"
+      - name: vacant_housing_units_2020_census
+        description: Vacant housing units, 2020 decennial census (PFF vachus). SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Vacant housing units 2020 (census)"
+      - name: group_quarters_population_2010_census
+        description: population_2010_census minus population_in_households_2010_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2010 (census)"
+      - name: group_quarters_population_2020_census
+        description: population_2020_census minus population_in_households_2020_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2020 (census)"
+      - name: population_age_under_18_2020_census
+        description: Population under 18 (PFF popu18), 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age under 18 2020 (census)"
+      - name: population_age_18_24_2020_census
+        description: Population 18 to 24, 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 18-24 2020 (census)"
+      - name: population_age_25_44_2020_census
+        description: Population 25 to 44, 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 25-44 2020 (census)"
+      - name: population_age_45_64_2020_census
+        description: Population 45 to 64, 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 45-64 2020 (census)"
+      - name: population_age_65_plus_2020_census
+        description: Population 65 and over (PFF pop65pl), 2020 decennial census. SSOT is PFF decennial.
+        config:
+          meta:
+            display_name: "Population age 65+ 2020 (census)"
+      - name: median_household_income_acs
+        description: >
+          Median household income, 2020-2024 ACS (PFF mdhhinc). Null where the tract has too few households for
+          an estimate, top-coded at 250,001, and medians can't be summed to larger geographies. Read it with its margin of error.
+        config:
+          meta:
+            display_name: "Median household income (ACS)"
+      - name: median_household_income_acs_moe
+        description: 90% margin of error of median_household_income_acs.
+        config:
+          meta:
+            display_name: "Median household income margin of error (ACS)"
+      - name: households_acs
+        description: Households, 2020-2024 ACS (PFF hh2).
+        config:
+          meta:
+            display_name: "Households (ACS)"
+      - name: households_income_under_25k_acs
+        description: Households with income under $25,000, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households under $25k (ACS)"
+      - name: households_income_25k_50k_acs
+        description: Households with income $25,000 to $49,999, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $25k-$50k (ACS)"
+      - name: households_income_50k_100k_acs
+        description: Households with income $50,000 to $99,999, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $50k-$100k (ACS)"
+      - name: households_income_100k_200k_acs
+        description: Households with income $100,000 to $199,999, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $100k-$200k (ACS)"
+      - name: households_income_200k_plus_acs
+        description: Households with income $200,000 and over, 2020-2024 ACS, summed from PFF's income brackets. Noisy for a single tract, so read it summed to NTAs or larger.
+        config:
+          meta:
+            display_name: "Households $200k+ (ACS)"
+      - name: land_acres
+        description: Tract area in acres, from dcp_ct2020's shape_area in square feet (EPSG:2263). Tracts are clipped to the shoreline, so this is land only.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Land area (acres)"
+      - name: people_per_acre
+        description: population_2020_census / land_acres, residents per acre of land in 2020.
+        config:
+          meta:
+            display_name: "People per acre"
+      - name: average_household_size_2020_census
+        description: >
+          population_in_households_2020_census per occupied housing unit, rounded to 2 decimals. Same as
+          dim_community_district.average_household_size_2020_census. Leaves out people in group quarters. Null where there are no occupied units.
+        config:
+          meta:
+            display_name: "Average household size 2020 (census)"
+      - name: geom
+        description: Tract boundary clipped to the shoreline (dcp_ct2020 26c), EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_nta
+    description: >
+      One row per 2020 neighborhood tabulation area (nta2020), with decennial census counts for 2010 and 2020
+      and 2020-2024 ACS household income. NTAs are built from census tracts and nest in CDTAs, so dim_census_tract
+      adds up to this table exactly (assert_ntas_add_up_to_tracts) and summing by cdta2020 gives CDTA totals. Includes
+      65 non-residential NTAs such as parks, cemeteries, and airports (see nta_type_name).
+    columns:
+      - name: nta2020
+        description: NTA code, e.g. BK0101. Same as PFF's NTA geoid and dim_census_tract.nta2020.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "NTA code"
+      - name: nta_name
+        description: NTA name.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "NTA"
+      - name: nta_abbreviation
+        description: Short NTA name from the source, e.g. Grnpt.
+        config:
+          meta:
+            display_name: "NTA abbreviation"
+      - name: nta_type
+        description: Source type code, as text. See nta_type_name for its label.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "NTA type code"
+      - name: nta_type_name
+        description: >
+          Label for nta_type: Residential (197 NTAs, 99.9% of 2020 population), Rikers Island, Other Special Areas, Cemetery,
+          Airport, or Park. A null here means the source has a code missing from the nta_types seed, so it's tested.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "NTA type"
+      - name: boro_code
+        description: Borough code, same as dim_community_district.boro_code.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Borough code"
+      - name: boro_name
+        description: Borough name.
+        config:
+          meta:
+            display_name: "Borough"
+      - name: cdta2020
+        description: 2020 community district tabulation area the NTA is in. Joins to dim_community_district.cdta2020.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: cdta2020
+        config:
+          meta:
+            display_name: "CDTA code"
+      - name: population_2010_census
+        description: Total population, 2010 decennial census (PFF pop1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population 2010 (census)"
+      - name: population_2020_census
+        description: Total population, 2020 decennial census (PFF pop1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population 2020 (census)"
+      - name: population_in_households_2010_census
+        description: Population living in households, 2010 decennial census (PFF popinhh_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population in households 2010 (census)"
+      - name: population_in_households_2020_census
+        description: Population living in households, 2020 decennial census (PFF popinhh_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population in households 2020 (census)"
+      - name: housing_units_2010_census
+        description: Housing units, 2010 decennial census (PFF hunits). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Housing units 2010 (census)"
+      - name: housing_units_2020_census
+        description: Housing units, 2020 decennial census (PFF hunits). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Housing units 2020 (census)"
+      - name: occupied_housing_units_2010_census
+        description: Occupied housing units, 2010 decennial census (PFF ochu_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Occupied housing units 2010 (census)"
+      - name: occupied_housing_units_2020_census
+        description: Occupied housing units, 2020 decennial census (PFF ochu_1). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Occupied housing units 2020 (census)"
+      - name: vacant_housing_units_2010_census
+        description: Vacant housing units, 2010 decennial census (PFF vachus). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Vacant housing units 2010 (census)"
+      - name: vacant_housing_units_2020_census
+        description: Vacant housing units, 2020 decennial census (PFF vachus). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Vacant housing units 2020 (census)"
+      - name: group_quarters_population_2010_census
+        description: population_2010_census minus population_in_households_2010_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2010 (census)"
+      - name: group_quarters_population_2020_census
+        description: population_2020_census minus population_in_households_2020_census, the people in dorms, nursing homes, prisons, shelters, and other group quarters.
+        config:
+          meta:
+            display_name: "Group quarters population 2020 (census)"
+      - name: population_age_under_18_2020_census
+        description: Population under 18 (PFF popu18), 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age under 18 2020 (census)"
+      - name: population_age_18_24_2020_census
+        description: Population 18 to 24, 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 18-24 2020 (census)"
+      - name: population_age_25_44_2020_census
+        description: Population 25 to 44, 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 25-44 2020 (census)"
+      - name: population_age_45_64_2020_census
+        description: Population 45 to 64, 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 45-64 2020 (census)"
+      - name: population_age_65_plus_2020_census
+        description: Population 65 and over (PFF pop65pl), 2020 decennial census. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Population age 65+ 2020 (census)"
+      - name: median_household_income_acs
+        description: >
+          Median household income, 2020-2024 ACS (PFF's NTA mdhhinc). Null for 54 NTAs, all non-residential. Top-coded at 200,000, not the 250,001 of dim_census_tract, so don't compare the two at the
+          top. Comes from PFF at this grain because medians can't be summed from tracts. Read it with its margin of error.
+        config:
+          meta:
+            display_name: "Median household income (ACS)"
+      - name: median_household_income_acs_moe
+        description: 90% margin of error of median_household_income_acs. Also null for NTAs at the top code and for 6 non-residential NTAs with under 30 households.
+        config:
+          meta:
+            display_name: "Median household income margin of error (ACS)"
+      - name: households_acs
+        description: Households, 2020-2024 ACS (PFF hh2). Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households (ACS)"
+      - name: households_income_under_25k_acs
+        description: Households with income under $25,000, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households under $25k (ACS)"
+      - name: households_income_25k_50k_acs
+        description: Households with income $25,000 to $49,999, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $25k-$50k (ACS)"
+      - name: households_income_50k_100k_acs
+        description: Households with income $50,000 to $99,999, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $50k-$100k (ACS)"
+      - name: households_income_100k_200k_acs
+        description: Households with income $100,000 to $199,999, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $100k-$200k (ACS)"
+      - name: households_income_200k_plus_acs
+        description: Households with income $200,000 and over, 2020-2024 ACS, summed from PFF's income brackets. Adds up from dim_census_tract, the SSOT.
+        config:
+          meta:
+            display_name: "Households $200k+ (ACS)"
+      - name: land_acres
+        description: NTA area in acres, from dcp_nta2020's shape_area in square feet (EPSG:2263). NTAs are clipped to the shoreline, so this is land only. Matches the sum of its tracts' land_acres.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Land area (acres)"
+      - name: people_per_acre
+        description: population_2020_census / land_acres, residents per acre of land in 2020.
+        config:
+          meta:
+            display_name: "People per acre"
+      - name: average_household_size_2020_census
+        description: >
+          population_in_households_2020_census per occupied housing unit, rounded to 2 decimals. Same as
+          dim_community_district.average_household_size_2020_census. Leaves out people in group quarters. Null where there are no occupied units.
+        config:
+          meta:
+            display_name: "Average household size 2020 (census)"
+      - name: housing_units_2024_end
+        description: housing_units_2020_census plus net units built from April 2 2020 through December 31 2024. Same as mart_nta_date.housing_units_from_2020_census on that date.
+        config:
+          meta:
+            display_name: "Housing units end of 2024"
+      - name: projected_net_units_2025_2034
+        description: >
+          Units KPDB phases within 5 years plus within 5 to 10 years. KPDB phases by project status, not date, so the years are
+          a labeling convention. A project spanning NTAs is split by the share of its area in each, so a single NTA's number can
+          lean on how one large project happens to be drawn. SSOT is KPDB's cpp_housing_growth_nta.
+        config:
+          meta:
+            display_name: "Projected net units 2025-2034 (KPDB)"
+      - name: projected_net_units_2025_2029
+        description: Units KPDB phases within 5 years, summed from its records (within_5_years_in_nta in longform_nta_output).
+        config:
+          meta:
+            display_name: "Projected net units 2025-2029 (KPDB)"
+      - name: projected_net_units_2030_2034
+        description: Units KPDB phases within 5 to 10 years, summed from its records (from_5_to_10_years_in_nta in longform_nta_output).
+        config:
+          meta:
+            display_name: "Projected net units 2030-2034 (KPDB)"
+      - name: projected_housing_units_2034_end
+        description: housing_units_2024_end plus projected_net_units_2025_2034.
+        config:
+          meta:
+            display_name: "Projected housing units end of 2034"
+      - name: geom
+        description: NTA boundary clipped to the shoreline (dcp_nta2020 26c), EPSG:4326.
+        data_tests: [not_null]
