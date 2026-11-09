@@ -12,12 +12,18 @@ pluto AS (
 
 joined AS (
     SELECT
-        source_flags.*,
+        -- the source bbl carries a five-digit lot, so use pluto's to match the other flags
+        pluto.bbl,
+        source_flags.coastal_hazard_area_flag,
+        source_flags.fresh_water_wetlands_flag,
+        source_flags."tidal-coastal_wetlands_flag",
         pluto.geom AS raw_geom
     FROM source_flags
     INNER JOIN pluto
         ON (
-            source_flags.boro_code || source_flags.block || lpad(source_flags.lot, 4, '0')
+            -- lot arrives as five digits, and lpad truncates on the right, so take the last four
+            source_flags.boro_code || source_flags.block
+            || lpad(right(source_flags.lot, 4), 4, '0')
         ) = pluto.bbl
     WHERE pluto.geom IS NOT NULL
 ),
