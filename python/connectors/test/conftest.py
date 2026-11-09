@@ -178,7 +178,7 @@ class MockResponse:
 
 
 def mock_request_get(
-    url: str, headers=None, auth=None, params: dict | None = None
+    url: str, headers=None, auth=None, params: dict | None = None, timeout=None
 ) -> MockResponse:
     """
     Mocks calls to request.get
