@@ -8,6 +8,14 @@ models:
     data_type: string
     tests:
     - not_null
+    # a flag on a bbl that isn't in pluto never reaches green_fast_track_bbls. warn, since
+    # some e-designations are on lots that are no longer in pluto
+    - relationships:
+        arguments:
+          to: ref('stg__pluto')
+          field: bbl
+        config:
+          severity: warn
   - name: flag_id_field_name
     data_type: string
     tests:
@@ -106,6 +114,10 @@ models:
   - name: bbl
     tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('stg__pluto')
+          field: bbl
   - name: variable_type
     tests:
     - not_null
@@ -211,3 +223,28 @@ unit_tests:
         - {bbl: r12_district, zd: M1-8A, zoning_district_type: M}
         - {bbl: r12_district, zd: R12, zoning_district_type: R12}
         - {bbl: r12_district, zd: C6-4X, zoning_district_type: C}
+
+  - name: test_dob_natural_resources_lot
+    description: >-
+      DOB's lot is five digits. The flag lands on the lot with its last four digits, not
+      lot 0001, which is what lpad's right-truncation of 00010 gives.
+    model: int_flags__dob_natural_resources
+    given:
+      - input: source('recipe_sources', 'dob_natural_resource_check_flags')
+        format: sql
+        rows: |
+          SELECT * FROM (
+            VALUES ('Manhattan', '1', '00001', '00010', '10000100010', 'X', NULL, NULL)
+          ) AS t (
+            borough_name, boro_code, block, lot, bbl,
+            coastal_hazard_area_flag, fresh_water_wetlands_flag, "tidal-coastal_wetlands_flag"
+          )
+      - input: ref('stg__pluto')
+        format: sql
+        rows: |
+          SELECT bbl, ST_Point(0, 0) AS geom FROM (
+            VALUES ('1000010010'), ('1000010001')
+          ) AS t (bbl)
+    expect:
+      rows:
+        - {bbl: '1000010010', variable_type: dob_coastal_erosion_hazard_area}
