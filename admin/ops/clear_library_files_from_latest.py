@@ -13,11 +13,12 @@ Datasets fall into three cases, and only the first is safe to fix by clearing:
                  is clean. The stale files are copies of an older library archive that
                  still exists in its own version folder, so clearing loses nothing.
 
-  mixed_version  `latest/` holds an ingest config but `<version>/` is mixed too. Caused
-                 by `--overwrite`, which replaces only the files ingest writes. The
-                 library files move to `<version>_library/` so both folders come out
-                 clean. Note `--overwrite` already destroyed library's own config.json
-                 and parquet at these versions, so that folder ends up partial.
+  mixed_version  `latest/` holds an ingest config, but `<version>/` still has library
+                 files, whether or not `latest/` does. Caused by `--overwrite`, which
+                 replaced only the files ingest writes until it learned to set library
+                 archives aside. The library files move to `<version>_library/` so both
+                 folders come out clean. `--overwrite` already destroyed library's own
+                 config.json and parquet at these versions, so that folder ends up partial.
 
   needs_ingest   `latest/` still holds a library config, so the dataset has a template
                  but has never been archived through ingest. Rename `<version>` to
@@ -100,8 +101,6 @@ def classify(dataset_id: str) -> tuple[str, str | None, list[str]]:
     if not latest:
         return "no_archive", None, []
     stale = sorted(f for f in latest if not _is_ingest_output(f))
-    if not stale:
-        return "already_clean", None, []
     try:
         raw = (
             s3.client()
@@ -117,9 +116,11 @@ def classify(dataset_id: str) -> tuple[str, str | None, list[str]]:
         return "needs_ingest", config.get("dataset", {}).get("version"), stale
     version = config.get("version")
     versioned = _folder_files(f"datasets/{dataset_id}/{version}")
-    if all(_is_ingest_output(f) for f in versioned):
+    if not all(_is_ingest_output(f) for f in versioned):
+        return "mixed_version", version, stale
+    if stale:
         return "clear_latest", version, stale
-    return "mixed_version", version, stale
+    return "already_clean", version, []
 
 
 def main(apply: bool) -> None:

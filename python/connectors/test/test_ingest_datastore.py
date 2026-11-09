@@ -66,6 +66,59 @@ def test_push_latest_is_independent_of_the_versioned_archive(
     )
 
 
+def test_overwrite_sets_library_archive_aside(
+    connector: IngestDatastoreConnector, tmp_path: Path
+):
+    """Overwriting a library-era version moves library's files to `<version>_library/`.
+
+    Builds resolve `latest` to a version and pick a file type from that version's
+    folder, so a library `.sql` left beside the new parquet wins.
+    """
+    ds = DOWNSTREAM_DATASET_1
+    versioned = tmp_path / ds.id / ds.version
+    versioned.mkdir(parents=True)
+    library_files = {
+        "config.json": '{"dataset": {"name": "leftover"}}',
+        "config.yml": "dataset:\n  name: leftover\n",
+        f"{ds.id}.parquet": "library parquet",
+        f"{ds.id}.sql": "-- archived by library",
+    }
+    for name, text in library_files.items():
+        (versioned / name).write_text(text)
+
+    connector.push_versioned(
+        key=ds.id, version=ds.version, config=ds, filepath=TEST_OUTPUT, overwrite=True
+    )
+
+    assert sorted(p.name for p in versioned.iterdir()) == [
+        "config.json",
+        TEST_OUTPUT.name,
+    ]
+    set_aside = tmp_path / ds.id / f"{ds.version}_library"
+    assert {p.name: p.read_text() for p in set_aside.iterdir()} == library_files
+
+
+def test_overwrite_replaces_an_ingest_archive(
+    connector: IngestDatastoreConnector, tmp_path: Path
+):
+    ds = DOWNSTREAM_DATASET_1
+    connector.push_versioned(
+        key=ds.id, version=ds.version, config=ds, filepath=TEST_OUTPUT
+    )
+    versioned = tmp_path / ds.id / ds.version
+    (versioned / "stray.csv").write_text("a\n1\n")
+
+    connector.push_versioned(
+        key=ds.id, version=ds.version, config=ds, filepath=TEST_OUTPUT, overwrite=True
+    )
+
+    assert sorted(p.name for p in versioned.iterdir()) == [
+        "config.json",
+        TEST_OUTPUT.name,
+    ]
+    assert not (tmp_path / ds.id / f"{ds.version}_library").exists()
+
+
 def test_pull_versioned_reuses_local_copy(
     connector: IngestDatastoreConnector, tmp_path: Path
 ):

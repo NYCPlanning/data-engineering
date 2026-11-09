@@ -39,6 +39,9 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
                 f"Archived dataset '{dest_key}' already exists for connector {self.conn_type}, cannot overwrite"
             )
 
+        if overwrite and self.storage.exists(dest_folder_path):
+            self._set_aside_library_archive(key, version, acl=acl)
+
         with TemporaryDirectory() as tmp_dir:
             config_path = Path(tmp_dir) / config_filename
             with open(config_path, "w") as f:
@@ -47,22 +50,39 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
                         config.model_dump(exclude_none=True, mode="json"), indent=4
                     )
                 )
-            self.storage.push(
-                f"{dest_folder_path}/{filepath.name}",
-                filepath=filepath,
-                acl=acl,
-            )
-            self.storage.push(
-                f"{dest_folder_path}/config.json",
-                filepath=config_path,
-                acl=acl,
-            )
+            # Pushed as a folder so it replaces whatever was there, for the same reason
+            # as `latest` (see push_latest): builds pick a file type from this folder.
+            version_dir = Path(tmp_dir) / version
+            version_dir.mkdir()
+            shutil.copy(filepath, version_dir / filepath.name)
+            shutil.copy(config_path, version_dir / config_filename)
+            self.storage.push(dest_folder_path, filepath=version_dir, acl=acl)
 
             if latest:
                 self.push_latest(
                     key, filepath=filepath, config_path=config_path, acl=acl
                 )
         return {}
+
+    def _set_aside_library_archive(
+        self, key: str, version: str, acl: str | None = None
+    ) -> None:
+        """Move a library-era archive at this version to `<version>_library/`.
+
+        An ingest archive being overwritten is simply replaced. A library one is kept,
+        since its files (including its parquet) have no other copy.
+        """
+        folder = f"{key}/{version}"
+        if self.storage.exists(f"{folder}/{config_filename}") and not self._is_library(
+            key, version
+        ):
+            return
+        dest = f"{folder}_library"
+        logger.info(f"Moving library archive {folder} to {dest}")
+        with TemporaryDirectory() as tmp_dir:
+            local = Path(tmp_dir) / "library"
+            self.storage.pull(folder, local)
+            self.storage.push(dest, filepath=local, acl=acl, merge=True)
 
     def push_latest(
         self,
