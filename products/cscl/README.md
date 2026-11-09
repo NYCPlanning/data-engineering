@@ -378,7 +378,7 @@ whether it is on or not, so it isn't lost.
 | `fix_reversed_proto_census_fields` | `false` | CSCL-LION-26: on a centerline's reversed proto-segment prod's gdb reads the census tract and block (1990-2020) and community district fields from the AtomicPolygons it found on the shape before the reversal, so they are the other side's and contradict prod's own LION .dat; on, they follow the record's own sides (LION gdb `LCT`/`RCT`, `LCB`/`RCB` and suffixes, `L_CD`/`R_CD`) | CSCL-LOG-OURS-17: a count in `log.csv` (saying whether the fix is on) |
 | `fix_hyphen_r_high_house_number` | `false` | CSCL-LION-25: prod's gdb takes a HYPHEN_TYPE R address point's high house number from a dash in HOUSE_NUMBER, but CSCL stores it in HOUSE_NUMBER_RANGE, so the S and V replicants get none; on, they get HOUSE_NUMBER_RANGE (LION gdb `LHi_Hyphen`/`RHi_Hyphen`, `ToLeft`/`ToRight`) | CSCL-LOG-OURS-18: a count in `log.csv` (saying whether the fix is on) |
 | `fix_blank_type_altsegmentdata` | `false` | CSCL-SAF-03: prod selects AltSegmentData SAF records by SAF type alone, so it writes a row with a blank ALT_SEGDATA_TYPE that spec Table 13 leaves out; on, it is left out (SAF ABCEGNPX generic and roadbed, LION gdb B replicant and `SegCount`) | CSCL-LOG-OURS-19: a count in `log.csv` listing the rows' segments (saying whether the fix is on) |
-| `lion_gdb_seqnum_extract_sessions` | `[['2', '3', '1', '4', '5']]` | CSCL-LION-05, not a prod bug fix: the extract sessions the LION gdb's non-street feature sequence numbers are counted in (LION gdb `SeqNum`). Prod's LION gdb matches one session for all five boroughs and its LION .dat files the sessions of `lion_seqnum_extract_sessions`, so prod's two outputs differ; the default reproduces prod's gdb, and setting it to `lion_seqnum_extract_sessions` numbers the gdb like the .dat files | CSCL-LOG-OURS-22: a count in `log.csv` giving both settings |
+| `lion_gdb_seqnum_extract_sessions` | `[['2', '3', '1', '4', '5']]` | CSCL-LION-05, not a prod bug fix, and a per-release operator input (see [Version bump](#3-version-bump)): the extract sessions the LION gdb's non-street feature sequence numbers are counted in (LION gdb `SeqNum`). Prod's LION gdb has matched one session for all five boroughs; on 26c its LION .dat files matched a split (`lion_seqnum_extract_sessions` `[['2', '3', '1'], ['4', '5']]`), so prod's two outputs differed, while on 26D both are one session. Setting it to `lion_seqnum_extract_sessions` numbers the gdb like the .dat files | CSCL-LOG-OURS-22: a count in `log.csv` giving both settings |
 | `fix_coincident_seg_count` | `false` | CSCL-LION-14: prod subtracts from a centerline's coincident segment count each underground subway or rail segment with its shape, with no floor, so a count can be 0 where the spec says above 0 (LION L57); on, it subtracts those within 1 ft of the centerline's midpoint, only when the count is above 1 | CSCL-LOG-OURS-23: a count in `log.csv` (saying whether the fix is on) |
 | `fix_rpl_roadbed_order` | `false` | CSCL-RPL-02: prod puts each of a generic's roadbeds on the side its midpoint lies on, whatever its position code, and writes the right side's, then the left side's, outermost first; on, RPL.txt has the spec's order: R, the inner roadbeds on its side, L, the other inner roadbeds (RPL.txt roadbed order within a generic) | CSCL-LOG-OURS-26: a count in `log.csv` (saying whether the fix is on) |
 | `fix_seg_loc_status_2020_tract` | `false` | CSCL-LION-11: where a segment's left and right AtomicPolygons are in the same borough, prod writes segment locational status X when their 2010 census tracts differ, where the spec says the 2020 tracts; on, it compares the 2020 tracts (LION L41, LION gdb `LocStatus`) | CSCL-LOG-OURS-27: a count in `log.csv` (saying whether the fix is on) |
@@ -467,6 +467,31 @@ Nothing ties the LDF inputs to the version, so update these by hand too (see
 - `seeds/config.csv`: `ldf_previous_version` (-> the release before, `26c`),
   `ldf_old_release_date` (its deploy date), `ldf_new_release` (`26d`, must equal `version`),
   `ldf_new_release_date` (this release's deploy date, from GR).
+- `dbt_project.yml`'s `lion_seqnum_extract_sessions` and `lion_gdb_seqnum_extract_sessions`:
+  the borough extract sessions GR ran for this release's LION .dat files and LION gdb
+  (CSCL-LION-05). They're operator history, not source data, and change with every working
+  GDB (26c: `.dat` `[['2', '3', '1'], ['4', '5']]`, gdb one session; 26D: both one session,
+  `[['2', '3', '1', '4', '5']]`). Derive them from the prod snapshot once step 2 is done:
+  prod's LION gdb `SeqNum` has been one session (Bronx, Brooklyn, Manhattan, Queens, Staten
+  Island, the order one click runs), so check whether prod's .dat files agree with it:
+
+  ```sql
+  -- in the unzipped production_outputs.zip: prod .dat records whose seqnum isn't the gdb's
+  SELECT d.boroughcode, count(*)
+  FROM 'citywide_lion_dat.parquet' AS d
+  WHERE NOT EXISTS (
+      SELECT 1 FROM 'fgdb_lion.parquet' AS g
+      WHERE trim(g.segmentid) = trim(d.segmentid)
+          AND ltrim(trim(g.facecode::varchar), '0') = ltrim(trim(d.face_code), '0')
+          AND ltrim(trim(g.seqnum::varchar), '0') = ltrim(trim(d.segment_seqnum), '0'))
+  GROUP BY 1
+  ```
+
+  0 everywhere (26D: 0 of 214,802): set both vars to one session. Otherwise the boroughs
+  with mismatches were extracted in a fresh session (26c: 1,967, all Queens); try that split for
+  `lion_seqnum_extract_sessions` (26c's Queens and Staten Island) and keep it once the
+  build's LION .dat diffs have no `segment_seqnum` rows on non-street faces. If the gdb
+  query itself stops matching our gdb, the build's LION gdb `SeqNum` diffs show it.
 - `recipe.yml`'s two `dcp_cscl_temp_mock_previous_release` inputs (`version: 26B` today),
   which should become the previous release's. Only `26B/` exists in
   `edm-private/datasets/dcp_cscl_temp_mock_previous_release/` right now (see the open

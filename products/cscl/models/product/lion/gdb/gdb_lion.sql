@@ -317,8 +317,14 @@ replicant_rows AS (
             WHEN saf_replicants.specaddr IN ('D', 'F') THEN saf_replicants.r_zip
             ELSE coalesce(saf_replicants.r_zip, lion.r_zip)
         END AS "RZip",
-        CASE WHEN lion.borough_boundary_indicator = 'L' THEN NULL ELSE lion.boroughcode::int END AS "LBoro",
-        CASE WHEN lion.borough_boundary_indicator = 'R' THEN NULL ELSE lion.boroughcode::int END AS "RBoro",
+        -- the SAF record's borough, not the host segment's (legacy L1 for a SAF feature; see
+        -- int__saf_altnames_join_ids)
+        CASE
+            WHEN lion.borough_boundary_indicator = 'L' THEN NULL ELSE saf_replicants.saf_boroughcode::int
+        END AS "LBoro",
+        CASE
+            WHEN lion.borough_boundary_indicator = 'R' THEN NULL ELSE saf_replicants.saf_boroughcode::int
+        END AS "RBoro",
         nullif(lion.left_community_district, '0') AS "L_CD",
         nullif(lion.right_community_district, '0') AS "R_CD",
         lion.left_dynamic_block AS "LATOMICPOLYGON",

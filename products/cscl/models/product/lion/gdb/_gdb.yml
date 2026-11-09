@@ -269,7 +269,7 @@ unit_tests:
             '10100840' AS lionkey, TRUE AS is_written, 'SAF STREET' AS saf_street_name, 'B' AS specaddr,
             '110002' AS saf_street_code, NULL::TEXT AS l_zip, NULL::TEXT AS r_zip, NULL::TEXT AS parity_side,
             NULL::TEXT AS l_low_hn, NULL::TEXT AS l_high_hn, NULL::TEXT AS r_low_hn, NULL::TEXT AS r_high_hn,
-            '11000201000000B' AS join_id
+            '11000201000000B' AS join_id, '1' AS saf_boroughcode
       - input: ref('int__lion_house_number_zeroing')
         format: sql
         rows: |

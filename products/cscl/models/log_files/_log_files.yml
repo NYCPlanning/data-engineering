@@ -568,8 +568,8 @@ unit_tests:
 # replicant isn't written). K2 has a blank Street (not written), K3 the same number in both
 # and K4 isn't in the LION gdb. 5 records. sql fixtures: CI runs unit tests without building
 # the upstream models
-- name: test__log__gdb_seqnum_sessions__defaults
-  description: "The defaults' sessions: the LION gdb in one session, the .dat files with Queens and Staten Island in a fresh one; counts the LION gdb records numbered differently."
+- name: test__log__gdb_seqnum_sessions__split_dat_sessions
+  description: "26c's sessions: the LION gdb in one session, the .dat files with Queens and Staten Island in a fresh one; counts the LION gdb records numbered differently."
   model: log__gdb_seqnum_sessions
   overrides:
     vars:
@@ -598,7 +598,7 @@ unit_tests:
     rows:
     - log_message_id: CSCL-LOG-OURS-22
       record_count: 5
-      message: "5 LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. This build numbers the LION gdb in the extract sessions [2, 3, 1, 4, 5] (lion_gdb_seqnum_extract_sessions) and the LION .dat files in [2, 3, 1] [4, 5] (lion_seqnum_extract_sessions); prod's LION gdb matches one session for all five boroughs and its .dat files a fresh session for Queens and Staten Island (CSCL-LION-05)"
+      message: "5 LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. This build numbers the LION gdb in the extract sessions [2, 3, 1, 4, 5] (lion_gdb_seqnum_extract_sessions) and the LION .dat files in [2, 3, 1] [4, 5] (lion_seqnum_extract_sessions), the sessions GR extracted each prod output in this release (CSCL-LION-05)"
 - name: test__log__gdb_seqnum_sessions__same_sessions
   description: "Both outputs in the .dat files' sessions: every record has the same number, 0 records, still one row."
   model: log__gdb_seqnum_sessions
@@ -621,7 +621,7 @@ unit_tests:
     rows:
     - log_message_id: CSCL-LOG-OURS-22
       record_count: 0
-      message: "0 LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. This build numbers the LION gdb in the extract sessions [2, 3, 1] [4, 5] (lion_gdb_seqnum_extract_sessions) and the LION .dat files in [2, 3, 1] [4, 5] (lion_seqnum_extract_sessions); prod's LION gdb matches one session for all five boroughs and its .dat files a fresh session for Queens and Staten Island (CSCL-LION-05)"
+      message: "0 LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. This build numbers the LION gdb in the extract sessions [2, 3, 1] [4, 5] (lion_gdb_seqnum_extract_sessions) and the LION .dat files in [2, 3, 1] [4, 5] (lion_seqnum_extract_sessions), the sessions GR extracted each prod output in this release (CSCL-LION-05)"
 # CSCL-LOG-OURS-23. The first two records differ (prod's rule writes 0 on the first); the
 # third agrees, the fourth isn't in the LION .dat files and the fifth isn't a centerline.
 - name: test__log__coincident_seg_count__off

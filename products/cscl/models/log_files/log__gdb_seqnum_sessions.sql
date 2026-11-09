@@ -41,8 +41,7 @@ SELECT
         "{} LION gdb records have a different non-street feature SeqNum from the LION .dat files' numbering. "
         "This build numbers the LION gdb in the extract sessions " ~ ns.gdb
         ~ " (lion_gdb_seqnum_extract_sessions) and the LION .dat files in " ~ ns.dat
-        ~ " (lion_seqnum_extract_sessions); prod's LION gdb matches one session for all five boroughs "
-        "and its .dat files a fresh session for Queens and Staten Island (CSCL-LION-05)",
+        ~ " (lion_seqnum_extract_sessions), the sessions GR extracted each prod output in this release (CSCL-LION-05)",
         ["coalesce(sum(n_records), 0)"]
     ) }} AS message,
     coalesce(sum(n_records), 0) AS record_count,

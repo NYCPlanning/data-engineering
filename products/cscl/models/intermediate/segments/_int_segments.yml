@@ -197,7 +197,7 @@ unit_tests:
       ) AS t (source_table, globalid, segmentid, ogc_fid, boroughcode, face_code, segment_seqnum, gdb_segment_seqnum)
 # CSCL-LION-05: prod's LION .dat files and LION gdb were numbered in different sessions.
 - name: test__int__nonstreetfeature_seqnum__gdb_sessions_differ
-  description: "The .dat files with a fresh session for run 4, the LION gdb with runs 1 and 4 in one session (the defaults' shape): borough 4's numbers differ, borough 1's don't."
+  description: "The .dat files with a fresh session for run 4, the LION gdb with runs 1 and 4 in one session (26c's shape): borough 4's numbers differ, borough 1's don't."
   model: int__nonstreetfeature_seqnum
   overrides:
     vars:

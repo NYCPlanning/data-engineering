@@ -13,8 +13,10 @@
 --   - L5: the AltSegmentData row's street code for types B/C/D/E/F/O/P
 --     (GetStreetCodeFromSAF); the host segment's own street code otherwise (A, the
 --     CommonPlace types G/N/X, the AddressPoint types S/V).
---   - L1: the SAF row's borough. Always equal to the host segment's borough here (0 of
---     21,973 replicant rows differ), so the host's is used.
+--   - L1: the SAF row's borough (int__saf_replicant_fields.saf_boroughcode), which can
+--     differ from the host segment's: on 26D, Brooklyn CommonPlaces on Queens segments
+--     0052212/0052215 look up Brooklyn borough + the Queens street code, a B7SC with no
+--     names, so their Join_IDs (30158204000000X etc.) get no AltNames rows, as prod.
 -- So a CommonPlace Join_ID such as 30013701000000N (PS 44) lists its host segment's street
 -- names, not "PS 44".
 --
@@ -59,7 +61,7 @@ lion_records AS (
     UNION
     SELECT
         saf.join_id,
-        lion.boroughcode
+        saf.saf_boroughcode
         || CASE
             WHEN saf.saf_source_table = 'altsegmentdata' AND saf.specaddr <> 'A'
                 THEN right(saf.saf_street_code, 5)
