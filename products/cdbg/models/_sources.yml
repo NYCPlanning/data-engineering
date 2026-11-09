@@ -10,7 +10,7 @@ sources:
             tests:
               - not_null
               - unique
-          - name: geom
+          - name: wkb_geometry
             tests:
               - not_null
       - name: dcp_cb2020_wi

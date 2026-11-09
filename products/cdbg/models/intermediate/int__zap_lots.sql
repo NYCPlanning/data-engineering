@@ -5,7 +5,7 @@ WITH projects AS (
 pluto AS (
     SELECT
         bbl,
-        geom
+        wkb_geometry
     FROM {{ source("recipe_sources", "dcp_mappluto_clipped") }}
 ),
 
@@ -22,7 +22,7 @@ zap_lots AS (
         project_bbls.project_id,
         project_bbls.bbl,
         pluto.bbl IS NOT NULL AS joined_to_pluto,
-        ST_TRANSFORM(pluto.geom, 2263) AS geom
+        ST_TRANSFORM(pluto.wkb_geometry, 2263) AS geom
     FROM project_bbls
     LEFT JOIN pluto
         ON project_bbls.bbl = pluto.bbl::text
