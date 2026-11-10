@@ -1,0 +1,23 @@
+id: dcp_censusdata_blocks
+
+attributes:
+  name: Decennial Census 2010 and 2020, Census Blocks
+  description: >-
+    DCP Population's decennial census tables for the city, boroughs, and 2020 census
+    blocks. The workbook has a sheet per census year, picked by the version (2010 or 2020).
+  url: https://www.nyc.gov/site/planning/planning-level/nyc-population/2020-census.page
+
+ingestion:
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc-decennialcensusdata_2010_2020_census-blocks.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: "{{ version }}"
+    dtype: str
+  processing_steps:
+  # two blank spacer columns between the ids and the data
+  - name: drop_columns
+    args: { columns: ["Unnamed: 6", "Unnamed: 7"] }
+  - name: clean_column_names
+    args: { "strip": True, "replace": { " ": "_" }, "lower": True }

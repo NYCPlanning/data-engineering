@@ -31,19 +31,15 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-7 datasets. Consumers come from grepping each name across `products/`, excluding
+3 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
-### Custom scripts (6)
+### Custom scripts (2)
 
 | Dataset | Consumers | Issue |
 |---|---|---|
-| `dcp_censusdata` | `developments`, `knownprojects` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
-| `dcp_censusdata_blocks` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
-| `dob_cofos` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336), see [`dob_cofos` is not a rename](#dob_cofos-is-not-a-rename) |
 | `dob_now_applications` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
-| `dob_now_permits` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 
 ### Url or file sources (1)
@@ -227,6 +223,30 @@ archived to `edm-recipes`, with `--overwrite` where the version was unchanged.
 - **`council_members` was retired.** Its Socrata dataset is now every council member since 1999,
   with different columns, and nothing reads it.
 
+## Migrated: developments scripts, part 1
+
+Four of #1336's six. Each ran through ingest at the version DevDB 26Q2.1 loaded and was compared
+with that library archive.
+
+| Dataset | Version | Result |
+|---|---|---|
+| `dcp_censusdata` | `2020` | 2,717 rows, all 232 columns identical |
+| `dcp_censusdata_blocks` | `2020` | 37,990 rows, every 2020 block's `hunits` identical (3,618,635 total) |
+| `dob_now_permits` | `20260630` | 791,611 rows, identical apart from number formatting |
+| `dob_cofos` | `20260107` | 331,258 rows, identical apart from number formatting |
+
+- **The census blocks workbook changed layout.** It used to put 2010 and 2020 side by side on one
+  sheet, and library read the 2020 half, so pandas suffixed those columns with `.1`. It now has a
+  sheet per year, like the core geographies workbook, so ingest reads the `2020` sheet whole:
+  230 columns instead of 41. Developments reads `geoid` and `hunits` instead of `geoid20` and
+  `"hunits.1"`.
+- **Library read numbers as floats.** Its scripts loaded csvs and workbooks without `dtype=str`,
+  so columns with blanks came out as `25.0`. Ingest keeps the text as delivered. Developments
+  casts every one of these it reads.
+- **`dob_cofos` was compared locally, not archived.** Each version appends to the previous one, so
+  rebuilding `20260107` means appending to `20251025`, while the template appends to `latest`.
+  The next delivery is its first archive through ingest.
+
 ## Migrated: usfws_nyc_wetlands
 
 Library's script downloaded the National Wetlands Inventory's zip for each of four HU8 watersheds
@@ -306,7 +326,6 @@ naive filename diff wrongly flags them as remaining:
 |---|---|---|
 | `dob_jobapplications` | `dob_bis_applications` | yes |
 | `dob_permitissuance` | `dob_bis_permits` | yes |
-| `dob_cofos` | `dob_bis_cofos` | **no, and it shouldn't be** — see below |
 | `fema_pfirms2015_100yr` | `dcp_pfirms` | yes — library template deleted |
 
 A recipe naming the old dataset reads whatever is archived under that name, and archiving it falls
