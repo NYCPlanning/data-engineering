@@ -1,0 +1,25 @@
+id: usfws_nyc_wetlands
+
+attributes:
+  name: National Wetlands Inventory (NYC watersheds)
+  description: >-
+    USFWS National Wetlands Inventory polygons for the four HU8 watersheds that contain NYC.
+    The watersheds extend past the city, so consumers clip to NYC.
+  url: https://fwsprimary.wim.usgs.gov/wetlands/apps/wetlands-mapper/
+
+ingestion:
+  target_crs: EPSG:2263
+  source:
+    type: usfws_wetlands
+    key: usfws_nyc_wetlands
+    watersheds: ["02030101", "02030102", "02030104", "02030202"]
+  file_format:
+    type: parquet
+    geometry:
+      geom_column: geometry
+      crs: EPSG:5070
+      format: wkb
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: multi

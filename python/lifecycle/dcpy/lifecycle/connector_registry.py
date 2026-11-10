@@ -3,7 +3,15 @@ from pathlib import Path
 
 from dcpy import configuration
 from dcpy.configuration import PRIVATE_BUCKET
-from dcpy.connectors import checkbook_nyc, filesystem, ingest_datastore, s3, sftp, web
+from dcpy.connectors import (
+    checkbook_nyc,
+    filesystem,
+    ingest_datastore,
+    s3,
+    sftp,
+    usfws_wetlands,
+    web,
+)
 from dcpy.connectors.edm import gis
 from dcpy.connectors.edm.bytes import BytesConnector
 from dcpy.connectors.edm.connectors import (
@@ -114,6 +122,7 @@ def _set_default_connectors():
         foodbankny.FoodBankNYConnector(),
         myschools_nyc.MySchoolsNYCConnector(),
         usps.USPSLocationsConnector(),
+        usfws_wetlands.USFWSWetlandsConnector(),
         [web.WebConnector(), "api"],
         [filesystem.Connector(), "local_file"],
         [s3.S3Connector(), "s3"],
