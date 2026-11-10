@@ -28,7 +28,10 @@ def zip_url(watershed: str) -> str:
 class USFWSWetlandsConnector(Pull):
     conn_type: str = "usfws_wetlands"
 
-    def get_latest_version(self, key: str, *, watersheds: list[str], **kwargs) -> str:
+    def get_latest_version(self, key: str, **kwargs) -> str:
+        return self._latest_version(**kwargs)
+
+    def _latest_version(self, *, watersheds: list[str], **kwargs) -> str:
         """Date the most recently published watershed zip was last modified."""
         dates = []
         for watershed in watersheds:
@@ -37,7 +40,10 @@ class USFWSWetlandsConnector(Pull):
             dates.append(parsedate_to_datetime(resp.headers["Last-Modified"]))
         return max(dates).strftime("%Y%m%d")
 
-    def pull(
+    def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
+        return self._pull(key, destination_path, **kwargs)
+
+    def _pull(
         self, key: str, destination_path: Path, *, watersheds: list[str], **kwargs
     ) -> dict:
         import geopandas as gpd
