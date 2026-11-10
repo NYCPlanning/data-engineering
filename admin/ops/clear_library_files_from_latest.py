@@ -112,7 +112,7 @@ def classify(dataset_id: str) -> tuple[str, str | None, list[str]]:
         config = json.loads(raw)
     except Exception:
         return "unreadable_config", None, stale
-    if "id" not in config:  # library configs nest everything under "dataset"
+    if "dataset" in config:  # library configs nest everything under "dataset"
         return "needs_ingest", config.get("dataset", {}).get("version"), stale
     version = config.get("version")
     versioned = _folder_files(f"datasets/{dataset_id}/{version}")
