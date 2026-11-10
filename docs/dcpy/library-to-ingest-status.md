@@ -1,6 +1,6 @@
 # Library → Ingest: remaining work
 
-Status snapshot as of 2026-11-08, built by diffing `python/library/dcpy/library/templates/*.yml`
+Status snapshot as of 2026-11-10, built by diffing `python/library/dcpy/library/templates/*.yml`
 against `ingest_templates/*.yml` and searching for direct `library archive` calls. It isn't built
 from [tracking issue #1255](https://github.com/NYCPlanning/data-engineering/issues/1255) or its
 sub-issues, which have drifted out of sync with the actual file state (see
@@ -80,8 +80,16 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 
 ## Migrated, but `latest` is still a library archive
 
-31 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false). If
-the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
+4 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false):
+
+| Dataset | Why it's still library |
+|---|---|
+| `dcp_sfpsd` | The 2021 Bytes url its template downloads from returns 404. |
+| `uscourts_courts` | The scraper's source returns 403 when run from GitHub Actions. |
+| `nycoc_checkbook` | The template runs cleanly. Re-archiving is a data refresh for cpdb (2,475,570 to 2,542,210 rows, plus a new `expense_category_code` column), so it waits for the next cpdb update. |
+| `doe_hszones` | The template runs cleanly (80 rows, same as library). Nothing reads it. |
+
+If the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
 replacing the archive takes `--overwrite --version <version>`.
 
 `--overwrite` moves the library archive at that version to `<version>_library/` before writing.
@@ -184,6 +192,36 @@ library's pg_dumps. `cpdb_projects`, `cpdb_projects_boundaries` (12,344 rows), `
   because green_fast_track reads the parquet directly and already expects that name.
 - **`dob_natural_resource_check_flags` reads every column as text.** Boro, block, lot, and bbl
   are zero-padded codes, and library's ogr2ogr csv read kept them as strings too.
+
+## Re-archived through ingest
+
+These had templates but their `latest` was still library's output. Each template was first run
+through `ingest_single` into the `de-dev-d` bucket and diffed against the library archive, then
+archived to `edm-recipes`, with `--overwrite` where the version was unchanged.
+
+| Dataset | Version | Read by | Result |
+|---|---|---|---|
+| `fbop_corrections`, `nysdoccs_corrections`, `nysed_activeinstitutions` | unchanged | facilities | every value identical |
+| `dot_bridgehouses`, `dot_ferryterminals` | `20240805` | facilities | every value identical. `bbl`, `block`, and `lot` are double instead of decimal |
+| `nycdoc_corrections` | `20261109` | facilities | 12 rows, same columns |
+| `dcla_culturalinstitutions` | `20210625` to `20260610` | facilities | 2,308 to 2,535 rows. `main_phone__` is now `main_phone_#`, which facilities doesn't read |
+| `sca_enrollment_capacity` | `20230105` to `20260910` | facilities | 17,622 to 20,754 rows, same columns |
+| 4 × `dcp_wrp_*` | `20200701` | ceqr | same rows. ceqr exports them without naming the geometry column |
+| `dcp_zoningmapindex` | `20190701` to `20261109` | pluto, ztl | 131 rows. Keeps `wkb_geometry` |
+| `dpr_park_access_zone` | `20230719` | factfinder | 1 row. Keeps `wkb_geometry` |
+| `dcp_mappluto_clipped` | `26v2` | ceqr | 856,687 rows. cdbg pins library's `24v4` |
+| `doe_eszones`, `doe_mszones` | `20240313` | developments, knownprojects | 770 and 279 rows |
+
+- **Check geometry names against library's pg_dump, not its parquet.** Library's parquet named
+  the column `geometry` and its pg_dump `wkb_geometry`, and any consumer that doesn't pin
+  `file_type` loads the pg_dump. The school zones came out of ingest as `geom`, so developments
+  and knownprojects were switched to `geom` before archiving
+  ([#2935](https://github.com/NYCPlanning/data-engineering/pull/2935)).
+- **Shapefile and GeoJSON polygons need `multi`.** `dcp_mappluto_clipped` and the school zones
+  came out as a mix of Polygon and MultiPolygon until the step was added. Library's were all
+  multi.
+- **`council_members` was retired.** Its Socrata dataset is now every council member since 1999,
+  with different columns, and nothing reads it.
 
 ## Migrated but not yet empirically validated
 
