@@ -9,6 +9,7 @@ import zipfile
 from email.utils import parsedate_to_datetime
 from io import BytesIO
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pandas as pd
 import requests
@@ -42,18 +43,20 @@ class USFWSWetlandsConnector(Pull):
         import geopandas as gpd
 
         frames = []
-        for watershed in watersheds:
-            resp = requests.get(zip_url(watershed), timeout=TIMEOUT)
-            resp.raise_for_status()
-            with zipfile.ZipFile(BytesIO(resp.content)) as zf:
-                zf.extractall(destination_path / watershed)
-            name = f"HU8_{watershed}"
-            gdf = gpd.read_file(
-                destination_path / watershed / f"{name}_Watershed" / f"{name}.gdb",
-                layer=f"{name}_Wetlands",
-            )
-            logger.info(f"{len(gdf)} wetlands in watershed {watershed}")
-            frames.append(gdf)
+        # Ingest treats every folder in destination_path as a dataset, so extract elsewhere.
+        with TemporaryDirectory() as tmp:
+            for watershed in watersheds:
+                resp = requests.get(zip_url(watershed), timeout=TIMEOUT)
+                resp.raise_for_status()
+                with zipfile.ZipFile(BytesIO(resp.content)) as zf:
+                    zf.extractall(Path(tmp) / watershed)
+                name = f"HU8_{watershed}"
+                gdf = gpd.read_file(
+                    Path(tmp) / watershed / f"{name}_Watershed" / f"{name}.gdb",
+                    layer=f"{name}_Wetlands",
+                )
+                logger.info(f"{len(gdf)} wetlands in watershed {watershed}")
+                frames.append(gdf)
 
         path = destination_path / f"{key}.parquet"
         gpd.GeoDataFrame(pd.concat(frames, ignore_index=True)).to_parquet(

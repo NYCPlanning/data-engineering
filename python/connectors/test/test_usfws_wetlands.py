@@ -1,5 +1,6 @@
 import zipfile
 from io import BytesIO
+from pathlib import Path
 from unittest.mock import Mock
 
 import geopandas as gpd
@@ -60,13 +61,13 @@ def test_pull_concatenates_each_watersheds_wetlands_layer(tmp_path, mock_downloa
         "usfws_nyc_wetlands", tmp_path, watersheds=WATERSHEDS
     )
 
-    assert mock_downloads == [
-        (
-            tmp_path / ws / f"HU8_{ws}_Watershed" / f"HU8_{ws}.gdb",
-            f"HU8_{ws}_Wetlands",
-        )
+    assert [
+        (path.relative_to(path.parents[2]), layer) for path, layer in mock_downloads
+    ] == [
+        (Path(ws) / f"HU8_{ws}_Watershed" / f"HU8_{ws}.gdb", f"HU8_{ws}_Wetlands")
         for ws in WATERSHEDS
     ]
+    assert list(tmp_path.iterdir()) == [result["path"]]
     df = gpd.read_parquet(result["path"])
     assert len(df) == 4
     assert df.crs == "EPSG:5070"
