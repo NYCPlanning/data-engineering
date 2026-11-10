@@ -41,7 +41,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dcla_culturalinstitutions
-    file_type: csv # migrated - Last updated in 2021
     preprocessor:
       module: facdb.pipelines
       function: dispatch
