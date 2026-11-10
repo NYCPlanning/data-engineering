@@ -1,0 +1,21 @@
+id: dcp_censusdata
+
+attributes:
+  name: Decennial Census 2010 and 2020, Core Geographies
+  description: >-
+    DCP Population's decennial census tables for the city, boroughs, community districts,
+    2013 council districts, 2020 NTAs, and 2020 census tracts. The workbook has a sheet per
+    census year, picked by the version (2010 or 2020).
+  url: https://www.nyc.gov/site/planning/planning-level/nyc-population/2020-census.page
+
+ingestion:
+  source:
+    type: file_download
+    url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/census/census2020/nyc_decennialcensusdata_2010_2020_change-core-geographies.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: "{{ version }}"
+    dtype: str
+  processing_steps:
+  - name: clean_column_names
+    args: { "strip": True, "replace": { " ": "_" }, "lower": True }

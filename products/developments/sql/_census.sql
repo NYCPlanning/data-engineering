@@ -16,8 +16,8 @@ WHERE geotype IN ('CT2020', 'CD', 'CCD2023', 'NTA2020')
 UNION ALL
 SELECT
     geogtype AS geotype,
-    geoid20 AS aggregate_join,
-    COALESCE("hunits.1"::INT, 0) AS hunits --noqa
+    geoid AS aggregate_join,
+    coalesce(hunits::int, 0) AS hunits
 FROM dcp_censusdata_blocks
 WHERE geogtype = 'CB2020';
 
