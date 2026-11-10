@@ -27,7 +27,7 @@ destinations:
 - id: socrata
   type: open_data
   files:
-  - id: georeferencedzoningmaps_metadata
+  - id: zoning_georeferenced_maps_data_dictionary
     custom:
       destination_use: attachment
   - id: fgdb
@@ -41,19 +41,19 @@ destinations:
   files:
   - id: fgdb
     custom:
-      url: "{{ bytes_zip_prefix_url }}/georeferenced-zoning-maps/georeferencedzoningmaps_{{ current_version_zoning }}.zip"
-  - id: georeferencedzoningmaps_metadata
+      url: "{{ bytes_zip_prefix_url }}/georeferenced-zoning-maps/nyc_zoning_georeferenced_maps_gdb.zip"
+  - id: zoning_georeferenced_maps_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/georeferencedzoningmaps_metadata.pdf"
+      url: "{{ bytes_pdf_prefix_url }}/zoning_georeferenced_maps_data_dictionary.xlsx"
 
 files:
 - file:
     id: fgdb
-    filename: georeferencedzoningmaps.zip
+    filename: nyc_zoning_georeferenced_maps_gdb.zip
     type: fgdb
 - file:
-    id: georeferencedzoningmaps_metadata
-    filename: georeferencedzoningmaps_metadata.pdf
+    id: zoning_georeferenced_maps_data_dictionary
+    filename: zoning_georeferenced_maps_data_dictionary.xlsx
     is_metadata: true
     type: None
 
