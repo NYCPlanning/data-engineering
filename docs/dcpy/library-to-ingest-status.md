@@ -222,6 +222,9 @@ archived to `edm-recipes`, with `--overwrite` where the version was unchanged.
 - **Shapefile and GeoJSON polygons need `multi`.** `dcp_mappluto_clipped` and the school zones
   came out as a mix of Polygon and MultiPolygon until the step was added. Library's were all
   multi.
+- **Facilities pinned `dcla_culturalinstitutions` to `csv`.** Its SQL built geometry from the
+  `wkt` column in library's csv export. With the pin dropped and the SQL reading `geom`, a
+  facilities build loaded all five facilities inputs above from parquet and passed.
 - **`council_members` was retired.** Its Socrata dataset is now every council member since 1999,
   with different columns, and nothing reads it.
 
