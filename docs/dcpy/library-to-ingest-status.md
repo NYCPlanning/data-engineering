@@ -247,6 +247,8 @@ with that library archive.
   rebuilding `20260107` means appending to `20251025`, while the template appends to `latest`.
   The next delivery is its first archive through ingest.
 
+With the other three archived, developments and knownprojects builds on the branch passed.
+
 ## Migrated: usfws_nyc_wetlands
 
 Library's script downloaded the National Wetlands Inventory's zip for each of four HU8 watersheds
