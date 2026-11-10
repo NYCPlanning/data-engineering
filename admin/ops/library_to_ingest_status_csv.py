@@ -55,8 +55,8 @@ def stale_library_files(dataset_id: str) -> str:
 def latest_status(dataset_id: str) -> dict:
     """Inspect a dataset's latest/config.json to determine archive provenance.
 
-    Ingest-produced configs are top-level {"id": ..., "transformation": ...};
-    library-produced configs are top-level {"dataset": {...}, "execution_details": ...}.
+    Library-produced configs are top-level {"dataset": {...}, "execution_details": ...}.
+    Anything else is ingest: current configs carry "id", early ones "name".
     This is a direct structural marker, not an inferred proxy like a timestamp or a
     version-string naming convention (which isn't consistent across datasets - e.g.
     dcp_facilities uses "24v1"-style versions under library too).
@@ -72,7 +72,7 @@ def latest_status(dataset_id: str) -> dict:
         }
 
     config = json.loads(s3.get_file_as_text(bucket, key))
-    if "id" in config:
+    if "dataset" not in config:
         return {
             "archived": True,
             "archived_via_ingest": True,
