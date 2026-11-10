@@ -31,11 +31,11 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-8 datasets. Consumers come from grepping each name across `products/`, excluding
+7 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
-### Custom scripts (7)
+### Custom scripts (6)
 
 | Dataset | Consumers | Issue |
 |---|---|---|
@@ -45,7 +45,6 @@ library's own tests load its template, so it stays until the package is removed.
 | `dob_now_applications` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `dob_now_permits` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
-| `usfws_nyc_wetlands` | `ceqr`, `green_fast_track` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) |
 
 ### Url or file sources (1)
 
@@ -227,6 +226,19 @@ archived to `edm-recipes`, with `--overwrite` where the version was unchanged.
   facilities build loaded all five facilities inputs above from parquet and passed.
 - **`council_members` was retired.** Its Socrata dataset is now every council member since 1999,
   with different columns, and nothing reads it.
+
+## Migrated: usfws_nyc_wetlands
+
+Library's script downloaded the National Wetlands Inventory's zip for each of four HU8 watersheds
+that contain NYC and concatenated their wetlands layers. Ingest takes one source per dataset, so
+that loop moved into a `usfws_wetlands` connector. The statewide zip would have been one plain
+`file_download`, but it's 612 MB against about 104 MB for the four watersheds, and every ceqr and
+gft build would load and clip all of New York State.
+
+Run into `de-dev-d` at `20261001`, the date USFWS last published the zips, and compared with
+library's `20260908`: 62,520 rows each, the same `nwi_id`, `attribute`, and `wetland_type` values,
+EPSG:2263 MultiPolygons, and total area within 2 sq ft of 40.45 billion. The source has a new
+`qaqc_code` column, null on every row.
 
 ## Migrated but not yet empirically validated
 
