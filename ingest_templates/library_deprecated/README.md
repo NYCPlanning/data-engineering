@@ -7,7 +7,7 @@ Nothing reads this folder. `glob("*.yml")` on `ingest_templates/` is not recursi
 invisible to ingest, and moving a template here removes it from `dcpy/library/templates/`, so
 library can no longer archive it either.
 
-Three reasons a template ended up here:
+Four reasons a template ended up here:
 
 - **Superseded by a rename.** `dob_jobapplications` and `dob_permitissuance` were migrated as
   `dob_bis_applications` and `dob_bis_permits`.
@@ -19,6 +19,9 @@ Three reasons a template ended up here:
   `dcp_pop_decennial_ddhca` are still read by factfinder, as whole Excel workbooks. Library only
   copied them as-is, so a new delivery is uploaded straight to `edm-recipes`. See
   `products/factfinder/README.md`.
+- **Archived once, never refreshed.** `dcp_dot_trafficinjuries` (edde, 2009 to 2020) and
+  `dob_jobapplications_parkingspaces` (developments, a one-time DOB export) are read only at pinned
+  versions that are already archived. The traffic csvs came from a local upload that wasn't kept.
 
 Before reviving one, check whether its source still exists. Several point at
 `s3://edm-recipes/tmp/`, which has been cleared.
