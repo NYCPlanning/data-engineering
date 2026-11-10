@@ -31,7 +31,7 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-10 datasets. Consumers come from grepping each name across `products/`, excluding
+8 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
@@ -47,12 +47,10 @@ library's own tests load its template, so it stays until the package is removed.
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `usfws_nyc_wetlands` | `ceqr`, `green_fast_track` | [#1533](https://github.com/NYCPlanning/data-engineering/issues/1533) |
 
-### Url or file sources (3)
+### Url or file sources (1)
 
 | Consumers | Datasets |
 |---|---|
-| `developments` | `dob_jobapplications_parkingspaces` |
-| `edde` | `dcp_dot_trafficinjuries` |
 | `facilities` | `usdot_ports` (blocked: the source now requires a token, see [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)) |
 
 ## Remaining: direct `library archive` calls
@@ -113,6 +111,10 @@ it parses sheet by sheet, and library only archived them as-is. Their sheet layo
 deliveries, and the plan is to stop relying on these files, so per-sheet ingest templates weren't
 worth building. A new delivery is uploaded straight to `edm-recipes` (`dcp_pop_acs/2024` already
 was: it has no `config.yml`). See `products/factfinder/README.md`.
+
+`dcp_dot_trafficinjuries` and `dob_jobapplications_parkingspaces` also moved there. edde pins
+every traffic year from 2010 to 2020 and developments pins the parking spaces export at
+`20240603`, all already archived, and neither has had a new delivery since.
 
 ## Migrated: facilities cluster
 
