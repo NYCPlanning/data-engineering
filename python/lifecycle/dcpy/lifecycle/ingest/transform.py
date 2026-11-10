@@ -264,7 +264,7 @@ class ProcessingFunctions:
         self,
         df: pd.DataFrame,
         column_name: str,
-        val: str | int,
+        val: str | int | None,
     ) -> ProcessingResult:
         updated = df.copy()
         updated[column_name] = val
