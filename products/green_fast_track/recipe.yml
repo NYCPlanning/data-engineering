@@ -30,6 +30,9 @@ inputs:
   - name: dcp_wrp_recognized_ecological_complexes
   - name: dcp_wrp_special_natural_waterfront_areas
   - name: dpr_forever_wild
+    # Newer versions have a different schema and polygons offset to near Florida,
+    # in Socrata's own export. Unpin once the source geometry is fixed.
+    version: "20261015"
   - name: nysdec_freshwater_wetlands_checkzones
   - name: nysdec_freshwater_wetlands
   - name: nysdec_tidal_wetlands

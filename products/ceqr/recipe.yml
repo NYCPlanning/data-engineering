@@ -65,6 +65,9 @@ inputs:
     - name: dcp_beaches
     - name: usfws_nyc_wetlands
     - name: dpr_forever_wild
+      # Newer versions have a different schema and polygons offset to near Florida,
+      # in Socrata's own export. Unpin once the source geometry is fixed.
+      version: "20261015"
     - name: dpr_schoolyard_to_playgrounds
     - name: nysshpo_archaeological_buffer_areas
     - name: dob_natural_resource_check_flags
