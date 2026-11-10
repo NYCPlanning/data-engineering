@@ -240,6 +240,11 @@ library's `20260908`: 62,520 rows each, the same `nwi_id`, `attribute`, and `wet
 EPSG:2263 MultiPolygons, and total area within 2 sq ft of 40.45 billion. The source has a new
 `qaqc_code` column, null on every row.
 
+A gft build on the archived `20261001` passed with the same warnings as earlier builds. That
+build also needed `dpr_forever_wild` pinned to `20261015`: Socrata's `48va-85tp` has since become a
+different dataset (111 natural areas, with `propid` and `name`), and its export puts the polygons
+near Florida while labeling them EPSG:4326. gft and ceqr stay pinned until that's fixed upstream.
+
 ## Migrated but not yet empirically validated
 
 Both required infra this session didn't have access to (a local Postgres / dev container for
