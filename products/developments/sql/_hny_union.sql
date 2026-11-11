@@ -48,14 +48,101 @@ SET ogc_fid_text = 'historical' || '-' || cast(ogc_fid AS text);
 ALTER TABLE _init_hpd_historical_units_by_building DROP COLUMN ogc_fid;
 ALTER TABLE _init_hpd_historical_units_by_building RENAME COLUMN ogc_fid_text TO ogc_fid;
 
--- SELECT * UNION matches columns positionally, so both extracts must agree on column count,
--- order and type. The rename and drop steps in the hpd_hny_units_by_building ingest template
--- exist to hold that; see the comments there.
+-- UNION matches columns by position, so both sides name their columns rather than
+-- relying on each source's column order. ogc_fid stays last, where the re-add above put it.
 DROP TABLE IF EXISTS hpd_units_by_building;
 CREATE TABLE hpd_units_by_building AS
-SELECT * FROM hpd_hny_units_by_building
+SELECT
+    project_id,
+    project_name,
+    project_start_date,
+    project_completion_date,
+    building_id,
+    number,
+    street,
+    borough,
+    postcode,
+    bbl,
+    bin,
+    community_board,
+    council_district,
+    census_tract,
+    nta___neighborhood_tabulation_area,
+    latitude,
+    longitude,
+    "latitude_(internal)",
+    "longitude_(internal)",
+    building_completion_date,
+    reporting_construction_type,
+    extended_affordability_only,
+    prevailing_wage_status,
+    extremely_low_income_units,
+    very_low_income_units,
+    low_income_units,
+    moderate_income_units,
+    middle_income_units,
+    other_income_units,
+    studio_units,
+    "1_br_units",
+    "2_br_units",
+    "3_br_units",
+    "4_br_units",
+    "5_br_units",
+    "6_br+_units",
+    unknown_br_units,
+    counted_rental_units,
+    counted_homeownership_units,
+    all_counted_units,
+    total_units,
+    data_library_version,
+    ogc_fid
+FROM hpd_hny_units_by_building
 UNION
-SELECT * FROM _init_hpd_historical_units_by_building;
+SELECT
+    project_id,
+    project_name,
+    project_start_date,
+    project_completion_date,
+    building_id,
+    number,
+    street,
+    borough,
+    postcode,
+    bbl,
+    bin,
+    community_board,
+    council_district,
+    census_tract,
+    nta___neighborhood_tabulation_area,
+    latitude,
+    longitude,
+    "latitude_(internal)",
+    "longitude_(internal)",
+    building_completion_date,
+    reporting_construction_type,
+    extended_affordability_only,
+    prevailing_wage_status,
+    extremely_low_income_units,
+    very_low_income_units,
+    low_income_units,
+    moderate_income_units,
+    middle_income_units,
+    other_income_units,
+    studio_units,
+    "1_br_units",
+    "2_br_units",
+    "3_br_units",
+    "4_br_units",
+    "5_br_units",
+    "6_br+_units",
+    unknown_br_units,
+    counted_rental_units,
+    counted_homeownership_units,
+    all_counted_units,
+    total_units,
+    data_library_version,
+    ogc_fid
+FROM _init_hpd_historical_units_by_building;
 
 -- geocoded HPD units data
 ALTER TABLE hny_geocode_results ADD COLUMN uid_text text;
