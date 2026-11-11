@@ -1,0 +1,49 @@
+id: dob_now_applications
+
+attributes:
+  name: DOB NOW Job Applications
+  description: >-
+    Custom export of DOB NOW job filings that DOB delivers by FTP. Versioned by the date DOB
+    sent it, so archive with an explicit version. The export is "|"-delimited but doesn't
+    escape "|" typed into free-text fields, so those rows are repaired on read or dropped
+    with a warning.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: dob_now/dob_now_job_applications/DOB_Now_Job_Filing_Data_for_DCP_{{ version }}.csv
+  file_format:
+    type: csv
+    dtype: str
+    sep: "|"
+    encoding: cp1252
+    repair_unescaped_delimiters:
+      free_text_columns:
+      - Owner's Business Name
+      - Owner's Street Name
+      - Filing Representative Business Name
+      - Filing Representative Street Name
+      - JobDescription
+      # Columns reliably populated with a recognizable format. The schema's tail (floor
+      # area, FAR, parking counts) is too often blank to show a shift.
+      anchor_columns:
+        Borough: borough
+        Block: digits
+        LOT: digits
+        Bin: digits
+        State: state_code
+        Zip: digits
+        Filing Representative State: state_code
+        Filing Representative Zip: digits
+        Latitude: number
+        Longitude: number
+        Approved (Date): iso_date
+        Filing Date: iso_date
+        Current Status Date: iso_date
+        SignoffDate: iso_date
+        PermitIssuedDate: iso_date
+        JobType: non_numeric
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
