@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import warnings
 import zipfile
 from collections import defaultdict
 from pathlib import Path
@@ -143,7 +144,22 @@ def read_data_to_df(
                     data_format.repair_unescaped_delimiters,
                     kwargs.get("sep", ","),
                 )
-            df = pd.read_csv(local_data_path, **kwargs)
+            with warnings.catch_warnings():
+                # With index_col=False, pandas drops the extra fields of a row that's
+                # longer than the header and only warns, loading the rest shifted.
+                warnings.filterwarnings(
+                    "error",
+                    message="Length of header or names does not match",
+                    category=pd.errors.ParserWarning,
+                )
+                try:
+                    df = pd.read_csv(local_data_path, **kwargs)
+                except pd.errors.ParserWarning as e:
+                    raise ValueError(
+                        f"{local_data_path.name} has rows with more fields than its "
+                        "header. Fix the source, or set repair_unescaped_delimiters "
+                        "if a delimiter is typed into a free-text field."
+                    ) from e
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
             )

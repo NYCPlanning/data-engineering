@@ -221,3 +221,11 @@ def test_read_csv_repairs_unescaped_delimiters(tmp_path):
     df = data.read_data_to_df(data_format, path)
     assert df["note"].tolist() == ["a | b", "c"]
     assert df["block"].tolist() == ["7", "8"]
+
+
+def test_read_csv_raises_on_rows_longer_than_header(tmp_path):
+    path = tmp_path / "data.csv"
+    path.write_text("id|note|block\n1|a | b|7\n")
+    data_format = formats.Csv(type="csv", sep="|", dtype="str")
+    with pytest.raises(ValueError, match="more fields than its header"):
+        data.read_data_to_df(data_format, path)
