@@ -1,0 +1,7 @@
+resource_band,pct_of_nyc,avg_resources_pct_of_threshold,avg_resource_gap,median_cost,median_resources
+Total Below TCOL,61.8,66.5,39603,122919,78993
+Within 100-110% of TCOL,7.7,,,142753,149131
+Within 90-100% of TCOL,8.3,94.9,7254,140417,133645
+Within 75-90% of TCOL,15.0,82.2,23342,131617,106791
+Within 50-75% of TCOL,25.4,63.7,45423,124261,77902
+Less than 50% of TCOL,13.0,35.6,67726,98888,36014

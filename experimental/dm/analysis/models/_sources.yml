@@ -74,6 +74,324 @@ sources:
         config:
           external_location: "read_parquet('./data/sources/dcp_ct2020.parquet')"
 
+      - name: dcp_transit_zones
+        description: >
+          DCP's Transit Zones, version 20251209 from edm-recipes. EPSG:4326. One multipolygon per zone, and the
+          zones don't overlap. The Zoning Resolution uses them for parking requirements.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_transit_zones.parquet')"
+
+      - name: doe_school_subdistricts
+        description: >
+          SCA's school subdistricts, version 20250901 from edm-recipes. EPSG:4326. One polygon per community school
+          district and subdistrict, 96 in all.
+        config:
+          external_location: "read_parquet('./data/sources/doe_school_subdistricts.parquet')"
+
+      # SCA's school capacity projects, a CSV that comes with the AHFT schools workbook, dated June 2026, not public,
+      # copied into data/sources/ by hand. geom is hex WKB in EPSG:4326. The _location, _bbl, Lat, Long, and Objectid
+      # columns are all empty.
+      - name: sca_capacity_projects
+        description: >
+          29 school capacity projects with name, address, Capacity (seats), start_date, Capital Pl (20-24, 25-29, or
+          30-34), org_level, and Distzone, the subdistrict, such as 10 / 2. Four have no geometry.
+        config:
+          external_location: "read_csv('./data/sources/sca_capacity_projects.csv', all_varchar = true)"
+
+      # DEP's MS4 map as of August 1, 2020, from the geodatabase on NYC Open Data (j57c-rqtq). scripts/download.py
+      # writes each layer to Parquet, flattened to 2D, with geometry as WKB in EPSG:2263.
+      - name: ms4_drainage_areas
+        description: >
+          DEP MS4 drainage areas, one row per source polygon. ID is the outfall or wastewater facility the area
+          drains to, or OVERLAND FLOW. The map leaves out areas served by combined and sanitary sewers.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_drainage_areas.parquet')"
+
+      - name: ms4_outfalls
+        description: DEP MS4 outfalls, one row per outfall (ID).
+        config:
+          external_location: "read_parquet('./data/sources/ms4_outfalls.parquet')"
+
+      - name: ms4_waste_facilities
+        description: Waste facilities on DEP's MS4 map (MSWFACILITIES). Staged but not used yet.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_waste_facilities.parquet')"
+
+      - name: ms4_spdes_permits
+        description: SPDES stormwater permits on DEP's MS4 map (SPDESPERMITS). Staged but not used yet.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_spdes_permits.parquet')"
+
+      - name: ms4_bluebelt_bmps
+        description: >
+          Bluebelt best management practices on DEP's MS4 map (BLUEBELTBMP), 80 points. Staged but not used, since
+          dep_bluebelt_bmps is newer. BMPType and Watershed are numeric codes the file doesn't label.
+        config:
+          external_location: "read_parquet('./data/sources/ms4_bluebelt_bmps.parquet')"
+
+      # DEP's Wastewater Treatment Plant Performance Data on NYC Open Data (hgue-hj96): monthly report sheets in
+      # Excel files for 2023, 2024, and 2025, plus a zip of older ones. scripts/download.py reads every sheet's
+      # facility rows into one Parquet file, values as text.
+      # DEP's NYC Stormwater Flood Maps on NYC Open Data (9i7c-xyvv), four geodatabases in one zip. scripts/download.py
+      # writes the Moderate Flood (2.13 inches per hour) with 2050 Sea Level Rise layer to Parquet, flattened to 2D,
+      # with geometry as WKB in EPSG:2263.
+      - name: dep_stormwater_flooding_2050
+        description: >
+          One multipolygon per Flooding_Category: 1 Nuisance Flooding (4 inches to 1 foot of ponding), 2 Deep and
+          Contiguous Flooding (1 foot or more), and 3 Future High Tides 2050, which DEP took from DCP's Flood Hazard
+          Mapper (2050s high estimate of 30 inches of sea level rise).
+        config:
+          external_location: "read_parquet('./data/sources/dep_stormwater_flooding_2050.parquet')"
+
+      # Sea Level Rise Maps (2080s 100-year Floodplain) on NYC Open Data (ek8y-fsqz), as GeoJSON in EPSG:4326.
+      - name: npcc_floodplain_2080_100yr
+        description: >
+          The 100-year floodplain for the 2080s, one multipolygon. FEMA's Preliminary Work Map data with the New York
+          City Panel on Climate Change's 90th percentile projection of sea level rise (58 inches), from the Mayor's
+          Office of Long-Term Planning and Sustainability.
+        config:
+          external_location: "ST_Read('./data/sources/npcc_floodplain_2080_100yr.geojson')"
+
+      # DOT's Vision Zero View layers on NYC Open Data, as GeoJSON in EPSG:4326, downloaded as of their November 2026
+      # update. Open Data keeps no versions, so a fresh download can differ.
+      - name: vzv_priority_corridors
+        description: >
+          Pedestrian priority corridors (36nr-7fbp) from the Borough Pedestrian Safety Action Plans: each borough's
+          corridors ranked by pedestrian killed and severely injured (KSI) per mile, taken from the top until they
+          held half the borough's pedestrian KSI. No names or IDs.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_priority_corridors.geojson')"
+
+      - name: vzv_priority_intersections
+        description: >
+          Pedestrian priority intersections (tmt9-43em): the intersections with the most pedestrian KSI, together
+          holding 15% of each borough's pedestrian KSI. Broadway and West 230 Street is in it twice.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_priority_intersections.geojson')"
+
+      - name: vzv_sip_corridors
+        description: >
+          Street Improvement Projects on corridors (if4c-w48d): DOT's operational (non-capital) safety projects
+          since 2009. One row per project name and year.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_sip_corridors.geojson')"
+
+      - name: vzv_sip_intersections
+        description: >
+          Street Improvement Projects at intersections (shr7-eqdc), as multipoints. One row per project name and
+          year, and no project name is also in vzv_sip_corridors.
+        config:
+          external_location: "ST_Read('./data/sources/vzv_sip_intersections.geojson')"
+
+      # MTA datasets on data.ny.gov, ingested into edm-recipes by the mta_* ingest templates. EPSG:4326, values as
+      # text as published.
+      - name: mta_subway_stations
+        description: >
+          MTA Subway Stations (39hk-dx4f), version 20261107. One row per subway and Staten Island Railway station
+          (gtfs_stop_id), 496 in all. A station on two lines, such as 145 St, has a row for each.
+        config:
+          external_location: "read_parquet('./data/sources/mta_subway_stations.parquet')"
+      - name: mta_subway_service_lines
+        description: >
+          MTA Subway Service Lines (s692-irgq), version 20251208. One multiline per service, with the A and C in two
+          rows each.
+        config:
+          external_location: "read_parquet('./data/sources/mta_subway_service_lines.parquet')"
+      - name: mta_subway_entrances
+        description: >
+          MTA Subway Entrances and Exits: 2024 (i9wp-a4ja), version 20251205. One point per entrance or exit.
+        config:
+          external_location: "read_parquet('./data/sources/mta_subway_entrances.parquet')"
+      - name: mta_bus_stops
+        description: >
+          MTA bus stops (data.ny.gov 2ucp-7wg5), version 20261016 from edm-recipes, the schedule bundle in effect.
+          One row per stop, route, and direction, with flags for revenue stops and boarding. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/mta_bus_stops.parquet')"
+      - name: mta_capital_project_locations
+        description: >
+          MTA Capital Dashboard Project Locations (data.ny.gov wcsa-vkhf), version 20260508 from edm-recipes. 6,441
+          points, one per project (project_number, the same codes as acep in the budgets) and location (project_number_sequence), for the
+          2005-2009 through 2025-2029 capital plans, with agency, category, element, and description. No stage or
+          dates. All columns are text. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/mta_capital_project_locations.parquet')"
+      - name: mta_capital_project_details
+        description: >
+          MTA Capital Project Details: Beginning 2015 (data.ny.gov 9hy6-8j6t), version 20261023 from edm-recipes.
+          156 projects with stage, phase, dates as MM/DD/YYYY, costs, and lists of agencies, services, capital
+          plans, and districts (county codes such as CO-081). No locations. All columns are text.
+        config:
+          external_location: "read_parquet('./data/sources/mta_capital_project_details.parquet')"
+      - name: mta_capital_project_budgets
+        description: >
+          MTA Capital Project Budgets: Beginning 2020 (data.ny.gov f6fd-xfps), version 20261023 from edm-recipes.
+          Budgets and spending by update date, project ID, and ACEP code. All columns are text.
+        config:
+          external_location: "read_parquet('./data/sources/mta_capital_project_budgets.parquet')"
+      - name: mta_rail_stations
+        description: >
+          MTA Rail Stations (wxmd-5cpm), version 20261107. Long Island Rail Road and Metro-North stations, 238 in
+          all, including those outside NYC.
+        config:
+          external_location: "read_parquet('./data/sources/mta_rail_stations.parquet')"
+
+      # The proposed Interborough Express (IBX), from the public-facing design layers HDR (the MTA's engineering
+      # consultant) publishes on ArcGIS Online, ingested by the mta_ibx_* templates. EPSG:4326.
+      - name: mta_ibx_stations
+        description: >
+          Proposed IBX station centroids, version 20261028, 18 in all. Taken from the 20260909 track design file.
+          Locations are subject to change.
+        config:
+          external_location: "read_parquet('./data/sources/mta_ibx_stations.parquet')"
+      - name: mta_ibx_service_lines
+        description: >
+          Proposed IBX alignment, version 20261030: two track centerlines (IBX Track 001 and 002), from the 20261019
+          track design file.
+        config:
+          external_location: "read_parquet('./data/sources/mta_ibx_service_lines.parquet')"
+
+      # NYC Ferry's GTFS feed (the one linked from ferry.nyc), ingested by the edc_nycferry_gtfs template, one dataset
+      # per file, values as text. Version 20261108.
+      - name: edc_nycferry_stops
+        description: NYC Ferry GTFS stops, 50 in all, with the Rockaway shuttle bus stops. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/edc_nycferry_stops.parquet')"
+      - name: edc_nycferry_routes
+        description: NYC Ferry GTFS routes. route_type 4 is ferry, 3 is the Rockaway shuttle buses.
+        config:
+          external_location: "read_parquet('./data/sources/edc_nycferry_routes.parquet')"
+      - name: edc_nycferry_trips
+        description: NYC Ferry GTFS trips, each on one route.
+        config:
+          external_location: "read_parquet('./data/sources/edc_nycferry_trips.parquet')"
+      - name: edc_nycferry_stop_times
+        description: NYC Ferry GTFS stop times. Only used for which stops each trip makes.
+        config:
+          external_location: "read_parquet('./data/sources/edc_nycferry_stop_times.parquet')"
+      - name: dot_ferryterminals
+        description: >
+          DOT's Staten Island Ferry terminals, Whitehall and St. George, version 20240805 from edm-recipes. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dot_ferryterminals.parquet')"
+
+      - name: dcp_cb2020
+        description: >
+          DCP's 2020 census blocks, shoreline-clipped, version 26c from edm-recipes, 37,588 polygons with geoid
+          (state, county, tract, and block) and bctcb2020 (borough, tract, and block). EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dcp_cb2020.parquet')"
+
+      # FacDB, the geocoded subset, from edm-recipes. FacDB geocodes DOE's LCGMS school list by BBL, then by
+      # address. EPSG:4326.
+      - name: dcp_facilities
+        description: >
+          City Planning's Facilities Database 26v1, one point per facility, with the source dataset (datasource).
+        config:
+          external_location: "read_parquet('./data/sources/dcp_facilities.parquet')"
+
+      # DEP's public ArcGIS Online layer, ingested by the dep_bluebelt_bmps template. EPSG:4326.
+      - name: dep_bluebelt_bmps
+        description: >
+          DEP's Bluebelt BMPs, complete and in construction as of March 2024 (version 20240325), 98 points with
+          type, watershed, status, and year built.
+        config:
+          external_location: "read_parquet('./data/sources/dep_bluebelt_bmps.parquet')"
+      # DEP's WRRF drainage areas, from a shapefile internal to DCP, copied into data/sources/ by hand. Its date
+      # is unknown. Used over DEP's public Citywide WWTP Drainage Areas layer, which puts Rikers Island in Hunts
+      # Point and names Bowery Bay's area Hunts Point. DEP's wastewater system map (2025) has Rikers in Bowery Bay,
+      # as this file does. EPSG:2263.
+      - name: dcp_wrrf_drainage_areas
+        description: >
+          The 14 wastewater treatment plant drainage areas (sewersheds), with each plant's capacity (Cap_MGD) and
+          combined sewer acres (CsewerAcre).
+        config:
+          external_location: "ST_Read('/vsizip/./data/sources/dcp_wrrf_drainage_areas.zip/DEP WRRF Drainage Areas.shp')"
+      # DEP's separate sewer and direct drainage areas, from a shapefile internal to DCP, copied into data/sources/ by
+      # hand. DATE_REVIS runs 2001 to 2008. It has no combined class, and DEP's wastewater system map (2025) shows
+      # separate sewers in areas this file leaves out, such as JFK Airport, so the rest isn't taken to be combined.
+      # EPSG:2263.
+      - name: dcp_separate_sewers_direct_drainage
+        description: >
+          283 polygons, 282 SEPARATE and one DIRECT DRAINAGE (COMB_OR_SE), with the plant (WPCP) and revision date
+          (DATE_REVIS).
+        config:
+          external_location: "ST_Read('/vsizip/./data/sources/dcp_separate_sewers_direct_drainage.zip/DEP Separates Sewers and Direct Drainage.shp')"
+      # DEP's Bluebelt properties on Staten Island, from a shapefile internal to DCP, copied into data/sources/ by
+      # hand. Acquisitions run to June 2013 and parcels to acquire are dated January 2014. EPSG:2263.
+      - name: dcp_bluebelt_properties
+        description: >
+          989 tax lot and roadbed polygons with watershed and Type: DEP Parcel, DEP_Owned_Roadbeds_and_Partials,
+          Parcel_To_Acquire, Roadbeds_and_Partials_to_Acquire, and DEP Parcel - Not Bluebelt. OwnerName and
+          Comments name private owners and sellers.
+        config:
+          external_location: "ST_Read('/vsizip/./data/sources/dcp_bluebelt_properties.zip/DEP Bluebelt Properties.shp')"
+
+      # Access to land area (no decay), a shapefile from CEQR work dated November 2026, not public, copied into
+      # data/sources/ by hand. EPSG:4326. Shapefile column names are cut to 10 characters, so acre_60_pct is
+      # acre_60_pc. It also has jobs, labor force, and population reachable, and v4 and v6 variants, not used here.
+      - name: transit_land_access
+        description: >
+          One polygon per 2020 census block (32,937) with acre_60, acres reachable by transit in 60 minutes, its
+          percentile among the file's blocks (acre_60_pc), and category, the percentile in 20 bands of 5 such as
+          70th–75th percentile, which DCP's public maps use.
+        config:
+          external_location: "ST_Read('/vsizip/./data/sources/transit_land_access.zip/Access_to_land_area__No_decay_.shp')"
+
+      # NYC Parks walk times to open space, a GeoJSON file from Parks dated November 2026, not public, copied into
+      # data/sources/ by hand. It doesn't say what the walk times are measured to or how population was put on
+      # segments. EPSG:2263.
+      - name: dpr_open_space_walk_segments
+        description: >
+          139,967 street segments (LION SegmentID) with population, walk time to open space in whole minutes
+          (travel_time:Walk), and CommunityBoard, the borocd. Population adds up to 8,796,301.
+        config:
+          external_location: "ST_Read('./data/sources/dpr_open_space_walk_segments.geojson')"
+
+      - name: dpr_parksproperties
+        description: >
+          NYC Parks properties (NYC Open Data enfh-gkve), version 20261016 from edm-recipes, 2,061 polygons with
+          gispropnum, signname, typecategory, and acres. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dpr_parksproperties.parquet')"
+
+      - name: dpr_walk_to_a_park
+        description: >
+          NYC Parks' Walk to a Park service area for CEQR open space assessments (NYC Open Data k66c-pzws), version
+          20261028 from edm-recipes. 27,218 polygons of tax lots, each counted as served if half or more of it is
+          within walking distance of a park: a quarter mile for small sites, a half mile for larger parks. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/dpr_walk_to_a_park.parquet')"
+
+      # NYC Parks' Capital Project Tracker feed (DPR_CapitalProjectTracker_001.json), the raw file behind
+      # dpr_capitalprojects 20260625, copied from edm-recipes' inbox into data/sources/ by hand, since the archived
+      # version keeps only a few of its fields.
+      - name: dpr_capitalprojects
+        description: >
+          One record per project (2,232), with its phase, each phase's percent complete and dates as MM/YYYY,
+          funding range and sources, summary, and a list of locations with a park ID and coordinates. 292
+          locations have coordinates of 0 and park ID NA.
+        config:
+          external_location: "read_json('./data/sources/dpr_capitalprojects.json')"
+
+      # NYC Parks' Vital Parks Explorer area stats, downloaded from the Explorer
+      # (https://www.nycgovparks.org/about/vital-parks/explorer) in November 2026 and copied into data/sources/ by hand.
+      - name: dpr_vital_parks_area_stats
+        description: >
+          One row per area (1,069): citywide, 59 community districts ("Bronx 01"), 51 council districts, and 958 NYS
+          disadvantaged communities, with population and, for 21 park elements, a percentage and a Future
+          percentage as text such as 80%, or Data Unavailable.
+        config:
+          external_location: "read_csv('./data/sources/dpr_vital_parks_area_stats.csv', all_varchar = true)"
+
+      - name: dep_wastewater_performance
+        description: >
+          One row per facility per report sheet, January 2015 to July 2025 with March to December 2017 missing.
+          Some months are in more than one report. source_file and sheet_name say which report a row is from.
+          A sheet's name is its month, though some 2025 sheets still have 2024 in their header.
+        config:
+          external_location: "read_parquet('./data/sources/dep_wastewater_performance.parquet')"
+
       - name: dcp_housing_ahft
         description: >
           DCP's Affordable Housing Fair Share tracker (AHFT), 20261002 from edm-private. One row per

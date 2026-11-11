@@ -3,6 +3,7 @@ SELECT
     job_type,
     comunitydist::integer AS borocd,
     nta2020,
+    bct2020 AS boroct2020,
     complete_year::integer AS complete_year,
     date_complete::date AS date_complete,
     job_inactive IS NOT NULL AS is_inactive,
