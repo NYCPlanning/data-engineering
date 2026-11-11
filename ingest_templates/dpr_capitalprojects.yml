@@ -18,10 +18,44 @@ ingestion:
   file_format:
     type: json
     json_read_fn: normalize
+    # one row per project location, which CPDB relies on, with every project field the feed has. Funding sources
+    # and boroughs come as objects holding a list, which are pulled out and joined into text below.
     json_read_kwargs:
       {
         "record_path": ["Locations", "Location"],
-        "meta": ["TrackerID", "FMSID", "Title", "TotalFunding"],
+        "meta":
+          [
+          "TrackerID",
+          "FMSID",
+          "ContractID",
+          "Title",
+          "Summary",
+          "CurrentPhase",
+          "DesignPercentComplete",
+          "ProcurementPercentComplete",
+          "ConstructionPercentComplete",
+          "DesignStart",
+          "DesignProjectedCompletion",
+          "DesignAdjustedCompletion",
+          "DesignActualCompletion",
+          "ProcurementStart",
+          "ProcurementProjectedCompletion",
+          "ProcurementAdjustedCompletion",
+          "ProcurementActualCompletion",
+          "ConstructionStart",
+          "ConstructionProjectedCompletion",
+          "ConstructionAdjustedCompletion",
+          "ConstructionActualCompletion",
+          "TotalFunding",
+          "ProjectLiaison",
+          "LastUpdated",
+          "Attachment",
+          "VitalParksUnder400K",
+          "ProjectUpdate",
+          "FundingSources",
+          "Boroughs",
+          ],
+        "errors": "ignore",
       }
     geometry:
       crs: EPSG:4326
@@ -36,19 +70,67 @@ ingestion:
           {
             "TrackerID": "proj_id",
             "FMSID": "fmsid",
+            "ContractID": "contract_id",
             "Title": "desc",
+            "Summary": "summary",
+            "CurrentPhase": "current_phase",
+            "DesignPercentComplete": "design_percent_complete",
+            "ProcurementPercentComplete": "procurement_percent_complete",
+            "ConstructionPercentComplete": "construction_percent_complete",
+            "DesignStart": "design_start",
+            "DesignProjectedCompletion": "design_projected_completion",
+            "DesignAdjustedCompletion": "design_adjusted_completion",
+            "DesignActualCompletion": "design_actual_completion",
+            "ProcurementStart": "procurement_start",
+            "ProcurementProjectedCompletion": "procurement_projected_completion",
+            "ProcurementAdjustedCompletion": "procurement_adjusted_completion",
+            "ProcurementActualCompletion": "procurement_actual_completion",
+            "ConstructionStart": "construction_start",
+            "ConstructionProjectedCompletion": "construction_projected_completion",
+            "ConstructionAdjustedCompletion": "construction_adjusted_completion",
+            "ConstructionActualCompletion": "construction_actual_completion",
             "TotalFunding": "total_funding",
+            "ProjectLiaison": "project_liaison",
+            "LastUpdated": "last_updated",
+            "Attachment": "attachment_url",
+            "VitalParksUnder400K": "vital_parks_under_400k",
+            "ProjectUpdate": "project_update",
+            "FundingSources": "funding_sources",
+            "Boroughs": "boroughs",
+            "name": "name",
             "ParkID": "park_id",
             "Latitude": "lat",
             "Longitude": "lon",
             "geom": "wkb_geometry",
           }
+    - name: pd_series_func
+      args:
+        column_name: funding_sources
+        function_name: str.get
+        i: FundingSource
+    - name: pd_series_func
+      args:
+        column_name: funding_sources
+        function_name: str.join
+        sep: "; "
+    - name: pd_series_func
+      args:
+        column_name: boroughs
+        function_name: str.get
+        i: Borough
+    - name: pd_series_func
+      args:
+        column_name: boroughs
+        function_name: str.join
+        sep: "; "
     - name: coerce_column_types
       args:
         column_types: { "proj_id": "string" }
 
 columns:
   - id: park_id
+    data_type: text
+  - id: name
     data_type: text
   - id: lat
     data_type: decimal
@@ -58,9 +140,59 @@ columns:
     data_type: text
   - id: fmsid
     data_type: text
+  - id: contract_id
+    data_type: text
   - id: desc
     data_type: text
+  - id: summary
+    data_type: text
+  - id: current_phase
+    data_type: text
+  - id: design_percent_complete
+    data_type: decimal
+  - id: procurement_percent_complete
+    data_type: decimal
+  - id: construction_percent_complete
+    data_type: decimal
+  - id: design_start
+    data_type: text
+  - id: design_projected_completion
+    data_type: text
+  - id: design_adjusted_completion
+    data_type: text
+  - id: design_actual_completion
+    data_type: text
+  - id: procurement_start
+    data_type: text
+  - id: procurement_projected_completion
+    data_type: text
+  - id: procurement_adjusted_completion
+    data_type: text
+  - id: procurement_actual_completion
+    data_type: text
+  - id: construction_start
+    data_type: text
+  - id: construction_projected_completion
+    data_type: text
+  - id: construction_adjusted_completion
+    data_type: text
+  - id: construction_actual_completion
+    data_type: text
   - id: total_funding
+    data_type: text
+  - id: project_liaison
+    data_type: text
+  - id: last_updated
+    data_type: text
+  - id: attachment_url
+    data_type: text
+  - id: vital_parks_under_400k
+    data_type: bool
+  - id: project_update
+    data_type: text
+  - id: funding_sources
+    data_type: text
+  - id: boroughs
     data_type: text
   - id: wkb_geometry
     data_type: geometry
