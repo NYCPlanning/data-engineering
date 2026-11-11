@@ -1,0 +1,18 @@
+id: dcp_projects
+acl: private
+
+attributes:
+  name: ZAP Projects
+  description: >-
+    The dcp_projects table from DCP's ZAP CRM, as the version recoded for open data (the `_internal` export).
+    The weekly zap_export workflow pulls it from the CRM, archives it, and writes the same file to edm-private.
+    This source lets ingest_single re-archive a past week from edm-private.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: db-zap/{{ version }}/dcp_projects/dcp_projects_internal.csv
+  file_format:
+    type: csv
+    dtype: str

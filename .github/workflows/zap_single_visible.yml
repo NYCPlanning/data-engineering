@@ -67,10 +67,16 @@ jobs:
       - name: Get ${{ github.event.inputs.dataset }}
         run: python3 -m src.runner ${{ github.event.inputs.dataset }} $EDM_DATA_ZAP_SCHEMA
 
-      - name: Library Archive
+      # Archives the file the runner just wrote. The template's edm-private source is for
+      # re-archiving a past week with ingest_single. --overwrite because this re-export can
+      # run on a day the weekly export already archived.
+      - name: Archive
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          library archive --name ${{ github.event.inputs.dataset }} --path templates/${{ github.event.inputs.dataset }}.yml \
-            --latest --s3
+          python3 -m dcpy lifecycle ingest ingest ${{ github.event.inputs.dataset }} -v $VERSION \
+            --local-file-path .output/${{ github.event.inputs.dataset }}/${{ github.event.inputs.dataset }}.csv \
+            --definition-dir ../../ingest_templates --latest --push --overwrite
 
       - name: Export to edm-private and edm-publishing
         env:

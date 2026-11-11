@@ -1,0 +1,18 @@
+id: dcp_projectactionbbls
+acl: private
+
+attributes:
+  name: ZAP Project Action BBLs
+  description: >-
+    The dcp_projectactionbbls table from DCP's ZAP CRM, as the raw CRM table (the `_crm` export).
+    The weekly zap_export workflow pulls it from the CRM, archives it, and writes the same file to edm-private.
+    This source lets ingest_single re-archive a past week from edm-private.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: db-zap/{{ version }}/dcp_projectactionbbls/dcp_projectactionbbls_crm.csv
+  file_format:
+    type: csv
+    dtype: str
