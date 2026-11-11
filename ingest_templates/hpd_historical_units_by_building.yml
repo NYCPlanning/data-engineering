@@ -1,0 +1,22 @@
+id: hpd_historical_units_by_building
+acl: private
+
+attributes:
+  name: HPD Historical Units by Building
+  description: >-
+    Affordable units by building for HPD projects that started before 2014, before Housing
+    New York. HPD's housing team sent it once, as a workbook dated June 2023. DevDB unions it
+    with hpd_hny_units_by_building.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-private
+    key: hpd/historical_units_by_building/{{ version }}/06_20_2023_Lookback Legislation.xlsx
+  file_format:
+    type: xlsx
+    sheet_name: LookBack Legislation (2)
+    dtype: str
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
