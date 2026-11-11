@@ -47,7 +47,7 @@ def _(mo):
 
     Community districts are too coarse to say who lives somewhere and what it's like to live
     there, so this notebook zooms into one district's census tracts. It's built by the dbt project in
-    this folder, and the column docs are in `models/core/_core_models.yml`.
+    this folder, and the column docs are in `models/core/`.
 
     Tracts don't nest in community districts. They do nest in CDTAs, which match or approximate each
     district, so a district's tracts here are the tracts in its CDTA. The gray outline on the map is

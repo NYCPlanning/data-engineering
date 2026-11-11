@@ -1,0 +1,503 @@
+models:
+  - name: dim_wastewater_sewershed
+    description: >
+      One row per wastewater treatment plant drainage area (sewershed), the area whose sewage a plant treats, from
+      DEP's WRRF drainage areas (dcp_wrrf_drainage_areas, a DCP internal copy of unknown date), with geometry.
+    columns:
+      - name: wastewater_facility_id
+        description: The plant.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_wastewater_facility')
+                field: wastewater_facility_id
+      - name: plant_code
+        description: DEP's plant code (wpcp), such as BB.
+        data_tests: [unique, not_null]
+      - name: sewershed_name
+        description: As the file names it, such as 26th Ward.
+        data_tests: [unique]
+        config:
+          meta:
+            display_name: "Sewershed"
+      - name: capacity_mgd
+        description: The plant's capacity in million gallons per day, as the layer has it.
+      - name: combined_sewer_acres
+        description: Acres of the sewershed with combined sewers, as the layer has it.
+      - name: geom
+        description: Sewershed boundary, made valid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_wastewater_sewershed
+    description: >
+      One row per piece of a community district in a wastewater treatment plant sewershed (borocd x
+      wastewater_facility_id), from the overlay of dim_community_district and dim_wastewater_sewershed. Only pieces
+      with some area.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || wastewater_facility_id"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: wastewater_facility_id
+        description: The plant whose sewershed it is.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_wastewater_sewershed')
+                field: wastewater_facility_id
+      - name: overlap_acres
+        description: Acres of the district in the sewershed.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
+
+  - name: dim_sewer_area
+    description: >
+      One row per kind of sewer area, separate or direct drainage, from DEP's file revised 2001 to 2008
+      (dcp_separate_sewers_direct_drainage), with geometry. The file has no combined class.
+    columns:
+      - name: sewer_area_type
+        description: Separate or Direct drainage.
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Separate", "Direct drainage"]
+        config:
+          meta:
+            display_name: "Sewer area"
+      - name: geom
+        description: Area boundary, made valid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_sewer_area
+    description: >
+      One row per piece of a community district in a kind of sewer area (borocd x sewer_area_type), from the overlay
+      of dim_community_district and dim_sewer_area. Only pieces with some area.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || sewer_area_type"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: sewer_area_type
+        description: Kind of sewer area.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sewer_area')
+                field: sewer_area_type
+      - name: overlap_acres
+        description: Acres of the district in the area.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
+
+  - name: dim_ms4_drainage_area
+    description: >
+      One row per MS4 drainage area from DEP's MS4 map as of August 1, 2020 (NYC Open Data j57c-rqtq): land that
+      drains to the municipal separate storm sewer system. The source splits some areas into several polygons,
+      such as a city-owned and an unknown-ownership part, and those whose attributes all match are merged, so the
+      grain is the combination of every column but geom. The map leaves out areas served by combined and sanitary
+      sewers, so most of the city isn't in this table.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: >
+              drains_to || '-' || waterbody || '-' || assumed_ownership || '-' || floatables_of_concern || '-'
+              || pathogens_of_concern || '-' || nitrogen_of_concern || '-' || phosphorus_of_concern
+    columns:
+      - name: drains_to
+        description: >
+          Where the area drains: an MS4 outfall ID (matching dim_ms4_outfall), a wastewater facility (e.g. 26 WARD
+          WWTP), or OVERLAND FLOW for areas that run off directly to the water. One value, CI-605-659, matches
+          none of these.
+        data_tests: [not_null]
+      - name: waterbody
+        description: Waterbody the area drains to.
+        data_tests: [not_null]
+      - name: assumed_ownership
+        description: DEP's assumed ownership of the drainage area (CITY, or UNK for unknown).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [CITY, UNK]
+      - name: floatables_of_concern
+        description: True if floatables are a pollutant of concern for the receiving waterbody.
+        data_tests: [not_null]
+      - name: pathogens_of_concern
+        description: True if pathogens are a pollutant of concern for the receiving waterbody.
+        data_tests: [not_null]
+      - name: nitrogen_of_concern
+        description: True if nitrogen is a pollutant of concern for the receiving waterbody.
+        data_tests: [not_null]
+      - name: phosphorus_of_concern
+        description: True if phosphorus is a pollutant of concern for the receiving waterbody.
+        data_tests: [not_null]
+      - name: drains_to_type
+        description: >
+          Overland flow, Wastewater facility (drains_to ends in WWTP), or MS4 outfall (everything else, including
+          CI-605-659).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [MS4 outfall, Wastewater facility, Overland flow]
+      - name: wastewater_facility_id
+        description: The facility the area drains to, where drains_to_type is Wastewater facility.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_wastewater_facility')
+                field: wastewater_facility_id
+      - name: geom
+        description: Drainage area boundary, simplified to 3 feet and made valid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_bluebelt_bmp
+    description: >
+      One row per Bluebelt best management practice (BMP), complete or in construction, from DEP's layer as of March
+      2024 (dep_bluebelt_bmps 20240325), as a point.
+    columns:
+      - name: bmp_id
+        description: BMP ID, such as B-1.
+        data_tests: [unique, not_null]
+      - name: bmp_type
+        description: Such as Extended Detention Wetland.
+      - name: watershed
+        description: The Bluebelt watershed, such as Butler Manor.
+      - name: status
+        description: Complete or in construction, as the layer has it.
+      - name: year_built
+        description: Year built, as the layer has it.
+      - name: borough
+      - name: geom
+        description: BMP point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_bluebelt_parcel
+    description: >
+      One row per polygon of DEP-owned Bluebelt land on Staten Island, from DEP's properties file (about 2014,
+      dcp_bluebelt_properties), with the BMPs in dim_bluebelt_bmp that fall inside it. Leaves out parcels DEP
+      planned to buy and DEP land the file marks Not Bluebelt. Roadbeds have no lot, so there's no key.
+    columns:
+      - name: watershed
+        description: The Bluebelt watershed, as the file has it, such as Lemon Creek / Sandy Brook.
+      - name: property_type
+        description: DEP Parcel, or DEP_Owned_Roadbeds_and_Partials for roadbeds and parts of lots.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["DEP Parcel", "DEP_Owned_Roadbeds_and_Partials"]
+      - name: block
+        description: Tax block, 0 for roadbeds.
+      - name: lot
+        description: Tax lot, 0 for roadbeds.
+      - name: bmps
+        description: >
+          The BMPs inside the parcel, each as its type and year built, or its status where the layer has no year.
+          Null where there are none.
+      - name: geom
+        description: Parcel boundary, made valid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_ms4_outfall
+    description: One row per outfall from DEP's MS4 map as of August 1, 2020 (NYC Open Data j57c-rqtq).
+    columns:
+      - name: outfall_id
+        description: Outfall ID, e.g. BB-001. dim_ms4_drainage_area.drains_to uses the same IDs.
+        data_tests: [unique, not_null]
+      - name: waterbody
+        description: Waterbody the outfall discharges to.
+      - name: floatables_of_concern
+        description: True if floatables are a pollutant of concern for the receiving waterbody.
+      - name: pathogens_of_concern
+        description: True if pathogens are a pollutant of concern for the receiving waterbody.
+      - name: nitrogen_of_concern
+        description: True if nitrogen is a pollutant of concern for the receiving waterbody.
+      - name: phosphorus_of_concern
+        description: True if phosphorus is a pollutant of concern for the receiving waterbody.
+      - name: boro_name
+        description: Borough, as the source spells it (e.g. THE BRONX).
+      - name: treatment_plant
+        description: Wastewater facility service area the outfall is in, as the source names it (e.g. 26 WARD).
+      - name: wastewater_facility_id
+        description: The facility treatment_plant names.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_wastewater_facility')
+                field: wastewater_facility_id
+      - name: outfall_type
+        description: MS4 OUTFALL, or CSO WITH MS4 CONNECTION for a combined sewer outfall with an MS4 connection.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [MS4 OUTFALL, CSO WITH MS4 CONNECTION]
+      - name: geom
+        description: Outfall location, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_ms4_drainage
+    description: >
+      One row per piece of a community district in MS4 drainage areas of one type (borocd x drains_to_type), from
+      the overlay of dim_community_district and dim_ms4_drainage_area. Only pieces with some area. A district's
+      shares add up to less than 1 wherever the MS4 map doesn't cover it, which is most of the city.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || drains_to_type"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: drains_to_type
+        description: Type of drainage, as in dim_ms4_drainage_area.
+        data_tests: [not_null]
+      - name: overlap_acres
+        description: Acres of the district in drainage areas of this type.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district, measured the same way as dim_community_district_transit_zone.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
+
+  - name: dim_wastewater_facility
+    description: >
+      One row per wastewater facility, which DEP calls a Wastewater Resource Recovery Facility (WRRF). From the
+      table on DEP's Map of the New York City Wastewater System (2025), with the table's functions as columns and
+      flow from the latest monthly performance report (fact_wastewater_facility_month).
+    columns:
+      - name: wastewater_facility_id
+        description: The facility name in lowercase with underscores, e.g. 26th_ward.
+        data_tests: [unique, not_null]
+      - name: map_code
+        description: The facility's code on the map, e.g. 26W.
+        data_tests: [unique, not_null]
+      - name: wastewater_facility_name
+        data_tests: [unique, not_null]
+      - name: year
+        description: The map table's Year column, which the map doesn't label further.
+      - name: capacity_mgd
+        description: Capacity in million gallons per day, from the map.
+        data_tests: [not_null]
+      - name: wet_weather_flow_mgd
+        description: Wet weather flow in million gallons per day, from the map.
+      - name: borough
+        description: Borough the facility is in.
+      - name: population_served
+        description: From the map, which doesn't say what year it's for. The 14 facilities add up to 7,753,505.
+      - name: drainage_area_acres
+        description: As printed on the map. Wards Island's 2,056 acres is small for a facility serving about a million people.
+      - name: emergency_only_functions
+        description: Functions the map marks Emergency Only (a hollow dot), comma separated. Their has_ columns are true.
+      - name: latest_report_month
+        description: Month of the latest performance report.
+        data_tests: [not_null]
+      - name: latest_flow_mgd
+        description: Average flow that month, in million gallons per day.
+      - name: latest_flow_12_month_average_mgd
+        description: The report's 12-month running average flow.
+      - name: latest_flow_permit_mgd
+        description: Permitted flow in the report. Mostly the same as capacity_mgd (Oakwood Beach is 39.9 against 40).
+      - name: latest_flow_12_month_average_share_of_capacity
+        description: latest_flow_12_month_average_mgd / capacity_mgd.
+      - name: location_source
+        description: >
+          Where geom comes from: MS4 map, a point inside the facility's site on DEP's MS4 map, for the 10 that have
+          one, or FacDB (26v1's treatment plant points) for the rest.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["FacDB", "MS4 map"]
+      - name: geom
+        description: The facility as a point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: fact_wastewater_facility_month
+    description: >
+      One row per wastewater facility per month from DEP's monthly performance reports (NYC Open Data hgue-hj96),
+      January 2015 to July 2025, with March to December 2017 missing. Where a month is in more than one report,
+      the later-published one is used (see int_wastewater_facility_month_spine). TSS is total suspended solids
+      and CBOD carbonaceous biochemical oxygen demand. Removal is a fraction, and permit columns are the report's
+      limits.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "wastewater_facility_id || '-' || report_month"
+    columns:
+      - name: wastewater_facility_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_wastewater_facility')
+                field: wastewater_facility_id
+      - name: report_month
+        description: First day of the report's month, from its sheet name.
+        data_tests: [not_null]
+      - name: source_file
+        description: The downloaded file, and the workbook inside it for the zipped archive.
+      - name: sheet_name
+      - name: flow_mgd
+        description: Average flow that month, in million gallons per day.
+        data_tests: [not_null]
+      - name: tss_effluent_qualifier
+        description: "< where the report gives effluent TSS as below a value."
+      - name: tss_removal
+        description: >
+          Share of TSS removed. Rescaled to a fraction where the report writes it as 97%, 97, or 0.0097. It isn't
+          always 1 - effluent / influent, so it's kept as reported.
+      - name: tss_removal_as_reported
+        description: tss_removal as text, as the report has it.
+      - name: cbod_influent_mg_l
+        description: Empty for every facility in April to June 2020, as are the other CBOD values.
+      - name: cbod_removal
+        description: Share of CBOD removed, rescaled like tss_removal.
+      - name: reports_with_month
+        description: How many reports have this facility and month. 2 for August 2024, 2016, and July 2020.
+
+  - name: dim_community_district_stormwater_flooding
+    description: >
+      One row per community district and flooding category in DEP's NYC Stormwater Flood Map for a moderate flood
+      (2.13 inches of rain per hour) with 2050 sea level rise (NYC Open Data 9i7c-xyvv), from the overlay of
+      dim_community_district and the map. Only categories with some area in the district.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || flooding_category"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: flooding_category
+        description: >
+          Nuisance Flooding (4 inches to 1 foot of ponding), Deep and Contiguous Flooding (1 foot or more), or Future
+          High Tides 2050. The last is tidal flooding, which DEP took from DCP's Flood Hazard Mapper (2050s high
+          estimate of 30 inches of sea level rise), not stormwater.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Nuisance Flooding, Deep and Contiguous Flooding, Future High Tides 2050]
+      - name: overlap_acres
+        description: Acres of the district in this category.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district, measured the same way as dim_community_district_transit_zone.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
+      - name: geom
+        description: The district's flooding in this category, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_stormwater_flooding_frame
+    description: >
+      One row per community district and flooding category, with the flooding in the district's map frame rather
+      than the district itself, so a map doesn't stop at the district line. The frame is the district's bounding
+      box widened to at least 2.5:1 plus 10%. For acres and shares, use dim_community_district_stormwater_flooding.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || flooding_category"
+    columns:
+      - name: borocd
+        description: Community district whose map frame this is.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: flooding_category
+        description: As in dim_community_district_stormwater_flooding.
+        data_tests: [not_null]
+      - name: geom
+        description: Flooding in the frame, EPSG:4326.
+        data_tests: [not_null]
+      - name: map_geom
+        description: geom simplified to about 1 m and rounded to 6 decimals, for maps.
+
+  - name: dim_community_district_floodplain_2080
+    description: >
+      One row per community district (and joint interest area), with how much of it is in the 2080s 100-year
+      floodplain from NYC Open Data's Sea Level Rise Maps (ek8y-fsqz): FEMA's Preliminary Work Map data with the New
+      York City Panel on Climate Change's 90th percentile sea level rise (58 inches).
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: floodplain_acres
+        description: Acres of the district in the floodplain. 0 where none of it is.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district, measured the same way as dim_community_district_transit_zone.
+        data_tests: [not_null]
+      - name: floodplain_share_of_district
+        description: floodplain_acres / district_acres.
+        data_tests: [not_null]
+      - name: frame_geom
+        description: >
+          The floodplain in the district's map frame (see int_cd_map_frame_spine), EPSG:4326, for drawing it beyond
+          the district line. Null where none of the frame is in the floodplain.
+      - name: frame_edge_geom
+        description: >
+          The floodplain's outer edges in the same frame, EPSG:4326 lines, without the edges of the dry holes inside
+          it, for outlining it on a map. Null where none of the frame is in the floodplain.
+      - name: map_frame_geom
+        description: frame_geom simplified to about 1 m and rounded to 6 decimals, for maps.
+      - name: map_frame_edge_geom
+        description: frame_edge_geom simplified the same way, for maps.

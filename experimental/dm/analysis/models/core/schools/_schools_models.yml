@@ -1,0 +1,149 @@
+models:
+  - name: dim_school_subdistrict
+    description: >
+      One row per school subdistrict (SCA's 96, version 20250901), with geometry. The 2036 columns are the No
+      Action projections from the AHFT schools workbook, only for the 30 subdistricts related to AHFT districts.
+    columns:
+      - name: school_subdistrict_id
+        description: Community school district and subdistrict, such as 20-1.
+        data_tests: [unique, not_null]
+      - name: school_district
+        description: Community school district.
+        data_tests: [not_null]
+      - name: subdistrict
+        description: Subdistrict within the school district.
+        data_tests: [not_null]
+      - name: subdistrict_name
+        config:
+          meta:
+            display_name: "Subdistrict"
+      - name: ahft_community_districts
+        description: The workbook's CD column as printed, such as "QN 4 + 5". Not a key.
+      - name: ahft_priority
+        description: The workbook's AHFT priority as printed (A, B, C, or A/C).
+      - name: ahft_barely_intersects_cd
+        description: Starred in the workbook, "Subdistrict barely intersects with CD".
+      - name: ps_students_2036
+        description: Primary school students (total enrollment), No Action.
+        config:
+          meta:
+            display_name: "Primary students, 2036"
+      - name: ps_seats_2036
+        description: Primary school seats (projected capacity), No Action.
+        config:
+          meta:
+            display_name: "Primary seats, 2036"
+      - name: ps_utilization_2036
+        description: Primary school students over seats, as a fraction, as printed.
+        config:
+          meta:
+            display_name: "Primary utilization, 2036"
+      - name: is_students_2036
+        description: Intermediate school students (total enrollment), No Action.
+        config:
+          meta:
+            display_name: "Intermediate students, 2036"
+      - name: is_seats_2036
+        description: Intermediate school seats (projected capacity), No Action.
+        config:
+          meta:
+            display_name: "Intermediate seats, 2036"
+      - name: is_utilization_2036
+        description: Intermediate school students over seats, as a fraction, as printed.
+        config:
+          meta:
+            display_name: "Intermediate utilization, 2036"
+      - name: geom
+        data_tests: [not_null]
+
+  - name: dim_community_district_school_subdistrict
+    description: >
+      One row per piece of a community district in a school subdistrict (borocd x school_subdistrict_id), from the
+      overlay of dim_community_district and dim_school_subdistrict. Only pieces with some area, which includes
+      slivers where the two sources' boundaries don't quite line up. Areas are measured in EPSG:2263.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || school_subdistrict_id"
+    columns:
+      - name: borocd
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: school_subdistrict_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_school_subdistrict')
+                field: school_subdistrict_id
+      - name: overlap_acres
+        description: Acres of the district in the subdistrict.
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+      - name: share_of_subdistrict
+        description: overlap_acres / subdistrict_acres.
+
+  - name: dim_school
+    description: >
+      One row per school in DOE's LCGMS list (public, charter, and public special education), as a point, from
+      FacDB 26v1 (dcp_facilities), which geocodes LCGMS. Leaves out 180 charter schools FacDB takes from NYSED
+      and the two LCGMS schools FacDB couldn't place.
+    columns:
+      - name: school_id
+        description: FacDB's uid.
+        data_tests: [unique, not_null]
+      - name: school_name
+        description: As FacDB has it, uppercase.
+      - name: school_type
+        description: FacDB's factype, such as ELEMENTARY SCHOOL - PUBLIC.
+      - name: school_subgroup
+        description: FacDB's facsubgrp.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["PUBLIC K-12 SCHOOLS", "CHARTER K-12 SCHOOLS", "PUBLIC AND PRIVATE SPECIAL EDUCATION SCHOOLS"]
+      - name: address
+      - name: bbl
+      - name: geom
+        description: School point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_school_capacity_project
+    description: >
+      One row per SCA school capacity project in the AHFT schools workbook's file dated June 2026
+      (sca_capacity_projects). There's no key. Two rows, I.S. @ 44-59 45TH AVENUE and I.S. @ 44-59 45 AVENUE, have
+      the same point, seats, and start date and are likely one project. Western Railyards has two rows, in different
+      subdistricts and years.
+    columns:
+      - name: project_name
+        description: As the file has it, such as P.S. @ 3850 REVIEW PLACE.
+        data_tests: [not_null]
+      - name: address
+      - name: borough
+      - name: org_level
+        description: As the file has it (PS, IS, HS, PSIS, ISHS), null for one.
+      - name: seats
+        description: The file's Capacity.
+        data_tests: [not_null]
+      - name: start_date
+        description: As the file has it, such as 2028-06-01.
+        data_tests: [not_null]
+      - name: capital_plan
+        description: The file's Capital Pl, such as 25-29.
+      - name: school_subdistrict_id
+        description: Community school district and subdistrict, such as 10-2.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_school_subdistrict')
+                field: school_subdistrict_id
+      - name: geom
+        description: >
+          Project point, EPSG:4326. Null for four additions to existing Brooklyn schools (P.S. 48, 134, 177, and
+          197).
