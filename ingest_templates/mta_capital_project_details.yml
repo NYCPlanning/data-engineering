@@ -1,0 +1,21 @@
+id: mta_capital_project_details
+
+attributes:
+  name: "MTA Capital Project Details: Beginning 2015"
+  description: >-
+    Projects in the MTA's capital programs with their stage, phase, dates, costs, contractor, and the agencies,
+    services, and capital plans they're part of. No locations.
+  url: https://data.ny.gov/d/9hy6-8j6t
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: 9hy6-8j6t
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "/": "_" }, "lower": True }
