@@ -11,6 +11,7 @@ from enum import Enum
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+from urllib.parse import quote
 
 import pandas as pd
 import typer
@@ -46,8 +47,11 @@ def generate_engine_uri(
         if schema == DEFAULT_POSTGRES_SCHEMA
         else f"{schema},{DEFAULT_POSTGRES_SCHEMA}"
     )
-    options = f"?options=--search_path%3D{schemas}"
-    return server_url + "/" + database + options
+    options = f"--search_path%3D{schemas}"
+    # libpq ignores PGOPTIONS when the connection string sets options, so carry it over
+    if os.environ.get("PGOPTIONS"):
+        options += "%20" + quote(os.environ["PGOPTIONS"], safe="-")
+    return server_url + "/" + database + "?options=" + options
 
 
 def generate_schema_tests_name(schema: str):
