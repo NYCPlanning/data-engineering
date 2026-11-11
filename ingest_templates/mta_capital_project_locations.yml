@@ -1,0 +1,29 @@
+id: mta_capital_project_locations
+
+attributes:
+  name: MTA Capital Dashboard Project Locations
+  description: >-
+    Locations of projects in the MTA's capital programs, from the 2005-2009 plan to the current one, with the agency,
+    category, element, and description of each project. A project in many places has a point for each.
+  url: https://data.ny.gov/d/wcsa-vkhf
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: wcsa-vkhf
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    geometry:
+      geom_column:
+        x: Longitude
+        y: Latitude
+      crs: EPSG:4326
+  processing_steps:
+  - name: drop_columns
+    args:
+      columns: ["Location", "Georeference"]
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
