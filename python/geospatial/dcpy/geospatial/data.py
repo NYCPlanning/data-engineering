@@ -12,6 +12,7 @@ import pandas as pd
 
 from dcpy.geospatial.transform import df_to_gdf
 from dcpy.utils import formats as file
+from dcpy.utils.csv_repair import make_bad_line_handler
 from dcpy.utils.logging import logger
 
 
@@ -114,7 +115,13 @@ def read_data_to_df(
             gdf.set_crs(crs, allow_override=True, inplace=True)
         case file.Csv():
             model_kwargs = data_format.model_dump()
-            for key in ["type", "geometry", "unzipped_filename", "dtype"]:
+            for key in [
+                "type",
+                "geometry",
+                "unzipped_filename",
+                "dtype",
+                "repair_unescaped_delimiters",
+            ]:
                 model_kwargs.pop(key, None)
             kwargs: dict = {
                 "index_col": False,
@@ -122,6 +129,20 @@ def read_data_to_df(
                 "dtype": _get_dtype(data_format.dtype),
             }
             kwargs.update(model_kwargs)
+            if data_format.repair_unescaped_delimiters:
+                header = list(
+                    pd.read_csv(local_data_path, **{**kwargs, "nrows": 0}).columns
+                )
+                kwargs.pop("low_memory")  # unsupported by the python engine
+                # index_col=False truncates long rows instead of handing them to the
+                # handler, and without explicit names a long first row becomes an index.
+                kwargs.pop("index_col")
+                kwargs.update(names=header, header=0, engine="python")
+                kwargs["on_bad_lines"] = make_bad_line_handler(
+                    header,
+                    data_format.repair_unescaped_delimiters,
+                    kwargs.get("sep", ","),
+                )
             df = pd.read_csv(local_data_path, **kwargs)
             gdf = (
                 df if not data_format.geometry else df_to_gdf(df, data_format.geometry)
