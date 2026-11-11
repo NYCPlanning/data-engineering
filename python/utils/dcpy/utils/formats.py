@@ -5,6 +5,7 @@ from typing import Literal, TypeAlias
 from pydantic import BaseModel
 
 from dcpy.utils import geometry
+from dcpy.utils.csv_repair import UnescapedDelimiterRepair
 from dcpy.utils.models import SortedSerializedBase
 
 
@@ -34,6 +35,7 @@ class Csv(BaseModel, extra="allow"):
     unzipped_filename: str | None = None
     dtype: str | dict | None = None
     geometry: Geometry | None = None
+    repair_unescaped_delimiters: UnescapedDelimiterRepair | None = None
 
 
 class Excel(SortedSerializedBase, extra="forbid"):

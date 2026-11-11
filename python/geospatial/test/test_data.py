@@ -204,3 +204,20 @@ def test_read_parquet():
     assert df.shape == (5, 1)
     assert "row_id" in df.columns
     assert df["row_id"].tolist() == ["a", "b", "c", "d", "e"]
+
+
+def test_read_csv_repairs_unescaped_delimiters(tmp_path):
+    path = tmp_path / "data.csv"
+    path.write_text("id|borough|note|block\n1|BROOKLYN|a | b|7\n2|BROOKLYN|c|8\n")
+    data_format = formats.Csv(
+        type="csv",
+        sep="|",
+        dtype="str",
+        repair_unescaped_delimiters={
+            "free_text_columns": ["note"],
+            "anchor_columns": {"borough": "borough", "block": "digits"},
+        },
+    )
+    df = data.read_data_to_df(data_format, path)
+    assert df["note"].tolist() == ["a | b", "c"]
+    assert df["block"].tolist() == ["7", "8"]
