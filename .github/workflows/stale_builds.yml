@@ -3,7 +3,8 @@ name: 🧹 Clean stale build artifacts
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * SUN"
+    # 11 PM EST (midnight during daylight time); cron runs in UTC
+    - cron: "0 4 * * *"
 
 jobs:
   clean:
@@ -36,6 +37,10 @@ jobs:
         run: ./bash/docker_container_setup.sh
 
       - name: Delete build artifacts
+        env:
+          # DigitalOcean makes the cluster read-only when its disk is nearly full, which is
+          # when this cleanup matters most. Dropping schemas is how it becomes writable again.
+          PGOPTIONS: "-c default_transaction_read_only=off"
         run: python3 admin/ops/clean_build_artifacts.py schemas
 
       - name: Delete docker images
