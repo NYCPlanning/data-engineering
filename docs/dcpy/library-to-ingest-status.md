@@ -31,15 +31,9 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-2 datasets. Consumers come from grepping each name across `products/`, excluding
+1 dataset. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
-
-### Custom scripts (1)
-
-| Dataset | Consumers | Issue |
-|---|---|---|
-| `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 
 ### Url or file sources (1)
 
@@ -261,6 +255,15 @@ sides, the same job numbers, and the same values in every column apart from numb
 1e-10). The read repaired 75 rows and dropped none.
 
 With `20260630` archived through ingest, a developments build on the branch passed.
+
+## Migrated: hpd_historical_units_by_building
+
+The last of #1336's six. HPD's housing team sent this workbook once, in June 2023, and library
+read it from a local upload folder. The original file is now in `edm-private`, so ingest can read
+it in CI.
+
+Ran through ingest at `20230630` and compared with that library archive: 14,070 rows and the same
+11 columns, identical apart from `affordable_units`, which library wrote as floats (`52.0`).
 
 ## Migrated: usfws_nyc_wetlands
 
