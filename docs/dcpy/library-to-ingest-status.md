@@ -31,15 +31,14 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: templates
 
-3 datasets. Consumers come from grepping each name across `products/`, excluding
+2 datasets. Consumers come from grepping each name across `products/`, excluding
 `products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
 `acs.yml` and `decennial.yml`.
 
-### Custom scripts (2)
+### Custom scripts (1)
 
 | Dataset | Consumers | Issue |
 |---|---|---|
-| `dob_now_applications` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 | `hpd_historical_units_by_building` | `developments` | [#1336](https://github.com/NYCPlanning/data-engineering/issues/1336) |
 
 ### Url or file sources (1)
@@ -248,6 +247,20 @@ with that library archive.
   The next delivery is its first archive through ingest.
 
 With the other three archived, developments and knownprojects builds on the branch passed.
+
+## Migrated: dob_now_applications
+
+The fifth of #1336's six. DOB's export is `|`-delimited but doesn't escape `|` typed into free-text
+fields, which shifts every later column. Library's script repaired those rows while reading. The
+csv format now takes a `repair_unescaped_delimiters` option that does the same thing, with the
+free-text columns and the checks on anchor columns set in the template.
+
+Ran through ingest at `20260630` and compared with that library archive: 1,002,981 rows on both
+sides, the same job numbers, and the same values in every column apart from number formatting
+(library parsed numbers as floats, and latitude, longitude, and floor area differ by less than
+1e-10). The read repaired 75 rows and dropped none.
+
+With `20260630` archived through ingest, a developments build on the branch passed.
 
 ## Migrated: usfws_nyc_wetlands
 
