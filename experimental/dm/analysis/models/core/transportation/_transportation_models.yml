@@ -1,0 +1,406 @@
+models:
+  - name: dim_transit_zone
+    description: >
+      One row per transit zone from DCP's Transit Zones (dcp_transit_zones 20251209). The zones don't overlap.
+      The Zoning Resolution uses them for parking requirements.
+    columns:
+      - name: transit_zone
+        description: Zone name, e.g. Inner Transit Zone.
+        data_tests: [unique, not_null]
+        config:
+          meta:
+            display_name: "Transit zone"
+      - name: geom
+        description: Zone boundary, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_subway_station
+    description: >
+      One row per MTA subway and Staten Island Railway station (MTA Subway Stations, version 20261107), with
+      geometry. A station on two lines, such as 145 St, has a row for each, sharing a station_id.
+    columns:
+      - name: gtfs_stop_id
+        description: The station's GTFS stop ID, such as R01.
+        data_tests: [unique, not_null]
+      - name: station_id
+        description: The MTA's Station Master Reference Number. Not unique, see above.
+      - name: complex_id
+        description: The MTA's Complex Master Reference Number, shared by stations you can transfer between.
+      - name: stop_name
+        config:
+          meta:
+            display_name: "Station"
+      - name: line
+        description: The operational line, such as Astoria or 4th Av.
+      - name: division
+        description: IRT, BMT, IND, or SIR.
+      - name: borough
+        description: As published, Bx, B, M, Q, or SI.
+      - name: daytime_routes
+        description: The routes that stop at the station on weekdays, space separated, such as "N W".
+        config:
+          meta:
+            display_name: "Daytime routes"
+      - name: structure
+        description: What the station is in or on, such as Subway, Elevated, or Open Cut.
+      - name: in_cbd
+        description: Whether the station is in Manhattan's Central Business District, as published.
+      - name: ada_accessibility
+        description: >
+          The MTA's ada field: Full (1), Partial (2, accessible in one direction only), or None (0).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Full", "Partial", "None"]
+        config:
+          meta:
+            display_name: "ADA accessibility"
+      - name: ada_notes
+        description: For partially accessible stations, which direction is accessible.
+      - name: geom
+        description: Station point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_subway_service_line
+    description: >
+      One row per shape in MTA Subway Service Lines (version 20251208), with geometry. A service's shape is its
+      route, so services that share track overlap. The A and C have two rows each.
+    columns:
+      - name: service_line_id
+        description: The dataset's objectid.
+        data_tests: [unique, not_null]
+      - name: service
+        description: The service, such as A, 5 Peak, SF (Franklin Avenue Shuttle), or SIR.
+        data_tests: [not_null]
+      - name: service_name
+        description: Such as 8 Avenue Express.
+      - name: geom
+        description: Route line, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_subway_entrance
+    description: >
+      One row per subway entrance or exit (MTA Subway Entrances and Exits: 2024, version 20251205), with geometry.
+      The dataset has no entrance ID.
+    columns:
+      - name: gtfs_stop_id
+        description: The GTFS stop ID or IDs of the station the entrance is for.
+      - name: entrance_type
+        description: Such as Stair, Elevator, or Escalator.
+      - name: entry_allowed
+      - name: exit_allowed
+      - name: geom
+        description: Entrance point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_rail_station
+    description: >
+      One row per Long Island Rail Road and Metro-North station in NYC (MTA Rail Stations, version 20261107), with
+      geometry. In NYC means in a community district or joint interest area.
+    columns:
+      - name: rail_station_id
+        description: Railroad and station code, such as LIRR-JAM.
+        data_tests: [unique, not_null]
+      - name: railroad
+        description: LIRR or MNR.
+      - name: station_name
+        config:
+          meta:
+            display_name: "Station"
+      - name: branch
+      - name: accessibility
+        description: As published, FULL, PARTIAL, or NONE.
+      - name: geom
+        description: Station point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_ibx_station
+    description: >
+      One row per proposed Interborough Express (IBX) station (mta_ibx_stations 20261028, from the design layers HDR
+      publishes for the MTA), with geometry. Locations are subject to change.
+    columns:
+      - name: ibx_station_id
+        description: The layer's Feature_ID, such as STA-001.
+        data_tests: [unique, not_null]
+      - name: station_name
+        description: Such as Flatbush - Nostrand Avenue.
+        config:
+          meta:
+            display_name: "Proposed IBX station"
+      - name: station_label
+        description: The layer's short label, such as Flatbush-Nostrand Avs.
+      - name: geom
+        description: Station centroid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_ibx_track
+    description: >
+      One row per track centerline in the proposed Interborough Express (IBX) alignment (mta_ibx_service_lines
+      20261030), with geometry.
+    columns:
+      - name: ibx_track_id
+        description: The layer's Feature_ID, such as IBX-001.
+        data_tests: [unique, not_null]
+      - name: track_name
+      - name: geom
+        description: Track centerline, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_ferry_landing
+    description: >
+      One row per ferry landing: NYC Ferry landings (stops on its ferry routes in the edc_nycferry_gtfs feed,
+      20261108, leaving out the Rockaway shuttle bus stops) and the Staten Island Ferry's two terminals
+      (dot_ferryterminals 20240805), with geometry.
+    columns:
+      - name: ferry_landing_id
+        description: The system and its stop or site ID, such as NYC Ferry 4.
+        data_tests: [unique, not_null]
+      - name: landing_name
+        description: Such as Wall St/Pier 11 or Whitehall Terminal.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Ferry landing"
+      - name: ferry_system
+        description: NYC Ferry or Staten Island Ferry.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["NYC Ferry", "Staten Island Ferry"]
+      - name: geom
+        description: Landing point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_bus_stop
+    description: >
+      One row per MTA bus stop where riders can board on at least one route, from the schedule bundle in effect
+      (mta_bus_stops 20261016), as a point. Leaves out stops where no route allows boarding.
+    columns:
+      - name: bus_stop_id
+        data_tests: [unique, not_null]
+      - name: bus_stop_name
+        description: As the MTA has it, such as 30 AV/31 ST.
+      - name: boarding_routes
+        description: Routes that board at the stop.
+        data_tests: [not_null]
+      - name: geom
+        description: Stop point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_transit_access_block
+    description: >
+      One row per 2020 census block in the access to land area file (no decay, November 2026), with geometry.
+      Use access_category for maps, as DCP's public maps do, and acres_reachable_in_60_minutes and
+      acres_reachable_percentile for calculations.
+    columns:
+      - name: census_block_2020
+        description: 2020 census block GEOID, such as 360810149002001.
+        data_tests: [unique, not_null]
+      - name: acres_reachable_in_60_minutes
+        description: The file's acre_60, acres reachable by transit in 60 minutes from the block.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Acres reachable by transit in 60 minutes"
+      - name: acres_reachable_percentile
+        description: The file's acre_60_pct (acre_60_pc in the shapefile), the block's percentile among the file's blocks, 0 to 100.
+        data_tests: [not_null]
+      - name: access_category
+        description: The file's category, the percentile in 20 bands of 5, such as 70th–75th percentile.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Transit access"
+      - name: access_category_floor
+        description: The category's lower percentile, 0 to 95, for sorting the categories.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95]
+                quote: false
+      - name: geom
+        description: Block boundary, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_community_district_transit_zone
+    description: >
+      One row per piece of a community district in a transit zone (borocd x transit_zone), from the overlay of
+      dim_community_district and dim_transit_zone. Only pieces with some area. Areas are measured from the
+      boundaries in EPSG:2263, so district_acres can differ a little from dim_community_district.land_acres.
+      A district's shares can add up to less than 1 where no zone covers part of it: BX12 adds up to 0.88, and
+      the Central Park, Van Cortlandt Park, and Prospect Park joint interest areas are almost entirely uncovered.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || transit_zone"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: transit_zone
+        description: Transit zone.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_transit_zone')
+                field: transit_zone
+      - name: overlap_acres
+        description: Acres of the district in the zone.
+        data_tests: [not_null]
+      - name: district_acres
+        description: Acres of the whole district.
+        data_tests: [not_null]
+      - name: share_of_district
+        description: overlap_acres / district_acres.
+        data_tests: [not_null]
+
+  - name: dim_vision_zero_priority_corridor
+    description: >
+      One row per Vision Zero pedestrian priority corridor (NYC Open Data 36nr-7fbp): each borough's streets ranked by
+      pedestrian killed and severely injured (KSI) per mile, from the top until they held half the borough's
+      pedestrian KSI. From the Borough Pedestrian Safety Action Plans.
+    columns:
+      - name: priority_corridor_id
+        description: An MD5 hash of the geometry, since the source has no IDs or names.
+        data_tests: [unique, not_null]
+      - name: miles
+        description: Length in miles, measured in EPSG:2263.
+      - name: geom
+        data_tests: [not_null]
+
+  - name: dim_vision_zero_priority_intersection
+    description: >
+      One row per Vision Zero pedestrian priority intersection (NYC Open Data tmt9-43em): the intersections with the
+      most pedestrian KSI, together holding 15% of each borough's pedestrian KSI.
+    columns:
+      - name: priority_intersection_id
+        description: street_1 and street_2.
+        data_tests: [unique, not_null]
+      - name: geom
+        data_tests: [not_null]
+
+  - name: dim_street_improvement_project
+    description: >
+      One row per DOT Street Improvement Project (SIP), corridors (NYC Open Data if4c-w48d) and intersections
+      (shr7-eqdc): operational (non-capital) safety projects from 2009 on, such as signals, markings, and concrete.
+    columns:
+      - name: street_improvement_project_id
+        description: Project name and SIP year.
+        data_tests: [unique, not_null]
+      - name: project_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Corridor", "Intersection"]
+      - name: sip_year
+        description: The project's year in the source. end_date is often in the year after.
+        data_tests: [not_null]
+      - name: end_date
+        description: Missing for one project.
+      - name: geom
+        description: Multilines for corridors, multipoints for intersections.
+        data_tests: [not_null]
+
+  - name: dim_mta_capital_project_location
+    description: >
+      One row per location of a project in the MTA's Capital Dashboard (mta_capital_project_locations), for the
+      2005-2009 through 2025-2029 capital plans. A project spread over many places, such as a station program, has
+      a point for each.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "acep || '-' || location_number"
+    columns:
+      - name: acep
+        description: >
+          The dashboard's project number, such as T8041206. It uses the same codes as acep in the budgets data
+          (dim_mta_capital_project_acep), which is how projects connect to dim_mta_capital_project.
+        data_tests: [not_null]
+      - name: location_number
+        description: The location's sequence number within the project.
+        data_tests: [not_null]
+      - name: plan_series
+        description: The capital plan as a number, 5 for 2005-2009 through 9 for 2025-2029.
+      - name: capital_plan
+        description: The capital plan, such as Capital Plan 2025 - 2029.
+      - name: agency_name
+      - name: category
+        description: As the dashboard has it, in capitals, such as PASSENGER STATIONS.
+      - name: element
+        description: As the dashboard has it, in capitals, such as a station or bridge name.
+      - name: project_description
+      - name: location_indicator
+        description: base or multilocation, as the dashboard has it.
+      - name: geom
+        description: Location point, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_mta_capital_project
+    description: >
+      One row per project in the MTA's Capital Project Details dataset (mta_capital_project_details), with stage,
+      phase, dates, and costs. Locations come through dim_mta_capital_project_acep.
+    columns:
+      - name: project_id
+        data_tests: [unique, not_null]
+      - name: stage
+        description: Planning, Procurement, Construction, or Complete.
+      - name: districts
+        description: County codes, such as CO-081 for Queens. Empty for most projects.
+      - name: estimated_completion_date
+        description: The estimated or actual completion date.
+
+  - name: dim_mta_capital_project_acep
+    description: >
+      One row per project and ACEP code in the project's budget (mta_capital_project_budgets). A project can have
+      several codes, and a code can be in several projects.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "project_id || '-' || acep"
+    columns:
+      - name: project_id
+        description: Project 14607 is in the budgets but not in dim_mta_capital_project.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_mta_capital_project')
+                field: project_id
+              config:
+                severity: warn
+      - name: acep
+        data_tests: [not_null]
+
+  - name: dim_community_district_mta_capital_project
+    description: >
+      One row per district and MTA Capital Dashboard project with a location in the district, with one point to
+      stand for the project there: its location in the district nearest the center of all its locations there. A
+      project in several districts has a point in each.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || acep"
+    columns:
+      - name: borocd
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: acep
+        data_tests: [not_null]
+      - name: locations_in_district
+        description: How many of the project's locations are in the district.
+      - name: representative_location_number
+        description: The location_number in dim_mta_capital_project_location of the point.
+      - name: geom
+        description: The point, EPSG:4326.
+        data_tests: [not_null]

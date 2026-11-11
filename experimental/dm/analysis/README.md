@@ -59,18 +59,36 @@ python scripts/extract_fhgs.py data/sources/fhgs.pdf
 
 ## Models
 
+Core models are grouped by domain in `models/core/`, with intermediate models in matching folders of `models/intermediate/`. Each folder has its models' column docs.
+
+### Geography (`geography/`)
+
 | Model | Grain |
 |---|---|
 | `dim_community_district` | borocd (59 districts and 12 joint interest areas), with geometry |
-| `dim_kpdb_record_community_district` | KPDB record x borocd |
 | `dim_nta` | 2020 neighborhood tabulation area (nta2020), with geometry |
 | `dim_census_tract` | 2020 census tract (boroct2020), with geometry |
 | `dim_borough` | borough, with TCOL rates |
+| `dim_nta_neighbor` | nta2020 x neighbor_nta2020, every pair of NTAs that touch or are across less than a quarter mile of water |
+
+### Residents and growth (`residents_growth/`)
+
+| Model | Grain |
+|---|---|
+| `mart_community_district_date` | borocd x date, 2010-2025 |
+| `mart_nta_date` | nta2020 x date, 2010-2025 |
+| `fact_unit_completion` | completed DOB job (job_number) |
+| `dim_kpdb_record_community_district` | KPDB record x borocd |
+| `fact_housing_survey_household` | HVS survey year x household (control) |
+| `mart_borough_survey_year` | borough x HVS survey year |
 | `dim_tcol_family_type` | TCOL family type, with its median threshold and rates |
+
+### Transportation (`transportation/`)
+
+| Model | Grain |
+|---|---|
 | `dim_transit_zone` | transit zone, with geometry |
-| `dim_vision_zero_priority_corridor` | Vision Zero pedestrian priority corridor, with geometry |
-| `dim_vision_zero_priority_intersection` | Vision Zero pedestrian priority intersection, with geometry |
-| `dim_street_improvement_project` | DOT Street Improvement Project (corridor or intersection), with geometry |
+| `dim_community_district_transit_zone` | borocd x transit_zone, the piece of a district in each zone |
 | `dim_subway_station` | subway and SIR station (gtfs_stop_id), with geometry |
 | `dim_subway_service_line` | subway service line shape, with geometry |
 | `dim_subway_entrance` | subway entrance or exit, with geometry |
@@ -78,46 +96,60 @@ python scripts/extract_fhgs.py data/sources/fhgs.pdf
 | `dim_ibx_station` | proposed IBX station, with geometry |
 | `dim_ibx_track` | proposed IBX track centerline, with geometry |
 | `dim_ferry_landing` | NYC Ferry landing or Staten Island Ferry terminal, with geometry |
-| `dim_wastewater_sewershed` | wastewater treatment plant sewershed (wastewater_facility_id), with geometry |
-| `dim_community_district_wastewater_sewershed` | borocd x wastewater_facility_id, the piece of a district in each sewershed |
-| `dim_sewer_area` | kind of sewer area (separate or direct drainage), with geometry |
-| `dim_community_district_sewer_area` | borocd x sewer_area_type, the piece of a district in each kind of sewer area |
+| `dim_vision_zero_priority_corridor` | Vision Zero pedestrian priority corridor, with geometry |
+| `dim_vision_zero_priority_intersection` | Vision Zero pedestrian priority intersection, with geometry |
+| `dim_street_improvement_project` | DOT Street Improvement Project (corridor or intersection), with geometry |
 | `dim_bus_stop` | MTA bus stop where riders can board (bus_stop_id), as a point |
 | `dim_mta_capital_project_location` | acep x location_number, a location of an MTA capital project, as a point |
 | `dim_mta_capital_project` | MTA capital project in the Capital Project Details dataset (project_id), with stage and dates |
 | `dim_mta_capital_project_acep` | project_id x acep, the ACEP codes in a project's budget |
 | `dim_community_district_mta_capital_project` | borocd x acep, an MTA capital project with a location in the district, with one point for it there |
 | `dim_transit_access_block` | 2020 census block in the access to land area file, with geometry |
+
+### Schools (`schools/`)
+
+| Model | Grain |
+|---|---|
 | `dim_school_subdistrict` | school subdistrict (school_subdistrict_id), with 2036 utilization and geometry |
 | `dim_community_district_school_subdistrict` | borocd x school_subdistrict_id, the piece of a district in each subdistrict |
 | `dim_school` | school in DOE's LCGMS list (school_id), as a point, from FacDB 26v1 |
 | `dim_school_capacity_project` | SCA school capacity project, with seats, start date, subdistrict, and point |
-| `dim_nta_neighbor` | nta2020 x neighbor_nta2020, every pair of NTAs that touch |
-| `dim_community_district_transit_zone` | borocd x transit_zone, the piece of a district in each zone |
+
+### Water (`water/`)
+
+| Model | Grain |
+|---|---|
 | `dim_ms4_drainage_area` | MS4 drainage area, every column but geometry, with geometry |
-| `dim_bluebelt_bmp` | Bluebelt best management practice (bmp_id), as a point, as of March 2024 |
-| `dim_bluebelt_parcel` | polygon of DEP-owned Bluebelt land, about 2014, with the BMPs inside it |
 | `dim_ms4_outfall` | MS4 outfall (outfall_id), with geometry |
 | `dim_community_district_ms4_drainage` | borocd x drains_to_type, the piece of a district in each type of MS4 drainage |
+| `dim_bluebelt_bmp` | Bluebelt best management practice (bmp_id), as a point, as of March 2024 |
+| `dim_bluebelt_parcel` | polygon of DEP-owned Bluebelt land, about 2014, with the BMPs inside it |
 | `dim_wastewater_facility` | wastewater facility (WRRF), with its functions, latest flow, and location |
 | `fact_wastewater_facility_month` | wastewater facility x month of DEP's performance reports |
+| `dim_wastewater_sewershed` | wastewater treatment plant sewershed (wastewater_facility_id), with geometry |
+| `dim_community_district_wastewater_sewershed` | borocd x wastewater_facility_id, the piece of a district in each sewershed |
+| `dim_sewer_area` | kind of sewer area (separate or direct drainage), with geometry |
+| `dim_community_district_sewer_area` | borocd x sewer_area_type, the piece of a district in each kind of sewer area |
 | `dim_community_district_stormwater_flooding` | borocd x flooding_category, with the district's flooding geometry |
 | `dim_community_district_stormwater_flooding_frame` | borocd x flooding_category, the flooding in the district's map frame |
 | `dim_community_district_floodplain_2080` | borocd, with its share in the 2080s 100-year floodplain and the floodplain in its map frame |
-| `fact_unit_completion` | completed DOB job (job_number) |
-| `fact_housing_survey_household` | HVS survey year x household (control) |
-| `mart_community_district_date` | borocd x date, 2010-2025 |
-| `mart_nta_date` | nta2020 x date, 2010-2025 |
-| `mart_borough_survey_year` | borough x HVS survey year |
+
+### Open space (`open_space/`)
+
+| Model | Grain |
+|---|---|
 | `dim_park` | NYC Parks property (park_id), with geometry |
 | `dim_walk_to_a_park_area` | polygon of Parks' Walk to a Park service area, with geometry |
 | `dim_park_capital_project` | Parks capital project (tracker_id), with phase, dates, and funding |
 | `dim_park_capital_project_location` | tracker_id x location_number, with a point where the feed has one |
 | `dim_open_space_walk_segment` | street segment in Parks' open space walk file (segment_id), with residents, walk minutes, and line |
+
+### Products
+
+| Model | Grain |
+|---|---|
 | `population_vs_housing_growth` (product, Excel) | borocd, the 59 community districts |
 | `population_change_components` (product, Excel) | borocd, the 59 community districts |
-
-Column docs are in `models/core/_core_models.yml`.
 
 ## Running it
 

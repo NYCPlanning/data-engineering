@@ -54,7 +54,7 @@ def _(mo):
     Where has population grown faster than housing? This notebook compares population and housing
     growth in New York City's 59 community districts: past (2010 to 2020), present (the end of 2024), and future
     (KPDB's projection through 2034). It's built by the dbt project in this folder, and the column docs
-    are in `models/core/_core_models.yml`.
+    are in `models/core/`.
 
     Housing growth is measured as **units built**, the net units completed according to the Housing
     Database. That's the measure the Fair Housing Growth Strategy uses. The census change in housing
