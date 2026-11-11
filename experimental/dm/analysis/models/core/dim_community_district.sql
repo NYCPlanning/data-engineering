@@ -79,6 +79,36 @@ SELECT
     components.population_change_from_group_quarters_2010_2020_pts,
     density.land_acres,
     density.people_per_acre,
+    vision_zero.priority_corridor_miles,
+    vision_zero.priority_corridor_miles_with_project,
+    vision_zero.priority_intersections,
+    vision_zero.priority_intersections_with_project,
+    vision_zero.street_improvement_projects_2009_2026,
+    vision_zero.street_improvement_projects_2021_2026,
+    transit.subway_stations,
+    transit.subway_stations_fully_accessible,
+    transit.subway_stations_partially_accessible,
+    transit.rail_stations,
+    transit.proposed_ibx_stations,
+    transit.ferry_landings,
+    transit.bus_stops,
+    transit.median_acres_reachable_by_transit,
+    transit.median_acres_reachable_by_transit_percentile,
+    transit.transit_access_covered_share,
+    transit.transit_access_residents,
+    transit.transit_access_residents_at_or_above_median_block,
+    transit.transit_access_residents_at_or_below_10th_percentile,
+    transit.transit_access_residents_not_in_file,
+    open_space.open_space_residents,
+    open_space.open_space_residents_within_10_minutes,
+    open_space.walk_to_a_park_residents,
+    open_space.walk_to_a_park_residents_served,
+    open_space.active_recreation_areas_pct,
+    open_space.new_or_renovated_parks_pct,
+    open_space.new_or_renovated_parks_future_pct,
+    open_space.citywide_active_recreation_areas_pct,
+    open_space.citywide_new_or_renovated_parks_pct,
+    open_space.citywide_new_or_renovated_parks_future_pct,
     spine.geom
 FROM {{ ref('int_cd_spine') }} AS spine
 LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd
@@ -91,4 +121,7 @@ LEFT JOIN {{ ref('int_cd_growth_metrics') }} AS growth ON spine.borocd = growth.
 LEFT JOIN {{ ref('int_cd_unit_completion_metrics') }} AS built ON spine.borocd = built.borocd
 LEFT JOIN {{ ref('int_cd_kpdb_projection_metrics') }} AS kpdb ON spine.borocd = kpdb.borocd
 LEFT JOIN {{ ref('int_cd_population_change_components') }} AS components ON spine.borocd = components.borocd
+LEFT JOIN {{ ref('int_cd_vision_zero_metrics') }} AS vision_zero ON spine.borocd = vision_zero.borocd
+LEFT JOIN {{ ref('int_cd_transit_metrics') }} AS transit ON spine.borocd = transit.borocd
+LEFT JOIN {{ ref('int_cd_open_space_metrics') }} AS open_space ON spine.borocd = open_space.borocd
 ORDER BY spine.borocd

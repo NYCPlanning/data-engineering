@@ -3,6 +3,7 @@ SELECT
     job_type,
     borocd,
     nta2020,
+    boroct2020,
     date_complete,
     complete_year,
     classa_net,

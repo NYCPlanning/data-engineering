@@ -75,3 +75,192 @@ seeds:
         data_tests: [unique, not_null]
       - name: nta_type_name
         data_tests: [not_null]
+
+  - name: dep_wastewater_facilities
+    description: >
+      The table of Wastewater Resource Recovery Facilities (WRRFs) on DEP's Map of the New York City Wastewater
+      System (2025), one row per facility. Extracted from the PDF by scripts/extract_dep_wastewater_map.py. The
+      map doesn't say what year population served is for.
+    config:
+      column_types:
+        wastewater_facility_id: varchar
+        map_code: varchar
+        wastewater_facility_name: varchar
+        year: integer
+        capacity_mgd: integer
+        wet_weather_flow_mgd: integer
+        borough: varchar
+        population_served: integer
+        drainage_area_acres: integer
+    columns:
+      - name: wastewater_facility_id
+        description: The facility name in lowercase with underscores, e.g. 26th_ward.
+        data_tests: [unique, not_null]
+      - name: map_code
+        description: The facility's code on the map, e.g. 26W.
+        data_tests: [unique, not_null]
+      - name: year
+        description: The table's Year column, which the map doesn't label further.
+      - name: drainage_area_acres
+        description: As printed. Wards Island's 2,056 acres is small for a facility serving about a million people.
+
+  - name: dep_wastewater_facility_functions
+    description: >
+      The functions table on the same map, one row per facility and function it has a dot for. Function names and
+      groups are the table's column headers.
+    config:
+      column_types:
+        wastewater_facility_id: varchar
+        function_group: varchar
+        function: varchar
+        is_emergency_only: boolean
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "wastewater_facility_id || '-' || function"
+    columns:
+      - name: wastewater_facility_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dep_wastewater_facilities')
+                field: wastewater_facility_id
+      - name: is_emergency_only
+        description: True for a hollow dot, Emergency Only in the map's legend.
+        data_tests: [not_null]
+
+  # NYC's 2026 True Cost of Living (TCOL) report, from the Mayor's Office of Equity & Racial Justice with the Urban
+  # Institute (ATTIS model on the 2018 ACS, projected to 2022). Extracted from the PDF by scripts/extract_tcol.py.
+  # Percentages are on a 0-100 scale, dollars are 2022 dollars, and values the report suppresses are empty.
+  - name: tcol_family_types
+    description: >
+      Tables 2 and 6: median costs (the TCOL threshold) and median resources, and the share of people not meeting
+      their threshold and the average resource gap, one row per family type. A family is related people in a
+      household plus cohabiters, so a single adult is a family.
+    config:
+      column_types:
+        tcol_family_type_id: varchar
+        adult_age_group: varchar
+        family_type: varchar
+        adults: varchar
+        children: varchar
+        is_rollup: boolean
+        median_cost: integer
+        median_resources: integer
+        pct_not_meeting: double
+        avg_resource_gap: integer
+    columns:
+      - name: tcol_family_type_id
+        data_tests: [unique, not_null]
+      - name: family_type
+        description: >
+          As Table 6 labels it. Table 2 calls the under-65 row without children Two Adults rather than Two+ Adults.
+      - name: is_rollup
+        description: True for the under-65 1+ children rows, which total the 1, 2, and 3+ children rows.
+
+  - name: tcol_budget_components
+    description: >
+      Tables 3 and 13: median costs by component and median resources by kind, for three broad family types.
+      Component medians are computed separately, so they don't add up to the total.
+    config:
+      column_types:
+        broad_family_type: varchar
+        component: varchar
+        component_kind: varchar
+        median_amount: integer
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "broad_family_type || '-' || component"
+
+  - name: tcol_disability_costs
+    description: Table 4, median costs by adult age group and disability.
+    config:
+      column_types:
+        adult_age_group: varchar
+        disability: varchar
+        median_cost: integer
+
+  - name: tcol_group_rates
+    description: >
+      Tables 5, 7, and 8: share of people not meeting their threshold and average resource gap, by age, broad family
+      type, race and ethnicity, and four special family types.
+    config:
+      column_types:
+        dimension: varchar
+        group: varchar
+        pct_not_meeting: double
+        avg_resource_gap: integer
+
+  - name: tcol_borough_rates
+    description: Table 9, rates and average resource gap by borough, plus NYC Overall.
+    config:
+      column_types:
+        borough: varchar
+        pct_not_meeting: double
+        pct_adults_no_children_not_meeting: double
+        pct_families_with_children_not_meeting: double
+        avg_resource_gap: integer
+    columns:
+      - name: borough
+        data_tests: [unique, not_null]
+
+  - name: tcol_borough_race_rates
+    description: >
+      Table 10, rates by borough and race and ethnicity. The table is an image in the PDF, so these were typed from
+      it. Its NYC Overall row matches Table 7.
+    config:
+      column_types:
+        borough: varchar
+        race_ethnicity: varchar
+        pct_not_meeting: double
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borough || '-' || race_ethnicity"
+
+  - name: tcol_resource_distribution
+    description: Table 11, people by their resources as a share of their threshold.
+    config:
+      column_types:
+        resource_band: varchar
+        pct_of_nyc: double
+        avg_resources_pct_of_threshold: double
+        avg_resource_gap: integer
+        median_cost: integer
+        median_resources: integer
+
+  - name: ahft_school_subdistricts
+    description: >
+      The AHFT_ONLY sheet of the AHFT schools workbook, extracted by scripts/extract_ahft_schools.py: the school
+      subdistricts related to AHFT districts, with No Action primary (PS) and intermediate (IS) school enrollment,
+      seats, and utilization, taken to be projections for 2036. The With Action columns are left out.
+    config:
+      column_types:
+        school_district: integer
+        subdistrict: integer
+        community_districts: varchar
+        ahft_priority: varchar
+        barely_intersects_cd: boolean
+        ps_students: double
+        ps_seats: double
+        ps_utilization: double
+        is_students: double
+        is_seats: double
+        is_utilization: double
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "school_district || '-' || subdistrict"
+    columns:
+      - name: community_districts
+        description: The sheet's CD column as printed, such as "QN 4 + 5".
+      - name: ahft_priority
+        description: The sheet's AHFT priority as printed (A, B, C, or A/C).
+      - name: barely_intersects_cd
+        description: Starred in the sheet, "Subdistrict barely intersects with CD".
+      - name: ps_utilization
+        description: Students over seats, as a fraction, as printed. Some are rounded to 0.001.
+      - name: is_utilization
+        description: Students over seats, as a fraction, as printed. Some are rounded to 0.001.
