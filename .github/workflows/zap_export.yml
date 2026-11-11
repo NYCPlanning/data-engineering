@@ -101,10 +101,15 @@ jobs:
       #   run: |
       #     ./zap.sh upload_recoded_bq ${{ matrix.entity }} $VERSION
 
-      - name: Library Archive
+      # Archives the file the runner just wrote. The template's edm-private source is for
+      # re-archiving a past week with ingest_single.
+      - name: Archive
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          library archive --name ${{ matrix.entity }} --path templates/${{ matrix.entity }}.yml \
-            --latest --s3
+          python3 -m dcpy lifecycle ingest ingest ${{ matrix.entity }} -v $VERSION \
+            --local-file-path .output/${{ matrix.entity }}/${{ matrix.entity }}.csv \
+            --definition-dir ../../ingest_templates --latest --push
 
       - name: Export to edm-private and edm-publishing
         env:
