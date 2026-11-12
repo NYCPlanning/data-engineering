@@ -43,7 +43,7 @@ uv python install 3.13
 #### Mac
 
 With homebrew, install:
-- `gdal` - the same version pinned in `python/library/pyproject.toml` (`GDAL==...`, which must exactly
+- `gdal` - the same version pinned in `python/geospatial/pyproject.toml` (`GDAL==...`, which must exactly
   match the system libgdal used to build `nycplanning/base` - see `gdal_version` in
   `admin/run_environment/docker/base/setup.sh`) if possible. If not, edit that pin to align with the
   version returned from running `gdalinfo --version`, then run `uv lock`.
@@ -179,7 +179,7 @@ If a bump breaks something, pin it in the relevant `pyproject.toml` **on `main`*
 is lost if the PR isn't merged first.
 
 Before merging, read the lock diff for major and minor bumps of packages we import directly. Exact
-`==` pins (like `GDAL` in `python/library/pyproject.toml`) don't move and have to be edited by hand.
+`==` pins (like `GDAL` in `python/geospatial/pyproject.toml`) don't move and have to be edited by hand.
 
 To upgrade locally:
 

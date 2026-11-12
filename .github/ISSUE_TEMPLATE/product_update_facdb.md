@@ -93,7 +93,7 @@ The source datasets don't currently provide an API or export option on their web
 
 ## Manual download
 
-**`TODO`**: see respective `dcpy/library/templates` for details
+**`TODO`**: see respective `ingest_templates/` for details
 
 - [ ] doe_lcgms https://data.cityofnewyork.us/Education/LCGMS-DOE-School-Information-Report/3bkj-34v2
 - [ ] foodbankny_foodbanks http://www.foodbanknyc.org/get-help/
