@@ -5,7 +5,6 @@ import pytest
 
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
-from dcpy.library import models as library
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.ingest import validate
 from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
@@ -19,18 +18,12 @@ from .shared import (
     TEST_OUTPUT,
 )
 
-BASIC_LIBRARY_CONFIG = library.Config(
-    dataset=library.DatasetDefinition(
-        name=TEST_DATASET_NAME,
-        version="20240926",
-        acl="public-read",
-        source=library.DatasetDefinition.SourceSection(),
-        destination=library.DatasetDefinition.DestinationSection(
-            geometry=library.GeometryType(SRS="NONE", type="NONE")
-        ),
-    ),
-    execution_details=RUN_DETAILS,
-)
+# The shape of a config.json written by the old library tool
+LIBRARY_VERSION = "20240926"
+LIBRARY_CONFIG = {
+    "dataset": {"name": TEST_DATASET_NAME, "version": LIBRARY_VERSION},
+    "execution_details": RUN_DETAILS.model_dump(mode="json"),
+}
 
 
 @pytest.fixture
@@ -53,20 +46,19 @@ def connector(tmp_path):
 # TODO
 class TestValidateAgainstExistingVersion:
     def test_existing_library(self, connector: IngestDatastoreConnector):
-        ds = BASIC_LIBRARY_CONFIG.sparse_dataset
-
-        config_str = json.dumps(BASIC_LIBRARY_CONFIG.model_dump(mode="json"))
-        remote_conf_path = connector.storage.storage.root_path / ds.id / ds.version
-        remote_conf_path.mkdir(parents=True)
-        (remote_conf_path / "config.json").write_text(config_str)
-
-        assert get_processed_datastore_connector().version_exists(ds.id, ds.version), (
-            "The version should be found"
+        remote_conf_path = (
+            connector.storage.storage.root_path / TEST_DATASET_NAME / LIBRARY_VERSION
         )
+        remote_conf_path.mkdir(parents=True)
+        (remote_conf_path / "config.json").write_text(json.dumps(LIBRARY_CONFIG))
+
+        assert get_processed_datastore_connector().version_exists(
+            TEST_DATASET_NAME, LIBRARY_VERSION
+        ), "The version should be found"
         # A library-era archive can't be compared, so it has to be replaced deliberately
         with pytest.raises(FileExistsError, match="dcpy.library"):
             validate.validate_data_against_existing_version(
-                ds.id, ds.version, TEST_OUTPUT
+                TEST_DATASET_NAME, LIBRARY_VERSION, TEST_OUTPUT
             )
 
     def test_existing(self, connector: IngestDatastoreConnector):

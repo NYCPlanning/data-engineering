@@ -7,12 +7,10 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from dateutil.relativedelta import relativedelta
 
-from dcpy.library import models as library  # noqa
+from .helpers import ArchiveRecord
 
 
-def plot_series(
-    datasets: Dict[str, list[library.ArchivalMetadata]], months_back: int = 6
-):
+def plot_series(datasets: Dict[str, list[ArchiveRecord]], months_back: int = 6):
     end_date = date.today()
     start_date = end_date - relativedelta(months=months_back)
 

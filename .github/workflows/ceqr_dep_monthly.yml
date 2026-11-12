@@ -38,7 +38,7 @@ jobs:
     # ingest_templates/.
     - name: Archive
       working-directory: ./
-      run: dcpy lifecycle scripts ingest_or_library_archive dep_cats_permits --latest --version "$ARCHIVE_VERSION" --push-to-s3
+      run: dcpy lifecycle scripts ingest dep_cats_permits --latest --version "$ARCHIVE_VERSION" --push-to-s3
 
     # Exports that archive to the edm-publishing staging folder ITD publishes from
     - name: Export for publishing
