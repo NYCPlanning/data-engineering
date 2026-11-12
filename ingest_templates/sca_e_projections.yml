@@ -1,0 +1,21 @@
+id: sca_e_projections
+acl: private
+
+attributes:
+  name: SCA Enrollment Projections
+  description: >-
+    Input to the CEQR public schools datasets, read by sca_e_projections_by_boro and sca_e_projections_by_sd in products/ceqr/ceqr_app.
+    SCA sends a new version each year, which Capital Planning keeps in its CEQR Schools SharePoint folder.
+    Versions before ingest were loaded straight into the old recipe database, and this one was exported from there as csv.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/sca/sca_e_projections/{{ version }}/sca_e_projections.csv
+  file_format:
+    type: csv
+    dtype: str
+    # Only blanks are null, as in the recipe database these came from.
+    keep_default_na: false
+    na_values: [""]
