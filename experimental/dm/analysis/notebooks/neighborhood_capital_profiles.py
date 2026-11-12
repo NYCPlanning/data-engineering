@@ -4940,9 +4940,10 @@ def _(mo):
             mo.md("""
     ### Open Space
 
-    #### Walk to a Park
+    #### Parks
 
-    How many of the district's residents live within walking distance of a park.
+    How many of the district's residents live within walking distance of a park, and the district's parks and their
+    capital projects.
     """),
             mo.accordion(
                 {
@@ -4954,7 +4955,7 @@ def _(mo):
     - Active Recreation Areas and New or Renovated Parks are from NYC Parks' Vital Parks Explorer: the share of the
       district's residents within a 10-minute walk of each.
     - The map shows NYC Parks properties and Parks' served area.
-    - Parks with a capital project: Parks properties with a project in any phase but completed (proposed included), by
+    - Parks with an active capital project: Parks properties with a project in any phase but completed (proposed included), by
       the park ID on the project's locations. A park counts for the district its interior point is in, or the nearest
       district for beaches and other shoreline parks. Every property type counts, from triangles to large parks.
     - Capital projects: NYC Parks' Capital Project Tracker, by phase, at each of a project's locations. Counts are projects
@@ -5013,6 +5014,8 @@ def _(con, selected_district):
                 district.park_acres_with_current_project,
                 city.parks AS city_parks,
                 city.parks_with_current_project AS city_parks_with_current_project,
+                city.park_acres AS city_park_acres,
+                city.park_acres_with_current_project AS city_park_acres_with_current_project,
                 city.residents AS city_residents,
                 city.served AS city_served
             FROM dim_community_district AS district
@@ -5021,7 +5024,9 @@ def _(con, selected_district):
                     sum(walk_to_a_park_residents) AS residents,
                     sum(walk_to_a_park_residents_served) AS served,
                     sum(parks) AS parks,
-                    sum(parks_with_current_project) AS parks_with_current_project
+                    sum(parks_with_current_project) AS parks_with_current_project,
+                    sum(park_acres) AS park_acres,
+                    sum(park_acres_with_current_project) AS park_acres_with_current_project
                 FROM dim_community_district
             ) AS city
             WHERE district.borocd = ?
@@ -5098,10 +5103,12 @@ def _(con, selected_district):
             [selected_district],
         ).fetchall()
     )
+    # the district's projects, once each, with the parks of their locations in the district
     park_district_projects_raw = con.execute(
         """
-        SELECT DISTINCT
+        SELECT
             project.tracker_id,
+            string_agg(DISTINCT park.park_name, '; ' ORDER BY park.park_name) AS park_names,
             project.title,
             project.current_phase,
             project.total_funding,
@@ -5142,7 +5149,9 @@ def _(con, selected_district):
         FROM dim_park_capital_project_location AS location
         INNER JOIN dim_park_capital_project AS project ON location.tracker_id = project.tracker_id
         INNER JOIN dim_community_district AS district ON ST_Intersects(district.geom, location.geom)
+        LEFT JOIN dim_park AS park ON location.park_id = park.park_id
         WHERE district.borocd = ?
+        GROUP BY ALL
         """,
         [selected_district],
     ).df()
@@ -5305,7 +5314,7 @@ def _(
         [
             mo.vstack(
                 [
-                    mo.md(f"**Walk to a park, {district_code}**"),
+                    mo.md(f"**Parks, {district_code}**"),
                     mo.hstack(
                         [
                             mo.stat(
@@ -5313,18 +5322,8 @@ def _(
                                 label="Within walking distance of a park",
                                 caption="n/a"
                                 if _share != _share
-                                else f"{open_space_access['served']:,.0f} residents · NYC: "
+                                else f"{open_space_access['served']:,.0f} of {open_space_access['residents']:,.0f} residents · NYC: "
                                 f"{open_space_access['city_served'] / open_space_access['city_residents']:.0%}",
-                                bordered=True,
-                            ),
-                            mo.stat(
-                                "n/a"
-                                if _share != _share
-                                else f"{open_space_access['residents'] - open_space_access['served']:,.0f}",
-                                label="Residents farther than walking distance",
-                                caption="n/a"
-                                if _share != _share
-                                else f"of {open_space_access['residents']:,.0f} in 2020",
                                 bordered=True,
                             ),
                         ],
@@ -5336,14 +5335,14 @@ def _(
                         [
                             mo.stat(
                                 _pct(open_space_access["active_recreation_areas_pct"]),
-                                label="Active Recreation Areas",
+                                label="Residents within a 10-minute walk of an active recreation area",
                                 caption=f"NYC: {_pct(open_space_access['citywide_active_recreation_areas_pct'])}",
                                 bordered=True,
                             ),
                             mo.stat(
                                 f"{_pct(open_space_access['new_or_renovated_parks_pct'])} → "
                                 f"{_pct(open_space_access['new_or_renovated_parks_future_pct'])}",
-                                label="New or Renovated Parks, now → future",
+                                label="Residents within a 10-minute walk of a new or renovated park, now → future",
                                 caption=f"NYC: {_pct(open_space_access['citywide_new_or_renovated_parks_pct'])} → "
                                 f"{_pct(open_space_access['citywide_new_or_renovated_parks_future_pct'])}",
                                 bordered=True,
@@ -5357,18 +5356,19 @@ def _(
                         [
                             mo.stat(
                                 f"{open_space_access['parks_with_current_project']:,.0f} of {open_space_access['parks']:,.0f}",
-                                label="Parks with a capital project, proposed or underway",
+                                label="Parks with an active capital project",
                                 caption=f"NYC: {open_space_access['city_parks_with_current_project']:,.0f} of "
                                 f"{open_space_access['city_parks']:,.0f}",
                                 bordered=True,
                             ),
                             mo.stat(
-                                f"{open_space_access['park_acres_with_current_project']:,.0f} of "
-                                f"{open_space_access['park_acres']:,.0f}",
-                                label="Acres of those parks",
-                                caption=f"{open_space_access['park_acres_with_current_project'] / open_space_access['park_acres']:.0%} of the district's park acres"
+                                f"{open_space_access['park_acres_with_current_project'] / open_space_access['park_acres']:.0%}"
                                 if open_space_access["park_acres"]
-                                else "",
+                                else "n/a",
+                                label="Park acres with an active capital project",
+                                caption=f"{open_space_access['park_acres_with_current_project']:,.0f} of "
+                                f"{open_space_access['park_acres']:,.0f} acres · NYC: "
+                                f"{open_space_access['city_park_acres_with_current_project'] / open_space_access['city_park_acres']:.0%}",
                                 bordered=True,
                             ),
                         ],
@@ -5404,6 +5404,7 @@ def _(
                 .reset_index(drop=True)[
                     [
                         "phase",
+                        "park_names",
                         "title",
                         "tracker_id",
                         "phase_percent_complete",
@@ -5416,6 +5417,7 @@ def _(
                 .rename(
                     columns={
                         "phase": "Phase",
+                        "park_names": "Park",
                         "title": "Project",
                         "phase_percent_complete": "Phase complete",
                         "phase_finish": "Phase finish",
@@ -5444,7 +5446,9 @@ def _(
                         f' target="_blank" style="color:#1a5fb4;text-decoration:underline">{tracker_id} ↗</a>'
                     ),
                 },
-                column_widths={"Project Tracker": 90},
+                # titles run up to 125 characters, so the column wraps rather than cutting them off
+                column_widths={"Project": 360, "Project Tracker": 90},
+                wrapped_columns=["Project"],
             ),
             source_note(
                 "Source: NYC Parks [Capital Project Tracker](https://www.nycgovparks.org/planning-and-building/capital-project-tracker) (June 2026)"
