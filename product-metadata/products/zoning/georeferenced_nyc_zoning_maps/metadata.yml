@@ -55,6 +55,6 @@ files:
     id: zoning_georeferenced_maps_data_dictionary
     filename: zoning_georeferenced_maps_data_dictionary.xlsx
     is_metadata: true
-    type: None
+    type: oti_data_dictionary
 
 columns: []
