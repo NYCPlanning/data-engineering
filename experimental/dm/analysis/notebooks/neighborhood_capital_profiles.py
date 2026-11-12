@@ -5098,10 +5098,12 @@ def _(con, selected_district):
             [selected_district],
         ).fetchall()
     )
+    # the district's projects, once each, with the parks of their locations in the district
     park_district_projects_raw = con.execute(
         """
-        SELECT DISTINCT
+        SELECT
             project.tracker_id,
+            string_agg(DISTINCT park.park_name, '; ' ORDER BY park.park_name) AS park_names,
             project.title,
             project.current_phase,
             project.total_funding,
@@ -5142,7 +5144,9 @@ def _(con, selected_district):
         FROM dim_park_capital_project_location AS location
         INNER JOIN dim_park_capital_project AS project ON location.tracker_id = project.tracker_id
         INNER JOIN dim_community_district AS district ON ST_Intersects(district.geom, location.geom)
+        LEFT JOIN dim_park AS park ON location.park_id = park.park_id
         WHERE district.borocd = ?
+        GROUP BY ALL
         """,
         [selected_district],
     ).df()
@@ -5404,6 +5408,7 @@ def _(
                 .reset_index(drop=True)[
                     [
                         "phase",
+                        "park_names",
                         "title",
                         "tracker_id",
                         "phase_percent_complete",
@@ -5416,6 +5421,7 @@ def _(
                 .rename(
                     columns={
                         "phase": "Phase",
+                        "park_names": "Park",
                         "title": "Project",
                         "phase_percent_complete": "Phase complete",
                         "phase_finish": "Phase finish",
