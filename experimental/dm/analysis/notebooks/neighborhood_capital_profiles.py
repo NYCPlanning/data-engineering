@@ -5335,14 +5335,14 @@ def _(
                         [
                             mo.stat(
                                 _pct(open_space_access["active_recreation_areas_pct"]),
-                                label="Active Recreation Areas",
+                                label="Residents within a 10-minute walk of an active recreation area",
                                 caption=f"NYC: {_pct(open_space_access['citywide_active_recreation_areas_pct'])}",
                                 bordered=True,
                             ),
                             mo.stat(
                                 f"{_pct(open_space_access['new_or_renovated_parks_pct'])} → "
                                 f"{_pct(open_space_access['new_or_renovated_parks_future_pct'])}",
-                                label="New or Renovated Parks, now → future",
+                                label="Residents within a 10-minute walk of a new or renovated park, now → future",
                                 caption=f"NYC: {_pct(open_space_access['citywide_new_or_renovated_parks_pct'])} → "
                                 f"{_pct(open_space_access['citywide_new_or_renovated_parks_future_pct'])}",
                                 bordered=True,
