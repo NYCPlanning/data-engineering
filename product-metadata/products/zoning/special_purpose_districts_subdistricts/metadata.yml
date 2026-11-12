@@ -72,39 +72,49 @@ columns:
   name: the_geom
   data_type: geometry
   description: Feature geometry.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: sdname
   name: SDNAME
   data_type: text
   description: Special Purpose district name.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: sdlbl
   name: SDLBL
   data_type: text
   description: Special Purpose district label, it appears on the Zoning Map of New York City.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: subdist
   name: SUBDIST
   data_type: text
   description: Special Purpose district subdistrict name.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: sub_area_n
   name: SUB_AREA_N
   data_type: text
   description: Sub-area name of a Special Purpose district sub-district.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: subdist_lb
   name: SUBDIST_LB
   data_type: text
   description: Special Purpose district subdistrict label
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: subarea_lb
   name: SUBAREA_LB
   data_type: text
   description: Sub-area label of a Special Purpose district sub-district.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: subarea_ot
   name: SUBAREA_OT
   data_type: text
   description: Other sub-area name of a Special Purpose district sub-district, if needed.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: shape_leng
   name: Shape_Leng
   data_type: decimal
   description: Length of feature in internal units.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: shape_area
   name: SHAPE_Area
   data_type: decimal
   description: Area of feature in internal units squared.
+  notes: In shapefile format, field names are truncated to 10 characters.
