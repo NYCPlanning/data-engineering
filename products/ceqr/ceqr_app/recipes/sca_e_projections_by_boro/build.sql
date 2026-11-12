@@ -44,7 +44,7 @@ CREATE TEMP TABLE tmp as (
             REPLACE(grade_11, ',', '')::integer + 
             REPLACE(grade_12, ',', '')::integer
         ) as hs
-    FROM sca_e_projections.latest
+    FROM sca_e_projections
     WHERE borough_or_district ~* 'HS'
     ORDER BY year, borough
 );

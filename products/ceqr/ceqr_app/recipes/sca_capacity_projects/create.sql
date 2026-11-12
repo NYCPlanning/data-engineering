@@ -5,7 +5,7 @@ DESCRIPTION:
     3. Move records that did not get a geoemetry to a geo_rejects table
 INPUTS: 
 	PSTDIN >> 
-    TEMP sca_capacity_projects(uid text,
+    TEMP geocoded(uid text,
                             name text,
                             org_level text,
                             district text,
@@ -32,7 +32,7 @@ INPUTS:
                             geo_message text
     ) 
 OUTPUTS:
-	sca_capactiy_projects.latest(uid text,
+	sca_capacity_projects(uid text,
                             name text,
                             org_level text,
                             district text,
@@ -48,13 +48,13 @@ OUTPUTS:
                             geo_function text,
                             geom geometry)
     ),
-    sca_capactiy_projects.geo_rejects(
-            Same schema as sca_capacity_projects.latest
+    sca_capacity_projects_geo_rejects(
+            Same schema as sca_capacity_projects
     )
     )
 */
 
-CREATE TEMP TABLE sca_capacity_projects (
+CREATE TEMP TABLE geocoded (
     uid text,
     name text,
     org_level text,
@@ -82,16 +82,16 @@ CREATE TEMP TABLE sca_capacity_projects (
     geo_message text
 );
 
-\COPY sca_capacity_projects FROM 'output/sca_capacity_projects.csv' DELIMITER ',' CSV HEADER;
+\COPY geocoded FROM 'output/sca_capacity_projects.csv' DELIMITER ',' CSV HEADER;
 
 
-DROP TABLE IF EXISTS :NAME."geo_rejects";
+DROP TABLE IF EXISTS sca_capacity_projects_geo_rejects;
 SELECT *
-INTO :NAME."geo_rejects"
-FROM sca_capacity_projects
+INTO sca_capacity_projects_geo_rejects
+FROM geocoded
 WHERE geo_xy_coord IS NULL and geo_x_coord IS NULL and geo_y_coord is NULL;
 
-DROP TABLE IF EXISTS :NAME.:"VERSION" CASCADE;
+DROP TABLE IF EXISTS :"NAME" CASCADE;
 SELECT 
     uid,
     name,
@@ -125,15 +125,9 @@ SELECT
                                             RIGHT(geo_xy_coord, 7)::DOUBLE PRECISION),2263),4326)
         ELSE NULL
     END)::geometry(Point,4326) as geom
-INTO :NAME.:"VERSION"
-FROM sca_capacity_projects;
+INTO :"NAME"
+FROM geocoded;
 
 DELETE
-FROM :NAME.:"VERSION"
+FROM :"NAME"
 WHERE geom IS NULL;
-
-DROP VIEW IF EXISTS :NAME.latest;
-CREATE VIEW :NAME.latest AS (
-    SELECT :"VERSION" as v, * 
-    FROM :NAME.:"VERSION"
-);

@@ -23,7 +23,7 @@ function urlparse {
     hostport=$(echo $url | sed -e s,$userpass@,,g | cut -d/ -f1)
     BUILD_HOST="$(echo $hostport | sed -e 's,:.*,,g')"
     BUILD_PORT="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
-    BUILD_DB="$(echo $url | grep / | cut -d/ -f2-)"
+    BUILD_DB="$(echo $url | grep / | cut -d/ -f2- | cut -d? -f1)"
 }
 
 function SHP_export {
@@ -50,7 +50,7 @@ function CSV_export {
 
 # upload_folder clears the prefix first, so files from an earlier run do not linger
 function _upload_output {
-  python3 -c "from pathlib import Path; from dcpy.utils import s3; s3.upload_folder('edm-publishing', Path('output'), Path('$1'), acl='private', contents_only=True)"
+  python3 -c "from pathlib import Path; from dcpy.utils import s3; s3.upload_folder('${PUBLISHING_BUCKET:-edm-publishing}', Path('output'), Path('$1'), acl='private', contents_only=True)"
 }
 
 function Upload {

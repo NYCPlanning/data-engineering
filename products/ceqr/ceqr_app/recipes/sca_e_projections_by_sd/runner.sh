@@ -17,7 +17,7 @@ VERSION=$DATE
 
         # Export to CSV
         psql $EDM_DATA -c "\COPY (
-            SELECT * FROM $NAME.\"$VERSION\"
+            SELECT * FROM $NAME
         ) TO stdout DELIMITER ',' CSV HEADER;" > $NAME.csv
 
         # Write VERSION info

@@ -1,0 +1,17 @@
+name: CEQR Schools
+# The edm-publishing folder these recipes upload to (see Upload in bin/config.sh)
+product: ceqr-app-data
+version_strategy: today
+
+inputs:
+  missing_versions_strategy: find_latest
+  dataset_defaults:
+    file_type: parquet
+  datasets:
+  - name: sca_bluebook
+  - name: sca_capacity_projects_current
+  - name: sca_capacity_projects_prev
+  - name: sca_capacity_projects_tcu
+  - name: sca_e_pct
+  - name: sca_e_projections
+  - name: doe_lcgms

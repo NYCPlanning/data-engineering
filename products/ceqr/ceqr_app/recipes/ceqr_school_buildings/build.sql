@@ -7,7 +7,7 @@ DESCRIPTION:
    5. Output records in lcgms but not in bluebook to csv for research
    6. Output records in both sources to PSTDIN for transfer to EDM database
 INPUTS:
-    sca_bluebook.latest(
+    sca_bluebook(
         org_id,
         organization_name,
         bldg_id,
@@ -28,7 +28,7 @@ INPUTS:
         y,
         address
     ),
-    doe_lcgms.latest(
+    doe_lcgms(
         location_code,
         location_name,
         managed_by_name,
@@ -122,7 +122,7 @@ CREATE TEMP TABLE tmp AS (
                 WHEN org IS NULL
                     THEN 'org IS NULL'
             END AS excluded
-        FROM sca_bluebook.latest
+        FROM sca_bluebook
     ),
 
     lcgms_filtered AS (
@@ -144,7 +144,7 @@ CREATE TEMP TABLE tmp AS (
                     AND location_code || borough_block_lot IN
                     (
                         SELECT location_code || borough_block_lot
-                        FROM doe_lcgms.latest
+                        FROM doe_lcgms
                         WHERE
                             location_name !~* 'PORTABLE'
                             AND location_name !~* 'MINI'
@@ -186,7 +186,7 @@ CREATE TEMP TABLE tmp AS (
                     OR location_category_description = 'Ungraded'
                     THEN 'location_category_description is NULL or Ungraded'
             END AS excluded
-        FROM doe_lcgms.latest
+        FROM doe_lcgms
     )
 
     SELECT

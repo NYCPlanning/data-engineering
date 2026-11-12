@@ -98,7 +98,7 @@ CREATE TEMP TABLE tmp as (
                 grade_12,
                 ged,
                 total
-            FROM sca_e_projections.latest) row) a,
+            FROM sca_e_projections) row) a,
 			json_each_text(_col) as b
 		WHERE b.key not in ('ogc_fid', 'district', 'data_type', 'year')),
 	MULTIPLY as (
@@ -110,7 +110,7 @@ CREATE TEMP TABLE tmp as (
             a."ps"* b.multiplier::numeric as "ps",
             b.subdistrict
         FROM UNPIVOT a
-        FULL OUTER JOIN sca_e_pct.latest b
+        FULL OUTER JOIN sca_e_pct b
         ON a.district = b.district
         WHERE a.projected IN 
             ('PK','K','1','2','3',

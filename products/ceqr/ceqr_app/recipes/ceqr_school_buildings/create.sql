@@ -23,7 +23,7 @@ INPUTS:
         geom geometry
     )
 OUTPUTS:
-	ceqr_school_buildings.latest(
+	ceqr_school_buildings(
         Same schema as input
     )
 */
@@ -63,7 +63,7 @@ CREATE TEMP TABLE tmp (
 
 \COPY tmp FROM PSTDIN DELIMITER '|' CSV HEADER;
 
-DROP TABLE IF EXISTS :NAME.:"VERSION" CASCADE;
+DROP TABLE IF EXISTS :"NAME" CASCADE;
 SELECT 
     district,
     subdistrict,
@@ -86,11 +86,5 @@ SELECT
     he,
     (ST_TRANSFORM(ST_SetSRID(ST_MakePoint(LEFT(geo_xy_coord, 7)::DOUBLE PRECISION,
                                             RIGHT(geo_xy_coord, 7)::DOUBLE PRECISION),2263),4326))::geometry(Point,4326) as geom
-INTO :NAME.:"VERSION"
+INTO :"NAME"
 FROM tmp;
-
-DROP VIEW IF EXISTS :NAME.latest;
-CREATE VIEW :NAME.latest AS (
-    SELECT :'VERSION' as v, * 
-    FROM :NAME.:"VERSION"
-);
