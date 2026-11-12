@@ -38,8 +38,7 @@ PRIVATE_BUCKET = env.get("PRIVATE_BUCKET", _DEFAULT_PRIVATE_BUCKET)
 
 DEFAULT_S3_URL = "https://nyc3.digitaloceanspaces.com"
 
-# Optional: only needed by code paths that actually talk to S3 (e.g. dcpy.library's
-# GDAL config). Left unset (None) rather than required, so importing modules that
+# Optional: only needed by code paths that actually talk to S3. Left unset (None) rather than required, so importing modules that
 # reference these doesn't fail for callers that never touch S3.
 AWS_S3_ENDPOINT = env.get("AWS_S3_ENDPOINT", DEFAULT_S3_URL)
 AWS_SECRET_ACCESS_KEY = env.get("AWS_SECRET_ACCESS_KEY")

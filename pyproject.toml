@@ -149,7 +149,6 @@ mypy_path = [
     "python/data",
     "python/geospatial",
     "python/geosupport",
-    "python/library",
     "python/lifecycle",
     "python/product-metadata",
 ]

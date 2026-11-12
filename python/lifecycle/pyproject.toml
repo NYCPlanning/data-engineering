@@ -40,7 +40,6 @@ geo = [
     "dcpy-geospatial",
     "dcpy-geosupport",
     "dcpy-data",
-    "dcpy-library",
     "geoalchemy2",
     "geopandas",
     "pyproj",
@@ -55,7 +54,6 @@ dcpy-product-metadata = { workspace = true }
 dcpy-geospatial = { workspace = true }
 dcpy-geosupport = { workspace = true }
 dcpy-data = { workspace = true }
-dcpy-library = { workspace = true }
 
 [project.scripts]
 dcpy = "dcpy.__main__:cli"

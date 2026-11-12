@@ -3,7 +3,7 @@
 PARENT_DIR=$(dirname "$(readlink -f "$0")")
 cd "$PARENT_DIR/.."
 
-# Mirrors the "dcpy main pytests" / "dcpy library pytests" steps in
+# Mirrors the "dcpy main pytests" step in
 # .github/workflows/test_helper.yml - keep both in sync.
 #
 # `uv sync --all-packages` (the default local dev setup) installs every dcpy-* package
@@ -39,9 +39,7 @@ declare -A EXTRA_SYNC=(
 # python/{lifecycle,data,utils}/pyproject.toml) rather than being a hard dependency, so a
 # plain `uv sync --package dcpy-X` for these won't install it - but their test suites
 # exercise it for real: dcpy.lifecycle.ingest.validate's gpd.GeoDataFrame usage,
-# dcpy.data.compare's spatial comparisons, dcpy.utils.test_datastores's geo fixtures, and
-# connectors/test/edm/test_recipes.py's direct `from dcpy.library import models` (only
-# reachable via dcpy-lifecycle's own "geo" extra, since it's synced in alongside above).
+# dcpy.data.compare's spatial comparisons, and dcpy.utils.test_datastores's geo fixtures.
 declare -A EXTRA_ARGS=(
     [lifecycle]="--extra geo"
     [data]="--extra geo"

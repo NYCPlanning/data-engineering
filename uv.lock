@@ -32,7 +32,6 @@ members = [
     "dcpy-geospatial",
     "dcpy-geosupport",
     "dcpy-integration-tests",
-    "dcpy-library",
     "dcpy-lifecycle",
     "dcpy-product-metadata",
     "dcpy-utils",
@@ -1798,6 +1797,7 @@ source = { editable = "python/geospatial" }
 dependencies = [
     { name = "dcpy-product-metadata" },
     { name = "dcpy-utils" },
+    { name = "gdal" },
     { name = "geopandas" },
     { name = "ijson" },
     { name = "leafmap" },
@@ -1827,6 +1827,7 @@ dev = [
 requires-dist = [
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "dcpy-utils", editable = "python/utils" },
+    { name = "gdal", specifier = "==3.13.1" },
     { name = "geopandas" },
     { name = "ijson" },
     { name = "leafmap" },
@@ -1885,7 +1886,6 @@ version = "0.0.1"
 source = { virtual = "apps/dcpy_integration_tests" }
 dependencies = [
     { name = "dcpy-connectors" },
-    { name = "dcpy-library" },
     { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "dcpy-utils" },
 ]
@@ -1899,7 +1899,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "dcpy-connectors", editable = "python/connectors" },
-    { name = "dcpy-library", editable = "python/library" },
     { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "dcpy-utils", editable = "python/utils" },
 ]
@@ -1908,63 +1907,6 @@ requires-dist = [
 dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
-]
-
-[[package]]
-name = "dcpy-library"
-version = "0.0.1"
-source = { editable = "python/library" }
-dependencies = [
-    { name = "boto3" },
-    { name = "dcpy-connectors" },
-    { name = "dcpy-utils" },
-    { name = "gdal" },
-    { name = "geopandas" },
-    { name = "jinja2" },
-    { name = "pandas" },
-    { name = "pyarrow" },
-    { name = "pydantic" },
-    { name = "python-dotenv" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "typer" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "boto3-stubs", extra = ["s3"] },
-    { name = "pandas-stubs" },
-    { name = "pytest" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "boto3" },
-    { name = "dcpy-connectors", editable = "python/connectors" },
-    { name = "dcpy-utils", editable = "python/utils" },
-    { name = "gdal", specifier = "==3.13.1" },
-    { name = "geopandas" },
-    { name = "jinja2" },
-    { name = "pandas" },
-    { name = "pyarrow" },
-    { name = "pydantic" },
-    { name = "python-dotenv" },
-    { name = "pyyaml" },
-    { name = "requests" },
-    { name = "rich" },
-    { name = "typer" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "boto3-stubs", extras = ["s3"] },
-    { name = "pandas-stubs" },
-    { name = "pytest" },
-    { name = "types-pyyaml", specifier = ">=6.0.1" },
-    { name = "types-requests" },
 ]
 
 [[package]]
@@ -1995,7 +1937,6 @@ geo = [
     { name = "dcpy-data" },
     { name = "dcpy-geospatial" },
     { name = "dcpy-geosupport" },
-    { name = "dcpy-library" },
     { name = "geoalchemy2" },
     { name = "geopandas" },
     { name = "pyproj", version = "3.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -2023,7 +1964,6 @@ requires-dist = [
     { name = "dcpy-data", marker = "extra == 'geo'", editable = "python/data" },
     { name = "dcpy-geospatial", marker = "extra == 'geo'", editable = "python/geospatial" },
     { name = "dcpy-geosupport", marker = "extra == 'geo'", editable = "python/geosupport" },
-    { name = "dcpy-library", marker = "extra == 'geo'", editable = "python/library" },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "dcpy-utils", editable = "python/utils" },
     { name = "geoalchemy2", marker = "extra == 'geo'" },
