@@ -4940,9 +4940,10 @@ def _(mo):
             mo.md("""
     ### Open Space
 
-    #### Walk to a Park
+    #### Parks
 
-    How many of the district's residents live within walking distance of a park.
+    How many of the district's residents live within walking distance of a park, and the district's parks and their
+    capital projects.
     """),
             mo.accordion(
                 {
@@ -5309,7 +5310,7 @@ def _(
         [
             mo.vstack(
                 [
-                    mo.md(f"**Walk to a park, {district_code}**"),
+                    mo.md(f"**Parks, {district_code}**"),
                     mo.hstack(
                         [
                             mo.stat(
