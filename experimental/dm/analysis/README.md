@@ -32,6 +32,8 @@ It reads published PFF and KPDB files and has its own venv.
 | MTA on data.ny.gov via edm-recipes: `mta_subway_stations`, `mta_subway_service_lines`, `mta_subway_entrances`, `mta_rail_stations` | 20261107, 20251208, 20251205, 20261107 | subway and SIR stations with routes and ADA status, service lines, entrances, and LIRR and Metro-North stations |
 | MTA bus stops on data.ny.gov via edm-recipes: `mta_bus_stops` | 20261016 | bus stops in the schedule bundle in effect |
 | MTA capital program on data.ny.gov via edm-recipes: `mta_capital_project_locations` ([Capital Dashboard Project Locations](https://data.ny.gov/d/wcsa-vkhf)), `mta_capital_project_details` ([Capital Project Details](https://data.ny.gov/d/9hy6-8j6t)), and `mta_capital_project_budgets` ([Capital Project Budgets](https://data.ny.gov/d/f6fd-xfps)) | 20260508, 20261023, 20261023 | capital project locations by plan, the stage and dates of the projects MTA details, and the ACEP codes that tie the two |
+| DDC infrastructure capital projects via edm-recipes: `ddc_capitalprojects_infrastructure` (a shapefile DDC sends) | 20260701 | street segments of DDC sewer, water main, green infrastructure, and roadway projects, with phase and dates |
+| Capital Projects Database (CPDB, DCP) via edm-publishing: `cpdb_projects.csv` and `analysis/projects_by_communitydist.csv` | 26exec | city capital projects with dollars by stage, and mapped projects' planned commitments by community district |
 | Proposed Interborough Express via edm-recipes: `mta_ibx_stations`, `mta_ibx_service_lines` (HDR's public-facing IBX design layers on ArcGIS Online) | 20261028, 20261030 | proposed IBX stations and track alignment. Subject to change |
 | NYC Ferry GTFS via edm-recipes (`edc_nycferry_stops`, `_routes`, `_trips`, `_stop_times`) and `dot_ferryterminals` | 20261108, 20240805 | NYC Ferry landings and the Staten Island Ferry terminals |
 | DEP's public ArcGIS Online layer via edm-recipes: `dep_bluebelt_bmps` | 20240325 | Bluebelt BMPs |
@@ -125,6 +127,7 @@ Core models are grouped by domain in `models/core/`, with intermediate models in
 | `dim_bluebelt_bmp` | Bluebelt best management practice (bmp_id), as a point, as of March 2024 |
 | `dim_bluebelt_parcel` | polygon of DEP-owned Bluebelt land, about 2014, with the BMPs inside it |
 | `dim_wastewater_facility` | wastewater facility (WRRF), with its functions, latest flow, and location |
+| `dim_ddc_infrastructure_project` | DDC infrastructure capital project (ddc_project_id), with its street segment lines |
 | `fact_wastewater_facility_month` | wastewater facility x month of DEP's performance reports |
 | `dim_wastewater_sewershed` | wastewater treatment plant sewershed (wastewater_facility_id), with geometry |
 | `dim_community_district_wastewater_sewershed` | borocd x wastewater_facility_id, the piece of a district in each sewershed |
@@ -143,6 +146,13 @@ Core models are grouped by domain in `models/core/`, with intermediate models in
 | `dim_park_capital_project` | Parks capital project (tracker_id), with phase, dates, and funding |
 | `dim_park_capital_project_location` | tracker_id x location_number, with a point where the feed has one |
 | `dim_open_space_walk_segment` | street segment in Parks' open space walk file (segment_id), with residents, walk minutes, and line |
+
+### Capital (`capital/`)
+
+| Model | Grain |
+|---|---|
+| `dim_cpdb_project` | CPDB capital project (maprojid), every agency |
+| `dim_community_district_cpdb_project` | borocd x maprojid, a mapped CPDB project's planned commitments in the district |
 
 ### Products
 

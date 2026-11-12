@@ -384,6 +384,28 @@ sources:
         config:
           external_location: "read_csv('./data/sources/dpr_vital_parks_area_stats.csv', all_varchar = true)"
 
+      - name: ddc_capitalprojects_infrastructure
+        description: >
+          DDC infrastructure capital projects, version 20260701 from edm-recipes (a shapefile DDC sends, through the
+          inbox). One row per piece of street segment line and project, with project attributes repeated on every
+          row: 70,652 rows, 1,863 projects. Column names and text values are cut to the shapefile's limits
+          (descriptio, 35 characters of description). DDC doesn't document the fields. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/ddc_capitalprojects_infrastructure.parquet')"
+      - name: cpdb_projects
+        description: >
+          Capital Projects Database (CPDB) 26exec projects, from edm-publishing (db-cpdb/publish/26exec). One row per
+          capital project (maprojid, 12,929), with managing agency, description, earliest and latest dates, and
+          dollars by stage (planned commitments, adopted, allocated, committed, spent).
+        config:
+          external_location: "read_csv('./data/sources/cpdb_projects.csv')"
+      - name: cpdb_projects_by_communitydist
+        description: >
+          CPDB 26exec's projects_by_communitydist analysis table. One row per community district, project, and budget
+          line type (typc, budget_proj_type), for mapped projects. amt is the project's planned commitments,
+          split across a multipoint's points evenly and across polygons by area.
+        config:
+          external_location: "read_csv('./data/sources/cpdb_projects_by_communitydist.csv')"
       - name: dep_wastewater_performance
         description: >
           One row per facility per report sheet, January 2015 to July 2025 with March to December 2017 missing.

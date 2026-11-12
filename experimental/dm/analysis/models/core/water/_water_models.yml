@@ -501,3 +501,30 @@ models:
         description: frame_geom simplified to about 1 m and rounded to 6 decimals, for maps.
       - name: map_frame_edge_geom
         description: frame_edge_geom simplified the same way, for maps.
+
+  - name: dim_ddc_infrastructure_project
+    description: >
+      One row per DDC infrastructure capital project (ddc_capitalprojects_infrastructure 20260701), with its street
+      segment lines merged. Sewers, water mains, green infrastructure, and roadway work, sponsored by DEP, DOT, or
+      both. DDC doesn't document its fields, so the cut-off ones keep their source names.
+    columns:
+      - name: ddc_project_id
+        data_tests: [unique, not_null]
+      - name: is_active
+        description: DDC's active flag.
+      - name: description
+        description: Cut to 35 characters in the source.
+      - name: phase
+        description: Such as Initiation, Design, Procurement, Construction, or Completed Project.
+      - name: sponsor
+        description: Such as Environmental Protection, Transportation, or Trans. & Env. Protection.
+      - name: project_types
+        description: One or more types, comma-separated, such as Combined Sewers,Distribution Water main.
+      - name: design_start
+      - name: design_completion
+      - name: construction_start
+      - name: construction_completion
+      - name: segments
+        description: Distinct street segments (segmentid) in the project.
+      - name: geom
+        description: The project's segment lines, merged, EPSG:4326.
