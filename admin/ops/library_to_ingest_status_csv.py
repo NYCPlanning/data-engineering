@@ -24,9 +24,6 @@ from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
 REPO_ROOT = Path(__file__).parent.parent.parent
-LIBRARY_TEMPLATES_DIR = (
-    REPO_ROOT / "python" / "library" / "dcpy" / "library" / "templates"
-)
 INGEST_TEMPLATES_DIR = REPO_ROOT / "ingest_templates"
 OUTPUT_CSV = REPO_ROOT / "docs" / "dcpy" / "library-to-ingest-status.csv"
 
@@ -35,6 +32,13 @@ bucket = recipes._bucket()
 
 def template_ids(dir: Path) -> set[str]:
     return {p.stem for p in dir.glob("*.yml")}
+
+
+def previous_ids() -> set[str]:
+    """Every dataset this CSV already tracks. The library package and its templates are
+    gone, so the CSV itself is the record of which datasets library ever archived."""
+    with open(OUTPUT_CSV, newline="") as f:
+        return {row["dataset_id"] for row in csv.DictReader(f)}
 
 
 def stale_library_files(dataset_id: str) -> str:
@@ -90,12 +94,12 @@ def latest_status(dataset_id: str) -> dict:
         }
 
 
-library_ids = template_ids(LIBRARY_TEMPLATES_DIR)
+tracked_ids = previous_ids()
 ingest_ids = template_ids(INGEST_TEMPLATES_DIR)
-all_ids = sorted(library_ids | ingest_ids)
+all_ids = sorted(tracked_ids | ingest_ids)
 
 logger.info(
-    f"{len(library_ids)} library templates, {len(ingest_ids)} ingest templates, "
+    f"{len(tracked_ids)} already tracked, {len(ingest_ids)} ingest templates, "
     f"{len(all_ids)} unique dataset ids"
 )
 

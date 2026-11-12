@@ -1,10 +1,18 @@
 import os
+from dataclasses import dataclass
+from datetime import datetime
 from typing import Dict
 
 from app_globals import APP_PATH, ROOT_PATH
 
 from dcpy.lifecycle.builds import plan
-from dcpy.library import models as library  # noqa
+
+
+@dataclass
+class ArchiveRecord:
+    name: str
+    version: str
+    timestamp: datetime
 
 
 def get_source_datasets(product: str) -> list[str]:
@@ -17,13 +25,13 @@ def get_source_datasets(product: str) -> list[str]:
 # around logging
 
 
-def get_dataset_metadata(product: str) -> Dict[str, list[library.ArchivalMetadata]]:
+def get_dataset_metadata(product: str) -> Dict[str, list[ArchiveRecord]]:
     return {}
     # datasets = get_source_datasets(product)
     # metadata_df = recipes.get_logged_metadata(datasets)
-    # metadata: Dict[str, list[library.ArchivalMetadata]] = {}
+    # metadata: Dict[str, list[ArchiveRecord]] = {}
     # for index, row in metadata_df.iterrows():  ## group by
-    #     m = library.ArchivalMetadata(**row.to_dict())
+    #     m = ArchiveRecord(**row.to_dict())
     #     dataset = row["name"]
     #     if dataset not in metadata:
     #         metadata[dataset] = []

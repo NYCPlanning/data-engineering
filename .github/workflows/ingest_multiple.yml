@@ -124,7 +124,7 @@ jobs:
       env:
         version: ${{ inputs.version && format('--version {0}', inputs.version) || '' }}
         latest: ${{ inputs.latest == 'true' && '--latest' || '' }}
-      run: uv run python3 -m dcpy lifecycle scripts ingest_or_library_archive ${{ matrix.dataset }} $version $latest --push-to-s3
+      run: uv run python3 -m dcpy lifecycle scripts ingest ${{ matrix.dataset }} $version $latest --push-to-s3
 
     - name: Cancel workflow on failure
       if: (inputs.error_behavior == 'cancel') && failure()

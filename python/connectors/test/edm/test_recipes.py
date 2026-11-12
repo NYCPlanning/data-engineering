@@ -8,7 +8,6 @@ import yaml
 
 from dcpy.connectors.edm import recipes
 from dcpy.connectors.edm.models import Dataset, DatasetKey, DatasetType
-from dcpy.library import models as library
 from dcpy.lifecycle.ingest.models import SparseConfig
 from dcpy.utils import s3
 
@@ -17,9 +16,6 @@ from ..conftest import RECIPES_BUCKET
 TEST_DATASET = "test"
 LIBRARY_VERSION = "library"
 INGEST_VERSION = "ingest"
-TEST_METADATA = library.ArchivalMetadata(
-    name=TEST_DATASET, version="parquet", timestamp=datetime.now()
-)
 PARQUET_FILEPATH = (
     f"{recipes.DATASET_FOLDER}/{TEST_DATASET}/{INGEST_VERSION}/{TEST_DATASET}.parquet"
 )
@@ -47,7 +43,7 @@ def _load_folder(mode):
 def load_library(create_buckets):
     """loads pg_dump and csv"""
     config_json = _load_folder("library")
-    yield library.Config(**config_json)
+    yield SparseConfig(**config_json)
 
 
 @pytest.fixture(scope="function")
@@ -81,8 +77,8 @@ def test_parse_library_config():
     # for backwards compatibility
     with open(RESOURCE_DIR / "library" / "config.json", "r", encoding="utf-8") as f:
         yml = yaml.safe_load(f)
-        config = library.Config(**yml)
-    assert config.execution_details
+        config = SparseConfig(**yml)
+    assert (config.id, config.version) == (TEST_DATASET, LIBRARY_VERSION)
 
 
 def test_get_all_versions(load_library, load_ingest):
@@ -108,9 +104,9 @@ def test_read_df(load_ingest: SparseConfig):
     assert recipe_df.equals(input_df)
 
 
-def test_read_df_library_csv(load_library: library.Config):
+def test_read_df_library_csv(load_library: SparseConfig):
     preferred_file_types = [recipes.DatasetType.parquet, recipes.DatasetType.csv]
-    dataset = load_library.sparse_dataset
+    dataset = Dataset(id=load_library.id, version=load_library.version)
     file_type = recipes.get_preferred_file_type(dataset, preferred_file_types)
     assert file_type == recipes.DatasetType.csv
     recipe_df = recipes.read_df(dataset)
@@ -118,10 +114,10 @@ def test_read_df_library_csv(load_library: library.Config):
     assert recipe_df.equals(input_df)
 
 
-def test_read_df_missing_filetype(load_library: library.Config):
+def test_read_df_missing_filetype(load_library: SparseConfig):
     with pytest.raises(FileNotFoundError):
         recipes.read_df(
-            load_library.sparse_dataset,
+            Dataset(id=load_library.id, version=load_library.version),
             preferred_file_types=[recipes.DatasetType.parquet],
         )
 
