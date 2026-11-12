@@ -16,3 +16,6 @@ ingestion:
   file_format:
     type: csv
     dtype: str
+    # Only blanks are null. pandas would also null "NA", "N/A" and "n/a", which are real values here.
+    keep_default_na: false
+    na_values: [""]
