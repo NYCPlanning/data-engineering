@@ -645,6 +645,23 @@ models:
       - name: citywide_new_or_renovated_parks_future_pct
         description: The Explorer's citywide Future percentage for New or Renovated Parks. The same on every row.
         data_tests: [not_null]
+      - name: parks
+        description: >
+          NYC Parks properties (dim_park) whose interior point (ST_PointOnSurface) is in the district, or nearest it
+          for beaches and other shoreline parks whose point is past the shoreline, every type, from triangles and
+          gardens to large parks. Each park counts for one district.
+        data_tests: [not_null]
+      - name: park_acres
+        description: Acres of those parks, Parks' own acres figure.
+        data_tests: [not_null]
+      - name: parks_with_current_project
+        description: >
+          Of parks, those with a Capital Project Tracker project in any phase but completed (proposed included),
+          matched by the park ID on the project's locations (dim_park_capital_project_location.park_id).
+        data_tests: [not_null]
+      - name: park_acres_with_current_project
+        description: Acres of parks_with_current_project.
+        data_tests: [not_null]
       - name: geom
         description: Community district boundary clipped to the shoreline (dcp_cdboundaries 26c), EPSG:4326.
         data_tests: [not_null]
