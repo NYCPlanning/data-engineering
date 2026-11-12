@@ -5322,18 +5322,8 @@ def _(
                                 label="Within walking distance of a park",
                                 caption="n/a"
                                 if _share != _share
-                                else f"{open_space_access['served']:,.0f} residents · NYC: "
+                                else f"{open_space_access['served']:,.0f} of {open_space_access['residents']:,.0f} residents · NYC: "
                                 f"{open_space_access['city_served'] / open_space_access['city_residents']:.0%}",
-                                bordered=True,
-                            ),
-                            mo.stat(
-                                "n/a"
-                                if _share != _share
-                                else f"{open_space_access['residents'] - open_space_access['served']:,.0f}",
-                                label="Residents farther than walking distance",
-                                caption="n/a"
-                                if _share != _share
-                                else f"of {open_space_access['residents']:,.0f} in 2020",
                                 bordered=True,
                             ),
                         ],
