@@ -43,12 +43,13 @@ library's own tests load its template, so it stays until the package is removed.
 
 ## Remaining: direct `library archive` calls
 
-These call the `library` CLI against templates that live outside `python/library`, so a template
-diff doesn't find them. They archive a file the pipeline just produced instead of fetching a source.
+None. The grep above still matches two kinds of line that aren't library archives:
 
-| Workflow | Templates | Schedule |
-|---|---|---|
-| `zap_export.yml`, `zap_single_visible.yml` | 7 in `products/zap-opendata/templates/` | `zap_export` weekly |
+- `ingest_or_library_archive` in `ingest_single.yml`, `ingest_multiple.yml`, and
+  `ceqr_dep_monthly.yml`. It runs ingest whenever a template exists, and every dataset those
+  workflows archive has one.
+- `data_library_single.yml`, the manual workflow for running library on one dataset. It goes once
+  the package does.
 
 ## Remaining: code that imports `dcpy.library`
 
@@ -264,6 +265,22 @@ it in CI.
 
 Ran through ingest at `20230630` and compared with that library archive: 14,070 rows and the same
 11 columns, identical apart from `affordable_units`, which library wrote as floats (`52.0`).
+
+## Migrated: zap exports
+
+The seven tables `zap_export.yml` pulls from the ZAP CRM each week, which it used to archive with
+`library archive` against templates in `products/zap-opendata/templates/`. Their ingest templates
+point at the copies the workflow writes to `edm-private`, so `ingest_single` can re-archive a past
+week. The weekly workflow passes `--local-file-path` to archive the file it just wrote.
+
+Each ran through ingest at `20261109` from `edm-private` and was compared with that library
+archive. All seven have the same rows and columns. Five are identical. In `dcp_projects` and
+`dcp_projectactions`, two rows each differ only in line endings: the CRM stores `\r\n`, which
+ingest keeps and library converted to `\n`. pandas reads `NA`, `N/A`, and `n/a` as null by
+default, which would have nulled real values like `ceqr_number = 'N/A'`, so the templates treat
+only blanks as null.
+
+A dev run of `zap_export.yml` on the branch archived all seven to `de-dev-d` through the new step.
 
 ## Migrated: usfws_nyc_wetlands
 
