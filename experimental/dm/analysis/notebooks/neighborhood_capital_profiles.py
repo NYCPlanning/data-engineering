@@ -5014,6 +5014,8 @@ def _(con, selected_district):
                 district.park_acres_with_current_project,
                 city.parks AS city_parks,
                 city.parks_with_current_project AS city_parks_with_current_project,
+                city.park_acres AS city_park_acres,
+                city.park_acres_with_current_project AS city_park_acres_with_current_project,
                 city.residents AS city_residents,
                 city.served AS city_served
             FROM dim_community_district AS district
@@ -5022,7 +5024,9 @@ def _(con, selected_district):
                     sum(walk_to_a_park_residents) AS residents,
                     sum(walk_to_a_park_residents_served) AS served,
                     sum(parks) AS parks,
-                    sum(parks_with_current_project) AS parks_with_current_project
+                    sum(parks_with_current_project) AS parks_with_current_project,
+                    sum(park_acres) AS park_acres,
+                    sum(park_acres_with_current_project) AS park_acres_with_current_project
                 FROM dim_community_district
             ) AS city
             WHERE district.borocd = ?
@@ -5368,12 +5372,13 @@ def _(
                                 bordered=True,
                             ),
                             mo.stat(
-                                f"{open_space_access['park_acres_with_current_project']:,.0f} of "
-                                f"{open_space_access['park_acres']:,.0f}",
-                                label="Acres of those parks",
-                                caption=f"{open_space_access['park_acres_with_current_project'] / open_space_access['park_acres']:.0%} of the district's park acres"
+                                f"{open_space_access['park_acres_with_current_project'] / open_space_access['park_acres']:.0%}"
                                 if open_space_access["park_acres"]
-                                else "",
+                                else "n/a",
+                                label="Park acres with an active capital project",
+                                caption=f"{open_space_access['park_acres_with_current_project']:,.0f} of "
+                                f"{open_space_access['park_acres']:,.0f} acres · NYC: "
+                                f"{open_space_access['city_park_acres_with_current_project'] / open_space_access['city_park_acres']:.0%}",
                                 bordered=True,
                             ),
                         ],
