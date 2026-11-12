@@ -110,6 +110,15 @@ SOURCES = {
         "edm-recipes",
         "datasets/mta_capital_project_budgets/20261023/mta_capital_project_budgets.parquet",
     ),
+    "ddc_capitalprojects_infrastructure.parquet": (
+        "edm-recipes",
+        "datasets/ddc_capitalprojects_infrastructure/20260701/ddc_capitalprojects_infrastructure.parquet",
+    ),
+    "cpdb_projects.csv": ("edm-publishing", "db-cpdb/publish/26exec/cpdb_projects.csv"),
+    "cpdb_projects_by_communitydist.csv": (
+        "edm-publishing",
+        "db-cpdb/publish/26exec/analysis/projects_by_communitydist.csv",
+    ),
     "mta_rail_stations.parquet": (
         "edm-recipes",
         "datasets/mta_rail_stations/20261107/mta_rail_stations.parquet",

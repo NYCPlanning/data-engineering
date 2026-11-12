@@ -1,0 +1,44 @@
+models:
+  - name: dim_cpdb_project
+    description: >
+      One row per capital project in the Capital Projects Database (CPDB 26exec), every agency. Dollars are CPDB's,
+      by stage.
+    columns:
+      - name: maprojid
+        description: CPDB's project id, the managing agency's three-digit code and its project id, such as 826OH-88-L.
+        data_tests: [unique, not_null]
+      - name: managing_agency_acronym
+        description: Such as DEP or DDC.
+      - name: earliest_date
+        description: CPDB's mindate, the project's earliest date.
+      - name: latest_date
+        description: CPDB's maxdate, the project's latest date.
+      - name: type_category
+        description: Fixed Asset, Lump Sum, or ITT, Vehicles, and Equipment. Empty for some.
+      - name: planned_commitments
+        description: Planned commitments, all funds, in dollars.
+
+  - name: dim_community_district_cpdb_project
+    description: >
+      One row per community district and mapped CPDB project in it, from CPDB's own projects_by_communitydist table:
+      the project's planned commitments split across its points evenly, and across its polygons by area. Projects
+      CPDB hasn't mapped aren't here.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || maprojid"
+    columns:
+      - name: borocd
+        description: Community district, from CPDB's district boundaries.
+        data_tests: [not_null]
+      - name: maprojid
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_cpdb_project')
+                field: maprojid
+      - name: planned_commitments_in_district
+        description: The district's share of the project's planned commitments, in dollars, as CPDB splits it.
+      - name: geometry_source
+        description: Where CPDB got the project's geometry, such as AD Sprint.
