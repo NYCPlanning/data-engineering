@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 import usaddress
 from geosupport import Geosupport, GeosupportError
@@ -73,6 +74,17 @@ def clean_boro_name(b):
     return b
 
 
+def _to_ascii(s: str) -> str:
+    # Geosupport's fixed-width buffer takes one byte per character, and anything
+    # non-ASCII (e.g. a non-breaking space) encodes to more and crashes the call.
+    # Same fix as dcpy.lifecycle.scripts.dep_cats_permits_geocode.
+    return (
+        unicodedata.normalize("NFKD", s)
+        .encode("ascii", errors="ignore")
+        .decode("ascii")
+    )
+
+
 def clean_house(s):
     """
     Transform house number to a geosupport-readable format
@@ -86,7 +98,8 @@ def clean_house(s):
     Returns:
     s (str): Cleaned house number
     """
-    s = " " if s is None else s
+    # NaN as well as None: pandas 3 keeps missing values as NaN through astype(str)
+    s = " " if not isinstance(s, str) else _to_ascii(s)
     s = (
         re.sub(r"\([^)]*\)", "", s)
         .replace(" - ", "-")
@@ -110,7 +123,7 @@ def clean_street(s):
     Returns:
     s (str): Cleaned street name
     """
-    s = "" if s is None else s
+    s = "" if not isinstance(s, str) else _to_ascii(s)
     s = "JFK INTERNATIONAL AIRPORT" if "JFK" in s else s
     s = (
         re.sub(r"\([^)]*\)", "", s)
