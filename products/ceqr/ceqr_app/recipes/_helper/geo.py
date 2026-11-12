@@ -1,5 +1,4 @@
 import re
-import unicodedata
 
 import usaddress
 from geosupport import Geosupport, GeosupportError
@@ -59,81 +58,6 @@ def get_borocode(c):
     """
     borocode = {"NEW YORK": 1, "BRONX": 2, "KINGS": 3, "QUEENS": 4, "RICHMOND": 5}
     return borocode.get(c.upper(), "")
-
-
-def clean_boro_name(b):
-    """
-    Clean one-word Staten Island and NULL out invalid borough names
-    """
-    if b == "STATENISLAND":
-        b = "STATEN ISLAND"
-    if b not in ["BRONX", "MANHATTAN", "BROOKLYN", "QUEENS", "STATEN ISLAND"]:
-        b = None
-    if b is not None:
-        b = b.title()
-    return b
-
-
-def _to_ascii(s: str) -> str:
-    # Geosupport's fixed-width buffer takes one byte per character, and anything
-    # non-ASCII (e.g. a non-breaking space) encodes to more and crashes the call.
-    # Same fix as dcpy.lifecycle.scripts.dep_cats_permits_geocode.
-    return (
-        unicodedata.normalize("NFKD", s)
-        .encode("ascii", errors="ignore")
-        .decode("ascii")
-    )
-
-
-def clean_house(s):
-    """
-    Transform house number to a geosupport-readable format
-
-    Replace NULL with empty strings, remove special characters & excess white space,
-    take first house number if there is additional information after a / or in parentheses
-
-    Parameters:
-    s (str): House number
-
-    Returns:
-    s (str): Cleaned house number
-    """
-    # NaN as well as None: pandas 3 keeps missing values as NaN through astype(str)
-    s = " " if not isinstance(s, str) else _to_ascii(s)
-    s = (
-        re.sub(r"\([^)]*\)", "", s)
-        .replace(" - ", "-")
-        .strip()
-        .split("(", maxsplit=1)[0]
-        .split("/", maxsplit=1)[0]
-    )
-    return s
-
-
-def clean_street(s):
-    """
-    Transform street name to a geosupport-readable format
-
-    Replace NULL with empty strings, remove apostrophes & special characters,
-    take first street name if there is additional information after a / or in parentheses
-
-    Parameters:
-    s (str): Street name
-
-    Returns:
-    s (str): Cleaned street name
-    """
-    s = "" if not isinstance(s, str) else _to_ascii(s)
-    s = "JFK INTERNATIONAL AIRPORT" if "JFK" in s else s
-    s = (
-        re.sub(r"\([^)]*\)", "", s)
-        .replace("'", "")
-        .replace("VARIOUS", "")
-        .replace("LOCATIONS", "")
-        .split("(", maxsplit=1)[0]
-        .split("/", maxsplit=1)[0]
-    )
-    return s
 
 
 def clean_address(x):
