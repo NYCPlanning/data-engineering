@@ -6,7 +6,7 @@ DESCRIPTION:
     4. Using the org_level, estimate the proporiton of capacity in each level
     5. Output the full source table to a csv for easy geocoding
 INPUTS: 
-	sca_capacity_projects_prev.latest(
+	sca_capacity_projects_prev(
         district,
         school,
         borough,
@@ -14,7 +14,7 @@ INPUTS:
         number_of_seats,
         opening_&_anticipated_opening
     ),
-    sca_capacity_projects_current.latest(
+    sca_capacity_projects_current(
         district,
         school,
         borough,
@@ -22,7 +22,7 @@ INPUTS:
         capacity,
         anticipated_opening
     ),
-    sca_capacity_projects_tcu.latest(
+    sca_capacity_projects_tcu(
         district,
         school,
         borough,
@@ -57,7 +57,7 @@ CREATE TEMP TABLE tmp as (
             COALESCE(number_of_seats, '0') as capacity,
             TO_DATE("opening_&_anticipated_opening", 'month yyyy') as start_date,
             '15-19' as capital_plan
-        FROM sca_capacity_projects_prev.latest
+        FROM sca_capacity_projects_prev
         UNION
         SELECT
             district,
@@ -67,7 +67,7 @@ CREATE TEMP TABLE tmp as (
             COALESCE(capacity, '0') as capacity,
             TO_DATE(anticipated_opening, 'month yyyy') as start_date,
             '20-24' as capital_plan
-        FROM sca_capacity_projects_current.latest
+        FROM sca_capacity_projects_current
         UNION
         SELECT
             district,
@@ -77,7 +77,7 @@ CREATE TEMP TABLE tmp as (
             COALESCE(capacity, '0') as capacity,
             ('01-01-'||anticipated_opening)::date as start_date,
             '20-24' as capital_plan
-        FROM sca_capacity_projects_tcu.latest),
+        FROM sca_capacity_projects_tcu),
 
     org_levels AS
         (SELECT 

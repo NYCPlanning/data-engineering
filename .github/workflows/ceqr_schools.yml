@@ -1,0 +1,59 @@
+name: CEQR - School datasets
+run-name: CEQR school datasets${{ inputs.dev_bucket && format(' (de-dev-{0})', inputs.dev_bucket) || '' }}
+
+# Built once a year for Capital Planning's CEQR public schools analysis (see #2082)
+on:
+  workflow_dispatch:
+    inputs:
+      dev_bucket:
+        description: dev bucket to upload to in place of edm-publishing. If name of bucket is 'de-dev-a' simply put 'a'
+        type: string
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-geosupport:latest
+    env:
+      BUILD_ENGINE_DB: db-ceqr
+      PUBLISHING_BUCKET: ${{ inputs.dev_bucket && format('de-dev-{0}', inputs.dev_bucket) || 'edm-publishing' }}
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Load Secrets
+      uses: 1password/load-secrets-action@v5
+      with:
+        export-env: true
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        BUILD_ENGINE_SERVER: "op://Data Engineering/EDM_DATA/server_url"
+        AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+        AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+        AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+
+    - name: Setup build environment
+      run: ./bash/docker_container_setup.sh
+
+    # Not named after the branch, so the nightly stale build cleanup drops it. The outputs
+    # live in edm-publishing.
+    - name: Set build schema
+      run: echo "BUILD_ENGINE_SCHEMA=schools_$(echo "$GITHUB_REF_NAME" | tr '[:upper:]-/' '[:lower:]__')" >> "$GITHUB_ENV"
+
+    - name: Load inputs
+      run: |
+        python3 -m dcpy.lifecycle.builds.plan recipe --recipe-path products/ceqr/ceqr_app/schools_recipe.yml \
+          --output-path products/ceqr/ceqr_app/schools_recipe.lock.yml
+        python3 -m dcpy lifecycle builds load load --recipe-path products/ceqr/ceqr_app/schools_recipe.lock.yml
+
+    - name: Build
+      working-directory: products/ceqr/ceqr_app
+      run: |
+        export RECIPE_ENGINE="$BUILD_ENGINE_SERVER/$BUILD_ENGINE_DB?options=--search_path%3D$BUILD_ENGINE_SCHEMA,public"
+        export EDM_DATA="$RECIPE_ENGINE"
+        for recipe in sca_capacity_projects ceqr_school_buildings sca_e_projections_by_boro sca_e_projections_by_sd; do
+          ./ceqr run recipe $recipe
+        done

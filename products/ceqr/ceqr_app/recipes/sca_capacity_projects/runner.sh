@@ -18,15 +18,15 @@ VERSION=$DATE
 
         # Export to CSV
         psql $EDM_DATA -c "\COPY (
-            SELECT * FROM $NAME.\"$VERSION\"
+            SELECT * FROM $NAME
         ) TO stdout DELIMITER ',' CSV HEADER;" > $NAME.csv
 
         psql $EDM_DATA -c "\COPY (
-            SELECT * FROM $NAME.geo_rejects
+            SELECT * FROM ${NAME}_geo_rejects
         ) TO stdout DELIMITER ',' CSV HEADER;" > geo_rejects.csv
 
         # Export to ShapeFile
-        SHP_export $EDM_DATA $NAME.$VERSION POINT $NAME
+        SHP_export $EDM_DATA $BUILD_ENGINE_SCHEMA.$NAME POINT $NAME
 
         # Write VERSION info
         echo "$VERSION" > version.txt
