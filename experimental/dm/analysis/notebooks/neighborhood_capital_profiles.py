@@ -4955,7 +4955,7 @@ def _(mo):
     - Active Recreation Areas and New or Renovated Parks are from NYC Parks' Vital Parks Explorer: the share of the
       district's residents within a 10-minute walk of each.
     - The map shows NYC Parks properties and Parks' served area.
-    - Parks with a capital project: Parks properties with a project in any phase but completed (proposed included), by
+    - Parks with an active capital project: Parks properties with a project in any phase but completed (proposed included), by
       the park ID on the project's locations. A park counts for the district its interior point is in, or the nearest
       district for beaches and other shoreline parks. Every property type counts, from triangles to large parks.
     - Capital projects: NYC Parks' Capital Project Tracker, by phase, at each of a project's locations. Counts are projects
@@ -5362,7 +5362,7 @@ def _(
                         [
                             mo.stat(
                                 f"{open_space_access['parks_with_current_project']:,.0f} of {open_space_access['parks']:,.0f}",
-                                label="Parks with a capital project, proposed or underway",
+                                label="Parks with an active capital project",
                                 caption=f"NYC: {open_space_access['city_parks_with_current_project']:,.0f} of "
                                 f"{open_space_access['city_parks']:,.0f}",
                                 bordered=True,
