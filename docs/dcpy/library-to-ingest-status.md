@@ -90,10 +90,6 @@ that way and moved with `admin/ops/clear_library_files_from_latest.py --apply`: 
 
 ## Retired without migrating
 
-`sca_bluebook`, `sca_capacity_projects_current`, `sca_e_pct`, and `sca_e_projections`. Only
-`products/ceqr/ceqr_app/recipes/` reads them, no product recipe lists them, and no workflow runs
-those recipes. Their archives are still in `edm-recipes`.
-
 `dcp_pop_acs`, `dcp_pop_decennial_dhc`, and `dcp_pop_decennial_ddhca` moved to
 `ingest_templates/library_deprecated/`. factfinder still reads them, but as whole Excel workbooks
 it parses sheet by sheet, and library only archived them as-is. Their sheet layouts change between
@@ -281,6 +277,27 @@ default, which would have nulled real values like `ceqr_number = 'N/A'`, so the 
 only blanks as null.
 
 A dev run of `zap_export.yml` on the branch archived all seven to `de-dev-d` through the new step.
+
+## Migrated: ceqr school inputs
+
+The six SCA inputs to the four CEQR school datasets built each year for Capital Planning (see
+[#2082](https://github.com/NYCPlanning/data-engineering/issues/2082)): `sca_bluebook`,
+`sca_capacity_projects_current`, `sca_e_pct`, `sca_e_projections`, and the frozen
+`sca_capacity_projects_prev` and `sca_capacity_projects_tcu`. They had been listed here as retired,
+because no workflow runs the `ceqr_app` recipes that read them, but those recipes are run by hand
+each year.
+
+The recipes read these from the old `recipe` database, where each delivery was loaded directly, so
+`edm-recipes` stops at `20241226` and the latest versions were never archived. Each was exported from
+that database at the version its `latest` view pointed to, uploaded to `inbox/sca/`, and run through
+ingest. All six match the database cell for cell.
+
+The four recipes now build from those archives (plus `doe_lcgms`, already ingested) in a
+`ceqr_schools.yml` workflow, instead of locally against the `recipe` database. A dev run matched the
+2025-12-29 outputs for `sca_capacity_projects` (49 rows, same points), `sca_e_projections_by_boro`
+(55), and `sca_e_projections_by_sd` (1,056). `ceqr_school_buildings` came out with 1,505 rows. The
+2025-01-15 and 2025-12-29 releases of it were empty, because the local run lost every row in its
+`docker run` geocoding step, while 2023 and 2024 had 1,500 and 1,503.
 
 ## Migrated: usfws_nyc_wetlands
 
