@@ -9,14 +9,12 @@ requires-python = ">=3.11"
 # connectors/edm/test_plan_load.py) unconditionally imports dcpy.geospatial.parquet.
 dependencies = [
     "dcpy-connectors",
-    "dcpy-library",
     "dcpy-lifecycle[geo]",
     "dcpy-utils",
 ]
 
 [tool.uv.sources]
 dcpy-connectors = { workspace = true }
-dcpy-library = { workspace = true }
 dcpy-lifecycle = { workspace = true }
 dcpy-utils = { workspace = true }
 

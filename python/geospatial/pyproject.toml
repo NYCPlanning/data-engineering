@@ -10,6 +10,10 @@ requires-python = ">=3.11"
 dependencies = [
     "dcpy-utils",
     "dcpy-product-metadata",
+    # The Python bindings for the system libgdal (osgeo), which gdb/fgdb.py and
+    # transform.py import. Must match the libgdal built into nycplanning/base
+    # (gdal_version in admin/run_environment/docker/base/setup.sh).
+    "GDAL==3.13.1",
     "geopandas",
     "ijson",
     "leafmap",

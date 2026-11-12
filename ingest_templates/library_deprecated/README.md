@@ -1,13 +1,12 @@
 # Deprecated library templates
 
-Library templates retired without an ingest replacement. They are kept rather than deleted so the
+Templates from the retired `library` package that have no ingest replacement. They are kept so the
 source definition is still findable if one turns out to be wanted.
 
 Nothing reads this folder. `glob("*.yml")` on `ingest_templates/` is not recursive, so these are
-invisible to ingest, and moving a template here removes it from `dcpy/library/templates/`, so
-library can no longer archive it either.
+invisible to ingest, and the `library` package that read them is gone.
 
-Four reasons a template ended up here:
+Five reasons a template ended up here:
 
 - **Superseded by a rename.** `dob_jobapplications` and `dob_permitissuance` were migrated as
   `dob_bis_applications` and `dob_bis_permits`.
@@ -22,6 +21,9 @@ Four reasons a template ended up here:
 - **Archived once, never refreshed.** `dcp_dot_trafficinjuries` (edde, 2009 to 2020) and
   `dob_jobapplications_parkingspaces` (developments, a one-time DOB export) are read only at pinned
   versions that are already archived. The traffic csvs came from a local upload that wasn't kept.
+- **Blocked.** `usdot_ports` (facilities) now needs an API token, see
+  [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326). Facilities reads its last
+  library archive.
 
 Before reviving one, check whether its source still exists. Several point at
 `s3://edm-recipes/tmp/`, which has been cleared.

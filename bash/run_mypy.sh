@@ -32,7 +32,6 @@ WORKSPACE_PACKAGES=(
     python/data
     python/geospatial
     python/geosupport
-    python/library
     python/lifecycle
     python/product-metadata
 )
