@@ -1,185 +1,105 @@
-import sys
+"""Export the DEP CATS permits archived by ingest for the edm-publishing staging folder.
 
-sys.path.insert(0, "..")
+Ingest pulls, filters, and geocodes the permits (dcpy.lifecycle.scripts.dep_cats_permits_geocode),
+so this only selects the published columns, casts them the way the old Postgres export did, and
+writes the csv, shapefile, and README.
+"""
+
 import datetime as dt
-from multiprocessing import Pool, cpu_count
+import os
+import shutil
+from pathlib import Path
 
-import numpy as np
+import geopandas as gpd
 import pandas as pd
 import requests
-from _helper.geo import (
-    clean_boro_name,
-    clean_house,
-    clean_street,
-    find_intersection,
-    find_stretch,
-    geocode,
-)
+import shapely
 from jinja2 import Template
 
+from dcpy.utils import s3
 
-def _import() -> pd.DataFrame:
-    """
-    Download and format DEP CATS permit data from open data API
+NAME = "dep_cats_permits"
+OUTPUT = Path("output")
 
-    Gets raw data from API and saves to output/raw.csv
-    Checks raw data to ensure necessary columns are included
-    Gets boroughs from zipcodes, and cleans and parses addresses
+COLUMNS = [
+    "requestid",
+    "applicationid",
+    "requesttype",
+    "ownername",
+    "expiration_date",
+    "make",
+    "model",
+    "burnermake",
+    "burnermodel",
+    "primaryfuel",
+    "secondaryfuel",
+    "quantity",
+    "issue_date",
+    "status",
+    "premisename",
+    "housenum",
+    "streetname",
+    "address",
+    "streetname_1",
+    "streetname_2",
+    "borough",
+    "geo_housenum",
+    "geo_streetname",
+    "geo_address",
+    "geo_bbl",
+    "geo_bin",
+    "geo_latitude",
+    "geo_longitude",
+    "geo_x_coord",
+    "geo_y_coord",
+    "geo_function",
+]
+DATES = ["expiration_date", "issue_date"]
+FLOATS = ["geo_latitude", "geo_longitude", "geo_x_coord", "geo_y_coord"]
 
-    Returns:
-    df (DataFrame): Contains fields requestid, applicationid,
-        requesttype, housenum, hnum, streetname, sname, borough,
-        bin, block, lot, ownername, expiration_date, make,
-        model, burnermake, burnermodel, primaryfuel, secondaryfuel,
-        quantity, issue_date, status, premisename, streetname_1,
-        streetname_2
-    """
-    url = "https://data.cityofnewyork.us/api/views/f4rp-2kvy/rows.csv"
-    cols = [
-        "requestid",
-        "applicationid",
-        "requesttype",
-        "house",
-        "street",
-        "borough",
-        "bin",
-        "block",
-        "lot",
-        "ownername",
-        "expirationdate",
-        "make",
-        "model",
-        "burnermake",
-        "burnermodel",
-        "primaryfuel",
-        "secondaryfuel",
-        "quantity",
-        "issuedate",
-        "status",
-        "premisename",
-    ]
 
-    df = pd.read_csv(url, dtype=str, engine="c")
-    df.columns = [i.lower() for i in df.columns]
-    for col in cols:
-        assert col in df.columns
-
-    df.to_csv("output/raw.csv", index=False)
-
-    df.rename(
-        columns={
-            "house": "housenum",
-            "street": "streetname",
-            "issuedate": "issue_date",
-            "expirationdate": "expiration_date",
-        },
-        inplace=True,
+def _read_archive(version: str) -> gpd.GeoDataFrame:
+    local = s3.download_file(
+        os.environ.get("RECIPES_BUCKET", "edm-recipes"),
+        f"datasets/{NAME}/{version}/{NAME}.parquet",
+        OUTPUT / f"{NAME}.parquet",
     )
+    gdf = gpd.read_parquet(local)
+    local.unlink()
+    return gdf
 
-    # Clean borough
-    df["borough"] = df.borough.apply(clean_boro_name)
-    df["borough"] = np.where(
-        (df.streetname.str.contains("JFK")) & (df.borough is None), "Queens", df.borough
+
+def _cast(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    gdf = gdf[COLUMNS + ["geom"]].copy()
+    text = [c for c in COLUMNS if c not in DATES + FLOATS + ["quantity", "geo_bbl"]]
+    gdf[text] = gdf[text].replace("", None)
+    for c in DATES:
+        gdf[c] = pd.to_datetime(gdf[c], format="mixed").dt.date
+    for c in FLOATS:
+        gdf[c] = pd.to_numeric(gdf[c].replace("", None))
+    gdf["quantity"] = pd.to_numeric(gdf["quantity"]).astype("Int64").astype("string")
+    gdf["geo_bbl"] = pd.to_numeric(gdf["geo_bbl"].replace("", None)).astype("Int64")
+    return gdf
+
+
+def _write(gdf: gpd.GeoDataFrame) -> None:
+    csv = pd.DataFrame(gdf[COLUMNS])
+    for c in FLOATS:
+        # Postgres prints whole doubles without a trailing ".0"
+        csv[c] = csv[c].map(lambda v: None if pd.isna(v) else str(v).removesuffix(".0"))
+    csv["geom"] = shapely.to_wkb(
+        shapely.set_srid(gdf.geometry.values, 4326), hex=True, include_srid=True
     )
+    csv.to_csv(OUTPUT / f"{NAME}.csv", index=False)
 
-    # Clean house number & street names
-    df["hnum"] = df.housenum.astype(str).apply(clean_house)
-    df["sname"] = df.streetname.astype(str).apply(clean_street)
-
-    # Concatenate house & street to form full address
-    df["address"] = df.hnum + " " + df.sname
-
-    # Parse stretches
-    df[["streetname_1", "streetname_2", "streetname_3"]] = df.apply(
-        lambda row: pd.Series(find_stretch(row["address"])), axis=1
-    )
-
-    # Parse intersections
-    df[["streetname_1", "streetname_2"]] = df.apply(
-        lambda row: pd.Series(find_intersection(row["address"])), axis=1
-    )
-
-    df["status"] = df["status"].apply(lambda x: x.strip())
-
-    return df
+    shp_dir = OUTPUT / NAME
+    shp_dir.mkdir()
+    gdf.to_file(shp_dir / f"{NAME}.shp")
+    shutil.make_archive(str(OUTPUT / NAME), "zip", shp_dir)
+    shutil.rmtree(shp_dir)
 
 
-def _geocode(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Geocode cleaned DEP CATS permit data using helper/geocode()
-
-    Parameters:
-    df (DataFrame): Contains data  with
-                    hnum and sname parsed
-                    from address
-    Returns:
-    df (DataFrame): Contains input fields along
-                    with geosupport fields
-    """
-    # geocoding
-    records = df.to_dict("records")
-    del df
-
-    # Multiprocess
-    with Pool(processes=cpu_count()) as pool:
-        it = pool.map(geocode, records, 10000)
-
-    df = pd.DataFrame(it)
-    df = df[df["geo_grc"] != "71"]
-    df["geo_address"] = None
-    df["geo_longitude"] = pd.to_numeric(df["geo_longitude"], errors="coerce")
-    df["geo_latitude"] = pd.to_numeric(df["geo_latitude"], errors="coerce")
-    df["geo_bbl"] = df.geo_bbl.apply(
-        lambda x: None if (x == "0000000000") | (x == "") else x
-    )
-    return df
-
-
-def _output(df: pd.DataFrame):
-    """
-    Output geocoded data to stdout for transfer to postgres
-
-    Parameters:
-    df (DataFrame): Contains input fields along
-                    with geosupport fields
-    """
-    cols = [
-        "requestid",
-        "applicationid",
-        "requesttype",
-        "ownername",
-        "expiration_date",
-        "make",
-        "model",
-        "burnermake",
-        "burnermodel",
-        "primaryfuel",
-        "secondaryfuel",
-        "quantity",
-        "issue_date",
-        "status",
-        "premisename",
-        "housenum",
-        "streetname",
-        "address",
-        "streetname_1",
-        "streetname_2",
-        "borough",
-        "geo_housenum",
-        "geo_streetname",
-        "geo_address",
-        "geo_bbl",
-        "geo_bin",
-        "geo_latitude",
-        "geo_longitude",
-        "geo_x_coord",
-        "geo_y_coord",
-        "geo_function",
-    ]
-    df[cols].to_csv("output/dep_cats_permits.csv", index=False)
-
-
-def _readme():
+def _readme() -> None:
     date_last_update = dt.datetime.today().strftime("%B %d, %Y")
     metadata = requests.get(
         "https://data.cityofnewyork.us/api/views/f4rp-2kvy.json"
@@ -187,18 +107,15 @@ def _readme():
     date_underlying_data = dt.datetime.fromtimestamp(
         metadata["rowsUpdatedAt"]
     ).strftime("%B %d, %Y")
-
-    with open("README.md", "r") as readme:
-        template = Template(readme.read())
-        rendered = template.render(
-            date_last_update=date_last_update, date_underlying_data=date_underlying_data
+    with open("README.md") as readme:
+        rendered = Template(readme.read()).render(
+            date_last_update=date_last_update,
+            date_underlying_data=date_underlying_data,
         )
-    with open("output/README.md", "w") as _readme:
-        _readme.write(rendered)
+    (OUTPUT / "README.md").write_text(rendered)
 
 
 if __name__ == "__main__":
-    df = _import()
-    df = _geocode(df)
+    OUTPUT.mkdir(exist_ok=True)
+    _write(_cast(_read_archive(os.environ["ARCHIVE_VERSION"])))
     _readme()
-    _output(df)

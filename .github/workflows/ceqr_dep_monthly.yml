@@ -13,8 +13,6 @@ jobs:
         working-directory: products/ceqr/ceqr_app
     container:
       image: nycplanning/build-geosupport:${{ inputs.image_tag || 'latest' }}
-    env:
-      BUILD_ENGINE_DB: defaultdb
     steps:
     - uses: actions/checkout@v7
 
@@ -33,16 +31,20 @@ jobs:
       working-directory: ./
       run: ./bash/docker_container_setup.sh
 
-    - name: Run recipe
-      run: |
-        export EDM_DATA=$BUILD_ENGINE_SERVER/$BUILD_ENGINE_DB
-        python3 -m pip install mdpdf
-        ./ceqr run recipe dep_cats_permits
+    - name: Set archive version
+      run: echo "ARCHIVE_VERSION=$(date '+%Y%m%d')" >> "$GITHUB_ENV"
 
-    # from the repo root, where ingest finds ingest_templates/
+    # Pulls, filters, and geocodes the permits. From the repo root, where ingest finds
+    # ingest_templates/.
     - name: Archive
       working-directory: ./
-      run: dcpy lifecycle scripts ingest_or_library_archive dep_cats_permits --latest --version "$(date '+%Y-%m-%d')" --push-to-s3
+      run: dcpy lifecycle scripts ingest_or_library_archive dep_cats_permits --latest --version "$ARCHIVE_VERSION" --push-to-s3
+
+    # Exports that archive to the edm-publishing staging folder ITD publishes from
+    - name: Export for publishing
+      run: |
+        python3 -m pip install mdpdf
+        ./ceqr run recipe dep_cats_permits
 
     - name: Create issue on success
       if: success()
