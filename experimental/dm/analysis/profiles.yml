@@ -1,0 +1,9 @@
+analysis_growth:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "./data/analysis_growth.duckdb"
+      extensions:
+        - spatial
+      schema: main

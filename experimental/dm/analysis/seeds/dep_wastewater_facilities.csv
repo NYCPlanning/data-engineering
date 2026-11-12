@@ -1,0 +1,15 @@
+wastewater_facility_id,map_code,wastewater_facility_name,year,capacity_mgd,wet_weather_flow_mgd,borough,population_served,drainage_area_acres
+newtown_creek,NC,Newtown Creek,1967,310,700,Brooklyn,1068012,15656
+wards_island,WI,Wards Island,1937,275,500,Manhattan,1061558,2056
+hunts_point,HP,Hunts Point,1952,200,400,Bronx,684569,16664
+north_river,NR,North River,1986,170,340,Manhattan,588772,6030
+bowery_bay,BB,Bowery Bay,1939,150,300,Queens,848328,15203
+owls_head,OH,Owls Head,1952,120,240,Brooklyn,758007,12947
+coney_island,CI,Coney Island,1935,110,220,Brooklyn,596326,15087
+jamaica,JA,Jamaica,1943,100,200,Queens,728123,25313
+26th_ward,26W,26th Ward,1944,85,170,Brooklyn,283428,5907
+tallman_island,TI,Tallman Island,1939,80,160,Queens,410812,16860
+port_richmond,PR,Port Richmond,1953,60,120,Staten Island,198128,9665
+red_hook,RH,Red Hook,1987,60,120,Brooklyn,192050,3200
+rockaway,RK,Rockaway,1952,45,90,Queens,90474,6259
+oakwood_beach,OB,Oakwood Beach,1956,40,80,Staten Island,244918,10779

@@ -1,0 +1,109 @@
+models:
+  - name: population_vs_housing_growth
+    description: >
+      Population growth next to housing growth (units built), 2010 to 2020, for the 59 community
+      districts, sorted by the population vs housing growth gap, largest first. The two ranks show how
+      closely the population and housing growth orders match. Columns are
+      the same as in dim_community_district.
+    columns:
+      - name: borocd
+        description: Same as dim_community_district.borocd.
+        data_tests: [unique, not_null]
+      - name: cdta_name
+        description: Same as dim_community_district.cdta_name.
+      - name: community_district_name
+        description: Same as dim_community_district.community_district_name.
+      - name: is_ahft_district
+        description: Same as dim_community_district.is_ahft_district.
+        data_tests: [not_null]
+      - name: population_2010_census
+        description: Same as dim_community_district.population_2010_census.
+      - name: population_2020_census
+        description: Same as dim_community_district.population_2020_census.
+      - name: population_change_2010_2020_pct
+        description: Same as dim_community_district.population_change_2010_2020_pct.
+        data_tests: [not_null]
+      - name: population_change_2010_2020_rank
+        description: Same as dim_community_district.population_change_2010_2020_rank.
+        data_tests: [not_null]
+      - name: housing_units_2010_backcast
+        description: Same as dim_community_district.housing_units_2010_backcast.
+      - name: units_built_2010_2020
+        description: Same as dim_community_district.units_built_2010_2020.
+      - name: units_built_2010_2020_pct
+        description: Same as dim_community_district.units_built_2010_2020_pct.
+        data_tests: [not_null]
+      - name: units_built_2010_2020_rank
+        description: Same as dim_community_district.units_built_2010_2020_rank.
+        data_tests: [not_null]
+      - name: population_vs_housing_growth_gap_2010_2020_pts
+        description: Same as dim_community_district.population_vs_housing_growth_gap_2010_2020_pts.
+
+  - name: population_change_components
+    description: >
+      Where each community district's 2010-2020 population change went: into units built, occupied
+      units construction doesn't explain, bigger or smaller households, and group quarters. The four
+      parts are accounting, not causes, and add up to the change in people and again in percentage
+      points of 2010 population (adding up to the change (%)). Sorted by population change (%), largest first. Columns are the same as in dim_community_district.
+    columns:
+      - name: borocd
+        description: Same as dim_community_district.borocd.
+        data_tests: [unique, not_null]
+      - name: cdta_name
+        description: Same as dim_community_district.cdta_name.
+      - name: community_district_name
+        description: Same as dim_community_district.community_district_name.
+      - name: is_ahft_district
+        description: Same as dim_community_district.is_ahft_district.
+      - name: population_2010_census
+        description: Same as dim_community_district.population_2010_census.
+      - name: population_2020_census
+        description: Same as dim_community_district.population_2020_census.
+      - name: population_change_2010_2020
+        description: Same as dim_community_district.population_change_2010_2020.
+        data_tests: [not_null]
+      - name: population_change_2010_2020_pct
+        description: Same as dim_community_district.population_change_2010_2020_pct.
+        data_tests: [not_null]
+      - name: population_change_from_units_built_2010_2020_pts
+        description: Same as dim_community_district.population_change_from_units_built_2010_2020_pts.
+        data_tests: [not_null]
+      - name: population_change_from_occupied_units_not_built_2010_2020_pts
+        description: Same as dim_community_district.population_change_from_occupied_units_not_built_2010_2020_pts.
+        data_tests: [not_null]
+      - name: population_change_from_household_size_2010_2020_pts
+        description: Same as dim_community_district.population_change_from_household_size_2010_2020_pts.
+        data_tests: [not_null]
+      - name: population_change_from_group_quarters_2010_2020_pts
+        description: Same as dim_community_district.population_change_from_group_quarters_2010_2020_pts.
+        data_tests: [not_null]
+      - name: population_change_from_units_built_2010_2020
+        description: Same as dim_community_district.population_change_from_units_built_2010_2020.
+        data_tests: [not_null]
+      - name: population_change_from_occupied_units_not_built_2010_2020
+        description: Same as dim_community_district.population_change_from_occupied_units_not_built_2010_2020.
+        data_tests: [not_null]
+      - name: population_change_from_household_size_2010_2020
+        description: Same as dim_community_district.population_change_from_household_size_2010_2020.
+        data_tests: [not_null]
+      - name: population_change_from_group_quarters_2010_2020
+        description: Same as dim_community_district.population_change_from_group_quarters_2010_2020.
+        data_tests: [not_null]
+      - name: units_built_2010_2020
+        description: Same as dim_community_district.units_built_2010_2020.
+      - name: housing_units_2010_census
+        description: Same as dim_community_district.housing_units_2010_census.
+      - name: housing_units_2020_census
+        description: Same as dim_community_district.housing_units_2020_census.
+      - name: occupancy_rate_2010_census_pct
+        description: Same as dim_community_district.occupancy_rate_2010_census_pct.
+      - name: occupancy_rate_2020_census_pct
+        description: Same as dim_community_district.occupancy_rate_2020_census_pct.
+      - name: average_household_size_2010_census
+        description: Same as dim_community_district.average_household_size_2010_census.
+      - name: average_household_size_2020_census
+        description: Same as dim_community_district.average_household_size_2020_census.
+      - name: people_per_housing_unit_2010_census
+        description: Same as dim_community_district.people_per_housing_unit_2010_census.
+      - name: people_per_housing_unit_2020_census
+        description: Same as dim_community_district.people_per_housing_unit_2020_census.

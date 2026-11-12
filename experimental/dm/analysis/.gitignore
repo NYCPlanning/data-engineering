@@ -1,0 +1,6 @@
+data/
+logs/
+target/
+dbt_internal_packages/
+.user.yml
+__marimo__/
