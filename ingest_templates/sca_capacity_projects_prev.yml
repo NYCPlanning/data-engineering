@@ -1,0 +1,21 @@
+id: sca_capacity_projects_prev
+acl: private
+
+attributes:
+  name: SCA Capacity Projects, Previous Capital Plan
+  description: >-
+    Input to the CEQR public schools datasets, read by sca_capacity_projects in products/ceqr/ceqr_app.
+    Delivered once and not updated since.
+    Versions before ingest were loaded straight into the old recipe database, and this one was exported from there as csv.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/sca/sca_capacity_projects_prev/{{ version }}/sca_capacity_projects_prev.csv
+  file_format:
+    type: csv
+    dtype: str
+    # Only blanks are null, as in the recipe database these came from.
+    keep_default_na: false
+    na_values: [""]

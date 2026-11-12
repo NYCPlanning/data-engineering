@@ -1,0 +1,21 @@
+id: sca_bluebook
+acl: private
+
+attributes:
+  name: SCA Bluebook
+  description: >-
+    Input to the CEQR public schools datasets, read by ceqr_school_buildings in products/ceqr/ceqr_app.
+    SCA sends a new version each year, which Capital Planning keeps in its CEQR Schools SharePoint folder.
+    Versions before ingest were loaded straight into the old recipe database, and this one was exported from there as csv.
+
+ingestion:
+  source:
+    type: s3
+    bucket: edm-recipes
+    key: inbox/sca/sca_bluebook/{{ version }}/sca_bluebook.csv
+  file_format:
+    type: csv
+    dtype: str
+    # Only blanks are null, as in the recipe database these came from.
+    keep_default_na: false
+    na_values: [""]
