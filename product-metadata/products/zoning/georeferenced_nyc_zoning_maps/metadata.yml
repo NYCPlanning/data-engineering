@@ -7,7 +7,7 @@ attributes:
 
     All previously released versions of this data are available on the <a href="{{ bytes_url__zoning_features }}">DCP Website: BYTES of the BIG APPLE</a>. Current version: {{ current_version_zoning }}
   display_name: Georeferenced NYC Zoning Maps
-  each_row_is_a: Row
+  each_row_is_a: a pixel in the georeferenced zoning map
   tags:
   - Zoning
   - New York City
