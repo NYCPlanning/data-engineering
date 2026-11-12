@@ -101,6 +101,9 @@ def _(duckdb, mo):
         "dim_community_district_mta_capital_project",
         "dim_mta_capital_project",
         "dim_mta_capital_project_acep",
+        "dim_ddc_infrastructure_project",
+        "dim_cpdb_project",
+        "dim_community_district_cpdb_project",
     ]
     # copy the core tables into memory and detach, so the notebook doesn't hold a lock that
     # blocks `dbt build`. Rerun this cell to pick up a new build.
@@ -4714,6 +4717,218 @@ def _(
                 "Sources: DEP [MS4 map](https://data.cityofnewyork.us/d/j57c-rqtq), NYC Open Data (August 2020); DEP [Bluebelt BMPs](https://services.arcgis.com/at3rDjch5X7i9Bag/arcgis/rest/services/Bluebelt_BMPs/FeatureServer/0) (March 2024); DEP Bluebelt properties (DCP copy, about 2014)"
             ),
         ]
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.vstack(
+        [
+            mo.md("""
+    #### DEP Capital Projects
+
+    DEP's capital work in the district: street projects DDC builds for DEP, and the projects DEP manages itself.
+    """),
+            mo.accordion(
+                {
+                    "Notes": mo.md("""
+    - Street projects: DDC's active infrastructure projects that DEP sponsors (alone or with DOT), such as sewers,
+      water mains, and green infrastructure, drawn along their street segments by phase. From a project list DDC
+      sends, dated July 2026. Descriptions are cut to 35 characters in DDC's file.
+    - Counts and the street projects table are projects with a segment in the district.
+    - DEP-managed projects: projects in the Capital Projects Database (CPDB, 26 Executive) that DEP manages, such as
+      treatment plant work. Only projects CPDB has mapped are listed. The dollars are CPDB's share of each project's
+      planned commitments in the district, split across its sites by count or area.
+    - DEP also sponsors work other agencies manage that isn't in either list here.
+    """),
+                }
+            ),
+        ]
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    add_district_outline,
+    add_legend,
+    con,
+    district_code,
+    folium,
+    json,
+    mo,
+    pd,
+    selected_district,
+    source_note,
+):
+    # DDC's active DEP-sponsored project phases, furthest along first, in blues
+    dep_street_phases = {
+        "Construction": "#08519c",
+        "Procurement": "#3182bd",
+        "Design": "#6baed6",
+        "Initiation": "#bdd7e7",
+    }
+    dep_sponsors = ["Environmental Protection", "Trans. & Env. Protection"]
+    # projects in the district's box with its size again on each side, past what the map shows
+    dep_street_projects = con.execute(
+        """
+        WITH frame AS (
+            SELECT
+                geom,
+                ST_MakeEnvelope(ST_XMin(geom) - pad, ST_YMin(geom) - pad, ST_XMax(geom) + pad, ST_YMax(geom) + pad) AS box
+            FROM (
+                SELECT geom, greatest(ST_XMax(geom) - ST_XMin(geom), ST_YMax(geom) - ST_YMin(geom)) AS pad
+                FROM dim_community_district
+                WHERE borocd = $district
+            )
+        )
+
+        SELECT
+            project.ddc_project_id,
+            project.description,
+            project.phase,
+            project.project_types,
+            project.design_start,
+            project.construction_start,
+            project.construction_completion,
+            ST_Intersects(project.geom, frame.geom) AS in_district,
+            map_geojson(project.geom, 0.00002) AS geojson
+        FROM dim_ddc_infrastructure_project AS project, frame
+        WHERE project.is_active
+            AND list_contains($sponsors, project.sponsor)
+            AND ST_Intersects(project.geom, frame.box)
+        """,
+        {"district": selected_district, "sponsors": dep_sponsors},
+    ).df()
+    dep_managed_projects = con.execute(
+        """
+        SELECT
+            project.description,
+            project.type_category,
+            project.earliest_date,
+            project.latest_date,
+            in_district.planned_commitments_in_district
+        FROM dim_community_district_cpdb_project AS in_district
+        INNER JOIN dim_cpdb_project AS project ON in_district.maprojid = project.maprojid
+        WHERE in_district.borocd = ? AND project.managing_agency_acronym = 'DEP'
+        ORDER BY project.earliest_date, project.description
+        """,
+        [selected_district],
+    ).df()
+
+    dep_map = folium.Map(
+        tiles="Esri.WorldGrayCanvas", zoom_snap=0.25, attribution_control=False
+    )
+    _district_layer = add_district_outline(dep_map)
+    for _row in dep_street_projects.itertuples():
+        folium.GeoJson(
+            json.loads(_row.geojson),
+            style_function=lambda _feature, color=dep_street_phases.get(_row.phase, "#969696"): {
+                "color": color,
+                "weight": 4,
+                "opacity": 0.9,
+            },
+            tooltip=f"{_row.phase}: {_row.description}",
+        ).add_to(dep_map)
+    _district_street_projects = dep_street_projects[dep_street_projects["in_district"]]
+    _phase_rows = "".join(
+        f"""<tr>
+          <td><span style="display:inline-block;width:14px;height:4px;background:{color};vertical-align:middle"></span></td>
+          <td style="padding:0 12px 0 4px">{phase}</td>
+          <td style="text-align:right;font-weight:700">{(_district_street_projects["phase"] == phase).sum()}</td>
+        </tr>"""
+        for phase, color in dep_street_phases.items()
+    )
+    add_legend(
+        dep_map,
+        f"""
+      <table style="border-collapse:collapse">
+        <tr style="color:#55554f"><td></td><td style="padding:0 12px 4px 4px;font-weight:600;color:#222222">DEP street projects, {district_code}</td>
+          <td style="padding-bottom:4px">In district</td></tr>
+        {_phase_rows}
+      </table>
+    """,
+    )
+    dep_map.fit_bounds(_district_layer.get_bounds())
+
+    def _month(value):
+        return "" if pd.isna(value) else f"{value:%b %Y}"
+
+    mo.vstack(
+        [
+            mo.iframe(dep_map.get_root().render(), height="500px"),
+            source_note(
+                "Source: DDC infrastructure capital projects (July 2026), via edm-recipes"
+            ),
+            mo.md(f"##### DEP street projects in {district_code}"),
+            mo.ui.table(
+                _district_street_projects.assign(
+                    phase_order=lambda df: df["phase"].map(
+                        list(dep_street_phases).index
+                    )
+                )
+                .sort_values(["phase_order", "construction_start", "description"])
+                .reset_index(drop=True)[
+                    [
+                        "phase",
+                        "description",
+                        "project_types",
+                        "design_start",
+                        "construction_start",
+                        "construction_completion",
+                        "ddc_project_id",
+                    ]
+                ]
+                .rename(
+                    columns={
+                        "phase": "Phase",
+                        "description": "Project",
+                        "project_types": "Types",
+                        "design_start": "Design start",
+                        "construction_start": "Construction start",
+                        "construction_completion": "Construction completion",
+                        "ddc_project_id": "DDC ID",
+                    }
+                ),
+                selection=None,
+                show_column_summaries=False,
+                show_data_types=False,
+                # formatted for display only, so the columns sort as dates
+                format_mapping={
+                    "Design start": _month,
+                    "Construction start": _month,
+                    "Construction completion": _month,
+                },
+            ),
+            source_note("Source: DDC infrastructure capital projects (July 2026)"),
+            mo.md(f"##### DEP-managed capital projects in {district_code}"),
+            mo.ui.table(
+                dep_managed_projects.rename(
+                    columns={
+                        "description": "Project",
+                        "type_category": "Type",
+                        "earliest_date": "Earliest date",
+                        "latest_date": "Latest date",
+                        "planned_commitments_in_district": "Planned commitments in district",
+                    }
+                ),
+                selection=None,
+                show_column_summaries=False,
+                show_data_types=False,
+                format_mapping={
+                    "Earliest date": _month,
+                    "Latest date": _month,
+                    "Planned commitments in district": lambda value: (
+                        "" if pd.isna(value) else f"${value / 1e6:,.1f}M"
+                    ),
+                },
+            ),
+            source_note(
+                "Source: DCP Capital Projects Database (26 Executive), via edm-publishing"
+            ),
+        ],
+        gap=0.5,
     )
     return
 
