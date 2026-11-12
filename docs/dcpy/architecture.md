@@ -22,7 +22,6 @@ top-to-bottom as "depends on what's below":
 ```mermaid
 flowchart TD
     lifecycle["dcpy-lifecycle — ingest · builds · package · distribute · validate · scripts · cli"]
-    library["dcpy-library — deprecated, being replaced by lifecycle.ingest"]
     connectors["dcpy-connectors"]
     geospatial["dcpy-geospatial"]
     data["dcpy-data"]
@@ -30,7 +29,7 @@ flowchart TD
     geosupport["dcpy-geosupport"]
     utils["dcpy-utils (cross-cutting, importable anywhere)"]
 
-    lifecycle --> library --> connectors --> product_metadata
+    lifecycle --> connectors --> product_metadata
     lifecycle --> geospatial --> product_metadata
     lifecycle --> data
     lifecycle --> geosupport
@@ -38,7 +37,6 @@ flowchart TD
     connectors -.-> utils
     geospatial -.-> utils
     data -.-> utils
-    library -.-> utils
     lifecycle -.-> utils
 ```
 
@@ -51,7 +49,6 @@ declares a dependency on any other dcpy package.
 | Package | Role |
 |---|---|
 | **`dcpy-lifecycle`** | Top of the hierarchy — the lifecycle stages (`ingest`, `builds`, `package`, `distribute`, `validate`), their shared base (`config`, `data_loader`, `product_metadata`, `connector_registry`), cross-stage `scripts`, `migrations`, and the CLI entrypoints (`dcpy.__main__`, `lifecycle._cli`, `lifecycle._connectors_cli`). May depend on every other package. |
-| **`dcpy-library`** | **Deprecated** ingest/archive tool; being migrated to `lifecycle.ingest`. Depends on `dcpy-connectors`, `dcpy-utils`. |
 | **`dcpy-connectors`** | Atomic get/push to external systems (`registry`, `s3`, `web`, `socrata`, `esri`, `sftp`, …) plus the DCP-specific `connectors.edm` (`edm.recipes`, `edm.publishing`) that composes them. Depends on `dcpy-product-metadata`, `dcpy-utils`. |
 | **`dcpy-geospatial`** | Geospatial format conversion/comparison helpers. Depends on `dcpy-product-metadata`, `dcpy-utils`. |
 | **`dcpy-data`** | Dataset comparison and data helpers (e.g. `dcpy.data.compare`). Depends on `dcpy-utils`. |
@@ -101,7 +98,7 @@ An import that crosses one of these boundaries isn't just against convention —
 ## Per-package `models.py`
 
 There's no single foundational `dcpy.models` package. Every package keeps its own `models.py`
-(`lifecycle.builds.models`, `lifecycle.ingest.models`, `connectors.edm.models`, `library.models`,
+(`lifecycle.builds.models`, `lifecycle.ingest.models`, `connectors.edm.models`,
 `utils.models`, …), and that's the accepted design — not a gap to close. Most of these stay inside
 their own package. The exception is a couple of `lifecycle.*.models` modules that get imported
 *upward* by `dcpy-connectors` and `dcpy-product-metadata` — see [Known deviations](#known-deviations-to-review).
@@ -146,7 +143,7 @@ an undeclared *third-party* dependency — is carved out the same way:
 
 | Theme | Where | Likely disposition |
 |---|---|---|
-| `dcpy-connectors` reaches into `dcpy-lifecycle` | `connectors/ingest_datastore.py`, `connectors/edm/open_data_nyc.py`, `connectors/edm/publishing.py` → `dcpy.lifecycle.*` | Resolves when `dcpy-library` is removed / the shared models are relocated. |
+| `dcpy-connectors` reaches into `dcpy-lifecycle` | `connectors/ingest_datastore.py`, `connectors/edm/open_data_nyc.py`, `connectors/edm/publishing.py` → `dcpy.lifecycle.*` | Resolves when the shared models are relocated. |
 | `dcpy-product-metadata` reaches into `dcpy-lifecycle` | `product_metadata/writers/oti_xlsx/xlsx_writer.py` → `dcpy.lifecycle.product_metadata` | Clarify the split between the two `product_metadata` modules. |
 | `dcpy-utils` has an undeclared runtime dependency on `geopandas` | `dcpy.utils.postgres` imports `geopandas`, which isn't declared in `dcpy-utils`'s `pyproject.toml` — declaring it would drag GDAL into every consumer | Needs an actual decision (lazy import? move the geospatial bits out of `dcpy-utils`?); `python/utils/test/test_postgres.py` is excluded from the isolated run in the meantime. |
 

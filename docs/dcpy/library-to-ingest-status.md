@@ -1,69 +1,35 @@
-# Library → Ingest: remaining work
+# Library → Ingest
 
-Status snapshot as of 2026-11-10, built by diffing `python/library/dcpy/library/templates/*.yml`
-against `ingest_templates/*.yml` and searching for direct `library archive` calls. It isn't built
-from [tracking issue #1255](https://github.com/NYCPlanning/data-engineering/issues/1255) or its
-sub-issues, which have drifted out of sync with the actual file state (see
-[Known false positives](#known-false-positives-when-re-running-this-diff) below if you re-derive
-this list).
+The `dcpy.library` package is gone. Every dataset it archived either has an ingest template in
+`ingest_templates/`, or a retired library template in `ingest_templates/library_deprecated/` (see its
+README for why each one is there). Workflows archive with `dcpy lifecycle scripts ingest`.
 
-See [library-to-ingest-migration.md](./library-to-ingest-migration.md) for the how-to on migrating
-a dataset. This doc only tracks *what's* left, not *how*.
+Library's archives stay in `edm-recipes` and are read like any other archive, so read-side checks
+like `_is_library` in `ingest_datastore.py` stay too.
+
 [library-to-ingest-status.csv](./library-to-ingest-status.csv) has per-dataset archive state, from
-`admin/ops/library_to_ingest_status_csv.py`.
+`admin/ops/library_to_ingest_status_csv.py`. The sections below record how each group of datasets
+was migrated and checked. The template counts in them predate the package's removal.
 
-## How this list was built
+## Removing the package
 
-```bash
-comm -23 <(ls python/library/dcpy/library/templates | sed 's/\.yml$//' | sort) \
-         <(ls ingest_templates | sed 's/\.yml$//' | sort)
-git grep -n 'library archive\|library_archive' -- .github products
-```
+With every dataset migrated, nothing outside `python/library/` needed the package:
 
-A dataset counts as migrated once `ingest_templates/{dataset_id}.yml` exists. That's the literal
-fallback check in `python/lifecycle/dcpy/lifecycle/scripts/ingest_or_library_archive.py`. Filename
-diffs alone overcount "remaining," because several datasets were renamed during migration. Those
-are excluded below (see [Known false positives](#known-false-positives-when-re-running-this-diff)).
+- the QA app's "Data Ingestion" page uploaded a file and ran library on it. "Inbox Ingest" replaced
+  it, so the page is gone.
+- the Source Data page and two test files only used library's models. The tests read library-era
+  configs with `SparseConfig`, which already handled both shapes.
+- `ingest_or_library_archive` fell back to library when a dataset had no ingest template. No
+  dataset needed that, so it became `dcpy lifecycle scripts ingest`.
+- `validate_ingest` and the `ingest_library_compare`, `ingest_library_run_single`, and
+  `data_library_single` workflows only existed to run library, as did
+  `apps/dcpy_integration_tests/library/`.
+- `usdot_ports` is still blocked on a token
+  ([#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)), so its library template
+  moved to `library_deprecated/`. Facilities reads its last library archive.
 
-Two templates aren't counted because they're test fixtures. `test_nypl_libraries` is read by
-`apps/dcpy_integration_tests/library/test_archive.py`. `bpl_libraries` is already migrated, but
-library's own tests load its template, so it stays until the package is removed.
-
-## Remaining: templates
-
-1 dataset. Consumers come from grepping each name across `products/`, excluding
-`products/ceqr/ceqr_app/`. A `recipe.yml`-only scan isn't enough: factfinder loads its inputs from
-`acs.yml` and `decennial.yml`.
-
-### Url or file sources (1)
-
-| Consumers | Datasets |
-|---|---|
-| `facilities` | `usdot_ports` (blocked: the source now requires a token, see [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)) |
-
-## Remaining: direct `library archive` calls
-
-None. The grep above still matches two kinds of line that aren't library archives:
-
-- `ingest_or_library_archive` in `ingest_single.yml`, `ingest_multiple.yml`, and
-  `ceqr_dep_monthly.yml`. It runs ingest whenever a template exists, and every dataset those
-  workflows archive has one.
-- `data_library_single.yml`, the manual workflow for running library on one dataset. It goes once
-  the package does.
-
-## Remaining: code that imports `dcpy.library`
-
-- `apps/qa/src/pages/ingest/` and `apps/qa/src/pages/source_data/`
-- `python/connectors/test/edm/test_recipes.py`
-- `apps/dcpy_integration_tests/library/`
-- the fallback in `ingest_or_library_archive.py`
-
-`dcpy-library` also holds the only declared `GDAL` dependency, while
-`python/geospatial/dcpy/geospatial/gdb/fgdb.py` and `transform.py` import `osgeo`. Those need a new
-home for that dependency before the package can go.
-
-Library-era archives stay in `edm-recipes`, so read-side checks like `_is_library` in
-`ingest_datastore.py` outlive the package.
+The `GDAL` pin moved to `dcpy-geospatial`, which is what imports `osgeo`. It reaches the same
+images as before, through `dcpy-lifecycle[geo]`.
 
 ## Migrated, but `latest` is still a library archive
 

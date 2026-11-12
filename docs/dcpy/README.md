@@ -13,13 +13,13 @@ dcpy is layered — **a package imports only from its own layer or a lower one:*
 1. **`dcpy-utils`** (+ **`dcpy-geosupport`**) — pure, foundational packages; no dependencies on
    other dcpy packages.
 2. **Everything else** — `dcpy-connectors`, `dcpy-data`, `dcpy-geospatial`,
-   `dcpy-product-metadata`, `dcpy-library`: may depend on `dcpy-utils` and (where declared) each
+   `dcpy-product-metadata`: may depend on `dcpy-utils` and (where declared) each
    other, must not depend on `dcpy-lifecycle`.
 3. **`dcpy-lifecycle`** — the stages (`ingest`, `builds`, `package`, `distribute`, `validate`),
    their shared base, and cross-stage `scripts`; wires everything together, and is the only
    package allowed to depend on all the others.
 
-`dcpy.library` is deprecated (see below). This hierarchy isn't just convention: each package
+This hierarchy isn't just convention: each package
 declares its actual dcpy dependencies in its own `pyproject.toml`, so `uv sync --package dcpy-X`
 installs only `X` and what it depends on — an import that crosses the boundary fails outright, and
 CI syncs and tests every package in isolation to catch it (see [testing.md](../testing.md)).
@@ -57,11 +57,11 @@ the isolated per-package CI job and each package's `test/test_package_boundary.p
 
 Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure wiki page.
 
-## Deprecated
+## Removed
 
-- **`dcpy.library`** — being migrated to `dcpy.lifecycle.ingest` on a dataset-by-dataset
-  basis. Do not add new templates or logic. See the
-  [Library → Ingest migration guide](./library-to-ingest-migration.md).
+- **`dcpy.library`** — the old ingest/archive tool, replaced by `dcpy.lifecycle.ingest`. Its
+  archives are still in `edm-recipes` and are read like any other. See the
+  [Library → Ingest migration status](./library-to-ingest-status.md).
 
 ## Testing
 
