@@ -109,6 +109,10 @@ SELECT
     open_space.citywide_active_recreation_areas_pct,
     open_space.citywide_new_or_renovated_parks_pct,
     open_space.citywide_new_or_renovated_parks_future_pct,
+    open_space.parks,
+    open_space.park_acres,
+    open_space.parks_with_current_project,
+    open_space.park_acres_with_current_project,
     spine.geom
 FROM {{ ref('int_cd_spine') }} AS spine
 LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd

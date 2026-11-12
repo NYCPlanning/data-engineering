@@ -4954,6 +4954,9 @@ def _(mo):
     - Active Recreation Areas and New or Renovated Parks are from NYC Parks' Vital Parks Explorer: the share of the
       district's residents within a 10-minute walk of each.
     - The map shows NYC Parks properties and Parks' served area.
+    - Parks with a capital project: Parks properties with a project in any phase but completed (proposed included), by
+      the park ID on the project's locations. A park counts for the district its interior point is in, or the nearest
+      district for beaches and other shoreline parks. Every property type counts, from triangles to large parks.
     - Capital projects: NYC Parks' Capital Project Tracker, by phase, at each of a project's locations. Counts are projects
       with a location in the district. Completed projects show only with the switch on.
     - In the table, phase finish and construction finish are the actual month if there is one, then Parks' adjusted
@@ -5004,13 +5007,21 @@ def _(con, selected_district):
                 district.citywide_active_recreation_areas_pct,
                 district.citywide_new_or_renovated_parks_pct,
                 district.citywide_new_or_renovated_parks_future_pct,
+                district.parks,
+                district.park_acres,
+                district.parks_with_current_project,
+                district.park_acres_with_current_project,
+                city.parks AS city_parks,
+                city.parks_with_current_project AS city_parks_with_current_project,
                 city.residents AS city_residents,
                 city.served AS city_served
             FROM dim_community_district AS district
             CROSS JOIN (
                 SELECT
                     sum(walk_to_a_park_residents) AS residents,
-                    sum(walk_to_a_park_residents_served) AS served
+                    sum(walk_to_a_park_residents_served) AS served,
+                    sum(parks) AS parks,
+                    sum(parks_with_current_project) AS parks_with_current_project
                 FROM dim_community_district
             ) AS city
             WHERE district.borocd = ?
@@ -5342,12 +5353,37 @@ def _(
                         gap=1,
                         widths="equal",
                     ),
+                    mo.hstack(
+                        [
+                            mo.stat(
+                                f"{open_space_access['parks_with_current_project']:,.0f} of {open_space_access['parks']:,.0f}",
+                                label="Parks with a capital project, proposed or underway",
+                                caption=f"NYC: {open_space_access['city_parks_with_current_project']:,.0f} of "
+                                f"{open_space_access['city_parks']:,.0f}",
+                                bordered=True,
+                            ),
+                            mo.stat(
+                                f"{open_space_access['park_acres_with_current_project']:,.0f} of "
+                                f"{open_space_access['park_acres']:,.0f}",
+                                label="Acres of those parks",
+                                caption=f"{open_space_access['park_acres_with_current_project'] / open_space_access['park_acres']:.0%} of the district's park acres"
+                                if open_space_access["park_acres"]
+                                else "",
+                                bordered=True,
+                            ),
+                        ],
+                        justify="start",
+                        gap=1,
+                        widths="equal",
+                    ),
                 ],
                 gap=0.25,
             ),
             source_note(
                 "Sources: NYC Parks Walk to a Park service area; 2020 Census block counts, via DCP Population FactFinder; "
-                "NYC Parks [Vital Parks Explorer](https://www.nycgovparks.org/about/vital-parks/explorer) (November 2026)"
+                "NYC Parks [Vital Parks Explorer](https://www.nycgovparks.org/about/vital-parks/explorer) (November 2026); "
+                "NYC Parks [Parks Properties](https://data.cityofnewyork.us/d/enfh-gkve) (October 2026) and "
+                "[Capital Project Tracker](https://www.nycgovparks.org/planning-and-building/capital-project-tracker) (June 2026)"
             ),
             park_projects_completed_switch,
             mo.iframe(park_map.get_root().render(), height="500px"),
