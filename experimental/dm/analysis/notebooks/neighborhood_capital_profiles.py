@@ -2395,10 +2395,10 @@ def _(
         {"district": selected_district},
     ).df()
 
-    # the current capital plans, listed past to future: MTA blue for the earlier plan, light gray for the current one
+    # the current capital plans, listed past to future, in light blues, lighter for the earlier plan
     mta_capital_plans = {
-        "Capital Plan 2020 - 2024": "#0039a6",
-        "Capital Plan 2025 - 2029": "#d9d9d9",
+        "Capital Plan 2020 - 2024": "#c6dbef",
+        "Capital Plan 2025 - 2029": "#6baed6",
     }
     # each project's point in each district in the frame, so a project in several districts shows once in each
     mta_capital_locations = con.execute(
