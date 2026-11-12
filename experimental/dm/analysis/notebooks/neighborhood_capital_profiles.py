@@ -5446,7 +5446,9 @@ def _(
                         f' target="_blank" style="color:#1a5fb4;text-decoration:underline">{tracker_id} ↗</a>'
                     ),
                 },
-                column_widths={"Project Tracker": 90},
+                # titles run up to 125 characters, so the column wraps rather than cutting them off
+                column_widths={"Project": 360, "Project Tracker": 90},
+                wrapped_columns=["Project"],
             ),
             source_note(
                 "Source: NYC Parks [Capital Project Tracker](https://www.nycgovparks.org/planning-and-building/capital-project-tracker) (June 2026)"
