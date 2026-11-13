@@ -162,22 +162,24 @@ locked version bump here is picked up automatically the next time each image is 
 
 ### Upgrading packages
 
-Most `pyproject.toml` dependencies are unpinned, so `uv.lock` is what actually holds versions. Two
-things keep it current:
+Most `pyproject.toml` dependencies are unpinned, so `uv.lock` is what actually holds versions.
+`pyproject.toml` says what's *compatible* (edit it deliberately, with a comment on any pin);
+`uv.lock` says what's *installed* (let the upgrade workflow move it).
 
-- Dependabot opens weekly PRs for individual bumps (see `.github/dependabot.yml`). It stops at 10
-  open PRs, so a backlog stalls it.
-- The "Upgrade uv.lock" workflow (`.github/workflows/python_compile_requirements.yml`) runs
-  `uv lock --upgrade` on the 1st of each month and opens a PR from the `compile_python_reqs` branch.
-  Run it by hand from the Actions tab to upgrade sooner.
+The "Upgrade uv.lock" workflow (`.github/workflows/python_compile_requirements.yml`) runs
+`uv lock --upgrade` every Monday and opens a PR from the `compile_python_reqs` branch. Run it by
+hand from the Actions tab to upgrade sooner. Dependabot only opens Python PRs for security
+updates (plus one grouped weekly PR for GitHub Actions) - see `.github/dependabot.yml`.
 
 PRs from `compile_python_reqs` get special handling in `test.yml`: CI rebuilds the Docker images
-and runs every product build against them. A PR from any other branch only runs the tests. To make
-changes on top of the upgrade (like pinning a package that breaks), push them to that branch.
+and runs every product build against them. A PR from any other branch only runs the tests.
 
-Before merging, read the lock diff for major and minor bumps of packages we import directly. Then
-close the open Dependabot PRs that the upgrade covers. Exact `==` pins (like `GDAL` in
-`python/library/pyproject.toml`) don't move and have to be edited by hand.
+If a bump breaks something, pin it in the relevant `pyproject.toml` **on `main`**, not on
+`compile_python_reqs` - each weekly run resets that branch from `main`, so a fix pushed only there
+is lost if the PR isn't merged first.
+
+Before merging, read the lock diff for major and minor bumps of packages we import directly. Exact
+`==` pins (like `GDAL` in `python/library/pyproject.toml`) don't move and have to be edited by hand.
 
 To upgrade locally:
 
