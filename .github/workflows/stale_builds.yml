@@ -16,7 +16,7 @@ jobs:
       run:
         shell: bash
     env:
-      GHP_TOKEN: ${{ github.GITHUB_TOKEN }}
+      GHP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
       - name: Load Secrets
