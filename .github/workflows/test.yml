@@ -21,6 +21,7 @@ jobs:
     name: Check changed files
     runs-on: ubuntu-22.04
     permissions:
+      contents: read  # the repo is private, so checkout needs it
       pull-requests: read
     outputs:
       pr_changes: ${{ steps.pr_changes.outputs.changes }}
