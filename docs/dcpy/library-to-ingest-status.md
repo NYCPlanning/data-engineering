@@ -67,7 +67,7 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 
 ## Migrated, but `latest` is still a library archive
 
-4 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false),
+3 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false),
 plus the seven zap tables, whose first weekly archive through ingest is 2026-11-16:
 
 | Dataset | Why it's still library |
@@ -75,7 +75,6 @@ plus the seven zap tables, whose first weekly archive through ingest is 2026-11-
 | `dcp_sfpsd` | The 2021 Bytes url its template downloads from returns 404. |
 | `dob_cofos` | Each delivery appends to `latest`, so the next one is its first archive through ingest. See [below](#migrated-developments-scripts-part-1). |
 | `uscourts_courts` | uscourts.gov blocks scrapers, so the template now reads a hand-built csv from the edm-recipes inbox. Nobody has built one yet. |
-| `doe_hszones` | The template runs cleanly (80 rows, same as library). Nothing reads it. |
 
 If the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
 replacing the archive takes `--overwrite --version <version>`.
@@ -98,7 +97,8 @@ deliveries, and the plan is to stop relying on these files, so per-sheet ingest 
 worth building. A new delivery is uploaded straight to `edm-recipes` (`dcp_pop_acs/2024` already
 was: it has no `config.yml`). See `products/factfinder/README.md`.
 
-`dcp_dot_trafficinjuries` and `dob_jobapplications_parkingspaces` also moved there. edde pins
+`dcp_dot_trafficinjuries`, `dob_jobapplications_parkingspaces`, and `doe_hszones` also moved there.
+Nothing reads `doe_hszones`. edde pins
 every traffic year from 2010 to 2020 and developments pins the parking spaces export at
 `20240603`, all already archived, and neither has had a new delivery since.
 
