@@ -16,3 +16,7 @@ ingestion:
   file_format:
     type: csv
     dtype: str
+  processing_steps:
+  # facdb's sql reads `wkt` unquoted
+  - name: clean_column_names
+    args: { "lower": True }

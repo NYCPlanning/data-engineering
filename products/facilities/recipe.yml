@@ -45,7 +45,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: dcp_sfpsd
-    file_type: csv # migrated, but likely will never be updated
     version: "20210409"
     preprocessor:
       module: facdb.pipelines
@@ -135,7 +134,6 @@ inputs:
       module: facdb.pipelines
       function: dispatch
   - name: uscourts_courts
-    file_type: csv # not migrated to ingest
     preprocessor:
       module: facdb.pipelines
       function: dispatch
