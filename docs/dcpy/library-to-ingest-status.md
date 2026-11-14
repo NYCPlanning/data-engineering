@@ -67,11 +67,13 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 
 ## Migrated, but `latest` is still a library archive
 
-3 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false):
+4 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false),
+plus the seven zap tables, whose first weekly archive through ingest is 2026-11-16:
 
 | Dataset | Why it's still library |
 |---|---|
 | `dcp_sfpsd` | The 2021 Bytes url its template downloads from returns 404. |
+| `dob_cofos` | Each delivery appends to `latest`, so the next one is its first archive through ingest. See [below](#migrated-developments-scripts-part-1). |
 | `uscourts_courts` | uscourts.gov blocks scrapers, so the template now reads a hand-built csv from the edm-recipes inbox. Nobody has built one yet. |
 | `doe_hszones` | The template runs cleanly (80 rows, same as library). Nothing reads it. |
 
@@ -197,6 +199,7 @@ archived to `edm-recipes`, with `--overwrite` where the version was unchanged.
 | `dpr_park_access_zone` | `20230719` | factfinder | 1 row. Keeps `wkb_geometry` |
 | `dcp_mappluto_clipped` | `26v2` | ceqr | 856,687 rows. cdbg pins library's `24v4` |
 | `doe_eszones`, `doe_mszones` | `20240313` | developments, knownprojects | 770 and 279 rows |
+| `nycoc_checkbook` | `20260626` to `20261113` | cpdb | 2,475,570 to 2,543,614 rows, plus a new `expense_category_code`. Over the dates both cover, within 50 rows, all from 2024 on |
 
 - **Check geometry names against library's pg_dump, not its parquet.** Library's parquet named
   the column `geometry` and its pg_dump `wkb_geometry`, and any consumer that doesn't pin
@@ -316,25 +319,18 @@ build also needed `dpr_forever_wild` pinned to `20261015`: Socrata's `48va-85tp`
 different dataset (111 natural areas, with `propid` and `name`), and its export puts the polygons
 near Florida while labeling them EPSG:4326. gft and ceqr stay pinned until that's fixed upstream.
 
-## Migrated but not yet empirically validated
+## Migrated and checked by builds only
 
-Both required infra this session didn't have access to (a local Postgres / dev container for
-`run_and_compare`, and Geosupport's binary, which doesn't run on macOS at all). Full commit
-messages have the details.
+Their ingest archives are `latest`, and the 2026-11-12 `nightly_qa` builds of cbbr, ceqr, cpdb, and
+facilities loaded them and passed. Nobody compared output with the library versions.
 
-- `moeo_socialservicesitelocations` — the new SQL join (`moeo_socialservicesitelocations.sql`)
-  deliberately sources `agency_name`, `bin`, and `bbl` from the `sites` sub-table wherever a column
-  name collides across sites/contracts/providers/programs. This is a behavior change: the old
-  pandas-merge version likely sourced `agency_name` from `programs` instead, an apparent accident of
-  merge-suffix collision order, not a deliberate choice. Confirm downstream consumers are fine with
-  this before/after comparing build output.
-- `dcp_facilities` — extraction/transform verified locally against the real source (34,446 rows,
-  correct EPSG:4326 reprojection, matches `dcp_facilities_with_unmapped`'s column schema). Not yet
-  validated: an actual DB load/build for its 3 consumers (`cbbr`, `ceqr`, `cpdb`), and confirming
-  `ceqr/recipe.yml` dropping its `file_type: pg_dump` override doesn't break anything — that
-  override existed specifically because library's parquet output was missing a CRS definition,
-  which ingest's doesn't have (verified locally), but it's only been checked at the file level, not
-  through an actual `ceqr` build.
+- `moeo_socialservicesitelocations` — the SQL join (`moeo_socialservicesitelocations.sql`) takes
+  `agency_name`, `bin`, and `bbl` from the `sites` table wherever a column name collides across
+  sites, contracts, providers, and programs. The old pandas merge probably took `agency_name` from
+  `programs`, so facilities' `agency_name` for these rows may have changed.
+- `dcp_facilities` — checked locally against the source (34,446 rows, EPSG:4326, same columns as
+  `dcp_facilities_with_unmapped`). ceqr dropped its `file_type: pg_dump` pin, which existed because
+  library's parquet had no CRS.
 
 ## Migrated and empirically validated
 
@@ -379,9 +375,8 @@ naive filename diff wrongly flags them as remaining:
 | `dob_permitissuance` | `dob_bis_permits` | yes |
 | `fema_pfirms2015_100yr` | `dcp_pfirms` | yes — library template deleted |
 
-A recipe naming the old dataset reads whatever is archived under that name, and archiving it falls
-back to library (`ingest_or_library_archive.py` keys off whether `ingest_templates/{dataset_id}.yml`
-exists), so a half-finished rename keeps the old template on a live path.
+A recipe naming the old dataset reads whatever is archived under that name, so a consumer that
+wasn't cut over keeps loading the last library archive.
 
 ### `dob_cofos` is not a rename
 
