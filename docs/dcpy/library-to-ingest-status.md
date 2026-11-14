@@ -67,13 +67,12 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 
 ## Migrated, but `latest` is still a library archive
 
-4 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false):
+3 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false):
 
 | Dataset | Why it's still library |
 |---|---|
 | `dcp_sfpsd` | The 2021 Bytes url its template downloads from returns 404. |
-| `uscourts_courts` | The scraper's source returns 403 when run from GitHub Actions. |
-| `nycoc_checkbook` | The template runs cleanly. Re-archiving is a data refresh for cpdb (2,475,570 to 2,542,210 rows, plus a new `expense_category_code` column), so it waits for the next cpdb update. |
+| `uscourts_courts` | uscourts.gov blocks scrapers, so the template now reads a hand-built csv from the edm-recipes inbox. Nobody has built one yet. |
 | `doe_hszones` | The template runs cleanly (80 rows, same as library). Nothing reads it. |
 
 If the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and

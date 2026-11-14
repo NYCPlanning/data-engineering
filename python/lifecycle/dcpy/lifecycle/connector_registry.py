@@ -37,7 +37,6 @@ from dcpy.connectors.web_scrapers import (
     myschools_nyc,
     nycdoc,
     qpl,
-    uscourts,
     usps,
 )
 from dcpy.utils.logging import logger
@@ -116,7 +115,6 @@ def _set_default_connectors():
         OpenDataConnector(),
         ArcGISFeatureServiceConnector(),
         web.WebConnector(),
-        uscourts.USCourtsConnector(),
         nycdoc.NYCDOCConnector(),
         qpl.QPLConnector(),
         foodbankny.FoodBankNYConnector(),

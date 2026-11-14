@@ -2,32 +2,17 @@ id: uscourts_courts
 
 attributes:
   name: US Courts NY Southern District and Eastern District Courts
+  description: >-
+    Federal court offices in NYC, read by facdb.
+    uscourts.gov blocks scrapers, so this is built by hand from the court finder and uploaded to the edm-recipes inbox.
+    Start from the latest archive's csv and keep its columns, which match what facdb's uscourts_courts.sql reads.
   url: https://www.uscourts.gov/federal-court-finder/find
 
 ingestion:
   source:
-    # custom web-scraping connector
-    type: uscourts
-    key: ""
+    type: s3
+    bucket: edm-recipes
+    key: inbox/uscourts/{{ version }}/uscourts_courts.csv
   file_format:
     type: csv
-  processing_steps:
-  # Column names below match what facdb's uscourts_courts.sql reads, which predates
-  # this scraper and follows the old court-finder export's naming.
-  - name: rename_columns
-    args:
-      map:
-        name: officename
-        place_name: buildingname
-        address: buildingaddress
-        city: buildingcity
-        zip_code: buildingzip
-        state: buildingstate
-        phone_number: phone
-  - name: pd_series_func
-    args:
-      column_name: officename
-      function_name: str.replace
-      pat: " - [^,]+, [A-Z]{2}$"
-      repl: ""
-      regex: True
+    dtype: str

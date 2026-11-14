@@ -20,8 +20,8 @@ Like most of our data products, source data must be updated in data library befo
       Source: Scrape from NYPL website
       Source url: https://www.nypl.org/locations/list
 - [ ] uscourts_courts
-      Source: Court locator for NY state
-      Source url: http://www.uscourts.gov/court-locator/city/New%20York/state/NY
+      Source: Built by hand from the federal court finder (see `ingest_templates/uscourts_courts.yml`)
+      Source url: https://www.uscourts.gov/federal-court-finder/find
 - [ ] dcp_colp
       Source: Bytes
       Source url: https://www1.nyc.gov/site/planning/data-maps/open-data.page#city_facilities
