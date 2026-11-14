@@ -67,14 +67,13 @@ Library-era archives stay in `edm-recipes`, so read-side checks like `_is_librar
 
 ## Migrated, but `latest` is still a library archive
 
-3 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false),
+2 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false),
 plus the seven zap tables, whose first weekly archive through ingest is 2026-11-16:
 
 | Dataset | Why it's still library |
 |---|---|
-| `dcp_sfpsd` | The 2021 Bytes url its template downloads from returns 404. |
+| `dcp_sfpsd` | facdb pins `20210409`, which is archived through ingest. `latest` is library's `20210414`, which nothing reads. |
 | `dob_cofos` | Each delivery appends to `latest`, so the next one is its first archive through ingest. See [below](#migrated-developments-scripts-part-1). |
-| `uscourts_courts` | uscourts.gov blocks scrapers, so the template now reads a hand-built csv from the edm-recipes inbox. Nobody has built one yet. |
 
 If the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
 replacing the archive takes `--overwrite --version <version>`.
@@ -101,6 +100,18 @@ was: it has no `config.yml`). See `products/factfinder/README.md`.
 Nothing reads `doe_hszones`. edde pins
 every traffic year from 2010 to 2020 and developments pins the parking spaces export at
 `20240603`, all already archived, and neither has had a new delivery since.
+
+## Seeded from library archives
+
+`uscourts_courts` and `dcp_sfpsd` lost their sources: uscourts.gov returns 403 to the scraper, and
+the 2021 Bytes download for `dcp_sfpsd` is gone. Their templates now read a csv from the
+edm-recipes inbox, and each inbox csv is a copy of library's archive at the version facdb reads.
+Run through ingest, both match those archives in every row, column, and value (32 and 173 rows).
+Both were archived with `--overwrite`, so library's files are in `20240813_library/` and
+`20210409_library/`, and facdb no longer pins them to `csv`.
+
+A new `uscourts_courts` version has to be built by hand from the court finder, starting from the
+latest archive's columns.
 
 ## Migrated: facilities cluster
 
