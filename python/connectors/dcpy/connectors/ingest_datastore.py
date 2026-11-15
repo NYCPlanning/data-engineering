@@ -6,10 +6,9 @@ from tempfile import TemporaryDirectory
 import yaml
 from pydantic import BaseModel
 
-from dcpy.connectors.edm.models import DatasetType
+from dcpy.connectors.edm.models import DatasetType, SparseConfig
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector
 from dcpy.connectors.registry import VersionedConnector
-from dcpy.lifecycle.ingest.models import SparseConfig
 from dcpy.utils.logging import logger
 
 config_filename = "config.json"

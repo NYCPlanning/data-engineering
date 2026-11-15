@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Literal
 
 import pandas as pd
-from pydantic import AliasChoices, AliasPath, BaseModel, Field, TypeAdapter
+from pydantic import AliasChoices, BaseModel, Field, TypeAdapter
 
 from dcpy.connectors.edm import models as recipes
 from dcpy.utils import formats as file
@@ -272,35 +272,3 @@ class IngestedDataset(SortedSerializedBase, TemplatedYamlReader, extra="forbid")
 class ProcessingResult(SortedSerializedBase, arbitrary_types_allowed=True):
     df: pd.DataFrame
     summary: ProcessingSummary
-
-
-class SparseConfig(BaseModel, extra="allow"):
-    id: str = Field(
-        validation_alias=AliasChoices(
-            "id",  # ingest
-            "name",  # ingest - outdated
-            AliasPath("dataset", "name"),  # library
-        )
-    )
-    version: str = Field(
-        validation_alias=AliasChoices(
-            "timestamp",  # ingest - raw
-            "version",  # ingest
-            AliasPath("dataset", "version"),  # library
-        )
-    )
-    name: str | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            AliasPath("attributes", "name"),  # ingest
-        ),
-    )
-    run_timestamp: datetime | None = Field(
-        None,
-        validation_alias=AliasChoices(
-            AliasPath("transformation", "run_details", "timestamp"),  # ingest
-            "timestamp",  # ingest - raw
-            AliasPath("run_details", "timestamp"),  # ingest - outdated
-            AliasPath("execution_details", "timestamp"),
-        ),
-    )

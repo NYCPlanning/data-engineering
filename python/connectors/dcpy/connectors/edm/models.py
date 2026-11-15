@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import AliasChoices, AliasPath, BaseModel, Field
 
 ValidAclValues = Literal["public-read", "private"]
 
@@ -170,3 +170,36 @@ class Dataset(BaseModel, extra="forbid"):
     @property
     def key(self) -> DatasetKey:
         return DatasetKey(id=self.id, version=self.version)
+
+
+# Reads the config.json of any edm-recipes archive, ingest or library-era.
+class SparseConfig(BaseModel, extra="allow"):
+    id: str = Field(
+        validation_alias=AliasChoices(
+            "id",  # ingest
+            "name",  # ingest - outdated
+            AliasPath("dataset", "name"),  # library
+        )
+    )
+    version: str = Field(
+        validation_alias=AliasChoices(
+            "timestamp",  # ingest - raw
+            "version",  # ingest
+            AliasPath("dataset", "version"),  # library
+        )
+    )
+    name: str | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            AliasPath("attributes", "name"),  # ingest
+        ),
+    )
+    run_timestamp: datetime | None = Field(
+        None,
+        validation_alias=AliasChoices(
+            AliasPath("transformation", "run_details", "timestamp"),  # ingest
+            "timestamp",  # ingest - raw
+            AliasPath("run_details", "timestamp"),  # ingest - outdated
+            AliasPath("execution_details", "timestamp"),
+        ),
+    )

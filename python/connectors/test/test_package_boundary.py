@@ -3,8 +3,7 @@ import pytest
 
 @pytest.mark.xfail(
     reason="known coupling: dcpy.connectors imports from dcpy.lifecycle in "
-    "dcpy/connectors/ingest_datastore.py, dcpy/connectors/edm/open_data_nyc.py, and "
-    "dcpy/connectors/edm/publishing.py. Remove this xfail once that's fixed "
+    "dcpy/connectors/edm/open_data_nyc.py and dcpy/connectors/edm/publishing.py. Remove this xfail once that's fixed "
     "(xfail_strict will fail the suite if it starts passing without this marker "
     "being removed).",
 )

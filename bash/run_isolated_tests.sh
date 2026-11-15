@@ -25,8 +25,7 @@ for pyproject in python/*/pyproject.toml; do
 done
 
 # dcpy-connectors and dcpy-product-metadata have a real, currently-undeclared runtime
-# dependency on dcpy-lifecycle (dcpy/connectors/ingest_datastore.py,
-# dcpy/connectors/edm/open_data_nyc.py, dcpy/connectors/edm/publishing.py, and
+# dependency on dcpy-lifecycle (dcpy/connectors/edm/open_data_nyc.py, dcpy/connectors/edm/publishing.py, and
 # dcpy/product_metadata/writers/oti_xlsx/xlsx_writer.py all import from dcpy.lifecycle)
 # - sync lifecycle alongside them too, or their tests won't even collect. Their own
 # test_package_boundary.py is marked xfail to track this.

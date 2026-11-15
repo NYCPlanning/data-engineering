@@ -327,8 +327,7 @@ jobs:
     # directory path sidesteps that entirely.)
     #
     # connectors and product-metadata have a real, currently-undeclared runtime dependency
-    # on dcpy-lifecycle (dcpy/connectors/ingest_datastore.py,
-    # dcpy/connectors/edm/open_data_nyc.py, dcpy/connectors/edm/publishing.py, and
+    # on dcpy-lifecycle (dcpy/connectors/edm/open_data_nyc.py, dcpy/connectors/edm/publishing.py, and
     # dcpy/product_metadata/writers/oti_xlsx/xlsx_writer.py all import from
     # dcpy.lifecycle) - sync lifecycle alongside them too until that's cleaned up, or
     # their tests won't even collect.
