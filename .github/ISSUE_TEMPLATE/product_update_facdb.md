@@ -7,11 +7,11 @@
 
 # FacDB Source Data Updates
 
-Like most of our data products, source data must be updated in data library before FacDB is run. As there are are many source datasets with varied update processes, this issue template should be opened to track progress towards updating all source data
+Like most of our data products, source data must be archived in edm-recipes before FacDB is run. As there are are many source datasets with varied update processes, this issue template should be opened to track progress towards updating all source data
 
 **All source data listed is to be uploaded as .csv files**
 
-## Scraped by data library
+## Scraped by ingest
 
 - [ ] bpl_libraries
       Source: Scraped from BPL website
@@ -33,7 +33,7 @@ Like most of our data products, source data must be updated in data library befo
 
 ## Source data from OpenData portals
 
-To see if a dataset needs to be uploaded, check date last updated in open data/bytes against version in data library.
+To see if a dataset needs to be uploaded, check date last updated in open data/bytes against the latest version in edm-recipes.
 
 - [ ] dca_operatingbusinesses https://data.cityofnewyork.us/Business/Legally-Operating-Businesses/w7w3-xahh
 - [ ] dcp_facilities_with_unmapped https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-selfac.page
@@ -74,7 +74,7 @@ To see if a dataset needs to be uploaded, check date last updated in open data/b
 - [ ] qpl_libraries https://data.cityofnewyork.us/Education/Queens-Library-Branches/kh3d-xhq7
 - [ ] sbs_workforce1 https://data.cityofnewyork.us/dataset/Center-Service-Locations/6smc-7mk6
 - [ ] usdot_airports https://geodata.bts.gov/datasets/aviation-facilities/explore?location=50.755910%2C-117.686932%2C22.58&showTable=true
-      Use data-library to extract and archive data. Note, data-library uses a different link to extract the data. This link is provided as a reference for last date updated.
+      Ingest extracts from a different link. This one is a reference for the last updated date.
 - [ ] usdot_ports https://data-usdot.opendata.arcgis.com/datasets/usdot::docks/about
 - [ ] nysdec_lands https://data.gis.ny.gov/datasets/84b4cce8a8974c31a1c5584540f3aaae_0/about
 - [ ] usnps_parks https://public-nps.opendata.arcgis.com/datasets/nps::nps-boundary-1/about
