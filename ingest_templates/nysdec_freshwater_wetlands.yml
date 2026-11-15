@@ -1,0 +1,21 @@
+id: nysdec_freshwater_wetlands
+
+attributes:
+  name: DEC Previously Mapped Freshwater Wetlands
+  description: >-
+    Freshwater wetlands on DEC's regulatory maps before the 2022 change to the Freshwater Wetlands Act,
+    which now also regulates wetlands over 12.4 acres whether or not they're mapped.
+  url: https://data.gis.ny.gov/datasets/nysdec::previously-mapped-freshwater-wetlands
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: nys_clearinghouse
+    dataset: Previously_Mapped_Freshwater_Wetlands
+    crs: EPSG:2263
+  file_format:
+    type: geojson
+  processing_steps:
+  - name: clean_column_names
+    args: { "lower": True }
+  - name: multi
