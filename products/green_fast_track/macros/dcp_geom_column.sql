@@ -16,7 +16,7 @@ parquet column name rather than the postgres-only `wkb_geometry` convention.
         'dcp_wrp_recognized_ecological_complexes': 'geom',
         'dcp_wrp_special_natural_waterfront_areas': 'geom',
         'nysdec_freshwater_wetlands_checkzones': 'geometry',
-        'nysdec_freshwater_wetlands': 'geometry',
+        'nysdec_freshwater_wetlands': 'geom',
     } -%}
     {{ duckdb_names.get(source_table, 'wkb_geometry') }}
 {%- endmacro %}

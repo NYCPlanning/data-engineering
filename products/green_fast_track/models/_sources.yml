@@ -481,7 +481,7 @@ sources:
     - name: wetid
       tests:
       - not_null
-    - name: geometry
+    - name: geom
       tests:
       - not_null
 
