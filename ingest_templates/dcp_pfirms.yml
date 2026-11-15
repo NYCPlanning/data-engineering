@@ -19,6 +19,9 @@ ingestion:
     server: dcp
     dataset: S_FLD_HAZ_AR
     layer_name: S_FLD_HAZ_AR
+    # Ask Esri for 2263 and let PROJ reproject, as it does for PLUTO's lots. Esri's own 4326
+    # sits about 0.9 m north and flips pfirm15_flag on hundreds of lots. See
+    # docs/dcpy/library-migration-record.md.
     crs: EPSG:2263
   file_format:
     type: geojson

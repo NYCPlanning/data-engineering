@@ -82,6 +82,6 @@ env:
 
 #### Other DOB data
 
-- [ ] `dob_cofos` -> manually updated, received by email
-- [ ] `dob_now_applications` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and ingested via Data Library pipeline
-- [ ] `dob_now_permits` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and ingested via Data Library pipeline
+- [ ] `dob_cofos` -> manually updated, received by email. Socrata's `dob_bis_cofos` isn't a replacement: BIS stopped recording new certificates around 2021, when DOB NOW took over, and it lacks the columns `_co.sql` reads. See docs/dcpy/library-migration-record.md.
+- [ ] `dob_now_applications` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and archived through ingest
+- [ ] `dob_now_permits` -> DOB contacts us via email that the data is ready, the data is downloaded from the DOB FTP using credentials, manually uploaded to DO and archived through ingest

@@ -60,8 +60,9 @@ Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure
 ## Removed
 
 - **`dcpy.library`** — the old ingest/archive tool, replaced by `dcpy.lifecycle.ingest`. Its
-  archives are still in `edm-recipes` and are read like any other. See the
-  [Library → Ingest migration status](./library-to-ingest-status.md).
+  archives are still in `edm-recipes` and are read like any other. See
+  [Archiving through ingest: what to check](./architecture.md#archiving-through-ingest-what-to-check),
+  and the [migration record](./library-migration-record.md) for how each dataset was moved and checked.
 
 ## Testing
 
