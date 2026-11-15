@@ -54,7 +54,7 @@ def get_source_data_versions_to_compare(
     reference_product_key: ProductKey,
     staging_product_key: ProductKey,
 ):
-    # TODO (nice-to-have) add column with links to data-library yaml templates
+    # TODO (nice-to-have) add column with links to ingest templates
     reference_source_data_versions = get_source_data_versions(reference_product_key)
     latest_source_data_versions = get_source_data_versions(staging_product_key)
     source_data_versions = reference_source_data_versions.merge(

@@ -7,7 +7,7 @@ labels: 'data update'
 
 # COLP Source Data Updates
 
-Like most of our data products, source data must be updated in data library before COLP is run/built.
+Like most of our data products, source data must be archived in edm-recipes before COLP is run/built.
 
 All source data listed is to be uploaded as .sql files.
 

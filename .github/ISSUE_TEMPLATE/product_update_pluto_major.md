@@ -57,7 +57,7 @@ labels: 'data update'
 (check [here](https://github.com/NYCPlanning/data-engineering/actions/workflows/zoningtaxlots_dataloading.yml) for latest run).
 
 These are all produced by GIS, who typically update them sometime in the first week of each month.
-Check in with them before archiving with data library
+Check in with them before archiving
 
 - [ ] **dof_dtm**
 - [ ] **dof_shoreline**
