@@ -143,7 +143,7 @@ an undeclared *third-party* dependency — is carved out the same way:
 
 | Theme | Where | Likely disposition |
 |---|---|---|
-| `dcpy-connectors` reaches into `dcpy-lifecycle` | `connectors/ingest_datastore.py`, `connectors/edm/open_data_nyc.py`, `connectors/edm/publishing.py` → `dcpy.lifecycle.*` | Resolves when the shared models are relocated. |
+| `dcpy-connectors` reaches into `dcpy-lifecycle` | `connectors/edm/open_data_nyc.py`, `connectors/edm/publishing.py` → `dcpy.lifecycle.*` | Resolves when the shared models are relocated. |
 | `dcpy-product-metadata` reaches into `dcpy-lifecycle` | `product_metadata/writers/oti_xlsx/xlsx_writer.py` → `dcpy.lifecycle.product_metadata` | Clarify the split between the two `product_metadata` modules. |
 | `dcpy-utils` has an undeclared runtime dependency on `geopandas` | `dcpy.utils.postgres` imports `geopandas`, which isn't declared in `dcpy-utils`'s `pyproject.toml` — declaring it would drag GDAL into every consumer | Needs an actual decision (lazy import? move the geospatial bits out of `dcpy-utils`?); `python/utils/test/test_postgres.py` is excluded from the isolated run in the meantime. |
 
