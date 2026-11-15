@@ -34,6 +34,7 @@ inputs:
     # in Socrata's own export. Unpin once the source geometry is fixed.
     version: "20261015"
   - name: nysdec_freshwater_wetlands_checkzones
+    version: "20220927" # source retired, see ingest_templates/library_deprecated/README.md
   - name: nysdec_freshwater_wetlands
   - name: nysdec_tidal_wetlands
   - name: nysdec_priority_lakes

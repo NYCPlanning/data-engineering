@@ -6,7 +6,7 @@ source definition is still findable if one turns out to be wanted.
 Nothing reads this folder. `glob("*.yml")` on `ingest_templates/` is not recursive, so these are
 invisible to ingest, and the `library` package that read them is gone.
 
-Five reasons a template ended up here:
+Six reasons a template ended up here:
 
 - **Superseded by a rename.** `dob_jobapplications` and `dob_permitissuance` were migrated as
   `dob_bis_applications` and `dob_bis_permits`.
@@ -25,6 +25,10 @@ Five reasons a template ended up here:
 - **Blocked.** `usdot_ports` (facilities) now needs an API token, see
   [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326). Facilities reads its last
   library archive.
+- **Source retired.** `nysdec_freshwater_wetlands_checkzones` (green_fast_track) came from a layer of
+  NYS's State Regulated Freshwater Wetlands service, which is gone. Its replacement,
+  Previously Mapped Freshwater Wetlands, has no checkzone layer. green_fast_track reads the
+  `20220927` library archive.
 
 Before reviving one, check whether its source still exists. Several point at
 `s3://edm-recipes/tmp/`, which has been cleared.
