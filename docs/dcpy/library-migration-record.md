@@ -1,15 +1,15 @@
-# Library → Ingest
+# Library → Ingest migration record
 
-The `dcpy.library` package is gone. Every dataset it archived either has an ingest template in
-`ingest_templates/`, or a retired library template in `ingest_templates/library_deprecated/` (see its
-README for why each one is there). Workflows archive with `dcpy lifecycle scripts ingest`.
+How each group of datasets moved from `dcpy.library` to `dcpy.lifecycle.ingest`, and how each was
+checked. The package was removed in [#2951](https://github.com/NYCPlanning/data-engineering/pull/2951)
+and the migration tracked in [#1255](https://github.com/NYCPlanning/data-engineering/issues/1255).
+This is a record, so counts and states are as of each migration. For what to check when archiving
+through ingest now, see
+[Archiving through ingest: what to check](./architecture.md#archiving-through-ingest-what-to-check).
 
-Library's archives stay in `edm-recipes` and are read like any other archive, so read-side checks
-like `_is_library` in `ingest_datastore.py` stay too.
-
-[library-to-ingest-status.csv](./library-to-ingest-status.csv) has per-dataset archive state, from
-`admin/ops/library_to_ingest_status_csv.py`. The sections below record how each group of datasets
-was migrated and checked. The template counts in them predate the package's removal.
+Every dataset library archived either has an ingest template in `ingest_templates/`, or a retired
+library template in `ingest_templates/library_deprecated/` (see its README for why each one is there).
+Library's archives stay in `edm-recipes` and are read like any other archive.
 
 ## Removing the package
 
@@ -31,27 +31,18 @@ With every dataset migrated, nothing outside `python/library/` needed the packag
 The `GDAL` pin moved to `dcpy-geospatial`, which is what imports `osgeo`. It reaches the same
 images as before, through `dcpy-lifecycle[geo]`.
 
-## Migrated, but `latest` is still a library archive
 
-2 datasets in the CSV (`migrated_to_ingest` true, `archived` true, `archived_via_ingest` false),
-plus the seven zap tables, whose first weekly archive through ingest is 2026-11-16:
-
-| Dataset | Why it's still library |
-|---|---|
-| `dcp_sfpsd` | facdb pins `20210409`, which is archived through ingest. `latest` is library's `20210414`, which nothing reads. |
-| `dob_cofos` | Each delivery appends to `latest`, so the next one is its first archive through ingest. See [below](#migrated-developments-scripts-part-1). |
-
-If the source version hasn't changed, re-ingesting one fails on purpose with `FileExistsError`, and
-replacing the archive takes `--overwrite --version <version>`.
+## Overwriting library archives
 
 `--overwrite` moves the library archive at that version to `<version>_library/` before writing.
 It used to replace only the parquet and `config.json`, leaving library's `.sql` beside the new
 parquet. Builds resolve `latest` to a version and pick a file type from that version's folder, so
 anything that doesn't pin `file_type` kept loading library's pg_dump. Twelve datasets were left
-that way and moved with `admin/ops/clear_library_files_from_latest.py --apply`: the cpdb six,
+that way and moved with a one-off script (`admin/ops/clear_library_files_from_latest.py`, since deleted): the cpdb six,
 `dcp_beaches`, `dob_natural_resource_check_flags`, `dcp_waterfront_access_map_pow`,
 `dcp_waterfront_access_map_wpaa`, `dcp_wrp_recognized_ecological_complexes`, and
 `dcp_wrp_special_natural_waterfront_areas`.
+
 
 ## Retired without migrating
 
@@ -341,10 +332,9 @@ facilities loaded them and passed. Nobody compared output with the library versi
   highways, where `name` is legitimately non-unique — multiple segments share a route name), and
   `wkb_geometry` unique+not-null (both panynj contours) all pass.
 
-## Known false positives when re-running this diff
+## Renamed datasets
 
-These library templates were actually migrated, just under a new `ingest_templates` filename, so a
-naive filename diff wrongly flags them as remaining:
+These library templates were migrated under a new `ingest_templates` filename:
 
 | Old library template | New ingest template | Consumers cut over? |
 |---|---|---|
@@ -381,7 +371,7 @@ Migrating this dataset means answering where post-2021 COs come from (presumably
 dataset, which DevDB's recipe doesn't currently carry) and where the pre-2012 history comes from.
 That's a DevDB data question, not a template port.
 
-### `dcp_pfirms` — done
+### `dcp_pfirms`
 
 PLUTO and factfinder both read `dcp_pfirms` now, and
 `python/library/dcpy/library/templates/fema_pfirms2015_100yr.yml` is deleted.

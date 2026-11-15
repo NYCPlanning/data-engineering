@@ -79,6 +79,31 @@ import between them the way [Enforcement](#enforcement) does at the package leve
 
 `scripts` sits above the stages for cross-stage glue; prefer it for code shared across stages.
 
+### Archiving through ingest: what to check
+
+Library's archives are still in `edm-recipes`, and plenty of consumers read them at pinned versions.
+Moving a dataset's `latest` from a library archive to an ingest one changes what consumers load, so
+compare the two before archiving. These came up repeatedly in the library migration:
+
+- **Geometry column names.** Library's parquet named the column `geometry` and its pg_dump
+  `wkb_geometry`. Ingest emits `geom` for most sources, but a parquet or GeoJSON source can keep its
+  own name. A consumer that doesn't pin `file_type` loads the pg_dump, so compare against
+  `wkb_geometry`. Find consumers by reading each join, not by grepping for the dataset name: the
+  geometry reference can sit several lines above the join that brings the table in. green_fast_track
+  maps names per dataset in `macros/dcp_geom_column.sql`.
+- **Multi-part geometry.** Library wrote every polygon as multi-part. Shapefile, GeoJSON, and
+  ArcGIS sources read through ingest come out as a mix of Polygon and MultiPolygon, and some
+  consumers filter on `ST_MultiPolygon`. Add the `multi` processing step.
+- **pandas and ogr2ogr read csvs differently.** pandas reads `NA`, `N/A`, and `n/a` as null by
+  default, which nulls real values like `'N/A'`: set `keep_default_na: false` and `na_values: [""]`.
+  It dedupes a repeated header as `name.1` where ogr2ogr wrote `name2`. Library also read numbers as
+  floats, so a column with blanks came out as `25.0`. Read with `dtype: str` and cast in the product.
+- **Re-archiving a version.** Re-ingesting a version that's already archived skips if the data
+  matches and raises `FileExistsError` if it doesn't, or if the existing archive is library's.
+  `--overwrite --version <version>` replaces it, moving a library archive to `<version>_library/`
+  first. Builds pick a file type from the version's folder, and `RECIPE_FILE_TYPE_PREFERENCE` puts
+  pg_dump ahead of parquet, so a library `.sql` left beside a new parquet would win.
+
 ## Import rules
 
 ```python
