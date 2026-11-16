@@ -48,7 +48,8 @@ function install_gdal {
 # Debian's own postgresql-client trails the newest major version, so install from the PGDG repo
 function install_postgres_client {
     install -d /usr/share/postgresql-common/pgdg
-    curl --fail -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    # www.postgresql.org has been dropping CI connections; the apt repo serves the same key
+    curl --fail --retry 3 -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc
     echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release --codename --short)-pgdg main" \
         > /etc/apt/sources.list.d/pgdg.list
     apt-get update
