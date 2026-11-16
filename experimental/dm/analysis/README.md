@@ -189,4 +189,6 @@ A district's tracts are the tracts in its CDTA, since tracts don't nest in distr
 
 To share the results, `python scripts/export_excel.py` writes a charts sheet, population vs housing growth, where population change went, the community district table, housing units by year (wide and long), and their column descriptions to `data/exports/Community District Growth YYYYMMDD.xlsx`, dated by the day it runs.
 
+For the CD Profiles app, `python scripts/export_cd_profiles.py` writes each model in `models/product/cd_profiles/` to `data/exports/cd_profiles/<model>.csv`.
+
 To change dependencies, edit `requirements.in` and run `uv pip compile requirements.in -o requirements.txt --python-version 3.13`.
