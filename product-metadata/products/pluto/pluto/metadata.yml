@@ -613,11 +613,9 @@ columns:
 
     Each unit tax lot has an associated billing lot number, with values between 7501 - 7599. Lots in a condominium complex on the same block will have the same billing lot number. To make condominium information more compatible with parcel information, the Department of City Planning aggregates condominium unit tax lot information to the billing lot. For example, if a residential condominium building contains 20 units, the Department of Finance will assign 20 unit lot numbers and each of these lot numbers will have the same billing lot number. PLUTO will contain one record with the billing lot number and RESIDENTIAL UNITS will be set to 20.
 
-    If the Department of Finance has not yet assigned a billing lot number to the condominium complex, PLUTO uses the lowest unit lot number within the complex.
-
     Note on MapPLUTO: The Department of Finance Digital Tax Map (DTM) contains the geography of the base lot for condominiums. The base lot is also called the "Formerly Known As" or FKA lot. For most condominium complexes, there is one base lot per billing lot. In using the DTM to create MapPLUTO, DCP replaces the base lot number with the billing lot number. If there is more than one base lot with the same billing lot number, DCP merges the base lots to create a geography for the billing lot.
 
-    Under certain circumstances, DCP is unable to aggregate condominium unit tax lot information to the billing lot or to the lowest unit lot number. This occurs when a CONDOMINIUM NUMBER has not yet been assigned to the unit lots in PTS. In most cases, these unit lots will appear in PLUTO and in the NOT_MAPPED_LOTS table that is released with MapPLUTO. Before including these unit lots, the data is checked to verify that it pertains only to the unit lot. If unit lots have an identical address and a value for RESIDENTIAL UNITS that is greater than 1 and the same for all records, and there is no matching BBL in the DTM, they are assumed to part of the same condominium. BUILDING AREA is checked in the same way. These unit lots are removed from PLUTO and NOT_MAPPED_LOTS to avoid overcounting the number of residential units and building area.
+    Under certain circumstances, DCP is unable to aggregate condominium unit tax lot information to the billing lot. This occurs when a CONDOMINIUM NUMBER has not yet been assigned to the unit lots in PTS. In most cases, these unit lots will appear in PLUTO and in the NOT_MAPPED_LOTS table that is released with MapPLUTO. Before including these unit lots, the data is checked to verify that it pertains only to the unit lot. If unit lots have an identical address and a value for RESIDENTIAL UNITS that is greater than 1 and the same for all records, and there is no matching BBL in the DTM, they are assumed to part of the same condominium. BUILDING AREA is checked in the same way. These unit lots are removed from PLUTO and NOT_MAPPED_LOTS to avoid overcounting the number of residential units and building area.
   data_source: Department of Finance - Property Tax System (PTS)
   checks:
     non_nullable: true
@@ -2830,7 +2828,7 @@ columns:
   name: residfar
   data_type: decimal
   description: |-
-    The maximum allowable residential floor area ratio for standard residences, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable residential floor area ratio for standard residences, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1.
 
     The maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities. For the maximum allowable floor area for affordable housing, Users should consult the AffResFAR field.
 
@@ -2848,7 +2846,7 @@ columns:
   name: commfar
   data_type: decimal
   description: |-
-    The maximum allowable commercial floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow commercial uses, MAXIMUM ALLOWABLE COMMERCIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable commercial floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1.
 
     The maximum allowable commercial floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
@@ -2864,7 +2862,7 @@ columns:
   name: facilfar
   data_type: decimal
   description: |-
-    The maximum allowable community facility floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow community facility uses, MAXIMUM ALLOWABLE COMMUNITY FACILITY FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable community facility floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1.
 
     The maximum allowable community facility floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
@@ -3312,7 +3310,7 @@ columns:
   name: affresfar
   data_type: decimal
   description: |-
-    The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE AFFORDABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1.
 
     The maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
@@ -3329,7 +3327,7 @@ columns:
   name: mnffar
   data_type: decimal
   description: |-
-    The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow manufacturing uses, MAXIMUM ALLOWABLE MANUFACTURING FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1.
 
     The maximum allowable manufacturing floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
