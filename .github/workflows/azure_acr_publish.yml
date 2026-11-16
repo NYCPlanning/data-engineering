@@ -1,5 +1,22 @@
 name: Azure ACR - Build and Publish App Images
 on:
+  # de-apps bakes in the repo, so rebuild it whenever anything it copies in changes on main.
+  # Keep these paths in sync with apps/docker/Dockerfile.dockerignore.
+  push:
+    branches:
+      - main
+    paths:
+      - pyproject.toml
+      - uv.lock
+      - python/**
+      - apps/**
+      - product-metadata/**
+      - products/**
+      - ingest_templates/**
+      - '!**/test/**'
+      - '!**/tests/**'
+      - '!**/*.md'
+      - '!apps/nginx_azure/**'
   workflow_dispatch:
     inputs:
       de-apps:
@@ -13,10 +30,15 @@ on:
         required: true
         default: false
 
+# Queue rather than cancel, so back-to-back merges push :latest in order.
+concurrency:
+  group: azure-acr-publish
+  cancel-in-progress: false
+
 jobs:
   de-apps:
     runs-on: ubuntu-22.04
-    if: inputs.de-apps
+    if: inputs.de-apps || github.event_name == 'push'
     defaults:
       run:
         shell: bash
@@ -46,9 +68,8 @@ jobs:
 
       - name: Build de-apps image
         run: |
-          cd apps
-          docker build \
-            -f docker/Dockerfile \
+          docker build --load \
+            -f apps/docker/Dockerfile \
             -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/de-apps:latest \
             .
 
@@ -94,7 +115,7 @@ jobs:
       - name: Build nginx-azure image
         run: |
           cd apps/nginx_azure
-          docker build \
+          docker build --load \
             -f Dockerfile \
             -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest \
             .
