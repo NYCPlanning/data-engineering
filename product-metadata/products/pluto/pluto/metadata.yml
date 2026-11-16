@@ -1538,9 +1538,9 @@ columns:
     • If the unit lots are a mixture of residential and industrial/warehouse building types, BUILDING CLASS = RZ.
     • When unit lots with a building class of RG (Indoor Parking), RP (Outdoor Parking), RS (Non-Business Storage Space), or RT (Terraces/Gardens/Cabanas) have the same billing lot as another building class, their building class is ignored. For example, if the billing lot has unit lots with a building class of R4 (Residential Unit in Elevator Bldg) and RG (Indoor Parking), BUILDING CLASS = R4.
 
-    Q0 is assigned by DCP to tax lots with a PTS building class starting with "V" that are identified in the NYC GIS Zoning Database as PARK, BALL FIELD, PLAYGROUND, or PUBLIC SPACE.
+    Q0 is assigned by DCP to tax lots with a PTS building class starting with "V" whose ZONING DISTRICT 1 is PARK.
 
-    QG is assigned by DCP to tax lots with a PTS building class starting with "V" that contain community gardens from the Department of Parks and Recreation's NYC Greenthumb Community Gardens dataset. This is done to comply with Local Law 46 of 2020, which requires that such lots be given a land use category of open space, outdoor recreation, a community garden, or other similar description. Lots with a BUILDING CLASS of QG are assigned to LAND USE CATEGORY "09" (Open Space & Outdoor Recreation). This land use assignment is solely informational and does not confer or change a legal status for such a tax lot.
+    QG is assigned by DCP to tax lots with a PTS building class starting with "V" that contain community gardens from the Department of Parks and Recreation's NYC Greenthumb Community Gardens dataset. The garden must either cover at least 15% of the tax lot's area or at least 25% of the garden must be within the tax lot. This is done to comply with Local Law 46 of 2020, which requires that such lots be given a land use category of open space, outdoor recreation, a community garden, or other similar description. Lots with a BUILDING CLASS of QG are assigned to LAND USE CATEGORY "09" (Open Space & Outdoor Recreation). This land use assignment is solely informational and does not confer or change a legal status for such a tax lot.
 
     PTS contains two building classes for some tax lots, with one of the building classes being Z7 (Easement). BUILDING CLASS is only set to Z7 when it is the only PTS building class for the tax lot.
 
@@ -2499,6 +2499,8 @@ columns:
     The count of non-residential units is sometimes not available if the building contains residential units.
 
     Non-residential units are units with a separate use.  If a building has 25 different offices it would be counted as 1 unit because they have the same use.
+
+    For condominiums, the count is the sum of units for condominium lots with the same billing lot, including parking and storage lots.
 
     Updates to residential and non-residential units are triggered by the issuance of a Department of Buildings permit.
   data_source: Department of Finance - Property Tax System (PTS)
