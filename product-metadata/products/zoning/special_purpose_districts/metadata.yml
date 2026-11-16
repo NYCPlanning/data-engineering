@@ -58,7 +58,7 @@ destinations:
       url: https://s-media.nyc.gov/agencies/dcp/assets/files/zip/data-tools/bytes/nyc_zoning_features_shp.zip
   - id: oti_data_dictionary
     custom:
-      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_special_purpose_data_dictionary.xlsx
+      url: https://s-media.nyc.gov/agencies/dcp/assets/files/excel/data-tools/bytes/zoning_special_districts_data_dictionary.xlsx
 
 files:
 - file:
@@ -67,7 +67,7 @@ files:
     type: shapefile
 - file:
     id: oti_data_dictionary
-    filename: zoning_special_purpose_data_dictionary.xlsx
+    filename: zoning_special_districts_data_dictionary.xlsx
     is_metadata: true
     type: oti_data_dictionary
 
