@@ -164,6 +164,7 @@ tmp/
 # dbt files 
 **/.user.yml
 dbt_packages/
+logs/
 package-lock.yml
 
 # Marimo
