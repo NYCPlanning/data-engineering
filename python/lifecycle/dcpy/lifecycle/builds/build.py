@@ -130,7 +130,6 @@ def run_single_command(
             f"options=--search_path%3D{os.environ['BUILD_ENGINE_SCHEMA']},public"
         )
         os.environ["BUILD_ENGINE"] = build_engine
-        logger.info(f"Set BUILD_ENGINE: {build_engine}")
 
     # Set BUILD_ENV_OUTPUT_DIR if build_directory is provided (needed for all commands)
     if build_directory:
@@ -426,7 +425,6 @@ def build(
             f"options=--search_path%3D{os.environ['BUILD_ENGINE_SCHEMA']},public"
         )
         os.environ["BUILD_ENGINE"] = build_engine
-        logger.info(f"Set BUILD_ENGINE: {build_engine}")
     _set_duckdb_path(recipe)
 
     # Execute each build command
