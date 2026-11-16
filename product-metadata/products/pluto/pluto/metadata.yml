@@ -2429,7 +2429,7 @@ columns:
   - value: '2'
     description: Department of Finance's Property Tax System (PTS)
   - value: '4'
-    description: BUILDING CLASS starts with 'V' and NUMBER OF BUILDINGS is 0. TOTAL BUILDING
+    description: PTS BUILDING CLASS starts with 'V' and NUMBER OF BUILDINGS is 0. TOTAL BUILDING
       FLOOR AREA is 0.
   - value: '5'
     description: Calculated from PTS building dimensions and NUMBER OF FLOORS for primary
