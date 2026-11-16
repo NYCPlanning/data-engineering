@@ -1,0 +1,124 @@
+name: 📦 Create Metadata Release
+run-name: "📦 Create Metadata Release: ${{ inputs.release_version }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Release version (e.g., 20261112)"
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-22.04
+    # dcpy-lifecycle[geo] builds the gdal bindings against system libgdal, so run in the build image
+    container:
+      image: nycplanning/build-base:latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      _TYPER_STANDARD_TRACEBACK: 1
+      GH_TOKEN: ${{ github.token }}
+      # metadata releases share the repo's tag namespace with product version tags
+      TAG_PREFIX: product-metadata__
+      TAG: product-metadata__${{ inputs.release_version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # dcpy's CLI imports geospatial modules at load time, so it needs the geo extra
+      - name: Install dependencies
+        run: ./bash/docker_container_setup.sh --locked --package dcpy-lifecycle --extra geo
+
+      - name: Install gh CLI
+        run: |
+          if ! command -v gh > /dev/null; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+              | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+              | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update && sudo apt-get install -y gh
+          fi
+
+      - name: Generate metadata assets
+        run: |
+          mkdir -p release_artifacts/metadata_assets
+          dcpy lifecycle package metadata generate \
+            --output-dir release_artifacts/metadata_assets
+
+      - name: Generate destination versions
+        run: |
+          dcpy lifecycle package metadata list-versions \
+            --output release_artifacts/destination_versions.json
+
+      - name: Fetch previous release and generate diff
+        continue-on-error: true
+        run: |
+          PREV_RELEASE=$(gh release list --repo "${{ github.repository }}" --limit 100 --exclude-drafts --json tagName \
+            --jq "[.[].tagName | select(startswith(\"$TAG_PREFIX\"))][0] // \"\"" 2>/dev/null || echo "")
+
+          if [ -z "$PREV_RELEASE" ]; then
+            echo "No previous release found. This is the initial release."
+
+            echo "# Version Changes: Initial Release" > release_artifacts/changed_versions.txt
+            echo "" >> release_artifacts/changed_versions.txt
+            echo "This is the first release. All versions are new." >> release_artifacts/changed_versions.txt
+
+            echo '{"added":[],"changed":[],"removed":[],"summary":{"added_count":0,"changed_count":0,"removed_count":0}}' > release_artifacts/changed_versions.json
+          else
+            echo "Previous release: $PREV_RELEASE"
+
+            gh release download "$PREV_RELEASE" --repo "${{ github.repository }}" -p "destination_versions.json" -D /tmp || {
+              echo "Could not download destination_versions.json from previous release"
+              echo "# Version Changes from $PREV_RELEASE to $TAG" > release_artifacts/changed_versions.txt
+              echo "" >> release_artifacts/changed_versions.txt
+              echo "Unable to compare - previous release missing destination_versions.json" >> release_artifacts/changed_versions.txt
+              echo '{"added":[],"changed":[],"removed":[],"summary":{"added_count":0,"changed_count":0,"removed_count":0}}' > release_artifacts/changed_versions.json
+              exit 0
+            }
+
+            # text diff for people, json diff for scripts
+            echo "# Version Changes from $PREV_RELEASE to $TAG" > release_artifacts/changed_versions.txt
+            echo "" >> release_artifacts/changed_versions.txt
+            dcpy lifecycle package metadata diff-versions \
+              /tmp/destination_versions.json \
+              release_artifacts/destination_versions.json \
+              >> release_artifacts/changed_versions.txt
+
+            dcpy lifecycle package metadata diff-versions \
+              /tmp/destination_versions.json \
+              release_artifacts/destination_versions.json \
+              --json \
+              --output release_artifacts/changed_versions.json
+          fi
+
+      - name: Create release archive
+        run: |
+          cd release_artifacts/metadata_assets
+          zip -r ../metadata-assets-${{ inputs.release_version }}.zip .
+          cd ..
+          ls -lh
+
+      - name: Create GitHub Release
+        run: |
+          gh release create "$TAG" \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
+            --title "Metadata Release ${{ inputs.release_version }}" \
+            --notes "Automated metadata assets release for version ${{ inputs.release_version }}" \
+            --latest=false \
+            release_artifacts/metadata-assets-${{ inputs.release_version }}.zip \
+            release_artifacts/destination_versions.json \
+            release_artifacts/changed_versions.txt \
+            release_artifacts/changed_versions.json
+
+      - name: Summary
+        run: |
+          echo "✅ Release $TAG created successfully!"
+          echo ""
+          echo "Artifacts:"
+          ls -lh release_artifacts/
