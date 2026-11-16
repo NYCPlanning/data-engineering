@@ -1,0 +1,26 @@
+id: nypd_complaints_historic
+
+attributes:
+  name: NYPD Complaint Data Historic, Seven Major Felonies
+  description: >-
+    Felony, misdemeanor, and violation complaints reported to NYPD, filtered to one year of the seven major
+    felonies: murder, rape, robbery, felony assault, burglary, grand larceny, and grand larceny of a motor vehicle.
+    The version is the year of cmplnt_fr_dt, so each ingest needs an explicit --version.
+  url: https://data.cityofnewyork.us/d/qgea-i56i
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: qgea-i56i
+    format: csv
+    # The full dataset is over 10 million rows since 2006, and CD Profiles only uses one year of these offense codes.
+    where: date_extract_y(cmplnt_fr_dt)={{ version }} and ky_cd in (101,104,105,106,107,109,110)
+  file_format:
+    type: csv
+    dtype: str
+    geometry:
+      geom_column:
+        x: longitude
+        y: latitude
+      crs: EPSG:4326
