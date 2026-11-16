@@ -104,7 +104,7 @@ def run_single_command(
     if recipe.env:
         for key, value in recipe.env.items():
             os.environ[key] = value
-            logger.info(f"Set recipe env: {key}={value}")
+            logger.info(f"Set recipe env: {key}")
 
     # Parse BUILD_ENGINE_SERVER to extract components for dbt profiles (if set)
     if "BUILD_ENGINE_SERVER" in os.environ:
@@ -198,7 +198,7 @@ def run_single_command(
     if build_config.env:
         for key, value in build_config.env.items():
             os.environ[key] = value
-            logger.info(f"Set stage env: {key}={value}")
+            logger.info(f"Set stage env: {key}")
 
     # Find the command by name
     cmd = None
@@ -391,13 +391,13 @@ def build(
     if recipe.env:
         for key, value in recipe.env.items():
             os.environ[key] = value
-            logger.info(f"Set recipe env: {key}={value}")
+            logger.info(f"Set recipe env: {key}")
 
     # 2. Stage-level env vars
     if build_config.env:
         for key, value in build_config.env.items():
             os.environ[key] = value
-            logger.info(f"Set stage env: {key}={value}")
+            logger.info(f"Set stage env: {key}")
 
     # Parse BUILD_ENGINE_SERVER to extract components for dbt profiles (if set)
     # Format: postgresql://user:password@host:port
