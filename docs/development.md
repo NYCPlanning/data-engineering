@@ -168,7 +168,9 @@ Most `pyproject.toml` dependencies are unpinned, so `uv.lock` is what actually h
 
 The "Upgrade uv.lock" workflow (`.github/workflows/python_compile_requirements.yml`) runs
 `uv lock --upgrade` every Monday and opens a PR from the `compile_python_reqs` branch. Run it by
-hand from the Actions tab to upgrade sooner. Dependabot only opens Python PRs for security
+hand from the Actions tab to upgrade sooner. The PR description lists what moved, grouped by bump
+size (`admin/ops/uv_lock_summary.py`), and flags downgrades and packages split across versions:
+both mean the resolver forked onto an old release, and the fix is a floor on `main`. Dependabot only opens Python PRs for security
 updates (plus one grouped weekly PR for GitHub Actions) - see `.github/dependabot.yml`.
 
 PRs from `compile_python_reqs` get special handling in `test.yml`: CI rebuilds the Docker images

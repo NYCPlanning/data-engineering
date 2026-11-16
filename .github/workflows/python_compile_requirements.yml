@@ -31,7 +31,13 @@ jobs:
     # admin/ops/docker_build_and_publish.sh), so this is the single place a scheduled
     # dependency-freshness/vuln-fix bump happens for the whole repo.
     - name: Upgrade uv.lock
-      run: uv lock --upgrade
+      run: uv lock --upgrade 2>&1 | tee uv_lock.log
+
+    # The lock diff is mostly hash churn; summarize what actually moved for the PR body.
+    - name: Summarize changes
+      run: |
+        python3 admin/ops/uv_lock_summary.py uv_lock.log > uv_lock_summary.md
+        cat uv_lock_summary.md >> "$GITHUB_STEP_SUMMARY"
 
     - name: Create PR
       uses: peter-evans/create-pull-request@v8
@@ -39,6 +45,7 @@ jobs:
         commit-message: automated upgrade of uv.lock
         add-paths: uv.lock
         title: Upgrade uv.lock
+        body-path: uv_lock_summary.md
         author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
         assignees: ${{ github.event_name == 'schedule' && 'fvankrieken, damonmcc, alexrichey' || '' }}
         branch: compile_python_reqs
