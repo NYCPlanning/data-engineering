@@ -70,15 +70,19 @@ columns:
     name: the_geom
     data_type: geometry
     description: Feature geometry.
+    notes: In shapefile format, field names are truncated to 10 characters.
   - id: overlay
     name: OVERLAY
     data_type: text
     description: Commercial Overlay district designation.
+    notes: In shapefile format, field names are truncated to 10 characters.
   - id: shape_leng
     name: Shape_Leng
     data_type: decimal
     description: Length of feature in internal units.
+    notes: In shapefile format, field names are truncated to 10 characters.
   - id: shape_area
     name: Shape_Area
     data_type: decimal
     description: Area of feature in internal units squared.
+    notes: In shapefile format, field names are truncated to 10 characters.
