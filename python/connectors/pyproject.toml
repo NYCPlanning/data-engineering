@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "dcpy-connectors"
 version = "0.0.1"
 description = "DCP Data Engineering - atomic get/push connectors to external systems (s3, socrata, esri, sftp, edm, ...)"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "dcpy-utils",
     "dcpy-product-metadata",

@@ -25,7 +25,7 @@ summary_record_phasing_final AS (
         sum(CASE WHEN nullif(prop_5_to_10_years, 0) IS NOT null THEN 1 ELSE 0 END) AS records_with_phase_2,
         sum(CASE WHEN nullif(prop_after_10_years, 0) IS NOT null THEN 1 ELSE 0 END) AS records_with_phase_3
     FROM kpdb_limited
-    GROUP BY DISTINCT ROLLUP (source, status) -- noqa: PRS
+    GROUP BY DISTINCT rollup (source, status) -- noqa: PRS
 )
 
 SELECT
