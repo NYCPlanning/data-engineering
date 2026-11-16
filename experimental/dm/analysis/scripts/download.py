@@ -175,6 +175,10 @@ SOURCES = {
         "edm-private",
         "datasets/dcp_housing_ahft/20261002/dcp_housing_ahft.csv",
     ),
+    "nypd_complaints_historic.parquet": (
+        "edm-recipes",
+        "datasets/nypd_complaints_historic/2025/nypd_complaints_historic.parquet",
+    ),
 }
 
 # local filename -> url, for files published outside S3

@@ -1,0 +1,20 @@
+models:
+  - name: cd_profiles_crime
+    description: >
+      The crime counts in the CD Profiles app, in its column names, one row per community district (59, no joint
+      interest areas).
+    columns:
+      - name: borocd
+        description: Same as dim_community_district.borocd.
+        data_tests: [unique, not_null]
+      - name: crime_count
+        description: Same as dim_community_district.major_felony_complaints_2025.
+        data_tests: [not_null]
+      - name: crime_count_boro
+        description: Complaints in the borough's community districts and joint interest areas.
+        data_tests: [not_null]
+      - name: crime_count_nyc
+        description: >
+          Every complaint in fact_major_felony_complaint that occurred in 2025, including those in no district,
+          so it can be more than the sum of crime_count_boro.
+        data_tests: [not_null]

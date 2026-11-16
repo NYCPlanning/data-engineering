@@ -48,6 +48,7 @@ It reads published PFF and KPDB files and has its own venv.
 | DEP separate sewers and direct drainage shapefile (internal to DCP, copied into `data/sources/dcp_separate_sewers_direct_drainage.zip` by hand) | revised 2001-2008 | separate sewer and direct drainage areas. No combined class |
 | DEP Bluebelt properties shapefile (internal to DCP, copied into `data/sources/dcp_bluebelt_properties.zip` by hand) | about 2014 | DEP-owned Bluebelt parcels on Staten Island |
 | Access to land area (no decay) shapefile (from CEQR work, not public, copied into `data/sources/transit_land_access.zip` by hand) | November 2026 | acres reachable by transit in 60 minutes, its percentile, and 20 percentile bands, by 2020 census block |
+| NYPD Complaint Data Historic ([qgea-i56i](https://data.cityofnewyork.us/d/qgea-i56i)) via edm-recipes: `nypd_complaints_historic` | 2025 | complaints of the seven major felonies that occurred in 2025, the CD Profiles crime count |
 
 Housing units through 2025 come from `dcp_housing` 26Q2. KPDB 2026-10-01 was built on 24Q4, so only its projection is used, added to the end of 2024 from 26Q2.
 Neither source projects population.
@@ -154,12 +155,19 @@ Core models are grouped by domain in `models/core/`, with intermediate models in
 | `dim_cpdb_project` | CPDB capital project (maprojid), every agency |
 | `dim_community_district_cpdb_project` | borocd x maprojid, a mapped CPDB project's planned commitments in the district |
 
+### Public safety (`public_safety/`)
+
+| Model | Grain |
+|---|---|
+| `fact_major_felony_complaint` | NYPD complaint (complaint_id) of one of the seven major felonies, with its community district |
+
 ### Products
 
 | Model | Grain |
 |---|---|
 | `population_vs_housing_growth` (product, Excel) | borocd, the 59 community districts |
 | `population_change_components` (product, Excel) | borocd, the 59 community districts |
+| `cd_profiles_crime` (product, CD Profiles app) | borocd, the 59 community districts |
 
 ## Running it
 

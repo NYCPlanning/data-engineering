@@ -445,3 +445,11 @@ sources:
         description: HPD Housing and Vacancy Survey 2023 public use file, occupied units. Same layout as 2021.
         config:
           external_location: "read_csv('./data/sources/hvs_occupied_2023.csv')"
+
+      - name: nypd_complaints_historic
+        description: >
+          NYPD Complaint Data Historic (NYC Open Data qgea-i56i), version 2025 from edm-recipes. The seven major
+          felonies (ky_cd 101, 104, 105, 106, 107, 109, 110) with a cmplnt_fr_dt in 2025, one row per complaint
+          (cmplnt_num). All columns are text. EPSG:4326.
+        config:
+          external_location: "read_parquet('./data/sources/nypd_complaints_historic.parquet')"

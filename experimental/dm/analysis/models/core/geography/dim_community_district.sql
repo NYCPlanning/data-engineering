@@ -113,6 +113,7 @@ SELECT
     open_space.park_acres,
     open_space.parks_with_current_project,
     open_space.park_acres_with_current_project,
+    public_safety.major_felony_complaints_2025,
     spine.geom
 FROM {{ ref('int_cd_spine') }} AS spine
 LEFT JOIN {{ ref('int_cd_ahft_features') }} AS ahft ON spine.borocd = ahft.borocd
@@ -128,4 +129,5 @@ LEFT JOIN {{ ref('int_cd_population_change_components') }} AS components ON spin
 LEFT JOIN {{ ref('int_cd_vision_zero_metrics') }} AS vision_zero ON spine.borocd = vision_zero.borocd
 LEFT JOIN {{ ref('int_cd_transit_metrics') }} AS transit ON spine.borocd = transit.borocd
 LEFT JOIN {{ ref('int_cd_open_space_metrics') }} AS open_space ON spine.borocd = open_space.borocd
+LEFT JOIN {{ ref('int_cd_public_safety_metrics') }} AS public_safety ON spine.borocd = public_safety.borocd
 ORDER BY spine.borocd

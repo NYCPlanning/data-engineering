@@ -662,6 +662,14 @@ models:
       - name: park_acres_with_current_project
         description: Acres of parks_with_current_project.
         data_tests: [not_null]
+      - name: major_felony_complaints_2025
+        description: >
+          Complaints of the seven major felonies that occurred in 2025 whose point is in the district, from
+          fact_major_felony_complaint. The CD Profiles crime count.
+        data_tests: [not_null]
+        config:
+          meta:
+            display_name: "Major felony complaints, 2025"
       - name: geom
         description: Community district boundary clipped to the shoreline (dcp_cdboundaries 26c), EPSG:4326.
         data_tests: [not_null]
