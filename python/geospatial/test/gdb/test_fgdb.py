@@ -3,8 +3,11 @@ import zipfile
 from pathlib import Path
 
 import pytest
+import shapely
+from pyogrio.raw import read_arrow
 from pytest import fixture
 
+from dcpy.geospatial.curves.read import gdb_xy_grid
 from dcpy.geospatial.gdb import fgdb
 from dcpy.geospatial.shapefile_metadata import Metadata
 
@@ -247,3 +250,72 @@ def test_remove_metadata(path_fixture):
     assert md is None
     # confirm that no gdb layers were lost during md removal
     assert sorted(layers_before_md_removal) == sorted(layers_after_md_removal)
+
+
+def test_write_metadata_rewrites_layers_without_changing_data(
+    temp_gdb_nonzipped_path, temp_metadata_object
+):
+    gdb = temp_gdb_nonzipped_path
+
+    def snapshot():
+        layers = {}
+        for layer in fgdb.get_layers(gdb):
+            meta, table = read_arrow(str(gdb), layer=layer)
+            layers[layer] = {
+                "table": table,
+                "geometry_name": meta["geometry_name"],
+                "crs": meta["crs"],
+                "grid": gdb_xy_grid(gdb, layer),
+                "xml": fgdb.read_metadata(gdb, layer),
+                "needs_pro_3_2": fgdb._client_version(gdb, layer) >= (13, 2),
+            }
+        return layers
+
+    before = snapshot()
+    fgdb.write_metadata(gdb, SPATIAL_LAYER, temp_metadata_object, overwrite=True)
+    after = snapshot()
+
+    assert list(after) == list(before)
+    assert after[SPATIAL_LAYER]["xml"].esri.crea_date == "19611215"
+    assert after[TABLE_LAYER]["xml"] == before[TABLE_LAYER]["xml"]
+    assert [before[layer]["needs_pro_3_2"] for layer in before] == [False, True]
+    for layer in before:
+        assert after[layer]["table"].schema.equals(before[layer]["table"].schema)
+        assert after[layer]["geometry_name"] == before[layer]["geometry_name"]
+        assert after[layer]["crs"] == before[layer]["crs"]
+        assert after[layer]["needs_pro_3_2"] == before[layer]["needs_pro_3_2"]
+        assert after[layer]["grid"].keys() == before[layer]["grid"].keys()
+        for key, value in before[layer]["grid"].items():
+            assert float(after[layer]["grid"][key]) == pytest.approx(float(value))
+    # includes BigInteger and DateOnly fields
+    assert after[TABLE_LAYER]["table"].equals(before[TABLE_LAYER]["table"])
+
+    # GDAL writes the grid with 15 significant digits, which moves coordinates by
+    # well under the grid's resolution
+    def coords(layers, layer):
+        geometry = layers[layer]["table"][layers[layer]["geometry_name"]]
+        return shapely.get_coordinates(
+            shapely.from_wkb(geometry.to_numpy(zero_copy_only=False)), include_z=True
+        )
+
+    resolution = 1 / float(before[SPATIAL_LAYER]["grid"]["XYSCALE"])
+    shift = abs(coords(after, SPATIAL_LAYER) - coords(before, SPATIAL_LAYER)).max()
+    assert shift < resolution / 100
+    attributes = [
+        c
+        for c in before[SPATIAL_LAYER]["table"].column_names
+        if c
+        not in (before[SPATIAL_LAYER]["geometry_name"], "Shape_Length", "Shape_Area")
+    ]
+    assert (
+        after[SPATIAL_LAYER]["table"]
+        .select(attributes)
+        .equals(before[SPATIAL_LAYER]["table"].select(attributes))
+    )
+
+
+def test_write_metadata_refuses_curved_layers(utils_resources_path, tmp_path):
+    shutil.unpack_archive(utils_resources_path / "districts_sample.gdb.zip", tmp_path)
+    (gdb,) = tmp_path.glob("*.gdb")
+    with pytest.raises(ValueError, match="curved geometry"):
+        fgdb.remove_metadata(gdb, fgdb.get_layers(gdb)[0])

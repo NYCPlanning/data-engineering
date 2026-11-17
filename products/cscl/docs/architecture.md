@@ -109,6 +109,16 @@ flowchart LR
 - **Zero-length arcs**: GDAL's OpenFileGDB driver decodes some zero-length FGDB arcs as
   full circles. `dcpy.geospatial.curves.wkb` detects and drops them at load (see
   `_is_misread_point_arc`); otherwise a segment would come out as a giant circle.
+- **Holes read as parts**: GDAL's OpenFileGDB driver can return a hole of a curved
+  polygon as a separate part that overlaps its shell. The ring is stored
+  counterclockwise, which Esri reads as a hole, but GDAL assigns rings to parts by
+  containment and gets some of them wrong. A misread hole shows up as a counterclockwise
+  exterior inside another part of the same feature, and makes the feature invalid to
+  GEOS. On the 26D ETL Working GDB, 24 holes across 8 layers read this way (14 in
+  HurricaneEvacuationZone) and none in AtomicPolygon. Writing a misread polygon to an
+  FGDB makes that ring clockwise, which fills the hole. That happens to the source
+  polygons behind CSCL-DISTRICTS-04, which the build publishes as read, and it's why
+  `dcpy.geospatial.gdb.fgdb.write_metadata` refuses layers with curves.
 - **dbt** sees only linear geometry. The topology keeps the arcs it traced:
   `int__topology__arcs` holds one row of control points per arc edge.
 - **Export** writes each FGDB layer as `raw_exports/<group>/<file>/<layer>.parquet` and,
