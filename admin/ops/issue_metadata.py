@@ -56,7 +56,7 @@ def match_labels(title: str) -> list[str]:
 
     An `exclusive` topic is dropped when a product matched too: `platform` means
     work that isn't a data product, so `PLUTO docker image` stays PLUTO's. Stage
-    labels like `ingest/library` describe *where* in the pipeline a product
+    labels like `ingest` describe *where* in the pipeline a product
     broke, so they stack with the product label.
     """
     products, topics, _ = _rules()
