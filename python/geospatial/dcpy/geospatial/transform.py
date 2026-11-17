@@ -114,7 +114,7 @@ def translate_shp_to_mvt(
     min_zoom: int = 0,
     max_zoom: int = 5,
 ) -> None:
-    """Keeping scope of this very limited - should be refactored once data library is fully brought in"""
+    """Keeping scope of this very limited."""
     from osgeo import gdal
 
     output_path = f"{product}_mvt"
