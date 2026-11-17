@@ -9,7 +9,7 @@ class Server(StrEnum):
     nyc_dep = "nyc_dep"
     nps = "nps"
     nyc_maphub = "nyc_maphub"
-    nys_clearinghouse = "nys_clearinghouse"
+    nysdec = "nysdec"
     nys_parks = "nys_parks"
     us_fws = "us_fws"
 
@@ -21,7 +21,7 @@ servers = {
     "nps": {"id": "fBc8EJBxQRMcHlei", "subdomain": "services1"},
     "nyc_dep": {"id": "at3rDjch5X7i9Bag"},
     "nyc_maphub": {"id": "yG5s3afENB5iO9fj", "subdomain": "services6"},
-    "nys_clearinghouse": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
+    "nysdec": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
     "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
     "us_fws": {"id": "QVENGdaPbd4LUkLV"},
 }
