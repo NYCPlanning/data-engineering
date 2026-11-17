@@ -1587,7 +1587,6 @@ source = { editable = "python/geospatial" }
 dependencies = [
     { name = "dcpy-product-metadata" },
     { name = "dcpy-utils" },
-    { name = "gdal" },
     { name = "geopandas" },
     { name = "ijson" },
     { name = "leafmap" },
@@ -1615,7 +1614,6 @@ dev = [
 requires-dist = [
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
     { name = "dcpy-utils", editable = "python/utils" },
-    { name = "gdal", specifier = "==3.13.1" },
     { name = "geopandas" },
     { name = "ijson" },
     { name = "leafmap" },
@@ -2215,12 +2213,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/77/cd/9be253869fc42e764
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl", hash = "sha256:8dd6e646e99ea382bd85f97a45e6b526a442d79423a7dc673f1e2756d05fcb5f", size = 221738, upload-time = "2026-09-18T17:50:41.341Z" },
 ]
-
-[[package]]
-name = "gdal"
-version = "3.13.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/92/55/0ae08a59293443bbbb8b692d1f4b6d9ca54562c359a48d0426684ac9ea06/gdal-3.13.1.tar.gz", hash = "sha256:94bb64d729ce73ceb75a314a15cba92696cdd854d99b6bf6b88a7b551227db74", size = 940649, upload-time = "2026-06-05T10:50:14.929Z" }
 
 [[package]]
 name = "gdown"

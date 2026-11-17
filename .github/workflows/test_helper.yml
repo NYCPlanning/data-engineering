@@ -196,7 +196,7 @@ jobs:
   mypy:
     name: Check python types
     # mypy's own [[tool.mypy.overrides]] in pyproject.toml already sets
-    # ignore_missing_imports=true for geopandas/osgeo/shapely/pyogrio/etc (no type stubs
+    # ignore_missing_imports=true for geopandas/shapely/pyogrio/etc (no type stubs
     # available for them anyway), and [tool.mypy] mypy_path lists every python/*/ package
     # root directly, so mypy resolves our own dcpy.* modules from source without needing
     # them installed as packages. The only thing actually required is every *other*
