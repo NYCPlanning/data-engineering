@@ -79,6 +79,18 @@ import between them the way [Enforcement](#enforcement) does at the package leve
 
 `scripts` sits above the stages for cross-stage glue; prefer it for code shared across stages.
 
+### File metadata
+
+Stamp Esri metadata on a file geodatabase layer when the build writes it: name the layer's
+product-metadata dataset in `custom.product_metadata` on the recipe's gdb export, and packaging
+passes it as the layer's `DOCUMENTATION`.
+
+`dcpy.geospatial.gdb.fgdb.write_metadata` (and `dcpy lifecycle package esri write_metadata`) can
+stamp an existing gdb, but OpenFileGDB only takes `DOCUMENTATION` when a layer is created, so it
+rewrites every layer. That drops field aliases, and it refuses gdbs with curved geometry, which
+GDAL can't always read back correctly (see
+[Holes read as parts](../../products/cscl/docs/architecture.md#curved-geometry-load-to-package)).
+
 ### Archiving through ingest: what to check
 
 Library's archives are still in `edm-recipes`, and plenty of consumers read them at pinned versions.
