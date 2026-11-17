@@ -100,9 +100,9 @@ labels:
       - '\bqa ?/? ?qc app\b'
       - '\bcompile python requirements\b'
       - '\bstale build artifacts\b'
-  ingest/library:
+  ingest:
     patterns:
-      - '^Scheduled Action Failure - (Ingest|Data Library) - '
+      - '^Scheduled Action Failure - Ingest - '
       - '^Scheduled Action Failure - DevDB - Data Sync'
       - '^Scheduled Action Failure - PLUTO Inputs\b'
       - '^Scheduled Action Failure - ZAP - Weekly Export'
