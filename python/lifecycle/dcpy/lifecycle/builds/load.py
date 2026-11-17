@@ -47,7 +47,7 @@ def import_dataset(
     pg_client: postgres.PostgresClient | None,
     duckdb_client: duckdb_utils.DuckDBClient | None = None,
 ) -> ImportedDataset:
-    """Import a recipe to local data library folder and build engine."""
+    """Load a downloaded dataset into its resolved destination."""
     assert ds.version and not ds.version == "latest", ERROR_UNRESOLVED_DATASET_VERSION
     assert ds.file_type, ERROR_UNRESOLVED_FILE_TYPE
 
