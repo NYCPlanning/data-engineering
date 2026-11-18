@@ -75,11 +75,11 @@ CB414,CB414,Queens Community Board # 14,checkbook NYC,TRUE,FALSE,444,TRUE,City,
 CB501,CB501,Staten Island Community Board # 1,checkbook NYC,TRUE,FALSE,491,TRUE,City,
 CB502,CB502,Staten Island Community Board # 2,checkbook NYC,TRUE,FALSE,492,TRUE,City,
 CB503,CB503,Staten Island Community Board # 3,checkbook NYC,TRUE,FALSE,493,TRUE,City,
-CC-BK,CC-BK,County Clerk - Kings County,omb,TRUE,FALSE,913,TRUE,State,
-CC-BX,CC-BX,County Clerk - Bronx County,omb,TRUE,FALSE,912,TRUE,State,
-CC-MN,CC-MN,County Clerk - New York County,omb,TRUE,FALSE,911,TRUE,State,
-CC-QN,CC-QN,County Clerk - Queens County,omb,TRUE,FALSE,914,TRUE,State,
-CC-SI,CC-SI,County Clerk - Richmond County,omb,TRUE,FALSE,915,TRUE,State,
+CC-BK,CC-BK,County Clerk - Kings County,omb,TRUE,FALSE,913,TRUE,County,
+CC-BX,CC-BX,County Clerk - Bronx County,omb,TRUE,FALSE,912,TRUE,County,
+CC-MN,CC-MN,County Clerk - New York County,omb,TRUE,FALSE,911,TRUE,County,
+CC-QN,CC-QN,County Clerk - Queens County,omb,TRUE,FALSE,914,TRUE,County,
+CC-SI,CC-SI,County Clerk - Richmond County,omb,TRUE,FALSE,915,TRUE,County,
 CCHR,CCHR,Commission on Human Rights,checkbook NYC,TRUE,FALSE,226,TRUE,City,
 CCRB,CCRB,Civilian Complaint Review Board,checkbook NYC,TRUE,FALSE,054,TRUE,City,
 CECM,CECM,Mayor's Office of Citywide Event Coordination and Management,,TRUE,FALSE,,,City,
@@ -229,7 +229,7 @@ CLERK,NYCCLERK,NYC Office of the City Clerk,facilities db,FALSE,TRUE,,,City,Publ
 COIB,NYCCOIB,NYC Conflict of Interest Board,facilities db,FALSE,TRUE,,,City,Public
 COMP,NYCCOMP,NYC Office of the Comptroller,facilities db,FALSE,TRUE,,,City,Public
 DA-BK,NYCDA-BK,NYC District Attorney - Brooklyn,facilities db,FALSE,TRUE,,,City,Public
-DA-BX,NYCDA-BX,NYC District Attorney - Bronx ,facilities db,FALSE,TRUE,,,City,Public
+DA-BX,NYCDA-BX,NYC District Attorney - Bronx,facilities db,FALSE,TRUE,,,City,Public
 DA-MN,NYCDA-MN,NYC District Attorney - Manhattan,facilities db,FALSE,TRUE,,,City,Public
 DA-QN,NYCDA-QN,NYC District Attorney - Queens,facilities db,FALSE,TRUE,,,City,Public
 DA-SI,NYCDA-SI,NYC District Attorney - Staten Island,facilities db,FALSE,TRUE,,,City,Public
@@ -284,7 +284,7 @@ PA-BX,NYCPA-BX,NYC Public Administrators Office - Bronx,facilities db,FALSE,TRUE
 PA-MN,NYCPA-MN,NYC Public Administrators Office - Manhattan,facilities db,FALSE,TRUE,,,City,Public
 PA-QN,NYCPA-QN,NYC Public Administrators Office - Queens,facilities db,FALSE,TRUE,,,City,Public
 PA-SI,NYCPA-SI,NYC Public Administrators Office - Staten Island,facilities db,FALSE,TRUE,,,City,Public
-RGB,NYCRGB,,facilities db,FALSE,TRUE,,,City,Public
+RGB,NYCRGB,NYC Rent Guidelines Board,facilities db,FALSE,TRUE,,,City,Public
 SBS,NYCSBS,NYC Department of Small Business Services,facilities db,FALSE,TRUE,,,City,Public
 SCA,NYCSCA,NYC School Construction Authority,facilities db,FALSE,TRUE,,,City,Public
 NYCSO,NYCSO,City Sheriff,omb,TRUE,FALSE,062,TRUE,City,
@@ -325,7 +325,7 @@ PDC,PDC,Public Design Commission,omb,TRUE,FALSE,028,TRUE,City,
 Public,Public,,facilities db,FALSE,TRUE,,,,Public
 QPL,QPL,Queens Borough Public Library,checkbook NYC,TRUE,TRUE,039,TRUE,City,Public
 RGB,RGB,Rent Guidelines Board,colp,FALSE,FALSE,,,City,
-RIOC,RIOC,Roosevelt Island Operating Corporation,facilities db,FALSE,TRUE,,,City,Public
+RIOC,RIOC,Roosevelt Island Operating Corporation,facilities db,FALSE,TRUE,,,State,Public
 SBS,SBS,Department of Small Business Services,checkbook NYC,TRUE,FALSE,801,TRUE,City,
 SC-11JD,SC-11JD,Supreme Court - 11th Judicial District,omb,TRUE,FALSE,934,TRUE,State,
 SC-1JD,SC-1JD,Supreme Court - 1st Judicial District,omb,TRUE,FALSE,921,TRUE,State,
