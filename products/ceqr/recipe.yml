@@ -7,9 +7,6 @@ inputs:
 
   dataset_defaults:
     file_type: parquet
-    # several datasets are pinned to pg_dump
-    # this is because they are still archived with library
-    # and parquet files from library are missing CRS definition
 
   datasets:
     - name: dcp_edesignation_csv

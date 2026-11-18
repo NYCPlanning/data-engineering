@@ -22,7 +22,7 @@ FROM dcp_censusdata_blocks
 WHERE geogtype = 'CB2020';
 
 -- CDTAs not included in census, so join and aggregate. NTAs nest perfectly into CDTAs
--- TODO when data library is redone, great opportunity for a persisted intermediate table
+-- TODO good candidate for a persisted intermediate table
 INSERT INTO census2020_housing_units_by_geography
 SELECT
     'CDTA2020' AS geotype,

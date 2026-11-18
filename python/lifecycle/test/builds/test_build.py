@@ -923,8 +923,6 @@ exports:
     shutil.unpack_archive(packaged / "dataset_files" / "things.gdb.zip", tmp_path)
 
     def layer_xml(layer: str) -> str:
-        # via pyogrio, not dcpy.geospatial.gdb.fgdb: importing osgeo here breaks later
-        # tests' parquet reads (the gdal/pyarrow clash)
         frame = pyogrio.read_dataframe(
             tmp_path / "things.gdb", sql=f"GetLayerMetadata {layer}"
         )

@@ -234,19 +234,6 @@ function fgdb_export {
 }
 
 
-function mvt_export {
-    local dir=$1
-    local conffile=$2
-    shift 2
-    rm -rf $dir
-    echo "attempting to export tables \"$@\" to mvts in ${dir}..."
-    ogr2ogr -progress -f MVT $dir \
-        -dsco CONF=$conffile \
-        "PG:${BUILD_ENGINE}" \
-        "$@" -dsco COMPRESS=NO
-}
-
-
 # only in kpdb currently
 function compress {
     filename=${1}

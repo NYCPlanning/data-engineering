@@ -29,6 +29,14 @@ attributes:
     the code the Comptroller's agency code list gives for that agency. It's empty on rows with no code and false on 
     every "Unknown" row.
 
+    primary_acronym is the acronym of the agency a row describes, so rows for the same agency under different
+    acronyms share it. FacDB repeats many agencies under its own acronyms (NYCDEP for DEP, BOENY for BOE), and
+    primary_acronym points those rows at the agency's row. A row with no other acronym for its agency has its own.
+
+    overlevel is the agency's level of government: City, State, Federal or County. It's blank only on placeholder
+    rows like Unknown and Non-public. For authorities and public benefit corporations, the level follows who controls it, not
+    which government created it.
+
     The table is maintained in this repo at ingest_templates/data/dcp_managing_agencies_lookup.csv. Edit it there and run 
     ingest from the repo root.
 
@@ -41,6 +49,8 @@ ingestion:
     dtype: str
 
 columns:
+- id: primary_acronym
+  data_type: text
 - id: managing_agency_acronym
   data_type: text
 - id: managing_agency

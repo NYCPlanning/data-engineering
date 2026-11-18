@@ -10,7 +10,7 @@ attributes:
 ingestion:
   source:
     type: arcgis_feature_server
-    server: nys_clearinghouse
+    server: nysdec
     dataset: Waterbody_Inventory_List
     layer_name: Priority Waterbody List - Shorelines
     crs: EPSG:2263

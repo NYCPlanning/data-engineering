@@ -1,5 +1,7 @@
+import re
+import shutil
+import struct
 import tempfile
-import uuid
 import zipfile
 from pathlib import Path
 
@@ -105,25 +107,16 @@ def resolve_layer(gdb: Path, layer: str | None = None) -> str:
     return layers[0]
 
 
-def read_metadata(gdb: Path, layer: str, as_string: bool = False) -> Metadata | None:
-    from osgeo import gdal  # see get_layers() for why this is a local import
+def _layer_metadata_xml(gdb: Path, layer: str) -> str:
+    frame = pyogrio.read_dataframe(
+        resolve_gdb_path(gdb), sql=f"GetLayerMetadata {layer}"
+    )
+    return frame.iloc[0, 0] or ""
 
-    with gdal.ExceptionMgr():
-        layer_info = gdal.alg.vector.info(
-            input=gdb,
-            sql=f"GetLayerMetadata {layer}",
-            features=True,
-        ).Output()
-    metadata_info = layer_info["layers"][0]["features"][0]["properties"][
-        "FIELD_1"
-    ].strip("'")
 
-    if not metadata_info:
-        return None
-    if as_string is True:
-        return metadata_info
-    else:
-        return Metadata.from_xml(metadata_info)
+def read_metadata(gdb: Path, layer: str) -> Metadata | None:
+    metadata_info = _layer_metadata_xml(gdb, layer)
+    return Metadata.from_xml(metadata_info) if metadata_info else None
 
 
 def write_metadata(
@@ -137,106 +130,135 @@ def write_metadata(
     xml_data = metadata.to_xml()
     md = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
 
-    from osgeo import gdal  # see get_layers() for why this is a local import
-
-    with gdal.ExceptionMgr():
-        _edit_layer_metadata_inplace(
-            gdb=gdb,
-            layer=layer,
-            metadata=md,
-        )
+    _set_layer_documentation(gdb=gdb, layer=layer, metadata=md)
 
 
 def metadata_exists(gdb: Path, layer: str) -> bool:
-    from osgeo import gdal  # see get_layers() for why this is a local import
-
-    with gdal.ExceptionMgr():
-        layer_info = gdal.alg.vector.info(
-            input=gdb,
-            sql=f"GetLayerMetadata {layer}",
-            features=True,
-        ).Output()
-    metadata_info = layer_info["layers"][0]["features"][0]["properties"][
-        "FIELD_1"
-    ].strip("'")
-
-    if metadata_info:
-        return True
-    return False
+    return bool(_layer_metadata_xml(gdb, layer))
 
 
 def remove_metadata(gdb: Path, layer: str) -> None:
-    from osgeo import gdal  # see get_layers() for why this is a local import
-
-    with gdal.ExceptionMgr():
-        _edit_layer_metadata_inplace(gdb=gdb, layer=layer, metadata="")
+    _set_layer_documentation(gdb=gdb, layer=layer, metadata="")
 
 
-# TODO: refactor this for speed. Requirement to rezip is slow for large GDBs.
-# With a 76MB zipped gdb, performance: unzip: 0.92s, gdal: 0.67s, rezip: 7.36ss
-def _edit_layer_metadata_inplace(
-    gdb: Path,
-    layer: str,
-    metadata: str,
-) -> None:
-    from osgeo import gdal  # see get_layers() for why this is a local import
-
-    intermediate_layer = f"fc_{uuid.uuid4().hex}"
-
-    def _edit_md(
-        gdb: Path,
-        layer: str,
-        metadata: str,
-    ) -> None:
-        # GDAL 3.13 requires active_layer alongside output_layer (to disambiguate which
-        # input layer to copy when the FGDB has several), and now rejects output_layer
-        # naming an already-existing layer even with overwrite_layer=True ("--output-layer
-        # name must be ... different from an existing layer"). So: copy `layer` to a new
-        # name, drop the original to free up the name, then copy back to the original name
-        # (safe now that it's free) with the metadata attached - layer_creation_option has
-        # to be on this final copy, since an intermediate copy's metadata doesn't survive
-        # a subsequent rename-via-edit.
-        gdal.alg.vector.edit(
-            input_format="OpenFileGDB",
-            input=gdb,
-            output=gdb,
-            input_layer=layer,
-            output_layer=intermediate_layer,
-            active_layer=layer,
-            update=True,
-        )
-        gdal.alg.vector.sql(
-            input_format="OpenFileGDB",
-            input=gdb,
-            sql=f"DROP TABLE {layer}",
-            update=True,
-        )
-        gdal.alg.vector.edit(
-            input_format="OpenFileGDB",
-            input=gdb,
-            output=gdb,
-            input_layer=intermediate_layer,
-            output_layer=layer,
-            active_layer=intermediate_layer,
-            layer_creation_option=f"DOCUMENTATION={metadata}",
-            update=True,
-        )
-        # delete intermediate layer
-        gdal.alg.vector.sql(
-            input_format="OpenFileGDB",
-            input=gdb,
-            sql=f"DROP TABLE {intermediate_layer}",
-            update=True,
-        )
-
+def _set_layer_documentation(gdb: Path, layer: str, metadata: str) -> None:
     if zipfile.is_zipfile(gdb):
         with tempfile.TemporaryDirectory() as tmp_dir:
             with zipfile.ZipFile(gdb, "r") as z:
                 z.extractall(tmp_dir)
-                uncompressed_gdb = tmp_dir / Path(gdb.stem)
-
-            _edit_md(gdb=uncompressed_gdb, layer=layer, metadata=metadata)
-
+            uncompressed_gdb = Path(tmp_dir) / gdb.stem
+            _rewrite_with_documentation(uncompressed_gdb, {layer: metadata})
             zip_gdb(uncompressed_gdb, gdb)
     else:
-        _edit_md(gdb=gdb, layer=layer, metadata=metadata)
+        _rewrite_with_documentation(Path(gdb), {layer: metadata})
+
+
+# ISO WKB curve types: CircularString, CompoundCurve, CurvePolygon, MultiCurve,
+# MultiSurface (plus 1000/2000/3000 for Z/M/ZM)
+_CURVE_WKB_TYPES = {8, 9, 10, 11, 12}
+
+
+def _has_curves(gdb: Path, layer: str) -> bool:
+    from pyogrio.raw import open_arrow
+
+    with open_arrow(str(gdb), layer=layer, columns=[], use_pyarrow=True) as (
+        meta,
+        reader,
+    ):
+        if not meta["geometry_type"]:
+            return False
+        geometry = meta["geometry_name"] or "wkb_geometry"
+        for batch in reader:
+            for wkb in batch.column(geometry).to_pylist():
+                if wkb:
+                    order = "<I" if wkb[0] == 1 else ">I"
+                    if struct.unpack(order, wkb[1:5])[0] % 1000 in _CURVE_WKB_TYPES:
+                        return True
+    return False
+
+
+def _client_version(gdb: Path, layer: str) -> tuple[int, ...]:
+    """The oldest ArcGIS client the layer declares it needs, e.g. (13, 2) for
+    ArcGIS Pro 3.2. (0,) when it doesn't say."""
+    from pyogrio.raw import read_arrow
+
+    _, table = read_arrow(
+        str(gdb),
+        layer="GDB_Items",
+        columns=["Name", "Definition"],
+        read_geometry=False,
+    )
+    for name, xml in zip(table["Name"].to_pylist(), table["Definition"].to_pylist()):
+        if name == layer and xml:
+            found = re.search(r"<RequiredGeodatabaseClientVersion>([\d.]+)<", xml)
+            if found:
+                return tuple(int(part) for part in found.group(1).split("."))
+    return (0,)
+
+
+def _rewrite_with_documentation(gdb: Path, documentation: dict[str, str]) -> None:
+    """Rewrite every layer of ``gdb`` with its DOCUMENTATION set from ``documentation``,
+    keeping the existing value for layers not in it.
+
+    OpenFileGDB only takes DOCUMENTATION when a layer is created, so changing it means
+    writing the layer again. Each layer keeps its xy grid so coordinates round-trip
+    exactly. Writing to a new gdb rather than replacing layers in place keeps the
+    original layer order.
+    """
+    from pyogrio.raw import open_arrow, write_arrow
+
+    from dcpy.geospatial.curves.read import gdb_xy_grid
+
+    layers = get_layers(gdb)
+    unknown = set(documentation) - set(layers)
+    if unknown:
+        raise LookupError(f"Layers {sorted(unknown)} not found in {gdb}: {layers}")
+    # GDAL's FGDB reader can return a hole of a curved polygon as a separate,
+    # overlapping part, and writing that back fills the hole. Every layer is
+    # rewritten, so any curved layer blocks the stamp.
+    curved = [layer for layer in layers if _has_curves(gdb, layer)]
+    if curved:
+        raise ValueError(
+            f"Can't stamp metadata after the fact on {gdb}: layers {curved} have "
+            "curved geometry, which doesn't survive a rewrite. Stamp at build time "
+            "instead (custom.product_metadata on the recipe's gdb export)."
+        )
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        out = Path(tmp_dir) / gdb.name
+        for i, layer in enumerate(layers):
+            xml = (
+                documentation[layer]
+                if layer in documentation
+                else _layer_metadata_xml(gdb, layer)
+            )
+            options = gdb_xy_grid(gdb, layer)
+            # keeps BigInteger and DateOnly fields, which otherwise come back as Double
+            # and Date. Only where the source needs it: it makes the layer unreadable
+            # before ArcGIS Pro 3.2.
+            if _client_version(gdb, layer) >= (13, 2):
+                options["TARGET_ARCGIS_VERSION"] = "ARCGIS_PRO_3_2_OR_LATER"
+            if xml:
+                options["DOCUMENTATION"] = xml
+            with open_arrow(str(gdb), layer=layer, use_pyarrow=True) as (meta, reader):
+                if meta["geometry_name"]:
+                    options["GEOMETRY_NAME"] = meta["geometry_name"]
+                geometry = (
+                    {
+                        "geometry_name": meta["geometry_name"] or "wkb_geometry",
+                        "geometry_type": meta["geometry_type"],
+                        "crs": meta["crs"],
+                    }
+                    if meta["geometry_type"]
+                    else {}
+                )
+                write_arrow(
+                    reader,
+                    str(out),
+                    layer=layer,
+                    driver="OpenFileGDB",
+                    append=i > 0,
+                    layer_options=options or None,
+                    **geometry,
+                )
+        shutil.rmtree(gdb)
+        shutil.move(out, gdb)
