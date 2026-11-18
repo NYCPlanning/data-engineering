@@ -111,16 +111,19 @@ columns:
   name: LUCATS
   data_type: text
   description: Foreign key to link to retired LUCATS database records.
-  notes: The number portion only of the ULURP number.
+  notes: The number portion only of the ULURP number. In shapefile format, field names are truncated to 10 characters.
 - id: project_na
   name: PROJECT_NA
   data_type: text
-  description: The name of the project on the associated  application.
+  description: The name of the project on the associated application.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: shape_leng
   name: Shape_Leng
   data_type: decimal
   description: Length of feature in internal units.
+  notes: In shapefile format, field names are truncated to 10 characters.
 - id: shape_area
   name: Shape_Area
   data_type: decimal
   description: Area of feature in internal units squared.
+  notes: In shapefile format, field names are truncated to 10 characters.

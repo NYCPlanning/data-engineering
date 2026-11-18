@@ -29,9 +29,7 @@ def gdb_metadata_drift(recipe: Recipe) -> list[str]:
     ]
     if not stamped:
         return []
-    # local imports: dcpy-geospatial (and gdal) only ship with the `geo` extra. Metadata
-    # is read via pyogrio, not fgdb.read_metadata: importing osgeo breaks later parquet
-    # reads in the same process (the gdal/pyarrow clash)
+    # local imports: dcpy-geospatial only ships with the `geo` extra
     import pyogrio
 
     from dcpy.geospatial.gdb import fgdb

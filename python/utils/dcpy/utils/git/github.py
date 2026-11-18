@@ -11,9 +11,18 @@ import requests
 from dateutil.parser import parse as datetime_parse
 
 ORG = "NYCPlanning"
-PERSONAL_TOKEN = os.environ["GHP_TOKEN"]
-headers = {"Authorization": "Bearer %s" % PERSONAL_TOKEN}
 BASE_URL = f"https://api.github.com/repos/{ORG}"
+
+
+def get_headers() -> dict[str, str]:
+    """Auth headers, built at request time so importing this module needs no token."""
+    token = os.environ.get("GHP_TOKEN")
+    if not token:
+        raise RuntimeError(
+            "GHP_TOKEN is not set. It is required for GitHub API calls - "
+            "see apps/qa/README.md."
+        )
+    return {"Authorization": f"Bearer {token}"}
 
 
 def _check_auth(response: requests.Response) -> None:
@@ -68,14 +77,14 @@ def clone_repo(repo: str, output_directory: Path, *, branch: str | None = None) 
 
 def get_default_branch(repo: str) -> str:
     url = f"https://api.github.com/repos/nycplanning/{repo}"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=get_headers())
     response.raise_for_status()
     return response.json()["default_branch"]
 
 
 def get_branches(repo: str, branches_blacklist: List[str] | None = None):
     url = f"https://api.github.com/repos/nycplanning/{repo}/branches?per_page=100"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=get_headers())
     response.raise_for_status()
     all_branches = [branch_info["name"] for branch_info in response.json()]
     if branches_blacklist is None:
@@ -87,14 +96,14 @@ def get_pull_requests(repo: str) -> list[str]:
     url = (
         f"https://api.github.com/repos/nycplanning/{repo}/pulls?state=open&per_page=100"
     )
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=get_headers())
     response.raise_for_status()
     return [str(pr_info["number"]) for pr_info in response.json()]
 
 
 def get_workflow(repo: str, name: str):
     url = f"{BASE_URL}/{repo}/actions/workflows/{name}"
-    r = requests.get(url, headers=headers)
+    r = requests.get(url, headers=get_headers())
     r.raise_for_status()
     return r.json()
 
@@ -102,7 +111,7 @@ def get_workflow(repo: str, name: str):
 def _get_workflow_runs_helper(
     url: str, params: Dict[str, Any] | None = None
 ) -> list[dict]:
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=get_headers(), params=params)
     _check_auth(response)
     body = response.json()
     if "workflow_runs" in body:
@@ -148,7 +157,7 @@ def dispatch_workflow(
 ) -> None:
     params = {"ref": branch, "inputs": inputs}
     url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/dispatches"
-    response = requests.post(url, headers=headers, json=params)
+    response = requests.post(url, headers=get_headers(), json=params)
     _check_auth(response)
     if response.status_code != 204:
         print(response.content)

@@ -27,9 +27,7 @@ pluto
 [recipe](https://github.com/NYCPlanning/data-engineering/blob/main/products/pluto/recipe.yml)
 [recipe-minor](https://github.com/NYCPlanning/data-engineering/blob/main/products/pluto/recipe-minor.yml) - holds most source data versions constant from last published build
 [Github workflow](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/pluto_build.yml) - config file used to build PLUTO via Github Actions
-[Github workflow - PTS input data](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/pluto_input_pts.yml) - config file used to ingest PTS via data library. See template in `pluto_build/templates` folder as well.
-[Github workflow - PTS input data](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/pluto_input_cama.yml) - config file used to ingest CAMA via data library. See template in `pluto_build/templates` folder as well.
-[Github workflow - PTS input data](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/pluto_input_numbldgs.yml) - config file used to ingest numbldgs data via data library. See template in `pluto_build/templates` folder as well.
+[Github workflow - inputs](https://github.com/NYCPlanning/data-engineering/blob/main/.github/workflows/pluto_inputs.yml) - ingests PTS, CAMA, geocodes, and numbldgs weekly. Templates are in `ingest_templates/`.
 
 ## Links
 

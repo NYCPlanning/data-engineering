@@ -19,12 +19,10 @@ function install_yq {
 }
 
 
+# only for the ogr2ogr/ogrinfo command line: python reads and writes through pyogrio's own
+# GDAL, and parquet through pyarrow and duckdb, so no python bindings or Arrow driver
 function install_gdal {
-    wget https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
-    sudo apt-get install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
-    sudo apt-get update
-
-    sudo apt-get install -y -V libproj-dev libgeos-dev libarrow-dev libparquet-dev cmake
+    sudo apt-get install -y -V libproj-dev libgeos-dev cmake
 
     echo "installing gdal from source" && (
         cd ~
@@ -33,7 +31,7 @@ function install_gdal {
         cd gdal-${gdal_version}
         mkdir build
         cd build
-        sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
+        sudo cmake -DPROJ_INCLUDE_DIR=/usr/include -DBUILD_PYTHON_BINDINGS=OFF ..
         sudo cmake --build .
         sudo cmake --build . --target install
 
@@ -48,7 +46,8 @@ function install_gdal {
 # Debian's own postgresql-client trails the newest major version, so install from the PGDG repo
 function install_postgres_client {
     install -d /usr/share/postgresql-common/pgdg
-    curl --fail -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    # www.postgresql.org has been dropping CI connections; the apt repo serves the same key
+    curl --fail --retry 3 -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc
     echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release --codename --short)-pgdg main" \
         > /etc/apt/sources.list.d/pgdg.list
     apt-get update

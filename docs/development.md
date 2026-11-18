@@ -43,10 +43,8 @@ uv python install 3.13
 #### Mac
 
 With homebrew, install:
-- `gdal` - the same version pinned in `python/geospatial/pyproject.toml` (`GDAL==...`, which must exactly
-  match the system libgdal used to build `nycplanning/base` - see `gdal_version` in
-  `admin/run_environment/docker/base/setup.sh`) if possible. If not, edit that pin to align with the
-  version returned from running `gdalinfo --version`, then run `uv lock`.
+- `gdal`, for the `ogr2ogr` command that product scripts and the build loader call. No Python
+  package links against it: pyogrio ships its own GDAL.
 - postgres (latest version)
 
 #### Windows
@@ -180,8 +178,7 @@ If a bump breaks something, pin it in the relevant `pyproject.toml` **on `main`*
 `compile_python_reqs` - each weekly run resets that branch from `main`, so a fix pushed only there
 is lost if the PR isn't merged first.
 
-Before merging, read the lock diff for major and minor bumps of packages we import directly. Exact
-`==` pins (like `GDAL` in `python/geospatial/pyproject.toml`) don't move and have to be edited by hand.
+Before merging, read the lock diff for major and minor bumps of packages we import directly.
 
 To upgrade locally:
 

@@ -14,7 +14,7 @@ attributes:
 ingestion:
   source:
     type: arcgis_feature_server
-    server: nys_clearinghouse
+    server: nysdec
     dataset: Natural_Heritage_Communities
     crs: EPSG:2263
   file_format:

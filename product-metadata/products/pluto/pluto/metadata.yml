@@ -613,11 +613,9 @@ columns:
 
     Each unit tax lot has an associated billing lot number, with values between 7501 - 7599. Lots in a condominium complex on the same block will have the same billing lot number. To make condominium information more compatible with parcel information, the Department of City Planning aggregates condominium unit tax lot information to the billing lot. For example, if a residential condominium building contains 20 units, the Department of Finance will assign 20 unit lot numbers and each of these lot numbers will have the same billing lot number. PLUTO will contain one record with the billing lot number and RESIDENTIAL UNITS will be set to 20.
 
-    If the Department of Finance has not yet assigned a billing lot number to the condominium complex, PLUTO uses the lowest unit lot number within the complex.
-
     Note on MapPLUTO: The Department of Finance Digital Tax Map (DTM) contains the geography of the base lot for condominiums. The base lot is also called the "Formerly Known As" or FKA lot. For most condominium complexes, there is one base lot per billing lot. In using the DTM to create MapPLUTO, DCP replaces the base lot number with the billing lot number. If there is more than one base lot with the same billing lot number, DCP merges the base lots to create a geography for the billing lot.
 
-    Under certain circumstances, DCP is unable to aggregate condominium unit tax lot information to the billing lot or to the lowest unit lot number. This occurs when a CONDOMINIUM NUMBER has not yet been assigned to the unit lots in PTS. In most cases, these unit lots will appear in PLUTO and in the NOT_MAPPED_LOTS table that is released with MapPLUTO. Before including these unit lots, the data is checked to verify that it pertains only to the unit lot. If unit lots have an identical address and a value for RESIDENTIAL UNITS that is greater than 1 and the same for all records, and there is no matching BBL in the DTM, they are assumed to part of the same condominium. BUILDING AREA is checked in the same way. These unit lots are removed from PLUTO and NOT_MAPPED_LOTS to avoid overcounting the number of residential units and building area.
+    Under certain circumstances, DCP is unable to aggregate condominium unit tax lot information to the billing lot. This occurs when a CONDOMINIUM NUMBER has not yet been assigned to the unit lots in PTS. In most cases, these unit lots will appear in PLUTO and in the NOT_MAPPED_LOTS table that is released with MapPLUTO. Before including these unit lots, the data is checked to verify that it pertains only to the unit lot. If unit lots have an identical address and a value for RESIDENTIAL UNITS that is greater than 1 and the same for all records, and there is no matching BBL in the DTM, they are assumed to part of the same condominium. BUILDING AREA is checked in the same way. These unit lots are removed from PLUTO and NOT_MAPPED_LOTS to avoid overcounting the number of residential units and building area.
   data_source: Department of Finance - Property Tax System (PTS)
   checks:
     non_nullable: true
@@ -1540,9 +1538,9 @@ columns:
     • If the unit lots are a mixture of residential and industrial/warehouse building types, BUILDING CLASS = RZ.
     • When unit lots with a building class of RG (Indoor Parking), RP (Outdoor Parking), RS (Non-Business Storage Space), or RT (Terraces/Gardens/Cabanas) have the same billing lot as another building class, their building class is ignored. For example, if the billing lot has unit lots with a building class of R4 (Residential Unit in Elevator Bldg) and RG (Indoor Parking), BUILDING CLASS = R4.
 
-    Q0 is assigned by DCP to tax lots with a PTS building class starting with "V" that are identified in the NYC GIS Zoning Database as PARK, BALL FIELD, PLAYGROUND, or PUBLIC SPACE.
+    Q0 is assigned by DCP to tax lots with a PTS building class starting with "V" whose ZONING DISTRICT 1 is PARK.
 
-    QG is assigned by DCP to tax lots with a PTS building class starting with "V" that contain community gardens from the Department of Parks and Recreation's NYC Greenthumb Community Gardens dataset. This is done to comply with Local Law 46 of 2020, which requires that such lots be given a land use category of open space, outdoor recreation, a community garden, or other similar description. Lots with a BUILDING CLASS of QG are assigned to LAND USE CATEGORY "09" (Open Space & Outdoor Recreation). This land use assignment is solely informational and does not confer or change a legal status for such a tax lot.
+    QG is assigned by DCP to tax lots with a PTS building class starting with "V" that contain community gardens from the Department of Parks and Recreation's NYC Greenthumb Community Gardens dataset. The garden must either cover at least 15% of the tax lot's area or at least 25% of the garden must be within the tax lot. This is done to comply with Local Law 46 of 2020, which requires that such lots be given a land use category of open space, outdoor recreation, a community garden, or other similar description. Lots with a BUILDING CLASS of QG are assigned to LAND USE CATEGORY "09" (Open Space & Outdoor Recreation). This land use assignment is solely informational and does not confer or change a legal status for such a tax lot.
 
     PTS contains two building classes for some tax lots, with one of the building classes being Z7 (Easement). BUILDING CLASS is only set to Z7 when it is the only PTS building class for the tax lot.
 
@@ -2431,7 +2429,7 @@ columns:
   - value: '2'
     description: Department of Finance's Property Tax System (PTS)
   - value: '4'
-    description: BUILDING CLASS starts with 'V' and NUMBER OF BUILDINGS is 0. TOTAL BUILDING
+    description: PTS BUILDING CLASS starts with 'V' and NUMBER OF BUILDINGS is 0. TOTAL BUILDING
       FLOOR AREA is 0.
   - value: '5'
     description: Calculated from PTS building dimensions and NUMBER OF FLOORS for primary
@@ -2501,6 +2499,8 @@ columns:
     The count of non-residential units is sometimes not available if the building contains residential units.
 
     Non-residential units are units with a separate use.  If a building has 25 different offices it would be counted as 1 unit because they have the same use.
+
+    For condominiums, the count is the sum of units for condominium lots with the same billing lot, including parking and storage lots.
 
     Updates to residential and non-residential units are triggered by the issuance of a Department of Buildings permit.
   data_source: Department of Finance - Property Tax System (PTS)
@@ -2830,7 +2830,7 @@ columns:
   name: residfar
   data_type: decimal
   description: |-
-    The maximum allowable residential floor area ratio for standard residences, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable residential floor area ratio for standard residences, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1.
 
     The maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities. For the maximum allowable floor area for affordable housing, Users should consult the AffResFAR field.
 
@@ -2848,7 +2848,7 @@ columns:
   name: commfar
   data_type: decimal
   description: |-
-    The maximum allowable commercial floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow commercial uses, MAXIMUM ALLOWABLE COMMERCIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable commercial floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1.
 
     The maximum allowable commercial floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
@@ -2864,7 +2864,7 @@ columns:
   name: facilfar
   data_type: decimal
   description: |-
-    The maximum allowable community facility floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow community facility uses, MAXIMUM ALLOWABLE COMMUNITY FACILITY FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable community facility floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot's area as reported in ZoneDist1.
 
     The maximum allowable community facility floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
@@ -3312,7 +3312,7 @@ columns:
   name: affresfar
   data_type: decimal
   description: |-
-    The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow residential uses, MAXIMUM ALLOWABLE AFFORDABLE RESIDENTIAL FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable residential floor area ratio for affordable housing, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1.
 
     The maximum allowable residential floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 
@@ -3329,7 +3329,7 @@ columns:
   name: mnffar
   data_type: decimal
   description: |-
-    The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1. If the lot is assigned to more than one zoning district and ZoneDist1 does not allow manufacturing uses, MAXIMUM ALLOWABLE MANUFACTURING FAR is based on ZoneDist2, ZoneDist3 or ZoneDist4, in that order.
+    The maximum allowable Manufacturing floor area ratio, based on the zoning district classification occupying the greatest percentage of the tax lot’s area as reported in ZoneDist1.
 
     The maximum allowable manufacturing floor area ratios are exclusive of bonuses for plazas, plaza-connected open areas, arcades, or other amenities.
 

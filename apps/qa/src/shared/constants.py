@@ -25,6 +25,7 @@ PAGES = {
     "Data Distribution": "distribution",
     "Inbox Ingest": "inbox_ingest",
     "CSCL Builds": "cscl_builds",
+    "Connection Checks": "connection_checks",
 }
 
 DATASET_NAMES = {
