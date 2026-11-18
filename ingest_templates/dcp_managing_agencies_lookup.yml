@@ -34,7 +34,8 @@ attributes:
     primary_acronym points those rows at the agency's row. A row with no other acronym for its agency has its own.
 
     overlevel is the agency's level of government: City, State, Federal or County. It's blank only on placeholder
-    rows like Unknown and Non-public.
+    rows like Unknown and Non-public. For authorities and public benefit corporations, the level follows who controls it, not
+    which government created it.
 
     The table is maintained in this repo at ingest_templates/data/dcp_managing_agencies_lookup.csv. Edit it there and run 
     ingest from the repo root.
