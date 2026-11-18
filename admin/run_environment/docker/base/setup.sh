@@ -19,12 +19,10 @@ function install_yq {
 }
 
 
+# only for the ogr2ogr/ogrinfo command line: python reads and writes through pyogrio's own
+# GDAL, and parquet through pyarrow and duckdb, so no python bindings or Arrow driver
 function install_gdal {
-    wget https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
-    sudo apt-get install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb
-    sudo apt-get update
-
-    sudo apt-get install -y -V libproj-dev libgeos-dev libarrow-dev libparquet-dev cmake
+    sudo apt-get install -y -V libproj-dev libgeos-dev cmake
 
     echo "installing gdal from source" && (
         cd ~
@@ -33,7 +31,7 @@ function install_gdal {
         cd gdal-${gdal_version}
         mkdir build
         cd build
-        sudo cmake -DPROJ_INCLUDE_DIR=/usr/include ..
+        sudo cmake -DPROJ_INCLUDE_DIR=/usr/include -DBUILD_PYTHON_BINDINGS=OFF ..
         sudo cmake --build .
         sudo cmake --build . --target install
 
