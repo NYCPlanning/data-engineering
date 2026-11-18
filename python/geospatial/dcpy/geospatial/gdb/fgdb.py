@@ -105,25 +105,16 @@ def resolve_layer(gdb: Path, layer: str | None = None) -> str:
     return layers[0]
 
 
-def read_metadata(gdb: Path, layer: str, as_string: bool = False) -> Metadata | None:
-    from osgeo import gdal  # see get_layers() for why this is a local import
+def _layer_metadata_xml(gdb: Path, layer: str) -> str:
+    frame = pyogrio.read_dataframe(
+        resolve_gdb_path(gdb), sql=f"GetLayerMetadata {layer}"
+    )
+    return frame.iloc[0, 0] or ""
 
-    with gdal.ExceptionMgr():
-        layer_info = gdal.alg.vector.info(
-            input=gdb,
-            sql=f"GetLayerMetadata {layer}",
-            features=True,
-        ).Output()
-    metadata_info = layer_info["layers"][0]["features"][0]["properties"][
-        "FIELD_1"
-    ].strip("'")
 
-    if not metadata_info:
-        return None
-    if as_string is True:
-        return metadata_info
-    else:
-        return Metadata.from_xml(metadata_info)
+def read_metadata(gdb: Path, layer: str) -> Metadata | None:
+    metadata_info = _layer_metadata_xml(gdb, layer)
+    return Metadata.from_xml(metadata_info) if metadata_info else None
 
 
 def write_metadata(
@@ -148,21 +139,7 @@ def write_metadata(
 
 
 def metadata_exists(gdb: Path, layer: str) -> bool:
-    from osgeo import gdal  # see get_layers() for why this is a local import
-
-    with gdal.ExceptionMgr():
-        layer_info = gdal.alg.vector.info(
-            input=gdb,
-            sql=f"GetLayerMetadata {layer}",
-            features=True,
-        ).Output()
-    metadata_info = layer_info["layers"][0]["features"][0]["properties"][
-        "FIELD_1"
-    ].strip("'")
-
-    if metadata_info:
-        return True
-    return False
+    return bool(_layer_metadata_xml(gdb, layer))
 
 
 def remove_metadata(gdb: Path, layer: str) -> None:
