@@ -270,7 +270,7 @@ MO,NYCMO,NYC Office of the Mayor,facilities db,FALSE,TRUE,,,City,Public
 MOCJ,NYCMOCJ,NYC Mayor's Office of Criminal Justice,facilities db,FALSE,TRUE,,,City,Public
 NYCOA,NYCOA,Office of the Actuary,checkbook NYC,TRUE,TRUE,008,TRUE,City,Public
 OATH,NYCOATH,NYC Office of Administrative Trials and Hearings,facilities db,FALSE,TRUE,,,City,Public
-NYCOCA,NYCOCA,NYC Office of Court Administration,facilities db,FALSE,TRUE,,,City,Public
+NYSOCA,NYCOCA,NYC Office of Court Administration,facilities db,FALSE,TRUE,,,State,Public
 OCB,NYCOCB,NYC Office of Collective Bargaining,facilities db,FALSE,TRUE,,,City,Public
 OCME,NYCOCME,NYC Office of the Medical Examiner,facilities db,FALSE,TRUE,,,City,Public
 OLR,NYCOLR,NYC Office of Labor Relations,facilities db,FALSE,TRUE,,,City,Public
