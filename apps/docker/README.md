@@ -11,7 +11,7 @@ apps/docker/
 ├── Dockerfile               # build context is the repo root
 ├── Dockerfile.dockerignore  # allowlist of what gets copied in
 └── entrypoints/
-    ├── qa.sh                # streamlit on :8501, base path /qaqc
+    ├── qa.sh                # streamlit on :8501, served at the root path
     └── dagster.sh           # webserver on :3000 (/dag) + daemon (POC)
 ```
 
@@ -24,7 +24,7 @@ docker build -f apps/docker/Dockerfile -t de-apps .
 docker run --rm --env-file apps/.env -p 8501:8501 de-apps apps/docker/entrypoints/qa.sh
 ```
 
-Then open http://localhost:8501/qaqc. See `apps/env.1pw` for the env vars the apps expect.
+Then open http://localhost:8501. See `apps/env.1pw` for the env vars the apps expect.
 
 ## Publishing to ACR
 
@@ -39,9 +39,9 @@ Run one revision, one replica — streamlit sessions are in-memory:
 
 ```bash
 az containerapp create \
-  --name qa-streamlit \
-  --resource-group <rg> \
-  --environment <env> \
+  --name de-tools \
+  --resource-group rg-azu-e2-dcp-de-nonprod \
+  --environment ace-azu-e2-dcp-de-nonprod \
   --image <acr>.azurecr.io/de-apps:latest \
   --command "/app/data-engineering/apps/docker/entrypoints/qa.sh" \
   --target-port 8501 \
@@ -50,12 +50,16 @@ az containerapp create \
   --env-vars AWS_S3_ENDPOINT=... BUILD_ENGINE_SERVER=... # etc.
 ```
 
-Use `/qaqc/_stcore/health` for the health probe. The name `qa-streamlit` matches what
-`nginx_azure` proxies `/qaqc` to.
+Use `/_stcore/health` on port 8501 for the health probe.
+
+The environment has the custom DNS suffix `itd-data.dcp.nycnet` with a wildcard certificate, so
+every app is served at `https://<app-name>.itd-data.dcp.nycnet`: this one is
+https://de-tools.itd-data.dcp.nycnet. Don't add per-app custom domains under that suffix; Azure
+rejects them as already in use by the environment.
 
 Pushing a new `:latest` doesn't by itself create a new revision. To roll out a new image:
 
 ```bash
-az containerapp update --name qa-streamlit --resource-group <rg> \
+az containerapp update --name de-tools --resource-group rg-azu-e2-dcp-de-nonprod \
   --image <acr>.azurecr.io/de-apps:latest --revision-suffix <short-sha>
 ```
