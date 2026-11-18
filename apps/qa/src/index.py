@@ -9,7 +9,7 @@ def run():
     st.set_page_config(page_title="Data Engineering QA", page_icon="📊", layout="wide")
     st.sidebar.markdown(
         """
-        <div stule="margin-left: auto; margin-right: auto;">
+        <div style="margin-left: auto; margin-right: auto;">
         <img style='width:40%; margin: 0 auto 2rem auto;display:block;'
             src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
         </div>
@@ -26,7 +26,7 @@ def run():
         name = "Home"
 
     name = st.sidebar.selectbox(
-        "Select a page to naviagte to", page_list, index=page_list.index(name)
+        "Select a page to navigate to", page_list, index=page_list.index(name)
     )
     st.sidebar.divider()
 
