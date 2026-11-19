@@ -1,6 +1,7 @@
 import importlib
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 import typer
 import yaml
 
-from dcpy.configuration import PRODUCTS_DIR
+from dcpy.configuration import PRIVATE_BUCKET, PRODUCTS_DIR
 from dcpy.lifecycle.builds import plan
 from dcpy.lifecycle.builds.config import (
     BUILD_STAGE_KEY,
@@ -17,6 +18,7 @@ from dcpy.lifecycle.builds.config import (
 )
 from dcpy.lifecycle.builds.models import InputDatasetDestination
 from dcpy.lifecycle.connector_registry import connectors
+from dcpy.utils import s3
 from dcpy.utils.logging import logger
 
 app = typer.Typer(add_completion=False)
@@ -63,16 +65,110 @@ def upload_build(
     return result
 
 
+def _uses_duckdb(recipe: "plan.Recipe") -> bool:
+    destinations = {ds.destination for ds in recipe.inputs.datasets}
+    return InputDatasetDestination.duckdb in destinations and bool(recipe.version)
+
+
 def _set_duckdb_path(recipe: "plan.Recipe") -> None:
     """Point dbt at the duckdb file load created, since commands run as separate processes."""
-    destinations = {ds.destination for ds in recipe.inputs.datasets}
-    if InputDatasetDestination.duckdb not in destinations or not recipe.version:
+    if not _uses_duckdb(recipe):
         return
-    duckdb_path = get_duckdb_path(
-        recipe.product, recipe.version, recipe.duckdb_filename, uses_stage_dirs(recipe)
-    )
+    duckdb_path = recipe_duckdb_path(recipe)
     os.environ["DUCKDB_PATH"] = str(duckdb_path)
     logger.info(f"Set DUCKDB_PATH: {duckdb_path}")
+
+
+def recipe_duckdb_path(recipe: "plan.Recipe") -> Path:
+    assert recipe.version
+    return get_duckdb_path(
+        recipe.product, recipe.version, recipe.duckdb_filename, uses_stage_dirs(recipe)
+    )
+
+
+def size_report(duckdb_path: Path) -> str:
+    """One line on a build's duckdb file: its size, how much of it is in use, and
+    free disk space where it lives."""
+    import duckdb
+
+    def gb(num_bytes: int) -> str:
+        if num_bytes < 1e9:
+            return f"{num_bytes / 1e6:,.0f} MB"
+        return f"{num_bytes / 1e9:,.2f} GB"
+
+    free = (
+        gb(shutil.disk_usage(duckdb_path.parent).free)
+        if duckdb_path.parent.exists()
+        else "unknown"
+    )
+    if not duckdb_path.exists():
+        return f"DuckDB `{duckdb_path.name}`: not found ({free} free on disk)"
+
+    # The file keeps blocks freed by dropped tables, so used blocks can be well under its size.
+    with duckdb.connect(str(duckdb_path), read_only=True) as conn:
+        block_size, used_blocks = conn.execute(
+            "SELECT block_size, used_blocks FROM pragma_database_size() "
+            "WHERE database_name = current_database()"
+        ).fetchone()  # type: ignore[misc]
+    return (
+        f"DuckDB `{duckdb_path.name}`: {gb(duckdb_path.stat().st_size)} file, "
+        f"{gb(block_size * used_blocks)} in use, {free} free on disk"
+    )
+
+
+def report_size(recipe_lock_path: Path, label: str) -> None:
+    """Log a duckdb build's file size, and add it to the GitHub job summary in Actions.
+    Does nothing for recipes that don't load into duckdb."""
+    # Called after a stage whether or not it failed, so it must never raise over the
+    # stage's own error.
+    try:
+        recipe = plan.recipe_from_yaml(recipe_lock_path)
+        if not _uses_duckdb(recipe):
+            return
+        report = f"{label}: {size_report(recipe_duckdb_path(recipe))}"
+    except Exception as e:
+        logger.warning(f"Couldn't report duckdb size {label}: {e}")
+        return
+    logger.info(report)
+    if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(summary, "a") as f:
+            f.write(report + "\n")
+
+
+def upload_failed_build(recipe_lock_path: Path, product_path: Path) -> str:
+    """Upload a failed build's duckdb file and dbt results to the private bucket, to
+    query or rerun dbt against locally. Returns the s3 prefix uploaded to."""
+    recipe = plan.recipe_from_yaml(recipe_lock_path)
+    assert recipe.build_name, "Recipe must have a build_name to upload a failed build"
+    prefix = f"{recipe.product}/builds/{recipe.build_name}/failed"
+    # Clear an earlier failure's files so the folder reflects only this run.
+    s3.delete(PRIVATE_BUCKET, prefix + "/")
+
+    # Uploaded from where they are, not staged in a copy: runners can be short on disk.
+    duckdb_path = recipe_duckdb_path(recipe)
+    if duckdb_path.exists():
+        s3.upload_file(
+            PRIVATE_BUCKET, duckdb_path, f"{prefix}/{duckdb_path.name}", acl="private"
+        )
+    run_results = product_path / "target" / "run_results.json"
+    if run_results.exists():
+        s3.upload_file(
+            PRIVATE_BUCKET,
+            run_results,
+            f"{prefix}/target/run_results.json",
+            acl="private",
+        )
+    logs = product_path / "logs"
+    if logs.is_dir():
+        s3.upload_folder(
+            PRIVATE_BUCKET,
+            logs,
+            Path(prefix) / "logs",
+            acl="private",
+            contents_only=True,
+            keep_existing=True,
+        )
+    return f"{PRIVATE_BUCKET}/{prefix}"
 
 
 def run_single_command(
@@ -612,7 +708,10 @@ def _run_build_commands(
     if recipe_lock_path is None:
         recipe_lock_path = (build_directory or product_path) / "recipe.lock.yml"
 
-    run_build_commands(product_path, recipe_lock_path, build_directory)
+    try:
+        run_build_commands(product_path, recipe_lock_path, build_directory)
+    finally:
+        report_size(recipe_lock_path, "after build")
     typer.echo("Build commands completed successfully.")
 
 
@@ -737,16 +836,7 @@ def _get_build_path(
         raise typer.Exit(code=1)
 
     if duckdb:
-        typer.echo(
-            str(
-                get_duckdb_path(
-                    recipe.product,
-                    recipe.version,
-                    recipe.duckdb_filename,
-                    uses_stage_dirs(recipe),
-                )
-            )
-        )
+        typer.echo(str(recipe_duckdb_path(recipe)))
     else:
         typer.echo(
             str(
@@ -755,3 +845,24 @@ def _get_build_path(
                 )
             )
         )
+
+
+@app.command("upload-failed")
+def _upload_failed_build(
+    recipe_file: Path = typer.Option(
+        ...,
+        "--recipe-path",
+        help="Path to the build's recipe lock file",
+    ),
+    product_path: Path = typer.Option(
+        None,
+        "--product-path",
+        "-p",
+        help="Product directory holding dbt's target/ and logs/ (default: current directory)",
+    ),
+):
+    """Upload a failed build's duckdb file, dbt run_results.json, and dbt logs to the
+    private bucket, under <product>/builds/<build name>/failed/."""
+    typer.echo(
+        f"Uploaded to {upload_failed_build(recipe_file, product_path or Path.cwd())}"
+    )
