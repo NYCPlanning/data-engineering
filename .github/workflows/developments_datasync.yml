@@ -42,6 +42,9 @@ jobs:
         run: uv run python3 -m dcpy lifecycle ingest ingest ${{ matrix.dataset }} --latest --push
 
   create_issue_on_failure:
+    permissions:
+      contents: read
+      issues: write
     needs: sync
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}

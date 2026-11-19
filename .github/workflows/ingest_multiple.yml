@@ -67,6 +67,9 @@ jobs:
         echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   dataloading:
+    permissions:
+      contents: read
+      actions: write
     runs-on: ubuntu-22.04
     needs: set_matrix
     container:
@@ -140,6 +143,9 @@ jobs:
         sleep 5s
 
   create_issue_on_failure:
+    permissions:
+      contents: read
+      issues: write
     needs: dataloading
     runs-on: ubuntu-22.04
     if: ${{ failure() && (inputs.error_behavior == 'raise') && (inputs.create_issue == 'true') }}

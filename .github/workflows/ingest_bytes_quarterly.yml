@@ -17,6 +17,11 @@ on:
 
 jobs:
   dataloading:
+    # A caller's grant caps the reusable workflow's: it cancels runs and opens failure issues.
+    permissions:
+      contents: read
+      actions: write
+      issues: write
     uses: ./.github/workflows/ingest_multiple.yml
     secrets: inherit
     with:
