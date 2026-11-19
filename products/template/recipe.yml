@@ -14,6 +14,9 @@ inputs:
     - name: dpr_parksproperties
     - name: dpr_greenthumb
     - name: lpc_landmarks
+      # Newer versions put every landmark at the same point (-74, 41), in Socrata's own data.
+      # Unpin once the source coordinates are fixed.
+      version: "20260618"
     - name: lion.borough_boundaries
       source: bytes
       file_type: shapefile
