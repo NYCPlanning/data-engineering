@@ -23,6 +23,7 @@ from dcpy.geospatial.shapefile_write import (
 from dcpy.lifecycle import product_metadata
 from dcpy.lifecycle.builds import config as build_config
 from dcpy.lifecycle.builds import metadata, plan
+from dcpy.lifecycle.builds.build import report_size
 from dcpy.lifecycle.builds.models import (
     LAYERED_EXPORT_FORMATS,
     BuildExports,
@@ -848,7 +849,10 @@ def _export(
     recipe_lock_path = recipe_lock_path or (
         Path(plan.DEFAULT_RECIPE).parent / "recipe.lock.yml"
     )
-    output_path = export(recipe_lock_path)
+    try:
+        output_path = export(recipe_lock_path)
+    finally:
+        report_size(recipe_lock_path, "after export")
     if output_path:
         typer.echo(f"Export completed: {output_path}")
 

@@ -85,3 +85,7 @@ jobs:
           cp "$BUILD_DIR/build_metadata.json" "$BUILD_DIR/attachments/build_metadata.json"
           uv run python3 -m dcpy lifecycle builds build upload "$BUILD_DIR/dataset_files" --recipe-path ${{ inputs.recipe_file }}.lock.yml
           uv run python3 -m dcpy lifecycle builds build upload "$BUILD_DIR/attachments" --recipe-path ${{ inputs.recipe_file }}.lock.yml --merge
+
+      - name: Upload failed build for inspection
+        if: failure()
+        run: uv run python3 -m dcpy lifecycle builds build upload-failed --recipe-path ${{ inputs.recipe_file }}.lock.yml
