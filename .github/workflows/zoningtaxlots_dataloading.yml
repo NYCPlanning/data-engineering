@@ -110,6 +110,9 @@ jobs:
       recipe_file: recipe-minor
 
   promote_ztl_to_draft:
+    permissions:
+      contents: read
+      issues: write
     needs: [ dataloading, build_ztl ]
     name: Promote ZTL build to Draft folder
     if: inputs.promote
@@ -121,6 +124,9 @@ jobs:
       dev_bucket: ${{ inputs.dev_bucket }}
 
   promote_pluto_to_draft:
+    permissions:
+      contents: read
+      issues: write
     needs: [ dataloading, pluto_minor ]
     name: Promote PLUTO build to Draft folder
     if: inputs.promote

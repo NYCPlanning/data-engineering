@@ -74,6 +74,9 @@ on:
 
 jobs:
   promote:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-22.04
     defaults:
       run:

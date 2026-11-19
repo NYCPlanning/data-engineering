@@ -6,6 +6,9 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
+      issues: write
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -55,6 +58,9 @@ jobs:
         filename: .github/ISSUE_TEMPLATE/dep-monthly.md
 
   create_issue_on_failure:
+    permissions:
+      contents: read
+      issues: write
     needs: build
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
