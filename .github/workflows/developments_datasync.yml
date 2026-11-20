@@ -2,7 +2,8 @@ name: DevDB - Data Sync of HPD and DOB Data
 
 on:
   schedule:
-    - cron: "0 0 * * MON"
+    - cron: "23 20 * * 0"  # Sundays, 8:23pm
+      timezone: "America/New_York"
   workflow_dispatch:
 
 jobs:

@@ -1,7 +1,8 @@
 name: PLUTO Inputs
 on:
   schedule:
-  - cron: 0 13 * * MON
+  - cron: "11 22 * * 0"  # Sundays, 10:11pm
+    timezone: "America/New_York"
   workflow_dispatch:
     inputs:
       dev_image:

@@ -2,8 +2,8 @@ name: Ingest - 📁 Open Data Routine Updates
 
 on:
   schedule:
-  # Weekly Cron job
-  - cron: "0 0 * * 0"
+  - cron: "7 20 * * 6"  # Saturdays, 8:07pm
+    timezone: "America/New_York"
   workflow_dispatch:
     inputs:
       dev_image:
