@@ -62,12 +62,16 @@ def download(
     """Download a dataset, or with `where`, only the rows matching that SoQL where clause.
     The query endpoint returns 1,000 rows unless asked for more, so it asks for every match."""
     path.parent.mkdir(exist_ok=True, parents=True)
+    # streamed to disk, so a large export never has to fit in memory
     if where:
         params = {"$where": where, "$limit": max(count_rows(org, uid, where), 1)}
         response = _socrata_request(
-            get_query_url(org, uid, format), "GET", params=params
+            get_query_url(org, uid, format), "GET", params=params, stream=True
         )
     else:
-        response = _socrata_request(get_download_url(org, uid, format), "GET")
+        response = _socrata_request(
+            get_download_url(org, uid, format), "GET", stream=True
+        )
     with open(path, "wb") as f:
-        f.write(response.content)
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            f.write(chunk)
