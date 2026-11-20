@@ -2,7 +2,8 @@ name: Build and Push `edm-recipes` Catalog
 
 on:
   schedule:
-  - cron: "0 5 * * *"
+  - cron: "52 21 * * *"  # daily, 9:52pm
+    timezone: "America/New_York"
   workflow_dispatch:
 
 

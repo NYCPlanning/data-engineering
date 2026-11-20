@@ -12,7 +12,8 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "17 21 * * *"  # daily, 9:17pm
+      timezone: "America/New_York"
 
 jobs:
   test:

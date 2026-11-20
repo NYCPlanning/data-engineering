@@ -3,8 +3,8 @@ name: 🧹 Clean stale build artifacts
 on:
   workflow_dispatch:
   schedule:
-    # 11 PM EST (midnight during daylight time); cron runs in UTC
-    - cron: "0 4 * * *"
+    - cron: "41 20 * * *"  # daily, 8:41pm
+      timezone: "America/New_York"
 
 jobs:
   clean:
