@@ -39,7 +39,8 @@ class TestConnector:
 def test_download_with_where_queries_every_matching_row(socrata_request, tmp_path):
     count = mock.Mock()
     count.json.return_value = [{"count": "23218"}]
-    rows = mock.Mock(content=b"route_id\nB1\n")
+    rows = mock.Mock()
+    rows.iter_content.return_value = [b"route_id\n", b"B1\n"]
     socrata_request.side_effect = [count, rows]
 
     path = tmp_path / "stops.csv"
@@ -52,6 +53,21 @@ def test_download_with_where_queries_every_matching_row(socrata_request, tmp_pat
         "$where": "in_effect='true'",
         "$limit": 23218,
     }
+    assert query_call.kwargs["stream"] is True
+
+
+@mock.patch("dcpy.connectors.socrata.extract._socrata_request")
+def test_download_streams_the_export_to_disk(socrata_request, tmp_path):
+    response = mock.Mock()
+    response.iter_content.return_value = [b"route_id\n", b"B1\n", b"B2\n"]
+    socrata_request.return_value = response
+
+    path = tmp_path / "stops.csv"
+    extract.download(ORG, UID, "csv", path)
+
+    assert path.read_bytes() == b"route_id\nB1\nB2\n"
+    assert socrata_request.call_args.args[0].endswith(f"/views/{UID}/rows.csv")
+    assert socrata_request.call_args.kwargs["stream"] is True
 
 
 def test_query_url_rejects_shapefile():
