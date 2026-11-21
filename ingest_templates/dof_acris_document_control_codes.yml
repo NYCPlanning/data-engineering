@@ -1,0 +1,48 @@
+id: dof_acris_document_control_codes
+
+attributes:
+  name: DOF ACRIS Document Control Codes
+  description: >-
+    One row per ACRIS document type, with its description, its class (deeds, mortgages, UCC and federal liens, or
+    other), and what each of its parties is.
+  url: https://data.cityofnewyork.us/d/7isb-wh4c
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 7isb-wh4c
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+  processing_steps:
+  # doc_type rather than the API's doc__type, so it joins to ACRIS Master's doc_type by name
+  - name: rename_columns
+    args:
+      map:
+        RECORD TYPE: record_type
+        DOC. TYPE: doc_type
+        DOC. TYPE DESCRIPTION: doc_type_description
+        CLASS CODE DESCRIPTION: class_code_description
+        PARTY1 TYPE: party1_type
+        PARTY2 TYPE: party2_type
+        PARTY3 TYPE: party3_type
+
+columns:
+- id: record_type
+  data_type: text
+- id: doc_type
+  data_type: text
+- id: doc_type_description
+  data_type: text
+- id: class_code_description
+  data_type: text
+- id: party1_type
+  data_type: text
+- id: party2_type
+  data_type: text
+- id: party3_type
+  data_type: text
