@@ -1,0 +1,22 @@
+# Build context for apps/docker/Dockerfile is the repo root. Allowlist what the apps need, so a
+# local build can't pick up .env files, venvs, or build outputs.
+*
+!pyproject.toml
+!uv.lock
+!python
+!apps
+!product-metadata
+!products
+!ingest_templates
+
+**/.env
+**/.venv
+**/__pycache__
+**/.DS_Store
+**/.lifecycle
+**/.user.yml
+**/target
+**/dbt_packages
+**/logs
+**/node_modules
+apps/*/ssl
