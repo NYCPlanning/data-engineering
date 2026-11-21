@@ -1,0 +1,9 @@
+altair
+boto3
+# certificates for downloads, which uv's Python doesn't take from the system
+certifi
+duckdb
+marimo
+pandas
+pyarrow
+ruff
