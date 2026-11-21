@@ -1,0 +1,71 @@
+id: dof_acris_master
+
+attributes:
+  name: DOF ACRIS Real Property Master
+  description: >-
+    One row per document recorded in ACRIS (the Automated City Register Information System): deeds, mortgages, and
+    other real property records, with the document type, dates, and amount. Join to Legals for the lots a document
+    covers and to Parties for who's on it, by document_id.
+  url: https://data.cityofnewyork.us/d/bnx9-e6tj
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: bnx9-e6tj
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+  processing_steps:
+  # The export's headers don't all match the API field names (BOROUGH is recorded_borough), so this renames to the
+  # API names, which the ACRIS Parties template gets from the query endpoint.
+  - name: rename_columns
+    args:
+      map:
+        DOCUMENT ID: document_id
+        RECORD TYPE: record_type
+        CRFN: crfn
+        BOROUGH: recorded_borough
+        DOC. TYPE: doc_type
+        DOC. DATE: document_date
+        DOC. AMOUNT: document_amt
+        RECORDED / FILED: recorded_datetime
+        MODIFIED DATE: modified_date
+        REEL YEAR: reel_yr
+        REEL NBR: reel_nbr
+        REEL PAGE: reel_pg
+        "% TRANSFERRED": percent_trans
+        GOOD THROUGH DATE: good_through_date
+
+columns:
+- id: document_id
+  data_type: text
+- id: record_type
+  data_type: text
+- id: crfn
+  data_type: text
+- id: recorded_borough
+  data_type: text
+- id: doc_type
+  data_type: text
+- id: document_date
+  data_type: text
+- id: document_amt
+  data_type: text
+- id: recorded_datetime
+  data_type: text
+- id: modified_date
+  data_type: text
+- id: reel_yr
+  data_type: text
+- id: reel_nbr
+  data_type: text
+- id: reel_pg
+  data_type: text
+- id: percent_trans
+  data_type: text
+- id: good_through_date
+  data_type: text

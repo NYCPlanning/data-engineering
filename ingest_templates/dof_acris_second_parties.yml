@@ -1,0 +1,48 @@
+id: dof_acris_second_parties
+
+attributes:
+  name: DOF ACRIS Real Property Parties, Party 2
+  description: >-
+    The second party on each ACRIS document, with their name and address. What party 2 is depends on the document
+    type (see ACRIS Document Control Codes): the grantee on a deed, the lender on a mortgage, the secured party on a
+    UCC filing, the lessee on a lease. Joins to ACRIS Master and Legals by document_id.
+  url: https://data.cityofnewyork.us/d/636b-3b5g
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 636b-3b5g
+    format: csv
+    # The full Parties dataset is around 6 GB as csv. Party 2 holds the grantees on deeds, which is what lot
+    # ownership work needs, and taking one party type keeps every column of those rows.
+    where: party_type='2'
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+
+columns:
+- id: document_id
+  data_type: text
+- id: record_type
+  data_type: text
+- id: party_type
+  data_type: text
+- id: name
+  data_type: text
+- id: address_1
+  data_type: text
+- id: address_2
+  data_type: text
+- id: country
+  data_type: text
+- id: city
+  data_type: text
+- id: state
+  data_type: text
+- id: zip
+  data_type: text
+- id: good_through_date
+  data_type: text
