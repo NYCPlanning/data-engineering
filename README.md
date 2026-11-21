@@ -37,9 +37,9 @@ For the full workflow including GIS team review and issue tracking conventions, 
 ## Getting started
 
 The [wiki](https://github.com/NYCPlanning/data-engineering/wiki) covers team and operational content:
-[About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Environment Management](https://github.com/NYCPlanning/data-engineering/wiki/Environment-Management) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)
+[About Us](https://github.com/NYCPlanning/data-engineering/wiki/About-Us) · [Cloud Infrastructure](https://github.com/NYCPlanning/data-engineering/wiki/Cloud-Infrastructure) · [Data Catalog](https://github.com/NYCPlanning/data-engineering/wiki/Data-Catalog) · [Product pages](https://github.com/NYCPlanning/data-engineering/wiki/Home)
 
-See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup) for onboarding and the recommended Docker dev container. For manual (uv/venv) setup and Python dependency management, see [docs/development.md](docs/development.md).
+To set up a development environment, see [docs/development.md](docs/development.md). The [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup) covers getting access and optional tools.
 
 ## Documentation
 
@@ -47,7 +47,8 @@ See the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineer
 - [Urban Planning Glossary](docs/glossary-urban-planning.md) — entities and relationships to model the built environment
 - [Capital Planning Glossary](docs/glossary-capital-planning.md) - capital budget terms and the budget cycle
 - [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
-- [Local development](docs/development.md) — manual (uv/venv) setup and dependency management
+- [Local development](docs/development.md) — dev container and manual setup, dependency management
+- [Docker images](docs/docker-images.md) — the images builds and CI run in, and how they're published
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
 - [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + package-boundary enforcement
 - [Data modeling](docs/data-modeling.md) — how we model the data products expose
