@@ -1,9 +1,32 @@
 # Local Development
 
-First-time onboarding (GitHub access, SSH keys, 1Password, recommended tools, and the VSCode
-dev-container walkthrough) lives on the [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup).
-The **dev container is the recommended way to develop**; this doc covers the command-driven
-**manual setup** and day-to-day **Python dependency management**.
+Getting access (GitHub, 1Password) and optional tools are on the
+[Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup).
+
+There are two ways to set up: the [dev container](#dev-container) (recommended) or a
+[manual setup](#manual-environment-setup-uv) with uv. Either way, start by copying `example.env`
+to `.env` in the repo root and filling in the values. Most of them are in 1Password.
+
+## Dev container
+
+The dev container is a Docker environment that VS Code connects to. CI runs the dcpy tests in the
+same image, so it's the closest match to CI, though it can be slower than working outside a
+container. It needs [Docker](https://docs.docker.com/get-docker/) and VS Code's Dev Containers
+extension.
+
+Its config is in `.devcontainer/`:
+
+- `docker-compose.yml` defines the `de` container, plus a local `postgis` database and an
+  `sftp-server` that the integration tests use. It loads `.env` and mounts the repo into `de`.
+- `Dockerfile` builds `de` from our `dev` image (see [Docker images](./docker-images.md)).
+- `devcontainer.json` is VS Code's config: extensions, forwarded ports, and
+  `bash/docker_container_setup.sh`, which runs after the container is created.
+
+To start it from VS Code, open the repo and pick "Reopen in Container". VS Code runs `ssh-add`
+first, so it may ask for your SSH key's passphrase.
+
+To start it from a terminal, run `docker compose up -d` in `.devcontainer/`, then
+`docker exec -ti de bash` for a shell.
 
 ## Manual environment setup (uv)
 
