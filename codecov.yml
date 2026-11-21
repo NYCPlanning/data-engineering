@@ -1,0 +1,18 @@
+# Coverage is reported on PRs but never fails a check.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+# Each dcpy package uploads separately (see test_helper.yml). Wait for all six unit-test
+# uploads before reporting, so a PR's numbers aren't based on one package. Six, not
+# seven: Dependabot PRs skip the integration upload.
+codecov:
+  notify:
+    after_n_builds: 6
+comment:
+  after_n_builds: 6
