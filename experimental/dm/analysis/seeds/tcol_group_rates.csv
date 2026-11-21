@@ -1,0 +1,19 @@
+dimension,group,pct_not_meeting,avg_resource_gap
+All,All,61.8,39603
+Age,Children (under age 18),72.5,48955
+Age,Adults age 18-64,58.7,37468
+Age,Adults age 65 and older,60.7,33585
+Broad family type,"Families <65, no children",53.9,30795
+Broad family type,"Families <65, with children",70.1,46758
+Broad family type,Families with adults 65+,60.0,37526
+Race and ethnicity,Asian and Pacific Islanders,63.3,40348
+Race and ethnicity,Black People,65.6,36966
+Race and ethnicity,Hispanic People,77.6,43824
+Race and ethnicity,White People,43.7,34313
+Race and ethnicity,Other Racial/Ethnic Groups,56.4,41119
+Special family type,Three-generation families,64.2,31107
+Special family type,Families with children and student debt,58.9,25280
+Special family type,"Any disability, adults under 65",80.3,39109
+Special family type,"Any disability, adults 65 and older",68.1,31545
+Special family type,"Self-care disability, adults under 65",92.0,76178
+Special family type,"Self-care disability, adults 65 and older",82.6,59860

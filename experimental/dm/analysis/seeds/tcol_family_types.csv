@@ -1,0 +1,16 @@
+tcol_family_type_id,adult_age_group,family_type,adults,children,is_rollup,median_cost,median_resources,pct_not_meeting,avg_resource_gap
+under_65_one_adult_no_children,Under 65,"One Adult, No Children",1,0,False,70334,57680,63.6,25928
+under_65_one_adult_1_child,Under 65,"One Adult, 1 Child",1,1,False,97527,66026,83.8,36596
+under_65_one_adult_2_children,Under 65,"One Adult, 2 Children",1,2,False,114108,67701,93.8,48569
+under_65_one_adult_3_plus_children,Under 65,"One Adult, 3+ Children",1,3+,False,138235,73765,98.5,66561
+under_65_one_adult_1_plus_children,Under 65,"One Adult, 1+ Children",1,1+,True,114568,68500,91.0,49473
+under_65_two_plus_adults_no_children,Under 65,"Two+ Adults, No Children",2+,0,False,131993,133089,47.3,35208
+under_65_two_plus_adults_1_child,Under 65,"Two+ Adults, 1 Child",2+,1,False,147522,130449,59.5,38972
+under_65_two_plus_adults_2_children,Under 65,"Two+ Adults, 2 Children",2+,2,False,166279,141449,64.6,45349
+under_65_two_plus_adults_3_plus_children,Under 65,"Two+ Adults, 3+ Children",2+,3+,False,186554,138243,78.9,54546
+under_65_two_plus_adults_1_plus_children,Under 65,"Two+ Adults, 1+ Children",2+,1+,True,166034,136766,66.5,46134
+65_and_older_one_adult_no_children,65 and older,"One Adult, No Children",1,0,False,55545,41326,71.3,26678
+65_and_older_two_adults_no_children,65 and older,"Two Adults, No Children",2,0,False,90516,80544,56.5,34884
+65_and_older_one_adult_1_plus_children,65 and older,"One Adult, 1+ Children",1,1+,False,,,,
+65_and_older_two_adults_1_plus_children,65 and older,"Two Adults, 1+ Children",2,1+,False,134891,88853,79.5,51332
+65_and_older_three_plus_adults,65 and older,Three+ Adults,3+,,False,171599,163564,55.5,44012

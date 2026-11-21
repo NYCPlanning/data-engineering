@@ -1,0 +1,49 @@
+models:
+  - name: fact_major_felony_complaint
+    description: >
+      One row per complaint of the seven major felonies, as NYPD defines them, from NYPD Complaint Data Historic:
+      murder, rape, robbery, felony assault, burglary, grand larceny, and grand larceny of a motor vehicle.
+      Only complaints that occurred in 2025. Includes attempts.
+    columns:
+      - name: complaint_id
+        description: NYPD complaint number (cmplnt_num).
+        data_tests: [unique, not_null]
+      - name: occurred_date
+        description: Date the offense occurred, or started (cmplnt_fr_dt).
+        data_tests: [not_null]
+      - name: reported_date
+        description: Date the complaint was reported to NYPD (rpt_dt).
+      - name: offense_code
+        description: NYPD offense key code (ky_cd).
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [101, 104, 105, 106, 107, 109, 110]
+      - name: offense_description
+        description: Offense for offense_code (ofns_desc).
+      - name: internal_offense_description
+        description: NYPD's more detailed internal classification (pd_desc).
+      - name: law_category
+        description: FELONY, MISDEMEANOR, or VIOLATION (law_cat_cd).
+      - name: is_attempted
+        description: Whether the crime was attempted rather than completed (crm_atpt_cptd_cd).
+      - name: precinct
+        description: Precinct the complaint occurred in (addr_pct_cd).
+      - name: boro_name
+        description: Borough NYPD recorded (boro_nm).
+      - name: premises_type
+        description: Kind of place the complaint occurred (prem_typ_desc).
+      - name: jurisdiction
+        description: Agency with jurisdiction where it occurred (juris_desc).
+      - name: geom
+        description: Location point, EPSG:4326.
+      - name: borocd
+        description: >
+          Community district the point is within, or null where it's in none (on a district line or outside
+          every district). tests/assert_major_felony_complaints_in_a_district lists the nulls.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd

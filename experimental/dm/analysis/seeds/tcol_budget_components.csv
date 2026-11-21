@@ -1,0 +1,43 @@
+broad_family_type,component,component_kind,median_amount
+"Adults under 65, no children",Total Cost,cost,106346
+"Adults under 65, with children",Total Cost,cost,159197
+Adults 65 and older,Total Cost,cost,123089
+"Adults under 65, no children",Housing,cost,22002
+"Adults under 65, with children",Housing,cost,26704
+Adults 65 and older,Housing,cost,24500
+"Adults under 65, no children",Health Care,cost,19031
+"Adults under 65, with children",Health Care,cost,27489
+Adults 65 and older,Health Care,cost,19912
+"Adults under 65, no children",Food,cost,7041
+"Adults under 65, with children",Food,cost,14567
+Adults 65 and older,Food,cost,10336
+"Adults under 65, no children",Transportation,cost,7737
+"Adults under 65, with children",Transportation,cost,9754
+Adults 65 and older,Transportation,cost,9754
+"Adults under 65, no children",Child Care,cost,0
+"Adults under 65, with children",Child Care,cost,13416
+Adults 65 and older,Child Care,cost,0
+"Adults under 65, no children",Student Debt,cost,0
+"Adults under 65, with children",Student Debt,cost,0
+Adults 65 and older,Student Debt,cost,0
+"Adults under 65, no children",Disability Costs,cost,0
+"Adults under 65, with children",Disability Costs,cost,0
+Adults 65 and older,Disability Costs,cost,0
+"Adults under 65, no children",Savings,cost,9667
+"Adults under 65, with children",Savings,cost,14472
+Adults 65 and older,Savings,cost,10073
+"Adults under 65, no children",Taxes,cost,18289
+"Adults under 65, with children",Taxes,cost,15637
+Adults 65 and older,Taxes,cost,9429
+"Adults under 65, no children",Other Costs,cost,16723
+"Adults under 65, with children",Other Costs,cost,24493
+Adults 65 and older,Other Costs,cost,16723
+"Adults under 65, no children",Total Resources,resource,97341
+"Adults under 65, with children",Total Resources,resource,124007
+Adults 65 and older,Total Resources,resource,105500
+"Adults under 65, no children",Market Resources,resource,90367
+"Adults under 65, with children",Market Resources,resource,95277
+Adults 65 and older,Market Resources,resource,66539
+"Adults under 65, no children",Non-Market Resources,resource,6974
+"Adults under 65, with children",Non-Market Resources,resource,28730
+Adults 65 and older,Non-Market Resources,resource,38961

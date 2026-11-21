@@ -1,0 +1,292 @@
+models:
+  - name: dim_kpdb_record_community_district
+    description: >
+      One row per KPDB record and community district it falls in (record_id x borocd), from KPDB
+      2026-10-01. A record that spans districts has a row for each, with its units split by
+      proportion_in_cd. Summing within_5_years_in_cd + from_5_to_10_years_in_cd by district gives
+      dim_community_district.projected_net_units_2025_2034.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "record_id || '-' || borocd"
+    columns:
+      - name: record_id
+        description: KPDB record id. A ZAP project id, DOB job number, or another source's id.
+        data_tests: [not_null]
+      - name: borocd
+        description: Community district the record piece falls in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: project_id
+        description: KPDB project id. Records judged to be the same development share one.
+      - name: source
+        description: Where the record comes from, e.g. DOB, DCP Application, HPD RFPs.
+      - name: record_name
+        description: Record name or address.
+      - name: status
+        description: Source-specific status, e.g. "DOB 3. Permitted for Construction".
+      - name: type
+        description: Source-specific record type.
+      - name: record_date
+        description: Date of the record, as text in KPDB's YYYY/MM/DD format. Its meaning is in date_type.
+      - name: date_type
+        description: What record_date marks, e.g. "Certified Referred".
+      - name: is_classb
+        description: KPDB classb flag.
+      - name: is_nycha
+        description: KPDB nycha flag.
+      - name: is_senior_housing
+        description: KPDB senior_housing flag.
+      - name: is_inactive
+        description: KPDB inactive flag. Null where KPDB leaves it blank.
+      - name: proportion_in_cd
+        description: Share of the record's units assigned to this district, 0 to 1.
+      - name: units_net_in_cd
+        description: Net units in this district (units_net times proportion_in_cd). SSOT is KPDB longform_cd_output.
+      - name: completed_units_in_cd
+        description: Units already completed, in this district. SSOT is KPDB longform_cd_output.
+      - name: future_phased_units_total_in_cd
+        description: Future units with phasing, in this district. SSOT is KPDB longform_cd_output.
+      - name: future_units_without_phasing_in_cd
+        description: Future units without phasing, in this district. SSOT is KPDB longform_cd_output.
+      - name: within_5_years_in_cd
+        description: Units KPDB phases within 5 years, in this district. SSOT is KPDB longform_cd_output.
+      - name: from_5_to_10_years_in_cd
+        description: Units KPDB phases within 5 to 10 years, in this district. SSOT is KPDB longform_cd_output.
+      - name: after_10_years_in_cd
+        description: Units KPDB phases after 10 years, in this district. SSOT is KPDB longform_cd_output.
+
+  - name: mart_community_district_date
+    description: >
+      One row per community district and date (borocd x as_of_date): April 1 2010, December 31 of
+      2010 through 2025, and April 1 2020. Housing units counted from the 2020 census, so the series
+      only changes by units built, from fact_unit_completion.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "borocd || '-' || as_of_date"
+    columns:
+      - name: borocd
+        description: Community district.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: community_district_name
+        description: Same as dim_community_district.community_district_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: cdta_name
+        description: Same as dim_community_district.cdta_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: as_of_date
+        description: Date the housing unit count is as of, at the end of the day.
+        data_tests: [not_null]
+      - name: housing_units_from_2020_census
+        description: >
+          Housing units as of as_of_date: housing_units_2020_census, minus net units completed after
+          as_of_date through April 1 2020, or plus net units completed after April 1 2020 through
+          as_of_date (fact_unit_completion.classa_net, active jobs only). Semi-additive: sums across
+          districts, not across dates. On April 1 2010 it equals
+          dim_community_district.housing_units_2010_backcast.
+        data_tests: [not_null]
+
+  - name: mart_nta_date
+    description: >
+      One row per NTA and date (nta2020 x as_of_date): April 1 2010, December 31 of 2010 through 2025, and April 1 2020.
+      The same series as mart_community_district_date, at the NTA grain. Past units only. KPDB's NTA projections are on dim_nta.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "nta2020 || '-' || as_of_date"
+    columns:
+      - name: nta2020
+        description: NTA code.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: nta_name
+        description: Same as dim_nta.nta_name. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: nta_type_name
+        description: Same as dim_nta.nta_type_name. Repeated here so non-residential NTAs can be left out without a join.
+        data_tests: [not_null]
+      - name: cdta2020
+        description: Same as dim_nta.cdta2020. Repeated here so the table reads on its own.
+        data_tests: [not_null]
+      - name: as_of_date
+        description: Date the housing unit count is as of, at the end of the day.
+        data_tests: [not_null]
+      - name: housing_units_from_2020_census
+        description: >
+          Housing units as of as_of_date: dim_nta.housing_units_2020_census, minus net units completed after as_of_date
+          through April 1 2020, or plus net units completed after April 1 2020 through as_of_date
+          (fact_unit_completion.classa_net, active jobs only). Semi-additive: sums across NTAs, not across dates.
+        data_tests: [not_null]
+
+  - name: fact_unit_completion
+    description: >
+      One row per completed DOB job (job_number) from the Housing Database (dcp_housing 26Q2).
+      A job counts as completed once DevDB sets its date_complete.
+      Includes demolitions and alterations, whose net units can be negative, and inactive jobs, which
+      the district metrics leave out.
+    columns:
+      - name: job_number
+        description: DOB job number.
+        data_tests: [unique, not_null]
+      - name: job_type
+        description: New Building, Alteration, or Demolition.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [New Building, Alteration, Demolition]
+      - name: borocd
+        description: Community district the job is in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community_district')
+                field: borocd
+      - name: nta2020
+        description: NTA the job is in.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_nta')
+                field: nta2020
+      - name: boroct2020
+        description: The job's 2020 census tract (Housing Database bct2020), borough code and tract.
+      - name: date_complete
+        description: >
+          Completion date. For new buildings and alterations it comes from the job's certificate of
+          occupancy. For demolitions it's the permit date, set once DOB signs the job off.
+        data_tests: [not_null]
+      - name: complete_year
+        description: Year of date_complete.
+      - name: classa_net
+        description: >
+          Net Class A (permanent residential) units the job adds, negative where it removes them.
+          Additive. SSOT is dcp_housing.
+      - name: is_inactive
+        description: >
+          True if the Housing Database flags the job inactive. DevDB's unit change summary leaves these
+          out, and so do the district metrics here.
+        data_tests: [not_null]
+
+  - name: fact_housing_survey_household
+    description: >
+      One row per household in HPD's Housing and Vacancy Survey (HVS) public use files, 2021 and
+      2023 (survey_year x control). A sample, not a count: weight each row by household_weight to
+      estimate totals, and use the 80 replicate weights for standard errors (see
+      int_borough_survey_year_household_size_metrics). The only geography in the public files is
+      borough. HPD cautions that differences between survey cycles may not reflect real change.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "survey_year || '-' || control"
+    columns:
+      - name: survey_year
+        description: HVS survey cycle, 2021 or 2023.
+        data_tests: [not_null]
+      - name: control
+        description: HVS record id (CONTROL), unique within a survey year.
+        data_tests: [not_null]
+      - name: boro_code
+        description: Borough, recoded from HVS's BORO to DCP's codes (1 Manhattan, 2 Bronx, 3 Brooklyn, 4 Queens, 5 Staten Island).
+        data_tests: [not_null]
+      - name: is_built_2010_or_later
+        description: Whether the building was built in 2010 or later (YEARBUILT's last bin). Year built is the building's, not the unit's.
+        data_tests: [not_null]
+      - name: household_size
+        description: People in the household (HHSIZE).
+        data_tests: [not_null]
+      - name: household_weight
+        description: Household survey weight (FW).
+        data_tests: [not_null]
+
+  - name: mart_borough_survey_year
+    description: >
+      One row per borough and HVS survey year (boro_code x survey_year): average household size in
+      buildings built before 2010 and 2010 or later, from fact_housing_survey_household, each with a
+      standard error from HPD's replicate weights. Shows whether households in new buildings are
+      smaller, which the units built part of the population change decomposition assumes they aren't.
+      Averages, so don't sum or average them across rows.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "boro_code || '-' || survey_year"
+    columns:
+      - name: boro_code
+        description: Borough code, same as dim_community_district.boro_code.
+        data_tests: [not_null]
+      - name: boro_name
+        description: Borough name, same as dim_community_district.boro_name.
+        data_tests: [not_null]
+      - name: survey_year
+        description: HVS survey cycle, 2021 or 2023.
+        data_tests: [not_null]
+      - name: hvs_records_built_before_2010
+        description: Sampled households in buildings built before 2010. Not an estimate of households.
+      - name: hvs_records_built_2010_or_later
+        description: Sampled households in buildings built 2010 or later. Under 10 on Staten Island, too few to read.
+      - name: average_household_size_built_before_2010_hvs
+        description: Weighted average people per household in buildings built before 2010, rounded to 2 decimals.
+      - name: average_household_size_built_before_2010_hvs_se
+        description: Standard error of average_household_size_built_before_2010_hvs, rounded to 3 decimals.
+      - name: average_household_size_built_2010_or_later_hvs
+        description: Weighted average people per household in buildings built 2010 or later, rounded to 2 decimals.
+      - name: average_household_size_built_2010_or_later_hvs_se
+        description: Standard error of average_household_size_built_2010_or_later_hvs, rounded to 3 decimals.
+      - name: household_size_gap_built_2010_or_later_hvs
+        description: average_household_size_built_2010_or_later_hvs minus average_household_size_built_before_2010_hvs, before rounding. Negative means households in newer buildings are smaller.
+      - name: household_size_gap_built_2010_or_later_hvs_se
+        description: Standard error of household_size_gap_built_2010_or_later_hvs, from the replicate estimates of the gap itself.
+
+  - name: dim_tcol_family_type
+    description: >
+      One row per family type in NYC's 2026 True Cost of Living report (Tables 2 and 6, 2022 dollars): the TCOL
+      threshold (median cost), median resources, and the share of people not meeting the threshold. There's no single
+      threshold. It depends on family type, and each row's is a median across families of that type.
+    columns:
+      - name: tcol_family_type_id
+        description: Adult age group and family type in lowercase with underscores, e.g. under_65_one_adult_no_children.
+        data_tests: [unique, not_null]
+      - name: adult_age_group
+        description: Under 65 or 65 and older.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [Under 65, 65 and older]
+      - name: family_type
+        description: The report's label, e.g. Two+ Adults, 1 Child.
+      - name: adults
+        description: Number of adults, 1, 2, 2+, or 3+.
+      - name: children
+        description: Number of children, 0, 1, 2, 3+, or 1+. Empty for Three+ Adults, which doesn't say.
+      - name: is_rollup
+        description: >
+          True for the under-65 1+ children rows, which total the 1, 2, and 3+ children rows, so don't sum both.
+        data_tests: [not_null]
+      - name: median_cost
+        description: Median TCOL threshold, in 2022 dollars. Empty where the report suppresses it for sample size.
+      - name: median_resources
+        description: >
+          Median total resources, in 2022 dollars: market resources (earnings, investment income, pensions, child
+          support) plus government supports such as Social Security, SNAP, tax credits, and public housing. Taxes
+          aren't taken out here. They're a cost in median_cost.
+      - name: pct_not_meeting
+        description: Percent of people in this family type not meeting their threshold.
+      - name: avg_resource_gap
+        description: The report's average family resource gap, threshold minus resources, in 2022 dollars.

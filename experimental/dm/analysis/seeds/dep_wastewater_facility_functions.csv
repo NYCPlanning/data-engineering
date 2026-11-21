@@ -1,0 +1,85 @@
+wastewater_facility_id,function_group,function,is_emergency_only
+newtown_creek,Wastewater Treatment,Preliminary Treatment,False
+newtown_creek,Wastewater Treatment,Secondary Treatment,False
+newtown_creek,Wastewater Treatment,Chlorination,False
+newtown_creek,Wastewater Treatment,Dechlorination,False
+newtown_creek,Solids Handling,Docks,False
+newtown_creek,Energy Generation,Gas to Grid / Food Waste,False
+newtown_creek,Energy Generation,Title V Facility,False
+wards_island,Wastewater Treatment,Preliminary Treatment,False
+wards_island,Wastewater Treatment,Secondary Treatment,False
+wards_island,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+wards_island,Wastewater Treatment,Chlorination,False
+wards_island,Solids Handling,Sludge Dewatering,False
+wards_island,Solids Handling,Docks,False
+hunts_point,Wastewater Treatment,Preliminary Treatment,False
+hunts_point,Wastewater Treatment,Secondary Treatment,False
+hunts_point,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+hunts_point,Wastewater Treatment,Chlorination,False
+hunts_point,Solids Handling,Sludge Dewatering,False
+hunts_point,Solids Handling,Docks,False
+north_river,Wastewater Treatment,Preliminary Treatment,False
+north_river,Wastewater Treatment,Secondary Treatment,False
+north_river,Wastewater Treatment,Chlorination,False
+north_river,Wastewater Treatment,Dechlorination,False
+north_river,Solids Handling,Docks,False
+north_river,Energy Generation,Cogen Engines,False
+north_river,Energy Generation,Title V Facility,False
+bowery_bay,Wastewater Treatment,Preliminary Treatment,False
+bowery_bay,Wastewater Treatment,Secondary Treatment,False
+bowery_bay,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+bowery_bay,Wastewater Treatment,Chlorination,False
+bowery_bay,Solids Handling,Sludge Dewatering,False
+bowery_bay,Solids Handling,Docks,False
+owls_head,Wastewater Treatment,Preliminary Treatment,False
+owls_head,Wastewater Treatment,Secondary Treatment,False
+owls_head,Wastewater Treatment,Chlorination,False
+owls_head,Solids Handling,Docks,False
+owls_head,Energy Generation,Cogen Engines,True
+owls_head,Energy Generation,Title V Facility,False
+coney_island,Wastewater Treatment,Preliminary Treatment,False
+coney_island,Wastewater Treatment,Secondary Treatment,False
+coney_island,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+coney_island,Wastewater Treatment,Chlorination,False
+coney_island,Wastewater Treatment,Dechlorination,False
+coney_island,Solids Handling,Sludge Pumping,False
+coney_island,Energy Generation,Cogen Engines,True
+coney_island,Energy Generation,Title V Facility,False
+coney_island,Energy Generation,CSO Facilities,False
+jamaica,Wastewater Treatment,Preliminary Treatment,False
+jamaica,Wastewater Treatment,Secondary Treatment,False
+jamaica,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+jamaica,Wastewater Treatment,Chlorination,False
+jamaica,Solids Handling,Sludge Pumping,False
+26th_ward,Wastewater Treatment,Preliminary Treatment,False
+26th_ward,Wastewater Treatment,Secondary Treatment,False
+26th_ward,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+26th_ward,Wastewater Treatment,Chlorination,False
+26th_ward,Solids Handling,Sludge Dewatering,False
+26th_ward,Solids Handling,Docks,False
+26th_ward,Energy Generation,CSO Facilities,False
+tallman_island,Wastewater Treatment,Preliminary Treatment,False
+tallman_island,Wastewater Treatment,Secondary Treatment,False
+tallman_island,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+tallman_island,Wastewater Treatment,Chlorination,False
+tallman_island,Solids Handling,Docks,False
+tallman_island,Energy Generation,CSO Facilities,False
+port_richmond,Wastewater Treatment,Preliminary Treatment,False
+port_richmond,Wastewater Treatment,Secondary Treatment,False
+port_richmond,Wastewater Treatment,Chlorination,False
+port_richmond,Solids Handling,Sludge Pumping,False
+port_richmond,Solids Handling,Docks,False
+red_hook,Wastewater Treatment,Preliminary Treatment,False
+red_hook,Wastewater Treatment,Secondary Treatment,False
+red_hook,Wastewater Treatment,Chlorination,False
+red_hook,Solids Handling,Sludge Dewatering,False
+red_hook,Solids Handling,Docks,False
+rockaway,Wastewater Treatment,Preliminary Treatment,False
+rockaway,Wastewater Treatment,Secondary Treatment,False
+rockaway,Wastewater Treatment,Biological Nutrient Removal (BNR),False
+rockaway,Wastewater Treatment,Chlorination,False
+rockaway,Solids Handling,Docks,False
+oakwood_beach,Wastewater Treatment,Preliminary Treatment,False
+oakwood_beach,Wastewater Treatment,Secondary Treatment,False
+oakwood_beach,Wastewater Treatment,Chlorination,False
+oakwood_beach,Solids Handling,Sludge Dewatering,False

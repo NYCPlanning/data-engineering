@@ -1,0 +1,16 @@
+altair
+boto3
+# certificates for downloads, which uv's Python doesn't take from the system
+certifi
+# 2.0.6 panics building contracted models with geometry columns on DuckDB.
+dbt-oss<2.0.6
+duckdb
+folium
+marimo
+marimo-lens
+numpy
+openpyxl
+pandas
+# reads DEP's MS4 geodatabase, whose measured (XYZM) geometries DuckDB can't parse
+pyogrio
+ruff
