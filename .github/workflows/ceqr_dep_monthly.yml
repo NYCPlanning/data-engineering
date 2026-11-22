@@ -2,7 +2,8 @@ name: CEQR - DEP CATS permits
 on:
   workflow_dispatch:
   schedule:
-  - cron: 0 0 1 * *
+  - cron: "29 18 1 * *"  # 1st of the month, 6:29pm
+    timezone: "America/New_York"
 
 jobs:
   build:
