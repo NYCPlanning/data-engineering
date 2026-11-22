@@ -45,7 +45,7 @@ def get_query_url(org: Org, uid: str, format: ValidFormat) -> str:
             raise Exception(f"Unsupported socrata query format: '{format}'")
 
 
-Endpoint = Literal["export", "query"]
+DownloadFrom = Literal["export", "query"]
 
 # Rows per query request. Each page is its own response, so a dropped connection only
 # costs that page.
@@ -122,13 +122,13 @@ def download(
     format: ValidFormat,
     path: Path,
     where: str | None = None,
-    endpoint: Endpoint = "export",
+    download_from: DownloadFrom = "export",
 ) -> None:
     """Download a dataset from the export, or from the query endpoint, which names columns by
     their API field names and formats dates as ISO. `where` (a SoQL where clause) needs the
     query endpoint."""
     path.parent.mkdir(exist_ok=True, parents=True)
-    if where or endpoint == "query":
+    if where or download_from == "query":
         if format == "csv":
             _download_query_csv(org, uid, path, where)
             return

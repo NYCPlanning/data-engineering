@@ -88,7 +88,7 @@ def test_query_download_retries_a_dropped_page_from_its_start(
     ]
 
     path = tmp_path / "stops.csv"
-    extract.download(ORG, UID, "csv", path, endpoint="query")
+    extract.download(ORG, UID, "csv", path, download_from="query")
 
     assert path.read_bytes() == b"route_id\nB1\nB2\nB3\n"
     assert "$where" not in socrata_request.call_args_list[1].kwargs["params"]
