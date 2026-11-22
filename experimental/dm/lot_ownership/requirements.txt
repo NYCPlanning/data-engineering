@@ -8,14 +8,6 @@ attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
-boto3==1.44.7
-    # via -r requirements.in
-botocore==1.44.7
-    # via
-    #   boto3
-    #   s3transfer
-certifi==2026.10.23
-    # via -r requirements.in
 click==8.5.1
     # via
     #   marimo
@@ -34,10 +26,6 @@ jedi==0.20.1
     # via marimo
 jinja2==3.1.6
     # via altair
-jmespath==1.1.0
-    # via
-    #   boto3
-    #   botocore
 jsonschema==4.26.0
     # via altair
 jsonschema-specifications==2025.9.1
@@ -77,9 +65,7 @@ pygments==2.21.0
 pymdown-extensions==11.0.2
     # via marimo
 python-dateutil==2.9.0.post0
-    # via
-    #   botocore
-    #   pandas
+    # via pandas
 python-multipart==0.0.34
     # via marimo
 pyyaml==6.0.3
@@ -98,8 +84,6 @@ rpds-py==2026.9.1
     #   referencing
 ruff==0.17.6
     # via -r requirements.in
-s3transfer==0.19.3
-    # via boto3
 six==1.17.0
     # via python-dateutil
 starlette==1.10.0
@@ -110,8 +94,6 @@ typing-extensions==4.16.0
     # via
     #   altair
     #   anyio
-urllib3==2.8.0
-    # via botocore
 uvicorn==0.54.0
     # via marimo
 websockets==17.4

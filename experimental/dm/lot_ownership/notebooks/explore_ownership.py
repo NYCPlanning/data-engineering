@@ -6,14 +6,36 @@ app = marimo.App(width="medium")
 
 @app.cell
 def _():
+    import os
     from pathlib import Path
 
     import duckdb
     import marimo as mo
 
-    SOURCES = Path(__file__).parent.parent / "data" / "sources"
     LINK_SAMPLE = Path(__file__).parent.parent / "labels" / "link_sample.csv"
-    return LINK_SAMPLE, SOURCES, duckdb, mo
+
+    # archived versions in edm-recipes, read in place
+    RECIPES = {
+        "dcp_pluto": "26v2",
+        "dof_acris_master": "20261110",
+        "dof_acris_legals": "20261110",
+        "dof_acris_second_parties": "20261110",
+        "hpd_registrations": "20261104",
+        "hpd_registration_contacts": "20261104",
+        "nysdos_active_corporations": "20261121",
+    }
+
+
+    def recipe(dataset: str) -> str:
+        return f"s3://edm-recipes/datasets/{dataset}/{RECIPES[dataset]}/{dataset}.parquet"
+
+
+    # ACRIS is only explored for this borough so far
+    ACRIS_BOROUGH = "2"
+    # document types that convey ownership, from the control codes' "DEEDS AND OTHER CONVEYANCES" class. Leaves out
+    # contracts, leases, easements, and transfer on death deeds, whose party two doesn't own the lot yet or at all.
+    ACRIS_DEED_TYPES = ["DEED", "DEEDO", "DEED, RC", "DEED, LE", "DEEDP", "CORRD", "CONDEED", "IDED", "REIT"]
+    return ACRIS_BOROUGH, ACRIS_DEED_TYPES, LINK_SAMPLE, duckdb, mo, os, recipe
 
 
 @app.cell(hide_code=True)
@@ -22,14 +44,23 @@ def _(mo):
     # Lot ownership: feasibility
 
     Can we link a lot's owner name from PTS to a NYS DOS entity, and group lots by owner beyond what identical
-    PTS names already show? Sources and versions are in `scripts/download.py`. ACRIS covers the Bronx only.
+    PTS names already show? Versions are in `RECIPES` below. ACRIS covers the Bronx only.
     """)
     return
 
 
 @app.cell
-def _(SOURCES, duckdb):
+def _(ACRIS_BOROUGH, ACRIS_DEED_TYPES, duckdb, os, recipe):
     con = duckdb.connect()
+    # the same S3 credentials dcpy uses, from the repo's root .env
+    con.execute(
+        "CREATE SECRET edm_recipes (TYPE s3, KEY_ID ?, SECRET ?, ENDPOINT ?, REGION 'us-east-1')",
+        [
+            os.environ["AWS_ACCESS_KEY_ID"],
+            os.environ["AWS_SECRET_ACCESS_KEY"],
+            os.environ["AWS_S3_ENDPOINT"].removeprefix("https://"),
+        ],
+    )
     # grantee addresses shared by more owner names than this are left out of linked lot counts
     # grantee and NYS process addresses used by more lot owners than this are left out of linked lot counts
     MAX_ADDRESS_OWNER_NAMES = 10
@@ -79,25 +110,25 @@ def _(SOURCES, duckdb):
             '\bBOULEVARD\b', 'BLVD', 'g');
         """
     )
-    # Materialized, since the corporations CSV is large and most cells read it. Raw, so regex escapes like \b
+    # Materialized, since the corporations table is large and most cells read it. Raw, so regex escapes like \b
     # reach DuckDB as written.
     con.sql(
         rf"""
         CREATE OR REPLACE TABLE nys_entity AS
         SELECT
-            "DOS ID" AS dos_id,
-            "Current Entity Name" AS entity_name,
-            norm_entity("Current Entity Name") AS entity_key,
-            match_key("Current Entity Name") AS entity_match_key,
-            bare_key("Current Entity Name") AS entity_bare_key,
-            "Entity Type" AS entity_type,
-            "Initial DOS Filing Date" AS filing_date,
-            "DOS Process Name" AS process_name,
-            concat_ws(' ', "DOS Process Address 1", "DOS Process Address 2", "DOS Process City", "DOS Process Zip") AS process_address,
-            nullif(trim(norm_address("DOS Process Address 1")), '') AS process_address_key,
-            "CEO Name" AS ceo_name,
-            "Registered Agent Name" AS registered_agent_name
-        FROM read_csv('{SOURCES}/nysdos_active_corporations.csv', all_varchar = true);
+            dos_id,
+            current_entity_name AS entity_name,
+            norm_entity(current_entity_name) AS entity_key,
+            match_key(current_entity_name) AS entity_match_key,
+            bare_key(current_entity_name) AS entity_bare_key,
+            entity_type,
+            initial_dos_filing_date AS filing_date,
+            dos_process_name AS process_name,
+            concat_ws(' ', dos_process_address_1, dos_process_address_2, dos_process_city, dos_process_zip) AS process_address,
+            nullif(trim(norm_address(dos_process_address_1)), '') AS process_address_key,
+            ceo_name,
+            registered_agent_name
+        FROM '{recipe("nysdos_active_corporations")}';
 
         -- how many NYS entities share each process address. Registered agent services have tens of thousands.
         CREATE OR REPLACE TABLE nys_process_address AS
@@ -108,22 +139,22 @@ def _(SOURCES, duckdb):
 
         CREATE OR REPLACE VIEW hpd_registration AS
         SELECT
-            RegistrationID AS registration_id,
-            concat(BoroID, lpad(Block, 5, '0'), lpad(Lot, 4, '0')) AS bbl,
-            BIN AS bin,
-            strptime(LastRegistrationDate, '%m/%d/%Y')::date AS last_registration_date
-        FROM read_csv('{SOURCES}/hpd_registrations.csv', all_varchar = true);
+            registrationid AS registration_id,
+            concat(boroid, lpad(block, 5, '0'), lpad(lot, 4, '0')) AS bbl,
+            bin,
+            strptime(lastregistrationdate, '%m/%d/%Y')::date AS last_registration_date
+        FROM '{recipe("hpd_registrations")}';
 
         CREATE OR REPLACE VIEW hpd_contact AS
         SELECT
-            RegistrationID AS registration_id,
-            Type AS contact_type,
-            ContactDescription AS contact_description,
-            CorporationName AS corporation_name,
-            norm_entity(CorporationName) AS corporation_key,
-            norm_name(concat_ws(' ', FirstName, LastName)) AS person_key,
-            norm_address(concat_ws(' ', BusinessHouseNumber, BusinessStreetName)) AS business_address_key
-        FROM read_csv('{SOURCES}/hpd_registration_contacts.csv', all_varchar = true);
+            registrationid AS registration_id,
+            type AS contact_type,
+            contactdescription AS contact_description,
+            corporationname AS corporation_name,
+            norm_entity(corporationname) AS corporation_key,
+            norm_name(concat_ws(' ', firstname, lastname)) AS person_key,
+            norm_address(concat_ws(' ', businesshousenumber, businessstreetname)) AS business_address_key
+        FROM '{recipe("hpd_registration_contacts")}';
 
         CREATE OR REPLACE TABLE acris_latest_deed_grantee AS
         WITH deed_lot AS (
@@ -131,8 +162,10 @@ def _(SOURCES, duckdb):
                 d.document_id, d.doc_type,
                 concat(l.borough, lpad(l.block, 5, '0'), lpad(l.lot, 4, '0')) AS bbl,
                 coalesce(d.document_date, d.recorded_datetime)::date AS deed_date
-            FROM '{SOURCES}/acris_deeds.parquet' AS d
-            JOIN '{SOURCES}/acris_2_legals.parquet' AS l USING (document_id)
+            FROM '{recipe("dof_acris_master")}' AS d
+            JOIN '{recipe("dof_acris_legals")}' AS l USING (document_id)
+            -- Master's recorded_borough is 1 for most recent documents wherever the lot is, so Legals sets the borough
+            WHERE d.doc_type IN ({", ".join(f"'{t}'" for t in ACRIS_DEED_TYPES)}) AND l.borough = '{ACRIS_BOROUGH}'
         ),
         latest AS (
             SELECT * FROM deed_lot QUALIFY deed_date = max(deed_date) OVER (PARTITION BY bbl)
@@ -142,7 +175,7 @@ def _(SOURCES, duckdb):
             g.name, match_key(g.name) AS match_key, bare_key(g.name) AS bare_key, person_key(g.name) AS person_key,
             concat_ws(', ', g.address_1, g.address_2, g.city, g.state, g.zip) AS address,
             nullif(trim(norm_address(g.address_1)), '') AS address_key
-        FROM latest JOIN '{SOURCES}/acris_2_latest_deed_grantees.parquet' AS g USING (document_id);
+        FROM latest JOIN '{recipe("dof_acris_second_parties")}' AS g USING (document_id);
 
         CREATE OR REPLACE TABLE lot AS
         WITH pluto AS (
@@ -174,7 +207,7 @@ def _(SOURCES, duckdb):
                 condono IS NOT NULL AS is_condo_billing_lot,
                 regexp_matches(norm_entity(ownername), ' (LLC|INC|CORP|CO|LP|LTD|LLP)$') AS has_entity_suffix,
                 regexp_matches(norm_name(ownername), '\bTRUST\b') AS has_trust_in_name
-            FROM '{SOURCES}/dcp_pluto.parquet'
+            FROM '{recipe("dcp_pluto")}'
         ),
         nys_exact AS (
             SELECT entity_match_key, any_value(dos_id) AS dos_id, any_value(entity_name) AS nys_entity_name,
@@ -520,7 +553,7 @@ def _(mo):
     ## ACRIS: PTS owner vs latest deed (Bronx)
 
     `is_pts_owner_a_latest_grantee` is false where PTS names someone the latest deed didn't go to, and null where
-    there's no deed to compare (condo units, lots with no deed of the types downloaded).
+    there's no deed to compare (condo units, lots with no deed of the types in `ACRIS_DEED_TYPES`).
     """)
     return
 

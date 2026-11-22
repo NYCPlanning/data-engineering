@@ -1,33 +1,30 @@
 # Lot ownership
 
 Exploring whether we can find lots with a common owner that PLUTO's owner names don't show, by linking tax lots to NY State business entities and deeds.
-This is the exploration phase: one marimo notebook over downloaded files, with its own venv.
-No dbt and no ingest templates yet.
+This is the exploration phase: one marimo notebook over source data in edm-recipes, with its own venv.
+No dbt yet.
 
 The goal is a table with at least `bbl`, the PTS owner name, the NYS entity name, and the entity's DOS ID, so downstream work can group lots by owner.
 
 > [!NOTE]
-> ACRIS is only downloaded for the Bronx so far, so the deed steps and columns only cover Bronx lots, and the results are for the Bronx.
+> The notebook only reads ACRIS for the Bronx so far, so the deed steps and columns only cover Bronx lots, and the results are for the Bronx.
 
 ## Sources
 
-`scripts/download.py` downloads every file into `data/sources/`.
+The notebook reads each source from edm-recipes in place, at the versions in its `RECIPES`.
 
 | Source | Version | Used for |
 |---|---|---|
-| `dcp_pluto` (edm-recipes) | 26v2 | one row per tax lot, with PTS's owner name and PLUTO's owner type |
-| `pluto_pts` (edm-recipes) | 20261109 | not read by the notebook. Its only owner field is `av_owner`, the name PLUTO already carries, with no owner address |
-| [HPD Multiple Dwelling Registrations](https://data.cityofnewyork.us/d/tesw-yqqr) (NYC Open Data) | downloaded November 2026, not versioned | registration to BBL and BIN |
-| [HPD Registration Contacts](https://data.cityofnewyork.us/d/feu5-w2e2) (NYC Open Data) | downloaded November 2026, not versioned | corporate owners, head officers, and agents behind each registration |
-| [NYS Active Corporations](https://data.ny.gov/d/n9v6-gdp6) (data.ny.gov) | downloaded November 2026, not versioned | DOS ID, entity name, process address, CEO, and registered agent. Dissolved entities aren't in it |
-| [ACRIS Real Property Master](https://data.cityofnewyork.us/d/bnx9-e6tj), [Legals](https://data.cityofnewyork.us/d/8h5j-fqxa), and [Parties](https://data.cityofnewyork.us/d/636b-3b5g) (NYC Open Data) | downloaded November 2026, not versioned, Bronx only | each lot's latest deeds and who they went to |
-| [ACRIS Document Control Codes](https://data.cityofnewyork.us/d/7isb-wh4c) (NYC Open Data) | downloaded November 2026, not versioned | what each document type is and what its parties mean |
+| `dcp_pluto` | 26v2 | one row per tax lot, with PTS's owner name and PLUTO's owner type |
+| `pluto_pts` | 20261109 | not read by the notebook. Its only owner field is `av_owner`, the name PLUTO already carries, with no owner address |
+| `hpd_registrations` ([HPD Multiple Dwelling Registrations](https://data.cityofnewyork.us/d/tesw-yqqr)) | 20261104 | registration to BBL and BIN |
+| `hpd_registration_contacts` ([HPD Registration Contacts](https://data.cityofnewyork.us/d/feu5-w2e2)) | 20261104 | corporate owners, head officers, and agents behind each registration |
+| `nysdos_active_corporations` ([NYS Active Corporations](https://data.ny.gov/d/n9v6-gdp6)) | 20261121 | DOS ID, entity name, process address, CEO, and registered agent. Dissolved entities aren't in it |
+| `dof_acris_master`, `dof_acris_legals`, and `dof_acris_second_parties` ([ACRIS Real Property Master](https://data.cityofnewyork.us/d/bnx9-e6tj), [Legals](https://data.cityofnewyork.us/d/8h5j-fqxa), and [Parties](https://data.cityofnewyork.us/d/636b-3b5g)) | 20261110 | each lot's latest deeds and who they went to |
+| `dof_acris_document_control_codes` ([ACRIS Document Control Codes](https://data.cityofnewyork.us/d/7isb-wh4c)) | 20260805 | not read by the notebook. What each document type is and what its parties mean, which `ACRIS_DEED_TYPES` is picked from |
 
-ACRIS is too big to download whole for exploring, so `download.py` only takes:
-
-- deeds from Master, citywide, since its `recorded_borough` is `1` for most recent documents wherever the lot is (the deed types are listed in `ACRIS_DEED_TYPES`)
-- Bronx rows from Legals
-- the grantees of each lot's latest deeds from Parties, since Parties has no borough to filter on
+`dof_acris_second_parties` is only party 2 of each document, which is the grantee on a deed.
+The notebook takes deeds from Master by `ACRIS_DEED_TYPES` and the Bronx from Legals, since Master's `recorded_borough` is `1` for most recent documents wherever the lot is.
 
 New York's LLC Transparency Act filings would name the people behind LLCs, but they aren't public.
 
@@ -167,7 +164,7 @@ The same Bronx lots by kind of link. These overlap, since a lot can have several
 |---|---|---|---|---|
 | `latest_deed_grantee_address` | 19,314 | 21.6 | 9,532 | 10.7 |
 | `pts_person_name` | 14,455 | 16.2 | 4,368 | 4.9 |
-| `nys_process_address` | 9,557 | 10.7 | 3,905 | 4.4 |
+| `nys_process_address` | 9,558 | 10.7 | 3,905 | 4.4 |
 | `dos_id` | 6,175 | 6.9 | 4,340 | 4.9 |
 | `pts_entity_name` | 2,510 | 2.8 | 1,474 | 1.6 |
 
@@ -221,7 +218,7 @@ A null in a later column is explained by the flags: `dos_id` is null for a lot o
 | `nys_entity_name`, `dos_id` | the NYS entity, when exactly one matches |
 | `process_address_nys_entities` | how many NYS entities share the matched entity's process address |
 | `has_hpd_registration` | HPD has a registration for the lot |
-| `has_acris_coverage` | the lot is in the Bronx, where ACRIS was downloaded |
+| `has_acris_coverage` | the lot is in the Bronx, the only borough the notebook reads ACRIS for |
 | `latest_deed_date`, `latest_deed_grantees` | the date of the lot's latest deeds, and how many grantees they name |
 | `is_pts_owner_a_latest_grantee` | whether the PTS owner is one of those grantees. Null when there's no deed to compare |
 | `linked_lots` | how many other lots share a counted link in `lot_link` with this one. Person name links make this noisy citywide |
@@ -261,7 +258,6 @@ From this folder, with direnv loading the repo's root `.env` for S3 credentials:
 uv venv --python 3.13
 uv pip install --python .venv/bin/python --requirement requirements.txt
 
-python scripts/download.py
 marimo edit notebooks/explore_ownership.py
 ```
 
