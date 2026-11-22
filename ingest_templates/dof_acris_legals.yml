@@ -14,7 +14,7 @@ ingestion:
     uid: 8h5j-fqxa
     format: csv
     # Same endpoint as ACRIS Master and Parties, so dates are formatted the same across all three
-    endpoint: query
+    download_from: query
   file_format:
     type: csv
     dtype: str

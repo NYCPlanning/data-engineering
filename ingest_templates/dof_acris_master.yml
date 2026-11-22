@@ -15,7 +15,7 @@ ingestion:
     uid: bnx9-e6tj
     format: csv
     # The full export drops its connection partway through, so this pages through the query endpoint.
-    endpoint: query
+    download_from: query
   file_format:
     type: csv
     dtype: str

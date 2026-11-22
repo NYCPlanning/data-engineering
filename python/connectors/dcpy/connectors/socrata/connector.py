@@ -19,7 +19,7 @@ class SocrataConnector(Connector):
         org: Org,
         format: ValidFormat,
         where: str | None = None,
-        endpoint: extract.Endpoint = "export",
+        download_from: extract.DownloadFrom = "export",
         **kwargs,
     ) -> dict:
         extension = "shp.zip" if format == "shapefile" else format
@@ -30,7 +30,7 @@ class SocrataConnector(Connector):
             format=format,
             path=filepath,
             where=where,
-            endpoint=endpoint,
+            download_from=download_from,
         )
         return {"path": filepath}
 
