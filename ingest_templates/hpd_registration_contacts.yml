@@ -1,0 +1,55 @@
+id: hpd_registration_contacts
+
+attributes:
+  name: HPD Registration Contacts
+  description: >-
+    One row per contact on an HPD building registration, like the corporate owner, head officer, or site manager, with their
+    name and business address. Joins to HPD Multiple Dwelling Registrations by registrationid.
+  url: https://data.cityofnewyork.us/d/feu5-w2e2
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: feu5-w2e2
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+
+columns:
+- id: registrationcontactid
+  data_type: text
+- id: registrationid
+  data_type: text
+- id: type
+  data_type: text
+- id: contactdescription
+  data_type: text
+- id: corporationname
+  data_type: text
+- id: title
+  data_type: text
+- id: firstname
+  data_type: text
+- id: middleinitial
+  data_type: text
+- id: lastname
+  data_type: text
+- id: businesshousenumber
+  data_type: text
+- id: businessstreetname
+  data_type: text
+- id: businessapartment
+  data_type: text
+- id: businesscity
+  data_type: text
+- id: businessstate
+  data_type: text
+- id: businesszip
+  data_type: text

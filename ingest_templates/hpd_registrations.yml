@@ -1,0 +1,58 @@
+id: hpd_registrations
+
+attributes:
+  name: HPD Multiple Dwelling Registrations
+  description: >-
+    One row per building registration with HPD, which owners of residential buildings with three or more units have
+    to file. Has the building's address, borough, block, lot, and BIN, and the registration's dates. Joins to HPD
+    Registration Contacts by registrationid.
+  url: https://data.cityofnewyork.us/d/tesw-yqqr
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: tesw-yqqr
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+
+columns:
+- id: registrationid
+  data_type: text
+- id: buildingid
+  data_type: text
+- id: boroid
+  data_type: text
+- id: boro
+  data_type: text
+- id: housenumber
+  data_type: text
+- id: lowhousenumber
+  data_type: text
+- id: highhousenumber
+  data_type: text
+- id: streetname
+  data_type: text
+- id: streetcode
+  data_type: text
+- id: zip
+  data_type: text
+- id: block
+  data_type: text
+- id: lot
+  data_type: text
+- id: bin
+  data_type: text
+- id: communityboard
+  data_type: text
+- id: lastregistrationdate
+  data_type: text
+- id: registrationenddate
+  data_type: text

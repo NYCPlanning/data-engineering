@@ -1,0 +1,86 @@
+id: nysdos_active_corporations
+
+attributes:
+  name: NYS DOS Active Corporations
+  description: >-
+    One row per active business entity filed with the NY Department of State, with its DOS ID, current name, entity
+    type, jurisdiction, and the names and addresses for service of process, its CEO, its registered agent, and its
+    location. Dissolved and inactive entities aren't in it.
+  url: https://data.ny.gov/d/n9v6-gdp6
+
+ingestion:
+  source:
+    type: socrata
+    org: nys
+    uid: n9v6-gdp6
+    format: csv
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_" }, "lower": True }
+
+columns:
+- id: dos_id
+  data_type: text
+- id: current_entity_name
+  data_type: text
+- id: initial_dos_filing_date
+  data_type: text
+- id: county
+  data_type: text
+- id: jurisdiction
+  data_type: text
+- id: entity_type
+  data_type: text
+- id: dos_process_name
+  data_type: text
+- id: dos_process_address_1
+  data_type: text
+- id: dos_process_address_2
+  data_type: text
+- id: dos_process_city
+  data_type: text
+- id: dos_process_state
+  data_type: text
+- id: dos_process_zip
+  data_type: text
+- id: ceo_name
+  data_type: text
+- id: ceo_address_1
+  data_type: text
+- id: ceo_address_2
+  data_type: text
+- id: ceo_city
+  data_type: text
+- id: ceo_state
+  data_type: text
+- id: ceo_zip
+  data_type: text
+- id: registered_agent_name
+  data_type: text
+- id: registered_agent_address_1
+  data_type: text
+- id: registered_agent_address_2
+  data_type: text
+- id: registered_agent_city
+  data_type: text
+- id: registered_agent_state
+  data_type: text
+- id: registered_agent_zip
+  data_type: text
+- id: location_name
+  data_type: text
+- id: location_address_1
+  data_type: text
+- id: location_address_2
+  data_type: text
+- id: location_city
+  data_type: text
+- id: location_state
+  data_type: text
+- id: location_zip
+  data_type: text
