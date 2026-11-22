@@ -14,31 +14,13 @@ ingestion:
     org: nyc
     uid: bnx9-e6tj
     format: csv
+    # The full export drops its connection partway through, so this pages through the query endpoint.
+    endpoint: query
   file_format:
     type: csv
     dtype: str
     keep_default_na: false
     na_values: [""]
-  processing_steps:
-  # The export's headers don't all match the API field names (BOROUGH is recorded_borough), so this renames to the
-  # API names, which the ACRIS Parties template gets from the query endpoint.
-  - name: rename_columns
-    args:
-      map:
-        DOCUMENT ID: document_id
-        RECORD TYPE: record_type
-        CRFN: crfn
-        BOROUGH: recorded_borough
-        DOC. TYPE: doc_type
-        DOC. DATE: document_date
-        DOC. AMOUNT: document_amt
-        RECORDED / FILED: recorded_datetime
-        MODIFIED DATE: modified_date
-        REEL YEAR: reel_yr
-        REEL NBR: reel_nbr
-        REEL PAGE: reel_pg
-        "% TRANSFERRED": percent_trans
-        GOOD THROUGH DATE: good_through_date
 
 columns:
 - id: document_id

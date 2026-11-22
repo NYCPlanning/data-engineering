@@ -13,14 +13,13 @@ ingestion:
     org: nyc
     uid: 8h5j-fqxa
     format: csv
+    # Same endpoint as ACRIS Master and Parties, so dates are formatted the same across all three
+    endpoint: query
   file_format:
     type: csv
     dtype: str
     keep_default_na: false
     na_values: [""]
-  processing_steps:
-  - name: clean_column_names
-    args: { "replace": { " ": "_" }, "lower": True }
 
 columns:
 - id: document_id
