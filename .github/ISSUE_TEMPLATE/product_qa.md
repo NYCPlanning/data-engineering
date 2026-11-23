@@ -7,4 +7,4 @@ labels: 'QA'
 
 This issue was created as a part of [this]({{ env.PROMOTE_TO_DRAFT_URL }}) action.
 
-[draft build zip file in Digital Ocean]({{ env.DRAFT_DOWNLOAD_URL }})
+draft build path in Digital Ocean: `({{ env.DRAFT_PATH }})`

@@ -133,7 +133,7 @@ jobs:
           draft_number=$(cat build_metadata.json | jq -r .draft_revision_name)
           echo "version=${version}" >> $GITHUB_ENV
           echo "draft_number=${draft_number}" >> $GITHUB_ENV
-          echo "draft_download_url=https://nyc3.digitaloceanspaces.com/${PUBLISHING_BUCKET}/${{ inputs.product }}/draft/${version}/${draft_number}/output.zip" >> $GITHUB_ENV
+          echo "draft_path=${PUBLISHING_BUCKET}/${{ inputs.product }}/draft/${version}/${draft_number}/" >> $GITHUB_ENV
 
       - name: Create Github Issue for QA
         if: ${{ inputs.create_qa_github_issue }}      
@@ -141,7 +141,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROMOTE_TO_DRAFT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          DRAFT_DOWNLOAD_URL: ${{ env.draft_download_url }}
+          DRAFT_PATH: ${{ env.draft_download_url }}
           PRODUCT: ${{ inputs.product }}
           VERSION: ${{ env.version }}
           DRAFT: ${{ env.draft_number }}
