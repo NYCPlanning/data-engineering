@@ -8,6 +8,8 @@ dependencies = [
     "dcpy-lifecycle[geo]",
     "dcpy-product-metadata",
     "dagster",
+    # instance storage (runs, event logs, schedules) in Postgres when DAGSTER_PG_URL is set
+    "dagster-postgres",
     "dagster-webserver",
     "PyYAML",
 ]

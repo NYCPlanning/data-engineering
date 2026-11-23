@@ -1198,6 +1198,19 @@ wheels = [
 ]
 
 [[package]]
+name = "dagster-postgres"
+version = "0.29.30"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dagster" },
+    { name = "psycopg2-binary" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9f/47/20920253b137e9b63d2c690c0844271564a0cf6ad76ef5d663bf13ebffe2/dagster_postgres-0.29.30.tar.gz", hash = "sha256:c4e53f078f1ec405e8cfb0c2f047ced7857fcccd39d539e28cdadc3f235109bc", size = 396061, upload-time = "2026-11-12T20:11:01.793Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bb/ab/0358a75349c92360d54e153971347858ff507f64d6aea23e53daf764bea9/dagster_postgres-0.29.30-py3-none-any.whl", hash = "sha256:2e92777c43928f3262f343ec1663e736e5a1cedb7bc15eb071c94108f9c98606", size = 25681, upload-time = "2026-11-12T20:11:00.331Z" },
+]
+
+[[package]]
 name = "dagster-shared"
 version = "1.13.30"
 source = { registry = "https://pypi.org/simple" }
@@ -1399,6 +1412,7 @@ version = "0.0.1"
 source = { virtual = "apps/dagster" }
 dependencies = [
     { name = "dagster" },
+    { name = "dagster-postgres" },
     { name = "dagster-webserver" },
     { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "dcpy-product-metadata" },
@@ -1408,6 +1422,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "dagster" },
+    { name = "dagster-postgres" },
     { name = "dagster-webserver" },
     { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
