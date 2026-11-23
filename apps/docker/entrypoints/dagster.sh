@@ -18,4 +18,4 @@ else
 fi
 
 dagster-daemon run &
-exec dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml --path-prefix /dag
+exec dagster-webserver -h 0.0.0.0 -p 3000 -w workspace.yaml

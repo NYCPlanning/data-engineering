@@ -12,7 +12,7 @@ apps/docker/
 ├── Dockerfile.dockerignore  # allowlist of what gets copied in
 └── entrypoints/
     ├── qa.sh                # streamlit on :8501, served at the root path
-    └── dagster.sh           # webserver on :3000 (/dag) + daemon (POC); Postgres storage if DAGSTER_PG_URL is set
+    └── dagster.sh           # webserver on :3000 + daemon (POC); Postgres storage if DAGSTER_PG_URL is set
 ```
 
 ## Running locally
@@ -66,7 +66,7 @@ az containerapp update --name de-tools --resource-group rg-azu-e2-dcp-de-nonprod
 
 ### Dagster
 
-The `dagster` app runs `entrypoints/dagster.sh` on port 3000 (`/dag`). Instance storage (runs,
+The `dagster` app runs `entrypoints/dagster.sh` on port 3000, served at the root path. Instance storage (runs,
 event logs, schedules) goes to Postgres when `DAGSTER_PG_URL` is set: the entrypoint copies
 `apps/dagster/dagster.yaml` into `DAGSTER_HOME`. Without it, Dagster falls back to SQLite on
 container disk, which every new revision wipes.
