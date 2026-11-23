@@ -1,0 +1,10 @@
+# Webserver/daemon workspace when user code runs in a separate code server (the runner app on
+# Azure). Loads no user code in this process. apps/docker/entrypoints/dagster.sh uses this when
+# DAGSTER_CODE_SERVER_HOST is set, and defaults DAGSTER_CODE_SERVER_PORT to 4000.
+load_from:
+  - grpc_server:
+      host:
+        env: DAGSTER_CODE_SERVER_HOST
+      port:
+        env: DAGSTER_CODE_SERVER_PORT
+      location_name: data-engineering

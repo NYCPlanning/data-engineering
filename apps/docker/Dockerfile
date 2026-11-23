@@ -33,6 +33,6 @@ RUN uv pip install --system --no-deps $(for d in python/*/; do printf -- '-e %s 
 ENV DAGSTER_HOME=/opt/dagster/dagster_home
 RUN mkdir -p ${DAGSTER_HOME}
 
-EXPOSE 3000 8501
+EXPOSE 3000 4000 8501
 
 CMD ["echo", "Specify an app entrypoint, e.g. apps/docker/entrypoints/qa.sh"]
