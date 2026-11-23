@@ -1,0 +1,9 @@
+# Dagster instance config: keep runs, event logs, and schedules in Postgres instead of SQLite
+# files under DAGSTER_HOME. Only used when DAGSTER_PG_URL is set - the entrypoint (or compose
+# override) copies/mounts this into DAGSTER_HOME then; without it Dagster falls back to SQLite.
+#
+# DAGSTER_PG_URL: postgresql://<user>:<password>@<host>:5432/<db>[?sslmode=require]
+storage:
+  postgres:
+    postgres_url:
+      env: DAGSTER_PG_URL
