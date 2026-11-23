@@ -10,7 +10,7 @@ from cloudpathlib import CloudPath, S3Client
 from cloudpathlib.azure import AzureBlobClient
 from typing_extensions import NotRequired, TypedDict
 
-from dcpy.configuration import DEFAULT_S3_URL
+from dcpy import configuration
 from dcpy.connectors.registry import Connector
 from dcpy.utils.logging import logger
 
@@ -138,8 +138,11 @@ class HybridPathedStorage:
                 extra_args["ACL"] = "public-read"
             if s3_file_metadata:
                 extra_args["Metadata"] = s3_file_metadata
+            # Callers rarely pass an endpoint, so fall back to AWS_S3_ENDPOINT (which itself
+            # defaults to DigitalOcean Spaces).
             root_path = S3Client(
-                endpoint_url=s3_endpoint_url or DEFAULT_S3_URL, extra_args=extra_args
+                endpoint_url=s3_endpoint_url or configuration.AWS_S3_ENDPOINT,
+                extra_args=extra_args,
             ).CloudPath(f"s3://{s3_bucket}/{root_folder}")
             return HybridPathedStorage(root_path=root_path, storage_type=StorageType.S3)
 
