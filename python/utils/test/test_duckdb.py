@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 
 from dcpy.utils import duckdb as duckdb_utils
@@ -28,3 +30,30 @@ def test_client_uses_duckdb_defaults_without_env_vars(tmp_path, no_duckdb_env):
     for name in ("memory_limit", "threads"):
         expected = default.execute(f"SELECT current_setting('{name}')").fetchone()[0]  # type: ignore[index]
         assert _setting(client, name) == expected
+
+
+@pytest.mark.parametrize(
+    "endpoint, expected",
+    [
+        ("https://nyc3.digitaloceanspaces.com", ("nyc3.digitaloceanspaces.com", True)),
+        ("https://gateway.example.test/", ("gateway.example.test", True)),
+        ("http://localhost:7070", ("localhost:7070", False)),
+        ("gateway.example.test", ("gateway.example.test", True)),
+    ],
+)
+def test_s3_secret_endpoint(endpoint, expected):
+    assert duckdb_utils._s3_secret_endpoint(endpoint) == expected
+
+
+def test_setup_s3_secret_uses_path_style(monkeypatch):
+    monkeypatch.setattr(duckdb_utils.configuration, "AWS_S3_ENDPOINT", "http://gw:7070")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "key")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "secret")
+    conn = MagicMock()
+
+    duckdb_utils.setup_s3_secret(conn)
+
+    secret_sql = conn.sql.call_args_list[-1].args[0]
+    assert "ENDPOINT 'gw:7070'" in secret_sql
+    assert "URL_STYLE 'path'" in secret_sql
+    assert "USE_SSL false" in secret_sql
