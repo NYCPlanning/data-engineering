@@ -12,7 +12,7 @@ apps/docker/
 ├── Dockerfile.dockerignore  # allowlist of what gets copied in
 └── entrypoints/
     ├── qa.sh                # streamlit on :8501, served at the root path
-    └── dagster.sh           # webserver on :3000 (/dag) + daemon (POC)
+    └── dagster.sh           # webserver on :3000 (/dag) + daemon (POC); Postgres storage if DAGSTER_PG_URL is set
 ```
 
 ## Running locally
@@ -62,4 +62,22 @@ Pushing a new `:latest` doesn't by itself create a new revision. To roll out a n
 ```bash
 az containerapp update --name de-tools --resource-group rg-azu-e2-dcp-de-nonprod \
   --image <acr>.azurecr.io/de-apps:latest --revision-suffix <short-sha>
+```
+
+### Dagster
+
+The `dagster` app runs `entrypoints/dagster.sh` on port 3000 (`/dag`). Instance storage (runs,
+event logs, schedules) goes to Postgres when `DAGSTER_PG_URL` is set: the entrypoint copies
+`apps/dagster/dagster.yaml` into `DAGSTER_HOME`. Without it, Dagster falls back to SQLite on
+container disk, which every new revision wipes.
+
+| Env var | Kind | Value |
+|---|---|---|
+| `DAGSTER_PG_URL` | secret (`secretref:`) | `postgresql://dagster:<pw>@psql-azu-e2-dcp-de-nonprod.postgres.database.azure.com:5432/dagster?sslmode=require` |
+
+```bash
+az containerapp secret set --name dagster --resource-group rg-azu-e2-dcp-de-nonprod \
+  --secrets dagster-pg-url='postgresql://dagster:<pw>@...:5432/dagster?sslmode=require'
+az containerapp update --name dagster --resource-group rg-azu-e2-dcp-de-nonprod \
+  --set-env-vars DAGSTER_PG_URL=secretref:dagster-pg-url
 ```
