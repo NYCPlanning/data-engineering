@@ -252,3 +252,34 @@ def test_object_exists_raises_on_access_denied(mock_client):
     )
     with pytest.raises(ClientError):
         s3.object_exists(TEST_BUCKET, MISSING_KEY)
+
+
+def test_client_uses_path_style_for_custom_endpoint(aws_credentials, monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://gateway.example.test")
+    s3_client = s3.client()
+    assert s3_client.meta.endpoint_url == "https://gateway.example.test"
+    assert s3_client.meta.config.s3["addressing_style"] == "path"
+
+
+@patch("dcpy.utils.s3.client")
+def test_get_bucket_region_digital_ocean(mock_client, monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://nyc3.digitaloceanspaces.com")
+    mock_client.return_value.head_bucket.return_value = {
+        "ResponseMetadata": {"RequestId": "tx00000-0065-nyc3c"}
+    }
+    assert s3.get_bucket_region(TEST_BUCKET) == "nyc3c"
+
+
+@pytest.mark.parametrize(
+    "headers, expected",
+    [({"x-amz-bucket-region": "eastus2"}, "eastus2"), ({}, "us-east-1")],
+)
+@patch("dcpy.utils.s3.client")
+def test_get_bucket_region_other_endpoint(mock_client, headers, expected, monkeypatch):
+    """Off DigitalOcean the request id says nothing about region, so it isn't parsed."""
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://gateway.example.test")
+    mock_client.return_value.head_bucket.return_value = {
+        "ResponseMetadata": {"RequestId": "random-request-id", "HTTPHeaders": headers}
+    }
+    mock_client.return_value.meta.region_name = "us-east-1"
+    assert s3.get_bucket_region(TEST_BUCKET) == expected

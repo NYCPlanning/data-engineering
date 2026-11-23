@@ -95,7 +95,13 @@ def client() -> S3Client:
     aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
     aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
     aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-    config = Config(read_timeout=120)
+    # Path-style addressing for custom endpoints (DigitalOcean Spaces, the Versity gateway): a
+    # virtual-host request (bucket.endpoint) needs per-bucket DNS and TLS that Versity lacks.
+    # boto3 already does this for custom endpoints; pinning it keeps it from changing under us.
+    config = Config(
+        read_timeout=120,
+        s3={"addressing_style": "path"} if aws_s3_endpoint else None,
+    )
     return boto3.client(
         "s3",
         aws_access_key_id=aws_access_key_id,
@@ -110,15 +116,31 @@ def list_buckets() -> list[str]:
     return [b["Name"] for b in client().list_buckets()["Buckets"]]
 
 
+def _is_digital_ocean(endpoint: str | None) -> bool:
+    return endpoint is None or "digitaloceanspaces.com" in endpoint
+
+
 def get_bucket_region(bucket: str) -> str:
     """
-    Gets region (with subregion suffix) of specific bucket
-    DISCLAIMER - this might only work for Digital Ocean Spaces.
+    Gets region of specific bucket, used to decide whether a server-side copy between two
+    buckets is possible.
+
+    On DigitalOcean Spaces (or no endpoint set), the region with its subregion suffix is parsed
+    from the request id.
+    DISCLAIMER - that might only work for Digital Ocean Spaces.
         Documentation on format of these responses is not the clearest,
         nor is there evident documentation on format of these id strings
+    Other S3 services (e.g. the Versity gateway) report it in the x-amz-bucket-region header;
+    without it, every bucket is taken to be in the client's region.
     """
-    bucket_id = client().head_bucket(Bucket=bucket)["ResponseMetadata"]["RequestId"]
-    return bucket_id.split("-")[-1]
+    s3_client = client()
+    metadata = s3_client.head_bucket(Bucket=bucket)["ResponseMetadata"]
+    if _is_digital_ocean(os.environ.get("AWS_S3_ENDPOINT")):
+        return metadata["RequestId"].split("-")[-1]
+    return (
+        metadata.get("HTTPHeaders", {}).get("x-amz-bucket-region")
+        or s3_client.meta.region_name
+    )
 
 
 def list_objects(bucket: str, prefix: str) -> list[dict]:
