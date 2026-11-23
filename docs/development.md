@@ -1,6 +1,6 @@
 # Local Development
 
-Getting access (GitHub, 1Password) and optional tools are on the
+Getting access (GitHub, DigitalOcean, 1Password) and optional tools are on the
 [Developer Setup wiki page](https://github.com/NYCPlanning/data-engineering/wiki/Developer-Setup).
 
 There are two ways to set up: the [dev container](#dev-container) (recommended) or a
@@ -26,7 +26,12 @@ To start it from VS Code, open the repo and pick "Reopen in Container". VS Code 
 first, so it may ask for your SSH key's passphrase.
 
 To start it from a terminal, run `docker compose up -d` in `.devcontainer/`, then
-`docker exec -ti de bash` for a shell.
+`docker exec -ti de bash` for a shell. This doesn't run `bash/docker_container_setup.sh`, so run
+`./bash/docker_container_setup.sh` inside the container the first time to create `.venv`.
+
+Use one route or the other. The container names are fixed (`de`, `postgis-db`), so if you started
+it from a terminal, "Reopen in Container" fails with "container name ... is already in use". Run
+`docker compose down` in `.devcontainer/` first.
 
 ## Manual environment setup (uv)
 
@@ -69,6 +74,13 @@ With homebrew, install:
 - `gdal`, for the `ogr2ogr` command that product scripts and the build loader call. No Python
   package links against it: pyogrio ships its own GDAL.
 - postgres (latest version)
+- `direnv` (see [below](#loading-environment-variables-direnv))
+
+#### Linux (Ubuntu, including WSL)
+
+```bash
+sudo apt install gdal-bin postgresql-client direnv
+```
 
 #### Windows
 
@@ -115,8 +127,7 @@ SET client_encoding = 'UTF8';
 ### Install this repo's packages
 
 `dcpy` is a [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) (each
-`python/*` directory, plus `apps/qa`, `apps/dagster`, `apps/notebook-server`, is its own workspace
-member with its own `pyproject.toml`); the whole workspace resolves against one committed
+`python/*` directory, plus `apps/qa`, `apps/dagster`, `apps/notebook-server`,`apps/dcpy_integration_tests`, is its own workspace member with its own `pyproject.toml`); the whole workspace resolves against one committed
 `uv.lock` at the repo root, which is the single source of truth for CI and local dev alike:
 
 ```bash
@@ -139,9 +150,21 @@ uv sync --all-packages --extra products
 ## Loading environment variables (direnv)
 
 The repo uses [direnv](https://direnv.net/) at every level. The root `.envrc` loads `.env`,
-activates `.venv`, and adds `bash/bin` to `PATH`; each product's `.envrc` calls `source_up`
-(inheriting the root setup) and sets product-specific vars like `BUILD_ENGINE_SCHEMA`. With direnv
-installed and `direnv allow` run once per checkout, this happens automatically on `cd`.
+activates `.venv`, adds `bash/bin` to `PATH`, and sets `BUILD_ENGINE_SCHEMA` from your git branch
+name (unset on `main`); each product's `.envrc` calls `source_up` (inheriting the root setup) and
+sets product-specific vars like `DATASET` and `BUILD_ENGINE_DB`. With direnv installed and hooked
+into your shell, this happens automatically on `cd`.
+
+To hook direnv into your shell, add this to the end of `~/.bashrc` (or `~/.zshrc`, using
+`direnv hook zsh`) and open a new terminal:
+
+```bash
+eval "$(direnv hook bash)"
+```
+
+Then run `direnv allow` in the repo root, and in each product directory the first time you use it.
+Changes take effect at your next prompt. After switching branches, run `direnv reload` to update
+`BUILD_ENGINE_SCHEMA`.
 
 In a non-interactive shell (scripts, some tooling) the hook doesn't fire — load it explicitly:
 
