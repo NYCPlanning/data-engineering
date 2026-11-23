@@ -7,3 +7,9 @@ storage:
   postgres:
     postgres_url:
       env: DAGSTER_PG_URL
+
+# Runs execute on the single runner box (apps/docker/entrypoints/dagster-runner.sh); cap how many
+# run at once so they don't fight over its CPU, memory and disk. Extra runs wait in the queue.
+concurrency:
+  runs:
+    max_concurrent_runs: 2
