@@ -1,0 +1,99 @@
+# Azure Dagster stack, locally
+
+A docker compose copy of the Azure Dagster deployment (see `apps/docker/README.md`), with Azurite
+standing in for the storage account:
+
+| Service | Azure counterpart | Notes |
+|---|---|---|
+| `de-dagster` | `de-dagster` app | `entrypoints/dagster.sh`, loads code over gRPC from `de-dagster-runner`; http://127.0.0.1:3000 |
+| `de-dagster-runner` | `de-dagster-runner` app | `entrypoints/dagster-runner.sh`, code server on 4000; runs execute here |
+| `de-blob-gateway` | `de-blob-gateway` app | `versity/versitygw:v1.10.0`, Azure backend; host port 127.0.0.1:17070 |
+| `azurite` | storage account (flat, no HNS) | HTTPS with a self-signed cert from `certs`; host port 127.0.0.1:10000 |
+| `postgres` | Dagster's Postgres flexible server | Postgres 18; host port 127.0.0.1:15432 |
+| `bucket-init` | - | one-shot: creates `edm-recipes`, `edm-publishing`, `edm-private` through the gateway |
+
+Both Dagster services run the `de-apps:local` image with this repo mounted over
+`/app/data-engineering`. The dcpy installs are editable and point there, so a code change only
+needs `docker compose restart de-dagster-runner`. Rebuild the image only when dependencies change.
+
+All S3 traffic from the runner goes to `http://de-blob-gateway:7070` with the local keys
+`local` / `local-secret`. Nothing in the stack has DigitalOcean or Azure credentials.
+
+## Build the image
+
+```bash
+apps/azure-local/build-image.sh          # tags de-apps:local
+```
+
+This builds `apps/docker/Dockerfile` from a copy of the git-tracked and unignored files, so stray
+untracked directories (an old `python/library/`, say) don't end up in the `python/*/` glob. The
+image is linux/amd64 (the geosupport base) and runs under emulation on Apple silicon. A cold build
+takes around 10 minutes.
+
+## Run
+
+```bash
+docker compose -f apps/azure-local/docker-compose.yml up -d
+docker compose -f apps/azure-local/docker-compose.yml ps    # wait for de-dagster-runner (healthy)
+```
+
+The webserver can come up before the runner; it shows the `data-engineering` location as failed
+until the runner answers, then reloads it on its own.
+
+Launch an ingest (registers the version in the `ingest_version` dynamic partitions and launches
+`ingest_<template>` with `push: true`, `latest: true`, then waits for the run):
+
+```bash
+python apps/azure-local/launch_ingest.py bpl_libraries                 # version defaults to today
+python apps/azure-local/launch_ingest.py bpl_libraries --version 20261124 --no-latest
+```
+
+Check what landed, through the gateway:
+
+```bash
+python -c "
+import boto3
+s3 = boto3.client('s3', endpoint_url='http://127.0.0.1:17070', region_name='us-east-1',
+                  aws_access_key_id='local', aws_secret_access_key='local-secret')
+for o in s3.list_objects_v2(Bucket='edm-recipes', Prefix='datasets/bpl_libraries/')['Contents']:
+    print(o['Key'])
+"
+```
+
+or in Azurite directly (the cert lives in the `certs` volume):
+
+```bash
+docker compose -f apps/azure-local/docker-compose.yml exec -T azurite cat /certs/azurite.pem > /tmp/azurite.pem
+python -c "
+from azure.storage.blob import BlobServiceClient
+svc = BlobServiceClient(
+    'https://127.0.0.1:10000/devstoreaccount1', connection_verify='/tmp/azurite.pem',
+    credential={'account_name': 'devstoreaccount1', 'account_key': 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='})
+for b in svc.get_container_client('edm-recipes').list_blobs():
+    print(b.name)
+"
+```
+
+Dagster's runs and event logs are in Postgres:
+
+```bash
+docker compose -f apps/azure-local/docker-compose.yml exec postgres psql -U dagster -d dagster
+```
+
+## Stop
+
+```bash
+docker compose -f apps/azure-local/docker-compose.yml down       # keeps volumes
+docker compose -f apps/azure-local/docker-compose.yml down -v    # drops Postgres, Azurite, certs
+```
+
+## Gotchas this setup handles
+
+- Azurite serves HTTPS. versitygw signs copy-source SAS URLs as https-only, so over plain HTTP its
+  CopyObject quietly falls back to streaming through the gateway.
+- `NODE_EXTRA_CA_CERTS` on Azurite (it fetches copy sources from itself) and `SSL_CERT_FILE` on
+  the gateway (Go reads its trusted roots from there) both point at the self-signed cert.
+- `AZ_COPY_SAS_VERSION: "2025-11-05"`: Azurite lags the SAS version the gateway's SDK signs with.
+- Azurite runs with `--skipApiVersionCheck --loose`.
+- Runner scratch goes to `/tmp/dcpy-lifecycle` (`DCPY_LIFECYCLE_DATA_DIR`), not into the mounted
+  repo. On Azure it's left unset and lands inside the image.

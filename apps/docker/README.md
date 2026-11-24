@@ -28,6 +28,8 @@ docker run --rm --env-file apps/.env -p 8501:8501 de-apps apps/docker/entrypoint
 
 Then open http://localhost:8501. See `apps/env.1pw` for the env vars the apps expect.
 
+For the Dagster apps with the S3 gateway and Azurite, see `apps/azure-local/`.
+
 ## Publishing to ACR
 
 `.github/workflows/azure_acr_publish.yml` builds and pushes `${AZURE_ACR_LOGIN_SERVER}/de-apps:latest`
