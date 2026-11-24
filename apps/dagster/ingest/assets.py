@@ -1,3 +1,5 @@
+import os
+import shutil
 from pathlib import Path
 from typing import List, Optional
 
@@ -78,6 +80,27 @@ def template_takes_version(template_path: Path) -> bool:
     return "version" in get_jinja_vars(template_path.read_text())
 
 
+def _keep_staging() -> bool:
+    return os.environ.get("DCPY_KEEP_STAGING", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def _remove_staging_dir(path: Path, stop_at: Path) -> None:
+    """Delete a run's staging dir, then its parents (partition, template) while they're empty,
+    stopping at the storage base."""
+    shutil.rmtree(path, ignore_errors=True)
+    for parent in path.parents:
+        if parent == stop_at or stop_at not in parent.parents:
+            break
+        try:
+            parent.rmdir()
+        except OSError:
+            break  # not empty: another run's staging is in it
+
+
 def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
     """Create a Dagster asset for an ingest template
 
@@ -124,22 +147,34 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
             else None
         )
 
-        datasets = ingest(
-            dataset_id=template_id,
-            version=version,
-            staging_dir=output_path,
-            mode=config.mode,
-            datasets_filter=config.datasets_filter,
-            latest=config.latest,
-            push=config.push,
-            output_csv=config.output_csv,
-            definition_dir=template_dir,
-            overwrite_okay=config.overwrite_okay,
-        )
+        # The archive in object storage is the result; the staging dir is scratch, so it goes
+        # when the run ends, pass or fail. Kept for a dry run (push: false, where it holds the
+        # only output) or when DCPY_KEEP_STAGING is set, for debugging.
+        keep_staging = not config.push or _keep_staging()
+        try:
+            datasets = ingest(
+                dataset_id=template_id,
+                version=version,
+                staging_dir=output_path,
+                mode=config.mode,
+                datasets_filter=config.datasets_filter,
+                latest=config.latest,
+                push=config.push,
+                output_csv=config.output_csv,
+                definition_dir=template_dir,
+                overwrite_okay=config.overwrite_okay,
+            )
+        finally:
+            if keep_staging:
+                context.log.info(f"Keeping staging dir {output_path}")
+            else:
+                _remove_staging_dir(output_path, stop_at=local_storage.get_path())
+                context.log.info(f"Removed staging dir {output_path}")
 
         return MaterializeResult(
             metadata={
-                "output_path": str(output_path),
+                # Only when the files are still there to look at.
+                **({"output_path": str(output_path)} if keep_staging else {}),
                 "version": partition_key,
                 # What was archived: without a {{ version }} placeholder, ingest resolves the
                 # version from the source, so it can differ from the partition key.

@@ -108,4 +108,5 @@ docker compose -f apps/azure-local/docker-compose.yml down -v    # drops Postgre
 - `AZ_COPY_SAS_VERSION: "2025-11-05"`: Azurite lags the SAS version the gateway's SDK signs with.
 - Azurite runs with `--skipApiVersionCheck --loose`.
 - Runner scratch goes to `/tmp/dcpy-lifecycle` (`DCPY_LIFECYCLE_DATA_DIR`), not into the mounted
-  repo. On Azure it's left unset and lands inside the image.
+  repo. On Azure it's left unset and lands inside the image. Each ingest run deletes its own staging dir when it
+  ends; set `DCPY_KEEP_STAGING: "true"` on the runner to keep them.
