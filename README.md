@@ -24,11 +24,11 @@ Each product lives under `products/<name>/` and follows a standard pipeline from
 
 **Ingest → Build → Draft → QA → Publish**
 
-1. **Ingest** — extract source datasets from APIs or files and archive to `edm-recipes` (S3)
-2. **Build** — load archived data into Postgres, run dbt/SQL transforms
-3. **Draft** — promote build output to the S3 `draft` folder; run automated QA checks
-4. **QA** — domain experts and GIS team review; address issues and rebuild as needed
-5. **Publish** — promote approved draft to the `publish` folder for distribution
+1. **Ingest** - extract source datasets from APIs or files and archive to `edm-recipes` (S3)
+2. **Build** - load archived data into Postgres, run dbt/SQL transforms
+3. **Draft** - promote build output to the S3 `draft` folder; run automated QA checks
+4. **QA** - domain experts and GIS team review; address issues and rebuild as needed
+5. **Publish** - promote approved draft to the `publish` folder for distribution
 
 [![Workflow diagram](docs/diagrams/workflow_product_build.drawio.png)](docs/diagrams/workflow_product_build.drawio.png)
 
@@ -45,22 +45,22 @@ To set up a development environment, see [docs/development.md](docs/development.
 
 ### Core
 
-- [Local development](docs/development.md) — dev container and manual setup, dependency management
-- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
-- [Test strategy](docs/testing.md) — suites, how to run them, conventions
-- [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
-- [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + package-boundary enforcement
-- [dbt project conventions](docs/dbt-project-conventions.md) — model layers, materialization, geometry standards, linting
-- [Data Engineering Glossary](docs/glossary-data-engineering.md) — definitions of key terms and concepts
+- [Local development](docs/development.md) - dev container and manual setup, dependency management
+- [Developer conventions](docs/conventions.md) - git/PR flow, formatting, comment tags
+- [Test strategy](docs/testing.md) - suites, how to run them, conventions
+- [dcpy package structure](docs/dcpy/README.md) - module layers and import rules
+- [dcpy architecture & import flow](docs/dcpy/architecture.md) - layered dependency model + package-boundary enforcement
+- [dbt project conventions](docs/dbt-project-conventions.md) - model layers, materialization, geometry standards, linting
+- [Data Engineering Glossary](docs/glossary-data-engineering.md) - definitions of key terms and concepts
 
 ### Reference
 
-- [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
-- [Docker images](docs/docker-images.md) — the images builds and CI run in, and how they're published
-- [SQL reference](docs/sql-reference.md) — Postgres/MSSQL query and admin snippets
+- [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) - available utilities on `PATH`
+- [Docker images](docs/docker-images.md) - the images builds and CI run in, and how they're published
+- [SQL reference](docs/sql-reference.md) - Postgres/MSSQL query and admin snippets
 
 ### Domain modeling
 
-- [Data modeling](docs/data-modeling.md) — how we model the data products expose
-- [Urban Planning Glossary](docs/glossary-urban-planning.md) — entities and relationships to model the built environment
+- [Data modeling](docs/data-modeling.md) - how we model the data products expose
+- [Urban Planning Glossary](docs/glossary-urban-planning.md) - entities and relationships to model the built environment
 - [Capital Planning Glossary](docs/glossary-capital-planning.md) - capital budget terms and the budget cycle
