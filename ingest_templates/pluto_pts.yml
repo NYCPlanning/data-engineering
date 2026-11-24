@@ -152,6 +152,7 @@ ingestion:
     - cbntaxflag
     - fintaxflag
     - curtaxflag
+    - trailing_tab # every row ends with a tab; filter_columns drops this empty field
   processing_steps:
   - name: filter_columns
     args:
