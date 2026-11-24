@@ -656,15 +656,15 @@ def nysed_activeinstitutions(df: pd.DataFrame):
 
 def nysoasas_programs(df: pd.DataFrame):
     df = df[
-        df.provider_county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])
+        df.program_county.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])
     ]
     df = sanitize_df(df)
-    df = parse_address(df, raw_address_field="provider_street")
+    df = parse_address(df, raw_address_field="program_street_address")
     df = Function1B(
         street_name_field="parsed_sname",
         house_number_field="parsed_hnum",
-        borough_field="provider_county",
-        zipcode_field="provider_zip_code",
+        borough_field="program_county",
+        zipcode_field="program_zip_code",
     ).geocode_a_dataframe(df)
     return df
 
