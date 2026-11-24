@@ -27,6 +27,8 @@ x-s3-env: &s3-env
   AWS_ACCESS_KEY_ID: local
   AWS_SECRET_ACCESS_KEY: local-secret
   AWS_DEFAULT_REGION: us-east-1
+  # Belt and braces: nothing in the stack may reach DigitalOcean.
+  DCPY_S3_ENDPOINT_DENYLIST: nyc3.digitaloceanspaces.com
 
 services:
   postgres:

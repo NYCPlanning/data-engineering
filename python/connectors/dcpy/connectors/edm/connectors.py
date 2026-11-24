@@ -9,7 +9,7 @@ This module provides connectors for different stages of the EDM publishing pipel
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Unpack
 
 from dcpy.configuration import (
     BUILD_NAME,
@@ -24,7 +24,11 @@ from dcpy.connectors.edm.models import (
     ProductKey,
     PublishKey,
 )
-from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
+from dcpy.connectors.hybrid_pathed_storage import (
+    PathedStorageConnector,
+    S3Kwargs,
+    StorageType,
+)
 from dcpy.connectors.registry import VersionedConnector
 from dcpy.utils import s3, s3_metadata
 from dcpy.utils.logging import logger
@@ -122,16 +126,21 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
     conn_type: str
     _storage: PathedStorageConnector | None = None
     _config: EdmConnectorConfig
+    _s3: S3Kwargs
 
     def __init__(
         self,
         config: EdmConnectorConfig,
         storage: PathedStorageConnector | None = None,
+        s3: S3Kwargs | None = None,
         **kwargs,
     ):
         # Pass conn_type to Pydantic initialization
         super().__init__(conn_type=config.conn_type, **kwargs)
         self._config = config
+        # Bucket, endpoint and keys for the default S3 storage; whatever is left out comes
+        # from PUBLISHING_BUCKET and the AWS_* environment.
+        self._s3 = s3 or {}
         if storage is not None:
             self._storage = storage
 
@@ -141,9 +150,9 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
             self._storage = PathedStorageConnector.from_storage_kwargs(
                 conn_type=self.conn_type,
                 storage_backend=StorageType.S3,
-                s3_bucket=_bucket(),
                 root_folder=PUBLISHING_BUCKET_ROOT_FOLDER,
                 _validate_root_path=False,
+                **{"s3_bucket": _bucket(), **self._s3},
             )
         return self._storage
 
@@ -463,22 +472,26 @@ def _generate_build_metadata() -> dict:
 # Factory functions
 def create_drafts_connector(
     storage: PathedStorageConnector | None = None,
+    conn_type: str | None = None,
+    **s3: Unpack[S3Kwargs],
 ) -> EdmConnector:
     config = EdmConnectorConfig(
-        conn_type="edm.publishing.drafts",
+        conn_type=conn_type or "edm.publishing.drafts",
         folder_name="draft",
         key_factory=_create_draft_key,
         version_parser=_parse_draft_version,
         list_versions_impl=_list_draft_versions,
     )
-    return EdmConnector(config=config, storage=storage)
+    return EdmConnector(config=config, storage=storage, s3=s3)
 
 
 def create_builds_connector(
     storage: PathedStorageConnector | None = None,
+    conn_type: str | None = None,
+    **s3: Unpack[S3Kwargs],
 ) -> "_BuildsConnector":
     config = EdmConnectorConfig(
-        conn_type="edm.publishing.builds",
+        conn_type=conn_type or "edm.publishing.builds",
         folder_name="build",
         key_factory=_create_build_key,
         supports_latest=False,
@@ -486,26 +499,30 @@ def create_builds_connector(
     )
     # Create instance using object.__new__ to bypass custom __new__ logic
     connector = object.__new__(_BuildsConnector)
-    EdmConnector.__init__(connector, config=config, storage=storage)
+    EdmConnector.__init__(connector, config=config, storage=storage, s3=s3)
     return connector
 
 
 def create_published_connector(
     storage: PathedStorageConnector | None = None,
+    conn_type: str | None = None,
+    **s3: Unpack[S3Kwargs],
 ) -> EdmConnector:
     config = EdmConnectorConfig(
-        conn_type="edm.publishing.published",
+        conn_type=conn_type or "edm.publishing.published",
         folder_name="publish",
         key_factory=_create_publish_key,
     )
-    return EdmConnector(config=config, storage=storage)
+    return EdmConnector(config=config, storage=storage, s3=s3)
 
 
 def create_plan_connector(
     storage: PathedStorageConnector | None = None,
+    conn_type: str | None = None,
+    **s3: Unpack[S3Kwargs],
 ) -> "_PlanConnector":
     config = EdmConnectorConfig(
-        conn_type="edm.publishing.plan",
+        conn_type=conn_type or "edm.publishing.plan",
         folder_name="plan",
         key_factory=_create_plan_key,
         version_parser=_parse_plan_version,
@@ -515,12 +532,14 @@ def create_plan_connector(
     )
     # Create instance using object.__new__ to bypass custom __new__ logic
     connector = object.__new__(_PlanConnector)
-    EdmConnector.__init__(connector, config=config, storage=storage)
+    EdmConnector.__init__(connector, config=config, storage=storage, s3=s3)
     return connector
 
 
 def create_private_connector(
     storage: PathedStorageConnector | None = None,
+    conn_type: str | None = None,
+    **s3: Unpack[S3Kwargs],
 ) -> EdmConnector:
     """Create a connector for private datasets in edm-private bucket.
 
@@ -528,13 +547,13 @@ def create_private_connector(
     No config.json required - just the data files.
     """
     config = EdmConnectorConfig(
-        conn_type="edm.private",
+        conn_type=conn_type or "edm.private",
         folder_name="",  # No folder hierarchy for private datasets
         key_factory=_create_private_key,
         supports_latest=True,
         cache_directory_pulls=True,
     )
-    return EdmConnector(config=config, storage=storage)
+    return EdmConnector(config=config, storage=storage, s3=s3)
 
 
 # Connector wrapper classes for backwards compatibility
@@ -551,9 +570,13 @@ class DraftsConnector:
         return create_drafts_connector(storage=storage)
 
     @staticmethod
-    def create(storage: PathedStorageConnector | None = None) -> EdmConnector:
+    def create(
+        storage: PathedStorageConnector | None = None,
+        conn_type: str | None = None,
+        **s3: Unpack[S3Kwargs],
+    ) -> EdmConnector:
         """Create a DraftsConnector with lazy-loaded S3 storage."""
-        return create_drafts_connector(storage=storage)
+        return create_drafts_connector(storage=storage, conn_type=conn_type, **s3)
 
 
 class _BuildsConnector(EdmConnector):
@@ -741,9 +764,13 @@ class BuildsConnector:
         return create_builds_connector(storage=storage)
 
     @staticmethod
-    def create(storage: PathedStorageConnector | None = None) -> "_BuildsConnector":
+    def create(
+        storage: PathedStorageConnector | None = None,
+        conn_type: str | None = None,
+        **s3: Unpack[S3Kwargs],
+    ) -> "_BuildsConnector":
         """Create a BuildsConnector with lazy-loaded S3 storage."""
-        return create_builds_connector(storage=storage)
+        return create_builds_connector(storage=storage, conn_type=conn_type, **s3)
 
 
 class PublishedConnector:
@@ -759,9 +786,13 @@ class PublishedConnector:
         return create_published_connector(storage=storage)
 
     @staticmethod
-    def create(storage: PathedStorageConnector | None = None) -> EdmConnector:
+    def create(
+        storage: PathedStorageConnector | None = None,
+        conn_type: str | None = None,
+        **s3: Unpack[S3Kwargs],
+    ) -> EdmConnector:
         """Create a PublishedConnector with lazy-loaded S3 storage."""
-        return create_published_connector(storage=storage)
+        return create_published_connector(storage=storage, conn_type=conn_type, **s3)
 
 
 class PlanConnector:
@@ -777,9 +808,13 @@ class PlanConnector:
         return create_plan_connector(storage=storage)
 
     @staticmethod
-    def create(storage: PathedStorageConnector | None = None) -> "_PlanConnector":
+    def create(
+        storage: PathedStorageConnector | None = None,
+        conn_type: str | None = None,
+        **s3: Unpack[S3Kwargs],
+    ) -> "_PlanConnector":
         """Create a PlanConnector with lazy-loaded S3 storage."""
-        return create_plan_connector(storage=storage)
+        return create_plan_connector(storage=storage, conn_type=conn_type, **s3)
 
 
 class PrivateConnector:
@@ -796,9 +831,13 @@ class PrivateConnector:
         return create_private_connector(storage=storage)
 
     @staticmethod
-    def create(storage: PathedStorageConnector | None = None) -> EdmConnector:
+    def create(
+        storage: PathedStorageConnector | None = None,
+        conn_type: str | None = None,
+        **s3: Unpack[S3Kwargs],
+    ) -> EdmConnector:
         """Create a PrivateConnector with lazy-loaded S3 storage."""
-        return create_private_connector(storage=storage)
+        return create_private_connector(storage=storage, conn_type=conn_type, **s3)
 
 
 # Helper function for external use

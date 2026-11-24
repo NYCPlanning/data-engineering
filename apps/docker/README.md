@@ -117,6 +117,8 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | `RECIPES_BUCKET` | plain | defaults to `edm-recipes` |
 | `PUBLISHING_BUCKET` | plain | e.g. `edm-publishing`; no default |
 | `PRIVATE_BUCKET` | plain | defaults to `edm-private` |
+| `DCPY_INGEST_RAW_CONNECTOR`, `DCPY_INGEST_DATASETS_CONNECTOR`, `DCPY_*_CONNECTOR` | plain, optional | pick a registered connector per role, e.g. `az.edm.recipes.datasets`; see `docs/dcpy/README.md` |
+| `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID`, `AZ_S3_SECRET_ACCESS_KEY` | plain / secret, optional | registers the `az.*` connectors; only needed when one process uses both stores |
 | `DCPY_LIFECYCLE_DATA_DIR` | plain, optional | local scratch for runs; defaults to `.lifecycle/` in the working directory |
 | `SOCRATA_USER`, `SOCRATA_PASSWORD` | secret, optional | Socrata sources work anonymously, rate-limited |
 | `AXWAY_SFTP_USER`, `AXWAY_SFTP_PASSWORD` | secret | `axway` sources (DOF PLUTO inputs) |

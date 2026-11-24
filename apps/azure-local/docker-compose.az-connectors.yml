@@ -1,0 +1,20 @@
+# Overlay: the runner writes ingest through the az.* connectors (AZ_S3_*) instead of the default
+# edm.* ones, the way a process that reads DigitalOcean and writes Azure would. The plain AWS_*
+# endpoint points at DigitalOcean, which the denylist refuses, so anything that still goes
+# through the defaults fails instead of leaving the stack.
+#
+#   docker compose -f apps/azure-local/docker-compose.yml \
+#     -f apps/azure-local/docker-compose.az-connectors.yml up -d
+
+services:
+  de-dagster-runner:
+    environment:
+      AWS_S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
+      AWS_ACCESS_KEY_ID: unused
+      AWS_SECRET_ACCESS_KEY: unused
+      DCPY_S3_ENDPOINT_DENYLIST: nyc3.digitaloceanspaces.com
+      AZ_S3_ENDPOINT: http://de-blob-gateway:7070
+      AZ_S3_ACCESS_KEY_ID: local
+      AZ_S3_SECRET_ACCESS_KEY: local-secret
+      DCPY_INGEST_RAW_CONNECTOR: az.edm.recipes.raw_datasets
+      DCPY_INGEST_DATASETS_CONNECTOR: az.edm.recipes.datasets

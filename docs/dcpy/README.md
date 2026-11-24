@@ -57,6 +57,33 @@ the isolated per-package CI job and each package's `test/test_package_boundary.p
 
 Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure wiki page.
 
+### Which store a process uses
+
+Every S3 client resolves its endpoint through `dcpy.utils.s3.resolve_endpoint`. `AWS_S3_ENDPOINT`
+is required (no default), and a host on `DCPY_S3_ENDPOINT_DENYLIST` (comma-separated) is refused.
+
+Lifecycle stages find their stores by connector name in the registry
+(`dcpy.lifecycle.connector_registry`). Each default can be overridden by env var:
+
+| Env var | Default connector | Used for |
+|---|---|---|
+| `DCPY_INGEST_RAW_CONNECTOR` | `edm.recipes.raw_datasets` | ingest: raw archive |
+| `DCPY_INGEST_DATASETS_CONNECTOR` | `edm.recipes.datasets` | ingest: processed archive |
+| `DCPY_RECIPES_CONNECTOR` | `edm.recipes.datasets` | builds: latest recipe versions |
+| `DCPY_BUILDS_CONNECTOR` | `edm.publishing.builds` | builds |
+| `DCPY_DRAFTS_CONNECTOR` | `edm.publishing.drafts` | drafts |
+| `DCPY_PUBLISHED_CONNECTOR` | `edm.publishing.published` | published |
+| `DCPY_PLAN_CONNECTOR` | `edm.publishing.plan` | plans |
+
+When `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID` and `AZ_S3_SECRET_ACCESS_KEY` are set, the registry
+also registers an `az.*` copy of the storage connectors (`az.edm.recipes.datasets`,
+`az.edm.recipes.raw_datasets`, `az.edm.private`, `az.edm.publishing.builds|drafts|published|plan`)
+pointed at that endpoint (Azure Blob through the versitygw gateway). Buckets default to the `edm.*`
+names; `AZ_RECIPES_BUCKET`, `AZ_PUBLISHING_BUCKET`, `AZ_PRIVATE_BUCKET` override them. One process
+can then read DigitalOcean and write Azure, e.g. `DCPY_INGEST_DATASETS_CONNECTOR=az.edm.recipes.datasets`.
+Registration makes no network calls. A recipe's input `source` (default `edm.recipes.datasets`) is
+still a connector name of its own.
+
 ## Removed
 
 - **`dcpy.library`** — the old ingest/archive tool, replaced by `dcpy.lifecycle.ingest`. Its

@@ -18,6 +18,18 @@ needs `docker compose restart de-dagster-runner`. Rebuild the image only when de
 
 All S3 traffic from the runner goes to `http://de-blob-gateway:7070` with the local keys
 `local` / `local-secret`. Nothing in the stack has DigitalOcean or Azure credentials.
+`DCPY_S3_ENDPOINT_DENYLIST=nyc3.digitaloceanspaces.com` makes dcpy refuse DigitalOcean outright.
+
+That's the default: plain `AWS_*` pointed at the gateway, as on Azure. To run the runner the way a
+process that reads DigitalOcean and writes Azure would, add the overlay
+`docker-compose.az-connectors.yml`: ingest writes through the `az.*` connectors (`AZ_S3_*` ->
+gateway), and `AWS_S3_ENDPOINT` points at DigitalOcean, which the denylist refuses, so anything
+still using the default connectors fails rather than leaving the stack:
+
+```bash
+docker compose -f apps/azure-local/docker-compose.yml \
+  -f apps/azure-local/docker-compose.az-connectors.yml up -d de-dagster-runner
+```
 
 ## Build the image
 

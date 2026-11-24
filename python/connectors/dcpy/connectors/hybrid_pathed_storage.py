@@ -92,6 +92,16 @@ class StorageType(Enum):
     LOCAL = "local"
 
 
+class S3Kwargs(TypedDict, total=False):
+    """Where an S3-backed connector points. Anything left out comes from the AWS_* environment
+    (endpoint, keys) or the connector's own default bucket."""
+
+    s3_bucket: str
+    s3_endpoint_url: str | None
+    s3_access_key_id: str | None
+    s3_secret_access_key: str | None
+
+
 class StorageKwargs(TypedDict, total=True):
     storage_backend: StorageType
     s3_endpoint_url: NotRequired[str | None]
