@@ -5,6 +5,7 @@ from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Literal, cast, get_args
+from urllib.parse import urlparse
 
 import boto3
 import pytz
@@ -90,23 +91,83 @@ def _progress():
     )
 
 
-def client() -> S3Client:
-    """Returns a client for S3."""
-    aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
-    aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-    aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+ENDPOINT_ENV_VAR = "AWS_S3_ENDPOINT"
+ENDPOINT_DENYLIST_ENV_VAR = "DCPY_S3_ENDPOINT_DENYLIST"
+
+
+class S3ConfigError(RuntimeError):
+    """S3 isn't configured, or is configured to an endpoint this process may not use."""
+
+
+def endpoint_host(endpoint: str) -> str:
+    """Lowercased hostname of an endpoint URL. A bare host (as GDAL takes it) is allowed."""
+    return (
+        urlparse(endpoint if "://" in endpoint else f"https://{endpoint}").hostname
+        or ""
+    ).lower()
+
+
+def _denylisted(host: str) -> str | None:
+    """The denylist entry matching `host` (itself or a parent domain), if any."""
+    entries = os.environ.get(ENDPOINT_DENYLIST_ENV_VAR, "").split(",")
+    for entry in (e.strip().lower().rstrip(".") for e in entries):
+        if entry and (host == entry or host.endswith(f".{entry}")):
+            return entry
+    return None
+
+
+def resolve_endpoint(endpoint: str | None = None) -> str:
+    """The one place an S3 endpoint is decided, for every client (boto3, cloudpathlib, DuckDB,
+    pyarrow): `endpoint` if given, else AWS_S3_ENDPOINT, read at call time.
+
+    There's no default: a process without an endpoint fails here rather than quietly reaching
+    production. Either way, a host on DCPY_S3_ENDPOINT_DENYLIST (comma-separated hostnames,
+    subdomains included) is refused.
+    """
+    resolved = endpoint or os.environ.get(ENDPOINT_ENV_VAR)
+    if not resolved:
+        raise S3ConfigError(
+            f"{ENDPOINT_ENV_VAR} is not set. Set it to the S3 endpoint URL, "
+            "e.g. https://nyc3.digitaloceanspaces.com."
+        )
+    host = endpoint_host(resolved)
+    if entry := _denylisted(host):
+        raise S3ConfigError(
+            f"S3 endpoint {resolved} is denied by {ENDPOINT_DENYLIST_ENV_VAR} ({entry})."
+        )
+    return resolved
+
+
+def resolve_credentials(
+    access_key_id: str | None = None, secret_access_key: str | None = None
+) -> tuple[str, str]:
+    """Explicit keys if given, else AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY."""
+    key_id = access_key_id or os.environ.get("AWS_ACCESS_KEY_ID")
+    secret = secret_access_key or os.environ.get("AWS_SECRET_ACCESS_KEY")
+    if not (key_id and secret):
+        raise S3ConfigError(
+            "S3 credentials are not set: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+        )
+    return key_id, secret
+
+
+def client(
+    endpoint: str | None = None,
+    access_key_id: str | None = None,
+    secret_access_key: str | None = None,
+) -> S3Client:
+    """Returns a client for S3. Arguments left out come from the AWS_* environment."""
+    endpoint_url = resolve_endpoint(endpoint)
+    key_id, secret = resolve_credentials(access_key_id, secret_access_key)
     # Path-style addressing for custom endpoints (DigitalOcean Spaces, the Versity gateway): a
     # virtual-host request (bucket.endpoint) needs per-bucket DNS and TLS that Versity lacks.
     # boto3 already does this for custom endpoints; pinning it keeps it from changing under us.
-    config = Config(
-        read_timeout=120,
-        s3={"addressing_style": "path"} if aws_s3_endpoint else None,
-    )
+    config = Config(read_timeout=120, s3={"addressing_style": "path"})
     return boto3.client(
         "s3",
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        endpoint_url=aws_s3_endpoint,
+        aws_access_key_id=key_id,
+        aws_secret_access_key=secret,
+        endpoint_url=endpoint_url,
         config=config,
     )
 
@@ -116,8 +177,9 @@ def list_buckets() -> list[str]:
     return [b["Name"] for b in client().list_buckets()["Buckets"]]
 
 
-def _is_digital_ocean(endpoint: str | None) -> bool:
-    return endpoint is None or "digitaloceanspaces.com" in endpoint
+def _is_digital_ocean(endpoint: str) -> bool:
+    host = endpoint_host(endpoint)
+    return host == "digitaloceanspaces.com" or host.endswith(".digitaloceanspaces.com")
 
 
 def get_bucket_region(bucket: str) -> str:
@@ -125,7 +187,7 @@ def get_bucket_region(bucket: str) -> str:
     Gets region of specific bucket, used to decide whether a server-side copy between two
     buckets is possible.
 
-    On DigitalOcean Spaces (or no endpoint set), the region with its subregion suffix is parsed
+    On DigitalOcean Spaces, the region with its subregion suffix is parsed
     from the request id.
     DISCLAIMER - that might only work for Digital Ocean Spaces.
         Documentation on format of these responses is not the clearest,
@@ -135,7 +197,7 @@ def get_bucket_region(bucket: str) -> str:
     """
     s3_client = client()
     metadata = s3_client.head_bucket(Bucket=bucket)["ResponseMetadata"]
-    if _is_digital_ocean(os.environ.get("AWS_S3_ENDPOINT")):
+    if _is_digital_ocean(resolve_endpoint()):
         return metadata["RequestId"].split("-")[-1]
     return (
         metadata.get("HTTPHeaders", {}).get("x-amz-bucket-region")
@@ -579,11 +641,16 @@ def get_file_as_text(bucket: str, path: str) -> str:
         raise Exception(f"No body found for file '{path}' in bucket '{bucket}'.")
 
 
-def pyarrow_fs() -> fs.S3FileSystem:
+def pyarrow_fs(
+    endpoint: str | None = None,
+    access_key_id: str | None = None,
+    secret_access_key: str | None = None,
+) -> fs.S3FileSystem:
+    key_id, secret = resolve_credentials(access_key_id, secret_access_key)
     return fs.S3FileSystem(
-        access_key=os.environ["AWS_ACCESS_KEY_ID"],
-        secret_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-        endpoint_override=os.environ.get("AWS_S3_ENDPOINT"),
+        access_key=key_id,
+        secret_key=secret,
+        endpoint_override=resolve_endpoint(endpoint),
     )
 
 

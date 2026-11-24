@@ -109,7 +109,8 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | Env var | Kind | Value |
 |---|---|---|
 | `DAGSTER_PG_URL` | secret | same as `de-dagster` |
-| `AWS_S3_ENDPOINT` | plain | `https://de-blob-gateway.itd-data.dcp.nycnet` (with scheme) |
+| `AWS_S3_ENDPOINT` | plain, required | `https://de-blob-gateway.itd-data.dcp.nycnet` (with scheme); no default, an S3 call without it fails |
+| `DCPY_S3_ENDPOINT_DENYLIST` | plain, optional | comma-separated hosts dcpy must never reach (subdomains included); `nyc3.digitaloceanspaces.com` at cutover |
 | `AWS_ACCESS_KEY_ID` | secret | gateway access key |
 | `AWS_SECRET_ACCESS_KEY` | secret | gateway secret key |
 | `AWS_DEFAULT_REGION` | plain | `us-east-1`; the signing region, should match the gateway's |
@@ -121,8 +122,9 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | `AXWAY_SFTP_USER`, `AXWAY_SFTP_PASSWORD` | secret | `axway` sources (DOF PLUTO inputs) |
 | `SFTP_HOST`, `SFTP_USER`, `SFTP_PRIVATE_KEY_PATH` | secret | `ginger` SFTP sources; the key is a file path, so mount it |
 
-All S3 access in dcpy (boto3, cloudpathlib, DuckDB) uses path-style URLs against
-`AWS_S3_ENDPOINT`, which the Versity gateway requires. Ingest templates with an `s3` source name
+All S3 access in dcpy (boto3, cloudpathlib, DuckDB, pyarrow) resolves its endpoint in
+`dcpy.utils.s3.resolve_endpoint` and uses path-style URLs, which the Versity gateway requires. The
+endpoint is checked when a client is made, not at import, so the apps start without secrets. Ingest templates with an `s3` source name
 their bucket directly (`edm-recipes`, `edm-private`), so the gateway needs buckets by those names.
 `dcp_developments` and `dcp_housing` download from the public DigitalOcean URL and keep doing so.
 

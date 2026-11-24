@@ -1,4 +1,3 @@
-import os
 from io import BytesIO
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -37,19 +36,84 @@ def test_client_create(aws_credentials):
     s3.client()
 
 
-# assert client creation results for invalid client endpoint_url options
-# shows approaches that don't work for a mock endpoint in aws_credentials
-def test_client_create_errors(aws_credentials):
-    with pytest.raises(TypeError, match="str expected, not NoneType"):
-        os.environ["AWS_S3_ENDPOINT"] = None
-
+def test_client_invalid_endpoint(aws_credentials, monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "testing")
     with pytest.raises(ValueError, match="Invalid endpoint: testing"):
-        os.environ["AWS_S3_ENDPOINT"] = "testing"
         s3.client()
 
-    with pytest.raises(ValueError, match="Invalid endpoint: "):
-        os.environ["AWS_S3_ENDPOINT"] = ""
+
+@pytest.mark.parametrize("value", [None, ""])
+def test_missing_endpoint_fails_loudly(aws_credentials, monkeypatch, value):
+    if value is None:
+        monkeypatch.delenv("AWS_S3_ENDPOINT", raising=False)
+    else:
+        monkeypatch.setenv("AWS_S3_ENDPOINT", value)
+    for make_client in (s3.client, s3.pyarrow_fs, s3.resolve_endpoint):
+        with pytest.raises(s3.S3ConfigError, match="AWS_S3_ENDPOINT is not set"):
+            make_client()
+
+
+def test_missing_credentials_fail_loudly(aws_credentials, monkeypatch):
+    monkeypatch.delenv("AWS_ACCESS_KEY_ID")
+    with pytest.raises(s3.S3ConfigError, match="AWS_ACCESS_KEY_ID"):
         s3.client()
+
+
+@pytest.mark.parametrize(
+    "endpoint",
+    [
+        "https://nyc3.digitaloceanspaces.com",
+        "https://NYC3.digitaloceanspaces.com/",
+        "nyc3.digitaloceanspaces.com",
+        "https://edm-recipes.nyc3.digitaloceanspaces.com",
+    ],
+)
+def test_denylisted_endpoint_refused(aws_credentials, monkeypatch, endpoint):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", endpoint)
+    monkeypatch.setenv(
+        "DCPY_S3_ENDPOINT_DENYLIST", " example.org , nyc3.digitaloceanspaces.com"
+    )
+    for make_client in (s3.client, s3.pyarrow_fs):
+        with pytest.raises(s3.S3ConfigError, match="DCPY_S3_ENDPOINT_DENYLIST"):
+            make_client()
+
+
+def test_denylist_applies_to_explicit_endpoint(aws_credentials, monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "http://gateway:7070")
+    monkeypatch.setenv("DCPY_S3_ENDPOINT_DENYLIST", "nyc3.digitaloceanspaces.com")
+    assert s3.client().meta.endpoint_url == "http://gateway:7070"
+    with pytest.raises(s3.S3ConfigError, match="DCPY_S3_ENDPOINT_DENYLIST"):
+        s3.client(endpoint="https://nyc3.digitaloceanspaces.com")
+
+
+def test_denylist_matches_hosts_not_substrings(aws_credentials, monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://notnyc3.digitaloceanspaces.com")
+    monkeypatch.setenv("DCPY_S3_ENDPOINT_DENYLIST", "nyc3.digitaloceanspaces.com")
+    assert s3.resolve_endpoint() == "https://notnyc3.digitaloceanspaces.com"
+
+
+@pytest.mark.parametrize(
+    "endpoint",
+    ["https://nyc3.digitaloceanspaces.com", "http://gateway.example.test:7070"],
+)
+def test_client_uses_configured_endpoint(aws_credentials, monkeypatch, endpoint):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", endpoint)
+    monkeypatch.delenv("DCPY_S3_ENDPOINT_DENYLIST", raising=False)
+    s3_client = s3.client()
+    assert s3_client.meta.endpoint_url == endpoint
+    assert s3_client.meta.config.s3["addressing_style"] == "path"
+
+
+def test_client_explicit_args_win(aws_credentials, monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://nyc3.digitaloceanspaces.com")
+    s3_client = s3.client(
+        endpoint="http://gateway:7070",
+        access_key_id="explicit-id",
+        secret_access_key="explicit-secret",
+    )
+    assert s3_client.meta.endpoint_url == "http://gateway:7070"
+    creds = s3_client._request_signer._credentials  # type: ignore[attr-defined]
+    assert (creds.access_key, creds.secret_key) == ("explicit-id", "explicit-secret")
 
 
 def test_list_buckets(create_buckets):

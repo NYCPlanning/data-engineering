@@ -6,8 +6,7 @@ import duckdb  # type: ignore
 import pandas as pd
 import pyarrow as pa
 
-from dcpy import configuration
-from dcpy.utils import datastores
+from dcpy.utils import datastores, s3
 from dcpy.utils.logging import logger
 
 
@@ -25,7 +24,8 @@ def _s3_secret_endpoint(endpoint: str) -> tuple[str, bool]:
 def setup_s3_secret(conn: duckdb.DuckDBPyConnection | None = None) -> None:
     cmd = conn.sql if conn else duckdb.sql
     cmd("INSTALL httpfs; LOAD httpfs;")
-    endpoint, use_ssl = _s3_secret_endpoint(configuration.AWS_S3_ENDPOINT)
+    endpoint, use_ssl = _s3_secret_endpoint(s3.resolve_endpoint())
+    key_id, secret = s3.resolve_credentials()
     # Path-style URLs: DuckDB defaults to virtual-host style (bucket.endpoint), which needs
     # per-bucket DNS and TLS. DigitalOcean Spaces serves both styles; the Versity gateway only
     # serves path style.
@@ -33,8 +33,8 @@ def setup_s3_secret(conn: duckdb.DuckDBPyConnection | None = None) -> None:
         f"""
             CREATE SECRET IF NOT EXISTS s3_secret (
                 TYPE S3,
-                KEY_ID '{os.environ["AWS_ACCESS_KEY_ID"]}',
-                SECRET '{os.environ["AWS_SECRET_ACCESS_KEY"]}',
+                KEY_ID '{key_id}',
+                SECRET '{secret}',
                 ENDPOINT '{endpoint}',
                 URL_STYLE 'path',
                 USE_SSL {str(use_ssl).lower()}

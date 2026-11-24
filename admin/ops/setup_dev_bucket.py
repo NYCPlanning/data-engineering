@@ -224,9 +224,8 @@ def setup(id: str, clean: bool = False) -> str:
             raise Exception(
                 f"bucket {bucket} already exists. specify '-c' to clean contents of bucket"
             )
-        aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
-        aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-        aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
+        aws_s3_endpoint = s3.resolve_endpoint()
+        aws_access_key_id, aws_secret_access_key = s3.resolve_credentials()
         assert bucket.startswith(DEV_BUCKET_PREFIX)
         bucket_obj = boto3.resource(
             "s3",

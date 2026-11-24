@@ -1,17 +1,16 @@
 import logging as default_logging
 import os
 import shutil
-from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Unpack
+from typing import Any, Callable, Unpack
 
 from cloudpathlib import CloudPath, S3Client
 from cloudpathlib.azure import AzureBlobClient
 from typing_extensions import NotRequired, TypedDict
 
-from dcpy import configuration
 from dcpy.connectors.registry import Connector
+from dcpy.utils import s3 as s3_utils
 from dcpy.utils.logging import logger
 
 default_logging.getLogger("azure").setLevel(
@@ -94,7 +93,9 @@ class StorageType(Enum):
 
 class StorageKwargs(TypedDict, total=True):
     storage_backend: StorageType
-    s3_endpoint_url: NotRequired[str]
+    s3_endpoint_url: NotRequired[str | None]
+    s3_access_key_id: NotRequired[str | None]
+    s3_secret_access_key: NotRequired[str | None]
     s3_bucket: NotRequired[str]
     local_dir: NotRequired[Path]
     az_connection_string: NotRequired[str]
@@ -102,12 +103,38 @@ class StorageKwargs(TypedDict, total=True):
     root_folder: NotRequired[str | Path]
 
 
-@dataclass
 class HybridPathedStorage:
-    """Underlying storage for a connector"""
+    """Underlying storage for a connector.
 
-    root_path: HybridPath
+    An S3 root path is built on first use, not when the storage is created: connectors are
+    registered at import, and importing must work without S3 configured. The endpoint is
+    resolved (and checked against the denylist) then.
+    """
+
     storage_type: StorageType
+
+    def __init__(
+        self,
+        storage_type: StorageType,
+        root_path: HybridPath | None = None,
+        *,
+        make_root_path: Callable[[], HybridPath] | None = None,
+        description: str = "",
+    ):
+        assert (root_path is None) != (make_root_path is None), (
+            "pass exactly one of root_path, make_root_path"
+        )
+        self.storage_type = storage_type
+        self._root_path = root_path
+        self._make_root_path = make_root_path
+        self._description = description
+
+    @property
+    def root_path(self) -> HybridPath:
+        if self._root_path is None:
+            assert self._make_root_path
+            self._root_path = self._make_root_path()
+        return self._root_path
 
     class Factory:
         @staticmethod
@@ -131,6 +158,8 @@ class HybridPathedStorage:
             root_folder: Path | str = "",
             s3_public_upload_files: bool = False,
             s3_file_metadata: dict | None = None,
+            s3_access_key_id: str | None = None,
+            s3_secret_access_key: str | None = None,
         ) -> "HybridPathedStorage":
             # Merge extra_args with ACL and Metadata if provided
             extra_args: dict[str, Any] = {}
@@ -138,13 +167,24 @@ class HybridPathedStorage:
                 extra_args["ACL"] = "public-read"
             if s3_file_metadata:
                 extra_args["Metadata"] = s3_file_metadata
-            # Callers rarely pass an endpoint, so fall back to AWS_S3_ENDPOINT (which itself
-            # defaults to DigitalOcean Spaces).
-            root_path = S3Client(
-                endpoint_url=s3_endpoint_url or configuration.AWS_S3_ENDPOINT,
-                extra_args=extra_args,
-            ).CloudPath(f"s3://{s3_bucket}/{root_folder}")
-            return HybridPathedStorage(root_path=root_path, storage_type=StorageType.S3)
+
+            def make_root_path() -> HybridPath:
+                # Left-out endpoint and keys come from the AWS_* environment.
+                key_id, secret = s3_utils.resolve_credentials(
+                    s3_access_key_id, s3_secret_access_key
+                )
+                return S3Client(
+                    endpoint_url=s3_utils.resolve_endpoint(s3_endpoint_url),
+                    aws_access_key_id=key_id,
+                    aws_secret_access_key=secret,
+                    extra_args=extra_args,
+                ).CloudPath(f"s3://{s3_bucket}/{root_folder}")
+
+            return HybridPathedStorage(
+                storage_type=StorageType.S3,
+                make_root_path=make_root_path,
+                description=f"s3://{s3_bucket}/{root_folder}",
+            )
 
         @staticmethod
         def local(local_dir: Path | str) -> "HybridPathedStorage":
@@ -172,6 +212,8 @@ class HybridPathedStorage:
                 return HybridPathedStorage.Factory.s3(
                     s3_bucket=storage_kwargs["s3_bucket"],
                     s3_endpoint_url=storage_kwargs.get("s3_endpoint_url"),
+                    s3_access_key_id=storage_kwargs.get("s3_access_key_id"),
+                    s3_secret_access_key=storage_kwargs.get("s3_secret_access_key"),
                     root_folder=storage_kwargs.get("root_folder") or "",
                 )
             case StorageType.AZURE:
@@ -191,7 +233,9 @@ class HybridPathedStorage:
                 raise ValueError(f"Unsupported storage backend: {storage_backend}")
 
     def __str__(self):
-        return f"{self.storage_type.value}://{self.root_path}"
+        if self._root_path is None:
+            return f"{self.storage_type.value}://{self._description}"
+        return f"{self.storage_type.value}://{self._root_path}"
 
 
 class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
@@ -254,6 +298,10 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
                 root_folder=self.base_storage_kwargs.get("root_folder") or "",
                 s3_bucket=self.base_storage_kwargs["s3_bucket"],  # type: ignore
                 s3_endpoint_url=self.base_storage_kwargs.get("s3_endpoint_url"),
+                s3_access_key_id=self.base_storage_kwargs.get("s3_access_key_id"),
+                s3_secret_access_key=self.base_storage_kwargs.get(
+                    "s3_secret_access_key"
+                ),
                 s3_public_upload_files=(acl == "public-read"),
                 s3_file_metadata=metadata,
             )

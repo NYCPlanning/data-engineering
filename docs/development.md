@@ -209,6 +209,10 @@ python -m build_scripts.transform
 Local credentials and runtime config live in `.env` (loaded by `bash/bin/export_recipe_env.sh` and
 by direnv). **Don't commit secrets** — CI uses 1Password and GitHub Secrets.
 
+S3 needs `AWS_S3_ENDPOINT` (e.g. `https://nyc3.digitaloceanspaces.com`), `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY`. There's no default endpoint: an S3 call without one fails.
+`DCPY_S3_ENDPOINT_DENYLIST` (comma-separated hosts) makes dcpy refuse those endpoints outright.
+
 For SQL, prefer `run_sql_command` (on `PATH` via `bash/bin`). Otherwise use `BUILD_ENGINE_SERVER`, a
 Postgres connection string of the form `postgresql://{user}:{password}@{host}:{port}`.
 

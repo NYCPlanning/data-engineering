@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from dcpy.utils import duckdb as duckdb_utils
+from dcpy.utils.s3 import S3ConfigError
 
 
 def _setting(client: duckdb_utils.DuckDBClient, name: str):
@@ -46,7 +47,7 @@ def test_s3_secret_endpoint(endpoint, expected):
 
 
 def test_setup_s3_secret_uses_path_style(monkeypatch):
-    monkeypatch.setattr(duckdb_utils.configuration, "AWS_S3_ENDPOINT", "http://gw:7070")
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "http://gw:7070")
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "key")
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "secret")
     conn = MagicMock()
@@ -57,3 +58,12 @@ def test_setup_s3_secret_uses_path_style(monkeypatch):
     assert "ENDPOINT 'gw:7070'" in secret_sql
     assert "URL_STYLE 'path'" in secret_sql
     assert "USE_SSL false" in secret_sql
+
+
+def test_setup_s3_secret_refuses_denylisted_endpoint(monkeypatch):
+    monkeypatch.setenv("AWS_S3_ENDPOINT", "https://nyc3.digitaloceanspaces.com")
+    monkeypatch.setenv("DCPY_S3_ENDPOINT_DENYLIST", "nyc3.digitaloceanspaces.com")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "key")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "secret")
+    with pytest.raises(S3ConfigError, match="DCPY_S3_ENDPOINT_DENYLIST"):
+        duckdb_utils.setup_s3_secret(MagicMock())
