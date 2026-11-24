@@ -130,3 +130,24 @@ def test_s3_storage_refuses_denylisted_endpoint(s3_env, monkeypatch, explicit):
     )
     with pytest.raises(S3ConfigError, match="DCPY_S3_ENDPOINT_DENYLIST"):
         storage.root_path
+
+
+def test_s3_push_writes_azure_safe_metadata(create_buckets, tmp_path: Path):
+    from dcpy.utils import s3
+
+    from .conftest import TEST_BUCKET
+
+    (tmp_path / "f.txt").write_text("x")
+    conn = PathedStorageConnector.from_storage_kwargs(
+        conn_type="test",
+        storage_backend=StorageType.S3,
+        s3_bucket=TEST_BUCKET,
+        root_folder="root",
+        _validate_root_path=False,
+    )
+    conn.push("f.txt", filepath=tmp_path / "f.txt", metadata={"date-created": "d"})
+
+    raw = s3.client().head_object(Bucket=TEST_BUCKET, Key="root/f.txt")["Metadata"]
+    assert raw == {"date_created": "d"}
+    md = conn.get_metadata("f.txt")
+    assert md["date-created"] == md["Date_Created"] == "d"

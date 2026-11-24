@@ -8,13 +8,12 @@ from typing import TYPE_CHECKING, Any, Literal, cast, get_args
 from urllib.parse import urlparse
 
 import boto3
-import pytz
 import typer
 from botocore.client import Config
 from botocore.exceptions import ClientError
 from botocore.response import StreamingBody
 from pyarrow import fs
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from rich.progress import (
     BarColumn,
     Progress,
@@ -23,7 +22,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from dcpy.utils import git
+from dcpy.utils import s3_metadata
 from dcpy.utils.logging import logger
 
 if TYPE_CHECKING:
@@ -43,24 +42,25 @@ ACL = Literal[
 MAX_FILE_COUNT = 150
 
 
-class Metadata(BaseModel):
+class Metadata(BaseModel, arbitrary_types_allowed=True):
     last_modified: datetime
     content_length: int
     content_type: str
-    custom: dict[str, Any]
+    # Lookups ignore case and "-" vs "_": see dcpy.utils.s3_metadata
+    custom: s3_metadata.ObjectMetadata
+
+    @field_validator("custom", mode="before")
+    @classmethod
+    def _read_custom(cls, value: Any) -> s3_metadata.ObjectMetadata:
+        return s3_metadata.for_read(value)
 
 
 def generate_metadata() -> dict[str, str]:
-    metadata = {
-        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
-    }
-    try:
-        metadata["commit"] = git.commit_hash()
-    except Exception:
-        pass
-    if os.environ.get("CI"):
-        metadata["run-url"] = git.action_url()
-    return metadata
+    return s3_metadata.standard()
+
+
+def _with_standard_metadata(metadata: dict[str, Any] | None) -> dict[str, str]:
+    return {**s3_metadata.for_write(metadata), **generate_metadata()}
 
 
 def string_as_acl(s: str) -> ACL:
@@ -257,9 +257,11 @@ def folder_exists(bucket: str, prefix: str) -> bool:
     return "Contents" in resp
 
 
-def get_custom_metadata(bucket: str, key: str) -> dict:
+def get_custom_metadata(bucket: str, key: str) -> s3_metadata.ObjectMetadata:
     with _named(bucket, key):
-        return client().head_object(Bucket=bucket, Key=key)["Metadata"]
+        return s3_metadata.for_read(
+            client().head_object(Bucket=bucket, Key=key)["Metadata"]
+        )
 
 
 def get_metadata(bucket: str, key: str) -> Metadata:
@@ -336,10 +338,10 @@ def upload_file(
         task = progress.add_task(
             f"[green]Uploading [bold]{path.name}[/bold]", total=size
         )
-        standard_metadata = generate_metadata()
-        metadata = metadata or {}
-        metadata.update(standard_metadata)
-        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
+        extra_args: dict[Any, Any] = {
+            "ACL": acl,
+            "Metadata": _with_standard_metadata(metadata),
+        }
         client().upload_file(
             str(path),
             bucket,
@@ -361,10 +363,10 @@ def upload_file_obj(
     with _progress() as progress:
         size = file_obj.getbuffer().nbytes
         task = progress.add_task(f"[green]Uploading [bold]{key}[/bold]", total=size)
-        standard_metadata = generate_metadata()
-        metadata = metadata or {}
-        metadata.update(standard_metadata)
-        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
+        extra_args: dict[Any, Any] = {
+            "ACL": acl,
+            "Metadata": _with_standard_metadata(metadata),
+        }
         client().upload_fileobj(
             file_obj,
             bucket,
@@ -388,14 +390,16 @@ def copy_file(
         target_bucket = bucket
     client_ = client()
     existing_metadata = get_metadata(bucket, source_key).custom
-    if metadata is not None:
-        existing_metadata.update(metadata)
+    new_metadata = {
+        **s3_metadata.for_write(existing_metadata),
+        **s3_metadata.for_write(metadata),
+    }
     client_.copy_object(
         CopySource={"Bucket": bucket, "Key": source_key},
         Bucket=target_bucket,
         Key=target_key,
         ACL=acl,
-        Metadata=existing_metadata,
+        Metadata=new_metadata,
         MetadataDirective="REPLACE",
     )
 

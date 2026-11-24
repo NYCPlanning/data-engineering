@@ -124,7 +124,10 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 
 All S3 access in dcpy (boto3, cloudpathlib, DuckDB, pyarrow) resolves its endpoint in
 `dcpy.utils.s3.resolve_endpoint` and uses path-style URLs, which the Versity gateway requires. The
-endpoint is checked when a client is made, not at import, so the apps start without secrets. Ingest templates with an `s3` source name
+endpoint is checked when a client is made, not at import, so the apps start without secrets. Object
+metadata goes through `dcpy.utils.s3_metadata`: names are written lowercase with underscores
+(`date_created`, `commit`, `run_url`), since Azure rejects `date-created`, and read ignoring case and
+`-` vs `_`, since Azure capitalizes them and older DigitalOcean archives use hyphens. Ingest templates with an `s3` source name
 their bucket directly (`edm-recipes`, `edm-private`), so the gateway needs buckets by those names.
 `dcp_developments` and `dcp_housing` download from the public DigitalOcean URL and keep doing so.
 

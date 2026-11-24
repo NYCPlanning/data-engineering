@@ -11,6 +11,7 @@ from typing_extensions import NotRequired, TypedDict
 
 from dcpy.connectors.registry import Connector
 from dcpy.utils import s3 as s3_utils
+from dcpy.utils import s3_metadata
 from dcpy.utils.logging import logger
 
 default_logging.getLogger("azure").setLevel(
@@ -166,7 +167,7 @@ class HybridPathedStorage:
             if s3_public_upload_files:
                 extra_args["ACL"] = "public-read"
             if s3_file_metadata:
-                extra_args["Metadata"] = s3_file_metadata
+                extra_args["Metadata"] = s3_metadata.for_write(s3_file_metadata)
 
             def make_root_path() -> HybridPath:
                 # Left-out endpoint and keys come from the AWS_* environment.
@@ -326,7 +327,7 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
                 dest_path.container,  # type: ignore
                 dest_path.blob,  # type: ignore
             )
-            blob.set_blob_metadata(metadata)
+            blob.set_blob_metadata(s3_metadata.for_write(metadata))
 
         return {"path": str(dest_path)}
 
@@ -343,16 +344,16 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
             src_path.copy(destination_path)
         return {"path": destination_path}
 
-    def get_metadata(self, key: str):
+    def get_metadata(self, key: str) -> s3_metadata.ObjectMetadata:
+        """Custom metadata; lookups ignore case and "-" vs "_" (see dcpy.utils.s3_metadata)."""
         client = self.storage.root_path.client
         if isinstance(client, AzureBlobClient):
-            return client._get_metadata(self.storage.root_path / key).get(  # type: ignore
-                "metadata", {}
-            )
+            raw = client._get_metadata(self.storage.root_path / key).get("metadata", {})  # type: ignore
         elif isinstance(client, S3Client):
-            return client._get_metadata(self.storage.root_path / key).get("extra", {})  # type: ignore
+            raw = client._get_metadata(self.storage.root_path / key).get("extra", {})  # type: ignore
         else:
-            return {}
+            raw = {}
+        return s3_metadata.for_read(raw)
 
     def exists(self, key: str) -> bool:
         return (self.storage.root_path / key).exists()

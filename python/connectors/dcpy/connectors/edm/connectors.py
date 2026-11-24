@@ -8,15 +8,11 @@ This module provides connectors for different stages of the EDM publishing pipel
 """
 
 from dataclasses import asdict, dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-import pytz
-
 from dcpy.configuration import (
     BUILD_NAME,
-    CI,
     PUBLISHING_BUCKET,
     PUBLISHING_BUCKET_ROOT_FOLDER,
 )
@@ -30,7 +26,7 @@ from dcpy.connectors.edm.models import (
 )
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.connectors.registry import VersionedConnector
-from dcpy.utils import git, s3
+from dcpy.utils import s3, s3_metadata
 from dcpy.utils.logging import logger
 
 _TEMP_PUBLISHING_FILE_SUFFIXES = {
@@ -461,13 +457,7 @@ def _list_plan_versions(connector: "EdmConnector", key: str, kwargs: dict) -> li
 # Metadata generators
 def _generate_build_metadata() -> dict:
     """Generate standard S3 metadata for builds."""
-    metadata = {
-        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat(),
-        "commit": git.commit_hash(),
-    }
-    if CI:
-        metadata["run-url"] = git.action_url()
-    return metadata
+    return s3_metadata.standard()
 
 
 # Factory functions

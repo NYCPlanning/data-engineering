@@ -10,7 +10,7 @@ from dcpy.connectors.edm.models import (
     DatasetKey,
     DatasetType,
 )
-from dcpy.utils import s3
+from dcpy.utils import s3, s3_metadata
 from dcpy.utils.logging import logger
 
 # TODO: continuing hacking away until this module is no more.
@@ -42,7 +42,8 @@ def get_archive_date(ds: Dataset | DatasetKey) -> datetime | None:
         return None
     key = f"{folder}/{next(iter(files))}"
     metadata = s3.get_metadata(_bucket(), key)
-    date_created = metadata.custom.get("date-created")
+    # Ingest archives on DigitalOcean say "date-created"; s3_metadata reads either spelling.
+    date_created = metadata.custom.get(s3_metadata.DATE_CREATED)
     if date_created:
         return datetime.fromisoformat(date_created)
     return metadata.last_modified
