@@ -43,16 +43,24 @@ To set up a development environment, see [docs/development.md](docs/development.
 
 ## Documentation
 
-- [Data Engineering Glossary](docs/glossary-data-engineering.md) — definitions of key terms and concepts
-- [Urban Planning Glossary](docs/glossary-urban-planning.md) — entities and relationships to model the built environment
-- [Capital Planning Glossary](docs/glossary-capital-planning.md) - capital budget terms and the budget cycle
-- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
+### Core
+
 - [Local development](docs/development.md) — dev container and manual setup, dependency management
-- [Docker images](docs/docker-images.md) — the images builds and CI run in, and how they're published
+- [Developer conventions](docs/conventions.md) — git/PR flow, formatting, comment tags
+- [Test strategy](docs/testing.md) — suites, how to run them, conventions
 - [dcpy package structure](docs/dcpy/README.md) — module layers and import rules
 - [dcpy architecture & import flow](docs/dcpy/architecture.md) — layered dependency model + package-boundary enforcement
-- [Data modeling](docs/data-modeling.md) — how we model the data products expose
 - [dbt project conventions](docs/dbt-project-conventions.md) — model layers, materialization, geometry standards, linting
+- [Data Engineering Glossary](docs/glossary-data-engineering.md) — definitions of key terms and concepts
+
+### Reference
+
 - [Bash scripts & CLI tools](docs/bash/SCRIPTS.md) — available utilities on `PATH`
-- [Test strategy](docs/testing.md) — suites, how to run them, conventions
+- [Docker images](docs/docker-images.md) — the images builds and CI run in, and how they're published
 - [SQL reference](docs/sql-reference.md) — Postgres/MSSQL query and admin snippets
+
+### Domain modeling
+
+- [Data modeling](docs/data-modeling.md) — how we model the data products expose
+- [Urban Planning Glossary](docs/glossary-urban-planning.md) — entities and relationships to model the built environment
+- [Capital Planning Glossary](docs/glossary-capital-planning.md) - capital budget terms and the budget cycle
