@@ -92,7 +92,7 @@ daemon queues the rest), and the cap only applies with Postgres storage.
 | App | Command | Ingress | Size | Replicas |
 |---|---|---|---|---|
 | `de-dagster` | `/app/data-engineering/apps/docker/entrypoints/dagster.sh` | HTTP, port 3000, external | ~1 CPU / 2 GiB | min 1, max 1 |
-| `de-dagster-runner` | `/app/data-engineering/apps/docker/entrypoints/dagster-runner.sh` | TCP, port 4000, internal to the environment | 2-4 CPU / 8 GiB | min 1, max 1 |
+| `de-dagster-runner` | `/app/data-engineering/apps/docker/entrypoints/dagster-runner.sh` | TCP, port 4000, internal to the environment | 4 CPU / 8 GiB (Consumption memory is always 2 × CPU) | min 1, max 1 |
 
 Env vars for `de-dagster`:
 
