@@ -9,22 +9,30 @@ attributes:
 ingestion:
   source:
     type: api
-    endpoint: https://refinery.nypl.org/api/nypl/locations/v1.0/locations
+    # GraphQL query sent as a GET param. Returns branches plus the divisions and centers inside them (contentType).
+    endpoint: https://scout.nypl.org/api/graphql?query=%7BdrupalAllLocations%7Blocations%7Bid%20name%20contentType%20parentLibraryName%20address_line1%20address_line2%20locality%20administrative_area%20postal_code%20geoLocation%7Blat%20lng%7D%7D%7D%7D
     format: json
+    filename: nypl_libraries.json
   file_format:
     type: json
     json_read_fn: normalize
-    json_read_kwargs: { "record_path": [ "locations" ] }
+    json_read_kwargs: { "record_path": [ "data", "drupalAllLocations", "locations" ] }
     geometry:
-      geom_column: geolocation.coordinates
+      geom_column:
+        x: geoLocation.lng
+        y: geoLocation.lat
       crs: EPSG:4326
-      format:
-        point_xy_str: "[x, y]"
   processing_steps:
   - name: rename_columns
     args:
-      map: { postal_code: zipcode, street_address: address, geom: wkb_geometry }
-  - name: filter_columns
-    args: { columns: [ name, zipcode, address, locality, region, wkb_geometry ] }
+      map:
+        contentType: content_type
+        parentLibraryName: parent_library_name
+        address_line1: address
+        administrative_area: region
+        postal_code: zipcode
+        geom: wkb_geometry
+  - name: drop_columns
+    args: { columns: [ geoLocation.lat, geoLocation.lng ] }
 
 columns: []
