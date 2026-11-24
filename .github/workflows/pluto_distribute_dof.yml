@@ -1,0 +1,77 @@
+name: 🏛️ Distribute PLUTO to DOF
+run-name: "🏛️ Distribute PLUTO to DOF: ${{ inputs.version }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Published PLUTO version, e.g. 26v2"
+        type: string
+        required: true
+      folder:
+        description: "Destination folder on the Axway server"
+        type: string
+        default: ToDOF
+        required: true
+      dry_run:
+        description: "Download, but don't push"
+        type: boolean
+        default: true
+        required: true
+
+jobs:
+  distribute:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: nycplanning/build-base:latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            dcpy
+            python
+            bash
+            admin/run_environment
+
+      - name: Install dcpy workspace
+        run: uv sync --all-packages
+
+      - name: Load Secrets
+        id: op-load-secret
+        uses: 1password/load-secrets-action@v4
+        with:
+          export-env: false
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          KNOWN_HOSTS: "op://Data Engineering/DOF FTP/fingerprint"
+
+      - name: Set up SSH for Axway
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ steps.op-load-secret.outputs.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Load Secrets to Env
+        uses: 1password/load-secrets-action@v4
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AWS_S3_ENDPOINT: "op://Data Engineering/DO_keys/AWS_S3_ENDPOINT"
+          AWS_SECRET_ACCESS_KEY: "op://Data Engineering/DO_keys/AWS_SECRET_ACCESS_KEY"
+          AWS_ACCESS_KEY_ID: "op://Data Engineering/DO_keys/AWS_ACCESS_KEY_ID"
+          AXWAY_SFTP_USER: "op://Data Engineering/DOF FTP/username"
+          AXWAY_SFTP_PASSWORD: "op://Data Engineering/DOF FTP/password"
+
+      - name: Finish container setup
+        working-directory: ./
+        run: ./bash/docker_container_setup.sh
+
+      - name: Distribute
+        run: |
+          uv run python3 -m dcpy lifecycle scripts distribute_pluto_to_dof run \
+            ${{ inputs.version }} \
+            --folder "${{ inputs.folder }}" \
+            ${{ inputs.dry_run == true && '--dry-run' || '--no-dry-run' }}
