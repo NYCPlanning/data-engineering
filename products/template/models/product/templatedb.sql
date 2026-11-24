@@ -14,6 +14,7 @@ all_records AS (
         'library' AS place_type,
         borough,
         NULL AS bbl,
+        address,
         wkb_geometry
     FROM
         libraries
@@ -23,6 +24,7 @@ all_records AS (
         'green space' AS place_type,
         borough,
         NULL AS bbl,
+        NULL AS address,
         wkb_geometry
     FROM green_spaces
     UNION ALL
@@ -31,6 +33,7 @@ all_records AS (
         'historic landmark' AS place_type,
         borough,
         bbl,
+        NULL AS address,
         wkb_geometry
     FROM historic_landmarks
 ),
@@ -41,6 +44,7 @@ standardized_geometry_types AS (
         place_type,
         borough,
         bbl,
+        address,
         CASE
             WHEN ST_GEOMETRYTYPE(wkb_geometry) = 'ST_Polygon' THEN ST_MULTI(wkb_geometry)
             WHEN ST_ISEMPTY(wkb_geometry) THEN NULL
