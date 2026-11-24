@@ -10,6 +10,7 @@ all_other_libraries AS (SELECT * FROM {{ ref('stg_nypl_libraries') }}),
 all_other_libraries_standardized AS (
     SELECT
         library_name,
+        address,
         wkb_geometry,
         CASE
             WHEN borough = 'New York' THEN 'Manhattan'
@@ -22,6 +23,7 @@ all_other_libraries_standardized AS (
 final AS (
     SELECT
         library_name,
+        address,
         borough,
         wkb_geometry
     FROM
@@ -29,12 +31,14 @@ final AS (
     UNION ALL
     SELECT
         library_name,
+        address,
         'Brooklyn' AS borough,
         wkb_geometry
     FROM brooklyn_libraries
     UNION ALL
     SELECT
         library_name,
+        address,
         'Queens' AS borough,
         wkb_geometry
     FROM queens_libraries
