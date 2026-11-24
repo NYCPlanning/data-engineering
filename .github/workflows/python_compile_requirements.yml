@@ -47,7 +47,7 @@ jobs:
         title: Upgrade uv.lock
         body-path: uv_lock_summary.md
         author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-        assignees: ${{ github.event_name == 'schedule' && 'damonmcc, alexrichey' || '' }}
+        team-reviewers: ${{ github.event_name == 'schedule' && 'data-engineering' || '' }}
         branch: compile_python_reqs
         token: ${{ env.GHP_TOKEN }}
 
