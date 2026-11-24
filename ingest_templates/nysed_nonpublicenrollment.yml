@@ -12,7 +12,7 @@ ingestion:
     url: https://www.p12.nysed.gov/irs/statistics/nonpublic/enrollment-by-grade-nonpublic-{{ version }}.xlsx
   file_format:
     type: xlsx
-    sheet_name: NonPubEnroll_byGrade_{{ version[2:] }}
+    sheet_name: NonPubEnroll_byGrade
   processing_steps: 
   - name: clean_column_names
     args: {"lower": True}
