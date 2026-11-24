@@ -1,4 +1,4 @@
-name: 🏛️ Distribute PLUTO to DOF
+name: 📬 Distribute PLUTO to DOF
 run-name: "🏛️ Distribute PLUTO to DOF: ${{ inputs.version }}"
 
 on:
