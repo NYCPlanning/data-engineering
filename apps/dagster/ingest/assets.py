@@ -1,8 +1,9 @@
+from pathlib import Path
 from typing import List, Optional
 
 from dagster import AssetExecutionContext, AssetKey, Config, MaterializeResult, asset
 from dcpy.lifecycle.ingest import get_template_directory, list_ingest_templates
-from dcpy.lifecycle.ingest.plan import read_definition_file
+from dcpy.lifecycle.ingest.plan import get_jinja_vars, read_definition_file
 
 from .partitions import ingest_partition_def
 from .resources import LocalStorageResource
@@ -72,6 +73,11 @@ def detect_circular_dependencies(
         detect_circular_dependencies(template_deps, dep, visited.copy())
 
 
+def template_takes_version(template_path: Path) -> bool:
+    """Whether the template has a {{ version }} placeholder that the run has to fill in."""
+    return "version" in get_jinja_vars(template_path.read_text())
+
+
 def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
     """Create a Dagster asset for an ingest template
 
@@ -97,7 +103,11 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
         from dcpy.lifecycle.ingest.run import ingest
 
         partition_key = context.partition_key
-        output_path = local_storage.get_path("ingest", template_id, partition_key)
+        # One staging dir per run: ingest's default is a single shared directory that each run
+        # wipes on start, so two runs on the runner at once would clobber each other.
+        output_path = local_storage.get_path(
+            "ingest", template_id, partition_key, context.run_id
+        )
 
         context.log.info(f"Running ingest for {template_id} version {partition_key}")
         context.log.info(
@@ -105,14 +115,25 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
             f"output_csv={config.output_csv}, overwrite_okay={config.overwrite_okay}"
         )
 
-        ingest(
+        # The partition key is the version for templates that are parameterized by one (e.g. an
+        # inbox file path). Others resolve their version from the source.
+        template_dir = get_template_directory()
+        version = (
+            partition_key
+            if template_takes_version(template_dir / f"{template_id}.yml")
+            else None
+        )
+
+        datasets = ingest(
             dataset_id=template_id,
+            version=version,
+            staging_dir=output_path,
             mode=config.mode,
             datasets_filter=config.datasets_filter,
             latest=config.latest,
             push=config.push,
             output_csv=config.output_csv,
-            definition_dir=get_template_directory(),
+            definition_dir=template_dir,
             overwrite_okay=config.overwrite_okay,
         )
 
@@ -120,6 +141,9 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
             metadata={
                 "output_path": str(output_path),
                 "version": partition_key,
+                # What was archived: without a {{ version }} placeholder, ingest resolves the
+                # version from the source, so it can differ from the partition key.
+                "archived_versions": sorted({ds.version for ds in datasets}),
                 "mode": config.mode,
                 "latest": config.latest,
                 "push": config.push,
