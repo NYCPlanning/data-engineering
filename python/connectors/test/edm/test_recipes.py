@@ -130,6 +130,57 @@ def test_get_archive_date(load_ingest: SparseConfig):
     assert isinstance(result, datetime)
 
 
+def test_get_archive_date_prefers_ingest_run_timestamp(load_ingest: SparseConfig):
+    ds = DatasetKey(id=load_ingest.id, version=load_ingest.version)
+    assert recipes.get_archive_date(ds) == datetime.fromisoformat(
+        "2025-09-26T12:38:22.544455-04:00"
+    )
+
+
+def test_get_archive_date_library_execution_details(load_library: SparseConfig):
+    ds = DatasetKey(id=load_library.id, version=load_library.version)
+    assert recipes.get_archive_date(ds) == datetime.fromisoformat(
+        "2024-09-05T11:36:31.636395-04:00"
+    )
+
+
+def _put(folder: str, name: str, body: bytes, metadata: dict | None = None):
+    s3.client().put_object(
+        Bucket=RECIPES_BUCKET,
+        Key=f"{folder}/{name}",
+        Body=body,
+        Metadata=metadata or {},
+    )
+
+
+def test_get_archive_date_config_without_timestamp_uses_date_created(
+    create_buckets,
+):
+    """A library-era config.json without execution_details: date-created metadata."""
+    folder = "datasets/old/v1"
+    _put(folder, "old.sql", b"", {"date-created": "2020-01-02T03:04:05+00:00"})
+    _put(
+        folder,
+        "config.json",
+        json.dumps({"dataset": {"name": "old", "version": "v1"}}).encode(),
+        {"date-created": "2020-01-02T03:04:05+00:00"},
+    )
+    ds = DatasetKey(id="old", version="v1")
+    assert recipes.get_archive_date(ds) == datetime.fromisoformat(
+        "2020-01-02T03:04:05+00:00"
+    )
+
+
+def test_get_archive_date_no_config_uses_last_modified(create_buckets):
+    folder = "datasets/bare/v1"
+    _put(folder, "bare.sql", b"")
+    ds = DatasetKey(id="bare", version="v1")
+    archived = recipes.get_archive_date(ds)
+    assert (
+        archived == s3.get_metadata(RECIPES_BUCKET, f"{folder}/bare.sql").last_modified
+    )
+
+
 def test_get_archive_date_missing_dataset(create_buckets):
     ds = DatasetKey(id="nonexistent", version="v1")
     result = recipes.get_archive_date(ds)
