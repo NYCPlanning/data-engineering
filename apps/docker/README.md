@@ -56,6 +56,13 @@ az containerapp create \
 
 Use `/_stcore/health` on port 8501 for the health probe.
 
+`de-tools` reads the same stores as `de-dagster-runner`, so give it the same bucket layout:
+`RECIPES_BUCKET_ROOT_FOLDER=ingest`, `PRIVATE_BUCKET=edm-recipes`, `INBOX_ROOT_FOLDER=inbox`
+(see the runner's env table below).
+
+Archives written to Azure before `RECIPES_BUCKET_ROOT_FOLDER=ingest` sit at `datasets/` and are no
+longer found: so far only `dcp_ct2020`, which needs re-ingesting or moving to `ingest/datasets/`.
+
 The environment has the custom DNS suffix `itd-data.dcp.nycnet` with a wildcard certificate, so
 every app is served at `https://<app-name>.itd-data.dcp.nycnet`: this one is
 https://de-tools.itd-data.dcp.nycnet. Don't add per-app custom domains under that suffix; Azure
@@ -116,7 +123,10 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | `AWS_DEFAULT_REGION` | plain | `us-east-1`; the signing region, should match the gateway's |
 | `RECIPES_BUCKET` | plain | defaults to `edm-recipes` |
 | `PUBLISHING_BUCKET` | plain | e.g. `edm-publishing`; no default |
-| `PRIVATE_BUCKET` | plain | defaults to `edm-private` |
+| `PRIVATE_BUCKET` | plain | `edm-recipes` on Azure (there's no `edm-private`); defaults to `edm-private` |
+| `RECIPES_BUCKET_ROOT_FOLDER` | plain | `ingest` on Azure: ingest writes, and builds read, `edm-recipes/ingest/datasets/` and `ingest/raw/`; empty (bucket root) by default, as on DigitalOcean |
+| `INBOX_ROOT_FOLDER` | plain | `inbox` on Azure: templates' `bucket: edm-private` sources read `edm-recipes/inbox/<key>`; off by default |
+| `AZ_RECIPES_BUCKET_ROOT_FOLDER` | plain, optional | root folder for the `az.*` connectors, only in a process that uses both stores; falls back to `RECIPES_BUCKET_ROOT_FOLDER` |
 | `DCPY_INGEST_RAW_CONNECTOR`, `DCPY_INGEST_DATASETS_CONNECTOR`, `DCPY_*_CONNECTOR` | plain, optional | pick a registered connector per role, e.g. `az.edm.recipes.datasets`; see `docs/dcpy/README.md` |
 | `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID`, `AZ_S3_SECRET_ACCESS_KEY` | plain / secret, optional | registers the `az.*` connectors; only needed when one process uses both stores |
 | `DCPY_LIFECYCLE_DATA_DIR` | plain, optional | local scratch for runs; defaults to `.lifecycle/` in the working directory |
@@ -131,7 +141,9 @@ endpoint is checked when a client is made, not at import, so the apps start with
 metadata goes through `dcpy.utils.s3_metadata`: names are written lowercase with underscores
 (`date_created`, `commit`, `run_url`), since Azure rejects `date-created`, and read ignoring case and
 `-` vs `_`, since Azure capitalizes them and older DigitalOcean archives use hyphens. Ingest templates with an `s3` source name
-their bucket directly (`edm-recipes`, `edm-private`), so the gateway needs buckets by those names.
+their bucket directly (`edm-recipes`, `edm-private`). Azure has no `edm-private`:
+`INBOX_ROOT_FOLDER=inbox` sends the `edm-private` ones to `edm-recipes/inbox/<key>`, so upload
+those source files there.
 `dcp_developments` and `dcp_housing` download from the public DigitalOcean URL and keep doing so.
 
 ```bash

@@ -10,7 +10,7 @@ standing in for the storage account:
 | `de-blob-gateway` | `de-blob-gateway` app | `versity/versitygw:v1.10.0`, Azure backend; host port 127.0.0.1:17070 |
 | `azurite` | storage account (flat, no HNS) | HTTPS with a self-signed cert from `certs`; host port 127.0.0.1:10000 |
 | `postgres` | Dagster's Postgres flexible server | Postgres 18; host port 127.0.0.1:15432 |
-| `bucket-init` | - | one-shot: creates `edm-recipes`, `edm-publishing`, `edm-private` through the gateway |
+| `bucket-init` | - | one-shot: creates `edm-recipes` and `edm-publishing` through the gateway; no `edm-private`, as on Azure |
 
 Both Dagster services run the `de-apps:local` image with this repo mounted over
 `/app/data-engineering`. The dcpy installs are editable and point there, so a code change only
@@ -19,6 +19,14 @@ needs `docker compose restart de-dagster-runner`. Rebuild the image only when de
 All S3 traffic from the runner goes to `http://de-blob-gateway:7070` with the local keys
 `local` / `local-secret`. Nothing in the stack has DigitalOcean or Azure credentials.
 `DCPY_S3_ENDPOINT_DENYLIST=nyc3.digitaloceanspaces.com` makes dcpy refuse DigitalOcean outright.
+
+The runner sets `RECIPES_BUCKET_ROOT_FOLDER=ingest`, `PRIVATE_BUCKET=edm-recipes` and
+`INBOX_ROOT_FOLDER=inbox`, as on Azure. Ingest archives land in `edm-recipes/ingest/datasets/` and
+`edm-recipes/ingest/raw/`, `edm.private` uses `edm-recipes/ingest/datasets/` too, and a template
+whose source says `bucket: edm-private` reads `edm-recipes/inbox/<key>`. To try one, upload a csv
+to `edm-recipes/inbox/qa_app/inbox/bpl_libraries_inbox_test/<version>/bpl_libraries.csv` and run
+`launch_ingest.py bpl_libraries_inbox_test --version <version>`. Objects at `datasets/`, `raw/` or
+in `edm-private` from earlier runs are left alone and no longer read.
 
 That's the default: plain `AWS_*` pointed at the gateway, as on Azure. To run the runner the way a
 process that reads DigitalOcean and writes Azure would, add the overlay
@@ -67,7 +75,7 @@ python -c "
 import boto3
 s3 = boto3.client('s3', endpoint_url='http://127.0.0.1:17070', region_name='us-east-1',
                   aws_access_key_id='local', aws_secret_access_key='local-secret')
-for o in s3.list_objects_v2(Bucket='edm-recipes', Prefix='datasets/bpl_libraries/')['Contents']:
+for o in s3.list_objects_v2(Bucket='edm-recipes', Prefix='ingest/datasets/bpl_libraries/')['Contents']:
     print(o['Key'])
 "
 ```

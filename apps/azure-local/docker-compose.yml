@@ -118,7 +118,8 @@ services:
       azurite:
         condition: service_healthy
 
-  # Creates the buckets (Azure containers) ingest and builds expect.
+  # Creates the buckets (Azure containers) ingest and builds expect. As on Azure, there's no
+  # edm-private: PRIVATE_BUCKET and INBOX_ROOT_FOLDER on the runner point everything at edm-recipes.
   bucket-init:
     <<: *de-apps
     environment: *s3-env
@@ -129,7 +130,7 @@ services:
         from dcpy.utils import s3
         client = s3.client()
         existing = s3.list_buckets()
-        for bucket in ["edm-recipes", "edm-publishing", "edm-private"]:
+        for bucket in ["edm-recipes", "edm-publishing"]:
             if bucket not in existing:
                 client.create_bucket(Bucket=bucket)
             print("bucket", bucket, "ready")
@@ -143,6 +144,12 @@ services:
     environment:
       <<: [*dagster-pg, *s3-env]
       PUBLISHING_BUCKET: edm-publishing
+      # As on Azure: ingest's datasets/ and raw/ under ingest/, and no separate private bucket,
+      # so edm.private lands in edm-recipes/ingest/datasets/ too.
+      RECIPES_BUCKET_ROOT_FOLDER: ingest
+      PRIVATE_BUCKET: edm-recipes
+      # Templates' `bucket: edm-private` sources read edm-recipes/inbox/<key> instead.
+      INBOX_ROOT_FOLDER: inbox
       # Keep run scratch out of the mounted repo (Azure uses the default, inside the image).
       DCPY_LIFECYCLE_DATA_DIR: /tmp/dcpy-lifecycle
     healthcheck:

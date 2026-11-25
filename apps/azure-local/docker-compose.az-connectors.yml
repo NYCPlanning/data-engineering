@@ -18,3 +18,9 @@ services:
       AZ_S3_SECRET_ACCESS_KEY: local-secret
       DCPY_INGEST_RAW_CONNECTOR: az.edm.recipes.raw_datasets
       DCPY_INGEST_DATASETS_CONNECTOR: az.edm.recipes.datasets
+      # DigitalOcean's layout for the edm.* side, Azure's for az.*.
+      RECIPES_BUCKET_ROOT_FOLDER: ""
+      PRIVATE_BUCKET: edm-private
+      INBOX_ROOT_FOLDER: ""
+      AZ_RECIPES_BUCKET_ROOT_FOLDER: ingest
+      AZ_PRIVATE_BUCKET: edm-recipes

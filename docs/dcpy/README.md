@@ -84,6 +84,19 @@ can then read DigitalOcean and write Azure, e.g. `DCPY_INGEST_DATASETS_CONNECTOR
 Registration makes no network calls. A recipe's input `source` (default `edm.recipes.datasets`) is
 still a connector name of its own.
 
+Where in the buckets things go. All default to today's DigitalOcean layout:
+
+| Env var | Default | Effect |
+|---|---|---|
+| `RECIPES_BUCKET_ROOT_FOLDER` | empty | folder ingest's `datasets/` and `raw/` sit under in the recipes bucket (`ingest` on Azure: `edm-recipes/ingest/datasets/...`). Applies to `edm.recipes.*` and to `dcpy.connectors.edm.recipes` (builds' file-type, archive-date and version lookups). Slashes are stripped. The local build cache keeps `datasets/<id>/<version>/`. |
+| `AZ_RECIPES_BUCKET_ROOT_FOLDER` | unset: `RECIPES_BUCKET_ROOT_FOLDER` | the same for the `az.*` family; set it empty for the bucket root |
+| `PRIVATE_BUCKET` / `AZ_PRIVATE_BUCKET` | `edm-private` | bucket for `edm.private` / `az.edm.private`. Set to the recipes bucket (Azure has no `edm-private`) and private datasets share the recipes root folder, e.g. `edm-recipes/ingest/datasets/`. A separate private bucket keeps `datasets/` at its root. |
+| `INBOX_ROOT_FOLDER` | unset (off) | ingest templates with an `s3` source naming `bucket: edm-private` read `RECIPES_BUCKET/<INBOX_ROOT_FOLDER>/<key>` instead (`inbox` on Azure). The QA app's inbox upload follows it. Other buckets are untouched. |
+
+The legacy `dcpy.connectors.edm.recipes` functions use the default `AWS_*` client, so they follow
+`RECIPES_BUCKET_ROOT_FOLDER`, never the `AZ_*` settings. The same goes for `INBOX_ROOT_FOLDER`,
+which uses `RECIPES_BUCKET`.
+
 ## Removed
 
 - **`dcpy.library`** — the old ingest/archive tool, replaced by `dcpy.lifecycle.ingest`. Its
