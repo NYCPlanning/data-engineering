@@ -5,6 +5,7 @@ import pandas as pd
 from pydantic import AliasChoices, BaseModel, Field, TypeAdapter
 
 from dcpy.connectors.edm import models as recipes
+from dcpy.lifecycle.ingest.version_schedules import VersionSchedule
 from dcpy.utils import formats as file
 from dcpy.utils.metadata import RunDetails
 from dcpy.utils.models import SortedSerializedBase, TemplatedYamlReader
@@ -64,6 +65,8 @@ class DatasetDefinition(TemplatedYamlReader, extra="forbid"):
     id: str
     depends_on: list[str] = []
     acl: TemplateAcl | None = None
+    # Versions follow a calendar shared with other templates (see version_schedules).
+    version_schedule: VersionSchedule | None = None
 
     attributes: DatasetAttributes
     ingestion: Ingestion
@@ -116,6 +119,7 @@ class DataSourceDefinition(TemplatedYamlReader, extra="forbid"):
     id: str
     depends_on: list[str] = []
     acl: TemplateAcl | None = None
+    version_schedule: VersionSchedule | None = None
     attributes: DatasetAttributes
     source: Source
     dataset_defaults: DatasetDefaults = DatasetDefaults()
