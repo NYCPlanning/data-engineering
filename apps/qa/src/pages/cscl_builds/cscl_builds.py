@@ -8,7 +8,7 @@ BUILD_WORKFLOW_URL = (
 def cscl_builds() -> None:
     import streamlit as st
 
-    from dcpy.configuration import PUBLISHING_BUCKET
+    from dcpy.configuration import PUBLISHING_BUCKET, inbox_location
     from dcpy.utils.git import github
     from shared.components.github import (
         find_run,
@@ -78,7 +78,10 @@ def cscl_builds() -> None:
         # version is spread across ~50 separate per-layer datasets there, so there's no
         # single folder to point at. The inbox upload is the one place it's all in one spot.
         inbox_url = helpers.directory_url(
-            helpers.INBOX_BUCKET, f"qa_app/inbox/{helpers.RAW_DATASET_ID}/{version}/"
+            *inbox_location(
+                helpers.INBOX_BUCKET,
+                f"qa_app/inbox/{helpers.RAW_DATASET_ID}/{version}/",
+            )
         )
         st.markdown(f"### [{version}]({inbox_url})")
 
