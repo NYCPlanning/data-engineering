@@ -403,6 +403,17 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
                 )
                 yield str(path)[len(root_str) :].lstrip("/"), modified
 
+    def read_bytes(self, key: str) -> bytes:
+        """A small file's contents. On S3 one GET, without going through the local cache."""
+        path = self.storage.root_path / key
+        if self.storage.storage_type == StorageType.S3:
+            response = path.client.client.get_object(  # type: ignore[union-attr]
+                Bucket=path.bucket,  # type: ignore[union-attr]
+                Key=path.key,  # type: ignore[union-attr]
+            )
+            return response["Body"].read()
+        return path.read_bytes()
+
     def get_subfolders(self, prefix: str) -> list[str]:
         # List subfolders under the given prefix
         folder = self.storage.root_path / prefix
