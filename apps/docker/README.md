@@ -97,14 +97,50 @@ Ingest partitions: templates with `version_schedule: geosupport_quarterly` share
 `ingest_<template>`. The `ingest_archive_sync` sensor (stopped by default) reports archives already
 in `edm-recipes/ingest/datasets/` as materialized partitions, for archives Dagster didn't write,
 such as the bulk copy from DigitalOcean. Turn it on under Automation to catch up, and off after a
-full pass (about 11 ticks for 275 templates at the defaults). It runs in the runner's code server,
-so it uses the runner's S3 env.
+full pass. With the version catalog (below) a tick reads every template from one query; without
+it, about 11 ticks list the store for 275 templates at the defaults. Materialize
+`version_catalog` first after a bulk copy, so the catalog has the copied archives. It runs in the
+runner's code server, so it uses the runner's env.
 
 Instance storage (runs, event logs, schedules) goes to Postgres when `DAGSTER_PG_URL` is set: both
 entrypoints copy `apps/dagster/dagster.yaml` into `DAGSTER_HOME`. Without it, Dagster falls back to
 SQLite on container disk, which every new revision wipes. Both apps need it: the run workers on the
 runner write event logs to the same instance. `dagster.yaml` also caps concurrent runs at 2 (the
 daemon queues the rest), and the cap only applies with Postgres storage.
+
+#### Version catalog
+
+`catalog.versions` lists which versions of each asset exist, per store (`ingest` rows for now:
+processed datasets in `edm-recipes/ingest/datasets/`). Build planning and `ingest_archive_sync`
+read it instead of listing the bucket, ingest runs write their archives through to it, and the
+`version_catalog` asset (group `catalog`) sweeps the store into it daily at 06:00 New York
+(`version_catalog_daily`, on by default). It's a cache: a missing row or an unreachable database
+means a bucket listing, never a failure. See `dcpy.connectors.edm.catalog`.
+
+It lives in its own database, `de_apps` (our app data, apart from Dagster's), in a `catalog`
+schema, owned by its own role. Once, as the Entra admin group, connected to `postgres`:
+
+```sql
+CREATE ROLE de_apps LOGIN;
+\password de_apps
+GRANT de_apps TO "ITD-GDE-DE_DL (DCP)";
+CREATE DATABASE de_apps OWNER de_apps;
+```
+
+Then, connected to `de_apps`:
+
+```sql
+CREATE SCHEMA catalog AUTHORIZATION de_apps;
+```
+
+The migration creates the `catalog` schema itself when it's missing (the owner of the database
+can), and keeps everything there, `catalog.schema_migrations` included: nothing goes in `public`,
+which the owner of a new database can't write to on Azure. The schema step above is a fallback,
+for a role without CREATE on the database. No superuser needed. The `version_catalog` asset
+migrates before each sweep; by hand, `python -m dcpy connectors catalog migrate`.
+
+Set `DCPY_CATALOG_PG_URL` on `de-dagster-runner` (below). The QA app doesn't read the catalog yet,
+so `de-tools` doesn't need it.
 
 | App | Command | Ingress | Size | Replicas |
 |---|---|---|---|---|
@@ -124,6 +160,7 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | Env var | Kind | Value |
 |---|---|---|
 | `DAGSTER_PG_URL` | secret | same as `de-dagster` |
+| `DCPY_CATALOG_PG_URL` | secret | `postgresql://de_apps:<pw>@psql-azu-e2-dcp-de-nonprod.postgres.database.azure.com:5432/de_apps?sslmode=require`: the version catalog (see above). Unset, planning and the archive sync list the bucket and `version_catalog` fails |
 | `AWS_S3_ENDPOINT` | plain, required | `https://de-blob-gateway.itd-data.dcp.nycnet` (with scheme); no default, an S3 call without it fails |
 | `DCPY_S3_ENDPOINT_DENYLIST` | plain, optional | comma-separated hosts dcpy must never reach (subdomains included); `nyc3.digitaloceanspaces.com` at cutover |
 | `AWS_ACCESS_KEY_ID` | secret | gateway access key |
@@ -139,7 +176,7 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID`, `AZ_S3_SECRET_ACCESS_KEY` | plain / secret, optional | registers the `az.*` connectors; only needed when one process uses both stores |
 | `DCPY_LIFECYCLE_DATA_DIR` | plain, optional | local scratch for runs; defaults to `.lifecycle/` in the working directory |
 | `DCPY_KEEP_STAGING` | plain, optional | `true` keeps each ingest run's staging dir (`<data dir>/ingest/<template>/<partition>/<run_id>`) for debugging; by default a pushing run deletes it when it ends, pass or fail |
-| `DAGSTER_INGEST_ARCHIVE_SYNC_INTERVAL_SECONDS`, `DAGSTER_INGEST_ARCHIVE_SYNC_BATCH_SIZE` | plain, optional | tick interval (default 60) and templates per tick (default 25) for the `ingest_archive_sync` sensor; see below |
+| `DAGSTER_INGEST_ARCHIVE_SYNC_INTERVAL_SECONDS`, `DAGSTER_INGEST_ARCHIVE_SYNC_BATCH_SIZE` | plain, optional | tick interval (default 60) and templates per tick (default 25, or all of them when reading the catalog) for the `ingest_archive_sync` sensor |
 | `SOCRATA_USER`, `SOCRATA_PASSWORD` | secret, optional | Socrata sources work anonymously, rate-limited |
 | `AXWAY_SFTP_USER`, `AXWAY_SFTP_PASSWORD` | secret | `axway` sources (DOF PLUTO inputs) |
 | `SFTP_HOST`, `SFTP_USER`, `SFTP_PRIVATE_KEY_PATH` | secret | `ginger` SFTP sources; the key is a file path, so mount it |
@@ -162,8 +199,9 @@ az containerapp create --name de-dagster-runner \
   --command "/app/data-engineering/apps/docker/entrypoints/dagster-runner.sh" \
   --ingress internal --transport tcp --target-port 4000 --exposed-port 4000 \
   --cpu 4 --memory 8Gi --min-replicas 1 --max-replicas 1 \
-  --secrets dagster-pg-url='postgresql://...' s3-key='...' s3-secret='...' \
-  --env-vars DAGSTER_PG_URL=secretref:dagster-pg-url \
+  --secrets dagster-pg-url='postgresql://...' catalog-pg-url='postgresql://de_apps:...' \
+    s3-key='...' s3-secret='...' \
+  --env-vars DAGSTER_PG_URL=secretref:dagster-pg-url DCPY_CATALOG_PG_URL=secretref:catalog-pg-url \
     AWS_S3_ENDPOINT=https://de-blob-gateway.itd-data.dcp.nycnet AWS_DEFAULT_REGION=us-east-1 \
     AWS_ACCESS_KEY_ID=secretref:s3-key AWS_SECRET_ACCESS_KEY=secretref:s3-secret # etc.
 

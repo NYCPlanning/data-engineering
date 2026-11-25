@@ -93,6 +93,23 @@ Where in the buckets things go. All default to today's DigitalOcean layout:
 | `PRIVATE_BUCKET` / `AZ_PRIVATE_BUCKET` | `edm-private` | bucket for `edm.private` / `az.edm.private`. Set to the recipes bucket (Azure has no `edm-private`) and private datasets share the recipes root folder, e.g. `edm-recipes/ingest/datasets/`. A separate private bucket keeps `datasets/` at its root. |
 | `INBOX_ROOT_FOLDER` | unset (off) | ingest templates with an `s3` source naming `bucket: edm-private` read `RECIPES_BUCKET/<INBOX_ROOT_FOLDER>/<key>` instead (`inbox` on Azure). The QA app's inbox upload follows it. Other buckets are untouched. |
 
+### Version catalog
+
+| Env var | Default | Effect |
+|---|---|---|
+| `DCPY_CATALOG_PG_URL` | unset (off) | Postgres URL of the version catalog (`dcpy.connectors.edm.catalog`; the `de_apps` database on Azure, see `apps/docker/README.md`). Set, ingest writes archives through to it, build planning resolves `edm.recipes.datasets` inputs from it in one query, and `ingest_archive_sync` reads it. Unset, everything lists the bucket, as before. |
+
+The catalog is a cache of the stores, keyed by `(domain, store, key, version)`, where `store` is
+the connector's registry name. A reader falls back to the bucket for anything it can't answer
+exactly, including rows written under another bucket or `RECIPES_BUCKET_ROOT_FOLDER`, and for
+everything when the database is unreachable, so a stale catalog slows planning down without
+changing its lock file. A write-through that fails only logs a warning.
+
+```bash
+python -m dcpy connectors catalog migrate
+python -m dcpy connectors catalog show --domain ingest --key dcp_ct2010
+```
+
 The legacy `dcpy.connectors.edm.recipes` functions use the default `AWS_*` client, so they follow
 `RECIPES_BUCKET_ROOT_FOLDER`, never the `AZ_*` settings. The same goes for `INBOX_ROOT_FOLDER`,
 which uses `RECIPES_BUCKET`.
