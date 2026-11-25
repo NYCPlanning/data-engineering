@@ -63,10 +63,22 @@ def _make_ingest_datastores(
     prefix: str = "",
     recipes_bucket: str | None = None,
     private_bucket: str | None = None,
+    recipes_root_folder: str | None = None,
     **s3: Unpack[S3Kwargs],
 ):
+    """datasets/ and raw/ sit under `recipes_root_folder` (default RECIPES_BUCKET_ROOT_FOLDER).
+
+    The private connector writes `datasets/` at its bucket's root, unless the private bucket is
+    the recipes bucket (Azure has no edm-private), where it shares the recipes root folder.
+    """
     recipes_bucket = recipes_bucket or configuration.RECIPES_BUCKET
     assert recipes_bucket
+    private_bucket = private_bucket or PRIVATE_BUCKET
+    if recipes_root_folder is None:
+        recipes_root_folder = configuration.recipes_bucket_root_folder()
+    private_root_folder = (
+        recipes_root_folder if private_bucket == recipes_bucket else ""
+    )
 
     def storage(conn_type: str, bucket: str, root_folder: str):
         return PathedStorageConnector.from_storage_kwargs(
@@ -85,19 +97,32 @@ def _make_ingest_datastores(
         [
             ingest_datastore.Connector(
                 conn_type=datasets,
-                storage=storage(datasets, recipes_bucket, "datasets"),
+                storage=storage(
+                    datasets,
+                    recipes_bucket,
+                    configuration.join_root_folder(recipes_root_folder, "datasets"),
+                ),
             ),
             datasets,
         ],
         [
             ingest_datastore.Connector(
-                conn_type=raw, storage=storage(raw, recipes_bucket, "raw")
+                conn_type=raw,
+                storage=storage(
+                    raw,
+                    recipes_bucket,
+                    configuration.join_root_folder(recipes_root_folder, "raw"),
+                ),
             ),
             raw,
         ],
         [
             PrivateConnector.create(
-                storage=storage(private, private_bucket or PRIVATE_BUCKET, "datasets"),
+                storage=storage(
+                    private,
+                    private_bucket,
+                    configuration.join_root_folder(private_root_folder, "datasets"),
+                ),
                 conn_type=private,
             ),
             private,
@@ -142,6 +167,8 @@ def _make_azure_connectors(s3: S3Kwargs) -> list:
             prefix=AZURE_PREFIX,
             recipes_bucket=env.get("AZ_RECIPES_BUCKET"),
             private_bucket=env.get("AZ_PRIVATE_BUCKET"),
+            # Unset falls back to RECIPES_BUCKET_ROOT_FOLDER; set it empty for the bucket root.
+            recipes_root_folder=env.get("AZ_RECIPES_BUCKET_ROOT_FOLDER"),
             **s3,
         ),
         *[

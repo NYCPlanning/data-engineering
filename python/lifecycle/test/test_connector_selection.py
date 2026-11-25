@@ -21,11 +21,18 @@ AZ_NAMES = {
     "az.edm.publishing.plan",
 }
 
+ROOT_FOLDER_VARS = [
+    "RECIPES_BUCKET_ROOT_FOLDER",
+    "AZ_RECIPES_BUCKET_ROOT_FOLDER",
+    "AZ_PRIVATE_BUCKET",
+    "AZ_RECIPES_BUCKET",
+]
+
 
 @pytest.fixture
 def registry(monkeypatch):
     """Rebuild the registry from the current env; restore the defaults afterwards."""
-    for var in [*AZ_ENV, *config.CONNECTOR_ENV_VARS.values()]:
+    for var in [*AZ_ENV, *ROOT_FOLDER_VARS, *config.CONNECTOR_ENV_VARS.values()]:
         monkeypatch.delenv(var, raising=False)
 
     def rebuild():
@@ -149,3 +156,53 @@ def test_env_var_overrides_connector(registry, monkeypatch, getter, env_var, def
 
     monkeypatch.setenv(env_var, f"az.{default}")
     assert getter() is conns[f"az.{default}"]
+
+
+RECIPES = connector_registry.configuration.RECIPES_BUCKET
+PRIVATE = connector_registry.PRIVATE_BUCKET
+
+
+def _root(conn) -> str:
+    return str(conn.storage.storage.root_path)
+
+
+def test_default_root_folders_unchanged(registry):
+    conns = registry()
+    assert _root(conns["edm.recipes.datasets"]) == f"s3://{RECIPES}/datasets"
+    assert _root(conns["edm.recipes.raw_datasets"]) == f"s3://{RECIPES}/raw"
+    assert _root(conns["edm.private"]) == f"s3://{PRIVATE}/datasets"
+
+
+@pytest.mark.parametrize("root", ["ingest", "/ingest/"])
+def test_recipes_root_folder(registry, monkeypatch, root):
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", root)
+    conns = registry()
+    assert _root(conns["edm.recipes.datasets"]) == f"s3://{RECIPES}/ingest/datasets"
+    assert _root(conns["edm.recipes.raw_datasets"]) == f"s3://{RECIPES}/ingest/raw"
+    # a separate private bucket keeps datasets/ at its root
+    assert _root(conns["edm.private"]) == f"s3://{PRIVATE}/datasets"
+
+
+def test_private_in_recipes_bucket_shares_root_folder(registry, monkeypatch):
+    """Azure has no edm-private: private datasets go under the recipes root folder."""
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "ingest")
+    monkeypatch.setattr(connector_registry, "PRIVATE_BUCKET", RECIPES)
+    assert _root(registry()["edm.private"]) == f"s3://{RECIPES}/ingest/datasets"
+
+
+def test_az_root_folder_falls_back_and_overrides(registry, monkeypatch):
+    for k, v in AZ_ENV.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "ingest")
+    conns = registry()
+    assert _root(conns["az.edm.recipes.datasets"]) == f"s3://{RECIPES}/ingest/datasets"
+
+    # DigitalOcean at the root, Azure under ingest/, in one process
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "")
+    monkeypatch.setenv("AZ_RECIPES_BUCKET_ROOT_FOLDER", "ingest/")
+    monkeypatch.setenv("AZ_PRIVATE_BUCKET", RECIPES)
+    conns = registry()
+    assert _root(conns["edm.recipes.datasets"]) == f"s3://{RECIPES}/datasets"
+    assert _root(conns["edm.private"]) == f"s3://{PRIVATE}/datasets"
+    assert _root(conns["az.edm.recipes.raw_datasets"]) == f"s3://{RECIPES}/ingest/raw"
+    assert _root(conns["az.edm.private"]) == f"s3://{RECIPES}/ingest/datasets"
