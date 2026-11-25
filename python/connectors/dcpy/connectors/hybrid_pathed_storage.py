@@ -6,6 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Unpack
 
+from boto3 import Session
 from cloudpathlib import CloudPath, S3Client
 from cloudpathlib.azure import AzureBlobClient
 from typing_extensions import NotRequired, TypedDict
@@ -131,6 +132,7 @@ class HybridPathedStorage:
             root_folder: Path | str = "",
             s3_public_upload_files: bool = False,
             s3_file_metadata: dict | None = None,
+            boto3_session: Session | None = None,
         ) -> "HybridPathedStorage":
             # Merge extra_args with ACL and Metadata if provided
             extra_args: dict[str, Any] = {}
@@ -139,7 +141,9 @@ class HybridPathedStorage:
             if s3_file_metadata:
                 extra_args["Metadata"] = s3_file_metadata
             root_path = S3Client(
-                endpoint_url=s3_endpoint_url or DEFAULT_S3_URL, extra_args=extra_args
+                endpoint_url=s3_endpoint_url or DEFAULT_S3_URL,
+                extra_args=extra_args,
+                boto3_session=boto3_session,
             ).CloudPath(f"s3://{s3_bucket}/{root_folder}")
             return HybridPathedStorage(root_path=root_path, storage_type=StorageType.S3)
 
