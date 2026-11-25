@@ -60,6 +60,25 @@ def recipes_bucket_folder(folder: str) -> str:
 _DEFAULT_PRIVATE_BUCKET = "edm-private"
 PRIVATE_BUCKET = env.get("PRIVATE_BUCKET", _DEFAULT_PRIVATE_BUCKET)
 
+# Inbox-style source files: ingest templates with an `s3` source name `bucket: edm-private`
+# directly. With INBOX_ROOT_FOLDER set (Azure has no edm-private), those reads go to the recipes
+# bucket under that folder instead. Unset means off.
+INBOX_ROOT_FOLDER_ENV_VAR = "INBOX_ROOT_FOLDER"
+INBOX_SOURCE_BUCKET = _DEFAULT_PRIVATE_BUCKET
+
+
+def inbox_location(bucket: str, key: str) -> tuple[str, str]:
+    """Where an object named `bucket`/`key` actually lives, read at call time.
+
+    Unchanged unless INBOX_ROOT_FOLDER is set and `bucket` is edm-private; then it's
+    RECIPES_BUCKET / <INBOX_ROOT_FOLDER>/<key>.
+    """
+    root = normalize_root_folder(env.get(INBOX_ROOT_FOLDER_ENV_VAR))
+    if not root or bucket != INBOX_SOURCE_BUCKET:
+        return bucket, key
+    return env.get("RECIPES_BUCKET", RECIPES_BUCKET), f"{root}/{key.lstrip('/')}"
+
+
 # The S3 endpoint and keys (AWS_S3_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) are read
 # when a client is made, through dcpy.utils.s3.resolve_endpoint / resolve_credentials, not here:
 # importing dcpy must work without them.

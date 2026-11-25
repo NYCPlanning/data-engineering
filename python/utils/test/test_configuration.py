@@ -32,3 +32,16 @@ def test_recipes_bucket_folder_reads_env_at_call_time(monkeypatch):
     assert configuration.recipes_bucket_folder("raw") == "raw"
     monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "ingest/")
     assert configuration.recipes_bucket_folder("raw") == "ingest/raw"
+
+
+def test_inbox_location(monkeypatch):
+    monkeypatch.delenv("INBOX_ROOT_FOLDER", raising=False)
+    monkeypatch.setenv("RECIPES_BUCKET", "edm-recipes")
+    key = "qa_app/inbox/x/v1/x.zip"
+    assert configuration.inbox_location("edm-private", key) == ("edm-private", key)
+    monkeypatch.setenv("INBOX_ROOT_FOLDER", "/inbox/")
+    assert configuration.inbox_location("edm-private", key) == (
+        "edm-recipes",
+        f"inbox/{key}",
+    )
+    assert configuration.inbox_location("edm-recipes", key) == ("edm-recipes", key)
