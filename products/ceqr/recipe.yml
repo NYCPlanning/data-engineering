@@ -48,6 +48,9 @@ inputs:
     - name: dpr_walk_to_a_park
     - name: dpr_active_passive_recreation
     - name: lpc_landmarks
+      # Newer versions put every landmark at the same point (-74, 41), in Socrata's own data.
+      # Unpin once the source coordinates are fixed.
+      version: "20260618"
     - name: lpc_historic_district_areas
     - name: lpc_scenic_landmarks
     - name: nysshpo_historic_buildings_points

@@ -214,7 +214,7 @@ def no_catalog(monkeypatch):
 
 
 def _catalog_rows(pairs):
-    from dcpy.connectors.edm.catalog import VersionRow
+    from dcpy.services.catalog import VersionRow
 
     return [
         VersionRow(
@@ -230,7 +230,7 @@ def _catalog_rows(pairs):
 
 
 def test_list_archived_versions_from_catalog(monkeypatch):
-    from dcpy.connectors.edm import catalog
+    from dcpy.services import catalog
 
     queries = []
 
@@ -258,7 +258,7 @@ def test_list_archived_versions_from_catalog(monkeypatch):
 
 
 def test_sensor_reads_catalog_for_all_templates(instance, monkeypatch):
-    from dcpy.connectors.edm import catalog
+    from dcpy.services import catalog
 
     monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
     monkeypatch.setattr(sensors, "templates", TEMPLATES)
@@ -286,7 +286,7 @@ def test_sensor_reads_catalog_for_all_templates(instance, monkeypatch):
 
 
 def test_sensor_falls_back_to_store_when_catalog_fails(instance, monkeypatch):
-    from dcpy.connectors.edm import catalog
+    from dcpy.services import catalog
 
     monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
     monkeypatch.setenv(sensors.BATCH_SIZE_ENV_VAR, "2")

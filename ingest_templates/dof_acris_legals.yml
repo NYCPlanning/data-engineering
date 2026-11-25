@@ -1,0 +1,52 @@
+id: dof_acris_legals
+
+attributes:
+  name: DOF ACRIS Real Property Legals
+  description: >-
+    One row per lot that an ACRIS document covers, with the lot's borough, block, and lot, its address, and the
+    rights conveyed (easement, air rights, partial lot). Joins to ACRIS Master and Parties by document_id.
+  url: https://data.cityofnewyork.us/d/8h5j-fqxa
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: 8h5j-fqxa
+    format: csv
+    # Same endpoint as ACRIS Master and Parties, so dates are formatted the same across all three
+    download_from: query
+  file_format:
+    type: csv
+    dtype: str
+    keep_default_na: false
+    na_values: [""]
+
+columns:
+- id: document_id
+  data_type: text
+- id: record_type
+  data_type: text
+- id: borough
+  data_type: text
+- id: block
+  data_type: text
+- id: lot
+  data_type: text
+- id: easement
+  data_type: text
+- id: partial_lot
+  data_type: text
+- id: air_rights
+  data_type: text
+- id: subterranean_rights
+  data_type: text
+- id: property_type
+  data_type: text
+- id: street_number
+  data_type: text
+- id: street_name
+  data_type: text
+- id: unit
+  data_type: text
+- id: good_through_date
+  data_type: text

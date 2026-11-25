@@ -609,8 +609,8 @@ def load_catalog(dest_bucket: str, dest_prefixes: Iterable[str]) -> dict | None:
     (`s3://<bucket>/<prefix><id>/<version>/`). None, so the destination is listed instead, when
     DCPY_CATALOG_PG_URL isn't set or the catalog doesn't answer."""
     try:
-        from dcpy.connectors.edm import catalog
-        from dcpy.connectors.edm.catalog import ingest_versions
+        from dcpy.services import catalog
+        from dcpy.services.catalog import ingest_versions
     except ImportError as e:
         logger.info(f"Version catalog unavailable ({e}); listing the destination.")
         return None
@@ -833,8 +833,7 @@ def _plan_area(
     unstamped = [
         f
         for f in check
-        if heads[marker_dest(f)] is not None
-        and _stored_etag(heads[marker_dest(f)]) is None
+        if (head := heads[marker_dest(f)]) is not None and _stored_etag(head) is None
     ]
 
     def same_bytes(f: Folder) -> bool:
@@ -1282,10 +1281,10 @@ def summary(
         lines += [f"  {i.dest_bucket}/{i.dest_key}" for i in conflicts[:10]]
 
     to_copy = sum(i.source.size for i in items if i.status == "copy")
-    deletions = sum(len(f.deletions) for f in result.folders)
+    stale = sum(len(f.deletions) for f in result.folders)
     lines.append(
         f"Total to copy: {sum(i.status == 'copy' for i in items)} objects, {_size(to_copy)}"
-        + (f"; {deletions} stale latest/ objects to delete." if deletions else ".")
+        + (f"; {stale} stale latest/ objects to delete." if stale else ".")
     )
     if to_copy:
         estimates = ", ".join(

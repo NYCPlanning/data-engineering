@@ -112,10 +112,12 @@ daemon queues the rest), and the cap only applies with Postgres storage.
 
 `catalog.versions` lists which versions of each asset exist, per store (`ingest` rows for now:
 processed datasets in `edm-recipes/ingest/datasets/`). Build planning and `ingest_archive_sync`
-read it instead of listing the bucket, ingest runs write their archives through to it, and the
+read it instead of listing the bucket, ingests write their archives through to it, and the
 `version_catalog` asset (group `catalog`) sweeps the store into it daily at 06:00 New York
 (`version_catalog_daily`, on by default). It's a cache: a missing row or an unreachable database
-means a bucket listing, never a failure. See `dcpy.connectors.edm.catalog`.
+means a bucket listing, never a failure. See `dcpy.services.catalog` (the `dcpy-services` package):
+any process with it installed and `DCPY_CATALOG_PG_URL` set writes ingests through, through
+lifecycle's `DatasetsArchived` event, so GitHub Actions ingests on DigitalOcean (no catalog) don't.
 
 It lives in its own database, `de_apps` (our app data, apart from Dagster's), in a `catalog`
 schema, owned by its own role. Once, as the Entra admin group, connected to `postgres`:
@@ -137,7 +139,7 @@ The migration creates the `catalog` schema itself when it's missing (the owner o
 can), and keeps everything there, `catalog.schema_migrations` included: nothing goes in `public`,
 which the owner of a new database can't write to on Azure. The schema step above is a fallback,
 for a role without CREATE on the database. No superuser needed. The `version_catalog` asset
-migrates before each sweep; by hand, `python -m dcpy connectors catalog migrate`.
+migrates before each sweep; by hand, `python -m dcpy.services catalog migrate`.
 
 Set `DCPY_CATALOG_PG_URL` on `de-dagster-runner` (below). The QA app doesn't read the catalog yet,
 so `de-tools` doesn't need it.

@@ -34,13 +34,13 @@ destinations:
   - id: fgdb
     custom:
       destination_use: dataset_file
-  - id: zoning_commercial_overlay_data_dictionary
+  - id: zoning_commercial_overlays_data_dictionary
     custom:
       destination_use: attachment
   - id: zoning_limited_height_data_dictionary
     custom:
       destination_use: attachment
-  - id: zoning_special_purpose_data_dictionary
+  - id: zoning_special_districts_data_dictionary
     custom:
       destination_use: attachment
   - id: zoning_special_subdistricts_data_dictionary
@@ -59,15 +59,15 @@ destinations:
   - id: fgdb
     custom:
       url: "{{ bytes_zip_prefix_url }}/gis-zoning-features/nyc_zoning_features_gdb.zip"
-  - id: zoning_commercial_overlay_data_dictionary
+  - id: zoning_commercial_overlays_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_commercial_overlay_data_dictionary.xlsx"
+      url: "{{ bytes_pdf_prefix_url }}/zoning_commercial_overlays_data_dictionary.xlsx"
   - id: zoning_limited_height_data_dictionary
     custom:
       url: "{{ bytes_pdf_prefix_url }}/zoning_limited_height_data_dictionary.xlsx"
-  - id: zoning_special_purpose_data_dictionary
+  - id: zoning_special_districts_data_dictionary
     custom:
-      url: "{{ bytes_pdf_prefix_url }}/zoning_special_purpose_data_dictionary.xlsx"
+      url: "{{ bytes_pdf_prefix_url }}/zoning_special_districts_data_dictionary.xlsx"
   - id: zoning_special_subdistricts_data_dictionary
     custom:
       url: "{{ bytes_pdf_prefix_url }}/zoning_special_subdistricts_data_dictionary.xlsx"
@@ -84,16 +84,16 @@ files:
     filename: nyc_zoning_features_gdb.zip
     type: fgdb
 - file:
-    id: zoning_commercial_overlay_data_dictionary
-    filename: zoning_commercial_overlay_data_dictionary.xlsx
+    id: zoning_commercial_overlays_data_dictionary
+    filename: zoning_commercial_overlays_data_dictionary.xlsx
     is_metadata: true
 - file:
     id: zoning_limited_height_data_dictionary
     filename: zoning_limited_height_data_dictionary.xlsx
     is_metadata: true
 - file:
-    id: zoning_special_purpose_data_dictionary
-    filename: zoning_special_purpose_data_dictionary.xlsx
+    id: zoning_special_districts_data_dictionary
+    filename: zoning_special_districts_data_dictionary.xlsx
     is_metadata: true
 - file:
     id: zoning_special_subdistricts_data_dictionary

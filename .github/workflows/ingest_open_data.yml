@@ -2,8 +2,8 @@ name: Ingest - 📁 Open Data Routine Updates
 
 on:
   schedule:
-  # Weekly Cron job
-  - cron: "0 0 * * 0"
+  - cron: "7 20 * * 6"  # Saturdays, 8:07pm
+    timezone: "America/New_York"
   workflow_dispatch:
     inputs:
       dev_image:
@@ -18,6 +18,11 @@ on:
 
 jobs:
   dataloading:
+    # A caller's grant caps the reusable workflow's: it cancels runs and opens failure issues.
+    permissions:
+      contents: read
+      actions: write
+      issues: write
     uses: ./.github/workflows/ingest_multiple.yml
     secrets: inherit
     with:

@@ -1,7 +1,11 @@
 from datetime import datetime
 from pathlib import Path
+from typing import Literal
+
+import requests
 
 from dcpy.connectors.socrata.configuration import Org, ValidFormat, server_url
+from dcpy.utils.logging import logger
 
 from .utils import _socrata_request
 
@@ -41,10 +45,21 @@ def get_query_url(org: Org, uid: str, format: ValidFormat) -> str:
             raise Exception(f"Unsupported socrata query format: '{format}'")
 
 
-def count_rows(org: Org, uid: str, where: str) -> int:
-    """Number of rows matching a SoQL where clause."""
+DownloadFrom = Literal["export", "query"]
+
+# Rows per query request. Each page is its own response, so a dropped connection only
+# costs that page.
+QUERY_PAGE_SIZE = 500_000
+QUERY_PAGE_ATTEMPTS = 3
+
+
+def count_rows(org: Org, uid: str, where: str | None = None) -> int:
+    """Number of rows, or with `where`, the number matching that SoQL where clause."""
     url = f"https://{server_url(org)}/resource/{uid}.json"
-    resp = _socrata_request(url, "GET", params={"$select": "count(*)", "$where": where})
+    params = {"$select": "count(*)"}
+    if where:
+        params["$where"] = where
+    resp = _socrata_request(url, "GET", params=params)
     return int(resp.json()[0]["count"])
 
 
@@ -56,18 +71,78 @@ def get_version(org: Org, uid: str) -> str:
     return datetime.fromtimestamp(resp.json()["rowsUpdatedAt"]).strftime("%Y%m%d")
 
 
-def download(
-    org: Org, uid: str, format: ValidFormat, path: Path, where: str | None = None
+def _write_stream(
+    response: requests.Response, f, skip_first_line: bool = False
 ) -> None:
-    """Download a dataset, or with `where`, only the rows matching that SoQL where clause.
-    The query endpoint returns 1,000 rows unless asked for more, so it asks for every match."""
+    for chunk in response.iter_content(chunk_size=1024 * 1024):
+        if skip_first_line:
+            newline = chunk.find(b"\n")
+            if newline == -1:
+                continue
+            chunk = chunk[newline + 1 :]
+            skip_first_line = False
+        f.write(chunk)
+
+
+def _download_query_csv(org: Org, uid: str, path: Path, where: str | None) -> None:
+    """Page through the query endpoint into one csv, retrying a page whose connection drops.
+    Ordering by :id keeps pages from overlapping or skipping rows."""
+    total = count_rows(org, uid, where)
+    url = get_query_url(org, uid, "csv")
+    with open(path, "wb") as f:
+        for offset in range(0, max(total, 1), QUERY_PAGE_SIZE):
+            params: dict[str, str | int] = {
+                "$order": ":id",
+                "$limit": QUERY_PAGE_SIZE,
+                "$offset": offset,
+            }
+            if where:
+                params["$where"] = where
+            page_start = f.tell()
+            for attempt in range(1, QUERY_PAGE_ATTEMPTS + 1):
+                try:
+                    response = _socrata_request(url, "GET", params=params, stream=True)
+                    # every page repeats the header row
+                    _write_stream(response, f, skip_first_line=offset > 0)
+                    break
+                except requests.exceptions.RequestException as e:
+                    if attempt == QUERY_PAGE_ATTEMPTS:
+                        raise
+                    logger.warning(f"Retrying rows {offset:,}+ of {uid} after: {e!r}")
+                    f.seek(page_start)
+                    f.truncate()
+            logger.info(
+                f"Downloaded {min(offset + QUERY_PAGE_SIZE, total):,} of {total:,} rows of {uid}"
+            )
+
+
+def download(
+    org: Org,
+    uid: str,
+    format: ValidFormat,
+    path: Path,
+    where: str | None = None,
+    download_from: DownloadFrom = "export",
+) -> None:
+    """Download a dataset from the export, or from the query endpoint, which names columns by
+    their API field names and formats dates as ISO. `where` (a SoQL where clause) needs the
+    query endpoint."""
     path.parent.mkdir(exist_ok=True, parents=True)
-    if where:
-        params = {"$where": where, "$limit": max(count_rows(org, uid, where), 1)}
+    if where or download_from == "query":
+        if format == "csv":
+            _download_query_csv(org, uid, path, where)
+            return
+        # geojson pages can't be appended to each other, so it's one request
+        params: dict[str, str | int] = {"$limit": max(count_rows(org, uid, where), 1)}
+        if where:
+            params["$where"] = where
         response = _socrata_request(
-            get_query_url(org, uid, format), "GET", params=params
+            get_query_url(org, uid, format), "GET", params=params, stream=True
         )
     else:
-        response = _socrata_request(get_download_url(org, uid, format), "GET")
+        response = _socrata_request(
+            get_download_url(org, uid, format), "GET", stream=True
+        )
+    # streamed to disk, so a large download never has to fit in memory
     with open(path, "wb") as f:
-        f.write(response.content)
+        _write_stream(response, f)

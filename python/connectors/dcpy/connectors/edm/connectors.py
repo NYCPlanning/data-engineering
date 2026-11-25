@@ -147,12 +147,13 @@ class EdmConnector(VersionedConnector, arbitrary_types_allowed=True):
     @property
     def storage(self) -> PathedStorageConnector:
         if self._storage is None:
+            s3: S3Kwargs = {"s3_bucket": _bucket(), **self._s3}
             self._storage = PathedStorageConnector.from_storage_kwargs(
                 conn_type=self.conn_type,
                 storage_backend=StorageType.S3,
                 root_folder=PUBLISHING_BUCKET_ROOT_FOLDER,
                 _validate_root_path=False,
-                **{"s3_bucket": _bucket(), **self._s3},
+                **s3,
             )
         return self._storage
 

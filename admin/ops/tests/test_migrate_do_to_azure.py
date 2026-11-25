@@ -733,7 +733,7 @@ def test_catalog_and_listing_plan_the_same(stores, templates):
 def test_load_catalog(monkeypatch):
     from types import SimpleNamespace
 
-    from dcpy.connectors.edm import catalog
+    from dcpy.services import catalog
 
     monkeypatch.delenv(catalog.CATALOG_PG_URL_ENV_VAR, raising=False)
     assert migrate.load_catalog("edm-recipes", ["ingest/datasets/"]) is None

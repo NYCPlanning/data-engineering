@@ -58,6 +58,15 @@ def ensure_no_callouts():
     socket.socket = guard
 
 
+@pytest.fixture(autouse=True)
+def no_event_handlers(monkeypatch):
+    """No installed dcpy.lifecycle.events handlers (e.g. dcpy-services' catalog, in a
+    whole-workspace venv) run in unit tests. Tests that want one set events._handlers."""
+    from dcpy.lifecycle import events
+
+    monkeypatch.setattr(events, "_handlers", [])
+
+
 @pytest.fixture(scope="function")
 def resources_path():
     return RESOURCES

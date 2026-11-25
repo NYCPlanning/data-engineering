@@ -1358,3 +1358,62 @@ exports:
     assert (stage / "dataset_files" / "other" / "a.txt").exists()
     with zipfile.ZipFile(zipped[0]) as zf:
         assert zf.namelist() == ["a.txt"]
+
+
+def test_size_report(tmp_path):
+    import duckdb
+
+    from dcpy.lifecycle.builds.build import size_report
+
+    db = tmp_path / "build.duckdb"
+    with duckdb.connect(str(db)) as conn:
+        conn.execute("CREATE TABLE t AS SELECT range AS i FROM range(1000000)")
+    report = size_report(db)
+    assert report.startswith("DuckDB `build.duckdb`: ")
+    assert "in use" in report and "free on disk" in report
+
+
+def test_duckdb_size_report_missing_file(tmp_path):
+    from dcpy.lifecycle.builds.build import size_report
+
+    assert "not found" in size_report(tmp_path / "missing.duckdb")
+
+
+def test_upload_failed_build(tmp_path, create_buckets):
+    from dcpy.lifecycle.builds import build
+    from dcpy.utils import s3
+
+    db = tmp_path / "build.duckdb"
+    db.write_bytes(b"db")
+    product = tmp_path / "product"
+    (product / "target").mkdir(parents=True)
+    (product / "target" / "run_results.json").write_text("{}")
+    (product / "target" / "manifest.json").write_text("{}")
+    (product / "logs").mkdir()
+    (product / "logs" / "dbt.log").write_text("log")
+
+    bucket = "test-bucket"
+    prefix = "test-product/builds/my_build/failed"
+    s3.upload_file(bucket, db, f"{prefix}/stale.txt", acl="private")
+    recipe = MagicMock(product="test-product", build_name="my_build")
+    with (
+        patch.object(build, "PRIVATE_BUCKET", bucket),
+        patch.object(build.plan, "recipe_from_yaml", return_value=recipe),
+        patch.object(build, "recipe_duckdb_path", return_value=db),
+    ):
+        assert build.upload_failed_build(tmp_path / "recipe.lock.yml", product) == (
+            f"{bucket}/{prefix}"
+        )
+
+    keys = {o["Key"] for o in s3.list_objects(bucket, prefix)}
+    assert keys == {
+        f"{prefix}/build.duckdb",
+        f"{prefix}/target/run_results.json",
+        f"{prefix}/logs/dbt.log",
+    }
+
+
+def test_report_size_never_raises(tmp_path):
+    from dcpy.lifecycle.builds.build import report_size
+
+    report_size(tmp_path / "missing.lock.yml", "after build")

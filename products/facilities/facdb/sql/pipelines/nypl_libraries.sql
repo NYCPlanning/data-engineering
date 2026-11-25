@@ -25,6 +25,8 @@ SELECT
     NULL AS geo_bl,
     NULL AS geo_bn
 INTO _nypl_libraries
-FROM nypl_libraries;
+FROM nypl_libraries
+-- source also has divisions and centers inside library buildings
+WHERE content_type = 'library';
 
 CALL APPEND_TO_FACDB_BASE('_nypl_libraries');

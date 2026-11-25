@@ -48,6 +48,8 @@ jobs:
               - admin/ops/**
               - python/utils/**
               - python/connectors/**
+              - python/lifecycle/**
+              - python/services/**
             template:
               - uv.lock
               - .github/workflows/test.yml

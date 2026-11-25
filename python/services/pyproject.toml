@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dcpy-services"
+version = "0.0.1"
+description = "DCP Data Engineering - live services on top of dcpy-lifecycle, e.g. the version catalog (Postgres)"
+requires-python = ">=3.12"
+dependencies = [
+    "dcpy-utils",
+    "dcpy-connectors",
+    "dcpy-lifecycle",
+    # the version catalog's database (dcpy.services.catalog)
+    "psycopg2-binary",
+    "rich",
+    "typer",
+]
+
+[tool.uv.sources]
+dcpy-utils = { workspace = true }
+dcpy-connectors = { workspace = true }
+dcpy-lifecycle = { workspace = true }
+
+[project.scripts]
+dcpy-services = "dcpy.services._cli:app"
+
+# dcpy.lifecycle.events finds handlers here; lifecycle never imports dcpy.services.
+[project.entry-points."dcpy.lifecycle.event_handlers"]
+catalog = "dcpy.services.catalog.lifecycle_events:handle"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "moto",
+    "types-psycopg2",
+]
+
+[tool.setuptools.packages.find]
+include = ["dcpy*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+dcpy = ["services/catalog/migrations/*.sql"]

@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from dagster import materialize
 
-from dcpy.connectors.edm import catalog
-from dcpy.connectors.edm.catalog import WriteCounts, ingest_versions
+from dcpy.services import catalog
+from dcpy.services.catalog import WriteCounts, ingest_versions
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

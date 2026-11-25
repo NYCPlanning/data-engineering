@@ -175,12 +175,21 @@ class MockResponse:
     def json(self):
         return json.loads(self.content)
 
+    def iter_content(self, chunk_size: int = 1):
+        for start in range(0, len(self.content), chunk_size):
+            yield self.content[start : start + chunk_size]
+
     def raise_for_status(self):
         pass
 
 
 def mock_request_get(
-    url: str, headers=None, auth=None, params: dict | None = None, timeout=None
+    url: str,
+    headers=None,
+    auth=None,
+    params: dict | None = None,
+    timeout=None,
+    stream: bool = False,
 ) -> MockResponse:
     """
     Mocks calls to request.get

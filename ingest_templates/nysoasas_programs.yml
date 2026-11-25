@@ -7,7 +7,10 @@ attributes:
 ingestion:
   source:
     type: file_download
-    url: https://webapps.oasas.ny.gov/providerDirectory/download/Treatment_Programs_OASAS_Directory_Search_{{ version }}.csv
+    # A statewide spreadsheet search. The site writes each search's results to one shared file per day
+    # and redirects to it, so downloading that file directly returns whoever searched last.
+    url: https://webapps.oasas.ny.gov/providerDirectory/index.cfm?search_type=2&region_type=0&rstformat=1&Submit=Submit
+    filename: nysoasas_programs.csv
   file_format:
     type: csv
     dtype:

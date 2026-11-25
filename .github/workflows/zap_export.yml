@@ -125,6 +125,9 @@ jobs:
           fi
 
   create_issue_on_failure:
+    permissions:
+      contents: read
+      issues: write
     needs: build
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}

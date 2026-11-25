@@ -2,17 +2,32 @@ id: qpl_libraries
 
 attributes:
   name: Queens Library Branches
-  url: https://www.queenslibrary.org/about-us/locations/
+  url: https://data.cityofnewyork.us/Education/Queens-Library-Branches/kh3d-xhq7
 
 ingestion:
   source:
-    # custom web-scraping connector
-    type: qpl
-    key: ""
+    type: socrata
+    org: nyc
+    uid: kh3d-xhq7
+    format: csv
   file_format:
     type: csv
+    dtype:
+      Postcode: str
+      Community Board: str
+      "Council District ": str
+      Census Tract: str
+      BIN: str
+      BBL: str
+    # rounded to 2 decimal places in the source
     geometry:
       geom_column:
-        x: longitude
-        y: latitude
+        x: Longitude
+        y: Latitude
       crs: EPSG:4326
+  processing_steps:
+  - name: clean_column_names
+    args: { "replace": { " ": "_", "-": "_" }, "strip": True, "lower": True }
+  - name: rename_columns
+    args:
+      map: { branch: name, postcode: zip_code }

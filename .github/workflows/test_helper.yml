@@ -345,7 +345,7 @@ jobs:
     # ("test.conftest") and crash - has to be one invocation per package instead.
     - name: dcpy main pytests
       run: |
-        for pkg in connectors data geospatial lifecycle product-metadata utils; do
+        for pkg in connectors data geospatial lifecycle product-metadata services utils; do
           sync_extra=()
           if [[ "$pkg" == "connectors" || "$pkg" == "product-metadata" ]]; then
             sync_extra=(--package dcpy-lifecycle)
@@ -362,14 +362,16 @@ jobs:
     # One flagged upload per package, rather than a single combined report, so Codecov
     # shows both per-package coverage (e.g. "how much of dcpy-utils do dcpy-utils's own
     # tests cover") and an overall total (which it aggregates across flags automatically).
-    # (Steps can't use `strategy.matrix` - that's job-level only - hence six explicit
-    # copies instead of a loop.) No CODECOV_TOKEN: this repo is public, so codecov-action
-    # uploads tokenless - keeping it that way here is also what lets this job stay
-    # secret-free end to end, see the job-level comment above.
+    # (Steps can't use `strategy.matrix` - that's job-level only - hence one explicit
+    # copy per package instead of a loop.) No CODECOV_TOKEN, so this job stays secret-free: tokenless
+    # uploads work because token authentication for public repos is turned off in the
+    # NYCPlanning Codecov org settings. disable_search keeps each flag to its own file,
+    # since the action otherwise uploads every coverage file it finds.
     - name: Upload connectors coverage to Codecov
       uses: codecov/codecov-action@v7
       with:
         files: coverage-connectors.xml
+        disable_search: true
         flags: dcpy-connectors
         verbose: true
 
@@ -377,6 +379,7 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         files: coverage-data.xml
+        disable_search: true
         flags: dcpy-data
         verbose: true
 
@@ -384,6 +387,7 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         files: coverage-geospatial.xml
+        disable_search: true
         flags: dcpy-geospatial
         verbose: true
 
@@ -391,6 +395,7 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         files: coverage-lifecycle.xml
+        disable_search: true
         flags: dcpy-lifecycle
         verbose: true
 
@@ -398,13 +403,23 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         files: coverage-product-metadata.xml
+        disable_search: true
         flags: dcpy-product-metadata
+        verbose: true
+
+    - name: Upload services coverage to Codecov
+      uses: codecov/codecov-action@v7
+      with:
+        files: coverage-services.xml
+        disable_search: true
+        flags: dcpy-services
         verbose: true
 
     - name: Upload utils coverage to Codecov
       uses: codecov/codecov-action@v7
       with:
         files: coverage-utils.xml
+        disable_search: true
         flags: dcpy-utils
         verbose: true
 
@@ -468,6 +483,7 @@ jobs:
         CODECOV_TOKEN: ${{ env.CODECOV_TOKEN }}
       with:
         files: coverage-integration.xml
+        disable_search: true
         flags: dcpy-integration
         verbose: true
 

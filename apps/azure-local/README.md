@@ -138,7 +138,7 @@ ingest runs add their own archives as they go. To look:
 docker compose -f apps/azure-local/docker-compose.yml exec postgres psql -U de_apps -d de_apps \
   -c "select key, version, is_latest, file_types, archived_at from catalog.versions order by 1, 2"
 docker compose -f apps/azure-local/docker-compose.yml exec de-dagster-runner \
-  python -m dcpy connectors catalog show --key dcp_ct2020
+  python -m dcpy.services catalog show --key dcp_ct2020
 ```
 
 Dagster's runs and event logs are in Postgres:

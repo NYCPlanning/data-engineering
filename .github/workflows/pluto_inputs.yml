@@ -1,7 +1,8 @@
 name: PLUTO Inputs
 on:
   schedule:
-  - cron: 0 13 * * MON
+  - cron: "11 22 * * 0"  # Sundays, 10:11pm
+    timezone: "America/New_York"
   workflow_dispatch:
     inputs:
       dev_image:
@@ -17,6 +18,11 @@ on:
 
 jobs:
   dataloading:
+    # A caller's grant caps the reusable workflow's: it cancels runs and opens failure issues.
+    permissions:
+      contents: read
+      actions: write
+      issues: write
     uses: ./.github/workflows/ingest_multiple.yml
     secrets: inherit
     with:
@@ -30,6 +36,11 @@ jobs:
       label: ${{ github.workflow }}
 
   dataloading_cama:
+    # A caller's grant caps the reusable workflow's: it cancels runs and opens failure issues.
+    permissions:
+      contents: read
+      actions: write
+      issues: write
     uses: ./.github/workflows/ingest_multiple.yml
     secrets: inherit
     with:
@@ -41,6 +52,9 @@ jobs:
       label: ${{ github.workflow }}
 
   create_issue_on_failure:
+    permissions:
+      contents: read
+      issues: write
     needs: [ dataloading, dataloading_cama ]
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}

@@ -12,10 +12,12 @@ def download_file(url: str, path: Path) -> None:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     }
     logger.info(f"downloading {url} to {path}")
-    response = requests.get(url, headers=default_headers)
+    # streamed to disk, so a large file never has to fit in memory
+    response = requests.get(url, headers=default_headers, stream=True)
     response.raise_for_status()
     with open(path, "wb") as f:
-        f.write(response.content)
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            f.write(chunk)
 
 
 class WebConnector(Pull):

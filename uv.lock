@@ -23,6 +23,7 @@ members = [
     "dcpy-integration-tests",
     "dcpy-lifecycle",
     "dcpy-product-metadata",
+    "dcpy-services",
     "dcpy-utils",
     "dcpy-workspace",
 ]
@@ -1416,6 +1417,7 @@ dependencies = [
     { name = "dagster-webserver" },
     { name = "dcpy-lifecycle", extra = ["geo"] },
     { name = "dcpy-product-metadata" },
+    { name = "dcpy-services" },
     { name = "pyyaml" },
 ]
 
@@ -1426,6 +1428,7 @@ requires-dist = [
     { name = "dagster-webserver" },
     { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
     { name = "dcpy-product-metadata", editable = "python/product-metadata" },
+    { name = "dcpy-services", editable = "python/services" },
     { name = "pyyaml" },
 ]
 
@@ -1495,7 +1498,6 @@ dependencies = [
     { name = "dcpy-product-metadata" },
     { name = "dcpy-utils" },
     { name = "pandas" },
-    { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "pytz" },
     { name = "pyyaml" },
@@ -1531,7 +1533,6 @@ requires-dist = [
     { name = "dcpy-utils", editable = "python/utils" },
     { name = "geopandas", marker = "extra == 'geo'" },
     { name = "pandas" },
-    { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "pytz" },
     { name = "pyyaml" },
@@ -1688,6 +1689,7 @@ source = { virtual = "apps/dcpy_integration_tests" }
 dependencies = [
     { name = "dcpy-connectors" },
     { name = "dcpy-lifecycle", extra = ["geo"] },
+    { name = "dcpy-services" },
     { name = "dcpy-utils" },
 ]
 
@@ -1701,6 +1703,7 @@ dev = [
 requires-dist = [
     { name = "dcpy-connectors", editable = "python/connectors" },
     { name = "dcpy-lifecycle", extras = ["geo"], editable = "python/lifecycle" },
+    { name = "dcpy-services", editable = "python/services" },
     { name = "dcpy-utils", editable = "python/utils" },
 ]
 
@@ -1845,6 +1848,43 @@ dev = [
     { name = "pytest" },
     { name = "types-beautifulsoup4" },
     { name = "types-pyyaml", specifier = ">=6.0.1" },
+]
+
+[[package]]
+name = "dcpy-services"
+version = "0.0.1"
+source = { editable = "python/services" }
+dependencies = [
+    { name = "dcpy-connectors" },
+    { name = "dcpy-lifecycle" },
+    { name = "dcpy-utils" },
+    { name = "psycopg2-binary" },
+    { name = "rich" },
+    { name = "typer" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "moto" },
+    { name = "pytest" },
+    { name = "types-psycopg2" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dcpy-connectors", editable = "python/connectors" },
+    { name = "dcpy-lifecycle", editable = "python/lifecycle" },
+    { name = "dcpy-utils", editable = "python/utils" },
+    { name = "psycopg2-binary" },
+    { name = "rich" },
+    { name = "typer" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "moto" },
+    { name = "pytest" },
+    { name = "types-psycopg2" },
 ]
 
 [[package]]

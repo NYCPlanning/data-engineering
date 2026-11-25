@@ -34,6 +34,7 @@ WORKSPACE_PACKAGES=(
     python/geosupport
     python/lifecycle
     python/product-metadata
+    python/services
 )
 
 FAILED=()

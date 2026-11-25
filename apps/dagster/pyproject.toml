@@ -7,6 +7,8 @@ dependencies = [
     # ingest assets run dcpy.lifecycle.ingest.transform, which needs the GDAL/geo stack
     "dcpy-lifecycle[geo]",
     "dcpy-product-metadata",
+    # the version catalog: planning reads it, ingest writes through to it (dcpy.services.catalog)
+    "dcpy-services",
     "dagster",
     # instance storage (runs, event logs, schedules) in Postgres when DAGSTER_PG_URL is set
     "dagster-postgres",
@@ -17,6 +19,7 @@ dependencies = [
 [tool.uv.sources]
 dcpy-lifecycle = { workspace = true }
 dcpy-product-metadata = { workspace = true }
+dcpy-services = { workspace = true }
 
 [tool.uv]
 package = false

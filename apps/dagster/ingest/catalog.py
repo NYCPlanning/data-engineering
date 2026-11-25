@@ -1,8 +1,9 @@
 """version_catalog: refreshes the `ingest` rows of the version catalog from the datasets store(s).
 
-The catalog (dcpy.connectors.edm.catalog, in the database DCPY_CATALOG_PG_URL points at) is
-what build planning and ingest_archive_sync read instead of listing the store. Ingest runs write
-their own archives through to it; this sweep catches everything else (bulk copies, GHA ingests,
+The catalog (dcpy.services.catalog, in the database DCPY_CATALOG_PG_URL points at) is
+what build planning and ingest_archive_sync read instead of listing the store. Ingests write
+their archives through to it (dcpy-services' handler for lifecycle's DatasetsArchived event);
+this sweep catches everything else (bulk copies, ingests without the catalog configured,
 deletions) and runs daily. Unpartitioned, and independent of the ingest assets.
 """
 
@@ -44,10 +45,10 @@ def catalog_stores() -> list[str]:
     ),
 )
 def version_catalog(context: AssetExecutionContext) -> MaterializeResult:
-    from dcpy.connectors.edm import catalog
-    from dcpy.connectors.edm.catalog import ingest_versions
     from dcpy.connectors.ingest_datastore import Connector as IngestDatastore
     from dcpy.lifecycle.connector_registry import connectors
+    from dcpy.services import catalog
+    from dcpy.services.catalog import ingest_versions
 
     if not catalog.is_configured():
         raise Failure(f"{catalog.CATALOG_PG_URL_ENV_VAR} isn't set on the runner")

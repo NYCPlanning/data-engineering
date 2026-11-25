@@ -82,7 +82,7 @@ class ArchivedVersion:
 
 
 def catalog_configured() -> bool:
-    from dcpy.connectors.edm import catalog
+    from dcpy.services import catalog
 
     return catalog.is_configured()
 
@@ -92,9 +92,9 @@ def list_archived_versions_from_catalog(
 ) -> dict[str, dict[str, ArchivedVersion]]:
     """The same as list_archived_versions, from one query of the version catalog's rows for the
     ingest datasets store."""
-    from dcpy.connectors.edm import catalog
-    from dcpy.connectors.edm.catalog import ingest_versions
     from dcpy.lifecycle import config
+    from dcpy.services import catalog
+    from dcpy.services.catalog import ingest_versions
 
     store = config.connector_name("ingest", "default_datasets_connector")
     dataset_ids = {d for t in templates for d in t.dataset_ids}

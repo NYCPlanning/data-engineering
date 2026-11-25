@@ -30,6 +30,7 @@ from dcpy.lifecycle.builds import plan as build_plan
 from dcpy.lifecycle.builds.artifacts import builds as builds_artifacts
 from dcpy.lifecycle.builds.artifacts import plan as plan_artifacts
 from dcpy.lifecycle.builds.artifacts import published
+from dcpy.services.catalog.version_index import CatalogVersionIndex
 
 
 # Config classes for each asset type
@@ -148,6 +149,8 @@ def make_plan_asset(product: lifecycle.asset_models.Product):
                 "BUILD_ENGINE_SCHEMA": build_engine_schema,
                 "BUILD_ENGINE_DB": build_engine_db,
             },
+            # Resolves inputs from the version catalog when DCPY_CATALOG_PG_URL is set
+            version_index=CatalogVersionIndex(),
         )
 
         context.log.info(f"Recipe lock file created at: {lock_file_path}")

@@ -19,11 +19,19 @@ class SocrataConnector(Connector):
         org: Org,
         format: ValidFormat,
         where: str | None = None,
+        download_from: extract.DownloadFrom = "export",
         **kwargs,
     ) -> dict:
         extension = "shp.zip" if format == "shapefile" else format
         filepath = destination_path / f"{key}.{extension}"
-        extract.download(org=org, uid=key, format=format, path=filepath, where=where)
+        extract.download(
+            org=org,
+            uid=key,
+            format=format,
+            path=filepath,
+            where=where,
+            download_from=download_from,
+        )
         return {"path": filepath}
 
     def pull(self, key: str, destination_path: Path, **kwargs) -> dict:

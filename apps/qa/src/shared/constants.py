@@ -24,7 +24,6 @@ PAGES = {
     "Source Data": "source_data",
     "Data Distribution": "distribution",
     "Inbox Ingest": "inbox_ingest",
-    "CSCL Builds": "cscl_builds",
     "Connection Checks": "connection_checks",
 }
 

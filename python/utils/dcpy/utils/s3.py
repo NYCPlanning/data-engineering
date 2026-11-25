@@ -277,7 +277,7 @@ def get_metadata(bucket: str, key: str) -> Metadata:
         last_modified=response["LastModified"],
         content_length=response["ContentLength"],
         content_type=response["ContentType"],
-        custom=response["Metadata"],
+        custom=s3_metadata.for_read(response["Metadata"]),
     )
 
 

@@ -2,10 +2,13 @@ name: CEQR - DEP CATS permits
 on:
   workflow_dispatch:
   schedule:
-  - cron: 0 0 1 * *
+  - cron: "29 18 1 * *"  # 1st of the month, 6:29pm
+    timezone: "America/New_York"
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -46,15 +49,10 @@ jobs:
         python3 -m pip install mdpdf
         ./ceqr run recipe dep_cats_permits
 
-    - name: Create issue on success
-      if: success()
-      uses: JasonEtco/create-an-issue@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        filename: .github/ISSUE_TEMPLATE/dep-monthly.md
-
   create_issue_on_failure:
+    permissions:
+      contents: read
+      issues: write
     needs: build
     runs-on: ubuntu-22.04
     if: ${{ failure() && (github.event_name == 'schedule') }}
