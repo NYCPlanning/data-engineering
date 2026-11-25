@@ -261,9 +261,19 @@ after that day).
 What the copy does:
 - Dry run unless `--execute`. The dry run prints counts and bytes per area and dataset, sample key
   mappings, and how long the copy takes at a few rates.
-- An object already at the destination with the same size is skipped, so rerunning after an
-  interruption picks up where it stopped. A different size is a conflict: reported, and left alone
-  unless `--overwrite`.
+- Version folders are copied as a unit, with a marker file copied last, after every other file
+  in the folder: `config.json` for `<id>/<version>/` in datasets, raw and private; for publishing's
+  `<product>/publish/<version>/` and `<product>/draft/<version>/<revision>/`,
+  `build_metadata.json`, else `version.txt`, else the folder's last key. A marker at the
+  destination means a complete folder, which is skipped whole. An interrupted folder has no
+  marker, and the next run resumes it file by file (same size is present). That's also why the
+  version catalog can treat a `config.json` as a complete version.
+- Everything else is compared object by object. In inbox, recipes_inbox and publishing's other
+  files (`build/`, `publish/latest/`, ...), present means same size and the destination's
+  stamped `source_etag` is DigitalOcean's ETag (a HEAD each). A stamped ETag that's different
+  means DigitalOcean changed the file since it was copied: it's copied again. No stamp means it
+  was written some other way: a conflict. Library-era version folders with no `config.json`
+  compare by size, as before. Conflicts are reported, and left alone unless `--overwrite`.
 - Metadata names are rewritten for Azure (`date-created` to `date_created`, `run-url` to
   `run_url`). An object without `date_created` gets the DO LastModified, so archive dates are kept.
   Content-Type is kept, ACLs aren't. Each copy carries `source_etag`, the DO ETag, which
@@ -317,6 +327,59 @@ What the copy does:
 Writing straight to Blob with the account key (`azure-storage-blob`, no gateway) would avoid the
 gateway's ingress timeout and the city CA, but needs that package and different code; the script
 doesn't do it.
+
+### Rerunning to stay current
+
+While GHA keeps ingesting on DigitalOcean and Azure ingests on its own, rerun the same command to
+copy what's new. A rerun costs a listing of the selected DigitalOcean folders, then per dataset
+either one catalog query or a destination listing, one HEAD per version folder already there, and
+two small GETs per `latest/`.
+
+```bash
+python admin/ops/migrate_do_to_azure.py -a datasets -a raw -a private -a inbox -a recipes_inbox \
+  --datasets-file ids.txt                        # dry run: read the summary
+python admin/ops/migrate_do_to_azure.py ... --execute 2>&1 | tee -a migrate.log
+```
+
+Then materialize `version_catalog` in Dagster (group `catalog`), so the catalog, and then
+`ingest_archive_sync`, see the new data. The script never writes to the catalog.
+`--versions-since YYYYMMDD` (the last run's date, minus a day) still lists DigitalOcean in full
+but leaves older folders out of the plan, which saves their HEADs.
+
+**Where presence comes from.** With `DCPY_CATALOG_PG_URL` set and answering (10 s connect
+timeout), the datasets and private areas take the versions present on Azure from the catalog's
+rows whose `location` is under `s3://<dest bucket>/<root folder>/datasets/` (DigitalOcean's rows
+share the store name, not the location). Folders the catalog doesn't have are found by listing,
+so a stale catalog costs listings, not correctness. Unset or unreachable, as from a CityNet laptop
+that can't reach the VNet Postgres, it lists the destination. The plan is the same either way;
+the summary's first line says which was used. Raw, inbox and publishing always list.
+
+Each folder the catalog or the listing says is present gets one HEAD of its marker, to confirm a
+catalog row and to catch version conflicts. `--trust-catalog` skips it for folders the catalog
+lists: faster, but a stale row or a conflict goes unnoticed. Leave it off unless the HEADs are
+the slow part.
+
+**Conflict policy.**
+- A version folder at both ends whose `config.json` differs, say `26d` ingested on Azure and
+  archived on DigitalOcean by GHA, is a conflict: reported, never overwritten, `--overwrite`
+  included. Sort it out by hand. "Differs" is the stamped `source_etag` against DigitalOcean's
+  ETag, or, with no stamp (Azure wrote it), the two `config.json`s' bytes: same size proves
+  little, since two runs' configs differ only in timestamps.
+- `latest/`: the versions named in the two `latest/config.json`s are compared. Equal: skipped.
+  Different: Azure's is replaced only if DigitalOcean's is newer, by archive date (the config's
+  run timestamp, then date-created, then LastModified, as `recipes.get_archive_date` resolves it;
+  for Azure, the catalog's row for its latest version when there is one). Replacing copies
+  DigitalOcean's `latest/` files, deletes the Azure `latest/` files DigitalOcean's doesn't have,
+  then copies `config.json` last. If Azure's is newer it's kept. `--overwrite` doesn't apply.
+- Folders copied by older runs of this script weren't written marker-last. Rerun once with
+  `--verify`: it HEADs every present object and recopies any that are missing.
+
+**The summary.** Per area: object counts (`copy`, `present`, `conflict`, `unverified`, `kept`,
+with bytes), then `folders: N present (skipped), N to copy, N conflict` and
+`latest/: N same, N to replace (N stale files to delete), N kept`. Then the `latest/` changes
+with their reasons (`replace: 26a -> 26b`, `kept: azure latest newer: ...`), the version
+conflicts, object conflicts, and the total bytes to copy. After `--execute`: how many folders
+were completed (marker written); any left are finished by the next run.
 
 To try it locally, run the `apps/azure-local/` stack, create `do-recipes` etc. in the local gateway
 as a stand-in for DO, and pass `--source-recipes-bucket do-recipes` (and the private and publishing
