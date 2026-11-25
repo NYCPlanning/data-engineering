@@ -325,6 +325,7 @@ def plan_recipe(
             else:
                 logger.info(f"Querying versions for {connector.conn_type}")
                 ds.version = connector.get_latest_version(ds.id)
+        assert ds.version, f"No version resolved for {ds.id}"
 
         details = (
             cataloged.details(ds.id, ds.version, RECIPE_FILE_TYPE_PREFERENCE)

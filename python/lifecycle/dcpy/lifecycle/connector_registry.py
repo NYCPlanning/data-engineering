@@ -26,6 +26,7 @@ from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
+    S3Endpoint,
     S3Kwargs,
     StorageType,
 )
@@ -63,7 +64,7 @@ def _make_ingest_datastores(
     recipes_bucket: str | None = None,
     private_bucket: str | None = None,
     recipes_root_folder: str | None = None,
-    **s3: Unpack[S3Kwargs],
+    **s3: Unpack[S3Endpoint],
 ):
     """datasets/ and raw/ sit under `recipes_root_folder` (default RECIPES_BUCKET_ROOT_FOLDER).
 
@@ -135,7 +136,7 @@ def _make_ingest_datastores(
 AZURE_PREFIX = "az."
 
 
-def _azure_s3() -> S3Kwargs | None:
+def _azure_s3() -> S3Endpoint | None:
     endpoint = env.get("AZ_S3_ENDPOINT")
     key_id = env.get("AZ_S3_ACCESS_KEY_ID")
     secret = env.get("AZ_S3_SECRET_ACCESS_KEY")
@@ -154,7 +155,7 @@ def _azure_s3() -> S3Kwargs | None:
     }
 
 
-def _make_azure_connectors(s3: S3Kwargs) -> list:
+def _make_azure_connectors(s3: S3Endpoint) -> list:
     publishing: S3Kwargs = {
         **s3,
         "s3_bucket": env.get("AZ_PUBLISHING_BUCKET")

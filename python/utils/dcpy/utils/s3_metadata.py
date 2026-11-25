@@ -62,8 +62,9 @@ def for_read(metadata: Mapping[str, Any] | None) -> ObjectMetadata:
 
 def for_write(metadata: Mapping[str, Any] | None) -> dict[str, str]:
     """Metadata in a form both DigitalOcean and Azure accept."""
+    metadata = metadata or {}
     written: dict[str, str] = {}
-    for key, value in (metadata or {}).items():
+    for key, value in metadata.items():
         name = normalize_key(key)
         if name in written and written[name] != str(value):
             raise ValueError(f"Metadata keys collide as '{name}': {list(metadata)}")
