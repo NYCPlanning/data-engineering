@@ -33,6 +33,30 @@ DEV_FLAG = env.get("DEV_FLAG") == "true"
 _DEFAULT_RECIPES_BUCKET = "edm-recipes"
 RECIPES_BUCKET = env.get("RECIPES_BUCKET", _DEFAULT_RECIPES_BUCKET)
 
+# Folder in the recipes bucket that ingest's datasets/ and raw/ sit under; empty means the bucket
+# root (DigitalOcean). Read at call time, through recipes_bucket_folder.
+RECIPES_BUCKET_ROOT_FOLDER_ENV_VAR = "RECIPES_BUCKET_ROOT_FOLDER"
+
+
+def normalize_root_folder(root_folder: str | None) -> str:
+    """A bucket root folder without leading or trailing slashes. Empty means the bucket root."""
+    return (root_folder or "").strip().strip("/")
+
+
+def join_root_folder(root_folder: str | None, folder: str) -> str:
+    root = normalize_root_folder(root_folder)
+    return f"{root}/{folder}" if root else folder
+
+
+def recipes_bucket_root_folder() -> str:
+    return normalize_root_folder(env.get(RECIPES_BUCKET_ROOT_FOLDER_ENV_VAR))
+
+
+def recipes_bucket_folder(folder: str) -> str:
+    """`folder` (e.g. "datasets", "raw") under RECIPES_BUCKET_ROOT_FOLDER."""
+    return join_root_folder(recipes_bucket_root_folder(), folder)
+
+
 _DEFAULT_PRIVATE_BUCKET = "edm-private"
 PRIVATE_BUCKET = env.get("PRIVATE_BUCKET", _DEFAULT_PRIVATE_BUCKET)
 

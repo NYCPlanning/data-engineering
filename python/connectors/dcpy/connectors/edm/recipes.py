@@ -23,11 +23,17 @@ def _bucket() -> str:
     return configuration.RECIPES_BUCKET
 
 
+# Also the local cache layout (fetch_dataset). In the bucket it sits under
+# RECIPES_BUCKET_ROOT_FOLDER, see _s3_dataset_folder.
 DATASET_FOLDER = "datasets"
 
 
+def _s3_dataset_folder() -> str:
+    return configuration.recipes_bucket_folder(DATASET_FOLDER)
+
+
 def s3_folder_path(ds: Dataset | DatasetKey) -> str:
-    return f"{DATASET_FOLDER}/{ds.id}/{ds.version}"
+    return f"{_s3_dataset_folder()}/{ds.id}/{ds.version}"
 
 
 def s3_file_path(ds: Dataset) -> str:
@@ -67,7 +73,7 @@ def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
     return [
         folder
-        for folder in s3.get_subfolders(_bucket(), f"{DATASET_FOLDER}/{name}/")
+        for folder in s3.get_subfolders(_bucket(), f"{_s3_dataset_folder()}/{name}/")
         if folder != "latest"
     ]
 
